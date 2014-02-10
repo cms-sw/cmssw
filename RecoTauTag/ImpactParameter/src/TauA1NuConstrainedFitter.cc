@@ -190,6 +190,11 @@ bool TauA1NuConstrainedFitter::fit(){
   solveByRotation(TauDir,a1,Tau_plus,Tau_minus,nu_plus,nu_minus,isReal);
   static_amb=ambiguity_;
 
+  //check that the do product of the a1 and tau is positive, otherwise there is no information for tau direction -> use zero solution
+  if(TauDir.Dot(a1.Vect())<0){
+    isReal=false;
+  }
+
   //case 1: is real then solve analytically
   if(isReal && (ambiguity_==plus || ambiguity_==minus)){
     // popogate errors
@@ -199,7 +204,7 @@ bool TauA1NuConstrainedFitter::fit(){
     return true;
   }
   // case 2 is in unphsyical region - rotate and substitue \theta_{GJ} with \theta_{GJ}^{Max} and then solve analytically
-  else if(ambiguity_==zero && !isReal){
+  else if(!isReal && ambiguity_==zero){
     TVectorT<double> par_tmp=TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot(par);
     cov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot,par,cov_0);
     for(int i=0; i<npar;i++) par(i)=par_tmp(i);
@@ -253,7 +258,7 @@ TVectorT<double> TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot(con
 double TauA1NuConstrainedFitter::getTauRotationSignificance(){
   TVectorT<double> par_tmp=TauA1NuConstrainedFitter::TauRot(par);
   TMatrixTSym<double> cov_tmp=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::TauRot,par,cov_0);
-  if(!(cov_tmp(0,0)>0)) return -999; // return invalid value if the covariance is unphysical
+  if(!(cov_tmp(0,0)>0)) return -999; // return invalid value if the covariance is unphysical (safety flag)
   if(par_tmp(0)>0)    return par_tmp(0)/sqrt(cov_tmp(0,0)); // return the significance if the value is in the unphysical region
   return 0; // reutrn 0 for the rotation significance if the tau is in the physical region
 }
