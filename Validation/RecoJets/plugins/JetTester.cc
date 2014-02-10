@@ -783,10 +783,6 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         }
       }
 
-      // Match RecoJets to GenJets
-      //------------------------------------------------------------------------
-      JetMatchingTools jetMatching(mEvent);
-
       if (!(mInputGenCollection.label().empty())) {
       for (GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
         if (fabs(gjet->eta()) > 6.) continue;  // Out of the detector 
