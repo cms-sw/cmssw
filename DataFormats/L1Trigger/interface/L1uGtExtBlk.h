@@ -63,7 +63,7 @@ public:
     void setExternalDecision(int bit, bool val);
 
     /// Get decision bits
-    bool getExternalDecision(int bit);
+    bool getExternalDecision(unsigned int bit) const;
 
     /// reset the content of a L1uGtExtBlk
     void reset();

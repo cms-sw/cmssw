@@ -81,8 +81,9 @@ void L1uGtExtBlk::setExternalDecision(int bit, bool val)
 
 
 /// Get decision bits
-bool L1uGtExtBlk::getExternalDecision(int bit)   
+bool L1uGtExtBlk::getExternalDecision(unsigned int bit) const  
 { 
+   if(bit>=m_extDecision.size()) return false;
    return m_extDecision.at(bit); 
 }
 

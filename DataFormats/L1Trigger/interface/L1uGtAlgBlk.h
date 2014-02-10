@@ -72,9 +72,9 @@ public:
     void setAlgoDecisionFinal(int bit, bool val);
 
     /// Get decision bits
-    bool getAlgoDecisionInitial(int bit);
-    bool getAlgoDecisionPreScaled(int bit);
-    bool getAlgoDecisionFinal(int bit);
+    bool getAlgoDecisionInitial(unsigned int bit) const;
+    bool getAlgoDecisionPreScaled(unsigned int bit) const;
+    bool getAlgoDecisionFinal(unsigned int bit) const;
 
     /// reset the content of a L1uGtAlgBlk
     void reset();

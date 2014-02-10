@@ -101,16 +101,19 @@ void L1uGtAlgBlk::setAlgoDecisionFinal(int bit, bool val)
 }
 
 /// Get decision bits
-bool L1uGtAlgBlk::getAlgoDecisionInitial(int bit)   
+bool L1uGtAlgBlk::getAlgoDecisionInitial(unsigned int bit) const  
 { 
+   if(bit>=m_algoDecisionInitial.size()) return false;
    return m_algoDecisionInitial.at(bit); 
 }
-bool L1uGtAlgBlk::getAlgoDecisionPreScaled(int bit) 
+bool L1uGtAlgBlk::getAlgoDecisionPreScaled(unsigned int bit) const
 { 
+   if(bit>=m_algoDecisionPreScaled.size()) return false;
    return m_algoDecisionPreScaled.at(bit); 
 }
-bool L1uGtAlgBlk::getAlgoDecisionFinal(int bit)     
+bool L1uGtAlgBlk::getAlgoDecisionFinal(unsigned int bit)  const   
 {
+   if(bit>=m_algoDecisionFinal.size()) return false;
    return m_algoDecisionFinal.at(bit); 
 }
 

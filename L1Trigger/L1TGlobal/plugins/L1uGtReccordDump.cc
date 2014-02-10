@@ -22,6 +22,7 @@
 //#include "FWCore/ParameterSet/interface/InputTag.h"
 
 // system include files
+#include <fstream>
 #include <iomanip>
 
 // user include files
@@ -70,6 +71,28 @@ namespace l1t {
     EDGetToken uGtRecToken; 
     EDGetToken uGtAlgToken;
     EDGetToken uGtExtToken;
+    
+    
+    void dumpTestVectors(int bx, std::ofstream& myCout,
+                         Handle<BXVector<l1t::Muon>> muons,
+			 Handle<BXVector<l1t::EGamma>> egammas,
+			 Handle<BXVector<l1t::Tau>> taus,
+			 Handle<BXVector<l1t::Jet>> jets,
+			 Handle<BXVector<l1t::EtSum>> etsums,
+			 Handle<BXVector<L1uGtAlgBlk>> uGtAlg,
+			 Handle<BXVector<L1uGtExtBlk>> uGtExt );
+				          
+    cms_uint64_t formatMuon(std::vector<l1t::Muon>::const_iterator mu);
+    unsigned int formatEG(std::vector<l1t::EGamma>::const_iterator eg);
+    unsigned int formatTau(std::vector<l1t::Tau>::const_iterator tau);
+    unsigned int formatJet(std::vector<l1t::Jet>::const_iterator jet);
+    unsigned int formatEtSum(std::vector<l1t::EtSum>::const_iterator etSum);
+    
+    unsigned int m_absBx;
+    
+    std::ofstream testVectorFile;
+    
+    
   };
 
   L1uGtRecordDump::L1uGtRecordDump(const edm::ParameterSet& iConfig)
@@ -82,6 +105,9 @@ namespace l1t {
       uGtRecToken = consumes<std::vector<L1uGtRecBlk>>(iConfig.getParameter<InputTag>("uGtRecInputTag"));
       uGtAlgToken = consumes<BXVector<L1uGtAlgBlk>>(iConfig.getParameter<InputTag>("uGtAlgInputTag"));
       uGtExtToken = consumes<BXVector<L1uGtExtBlk>>(iConfig.getParameter<InputTag>("uGtExtInputTag"));
+      
+      m_absBx = 0;
+      testVectorFile.open("TestVector.txt");
   }
   
   // loop over events
@@ -168,12 +194,171 @@ namespace l1t {
        for(std::vector<L1uGtExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
             extBlk->print(std::cout);
        }        
-       
-       
+
+
+// Dump Test Vectors for this bx       
+       dumpTestVectors(i, testVectorFile, muons, egammas, taus, jets, etsums, uGtAlg, uGtExt);
 
     }
     printf("\n");
+    
+    
+    
   }
+
+void L1uGtRecordDump::dumpTestVectors(int bx, std::ofstream& myCout, 
+                                      Handle<BXVector<l1t::Muon>> muons,
+				      Handle<BXVector<l1t::EGamma>> egammas,
+				      Handle<BXVector<l1t::Tau>> taus,
+				      Handle<BXVector<l1t::Jet>> jets,
+				      Handle<BXVector<l1t::EtSum>> etsums,
+				      Handle<BXVector<L1uGtAlgBlk>> uGtAlg,
+				      Handle<BXVector<L1uGtExtBlk>> uGtExt
+				      ) {
+
+
+   int empty = 0;
+      
+// Dump Bx (4 digits)
+   myCout << std::hex << std::setw(4) << std::setfill('0') << m_absBx;
+
+// Dump 8 Muons (16 digits + space)
+   for(std::vector<l1t::Muon>::const_iterator mu = muons->begin(bx); mu != muons->end(bx); ++mu) {
+      cms_uint64_t packedWd = formatMuon(mu);
+      myCout << " " << std::hex << std::setw(16) << std::setfill('0') << packedWd;
+   }   
+   for(int i=muons->size(bx); i<8; i++) {
+      myCout << " " << std::hex << std::setw(16) << std::setfill('0') << empty;
+   }
+
+// Dump 12 EG (8 digits + space)
+   for(std::vector<l1t::EGamma>::const_iterator eg = egammas->begin(bx); eg != egammas->end(bx); ++eg) {
+      unsigned int packedWd = formatEG(eg);
+      myCout << " " << std::hex << std::setw(8) << std::setfill('0') << packedWd;
+   }    
+   for(int i=egammas->size(bx); i<12; i++) {
+      myCout << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
+   }
+
+
+// Dump 8 tau (8 digits + space)
+   for(std::vector<l1t::Tau>::const_iterator tau = taus->begin(bx); tau != taus->end(bx); ++tau) {
+      unsigned int packedWd = formatTau(tau);
+      myCout << " " << std::hex << std::setw(8) << std::setfill('0') << packedWd;
+   }    
+   for(int i=taus->size(bx); i<8; i++) {
+      myCout << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
+   }
+   
+// Dump 12 Jets (8 digits + space)
+   for(std::vector<l1t::Jet>::const_iterator jet = jets->begin(bx); jet != jets->end(bx); ++jet) {
+      unsigned int packedWd = formatJet(jet);
+      myCout << " " << std::hex << std::setw(8) << std::setfill('0') << packedWd;
+   }    
+   for(int i=jets->size(bx); i<12; i++) {
+      myCout << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
+   }
+
+// Dump Et Sums (Order ETT, HT, ETM, HTM) (Each 8 digits + space)
+   for(int i=0; i<4; i++) {
+      myCout << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
+   }
+   
+// External Condition (64 digits + space)
+    int digit = 0;
+    myCout << " ";
+    for(std::vector<L1uGtExtBlk>::const_iterator extBlk = uGtExt->begin(bx); extBlk != uGtExt->end(bx); ++extBlk) {
+        for(int i=255; i>-1; i--) {
+          if(extBlk->getExternalDecision(i)) digit |= (1 << (i%4));
+             if((i%4) == 0){
+                  myCout << std::hex << std::setw(1) << digit;
+	          digit = 0; 
+             }  
+         } //end loop over external bits
+    }
+   
+// Algorithm Dump (128 digits + space)
+    digit = 0;
+    myCout << " ";
+    for(std::vector<L1uGtAlgBlk>::const_iterator algBlk = uGtAlg->begin(bx); algBlk != uGtAlg->end(bx); ++algBlk) {
+        for(int i=511; i>-1; i--) {
+          if(algBlk->getAlgoDecisionFinal(i)) digit |= (1 << (i%4));
+             if((i%4) == 0){
+                  myCout << std::hex << std::setw(1) << digit;
+	          digit = 0; 
+             }  
+         } //end loop over algorithm bits       
+    
+// Final OR (1 digit + space) 
+         unsigned int finalOr = (algBlk->getFinalOR() & 0xf);    
+         myCout << " " << std::hex << std::setw(1) << std::setfill('0') << finalOr;
+    }
+   
+    myCout << endl;
+    
+    m_absBx++; 
+    
+}
+
+cms_uint64_t L1uGtRecordDump::formatMuon(std::vector<l1t::Muon>::const_iterator mu){
+
+  cms_uint64_t packedVal = 0;
+
+  packedVal |= ((mu->hwPhi()              & 0x3ff) <<0);
+  packedVal |= ((mu->hwEta()              & 0x1ff) <<10);
+  packedVal |= ((mu->hwPt()               & 0x1ff) <<19);
+  packedVal |= ((mu->hwChargeValid()      & 0x1)   <<28);
+  packedVal |= ((mu->hwCharge()           & 0x1)   <<29);
+  packedVal |= ((mu->hwQual()             & 0xf)   <<30);
+  packedVal |= ((cms_uint64_t)(mu->hwIso()& 0x3)   <<34);  
+  
+  return packedVal;
+}
+
+unsigned int L1uGtRecordDump::formatEG(std::vector<l1t::EGamma>::const_iterator eg){
+
+  unsigned int packedVal = 0;
+  
+  packedVal |= ((eg->hwPhi()   & 0xff)   <<0);
+  packedVal |= ((eg->hwEta()   & 0xff)   <<8);
+  packedVal |= ((eg->hwPt()    & 0x1ff)  <<16);
+  packedVal |= ((eg->hwIso()   & 0x1)    <<25);
+  packedVal |= ((eg->hwQual()  & 0x1)    <<26);
+  
+  return packedVal;
+}
+
+unsigned int L1uGtRecordDump::formatTau(std::vector<l1t::Tau>::const_iterator tau){
+
+  unsigned int packedVal = 0;
+  
+  packedVal |= ((tau->hwPhi()   & 0xff)   <<0);
+  packedVal |= ((tau->hwEta()   & 0xff)   <<8);
+  packedVal |= ((tau->hwPt()    & 0x1ff)  <<16);
+  packedVal |= ((tau->hwIso()   & 0x1)    <<25);
+  packedVal |= ((tau->hwQual()  & 0x1)    <<26);  
+  
+  return packedVal;
+}
+
+unsigned int L1uGtRecordDump::formatJet(std::vector<l1t::Jet>::const_iterator jet){
+
+  unsigned int packedVal = 0;
+  
+  packedVal |= ((jet->hwPhi()    & 0xff)    <<0);
+  packedVal |= ((jet->hwEta()    & 0xff)    <<8);
+  packedVal |= ((jet->hwPt()     & 0x7ff)   <<16);
+  packedVal |= ((jet->hwQual()   & 0x1)     <<27);
+    
+  return packedVal;
+}
+
+unsigned int L1uGtRecordDump::formatEtSum(std::vector<l1t::EtSum>::const_iterator etSum){
+
+  unsigned int packedVal = 0;
+  return packedVal;
+}
+
 
 }
 
