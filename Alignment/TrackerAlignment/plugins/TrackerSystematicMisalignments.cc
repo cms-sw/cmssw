@@ -48,7 +48,11 @@ TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::Parame
 	m_twistEpsilon = cfg.getUntrackedParameter< double > ("twistEpsilon");
 	m_ellipticalEpsilon = cfg.getUntrackedParameter< double > ("ellipticalEpsilon");
 	m_skewEpsilon = cfg.getUntrackedParameter< double > ("skewEpsilon");
-	m_saggitaEpsilon = cfg.getUntrackedParameter< double > ("saggitaEpsilon");
+	m_sagittaEpsilon = cfg.getUntrackedParameter< double > ("sagittaEpsilon");
+
+	m_ellipticalDelta = cfg.getUntrackedParameter< double > ("ellipticalDelta");
+	m_skewDelta = cfg.getUntrackedParameter< double > ("skewDelta");
+	m_sagittaDelta = cfg.getUntrackedParameter< double > ("sagittaDelta");        
 	
 	if (m_radialEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying radial ...";		
@@ -74,8 +78,8 @@ TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::Parame
 	if (m_skewEpsilon > -990.0){
 		edm::LogWarning("MisalignedTracker") << "Applying skew ...";		
 	}
-	if (m_saggitaEpsilon > -990.0){
-		edm::LogWarning("MisalignedTracker") << "Applying saggita ...";		
+	if (m_sagittaEpsilon > -990.0){
+		edm::LogWarning("MisalignedTracker") << "Applying sagitta ...";		
 	}
 
 	// get flag for suppression of blind movements
@@ -239,15 +243,16 @@ align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( align::Po
 		deltaY += (yP - oldY);
 	}
 	if (m_ellipticalEpsilon > -990.0 && !blindToR){
-		deltaX += oldX*m_ellipticalEpsilon*cos(2.0*oldPhi);
-		deltaY += oldY*m_ellipticalEpsilon*cos(2.0*oldPhi);
+		deltaX += oldX*m_ellipticalEpsilon*cos(2.0*oldPhi + m_ellipticalDelta);
+		deltaY += oldY*m_ellipticalEpsilon*cos(2.0*oldPhi + m_ellipticalDelta);
 	}
 	if (m_skewEpsilon > -990.0 && !blindToZ){
-		deltaZ += m_skewEpsilon*cos(oldPhi);
+		deltaZ += m_skewEpsilon*cos(oldPhi + m_skewDelta);
 	}
-	if (m_saggitaEpsilon > -990.0){
-		// deltaX += oldX/fabs(oldX)*m_saggitaEpsilon; // old one...
-		deltaY += oldR*m_saggitaEpsilon;
+	if (m_sagittaEpsilon > -990.0){
+		// deltaX += oldX/fabs(oldX)*m_sagittaEpsilon; // old one...
+		deltaX += oldR*m_sagittaEpsilon*sin(m_sagittaDelta);
+		deltaY += oldR*m_sagittaEpsilon*cos(m_sagittaDelta);    //Delta y is cos so that delta=0 reflects the old behavior
 	}
 
 	// Compatibility with old version <= 1.5
