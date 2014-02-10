@@ -16,7 +16,7 @@
 using namespace edm;
 
 // ***********************************************************
-JetPtAnalyzer::JetPtAnalyzer(const edm::ParameterSet& pSet) {
+JetPtAnalyzer::JetPtAnalyzer(const edm::ParameterSet& pSet, edm::ConsumesCollector&& iC) {
 
   parameters   = pSet;
 
@@ -24,6 +24,10 @@ JetPtAnalyzer::JetPtAnalyzer(const edm::ParameterSet& pSet) {
   // or fraction of energy from the hottest HPD readout 
 
   //-------------------
+
+  //initialize JetID
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"), std::move(iC));
+
 }
 
 // ***********************************************************
@@ -40,9 +44,6 @@ void JetPtAnalyzer::beginJob(DQMStore * dbe) {
 
   jetME = dbe->book1D("jetReco", "jetReco", 3, 1, 4);
   jetME->setBinLabel(1,"CaloJets",1);
-
-  //initialize JetID
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
 
   // monitoring of eta parameter
   etaBin = parameters.getParameter<int>("etaBin");
