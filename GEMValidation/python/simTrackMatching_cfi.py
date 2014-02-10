@@ -64,6 +64,13 @@ SimTrackMatching = cms.PSet(
         simMuOnly = cms.bool(True),
         discardEleHits = cms.bool(True),
     ),
+    rpcStripDigi = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag("simMuonRPCDigis"),
+        minBX = cms.int32(-1),
+        maxBX = cms.int32(1),
+        matchDeltaStrip = cms.int32(1),
+    ),
     cscSimHit = cms.PSet(
         verbose = cms.int32(0),
         input = cms.InputTag('g4SimHits','MuonCSCHits'),
