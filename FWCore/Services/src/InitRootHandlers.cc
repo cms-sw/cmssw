@@ -26,7 +26,7 @@
 #include "TSystem.h"
 #include "TUnixSystem.h"
 #include "TTree.h"
-#include "TThread.h"
+#include "TVirtualStreamerInfo.h"
 
 #include "TThread.h"
 #include "TClassTable.h"
@@ -305,6 +305,10 @@ namespace edm {
       TThread::Initialize();
       //When threading, also have to keep ROOT from logging all TObjects into a list
       TObject::SetObjectStat(false);
+      
+      //Have to avoid having Streamers modify themselves after they have been used
+      TVirtualStreamerInfo::Optimize(false);
+
       if(not this->autoLibraryLoader_) {
         RootAutoLibraryLoader::enable();
       }
