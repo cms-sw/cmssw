@@ -186,8 +186,7 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 	  myBook2D(ibooker, "globMuon_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
 	  myBook2D(ibooker, "globMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
 
-		for(size_t i=0; i<filterNamesLevels.size(); i++){
-			cout <<"in book " << TString::Format("filt%dMuon_recoEtaPt",int(i+1)) << endl;
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
 	    myBook2D(ibooker, TString::Format("filt%dMuon_recoEtaPt",int(i+1)), muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", filterNamesLevels[i].first);
 	  }
 	  myBook2D(ibooker, "pathMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", triggerPathName);
