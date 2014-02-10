@@ -1,4 +1,4 @@
-Afrom ROOT import *
+from ROOT import *
 
 from cuts import *
 from drawPlots import *

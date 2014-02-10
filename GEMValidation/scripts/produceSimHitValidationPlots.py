@@ -19,6 +19,7 @@ from GEMSimHitValidation import *
 from ME0SimHitValidation import *
 from RPCSimHitValidation import *
 from CSCSimHitValidation import *
+from gemChamberNumbering import *
 
 #_______________________________________________________________________________
 if __name__ == "__main__":
@@ -56,3 +57,5 @@ if __name__ == "__main__":
     me0SimHitOccupancyXY(plotter,i)
     me0SimHitOccupancyRZ(plotter,i)
     me0SimHitOccupancyTOF(plotter,i)
+    
+  gemChamberNumbering(plotter)
