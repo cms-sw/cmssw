@@ -54,10 +54,11 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#include <CLHEP/Units/SystemOfUnits.h>
-
 #include "G4VMscModel.hh"
 #include "G4MscStepLimitType.hh"
+#include "G4Log.hh"
+#include "G4Exp.hh"
+#include "G4SystemOfUnits.hh"
 
 class G4ParticleChangeForMSC;
 class G4SafetyHelper;
@@ -94,12 +95,10 @@ public:
 
   G4double ComputeTrueStepLength(G4double geomStepLength);
 
-  G4double ComputeTheta0(G4double truePathLength,
-                         G4double KineticEnergy);
+  inline G4double ComputeTheta0(G4double truePathLength,
+				G4double KineticEnergy);
 
 private:
-
-  G4double SimpleScattering(G4double xmeanth, G4double x2meanth);
 
   G4double SampleCosineTheta(G4double trueStepLength, G4double KineticEnergy);
 
@@ -110,6 +109,8 @@ private:
   inline void SetParticle(const G4ParticleDefinition*);
 
   inline void UpdateCache();
+
+  inline G4double SimpleScattering(G4double xmeanth, G4double x2meanth);
 
   //  hide assignment operator
   UrbanMscModel93 & operator=(const  UrbanMscModel93 &right);
@@ -193,22 +194,65 @@ void UrbanMscModel93::SetParticle(const G4ParticleDefinition* p)
 inline
 void UrbanMscModel93::UpdateCache()                                   
 {
-    lnZ = std::log(Zeff);
-    //new correction in theta0 formula
-    coeffth1 = (1.-8.7780e-2/Zeff)*(0.87+0.03*lnZ);                   
-    coeffth2 = (4.0780e-2+1.7315e-4*Zeff)*(0.87+0.03*lnZ);              
-    // tail parameters
-    G4double lnZ1 = std::log(Zeff+1.);
-    coeffc1  = 2.943-0.197*lnZ1;                  
-    coeffc2  = 0.0987-0.0143*lnZ1;                              
-    // for single scattering
-    Z2 = Zeff*Zeff;
-    Z23 = std::exp(2.*lnZ/3.);
-    scr1     = scr1ini*Z23;
-    scr2     = scr2ini*Z2*ChargeSquare;
+  lnZ = G4Log(Zeff);
+  //new correction in theta0 formula
+  coeffth1 = (1.-8.7780e-2/Zeff)*(0.87+0.03*lnZ);                   
+  coeffth2 = (4.0780e-2+1.7315e-4*Zeff)*(0.87+0.03*lnZ);              
+  // tail parameters
+  G4double lnZ1 = G4Log(Zeff+1.);
+  coeffc1  = 2.943-0.197*lnZ1;                  
+  coeffc2  = 0.0987-0.0143*lnZ1;                              
+  // for single scattering
+  Z2   = Zeff*Zeff;
+  Z23  = G4Exp(2.*lnZ/3.);
+  scr1 = scr1ini*Z23;
+  scr2 = scr2ini*Z2*ChargeSquare;
                                               
-    Zold = Zeff;
+  Zold = Zeff;
 }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+inline
+G4double UrbanMscModel93::ComputeTheta0(G4double trueStepLength,
+					G4double KineticEnergy)
+{
+  // for all particles take the width of the central part
+  //  from a  parametrization similar to the Highland formula
+  // ( Highland formula: Particle Physics Booklet, July 2002, eq. 26.10)
+  static const G4double c_highland = 13.6*CLHEP::MeV;
+  G4double invbetacp = sqrt((currentKinEnergy+mass)*(KineticEnergy+mass)/
+			    (currentKinEnergy*(currentKinEnergy+2.*mass)*
+			     KineticEnergy*(KineticEnergy+2.*mass)));
+  y = trueStepLength/currentRadLength;
+  G4double theta0 = c_highland*std::abs(charge)*sqrt(y)*invbetacp;
+  // correction factor from e- scattering data
+  theta0 *= (coeffth1+coeffth2*G4Log(y));             
+
+  return theta0;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+inline
+G4double UrbanMscModel93::SimpleScattering(G4double xmeanth, G4double x2meanth)
+{
+  // 'large angle scattering'
+  // 2 model functions with correct xmean and x2mean
+  G4double a = (2.*xmeanth+9.*x2meanth-3.)/(2.*xmeanth-3.*x2meanth+1.);
+  G4double prob = (a+2.)*xmeanth/a;
+
+  // sampling
+  G4double cth = 1.;
+  if(G4UniformRand() < prob) {
+    cth = -1.+2.*G4Exp(G4Log(G4UniformRand())/(a+1.));
+  } else {
+    cth = -1.+2.*G4UniformRand();
+  }
+  return cth;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
 
