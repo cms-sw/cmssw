@@ -9,7 +9,7 @@ OutALCARECOPromptCalibProdSiStripGains_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring(
         'keep *_alcaBeamSpotProducer_*_*',
-        'keep *_MEtoEDMConvertSiStrip_*_*')
+        'keep *_MEtoEDMConvertSiStripGains_*_*')
 )
 
 import copy
