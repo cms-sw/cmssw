@@ -365,7 +365,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     std::cout << "\n Setting HltTree weight to " << treeWeight << " = " << xSection_ << "*" << filterEff_ << " (cross section * gen filter efficiency)\n" << std::endl;
     
     // Setup the different analysis
-    jet_analysis_.setup(conf, HltTree);
+    jet_analysis_.setup(conf, HltTree, consumesCollector());
     bjet_analysis_.setup(conf, HltTree);
     elm_analysis_.setup(conf, HltTree);
     muon_analysis_.setup(conf, HltTree);
