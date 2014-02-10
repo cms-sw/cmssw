@@ -41,7 +41,6 @@ def gemChamberNumbering(plotter):
     CSCglobalzx.SetMarkerSize(0.1)
 
     for i in range(1,37,2):
-        print i
         plotter.treeGEMSimHits.Draw("globalY:globalX",TCut("chamber==%i"%(i)))
         h = gPad.FindObject("Graph")
         TEMPglobalzx = h.Clone()
