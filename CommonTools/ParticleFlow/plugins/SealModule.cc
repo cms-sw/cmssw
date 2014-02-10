@@ -7,6 +7,7 @@
 #include "CommonTools/ParticleFlow/plugins/PFJetFwdPtrProducer.h"
 #include "CommonTools/ParticleFlow/plugins/PFTauFwdPtrProducer.h"
 #include "CommonTools/ParticleFlow/plugins/PFCandidateFromFwdPtrProducer.h"
+#include "CommonTools/ParticleFlow/plugins/PFCandidateFwdPtrCollectionOverlapFilter.h"
 
 DEFINE_FWK_MODULE(PFMET);
 DEFINE_FWK_MODULE(Type1PFMET);
@@ -17,6 +18,7 @@ DEFINE_FWK_MODULE(PFCandidateFwdPtrCollectionPdgIdFilter);
 DEFINE_FWK_MODULE(PFJetFwdPtrProducer);
 DEFINE_FWK_MODULE(PFTauFwdPtrProducer);
 DEFINE_FWK_MODULE(PFCandidateFromFwdPtrProducer);
+DEFINE_FWK_MODULE(PFCandidateFwdPtrCollectionOverlapFilter);
 
 typedef edm::ProductFromFwdPtrProducer< reco::PFJet >  PFJetFromFwdPtrProducer;
 DEFINE_FWK_MODULE(PFJetFromFwdPtrProducer);
