@@ -302,7 +302,7 @@ unsigned int EgammaCutBasedEleId::TestWP(WorkingPoint workingPoint, const bool i
     unsigned int idx = isEB ? 0 : 1;
 
     // effective area for isolation
-    float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, eta, ElectronEffectiveArea::kEleEAData2011);
+    float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, eta, ElectronEffectiveArea::kEleEAData2012);
 
     // apply to neutrals
     double rhoPrime = std::max(rho, 0.0);
