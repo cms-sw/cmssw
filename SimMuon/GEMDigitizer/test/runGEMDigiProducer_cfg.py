@@ -25,16 +25,9 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 
-# GEM digitizer
-process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
-# GEM-CSC trigger pad digi producer
-process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
-
 # customization of the process.pdigi sequence to add the GEM digitizer
-from SimMuon.GEMDigitizer.customizeGEMDigi import *
-#process = customize_digi_addGEM(process)  # run all detectors digi
-process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
-#process = customize_digi_addGEM_gem_only(process)  # only GEM digi
+from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
+process = customize_digi_addGEM_muon_only(process)
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
@@ -72,7 +65,6 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.digi_step    = cms.Path(process.pdigi)
-
 process.endjob_step  = cms.Path(process.endOfProcess)
 process.out_step     = cms.EndPath(process.output)
 
