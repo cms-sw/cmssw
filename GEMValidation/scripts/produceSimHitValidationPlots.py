@@ -5,6 +5,12 @@ from ROOT import *
 from cuts import *
 from drawPlots import *
 from BaseValidation import *
+from TrackValidation import *
+from GEMSimHitValidation import *
+from ME0SimHitValidation import *
+from RPCSimHitValidation import *
+from CSCSimHitValidation import *
+from gemChamberNumbering import *
 
 ## run quiet mode
 import sys
@@ -12,13 +18,6 @@ sys.argv.append( '-b' )
 
 import ROOT 
 ROOT.gROOT.SetBatch(1)
-
-from BaseValidation import *
-from TrackValidation import *
-from GEMSimHitValidation import *
-from ME0SimHitValidation import *
-from RPCSimHitValidation import *
-from CSCSimHitValidation import *
 
 #_______________________________________________________________________________
 if __name__ == "__main__":
@@ -56,3 +55,5 @@ if __name__ == "__main__":
     me0SimHitOccupancyXY(plotter,i)
     me0SimHitOccupancyRZ(plotter,i)
     me0SimHitOccupancyTOF(plotter,i)
+    
+  gemChamberNumbering(plotter)
