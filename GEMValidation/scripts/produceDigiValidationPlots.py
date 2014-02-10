@@ -12,6 +12,29 @@ sys.argv.append( '-b' )
 import ROOT 
 ROOT.gROOT.SetBatch(1)
 
+def gemGEMDigiOccupancyXY():
+  pass
+
+def gemGEMCSCPadDigiOccupancyXY():
+  pass
+
+def gemGEMCSCCoPadDigiOccupancyXY():
+  pass
+
+def gemGEMCSCCoPadDigiOccupancyXY():
+  pass
+
+def gemGEMDigiOccupancyRZ():
+  pass
+
+def gemGEMCSCPadDigiOccupancyRZ():
+  pass
+
+def gemGEMCSCCoPadDigiOccupancyRZ():
+  pass
+
+def gemGEMCSCCoPadDigiOccupancyRZ():
+  pass
 
 
 if __name__ == "__main__":  
@@ -20,11 +43,12 @@ if __name__ == "__main__":
   if len(inputFile) < 3:
       inputFile = '/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_2_0_pre5/src/gem_digi_ana.root'
       inputFile = '/afs/cern.ch/user/d/dildick/work/GEM/fixStripsPads/test2/CMSSW_6_2_0_SLHC5/src/gem_digi_ana.root'
+      inputFile = '/afs/cern.ch/user/d/dildick/work/GEM/testForGeometry/CMSSW_6_2_0_SLHC7/src/gem_digi_ana.root'
   targetDir = './'
   ## extension for figures - add more?
   ext = ".png"
   
-  ## strips and pads
+  ## strips and pads'
   nstripsGE11 = 384
   nstripsGE21 = 768
   npadsGE11 = 96
@@ -55,14 +79,52 @@ if __name__ == "__main__":
     sys.exit('Tree %s does not exist.' %(treeDigis))
 
   ## occupancy plots
-  draw_occ(targetDir, "strip_dg_xy_rm1_l1", ext, treeDigis, "Digi occupancy: region-1, layer1; globalX [cm]; globalY [cm]", 
-	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,l1), "COLZ")
-  draw_occ(targetDir, "strip_dg_xy_rm1_l2", ext, treeDigis, "Digi occupancy: region-1, layer2; globalX [cm]; globalY [cm]", 
-	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,l2), "COLZ")
-  draw_occ(targetDir, "strip_dg_xy_rp1_l1", ext, treeDigis, "Digi occupancy: region1, layer1; globalX [cm]; globalY [cm]", 
-	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,l1), "COLZ")
-  draw_occ(targetDir, "strip_dg_xy_rp1_l2", ext, treeDigis, "Digi occupancy: region1, layer2; globalX [cm]; globalY [cm]", 
-	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,l2), "COLZ") 
+  draw_occ(targetDir, "strip_dg_xy_rm1_st1_l1", ext, treeDigis, "Digi occupancy: region-1, station1, layer1; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,st1,l1), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rm1_st1_l2", ext, treeDigis, "Digi occupancy: region-1, station1, layer2; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,st1,l2), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rp1_st1_l1", ext, treeDigis, "Digi occupancy: region1, station1, layer1; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,st1,l1), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rp1_st1_l2", ext, treeDigis, "Digi occupancy: region1, station1, layer2; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,st1,l2), "COLZ") 
+
+  draw_occ(targetDir, "strip_dg_xy_rm1_st1_l1_odd", ext, treeDigis, "Digi occupancy: region-1, station1, layer1, Odd; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,st1,l1,odd), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rm1_st1_l2_odd", ext, treeDigis, "Digi occupancy: region-1, station1, layer2, Odd; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,st1,l2,odd), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rp1_st1_l1_odd", ext, treeDigis, "Digi occupancy: region1, station1, layer1, Odd; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,st1,l1,odd), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rp1_st1_l2_odd", ext, treeDigis, "Digi occupancy: region1, station1, layer2, Odd; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,st1,l2,odd), "COLZ")
+
+  draw_occ(targetDir, "strip_dg_xy_rm1_st1_l1_even", ext, treeDigis, "Digi occupancy: region-1, station1, layer1, Even; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,st1,l1,even), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rm1_st1_l2_even", ext, treeDigis, "Digi occupancy: region-1, station1, layer2, Even; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,st1,l2,even), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rp1_st1_l1_even", ext, treeDigis, "Digi occupancy: region1, station1, layer1, Even; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,st1,l1,even), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rp1_st1_l2_even", ext, treeDigis, "Digi occupancy: region1, station1, layer2, Even; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,st1,l2,even), "COLZ")
+
+  ## station 2
+
+  draw_occ(targetDir, "strip_dg_xy_rm1_st2_l1", ext, treeDigis, "Digi occupancy: region-1, station2, layer1; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,st2,l1), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rm1_st2_l2", ext, treeDigis, "Digi occupancy: region-1, station2, layer2; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,st2,l2), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rp1_st2_l1", ext, treeDigis, "Digi occupancy: region1, station2, layer1; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,st2,l1), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rp1_st2_l2", ext, treeDigis, "Digi occupancy: region1, station2, layer2; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,st2,l2), "COLZ") 
+
+  draw_occ(targetDir, "strip_dg_xy_rm1_st3_l1", ext, treeDigis, "Digi occupancy: region-1, station3, layer1; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,st3,l1), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rm1_st3_l2", ext, treeDigis, "Digi occupancy: region-1, station3, layer2; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rm1,st3,l2), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rp1_st3_l1", ext, treeDigis, "Digi occupancy: region1, station3, layer1; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,st3,l1), "COLZ")
+  draw_occ(targetDir, "strip_dg_xy_rp1_st3_l2", ext, treeDigis, "Digi occupancy: region1, station3, layer2; globalX [cm]; globalY [cm]", 
+	   "h_", "(260,-260,260,260,-260,260)", "g_x:g_y", AND(rp1,st3,l2), "COLZ") 
 
   draw_occ(targetDir, "strip_dg_zr_rm1", ext, treeDigis, "Digi occupancy: region-1; globalZ [cm]; globalR [cm]", 
 	   "h_", "(200,-573,-564,55,130,240)", "g_r:g_z", rm1, "COLZ")
