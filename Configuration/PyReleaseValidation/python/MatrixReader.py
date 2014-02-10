@@ -245,10 +245,6 @@ class MatrixReader(object):
                                 cmd +=' '+self.addCommand
                         else:
                             cmd +=' '+self.addCommand
-                    if self.wm:
-                        #cmd=cmd.replace('DQMROOT','DQM')
-                        #cmd=cmd.replace('--filetype DQM','')
-                        pass
                 commands.append(cmd)
                 ranStepList.append(stepName)
                 stepIndex+=1
