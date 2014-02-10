@@ -57,7 +57,6 @@
 
 #include "SimG4Core/PhysicsLists/interface/UrbanMscModel93.h"
 #include "G4PhysicalConstants.hh"
-#include "G4SystemOfUnits.hh"
 #include "Randomize.hh"
 #include "G4Electron.hh"
 #include "G4LossTableManager.hh"
@@ -69,6 +68,10 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 using namespace std;
+
+static const G4double kappa = 2.5;
+static const G4double kappapl1 = 3.5;
+static const G4double kappami1 = 1.5;
 
 UrbanMscModel93::UrbanMscModel93(const G4String& nam)
   : G4VMscModel(nam)
@@ -121,7 +124,7 @@ UrbanMscModel93::UrbanMscModel93(const G4String& nam)
 
   numlim        = 0.01;
   xsi           = 3.;
-  ea            = exp(-xsi);
+  ea            = G4Exp(-xsi);
   eaa           = 1.-ea ;
 
   skindepth = skin*stepmin;
@@ -328,8 +331,8 @@ G4double UrbanMscModel93::ComputeCrossSectionPerAtom(
   G4double eps = epsfactor*bg2/Z23;
 
   if     (eps<epsmin)  sigma = 2.*eps*eps;
-  else if(eps<epsmax)  sigma = log(1.+2.*eps)-2.*eps/(1.+2.*eps);
-  else                 sigma = log(2.*eps)-1.+1./eps;
+  else if(eps<epsmax)  sigma = G4Log(1.+2.*eps)-2.*eps/(1.+2.*eps);
+  else                 sigma = G4Log(2.*eps)-1.+1./eps;
 
   sigma *= ChargeSquare*AtomicNumber*AtomicNumber/(beta2*bg2);
 
@@ -499,7 +502,7 @@ G4double UrbanMscModel93::ComputeTruePathLengthLimit(
               // geomlimit is a geometrical step length
               // transform it to true path length (estimation)
               if((1.-geomlimit/lambda0) > 0.)
-                geomlimit = -lambda0*log(1.-geomlimit/lambda0)+tlimitmin ;
+                geomlimit = -lambda0*G4Log(1.-geomlimit/lambda0)+tlimitmin ;
 
               if(stepStatus == fGeomBoundary)
                 tgeom = geomlimit/facgeom;
@@ -668,13 +671,13 @@ G4double UrbanMscModel93::ComputeGeomPathLength(G4double)
   G4double zmean = tPathLength;
   if (tPathLength < currentRange*dtrl) {
     if(tau < taulim) zmean = tPathLength*(1.-0.5*tau) ;
-    else             zmean = lambda0*(1.-exp(-tau));
+    else             zmean = lambda0*(1.-G4Exp(-tau));
   } else if(currentKinEnergy < mass || tPathLength == currentRange)  {
     par1 = 1./currentRange ;
     par2 = 1./(par1*lambda0) ;
     par3 = 1.+par2 ;
     if(tPathLength < currentRange)
-      zmean = (1.-exp(par3*log(1.-tPathLength/currentRange)))/(par1*par3) ;
+      zmean = (1.-G4Exp(par3*G4Log(1.-tPathLength/currentRange)))/(par1*par3) ;
     else
       zmean = 1./(par1*par3) ;
   } else {
@@ -684,7 +687,7 @@ G4double UrbanMscModel93::ComputeGeomPathLength(G4double)
     par1 = (lambda0-lambda1)/(lambda0*tPathLength) ;
     par2 = 1./(par1*lambda0) ;
     par3 = 1.+par2 ;
-    zmean = (1.-exp(par3*log(lambda1/lambda0)))/(par1*par3) ;
+    zmean = (1.-G4Exp(par3*G4Log(lambda1/lambda0)))/(par1*par3) ;
   }
 
   zPathLength = zmean ;
@@ -705,14 +708,14 @@ G4double UrbanMscModel93::ComputeGeomPathLength(G4double)
         G4double u0 = cz/cz1 ;
         G4double grej ;
         do {
-            u = exp(log(G4UniformRand())/cz1) ;
-            grej = exp(cz*log(u/u0))*(1.-u)/(1.-u0) ;
+            u = G4Exp(G4Log(G4UniformRand())/cz1) ;
+            grej = G4Exp(cz*G4Log(u/u0))*(1.-u)/(1.-u0) ;
            } while (grej < G4UniformRand()) ;
       }
       else
       {
         cz1 = 1./zt-1.;
-        u = 1.-exp(log(G4UniformRand())/cz1) ;
+        u = 1.-G4Exp(G4Log(G4UniformRand())/cz1) ;
       }
       zPathLength = tPathLength*u ;
     }
@@ -740,11 +743,11 @@ G4double UrbanMscModel93::ComputeTrueStepLength(G4double geomStepLength)
   if((geomStepLength > lambda0*tausmall) && !insideskin)
   {
     if(par1 <  0.)
-      tPathLength = -lambda0*log(1.-geomStepLength/lambda0) ;
+      tPathLength = -lambda0*G4Log(1.-geomStepLength/lambda0) ;
     else 
     {
       if(par1*par3*geomStepLength < 1.)
-        tPathLength = (1.-exp(log(1.-par1*par3*geomStepLength)/par3))/par1 ;
+        tPathLength = (1.-G4Exp(G4Log(1.-par1*par3*geomStepLength)/par3))/par1 ;
       else 
         tPathLength = currentRange;
     }  
@@ -754,29 +757,6 @@ G4double UrbanMscModel93::ComputeTrueStepLength(G4double geomStepLength)
   //G4cout << "tPathLength= " << tPathLength << " step= " << geomStepLength << G4endl;
 
   return tPathLength;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-G4double UrbanMscModel93::ComputeTheta0(G4double trueStepLength,
-					  G4double KineticEnergy)
-{
-  // for all particles take the width of the central part
-  //  from a  parametrization similar to the Highland formula
-  // ( Highland formula: Particle Physics Booklet, July 2002, eq. 26.10)
-  static const G4double c_highland = 13.6*MeV ;
-  G4double betacp = sqrt(currentKinEnergy*(currentKinEnergy+2.*mass)*
-                         KineticEnergy*(KineticEnergy+2.*mass)/
-                      ((currentKinEnergy+mass)*(KineticEnergy+mass)));
-  y = trueStepLength/currentRadLength;
-  G4double theta0 = c_highland*std::abs(charge)*sqrt(y)/betacp;
-  y = log(y);
-  // correction factor from e- scattering data
-  G4double corr = coeffth1+coeffth2*y;                
-
-  theta0 *= corr ;                                               
-
-  return theta0;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -874,7 +854,7 @@ UrbanMscModel93::SampleScattering(const G4ThreeVector& oldDirection,
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4double UrbanMscModel93::SampleCosineTheta(G4double trueStepLength,
-					      G4double KineticEnergy)
+					    G4double KineticEnergy)
 {
   G4double cth = 1. ;
   G4double tau = trueStepLength/lambda0 ;
@@ -924,7 +904,7 @@ G4double UrbanMscModel93::SampleCosineTheta(G4double trueStepLength,
     if(trueStepLength >= currentRange*dtrl) 
     {
       if(par1*trueStepLength < 1.)
-	tau = -par2*log(1.-par1*trueStepLength) ;
+	tau = -par2*G4Log(1.-par1*trueStepLength) ;
       // for the case if ioni/brems are inactivated
       // see the corresponding condition in ComputeGeomPathLength 
       else if(1.-KineticEnergy/currentKinEnergy > taulim)
@@ -940,10 +920,10 @@ G4double UrbanMscModel93::SampleCosineTheta(G4double trueStepLength,
       G4double xmeanth, x2meanth;
       if(tau < numlim) {
 	xmeanth = 1.0 - tau*(1.0 - 0.5*tau);
-        x2meanth= 1.0 - tau*(5.0 - 6.25*tau)/3.;
+        x2meanth= 1.0 - tau*(5.0 - 6.25*tau)*third;
       } else {
-	xmeanth = exp(-tau);
-	x2meanth = (1.+2.*exp(-2.5*tau))/3.;
+	xmeanth = G4Exp(-tau);
+	x2meanth = (1.+2.*G4Exp(-2.5*tau))*third;
       }
       G4double relloss = 1.-KineticEnergy/currentKinEnergy;
 
@@ -1028,7 +1008,7 @@ G4double UrbanMscModel93::SampleCosineTheta(G4double trueStepLength,
       {
         G4double var = 0;
         if(G4UniformRand() < prob) {
-          cth = 1.+log(ea+G4UniformRand()*eaa)*x;
+          cth = 1.+G4Log(ea+G4UniformRand()*eaa)*x;
         } else {
           var = (1.0 - d)*G4UniformRand();
           if(var < numlim*d) {
@@ -1036,7 +1016,7 @@ G4double UrbanMscModel93::SampleCosineTheta(G4double trueStepLength,
             cth = -1.0 + var*(1.0 - 0.5*var*c)*(2. + (c - xsi)*x);
 	  } else {
 	    cth = 1. + x*(c - xsi - c*pow(var + d, -1.0/c1));
-	    //b-b1*bx/exp(log(ebx+(eb1-ebx)*G4UniformRand())/c1) ;
+	    //b-b1*bx/G4Exp(log(ebx+(eb1-ebx)*G4UniformRand())/c1) ;
 	  }
 	}
 	if(KineticEnergy > 5*GeV && cth < 0.9) {
@@ -1069,30 +1049,8 @@ G4double UrbanMscModel93::SampleCosineTheta(G4double trueStepLength,
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4double UrbanMscModel93::SimpleScattering(G4double xmeanth,G4double x2meanth)
-{
-  // 'large angle scattering'
-  // 2 model functions with correct xmean and x2mean
-  G4double a = (2.*xmeanth+9.*x2meanth-3.)/(2.*xmeanth-3.*x2meanth+1.);
-  G4double prob = (a+2.)*xmeanth/a;
-
-  // sampling
-  G4double cth = 1.;
-  if(G4UniformRand() < prob)
-    cth = -1.+2.*exp(log(G4UniformRand())/(a+1.));
-  else
-    cth = -1.+2.*G4UniformRand();
-  return cth;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 G4double UrbanMscModel93::SampleDisplacement()
 {
-  // compute rmean = sqrt(<r**2>) from theory
-  const G4double kappa = 2.5;
-  const G4double kappapl1 = kappa+1.;
-  const G4double kappami1 = kappa-1.;
   // Compute rmean = sqrt(<r**2>) from theory
   G4double rmean = 0.0;
   if ((currentTau >= tausmall) && !insideskin) {
@@ -1102,12 +1060,12 @@ G4double UrbanMscModel93::SampleDisplacement()
 
     } else {
       G4double etau = 0.0;
-      if (currentTau<taubig) etau = exp(-currentTau);
+      if (currentTau<taubig) etau = G4Exp(-currentTau);
       rmean = -kappa*currentTau;
-      rmean = -exp(rmean)/(kappa*kappami1);
+      rmean = -G4Exp(rmean)/(kappa*kappami1);
       rmean += currentTau-kappapl1/kappa+kappa*etau/kappami1;
     }
-    if (rmean>0.) rmean = 2.*lambdaeff*sqrt(rmean/3.0);
+    if (rmean>0.) rmean = 2.*lambdaeff*sqrt(rmean*third);
     else          rmean = 0.;
   }
 
@@ -1143,23 +1101,20 @@ G4double UrbanMscModel93::SampleDisplacement()
 
 G4double UrbanMscModel93::LatCorrelation()
 {
-  const G4double kappa = 2.5;
-  const G4double kappami1 = kappa-1.;
-
   G4double latcorr = 0.;
   if((currentTau >= tausmall) && !insideskin)
   {
     if(currentTau < taulim)
       latcorr = lambdaeff*kappa*currentTau*currentTau*
-                (1.-(kappa+1.)*currentTau/3.)/3.;
+                (1.-kappapl1*currentTau*third)*third;
     else
     {
       G4double etau = 0.;
-      if(currentTau < taubig) etau = exp(-currentTau);
+      if(currentTau < taubig) etau = G4Exp(-currentTau);
       latcorr = -kappa*currentTau;
-      latcorr = exp(latcorr)/kappami1;
+      latcorr = G4Exp(latcorr)/kappami1;
       latcorr += 1.-kappa*etau/kappami1 ;
-      latcorr *= 2.*lambdaeff/3. ;
+      latcorr *= 2.*lambdaeff*third ;
     }
   }
 
