@@ -8,10 +8,16 @@ from Validation.RecoMuon.muonValidation_cff import trkMuonTrackVTrackAssoc
 trkMuonTrackVTrackAssocFS = trkMuonTrackVTrackAssoc.clone()
 trkMuonTrackVTrackAssocFS.associatormap = 'tpToTkmuTrackAssociationFS'
 
+from Validation.RecoMuon.muonValidation_cff import trkMuonTrackVMuonAssoc
 
-from Validation.RecoMuon.muonValidation_cff import staSeedTrackVMuonAssoc
-staSeedTrackVMuonAssocFS = staSeedTrackVMuonAssoc.clone()
-staSeedTrackVMuonAssocFS.associatormap = 'tpToStaSeedAssociationFS'
+#trkMuonTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.trkMuonTrackVMuonTrackAssoc.clone()
+trkMuonTrackVMuonAssocFS = trkMuonTrackVMuonAssoc.clone()
+trkMuonTrackVMuonAssocFS.associatormap = 'tpToTkMuonAssociationFS'
+
+
+#from Validation.RecoMuon.muonValidation_cff import staSeedTrackVMuonAssoc
+#staSeedTrackVMuonAssocFS = staSeedTrackVMuonAssoc.clone()
+#staSeedTrackVMuonAssocFS.associatormap = 'tpToStaSeedAssociationFS'
 
 
 
@@ -120,10 +126,12 @@ from Validation.RecoMuon.muonValidation_cff import *
 
 # Muon validation sequence
 muonValidationFastSim_seq = cms.Sequence(trkMuonTrackVTrackAssocFS
-                                         +staSeedTrackVMuonAssocFS+staMuonTrackVMuonAssocFS+staUpdMuonTrackVMuonAssocFS+glbMuonTrackVMuonAssocFS
+                                         +trkMuonTrackVMuonAssocFS
+                                         #+staSeedTrackVMuonAssocFS
+                                         +staMuonTrackVMuonAssocFS+staUpdMuonTrackVMuonAssocFS+glbMuonTrackVMuonAssocFS
                                          +staRefitMuonTrackVMuonAssocFS+staRefitUpdMuonTrackVMuonAssocFS
                                          +tevMuonFirstTrackVMuonAssocFS+tevMuonPickyTrackVMuonAssocFS+tevMuonDytTrackVMuonAssocFS
-                                         +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt
+                                         +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_trkVMuon+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt
                                          +recoMuonVMuAssoc_trkPF+recoMuonVMuAssoc_staPF+recoMuonVMuAssoc_glbPF)
 
 # The muon association and validation sequence
