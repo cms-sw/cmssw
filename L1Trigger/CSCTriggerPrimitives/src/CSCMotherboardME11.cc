@@ -344,7 +344,6 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   // possibly use some discrimination from GEMs
   if (gemPads != nullptr and  runCSCTriggerWithGEMs) matchGEMPads(gemPads);
 
-
   // reduction of nLCTs per each BX
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
   {

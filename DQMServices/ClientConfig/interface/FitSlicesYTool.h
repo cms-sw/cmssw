@@ -7,6 +7,7 @@
  *  $Date: 2009/03/27 00:16:49 $
  *  $Revision: 1.1 $
  *  \author cerati
+ *  \modified calabria
  */
 
 #include <TH2F.h>
@@ -29,7 +30,10 @@ class FitSlicesYTool {
   void getFittedMeanWithError(MonitorElement*);
   /// Fill the ME with the sigma value (with error) of the gaussian fit in each slice
   void getFittedSigmaWithError(MonitorElement*);
+  /// Fill the ME with the RMS value (with error) of each slice
+  void getRMS(MonitorElement*);
  private:
+  TH2F* h2D;
   TH1* h0;
   TH1* h1;
   TH1* h2;
