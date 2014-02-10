@@ -21,10 +21,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -68,10 +65,14 @@ JetPlusTrackProducer::JetPlusTrackProducer(const edm::ParameterSet& iConfig)
    vectorial_ = iConfig.getParameter<bool>("VectorialCorrection");
    useZSP = iConfig.getParameter<bool>("UseZSP");
    ptCUT = iConfig.getParameter<double>("ptCUT");
-   mJPTalgo  = new JetPlusTrackCorrector(iConfig);
+   mJPTalgo  = new JetPlusTrackCorrector(iConfig, consumesCollector());
    if(useZSP) mZSPalgo  = new ZSPJPTJetCorrector(iConfig);
  
    produces<reco::JPTJetCollection>().setBranchAlias(alias); 
+
+   input_jets_token_ = consumes<edm::View<reco::CaloJet> >(src);
+   input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
+      
    
 }
 
@@ -101,7 +102,7 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // get stuff from Event
   edm::Handle <edm::View <reco::CaloJet> > jets_h;
-  iEvent.getByLabel (src, jets_h);
+  iEvent.getByToken (input_jets_token_, jets_h);
 
 //  std::auto_ptr<reco::CaloJetCollection> pOut(new reco::CaloJetCollection());
   std::auto_ptr<reco::JPTJetCollection> pOut(new reco::JPTJetCollection());
@@ -265,7 +266,7 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
 // If we add primary vertex
    edm::Handle<reco::VertexCollection> pvCollection;
-   iEvent.getByLabel(srcPVs_,pvCollection);
+   iEvent.getByToken(input_vertex_token_, pvCollection);
    if ( pvCollection.isValid() && pvCollection->size()>0 ) vertex_=pvCollection->begin()->position();
 
    reco::JPTJet fJet(p4, vertex_, specific, corrected.getJetConstituents()); 
