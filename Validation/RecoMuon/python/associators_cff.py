@@ -443,6 +443,7 @@ baseMuonAssociatorFS.ROUList = ['famosSimHitsTrackerHits']
 
 tpToTkMuonAssociationFS   = baseMuonAssociatorFS.clone()
 tpToStaMuonAssociationFS  = baseMuonAssociatorFS.clone()
+tpToStaSeedAssociationFS  = baseMuonAssociatorFS.clone()
 tpToStaUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToStaRefitMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToStaRefitUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
@@ -463,6 +464,10 @@ tpToTkMuonAssociationFS.UseMuon = False
 tpToStaMuonAssociationFS.tracksTag = 'standAloneMuons'
 tpToStaMuonAssociationFS.UseTracker = False
 tpToStaMuonAssociationFS.UseMuon = True
+
+tpToStaSeedAssociationFS.tracksTag = 'seedsOfSTAmuons'
+tpToStaSeedAssociationFS.UseTracker = False
+tpToStaSeedAssociationFS.UseMuon = True
 
 tpToStaUpdMuonAssociationFS.tracksTag = 'standAloneMuons:UpdatedAtVtx'
 tpToStaUpdMuonAssociationFS.UseTracker = False
@@ -526,7 +531,8 @@ tpToL3MuonAssociationFS.UseGrouped = False
 
 muonAssociationFastSim_seq = cms.Sequence(
         extractedMuonTracks_seq
-        +(tpToTkMuonAssociationFS+tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS)
+        +seedsOfSTAmuons_seq
+        +(tpToStaSeedAssociationFS+tpToTkMuonAssociationFS+tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS)
         +(tpToStaRefitMuonAssociationFS+tpToStaRefitUpdMuonAssociationFS)
         +(tpToTevFirstMuonAssociationFS+tpToTevPickyMuonAssociationFS+tpToTevDytMuonAssociationFS)
         +tpToTkmuTrackAssociationFS

@@ -8,6 +8,13 @@ from Validation.RecoMuon.muonValidation_cff import trkMuonTrackVTrackAssoc
 trkMuonTrackVTrackAssocFS = trkMuonTrackVTrackAssoc.clone()
 trkMuonTrackVTrackAssocFS.associatormap = 'tpToTkmuTrackAssociationFS'
 
+
+from Validation.RecoMuon.muonValidation_cff import staSeedTrackVMuonAssoc
+staSeedTrackVMuonAssocFS = staSeedTrackVMuonAssoc.clone()
+staSeedTrackVMuonAssocFS.associatormap = 'tpToStaSeedAssociationFS'
+
+
+
 from Validation.RecoMuon.muonValidation_cff import staMuonTrackVTrackAssoc
 
 #staMuonTrackVTrackAssocFS = Validation.RecoMuon.muonValidation_cff.staMuonTrackVTrackAssoc.clone()
@@ -113,7 +120,7 @@ from Validation.RecoMuon.muonValidation_cff import *
 
 # Muon validation sequence
 muonValidationFastSim_seq = cms.Sequence(trkMuonTrackVTrackAssocFS
-                                         +staMuonTrackVMuonAssocFS+staUpdMuonTrackVMuonAssocFS+glbMuonTrackVMuonAssocFS
+                                         +staSeedTrackVMuonAssocFS+staMuonTrackVMuonAssocFS+staUpdMuonTrackVMuonAssocFS+glbMuonTrackVMuonAssocFS
                                          +staRefitMuonTrackVMuonAssocFS+staRefitUpdMuonTrackVMuonAssocFS
                                          +tevMuonFirstTrackVMuonAssocFS+tevMuonPickyTrackVMuonAssocFS+tevMuonDytTrackVMuonAssocFS
                                          +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt
