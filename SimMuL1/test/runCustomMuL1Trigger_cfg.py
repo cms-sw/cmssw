@@ -2,7 +2,7 @@
 import os
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TAO")
+process = cms.Process("MUTRG")
 
 ## Standard sequence
 process.load('Configuration.StandardSequences.Services_cff')
@@ -24,13 +24,13 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('python')
 options.register ('pu',
-                  0,
+                  140,
                   VarParsing.multiplicity.singleton,
                   VarParsing.varType.float,
                   "PU: 100  default")
 
 options.register ('ptdphi',
-                  "pt05",
+                  'pt0',
                   VarParsing.multiplicity.singleton,
                   VarParsing.varType.string,
                   "ptdphi: 5 GeV/c default")
@@ -57,7 +57,7 @@ if hasattr(sys, "argv") == True:
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000) )
 
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -72,51 +72,22 @@ from SimMuon.GEMDigitizer.customizeGEMDigi import *
 process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
 #process = customize_digi_addGEM_gem_only(process)  # only GEM digi
 
-
 ## GEM geometry customization
-use6part = True
-if use6part:
-     mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/v5/gem11.xml')
-     process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/v5/gem11.xml')
-     process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v2/gem11.xml')
+from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
+process = custom_GE11_6partitions_v1(process)
 
 ## upgrade CSC geometry customizations
 from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry, digitizer_timing_pre3_median
 process = unganged_me1a_geometry(process)
 process = digitizer_timing_pre3_median(process)
 
-## upgrade CSC L1 customizations: GEM-CSC emulator
-process.load('L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi')
-process.simCscTriggerPrimitiveDigis = process.cscTriggerPrimitiveDigisPostLS1.clone()
-process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag('simMuonCSCDigis', 'MuonCSCComparatorDigi')
-process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag('simMuonCSCDigis', 'MuonCSCWireDigi')
+## upgrade CSC L1 customizations
+from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1Stubs 
+process = customise_csc_L1Stubs(process)
 
-## GEM-CSC bending angle library
-process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
-process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
-process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPretrig = 3
-process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
-#process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
-tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
-tmb.gemMatchDeltaBX = cms.untracked.int32(1)
-
-dphi_lct_pad98 = {
-    'pt05' : { 'odd' :   0.0220351 , 'even' :  0.00930056 },
-    'pt06' : { 'odd' :   0.0182579 , 'even' :  0.00790009 },
-    'pt10' : { 'odd' :     0.01066 , 'even' :  0.00483286 },
-    'pt15' : { 'odd' :  0.00722795 , 'even' :   0.0036323 },
-    'pt20' : { 'odd' :  0.00562598 , 'even' :  0.00304879 },
-    'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
-    'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
-}
-
-tmb.gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd'])
-tmb.gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even'])
-if ptdphi == 'pt0':
-    tmb.gemClearNomatchLCTs = cms.untracked.bool(False) 
-    tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
-    tmb.gemMatchDeltaPhiEven = cms.untracked.double(2.)
+## GEM-CSC emulator
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise_L1Emulator
+process = customise_L1Emulator(process, 'pt05')
 
 ## upgrade CSC TrackFinder
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1TrackFinder
@@ -131,58 +102,21 @@ process.l1extraParticles.produceCaloParticles = cms.bool(False)
 process.l1extraParticles.ignoreHtMiss = cms.bool(False)
 
 ## add pile-up to the digi step
-if pu is not 0:
-    # list of MinBias files for pileup has to be provided
-    path = os.getenv( "CMSSW_BASE" ) + "/src/GEMCode/SimMuL1/test/"
-    ff = open('%sfilelist_minbias_61M_good.txt'%(path), "r")
-    pu_files = ff.read().split('\n')
-    ff.close()
-    pu_files = filter(lambda x: x.endswith('.root'),  pu_files)
-
-    process.mix.input = cms.SecSource("PoolSource",
-        nbPileupEvents = cms.PSet(
-             #### THIS IS AVERAGE PILEUP NUMBER THAT YOU NEED TO CHANGE
-            averageNumber = cms.double(pu)
-        ),
-        type = cms.string('poisson'),
-        sequential = cms.untracked.bool(False),
-        fileNames = cms.untracked.vstring(*pu_files)
-    )
+from GEMCode.GEMValidation.InputFileHelpers import addPileUp
+process = addPileUp(process, pu = 140)
 
 ## input commands
 process.source = cms.Source("PoolSource",
   duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
   inputCommands = cms.untracked.vstring('keep  *_*_*_*'),
-  fileNames = cms.untracked.vstring('file:out_digi.root')
+  fileNames = cms.untracked.vstring('file:out_sim.root')
 )
 
-import os
+## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
-useInputDir = True
-if useInputDir:
-    ## input
-    suffix = '_gem98_pt2-50_PU0_pt0_new'
-    inputDir = files[suffix]
-    theInputFiles = []
-    import os
-    for d in range(len(inputDir)):
-        my_dir = inputDir[d]
-        if not os.path.isdir(my_dir):
-            print "ERROR: This is not a valid directory: ", my_dir
-            if d==len(inputDir)-1:
-                print "ERROR: No input files were selected"
-                exit()
-            continue
-        print "Proceed to next directory"
-        ls = os.listdir(my_dir)
-        ## this works only if you pass the location on pnfs - FIXME for files staring with store/user/... 
-        theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
-    
-print "InputFiles: ", theInputFiles
-
-process.source.fileNames = cms.untracked.vstring(
-    *theInputFiles
-)
+from GEMCode.GEMValidation.InputFileHelpers import useInputDir
+process = useInputDir(process, files['_pt2-50'], False)
+print "InputFiles: ", process.source.fileNames
 
 physics = True
 if not physics:
@@ -199,6 +133,7 @@ if not physics:
     
 ## output commands 
 theOutDir = ''
+theFileName = 'out_L1_dphi0_preTrig33_noLQCLCTs_recoverALCTGEM.root'
 theFileName = 'out_L1.root'
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(theOutDir + theFileName),

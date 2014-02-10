@@ -51,8 +51,15 @@ def OR(*arg):
 #_______________________________________________________________________________
 nocut = TCut("")
 
+muon = TCut("TMath::Abs(particleType)==13")
+nonMuon = TCut("TMath::Abs(particleType)!=13")
+all = OR(muon,nonMuon)
+
 rm1 = TCut("region==-1")
 rp1 = TCut("region==1")
+
+even = TCut("chamber%2==0")
+odd  = TCut("chamber%2==1")
 
 l1 = TCut("layer==1")
 l2 = TCut("layer==2")

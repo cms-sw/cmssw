@@ -146,3 +146,26 @@ files['_gem98_pt2-50_PU140_pt0_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dil
 files['_pt2-50_PU140_dphi0_postCSCTFbug_preTrig33'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi0_postCSCTFbug_preTrig33/d0fd7fba403ee11c4905a6945d9f68d1/']
 files['_pt2-50_PU400_dphi0_postCSCTFbug_preTrig33'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi0_postCSCTFbug_preTrig33/0af81cb7cc9545f400bd587be0115228/']
 files['_pt2-50_PU400_dphi0_postCSCTFbug_preTrig23'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi0_postCSCTFbug_preTrig23/ebcefef58e488d2ad86f71b9405ee5c7/']
+
+## new batch of samples on EOS - 10/02/2014                                                                                                                                                                                                                                    
+## produced on top of https://github.com/gem-sw/cmssw/tree/adb1cc3e0fad25bc0da2e4430e3e0965160a58dc
+eosfiles = {}
+
+eosfiles['_pt2-50_PU140_dphi0_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi0_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU140_dphi5_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi5_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU140_dphi6_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi6_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU140_dphi10_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi10_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU140_dphi15_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi15_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU140_dphi20_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi20_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU140_dphi30_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi30_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU140_dphi40_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi40_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+
+eosfiles['_pt2-50_PU400_dphi0_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi0_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU400_dphi5_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi5_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU400_dphi6_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi6_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU400_dphi10_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi10_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU400_dphi15_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi15_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU400_dphi20_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi20_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU400_dphi30_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi30_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+eosfiles['_pt2-50_PU400_dphi40_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi40_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
+

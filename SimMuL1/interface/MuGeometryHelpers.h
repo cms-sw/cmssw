@@ -41,7 +41,7 @@ inline bool isME42RPCEtaRegion(float eta){return fabs(eta)>=1.2499 && fabs(eta)<
 
 // constants
 enum ETrigCSC {MAX_CSC_STATIONS = 4, CSC_TYPES = 10};
-enum ETrigGEM {MAX_GEM_STATIONS = 1, GEM_TYPES = 1};
+enum ETrigGEM {MAX_GEM_STATIONS = 2, GEM_TYPES = 2};
 enum ETrigDT  {MAX_DT_STATIONS = 4, DT_TYPES = 12};
 enum ETrigRPCF {MAX_RPCF_STATIONS = 4, RPCF_TYPES = 12};
 enum ETrigRPCB {MAX_RPCB_STATIONS = 4, RPCB_TYPES = 12};
@@ -56,6 +56,26 @@ inline int type(RPCDetId &d)
 }
 inline int type(DTWireId &d)  {return  3*d.station() + abs(d.wheel()) - 2;}
 
+inline bool is_gem(unsigned int detId) {
+  return (DetId(detId)).subdetId() == MuonSubdetId::GEM;
+}
+
+inline bool is_csc(unsigned int detId) {
+  return (DetId(detId)).subdetId() == MuonSubdetId::CSC;
+}
+
+inline bool is_rpc(unsigned int detId) {
+  return (DetId(detId)).subdetId() == MuonSubdetId::RPC;
+}
+
+inline bool is_me0(unsigned int detId) {
+  return (DetId(detId)).subdetId() == MuonSubdetId::ME0;
+}
+
+inline bool is_dt(unsigned int detId) {
+  return (DetId(detId)).subdetId() == MuonSubdetId::DT;
+}
+
 // labels for chamber types
 const std::string csc_type[CSC_TYPES+1] =
   { "all", "ME1/a", "ME1/b", "ME1/2", "ME1/3", "ME2/1", "ME2/2", "ME3/1", "ME3/2", "ME4/1", "ME4/2"};
@@ -63,9 +83,9 @@ const std::string csc_type_[CSC_TYPES+1] =
   { "all", "ME1a", "ME1b", "ME12", "ME13", "ME21", "ME22", "ME31", "ME32", "ME41", "ME42"};
 
 const std::string gem_type[GEM_TYPES+1] =
-  { "all", "GE1/1"};
+  { "all", "GE1/1", "GE2/1"};
 const std::string gem_type_[GEM_TYPES+1] =
-  { "all", "GE11"};
+  { "all", "GE11", "GE21"};
 
 const std::string dt_type[DT_TYPES+1] =
   { "all", "MB1/0", "MB1/1", "MB1/2", "MB2/0", "MB2/1", "MB2/2", "MB3/0", "MB3/1", "MB3/2", "MB4/0", "MB4/1", "MB4/2",};

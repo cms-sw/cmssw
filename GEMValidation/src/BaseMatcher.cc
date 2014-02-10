@@ -26,6 +26,44 @@ BaseMatcher::BaseMatcher(const SimTrack& t, const SimVertex& v,
   // Get the propagators                                                                                  
   es.get< TrackingComponentsRecord >().get("SteppingHelixPropagatorAlong", propagator_);
   es.get< TrackingComponentsRecord >().get("SteppingHelixPropagatorOpposite", propagatorOpposite_);
+
+  /// get the geometry
+  hasGEMGeometry_ = false;
+  hasRPCGeometry_ = false;
+  hasCSCGeometry_ = false;
+  hasME0Geometry_ = false;
+
+  try {
+    es.get<MuonGeometryRecord>().get(gem_geom);
+    gemGeometry_ = &*gem_geom;
+  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    hasGEMGeometry_ = false;
+    LogDebug("MuonSimHitAnalyzer") << "+++ Info: GEM geometry is unavailable. +++\n";
+  }
+
+  try {
+    es.get<MuonGeometryRecord>().get(me0_geom);
+    me0Geometry_ = &*me0_geom;
+  } catch (edm::eventsetup::NoProxyException<ME0Geometry>& e) {
+    hasME0Geometry_ = false;
+    LogDebug("MuonSimHitAnalyzer") << "+++ Info: ME0 geometry is unavailable. +++\n";
+  }
+
+  try {
+    es.get<MuonGeometryRecord>().get(csc_geom);
+    cscGeometry_ = &*csc_geom;
+  } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
+    hasCSCGeometry_ = false;
+    LogDebug("MuonSimHitAnalyzer") << "+++ Info: CSC geometry is unavailable. +++\n";
+  }
+
+  try {
+    es.get<MuonGeometryRecord>().get(rpc_geom);
+    rpcGeometry_ = &*rpc_geom;
+  } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
+    hasRPCGeometry_ = false;
+    LogDebug("MuonSimHitAnalyzer") << "+++ Info: RPC geometry is unavailable. +++\n";
+  }
 }
 
 

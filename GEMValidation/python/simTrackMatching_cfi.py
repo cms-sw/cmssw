@@ -7,13 +7,15 @@ SimTrackMatching = cms.PSet(
     ntupleTrackEff = cms.bool(True),
     overrideminNHitsChamber = cms.bool(False),
     minNHitsChamber = cms.untracked.int32(4),
+    verbose = cms.bool(False),
     ## per collection params
     simTrack = cms.PSet(
+        verbose = cms.int32(0),
         input = cms.InputTag('g4SimHits'),
         minPt = cms.double(1.5),
         maxPt = cms.double(999.),
-        minEta = cms.double(1.5),
-        maxEta = cms.double(2.5),
+        minEta = cms.double(1.45),
+        maxEta = cms.double(4.0),
         onlyMuon = cms.bool(True),
         requireVertex = cms.bool(True),
         requireGenPart = cms.bool(True),
@@ -24,20 +26,20 @@ SimTrackMatching = cms.PSet(
         simMuOnly = cms.bool(True),
         discardEleHits = cms.bool(True),
     ),
-    gemDigi = cms.PSet(
+    gemStripDigi = cms.PSet(
         verbose = cms.int32(0),
         input = cms.InputTag("simMuonGEMDigis"),
         minBX = cms.int32(-1),
         maxBX = cms.int32(1),
         matchDeltaStrip = cms.int32(1),
     ),
-    gemPad = cms.PSet(
+    gemPadDigi = cms.PSet(
         verbose = cms.int32(0),
         input = cms.InputTag("simMuonGEMCSCPadDigis"),
         minBX = cms.int32(-1),
         maxBX = cms.int32(1),
      ),
-    gemCoPad = cms.PSet(
+    gemCoPadDigi = cms.PSet(
         verbose = cms.int32(0),
         input = cms.InputTag("simMuonGEMCSCPadDigis", "Coincidence"),
         minBX = cms.int32(-1),
@@ -46,6 +48,25 @@ SimTrackMatching = cms.PSet(
     gemRecHit = cms.PSet(
         verbose = cms.int32(0),
         input = cms.InputTag("gemRecHits"),
+        minBX = cms.int32(-1),
+        maxBX = cms.int32(1),
+        matchDeltaStrip = cms.int32(1),
+    ),
+    me0SimHit = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag('g4SimHits','MuonME0Hits'),
+        simMuOnly = cms.bool(True),
+        discardEleHits = cms.bool(True),
+    ),
+    rpcSimHit = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag('g4SimHits','MuonRPCHits'),
+        simMuOnly = cms.bool(True),
+        discardEleHits = cms.bool(True),
+    ),
+    rpcStripDigi = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag("simMuonRPCDigis"),
         minBX = cms.int32(-1),
         maxBX = cms.int32(1),
         matchDeltaStrip = cms.int32(1),
@@ -102,5 +123,21 @@ SimTrackMatching = cms.PSet(
         maxBX = cms.int32(8),
         minNHitsChamber = cms.int32(4),
         addGhosts = cms.bool(True),
+    ),
+    tfTrack = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag("simCsctfTrackDigis"),
+    ),
+    tfCand = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag("simCsctfDigis", "CSC"),
+    ),
+    gmtCand = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag("simGmtDigis"),
+    ),
+    l1Extra = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag("l1extraParticles"),
     ),
 )

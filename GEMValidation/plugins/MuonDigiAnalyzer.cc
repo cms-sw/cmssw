@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    GEMDigiAnalyzer
-// Class:      GEMDigiAnalyzer
+// Package:    MuonDigiAnalyzer
+// Class:      MuonDigiAnalyzer
 // 
-/**\class GEMDigiAnalyzer GEMDigiAnalyzer.cc MyAnalyzers/GEMDigiAnalyzer/src/GEMDigiAnalyzer.cc
+/**\class MuonDigiAnalyzer MuonDigiAnalyzer.cc MyAnalyzers/MuonDigiAnalyzer/src/MuonDigiAnalyzer.cc
 
  Description: [one line class summary]
 
@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// $Id: GEMDigiAnalyzer.cc,v 1.9 2013/04/23 07:40:17 dildick Exp $
+// $Id: MuonDigiAnalyzer.cc,v 1.9 2013/04/23 07:40:17 dildick Exp $
 //
 //
 
@@ -132,13 +132,13 @@ struct MySimTrack
   Float_t gem_trk_eta, gem_trk_phi, gem_trk_rho;
 };
 
-class GEMDigiAnalyzer : public edm::EDAnalyzer 
+class MuonDigiAnalyzer : public edm::EDAnalyzer 
 {
 public:
   /// constructor
-  explicit GEMDigiAnalyzer(const edm::ParameterSet&);
+  explicit MuonDigiAnalyzer(const edm::ParameterSet&);
   /// destructor
-  ~GEMDigiAnalyzer();
+  ~MuonDigiAnalyzer();
 
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 
@@ -182,24 +182,29 @@ private:
   edm::ESHandle<GEMGeometry> gem_geo_;
   edm::ESHandle<RPCGeometry> rpc_geo_;
 
+  edm::ParameterSet cfg_;
+
+  edm::InputTag simTrackInput_;
+  edm::InputTag gemDigiInput_;
+  edm::InputTag rpcDigiInput_;
+  edm::InputTag gemPadDigiInput_;
+  edm::InputTag gemCoPadDigiInput_;
+
+  double simTrackMinPt_;
+  double simTrackMaxPt_;
+  double simTrackMinEta_;
+  double simTrackMaxEta_;
+  double simTrackOnlyMuon_;
+
   const GEMGeometry* gem_geometry_;
   const RPCGeometry* rpc_geometry_;
 
-  edm::InputTag input_tag_rpc_;
-  edm::InputTag input_tag_gem_;
-  edm::InputTag input_tag_gemcscpad_;
-  edm::InputTag input_tag_gemcsccopad_;
-  
   MyRPCDigi rpc_digi_;
   MyGEMDigi gem_digi_;
   MyGEMCSCPadDigis gemcscpad_digi_;
   MyGEMCSCCoPadDigis gemcsccopad_digi_;
   MySimTrack track_;
 
-  edm::ParameterSet cfg_;
-  std::string simInputLabel_;
-  float minPt_;
-  int verbose_;
   float radiusCenter_;
   float chamberHeight_;
 
@@ -208,19 +213,40 @@ private:
 
   bool hasGEMGeometry_;
   bool hasRPCGeometry_;
+  bool hasME0Geometry_;
+  bool hasCSCGeometry_;
 };
 
 //
 // constructors and destructor
 //
-GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet& ps)
-  : cfg_(ps.getParameterSet("simTrackMatching"))
-  , simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
-  , minPt_(ps.getUntrackedParameter<double>("minPt", 5.))
-  , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
-  , hasGEMGeometry_(true)
-  , hasRPCGeometry_(true)
+MuonDigiAnalyzer::MuonDigiAnalyzer(const edm::ParameterSet& ps)
+: hasGEMGeometry_(true)
+, hasRPCGeometry_(true)
+, hasME0Geometry_(true)
+, hasCSCGeometry_(true)
 {
+  cfg_ = ps.getParameter<edm::ParameterSet>("simTrackMatching");
+  auto simTrack = cfg_.getParameter<edm::ParameterSet>("simTrack");
+  simTrackInput_ = simTrack.getParameter<edm::InputTag>("input");
+  simTrackMinPt_ = simTrack.getParameter<double>("minPt");
+  simTrackMaxPt_ = simTrack.getParameter<double>("maxPt");
+  simTrackMinEta_ = simTrack.getParameter<double>("minEta");
+  simTrackMaxEta_ = simTrack.getParameter<double>("maxEta");
+  simTrackOnlyMuon_ = simTrack.getParameter<bool>("onlyMuon");
+
+  auto gemDigi = cfg_.getParameter<edm::ParameterSet>("gemStripDigi");
+  gemDigiInput_ = gemDigi.getParameter<edm::InputTag>("input");
+  
+  auto rpcDigi = cfg_.getParameter<edm::ParameterSet>("rpcStripDigi");
+  rpcDigiInput_ = rpcDigi.getParameter<edm::InputTag>("input");
+
+  auto gemPadDigi= cfg_.getParameter<edm::ParameterSet>("gemPadDigi");
+  gemPadDigiInput_ = gemPadDigi.getParameter<edm::InputTag>("input");
+  
+  auto gemCoPadDigi= cfg_.getParameter<edm::ParameterSet>("gemCoPadDigi");
+  gemCoPadDigiInput_ = gemCoPadDigi.getParameter<edm::InputTag>("input");
+
   bookRPCDigiTree();
   bookGEMDigiTree();
   bookGEMCSCPadDigiTree();
@@ -228,19 +254,19 @@ GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet& ps)
   bookSimTracksTree();
 }
 
-GEMDigiAnalyzer::~GEMDigiAnalyzer() 
+MuonDigiAnalyzer::~MuonDigiAnalyzer() 
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
-void GEMDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
+void MuonDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
   try {
     iSetup.get<MuonGeometryRecord>().get(gem_geo_);
     gem_geometry_ = &*gem_geo_;
   } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
     hasGEMGeometry_ = false;
-    edm::LogWarning("GEMDigiAnalyzer") 
+    edm::LogWarning("MuonDigiAnalyzer") 
       << "+++ Info: GEM geometry is unavailable. +++\n";
   }
   
@@ -249,7 +275,7 @@ void GEMDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     rpc_geometry_ = &*rpc_geo_;
   } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
     hasRPCGeometry_ = false;
-    edm::LogWarning("GEMDigiAnalyzer") 
+    edm::LogWarning("MuonDigiAnalyzer") 
       << "+++ Info: RPC geometry is unavailable. +++\n";
   }
 
@@ -281,28 +307,27 @@ void GEMDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
   }
 }
 
-void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void MuonDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  iEvent.getByLabel(edm::InputTag("simMuonRPCDigis"), rpc_digis);
+  iEvent.getByLabel(rpcDigiInput_, rpc_digis);
   if (hasRPCGeometry_) analyzeRPC();
 
-  iEvent.getByLabel(edm::InputTag("simMuonGEMDigis"), gem_digis);
+  iEvent.getByLabel(gemDigiInput_, gem_digis);
   if(hasGEMGeometry_) analyzeGEM();
   
-  iEvent.getByLabel(edm::InputTag("simMuonGEMCSCPadDigis"), gemcscpad_digis);
+  iEvent.getByLabel(gemPadDigiInput_, gemcscpad_digis);
   if(hasGEMGeometry_) analyzeGEMCSCPad();  
   
-  iEvent.getByLabel(edm::InputTag("simMuonGEMCSCPadDigis","Coincidence"), gemcsccopad_digis);
+  iEvent.getByLabel(gemCoPadDigiInput_, gemcsccopad_digis);
   if(hasGEMGeometry_) analyzeGEMCSCCoPad();  
 
-  iEvent.getByLabel(simInputLabel_, sim_tracks);
-
-  iEvent.getByLabel(simInputLabel_, sim_vertices);
+  iEvent.getByLabel(simTrackInput_, sim_tracks);
+  iEvent.getByLabel(simTrackInput_, sim_vertices);
 
   if(hasGEMGeometry_) analyzeTracks(cfg_,iEvent,iSetup);  
 }
 
-void GEMDigiAnalyzer::bookRPCDigiTree()
+void MuonDigiAnalyzer::bookRPCDigiTree()
 {
   edm::Service<TFileService> fs;
   rpc_tree_ = fs->make<TTree>("RPCDigiTree", "RPCDigiTree");
@@ -326,7 +351,7 @@ void GEMDigiAnalyzer::bookRPCDigiTree()
   rpc_tree_->Branch("g_z", &rpc_digi_.g_z);
 }
 
-void GEMDigiAnalyzer::bookGEMDigiTree()
+void MuonDigiAnalyzer::bookGEMDigiTree()
 {
   edm::Service<TFileService> fs;
   gem_tree_ = fs->make<TTree>("GEMDigiTree", "GEMDigiTree");
@@ -349,7 +374,7 @@ void GEMDigiAnalyzer::bookGEMDigiTree()
   gem_tree_->Branch("g_z", &gem_digi_.g_z);
 }
 
-void GEMDigiAnalyzer::bookGEMCSCPadDigiTree()
+void MuonDigiAnalyzer::bookGEMCSCPadDigiTree()
 {
   edm::Service<TFileService> fs;
   gemcscpad_tree_ = fs->make<TTree>("GEMCSCPadDigiTree", "GEMCSCPadDigiTree");
@@ -372,7 +397,7 @@ void GEMDigiAnalyzer::bookGEMCSCPadDigiTree()
   gemcscpad_tree_->Branch("g_z", &gemcscpad_digi_.g_z);
 }
 
-void GEMDigiAnalyzer::bookGEMCSCCoPadDigiTree()
+void MuonDigiAnalyzer::bookGEMCSCCoPadDigiTree()
 {
   edm::Service<TFileService> fs;
   gemcsccopad_tree_ = fs->make<TTree>("GEMCSCCoPadDigiTree", "GEMCSCCoPadDigiTree");
@@ -395,7 +420,7 @@ void GEMDigiAnalyzer::bookGEMCSCCoPadDigiTree()
   gemcsccopad_tree_->Branch("g_z", &gemcsccopad_digi_.g_z);
 }
 
- void GEMDigiAnalyzer::bookSimTracksTree()
+ void MuonDigiAnalyzer::bookSimTracksTree()
  {
    edm::Service< TFileService > fs;
    track_tree_ = fs->make<TTree>("TrackTree", "TrackTree");
@@ -431,22 +456,21 @@ void GEMDigiAnalyzer::bookGEMCSCCoPadDigiTree()
  }
 
 // ------------ method called for each event  ------------
-void GEMDigiAnalyzer::beginJob()
+void MuonDigiAnalyzer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void GEMDigiAnalyzer::endJob() 
+void MuonDigiAnalyzer::endJob() 
 {
 }
 // ======= RPC ========
-void GEMDigiAnalyzer::analyzeRPC()
+void MuonDigiAnalyzer::analyzeRPC()
 {
   //Loop over RPC digi collection
   for(RPCDigiCollection::DigiRangeIterator cItr = rpc_digis->begin(); cItr != rpc_digis->end(); ++cItr)
   {
     RPCDetId id = (*cItr).first;
-    std::cout << id << std::endl;
 
     if (id.region() == 0) continue; // not interested in barrel
 
@@ -490,7 +514,7 @@ void GEMDigiAnalyzer::analyzeRPC()
 
 
 // ======= GEM ========
-void GEMDigiAnalyzer::analyzeGEM()
+void MuonDigiAnalyzer::analyzeGEM()
 {
   //Loop over GEM digi collection
   for(GEMDigiCollection::DigiRangeIterator cItr = gem_digis->begin(); cItr != gem_digis->end(); ++cItr)
@@ -536,7 +560,7 @@ void GEMDigiAnalyzer::analyzeGEM()
 
 
 // ======= GEMCSCPad ========
-void GEMDigiAnalyzer::analyzeGEMCSCPad()
+void MuonDigiAnalyzer::analyzeGEMCSCPad()
 {
   //Loop over GEMCSCPad digi collection
   for(GEMCSCPadDigiCollection::DigiRangeIterator cItr = gemcscpad_digis->begin(); cItr != gemcscpad_digis->end(); ++cItr)
@@ -582,7 +606,7 @@ void GEMDigiAnalyzer::analyzeGEMCSCPad()
 
 
 // ======= GEMCSCCoPad ========
-void GEMDigiAnalyzer::analyzeGEMCSCCoPad()
+void MuonDigiAnalyzer::analyzeGEMCSCCoPad()
 {
   //Loop over GEMCSCPad digi collection
   for(GEMCSCPadDigiCollection::DigiRangeIterator cItr = gemcsccopad_digis->begin(); cItr != gemcsccopad_digis->end(); ++cItr)
@@ -626,20 +650,23 @@ void GEMDigiAnalyzer::analyzeGEMCSCCoPad()
   }
 }
 
-bool GEMDigiAnalyzer::isSimTrackGood(const SimTrack &t)
+bool MuonDigiAnalyzer::isSimTrackGood(const SimTrack &t)
 {
   // SimTrack selection
   if (t.noVertex()) return false;
   if (t.noGenpart()) return false;
-  if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
-  if (t.momentum().pt() < minPt_) return false;
-  float eta = std::abs(t.momentum().eta());
-  if (eta > 2.18 || eta < 1.55) return false; // no GEMs could be in such eta
+  // only muons 
+  if (std::abs(t.type()) != 13 and simTrackOnlyMuon_) return false;
+  // pt selection
+  if (t.momentum().pt() < simTrackMinPt_) return false;
+  // eta selection
+  const float eta(std::abs(t.momentum().eta()));
+  if (eta > simTrackMaxEta_ || eta < simTrackMinEta_) return false; 
   return true;
 }
 
 // ======= GEM Matching ========
-void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void MuonDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
   const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
@@ -653,7 +680,6 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
     
     const SimHitMatcher&  match_sh = match.simhits();
     const GEMDigiMatcher& match_gd = match.gemDigis();
-    //    const SimTrack &t = match_sh.trk();
     
     track_.pt = t.momentum().pt();
     track_.phi = t.momentum().phi();
@@ -853,7 +879,7 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void GEMDigiAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+void MuonDigiAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
@@ -862,13 +888,13 @@ void GEMDigiAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.addDefault(desc);
 }
 
-void GEMDigiAnalyzer::buildLUT()
+void MuonDigiAnalyzer::buildLUT()
 {
   std::vector<int> pos_ids;
-  pos_ids.push_back(GEMDetId(1,1,1,1,36,1).rawId());
+  pos_ids.push_back(GEMDetId(1,1,1,1,36,2).rawId());
 
   std::vector<int> neg_ids;
-  neg_ids.push_back(GEMDetId(-1,1,1,1,36,1).rawId());
+  neg_ids.push_back(GEMDetId(-1,1,1,1,36,2).rawId());
 
   // VK: I would really suggest getting phis from GEMGeometry
   
@@ -876,8 +902,8 @@ void GEMDigiAnalyzer::buildLUT()
   phis.push_back(0.);
   for(int i=1; i<37; ++i)
   {
-    pos_ids.push_back(GEMDetId(1,1,1,1,i,1).rawId());
-    neg_ids.push_back(GEMDetId(-1,1,1,1,i,1).rawId());
+    pos_ids.push_back(GEMDetId(1,1,1,1,i,2).rawId());
+    neg_ids.push_back(GEMDetId(-1,1,1,1,i,2).rawId());
     phis.push_back(i*10.);
   }
   positiveLUT_ = std::make_pair(phis,pos_ids);
@@ -885,7 +911,7 @@ void GEMDigiAnalyzer::buildLUT()
 }
 
 std::pair<int,int>
-GEMDigiAnalyzer::getClosestChambers(int region, float phi)
+MuonDigiAnalyzer::getClosestChambers(int region, float phi)
 {
   auto& phis(positiveLUT_.first);
   auto upper = std::upper_bound(phis.begin(), phis.end(), phi);
@@ -896,4 +922,4 @@ GEMDigiAnalyzer::getClosestChambers(int region, float phi)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(GEMDigiAnalyzer);
+DEFINE_FWK_MODULE(MuonDigiAnalyzer);
