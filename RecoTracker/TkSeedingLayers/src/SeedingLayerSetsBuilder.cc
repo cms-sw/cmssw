@@ -31,11 +31,7 @@ using namespace std;
 std::string SeedingLayerSetsBuilder::LayerSpec::print() const
 {
   std::ostringstream str;
-  str << "Layer="<<name<<", hitBldr: "<<hitBuilder<<", useErrorsFromParam: ";
-  if (useErrorsFromParam) {
-     str <<"true,"<<" errRPhi: "<<hitErrorRPhi<<", errRZ: "<<hitErrorRZ; 
-  }
-  else str<<"false";
+  str << "Layer="<<name<<", hitBldr: "<<hitBuilder;
 
   str << ", useRingSelector: ";
   if (useRingSelector) {
@@ -115,12 +111,6 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
 	}
       }
       layer.hitBuilder  = cfgLayer.getParameter<string>("TTRHBuilder");
-
-      layer.useErrorsFromParam = cfgLayer.exists("useErrorsFromParam") ? cfgLayer.getParameter<bool>("useErrorsFromParam") : false; 
-      if(layer.useErrorsFromParam) {
-        layer.hitErrorRPhi = cfgLayer.getParameter<double>("hitErrorRPhi");
-        layer.hitErrorRZ   = cfgLayer.getParameter<double>("hitErrorRZ");
-      }
 
       layer.useRingSelector = cfgLayer.exists("useRingSlector") ? cfgLayer.getParameter<bool>("useRingSlector") : false;
       if (layer.useRingSelector) {
@@ -316,12 +306,7 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
 	  return result;
 	}
 	int layerSetId = it->second;
-        if (layer.useErrorsFromParam) {
-          set.push_back( SeedingLayer( name, layerSetId, detLayer, builder.product(), 
-                                       extractor, true, layer.hitErrorRPhi,layer.hitErrorRZ));	  
-        } else {
-          set.push_back( SeedingLayer( name, layerSetId, detLayer, builder.product(), extractor));
-        }
+        set.push_back( SeedingLayer( name, layerSetId, detLayer, builder.product(), extractor));
       }
     
     }

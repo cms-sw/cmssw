@@ -102,19 +102,13 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                                         ),
 
                                 BPix = cms.PSet(
-                                    hitErrorRZ = cms.double(0.006),
-                                    hitErrorRPhi = cms.double(0.0027),
                                     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
                                     HitProducer = cms.string('siPixelRecHits'),
-                                    useErrorsFromParam = cms.bool(True),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 FPix = cms.PSet(
-                                    hitErrorRZ = cms.double(0.0036),
-                                    hitErrorRPhi = cms.double(0.0051),
                                     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
                                     HitProducer = cms.string('siPixelRecHits'),
-                                    useErrorsFromParam = cms.bool(True),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TIB1 = cms.PSet(
