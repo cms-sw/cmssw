@@ -119,12 +119,16 @@ void ClusterShape::determineShape
   pair<int,int> pos;
  
   // Get sorted pixels
-  vector<SiPixelCluster::Pixel> pixels = cluster.pixels();
-  sort(pixels.begin(),pixels.end(),lessPixel());
+  size_t npixels = cluster.pixelADC().size();
+  pixels_.reserve(npixels);
+  for(size_t i=0; i<npixels; ++i) {
+    pixels_.push_back(cluster.pixel(i));
+  }
+  sort(pixels_.begin(),pixels_.end(),lessPixel());
 
   // Look at all the pixels
-  for(vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin();
-                                                    pixel!= pixels.end();
+  for(vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels_.begin();
+                                                    pixel!= pixels_.end();
                                                     pixel++)
   {
     // Position
@@ -150,6 +154,7 @@ void ClusterShape::determineShape
       hig = pos.second;
     }
   }
+  pixels_.clear();
 
   // Check if straight, process last column
   if(processColumn(pos, false) == false)
@@ -186,11 +191,13 @@ void ClusterShape::determineShape
   // else
   { // FIXME do it
     assert((px+1)*(py+1) <= data.size.capacity());
+    const int pre_dx = x[1] - x[0];
+    const int pre_dy = y[1] - y[0];
     for(unsigned int ax = 0; ax <= px; ax++)
     for(unsigned int ay = 0; ay <= py; ay++)
     {
-      int dx = x[1] - x[0] + ax;
-      int dy = y[1] - y[0] + ay;
+      int dx = pre_dx + ax;
+      int dy = pre_dy + ay;
       if(odir != 0) dy *= odir;
   
       pair<int,int> s(dx,dy);

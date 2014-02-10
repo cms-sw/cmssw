@@ -1,7 +1,10 @@
 #ifndef _ClusterShape_h_
 #define _ClusterShape_h_
 
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+
 #include <utility>
+#include <vector>
 
 class PixelGeomDetUnit;
 class SiPixelCluster;
@@ -31,6 +34,7 @@ class ClusterShape
     (const PixelGeomDetUnit& pixelDet,ClusterData& data);
 */
 
+  std::vector<SiPixelCluster::Pixel> pixels_;
   int x[2],y[2], low,hig, olow,ohig, odir;
 };
 
