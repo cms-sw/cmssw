@@ -12,11 +12,23 @@ sys.argv.append( '-b' )
 import ROOT 
 ROOT.gROOT.SetBatch(1)
 
+def produceGEMSimHitPlots():
+  pass
+
+def produceCSCSimHitPlots():
+  pass
+
+def produceRPCSimHitPlots():
+  pass
+
+def produceME0SimHitPlots():
+  pass
 
 if __name__ == "__main__":  
 
   inputFile = '/afs/cern.ch/user/d/dildick/work/GEM/tempDir/CMSSW_6_2_0_pre7/src/GEMCode/GEMValidation/test/gem_sh_ana.test.root'
   inputFile = '/afs/cern.ch/user/d/dildick/work/GEM/testForMarcello/test/CMSSW_6_2_0_SLHC5/src/gem_sh_ana.root'
+  inputFile = '/afs/cern.ch/user/d/dildick/work/GEM/testForGeometry/CMSSW_6_2_0_SLHC7/src/gem_sh_ana.root'
   targetDir = './'
   
   ## extension for figures - add more?
@@ -124,6 +136,28 @@ if __name__ == "__main__":
 
     draw_occ(targetDir, "sh_xy_st1" + suff, ext, treeHits, pre + " SimHit occupancy: station1;globalX [cm];globalY [cm]",
              "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(st1,sel), "COLZ")
+    
+    draw_occ(targetDir, "sh_xy_rm1_st1_l1_odd" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station1, layer1, Odd;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,st1,l1,sel,odd), "COLZ")
+    draw_occ(targetDir, "sh_xy_rm1_st1_l2_odd" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station1, layer2, Odd;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,st1,l2,sel,odd), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_st1_l1_odd" + suff, ext, treeHits, pre + " SimHit occupancy: region1, station1 ,layer1, Odd;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,st1,l1,sel,odd), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_st1_l2_odd" + suff, ext, treeHits, pre + " SimHit occupancy: region1, station1, layer2, Odd;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,st1,l2,sel,odd), "COLZ")
+
+    draw_occ(targetDir, "sh_xy_rm1_st1_l1_even" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station1, layer1, Even;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,st1,l1,sel,even), "COLZ")
+    draw_occ(targetDir, "sh_xy_rm1_st1_l2_even" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station1, layer2, Even;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,st1,l2,sel,even), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_st1_l1_even" + suff, ext, treeHits, pre + " SimHit occupancy: region1, station1 ,layer1, Even;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,st1,l1,sel,even), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_st1_l2_even" + suff, ext, treeHits, pre + " SimHit occupancy: region1, station1, layer2, Even;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,st1,l2,sel,even), "COLZ")
+
+    ###################################################################"
+    
+
     draw_occ(targetDir, "sh_xy_rm1_st1_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station1, layer1;globalX [cm];globalY [cm]",
              "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,st1,l1,sel), "COLZ")
     draw_occ(targetDir, "sh_xy_rm1_st1_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station1, layer2;globalX [cm];globalY [cm]",
