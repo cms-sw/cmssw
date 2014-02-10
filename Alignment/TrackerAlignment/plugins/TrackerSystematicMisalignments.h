@@ -5,8 +5,8 @@
  *
  *  Class to misaligned tracker from DB.
  *
- *  $Date: 2012/06/13 16:23:32 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/06/14 14:45:15 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 // user include files
@@ -18,9 +18,6 @@
 class AlignableSurface;
 class Alignments;
 
-namespace edm {
-  class ParameterSet;
-}
 
 class TrackerSystematicMisalignments:
 public edm::EDAnalyzer
@@ -57,15 +54,19 @@ private:
 	double m_twistEpsilon;
 	double m_ellipticalEpsilon;
 	double m_skewEpsilon;
-	double m_saggitaEpsilon;
+	double m_sagittaEpsilon;
+
+        //misalignment phases
+        double m_ellipticalDelta;
+        double m_skewDelta;
+        double m_sagittaDelta;
 
 	// flag to steer suppression of blind movements
 	bool suppressBlindMvmts;
 
 	// flag for old z behaviour, version <= 1.5
 	bool oldMinusZconvention;
-
-  const edm::ParameterSet theParameterSet;
+	
 };
 
 #endif
