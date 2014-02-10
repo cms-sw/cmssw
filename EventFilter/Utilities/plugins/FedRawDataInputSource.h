@@ -47,8 +47,8 @@ private:
   virtual void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
+  evf::EvFDaqDirector::FileStatus nextEvent();
   evf::EvFDaqDirector::FileStatus getNextEvent();
-  evf::EvFDaqDirector::FileStatus cacheNextEvent();
   edm::Timestamp fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>&) const;
   void deleteFile(std::string const&);
   int grabNextJsonFile(boost::filesystem::path const&);
@@ -59,6 +59,14 @@ private:
   void threadError();
   bool exceptionState() {return setExceptionState_;}
 
+  //functions for single buffered reader
+  evf::EvFDaqDirector::FileStatus cacheNextEvent();
+  evf::EvFDaqDirector::FileStatus readNextChunkIntoBuffer();
+  void closeCurrentFile();
+  evf::EvFDaqDirector::FileStatus openNextFile();
+  evf::EvFDaqDirector::FileStatus searchForNextFile();
+
+  //variables
   evf::FastMonitoringService* fms_=nullptr;
   evf::EvFDaqDirector* daqDirector_=nullptr;
 
@@ -67,6 +75,7 @@ private:
   unsigned int eventChunkSize_; // for buffered read-ahead
   unsigned int eventChunkBlock_; // how much read(2) asks at the time
   unsigned int readBlocks_;
+  unsigned int numBuffers_;
   unsigned int numConcurrentReads_;
   bool deleteFileAfterRead_;
 
@@ -84,13 +93,22 @@ private:
 
   std::unique_ptr<FRDEventMsgView> event_;
 
-  boost::filesystem::path openFile_;
   edm::EventID eventID_;
 
   unsigned int currentLumiSection_;
   unsigned int eventsThisLumi_;
 
   jsoncollector::DataPointDefinition *dpd_;
+
+  //variables for the single buffered reader
+  bool singleBufferMode_;
+  unsigned char *dataBuffer_ = nullptr;
+  unsigned char *bufferCursor_ = nullptr;
+  uint32_t bufferLeft_ = 0;
+  int fileDescriptor_ = -1;
+  boost::filesystem::path currentInputJson_;
+  boost::filesystem::path openFile_;
+  int currentInputEventCount_ = 0;
 
   /*
    *
