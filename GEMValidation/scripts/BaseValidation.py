@@ -31,7 +31,7 @@ class SimHitPlotter():
     self.treeCSCSimHits = (self.dirAna).Get(self.cscSimHits)
     self.treeME0SimHits = (self.dirAna).Get(self.me0SimHits)
     self.treeTracks = (self.dirAna).Get(self.simTracks)
-    self.sel = [muOnly,noMu,all]
+    self.sel = [muon,nonMuon,all]
     self.pre = ["Muon","Non muon","All"]
     self.suff = ["_muon","_nonmuon","_all"]
     self.geometry = "custom_GE11_6partitions_v1"
