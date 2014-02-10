@@ -297,7 +297,7 @@ unsigned int StorageInputStream::readBytes(XMLByte* const buf,
 //  std::cout << "lstr.avail_in " << lstr.avail_in << " lstr.total_in " << lstr.total_in << std::endl;
 //  std::cout << "lstr.avail_out " << lstr.avail_out << " lstr.total_out " << lstr.total_out << std::endl;
   if (lstr.avail_in){
-    std::cout << "rolling back" << std::endl;
+//    std::cout << "rolling back" << std::endl;
     in->position(-(IOOffset)(lstr.avail_in), Storage::CURRENT);    
   }  
   pos = lstr.total_out;
