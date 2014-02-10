@@ -235,10 +235,10 @@ MuonDigiAnalyzer::MuonDigiAnalyzer(const edm::ParameterSet& ps)
   simTrackMaxEta_ = simTrack.getParameter<double>("maxEta");
   simTrackOnlyMuon_ = simTrack.getParameter<bool>("onlyMuon");
 
-  auto gemDigi = cfg_.getParameter<edm::ParameterSet>("gemDigi");
+  auto gemDigi = cfg_.getParameter<edm::ParameterSet>("gemStripDigi");
   gemDigiInput_ = gemDigi.getParameter<edm::InputTag>("input");
   
-  auto rpcDigi = cfg_.getParameter<edm::ParameterSet>("rpcDigi");
+  auto rpcDigi = cfg_.getParameter<edm::ParameterSet>("rpcStripDigi");
   rpcDigiInput_ = rpcDigi.getParameter<edm::InputTag>("input");
 
   auto gemPadDigi= cfg_.getParameter<edm::ParameterSet>("gemPadDigi");
