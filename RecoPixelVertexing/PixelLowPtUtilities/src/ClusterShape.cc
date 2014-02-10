@@ -79,9 +79,10 @@ bool ClusterShape::processColumn(pair<int,int> pos, bool inTheLoop)
 struct lessPixel : public binary_function<SiPixelCluster::Pixel,
                                           SiPixelCluster::Pixel,bool>
 {
-  bool operator()(SiPixelCluster::Pixel a,
-                  SiPixelCluster::Pixel b)
+  bool operator()(const SiPixelCluster::Pixel& a,
+                  const SiPixelCluster::Pixel& b) const
   {
+    /*
     if(a.x < b.x) return true;
     if(a.x > b.x) return false;
 
@@ -89,6 +90,9 @@ struct lessPixel : public binary_function<SiPixelCluster::Pixel,
     if(a.y > b.y) return false;
 
     return false;
+    */
+    // slightly faster by avoiding branches
+    return (a.x < b.x) | ((a.x == b.x) & (a.y < b.y));
   }
 };
 
@@ -127,13 +131,11 @@ void ClusterShape::determineShape
   sort(pixels_.begin(),pixels_.end(),lessPixel());
 
   // Look at all the pixels
-  for(vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels_.begin();
-                                                    pixel!= pixels_.end();
-                                                    pixel++)
+  for(const auto& pixel: pixels_)
   {
     // Position
-    pos.first  = (int)pixel->x;
-    pos.second = (int)pixel->y;
+    pos.first  = (int)pixel.x;
+    pos.second = (int)pixel.y;
 
     // Check if at the edge or big 
     if(theTopology->isItEdgePixelInX(pos.first) ||
@@ -161,29 +163,38 @@ void ClusterShape::determineShape
     data.isStraight = false;
 
   // Treat clusters with big pixel(s) inside
-  for(int ix = cluster.minPixelRow() + 1;
-          ix < cluster.maxPixelRow(); ix++)
-    if(theTopology->isItBigPixelInX(ix)) x[1]++;
+  const int minPixelRow = cluster.minPixelRow();
+  const int maxPixelRow = cluster.maxPixelRow();
+  for(int ix = minPixelRow + 1;
+          ix < maxPixelRow; ix++)
+    x[1] += theTopology->isItBigPixelInX(ix);
  
-  for(int iy = cluster.minPixelCol() + 1;
-          iy < cluster.maxPixelCol(); iy++)
-    if(theTopology->isItBigPixelInY(iy)) y[1]++;
+  const int minPixelCol = cluster.minPixelCol();
+  const int maxPixelCol = cluster.maxPixelCol();
+  for(int iy = minPixelCol + 1;
+          iy < maxPixelCol; iy++)
+    y[1] += theTopology->isItBigPixelInY(iy);
 
   // Treat clusters with bix pixel(s) outside, FIXME FIXME
   unsigned int px = 0;
-  if(theTopology->isItBigPixelInX(cluster.minPixelRow())) px++;
-  if(theTopology->isItBigPixelInX(cluster.maxPixelRow())) px++;
+  px += theTopology->isItBigPixelInX(minPixelRow);
+  px += theTopology->isItBigPixelInX(maxPixelRow);
 
   unsigned int py = 0;
-  if(theTopology->isItBigPixelInY(cluster.minPixelCol())) py++;
-  if(theTopology->isItBigPixelInY(cluster.maxPixelCol())) py++;
+  py += theTopology->isItBigPixelInY(minPixelCol);
+  py += theTopology->isItBigPixelInY(maxPixelCol);
 
+  /*
   if(px > 0 || py > 0)
     data.hasBigPixelsOnlyInside = false;
   else
     data.hasBigPixelsOnlyInside = true;
+  */
+  data.hasBigPixelsOnlyInside = (px <= 0 && py <= 0);
 
-  if( (px > 0 || py > 0) && odir == 0)
+
+  //if( (px > 0 || py > 0) && odir == 0)
+  if( !data.hasBigPixelsOnlyInside && odir == 0)
   {
     // if outside and don't know the direction FIXME?
     data.isComplete = false;
