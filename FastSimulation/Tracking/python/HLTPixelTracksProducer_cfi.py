@@ -24,6 +24,8 @@ hltPixelTracks = cms.EDProducer("PixelTracksProducer",
     )
 )
 
+
+
 hltFastPixelHitsVertex = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltFastPixelTracks = hltPixelTracks.clone()
 hltFastPixelTracksRecover = hltPixelTracks.clone()
@@ -40,3 +42,9 @@ hltFastPrimaryVertex = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModu
 hltFastPVPixelTracks = hltPixelTracks.clone()
 hltFastPVPixelTracksRecover = hltPixelTracks.clone()
 
+hltPixelLayerPairs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltPixelLayerTriplets = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltPixelLayerTripletsReg = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltPixelLayerTripletsHITHB = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltPixelLayerTripletsHITHE = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltMixedLayerPairs = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()

@@ -1068,6 +1068,13 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPixelHitsVertex" )
       self.options['modules'].append( "-hltFastPixelTracks")
       self.options['modules'].append( "-hltFastPixelTracksRecover")
+
+      self.options['modules'].append( "-hltPixelLayerPairs" )
+      self.options['modules'].append( "-hltPixelLayerTriplets" )
+      self.options['modules'].append( "-hltPixelLayerTripletsReg" )
+      self.options['modules'].append( "-hltPixelLayerTripletsHITHB" )
+      self.options['modules'].append( "-hltPixelLayerTripletsHITHE" )
+      self.options['modules'].append( "-hltMixedLayerPairs" )
       
       self.options['modules'].append( "-hltFastPrimaryVertexbbPhi")
       self.options['modules'].append( "-hltPixelTracksFastPVbbPhi")

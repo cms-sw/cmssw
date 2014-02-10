@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-MASTER="/dev/CMSSW_7_0_0/HLT"        # no explicit version, take te most recent
-TARGET="/dev/CMSSW_7_0_0/\$TABLE"    # no explicit version, take te most recent
+MASTER="/dev/CMSSW_7_1_0/HLT"        # no explicit version, take te most recent
+TARGET="/dev/CMSSW_7_1_0/\$TABLE"    # no explicit version, take te most recent
 TABLES="GRun HIon PIon"              # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
@@ -89,8 +89,8 @@ function getConfigForOnline() {
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPI --globaltag auto:hltonline_PIon    > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPI --globaltag auto:startup_PIon      > OnLine_HLT_$NAME.py
   else
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME             --globaltag auto:hltonline         > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                                > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:hltonline         > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:startup_GRun      > OnLine_HLT_$NAME.py
   fi
 
   # do not use any conditions or L1 override
@@ -119,8 +119,9 @@ log
 
 # full config dumps, in CVS under HLTrigger/Configuration/test
 log "Extracting full configuration dumps"
-FILES=$(eval echo On{Data,Line}_HLT_{$TABLES_}.py)
+FILES=$(eval echo On{Data,Line}_HLT_FULL.py On{Data,Line}_HLT_{$TABLES_}.py)
 rm -f $FILES
+getConfigForOnline $MASTER FULL
 for TABLE in $TABLES; do
   getConfigForOnline $(eval echo $TARGET) $TABLE
 done
