@@ -26,7 +26,7 @@ public:
 
   void setFraction(float newFraction)  {theFraction = newFraction;};
 
-  void fillDigis(CSCWireDigiCollection & digis);
+  void fillDigis(CSCWireDigiCollection & digis, CLHEP::HepRandomEngine*);
 
 private:
   /// initialization for each layer

@@ -15,14 +15,15 @@
 
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
+#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandFlat.h"
+
 #include<iostream>
 #include <cmath>
 #include <math.h>
 
 HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise) :
   theDbService(0), 
-  theRandGaussQ(0),
-  theRandFlat(0),
   theParameterMap(parameters),
   theNoiseSignalGenerator(0),
   theIonFeedbackSim(0),
@@ -43,28 +44,20 @@ void HcalAmplifier::setDbService(const HcalDbService * service) {
 }
 
 
-void HcalAmplifier::setRandomEngine(CLHEP::HepRandomEngine & engine)
-{
-  theRandGaussQ = new CLHEP::RandGaussQ(engine);
-  theRandFlat = new CLHEP::RandFlat(engine);
-  if(theIonFeedbackSim) theIonFeedbackSim->setRandomEngine(engine);
-}
-
-
-void HcalAmplifier::amplify(CaloSamples & frame) const {
+void HcalAmplifier::amplify(CaloSamples & frame, CLHEP::HepRandomEngine* engine) const {
   if(theIonFeedbackSim)
   {
-    theIonFeedbackSim->addThermalNoise(frame);
+    theIonFeedbackSim->addThermalNoise(frame, engine);
   }
   pe2fC(frame);
   // don't bother for blank signals
   if(theTimeSlewSim && frame[4] > 1.e-6)
   {
-    theTimeSlewSim->delay(frame);
+    theTimeSlewSim->delay(frame, engine);
   }
   if(theNoiseSignalGenerator==0 || !theNoiseSignalGenerator->contains(frame.id()))
   {
-    addPedestals(frame);
+    addPedestals(frame, engine);
   }
   LogDebug("HcalAmplifier") << frame;
 }
@@ -85,7 +78,7 @@ void HcalAmplifier::setUseOldHE(bool useOld) { useOldHE = useOld; }
 void HcalAmplifier::setUseOldHF(bool useOld) { useOldHF = useOld; }
 void HcalAmplifier::setUseOldHO(bool useOld) { useOldHO = useOld; }
 
-void HcalAmplifier::addPedestals(CaloSamples & frame) const
+void HcalAmplifier::addPedestals(CaloSamples & frame, CLHEP::HepRandomEngine* engine) const
 {
    assert(theDbService != 0);
    HcalGenericDetId hcalGenDetId(frame.id());
@@ -107,7 +100,7 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
      if(addNoise_)
      {
        double gauss [32]; //big enough
-       for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
+       for (int i = 0; i < frame.size(); i++) gauss[i] = CLHEP::RandGaussQ::shoot(engine, 0., 1.);
        makeNoiseOld(hcalSubDet, calibWidths, frame.size(), gauss, noise);
      }
    
@@ -140,13 +133,13 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
     return;
   }
   const HcalPedestal * thisChanADCPeds = myADCPeds->getValues(hcalGenDetId);
-  int theStartingCapId_2 = (int)floor(theRandFlat->fire(0.,4.));
+  int theStartingCapId_2 = (int)floor(CLHEP::RandFlat::shoot(engine, 0., 4.));
 
   double noise [32] = {0.}; //big enough
   if(addNoise_)
   {
     double gauss [32]; //big enough
-    for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
+    for (int i = 0; i < frame.size(); i++) gauss[i] = CLHEP::RandGaussQ::shoot(engine, 0., 1.);
     makeNoise(*thisChanCholesky, frame.size(), gauss, noise, (int)theStartingCapId_2);
   }
 

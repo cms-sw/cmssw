@@ -9,6 +9,9 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataMixingHcalDigiWorkerProd.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 using namespace std;
 namespace edm {
@@ -79,9 +82,11 @@ namespace edm {
   void DataMixingHcalDigiWorkerProd::putHcal(edm::Event &e,const edm::EventSetup& ES) {
 
     // Digitize
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
     myHcalDigitizer_->initializeEvent( e, ES );
-    myHcalDigitizer_->finalizeEvent( e, ES );
+    myHcalDigitizer_->finalizeEvent( e, ES, engine );
   }
 
 } //edm

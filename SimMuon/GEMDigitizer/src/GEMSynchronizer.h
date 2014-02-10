@@ -9,16 +9,13 @@
  *  \author Vadim Khotilovich
  */
 
-#include "CLHEP/Random/Random.h"
-
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 
 class PSimHit;
 class GEMSimSetUp;
 
-namespace CLHEP
-{
-  class RandGaussQ;
+namespace CLHEP {
+  class HepRandomEngine;
 }
 
 class GEMSynchronizer
@@ -29,13 +26,11 @@ public:
 
   ~GEMSynchronizer();
 
-  int getSimHitBx(const PSimHit*);
+  int getSimHitBx(const PSimHit*, CLHEP::HepRandomEngine*);
 
   void setGEMSimSetUp(GEMSimSetUp *simsetup) { simSetUp_ = simsetup; }
 
   GEMSimSetUp* getGEMSimSetUp() { return simSetUp_; }
-
-  void setRandomEngine(CLHEP::HepRandomEngine& eng);
 
 private:
 
@@ -47,11 +42,6 @@ private:
   double bxwidth_;
   int minBunch_;
 
-  CLHEP::RandGaussQ *gauss1_;
-  CLHEP::RandGaussQ *gauss2_;
-
   GEMSimSetUp * simSetUp_;
-
 };
-
 #endif

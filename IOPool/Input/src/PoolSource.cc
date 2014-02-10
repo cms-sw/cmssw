@@ -260,15 +260,15 @@ namespace edm {
   }
 
   void
-  PoolSource::readOneRandom(EventPrincipal& cache) {
+  PoolSource::readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine* engine) {
     assert(!secondaryFileSequence_);
-    primaryFileSequence_->readOneRandom(cache);
+    primaryFileSequence_->readOneRandom(cache, engine);
   }
 
   bool
-  PoolSource::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID) {
+  PoolSource::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID, CLHEP::HepRandomEngine* engine) {
     assert(!secondaryFileSequence_);
-    return primaryFileSequence_->readOneRandomWithID(cache, lumiID);
+    return primaryFileSequence_->readOneRandomWithID(cache, lumiID, engine);
   }
 
   bool

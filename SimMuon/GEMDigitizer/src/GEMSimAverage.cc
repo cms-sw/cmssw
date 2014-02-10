@@ -6,11 +6,6 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 
@@ -32,25 +27,14 @@ GEMSimAverage::GEMSimAverage(const edm::ParameterSet& config) :
   sync_ = new GEMSynchronizer(config);
 }
 
-void GEMSimAverage::setRandomEngine(CLHEP::HepRandomEngine& eng)
-{
-  flatDistr1_ = new CLHEP::RandFlat(eng);
-  flatDistr2_ = new CLHEP::RandFlat(eng);
-  poissonDistr_ = new CLHEP::RandPoissonQ(eng);
-  sync_->setRandomEngine(eng);
-}
-
-
 GEMSimAverage::~GEMSimAverage()
 {
-  if (flatDistr1_) delete flatDistr1_;
-  if (flatDistr2_) delete flatDistr2_;
-  if (poissonDistr_) delete poissonDistr_;
   delete sync_;
 }
 
 void GEMSimAverage::simulate(const GEMEtaPartition* roll,
-			     const edm::PSimHitContainer& simHits)
+                             const edm::PSimHitContainer& simHits,
+                             CLHEP::HepRandomEngine* engine)
 {
   sync_->setGEMSimSetUp(getGEMSimSetUp());
   stripDigiSimLinks_.clear();
@@ -63,10 +47,10 @@ void GEMSimAverage::simulate(const GEMEtaPartition* roll,
   {
     if (std::abs(hit.particleType()) != 13) continue;
     // Check GEM efficiency
-    if (flatDistr1_->fire(1) > averageEfficiency_) continue;
+    if (CLHEP::RandFlat::shoot(engine) > averageEfficiency_) continue;
     auto entry = hit.entryPoint();
     
-    int time_hit = sync_->getSimHitBx(&hit);
+    int time_hit = sync_->getSimHitBx(&hit, engine);
     std::pair<int, int> digi(topology.channel(entry) + 1, time_hit);
       
     detectorHitMap_.insert(DetectorHitMap::value_type(digi, &hit));
@@ -75,7 +59,8 @@ void GEMSimAverage::simulate(const GEMEtaPartition* roll,
 }
 
 
-void GEMSimAverage::simulateNoise(const GEMEtaPartition* roll)
+void GEMSimAverage::simulateNoise(const GEMEtaPartition* roll,
+                                  CLHEP::HepRandomEngine* engine)
 {
   GEMDetId gemId = roll->id();
   int nstrips = roll->nstrips();
@@ -98,11 +83,12 @@ void GEMSimAverage::simulateNoise(const GEMEtaPartition* roll)
   const int nBxing = maxBunch_ - minBunch_ + 1;
   double averageNoise = averageNoiseRate_ * nBxing * bxwidth_ * area * 1.0e-9;
 
-  int n_hits = poissonDistr_->fire(averageNoise);
+  CLHEP::RandPoissonQ randPoissonQ(*engine, averageNoise);
+  int n_hits = randPoissonQ.fire();
 
   for (int i = 0; i < n_hits; i++ ){
-    int strip  = static_cast<int>(flatDistr1_->fire(1,nstrips));
-    int time_hit = static_cast<int>(flatDistr2_->fire(nBxing)) + minBunch_;
+    int strip  = static_cast<int>(CLHEP::RandFlat::shoot(engine, 1, nstrips));
+    int time_hit = static_cast<int>(CLHEP::RandFlat::shoot(engine, nBxing)) + minBunch_;
     std::pair<int, int> digi(strip,time_hit);
     strips_.insert(digi);
   }

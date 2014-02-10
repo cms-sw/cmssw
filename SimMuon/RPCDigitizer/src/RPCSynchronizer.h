@@ -15,12 +15,6 @@
 #include<vector>
 #include<stdlib.h>
 
-//#include "CLHEP/config/CLHEP.h"
-#include "CLHEP/Random/Random.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -36,9 +30,7 @@ namespace edm{
 }
 
 namespace CLHEP {
-  class RandGaussianQ;
-  class RandPoissonQ;
-  class RandFlat;
+  class HepRandomEngine;
 }
 
 class RPCSynchronizer
@@ -47,11 +39,9 @@ class RPCSynchronizer
   RPCSynchronizer(const edm::ParameterSet& config);
   ~RPCSynchronizer();
 
-  int getSimHitBx(const PSimHit*);
+  int getSimHitBx(const PSimHit*, CLHEP::HepRandomEngine*);
   void setRPCSimSetUp(RPCSimSetUp *simsetup){theSimSetUp = simsetup;}
   RPCSimSetUp* getRPCSimSetUp(){ return theSimSetUp; }
-
-  void setRandomEngine(CLHEP::HepRandomEngine& eng);
 
  private:
 
@@ -67,10 +57,6 @@ class RPCSynchronizer
   double LHCGate;
   bool cosmics;
 
-  CLHEP::RandGaussQ *gauss1;
-  CLHEP::RandGaussQ *gauss2;
   RPCSimSetUp * theSimSetUp;
-
 };
 #endif
-

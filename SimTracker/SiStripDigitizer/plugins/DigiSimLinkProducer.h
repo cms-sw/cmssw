@@ -27,10 +27,6 @@
 #include <vector>
 #include <map>
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
 class DigiSimLinkProducer : public edm::EDProducer
 {
 public:
@@ -57,7 +53,6 @@ private:
   vstring trackerContainers;
   simhit_map SimHitMap;
   int numStrips;    // number of strips in the module
-  CLHEP::HepRandomEngine* rndEngine;
   std::string geometryType;
   std::string alias;
   bool zeroSuppression;
