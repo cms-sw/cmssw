@@ -19,8 +19,7 @@ highPtTripletStepClusters = cms.EDProducer("TrackClusterRemover",
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-highPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
-    ComponentName = cms.string('highPtTripletStepSeedLayers'),
+highPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone(
     layerList = cms.vstring('BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
                             'BPix1+BPix3+BPix4', 'BPix1+BPix2+BPix4',
                             'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
@@ -165,6 +164,7 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
 
 # Final sequence
 HighPtTripletStep = cms.Sequence(highPtTripletStepClusters*
+                                highPtTripletStepSeedLayers*
                                 highPtTripletStepSeeds*
                                 highPtTripletStepTrackCandidates*
                                 highPtTripletStepTracks*

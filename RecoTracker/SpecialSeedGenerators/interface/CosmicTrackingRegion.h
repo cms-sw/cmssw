@@ -76,6 +76,11 @@ public:
       const edm::EventSetup& es, 
       const ctfseeding::SeedingLayer* layer) const;
 
+   TrackingRegion::Hits hits(
+      const edm::Event& ev,
+      const edm::EventSetup& es,
+      const SeedingLayerSetsHits::SeedingLayer& layer) const override;
+
    virtual HitRZCompatibility* checkRZ(
       const DetLayer* layer,
       const Hit & outerHit,
@@ -88,6 +93,11 @@ public:
    std::string name() const { return "CosmicTrackingRegion"; }
 
 private:
+  template <typename T>
+  TrackingRegion::Hits hits_(
+      const edm::Event& ev,
+      const edm::EventSetup& es,
+      const T& layer) const;
 
    std::string measurementTrackerName_;
 };

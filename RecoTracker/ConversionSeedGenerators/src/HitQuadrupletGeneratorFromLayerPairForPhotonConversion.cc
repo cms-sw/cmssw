@@ -13,10 +13,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 
 using namespace GeomDetEnumerators;
-using namespace ctfseeding;
 using namespace std;
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
@@ -35,8 +33,8 @@ template<class T> inline T sqr( T t) {return t*t;}
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 HitQuadrupletGeneratorFromLayerPairForPhotonConversion::HitQuadrupletGeneratorFromLayerPairForPhotonConversion(
-							     const Layer& inner, 
-							     const Layer& outer, 
+							     unsigned int inner,
+							     unsigned int outer,
 							     LayerCacheType* layerCache,
 							     unsigned int nSize,
 							     unsigned int max)
@@ -57,21 +55,24 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
   typedef OrderedHitPair::OuterRecHit OuterHit;
   typedef RecHitsSortedInPhi::Hit Hit;
 
+  Layer innerLayerObj = innerLayer();
+  Layer outerLayerObj = outerLayer();
+
   size_t totCountP2=0, totCountP1=0, totCountM2=0, totCountM1=0, selCount=0;
 #ifdef mydebug_QSeed
-  (*ss) << "In " << theInnerLayer.name() << " Out " << theOuterLayer.name() << std::endl;
+  (*ss) << "In " << innerLayerObj.name() << " Out " << theOuterLayer.name() << std::endl;
 #endif
 
   /*get hit sorted in phi for each layer: NB: doesn't apply any region cut*/
-  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(&theInnerLayer, region, event, es);
+  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, event, es);
   if (innerHitsMap.empty()) return;
  
-  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(&theOuterLayer, region, event, es);
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, event, es);
   if (outerHitsMap.empty()) return;
   /*----------------*/
 
   /*This object will check the compatibility of the his in phi among the two layers. */
-  //InnerDeltaPhi deltaPhi(*theInnerLayer.detLayer(), region, es);
+  //InnerDeltaPhi deltaPhi(*innerLayerObj.detLayer(), region, es);
 
   vector<RecHitsSortedInPhi::Hit> innerHits;
   //  float outerPhimin, outerPhimax;
@@ -87,7 +88,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
     GlobalPoint oPos = ohit->globalPosition();  
 
     totCountP2++;
-    const HitRZCompatibility *checkRZ = region.checkRZ(theOuterLayer.detLayer(), ohit, es);    
+    const HitRZCompatibility *checkRZ = region.checkRZ(outerLayerObj.detLayer(), ohit, es);
     for(nextoh=oh+1;nextoh!=outerHits.second; ++nextoh){
       
       RecHitsSortedInPhi::Hit nohit = (*nextoh).hit();
@@ -105,7 +106,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
     totCountM2++;
     
     /*Check the compatibility of the ohit with the eta of the seeding track*/
-    if(failCheckRZCompatibility(nohit,*theOuterLayer.detLayer(),checkRZ,region)) continue;
+    if(failCheckRZCompatibility(nohit,*outerLayerObj.detLayer(),checkRZ,region)) continue;
 
     /*  
     //Do I need this? it uses a compatibility that probably I wouldn't 
@@ -128,8 +129,8 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
     (*ss) << "\tiphimin, iphimax " << innerPhimin << " " << innerPhimax << std::endl;
 #endif    
 
-    const HitRZCompatibility *checkRZb = region.checkRZ(theInnerLayer.detLayer(),  ohit, es);
-    const HitRZCompatibility *checkRZc = region.checkRZ(theInnerLayer.detLayer(), nohit, es);
+    const HitRZCompatibility *checkRZb = region.checkRZ(innerLayerObj.detLayer(),  ohit, es);
+    const HitRZCompatibility *checkRZc = region.checkRZ(innerLayerObj.detLayer(), nohit, es);
 
     /*Loop on inner hits*/
     vector<RecHitsSortedInPhi::Hit>::const_iterator ieh = innerHits.end();
@@ -146,9 +147,9 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
       totCountP1++;
       
       /*Check the compatibility of the ihit with the two outer hits*/
-      if(failCheckRZCompatibility(ihit,*theInnerLayer.detLayer(),checkRZb,region) 
+      if(failCheckRZCompatibility(ihit,*innerLayerObj.detLayer(),checkRZb,region)
 	 || 
-	 failCheckRZCompatibility(ihit,*theInnerLayer.detLayer(),checkRZc,region) ) continue;
+	 failCheckRZCompatibility(ihit,*innerLayerObj.detLayer(),checkRZc,region) ) continue;
       
       
       for ( vector<RecHitsSortedInPhi::Hit>::const_iterator nextih=ih+1; nextih != ieh; ++nextih) {  
@@ -166,9 +167,9 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
 	totCountM1++;
 
 	/*Check the compatibility of the nihit with the two outer hits*/
-	if(failCheckRZCompatibility(nihit,*theInnerLayer.detLayer(),checkRZb,region) 
+	if(failCheckRZCompatibility(nihit,*innerLayerObj.detLayer(),checkRZb,region)
 	   || 
-	   failCheckRZCompatibility(nihit,*theInnerLayer.detLayer(),checkRZc,region) ) continue;
+	   failCheckRZCompatibility(nihit,*innerLayerObj.detLayer(),checkRZc,region) ) continue;
 	
 	/*Sguazz modifica qui*/
 	if(failCheckSlopeTest(ohit,nohit,ihit,nihit,region)) continue;
@@ -180,7 +181,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
 	  delete checkRZb;
 	  delete checkRZc;	  
 #ifdef mydebug_QSeed
-	  (*ss) << "In " << theInnerLayer.name() << " Out " << theOuterLayer.name()
+	  (*ss) << "In " << innerLayerObj.name() << " Out " << outerLayerObj.name()
 		<< "\tP2 " << totCountP2 
 		<< "\tM2 " << totCountM2 
 		<< "\tP1 " << totCountP1 
@@ -205,7 +206,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
     delete checkRZ;
   }
 #ifdef mydebug_QSeed
-  (*ss) << "In " << theInnerLayer.name() << " Out " << theOuterLayer.name() 
+  (*ss) << "In " << innerLayerObj.name() << " Out " << outerLayerObj.name()
 	<< "\tP2 " << totCountP2 
 	<< "\tM2 " << totCountM2 
 	<< "\tP1 " << totCountP1 

@@ -46,11 +46,9 @@ largeD0step1StripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHit
 )
 #SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-largeD0step1layertriplets = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
-    ComponentName = 'largeD0step1LayerTriplets',
-)
-largeD0step1layertriplets.BPix.HitProducer = 'largeD0step1PixelRecHits'
-largeD0step1layertriplets.FPix.HitProducer = 'largeD0step1PixelRecHits'
+largeD0step1LayerTriplets = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
+largeD0step1LayerTriplets.BPix.HitProducer = 'largeD0step1PixelRecHits'
+largeD0step1LayerTriplets.FPix.HitProducer = 'largeD0step1PixelRecHits'
 
 #SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
@@ -175,6 +173,7 @@ largeD0step1Trk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHig
 largeD0step1 = cms.Sequence(trkfilter1*
                             largeD0step1Clusters*
                             largeD0step1PixelRecHits*largeD0step1StripRecHits*
+                            largeD0step1LayerTriplets*
                             largeD0step1Seeds*
                             largeD0step1TrackCandidates*
                             largeD0step1WithMaterialTracks*

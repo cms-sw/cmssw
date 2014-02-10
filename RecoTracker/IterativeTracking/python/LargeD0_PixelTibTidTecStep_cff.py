@@ -62,14 +62,12 @@ largeD0step3StripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHit
     )
 #SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelAndStripLayerPairs_cfi
-largeD0step3layerpairs = RecoTracker.TkSeedingLayers.PixelAndStripLayerPairs_cfi.pixelandstriplayerpairs.clone(
-    ComponentName = 'largeD0step3LayerPairs',
-    )
-largeD0step3layerpairs.BPix.HitProducer = 'largeD0step3PixelRecHits'
-largeD0step3layerpairs.FPix.HitProducer = 'largeD0step3PixelRecHits'
-largeD0step3layerpairs.TIB.matchedRecHits = 'largeD0step3StripRecHits:matchedRecHit'
-largeD0step3layerpairs.TID.matchedRecHits = 'largeD0step3StripRecHits:matchedRecHit'
-largeD0step3layerpairs.TEC.matchedRecHits = 'largeD0step3StripRecHits:matchedRecHit'
+largeD0step3LayerPairs = RecoTracker.TkSeedingLayers.PixelAndStripLayerPairs_cfi.PixelAndStripLayerPairs.clone()
+largeD0step3LayerPairs.BPix.HitProducer = 'largeD0step3PixelRecHits'
+largeD0step3LayerPairs.FPix.HitProducer = 'largeD0step3PixelRecHits'
+largeD0step3LayerPairs.TIB.matchedRecHits = 'largeD0step3StripRecHits:matchedRecHit'
+largeD0step3LayerPairs.TID.matchedRecHits = 'largeD0step3StripRecHits:matchedRecHit'
+largeD0step3LayerPairs.TEC.matchedRecHits = 'largeD0step3StripRecHits:matchedRecHit'
 
 #SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
@@ -203,6 +201,7 @@ largeD0step3Trk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHig
 largeD0step3 = cms.Sequence(trkfilter3*
                             largeD0step3Clusters*
                             largeD0step3PixelRecHits*largeD0step3StripRecHits*
+                            largeD0step3LayerPairs*
                             largeD0step3Seeds*
                             largeD0step3TrackCandidates*
                             largeD0step3WithMaterialTracks*

@@ -8,19 +8,10 @@ typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 using namespace ctfseeding;
 
 
-GenericTripletGenerator::GenericTripletGenerator(const edm::ParameterSet& conf): 
-	//conf_(conf),
-	theLsb(conf.getParameter<edm::ParameterSet>("LayerPSet")){
+GenericTripletGenerator::GenericTripletGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
+  theLsb(conf.getParameter<edm::ParameterSet>("LayerPSet"), iC) {
 	edm::LogInfo("CtfSpecialSeedGenerator|GenericTripletGenerator") << "Constructing GenericTripletGenerator";
 } 
-
-
-SeedingLayerSets GenericTripletGenerator::init(const edm::EventSetup& es){
-	//edm::ParameterSet leyerPSet = conf_.getParameter<edm::ParameterSet>("LayerPSet");
-	//SeedingLayerSetsBuilder lsBuilder(leyerPSet);
-  	SeedingLayerSets lss = theLsb.layers(es);
-	return lss;	
-}
 
 
 const OrderedSeedingHits& GenericTripletGenerator::run(const TrackingRegion& region,
@@ -28,10 +19,12 @@ const OrderedSeedingHits& GenericTripletGenerator::run(const TrackingRegion& reg
                               				     const edm::EventSetup& es){
 	hitTriplets.clear();
 	hitTriplets.reserve(0);
-	SeedingLayerSets lss = init(es);
+        if(theLsb.check(es)) {
+          theLss = theLsb.layers(es);
+        }
 	SeedingLayerSets::const_iterator iLss;
 	std::map<float, OrderedHitTriplet> radius_triplet_map;
-	for (iLss = lss.begin(); iLss != lss.end(); iLss++){
+	for (iLss = theLss.begin(); iLss != theLss.end(); iLss++){
 		SeedingLayers ls = *iLss;
 		if (ls.size() != 3){
                 	throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << ls.size() <<" layers in set instead of 3 ";

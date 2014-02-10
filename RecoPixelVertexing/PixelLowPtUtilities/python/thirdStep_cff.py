@@ -26,10 +26,7 @@ thirdStripRecHits.ClusterProducer = 'thirdClusters'
 
 #################################
 # Tertiary pairs
-from RecoPixelVertexing.PixelLowPtUtilities.common_cff import BPixError
-from RecoPixelVertexing.PixelLowPtUtilities.common_cff import FPixError
-thirdLayerPairs = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('ThirdLayerPairs'),
+ThirdLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix1+BPix2',
         'BPix1+BPix3',
         'BPix2+BPix3',
@@ -44,12 +41,10 @@ thirdLayerPairs = cms.ESProducer("SeedingLayersESProducer",
 #       'FPix1_pos+FPix2_pos',
 #       'FPix1_neg+FPix2_neg'),
     BPix = cms.PSet(
-        BPixError,
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
         HitProducer = cms.string('thirdPixelRecHits')
     ),
     FPix = cms.PSet(
-        FPixError,
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
         HitProducer = cms.string('thirdPixelRecHits')
     )

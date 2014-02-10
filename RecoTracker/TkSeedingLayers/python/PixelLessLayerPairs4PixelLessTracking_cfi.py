@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ### standard configuration of *strip* layer pairs to be used 
 ### to reconstruct tracks without using additional pixel-with tracking steps. 
 
-pixelLessLayerPairs4PixelLessTracking = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('pixelLessLayerPairs4PixelLessTracking'),
+pixelLessLayerPairs4PixelLessTracking = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
         'TIB1+TIB2','TIB1+TIB3','TIB2+TIB3',
         'TIB1+TID1_pos', 'TIB1+TID1_neg',

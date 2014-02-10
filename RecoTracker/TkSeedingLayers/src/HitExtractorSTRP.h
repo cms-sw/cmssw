@@ -6,8 +6,11 @@
 #include "HitExtractor.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
 #include <vector>
+#include <tuple>
 class DetLayer;
 
 namespace edm {
@@ -21,43 +24,55 @@ class HitExtractorSTRP : public HitExtractor {
 public:
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
-  HitExtractorSTRP( const DetLayer* detLayer,  SeedingLayer::Side & side, int idLayer);
+  HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer);
   virtual ~HitExtractorSTRP(){}
 
-  virtual HitExtractor::Hits hits( const SeedingLayer & sl, const edm::Event& , const edm::EventSetup& ) const;
+  virtual HitExtractor::Hits hits( const TransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup& ) const;
   virtual HitExtractorSTRP * clone() const { return new HitExtractorSTRP(*this); }
 
-  void useMatchedHits( const edm::InputTag & m) { hasMatchedHits = true; theMatchedHits = m; }
-  void useRPhiHits(    const edm::InputTag & m) { hasRPhiHits    = true; theRPhiHits = m; }
-  void useStereoHits(  const edm::InputTag & m) { hasStereoHits = true; theStereoHits = m; }
+  void useMatchedHits( const edm::InputTag & m, edm::ConsumesCollector& iC) { hasMatchedHits = true; theMatchedHits = iC.consumes<SiStripMatchedRecHit2DCollection>(m); }
+  void useRPhiHits(    const edm::InputTag & m, edm::ConsumesCollector& iC) { hasRPhiHits    = true; theRPhiHits = iC.consumes<SiStripRecHit2DCollection>(m); }
+  void useStereoHits(  const edm::InputTag & m, edm::ConsumesCollector& iC) { hasStereoHits = true; theStereoHits = iC.consumes<SiStripRecHit2DCollection>(m); }
   void useRingSelector(int minRing, int maxRing);
   void useSimpleRphiHitsCleaner(bool use) {hasSimpleRphiHitsCleaner = use;}
 
-  void cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits, bool matched, unsigned int cleanFrom=0) const;
+  void cleanedOfClusters( const TransientTrackingRecHitBuilder& ttrhBuilder, const edm::Event& ev, HitExtractor::Hits & hits, bool matched, unsigned int cleanFrom=0) const;
 
-  bool skipThis(TransientTrackingRecHit::ConstRecHitPointer & ptr,edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask,
+  bool skipThis(const TransientTrackingRecHitBuilder& ttrhBuilder, TransientTrackingRecHit::ConstRecHitPointer & ptr,edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask,
 		TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
 
   bool skipThis(OmniClusterRef const& clus, edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
 
-  void project(TransientTrackingRecHit::ConstRecHitPointer & ptr,
+  void project(const TransientTrackingRecHitBuilder& ttrhBuilder,
+               TransientTrackingRecHit::ConstRecHitPointer & ptr,
 	       const SiStripRecHit2D * hit,
 	       TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
   void setNoProjection() const {failProjection=true;};
   void setMinAbsZ(double minZToSet) {minAbsZ=minZToSet;}
+
+  bool useRingSelector() const { return hasRingSelector; }
+  std::tuple<int, int> getMinMaxRing() const { return std::make_tuple(theMinRing, theMaxRing); }
 private:
   bool ringRange(int ring) const;
+
+  typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > SkipClustersCollection;
+  void useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) override;
 private:
-  const DetLayer * theLayer;
+  const GeomDetEnumerators::SubDetector theLayerSubDet;
   SeedingLayer::Side theSide;
   mutable const SeedingLayer * theSLayer;
   int theIdLayer;
-  bool hasMatchedHits; edm::InputTag theMatchedHits;
-  bool hasRPhiHits;    edm::InputTag theRPhiHits;
-  bool hasStereoHits;  edm::InputTag theStereoHits;
-  bool hasRingSelector; int theMinRing, theMaxRing; 
-  bool hasSimpleRphiHitsCleaner;
   double minAbsZ;
+  int theMinRing, theMaxRing;
+  edm::EDGetTokenT<SkipClustersCollection> theSkipClusters;
+  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> theMatchedHits;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> theRPhiHits;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> theStereoHits;
+  bool hasMatchedHits;
+  bool hasRPhiHits;
+  bool hasStereoHits;
+  bool hasRingSelector;
+  bool hasSimpleRphiHitsCleaner;
   mutable bool failProjection;
 };
 

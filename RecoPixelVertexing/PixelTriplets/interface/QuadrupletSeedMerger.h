@@ -42,6 +42,7 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 
 class TrackerTopology;
+namespace edm { class ConsumesCollector; }
 
 ///
 /// helper class for extracting info
@@ -78,7 +79,7 @@ class QuadrupletSeedMerger {
 
  public:
 
-  QuadrupletSeedMerger( );
+  explicit QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
   ~QuadrupletSeedMerger();
 
   void update(const edm::EventSetup& );
@@ -89,7 +90,6 @@ class QuadrupletSeedMerger {
   void printHit( const TrackingRecHit* ) const;
   void printHit( const  TransientTrackingRecHit::ConstRecHitPointer& ) const;
   void printNtuplet( const SeedingHitSet& ) const;
-  void setLayerListName( std::string );
   void setMergeTriplets( bool );
   void setAddRemainingTriplets( bool );
   void setTTRHBuilderLabel( std::string );
@@ -102,10 +102,10 @@ class QuadrupletSeedMerger {
 
     // bool isValidQuadruplet( const SeedingHitSet&, const std::vector<SeedMergerPixelLayer>& ) const;
 
+  SeedingLayerSetsBuilder theLayerBuilder_;
   ctfseeding::SeedingLayerSets theLayerSets_;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry_;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder_;
-  std::string layerListName_;
   bool isMergeTriplets_;
   bool isAddRemainingTriplets_;
   std::string theTTRHBuilderLabel_;

@@ -7,13 +7,15 @@
  */ 
 
 #include <vector>
+#include <memory>
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 class TrackingRegion;
+class SeedingLayerSetsHits;
 class MultiHitGeneratorFromPairAndLayers;
-namespace ctfseeding { class SeedingLayer;}
 
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
@@ -24,7 +26,7 @@ public:
 
 public:
 
-  CombinedMultiHitGenerator( const edm::ParameterSet& cfg);
+  CombinedMultiHitGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   virtual ~CombinedMultiHitGenerator();
 
@@ -33,14 +35,10 @@ public:
       const edm::Event & ev,  const edm::EventSetup& es);
 
 private:
-  void init(const edm::ParameterSet & cfg, const edm::EventSetup& es);
+  edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 
-  mutable bool initialised;
-
-  edm::ParameterSet         theConfig;
   LayerCacheType            theLayerCache;
 
-  typedef std::vector<MultiHitGeneratorFromPairAndLayers* > GeneratorContainer;
-  GeneratorContainer        theGenerators;
+  std::unique_ptr<MultiHitGeneratorFromPairAndLayers> theGenerator;
 };
 #endif

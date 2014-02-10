@@ -22,37 +22,30 @@ PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
 PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSet & conf,
 	edm::ConsumesCollector && iC)
   :_conf(conf),seedCollection(0),
-   hitsfactoryPSet(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet")),   
    creatorPSet(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet")),
-   regfactoryPSet(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet")),
-   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), std::move(iC)),
+   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), iC),
    SeedComparitorPSet(conf.getParameter<edm::ParameterSet>("SeedComparitorPSet")),
    QuadCutPSet(conf.getParameter<edm::ParameterSet>("QuadCutPSet")),
-   theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)){
+   theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)),
+   theHitsGenerator(new CombinedHitQuadrupletGeneratorForPhotonConversion(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet"), iC)),
+   theRegionProducer(new GlobalTrackingRegionProducerFromBeamSpot(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC)) {
 
-  theRegionProducer = new GlobalTrackingRegionProducerFromBeamSpot(regfactoryPSet, std::move(iC));
-  
   token_vertex      = iC.consumes<reco::VertexCollection>(_conf.getParameter<edm::InputTag>("primaryVerticesTag"));
 
   init();  
 }
      
 PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::~PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo() {
-  if(theRegionProducer!=NULL)
-    delete theRegionProducer;
 }
 
 void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
 clear(){
-  if(theHitsGenerator!=NULL)
-    delete theHitsGenerator;
   if(theSeedCreator!=NULL)
     delete theSeedCreator;
 }
 
 void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
 init(){
-  theHitsGenerator  = new CombinedHitQuadrupletGeneratorForPhotonConversion(hitsfactoryPSet);
   theSeedCreator    = new SeedForPhotonConversionFromQuadruplets(creatorPSet);
 }
 

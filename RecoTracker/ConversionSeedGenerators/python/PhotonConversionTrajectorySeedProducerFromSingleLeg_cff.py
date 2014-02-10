@@ -28,8 +28,7 @@ convStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverte
     ClusterProducer = 'convClusters'
     )
 
-convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
-                                ComponentName = cms.string('convLayerPairs'),
+convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2', 
 
                                                         'BPix2+BPix3', 
@@ -113,18 +112,12 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                                         ),
 
                                 BPix = cms.PSet(
-                                    hitErrorRZ = cms.double(0.006),
-                                    hitErrorRPhi = cms.double(0.0027),
                                     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
                                     HitProducer = cms.string('convPixelRecHits'),
-                                    useErrorsFromParam = cms.bool(True)
                                     ),
                                 FPix = cms.PSet(
-                                    hitErrorRZ = cms.double(0.0036),
-                                    hitErrorRPhi = cms.double(0.0051),
                                     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
                                     HitProducer = cms.string('convPixelRecHits'),
-                                    useErrorsFromParam = cms.bool(True)
                                     ),
                                 TIB1 = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
@@ -314,6 +307,7 @@ convStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity
     )
 
 convSequence = cms.Sequence( TrackRefitterStd * convFilter * convClusters * convPixelRecHits * convStripRecHits 
+                             * convLayerPairs
                              * photonConvTrajSeedFromSingleLeg 
                              *convTrackCandidates*convStepTracks
                              #*convStepLoose*convStepTight

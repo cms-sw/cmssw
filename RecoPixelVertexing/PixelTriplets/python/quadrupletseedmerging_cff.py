@@ -2,9 +2,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # creating quadruplet SeedingLayerSets for the merger;
-pixelseedmergerlayers = cms.ESProducer( "SeedingLayersESProducer",
+PixelSeedMergerQuadruplets = cms.PSet(
   appendToDataLabel = cms.string( "" ),
-  ComponentName = cms.string( "PixelSeedMergerQuadruplets" ),
 
   # this simply describes all possible layer/disk combinations
   # on which quadruplets are expected to appear
@@ -27,18 +26,12 @@ pixelseedmergerlayers = cms.ESProducer( "SeedingLayersESProducer",
   ),
 
   BPix = cms.PSet( 
-    useErrorsFromParam = cms.bool( True ),
-    hitErrorRPhi = cms.double( 0.0027 ),
     TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
-    hitErrorRZ = cms.double( 0.0060 )
   ),
   FPix = cms.PSet( 
-    useErrorsFromParam = cms.bool( True ),
-    hitErrorRPhi = cms.double( 0.0051 ),
     TTRHBuilder = cms.string( "TTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltSiPixelRecHits" ),
-    hitErrorRZ = cms.double( 0.0036 )
   ),
   TEC = cms.PSet(  )
 )

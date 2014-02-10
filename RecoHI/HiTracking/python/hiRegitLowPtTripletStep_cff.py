@@ -30,9 +30,7 @@ hiRegitLowPtTripletStepClusters = cms.EDProducer("TrackClusterRemover",
 
 
 # SEEDING LAYERS
-hiRegitLowPtTripletStepSeedLayers =  RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeedLayers.clone(
-    ComponentName = 'hiRegitLowPtTripletStepSeedLayers'
-    )
+hiRegitLowPtTripletStepSeedLayers =  RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeedLayers.clone()
 hiRegitLowPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitLowPtTripletStepClusters')
 hiRegitLowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitLowPtTripletStepClusters')
 
@@ -103,6 +101,7 @@ hiRegitLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiM
 
 
 hiRegitLowPtTripletStep = cms.Sequence(hiRegitLowPtTripletStepClusters*
+                                       hiRegitLowPtTripletStepSeedLayers*
                                        hiRegitLowPtTripletStepSeeds*
                                        hiRegitLowPtTripletStepTrackCandidates*
                                        hiRegitLowPtTripletStepTracks*

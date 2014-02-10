@@ -6,6 +6,7 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="RecoTracker/Record"/>
 <use   name="RecoTracker/TkSeedingLayers"/>
+<use   name="RecoTracker/SeedingLayerSetsHits"/>
 <use   name="RecoTracker/TkMSParametrization"/>
 <use   name="RecoTracker/MeasurementDet"/>
 <use   name="TrackingTools/PatternTools"/>

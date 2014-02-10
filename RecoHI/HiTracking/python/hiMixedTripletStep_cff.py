@@ -24,22 +24,15 @@ hiMixedTripletClusters = cms.EDProducer("TrackClusterRemover",
 
 
 # SEEDING LAYERS
-hiMixedTripletSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
-                                             ComponentName = cms.string('hiMixedTripletSeedLayersA'),
+hiMixedTripletSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
                                              layerList = cms.vstring('FPix1_pos+FPix2_pos+TEC1_pos', 'FPix1_neg+FPix2_neg+TEC1_neg'),
                                                                      #'FPix2_pos+TEC2_pos+TEC3_pos', 'FPix2_neg+TEC2_neg+TEC3_neg'),
                                    BPix = cms.PSet(
-    useErrorsFromParam = cms.bool(True),
-    hitErrorRZ = cms.double(0.006),
-    hitErrorRPhi = cms.double(0.0027),
     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
     HitProducer = cms.string('siPixelRecHits'),
     skipClusters = cms.InputTag('hiMixedTripletClusters')
     ),
                                    FPix = cms.PSet(
-    useErrorsFromParam = cms.bool(True),
-    hitErrorRPhi = cms.double(0.0051),
-    hitErrorRZ = cms.double(0.0036),
     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
     HitProducer = cms.string('siPixelRecHits'),
     skipClusters = cms.InputTag('hiMixedTripletClusters')
@@ -74,8 +67,7 @@ hiMixedTripletSeedsA.ClusterCheckPSet.MaxNumberOfCosmicClusters = 50000000
 
 
 # SEEDING LAYERS
-hiMixedTripletSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
-                                   ComponentName = cms.string('hiMixedTripletSeedLayersB'),
+hiMixedTripletSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
                                    layerList = cms.vstring(
     #'BPix1+BPix2+TIB1',
     #'BPix1+BPix2+TIB2',    
@@ -84,9 +76,6 @@ hiMixedTripletSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
     'BPix2+BPix3+TIB1',
     'BPix2+BPix3+TIB2'),
                                    BPix = cms.PSet(
-    useErrorsFromParam = cms.bool(True),
-    hitErrorRPhi = cms.double(0.0027),
-    hitErrorRZ = cms.double(0.006),
     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
     HitProducer = cms.string('siPixelRecHits'),
     skipClusters = cms.InputTag('hiMixedTripletClusters')
@@ -207,7 +196,9 @@ hiMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiT
 
 hiMixedTripletStep = cms.Sequence(
                           hiMixedTripletClusters*
+                          hiMixedTripletSeedLayersA*
                           hiMixedTripletSeedsA*
+                          hiMixedTripletSeedLayersB*
                           hiMixedTripletSeedsB*
                           hiMixedTripletSeeds*
                           hiMixedTripletTrackCandidates*

@@ -24,9 +24,7 @@ hiRegitMuPixelLessStepClusters = RecoTracker.IterativeTracking.PixelLessStep_cff
 )
 
 # SEEDING LAYERS
-hiRegitMuPixelLessStepSeedLayers =  RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.clone(
-    ComponentName = 'hiRegitMuPixelLessStepSeedLayers',
-    )
+hiRegitMuPixelLessStepSeedLayers =  RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.clone()
 hiRegitMuPixelLessStepSeedLayers.TIB.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
 hiRegitMuPixelLessStepSeedLayers.TID.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
 hiRegitMuPixelLessStepSeedLayers.TEC.skipClusters = cms.InputTag('hiRegitMuPixelLessStepClusters')
@@ -89,6 +87,7 @@ hiRegitMuPixelLessStepSelector               = RecoTracker.IterativeTracking.Pix
 )
 
 hiRegitMuonPixelLessStep = cms.Sequence(hiRegitMuPixelLessStepClusters*
+                                        hiRegitMuPixelLessStepSeedLayers*
                                         hiRegitMuPixelLessStepSeeds*
                                         hiRegitMuPixelLessStepTrackCandidates*
                                         hiRegitMuPixelLessStepTracks*

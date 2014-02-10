@@ -13,8 +13,7 @@ conv2Clusters = cms.EDProducer("TrackClusterRemover",
                               Common = cms.PSet(maxChi2 = cms.double(30.0))
                               )
 
-conv2LayerPairs = cms.ESProducer("SeedingLayersESProducer",
-                                ComponentName = cms.string('conv2LayerPairs'),
+conv2LayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2', 
 
                                                         'BPix2+BPix3', 
@@ -89,19 +88,13 @@ conv2LayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                                         ),
                                 
                                 BPix = cms.PSet(
-                                    hitErrorRZ = cms.double(0.006),
-                                    hitErrorRPhi = cms.double(0.0027),
                                     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
                                     HitProducer = cms.string('siPixelRecHits'),
-                                    useErrorsFromParam = cms.bool(True),
                                     skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 FPix = cms.PSet(
-                                    hitErrorRZ = cms.double(0.0036),
-                                    hitErrorRPhi = cms.double(0.0051),
                                     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
                                     HitProducer = cms.string('siPixelRecHits'),
-                                    useErrorsFromParam = cms.bool(True),
                                     skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TIB1 = cms.PSet(
@@ -298,6 +291,7 @@ conv2StepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multi
     ) #end of clone
 
 Conv2Step = cms.Sequence( conv2Clusters 
+                         + conv2LayerPairs
                          + photonConvTrajSeedFromQuadruplets 
                          + conv2TrackCandidates
                          + conv2StepTracks

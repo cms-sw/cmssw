@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # This is standard pixel-pair seeding, but making use of TEC disks
 # in forward region to boost acceptance.
 
-mixedlayerpairs = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('MixedLayerPairs'),
+MixedLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix1+BPix2', 
         'BPix1+BPix3', 
         'BPix2+BPix3', 
@@ -34,18 +33,12 @@ mixedlayerpairs = cms.ESProducer("SeedingLayersESProducer",
         maxRing = cms.int32(1)
     ),
     BPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0027),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
         HitProducer = cms.string('siPixelRecHits'),
-        hitErrorRZ = cms.double(0.006)
     ),
     FPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0051),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
         HitProducer = cms.string('siPixelRecHits'),
-        hitErrorRZ = cms.double(0.0036)
     )
 )
 

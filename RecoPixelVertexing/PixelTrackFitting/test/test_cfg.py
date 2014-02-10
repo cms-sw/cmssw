@@ -69,5 +69,5 @@ process.pixelTracks2.FilterPSet.ComponentName = cms.string('none')
 
 process.test = cms.EDAnalyzer("PixelTrackTest", TrackCollection = cms.string("pixelTracks2"))
 
-process.p=cms.Path(process.siPixelDigis*process.pixeltrackerlocalreco*process.offlineBeamSpot*process.pixelTracks2*process.test)
+process.p=cms.Path(process.siPixelDigis*process.pixeltrackerlocalreco*process.offlineBeamSpot*process.PixelLayerTriplets*process.pixelTracks2*process.test)
 

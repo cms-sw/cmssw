@@ -26,9 +26,7 @@ hiSecondPixelTripletClusters = cms.EDProducer("TrackClusterRemover",
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-hiSecondPixelTripletSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
-        ComponentName = 'hiSecondPixelTripletSeedLayers'
-            )
+hiSecondPixelTripletSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 hiSecondPixelTripletSeedLayers.BPix.skipClusters = cms.InputTag('hiSecondPixelTripletClusters')
 hiSecondPixelTripletSeedLayers.FPix.skipClusters = cms.InputTag('hiSecondPixelTripletClusters')
 
@@ -139,6 +137,7 @@ hiSecondQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerg
 
 hiSecondPixelTripletStep = cms.Sequence(hiFirstStepFilter*
                                         hiSecondPixelTripletClusters*
+                                        hiSecondPixelTripletSeedLayers*
                                         hiSecondPixelTripletSeeds*
                                         hiSecondPixelTripletTrackCandidates*
                                         hiSecondPixelTripletGlobalPrimTracks*

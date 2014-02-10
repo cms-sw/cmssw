@@ -8,7 +8,7 @@ SeedGeneratorParameters = cms.PSet(
         ComponentName = cms.string('TSGFromOrderedHits'),
         OrderedHitsFactoryPSet = cms.PSet(
             ComponentName = cms.string('StandardHitPairGenerator'),
-            SeedingLayers = cms.string('PixelLayerPairs')
+            SeedingLayers = cms.InputTag('PixelLayerPairs')
         ),
         TTRHBuilder = cms.string('WithTrackAngle')
     ),
@@ -16,7 +16,7 @@ SeedGeneratorParameters = cms.PSet(
         ComponentName = cms.string('TSGFromOrderedHits'),
         OrderedHitsFactoryPSet = cms.PSet(
             ComponentName = cms.string('StandardHitTripletGenerator'),
-            SeedingLayers = cms.string('PixelLayerTriplets'),
+            SeedingLayers = cms.InputTag('PixelLayerTriplets'),
             GeneratorPSet = cms.PSet(
                 PixelTripletHLTGenerator
             )
@@ -27,7 +27,7 @@ SeedGeneratorParameters = cms.PSet(
         ComponentName = cms.string('TSGFromOrderedHits'),
         OrderedHitsFactoryPSet = cms.PSet(
             ComponentName = cms.string('StandardHitPairGenerator'),
-            SeedingLayers = cms.string('MixedLayerPairs')
+            SeedingLayers = cms.InputTag('MixedLayerPairs')
         ),
         TTRHBuilder = cms.string('WithTrackAngle')
     )

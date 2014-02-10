@@ -20,8 +20,7 @@ pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # SEEDING LAYERS
-pixelLessStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('pixelLessStepSeedLayersA'),
+pixelLessStepSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('TIB1+TID1_pos','TIB1+TID1_neg',
         'TID3_pos+TEC1_pos','TID3_neg+TEC1_neg',
         'TID1_pos+TID2_pos','TID2_pos+TID3_pos',
@@ -68,8 +67,7 @@ pixelLessStepSeedsA.SeedComparitorPSet = cms.PSet(
         ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
     )
 
-pixelLessStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('pixelLessStepSeedLayersB'),
+pixelLessStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('TIB1+TIB2', 'TIB2+TIB3', 'TID3_pos+TEC1_pos','TID3_neg+TEC1_neg'),
     TIB1 = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
@@ -237,7 +235,9 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
 
 
 PixelLessStep = cms.Sequence(pixelLessStepClusters*
+                             pixelLessStepSeedLayersA*
                              pixelLessStepSeedsA*
+                             pixelLessStepSeedLayersB*
                              pixelLessStepSeedsB*
                              pixelLessStepSeeds*
                              pixelLessStepTrackCandidates*

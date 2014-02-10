@@ -60,6 +60,7 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   std::string builderName;
 
   SeedingLayerSetsBuilder theLsb;
+  ctfseeding::SeedingLayerSets theLss;
   GlobalTrackingRegion region_;
   double pMin_;
   bool writeTriplets_;

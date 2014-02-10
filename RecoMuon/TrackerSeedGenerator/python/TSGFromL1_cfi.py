@@ -36,7 +36,7 @@ hltL3TrajectorySeedFromL1 = cms.EDProducer("TSGFromL1Muon",
     ),
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitPairGenerator'),
-        SeedingLayers = cms.string('PixelLayerPairs')
+        SeedingLayers = cms.InputTag('PixelLayerPairs')
     )
 )
 
