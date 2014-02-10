@@ -63,8 +63,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TFile.h"
 #include "TObjString.h"
@@ -234,8 +232,9 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 //void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 {
-  
+  cout << "algoBeginRun start" << endl;
   if(!harvestingMode) {
+    cout << "   booking start" << endl;
     // FIXME: decide what should be the folder name following the convention already there for ALCARECOS
     dbe->setCurrentFolder("AlCaReco/SiStripGains/");
 
@@ -250,6 +249,7 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
     Charge_Vs_PathlengthTECM1 = dbe->book2D("Charge_Vs_PathlengthTECM1", "Charge_Vs_PathlengthTECM1", 20   , 0.3 , 1.3  , 250,0,2000);
     Charge_Vs_PathlengthTECM2 = dbe->book2D("Charge_Vs_PathlengthTECM2", "Charge_Vs_PathlengthTECM2", 20   , 0.3 , 1.3  , 250,0,2000);
   } else {
+    cout << "   retrieving from DQMStore" << endl;
     // When running in AlCaHarvesting mode the histos are already booked and should be just retrieved from
     // DQMStore so that they can be used in the fit
     Charge_Vs_Index           = dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index");
@@ -299,7 +299,7 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
           for(unsigned int j=0;j<NAPV;j++){
                 stAPVGain* APV = new stAPVGain;
                 APV->Index         = Index;
-                APV->Bin           = Charge_Vs_Index->getRefTH2D()->GetXaxis()->FindBin(APV->Index);
+                APV->Bin           = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index);
                 APV->DetId         = Detid.rawId();
                 APV->APVId         = j;
                 APV->SubDet        = SubDet;
@@ -343,6 +343,8 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
    ERun       = 0;
    GOOD       = 0;
    BAD        = 0;
+   
+   cout << "algoBeginJob end" << endl;
 }
 
 
@@ -550,7 +552,7 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 
 void SiStripGainFromCalibTree::algoComputeMPVandGain() {
    unsigned int I=0;
-   TH1D* Proj = NULL;
+   TH1F* Proj = NULL;
    double FitResults[5];
    double MPVmean = 300;
 
@@ -562,7 +564,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
    //if(I>1000)break;
       stAPVGain* APV = it->second;
 
-      Proj = (TH1D*)(Charge_Vs_Index->getRefTH2D()->ProjectionY("",APV->Bin,APV->Bin,"e"));
+      Proj = (TH1F*)(Charge_Vs_Index->getTH2F()->ProjectionY("",APV->Bin,APV->Bin,"e"));
       if(!Proj)continue;
 
       if(CalibrationLevel==0){
@@ -570,7 +572,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
          int SecondAPVId = APV->APVId;
          if(SecondAPVId%2==0){    SecondAPVId = SecondAPVId+1; }else{ SecondAPVId = SecondAPVId-1; }
 	 stAPVGain* APV2 = APVsColl[(APV->DetId<<3) | SecondAPVId];
-         TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->getRefTH2D()->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
+         TH1F* Proj2 = (TH1F*)(Charge_Vs_Index->getTH2F()->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
          if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
       }else if(CalibrationLevel==2){
           for(unsigned int i=0;i<6;i++){
@@ -579,7 +581,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
             if(tmpit==APVsColl.end())continue;
             stAPVGain* APV2 = tmpit->second;
 	    if(APV2->DetId != APV->DetId || APV2->APVId == APV->APVId)continue;            
-            TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->getRefTH2D()->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
+            TH1F* Proj2 = (TH1F*)(Charge_Vs_Index->getTH2F()->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
 //            if(Proj2 && APV->DetId==369171124)printf("B) DetId %6i APVId %1i --> NEntries = %f\n",APV2->DetId, APV2->APVId, Proj2->GetEntries());
             if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
           }          
@@ -776,6 +778,7 @@ void
 SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // in AlCaHarvesting mode we just need to run the logic in the endJob step
+  cout << "ANALYZE" << endl;
   if(harvestingMode) return;
   
    if(AlgoMode=="CalibTree")return;
