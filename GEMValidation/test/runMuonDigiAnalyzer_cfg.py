@@ -24,12 +24,12 @@ from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
 process.MuonDigiAnalyzer = cms.EDAnalyzer("MuonDigiAnalyzer",
     simTrackMatching = SimTrackMatching
 )
-process.MuonDigiAnalyzer.simTrackMatching.cscComparatorDigiInput = ""
-process.MuonDigiAnalyzer.simTrackMatching.cscWireDigiInput = ""
-process.MuonDigiAnalyzer.simTrackMatching.cscCLCTInput = ""
-process.MuonDigiAnalyzer.simTrackMatching.cscALCTInput = ""
-process.MuonDigiAnalyzer.simTrackMatching.cscLCTInput = ""
-process.MuonDigiAnalyzer.simTrackMatching.gemRecHitInput = ""
+process.MuonDigiAnalyzer.simTrackMatching.cscStripDigi.input = ""
+process.MuonDigiAnalyzer.simTrackMatching.cscWireDigi.input = ""
+process.MuonDigiAnalyzer.simTrackMatching.cscCLCT.input = ""
+process.MuonDigiAnalyzer.simTrackMatching.cscALCT.input = ""
+process.MuonDigiAnalyzer.simTrackMatching.cscLCT.input = ""
+process.MuonDigiAnalyzer.simTrackMatching.gemRecHit.input = ""
 process.MuonDigiAnalyzer.simTrackMatching.tfTrack.input = ""
 process.MuonDigiAnalyzer.simTrackMatching.tfCand.input = ""
 process.MuonDigiAnalyzer.simTrackMatching.gmtCand.input = ""
