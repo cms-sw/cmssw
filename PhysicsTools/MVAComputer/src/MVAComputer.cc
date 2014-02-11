@@ -27,7 +27,7 @@
 // #define DEBUG_EVAL
 
 #ifdef DEBUG_EVAL
-#	include <Reflex/Tools.h>
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 #endif
 
 #define STANDALONE_HEADER "MVAComputer calibration\n"
@@ -126,6 +126,7 @@ void MVAComputer::setup(const Calibration::MVAComputer *calib)
 		InputVar var;
 		var.var = Variable(iter->name, config[i].mask);
 		var.index = i;
+		var.multiplicity = 0;
 		variables.insert(var);
 	}
 
@@ -191,8 +192,9 @@ void MVAComputer::evalInternal(T &ctx) const
 			                          ? next->nOutput : 0;
 
 #ifdef DEBUG_EVAL
-			std::cout << ROOT::Reflex::Tools::Demangle(
-				typeid(*iter->processor)) << std::endl;
+		std::string demangledName;
+		edm::typeDemangle(typeid(*iter->processor).name(), demangledName);
+		std::cout << demangledName << std::endl;
 #endif
 			if (status != VarProcessor::kSkip)
 				ctx.eval(&*iter->processor, outConf, output,
