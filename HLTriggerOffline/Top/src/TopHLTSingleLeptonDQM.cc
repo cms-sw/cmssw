@@ -551,7 +551,7 @@ namespace TopHLTSingleLepton {
       }
     }
     if(multBPur != 0 && mMultIso == 1 ){
-	cout<<bJetCand.pt()<<"\t"<<mu.pt()<<"\t"<<mET.pt()<<endl;
+      //	cout<<bJetCand.pt()<<"\t"<<mu.pt()<<"\t"<<mET.pt()<<endl;
 	double mtW = eventKinematics.tmassWBoson(&mu,mET,bJetCand); fill("MTWm_",mtW);
 	double Mlb = eventKinematics.masslb(&mu,mET,bJetCand); fill("mMub_", Mlb);
 	double MTT = eventKinematics.tmassTopQuark(&mu,mET,bJetCand); fill("mMTT_", MTT);
