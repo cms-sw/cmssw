@@ -29,7 +29,7 @@ class PFCPositionCalculatorBase {
   const float _minFractionInCalc;
 
  private:  
-  std::string _algoName;
+  const std::string _algoName;
 
 };
 
