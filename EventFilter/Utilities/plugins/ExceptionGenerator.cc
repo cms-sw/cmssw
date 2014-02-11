@@ -29,7 +29,7 @@ namespace evf{
     {
       
     }
-  void ExceptionGenerator::beginJob()
+  void ExceptionGenerator::beginStream()
   {
     // timing destribution from (https://twiki.cern.ch/twiki/bin/viewauth/CMS/HLTCpuTimingFAQ#2011_Most_Recent_Data)
     // /castor/cern.ch/user/d/dsperka/HLT/triggerSkim_HLTPhysics_run178479_68_188.root
@@ -196,7 +196,7 @@ namespace evf{
 	      }
               break;
             case 11:
-	      {
+	      { 
                 iterations = static_cast<unsigned int>(
                   timingHisto_->GetRandom() * intqualifier_*12. + 0.5
                 );
