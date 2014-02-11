@@ -26,14 +26,10 @@ DDShashlikEndcap::initialize(const DDNumericArguments & nArgs,
 			     const DDStringArguments & sArgs,
 			     const DDStringVectorArguments & )
 {
-  m_startAngle  = nArgs["startAngle"];
-  m_stepAngle   = nArgs["stepAngle"];
   m_tiltAngle   = nArgs["tiltAngle"];
   m_invert      = int( nArgs["invert"] );
   m_rMin        = int( nArgs["rMin"] );
   m_rMax        = int( nArgs["rMax"] );
-  m_rPos        = nArgs["rPosition"];
-  m_xyoffset    = nArgs["xyoffset"];
   m_zoffset     = nArgs["zoffset"];
   m_n           = int( nArgs["n"] );
   m_startCopyNo = int( nArgs["startCopyNo"] );
@@ -48,71 +44,57 @@ void
 DDShashlikEndcap::execute( DDCompactView& cpv )
 {
   int copyNo = m_startCopyNo;
-  double phi = m_startAngle;
   double tiltAngle = m_tiltAngle;
-  double xphi = 0.;
-  double yphi = 0.;
+  double xphi = tiltAngle;
+  double yphi = tiltAngle;
   double theta  = 90.*CLHEP::deg;
   double phiX = 0.0;
   double phiY = theta;
   double phiZ = 3*theta; 
-  double offsetX = m_rMin;
-  double offsetY = m_xyoffset;
   double offsetZ = m_zoffset;
-  double angle = 0.0*CLHEP::deg;
+  double offsetX = offsetZ * sin( 2 * xphi );
+  double offsetY = offsetZ * sin( 2 * yphi );
   double offsetLimitX = m_rMax;
   double offsetLimitY = m_rMax;
-    
-  for( int iy = 0; offsetY < offsetLimitY; ++iy )
+
+  for( int iy = 0; offsetY < offsetLimitY; ++iy, yphi += 2*tiltAngle )
   {
-    for( int ix = 0; offsetX < offsetLimitX; ++ix )
-    {
-      DDRotation rotation;
-      std::string rotstr( "NULL" );
-      std::string rotstrX( "XNULL" );
-      std::string rotstrY( "YNULL" );
+    xphi = tiltAngle;
+    offsetX = offsetZ * sin( xphi );
+    offsetY = offsetZ * sin( yphi );
 
-      // Check if we've already created the rotation matrix
-      rotstr = "R"; 
-      rotstrX = "RX"; 
-      rotstrY = "RY"; 
-      rotstr  += dbl_to_string( phi * 10.);
-      rotstrX  += dbl_to_string( xphi * 10.);
-      rotstrY  += dbl_to_string( yphi * 10.);
-      rotation = DDRotation( DDName( rotstr + rotstrX + rotstrY ));
-      if( !rotation )
+    for( int ix = 0; offsetX < offsetLimitX; ++ix, xphi += 2*tiltAngle )
+    {
+      offsetX = offsetZ * sin( xphi );
+      
+      // Make sure we do not add supermodules in rMin area
+      if( sqrt( offsetX*offsetX + offsetY*offsetY ) > m_rMin )
       {
-	rotation = DDrot( DDName( rotstr + rotstrX + rotstrY, m_idNameSpace ),
-			  new DDRotationMatrix( *DDcreateRotationMatrix( theta, phiX, theta + phi, phiY, -phi, phiZ )
-						* ( *DDcreateRotationMatrix( theta + xphi, phiX, 90.*CLHEP::deg, 90.*CLHEP::deg, xphi, 0.0 ))));
+	DDRotation rotation;
+	std::string rotstr( "NULL" );
+
+	// Check if we've already created the rotation matrix
+	rotstr = "R"; 
+	rotstr  += dbl_to_string( copyNo );
+	rotation = DDRotation( DDName( rotstr ));
+	if( !rotation )
+	{
+	  rotation = DDrot( DDName( rotstr, m_idNameSpace ),
+			    new DDRotationMatrix( *DDcreateRotationMatrix( theta, phiX, theta + yphi, phiY, -yphi, phiZ )
+						  * ( *DDcreateRotationMatrix( theta + xphi, phiX, 90.*CLHEP::deg, 90.*CLHEP::deg, xphi, 0.0 ))));
+	}
+      
+	DDTranslation tran( offsetX, offsetY, offsetZ );
+	
+	DDName parentName = parent().name(); 
+	cpv.position( DDName( m_childName ), parentName, copyNo, tran, rotation );
+
+	if (sqrt(offsetX*offsetX + offsetY*offsetY) >= m_rMax)
+	  offsetLimitX = offsetX;
+	
+	copyNo += m_incrCopyNo;
       }
-      
-      DDTranslation tran( offsetX, offsetY, offsetZ );
-	
-      DDName parentName = parent().name(); 
-      cpv.position( DDName( m_childName ), parentName, copyNo, tran, rotation );
-      
-      offsetX += m_xyoffset;
-      if (sqrt(offsetX*offsetX + offsetY*offsetY) >= m_rMax)
-	offsetLimitX = offsetX;
-	
-      copyNo += m_incrCopyNo;
-      xphi += tiltAngle;     
     }
-
-    if( iy < 3 )
-    {
-      angle = m_startAngle + m_stepAngle * iy;
-      offsetX = m_rMin * cos( angle );
-      ( offsetX < 0.0 ) ? offsetX = 0.0 : offsetX;
-    }
-    else
-      offsetX = 0.0 ;
-
-    offsetY += m_xyoffset;
-    xphi = 0.;
-    yphi += tiltAngle;
-    
   }
 }
 

@@ -45,14 +45,10 @@
   <Numeric name="startCopyNo" value="1"/>
   <Numeric name="incrCopyNo"  value="1"/>
   <Numeric name="invert"      value="1"/>
-  <Numeric name="rMin"	      value="[rMinSHCal1]+[shashlikmodule:widthFront]"/>
-  <Numeric name="rMax"	      value="[rMaxSHCal1]"/>  
-  <Numeric name="stepAngle"   value="30.*deg"/>
-  <Numeric name="tiltAngle"   value="atan((2.5*([shashlikmodule:widthBack]-[shashlikmodule:widthFront]) ) / [shashlikmodule:moduleThickness] )"/>
-  <Numeric name="startAngle"  value="0*deg"/>
-  <Numeric name="rPosition"   value="[rMinSHCal1]"/>
-  <Numeric name="xyoffset"    value="2.5*([shashlikmodule:widthFront]+[shashlikmodule:widthBack])"/>
-  <Numeric name="zoffset"     value="[zSHCal1]+0.5*[shashlikmodule:moduleThickness]"/>
+  <Numeric name="rMin"	      value="[rMinSHCal1]+0.5*([shashlikmodule:widthFront]+[shashlikmodule:widthBack])+4.*cm"/>
+  <Numeric name="rMax"	      value="[rMaxSHCal1]-8.*cm"/>  
+  <Numeric name="tiltAngle"   value="2.25*atan(([shashlikmodule:widthBack]-[shashlikmodule:widthFront] ) / [shashlikmodule:moduleThickness] ) "/>
+  <Numeric name="zoffset"     value="[zSHCal1]+0.5*[shashlikmodule:moduleThickness] + 1.6*cm"/>
  </Algorithm>
 
 </DDDefinition>

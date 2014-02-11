@@ -23,13 +23,10 @@ public:
 private:
 
   double        m_startAngle;   // Start angle 
-  double        m_stepAngle;    // Step  angle
   double        m_tiltAngle;    // Tilt  angle
   int           m_invert;       // Inverted or forward
   double        m_rMin;         // Inner radius
   double        m_rMax;         // Outer radius
-  double        m_rPos;         // Radial position of center
-  double        m_xyoffset;     // Offset in x or y
   double        m_zoffset;      // Offset in z
   int           m_n;            // Mumber of copies
   int           m_startCopyNo;  // Start copy Number
