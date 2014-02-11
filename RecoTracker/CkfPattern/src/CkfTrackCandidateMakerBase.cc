@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -119,10 +120,11 @@ namespace cms{
 
     //services
     es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
+    std::string mfName = "";
     if (conf_.exists("SimpleMagneticField"))
-      es.get<IdealMagneticFieldRecord>().get(conf_.getParameter<std::string>("SimpleMagneticField"), theMagField );
-    else 
-      es.get<IdealMagneticFieldRecord>().get(theMagField );
+      mfName = conf_.getParameter<std::string>("SimpleMagneticField");
+    edm::ESInputTag mfESInputTag(mfName);
+    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
 
     if (!theInitialState){
       // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.

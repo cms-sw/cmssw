@@ -1,3 +1,4 @@
+#include <FWCore/Utilities/interface/ESInputTag.h>
 #include "RecoTracker/TkNavigation/plugins/CfgNavigationSchoolESProducer.h"
 #include "RecoTracker/TkNavigation/interface/CfgNavigationSchool.h"
 
@@ -6,10 +7,11 @@ NavigationSchoolESProducer::ReturnType CfgNavigationSchoolESProducer::produce(co
 
   // get the field
   edm::ESHandle<MagneticField>                field;
+  std::string mfName = "";
   if (theNavigationPSet.exists("SimpleMagneticField"))
-    iRecord.getRecord<IdealMagneticFieldRecord>().get(theNavigationPSet.getParameter<std::string>("SimpleMagneticField"), field);
-  else 
-    iRecord.getRecord<IdealMagneticFieldRecord>().get(field);
+    mfName = theNavigationPSet.getParameter<std::string>("SimpleMagneticField");
+  edm::ESInputTag mfESInputTag(mfName);
+  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,field);
 
   //get the geometricsearch tracker geometry
   edm::ESHandle<GeometricSearchTracker>         geometricSearchTracker;

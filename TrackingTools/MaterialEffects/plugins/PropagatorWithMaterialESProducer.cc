@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include <string>
 #include <memory>
@@ -38,10 +39,11 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
   double ptMin     = pset_.existsAs<double>("ptMin") ? pset_.getParameter<double>("ptMin") : -1.0;
 
   ESHandle<MagneticField> magfield;
+  std::string mfName = "";
   if (pset_.exists("SimpleMagneticField"))
-    iRecord.getRecord<IdealMagneticFieldRecord>().get(pset_.getParameter<std::string>("SimpleMagneticField"), magfield);
-  else 
-    iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
+    mfName = pset_.getParameter<std::string>("SimpleMagneticField");
+  edm::ESInputTag mfESInputTag(mfName);
+  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
   //fixme check that useRK is false when using SimpleMagneticField 
 
   PropagationDirection dir = alongMomentum;
