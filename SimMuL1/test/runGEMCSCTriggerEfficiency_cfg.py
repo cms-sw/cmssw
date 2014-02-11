@@ -1,10 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import sys, os
 
-# Hack to add "test" directory to the python path.
-sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'], 'src/L1Trigger/CSCTriggerPrimitives/test'))
-sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'], 'src'))
-
 ## initialization
 process = cms.Process('GEMCSCTRGANA')
 
@@ -12,34 +8,10 @@ process = cms.Process('GEMCSCTRGANA')
 cmssw = os.getenv( "CMSSW_VERSION" )
 
 ## steering
-events = 20
-defaultEmu = False
-pileup='000'
+events = 100000
 sample='dimu'
 globalTag = 'upgrade2019'
 #sample='minbias'
-
-
-## input
-from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
-suffix = '_gem98_pt2-50_PU0_pt0_new'
-inputDir = files[suffix]
-theInputFiles = []
-import os
-for d in range(len(inputDir)):
-  my_dir = inputDir[d]
-  if not os.path.isdir(my_dir):
-    print "ERROR: This is not a valid directory: ", my_dir
-    if d==len(inputDir)-1:
-      print "ERROR: No input files were selected"
-      exit()
-    continue
-  print "Proceed to next directory"
-  ls = os.listdir(my_dir)
-  ## this works only if you pass the location on pnfs - FIXME for files staring with store/user/... 
-  theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
-    
-print "InputFiles: ", theInputFiles
 
 ## readout windows
 w=3
@@ -52,9 +24,6 @@ if w==7:
 if w==61:
     readout_windows = [ [5,10],[1,11],[1,11],[1,11] ]
  
-## output
-outputFileName = 'hp_' + sample + "_" + cmssw + "_" + globalTag + "_pu%s"%(pileup) + '_w%d'%(w) + suffix + '_eff.root'
-print "outputFile:", outputFileName
 
 # import of standard configurations
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -62,25 +31,29 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2019_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.Digi_cff')
+process.load("Configuration.StandardSequences.L1Emulator_cff")
+process.load("Configuration.StandardSequences.L1Extra_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load('Configuration.StandardSequences.Digi_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load("Configuration.StandardSequences.L1Emulator_cff")
-process.load("Configuration.StandardSequences.L1Extra_cff")
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
-process.load("SimMuon.CSCDigitizer.muonCSCDigis_cfi")
 
-## GEM geometry customization
+## GEM geometry customization
 from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
 process = custom_GE11_6partitions_v1(process)
 
-## upgrade CSC TrackFinder                                                                                                                                               
+## SLHC customization
+from SLHCUpgradeSimulations.Configuration.muonCustoms import *
+process = unganged_me1a_geometry(process)
+process = customise_csc_L1Extra_allsim(process)
+
+## upgrade CSC TrackFinder
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1TrackFinder
 process = customise_csc_L1TrackFinder(process)
 process.simCsctfTrackDigis.SectorProcessor.isCoreVerbose = cms.bool(True)
@@ -100,13 +73,21 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     fileNames = cms.untracked.vstring(
-      *theInputFiles
+      'file:out_L1.root'
     )
 )
+
+from GEMCode.GEMValidation.InputFileHelpers import useInputDir
+from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import eosfiles
+suffix = '_pt2-50_PU140_dphi0_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'
+process = useInputDir(process, eosfiles[suffix], True)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(events)
 )
+
+## output
+outputFileName = 'hp_' + sample + "_" + cmssw + "_" + globalTag  + '_w%d'%(w) + suffix + '_eff.root'
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(outputFileName)
@@ -123,24 +104,10 @@ process.GEMCSCTriggerEfficiency.minBxLCT = readout_windows[2][0]
 process.GEMCSCTriggerEfficiency.maxBxLCT = readout_windows[2][1]
 process.GEMCSCTriggerEfficiency.minBxMPLCT = readout_windows[3][0]
 process.GEMCSCTriggerEfficiency.maxBxMPLCT = readout_windows[3][1]
-process.GEMCSCTriggerEfficiency.minNHitsChamber = cms.untracked.int32(4)
-process.GEMCSCTriggerEfficiency.requireME1WithMinNHitsChambers = cms.untracked.bool(True)
+process.GEMCSCTriggerEfficiency.minNHitsChamber = cms.untracked.int32(3)
 process.GEMCSCTriggerEfficiency.minSimTrPt = cms.untracked.double(2)
 GEMmatching = process.GEMCSCTriggerEfficiency.simTrackMatching
 GEMmatching.gemRecHit.input = ""
-#SimTrackMatching.verboseSimHit = 1
-#SimTrackMatching.verboseGEMDigi = 1
-#SimTrackMatching.verboseCSCDigi = 1
-#SimTrackMatching.verboseCSCStub = 1
-#SimTrackMatching.simMuOnlyGEM = False
-#SimTrackMatching.simMuOnlyCSC = False
-#SimTrackMatching.discardEleHitsCSC = False
-#SimTrackMatching.discardEleHitsGEM = False
-
-## SLHC customization
-from SLHCUpgradeSimulations.Configuration.muonCustoms import *
-process = unganged_me1a_geometry(process)
-process = customise_csc_L1Extra_allsim(process)
 
 ## sequence, path and schedule
 process.ana_seq = cms.Sequence(process.GEMCSCTriggerEfficiency)
@@ -156,3 +123,13 @@ process.schedule = cms.Schedule(
 #    process.reader_step
 )
 
+## messages
+print
+print 'Input files:'
+print '----------------------------------------'
+print process.source.fileNames
+print 
+print 'Output file:'
+print '----------------------------------------'
+print process.TFileService.fileName
+print 
