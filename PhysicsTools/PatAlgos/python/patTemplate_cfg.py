@@ -6,7 +6,7 @@ process = cms.Process("PAT")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 ## Options and Output Report
-process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 ## Source
 process.source = cms.Source("PoolSource",
@@ -16,18 +16,12 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
-#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )
+#from Configuration.AlCa.autoCond import autoCond
+#process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )
+process.GlobalTag.globaltag = cms.string( 'START53_V27::All' )
 process.load("Configuration.StandardSequences.MagneticField_cff")
-
-## Test JEC from test instances of the global DB
-#process.load("PhysicsTools.PatAlgos.patTestJEC_cfi")
-
-## Test JEC from local sqlite file
-#process.load("PhysicsTools.PatAlgos.patTestJEC_local_cfi")
 
 ## Standard PAT Configuration File
 process.load("PhysicsTools.PatAlgos.patSequences_cff")

@@ -27,6 +27,7 @@ SiStripQualityHotStripIdentifierRoot::SiStripQualityHotStripIdentifierRoot(const
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   filename(iConfig.getUntrackedParameter<std::string>("rootFilename","CondDB_TKCC_20X_v3_hlt_50822.root")),
   dirpath(iConfig.getUntrackedParameter<std::string>("rootDirPath","")),
+  TotNumberOfEvents(0),
   calibrationthreshold(iConfig.getUntrackedParameter<uint32_t>("CalibrationThreshold",10000))
 {
   reader = new SiStripDetInfoFileReader(fp_.fullPath());  

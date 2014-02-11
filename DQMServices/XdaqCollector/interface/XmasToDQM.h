@@ -59,7 +59,6 @@
 #include "toolbox/task/TimerFactory.h"
 
 #include <curl/curl.h>
-#include <curl/types.h>
 #include <curl/easy.h>
 #include <fstream> // for ifstream, ofstream, ios_base
 #include <iostream>

@@ -1028,8 +1028,8 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                         reportName = os.path.basename(log)
                                         (nologext, outd) = getOutputNames(LocalDirname,reportName) 
                                         CAND.write("<h4>%s</h4>\n" % reportName)
-                                        htmNames   = ["changes.gif"]
-                                        otherNames = ["graphs.gif" , "histos.gif"] 
+                                        htmNames   = ["changes.png"]
+                                        otherNames = ["graphs.png" , "histos.png"] 
                                         regressHTML= "%s-regress.html" % nologext
                                         pathsExist = reduce (lambda x,y: x or y,map(os.path.exists,map(lambda x: os.path.join(repdir,outd,x),otherNames)))
                                         html = ""
@@ -1063,8 +1063,8 @@ def createCandlHTML(tmplfile,candlHTML,CurrentCandle,WebArea,repdir,ExecutionDat
                                     for adir in simMemReports:
                                         reportName = os.path.basename(adir)
                                         CAND.write("<h4>%s</h4>\n" % reportName)
-                                        htmNames   = ["vsize_change.gif", "rss_change.gif"]
-                                        otherNames = ["vsize_graphs.gif","rss_graphs.gif"]
+                                        htmNames   = ["vsize_change.png", "rss_change.png"]
+                                        otherNames = ["vsize_graphs.png","rss_graphs.png"]
                                         nologext = reportName
                                         outd     = reportName
                                         regressHTML= "%s-regress.html" % nologext

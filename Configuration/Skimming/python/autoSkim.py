@@ -214,6 +214,42 @@ autoSkim = {
     'TauPlusX': 'LogError',
 """
 
+## autoSkim 2011 used for legacy 53x reRECO
+#  removed from original: Tau, HWW, WMu, DiPhoton, EXOHPTE, MuonTrack+BeamBkg+ValSkim+HSCPSD, DT 
+"""
+    'MinimumBias':'LogError',
+    'ZeroBias':'LogError',
+    'Commissioning':'LogError',
+    'Cosmics':'CosmicSP+LogError',
+    'Mu' : 'ZMu+HighMET+LogError',    
+    'EG':'WElectron+ZElectron+HighMET+LogError',
+    'Electron':'WElectron+ZElectron+HighMET+LogError',
+    'Photon':'WElectron+ZElectron+HighMET+LogError',
+    'JetMETTau':'LogError',
+    'JetMET':'HighMET+LogError',
+    'BTau':'LogError',
+    'Jet':'HighMET+LogError',
+    'METFwd':'HighMET+LogError',
+    'SingleMu' : 'ZMu+HighMET+LogError+HZZ+DiTau+EXOHSCP',
+    'DoubleMu' : 'ZMu+HighMET+LogError+HZZ+EXOHSCP',
+    'SingleElectron' : 'WElectron+HighMET+LogError+HZZ',
+    'DoubleElectron' : 'ZElectron+LogError+HZZ',
+    'MuEG' : 'LogError+HZZ',
+    'METBTag': 'HighMET+LogError+EXOHSCP',
+    'BTag': 'LogError+EXOHSCP',
+    'MET': 'HighMET+LogError+EXOHSCP',
+
+    'HT': 'HighMET+LogError',
+
+    'Tau': 'LogError',
+    'PhotonHad': 'LogError',
+    'MuHad': 'LogError',
+    'MultiJet': 'LogError',
+    'MuOnia': 'LogError',
+    'ElectronHad': 'LogError',
+    'TauPlusX': 'LogError',
+"""
+
 autoSkimPDWG = {
     
     }

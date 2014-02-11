@@ -63,6 +63,7 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("MCptEleMax",&ptEleMax,"MCptEleMax/F");
   HltTree->Branch("MCptMuMax",&ptMuMax,"MCptMuMax/F");
   HltTree->Branch("NPUTrueBX0",&npubx0, "NPUTrueBX0/I");
+  HltTree->Branch("NPUgenBX0",&npuvertbx0, "NPUgenBX0/I");
 }
 
 /* **Analyze the event** */
@@ -90,15 +91,18 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
     ptMuMax  = -999.0;    
     pthatf   = pthat;
     npubx0  = 0.0;
+    npuvertbx0 = 0;
 
     int npvtrue = 0; 
+    int npuvert = 0;
+    
 
     if((simTracks.isValid())&&(simVertices.isValid())){
       for (unsigned int j=0; j<simTracks->size(); j++) {
 	int pdgid = simTracks->at(j).type();
 	if (abs(pdgid)!=13) continue;
 	double pt = simTracks->at(j).momentum().pt();
-	if (pt<2.5) continue;
+	if (pt<5.0) continue;
 	double eta = simTracks->at(j).momentum().eta();
 	if (abs(eta)>2.5) continue;
 	if (simTracks->at(j).noVertex()) continue;
@@ -119,10 +123,13 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
 	
 	int BX = PVI->getBunchCrossing();  
 	npvtrue = PVI->getTrueNumInteractions();  
+	npuvert = PVI->getPU_NumInteractions();
+	
 	if(BX == 0)  
 	  {  
-	    npubx0+=npvtrue;  
-	  }  
+	    npubx0+=npvtrue; 
+	    npuvertbx0+=npuvert;
+	  } 
       }  
       
     }
@@ -164,8 +171,8 @@ void HLTMCtruth::analyze(const edm::Handle<reco::CandidateView> & mctruth,
 
 	// Set-up flags, based on Pythia-generator information, for avoiding double-counting events when
 	// using both pp->{e,mu}X AND QCD samples
-// 	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>2.5)) {mu3 += 1;} // Flag for muons with pT > 2.5 GeV/c
-	if (((mcpid[nmc]==11)||(mcpid[nmc]==-11))&&(mcpt[nmc]>2.5)) {el3 += 1;} // Flag for electrons with pT > 2.5 GeV/c
+ 	//if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>5.0)) {mu3 += 1;} // Flag for muons with pT > 2.5 GeV/c
+	if (((mcpid[nmc]==11)||(mcpid[nmc]==-11))&&(mcpt[nmc]>5.0)) {el3 += 1;} // Flag for electrons with pT > 2.5 GeV/c
 
 	if (mcpid[nmc]==-5) {mab += 1;} // Flag for bbar
 	if (mcpid[nmc]==5) {mbb += 1;} // Flag for b

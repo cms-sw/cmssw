@@ -13,7 +13,8 @@ def manipulate_log(outdir,logfile_name,startevt):
     # VSIZE deltaVSIZE RSS deltaRSS
     data=[]
     values_set=('vsize','delta_vsize','rss','delta_rss')
-    
+    report=''
+
     # open file and read it and fill the structure!
     logfile=open(logfile_name,'r')
     logfile_lines=logfile.readlines()
@@ -21,6 +22,8 @@ def manipulate_log(outdir,logfile_name,startevt):
 
     # we get the info we need!
     i=0
+    max_rss=(0,0)
+    parse_report=True
     while i < len(logfile_lines):
         line=logfile_lines[i]
         if '%MSG-w MemoryCheck:' in line:
@@ -43,8 +46,22 @@ def manipulate_log(outdir,logfile_name,startevt):
                                        'delta_vsize':delta_vsize,
                                        'rss':rss,
                                        'delta_rss':delta_rss}))
+            # find maximum rss of the job
+            if rss > max_rss[1]:
+                max_rss=(event_number, rss)
+
+        # include memory report
+        elif parse_report and 'MemoryReport' in line:
+            while 'TimeReport' not in line:
+                report += line.replace('MemoryReport', '')
+                i+=1 
+                line = logfile_lines[i]
+            parse_report=False
         i+=1
-                                              
+
+    # print maximum rss for this job
+    print 'Maximum rss =', max_rss[1]
+                                    
     # skim the second entry when the event number is the same BUG!!!!!!!
     # i take elements in couples!
     new_data=[]
@@ -127,7 +144,7 @@ def manipulate_log(outdir,logfile_name,startevt):
         mycanvas.cd()
         graph.Draw("ALP")
     
-        mycanvas.Print("%s/%s_graph.gif"%(outdir,value),"gif")
+        mycanvas.Print("%s/%s_graph.png"%(outdir,value),"png")
         
         # write it on file
         graph.Write()
@@ -153,12 +170,12 @@ def manipulate_log(outdir,logfile_name,startevt):
     html_file.write('<html>\n<body>\n'+\
                     titlestring)
     html_file.write('<table>\n'+\
-                    '<tr><td><img  src=vsize_graph.gif></img></td>'+\
-                    '<td><img src=rss_graph.gif></img></td></tr>'+\
-                    '<tr><td><img  src=delta_vsize_graph.gif></img></td>'+\
-                    '<td><img  src=delta_rss_graph.gif></img></td></tr>' +\
+                    '<tr>\n<td><img  src=vsize_graph.png></img></td>\n'+\
+                    '<td><img src=rss_graph.png></img></td>\n</tr>\n'+\
+                    '<tr>\n<td><img  src=delta_vsize_graph.png></img></td>\n'+\
+                    '<td><img  src=delta_rss_graph.png></img></td>\n</tr>\n' +\
                     '</table>\n')
-    
+    html_file.write('<hr>\n<h1>Memory Checker Report</h1>\n<pre>\n' + report + '</pre>')
     html_file.write('\n</body>\n</html>')
     html_file.close()    
     
