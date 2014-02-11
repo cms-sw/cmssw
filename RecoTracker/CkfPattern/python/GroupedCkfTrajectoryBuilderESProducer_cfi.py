@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 GroupedCkfTrajectoryBuilder = cms.ESProducer("GroupedCkfTrajectoryBuilderESProducer",
     bestHitOnly = cms.bool(True),
-    propagatorAlong = cms.string('PropagatorWithMaterialParabolicMf'),
+    propagatorAlong = cms.string('PropagatorWithMaterial'),
+#    propagatorAlong = cms.string('PropagatorWithMaterialParabolicMf'),
     # Filter used on tracks at end of all tracking (in-out + out-in)
     trajectoryFilterName = cms.string('ckfBaseTrajectoryFilter'),
     # Filter used on tracks at end of in-out tracking phase
@@ -29,7 +30,8 @@ GroupedCkfTrajectoryBuilder = cms.ESProducer("GroupedCkfTrajectoryBuilderESProdu
     requireSeedHitsInRebuild = cms.bool(True),
     keepOriginalIfRebuildFails = cms.bool(False),
     estimator = cms.string('Chi2'),
-    propagatorOpposite = cms.string('PropagatorWithMaterialParabolicMfOpposite'),
+    propagatorOpposite = cms.string('PropagatorWithMaterialOpposite'),
+#    propagatorOpposite = cms.string('PropagatorWithMaterialParabolicMfOpposite'),
     # Out-in tracking will not be attempted unless this many hits
     # are on track after in-out tracking phase.
     minNrOfHitsForRebuild = cms.int32(5)
