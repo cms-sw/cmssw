@@ -4,6 +4,8 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "tbb/concurrent_unordered_map.h"
+
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
@@ -16,9 +18,18 @@
 namespace edm {
   class BranchChildren;
   class ProcessHistoryRegistry;
+
+  namespace dqh {
+    struct parentage_hash {
+      std::size_t operator()(edm::ParentageID const& iKey) const{
+        return iKey.smallHash();
+      }
+    };
+  }
+
   struct DaqProvenanceHelper {
     typedef std::map<ProcessHistoryID, ProcessHistoryID> ProcessHistoryIDMap;
-    typedef std::map<ParentageID, ParentageID> ParentageIDMap;
+    typedef tbb::concurrent_unordered_map<ParentageID, ParentageID, dqh::parentage_hash> ParentageIDMap;
     explicit DaqProvenanceHelper(TypeID const& rawDataType);
     ProcessHistoryID daqInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) const;
     void saveInfo(BranchDescription const& oldBD, BranchDescription const& newBD) {
@@ -35,6 +46,13 @@ namespace edm {
     ParentageID const& mapParentageID(ParentageID const& phid) const;
     BranchID const& mapBranchID(BranchID const& branchID) const;
 
+    BranchDescription const& branchDescription() const {return constBranchDescription_;}
+    ProcessHistoryID const* oldProcessHistoryID() const { return oldProcessHistoryID_; }
+    ProductProvenance const& dummyProvenance() const { return dummyProvenance_; }
+
+    void setOldParentageIDToNew(ParentageID const& iOld, ParentageID const& iNew);
+
+  private:
     BranchDescription const constBranchDescription_;
     ProductProvenance dummyProvenance_;
     ParameterSet processParameterSet_;

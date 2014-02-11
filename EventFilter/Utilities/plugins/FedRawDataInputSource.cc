@@ -273,8 +273,8 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   edm::WrapperOwningHolder edp(new edm::Wrapper<FEDRawDataCollection>(rawData),
                                edm::Wrapper<FEDRawDataCollection>::getInterface());
   
-  eventPrincipal.put(daqProvenanceHelper_.constBranchDescription_, edp,
-                     daqProvenanceHelper_.dummyProvenance_);
+  eventPrincipal.put(daqProvenanceHelper_.branchDescription(), edp,
+                     daqProvenanceHelper_.dummyProvenance());
   
   return;
 }
