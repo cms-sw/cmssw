@@ -33,7 +33,7 @@ options.register ('ptdphi',
                   'pt0',
                   VarParsing.multiplicity.singleton,
                   VarParsing.varType.string,
-                  "ptdphi: 5 GeV/c default")
+                  "ptdphi: 0 GeV/c default")
 
 import sys
 print sys.argv
@@ -87,8 +87,7 @@ process = customise_csc_L1Stubs(process)
 
 ## GEM-CSC emulator
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise_L1Emulator
-process = customise_L1Emulator(process, 'pt05')
-
+process = customise_L1Emulator(process, ptdphi)
 ## upgrade CSC TrackFinder
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1TrackFinder
 process = customise_csc_L1TrackFinder(process)
@@ -103,7 +102,7 @@ process.l1extraParticles.ignoreHtMiss = cms.bool(False)
 
 ## add pile-up to the digi step
 from GEMCode.GEMValidation.InputFileHelpers import addPileUp
-process = addPileUp(process, pu = 140)
+process = addPileUp(process, pu)
 
 ## input commands
 process.source = cms.Source("PoolSource",
