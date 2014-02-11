@@ -53,8 +53,14 @@ namespace evf{
       {
 	Encoding(unsigned int res): reserved_(res), current_(reserved_), currentReserved_(0)
 	{
-	  dummiesForReserved_ = new edm::ModuleDescription[reserved_];
+	  if (reserved_)
+	    dummiesForReserved_ = new edm::ModuleDescription[reserved_];
 	  //	  completeReservedWithDummies();
+	}
+	~Encoding()
+	{
+	  if (reserved_)
+	    delete[] dummiesForReserved_;
 	}
 	//trick: only encode state when sending it over (i.e. every sec)
 	int encode(const void *add){

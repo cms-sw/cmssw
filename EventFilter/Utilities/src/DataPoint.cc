@@ -30,7 +30,7 @@ const std::string DataPoint::DATA = "data";
 
 
 DataPoint::~DataPoint() {
-	if (buf_) delete buf_;
+	if (buf_) delete[] buf_;
 }
 
 /*
@@ -323,7 +323,7 @@ void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool init
 				return;
 			}
 			if (*nBinsPtr_>bufLen_) {
-				if (buf_) delete buf_;
+				if (buf_) delete[] buf_;
 				bufLen_=*nBinsPtr_;
 				buf_= new uint32_t[bufLen_];
 			}

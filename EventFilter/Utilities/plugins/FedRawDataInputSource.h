@@ -75,7 +75,6 @@ private:
   unsigned int readBlocks_;
   unsigned int numBuffers_;
   unsigned int numConcurrentReads_;
-  bool deleteFileAfterRead_;
 
   // get LS from filename instead of event header
   const bool getLSFromFilename_;
@@ -95,7 +94,7 @@ private:
 
   unsigned int currentLumiSection_;
   unsigned int eventsThisLumi_;
-  unsigned long eventsThisRun_;
+  unsigned long eventsThisRun_ = 0;
 
   jsoncollector::DataPointDefinition *dpd_;
 
@@ -126,7 +125,7 @@ private:
       readComplete_=false;
     }
 
-    ~InputChunk() {delete buf_;}
+    ~InputChunk() {delete[] buf_;}
   };
 
   struct InputFile {
@@ -197,7 +196,7 @@ private:
   int currentFileIndex_ = -1;
   std::list<std::pair<int,InputFile*>> filesToDelete_;
   std::list<std::pair<int,std::string>> fileNamesToDelete_;
-  std::vector<int> *streamFileTrackerPtr_;
+  std::vector<int> *streamFileTrackerPtr_ = nullptr;
   unsigned int nStreams_ = 0;
   unsigned int checkEvery_ = 10;
 

@@ -151,6 +151,7 @@ FedRawDataInputSource::~FedRawDataInputSource()
     }*/
     for (unsigned int i=0;i<numConcurrentReads_;i++) delete cvReader_[i];
   }
+  if (dataBuffer_) delete dataBuffer_;
 }
 
 bool FedRawDataInputSource::checkNextEvent()
