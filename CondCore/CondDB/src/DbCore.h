@@ -79,7 +79,7 @@ namespace cond {
 
   // helper function to asses the equality of the underlying types, regardless if they are references and their constness
   template <typename T, typename P>
-  void static_assert_is_same_decayed() {
+  inline void static_assert_is_same_decayed() {
     static_assert( std::is_same<typename std::decay<T>::type, typename std::decay<P>::type>::value, "Parameter types don't match with the RowBuffer types" );
   };
 
@@ -573,15 +573,15 @@ namespace cond {
   namespace {
 
 
-    bool existsTable( coral::ISchema& schema, const char* tableName ){
+    inline bool existsTable( coral::ISchema& schema, const char* tableName ){
       return schema.existsTable( std::string( tableName ) );
     }
 
-    void createTable( coral::ISchema& schema, const coral::TableDescription& descr ){
+    inline void createTable( coral::ISchema& schema, const coral::TableDescription& descr ){
       schema.createTable( descr );
     }
 
-    bool insertInTable( coral::ISchema& schema, const char* tableName, const coral::AttributeList& row, bool failOnDuplicate=true  ){
+    inline bool insertInTable( coral::ISchema& schema, const char* tableName, const coral::AttributeList& row, bool failOnDuplicate=true  ){
       bool ret = false;
       try{
        schema.tableHandle( std::string(tableName ) ).dataEditor().insertRow( row );
@@ -592,7 +592,7 @@ namespace cond {
       return ret;
     }
 
-    void updateTable( coral::ISchema& schema, const char* tableName, const UpdateBuffer& data ){
+    inline void updateTable( coral::ISchema& schema, const char* tableName, const UpdateBuffer& data ){
       schema.tableHandle( std::string(tableName ) ).dataEditor().updateRows( data.setClause(), data.whereClause(), data.get() );
     }
 
