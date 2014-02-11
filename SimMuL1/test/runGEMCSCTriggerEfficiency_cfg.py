@@ -75,11 +75,16 @@ process.load("Configuration.StandardSequences.L1Emulator_cff")
 process.load("Configuration.StandardSequences.L1Extra_cff")
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
 process.load("SimMuon.CSCDigitizer.muonCSCDigis_cfi")
-process.load('L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi')
-process.simCsctfTrackDigis = process.csctfTrackDigisUngangedME1a.clone()
-process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
-process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis","MPCSORTED")
+
+## GEM geometry customization
+from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
+process = custom_GE11_6partitions_v1(process)
+
+## upgrade CSC TrackFinder                                                                                                                                               
+from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1TrackFinder
+process = customise_csc_L1TrackFinder(process)
 process.simCsctfTrackDigis.SectorProcessor.isCoreVerbose = cms.bool(True)
+
 process.load('CSCTriggerPrimitivesReader_cfi')
 process.lctreader.debug = False
 process.lctreader.dataLctsIn = False
