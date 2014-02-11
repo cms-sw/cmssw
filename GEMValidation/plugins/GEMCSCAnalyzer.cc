@@ -351,7 +351,6 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
   auto tfTrack = cfg_.getParameter<edm::ParameterSet>("tfTrack");
   auto tfCand = cfg_.getParameter<edm::ParameterSet>("tfCand");
   auto gmtCand = cfg_.getParameter<edm::ParameterSet>("gmtCand");
-  auto gmtRegCand = cfg_.getParameter<edm::ParameterSet>("gmtRegCand");
   auto l1Extra = cfg_.getParameter<edm::ParameterSet>("l1Extra");
 
   if (ntupleTrackChamberDelta_) bookSimTracksDeltaTree();
