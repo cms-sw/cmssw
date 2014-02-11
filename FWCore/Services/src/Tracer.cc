@@ -140,7 +140,7 @@ void
 Tracer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("indention", "++")->setComment("Prefix characters for output. The characters are repeated to form the indentation.");
-  desc.addUntracked<std::vector<std::string>>("dumpContextForLabels", {})->setComment("Prints context information to cout for the module transitions associated with these modules' labels");
+  desc.addUntracked<std::vector<std::string>>("dumpContextForLabels", std::vector<std::string>{})->setComment("Prints context information to cout for the module transitions associated with these modules' labels");
   desc.addUntracked<bool>("dumpNonModuleContext", false)->setComment("Prints context information to cout for the transitions not associated with any module label");
   descriptions.add("Tracer", desc);
   descriptions.setComment("This service prints each phase the framework is processing, e.g. constructing a module,running a module, etc.");
