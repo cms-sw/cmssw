@@ -3,6 +3,7 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitRZPrediction.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -77,6 +78,10 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
     detIdsToDebug.push_back(0);
     detIdsToDebug.push_back(0);
   }
+  // 2014/02/11 mia:
+  // we should get rid of the boolean parameter useSimpleMF,
+  // and use only a string magneticField [instead of SimpleMagneticField]
+  // or better an edm::ESInputTag (at the moment HLT does not handle ESInputTag)
   if (cfg.exists("SimpleMagneticField")) {
     useSimpleMF_ = true;
     mfName_ = cfg.getParameter<std::string>("SimpleMagneticField");
@@ -120,10 +125,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   es.get<TrackerDigiGeometryRecord>().get(tracker);
   if (nomField<0 && bfield == 0) {
     edm::ESHandle<MagneticField> bfield_h;
-    if (useSimpleMF_) 
-      es.get<IdealMagneticFieldRecord>().get(mfName_, bfield_h);
-    else
-      es.get<IdealMagneticFieldRecord>().get(bfield_h);
+    edm::ESInputTag mfESInputTag(mfName_);
+    //  es.get<IdealMagneticFieldRecord>().get(mfName_, bfield_h);  
+    es.get<IdealMagneticFieldRecord>().get(mfESInputTag, bfield_h);  
     bfield = bfield_h.product();
     nomField = bfield->nominalValue();
   }
