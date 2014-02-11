@@ -12,7 +12,7 @@ class PythiaPartonSelector : public BasePartonSelector
 {
   public:
     PythiaPartonSelector();
-    ~PythiaPartonSelector();
+    virtual ~PythiaPartonSelector();
 
     void run(const edm::Handle<reco::GenParticleCollection> & particles,
              std::auto_ptr<reco::GenParticleRefVector> & partons);

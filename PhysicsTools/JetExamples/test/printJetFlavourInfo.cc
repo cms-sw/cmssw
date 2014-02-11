@@ -24,24 +24,24 @@ class printJetFlavourInfo : public edm::EDAnalyzer {
     void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   private:
-    edm::InputTag jetFlavourInfos_;
-    edm::InputTag subjetFlavourInfos_;
-    edm::InputTag groomedJets_;
-    bool          useSubjets_;
+    edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetFlavourInfosToken_;
+    edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> subjetFlavourInfosToken_;
+    edm::EDGetTokenT<edm::View<reco::Jet> >                  groomedJetsToken_;
+    bool                                                     useSubjets_;
 };
 
 printJetFlavourInfo::printJetFlavourInfo(const edm::ParameterSet& iConfig)
 {
-  jetFlavourInfos_ = iConfig.getParameter<edm::InputTag>("jetFlavourInfos");
-  subjetFlavourInfos_ = ( iConfig.exists("subjetFlavourInfos") ? iConfig.getParameter<edm::InputTag>("subjetFlavourInfos") : edm::InputTag() );
-  groomedJets_ = ( iConfig.exists("groomedJets") ? iConfig.getParameter<edm::InputTag>("groomedJets") : edm::InputTag() );
+  jetFlavourInfosToken_ = consumes<reco::JetFlavourInfoMatchingCollection>( iConfig.getParameter<edm::InputTag>("jetFlavourInfos") );
+  subjetFlavourInfosToken_ = mayConsume<reco::JetFlavourInfoMatchingCollection>( iConfig.exists("subjetFlavourInfos") ? iConfig.getParameter<edm::InputTag>("subjetFlavourInfos") : edm::InputTag() );
+  groomedJetsToken_ = mayConsume<edm::View<reco::Jet> >( iConfig.exists("groomedJets") ? iConfig.getParameter<edm::InputTag>("groomedJets") : edm::InputTag() );
   useSubjets_ = ( iConfig.exists("subjetFlavourInfos") && iConfig.exists("groomedJets") );
 }
 
 void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<reco::JetFlavourInfoMatchingCollection> theJetFlavourInfos;
-  iEvent.getByLabel(jetFlavourInfos_, theJetFlavourInfos );
+  iEvent.getByToken(jetFlavourInfosToken_, theJetFlavourInfos );
 
   edm::Handle<reco::JetFlavourInfoMatchingCollection> theSubjetFlavourInfos;
   edm::Handle<edm::View<reco::Jet> > groomedJets;
@@ -49,8 +49,8 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::vector<int>  matchedIndices;
   if( useSubjets_ )
   {
-    iEvent.getByLabel(subjetFlavourInfos_, theSubjetFlavourInfos);
-    iEvent.getByLabel(groomedJets_, groomedJets);
+    iEvent.getByToken(subjetFlavourInfosToken_, theSubjetFlavourInfos);
+    iEvent.getByToken(groomedJetsToken_, groomedJets);
 
     // match groomed and original jet
     std::vector<bool> jetLocks(theJetFlavourInfos->size(),false);
