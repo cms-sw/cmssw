@@ -46,7 +46,7 @@ namespace edm {
 	return atof(s.c_str());
       }
 
-      int str2i(std::string s){
+      inline int str2i(std::string s){
 	return atoi(s.c_str());
       }
 
