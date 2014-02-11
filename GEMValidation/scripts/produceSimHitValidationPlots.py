@@ -42,20 +42,22 @@ if __name__ == "__main__":
 
     gemSimHitOccupancyXY(plotter,i)
     gemSimHitOccupancyRZ(plotter,i)
-    gemSimHitOccupancyTOF(plotter,i)
-    gemSimhitMomentum(plotter,i) 
-    GEMSimValidation.SimhitMomentum(plotter,i):
-      
+    gemSimHitTOF(plotter,i)
+    #   gemSimhitMomentum(plotter,i) 
+    #   GEMSimValidation.SimhitMomentum(plotter,i)
+
+    """      
     rpcSimHitOccupancyXY(plotter,i)
     rpcSimHitOccupancyRZ(plotter,i)
-    rpcSimHitOccupancyTOF(plotter,i)
+    rpcSimHitTOF(plotter,i)
     
     cscSimHitOccupancyXY(plotter,i)
     cscSimHitOccupancyRZ(plotter,i)
-    cscSimHitOccupancyTOF(plotter,i)
+    cscSimHitTOF(plotter,i)
     
     me0SimHitOccupancyXY(plotter,i)
     me0SimHitOccupancyRZ(plotter,i)
-    me0SimHitOccupancyTOF(plotter,i)
+    me0SimHitTOF(plotter,i)
+    """
     
   gemChamberNumbering(plotter)
