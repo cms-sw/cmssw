@@ -22,7 +22,7 @@ $Revision: 1.9 $
 
 namespace
 {
-  CastorQIEShape shape_;
+  const CastorQIEShape shape_;
 }
 
 class CastorQIEData: public CastorCondObjectContainer<CastorQIECoder>
