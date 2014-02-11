@@ -1,4 +1,4 @@
-#include "Basic2DGenericTopoCluster.h"
+#include "Basic2DGenericTopoClusterizer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #ifdef PFLOW_DEBUG
@@ -13,7 +13,7 @@
 #define LOGDRESSED(x) LogDebug(x)
 #endif
 
-void Basic2DGenericTopoCluster::
+void Basic2DGenericTopoClusterizer::
 buildTopoClusters(const reco::PFRecHitRefVector& input,
 		  const std::vector<bool>& rechitMask,
 		  reco::PFClusterCollection& output) {
@@ -30,7 +30,7 @@ buildTopoClusters(const reco::PFRecHitRefVector& input,
   }
 }
 
-void Basic2DGenericTopoCluster::
+void Basic2DGenericTopoClusterizer::
 buildTopoCluster(const reco::PFRecHitRefVector& input,
 		 const std::vector<bool>& rechitMask,
 		 std::vector<bool>& used,

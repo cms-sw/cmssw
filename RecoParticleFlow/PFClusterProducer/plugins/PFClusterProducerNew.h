@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerFactory.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/TopoClusterBuilderFactory.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderFactory.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorFactory.h"
@@ -16,6 +17,7 @@
 
 namespace newpf {
   class PFClusterProducer : public edm::EDProducer {
+    typedef RecHitCleanerBase RHCB;
     typedef TopoClusterBuilderBase TCBB;
     typedef PFClusterBuilderBase PFCBB;
     typedef PFCPositionCalculatorBase PosCalc;
@@ -33,7 +35,7 @@ namespace newpf {
     // options
     const bool _prodTopoClusters;
     // the actual algorithm
-    //std::vector<std::unique_ptr<RecHitCleanerBase> > _cleaners;
+    std::vector<std::unique_ptr<RecHitCleanerBase> > _cleaners;
     std::unique_ptr<TopoClusterBuilderBase> _topoBuilder;
     std::unique_ptr<PFClusterBuilderBase> _pfClusterBuilder;
     std::unique_ptr<PFCPositionCalculatorBase> _positionReCalc;

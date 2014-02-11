@@ -17,6 +17,15 @@ using namespace newpf;
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   _prodTopoClusters(conf.getUntrackedParameter<bool>("prodTopoClusters",false))
 {
+  //setup rechit cleaners
+  const edm::VParameterSet& cleanerConfs = 
+    conf.getParameterSetVector("recHitCleaners");
+  for( const auto& conf : cleanerConfs ) {
+    const std::string& cleanerName = 
+      conf.getParameter<std::string>("algoName");
+    RHCB* cleaner = RecHitCleanerFactory::get()->create(cleanerName,conf);
+    _cleaners.push_back(std::unique_ptr<RHCB>(cleaner));
+  }
   //setup topo cluster builder
   const edm::ParameterSet& topoConf = 
     conf.getParameterSet("topoClusterBuilder");
@@ -62,11 +71,9 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
   
   std::vector<bool> mask(true, refhits.size());
-  /*
   for( const std::unique_ptr<RecHitCleanerBase>& cleaner : _cleaners ) {
     cleaner->clean(refhits, mask);
   }
-  */
   
   std::auto_ptr<reco::PFClusterCollection> topoClusters;
   _topoBuilder->buildTopoClusters(refhits, mask, *topoClusters);
@@ -75,10 +82,10 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   std::auto_ptr<reco::PFClusterCollection> pfClusters;
   _pfClusterBuilder->buildPFClusters(*topoClusters, *pfClusters);
   LOGVERB("PFClusterProducer::produce()") << *_pfClusterBuilder;
+  
   if( _positionReCalc ) {
     _positionReCalc->calculateAndSetPositions(*pfClusters);
   }
-
   if( _prodTopoClusters ) e.put(topoClusters,"topo");
   e.put(pfClusters);
 }
