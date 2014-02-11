@@ -59,15 +59,23 @@ bool ParametersToParametersDerivatives::init(const Alignable &component, int typ
 bool ParametersToParametersDerivatives::initRigidRigid(const Alignable &component,
 						       const Alignable &mother)
 {
-  // simply frame to frame!
-  FrameToFrameDerivative f2fDerivMaker;
-  AlgebraicMatrix66 m(asSMatrix<6,6>(f2fDerivMaker.frameToFrameDerivative(&component, &mother)));
+  // See G. Flucke's presentation from  20 Feb 2007
+  // https://indico.cern.ch/contributionDisplay.py?contribId=15&sessionId=1&confId=10930
+  // and C. Kleinwort's one from 14 Feb 2013
+  // https://indico.cern.ch/contributionDisplay.py?contribId=14&sessionId=1&confId=224472
 
-  // copy to TMatrix
-  derivatives_.ResizeTo(6,6);
-  derivatives_.SetMatrixArray(m.begin());
-
-  return true;
+  FrameToFrameDerivative f2f;
+  // frame2frame returns dcomponent/dmother for both being rigid body, so we have to invert
+  AlgebraicMatrix66 m(asSMatrix<6,6>(f2f.frameToFrameDerivative(&component, &mother)));
+  
+  if (m.Invert()) { // now matrix is d(rigid_mother)/d(rigid_component)
+    // copy to TMatrix
+    derivatives_.ResizeTo(6,6);
+    derivatives_.SetMatrixArray(m.begin());
+    return true;
+  } else {
+    return false;
+  }
 }
 
 //_________________________________________________________________________________________________
@@ -75,17 +83,22 @@ bool ParametersToParametersDerivatives::initBowedRigid(const Alignable &componen
 						       const Alignable &mother)
 {
   // component is bowed surface, mother rigid body
-  FrameToFrameDerivative f2fMaker;
-  const AlgebraicMatrix66 f2f(asSMatrix<6,6>(f2fMaker.frameToFrameDerivative(&component,&mother)));
-  const double halfWidth  = 0.5 * component.surface().width();
-  const double halfLength = 0.5 * component.surface().length();
-  const AlgebraicMatrix69 m(this->dBowed_dRigid(f2f, halfWidth, halfLength));
+  FrameToFrameDerivative f2f;
+  // frame2frame returns dcomponent/dmother for both being rigid body, so we have to invert
+  AlgebraicMatrix66 rigM2rigC(asSMatrix<6,6>(f2f.frameToFrameDerivative(&component,&mother)));
+  if (rigM2rigC.Invert()) { // now matrix is d(rigid_mother)/d(rigid_component)
+    const double halfWidth  = 0.5 * component.surface().width();
+    const double halfLength = 0.5 * component.surface().length();
+    const AlgebraicMatrix69 m(this->dRigid_dBowed(rigM2rigC, halfWidth, halfLength));
 
-  // copy to TMatrix
-  derivatives_.ResizeTo(6,9);
-  derivatives_.SetMatrixArray(m.begin());
-
-  return true;
+    // copy to TMatrix
+    derivatives_.ResizeTo(6,9);
+    derivatives_.SetMatrixArray(m.begin());
+    
+    return true;
+  } else {
+    return false;
+  }
 }
 
 //_________________________________________________________________________________________________
@@ -118,15 +131,19 @@ bool ParametersToParametersDerivatives::init2BowedRigid(const Alignable &compone
   const align::GlobalPoint posSurf2(component.surface().toGlobal(align::LocalPoint(0.,yM2,0.)));
 
   // 2) get derivatives for both,
+  // getDerivative(..) returns dcomponent/dmother for both being rigid body
   FrameToFrameDerivative f2fMaker;
-  const AlgebraicMatrix66 f2fSurf1(f2fMaker.getDerivative(component.globalRotation(),
-                                                          mother.globalRotation(),
-                                                          posSurf1, mother.globalPosition()));
-  const AlgebraicMatrix66 f2fSurf2(f2fMaker.getDerivative(component.globalRotation(),
-                                                          mother.globalRotation(),
-                                                          posSurf2, mother.globalPosition()));
-  const AlgebraicMatrix69 derivs1(this->dBowed_dRigid(f2fSurf1, halfWidth, halfLength1));
-  const AlgebraicMatrix69 derivs2(this->dBowed_dRigid(f2fSurf2, halfWidth, halfLength2));
+  AlgebraicMatrix66 f2fSurf1(f2fMaker.getDerivative(component.globalRotation(),
+                                                    mother.globalRotation(),
+                                                    posSurf1, mother.globalPosition()));
+  AlgebraicMatrix66 f2fSurf2(f2fMaker.getDerivative(component.globalRotation(),
+                                                    mother.globalRotation(),
+                                                    posSurf2, mother.globalPosition()));
+  // We have to invert matrices to get d(rigid_mother)/d(rigid_component):
+  if (!f2fSurf1.Invert() || !f2fSurf2.Invert()) return false; // bail out if bad inversion
+  // Now get d(rigid_mother)/d(bowed_component):
+  const AlgebraicMatrix69 derivs1(this->dRigid_dBowed(f2fSurf1, halfWidth, halfLength1));
+  const AlgebraicMatrix69 derivs2(this->dRigid_dBowed(f2fSurf2, halfWidth, halfLength2));
 
   // 3) fill the common matrix by merging the two.
   typedef ROOT::Math::SMatrix<double,6,18,ROOT::Math::MatRepStd<double,6,18> > AlgebraicMatrix6_18;
@@ -143,36 +160,47 @@ bool ParametersToParametersDerivatives::init2BowedRigid(const Alignable &compone
 
 //_________________________________________________________________________________________________
 ParametersToParametersDerivatives::AlgebraicMatrix69
-ParametersToParametersDerivatives::dBowed_dRigid(const AlgebraicMatrix66 &f2f,
-						 double halfWidth, double halfLength) const
+ParametersToParametersDerivatives::dRigid_dBowed(const AlgebraicMatrix66 &dRigidM2dRigidC,
+						 double halfWidth, double halfLength)
 {
   typedef BowedSurfaceAlignmentDerivatives BowedDerivs;
   const double gammaScale = BowedDerivs::gammaScale(2.*halfWidth, 2.*halfLength);
 
-  // 1st index (column) is parameter of the mother (<6),
-  // 2nd index (row) that of component (<9):
+  // 'dRigidM2dRigidC' is dmother/dcomponent for both being rigid body
+  // final matrix will be dmother/dcomponent for mother as rigid body, component with bows
+  // 1st index (row) is parameter of the mother (0..5),
+  // 2nd index (column) that of component (0..8):
   AlgebraicMatrix69 derivs;
+  if (0. == gammaScale || 0. == halfWidth || 0. == halfLength) {
+    isOK_ = false; // bad input - we would have to devide by that in the following!
+    edm::LogError("Alignment") << "@SUB=ParametersToParametersDerivatives::dRigid_dBowed"
+			       << "Some zero length as input.";
+    return derivs;
+  }
 
-  for (unsigned int iRow = 0; iRow < 6; ++iRow) { // 6 rigid body parameters of mother
+  for (unsigned int iRow = 0; iRow < AlgebraicMatrix69::kRows; ++iRow) {
+    // loop on 6 rigid body parameters of mother
     // First copy the common rigid body part, e.g.:
-    // - (0,0): du_comp/du_moth
-    // - (0,1): dv_comp/du_moth
-    // - (1,2): dw_comp/dv_moth
+    // (0,0): du_moth/du_comp, (0,1): dv_moth/du_comp, (1,2): dw_moth/dv_comp
     for (unsigned int iCol = 0; iCol < 3; ++iCol) { // 3 movements of component
-      derivs(iRow, iCol) = f2f(iRow, iCol);  
+      derivs(iRow, iCol) = dRigidM2dRigidC(iRow, iCol);  
     }
 
-    // Now we have to take care of order and scales for rotation-like parameters:
-    // slopeX -> halfWidth * beta
-    derivs(iRow, 3) = halfWidth  * f2f(iRow, 4); // = dslopeX_c/dpar_m = hw * db_c/dpar_m
-    // slopeY -> halfLength * alpha
-    derivs(iRow, 4) = halfLength * f2f(iRow, 3); // = dslopeY_c/dpar_m = hl * da_c/dpar_m
-    // rotZ -> gammaScale * gamma
-    derivs(iRow, 5) = gammaScale * f2f(iRow, 5); // = drotZ_c/dpar_m = gscale * dg_c/dpar_m
+    // Now we have to take care of order, signs and scales for rotation-like parameters,
+    // see CMS AN-2011/531:
+    // slopeX = w10 = -halfWidth * beta
+    // => dpar_m/dslopeX_comp = dpar_m/d(-hw * beta_comp) = -(dpar_m/dbeta_comp)/hw
+    derivs(iRow, 3) = -dRigidM2dRigidC(iRow, 4)/halfWidth; 
+    // slopeY = w10 = +halfLength * alpha
+    // => dpar_m/dslopeY_comp = dpar_m/d(+hl * alpha_comp) = (dpar_m/dalpha_comp)/hl
+    derivs(iRow, 4) = dRigidM2dRigidC(iRow, 3)/halfLength;
+    // rotZ = gammaScale * gamma
+    // => dpar_m/drotZ_comp = dpar_m/d(gamma_comp * gscale) = (dpar_m/dgamma)/gscale
+    derivs(iRow, 5) = dRigidM2dRigidC(iRow, 5)/gammaScale;
 
-    // Finally, movements and rotations have no influence on surface internals:
-    for (unsigned int iCol = 6; iCol < 9; ++iCol) { // 3 sagittae of component
-      derivs(iRow, iCol) = 0.;  
+    // Finally, sensor internals like their curvatures have no influence on mother:
+    for (unsigned int iCol = 6; iCol < AlgebraicMatrix69::kCols; ++iCol) {
+      derivs(iRow, iCol) = 0.; // 3 sagittae of component
     }
   }
 

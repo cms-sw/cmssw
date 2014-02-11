@@ -126,7 +126,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet, ConsumesCollector&& iC) 
   //  _lowMETThreshold    = parameters.getParameter<double>("LowMETThreshold");       // Low MET threshold
 
   //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"), std::move(iC));
 
 }
 
