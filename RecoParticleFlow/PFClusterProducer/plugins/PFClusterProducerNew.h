@@ -33,6 +33,7 @@ namespace newpf {
     // options
     const bool _prodTopoClusters;
     // the actual algorithm
+    //std::vector<std::unique_ptr<RecHitCleanerBase> > _cleaners;
     std::unique_ptr<TopoClusterBuilderBase> _topoBuilder;
     std::unique_ptr<PFClusterBuilderBase> _pfClusterBuilder;
     std::unique_ptr<PFCPositionCalculatorBase> _positionReCalc;
