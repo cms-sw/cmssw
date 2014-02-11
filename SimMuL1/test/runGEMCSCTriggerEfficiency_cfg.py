@@ -58,12 +58,12 @@ from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1Tra
 process = customise_csc_L1TrackFinder(process)
 process.simCsctfTrackDigis.SectorProcessor.isCoreVerbose = cms.bool(True)
 
-process.load('CSCTriggerPrimitivesReader_cfi')
-process.lctreader.debug = False
-process.lctreader.dataLctsIn = False
-process.lctreader.CSCLCTProducerEmul = "simCscTriggerPrimitiveDigis"
-process.lctreader.CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi")
-process.lctreader.CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+## process.load('CSCTriggerPrimitivesReader_cfi')
+## process.lctreader.debug = False
+## process.lctreader.dataLctsIn = False
+## process.lctreader.CSCLCTProducerEmul = "simCscTriggerPrimitiveDigis"
+## process.lctreader.CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi")
+## process.lctreader.CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
 
 process.options = cms.untracked.PSet(
     makeTriggerResults = cms.untracked.bool(False),
@@ -111,11 +111,11 @@ GEMmatching.gemRecHit.input = ""
 
 ## sequence, path and schedule
 process.ana_seq = cms.Sequence(process.GEMCSCTriggerEfficiency)
-process.reader_seq = cms.Sequence(process.lctreader)
+#process.reader_seq = cms.Sequence(process.lctreader)
 
 process.l1extra_step = cms.Path(process.L1Extra)
 process.ana_step     = cms.Path(process.ana_seq)
-process.reader_step  = cms.Path(process.reader_seq)
+#process.reader_step  = cms.Path(process.reader_seq)
 
 process.schedule = cms.Schedule(
 #    process.l1extra_step,
