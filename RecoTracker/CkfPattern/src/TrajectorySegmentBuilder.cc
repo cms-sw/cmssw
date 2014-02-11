@@ -23,9 +23,8 @@
 #include <algorithm> 
 
 // #define DBG_TSB
-
-namespace {
 #ifdef STAT_TSB
+namespace {
   struct StatCount {
     long long totGroup;
     long long totSeg;
@@ -51,18 +50,11 @@ namespace {
     ~StatCount() { print();}
   };
 
-#else
-  struct StatCount {
-    void incr(long long, long long, long long){}
-    void truncated() {}
-    void invalid() {}
-  };
-#endif
 
   StatCount statCount;
 
 }
-
+#endif
 
 using namespace std;
 
@@ -116,8 +108,9 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
 						 << (ngrp-1) << " groups";
 	truncate = true;
 	
+#ifdef STAT_TSB
 	statCount.truncated();
-	
+#endif	
 	break;
       }
   }  
@@ -191,8 +184,9 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
 
   if unlikely(theDbgFlg) cout << "TSB: " << candidates.size() << " candidates after invalid hit" << endl;
 
+#ifdef STAT_TSB
   statCount.incr(measGroups.size(), candidates.size(), theLockedHits.size());
-
+#endif
 
   theLockedHits.clear();
 
@@ -603,7 +597,12 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
 	  break;
 	}
       }
-      if ( allFound ) { candidates[*i1].invalidate(); statCount.invalid();}
+      if ( allFound ) { 
+                       candidates[*i1].invalidate(); 
+#ifdef STAT_TSB
+                       statCount.invalid();
+#endif
+	}
     }
   }
 

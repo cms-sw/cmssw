@@ -42,8 +42,9 @@
 #include <algorithm>
 #include <array>
 
-namespace {
+
 #ifdef STAT_TSB
+namespace {
   struct StatCount {
     long long totSeed;
     long long totTraj;
@@ -69,19 +70,12 @@ namespace {
     ~StatCount() { print();}
   };
 
-#else
-  struct StatCount {
-    void traj(long long){}
-    void seed() {}
-    void rebuilt(long long) {}
-    void invalid() {}
-  };
-#endif
 
   StatCount statCount;
 
 }
 
+#endif
 
 
 using namespace std;
@@ -243,7 +237,9 @@ GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const & starting
   
   result.swap(final);
 
+#ifdef STAT_TSB
   statCount.rebuilt(result.size());
+#endif
 
 }
 
@@ -256,7 +252,9 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
       throw cms::Exception("LogicError") << "Asking to create trajectories to an un-initialized GroupedCkfTrajectoryBuilder.\nYou have to call clone(const MeasurementTrackerEvent *data) and then call trajectories on it instead.\n";
   }
  
+#ifdef STAT_TSB
   statCount.seed();
+#endif
   //
   // Build trajectory outwards from seed
   //
@@ -296,7 +294,9 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   analyseResult(result);
 
   LogDebug("CkfPattern")<< "GroupedCkfTrajectoryBuilder: returning result of size " << result.size();
+#ifdef STAT_TSB
   statCount.traj(result.size());
+#endif
 
 
   return startingTraj;

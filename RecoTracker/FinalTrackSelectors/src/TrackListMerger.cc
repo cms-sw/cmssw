@@ -38,10 +38,7 @@
 
 #ifdef STAT_TSB
 #include <x86intrin.h>
-#endif
-
 namespace {
-#ifdef STAT_TSB
 inline volatile unsigned long long rdtsc() {
  return __rdtsc();
 }
@@ -77,25 +74,12 @@ inline volatile unsigned long long rdtsc() {
     ~StatCount() { print();}
   };
 
-#else
-  struct StatCount {
-    void begin(int){}
-    void pre(int){}
-    void end(int){}
-    void start(){}
-    void noOverlap(){}
-    void overlap(){}
-    void de(float){}
-    void dp(float){}
-
-
-  };
-#endif
 
   StatCount statCount;
 
 }
 
+#endif
 
 
 namespace cms
@@ -242,7 +226,9 @@ namespace cms
       rSize+=trackCollSizes[i];
     }
 
+#ifdef STAT_TSB
     statCount.begin(rSize);
+#endif
 
     //
     //  quality cuts first
@@ -315,7 +301,9 @@ namespace cms
     } // loop over trackcolls
 
 
+#ifdef STAT_TSB
     statCount.pre(ngood);
+#endif
 
     //cache the id and rechits of valid hits
     typedef std::pair<unsigned int, const TrackingRecHit*> IHit;
@@ -403,7 +391,9 @@ namespace cms
 	    return (it->geographicalId()==jt->geographicalId())&&(delta<eps);
 	  };
 
+#ifdef STAT_TSB
 	  statCount.start();
+#endif
 
 	  //loop over rechits
 	  int noverlap=0;
@@ -481,7 +471,9 @@ namespace cms
 		trkUpdated[j]=true;
 	      }
 	    }//end fi < fj
+#ifdef STAT_TSB
 	    statCount.overlap();
+#endif
 	    /*
 	    if (at0[k1]&&at0[k2]) {
 	      statCount.dp(dphi);
@@ -490,7 +482,9 @@ namespace cms
 	    */
 	  }//end got a duplicate
 	  else {
+#ifdef STAT_TSB
 	    statCount.noOverlap();
+#endif
 	  }
 	  //stop if the ith track is now unselected
 	  if (selected[i]==0) break;
@@ -705,7 +699,9 @@ namespace cms
       }
     }
 
+#ifdef STAT_TSB
     statCount.end(outputTrks->size());
+#endif
 
     edm::ProductID nPID = refTrks.id();
     edm::TestHandle<reco::TrackCollection> outHandle(outputTrks.get(),nPID);

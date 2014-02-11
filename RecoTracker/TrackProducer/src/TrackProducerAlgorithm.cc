@@ -29,8 +29,8 @@
 #include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 
-namespace {
 #ifdef STAT_TSB
+namespace {
   struct StatCount {
     long long totTrack=0;
     long long totLoop=0;
@@ -56,18 +56,10 @@ namespace {
     ~StatCount() { print();}
   };
 
-#else
-  struct StatCount {
-    void track(int){}
-    void hits(int, int){}
-    void gsf(){}
-    void algo(int){}
-  };
-#endif
-
   StatCount statCount;
 
 }
+#endif
 
 
 
@@ -98,9 +90,10 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   theTraj = new Trajectory(std::move(trajTmp));
   theTraj->setSeedRef(seedRef);
   
+#ifdef STAT_TSB
   statCount.hits(theTraj->foundHits(),theTraj->lostHits());
   statCount.algo(int(algo_));
-
+#endif
   // TrajectoryStateOnSurface innertsos;
   // if (theTraj->direction() == alongMomentum) {
   //  innertsos = theTraj->firstMeasurement().updatedState();
@@ -172,8 +165,9 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   AlgoProduct aProduct(theTraj,std::make_pair(theTrack,seedDir));
   algoResults.push_back(aProduct);
   
+#ifdef STAT_TSB
   statCount.track(nLoops);
-
+#endif
   return true;
 } 
 
@@ -291,6 +285,8 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   algoResults.push_back(aProduct);
   LogDebug("GsfTrackProducer") <<"track done2\n";
   
+#ifdef STAT_TSB
   statCount.gsf();
+#endif
   return true;
 } 
