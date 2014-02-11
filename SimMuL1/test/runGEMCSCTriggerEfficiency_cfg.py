@@ -1,10 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import sys, os
 
-# Hack to add "test" directory to the python path.
-sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'], 'src/L1Trigger/CSCTriggerPrimitives/test'))
-sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'], 'src'))
-
 ## initialization
 process = cms.Process('GEMCSCTRGANA')
 
@@ -12,7 +8,7 @@ process = cms.Process('GEMCSCTRGANA')
 cmssw = os.getenv( "CMSSW_VERSION" )
 
 ## steering
-events = 2000
+events = 100000
 sample='dimu'
 globalTag = 'upgrade2019'
 #sample='minbias'
@@ -35,23 +31,27 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2019_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.Digi_cff')
+process.load("Configuration.StandardSequences.L1Emulator_cff")
+process.load("Configuration.StandardSequences.L1Extra_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load('Configuration.StandardSequences.Digi_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load("Configuration.StandardSequences.L1Emulator_cff")
-process.load("Configuration.StandardSequences.L1Extra_cff")
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
-process.load("SimMuon.CSCDigitizer.muonCSCDigis_cfi")
 
 ## GEM geometry customization
 from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
 process = custom_GE11_6partitions_v1(process)
+
+## SLHC customization
+from SLHCUpgradeSimulations.Configuration.muonCustoms import *
+process = unganged_me1a_geometry(process)
+process = customise_csc_L1Extra_allsim(process)
 
 ## upgrade CSC TrackFinder
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1TrackFinder
@@ -108,11 +108,6 @@ process.GEMCSCTriggerEfficiency.minNHitsChamber = cms.untracked.int32(3)
 process.GEMCSCTriggerEfficiency.minSimTrPt = cms.untracked.double(2)
 GEMmatching = process.GEMCSCTriggerEfficiency.simTrackMatching
 GEMmatching.gemRecHit.input = ""
-
-## SLHC customization
-from SLHCUpgradeSimulations.Configuration.muonCustoms import *
-process = unganged_me1a_geometry(process)
-process = customise_csc_L1Extra_allsim(process)
 
 ## sequence, path and schedule
 process.ana_seq = cms.Sequence(process.GEMCSCTriggerEfficiency)
