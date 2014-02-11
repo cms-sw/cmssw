@@ -15,23 +15,32 @@ class FreeTrajectoryState;
 class SeedFromConsecutiveHitsCreator : public SeedCreator {
 public:
 
-  SeedFromConsecutiveHitsCreator( const edm::ParameterSet & cfg):
-    thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
-    theBOFFMomentum(cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : 5.0),
-    theOriginTransverseErrorMultiplier(cfg.existsAs<double>("OriginTransverseErrorMultiplier") ? cfg.getParameter<double>("OriginTransverseErrorMultiplier") : 1.0),
-    theMinOneOverPtError(cfg.existsAs<double>("MinOneOverPtError") ? cfg.getParameter<double>("MinOneOverPtError") : 1.0)
-      {  
-	if (cfg.exists("SimpleMagneticField")) {
-	  useSimpleMF = true;
-	  mfName_ = cfg.getParameter<std::string>("SimpleMagneticField");
-	}
+  SeedFromConsecutiveHitsCreator( const edm::ParameterSet & cfg)
+    : thePropagatorLabel                (cfg.getParameter<std::string>("propagator"))
+    , theBOFFMomentum                   (cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : 5.0)
+    , theOriginTransverseErrorMultiplier(cfg.existsAs<double>("OriginTransverseErrorMultiplier") ? cfg.getParameter<double>("OriginTransverseErrorMultiplier") : 1.0)
+    , theMinOneOverPtError              (cfg.existsAs<double>("MinOneOverPtError") ? cfg.getParameter<double>("MinOneOverPtError") : 1.0)
+  // 2014/02/11 mia:
+  // we should get rid of the boolean parameter useSimpleMF,
+  // and use only a string magneticField [instead of SimpleMagneticField]
+  // or better an edm::ESInputTag (at the moment HLT does not handle ESInputTag)
+    , useSimpleMF_(false)
+    , mfName_("")
+    {  
+      if (cfg.exists("SimpleMagneticField")) {
+	useSimpleMF_ = true;
+	mfName_ = cfg.getParameter<std::string>("SimpleMagneticField");
       }
+    }
 
   SeedFromConsecutiveHitsCreator( 
       const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0, 
       double aOriginTransverseErrorMultiplier = 1.0, double aMinOneOverPtError = 1.0) 
-    : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF), 
-    theOriginTransverseErrorMultiplier(aOriginTransverseErrorMultiplier), theMinOneOverPtError(aMinOneOverPtError), useSimpleMF(false) { }
+    : thePropagatorLabel(propagator)
+    , theBOFFMomentum(seedMomentumForBOFF)
+    , theOriginTransverseErrorMultiplier(aOriginTransverseErrorMultiplier)
+    , theMinOneOverPtError(aMinOneOverPtError)
+    , useSimpleMF_(false) { }
 
   //dtor
   virtual ~SeedFromConsecutiveHitsCreator();
@@ -81,7 +90,7 @@ protected:
   edm::ESHandle<MagneticField> bfield;
   float nomField;
   bool isBOFF = false;
-  bool useSimpleMF;
+  bool useSimpleMF_;
   std::string mfName_;
 };
 #endif 
