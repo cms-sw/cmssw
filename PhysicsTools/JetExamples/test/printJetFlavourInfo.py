@@ -13,6 +13,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(5)
 )
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         # /TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V7C-v1/AODSIM
@@ -24,24 +25,21 @@ process.printList = cms.EDAnalyzer("ParticleListDrawer",
     src = cms.InputTag("genParticles"),
     maxEventsToPrint = cms.untracked.int32(1)
 )
+#-------------------------------------------------------------------------
+# AK5 jets
+#-------------------------------------------------------------------------
+from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsAndPartons
+process.selectedHadronsAndPartons = selectedHadronsAndPartons.clone()
 
-process.selectedHadronsAndPartons = cms.EDProducer('HadronAndPartonSelector',
-    src = cms.InputTag("generator"),
-    particles = cms.InputTag("genParticles"),
-    partonMode = cms.string("Auto")
+from PhysicsTools.JetMCAlgos.AK5PFJetsMCFlavourInfos_cfi import ak5JetFlavourInfos
+process.jetFlavourInfosAK5PFJets = ak5JetFlavourInfos.clone()
+
+process.printEventAK5PFJets = cms.EDAnalyzer("printJetFlavourInfo",
+    jetFlavourInfos = cms.InputTag("jetFlavourInfosAK5PFJets")
 )
-
-process.jetFlavourInfosAK5PFJets = cms.EDProducer("JetFlavourClustering",
-    jets                     = cms.InputTag("ak5PFJets"),
-    bHadrons                 = cms.InputTag("selectedHadronsAndPartons","bHadrons"),
-    cHadrons                 = cms.InputTag("selectedHadronsAndPartons","cHadrons"),
-    partons                  = cms.InputTag("selectedHadronsAndPartons","partons"),
-    jetAlgorithm             = cms.string("AntiKt"),
-    rParam                   = cms.double(0.5),
-    ghostRescaling           = cms.double(1e-18),
-    hadronFlavourHasPriority = cms.bool(True)
-)
-
+#-------------------------------------------------------------------------
+# AK8 fat jets and pruned subjets
+#-------------------------------------------------------------------------
 from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 process.ak8PFJets = ak5PFJets.clone(
     rParam        = cms.double(0.8),
@@ -69,6 +67,14 @@ process.jetFlavourInfosAK8PFJets = cms.EDProducer("JetFlavourClustering",
     hadronFlavourHasPriority = cms.bool(True)
 )
 
+process.printEventAK8PFJets = cms.EDAnalyzer("printJetFlavourInfo",
+    jetFlavourInfos    = cms.InputTag("jetFlavourInfosAK8PFJets"),
+    subjetFlavourInfos = cms.InputTag("jetFlavourInfosAK8PFJets","SubJets"),
+    groomedJets        = cms.InputTag("ak8PFJetsPruned"),
+)
+#-------------------------------------------------------------------------
+# CA15 fat jets and HEPTopTagger fat jets and subjets
+#-------------------------------------------------------------------------
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 from RecoJets.JetProducers.CATopJetParameters_cfi import *
 from RecoJets.JetProducers.PFJetParameters_cfi import *
@@ -91,6 +97,9 @@ process.caHEPTopTagJets = cms.EDProducer(
     CATopJetParameters.clone( tagAlgo = cms.int32(2) ),
     jetAlgorithm = cms.string("CambridgeAachen"),
     rParam = cms.double(1.5),
+    muCut = cms.double(0.8),
+    maxSubjetMass = cms.double(30.0),
+    useSubjetMass = cms.bool(False),
     writeCompound = cms.bool(True)
 )
 
@@ -107,21 +116,12 @@ process.jetFlavourInfosCA15PFJets = cms.EDProducer("JetFlavourClustering",
     hadronFlavourHasPriority = cms.bool(True)
 )
 
-process.printEventAK5PFJets = cms.EDAnalyzer("printJetFlavourInfo",
-    jetFlavourInfos = cms.InputTag("jetFlavourInfosAK5PFJets")
-)
-
-process.printEventAK8PFJets = cms.EDAnalyzer("printJetFlavourInfo",
-    jetFlavourInfos    = cms.InputTag("jetFlavourInfosAK8PFJets"),
-    subjetFlavourInfos = cms.InputTag("jetFlavourInfosAK8PFJets","SubJets"),
-    groomedJets        = cms.InputTag("ak8PFJetsPruned"),
-)
-
 process.printEventCA15PFJets = cms.EDAnalyzer("printJetFlavourInfo",
     jetFlavourInfos    = cms.InputTag("jetFlavourInfosCA15PFJets"),
     subjetFlavourInfos = cms.InputTag("jetFlavourInfosCA15PFJets","SubJets"),
     groomedJets        = cms.InputTag("caHEPTopTagJets"),
 )
+#-------------------------------------------------------------------------
 
 process.p = cms.Path(
     process.printList
