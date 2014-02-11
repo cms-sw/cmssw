@@ -57,7 +57,6 @@ namespace pat {
   protected:
     /// Get out the data (can't template non virtual functions)
     virtual const void * data_  () const = 0;
-    static std::string demangleName(const char* iMangledName);
 
   private:
     static void checkDictionaries(const std::type_info &type) ;
@@ -97,7 +96,9 @@ std::auto_ptr<pat::UserData> pat::UserData::make(const T &value, bool transientO
 
 template<typename T> 
 const std::string & pat::UserHolder<T>::typeName_() {
-    static const std::string name(demangleName(typeid(T).name()));
+    static int status = 0;
+    static const char * demangled = abi::__cxa_demangle(typeid(T).name(),  0, 0, &status);
+    static const std::string name(status == 0 ? demangled : "[UNKNOWN]");
     return name;
 }
 

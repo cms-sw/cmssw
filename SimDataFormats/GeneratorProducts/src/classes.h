@@ -3,6 +3,21 @@
 #include <map>
 #include <set>
 
+// BEGIN WORKAROUND for HepMC
+#include "HepMC/WeightContainer.h"
+#include "HepMC/SimpleVector.h"
+#include "HepMC/IteratorRange.h"
+#include <iostream>
+#include <iterator>
+//#include <vector>
+//#include <set>
+#include <algorithm>
+#include <cstddef>
+#define protected public
+#include "HepMC/GenVertex.h"
+#undef protected
+// END WORKAROUND for HepMC
+
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
@@ -16,7 +31,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
-#include <HepMC/GenRanges.h>
+#include "HepMC/GenRanges.h"
 
 namespace SimDataFormats_GeneratorProducts {
 	struct dictionary {

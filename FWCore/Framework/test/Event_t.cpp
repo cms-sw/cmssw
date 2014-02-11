@@ -42,8 +42,6 @@ Test program for edm::Event.
 
 #include "cppunit/extensions/HelperMacros.h"
 
-#include "Cintex/Cintex.h"
-
 #include "boost/shared_ptr.hpp"
 
 #include <algorithm>
@@ -242,8 +240,6 @@ testEvent::testEvent() :
   moduleDescriptions_(),
   processHistoryRegistry_(),
   processConfigurations_() {
-
-  ROOT::Cintex::Cintex::Enable();
 
   typedef edmtest::IntProduct prod_t;
   typedef std::vector<edmtest::Thing> vec_t;

@@ -12,7 +12,7 @@
 <use   name="DataFormats/GeometryCommonDetAlgo"/>
 # <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

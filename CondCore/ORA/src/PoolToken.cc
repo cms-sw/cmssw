@@ -5,7 +5,9 @@
 #include <cstring>
 #include <cstdio>
 // externals
-#include "Reflex/Reflex.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "RflxPropList.h"
+#include "oraHelper.h"
 
 namespace cond {
   
@@ -58,9 +60,9 @@ namespace cond {
     char buff[20];
     std::string clguid("");
     //  first lookup the class guid in the dictionary
-    Reflex::Type containerType = Reflex::Type::ByName( className );
+    edm::TypeWithDict containerType = edm::TypeWithDict::byName( className );
     if( containerType ){
-      Reflex::PropertyList props = containerType.Properties();
+      Reflex::PropertyList props = ora::helper::Properties(containerType);
       if( props.HasProperty("ClassID")){
         clguid = props.PropertyAsString("ClassID");
       }

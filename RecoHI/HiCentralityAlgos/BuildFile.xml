@@ -1,5 +1,5 @@
 <use   name="root"/>
-<use   name="rootrflx"/>
+
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>

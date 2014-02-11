@@ -8,7 +8,7 @@
 <use   name="CommonTools/CandUtils"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="CommonTools/RecoAlgos"/>
-<use   name="rootrflx"/>
+
 <use   name="CLHEP"/>
 <export>
   <lib   name="1"/>

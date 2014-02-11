@@ -17,7 +17,7 @@
   \authors Salvatore Rappoccio, Mike Hildreth
 */
 
-#include "TH1.h"
+#include "TH1F.h"
 #include "TH3.h"
 #include "TFile.h"
 #include "TRandom1.h"
@@ -241,21 +241,21 @@ namespace reweight {
 	  generatedFile_ = new TFile( generatedFileName_.c_str() ) ; //MC distribution
 	  dataFile_      = new TFile( dataFileName_.c_str() );       //Data distribution
 
-	  Data_distr_ = new TH1(  *(static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
-	  MC_distr_ = new TH1(  *(static_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() )->Clone() )) );
+	  Data_distr_ = new TH1F(  *(static_cast<TH1F*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
+	  MC_distr_ = new TH1F(  *(static_cast<TH1F*>(generatedFile_->Get( GenHistName_.c_str() )->Clone() )) );
 
 	  // normalize both histograms first                                                                            
 
 	  Data_distr_->Scale( 1.0/ Data_distr_->Integral() );
 	  MC_distr_->Scale( 1.0/ MC_distr_->Integral() );
 
-	  weights_ = new TH1( *(Data_distr_)) ;
+	  weights_ = new TH1F( *(Data_distr_)) ;
 
 	  // MC * data/MC = data, so the weights are data/MC:
 
 	  weights_->SetName("lumiWeights");
 
-	  TH1* den = new TH1(*(MC_distr_));
+	  TH1F* den = new TH1F(*(MC_distr_));
 
 	  weights_->Divide( den );  // so now the average weight should be 1.0
 
@@ -294,7 +294,7 @@ namespace reweight {
 	Data_distr_ = new TH1F("Data_distr","Data dist",NBins,-0.5, float(NBins)-0.5);
 
 	weights_ = new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5);
-	TH1* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5);
+	TH1F* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5);
 
 	for(int ibin = 1; ibin<NBins+1; ++ibin ) {
 	  weights_->SetBinContent(ibin, Lumi_distr[ibin-1]);
@@ -1402,11 +1402,11 @@ namespace reweight {
       std::string DataHistName_;
       TFile *generatedFile_;
       TFile *dataFile_;
-      TH1  *weights_;
+      TH1F  *weights_;
 
       //keep copies of normalized distributions:                                                                                  
-      TH1*      MC_distr_;
-      TH1*      Data_distr_;
+      TH1F*      MC_distr_;
+      TH1F*      Data_distr_;
 
       double WeightOOTPU_[25][25];
       double Weight3D_[50][50][50];

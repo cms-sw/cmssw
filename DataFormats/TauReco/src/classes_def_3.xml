@@ -1,7 +1,10 @@
 <lcgdict>
+  <!-- Duplicate of CaloTauDiscriminatorByIsolationBase
+  causes duplicate definition link error in ROOT6
   <class name="reco::CaloTauDiscriminatorAgainstElectronBase">
     <field name="transientVector_" transient="true"/>
   </class>
+  -->
   <class name="reco::CaloTauDiscriminatorAgainstElectron" ClassVersion="10">
    <version ClassVersion="10" checksum="3692008801"/>
     <!-- <field name="transientVector_" transient="true"/> -->

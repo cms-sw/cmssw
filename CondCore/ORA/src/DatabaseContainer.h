@@ -9,8 +9,8 @@
 #include <memory>
 #include <typeinfo>
 
-namespace Reflex {
-  class Type;
+namespace edm {
+  class TypeWithDict;
 }
 
 namespace ora {
@@ -36,11 +36,11 @@ namespace ora {
 
     void* getItem();
 
-    void* getItemAsType( const Reflex::Type& type );
+    void* getItemAsType( const edm::TypeWithDict& type );
 
     int itemId();
 
-    const Reflex::Type& type();
+    const edm::TypeWithDict& type();
       
     private:
     SelectOperation m_query;
@@ -54,7 +54,7 @@ namespace ora {
     DatabaseContainer( int contId, const std::string& containerName, const std::string& className,
                        unsigned int containerSize, DatabaseSession& session );
 
-    DatabaseContainer( int contId, const std::string& containerName, const Reflex::Type& containerType,
+    DatabaseContainer( int contId, const std::string& containerName, const edm::TypeWithDict& containerType,
                        DatabaseSession& session );                  
     
     virtual ~DatabaseContainer();
@@ -65,7 +65,7 @@ namespace ora {
 
     const std::string& className();
 
-    const Reflex::Type& type();
+    const edm::TypeWithDict& type();
 
     const std::string& mappingVersion();
 
@@ -75,7 +75,7 @@ namespace ora {
 
     void drop();
 
-    void extendSchema( const Reflex::Type& dependentType );
+    void extendSchema( const edm::TypeWithDict& dependentType );
 
     void setAccessPermission( const std::string& principal, bool forWrite );
 
@@ -87,11 +87,11 @@ namespace ora {
 
     void* fetchItem(int itemId);
 
-    void* fetchItemAsType(int itemId, const Reflex::Type& asType);
+    void* fetchItemAsType(int itemId, const edm::TypeWithDict& asType);
 
-    int insertItem( const void* data, const Reflex::Type& type );
+    int insertItem( const void* data, const edm::TypeWithDict& type );
     
-    void updateItem( int itemId, const void* data, const Reflex::Type& type );    
+    void updateItem( int itemId, const void* data, const edm::TypeWithDict& type );    
 
     void erase( int itemId );
     

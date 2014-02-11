@@ -1,31 +1,23 @@
-
 #include "FWCore/Utilities/interface/MemberWithDict.h"
+
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace edm {
 
-  MemberWithDict::MemberWithDict() :
-    dataMember_() {
+  MemberWithDict::MemberWithDict() : dataMember_() {
   }
 
-  MemberWithDict::MemberWithDict(TDataMember* dataMember) :
-    dataMember_(dataMember) {
+  MemberWithDict::MemberWithDict(TDataMember* dataMember) : dataMember_(dataMember) {
+  }
+
+  MemberWithDict::operator bool() const {
+    return dataMember_ != nullptr;
   }
 
   std::string
   MemberWithDict::name() const {
     return dataMember_->GetName();
-  }
-
-  ObjectWithDict
-  MemberWithDict::get() const {
-    return (ObjectWithDict(typeOf(), reinterpret_cast<void*>(dataMember_->GetOffset())));
-  }
-
-  ObjectWithDict
-  MemberWithDict::get(ObjectWithDict const& obj) const {
-    return (ObjectWithDict(typeOf(), static_cast<char*>(obj.address()) + dataMember_->GetOffset()));
   }
 
   TypeWithDict
@@ -40,17 +32,17 @@ namespace edm {
 
   bool
   MemberWithDict::isConst() const {
-    return (dataMember_->Property() & kIsConstant);
+    return dataMember_->Property() & kIsConstant;
   }
 
   bool
   MemberWithDict::isPublic() const {
-    return (dataMember_->Property() & kIsPublic);
+    return dataMember_->Property() & kIsPublic;
   }
 
   bool
   MemberWithDict::isStatic() const {
-    return (dataMember_->Property() & kIsStatic);
+    return dataMember_->Property() & kIsStatic;
   }
 
   bool
@@ -60,11 +52,17 @@ namespace edm {
 
   size_t
   MemberWithDict::offset() const {
-    return (dataMember_->GetOffset());
+    return dataMember_->GetOffset();
   }
 
-  MemberWithDict::operator bool() const {
-    return (dataMember_ != nullptr);
+  ObjectWithDict
+  MemberWithDict::get() const {
+    return ObjectWithDict(typeOf(), reinterpret_cast<void*>(dataMember_->GetOffset()));
   }
 
-}
+  ObjectWithDict
+  MemberWithDict::get(ObjectWithDict const& obj) const {
+    return ObjectWithDict(typeOf(), reinterpret_cast<char*>(obj.address()) + dataMember_->GetOffset());
+  }
+
+} // namespace edm

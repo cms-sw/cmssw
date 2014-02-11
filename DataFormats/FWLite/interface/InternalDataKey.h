@@ -87,7 +87,7 @@ namespace fwlite {
             edm::WrapperInterfaceBase * interface_;
 
             ~Data() {
-               obj_.typeOf().destruct(obj_.address(), true);
+               obj_.destruct(true);
             }
       };
 

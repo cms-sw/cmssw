@@ -15,5 +15,5 @@
 <use   name="Utilities/General"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
-<use   name="rootrflx"/>
+
 <flags   EDM_PLUGIN="1"/>

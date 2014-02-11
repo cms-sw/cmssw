@@ -256,19 +256,19 @@ FWModelContextMenuHandler::showSelectedModelContext(Int_t iX, Int_t iY, FWViewCo
 
    if( m_selectionManager->selected().size()==1 ) {
       {
-         edm::TypeWithDict rtype(edm::TypeWithDict::byName(id.item()->modelType()->GetName()));
-         edm::ObjectWithDict o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
-         edm::TypeMemberQuery inh =  edm::TypeMemberQuery::InheritedAlso;
-         if ( rtype.functionMemberByName("print",edm::TypeWithDict(edm::TypeWithDict::byName("void (std::ostream&)"), Long_t(kIsConstant)), 0, inh))
-         {
-            m_modelPopup->EnableEntry(kPrint);
+         //edm::TypeWithDict rtype(edm::TypeWithDict::byName(id.item()->modelType()->GetName()));
+         //edm::ObjectWithDict o(rtype, const_cast<void *>(id.item()->modelData(id.index())));
+         //edm::TypeMemberQuery inh =  edm::TypeMemberQuery::InheritedAlso;
+         //if ( rtype.functionMemberByName("print",edm::TypeWithDict(edm::TypeWithDict::byName("void (std::ostream&)"), Long_t(kIsConstant)), 0, inh))
+         //{
+            //m_modelPopup->EnableEntry(kPrint);
             // std::cout <<  "Enable " <<std::endl;
-         }
-         else
-         {           
+         //}
+         //else
+         //{           
             m_modelPopup->DisableEntry(kPrint);
             // printf("Disable print \n");
-         }         
+         //}         
       }
       //add the detail view entries
       std::vector<std::string> viewChoices = m_detailViewManager->detailViewsFor(*(m_selectionManager->selected().begin()));

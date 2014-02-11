@@ -1,4 +1,5 @@
 <flags   GENREFLEX_ARGS="--"/>
+
 <use   name="CondCore/RegressionTest"/>
 <use   name="CondCore/Utilities"/>
 <use   name="DataFormats/StdDictionaries"/>

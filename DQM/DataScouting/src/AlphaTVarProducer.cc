@@ -74,7 +74,7 @@ AlphaTVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 double 
 AlphaTVarProducer::CalcAlphaT(const std::vector<TLorentzVector>& jets){
 	std::vector<double> ETs;
-	TVector3 MHT = CalcMHT(jets);
+	TVector3 MHT(CalcMHT(jets), 0.0, 0.0);
 	float HT = CalcHT(jets);
 	//float HT = 0;
 	for(unsigned int i = 0; i < jets.size(); i++){

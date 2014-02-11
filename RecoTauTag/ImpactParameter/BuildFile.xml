@@ -5,7 +5,7 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/BTauReco"/>
 <use   name="DataFormats/VertexReco"/>
-<use   name="rootrflx"/>
+
 <use   name="DataFormats/Math"/>
 <use   name="boost"/>
 <use   name="root"/>

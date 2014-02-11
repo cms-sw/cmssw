@@ -2,225 +2,174 @@
 #define FWCore_Utilities_TypeWithDict_h
 
 /*----------------------------------------------------------------------
-  
+
 TypeWithDict: A unique identifier for a C++ type, with the dictionary information
 
 The identifier is unique within an entire program, but can not be
 persisted across invocations of the program.
 
 ----------------------------------------------------------------------*/
-#include <iosfwd>
-#include <typeinfo>
-#include <string>
-#include <vector>
+#include "FWCore/Utilities/interface/IterWithDict.h"
 
 #include "TBaseClass.h"
 #include "TClass.h"
 #include "TDataMember.h"
 #include "TDataType.h"
+#include "TEnum.h"
 #include "TMethod.h"
+#include "TMethodArg.h"
 
-#include "FWCore/Utilities/interface/IterWithDict.h"
-#include "Reflex/Member.h"
-#include "Reflex/Type.h"
-#include "Reflex/TypeTemplate.h"
+#include <iosfwd>
+#include <string>
+#include <typeinfo>
+#include <vector>
 
-class TBaseClass;
-class TDataMember;
-class TMethod;
-class TMethodArg;
+class TType;
 
 namespace edm {
 
-  class FunctionWithDict;
-  class MemberWithDict;
-  class ObjectWithDict;
+class FunctionWithDict;
+class MemberWithDict;
+class ObjectWithDict;
 
-  enum TypeMemberQuery {
-    InheritedDefault = Reflex::INHERITEDMEMBERS_DEFAULT,
-    InheritedNo = Reflex::INHERITEDMEMBERS_NO,
-    InheritedAlso = Reflex::INHERITEDMEMBERS_ALSO
-  };
+class TypeBases;
+class TypeDataMembers;
+class TypeFunctionMembers;
 
-  class TypeWithDict {
-  public:
+class TypeWithDict {
+  friend class TypeBases;
+  friend class TypeDataMembers;
+  friend class TypeFunctionMembers;
+private:
+  std::type_info const* ti_;
+  TType* type_;
+  TClass* class_;
+  TEnum* enum_;
+  TDataType* dataType_;
+  long property_;
+private:
+  void setProperty();
+  void processEnumeration();
+public:
+  static TypeWithDict byName(std::string const& name, long property = 0L);
+public:
+  TypeWithDict();
+  TypeWithDict& operator=(TypeWithDict const&);
+  TypeWithDict(TypeWithDict const&);
+  // This copy constructor is for clearing const and reference.
+  explicit TypeWithDict(TypeWithDict const&, long property);
+  explicit TypeWithDict(std::type_info const&, long property = 0L);
+  explicit TypeWithDict(TClass* type, long property = 0L);
+  explicit TypeWithDict(TMethodArg* arg, long property = 0L);
+  explicit TypeWithDict(TType* type, long property = 0L);
+  //template<typename T> TypeWithDict() : TypeWithDict(typeid(T)) {}
+  explicit operator bool() const;
+  bool hasDictionary() const;
+  std::type_info const& typeInfo() const;
+  std::type_info const& id() const;
+  TType* getType() const;
+  TClass* getClass() const;
+  TEnum* getEnum() const;
+  TDataType* getDataType() const;
+  long getProperty() const;
+  bool isClass() const;
+  bool isConst() const;
+  bool isArray() const;
+  bool isEnum() const;
+  bool isFundamental() const;
+  bool isPointer() const;
+  bool isReference() const;
+  bool isTemplateInstance() const;
+  bool isTypedef() const;
+  bool isVirtual() const;
+  std::string qualifiedName() const;
+  std::string unscopedName() const;
+  std::string name() const;
+  std::string unscopedNameWithTypedef() const;
+  std::string userClassName() const;
+  std::string friendlyClassName() const;
+  std::string templateName() const;
+  size_t size() const;
+  size_t arrayLength() const;
+  size_t dataMemberSize() const;
+  size_t functionMemberSize() const;
+  MemberWithDict dataMemberByName(std::string const&) const;
+  // Note: Used only by FWCore/Modules/src/EventContentAnalyzer.cc
+  FunctionWithDict functionMemberByName(std::string const&) const;
+  // Note: Used only by Fireworks/Core/src/FWModelContextMenuHandler.cc:262
+  //FunctionWithDict functionMemberByName(std::string const& name, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
+  // Note: Used only by CondFormats/PhysicsToolsObjects/src/MVAComputer.cc
+  FunctionWithDict functionMemberByName(std::string const& name, std::string const& proto, bool isConst) const;
+  TypeWithDict nestedType(char const*) const;
+  TypeWithDict nestedType(std::string const&) const;
+  TypeWithDict finalType() const;
+  TypeWithDict toType() const;
+  void print(std::ostream& os) const;
+  bool hasBase(std::string const&) const;
+  bool hasBase(TypeWithDict const& basety) const;
+  int getBaseClassOffset(TypeWithDict const& baseClass) const;
+  TypeWithDict templateArgumentAt(size_t index) const;
+  void const* pointerToBaseType(void const* ptr, TypeWithDict const& derivedType) const;
+  void const* pointerToContainedType(void const* ptr, TypeWithDict const& derivedType) const;
+  int stringToEnumValue(std::string const&) const;
+  void* allocate() const;
+  void deallocate(void* address) const;
+  ObjectWithDict construct() const;
+  void destruct(void* address, bool dealloc = true) const;
+};
 
-    TypeWithDict();
+// A related free function
+bool hasDictionary(std::type_info const&);
 
-    explicit TypeWithDict(std::type_info const& t);
-
-    explicit TypeWithDict(std::type_info const& t, Long_t property);
-
-    explicit TypeWithDict(Reflex::Type const& type);
-
-    explicit TypeWithDict(TypeWithDict const& type, Long_t property);
-
-    explicit TypeWithDict(TClass* type, Long_t property = (Long_t)kIsClass);
-
-    explicit TypeWithDict(TMethodArg* arg);
-
-    static TypeWithDict
-    byName(std::string const& className);
-
-    static TypeWithDict
-    byName(std::string const& className, Long_t property);
-
-    // Print out the name of the type, using the dictionary class name.
-    void print(std::ostream& os) const;
-
-    std::string qualifiedName() const;
-
-    std::string unscopedName() const;
-
-    std::string name() const;
-
-    std::string userClassName() const;
-
-    std::string friendlyClassName() const;
-
-    bool hasDictionary() const;
-
-    bool isClass() const;
-
-    bool isConst() const;
-
-    bool isEnum() const;
-
-    bool isFundamental() const;
-
-    bool isPointer() const;
-
-    bool isReference() const;
-
-    bool isTemplateInstance() const;
-
-    bool isTypedef() const;
-
-    bool isVirtual() const;
-
-    TypeWithDict toType() const;
-
-    TypeWithDict nestedType(char const* name) const;
-
-    TypeWithDict nestedType(std::string const& name) const {
-      return nestedType(name.c_str());
-    }
-
-    int getBaseClassOffset(TypeWithDict const& baseClass) const;
-
-    TypeWithDict templateArgumentAt(size_t index) const;
-
-    std::string templateName() const;
-
-    ObjectWithDict construct() const;
-
-    void destruct(void* address, bool dealloc = true) const;
-
-    void const* pointerToBaseType(void const* ptr, TypeWithDict const& derivedType) const;
-
-    void const* pointerToContainedType(void const* ptr, TypeWithDict const& derivedType) const;
-
-    template <typename T>
-    void invokeByName(T& obj, std::string const& name) const {
-      Reflex::Member theFunction = type_.FunctionMemberByName(name);
-      theFunction.Invoke(obj);
-    }
-
-#ifndef __GCCXML__
-    explicit operator bool() const;
-#endif
-    
-    std::type_info const& typeInfo() const;
-
-    std::type_info const& id() const;
-
-    MemberWithDict dataMemberByName(std::string const& member) const;
-
-    FunctionWithDict functionMemberByName(std::string const& member) const;
-
-    FunctionWithDict functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
-
-    size_t dataMemberSize() const;
-
-    size_t functionMemberSize() const;
-
-    int stringToEnumValue(std::string const& enumMemberName) const;
-
-    size_t size() const;
-
-    void* allocate() const {
-      return new char[size()];
-    }
-
-    void deallocate(void * obj) const {
-      delete [] static_cast<char *>(obj);
-    }
-
-  private:
-    friend class BaseWithDict;
-    friend class FunctionWithDict;
-    friend class MemberWithDict;
-    friend class ObjectWithDict;
-    friend class TypeBases;
-    friend class TypeDataMembers;
-    friend class TypeFunctionMembers;
-
-    void setProperty();
-
-    std::type_info const* typeInfo_;
-    Reflex::Type type_;
-    TClass* class_;
-    TDataType* dataType_;
-    Long_t property_;
-  };
-
-  inline bool operator<(TypeWithDict const& a, TypeWithDict const& b) {
-    return a.typeInfo().before(b.typeInfo());
-  }
-
-  bool operator==(TypeWithDict const& a, TypeWithDict const& b);
-
-  inline bool operator!=(TypeWithDict const& a, TypeWithDict const& b) {
-    return !(a == b);
-  }
-
-  std::ostream& operator<<(std::ostream& os, TypeWithDict const& id);
-
-  class TypeBases {
-  public:
-    explicit TypeBases(TypeWithDict const& type) : type_(type.type_), class_(type.class_) {}
-    IterWithDict<TBaseClass> begin() const;
-    IterWithDict<TBaseClass> end() const;
-    size_t size() const;
-  private:
-    Reflex::Type const& type_;
-    TClass* class_;
-  };
-
-  class TypeDataMembers {
-  public:
-    explicit TypeDataMembers(TypeWithDict const& type) : type_(type.type_), class_(type.class_) {}
-    IterWithDict<TDataMember> begin() const;
-    IterWithDict<TDataMember> end() const;
-    size_t size() const;
-  private:
-    Reflex::Type const& type_;
-    TClass* class_;
-  };
-
-  class TypeFunctionMembers {
-  public:
-    explicit TypeFunctionMembers(TypeWithDict const& type) : type_(type.type_), class_(type.class_) {}
-/*
-    IterWithDict<TMethod> begin() const;
-    IterWithDict<TMethod> end() const;
-*/
-    Reflex::Member_Iterator begin() const;
-    Reflex::Member_Iterator end() const;
-    size_t size() const;
-  private:
-    Reflex::Type const& type_;
-    TClass* class_;
-  };
+inline bool operator<(TypeWithDict const& a, TypeWithDict const& b) {
+  return a.typeInfo().before(b.typeInfo());
 }
-#endif
+
+bool operator==(TypeWithDict const& a, TypeWithDict const& b);
+
+inline bool operator!=(TypeWithDict const& a, TypeWithDict const& b) {
+  return !(a == b);
+}
+
+std::ostream& operator<<(std::ostream& os, TypeWithDict const& id);
+
+class TypeBases {
+private:
+  TType* type_;
+  TClass* class_;
+public:
+  explicit TypeBases(TypeWithDict const&);
+  IterWithDict<TBaseClass> begin() const;
+  IterWithDict<TBaseClass> end() const;
+  size_t size() const;
+};
+
+class TypeDataMembers {
+private:
+  TType* type_;
+  TClass* class_;
+public:
+  explicit TypeDataMembers(TypeWithDict const&);
+  IterWithDict<TDataMember> begin() const;
+  IterWithDict<TDataMember> end() const;
+  size_t size() const;
+};
+
+class TypeFunctionMembers {
+private:
+  TType* type_;
+  TClass* class_;
+public:
+  explicit TypeFunctionMembers(TypeWithDict const&);
+  IterWithDict<TMethod> begin() const;
+  IterWithDict<TMethod> end() const;
+  size_t size() const;
+};
+
+} // namespace edm
+
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
+#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+
+#endif // FWCore_Utilities_TypeWithDict_h

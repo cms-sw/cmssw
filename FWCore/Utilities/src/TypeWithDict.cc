@@ -1,284 +1,466 @@
-/*----------------------------------------------------------------------
-, Long_t property
-----------------------------------------------------------------------*/
-#include <cassert>
-#include <ostream>
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/FriendlyName.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
-#include "TROOT.h"
+
 #include "TClass.h"
 #include "TDataType.h"
+#include "TEnum.h"
+#include "TEnumConstant.h"
+#include "TInterpreter.h"
 #include "TMethodArg.h"
-#include "Cintex/Cintex.h"
-#include "Reflex/Member.h"
-#include "Reflex/Object.h"
+#include "TROOT.h"
+
 #include "boost/thread/tss.hpp"
 
-namespace ROOT {
-  namespace Cintex {
-    std::string CintName(std::string const&);
-  }
-}
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <ostream>
+#include <typeinfo>
 
-namespace {
-  int
-  toReflex(Long_t property) {
-    int prop = 0;
-    if(property&(Long_t)kIsConstant) {
-      prop |= Reflex::CONST;
-    }
-    if(property&(Long_t)kIsReference) {
-      prop |= Reflex::REFERENCE;
-    }
-    return prop;
-  }
-}
+#include <cxxabi.h>
+#include <iostream>
 
 namespace edm {
+
+  TypeWithDict
+  TypeWithDict::byName(std::string const& name, long property /*= 0L*/) {
+    // Note: The property flag should include kIsConstant and
+    //       kIsReference if needed since a typeid() expression
+    //       ignores those properties, so we must store them
+    //       separately.
+    TType* type = gInterpreter->Type_Factory(name);
+    if (!gInterpreter->Type_IsValid(type)) {
+      // This can happen if no dictionary has been loaded for the class or enum.
+      // If this is a class, trigger the loading of the dictionary.
+      TClass* theClass = TClass::GetClass(name.c_str());
+      if(theClass == nullptr || theClass->GetTypeInfo() == nullptr) {
+        return TypeWithDict();
+      }
+      return TypeWithDict(theClass, property);
+    }
+    return TypeWithDict(type, property);
+  }
+
   void
   TypeWithDict::setProperty() {
-    if(type_.IsClass()) {
-       property_ |= (Long_t)kIsClass;
+    // Note: typeid() ignores const and volatile qualifiers, and
+    //       cannot see references.
+    //       So:
+    //            typeid(int) == typeid(int const)
+    //                        == typeid(int&)
+    //                        == typeid(int const&)
+    //
+    if (type_ == nullptr) {
+      return;
     }
-    if(type_.IsConst()) {
-       property_ |= (Long_t)kIsConstant;
+    if (gInterpreter->Type_IsConst(type_)) {
+      // Note: This is not possible if created by typeid.
+      property_ |= (long) kIsConstant;
     }
-    if(type_.IsEnum()) {
-       property_ |= (Long_t)kIsEnum;
-    }
-    if(type_.IsTypedef()) {
-       property_ |= (Long_t)kIsTypedef;
-    }
-    if(dataType_ != nullptr || *typeInfo_ == typeid(void)) {
-       property_ |= (Long_t)kIsFundamental;
-    }
-    if(type_.IsPointer()) {
-       property_ |= (Long_t)kIsPointer;
-    }
-    if(type_.IsReference()) {
-       property_ |= (Long_t)kIsReference;
-    }
-    if(type_.IsStruct()) {
-       property_ |= (Long_t)kIsStruct;
-    }
-    if(type_.IsVirtual()) {
-       property_ |= (Long_t)kIsVirtual;
+    if (gInterpreter->Type_IsReference(type_)) {
+      // Note: This is not possible if created by typeid.
+      property_ |= (long) kIsReference;
     }
   }
 
   TypeWithDict::TypeWithDict() :
-    typeInfo_(&typeid(void)),
-    type_(),
+    ti_(&typeid(void)),
+    type_(nullptr),
     class_(nullptr),
+    enum_(nullptr),
     dataType_(nullptr),
     property_(0L) {
   }
 
-  TypeWithDict::TypeWithDict(Reflex::Type const& type) :
-    typeInfo_(&type.TypeInfo()),
-    type_(type),
-    class_(nullptr),
-    dataType_(TDataType::GetDataType(TDataType::GetType(*typeInfo_))),
-    property_(0L) {
-      setProperty();
-      if(!isFundamental() && !isEnum()) { 
-        class_ = TClass::GetClass(*typeInfo_);
-      }
+  TypeWithDict::TypeWithDict(TypeWithDict const& rhs) :
+    ti_(rhs.ti_),
+    type_(rhs.type_),
+    class_(rhs.class_),
+    enum_(rhs.enum_),
+    dataType_(rhs.dataType_),
+    property_(rhs.property_) {
   }
 
-  TypeWithDict::TypeWithDict(std::type_info const& t) :
-    TypeWithDict{t, 0L} {
-  }
-
-  TypeWithDict::TypeWithDict(std::type_info const& t, Long_t property) :
-    typeInfo_(&t),
-    type_(Reflex::Type::ByTypeInfo(t), toReflex(property)),
-    class_(nullptr),
-    dataType_(TDataType::GetDataType(TDataType::GetType(t))),
-    property_(property) {
-      setProperty();
-      if(!isFundamental() && !isEnum()) { 
-        class_ = TClass::GetClass(*typeInfo_);
-      }
-  }
-
-  TypeWithDict::TypeWithDict(TClass* cl, Long_t property) :
-    typeInfo_(cl->GetTypeInfo()),
-    type_(Reflex::Type::ByTypeInfo(*cl->GetTypeInfo()), toReflex(property)),
-    class_(cl),
-    dataType_(nullptr),
-    property_(property) {
-      property_ |= (Long_t)kIsClass;
-  }
-
-  TypeWithDict::TypeWithDict(TMethodArg* arg) :
-    typeInfo_(nullptr),
-    type_(),
-    class_(nullptr),
-    dataType_(nullptr),
-    property_(arg->Property()) {
-      TypeWithDict type(byName(arg->GetTypeName(), arg->Property()));
-      *this = std::move(type);
-  }
-
-  TypeWithDict::TypeWithDict(TypeWithDict const& type, Long_t property) :
-    // Only modifies const and reference.
-    typeInfo_(type.typeInfo_),
-    type_(type.type_, toReflex(property|type.property_)),
+  TypeWithDict::TypeWithDict(TypeWithDict const& type, long prop) :
+    ti_(type.ti_),
+    type_(type.type_),
     class_(type.class_),
+    enum_(type.enum_),
     dataType_(type.dataType_),
     property_(type.property_) {
-      if(property&(Long_t)kIsConstant) {
-        property_ |= (Long_t)kIsConstant;
-      } else {
-        property_ &= ~(Long_t)kIsConstant;
+    // Unconditionally modifies const and reference
+    // properties, and only those properties.
+    property_ &= ~((long) kIsConstant | (long) kIsReference);
+    if (prop & kIsConstant) {
+      property_ |= kIsConstant;
+    }
+    if (prop & kIsReference) {
+      property_ |= kIsReference;
+    }
+  }
+
+  TypeWithDict&
+  TypeWithDict::operator=(TypeWithDict const& rhs) {
+    if (this != &rhs) {
+      ti_ = rhs.ti_;
+      type_ = rhs.type_;
+      class_ = rhs.class_;
+      enum_ = rhs.enum_;
+      dataType_ = rhs.dataType_;
+      property_ = rhs.property_;
+    }
+    return *this;
+  }
+
+  TypeWithDict::TypeWithDict(std::type_info const& ti, long property /*= 0L*/) :
+    ti_(&ti),
+    type_(nullptr),
+    class_(nullptr),
+    enum_(nullptr),
+    dataType_(nullptr),
+    property_(property) {
+
+    type_ = gInterpreter->Type_Factory(ti);
+    if (!gInterpreter->Type_TypeInfo(type_)) {
+      // This can happen if no dictionary has been loaded for the class or enum.
+      // If this is a class, trigger the loading of the dictionary.
+      class_ = TClass::GetClass(ti);
+    }
+    if (!gInterpreter->Type_TypeInfo(type_)) {
+      // FIXME: Replace this with an exception!
+      fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
+              "Type_TypeInfo returns nullptr!\n");
+      abort();
+    }
+    dataType_ = TDataType::GetDataType(TDataType::GetType(ti));
+    if (class_ == nullptr &&
+        !gInterpreter->Type_IsFundamental(type_) &&
+        !gInterpreter->Type_IsEnum(type_)) {
+      // Must be a class, struct, or union.
+      class_ = TClass::GetClass(ti);
+    }
+    if (gInterpreter->Type_IsEnum(type_)) {
+      processEnumeration();
+    }
+  }
+
+  TypeWithDict::TypeWithDict(TClass* cl, long property /*= 0L*/) :
+    ti_(&typeid(void)),
+    type_(nullptr),
+    class_(cl),
+    enum_(nullptr),
+    dataType_(nullptr),
+    property_((long) kIsClass | property) {
+
+    ti_ = cl->GetTypeInfo();
+    type_ = gInterpreter->Type_Factory(*cl->GetTypeInfo());
+  }
+
+  TypeWithDict::TypeWithDict(TMethodArg* arg, long property /*= 0L*/) :
+    TypeWithDict(byName(arg->GetTypeName(), arg->Property() | property)) {
+  }
+
+  TypeWithDict::TypeWithDict(TType* ttype, long property /*= 0L*/) :
+    ti_(&typeid(void)),
+    type_(ttype),
+    class_(nullptr),
+    enum_(nullptr),
+    dataType_(nullptr),
+    property_(property) {
+
+    if (!ttype) {
+      return;
+    }
+    {
+      std::type_info const* info = gInterpreter->Type_TypeInfo(ttype);
+      if (!info) {
+        // FIXME: Replace this with an exception!
+        fprintf(stderr, "TypeWithDict(TType*, property): "
+                "Type_TypeInfo returns nullptr!\n");
+        abort();
       }
-      if(property&(Long_t)kIsReference) {
-        property_ |= (Long_t)kIsReference;
-      } else {
-        property_ &= ~(Long_t)kIsReference;
-      }
+      ti_ = info;
+    }
+    if (gInterpreter->Type_IsConst(ttype)) {
+      // Note: This is not possible if created by typeid.
+      property_ |= (long) kIsConstant;
+    }
+    if (gInterpreter->Type_IsReference(ttype)) {
+      // Note: This is not possible if created by typeid.
+      property_ |= (long) kIsReference;
+    }
+    dataType_ = TDataType::GetDataType(TDataType::GetType(*ti_));
+    if (!gInterpreter->Type_IsFundamental(ttype) &&
+        !gInterpreter->Type_IsEnum(ttype)) {
+      // Must be a class, struct, or union.
+      class_ = TClass::GetClass(*ti_);
+    }
+    if (gInterpreter->Type_IsEnum(type_)) {
+      processEnumeration();
+    }
+  }
+
+  TypeWithDict::operator bool() const {
+    if (*ti_ == typeid(void)) {
+      return false;
+    }
+    if (type_ == nullptr) {
+      // FIXME: Replace this with an exception!
+      fprintf(stderr, "TypeWithDict::operator bool(): "
+              "type_ is nullptr!\n");
+      abort();
+    }
+    return gInterpreter->Type_Bool(type_);
+  }
+
+  bool
+  TypeWithDict::hasDictionary() const {
+    if (*ti_ == typeid(void)) {
+      return true;
+    }
+    if (type_ == nullptr) {
+      // FIXME: Replace this with an exception!
+      fprintf(stderr, "TypeWithDict::hasDictionary(): "
+              "type_ is nullptr!\n");
+      abort();
+    }
+    return gInterpreter->Type_Bool(type_);
+  }
+
+  std::type_info const&
+  TypeWithDict::typeInfo() const {
+    return *ti_;
+  }
+
+  std::type_info const&
+  TypeWithDict::id() const {
+    return *ti_;
+  }
+
+  TType*
+  TypeWithDict::getType() const {
+    return type_;
+  }
+
+  TClass*
+  TypeWithDict::getClass() const {
+    return class_;
+  }
+
+  TEnum*
+  TypeWithDict::getEnum() const {
+    return enum_;
+  }
+
+  TDataType*
+  TypeWithDict::getDataType() const {
+    return dataType_;
+  }
+
+  long
+  TypeWithDict::getProperty() const {
+    return property_;
+  }
+
+  bool
+  TypeWithDict::isClass() const {
+    // Note: This really means is class, struct, or union.
+    if (type_ == nullptr) {
+      return false;
+    }
+    return gInterpreter->Type_IsClass(type_);
+  }
+
+  bool
+  TypeWithDict::isConst() const {
+    // Note: We must check the property flags here too because
+    //       typeid() ignores const.
+    if (type_ == nullptr) {
+      return false;
+    }
+    return gInterpreter->Type_IsConst(type_) || (property_ & (long) kIsConstant);
+  }
+
+  bool
+  TypeWithDict::isArray() const {
+    if (type_ == nullptr) {
+      return false;
+    }
+    return gInterpreter->Type_IsArray(type_);
+  }
+
+  bool
+  TypeWithDict::isEnum() const {
+    if (type_ == nullptr) {
+      return false;
+    }
+    return gInterpreter->Type_IsEnum(type_);
+  }
+
+  bool
+  TypeWithDict::isFundamental() const {
+    if (type_ == nullptr) {
+      return false;
+    }
+    return gInterpreter->Type_IsFundamental(type_);
+  }
+
+  bool
+  TypeWithDict::isPointer() const {
+    if (type_ == nullptr) {
+      return false;
+    }
+    return gInterpreter->Type_IsPointer(type_);
+  }
+
+  bool
+  TypeWithDict::isReference() const {
+    // Note: We must check the property flags here too because
+    //       typeid() ignores references.
+    if (type_ == nullptr) {
+      return false;
+    }
+    return gInterpreter->Type_IsReference(type_) ||
+           (property_ & (long) kIsReference);
+  }
+
+  bool
+  TypeWithDict::isTemplateInstance() const {
+    if (type_ == nullptr) {
+      return false;
+    }
+    return gInterpreter->Type_IsTemplateInstance(type_);
+  }
+
+  bool
+  TypeWithDict::isTypedef() const {
+    if (type_ == nullptr) {
+      return false;
+    }
+    return gInterpreter->Type_IsTypedef(type_);
+  }
+
+  bool
+  TypeWithDict::isVirtual() const {
+    if (type_ == nullptr) {
+      return false;
+    }
+    return gInterpreter->Type_IsVirtual(type_);
   }
 
   void
   TypeWithDict::print(std::ostream& os) const {
-    try {
-      os << name();
-    } catch (cms::Exception const& e) {
-      os << typeInfo().name();
-    }
-  }
-
-  TypeWithDict
-  TypeWithDict::byName(std::string const& name) {
-    return byName(name, 0L);
-  }
-
-  TypeWithDict
-  TypeWithDict::byName(std::string const& name, Long_t property) {
-    // static map for built in types
-    typedef std::map<std::string, TypeWithDict> TypeMap;  
-    static const TypeMap typeMap = {
-      {std::string("bool"), TypeWithDict(typeid(bool))},
-      {std::string("char"), TypeWithDict(typeid(char))},
-      {std::string("unsigned char"), TypeWithDict(typeid(unsigned char))},
-      {std::string("short"), TypeWithDict(typeid(short))},
-      {std::string("unsigned short"), TypeWithDict(typeid(unsigned short))},
-      {std::string("int"), TypeWithDict(typeid(int))},
-      {std::string("unsigned int"), TypeWithDict(typeid(unsigned int))},
-      {std::string("long"), TypeWithDict(typeid(long))},
-      {std::string("unsigned long"), TypeWithDict(typeid(unsigned long))},
-      {std::string("long long"), TypeWithDict(typeid(long long))},
-      {std::string("unsigned long long"), TypeWithDict(typeid(unsigned long long))},
-      {std::string("float"), TypeWithDict(typeid(float))},
-      {std::string("double"), TypeWithDict(typeid(double))},
-      // {std::string("long double"), TypeWithDict(typeid(long double))}, // ROOT does not seem to know about long double
-      {std::string("string"), TypeWithDict(typeid(std::string))},
-      {std::string("void"), TypeWithDict(typeid(void))}
-    };
-    
-    std::string cintName = ROOT::Cintex::CintName(name);
-    char last = *cintName.rbegin();
-    if(last == '*') {
-     cintName = cintName.substr(0, cintName.size() - 1);
-    }
-
-    TypeMap::const_iterator it = typeMap.find(cintName);
-    if(it != typeMap.end()) {
-      return TypeWithDict(it->second, property);
-    }
-
-    TClass* cl = TClass::GetClass(cintName.c_str());
-    if(cl != nullptr) {
-      // it's a class
-      std::type_info const* typeInfo = cl->GetTypeInfo();
-      if(typeInfo == nullptr) {
-        return TypeWithDict();
-      }
-      // it's a class with a dictionary
-      return TypeWithDict(cl, property);
-    }
-    // This is an enum, or a class without a CINT dictionary.  We need Reflex to handle it.
-    Reflex::Type t = Reflex::Type::ByName(name);
-    return(bool(t) ? TypeWithDict(t) : TypeWithDict());
+    os << name();
   }
 
   std::string
   TypeWithDict::qualifiedName() const {
+    if (type_ == nullptr) {
+      return "undefined";
+    }
     std::string qname(name());
-    if(isConst()) {
+    if (isConst()) {
       qname = "const " + qname;
     }
-    if(isReference()) {
-      qname += '&'; 
+    if (isReference()) {
+      qname += '&';
     }
     return qname;
   }
 
   std::string
   TypeWithDict::unscopedName() const {
+    if (type_ == nullptr) {
+      return "undefined";
+    }
     return stripNamespace(name());
   }
-  
+
   std::string
   TypeWithDict::name() const {
-    if(isPointer()) {
-      return TypeID(typeInfo()).className() + '*';
+    if (type_ == nullptr) {
+      return "undefined";
     }
-    return TypeID(typeInfo()).className();
+    return TypeID(*ti_).className();
+  }
+
+  std::string
+  TypeWithDict::unscopedNameWithTypedef() const {
+    if (type_ == nullptr) {
+      return "undefined";
+    }
+    return stripNamespace(gInterpreter->Type_QualifiedName(type_));
   }
 
   std::string
   TypeWithDict::userClassName() const {
-    return TypeID(typeInfo()).userClassName();
+    //FIXME: What about const and reference?
+    if (type_ == nullptr) {
+      return "undefined";
+    }
+    return TypeID(*ti_).userClassName();
   }
 
   std::string
   TypeWithDict::friendlyClassName() const {
-    return TypeID(typeInfo()).friendlyClassName();
+    //FIXME: What about const and reference?
+    if (type_ == nullptr) {
+      return "undefined";
+    }
+    return TypeID(*ti_).friendlyClassName();
   }
 
-  bool
-  TypeWithDict::hasDictionary() const {
-    if(isEnum() || isTypedef() || isPointer()) {
-      return bool(type_);
+  size_t
+  TypeWithDict::size() const {
+    if (type_ == nullptr) {
+      return 0;
     }
-    if(isFundamental()) {
-      return true;
-    }
-    return ((class_ != nullptr && class_->GetTypeInfo() != nullptr));
+    return gInterpreter->Type_Size(type_);
   }
 
-  ObjectWithDict
-  TypeWithDict::construct() const {
-    if(class_ != nullptr) {
-      return ObjectWithDict(*this, class_->New());
+  size_t
+  TypeWithDict::arrayLength() const {
+    if (type_ == nullptr) {
+      return 0;
     }
-    return ObjectWithDict(*this, new char[size()]);
+    return gInterpreter->Type_ArraySize(type_);
   }
 
-  void
-  TypeWithDict::destruct(void* address, bool dealloc) const {
-    if(class_ != nullptr) {
-      class_->Destructor(address, !dealloc);
-    } else if(dealloc) {
-      delete [] static_cast<char *>(address);
+  size_t
+  TypeWithDict::dataMemberSize() const {
+    if (class_ != nullptr) {
+      return class_->GetListOfDataMembers()->GetSize();
     }
+    if (enum_ != nullptr) {
+      return enum_->GetConstants()->GetSize();
+    }
+    return 0;
+  }
+
+  size_t
+  TypeWithDict::functionMemberSize() const {
+    if (class_ != nullptr) {
+      return class_->GetListOfMethods()->GetSize();
+    }
+    return 0;
   }
 
   void const*
   TypeWithDict::pointerToBaseType(void const* ptr, TypeWithDict const& derivedType) const {
-    if(derivedType == *this) {
+    if (this->ti_ == derivedType.ti_ || *this->ti_ == *derivedType.ti_) {
       return ptr;
     }
     int offset = derivedType.getBaseClassOffset(*this);
-    if(offset < 0) return nullptr;
+    if (offset < 0) {
+      return nullptr;
+    }
     return static_cast<char const*>(ptr) + offset;
   }
 
@@ -287,133 +469,111 @@ namespace edm {
     return pointerToBaseType(ptr, derivedType);
   }
 
-  TypeWithDict::operator bool() const {
-    return hasDictionary();
-  }
-
   TypeWithDict
   TypeWithDict::nestedType(char const* nestedName) const {
     return byName(name() + "::" + nestedName);
   }
 
+  TypeWithDict
+  TypeWithDict::nestedType(std::string const& nestedName) const {
+    return byName(name() + "::" + nestedName);
+  }
+
   MemberWithDict
   TypeWithDict::dataMemberByName(std::string const& member) const {
-    if(class_ == nullptr) {
-      if(isEnum()) {
-        std::string fullName(name());
-        size_t lastColon = fullName.find_last_of("::");
-        assert(lastColon != std::string::npos && lastColon != 0U);
-        std::string theName(fullName.substr(0, lastColon - 1));
-        TClass* cl = TClass::GetClass(theName.c_str());
-        assert(cl != nullptr);
-        return MemberWithDict(cl->GetDataMember(member.c_str()));
-      }
-      return MemberWithDict();
+    if (class_ != nullptr) {
+      return MemberWithDict(class_->GetDataMember(member.c_str()));
     }
-    return MemberWithDict(class_->GetDataMember(ROOT::Cintex::CintName(member).c_str()));
+    if (enum_ != nullptr) {
+      TClass* cl = enum_->GetClass();
+      return MemberWithDict(cl->GetDataMember(member.c_str()));
+    }
+    return MemberWithDict();
   }
 
   FunctionWithDict
   TypeWithDict::functionMemberByName(std::string const& member) const {
-    return FunctionWithDict(type_.FunctionMemberByName(member));
+    if (class_ == nullptr) {
+      return FunctionWithDict();
+    }
+    TMethod* meth = reinterpret_cast<TMethod*>(
+      class_->GetListOfMethods()->FindObject(member.c_str()));
+    if (meth == nullptr) {
+      return FunctionWithDict();
+    }
+    return FunctionWithDict(meth);
   }
 
   FunctionWithDict
-  TypeWithDict::functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const {
-    return FunctionWithDict(type_.FunctionMemberByName(member, signature.type_, mods, static_cast<Reflex::EMEMBERQUERY>(memberQuery)));
-  }
-
-/*
-  // Implementation in ROOT
-
-  TypeWithDict::functionMemberByName(std::string const& member) const {
-    if(class_ == nullptr) {
+  TypeWithDict::functionMemberByName(std::string const& name, std::string const& proto, bool isConst) const {
+    if (class_ == nullptr) {
       return FunctionWithDict();
     }
-    return FunctionWithDict(class_->GetMethodAny(ROOT::Cintex::CintName(member).c_str()));
-  }
-
-  FunctionWithDict
-  TypeWithDict::functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const {
-    if(class_ == nullptr) {
+    TMethod* meth = class_->GetMethodWithPrototype(name.c_str(), proto.c_str(), /*objectIsConst=*/isConst, /*mode=*/ROOT::kExactMatch);
+    if (meth == nullptr) {
       return FunctionWithDict();
     }
-    // This is wrong.
-    return FunctionWithDict(class_->GetMethodAny(ROOT::Cintex::CintName(member).c_str()));
-  }
-*/
-
-  bool
-  TypeWithDict::isClass() const {
-    return property_&((Long_t)kIsClass|(Long_t)kIsStruct);
-  }
-
-  bool
-  TypeWithDict::isConst() const {
-    return property_&(Long_t)kIsConstant;
-  }
-
-  bool
-  TypeWithDict::isEnum() const {
-    return property_&(Long_t)kIsEnum;
-  }
-
-  bool
-  TypeWithDict::isFundamental() const {
-    return property_ & (Long_t)kIsFundamental;
-  }
-
-  bool
-  TypeWithDict::isPointer() const {
-    return property_ & (Long_t)kIsPointer;
-  }
-
-  bool
-  TypeWithDict::isReference() const {
-    return property_ & (Long_t)kIsReference;
-  }
-
-  bool
-  TypeWithDict::isTypedef() const {
-    return property_ & (Long_t)kIsTypedef;
-  }
-
-  bool
-  TypeWithDict::isTemplateInstance() const {
-    return *name().rbegin() == '>';
-  }
-
-  bool
-  TypeWithDict::isVirtual() const {
-    return property_ & (Long_t)kIsVirtual;
+    return FunctionWithDict(meth);
   }
 
   TypeWithDict
-  TypeWithDict::toType() const{
-    return TypeWithDict(type_.ToType());
+  TypeWithDict::finalType() const {
+    TypeWithDict ret;
+    if (type_ == nullptr) {
+      return ret;
+    }
+    TType* ty = gInterpreter->Type_FinalType(type_);
+    if (ty == nullptr) {
+      return ret;
+    }
+    std::type_info const* ti = gInterpreter->Type_TypeInfo(ty);
+    if (ti == nullptr) {
+      return ret;
+    }
+    ret = TypeWithDict(*ti);
+    return ret;
+  }
+
+  TypeWithDict
+  TypeWithDict::toType() const {
+    TypeWithDict ret;
+    if (type_ == nullptr) {
+      return ret;
+    }
+    TType* ty = gInterpreter->Type_ToType(type_);
+    if (ty == nullptr) {
+      return ret;
+    }
+    std::type_info const* ti = gInterpreter->Type_TypeInfo(ty);
+    if (ti == nullptr) {
+      return ret;
+    }
+    ret = TypeWithDict(*ti);
+    return ret;
   }
 
   std::string
   TypeWithDict::templateName() const {
     if (!isTemplateInstance()) {
-      return std::string();
+      return "";
     }
-    std::string templateName = name();
-    size_t begin = templateName.find('<');
+    std::string templateName(name());
+    auto begin = templateName.find('<');
     assert(begin != std::string::npos);
-    size_t end = templateName.rfind('<');
+    auto end = templateName.rfind('<');
     assert(end != std::string::npos);
     assert(begin <= end);
-    if(begin < end) {
+    if (begin < end) {
       int depth = 1;
-      for(size_t inx = begin + 1 ; inx <= end; ++inx) {
-        char c = templateName[inx];
-        if(c == '<') {
-          if(depth == 0) {
-            begin = inx;
+      for (auto idx = begin + 1; idx <= end; ++idx) {
+        char c = templateName[idx];
+        if (c == '<') {
+          if (depth == 0) {
+            begin = idx;
           }
           ++depth;
-        } else if(c == '>') {
+        }
+        else if (c == '>') {
           --depth;
           assert(depth >= 0);
         }
@@ -424,105 +584,206 @@ namespace edm {
 
   TypeWithDict
   TypeWithDict::templateArgumentAt(size_t index) const {
-    std::string className = unscopedName();
-    size_t begin = className.find('<');
-    if(begin == std::string::npos) {
+    std::string className(unscopedName());
+    auto begin = className.find('<');
+    if (begin == std::string::npos) {
       return TypeWithDict();
     }
     ++begin;
-    size_t end = className.rfind('>');
+    auto end = className.rfind('>');
     assert(end != std::string::npos);
     assert(begin < end);
     int depth = 0;
     size_t argCount = 0;
-    for(size_t inx = begin; inx < end; ++inx) {
-      char c = className[inx];
-      if(c == '<') {
+    for (auto idx = begin; idx < end; ++idx) {
+      char c = className[idx];
+      if (c == '<') {
         ++depth;
-      } else if(c == '>') {
+      }
+      else if (c == '>') {
         --depth;
         assert(depth >= 0);
-      } else if(depth == 0 && c == ',') {
-        if(argCount < index) {
-          begin = inx + 1;
+      }
+      else if ((depth == 0) && (c == ',')) {
+        if (argCount < index) {
+          begin = idx + 1;
           ++argCount;
-        } else {
-          end = inx;
+        }
+        else {
+          end = idx;
           break;
         }
       }
     }
     assert(depth == 0);
-    if(argCount < index) {
+    if (argCount < index) {
       return TypeWithDict();
     }
     return byName(className.substr(begin, end - begin));
   }
 
-  std::type_info const&
-  TypeWithDict::typeInfo() const {
-    return *typeInfo_;
+  bool
+  TypeWithDict::hasBase(std::string const& basename) const {
+    if (class_ == nullptr) {
+      // FIXME: Turn this into a throw!
+      fprintf(stderr, "TypeWithDict::hasBase(basename): "
+              "type is not a class!\n");
+      abort();
+    }
+    TClass* cl = class_->GetBaseClass(basename.c_str());
+    if (cl != nullptr) {
+      return true;
+    }
+    return false;
   }
 
-  std::type_info const&
-  TypeWithDict::id() const {
-    return typeInfo();
+  bool
+  TypeWithDict::hasBase(TypeWithDict const& basety) const {
+    if (class_ == nullptr) {
+      // FIXME: Turn this into a throw!
+      fprintf(stderr, "TypeWithDict::hasBase(TypeWithDict const&): "
+              "type is not a class!\n");
+      abort();
+    }
+    if (basety.class_ == nullptr) {
+      // FIXME: Turn this into a throw!
+      fprintf(stderr, "TypeWithDict::hasBase(TypeWithDict const&): "
+              "basety is not a class!\n");
+      abort();
+    }
+    TClass* cl = class_->GetBaseClass(basety.name().c_str());
+    if (cl != nullptr) {
+      return true;
+    }
+    return false;
   }
 
   int
   TypeWithDict::getBaseClassOffset(TypeWithDict const& baseClass) const {
-    assert(class_ != nullptr);
-    assert(baseClass.class_ != nullptr);
+    if (class_ == nullptr) {
+      // FIXME: Turn this into a throw!
+      fprintf(stderr, "TypeWithDict::getBaseClassOffset(TypeWithDict const&): "
+              "type is not a class!\n");
+      abort();
+    }
+    if (baseClass.class_ == nullptr) {
+      // FIXME: Turn this into a throw!
+      fprintf(stderr, "TypeWithDict::getBaseClassOffset(TypeWithDict const&): "
+              "baseClass is not a class!\n");
+      abort();
+    }
     int offset = class_->GetBaseClassOffset(baseClass.class_);
     return offset;
   }
 
   int
-  TypeWithDict::stringToEnumValue(std::string const& enumMemberName) const {
-    assert(isEnum());
-    Reflex::Member member = type_.MemberByName(enumMemberName);
-    if (!member) {
-      std::ostringstream err;
-      err<<"StringToEnumValue Failure trying to convert " << enumMemberName << " to int value";
-      throw cms::Exception("ConversionError",err.str());
+  TypeWithDict::stringToEnumValue(std::string const& name) const {
+    if (enum_ == nullptr) {
+      fprintf(stderr, "TypeWithDict::stringToEnumValue(name): "
+              "type is not an enum!\n");
+      abort();
     }
-    if (member.TypeOf().TypeInfo() != typeid(int)) {
-      std::ostringstream err;
-      err << "Type "<<  member.TypeOf().Name() << " is not Enum";
-      throw cms::Exception("ConversionError",err.str());
+    TEnumConstant const* ec = enum_->GetConstant(name.c_str());
+    if (!ec) {
+      // FIXME: Turn this into a throw!
+      fprintf(stderr, "TypeWithDict::stringToEnumValue(name): "
+              "no enum constant named '%s'!\n", name.c_str());
+      abort();
     }
-    return Reflex::Object_Cast<int>(member.Get());
+    return static_cast<int>(ec->GetValue());
   }
 
-  size_t
-  TypeWithDict::dataMemberSize() const {
-    if(class_ == nullptr) {
-      if(isEnum()) {
-        return type_.DataMemberSize();
+  void*
+  TypeWithDict::allocate() const {
+    return new char[size()];
+  }
+
+  void
+  TypeWithDict::deallocate(void* address) const {
+    delete[] reinterpret_cast<char*>(address);
+  }
+
+  ObjectWithDict
+  TypeWithDict::construct() const {
+    if (class_ != nullptr) {
+      return ObjectWithDict(*this, class_->New());
+    }
+    return ObjectWithDict(*this, new char[size()]);
+  }
+
+  void
+  TypeWithDict::destruct(void* address, bool dealloc) const {
+    if (class_ != nullptr) {
+      class_->Destructor(address, !dealloc);
+      return;
+    }
+    if (dealloc) {
+      delete[] reinterpret_cast<char*>(address);
+    }
+  }
+
+  void
+  TypeWithDict::processEnumeration() {
+    TType* TTy = gInterpreter->Type_GetParent(type_);
+    if (TTy != nullptr) {
+      // The enum is a class member.
+      TypeWithDict Tycl(*gInterpreter->Type_TypeInfo(TTy));
+      if (Tycl.class_ == nullptr) {
+        // FIXME: Replace this with an exception!
+        fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
+                "Enum parent is not a class!\n");
+        abort();
       }
-      return 0U;
+      TObject* tobj =
+        Tycl.class_->GetListOfEnums()->FindObject(unscopedName().c_str());
+      if (tobj == nullptr) {
+        // FIXME: Replace this with an exception!
+        fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
+                "Enum not found in containing class!\n");
+        abort();
+      }
+      enum_ = reinterpret_cast<TEnum*>(tobj);
+    } else if (name().size() != unscopedName().size()) {
+      // Must be a namespace member.
+      assert(name().size() >= unscopedName().size() + 2);
+      std::string theNamespace(name().substr(0, name().size() - unscopedName().size() - 2));
+      TClass* cl = TClass::GetClass(theNamespace.c_str());
+      assert(cl != nullptr);
+      TObject* tobj = cl->GetListOfEnums()->FindObject(unscopedName().c_str());
+      if (tobj == nullptr) {
+        // FIXME: Replace this with an exception!
+        fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
+                "Enum not found in named namespace!\n");
+        abort();
+      }
+      enum_ = reinterpret_cast<TEnum*>(tobj);
+    } else {
+      // Must be a global namespace member.
+      //gROOT->GetListOfEnums()->Dump();
+      TObject* tobj = gROOT->GetListOfEnums()->FindObject(name().c_str());
+      if (tobj == nullptr) {
+        // FIXME: Replace this with an exception!
+        fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
+                "Enum not found in global namespace!\n");
+        abort();
+      }
+      enum_ = reinterpret_cast<TEnum*>(tobj);
     }
-    return class_->GetListOfDataMembers()->GetSize();
+    if (enum_ == nullptr) {
+      // FIXME: Replace this with an exception!
+      fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
+              "enum_ not set for enum type!\n");
+      abort();
+    }
   }
+  //-------------------------------------------------------------
+  //
+  //
 
-  size_t
-  TypeWithDict::functionMemberSize() const {
-    if(class_ == nullptr) {
-      return 0U;
-    }
-    return class_->GetListOfMethods()->GetSize();
-  }
-
-  size_t
-  TypeWithDict::size() const {
-    if(isEnum() || isTypedef() || isPointer()) {
-      return type_.SizeOf();
-    }
-    if(class_ != nullptr) {
-      return class_->Size();
-    }
-    assert(dataType_ != nullptr);
-    return dataType_->Size();
+  // A related free function
+  bool
+  hasDictionary(std::type_info const& ti) {
+    return gInterpreter->Type_TypeInfo(gInterpreter->Type_Factory(ti));
   }
 
   bool
@@ -531,14 +792,23 @@ namespace edm {
   }
 
   std::ostream&
-  operator<<(std::ostream& os, TypeWithDict const& id) {
-    id.print(os);
+  operator<<(std::ostream& os, TypeWithDict const& ty) {
+    ty.print(os);
     return os;
+  }
+
+  //-------------------------------------------------------------
+  //
+  //
+
+  TypeBases::TypeBases(TypeWithDict const& type) :
+    type_(type.type_),
+    class_(type.class_) {
   }
 
   IterWithDict<TBaseClass>
   TypeBases::begin() const {
-    if(class_ == nullptr) {
+    if (class_ == nullptr) {
       return IterWithDict<TBaseClass>();
     }
     return IterWithDict<TBaseClass>(class_->GetListOfBases());
@@ -551,15 +821,24 @@ namespace edm {
 
   size_t
   TypeBases::size() const {
-    if(class_ == nullptr) {
-      return type_.BaseSize();
+    if (class_ == nullptr) {
+      return 0;
     }
     return class_->GetListOfBases()->GetSize();
   }
 
+  //-------------------------------------------------------------
+  //
+  //
+
+  TypeDataMembers::TypeDataMembers(TypeWithDict const& type) :
+    type_(type.type_),
+    class_(type.class_) {
+  }
+
   IterWithDict<TDataMember>
   TypeDataMembers::begin() const {
-    if(class_ == nullptr) {
+    if (class_ == nullptr) {
       return IterWithDict<TDataMember>();
     }
     return IterWithDict<TDataMember>(class_->GetListOfDataMembers());
@@ -572,16 +851,24 @@ namespace edm {
 
   size_t
   TypeDataMembers::size() const {
-    if(class_ == nullptr) {
-      return type_.DataMemberSize();
+    if (class_ == nullptr) {
+      return 0;
     }
     return class_->GetListOfDataMembers()->GetSize();
   }
 
-/*
+  //-------------------------------------------------------------
+  //
+  //
+
+  TypeFunctionMembers::TypeFunctionMembers(TypeWithDict const& type) :
+    type_(type.type_),
+    class_(type.class_) {
+  }
+
   IterWithDict<TMethod>
   TypeFunctionMembers::begin() const {
-    if(class_ == nullptr) {
+    if (class_ == nullptr) {
       return IterWithDict<TMethod>();
     }
     return IterWithDict<TMethod>(class_->GetListOfMethods());
@@ -591,31 +878,13 @@ namespace edm {
   TypeFunctionMembers::end() const {
     return IterWithDict<TMethod>();
   }
-*/
 
-  Reflex::Member_Iterator
-  TypeFunctionMembers::begin() const {
-    return type_.FunctionMember_Begin();
-  }
-
-  Reflex::Member_Iterator
-  TypeFunctionMembers::end() const {
-    return type_.FunctionMember_End();
-  }
-
-/*
   size_t
   TypeFunctionMembers::size() const {
-    if(class_ == nullptr) {
-      return 0U;
+    if (class_ == nullptr) {
+      return 0;
     }
     return class_->GetListOfMethods()->GetSize();
   }
-*/
 
-  size_t
-  TypeFunctionMembers::size() const {
-    return type_.FunctionMemberSize();
-  }
-
-}
+} // namespace edm

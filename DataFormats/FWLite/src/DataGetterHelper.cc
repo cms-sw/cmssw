@@ -25,6 +25,7 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
@@ -113,21 +114,19 @@ namespace fwlite {
     {
         GetterOperate op(iGetter);
 
-#if 0
-        //WORK AROUND FOR ROOT!!
-        //Create a new instance so that we can clear any cache the object uses
-        //this slows the code down
-        edm::ObjectWithDict obj = iData.obj_;
-        iData.obj_ = iData.obj_.construct();
-        iData.pObj_ = iData.obj_.address();
-        iData.branch_->SetAddress(&(iData.pObj_));
-        //If a REF to this was requested in the past, we might as well do the work now
-        if(0!=iData.pProd_) {
-            iData.pProd_ = iData.obj_.address();
-        }
-        obj.destruct();
-        //END OF WORK AROUND
-#endif
+        ////WORK AROUND FOR ROOT!!
+        ////Create a new instance so that we can clear any cache the object uses
+        ////this slows the code down
+        //edm::ObjectWithDict obj = iData.obj_;
+        //iData.obj_ = iData.obj_.construct();
+        //iData.pObj_ = iData.obj_.address();
+        //iData.branch_->SetAddress(&(iData.pObj_));
+        ////If a REF to this was requested in the past, we might as well do the work now
+        //if(0!=iData.pProd_) {
+        //    iData.pProd_ = iData.obj_.address();
+        //}
+        //obj.destruct();
+        ////END OF WORK AROUND
 
         TTreeCache* tcache = dynamic_cast<TTreeCache*> (branchMap_->getFile()->GetCacheRead());
 
@@ -250,7 +249,7 @@ namespace fwlite {
                 newData->pProd_ = 0;
                 branch->SetAddress(&(newData->pObj_));
                 newData->interface_ = 0;
-                type.invokeByName(newData->interface_, std::string("getInterface"));
+                edm::invokeByName(newData->interface_, type, std::string("getInterface"));
                 theData = newData;
             }
             itFind = data_.insert(std::make_pair(newKey, theData)).first;

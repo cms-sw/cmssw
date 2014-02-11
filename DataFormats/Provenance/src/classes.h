@@ -1,3 +1,4 @@
+#include "FWCore/Utilities/interface/boostWorkAround.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
@@ -31,6 +32,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ESRecordAuxiliary.h"
+#include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 #include <map>
 #include <set>

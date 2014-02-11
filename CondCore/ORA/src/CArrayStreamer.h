@@ -7,7 +7,7 @@
 //
 #include <memory>
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace ora {
 
@@ -22,7 +22,7 @@ namespace ora {
     
     public:
       /// Constructor
-      CArrayWriter( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+      CArrayWriter( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
       virtual ~CArrayWriter();
 
       bool build( DataElement& offset, IRelationalData& relationalData, RelationalBuffer& operationBuffer );
@@ -33,7 +33,7 @@ namespace ora {
       void write( int oid,const void* data );
 
     private:
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mappingElement;
       ContainerSchema& m_schema;
       std::vector<int> m_recordId;
@@ -52,7 +52,7 @@ namespace ora {
     public:
 
     /// Constructor
-    CArrayUpdater(const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    CArrayUpdater(const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~CArrayUpdater();
 
@@ -74,7 +74,7 @@ namespace ora {
     public:
     
     /// Constructor
-    CArrayReader(const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    CArrayReader(const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     virtual ~CArrayReader();
     
@@ -90,7 +90,7 @@ namespace ora {
     void clear();
 
     private:
-      Reflex::Type m_objectType;
+      edm::TypeWithDict m_objectType;
       MappingElement& m_mappingElement;
       ContainerSchema& m_schema;
       std::vector<int> m_recordId;
@@ -106,7 +106,7 @@ namespace ora {
   class CArrayStreamer : public IRelationalStreamer 
   {
     public:
-    CArrayStreamer( const Reflex::Type& objectType, MappingElement& mapping, ContainerSchema& contSchema );
+    CArrayStreamer( const edm::TypeWithDict& objectType, MappingElement& mapping, ContainerSchema& contSchema );
 
     ~CArrayStreamer();
 
@@ -117,7 +117,7 @@ namespace ora {
     IRelationalReader* newReader();
     
     private:
-    Reflex::Type m_objectType;
+    edm::TypeWithDict m_objectType;
     MappingElement& m_mapping;
     ContainerSchema& m_schema;
   }; 

@@ -7,19 +7,11 @@
 // root includes 
 #include "TBufferFile.h"
 #include "TClass.h"
-#include "Cintex/Cintex.h"
 
 namespace cond {
 
-  struct CintexIntializer {
-    CintexIntializer(){
-      ROOT::Cintex::Cintex::Enable();
-    }
-  };
-
-  // initialize Cintex and load dictionary when required
+  // load dictionary when required
   TClass* lookUpDictionary( const std::type_info& sourceType ){
-    static const CintexIntializer initializer;
     TClass* rc = TClass::GetClass(sourceType);
     if( !rc ){
       static std::string const prefix("LCGReflex/");

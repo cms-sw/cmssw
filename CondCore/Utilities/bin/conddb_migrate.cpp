@@ -18,7 +18,6 @@
 
 // for the xml dump
 #include "TFile.h"
-#include "Cintex/Cintex.h"
 #include <sstream>
 
 namespace cond {
@@ -37,8 +36,6 @@ cond::MigrateUtilities::MigrateUtilities():Utilities("conddb_import_tag"){
   addAuthenticationOptions();
   addOption<std::string>("tag","t","migrate only the tag (optional)");
   addOption<std::string>("newTag","n","name for the destination tag (optional)");
-
-  ROOT::Cintex::Cintex::Enable();
 }
 
 cond::MigrateUtilities::~MigrateUtilities(){

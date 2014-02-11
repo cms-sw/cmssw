@@ -1,8 +1,8 @@
 #ifndef INCLUDE_ORA_ARRAYHANDLERFACTORY_H
 #define INCLUDE_ORA_ARRAYHANDLERFACTORY_H
 
-namespace Reflex {
-  class Type;
+namespace edm {
+  class TypeWithDict;
 }
 
 namespace ora {
@@ -16,7 +16,7 @@ namespace ora {
 
     class ArrayHandlerFactory {
     public:
-      static IArrayHandler* newArrayHandler( const Reflex::Type& arrayType );
+      static IArrayHandler* newArrayHandler( const edm::TypeWithDict& arrayType );
     };
 
 }

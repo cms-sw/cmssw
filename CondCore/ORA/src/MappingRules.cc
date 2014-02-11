@@ -4,7 +4,7 @@
 #include <vector>
 #include <cctype>
 // externals
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 std::string ora::MappingRules::sequenceNameForContainerId(){
   static const std::string s_sequenceName("CONTAINER_ID");
@@ -169,9 +169,9 @@ ora::MappingRules::variableNameForArrayColumn( unsigned int arrayIndex ){
 }
 
 std::string
-ora::MappingRules::variableNameForArrayColumn( const Reflex::Type& array ){
+ora::MappingRules::variableNameForArrayColumn( const edm::TypeWithDict& array ){
   std::stringstream contentTypeName;
-  contentTypeName << "A" << array.ArrayLength();
+  contentTypeName << "A" << array.arrayLength();
   return contentTypeName.str();
 }
 

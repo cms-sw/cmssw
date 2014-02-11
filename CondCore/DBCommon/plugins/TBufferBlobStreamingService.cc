@@ -8,8 +8,8 @@
 #include <cstring>
 //
 #include "TBufferFile.h"
-#include "Reflex/Reflex.h"
-#include "Cintex/Cintex.h"
+
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 typedef void (TBuffer::*WriteArrayFn_t)(const void *obj, Int_t n);
 typedef void (TBuffer::*ReadArrayFn_t)(void *obj, Int_t n);
@@ -50,48 +50,42 @@ static const std::size_t nPrimitives =
 
 #undef PRIMTIVE
 
-cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo( Reflex::Type const & type_)
+cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo( edm::TypeWithDict const & type_)
  : m_arraySize(0), m_class(0), m_primitive(0)
 {
-  static bool cintexInitialized = false;
-  if (!cintexInitialized) {
-    cintexInitialized = true;
-    ROOT::Cintex::Cintex::Enable();
-  }
-
-  Reflex::Type type = type_;
+  edm::TypeWithDict type = type_;
   while(true) {
-    type = type.FinalType();
+    type = type.finalType();
 
-    if (!type.IsArray())
+    if (!type.isArray())
       break;
 
     if (!m_arraySize)
       m_arraySize = 1;
-    m_arraySize *= type.ArrayLength();
-    type = type.ToType();
+    m_arraySize *= type.arrayLength();
+    type = type.toType();
   }
 
-  if (type.IsClass()) {
-    const std::type_info &typeInfo = type.TypeInfo();
+  if (type.isClass()) {
+    const std::type_info &typeInfo = type.typeInfo();
     m_class = TClass::GetClass(typeInfo);
     if (!m_class)
       throw cond::Exception("TBufferBlobTypeInfo::TBufferBlobTypeInfo "
-                            "No ROOT class registered for " + type.Name());
-  } else if (type.IsFundamental()) {
+                            "No ROOT class registered for " + type.name());
+  } else if (type.isFundamental()) {
     if (!m_arraySize)
         throw cond::Exception("TBufferBlobTypeInfo::TBufferBlobTypeInfo "
                               "Only arrays of primitive types supported. "
 	                      "Please to not use a Blob for this member.");
 
     m_primitive = std::find(primitives, primitives + nPrimitives,
-                            type.TypeInfo()) - primitives;
+                            type.typeInfo()) - primitives;
     if (m_primitive >= nPrimitives)
       throw cond::Exception("TBufferBlobTypeInfo::TBufferBlobTypeInfo "
-                            "Cannot handle primitive type " + type.Name());
+                            "Cannot handle primitive type " + type.name());
   } else
     throw cond::Exception("TBufferBlobTypeInfo::TBufferBlobTypeInfo "
-                          "Cannot handle C++ type " + type.Name());
+                          "Cannot handle C++ type " + type.name());
 }
 
 
@@ -112,7 +106,7 @@ namespace {
 }
 
 boost::shared_ptr<coral::Blob> cond::TBufferBlobStreamingService::write( const void* addr,
-									 Reflex::Type const & classDictionary,
+									 edm::TypeWithDict const & classDictionary,
                                                                          bool ){
   TBufferBlobTypeInfo theType( classDictionary );
   if (theType.m_class && theType.m_class->GetActualClass(addr) != theType.m_class)
@@ -145,7 +139,7 @@ boost::shared_ptr<coral::Blob> cond::TBufferBlobStreamingService::write( const v
 
 void cond::TBufferBlobStreamingService::read( const coral::Blob& blobData,
                                               void* addr,
-                                               Reflex::Type const & classDictionary ){
+                                               edm::TypeWithDict const & classDictionary ){
   TBufferBlobTypeInfo theType( classDictionary );
   const void *startingAddress = blobData.startingAddress();
   size_t size = blobData.size();

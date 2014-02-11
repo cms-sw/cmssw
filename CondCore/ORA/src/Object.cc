@@ -2,21 +2,21 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "ClassUtils.h"
 // externals
-#include "Reflex/Object.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
 
 ora::Object::Object():
   m_ptr(0),
   m_type(){
 }
 
-ora::Object::Object( const void* ptr, const Reflex::Type& type ):
+ora::Object::Object( const void* ptr, const edm::TypeWithDict& type ):
   m_ptr( const_cast<void*>(ptr) ),
   m_type( type ){
 }
 
 ora::Object::Object( const void* ptr, const std::string& typeName ):
   m_ptr( const_cast<void*>(ptr) ),
-  m_type(Reflex::Type::ByName( typeName )){
+  m_type(edm::TypeWithDict::byName( typeName )){
 }
 
 ora::Object::Object( const Object& rhs):
@@ -47,16 +47,16 @@ void* ora::Object::address() const {
   return m_ptr;
 }
 
-const Reflex::Type& ora::Object::type() const {
+const edm::TypeWithDict& ora::Object::type() const {
   return m_type;
 }
 
 std::string ora::Object::typeName() const {
-  return m_type.Name( Reflex::SCOPED );
+  return m_type.qualifiedName();
 }
 
 void* ora::Object::cast( const std::type_info& typeInfo ) const{
-  Reflex::Type castType = ClassUtils::lookupDictionary( typeInfo );
+  edm::TypeWithDict castType = ClassUtils::lookupDictionary( typeInfo );
   if( ! m_type ){
     throwException( "Object input class has not been found in the dictionary.",
                     "Object::cast" );
@@ -76,7 +76,7 @@ void ora::Object::destruct() {
     
   }
   if( m_ptr ){
-    m_type.Destruct( m_ptr );
+    m_type.destruct( m_ptr );
     m_ptr = 0;
   }
 }

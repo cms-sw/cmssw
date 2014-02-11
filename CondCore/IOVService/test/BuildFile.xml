@@ -1,5 +1,5 @@
 <flags   GENREFLEX_ARGS="--"/>
-<use   name="rootrflx"/>
+
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="CondCore/DBCommon"/>
 <library   name="testPayloadDict" file="">

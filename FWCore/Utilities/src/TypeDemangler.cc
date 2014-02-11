@@ -128,12 +128,14 @@ namespace edm {
     // Strip default comparator
     std::string const comparator(",std::less<");
     removeParameter(demangledName, comparator);
-    // Replace 'std::string' with 'std::basic_string<char>'.
-    replaceDelimitedString(demangledName, "std::string", "std::basic_string<char>");
     // Put const qualifier before identifier.
     constBeforeIdentifier(demangledName);
     // No two consecutive '>' 
     replaceString(demangledName, ">>", "> >");
+    // For ROOT 6 and beyond, replace 'unsigned long long' with 'ULong64_t'
+    replaceString(demangledName, "unsigned long long", "ULong64_t");
+    // For ROOT 6 and beyond, replace 'long long' with 'Long64_t'
+    replaceString(demangledName, "long long", "Long64_t");
     return demangledName;
   }
 }

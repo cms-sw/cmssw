@@ -14,7 +14,6 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <typeinfo>
 #include "DataFormats/Common/interface/TestHandle.h"
-#include "Cintex/Cintex.h"
 
 class testExpressionParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testExpressionParser);
@@ -23,7 +22,7 @@ class testExpressionParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {ROOT::Cintex::Cintex::Enable();}
+  void setUp() {}
   void tearDown() {}
   void checkAll(); 
   void testStringToEnum();

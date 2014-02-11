@@ -9,6 +9,6 @@
 <use   name="boost"/>
 <use   name="boost_program_options"/>
 <use   name="CondCore/Utilities"/>
-<use   name="rootrflx"/>
+
 <library   name="testCondToolsUtilities" file="">
 </library>

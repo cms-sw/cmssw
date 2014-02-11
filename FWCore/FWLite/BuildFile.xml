@@ -4,7 +4,6 @@
 <use   name="FWCore/RootAutoLibraryLoader"/>
 <use   name="FWCore/Utilities"/>
 <use   name="boost"/>
-<use   name="rootcintex"/>
 <use   name="rootcore"/>
 <export>
   <lib   name="1"/>

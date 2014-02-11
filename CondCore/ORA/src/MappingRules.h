@@ -6,8 +6,8 @@
 #include <locale>
 #include <algorithm>
 
-namespace Reflex{
-  class Type;
+namespace edm {
+  class TypeWithDict;
 }
 
 namespace ora {
@@ -50,7 +50,7 @@ namespace ora {
       static std::string scopedVariableName( const std::string& variableName, const std::string& scope );
       static std::string variableNameForArrayIndex( const std::string& arrayVariable, unsigned int index );
       static std::string variableNameForArrayColumn( unsigned int arrayIndex );
-      static std::string variableNameForArrayColumn( const Reflex::Type& array );      
+      static std::string variableNameForArrayColumn( const edm::TypeWithDict& array );      
       static std::string variableNameForContainerValue();
       static std::string variableNameForContainerKey();
       static std::string scopedVariableForSchemaObjects( const std::string& variableName, const std::string& scope );

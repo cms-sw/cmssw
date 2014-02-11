@@ -2,6 +2,10 @@
 import string
 from optparse import OptionParser
 
+# Disable for ROOT6 for now
+import sys
+sys.exit(0)
+
 class XmlParser(object):
     """Parses a classes_def.xml file looking for class declarations that contain
     ClassVersion attributes. Once found looks for sub-elements named 'version'
@@ -168,9 +172,6 @@ if options.library is None:
     if options.checkdict :
         print "Dictionary checks require a specific library"
 else:
-    if 0 != ROOT.gSystem.Load("libCintex"):
-        raise RuntimeError("failed to load libCintex")
-    ROOT.Cintex.Enable()
     if 0 != ROOT.gSystem.Load(options.library):
         raise RuntimeError("failed to load library '"+options.library+"'")
 
@@ -194,14 +195,6 @@ for name,retValues in foundErrors.iteritems():
     classVersion = p.classes[name][XmlParser.classVersionIndex]
     classChecksum = retValues[1]
     rootClassVersion = retValues[2]
-    if code == errorRootDoesNotMatchClassDef:
-        foundRootDoesNotMatchError=True
-        print "error: for class '"+name+"' ROOT says the ClassVersion is "+str(rootClassVersion)+" but classes_def.xml says it is "+str(classVersion)+". Are you sure everything compiled correctly?"
-    elif code == errorMustUpdateClassVersion and not options.generate:
-        print "error: class '"+name+"' has a different checksum for ClassVersion "+str(classVersion)+". Increment ClassVersion to "+str(classVersion+1)+" and assign it to checksum "+str(classChecksum)
-    elif not options.generate:
-        print "error:class '"+name+"' needs to include the following as part of its 'class' declaration"
-        print '   <version ClassVersion="'+str(classVersion)+'" checksum="'+str(classChecksum)+'"/>'
 
 
 if options.generate and not foundRootDoesNotMatchError and not missingDict:

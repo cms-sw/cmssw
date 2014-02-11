@@ -7,7 +7,7 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="TrackingTools/TrackFitters"/>
 <use   name="MagneticField/Engine"/>
-<use   name="rootrflx"/>
+
 <use   name="CLHEP"/>
 <use   name="rootmath"/>
 <export>

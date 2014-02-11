@@ -84,9 +84,6 @@
 #include <sched.h>
 #endif
 
-//Needed for introspection
-#include "Cintex/Cintex.h"
-
 namespace edm {
 
   // ---------------------------------------------------------------
@@ -378,8 +375,6 @@ namespace edm {
 
     //std::cerr << processDesc->dump() << std::endl;
    
-    ROOT::Cintex::Cintex::Enable();
-
     // register the empty parentage vector , once and for all
     ParentageRegistry::instance()->insertMapped(Parentage());
 

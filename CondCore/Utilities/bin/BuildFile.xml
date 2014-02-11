@@ -3,7 +3,6 @@
 <flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -ftemplate-depth=600"/>
 
 <bin   file="cmscond_list_iov.cpp" name="cmscond_list_iov">
-  <use   name="rootcintex"/>
 </bin>
 <bin   file="cmscond_duplicate_iov.cpp" name="cmscond_duplicate_iov">
 </bin>
@@ -28,7 +27,6 @@
 <bin   file="cmscond_edit_iov.cpp" name="cmscond_edit_iov">
 </bin>
 <bin   file="cmscond_2XML.cpp" name="cmscond_2XML">
-  <use   name="rootcintex"/>
 </bin>
 <bin   file="cmscond_to_lumiid.cpp" name="cmscond_to_lumiid">
   <use   name="DataFormats/Provenance"/>
