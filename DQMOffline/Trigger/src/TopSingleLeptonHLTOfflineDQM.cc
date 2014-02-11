@@ -614,21 +614,21 @@ namespace HLTOfflineDQMTopSingleLepton {
         }
         if (lMatched) fill("matchingMon_", 0.5 );
         else isMatched = false;
-        if (kJet > 0) {
+        if (j1IndMatched < 500) {
           fill("jetDeltaREta_", correctedJets[j1IndMatched].eta(), j1DeltaRMin);   
           if (j1Matched) {
             fill("jetResolution_", fabs(correctedJets[j1IndMatched].pt()-pfjetRefs_[0]->pt())/correctedJets[j1IndMatched].pt() );   
             fill("matchingMon_", 1.5 );
           }
           else isMatched = false;
-          if (nPFJets > 1) {
+          if (j2IndMatched < 500) {
             fill("jetDeltaREta_", correctedJets[j2IndMatched].eta(), j2DeltaRMin);   
             if (j2Matched) {
               fill("jetResolution_", fabs(correctedJets[j2IndMatched].pt()-pfjetRefs_[1]->pt())/correctedJets[j2IndMatched].pt() );   
               fill("matchingMon_", 2.5 );
             }
             else isMatched = false;
-            if (nPFJets > 2) {
+            if (j3IndMatched < 500) {
               fill("jetDeltaREta_", correctedJets[j3IndMatched].eta(), j3DeltaRMin);   
               if (j3Matched) {
                 fill("jetResolution_", fabs(correctedJets[j3IndMatched].pt()-pfjetRefs_[2]->pt())/correctedJets[j3IndMatched].pt() );   
