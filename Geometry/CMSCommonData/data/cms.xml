@@ -15,8 +15,8 @@
 		<Constant name="TrackBeamZ2" value="2.935*m"/>
 		<Constant name="TrackBeamR1" value="3.15*cm"/>
 		<Constant name="TrackBeamR2" value="7.40*cm"/>
-		<Constant name="TrackLumiZ1" value="1.722*m"/>
-		<Constant name="TrackLumiZ2" value="1.800*m"/>
+		<Constant name="TrackLumiZ1" value="1.700*m"/>
+		<Constant name="TrackLumiZ2" value="1.900*m"/>
 		<Constant name="TrackLumiR1" value="7.70*cm"/>
 		<Constant name="CalorBeamZ1" value="3.180*m"/>
 		<Constant name="CalorBeamZ2" value="5.541*m"/>
