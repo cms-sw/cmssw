@@ -38,7 +38,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Common/interface/Provenance.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -74,8 +74,8 @@ class HadronAndPartonSelector : public edm::EDProducer {
       virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
-      const edm::InputTag src_;        // Handronizer module label
-      const edm::InputTag particles_;  // Input GenParticle collection
+      const edm::EDGetTokenT<GenEventInfoProduct>         srcToken_;        // To get handronizer module type
+      const edm::EDGetTokenT<reco::GenParticleCollection> particlesToken_;  // Input GenParticle collection
 
       std::string         partonMode_; // Parton selection mode
       PartonSelectorPtr   partonSelector_;
@@ -90,8 +90,8 @@ class HadronAndPartonSelector : public edm::EDProducer {
 //
 HadronAndPartonSelector::HadronAndPartonSelector(const edm::ParameterSet& iConfig) :
 
-  src_(iConfig.getParameter<edm::InputTag>("src")),
-  particles_(iConfig.getParameter<edm::InputTag>("particles")),
+  srcToken_(mayConsume<GenEventInfoProduct>( iConfig.getParameter<edm::InputTag>("src") )),
+  particlesToken_(consumes<reco::GenParticleCollection>( iConfig.getParameter<edm::InputTag>("particles") )),
   partonMode_(iConfig.getParameter<std::string>("partonMode"))
 
 {
@@ -123,12 +123,12 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    if( partonMode_=="Auto" )
    {
      edm::Handle<GenEventInfoProduct> genEvtInfoProduct;
-     iEvent.getByLabel(src_, genEvtInfoProduct);
+     iEvent.getByToken(srcToken_, genEvtInfoProduct);
 
      std::string moduleName = "";
      const edm::Provenance& prov = iEvent.getProvenance(genEvtInfoProduct.id());
      if( genEvtInfoProduct.isValid() )
-       moduleName = prov.moduleName();
+       moduleName = edm::moduleName(prov);
 
      if( moduleName.find("Pythia6")!=std::string::npos )
        partonMode_="Pythia6";
@@ -149,7 +149,7 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 
    edm::Handle<reco::GenParticleCollection> particles;
-   iEvent.getByLabel(particles_, particles);
+   iEvent.getByToken(particlesToken_, particles);
 
    std::auto_ptr<reco::GenParticleRefVector> bHadrons ( new reco::GenParticleRefVector );
    std::auto_ptr<reco::GenParticleRefVector> cHadrons ( new reco::GenParticleRefVector );

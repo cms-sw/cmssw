@@ -139,12 +139,12 @@ class JetFlavourClustering : public edm::EDProducer {
                         std::vector<std::vector<int> >& matchedIndices);
 
       // ----------member data ---------------------------
-      const edm::InputTag jets_;        // Input jet collection
-      const edm::InputTag groomedJets_; // Input groomed jet collection
-      const edm::InputTag subjets_;     // Input subjet collection
-      const edm::InputTag bHadrons_;    // Input b hadron collection
-      const edm::InputTag cHadrons_;    // Input c hadron collection
-      const edm::InputTag partons_;     // Input parton collection
+      const edm::EDGetTokenT<edm::View<reco::Jet> >      jetsToken_;        // Input jet collection
+      const edm::EDGetTokenT<edm::View<reco::Jet> >      groomedJetsToken_; // Input groomed jet collection
+      const edm::EDGetTokenT<edm::View<reco::Jet> >      subjetsToken_;     // Input subjet collection
+      const edm::EDGetTokenT<reco::GenParticleRefVector> bHadronsToken_;    // Input b hadron collection
+      const edm::EDGetTokenT<reco::GenParticleRefVector> cHadronsToken_;    // Input c hadron collection
+      const edm::EDGetTokenT<reco::GenParticleRefVector> partonsToken_;     // Input parton collection
 
       const std::string   jetAlgorithm_;
       const double        rParam_;
@@ -166,12 +166,12 @@ class JetFlavourClustering : public edm::EDProducer {
 //
 JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig) :
 
-   jets_(iConfig.getParameter<edm::InputTag>("jets")),
-   groomedJets_(iConfig.exists("groomedJets") ? iConfig.getParameter<edm::InputTag>("groomedJets") : edm::InputTag() ),
-   subjets_(iConfig.exists("subjets") ? iConfig.getParameter<edm::InputTag>("subjets") : edm::InputTag() ),
-   bHadrons_(iConfig.getParameter<edm::InputTag>("bHadrons")),
-   cHadrons_(iConfig.getParameter<edm::InputTag>("cHadrons")),
-   partons_(iConfig.getParameter<edm::InputTag>("partons")),
+   jetsToken_(consumes<edm::View<reco::Jet> >( iConfig.getParameter<edm::InputTag>("jets")) ),
+   groomedJetsToken_(mayConsume<edm::View<reco::Jet> >( iConfig.exists("groomedJets") ? iConfig.getParameter<edm::InputTag>("groomedJets") : edm::InputTag() )),
+   subjetsToken_(mayConsume<edm::View<reco::Jet> >( iConfig.exists("subjets") ? iConfig.getParameter<edm::InputTag>("subjets") : edm::InputTag() )),
+   bHadronsToken_(consumes<reco::GenParticleRefVector>( iConfig.getParameter<edm::InputTag>("bHadrons") )),
+   cHadronsToken_(consumes<reco::GenParticleRefVector>( iConfig.getParameter<edm::InputTag>("cHadrons") )),
+   partonsToken_(consumes<reco::GenParticleRefVector>( iConfig.getParameter<edm::InputTag>("partons") )),
    jetAlgorithm_(iConfig.getParameter<std::string>("jetAlgorithm")),
    rParam_(iConfig.getParameter<double>("rParam")),
    jetPtMin_(0.), // hardcoded to 0. since we simply want to recluster all input jets which already had some PtMin applied
@@ -215,24 +215,24 @@ void
 JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    edm::Handle<edm::View<reco::Jet> > jets;
-   iEvent.getByLabel(jets_, jets);
+   iEvent.getByToken(jetsToken_, jets);
 
    edm::Handle<edm::View<reco::Jet> > groomedJets;
    edm::Handle<edm::View<reco::Jet> > subjets;
    if( useSubjets_ )
    {
-     iEvent.getByLabel(groomedJets_, groomedJets);
-     iEvent.getByLabel(subjets_, subjets);
+     iEvent.getByToken(groomedJetsToken_, groomedJets);
+     iEvent.getByToken(subjetsToken_, subjets);
    }
 
    edm::Handle<reco::GenParticleRefVector> bHadrons;
-   iEvent.getByLabel(bHadrons_, bHadrons);
+   iEvent.getByToken(bHadronsToken_, bHadrons);
 
    edm::Handle<reco::GenParticleRefVector> cHadrons;
-   iEvent.getByLabel(cHadrons_, cHadrons);
+   iEvent.getByToken(cHadronsToken_, cHadrons);
 
    edm::Handle<reco::GenParticleRefVector> partons;
-   iEvent.getByLabel(partons_, partons);
+   iEvent.getByToken(partonsToken_, partons);
 
    std::auto_ptr<reco::JetFlavourInfoMatchingCollection> jetFlavourInfos( new reco::JetFlavourInfoMatchingCollection(reco::JetRefBaseProd(jets)) );
    std::auto_ptr<reco::JetFlavourInfoMatchingCollection> subjetFlavourInfos;
