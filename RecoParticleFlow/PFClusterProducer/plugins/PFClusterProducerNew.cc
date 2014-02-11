@@ -45,21 +45,35 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
 
 void PFClusterProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, 
 					     const edm::EventSetup& es) {
+  _topoBuilder->update(es);
+  _pfClusterBuilder->update(es);
+  
 }
 
 void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   _topoBuilder->reset();
   _pfClusterBuilder->reset();
 
-  edm::Handle<reco::PFRecHitCollection> myRechits;
-  e.getByToken(_rechitsLabel,myRechits);
+  edm::Handle<reco::PFRecHitCollection> rechits;
+  e.getByToken(_rechitsLabel,rechits);  
+  reco::PFRecHitRefVector refhits;
+  for( unsigned i = 0; i < rechits->size(); ++i ) {
+    refhits.push_back(reco::PFRecHitRef(rechits,i));
+  }
+  
+  std::vector<bool> mask(true, refhits.size());
+  /*
+  for( const std::unique_ptr<RecHitCleanerBase>& cleaner : _cleaners ) {
+    cleaner->clean(refhits, mask);
+  }
+  */
   
   std::auto_ptr<reco::PFClusterCollection> topoClusters;
-  _topoBuilder->buildTopoClusters(*myRechits,*topoClusters);
+  _topoBuilder->buildTopoClusters(refhits, mask, *topoClusters);
   LOGVERB("PFClusterProducer::produce()") << *_topoBuilder;
 
   std::auto_ptr<reco::PFClusterCollection> pfClusters;
-  _pfClusterBuilder->buildPFClusters(*topoClusters,*pfClusters);
+  _pfClusterBuilder->buildPFClusters(*topoClusters, *pfClusters);
   LOGVERB("PFClusterProducer::produce()") << *_pfClusterBuilder;
   if( _positionReCalc ) {
     _positionReCalc->calculateAndSetPositions(*pfClusters);

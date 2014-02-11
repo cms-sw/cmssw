@@ -11,6 +11,10 @@
 #include <iostream>
 #include <memory>
 
+namespace edm {
+  class EventSetup;
+}
+
 class PFClusterBuilderBase {
   typedef PFClusterBuilderBase PFCBB;
   typedef PFCPositionCalculatorBase PosCalc;
@@ -29,6 +33,8 @@ class PFClusterBuilderBase {
   // get rid of things we should never use...
   PFClusterBuilderBase(const PFCBB&) = delete;
   PFCBB& operator=(const PFCBB&) = delete;
+
+  virtual void update(const edm::EventSetup&) { }
 
   virtual void buildPFClusters(const reco::PFClusterCollection& topos,
 			       reco::PFClusterCollection& outclus) = 0;
