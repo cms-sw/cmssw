@@ -86,12 +86,17 @@ namespace l1t {
     unsigned int formatEG(std::vector<l1t::EGamma>::const_iterator eg);
     unsigned int formatTau(std::vector<l1t::Tau>::const_iterator tau);
     unsigned int formatJet(std::vector<l1t::Jet>::const_iterator jet);
-    unsigned int formatEtSum(std::vector<l1t::EtSum>::const_iterator etSum);
+    unsigned int formatMissET(std::vector<l1t::EtSum>::const_iterator etSum);
+    unsigned int formatTotalET(std::vector<l1t::EtSum>::const_iterator etSum);
     
     unsigned int m_absBx;
     
-    std::ofstream testVectorFile;
+    std::ofstream m_testVectorFile;
     
+    bool m_dumpTestVectors;
+    bool m_dumpGTRecord;
+    int m_minBx;
+    int m_maxBx;
     
   };
 
@@ -105,9 +110,19 @@ namespace l1t {
       uGtRecToken = consumes<std::vector<L1uGtRecBlk>>(iConfig.getParameter<InputTag>("uGtRecInputTag"));
       uGtAlgToken = consumes<BXVector<L1uGtAlgBlk>>(iConfig.getParameter<InputTag>("uGtAlgInputTag"));
       uGtExtToken = consumes<BXVector<L1uGtExtBlk>>(iConfig.getParameter<InputTag>("uGtExtInputTag"));
+
+      m_minBx           = iConfig.getParameter<int>("minBx");
+      m_maxBx           = iConfig.getParameter<int>("maxBx"); 
+    
+      m_dumpGTRecord    = iConfig.getParameter<bool>("dumpGTRecord");
+
+      m_dumpTestVectors = iConfig.getParameter<bool>("dumpVectors");        
+      std::string fileName = iConfig.getParameter<std::string>("tvFileName");
+      if(m_dumpTestVectors) m_testVectorFile.open(fileName.c_str());
+      
       
       m_absBx = 0;
-      testVectorFile.open("TestVector.txt");
+      
   }
   
   // loop over events
@@ -139,68 +154,128 @@ namespace l1t {
   Handle<BXVector<L1uGtExtBlk>> uGtExt;
   iEvent.getByToken(uGtExtToken,uGtExt);   
   
- 
-    printf("\n -------------------------------------- \n");
-    printf(" ***********  New Event  ************** \n");
-    printf(" -------------------------------------- \n"); 
- 
-   // Dump the output record	  
-    for(std::vector<L1uGtRecBlk>::const_iterator recBlk = uGtRec->begin(); recBlk != uGtRec->end(); ++recBlk) {
-        recBlk->print(std::cout);
-    }    
- 
- //Loop over BX
-    for(int i = egammas->getFirstBX(); i <= egammas->getLastBX(); ++i) {
-    
-       printf("\n ========== BX %i =============================\n",i);
-    
-       //Loop over EGamma
-       printf(" ------ EGammas --------\n");
-       for(std::vector<l1t::EGamma>::const_iterator eg = egammas->begin(i); eg != egammas->end(i); ++eg) {
-           printf("   Pt %i Eta %i Phi %i Qual %i  Isol %i\n",eg->hwPt(),eg->hwEta(),eg->hwPhi(),eg->hwQual(),eg->hwIso());
+
+  if(m_dumpGTRecord) {
+   
+       printf("\n -------------------------------------- \n");
+       printf(" ***********  New Event  ************** \n");
+       printf(" -------------------------------------- \n"); 
+
+      // Dump the output record	  
+       for(std::vector<L1uGtRecBlk>::const_iterator recBlk = uGtRec->begin(); recBlk != uGtRec->end(); ++recBlk) {
+           recBlk->print(std::cout);
        }    
 
-       //Loop over Muons
-       printf("\n ------ Muons --------\n");
-       for(std::vector<l1t::Muon>::const_iterator mu = muons->begin(i); mu != muons->end(i); ++mu) {
-           printf("   Pt %i Eta %i Phi %i Qual %i  Iso %i \n",mu->hwPt(),mu->hwEta(),mu->hwPhi(),mu->hwQual(),mu->hwIso());
+    //Loop over BX
+       for(int i =m_minBx; i <= m_maxBx; ++i) {
+
+	  printf("\n ========== BX %i =============================\n",i);
+
+	  //Loop over EGamma
+	  printf(" ------ EGammas --------\n");
+	  if(i>=egammas->getFirstBX() && i<=egammas->getLastBX()) {
+	      for(std::vector<l1t::EGamma>::const_iterator eg = egammas->begin(i); eg != egammas->end(i); ++eg) {
+        	  printf("   Pt %i Eta %i Phi %i Qual %i  Isol %i\n",eg->hwPt(),eg->hwEta(),eg->hwPhi(),eg->hwQual(),eg->hwIso());
+	      } 
+	  } else {
+	      printf("No EG stored for this bx (%i) \n",i);
+	  }  
+
+	  //Loop over Muons
+	  printf("\n ------ Muons --------\n");
+	  if(i>=muons->getFirstBX() && i<=muons->getLastBX()) {
+	      for(std::vector<l1t::Muon>::const_iterator mu = muons->begin(i); mu != muons->end(i); ++mu) {
+        	  printf("   Pt %i Eta %i Phi %i Qual %i  Iso %i \n",mu->hwPt(),mu->hwEta(),mu->hwPhi(),mu->hwQual(),mu->hwIso());
+	      }
+	  }else {
+	      printf("No Muons stored for this bx (%i) \n",i);
+	  }
+
+	  //Loop over Taus
+	  printf("\n ------ Taus ----------\n");
+	  if(i>=taus->getFirstBX() && i<=taus->getLastBX()) {
+	      for(std::vector<l1t::Tau>::const_iterator tau = taus->begin(i); tau != taus->end(i); ++tau) {
+        	  printf("   Pt %i Eta %i Phi %i Qual %i  Iso %i \n",tau->hwPt(),tau->hwEta(),tau->hwPhi(),tau->hwQual(),tau->hwIso());
+	      } 
+	  } else {
+	      printf("No Taus stored for this bx (%i) \n",i);
+	  }       
+
+	  //Loop over Jets
+	  printf("\n ------ Jets ----------\n");
+	  if(i>=jets->getFirstBX() && i<=jets->getLastBX()) {
+	     for(std::vector<l1t::Jet>::const_iterator jet = jets->begin(i); jet != jets->end(i); ++jet) {
+        	printf("   Pt %i Eta %i Phi %i Qual %i \n",jet->hwPt(),jet->hwEta(),jet->hwPhi(),jet->hwQual());
+	     }
+	  } else {
+	      printf("No Jets stored for this bx (%i) \n",i);
+	  }
+                     //Dump Content
+	  printf("\n ------ EtSums ----------\n");
+	  if(i>=etsums->getFirstBX() && i<=etsums->getLastBX()) {	  
+	     for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(i); etsum != etsums->end(i); ++etsum) {
+	          switch ( etsum->getType() ) {
+		     case l1t::EtSum::EtSumType::kMissingEt:
+		       printf(" ETM: ");
+		       break; 
+		     case l1t::EtSum::EtSumType::kMissingHt:
+		       printf(" HTM: ");
+		       break; 		     
+		     case l1t::EtSum::EtSumType::kTotalEt:
+		       printf(" HTM: ");
+		       break; 		     
+		     case l1t::EtSum::EtSumType::kTotalHt:
+		       printf(" HTM: ");
+		       break; 		     
+		  }
+        	  printf(" Pt %i Eta %i Phi %i Qual %i \n",etsum->hwPt(),etsum->hwEta(),etsum->hwPhi(),etsum->hwQual());
+	     } 
+	  } else {
+	      printf("No EtSums stored for this bx (%i) \n",i);
+	  }           
+
+     // Dump the output record
+ 	  printf("\n ------ uGtAlg ----------\n");
+	  if(i>=uGtAlg->getFirstBX() && i<=uGtAlg->getLastBX()) {	  
+	     for(std::vector<L1uGtAlgBlk>::const_iterator algBlk = uGtAlg->begin(i); algBlk != uGtAlg->end(i); ++algBlk) {
+        	  algBlk->print(std::cout);
+	     } 
+	  } else {
+	      printf("No Alg Decisions stored for this bx (%i) \n",i);
+	  }       
+
+      // Dump the output record
+ 	  printf("\n ------ uGtExt ----------\n");
+	  if(i>=uGtExt->getFirstBX() && i<=uGtExt->getLastBX()) { 	  
+	     for(std::vector<L1uGtExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
+        	  extBlk->print(std::cout);
+	     } 
+	  } else {
+	      printf("No Ext Conditions stored for this bx (%i) \n",i);
+	  }       
+
+
+
        }
-
-       //Loop over Taus
-       printf("\n ------ Taus ----------\n");
-       for(std::vector<l1t::Tau>::const_iterator tau = taus->begin(i); tau != taus->end(i); ++tau) {
-           printf("   Pt %i Eta %i Phi %i Qual %i  Iso %i \n",tau->hwPt(),tau->hwEta(),tau->hwPhi(),tau->hwQual(),tau->hwIso());
-       }        
-
-       //Loop over Jets
-       printf("\n ------ Jets ----------\n");
-       for(std::vector<l1t::Jet>::const_iterator jet = jets->begin(i); jet != jets->end(i); ++jet) {
-          printf("   Pt %i Eta %i Phi %i Qual %i \n",jet->hwPt(),jet->hwEta(),jet->hwPhi(),jet->hwQual());
+       printf("\n");
+    } //if dumpGtRecord
+    
+    // Dump Test Vectors for this bx       
+    if(m_dumpTestVectors) {
+       for(int i=m_minBx; i<=m_maxBx; i++) {
+         if(  (i>=egammas->getFirstBX() && i<=egammas->getLastBX())  &&
+	      (i>=muons->getFirstBX()   && i<=muons->getLastBX()) &&
+	      (i>=taus->getFirstBX()    && i<=taus->getLastBX()) &&
+	      (i>=jets->getFirstBX()    && i<=jets->getLastBX()) &&
+	      (i>=etsums->getFirstBX()  && i<=etsums->getLastBX()) &&
+	      (i>=uGtAlg->getFirstBX()  && i<=uGtAlg->getLastBX()) &&
+	      (i>=uGtAlg->getFirstBX()  && i<=uGtAlg->getLastBX()) ) {	    
+                  dumpTestVectors(i, m_testVectorFile, muons, egammas, taus, jets, etsums, uGtAlg, uGtExt);
+	 } else {
+	      printf("WARNING: Not enough information to dump test vectors for this bx (%i) \n",i);
+	 }	  
        }
-                  //Dump Content
-	printf("\n ------ EtSums ----------\n");	  
-       for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(i); etsum != etsums->end(i); ++etsum) {
-            printf("   Pt %i Eta %i Phi %i Qual %i \n",etsum->hwPt(),etsum->hwEta(),etsum->hwPhi(),etsum->hwQual());
-       }            
-        
-  // Dump the output record
- 	printf("\n ------ uGtAlg ----------\n");	  
-       for(std::vector<L1uGtAlgBlk>::const_iterator algBlk = uGtAlg->begin(i); algBlk != uGtAlg->end(i); ++algBlk) {
-            algBlk->print(std::cout);
-       }        
- 
-   // Dump the output record
- 	printf("\n ------ uGtExt ----------\n");	  
-       for(std::vector<L1uGtExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
-            extBlk->print(std::cout);
-       }        
-
-
-// Dump Test Vectors for this bx       
-       dumpTestVectors(i, testVectorFile, muons, egammas, taus, jets, etsums, uGtAlg, uGtExt);
-
-    }
-    printf("\n");
+    }   
     
     
     
@@ -260,9 +335,32 @@ void L1uGtRecordDump::dumpTestVectors(int bx, std::ofstream& myCout,
    }
 
 // Dump Et Sums (Order ETT, HT, ETM, HTM) (Each 8 digits + space)
-   for(int i=0; i<4; i++) {
-      myCout << " " << std::hex << std::setw(8) << std::setfill('0') << empty;
-   }
+   unsigned int ETTpackWd = 0;
+   unsigned int HTTpackWd = 0;
+   unsigned int ETMpackWd = 0;
+   unsigned int HTMpackWd = 0;
+   for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(bx); etsum != etsums->end(bx); ++etsum) {
+
+      switch ( etsum->getType() ) {
+	 case l1t::EtSum::EtSumType::kMissingEt:
+	   ETMpackWd = formatMissET(etsum);
+	   break; 
+	 case l1t::EtSum::EtSumType::kMissingHt:
+	   HTMpackWd = formatMissET(etsum);
+	   break; 		     
+	 case l1t::EtSum::EtSumType::kTotalEt:
+	   ETTpackWd = formatTotalET(etsum);
+	   break; 		     
+	 case l1t::EtSum::EtSumType::kTotalHt:
+	   HTTpackWd = formatTotalET(etsum);
+	   break; 		     
+      } //end switch statement
+   } //end loop over etsums
+   // Fill in the words in appropriate order
+   myCout << " " << std::hex << std::setw(8) << std::setfill('0') << ETTpackWd;
+   myCout << " " << std::hex << std::setw(8) << std::setfill('0') << HTTpackWd;
+   myCout << " " << std::hex << std::setw(8) << std::setfill('0') << ETMpackWd;
+   myCout << " " << std::hex << std::setw(8) << std::setfill('0') << HTMpackWd;
    
 // External Condition (64 digits + space)
     int digit = 0;
@@ -353,9 +451,22 @@ unsigned int L1uGtRecordDump::formatJet(std::vector<l1t::Jet>::const_iterator je
   return packedVal;
 }
 
-unsigned int L1uGtRecordDump::formatEtSum(std::vector<l1t::EtSum>::const_iterator etSum){
+unsigned int L1uGtRecordDump::formatMissET(std::vector<l1t::EtSum>::const_iterator etSum){
 
   unsigned int packedVal = 0;
+
+  packedVal |= ((etSum->hwPhi()    & 0xff)    <<0);
+  packedVal |= ((etSum->hwPt()     & 0xfff)   <<8); 
+  
+  return packedVal;
+}
+
+unsigned int L1uGtRecordDump::formatTotalET(std::vector<l1t::EtSum>::const_iterator etSum){
+
+  unsigned int packedVal = 0;
+
+  packedVal |= ((etSum->hwPt()     & 0xfff)   <<0); 
+  
   return packedVal;
 }
 

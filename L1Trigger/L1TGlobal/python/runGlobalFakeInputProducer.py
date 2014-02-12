@@ -19,7 +19,7 @@ process.load('L1Trigger/L1TGlobal/l1tGt_debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(2)
     )
 
 # Input source
@@ -30,7 +30,8 @@ process.source = cms.Source("PoolSource",
     ### RelValTTBar
     #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/3A11157B-ED51-E311-BA75-003048679080.root")
     ### Local RelValTTBar
-    fileNames = cms.untracked.vstring("/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_3A11157B-ED51-E311-BA75-003048679080.root")
+    fileNames = cms.untracked.vstring("/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_3A11157B-ED51-E311-BA75-003048679080.root"),
+    skipEvents = cms.untracked.uint32(80)
     ### RelValSingleElectronPt10
     #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/52DE2A7D-E651-E311-8E12-003048FFCBFC.root")
     )
@@ -152,7 +153,12 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::L1uGtRecordDump",
 		etsumInputTag = cms.InputTag("gtInput"),
 		uGtRecInputTag = cms.InputTag("simL1uGtDigis"),
 		uGtAlgInputTag = cms.InputTag("simL1uGtDigis"),
-		uGtExtInputTag = cms.InputTag("simL1uGtDigis") 
+		uGtExtInputTag = cms.InputTag("simL1uGtDigis"),
+		minBx          = cms.int32(-2),
+		maxBx          = cms.int32(2),
+		dumpGTRecord   = cms.bool(True),
+		dumpVectors    = cms.bool(True),
+		tvFileName     = cms.string("TestVector.txt")
 		 )
 
 
