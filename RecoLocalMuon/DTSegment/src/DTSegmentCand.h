@@ -31,11 +31,12 @@ class DTChamberRecSegment2D;
 class DTChamber;
 class DTSuperLayer;
 
+
 class DTSegmentCand{
 
   public:
     struct AssPointLessZ ;
-    typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
+    typedef std::pair<std::shared_ptr<DTHitPairForFit>, DTEnums::DTCellSide> AssPoint;
     typedef std::set<AssPoint, AssPointLessZ> AssPointCont;
 
 /// Constructor
@@ -95,7 +96,7 @@ class DTSegmentCand{
     virtual void setDirection(LocalVector& dir) { theDirection = dir; }
 
     /// add hits to the hit list.
-    virtual void add(DTHitPairForFit* hit, DTEnums::DTCellSide code) ;
+    virtual void add(std::shared_ptr<DTHitPairForFit> hit, DTEnums::DTCellSide code) ;
 
     /// remove hit from the candidate
     virtual void removeHit(AssPoint hit) ;
@@ -130,13 +131,13 @@ class DTSegmentCand{
     /// convert this DTSegmentCand into a DTChamberRecSegment2D
     operator DTChamberRecSegment2D*() const;
 
-
     struct AssPointLessZ : 
       public std::binary_function<const AssPoint&, const AssPoint&, bool> {
         public:
           bool operator()(const AssPoint& pt1, 
                           const AssPoint& pt2) const ; 
       };
+
   private:
     const DTSuperLayer* theSL; // the SL
     LocalPoint  thePosition;  // in SL frame
@@ -148,7 +149,6 @@ class DTSegmentCand{
     /// mat[2][2]=sigma (x)
     /// mat[1][2]=cov(dx/dz,x)
     AlgebraicSymMatrix theCovMatrix; // the covariance matrix
-
 
     AssPointCont theHits; // the used hits
 

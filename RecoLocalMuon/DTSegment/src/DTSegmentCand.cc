@@ -58,7 +58,7 @@ bool DTSegmentCand::operator<(const DTSegmentCand& seg){
   return (nHits()<seg.nHits());
 }
 
-void DTSegmentCand::add(DTHitPairForFit* hit, DTEnums::DTCellSide code) {
+void DTSegmentCand::add(std::shared_ptr<DTHitPairForFit> hit, DTEnums::DTCellSide code) {
   theHits.insert(AssPoint(hit,code));
 }
 

@@ -56,7 +56,7 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
                                         const std::vector<DTRecHit1DPair>& pairs){
 
   edm::OwnVector<DTSLRecSegment2D> result;
-  vector<DTHitPairForFit*> hitsForFit = initHits(sl, pairs);
+  vector<std::shared_ptr<DTHitPairForFit>> hitsForFit = initHits(sl, pairs);
 
   vector<DTSegmentCand*> candidates = buildSegments(sl, hitsForFit);
 
@@ -76,9 +76,6 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
     delete *(cand++); // delete the candidate!
   }
 
-  for (vector<DTHitPairForFit*>::iterator it = hitsForFit.begin(), ed = hitsForFit.end(); 
-        it != ed; ++it) delete *it;
-
   return result;
 }
 
@@ -88,34 +85,34 @@ void DTCombinatorialPatternReco::setES(const edm::EventSetup& setup){
   theUpdator->setES(setup);
 }
 
-vector<DTHitPairForFit*>
+vector<std::shared_ptr<DTHitPairForFit>>
 DTCombinatorialPatternReco::initHits(const DTSuperLayer* sl,
                                      const std::vector<DTRecHit1DPair>& hits){  
   
-  vector<DTHitPairForFit*> result;
+  vector<std::shared_ptr<DTHitPairForFit>> result;
   for (vector<DTRecHit1DPair>::const_iterator hit=hits.begin();
        hit!=hits.end(); ++hit) {
-    result.push_back(new DTHitPairForFit(*hit, *sl, theDTGeometry));
+    result.push_back(std::make_shared<DTHitPairForFit>(*hit, *sl, theDTGeometry));
   }
   return result;
 }
 
 vector<DTSegmentCand*>
 DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
-                                          const std::vector<DTHitPairForFit*>& hits){
+                                          const std::vector<std::shared_ptr<DTHitPairForFit>>& hits){
   // clear the patterns tried
   if (debug) {
       cout << "theTriedPattern.size is " << theTriedPattern.size() << "\n";
   }
   theTriedPattern.clear();
 
-  typedef vector<DTHitPairForFit*> hitCont;
+  typedef vector<std::shared_ptr<DTHitPairForFit>> hitCont;
   typedef hitCont::const_iterator  hitIter;
   vector<DTSegmentCand*> result;
   
   if(debug) {
     cout << "buildSegments: " << sl->id() << " nHits " << hits.size() << endl;
-    for (vector<DTHitPairForFit*>::const_iterator hit=hits.begin();
+    for (vector<std::shared_ptr<DTHitPairForFit>>::const_iterator hit=hits.begin();
          hit!=hits.end(); ++hit) cout << **hit<< endl;
   }
 
@@ -177,7 +174,7 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
               ((*lastHit)->localPosition(codes[lastLR])-posIni).unit();
 
             // search for other compatible hits, with or without the L/R solved
-            vector<AssPoint> assHits = findCompatibleHits(posIni, dirIni, hits);
+            vector<DTSegmentCand::AssPoint> assHits = findCompatibleHits(posIni, dirIni, hits);
             if(debug) 
               cout << "compatible hits " << assHits.size() << endl;
 
@@ -232,18 +229,18 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
 }
 
 
-vector<DTCombinatorialPatternReco::AssPoint>
+vector<DTSegmentCand::AssPoint>
 DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
                                                const LocalVector& dirIni,
-                                               const vector<DTHitPairForFit*>& hits) {
+                                               const vector<std::shared_ptr<DTHitPairForFit>>& hits) {
   if (debug) cout << "Pos: " << posIni << " Dir: "<< dirIni << endl;
-  vector<AssPoint> result;
+  vector<DTSegmentCand::AssPoint> result;
 
   // counter to early-avoid double counting in hits pattern
   TriedPattern tried;
   int nCompatibleHits=0;
 
-  typedef vector<DTHitPairForFit*> hitCont;
+  typedef vector<std::shared_ptr<DTHitPairForFit>> hitCont;
   typedef hitCont::const_iterator  hitIter;
   for (hitIter hit=hits.begin(); hit!=hits.end(); ++hit) {
     pair<bool,bool> isCompatible = (*hit)->isCompatible(posIni, dirIni);
@@ -274,7 +271,7 @@ DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
       tried.push_back(0);
       continue; // neither is compatible
     }
-    result.push_back(AssPoint(*hit, lrcode));
+    result.push_back(DTSegmentCand::AssPoint(*hit, lrcode));
   }
 
 
@@ -313,7 +310,7 @@ DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
 }
 
 DTSegmentCand*
-DTCombinatorialPatternReco::buildBestSegment(std::vector<AssPoint>& hits,
+DTCombinatorialPatternReco::buildBestSegment(std::vector<DTSegmentCand::AssPoint>& hits,
                                              const DTSuperLayer* sl) {
   if (hits.size()<3) {
     //cout << "buildBestSegment: hits " << hits.size()<< endl;
@@ -321,14 +318,14 @@ DTCombinatorialPatternReco::buildBestSegment(std::vector<AssPoint>& hits,
   }
 
   // hits with defined LR
-  vector<AssPoint> points;
+  vector<DTSegmentCand::AssPoint> points;
 
   // without: I store both L and R, a deque since I need front insertion and
   // deletion
-  deque<DTHitPairForFit* > pointsNoLR; 
+  deque<std::shared_ptr<DTHitPairForFit> > pointsNoLR; 
 
   // first add only the hits with LR assigned
-  for (vector<AssPoint>::const_iterator hit=hits.begin();
+  for (vector<DTSegmentCand::AssPoint>::const_iterator hit=hits.begin();
        hit!=hits.end(); ++hit) {
     if ((*hit).second != DTEnums::undefLR) {
       points.push_back(*hit);
@@ -379,8 +376,8 @@ DTCombinatorialPatternReco::buildBestSegment(std::vector<AssPoint>& hits,
 }
 
 void
-DTCombinatorialPatternReco::buildPointsCollection(vector<AssPoint>& points, 
-                                                  deque<DTHitPairForFit*>& pointsNoLR, 
+DTCombinatorialPatternReco::buildPointsCollection(vector<DTSegmentCand::AssPoint>& points, 
+                                                  deque<std::shared_ptr<DTHitPairForFit>>& pointsNoLR, 
                                                   vector<DTSegmentCand*>& candidates,
                                                   const DTSuperLayer* sl) {
 
@@ -389,11 +386,11 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<AssPoint>& points,
     cout << "points: " << points.size() << " NOLR: " << pointsNoLR.size()<< endl;
   }
   if (pointsNoLR.size()>0) { // still unassociated points!
-    DTHitPairForFit* unassHit = pointsNoLR.front();
+    std::shared_ptr<DTHitPairForFit> unassHit = pointsNoLR.front();
     // try with the right
     if(debug)
       cout << "Right hit" << endl;
-    points.push_back(AssPoint(unassHit, DTEnums::Right));
+    points.push_back(DTSegmentCand::AssPoint(unassHit, DTEnums::Right));
     pointsNoLR.pop_front();
     buildPointsCollection(points, pointsNoLR, candidates, sl);
     pointsNoLR.push_front((unassHit));
@@ -402,7 +399,7 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<AssPoint>& points,
     // try with the left
     if(debug)
       cout << "Left hit" << endl;
-    points.push_back(AssPoint(unassHit, DTEnums::Left));
+    points.push_back(DTSegmentCand::AssPoint(unassHit, DTEnums::Left));
     pointsNoLR.pop_front();
     buildPointsCollection(points, pointsNoLR, candidates, sl);
     pointsNoLR.push_front((unassHit));
@@ -418,7 +415,7 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<AssPoint>& points,
     }
     DTSegmentCand::AssPointCont pointsSet;
 
-    // for (vector<AssPoint>::const_iterator point=points.begin();
+    // for (vector<DTSegmentCand::AssPoint>::const_iterator point=points.begin();
     //      point!=points.end(); ++point) 
     pointsSet.insert(points.begin(),points.end());
 

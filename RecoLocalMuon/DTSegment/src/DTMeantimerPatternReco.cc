@@ -31,6 +31,9 @@ using namespace std;
 
 /* ====================================================================== */
 
+  typedef std::vector<std::shared_ptr<DTHitPairForFit>> hitCont;
+  typedef hitCont::const_iterator  hitIter;
+
 
 /// Constructor
 DTMeantimerPatternReco::DTMeantimerPatternReco(const edm::ParameterSet& pset) : 
@@ -60,7 +63,7 @@ DTMeantimerPatternReco::reconstruct(const DTSuperLayer* sl,
                                         const std::vector<DTRecHit1DPair>& pairs){
 
   edm::OwnVector<DTSLRecSegment2D> result;
-  vector<DTHitPairForFit*> hitsForFit = initHits(sl, pairs);
+  std::vector<std::shared_ptr<DTHitPairForFit>> hitsForFit = initHits(sl, pairs);
 
   vector<DTSegmentCand*> candidates = buildSegments(sl, hitsForFit);
 
@@ -77,9 +80,6 @@ DTMeantimerPatternReco::reconstruct(const DTSuperLayer* sl,
     delete *(cand++); // delete the candidate!
   }
   
-  for (vector<DTHitPairForFit*>::iterator it = hitsForFit.begin(), ed = hitsForFit.end(); 
-        it != ed; ++it) delete *it;
-
   return result;
 }
 
@@ -89,24 +89,22 @@ void DTMeantimerPatternReco::setES(const edm::EventSetup& setup){
   theUpdator->setES(setup);
 }
 
-vector<DTHitPairForFit*>
+vector<std::shared_ptr<DTHitPairForFit>>
 DTMeantimerPatternReco::initHits(const DTSuperLayer* sl,
                                      const std::vector<DTRecHit1DPair>& hits){  
   
-  vector<DTHitPairForFit*> result;
+  hitCont result;
   for (vector<DTRecHit1DPair>::const_iterator hit=hits.begin();
        hit!=hits.end(); ++hit) {
-    result.push_back(new DTHitPairForFit(*hit, *sl, theDTGeometry));
+    result.push_back(std::make_shared<DTHitPairForFit>(*hit, *sl, theDTGeometry));
   }
   return result;
 }
 
 vector<DTSegmentCand*>
 DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
-                                          const std::vector<DTHitPairForFit*>& hits){
+                                      const std::vector<std::shared_ptr<DTHitPairForFit>>& hits){
 
-  typedef vector<DTHitPairForFit*> hitCont;
-  typedef hitCont::const_iterator  hitIter;
   vector<DTSegmentCand*> result;
   DTEnums::DTCellSide codes[2]={DTEnums::Left, DTEnums::Right};
 
@@ -167,10 +165,10 @@ DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
 //              cout << "  Last "  << *(*lastHit)  << " Layer Id: " << (*lastHit)->id().layerId()  << " Side: " << lastLR << " DigiTime: " << (*lastHit)->digiTime() <<  endl;
 //          }
         
-          vector<AssPoint> assHits;
+          vector<DTSegmentCand::AssPoint> assHits;
           // create a candidate hit list
-          assHits.push_back(AssPoint(*firstHit,codes[firstLR]));
-          assHits.push_back(AssPoint(*lastHit,codes[lastLR]));
+          assHits.push_back(DTSegmentCand::AssPoint(*firstHit,codes[firstLR]));
+          assHits.push_back(DTSegmentCand::AssPoint(*lastHit,codes[lastLR]));
 
           // run hit adding/segment building 
           maxfound = 3;
@@ -199,10 +197,9 @@ DTMeantimerPatternReco::buildSegments(const DTSuperLayer* sl,
 
 
 void 
-DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHits, const vector<DTHitPairForFit*>& hits, 
+DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<DTSegmentCand::AssPoint>& assHits, const vector<std::shared_ptr<DTHitPairForFit>>& hits, 
                                 vector<DTSegmentCand*> &result) {
 
-  typedef vector<DTHitPairForFit*> hitCont;
   double chi2l,chi2r,t0_corrl,t0_corrr;
   bool foundSomething = false;
 
@@ -220,13 +217,13 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHit
 //      printPattern(assHits,*hit);
 //    }
             
-    assHits.push_back(AssPoint(*hit, DTEnums::Left));
+    assHits.push_back(DTSegmentCand::AssPoint(*hit, DTEnums::Left));
     std::unique_ptr<DTSegmentCand> left_seg = fitWithT0(sl,assHits, chi2l, t0_corrl,0);
     assHits.pop_back();
 //    if (debug) 
 //      cout << "    Left:  t0= " << t0_corrl << "  chi2/nHits= " << chi2l << "/" << nHits << "  ok: " << left_ok << endl;
 
-    assHits.push_back(AssPoint(*hit, DTEnums::Right));
+    assHits.push_back(DTSegmentCand::AssPoint(*hit, DTEnums::Right));
     std::unique_ptr<DTSegmentCand> right_seg = fitWithT0(sl,assHits, chi2r, t0_corrr,0);
     assHits.pop_back();
 //    if (debug) 
@@ -252,12 +249,12 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHit
         if (chi2r<chi2l-0.1) left_ok=false;
     }
     if (left_ok) { 
-      assHits.push_back(AssPoint(*hit, DTEnums::Left));
+      assHits.push_back(DTSegmentCand::AssPoint(*hit, DTEnums::Left));
       addHits(sl,assHits,hitsForFit,result);
       assHits.pop_back();
     }
     if (right_ok) { 
-      assHits.push_back(AssPoint(*hit, DTEnums::Right));
+      assHits.push_back(DTSegmentCand::AssPoint(*hit, DTEnums::Right));
       addHits(sl,assHits,hitsForFit,result);
       assHits.pop_back();
     }
@@ -327,7 +324,7 @@ DTMeantimerPatternReco::geometryFilter( const DTWireId first, const DTWireId sec
 
 
 std::unique_ptr<DTSegmentCand>
-DTMeantimerPatternReco::fitWithT0(const DTSuperLayer* sl, const vector<AssPoint> &assHits, double &chi2, double &t0_corr, const bool fitdebug) 
+DTMeantimerPatternReco::fitWithT0(const DTSuperLayer* sl, const vector<DTSegmentCand::AssPoint> &assHits, double &chi2, double &t0_corr, const bool fitdebug) 
 {
   // create a DTSegmentCand 
   DTSegmentCand::AssPointCont pointsSet;
@@ -376,12 +373,12 @@ DTMeantimerPatternReco::checkDoubleCandidates(vector<DTSegmentCand*>& cands,
 
 
 void 
-DTMeantimerPatternReco::printPattern( vector<AssPoint>& assHits, const DTHitPairForFit* hit) {
+DTMeantimerPatternReco::printPattern( vector<DTSegmentCand::AssPoint>& assHits, const DTHitPairForFit* hit) {
 
   char mark[26]={". . . . . . . . . . . . "};
   int wire[12]={0,0,0,0,0,0,0,0,0,0,0,0};
 
-  for (vector<AssPoint>::const_iterator assHit=assHits.begin(); assHit!=assHits.end(); ++assHit) {
+  for (vector<DTSegmentCand::AssPoint>::const_iterator assHit=assHits.begin(); assHit!=assHits.end(); ++assHit) {
     int lay  = (((*assHit).first)->id().superlayerId().superLayer()-1)*4 + ((*assHit).first)->id().layerId().layer()-1;
     wire[lay]= ((*assHit).first)->id().wire();
     if ((*assHit).second==DTEnums::Left) mark[lay*2]='L'; else mark[lay*2]='R';

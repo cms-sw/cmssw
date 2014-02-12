@@ -34,6 +34,7 @@ class DTLinearFit;
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 
 /* ====================================================================== */
 
@@ -71,25 +72,25 @@ class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
 
   friend class DTMeantimerPatternReco4D;
 
-  typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
+  // typedef std::pair<DTHitPairForFit*, DTEnums::DTCellSide> AssPoint;
     
   // create the DTHitPairForFit from the pairs for easy use
-  std::vector<DTHitPairForFit*> initHits(const DTSuperLayer* sl,
-					 const std::vector<DTRecHit1DPair>& hits);
+  std::vector<std::shared_ptr<DTHitPairForFit>> initHits(const DTSuperLayer* sl,
+	    						 const std::vector<DTRecHit1DPair>& hits);
 
   // search for candidate, starting from pairs of hits in different layers
   std::vector<DTSegmentCand*> buildSegments(const DTSuperLayer* sl,
-					    const std::vector<DTHitPairForFit*>& hits);
+					    const std::vector<std::shared_ptr<DTHitPairForFit>>& hits);
 
   // try adding more hits to a candidate
   void addHits(const DTSuperLayer* sl, 
-               std::vector<AssPoint>& assHits, 
-               const std::vector<DTHitPairForFit*>& hits, 
+               std::vector<DTSegmentCand::AssPoint>& assHits, 
+               const std::vector<std::shared_ptr<DTHitPairForFit>>& hits, 
                std::vector<DTSegmentCand*> &result);
 
   // fit a set of left/right hits, calculate t0 and chi^2
   std::unique_ptr<DTSegmentCand> fitWithT0(const DTSuperLayer* sl,
-                                           const std::vector<AssPoint> &assHits, 
+                                           const std::vector<DTSegmentCand::AssPoint> &assHits, 
                                            double &chi2, 
                                            double &t0_corr, 
                                            const bool fitdebug);
@@ -100,7 +101,7 @@ class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
   bool checkDoubleCandidates(std::vector<DTSegmentCand*>& segs,
 			     DTSegmentCand* seg);
 
-  void printPattern( std::vector<AssPoint>& assHits, const DTHitPairForFit* hit);
+  void printPattern( std::vector<DTSegmentCand::AssPoint>& assHits, const DTHitPairForFit* hit);
 
 
  private:

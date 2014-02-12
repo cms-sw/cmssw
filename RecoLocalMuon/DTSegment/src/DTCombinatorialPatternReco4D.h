@@ -61,7 +61,7 @@ class DTCombinatorialPatternReco4D : public DTRecSegment4DBaseAlgo {
  protected:
 
  private:
-  std::vector<DTSegmentCand*> buildPhiSuperSegmentsCandidates(std::vector<DTHitPairForFit*> &pairPhiOwned);
+  std::vector<DTSegmentCand*> buildPhiSuperSegmentsCandidates(std::vector<std::shared_ptr<DTHitPairForFit>> &pairPhiOwned);
   DTRecSegment4D* segmentSpecialZed(const DTRecSegment4D* seg);
 
   std::string theAlgoName;
