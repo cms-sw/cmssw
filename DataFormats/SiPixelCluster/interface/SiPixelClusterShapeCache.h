@@ -12,6 +12,9 @@
 #include <vector>
 #include <algorithm>
 #include <cassert>
+#include <memory>
+
+class PixelGeomDetUnit;
 
 class SiPixelClusterShapeData {
 public:
@@ -38,28 +41,40 @@ public:
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> ClusterRef;
 
   struct Field {
-    Field(unsigned i, bool s, bool c, bool h):
-      straight(s), complete(c), has(h), index(i) {}
+    Field(): offset(0), size(0), straight(false), complete(false), has(false), filled(false) {}
+
+    Field(unsigned off, unsigned siz, bool s, bool c, bool h):
+      offset(off), size(siz), straight(s), complete(c), has(h), filled(true) {}
+    unsigned offset: 24; // room for 2^24/9 = ~2.8e6 clusters, should be enough
+    unsigned size: 4; // max 9 elements / cluster (2^4=16)
     unsigned straight:1;
     unsigned complete:1;
     unsigned has:1;
-    unsigned index:29;
+    unsigned filled:1;
+  };
+
+  struct LazyGetter {
+    LazyGetter();
+    virtual ~LazyGetter();
+
+    virtual void fill(const ClusterRef& cluster, const PixelGeomDetUnit *pixDet, SiPixelClusterShapeCache& cache) const = 0;
   };
 
   SiPixelClusterShapeCache() {};
   explicit SiPixelClusterShapeCache(const edm::HandleBase& handle): productId_(handle.id()) {}
+  SiPixelClusterShapeCache(const edm::HandleBase& handle, std::shared_ptr<LazyGetter> getter): getter_(getter), productId_(handle.id()) {}
   explicit SiPixelClusterShapeCache(const edm::ProductID& id): productId_(id) {}
   ~SiPixelClusterShapeCache();
 
-  void reserve(size_t size) {
-    assert(size <= 2<<29); // maximum size
-    data_.reserve(size);
+  void resize(size_t size) {
+    data_.resize(size);
     sizeData_.reserve(size);
   }
 
   void swap(SiPixelClusterShapeCache& other) {
     data_.swap(other.data_);
     sizeData_.swap(other.sizeData_);
+    std::swap(getter_, other.getter_);
     std::swap(productId_, other.productId_);
   }
 
@@ -68,38 +83,38 @@ public:
     data_.shrink_to_fit();
     sizeData_.shrink_to_fit();
   }
-#endif
 
   template <typename T>
-  void push_back(const ClusterRef& cluster, const T& data) {
-    assert(productId_ == cluster.id());
-    assert(cluster.index() == data_.size()); // ensure data are pushed in correct order
-
-    std::copy(data.size.begin(), data.size.end(), std::back_inserter(sizeData_));
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-    data_.emplace_back(sizeData_.size(), data.isStraight, data.isComplete, data.hasBigPixelsOnlyInside);
-#else
-    data_.push_back(Field(sizeData_.size(), data.isStraight, data.isComplete, data.hasBigPixelsOnlyInside));
-#endif
-  }
-
-  SiPixelClusterShapeData get(const ClusterRef& cluster) const {
+  void insert(const ClusterRef& cluster, const T& data) {
+    static_assert(T::ArrayType::capacity() <= 16, "T::ArrayType::capacity() more than 16, bit field too narrow");
     assert(productId_ == cluster.id());
     assert(cluster.index() < data_.size());
-    unsigned beg = 0;
-    if(cluster.index() > 0)
-      beg = data_[cluster.index()-1].index;
 
-    Field f = data_[cluster.index()];
-    unsigned end = f.index;
-
-    return SiPixelClusterShapeData(sizeData_.begin()+beg, sizeData_.begin()+end,
-                                   f.straight, f.complete, f.has);
+    data_[cluster.index()] = Field(sizeData_.size(), data.size.size(), data.isStraight, data.isComplete, data.hasBigPixelsOnlyInside);
+    std::copy(data.size.begin(), data.size.end(), std::back_inserter(sizeData_));
   }
+
+  SiPixelClusterShapeData get(const ClusterRef& cluster, const PixelGeomDetUnit *pixDet) const {
+    assert(productId_ == cluster.id());
+    assert(cluster.index() < data_.size());
+    Field f = data_[cluster.index()];
+    if(!f.filled) {
+      assert(getter_);
+      getter_->fill(cluster, pixDet, *(const_cast<SiPixelClusterShapeCache *>(this)));
+      f = data_[cluster.index()];
+    }
+
+    auto beg = sizeData_.begin()+f.offset;
+    auto end = beg+f.size;
+
+    return SiPixelClusterShapeData(beg, end, f.straight, f.complete, f.has);
+  }
+#endif
 
 private:
   std::vector<Field> data_;
   std::vector<std::pair<int, int> > sizeData_;
+  std::shared_ptr<LazyGetter> getter_;
   edm::ProductID productId_;
 };
 
