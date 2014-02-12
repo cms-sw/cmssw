@@ -3,6 +3,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 
+#include "DataFormats/L1Trigger/interface/Tau.h"
+
 namespace l1t {
    class L1TRawToDigi;
 
@@ -10,6 +12,8 @@ namespace l1t {
       public:
          UnpackerCollections(edm::Event& event);
          ~UnpackerCollections();
+
+         inline TauBxCollection * const getTauCollection() const { return taus_.get(); };
 
          static void registerCollections(L1TRawToDigi*);
 
@@ -19,6 +23,8 @@ namespace l1t {
          UnpackerCollections& operator=(const UnpackerCollections&);
 
          edm::Event& event_;
+
+         std::auto_ptr<TauBxCollection> taus_;
    };
 }
 

@@ -3,12 +3,16 @@
 
 namespace l1t {
    class TauUnpacker : public BaseUnpacker {
-      virtual bool unpack(const unsigned char *data, const unsigned size) {
-         return true;
-      };
+      public:
+         virtual bool unpack(const unsigned char *data, const unsigned size) {
+            return true;
+         };
 
-      virtual void setCollections(UnpackerCollections& coll) {
-      };
+         virtual void setCollections(UnpackerCollections& coll) {
+            res = coll.getTauCollection();
+         };
+      private:
+         TauBxCollection* res;
    };
 
    class TauUnpackerFactory : UnpackerFactory, UnpackerFactoryRegistration<TauUnpackerFactory> {
