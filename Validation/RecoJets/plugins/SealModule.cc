@@ -24,8 +24,10 @@ DEFINE_FWK_MODULE( PhotonJetClosure );
 #include "CaloJetTester.h"
 #include "JPTJetTester.h"
 #include "JetFileSaver.h"
+#include "CaloJetTesterUnCorr_HeavyIons.h"
 
 DEFINE_FWK_MODULE( PFJetTester );
 DEFINE_FWK_MODULE( CaloJetTester );
 DEFINE_FWK_MODULE( JPTJetTester );
 DEFINE_FWK_MODULE( JetFileSaver );
+DEFINE_FWK_MODULE( CaloJetTesterUnCorr_HeavyIons );
