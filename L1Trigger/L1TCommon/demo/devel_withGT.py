@@ -69,7 +69,7 @@ process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
     )
 
 
-process.digiStep = cms.Sequence(
+process.Stage1GCT = cms.Sequence(
         process.RCTConverter
 #        *process.caloTowers
         *process.caloStage1
@@ -78,9 +78,12 @@ process.digiStep = cms.Sequence(
 
 process.load('L1Trigger.Configuration.SimL1Emulator_cff')
 
+process.simGtDigis.GctInputTag = 'Stage1GCT'
+
 process.p1 = cms.Path(
 #    process.digiStep
-    process.SimL1Emulator
+    process.Stage1GCT
+    *process.SimL1Emulator
 #    * process.debug
 #    *process.dumpED
 #    *process.dumpES
