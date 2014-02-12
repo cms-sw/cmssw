@@ -84,17 +84,19 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   std::vector<bool> mask(true, refhits.size());
   for( const std::unique_ptr<RecHitCleanerBase>& cleaner : _cleaners ) {
-    cleaner->clean(refhits, mask);
+    cleaner->clean(rechits, mask);
   }
   
   std::vector<bool> seedable(false, refhits.size());
-  _seedFinder->findSeeds(refhits,mask,seedable);
+  _seedFinder->findSeeds(rechits,mask,seedable);
 
   std::auto_ptr<reco::PFClusterCollection> topoClusters;
-  _topoBuilder->buildTopoClusters(refhits, mask, seedable, *topoClusters);
+  topoClusters.reset(new reco::PFClusterCollection);
+  _topoBuilder->buildTopoClusters(rechits, mask, seedable, *topoClusters);
   LOGVERB("PFClusterProducer::produce()") << *_topoBuilder;
 
   std::auto_ptr<reco::PFClusterCollection> pfClusters;
+  pfClusters.reset(new reco::PFClusterCollection);
   _pfClusterBuilder->buildPFClusters(*topoClusters, seedable, *pfClusters);
   LOGVERB("PFClusterProducer::produce()") << *_pfClusterBuilder;
   
