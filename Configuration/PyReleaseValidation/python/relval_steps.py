@@ -1,5 +1,3 @@
-
-
 class Matrix(dict):
     def __setitem__(self,key,value):
         if key in self:
@@ -1132,7 +1130,7 @@ def addForAll(steps,d):
 step1FastDefaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--fast':'',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
-                           '--datatier':'GEN-SIM-DIGI-RECO,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQMROOT',
                            '--relval':'27000,3000'},
                           step1Defaults])
 
@@ -1216,7 +1214,7 @@ steps['TTbarFSPU2']=merge([PUFS2,Kby(100,500),steps['TTbarFS']])
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
 step1FastDefaultsP1 =merge([{'-s':'GEN,SIM,RECO,VALIDATION',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
-                           '--datatier':'GEN-SIM-DIGI-RECO,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQMROOT',
                            '--conditions':'auto:upgradePLS3', 
 			   '--fast':'',
 			   '--geometry' : 'Extended2017',
@@ -1234,7 +1232,7 @@ steps['MinBias_TuneZ2star8FSP1']=merge([{'cfg':'MinBias_TuneZ2star_8TeV_pythia6_
 
 step1FastDefaultsP1PU =merge([{'-s':'GEN,SIM,RECO,VALIDATION',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
-                           '--datatier':'GEN-SIM-DIGI-RECO,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQMROOT',
                            '--conditions':'auto:upgradePLS3', 
 			   '--fast':'',
 			   '--pileup':'default',
@@ -1247,7 +1245,7 @@ steps['TTbar8FSPUP1']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},Kby(100,1000),step1
 
 step1FastDefaultsP2 =merge([{'-s':'GEN,SIM,RECO,VALIDATION',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
-                           '--datatier':'GEN-SIM-DIGI-RECO,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQMROOT',
 			   '--fast':'',
                            '--conditions':'auto:upgradePLS3', 
 			   '--geometry' : 'ExtendedPhase2TkBE',
@@ -1266,7 +1264,7 @@ steps['MinBias_TuneZ2star8FSP2']=merge([{'cfg':'MinBias_TuneZ2star_8TeV_pythia6_
 
 step1FastDefaultsP2PU =merge([{'-s':'GEN,SIM,RECO,VALIDATION',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
-                           '--datatier':'GEN-SIM-DIGI-RECO,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQMROOT',
 			   '--fast':'',
 			   '--pileup':'default',
                            '--conditions':'auto:upgradePLS3', 
@@ -1278,7 +1276,7 @@ steps['TTbar8FSPUP2']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},Kby(100,1000),step1
 
 step1FastDefaultsP2Forw =merge([{'-s':'GEN,SIM,RECO,VALIDATION',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
-                           '--datatier':'GEN-SIM-DIGI-RECO,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQMROOT',
                            '--conditions':'auto:upgradePLS3', 
 			   '--geometry' : 'ExtendedPhase2TkBEForward',
 			   '--fast':'',
@@ -1773,7 +1771,7 @@ steps['DIGIUP193000COMP']=merge([step2Upg2019_3000comp_Defaults])
 dataReco={'--conditions':'auto:com10',
           '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM',
           '--datatier':'RECO,DQMROOT',
-          '--eventcontent':'RECO,DQMROOT',
+          '--eventcontent':'RECO,DQM',
           '--data':'',
           '--process':'reRECO',
           '--scenario':'pp',
@@ -1783,7 +1781,7 @@ dataReco={'--conditions':'auto:com10',
 dataReco={'--conditions':'auto:com10',
           '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM',
           '--datatier':'RECO,DQMROOT',
-          '--eventcontent':'RECO,DQMROOT',
+          '--eventcontent':'RECO,DQM',
           '--data':'',
           '--process':'reRECO',
           '--scenario':'pp',
@@ -1814,7 +1812,7 @@ steps['REPACKHID']=merge([{'--scenario':'HeavyIons',
 steps['RECOHID10']=merge([{'--scenario':'HeavyIons',
                          '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
                          '--datatier':'RECO,DQMROOT',
-                         '--eventcontent':'RECO,DQMROOT'},
+                         '--eventcontent':'RECO,DQM'},
                         steps['RECOD']])
 steps['RECOHID11']=merge([{'--repacked':''},
                         steps['RECOHID10']])
@@ -1825,11 +1823,11 @@ steps['RECOHID10']['--eventcontent']+=',REPACKRAW'
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForPrompt,DQM,ENDJOB',
                        '--datatier':'RECO,AOD,ALCARECO,DQMROOT',
-                       '--eventcontent':'RECO,AOD,ALCARECO,DQMROOT',
+                       '--eventcontent':'RECO,AOD,ALCARECO,DQM',
                        '--process':'RECO'
                        },dataReco])
 steps['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForExpress,DQM,ENDJOB',
-                          '--datatier':'ALCARECO,DQM',
+                          '--datatier':'ALCARECO,DQMROOT',
                           '--eventcontent':'ALCARECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                           },steps['TIER0']])
@@ -1853,7 +1851,7 @@ step3Defaults = {
                   '-s'            : 'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                   '--conditions'  : 'auto:startup',
                   '--no_exec'     : '',
-                  '--datatier'    : 'GEN-SIM-RECO,DQM',
+                  '--datatier'    : 'GEN-SIM-RECO,DQMROOT',
                   '--eventcontent': 'RECOSIM,DQM'
                   }
 
@@ -1897,7 +1895,7 @@ steps['RECOFS']=merge([{'--fast':'',
 #for 2017
 step3Up2017Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--conditions':'auto:upgrade2017', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                   '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -1912,7 +1910,7 @@ steps['RECOUP17']=merge([step3Up2017Defaults])
 #for 2019
 step3Up2019Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'auto:upgrade2019', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -1931,7 +1929,7 @@ steps['RECOUP19']=merge([step3Up2019Defaults])
 
 step3Up2017_START_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_150_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -1943,7 +1941,7 @@ steps['RECOUP17STAR']=merge([step3Up2017_START_Defaults])
 
 step3Up2017pu_START_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_150_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
 		 '--pileup': 'AVE_20_BX_25ns',
@@ -1962,7 +1960,7 @@ steps['RECOPUUP17STAR']=merge([step3Up2017pu_START_Defaults])
 
 step3Up2017_300_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_300_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -1974,7 +1972,7 @@ steps['RECOUP17300']=merge([step3Up2017_300_Defaults])
 
 step3Up2017pu_300_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_300_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
 		 '--pileup': 'AVE_20_BX_25ns',
@@ -1992,7 +1990,7 @@ steps['RECOPUUP17300']=merge([step3Up2017pu_300_Defaults])
 
 step3Up2017_300comp_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_300_62C2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
@@ -2008,7 +2006,7 @@ steps['RECOUP17300COMP']=merge([step3Up2017_300comp_Defaults])
 
 step3Up2017_500_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_500_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2020,7 +2018,7 @@ steps['RECOUP17500']=merge([step3Up2017_500_Defaults])
 
 step3Up2017pu_500_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_500_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
@@ -2040,7 +2038,7 @@ steps['RECOPUUP17500']=merge([step3Up2017pu_500_Defaults])
 
 step3Up2017_1000_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_100062E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
@@ -2052,7 +2050,7 @@ steps['RECOUP171000']=merge([step3Up2017_1000_Defaults])
 
 step3Up2017pu_1000_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_100062E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2068,7 +2066,7 @@ steps['RECOPUUP171000']=merge([step3Up2017pu_1000_Defaults])
 
 step3Up2017_1000comp_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_100062C2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '--magField' : '38T_PostLS1',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2082,7 +2080,7 @@ steps['RECOUP171000COMP']=merge([step3Up2017_1000comp_Defaults])
 
 step3Up2017_1000_TkId_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_100062E2A::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2096,7 +2094,7 @@ steps['RECOUP171000TkId']=merge([step3Up2017_1000_TkId_Defaults])
 
 step3Up2017_1000comp_TkId_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_100062C2A::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
@@ -2111,7 +2109,7 @@ steps['RECOUP171000COMPTkId']=merge([step3Up2017_1000comp_TkId_Defaults])
 
 step3Up2017_3000_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_300062E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
@@ -2126,7 +2124,7 @@ steps['RECOUP173000']=merge([step3Up2017_3000_Defaults])
 
 step3Up2017_3000comp_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W17_300062C2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
@@ -2142,7 +2140,7 @@ steps['RECOUP173000COMP']=merge([step3Up2017_3000comp_Defaults])
 
 step3Up2019_START_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_150_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2154,7 +2152,7 @@ steps['RECOUP19STAR']=merge([step3Up2019_START_Defaults])
 
 step3Up2019pu_START_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_150_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
 		 '--pileup': 'AVE_20_BX_25ns',
@@ -2173,7 +2171,7 @@ steps['RECOPUUP19STAR']=merge([step3Up2019pu_START_Defaults])
 
 step3Up2019_300_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_300_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
@@ -2185,7 +2183,7 @@ steps['RECOUP19300']=merge([step3Up2019_300_Defaults])
 
 step3Up2019pu_300_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_300_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
@@ -2203,7 +2201,7 @@ steps['RECOPUUP19300']=merge([step3Up2019pu_300_Defaults])
 
 step3Up2019_300comp_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_300_62C2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '--magField' : '38T_PostLS1',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2219,7 +2217,7 @@ steps['RECOUP19300COMP']=merge([step3Up2019_300comp_Defaults])
 
 step3Up2019_500_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_500_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2231,7 +2229,7 @@ steps['RECOUP19500']=merge([step3Up2019_500_Defaults])
 
 step3Up2019pu_500_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_500_62E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
 		 '--pileup': 'AVE_20_BX_25ns',
@@ -2251,7 +2249,7 @@ steps['RECOPUUP19500']=merge([step3Up2019pu_500_Defaults])
 
 step3Up2019_1000_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_100062E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2263,7 +2261,7 @@ steps['RECOUP191000']=merge([step3Up2019_1000_Defaults])
 
 step3Up2019pu_1000_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_100062E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2279,7 +2277,7 @@ steps['RECOPUUP191000']=merge([step3Up2019pu_1000_Defaults])
 
 step3Up2019_1000comp_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_100062C2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2293,7 +2291,7 @@ steps['RECOUP191000COMP']=merge([step3Up2019_1000comp_Defaults])
 
 step3Up2019_1000_TkId_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_100062E2A::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2307,7 +2305,7 @@ steps['RECOUP191000TkId']=merge([step3Up2019_1000_TkId_Defaults])
 
 step3Up2019_1000comp_TkId_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_100062C2A::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--magField' : '38T_PostLS1',
@@ -2322,7 +2320,7 @@ steps['RECOUP191000COMPTkId']=merge([step3Up2019_1000comp_TkId_Defaults])
 
 step3Up2019_3000_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_300062E2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2337,7 +2335,7 @@ steps['RECOUP193000']=merge([step3Up2019_3000_Defaults])
 
 step3Up2019_3000comp_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--conditions':'W19_300062C2::All', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2417,7 +2415,7 @@ steps['DIGIUP23_BE5D']=merge([step2Up2023_BE5D_Defaults])
 
 step3NUp2023_BE5D_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--conditions':'auto:upgradePLS3', 
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--datatier':'GEN-SIM-RECO,DQMROOT',
                  '-n':'10',
                  '--magField' : '38T_PostLS1',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -2477,6 +2475,7 @@ steps['HARVGEN']={'-s':'HARVESTING:genHarvesting',
                   '--harvesting':'AtJobEnd',
                   '--conditions':'auto:startup',
                   '--mc':'',
+                  '--filetype':'DQM',
                   '--filein':'file:step1.root'
                   }
 
@@ -2485,6 +2484,7 @@ steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--conditions':'auto:com10',
                    '--filetype':'DQM',
                    '--data':'',
+                   '--filetype':'DQM',
                    '--scenario':'pp'}
 
 steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:com10_%s'%menu}, steps['HARVESTD'] ])
@@ -2503,25 +2503,30 @@ steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
                    '--conditions':'auto:com10',
                    '--filetype':'DQM',
                    '--data':'',
+                   '--filetype':'DQM',
                    '--scenario':'HeavyIons'}
 
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:startup',
                    '--mc':'',
+                   '--filetype':'DQM',
                    '--scenario':'pp'}
 steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
                      '--conditions':'auto:startup',
                      '--mc':'',
                      '--filein':'file:step3_inDQM.root',
-                   '--scenario':'cosmics'}
+                     '--filetype':'DQM',
+                     '--scenario':'cosmics'}
 steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
                    '--conditions':'auto:startup',
                    '--mc':'',
+                   '--filetype':'DQM',
                    '--scenario':'pp'}
 steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:starthi_HIon',
                    '--mc':'',
+                   '--filetype':'DQM',
                    '--scenario':'HeavyIons'}
 
 steps['HARVESTUP17']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
@@ -2529,6 +2534,7 @@ steps['HARVESTUP17']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--magField' : '38T_PostLS1',
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2017'
                    }
 steps['HARVESTUP19']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
@@ -2536,6 +2542,7 @@ steps['HARVESTUP19']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2019'
                    }
 
@@ -2544,6 +2551,7 @@ steps['HARVESTUPBE5D']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase2TkCustomsBE5D.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'ExtendedPhase2TkBE5D'
                    }
 
@@ -2553,6 +2561,7 @@ steps['HARVESTUP17DES']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2017'
                    }
 		   
@@ -2562,6 +2571,7 @@ steps['HARVESTUP17STAR']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2017'
                    }
 ####HARVEST AGING VALIDATION - 300fb-1 
@@ -2572,6 +2582,7 @@ steps['HARVESTUP17300']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2017'
                    }
 		   
@@ -2584,6 +2595,7 @@ steps['HARVESTUP17500']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2017'
                    }
 		   
@@ -2596,6 +2608,7 @@ steps['HARVESTUP171000']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2017'
                    }
 
@@ -2604,6 +2617,7 @@ steps['HARVESTUP171000TkId']={'-s':'HARVESTING:validationHarvesting+dqmHarvestin
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2017'
                    }
 		   
@@ -2615,6 +2629,7 @@ steps['HARVESTUP173000']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2017'
                    }
 		   
@@ -2625,6 +2640,7 @@ steps['HARVESTUP19DES']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2019'
                    }
 		   
@@ -2634,6 +2650,7 @@ steps['HARVESTUP19STAR']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2019'
                    }
 ####HARVEST AGING VALIDATION - 300fb-1 
@@ -2644,6 +2661,7 @@ steps['HARVESTUP19300']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2019'
                    }
 		   
@@ -2656,6 +2674,7 @@ steps['HARVESTUP19500']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2019'
                    }
 		   
@@ -2668,6 +2687,7 @@ steps['HARVESTUP191000']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
                    '--magField' : '38T_PostLS1',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2019'
                    }
 
@@ -2676,6 +2696,7 @@ steps['HARVESTUP191000TkId']={'-s':'HARVESTING:validationHarvesting+dqmHarvestin
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2019'
                    }
 		   
@@ -2687,6 +2708,7 @@ steps['HARVESTUP193000']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--filetype':'DQM',
 		   '--geometry' : 'Extended2019'
                    }
 		   
@@ -2697,17 +2719,20 @@ steps['HARVESTFSP1']={'-s':'HARVESTING:validationHarvestingFS',
                    '--conditions':'auto:upgradePLS3',
                    '--mc':'',
 		   '--geometry' : 'Extended2017',
+                   '--filetype':'DQM',
                    '--scenario':'pp'}
 		   
 steps['HARVESTFSP2']={'-s':'HARVESTING:validationHarvestingFS',
                    '--conditions':'auto:upgradePLS3',
                    '--mc':'',
 		   '--geometry' : 'ExtendedPhase2TkBE',
+                   '--filetype':'DQM',
                    '--scenario':'pp'}
 steps['HARVESTFSP2Forw']={'-s':'HARVESTING:validationHarvestingFS',
                    '--conditions':'auto:upgradePLS3',
                    '--mc':'',
 		   '--geometry' : 'ExtendedPhase2TkBEForward',
+                   '--filetype':'DQM',
                    '--scenario':'pp'}
 		   
 		   
@@ -2738,14 +2763,14 @@ steps['SKIMCOSD']={'-s':'SKIM:all',
 #### for special wfs ###
 #steps['TTbar_REDIGI_RERECO']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi',
 #                                     '-s':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco,RECO,EI,ALCA:MuAlCalIsolatedMu+DtCalib,VALIDATION,DQM',
-#                                     '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG-RECO,DQM',
+#                                     '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG-RECO,DQMROOT',
 #                                     '--eventcontent':'FEVTDEBUGHLT,DQM'},
 #                                    K9by50,stCond,step1Defaults])
 #steps['DIGI2RECO']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
 #                           '--filtername':'DIGItoRECO',
 #                           '--process':'RECO',
 #                           '--eventcontent':'RECOSIM,DQM',
-#                           '--datatier':'GEN-SIM-RECO,DQM',
+#                           '--datatier':'GEN-SIM-RECO,DQMROOT',
 #                           },
 #                            stCond,step3Defaults])
 steps['RECOFROMRECO']=merge([{'-s':'RECO,EI',
