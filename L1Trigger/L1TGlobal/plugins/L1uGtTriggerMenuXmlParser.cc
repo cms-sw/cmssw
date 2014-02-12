@@ -3833,7 +3833,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::workAlgorithm( l1t::Algorithm algorithm,
 
     // compute the bit number from chip number, output pin and order of the chips
     // pin numbering start with 1, bit numbers with 0
-    int bitNumber = outputPin + (m_orderConditionChip[chipNr] -1)*m_pinsOnConditionChip -1;
+    int bitNumber = outputPin;// + (m_orderConditionChip[chipNr] -1)*m_pinsOnConditionChip -1;
 
     //LogTrace("L1uGtTriggerMenuXmlParser")
     LogDebug("l1t|Global")  << "      Bit number:         " << bitNumber
