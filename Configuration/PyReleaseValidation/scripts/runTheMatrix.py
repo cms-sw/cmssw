@@ -180,6 +180,13 @@ if __name__ == '__main__':
                       default=False,
                       action='store_true')
 
+    parser.add_option('--das-cache-file',
+                      help='File with fallback DAS queries in case of outage.',
+                      dest='dasCacheFile',
+                      default=None,
+                      action='store')
+
+
 
     
     opt,args = parser.parse_args()

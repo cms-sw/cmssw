@@ -50,14 +50,15 @@ class InputInfo(object):
         self.ib_blacklist = ib_blacklist
         self.ib_block = ib_block
         
-    def das(self):
+    def das(self, query_cache):
         query_by = "block" if self.ib_block else "dataset"
         query_source = "{0}#{1}".format(self.dataSet, self.ib_block) if self.ib_block else self.dataSet
+        query_cache = query_cache and "--cache " + query_cache or ""
         if len(self.run) is not 0:
-            command = ";".join(["das_client.py --limit=0 --query 'file {0}={1} run={2}'".format(query_by, query_source, query_run) for query_run in self.run])
+            command = ";".join(["das_client.py {3} --limit=0 --query 'file {0}={1} run={2}'".format(query_by, query_source, query_run, query_cache) for query_run in self.run])
             command = "({0})".format(command)
         else:
-            command = "das_client.py --limit=0 --query 'file {0}={1} site=T2_CH_CERN'".format(query_by, query_source)
+            command = "das_client.py {2} --limit=0 --query 'file {0}={1} site=T2_CH_CERN'".format(query_by, query_source, query_cache)
        
         # Run filter on DAS output 
         if self.ib_blacklist:
