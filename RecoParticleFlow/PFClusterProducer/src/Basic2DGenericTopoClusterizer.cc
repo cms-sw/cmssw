@@ -14,26 +14,26 @@
 #endif
 
 void Basic2DGenericTopoClusterizer::
-buildTopoClusters(const reco::PFRecHitRefVector& input,
+buildTopoClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 		  const std::vector<bool>& rechitMask,
 		  const std::vector<bool>& seedable,
 		  reco::PFClusterCollection& output) {  
-  std::vector<bool> used(false,input.size());
+  std::vector<bool> used(false,input->size());
 
   reco::PFCluster temp;
-  for( const reco::PFRecHitRef& cell : input ) {
-    if( !seedable[cell.key()] || used[cell.key()] ) continue;
+  for( unsigned i = 0 ; i < input->size(); ++i ) {    
+    if( !seedable[i] || used[i] ) continue;
     temp.reset();
-    buildTopoCluster(input,rechitMask,used,cell,temp);
+    buildTopoCluster(input,rechitMask,makeRechit(input,i),used,temp);
     if( temp.recHitFractions().size() ) output.push_back(temp);
   }
 }
 
 void Basic2DGenericTopoClusterizer::
-buildTopoCluster(const reco::PFRecHitRefVector& input,
+buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>& input,
 		 const std::vector<bool>& rechitMask,
-		 std::vector<bool>& used,
 		 const reco::PFRecHitRef& cell,
+		 std::vector<bool>& used,		 
 		 reco::PFCluster& topocluster) {
   if( cell->energy() < _gatheringThreshold || 
       cell->pt2() < _gatheringThresholdPt2 ) {
@@ -53,12 +53,12 @@ buildTopoCluster(const reco::PFRecHitRefVector& input,
     if( used[idx] || !rechitMask[idx] ) {
       LOGDRESSED("GenericTopoCluster::buildTopoCluster()")
 	<< "  RecHit " << cell->detId() << "\'s" 
-	<< " neighbor RecHit " << input[idx]->detId() << " with enegy " 
-	<< input[idx]->energy() << " GeV was rejected!" 
+	<< " neighbor RecHit " << input->at(idx).detId() << " with enegy " 
+	<< input->at(idx).energy() << " GeV was rejected!" 
 	<< " Reasons : " << used[idx] << " (used) " 
 	<< !rechitMask[idx] << " (masked)." ;
       continue;
     }
-    buildTopoCluster(input,rechitMask,used,input[idx],topocluster);
+    buildTopoCluster(input,rechitMask,makeRechit(input,idx),used,topocluster);
   }
 }

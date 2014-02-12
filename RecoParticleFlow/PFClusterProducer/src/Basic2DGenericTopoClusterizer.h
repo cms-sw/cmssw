@@ -14,17 +14,17 @@ class Basic2DGenericTopoClusterizer : public TopoClusterBuilderBase {
   Basic2DGenericTopoClusterizer(const B2DGT&) = delete;
   B2DGT& operator=(const B2DGT&) = delete;
 
-  void buildTopoClusters(const reco::PFRecHitRefVector&,
+  void buildTopoClusters(const edm::Handle<reco::PFRecHitCollection>&,
 			 const std::vector<bool>&,
 			 const std::vector<bool>&, 
 			 reco::PFClusterCollection&);
 
  private:  
   const bool _useCornerCells;
-  void buildTopoCluster(const reco::PFRecHitRefVector&, // hits to cluster
+  void buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>&,
 			const std::vector<bool>&, // masked rechits
-			std::vector<bool>&, // hit usage state
 			const reco::PFRecHitRef&, //present rechit
+			std::vector<bool>&, // hit usage state
 			reco::PFCluster&); // the topocluster
   
 };

@@ -2,6 +2,7 @@
 #define __TopoClusterBuilderBase_H__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
@@ -32,7 +33,7 @@ class TopoClusterBuilderBase {
 
   virtual void update(const edm::EventSetup&) { }
 
-  virtual void buildTopoClusters(const reco::PFRecHitRefVector&,//input rechits
+  virtual void buildTopoClusters(const edm::Handle<reco::PFRecHitCollection>&,
 				 const std::vector<bool>& mask,  // mask flags
 				 const std::vector<bool>& seeds, // seed flags
 				 reco::PFClusterCollection&) = 0; //output
@@ -47,6 +48,10 @@ class TopoClusterBuilderBase {
   void reset() { _nSeeds = _nClustersFound = 0; }
 
  protected:
+  reco::PFRecHitRef makeRechit( const edm::Handle<reco::PFRecHitCollection>& h,
+				const unsigned i ) const { 
+    return reco::PFRecHitRef(h,i);
+  }
   unsigned _nSeeds, _nClustersFound; // basic performance information
   const float _gatheringThreshold; // RecHit energy threshold to keep going
   const float _gatheringThresholdPt2; // RecHit pt^2 threshold to keep going  
