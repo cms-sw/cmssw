@@ -14,11 +14,12 @@ bool EgammaCutBasedEleId::PassWP(WorkingPoint workingPoint,
     const double &iso_ch,
     const double &iso_em,
     const double &iso_nh,
-    const double &rho)
+    const double &rho,
+    ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget)
 {
 
     // get the mask
-    unsigned int mask = TestWP(workingPoint, ele, conversions, beamspot, vtxs, iso_ch, iso_em, iso_nh, rho);
+    unsigned int mask = TestWP(workingPoint, ele, conversions, beamspot, vtxs, iso_ch, iso_em, iso_nh, rho, EAtarget);
 
     // check if the desired WP passed
     if ((mask & PassAll) == PassAll) return true;
@@ -33,9 +34,10 @@ bool EgammaCutBasedEleId::PassWP(WorkingPoint workingPoint,
     const double &iso_ch,
     const double &iso_em,
     const double &iso_nh,
-    const double &rho)
+    const double &rho,
+    ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget)
 {
-  return PassWP(workingPoint,*ele,conversions,beamspot,vtxs,iso_ch,iso_em,iso_nh,rho);
+  return PassWP(workingPoint,*ele,conversions,beamspot,vtxs,iso_ch,iso_em,iso_nh,rho, EAtarget);
 }
 
 bool EgammaCutBasedEleId::PassTriggerCuts(TriggerWorkingPoint triggerWorkingPoint, const reco::GsfElectron &ele)
@@ -88,7 +90,8 @@ unsigned int EgammaCutBasedEleId::TestWP(WorkingPoint workingPoint,
     const double &iso_ch,
     const double &iso_em,
     const double &iso_nh,
-    const double &rho)
+    const double &rho,
+    ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget)
 {
 
     // get the ID variables from the electron object
@@ -123,11 +126,10 @@ unsigned int EgammaCutBasedEleId::TestWP(WorkingPoint workingPoint,
 
     // get the mask value
     unsigned int mask = EgammaCutBasedEleId::TestWP(workingPoint, isEB, pt, eta, dEtaIn, dPhiIn,
-        sigmaIEtaIEta, hoe, ooemoop, d0vtx, dzvtx, iso_ch, iso_em, iso_nh, vtxFitConversion, mHits, rho);
+        sigmaIEtaIEta, hoe, ooemoop, d0vtx, dzvtx, iso_ch, iso_em, iso_nh, vtxFitConversion, mHits, rho, EAtarget);
 
     // return the mask value
     return mask;
-
 }
 
 unsigned int EgammaCutBasedEleId::TestWP(WorkingPoint workingPoint,
@@ -138,8 +140,9 @@ unsigned int EgammaCutBasedEleId::TestWP(WorkingPoint workingPoint,
 					 const double &iso_ch,
 					 const double &iso_em,
 					 const double &iso_nh,
-					 const double &rho) {
-  return TestWP(workingPoint,*ele,conversions,beamspot,vtxs,iso_ch,iso_em,iso_nh,rho);
+					 const double &rho,
+					 ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget) {
+  return TestWP(workingPoint,*ele,conversions,beamspot,vtxs,iso_ch,iso_em,iso_nh,rho, EAtarget);
 }
 
 
@@ -148,10 +151,10 @@ unsigned int EgammaCutBasedEleId::TestWP(WorkingPoint workingPoint,
 bool EgammaCutBasedEleId::PassWP(WorkingPoint workingPoint, const bool isEB, const float pt, const float eta,
     const float dEtaIn, const float dPhiIn, const float sigmaIEtaIEta, const float hoe,
     const float ooemoop, const float d0vtx, const float dzvtx, const float iso_ch, const float iso_em, const float iso_nh, 
-    const bool vtxFitConversion, const unsigned int mHits, const double rho)
+    const bool vtxFitConversion, const unsigned int mHits, const double rho, ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget)
 {
     unsigned int mask = EgammaCutBasedEleId::TestWP(workingPoint, isEB, pt, eta, dEtaIn, dPhiIn,
-        sigmaIEtaIEta, hoe, ooemoop, d0vtx, dzvtx, iso_ch, iso_em, iso_nh, vtxFitConversion, mHits, rho);
+        sigmaIEtaIEta, hoe, ooemoop, d0vtx, dzvtx, iso_ch, iso_em, iso_nh, vtxFitConversion, mHits, rho, EAtarget);
 
     if ((mask & PassAll) == PassAll) return true;
     return false;
@@ -216,7 +219,7 @@ bool EgammaCutBasedEleId::PassEoverPCuts(const float eta, const float eopin, con
 unsigned int EgammaCutBasedEleId::TestWP(WorkingPoint workingPoint, const bool isEB, const float pt, const float eta,
     const float dEtaIn, const float dPhiIn, const float sigmaIEtaIEta, const float hoe, 
     const float ooemoop, const float d0vtx, const float dzvtx, const float iso_ch, const float iso_em, const float iso_nh, 
-    const bool vtxFitConversion, const unsigned int mHits, const double rho)
+    const bool vtxFitConversion, const unsigned int mHits, const double rho, ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget)
 {
 
     unsigned int mask = 0;
@@ -302,7 +305,8 @@ unsigned int EgammaCutBasedEleId::TestWP(WorkingPoint workingPoint, const bool i
     unsigned int idx = isEB ? 0 : 1;
 
     // effective area for isolation
-    float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, eta, ElectronEffectiveArea::kEleEAData2011);
+    float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, eta, EAtarget);
+    //float AEff = ElectronEffectiveArea::GetElectronEffectiveArea(ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03, eta, ElectronEffectiveArea::kEleEAData2011);
 
     // apply to neutrals
     double rhoPrime = std::max(rho, 0.0);
