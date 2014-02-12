@@ -24,8 +24,8 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& iConfig)
    inputDTRecSegment4DCollectionToken_ = consumes<DTRecSegment4DCollection>(inputDTRecSegment4DCollection_);
    inputCSCSegmentCollectionToken_ = consumes<CSCSegmentCollection>(inputCSCSegmentCollection_);
    inputMuonTimeExtraValueMapCombToken_ = consumes<reco::MuonTimeExtraMap>(edm::InputTag(inputMuonTimeExtraValueMap_.label(), "combined"));
-   inputMuonTimeExtraValueMapDTToken_= consumes<reco::MuonTimeExtraMap>(edm::InputTag(inputMuonTimeExtraValueMap_.label(), "csc"));
-   inputMuonTimeExtraValueMapCSCToken_ = consumes<reco::MuonTimeExtraMap>(edm::InputTag(inputMuonTimeExtraValueMap_.label(), "dt"));
+   inputMuonTimeExtraValueMapDTToken_= consumes<reco::MuonTimeExtraMap>(edm::InputTag(inputMuonTimeExtraValueMap_.label(), "dt"));
+   inputMuonTimeExtraValueMapCSCToken_ = consumes<reco::MuonTimeExtraMap>(edm::InputTag(inputMuonTimeExtraValueMap_.label(), "csc"));
    inputMuonCosmicCompatibilityValueMapToken_ = consumes<edm::ValueMap<reco::MuonCosmicCompatibility> >(inputMuonCosmicCompatibilityValueMap_);
    inputMuonShowerInformationValueMapToken_ = consumes<edm::ValueMap<reco::MuonShower> >(inputMuonShowerInformationValueMap_);
 

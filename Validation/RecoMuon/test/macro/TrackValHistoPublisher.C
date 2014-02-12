@@ -1190,8 +1190,8 @@ void plot4histos(TCanvas *canvas,
   s1->Draw("sames");
   double kstest = mykolmo(s1,r1);
   TPad *c1_1 = canvas->GetPad(1);
-  if(kstest<0.7){
-     c1_1->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c1_1->SetFillColor(kBlue-10);}
 
   canvas->cd(2);
   setStats(s2,r2, 0.6, 0.65, false);
@@ -1199,8 +1199,8 @@ void plot4histos(TCanvas *canvas,
   r2->Draw("sames");
   double kstest = mykolmo(s2,r2);
   TPad *c2_2 = canvas->GetPad(2);
-  if(kstest<0.7){
-     c2_2->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c2_2->SetFillColor(kBlue-10);}
 
   canvas->cd(3);
   setStats(s3,r3, -1, 0, false);
@@ -1208,8 +1208,8 @@ void plot4histos(TCanvas *canvas,
   s3->Draw("sames");
   double kstest = mykolmo(s3,r3);
   TPad *c3_3 = canvas->GetPad(3);
-  if(kstest<0.7){
-     c3_3->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c3_3->SetFillColor(kBlue-10);}
 
   canvas->cd(4);
   setStats(s4,r4, -1, 0, false);
@@ -1217,8 +1217,8 @@ void plot4histos(TCanvas *canvas,
   r4->Draw("sames");
   double kstest = mykolmo(s4,r4);
   TPad *c4_4 = canvas->GetPad(4);
-  if(kstest<0.7){
-     c4_4->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c4_4->SetFillColor(kBlue-10);}
 
 }
 
@@ -1304,8 +1304,8 @@ void plot6histos(TCanvas *canvas,
   s1->Draw("sames");
   double kstest = mykolmo(s1,r1);
   TPad *c1_1 = canvas->GetPad(1);
-  if(kstest<0.7){
-     c1_1->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c1_1->SetFillColor(kBlue-10);}
 
   canvas->cd(2);
   setStats(s2,r2, -1, 0, false);
@@ -1313,8 +1313,8 @@ void plot6histos(TCanvas *canvas,
   r2->Draw("sames");
   double kstest = mykolmo(s2,r2);
   TPad *c2_2 = canvas->GetPad(2);
-  if(kstest<0.7){
-     c2_2->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c2_2->SetFillColor(kBlue-10);}
 
   canvas->cd(3);
   setStats(s3,r3, -1, 0, false);
@@ -1322,8 +1322,8 @@ void plot6histos(TCanvas *canvas,
   s3->Draw("sames");
   double kstest = mykolmo(s3,r3);
   TPad *c3_3 = canvas->GetPad(3);
-  if(kstest<0.7){
-     c3_3->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c3_3->SetFillColor(kBlue-10);}
 
   canvas->cd(4);
   setStats(s4,r4, 0.6, 0.65, false);
@@ -1331,8 +1331,8 @@ void plot6histos(TCanvas *canvas,
   r4->Draw("sames");
   double kstest = mykolmo(s4,r4);
   TPad *c4_4 = canvas->GetPad(4);
-  if(kstest<0.7){
-     c4_4->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c4_4->SetFillColor(kBlue-10);}
 
   canvas->cd(5);
   setStats(s5,r5, 0.6, 0.65, false);
@@ -1340,8 +1340,8 @@ void plot6histos(TCanvas *canvas,
   s5->Draw("sames");
   double kstest = mykolmo(s5,r5);
   TPad *c5_5 = canvas->GetPad(5);
-  if(kstest<0.7){
-     c5_5->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c5_5->SetFillColor(kBlue-10);}
 
   canvas->cd(6);
   setStats(s6,r6, 0.6, 0.65, false);
@@ -1349,8 +1349,8 @@ void plot6histos(TCanvas *canvas,
   s6->Draw("sames");
   double kstest = mykolmo(s6,r6);
   TPad *c6_6 = canvas->GetPad(6);
-  if(kstest<0.7){
-     c6_6->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c6_6->SetFillColor(kBlue-10);}
 
 }
 
@@ -1431,8 +1431,8 @@ void plotBuilding(TCanvas *canvas,
   s1->Draw("sames");
   double kstest = mykolmo(s1,r1);
   TPad *c1_1 = canvas->GetPad(1);
-  if(kstest<0.7){
-     c1_1->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c1_1->SetFillColor(kBlue-10);}
 
   canvas->cd(2);
   setStats(s2,r2, -1, 0, false);
@@ -1440,8 +1440,8 @@ void plotBuilding(TCanvas *canvas,
   s2->Draw("sames");
   double kstest = mykolmo(s2,r2);
   TPad *c2_2 = canvas->GetPad(2);
-  if(kstest<0.7){
-     c2_2->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c2_2->SetFillColor(kBlue-10);}
 
   canvas->cd(3);
   gPad->SetLogx();
@@ -1450,8 +1450,8 @@ void plotBuilding(TCanvas *canvas,
   s3->Draw("sames");
   double kstest = mykolmo(s3,r3);
   TPad *c3_3 = canvas->GetPad(3);
-  if(kstest<0.7){
-     c3_3->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c3_3->SetFillColor(kBlue-10);}
 
   canvas->cd(4);
   gPad->SetLogx();
@@ -1461,8 +1461,8 @@ void plotBuilding(TCanvas *canvas,
   s4->Draw("sames");
   double kstest = mykolmo(s4,r4);
   TPad *c4_4 = canvas->GetPad(4);
-  if(kstest<0.7){
-     c4_4->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c4_4->SetFillColor(kBlue-10);}
 
   canvas->cd(5);
   setStats(s5,r5, -1, 0, false);
@@ -1471,8 +1471,8 @@ void plotBuilding(TCanvas *canvas,
   s5->Draw("sames");
   double kstest = mykolmo(s5,r5);
   TPad *c5_5 = canvas->GetPad(5);
-  if(kstest<0.7){
-     c5_5->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c5_5->SetFillColor(kBlue-10);}
 
 
   canvas->cd(6);
@@ -1482,8 +1482,8 @@ void plotBuilding(TCanvas *canvas,
   s6->Draw("sames");
   double kstest = mykolmo(s6,r6);
   TPad *c6_6 = canvas->GetPad(6);
-  if(kstest<0.7){
-     c6_6->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c6_6->SetFillColor(kBlue-10);}
 }
 
 void plotPulls(TCanvas *canvas, 
@@ -1672,8 +1672,8 @@ void plotResolutions(TCanvas *canvas,
   s1->Draw("sames");
   double kstest = mykolmo(s1,r1);
   TPad *c1_1 = canvas->GetPad(1);
-  if(kstest<0.7){
-     c1_1->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c1_1->SetFillColor(kBlue-10);}
 
   canvas->cd(2);
   gPad->SetLogy(); 
@@ -1682,8 +1682,8 @@ void plotResolutions(TCanvas *canvas,
   s2->Draw("sames");
   double kstest = mykolmo(s2,r2);
   TPad *c2_2 = canvas->GetPad(2);
-  if(kstest<0.7){
-     c2_2->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c2_2->SetFillColor(kBlue-10);}
 
   canvas->cd(3);
   gPad->SetLogy(); 
@@ -1692,8 +1692,8 @@ void plotResolutions(TCanvas *canvas,
   s3->Draw("sames");
   double kstest = mykolmo(s3,r3);
   TPad *c3_3 = canvas->GetPad(3);
-  if(kstest<0.7){
-     c3_3->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c3_3->SetFillColor(kBlue-10);}
 
   canvas->cd(4);
   gPad->SetLogy(); 
@@ -1702,8 +1702,8 @@ void plotResolutions(TCanvas *canvas,
   s4->Draw("sames");
   double kstest = mykolmo(s4,r4);
   TPad *c4_4 = canvas->GetPad(4);
-  if(kstest<0.7){
-     c4_4->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c4_4->SetFillColor(kBlue-10);}
 
   canvas->cd(5);
   gPad->SetLogy(); 
@@ -1712,8 +1712,8 @@ void plotResolutions(TCanvas *canvas,
   s5->Draw("sames");
   double kstest = mykolmo(s5,r5);
   TPad *c5_5 = canvas->GetPad(5);
-  if(kstest<0.7){
-     c5_5->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c5_5->SetFillColor(kBlue-10);}
 
   if (s6&&r6) {
     canvas->cd(6);
@@ -1721,8 +1721,8 @@ void plotResolutions(TCanvas *canvas,
     s6->Draw("sames");
   double kstest = mykolmo(s6,r6);
   TPad *c6_6 = canvas->GetPad(6);
-  if(kstest<0.7){
-     c6_6->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c6_6->SetFillColor(kBlue-10);}
 
   }
 }
@@ -1801,8 +1801,8 @@ void plotMeanValues(TCanvas *canvas,
   s1->Draw("sames");
   double kstest = mykolmo(s1,r1);
   TPad *c1_1 = canvas->GetPad(1);
-  if(kstest<0.7){
-     c1_1->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c1_1->SetFillColor(kBlue-10);}
 
   canvas->cd(2);
   setStats(s2,r2, -1, 0, false);
@@ -1810,8 +1810,8 @@ void plotMeanValues(TCanvas *canvas,
   s2->Draw("sames");
   double kstest = mykolmo(s2,r2);
   TPad *c2_2 = canvas->GetPad(2);
-  if(kstest<0.7){
-     c2_2->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c2_2->SetFillColor(kBlue-10);}
 
   canvas->cd(3);
   setStats(s3,r3, -1, 0, false);
@@ -1819,8 +1819,8 @@ void plotMeanValues(TCanvas *canvas,
   s3->Draw("sames");
   double kstest = mykolmo(s3,r3);
   TPad *c3_3 = canvas->GetPad(3);
-  if(kstest<0.7){
-     c3_3->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c3_3->SetFillColor(kBlue-10);}
 
   canvas->cd(4);
   setStats(s4,r4, -1, 0, false);
@@ -1828,8 +1828,8 @@ void plotMeanValues(TCanvas *canvas,
   s4->Draw("sames");
   double kstest = mykolmo(s4,r4);
   TPad *c4_4 = canvas->GetPad(4);
-  if(kstest<0.7){
-     c4_4->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c4_4->SetFillColor(kBlue-10);}
 
   canvas->cd(5);
   setStats(s5,r5, -1, 0, false);
@@ -1837,8 +1837,8 @@ void plotMeanValues(TCanvas *canvas,
   s5->Draw("sames");
   double kstest = mykolmo(s5,r5);
   TPad *c5_5 = canvas->GetPad(5);
-  if(kstest<0.7){
-     c5_5->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c5_5->SetFillColor(kBlue-10);}
 
   if (s6&&r6) {
     canvas->cd(6);
@@ -1847,8 +1847,8 @@ void plotMeanValues(TCanvas *canvas,
     s6->Draw("sames");
   double kstest = mykolmo(s6,r6);
   TPad *c6_6 = canvas->GetPad(6);
-  if(kstest<0.7){
-     c6_6->SetFillColor(kYellow);}
+  if(kstest<0.5){
+     c6_6->SetFillColor(kBlue-10);}
 
   }
 }

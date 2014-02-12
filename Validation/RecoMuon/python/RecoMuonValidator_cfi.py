@@ -28,35 +28,41 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     #
     # Histogram dimensions     #
     #
-    nBinP = cms.untracked.uint32(100),
+                                   # reduce to 60 from 100, bins or 25#
+    nBinP = cms.untracked.uint32(60), 
     minP = cms.untracked.double(0.0),
     maxP = cms.untracked.double(1500.0),
 
-    nBinPt = cms.untracked.uint32(100),
+    nBinPt = cms.untracked.uint32(60),
     minPt = cms.untracked.double(0.0),
     maxPt = cms.untracked.double(1500.0),
 
     doAbsEta = cms.untracked.bool(False),
-
-    nBinEta = cms.untracked.uint32(50),
+                                   
+                                   # reduce to 25 from 100, bins aprox 0.2\\#
+    nBinEta = cms.untracked.uint32(25),  
     minEta = cms.untracked.double(-2.5),
     maxEta = cms.untracked.double(2.5),
-
-    nBinDxy = cms.untracked.uint32(100),
+                                   
+                                   # reduce to 50 from 100, bins of 0.06#
+    nBinDxy = cms.untracked.uint32(60), 
     minDxy = cms.untracked.double(-1.5),
     maxDxy = cms.untracked.double(1.5),
 
-    nBinDz = cms.untracked.uint32(100),
+                                   # reduce to 50, from 100 bin aprox 1.#
+    nBinDz = cms.untracked.uint32(50), 
     minDz = cms.untracked.double(-25.),
     maxDz = cms.untracked.double(25.),
 
-    nBinPhi = cms.untracked.uint32(25),
+                                   # reduce to 15, from 25#
+    nBinPhi = cms.untracked.uint32(15), 
 
     # Pull width     #
-    nBinPull = cms.untracked.uint32(50),
+                                   # reduce to 25 from 50, bins aprox 0.2#
+    nBinPull = cms.untracked.uint32(25), 
     wPull = cms.untracked.double(5.0),
 
-    nBinErr = cms.untracked.uint32(50),
+    nBinErr = cms.untracked.uint32(30), # reduce from 50, for all#
 
     # |p| resolution     #
     minErrP = cms.untracked.double(-0.3),
