@@ -55,8 +55,8 @@ float NjettinessAdder::getTau(int num, edm::Ptr<reco::PFJet> object) const
     const reco::PFCandidate *thisParticle = all_particles.at(particle);
     FJparticles.push_back( fastjet::PseudoJet( thisParticle->px(), thisParticle->py(), thisParticle->pz(), thisParticle->energy() ) );	
   }
-  NsubParameters paraNsub = NsubParameters(1.0, cone_); //assume R=0.7 jet clusering used
-  Njettiness routine(Njettiness::onepass_kt_axes, paraNsub);
+  fastjet::contrib::NsubParameters paraNsub = fastjet::contrib::NsubParameters(1.0, cone_); //assume R=0.7 jet clusering used
+  fastjet::contrib::Njettiness routine(fastjet::contrib::Njettiness::onepass_kt_axes, paraNsub);
   return routine.getTau(num, FJparticles); 
 }
 
