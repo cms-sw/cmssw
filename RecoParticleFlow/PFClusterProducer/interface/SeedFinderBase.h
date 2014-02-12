@@ -13,8 +13,9 @@ class SeedFinderBase {
   SeedFinderBase(const SeedFinderBase&) = delete;
   SeedFinderBase& operator=(const SeedFinderBase&) = delete;
 
-  virtual const reco::PFRecHitRefVector& 
-    findSeeds(const reco::PFRecHitRefVector&, const std::vector<bool>&) = 0;
+  virtual void findSeeds(const reco::PFRecHitRefVector& input, 
+			 const std::vector<bool>& mask,
+			 std::vector<bool>& seedable) = 0;
 
   void reset() { _seeds.clear(); }
 

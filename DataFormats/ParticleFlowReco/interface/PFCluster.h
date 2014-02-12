@@ -63,6 +63,8 @@ namespace reco {
     /// vector of rechit fractions
     const std::vector< reco::PFRecHitFraction >& recHitFractions() const 
       { return rechits_; }
+    std::vector< reco::PFRecHitFraction >& recHitFractions() 
+      { return rechits_; }
     
     /// set layer
     void setLayer( PFLayer::Layer layer);

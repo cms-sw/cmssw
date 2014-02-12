@@ -1,5 +1,11 @@
 #include "PFClusterProducerNew.h"
 
+#include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerFactory.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderFactory.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/TopoClusterBuilderFactory.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderFactory.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorFactory.h"
+
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
 #define LOGWARN(x) edm::LogWarning(x)
@@ -26,6 +32,12 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
     RHCB* cleaner = RecHitCleanerFactory::get()->create(cleanerName,conf);
     _cleaners.push_back(std::unique_ptr<RHCB>(cleaner));
   }
+  // setup seed finding
+  const edm::ParameterSet& sfConf = 
+    conf.getParameterSet("seedFinder");
+  const std::string& sfName = sfConf.getParameter<std::string>("algoName");
+  SeedFinderBase* sfb = SeedFinderFactory::get()->create(sfName,sfConf);
+  _seedFinder.reset(sfb);
   //setup topo cluster builder
   const edm::ParameterSet& topoConf = 
     conf.getParameterSet("topoClusterBuilder");
@@ -75,12 +87,15 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     cleaner->clean(refhits, mask);
   }
   
+  std::vector<bool> seedable(false, refhits.size());
+  _seedFinder->findSeeds(refhits,mask,seedable);
+
   std::auto_ptr<reco::PFClusterCollection> topoClusters;
-  _topoBuilder->buildTopoClusters(refhits, mask, *topoClusters);
+  _topoBuilder->buildTopoClusters(refhits, mask, seedable, *topoClusters);
   LOGVERB("PFClusterProducer::produce()") << *_topoBuilder;
 
   std::auto_ptr<reco::PFClusterCollection> pfClusters;
-  _pfClusterBuilder->buildPFClusters(*topoClusters, *pfClusters);
+  _pfClusterBuilder->buildPFClusters(*topoClusters, seedable, *pfClusters);
   LOGVERB("PFClusterProducer::produce()") << *_pfClusterBuilder;
   
   if( _positionReCalc ) {

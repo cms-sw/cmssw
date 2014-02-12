@@ -16,6 +16,7 @@ class Basic2DGenericTopoClusterizer : public TopoClusterBuilderBase {
 
   void buildTopoClusters(const reco::PFRecHitRefVector&,
 			 const std::vector<bool>&,
+			 const std::vector<bool>&, 
 			 reco::PFClusterCollection&);
 
  private:  

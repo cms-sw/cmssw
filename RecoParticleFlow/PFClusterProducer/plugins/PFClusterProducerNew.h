@@ -8,10 +8,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerFactory.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/TopoClusterBuilderFactory.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderFactory.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorFactory.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerBase.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/TopoClusterBuilderBase.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
 #include <memory>
 
@@ -36,6 +37,7 @@ namespace newpf {
     const bool _prodTopoClusters;
     // the actual algorithm
     std::vector<std::unique_ptr<RecHitCleanerBase> > _cleaners;
+    std::unique_ptr<SeedFinderBase> _seedFinder;
     std::unique_ptr<TopoClusterBuilderBase> _topoBuilder;
     std::unique_ptr<PFClusterBuilderBase> _pfClusterBuilder;
     std::unique_ptr<PFCPositionCalculatorBase> _positionReCalc;
