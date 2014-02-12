@@ -78,21 +78,11 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   // produces vector of photons
   produces<std::vector<Photon> >();
 
-  if (iConfig.exists("isoDeposits")) {
-     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
-     if (depconf.exists("tracker")) isoDepositLabels_.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
-     if (depconf.exists("ecal"))    isoDepositLabels_.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
-     if (depconf.exists("hcal"))    isoDepositLabels_.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
-     if (depconf.exists("user")) {
-        std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
-        std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
-        int key = UserBaseIso;
-        for ( ; it != ed; ++it, ++key) {
-            isoDepositLabels_.push_back(std::make_pair(IsolationKeys(key), *it));
-        }
-     }
-  }
-  isoDepositTokens_ = edm::vector_transform(isoDepositLabels_, [this](std::pair<IsolationKeys,edm::InputTag> const & label){return consumes<edm::ValueMap<IsoDeposit> >(label.second);});
+  // read isoDeposit labels, for direct embedding
+  readIsolationLabels(iConfig, "isoDeposits", isoDepositLabels_, isoDepositTokens_);
+  // read isolation value labels, for direct embedding
+  readIsolationLabels(iConfig, "isolationValues", isolationValueLabels_, isolationValueTokens_);
+
 }
 
 PATPhotonProducer::~PATPhotonProducer() {
@@ -123,10 +113,16 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
   if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
 
-  std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositTokens_.size());
+  IsoDepositMaps deposits(isoDepositTokens_.size());
   for (size_t j = 0, nd = isoDepositTokens_.size(); j < nd; ++j) {
     iEvent.getByToken(isoDepositTokens_[j], deposits[j]);
   }
+
+  IsolationValueMaps isolationValues(isolationValueTokens_.size());
+  for (size_t j = 0; j<isolationValueTokens_.size(); ++j) {
+    iEvent.getByToken(isolationValueTokens_[j], isolationValues[j]);
+  }
+    
 
   // prepare ID extraction
   std::vector<edm::Handle<edm::ValueMap<Bool_t> > > idhandles;
@@ -180,7 +176,10 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
         aPhoton.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[photonRef]);
     }
-
+    
+    for (size_t j = 0; j<isolationValues.size(); ++j) { 
+        aPhoton.setIsolation(isolationValueLabels_[j].first,(*isolationValues[j])[photonRef]);
+    }
 
     // add photon ID info
     if (addPhotonID_) {
@@ -243,8 +242,28 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   isoDepositsPSet.addOptional<edm::InputTag>("tracker");
   isoDepositsPSet.addOptional<edm::InputTag>("ecal");
   isoDepositsPSet.addOptional<edm::InputTag>("hcal");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfAllParticles");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfChargedHadrons");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfChargedAll");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfPUChargedHadrons");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfNeutralHadrons");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfPhotons");
   isoDepositsPSet.addOptional<std::vector<edm::InputTag> >("user");
   iDesc.addOptional("isoDeposits", isoDepositsPSet);
+  
+  // isolation values configurables
+  edm::ParameterSetDescription isolationValuesPSet;
+  isolationValuesPSet.addOptional<edm::InputTag>("tracker");
+  isolationValuesPSet.addOptional<edm::InputTag>("ecal");
+  isolationValuesPSet.addOptional<edm::InputTag>("hcal");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfAllParticles");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfChargedHadrons");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfChargedAll");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfPUChargedHadrons");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfNeutralHadrons");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfPhotons");
+  isolationValuesPSet.addOptional<std::vector<edm::InputTag> >("user");
+  iDesc.addOptional("isolationValues", isolationValuesPSet);
 
   // Efficiency configurables
   edm::ParameterSetDescription efficienciesPSet;

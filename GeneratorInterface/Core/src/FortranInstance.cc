@@ -8,7 +8,6 @@
 
 #include "GeneratorInterface/Core/interface/FortranInstance.h"
 
-
 // make sure PDFSET is pulled in when linking against the
 // archive lhapdf library.
 extern "C" void pdfset_(void);
@@ -30,6 +29,8 @@ void gen::upveto_(int *veto)
 // static FortranInstance members;
 
 gen::FortranInstance *gen::FortranInstance::currentInstance = 0;
+
+const std::string gen::FortranInstance::kFortranInstance = "FortranInstance";
 
 // FortranInstance methods
 

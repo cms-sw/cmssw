@@ -60,7 +60,7 @@ TcMETAnalyzer::TcMETAnalyzer(const edm::ParameterSet& pSet, edm::ConsumesCollect
   _lowTcMETThreshold = parameters.getParameter<double>("LowTcMETThreshold");       // Low MET threshold
 
   //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"), std::move(iC));
 
 }
 
