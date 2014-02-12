@@ -17,13 +17,14 @@ _shrinkingConeRecoTausConfig = cms.PSet(
     pfCandSrc = cms.InputTag("particleFlow"),
     plugin = cms.string("RecoTauBuilderConePlugin"),
     leadObjectPt = cms.double(5.0),
-    matchingCone = cms.string('0.1'),
+    matchingCone = cms.string('0.3'),
     signalConeChargedHadrons = cms.string('min(max(5.0/et(), 0.07), 0.15)'),
-    isoConeChargedHadrons = cms.string('0.5'),
+    isoConeChargedHadrons = cms.string('0.4'),
     signalConePiZeros = cms.string('0.15'),
-    isoConePiZeros = cms.string('0.5'),
+    isoConePiZeros = cms.string('0.4'),
     signalConeNeutralHadrons = cms.string('0.15'),
-    isoConeNeutralHadrons = cms.string('0.5'),
+    isoConeNeutralHadrons = cms.string('0.4'),
+    maxSignalConeChargedHadrons = cms.int32(-1) # CV: upper limit on number of signalConeChargedHadrons disabled per default
 )
 
 shrinkingConeRecoTaus = cms.EDProducer(
@@ -37,17 +38,6 @@ shrinkingConeRecoTaus = cms.EDProducer(
     # Build an empty tau in the case that a jet does not have any tracks
     buildNullTaus = cms.bool(True),
     modifiers = cms.VPSet(
-        #cms.PSet(
-            #name = cms.string('twoprong'),
-            #plugin = cms.string("RecoTauTwoProngFilter"),
-            #minPtFractionForSecondProng = cms.double(0.1),
-        #),
-        #cms.PSet(
-            #name = cms.string('filterphotons'),
-            #plugin = cms.string("RecoTauPhotonFilter"),
-            #minPtFractionSinglePhotons  = cms.double(0.10),
-            #minPtFractionPiZeroes       = cms.double(0.15),
-        #),
         # Electron rejection
         cms.PSet(
             name = cms.string("shrinkingConeElectronRej"),
@@ -61,6 +51,6 @@ shrinkingConeRecoTaus = cms.EDProducer(
             ElecPreIDLeadTkMatch_maxDR           = cms.double(0.01),
             maximumForElectrionPreIDOutput       = cms.double(-0.1),
             DataType = cms.string("AOD"),
-        ),
-    ),
+        )
+    )
 )

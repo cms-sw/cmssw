@@ -20,13 +20,14 @@ _fixedConeRecoTausConfig = cms.PSet(
     pfCandSrc = cms.InputTag("particleFlow"),
     plugin = cms.string("RecoTauBuilderConePlugin"),
     leadObjectPt = cms.double(5.0),
-    matchingCone = cms.string('0.1'),
+    matchingCone = cms.string('0.3'),
     signalConeChargedHadrons = cms.string('0.07'),
-    isoConeChargedHadrons = cms.string('0.5'),
+    isoConeChargedHadrons = cms.string('0.4'),
     signalConePiZeros = cms.string('0.15'),
-    isoConePiZeros = cms.string('0.5'),
+    isoConePiZeros = cms.string('0.4'),
     signalConeNeutralHadrons = cms.string('0.10'),
-    isoConeNeutralHadrons = cms.string('0.5'),
+    isoConeNeutralHadrons = cms.string('0.4'),
+    maxSignalConeChargedHadrons = cms.int32(-1) # CV: upper limit on number of signalConeChargedHadrons disabled per default
 )
 
 fixedConeRecoTaus = shrinkingConeRecoTaus.clone(

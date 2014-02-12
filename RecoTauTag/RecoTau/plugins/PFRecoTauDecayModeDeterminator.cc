@@ -13,7 +13,8 @@
 #include "DataFormats/TauReco/interface/PFTauDecayModeAssociation.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
+#include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -44,8 +45,8 @@ typedef reco::Particle::LorentzVector LorentzVector;
 class PFRecoTauDecayModeDeterminator : public EDProducer {
  public:
 
-  typedef std::list<CompositeCandidate>                    compCandList;
-  typedef std::list<CompositeCandidate>::reverse_iterator  compCandRevIter;
+  typedef std::list<CompositePtrCandidate>                    compCandList;
+  typedef std::list<CompositePtrCandidate>::reverse_iterator  compCandRevIter;
 
   void mergePiZeroes(compCandList&, compCandRevIter);
   void mergePiZeroesByBestMatch(compCandList&);
@@ -83,8 +84,8 @@ class PFRecoTauDecayModeDeterminator : public EDProducer {
   double                minPtFractionForSecondProng_;   //2 prongs whose second prong falls under 
   double                minPtFractionSinglePhotons_; 
   double                minPtFractionPiZeroes_; 
-  TauTagTools::sortByDescendingPt<CompositeCandidate>   candDescendingSorter;
-  TauTagTools::sortByAscendingPt<CompositeCandidate>    candAscendingSorter;
+  TauTagTools::sortByDescendingPt<CompositePtrCandidate>   candDescendingSorter;
+  TauTagTools::sortByAscendingPt<CompositePtrCandidate>    candAscendingSorter;
 };
 
 PFRecoTauDecayModeDeterminator::PFRecoTauDecayModeDeterminator(const edm::ParameterSet& iConfig):chargedPionMass(0.13957),neutralPionMass(0.13497){
@@ -152,8 +153,7 @@ void PFRecoTauDecayModeDeterminator::mergePiZeroes(compCandList& input, compCand
       //combine match into Seed and update four vector
       if(bestMatchSoFar->numberOfDaughters() > 0)
       {
-         const Candidate* photonToAdd = (*bestMatchSoFar).daughter(0);
-         seed->addDaughter(*photonToAdd);
+         seed->addDaughter(bestMatchSoFar->sourceCandidatePtr(0));
       }
       addP4.set(*seed);
       //remove match as it is now contained in the seed 
@@ -225,7 +225,7 @@ void PFRecoTauDecayModeDeterminator::mergePiZeroesByBestMatch(compCandList& inpu
       {
          //merge the second gamma into the first; loop occurs in case of multiple gamma merging option
          for(size_t bDaughter = 0; bDaughter < gammas[gammaB]->numberOfDaughters(); ++bDaughter)
-            gammas[gammaA]->addDaughter( *(gammas[gammaB]->daughter(bDaughter)) );
+	   gammas[gammaA]->addDaughter(gammas[gammaB]->sourceCandidatePtr(bDaughter));
          //update the four vector information
          addP4.set(*gammas[gammaA]);
          //delete gammaB from the list of photons/pi zeroes, as it has been merged into gammaA
@@ -262,16 +262,16 @@ void PFRecoTauDecayModeDeterminator::produce(edm::Event& iEvent,const edm::Event
      PFTau              myPFTau = *pfTauRef;
      
      //get the charged & neutral collections corresponding to this PFTau
-     const PFCandidateRefVector& theChargedHadronCandidates = myPFTau.signalPFChargedHadrCands();
-     const PFCandidateRefVector& theGammaCandidates         = myPFTau.signalPFGammaCands();
+     const std::vector<PFCandidatePtr>& theChargedHadronCandidates = myPFTau.signalPFChargedHadrCands();
+     const std::vector<PFCandidatePtr>& theGammaCandidates         = myPFTau.signalPFGammaCands();
 
-     LorentzVector totalFourVector;                       //contains non-filtered stuff only.
+     LorentzVector totalFourVector; //contains non-filtered stuff only.
 
      //shallow clone everything
-     std::vector<ShallowCloneCandidate>    chargedCandidates;
-     std::list<CompositeCandidate>         gammaCandidates;
-     VertexCompositeCandidate         chargedCandsToAdd;  
-     CompositeCandidate               filteredStuff;      //empty for now.
+     std::vector<ShallowClonePtrCandidate> chargedCandidates;
+     std::list<CompositePtrCandidate> gammaCandidates;
+     VertexCompositeCandidate chargedCandsToAdd;  
+     CompositeCandidate filteredStuff; //empty for now.
 
      bool needToProcessTracks = true;
      if (filterTwoProngs_ && theChargedHadronCandidates.size() == 2)
@@ -284,24 +284,22 @@ void PFRecoTauDecayModeDeterminator::produce(edm::Event& iEvent,const edm::Event
         if (lowPt/highPt < minPtFractionForSecondProng_)  //if it is super low, filter it!
         {
            needToProcessTracks = false;  //we are doing it here instead
-           chargedCandsToAdd.addDaughter(ShallowCloneCandidate(CandidateBaseRef(theChargedHadronCandidates[indexOfHighestPt])));
+           chargedCandsToAdd.addDaughter(ShallowClonePtrCandidate(theChargedHadronCandidates[indexOfHighestPt]));
            Candidate* justAdded = chargedCandsToAdd.daughter(chargedCandsToAdd.numberOfDaughters()-1);
            totalFourVector += justAdded->p4();
            if(setChargedPionMass_)
               justAdded->setMass(chargedPionMass);
            //add the two prong to the list of filtered stuff (to be added to the isolation collection later)
-           filteredStuff.addDaughter(ShallowCloneCandidate(CandidateBaseRef(theChargedHadronCandidates[indexOfLowerPt])));
+           filteredStuff.addDaughter(ShallowClonePtrCandidate(theChargedHadronCandidates[indexOfLowerPt]));
         }
      }
 
      if(needToProcessTracks) //not a two prong, filter is turned off, or 2nd prong passes cuts
      {
-        for( PFCandidateRefVector::const_iterator iCharged  = theChargedHadronCandidates.begin();
-              iCharged != theChargedHadronCandidates.end();
-              ++iCharged)
-        {
+       for ( std::vector<PFCandidatePtr>::const_iterator iCharged = theChargedHadronCandidates.begin();
+	     iCharged != theChargedHadronCandidates.end(); ++iCharged ) {
            // copy as shallow clone, and asssume mass of pi+
-           chargedCandsToAdd.addDaughter(ShallowCloneCandidate(CandidateBaseRef(*iCharged)));
+   	   chargedCandsToAdd.addDaughter(ShallowClonePtrCandidate(*iCharged));
            Candidate* justAdded = chargedCandsToAdd.daughter(chargedCandsToAdd.numberOfDaughters()-1);
            totalFourVector += justAdded->p4();
            if(setChargedPionMass_)
@@ -309,12 +307,10 @@ void PFRecoTauDecayModeDeterminator::produce(edm::Event& iEvent,const edm::Event
         }
      }
 
-     for( PFCandidateRefVector::const_iterator iGamma  = theGammaCandidates.begin();
-                                               iGamma != theGammaCandidates.end();
-                                             ++iGamma)
-     {
-        CompositeCandidate potentialPiZero;
-        potentialPiZero.addDaughter(ShallowCloneCandidate(CandidateBaseRef(*iGamma)));
+     for ( std::vector<PFCandidatePtr>::const_iterator iGamma = theGammaCandidates.begin();
+	   iGamma != theGammaCandidates.end(); ++iGamma ) {
+        CompositePtrCandidate potentialPiZero;
+        potentialPiZero.addDaughter(*iGamma);
         addP4.set(potentialPiZero);
         totalFourVector += potentialPiZero.p4();
         gammaCandidates.push_back(potentialPiZero);
@@ -352,7 +348,7 @@ void PFRecoTauDecayModeDeterminator::produce(edm::Event& iEvent,const edm::Event
               totalFourVector -= wimp->p4();
               for(size_t iDaughter = 0; iDaughter < numberOfPhotons; ++iDaughter)
               {
-                 filteredStuff.addDaughter(ShallowCloneCandidate(CandidateBaseRef( wimp->daughter(iDaughter)->masterClone() )));
+		filteredStuff.addDaughter(ShallowClonePtrCandidate(wimp->sourceCandidatePtr(iDaughter)));
               }
 
               //move to the next photon to filter
@@ -369,10 +365,8 @@ void PFRecoTauDecayModeDeterminator::produce(edm::Event& iEvent,const edm::Event
 
 
      CompositeCandidate mergedPiZerosToAdd;
-     for( std::list<CompositeCandidate>::iterator iGamma  = gammaCandidates.begin();
-                                             iGamma != gammaCandidates.end();
-                                           ++iGamma)
-     {
+     for ( std::list<CompositePtrCandidate>::iterator iGamma  = gammaCandidates.begin();
+	   iGamma != gammaCandidates.end(); ++iGamma ) {
         if (setPi0Mass_) // set mass as pi 0
         {
            if (iGamma->numberOfDaughters() == 1) // for merged gamma pairs, check if user wants to keep ECAL mass

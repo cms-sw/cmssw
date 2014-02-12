@@ -67,6 +67,7 @@ std::vector<PFCandidatePtr> pfChargedCands(const PFJet& jet, bool sort=true);
 std::vector<PFCandidatePtr> pfGammas(const PFJet& jet, bool sort=true);
 
 /// Flatten a list of pi zeros into a list of there constituent PFCandidates
+std::vector<PFCandidatePtr> flattenPiZeros(const std::vector<RecoTauPiZero>::const_iterator&, const std::vector<RecoTauPiZero>::const_iterator&);
 std::vector<PFCandidatePtr> flattenPiZeros(const std::vector<RecoTauPiZero>&);
 
 /// Convert a BaseView (View<T>) to a TRefVector
@@ -117,13 +118,13 @@ template<typename InputIterator> reco::Candidate::LorentzVector sumPFCandP4(
       reco::Candidate::LorentzVector());
 }
 
-/// Sum the PT of a collection of PFCandidates
+/// Sum the pT of a collection of PFCandidates
 template<typename InputIterator> double sumPFCandPt(InputIterator begin,
     InputIterator end) {
     return sumPFVector(begin, end, &PFCandidate::pt, 0.0);
   }
 
-/// Sum the PT of a collection of PFCandidates
+/// Sum the charge of a collection of PFCandidates
 template<typename InputIterator> int sumPFCandCharge(InputIterator begin,
     InputIterator end) {
     return sumPFVector(begin, end, &PFCandidate::charge, 0);

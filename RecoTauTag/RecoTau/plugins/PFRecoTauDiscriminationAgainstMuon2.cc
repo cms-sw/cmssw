@@ -5,9 +5,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.6.2.3 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.10 2013/04/08 11:45:27 jez Exp $
+ * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.6.2.3 2013/07/10 13:57:16 jez Exp $
  *
  */
 
@@ -50,7 +50,10 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
     if ( cfg.exists("srcMuons") ) {
       srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
       dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
+      dRmuonMatchLimitedToJetArea_ = cfg.getParameter<bool>("dRmuonMatchLimitedToJetArea");
     }
+    numWarnings_ = 0;
+    maxWarnings_ = 3;
     verbosity_ = cfg.exists("verbosity") ? cfg.getParameter<int>("verbosity") : 0;
    }
   ~PFRecoTauDiscriminationAgainstMuon2() {} 
@@ -69,6 +72,9 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
   edm::InputTag srcMuons_;
   edm::Handle<reco::MuonCollection> muons_;
   double dRmuonMatch_;
+  bool dRmuonMatchLimitedToJetArea_;
+  mutable int numWarnings_;
+  int maxWarnings_;
   int verbosity_;
 };
 
@@ -133,7 +139,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
     numHitsRPC[iStation] = 0;
   }
 
-  const reco::PFCandidateRef& pfLeadChargedHadron = pfTau->leadPFChargedHadrCand();
+  const reco::PFCandidatePtr& pfLeadChargedHadron = pfTau->leadPFChargedHadrCand();
   if ( pfLeadChargedHadron.isNonnull() ) {
     reco::MuonRef muonRef = pfLeadChargedHadron->muonRef();      
     if ( muonRef.isNonnull() ) {
@@ -153,7 +159,22 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 	continue;
       }
       double dR = deltaR(muon->p4(), pfTau->p4());
-      if ( dR < dRmuonMatch_ ) {
+      double dRmatch = dRmuonMatch_;
+      if ( dRmuonMatchLimitedToJetArea_ ) {
+	double jetArea = 0.;
+	if ( pfTau->jetRef().isNonnull() ) jetArea = pfTau->jetRef()->jetArea();
+	if ( jetArea > 0. ) {
+	  dRmatch = TMath::Min(dRmatch, TMath::Sqrt(jetArea/TMath::Pi()));
+	} else {
+	  if ( numWarnings_ < maxWarnings_ ) {
+	    edm::LogWarning("PFRecoTauDiscriminationAgainstMuon2::discriminate") 
+	      << "Jet associated to Tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi() << " has area = " << jetArea << " !!" << std::endl;
+	    ++numWarnings_;
+	  }
+	  dRmatch = 0.1;
+	}
+      }
+      if ( dR < dRmatch ) {
 	if ( verbosity_ ) std::cout << " overlaps with tau, dR = " << dR << std::endl;
 	numMatches += muon->numberOfMatches(reco::Muon::NoArbitration);
 	countHits(*muon, numHitsDT, numHitsCSC, numHitsRPC);
