@@ -257,7 +257,7 @@ bool ClusterShapeHitFilter::getSizes
   const PixelData & pd = getpd(recHit,ipd);
 
   // Get shape information
-  const SiPixelClusterShapeData& data = clusterShapeCache.get(recHit.cluster());
+  const SiPixelClusterShapeData& data = clusterShapeCache.get(recHit.cluster(), pd.det);
   bool usable = (data.isStraight() && data.isComplete());
  
   // Usable?
