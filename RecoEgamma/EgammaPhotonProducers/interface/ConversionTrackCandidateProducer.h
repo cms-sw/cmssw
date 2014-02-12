@@ -114,7 +114,7 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 			const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 			const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
 			edm::Handle<EcalRecHitCollection> ecalRecHitHandle, 
-			CaloRecHitMetaCollectionV* metaEcalRecHits,
+			const EcalRecHitCollection& ecalRecHits,
 			const EcalSeverityLevelAlgo* sevLev,
 			//edm::ESHandle<EcalChannelStatus>  chStatus,
 			const edm::Handle<CaloTowerCollection> & hcalTowersHandle,

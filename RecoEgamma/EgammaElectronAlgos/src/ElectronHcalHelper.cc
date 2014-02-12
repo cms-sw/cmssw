@@ -64,8 +64,8 @@ void ElectronHcalHelper::readEvent( const edm::Event & evt )
       edm::LogError("ElectronHcalHelper::readEvent")
 	<<"failed to get the rechits";
     }
-    mhbhe_=  new HBHERecHitMetaCollection(*hbhe_) ;
-    hcalIso_ = new EgammaHcalIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEHBMinE,cfg_.hOverEHFMinE,0.,0.,caloGeom_,mhbhe_) ;
+
+    hcalIso_ = new EgammaHcalIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEHBMinE,cfg_.hOverEHFMinE,0.,0.,caloGeom_, *hbhe_) ;
    }
  }
 

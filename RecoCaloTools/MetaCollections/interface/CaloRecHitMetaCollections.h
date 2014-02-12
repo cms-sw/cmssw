@@ -31,6 +31,6 @@ private:
 typedef SimpleCaloRecHitMetaCollection<HBHERecHitCollection> HBHERecHitMetaCollection;
 typedef SimpleCaloRecHitMetaCollection<HFRecHitCollection> HFRecHitMetaCollection;
 typedef SimpleCaloRecHitMetaCollection<HORecHitCollection> HORecHitMetaCollection;
-typedef SimpleCaloRecHitMetaCollection<EcalRecHitCollection> EcalRecHitMetaCollection;
+// DEPRECATED: typedef SimpleCaloRecHitMetaCollection<EcalRecHitCollection> EcalRecHitMetaCollection;
 
 #endif
