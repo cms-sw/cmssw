@@ -16,16 +16,15 @@
 void Basic2DGenericTopoClusterizer::
 buildTopoClusters(const reco::PFRecHitRefVector& input,
 		  const std::vector<bool>& rechitMask,
-		  reco::PFClusterCollection& output) {
-  const reco::PFRecHitRefVector& seeds = 
-    _seedFinder->findSeeds(input,rechitMask);
-  std::vector<bool> usage(false,input.size());
+		  const std::vector<bool>& seedable,
+		  reco::PFClusterCollection& output) {  
+  std::vector<bool> used(false,input.size());
 
   reco::PFCluster temp;
-  for( const reco::PFRecHitRef& seed : seeds ) {
-    if( usage[seed.key()] ) continue;
+  for( const reco::PFRecHitRef& cell : input ) {
+    if( !seedable[cell.key()] || used[cell.key()] ) continue;
     temp.reset();
-    buildTopoCluster(input,rechitMask,usage,seed,temp);
+    buildTopoCluster(input,rechitMask,used,cell,temp);
     if( temp.recHitFractions().size() ) output.push_back(temp);
   }
 }
