@@ -89,7 +89,7 @@
   <class name="std::vector<std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> > >" />
 
   <class name="reco::PFTauDecayModeAssociation">
-<!--     <field name="transientVector_" transient="true"/> -->
+    <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::PFTauDecayModeAssociationRef"/>
   <class name="reco::PFTauDecayModeAssociationRefProd"/>
@@ -148,7 +148,7 @@
   <class name="edm::Wrapper<edm::Association<std::vector<std::vector<reco::VertexRef> > > >"/>
 
   <class name="reco::PFTauTIPAssociation">
-<!--     <field name="transientVector_" transient="true"/> -->
+    <field name="transientVector_" transient="true"/>
 <!--     <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauTIPAssociationRef"/>
@@ -159,7 +159,7 @@
   <class name="std::vector<std::pair<reco::PFTauRef,  reco::PFTauTransverseImpactParameterRef > >" />
 
   <class name="reco::PFTauVertexAssociation">
-<!--     <field name="transientVector_" transient="true"/> -->
+    <field name="transientVector_" transient="true"/>
 <!--     <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauVertexAssociationRef"/>
@@ -170,7 +170,7 @@
   <class name="std::vector<std::pair<reco::PFTauRef, reco::VertexRef> >" />
 
   <class name="reco::PFTauVertexVAssociation">
-<!--     <field name="transientVector_" transient="true"/> -->
+    <field name="transientVector_" transient="true"/>
 <!--     <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauVertexVAssociationRef"/>
@@ -217,7 +217,7 @@
  <class name="std::vector<std::vector<TLorentzVector> >"/>
 
  <class name="reco::PFTau3ProngSumAssociation">
-<!--     <field name="transientVector_" transient="true"/> -->
+    <field name="transientVector_" transient="true"/>
 <!--     <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTau3ProngSumAssociationRef"/>
