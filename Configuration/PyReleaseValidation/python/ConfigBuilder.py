@@ -302,7 +302,7 @@ class ConfigBuilder(object):
 			if entry.startswith("filelist:"):
 				filesFromList(entry[9:],self.process.source)
 			elif entry.startswith("dbs:") or entry.startswith("das:"):
-				filesFromDASQuery(entry[4:],self.process.source)
+				filesFromDASQuery('file dataset=%s'%entry[4:],self.process.source)
 			else:
 				self.process.source.fileNames.append(self._options.dirin+entry)
 		if self._options.secondfilein:
@@ -313,7 +313,7 @@ class ConfigBuilder(object):
 				if entry.startswith("filelist:"):
 					self.process.source.secondaryFileNames.extend((filesFromList(entry[9:]))[0])
 				elif entry.startswith("dbs:") or entry.startswith("das:"):
-					self.process.source.secondaryFileNames.extend((filesFromDASQuery(entry[4:]))[0])
+					self.process.source.secondaryFileNames.extend((filesFromDASQuery('file dataset='%entry[4:]))[0])
 				else:
 					self.process.source.secondaryFileNames.append(self._options.dirin+entry)
 		
