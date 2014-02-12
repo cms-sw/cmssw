@@ -84,3 +84,34 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + pfTauRunDQMValidation
                                  + bTagPlotsMCbcl
 )
+
+#lite tracking validator to be used in the Validation matrix
+liteTrackValidator=trackValidator.clone()
+liteTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
+                                          cms.InputTag("cutsRecoTracksHp")
+                                          )
+
+#lite validation
+globalValidationLiteTracking = cms.Sequence(globalValidation)
+globalValidationLiteTracking.replace(trackValidator,liteTrackValidator)
+
+#lite pre-validation
+globalPrevalidationLiteTracking = cms.Sequence(globalPrevalidation)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksZero)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksZeroHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFirst)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFirstHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksSecond)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksSecondHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksThird)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksThirdHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFourth)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFourthHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFifth)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFifthHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksSixth)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksSixthHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksNinth)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksNinthHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksTenth)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksTenthHp)
