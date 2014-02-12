@@ -52,7 +52,7 @@ tevMuonDytTrackVTrackAssocFS.label_tp_effic = 'mix:MergedTrackTruth'
 tevMuonDytTrackVTrackAssocFS.label_tp_fake = 'mix:MergedTrackTruth'
 
 from Validation.RecoMuon.muonValidation_cff import trkProbeTrackVMuonAssoc 
-trkProbeTrackVMuonAssocFS = trkMuonTrackVMuonAssoc.clone()
+trkProbeTrackVMuonAssocFS = trkProbeTrackVMuonAssoc.clone()
 trkProbeTrackVMuonAssocFS.associatormap = 'tpToTkMuonAssociationFS'
 trkProbeTrackVMuonAssocFS.label_tp_effic = 'mix:MergedTrackTruth'
 trkProbeTrackVMuonAssocFS.label_tp_fake = 'mix:MergedTrackTruth'
