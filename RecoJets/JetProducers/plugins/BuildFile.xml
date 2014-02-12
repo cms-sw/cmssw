@@ -12,4 +12,6 @@
   <use   name="CondFormats/JetMETObjects"/>
   <use   name="JetMETCorrections/Objects"/>
   <use   name="fastjet"/>
+  <use   name="fastjet-contrib"/>
+  <use   name="DataFormats/PatCandidates"/>
 </library>

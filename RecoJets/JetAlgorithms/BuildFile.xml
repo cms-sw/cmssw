@@ -6,6 +6,7 @@
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="DataFormats/HepMCCandidate"/>
+<use name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>
