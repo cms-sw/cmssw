@@ -1,6 +1,8 @@
 #ifndef HcalGeometry_h
 #define HcalGeometry_h
 
+#include "DataFormats/Common/interface/AtomicPtrCache.h"
+
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
@@ -122,11 +124,11 @@ private:
 
   const HcalTopology& theTopology;
   
-  mutable std::vector<DetId> m_hbIds ;
-  mutable std::vector<DetId> m_heIds ;
-  mutable std::vector<DetId> m_hoIds ;
-  mutable std::vector<DetId> m_hfIds ;
-  mutable std::vector<DetId> m_emptyIds ;
+  mutable edm::AtomicPtrCache<std::vector<DetId>> m_hbIds ;
+  mutable edm::AtomicPtrCache<std::vector<DetId>> m_heIds ;
+  mutable edm::AtomicPtrCache<std::vector<DetId>> m_hoIds ;
+  mutable edm::AtomicPtrCache<std::vector<DetId>> m_hfIds ;
+  mutable edm::AtomicPtrCache<std::vector<DetId>> m_emptyIds ;
   mutable CaloSubdetectorGeometry::IVec m_dins;  
 
   HBCellVec m_hbCellVec ;
