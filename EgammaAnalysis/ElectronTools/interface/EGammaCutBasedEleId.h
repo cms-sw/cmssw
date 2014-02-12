@@ -14,6 +14,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #endif
+#include "EgammaAnalysis/ElectronTools/interface/ElectronEffectiveArea.h"
 
 #include <vector>
 
@@ -79,7 +80,8 @@ bool PassWP(const WorkingPoint workingPoint,
     const double &iso_ch,
     const double &iso_em,
     const double &iso_nh,
-    const double &rho);
+    const double &rho,
+    ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
 
 
 bool PassWP(const WorkingPoint workingPoint,
@@ -90,7 +92,8 @@ bool PassWP(const WorkingPoint workingPoint,
     const double &iso_ch,
     const double &iso_em,
     const double &iso_nh,
-    const double &rho);
+    const double &rho,
+    ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
 
 
 bool PassTriggerCuts(const TriggerWorkingPoint triggerWorkingPoint, const reco::GsfElectronRef &ele);
@@ -109,7 +112,8 @@ unsigned int TestWP(const WorkingPoint workingPoint,
     const double &iso_ch,
     const double &iso_em,
     const double &iso_nh,
-    const double &rho);
+    const double &rho,
+    ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
 
 unsigned int TestWP(const WorkingPoint workingPoint,
     const reco::GsfElectron &ele,
@@ -119,7 +123,8 @@ unsigned int TestWP(const WorkingPoint workingPoint,
     const double &iso_ch,
     const double &iso_em,
     const double &iso_nh,
-    const double &rho);
+    const double &rho,
+    ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
 
 #endif
 
@@ -132,7 +137,7 @@ unsigned int TestWP(const WorkingPoint workingPoint,
 bool PassWP(WorkingPoint workingPoint, const bool isEB, const float pt, const float eta,
     const float dEtaIn, const float dPhiIn, const float sigmaIEtaIEta, const float hoe,
     const float ooemoop, const float d0vtx, const float dzvtx, const float iso_ch, const float iso_em, const float iso_nh, 
-    const bool vtxFitConversion, const unsigned int mHits, const double rho);
+    const bool vtxFitConversion, const unsigned int mHits, const double rho, ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
 
 bool PassTriggerCuts(const TriggerWorkingPoint triggerWorkingPoint, const bool isEB, const float pt, 
     const float dEtaIn, const float dPhiIn, const float sigmaIEtaIEta, const float hoe,
@@ -143,7 +148,7 @@ bool PassEoverPCuts(const float eta, const float eopin, const float fbrem);
 unsigned int TestWP(WorkingPoint workingPoint, const bool isEB, const float pt, const float eta,
     const float dEtaIn, const float dPhiIn, const float sigmaIEtaIEta, const float hoe,
     const float ooemoop, const float d0vtx, const float dzvtx, const float iso_ch, const float iso_em, const float iso_nh, 
-    const bool vtxFitConversion, const unsigned int mHits, const double rho);
+    const bool vtxFitConversion, const unsigned int mHits, const double rho, ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
 
 // print the bit mask
 void PrintDebug(unsigned int mask);
