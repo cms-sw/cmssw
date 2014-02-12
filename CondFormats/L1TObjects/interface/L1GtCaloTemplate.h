@@ -61,15 +61,6 @@ public:
         unsigned int etaRange;
         unsigned int phiRange;
 
-        int etaRangeBegin;
-        int etaRangeEnd;
-        int etaRangeVetoBegin;
-        int etaRangeVetoEnd;
-
-        int phiRangeBegin;
-        int phiRangeEnd;
-        int phiRangeVetoBegin;
-        int phiRangeVetoEnd;
     };
 
     /// typedef for correlation parameters
