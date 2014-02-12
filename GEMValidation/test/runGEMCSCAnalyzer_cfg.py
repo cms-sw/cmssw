@@ -6,6 +6,7 @@ process = cms.Process("GEMCSCANA")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.Geometry.GeometryExtended2019_cff')
 process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -14,9 +15,6 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ## TrackingComponentsRecord required for matchers
 process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi')
 process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi')
-
-process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2019_cff')
 
 ## GEM geometry customization
 from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
@@ -49,7 +47,7 @@ from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
 process.GEMCSCAnalyzer = cms.EDAnalyzer("GEMCSCAnalyzer",
     verbose = cms.untracked.int32(0),
     stationsToUse = cms.vint32(1,2,3,4),
-    simTrackMatching = simTrackMatching
+    simTrackMatching = SimTrackMatching
 )
 matching = process.GEMCSCAnalyzer.simTrackMatching
 matching.simTrack.minPt = 1.5

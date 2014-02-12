@@ -35,8 +35,11 @@ def useInputDir(process, inputDir, onEOS = True):
             continue
         print "Proceed to next directory"
         ls = os.listdir(my_dir)
-        ## this works only if you pass the location on pnfs - FIXME for files staring with store/user/...
-        theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
-                                                                                                        
+        if onEOS:
+            theInputFiles.extend(['file:' + my_dir[:] + x for x in ls if x.endswith('root')])
+        else:
+            ## this works only if you pass the location on pnfs - FIXME for files staring with store/user/...                                                            
+            theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
+
     process.source.fileNames = cms.untracked.vstring(*theInputFiles)
     return process
