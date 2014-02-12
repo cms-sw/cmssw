@@ -180,7 +180,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   // ==========================================================
   //DCS information
   // ==========================================================
-  DCSFilterForJetMonitoring_  = new JetMETDQMDCSFilter(pSet.getParameter<ParameterSet>("DCSFilterForJetMonitoring"));
+  edm::ConsumesCollector iC  = consumesCollector();
+  DCSFilterForJetMonitoring_  = new JetMETDQMDCSFilter(pSet.getParameter<ParameterSet>("DCSFilterForJetMonitoring"), iC);
   DCSFilterForDCSMonitoring_  = new JetMETDQMDCSFilter("ecal:hbhe:hf:ho:pixel:sistrip:es:muon");
   
   //Trigger selectoin

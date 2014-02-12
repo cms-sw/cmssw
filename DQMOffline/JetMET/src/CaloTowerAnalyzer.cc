@@ -275,7 +275,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   if(!bHcalNoiseFilter) return;
 
-  //edm::View<Candidate>::const_iterator towerCand = towers->begin();
+  edm::View<Candidate>::const_iterator towerCand = towers->begin();
   
   // ==========================================================
   // Fill Histograms!
@@ -299,16 +299,16 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       MaxEt_EtaRing[i] = 0;
     }
 
-  for (CaloTowerCollection::const_iterator calotower = towers->begin(); calotower != towers->end(); calotower++) 
-    //for ( ; towerCand != towers->end(); towerCand++)
+  //  for (CaloTowerCollection::const_iterator calotower = towers->begin(); calotower != towers->end(); calotower++) 
+  for ( ; towerCand != towers->end(); towerCand++)
     {
-      // const Candidate* candidate = &(*towerCand);
-      //if (candidate) 
-      //{
-      //const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
-      //if (calotower){
-	  //math::RhoEtaPhiVector Momentum = calotower->momentum();
-	  double Tower_ET = calotower->et();
+      const Candidate* candidate = &(*towerCand);
+      if (candidate) 
+	{
+	  const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
+	  if (calotower){
+	    //math::RhoEtaPhiVector Momentum = calotower->momentum();
+	    double Tower_ET = calotower->et();
 	  //double Tower_Energy  = calotower->energy();
 	  //	  double Tower_Eta = calotower->eta();
 	  double Tower_Phi = calotower->phi();
@@ -361,8 +361,8 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  if (Tower_ieta > CTmax_ieta) CTmax_ieta = Tower_ieta;
 	  if (Tower_iphi < CTmin_iphi) CTmin_iphi = Tower_iphi;
 	  if (Tower_iphi > CTmax_iphi) CTmax_iphi = Tower_iphi;
-	  //} //end if (calotower) ..
-	  //} // end if(candidate) ...
+	  } //end if (calotower) ..
+	} // end if(candidate) ...
     
     } // end loop over towers
   

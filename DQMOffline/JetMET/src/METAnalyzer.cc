@@ -37,7 +37,7 @@ using namespace reco;
 using namespace math;
 
 // ***********************************************************
-METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
+METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet/*, ConsumesCollector&& iC*/) {
   parameters = pSet;
 
   outputMEsInRootFile   = parameters.getParameter<bool>("OutputMEsInRootFile");
@@ -79,6 +79,9 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   //jet cleanup parameters
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters");
 
+  edm::ConsumesCollector iC  = consumesCollector();
+  //DCS
+  DCSFilter_ = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"), iC );
 
   //Vertex requirements
   bypassAllPVChecks_    = cleaningParameters_.getParameter<bool>("bypassAllPVChecks");
@@ -161,6 +164,7 @@ METAnalyzer::~METAnalyzer() {
   for (std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
     delete *it;
   }
+  //delete DCSFilter_;
 
 //  delete highPtJetEventFlag_;
 //  delete lowPtJetEventFlag_;
@@ -175,12 +179,13 @@ void METAnalyzer::beginJob(){
   // trigger information
 //  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
 
-  cleaningParameters_ = parameters.getParameter<ParameterSet>("CleaningParameters"),
-
+  cleaningParameters_ = parameters.getParameter<ParameterSet>("CleaningParameters");
+  //,
   // ==========================================================
   //DCS information
   // ==========================================================
-  DCSFilter_ = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"));
+
+  //  DCSFilter_ = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"), iC);
 
   // misc
   verbose_      = parameters.getParameter<int>("verbose");
@@ -197,6 +202,8 @@ void METAnalyzer::beginJob(){
   LogTrace(metname)<<"[METAnalyzer] Parameters initialization";
   std::string DirName = FolderName_+metCollectionLabel_.label();
   dbe_->setCurrentFolder(DirName);
+
+  //dbe_ = dbe;
 
   folderNames_.push_back("Uncleaned");
   folderNames_.push_back("Cleaned");
@@ -513,10 +520,11 @@ void METAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 // ***********************************************************
 void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+//void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore * dbe)
 {
   //
   //--- Check the time length of the Run from the lumi section plots
-
+  
 
   TH1F* tlumisec;
 
@@ -539,6 +547,7 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   if (totltime==0.) totltime=1.;
 
   //below is the original METAnalyzer formulation
+  
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ic++) {
     std::string DirName;
     DirName = dirName+*ic;
@@ -793,7 +802,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   if (isTCMet_){
     iEvent.getByToken(jptJetsToken_, jptJets);
-    if (!caloJets.isValid()) {
+    if (!jptJets.isValid()) {
       LogDebug("") << "METAnalyzer: Could not find jptjet product" << std::endl;
       if (verbose_) std::cout << "METAnalyzer: Could not find jptjet product" << std::endl;
     }
