@@ -11,7 +11,7 @@ class PFCPositionCalculatorBase {
   typedef PFCPositionCalculatorBase PosCalc;
  public:
   PFCPositionCalculatorBase(const edm::ParameterSet& conf) :
-    _minFractionInCalc(conf.getParameter<float>("minFractionInCalc")),
+    _minFractionInCalc(conf.getParameter<double>("minFractionInCalc")),
     _algoName(conf.getParameter<std::string>("algoName")) { }
   ~PFCPositionCalculatorBase() { }
   //get rid of things we should never use
