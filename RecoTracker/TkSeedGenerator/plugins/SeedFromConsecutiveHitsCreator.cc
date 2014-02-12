@@ -33,9 +33,9 @@ void SeedFromConsecutiveHitsCreator::init(const TrackingRegion & iregion,
   // get propagator
   es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
   // mag field
-  edm::ESInputTag mfESInputTag(mfName_);
-  //  es.get<IdealMagneticFieldRecord>().get(mfName_, bfield);  
-  es.get<IdealMagneticFieldRecord>().get(mfESInputTag, bfield);  
+  es.get<IdealMagneticFieldRecord>().get(mfName_, bfield);  
+  //  edm::ESInputTag mfESInputTag(mfName_);
+  //  es.get<IdealMagneticFieldRecord>().get(mfESInputTag, bfield);  
   nomField = bfield->nominalValue();
   isBOFF = (0==nomField);  
 }

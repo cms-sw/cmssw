@@ -10,8 +10,9 @@ NavigationSchoolESProducer::ReturnType CfgNavigationSchoolESProducer::produce(co
   std::string mfName = "";
   if (theNavigationPSet.exists("SimpleMagneticField"))
     mfName = theNavigationPSet.getParameter<std::string>("SimpleMagneticField");
-  edm::ESInputTag mfESInputTag(mfName);
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,field);
+  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName,field);
+  //  edm::ESInputTag mfESInputTag(mfName);
+  //  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,field);
 
   //get the geometricsearch tracker geometry
   edm::ESHandle<GeometricSearchTracker>         geometricSearchTracker;

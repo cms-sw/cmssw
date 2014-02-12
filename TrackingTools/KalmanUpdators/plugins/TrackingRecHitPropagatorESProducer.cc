@@ -26,8 +26,9 @@ TrackingRecHitPropagatorESProducer::produce(const TrackingComponentsRecord& iRec
    std::string mfName = "";
    if (pset_.exists("SimpleMagneticField"))
      mfName = pset_.getParameter<std::string>("SimpleMagneticField");
-   edm::ESInputTag mfESInputTag(mfName);
-   iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
+   iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName,magfield);
+   //   edm::ESInputTag mfESInputTag(mfName);
+   //   iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
    theHitPropagator= boost::shared_ptr<TrackingRecHitPropagator>(new TrackingRecHitPropagator(magfield.product()));
    return theHitPropagator;
 }

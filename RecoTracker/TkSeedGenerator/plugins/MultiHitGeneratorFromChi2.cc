@@ -125,9 +125,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   es.get<TrackerDigiGeometryRecord>().get(tracker);
   if (nomField<0 && bfield == 0) {
     edm::ESHandle<MagneticField> bfield_h;
-    edm::ESInputTag mfESInputTag(mfName_);
-    //  es.get<IdealMagneticFieldRecord>().get(mfName_, bfield_h);  
-    es.get<IdealMagneticFieldRecord>().get(mfESInputTag, bfield_h);  
+    es.get<IdealMagneticFieldRecord>().get(mfName_, bfield_h);  
+    //    edm::ESInputTag mfESInputTag(mfName_);
+    //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag, bfield_h);  
     bfield = bfield_h.product();
     nomField = bfield->nominalValue();
   }
