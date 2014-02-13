@@ -14,14 +14,14 @@
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 
 // ----------------------------------------------------------------------
-// template class for: 
+// template class for:
 //
 //  * TtFullHadJetPartonMatch
 //  * TtSemiLepJetPartonMatch
 //  * TtFullLepJetPartonMatch
 //
-//  the class provides plugins for jet-parton matching corresponding 
-//  to the JetPartonMatching class; expected input is one of the 
+//  the class provides plugins for jet-parton matching corresponding
+//  to the JetPartonMatching class; expected input is one of the
 //  classes in:
 //
 //  AnalysisDataFormats/TopObjects/interface/TtFullHadEvtPartons.h
@@ -32,12 +32,12 @@
 //  * a vector of vectors containing the indices of the jets in the
 //    input collection matched to the partons in the order defined in
 //    the corresponding Tt*EvtPartons class
-//  * a set of vectors with quality parameters of the matching 
+//  * a set of vectors with quality parameters of the matching
 //
-//  the matching can be performed on an arbitrary number of jet 
-//  combinations; per default the combination which matches best 
+//  the matching can be performed on an arbitrary number of jet
+//  combinations; per default the combination which matches best
 //  according to the quality parameters will be stored; the length
-//  of the vectors will be 1 then 
+//  of the vectors will be 1 then
 // ----------------------------------------------------------------------
 
 template <typename C>
@@ -45,7 +45,7 @@ class TtJetPartonMatch : public edm::EDProducer {
 
  public:
 
-  /// default conructor  
+  /// default conructor
   explicit TtJetPartonMatch(const edm::ParameterSet&);
   /// default destructor
   ~TtJetPartonMatch();
@@ -59,19 +59,21 @@ class TtJetPartonMatch : public edm::EDProducer {
 
   /// partons
   C partons_;
+  /// TtGenEvent collection input
+  edm::EDGetTokenT<TtGenEvent> genEvt_;
   /// jet collection input
-  edm::InputTag jets_;
-  /// maximal number of jets to be considered for the 
+  edm::EDGetTokenT<edm::View<reco::Jet> > jets_;
+  /// maximal number of jets to be considered for the
   /// matching
   int maxNJets_;
-  /// maximal number of combinations for which the 
+  /// maximal number of combinations for which the
   /// matching should be stored
   int maxNComb_;
   /// choice of algorithm
   JetPartonMatching::algorithms algorithm_;
   /// switch to choose between deltaR/deltaTheta matching
   bool useDeltaR_;
-  /// switch to choose whether an outlier rejection 
+  /// switch to choose whether an outlier rejection
   /// should be applied or not
   bool useMaxDist_;
   /// threshold for outliers in the case that useMaxDist_
@@ -84,7 +86,8 @@ class TtJetPartonMatch : public edm::EDProducer {
 template<typename C>
 TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg):
   partons_   (cfg.getParameter<std::vector<std::string> >("partonsToIgnore")),
-  jets_      (cfg.getParameter<edm::InputTag>            ("jets"           )),
+  genEvt_    (consumes<TtGenEvent>(edm::InputTag("genEvt"))),
+  jets_      (consumes<edm::View<reco::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
   maxNJets_  (cfg.getParameter<int>                      ("maxNJets"       )),
   maxNComb_  (cfg.getParameter<int>                      ("maxNComb"       )),
   algorithm_ (readAlgorithm(cfg.getParameter<std::string>("algorithm"      ))),
@@ -113,9 +116,9 @@ template<typename C>
 void
 TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  // will write 
-  // * parton match 
-  // * sumPt 
+  // will write
+  // * parton match
+  // * sumPt
   // * sumDR
   // to the event
   std::auto_ptr<std::vector<std::vector<int> > > match(new std::vector<std::vector<int> >);
@@ -125,14 +128,14 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // get TtGenEvent and jet collection from the event
   edm::Handle<TtGenEvent> genEvt;
-  evt.getByLabel("genEvt", genEvt);
-  
+  evt.getByToken(genEvt_, genEvt);
+
   edm::Handle<edm::View<reco::Jet> > topJets;
-  evt.getByLabel(jets_, topJets);
+  evt.getByToken(jets_, topJets);
 
   // fill vector of partons in the order of
   //  * TtFullLepEvtPartons
-  //  * TtSemiLepEvtPartons 
+  //  * TtSemiLepEvtPartons
   //  * TtFullHadEvtPartons
   std::vector<const reco::Candidate*> partons = partons_.vec(*genEvt);
 
@@ -141,7 +144,7 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   for(unsigned int ij=0; ij<topJets->size(); ++ij) {
     // take all jets if maxNJets_ == -1; otherwise use
     // maxNJets_ if maxNJets_ is big enough or use same
-    // number of jets as partons if maxNJets_ < number 
+    // number of jets as partons if maxNJets_ < number
     // of partons
     if(maxNJets_!=-1) {
       if(maxNJets_>=(int)partons.size()) {
@@ -178,7 +181,7 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 }
 
 template<typename C>
-JetPartonMatching::algorithms 
+JetPartonMatching::algorithms
 TtJetPartonMatch<C>::readAlgorithm(const std::string& str)
 {
   if     (str == "totalMinDist"    ) return JetPartonMatching::totalMinDist;
