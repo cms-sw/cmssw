@@ -7,7 +7,7 @@ void LocalMaximum2DSeedFinder::
 findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
 	   const std::vector<bool>& mask,
 	   std::vector<bool>& seedable ) {
-  std::vector<bool> usable(true,input->size());
+  std::vector<bool> usable(input->size(),true);
   for( unsigned idx = 0; idx < input->size(); ++idx ) {    
     if( !mask[idx] ) continue; // cannot seed masked objects
     const reco::PFRecHit& maybeseed = input->at(idx);

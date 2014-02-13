@@ -72,6 +72,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     edm::LogError("WeirdClusterNormalization") 
       << "PFCluster too far from seeding cell: set position to (0,0,0).";
     cluster.setPosition(math::XYZPoint(x,y,z));
+    cluster.calculatePositionREP();
   } else {
     const double norm_inverse = 1.0/position_norm;
     x *= norm_inverse;

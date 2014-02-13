@@ -22,6 +22,7 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
     _param_W0(conf.getParameter<double>("W0")),
     _param_X0(conf.getParameter<double>("X0")),
     _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization")),
+    _caloGeom(NULL),
     _ebGeom(NULL),
     _eeGeom(NULL),
     _esGeom(NULL) { }
@@ -42,7 +43,7 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
   const double _minAllowedNorm;
 
   
-  const CaloGeometryRecord* caloGeom;
+  const CaloGeometryRecord* _caloGeom;
   const CaloSubdetectorGeometry* _ebGeom;
   const CaloSubdetectorGeometry* _eeGeom;
   const CaloSubdetectorGeometry* _esGeom;

@@ -5,7 +5,7 @@ spikeAndDoubleSpikeCleaner_EB = cms.PSet(
     #single spike
     cleaningThreshold = cms.double(4.0),
     minS4S1_a = cms.double(0.04), #constant term
-    misS4S1_b = cms.double(-0.024), #log pt scaling
+    minS4S1_b = cms.double(-0.024), #log pt scaling
     #double spike
     doubleSpikeThresh = cms.double(10.0),
     doubleSpikeS6S2 = cms.double(0.04),
@@ -18,7 +18,7 @@ spikeAndDoubleSpikeCleaner_EE = cms.PSet(
     #single spike
     cleaningThreshold = cms.double(15.0),
     minS4S1_a = cms.double(0.02), #constant term
-    misS4S1_b = cms.double(-0.0125), #log pt scaling
+    minS4S1_b = cms.double(-0.0125), #log pt scaling
     #double spike
     doubleSpikeThresh = cms.double(1e9),
     doubleSpikeS6S2 = cms.double(-1.0),
@@ -36,7 +36,7 @@ localMaxSeeds_EB = cms.PSet(
 
 localMaxSeeds_EE = localMaxSeeds_EB.clone(
     seedingThreshold = cms.double(0.6),
-    seedingThresholdPt = cms.double(0.25)
+    seedingThresholdPt = cms.double(0.15)
     )
 
 topoClusterizer_EB = cms.PSet(
@@ -47,7 +47,7 @@ topoClusterizer_EB = cms.PSet(
     useCornerCells = cms.bool(True)
     )
 
-topoClusterizer_EE = topoCluster_EB.clone(
+topoClusterizer_EE = topoClusterizer_EB.clone(
     gatheringThreshold = cms.double(0.3),
     gatheringThresholdPt = cms.double(0.0)
     )
@@ -58,11 +58,12 @@ positionCalcEB_all_nodepth = cms.PSet(
     minFractionInCalc = cms.double(1e-9),
     posCalcNCrystals = cms.int32(-1),
     logWeightDenominator = cms.double(0.08), # same as gathering threshold
-    minAllowNormalization = cms.double(1e-9)
+    minAllowedNormalization = cms.double(1e-9)
     )
 
 positionCalcEE_all_nodepth = positionCalcEB_all_nodepth.clone(
-    logWeightDenominator = cms.double(0.3)
+    #in the old PFClusterAlgo this is same as barrel
+    # logWeightDenominator = cms.double(0.3) 
     )
 
 positionCalcEB_3x3_nodepth = positionCalcEB_all_nodepth.clone(
@@ -91,6 +92,7 @@ pfClusterizer_EB = cms.PSet(
     minFractionToKeep = cms.double(1e-7),
     positionCalc = positionCalcEB_3x3_nodepth,
     allCellsPositionCalc = positionCalcEB_all_nodepth,
+    positionCalcForConvergence = positionCalcECAL_all_withdepth,
     showerSigma = cms.double(1.5),
     stoppingTolerance = cms.double(1e-8),
     maxIterations = cms.uint32(50),
@@ -98,8 +100,8 @@ pfClusterizer_EB = cms.PSet(
     )
 
 pfClusterizer_EE = pfClusterizer_EB.clone(   
-    positionCalc = positionCalcEE_3x3_nodepth,
-    allCellsPositionCalc = positionCalcEE_all_nodepth    
+    #positionCalc = positionCalcEE_3x3_nodepth,
+    #allCellsPositionCalc = positionCalcEE_all_nodepth    
     )
 
 particleFlowClusterECALBarrel = cms.EDProducer(
