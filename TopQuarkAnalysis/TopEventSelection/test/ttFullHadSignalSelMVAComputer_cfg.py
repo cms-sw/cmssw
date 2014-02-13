@@ -10,7 +10,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 ## define input
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    #'/store/relval/CMSSW_3_4_0_pre1/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v1/0008/2C8CD8FE-B6B5-DE11-ACB8-001D09F2905B.root'
+    #'/store/relval/CMSSW_7_0_0_pre11/RelValProdTTbar/GEN-SIM-RECO/START70_V4-v1/00000/0EA82C3C-646A-E311-9CB3-0025905A6070.root'
 
     #'/store/user/eschliec/Summer09/7TeV/TTBar/MCatNLO/patTuple_1.root',
     #'/store/user/eschliec/Summer09/7TeV/TTBar/MCatNLO/patTuple_2.root'
