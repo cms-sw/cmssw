@@ -84,7 +84,7 @@ particleFlowClusterWithoutHO = cms.Sequence(
     towerMakerPF*
     pfClusteringPS*
     pfClusteringECAL*
-    particleFlowEcalClusterNewSequence+
+    particleFlowClusterECALNewSequence+
     pfClusteringHCAL    
 )
 
@@ -93,7 +93,7 @@ particleFlowCluster = cms.Sequence(
     towerMakerPF*
     pfClusteringPS*
     pfClusteringECAL*
-    particleFlowEcalClusterNewSequence+
+    particleFlowClusterECALNewSequence+
     pfClusteringHCAL*    
     pfClusteringHO    
 )

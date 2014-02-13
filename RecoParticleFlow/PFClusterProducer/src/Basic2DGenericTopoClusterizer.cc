@@ -18,13 +18,13 @@ buildTopoClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 		  const std::vector<bool>& rechitMask,
 		  const std::vector<bool>& seedable,
 		  reco::PFClusterCollection& output) {  
-  std::vector<bool> used(false,input->size());
+  std::vector<bool> used(input->size(),false);
 
   reco::PFCluster temp;
   for( unsigned i = 0 ; i < input->size(); ++i ) {    
-    if( !seedable[i] || used[i] ) continue;
+    if( !rechitMask[i] || !seedable[i] || used[i] ) continue;
     temp.reset();
-    buildTopoCluster(input,rechitMask,makeRechit(input,i),used,temp);
+    buildTopoCluster(input,rechitMask,makeRefhit(input,i),used,temp);
     if( temp.recHitFractions().size() ) output.push_back(temp);
   }
 }
@@ -59,6 +59,6 @@ buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>& input,
 	<< !rechitMask[idx] << " (masked)." ;
       continue;
     }
-    buildTopoCluster(input,rechitMask,makeRechit(input,idx),used,topocluster);
+    buildTopoCluster(input,rechitMask,makeRefhit(input,idx),used,topocluster);
   }
 }

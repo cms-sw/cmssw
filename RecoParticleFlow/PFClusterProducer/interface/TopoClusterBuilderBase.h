@@ -48,7 +48,7 @@ class TopoClusterBuilderBase {
   void reset() { _nSeeds = _nClustersFound = 0; }
 
  protected:
-  reco::PFRecHitRef makeRechit( const edm::Handle<reco::PFRecHitCollection>& h,
+  reco::PFRecHitRef makeRefhit( const edm::Handle<reco::PFRecHitCollection>& h,
 				const unsigned i ) const { 
     return reco::PFRecHitRef(h,i);
   }

@@ -15,11 +15,11 @@
 void ECAL2DPositionCalcWithDepthCorr::
 update(const edm::EventSetup& es) {
   const CaloGeometryRecord& temp = es.get<CaloGeometryRecord>();
-  if( caloGeom == NULL || 
-      ( caloGeom->cacheIdentifier() != temp.cacheIdentifier() ) ) {
-    caloGeom = &temp;
+  if( _caloGeom == NULL || 
+      ( _caloGeom->cacheIdentifier() != temp.cacheIdentifier() ) ) {
+    _caloGeom = &temp;
     edm::ESHandle<CaloGeometry> geohandle;
-    caloGeom->get(geohandle);
+    _caloGeom->get(geohandle);
     _ebGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
     _eeGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
     _esGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
@@ -77,10 +77,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   cluster.setEnergy(cl_energy);
   cluster.setLayer(max_e_layer);
   const CaloSubdetectorGeometry* ecal_geom = NULL;
-  // get seed geometry information
-  const CaloCellGeometry* center_cell = 
-    ecal_geom->getGeometry(refseed->detId());
-  const double ctreta = center_cell->getPosition().eta();
+  // get seed geometry information  
   switch(max_e_layer){
   case PFLayer::ECAL_BARREL:
     ecal_geom = _ebGeom;
@@ -88,23 +85,25 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     break;
   case PFLayer::ECAL_ENDCAP:
     ecal_geom = _eeGeom;
-    clusterT0 = _param_T0_EE;
-    if( std::abs(ctreta) > preshowerStartEta ) {
-      if(ctreta > 0 && _esPlus ) clusterT0 = _param_T0_ES;
-      if(ctreta < 0 && _esMinus) clusterT0 = _param_T0_ES;
-    }      
+    clusterT0 = _param_T0_EE;        
     break;
   default:
     throw cms::Exception("InvalidLayer")
       << "ECAL Position Calc only accepts ECAL_BARREL or ECAL_ENDCAP";
   }
+  const CaloCellGeometry* center_cell = 
+    ecal_geom->getGeometry(refseed->detId());
+  const double ctreta = center_cell->getPosition().eta();
+  if( std::abs(ctreta) > preshowerStartEta ) { // need to change T0 if in ES
+    if(ctreta > 0 && _esPlus ) clusterT0 = _param_T0_ES;
+    if(ctreta < 0 && _esMinus) clusterT0 = _param_T0_ES;
+  }  
   const double maxDepth = _param_X0*(clusterT0 + std::log(cluster.energy()));
-  const double maxToFront = center_cell->getPosition().mag();
-  const double logETot_inv = -std::log(cluster.energy());
+  const double maxToFront = center_cell->getPosition().mag();  
   // calculate the position
+  const double logETot_inv = -std::log(cluster.energy());
   double position_norm = 0.0;
-  double x(0.0),y(0.0),z(0.0);
-  
+  double x(0.0),y(0.0),z(0.0);  
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     double weight = 0.0;
     const reco::PFRecHitRef& refhit = rhf.recHitRef();

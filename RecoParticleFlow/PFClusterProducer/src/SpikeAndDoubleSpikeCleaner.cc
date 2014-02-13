@@ -91,11 +91,11 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
       const double aeta = std::abs(eta);
       const double phi = rechit.positionREP().phi();
       std::pair<double,double> dcr = dCrack(phi,eta);
-      const double dcrmin = rechit.layer() == ( PFLayer::ECAL_BARREL ? 
-						std::min(dcr.first,dcr.second):
-						dcr.second );
+      const double dcrmin = ( rechit.layer() ==  PFLayer::ECAL_BARREL ? 
+			      std::min(dcr.first,dcr.second):
+			      dcr.second );
       if( aeta < 5.0 && 
-	  ( (eta < 2.85 && dcrmin > 1.0) || 
+	  ( (aeta < 2.85 && dcrmin > 1.0) || 
 	    (rhenergy > _eneThreshMod*_cleaningThreshold && 
 	     fraction1 < f1Cut/_fracThreshMod ) ) ) {
 	mask[i] = false;
@@ -137,11 +137,11 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 	  const double aeta = std::abs(eta);
 	  const double phi = rechit.positionREP().phi();
 	  std::pair<double,double> dcr = dCrack(phi,eta);
-	  const double dcrmin = rechit.layer() == ( PFLayer::ECAL_BARREL ? 
-						std::min(dcr.first,dcr.second):
-						dcr.second );
+	  const double dcrmin = ( rechit.layer() == PFLayer::ECAL_BARREL ? 
+				  std::min(dcr.first,dcr.second):
+				  dcr.second );
 	  if( aeta < 5.0 && 
-	      ( (eta < 2.85 && dcrmin > 1.0) || 
+	      ( (aeta < 2.85 && dcrmin > 1.0) || 
 		(rhenergy > _eneThreshMod*_doubleSpikeThresh && 
 		 surroundingEnergyFraction < _doubleSpikeS6S2/_fracThreshMod ) 
 		) ) {
