@@ -7,7 +7,7 @@ class LocalMaximum2DSeedFinder : public SeedFinderBase {
  public:
   LocalMaximum2DSeedFinder(const edm::ParameterSet& conf) :
     SeedFinderBase(conf),
-    _seedingThresholdPt2(std::pow(conf.getParameter<double>("seedingThresholdPt2"),2.0)),
+    _seedingThresholdPt2(std::pow(conf.getParameter<double>("seedingThresholdPt"),2.0)),
     _nNeighbours(conf.getParameter<unsigned>("nNeighbors")) { }
   LocalMaximum2DSeedFinder(const LocalMaximum2DSeedFinder&) = delete;
   LocalMaximum2DSeedFinder& operator=(const LocalMaximum2DSeedFinder&) = delete;

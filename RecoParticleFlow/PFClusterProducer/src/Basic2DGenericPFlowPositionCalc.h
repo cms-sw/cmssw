@@ -12,7 +12,7 @@ class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
     PFCPositionCalculatorBase(conf),    
     _posCalcNCrystals(conf.getParameter<int>("posCalcNCrystals")),
     _logWeightDenom(conf.getParameter<double>("logWeightDenominator")),
-    _minAllowedNorm(conf.getParameter<double>("minAllowNormalization")){ }
+    _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization")){ }
   Basic2DGenericPFlowPositionCalc(const Basic2DGenericPFlowPositionCalc&) = delete;
   Basic2DGenericPFlowPositionCalc& operator=(const Basic2DGenericPFlowPositionCalc&) = delete;
 

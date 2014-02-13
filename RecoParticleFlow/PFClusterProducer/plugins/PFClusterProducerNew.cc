@@ -23,6 +23,7 @@ using namespace newpf;
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   _prodTopoClusters(conf.getUntrackedParameter<bool>("prodTopoClusters",false))
 {
+  _rechitsLabel = consumes<reco::PFRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsSource")); 
   //setup rechit cleaners
   const edm::VParameterSet& cleanerConfs = 
     conf.getParameterSetVector("recHitCleaners");
