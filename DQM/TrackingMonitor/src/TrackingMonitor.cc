@@ -483,12 +483,12 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     edm::Handle<reco::TrackCollection> trackHandle;
     iEvent.getByToken(trackToken_, trackHandle);
 
-    int numberOfAllTracks = 0;
+    //    int numberOfAllTracks = 0;
     int numberOfTracks_den = 0;
     edm::Handle<reco::TrackCollection> allTrackHandle;
     iEvent.getByToken(allTrackToken_,allTrackHandle);
     if (allTrackHandle.isValid()) {
-      numberOfAllTracks = allTrackHandle->size();
+      //      numberOfAllTracks = allTrackHandle->size();
       for (reco::TrackCollection::const_iterator track = allTrackHandle->begin();
 	   track!=allTrackHandle->end(); ++track) {
 	if ( denSelection_(*track) )
@@ -522,10 +522,8 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
 
       double frac = -1.;
-      if (numberOfAllTracks > 0) frac = static_cast<double>(numberOfTracks)/static_cast<double>(numberOfAllTracks);
-      std::cout << "old frac: " << frac << std::endl;
+      //      if (numberOfAllTracks > 0) frac = static_cast<double>(numberOfTracks)/static_cast<double>(numberOfAllTracks);
       if (numberOfTracks_den > 0) frac = static_cast<double>(numberOfTracks_num)/static_cast<double>(numberOfTracks_den);
-      std::cout << "new frac: " << frac << std::endl;
       
       if (doGeneralPropertiesPlots_ || doAllPlots){
 	NumberOfTracks       -> Fill(numberOfTracks);

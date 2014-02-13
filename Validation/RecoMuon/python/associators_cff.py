@@ -41,6 +41,17 @@ seedsOfSTAmuons = SimMuon.MCTruth.SeedToTrackProducer_cfi.SeedToTrackProducer.cl
 seedsOfSTAmuons.L2seedsCollection = cms.InputTag("ancientMuonSeed")
 seedsOfSTAmuons_seq = cms.Sequence( seedsOfSTAmuons )
 
+# select probe tracks
+import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
+probeTracks = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
+probeTracks.quality = cms.vstring('highPurity')
+probeTracks.tip = cms.double(3.5)
+probeTracks.lip = cms.double(30.)
+probeTracks.ptMin = cms.double(4.0)
+probeTracks.minRapidity = cms.double(-2.4)
+probeTracks.maxRapidity = cms.double(2.4)
+probeTracks_seq = cms.Sequence( probeTracks )
+
 #
 # Associators for Full Sim + Reco:
 #
@@ -48,13 +59,8 @@ seedsOfSTAmuons_seq = cms.Sequence( seedsOfSTAmuons )
 tpToTkmuTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByHits'),
     label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
-    label_tr = cms.InputTag('generalTracks')
-)
-
-tpToTkMuonTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
-    associator = cms.string('MuonAssociatorByHits'),
-    label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
-    label_tr = cms.InputTag('generalTracks','')
+#    label_tr = cms.InputTag('generalTracks')
+    label_tr = cms.InputTag('probeTracks')
 )
 
 tpToStaTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
@@ -169,7 +175,8 @@ tpToL2UpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociat
 tpToL3MuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 
 tpToTkMuonAssociation.tpTag = 'mix:MergedTrackTruth'
-tpToTkMuonAssociation.tracksTag = 'generalTracks'
+#tpToTkMuonAssociation.tracksTag = 'generalTracks'
+tpToTkMuonAssociation.tracksTag = 'probeTracks'
 tpToTkMuonAssociation.UseTracker = True
 tpToTkMuonAssociation.UseMuon = False
 
@@ -314,11 +321,10 @@ tpToGlbCosmicMuonAssociation.UseMuon = True
 
 muonAssociation_seq = cms.Sequence(
     extractedMuonTracks_seq
-    + seedsOfSTAmuons_seq
-    +(tpToTkMuonAssociation)
+    +seedsOfSTAmuons_seq
+    +probeTracks_seq+(tpToTkMuonAssociation+tpToTkmuTrackAssociation)
     +(tpToStaSeedAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
-    +(tpToTkmuTrackAssociation)
-#   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation)
+#   +(tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation)
 )
 muonAssociationTEV_seq = cms.Sequence(
     (tpToTevFirstMuonAssociation+tpToTevPickyMuonAssociation+tpToTevDytMuonAssociation)
@@ -348,7 +354,8 @@ muonAssociationHLT_seq = cms.Sequence(
 tpToTkmuTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByHits'),
     label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
-    label_tr = cms.InputTag('generalTracks')
+#    label_tr = cms.InputTag('generalTracks')
+    label_tr = cms.InputTag('probeTracks')
 )
 
 tpToStaTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
@@ -441,7 +448,8 @@ baseMuonAssociatorFS.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
 baseMuonAssociatorFS.ROUList = ['famosSimHitsTrackerHits']
 
 
-tpToTkMuonAssociationFS   = baseMuonAssociatorFS.clone()
+tpToTkMuonAssociationFS  = baseMuonAssociatorFS.clone()
+tpToStaSeedAssociationFS = baseMuonAssociatorFS.clone()
 tpToStaMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToStaUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToStaRefitMuonAssociationFS  = baseMuonAssociatorFS.clone()
@@ -455,11 +463,18 @@ tpToL2MuonAssociationFS   = baseMuonAssociatorFS.clone()
 tpToL2UpdMuonAssociationFS   = baseMuonAssociatorFS.clone()
 tpToL3MuonAssociationFS   = baseMuonAssociatorFS.clone()
 
-tpToTkMuonAssociationFS.tracksTag = 'generalTracks'
+#tpToTkMuonAssociationFS.tracksTag = 'generalTracks'
+tpToTkMuonAssociationFS.tracksTag = 'probeTracks'
 tpToTkMuonAssociationFS.tpTag = 'mix:MergedTrackTruth'
 tpToTkMuonAssociationFS.UseTracker = True
 tpToTkMuonAssociationFS.UseMuon = False
 
+tpToStaSeedAssociationFS.tpTag = 'mix:MergedTrackTruth'
+tpToStaSeedAssociationFS.tracksTag = 'seedsOfSTAmuons'
+tpToStaSeedAssociationFS.UseTracker = False
+tpToStaSeedAssociationFS.UseMuon = True
+
+tpToStaMuonAssociationFS.tpTag = 'mix:MergedTrackTruth'
 tpToStaMuonAssociationFS.tracksTag = 'standAloneMuons'
 tpToStaMuonAssociationFS.UseTracker = False
 tpToStaMuonAssociationFS.UseMuon = True
@@ -526,10 +541,11 @@ tpToL3MuonAssociationFS.UseGrouped = False
 
 muonAssociationFastSim_seq = cms.Sequence(
         extractedMuonTracks_seq
-        +(tpToTkMuonAssociationFS+tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS)
+        +seedsOfSTAmuons_seq
+        +probeTracks+(tpToTkMuonAssociationFS+tpToTkmuTrackAssociationFS) 
+        +(tpToStaSeedAssociationFS+tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS)
         +(tpToStaRefitMuonAssociationFS+tpToStaRefitUpdMuonAssociationFS)
         +(tpToTevFirstMuonAssociationFS+tpToTevPickyMuonAssociationFS+tpToTevDytMuonAssociationFS)
-        +tpToTkmuTrackAssociationFS
 #        +tpToStaTrackAssociationFS+tpToStaUpdTrackAssociationFS+tpToGlbTrackAssociationFS
 #        +tpToTevFirstTrackAssociationFS+tpToTevPickyTrackAssociationFS
         )

@@ -38,7 +38,6 @@ seed=$rnum
 file="events"
 # Release to be used to define the environment and the compiler needed
 export PRODHOME=`pwd`
-export SCRAM_ARCH=slc5_amd64_gcc462
 export RELEASE=${CMSSW_VERSION}
 export WORKDIR=`pwd`
 
