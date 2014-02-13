@@ -52,3 +52,9 @@ postValidation_gen = cms.Sequence(
     EventGeneratorPostProcessor
 )
 
+
+
+#postProcessing for testing
+postProcessingForTesting = cms.Sequence(postValidation)
+postProcessingForTesting.remove(electronPostValidationSequence)
+postProcessingForTesting.remove(photonPostProcessor)
