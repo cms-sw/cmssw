@@ -5,7 +5,8 @@
   <class name="reco::TrackResiduals" ClassVersion="10">
    <version ClassVersion="10" checksum="2022291691"/>
   </class>
-  <class name="reco::TrackBase" ClassVersion="12">
+  <class name="reco::TrackBase" ClassVersion="13">
+   <version ClassVersion="13" checksum="9999999999"/>
    <version ClassVersion="12" checksum="2704717983"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
@@ -17,7 +18,8 @@
    <version ClassVersion="10" checksum="3548207838"/>
   </class>
 
-  <class name="reco::TrackExtra" ClassVersion="10">
+  <class name="reco::TrackExtra" ClassVersion="11">
+   <version ClassVersion="11" checksum="9999999999"/>
    <version ClassVersion="10" checksum="1613098482"/>
     <field name="outerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="outerMomentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 

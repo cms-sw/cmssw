@@ -4,7 +4,8 @@
   </class>
   <class name="std::vector<reco::GsfComponent5D>"/>
 
-  <class name="reco::GsfTangent" ClassVersion="10">
+  <class name="reco::GsfTangent" ClassVersion="11">
+   <version ClassVersion="11" checksum="9999999999"/>
    <version ClassVersion="10" checksum="3902664602"/>
      <field name="position_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
      <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
@@ -23,7 +24,8 @@
   <class name="edm::Ref<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
 
-  <class name="reco::GsfTrack" ClassVersion="11">
+  <class name="reco::GsfTrack" ClassVersion="12">
+   <version ClassVersion="12" checksum="9999999999"/>
    <version ClassVersion="11" checksum="1456169080"/>
     <field name="momentumMode_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
   </class>
