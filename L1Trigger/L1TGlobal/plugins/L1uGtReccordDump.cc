@@ -157,9 +157,9 @@ namespace l1t {
 
   if(m_dumpGTRecord) {
    
-       printf("\n -------------------------------------- \n");
-       printf(" ***********  New Event  ************** \n");
-       printf(" -------------------------------------- \n"); 
+       cout << " -----------------------------------------------------  " << endl;
+       cout << " *********** Run " << iEvent.id().run()  <<" Event " << iEvent.id().event()  << " **************  " << endl;
+       cout << " ----------------------------------------------------- " << endl; 
 
       // Dump the output record	  
        for(std::vector<L1uGtRecBlk>::const_iterator recBlk = uGtRec->begin(); recBlk != uGtRec->end(); ++recBlk) {
@@ -169,95 +169,117 @@ namespace l1t {
     //Loop over BX
        for(int i =m_minBx; i <= m_maxBx; ++i) {
 
-	  printf("\n ========== BX %i =============================\n",i);
+	  cout << " ========== BX = " << std::dec << i << " =============================" << endl;
 
 	  //Loop over EGamma
-	  printf(" ------ EGammas --------\n");
+	  cout << " ------ EGammas -------- " << endl;
 	  if(i>=egammas->getFirstBX() && i<=egammas->getLastBX()) {
 	      for(std::vector<l1t::EGamma>::const_iterator eg = egammas->begin(i); eg != egammas->end(i); ++eg) {
-        	  printf("   Pt %i Eta %i Phi %i Qual %i  Isol %i\n",eg->hwPt(),eg->hwEta(),eg->hwPhi(),eg->hwQual(),eg->hwIso());
+	          cout << "   Pt "  << std::dec << std::setw(3) << eg->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << eg->hwPt()  << ")";
+		  cout << "   Eta " << std::dec << std::setw(3) << eg->hwEta() << " (0x" << std::hex << std::setw(2) << std::setfill('0') << eg->hwEta() << ")";
+		  cout << "   Phi " << std::dec << std::setw(3) << eg->hwPhi() << " (0x" << std::hex << std::setw(2) << std::setfill('0') << eg->hwPhi() << ")";
+		  cout << "   Iso " << std::dec << std::setw(1) << eg->hwIso() ;
+		  cout << "   Qual "<< std::dec << std::setw(1) << eg->hwQual() ;
+		  cout << endl;
 	      } 
 	  } else {
-	      printf("No EG stored for this bx (%i) \n",i);
+	      cout << "No EG stored for this bx " << i << endl;
 	  }  
 
 	  //Loop over Muons
-	  printf("\n ------ Muons --------\n");
+	  cout << " ------ Muons --------" << endl;
 	  if(i>=muons->getFirstBX() && i<=muons->getLastBX()) {
 	      for(std::vector<l1t::Muon>::const_iterator mu = muons->begin(i); mu != muons->end(i); ++mu) {
-        	  printf("   Pt %i Eta %i Phi %i Qual %i  Iso %i \n",mu->hwPt(),mu->hwEta(),mu->hwPhi(),mu->hwQual(),mu->hwIso());
+	          cout << "   Pt "  << std::dec << std::setw(3) << mu->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPt()  << ")";
+		  cout << "   Eta " << std::dec << std::setw(3) << mu->hwEta() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwEta() << ")";
+		  cout << "   Phi " << std::dec << std::setw(3) << mu->hwPhi() << " (0x" << std::hex << std::setw(3) << std::setfill('0') << mu->hwPhi() << ")";
+		  cout << "   Iso " << std::dec << std::setw(1) << mu->hwIso() ;
+		  cout << "   Qual "<< std::dec << std::setw(1) << mu->hwQual() ;
+		  cout << endl;
 	      }
 	  }else {
-	      printf("No Muons stored for this bx (%i) \n",i);
+	      cout << "No Muons stored for this bx " << i << endl;
 	  }
 
 	  //Loop over Taus
-	  printf("\n ------ Taus ----------\n");
+	  cout << " ------ Taus ----------" << endl;
 	  if(i>=taus->getFirstBX() && i<=taus->getLastBX()) {
 	      for(std::vector<l1t::Tau>::const_iterator tau = taus->begin(i); tau != taus->end(i); ++tau) {
-        	  printf("   Pt %i Eta %i Phi %i Qual %i  Iso %i \n",tau->hwPt(),tau->hwEta(),tau->hwPhi(),tau->hwQual(),tau->hwIso());
+	          cout << "   Pt "  << std::dec << std::setw(3) << tau->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << tau->hwPt()  << ")";
+		  cout << "   Eta " << std::dec << std::setw(3) << tau->hwEta() << " (0x" << std::hex << std::setw(2) << std::setfill('0') << tau->hwEta() << ")";
+		  cout << "   Phi " << std::dec << std::setw(3) << tau->hwPhi() << " (0x" << std::hex << std::setw(2) << std::setfill('0') << tau->hwPhi() << ")";
+		  cout << "   Iso " << std::dec << std::setw(1) << tau->hwIso() ;
+		  cout << "   Qual "<< std::dec << std::setw(1) << tau->hwQual() ;
+		  cout << endl;
 	      } 
 	  } else {
-	      printf("No Taus stored for this bx (%i) \n",i);
+	     cout << "No Taus stored for this bx " << i << endl;
 	  }       
 
 	  //Loop over Jets
-	  printf("\n ------ Jets ----------\n");
+	  cout << " ------ Jets ----------" << endl;
 	  if(i>=jets->getFirstBX() && i<=jets->getLastBX()) {
 	     for(std::vector<l1t::Jet>::const_iterator jet = jets->begin(i); jet != jets->end(i); ++jet) {
-        	printf("   Pt %i Eta %i Phi %i Qual %i \n",jet->hwPt(),jet->hwEta(),jet->hwPhi(),jet->hwQual());
+	          cout << "   Pt "  << std::dec << std::setw(3) << jet->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << jet->hwPt()  << ")";
+		  cout << "   Eta " << std::dec << std::setw(3) << jet->hwEta() << " (0x" << std::hex << std::setw(2) << std::setfill('0') << jet->hwEta() << ")";
+		  cout << "   Phi " << std::dec << std::setw(3) << jet->hwPhi() << " (0x" << std::hex << std::setw(2) << std::setfill('0') << jet->hwPhi() << ")";
+		  cout << "   Qual "<< std::dec << std::setw(1) << jet->hwQual() ;
+		  cout << endl;
 	     }
 	  } else {
-	      printf("No Jets stored for this bx (%i) \n",i);
+	      cout << "No Jets stored for this bx " << i << endl;
 	  }
                      //Dump Content
-	  printf("\n ------ EtSums ----------\n");
+	  cout << " ------ EtSums ----------" << endl;
 	  if(i>=etsums->getFirstBX() && i<=etsums->getLastBX()) {	  
 	     for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(i); etsum != etsums->end(i); ++etsum) {
 	          switch ( etsum->getType() ) {
 		     case l1t::EtSum::EtSumType::kMissingEt:
-		       printf(" ETM: ");
+		       cout << " ETM: ";
 		       break; 
 		     case l1t::EtSum::EtSumType::kMissingHt:
-		       printf(" HTM: ");
+		       cout << " HTM: ";
 		       break; 		     
 		     case l1t::EtSum::EtSumType::kTotalEt:
-		       printf(" ETT: ");
+		       cout << " ETT: ";
 		       break; 		     
 		     case l1t::EtSum::EtSumType::kTotalHt:
-		       printf(" HTT: ");
+		       cout << " HTT: ";
 		       break; 		     
 		  }
-        	  printf(" Pt %i Eta %i Phi %i Qual %i \n",etsum->hwPt(),etsum->hwEta(),etsum->hwPhi(),etsum->hwQual());
+	          cout << " Et "  << std::dec << std::setw(3) << etsum->hwPt()  << " (0x" << std::hex << std::setw(3) << std::setfill('0') << etsum->hwPt()  << ")";
+		  if(etsum->getType() == l1t::EtSum::EtSumType::kMissingEt || etsum->getType() == l1t::EtSum::EtSumType::kMissingHt)
+		     cout << " Phi " << std::dec << std::setw(3) << etsum->hwPhi() << " (0x" << std::hex << std::setw(2) << std::setfill('0') << etsum->hwPhi() << ")";
+		  cout << endl;
 	     } 
 	  } else {
-	      printf("No EtSums stored for this bx (%i) \n",i);
+	      cout << "No EtSums stored for this bx " << i << endl;
 	  }           
 
      // Dump the output record
- 	  printf("\n ------ uGtAlg ----------\n");
+ 	  cout << " ------ uGtAlg ----------" << endl;
 	  if(i>=uGtAlg->getFirstBX() && i<=uGtAlg->getLastBX()) {	  
 	     for(std::vector<L1uGtAlgBlk>::const_iterator algBlk = uGtAlg->begin(i); algBlk != uGtAlg->end(i); ++algBlk) {
         	  algBlk->print(std::cout);
 	     } 
 	  } else {
-	      printf("No Alg Decisions stored for this bx (%i) \n",i);
+	      cout << "No Alg Decisions stored for this bx " << i << endl;
 	  }       
 
       // Dump the output record
- 	  printf("\n ------ uGtExt ----------\n");
+ 	  cout << " ------ uGtExt ----------" << endl;
 	  if(i>=uGtExt->getFirstBX() && i<=uGtExt->getLastBX()) { 	  
 	     for(std::vector<L1uGtExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
         	  extBlk->print(std::cout);
 	     } 
 	  } else {
-	      printf("No Ext Conditions stored for this bx (%i) \n",i);
+	      cout << "No Ext Conditions stored for this bx " << i << endl;
 	  }       
 
 
 
        }
-       printf("\n");
+       cout << std::dec <<endl;
     } //if dumpGtRecord
     
     // Dump Test Vectors for this bx       
