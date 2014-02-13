@@ -1,0 +1,5 @@
+In this subdirectory: 
+src/Analyses/
+the analysis source code files
+[analysisname].cc
+are to be located
