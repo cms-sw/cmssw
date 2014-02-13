@@ -50,6 +50,7 @@ namespace {
     StatCount() { zero();}
     ~StatCount() { print();}
   };
+  StatCount statCount;
 
 #else
   struct StatCount {
@@ -57,9 +58,9 @@ namespace {
     void truncated() {}
     void invalid() {}
   };
+  [[cms::thread_safe]] StatCount statCount;
 #endif
 
-  StatCount statCount;
 
 }
 
@@ -623,3 +624,4 @@ TrajectorySegmentBuilder::cleanCandidates (vector<TempTrajectory>& candidates) c
 }
 
 //==================================================
+
