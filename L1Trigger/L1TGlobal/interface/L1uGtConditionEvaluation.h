@@ -115,9 +115,14 @@ protected:
     template<class Type1> const bool checkBit(const Type1& mask, const unsigned int bitNumber) const;
 
     /// check if a value is in a given range and outside of a veto range
-    template<class Type1> const bool checkRange(const unsigned int bitNumber, 
-						const Type1& beginR, const Type1& endR, 
-						const Type1& beginVetoR, const Type1& endVetoR ) const;
+    template<class Type1> const bool checkRangeEta(const unsigned int bitNumber, 
+						   const Type1& beginR, const Type1& endR, 
+						   const Type1& beginVetoR, const Type1& endVetoR ) const;
+
+    /// check if a value is in a given range and outside of a veto range
+    template<class Type1> const bool checkRangePhi(const unsigned int bitNumber, 
+						   const Type1& beginR, const Type1& endR, 
+						   const Type1& beginVetoR, const Type1& endVetoR ) const;
 
 
 protected:
@@ -209,99 +214,144 @@ template<class Type1> const bool L1uGtConditionEvaluation::checkBit(const Type1&
 
 
 /// check if a value is in a given range and outside of a veto range
-template<class Type1> const bool L1uGtConditionEvaluation::checkRange(const unsigned int bitNumber, 
-								      const Type1& beginR, const Type1& endR, 
-								      const Type1& beginVetoR, const Type1& endVetoR ) const {
+template<class Type1> const bool L1uGtConditionEvaluation::checkRangeEta(const unsigned int bitNumber, 
+									 const Type1& beginR, const Type1& endR, 
+									 const Type1& beginVetoR, const Type1& endVetoR ) const {
 
   // set condtion to true if beginR==endR = default -1
   if( beginR==endR && beginR==-1 ){
     return true;
   }
 
-/*   LogDebug("l1t|Global")  */
-/*     << "\n l1t::L1uGtConditionEvaluation"  */
-/*     << "\n\t bitNumber = " << bitNumber */
-/*     << "\n\t beginR = " << beginR */
-/*     << "\n\t endR   = " << endR */
-/*     << "\n\t beginVetoR = " << beginVetoR */
-/*     << "\n\t endVetoR   = " << endVetoR */
-/*     << std::endl; */
+  unsigned int diff1 = endR - beginR;
+  unsigned int diff2 = bitNumber - beginR;
+  unsigned int diff3 = endR - bitNumber;
+
+  bool cond1 = ( (diff1>>7) & 1 ) ? false : true;
+  bool cond2 = ( (diff2>>7) & 1 ) ? false : true;
+  bool cond3 = ( (diff3>>7) & 1 ) ? false : true;
+
+  LogDebug("l1t|Global")
+    << "\n l1t::L1uGtConditionEvaluation"
+    << "\n\t bitNumber = " << bitNumber
+    << "\n\t beginR = " << beginR
+    << "\n\t endR   = " << endR
+    << "\n\t beginVetoR = " << beginVetoR
+    << "\n\t endVetoR   = " << endVetoR
+    << "\n\t diff1 = " << diff1
+    << "\n\t cond1 = " << cond1
+    << "\n\t diff2 = " << diff2
+    << "\n\t cond2 = " << cond2
+    << "\n\t diff3 = " << diff3
+    << "\n\t cond3 = " << cond3
+    << std::endl;
 
   // check if value is in range
   // for begin <= end takes [begin, end]
   // for begin >= end takes [begin, end] over zero angle!
-  if( endR >= beginR ){
-    if( !( bitNumber>=beginR && bitNumber<=endR ) ){
-      return false;
-    }
-    else if( beginVetoR==endVetoR ){
-      return true;
-    }
-    else {
-      if( endVetoR >= beginVetoR ){
-	if( !( bitNumber<=beginVetoR && bitNumber>=endVetoR ) ){
-	  return false;
-	}
-	else{
-	  return true;
-	}
-      }
-      else{ // go over zero angle!!
-      	if( !( bitNumber<=beginVetoR || bitNumber>=endVetoR ) ){
-	  return false;
-	}
-	else{
-	  return true;
-	}
-      }
-    }
-  }
-  else { // go over zero angle!!
-    if( !( bitNumber>=beginR || bitNumber<=endR ) ){
-      return false;
-    }
-    else if( beginVetoR==endVetoR ){
-      return true;
-    }
-    else {
-      if( endVetoR >= beginVetoR ){
-	if( !( bitNumber<=beginVetoR && bitNumber>=endVetoR ) ){
-	  return false;
-	}
-	else{
-	  return true;
-	}
-      }
-      else{ // go over zero angle!!
-      	if( !( bitNumber<=beginVetoR || bitNumber>=endVetoR ) ){
-	  return false;
-	}
-	else{
-	  return true;
-	}
-      }
-    }
+  bool passWindow = false;
+  if( cond1 && (cond2 && cond3 ) )      passWindow=true;
+  else if( !cond1 && (cond2 || cond3) ) passWindow=true;
+  else{
+    return false;
   }
 
+  if( passWindow ){
+    if( beginVetoR==endVetoR && beginVetoR==-1 ) return true;
+
+    unsigned int diffV1 = endVetoR - beginVetoR;
+    unsigned int diffV2 = bitNumber - beginVetoR;
+    unsigned int diffV3 = endVetoR - bitNumber;
+
+    bool condV1 = ( (diffV1>>7) & 1 ) ? false : true;
+    bool condV2 = ( (diffV2>>7) & 1 ) ? false : true;
+    bool condV3 = ( (diffV3>>7) & 1 ) ? false : true;
+
+    if( condV1 && !(condV2 && condV3) ) return true;
+    else if( !condV1 && !(condV2 || condV3) ) return true;
+    else{
+      return false;
+    }
+  }
+  else{
+    LogDebug("l1t|Global") << "=====> L1uGtConditionEvaluation::checkRange: I should never be here." << std::endl;
+    return false;
+  }
 
   LogDebug("l1t|Global") << "=====> HELP!! I'm trapped and I cannot escape! AHHHHHH" << std::endl;
 
-/*   // DMP Not sure about this, will check with hardware */
-/*   // check to make sure beginRange comes before endRange */
-/*   if( beginR>endR ){ */
-/*     LogTrace("l1t|Global") << " ====> WARNING: range begin = " << beginR << " < end = " << endR << std::endl; */
-/*     return false; */
-/*   } */
+ }
 
-/*   // DMP Not sure about this, will check with hardware */
-/*   // check to make sure beginVetoRange comes before endVetoRange */
-/*   if( beginVetoR>endVetoR ){ */
-/*     LogTrace("l1t|Global") << " ====> WARNING: range veto begin = " << beginR << " < end = " << endR << std::endl; */
-/*     return false; */
-/*   } */
-   
-}
 
+
+/// check if a value is in a given range and outside of a veto range
+template<class Type1> const bool L1uGtConditionEvaluation::checkRangePhi(const unsigned int bitNumber, 
+									 const Type1& beginR, const Type1& endR, 
+									 const Type1& beginVetoR, const Type1& endVetoR ) const {
+
+  // set condtion to true if beginR==endR = default -1
+  if( beginR==endR && beginR==-1 ){
+    return true;
+  }
+
+  unsigned int diff1 = endR - beginR;
+  unsigned int diff2 = bitNumber - beginR;
+  unsigned int diff3 = endR - bitNumber;
+
+  bool cond1 = ( diff1<0 ) ? false : true;
+  bool cond2 = ( diff2<0 ) ? false : true;
+  bool cond3 = ( diff3<0 ) ? false : true;
+
+  LogDebug("l1t|Global")
+    << "\n l1t::L1uGtConditionEvaluation"
+    << "\n\t bitNumber = " << bitNumber
+    << "\n\t beginR = " << beginR
+    << "\n\t endR   = " << endR
+    << "\n\t beginVetoR = " << beginVetoR
+    << "\n\t endVetoR   = " << endVetoR
+    << "\n\t diff1 = " << diff1
+    << "\n\t cond1 = " << cond1
+    << "\n\t diff2 = " << diff2
+    << "\n\t cond2 = " << cond2
+    << "\n\t diff3 = " << diff3
+    << "\n\t cond3 = " << cond3
+    << std::endl;
+
+  // check if value is in range
+  // for begin <= end takes [begin, end]
+  // for begin >= end takes [begin, end] over zero angle!
+  bool passWindow = false;
+  if( cond1 && (cond2 && cond3 ) )      passWindow=true;
+  else if( !cond1 && (cond2 || cond3) ) passWindow=true;
+  else{
+    return false;
+  }
+
+  if( passWindow ){
+    if( beginVetoR==endVetoR && beginVetoR==-1 ) return true;
+
+    unsigned int diffV1 = endVetoR - beginVetoR;
+    unsigned int diffV2 = bitNumber - beginVetoR;
+    unsigned int diffV3 = endVetoR - bitNumber;
+
+    bool condV1 = ( diffV1<0 ) ? false : true;
+    bool condV2 = ( diffV2<0 ) ? false : true;
+    bool condV3 = ( diffV3<0 ) ? false : true;
+
+    if( condV1 && !(condV2 && condV3) ) return true;
+    else if( !condV1 && !(condV2 || condV3) ) return true;
+    else{
+      return false;
+    }
+  }
+  else{
+    LogDebug("l1t|Global") << "=====> L1uGtConditionEvaluation::checkRange: I should never be here." << std::endl;
+    return false;
+  }
+
+  LogDebug("l1t|Global") << "=====> HELP!! I'm trapped and I cannot escape! AHHHHHH" << std::endl;
+
+ }
 
 
 }

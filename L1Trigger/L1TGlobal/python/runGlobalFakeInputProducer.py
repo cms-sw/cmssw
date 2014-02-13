@@ -48,7 +48,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 
 # Flag to switch between using MC particles and injecting individual particles
-useMCtoGT = True
+useMCtoGT = False#True
 
 process.dumpGT = cms.EDAnalyzer("l1t::L1TGlobalInputTester",
                 egInputTag    = cms.InputTag("gtInput"),
@@ -97,10 +97,10 @@ process.fakeL1GTinput = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
 		       ),
 		       
                        jetParams = cms.untracked.PSet(
-		           jetBx    = cms.untracked.vint32(  0,   0,  2, -1, 2),
-			   jetHwPt  = cms.untracked.vint32(100, 200,130,170,145),
-			   jetHwPhi = cms.untracked.vint32( 10,  10, 10, 10, 10),
-			   jetHwEta = cms.untracked.vint32( 11,  11, 11, 11, 11)
+		           jetBx    = cms.untracked.vint32(  0,   0,   2,   1,   1,   2),
+			   jetHwPt  = cms.untracked.vint32(100, 200, 130, 170,  85, 145),
+			   jetHwPhi = cms.untracked.vint32(  2,  67,  10,   3,  78,  10),
+			   jetHwEta = cms.untracked.vint32(  1,  19,  11,   0,  17,  11)
 		       ),
 		       
                        etsumParams = cms.untracked.PSet(

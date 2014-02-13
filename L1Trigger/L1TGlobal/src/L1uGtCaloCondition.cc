@@ -468,7 +468,7 @@ const bool l1t::L1uGtCaloCondition::checkObjectParameter(const int iCondition, c
     }
 
     // check eta
-    if( !checkRange(cand.hwEta(), objPar.etaWindowBegin, objPar.etaWindowEnd, objPar.etaWindowVetoBegin, objPar.etaWindowVetoEnd) ){
+    if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower) ){
       LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
       return false;
     }
@@ -478,7 +478,7 @@ const bool l1t::L1uGtCaloCondition::checkObjectParameter(const int iCondition, c
 //     }
 
     // check phi
-    if( !checkRange(cand.hwPhi(), objPar.phiWindowBegin, objPar.phiWindowEnd, objPar.phiWindowVetoBegin, objPar.phiWindowVetoEnd) ){
+    if( !checkRangePhi(cand.hwPhi(), objPar.phiWindowLower, objPar.phiWindowUpper, objPar.phiWindowVetoLower, objPar.phiWindowVetoLower) ){
       LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(phi)" << std::endl;
       return false;
     }
