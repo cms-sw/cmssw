@@ -53,7 +53,8 @@
   <class name="std::vector<reco::MuonSegmentMatch>"/>
   <class name="std::vector<reco::MuonRPCHitMatch>"/>
 
-  <class name="reco::MuonIsolation" ClassVersion="10">
+  <class name="reco::MuonIsolation" ClassVersion="11">
+   <version ClassVersion="11" checksum="9999999999"/>
    <version ClassVersion="10" checksum="2078425999"/>
   </class>
   <class name="reco::MuonPFIsolation" ClassVersion="15">
