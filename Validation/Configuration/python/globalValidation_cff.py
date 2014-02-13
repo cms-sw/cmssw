@@ -91,15 +91,6 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + L1Validator
 )
 
-#sequence for testing
-globalValidationForTesting = cms.Sequence(globalValidation)
-globalValidationForTesting.remove(egammaValidation)
-
-
-
-
-
-
 #reduced tracking validator to be used in the Validation matrix
 reducedTrackValidator=trackValidator.clone()
 reducedTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
