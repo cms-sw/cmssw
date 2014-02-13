@@ -90,3 +90,41 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + bTagPlotsMCbcl
                                  + L1Validator
 )
+
+
+#sequence for testing
+globalValidationForTesting = cms.Sequence(globalValidation)
+globalValidationForTesting.remove(egammaValidation)
+
+
+
+
+
+
+#reduced tracking validator to be used in the Validation matrix
+reducedTrackValidator=trackValidator.clone()
+reducedTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
+                                                                                    cms.InputTag("cutsRecoTracksHp")
+                                                                                    )
+
+globalValidationReducedTracking = cms.Sequence(globalValidation)
+globalValidationReducedTracking.replace(trackValidator,reducedTrackValidator)
+
+globalValidationReducedTracking.remove(cutsRecoTracksZero)
+globalValidationReducedTracking.remove(cutsRecoTracksZeroHp)
+globalValidationReducedTracking.remove(cutsRecoTracksFirst)
+globalValidationReducedTracking.remove(cutsRecoTracksFirstHp)
+globalValidationReducedTracking.remove(cutsRecoTracksSecond)
+globalValidationReducedTracking.remove(cutsRecoTracksSecondHp)
+globalValidationReducedTracking.remove(cutsRecoTracksThird)
+globalValidationReducedTracking.remove(cutsRecoTracksThirdHp)
+globalValidationReducedTracking.remove(cutsRecoTracksFourth)
+globalValidationReducedTracking.remove(cutsRecoTracksFourthHp)
+globalValidationReducedTracking.remove(cutsRecoTracksFifth)
+globalValidationReducedTracking.remove(cutsRecoTracksFifthHp)
+globalValidationReducedTracking.remove(cutsRecoTracksSixth)
+globalValidationReducedTracking.remove(cutsRecoTracksSixthHp)
+globalValidationReducedTracking.remove(cutsRecoTracksNinth)
+globalValidationReducedTracking.remove(cutsRecoTracksNinthHp)
+globalValidationReducedTracking.remove(cutsRecoTracksTenth)
+globalValidationReducedTracking.remove(cutsRecoTracksTenthHp)
