@@ -130,7 +130,7 @@ class EcalCondObjectContainer {
                         }
                 }
 #else
-;
+		{ }
 #endif
                 
                 inline
