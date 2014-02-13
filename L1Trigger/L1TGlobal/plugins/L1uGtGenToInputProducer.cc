@@ -239,7 +239,9 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   }
 
 
-
+  // Use to sum the energy of the objects in the event for ETT and HTT
+  // sum all EG, taus and jets
+  double sumEt = 0;
 
   // EG Collection
   int numEgCands = int( eg_cands_index.size() );
@@ -271,6 +273,9 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     l1t::EGamma eg(*p4, pt, eta, phi, qual, iso);
     egammas->push_back(bxEval, eg);
+    
+    //Keep running sum of total Et
+    sumEt += mcParticle.pt();
   }
   
 
@@ -305,6 +310,9 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     l1t::Tau tau(*p4, pt, eta, phi, qual, iso);
     taus->push_back(bxEval, tau);
+    
+    //Keep running sum of total Et
+    sumEt += mcParticle.pt();    
   }
 
 
@@ -313,6 +321,9 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   // Make sure that you can get genJets
   if( iEvent.getByToken(genJetsToken, genJets) ){ // Jet Collection
     for(reco::GenJetCollection::const_iterator genJet = genJets->begin(); genJet!=genJets->end(); ++genJet ){
+
+      //Keep running sum of total Et
+      sumEt += genJet->et(); 
 
       // Apply pt and eta cut?
       if( genJet->pt()<jetEtThreshold_ ) continue;
@@ -330,6 +341,8 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
       l1t::Jet jet(*p4, pt, eta, phi, qual);
       jets->push_back(bxEval, jet);
       nJet++;
+      
+     
     }
   }
   else {
@@ -345,13 +358,35 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
+    // Missing Et
     l1t::EtSum etmiss(*p4, l1t::EtSum::EtSumType::kMissingEt,pt, 0,phi, 0); 
     etsums->push_back(bxEval, etmiss);  
+
+    // Make Missing Ht slightly smaller and rotated (These are all fake inputs anyway...not supposed to be realistic)
+    pt  = convertPtToHW( genMet->front().pt()*0.9, 2047., 4094 );
+    phi = convertPhiToHW( genMet->front().phi()+ 3.14/5., 144 );
+
+    l1t::EtSum htmiss(*p4, l1t::EtSum::EtSumType::kMissingHt,pt, 0,phi, 0); 
+    etsums->push_back(bxEval, htmiss);  
+    
+
+
   }
   else {
     LogTrace("l1t|Global") << ">>> GenMet collection not found!" << std::endl;
   }
 
+
+// Put the total Et into EtSums  (Make HTT slightly smaller to tell them apart....not supposed to be realistic) 
+   int pt  = convertPtToHW( sumEt, 2047., 4094 );
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+   l1t::EtSum etTotal(*p4, l1t::EtSum::EtSumType::kTotalEt,pt, 0, 0, 0); 
+   etsums->push_back(bxEval, etTotal);  
+
+   pt  = convertPtToHW( sumEt*0.9, 2047., 4094 );
+   l1t::EtSum htTotal(*p4, l1t::EtSum::EtSumType::kTotalHt,pt, 0, 0, 0); 
+   etsums->push_back(bxEval, htTotal);  
+   
 
   iEvent.put(egammas);
   iEvent.put(muons);
