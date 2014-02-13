@@ -7,6 +7,10 @@
 
 #include <string>
 
+namespace edm {
+  class EventSetup;
+}
+
 class PFCPositionCalculatorBase {
   typedef PFCPositionCalculatorBase PosCalc;
  public:
@@ -17,6 +21,8 @@ class PFCPositionCalculatorBase {
   //get rid of things we should never use
   PFCPositionCalculatorBase(const PosCalc&) = delete;
   PosCalc& operator=(const PosCalc&) = delete;
+
+  virtual void update(const edm::EventSetup&) { }
 
   // here we transform one PFCluster to use the new position calculation
   virtual void calculateAndSetPosition(reco::PFCluster&) = 0;

@@ -68,6 +68,7 @@ void PFClusterProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi,
 					     const edm::EventSetup& es) {
   _topoBuilder->update(es);
   _pfClusterBuilder->update(es);
+  if( _positionReCalc ) _positionReCalc->update(es);
   
 }
 

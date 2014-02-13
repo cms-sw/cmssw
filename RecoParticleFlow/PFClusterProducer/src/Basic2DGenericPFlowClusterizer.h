@@ -22,6 +22,10 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
   Basic2DGenericPFlowClusterizer(const B2DGPF&) = delete;
   B2DGPF& operator=(const B2DGPF&) = delete;
 
+  void update(const edm::EventSetup& es) { 
+    _positionCalc->update(es); _allCellsPosCalc->update(es);
+  }
+
   void buildPFClusters(const reco::PFClusterCollection&,
 		       const std::vector<bool>&,
 		       reco::PFClusterCollection& outclus);
@@ -43,6 +47,7 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
 		      const unsigned iter,
 		      double dist,
 		      reco::PFClusterCollection&) const;
+  
   void prunePFClusters(reco::PFClusterCollection&) const;
 };
 
