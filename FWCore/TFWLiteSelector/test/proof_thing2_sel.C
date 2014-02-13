@@ -24,6 +24,10 @@ void proof_thing2_sel()
     gEnv->SetValue("Proof.Sandbox", "$tmpdir/proof");
   }
 
+  if (gSystem->Getenv("TMPDIR")) {
+    gEnv->SetValue("ProofLite.SockPathDir", "$TMPDIR/proof");
+  }
+
   //Setup the proof server
   TProof *myProof=TProof::Open( "" );
   
