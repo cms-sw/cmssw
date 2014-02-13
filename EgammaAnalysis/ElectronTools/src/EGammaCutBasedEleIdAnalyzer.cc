@@ -57,6 +57,7 @@ class EGammaCutBasedEleIdAnalyzer : public edm::EDAnalyzer {
         ~EGammaCutBasedEleIdAnalyzer();
 
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+	ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget;
 
 
     private:
@@ -78,6 +79,7 @@ class EGammaCutBasedEleIdAnalyzer : public edm::EDAnalyzer {
         edm::EDGetTokenT<double>               rhoIsoToken_;
         edm::EDGetTokenT<reco::VertexCollection>               primaryVertexToken_;
         std::vector<edm::EDGetTokenT<edm::ValueMap<double> > >  isoValTokens_;
+	std::string EAtargetToken_;
 
         // debug
         bool printDebug_;
@@ -110,6 +112,7 @@ EGammaCutBasedEleIdAnalyzer::EGammaCutBasedEleIdAnalyzer(const edm::ParameterSet
     rhoIsoToken_         = consumes<double>(iConfig.getParameter<edm::InputTag>("rhoIsoInputTag"));
     primaryVertexToken_  = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexInputTag"));
     isoValTokens_        = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("isoValInputTags"), [this](edm::InputTag const & tag){return consumes<edm::ValueMap<double> >(tag);});
+    EAtargetToken_	= iConfig.getParameter<std::string>("EAtarget");//EleEANoCorr, EleEAData2011, EleEASummer11MC,EleEAFall11MC, EleEAData2012/ 
 
     // debug
     printDebug_             = iConfig.getParameter<bool>("printDebug");
@@ -193,10 +196,10 @@ EGammaCutBasedEleIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
         //
 
         // working points
-        bool veto       = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso, ElectronEffectiveArea::kEleEAData2012);
-        bool loose      = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso, ElectronEffectiveArea::kEleEAData2012);
-        bool medium     = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso, ElectronEffectiveArea::kEleEAData2012);
-        bool tight      = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso, ElectronEffectiveArea::kEleEAData2012);
+        bool veto       = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso, EAtarget);
+        bool loose      = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::LOOSE, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso, EAtarget);
+        bool medium     = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::MEDIUM, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso, EAtarget);
+        bool tight      = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, ele, conversions_h, beamSpot, vtx_h, iso_ch, iso_em, iso_nh, rhoIso, EAtarget);
 
         // eop/fbrem cuts for extra tight ID
         bool fbremeopin = EgammaCutBasedEleId::PassEoverPCuts(ele);
@@ -243,6 +246,19 @@ EGammaCutBasedEleIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
     void
 EGammaCutBasedEleIdAnalyzer::beginJob()
 {
+  if( EAtargetToken_ == "EleEANoCorr")
+    EAtarget  =ElectronEffectiveArea::kEleEANoCorr;
+  else if( EAtargetToken_ == "EleEAData2011")
+    EAtarget  =ElectronEffectiveArea::kEleEAData2011;
+  else if( EAtargetToken_ == "EleEASummer11MC")
+    EAtarget  =ElectronEffectiveArea::kEleEASummer11MC;
+  else if( EAtargetToken_ == "EleEAFall11MC")
+    EAtarget  =ElectronEffectiveArea::kEleEAFall11MC;
+  else if( EAtargetToken_ == "EleEAData2012")
+    EAtarget  =ElectronEffectiveArea::kEleEAData2012;
+  else
+    EAtarget  =ElectronEffectiveArea::kEleEAData2012;
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
