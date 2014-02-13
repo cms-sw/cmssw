@@ -1614,6 +1614,7 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = 'validation'):
+	    print sequence,"in preparing validation"
             self.loadDefaultOrSpecifiedCFF(sequence,self.VALIDATIONDefaultCFF)
 	    from Validation.Configuration.autoValidation import autoValidation
             #in case VALIDATION:something:somethingelse -> something,somethingelse
@@ -1621,6 +1622,8 @@ class ConfigBuilder(object):
             if sequence.find(',')!=-1:
                     prevalSeqName=sequence.split(',')[0].split('+')
                     valSeqName=sequence.split(',')[1].split('+')
+		    self.expandMapping(prevalSeqName,autoValidation,index=0)
+		    self.expandMapping(valSeqName,autoValidation,index=1)
             else:
 		    if '@' in sequence:
 			    prevalSeqName=sequence.split('+')
