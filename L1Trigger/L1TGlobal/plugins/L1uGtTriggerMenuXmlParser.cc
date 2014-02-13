@@ -1471,7 +1471,7 @@ std::string l1t::L1uGtTriggerMenuXmlParser::l1t2string( l1t::ConditionType data 
   ss << data;
   return ss.str();
 }
-std::string l1t::L1uGtTriggerMenuXmlParser::l1t2string( l1t::ConditionEtComparison data ){
+std::string l1t::L1uGtTriggerMenuXmlParser::l1t2string( l1t::EtComparison data ){
   std::stringstream ss;
   ss << data;
   return ss.str();
@@ -1496,7 +1496,7 @@ std::string l1t::L1uGtTriggerMenuXmlParser::l1t2string( l1t::AlgorithmEquation d
   ss << data;
   return ss.str();
 }
-std::string l1t::L1uGtTriggerMenuXmlParser::l1t2string( l1t::Threshold data ){
+std::string l1t::L1uGtTriggerMenuXmlParser::l1t2string( l1t::EtThreshold data ){
   std::stringstream ss;
   ss << data;
   return ss.str();
@@ -1926,10 +1926,10 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
     std::vector<boost::uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
     tmpValues.reserve( nrObj );
 
-    if( int(condCalo.objectParameters().objectParameter().size())!=nrObj ){
+    if( int(condCalo.objectRequirements().objectRequirement().size())!=nrObj ){
       edm::LogError("L1uGtTriggerMenuXmlParser") << " condCalo objects: nrObj = " << nrObj
-						    << "condCalo.objectParameters().objectParameter().size() = " 
-						    << condCalo.objectParameters().objectParameter().size()
+						    << "condCalo.objectRequirements().objectRequirement().size() = " 
+						    << condCalo.objectRequirements().objectRequirement().size()
 						    << std::endl;
       return false;
     }
@@ -1939,8 +1939,8 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
     boost::uint64_t tempUIntH, tempUIntL;
     boost::uint64_t dst;
     int cnt = 0;
-    for( l1t::CalorimeterObjectParameters::objectParameter_const_iterator objPar = condCalo.objectParameters().objectParameter().begin();
-	 objPar != condCalo.objectParameters().objectParameter().end(); ++objPar ){
+    for( l1t::CalorimeterObjectRequirements::objectRequirement_const_iterator objPar = condCalo.objectRequirements().objectRequirement().begin();
+	 objPar != condCalo.objectRequirements().objectRequirement().end(); ++objPar ){
 
       // ET Threshold
       str_condCalo = l1t2string( objPar->etThreshold() );
@@ -1962,62 +1962,62 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
 
 
       int cntEta=0;
-      int etaRangeBegin=-1, etaRangeEnd=-1, etaRangeVetoBegin=-1, etaRangeVetoEnd=-1;
+      int etaWindowBegin=-1, etaWindowEnd=-1, etaWindowVetoBegin=-1, etaWindowVetoEnd=-1;
       // Temporary before translation
-      for( l1t::CalorimeterObjectParameter::etaRange_const_iterator etaRange =objPar->etaRange().begin();
-	   etaRange != objPar->etaRange().end(); ++etaRange ){
+      for( l1t::CalorimeterObjectRequirement::etaWindow_const_iterator etaWindow =objPar->etaWindow().begin();
+	   etaWindow != objPar->etaWindow().end(); ++etaWindow ){
 	
 	LogDebug("l1t|Global")
-	  << "\n etaRange begin = " << etaRange->begin()
-	  << "\n etaRange end   = " << etaRange->end() 
+	  << "\n etaWindow lower = " << etaWindow->lower()
+	  << "\n etaWindow upper = " << etaWindow->upper() 
 	  << std::endl;
-	if( cntEta==0 ){      etaRangeBegin = etaRange->begin(); etaRangeEnd = etaRange->end(); }
-	else if( cntEta==1 ){ etaRangeVetoBegin = etaRange->begin(); etaRangeVetoEnd = etaRange->end(); }
+	if( cntEta==0 ){      etaWindowBegin = etaWindow->lower(); etaWindowEnd = etaWindow->upper(); }
+	else if( cntEta==1 ){ etaWindowVetoBegin = etaWindow->lower(); etaWindowVetoEnd = etaWindow->upper(); }
 	cntEta++;
       }
 
       int cntPhi=0;
-      int phiRangeBegin=-1, phiRangeEnd=-1, phiRangeVetoBegin=-1, phiRangeVetoEnd=-1;
-      for( l1t::CalorimeterObjectParameter::phiRange_const_iterator phiRange =objPar->phiRange().begin();
-	   phiRange != objPar->phiRange().end(); ++phiRange ){
+      int phiWindowBegin=-1, phiWindowEnd=-1, phiWindowVetoBegin=-1, phiWindowVetoEnd=-1;
+      for( l1t::CalorimeterObjectRequirement::phiWindow_const_iterator phiWindow =objPar->phiWindow().begin();
+	   phiWindow != objPar->phiWindow().end(); ++phiWindow ){
  
 	LogDebug("l1t|Global")
-	  << "\n phiRange begin = " << phiRange->begin()
-	  << "\n phiRange end   = " << phiRange->end() 
+	  << "\n phiWindow begin = " << phiWindow->lower()
+	  << "\n phiWindow end   = " << phiWindow->upper() 
 	  << std::endl;
 
-	if( cntPhi==0 ){      phiRangeBegin = phiRange->begin(); phiRangeEnd = phiRange->end(); }
-	else if( cntPhi==1 ){ phiRangeVetoBegin = phiRange->begin(); phiRangeVetoEnd = phiRange->end(); }
+	if( cntPhi==0 ){      phiWindowBegin = phiWindow->lower(); phiWindowEnd = phiWindow->upper(); }
+	else if( cntPhi==1 ){ phiWindowVetoBegin = phiWindow->lower(); phiWindowVetoEnd = phiWindow->upper(); }
 	cntPhi++;
       }
 
-      objParameter[cnt].etaRangeBegin     = etaRangeBegin;
-      objParameter[cnt].etaRangeEnd       = etaRangeEnd;
-      objParameter[cnt].etaRangeVetoBegin = etaRangeVetoBegin;
-      objParameter[cnt].etaRangeVetoEnd   = etaRangeVetoEnd;
+      objParameter[cnt].etaWindowBegin     = etaWindowBegin;
+      objParameter[cnt].etaWindowEnd       = etaWindowEnd;
+      objParameter[cnt].etaWindowVetoBegin = etaWindowVetoBegin;
+      objParameter[cnt].etaWindowVetoEnd   = etaWindowVetoEnd;
 
-      objParameter[cnt].phiRangeBegin     = phiRangeBegin;
-      objParameter[cnt].phiRangeEnd       = phiRangeEnd;
-      objParameter[cnt].phiRangeVetoBegin = phiRangeVetoBegin;
-      objParameter[cnt].phiRangeVetoEnd   = phiRangeVetoEnd;
+      objParameter[cnt].phiWindowBegin     = phiWindowBegin;
+      objParameter[cnt].phiWindowEnd       = phiWindowEnd;
+      objParameter[cnt].phiWindowVetoBegin = phiWindowVetoBegin;
+      objParameter[cnt].phiWindowVetoEnd   = phiWindowVetoEnd;
 
       
       // Output for debugging
       LogDebug("l1t|Global") 
 	<< "\n      Calo ET high threshold (hex) for calo object " << cnt << " = "
 	<< std::hex << objParameter[cnt].etThreshold << std::dec
-	<< "\n      etaRange (hex) for calo object " << cnt << " = "
+	<< "\n      etaWindow (hex) for calo object " << cnt << " = "
 	<< std::hex << objParameter[cnt].etaRange << std::dec
 	<< "\n      phiRange (hex) for calo object " << cnt << " = "
 	<< std::hex << objParameter[cnt].phiRange << std::dec
-	<< "\n      etaRangeBegin / End for calo object " << cnt << " = "
-	<< objParameter[cnt].etaRangeBegin << " / " << objParameter[cnt].etaRangeEnd
-	<< "\n      etaRangeVetoBegin / End for calo object " << cnt << " = "
-	<< objParameter[cnt].etaRangeVetoBegin << " / " << objParameter[cnt].etaRangeVetoEnd
-	<< "\n      phiRangeBegin / End for calo object " << cnt << " = "
-	<< objParameter[cnt].phiRangeBegin << " / " << objParameter[cnt].phiRangeEnd
-	<< "\n      phiRangeVetoBegin / End for calo object " << cnt << " = "
-	<< objParameter[cnt].phiRangeVetoBegin << " / " << objParameter[cnt].phiRangeVetoEnd
+	<< "\n      etaWindowBegin / End for calo object " << cnt << " = "
+	<< objParameter[cnt].etaWindowBegin << " / " << objParameter[cnt].etaWindowEnd
+	<< "\n      etaWindowVetoBegin / End for calo object " << cnt << " = "
+	<< objParameter[cnt].etaWindowVetoBegin << " / " << objParameter[cnt].etaWindowVetoEnd
+	<< "\n      phiWindowBegin / End for calo object " << cnt << " = "
+	<< objParameter[cnt].phiWindowBegin << " / " << objParameter[cnt].phiWindowEnd
+	<< "\n      phiWindowVetoBegin / End for calo object " << cnt << " = "
+	<< objParameter[cnt].phiWindowVetoBegin << " / " << objParameter[cnt].phiWindowVetoEnd
 	<< std::endl;
 
       cnt++;
@@ -2030,12 +2030,12 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
 
     if( wscVal ){
 
-      xsd::cxx::tree::optional<l1t::DeltaRanges> condRanges = condCalo.deltaRanges();
+      xsd::cxx::tree::optional<l1t::DeltaRequirement> condRanges = condCalo.deltaRequirement();
       LogDebug("l1t|Global") 
-	<< "\t condRanges->deltaEtaRange().begin() = " << condRanges->deltaEtaRange().begin()
-	<< "\n\t condRanges->deltaEtaRange().end()   = " << condRanges->deltaEtaRange().end()
-	<< "\n\t condRanges->deltaPhiRange().begin() = " << condRanges->deltaPhiRange().begin()
-	<< "\n\t condRanges->deltaPhiRange().end() = " << condRanges->deltaPhiRange().end() 
+	<< "\t condRanges->deltaEtaRange().lower() = " << condRanges->deltaEtaRange().lower()
+	<< "\n\t condRanges->deltaEtaRange().upper()   = " << condRanges->deltaEtaRange().upper()
+	<< "\n\t condRanges->deltaPhiRange().lower() = " << condRanges->deltaPhiRange().lower()
+	<< "\n\t condRanges->deltaPhiRange().upper() = " << condRanges->deltaPhiRange().upper() 
 	<< std::endl;
 
       //

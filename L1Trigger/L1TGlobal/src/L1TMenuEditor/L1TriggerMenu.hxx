@@ -231,22 +231,22 @@ namespace l1t
   class FirmwareVersion;
   class History;
   class Revision;
-  class ConditionEtComparison;
+  class EtComparison;
   class RelativeBx;
   class ConditionName;
   class ConditionType;
   class CalorimeterObjectType;
-  class Threshold;
+  class EtThreshold;
   class AlgorithmName;
   class AlgorithmIndex;
   class AlgorithmEquation;
   class Meta;
   class ConditionList;
   class Condition;
-  class Range;
-  class DeltaRanges;
-  class CalorimeterObjectParameter;
-  class CalorimeterObjectParameters;
+  class Window;
+  class DeltaRequirement;
+  class CalorimeterObjectRequirement;
+  class CalorimeterObjectRequirements;
   class CalorimeterCondition;
   class MuonCondition;
   class EnergySumsCondition;
@@ -653,7 +653,7 @@ namespace l1t
     hostname_optional hostname_;
   };
 
-  class ConditionEtComparison: public ::xml_schema::string
+  class EtComparison: public ::xml_schema::string
   {
     public:
     enum value
@@ -662,51 +662,51 @@ namespace l1t
       ge
     };
 
-    ConditionEtComparison (value v);
+    EtComparison (value v);
 
-    ConditionEtComparison (const char* v);
+    EtComparison (const char* v);
 
-    ConditionEtComparison (const ::std::string& v);
+    EtComparison (const ::std::string& v);
 
-    ConditionEtComparison (const ::xml_schema::string& v);
+    EtComparison (const ::xml_schema::string& v);
 
-    ConditionEtComparison (const ::xercesc::DOMElement& e,
-                           ::xml_schema::flags f = 0,
-                           ::xml_schema::container* c = 0);
+    EtComparison (const ::xercesc::DOMElement& e,
+                  ::xml_schema::flags f = 0,
+                  ::xml_schema::container* c = 0);
 
-    ConditionEtComparison (const ::xercesc::DOMAttr& a,
-                           ::xml_schema::flags f = 0,
-                           ::xml_schema::container* c = 0);
+    EtComparison (const ::xercesc::DOMAttr& a,
+                  ::xml_schema::flags f = 0,
+                  ::xml_schema::container* c = 0);
 
-    ConditionEtComparison (const ::std::string& s,
-                           const ::xercesc::DOMElement* e,
-                           ::xml_schema::flags f = 0,
-                           ::xml_schema::container* c = 0);
+    EtComparison (const ::std::string& s,
+                  const ::xercesc::DOMElement* e,
+                  ::xml_schema::flags f = 0,
+                  ::xml_schema::container* c = 0);
 
-    ConditionEtComparison (const ConditionEtComparison& x,
-                           ::xml_schema::flags f = 0,
-                           ::xml_schema::container* c = 0);
+    EtComparison (const EtComparison& x,
+                  ::xml_schema::flags f = 0,
+                  ::xml_schema::container* c = 0);
 
-    virtual ConditionEtComparison*
+    virtual EtComparison*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
-    ConditionEtComparison&
+    EtComparison&
     operator= (value v);
 
     virtual
     operator value () const
     {
-      return _xsd_ConditionEtComparison_convert ();
+      return _xsd_EtComparison_convert ();
     }
 
     protected:
     value
-    _xsd_ConditionEtComparison_convert () const;
+    _xsd_EtComparison_convert () const;
 
     public:
-    static const char* const _xsd_ConditionEtComparison_literals_[2];
-    static const value _xsd_ConditionEtComparison_indexes_[2];
+    static const char* const _xsd_EtComparison_literals_[2];
+    static const value _xsd_EtComparison_indexes_[2];
   };
 
   class RelativeBx: public ::xsd::cxx::tree::fundamental_base< ::xml_schema::integer, char, ::xml_schema::simple_type >
@@ -895,36 +895,36 @@ namespace l1t
     static const value _xsd_CalorimeterObjectType_indexes_[3];
   };
 
-  class Threshold: public ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type >
+  class EtThreshold: public ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type >
   {
     public:
     // Constructors.
     //
-    Threshold (const ::xml_schema::unsigned_int&);
+    EtThreshold (const ::xml_schema::unsigned_int&);
 
-    Threshold (const ::xercesc::DOMElement& e,
-               ::xml_schema::flags f = 0,
-               ::xml_schema::container* c = 0);
+    EtThreshold (const ::xercesc::DOMElement& e,
+                 ::xml_schema::flags f = 0,
+                 ::xml_schema::container* c = 0);
 
-    Threshold (const ::xercesc::DOMAttr& a,
-               ::xml_schema::flags f = 0,
-               ::xml_schema::container* c = 0);
+    EtThreshold (const ::xercesc::DOMAttr& a,
+                 ::xml_schema::flags f = 0,
+                 ::xml_schema::container* c = 0);
 
-    Threshold (const ::std::string& s,
-               const ::xercesc::DOMElement* e,
-               ::xml_schema::flags f = 0,
-               ::xml_schema::container* c = 0);
+    EtThreshold (const ::std::string& s,
+                 const ::xercesc::DOMElement* e,
+                 ::xml_schema::flags f = 0,
+                 ::xml_schema::container* c = 0);
 
-    Threshold (const Threshold& x,
-               ::xml_schema::flags f = 0,
-               ::xml_schema::container* c = 0);
+    EtThreshold (const EtThreshold& x,
+                 ::xml_schema::flags f = 0,
+                 ::xml_schema::container* c = 0);
 
-    virtual Threshold*
+    virtual EtThreshold*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~Threshold ();
+    ~EtThreshold ();
   };
 
   class AlgorithmName: public ::xml_schema::string
@@ -1392,56 +1392,56 @@ namespace l1t
     ::xsd::cxx::tree::one< locked_type > locked_;
   };
 
-  class Range: public ::xml_schema::type
+  class Window: public ::xml_schema::type
   {
     public:
-    // begin
+    // lower
     // 
-    typedef ::xml_schema::unsigned_int begin_type;
-    typedef ::xsd::cxx::tree::traits< begin_type, char > begin_traits;
+    typedef ::xml_schema::unsigned_int lower_type;
+    typedef ::xsd::cxx::tree::traits< lower_type, char > lower_traits;
 
-    const begin_type&
-    begin () const;
+    const lower_type&
+    lower () const;
 
-    begin_type&
-    begin ();
+    lower_type&
+    lower ();
 
     void
-    begin (const begin_type& x);
+    lower (const lower_type& x);
 
-    // end
+    // upper
     // 
-    typedef ::xml_schema::unsigned_int end_type;
-    typedef ::xsd::cxx::tree::traits< end_type, char > end_traits;
+    typedef ::xml_schema::unsigned_int upper_type;
+    typedef ::xsd::cxx::tree::traits< upper_type, char > upper_traits;
 
-    const end_type&
-    end () const;
+    const upper_type&
+    upper () const;
 
-    end_type&
-    end ();
+    upper_type&
+    upper ();
 
     void
-    end (const end_type& x);
+    upper (const upper_type& x);
 
     // Constructors.
     //
-    Range (const begin_type&,
-           const end_type&);
+    Window (const lower_type&,
+            const upper_type&);
 
-    Range (const ::xercesc::DOMElement& e,
-           ::xml_schema::flags f = 0,
-           ::xml_schema::container* c = 0);
+    Window (const ::xercesc::DOMElement& e,
+            ::xml_schema::flags f = 0,
+            ::xml_schema::container* c = 0);
 
-    Range (const Range& x,
-           ::xml_schema::flags f = 0,
-           ::xml_schema::container* c = 0);
+    Window (const Window& x,
+            ::xml_schema::flags f = 0,
+            ::xml_schema::container* c = 0);
 
-    virtual Range*
+    virtual Window*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~Range ();
+    ~Window ();
 
     // Implementation.
     //
@@ -1451,33 +1451,16 @@ namespace l1t
            ::xml_schema::flags);
 
     protected:
-    ::xsd::cxx::tree::one< begin_type > begin_;
-    ::xsd::cxx::tree::one< end_type > end_;
+    ::xsd::cxx::tree::one< lower_type > lower_;
+    ::xsd::cxx::tree::one< upper_type > upper_;
   };
 
-  class DeltaRanges: public ::xml_schema::type
+  class DeltaRequirement: public ::xml_schema::type
   {
     public:
-    // deltaEtaRange
-    // 
-    typedef ::l1t::Range deltaEtaRange_type;
-    typedef ::xsd::cxx::tree::traits< deltaEtaRange_type, char > deltaEtaRange_traits;
-
-    const deltaEtaRange_type&
-    deltaEtaRange () const;
-
-    deltaEtaRange_type&
-    deltaEtaRange ();
-
-    void
-    deltaEtaRange (const deltaEtaRange_type& x);
-
-    void
-    deltaEtaRange (::std::auto_ptr< deltaEtaRange_type > p);
-
     // deltaPhiRange
     // 
-    typedef ::l1t::Range deltaPhiRange_type;
+    typedef ::l1t::Window deltaPhiRange_type;
     typedef ::xsd::cxx::tree::traits< deltaPhiRange_type, char > deltaPhiRange_traits;
 
     const deltaPhiRange_type&
@@ -1492,28 +1475,45 @@ namespace l1t
     void
     deltaPhiRange (::std::auto_ptr< deltaPhiRange_type > p);
 
+    // deltaEtaRange
+    // 
+    typedef ::l1t::Window deltaEtaRange_type;
+    typedef ::xsd::cxx::tree::traits< deltaEtaRange_type, char > deltaEtaRange_traits;
+
+    const deltaEtaRange_type&
+    deltaEtaRange () const;
+
+    deltaEtaRange_type&
+    deltaEtaRange ();
+
+    void
+    deltaEtaRange (const deltaEtaRange_type& x);
+
+    void
+    deltaEtaRange (::std::auto_ptr< deltaEtaRange_type > p);
+
     // Constructors.
     //
-    DeltaRanges (const deltaEtaRange_type&,
-                 const deltaPhiRange_type&);
+    DeltaRequirement (const deltaPhiRange_type&,
+                      const deltaEtaRange_type&);
 
-    DeltaRanges (::std::auto_ptr< deltaEtaRange_type >&,
-                 ::std::auto_ptr< deltaPhiRange_type >&);
+    DeltaRequirement (::std::auto_ptr< deltaPhiRange_type >&,
+                      ::std::auto_ptr< deltaEtaRange_type >&);
 
-    DeltaRanges (const ::xercesc::DOMElement& e,
-                 ::xml_schema::flags f = 0,
-                 ::xml_schema::container* c = 0);
+    DeltaRequirement (const ::xercesc::DOMElement& e,
+                      ::xml_schema::flags f = 0,
+                      ::xml_schema::container* c = 0);
 
-    DeltaRanges (const DeltaRanges& x,
-                 ::xml_schema::flags f = 0,
-                 ::xml_schema::container* c = 0);
+    DeltaRequirement (const DeltaRequirement& x,
+                      ::xml_schema::flags f = 0,
+                      ::xml_schema::container* c = 0);
 
-    virtual DeltaRanges*
+    virtual DeltaRequirement*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~DeltaRanges ();
+    ~DeltaRequirement ();
 
     // Implementation.
     //
@@ -1523,16 +1523,16 @@ namespace l1t
            ::xml_schema::flags);
 
     protected:
-    ::xsd::cxx::tree::one< deltaEtaRange_type > deltaEtaRange_;
     ::xsd::cxx::tree::one< deltaPhiRange_type > deltaPhiRange_;
+    ::xsd::cxx::tree::one< deltaEtaRange_type > deltaEtaRange_;
   };
 
-  class CalorimeterObjectParameter: public ::xml_schema::type
+  class CalorimeterObjectRequirement: public ::xml_schema::type
   {
     public:
     // etThreshold
     // 
-    typedef ::l1t::Threshold etThreshold_type;
+    typedef ::l1t::EtThreshold etThreshold_type;
     typedef ::xsd::cxx::tree::traits< etThreshold_type, char > etThreshold_traits;
 
     const etThreshold_type&
@@ -1547,58 +1547,58 @@ namespace l1t
     void
     etThreshold (::std::auto_ptr< etThreshold_type > p);
 
-    // phiRange
+    // phiWindow
     // 
-    typedef ::l1t::Range phiRange_type;
-    typedef ::xsd::cxx::tree::sequence< phiRange_type > phiRange_sequence;
-    typedef phiRange_sequence::iterator phiRange_iterator;
-    typedef phiRange_sequence::const_iterator phiRange_const_iterator;
-    typedef ::xsd::cxx::tree::traits< phiRange_type, char > phiRange_traits;
+    typedef ::l1t::Window phiWindow_type;
+    typedef ::xsd::cxx::tree::sequence< phiWindow_type > phiWindow_sequence;
+    typedef phiWindow_sequence::iterator phiWindow_iterator;
+    typedef phiWindow_sequence::const_iterator phiWindow_const_iterator;
+    typedef ::xsd::cxx::tree::traits< phiWindow_type, char > phiWindow_traits;
 
-    const phiRange_sequence&
-    phiRange () const;
+    const phiWindow_sequence&
+    phiWindow () const;
 
-    phiRange_sequence&
-    phiRange ();
+    phiWindow_sequence&
+    phiWindow ();
 
     void
-    phiRange (const phiRange_sequence& s);
+    phiWindow (const phiWindow_sequence& s);
 
-    // etaRange
+    // etaWindow
     // 
-    typedef ::l1t::Range etaRange_type;
-    typedef ::xsd::cxx::tree::sequence< etaRange_type > etaRange_sequence;
-    typedef etaRange_sequence::iterator etaRange_iterator;
-    typedef etaRange_sequence::const_iterator etaRange_const_iterator;
-    typedef ::xsd::cxx::tree::traits< etaRange_type, char > etaRange_traits;
+    typedef ::l1t::Window etaWindow_type;
+    typedef ::xsd::cxx::tree::sequence< etaWindow_type > etaWindow_sequence;
+    typedef etaWindow_sequence::iterator etaWindow_iterator;
+    typedef etaWindow_sequence::const_iterator etaWindow_const_iterator;
+    typedef ::xsd::cxx::tree::traits< etaWindow_type, char > etaWindow_traits;
 
-    const etaRange_sequence&
-    etaRange () const;
+    const etaWindow_sequence&
+    etaWindow () const;
 
-    etaRange_sequence&
-    etaRange ();
+    etaWindow_sequence&
+    etaWindow ();
 
     void
-    etaRange (const etaRange_sequence& s);
+    etaWindow (const etaWindow_sequence& s);
 
     // Constructors.
     //
-    CalorimeterObjectParameter (const etThreshold_type&);
+    CalorimeterObjectRequirement (const etThreshold_type&);
 
-    CalorimeterObjectParameter (const ::xercesc::DOMElement& e,
-                                ::xml_schema::flags f = 0,
-                                ::xml_schema::container* c = 0);
+    CalorimeterObjectRequirement (const ::xercesc::DOMElement& e,
+                                  ::xml_schema::flags f = 0,
+                                  ::xml_schema::container* c = 0);
 
-    CalorimeterObjectParameter (const CalorimeterObjectParameter& x,
-                                ::xml_schema::flags f = 0,
-                                ::xml_schema::container* c = 0);
+    CalorimeterObjectRequirement (const CalorimeterObjectRequirement& x,
+                                  ::xml_schema::flags f = 0,
+                                  ::xml_schema::container* c = 0);
 
-    virtual CalorimeterObjectParameter*
+    virtual CalorimeterObjectRequirement*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~CalorimeterObjectParameter ();
+    ~CalorimeterObjectRequirement ();
 
     // Implementation.
     //
@@ -1609,48 +1609,48 @@ namespace l1t
 
     protected:
     ::xsd::cxx::tree::one< etThreshold_type > etThreshold_;
-    phiRange_sequence phiRange_;
-    etaRange_sequence etaRange_;
+    phiWindow_sequence phiWindow_;
+    etaWindow_sequence etaWindow_;
   };
 
-  class CalorimeterObjectParameters: public ::xml_schema::type
+  class CalorimeterObjectRequirements: public ::xml_schema::type
   {
     public:
-    // objectParameter
+    // objectRequirement
     // 
-    typedef ::l1t::CalorimeterObjectParameter objectParameter_type;
-    typedef ::xsd::cxx::tree::sequence< objectParameter_type > objectParameter_sequence;
-    typedef objectParameter_sequence::iterator objectParameter_iterator;
-    typedef objectParameter_sequence::const_iterator objectParameter_const_iterator;
-    typedef ::xsd::cxx::tree::traits< objectParameter_type, char > objectParameter_traits;
+    typedef ::l1t::CalorimeterObjectRequirement objectRequirement_type;
+    typedef ::xsd::cxx::tree::sequence< objectRequirement_type > objectRequirement_sequence;
+    typedef objectRequirement_sequence::iterator objectRequirement_iterator;
+    typedef objectRequirement_sequence::const_iterator objectRequirement_const_iterator;
+    typedef ::xsd::cxx::tree::traits< objectRequirement_type, char > objectRequirement_traits;
 
-    const objectParameter_sequence&
-    objectParameter () const;
+    const objectRequirement_sequence&
+    objectRequirement () const;
 
-    objectParameter_sequence&
-    objectParameter ();
+    objectRequirement_sequence&
+    objectRequirement ();
 
     void
-    objectParameter (const objectParameter_sequence& s);
+    objectRequirement (const objectRequirement_sequence& s);
 
     // Constructors.
     //
-    CalorimeterObjectParameters ();
+    CalorimeterObjectRequirements ();
 
-    CalorimeterObjectParameters (const ::xercesc::DOMElement& e,
-                                 ::xml_schema::flags f = 0,
-                                 ::xml_schema::container* c = 0);
+    CalorimeterObjectRequirements (const ::xercesc::DOMElement& e,
+                                   ::xml_schema::flags f = 0,
+                                   ::xml_schema::container* c = 0);
 
-    CalorimeterObjectParameters (const CalorimeterObjectParameters& x,
-                                 ::xml_schema::flags f = 0,
-                                 ::xml_schema::container* c = 0);
+    CalorimeterObjectRequirements (const CalorimeterObjectRequirements& x,
+                                   ::xml_schema::flags f = 0,
+                                   ::xml_schema::container* c = 0);
 
-    virtual CalorimeterObjectParameters*
+    virtual CalorimeterObjectRequirements*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~CalorimeterObjectParameters ();
+    ~CalorimeterObjectRequirements ();
 
     // Implementation.
     //
@@ -1660,7 +1660,7 @@ namespace l1t
            ::xml_schema::flags);
 
     protected:
-    objectParameter_sequence objectParameter_;
+    objectRequirement_sequence objectRequirement_;
   };
 
   class CalorimeterCondition: public ::l1t::Condition
@@ -1685,7 +1685,7 @@ namespace l1t
 
     // etComparison
     // 
-    typedef ::l1t::ConditionEtComparison etComparison_type;
+    typedef ::l1t::EtComparison etComparison_type;
     typedef ::xsd::cxx::tree::traits< etComparison_type, char > etComparison_traits;
 
     const etComparison_type&
@@ -1717,43 +1717,43 @@ namespace l1t
     void
     objectType (::std::auto_ptr< objectType_type > p);
 
-    // objectParameters
+    // objectRequirements
     // 
-    typedef ::l1t::CalorimeterObjectParameters objectParameters_type;
-    typedef ::xsd::cxx::tree::traits< objectParameters_type, char > objectParameters_traits;
+    typedef ::l1t::CalorimeterObjectRequirements objectRequirements_type;
+    typedef ::xsd::cxx::tree::traits< objectRequirements_type, char > objectRequirements_traits;
 
-    const objectParameters_type&
-    objectParameters () const;
+    const objectRequirements_type&
+    objectRequirements () const;
 
-    objectParameters_type&
-    objectParameters ();
-
-    void
-    objectParameters (const objectParameters_type& x);
+    objectRequirements_type&
+    objectRequirements ();
 
     void
-    objectParameters (::std::auto_ptr< objectParameters_type > p);
+    objectRequirements (const objectRequirements_type& x);
 
-    // deltaRanges
+    void
+    objectRequirements (::std::auto_ptr< objectRequirements_type > p);
+
+    // deltaRequirement
     // 
-    typedef ::l1t::DeltaRanges deltaRanges_type;
-    typedef ::xsd::cxx::tree::optional< deltaRanges_type > deltaRanges_optional;
-    typedef ::xsd::cxx::tree::traits< deltaRanges_type, char > deltaRanges_traits;
+    typedef ::l1t::DeltaRequirement deltaRequirement_type;
+    typedef ::xsd::cxx::tree::optional< deltaRequirement_type > deltaRequirement_optional;
+    typedef ::xsd::cxx::tree::traits< deltaRequirement_type, char > deltaRequirement_traits;
 
-    const deltaRanges_optional&
-    deltaRanges () const;
+    const deltaRequirement_optional&
+    deltaRequirement () const;
 
-    deltaRanges_optional&
-    deltaRanges ();
-
-    void
-    deltaRanges (const deltaRanges_type& x);
+    deltaRequirement_optional&
+    deltaRequirement ();
 
     void
-    deltaRanges (const deltaRanges_optional& x);
+    deltaRequirement (const deltaRequirement_type& x);
 
     void
-    deltaRanges (::std::auto_ptr< deltaRanges_type > p);
+    deltaRequirement (const deltaRequirement_optional& x);
+
+    void
+    deltaRequirement (::std::auto_ptr< deltaRequirement_type > p);
 
     // relativeBx
     // 
@@ -1780,7 +1780,7 @@ namespace l1t
                           const type_type&,
                           const etComparison_type&,
                           const objectType_type&,
-                          const objectParameters_type&,
+                          const objectRequirements_type&,
                           const relativeBx_type&);
 
     CalorimeterCondition (const name_type&,
@@ -1789,7 +1789,7 @@ namespace l1t
                           const type_type&,
                           const etComparison_type&,
                           const objectType_type&,
-                          ::std::auto_ptr< objectParameters_type >&,
+                          ::std::auto_ptr< objectRequirements_type >&,
                           const relativeBx_type&);
 
     CalorimeterCondition (const ::xercesc::DOMElement& e,
@@ -1818,8 +1818,8 @@ namespace l1t
     ::xsd::cxx::tree::one< type_type > type_;
     ::xsd::cxx::tree::one< etComparison_type > etComparison_;
     ::xsd::cxx::tree::one< objectType_type > objectType_;
-    ::xsd::cxx::tree::one< objectParameters_type > objectParameters_;
-    deltaRanges_optional deltaRanges_;
+    ::xsd::cxx::tree::one< objectRequirements_type > objectRequirements_;
+    deltaRequirement_optional deltaRequirement_;
     ::xsd::cxx::tree::one< relativeBx_type > relativeBx_;
   };
 
@@ -1845,7 +1845,7 @@ namespace l1t
 
     // etComparison
     // 
-    typedef ::l1t::ConditionEtComparison etComparison_type;
+    typedef ::l1t::EtComparison etComparison_type;
     typedef ::xsd::cxx::tree::traits< etComparison_type, char > etComparison_traits;
 
     const etComparison_type&

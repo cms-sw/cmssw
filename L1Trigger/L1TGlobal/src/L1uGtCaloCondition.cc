@@ -463,11 +463,13 @@ const bool l1t::L1uGtCaloCondition::checkObjectParameter(const int iCondition, c
 
     // check energy threshold
     if ( !checkThreshold(objPar.etThreshold, cand.hwPt(), m_gtCaloTemplate->condGEq()) ) {
+      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkThreshold" << std::endl;
         return false;
     }
 
     // check eta
-    if( !checkRange(cand.hwEta(), objPar.etaRangeBegin, objPar.etaRangeEnd, objPar.etaRangeVetoBegin, objPar.etaRangeVetoEnd) ){
+    if( !checkRange(cand.hwEta(), objPar.etaWindowBegin, objPar.etaWindowEnd, objPar.etaWindowVetoBegin, objPar.etaWindowVetoEnd) ){
+      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
       return false;
     }
 
@@ -476,7 +478,8 @@ const bool l1t::L1uGtCaloCondition::checkObjectParameter(const int iCondition, c
 //     }
 
     // check phi
-    if( !checkRange(cand.hwPhi(), objPar.phiRangeBegin, objPar.phiRangeEnd, objPar.phiRangeVetoBegin, objPar.phiRangeVetoEnd) ){
+    if( !checkRange(cand.hwPhi(), objPar.phiWindowBegin, objPar.phiWindowEnd, objPar.phiWindowVetoBegin, objPar.phiWindowVetoEnd) ){
+      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(phi)" << std::endl;
       return false;
     }
 

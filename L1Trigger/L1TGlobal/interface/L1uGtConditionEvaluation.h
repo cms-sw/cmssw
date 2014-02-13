@@ -218,6 +218,15 @@ template<class Type1> const bool L1uGtConditionEvaluation::checkRange(const unsi
     return true;
   }
 
+/*   LogDebug("l1t|Global")  */
+/*     << "\n l1t::L1uGtConditionEvaluation"  */
+/*     << "\n\t bitNumber = " << bitNumber */
+/*     << "\n\t beginR = " << beginR */
+/*     << "\n\t endR   = " << endR */
+/*     << "\n\t beginVetoR = " << beginVetoR */
+/*     << "\n\t endVetoR   = " << endVetoR */
+/*     << std::endl; */
+
   // check if value is in range
   // for begin <= end takes [begin, end]
   // for begin >= end takes [begin, end] over zero angle!
