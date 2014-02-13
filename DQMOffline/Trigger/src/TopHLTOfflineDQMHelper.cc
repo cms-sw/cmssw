@@ -155,7 +155,7 @@ void CalculateHLT::operator()( const reco::Jet& bJet, reco::RecoCandidate* lepto
   double lepT = sqrt(pow(lepton->px(),2) + pow(lepton->py(),2));
   double bT   = sqrt(pow(bJet.px(),2) + pow(bJet.py(),2));
   reco::Particle::LorentzVector WT = lepton->p4() + met.p4();
-  cout<<"in calculate:\n\t"<<bJet.pt()<<"\t"<<lepton->pt()<<"\t"<<met.pt()<<endl;
+  //  cout<<"in calculate:\n\t"<<bJet.pt()<<"\t"<<lepton->pt()<<"\t"<<met.pt()<<endl;
   tmassWBoson_ = sqrt(pow(metT+lepT,2) - (WT.px()*WT.px()) - (WT.py()*WT.py()));	
   reco::Particle::LorentzVector topT = WT + bJet.p4();
   tmassTopQuark_ = sqrt(pow((metT+lepT+bT),2) - (topT.px()*topT.px()) - (topT.py()*topT.py()));
