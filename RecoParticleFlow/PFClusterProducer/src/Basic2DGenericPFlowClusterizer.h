@@ -13,7 +13,7 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
     _stoppingTolerance(conf.getParameter<double>("stoppingTolerance")),
     _showerSigma(conf.getParameter<double>("showerSigma")),
     _excludeOtherSeeds(conf.getParameter<bool>("excludeOtherSeeds")) {    
-    const edm::ParameterSet& pcConf = conf.getParameterSet("altPositionCalc");
+    const edm::ParameterSet& pcConf = conf.getParameterSet("allCellsPositionCalc");
     const std::string& algo = pcConf.getParameter<std::string>("algoName");
     PosCalc* calcp = PFCPositionCalculatorFactory::get()->create(algo, pcConf);
     _allCellsPosCalc.reset(calcp);

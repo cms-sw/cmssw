@@ -21,7 +21,7 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
     _param_T0_ES(conf.getParameter<double>("T0_ES")),
     _param_W0(conf.getParameter<double>("W0")),
     _param_X0(conf.getParameter<double>("X0")),
-    _minAllowedNorm(conf.getParameter<double>("minAllowNormalization")),
+    _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization")),
     _ebGeom(NULL),
     _eeGeom(NULL),
     _esGeom(NULL) { }

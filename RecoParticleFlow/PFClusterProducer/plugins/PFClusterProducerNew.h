@@ -32,7 +32,7 @@ namespace newpf {
 
   private:
     // inputs
-    edm::EDGetTokenT<reco::PFRecHit> _rechitsLabel;
+    edm::EDGetTokenT<reco::PFRecHitCollection> _rechitsLabel;
     // options
     const bool _prodTopoClusters;
     // the actual algorithm
