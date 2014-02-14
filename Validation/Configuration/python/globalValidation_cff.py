@@ -91,33 +91,33 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + L1Validator
 )
 
-#reduced tracking validator to be used in the Validation matrix
-reducedTrackValidator=trackValidator.clone()
-reducedTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
+#lite tracking validator to be used in the Validation matrix
+liteTrackValidator=trackValidator.clone()
+liteTrackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                           cms.InputTag("cutsRecoTracksHp")
                                           )
 
-#reduced validation
-globalValidationReducedTracking = cms.Sequence(globalValidation)
-globalValidationReducedTracking.replace(trackValidator,reducedTrackValidator)
+#lite validation
+globalValidationLiteTracking = cms.Sequence(globalValidation)
+globalValidationLiteTracking.replace(trackValidator,liteTrackValidator)
 
-#reduced pre-validation
-globalPrevalidationReducedTracking = cms.Sequence(globalPrevalidation)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksZero)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksZeroHp)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksFirst)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksFirstHp)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksSecond)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksSecondHp)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksThird)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksThirdHp)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksFourth)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksFourthHp)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksFifth)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksFifthHp)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksSixth)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksSixthHp)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksNinth)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksNinthHp)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksTenth)
-globalPrevalidationReducedTracking.remove(cutsRecoTracksTenthHp)
+#lite pre-validation
+globalPrevalidationLiteTracking = cms.Sequence(globalPrevalidation)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksZero)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksZeroHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFirst)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFirstHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksSecond)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksSecondHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksThird)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksThirdHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFourth)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFourthHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFifth)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksFifthHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksSixth)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksSixthHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksNinth)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksNinthHp)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksTenth)
+globalPrevalidationLiteTracking.remove(cutsRecoTracksTenthHp)
