@@ -440,12 +440,12 @@ private:
     std::string l1t2string( l1t::Description );
     std::string l1t2string( l1t::ConditionName );
     std::string l1t2string( l1t::ConditionType );
-    std::string l1t2string( l1t::ConditionEtComparison );
+    std::string l1t2string( l1t::EtComparison );
     std::string l1t2string( l1t::CalorimeterObjectType );
     std::string l1t2string( l1t::AlgorithmName );
     std::string l1t2string( l1t::AlgorithmIndex );
     std::string l1t2string( l1t::AlgorithmEquation );
-    std::string l1t2string( l1t::Threshold );
+    std::string l1t2string( l1t::EtThreshold );
     int l1t2int( l1t::RelativeBx );
 
     /// parse a muon condition

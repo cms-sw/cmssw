@@ -61,15 +61,15 @@ public:
       unsigned int etaRange;
       unsigned int phiRange;
 
-      int etaRangeBegin;
-      int etaRangeEnd;
-      int etaRangeVetoBegin;
-      int etaRangeVetoEnd;
+      unsigned int etaWindowLower;
+      unsigned int etaWindowUpper;
+      unsigned int etaWindowVetoLower;
+      unsigned int etaWindowVetoUpper;
 
-      int phiRangeBegin;
-      int phiRangeEnd;
-      int phiRangeVetoBegin;
-      int phiRangeVetoEnd;
+      unsigned int phiWindowLower;
+      unsigned int phiWindowUpper;
+      unsigned int phiWindowVetoLower;
+      unsigned int phiWindowVetoUpper;
 
     };
 

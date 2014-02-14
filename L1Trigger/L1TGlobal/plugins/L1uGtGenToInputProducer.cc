@@ -71,7 +71,7 @@ namespace l1t {
     virtual void endRun(Run const& iR, EventSetup const& iE);
 
     int convertPhiToHW(double iphi, int steps);
-    int convertEtaToHW(double ieta, double minEta, double maxEta, int steps);
+    unsigned int convertEtaToHW(double ieta, double minEta, double maxEta, int steps, unsigned int bitMask);
     int convertPtToHW(double ipt, double maxPt, int steps);
 
     // ----------member data ---------------------------
@@ -217,13 +217,13 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     ptSteps_ = 510;
     minEta_ = -2.45;
     maxEta_ = 2.45;
-    etaSteps_ = 576;
+    etaSteps_ = 450;
     phiSteps_ = 576;
   
     const reco::Candidate & mcParticle = (*genParticles)[mu_cands_index[idxMu[iMu]]];
 
     int pt   = convertPtToHW( mcParticle.pt(), maxPt_, ptSteps_ );
-    int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_ );
+    int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_, 0x1ff );
     int phi  = convertPhiToHW( mcParticle.phi(), phiSteps_ );
     int qual = 4;
     int iso  = 1;
@@ -239,7 +239,9 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   }
 
 
-
+  // Use to sum the energy of the objects in the event for ETT and HTT
+  // sum all EG, taus and jets
+  double sumEt = 0;
 
   // EG Collection
   int numEgCands = int( eg_cands_index.size() );
@@ -256,13 +258,13 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     ptSteps_ = 510;
     minEta_ = -5.;
     maxEta_ = 5.;
-    etaSteps_ = 144;
+    etaSteps_ = 230;
     phiSteps_ = 144;
   
     const reco::Candidate & mcParticle = (*genParticles)[eg_cands_index[idxEg[iEg]]];
 
     int pt   = convertPtToHW( mcParticle.pt(), maxPt_, ptSteps_ );
-    int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_ );
+    int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_ , 0xff);
     int phi  = convertPhiToHW( mcParticle.phi(), phiSteps_ );
     int qual = 1;
     int iso  = 1;
@@ -271,6 +273,9 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     l1t::EGamma eg(*p4, pt, eta, phi, qual, iso);
     egammas->push_back(bxEval, eg);
+    
+    //Keep running sum of total Et
+    sumEt += mcParticle.pt();
   }
   
 
@@ -290,13 +295,13 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     ptSteps_ = 510;
     minEta_ = -5.;
     maxEta_ = 5.;
-    etaSteps_ = 144;
+    etaSteps_ = 230;
     phiSteps_ = 144;
   
     const reco::Candidate & mcParticle = (*genParticles)[tau_cands_index[idxTau[iTau]]];
 
     int pt   = convertPtToHW( mcParticle.pt(), maxPt_, ptSteps_ );
-    int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_ );
+    int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_ , 0xff);
     int phi  = convertPhiToHW( mcParticle.phi(), phiSteps_ );
     int qual = 1;
     int iso  = 1;
@@ -305,6 +310,9 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     l1t::Tau tau(*p4, pt, eta, phi, qual, iso);
     taus->push_back(bxEval, tau);
+    
+    //Keep running sum of total Et
+    sumEt += mcParticle.pt();    
   }
 
 
@@ -314,6 +322,9 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   if( iEvent.getByToken(genJetsToken, genJets) ){ // Jet Collection
     for(reco::GenJetCollection::const_iterator genJet = genJets->begin(); genJet!=genJets->end(); ++genJet ){
 
+      //Keep running sum of total Et
+      sumEt += genJet->et(); 
+
       // Apply pt and eta cut?
       if( genJet->pt()<jetEtThreshold_ ) continue;
 
@@ -322,7 +333,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
       int pt  = convertPtToHW( genJet->et(), 1023., 2046 );
-      int eta = convertEtaToHW( genJet->eta(), -5., 5., 144 );
+      int eta = convertEtaToHW( genJet->eta(), -5., 5., 230, 0xff );
       int phi = convertPhiToHW( genJet->phi(), 144 );
 
       int qual = 0;
@@ -330,6 +341,8 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
       l1t::Jet jet(*p4, pt, eta, phi, qual);
       jets->push_back(bxEval, jet);
       nJet++;
+      
+     
     }
   }
   else {
@@ -345,13 +358,35 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
+    // Missing Et
     l1t::EtSum etmiss(*p4, l1t::EtSum::EtSumType::kMissingEt,pt, 0,phi, 0); 
     etsums->push_back(bxEval, etmiss);  
+
+    // Make Missing Ht slightly smaller and rotated (These are all fake inputs anyway...not supposed to be realistic)
+    pt  = convertPtToHW( genMet->front().pt()*0.9, 2047., 4094 );
+    phi = convertPhiToHW( genMet->front().phi()+ 3.14/5., 144 );
+
+    l1t::EtSum htmiss(*p4, l1t::EtSum::EtSumType::kMissingHt,pt, 0,phi, 0); 
+    etsums->push_back(bxEval, htmiss);  
+    
+
+
   }
   else {
     LogTrace("l1t|Global") << ">>> GenMet collection not found!" << std::endl;
   }
 
+
+// Put the total Et into EtSums  (Make HTT slightly smaller to tell them apart....not supposed to be realistic) 
+   int pt  = convertPtToHW( sumEt, 2047., 4094 );
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+   l1t::EtSum etTotal(*p4, l1t::EtSum::EtSumType::kTotalEt,pt, 0, 0, 0); 
+   etsums->push_back(bxEval, etTotal);  
+
+   pt  = convertPtToHW( sumEt*0.9, 2047., 4094 );
+   l1t::EtSum htTotal(*p4, l1t::EtSum::EtSumType::kTotalHt,pt, 0, 0, 0); 
+   etsums->push_back(bxEval, htTotal);  
+   
 
   iEvent.put(egammas);
   iEvent.put(muons);
@@ -392,21 +427,37 @@ int L1uGtGenToInputProducer::convertPhiToHW(double iphi, int steps){
 
   double phiMax = 2 * M_PI;
   if( iphi < 0 ) iphi += 2*M_PI;
+  if( iphi > phiMax) iphi -= phiMax;
 
   int hwPhi = int( (iphi/phiMax)*steps + 0.00001 );
   return hwPhi;
 }
 
-int L1uGtGenToInputProducer::convertEtaToHW(double ieta, double minEta, double maxEta, int steps){
+unsigned int L1uGtGenToInputProducer::convertEtaToHW(double ieta, double minEta, double maxEta, int steps, unsigned int bitMask){
 
-  // Check later. This is almost certainly wrong
-  int hwEta = int( (ieta - minEta)/(maxEta - minEta) * steps + 0.00001 );
+  
+   double binWidth = (maxEta - minEta)/steps;
+     
+   //if we are outside the limits (or right on it) ...shift to make sure it is in the range of hwEta
+   if(ieta <= minEta) ieta = minEta+binWidth/2.;
+   if(ieta >= maxEta) ieta = maxEta-binWidth/2.;
+      
+   int binNum = (int)(ieta/binWidth);
+   if(ieta<0.) binNum--;
+      
+   unsigned int hwEta = binNum & bitMask; 
+
+
   return hwEta;
 }
 
 int L1uGtGenToInputProducer::convertPtToHW(double ipt, double maxPt, int steps){
 
+  // if above max Pt, set to largest value
+  if(ipt >= maxPt) ipt = maxPt - (maxPt/(2*steps)); 
+ 
   int hwPt = int( (ipt/maxPt)*steps + 0.00001 );
+  
   return hwPt;
 }
 

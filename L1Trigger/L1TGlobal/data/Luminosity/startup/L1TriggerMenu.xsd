@@ -27,31 +27,31 @@
         │   │   ├── description (l1t:Description)
         │   │   ├── locked (xs:boolean)
         │   │   ├── type (l1t:ConditionType)
-        │   │   ├── etComparison (l1t:ConditionEtComparison)
+        │   │   ├── etComparison (l1t:EtComparison)
         │   │   ├── objectType (l1t:CalorimeterObjectType)
-        │   │   ├── objectParameters (l1t:CalorimeterObjectParameters)
-        │   │   │   └── objectParameter (l1t:CalorimeterObjectParameter)
-        │   │   │       ├── etThreshold (l1t:Threshold)
-        │   │   │       ├── phiRange (l1t:Range) (1-2]
-        │   │   │       │   ├── begin (xs:unsignedInt)
-        │   │   │       │   └── end (xs:unsignedInt)
-        │   │   │       └── etaRange (l1t:Range) (1-2]
-        │   │   │           ├── begin xs:unsignedInt()
-        │   │   │           └── end (xs:unsignedInt)
-        │   │   ├── deltaRanges (l1t:DeltaRanges)
-        │   │   │   ├── deltaEtaRange (l1t:Range)
-        │   │   │   │   ├── begin (xs:unsignedInt)
-        │   │   │   │   └── end (xs:unsignedInt)
-        │   │   │   └── deltaPhiRange (l1t:Range)
-        │   │   │       ├── begin (xs:unsignedInt)
-        │   │   │       └── end (xs:unsignedInt)
+        │   │   ├── objectRequirements (l1t:CalorimeterObjectRequirements)
+        │   │   │   └── objectRequirement (l1t:CalorimeterObjectRequirement)
+        │   │   │       ├── etThreshold (l1t:EtThreshold)
+        │   │   │       ├── phiWindow (l1t:Window) [1-2]
+        │   │   │       │   ├── lower (xs:unsignedInt)
+        │   │   │       │   └── upper (xs:unsignedInt)
+        │   │   │       └── etaWindow (l1t:Window) [1-2]
+        │   │   │           ├── lower xs:unsignedInt()
+        │   │   │           └── upper (xs:unsignedInt)
+        │   │   ├── deltaRequirement (l1t:DeltaRequirement)
+        │   │   │   ├── deltaPhiRange (l1t:Window)
+        │   │   │   │   ├── lower (xs:unsignedInt)
+        │   │   │   │   └── upper (xs:unsignedInt)
+        │   │   │   └── deltaEtaRange (l1t:Window)
+        │   │   │       ├── lower (xs:unsignedInt)
+        │   │   │       └── upper (xs:unsignedInt)
         │   │   └── relativeBx (l1t:RelativeBx)
         │   ├── condMuon (l1t:MuonCondition) ( to be defined ]
         │   │   ├── name (xs:string)
         │   │   ├── description (l1t:Description)
         │   │   ├── locked (xs:boolean)
         │   │   ├── type (l1t:ConditionType)
-        │   │   ├── etComparison (l1t:ConditionEtComparison)
+        │   │   ├── etComparison (l1t:EtComparison)
         │   │   └── relativeBx (l1t:RelativeBx)
         │   ├── condEnergySums (l1t:EnergySumsCondition) ( to be defined ]
         │   │   ├── name (xs:string)
@@ -114,12 +114,12 @@
 
     All basic type Condition and derivates specific simple types:
 
-        ConditionEtComparison (xs:string)
-        Threshold (xs:unsignedInt)
+        EtComparison (xs:string)
+        EtThreshold (xs:unsignedInt)
 
     All complex type Condition and derivates specific simple types:
 
-        Range
+        Window
 
     All simple type Algorithm specific simple types:
 
@@ -140,7 +140,7 @@
     A valid example XML file will look like this:
 
         <?xml version="1.0" encoding="UTF-8"?>
-        <l1t:l1TriggerMenu version="0.4.2"
+        <l1t:l1TriggerMenu version="0.5.0"
           xmlns:l1t="http://www.cern.ch/l1t"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
@@ -164,19 +164,19 @@
               <l1t:type>single</l1t:type>
               <l1t:etComparison>ge</l1t:etComparison>
               <l1t:objectType>jet</l1t:objectType>
-              <l1t:objectParameters>
-                <l1t:objectParameter>
+              <l1t:objectRequirements>
+                <l1t:objectRequirement>
                   <l1t:etThreshold>0</l1t:etThreshold>
-                  <l1t:phiRange>
-                    <l1t:begin>0</l1t:begin>
-                    <l1t:end>1</l1t:end>
-                  </l1t:phiRange>
-                  <l1t:etaRange>
-                    <l1t:begin>2</l1t:begin>
-                    <l1t:end>3</l1t:end>
-                  </l1t:etaRange>
-                </l1t:objectParameter>
-              </l1t:objectParameters>
+                  <l1t:phiWindow>
+                    <l1t:lower>0</l1t:lower>
+                    <l1t:upper>1</l1t:upper>
+                  </l1t:phiWindow>
+                  <l1t:etaWindow>
+                    <l1t:lower>2</l1t:lower>
+                    <l1t:upper>3</l1t:upper>
+                  </l1t:etaWindow>
+                </l1t:objectRequirement>
+              </l1t:objectRequirements>
               <l1t:relativeBx>0</l1t:relativeBx>
             </l1t:condCalorimeter>
           </l1t:conditions>
@@ -196,7 +196,7 @@
     A valid example XML of a complete empty (l1t:new created) menu:
 
         <?xml version="1.0" encoding="UTF-8"?>
-        <l1t:l1TriggerMenu version="0.4.2"
+        <l1t:l1TriggerMenu version="0.5.0"
           xmlns:l1t="http://www.cern.ch/l1t"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
@@ -357,7 +357,7 @@
 
   -->
 
-  <xs:simpleType name="ConditionEtComparison">
+  <xs:simpleType name="EtComparison">
     <xs:annotation>
       <xs:documentation xml:lang="en">
         Defines the comparison mode for the transversal energy value.
@@ -440,7 +440,7 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:simpleType name="Threshold">
+  <xs:simpleType name="EtThreshold">
     <xs:annotation>
       <xs:documentation xml:lang="en">
         Threshold of transversal energy for conditions.
@@ -536,7 +536,7 @@
   <xs:complexType name="Condition" abstract="true">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        Condition type base definition (l1t:virtual). It contains all common
+        Condition type base definition (abstract). It contains all common
         condition attributes.
       </xs:documentation>
     </xs:annotation>
@@ -547,19 +547,19 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="Range">
+  <xs:complexType name="Window">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        Range for eta and phi used by different condition types.
+        Window type for phi and eta angles.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="begin" type="xs:unsignedInt"/>
-      <xs:element name="end" type="xs:unsignedInt"/>
+      <xs:element name="lower" type="xs:unsignedInt"/>
+      <xs:element name="upper" type="xs:unsignedInt"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="DeltaRanges">
+  <xs:complexType name="DeltaRequirement">
     <xs:annotation>
       <xs:documentation xml:lang="en">
         Container holding eta and phi delta ranges to be used with spatial
@@ -567,12 +567,12 @@
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="deltaEtaRange" type="l1t:Range"/>
-      <xs:element name="deltaPhiRange" type="l1t:Range"/>
+      <xs:element name="deltaPhiRange" type="l1t:Window"/>
+      <xs:element name="deltaEtaRange" type="l1t:Window"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="CalorimeterObjectParameter">
+  <xs:complexType name="CalorimeterObjectRequirement">
     <xs:annotation>
       <xs:documentation xml:lang="en">
         Universal object parameter set to be used for eg, jet and tau objects.
@@ -581,20 +581,20 @@
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="etThreshold" type="l1t:Threshold"/>
-      <xs:element name="phiRange" type="l1t:Range" minOccurs="0" maxOccurs="2"/>
-      <xs:element name="etaRange" type="l1t:Range" minOccurs="0" maxOccurs="2"/>
+      <xs:element name="etThreshold" type="l1t:EtThreshold"/>
+      <xs:element name="phiWindow" type="l1t:Window" minOccurs="0" maxOccurs="2"/>
+      <xs:element name="etaWindow" type="l1t:Window" minOccurs="0" maxOccurs="2"/>
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="CalorimeterObjectParameters">
+  <xs:complexType name="CalorimeterObjectRequirements">
     <xs:annotation>
       <xs:documentation xml:lang="en">
         Container capable of storing up to 4 object parameter sets.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence maxOccurs="4">
-      <xs:element name="objectParameter" type="l1t:CalorimeterObjectParameter"/>
+      <xs:element name="objectRequirement" type="l1t:CalorimeterObjectRequirement"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -608,10 +608,10 @@
       <xs:extension base="l1t:Condition">
         <xs:sequence>
           <xs:element name="type" type="l1t:ConditionType"/>
-          <xs:element name="etComparison" type="l1t:ConditionEtComparison"/>
+          <xs:element name="etComparison" type="l1t:EtComparison"/>
           <xs:element name="objectType" type="l1t:CalorimeterObjectType"/>
-          <xs:element name="objectParameters" type="l1t:CalorimeterObjectParameters"/>
-          <xs:element name="deltaRanges" type="l1t:DeltaRanges" minOccurs="0"/>
+          <xs:element name="objectRequirements" type="l1t:CalorimeterObjectRequirements"/>
+          <xs:element name="deltaRequirement" type="l1t:DeltaRequirement" minOccurs="0"/>
           <xs:element name="relativeBx" type="l1t:RelativeBx"/>
         </xs:sequence>
       </xs:extension>
@@ -628,7 +628,7 @@
       <xs:extension base="l1t:Condition">
         <xs:sequence>
           <xs:element name="type" type="l1t:ConditionType"/>
-          <xs:element name="etComparison" type="l1t:ConditionEtComparison"/>
+          <xs:element name="etComparison" type="l1t:EtComparison"/>
           <xs:element name="relativeBx" type="l1t:RelativeBx"/>
         </xs:sequence>
       </xs:extension>
@@ -719,7 +719,7 @@
       <xs:element name="conditions" type="l1t:ConditionList"/>
       <xs:element name="algorithms" type="l1t:AlgorithmList"/>
     </xs:sequence>
-    <xs:attribute name="version" type="xs:string" fixed="0.4.2" use="required"/>
+    <xs:attribute name="version" type="xs:string" fixed="0.5.0" use="required"/>
   </xs:complexType>
 
   <!--

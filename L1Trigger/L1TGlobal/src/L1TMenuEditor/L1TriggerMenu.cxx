@@ -39,6 +39,7 @@
 #include <L1Trigger/L1TGlobal/src/L1TMenuEditor/xsd/cxx/pre.hxx>
 
 #include "L1Trigger/L1TGlobal/src/L1TMenuEditor/L1TriggerMenu.hxx"
+
 namespace l1t
 {
   // DateTime
@@ -199,46 +200,46 @@ namespace l1t
   }
 
 
-  // ConditionEtComparison
+  // EtComparison
   // 
 
-  ConditionEtComparison::
-  ConditionEtComparison (value v)
-  : ::xml_schema::string (_xsd_ConditionEtComparison_literals_[v])
+  EtComparison::
+  EtComparison (value v)
+  : ::xml_schema::string (_xsd_EtComparison_literals_[v])
   {
   }
 
-  ConditionEtComparison::
-  ConditionEtComparison (const char* v)
+  EtComparison::
+  EtComparison (const char* v)
   : ::xml_schema::string (v)
   {
   }
 
-  ConditionEtComparison::
-  ConditionEtComparison (const ::std::string& v)
+  EtComparison::
+  EtComparison (const ::std::string& v)
   : ::xml_schema::string (v)
   {
   }
 
-  ConditionEtComparison::
-  ConditionEtComparison (const ::xml_schema::string& v)
+  EtComparison::
+  EtComparison (const ::xml_schema::string& v)
   : ::xml_schema::string (v)
   {
   }
 
-  ConditionEtComparison::
-  ConditionEtComparison (const ConditionEtComparison& v,
-                         ::xml_schema::flags f,
-                         ::xml_schema::container* c)
+  EtComparison::
+  EtComparison (const EtComparison& v,
+                ::xml_schema::flags f,
+                ::xml_schema::container* c)
   : ::xml_schema::string (v, f, c)
   {
   }
 
-  ConditionEtComparison& ConditionEtComparison::
+  EtComparison& EtComparison::
   operator= (value v)
   {
     static_cast< ::xml_schema::string& > (*this) = 
-    ::xml_schema::string (_xsd_ConditionEtComparison_literals_[v]);
+    ::xml_schema::string (_xsd_EtComparison_literals_[v]);
 
     return *this;
   }
@@ -342,7 +343,7 @@ namespace l1t
   }
 
 
-  // Threshold
+  // EtThreshold
   // 
 
 
@@ -664,181 +665,181 @@ namespace l1t
   }
 
 
-  // Range
+  // Window
   // 
 
-  const Range::begin_type& Range::
-  begin () const
+  const Window::lower_type& Window::
+  lower () const
   {
-    return this->begin_.get ();
+    return this->lower_.get ();
   }
 
-  Range::begin_type& Range::
-  begin ()
+  Window::lower_type& Window::
+  lower ()
   {
-    return this->begin_.get ();
+    return this->lower_.get ();
   }
 
-  void Range::
-  begin (const begin_type& x)
+  void Window::
+  lower (const lower_type& x)
   {
-    this->begin_.set (x);
+    this->lower_.set (x);
   }
 
-  const Range::end_type& Range::
-  end () const
+  const Window::upper_type& Window::
+  upper () const
   {
-    return this->end_.get ();
+    return this->upper_.get ();
   }
 
-  Range::end_type& Range::
-  end ()
+  Window::upper_type& Window::
+  upper ()
   {
-    return this->end_.get ();
+    return this->upper_.get ();
   }
 
-  void Range::
-  end (const end_type& x)
+  void Window::
+  upper (const upper_type& x)
   {
-    this->end_.set (x);
+    this->upper_.set (x);
   }
 
 
-  // DeltaRanges
+  // DeltaRequirement
   // 
 
-  const DeltaRanges::deltaEtaRange_type& DeltaRanges::
-  deltaEtaRange () const
-  {
-    return this->deltaEtaRange_.get ();
-  }
-
-  DeltaRanges::deltaEtaRange_type& DeltaRanges::
-  deltaEtaRange ()
-  {
-    return this->deltaEtaRange_.get ();
-  }
-
-  void DeltaRanges::
-  deltaEtaRange (const deltaEtaRange_type& x)
-  {
-    this->deltaEtaRange_.set (x);
-  }
-
-  void DeltaRanges::
-  deltaEtaRange (::std::auto_ptr< deltaEtaRange_type > x)
-  {
-    this->deltaEtaRange_.set (x);
-  }
-
-  const DeltaRanges::deltaPhiRange_type& DeltaRanges::
+  const DeltaRequirement::deltaPhiRange_type& DeltaRequirement::
   deltaPhiRange () const
   {
     return this->deltaPhiRange_.get ();
   }
 
-  DeltaRanges::deltaPhiRange_type& DeltaRanges::
+  DeltaRequirement::deltaPhiRange_type& DeltaRequirement::
   deltaPhiRange ()
   {
     return this->deltaPhiRange_.get ();
   }
 
-  void DeltaRanges::
+  void DeltaRequirement::
   deltaPhiRange (const deltaPhiRange_type& x)
   {
     this->deltaPhiRange_.set (x);
   }
 
-  void DeltaRanges::
+  void DeltaRequirement::
   deltaPhiRange (::std::auto_ptr< deltaPhiRange_type > x)
   {
     this->deltaPhiRange_.set (x);
   }
 
+  const DeltaRequirement::deltaEtaRange_type& DeltaRequirement::
+  deltaEtaRange () const
+  {
+    return this->deltaEtaRange_.get ();
+  }
 
-  // CalorimeterObjectParameter
+  DeltaRequirement::deltaEtaRange_type& DeltaRequirement::
+  deltaEtaRange ()
+  {
+    return this->deltaEtaRange_.get ();
+  }
+
+  void DeltaRequirement::
+  deltaEtaRange (const deltaEtaRange_type& x)
+  {
+    this->deltaEtaRange_.set (x);
+  }
+
+  void DeltaRequirement::
+  deltaEtaRange (::std::auto_ptr< deltaEtaRange_type > x)
+  {
+    this->deltaEtaRange_.set (x);
+  }
+
+
+  // CalorimeterObjectRequirement
   // 
 
-  const CalorimeterObjectParameter::etThreshold_type& CalorimeterObjectParameter::
+  const CalorimeterObjectRequirement::etThreshold_type& CalorimeterObjectRequirement::
   etThreshold () const
   {
     return this->etThreshold_.get ();
   }
 
-  CalorimeterObjectParameter::etThreshold_type& CalorimeterObjectParameter::
+  CalorimeterObjectRequirement::etThreshold_type& CalorimeterObjectRequirement::
   etThreshold ()
   {
     return this->etThreshold_.get ();
   }
 
-  void CalorimeterObjectParameter::
+  void CalorimeterObjectRequirement::
   etThreshold (const etThreshold_type& x)
   {
     this->etThreshold_.set (x);
   }
 
-  void CalorimeterObjectParameter::
+  void CalorimeterObjectRequirement::
   etThreshold (::std::auto_ptr< etThreshold_type > x)
   {
     this->etThreshold_.set (x);
   }
 
-  const CalorimeterObjectParameter::phiRange_sequence& CalorimeterObjectParameter::
-  phiRange () const
+  const CalorimeterObjectRequirement::phiWindow_sequence& CalorimeterObjectRequirement::
+  phiWindow () const
   {
-    return this->phiRange_;
+    return this->phiWindow_;
   }
 
-  CalorimeterObjectParameter::phiRange_sequence& CalorimeterObjectParameter::
-  phiRange ()
+  CalorimeterObjectRequirement::phiWindow_sequence& CalorimeterObjectRequirement::
+  phiWindow ()
   {
-    return this->phiRange_;
+    return this->phiWindow_;
   }
 
-  void CalorimeterObjectParameter::
-  phiRange (const phiRange_sequence& s)
+  void CalorimeterObjectRequirement::
+  phiWindow (const phiWindow_sequence& s)
   {
-    this->phiRange_ = s;
+    this->phiWindow_ = s;
   }
 
-  const CalorimeterObjectParameter::etaRange_sequence& CalorimeterObjectParameter::
-  etaRange () const
+  const CalorimeterObjectRequirement::etaWindow_sequence& CalorimeterObjectRequirement::
+  etaWindow () const
   {
-    return this->etaRange_;
+    return this->etaWindow_;
   }
 
-  CalorimeterObjectParameter::etaRange_sequence& CalorimeterObjectParameter::
-  etaRange ()
+  CalorimeterObjectRequirement::etaWindow_sequence& CalorimeterObjectRequirement::
+  etaWindow ()
   {
-    return this->etaRange_;
+    return this->etaWindow_;
   }
 
-  void CalorimeterObjectParameter::
-  etaRange (const etaRange_sequence& s)
+  void CalorimeterObjectRequirement::
+  etaWindow (const etaWindow_sequence& s)
   {
-    this->etaRange_ = s;
+    this->etaWindow_ = s;
   }
 
 
-  // CalorimeterObjectParameters
+  // CalorimeterObjectRequirements
   // 
 
-  const CalorimeterObjectParameters::objectParameter_sequence& CalorimeterObjectParameters::
-  objectParameter () const
+  const CalorimeterObjectRequirements::objectRequirement_sequence& CalorimeterObjectRequirements::
+  objectRequirement () const
   {
-    return this->objectParameter_;
+    return this->objectRequirement_;
   }
 
-  CalorimeterObjectParameters::objectParameter_sequence& CalorimeterObjectParameters::
-  objectParameter ()
+  CalorimeterObjectRequirements::objectRequirement_sequence& CalorimeterObjectRequirements::
+  objectRequirement ()
   {
-    return this->objectParameter_;
+    return this->objectRequirement_;
   }
 
-  void CalorimeterObjectParameters::
-  objectParameter (const objectParameter_sequence& s)
+  void CalorimeterObjectRequirements::
+  objectRequirement (const objectRequirement_sequence& s)
   {
-    this->objectParameter_ = s;
+    this->objectRequirement_ = s;
   }
 
 
@@ -917,58 +918,58 @@ namespace l1t
     this->objectType_.set (x);
   }
 
-  const CalorimeterCondition::objectParameters_type& CalorimeterCondition::
-  objectParameters () const
+  const CalorimeterCondition::objectRequirements_type& CalorimeterCondition::
+  objectRequirements () const
   {
-    return this->objectParameters_.get ();
+    return this->objectRequirements_.get ();
   }
 
-  CalorimeterCondition::objectParameters_type& CalorimeterCondition::
-  objectParameters ()
+  CalorimeterCondition::objectRequirements_type& CalorimeterCondition::
+  objectRequirements ()
   {
-    return this->objectParameters_.get ();
-  }
-
-  void CalorimeterCondition::
-  objectParameters (const objectParameters_type& x)
-  {
-    this->objectParameters_.set (x);
+    return this->objectRequirements_.get ();
   }
 
   void CalorimeterCondition::
-  objectParameters (::std::auto_ptr< objectParameters_type > x)
+  objectRequirements (const objectRequirements_type& x)
   {
-    this->objectParameters_.set (x);
-  }
-
-  const CalorimeterCondition::deltaRanges_optional& CalorimeterCondition::
-  deltaRanges () const
-  {
-    return this->deltaRanges_;
-  }
-
-  CalorimeterCondition::deltaRanges_optional& CalorimeterCondition::
-  deltaRanges ()
-  {
-    return this->deltaRanges_;
+    this->objectRequirements_.set (x);
   }
 
   void CalorimeterCondition::
-  deltaRanges (const deltaRanges_type& x)
+  objectRequirements (::std::auto_ptr< objectRequirements_type > x)
   {
-    this->deltaRanges_.set (x);
+    this->objectRequirements_.set (x);
+  }
+
+  const CalorimeterCondition::deltaRequirement_optional& CalorimeterCondition::
+  deltaRequirement () const
+  {
+    return this->deltaRequirement_;
+  }
+
+  CalorimeterCondition::deltaRequirement_optional& CalorimeterCondition::
+  deltaRequirement ()
+  {
+    return this->deltaRequirement_;
   }
 
   void CalorimeterCondition::
-  deltaRanges (const deltaRanges_optional& x)
+  deltaRequirement (const deltaRequirement_type& x)
   {
-    this->deltaRanges_ = x;
+    this->deltaRequirement_.set (x);
   }
 
   void CalorimeterCondition::
-  deltaRanges (::std::auto_ptr< deltaRanges_type > x)
+  deltaRequirement (const deltaRequirement_optional& x)
   {
-    this->deltaRanges_.set (x);
+    this->deltaRequirement_ = x;
+  }
+
+  void CalorimeterCondition::
+  deltaRequirement (::std::auto_ptr< deltaRequirement_type > x)
+  {
+    this->deltaRequirement_.set (x);
   }
 
   const CalorimeterCondition::relativeBx_type& CalorimeterCondition::
@@ -1922,55 +1923,55 @@ namespace l1t
   {
   }
 
-  // ConditionEtComparison
+  // EtComparison
   //
 
-  ConditionEtComparison::
-  ConditionEtComparison (const ::xercesc::DOMElement& e,
-                         ::xml_schema::flags f,
-                         ::xml_schema::container* c)
+  EtComparison::
+  EtComparison (const ::xercesc::DOMElement& e,
+                ::xml_schema::flags f,
+                ::xml_schema::container* c)
   : ::xml_schema::string (e, f, c)
   {
-    _xsd_ConditionEtComparison_convert ();
+    _xsd_EtComparison_convert ();
   }
 
-  ConditionEtComparison::
-  ConditionEtComparison (const ::xercesc::DOMAttr& a,
-                         ::xml_schema::flags f,
-                         ::xml_schema::container* c)
+  EtComparison::
+  EtComparison (const ::xercesc::DOMAttr& a,
+                ::xml_schema::flags f,
+                ::xml_schema::container* c)
   : ::xml_schema::string (a, f, c)
   {
-    _xsd_ConditionEtComparison_convert ();
+    _xsd_EtComparison_convert ();
   }
 
-  ConditionEtComparison::
-  ConditionEtComparison (const ::std::string& s,
-                         const ::xercesc::DOMElement* e,
-                         ::xml_schema::flags f,
-                         ::xml_schema::container* c)
+  EtComparison::
+  EtComparison (const ::std::string& s,
+                const ::xercesc::DOMElement* e,
+                ::xml_schema::flags f,
+                ::xml_schema::container* c)
   : ::xml_schema::string (s, e, f, c)
   {
-    _xsd_ConditionEtComparison_convert ();
+    _xsd_EtComparison_convert ();
   }
 
-  ConditionEtComparison* ConditionEtComparison::
+  EtComparison* EtComparison::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class ConditionEtComparison (*this, f, c);
+    return new class EtComparison (*this, f, c);
   }
 
-  ConditionEtComparison::value ConditionEtComparison::
-  _xsd_ConditionEtComparison_convert () const
+  EtComparison::value EtComparison::
+  _xsd_EtComparison_convert () const
   {
-    ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ConditionEtComparison_literals_);
+    ::xsd::cxx::tree::enum_comparator< char > c (_xsd_EtComparison_literals_);
     const value* i (::std::lower_bound (
-                      _xsd_ConditionEtComparison_indexes_,
-                      _xsd_ConditionEtComparison_indexes_ + 2,
+                      _xsd_EtComparison_indexes_,
+                      _xsd_EtComparison_indexes_ + 2,
                       *this,
                       c));
 
-    if (i == _xsd_ConditionEtComparison_indexes_ + 2 || _xsd_ConditionEtComparison_literals_[*i] != *this)
+    if (i == _xsd_EtComparison_indexes_ + 2 || _xsd_EtComparison_literals_[*i] != *this)
     {
       throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
     }
@@ -1978,18 +1979,18 @@ namespace l1t
     return *i;
   }
 
-  const char* const ConditionEtComparison::
-  _xsd_ConditionEtComparison_literals_[2] =
+  const char* const EtComparison::
+  _xsd_EtComparison_literals_[2] =
   {
     "eq",
     "ge"
   };
 
-  const ConditionEtComparison::value ConditionEtComparison::
-  _xsd_ConditionEtComparison_indexes_[2] =
+  const EtComparison::value EtComparison::
+  _xsd_EtComparison_indexes_[2] =
   {
-    ::l1t::ConditionEtComparison::eq,
-    ::l1t::ConditionEtComparison::ge
+    ::l1t::EtComparison::eq,
+    ::l1t::EtComparison::ge
   };
 
   // RelativeBx
@@ -2266,57 +2267,57 @@ namespace l1t
     ::l1t::CalorimeterObjectType::tau
   };
 
-  // Threshold
+  // EtThreshold
   //
 
-  Threshold::
-  Threshold (const ::xml_schema::unsigned_int& _xsd_unsigned_int_base)
+  EtThreshold::
+  EtThreshold (const ::xml_schema::unsigned_int& _xsd_unsigned_int_base)
   : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (_xsd_unsigned_int_base)
   {
   }
 
-  Threshold::
-  Threshold (const Threshold& x,
-             ::xml_schema::flags f,
-             ::xml_schema::container* c)
+  EtThreshold::
+  EtThreshold (const EtThreshold& x,
+               ::xml_schema::flags f,
+               ::xml_schema::container* c)
   : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (x, f, c)
   {
   }
 
-  Threshold::
-  Threshold (const ::xercesc::DOMElement& e,
-             ::xml_schema::flags f,
-             ::xml_schema::container* c)
+  EtThreshold::
+  EtThreshold (const ::xercesc::DOMElement& e,
+               ::xml_schema::flags f,
+               ::xml_schema::container* c)
   : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (e, f, c)
   {
   }
 
-  Threshold::
-  Threshold (const ::xercesc::DOMAttr& a,
-             ::xml_schema::flags f,
-             ::xml_schema::container* c)
+  EtThreshold::
+  EtThreshold (const ::xercesc::DOMAttr& a,
+               ::xml_schema::flags f,
+               ::xml_schema::container* c)
   : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (a, f, c)
   {
   }
 
-  Threshold::
-  Threshold (const ::std::string& s,
-             const ::xercesc::DOMElement* e,
-             ::xml_schema::flags f,
-             ::xml_schema::container* c)
+  EtThreshold::
+  EtThreshold (const ::std::string& s,
+               const ::xercesc::DOMElement* e,
+               ::xml_schema::flags f,
+               ::xml_schema::container* c)
   : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (s, e, f, c)
   {
   }
 
-  Threshold* Threshold::
+  EtThreshold* EtThreshold::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class Threshold (*this, f, c);
+    return new class EtThreshold (*this, f, c);
   }
 
-  Threshold::
-  ~Threshold ()
+  EtThreshold::
+  ~EtThreshold ()
   {
   }
 
@@ -2980,35 +2981,35 @@ namespace l1t
   {
   }
 
-  // Range
+  // Window
   //
 
-  Range::
-  Range (const begin_type& begin,
-         const end_type& end)
+  Window::
+  Window (const lower_type& lower,
+          const upper_type& upper)
   : ::xml_schema::type (),
-    begin_ (begin, ::xml_schema::flags (), this),
-    end_ (end, ::xml_schema::flags (), this)
+    lower_ (lower, ::xml_schema::flags (), this),
+    upper_ (upper, ::xml_schema::flags (), this)
   {
   }
 
-  Range::
-  Range (const Range& x,
-         ::xml_schema::flags f,
-         ::xml_schema::container* c)
+  Window::
+  Window (const Window& x,
+          ::xml_schema::flags f,
+          ::xml_schema::container* c)
   : ::xml_schema::type (x, f, c),
-    begin_ (x.begin_, f, this),
-    end_ (x.end_, f, this)
+    lower_ (x.lower_, f, this),
+    upper_ (x.upper_, f, this)
   {
   }
 
-  Range::
-  Range (const ::xercesc::DOMElement& e,
-         ::xml_schema::flags f,
-         ::xml_schema::container* c)
+  Window::
+  Window (const ::xercesc::DOMElement& e,
+          ::xml_schema::flags f,
+          ::xml_schema::container* c)
   : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-    begin_ (f, this),
-    end_ (f, this)
+    lower_ (f, this),
+    upper_ (f, this)
   {
     if ((f & ::xml_schema::flags::base) == 0)
     {
@@ -3017,7 +3018,7 @@ namespace l1t
     }
   }
 
-  void Range::
+  void Window::
   parse (::xsd::cxx::xml::dom::parser< char >& p,
          ::xml_schema::flags f)
   {
@@ -3027,24 +3028,24 @@ namespace l1t
       const ::xsd::cxx::xml::qualified_name< char > n (
         ::xsd::cxx::xml::dom::name< char > (i));
 
-      // begin
+      // lower
       //
-      if (n.name () == "begin" && n.namespace_ () == "http://www.cern.ch/l1t")
+      if (n.name () == "lower" && n.namespace_ () == "http://www.cern.ch/l1t")
       {
-        if (!begin_.present ())
+        if (!lower_.present ())
         {
-          this->begin_.set (begin_traits::create (i, f, this));
+          this->lower_.set (lower_traits::create (i, f, this));
           continue;
         }
       }
 
-      // end
+      // upper
       //
-      if (n.name () == "end" && n.namespace_ () == "http://www.cern.ch/l1t")
+      if (n.name () == "upper" && n.namespace_ () == "http://www.cern.ch/l1t")
       {
-        if (!end_.present ())
+        if (!upper_.present ())
         {
-          this->end_.set (end_traits::create (i, f, this));
+          this->upper_.set (upper_traits::create (i, f, this));
           continue;
         }
       }
@@ -3052,71 +3053,71 @@ namespace l1t
       break;
     }
 
-    if (!begin_.present ())
+    if (!lower_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
-        "begin",
+        "lower",
         "http://www.cern.ch/l1t");
     }
 
-    if (!end_.present ())
+    if (!upper_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
-        "end",
+        "upper",
         "http://www.cern.ch/l1t");
     }
   }
 
-  Range* Range::
+  Window* Window::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class Range (*this, f, c);
+    return new class Window (*this, f, c);
   }
 
-  Range::
-  ~Range ()
+  Window::
+  ~Window ()
   {
   }
 
-  // DeltaRanges
+  // DeltaRequirement
   //
 
-  DeltaRanges::
-  DeltaRanges (const deltaEtaRange_type& deltaEtaRange,
-               const deltaPhiRange_type& deltaPhiRange)
+  DeltaRequirement::
+  DeltaRequirement (const deltaPhiRange_type& deltaPhiRange,
+                    const deltaEtaRange_type& deltaEtaRange)
   : ::xml_schema::type (),
-    deltaEtaRange_ (deltaEtaRange, ::xml_schema::flags (), this),
-    deltaPhiRange_ (deltaPhiRange, ::xml_schema::flags (), this)
+    deltaPhiRange_ (deltaPhiRange, ::xml_schema::flags (), this),
+    deltaEtaRange_ (deltaEtaRange, ::xml_schema::flags (), this)
   {
   }
 
-  DeltaRanges::
-  DeltaRanges (::std::auto_ptr< deltaEtaRange_type >& deltaEtaRange,
-               ::std::auto_ptr< deltaPhiRange_type >& deltaPhiRange)
+  DeltaRequirement::
+  DeltaRequirement (::std::auto_ptr< deltaPhiRange_type >& deltaPhiRange,
+                    ::std::auto_ptr< deltaEtaRange_type >& deltaEtaRange)
   : ::xml_schema::type (),
-    deltaEtaRange_ (deltaEtaRange, ::xml_schema::flags (), this),
-    deltaPhiRange_ (deltaPhiRange, ::xml_schema::flags (), this)
+    deltaPhiRange_ (deltaPhiRange, ::xml_schema::flags (), this),
+    deltaEtaRange_ (deltaEtaRange, ::xml_schema::flags (), this)
   {
   }
 
-  DeltaRanges::
-  DeltaRanges (const DeltaRanges& x,
-               ::xml_schema::flags f,
-               ::xml_schema::container* c)
+  DeltaRequirement::
+  DeltaRequirement (const DeltaRequirement& x,
+                    ::xml_schema::flags f,
+                    ::xml_schema::container* c)
   : ::xml_schema::type (x, f, c),
-    deltaEtaRange_ (x.deltaEtaRange_, f, this),
-    deltaPhiRange_ (x.deltaPhiRange_, f, this)
+    deltaPhiRange_ (x.deltaPhiRange_, f, this),
+    deltaEtaRange_ (x.deltaEtaRange_, f, this)
   {
   }
 
-  DeltaRanges::
-  DeltaRanges (const ::xercesc::DOMElement& e,
-               ::xml_schema::flags f,
-               ::xml_schema::container* c)
+  DeltaRequirement::
+  DeltaRequirement (const ::xercesc::DOMElement& e,
+                    ::xml_schema::flags f,
+                    ::xml_schema::container* c)
   : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-    deltaEtaRange_ (f, this),
-    deltaPhiRange_ (f, this)
+    deltaPhiRange_ (f, this),
+    deltaEtaRange_ (f, this)
   {
     if ((f & ::xml_schema::flags::base) == 0)
     {
@@ -3125,7 +3126,7 @@ namespace l1t
     }
   }
 
-  void DeltaRanges::
+  void DeltaRequirement::
   parse (::xsd::cxx::xml::dom::parser< char >& p,
          ::xml_schema::flags f)
   {
@@ -3134,20 +3135,6 @@ namespace l1t
       const ::xercesc::DOMElement& i (p.cur_element ());
       const ::xsd::cxx::xml::qualified_name< char > n (
         ::xsd::cxx::xml::dom::name< char > (i));
-
-      // deltaEtaRange
-      //
-      if (n.name () == "deltaEtaRange" && n.namespace_ () == "http://www.cern.ch/l1t")
-      {
-        ::std::auto_ptr< deltaEtaRange_type > r (
-          deltaEtaRange_traits::create (i, f, this));
-
-        if (!deltaEtaRange_.present ())
-        {
-          this->deltaEtaRange_.set (r);
-          continue;
-        }
-      }
 
       // deltaPhiRange
       //
@@ -3163,14 +3150,21 @@ namespace l1t
         }
       }
 
-      break;
-    }
+      // deltaEtaRange
+      //
+      if (n.name () == "deltaEtaRange" && n.namespace_ () == "http://www.cern.ch/l1t")
+      {
+        ::std::auto_ptr< deltaEtaRange_type > r (
+          deltaEtaRange_traits::create (i, f, this));
 
-    if (!deltaEtaRange_.present ())
-    {
-      throw ::xsd::cxx::tree::expected_element< char > (
-        "deltaEtaRange",
-        "http://www.cern.ch/l1t");
+        if (!deltaEtaRange_.present ())
+        {
+          this->deltaEtaRange_.set (r);
+          continue;
+        }
+      }
+
+      break;
     }
 
     if (!deltaPhiRange_.present ())
@@ -3179,51 +3173,58 @@ namespace l1t
         "deltaPhiRange",
         "http://www.cern.ch/l1t");
     }
+
+    if (!deltaEtaRange_.present ())
+    {
+      throw ::xsd::cxx::tree::expected_element< char > (
+        "deltaEtaRange",
+        "http://www.cern.ch/l1t");
+    }
   }
 
-  DeltaRanges* DeltaRanges::
+  DeltaRequirement* DeltaRequirement::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class DeltaRanges (*this, f, c);
+    return new class DeltaRequirement (*this, f, c);
   }
 
-  DeltaRanges::
-  ~DeltaRanges ()
+  DeltaRequirement::
+  ~DeltaRequirement ()
   {
   }
 
-  // CalorimeterObjectParameter
+  // CalorimeterObjectRequirement
   //
 
-  CalorimeterObjectParameter::
-  CalorimeterObjectParameter (const etThreshold_type& etThreshold)
+  CalorimeterObjectRequirement::
+  CalorimeterObjectRequirement (const etThreshold_type& etThreshold)
   : ::xml_schema::type (),
     etThreshold_ (etThreshold, ::xml_schema::flags (), this),
-    phiRange_ (::xml_schema::flags (), this),
-    etaRange_ (::xml_schema::flags (), this)
+    phiWindow_ (::xml_schema::flags (), this),
+    etaWindow_ (::xml_schema::flags (), this)
   {
   }
 
-  CalorimeterObjectParameter::
-  CalorimeterObjectParameter (const CalorimeterObjectParameter& x,
-                              ::xml_schema::flags f,
-                              ::xml_schema::container* c)
+  CalorimeterObjectRequirement::
+  CalorimeterObjectRequirement (const CalorimeterObjectRequirement& x,
+                                ::xml_schema::flags f,
+                                ::xml_schema::container* c)
   : ::xml_schema::type (x, f, c),
     etThreshold_ (x.etThreshold_, f, this),
-    phiRange_ (x.phiRange_, f, this),
-    etaRange_ (x.etaRange_, f, this)
+    phiWindow_ (x.phiWindow_, f, this),
+    etaWindow_ (x.etaWindow_, f, this)
   {
   }
 
-  CalorimeterObjectParameter::
-  CalorimeterObjectParameter (const ::xercesc::DOMElement& e,
-                              ::xml_schema::flags f,
-                              ::xml_schema::container* c)
+  CalorimeterObjectRequirement::
+  CalorimeterObjectRequirement (const ::xercesc::DOMElement& e,
+                                ::xml_schema::flags f,
+                                ::xml_schema::container* c)
   : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
     etThreshold_ (f, this),
-    phiRange_ (f, this),
-    etaRange_ (f, this)
+    phiWindow_ (f, this),
+    etaWindow_ (f, this)
   {
     if ((f & ::xml_schema::flags::base) == 0)
     {
@@ -3232,7 +3233,7 @@ namespace l1t
     }
   }
 
-  void CalorimeterObjectParameter::
+  void CalorimeterObjectRequirement::
   parse (::xsd::cxx::xml::dom::parser< char >& p,
          ::xml_schema::flags f)
   {
@@ -3256,25 +3257,25 @@ namespace l1t
         }
       }
 
-      // phiRange
+      // phiWindow
       //
-      if (n.name () == "phiRange" && n.namespace_ () == "http://www.cern.ch/l1t")
+      if (n.name () == "phiWindow" && n.namespace_ () == "http://www.cern.ch/l1t")
       {
-        ::std::auto_ptr< phiRange_type > r (
-          phiRange_traits::create (i, f, this));
+        ::std::auto_ptr< phiWindow_type > r (
+          phiWindow_traits::create (i, f, this));
 
-        this->phiRange_.push_back (r);
+        this->phiWindow_.push_back (r);
         continue;
       }
 
-      // etaRange
+      // etaWindow
       //
-      if (n.name () == "etaRange" && n.namespace_ () == "http://www.cern.ch/l1t")
+      if (n.name () == "etaWindow" && n.namespace_ () == "http://www.cern.ch/l1t")
       {
-        ::std::auto_ptr< etaRange_type > r (
-          etaRange_traits::create (i, f, this));
+        ::std::auto_ptr< etaWindow_type > r (
+          etaWindow_traits::create (i, f, this));
 
-        this->etaRange_.push_back (r);
+        this->etaWindow_.push_back (r);
         continue;
       }
 
@@ -3289,43 +3290,43 @@ namespace l1t
     }
   }
 
-  CalorimeterObjectParameter* CalorimeterObjectParameter::
+  CalorimeterObjectRequirement* CalorimeterObjectRequirement::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class CalorimeterObjectParameter (*this, f, c);
+    return new class CalorimeterObjectRequirement (*this, f, c);
   }
 
-  CalorimeterObjectParameter::
-  ~CalorimeterObjectParameter ()
+  CalorimeterObjectRequirement::
+  ~CalorimeterObjectRequirement ()
   {
   }
 
-  // CalorimeterObjectParameters
+  // CalorimeterObjectRequirements
   //
 
-  CalorimeterObjectParameters::
-  CalorimeterObjectParameters ()
+  CalorimeterObjectRequirements::
+  CalorimeterObjectRequirements ()
   : ::xml_schema::type (),
-    objectParameter_ (::xml_schema::flags (), this)
+    objectRequirement_ (::xml_schema::flags (), this)
   {
   }
 
-  CalorimeterObjectParameters::
-  CalorimeterObjectParameters (const CalorimeterObjectParameters& x,
-                               ::xml_schema::flags f,
-                               ::xml_schema::container* c)
+  CalorimeterObjectRequirements::
+  CalorimeterObjectRequirements (const CalorimeterObjectRequirements& x,
+                                 ::xml_schema::flags f,
+                                 ::xml_schema::container* c)
   : ::xml_schema::type (x, f, c),
-    objectParameter_ (x.objectParameter_, f, this)
+    objectRequirement_ (x.objectRequirement_, f, this)
   {
   }
 
-  CalorimeterObjectParameters::
-  CalorimeterObjectParameters (const ::xercesc::DOMElement& e,
-                               ::xml_schema::flags f,
-                               ::xml_schema::container* c)
+  CalorimeterObjectRequirements::
+  CalorimeterObjectRequirements (const ::xercesc::DOMElement& e,
+                                 ::xml_schema::flags f,
+                                 ::xml_schema::container* c)
   : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
-    objectParameter_ (f, this)
+    objectRequirement_ (f, this)
   {
     if ((f & ::xml_schema::flags::base) == 0)
     {
@@ -3334,7 +3335,7 @@ namespace l1t
     }
   }
 
-  void CalorimeterObjectParameters::
+  void CalorimeterObjectRequirements::
   parse (::xsd::cxx::xml::dom::parser< char >& p,
          ::xml_schema::flags f)
   {
@@ -3344,14 +3345,14 @@ namespace l1t
       const ::xsd::cxx::xml::qualified_name< char > n (
         ::xsd::cxx::xml::dom::name< char > (i));
 
-      // objectParameter
+      // objectRequirement
       //
-      if (n.name () == "objectParameter" && n.namespace_ () == "http://www.cern.ch/l1t")
+      if (n.name () == "objectRequirement" && n.namespace_ () == "http://www.cern.ch/l1t")
       {
-        ::std::auto_ptr< objectParameter_type > r (
-          objectParameter_traits::create (i, f, this));
+        ::std::auto_ptr< objectRequirement_type > r (
+          objectRequirement_traits::create (i, f, this));
 
-        this->objectParameter_.push_back (r);
+        this->objectRequirement_.push_back (r);
         continue;
       }
 
@@ -3359,15 +3360,15 @@ namespace l1t
     }
   }
 
-  CalorimeterObjectParameters* CalorimeterObjectParameters::
+  CalorimeterObjectRequirements* CalorimeterObjectRequirements::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class CalorimeterObjectParameters (*this, f, c);
+    return new class CalorimeterObjectRequirements (*this, f, c);
   }
 
-  CalorimeterObjectParameters::
-  ~CalorimeterObjectParameters ()
+  CalorimeterObjectRequirements::
+  ~CalorimeterObjectRequirements ()
   {
   }
 
@@ -3381,7 +3382,7 @@ namespace l1t
                         const type_type& type,
                         const etComparison_type& etComparison,
                         const objectType_type& objectType,
-                        const objectParameters_type& objectParameters,
+                        const objectRequirements_type& objectRequirements,
                         const relativeBx_type& relativeBx)
   : ::l1t::Condition (name,
                       description,
@@ -3389,8 +3390,8 @@ namespace l1t
     type_ (type, ::xml_schema::flags (), this),
     etComparison_ (etComparison, ::xml_schema::flags (), this),
     objectType_ (objectType, ::xml_schema::flags (), this),
-    objectParameters_ (objectParameters, ::xml_schema::flags (), this),
-    deltaRanges_ (::xml_schema::flags (), this),
+    objectRequirements_ (objectRequirements, ::xml_schema::flags (), this),
+    deltaRequirement_ (::xml_schema::flags (), this),
     relativeBx_ (relativeBx, ::xml_schema::flags (), this)
   {
   }
@@ -3402,7 +3403,7 @@ namespace l1t
                         const type_type& type,
                         const etComparison_type& etComparison,
                         const objectType_type& objectType,
-                        ::std::auto_ptr< objectParameters_type >& objectParameters,
+                        ::std::auto_ptr< objectRequirements_type >& objectRequirements,
                         const relativeBx_type& relativeBx)
   : ::l1t::Condition (name,
                       description,
@@ -3410,8 +3411,8 @@ namespace l1t
     type_ (type, ::xml_schema::flags (), this),
     etComparison_ (etComparison, ::xml_schema::flags (), this),
     objectType_ (objectType, ::xml_schema::flags (), this),
-    objectParameters_ (objectParameters, ::xml_schema::flags (), this),
-    deltaRanges_ (::xml_schema::flags (), this),
+    objectRequirements_ (objectRequirements, ::xml_schema::flags (), this),
+    deltaRequirement_ (::xml_schema::flags (), this),
     relativeBx_ (relativeBx, ::xml_schema::flags (), this)
   {
   }
@@ -3424,8 +3425,8 @@ namespace l1t
     type_ (x.type_, f, this),
     etComparison_ (x.etComparison_, f, this),
     objectType_ (x.objectType_, f, this),
-    objectParameters_ (x.objectParameters_, f, this),
-    deltaRanges_ (x.deltaRanges_, f, this),
+    objectRequirements_ (x.objectRequirements_, f, this),
+    deltaRequirement_ (x.deltaRequirement_, f, this),
     relativeBx_ (x.relativeBx_, f, this)
   {
   }
@@ -3438,8 +3439,8 @@ namespace l1t
     type_ (f, this),
     etComparison_ (f, this),
     objectType_ (f, this),
-    objectParameters_ (f, this),
-    deltaRanges_ (f, this),
+    objectRequirements_ (f, this),
+    deltaRequirement_ (f, this),
     relativeBx_ (f, this)
   {
     if ((f & ::xml_schema::flags::base) == 0)
@@ -3503,30 +3504,30 @@ namespace l1t
         }
       }
 
-      // objectParameters
+      // objectRequirements
       //
-      if (n.name () == "objectParameters" && n.namespace_ () == "http://www.cern.ch/l1t")
+      if (n.name () == "objectRequirements" && n.namespace_ () == "http://www.cern.ch/l1t")
       {
-        ::std::auto_ptr< objectParameters_type > r (
-          objectParameters_traits::create (i, f, this));
+        ::std::auto_ptr< objectRequirements_type > r (
+          objectRequirements_traits::create (i, f, this));
 
-        if (!objectParameters_.present ())
+        if (!objectRequirements_.present ())
         {
-          this->objectParameters_.set (r);
+          this->objectRequirements_.set (r);
           continue;
         }
       }
 
-      // deltaRanges
+      // deltaRequirement
       //
-      if (n.name () == "deltaRanges" && n.namespace_ () == "http://www.cern.ch/l1t")
+      if (n.name () == "deltaRequirement" && n.namespace_ () == "http://www.cern.ch/l1t")
       {
-        ::std::auto_ptr< deltaRanges_type > r (
-          deltaRanges_traits::create (i, f, this));
+        ::std::auto_ptr< deltaRequirement_type > r (
+          deltaRequirement_traits::create (i, f, this));
 
-        if (!this->deltaRanges_)
+        if (!this->deltaRequirement_)
         {
-          this->deltaRanges_.set (r);
+          this->deltaRequirement_.set (r);
           continue;
         }
       }
@@ -3569,10 +3570,10 @@ namespace l1t
         "http://www.cern.ch/l1t");
     }
 
-    if (!objectParameters_.present ())
+    if (!objectRequirements_.present ())
     {
       throw ::xsd::cxx::tree::expected_element< char > (
-        "objectParameters",
+        "objectRequirements",
         "http://www.cern.ch/l1t");
     }
 
@@ -4148,7 +4149,7 @@ namespace l1t
   //
 
   const L1TriggerMenu::version_type L1TriggerMenu::version_default_value_ (
-    "0.4.2");
+    "0.5.0");
 
   L1TriggerMenu::
   L1TriggerMenu (const meta_type& meta,

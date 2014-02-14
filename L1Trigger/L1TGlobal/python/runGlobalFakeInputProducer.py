@@ -19,7 +19,7 @@ process.load('L1Trigger/L1TGlobal/l1tGt_debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(2)
     )
 
 # Input source
@@ -30,7 +30,8 @@ process.source = cms.Source("PoolSource",
     ### RelValTTBar
     #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/3A11157B-ED51-E311-BA75-003048679080.root")
     ### Local RelValTTBar
-    fileNames = cms.untracked.vstring("/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_3A11157B-ED51-E311-BA75-003048679080.root")
+    fileNames = cms.untracked.vstring("/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_3A11157B-ED51-E311-BA75-003048679080.root"),
+    skipEvents = cms.untracked.uint32(80)
     ### RelValSingleElectronPt10
     #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/52DE2A7D-E651-E311-8E12-003048FFCBFC.root")
     )
@@ -47,7 +48,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 
 # Flag to switch between using MC particles and injecting individual particles
-useMCtoGT = True
+useMCtoGT = False#True
 
 process.dumpGT = cms.EDAnalyzer("l1t::L1TGlobalInputTester",
                 egInputTag    = cms.InputTag("gtInput"),
@@ -96,10 +97,10 @@ process.fakeL1GTinput = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
 		       ),
 		       
                        jetParams = cms.untracked.PSet(
-		           jetBx    = cms.untracked.vint32(  0,   0,  2, -1, 2),
-			   jetHwPt  = cms.untracked.vint32(100, 200,130,170,145),
-			   jetHwPhi = cms.untracked.vint32( 10,  10, 10, 10, 10),
-			   jetHwEta = cms.untracked.vint32( 11,  11, 11, 11, 11)
+		           jetBx    = cms.untracked.vint32(  0,   0,   2,   1,   1,   2),
+			   jetHwPt  = cms.untracked.vint32(100, 200, 130, 170,  85, 145),
+			   jetHwPhi = cms.untracked.vint32(  2,  67,  10,   3,  78,  10),
+			   jetHwEta = cms.untracked.vint32(  1,  19,  11,   0,  17,  11)
 		       ),
 		       
                        etsumParams = cms.untracked.PSet(
@@ -152,7 +153,12 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::L1uGtRecordDump",
 		etsumInputTag = cms.InputTag("gtInput"),
 		uGtRecInputTag = cms.InputTag("simL1uGtDigis"),
 		uGtAlgInputTag = cms.InputTag("simL1uGtDigis"),
-		uGtExtInputTag = cms.InputTag("simL1uGtDigis") 
+		uGtExtInputTag = cms.InputTag("simL1uGtDigis"),
+		minBx          = cms.int32(-2),
+		maxBx          = cms.int32(2),
+		dumpGTRecord   = cms.bool(True),
+		dumpVectors    = cms.bool(True),
+		tvFileName     = cms.string("TestVector.txt")
 		 )
 
 
