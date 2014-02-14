@@ -180,6 +180,11 @@ if __name__ == '__main__':
                       default=False,
                       action='store_true')
 
+    parser.add_option('--das-options',
+                      help='Options to be passed to das_client.py.',
+                      dest='dasOptions',
+                      default="--limit 0",
+                      action='store')
 
     
     opt,args = parser.parse_args()
