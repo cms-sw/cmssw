@@ -166,6 +166,7 @@ namespace reco {
     int                 color_;
     
     friend class ::PFClusterAlgo;
+    
   };
 }
 

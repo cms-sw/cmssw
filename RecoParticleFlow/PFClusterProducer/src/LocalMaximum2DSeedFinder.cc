@@ -8,7 +8,17 @@ findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
 	   const std::vector<bool>& mask,
 	   std::vector<bool>& seedable ) {
   std::vector<bool> usable(input->size(),true);
-  for( unsigned idx = 0; idx < input->size(); ++idx ) {    
+  //need to run over energy sorted rechits
+  std::vector<unsigned> ordered_hits;
+  for( unsigned i = 0; i < input->size(); ++i ) {    
+    std::vector<unsigned>::iterator pos = ordered_hits.begin();
+    for( ; pos != ordered_hits.end(); ++pos ) {
+      if( input->at(i).energy() > input->at(*pos).energy() ) break;
+    }
+    ordered_hits.insert(pos,i);
+  }
+  
+  for( const unsigned idx : ordered_hits ) {    
     if( !mask[idx] ) continue; // cannot seed masked objects
     const reco::PFRecHit& maybeseed = input->at(idx);
     if( maybeseed.energy() < _seedingThreshold || 
@@ -34,7 +44,7 @@ findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
     for( const unsigned neighbour : *myNeighbours ) {
       if( !mask[neighbour] ) continue;
       if( input->at(neighbour).energy() > maybeseed.energy() ) {
-	seedable[idx] = false;
+	seedable[idx] = false;	
 	break;
       }
     }

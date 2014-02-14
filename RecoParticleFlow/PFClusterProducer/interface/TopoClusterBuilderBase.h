@@ -53,8 +53,8 @@ class TopoClusterBuilderBase {
     return reco::PFRecHitRef(h,i);
   }
   unsigned _nSeeds, _nClustersFound; // basic performance information
-  const float _gatheringThreshold; // RecHit energy threshold to keep going
-  const float _gatheringThresholdPt2; // RecHit pt^2 threshold to keep going  
+  const double _gatheringThreshold; // RecHit energy threshold to keep going
+  const double _gatheringThresholdPt2; // RecHit pt^2 threshold to keep going  
  
  private:
   const std::string _algoName;

@@ -61,10 +61,20 @@ namespace {
 void SpikeAndDoubleSpikeCleaner::
 clean(const edm::Handle<reco::PFRecHitCollection>& input,
       std::vector<bool>& mask ) {
-  for( unsigned i = 0; i < input->size(); ++i ) {
+  //need to run over energy sorted rechits
+  std::vector<unsigned> ordered_hits;
+  for( unsigned i = 0; i < input->size(); ++i ) {    
+    std::vector<unsigned>::iterator pos = ordered_hits.begin();
+    for( ; pos != ordered_hits.end(); ++pos ) {
+      if( input->at(i).energy() > input->at(*pos).energy() ) break;
+    }
+    ordered_hits.insert(pos,i);
+  }
+
+  for( const unsigned i : ordered_hits ) {
     if( !mask[i] ) continue; // don't need to re-mask things :-)
     const reco::PFRecHit& rechit = input->at(i);
-    if( rechit.energy() > _cleaningThreshold ) continue;
+    if( rechit.energy() < _cleaningThreshold ) continue;
     const double rhenergy = rechit.energy();
     // single spike cleaning
     const std::vector<unsigned>& neighbours4 = rechit.neighbours4();
@@ -97,7 +107,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
       if( aeta < 5.0 && 
 	  ( (aeta < 2.85 && dcrmin > 1.0) || 
 	    (rhenergy > _eneThreshMod*_cleaningThreshold && 
-	     fraction1 < f1Cut/_fracThreshMod ) ) ) {
+	     fraction1 < f1Cut/_fracThreshMod ) ) ) {	
 	mask[i] = false;
       }
     }//if initial fraction cut (single spike)
@@ -144,7 +154,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 	      ( (aeta < 2.85 && dcrmin > 1.0) || 
 		(rhenergy > _eneThreshMod*_doubleSpikeThresh && 
 		 surroundingEnergyFraction < _doubleSpikeS6S2/_fracThreshMod ) 
-		) ) {
+		) ) {	    
 	    mask[i] = false;
 	    mask[mostEnergeticNeighbour] = false;
 	  }

@@ -54,24 +54,27 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       << " Found a cluster with no seed: " << cluster;
   }  				
   double cl_energy = 0;  
+  double cl_energy_float = 0;
   double max_e = 0.0;  
   double clusterT0 = 0.0;
   PFLayer::Layer max_e_layer = PFLayer::NONE;
-  reco::PFRecHitRef refseed;  
+  reco::PFRecHitRef refmax;  
   // find the seed and max layer
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
-    if( refhit->detId() == cluster.seed() ) refseed = refhit;
     const double rh_energy = refhit->energy() * rhf.fraction();    
+    const double rh_energyf = refhit->originalRecHit()->energy() * ((float)rhf.fraction());
     if( std::isnan(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
 	<<"rechit " << refhit->detId() << " has a NaN energy... " 
 	<< "The input of the particle flow clustering seems to be corrupted.";
     }
-    cl_energy += rh_energy;    
+    cl_energy += rh_energy;
+    cl_energy_float += rh_energyf;
     if( rh_energy > max_e ) {
       max_e = rh_energy;
       max_e_layer = rhf.recHitRef()->layer();
+      refmax = refhit;
     }    
   }
   cluster.setEnergy(cl_energy);
@@ -92,22 +95,23 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       << "ECAL Position Calc only accepts ECAL_BARREL or ECAL_ENDCAP";
   }
   const CaloCellGeometry* center_cell = 
-    ecal_geom->getGeometry(refseed->detId());
+    ecal_geom->getGeometry(refmax->detId());
   const double ctreta = center_cell->getPosition().eta();
   if( std::abs(ctreta) > preshowerStartEta ) { // need to change T0 if in ES
     if(ctreta > 0 && _esPlus ) clusterT0 = _param_T0_ES;
     if(ctreta < 0 && _esMinus) clusterT0 = _param_T0_ES;
   }  
-  const double maxDepth = _param_X0*(clusterT0 + std::log(cluster.energy()));
-  const double maxToFront = center_cell->getPosition().mag();  
+  // floats to reproduce exactly the EGM code
+  const float maxDepth = _param_X0*(clusterT0 + std::log(cl_energy_float));
+  const float maxToFront = center_cell->getPosition().mag();  
   // calculate the position
-  const double logETot_inv = -std::log(cluster.energy());
+  const double logETot_inv = -std::log(cl_energy_float);
   double position_norm = 0.0;
   double x(0.0),y(0.0),z(0.0);  
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     double weight = 0.0;
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
-    const double rh_energy = refhit->energy() * rhf.fraction();
+    const double rh_energy = refhit->originalRecHit()->energy() * ((float)rhf.fraction());
     if( rh_energy > 0.0 ) weight = std::max(0.0,( _param_W0 + 
 						  std::log(rh_energy) + 
 						  logETot_inv ));
@@ -125,7 +129,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   if( position_norm < _minAllowedNorm ) {
     edm::LogError("WeirdClusterNormalization") 
       << "PFCluster too far from seeding cell: set position to (0,0,0).";
-    cluster.setPosition(math::XYZPoint(x,y,z));
+    cluster.setPosition(math::XYZPoint(0,0,0));
   } else {
     const double norm_inverse = 1.0/position_norm;
     x *= norm_inverse;

@@ -18,6 +18,9 @@
 //C then the position is index-1. 
 //C provide a helper class to access the rechit. 
 
+#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+
 
 namespace reco {
 
@@ -136,7 +139,19 @@ namespace reco {
     friend std::ostream& operator<<(std::ostream& out, 
                                     const reco::PFRecHit& hit);
 
+    const edm::RefToBase<CaloRecHit>& originalRecHit() const {
+      return originalRecHit_;
+    }
+
+    template<typename T> 
+    void setOriginalRecHit(const T& rh) {
+      originalRecHit_ = edm::RefToBase<CaloRecHit>(rh);
+    }
+
   private:
+
+    // original rechit
+    edm::RefToBase<CaloRecHit> originalRecHit_;
 
     ///C cell detid - should be detid or index in collection ?
     unsigned            detId_;             
