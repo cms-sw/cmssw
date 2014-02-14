@@ -3,7 +3,9 @@ import FWCore.ParameterSet.Config as cms
 patPhotons = cms.EDProducer("PATPhotonProducer",
     # input collection
     photonSource = cms.InputTag("gedPhotons"),
-                                 
+
+    beamLineSrc = cms.InputTag("offlineBeamSpot"),
+ 
     # user data to add
     userData = cms.PSet(
       # add custom classes here

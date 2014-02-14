@@ -197,7 +197,10 @@ namespace pat {
       void hcalIsoDeposit(const IsoDeposit &dep)  { setIsoDeposit(pat::HcalIso,  dep); }
       /// Sets user-level IsoDeposit
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
-
+      /// vertex fit method 
+      bool passElectronVeto() const { return passElectronVeto_; }
+      void setPassElectronVeto( bool flag ) { passElectronVeto_ = flag; }
+  
       /// pipe operator (introduced to use pat::Photon with PFTopProjectors)
       friend std::ostream& reco::operator<<(std::ostream& out, const pat::Photon& obj);
 
@@ -213,6 +216,8 @@ namespace pat {
       IsoDepositPairs    isoDeposits_;
       std::vector<float> isolations_;
 
+      /// conversion veto
+      bool passElectronVeto_;
   };
 
 

@@ -23,6 +23,7 @@
 #include "CommonTools/Utils/interface/EtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
@@ -49,6 +50,10 @@ namespace pat {
 
       // configurables
       edm::EDGetTokenT<edm::View<reco::Photon> > photonToken_;
+      edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
+      edm::EDGetTokenT<reco::ConversionCollection> hConversionsToken_;
+      edm::EDGetTokenT<reco::BeamSpot> beamLineToken_;
+
       bool embedSuperCluster_;
 
       bool addGenMatch_;

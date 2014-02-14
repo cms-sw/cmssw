@@ -10,6 +10,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+
 #include <memory>
 
 using namespace pat;
@@ -20,6 +22,9 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
 {
   // initialize the configurables
   photonToken_ = consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("photonSource"));
+  electronToken_ = consumes<reco::GsfElectronCollection>(edm::InputTag("gedGsfElectrons"));
+  hConversionsToken_ = consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
+  beamLineToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"));
   embedSuperCluster_ = iConfig.getParameter<bool>("embedSuperCluster");
   // MC matching configurables
   addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
@@ -99,6 +104,18 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   // Get the vector of Photon's from the event
   edm::Handle<edm::View<reco::Photon> > photons;
   iEvent.getByToken(photonToken_, photons);
+
+  // for conversion veto selection
+  edm::Handle<reco::ConversionCollection> hConversions;
+  iEvent.getByToken(hConversionsToken_, hConversions);
+
+  // Get the collection of electrons from the event
+  edm::Handle<reco::GsfElectronCollection> hElectrons;
+  iEvent.getByToken(electronToken_, hElectrons);
+
+  // Get the beamspot
+  edm::Handle<reco::BeamSpot> beamSpotHandle;
+  iEvent.getByToken(beamLineToken_, beamSpotHandle);
 
   // prepare the MC matching
   std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > >genMatches(genMatchTokens_.size());
@@ -193,6 +210,13 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
       userDataHelper_.add( aPhoton, iEvent, iSetup );
     }
 
+    // set conversion veto selection
+    bool passelectronveto = false;
+    if( hConversions.isValid()){
+    // this is recommended method
+      passelectronveto = !ConversionTools::hasMatchedPromptElectron(photonRef->superCluster(), hElectrons, hConversions, beamSpotHandle->position());
+    }
+    aPhoton.setPassElectronVeto( passelectronveto );
 
     // add the Photon to the vector of Photons
     PATPhotons->push_back(aPhoton);
@@ -216,7 +240,7 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
 
   // input source
   iDesc.add<edm::InputTag>("photonSource", edm::InputTag("no default"))->setComment("input collection");
-
+  iDesc.add<edm::InputTag>("electronSource", edm::InputTag("no default"))->setComment("input collection");
   iDesc.add<bool>("embedSuperCluster", true)->setComment("embed external super cluster");
 
   // MC matching configurables
@@ -279,6 +303,9 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   edm::ParameterSetDescription isolationPSet;
   isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
   iDesc.add("userIsolation", isolationPSet);
+
+  iDesc.addNode( edm::ParameterDescription<edm::InputTag>("beamLineSrc", edm::InputTag(), true)
+                 )->setComment("input with high level selection");
 
   descriptions.add("PATPhotonProducer", iDesc);
 
