@@ -17,7 +17,7 @@ class LocalMaximum2DSeedFinder : public SeedFinderBase {
 		  std::vector<bool>& seedable );
 
  private:
-  const float _seedingThresholdPt2;
+  const double _seedingThresholdPt2;
   const unsigned _nNeighbours;
 
   static const std::vector<unsigned> _noNeighbours;

@@ -74,7 +74,7 @@ growPFClusters(const reco::PFCluster& topo,
   }      
   if( iter >= _maxIterations || 
       diff <= _stoppingTolerance*toleranceScaling) return;
-    // reset the rechits in this cluster, keeping the previous position  
+  // reset the rechits in this cluster, keeping the previous position  
   reco::PFClusterCollection clusters_nodepth;
   for( auto& cluster : clusters) {
     clusters_nodepth.push_back(cluster);
@@ -118,8 +118,12 @@ growPFClusters(const reco::PFCluster& topo,
       frac.push_back(fraction);
     }
     for( unsigned i = 0; i < clusters.size(); ++i ) {      
-      if( fractot > 0.0 ) frac[i]/=fractot;
-      else continue;
+      if( fractot > 1e-20 || 
+	  ( refhit->detId() == clusters[i].seed() && fractot > 0.0 ) ) {
+	frac[i]/=fractot;
+      } else {
+	continue;
+      }
       // if the fraction has been set to 0, the cell 
       // is now added to the cluster - careful ! (PJ, 19/07/08)
       // BUT KEEP ONLY CLOSE CELLS OTHERWISE MEMORY JUST EXPLOSES
@@ -138,7 +142,7 @@ growPFClusters(const reco::PFCluster& topo,
   }
   // recalculate positions and calculate convergence parameter
   double diff2 = 0.0;
-  math::XYZPoint lastPos;
+  reco::PFCluster::REPPoint lastPos;
   for( unsigned i = 0; i < clusters.size(); ++i ) {
     lastPos = clusters[i].positionREP();
     if( _convergencePosCalc ) {
@@ -150,7 +154,7 @@ growPFClusters(const reco::PFCluster& topo,
 	_positionCalc->calculateAndSetPosition(clusters[i]);
       }
     }
-    const double delta2 = reco::deltaR2(clusters[i].positionREP(),lastPos);
+    const double delta2 = reco::deltaR2(clusters[i].positionREP(),lastPos);    
     if( delta2 > diff2 ) diff2 = delta2;
   }
   diff = std::sqrt(diff2);

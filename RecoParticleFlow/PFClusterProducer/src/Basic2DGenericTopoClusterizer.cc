@@ -19,12 +19,23 @@ buildTopoClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 		  const std::vector<bool>& seedable,
 		  reco::PFClusterCollection& output) {  
   std::vector<bool> used(input->size(),false);
-
-  reco::PFCluster temp;
-  for( unsigned i = 0 ; i < input->size(); ++i ) {    
+  std::vector<unsigned> seeds;
+  
+  // get the seeds and sort them descending in energy
+  for( unsigned i = 0; i < input->size(); ++i ) {
     if( !rechitMask[i] || !seedable[i] || used[i] ) continue;
+    std::vector<unsigned>::iterator pos = seeds.begin();
+    for( ; pos != seeds.end(); ++pos ) {
+      if( input->at(i).energy() > input->at(*pos).energy() ) break;
+    }
+    seeds.insert(pos,i);
+  }
+  
+  reco::PFCluster temp;
+  for( const unsigned seed : seeds ) {    
+    if( !rechitMask[seed] || !seedable[seed] || used[seed] ) continue;
     temp.reset();
-    buildTopoCluster(input,rechitMask,makeRefhit(input,i),used,temp);
+    buildTopoCluster(input,rechitMask,makeRefhit(input,seed),used,temp);
     if( temp.recHitFractions().size() ) output.push_back(temp);
   }
 }
@@ -39,7 +50,7 @@ buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>& input,
       cell->pt2() < _gatheringThresholdPt2 ) {
     LOGDRESSED("GenericTopoCluster::buildTopoCluster()")
       << "RecHit " << cell->detId() << " with enegy " 
-      << cell->energy() << " GeV was rejected!.";
+      << cell->energy() << " GeV was rejected!." << std::endl;
     return;
   }
 
@@ -52,11 +63,11 @@ buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>& input,
   for( unsigned idx : neighbors ) {
     if( used[idx] || !rechitMask[idx] ) {
       LOGDRESSED("GenericTopoCluster::buildTopoCluster()")
-	<< "  RecHit " << cell->detId() << "\'s" 
+      	<< "  RecHit " << cell->detId() << "\'s" 
 	<< " neighbor RecHit " << input->at(idx).detId() << " with enegy " 
 	<< input->at(idx).energy() << " GeV was rejected!" 
 	<< " Reasons : " << used[idx] << " (used) " 
-	<< !rechitMask[idx] << " (masked)." ;
+	<< !rechitMask[idx] << " (masked)." << std::endl;
       continue;
     }
     buildTopoCluster(input,rechitMask,makeRefhit(input,idx),used,topocluster);

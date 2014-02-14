@@ -34,6 +34,7 @@
    <version ClassVersion="10" checksum="3428152128"/>
   </class>
 
+<<<<<<< HEAD
 
 
 
@@ -44,6 +45,11 @@
    <version ClassVersion="13" checksum="2553278843"/>
    <version ClassVersion="14" checksum="3941705446"/>
    <version ClassVersion="15" checksum="2156607168"/>
+    <field name="posrep_" transient="true"/>
+    <!-- <field name="seedState_" transient="true"/> -->
+    <field name="nNeighbours_" transient="true"/>
+    <field name="nCorners_" transient="true"/>
+    <field name="cornersrep_" transient="true"/>
   </class>
 
 

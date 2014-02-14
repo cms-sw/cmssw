@@ -21,7 +21,7 @@ class SeedFinderBase {
   const std::string& name() const { return _algoName; }
 
  protected:
-  const float _seedingThreshold;  
+  const double _seedingThreshold;  
 
  private:
   const std::string _algoName;

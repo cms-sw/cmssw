@@ -56,6 +56,7 @@ PFRecHit::PFRecHit(unsigned detId,
 
 
 PFRecHit::PFRecHit(const PFRecHit& other) :
+  originalRecHit_(other.originalRecHit_),
   detId_(other.detId_), 
   layer_(other.layer_), 
   energy_(other.energy_), 

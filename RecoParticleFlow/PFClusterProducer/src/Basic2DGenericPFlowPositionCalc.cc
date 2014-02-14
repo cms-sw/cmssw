@@ -58,7 +58,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
 	continue;
       }
     }
-    const double rh_energy = refhit->energy() * rhf.fraction();
+    
+    const double rh_energy = refhit->energy() * ((float)rhf.fraction());
     const double norm = ( rhf.fraction() < _minFractionInCalc ? 
 			  0.0 : 
 			  std::max(0.0,std::log(rh_energy/_logWeightDenom)) );
