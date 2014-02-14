@@ -32,7 +32,7 @@
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 
-#define VIDEBUG
+// #define VIDEBUG
 #ifdef VIDEBUG
 #include<iostream>
 #define COUT std::cout << "VI "
@@ -158,6 +158,7 @@ namespace {
     
 #else
     static void zeroStat(){}
+    static void incTot(int){}
     static void incReady() {}
     static void incSet() {}
     static void incAct() {}

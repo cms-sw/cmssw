@@ -9,7 +9,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define VIDEBUG
+// #define VIDEBUG
 
 #ifdef VIDEBUG
 #define COUT std::cout

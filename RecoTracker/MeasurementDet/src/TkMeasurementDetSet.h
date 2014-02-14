@@ -21,7 +21,7 @@ class PixelClusterParameterEstimator;
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#define VISTAT
+// #define VISTAT
 
 #ifdef VISTAT
 #include<iostream>
@@ -318,6 +318,7 @@ private:
 
 #else
   static void zeroStat(){}
+  static void incTot(int){}
   static void incReady() {}
   static void incSet() {}
   static void incAct() {}
