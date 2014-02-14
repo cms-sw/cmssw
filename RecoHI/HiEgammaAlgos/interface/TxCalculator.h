@@ -19,10 +19,11 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "CLHEP/Random/RandFlat.h"
-
-
 #define PI 3.141592653
+
+namespace CLHEP {
+   class HepRandomEngine;
+}
 
 class TxCalculator
 {
@@ -41,7 +42,7 @@ class TxCalculator
  private:
    
    edm::Handle<reco::TrackCollection>  recCollection;
-   CLHEP::RandFlat *theDice;
+   CLHEP::HepRandomEngine *theDice;
 
    double dRDistance(double eta1,double phi1,double eta2,double phi2)
    {
