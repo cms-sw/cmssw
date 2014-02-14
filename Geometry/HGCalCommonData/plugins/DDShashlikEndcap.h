@@ -18,7 +18,11 @@ public:
 		   const DDStringArguments & sArgs,
 		   const DDStringVectorArguments & vsArgs );
 
+  void createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadrant );
+
   void execute( DDCompactView& cpv );
+
+
 
 private:
 
