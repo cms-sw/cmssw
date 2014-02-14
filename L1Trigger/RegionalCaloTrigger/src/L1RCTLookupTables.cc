@@ -145,15 +145,15 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
     }
   else if (rctParameters_->jetMETECalScaleFactors()[iAbsEta-1] == 0. )
     {
-      shiftActivityBit = activityBit(0., hcal)<<17;
+      shiftActivityBit = activityBit(0., hcal,fgbit)<<17;
     }
   else if (rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] == 0. )
     {
-      shiftActivityBit = activityBit(ecal, 0.)<<17;
+      shiftActivityBit = activityBit(ecal, 0.,fgbit)<<17;
     }
   else
     {
-      shiftActivityBit = activityBit(ecal, hcal)<<17;
+      shiftActivityBit = activityBit(ecal, hcal,fgbit)<<17;
     }
   unsigned long output=etIn7Bits+shiftHE_FGBit+shiftEtIn9Bits+shiftActivityBit;
   return output;
@@ -221,7 +221,7 @@ bool L1RCTLookupTables::hOeFGVetoBit(float ecal, float hcal, bool fgbit) const
   return veto;
 }
 
-bool L1RCTLookupTables::activityBit(float ecal, float hcal) const
+bool L1RCTLookupTables::activityBit(float ecal, float hcal,bool fgbit) const
 {
   // Redefined for upgrade as EM activity only
   if(rctParameters_ == 0)
@@ -237,11 +237,14 @@ bool L1RCTLookupTables::activityBit(float ecal, float hcal) const
     // We redefine tauVeto() for upgrade as EM activity only  -- 
     // both EG and Tau make it through the EIC and JSC to CTP cards
     // In the CTP card we want to rechannel EG/Tau candidates to EG and Tau
-    if(ecal > rctParameters_->eActivityCut()) {
-      if((hcal/ecal) < rctParameters_->hOeCut()) {
-	aBit = true;
+//    if(ecal > rctParameters_->eActivityCut()) {
+//      if((hcal/ecal) < rctParameters_->hOeCut()) {
+//	aBit = true;
+//      }
+//    }
+        if(fgbit ||  ((ecal)>(rctParameters_->eActivityCut())&&hcal/(ecal+hcal)>rctParameters_->hOeCut()) || ((ecal)<=(rctParameters_->eActivityCut()) && hcal > rctParameters_->hActivityCut())){
+        aBit = true;
       }
-    }
   }
   return aBit;
 }
