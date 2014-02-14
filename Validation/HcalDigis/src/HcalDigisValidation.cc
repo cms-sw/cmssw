@@ -671,7 +671,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 	  // to limit "seed" SimHit energy in case of "multi" event
 	  if (mode_ == "multi" &&
 	      ((sub == 4 && en < 100. && en > 1.)
-	       || ((sub != 4) && en < 1. && en > 0.02))) {
+	       || ((sub != 4) && en < 1. && en > 0.001))) {
 	    seedSimHit = 1;
 	    break;
 	  }
@@ -790,10 +790,8 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 	  fill1D(strtmp, double(ii), val);
 	}
 	
-	if (closen == 1) {
 	  strtmp = "HcalDigiTask_signal_amplitude_vs_bin_all_depths_" + subdet_;
 	  fill2D(strtmp, double(ii), val);
-	}
 	
 	
 	// HB/HE/HO
@@ -864,7 +862,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
       if (ampl1 > 10. || ampl2 > 10. || ampl3 > 10. || ampl4 > 10.) indigis++;
       
       // fraction 5,6 bins if ampl. is big.
-      if (ampl1 > 30. && depth == 1 && closen == 1 && isubdet != 4) {
+      if (ampl1 > 50. &&  isubdet != 4) {
 	double fBin5 = tool[4] - calibrations.pedestal((*digiItr)[4].capid());
 	double fBin67 = tool[5] + tool[6]
 	  - calibrations.pedestal((*digiItr)[5].capid())
@@ -881,7 +879,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
       }
       
       //Special for HF
-      if (isubdet == 4 && ampl1 > 30. && depth == 1) {
+      if (isubdet == 4 && ampl1 > 50. && depth == 1) {
 	double fBin5 = tool[2] - calibrations.pedestal((*digiItr)[2].capid());
 	double fBin67 = tool[3] + tool[4]
 	  - calibrations.pedestal((*digiItr)[3].capid())
