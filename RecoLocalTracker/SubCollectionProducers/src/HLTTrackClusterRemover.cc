@@ -419,7 +419,7 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     //    std::cout << " total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true) << std::endl;
     std::auto_ptr<StripMaskContainer> removedStripClusterMask(
        new StripMaskContainer(edm::RefProd<edm::LazyGetter<SiStripCluster> >(stripClusters),collectedRegStrips_));
-    std::cout << "TrackClusterRemover" <<"total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true)<<std::endl;
+    // std::cout << "TrackClusterRemover" <<" total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true)<<std::endl;
     LogDebug("TrackClusterRemover")<<"total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true);
     iEvent.put( removedStripClusterMask );
 
