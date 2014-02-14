@@ -17,28 +17,40 @@
  * original one but now with "ghost" hadrons and partons clustered inside jets. The jet flavour is determined based on
  * the "ghost" hadrons clustered inside a jet:
  *
- * - a jet is considered a b jet if there is at least one b "ghost" hadron clustered inside it (hadronFlavour = 5)
- * - a jet is considered a c jet if there is at least one c and no b "ghost" hadrons clustered inside it (hadronFlavour = 4)
- * - a jet is considered a light-flavour jet if there are no b or c "ghost" hadrons clustered inside it (hadronFlavour = 0)
+ * - jet is considered a b jet if there is at least one b "ghost" hadron clustered inside it (hadronFlavour = 5)
+ * 
+ * - jet is considered a c jet if there is at least one c and no b "ghost" hadrons clustered inside it (hadronFlavour = 4)
+ * 
+ * - jet is considered a light-flavour jet if there are no b or c "ghost" hadrons clustered inside it (hadronFlavour = 0)
  *
  * To further assign a more specific flavour to light-flavour jets, "ghost" partons are used:
  *
- * - a jet is considered a b jet if there is at least one b "ghost" parton clustered inside it (partonFlavour = 5)
- * - a jet is considered a c jet if there is at least one c and no b "ghost" partons clustered inside it (partonFlavour = 4)
- * - a jet is considered a light-flavour jet if there are light-flavour and no b or c "ghost" partons clustered inside it.
+ * - jet is considered a b jet if there is at least one b "ghost" parton clustered inside it (partonFlavour = 5)
+ * 
+ * - jet is considered a c jet if there is at least one c and no b "ghost" partons clustered inside it (partonFlavour = 4)
+ * 
+ * - jet is considered a light-flavour jet if there are light-flavour and no b or c "ghost" partons clustered inside it.
  *   The jet is assigned the flavour of the hardest light-flavour "ghost" parton clustered inside it (partonFlavour = 1,2,3, or 21)
- * - a jet has an undefined flavour if there are no "ghost" partons clustered inside it (partonFlavour = 0)
+ * 
+ * - jet has an undefined flavour if there are no "ghost" partons clustered inside it (partonFlavour = 0)
  *
- * In rare instances a conflict between the hadron- and parton-based flavours can occur. However, it is possible to give
- * priority to the hadron-based by enabling the 'hadronFlavourHasPriority' switch, in which case the parton-based flavour
- * will be reset to the hadron-based flavour when the conflict occurs.
+ * In rare instances a conflict between the hadron- and parton-based flavours can occur. In such cases it is possible to
+ * keep both flavours or to give priority to the hadron-based flavour. This is controlled by the 'hadronFlavourHasPriority'
+ * switch which is enabled by default. The priority is given to the hadron-based flavour as follows:
+ * 
+ * - if hadronFlavour==0 && (partonFlavour==4 || partonFlavour==5): partonFlavour is set to the flavour of the hardest
+ *   light-flavour parton clustered inside the jet if such parton exists. Otherwise, the parton flavour is left undefined
+ * 
+ * - if hadronFlavour!=0 && hadronFlavour!=partonFlavour: partonFlavour is set equal to hadronFlavour
  *
  * The producer is also capable of assigning the flavor to subjets of fat jets, in which case it produces an additional
  * AssociationVector providing the flavour information for subjets. In order to assign the flavor to subjets, three input
  * jet collections are required:
  *
  * - jets, in this case represented by fat jets
+ * 
  * - groomed jets, which is a collection of fat jets from which the subjets are derived
+ * 
  * - subjets, derived from the groomed fat jets
  *
  * The "ghost" hadrons and partons clustered inside a fat jet are assigned to the closest subjet in the rapidity-phi
@@ -74,6 +86,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
 
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -323,7 +336,9 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      reco::GenParticleRefVector clusteredPartons;
      reco::GenParticleRef flavourParton;
      reco::GenParticleRef hardestParton;
+     reco::GenParticleRef hardestLightParton;
      double maxPt = -99.;
+     double maxPtLight = -99.;
      int hadronFlavour = 0; // default hadron flavour set to 0 (= undefined)
      int partonFlavour = 0; // default parton flavour set to 0 (= undefined)
 
@@ -347,15 +362,16 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          clusteredPartons.push_back(tempParton);
          // b flavour gets priority
          if( flavourParton.isNull() && ( abs( tempParton->pdgId() ) == 4 )  ) flavourParton = tempParton;
-         if( abs( tempParton->pdgId() ) == 5 )
-         {
-           if( flavourParton.isNull() ) flavourParton = tempParton;
-           else if( abs( flavourParton->pdgId() ) != 5 ) flavourParton = tempParton;
-         }
+         if( abs( tempParton->pdgId() ) == 5 ) flavourParton = tempParton;
          if( tempParton->pt() > maxPt )
          {
            maxPt = tempParton->pt();
            hardestParton = tempParton;
+         }
+         if( CandMCTagUtils::isLightParton( *tempParton ) && tempParton->pt() > maxPtLight )
+         {
+           maxPtLight = tempParton->pt();
+           hardestLightParton = tempParton;
          }
        }
      }
@@ -375,8 +391,9 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // if enabled, check for conflicts between hadron- and parton-based flavours and give priority to the hadron-based flavour
      if( hadronFlavourHasPriority_ )
      {
-       if( ( hadronFlavour==0 && (partonFlavour==4 || partonFlavour==5) ) ||
-           ( hadronFlavour!=0 && hadronFlavour!=partonFlavour ) )
+       if( hadronFlavour==0 && (partonFlavour==4 || partonFlavour==5) )
+         partonFlavour = ( hardestLightParton.isNonnull() ? abs( hardestLightParton->pdgId() ) : 0 );
+       else if( hadronFlavour!=0 && hadronFlavour!=partonFlavour )
          partonFlavour = hadronFlavour;
      }
 
@@ -438,7 +455,9 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        {
          reco::GenParticleRef subjetFlavourParton;
          reco::GenParticleRef subjetHardestParton;
+         reco::GenParticleRef subjetHardestLightParton;
          double subjetMaxPt = -99.;
+         double subjetMaxPtLight = -99.;
          int subjetHadronFlavour = 0; // default hadron flavour set to 0 (= undefined)
          int subjetPartonFlavour = 0; // default parton flavour set to 0 (= undefined)
 
@@ -446,15 +465,16 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          {
            // b flavour gets priority
            if( subjetFlavourParton.isNull() && ( abs( (*it)->pdgId() ) == 4 )  ) subjetFlavourParton = (*it);
-           if( abs( (*it)->pdgId() ) == 5 )
-           {
-             if( subjetFlavourParton.isNull() ) subjetFlavourParton = (*it);
-             else if( abs( subjetFlavourParton->pdgId() ) != 5 ) subjetFlavourParton = (*it);
-           }
+           if( abs( (*it)->pdgId() ) == 5 ) subjetFlavourParton = (*it);
            if( (*it)->pt() > subjetMaxPt )
            {
              subjetMaxPt = (*it)->pt();
              subjetHardestParton = (*it);
+           }
+           if( CandMCTagUtils::isLightParton( *(*it) ) && (*it)->pt() > subjetMaxPtLight )
+           {
+             subjetMaxPtLight = (*it)->pt();
+             subjetHardestLightParton = (*it);
            }
          }
          // set hadron flavour
@@ -473,8 +493,9 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          // if enabled, check for conflicts between hadron- and parton-based flavours and give priority to the hadron-based flavour
          if( hadronFlavourHasPriority_ )
          {
-           if( ( subjetHadronFlavour==0 && (subjetPartonFlavour==4 || subjetPartonFlavour==5) ) ||
-               ( subjetHadronFlavour!=0 && subjetHadronFlavour!=subjetPartonFlavour ) )
+           if( subjetHadronFlavour==0 && (subjetPartonFlavour==4 || subjetPartonFlavour==5) )
+             subjetPartonFlavour = ( subjetHardestLightParton.isNonnull() ? abs( subjetHardestLightParton->pdgId() ) : 0 );
+           else if( subjetHadronFlavour!=0 && subjetHadronFlavour!=subjetPartonFlavour )
              subjetPartonFlavour = subjetHadronFlavour;
          }
 
