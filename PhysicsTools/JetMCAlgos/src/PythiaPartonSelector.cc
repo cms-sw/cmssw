@@ -5,6 +5,7 @@
  */
 
 #include "PhysicsTools/JetMCAlgos/interface/PythiaPartonSelector.h"
+#include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
 
 
 PythiaPartonSelector::PythiaPartonSelector()
@@ -22,14 +23,14 @@ PythiaPartonSelector::run(const edm::Handle<reco::GenParticleCollection> & parti
    // loop over particles and select partons
    for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
    {
-     if( !isParton( &(*it) ) ) continue;        // skip particle if not parton
+     if( !CandMCTagUtils::isParton( *it ) ) continue;        // skip particle if not parton
      if( it->numberOfDaughters()==0 ) continue; // skip particle if it has no daughters
 
      // check if any of the daughters is also a parton
      bool hasPartonDaughter = false;
      for(size_t i=0; i < it->numberOfDaughters(); ++i)
      {
-       if( isParton( it->daughter(i) ) ) { hasPartonDaughter = true; break; }
+       if( CandMCTagUtils::isParton( *(it->daughter(i)) ) ) { hasPartonDaughter = true; break; }
      }
      if( hasPartonDaughter ) continue; // skip partons that have other partons as daughters
 
