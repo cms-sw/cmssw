@@ -20,7 +20,6 @@ camilo.carrilloATcern.ch
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-void RPCEfficiency::beginJob(){}
 
 int distsector_tmp(int sector1,int sector2){
  
@@ -61,21 +60,18 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
 
 }
 
-void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
- 
 
-  //Interface
+void RPCEfficiency::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & run, edm::EventSetup const & iSetup ) {
 
-  dbe = edm::Service<DQMStore>().operator->();
-   
   std::string folder;
-  dbe->setCurrentFolder(folderPath);
-  statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
+  ibooker.cd();
+  ibooker.setCurrentFolder(folderPath);
+  statistics = ibooker.book1D("Statistics","All Statistics",33,0.5,33.5);
 
    
   statistics->setBinLabel(1,"Events ",1);
-
-  statistics->setBinLabel(2,"Events with DT seg",1);  
+  statistics->setBinLabel(2,"Events with DT seg",1);
+  
   std::stringstream sstr;
   for( int i = 1; i<=15; i++ ){ //DT form bin 3 to bin 17
     sstr.str("");
@@ -94,7 +90,7 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
    LogDebug("rpcefficiency")<<"booking Global histograms with "<<folderPath;
    
   folder = folderPath+"MuonSegEff/"+"Residuals/Barrel";
-  dbe->setCurrentFolder(folder);
+  ibooker.setCurrentFolder(folder);
  
   //Barrel
   std::stringstream histoName, histoTitle;
@@ -104,50 +100,47 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
     histoTitle.str("");
     histoName<<"GlobalResidualsClu1La"<<layer;
     histoTitle<<"RPC Residuals Layer "<<layer<<" Cluster Size 1"; 
-    hGlobalResClu1La[layer-1] = dbe->book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
+    hGlobalResClu1La[layer-1] = ibooker.book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
  
     histoName.str("");
     histoTitle.str("");
     histoName<<"GlobalResidualsClu2La"<<layer;
     histoTitle<<"RPC Residuals Layer "<<layer<<" Cluster Size 2"; 
-    hGlobalResClu2La[layer-1] = dbe->book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
+    hGlobalResClu2La[layer-1] = ibooker.book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
     
     histoName.str("");
     histoTitle.str("");
     histoName<<"GlobalResidualsClu3La"<<layer;
     histoTitle<<"RPC Residuals Layer "<<layer<<" Cluster Size 3"; 
-    hGlobalResClu3La[layer-1] = dbe->book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
+    hGlobalResClu3La[layer-1] = ibooker.book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
     
   }
   
    LogDebug("rpcefficiency")<<"Booking Residuals for EndCap";
   folder = folderPath+"MuonSegEff/Residuals/EndCap";
-  dbe->setCurrentFolder(folder);
+  ibooker.setCurrentFolder(folder);
 
   //Endcap   
+  hGlobalResClu1R3C = ibooker.book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R3B = ibooker.book1D("GlobalResidualsClu1R3B","RPC Residuals Ring 3 Roll B Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R3A = ibooker.book1D("GlobalResidualsClu1R3A","RPC Residuals Ring 3 Roll A Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R2C = ibooker.book1D("GlobalResidualsClu1R2C","RPC Residuals Ring 2 Roll C Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R2B = ibooker.book1D("GlobalResidualsClu1R2B","RPC Residuals Ring 2 Roll B Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R2A = ibooker.book1D("GlobalResidualsClu1R2A","RPC Residuals Ring 2 Roll A Cluster Size 1",101,-10.,10.);
 
+  hGlobalResClu2R3C = ibooker.book1D("GlobalResidualsClu2R3C","RPC Residuals Ring 3 Roll C Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R3B = ibooker.book1D("GlobalResidualsClu2R3B","RPC Residuals Ring 3 Roll B Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R3A = ibooker.book1D("GlobalResidualsClu2R3A","RPC Residuals Ring 3 Roll A Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R2C = ibooker.book1D("GlobalResidualsClu2R2C","RPC Residuals Ring 2 Roll C Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R2B = ibooker.book1D("GlobalResidualsClu2R2B","RPC Residuals Ring 2 Roll B Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R2A = ibooker.book1D("GlobalResidualsClu2R2A","RPC Residuals Ring 2 Roll A Cluster Size 2",101,-10.,10.);
 
-  hGlobalResClu1R3C = dbe->book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R3B = dbe->book1D("GlobalResidualsClu1R3B","RPC Residuals Ring 3 Roll B Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R3A = dbe->book1D("GlobalResidualsClu1R3A","RPC Residuals Ring 3 Roll A Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R2C = dbe->book1D("GlobalResidualsClu1R2C","RPC Residuals Ring 2 Roll C Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R2B = dbe->book1D("GlobalResidualsClu1R2B","RPC Residuals Ring 2 Roll B Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R2A = dbe->book1D("GlobalResidualsClu1R2A","RPC Residuals Ring 2 Roll A Cluster Size 1",101,-10.,10.);
-
-  hGlobalResClu2R3C = dbe->book1D("GlobalResidualsClu2R3C","RPC Residuals Ring 3 Roll C Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R3B = dbe->book1D("GlobalResidualsClu2R3B","RPC Residuals Ring 3 Roll B Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R3A = dbe->book1D("GlobalResidualsClu2R3A","RPC Residuals Ring 3 Roll A Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R2C = dbe->book1D("GlobalResidualsClu2R2C","RPC Residuals Ring 2 Roll C Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R2B = dbe->book1D("GlobalResidualsClu2R2B","RPC Residuals Ring 2 Roll B Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R2A = dbe->book1D("GlobalResidualsClu2R2A","RPC Residuals Ring 2 Roll A Cluster Size 2",101,-10.,10.);
-
-  hGlobalResClu3R3C = dbe->book1D("GlobalResidualsClu3R3C","RPC Residuals Ring 3 Roll C Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R3B = dbe->book1D("GlobalResidualsClu3R3B","RPC Residuals Ring 3 Roll B Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R3A = dbe->book1D("GlobalResidualsClu3R3A","RPC Residuals Ring 3 Roll A Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R2C = dbe->book1D("GlobalResidualsClu3R2C","RPC Residuals Ring 2 Roll C Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R2B = dbe->book1D("GlobalResidualsClu3R2B","RPC Residuals Ring 2 Roll B Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R2A = dbe->book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
-
+  hGlobalResClu3R3C = ibooker.book1D("GlobalResidualsClu3R3C","RPC Residuals Ring 3 Roll C Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R3B = ibooker.book1D("GlobalResidualsClu3R3B","RPC Residuals Ring 3 Roll B Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R3A = ibooker.book1D("GlobalResidualsClu3R3A","RPC Residuals Ring 3 Roll A Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R2C = ibooker.book1D("GlobalResidualsClu3R2C","RPC Residuals Ring 2 Roll C Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R2B = ibooker.book1D("GlobalResidualsClu3R2B","RPC Residuals Ring 2 Roll B Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R2A = ibooker.book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
 
 
   edm::ESHandle<RPCGeometry> rpcGeo;
@@ -158,17 +151,15 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
     if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
+      
       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	
 	RPCDetId rpcId = (*r)->id();
 	int region=rpcId.region();
-	//booking all histograms
-
-	//	std::string nameRoll = rpcsrv.name();
 	
-	 LogDebug("rpcefficiency")<<"Booking for "<<rpcId.rawId();
+	LogDebug("rpcefficiency")<<"Booking for "<<rpcId.rawId();
 	
-	bookDetUnitSeg(rpcId,(*r)->nstrips(),folderPath+"MuonSegEff/", 	meCollection[rpcId.rawId()] );
+	bookDetUnitSeg(ibooker, rpcId,(*r)->nstrips(),folderPath+"MuonSegEff/", meCollection[rpcId.rawId()] );
 	
 	if(region==0&&(incldt||incldtMB4)){
 	  //LogDebug("rpcefficiency")<<"--Filling the dtstore"<<rpcId;
@@ -189,6 +180,7 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 	  RPCGeomServ rpcsrv(rpcId);
 	  int rpcsegment = rpcsrv.segment();
 	  int cscchamber = rpcsegment;
+
           if((station==2||station==3)&&ring==3){
             cscring = 2;
           }
@@ -204,7 +196,8 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
       }
     }
   }
-   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+
+  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
        
       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
@@ -247,6 +240,11 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
     }
   }
 }//beginRun
+
+
+
+
+
 
 RPCEfficiency::~RPCEfficiency(){}
 
@@ -886,13 +884,4 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 
-void RPCEfficiency::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
-  if (EffSaveRootFile){
-    dbe->save(EffRootFileName);
-  }
-}
 
-
-void RPCEfficiency::endJob(){
-  dbe =0;
-}

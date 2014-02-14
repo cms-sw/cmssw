@@ -44,53 +44,36 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
 }
 
 RPCMonitorDigi::~RPCMonitorDigi(){}
-void RPCMonitorDigi::beginJob(){}
 
-void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
+ 
+void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &r, edm::EventSetup const & iSetup){
 
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Begin Run " ;
   
-  /// get hold of back-end interface
-  dbe = edm::Service<DQMStore>().operator->();
-
+  
   //Book 
-  this->bookRegionME(noiseFolder_, regionNoiseCollection);
-  this->bookSectorRingME(noiseFolder_, sectorRingNoiseCollection);
-  this->bookWheelDiskME(noiseFolder_, wheelDiskNoiseCollection);
-
-
+  this->bookRegionME(ibooker,noiseFolder_, regionNoiseCollection);
+  this->bookSectorRingME(ibooker,noiseFolder_, sectorRingNoiseCollection);
+  this->bookWheelDiskME(ibooker,noiseFolder_, wheelDiskNoiseCollection);
 
   std::string currentFolder = subsystemFolder_ +"/"+noiseFolder_;
-  dbe->setCurrentFolder(currentFolder);
-  
-  noiseRPCEvents_= dbe->get(currentFolder +"/RPCEvents");
-  if(noiseRPCEvents_) dbe->removeElement(noiseRPCEvents_->getName());
-  noiseRPCEvents_ = dbe->book1D("RPCEvents","RPCEvents", 1, 0.5, 1.5);
-  
+  ibooker.setCurrentFolder(currentFolder);
+ 
+  noiseRPCEvents_ = ibooker.book1D("RPCEvents","RPCEvents", 1, 0.5, 1.5);
   
   if(useMuonDigis_ ){
-    this->bookRegionME(muonFolder_, regionMuonCollection);
-    this->bookSectorRingME(muonFolder_, sectorRingMuonCollection);
-    this->bookWheelDiskME(muonFolder_, wheelDiskMuonCollection);
+    this->bookRegionME(ibooker, muonFolder_, regionMuonCollection);
+    this->bookSectorRingME(ibooker, muonFolder_, sectorRingMuonCollection);
+    this->bookWheelDiskME(ibooker, muonFolder_, wheelDiskMuonCollection);
     
     currentFolder = subsystemFolder_ +"/"+muonFolder_;
-    dbe->setCurrentFolder(currentFolder); 
+    ibooker.setCurrentFolder(currentFolder); 
    
-    muonRPCEvents_= dbe->get(currentFolder +"/RPCEvents");
-    if(muonRPCEvents_) dbe->removeElement(muonRPCEvents_->getName());
-    muonRPCEvents_ =  dbe->book1D("RPCEvents", "RPCEvents", 1, 0.5, 1.5);
-
-    NumberOfMuon_ = dbe->get(currentFolder+"/NumberOfMuons");
-    if(NumberOfMuon_) dbe->removeElement(NumberOfMuon_->getName());
-    NumberOfMuon_ = dbe->book1D("NumberOfMuons", "Number of Muons", 11, -0.5, 10.5);
-
-
-    NumberOfRecHitMuon_ = dbe->get(currentFolder+"/NumberOfRPCRecHitsMuons");
-    if(NumberOfRecHitMuon_) dbe->removeElement(NumberOfRecHitMuon_->getName());
-    NumberOfRecHitMuon_ = dbe->book1D("NumberOfRecHitMuons", "Number of RPC RecHits per Muon", 8, -0.5, 7.5);
+    muonRPCEvents_ =  ibooker.book1D("RPCEvents", "RPCEvents", 1, 0.5, 1.5);
+    NumberOfMuon_ = ibooker.book1D("NumberOfMuons", "Number of Muons", 11, -0.5, 10.5);
+    NumberOfRecHitMuon_ = ibooker.book1D("NumberOfRecHitMuons", "Number of RPC RecHits per Muon", 8, -0.5, 7.5);
   }
    
-
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   //loop on geometry to book all MEs
@@ -105,15 +88,15 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 	  //booking all histograms
 	  RPCGeomServ rpcsrv(rpcId);
 	  std::string nameID = rpcsrv.name();
-	  if(useMuonDigis_) bookRollME(rpcId ,iSetup, muonFolder_, meMuonCollection[nameID]);
-	  bookRollME(rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
+	  if(useMuonDigis_) bookRollME(ibooker,rpcId ,iSetup, muonFolder_, meMuonCollection[nameID]);
+	  bookRollME(ibooker, rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
 	}
       }else{
 	RPCDetId rpcId = roles[0]->id(); //any roll would do - here I just take the first one
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameID = rpcsrv.chambername();
-	if(useMuonDigis_) bookRollME(rpcId,iSetup, muonFolder_, meMuonCollection[nameID]);
-	bookRollME(rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
+	if(useMuonDigis_) bookRollME(ibooker, rpcId,iSetup, muonFolder_, meMuonCollection[nameID]);
+	bookRollME(ibooker, rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
 	
       }
     }
@@ -122,14 +105,6 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   //Clear flags;
   dcs_ = true;
 }
-
-void RPCMonitorDigi::endJob(void){
-  if(saveRootFile) dbe->save(RootFileName); 
-  dbe = 0;
-}
-
-void RPCMonitorDigi::endLuminosityBlock(edm::LuminosityBlock const& L, edm::EventSetup const&  E){}
-
 
 void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setup ){
   dcs_ = true;

@@ -215,43 +215,33 @@ int  RPCTTUMonitor::discriminateGMT( const edm::Event& iEvent, const edm::EventS
   
 }
 
-void RPCTTUMonitor::discriminateDecision( bool data, bool emu , int indx ) 
-{
+void RPCTTUMonitor::discriminateDecision( bool data, bool emu , int indx ) {
  
-  if ( data == 1 && emu == 1 )
+  if ( data == 1 && emu == 1 ){
     m_dataVsemulator[indx]->Fill( 1 );
-  
-  if ( data == 1 && emu == 0 )
+  }else if ( data == 1 && emu == 0 ){
     m_dataVsemulator[indx]->Fill( 3 );
-  
-  if ( data == 0 && emu == 1 )
+  }else if ( data == 0 && emu == 1 ){
     m_dataVsemulator[indx]->Fill( 5 );
-  
-  if ( data == 0 && emu == 0 )
+  }else if ( data == 0 && emu == 0 ){
     m_dataVsemulator[indx]->Fill( 7 );
-  
+  }
   
 }
 
 
 
 
-void  RPCTTUMonitor::beginJob(){}
+void  RPCTTUMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & r, edm::EventSetup const & iSetup) {
 
-void RPCTTUMonitor::beginRun(const edm::EventSetup& iSetup){
- 
-  dbe = edm::Service<DQMStore>().operator->();
-  dbe->showDirStructure();
+  ibooker.setCurrentFolder(ttuFolder);
 
   
-  dbe->setCurrentFolder(ttuFolder);
-
-  
-  m_ttBitsDecisionData = dbe->book1D("TechTrigger.Bits.Data",
+  m_ttBitsDecisionData = ibooker.book1D("TechTrigger.Bits.Data",
                                              "Technical Trigger bits : Summary",
                                               10, 23, 33 );
 
-  m_ttBitsDecisionEmulator =  dbe->book1D("TechTrigger.Bits.Emulator",
+  m_ttBitsDecisionEmulator =  ibooker.book1D("TechTrigger.Bits.Emulator",
                                                  "Technical Trigger bits : Summary",
                                                  10, 23, 33 );
  for( int k=0; k < m_maxttBits; ++k) {
@@ -260,7 +250,7 @@ void RPCTTUMonitor::beginRun(const edm::EventSetup& iSetup){
    
    hname << "BX.diff.PAC-TTU.bit." << m_ttBits[k];
    
-   m_bxDistDiffPac[k] =  dbe->book1D(hname.str().c_str(),
+   m_bxDistDiffPac[k] =  ibooker.book1D(hname.str().c_str(),
                                              "Timing difference between PAC and TTU",
                                              7, -3, 3);
    
@@ -268,7 +258,7 @@ void RPCTTUMonitor::beginRun(const edm::EventSetup& iSetup){
    
    hname << "BX.diff.DT-TTU.bit." << m_ttBits[k];
    
-   m_bxDistDiffDt[k] =  dbe->book1D(hname.str().c_str(),
+   m_bxDistDiffDt[k] =  ibooker.book1D(hname.str().c_str(),
                                             "Timing difference between DT and TTU",
                                             7, -3, 3);
    
@@ -276,7 +266,7 @@ void RPCTTUMonitor::beginRun(const edm::EventSetup& iSetup){
    
    hname << "Emu.Ttu.Compare.bit." << m_ttBits[k];
    
-   m_dataVsemulator[k] =  dbe->book1D(hname.str().c_str(),
+   m_dataVsemulator[k] =  ibooker.book1D(hname.str().c_str(),
                                               "Comparison between emulator and TT decisions", 
                                               10, 0, 10 );
    
@@ -288,13 +278,5 @@ void RPCTTUMonitor::beginRun(const edm::EventSetup& iSetup){
 }
 
 
-void 
-RPCTTUMonitor::endJob() {
-
-  if(outputFile != "")
-    dbe->save(outputFile);
-
-  dbe=0;  
-}
 
 

@@ -10,11 +10,12 @@
 
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 ///Data Format
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 
-class RPCDcsInfo: public edm::EDAnalyzer{
+class RPCDcsInfo: public DQMEDAnalyzer{
 
 public:
 
@@ -28,14 +29,16 @@ protected:
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void beginRun(const edm::Run& r, const edm::EventSetup& c) ;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
+
+
 
 private:
 
   void makeDcsInfo(const edm::Event& e);  
 
-  DQMStore *dbe_;
+  // DQMStore *dbe_;
   edm::ParameterSet parameters_;
   std::string subsystemname_;
   std::string dcsinfofolder_;
