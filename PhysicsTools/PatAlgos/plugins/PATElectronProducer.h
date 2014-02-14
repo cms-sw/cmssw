@@ -144,7 +144,7 @@ namespace pat {
       template<typename T> void readIsolationLabels( const edm::ParameterSet & iConfig,
 				                     const char* psetName,
 				                     IsolationLabels& labels,
-					             std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > tokens);
+					             std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens);
 
       bool          addElecID_;
       typedef std::pair<std::string, edm::InputTag> NameTag;
@@ -187,7 +187,7 @@ template<typename T>
 void PATElectronProducer::readIsolationLabels( const edm::ParameterSet & iConfig,
 					       const char* psetName,
 					       IsolationLabels& labels,
-					       std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > tokens) {
+					       std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens) {
 
   labels.clear();
 
