@@ -44,3 +44,31 @@ bool CandMCTagUtils::hasCharm(const reco::Candidate &c)
   if ( code1 == 4 || code2 == 4) tmpHasCharm = true;
   return tmpHasCharm;
 }
+
+bool CandMCTagUtils::isParton(const reco::Candidate &c)
+{
+   int id = abs(c.pdgId());
+
+   if( id == 1 ||
+       id == 2 ||
+       id == 3 ||
+       id == 4 ||
+       id == 5 ||
+       id == 21 )
+     return true;
+   else
+     return false;
+}
+
+bool CandMCTagUtils::isLightParton(const reco::Candidate &c)
+{
+   int id = abs(c.pdgId());
+
+   if( id == 1 ||
+       id == 2 ||
+       id == 3 ||
+       id == 21 )
+     return true;
+   else
+     return false;
+}
