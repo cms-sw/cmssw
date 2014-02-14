@@ -8,7 +8,6 @@
   <class name="reco::CaloTauDiscriminatorAgainstElectron" ClassVersion="10">
    <version ClassVersion="10" checksum="3692008801"/>
     <!-- <field name="transientVector_" transient="true"/> -->
-    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::CaloTauDiscriminatorAgainstElectronRef"/>
   <class name="reco::CaloTauDiscriminatorAgainstElectronRefProd"/>
@@ -27,7 +26,6 @@
   <class name="reco::PFTauDiscriminatorByIsolation" ClassVersion="10">
    <version ClassVersion="10" checksum="1187112623"/>
     <!-- <field name="transientVector_" transient="true"/> -->
-    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauDiscriminatorByIsolationRef"/>
   <class name="reco::PFTauDiscriminatorByIsolationRefProd"/>
@@ -47,7 +45,6 @@
   <class name="reco::PFTauDiscriminator" ClassVersion="10">
    <version ClassVersion="10" checksum="4019319043"/>
     <!-- <field name="transientVector_" transient="true"/> -->
-    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauDiscriminatorRef"/>
   <class name="reco::PFTauDiscriminatorRefProd"/>
@@ -61,7 +58,6 @@
   <class name="reco::JetPiZeroAssociation" ClassVersion="10">
    <version ClassVersion="10" checksum="3488813045"/>
     <!-- <field name="transientVector_" transient="true"/> -->
-    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::JetPiZeroAssociationRef"/>
   <class name="reco::JetPiZeroAssociationRefProd"/>
@@ -78,7 +74,6 @@
   <class name="reco::PFJetChargedHadronAssociation" ClassVersion="10">
    <version ClassVersion="10" checksum="3498827707"/>
 <!--     <field name="transientVector_" transient="true"/> -->
-<!--     <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFJetChargedHadronAssociationRef"/>
   <class name="reco::PFJetChargedHadronAssociationRefProd"/>
