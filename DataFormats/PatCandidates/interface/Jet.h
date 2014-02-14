@@ -426,7 +426,7 @@ namespace pat {
       ///    If using refactorized PAT, return that. (constituents size > 0)
       ///    Else check the old version of PAT (embedded constituents size > 0)
       ///    Else return the reco Jet number of constituents
-      virtual size_t numberOfDaughters() const {
+      virtual size_t numberOfDaughters() const dso_export {
 	if (isCaloJet() || isJPTJet()) {
 	  if ( embeddedCaloTowers_ ) {
 	    if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_.size();
