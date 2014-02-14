@@ -26,6 +26,13 @@ namespace l1t {
     virtual void processEvent(const std::vector<l1t::CaloTower> & towers,
 			      std::vector<l1t::CaloCluster> & clusters);
   private:
+    void clustering(const std::vector<l1t::CaloTower> & towers, std::vector<l1t::CaloCluster> & clusters);
+    void filtering(const std::vector<l1t::CaloTower> & towers, std::vector<l1t::CaloCluster> & clusters);
+    void sharing(const std::vector<l1t::CaloTower> & towers, std::vector<l1t::CaloCluster> & clusters);
+
+    // parameters
+    int m_seedThreshold;
+    int m_clusterThreshold;
     //    CaloParams const & m_params;
   };
   
