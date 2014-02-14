@@ -1,2 +1,2 @@
-autoValidation = { 'reducedTracking'    : ['globalPrevalidation','globalValidationReducedTracking','validationHarvesting']
+autoValidation = { 'reducedTracking'    : ['prevalidationReducedTracking','validationReducedTracking','validationHarvesting']
                    }
