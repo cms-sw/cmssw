@@ -60,6 +60,7 @@ public:
         unsigned int etThreshold;
         unsigned int etaRange;
         unsigned int phiRange;
+
     };
 
     /// typedef for correlation parameters
