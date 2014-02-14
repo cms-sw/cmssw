@@ -60,7 +60,7 @@ process.out.outputCommands.append( 'keep *_mvaTrigNoIPPAT_*_*' )
 #  parameters:
 ## ------------------------------------------------------
 #
-#   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS150ns')
 #                                         ##
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
 process.source.fileNames = filesRelValTTbarPileUpGENSIMRECO
