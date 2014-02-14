@@ -78,7 +78,7 @@ int cond::MigrateUtilities::execute(){
 
   persistency::ConnectionPool connPool;
   std::cout <<"# Opening session on destination database..."<<std::endl;
-  persistency::Session session = connPool.createSession( destConnect, true );
+  persistency::Session session = connPool.createSession( destConnect, true, COND_DB );
     
   session.transaction().start( false );
   if( !session.existsDatabase() ) session.createDatabase();
@@ -132,13 +132,9 @@ int cond::MigrateUtilities::execute(){
 	session.transaction().rollback();
 	continue;
       }
-      std::string payloadType("");
-      if( sourceIov.payloadClasses().size() > 0 ) { 
-	payloadType = *(sourceIov.payloadClasses().begin());
-      } else {
-	std::string tk = sourceIov.begin()->token();
-	payloadType = sourcedb.classNameForItem( tk );
-      }
+      std::string tk = sourceIov.begin()->token();
+      std::string payloadType = sourcedb.classNameForItem( tk );
+      
       std::cout <<"    Importing tag. Size:"<<sourceIov.size()<<" timeType:"<<cond::timeTypeNames(tt)<<" payloadObjectType=\""<<payloadType<<"\""<<std::endl;
       editor = session.createIov( payloadType, destTag, (cond::TimeType)tt );
       editor.setDescription( "Tag "+t+" migrated from "+sourceConnect  );
