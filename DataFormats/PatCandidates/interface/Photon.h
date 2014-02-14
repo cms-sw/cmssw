@@ -200,7 +200,10 @@ namespace pat {
       /// vertex fit method 
       bool passElectronVeto() const { return passElectronVeto_; }
       void setPassElectronVeto( bool flag ) { passElectronVeto_ = flag; }
-  
+      //pixel seed to veto electron (not recommended by EGM POG but it seems very efficient)
+      bool hasPixelSeed() const { return hasPixelSeed_; }
+      void setHasPixelSeed( bool flag ) { hasPixelSeed_ = flag; }
+ 
       /// pipe operator (introduced to use pat::Photon with PFTopProjectors)
       friend std::ostream& reco::operator<<(std::ostream& out, const pat::Photon& obj);
 
@@ -218,6 +221,7 @@ namespace pat {
 
       /// conversion veto
       bool passElectronVeto_;
+      bool hasPixelSeed_;
   };
 
 

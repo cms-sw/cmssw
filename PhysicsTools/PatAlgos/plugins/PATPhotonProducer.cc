@@ -218,6 +218,9 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     }
     aPhoton.setPassElectronVeto( passelectronveto );
 
+    // set electron veto using pixel seed (not recommended but many analysis groups are still using since it is powerful method to remove electrons)
+    aPhoton.setHasPixelSeed( photonRef->hasPixelSeed() );    
+ 
     // add the Photon to the vector of Photons
     PATPhotons->push_back(aPhoton);
   }
