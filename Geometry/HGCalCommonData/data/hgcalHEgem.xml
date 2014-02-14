@@ -1,0 +1,1217 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalHEgem.xml" eval="true">
+  <Constant name="HEgem_nSegments" value="8"/>
+  <Constant name="dZ_HEgem_absorber" value="34.5*mm"/>
+  <Constant name="dZ_HEgem_spacer" value="9*mm"/>
+  <Constant name="ZminHEgem" value="5193*mm"/>
+  <Constant name="ZmaxHEgem" value="5541*mm"/>
+  <Constant name="XmaxHEgem" value="2481.6*mm"/>
+  <Constant name="ThetaMin" value="0.0994838*rad"/>
+  <Constant name="demiPhi" value="0.174533*rad"/>
+  <Constant name="deltaZ_HEgem_drboard" value="2*mm"/>
+  <Constant name="deltaZ_HEgem_rdboard" value="1.94*mm"/>
+  <Constant name="deltaZ_HEgem_foil" value="0.06*mm"/>
+  <Constant name="deltaZ_HEgem_dreg1" value="3*mm"/>
+  <Constant name="deltaZ_HEgem_dreg2" value="1*mm"/>
+  <Constant name="deltaZ_HEgem_air" value="1*mm"/>
+  <Constant name="Granularity" value="10*mm"/>
+ <Vector name="HEgem_absorber" type="numeric" nEntries="2"> 1, 8 </Vector>
+ <Vector name="HEgem_spacer" type="numeric" nEntries="2"> 9, 16 </Vector>
+ <Vector name="HEgem_drbord" type="numeric" nEntries="2"> 17, 24 </Vector>
+ <Vector name="HEgem_dreg1" type="numeric" nEntries="2"> 25, 32 </Vector>
+ <Vector name="HEgem_foil" type="numeric" nEntries="2"> 33, 40 </Vector>
+ <Vector name="HEgem_dreg2" type="numeric" nEntries="2"> 41, 48 </Vector>
+ <Vector name="HEgem_rdbord" type="numeric" nEntries="2"> 49, 56 </Vector>
+</ConstantsSection> 
+
+<SolidSection label="hgcalHEgem.xml" >
+ <Trapezoid name="HEgem_1" dz="0.01725*m" alp1="0*deg" bl1="0.0921612*m" tl1="0.437573*m" h1="0.979464*m" alp2="0*deg" bl2="0.0921612*m" tl2="0.437573*m" h2="0.979464*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_2" dz="0.01725*m" alp1="0*deg" bl1="0.0929268*m" tl1="0.437573*m" h1="0.977293*m" alp2="0*deg" bl2="0.0929268*m" tl2="0.437573*m" h2="0.977293*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_3" dz="0.01725*m" alp1="0*deg" bl1="0.0936924*m" tl1="0.437573*m" h1="0.975122*m" alp2="0*deg" bl2="0.0936924*m" tl2="0.437573*m" h2="0.975122*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_4" dz="0.01725*m" alp1="0*deg" bl1="0.094458*m" tl1="0.437573*m" h1="0.972951*m" alp2="0*deg" bl2="0.094458*m" tl2="0.437573*m" h2="0.972951*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_5" dz="0.01725*m" alp1="0*deg" bl1="0.0952236*m" tl1="0.437573*m" h1="0.97078*m" alp2="0*deg" bl2="0.0952236*m" tl2="0.437573*m" h2="0.97078*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_6" dz="0.01725*m" alp1="0*deg" bl1="0.0959892*m" tl1="0.437573*m" h1="0.968609*m" alp2="0*deg" bl2="0.0959892*m" tl2="0.437573*m" h2="0.968609*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_7" dz="0.01725*m" alp1="0*deg" bl1="0.0967547*m" tl1="0.437573*m" h1="0.966438*m" alp2="0*deg" bl2="0.0967547*m" tl2="0.437573*m" h2="0.966438*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_8" dz="0.01725*m" alp1="0*deg" bl1="0.0975203*m" tl1="0.437573*m" h1="0.964267*m" alp2="0*deg" bl2="0.0975203*m" tl2="0.437573*m" h2="0.964267*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_9" dz="0.0045*m" alp1="5.03837*deg" bl1="0.0460806*m" tl1="0.218786*m" h1="0.979464*m" alp2="5.03837*deg" bl2="0.0460806*m" tl2="0.218786*m" h2="0.979464*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_10" dz="0.0045*m" alp1="-5.03837*deg" bl1="0.0464634*m" tl1="0.218786*m" h1="0.977293*m" alp2="-5.03837*deg" bl2="0.0464634*m" tl2="0.218786*m" h2="0.977293*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_11" dz="0.0045*m" alp1="5.03837*deg" bl1="0.0468462*m" tl1="0.218786*m" h1="0.975122*m" alp2="5.03837*deg" bl2="0.0468462*m" tl2="0.218786*m" h2="0.975122*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_12" dz="0.0045*m" alp1="-5.03837*deg" bl1="0.047229*m" tl1="0.218786*m" h1="0.972951*m" alp2="-5.03837*deg" bl2="0.047229*m" tl2="0.218786*m" h2="0.972951*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_13" dz="0.0045*m" alp1="5.03837*deg" bl1="0.0476118*m" tl1="0.218786*m" h1="0.97078*m" alp2="5.03837*deg" bl2="0.0476118*m" tl2="0.218786*m" h2="0.97078*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_14" dz="0.0045*m" alp1="-5.03837*deg" bl1="0.0479946*m" tl1="0.218786*m" h1="0.968609*m" alp2="-5.03837*deg" bl2="0.0479946*m" tl2="0.218786*m" h2="0.968609*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_15" dz="0.0045*m" alp1="5.03837*deg" bl1="0.0483773*m" tl1="0.218786*m" h1="0.966438*m" alp2="5.03837*deg" bl2="0.0483773*m" tl2="0.218786*m" h2="0.966438*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_16" dz="0.0045*m" alp1="-5.03837*deg" bl1="0.0487602*m" tl1="0.218786*m" h1="0.964267*m" alp2="-5.03837*deg" bl2="0.0487602*m" tl2="0.218786*m" h2="0.964267*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_17" dz="0.001*m" alp1="-5.03837*deg" bl1="0.0460806*m" tl1="0.218786*m" h1="0.979464*m" alp2="-5.03837*deg" bl2="0.0460806*m" tl2="0.218786*m" h2="0.979464*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_18" dz="0.001*m" alp1="5.03837*deg" bl1="0.0464634*m" tl1="0.218786*m" h1="0.977293*m" alp2="5.03837*deg" bl2="0.0464634*m" tl2="0.218786*m" h2="0.977293*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_19" dz="0.001*m" alp1="-5.03837*deg" bl1="0.0468462*m" tl1="0.218786*m" h1="0.975122*m" alp2="-5.03837*deg" bl2="0.0468462*m" tl2="0.218786*m" h2="0.975122*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_20" dz="0.001*m" alp1="5.03837*deg" bl1="0.047229*m" tl1="0.218786*m" h1="0.972951*m" alp2="5.03837*deg" bl2="0.047229*m" tl2="0.218786*m" h2="0.972951*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_21" dz="0.001*m" alp1="-5.03837*deg" bl1="0.0476118*m" tl1="0.218786*m" h1="0.97078*m" alp2="-5.03837*deg" bl2="0.0476118*m" tl2="0.218786*m" h2="0.97078*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_22" dz="0.001*m" alp1="5.03837*deg" bl1="0.0479946*m" tl1="0.218786*m" h1="0.968609*m" alp2="5.03837*deg" bl2="0.0479946*m" tl2="0.218786*m" h2="0.968609*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_23" dz="0.001*m" alp1="-5.03837*deg" bl1="0.0483773*m" tl1="0.218786*m" h1="0.966438*m" alp2="-5.03837*deg" bl2="0.0483773*m" tl2="0.218786*m" h2="0.966438*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_24" dz="0.001*m" alp1="5.03837*deg" bl1="0.0487602*m" tl1="0.218786*m" h1="0.964267*m" alp2="5.03837*deg" bl2="0.0487602*m" tl2="0.218786*m" h2="0.964267*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_25" dz="0.0015*m" alp1="-5.03837*deg" bl1="0.0460806*m" tl1="0.218786*m" h1="0.979464*m" alp2="-5.03837*deg" bl2="0.0460806*m" tl2="0.218786*m" h2="0.979464*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_26" dz="0.0015*m" alp1="5.03837*deg" bl1="0.0464634*m" tl1="0.218786*m" h1="0.977293*m" alp2="5.03837*deg" bl2="0.0464634*m" tl2="0.218786*m" h2="0.977293*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_27" dz="0.0015*m" alp1="-5.03837*deg" bl1="0.0468462*m" tl1="0.218786*m" h1="0.975122*m" alp2="-5.03837*deg" bl2="0.0468462*m" tl2="0.218786*m" h2="0.975122*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_28" dz="0.0015*m" alp1="5.03837*deg" bl1="0.047229*m" tl1="0.218786*m" h1="0.972951*m" alp2="5.03837*deg" bl2="0.047229*m" tl2="0.218786*m" h2="0.972951*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_29" dz="0.0015*m" alp1="-5.03837*deg" bl1="0.0476118*m" tl1="0.218786*m" h1="0.97078*m" alp2="-5.03837*deg" bl2="0.0476118*m" tl2="0.218786*m" h2="0.97078*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_30" dz="0.0015*m" alp1="5.03837*deg" bl1="0.0479946*m" tl1="0.218786*m" h1="0.968609*m" alp2="5.03837*deg" bl2="0.0479946*m" tl2="0.218786*m" h2="0.968609*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_31" dz="0.0015*m" alp1="-5.03837*deg" bl1="0.0483773*m" tl1="0.218786*m" h1="0.966438*m" alp2="-5.03837*deg" bl2="0.0483773*m" tl2="0.218786*m" h2="0.966438*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_32" dz="0.0015*m" alp1="5.03837*deg" bl1="0.0487602*m" tl1="0.218786*m" h1="0.964267*m" alp2="5.03837*deg" bl2="0.0487602*m" tl2="0.218786*m" h2="0.964267*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_33" dz="3e-05*m" alp1="-5.03837*deg" bl1="0.0460806*m" tl1="0.218786*m" h1="0.979464*m" alp2="-5.03837*deg" bl2="0.0460806*m" tl2="0.218786*m" h2="0.979464*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_34" dz="3e-05*m" alp1="5.03837*deg" bl1="0.0464634*m" tl1="0.218786*m" h1="0.977293*m" alp2="5.03837*deg" bl2="0.0464634*m" tl2="0.218786*m" h2="0.977293*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_35" dz="3e-05*m" alp1="-5.03837*deg" bl1="0.0468462*m" tl1="0.218786*m" h1="0.975122*m" alp2="-5.03837*deg" bl2="0.0468462*m" tl2="0.218786*m" h2="0.975122*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_36" dz="3e-05*m" alp1="5.03837*deg" bl1="0.047229*m" tl1="0.218786*m" h1="0.972951*m" alp2="5.03837*deg" bl2="0.047229*m" tl2="0.218786*m" h2="0.972951*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_37" dz="3e-05*m" alp1="-5.03837*deg" bl1="0.0476118*m" tl1="0.218786*m" h1="0.97078*m" alp2="-5.03837*deg" bl2="0.0476118*m" tl2="0.218786*m" h2="0.97078*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_38" dz="3e-05*m" alp1="5.03837*deg" bl1="0.0479946*m" tl1="0.218786*m" h1="0.968609*m" alp2="5.03837*deg" bl2="0.0479946*m" tl2="0.218786*m" h2="0.968609*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_39" dz="3e-05*m" alp1="-5.03837*deg" bl1="0.0483773*m" tl1="0.218786*m" h1="0.966438*m" alp2="-5.03837*deg" bl2="0.0483773*m" tl2="0.218786*m" h2="0.966438*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_40" dz="3e-05*m" alp1="5.03837*deg" bl1="0.0487602*m" tl1="0.218786*m" h1="0.964267*m" alp2="5.03837*deg" bl2="0.0487602*m" tl2="0.218786*m" h2="0.964267*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_41" dz="0.0005*m" alp1="-5.03837*deg" bl1="0.0460806*m" tl1="0.218786*m" h1="0.979464*m" alp2="-5.03837*deg" bl2="0.0460806*m" tl2="0.218786*m" h2="0.979464*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_42" dz="0.0005*m" alp1="5.03837*deg" bl1="0.0464634*m" tl1="0.218786*m" h1="0.977293*m" alp2="5.03837*deg" bl2="0.0464634*m" tl2="0.218786*m" h2="0.977293*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_43" dz="0.0005*m" alp1="-5.03837*deg" bl1="0.0468462*m" tl1="0.218786*m" h1="0.975122*m" alp2="-5.03837*deg" bl2="0.0468462*m" tl2="0.218786*m" h2="0.975122*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_44" dz="0.0005*m" alp1="5.03837*deg" bl1="0.047229*m" tl1="0.218786*m" h1="0.972951*m" alp2="5.03837*deg" bl2="0.047229*m" tl2="0.218786*m" h2="0.972951*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_45" dz="0.0005*m" alp1="-5.03837*deg" bl1="0.0476118*m" tl1="0.218786*m" h1="0.97078*m" alp2="-5.03837*deg" bl2="0.0476118*m" tl2="0.218786*m" h2="0.97078*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_46" dz="0.0005*m" alp1="5.03837*deg" bl1="0.0479946*m" tl1="0.218786*m" h1="0.968609*m" alp2="5.03837*deg" bl2="0.0479946*m" tl2="0.218786*m" h2="0.968609*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_47" dz="0.0005*m" alp1="-5.03837*deg" bl1="0.0483773*m" tl1="0.218786*m" h1="0.966438*m" alp2="-5.03837*deg" bl2="0.0483773*m" tl2="0.218786*m" h2="0.966438*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgemsens_48" dz="0.0005*m" alp1="5.03837*deg" bl1="0.0487602*m" tl1="0.218786*m" h1="0.964267*m" alp2="5.03837*deg" bl2="0.0487602*m" tl2="0.218786*m" h2="0.964267*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_49" dz="0.00097*m" alp1="-5.03837*deg" bl1="0.0460806*m" tl1="0.218786*m" h1="0.979464*m" alp2="-5.03837*deg" bl2="0.0460806*m" tl2="0.218786*m" h2="0.979464*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_50" dz="0.00097*m" alp1="5.03837*deg" bl1="0.0464634*m" tl1="0.218786*m" h1="0.977293*m" alp2="5.03837*deg" bl2="0.0464634*m" tl2="0.218786*m" h2="0.977293*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_51" dz="0.00097*m" alp1="-5.03837*deg" bl1="0.0468462*m" tl1="0.218786*m" h1="0.975122*m" alp2="-5.03837*deg" bl2="0.0468462*m" tl2="0.218786*m" h2="0.975122*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_52" dz="0.00097*m" alp1="5.03837*deg" bl1="0.047229*m" tl1="0.218786*m" h1="0.972951*m" alp2="5.03837*deg" bl2="0.047229*m" tl2="0.218786*m" h2="0.972951*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_53" dz="0.00097*m" alp1="-5.03837*deg" bl1="0.0476118*m" tl1="0.218786*m" h1="0.97078*m" alp2="-5.03837*deg" bl2="0.0476118*m" tl2="0.218786*m" h2="0.97078*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_54" dz="0.00097*m" alp1="5.03837*deg" bl1="0.0479946*m" tl1="0.218786*m" h1="0.968609*m" alp2="5.03837*deg" bl2="0.0479946*m" tl2="0.218786*m" h2="0.968609*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_55" dz="0.00097*m" alp1="-5.03837*deg" bl1="0.0483773*m" tl1="0.218786*m" h1="0.966438*m" alp2="-5.03837*deg" bl2="0.0483773*m" tl2="0.218786*m" h2="0.966438*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEgem_56" dz="0.00097*m" alp1="5.03837*deg" bl1="0.0487602*m" tl1="0.218786*m" h1="0.964267*m" alp2="5.03837*deg" bl2="0.0487602*m" tl2="0.218786*m" h2="0.964267*m" phi="0*deg" theta="0*deg"/>
+</SolidSection> 
+
+<LogicalPartSection label="hgcalHEgem.xml">
+ <LogicalPart name="HEgem_1" category="unspecified"> 
+  <rSolid name="HEgem_1"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_2" category="unspecified"> 
+  <rSolid name="HEgem_2"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_3" category="unspecified"> 
+  <rSolid name="HEgem_3"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_4" category="unspecified"> 
+  <rSolid name="HEgem_4"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_5" category="unspecified"> 
+  <rSolid name="HEgem_5"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_6" category="unspecified"> 
+  <rSolid name="HEgem_6"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_7" category="unspecified"> 
+  <rSolid name="HEgem_7"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_8" category="unspecified"> 
+  <rSolid name="HEgem_8"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_9" category="unspecified"> 
+  <rSolid name="HEgem_9"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_10" category="unspecified"> 
+  <rSolid name="HEgem_10"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_11" category="unspecified"> 
+  <rSolid name="HEgem_11"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_12" category="unspecified"> 
+  <rSolid name="HEgem_12"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_13" category="unspecified"> 
+  <rSolid name="HEgem_13"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_14" category="unspecified"> 
+  <rSolid name="HEgem_14"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_15" category="unspecified"> 
+  <rSolid name="HEgem_15"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_16" category="unspecified"> 
+  <rSolid name="HEgem_16"/> 
+  <rMaterial name="materials:H_Brass"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_17" category="unspecified"> 
+  <rSolid name="HEgem_17"/> 
+  <rMaterial name="materials:M_Kapton_Cu"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_18" category="unspecified"> 
+  <rSolid name="HEgem_18"/> 
+  <rMaterial name="materials:M_Kapton_Cu"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_19" category="unspecified"> 
+  <rSolid name="HEgem_19"/> 
+  <rMaterial name="materials:M_Kapton_Cu"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_20" category="unspecified"> 
+  <rSolid name="HEgem_20"/> 
+  <rMaterial name="materials:M_Kapton_Cu"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_21" category="unspecified"> 
+  <rSolid name="HEgem_21"/> 
+  <rMaterial name="materials:M_Kapton_Cu"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_22" category="unspecified"> 
+  <rSolid name="HEgem_22"/> 
+  <rMaterial name="materials:M_Kapton_Cu"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_23" category="unspecified"> 
+  <rSolid name="HEgem_23"/> 
+  <rMaterial name="materials:M_Kapton_Cu"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_24" category="unspecified"> 
+  <rSolid name="HEgem_24"/> 
+  <rMaterial name="materials:M_Kapton_Cu"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_25" category="unspecified"> 
+  <rSolid name="HEgemsens_25"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_26" category="unspecified"> 
+  <rSolid name="HEgemsens_26"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_27" category="unspecified"> 
+  <rSolid name="HEgemsens_27"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_28" category="unspecified"> 
+  <rSolid name="HEgemsens_28"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_29" category="unspecified"> 
+  <rSolid name="HEgemsens_29"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_30" category="unspecified"> 
+  <rSolid name="HEgemsens_30"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_31" category="unspecified"> 
+  <rSolid name="HEgemsens_31"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_32" category="unspecified"> 
+  <rSolid name="HEgemsens_32"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_33" category="unspecified"> 
+  <rSolid name="HEgem_33"/> 
+  <rMaterial name="materials:M_GEM_Foil"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_34" category="unspecified"> 
+  <rSolid name="HEgem_34"/> 
+  <rMaterial name="materials:M_GEM_Foil"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_35" category="unspecified"> 
+  <rSolid name="HEgem_35"/> 
+  <rMaterial name="materials:M_GEM_Foil"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_36" category="unspecified"> 
+  <rSolid name="HEgem_36"/> 
+  <rMaterial name="materials:M_GEM_Foil"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_37" category="unspecified"> 
+  <rSolid name="HEgem_37"/> 
+  <rMaterial name="materials:M_GEM_Foil"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_38" category="unspecified"> 
+  <rSolid name="HEgem_38"/> 
+  <rMaterial name="materials:M_GEM_Foil"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_39" category="unspecified"> 
+  <rSolid name="HEgem_39"/> 
+  <rMaterial name="materials:M_GEM_Foil"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_40" category="unspecified"> 
+  <rSolid name="HEgem_40"/> 
+  <rMaterial name="materials:M_GEM_Foil"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_41" category="unspecified"> 
+  <rSolid name="HEgemsens_41"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_42" category="unspecified"> 
+  <rSolid name="HEgemsens_42"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_43" category="unspecified"> 
+  <rSolid name="HEgemsens_43"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_44" category="unspecified"> 
+  <rSolid name="HEgemsens_44"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_45" category="unspecified"> 
+  <rSolid name="HEgemsens_45"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_46" category="unspecified"> 
+  <rSolid name="HEgemsens_46"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_47" category="unspecified"> 
+  <rSolid name="HEgemsens_47"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgemsens_48" category="unspecified"> 
+  <rSolid name="HEgemsens_48"/> 
+  <rMaterial name="materials:M_GEM_Gas"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_49" category="unspecified"> 
+  <rSolid name="HEgem_49"/> 
+  <rMaterial name="materials:M_Rdout_Brd"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_50" category="unspecified"> 
+  <rSolid name="HEgem_50"/> 
+  <rMaterial name="materials:M_Rdout_Brd"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_51" category="unspecified"> 
+  <rSolid name="HEgem_51"/> 
+  <rMaterial name="materials:M_Rdout_Brd"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_52" category="unspecified"> 
+  <rSolid name="HEgem_52"/> 
+  <rMaterial name="materials:M_Rdout_Brd"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_53" category="unspecified"> 
+  <rSolid name="HEgem_53"/> 
+  <rMaterial name="materials:M_Rdout_Brd"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_54" category="unspecified"> 
+  <rSolid name="HEgem_54"/> 
+  <rMaterial name="materials:M_Rdout_Brd"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_55" category="unspecified"> 
+  <rSolid name="HEgem_55"/> 
+  <rMaterial name="materials:M_Rdout_Brd"/> 
+ </LogicalPart>
+ <LogicalPart name="HEgem_56" category="unspecified"> 
+  <rSolid name="HEgem_56"/> 
+  <rMaterial name="materials:M_Rdout_Brd"/> 
+ </LogicalPart>
+</LogicalPartSection> 
+
+<PosPartSection label="hgcalHEgem.xml">
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_1"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="0*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.50214*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.21025*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_2"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="0*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.50431*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.25375*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_3"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="0*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.50648*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.29725*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_4"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="0*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.50865*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.34075*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_5"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="0*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51082*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.38425*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_6"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="0*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51299*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.42775*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_7"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="0*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51516*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.47125*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_8"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="0*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51733*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.51475*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_9"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.50796*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.232*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_10"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51014*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.2755*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_11"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51232*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.319*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_12"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.5145*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.3625*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_13"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51668*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.406*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_14"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51886*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.4495*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_15"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52104*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.493*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_16"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52322*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.5365*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_17"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.50796*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.2285*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_18"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51014*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.272*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_19"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51232*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.3155*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_20"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.5145*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.359*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_21"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51668*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.4025*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_22"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51886*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.446*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_23"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52104*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.4895*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_24"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52322*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.533*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_25"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.50796*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.231*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_26"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51014*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.2745*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_27"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51232*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.318*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_28"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.5145*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.3615*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_29"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51668*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.405*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_30"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51886*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.4485*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_31"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52104*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.492*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_32"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52322*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.5355*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_33"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.50796*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.23253*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_34"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51014*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.27603*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_35"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51232*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.31953*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_36"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.5145*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.36303*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_37"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51668*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.40653*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_38"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51886*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.45003*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_39"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52104*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.49353*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_40"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52322*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.53703*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_41"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.50796*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.23306*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_42"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51014*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.27656*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_43"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51232*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.32006*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_44"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.5145*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.36356*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_45"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51668*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.40706*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_46"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51886*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.45056*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_47"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52104*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.49406*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgemsens_48"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52322*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.53756*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_49"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.50796*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.23453*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_50"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51014*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.27803*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_51"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51232*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.32153*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_52"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.5145*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.36503*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_53"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51668*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.40853*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_54"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.51886*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.45203*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_55"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="354.962*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52104*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.49553*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName" value="HEgem_56"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="1"/>
+  <Numeric name="N" value="18"/>
+  <Numeric name="StartAngle" value="5.03837*deg"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="Radius" value="1.52322*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.53903*m </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
+ </Algorithm>
+</PosPartSection> 
+
+<SpecParSection label="hgcalHEgem.xml">
+ <SpecPar name="HGCal_HEgem readout map of Volume_1">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_1"/>
+   <Parameter name="HGCal_HEgem_1" value="grid.100.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_2">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_2"/>
+   <Parameter name="HGCal_HEgem_2" value="grid.200.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_3">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_3"/>
+   <Parameter name="HGCal_HEgem_3" value="grid.300.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_4">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_4"/>
+   <Parameter name="HGCal_HEgem_4" value="grid.400.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_5">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_5"/>
+   <Parameter name="HGCal_HEgem_5" value="grid.500.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_6">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_6"/>
+   <Parameter name="HGCal_HEgem_6" value="grid.600.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_7">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_7"/>
+   <Parameter name="HGCal_HEgem_7" value="grid.700.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_8">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_8"/>
+   <Parameter name="HGCal_HEgem_8" value="grid.800.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_9">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_9"/>
+   <Parameter name="HGCal_HEgem_9" value="grid.900.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_10">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_10"/>
+   <Parameter name="HGCal_HEgem_10" value="grid.100.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_11">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_11"/>
+   <Parameter name="HGCal_HEgem_11" value="grid.110.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_12">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_12"/>
+   <Parameter name="HGCal_HEgem_12" value="grid.120.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_13">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_13"/>
+   <Parameter name="HGCal_HEgem_13" value="grid.130.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_14">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_14"/>
+   <Parameter name="HGCal_HEgem_14" value="grid.140.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_15">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_15"/>
+   <Parameter name="HGCal_HEgem_15" value="grid.150.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_16">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_16"/>
+   <Parameter name="HGCal_HEgem_16" value="grid.160.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_17">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_17"/>
+   <Parameter name="HGCal_HEgem_17" value="grid.170.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_18">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_18"/>
+   <Parameter name="HGCal_HEgem_18" value="grid.180.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_19">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_19"/>
+   <Parameter name="HGCal_HEgem_19" value="grid.190.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_20">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_20"/>
+   <Parameter name="HGCal_HEgem_20" value="grid.200.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_21">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_21"/>
+   <Parameter name="HGCal_HEgem_21" value="grid.210.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_22">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_22"/>
+   <Parameter name="HGCal_HEgem_22" value="grid.220.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_23">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_23"/>
+   <Parameter name="HGCal_HEgem_23" value="grid.230.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_24">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_24"/>
+   <Parameter name="HGCal_HEgem_24" value="grid.240.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_25">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_25"/>
+   <Parameter name="HGCal_HEgemsens_25" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_26">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_26"/>
+   <Parameter name="HGCal_HEgemsens_26" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_27">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_27"/>
+   <Parameter name="HGCal_HEgemsens_27" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_28">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_28"/>
+   <Parameter name="HGCal_HEgemsens_28" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_29">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_29"/>
+   <Parameter name="HGCal_HEgemsens_29" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_30">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_30"/>
+   <Parameter name="HGCal_HEgemsens_30" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_31">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_31"/>
+   <Parameter name="HGCal_HEgemsens_31" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_32">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_32"/>
+   <Parameter name="HGCal_HEgemsens_32" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_33">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_33"/>
+   <Parameter name="HGCal_HEgem_33" value="grid.330.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_34">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_34"/>
+   <Parameter name="HGCal_HEgem_34" value="grid.340.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_35">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_35"/>
+   <Parameter name="HGCal_HEgem_35" value="grid.350.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_36">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_36"/>
+   <Parameter name="HGCal_HEgem_36" value="grid.360.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_37">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_37"/>
+   <Parameter name="HGCal_HEgem_37" value="grid.370.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_38">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_38"/>
+   <Parameter name="HGCal_HEgem_38" value="grid.380.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_39">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_39"/>
+   <Parameter name="HGCal_HEgem_39" value="grid.390.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_40">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_40"/>
+   <Parameter name="HGCal_HEgem_40" value="grid.400.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_41">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_41"/>
+   <Parameter name="HGCal_HEgemsens_41" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_42">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_42"/>
+   <Parameter name="HGCal_HEgemsens_42" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_43">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_43"/>
+   <Parameter name="HGCal_HEgemsens_43" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_44">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_44"/>
+   <Parameter name="HGCal_HEgemsens_44" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_45">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_45"/>
+   <Parameter name="HGCal_HEgemsens_45" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_46">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_46"/>
+   <Parameter name="HGCal_HEgemsens_46" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_47">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_47"/>
+   <Parameter name="HGCal_HEgemsens_47" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_48">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgemsens_48"/>
+   <Parameter name="HGCal_HEgemsens_48" value="10 mm"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_49">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_49"/>
+   <Parameter name="HGCal_HEgem_49" value="grid.490.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_50">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_50"/>
+   <Parameter name="HGCal_HEgem_50" value="grid.500.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_51">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_51"/>
+   <Parameter name="HGCal_HEgem_51" value="grid.510.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_52">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_52"/>
+   <Parameter name="HGCal_HEgem_52" value="grid.520.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_53">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_53"/>
+   <Parameter name="HGCal_HEgem_53" value="grid.530.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_54">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_54"/>
+   <Parameter name="HGCal_HEgem_54" value="grid.540.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_55">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_55"/>
+   <Parameter name="HGCal_HEgem_55" value="grid.550.bin"/>
+ </SpecPar>
+ <SpecPar name="HGCal_HEgem readout map of Volume_56">
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/HEgem_56"/>
+   <Parameter name="HGCal_HEgem_56" value="grid.560.bin"/>
+ </SpecPar>
+</SpecParSection> 
+
+</DDDefinition>

@@ -3,12 +3,14 @@
 
 <SpecParSection label="hgcsens.xml" eval="true">
   <SpecPar name="hgcee">
-    <PartSelector path="//HGCEE.*sens.*"/>
+    <PartSelector path="//HGCalEESensitive.*"/>
     <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="HGCHitsEE" eval="false"/>
   </SpecPar>
   <SpecPar name="hgche">
-    <PartSelector path="//HGCHE.*sens.*"/>
+    <PartSelector path="//HEsilsens_.*"/>
+    <PartSelector path="//HEscisens_.*"/>
+    <PartSelector path="//HEgemsens_.*"/>
     <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="HGCHitsHE" eval="false"/>
   </SpecPar>
