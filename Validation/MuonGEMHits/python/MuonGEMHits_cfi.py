@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 gemHitsValidation = cms.EDAnalyzer('MuonGEMHits',
-    outputFile = cms.string(''),
+    outputFile = cms.string('valid.root'),
     simInputLabel = cms.untracked.string('g4SimHits'),
     verbose = cms.untracked.int32(0),
     simMuOnly = cms.untracked.bool(True),
