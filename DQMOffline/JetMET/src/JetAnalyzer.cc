@@ -291,7 +291,7 @@ void JetAnalyzer::beginJob(void) {
   mJetEnergyCorrVSEta= dbe_->bookProfile("JetEnergyCorrVSEta", "jet energy correction factor VS eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
   mJetEnergyCorrVSPt= dbe_->bookProfile("JetEnergyCorrVSPt", "jet energy correction factor VS pt", ptBin_, ptMin_,ptMax_, 0.0,3.0);
   mHFrac        = dbe_->book1D("HFrac",        "HFrac",                140,   -0.2,    1.2);
-  mEFrac        = dbe_->book1D("EFrac",        "EFrac",                140,   -0.2,    1.2);
+  mEFrac        = dbe_->book1D("EFrac",        "EFrac",           52,   -0.02,    1.02);
 
   mPt_uncor           = dbe_->book1D("Pt_uncor",           "pt for uncorrected jets",                 ptBin_,  ptThresholdUnc_,  ptMax_);
   mEta_uncor          = dbe_->book1D("Eta_uncor",          "eta for uncorrected jets",               etaBin_, etaMin_, etaMax_);
@@ -311,7 +311,7 @@ void JetAnalyzer::beginJob(void) {
     mConstituents_profile = dbe_->bookProfile("Constituents_profile", "# of constituents", nbinsPV_, nPVlow_, nPVhigh_,      50,      0,    100);
   }
   mHFrac_profile        = dbe_->bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
-  mEFrac_profile        = dbe_->bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
+  mEFrac_profile        = dbe_->bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     52,   -0.02,    1.02);
 
   if(!jetCleaningFlag_){//JIDPassFrac_ defines a collection of cleaned jets, for which we will want to fill the cleaning passing fraction
     mLooseJIDPassFractionVSeta      = dbe_->bookProfile("JetIDPassFractionVSeta","JetIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
@@ -365,7 +365,7 @@ void JetAnalyzer::beginJob(void) {
     mConstituents_Barrel     = dbe_->book1D("Constituents_Barrel", "Constituents Barrel", 50, 0, 100);
   }
   mHFrac_Barrel            = dbe_->book1D("HFrac_Barrel", "HFrac Barrel", 100, 0, 1);
-  mEFrac_Barrel            = dbe_->book1D("EFrac_Barrel", "EFrac Barrel", 110, -0.05, 1.05);
+  mEFrac_Barrel            = dbe_->book1D("EFrac_Barrel", "EFrac Barrel", 52, -0.02, 1.02);
   
   //mPt_EndCap_Lo            = dbe_->book1D("Pt_EndCap_Lo", "Pt EndCap (Pass Low Pt Jet Trigger)", 20, 0, 100);   
   //mPhi_EndCap_Lo           = dbe_->book1D("Phi_EndCap_Lo", "Phi EndCap (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
@@ -373,7 +373,7 @@ void JetAnalyzer::beginJob(void) {
     mConstituents_EndCap     = dbe_->book1D("Constituents_EndCap", "Constituents EndCap", 50, 0, 100);
   }
   mHFrac_EndCap            = dbe_->book1D("HFrac_EndCap", "HFrac EndCap", 100, 0, 1);
-  mEFrac_EndCap            = dbe_->book1D("EFrac_EndCap", "EFrac EndCap", 110, -0.05, 1.05);
+  mEFrac_EndCap            = dbe_->book1D("EFrac_EndCap", "EFrac EndCap", 52, -0.02, 1.02);
   
   //mPt_Forward_Lo           = dbe_->book1D("Pt_Forward_Lo", "Pt Forward (Pass Low Pt Jet Trigger)", 20, 0, 100);  
   //mPhi_Forward_Lo          = dbe_->book1D("Phi_Forward_Lo", "Phi Forward (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
@@ -381,7 +381,7 @@ void JetAnalyzer::beginJob(void) {
     mConstituents_Forward    = dbe_->book1D("Constituents_Forward", "Constituents Forward", 50, 0, 100);
   }
   mHFrac_Forward           = dbe_->book1D("HFrac_Forward", "HFrac Forward", 140, -0.2, 1.2);
-  mEFrac_Forward           = dbe_->book1D("EFrac_Forward", "EFrac Forward", 140, -0.2, 1.2);
+  mEFrac_Forward           = dbe_->book1D("EFrac_Forward", "EFrac Forward", 52, -0.02, 1.02);
   
   mPt_Barrel_Hi            = dbe_->book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
   mPhi_Barrel_Hi           = dbe_->book1D("Phi_Barrel_Hi", "Phi Barrel (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
