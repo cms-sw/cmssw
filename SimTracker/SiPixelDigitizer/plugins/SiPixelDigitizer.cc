@@ -67,8 +67,13 @@
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 
 //
 // constants, enums and typedefs
@@ -110,10 +115,8 @@ namespace cms
         "which is not present in the configuration file.  You must add the service\n"
         "in the configuration file or remove the modules that require it.";
     }
-  
-    rndEngine       = &(rng->getEngine());
-    _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig,(*rndEngine)));
 
+    _pixeldigialgo.reset(new SiPixelDigitizerAlgorithm(iConfig));
   }
   
   SiPixelDigitizer::~SiPixelDigitizer(){  
@@ -126,7 +129,7 @@ namespace cms
   //
 
   void
-  SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits) {
+  SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits, CLHEP::HepRandomEngine* engine) {
     if(hSimHits.isValid()) {
        std::set<unsigned int> detIds;
        std::vector<PSimHit> const& simHits = *hSimHits.product();
@@ -141,7 +144,7 @@ namespace cms
              GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
              LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
                                           << pSetup->inTesla(pixdet->surface().position());
-             _pixeldigialgo->accumulateSimHits(it, itEnd, pixdet, bfield);
+             _pixeldigialgo->accumulateSimHits(it, itEnd, pixdet, bfield, engine);
            }
          }
        }
@@ -182,25 +185,28 @@ namespace cms
       edm::InputTag tag(hitsProducer, *i);
 
       iEvent.getByLabel(tag, simHits);
-      accumulatePixelHits(simHits);
+      accumulatePixelHits(simHits, randomEngine(iEvent.streamID()));
     }
   }
 
   void
-  SiPixelDigitizer::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup) {
+  SiPixelDigitizer::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup, edm::StreamID const& streamID) {
     // Step A: Get Inputs
     for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
 
       iEvent.getByLabel(tag, simHits);
-      accumulatePixelHits(simHits);
+      accumulatePixelHits(simHits, randomEngine(streamID));
     }
   }
 
   // ------------ method called to produce the data  ------------
   void
   SiPixelDigitizer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
 
     edm::ESHandle<TrackerTopology> tTopoHand;
     iSetup.get<IdealGeometryRecord>().get(tTopoHand);
@@ -224,7 +230,8 @@ namespace cms
         _pixeldigialgo->digitize(dynamic_cast<PixelGeomDetUnit*>((*iu)),
                                  collector.data,
                                  linkcollector.data,
-				 tTopo);
+				 tTopo,
+                                 engine);
         if(collector.data.size() > 0) {
           theDigiVector.push_back(std::move(collector));
         }
@@ -245,8 +252,19 @@ namespace cms
     iEvent.put(outputlink);
   }
 
-
-
+  CLHEP::HepRandomEngine* SiPixelDigitizer::randomEngine(edm::StreamID const& streamID) {
+    unsigned int index = streamID.value();
+    if(index >= randomEngines_.size()) {
+      randomEngines_.resize(index + 1, nullptr);
+    }
+    CLHEP::HepRandomEngine* ptr = randomEngines_[index];
+    if(!ptr) {
+      edm::Service<edm::RandomNumberGenerator> rng;
+      ptr = &rng->getEngine(streamID);
+      randomEngines_[index] = ptr;
+    }
+    return ptr;
+  }
 
 }// end namespace cms::
 

@@ -6,6 +6,7 @@ template class CorrelatedNoisifier< EcalCorrMatrix > ;
 template
 void
 CorrelatedNoisifier< EcalCorrMatrix >::noisify(CaloSamples&,
+                                               CLHEP::HepRandomEngine*,
 					       const std::vector<double>* rangau ) const ;
 
 

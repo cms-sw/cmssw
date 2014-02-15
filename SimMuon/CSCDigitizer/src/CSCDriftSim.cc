@@ -10,8 +10,12 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/GenVector/RotationZ.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"  
+
 #include <cmath>
 #include <iostream>
 
@@ -24,9 +28,7 @@ CSCDriftSim::CSCDriftSim()
   dNdEIntegral(N_INTEGRAL_STEPS, 0.),
   STEP_SIZE(0.01),
   ELECTRON_DIFFUSION_COEFF(0.0161),
-  theMagneticField(0),
-  theRandGaussQ(0),
-  theRandFlat(0)
+  theMagneticField(0)
 {
   // just initialize avalanche sim.  There has to be a better
   // way to take the integral of a function!
@@ -52,21 +54,13 @@ CSCDriftSim::CSCDriftSim()
 
 CSCDriftSim::~CSCDriftSim()
 {
-  delete theRandGaussQ;
-  delete theRandFlat;
-}
-
-
-void CSCDriftSim::setRandomEngine(CLHEP::HepRandomEngine& engine)
-{
-  theRandGaussQ = new CLHEP::RandGaussQ(engine);
-  theRandFlat = new CLHEP::RandFlat(engine);
 }
 
 
 CSCDetectorHit 
 CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
-                          int nearestWire, const PSimHit & simHit) {
+                        int nearestWire, const PSimHit & simHit,
+                        CLHEP::HepRandomEngine* engine) {
 
   const CSCChamberSpecs * specs = layer->chamber()->specs();
   const CSCLayerGeometry * geom = layer->geometry();
@@ -112,15 +106,15 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
   }
 
   // electron drift path length 
-  double pathLength = std::max(theRandGaussQ->fire(avgPathLength, pathSigma), 0.);
+  double pathLength = std::max(CLHEP::RandGaussQ::shoot(engine, avgPathLength, pathSigma), 0.);
 
   // electron drift distance along the anode wire, including diffusion
   double diffusionSigma = ELECTRON_DIFFUSION_COEFF * sqrt(pathLength);
-  double x = clusterPos.x() + theRandGaussQ->fire(avgDrift(), driftSigma())
-                            + theRandGaussQ->fire(0., diffusionSigma);
+  double x = clusterPos.x() + CLHEP::RandGaussQ::shoot(engine, avgDrift(), driftSigma())
+                            + CLHEP::RandGaussQ::shoot(engine, 0., diffusionSigma);
 
   // electron drift time
-  double driftTime  = std::max(theRandGaussQ->fire(avgDriftTime, driftTimeSigma), 0.);
+  double driftTime  = std::max(CLHEP::RandGaussQ::shoot(engine, avgDriftTime, driftTimeSigma), 0.);
 
   //@@ Parameters which should be defined outside the code
   // f_att is the fraction of drift electrons lost due to attachment
@@ -130,7 +124,7 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
   // Avalanche charge, with fluctuation ('avalancheCharge()' is the fluctuation generator!)
   //double charge = avalancheCharge() * f_att * f_collected * gasGain(layer->id()) * e_SI * 1.e15;
   // doing fattachment by random chance of killing
-  double charge = avalancheCharge() * f_collected * gasGain(layer->id()) * e_SI * 1.e15;
+  double charge = avalancheCharge(engine) * f_collected * gasGain(layer->id()) * e_SI * 1.e15;
 
   float t = simHit.tof() + driftTime;
   LogTrace("CSCDriftSim") << "CSCDriftSim: tof = " << simHit.tof() << 
@@ -141,10 +135,10 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
 
 // Generate avalanche fluctuation
 #include <algorithm>
-double CSCDriftSim::avalancheCharge() {
+double CSCDriftSim::avalancheCharge(CLHEP::HepRandomEngine* engine) {
   double returnVal = 0.;
   // pick a random value along the dNdE integral
-  double x = theRandFlat->fire();
+  double x = CLHEP::RandFlat::shoot(engine);
   size_t i;
   size_t isiz = dNdEIntegral.size();
   /*

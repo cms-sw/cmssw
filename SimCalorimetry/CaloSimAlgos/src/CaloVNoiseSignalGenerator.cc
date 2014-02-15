@@ -9,10 +9,10 @@ CaloVNoiseSignalGenerator::CaloVNoiseSignalGenerator()
 }
 
 
-void CaloVNoiseSignalGenerator::fillEvent()
+void CaloVNoiseSignalGenerator::fillEvent(CLHEP::HepRandomEngine* engine)
 {
   theDetIds.clear();
-  fillNoiseSignals();
+  fillNoiseSignals(engine);
   fillDetIds();
 }
 

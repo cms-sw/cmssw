@@ -11,13 +11,14 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 #include "CLHEP/Random/RandFlat.h"
 
 #define CBOLTZ (1.38E-23)
 #define e_SI (1.6E-19)
 
-DigiSimLinkAlgorithm::DigiSimLinkAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng):
-  conf_(conf),rndEngine(eng){
+DigiSimLinkAlgorithm::DigiSimLinkAlgorithm(const edm::ParameterSet& conf):
+  conf_(conf) {
   theThreshold              = conf_.getParameter<double>("NoiseSigmaThreshold");
   theFedAlgo                = conf_.getParameter<int>("FedAlgorithm");
   peakMode                  = conf_.getParameter<bool>("APVpeakmode");
@@ -47,14 +48,11 @@ DigiSimLinkAlgorithm::DigiSimLinkAlgorithm(const edm::ParameterSet& conf, CLHEP:
     LogDebug("StripDigiInfo")<<"APVs running in deconvolution mode (good time resolution)";
   };
   
-  theSiHitDigitizer = new SiHitDigitizer(conf_,rndEngine);
+  theSiHitDigitizer = new SiHitDigitizer(conf_);
   theDigiSimLinkPileUpSignals = new DigiSimLinkPileUpSignals();
-  theSiNoiseAdder = new SiGaussianTailNoiseAdder(theThreshold,rndEngine);
+  theSiNoiseAdder = new SiGaussianTailNoiseAdder(theThreshold);
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC);
   theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
-  theFlatDistribution = new CLHEP::RandFlat(rndEngine, 0., 1.);    
-
-  
 }
 
 DigiSimLinkAlgorithm::~DigiSimLinkAlgorithm(){
@@ -63,7 +61,6 @@ DigiSimLinkAlgorithm::~DigiSimLinkAlgorithm(){
   delete theSiNoiseAdder;
   delete theSiDigitalConverter;
   delete theSiZeroSuppress;
-  delete theFlatDistribution;
   //delete particle;
   //delete pdt;
 }
@@ -81,7 +78,8 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 			       edm::ESHandle<SiStripNoises> & noiseHandle,
 			       edm::ESHandle<SiStripPedestals> & pedestalHandle,
 			       edm::ESHandle<SiStripBadStrip> & deadChannelHandle,
-			       const TrackerTopology *tTopo) {  
+			       const TrackerTopology *tTopo,
+                               CLHEP::HepRandomEngine* engine) {
   theDigiSimLinkPileUpSignals->reset();
   unsigned int detID = det->geographicalId().rawId();
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
@@ -114,7 +112,7 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
   // First: loop on the SimHits
   std::vector<std::pair<const PSimHit*, int > >::const_iterator simHitIter = input.begin();
   std::vector<std::pair<const PSimHit*, int > >::const_iterator simHitIterEnd = input.end();
-  if(theFlatDistribution->fire()>inefficiency) {
+  if(CLHEP::RandFlat::shoot(engine) > inefficiency) {
     for (;simHitIter != simHitIterEnd; ++simHitIter) {
       locAmpl.clear();
       locAmpl.insert(locAmpl.begin(),numStrips,0.);
@@ -123,7 +121,7 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
         localFirstChannel = numStrips;
         localLastChannel  = 0;
         // process the hit
-        theSiHitDigitizer->processHit(((*simHitIter).first),*det,bfield,langle, locAmpl, localFirstChannel, localLastChannel, tTopo);
+        theSiHitDigitizer->processHit(((*simHitIter).first),*det,bfield,langle, locAmpl, localFirstChannel, localLastChannel, tTopo, engine);
           
 		  //APV Killer to simulate HIP effect
 		  //------------------------------------------------------
@@ -135,7 +133,7 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 				float charge = particle->charge();
 				bool isHadron = particle->isHadron();
 			    if(charge!=0 && isHadron){
-			  		if(theFlatDistribution->fire()<APVSaturationProb){
+					if(CLHEP::RandFlat::shoot(engine) < APVSaturationProb){
 			 	   	 	int FirstAPV = localFirstChannel/128;
 				 		int LastAPV = localLastChannel/128;
 						std::cout << "-------------------HIP--------------" << std::endl;
@@ -181,7 +179,7 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 	  if(RefStrip<numStrips){
 	 	float noiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange);
 		float gainValue = gainHandle->getStripGain(RefStrip, detGainRange);
-		theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue);
+		theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue, engine);
 	  }
 	}
     digis.clear();
@@ -239,7 +237,7 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 				}
 			}
 			
-			theSiNoiseAdder->addNoiseVR(detAmpl, noiseRMSv);
+                    theSiNoiseAdder->addNoiseVR(detAmpl, noiseRMSv, engine);
 		}			
 		
 		//adding the CMN
@@ -258,7 +256,7 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 		    cmnRMS = cmnRMStec;
 		  }
 		  cmnRMS *= theElectronPerADC;
-          theSiNoiseAdder->addCMNoise(detAmpl, cmnRMS, badChannels);
+                  theSiNoiseAdder->addCMNoise(detAmpl, cmnRMS, badChannels, engine);
 		}
 		
         		
