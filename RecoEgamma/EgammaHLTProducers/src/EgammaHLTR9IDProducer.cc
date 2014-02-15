@@ -27,8 +27,9 @@ EgammaHLTR9IDProducer::EgammaHLTR9IDProducer(const edm::ParameterSet& config) : 
  // use configuration file to setup input/output collection names
   recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
 
-  ecalRechitEBTag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEB");
-  ecalRechitEETag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEE");
+  ecalRechitEBToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEB"));
+  ecalRechitEEToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEE"));
+  
 
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
@@ -53,7 +54,7 @@ void EgammaHLTR9IDProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
   iEvent.getByToken(recoEcalCandidateProducer_, recoecalcandHandle);
 
-  EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag_, ecalRechitEETag_ );
+  EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
   
   reco::RecoEcalCandidateIsolationMap r9Map;
    
