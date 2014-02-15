@@ -35,7 +35,7 @@
 #include <string>
 #include <map>
 
-#include "TRandom3.h"
+class TRandom3;
 
 class Hector {
   
@@ -52,11 +52,11 @@ class Hector {
   /*!Adds the stable protons from the event \a ev to a beamline*/
   void add( const HepMC::GenEvent * ev , const edm::EventSetup & es);
   /*!propagate the particles through a beamline to FP420*/
-  void filterFP420();
+  void filterFP420(TRandom3*);
   /*!propagate the particles through a beamline to ZDC*/
-  void filterZDC();
+  void filterZDC(TRandom3*);
   /*!propagate the particles through a beamline to ZDC*/
-  void filterD1();
+  void filterD1(TRandom3*);
   
   int getDirect( unsigned int part_n ) const;
 
@@ -133,8 +133,5 @@ class Hector {
     bool m_ZDCTransport;
 
     std::vector<LHCTransportLink> theCorrespondenceMap;
-
-    TRandom3* rootEngine_;
-
 };
 #endif
