@@ -24,8 +24,10 @@ class PSimHit;
 class MagneticField;
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class CSCDriftSim
 {
@@ -38,11 +40,10 @@ public:
    and creates a signal on the wire
   */
   CSCDetectorHit getWireHit(const Local3DPoint & ionClusterPosition,
-			      const CSCLayer *, int wire, const PSimHit & simHit);
+                            const CSCLayer *, int wire, const PSimHit & simHit,
+                            CLHEP::HepRandomEngine*);
 
   void setMagneticField(const MagneticField * field) {theMagneticField = field;}
-
-  void setRandomEngine(CLHEP::HepRandomEngine& engine);
 
 private:
   // helper functions
@@ -56,7 +57,7 @@ private:
   double driftTimeSigmaHighB();
   double avgDrift() const;
   double driftSigma() const;
-  double avalancheCharge();
+  double avalancheCharge(CLHEP::HepRandomEngine*);
   double gasGain(const CSCDetId & id) const;
 
   // local magnetic field
@@ -70,9 +71,6 @@ private:
   const double ELECTRON_DIFFUSION_COEFF;
 
   const MagneticField * theMagneticField;
-
-  CLHEP::RandGaussQ * theRandGaussQ;
-  CLHEP::RandFlat *   theRandFlat;
 };
 
 #endif

@@ -106,6 +106,8 @@ public:
 
 private:
 
+  virtual void fillNoiseSignals(CLHEP::HepRandomEngine*) override {}
+
   CaloSamples samplesInPE(const DIGI & digi)
   {
     // calibration, for future reference:  (same block for all Hcal types)

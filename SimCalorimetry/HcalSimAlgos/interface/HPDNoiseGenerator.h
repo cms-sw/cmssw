@@ -7,13 +7,17 @@
 #include <vector>
 class HcalSimParameterMap;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class HPDNoiseGenerator : public HcalBaseSignalGenerator
 {
 public:
   HPDNoiseGenerator(const edm::ParameterSet & pset);
   virtual ~HPDNoiseGenerator() {}
 
-  void fillNoiseSignals();
+  void fillNoiseSignals(CLHEP::HepRandomEngine*) override;
 
 private:
   HPDNoiseLibraryReader theLibraryReader;

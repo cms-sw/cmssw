@@ -5,8 +5,11 @@
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
+
+#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"  
+
 #include <iostream>
 
 
@@ -32,7 +35,7 @@ int CSCWireElectronicsSim::readoutElement(int element) const {
   return theLayerGeometry->wireGroup(element);
 }
 
-void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
+void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis, CLHEP::HepRandomEngine* engine) {
 
   if(theSignalMap.empty()) {
     return;
@@ -56,7 +59,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
     // the threshold
     float threshold = theWireThreshold;
     if (doNoise_) {
-       threshold += theRandGaussQ->fire() * theWireNoise;
+      threshold += CLHEP::RandGaussQ::shoot(engine) * theWireNoise;
     }
     for(int ibin = 0; ibin < signalSize; ++ibin)
     {
@@ -113,7 +116,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
 
         float fdTime = theSignalStartTime + theSamplingTime*bin_firing_FD;
         if(doNoise_) {
-          fdTime += theTimingCalibrationError[chamberType] * theRandGaussQ->fire();
+          fdTime += theTimingCalibrationError[chamberType] * CLHEP::RandGaussQ::shoot(engine);
         }
 
         float bxFloat = (fdTime - tofOffset- theBunchTimingOffsets[chamberType]) / theBunchSpacing

@@ -8,11 +8,14 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandPoissonQ.h"
+
 #include<vector>
+
 class NeutronReader;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class SubsystemNeutronReader 
 {
@@ -23,11 +26,10 @@ public:
   SubsystemNeutronReader(const edm::ParameterSet & pset);
   virtual ~SubsystemNeutronReader();
 
-  void setRandomEngine(CLHEP::HepRandomEngine & engine);
-
   /// this class makes sure the same chamberIndex isn't called twice
   /// for an event
-  void generateChamberNoise(int chamberType, int chamberIndex, edm::PSimHitContainer & result);
+  void generateChamberNoise(int chamberType, int chamberIndex, edm::PSimHitContainer & result,
+                            CLHEP::HepRandomEngine*);
 
   void clear() {theChambersDone.clear();}
 
@@ -40,9 +42,6 @@ protected:
 private:
 
   NeutronReader * theHitReader;
-
-  CLHEP::RandFlat * theRandFlat;
-  CLHEP::RandPoissonQ * theRandPoisson;
 
   /// just makes sure chambers aren't done twice
   std::vector<int> theChambersDone;

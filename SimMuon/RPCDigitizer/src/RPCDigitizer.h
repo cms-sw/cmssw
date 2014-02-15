@@ -25,11 +25,16 @@ namespace edm{
 class RPCRoll;
 class RPCSim;
 class RPCSimSetUp;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class RPCDigitizer
 {
 public:
   typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
-  RPCDigitizer(const edm::ParameterSet& config, CLHEP::HepRandomEngine&);
+  RPCDigitizer(const edm::ParameterSet& config);
 
   ~RPCDigitizer();
 
@@ -37,7 +42,8 @@ public:
    */
   void doAction(MixCollection<PSimHit> & simHits,
                 RPCDigiCollection & rpcDigis,
-		RPCDigiSimLinks & rpcDigiSimLink);
+		RPCDigiSimLinks & rpcDigiSimLink,
+                CLHEP::HepRandomEngine*);
 
 
   /// sets geometry

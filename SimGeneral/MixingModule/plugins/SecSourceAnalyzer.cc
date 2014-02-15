@@ -102,17 +102,18 @@ SecSourceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	 {
 	   input_->readPileUp( iEvent.id(),
                                vectorEventIDs_[ ibx-minBunch_ ],
-			       boost::bind(&SecSourceAnalyzer::getBranches, 
-					   this, _1, iEvent.moduleCallingContext()), ibx
-			       );
+                               boost::bind(&SecSourceAnalyzer::getBranches,
+                                           this, _1, iEvent.moduleCallingContext()), ibx,
+                               iEvent.streamID());
 	 }
        else
 	 {
 	   input_->readPileUp( iEvent.id(),
                                vectorEventIDs_[ ibx-minBunch_ ],
-			       boost::bind(&SecSourceAnalyzer::dummyFunction, 
-					   this, _1), ibx
-			       );
+                               boost::bind(&SecSourceAnalyzer::dummyFunction,
+                                           this, _1),
+                               ibx,
+                               iEvent.streamID());
 	 }
 
        nevt += vectorEventIDs_[ ibx-minBunch_ ].size() ;

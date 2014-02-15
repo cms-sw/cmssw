@@ -2,21 +2,10 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/JamesRandom.h"
-#include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
-#include<iostream>
-#include<iomanip>
-#include<fstream>
-
 #include "DataFormats/Math/interface/Error.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CLHEP/Random/JamesRandom.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
@@ -66,10 +55,8 @@ int main()
    edm::ServiceToken token = edm::ServiceRegistry::createContaining( slc ) ;
    edm::ServiceRegistry::Operate operate( token ) ; 
 
-/*  std::vector<edm::ParameterSet> serviceConfigs;
-  edm::ServiceToken token = edm::ServiceRegistry::createSet(serviceConfigs);
-  edm::ServiceRegistry::Operate operate(token); 
-*/
+  const long seed = 12345;
+  CLHEP::HepJamesRandom engine(seed);
 
   const unsigned int readoutFrameSize = CaloSamples::MAXSAMPLES;
 
@@ -220,9 +207,9 @@ int main()
 
   for ( int i = 0; i < 100000; ++i ) {
     CaloSamples noiseframe(detId, readoutFrameSize);
-    theCorrNoise.noisify(noiseframe);
+    theCorrNoise.noisify(noiseframe, &engine);
     CaloSamples flatframe(detId, readoutFrameSize);
-    theUncorrNoise.noisify(flatframe);
+    theUncorrNoise.noisify(flatframe, &engine);
     for ( int j = 0; j < 3; ++j ) {
       uncorr->Fill(flatframe[j]);
       corr->Fill(noiseframe[j]);

@@ -30,6 +30,7 @@ namespace edm {
   namespace one {
     class EDProducerBase;
   }
+  class StreamID;
 }
 
 
@@ -41,7 +42,7 @@ class RecoTrackAccumulator : public DigiAccumulatorMixMod
   
   virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
   virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
-  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
+  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
   
  private:

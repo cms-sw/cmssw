@@ -50,8 +50,7 @@ void RecoTrackAccumulator::accumulate(edm::Event const& e, edm::EventSetup const
 
 }
 
-
-void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& iSetup) {
+void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& iSetup, edm::StreamID const&) {
 
   if (e.bunchCrossing()==0) {
     edm::Handle<reco::TrackCollection> tracks;

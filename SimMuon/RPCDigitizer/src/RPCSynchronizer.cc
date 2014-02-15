@@ -19,13 +19,7 @@
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h" 
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
-#include <CLHEP/Random/RandGaussQ.h>
-#include <CLHEP/Random/RandFlat.h>
+#include "CLHEP/Random/RandGaussQ.h"
 
 #include<cstring>
 #include<iostream>
@@ -59,19 +53,11 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
 
 }
 
-void RPCSynchronizer::setRandomEngine(CLHEP::HepRandomEngine& eng){
-  gauss1 = new CLHEP::RandGaussQ(eng);
-  gauss2 = new CLHEP::RandGaussQ(eng);
-}
-
-
 RPCSynchronizer::~RPCSynchronizer(){
-  delete gauss1;
-  delete gauss2;
 }
 
 
-int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
+int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* engine)
 {
 
   RPCSimSetUp* simsetup = this->getRPCSimSetUp();
@@ -84,7 +70,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
   
   //automatic variable to prevent memory leak
   
-  float rr_el = gauss1->fire(0.,resEle);
+  float rr_el = CLHEP::RandGaussQ::shoot(engine, 0.,resEle);
   
   RPCDetId SimDetId(simhit->detUnitId());
 
@@ -126,7 +112,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 
     float prop_time =  distanceFromEdge/sspeed;
 
-    double rr_tim1 = gauss2->fire(0.,resRPC);
+    double rr_tim1 = CLHEP::RandGaussQ::shoot(engine, 0.,resRPC);
     double total_time = tof + prop_time + timOff + rr_tim1 + rr_el;
     
     // Bunch crossing assignment

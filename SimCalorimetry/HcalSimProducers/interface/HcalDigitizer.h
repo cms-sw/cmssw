@@ -35,6 +35,10 @@ namespace edm {
   class ConsumesCollector;
 }
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class HcalDigitizer
 {
 public:
@@ -44,9 +48,9 @@ public:
 
   /**Produces the EDM products,*/
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
-  void accumulate(edm::Event const& e, edm::EventSetup const& c);
-  void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
-  void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
+  void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
+  void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
+  void finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine*);
   void beginRun(const edm::EventSetup & es);
   void endRun();
   
@@ -56,7 +60,7 @@ public:
   void setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
-  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing);
+  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing, CLHEP::HepRandomEngine*);
 
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();

@@ -10,7 +10,8 @@
 #include <vector>
 
 namespace CLHEP {
-   class RandGaussQ ; } 
+  class HepRandomEngine;
+}
 
 class ESElectronicsSimFast
 {
@@ -30,7 +31,8 @@ class ESElectronicsSimFast
 
       void setMIPToGeV( double MIPToGeV ) ;
 
-      void analogToDigital( ESSamples&   cs , 
+      void analogToDigital( CLHEP::HepRandomEngine*,
+                            ESSamples&   cs ,
 			    ESDataFrame& df ,
 			    bool         isNoise = false ) const ;
 
@@ -45,9 +47,6 @@ class ESElectronicsSimFast
       const ESPedestals* m_peds ;
 
       const ESIntercalibConstants* m_mips ;
-
-      CLHEP::RandGaussQ* m_ranGau ;
 } ;
-
 
 #endif

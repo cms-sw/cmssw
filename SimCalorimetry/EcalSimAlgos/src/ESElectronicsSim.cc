@@ -20,10 +20,10 @@ ESElectronicsSim::ESElectronicsSim (bool addNoise):
 ESElectronicsSim::~ESElectronicsSim ()
 {}
 
-void ESElectronicsSim::analogToDigital(const CaloSamples& cs, ESDataFrame& df) const 
+void ESElectronicsSim::analogToDigital(CLHEP::HepRandomEngine* engine, const CaloSamples& cs, ESDataFrame& df) const
 {
 
-  std::vector<ESSample> essamples = encode(cs);
+  std::vector<ESSample> essamples = encode(cs, engine);
 
   df.setSize(cs.size());
   for(int i=0; i<df.size(); i++) {
@@ -42,7 +42,7 @@ void ESElectronicsSim::digitalToAnalog(const ESDataFrame& df, CaloSamples& cs) c
 }
 
 std::vector<ESSample>
-ESElectronicsSim::encode(const CaloSamples& timeframe) const
+ESElectronicsSim::encode(const CaloSamples& timeframe, CLHEP::HepRandomEngine* engine) const
 {
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -71,8 +71,7 @@ ESElectronicsSim::encode(const CaloSamples& timeframe) const
     double signal = 0;    
 
     if (addNoise_) {
-      CLHEP::RandGaussQ gaussQDistribution(rng->getEngine(), 0., sigma_);
-      noi = gaussQDistribution.fire();
+      noi = CLHEP::RandGaussQ::shoot(engine, 0., sigma_);
     }
 
     signal = timeframe[i]*ADCGeV + noi + baseline_;

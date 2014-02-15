@@ -63,7 +63,7 @@ double CastorHitCorrection::charge(const PCaloHit & hit) const
   return hit.energy() * simHitToCharge;
 }
 
-double CastorHitCorrection::delay(const PCaloHit & hit) const 
+double CastorHitCorrection::delay(const PCaloHit & hit, CLHEP::HepRandomEngine*) const
 {
   // HO goes slow, HF shouldn't be used at all
   //Castor not used for the moment

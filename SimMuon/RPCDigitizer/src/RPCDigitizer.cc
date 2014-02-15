@@ -9,10 +9,9 @@
 
 // default constructor allocates default wire and strip digitizers
 
-RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config, CLHEP::HepRandomEngine& eng) {
+RPCDigitizer::RPCDigitizer(const edm::ParameterSet& config) {
   theName = config.getParameter<std::string>("digiModel");
   theRPCSim = RPCSimFactory::get()->create(theName,config.getParameter<edm::ParameterSet>("digiModelConfig"));
-  theRPCSim->setRandomEngine(eng);
 }
 
 RPCDigitizer::~RPCDigitizer() {
@@ -23,7 +22,8 @@ RPCDigitizer::~RPCDigitizer() {
 
 void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits, 
                             RPCDigiCollection & rpcDigis,
-			    RPCDigiSimLinks & rpcDigiSimLink)
+			    RPCDigiSimLinks & rpcDigiSimLink,
+                            CLHEP::HepRandomEngine* engine)
 {
 
   theRPCSim->setRPCSimSetUp(theSimSetUp);
@@ -51,8 +51,8 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
 //    LogDebug("RPCDigitizer") << "RPCDigitizer: found " << rollSimHits.size() 
 //			     <<" hit(s) in the rpc roll";  
     
-    theRPCSim->simulate(*r,rollSimHits);
-    theRPCSim->simulateNoise(*r);
+    theRPCSim->simulate(*r, rollSimHits, engine);
+    theRPCSim->simulateNoise(*r, engine);
     theRPCSim->fillDigis((*r)->id(),rpcDigis);
     rpcDigiSimLink.insert(theRPCSim->rpcDigiSimLinks());
   }

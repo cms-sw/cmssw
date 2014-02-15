@@ -18,6 +18,7 @@ namespace edm
   }
 	class Event;
 	class EventSetup;
+        class StreamID;
 }
 class PileUpEventPrincipal;
 class PSimHit;
@@ -71,7 +72,7 @@ public:
 private:
 	virtual void initializeEvent( const edm::Event& event, const edm::EventSetup& setup );
 	virtual void accumulate( const edm::Event& event, const edm::EventSetup& setup );
-	virtual void accumulate( const PileUpEventPrincipal& event, const edm::EventSetup& setup );
+	virtual void accumulate( const PileUpEventPrincipal& event, const edm::EventSetup& setup, edm::StreamID const& );
 	virtual void finalizeEvent( edm::Event& event, const edm::EventSetup& setup );
 
 	/** @brief Both forms of accumulate() delegate to this templated method. */

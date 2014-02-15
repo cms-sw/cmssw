@@ -12,6 +12,9 @@
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 EcalMixingModuleValidation::EcalMixingModuleValidation(const edm::ParameterSet& ps):
   HepMCToken_( consumes<edm::HepMCProduct>( edm::InputTag( ps.getParameter<std::string>( "moduleLabelMC" ) ) ) ),
@@ -466,7 +469,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     } 
     
     EcalSubdetector thisDet = EcalBarrel;
-    computeSDBunchDigi(c, *barrelHits, ebSignalSimMap, thisDet, ebSimThreshold);
+    computeSDBunchDigi(c, *barrelHits, ebSignalSimMap, thisDet, ebSimThreshold, randomEngine(e.streamID()));
   }
   
   
@@ -566,7 +569,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     }
     
     EcalSubdetector thisDet = EcalEndcap;
-    computeSDBunchDigi(c, *endcapHits, eeSignalSimMap, thisDet, eeSimThreshold);
+    computeSDBunchDigi(c, *endcapHits, eeSignalSimMap, thisDet, eeSimThreshold, randomEngine(e.streamID()));
   }
 
   if ( isPreshower) {
@@ -643,7 +646,7 @@ void EcalMixingModuleValidation::analyze(edm::Event const & e, edm::EventSetup c
     }
     
     EcalSubdetector thisDet = EcalPreshower;
-    computeSDBunchDigi(c, *preshowerHits, esSignalSimMap, thisDet, esThreshold_);
+    computeSDBunchDigi(c, *preshowerHits, esSignalSimMap, thisDet, esThreshold_, randomEngine(e.streamID()));
     
   }
   
@@ -742,7 +745,7 @@ void EcalMixingModuleValidation::findPedestal(const DetId & detId, int gainId, d
   }
 }
 
-void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & SignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold)
+void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & SignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold, CLHEP::HepRandomEngine* engine)
 {
 
   if ( thisDet != EcalBarrel && thisDet != EcalEndcap && thisDet != EcalPreshower ) {
@@ -790,17 +793,17 @@ void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & even
      if( thisDet == EcalBarrel ) {
        theEBResponse->setBunchRange(iBunch, iBunch);
        theEBResponse->clear();
-       theEBResponse->run(theHits);
+       theEBResponse->run(theHits, engine);
      }
      else if( thisDet == EcalEndcap ) {
        theEEResponse->setBunchRange(iBunch, iBunch);
        theEEResponse->clear();
-       theEEResponse->run(theHits);
+       theEEResponse->run(theHits, engine);
      }
      else {
        theESResponse->setBunchRange(iBunch, iBunch);
        theESResponse->clear();
-       theESResponse->run(theHits);
+       theESResponse->run(theHits, engine);
      }
 
      int iHisto = iBunch - theMinBunch;
@@ -835,3 +838,17 @@ void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & even
    }
 
  }
+
+CLHEP::HepRandomEngine* EcalMixingModuleValidation::randomEngine(edm::StreamID const& streamID) {
+  unsigned int index = streamID.value();
+  if(index >= randomEngines_.size()) {
+    randomEngines_.resize(index + 1, nullptr);
+  }
+  CLHEP::HepRandomEngine* ptr = randomEngines_[index];
+  if(!ptr) {
+    edm::Service<edm::RandomNumberGenerator> rng;
+    ptr = &rng->getEngine(streamID);
+    randomEngines_[index] = ptr;
+  }
+  return ptr;
+}
