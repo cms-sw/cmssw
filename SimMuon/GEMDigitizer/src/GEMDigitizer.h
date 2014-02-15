@@ -14,7 +14,6 @@
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include <string>
-#include "CLHEP/Random/RandomEngine.h"
 
 namespace edm{
   class ParameterSet;
@@ -25,19 +24,24 @@ class GEMSim;
 class GEMSimSetUp;
 class GEMGeometry;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class GEMDigitizer
 {
 public:
   
   typedef edm::DetSetVector<StripDigiSimLink> StripDigiSimLinks;
 
-  GEMDigitizer(const edm::ParameterSet& config, CLHEP::HepRandomEngine&);
+  GEMDigitizer(const edm::ParameterSet& config);
 
   ~GEMDigitizer();
 
   void digitize(MixCollection<PSimHit> & simHits,
                 GEMDigiCollection & rpcDigis,
-                StripDigiSimLinks & digiSimLinks);
+                StripDigiSimLinks & digiSimLinks,
+                CLHEP::HepRandomEngine*);
 
   /// sets geometry
   void setGeometry(const GEMGeometry *geom) {geometry_ = geom;}

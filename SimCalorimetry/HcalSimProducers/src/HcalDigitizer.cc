@@ -28,8 +28,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrix.h"
@@ -306,28 +304,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
     theZDCDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
   }
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "HcalDigitizer requires the RandomNumberGeneratorService\n"
-         "which is not present in the configuration file.  You must add the service\n"
-         "in the configuration file or remove the modules that require it.";
-  }
-
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-  if(theHBHEDigitizer) theHBHEDigitizer->setRandomEngine(engine);
-  if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->setRandomEngine(engine);
-  if(theHODigitizer) theHODigitizer->setRandomEngine(engine);
-  if(theHOSiPMDigitizer) theHOSiPMDigitizer->setRandomEngine(engine);
-  if(theHBHEUpgradeDigitizer) theHBHEUpgradeDigitizer->setRandomEngine(engine);
-  if(theIonFeedback) theIonFeedback->setRandomEngine(engine);
-  if(theTimeSlewSim) theTimeSlewSim->setRandomEngine(engine);
-  if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->setRandomEngine(engine);
-  if(theHFDigitizer) theHFDigitizer->setRandomEngine(engine);
-  theZDCDigitizer->setRandomEngine(engine);
-
-  if (theHitCorrection!=0) theHitCorrection->setRandomEngine(engine);
-  
   if(agingFlagHE) m_HEDarkening = new HEDarkening();
   if(agingFlagHF) m_HFRecalibration = new HFRecalibration();
 }
@@ -443,7 +419,7 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
 
 }
 
-void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHandle, edm::Handle<std::vector<PCaloHit> > const& zdcHandle, int bunchCrossing) {
+void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHandle, edm::Handle<std::vector<PCaloHit> > const& zdcHandle, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
   // Step A: pass in inputs, and accumulate digirs
   if(isHCAL) {
     std::vector<PCaloHit> hcalHits = *hcalHandle.product();
@@ -460,22 +436,22 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
       theHitCorrection->fillChargeSums(hcalHits);
     }
     if(hbhegeo) {
-      if(theHBHEDigitizer) theHBHEDigitizer->add(hcalHits, bunchCrossing);
-      if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->add(hcalHits, bunchCrossing);
+      if(theHBHEDigitizer) theHBHEDigitizer->add(hcalHits, bunchCrossing, engine);
+      if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->add(hcalHits, bunchCrossing, engine);
       if(theHBHEUpgradeDigitizer) {
 	//	std::cout << "HcalDigitizer::accumulateCaloHits  theHBHEUpgradeDigitizer->add" << std::endl;     
-      theHBHEUpgradeDigitizer->add(hcalHits, bunchCrossing);
+        theHBHEUpgradeDigitizer->add(hcalHits, bunchCrossing, engine);
       }
     }
 
     if(hogeo) {
-      if(theHODigitizer) theHODigitizer->add(hcalHits, bunchCrossing);
-      if(theHOSiPMDigitizer) theHOSiPMDigitizer->add(hcalHits, bunchCrossing);
+      if(theHODigitizer) theHODigitizer->add(hcalHits, bunchCrossing, engine);
+      if(theHOSiPMDigitizer) theHOSiPMDigitizer->add(hcalHits, bunchCrossing, engine);
     }
 
     if(hfgeo) {
-      if(theHFDigitizer) theHFDigitizer->add(hcalHits, bunchCrossing);
-      if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->add(hcalHits, bunchCrossing);
+      if(theHFDigitizer) theHFDigitizer->add(hcalHits, bunchCrossing, engine);
+      if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->add(hcalHits, bunchCrossing, engine);
     } 
   } else {
     edm::LogInfo("HcalDigitizer") << "We don't have HCAL hit collection available ";
@@ -483,14 +459,14 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
 
   if(isZDC) {
     if(zdcgeo) {
-      theZDCDigitizer->add(*zdcHandle.product(), bunchCrossing);
+      theZDCDigitizer->add(*zdcHandle.product(), bunchCrossing, engine);
     } 
   } else {
     edm::LogInfo("HcalDigitizer") << "We don't have ZDC hit collection available ";
   }
 }
 
-void HcalDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup) {
+void HcalDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup, CLHEP::HepRandomEngine* engine) {
   // Step A: Get Inputs
   edm::InputTag zdcTag(hitsProducer_, "ZDCHITS");
   edm::Handle<std::vector<PCaloHit> > zdcHandle;
@@ -502,10 +478,10 @@ void HcalDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& event
   e.getByLabel(hcalTag, hcalHandle);
   isHCAL = hcalHandle.isValid();
 
-  accumulateCaloHits(hcalHandle, zdcHandle, 0);
+  accumulateCaloHits(hcalHandle, zdcHandle, 0, engine);
 }
 
-void HcalDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup) {
+void HcalDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup, CLHEP::HepRandomEngine* engine) {
   // Step A: Get Inputs
   edm::InputTag zdcTag(hitsProducer_, "ZDCHITS");
   edm::Handle<std::vector<PCaloHit> > zdcHandle;
@@ -517,10 +493,10 @@ void HcalDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup co
   e.getByLabel(hcalTag, hcalHandle);
   isHCAL = hcalHandle.isValid();
 
-  accumulateCaloHits(hcalHandle, zdcHandle, e.bunchCrossing());
+  accumulateCaloHits(hcalHandle, zdcHandle, e.bunchCrossing(), engine);
 }
 
-void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup) {
+void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup, CLHEP::HepRandomEngine* engine) {
 
   // Step B: Create empty output
   std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
@@ -532,24 +508,24 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 
   // Step C: Invoke the algorithm, getting back outputs.
   if(isHCAL&&hbhegeo){
-    if(theHBHEDigitizer)        theHBHEDigitizer->run(*hbheResult);
-    if(theHBHESiPMDigitizer)    theHBHESiPMDigitizer->run(*hbheResult);
+    if(theHBHEDigitizer)        theHBHEDigitizer->run(*hbheResult, engine);
+    if(theHBHESiPMDigitizer)    theHBHESiPMDigitizer->run(*hbheResult, engine);
     if(theHBHEUpgradeDigitizer) {
-      theHBHEUpgradeDigitizer->run(*hbheupgradeResult);
+      theHBHEUpgradeDigitizer->run(*hbheupgradeResult, engine);
 
       //      std::cout << "HcalDigitizer::finalizeEvent  theHBHEUpgradeDigitizer->run" << std::endl;     
     }
   }
   if(isHCAL&&hogeo) {
-    if(theHODigitizer) theHODigitizer->run(*hoResult);
-    if(theHOSiPMDigitizer) theHOSiPMDigitizer->run(*hoResult);
+    if(theHODigitizer) theHODigitizer->run(*hoResult, engine);
+    if(theHOSiPMDigitizer) theHOSiPMDigitizer->run(*hoResult, engine);
   }
   if(isHCAL&&hfgeo) {
-    if(theHFDigitizer) theHFDigitizer->run(*hfResult);
-    if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->run(*hfupgradeResult);
+    if(theHFDigitizer) theHFDigitizer->run(*hfResult, engine);
+    if(theHFUpgradeDigitizer) theHFUpgradeDigitizer->run(*hfupgradeResult, engine);
   }
   if(isZDC&&zdcgeo) {
-    theZDCDigitizer->run(*zdcResult);
+    theZDCDigitizer->run(*zdcResult, engine);
   }
   
   edm::LogInfo("HcalDigitizer") << "HCAL HBHE digis : " << hbheResult->size();

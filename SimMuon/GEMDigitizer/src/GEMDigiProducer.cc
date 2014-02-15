@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -15,7 +14,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "CLHEP/Random/RandomEngine.h"
 
 #include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCClusterSize.h"
@@ -26,6 +24,9 @@
 #include <map>
 #include <vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
 {
@@ -42,10 +43,9 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
      << "GEMDigiProducer::GEMDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
      << "Add the service in the configuration file or remove the modules that require it.";
   }
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
 
   gemSimSetUp_ =  new GEMSimSetUp(ps);
-  digitizer_ = new GEMDigitizer(ps, engine);
+  digitizer_ = new GEMDigitizer(ps);
 }
 
 
@@ -88,6 +88,9 @@ void GEMDigiProducer::beginRun( const edm::Run& r, const edm::EventSetup& eventS
 
 void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+
   edm::Handle<CrossingFrame<PSimHit> > cf;
   e.getByLabel("mix", collectionXF_, cf);
 
@@ -98,10 +101,9 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   std::auto_ptr<StripDigiSimLinks> digiSimLinks(new StripDigiSimLinks() );
 
   // run the digitizer
-  digitizer_->digitize(*hits, *pDigis, *digiSimLinks);
+  digitizer_->digitize(*hits, *pDigis, *digiSimLinks, engine);
 
   // store them in the event
   e.put(pDigis);
   e.put(digiSimLinks,"GEM");
 }
-
