@@ -104,7 +104,7 @@ namespace edmtest {
     // format is 16 instead of 17.
     // assert(ps.getParameter<double>("doublev1") == std::numeric_limits<double>::min());
     assert(ps.getUntrackedParameter<double>("doublev2") == 0.0);
-    assert(ps.getUntrackedParameter<double>("doublev3") == 0.3);
+    assert(fabs(ps.getUntrackedParameter<double>("doublev3") - 0.3)< 0.0000001);
 
     std::vector<double> vdouble;
     vdouble = ps.getParameter<std::vector<double> >("vdoublev1");
@@ -125,7 +125,7 @@ namespace edmtest {
     assert(vdouble[0] == 1e+300);
     assert(vdouble[1] == 0.0);
     assert(vdouble[2] == 11.0);
-    assert(vdouble[3] == 0.3);
+    assert(fabs(vdouble[3] - 0.3)< 0.0000001);
 
     assert(ps.getParameter<bool>("boolv1") == true);
     assert(ps.getParameter<bool>("boolv2") == false);
