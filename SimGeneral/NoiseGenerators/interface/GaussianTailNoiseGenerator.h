@@ -21,16 +21,11 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandFlat.h"
-
-
 class GaussianTailNoiseGenerator {
 
 public:
 
-  GaussianTailNoiseGenerator( CLHEP::HepRandomEngine& eng);
+  GaussianTailNoiseGenerator();
 
   // Compiler-generated destructor, copy c'tor, and assignment are all
   // correct.
@@ -38,31 +33,32 @@ public:
   void generate(int NumberOfchannels, 
 		float threshold,
 		float noiseRMS, 
-		std::map<int,float>& theMap );
+		std::map<int,float>& theMap,
+                CLHEP::HepRandomEngine*);
 
   void generate(int NumberOfchannels, 
 		float threshold,
 		float noiseRMS, 
-		std::vector<std::pair<int,float> >&);
+		std::vector<std::pair<int,float> >&,
+                CLHEP::HepRandomEngine*);
 /*
   void generateRaw(int NumberOfchannels, 
 		   float noiseRMS, 
-		   std::vector<std::pair<int,float> >&);
+		   std::vector<std::pair<int,float> >&,
+                   CLHEP::HepRandomEngine*);
 */
   void generateRaw(float noiseRMS,
-		   std::vector<double>&);
+		   std::vector<double>&,
+                   CLHEP::HepRandomEngine*);
 
 protected:
 
-  int* getRandomChannels(int, int);
+  int* getRandomChannels(int, int, CLHEP::HepRandomEngine*);
 
-  double generate_gaussian_tail(const double,const double);
+  double generate_gaussian_tail(const double,const double, CLHEP::HepRandomEngine*);
 
 private:
 
-  CLHEP::RandGaussQ        gaussDistribution_;
-  CLHEP::RandPoissonQ      poissonDistribution_;
-  CLHEP::RandFlat          flatDistribution_;
   int channel512_[512];
   int channel768_[768];
 };

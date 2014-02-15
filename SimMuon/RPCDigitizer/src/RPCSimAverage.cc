@@ -7,13 +7,6 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 #include <cmath>
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
-#include <CLHEP/Random/RandGaussQ.h>
-#include <CLHEP/Random/RandFlat.h>
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EventSetup.h>
@@ -38,8 +31,6 @@
 #include <utility>
 #include <map>
 
-//#include "CLHEP/config/CLHEP.h"
-#include "CLHEP/Random/Random.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 
@@ -76,23 +67,11 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) :
   _rpcSync = new RPCSynchronizer(config);
 }
 
-void RPCSimAverage::setRandomEngine(CLHEP::HepRandomEngine& eng){
-  flatDistribution_ = new CLHEP::RandFlat(eng);
-  flatDistribution1 = new CLHEP::RandFlat(eng);
-  flatDistribution2 = new CLHEP::RandFlat(eng);
-  poissonDistribution = new CLHEP::RandPoissonQ(eng);
-  _rpcSync->setRandomEngine(eng);
-}
-
 RPCSimAverage::~RPCSimAverage(){
-  delete flatDistribution_;
-  delete flatDistribution1;
-  delete flatDistribution2;
-  delete poissonDistribution;
   delete  _rpcSync;
 }
 
-int RPCSimAverage::getClSize(float posX)
+int RPCSimAverage::getClSize(float posX, CLHEP::HepRandomEngine* engine)
 {
 
   std::map< int, std::vector<double> > clsMap = getRPCSimSetUp()->getClsMap();
@@ -102,7 +81,7 @@ int RPCSimAverage::getClSize(float posX)
   double func=0.0;
   std::vector<double> sum_clsize;
 
-  double rr_cl = flatDistribution_->fire(1);
+  double rr_cl = CLHEP::RandFlat::shoot(engine);
   if(0.0 <= posX && posX < 0.2)  {
     func = (clsMap[1])[(clsMap[1]).size()-1]*(rr_cl);
     sum_clsize = clsMap[1];
@@ -140,7 +119,8 @@ int RPCSimAverage::getClSize(float posX)
 
 void
 RPCSimAverage::simulate(const RPCRoll* roll,
-			const edm::PSimHitContainer& rpcHits)
+			const edm::PSimHitContainer& rpcHits,
+                        CLHEP::HepRandomEngine* engine)
 {
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
   theRpcDigiSimLinks.clear();
@@ -158,19 +138,19 @@ RPCSimAverage::simulate(const RPCRoll* roll,
     //    const LocalPoint& exit=_hit->exitPoint();
 
     float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
-    int time_hit = _rpcSync->getSimHitBx(&(*_hit));
+    int time_hit = _rpcSync->getSimHitBx(&(*_hit), engine);
 
     // Effinciecy
 
-    if (flatDistribution_->fire(1) < aveEff) {
+    if (CLHEP::RandFlat::shoot(engine) < aveEff) {
 
       int centralStrip = topology.channel(entr)+1;  
       int fstrip=centralStrip;
       int lstrip=centralStrip;
       // Compute the cluster size
-      double w = flatDistribution_->fire(1);
+      double w = CLHEP::RandFlat::shoot(engine);
       if (w < 1.e-10) w=1.e-10;
-      int clsize = this->getClSize(posX);
+      int clsize = this->getClSize(posX, engine);
 
       std::vector<int> cls;
       cls.push_back(centralStrip);
@@ -213,7 +193,8 @@ RPCSimAverage::simulate(const RPCRoll* roll,
   }
 }
 
-void RPCSimAverage::simulateNoise(const RPCRoll* roll)
+void RPCSimAverage::simulateNoise(const RPCRoll* roll,
+                                  CLHEP::HepRandomEngine* engine)
 {
 
   RPCDetId rpcId = roll->id();
@@ -240,12 +221,13 @@ void RPCSimAverage::simulateNoise(const RPCRoll* roll)
 
   double ave = rate*nbxing*gate*area*1.0e-9;
 
-  N_hits = poissonDistribution->fire(ave);
+  CLHEP::RandPoissonQ randPoissonQ(*engine, ave);
+  N_hits = randPoissonQ.fire();
 
   for (int i = 0; i < N_hits; i++ ){
-    int strip = static_cast<int>(flatDistribution1->fire(1,nstrips));
+    int strip = static_cast<int>(CLHEP::RandFlat::shoot(engine, 1, nstrips));
     int time_hit;
-    time_hit = (static_cast<int>(flatDistribution2->fire((nbxing*gate)/gate))) - nbxing/2;
+    time_hit = (static_cast<int>(CLHEP::RandFlat::shoot(engine, (nbxing*gate)/gate))) - nbxing/2;
     std::pair<int, int> digi(strip,time_hit);
     strips.insert(digi);
   }

@@ -2,71 +2,26 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalCorrelatedNoiseMatrix.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/JamesRandom.h"
-#include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
-#include<iostream>
-#include<iomanip>
-#include<fstream>
-
 #include "DataFormats/Math/interface/Error.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CLHEP/Random/JamesRandom.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TH1F.h"
 #include "TCanvas.h"
 
-class MyRandomNumberGenerator : public edm::RandomNumberGenerator 
-{
-   public:
-
-      MyRandomNumberGenerator() : edm::RandomNumberGenerator(),
-				  m_seed (123456789),
-				  m_engine (new CLHEP::HepJamesRandom(m_seed)) {}
-      virtual ~MyRandomNumberGenerator() {}
- 
-      virtual CLHEP::HepRandomEngine& getEngine() const { return *m_engine ; }
-      virtual uint32_t mySeed() const { return m_seed; }
-      virtual void preBeginLumi(edm::LuminosityBlock const& lumi) {}
-      virtual void postEventRead(edm::Event const& event) {}
-
-      virtual std::vector<RandomEngineState> const& getLumiCache() const {
-	 return m_states ; }
-      virtual std::vector<RandomEngineState> const& getEventCache() const {
-	 return m_states ; }
-      virtual void print() {}
-
-   private:
-      MyRandomNumberGenerator(const MyRandomNumberGenerator&); // stop default
-      const MyRandomNumberGenerator& operator=(const MyRandomNumberGenerator&); // stop default
-
-      long m_seed ;
-      CLHEP::HepRandomEngine* m_engine ;
-      std::vector<RandomEngineState > m_states ;
-};
-
+#include<iostream>
+#include<iomanip>
+#include<fstream>
 
 int main() 
 {
-   edm::MessageDrop::instance()->debugEnabled = false;
+  edm::MessageDrop::instance()->debugEnabled = false;
 
-   std::auto_ptr<edm::RandomNumberGenerator> slcptr( new MyRandomNumberGenerator() ) ;
-
-   boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::RandomNumberGenerator > > slc ( new edm::serviceregistry::ServiceWrapper<edm::RandomNumberGenerator >( slcptr ) ) ; 
-   edm::ServiceToken token = edm::ServiceRegistry::createContaining( slc ) ;
-   edm::ServiceRegistry::Operate operate( token ) ; 
-
-/*  std::vector<edm::ParameterSet> serviceConfigs;
-  edm::ServiceToken token = edm::ServiceRegistry::createSet(serviceConfigs);
-  edm::ServiceRegistry::Operate operate(token); 
-*/
+  const long seed = 12345;
+  CLHEP::HepJamesRandom engine(seed);
 
   const unsigned int readoutFrameSize = CaloSamples::MAXSAMPLES;
 
@@ -217,9 +172,9 @@ int main()
 
   for ( int i = 0; i < 100000; ++i ) {
     CaloSamples noiseframe(detId, readoutFrameSize);
-    theCorrNoise.noisify(noiseframe);
+    theCorrNoise.noisify(noiseframe, &engine);
     CaloSamples flatframe(detId, readoutFrameSize);
-    theUncorrNoise.noisify(flatframe);
+    theUncorrNoise.noisify(flatframe, &engine);
     for ( int j = 0; j < 3; ++j ) {
       uncorr->Fill(flatframe[j]);
       corr->Fill(noiseframe[j]);

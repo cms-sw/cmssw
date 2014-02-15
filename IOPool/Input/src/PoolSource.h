@@ -20,6 +20,10 @@ PoolSource: This is an InputSource
 #include <string>
 #include <vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 namespace edm {
 
   class ConfigurationDescriptions;
@@ -49,8 +53,8 @@ namespace edm {
     virtual void skip(int offset);
     virtual bool goToEvent_(EventID const& eventID);
     virtual void rewind_();
-    virtual void readOneRandom(EventPrincipal& cache);
-    virtual bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID);
+    virtual void readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine*) override;
+    virtual bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID, CLHEP::HepRandomEngine*) override;
     virtual bool readOneSequential(EventPrincipal& cache);
     virtual bool readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& lumiID);
     virtual void readOneSpecified(EventPrincipal& cache, EventID const& id);

@@ -4,7 +4,7 @@
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
 
-void CSCNeutronReader::addHits(std::map<int, edm::PSimHitContainer> & hitMap)
+void CSCNeutronReader::addHits(std::map<int, edm::PSimHitContainer> & hitMap, CLHEP::HepRandomEngine* engine)
 {
   std::vector<int> chambersDone;
 
@@ -18,7 +18,7 @@ void CSCNeutronReader::addHits(std::map<int, edm::PSimHitContainer> & hitMap)
     if(find(chambersDone.begin(), chambersDone.end(), chamberIndex) == chambersDone.end())
     {
       edm::PSimHitContainer neutronHits;
-      generateChamberNoise(chamberType(chamberIndex), chamberIndex, neutronHits);
+      generateChamberNoise(chamberType(chamberIndex), chamberIndex, neutronHits, engine);
 
       // add these hits to the original map
       for(edm::PSimHitContainer::const_iterator neutronHitItr = neutronHits.begin();

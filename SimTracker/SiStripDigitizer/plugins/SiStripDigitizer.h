@@ -24,6 +24,7 @@ namespace edm {
   class EventSetup;
   class ParameterSet;
   template<typename T> class Handle;
+  class StreamID;
 }
 
 class MagneticField;
@@ -49,11 +50,12 @@ public:
   
   virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
   virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
-  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c) override;
+  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
   
 private:
-  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >, const TrackerTopology *tTopo, size_t globalSimHitIndex );
+  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >, const TrackerTopology *tTopo, size_t globalSimHitIndex, CLHEP::HepRandomEngine*);
+  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
   typedef std::vector<std::string> vstring;
   typedef std::map<unsigned int, std::vector<std::pair<const PSimHit*, int> >,std::less<unsigned int> > simhit_map;
@@ -85,8 +87,7 @@ private:
   edm::ESHandle<TrackerGeometry> pDD;
   edm::ESHandle<MagneticField> pSetup;
   std::map<unsigned int, StripGeomDetUnit*> detectorUnits;
-
-  CLHEP::HepRandomEngine* rndEngine;
+  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 };
 
 #endif

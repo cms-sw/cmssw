@@ -4,6 +4,10 @@
 #include<vector>
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class CaloVNoiseSignalGenerator
 {
 public:
@@ -11,7 +15,7 @@ public:
   virtual ~CaloVNoiseSignalGenerator() {}
 
   ///  fill theNoiseSignals with one event's worth of noise, in units of pe
-  void fillEvent();
+  void fillEvent(CLHEP::HepRandomEngine*);
 
   void getNoiseSignals(std::vector<CaloSamples> & noiseSignals) { noiseSignals = theNoiseSignals; }
 
@@ -24,7 +28,7 @@ public:
 protected:
   /// if you want to fill signals on demand, override this
   /// subclass is responsible for clearing theNoiseSignals before adding
-  virtual void fillNoiseSignals() {}
+  virtual void fillNoiseSignals(CLHEP::HepRandomEngine*) = 0;
   std::vector<CaloSamples> theNoiseSignals;
 
 private:
