@@ -1,15 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-
-
-from Validation.MuonGEMHits.simTrackMatching_cfi import SimTrackMatching
-from Validation.MuonGEMHits.gemSystemSetting_cfi import gemSetting
 gemHitsValidation = cms.EDAnalyzer('MuonGEMHits',
-	outputFile = cms.string(''),
-        simInputLabel = cms.untracked.string('g4SimHits'),
-	minPt = cms.untracked.double(4.5),
-	ntupleTrackChamberDelta = cms.untracked.bool(True),
-	ntupleTrackEff = cms.untracked.bool(True),        
-        simTrackMatching = SimTrackMatching,
-        gemSystemSetting = gemSetting
+    outputFile = cms.string(''),
+    simInputLabel = cms.untracked.string('g4SimHits'),
+    verbose = cms.untracked.int32(0),
+    simMuOnly = cms.untracked.bool(True),
+    discardEleHits = cms.untracked.bool(True),
+    minPt = cms.untracked.double(4.5),
+    minEta = cms.untracked.double(1.45),
+    maxEta = cms.untracked.double(2.5),
 )
