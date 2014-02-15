@@ -5,11 +5,8 @@
 
 #include "SimG4CMS/Calo/interface/HcalQie.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include <iostream>
@@ -296,27 +293,16 @@ double HcalQie::getShape(double time) {
 }
 
 
-std::vector<int> HcalQie::getCode(int nht, const std::vector<CaloHit>& hitbuf) {
+std::vector<int> HcalQie::getCode(int nht, const std::vector<CaloHit>& hitbuf,
+                                  CLHEP::HepRandomEngine* engine) {
 
   const double  bunchSpace=25.;
   int nmax = (bmax_ > numOfBuckets ? bmax_ : numOfBuckets);
   std::vector<double> work(nmax);
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "HcalQIE requires the RandomNumberGeneratorService\n"
-      << "which is not present in the configuration file. "
-      << "You must add the service\n in the configuration file or "
-      << "remove the modules that require it.";
-  }
-  CLHEP::RandGaussQ  randGauss(rng->getEngine(), baseline,sigma);
-  CLHEP::RandPoissonQ randPoisson(rng->getEngine());
-
-
   // Noise in the channel
   for (int i=0; i<numOfBuckets; i++) 
-    work[i] = randGauss.fire();
+    work[i] = CLHEP::RandGaussQ::shoot(engine, baseline, sigma);
 
 #ifdef DebugLog
   LogDebug("HcalSim") << "HcalQie::getCode: Noise with baseline " << baseline 
@@ -348,7 +334,8 @@ std::vector<int> HcalQie::getCode(int nht, const std::vector<CaloHit>& hitbuf) {
       }
 
       double avpe  = ehit/eDepPerPE;
-      double photo = randPoisson.fire(avpe);
+      CLHEP::RandPoissonQ randPoissonQ(*engine, avpe);
+      double photo = randPoissonQ.fire();
       etot   += ehit;
       photons+= photo; 
 #ifdef DebugLog
