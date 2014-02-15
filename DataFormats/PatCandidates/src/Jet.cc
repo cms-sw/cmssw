@@ -178,7 +178,41 @@ std::vector<reco::PFCandidatePtr> const & Jet::getPFConstituents () const {
   return *pfCandidatesTemp_;
 }
 
+const reco::Candidate * Jet::daughter(size_t i) const {
+  if (isCaloJet() || isJPTJet() ) {
+    if ( embeddedCaloTowers_ ) {
+      if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_[i].get();
+      else if ( caloTowers_.size() > 0 ) return &caloTowers_[i];
+      else return reco::Jet::daughter(i);
+    }
+  }
+  if (isPFJet()) {
+    if ( embeddedPFCandidates_ ) {
+      if ( pfCandidatesFwdPtr_.size() > 0 ) return pfCandidatesFwdPtr_[i].get();
+      else if ( pfCandidates_.size() > 0 ) return &pfCandidates_[i];
+      else return reco::Jet::daughter(i);
+    }
+  }
+  return reco::Jet::daughter(i);
+}
 
+size_t Jet::numberOfDaughters() const {
+  if (isCaloJet() || isJPTJet()) {
+    if ( embeddedCaloTowers_ ) {
+      if ( caloTowersFwdPtr_.size() > 0 ) return caloTowersFwdPtr_.size();
+      else if ( caloTowers_.size() > 0 ) return caloTowers_.size();
+      else return reco::Jet::numberOfDaughters();
+    }
+  }
+  if (isPFJet()) {
+    if ( embeddedPFCandidates_ ) {
+      if ( pfCandidatesFwdPtr_.size() > 0 ) return pfCandidatesFwdPtr_.size();
+      else if ( pfCandidates_.size() > 0 ) return pfCandidates_.size();
+      else return reco::Jet::numberOfDaughters();
+    }
+  }
+  return reco::Jet::numberOfDaughters();
+}
 
 /// return the matched generated jet
 const reco::GenJet * Jet::genJet() const {
