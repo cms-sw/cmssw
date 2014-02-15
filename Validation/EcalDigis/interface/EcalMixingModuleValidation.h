@@ -63,6 +63,14 @@
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+namespace edm {
+  class StreamID;
+}
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class EcalMixingModuleValidation: public edm::EDAnalyzer{
 
     typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
@@ -152,9 +160,11 @@ private:
  CaloHitResponse * theEBResponse;
  CaloHitResponse * theEEResponse;
  
- void computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & ebSignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold);
+ void computeSDBunchDigi(const edm::EventSetup & eventSetup, MixCollection<PCaloHit> & theHits, MapType & ebSignalSimMap, const EcalSubdetector & thisDet, const double & theSimThreshold, CLHEP::HepRandomEngine*);
 
  void bunchSumTest(std::vector<MonitorElement *> & theBunches, MonitorElement* & theTotal, MonitorElement* & theRatio, int nSample);
+
+ CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
  double esBaseline_;
  double esADCtokeV_;
@@ -173,6 +183,7 @@ private:
       const ESIntercalibConstants* m_ESmips ;
       double m_ESeffwei ;
 
+  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 };
 
 #endif

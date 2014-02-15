@@ -8,8 +8,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CLHEP/Random/RandGaussQ.h"
+
 HcalHitCorrection::HcalHitCorrection(const CaloVSimParameterMap * parameterMap)
-  : theParameterMap(parameterMap),theRandGaussQ(0) 
+  : theParameterMap(parameterMap)
 {
 }
 
@@ -74,7 +76,7 @@ double HcalHitCorrection::charge(const PCaloHit & hit) const
 }
 
 
-double HcalHitCorrection::delay(const PCaloHit & hit) const 
+double HcalHitCorrection::delay(const PCaloHit & hit, CLHEP::HepRandomEngine* engine) const
 {
   // HO goes slow, HF shouldn't be used at all
   //ZDC not used for the moment
@@ -108,10 +110,10 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
       }
     // now, the smearing
     const HcalSimParameters& params=static_cast<const HcalSimParameters&>(theParameterMap->simParameters(detId));
-    if (params.doTimeSmear() && theRandGaussQ!=0) {
+    if (params.doTimeSmear()) {
       double rms=params.timeSmearRMS(charge(hit));
-      
-      double smearns=theRandGaussQ->fire()*rms;
+
+      double smearns = CLHEP::RandGaussQ::shoot(engine) * rms;
 
       LogDebug("HcalHitCorrection") << "TimeSmear charge " << charge(hit) << " rms " << rms << " delay " << delay << " smearns " << smearns;
       delay+=smearns;
@@ -151,12 +153,4 @@ double HcalHitCorrection::timeOfFlight(const DetId & detId) const
       throw cms::Exception("HcalHitCorrection") << "Bad Hcal subdetector " << detId.subdetId();
       break;
     }
-}
-
-
-
-void HcalHitCorrection::setRandomEngine(CLHEP::HepRandomEngine & engine) {
-  if (theRandGaussQ==0) {
-    theRandGaussQ=new CLHEP::RandGaussQ(engine);
-  }
 }

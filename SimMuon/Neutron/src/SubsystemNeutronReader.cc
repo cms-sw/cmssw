@@ -12,8 +12,6 @@ using namespace std;
 
 SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet & pset)
 : theHitReader(0),
-  theRandFlat(0), 
-  theRandPoisson(0),
   theLuminosity(pset.getParameter<double>("luminosity")), // in units of 10^34
   theStartTime(pset.getParameter<double>("startTime")), 
   theEndTime(pset.getParameter<double>("endTime")),
@@ -38,21 +36,13 @@ SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet & pset)
 
 SubsystemNeutronReader::~SubsystemNeutronReader() {
   delete theHitReader;
-  delete theRandFlat;
-  delete theRandPoisson;
-}
-
-
-void SubsystemNeutronReader::setRandomEngine(CLHEP::HepRandomEngine & engine)
-{
-  theRandFlat = new CLHEP::RandFlat(engine);
-  theRandPoisson = new CLHEP::RandPoissonQ(engine);
 }
 
 
 void
 SubsystemNeutronReader::generateChamberNoise(int chamberType, int chamberIndex, 
-                                             edm::PSimHitContainer & result) 
+                                             edm::PSimHitContainer & result,
+                                             CLHEP::HepRandomEngine* engine)
 {
   // make sure this chamber hasn't been done before
   if(find(theChambersDone.begin(), theChambersDone.end(), chamberIndex) 
@@ -60,7 +50,8 @@ SubsystemNeutronReader::generateChamberNoise(int chamberType, int chamberIndex,
   {
     float meanNumberOfEvents = theEventOccupancy[chamberType-1] 
                              * theEventsInWindow;
-    int nEventsToAdd = theRandPoisson->fire(meanNumberOfEvents);
+    CLHEP::RandPoissonQ randPoissonQ(*engine, meanNumberOfEvents);
+    int nEventsToAdd = randPoissonQ.fire();
 //    LogDebug("NeutronReader") << "Number of neutron events to add: " 
 //std::cout << "Number of neutron events to add for chamber type " << chamberType << " : " 
 // << nEventsToAdd <<  " mean " << meanNumberOfEvents << std::endl;
@@ -68,7 +59,7 @@ SubsystemNeutronReader::generateChamberNoise(int chamberType, int chamberIndex,
 
     for(int i = 0; i < nEventsToAdd; ++i) {
       // find the time for this event
-      float timeOffset = theRandFlat->fire(theStartTime, theEndTime);
+      float timeOffset = CLHEP::RandFlat::shoot(engine, theStartTime, theEndTime);
       vector<PSimHit> neutronHits;
       theHitReader->readNextEvent(chamberType, neutronHits);
 

@@ -3,7 +3,7 @@
 
 /** Turns hits into digis.  Assumes that 
     there's an ElectroncsSim class with the
-    interface analogToDigital(const CaloSamples &, Digi &);
+    interface analogToDigital(CLHEP::HepRandomEngine*, const CaloSamples &, Digi &);
 */
 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -12,6 +12,10 @@
 #include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.h"
 
 class EcalHitResponse ;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 template< class Traits >
 class EcalTDigitizer
@@ -29,11 +33,11 @@ class EcalTDigitizer
 
       virtual ~EcalTDigitizer< Traits >() ;
 
-      void add(const std::vector<PCaloHit> & hits, int bunchCrossing);
+      void add(const std::vector<PCaloHit> & hits, int bunchCrossing, CLHEP::HepRandomEngine*);
 
       virtual void initializeHits();
 
-      virtual void run(DigiCollection&          output  );
+      virtual void run(DigiCollection&          output, CLHEP::HepRandomEngine* );
 
       virtual void run( MixCollection<PCaloHit>& input ,
 			DigiCollection&          output  ) {

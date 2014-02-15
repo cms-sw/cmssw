@@ -7,6 +7,8 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
+#include "CLHEP/Random/RandGaussQ.h"
+
 #include<list>
 #include<algorithm>
 
@@ -30,8 +32,7 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
   theOffsetOfBxZero(p.getParameter<int>("timeBitForBxZero")),
   theSignalPropagationSpeed(p.getParameter<std::vector<double> >("signalSpeed")),
   theTimingCalibrationError(p.getParameter<std::vector<double> >("timingCalibrationError")),
-  doNoise_(p.getParameter<bool>("doNoise")),
-  theRandGaussQ(0)
+  doNoise_(p.getParameter<bool>("doNoise"))
 {
   assert(theBunchTimingOffsets.size() == 11);
 }
@@ -39,19 +40,12 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
 
 CSCBaseElectronicsSim::~CSCBaseElectronicsSim()
 {
-  delete theRandGaussQ;
-}
-
-
-void CSCBaseElectronicsSim::setRandomEngine(CLHEP::HepRandomEngine& engine)
-{
-  if(theRandGaussQ) delete theRandGaussQ;
-  theRandGaussQ = new CLHEP::RandGaussQ(engine);
 }
 
 
 void CSCBaseElectronicsSim::simulate(const CSCLayer * layer,
-                               const std::vector<CSCDetectorHit> & detectorHits)
+                                     const std::vector<CSCDetectorHit> & detectorHits,
+                                     CLHEP::HepRandomEngine* engine)
 {
   theNoiseWasAdded = false;
 
@@ -71,13 +65,13 @@ void CSCBaseElectronicsSim::simulate(const CSCLayer * layer,
 
       // skip if  hit element is not part of a readout element
       // e.g. wire in non-readout group
-      if ( element != 0 ) add( amplifySignal(detectorHits[i]) );
+      if ( element != 0 ) add( amplifySignal(detectorHits[i]), engine );
     }
   }
   
   {
     if(doNoise_) {
-      addNoise();
+      addNoise(engine);
     }
   }
 } 
@@ -131,28 +125,28 @@ CSCBaseElectronicsSim::amplifySignal(const CSCDetectorHit & detectorHit)  {
 } 
 
 
-CSCAnalogSignal CSCBaseElectronicsSim::makeNoiseSignal(int element) {
+CSCAnalogSignal CSCBaseElectronicsSim::makeNoiseSignal(int element, CLHEP::HepRandomEngine*) {
   std::vector<float> binValues(theNumberOfSamples);
   // default is empty
   return CSCAnalogSignal(element, theSamplingTime, binValues, 0., theSignalStartTime);
 } 
 
 
-void CSCBaseElectronicsSim::addNoise() {
+void CSCBaseElectronicsSim::addNoise(CLHEP::HepRandomEngine* engine) {
   for(CSCSignalMap::iterator mapI = theSignalMap.begin(); 
       mapI!=  theSignalMap.end(); ++mapI) {
     // superimpose electronics noise
-    (*mapI).second.superimpose(makeNoiseSignal((*mapI).first));
+    (*mapI).second.superimpose(makeNoiseSignal((*mapI).first, engine));
     // DON'T do amp gain variations.  Handled in strips by calibration code
     // and variations in the shaper peaking time.
-     double timeOffset = theRandGaussQ->fire((*mapI).second.getTimeOffset(), thePeakTimeSigma);
+    double timeOffset = CLHEP::RandGaussQ::shoot(engine, (*mapI).second.getTimeOffset(), thePeakTimeSigma);
     (*mapI).second.setTimeOffset(timeOffset);
   }
   theNoiseWasAdded = true;
 }
 
 
-CSCAnalogSignal & CSCBaseElectronicsSim::find(int element) {
+CSCAnalogSignal & CSCBaseElectronicsSim::find(int element, CLHEP::HepRandomEngine* engine) {
   if(element <= 0 || element > nElements) {
     LogTrace("CSCBaseElectronicsSim") << "CSCBaseElectronicsSim: bad element = " << element << 
          ". There are " << nElements  << " elements.";
@@ -162,7 +156,7 @@ CSCAnalogSignal & CSCBaseElectronicsSim::find(int element) {
   if(signalMapItr == theSignalMap.end()) {
     CSCAnalogSignal newSignal;
     if(theNoiseWasAdded) {
-      newSignal = makeNoiseSignal(element);
+      newSignal = makeNoiseSignal(element, engine);
     } else {
       std::vector<float> emptyV(theNumberOfSamples);
       newSignal = CSCAnalogSignal(element, theSamplingTime, emptyV, 0., theSignalStartTime);
@@ -173,9 +167,9 @@ CSCAnalogSignal & CSCBaseElectronicsSim::find(int element) {
 }
 
 
-CSCAnalogSignal & CSCBaseElectronicsSim::add(const CSCAnalogSignal & signal) {
+CSCAnalogSignal & CSCBaseElectronicsSim::add(const CSCAnalogSignal & signal, CLHEP::HepRandomEngine* engine) {
   int element = signal.getElement();
-  CSCAnalogSignal & newSignal = find(element);
+  CSCAnalogSignal & newSignal = find(element, engine);
   newSignal.superimpose(signal);
   return newSignal;
 }

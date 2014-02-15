@@ -26,8 +26,6 @@ class CaloSubdetectorGeometry ;
 class CaloVPECorrection       ;
 namespace CLHEP 
 { 
-   class RandPoissonQ         ; 
-   class RandGaussQ           ; 
    class HepRandomEngine      ;
 }
 
@@ -59,11 +57,9 @@ class CaloHitRespoNew
 
       void setPECorrection( const CaloVPECorrection* peCorrection ) ;
 
-      virtual void setRandomEngine( CLHEP::HepRandomEngine& engine ) const ;
+      virtual void run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* ) ;
 
-      virtual void run( MixCollection<PCaloHit>& hits ) ;
-
-      virtual void add(const PCaloHit & hit);
+      virtual void add(const PCaloHit & hit, CLHEP::HepRandomEngine*);
 
       unsigned int samplesSize() const ;
 
@@ -82,17 +78,13 @@ class CaloHitRespoNew
 
       CaloSamples* findSignal( const DetId& detId ) ;
 
-      virtual void putAnalogSignal( const PCaloHit& inputHit) ;
+      virtual void putAnalogSignal( const PCaloHit& inputHit, CLHEP::HepRandomEngine*) ;
 
-      double analogSignalAmplitude( const DetId& id, float energy ) const;
+      double analogSignalAmplitude( const DetId& id, float energy, CLHEP::HepRandomEngine* ) const;
 
       double timeOfFlight( const DetId& detId ) const ;
 
       double phaseShift() const ;
-
-      CLHEP::RandPoissonQ* ranPois() const ;
-
-      CLHEP::RandGaussQ* ranGauss() const ;
 
       void setupSamples( const DetId& detId ) ;
 
@@ -120,10 +112,6 @@ class CaloHitRespoNew
       const CaloVPECorrection*       m_PECorrection  ;
       const CaloVHitFilter*          m_hitFilter     ;
       const CaloSubdetectorGeometry* m_geometry      ;
-
-      mutable CLHEP::RandPoissonQ*   m_RandPoisson   ;
-
-      mutable CLHEP::RandGaussQ*     m_RandGauss     ;
 
       int    m_minBunch   ;
       int    m_maxBunch   ;

@@ -14,6 +14,11 @@
 #include <map>
 #include <vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
+
 class CastorHitCorrection : public CaloVHitCorrection
 {
 public:
@@ -32,7 +37,7 @@ public:
   double charge(const PCaloHit & hit) const;
 
   /// how much delay this hit will get
-  virtual double delay(const PCaloHit & hit) const;
+  virtual double delay(const PCaloHit & hit, CLHEP::HepRandomEngine*) const;
 
   /// which time bin the peak of the signal will fall in
   int timeBin(const PCaloHit & hit) const;

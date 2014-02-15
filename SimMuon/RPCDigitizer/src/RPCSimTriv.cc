@@ -6,20 +6,9 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSetUp.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
 #include <cmath>
 #include <utility>
 #include <map>
-
-//#include "CLHEP/config/CLHEP.h"
-#include "CLHEP/Random/Random.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-
 
 RPCSimTriv::RPCSimTriv(const edm::ParameterSet& config) : RPCSim(config){
 
@@ -30,23 +19,14 @@ RPCSimTriv::RPCSimTriv(const edm::ParameterSet& config) : RPCSim(config){
   _rpcSync = new RPCSynchronizer(config);
 }
 
-void RPCSimTriv::setRandomEngine(CLHEP::HepRandomEngine& eng){
-  flatDistribution1 = new CLHEP::RandFlat(eng);
-  flatDistribution2 = new CLHEP::RandFlat(eng);
-  poissonDistribution = new CLHEP::RandPoissonQ(eng);
-  _rpcSync->setRandomEngine(eng);
-}
-
 RPCSimTriv::~RPCSimTriv(){
-  delete flatDistribution1;
-  delete flatDistribution2;
-  delete poissonDistribution;
   delete _rpcSync;
 }
 
 void
 RPCSimTriv::simulate(const RPCRoll* roll,
-		       const edm::PSimHitContainer& rpcHits)
+                     const edm::PSimHitContainer& rpcHits,
+                     CLHEP::HepRandomEngine*)
 {
 
   //_rpcSync->setRPCSimSetUp(getRPCSimSetUp());
@@ -75,9 +55,9 @@ RPCSimTriv::simulate(const RPCRoll* roll,
 }
 
 
-void RPCSimTriv::simulateNoise(const RPCRoll* roll)
+void RPCSimTriv::simulateNoise(const RPCRoll* roll,
+                               CLHEP::HepRandomEngine*)
 {
   // plase keep it empty for this model
   return;
 }
-

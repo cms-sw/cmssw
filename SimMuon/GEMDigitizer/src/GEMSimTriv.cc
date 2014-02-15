@@ -6,14 +6,6 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-
 #include <cmath>
 #include <utility>
 #include <map>
@@ -29,25 +21,14 @@ GEMSimTriv::GEMSimTriv(const edm::ParameterSet& config) :
   sync_ = new GEMSynchronizer(config);
 }
 
-void GEMSimTriv::setRandomEngine(CLHEP::HepRandomEngine& eng)
-{
-  flatDistr1_ = new CLHEP::RandFlat(eng);
-  flatDistr2_ = new CLHEP::RandFlat(eng);
-  poissonDistr_ = new CLHEP::RandPoissonQ(eng);
-  sync_->setRandomEngine(eng);
-}
-
-
 GEMSimTriv::~GEMSimTriv()
 {
-  if (flatDistr1_) delete flatDistr1_;
-  if (flatDistr2_) delete flatDistr2_;
-  if (poissonDistr_) delete poissonDistr_;
   delete sync_;
 }
 
 void GEMSimTriv::simulate(const GEMEtaPartition* roll,
-                          const edm::PSimHitContainer& simHits)
+                          const edm::PSimHitContainer& simHits,
+                          CLHEP::HepRandomEngine*)
 {
   //_gemSync->setGEMSimSetUp(getGEMSimSetUp());
   stripDigiSimLinks_.clear();
@@ -74,7 +55,8 @@ void GEMSimTriv::simulate(const GEMEtaPartition* roll,
 }
 
 
-void GEMSimTriv::simulateNoise(const GEMEtaPartition* roll)
+void GEMSimTriv::simulateNoise(const GEMEtaPartition* roll,
+                               CLHEP::HepRandomEngine*)
 {
   // please keep it empty for this model
   return;

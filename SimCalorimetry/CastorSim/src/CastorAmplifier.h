@@ -3,29 +3,29 @@
   
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "SimCalorimetry/CastorSim/src/CastorSimParameterMap.h"
-#include "CLHEP/Random/RandGaussQ.h"
 
 class CastorDbService;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class CastorAmplifier {
 public:
   CastorAmplifier(const CastorSimParameterMap * parameters, bool addNoise);
-  virtual ~CastorAmplifier(){ delete theRandGaussQ; }
+  virtual ~CastorAmplifier(){ }
 
   /// the Producer will probably update this every event
   void setDbService(const CastorDbService * service) {
     theDbService = service;
    }
 
-  void setRandomEngine(CLHEP::HepRandomEngine & engine);
-
-  virtual void amplify(CaloSamples & linearFrame) const;
+  virtual void amplify(CaloSamples & linearFrame, CLHEP::HepRandomEngine*) const;
 
   void setStartingCapId(int capId) {theStartingCapId = capId;}
 
 private:
   const CastorDbService * theDbService;
-  CLHEP::RandGaussQ * theRandGaussQ;
   const CastorSimParameterMap * theParameterMap;
 
   unsigned theStartingCapId;

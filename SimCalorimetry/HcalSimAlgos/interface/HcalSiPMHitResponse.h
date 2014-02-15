@@ -10,9 +10,11 @@
 #include <set>
 #include <vector>
 
-#include "CLHEP/Random/RandFlat.h"
-
 class HcalSiPM;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class PCaloHitCompareTimes {
 public:
@@ -35,15 +37,13 @@ public:
 
   virtual void initializeHits();
 
-  virtual void finalizeHits();
+  virtual void finalizeHits(CLHEP::HepRandomEngine*) override;
 
-  virtual void add(const PCaloHit& hit);
+  virtual void add(const PCaloHit& hit, CLHEP::HepRandomEngine*) override;
 
   virtual void add(const CaloSamples& signal);
 
-  virtual void run(MixCollection<PCaloHit> & hits);
-
-  virtual void setRandomEngine(CLHEP::HepRandomEngine & engine);
+  virtual void run(MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine*) override;
 
   virtual CaloSamples makeBlankSignal(const DetId & detId) const;
 
@@ -52,13 +52,13 @@ public:
 protected:
   typedef std::multiset <PCaloHit, PCaloHitCompareTimes> SortedHitSet;
 
-  virtual CaloSamples makeSiPMSignal(const DetId& id, const PCaloHit& hit, int & integral) const;
-  virtual CaloSamples makeSiPMSignal(DetId const& id, photonTimeHist const& photons) const;
+  virtual CaloSamples makeSiPMSignal(const DetId& id, const PCaloHit& hit, int & integral, CLHEP::HepRandomEngine*) const;
+  virtual CaloSamples makeSiPMSignal(DetId const& id, photonTimeHist const& photons, CLHEP::HepRandomEngine*) const;
 
   virtual void differentiatePreciseSamples(CaloSamples& samples, 
 					   double diffNorm = 1.0) const;
 
-  double generatePhotonTime() const;
+  double generatePhotonTime(CLHEP::HepRandomEngine*) const;
 
 private:
   HcalSiPM * theSiPM;
@@ -71,9 +71,6 @@ private:
 
   photonTimeMap precisionTimedPhotons;
   HcalTDCParameters theTDCParams;
-
-  CLHEP::RandFlat * theRndFlat;
-
 };
 
 #endif //HcalSimAlgos_HcalSiPMHitResponse_h

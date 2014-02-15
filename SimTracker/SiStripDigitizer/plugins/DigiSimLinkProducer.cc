@@ -58,7 +58,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
+
+namespace CLHEP{
+  class HepRandomEngine;
+}
 
 DigiSimLinkProducer::DigiSimLinkProducer(const edm::ParameterSet& conf) : 
   conf_(conf)
@@ -79,9 +82,8 @@ DigiSimLinkProducer::DigiSimLinkProducer(const edm::ParameterSet& conf) :
       "in the configuration file or remove the modules that require it.";
   }
   
-  rndEngine       = &(rng->getEngine());
   zeroSuppression = conf_.getParameter<bool>("ZeroSuppression");
-  theDigiAlgo = new DigiSimLinkAlgorithm(conf_,(*rndEngine));
+  theDigiAlgo = new DigiSimLinkAlgorithm(conf_);
 
 }
 
@@ -93,6 +95,9 @@ DigiSimLinkProducer::~DigiSimLinkProducer() {
 // Functions that gets called by framework every event
 void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
+
   // Step A: Get Inputs
   edm::ESHandle < ParticleDataTable > pdt;
   iSetup.getData( pdt );
@@ -172,7 +177,7 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
       float langle = (lorentzAngleHandle.isValid()) ? lorentzAngleHandle->getLorentzAngle((*iu)->geographicalId().rawId()) : 0.;
       theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,
-	 	       gainHandle,thresholdHandle,noiseHandle,pedestalHandle, deadChannelHandle, tTopo);
+		       gainHandle,thresholdHandle,noiseHandle,pedestalHandle, deadChannelHandle, tTopo, engine);
       if(zeroSuppression){
         if(collectorZS.data.size()>0){
           theDigiVector.push_back(collectorZS);

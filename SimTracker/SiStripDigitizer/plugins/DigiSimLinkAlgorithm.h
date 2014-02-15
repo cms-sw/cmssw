@@ -48,7 +48,7 @@ class DigiSimLinkAlgorithm {
   typedef float Amplitude;
   
   // Constructor
-  DigiSimLinkAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
+  DigiSimLinkAlgorithm(const edm::ParameterSet& conf);
 
   // Destructor
   ~DigiSimLinkAlgorithm();
@@ -59,7 +59,8 @@ class DigiSimLinkAlgorithm {
             StripGeomDetUnit *, GlobalVector, float, 
             edm::ESHandle<SiStripGain> &, edm::ESHandle<SiStripThreshold> &, 
             edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripBadStrip> &,
-	    const TrackerTopology *tTopo);
+	    const TrackerTopology *tTopo,
+            CLHEP::HepRandomEngine*);
 
   // digisimlink
   std::vector<StripDigiSimLink> make_link() { return link_coll; }
@@ -118,12 +119,10 @@ class DigiSimLinkAlgorithm {
   SiGaussianTailNoiseAdder* theSiNoiseAdder;
   SiTrivialDigitalConverter* theSiDigitalConverter;
   SiStripFedZeroSuppression* theSiZeroSuppress;
-  CLHEP::HepRandomEngine& rndEngine;
 
   DigitalVecType digis;
   DigitalRawVecType rawdigis;
   std::vector<StripDigiSimLink> link_coll;
-  CLHEP::RandFlat *theFlatDistribution;
 
   void push_link(const DigitalVecType&,
 		 const HitToDigisMapType&,

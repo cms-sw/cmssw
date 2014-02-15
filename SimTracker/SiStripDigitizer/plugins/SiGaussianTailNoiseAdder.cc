@@ -1,14 +1,9 @@
 #include "SiGaussianTailNoiseAdder.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
-SiGaussianTailNoiseAdder::SiGaussianTailNoiseAdder(float th,CLHEP::HepRandomEngine& eng):
+SiGaussianTailNoiseAdder::SiGaussianTailNoiseAdder(float th):
   threshold(th),
-  rndEngine(eng),
-  gaussDistribution(new CLHEP::RandGaussQ(rndEngine)),
-  genNoise(new GaussianTailNoiseGenerator(rndEngine))
+  genNoise(new GaussianTailNoiseGenerator())
 {
 }
 
@@ -17,15 +12,16 @@ SiGaussianTailNoiseAdder::~SiGaussianTailNoiseAdder(){
 
 void SiGaussianTailNoiseAdder::addNoise(std::vector<float> &in,
 					size_t& minChannel, size_t& maxChannel,
-					int numStrips, float noiseRMS) const {
+					int numStrips, float noiseRMS,
+                                        CLHEP::HepRandomEngine* engine) const {
  
   std::vector<std::pair<int,float> > generatedNoise;
-  genNoise->generate(numStrips,threshold,noiseRMS,generatedNoise);
+  genNoise->generate(numStrips,threshold,noiseRMS,generatedNoise, engine);
   
   // noise on strips with signal:
   for (size_t iChannel=minChannel; iChannel<maxChannel; iChannel++) {
     if(in[iChannel] != 0) {
-      in[iChannel] += gaussDistribution->fire(0.,noiseRMS);
+      in[iChannel] += CLHEP::RandGaussQ::shoot(engine, 0., noiseRMS);
     }
   }
 
@@ -38,11 +34,11 @@ void SiGaussianTailNoiseAdder::addNoise(std::vector<float> &in,
   }
 }
 
-void SiGaussianTailNoiseAdder::addNoiseVR(std::vector<float> &in, std::vector<float> &noiseRMS) const {
+void SiGaussianTailNoiseAdder::addNoiseVR(std::vector<float> &in, std::vector<float> &noiseRMS, CLHEP::HepRandomEngine* engine) const {
   // Add noise
   // Full Gaussian noise is added everywhere
   for (size_t iChannel=0; iChannel!=in.size(); iChannel++) {
-     if(noiseRMS[iChannel] > 0.) in[iChannel] += gaussDistribution->fire(0.,noiseRMS[iChannel]);
+    if(noiseRMS[iChannel] > 0.) in[iChannel] += CLHEP::RandGaussQ::shoot(engine, 0., noiseRMS[iChannel]);
   }
 }
 
@@ -52,10 +48,10 @@ void SiGaussianTailNoiseAdder::addPedestals(std::vector<float> &in,std::vector<f
     }
 }
 
-void SiGaussianTailNoiseAdder::addCMNoise(std::vector<float> &in, float cmnRMS, std::vector<bool> &badChannels) const {
+void SiGaussianTailNoiseAdder::addCMNoise(std::vector<float> &in, float cmnRMS, std::vector<bool> &badChannels, CLHEP::HepRandomEngine* engine) const {
   int nAPVs = in.size()/128;
   std::vector<float> CMNv;
-  for(int APVn =0; APVn < nAPVs; ++APVn) CMNv.push_back(gaussDistribution->fire(0.,cmnRMS));
+  for(int APVn =0; APVn < nAPVs; ++APVn) CMNv.push_back(CLHEP::RandGaussQ::shoot(engine, 0., cmnRMS));
   for (size_t iChannel=0; iChannel!=in.size(); iChannel++) {
      if(!badChannels[iChannel]) in[iChannel] += CMNv[(int)(iChannel/128)];
   }

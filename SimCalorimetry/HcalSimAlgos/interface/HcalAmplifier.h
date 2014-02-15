@@ -6,8 +6,6 @@
 class CaloVSimParameterMap;
 class CaloVNoiseSignalGenerator;
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandFlat.h"
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrix.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
@@ -18,14 +16,17 @@ class HcalDbService;
 class HPDIonFeedbackSim;
 class HcalTimeSlewSim;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class HcalAmplifier {
 public:
   HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise);
-  virtual ~HcalAmplifier(){ delete theRandGaussQ; }
+  virtual ~HcalAmplifier(){ }
 
   /// the Producer will probably update this every event
   void setDbService(const HcalDbService * service);
-  void setRandomEngine(CLHEP::HepRandomEngine & engine);
   void setIonFeedbackSim(HPDIonFeedbackSim * feedbackSim) {theIonFeedbackSim = feedbackSim;}
 
   /// if it's set, the amplifier will only use it to check
@@ -37,7 +38,7 @@ public:
     theTimeSlewSim = timeSlewSim;
   }
 
-  virtual void amplify(CaloSamples & linearFrame) const;
+  virtual void amplify(CaloSamples & linearFrame, CLHEP::HepRandomEngine*) const;
 
   void setStartingCapId(int capId) {theStartingCapId = capId;}
   void setHBtuningParameter(double tp);
@@ -54,13 +55,11 @@ public:
 private:
 
   void pe2fC(CaloSamples & frame) const;
-  void addPedestals(CaloSamples & frame) const;
+  void addPedestals(CaloSamples & frame, CLHEP::HepRandomEngine*) const;
   void makeNoiseOld (HcalGenericDetId::HcalGenericSubdetector hcalSubDet, const HcalCalibrationWidths& width, int fFrames, double* fGauss, double* fNoise) const;
   void makeNoise (const HcalCholeskyMatrix & thisChanCholesky, int fFrames, double* fGauss, double* fNoise, int m) const;
 
   const HcalDbService * theDbService;
-  CLHEP::RandGaussQ * theRandGaussQ;
-  CLHEP::RandFlat * theRandFlat;
   const CaloVSimParameterMap * theParameterMap;
   const CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
   HPDIonFeedbackSim * theIonFeedbackSim;

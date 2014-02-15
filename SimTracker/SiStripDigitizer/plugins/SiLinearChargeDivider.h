@@ -28,13 +28,13 @@ class SiLinearChargeDivider : public SiChargeDivider{
  public:
 
   // constructor
-  SiLinearChargeDivider(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
+  SiLinearChargeDivider(const edm::ParameterSet& conf);
 
   // destructor
   virtual ~SiLinearChargeDivider();
 
   // main method: divide the charge (from the PSimHit) into several energy deposits in the bulk
-  SiChargeDivider::ionization_type divide(const PSimHit*, const LocalVector&, double, const StripGeomDetUnit& det);
+  SiChargeDivider::ionization_type divide(const PSimHit*, const LocalVector&, double, const StripGeomDetUnit& det, CLHEP::HepRandomEngine*);
 
   // set the ParticleDataTable (used to fluctuate the charge properly)
   void setParticleDataTable(const ParticleDataTable * pdt) { theParticleDataTable = pdt; }
@@ -48,8 +48,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
   const double cosmicShift;
 
   const ParticleDataTable * theParticleDataTable;
-  // random generator
-  CLHEP::HepRandomEngine& rndEngine;
+
   // Geant4 engine used by fluctuateEloss()
   std::unique_ptr<SiG4UniversalFluctuation> fluctuate; 
   // utility: drifts the charge to the surface to estimate the number of relevant strips
@@ -57,7 +56,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
     return pos.x()+(thickness/2.-pos.z())*drift.x()/drift.z();
   }
   // fluctuate the Eloss
-  void fluctuateEloss(double const particleMass, float momentum, float eloss, float length, int NumberOfSegmentation, float elossVector[]);
+  void fluctuateEloss(double const particleMass, float momentum, float eloss, float length, int NumberOfSegmentation, float elossVector[], CLHEP::HepRandomEngine*);
   // time response (from the pulse shape)
   inline float TimeResponse( const PSimHit* hit, const StripGeomDetUnit& det) {
     return (peakMode ? PeakShape(hit,det) : DeconvolutionShape(hit,det));

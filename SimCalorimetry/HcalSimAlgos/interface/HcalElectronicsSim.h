@@ -7,7 +7,6 @@
    */
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTDC.h"
-#include "CLHEP/Random/RandFlat.h"
 
 class HBHEDataFrame;
 class HODataFrame;
@@ -18,37 +17,36 @@ class HcalUpgradeDataFrame;
 class HcalAmplifier;
 class HcalCoderFactory;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class HcalElectronicsSim {
 public:
   HcalElectronicsSim(HcalAmplifier * amplifier, 
                      const HcalCoderFactory * coderFactory);
   ~HcalElectronicsSim();
 
-  void setRandomEngine(CLHEP::HepRandomEngine & engine);
   void setDbService(const HcalDbService * service);
 
-  void analogToDigital(CaloSamples & linearFrame, HBHEDataFrame & result);
-  void analogToDigital(CaloSamples & linearFrame, HODataFrame & result);
-  void analogToDigital(CaloSamples & linearFrame, HFDataFrame & result);
-  void analogToDigital(CaloSamples & linearFrame, ZDCDataFrame & result);
-  void analogToDigital(CaloSamples & linearFrame, HcalUpgradeDataFrame& result);
+  void analogToDigital(CLHEP::HepRandomEngine*, CaloSamples & linearFrame, HBHEDataFrame & result);
+  void analogToDigital(CLHEP::HepRandomEngine*, CaloSamples & linearFrame, HODataFrame & result);
+  void analogToDigital(CLHEP::HepRandomEngine*, CaloSamples & linearFrame, HFDataFrame & result);
+  void analogToDigital(CLHEP::HepRandomEngine*, CaloSamples & linearFrame, ZDCDataFrame & result);
+  void analogToDigital(CLHEP::HepRandomEngine*, CaloSamples & linearFrame, HcalUpgradeDataFrame& result);
   /// Things that need to be initialized every event
   /// sets starting CapID randomly
-  void newEvent();
+  void newEvent(CLHEP::HepRandomEngine*);
   void setStartingCapId(int startingCapId);
 
 private:
-  template<class Digi> void convert(CaloSamples & frame, Digi & result);
+  template<class Digi> void convert(CaloSamples & frame, Digi & result, CLHEP::HepRandomEngine*);
 
   HcalAmplifier * theAmplifier;
   const HcalCoderFactory * theCoderFactory;
   HcalTDC theTDC;
-  CLHEP::RandFlat * theRandFlat;
 
   int theStartingCapId;
   bool theStartingCapIdIsRandom;
 };
-
-  
 #endif
-  

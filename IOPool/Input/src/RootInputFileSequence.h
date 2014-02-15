@@ -22,7 +22,7 @@ RootInputFileSequence: This is an InputSource
 #include <vector>
 
 namespace CLHEP {
-  class RandFlat;
+  class HepRandomEngine;
 }
 
 namespace edm {
@@ -62,8 +62,8 @@ namespace edm {
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool currentFileFirst = true);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     void rewind_();
-    void readOneRandom(EventPrincipal& cache);
-    bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id);
+    void readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine*);
+    bool readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, CLHEP::HepRandomEngine*);
     bool readOneSequential(EventPrincipal& cache);
     bool readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id);
     void readOneSpecified(EventPrincipal& cache, EventID const& id);
@@ -101,7 +101,6 @@ namespace edm {
     RootFileSharedPtr rootFile_;
     BranchDescription::MatchMode branchesMustMatch_;
 
-    std::unique_ptr<CLHEP::RandFlat> flatDistribution_;
     std::vector<boost::shared_ptr<IndexIntoFile> > indexesIntoFiles_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
 

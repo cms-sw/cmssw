@@ -10,11 +10,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -32,42 +28,16 @@ EcalHitResponse::EcalHitResponse( const CaloVSimParameterMap* parameterMap ,
    m_hitFilter       ( 0            ) ,
    m_geometry        ( 0            ) ,
    m_lasercals       ( 0            ) ,
-   m_RandPoisson     ( 0            ) ,
-   m_RandGauss       ( 0            ) ,
    m_minBunch        ( -10          ) ,
    m_maxBunch        (  10          ) ,
    m_phaseShift      ( 1            ) ,
    m_iTime           ( 0            ) ,
    m_useLCcorrection ( 0            )  
 {
-   edm::Service<edm::RandomNumberGenerator> rng ;
-   if ( !rng.isAvailable() ) 
-   {
-      throw cms::Exception("Configuration")
-	 << "EcalHitResponse requires the RandomNumberGeneratorService\n"
-	 "which is not present in the configuration file.  You must add the service\n"
-	 "in the configuration file or remove the modules that require it.";
-   }
-   m_RandPoisson = new CLHEP::RandPoissonQ( rng->getEngine() ) ;
-   m_RandGauss   = new CLHEP::RandGaussQ(   rng->getEngine() ) ;
 }
 
 EcalHitResponse::~EcalHitResponse()
 {
-   delete m_RandPoisson ;
-   delete m_RandGauss   ;
-}
-
-CLHEP::RandPoissonQ* 
-EcalHitResponse::ranPois() const
-{
-   return m_RandPoisson ;
-}
-
-CLHEP::RandGaussQ* 
-EcalHitResponse::ranGauss() const
-{
-   return m_RandGauss ;
 }
 
 const CaloSimParameters*
@@ -162,10 +132,10 @@ EcalHitResponse::blankOutUsedSamples()  // blank out previously used elements
 }
 
 void 
-EcalHitResponse::add( const PCaloHit& hit ) 
+EcalHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
   if (!edm::isNotFinite( hit.time() ) && ( 0 == m_hitFilter || m_hitFilter->accepts( hit ) ) ) {
-     putAnalogSignal( hit ) ;
+    putAnalogSignal( hit, engine ) ;
   }
 }
 
@@ -187,7 +157,7 @@ EcalHitResponse::finalizeHits()
 }
 
 void 
-EcalHitResponse::run( MixCollection<PCaloHit>& hits ) 
+EcalHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* engine )
 {
    blankOutUsedSamples() ;
 
@@ -199,23 +169,23 @@ EcalHitResponse::run( MixCollection<PCaloHit>& hits )
       if( withinBunchRange(bunch)  &&
 	  !edm::isNotFinite( hit.time() ) &&
 	  ( 0 == m_hitFilter ||
-	    m_hitFilter->accepts( hit ) ) ) putAnalogSignal( hit ) ;
+	    m_hitFilter->accepts( hit ) ) ) putAnalogSignal( hit, engine ) ;
    }
 }
 
 void
-EcalHitResponse::putAnalogSignal( const PCaloHit& hit )
+EcalHitResponse::putAnalogSignal( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
    const DetId detId ( hit.id() ) ;
 
    const CaloSimParameters* parameters ( params( detId ) ) ;
 
-   const double signal ( analogSignalAmplitude( detId, hit.energy() ) ) ;
+   const double signal ( analogSignalAmplitude( detId, hit.energy(), engine ) ) ;
 
    double time = hit.time();
 
    if(m_hitCorrection) {
-     time += m_hitCorrection->delay( hit ) ;
+     time += m_hitCorrection->delay( hit, engine ) ;
    }
 
    const double jitter ( time - timeOfFlight( detId ) ) ;
@@ -255,7 +225,7 @@ EcalHitResponse::findSignal( const DetId& detId )
 }
 
 double 
-EcalHitResponse::analogSignalAmplitude( const DetId& detId, float energy ) const
+EcalHitResponse::analogSignalAmplitude( const DetId& detId, float energy, CLHEP::HepRandomEngine* engine ) const
 {
   const CaloSimParameters& parameters ( *params( detId ) ) ;
 
@@ -270,9 +240,11 @@ EcalHitResponse::analogSignalAmplitude( const DetId& detId, float energy ) const
    double npe ( energy/lasercalib*parameters.simHitToPhotoelectrons( detId ) ) ;
 
    // do we need to doPoisson statistics for the photoelectrons?
-   if( parameters.doPhotostatistics() ) npe = ranPois()->fire( npe ) ;
-
-   if( 0 != m_PECorrection ) npe = m_PECorrection->correctPE( detId, npe ) ;
+   if( parameters.doPhotostatistics() ) {
+      CLHEP::RandPoissonQ randPoissonQ(*engine, npe);
+      npe = randPoissonQ.fire();
+   }
+   if( 0 != m_PECorrection ) npe = m_PECorrection->correctPE( detId, npe, engine ) ;
 
    return npe ;
 }

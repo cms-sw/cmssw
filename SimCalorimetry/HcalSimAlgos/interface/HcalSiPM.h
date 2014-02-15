@@ -13,9 +13,9 @@
 #include <vector>
 #include <algorithm>
 
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandFlat.h"
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class HcalSiPM {
  public:
@@ -24,8 +24,8 @@ class HcalSiPM {
   virtual ~HcalSiPM();
 
   void resetSiPM() { std::fill(theSiPM.begin(), theSiPM.end(), -999.); }
-  virtual int hitCells(unsigned int photons, unsigned int integral = 0) const;
-  virtual double hitCells(unsigned int pes, double tempDiff = 0., 
+  virtual int hitCells(CLHEP::HepRandomEngine*, unsigned int photons, unsigned int integral = 0) const;
+  virtual double hitCells(CLHEP::HepRandomEngine* , unsigned int pes, double tempDiff = 0.,
 			  double photonTime = 0.);
 
 
@@ -43,9 +43,6 @@ class HcalSiPM {
   void setCrossTalk(double xtalk);
   void setTemperatureDependence(double tempDep);
 
-  void initRandomEngine(CLHEP::HepRandomEngine& engine);
-
-
  protected:
 
   // void expRecover(double dt);
@@ -58,11 +55,6 @@ class HcalSiPM {
   double theCrossTalk;
   double theTempDep;
   double theLastHitTime;
-
-  mutable CLHEP::RandGaussQ *theRndGauss;
-  mutable CLHEP::RandPoissonQ *theRndPoisson;
-  mutable CLHEP::RandFlat *theRndFlat;
-
 };
 
 #endif //HcalSimAlgos_HcalSiPM_h

@@ -17,7 +17,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
 #include "CLHEP/Random/RandFlat.h"
@@ -42,7 +41,6 @@ namespace edm {
     fileIterLastOpened_(fileIterEnd_),
     rootFile_(),
     branchesMustMatch_(BranchDescription::Permissive),
-    flatDistribution_(),
     indexesIntoFiles_(fileCatalogItems().size()),
     orderedProcessHistoryIDs_(),
     nStreams_(nStreams),
@@ -701,20 +699,16 @@ namespace edm {
   }
 
   void
-  RootInputFileSequence::readOneRandom(EventPrincipal& cache) {
+  RootInputFileSequence::readOneRandom(EventPrincipal& cache, CLHEP::HepRandomEngine* engine) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandom(): no input files specified.\n";
-    }
-    if(!flatDistribution_) {
-      Service<RandomNumberGenerator> rng;
-      CLHEP::HepRandomEngine& engine = rng->getEngine();
-      flatDistribution_.reset(new CLHEP::RandFlat(engine));
     }
     assert(rootFile_);
     skipBadFiles_ = false;
     unsigned int currentSeqNumber = fileIter_ - fileIterBegin_;
     while(eventsRemainingInFile_ == 0) {
-      fileIter_ = fileIterBegin_ + flatDistribution_->fireInt(fileCatalogItems().size());
+
+      fileIter_ = fileIterBegin_ + CLHEP::RandFlat::shootInt(engine, fileCatalogItems().size());
       unsigned int newSeqNumber = fileIter_ - fileIterBegin_;
       if(newSeqNumber != currentSeqNumber) {
         initFile(false);
@@ -725,7 +719,7 @@ namespace edm {
         throw Exception(errors::NotFound) <<
            "RootInputFileSequence::readOneRandom(): Secondary Input file " << fileIter_->fileName() << " contains no events.\n";
       }
-      rootFile_->setAtEventEntry(flatDistribution_->fireInt(eventsRemainingInFile_) - 1);
+      rootFile_->setAtEventEntry(CLHEP::RandFlat::shootInt(engine, eventsRemainingInFile_) - 1);
     }
     rootFile_->nextEventEntry();
 
@@ -741,14 +735,9 @@ namespace edm {
   // bool RootFile::setEntryAtNextEventInLumi(RunNumber_t run, LuminosityBlockNumber_t lumi) {
 
   bool
-  RootInputFileSequence::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id) {
+  RootInputFileSequence::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id, CLHEP::HepRandomEngine* engine) {
     if(fileIterEnd_ == fileIterBegin_) {
       throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandomWithID(): no input files specified.\n";
-    }
-    if(!flatDistribution_) {
-      Service<RandomNumberGenerator> rng;
-      CLHEP::HepRandomEngine& engine = rng->getEngine();
-      flatDistribution_.reset(new CLHEP::RandFlat(engine));
     }
     skipBadFiles_ = false;
     if(fileIter_ == fileIterEnd_ || !rootFile_ ||
@@ -763,7 +752,7 @@ namespace edm {
       while(rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock())) ++eventsInLumi;
       found = skipToItem(id.run(), id.luminosityBlock(), 0);
       assert(found);
-      int eventInLumi = flatDistribution_->fireInt(eventsInLumi);
+      int eventInLumi = CLHEP::RandFlat::shootInt(engine, eventsInLumi);
       for(int i = 0; i < eventInLumi; ++i) {
         bool found = rootFile_->setEntryAtNextEventInLumi(id.run(), id.luminosityBlock());
         assert(found);
@@ -779,7 +768,7 @@ namespace edm {
       if(!found) {
         return false;
       }
-      return readOneRandomWithID(cache, id);
+      return readOneRandomWithID(cache, id, engine);
     }
     return true;
   }
