@@ -37,7 +37,7 @@ equivDict = \
          {'PatCandidates'         : ['pat::PATObject','pat::Lepton']},
          {'BTauReco'              : ['reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo']},
          {'CastorReco'            : ['reco::CastorJet']},
-         {'JetMatching'           : ['reco::JetFlavour','reco::MatchedPartons']},
+         {'JetMatching'           : ['reco::JetFlavourInfo', 'reco::JetFlavour','reco::MatchedPartons']},
          {'TrackingAnalysis'      : ['TrackingParticle']},
          {'Egamma'                : ['reco::ElectronID']},
          {'TopObjects'            : ['reco::CATopJetProperties']},
