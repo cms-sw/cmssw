@@ -14,6 +14,7 @@ class HcalTopology;
 
 class HcalCondObjectContainerBase {
 public:
+  HcalCondObjectContainerBase() : topo_(nullptr) {}
   const HcalTopology* topo() const { return topo_; }
   int getCreatorPackedIndexVersion() const { return packedIndexVersion_; }
   void setTopo(const HcalTopology* topo) const;
@@ -33,6 +34,7 @@ template<class Item>
 class HcalCondObjectContainer : public HcalCondObjectContainerBase {
 public:
   // default constructor
+  HcalCondObjectContainer() : HcalCondObjectContainerBase() {}
   HcalCondObjectContainer(const HcalTopology* topo) : HcalCondObjectContainerBase(topo) { }
 
   // destructor:
