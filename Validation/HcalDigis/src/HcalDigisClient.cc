@@ -33,13 +33,13 @@ HcalDigisClient::HcalDigisClient(const edm::ParameterSet& iConfig) {
     //dbe_->setCurrentFolder(dirName_);
     dbe_->setCurrentFolder("HcalDigisV/HcalDigiTask");
 
+    // false for regular relval and true for SLHC relval
+    doSLHC_ = iConfig.getUntrackedParameter<bool>("doSLHC", false);
+
     booking("HB");
     booking("HE");
     booking("HO");
     booking("HF");
-    // false for regular relval and true for SLHC relval
-    doSLHC_ = iConfig.getUntrackedParameter<bool>("doSLHC", false);
-
 }
 
 void HcalDigisClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
