@@ -1228,7 +1228,7 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 	  cout<<" frac["<<ic<<"] "<<frac[ic]<<" "<<fractot<<" "<<rh<<endl;
 #endif
 
-	if( fractot ) 
+	if( fractot > 1e-20 || ( rh.detId() == curpfclusters[ic].seed() && fractot > 0.0 ) ) 
 	  frac[ic] /= fractot;
 	else { 
 #ifdef PFLOW_DEBUG
