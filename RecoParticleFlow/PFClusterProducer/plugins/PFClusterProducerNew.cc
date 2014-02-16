@@ -5,6 +5,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/TopoClusterBuilderFactory.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderFactory.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorFactory.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorFactory.h"
 
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
@@ -58,7 +59,16 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
     PosCalc* pcalc = PFCPositionCalculatorFactory::get()->create(pName,pConf);
     _positionReCalc.reset(pcalc);
   }
+  // see if new need to apply corrections, setup if there.
+  if( conf.exists("energyCorrector") ) {
+    const edm::ParameterSet& cConf = conf.getParameterSet("energyCorrector");
+    const std::string& cName = cConf.getParameter<std::string>("algoName");
+    PFClusterEnergyCorrectorBase* eCorr =
+      PFClusterEnergyCorrectorFactory::get()->create(cName,cConf);
+    _energyCorrector.reset(eCorr);
+  }
   
+
   if( _prodTopoClusters ) {
     produces<reco::PFClusterCollection>("topoClusters");
   }
@@ -104,6 +114,10 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   if( _positionReCalc ) {
     _positionReCalc->calculateAndSetPositions(*pfClusters);
+  }
+
+  if( _energyCorrector ) {
+    _energyCorrector->correctEnergies(*pfClusters);
   }
 
   if( _prodTopoClusters ) e.put(topoClusters,"topo");
