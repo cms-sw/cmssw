@@ -8,6 +8,7 @@
 #include <string>
 
 namespace edm {
+  class Event;
   class EventSetup;
 }
 
@@ -29,7 +30,7 @@ class PFClusterEnergyCorrectorBase {
   virtual void correctEnergies(reco::PFClusterCollection&) = 0;
 
   const std::string& name() const { return _algoName; }
- 
+   
  private:  
   const std::string _algoName;
 

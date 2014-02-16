@@ -32,7 +32,7 @@ buildPFClusters(const reco::PFClusterCollection& input,
     // decreases the size of each pf cluster considerably
     prunePFClusters(clustersInTopo);
     // recalculate the positions of the pruned clusters
-    if( clustersInTopo.size() == 1 ) {
+    if( clustersInTopo.size() == 1 && _allCellsPosCalc ) {
       _allCellsPosCalc->calculateAndSetPosition(clustersInTopo.back());
     } else {
       _positionCalc->calculateAndSetPositions(clustersInTopo);
@@ -79,7 +79,7 @@ growPFClusters(const reco::PFCluster& topo,
   for( auto& cluster : clusters) {
     clusters_nodepth.push_back(cluster);
     if( _convergencePosCalc ) {
-      if( clusters.size() == 1 ) {
+      if( clusters.size() == 1 && _allCellsPosCalc ) {
 	_allCellsPosCalc->calculateAndSetPosition(clusters_nodepth.back());
       } else {
 	_positionCalc->calculateAndSetPosition(clusters_nodepth.back());
@@ -148,7 +148,7 @@ growPFClusters(const reco::PFCluster& topo,
     if( _convergencePosCalc ) {
       _convergencePosCalc->calculateAndSetPosition(clusters[i]);
     } else {
-      if( clusters.size() == 1 ) {
+      if( clusters.size() == 1 && _allCellsPosCalc ) {
 	_allCellsPosCalc->calculateAndSetPosition(clusters[i]);
       } else {
 	_positionCalc->calculateAndSetPosition(clusters[i]);

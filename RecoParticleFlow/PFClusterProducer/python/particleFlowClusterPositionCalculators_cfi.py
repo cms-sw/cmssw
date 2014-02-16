@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-positionCalcEB_all_nodepth = cms.PSet(
+positionCalcECAL_all_nodepth = cms.PSet(
     algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
     ##
     minFractionInCalc = cms.double(1e-9),
@@ -9,17 +9,12 @@ positionCalcEB_all_nodepth = cms.PSet(
     minAllowedNormalization = cms.double(1e-9)
     )
 
-positionCalcEE_all_nodepth = positionCalcEB_all_nodepth.clone(
-    #in the old PFClusterAlgo this is same as barrel
-    # logWeightDenominator = cms.double(0.3) 
-    )
-
-positionCalcEB_3x3_nodepth = positionCalcEB_all_nodepth.clone(
+positionCalcECAL_3x3_nodepth = positionCalcECAL_all_nodepth.clone(
     posCalcNCrystals = cms.int32(9)
     )
 
-positionCalcEE_3x3_nodepth = positionCalcEE_all_nodepth.clone(
-    posCalcNCrystals = cms.int32(9)
+positionCalcPS_all_nodepth = positionCalcECAL_all_nodepth.clone(
+    logWeightDenominator = cms.double(6e-5)
     )
 
 positionCalcECAL_all_withdepth = cms.PSet(
