@@ -55,18 +55,16 @@ public:
 	if (jSector<0) jSector+=NSector_;
 	if (jSector>=NSector_) jSector-=NSector_;
 	for (unsigned int i=0;i<stubs_[iSector].size();i++) {
+	  double r1=stubs_[iSector][i].r();
+	  double z1=stubs_[iSector][i].z();
+	  double phi1=stubs_[iSector][i].phi();
 	  for (unsigned int j=0;j<D->stubs_[jSector].size();j++) {
-	    //cout << "r1 phi1 r2 phi2:"
-	    //  <<stubs_[iSector][i].r()<<" "
-	    //  <<stubs_[iSector][i].phi()<<" "
-	    //  <<D->stubs_[jSector][j].r()<<" "
-	    //  <<D->stubs_[jSector][j].phi()<<endl;
-	    double r1=stubs_[iSector][i].r();
-	    double z1=stubs_[iSector][i].z();
-	    double phi1=stubs_[iSector][i].phi();
-
 	    double r2=D->stubs_[jSector][j].r();
 	    double z2=D->stubs_[jSector][j].z();
+	    double zcrude=z1-(z2-z1)*r1/(r2-r1);
+	    if (fabs(zcrude)>30) continue;
+
+
 	    double phi2=D->stubs_[jSector][j].phi();
 	    
 	    if (r1>60.0||r2>60.0) continue;
@@ -82,6 +80,8 @@ public:
 	    double dist=sqrt(r2*r2+r1*r1-2*r1*r2*cos(deltaphi));
         
 	    double rinv=2*sin(deltaphi)/dist;
+
+	    if (fabs(rinv)>0.0057) continue;
 
 	    double tmp=0.5*r1*rinv;
 	    
@@ -106,18 +106,7 @@ public:
 
 	    double z0=z1-t*rhopsi1;
 
-	    if (fabs(z0)>30.0) continue;
-	    if (fabs(rinv)>0.0057) continue;
-
-
-	    double pt1=stubs_[iSector][i].pt();
-	    double pt2=D->stubs_[jSector][j].pt();
-	    double pttracklet=0.3*3.8/(rinv*100);
-	    bool pass1=fabs(1.0/pt1-1.0/pttracklet)<0.5;
-	    bool pass2=fabs(1.0/pt2-1.0/pttracklet)<0.5;
-	    bool pass=pass1&&pass2;
-
-	    if (!pass) continue;
+	    if (fabs(z0)>15.0) continue;
 
 	    //cout << "L1TDisk found tracklet"<<endl;
  
@@ -140,15 +129,9 @@ public:
     }
   }
 
-  void findMatches(L1TDisk* D, double rphicut1, double rcut1, 
+  void findMatches(L1TDisk* D, double phiSF, double rphicut1, double rcut1, 
 		   double rphicut2=0.2, double rcut2=3.0){
 
-    double scale=1.0;
-
-    rphicut1*=scale;
-    rphicut2*=scale;
-    rcut1*=scale;
-    rcut2*=scale;
 
     for(int iSector=0;iSector<NSector_;iSector++){
       for (unsigned int i=0;i<tracklets_[iSector].size();i++) {
@@ -165,17 +148,23 @@ public:
 	  int jSector=iSector+offset;
 	  if (jSector<0) jSector+=NSector_;
 	  if (jSector>=NSector_) jSector-=NSector_;
+	  if (D->stubs_[jSector].size()==0) continue;
+
+	  double zapprox=D->stubs_[jSector][0].z();
+
+	  double r_track_approx=2.0*sin(0.5*rinv*(zapprox-z0)/t)/rinv;
+	  double phi_track_approx=phi0-0.5*rinv*(zapprox-z0)/t;
+	  if (phi_track_approx-D->stubs_[jSector][0].phi()<-0.5*two_pi) phi_track_approx+=two_pi;  
+	  if (phi_track_approx-D->stubs_[jSector][0].phi()>0.5*two_pi) phi_track_approx-=two_pi;  
+
 	  
 	  for (unsigned int j=0;j<D->stubs_[jSector].size();j++) {
 	    double r=D->stubs_[jSector][j].r();
+	    if (fabs(r-r_track_approx)>10.0) continue;
 	    double z=D->stubs_[jSector][j].z();
 	    double phi=D->stubs_[jSector][j].phi();
-	    //cout << "r1 phi1 r2 phi2:"
-	    //  <<stubs_[iSector][i].r()<<" "
-	    //  <<stubs_[iSector][i].phi()<<" "
-	    //  <<L->stubs_[jSector][j].r()<<" "
-	    //  <<L->stubs_[jSector][j].phi()<<endl;
 
+	    if (fabs((phi-phi_track_approx)*r_track_approx)>1.0) continue;
 	    
 	    double r_track=2.0*sin(0.5*rinv*(z-z0)/t)/rinv;
 	    double phi_track=phi0-0.5*rinv*(z-z0)/t;
@@ -224,12 +213,12 @@ public:
 	    double dist=0.0;
 
 	    if (r<60) {
-	      if (fabs(rdeltaphi)>rphicut1) continue;
+	      if (fabs(rdeltaphi)>rphicut1*phiSF) continue;
 	      if (fabs(deltar)>rcut1) continue;
 	      dist=hypot(rdeltaphi/rphicut1,deltar/rcut1);
 	    }
 	    else {
-	      if (fabs(rdeltaphi)>rphicut2) continue;
+	      if (fabs(rdeltaphi)>rphicut2*phiSF) continue;
 	      if (fabs(deltar)>rcut2) continue;
 	      dist=hypot(rdeltaphi/rphicut2,deltar/rcut2);
 	    }
@@ -258,7 +247,7 @@ public:
   }
 
 
-  void findBarrelMatches(L1TGeomBase* L){
+  void findBarrelMatches(L1TGeomBase* L, double phiSF){
 
     for(int iSector=0;iSector<NSector_;iSector++){
       for (unsigned int i=0;i<tracklets_[iSector].size();i++) {
@@ -275,11 +264,25 @@ public:
 	  int jSector=iSector+offset;
 	  if (jSector<0) jSector+=NSector_;
 	  if (jSector>=NSector_) jSector-=NSector_;
+	  if (L->stubs_[jSector].size()==0) continue;
 	  
+
+	  double rapprox=L->stubs_[jSector][0].r();
+
+	  double phiprojapprox=phi0-asin(0.5*rapprox*rinv);
+	  double zprojapprox=z0+2*t*asin(0.5*rapprox*rinv)/rinv;
+	  if (phiprojapprox-L->stubs_[jSector][0].phi()<-0.5*two_pi) phiprojapprox+=two_pi;  
+	  if (phiprojapprox-L->stubs_[jSector][0].phi()>0.5*two_pi) phiprojapprox-=two_pi;  
+	  
+
 	  for (unsigned int j=0;j<L->stubs_[jSector].size();j++) {
 	    double r=L->stubs_[jSector][j].r();
 	    double z=L->stubs_[jSector][j].z();
+	    if (fabs(z-zprojapprox)>15.0) continue;
 	    double phi=L->stubs_[jSector][j].phi();
+	    double deltaphiapprox=fabs(phi-phiprojapprox);
+	    assert(deltaphiapprox<12.0);
+	    if (deltaphiapprox*rapprox>2.0) continue;
 	    //cout << "r1 phi1 r2 phi2:"
 	    //  <<stubs_[iSector][i].r()<<" "
 	    //  <<stubs_[iSector][i].phi()<<" "
@@ -300,7 +303,7 @@ public:
 	    double rdeltaphi=r*deltaphi;
             double deltaz=z-zproj;
 
-	    if (fabs(rdeltaphi)>0.1) continue;
+	    if (fabs(rdeltaphi)>0.1*phiSF) continue;
 	    if (fabs(deltaz)>5.0) continue; //LS modified from 0.5 to 5.0
 
 	    double dist=hypot(rdeltaphi/0.1,deltaz/5.0); //LS modified from 0.5 to 5.0

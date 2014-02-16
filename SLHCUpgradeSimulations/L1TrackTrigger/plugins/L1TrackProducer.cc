@@ -161,6 +161,7 @@ private:
   edm::ParameterSet config;
 
   string geometry_;
+  double phiWindowSF_;
 
   /// ///////////////// ///
   /// MANDATORY METHODS ///
@@ -178,6 +179,7 @@ L1TrackProducer::L1TrackProducer(edm::ParameterSet const& iConfig) // :   config
   produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( "Level1TTTracks" ).setBranchAlias("Level1TTTracks");
 
   geometry_ = iConfig.getUntrackedParameter<string>("geometry","");
+  phiWindowSF_ = iConfig.getUntrackedParameter<double>("phiWindowSF",1.0);
 }
 
 /////////////
