@@ -11,7 +11,8 @@
 #else
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define COUT LogTrace("CSCDCCExaminer")
-#define CERR edm::LogWarning("CSCDCCExaminer")
+// #define CERR edm::LogWarning("CSCDCCExaminer")
+#define CERR LogDebug("CSCDCCExaminer")
 #endif
 
 
