@@ -13,26 +13,33 @@
 #define LOGDRESSED(x) LogDebug(x)
 #endif
 
+namespace {
+  bool greaterByEnergy(const std::pair<unsigned,double>& a,
+		       const std::pair<unsigned,double>& b) {
+    return a.second > b.second;
+  }
+}
+
 void Basic2DGenericTopoClusterizer::
 buildTopoClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 		  const std::vector<bool>& rechitMask,
 		  const std::vector<bool>& seedable,
 		  reco::PFClusterCollection& output) {  
   std::vector<bool> used(input->size(),false);
-  std::vector<unsigned> seeds;
+  std::vector<std::pair<unsigned,double> > seeds;
   
   // get the seeds and sort them descending in energy
+  seeds.reserve(input->size());
   for( unsigned i = 0; i < input->size(); ++i ) {
     if( !rechitMask[i] || !seedable[i] || used[i] ) continue;
-    std::vector<unsigned>::iterator pos = seeds.begin();
-    for( ; pos != seeds.end(); ++pos ) {
-      if( input->at(i).energy() > input->at(*pos).energy() ) break;
-    }
-    seeds.insert(pos,i);
-  }
+    std::pair<unsigned,double> val = std::make_pair(i,input->at(i).energy());
+    auto pos = std::lower_bound(seeds.begin(),seeds.end(),val,greaterByEnergy);
+    seeds.insert(pos,val);
+  }  
   
   reco::PFCluster temp;
-  for( const unsigned seed : seeds ) {    
+  for( const auto& idx_e : seeds ) {    
+    const int seed = idx_e.first;
     if( !rechitMask[seed] || !seedable[seed] || used[seed] ) continue;
     temp.reset();
     buildTopoCluster(input,rechitMask,makeRefhit(input,seed),used,temp);

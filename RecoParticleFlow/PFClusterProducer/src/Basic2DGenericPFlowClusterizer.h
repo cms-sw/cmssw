@@ -12,14 +12,17 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
     _maxIterations(conf.getParameter<unsigned>("maxIterations")),
     _stoppingTolerance(conf.getParameter<double>("stoppingTolerance")),
     _showerSigma(conf.getParameter<double>("showerSigma")),
-    _excludeOtherSeeds(conf.getParameter<bool>("excludeOtherSeeds")) {      
-    const edm::ParameterSet& acConf = 
-      conf.getParameterSet("allCellsPositionCalc");
-    const std::string& algoac = 
-      acConf.getParameter<std::string>("algoName");
-    PosCalc* accalc = 
-      PFCPositionCalculatorFactory::get()->create(algoac, acConf);
-    _allCellsPosCalc.reset(accalc);
+    _excludeOtherSeeds(conf.getParameter<bool>("excludeOtherSeeds")) { 
+    _allCellsPosCalc.reset(NULL);
+    if( conf.exists("allCellsPositionCalc") ) {
+      const edm::ParameterSet& acConf = 
+	conf.getParameterSet("allCellsPositionCalc");
+      const std::string& algoac = 
+	acConf.getParameter<std::string>("algoName");
+      PosCalc* accalc = 
+	PFCPositionCalculatorFactory::get()->create(algoac, acConf);
+      _allCellsPosCalc.reset(accalc);
+    }
     // if necessary a third pos calc for convergence testing
     _convergencePosCalc.reset(NULL);
     if( conf.exists("positionCalcForConvergence") ) {
@@ -38,8 +41,8 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
 
   void update(const edm::EventSetup& es) { 
     _positionCalc->update(es); 
-    _allCellsPosCalc->update(es);
-    _convergencePosCalc->update(es);
+    if( _allCellsPosCalc ) _allCellsPosCalc->update(es);
+    if( _convergencePosCalc ) _convergencePosCalc->update(es);
   }
 
   void buildPFClusters(const reco::PFClusterCollection&,

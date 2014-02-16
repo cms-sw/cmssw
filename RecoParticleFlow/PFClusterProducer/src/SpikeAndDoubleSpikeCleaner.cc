@@ -2,6 +2,10 @@
 #include <cmath>
 
 namespace {
+  bool greaterByEnergy(const std::pair<unsigned,double>& a,
+		       const std::pair<unsigned,double>& b) {
+    return a.second > b.second;
+  }
   std::pair<double,double> dCrack(double phi, double eta) {
     constexpr double oneOverCrystalSize=1.0/0.0175;
     constexpr double pi=M_PI;
@@ -62,16 +66,16 @@ void SpikeAndDoubleSpikeCleaner::
 clean(const edm::Handle<reco::PFRecHitCollection>& input,
       std::vector<bool>& mask ) {
   //need to run over energy sorted rechits
-  std::vector<unsigned> ordered_hits;
-  for( unsigned i = 0; i < input->size(); ++i ) {    
-    std::vector<unsigned>::iterator pos = ordered_hits.begin();
-    for( ; pos != ordered_hits.end(); ++pos ) {
-      if( input->at(i).energy() > input->at(*pos).energy() ) break;
-    }
-    ordered_hits.insert(pos,i);
-  }
+  std::vector<std::pair<unsigned,double> > ordered_hits;
+  for( unsigned i = 0; i < input->size(); ++i ) {
+    std::pair<unsigned,double> val = std::make_pair(i,input->at(i).energy());
+    auto pos = std::lower_bound(ordered_hits.begin(),ordered_hits.end(),
+				val, greaterByEnergy);
+    ordered_hits.insert(pos,val);
+  }  
 
-  for( const unsigned i : ordered_hits ) {
+  for( const auto& idx_e : ordered_hits ) {
+    const unsigned i = idx_e.first;
     if( !mask[i] ) continue; // don't need to re-mask things :-)
     const reco::PFRecHit& rechit = input->at(i);
     if( rechit.energy() < _cleaningThreshold ) continue;

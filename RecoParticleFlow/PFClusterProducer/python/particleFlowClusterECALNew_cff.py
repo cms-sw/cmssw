@@ -5,6 +5,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALNew_cfi import *
 particleFlowClusterECALNewSequence = cms.Sequence(
     particleFlowClusterECALBarrel +
     particleFlowClusterECALEndcap +
+    particleFlowClusterECALUncorrected +
     particleFlowClusterECALNew
     )
                                                    
