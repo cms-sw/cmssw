@@ -62,6 +62,45 @@ namespace {
   }
 }
 
+SpikeAndDoubleSpikeCleaner::
+SpikeAndDoubleSpikeCleaner(const edm::ParameterSet& conf) :
+    RecHitCleanerBase(conf),
+    _layerMap({ {"PS2",(int)PFLayer::PS2},
+	      {"PS1",(int)PFLayer::PS1},
+	      {"ECAL_ENDCAP",(int)PFLayer::ECAL_ENDCAP},
+	      {"ECAL_BARREL",(int)PFLayer::ECAL_BARREL},
+	      {"NONE",(int)PFLayer::NONE},
+	      {"HCAL_BARREL1",(int)PFLayer::HCAL_BARREL1},
+	      {"HCAL_BARREL2_RING0",(int)PFLayer::HCAL_BARREL2},
+              // hack to deal with ring1 in HO 
+	      {"HCAL_BARREL2_RING1",100*(int)PFLayer::HCAL_BARREL2}, 
+	      {"HCAL_ENDCAP",(int)PFLayer::HCAL_ENDCAP},
+	      {"HF_EM",(int)PFLayer::HF_EM},
+	      {"HF_HAD",(int)PFLayer::HF_HAD} }) {
+  const std::vector<edm::ParameterSet>& thresholds =
+    conf.getParameterSetVector("cleaningByDetector");
+  for( const auto& pset : thresholds ) {
+    spike_cleaning info;
+    const std::string& det = pset.getParameter<std::string>("detector");
+    info._minS4S1_a = pset.getParameter<double>("minS4S1_a");    
+    info._minS4S1_b = pset.getParameter<double>("minS4S1_b");    
+    info._doubleSpikeS6S2 = pset.getParameter<double>("doubleSpikeS6S2");
+    info._eneThreshMod = pset.getParameter<double>("energyThresholdModifier");
+    info._fracThreshMod = 
+      pset.getParameter<double>("fractionThresholdModifier");
+    info._doubleSpikeThresh = pset.getParameter<double>("doubleSpikeThresh");
+    info._singleSpikeThresh = pset.getParameter<double>("singleSpikeThresh");
+    auto entry = _layerMap.find(det);
+    if( entry == _layerMap.end() ) {
+      throw cms::Exception("InvalidDetectorLayer")
+	<< "Detector layer : " << det << " is not in the list of recognized"
+	<< " detector layers!";
+    }
+    _thresholds.emplace(_layerMap.find(det)->second,info);
+  }  
+}
+
+
 void SpikeAndDoubleSpikeCleaner::
 clean(const edm::Handle<reco::PFRecHitCollection>& input,
       std::vector<bool>& mask ) {
@@ -69,7 +108,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
   std::vector<std::pair<unsigned,double> > ordered_hits;
   for( unsigned i = 0; i < input->size(); ++i ) {
     std::pair<unsigned,double> val = std::make_pair(i,input->at(i).energy());
-    auto pos = std::lower_bound(ordered_hits.begin(),ordered_hits.end(),
+    auto pos = std::upper_bound(ordered_hits.begin(),ordered_hits.end(),
 				val, greaterByEnergy);
     ordered_hits.insert(pos,val);
   }  
@@ -78,20 +117,25 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
     const unsigned i = idx_e.first;
     if( !mask[i] ) continue; // don't need to re-mask things :-)
     const reco::PFRecHit& rechit = input->at(i);
-    if( rechit.energy() < _cleaningThreshold ) continue;
+    int hitlayer = (int)rechit.layer();
+    if( hitlayer == PFLayer::HCAL_BARREL2 && 
+	std::abs(rechit.positionREP().eta()) > 0.34 ) {
+      hitlayer *= 100;
+    }    
+    const spike_cleaning& clean = _thresholds.find(hitlayer)->second;    
+    if( rechit.energy() < clean._singleSpikeThresh ) continue;
     const double rhenergy = rechit.energy();
     // single spike cleaning
-    const std::vector<unsigned>& neighbours4 = rechit.neighbours4();
-    double surroundingEnergy = rechit.energyUp();
+    const reco::PFRecHitRefVector& neighbours4 = rechit.neighbours4();
+    double surroundingEnergy = rechit.energy();
     double neighbourEnergy = 0.0;
     double layerEnergy = 0.0;
-    for( const unsigned neighbour : neighbours4 ) {
-      if( !mask[neighbour] ) continue;
-      const reco::PFRecHit& nrechit = input->at(neighbour);
-      const double sum = nrechit.energy() + nrechit.energyUp();
+    for( const reco::PFRecHitRef& neighbour : neighbours4 ) {
+      if( !mask[neighbour.key()] ) continue;
+      const double sum = neighbour->energy(); //energyUp is just rechit energy?
       surroundingEnergy += sum;
       neighbourEnergy   += sum;
-      layerEnergy       += nrechit.energy();
+      layerEnergy       += neighbour->energy();
     }    
     //   wannaBeSeed.energyUp()/wannaBeSeed.energy() : 1.;
     // Fraction 1 is the balance between the hit and its neighbours 
@@ -99,7 +143,8 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
     const double fraction1 = surroundingEnergy/rhenergy;    
     // removed spurious comments from old pfcluster algo... 
     // look there if you want more history
-    const double f1Cut = _minS4S1_a*std::log10(rechit.energy()) + _minS4S1_b;
+    const double f1Cut = ( clean._minS4S1_a*std::log10(rechit.energy()) + 
+			   clean._minS4S1_b );
     if( fraction1 < f1Cut ) { 
       const double eta = rechit.positionREP().eta();
       const double aeta = std::abs(eta);
@@ -110,22 +155,21 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 			      dcr.second );
       if( aeta < 5.0 && 
 	  ( (aeta < 2.85 && dcrmin > 1.0) || 
-	    (rhenergy > _eneThreshMod*_cleaningThreshold && 
-	     fraction1 < f1Cut/_fracThreshMod ) ) ) {	
+	    (rhenergy > clean._eneThreshMod*clean._singleSpikeThresh && 
+	     fraction1 < f1Cut/clean._fracThreshMod ) ) ) {	
 	mask[i] = false;
       }
     }//if initial fraction cut (single spike)
     // double spike removal
-    if( mask[i] && rhenergy > _doubleSpikeThresh ) {
+    if( mask[i] && rhenergy > clean._doubleSpikeThresh ) {
       //Determine energy surrounding the seed and the most energetic neighbour
       double surroundingEnergyi = 0.0;      
       double enmax = -999.0;
-      unsigned mostEnergeticNeighbour = 0;
-      const std::vector<unsigned>& neighbours4i = rechit.neighbours4();
-      for( const unsigned neighbour : neighbours4i ) {
-	if( !mask[neighbour] ) continue;
-	const reco::PFRecHit& nrechit = input->at(neighbour);
-	const double nenergy = nrechit.energy();
+      reco::PFRecHitRef mostEnergeticNeighbour;
+      const reco::PFRecHitRefVector& neighbours4i = rechit.neighbours4();
+      for( reco::PFRecHitRef neighbour : neighbours4i ) {
+	if( !mask[neighbour.key()] ) continue;
+	const double nenergy = neighbour->energy();
 	surroundingEnergyi += nenergy;
 	if( nenergy > enmax ) {
 	  enmax = nenergy;
@@ -135,18 +179,17 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
       // is there an energetic neighbour
       if( enmax > 0.0 ) {
 	double surroundingEnergyj = 0.0;
-	const reco::PFRecHit& neighbourj = input->at(mostEnergeticNeighbour);
-	const std::vector<unsigned>& neighbours4j = neighbourj.neighbours4();
-	for( const unsigned neighbour : neighbours4j ) {
+	const reco::PFRecHitRefVector& neighbours4j = 
+	  mostEnergeticNeighbour->neighbours4();
+	for( const reco::PFRecHitRef& neighbour : neighbours4j ) {
 	  //if( !mask[neighbour] &&  neighbour != i) continue; // leave out?
-	  const reco::PFRecHit& nrechit = input->at(neighbour);
-	  surroundingEnergyj += nrechit.energy();
+	  surroundingEnergyj += neighbour->energy();
 	}
 	// The energy surrounding the double spike candidate 
 	const double surroundingEnergyFraction = 
 	  (surroundingEnergyi+surroundingEnergyj) / 
-	  (rechit.energy()+neighbourj.energy()) - 1.;
-	if ( surroundingEnergyFraction < _doubleSpikeS6S2 ) { 
+	  (rechit.energy()+mostEnergeticNeighbour->energy()) - 1.;
+	if ( surroundingEnergyFraction < clean._doubleSpikeS6S2 ) { 
 	  const double eta = rechit.positionREP().eta();
 	  const double aeta = std::abs(eta);
 	  const double phi = rechit.positionREP().phi();
@@ -156,11 +199,11 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 				  dcr.second );
 	  if( aeta < 5.0 && 
 	      ( (aeta < 2.85 && dcrmin > 1.0) || 
-		(rhenergy > _eneThreshMod*_doubleSpikeThresh && 
-		 surroundingEnergyFraction < _doubleSpikeS6S2/_fracThreshMod ) 
+		(rhenergy > clean._eneThreshMod*clean._doubleSpikeThresh && 
+		 surroundingEnergyFraction < clean._doubleSpikeS6S2/clean._fracThreshMod ) 
 		) ) {	    
 	    mask[i] = false;
-	    mask[mostEnergeticNeighbour] = false;
+	    mask[mostEnergeticNeighbour.key()] = false;
 	  }
 	}
       } // was there an energetic neighbour ? 

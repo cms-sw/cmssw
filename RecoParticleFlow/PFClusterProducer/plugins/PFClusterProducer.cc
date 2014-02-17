@@ -1,4 +1,4 @@
-#include "PFClusterProducerNew.h"
+#include "PFClusterProducer.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerFactory.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderFactory.h"
@@ -18,8 +18,6 @@
 #define LOGERR(x) edm::LogError(x)
 #define LOGDRESSED(x) LogDebug(x)
 #endif
-
-using namespace newpf;
 
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   _prodTopoClusters(conf.getUntrackedParameter<bool>("prodTopoClusters",false))

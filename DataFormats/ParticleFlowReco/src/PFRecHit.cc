@@ -11,10 +11,12 @@ PFRecHit::PFRecHit() :
   time_(-1.),
   position_(math::XYZPoint(0.,0.,0.))
 {
+  
   cornersxyz_.reserve( nCorners_ );
   for(unsigned i=0; i<nCorners_; i++) { 
     cornersxyz_.push_back( position_ );    
   }
+  calculatePositionREP();
 }
 
 
@@ -32,6 +34,7 @@ PFRecHit::PFRecHit(unsigned detId,
   axisxyz_(axisxyz),
   cornersxyz_(cornersxyz) 
 {
+  calculatePositionREP();
 }
 
 PFRecHit::PFRecHit(unsigned detId,
@@ -52,6 +55,8 @@ PFRecHit::PFRecHit(unsigned detId,
     cornersxyz_.push_back( position_ );    
   } 
 
+  calculatePositionREP();
+
 }    
 
 
@@ -62,13 +67,16 @@ PFRecHit::PFRecHit(const PFRecHit& other) :
   energy_(other.energy_), 
   time_(other.time_), 
   position_(other.position_), 
+  positionrep_(other.positionrep_),
   axisxyz_(other.axisxyz_),
   cornersxyz_(other.cornersxyz_),
+  cornersrep_(other.cornersrep_),
   neighbours_(other.neighbours_),
   neighbourInfos_(other.neighbourInfos_),
   neighbours4_(other.neighbours4_),
   neighbours8_(other.neighbours8_)
 {}
+
 
 
 PFRecHit::~PFRecHit() 
@@ -100,9 +108,23 @@ void PFRecHit::setCorner( unsigned i, double posx, double posy, double posz ) {
   assert( i<cornersxyz_.size() );
 
   cornersxyz_[i] = math::XYZPoint( posx, posy, posz);
+  cornersrep_[i] = REPPoint( cornersxyz_[i].Rho(),
+			     cornersxyz_[i].Eta(),
+			     cornersxyz_[i].Phi() );
 }
 
-
+void
+PFRecHit::calculatePositionREP() {
+  positionrep_.SetCoordinates( position_.Rho(), 
+			       position_.Eta(), 
+			       position_.Phi() );
+  cornersrep_.resize(cornersxyz_.size());
+  for( unsigned i = 0; i < cornersxyz_.size(); ++i ) {
+    cornersrep_[i].SetCoordinates(cornersxyz_[i].Rho(),
+				  cornersxyz_[i].Eta(),
+				  cornersxyz_[i].Phi());
+  }
+}
 
 void PFRecHit::addNeighbour(short x,short y,short z,const PFRecHitRef& ref) {
   //bitmask interface  to accomodate more advanced naighbour finding [i.e in z as well]
@@ -139,11 +161,7 @@ void PFRecHit::addNeighbour(short x,short y,short z,const PFRecHitRef& ref) {
     if (absx+absy==1)
       neighbours4_.push_back(ref);
   }
-    
-
 }
-
-
 
 void PFRecHit::size(double& deta, double& dphi) const {
 

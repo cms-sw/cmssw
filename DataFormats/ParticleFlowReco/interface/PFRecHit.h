@@ -36,6 +36,10 @@ namespace reco {
 
   public:
 
+    typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
+
+    typedef std::vector<REPPoint> REPPointVector;
+
     enum {
       NONE=0
     };
@@ -63,20 +67,23 @@ namespace reco {
     virtual ~PFRecHit();
 
     void setEnergy( double energy) { energy_ = energy; }
+
+    void calculatePositionREP();
+
     void addNeighbour(short x,short y, short z,const PFRecHitRef&);
     void setTime( double time) { time_ = time; }
     void clearNeighbours() {
       neighbours_.clear();
     }
 
-    PFRecHitRefVector neighbours4() {
+    const PFRecHitRefVector& neighbours4() const {
       return neighbours4_;
     }
-    PFRecHitRefVector neighbours8() {
+    const PFRecHitRefVector& neighbours8() const {
       return neighbours8_;
     }
 
-    PFRecHitRefVector neighbours() {
+    const PFRecHitRefVector& neighbours() const {
       return neighbours_;
     }
 
@@ -94,7 +101,7 @@ namespace reco {
     unsigned detId() const {return detId_;}
 
     /// rechit layer
-    PFLayer::Layer layer() const { return layer_; }
+    const PFLayer::Layer& layer() const { return layer_; }
 
     /// rechit energy
     double energy() const { return energy_; }
@@ -115,12 +122,17 @@ namespace reco {
     /// rechit cell centre x, y, z
     const math::XYZPoint& position() const { return position_; }
 
+    const REPPoint& positionREP() const { return positionrep_; }
+
+
     /// rechit cell axis x, y, z
     const math::XYZVector& getAxisXYZ() const { return axisxyz_; }    
 
     /// rechit corners
     const std::vector< math::XYZPoint >& getCornersXYZ() const 
       { return cornersxyz_; }    
+
+    const std::vector<REPPoint>& getCornersREP() const { return cornersrep_; }
 
     void size(double& deta, double& dphi) const;
 
@@ -168,11 +180,17 @@ namespace reco {
     /// rechit cell centre: x, y, z
     math::XYZPoint      position_;
 
+    /// rechit cell centre: rho, eta, phi (transient)
+    REPPoint positionrep_;
+
     /// rechit cell axisxyz
     math::XYZVector     axisxyz_;
 
     /// rechit cell corners
     std::vector< math::XYZPoint > cornersxyz_;
+
+    /// rechit cell corners rho/eta/phi
+    std::vector< REPPoint > cornersrep_;
   
     /// indices to existing neighbours (1 common side)
     PFRecHitRefVector   neighbours_;

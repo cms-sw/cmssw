@@ -63,7 +63,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     const double rh_energy = refhit->energy() * rhf.fraction();    
-    const double rh_energyf = refhit->originalRecHit()->energy() * ((float)rhf.fraction());
+    const double rh_energyf = ((float)refhit->energy()) * ((float)rhf.fraction());
     if( std::isnan(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
 	<<"rechit " << refhit->detId() << " has a NaN energy... " 
@@ -111,7 +111,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     double weight = 0.0;
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
-    const double rh_energy = refhit->originalRecHit()->energy() * ((float)rhf.fraction());
+    const double rh_energy = ((float)refhit->energy()) * ((float)rhf.fraction());
     if( rh_energy > 0.0 ) weight = std::max(0.0,( _param_W0 + 
 						  std::log(rh_energy) + 
 						  logETot_inv ));

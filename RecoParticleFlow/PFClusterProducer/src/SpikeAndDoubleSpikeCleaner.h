@@ -3,16 +3,22 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerBase.h"
 
+#include <unordered_map>
+
 class SpikeAndDoubleSpikeCleaner : public RecHitCleanerBase {
  public:
-  SpikeAndDoubleSpikeCleaner(const edm::ParameterSet& conf) :
-    RecHitCleanerBase(conf),
-    _minS4S1_a(conf.getParameter<double>("minS4S1_a")),
-    _minS4S1_b(conf.getParameter<double>("minS4S1_b")),
-    _doubleSpikeS6S2(conf.getParameter<double>("doubleSpikeS6S2")),
-    _eneThreshMod(conf.getParameter<double>("energyThresholdModifier")),
-    _fracThreshMod(conf.getParameter<double>("fractionThresholdModifier")),
-    _doubleSpikeThresh(conf.getParameter<double>("doubleSpikeThresh")) { }
+  
+  struct spike_cleaning {
+    double _singleSpikeThresh;
+    double _minS4S1_a;
+    double _minS4S1_b;
+    double _doubleSpikeS6S2;
+    double _eneThreshMod;
+    double _fracThreshMod;
+    double _doubleSpikeThresh;
+  };
+
+  SpikeAndDoubleSpikeCleaner(const edm::ParameterSet& conf);
   SpikeAndDoubleSpikeCleaner(const SpikeAndDoubleSpikeCleaner&) = delete;
   SpikeAndDoubleSpikeCleaner& operator=(const SpikeAndDoubleSpikeCleaner&) = delete;
 
@@ -20,12 +26,8 @@ class SpikeAndDoubleSpikeCleaner : public RecHitCleanerBase {
 	      std::vector<bool>& mask );
 
  private:
-  const double _minS4S1_a;
-  const double _minS4S1_b;  
-  const double _doubleSpikeS6S2;
-  const float _eneThreshMod;
-  const float _fracThreshMod;
-  const float _doubleSpikeThresh;
+  const std::unordered_map<std::string,int> _layerMap;
+  std::unordered_map<int,spike_cleaning> _thresholds;
   
 };
 

@@ -29,18 +29,18 @@ buildTopoClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   std::vector<std::pair<unsigned,double> > seeds;
   
   // get the seeds and sort them descending in energy
-  seeds.reserve(input->size());
+  seeds.reserve(input->size());  
   for( unsigned i = 0; i < input->size(); ++i ) {
     if( !rechitMask[i] || !seedable[i] || used[i] ) continue;
     std::pair<unsigned,double> val = std::make_pair(i,input->at(i).energy());
-    auto pos = std::lower_bound(seeds.begin(),seeds.end(),val,greaterByEnergy);
+    auto pos = std::upper_bound(seeds.begin(),seeds.end(),val,greaterByEnergy);
     seeds.insert(pos,val);
-  }  
+  }
   
   reco::PFCluster temp;
   for( const auto& idx_e : seeds ) {    
     const int seed = idx_e.first;
-    if( !rechitMask[seed] || !seedable[seed] || used[seed] ) continue;
+    if( !rechitMask[seed] || !seedable[seed] || used[seed] ) continue;    
     temp.reset();
     buildTopoCluster(input,rechitMask,makeRefhit(input,seed),used,temp);
     if( temp.recHitFractions().size() ) output.push_back(temp);
@@ -53,8 +53,15 @@ buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>& input,
 		 const reco::PFRecHitRef& cell,
 		 std::vector<bool>& used,		 
 		 reco::PFCluster& topocluster) {
-  if( cell->energy() < _gatheringThreshold || 
-      cell->pt2() < _gatheringThresholdPt2 ) {
+  int cell_layer = (int)cell->layer();
+  if( cell_layer == PFLayer::HCAL_BARREL2 && 
+      std::abs(cell->positionREP().eta()) > 0.34 ) {
+      cell_layer *= 100;
+    }    
+  const std::pair<double,double>& thresholds =
+      _thresholds.find(cell_layer)->second;
+  if( cell->energy() < thresholds.first || 
+      cell->pt2() < thresholds.second ) {
     LOGDRESSED("GenericTopoCluster::buildTopoCluster()")
       << "RecHit " << cell->detId() << " with enegy " 
       << cell->energy() << " GeV was rejected!." << std::endl;
@@ -64,19 +71,20 @@ buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>& input,
   used[cell.key()] = true;
   topocluster.addRecHitFraction(reco::PFRecHitFraction(cell, 1.0));
   
-  const std::vector<unsigned>& neighbors = 
-    _useCornerCells ? cell->neighbours8() : cell->neighbours4();
-
-  for( unsigned idx : neighbors ) {
-    if( used[idx] || !rechitMask[idx] ) {
+  const reco::PFRecHitRefVector& neighbours = 
+    ( _useCornerCells ? cell->neighbours8() : cell->neighbours4() );
+  
+  for( const reco::PFRecHitRef nb : neighbours ) {
+    if( used[nb.key()] || !rechitMask[nb.key()] ) {
       LOGDRESSED("GenericTopoCluster::buildTopoCluster()")
       	<< "  RecHit " << cell->detId() << "\'s" 
-	<< " neighbor RecHit " << input->at(idx).detId() << " with enegy " 
-	<< input->at(idx).energy() << " GeV was rejected!" 
-	<< " Reasons : " << used[idx] << " (used) " 
-	<< !rechitMask[idx] << " (masked)." << std::endl;
+	<< " neighbor RecHit " << input->at(nb.key()).detId() 
+	<< " with enegy " 
+	<< input->at(nb.key()).energy() << " GeV was rejected!" 
+	<< " Reasons : " << used[nb.key()] << " (used) " 
+	<< !rechitMask[nb.key()] << " (masked)." << std::endl;
       continue;
     }
-    buildTopoCluster(input,rechitMask,makeRefhit(input,idx),used,topocluster);
+    buildTopoCluster(input,rechitMask,nb,used,topocluster);
   }
 }

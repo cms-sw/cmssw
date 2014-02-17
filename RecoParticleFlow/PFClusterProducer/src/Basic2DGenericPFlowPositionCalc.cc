@@ -48,15 +48,25 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   // calculate the position
   double position_norm = 0.0;
   double x(0.0),y(0.0),z(0.0);
+  const reco::PFRecHitRefVector* seedNeighbours = NULL;
+  switch( _posCalcNCrystals ) {
+  case 5:
+    seedNeighbours = &refseed->neighbours4();
+    break;
+  case 9:
+    seedNeighbours = &refseed->neighbours8();
+    break;
+  default:
+    break;
+  }
+
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
-    if( refhit != refseed ) {
-      if( _posCalcNCrystals == 5 && !refhit->isNeighbour4(refseed.key()) ) {
-	continue;
-      }
-      if( _posCalcNCrystals == 9 && !refhit->isNeighbour8(refseed.key()) ) {
-	continue;
-      }
+    
+    if( refhit != refseed && _posCalcNCrystals != -1 ) {
+      auto pos = std::find(seedNeighbours->begin(),seedNeighbours->end(),
+			   refhit);
+      if( pos == seedNeighbours->end() ) continue;
     }
     
     const double rh_energy = refhit->energy() * ((float)rhf.fraction());

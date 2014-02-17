@@ -9,7 +9,6 @@
 class SeedFinderBase {
  public:
   SeedFinderBase(const edm::ParameterSet& conf):
-    _seedingThreshold(conf.getParameter<double>("seedingThreshold")),
     _algoName(conf.getParameter<std::string>("algoName")) { }
   SeedFinderBase(const SeedFinderBase&) = delete;
   SeedFinderBase& operator=(const SeedFinderBase&) = delete;
@@ -19,9 +18,6 @@ class SeedFinderBase {
 			  std::vector<bool>& seedable ) = 0;
   
   const std::string& name() const { return _algoName; }
-
- protected:
-  const double _seedingThreshold;  
 
  private:
   const std::string _algoName;
