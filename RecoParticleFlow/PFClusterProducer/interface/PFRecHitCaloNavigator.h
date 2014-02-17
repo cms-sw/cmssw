@@ -10,6 +10,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
@@ -23,25 +24,8 @@
 template <typename D,typename T>
 class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
  public:
-  PFRecHitCaloNavigator() {
 
-  }
-
-
-
-  PFRecHitCaloNavigator(const edm::ParameterSet& iConfig):
-    PFRecHitNavigatorBase(iConfig){
-
-  }
-
-  void beginEvent(const edm::EventSetup& iSetup) {
-      edm::ESHandle<CaloGeometry> geoHandle;
-      iSetup.get<CaloGeometryRecord>().get(geoHandle);
-      
-      topology_ = new T(geoHandle);
-  }
-
-  void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits) {
+  void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
       DetId detid( hit.detId() );
       
       CaloNavigator<D> navigator(detid, topology_);
@@ -57,7 +41,7 @@ class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
 
 
       N=navigator.north();  
-      associateNeighbour(N,hit,hits,true);
+      associateNeighbour(N,hit,hits,refProd,0,1,0);
 
 
       if (N !=DetId(0)) {
@@ -69,11 +53,11 @@ class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
 	  E=navigator.east();
 	  NE=navigator.north();
 	}
-      associateNeighbour(NE,hit,hits,false);
+      associateNeighbour(NE,hit,hits,refProd,1,1,0);
       navigator.home();
 
       S = navigator.south();
-      associateNeighbour(S,hit,hits,true);
+      associateNeighbour(S,hit,hits,refProd,0,-1,0);
       
       if (S !=DetId(0)) {
 	SW = navigator.west();
@@ -82,11 +66,11 @@ class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
 	W=navigator.west();
 	SW=navigator.south();
       }
-      associateNeighbour(SW,hit,hits,false);
+      associateNeighbour(SW,hit,hits,refProd,-1,-1,0);
       navigator.home();
 
       E = navigator.east();
-      associateNeighbour(E,hit,hits,true);
+      associateNeighbour(E,hit,hits,refProd,1,0,0);
       
       if (E !=DetId(0)) {
 	SE = navigator.south();
@@ -95,12 +79,12 @@ class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
 	S=navigator.south();
 	SE=navigator.east();
       }
-      associateNeighbour(SE,hit,hits,false);
+      associateNeighbour(SE,hit,hits,refProd,1,-1,0);
       navigator.home();
 
 
       W = navigator.west();
-      associateNeighbour(W,hit,hits,true);
+      associateNeighbour(W,hit,hits,refProd,-1,0,0);
 
       if (W !=DetId(0)) {
 	NW = navigator.north();
@@ -109,22 +93,84 @@ class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
 	N=navigator.north();
 	NW=navigator.west();
       }
-      associateNeighbour(NW,hit,hits,false);
+      associateNeighbour(NW,hit,hits,refProd,-1,1,0);
   }
 
 
 
  protected:
-  T *topology_;
+  const T *topology_;
 
 
 };
 
+class PFRecHitEcalBarrelNavigator : public PFRecHitCaloNavigator<EBDetId,EcalBarrelTopology> {
+ public:
+  PFRecHitEcalBarrelNavigator(const edm::ParameterSet& iConfig) {
+
+  }
+
+  void beginEvent(const edm::EventSetup& iSetup) {
+    edm::ESHandle<CaloGeometry> geoHandle;
+    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    topology_ = new EcalBarrelTopology(geoHandle);
+  }
+};
+
+class PFRecHitEcalEndcapNavigator : public PFRecHitCaloNavigator<EEDetId,EcalEndcapTopology> {
+ public:
+  PFRecHitEcalEndcapNavigator(const edm::ParameterSet& iConfig) {
+
+  }
+
+  void beginEvent(const edm::EventSetup& iSetup) {
+    edm::ESHandle<CaloGeometry> geoHandle;
+    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    topology_ = new EcalEndcapTopology(geoHandle);
+  }
+};
+
+class PFRecHitPreshowerNavigator : public PFRecHitCaloNavigator<ESDetId,EcalPreshowerTopology> {
+ public:
+  PFRecHitPreshowerNavigator(const edm::ParameterSet& iConfig) {
+
+  }
 
 
-typedef  PFRecHitCaloNavigator<EBDetId,EcalBarrelTopology> PFRecHitEcalBarrelNavigator;
-typedef  PFRecHitCaloNavigator<EEDetId,EcalEndcapTopology> PFRecHitEcalEndcapNavigator;
-typedef  PFRecHitCaloNavigator<ESDetId,EcalPreshowerTopology> PFRecHitPreshowerNavigator;
+  void beginEvent(const edm::EventSetup& iSetup) {
+    edm::ESHandle<CaloGeometry> geoHandle;
+    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    topology_ = new EcalPreshowerTopology(geoHandle);
+  }
+};
+
+
+class PFRecHitHCALNavigator : public PFRecHitCaloNavigator<HcalDetId,HcalTopology> {
+ public:
+  PFRecHitHCALNavigator(const edm::ParameterSet& iConfig) {
+
+  }
+
+
+  void beginEvent(const edm::EventSetup& iSetup) {
+      edm::ESHandle<HcalTopology> hcalTopology;
+      iSetup.get<IdealGeometryRecord>().get( hcalTopology );
+      topology_ = hcalTopology.product();
+  }
+};
+
+
+class PFRecHitCaloTowerNavigator : public PFRecHitCaloNavigator<CaloTowerDetId,CaloTowerTopology> {
+ public:
+  PFRecHitCaloTowerNavigator(const edm::ParameterSet& iConfig) {
+
+  }
+
+
+  void beginEvent(const edm::EventSetup& iSetup) {
+      topology_ = new CaloTowerTopology();
+  }
+};
 
 
 #endif

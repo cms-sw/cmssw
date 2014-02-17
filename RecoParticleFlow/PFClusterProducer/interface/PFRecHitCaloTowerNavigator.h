@@ -51,7 +51,7 @@ class PFRecHitCaloTowerNavigator : public PFRecHitNavigatorBase {
 	  E=navigator.east();
 	  NE=navigator.north();
 	}
-      associateNeighbour(NE,hit,hits,false);
+      associateNeighbour(NE,hit,hits,1,1,0);
       navigator.home();
 
       S = navigator.south();

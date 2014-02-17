@@ -229,7 +229,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 						  PFLayer::HCAL_BARREL1, 
 						  hcalBarrelGeometry,
 						  ct.id() );
-		  pfrhCleaned->setRescale(rescaleFactor);
+		  pfrhCleaned->setTime(rescaleFactor);
 		  energy *= rescaleFactor;
 		}
 		pfrh = createHcalRecHit( detid, 
@@ -237,7 +237,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 					 PFLayer::HCAL_BARREL1, 
 					 hcalBarrelGeometry,
 					 ct.id() );
-		pfrh->setRescale(rescaleFactor);
+		pfrh->setTime(rescaleFactor);
 	      }
 	      break;
 	    case HcalEndcap:
@@ -251,7 +251,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 						  PFLayer::HCAL_ENDCAP, 
 						  hcalEndcapGeometry,
 						  ct.id() );
-		  pfrhCleaned->setRescale(rescaleFactor);
+		  pfrhCleaned->setTime(rescaleFactor);
 		  energy *= rescaleFactor;
 		}
 		pfrh = createHcalRecHit( detid, 
@@ -259,7 +259,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 					 PFLayer::HCAL_ENDCAP, 
 					 hcalEndcapGeometry,
 					 ct.id() );
-		pfrh->setRescale(rescaleFactor);
+		pfrh->setTime(rescaleFactor);
 	      }
 	      break;
 	    case HcalOuter:
@@ -330,7 +330,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 						       PFLayer::HF_HAD, 
 						       hcalEndcapGeometry,
 						       ct.id() );
-		  pfrhHFHADCleaned->setRescale(theShortHit->time());
+		  pfrhHFHADCleaned->setTime(theShortHit->time());
 		  /*
 		  std::cout << "ieta/iphi = " << ieta << " " << iphi 
 			    << ", Energy em/had/long/short = " 
@@ -358,7 +358,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 						      PFLayer::HF_EM, 
 						      hcalEndcapGeometry,
 						      ct.id());
-		  pfrhHFEMCleaned->setRescale(theLongHit->time());
+		  pfrhHFEMCleaned->setTime(theLongHit->time());
 		  /*
 		  std::cout << "ieta/iphi = " << ieta << " " << iphi 
 			    << ", Energy em/had/long/short = " 
@@ -393,7 +393,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 							 PFLayer::HF_HAD, 
 							 hcalEndcapGeometry,
 							 ct.id() );
-		    pfrhHFHADCleaned->setRescale(theShortHit->time());
+		    pfrhHFHADCleaned->setTime(theShortHit->time());
 		    /*
 		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
 			      << ", Energy em/had/long/short = " 
@@ -431,7 +431,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 						      PFLayer::HF_EM, 
 						      hcalEndcapGeometry,
 						      ct.id() );
-		    pfrhHFEMCleaned->setRescale(theLongHit->time());
+		    pfrhHFEMCleaned->setTime(theLongHit->time());
 		    /*
 		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
 			      << ", Energy em/had/long/short = " 
@@ -461,7 +461,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 							  PFLayer::HF_EM, 
 							  hcalEndcapGeometry,
 							  ct.id() );
-		    pfrhHFEMCleaned29->setRescale(theLongHit->time());
+		    pfrhHFEMCleaned29->setTime(theLongHit->time());
 		    /*
 		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
 			      << ", Energy em/had/long/short = " 
@@ -479,7 +479,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 							   PFLayer::HF_HAD, 
 							   hcalEndcapGeometry,
 							   ct.id());
-		    pfrhHFHADCleaned29->setRescale(theShortHit->time());
+		    pfrhHFHADCleaned29->setTime(theShortHit->time());
 		    /*
 		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
 			      << ", Energy em/had/long/short = " 
@@ -544,7 +544,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 							  PFLayer::HF_EM, 
 							  hcalEndcapGeometry,
 							  ct.id() );
-		    pfrhHFEMCleaned29->setRescale(theLongHit29->time());
+		    pfrhHFEMCleaned29->setTime(theLongHit29->time());
 		    /*
 		    std::cout << "ieta/iphi = " << ieta29 << " " << iphi 
 			      << ", Energy em/had/long/short = " 
@@ -571,7 +571,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 							 PFLayer::HF_HAD, 
 							 hcalEndcapGeometry,
 							 ct.id() );
-		    pfrhHFHADCleaned29->setRescale(theShortHit29->time());
+		    pfrhHFHADCleaned29->setTime(theShortHit29->time());
 		    /*
 		    std::cout << "ieta/iphi = " << ieta29 << " " << iphi 
 			      << ", Energy em/had/long/short = " 
@@ -607,7 +607,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 							   PFLayer::HF_HAD, 
 							   hcalEndcapGeometry,
 							   ct.id() );
-		      pfrhHFHADCleaned29->setRescale(theShortHit29->time());
+		      pfrhHFHADCleaned29->setTime(theShortHit29->time());
 		      /*
 		      std::cout << "ieta/iphi = " << ieta29 << " " << iphi 
 				<< ", Energy em/had/long/short = " 
@@ -645,7 +645,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 							    PFLayer::HF_EM, 
 							    hcalEndcapGeometry,
 							    ct.id() );
-		      pfrhHFEMCleaned29->setRescale(theLongHit29->time());
+		      pfrhHFEMCleaned29->setTime(theLongHit29->time());
 		      /* 
 		      std::cout << "ieta/iphi = " << ieta29 << " " << iphi 
 				<< ", Energy em/had/long/short = " 
@@ -672,7 +672,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 							  PFLayer::HF_EM, 
 							  hcalEndcapGeometry,
 							  ct.id() );
-		    pfrhHFEMCleaned29->setRescale(theLongHit29->time());
+		    pfrhHFEMCleaned29->setTime(theLongHit29->time());
 		    /*
 		    std::cout << "ieta/iphi = " << ieta29 << " " << iphi 
 			      << ", Energy L29/S29/L30/S30 = " 
@@ -690,7 +690,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 							   PFLayer::HF_HAD, 
 							   hcalEndcapGeometry,
 							   ct.id() );
-		    pfrhHFHADCleaned29->setRescale(theShortHit29->time());
+		    pfrhHFHADCleaned29->setTime(theShortHit29->time());
 		    /*
 		    std::cout << "ieta/iphi = " << ieta << " " << iphi 
 			      << ", Energy L29/S29/L30/S30 = " 
@@ -734,8 +734,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 						PFLayer::HF_HAD, 
 						hcalEndcapGeometry,
 						ct.id() );
-		  pfrhHFEM->setEnergyUp(energyhadHF);
-		  pfrhHFHAD->setEnergyUp(energyemHF);
+
 		}
 		
 	      }
@@ -783,16 +782,32 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
   }
 
    //ok now do navigation
+   //create a refprod here
+
+   edm::RefProd<reco::PFRecHitCollection> refProd = 
+     iEvent.getRefBeforePut<reco::PFRecHitCollection>();
+
+
    for( unsigned int i=0;i<rechits->size();++i) {
-     navigator_->associateNeighbours(rechits->at(i),rechits);
+     navigator_->associateNeighbours(rechits->at(i),rechits,refProd);
    }
 
     if   (navigation_HF_) {
+
+      edm::RefProd<reco::PFRecHitCollection> refProdEM = 
+	iEvent.getRefBeforePut<reco::PFRecHitCollection>("HFEM");
+
+
       for( unsigned int i=0;i<HFEMRecHits->size();++i) {
-        navigator_->associateNeighbours(HFEMRecHits->at(i),HFEMRecHits);
+        navigator_->associateNeighbours(HFEMRecHits->at(i),HFEMRecHits,refProdEM);
       }
+
+      edm::RefProd<reco::PFRecHitCollection> refProdHAD = 
+	iEvent.getRefBeforePut<reco::PFRecHitCollection>("HFHAD");
+
+
       for( unsigned int i=0;i<HFHADRecHits->size();++i) {
-        navigator_->associateNeighbours(HFHADRecHits->at(i),HFHADRecHits);
+        navigator_->associateNeighbours(HFHADRecHits->at(i),HFHADRecHits,refProdHAD);
       }
     }
 

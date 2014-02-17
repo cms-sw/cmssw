@@ -120,7 +120,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	}
 	  
 	if(keep) {
-	  rh.setRescale(time);
+	  rh.setTime(time);
 	  out->push_back(rh);
 	}
 	else if (rcleaned) 

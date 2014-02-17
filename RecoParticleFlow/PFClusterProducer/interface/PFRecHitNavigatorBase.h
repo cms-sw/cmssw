@@ -28,19 +28,16 @@ class PFRecHitNavigatorBase {
   PFRecHitNavigatorBase(const edm::ParameterSet& iConfig) {}
 
   virtual void beginEvent(const edm::EventSetup&)=0;
-  virtual void associateNeighbours(reco::PFRecHit&,std::auto_ptr<reco::PFRecHitCollection>&)=0;
+  virtual void associateNeighbours(reco::PFRecHit&,std::auto_ptr<reco::PFRecHitCollection>&,edm::RefProd<reco::PFRecHitCollection>&)=0;
+
 
  protected:
 
-  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,bool is4 = false) {
+  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi,short depth) {
     for( unsigned int i=0;i<hits->size();++i) 
       if (hits->at(i).detId()==id.rawId()) {
-	if( is4) {
-	  hit.add4Neighbour(i);
-	}
-	else {
-	  hit.add8Neighbour(i);
-	}
+	reco::PFRecHitRef ref(refProd,i);
+	hit.addNeighbour(eta,phi,depth,ref);
 	break;
       }
   }

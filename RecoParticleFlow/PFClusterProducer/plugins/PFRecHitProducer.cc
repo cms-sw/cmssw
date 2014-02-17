@@ -45,8 +45,12 @@ void
      creators_.at(i)->importRecHits(out,cleaned,iEvent,iSetup);
    }
 
+   //create a refprod here
+   edm::RefProd<reco::PFRecHitCollection> refProd = 
+     iEvent.getRefBeforePut<reco::PFRecHitCollection>();
+
    for( unsigned int i=0;i<out->size();++i) {
-     navigator_->associateNeighbours(out->at(i),out);
+     navigator_->associateNeighbours(out->at(i),out,refProd);
    }
 
    iEvent.put(out,"");
