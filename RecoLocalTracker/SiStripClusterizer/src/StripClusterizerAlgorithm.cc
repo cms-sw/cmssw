@@ -55,6 +55,11 @@ initialize(const edm::EventSetup& es) {
     for (auto const & c : conn) { if (!isModuleBad(c.first)) detIds.push_back(c.first);}
     indices.clear();
     indices.resize(detIds.size());
+    COUT << "good detIds " << detIds.size() << std::endl;
+
+    if (0==detIds.size()) {
+       ind=0; detId=0; return;
+    }
 
     {
       connections.clear();
@@ -118,6 +123,10 @@ initialize(const edm::EventSetup& es) {
       assert(nn<=dum.size());
       COUT << "gain " << dum.size() << " " <<nn<< std::endl;
     }
+  }
+
+  if (0==detIds.size()) {
+       ind=0; detId=0; return;
   }
 
   // initalize first det
