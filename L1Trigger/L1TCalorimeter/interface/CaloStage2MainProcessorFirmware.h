@@ -42,8 +42,9 @@ namespace l1t {
     //    CaloParams const & m_params;
     FirmwareVersion const & m_fwv;
  
-    CaloStage2ClusterAlgorithm* m_clusterAlgo;
+    CaloStage2ClusterAlgorithm* m_egClusterAlgo;
     CaloStage2EGammaAlgorithm* m_egAlgo;
+    CaloStage2ClusterAlgorithm* m_tauClusterAlgo;
     CaloStage2TauAlgorithm* m_tauAlgo;
     CaloStage2JetAlgorithm* m_jetAlgo;
     CaloStage2EtSumAlgorithm* m_sumAlgo;

@@ -19,10 +19,10 @@
 namespace l1t {
 
   // Imp1 is for v1 and v2
-  class CaloStage2EtSumAlgorithmFirmware1 : public CaloStage2EtSumAlgorithm {
+  class CaloStage2EtSumAlgorithmFirmwareImp1 : public CaloStage2EtSumAlgorithm {
   public:
-    CaloStage2EtSumAlgorithmFirmware1(); //const CaloParams & dbPars);
-    virtual ~CaloStage2EtSumAlgorithmFirmware1();
+    CaloStage2EtSumAlgorithmFirmwareImp1(); //const CaloParams & dbPars);
+    virtual ~CaloStage2EtSumAlgorithmFirmwareImp1();
     virtual void processEvent(const std::vector<l1t::CaloTower> & towers,
 			      std::vector<l1t::EtSum> & sums);
   private:

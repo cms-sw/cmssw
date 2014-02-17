@@ -14,8 +14,10 @@
 #define CaloStage2EGammaAlgorithm_h
 
 #include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
+
 
 #include <vector>
 
@@ -24,7 +26,8 @@ namespace l1t {
     
   class CaloStage2EGammaAlgorithm { 
   public:
-    virtual void processEvent(const std::vector<l1t::CaloCluster> & clusters,
+    virtual void processEvent(const std::vector<l1t::CaloCluster> & clusters, 
+			      const std::vector<CaloTower>& towers,
 			      std::vector<l1t::EGamma> & egammas) = 0;    
 
     virtual ~CaloStage2EGammaAlgorithm(){};
