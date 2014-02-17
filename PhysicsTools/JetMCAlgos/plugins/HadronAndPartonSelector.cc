@@ -10,9 +10,11 @@
  * to these particles in the event. The following hadrons are selected:
  *
  * - b hadrons that do not have other b hadrons as daughters
+ * 
  * - c hadrons that do not have other c hadrons as daughters or a b hadron as mother
  *
  * The parton selection is generator-specific and is described in each of the parton selectors individually.
+ * 
  * The producer attempts to automatically determine what generator was used to hadronize events in order to determine
  * what parton selection mode to use. It is also possible to enforce any of the supported parton selection modes.
  *
@@ -45,12 +47,14 @@
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 #include "PhysicsTools/JetMCAlgos/interface/BasePartonSelector.h"
-#include "PhysicsTools/JetMCAlgos/interface/PythiaPartonSelector.h"
+#include "PhysicsTools/JetMCAlgos/interface/Pythia6PartonSelector.h"
+#include "PhysicsTools/JetMCAlgos/interface/Pythia8PartonSelector.h"
+#include "PhysicsTools/JetMCAlgos/interface/Herwig6PartonSelector.h"
 
 //
 // constants, enums and typedefs
 //
-typedef boost::shared_ptr<BasePartonSelector>  PartonSelectorPtr;
+typedef boost::shared_ptr<BasePartonSelector> PartonSelectorPtr;
 
 //
 // class declaration
@@ -134,19 +138,36 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
        partonMode_="Pythia6";
      else if( moduleName.find("Pythia8")!=std::string::npos )
        partonMode_="Pythia8";
+     else if( moduleName.find("Herwig6")!=std::string::npos )
+       partonMode_="Herwig6";
      else
        partonMode_="Undefined";
    }
 
-   // set the parton selection mode
-   if ( partonMode_=="Undefined" )
-     edm::LogWarning("UndefinedPartonMode") << "Could not automatically determine the hadronizer type and set the correct parton selection mode. Parton-based jet flavour will not be defined.";
-   else if ( partonMode_=="Pythia6" || partonMode_=="Pythia8" )
-     partonSelector_ = PartonSelectorPtr( new PythiaPartonSelector() );
-   else
-     //throw cms::Exception("InvalidPartonMode") <<"Parton selection mode is invalid: " << partonMode_ << ", use Auto | Pythia6 | Pythia8 | Herwig6 | Herwig++ | Sherpa" << std::endl;
-     throw cms::Exception("InvalidPartonMode") <<"Parton selection mode is invalid: " << partonMode_ << ", use Auto | Pythia6 | Pythia8" << std::endl;
-
+   // set the parton selection mode (done only once per job)
+   if( !partonSelector_ )
+   {
+     if ( partonMode_=="Undefined" )
+       edm::LogWarning("UndefinedPartonMode") << "Could not automatically determine the hadronizer type and set the correct parton selection mode. Parton-based jet flavour will not be defined.";
+     else if ( partonMode_=="Pythia6" )
+     {
+       partonSelector_ = PartonSelectorPtr( new Pythia6PartonSelector() );
+       edm::LogInfo("PartonModeDefined") << "Using Pythia6 parton selection mode.";
+     }
+     else if ( partonMode_=="Pythia8" )
+     {
+       partonSelector_ = PartonSelectorPtr( new Pythia8PartonSelector() );
+       edm::LogInfo("PartonModeDefined") << "Using Pythia8 parton selection mode.";
+     }
+     else if ( partonMode_=="Herwig6" )
+     {
+       partonSelector_ = PartonSelectorPtr( new Herwig6PartonSelector() );
+       edm::LogInfo("PartonModeDefined") << "Using Herwig6 parton selection mode.";
+     }
+     else
+       //throw cms::Exception("InvalidPartonMode") <<"Parton selection mode is invalid: " << partonMode_ << ", use Auto | Pythia6 | Pythia8 | Herwig6 | Herwig++ | Sherpa" << std::endl;
+       throw cms::Exception("InvalidPartonMode") <<"Parton selection mode is invalid: " << partonMode_ << ", use Auto | Pythia6 | Pythia8 | Herwig6" << std::endl;
+   }
 
    edm::Handle<reco::GenParticleCollection> particles;
    iEvent.getByLabel(particles_, particles);
