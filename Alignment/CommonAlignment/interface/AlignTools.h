@@ -5,8 +5,8 @@
  *
  *  Tools for comparing alignables
  *
- *  $Date: 2008/06/17 12:46:54 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/02/17 13:56:41 $
+ *  $Revision: 1.6 $
  *  \author Nhan Tran
  */
 

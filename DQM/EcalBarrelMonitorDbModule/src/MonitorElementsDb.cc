@@ -1,11 +1,11 @@
-// $Id: MonitorElementsDb.cc,v 1.23 2011/09/15 21:00:17 yiiyama Exp $
+// $Id: MonitorElementsDb.cc,v 1.24 2012/02/28 16:38:09 yiiyama Exp $
 
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data
   \author B. Gobbo
-  \version $Revision: 1.23 $
-  \date $Date: 2011/09/15 21:00:17 $
+  \version $Revision: 1.24 $
+  \date $Date: 2012/02/28 16:38:09 $
 */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"

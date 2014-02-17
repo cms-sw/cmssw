@@ -1,5 +1,5 @@
 //
-// $Id: MET.cc,v 1.15 2010/08/09 14:39:02 mbluj Exp $
+// $Id: MET.cc,v 1.16 2013/02/19 16:18:45 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/MET.h"

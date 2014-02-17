@@ -1,4 +1,4 @@
-// $Id: Halted.cc,v 1.10 2010/08/06 20:24:31 wmtan Exp $
+// $Id: Halted.cc,v 1.11 2011/11/08 10:48:40 mommsen Exp $
 /// @file: Halted.cc
 
 #include "EventFilter/StorageManager/interface/AlarmHandler.h"

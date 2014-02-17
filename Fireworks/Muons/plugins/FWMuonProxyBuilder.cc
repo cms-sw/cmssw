@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
-// $Id: FWMuonProxyBuilder.cc,v 1.12 2010/07/30 08:36:01 yana Exp $
+// $Id: FWMuonProxyBuilder.cc,v 1.13 2010/08/19 13:39:17 yana Exp $
 //
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"

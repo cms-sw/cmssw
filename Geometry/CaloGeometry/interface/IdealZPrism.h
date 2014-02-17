@@ -20,8 +20,8 @@ Internally, the "point of reference" is the center (eta/phi) of the
 front face of the prism.  Therefore, the only internally stored
 parameters are eta and phi HALF-widths and the tower z thickness.
 
-$Date: 2010/04/20 17:23:11 $
-$Revision: 1.8 $
+$Date: 2011/05/29 18:06:58 $
+$Revision: 1.9 $
 \author J. Mans - Minnesota
 */
 class IdealZPrism : public CaloCellGeometry 

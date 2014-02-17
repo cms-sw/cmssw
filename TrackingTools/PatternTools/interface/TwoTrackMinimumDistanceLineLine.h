@@ -1,4 +1,4 @@
-/* $Id: TwoTrackMinimumDistanceLineLine.h,v 1.1 2007/07/03 14:15:47 speer Exp $ */
+/* $Id: TwoTrackMinimumDistanceLineLine.h,v 1.2 2008/05/02 19:52:24 burkett Exp $ */
 #ifndef _Tracker_TwoTrackMinimumDistanceLineLine_H_
 #define _Tracker_TwoTrackMinimumDistanceLineLine_H_
 

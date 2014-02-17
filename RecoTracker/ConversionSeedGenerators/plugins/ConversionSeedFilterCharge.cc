@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Thu Mar 11 10:48:48 CET 2010
-// $Id: ConversionSeedFilterCharge.cc,v 1.1 2011/08/01 13:20:53 vlimant Exp $
+// $Id: ConversionSeedFilterCharge.cc,v 1.2 2011/12/23 05:38:40 innocent Exp $
 //
 //
 

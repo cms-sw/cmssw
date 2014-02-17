@@ -1,4 +1,4 @@
-// $Id: MonitorCollection.h,v 1.5.14.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: MonitorCollection.h,v 1.6 2011/03/07 15:31:32 mommsen Exp $
 /// @file: MonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_MonitorCollection_h
@@ -18,8 +18,8 @@ namespace stor {
    * An abstract collection of MonitoredQuantities
    *
    * $Author: mommsen $
-   * $Revision: 1.5.14.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.6 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class MonitorCollection

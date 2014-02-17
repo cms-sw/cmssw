@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul 15 15:05:10 EDT 2010
-// $Id$
+// $Id: ModuleChanger.cc,v 1.1 2010/07/22 15:00:28 chrjones Exp $
 //
 
 // system include files

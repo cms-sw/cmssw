@@ -6,8 +6,8 @@
  *  The tmax histograms can be fitted using exactly the same code that is
  *  used by the calibration application.
  *
- *  $Date: 2006/11/28 14:31:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/22 11:11:10 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 

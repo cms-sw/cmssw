@@ -1,5 +1,5 @@
 //
-//     $Id: RunHitFit.h,v 1.30 2010/09/05 17:21:27 haryo Exp $
+//     $Id: RunHitFit.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
 //
 
 /**

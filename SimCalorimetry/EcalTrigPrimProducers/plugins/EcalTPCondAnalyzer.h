@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Wed Oct 15  11:38:38 CEST 2008
-// $Id: EcalTPCondAnalyzer.h,v 1.4 2010/07/07 10:06:28 ebecheva Exp $
+// $Id: EcalTPCondAnalyzer.h,v 1.5 2011/03/09 13:10:32 ebecheva Exp $
 //
 //
 

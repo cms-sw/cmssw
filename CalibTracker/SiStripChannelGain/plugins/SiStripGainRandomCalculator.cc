@@ -3,7 +3,7 @@
 // Class:      SiStripGainRandomCalculator
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainRandomCalculator.cc,v 1.6 2009/05/27 11:40:29 fabiocos Exp $
+// $Id: SiStripGainRandomCalculator.cc,v 1.7 2010/04/12 23:23:46 elmer Exp $
 
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainRandomCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

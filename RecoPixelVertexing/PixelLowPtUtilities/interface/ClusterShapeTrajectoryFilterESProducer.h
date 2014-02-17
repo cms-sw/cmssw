@@ -17,7 +17,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Sep 28 18:07:52 CEST 2007
-// $Id: ClusterShapeTrajectoryFilterESProducer.h,v 1.1 2007/11/16 13:12:46 sikler Exp $
+// $Id: ClusterShapeTrajectoryFilterESProducer.h,v 1.2 2009/02/26 15:07:47 sikler Exp $
 //
 //
 

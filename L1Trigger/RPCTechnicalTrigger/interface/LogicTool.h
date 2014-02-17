@@ -1,4 +1,4 @@
-// $Id: LogicTool.h,v 1.2 2009/06/17 15:27:23 aosorio Exp $
+// $Id: LogicTool.h,v 1.3 2009/08/09 11:11:36 aosorio Exp $
 #ifndef LOGICTOOL_H 
 #define LOGICTOOL_H 1
 

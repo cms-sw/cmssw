@@ -1,7 +1,7 @@
 //
 // Original Author:  Stefano Magni
 //         Created:  Fri Mar  9 10:52:11 CET 2007
-// $Id: TrackAssociatorEDProducer.cc,v 1.6 2009/02/03 17:31:24 vlimant Exp $
+// $Id: TrackAssociatorEDProducer.cc,v 1.7 2009/11/13 14:15:53 fambrogl Exp $
 //
 //
 

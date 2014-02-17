@@ -13,8 +13,8 @@
     
    This class sets status bit in the status words for the revised CaloRecHit objets using comparisons between the rec hit energies of long and short fibers for a given HF (ieat, iphi)
     
-   $Date: 2010/01/21 15:43:19 $
-   $Revision: 1.3 $
+   $Date: 2010/01/21 21:01:57 $
+   $Revision: 1.4 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 

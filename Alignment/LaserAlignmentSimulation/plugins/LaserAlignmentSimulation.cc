@@ -1,8 +1,8 @@
 /** \file LaserAlignmentSimulation.cc
  *  SimWatcher for the simulation of the Laser Alignment System of the CMS Tracker
  *
- *  $Date: 2010/02/25 00:27:58 $
- *  $Revision: 1.6 $
+ *  $Date: 2012/11/02 19:08:11 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 

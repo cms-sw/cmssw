@@ -6,7 +6,7 @@
 // Class  :     PEcalTBInfo
 // 
 //
-// $Id: PEcalTBInfo.h,v 1.1 2006/05/30 16:43:42 fabiocos Exp $
+// $Id: PEcalTBInfo.h,v 1.2 2006/10/25 16:58:04 fabiocos Exp $
 //
 
 // system include files

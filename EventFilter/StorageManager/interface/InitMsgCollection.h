@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.h,v 1.14 2011/03/22 16:27:00 mommsen Exp $
+// $Id: InitMsgCollection.h,v 1.15 2012/04/20 10:48:18 mommsen Exp $
 /// @file: InitMsgCollection.h 
 
 #ifndef EventFilter_StorageManager_InitMsgCollection_h
@@ -25,8 +25,8 @@ namespace stor
      to event consumers and written to output streams.
 
      $Author: mommsen $
-     $Revision: 1.14 $
-     $Date: 2011/03/22 16:27:00 $
+     $Revision: 1.15 $
+     $Date: 2012/04/20 10:48:18 $
   */
 
   typedef std::vector<unsigned char> InitMsgBuffer;

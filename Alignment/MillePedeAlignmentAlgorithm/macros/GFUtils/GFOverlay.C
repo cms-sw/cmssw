@@ -1,6 +1,6 @@
 //   Author:      Gero Flucke
 //   Date:        October 2007
-//   last update: $Date: 2012/03/29 08:48:50 $  
+//   last update: $Date: 2012/05/12 19:14:58 $  
 //   by:          $Author: flucke $
 
 #include "GFOverlay.h"

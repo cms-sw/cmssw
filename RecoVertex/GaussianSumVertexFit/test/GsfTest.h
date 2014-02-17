@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: GsfTest.h,v 1.2 2007/12/20 09:52:08 speer Exp $
+// $Id: GsfTest.h,v 1.3 2010/01/21 10:52:45 adamwo Exp $
 //
 //
 

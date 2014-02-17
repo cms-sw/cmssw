@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Nov 14 15:02:06 CET 2007
-// $Id: SiPixelGainCalibrationAnalysis.h,v 1.22 2009/05/28 22:19:06 dlange Exp $
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.23 2009/07/07 15:52:36 rougny Exp $
 //
 //
 

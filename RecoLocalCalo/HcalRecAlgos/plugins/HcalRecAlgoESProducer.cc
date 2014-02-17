@@ -13,7 +13,7 @@
 //
 // Original Author:  Radek Ofierzynski
 //         Created:  Mon Feb  9 10:59:46 CET 2009
-// $Id$
+// $Id: HcalRecAlgoESProducer.cc,v 1.1 2009/02/09 16:51:44 rofierzy Exp $
 //
 //
 

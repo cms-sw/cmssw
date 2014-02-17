@@ -14,7 +14,7 @@
     (An adapter exists for use in CMSSW: reco::modules::ParameterAdapter< pat::ElectronSelector >.)
 
     \author F.J. Ronga (ETH Zurich)
-    \version $Id: ElectronSelector.h,v 1.11 2008/03/11 13:43:39 fronga Exp $
+    \version $Id: ElectronSelector.h,v 1.12 2008/04/09 12:05:13 llista Exp $
 **/
 
 #include <string>

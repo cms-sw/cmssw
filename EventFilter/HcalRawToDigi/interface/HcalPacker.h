@@ -7,8 +7,8 @@
 
 /** \class HcalPacker
   *  
-  * $Date: 2007/02/19 04:05:40 $
-  * $Revision: 1.1 $
+  * $Date: 2009/11/05 21:51:15 $
+  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class HcalPacker {

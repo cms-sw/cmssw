@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: TrajectorySeedFromMuonProducer.cc,v 1.1 2010/06/22 13:19:57 dmytro Exp $
+// $Id: TrajectorySeedFromMuonProducer.cc,v 1.2 2011/12/22 20:27:05 innocent Exp $
 //
 // Authors: Y.Gao (FNAL)
 //

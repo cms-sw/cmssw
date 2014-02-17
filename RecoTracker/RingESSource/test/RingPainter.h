@@ -9,8 +9,8 @@
 // Created:         Thu Dec  7 08:52:54 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:01:46 $
-// $Revision: 1.1 $
+// $Date: 2007/03/01 07:40:16 $
+// $Revision: 1.2 $
 //
 
 #ifndef RingPainter_h

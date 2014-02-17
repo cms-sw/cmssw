@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:42:52 EDT 2005
-// $Id: T_EventSetup_Efficiency.cc,v 1.3 2008/07/13 06:59:49 innocent Exp $
+// $Id: T_EventSetup_Efficiency.cc,v 1.4 2010/02/20 20:56:02 wmtan Exp $
 //
 
 // system include files

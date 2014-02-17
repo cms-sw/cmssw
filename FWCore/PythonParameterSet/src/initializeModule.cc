@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 11 11:05:58 CST 2011
-// $Id$
+// $Id: initializeModule.cc,v 1.1 2011/01/11 19:25:55 chrjones Exp $
 //
 
 // system include files

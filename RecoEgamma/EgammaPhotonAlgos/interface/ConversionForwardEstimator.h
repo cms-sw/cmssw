@@ -5,8 +5,8 @@
  * \class ConversionForwardEstimator
  *  Defines the search area in the  forward 
  *
- *   $Date: 2007/05/10 13:26:08 $ 
- *   $Revision: 1.4 $
+ *   $Date: 2012/05/29 08:23:53 $ 
+ *   $Revision: 1.5 $
  *  \author Nancy Marinelli, U. of Notre Dame, US
  */
 

@@ -10,7 +10,7 @@
  *
  * \author Dmytro Kovalskyi, UCSB
  *
- * \version $Id: CaloMuon.h,v 1.3 2008/04/30 22:58:14 dmytro Exp $
+ * \version $Id: CaloMuon.h,v 1.4 2009/03/15 03:33:32 dmytro Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"

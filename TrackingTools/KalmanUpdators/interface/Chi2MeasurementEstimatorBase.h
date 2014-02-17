@@ -5,8 +5,8 @@
  *  A base class for  Chi2 -- type of Measurement Estimators. 
  *  Implements common functionality. Ported from ORCA.
  *
- *  $Date: 2007/12/19 16:44:46 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/05/29 08:23:57 $
+ *  $Revision: 1.4 $
  *  \author todorov, cerati
  */
 

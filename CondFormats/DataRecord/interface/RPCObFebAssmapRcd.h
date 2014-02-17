@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Thu Mar 26 18:13:51 CET 2009
-// $Id$
+// $Id: RPCObFebAssmapRcd.h,v 1.1 2009/03/26 17:15:11 dpagano Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

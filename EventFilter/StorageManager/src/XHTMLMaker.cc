@@ -1,4 +1,4 @@
-// $Id: XHTMLMaker.cc,v 1.11 2011/03/07 15:31:32 mommsen Exp $
+// $Id: XHTMLMaker.cc,v 1.12 2011/07/07 09:22:45 mommsen Exp $
 /// @file: XHTMLMaker.cc
 
 #include "EventFilter/StorageManager/interface/XHTMLMaker.h"

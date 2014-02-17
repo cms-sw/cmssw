@@ -1,4 +1,4 @@
-// $Id: FragmentQueue.h,v 1.3.16.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: FragmentQueue.h,v 1.4 2011/03/07 15:31:32 mommsen Exp $
 /// @file: FragmentQueue.h 
 
 #ifndef EventFilter_StorageManager_FragmentQueue_h
@@ -14,8 +14,8 @@ namespace stor {
    * Queue holding I2OChains of event fragments 
    *
    * $Author: mommsen $
-   * $Revision: 1.3.16.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.4 $
+   * $Date: 2011/03/07 15:31:32 $
    */
 
   typedef ConcurrentQueue<I2OChain> FragmentQueue;

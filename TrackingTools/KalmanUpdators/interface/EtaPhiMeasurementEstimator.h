@@ -7,8 +7,8 @@
  *  BoundPlane. The TrajectoryState must have errors.
  *  Works for any RecHit dimension. Ported from ORCA.
  *
- *  $Date: 2010/03/23 08:34:50 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/05/27 11:40:01 $
+ *  $Revision: 1.1 $
  *  tschudi
  */
 

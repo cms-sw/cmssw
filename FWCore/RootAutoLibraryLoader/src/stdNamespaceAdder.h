@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Dec  6 09:18:09 EST 2005
-// $Id: stdNamespaceAdder.h,v 1.2 2006/08/21 20:10:33 wmtan Exp $
+// $Id: stdNamespaceAdder.h,v 1.1 2006/12/16 13:31:42 wmtan Exp $
 //
 
 // system include files

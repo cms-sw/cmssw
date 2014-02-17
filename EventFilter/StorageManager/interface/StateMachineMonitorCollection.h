@@ -1,4 +1,4 @@
-// $Id: StateMachineMonitorCollection.h,v 1.7.10.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: StateMachineMonitorCollection.h,v 1.8 2011/03/07 15:31:32 mommsen Exp $
 /// @file: StateMachineMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_StateMachineMonitorCollection_h
@@ -19,8 +19,8 @@ namespace stor {
    * A collection of monitored quantities related to the state machine
    *
    * $Author: mommsen $
-   * $Revision: 1.7.10.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.8 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class StateMachineMonitorCollection : public MonitorCollection

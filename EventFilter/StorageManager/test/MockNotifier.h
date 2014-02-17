@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: MockNotifier.h,v 1.7.10.1 2011/03/07 11:33:07 mommsen Exp $
+// $Id: MockNotifier.h,v 1.8 2011/03/07 15:31:32 mommsen Exp $
 
 #ifndef MOCKNOTIFIER_H
 #define MOCKNOTIFIER_H

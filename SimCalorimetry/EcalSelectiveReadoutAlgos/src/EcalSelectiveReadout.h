@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.h,v 1.8 2009/06/07 22:38:10 pgras Exp $
+ * $Id: EcalSelectiveReadout.h,v 1.9 2009/10/26 10:41:26 pgras Exp $
  */
 
 #ifndef ECALSELECTIVEREADOUT_H

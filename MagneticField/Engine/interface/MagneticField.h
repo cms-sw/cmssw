@@ -5,8 +5,8 @@
  *
  *  Base class for the different implementation of magnetic field engines.
  *
- *  $Date: 2011/12/10 16:03:31 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/12/10 16:36:11 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - CERN
  */
 

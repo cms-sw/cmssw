@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Mon Nov 16 12:18:42 CET 2009
-// $Id$
+// $Id: RPCObUXCRcd.h,v 1.1 2009/11/16 11:19:31 dpagano Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

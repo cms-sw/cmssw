@@ -16,7 +16,7 @@
 //
 // Original Author:  Monica Vazquez Acosta - CERN
 //         Created:  Tue Jun 13 12:18:35 CEST 2006
-// $Id: EgammaHLTHcalIsolation.h,v 1.3 2007/03/07 09:07:53 monicava Exp $
+// $Id: EgammaHLTHcalIsolation.h,v 1.4 2010/08/12 15:25:02 sharper Exp $
 // modifed by Sam Harper (RAL) 27/7/10
 
 //the class aims to as closely as possible emulate the RECO HCAL isolation

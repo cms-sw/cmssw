@@ -13,7 +13,7 @@
 //
 // Original Author:  Manuel Zeise
 //         Created:  Wed Oct 17 10:06:52 CEST 2007
-// $Id: EmptyEventsFilter.cc,v 1.7 2011/02/18 11:54:29 zeise Exp $
+// $Id: EmptyEventsFilter.cc,v 1.8 2011/04/27 15:54:05 fruboes Exp $
 //
 //
 

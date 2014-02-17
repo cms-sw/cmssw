@@ -1,6 +1,6 @@
 /** \class HLTRapGapFilter
  *
- * $Id: HLTRapGapFilter.cc,v 1.11 2012/01/21 14:57:02 fwyzard Exp $
+ * $Id: HLTRapGapFilter.cc,v 1.12 2012/02/12 09:34:06 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *

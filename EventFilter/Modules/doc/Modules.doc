@@ -6,7 +6,7 @@
 <center>
 <small>
 
-<!-- $Id$ -->
+<!-- $Id: Modules.doc,v 1.1 2007/04/06 23:19:04 hcheung Exp $ -->
 
 <!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
 <a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/Modules/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 

@@ -1,8 +1,8 @@
 /** \file LaserDQMInitMonitors.cc
  *  Initialisation of the DQM Monitors
  *
- *  $Date: 2007/12/04 23:54:44 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/01 13:22:57 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 

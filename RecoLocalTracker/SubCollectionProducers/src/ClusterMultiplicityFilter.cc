@@ -7,7 +7,7 @@
 //
 // Original Author:  Carsten Noeding
 //         Created:  Mon Mar 19 13:51:22 CDT 2007
-// $Id: ClusterMultiplicityFilter.cc,v 1.4 2007/12/27 17:49:33 noeding Exp $
+// $Id: ClusterMultiplicityFilter.cc,v 1.5 2009/12/18 20:45:04 wmtan Exp $
 //
 //
 

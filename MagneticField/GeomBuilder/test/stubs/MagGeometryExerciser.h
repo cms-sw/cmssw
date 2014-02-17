@@ -4,8 +4,8 @@
 /** \class MagGeometryExerciser
  *  No description available.
  *
- *  $Date: 2007/03/09 14:38:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/03/29 14:39:18 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 

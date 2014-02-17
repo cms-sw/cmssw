@@ -7,8 +7,8 @@
 
 /** \class CaloRecHit
  * 
- * $Date: 2011/06/30 15:32:14 $
- * $Revision: 1.8 $
+ * $Date: 2012/06/07 07:57:14 $
+ * $Revision: 1.9 $
  *\author J. Mans - Minnesota
  */
 class CaloRecHit {

@@ -1,5 +1,5 @@
 // F.R.
-// $Id: GenMETFwd.h,v 1.1 2006/08/04 01:21:22 cavana Exp $
+// $Id: GenMETFwd.h,v 1.1 2006/08/04 05:39:28 cavana Exp $
 #ifndef JetReco_GenMETfwd_h
 #define JetReco_GenMETfwd_h
 #include "DataFormats/Common/interface/Ref.h"

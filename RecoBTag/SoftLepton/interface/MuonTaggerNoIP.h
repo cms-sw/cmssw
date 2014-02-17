@@ -10,8 +10,8 @@
  *
  *   Implementation of muon b-tagging using a softmax multilayer perceptron neural network
  *
- *   $Date: 2008/10/01 12:35:34 $
- *   $Revision: 1.5 $
+ *   $Date: 2010/02/26 18:16:18 $
+ *   $Revision: 1.6 $
  *
  *   \author Andrea 'fwyzard' Bocci, Universita' di Firenze
  */

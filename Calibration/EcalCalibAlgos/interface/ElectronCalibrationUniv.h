@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ElectronCalibrationUniv.h,v 1.6 2010/07/30 02:40:20 wmtan Exp $
+// $Id: ElectronCalibrationUniv.h,v 1.7 2011/01/13 18:28:26 beaucero Exp $
 //
 //
 

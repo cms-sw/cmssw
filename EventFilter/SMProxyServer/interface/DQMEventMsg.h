@@ -1,4 +1,4 @@
-// $Id: DQMEventMsg.h,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: DQMEventMsg.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: DQMEventMsg.h 
 
 #ifndef EventFilter_SMProxyServer_DQMEventMsg_h
@@ -18,8 +18,8 @@ namespace smproxy {
    * APIs required for SMPS
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 12:01:12 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:41:54 $
    */
 
   class DQMEventMsg

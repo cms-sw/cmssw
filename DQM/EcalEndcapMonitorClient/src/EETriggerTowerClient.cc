@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2011/09/02 13:55:03 $
- * $Revision: 1.99 $
+ * $Date: 2012/04/27 13:46:08 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

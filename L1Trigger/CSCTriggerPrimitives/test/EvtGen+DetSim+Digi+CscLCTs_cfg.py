@@ -7,7 +7,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.10 $'),
+    version = cms.untracked.string('$Revision: 1.11 $'),
     name = cms.untracked.string("$Source: /local/reps/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs_cfg.py,v $"),
     annotation = cms.untracked.string("SV: single particle gun mu- 50 GeV")
 )

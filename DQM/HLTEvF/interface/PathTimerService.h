@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  David Lange
-// $Id: PathTimerService.h,v 1.5 2007/08/17 14:49:05 bdahmes Exp $
+// $Id: PathTimerService.h,v 1.6 2007/09/14 17:33:32 bdahmes Exp $
 //
 #include "sigc++/signal.h"
 

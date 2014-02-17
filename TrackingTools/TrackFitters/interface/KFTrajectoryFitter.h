@@ -4,8 +4,8 @@
 /** \class KFTrajectoryFitter
  *  A Standard Kalman fit. Ported from ORCA
  *
- *  $Date: 2012/05/29 08:23:57 $
- *  $Revision: 1.14 $
+ *  $Date: 2012/09/01 11:08:33 $
+ *  $Revision: 1.15 $
  *  \author todorov, cerati
  */
 

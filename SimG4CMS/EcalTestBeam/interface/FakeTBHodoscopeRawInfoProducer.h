@@ -3,7 +3,7 @@
 /*
  * \file FakeTBHodoscopeRawInfoProducer.h
  *
- * $Id: FakeTBHodoscopeRawInfoProducer.h,v 1.4 2009/12/14 22:24:19 wmtan Exp $
+ * $Id: FakeTBHodoscopeRawInfoProducer.h,v 1.5 2011/05/20 17:17:34 wmtan Exp $
  *
  * Mimic the hodoscope raw information using 
  * the generated vertex of the test beam simulation 

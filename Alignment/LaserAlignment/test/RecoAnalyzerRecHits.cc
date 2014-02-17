@@ -1,8 +1,8 @@
 /** \file RecoAnalyzerRecHits.cc
 *  plots for RecHits
   *
-  *  $Date: 2008/01/22 19:18:04 $
-  *  $Revision: 1.9 $
+  *  $Date: 2008/11/07 11:04:19 $
+  *  $Revision: 1.10 $
   *  \author Maarten Thomas
  */
 

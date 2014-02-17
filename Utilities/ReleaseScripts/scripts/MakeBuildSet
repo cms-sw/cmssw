@@ -7,8 +7,8 @@ MakeBuildSet - utilizes dependency discovery mechanism for Partial Releases.
               - products dependencies are now taken into consideration
 """
 
-__revision__ = "$Id: MakeBuildSet,v 1.8 2009/07/02 16:39:24 muzaffar Exp $"
-__version__  = "$Revision: 1.8 $"
+__revision__ = "$Id: MakeBuildSet,v 1.9 2011/09/13 08:21:07 muzaffar Exp $"
+__version__  = "$Revision: 1.9 $"
 
 import os
 import sys

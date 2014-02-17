@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.12 2009/12/21 14:46:56 ebecheva Exp $
+// $Id: TestSuite.cc,v 1.13 2012/10/10 14:39:02 wdd Exp $
 //
 //
 

@@ -1,4 +1,4 @@
-// $Id: DataManager.cc,v 1.1.4.3 2011/03/23 14:21:31 mommsen Exp $
+// $Id: DataManager.cc,v 1.3 2011/03/24 17:26:25 mommsen Exp $
 /// @file: DataManager.cc
 
 #include "EventFilter/SMProxyServer/interface/DataManager.h"

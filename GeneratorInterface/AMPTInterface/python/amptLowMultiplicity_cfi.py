@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
-    name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/GeneratorInterface/AMPTInterface/python/amptDefault_cfi.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/AMPTInterface/python/amptLowMultiplicity_cfi.py,v $'),
     annotation = cms.untracked.string('AMPT generator')
 )
 

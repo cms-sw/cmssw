@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Wed Mar 10 12:03:17 CET 2010
-// $Id$
+// $Id: JetCorrectorParametersRecord.h,v 1.1 2010/03/10 17:05:58 hegner Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

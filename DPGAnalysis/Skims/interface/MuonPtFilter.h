@@ -5,8 +5,8 @@
  *
  * EDFilter to select muons above certain Pt
  *
- * $Date: 2012/01/21 14:56:53 $
- * $Revision: 1.2 $
+ * $Date: 2012/01/21 17:11:58 $
+ * $Revision: 1.3 $
  * \author Silvia Goy Lopez - CERN <silvia.goy.lopez@cern.ch>
  *
  */

@@ -3,7 +3,7 @@
 // GFHistArray
 //   Author:      Gero Flucke
 //   Date:        May 31st, 2002
-//   last update: $Date: 2007/04/04 12:33:17 $  
+//   last update: $Date: 2009/01/20 20:21:39 $  
 //   by:          $Author: flucke $
 //
 

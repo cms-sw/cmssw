@@ -16,7 +16,7 @@
 //
 // Author:      I. Volobouev
 // Created:     Tue Jul 31 19:49:12 CDT 2012
-// $Id$
+// $Id: FFTJetCorrectorSequenceRcd.h,v 1.1 2012/11/14 20:05:29 igv Exp $
 //
 
 #include <boost/mpl/vector.hpp>

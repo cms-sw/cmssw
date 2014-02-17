@@ -1,4 +1,4 @@
-// $Id: MockAlarmHandler.h,v 1.5 2011/03/07 15:31:32 mommsen Exp $
+// $Id: MockAlarmHandler.h,v 1.6 2011/11/08 10:48:42 mommsen Exp $
 /// @file: MockAlarmHandler.h 
 
 #ifndef StorageManager_MockAlarmHandler_h

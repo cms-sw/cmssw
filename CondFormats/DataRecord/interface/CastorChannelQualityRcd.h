@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Mon Feb 11 12:15:32 CET 2008
-// $Id: CastorChannelQualityRcd.h,v 1.1 2008/02/15 15:53:03 mccauley Exp $
+// $Id: CastorChannelQualityRcd.h,v 1.1 2008/03/04 10:38:53 katsas Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

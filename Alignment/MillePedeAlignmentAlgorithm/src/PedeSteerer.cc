@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.31 $
- *  $Date: 2011/02/16 13:11:57 $
- *  (last update by $Author: mussgill $)
+ *  $Revision: 1.32 $
+ *  $Date: 2012/06/30 10:19:14 $
+ *  (last update by $Author: eulisse $)
  */
 
 #include "PedeSteerer.h"

@@ -4,8 +4,8 @@
 /** \class MuonPatternRecoDumper
  *  A class to print information used for debugging
  *
- *  $Date: 2006/08/16 10:07:11 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/09/22 10:59:28 $
+ *  $Revision: 1.7 $
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */

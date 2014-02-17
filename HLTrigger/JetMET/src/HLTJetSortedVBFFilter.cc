@@ -2,10 +2,10 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/12 09:34:06 $
+ *  $Date: 2012/02/12 12:21:02 $
 
 
- *  $Revision: 1.5 $
+ *  $Revision: 1.6 $
  *
  *  \author Jacopo Bernardini
  *

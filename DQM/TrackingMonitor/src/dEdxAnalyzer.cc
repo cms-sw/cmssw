@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/10/16 08:42:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/10/16 10:07:42 $
+ *  $Revision: 1.3 $
  *  \author Loic Quertenmont 
  */
 #include "DQM/TrackingMonitor/interface/dEdxAnalyzer.h"

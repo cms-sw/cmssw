@@ -7,7 +7,7 @@
  *
  * \author S. Argiro, F. Rubbo
  *
- * $Id: DOMHelperFunctions.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
+ * $Id: DOMHelperFunctions.h,v 1.2 2009/10/28 13:34:46 argiro Exp $
  */
 
 #include <xercesc/dom/DOMNode.hpp>

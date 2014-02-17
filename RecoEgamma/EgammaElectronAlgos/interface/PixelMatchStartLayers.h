@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchStartLayers.h,v 1.2 2006/06/06 23:20:25 rahatlou Exp $
+// $Id: PixelMatchStartLayers.h,v 1.3 2006/06/08 16:54:51 uberthon Exp $
 //
 //
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h" 

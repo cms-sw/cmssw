@@ -9,7 +9,7 @@
 /** \class EcalTBEventHeader
  *  Container for event ancilllary informations defined in TB raw data formats  
  *
- *  $Id: EcalTBEventHeader.h,v 1.8 2006/11/01 18:02:02 meridian Exp $
+ *  $Id: EcalTBEventHeader.h,v 1.9 2007/01/08 15:30:34 meridian Exp $
  */
 
 

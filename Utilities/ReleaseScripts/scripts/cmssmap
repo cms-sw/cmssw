@@ -1,6 +1,6 @@
 #!/usr/bin/env perl 
 #
-# $Id: cmssmap,v 1.1 2008/07/13 14:39:26 elmer Exp $
+# $Id: cmssmap,v 1.2 2009/12/09 03:21:04 elmer Exp $
 #
 # Script to present, in a simpler format, the smap numbers for a given
 # from /proc/<pid>/smaps. The script is run as:

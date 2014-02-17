@@ -1,4 +1,4 @@
-// $Id: LogicImp.cc,v 1.3 2009/06/17 15:27:24 aosorio Exp $
+// $Id: LogicImp.cc,v 1.4 2009/08/09 11:11:37 aosorio Exp $
 // Include files 
 
 // local

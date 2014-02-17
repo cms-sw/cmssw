@@ -1,6 +1,6 @@
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtHadSimpleBestJetComb.h"
 //
-// $Id: TtHadSimpleBestJetComb.cc,v 1.2 2007/10/07 15:32:57 mfhansen Exp $
+// $Id: TtHadSimpleBestJetComb.cc,v 1.3 2008/02/17 11:27:55 rwolf Exp $
 // adapted Id: TtSemiSimpleBestJetComb.cc,v 1.2 2007/06/09 01:17:40 lowette Exp 
 // for fully hadronic channel
 

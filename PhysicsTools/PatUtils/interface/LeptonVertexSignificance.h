@@ -1,5 +1,5 @@
 //
-// $Id: LeptonVertexSignificance.h,v 1.2 2008/02/28 14:54:24 llista Exp $
+// $Id: LeptonVertexSignificance.h,v 1.3 2008/03/05 14:51:03 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_LeptonVertexSignificance_h
@@ -13,7 +13,7 @@
    of the lepton to a given vertex, as defined in CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: LeptonVertexSignificance.h,v 1.2 2008/02/28 14:54:24 llista Exp $
+  \version  $Id: LeptonVertexSignificance.h,v 1.3 2008/03/05 14:51:03 fronga Exp $
 */
 
 class TransientTrackBuilder;

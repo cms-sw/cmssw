@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.h,v 1.9 2007/12/19 17:56:25 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.h,v 1.10 2008/06/09 12:55:03 delaer Exp $
 
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H

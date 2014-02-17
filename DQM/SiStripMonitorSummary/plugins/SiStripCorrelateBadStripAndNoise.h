@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Mon Aug 10 10:42:04 CEST 2009
-// $Id: SiStripCorrelateBadStripAndNoise.h,v 1.1 2009/08/19 13:28:07 giordano Exp $
+// $Id: SiStripCorrelateBadStripAndNoise.h,v 1.2 2009/09/23 14:20:53 kaussen Exp $
 //
 //
 

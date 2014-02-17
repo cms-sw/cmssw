@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 20 12:16:54 CET 2009
-// $Id: L1HFRings.cc,v 1.1 2009/03/20 15:49:02 wsun Exp $
+// $Id: L1HFRings.cc,v 1.2 2009/03/22 16:11:30 wsun Exp $
 //
 
 // system include files

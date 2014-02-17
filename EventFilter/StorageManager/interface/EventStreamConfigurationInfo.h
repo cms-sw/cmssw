@@ -1,4 +1,4 @@
-// $Id: EventStreamConfigurationInfo.h,v 1.11 2011/03/07 15:31:31 mommsen Exp $
+// $Id: EventStreamConfigurationInfo.h,v 1.12 2011/08/31 20:11:59 wmtan Exp $
 /// @file: EventStreamConfigurationInfo.h
 
 #ifndef EventFilter_StorageManager_EventStreamConfigurationInfo_h
@@ -19,9 +19,9 @@ namespace stor
   /**
      Configuration information for the event stream
 
-     $Author: mommsen $
-     $Revision: 1.11 $
-     $Date: 2011/03/07 15:31:31 $
+     $Author: wmtan $
+     $Revision: 1.12 $
+     $Date: 2011/08/31 20:11:59 $
   */
 
   class EventStreamConfigurationInfo

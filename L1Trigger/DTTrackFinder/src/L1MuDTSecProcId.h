@@ -10,8 +10,8 @@
  *   This is necessary because wheel 0 needs two sector processors
  *
  *
- *   $Date: 2006/06/26 16:11:13 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/27 11:44:00 $
+ *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  */

@@ -21,8 +21,8 @@ generator = cms.EDFilter("AMPTGeneratorFilter",
                          )
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/AMPTInterface/python/amptDefault_cfi.py,v $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/AMPTInterface/python/amptDefault_cfi.py,v $'),
     annotation = cms.untracked.string('AMPT generator')
     )
 

@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.23.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.24 2011/03/07 15:31:32 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"

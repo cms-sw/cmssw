@@ -17,7 +17,7 @@
    
 
    \author Stefano Argiro
-   \version $Id$
+   \version $Id: EcalNextToDeadChannelESProducer.cc,v 1.1 2011/05/19 14:38:28 argiro Exp $
    \date 18 May 2011
 */
 

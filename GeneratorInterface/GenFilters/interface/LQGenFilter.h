@@ -13,7 +13,7 @@
 //
 // Original Author:  Alexey Ferapontov,8 R-021,+41227676332,
 //         Created:  Mon Mar  8 15:28:06 CET 2010
-// $Id$
+// $Id: LQGenFilter.h,v 1.1 2010/03/23 13:26:26 fabstoec Exp $
 //
 //
 

@@ -3,11 +3,11 @@
    test file for CSCDetId
 
    \author Stefano ARGIRO
-   \version $Id: testCSCDetId.cc,v 1.4 2006/02/13 14:28:45 ptc Exp $
+   \version $Id: testCSCDetId.cc,v 1.5 2007/12/10 18:12:52 ptc Exp $
    \date 27 Jul 2005
 */
 
-static const char CVSId[] = "$Id: testCSCDetId.cc,v 1.4 2006/02/13 14:28:45 ptc Exp $";
+static const char CVSId[] = "$Id: testCSCDetId.cc,v 1.5 2007/12/10 18:12:52 ptc Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>

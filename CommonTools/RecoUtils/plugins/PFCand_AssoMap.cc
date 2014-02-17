@@ -10,7 +10,7 @@
 //
 // Original Author:  Matthias Geisler
 //         Created:  Wed Apr 18 14:48:37 CEST 2012
-// $Id: PFCand_AssoMap.cc,v 1.5 2012/11/21 09:52:27 mgeisler Exp $
+// $Id: PFCand_AssoMap.cc,v 1.6 2012/12/06 14:02:13 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMap.h"

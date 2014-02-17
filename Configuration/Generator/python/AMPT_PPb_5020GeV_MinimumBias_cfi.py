@@ -47,8 +47,8 @@ generator = cms.EDFilter("AMPTGeneratorFilter",
 )
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision$'),
-    name = cms.untracked.string('$Source$'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/Generator/python/AMPT_PPb_5020GeV_MinimumBias_cfi.py,v $'),
     annotation = cms.untracked.string('AMPT PPb 5020 GeV Minimum Bias')
 )
 

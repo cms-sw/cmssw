@@ -6,8 +6,8 @@
  * Algo for reconstructing 2d segment in DT using a combinatorial approach with
  * a T0 estimation produced along the way
  *  
- * $Date: 2007/07/09 13:58:28 $
- * $Revision: 1.1 $
+ * $Date: 2008/03/10 11:18:20 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \author Piotr Traczyk - SINS Warsaw <ptraczyk@fuw.edu.pl>

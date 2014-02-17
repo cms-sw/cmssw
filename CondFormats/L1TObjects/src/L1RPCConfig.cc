@@ -8,7 +8,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue Mar 20 12:04:44 CET 2007
-// $Id: L1RPCConfig.cc,v 1.1 2007/04/02 10:44:15 fruboes Exp $
+// $Id: L1RPCConfig.cc,v 1.3 2008/07/23 23:09:10 wsun Exp $
 //
 
 // system include files

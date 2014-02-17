@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
+// $Id: Exception.h,v 1.3 2011/05/09 11:03:25 mommsen Exp $
 /// @file: Exception.h 
 
 #ifndef EventFilter_SMProxyServer_Exception_h
@@ -13,8 +13,8 @@ namespace smproxy {
      List of exceptions thrown by the SMProxyServer
 
      $Author: mommsen $
-     $Revision: 1.2 $
-     $Date: 2011/03/07 15:41:54 $
+     $Revision: 1.3 $
+     $Date: 2011/05/09 11:03:25 $
   */
 }
 

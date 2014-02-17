@@ -8,7 +8,7 @@
  *  A superlayer is composed by 4 staggered DTLayer s.
  *
  *  $date   : 13/01/2006 11:47:03 CET $
- *  $Revision: 1.5 $
+ *  $Revision: 1.6 $
  *  \author Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
  */

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/11 12:20:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/12/09 22:43:38 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

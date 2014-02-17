@@ -1,7 +1,7 @@
 #ifndef MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 #define MuonAnalysis_MuonAssociators_MatcherUsingTracksAlgorithm_h
 //
-// $Id: MatcherUsingTracksAlgorithm.h,v 1.7 2010/07/12 20:56:10 gpetrucc Exp $
+// $Id: MatcherUsingTracksAlgorithm.h,v 1.8 2011/01/28 16:57:17 gpetrucc Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
             
   \author   Giovanni Petrucciani
-  \version  $Id: MatcherUsingTracksAlgorithm.h,v 1.7 2010/07/12 20:56:10 gpetrucc Exp $
+  \version  $Id: MatcherUsingTracksAlgorithm.h,v 1.8 2011/01/28 16:57:17 gpetrucc Exp $
 */
 
 

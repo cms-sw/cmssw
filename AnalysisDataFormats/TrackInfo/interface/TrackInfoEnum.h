@@ -8,7 +8,7 @@
  *
  * \author Chiara Genta
  *
- * \version $Id:$
+ * \version $Id: TrackInfoEnum.h,v 1.1 2007/04/18 16:46:37 genta Exp $
  *
  */
 namespace reco {

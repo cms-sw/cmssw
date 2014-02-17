@@ -1,5 +1,5 @@
 //
-// $Id: Vector_Resolution.h,v 1.8 2010/07/30 17:07:30 haryo Exp $
+// $Id: Vector_Resolution.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
 //
 // File: hitfit/Vector_Resolution.h
 // Purpose: Calculate resolutions in p, phi, eta.

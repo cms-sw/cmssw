@@ -30,7 +30,7 @@
 
 // Created:     Thu Apr 12 11:18:05 CEST 2007
 
-// $Id: CSCL1TPParametersRcd.h,v 1.2 2008/03/03 07:09:47 wsun Exp $
+// $Id: CSCL1TPParametersRcd.h,v 1.1 2008/07/06 05:00:29 wsun Exp $
 
 //
 

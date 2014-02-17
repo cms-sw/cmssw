@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1EmEtScaleOnlineProd.cc,v 1.3 2012/06/18 10:17:56 eulisse Exp $
+// $Id: L1EmEtScaleOnlineProd.cc,v 1.4 2012/11/19 15:56:56 eulisse Exp $
 //
 //
 

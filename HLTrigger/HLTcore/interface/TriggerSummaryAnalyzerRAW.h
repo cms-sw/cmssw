@@ -6,8 +6,8 @@
  *  
  *  This class is an EDAnalyzer analyzing the HLT summary object for RAW
  *
- *  $Date: 2008/04/11 17:02:52 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/11 18:09:11 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *

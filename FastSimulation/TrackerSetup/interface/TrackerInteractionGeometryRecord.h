@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Wed Nov 21 12:14:34 CET 2007
-// $Id$
+// $Id: TrackerInteractionGeometryRecord.h,v 1.1 2007/11/22 08:30:04 pjanot Exp $
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"

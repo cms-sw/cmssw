@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter choosing reconstructed di-muons
  *
- *  $Date: 2007/12/31 18:43:11 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/22 20:58:38 $
+ *  $Revision: 1.4 $
  *
  *  \author Chang Liu  -  Purdue University
  *

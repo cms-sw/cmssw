@@ -10,9 +10,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/07 22:07:33 $
-// $Revision: 1.3 $
+// $Author: wmtan $
+// $Date: 2010/02/11 00:15:16 $
+// $Revision: 1.4 $
 //
 
 #include <string>

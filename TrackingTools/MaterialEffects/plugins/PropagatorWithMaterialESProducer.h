@@ -4,8 +4,8 @@
 /** \class PropagatorWithMaterialESProducer
  *  ESProducer for PropagatorWithMaterial.
  *
- *  $Date$
- *  $Revision$
+ *  $Date: 2007/05/09 14:11:36 $
+ *  $Revision: 1.2 $
  *  \author cerati
  */
 

@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: L2TauPixelTrackMatch.cc,v 1.1 2012/02/02 23:15:20 khotilov Exp $
 
 #include "RecoTauTag/HLTProducers/interface/L2TauPixelTrackMatch.h"
 #include "FWCore/Utilities/interface/Exception.h"

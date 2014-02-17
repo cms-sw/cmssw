@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2010/09/27 11:38:30 $ by $Author: argiro $
+# last update: $Date: 2012/03/30 17:12:30 $ by $Author: cerminar $
 #
 # Special online streams
 #

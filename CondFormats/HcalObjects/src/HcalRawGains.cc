@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store Gain values 4xCapId
 $Author: ratnikov
-$Date: 2007/01/09 22:49:21 $
-$Revision: 1.3 $
+$Date: 2007/12/04 19:06:24 $
+$Revision: 1.4 $
 */
 
 #include <iostream>

@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/09 22:44:11 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/01/19 09:51:31 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - INFN Torino
  */
 

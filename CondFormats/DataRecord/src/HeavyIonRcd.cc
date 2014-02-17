@@ -8,7 +8,7 @@
 //
 // Author:      
 // Created:     Tue Jul 10 05:49:16 EDT 2007
-// $Id$
+// $Id: HeavyIonRcd.cc,v 1.1 2007/11/06 13:01:35 yilmaz Exp $
 
 #include "CondFormats/DataRecord/interface/HeavyIonRcd.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"

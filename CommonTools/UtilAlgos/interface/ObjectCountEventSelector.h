@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ObjectCountEventSelector.h,v 1.1 2009/03/03 13:07:27 llista Exp $
+ * $Id: ObjectCountEventSelector.h,v 1.2 2010/02/20 20:55:24 wmtan Exp $
  *
  */
 

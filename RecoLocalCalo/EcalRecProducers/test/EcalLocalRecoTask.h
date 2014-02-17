@@ -4,7 +4,7 @@
 /*
  * \file EcalLocalRecoTask.h
  *
- * $Id: EcalLocalRecoTask.h,v 1.3 2009/12/18 20:45:02 wmtan Exp $
+ * $Id: EcalLocalRecoTask.h,v 1.4 2010/07/21 04:23:25 wmtan Exp $
  *
 */
 

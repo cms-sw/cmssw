@@ -5,7 +5,7 @@
  *
  * \authors Dmirty Bandurin (KSU), Ted Kolberg (ND)
  */
-// $Id: PreshowerCluster.h,v 1.18 2009/01/27 09:53:06 ferriff Exp $
+// $Id: PreshowerCluster.h,v 1.19 2009/03/25 16:09:47 ferriff Exp $
 //
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"

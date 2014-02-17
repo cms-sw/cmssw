@@ -12,7 +12,7 @@
 //
 // Original Author: Abideh Jafari 
 //         Created:  Wed Aug 01 09:06:32 CEST 2012
-// $Id: HLTEffCalculator.cc,v 1.13 2012/08/01 09:06:32 ajafari Exp $
+// $Id: HLTEfficiencyCalculator.cc,v 1.1 2012/08/01 08:26:04 ajafari Exp $
 //
 //
 

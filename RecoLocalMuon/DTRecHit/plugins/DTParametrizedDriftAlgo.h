@@ -6,8 +6,8 @@
  *  Compute drift distance using the CIEMAT (by P.Garcia Abia and J. Puerta)
  *  parametrization of the cell behavior obtained with GARFIELD
  *
- *  $Date: 2006/05/17 13:47:17 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/19 11:08:17 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 

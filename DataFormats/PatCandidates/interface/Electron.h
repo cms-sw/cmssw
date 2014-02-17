@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.43 2012/10/02 22:08:12 beaudett Exp $
+// $Id: Electron.h,v 1.44 2012/10/04 11:00:10 beaudett Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.43 2012/10/02 22:08:12 beaudett Exp $
+  \version  $Id: Electron.h,v 1.44 2012/10/04 11:00:10 beaudett Exp $
 */
 
 

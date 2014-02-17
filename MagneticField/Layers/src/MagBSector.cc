@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/18 19:05:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/03 16:15:59 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 

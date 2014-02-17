@@ -10,7 +10,7 @@
 //
 // Original Author:  Marco De Mattia,40 3-B32,+41227671551,
 //         Created:  Tue Jun 22 13:50:22 CEST 2010
-// $Id: MuScleFitMuonProducer.cc,v 1.7 2010/12/13 11:19:01 demattia Exp $
+// $Id: MuScleFitMuonProducer.cc,v 1.8 2010/12/13 11:23:42 demattia Exp $
 //
 //
 

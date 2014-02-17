@@ -7,8 +7,8 @@
  *  would be seen by an outgoing (or an incoming) track.
  *  Only meaningful for RecHits from the same trajectory. Ported from ORCA
  *
- *  $Date: 2007/07/16 10:15:53 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/07/18 22:16:06 $
+ *  $Revision: 1.7 $
  *  \author todorov, cerati
  */
 

@@ -5,7 +5,7 @@
  *
  * Author: Dmitry Zaborov
  *
- * Version: $Id: AcceptanceTableHelper.cc,v 1.3 2007/12/31 10:02:46 elmer Exp $
+ * Version: $Id: AcceptanceTableHelper.cc,v 1.1 2008/11/25 17:34:15 beaudett Exp $
  ***************************************************************************/
 
 #include "FastSimulation/ForwardDetectors/plugins/AcceptanceTableHelper.h"

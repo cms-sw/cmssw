@@ -1,4 +1,4 @@
-// $Id: XHTMLMonitor.h,v 1.5.16.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: XHTMLMonitor.h,v 1.6 2011/03/07 15:31:32 mommsen Exp $
 /// @file: XHTMLMonitor.h 
 
 #ifndef EventFilter_StorageManager_XHTMLMonitor_h
@@ -12,8 +12,8 @@ namespace stor {
     Controls the use of XHTMLMaker (xerces is not thread-safe)
 
     $Author: mommsen $
-    $Revision: 1.5.16.1 $
-    $Date: 2011/03/07 11:33:04 $
+    $Revision: 1.6 $
+    $Date: 2011/03/07 15:31:32 $
   */
   
   class XHTMLMonitor

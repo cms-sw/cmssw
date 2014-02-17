@@ -7,9 +7,9 @@
 ///
 /// Calculates derivatives à la Karimaki (cf. CR-2003/022)
 ///
-///  $Date: 2007/03/02 12:17:09 $
-///  $Revision: 1.3 $
-/// (last update by $Author: fronga $)
+///  $Date: 2007/03/12 21:28:48 $
+///  $Revision: 1.4 $
+/// (last update by $Author: cklae $)
 
 class TrajectoryStateOnSurface;
 

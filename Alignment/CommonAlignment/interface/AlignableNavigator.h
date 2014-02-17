@@ -1,6 +1,6 @@
-//   $Revision: 1.15 $
-//   $Date: 2009/02/28 21:06:53 $
-//   (last update by $Author: flucke $)
+//   $Revision: 1.16 $
+//   $Date: 2010/09/10 10:30:03 $
+//   (last update by $Author: mussgill $)
 
 #ifndef Alignment_CommonAlignment_AlignableNavigator_h
 #define Alignment_CommonAlignment_AlignableNavigator_h

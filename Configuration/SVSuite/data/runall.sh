@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-#$Id: runall.sh,v 1.1 2006/11/22 17:40:35 lsexton Exp $
+#$Id: runall.sh,v 1.2 2006/12/16 02:15:35 wmtan Exp $
 #
 #Dummy script to run all integration tests
 #

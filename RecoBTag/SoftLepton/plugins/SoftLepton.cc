@@ -12,7 +12,7 @@
 
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.35 2010/02/26 18:16:18 saout Exp $
+// $Id: SoftLepton.cc,v 1.37 2010/08/19 23:14:52 fwyzard Exp $
 
 
 #include <memory>

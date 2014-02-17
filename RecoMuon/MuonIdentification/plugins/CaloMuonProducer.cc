@@ -5,7 +5,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Wed Oct  3 16:29:03 CDT 2007
-// $Id: CaloMuonProducer.cc,v 1.4 2009/09/07 04:49:15 dmytro Exp $
+// $Id: CaloMuonProducer.cc,v 1.5 2009/09/23 19:15:04 dmytro Exp $
 //
 //
 

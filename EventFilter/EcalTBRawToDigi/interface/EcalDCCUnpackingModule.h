@@ -4,8 +4,8 @@
 /** \class EcalUnpackingModule
  * 
  *
- *  $Date: 2009/12/14 22:22:35 $
- *  $Revision: 1.12 $
+ *  $Date: 2012/09/12 18:18:43 $
+ *  $Revision: 1.13 $
  * \author N. Marinelli 
  * \author G. Della Ricca
  */

@@ -28,7 +28,7 @@ process.hcalDigiAlCaMB.InputLabel = 'rawDataCollector'
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.109 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('step23_HcalCalMinBias nevts:1000'),
     name = cms.untracked.string('PyReleaseValidation')
 )

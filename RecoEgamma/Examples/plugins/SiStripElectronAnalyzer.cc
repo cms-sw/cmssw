@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: SiStripElectronAnalyzer.cc,v 1.12 2010/09/21 17:06:15 chamont Exp $
+// $Id: SiStripElectronAnalyzer.cc,v 1.13 2010/10/19 17:34:56 wmtan Exp $
 //
 
 // system include files

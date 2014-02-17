@@ -8,8 +8,8 @@
  *  needed granularity and to retrieve them back using the wireId.
  *  The first 5 fields for each key are allocated to ttri, sigma_ttrig, kfactor, vdrift and sigma_vdrift.
  *
- *  $Date: 2007/07/11 12:20:59 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/12/09 22:43:38 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

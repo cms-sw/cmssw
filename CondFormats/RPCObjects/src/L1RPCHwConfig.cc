@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  9 13:48:10 CEST 2008
-// $Id$
+// $Id: L1RPCHwConfig.cc,v 1.1 2008/04/09 15:16:53 fruboes Exp $
 //
 
 // system include files

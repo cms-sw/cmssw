@@ -1,4 +1,4 @@
-// $Id: CompositeRefBaseCandidate.cc,v 1.9 2008/07/10 15:19:17 cbern Exp $
+// $Id: CompositeRefBaseCandidate.cc,v 1.10 2010/12/06 20:04:17 wmtan Exp $
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

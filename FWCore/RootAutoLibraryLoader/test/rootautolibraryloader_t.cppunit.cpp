@@ -3,7 +3,7 @@
 Test program for RootAutoLibraryLoader class.
 Changed by Viji on 29-06-2005
 
-$Id$
+$Id: rootautolibraryloader_t.cppunit.cpp,v 1.1 2010/09/03 19:04:06 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>

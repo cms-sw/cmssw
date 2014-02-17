@@ -6,8 +6,8 @@
  *  strored in the reco::Tracks. The final result is a std::vector of Trajectories (objs of the type "Trajectory"), 
  *  which is loaded into the Event in a transient way
  *
- *  $Date: 2008/11/11 08:34:29 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/11 00:15:17 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

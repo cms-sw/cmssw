@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Apr  9 12:15:56 CEST 2010
-// $Id: GSFElectronsMixer.cc,v 1.3 2010/11/08 16:03:27 friis Exp $
+// $Id: GSFElectronsMixer.cc,v 1.1 2011/10/13 08:29:03 fruboes Exp $
 //
 //
 

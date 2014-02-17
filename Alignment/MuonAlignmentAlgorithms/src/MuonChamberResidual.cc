@@ -1,5 +1,5 @@
 /** \class MuonChamberResidual
- *  $Id: $
+ *  $Id: MuonChamberResidual.cc,v 1.1 2011/10/12 23:32:08 khotilov Exp $
  *  \author V. Khotilovich - Texas A&M University <khotilov@cern.ch>
  */
 

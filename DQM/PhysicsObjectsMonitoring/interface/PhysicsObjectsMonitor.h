@@ -5,8 +5,8 @@
  *  For now: Analyzer of StandAlone muon tracks
  *  Later: Add other detectors and more Reco
  * 
- *  $Date: 2008/03/01 00:40:13 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/12/14 22:22:11 $
+ *  $Revision: 1.5 $
  *  \author M. Mulders - CERN <martijn.mulders@cern.ch>
  *  Based on STAMuonAnalyzer by R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */

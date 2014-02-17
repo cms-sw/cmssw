@@ -3,7 +3,7 @@
    and vice versa   
 
    \author Seth Cooper, University of Minnesota
-   \version $Id: $
+   \version $Id: EcalTimeOffsetXMLTranslator.h,v 1.1 2011/03/22 16:13:04 argiro Exp $
    \date 21 Mar 2011
 */
 
@@ -17,7 +17,7 @@
 
 
 static const char CVSId__EcalTimeOffsetXMLTranslator[] = 
-"$Id: $";
+"$Id: EcalTimeOffsetXMLTranslator.h,v 1.1 2011/03/22 16:13:04 argiro Exp $";
 
 
 class EcalTimeOffsetConstant;

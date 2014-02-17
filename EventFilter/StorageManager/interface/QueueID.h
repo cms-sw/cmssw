@@ -1,4 +1,4 @@
-// $Id: QueueID.h,v 1.3.16.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: QueueID.h,v 1.4 2011/03/07 15:31:32 mommsen Exp $
 /// @file: QueueID.h 
 
 #ifndef EventFilter_StorageManager_QueueID_h
@@ -16,8 +16,8 @@ namespace stor {
    * Uniquely identifies the consumer queues 
    *
    * $Author: mommsen $
-   * $Revision: 1.3.16.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.4 $
+   * $Date: 2011/03/07 15:31:32 $
    */
 
   class QueueID

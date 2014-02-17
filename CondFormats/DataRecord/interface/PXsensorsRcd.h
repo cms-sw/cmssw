@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Thu Jul 20 14:30:27 CEST 2006
-// $Id: PX_sensorsRcd.h,v 1.1 2006/08/01 12:00:10 kdziedzi Exp $
+// $Id: PXsensorsRcd.h,v 1.1 2006/08/02 14:19:01 kdziedzi Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

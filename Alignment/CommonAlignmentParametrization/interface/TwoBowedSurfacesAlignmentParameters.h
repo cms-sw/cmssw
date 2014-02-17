@@ -29,8 +29,8 @@
 ///   for the other sensor
 ///
 ///
-///  $Date: 2010/10/26 20:41:08 $
-///  $Revision: 1.1 $
+///  $Date: 2010/12/14 01:03:27 $
+///  $Revision: 1.2 $
 /// (last update by $Author: flucke $)
 
 class Alignable;

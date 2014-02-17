@@ -9,7 +9,7 @@
  * 27-Dec-2006 - KAB  - Initial Implementation
  * 31-Mar-2007 - HWKC - modification for shared memory usage
  *
- * $Id: FUShmDQMOutputService.h,v 1.12.2.1 2012/04/16 14:36:08 smorovic Exp $
+ * $Id: FUShmDQMOutputService.h,v 1.13 2012/05/02 15:02:19 smorovic Exp $
  */
 
 #include "DQMServices/Core/interface/DQMStore.h"

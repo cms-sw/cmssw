@@ -7,7 +7,7 @@
 
   Description: Example DQM Client 
 
-  $Id: SMDQMClientExample.cc,v 1.9 2010/03/16 17:57:45 mommsen Exp $
+  $Id: SMDQMClientExample.cc,v 1.10 2010/08/06 20:24:32 wmtan Exp $
 
 */
 

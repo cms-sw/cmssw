@@ -1,4 +1,4 @@
-// $Id: ErrorStreamSelector.h,v 1.4.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: ErrorStreamSelector.h,v 1.5 2011/03/07 15:31:31 mommsen Exp $
 /// @file: ErrorStreamSelector.h 
 
 #ifndef EventFilter_StorageManager_ErrorStreamSelector_h
@@ -16,8 +16,8 @@ namespace stor {
      ErrorStreamConfigurationInfo
 
      $Author: mommsen $
-     $Revision: 1.4.4.1 $
-     $Date: 2011/03/07 11:33:04 $
+     $Revision: 1.5 $
+     $Date: 2011/03/07 15:31:31 $
   */
 
   class ErrorStreamSelector

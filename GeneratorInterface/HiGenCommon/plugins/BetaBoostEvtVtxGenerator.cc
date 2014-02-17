@@ -1,5 +1,5 @@
 
-// $Id: BetaBoostEvtVtxGenerator.cc,v 1.2 2012/09/06 20:41:40 lixu Exp $
+// $Id: BetaBoostEvtVtxGenerator.cc,v 1.3 2012/09/25 10:00:12 fabiocos Exp $
 /*
   ________________________________________________________________________
 

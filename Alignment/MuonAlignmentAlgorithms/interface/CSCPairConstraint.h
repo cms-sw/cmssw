@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_CSCPairConstraint_H
 
 /** \class CSCPairConstraint
- *  $Date: 2010/05/04 01:16:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/05/05 04:00:38 $
+ *  $Revision: 1.2 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 

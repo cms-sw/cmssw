@@ -2,7 +2,7 @@
 // F.Ratnikov (UMd), Aug. 9, 2005
 // Adapted for CASTOR by L. Mundim
 //
-// $Id: CastorDbService.cc,v 1.3 2009/03/26 17:55:07 mundim Exp $
+// $Id: CastorDbService.cc,v 1.4 2010/02/20 20:54:59 wmtan Exp $
 
 #include "FWCore/Utilities/interface/typelookup.h"
 

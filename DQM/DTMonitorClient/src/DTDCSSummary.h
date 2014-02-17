@@ -4,8 +4,8 @@
 /** \class DTDCSSummary
  *  No description available.
  *
- *  $Date: 2009/03/02 17:03:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

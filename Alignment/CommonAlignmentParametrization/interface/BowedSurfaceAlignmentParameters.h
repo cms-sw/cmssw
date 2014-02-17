@@ -16,8 +16,8 @@
 ///  - 3 rotations/slopes
 ///  - 3 bows/sagittas (u, v and mixed term)
 ///
-///  $Date: 2008/09/02 15:08:12 $
-///  $Revision: 1.13 $
+///  $Date: 2010/10/26 20:41:07 $
+///  $Revision: 1.1 $
 /// (last update by $Author: flucke $)
 
 class Alignable;

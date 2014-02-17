@@ -2,8 +2,8 @@
   * \file EcalEleCalibLooper.h
   * \class EcalEleCalibLooper
   * \brief ECAL TB 2006 calibration with matrix inversion technique
-  * $Date: 2009/02/11 15:46:48 $
-  * $Revision: 1.4 $
+  * $Date: 2010/01/18 21:31:47 $
+  * $Revision: 1.5 $
   * \author 
   *
 */

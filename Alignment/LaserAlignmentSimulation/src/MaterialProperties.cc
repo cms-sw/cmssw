@@ -1,8 +1,8 @@
 /** \file MaterialProperties.cc
  *  
  *
- *  $Date: 2007/06/11 14:44:29 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/05/12 07:17:48 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 

@@ -1,8 +1,8 @@
 /** \file
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/07 22:41:20 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/11/06 10:34:56 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 

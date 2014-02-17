@@ -14,7 +14,7 @@
 
 */
 // Created:     Tue Nov  4 18:52:34 CET 2008
-// $Id:$
+// $Id: AlCaRecoTriggerBitsRcd.h,v 1.1 2008/11/05 10:55:11 xiezhen Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

@@ -21,7 +21,7 @@ process.load('Configuration/EventContent/EventContent_cff')
 process.load('EventFilter/CSCRawToDigi/cscdigivalidator_cfi')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.123 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('ZMM.py nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
 )

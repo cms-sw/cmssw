@@ -49,8 +49,8 @@ process.source = cms.Source("PoolSource",
 
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.11 $'),
-    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/DPGAnalysis/Skims/python/TrackerPointing_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.12 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/DPGAnalysis/Skims/python/TrackerPointing_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT TrackerPointing skim')
 )
 

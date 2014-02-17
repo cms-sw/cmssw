@@ -1,4 +1,4 @@
-// $Id: RBCEmulator.cc,v 1.10 2009/06/17 15:27:24 aosorio Exp $
+// $Id: RBCEmulator.cc,v 1.11 2009/07/04 20:07:40 aosorio Exp $
 // Include files 
 
 // local

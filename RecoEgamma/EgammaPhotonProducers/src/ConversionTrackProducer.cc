@@ -7,9 +7,9 @@
 //
 // Original Author: J.Bendavid
 //
-// $Author: bendavid $
-// $Date: 2010/11/22 02:02:08 $
-// $Revision: 1.3 $
+// $Author: giordano $
+// $Date: 2011/08/05 19:45:49 $
+// $Revision: 1.4 $
 //
 
 #include <memory>

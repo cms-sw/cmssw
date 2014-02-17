@@ -6,8 +6,8 @@
  *   Internally uses DTBtiHit to store muon digis
  *
  *
- *   $Date: 2009/11/12 14:33:15 $
- *   $Revision: 1.7 $
+ *   $Date: 2010/01/21 10:22:12 $
+ *   $Revision: 1.8 $
  *
  *   \author S. Vanini
  */

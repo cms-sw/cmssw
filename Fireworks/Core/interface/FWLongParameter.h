@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWLongParameter
-// $Id: FWLongParameter.h,v 1.1 2009/10/07 12:46:47 dmytro Exp $
+// $Id: FWLongParameter.h,v 1.4 2010/02/12 15:36:46 eulisse Exp $
 //
 // user include files
 #include "Fireworks/Core/interface/FWParameters.h"

@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.7 $'),
-    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/DPGAnalysis/Skims/python/MuPDSkim_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.8 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/DPGAnalysis/Skims/python/MuPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Mu skim')
 )
 

@@ -8,8 +8,8 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2010/04/16 14:11:06 $
- * $Revision: 1.18 $
+ * $Date: 2011/09/21 15:29:59 $
+ * $Revision: 1.19 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \author M.Meneghelli - INFN BO <marco.meneghelli@cern.ch>

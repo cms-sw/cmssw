@@ -8,7 +8,7 @@
 //
 // Author:      
 // Created:     Mon Feb 11 12:16:54 CET 2008
-// $Id: CastorGainsRcd.cc,v 1.1 2008/02/15 15:53:55 mccauley Exp $
+// $Id: CastorGainsRcd.cc,v 1.1 2008/03/04 10:37:46 katsas Exp $
 
 #include "CondFormats/DataRecord/interface/CastorGainsRcd.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"

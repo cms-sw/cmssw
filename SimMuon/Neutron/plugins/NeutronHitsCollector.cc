@@ -15,7 +15,7 @@
 //
 // Original Author:  Vadim Khotilovich
 //         Created:  Mon Aug 09 19:11:42 CST 2010
-// $Id:  $
+// $Id: NeutronHitsCollector.cc,v 1.1 2010/08/20 00:28:13 khotilov Exp $
 //
 //
 

@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : November 2006
-///  $Revision: 1.3 $
-///  $Date: 2007/03/16 17:03:02 $
+///  $Revision: 1.4 $
+///  $Date: 2010/10/26 20:49:42 $
 ///  (last update by $Author: flucke $)
 
 

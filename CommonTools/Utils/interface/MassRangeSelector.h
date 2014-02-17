@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: MassRangeSelector.h,v 1.3 2007/06/18 18:33:53 llista Exp $
+ * $Id: MassRangeSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 
 struct MassRangeSelector {

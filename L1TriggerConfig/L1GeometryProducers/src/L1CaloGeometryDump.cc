@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Mon Sep 28 22:17:24 CEST 2009
-// $Id$
+// $Id: L1CaloGeometryDump.cc,v 1.1 2009/09/28 23:01:25 wsun Exp $
 //
 //
 

@@ -1,5 +1,5 @@
 //
-// $Id: DuplicatedElectronCleaner.cc,v 1.3 2009/04/07 14:35:34 rwolf Exp $
+// $Id: DuplicatedElectronCleaner.cc,v 1.4 2010/02/20 21:00:16 wmtan Exp $
 //
 
 /**
@@ -15,7 +15,7 @@
    which can be read through edm::View<reco::GsfElectron>
 
   \author   Giovanni Petrucciani
-  \version  $Id: DuplicatedElectronCleaner.cc,v 1.3 2009/04/07 14:35:34 rwolf Exp $
+  \version  $Id: DuplicatedElectronCleaner.cc,v 1.4 2010/02/20 21:00:16 wmtan Exp $
 */
 
 #include "FWCore/Framework/interface/Event.h"

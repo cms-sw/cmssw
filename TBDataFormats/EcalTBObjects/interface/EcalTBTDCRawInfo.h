@@ -7,7 +7,7 @@
 
 /** \class EcalTBTDCRawInfo
       
-$Id: EcalTBTDCRawInfo.h,v 1.2 2006/04/21 09:30:56 meridian Exp $
+$Id: EcalTBTDCRawInfo.h,v 1.3 2006/06/06 15:37:00 meridian Exp $
 */
 
 class EcalTBTDCRawInfo {

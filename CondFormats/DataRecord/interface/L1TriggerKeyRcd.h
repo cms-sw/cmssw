@@ -16,7 +16,7 @@
 //
 // Author:      Giedrius Bacevicius
 // Created:     Tue Jul 17 19:15:08 CEST 2007
-// $Id: L1TriggerKeyRcd.h,v 1.1 2007/08/22 14:20:13 jbrooke Exp $
+// $Id: L1TriggerKeyRcd.h,v 1.2 2008/03/03 07:09:47 wsun Exp $
 //
 
 #include "boost/mpl/vector.hpp"

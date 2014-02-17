@@ -1,4 +1,4 @@
-// $Id: SharedResources.h,v 1.7 2011/03/07 15:31:32 mommsen Exp $
+// $Id: SharedResources.h,v 1.8 2011/11/08 10:48:40 mommsen Exp $
 /// @file: SharedResources.h 
 
 #ifndef EventFilter_StorageManager_SharedResources_h
@@ -34,8 +34,8 @@ namespace stor {
    * Container for shared resources.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2011/03/07 15:31:32 $
+   * $Revision: 1.8 $
+   * $Date: 2011/11/08 10:48:40 $
    */
 
   struct SharedResources

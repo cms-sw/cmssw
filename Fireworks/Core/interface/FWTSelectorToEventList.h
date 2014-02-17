@@ -1,4 +1,4 @@
-// $Id: FWTSelectorToEventList.h,v 1.3 2010/07/05 18:33:45 matevz Exp $
+// $Id: FWTSelectorToEventList.h,v 1.4 2010/07/05 19:48:05 matevz Exp $
 
 #ifndef Fireworks_Core_FWTSelectorToEventList_h
 #define Fireworks_Core_FWTSelectorToEventList_h

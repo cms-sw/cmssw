@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 # HLT scalers client. wittich 8/08
-# $Id: HLTScalersClient_cfi.py,v 1.5 2010/03/17 20:56:18 wittich Exp $
+# $Id: HLTScalersClient_cfi.py,v 1.6 2010/04/02 20:48:12 wittich Exp $
 # $Log: HLTScalersClient_cfi.py,v $
+# Revision 1.6  2010/04/02 20:48:12  wittich
+# updates to scale entries by received number of FU's
+#
 # Revision 1.5  2010/03/17 20:56:18  wittich
 # Check for good updates based on mergeCount values
 # add code for rates normalized per FU

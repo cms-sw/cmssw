@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Mar 18 04:08:58 CDT 2010
-// $Id$
+// $Id: DisplayPlugin.h,v 1.1 2010/04/01 21:57:59 chrjones Exp $
 //
 
 // system include files

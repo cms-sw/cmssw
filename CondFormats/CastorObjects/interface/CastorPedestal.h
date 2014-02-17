@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store Pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2009/03/24 16:05:27 $
-$Revision: 1.8 $
+$Date: 2009/03/26 18:03:15 $
+$Revision: 1.2 $
 Adapted for CASTOR by L. Mundim (26/03/2009)
 */
 #include <boost/cstdint.hpp>

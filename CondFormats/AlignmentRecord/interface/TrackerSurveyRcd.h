@@ -5,7 +5,7 @@
  *
  *  DB record to hold values of alignment parameters from survey.
  *
- *  $Date: 2007/04/03 15:24:56 $
+ *  $Date: 2007/10/18 07:31:48 $
  *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */

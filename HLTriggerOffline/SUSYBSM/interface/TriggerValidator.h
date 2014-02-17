@@ -18,7 +18,7 @@
 //                   Maurizio Pierini
 //                   Maria Spiropulu
 //         Created:  Wed Aug 29 15:10:56 CEST 2007
-// $Id: TriggerValidator.h,v 1.15 2010/06/27 14:15:01 wmtan Exp $
+// $Id: TriggerValidator.h,v 1.16 2010/12/14 17:20:35 vlimant Exp $
 //
 //
 

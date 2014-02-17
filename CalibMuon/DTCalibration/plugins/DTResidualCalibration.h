@@ -4,8 +4,8 @@
 /** \class DTResidualCalibration
  *  Extracts DT segment residuals
  *
- *  $Date: 2011/02/22 18:43:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/02/01 17:25:58 $
+ *  $Revision: 1.2 $
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"

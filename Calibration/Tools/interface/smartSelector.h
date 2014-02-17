@@ -1,8 +1,8 @@
 /* 
-    $Date: 2008/01/23 10:59:54 $
-    $Revision: 1.1.2.1 $
-    $Id: smartSelector.h,v 1.1.2.1 2008/01/23 10:59:54 govoni Exp $ 
-    $Author: govoni $
+    $Date: 2008/02/25 17:40:43 $
+    $Revision: 1.2 $
+    $Id: smartSelector.h,v 1.2 2008/02/25 17:40:43 malberti Exp $ 
+    $Author: malberti $
 */
 
 #ifndef smartSelector_h

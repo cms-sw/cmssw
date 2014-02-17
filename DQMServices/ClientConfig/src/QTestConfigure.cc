@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2012/08/07 04:24:27 $
- *  $Revision: 1.25 $
+ *  $Date: 2012/08/18 18:22:21 $
+ *  $Revision: 1.26 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"

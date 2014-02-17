@@ -6,8 +6,8 @@
  *       Class to hold high voltage status
  *             ( half layer by half layer )
  *
- *  $Date: 2009/09/25 12:03:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/20 18:20:08 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

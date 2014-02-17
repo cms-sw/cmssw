@@ -4,8 +4,8 @@
 /*
  * \file EcalDigisValidation.h
  *
- * $Date: 2008/12/11 12:27:21 $
- * $Revision: 1.12 $
+ * $Date: 2010/01/04 15:10:59 $
+ * $Revision: 1.13 $
  * \author F. Cossutti
  *
 */

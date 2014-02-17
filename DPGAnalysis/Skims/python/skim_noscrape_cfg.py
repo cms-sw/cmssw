@@ -14,7 +14,7 @@ process.skimming = cms.EDFilter("FilterOutScraping",
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/skim_noscrape_cfg.py,v $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/DPGAnalysis/Skims/python/skim_noscrape_cfg.py,v $'),
     annotation = cms.untracked.string('NoScrape skim')
 )
 

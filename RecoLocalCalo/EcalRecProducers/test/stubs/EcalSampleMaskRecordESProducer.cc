@@ -12,7 +12,7 @@
    
 
    \author Stefano Argiro
-   \version $Id: EcalNextToDeadChannelESProducer.cc,v 1.1 2011/05/19 14:38:28 argiro Exp $
+   \version $Id: EcalSampleMaskRecordESProducer.cc,v 1.1 2012/05/10 08:23:23 argiro Exp $
    \date 9 May 2012
 */
 

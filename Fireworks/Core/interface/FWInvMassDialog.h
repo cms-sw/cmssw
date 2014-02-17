@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Mon Nov 22 11:05:41 CET 2010
-// $Id$
+// $Id: FWInvMassDialog.h,v 1.1 2010/11/22 21:35:07 matevz Exp $
 //
 
 // system include files

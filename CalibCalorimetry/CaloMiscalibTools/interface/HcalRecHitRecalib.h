@@ -15,8 +15,8 @@
 */
 //
 // Original Author:  Luca Malgeri
-//         Created:  $Date: 2007/09/11 13:46:29 $
-// $Id: HcalRecHitRecalib.h,v 1.4 2007/09/11 13:46:29 malgeri Exp $
+//         Created:  $Date: 2012/10/09 09:26:52 $
+// $Id: HcalRecHitRecalib.h,v 1.5 2012/10/09 09:26:52 yana Exp $
 //
 //
 

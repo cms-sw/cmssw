@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalOnlineTask.h
  *
- * $Date: 2012/03/29 13:49:28 $
- * $Revision: 1.19.18.1 $
+ * $Date: 2012/04/27 13:46:00 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */

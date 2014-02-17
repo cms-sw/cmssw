@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id: EBSrpFlag.cc,v 1.2 2006/09/08 09:50:07 pgras Exp $
+// $Id: EBSrFlag.cc,v 1.1 2007/02/09 10:46:03 meridian Exp $
 
 #include "DataFormats/EcalDigi/interface/EBSrFlag.h"
 

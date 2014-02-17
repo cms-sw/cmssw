@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Sat Apr 19 02:11:49 CDT 2008
-// $Id$
+// $Id: SiPixelDisabledModulesRcd.h,v 1.1 2008/04/21 09:44:04 chiochia Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

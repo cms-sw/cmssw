@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.24 2010/04/21 14:26:26 dstrom Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.25 2010/06/01 16:06:06 wto Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"

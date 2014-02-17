@@ -12,7 +12,7 @@
 
 // Created:     Thu Apr 12 11:18:05 CEST 2007
 
-// $Id: CSCDBL1TPParametersRcd.cc,v 1.1 2008/07/06 05:00:30 wsun Exp $
+// $Id: CSCDBL1TPParametersRcd.cc,v 1.1 2010/04/14 08:59:46 boeriu Exp $
 
 
 

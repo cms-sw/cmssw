@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFec.h,v 1.2 2007/03/21 09:54:20 bainbrid Exp $
+// Last commit: $Id: SiStripFec.h,v 1.3 2007/03/28 09:11:51 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripFec_H
 #define CalibFormats_SiStripObjects_SiStripFec_H

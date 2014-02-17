@@ -28,9 +28,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.11 $
  *
- * $Id: Thrust.h,v 1.10 2006/03/03 10:09:18 llista Exp $
+ * $Id: Thrust.h,v 1.11 2008/03/13 13:28:00 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Vector3D.h"

@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     FWTriggerTableView
-// $Id: FWTriggerTableView.cc,v 1.16 2011/02/16 18:38:36 amraktad Exp $
+// $Id: FWTriggerTableView.cc,v 1.17 2012/09/27 16:51:25 eulisse Exp $
 //
 
 // system include files

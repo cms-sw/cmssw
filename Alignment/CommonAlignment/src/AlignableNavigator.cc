@@ -1,7 +1,7 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.22 $
-//   $Date: 2010/09/10 10:30:03 $
+//   $Revision: 1.23 $
+//   $Date: 2010/10/11 12:25:33 $
 //   (last update by $Author: mussgill $)
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"

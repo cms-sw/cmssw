@@ -5,8 +5,8 @@
  *
  *  Namespace for common type definitions used in alignment.
  *
- *  $Date: 2007/04/09 00:26:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/10/08 14:44:38 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 

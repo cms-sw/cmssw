@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2009/08/03 16:10:27 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/01/05 10:15:46 $
+ *  $Revision: 1.6 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */

@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet
 //         Created:  Thu Mar 13 12:00:56 CET 2008
-// $Id: CastorFastClusterProducer.cc,v 1.1 2009/03/27 21:59:37 hvanhaev Exp $
+// $Id: CastorFastClusterProducer.cc,v 1.2 2011/03/04 11:00:55 hvanhaev Exp $
 //
 //
 

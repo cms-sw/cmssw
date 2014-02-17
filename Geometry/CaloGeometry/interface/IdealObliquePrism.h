@@ -23,8 +23,8 @@
   is encoded in the sign of the thickness.  (positive = parallel to
   z-axis, negative = perpendicular)
 
-  $Date: 2011/05/29 18:06:58 $
-  $Revision: 1.10 $
+  $Date: 2011/09/27 09:10:38 $
+  $Revision: 1.11 $
   \author J. Mans - Minnesota
   */
 class IdealObliquePrism : public CaloCellGeometry 

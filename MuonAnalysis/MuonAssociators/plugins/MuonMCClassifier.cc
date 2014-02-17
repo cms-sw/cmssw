@@ -28,7 +28,7 @@
 //
 // Original Author:  Nov 16 16:12 (lxplus231.cern.ch)
 //         Created:  Sun Nov 16 16:14:09 CET 2008
-// $Id: MuonMCClassifier.cc,v 1.6 2011/01/21 08:58:06 gpetrucc Exp $
+// $Id: MuonMCClassifier.cc,v 1.7 2011/01/24 11:24:32 gpetrucc Exp $
 //
 //
 

@@ -1,5 +1,5 @@
 
-// $Id: FlatEvtVtxGenerator.cc,v 1.4 2008/04/04 21:38:25 yumiceva Exp $
+// $Id: FlatEvtVtxGenerator.cc,v 1.5 2009/05/25 12:46:04 fabiocos Exp $
 
 #include "IOMC/EventVertexGenerators/interface/FlatEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"

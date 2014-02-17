@@ -8,8 +8,8 @@
  *  Value type is specified by the template parameter Type.
  *  Define a new struct for non-POD value type.
  *
- *  $Date: 2008/11/30 19:41:08 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/12/03 13:30:07 $
+ *  $Revision: 1.5 $
  *  \author Chung Khim Lae
  */
 

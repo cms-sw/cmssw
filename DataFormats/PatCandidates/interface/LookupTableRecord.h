@@ -9,7 +9,7 @@
  *
  *  \author   Giovanni Petrucciani
  *
- *  \version  $Id: LookupTableRecord.h,v 1.13 2008/07/30 01:09:33 gpetrucc Exp $
+ *  \version  $Id: LookupTableRecord.h,v 1.1 2008/09/29 09:42:01 gpetrucc Exp $
  *
  */
 

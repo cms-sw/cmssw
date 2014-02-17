@@ -1,5 +1,5 @@
 //
-// $Id: CompositeCandidate.cc,v 1.1 2008/10/23 20:21:14 srappocc Exp $
+// $Id: CompositeCandidate.cc,v 1.2 2008/11/28 19:25:02 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"

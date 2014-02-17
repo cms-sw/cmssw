@@ -1,6 +1,6 @@
 /** \class HLTEgammaGenericQuadraticFilter
  *
- * $Id: HLTEgammaGenericQuadraticFilter.cc,v 1.3 2012/01/21 14:56:57 fwyzard Exp $
+ * $Id: HLTEgammaGenericQuadraticFilter.cc,v 1.4 2012/03/06 10:13:59 sharper Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *  modified by Chris Tully (Princeton)

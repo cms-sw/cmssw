@@ -4,8 +4,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.4 $
- *  $Date: 2007/08/17 17:20:05 $
+ *  $Revision: 1.5 $
+ *  $Date: 2008/10/14 07:19:32 $
  *  (last update by $Author: flucke $)
  */
 

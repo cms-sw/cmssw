@@ -7,7 +7,7 @@
 #
 # sed 's/EcalIntercalibConstants/your-record/g' testTemplate.py > testyourrecord.py
 #
-# Stefano Argiro', $Id: testEcalIntercalibConstants.py,v 1.1 2008/11/14 15:46:03 argiro Exp $
+# Stefano Argiro', $Id: testEcalIntercalibConstants.py,v 1.1 2010/04/16 08:19:47 depasse Exp $
 #
 #
 

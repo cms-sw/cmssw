@@ -2,9 +2,13 @@ CCC
 CCC from http://cernlib.web.cern.ch/cernlib/download/2005_source/src/mathlib/gen/v/rm48.F
 CCC
 *
-* $Id: rm48.f,v 1.2 2008/04/09 14:11:58 marafino Exp $
+* $Id: rm48.f,v 1.3 2009/02/19 18:43:56 saout Exp $
 *
 * $Log: rm48.f,v $
+* Revision 1.3  2009/02/19 18:43:56  saout
+* Don't clash with Pythia6 random number engine.
+* ----------------------------------------------------------------------
+*
 * Revision 1.2  2008/04/09 14:11:58  marafino
 * Insert new and changed files to accomodate running this code as a producer
 * or as a source.

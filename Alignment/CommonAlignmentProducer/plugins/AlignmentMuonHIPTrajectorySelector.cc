@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Feb 20 10:56:46 CST 2008
-// $Id: AlignmentMuonHIPTrajectorySelector.cc,v 1.4 2010/01/06 15:26:10 mussgill Exp $
+// $Id: AlignmentMuonHIPTrajectorySelector.cc,v 1.5 2010/02/11 00:10:23 wmtan Exp $
 //
 //
 

@@ -1,8 +1,8 @@
 /** \class DTSegment4DT0Corrector
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2009/03/09 15:32:04 $
- *  $Revision: 1.1 $
+ *  $Date: 2009/03/10 16:09:13 $
+ *  $Revision: 1.2 $
  * \author Mario Pelliccioni - INFN Torino <pellicci@cern.ch>
  */
 

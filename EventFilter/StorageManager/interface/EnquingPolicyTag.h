@@ -1,4 +1,4 @@
-// $Id: EnquingPolicyTag.h,v 1.3.16.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: EnquingPolicyTag.h,v 1.4 2011/03/07 15:31:31 mommsen Exp $
 /// @file: EnquingPolicyTag.h 
 
 #ifndef EventFilter_StorageManager_EnquingPolicy_t
@@ -14,8 +14,8 @@ namespace stor
      used for enquing items when the queue in question is full.
 
      $Author: mommsen $
-     $Revision: 1.3.16.1 $
-     $Date: 2011/03/07 11:33:04 $
+     $Revision: 1.4 $
+     $Date: 2011/03/07 15:31:31 $
    */
 
   namespace enquing_policy

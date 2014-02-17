@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 19 16:25:14 CST 2009
-// $Id: FWCheckBoxIcon.h,v 1.1 2009/03/04 16:40:51 chrjones Exp $
+// $Id: FWCheckBoxIcon.h,v 1.2 2009/05/01 02:01:34 dmytro Exp $
 //
 
 // system include files

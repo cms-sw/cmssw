@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.13 2012/05/12 21:06:06 argiro Exp $
-  *  $Date: 2012/05/12 21:06:06 $
-  *  $Revision: 1.13 $
+  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.14 2012/05/13 21:00:57 argiro Exp $
+  *  $Date: 2012/05/13 21:00:57 $
+  *  $Revision: 1.14 $
   *  \author R. Bruneliere - A. Zabi
   *  
   *  The chi2 computation with matrix is replaced by the chi2express which is  moved outside the weight algo

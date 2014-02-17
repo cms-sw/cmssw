@@ -9,7 +9,7 @@
     @par Created
     Sat Jun 27 17:49:21 2009 UTC
 
-    @version $Id: PatJetHitFitTranslator.cc,v 1.2 2011/05/26 12:57:18 mseidel Exp $
+    @version $Id: PatJetHitFitTranslator.cc,v 1.3 2011/07/11 07:59:12 mseidel Exp $
  */
 
 

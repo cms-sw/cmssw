@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: EcalFEDWithCRCErrorProducer.cc,v 1.4 2010/02/11 00:10:41 wmtan Exp $
+// $Id: EcalFEDWithCRCErrorProducer.cc,v 1.5 2010/10/05 13:39:30 vlimant Exp $
 //
 //
 

@@ -9,8 +9,8 @@ class HcalPulseShape;
   * Amplitude correction for pulse containment in time.
   * Currently only for HPD pulse shape.
   *  
-  * $Date: 2011/07/26 21:07:44 $
-  * $Revision: 1.2 $
+  * $Date: 2011/09/08 13:23:03 $
+  * $Revision: 1.3 $
   * \author P. Dudero - Minnesota
   */
 class HcalPulseContainmentCorrection {

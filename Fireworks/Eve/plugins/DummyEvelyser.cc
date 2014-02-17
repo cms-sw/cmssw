@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Mon Jun 28 18:17:47 CEST 2010
-// $Id: DummyEvelyser.cc,v 1.6 2010/07/13 19:59:05 matevz Exp $
+// $Id: DummyEvelyser.cc,v 1.7 2010/07/15 13:02:04 matevz Exp $
 //
 
 // system include files

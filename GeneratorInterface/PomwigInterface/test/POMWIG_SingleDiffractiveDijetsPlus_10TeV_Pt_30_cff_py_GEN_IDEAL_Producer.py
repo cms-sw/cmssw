@@ -25,7 +25,7 @@ process.MessageLogger.cerr.INFO.limit = -1
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('POMWIG SD plus Di-jets ptmin 30 GeV at 10TeV'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GenProduction/python/POMWIG_SingleDiffractiveDijetsPlus_10TeV_Pt_30_cff.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/PomwigInterface/test/POMWIG_SingleDiffractiveDijetsPlus_10TeV_Pt_30_cff_py_GEN_IDEAL_Producer.py,v $')
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)

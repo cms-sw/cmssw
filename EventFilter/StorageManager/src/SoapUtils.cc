@@ -1,5 +1,5 @@
 /**
- * $Id: SoapUtils.cc,v 1.3 2009/07/20 13:07:28 mommsen Exp $
+ * $Id: SoapUtils.cc,v 1.4 2010/05/03 13:51:09 mommsen Exp $
 /// @file: SoapUtils.cc
  */
 

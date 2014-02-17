@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowClonePtrCandidate.h,v 1.3 2008/12/05 12:15:18 hegner Exp $
+ * \version $Id: ShallowClonePtrCandidate.h,v 1.4 2009/11/02 21:46:53 srappocc Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"

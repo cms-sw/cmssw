@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2012/12/19 10:59:25 $
- *  $Revision: 1.57 $
+ *  $Date: 2012/12/20 16:09:28 $
+ *  $Revision: 1.27 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:

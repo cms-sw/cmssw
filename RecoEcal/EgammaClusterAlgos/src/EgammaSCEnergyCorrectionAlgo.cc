@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.47 2011/11/15 10:36:53 argiro Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.48 2012/04/19 13:13:12 argiro Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"

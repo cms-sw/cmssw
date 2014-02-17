@@ -1,4 +1,4 @@
-// $Id: MLlog4cplus.h,v 1.2.2.1 2007/05/31 21:01:39 meschi Exp $
+// $Id: MLlog4cplus.h,v 1.3 2007/06/22 10:32:17 meschi Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

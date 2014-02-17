@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: NonNullNumberSelector.h,v 1.3 2007/06/07 08:59:43 llista Exp $
+ * $Id: NonNullNumberSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 
 struct NonNullNumberSelector {

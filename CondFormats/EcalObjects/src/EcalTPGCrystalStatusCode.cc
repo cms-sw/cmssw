@@ -1,7 +1,7 @@
 /**
  * Author: Paolo Meridiani
  * Created: 14 Nov 2006
- * $Id: EcalTPGCrystalStatusCode.cc,v 1.1 2006/11/16 18:19:45 meridian Exp $
+ * $Id: EcalTPGCrystalStatusCode.cc,v 1.1 2008/12/03 15:09:24 fra Exp $
  **/
 
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatusCode.h"

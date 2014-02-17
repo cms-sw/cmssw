@@ -1,5 +1,5 @@
 //
-//     $Id: RunHitFit.cc,v 1.10 2010/07/30 22:06:01 haryo Exp $
+//     $Id: RunHitFit.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 // Package: TopQuarkAnalysis/TopHitFit
 // File   : src/RunHitFit.cc

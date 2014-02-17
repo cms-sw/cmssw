@@ -1,6 +1,6 @@
 // Original Author:  Ivan Amos Cali
 //         Created:  Mon Jul 28 14:10:52 CEST 2008
-// $Id: SiStripBaselineValidator.cc,v 1.2 2011/10/20 09:48:04 borrell Exp $
+// $Id: SiStripBaselineValidator.cc,v 1.3 2011/11/02 00:39:33 gowdy Exp $
 //
 //
  

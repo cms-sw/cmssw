@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Feb 10 11:15:16 CST 2010
-// $Id$
+// $Id: LumiHistoryGetter.h,v 1.1 2010/02/11 17:21:38 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 

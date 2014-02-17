@@ -20,7 +20,7 @@
 //
 // Original Author:  Konstantinos Theofilatos, Ulla Gebbert and Christian Sander
 //         Created:  Sat Nov 14 18:43:21 CET 2009
-// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.4 2012/02/08 06:43:36 lhx Exp $
+// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.1 2012/03/21 14:43:35 lhx Exp $
 //
 //
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Aram Avetisyan, avetisya@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: LMapLoader.cc,v 1.2 2009/04/14 22:53:06 kukartse Exp $
+// $Id: LMapLoader.cc,v 1.3 2010/08/06 20:24:13 wmtan Exp $
 //
 
 // system include files

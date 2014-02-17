@@ -3,7 +3,7 @@
 
 /** \class CSCALCTStatusDigiCollection
  *
- *  $Date: 2007/03/29 16:04:42 $
+ *  $Date: 2007/05/21 20:06:55 $
  *  $Revision: 1.1 $
  */
 

@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.h,v 1.8 2009/05/11 16:01:16 saout Exp $
+// $Id: ProcessRegistry.h,v 1.9 2011/04/15 17:07:13 wmtan Exp $
 //
 
 #include <string>

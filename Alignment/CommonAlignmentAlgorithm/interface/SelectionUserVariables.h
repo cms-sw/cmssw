@@ -10,9 +10,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.1 $
- *  $Date: 2006/11/30 10:08:26 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.2 $
+ *  $Date: 2007/10/08 14:38:15 $
+ *  (last update by $Author: cklae $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentUserVariables.h"

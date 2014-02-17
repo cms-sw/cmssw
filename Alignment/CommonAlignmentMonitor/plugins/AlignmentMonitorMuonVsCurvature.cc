@@ -5,7 +5,7 @@
  * Original Author:  Jim Pivarski
  *         Created:  Fri Feb 19 21:45:02 CET 2010
  *
- * $Id:$
+ * $Id: AlignmentMonitorMuonVsCurvature.cc,v 1.6 2011/10/12 22:59:47 khotilov Exp $
  */
 
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"

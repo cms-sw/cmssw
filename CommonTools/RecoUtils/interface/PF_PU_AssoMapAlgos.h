@@ -8,7 +8,7 @@
 */
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
-// $Id$
+// $Id: PF_PU_AssoMapAlgos.h,v 1.7 2012/11/21 09:45:04 mgeisler Exp $
 //
 //
 

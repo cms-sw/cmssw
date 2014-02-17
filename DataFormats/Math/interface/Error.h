@@ -1,6 +1,6 @@
 #ifndef TrackReco_Error_h
 #define TrackReco_Error_h
-// $Id: Error.h,v 1.9 2006/06/26 08:56:09 llista Exp $
+// $Id: Error.h,v 1.10 2006/11/20 09:06:52 llista Exp $
 //
 // Symmetric matrix
 //

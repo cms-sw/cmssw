@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2010/09/10 12:11:39 $
+ * last update: $Date: 2011/09/06 13:50:18 $
  * by         : $Author: mussgill $
  *
  * Base class for reference 'trajectories' of single- or multiparticles

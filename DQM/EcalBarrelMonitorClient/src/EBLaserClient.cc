@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2012/04/13 17:59:43 $
- * $Revision: 1.283.2.1 $
+ * $Date: 2012/04/27 13:45:59 $
+ * $Revision: 1.286 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

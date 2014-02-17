@@ -7,8 +7,8 @@ process.source = cms.Source("PoolSource",
                             )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.5 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/DoubleMuon_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.6 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/DPGAnalysis/Skims/python/DoubleMuon_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET4 DoubleMuon skim')
 )
 

@@ -9,9 +9,9 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: AlignmentMuonSelector.h,v 1.4 2009/03/08 02:12:37 dlange Exp $
+ * $Id: AlignmentMuonSelector.h,v 1.5 2010/08/19 13:53:08 jfernan2 Exp $
  *
  */
 

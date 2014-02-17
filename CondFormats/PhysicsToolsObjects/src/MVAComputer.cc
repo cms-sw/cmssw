@@ -18,7 +18,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.12 2012/08/28 22:29:49 wmtan Exp $
+// $Id: MVAComputer.cc,v 1.13 2012/08/30 23:28:10 wmtan Exp $
 //
 #include <functional>
 #include <algorithm>

@@ -8,7 +8,7 @@
 //
 // Original Author: mccauley
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.19 2010/10/07 16:21:01 mccauley Exp $
+// $Id: FWCSCWireDigiProxyBuilder.cc,v 1.20 2010/10/19 09:00:59 chrjones Exp $
 //
 
 #include "TEveStraightLineSet.h"

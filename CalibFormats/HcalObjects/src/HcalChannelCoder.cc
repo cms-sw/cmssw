@@ -2,7 +2,7 @@
     
     Container for ADC<->fQ conversion constants for HCAL QIE
    $Author: ratnikov
-   $Revision: 1.3 by michals$
+   $Revision: 1.3 $
 */
 
 #include <iostream>

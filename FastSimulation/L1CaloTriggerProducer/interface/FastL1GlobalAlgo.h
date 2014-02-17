@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.2 2008/07/24 10:20:30 chinhan Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.20 2009/03/23 11:41:27 chinhan Exp $
 //
 
 // system include files

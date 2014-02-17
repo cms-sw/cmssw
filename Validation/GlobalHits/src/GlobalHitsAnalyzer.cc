@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2010/01/06 14:24:50 $
- *  $Revision: 1.18 $
+ *  $Date: 2012/09/04 20:38:34 $
+ *  $Revision: 1.19 $
  *  \author M. Strang SUNY-Buffalo
  */
 #include "Geometry/Records/interface/CaloGeometryRecord.h"

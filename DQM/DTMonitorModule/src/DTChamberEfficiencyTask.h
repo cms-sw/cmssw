@@ -10,8 +10,8 @@
  *  Class based on the code written by S. Lacaprara :
  *  RecoLocalMuon / DTSegment / test / DTEffAnalyzer.h
  *
- *  $Date: 2008/09/29 13:06:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/05 10:14:40 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 

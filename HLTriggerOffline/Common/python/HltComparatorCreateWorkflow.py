@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # Original Author: James Jackson
-# $Id: HltComparatorCreateWorkflow.py,v 1.1 2009/06/22 20:11:40 wittich Exp $
-# $Log$
+# $Id: HltComparatorCreateWorkflow.py,v 1.2 2009/07/19 14:34:19 wittich Exp $
+# $Log: HltComparatorCreateWorkflow.py,v $
+# Revision 1.2  2009/07/19 14:34:19  wittich
+# Add HltComparator file back in for 3.1.
+# Tweaks to scripts and cfg files for HLT re-running.
+#
 
 # MakeValidationConfig.py
 #   Makes CMSSW config for prompt validation of a given run number,

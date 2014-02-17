@@ -1,8 +1,8 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2010/09/10 11:36:58 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/11/22 08:40:09 $
+ *  $Revision: 1.20 $
  *  (last update by $Author: mussgill $)
  */
 

@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.cc,v 1.12.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: EventConsumerSelector.cc,v 1.13 2011/03/07 15:31:32 mommsen Exp $
 /// @file: EventConsumerSelector.cc
 
 #include <vector>

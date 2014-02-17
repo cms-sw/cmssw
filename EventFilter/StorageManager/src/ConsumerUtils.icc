@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.icc,v 1.6 2011/08/31 20:10:10 wmtan Exp $
+// $Id: ConsumerUtils.icc,v 1.7 2012/04/20 10:48:01 mommsen Exp $
 /// @file: ConsumerUtils.icc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"

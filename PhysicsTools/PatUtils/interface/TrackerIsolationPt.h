@@ -1,5 +1,5 @@
 //
-// $Id: TrackerIsolationPt.h,v 1.3 2008/02/28 14:54:24 llista Exp $
+// $Id: TrackerIsolationPt.h,v 1.4 2008/03/05 14:51:03 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_TrackerIsolationPt_h
@@ -13,7 +13,7 @@
    around the lepton's direction, without doing track extrapolation
 
   \author   Steven Lowette
-  \version  $Id: TrackerIsolationPt.h,v 1.3 2008/02/28 14:54:24 llista Exp $
+  \version  $Id: TrackerIsolationPt.h,v 1.4 2008/03/05 14:51:03 fronga Exp $
 */
 
 namespace reco {

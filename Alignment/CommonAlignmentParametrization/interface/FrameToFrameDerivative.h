@@ -8,9 +8,9 @@
 ///
 /// class for calculating derivatives between different frames
 ///
-///  $Date: 2007/10/08 15:56:00 $
-///  $Revision: 1.6 $
-/// (last update by $Author: cklae $)
+///  $Date: 2010/12/14 01:02:34 $
+///  $Revision: 1.7 $
+/// (last update by $Author: flucke $)
 
 class Alignable;
 

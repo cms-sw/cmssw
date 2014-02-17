@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Oct 20 10:20:20 EDT 2007
-// $Id$
+// $Id: GetProduct.h,v 1.1 2007/10/22 18:43:05 chrjones Exp $
 //
 
 // system include files

@@ -1,4 +1,4 @@
-// $Id: MonitoredQuantity.cc,v 1.12 2011/03/07 15:31:32 mommsen Exp $
+// $Id: MonitoredQuantity.cc,v 1.13 2011/04/07 08:01:40 mommsen Exp $
 /// @file: MonitoredQuantity.cc
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"

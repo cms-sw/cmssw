@@ -42,9 +42,9 @@
 // command uses the exact binning of the first draw command.
 //
 // Author      : Martin Weber
-// Revision    : $Revision: 1.17 $
-// Last update : $Date: 2009/10/10 14:17:44 $
-// by          : $Author: bonato $
+// Revision    : $Revision: 1.1 $
+// Last update : $Date: 2010/05/21 13:19:15 $
+// by          : $Author: mussgill $
 //
 //////////////////////////////////////////////////////////////////////
 

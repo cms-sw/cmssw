@@ -15,7 +15,7 @@
 //
 // Original Author:  V.Chiochia
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiPixelDetInfoFileReader.h,v 1.1 2007/07/09 11:24:02 gbruno Exp $
+// $Id: SiPixelDetInfoFileReader.h,v 1.1 2007/08/08 16:22:28 chiochia Exp $
 //
 //
 

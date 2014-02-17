@@ -1,5 +1,5 @@
 //
-// $Id: TriggerFilter.cc,v 1.6 2011/02/22 18:29:50 vadler Exp $
+// $Id: TriggerFilter.cc,v 1.7 2011/05/24 15:56:25 vadler Exp $
 //
 
 

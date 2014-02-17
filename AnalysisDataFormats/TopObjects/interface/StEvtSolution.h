@@ -1,5 +1,5 @@
 //
-// $Id: StEvtSolution.h,v 1.12 2008/11/14 19:20:51 rwolf Exp $
+// $Id: StEvtSolution.h,v 1.13 2008/12/18 21:20:10 rwolf Exp $
 //
 
 #ifndef TopObjects_StEvtSolution_h

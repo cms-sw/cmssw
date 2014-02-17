@@ -13,7 +13,7 @@
 //
 // Original Author:  Monica Vazquez Acosta (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTEcalIsolationProducersRegional.h,v 1.2 2008/05/12 08:48:22 ghezzi Exp $
+// $Id: EgammaHLTEcalIsolationProducersRegional.h,v 1.3 2011/12/19 11:16:45 sani Exp $
 //
 //
 

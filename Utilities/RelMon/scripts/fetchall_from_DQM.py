@@ -3,9 +3,9 @@
 # RelMon: a tool for automatic Release Comparison
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2012/06/12 12:25:28 $
-# $Revision: 1.1 $
+# $Author: agimbuta $
+# $Date: 2012/07/10 14:19:02 $
+# $Revision: 1.2 $
 #
 #
 # Danilo Piparo CERN - danilo.piparo@cern.ch

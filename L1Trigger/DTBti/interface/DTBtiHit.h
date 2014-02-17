@@ -5,8 +5,8 @@
  *   A class for hits in a drift cell
  *
  *
- *   $Date: 2007/05/04 10:19:45 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/06/30 13:41:36 $
+ *   $Revision: 1.6 $
  *
  *   \author  C. Grandi, S. Vanini
  *   Modifications: 

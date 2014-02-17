@@ -10,7 +10,7 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 process = cms.Process("runMuonMillepedeAlgorithm")
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('runMuonMillepedeAlgorithm'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Alignment/MuonAlignmentAlgorithms/test/runMuonMillepedeLocal.py,v $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Alignment/MuonAlignmentAlgorithms/test/runMuonMillepedeLocal.py,v $'),
     annotation = cms.untracked.string('runMuonMillepeAlgorithm')
 )
 

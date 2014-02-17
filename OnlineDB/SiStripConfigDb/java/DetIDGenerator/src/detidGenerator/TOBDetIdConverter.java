@@ -7,9 +7,12 @@ package detidGenerator;
 **/
 
 /*
-  $Date: 2006/08/31 15:24:29 $
+  $Date: 2007/03/22 20:46:49 $
   
   $Log: TOBDetIdConverter.java,v $
+  Revision 1.4  2007/03/22 20:46:49  gbaulieu
+  New numbering of Det ID
+
   Revision 1.3  2006/08/31 15:24:29  gbaulieu
   The TOBCS are directly in the TOB
   Correction on the Stereo flag

@@ -1,4 +1,4 @@
-// $Id: TTUGlobalSignal.h,v 1.1 2009/02/05 13:46:21 aosorio Exp $
+// $Id: TTUGlobalSignal.h,v 1.1 2009/05/16 19:43:30 aosorio Exp $
 #ifndef TTUGLOBALSIGNAL_H 
 #define TTUGLOBALSIGNAL_H 1
 

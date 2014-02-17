@@ -3,8 +3,8 @@ from GeneratorInterface.ThePEGInterface.herwigDefaults_cff import *
 from GeneratorInterface.ThePEGInterface.herwigValidation_cff import *
 
 configurationMetadata = cms.untracked.PSet(
-	version = cms.untracked.string('$Revision: 1.4 $'),
-	name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/ThePEGInterface/test/testThePEGHadronisation.py,v $'),
+	version = cms.untracked.string('$Revision: 1.5 $'),
+	name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ThePEGInterface/test/testThePEGHadronisation.py,v $'),
 	annotation = cms.untracked.string('LHE example - ttbar events')
 )
 

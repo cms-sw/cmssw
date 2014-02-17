@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store QIE coder parameters for one channel
 $Author: ratnikov
-$Date: 2010/12/06 20:04:16 $
-$Revision: 1.3 $
+$Date: 2013/03/25 16:23:33 $
+$Revision: 1.4 $
 */
 
 #include <iostream>

@@ -1,4 +1,4 @@
-// $Id: ExpirableQueue.h,v 1.7.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: ExpirableQueue.h,v 1.8 2011/03/07 15:31:31 mommsen Exp $
 /// @file: ExpirableQueue.h 
 
 
@@ -19,8 +19,8 @@ namespace stor
      was made.
    
      $Author: mommsen $
-     $Revision: 1.7.4.1 $
-     $Date: 2011/03/07 11:33:04 $
+     $Revision: 1.8 $
+     $Date: 2011/03/07 15:31:31 $
    */
 
   template <class T, class Policy>

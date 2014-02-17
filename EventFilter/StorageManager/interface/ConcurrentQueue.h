@@ -1,4 +1,4 @@
-// $Id: ConcurrentQueue.h,v 1.14 2012/10/04 11:53:21 mommsen Exp $
+// $Id: ConcurrentQueue.h,v 1.15 2013/01/07 11:16:27 eulisse Exp $
 /// @file: ConcurrentQueue.h 
 
 
@@ -41,9 +41,9 @@ namespace stor
         The function returns the dropped event count (1) if the
         item cannot be added.
    
-     $Author: mommsen $
-     $Revision: 1.14 $
-     $Date: 2012/10/04 11:53:21 $
+     $Author: eulisse $
+     $Revision: 1.15 $
+     $Date: 2013/01/07 11:16:27 $
    */
 
 

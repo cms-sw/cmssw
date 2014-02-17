@@ -4,8 +4,8 @@
 /*
  * \file L1TSync.h
  *
- * $Date: 2011/07/28 16:03:54 $
- * $Revision: 1.7 $
+ * $Date: 2011/08/02 15:49:48 $
+ * $Revision: 1.8 $
  * \author J. Pela
  *
 */

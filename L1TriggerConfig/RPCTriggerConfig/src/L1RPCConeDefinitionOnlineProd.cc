@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Wed Apr  1 20:23:43 CEST 2009
-// $Id$
+// $Id: L1RPCConeDefinitionOnlineProd.cc,v 1.1 2009/04/01 18:33:58 wsun Exp $
 //
 //
 

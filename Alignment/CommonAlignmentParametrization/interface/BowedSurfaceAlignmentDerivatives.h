@@ -16,9 +16,9 @@
 /// (as predicted by TSOS) and the length of the surface is re-scaled.
 ///
 ///  by Gero Flucke, October 2010
-///  $Date$
-///  $Revision$
-/// (last update by $Author$)
+///  $Date: 2010/10/26 20:41:07 $
+///  $Revision: 1.1 $
+/// (last update by $Author: flucke $)
 
 class TrajectoryStateOnSurface;
 

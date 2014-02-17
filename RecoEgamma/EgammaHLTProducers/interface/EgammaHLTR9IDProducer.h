@@ -8,7 +8,7 @@
 //
 // Original Author:  Roberto Covarelli (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTR9Producer.h,v 1.2 2010/06/10 16:19:31 ghezzi Exp $
+// $Id: EgammaHLTR9IDProducer.h,v 1.1 2011/01/19 21:34:31 cgtully Exp $
 //         modified by Chris Tully (Princeton)
 //
 //

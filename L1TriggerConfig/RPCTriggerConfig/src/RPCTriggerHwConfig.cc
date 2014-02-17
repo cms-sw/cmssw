@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 13:57:29 CEST 2008
-// $Id: RPCTriggerHwConfig.cc,v 1.4 2008/09/01 14:17:37 michals Exp $
+// $Id: RPCTriggerHwConfig.cc,v 1.5 2010/02/26 15:50:59 fruboes Exp $
 //
 //
 

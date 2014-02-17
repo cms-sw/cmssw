@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.36 2012/08/03 15:30:38 yana Exp $
+// $Id: ValidateGeometry.cc,v 1.37 2013/02/28 14:23:43 yana Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

@@ -1,5 +1,5 @@
 //
-// $Id: StKinFitter.h,v 1.3 2010/09/06 11:07:13 snaumann Exp $
+// $Id: StKinFitter.h,v 1.4 2010/09/06 13:46:16 snaumann Exp $
 //
 
 #ifndef TopKinFitter_StKinFitter_h

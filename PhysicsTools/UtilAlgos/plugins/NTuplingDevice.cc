@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sun May 11 21:12:46 CEST 2008
-// $Id: NTuplingDevice.cc,v 1.3 2009/05/11 14:29:49 llista Exp $
+// $Id: NTuplingDevice.cc,v 1.4 2009/12/18 17:52:25 wmtan Exp $
 //
 //
 

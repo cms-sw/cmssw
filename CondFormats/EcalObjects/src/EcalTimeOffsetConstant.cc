@@ -1,7 +1,7 @@
 /**
  * Author: Seth Cooper, University of Minnesota
  * Created: 21 Mar 2011
- * $Id: $
+ * $Id: EcalTimeOffsetConstant.cc,v 1.1 2011/03/22 16:13:04 argiro Exp $
  **/
 
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"

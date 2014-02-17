@@ -16,7 +16,7 @@
 //
 // Original Author:  Filip Moortgat
 //         Created:  Wed Jul 19 14:41:13 CEST 2006
-// $Id: HepPDTAnalyzer.h,v 1.3 2007/12/07 16:09:22 fabiocos Exp $
+// $Id: HepPDTAnalyzer.h,v 1.4 2008/12/10 13:45:10 fabiocos Exp $
 //
 //
 

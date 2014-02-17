@@ -1,4 +1,4 @@
-// $Id: VertexCompositeCandidate.cc,v 1.3 2008/01/24 13:17:32 llista Exp $
+// $Id: VertexCompositeCandidate.cc,v 1.4 2008/02/19 13:14:32 llista Exp $
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 using namespace reco;

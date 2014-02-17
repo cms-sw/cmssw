@@ -1,7 +1,7 @@
 /// \file TrackerAlignableId.cc
 ///
-///  $Revision: 1.11 $
-///  $Date: 2007/05/12 00:27:47 $
+///  $Revision: 1.12 $
+///  $Date: 2007/10/08 13:49:07 $
 ///  (last update by $Author: cklae $)
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

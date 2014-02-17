@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/10/16 08:42:58 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/10/16 10:07:41 $
+ *  $Revision: 1.3 $
  *  \author Anne-Catherine Le Bihan
  */
 

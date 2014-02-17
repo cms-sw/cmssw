@@ -15,7 +15,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Sat Oct  6 22:39:47 CEST 2007
-// $Id: EcalRawToRecHitProducer.h,v 1.5 2009/04/28 12:26:19 vlimant Exp $
+// $Id: EcalRawToRecHitProducer.h,v 1.6 2011/05/12 19:01:29 vlimant Exp $
 //
 //
 

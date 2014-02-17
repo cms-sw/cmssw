@@ -1,6 +1,6 @@
 /** \class EgammaHLTCaloIsolFilterPairs
  *
- * $Id: HLTEgammaCaloIsolFilterPairs.cc,v 1.1 2008/10/14 14:52:57 ghezzi Exp $
+ * $Id: HLTEgammaCaloIsolFilterPairs.cc,v 1.2 2012/01/21 14:56:56 fwyzard Exp $
  * 
  *  \author Alessio Ghezzi
  *

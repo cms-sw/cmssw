@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun May  6 12:16:49 CDT 2012
-// $Id$
+// $Id: ResourceEnforcer.cc,v 1.1 2012/05/06 19:14:27 chrjones Exp $
 //
 
 // system include files

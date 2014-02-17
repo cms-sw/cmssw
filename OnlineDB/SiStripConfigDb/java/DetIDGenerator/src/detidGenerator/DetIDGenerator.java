@@ -13,9 +13,12 @@ import java.sql.*;
 **/
 
 /*
-  $Date: 2007/06/21 08:19:37 $
+  $Date: 2007/07/04 10:12:15 $
   
   $Log: DetIDGenerator.java,v $
+  Revision 1.9  2007/07/04 10:12:15  gbaulieu
+  The fibre length is now in centimeters
+
   Revision 1.8  2007/06/21 08:19:37  gbaulieu
   The length of the fibers is in meters
 

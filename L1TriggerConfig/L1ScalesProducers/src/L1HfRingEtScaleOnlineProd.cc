@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1HfRingEtScaleOnlineProd.cc,v 1.4 2010/02/18 21:37:27 jbrooke Exp $
+// $Id: L1HfRingEtScaleOnlineProd.cc,v 1.5 2012/06/18 10:17:56 eulisse Exp $
 //
 //
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.21 2009/11/02 18:52:51 lowette Exp $
+// Last commit: $Id: LatencyHistosUsingDb.cc,v 1.22 2009/11/10 14:49:02 lowette Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/LatencyHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"

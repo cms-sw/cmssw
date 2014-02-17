@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 11:46:09 CEST 2007
-// $Id: SiStripQualityFakeESSource.cc,v 1.1 2007/10/08 17:34:22 giordano Exp $
+// $Id: SiStripQualityFakeESSource.cc,v 1.1 2008/02/06 17:04:16 bainbrid Exp $
 //
 //
 

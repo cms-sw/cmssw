@@ -2,9 +2,9 @@
  *
  *  Original author: Andreas Mussgiller, August 2010
  *
- *  $Date: 2010/10/26 19:53:53 $
- *  $Revision: 1.2 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2011/03/22 09:49:50 $
+ *  $Revision: 1.3 $
+ *  (last update by $Author: innocent $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"

@@ -15,7 +15,7 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 //
 // Original Author:  Frederic Ronga
 //         Created:  Fri Feb  9 19:24:38 CET 2007
-// $Id: FakeAlignmentProducer.cc,v 1.6 2008/06/26 10:00:35 flucke Exp $
+// $Id: FakeAlignmentProducer.cc,v 1.7 2008/06/26 17:52:29 flucke Exp $
 //
 //
 

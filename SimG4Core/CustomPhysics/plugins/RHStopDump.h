@@ -3,7 +3,7 @@
 //
 // Dump stopping points from the Event into ASCII file
 // F.Ratnikov, Apr. 8, 2010
-// $Id: $
+// $Id: RHStopDump.h,v 1.1 2010/04/09 11:38:36 fedor Exp $
 //
 
 #include <fstream>

@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2012/04/27 13:45:58 $
- * $Revision: 1.61 $
+ * $Date: 2012/06/11 22:57:15 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  *
 */

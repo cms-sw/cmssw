@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.9 $
-#     $Date: 2011/06/15 14:24:52 $
+#     $Revision: 1.10 $
+#     $Date: 2012/01/20 10:21:28 $
 #
 #  Take card file, blank all INFI directives and insert
 #  the INFI directives from the modifier file instead.

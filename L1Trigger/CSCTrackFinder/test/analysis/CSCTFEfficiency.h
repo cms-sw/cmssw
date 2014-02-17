@@ -14,7 +14,7 @@ Implementation:
 //
 // Original Author:  Justin Hugon,Ivan's graduate student,jhugon@phys.ufl.edu
 //         Created:  Thu Jun 10 10:40:10 EDT 2010
-// $Id: CSCTFEfficiency.h,v 1.1 2011/10/18 18:46:09 jhugon Exp $
+// $Id: CSCTFEfficiency.h,v 1.2 2012/02/10 10:54:57 jhugon Exp $
 //
 //
 #ifndef jhugon_CSCTFEfficiency_h

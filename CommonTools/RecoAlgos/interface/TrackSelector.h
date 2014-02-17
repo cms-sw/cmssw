@@ -9,9 +9,9 @@
  *         Reorganized by Petar Maksimovic, JHU
  *         Reorganized again by Giovanni Petrucciani
  *         Outsourcing of cluster cloning by Gero Flucke, DESY
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: TrackSelector.h,v 1.1 2009/03/04 13:11:28 llista Exp $
+ * $Id: TrackSelector.h,v 1.2 2009/12/09 16:00:33 flucke Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"

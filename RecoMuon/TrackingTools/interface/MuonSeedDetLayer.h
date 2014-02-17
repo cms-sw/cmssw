@@ -7,8 +7,8 @@
  *   Helper class for seed generation
  *
  *
- *   $Date: 2006/06/03 21:08:46 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/02/18 16:01:47 $
+ *   $Revision: 1.3 $
  *
  *   \author  N. Neumeister          Purdue University
  */

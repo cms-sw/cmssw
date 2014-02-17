@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger Candidate
 //
 //
-//   $Date: 2006/08/21 14:26:08 $
-//   $Revision: 1.2 $
+//   $Date: 2007/04/02 15:44:10 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin        HEPHY Vienna

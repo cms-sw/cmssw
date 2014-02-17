@@ -1,5 +1,5 @@
 //
-// $Id: TriggerHelper.cc,v 1.4 2010/12/20 11:55:48 vadler Exp $
+// $Id: TriggerHelper.cc,v 1.5 2011/04/05 19:41:33 vadler Exp $
 //
 
 

@@ -1,4 +1,4 @@
-# $Id: FourVectorHLTOfflineClient_cfi.py,v 1.15 2010/08/04 09:50:52 rekovic Exp $
+# $Id: FourVectorHLTOfflineClient_cfi.py,v 1.16 2010/08/04 14:27:51 rekovic Exp $
 import FWCore.ParameterSet.Config as cms
 
 hltFourVectorClient = cms.EDAnalyzer("FourVectorHLTClient",

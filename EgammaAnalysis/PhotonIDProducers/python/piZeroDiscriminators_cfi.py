@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: piZeroDiscriminators_cfi.py,v 1.3 2008/06/17 10:44:25 ferriff Exp $
+# $Id: piZeroDiscriminators_cfi.py,v 1.4 2009/05/26 10:50:33 akyriaki Exp $
 # Preshower cluster producer
 piZeroDiscriminators = cms.EDProducer("PiZeroDiscriminatorProducer",
     # building preshower clusters

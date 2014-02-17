@@ -9,7 +9,7 @@
      \\\author: Lorenzo Agostino, September 2006
 */
 //
-// $Id: miscalibExample.h,v 1.1 2006/09/19 08:38:23 lorenzo Exp $
+// $Id: miscalibExample.h,v 1.2 2010/01/04 15:07:17 ferriff Exp $
 //
 
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorXdaqClient.h
  cc
- * $Date: 2009/04/17 09:56:27 $
- * $Revision: 1.1 $
+ * $Date: 2010/01/25 21:12:26 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */

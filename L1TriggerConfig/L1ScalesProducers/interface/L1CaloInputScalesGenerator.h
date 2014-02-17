@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/140
 //         Created:  Wed Jun 25 16:40:01 CEST 2008
-// $Id: L1CaloInputScalesGenerator.h,v 1.1 2008/07/24 10:40:49 jleonard Exp $
+// $Id: L1CaloInputScalesGenerator.h,v 1.2 2009/12/18 20:44:59 wmtan Exp $
 //
 //
 

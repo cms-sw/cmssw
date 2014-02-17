@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Mon Feb  9 11:02:08 CET 2009
-// $Id$
+// $Id: HcalSeverityLevelComputerRcd.h,v 1.1 2009/02/09 16:50:05 rofierzy Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

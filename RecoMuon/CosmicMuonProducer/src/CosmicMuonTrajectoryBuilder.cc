@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2010/08/11 00:42:19 $
- *  $Revision: 1.55 $
+ *  $Date: 2011/12/23 08:13:35 $
+ *  $Revision: 1.56 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 

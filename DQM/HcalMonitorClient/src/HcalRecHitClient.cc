@@ -11,8 +11,8 @@
 /*
  * \file HcalRecHitClient.cc
  * 
- * $Date: 2011/07/04 23:22:27 $
- * $Revision: 1.53 $
+ * $Date: 2012/06/18 08:23:10 $
+ * $Revision: 1.54 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */

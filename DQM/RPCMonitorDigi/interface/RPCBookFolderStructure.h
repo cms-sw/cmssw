@@ -1,7 +1,7 @@
 /** \class RPCBookFolderStructure
  *
- *  $Date: 2010/08/05 14:43:40 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/03/02 16:45:36 $
+ *  $Revision: 1.5 $
  * \author Anna Cimmino (INFN Napoli)
  *
  * Create folder structure for DQM histo saving

@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Aug  2 22:34:02 CDT 2012
-// $Id$
+// $Id: FFTJetLookupTableESProducer.cc,v 1.1 2012/11/14 22:34:57 igv Exp $
 //
 //
 

@@ -1,5 +1,5 @@
 //
-// $Id: Fourvec_Event.h,v 1.4 2009/11/18 12:38:02 haryo Exp $
+// $Id: Fourvec_Event.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
 //
 // File: hitfit/Fourvec_Event.h
 // Purpose: Represent an event for kinematic fitting as a collection

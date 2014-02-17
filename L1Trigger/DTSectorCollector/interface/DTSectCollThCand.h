@@ -3,7 +3,7 @@
 /**   \Class DTSectCollThCand.h
  *    A Trigger Server Theta Candidate
  *
- *   $Date: 2007/05/04 10:21:38 $
+ *   $Date: 2008/06/30 13:44:28 $
  *  
  *
  *   \Author C. Battilana

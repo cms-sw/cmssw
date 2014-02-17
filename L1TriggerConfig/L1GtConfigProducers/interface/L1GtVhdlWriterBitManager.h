@@ -13,8 +13,8 @@
  *
  * \author Philipp Wagner
  *
- * $Date: 2008/02/15 13:07:55 $
- * $Revision: 1.2 $
+ * $Date$
+ * $Revision$
  *
  */
 

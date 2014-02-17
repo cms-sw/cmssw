@@ -16,9 +16,9 @@
  *
  *  Original author: Gero Flucke, April 2007
  *
- *  $Date: 2009/02/28 21:04:59 $
- *  $Revision: 1.3 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2010/09/10 10:29:17 $
+ *  $Revision: 1.4 $
+ *  (last update by $Author: mussgill $)
  */
 
 class Alignable;

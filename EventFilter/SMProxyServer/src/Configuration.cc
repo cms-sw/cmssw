@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.2 2011/03/07 15:41:54 mommsen Exp $
+// $Id: Configuration.cc,v 1.3 2011/05/09 11:03:34 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/SMProxyServer/interface/Configuration.h"

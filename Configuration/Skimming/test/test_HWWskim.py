@@ -6,7 +6,7 @@ process = cms.Process("test")
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('HWW central skim'),
-    name = cms.untracked.string('$Source:  $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/Skimming/test/test_HWWskim.py,v $')
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)

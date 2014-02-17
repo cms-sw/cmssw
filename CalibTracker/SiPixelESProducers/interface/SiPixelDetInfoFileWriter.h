@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiPixelDetInfoFileWriter.h,v 1.1 2007/08/08 16:22:28 chiochia Exp $
+// $Id: SiPixelDetInfoFileWriter.h,v 1.2 2010/01/13 16:25:38 ursl Exp $
 //
 //
 

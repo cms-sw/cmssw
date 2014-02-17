@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.hh,v 1.1 2006/04/01 16:11:49 gutsche Exp $
+// 	$Id: DcxTrackCandidatesToTracks.hh,v 1.2 2007/01/15 22:16:27 gutsche Exp $
 //
 // Description:
 //	Class Header for |DcxTrackCandidatesToTracks| - a version of

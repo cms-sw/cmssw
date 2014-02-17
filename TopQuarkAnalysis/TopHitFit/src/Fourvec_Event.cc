@@ -1,5 +1,5 @@
 //
-// $Id: Fourvec_Event.cc,v 1.6 2011/04/26 13:35:49 haryo Exp $
+// $Id: Fourvec_Event.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 // File: src/Fourvec_Event.cc
 // Purpose: Represent an event for kinematic fitting as a collection

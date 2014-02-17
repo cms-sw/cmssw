@@ -13,7 +13,7 @@
 //
 // Original Author:  Jessica Lynn Leonard,32 4-C20,+41227674522,
 //         Created:  Fri Sep  9 11:19:20 CEST 2011
-// $Id: L1RCTOmdsFedVectorProducer.cc,v 1.1 2011/09/30 14:42:47 jleonard Exp $
+// $Id: L1RCTOmdsFedVectorProducer.cc,v 1.2 2011/10/06 14:29:07 jleonard Exp $
 //
 //
 

@@ -1,5 +1,5 @@
 /*
- * $Id: $ 
+ * $Id: MuonResidualsFromTrack.cc,v 1.5 2011/10/12 23:40:24 khotilov Exp $ 
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFromTrack.h"

@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.28 2011/09/27 15:38:53 bjk Exp $
+//$Id: FourVectorHLTClient.cc,v 1.29 2011/09/27 16:29:40 bjk Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 

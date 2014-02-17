@@ -9,8 +9,8 @@
 
 /** \class HcalCoarsePedestalMonitor
   *  
-  * $Date: 2010/11/10 20:00:32 $
-  * $Revision: 1.4 $
+  * $Date: 2010/11/17 19:17:30 $
+  * $Revision: 1.5 $
   * \author J. Temple - Univ. of Maryland
   */
 

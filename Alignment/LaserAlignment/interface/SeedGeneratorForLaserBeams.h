@@ -4,8 +4,8 @@
 /** \class SeedGeneratorForLaserBeams
  *  seed finding algorithm for the LAS
  *
- *  $Date: 2007/12/04 23:51:42 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/12/22 18:06:57 $
+ *  $Revision: 1.8 $
  *  \author Maarten Thomas
  */
 

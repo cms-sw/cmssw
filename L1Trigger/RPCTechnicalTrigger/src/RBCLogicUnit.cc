@@ -1,4 +1,4 @@
-// $Id: RBCLogicUnit.cc,v 1.2 2009/05/08 10:24:05 aosorio Exp $
+// $Id: RBCLogicUnit.cc,v 1.3 2009/06/07 21:18:50 aosorio Exp $
 // Include files 
 
 

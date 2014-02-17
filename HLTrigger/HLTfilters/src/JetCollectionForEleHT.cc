@@ -13,7 +13,7 @@
 //
 // Original Author:  Massimiliano Chiorboli,40 4-A01,+41227671535,
 //         Created:  Mon Oct  4 11:57:35 CEST 2010
-// $Id: JetCollectionForEleHT.cc,v 1.5 2011/03/03 14:22:19 gruen Exp $
+// $Id: JetCollectionForEleHT.cc,v 1.6 2011/04/28 06:22:41 gruen Exp $
 //
 //
 

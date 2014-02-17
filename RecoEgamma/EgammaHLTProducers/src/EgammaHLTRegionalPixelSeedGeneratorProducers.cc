@@ -2,7 +2,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
 //  Modified from TkSeedGeneratorFromTrk by Jeremy Werner, Princeton University, USA
-// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.12 2011/05/06 11:21:24 innocent Exp $
+// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.13 2012/01/23 12:56:38 sharper Exp $
 //
 
 #include <iostream>

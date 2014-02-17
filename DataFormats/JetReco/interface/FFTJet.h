@@ -6,7 +6,7 @@
  *
  * \author Igor Volobouev, TTU
  *
- * \version   $Id: FFTJet.h,v 1.1 2010/11/22 23:27:56 igv Exp $
+ * \version   $Id: FFTJet.h,v 1.3 2011/07/06 07:39:11 igv Exp $
  ************************************************************/
 
 #ifndef DataFormats_JetReco_FFTJet_h

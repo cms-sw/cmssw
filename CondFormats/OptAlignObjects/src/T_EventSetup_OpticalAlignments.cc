@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Mon Apr 18 16:42:52 EDT 2005
-// $Id: T_EventSetup_OpticalAlignments.cc,v 1.7 2006/11/20 10:14:08 xiezhen Exp $
+// $Id: T_EventSetup_OpticalAlignments.cc,v 1.8 2010/02/20 20:58:08 wmtan Exp $
 //
 
 // system include files

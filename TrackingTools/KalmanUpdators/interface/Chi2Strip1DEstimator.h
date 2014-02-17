@@ -6,8 +6,8 @@
  *  in the measurement frame (the one perpendicular to the strip).
  *  Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:58:19 $
- *  $Revision: 1.1.2.1 $
+ *  $Date: 2007/05/09 14:05:13 $
+ *  $Revision: 1.2 $
  *  \author todorov, cerati
  */
 

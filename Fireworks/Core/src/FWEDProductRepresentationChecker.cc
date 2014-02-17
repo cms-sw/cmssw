@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 11 15:20:10 EST 2008
-// $Id: FWEDProductRepresentationChecker.cc,v 1.4 2010/06/02 22:37:41 chrjones Exp $
+// $Id: FWEDProductRepresentationChecker.cc,v 1.5 2010/06/02 22:55:42 chrjones Exp $
 //
 
 // system include files

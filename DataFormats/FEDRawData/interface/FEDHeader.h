@@ -5,8 +5,8 @@
  *  TEMPORARY helper class to interpret/create FED header words.
  *  FIXME: will be replaced by the xdaq implementation.
  *
- *  $Date: 2005/10/05 16:20:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/06 18:25:22 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 

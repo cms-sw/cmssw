@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Jul  3 13:33:13 CDT 2010
-// $Id: MuonGeometrySanityCheck.cc,v 1.3 2011/10/12 22:13:00 khotilov Exp $
+// $Id: MuonGeometrySanityCheck.cc,v 1.5 2011/11/02 07:29:39 mussgill Exp $
 //
 //
 

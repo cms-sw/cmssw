@@ -1,4 +1,4 @@
-// $Id: FUProxy.cc,v 1.6.16.1 2011/04/06 09:19:42 mommsen Exp $
+// $Id: FUProxy.cc,v 1.7 2011/04/07 08:01:40 mommsen Exp $
 /// @file: FUProxy.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"

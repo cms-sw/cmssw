@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.1 2011/11/18 16:00:05 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.2 2012/01/17 13:46:51 innocent Exp $
 //
 //
 

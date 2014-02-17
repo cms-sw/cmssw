@@ -56,6 +56,9 @@
 
 /*
  * $Log: DOMCount.hpp,v $
+ * Revision 1.1  2006/03/20 10:49:52  case
+ * finally checked in some files I started to port about 5 months ago.
+ *
  * Revision 1.2  2003/11/26 09:50:57  liendl
  * DOMCount for xerces-2.3
  *

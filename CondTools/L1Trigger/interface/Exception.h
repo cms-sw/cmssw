@@ -16,7 +16,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Mar 24 21:27:21 CET 2008
-// $Id: Exception.h,v 1.1 2008/04/16 23:44:23 wsun Exp $
+// $Id: Exception.h,v 1.2 2009/08/14 19:58:10 wsun Exp $
 //
 
 // system include files

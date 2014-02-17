@@ -1,6 +1,6 @@
 //
 // See header file for description
-// $Id: PrescaleWeightProvider.cc,v 1.1 2010/08/23 18:44:13 avetisya Exp $
+// $Id: PrescaleWeightProvider.cc,v 1.2 2010/08/25 16:20:29 vadler Exp $
 //
 
 

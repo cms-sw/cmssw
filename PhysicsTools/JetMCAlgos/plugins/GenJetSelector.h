@@ -1,5 +1,5 @@
 //
-// $Id: GenJetSelector.h,v 1.2 2009/03/24 14:34:23 hegner Exp $
+// $Id: GenJetSelector.h,v 1.3 2009/03/27 22:30:27 hegner Exp $
 //
  
 #ifndef PhysicsTools_JetMCAlgos_GenJetSelector_h

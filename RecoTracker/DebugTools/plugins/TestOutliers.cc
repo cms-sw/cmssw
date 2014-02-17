@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.13 2011/10/27 12:58:07 gpetrucc Exp $
+// $Id: TestOutliers.cc,v 1.14 2012/01/24 08:58:27 innocent Exp $
 //
 //
 

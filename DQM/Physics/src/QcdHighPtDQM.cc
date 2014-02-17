@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/04 14:46:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2012/01/11 13:53:29 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi, Eric - CERN
  */
 

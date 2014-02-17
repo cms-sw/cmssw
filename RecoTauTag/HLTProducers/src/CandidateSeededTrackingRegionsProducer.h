@@ -1,7 +1,7 @@
 #ifndef CandidateSeededTrackingRegionsProducer_h
 #define CandidateSeededTrackingRegionsProducer_h
 
-// $Id:  $
+// $Id: CandidateSeededTrackingRegionsProducer.h,v 1.1 2012/03/13 16:20:53 khotilov Exp $
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"

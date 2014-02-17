@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.5 2009/07/10 14:51:12 dshpakov Exp $
+// $Id: EnquingPolicyTag.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
 /// @file: EnquingPolicyTag.cc
 
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"

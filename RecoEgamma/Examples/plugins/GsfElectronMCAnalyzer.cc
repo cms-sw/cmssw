@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.cc,v 1.50 2010/10/19 17:34:56 wmtan Exp $
+// $Id: GsfElectronMCAnalyzer.cc,v 1.51 2011/03/04 14:43:15 chamont Exp $
 //
 //
 

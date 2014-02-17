@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: PdgIdExcluder.h,v 1.1 2009/02/24 15:01:17 llista Exp $
+ * $Id: PdgIdExcluder.h,v 1.2 2009/09/04 12:37:20 hegner Exp $
  */
 #include <vector>
 #include <algorithm>

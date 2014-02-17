@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.h,v 1.13 2011/03/07 15:31:31 mommsen Exp $
+// $Id: FRDFileHandler.h,v 1.14 2012/04/04 12:16:57 mommsen Exp $
 /// @file: FRDFileHandler.h 
 
 #ifndef EventFilter_StorageManager_FRDFileHandler_h
@@ -21,8 +21,8 @@ namespace stor {
    * FED Raw Data (FRD) format.
    *
    * $Author: mommsen $
-   * $Revision: 1.13 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.14 $
+   * $Date: 2012/04/04 12:16:57 $
    */
   
   class FRDFileHandler : public FileHandler

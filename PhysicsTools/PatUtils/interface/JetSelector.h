@@ -15,7 +15,7 @@
     reco::modules::ParameterAdapter<pat::JetSelector<JetIn>>.)
    
     \author C. Autermann (Uni Hamburg)
-    \version $Id: JetSelector.h,v 1.4 2008/03/05 14:51:02 fronga Exp $
+    \version $Id: JetSelector.h,v 1.5 2008/03/10 14:23:58 fronga Exp $
 **/
 
 #include <string>

@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri Dec  7 20:50 CET 2007
-// $Id: SiStripMonitorQuality.cc,v 1.5 2009/11/05 21:08:29 dutta Exp $
+// $Id: SiStripMonitorQuality.cc,v 1.6 2012/01/08 09:13:38 eulisse Exp $
 //
 //
 

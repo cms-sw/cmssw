@@ -1,8 +1,8 @@
 /*
  * \file EETrendClient.cc
  *
- * $Date: 2010/08/11 15:01:53 $
- * $Revision: 1.8 $
+ * $Date: 2012/04/27 13:46:08 $
+ * $Revision: 1.11 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */

@@ -3,7 +3,7 @@
    Test suit for DTDigis
 
    \author Stefano ARGIRO
-   \version $Id: testDTDigis.cpp,v 1.5 2010/03/03 14:13:59 namapane Exp $
+   \version $Id: testDTDigis.cpp,v 1.6 2010/03/03 15:53:20 namapane Exp $
    \date 29 Jun 2005
 
    \note This test is not exaustive     

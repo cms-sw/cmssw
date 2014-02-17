@@ -8,8 +8,8 @@
  * This class is useful for segment fitting, which is done in SL or Chamber
  * reference frame, while the DT hits live on the layer.
  *
- * $Date: 2009/06/05 14:14:20 $
- * $Revision: 1.6 $
+ * $Date: 2009/11/27 11:59:48 $
+ * $Revision: 1.7 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *

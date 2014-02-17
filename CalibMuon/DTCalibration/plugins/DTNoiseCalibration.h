@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseCalibration.h
  *
- * $Date: 2011/08/15 20:29:37 $
- * $Revision: 1.11 $
+ * $Date: 2011/08/16 11:05:23 $
+ * $Revision: 1.12 $
  * \author G. Mila - INFN Torino
  *         A. Vilela Pereira - INFN Torino
  *

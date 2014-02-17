@@ -1,7 +1,7 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: EcalTBWeights.cc,v 1.3 2006/02/23 16:56:35 rahatlou Exp $
+ * $Id: EcalTBWeights.cc,v 1.4 2009/07/29 13:56:09 innocent Exp $
  **/
 
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"

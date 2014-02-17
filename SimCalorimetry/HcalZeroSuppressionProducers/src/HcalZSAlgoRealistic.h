@@ -9,8 +9,8 @@
   * up consecutive 2 samples in a slice of 10 time samples, beginning with (start) 
   * sample. If any of the sums are greater then the threshold, keep the event.
   *
-  * $Date: 2011/07/01 05:51:53 $
-  * $Revision: 1.7 $
+  * $Date: 2012/10/31 15:34:25 $
+  * $Revision: 1.1 $
   * \author S. Sengupta - Minnesota
   */
 class HcalZSAlgoRealistic : public HcalZeroSuppressionAlgo {

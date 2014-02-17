@@ -13,7 +13,7 @@
 //
 // Author:      Marcello Maggi
 // Created:     Wed Nov  2 12:09:10 CET 2011
-// $Id$
+// $Id: RPCCompDetId.h,v 1.1 2011/11/05 10:39:53 mmaggi Exp $
 //
 #include <DataFormats/DetId/interface/DetId.h>
 #include <FWCore/Utilities/interface/Exception.h>

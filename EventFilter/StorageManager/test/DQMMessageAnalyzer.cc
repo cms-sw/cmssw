@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: DQMMessageAnalyzer.cc,v 1.11 2010/08/06 20:24:32 wmtan Exp $
+  $Id: DQMMessageAnalyzer.cc,v 1.12 2011/02/17 16:06:07 mommsen Exp $
 
 */
 

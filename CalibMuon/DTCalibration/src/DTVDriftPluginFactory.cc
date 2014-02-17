@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/11 16:34:35 $
+ *  $Date: 2010/11/17 17:54:24 $
  *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */

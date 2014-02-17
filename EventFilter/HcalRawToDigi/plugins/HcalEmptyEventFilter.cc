@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Tue Jun 4 CET 2012
-// $Id: HcalEmptyEventFilter.cc,v 1.5 2009/12/18 19:24:08 wmtan Exp $
+// $Id: HcalEmptyEventFilter.cc,v 1.1 2012/06/04 19:36:18 mansj Exp $
 //
 //
 

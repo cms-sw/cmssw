@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.14 2011/06/20 09:07:22 mommsen Exp $
+// $Id: DiskWriter.h,v 1.15 2011/06/20 15:55:52 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef EventFilter_StorageManager_DiskWriter_h
@@ -35,8 +35,8 @@ namespace stor {
    * to the appropriate stream file(s) on disk. 
    *
    * $Author: mommsen $
-   * $Revision: 1.14 $
-   * $Date: 2011/06/20 09:07:22 $
+   * $Revision: 1.15 $
+   * $Date: 2011/06/20 15:55:52 $
    */
   
   class DiskWriter : public toolbox::lang::Class

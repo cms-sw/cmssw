@@ -5,8 +5,8 @@
   \file GeomHelperFunctions.h
   \brief Ecal Monitor Utility functions
   \author Yutaro Iiyama
-  \version $Revision: 1.1 $
-  \date $Date: 2011/08/05 10:34:43 $
+  \version $Revision: 1.2 $
+  \date $Date: 2011/08/05 12:07:11 $
 */
 
 #include <string>

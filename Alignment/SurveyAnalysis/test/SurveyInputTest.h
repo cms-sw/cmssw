@@ -5,8 +5,8 @@
  *
  *  Class to read survey raw measurements from a config file.
  *
- *  $Date: 2007/04/07 01:58:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/07 14:36:23 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 

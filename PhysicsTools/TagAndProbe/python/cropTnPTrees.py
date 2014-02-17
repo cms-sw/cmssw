@@ -6,7 +6,7 @@ import sys
 
 from optparse import OptionParser
 parser = OptionParser(usage = "usage: %prog [options] inputFile fraction outputFile",
-                      version = "%prog $Id:$")
+                      version = "%prog $Id: cropTnPTrees.py,v 1.1 2010/05/07 14:22:37 gpetrucc Exp $")
 (options, args) = parser.parse_args()
 
 if len(args) <= 2: 

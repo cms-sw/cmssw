@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1HtMissScaleOnlineProd.cc,v 1.5 2010/06/30 08:58:05 jbrooke Exp $
+// $Id: L1HtMissScaleOnlineProd.cc,v 1.6 2012/06/18 10:17:56 eulisse Exp $
 //
 //
 

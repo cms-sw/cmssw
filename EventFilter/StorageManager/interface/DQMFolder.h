@@ -1,4 +1,4 @@
-// $Id: DQMFolder.h,v 1.1.4.2 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DQMFolder.h,v 1.2 2011/03/07 15:31:31 mommsen Exp $
 /// @file: DQMFolder.h 
 
 #ifndef EventFilter_StorageManager_DQMFolder_h
@@ -18,8 +18,8 @@ namespace stor
    * A single DQM folder holding several histograms
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:31:31 $
    */
 
   class DQMFolder

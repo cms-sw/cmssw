@@ -3,7 +3,7 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: EcalLinearCorrections.h,v 1.1 2012/11/21 16:58:24 fra Exp $
+ * $Id: EcalLinearCorrections.h,v 1.2 2012/12/06 08:34:40 ferriff Exp $
  **/
 #include "CondFormats/EcalObjects/interface/EcalTimeDependentCorrections.h"
 

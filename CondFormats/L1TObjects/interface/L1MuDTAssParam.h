@@ -3,8 +3,8 @@
 //   Description: Parameters for Assignment
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/30 07:48:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP

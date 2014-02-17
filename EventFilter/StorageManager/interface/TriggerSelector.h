@@ -1,4 +1,4 @@
-// $Id: TriggerSelector.h,v 1.6.10.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: TriggerSelector.h,v 1.7 2011/03/07 15:31:32 mommsen Exp $
 /// @file: TriggerSelector.h 
 
 #ifndef EventFilter_StorageManager_TriggerSelector_h
@@ -22,8 +22,8 @@ namespace stor
    * Event selector allowing for and/not combination of triggers/paths
    *
    * $Author: mommsen $
-   * $Revision: 1.6.10.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.7 $
+   * $Date: 2011/03/07 15:31:32 $
    */
 
   class TriggerSelector

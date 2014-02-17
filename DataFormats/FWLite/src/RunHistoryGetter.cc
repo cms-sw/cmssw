@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Feb 10 11:15:18 CST 2010
-// $Id: RunHistoryGetter.cc,v 1.1 2010/02/11 17:21:40 ewv Exp $
+// $Id: RunHistoryGetter.cc,v 1.2 2010/07/24 14:14:48 wmtan Exp $
 //
 
 // user include files

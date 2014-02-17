@@ -9,8 +9,8 @@
  *   multiple instances of the register in the hardware (by default 2)
 */ 
 //
-//   $Date: 2007/07/06 15:35:37 $
-//   $Revision: 1.4 $
+//   $Date: 2009/12/18 21:21:57 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna

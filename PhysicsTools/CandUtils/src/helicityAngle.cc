@@ -1,4 +1,4 @@
-// $Id: helicityAngle.cc,v 1.13 2006/12/07 18:06:43 llista Exp $
+// $Id: helicityAngle.cc,v 1.14 2007/12/11 08:42:53 hegner Exp $
 #include "PhysicsTools/CandUtils/interface/helicityAngle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "PhysicsTools/CandUtils/interface/Booster.h"

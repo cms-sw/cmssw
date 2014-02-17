@@ -4,8 +4,8 @@
 /** \class DTROS25Data
  *  The collection containing DT ROS25 status data.
  *
- *  $Date: 2009/04/06 16:30:07 $
- *  $Revision: 1.8 $
+ *  $Date: 2009/11/15 11:42:29 $
+ *  $Revision: 1.9 $
  *  \author M. Zanetti - INFN Padova
  *  \revision I. Josa - Ciemat Madrid
  */

@@ -1,5 +1,5 @@
 <?xml version='1.0'?>
-<xmas:flash xmlns:xmas="http://xdaq.web.cern.ch/xdaq/xsd/2006/xmas-10" id="urn:xdaq-flashlist:filterFarmUsageAndTiming" version="$Revision: 1.2 $" key="runNumber,lumiSection">
+<xmas:flash xmlns:xmas="http://xdaq.web.cern.ch/xdaq/xsd/2006/xmas-10" id="urn:xdaq-flashlist:filterFarmUsageAndTiming" version="$Revision: 1.3 $" key="runNumber,lumiSection">
 	<xmas:item name="runNumber"                 infospace="urn:filterFarmUsageAndTiming" type="unsigned int 32"/>
         <xmas:item name="lumiSection"               infospace="urn:filterFarmUsageAndTiming" type="unsigned int 32"/>
         <xmas:item name="hltCPULoad"                infospace="urn:filterFarmUsageAndTiming" type="float"/>

@@ -1,5 +1,5 @@
 //
-// $Id: T_EventSetup_HFDigiTimeFlagParams.cc,v 1.1 2011/02/15 10:40:17 rofierzy Exp $
+// $Id: T_EventSetup_HcalFlagHFDigiTimeParams.cc,v 1.1 2011/06/24 22:11:14 temple Exp $
 //
 
 // system include files

@@ -3,7 +3,7 @@
 // This is different from the "JetTracksAssociatorAtVertex" because this
 // class assigns a vertex to the jet/track association. 
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRVertex.h,v 1.5 2010/03/18 12:17:58 bainbrid Exp $
+// $Id: JetTracksAssociationDRVertexAssigned.h,v 1.1 2011/11/11 18:58:02 srappocc Exp $
 
 #ifndef JetTracksAssociationDRVertexAssigned_h
 #define JetTracksAssociationDRVertexAssigned_h

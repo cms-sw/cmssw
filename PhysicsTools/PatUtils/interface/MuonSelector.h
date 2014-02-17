@@ -14,7 +14,7 @@
     (An adapter exists for use in CMSSW: reco::modules::ParameterAdapter< pat::MuonSelector >.)
 
     \author F.J. Ronga (ETH Zurich)
-    \version $Id: MuonSelector.h,v 1.7 2008/10/10 13:59:06 lowette Exp $
+    \version $Id: MuonSelector.h,v 1.8 2009/04/01 18:18:53 hegner Exp $
 */
 
 #include <string>

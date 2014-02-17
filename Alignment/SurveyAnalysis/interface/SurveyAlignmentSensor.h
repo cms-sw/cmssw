@@ -8,8 +8,8 @@
  *  The residual (dRx, dRy, dRz, dWx, dWy, dWz) is found for each sensor.
  *  The sensor shifted by this amount during each iteration.
  *
- *  $Date: 2007/05/03 20:58:58 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/08 16:38:03 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 

@@ -19,7 +19,7 @@ to the actual calibration code in "endJob()".
 //
 // Original Author:  "Anton Anastassov"
 //         Created:  Tue Sept 24 09:13:48 CDT 2008
-// $Id: HcalCalibrator.cc,v 1.6 2010/11/04 14:09:07 muzaffar Exp $
+// $Id: HcalCalibrator.cc,v 1.7 2012/11/12 21:08:18 dlange Exp $
 //
 //
 //_________________________________________________________________________________

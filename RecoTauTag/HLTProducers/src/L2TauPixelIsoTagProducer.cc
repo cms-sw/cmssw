@@ -1,7 +1,7 @@
 // 
 // Original Author:  Vadim Khotilovich
 //         Created:  2012-03-07
-// $Id:  $
+// $Id: L2TauPixelIsoTagProducer.cc,v 1.1 2012/03/13 16:21:42 khotilov Exp $
 //
 
 #include "RecoTauTag/HLTProducers/interface/L2TauPixelIsoTagProducer.h"

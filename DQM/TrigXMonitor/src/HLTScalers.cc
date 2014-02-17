@@ -1,6 +1,9 @@
-// $Id: HLTScalers.cc,v 1.30 2011/03/30 21:44:03 fwyzard Exp $
+// $Id: HLTScalers.cc,v 1.31 2011/04/01 09:47:00 rekovic Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.31  2011/04/01 09:47:00  rekovic
+// Check if stream A exists before quering for its PD content
+//
 // Revision 1.30  2011/03/30 21:44:03  fwyzard
 // make sure HLTConfigProvider is used only if succesfully initialized
 //

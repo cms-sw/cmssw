@@ -13,7 +13,7 @@
 //
 // Original Author:  Marcello Maggi,161 R-006,+41227676292,
 //         Created:  Fri Nov  4 12:32:59 CET 2011
-// $Id$
+// $Id: RPCDetIdAnalyzer.cc,v 1.1 2011/11/05 10:39:54 mmaggi Exp $
 //
 //
 

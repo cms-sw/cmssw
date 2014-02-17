@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjBuilder.h,v 1.9 2009/05/28 22:12:54 dlange Exp $
+// $Id: SiPixelCondObjBuilder.h,v 1.10 2010/01/12 11:29:54 rougny Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"

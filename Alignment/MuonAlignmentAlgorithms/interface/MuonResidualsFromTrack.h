@@ -2,7 +2,7 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFromTrack_H
 
 /** \class MuonResidualsFromTrack
- *  $Id: $
+ *  $Id: MuonResidualsFromTrack.h,v 1.4 2011/10/12 23:40:24 khotilov Exp $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 

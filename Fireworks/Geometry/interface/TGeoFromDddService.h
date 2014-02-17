@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:33 CEST 2010
-// $Id: TGeoFromDddService.h,v 1.1 2010/07/02 18:51:37 matevz Exp $
+// $Id: TGeoFromDddService.h,v 1.3 2010/08/24 07:11:59 yana Exp $
 //
 
 // system include files

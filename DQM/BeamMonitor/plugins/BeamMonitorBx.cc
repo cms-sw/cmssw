@@ -2,8 +2,8 @@
  * \file BeamMonitorBx.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2010/10/14 23:05:23 $
- * $Revision: 1.14 $
+ * $Date: 2011/02/22 17:52:44 $
+ * $Revision: 1.15 $
  *
  */
 

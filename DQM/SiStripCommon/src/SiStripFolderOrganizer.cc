@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.29 2010/05/06 06:55:40 dutta Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.30 2011/05/31 10:38:46 eulisse Exp $
 //
 
 #include <iostream>

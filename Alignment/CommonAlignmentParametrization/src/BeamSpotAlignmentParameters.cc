@@ -1,8 +1,8 @@
 /** \file BeamSpotAlignmentParameters.cc
  *
- *  Version    : $Revision: 1.14 $
- *  last update: $Date: 2008/09/02 15:08:12 $
- *  by         : $Author: flucke $
+ *  Version    : $Revision: 1.1 $
+ *  last update: $Date: 2010/09/10 11:16:39 $
+ *  by         : $Author: mussgill $
  */
 
 #include "FWCore/Utilities/interface/Exception.h"

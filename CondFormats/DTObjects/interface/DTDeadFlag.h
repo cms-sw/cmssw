@@ -5,8 +5,8 @@
  *  Description:
  *       Class to hold drift tubes life and HV status
  *
- *  $Date: 2009/09/25 12:03:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/01/20 18:20:07 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */

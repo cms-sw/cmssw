@@ -4,7 +4,7 @@
 /** \class HLTElectronOneOEMinusOneOPFilterRegional
  *
  *  \author Monica Vazquez Acosta (CERN)
- * $Id: HLTElectronOneOEMinusOneOPFilterRegional.h,v 1.2 2009/02/09 16:27:17 covarell Exp $
+ * $Id: HLTElectronOneOEMinusOneOPFilterRegional.h,v 1.3 2012/01/21 14:56:56 fwyzard Exp $
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"

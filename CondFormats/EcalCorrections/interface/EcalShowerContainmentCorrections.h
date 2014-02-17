@@ -29,7 +29,7 @@
  * \endcode
  * \author       Stefano Argiro'
  * \date         Fri Mar  2 16:50:49 CET 2007
- * \id           $Id: EcalShowerContainmentCorrections.h,v 1.1 2007/05/15 20:37:22 argiro Exp $
+ * \id           $Id: EcalShowerContainmentCorrections.h,v 1.2 2007/07/16 17:30:53 meridian Exp $
 */
 
 #include <vector>

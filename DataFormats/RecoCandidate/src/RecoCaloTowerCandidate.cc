@@ -1,4 +1,4 @@
-// $Id: RecoCaloTowerCandidate.cc,v 1.4 2006/05/02 10:28:01 llista Exp $
+// $Id: RecoCaloTowerCandidate.cc,v 1.5 2006/05/31 12:45:46 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 
 using namespace reco;

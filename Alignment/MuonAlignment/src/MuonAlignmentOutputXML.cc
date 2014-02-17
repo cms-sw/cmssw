@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Mar 14 18:02:33 CDT 2008
-// $Id: MuonAlignmentOutputXML.cc,v 1.9 2011/06/07 19:38:24 khotilov Exp $
+// $Id: MuonAlignmentOutputXML.cc,v 1.10 2012/06/30 09:13:41 eulisse Exp $
 //
 
 // system include files

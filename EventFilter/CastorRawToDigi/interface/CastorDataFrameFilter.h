@@ -13,8 +13,8 @@
     As these are applied in units proportional to energy, rather than
     transverse energy, and no calibration is applied, care should be used.
    
-   $Date: 2006/10/09 15:22:32 $
-   $Revision: 1.3 $
+   $Date: 2008/06/19 09:03:17 $
+   $Revision: 1.1 $
    \author J. Mans - Minnesota
 */
 class CastorDataFrameFilter {

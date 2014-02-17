@@ -1,9 +1,9 @@
 #ifndef RecoEcal_EgammaClusterProducers_PreshowerClusterShapeProducer_h
 #define RecoEcal_EgammaClusterProducers_PreshowerClusterShapeProducer_h
 
-// $Author: dlevans $
-// $Id: PreshowerClusterShapeProducer.h,v 1.3 2008/03/27 18:08:44 dlevans Exp $
-// $Date: 2008/03/27 18:08:44 $
+// $Author: argiro $
+// $Id: PreshowerClusterShapeProducer.h,v 1.4 2011/07/18 18:05:40 argiro Exp $
+// $Date: 2011/07/18 18:05:40 $
 
 #include <memory>
 

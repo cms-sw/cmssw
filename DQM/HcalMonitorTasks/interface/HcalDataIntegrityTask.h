@@ -22,8 +22,8 @@
 
 /** \class HcalDataIntegrityTask
  *
- * $Date: 2010/03/01 19:13:45 $
- * $Revision: 1.3.4.3 $
+ * $Date: 2010/03/25 11:00:57 $
+ * $Revision: 1.4 $
  * \author J. Temple -- University of Maryland
  * copied from W. Fisher/J. St. John's DataFormat code
  */

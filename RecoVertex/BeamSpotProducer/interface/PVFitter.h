@@ -10,7 +10,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
          Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
  
- version $Id: PVFitter.h,v 1.10 2010/09/01 20:19:29 yumiceva Exp $
+ version $Id: PVFitter.h,v 1.11 2011/02/22 14:16:52 friis Exp $
 
  ________________________________________________________________**/
 

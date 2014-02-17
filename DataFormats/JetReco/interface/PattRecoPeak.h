@@ -6,7 +6,7 @@
  * Actual application calculations should use fftjet::Peak.
  *
  * \author Igor Volobouev, TTU, June 16, 2010
- * \version   $Id: PattRecoPeak.h,v 0.1 2010/06/16 21:52:19 igv Exp $
+ * \version   $Id: PattRecoPeak.h,v 1.1 2010/11/22 23:27:56 igv Exp $
  ************************************************************/
 
 #ifndef DataFormats_JetReco_PattRecoPeak_h

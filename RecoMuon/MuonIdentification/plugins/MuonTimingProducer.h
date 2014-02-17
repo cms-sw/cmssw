@@ -16,7 +16,7 @@
 //
 // Original Author:  Piotr Traczyk, CERN
 //         Created:  Mon Mar 16 12:27:22 CET 2009
-// $Id$
+// $Id: MuonTimingProducer.h,v 1.2 2009/03/27 02:23:58 ptraczyk Exp $
 //
 //
 

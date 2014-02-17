@@ -13,7 +13,7 @@
 //
 // Original Author:  jean-roch Vlimant,40 3-A28,+41227671209,
 //         Created:  Tue Nov 30 18:55:50 CET 2010
-// $Id: MEtoMEComparitor.h,v 1.4 2010/12/13 16:56:42 vlimant Exp $
+// $Id: MEtoMEComparitor.h,v 1.5 2011/02/01 19:19:05 vlimant Exp $
 //
 //
 

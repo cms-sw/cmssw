@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 configurationMetadata = cms.untracked.PSet(
 	version = cms.untracked.string('$Revision: 1.1 $'),
-	name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/Generator/python/DYToMuMu_M_20_7TeV_mcatnlo_cff.py,v $'),
+	name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/Generator/python/DYToMuMu_M_20_8TeV_mcatnlo_cff.py,v $'),
 	annotation = cms.untracked.string('Summer09: Showering of MC@NLO 3.4 DrellYan events with Herwig+Jimmy, 7 TeV')
 )
 

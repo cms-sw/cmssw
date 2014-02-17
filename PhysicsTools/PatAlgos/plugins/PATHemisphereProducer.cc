@@ -14,7 +14,7 @@
 //
 // Original Author:  Tanja Rommerskirchen
 //         Created:  Sat Mar 22 12:58:04 CET 2008
-// $Id: PATHemisphereProducer.cc,v 1.8 2008/10/13 16:20:18 trommers Exp $
+// $Id: PATHemisphereProducer.cc,v 1.9 2010/01/11 13:36:48 hegner Exp $
 //
 //
 

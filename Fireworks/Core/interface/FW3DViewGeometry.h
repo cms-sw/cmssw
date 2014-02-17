@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:52 CET 2010
-// $Id: FW3DViewGeometry.h,v 1.7 2011/09/27 00:29:05 matevz Exp $
+// $Id: FW3DViewGeometry.h,v 1.8 2011/09/27 03:04:58 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWViewGeometryList.h"

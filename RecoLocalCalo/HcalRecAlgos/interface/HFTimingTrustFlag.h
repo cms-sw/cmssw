@@ -8,7 +8,7 @@
     Class sets the HF timing status bits according to
     uncertainty on timing estimation
        
-    $Date: 2009/05/16$
+    $Date: 2009/08/14 19:40:42 $
     \author I. Vodopiyanov -- Florida Institute of technology
 */
    

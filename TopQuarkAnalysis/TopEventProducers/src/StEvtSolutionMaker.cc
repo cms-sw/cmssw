@@ -1,5 +1,5 @@
 //
-// $Id: StEvtSolutionMaker.cc,v 1.8 2007/11/24 11:14:22 lowette Exp $
+// $Id: StEvtSolutionMaker.cc,v 1.9 2008/02/17 11:09:40 rwolf Exp $
 //
 
 #include <memory>

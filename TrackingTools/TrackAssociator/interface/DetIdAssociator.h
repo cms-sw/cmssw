@@ -25,7 +25,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.18 2010/02/18 14:35:48 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.20 2011/04/07 08:17:31 innocent Exp $
 //
 //
 

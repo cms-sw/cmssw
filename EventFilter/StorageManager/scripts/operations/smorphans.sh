@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: smorphans.sh,v 1.3 2009/04/17 13:01:03 jserrano Exp $
+# $Id: smorphans.sh,v 1.5 2009/04/29 15:22:24 jserrano Exp $
 
 # This script iterates over all files in the list of hosts provided and calls
 # injection script with --check option to show a status report.

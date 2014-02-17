@@ -13,7 +13,7 @@
 //
 // Original Author:  Jacob Ribnik
 //         Created:  Wed Apr 18 13:48:08 CDT 2007
-// $Id: MuonIdVal.h,v 1.8 2010/08/30 16:53:12 aeverett Exp $
+// $Id: MuonIdVal.h,v 1.9 2011/04/12 15:37:54 asvyatko Exp $
 //
 //
 

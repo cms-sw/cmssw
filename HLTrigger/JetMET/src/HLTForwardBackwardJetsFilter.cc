@@ -1,6 +1,6 @@
 /** \class HLTForwardBackwardJetsFilter
  *
- * $Id: HLTForwardBackwardJetsFilter.cc,v 1.8 2012/02/12 09:34:06 gruen Exp $
+ * $Id: HLTForwardBackwardJetsFilter.cc,v 1.9 2012/03/01 16:26:28 gruen Exp $
  *
  *
  */

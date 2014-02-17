@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: ImpactParameter.cc,v 1.5 2007/10/08 11:45:56 fwyzard Exp $
+// $Id: ImpactParameter.cc,v 1.6 2010/08/06 20:24:56 wmtan Exp $
 //
 //
 

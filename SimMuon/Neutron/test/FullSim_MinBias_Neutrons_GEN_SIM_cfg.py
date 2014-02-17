@@ -2,7 +2,7 @@
 # An example configuration for production of
 # a SIM level sample of neutron hits in muon systems
 #
-# $Id: $
+# $Id: FullSim_MinBias_Neutrons_GEN_SIM_cfg.py,v 1.1 2010/08/20 00:32:43 khotilov Exp $
 
 import FWCore.ParameterSet.Config as cms
 

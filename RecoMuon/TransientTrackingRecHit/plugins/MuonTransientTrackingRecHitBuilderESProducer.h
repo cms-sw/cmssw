@@ -6,7 +6,7 @@
  *  EventSetup, decoupling the code in which it is used w.r.t. the RecoMuon/TransientTrackingRecHit
  *  lib.
  *
- *  $Date: 2006/11/23 11:54:19 $
+ *  $Date: 2007/04/18 15:08:40 $
  *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */

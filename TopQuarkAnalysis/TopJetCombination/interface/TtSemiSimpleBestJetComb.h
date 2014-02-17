@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiSimpleBestJetComb.h,v 1.3 2007/09/20 18:03:21 lowette Exp $
+// $Id: TtSemiSimpleBestJetComb.h,v 1.4 2008/02/17 11:27:11 rwolf Exp $
 //
 
 #ifndef TtSemiSimpleBestJetComb_h
@@ -14,7 +14,7 @@
    smallest DR angle wrt the Whadr direction. 
 
   \author   Jan Heyninck
-  \version  $Id: TtSemiSimpleBestJetComb.h,v 1.3 2007/09/20 18:03:21 lowette Exp $
+  \version  $Id: TtSemiSimpleBestJetComb.h,v 1.4 2008/02/17 11:27:11 rwolf Exp $
 */
 
 #include "FWCore/Framework/interface/EventSetup.h"

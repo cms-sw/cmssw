@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2008/10/29 18:34:41 $
- * $Revision: 1.23 $
+ * $Date: 2009/03/04 03:16:41 $
+ * $Revision: 1.24 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.23 2008/10/29 18:34:41 elmer Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.24 2009/03/04 03:16:41 barvic Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"

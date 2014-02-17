@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjOfflineBuilder.h,v 1.7 2009/11/20 19:21:29 rougny Exp $
+// $Id: SiPixelCondObjOfflineBuilder.h,v 1.8 2010/01/12 11:29:54 rougny Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"

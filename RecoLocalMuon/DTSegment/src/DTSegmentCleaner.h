@@ -12,8 +12,8 @@
  *  retaining the segment with higher number of hits and best chi2, while the
  *  others are deleted.
  *
- * $Date: 2007/02/13 13:31:40 $
- * $Revision: 1.4 $
+ * $Date: 2008/12/03 12:52:23 $
+ * $Revision: 1.5 $
  * \author : Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 

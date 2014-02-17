@@ -5,7 +5,7 @@
  *  Description: 
  *       Class to contain time units identifier
  *
- *  $Date: 2006/05/04 06:54:02 $
+ *  $Date: 2008/09/29 13:16:13 $
  *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *

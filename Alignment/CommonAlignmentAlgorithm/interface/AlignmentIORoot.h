@@ -6,9 +6,9 @@
 /// concrete class for ROOT-based I/O of Alignment parameters, correlations 
 ///  and Alignable positions. Derived from AlignmentIO
 ///
-///  $Date: 2006/11/30 09:56:03 $
-///  $Revision: 1.3 $
-/// (last update by $Author: flucke $)
+///  $Date: 2007/10/08 14:38:15 $
+///  $Revision: 1.4 $
+/// (last update by $Author: cklae $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIO.h"
 

@@ -17,7 +17,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Sep 28 18:07:52 CEST 2007
-// $Id: TrajectoryFilterESProducer.h,v 1.1 2007/10/18 01:50:55 vlimant Exp $
+// $Id: TrajectoryFilterESProducer.h,v 1.2 2009/04/30 10:14:40 vlimant Exp $
 //
 //
 

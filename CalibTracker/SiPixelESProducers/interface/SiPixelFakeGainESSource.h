@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
-// $Id: SiPixelFakeGainESSource.h,v 1.3 2007/08/21 10:37:30 chiochia Exp $
+// $Id: SiPixelFakeGainESSource.h,v 1.4 2008/02/11 15:23:28 friis Exp $
 //
 //
 

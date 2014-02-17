@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Tue Oct  3 22:14:25 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/02/05 19:10:04 $
-// $Revision: 1.1 $
+// $Author: wmtan $
+// $Date: 2010/02/16 17:09:14 $
+// $Revision: 1.2 $
 //
 
 #include "RecoTracker/RingRecord/interface/Rings.h"

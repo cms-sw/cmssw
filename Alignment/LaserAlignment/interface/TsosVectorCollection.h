@@ -4,7 +4,7 @@
 /**
    \author Gero Flucke 
    \date May 2009
-   last update on $Date: 2009/05/11 10:01:29 $ by $Author: flucke $
+   last update on $Date: 2009/10/14 07:32:07 $ by $Author: flucke $
    
    A typedef for a collection of std::vectors of TrajectoryStateOnSurface .
    

@@ -1,5 +1,5 @@
 //
-//  $Id: CLHEPHitFitTranslator.cc,v 1.4 2010/08/06 22:00:44 haryo Exp $
+//  $Id: CLHEPHitFitTranslator.cc,v 1.1 2011/05/26 09:46:59 mseidel Exp $
 //
 
 /**
@@ -15,7 +15,7 @@
 
     @date Thu Jul 29 17:54:01 CEST 2010
 
-    @version $Id: CLHEPHitFitTranslator.cc,v 1.4 2010/08/06 22:00:44 haryo Exp $
+    @version $Id: CLHEPHitFitTranslator.cc,v 1.1 2011/05/26 09:46:59 mseidel Exp $
  */
 
 #include <cstdlib>

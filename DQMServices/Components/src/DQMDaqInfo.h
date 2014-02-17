@@ -15,7 +15,7 @@
 //
 // Original Author:  Ilaria SEGONI
 //         Created:  Thu Sep 25 11:17:43 CEST 2008
-// $Id: DQMDaqInfo.h,v 1.7 2008/11/12 13:22:06 segoni Exp $
+// $Id: DQMDaqInfo.h,v 1.8 2009/12/15 08:59:49 dellaric Exp $
 //
 //
 

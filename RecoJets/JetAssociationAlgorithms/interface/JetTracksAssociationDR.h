@@ -1,7 +1,7 @@
 // \class JetTracksAssociationDR
 // Associate jets with tracks by simple "delta R" criteria
 // Fedor Ratnikov (UMd)
-// $Id: JetTracksAssociationDR.h,v 1.1 2009/03/30 15:06:33 bainbrid Exp $
+// $Id: JetTracksAssociationDR.h,v 1.2 2010/03/16 21:48:47 srappocc Exp $
 
 #ifndef RecoJets_JetAssociationAlgorithms_JetTracksAssociationDR_h
 #define RecoJets_JetAssociationAlgorithms_JetTracksAssociationDR_h

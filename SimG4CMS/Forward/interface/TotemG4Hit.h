@@ -25,7 +25,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: TotemG4Hit.h,v 1.1 2006/05/17 16:18:57 sunanda Exp $
+// $Id: TotemG4Hit.h,v 1.2 2007/11/20 12:37:19 fabiocos Exp $
 //
  
 // system include files

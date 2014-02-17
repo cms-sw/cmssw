@@ -7,7 +7,7 @@
   * electron did indeed come from a conversion
   * \author Puneeth Kalavase, University Of California, Santa Barbara
   *
-  * \version $Id: ConversionFinder.h,v 1.11 2010/10/02 19:48:22 kalavase Exp $
+  * \version $Id: ConversionFinder.h,v 1.12 2010/10/05 20:34:22 chamont Exp $
   *
   */
 

@@ -12,8 +12,8 @@
 This class contains event position information, including the table
 position as well as hits from the delay wire chambers.
       
-$Date: 2006/04/04 15:00:27 $
-$Revision: 1.3 $
+$Date: 2006/08/03 23:46:41 $
+$Revision: 1.4 $
 \author P. Dudero - Minnesota
 */
 class HcalTBEventPosition {

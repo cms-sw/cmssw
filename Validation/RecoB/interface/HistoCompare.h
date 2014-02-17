@@ -9,7 +9,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: HistoCompare.h,v 1.1 2007/02/14 16:58:34 yumiceva Exp $
+ version $Id: HistoCompare.h,v 1.2 2007/02/14 20:09:41 yumiceva Exp $
 
 ________________________________________________________________**/
 

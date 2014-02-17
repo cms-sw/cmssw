@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2010/04/26 16:00:37 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/06/14 08:00:02 $
+ *  $Revision: 1.19 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"

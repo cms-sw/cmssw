@@ -10,8 +10,8 @@
  * level, super and base constants (eg. 1000,100,1) and
  * the start value of the copy numbers (0 or 1)  
  *  
- *  $Date: 2006/02/15 13:21:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/12 19:54:05 $
+ *  $Revision: 1.2 $
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *
  */

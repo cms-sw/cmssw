@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 15:30:15 EDT 2007
-// $Id: SharedLibrary.cc,v 1.3 2008/11/28 17:44:30 wmtan Exp $
+// $Id: SharedLibrary.cc,v 1.4 2011/08/24 12:28:53 eulisse Exp $
 //
 
 // system include files

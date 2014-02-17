@@ -9,7 +9,7 @@
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2008/11/26 11:09:24 $
+   $Date: 2009/03/27 14:46:46 $
    $Revision: 1.1 $
    \author B Jones -- University of Bristol / University of Maryland
 */

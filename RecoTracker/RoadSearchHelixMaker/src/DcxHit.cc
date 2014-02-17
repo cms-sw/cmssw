@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxHit.cc,v 1.5 2007/01/15 22:16:28 gutsche Exp $
+// 	$Id: DcxHit.cc,v 1.6 2011/04/07 21:47:06 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxHit|: drift chamber hit that can compute

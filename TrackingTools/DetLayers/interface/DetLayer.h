@@ -11,8 +11,8 @@
  *  NavigationSchool and activated with a NavigationSetter before they 
  *  can be used.
  *
- *  $Date: 2007/08/21 20:48:47 $
- *  $Revision: 1.11 $
+ *  $Date: 2009/07/07 14:57:32 $
+ *  $Revision: 1.12 $
  */
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"

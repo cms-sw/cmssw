@@ -3,9 +3,9 @@
 /** \class  TrackProducerWithSCAssociation
  **  
  **
- **  $Id: TrackProducerWithSCAssociation.h,v 1.4 2008/08/13 13:23:08 nancy Exp $ 
- **  $Date: 2008/08/13 13:23:08 $ 
- **  $Revision: 1.4 $
+ **  $Id: TrackProducerWithSCAssociation.h,v 1.5 2010/09/29 12:20:16 mangano Exp $ 
+ **  $Date: 2010/09/29 12:20:16 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **   Modified version of TrackProducer by Giuseppe Cerati
  **   to have super cluster - conversion track association

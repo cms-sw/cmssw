@@ -1,5 +1,5 @@
 //
-// $Id: LeptonJetIsolationAngle.h,v 1.3 2008/03/05 14:51:02 fronga Exp $
+// $Id: LeptonJetIsolationAngle.h,v 1.4 2009/05/26 08:54:21 fabiocos Exp $
 //
 
 #ifndef PhysicsTools_PatUtils_LeptonJetIsolationAngle_h
@@ -14,7 +14,7 @@
    CMS Note 2006/024
 
   \author   Steven Lowette
-  \version  $Id: LeptonJetIsolationAngle.h,v 1.3 2008/03/05 14:51:02 fronga Exp $
+  \version  $Id: LeptonJetIsolationAngle.h,v 1.4 2009/05/26 08:54:21 fabiocos Exp $
 */
 
 

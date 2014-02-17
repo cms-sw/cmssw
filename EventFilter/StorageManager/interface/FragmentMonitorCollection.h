@@ -1,4 +1,4 @@
-// $Id: FragmentMonitorCollection.h,v 1.7.10.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: FragmentMonitorCollection.h,v 1.8 2011/03/07 15:31:32 mommsen Exp $
 /// @file: FragmentMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_FragmentMonitorCollection_h
@@ -16,8 +16,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to fragments
    *
    * $Author: mommsen $
-   * $Revision: 1.7.10.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.8 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class FragmentMonitorCollection : public MonitorCollection

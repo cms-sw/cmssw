@@ -12,7 +12,7 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-// $Id$
+// $Id: UncleanSCRecoveryProducer.h,v 1.5 2011/07/18 18:05:40 argiro Exp $
 
 class UncleanSCRecoveryProducer : public edm::EDProducer 
 {

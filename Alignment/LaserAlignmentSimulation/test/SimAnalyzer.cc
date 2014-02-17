@@ -1,8 +1,8 @@
 /** \file SimAnalyzer.cc
  *  Get some statistics and plots about the simulation of the Laser Alignment System
  *
- *  $Date: 2009/12/14 22:21:45 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/09/16 06:49:08 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 

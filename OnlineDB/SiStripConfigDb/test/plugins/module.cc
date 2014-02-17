@@ -1,4 +1,4 @@
-// Last commit: $Id: module.cc,v 1.4 2008/04/11 13:27:34 bainbrid Exp $
+// Last commit: $Id: module.cc,v 1.5 2010/02/25 00:31:45 wmtan Exp $
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

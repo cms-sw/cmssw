@@ -8,8 +8,8 @@
 /** \class DTSuperLayerIdComparator
  *  Comparator to retrieve by SL objects written into a RangeMap by layer.
  *
- *  $Date: 2006/05/04 13:59:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/18 08:35:31 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -31,8 +31,8 @@ private:
 /** \class DTChamberIdComparator
  *  Comparator to retrieve  by chamber objects written into a RangeMap by layer or by SL.
  *
- *  $Date: 2006/05/04 13:59:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/18 08:35:31 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -52,8 +52,8 @@ private:
 /** \class DTChamberIdDetLayerComparator
  *  Comparator to retrieve by chamber objects written into a RangeMap by DetLayer.
  *
- *  $Date: 2006/07/17 11:00:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/18 08:35:31 $
+ *  $Revision: 1.2 $
  *  \author M. Sani 
  */
 
@@ -72,8 +72,8 @@ class DTChamberIdDetLayerComparator {
 /** \class DTRangeMapAccessor
  *  Utility class for access to objects in a RangeMap with needed granularity.
  *
- *  $Date: 2006/05/04 13:59:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/18 08:35:31 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 

@@ -1,8 +1,8 @@
 /** \file RecoAnalyzerTC.cc
  *  function to get some information about the TrackCandidates
  *
- *  $Date: 2007/05/14 07:39:33 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/12/04 23:51:53 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 

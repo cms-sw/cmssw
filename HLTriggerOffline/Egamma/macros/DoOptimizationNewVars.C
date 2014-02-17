@@ -1,5 +1,8 @@
-// $Id: DoOptimizationNewVars.C,v 1.3 2008/01/21 02:25:22 wittich Exp $
+// $Id: DoOptimizationNewVars.C,v 1.5 2008/12/09 16:02:51 mmozer Exp $
 // $Log: DoOptimizationNewVars.C,v $
+// Revision 1.5  2008/12/09 16:02:51  mmozer
+// merged simple branch into main
+//
 // Revision 1.3  2008/01/21 02:25:22  wittich
 // cleanup, tweak of case where eff is the same
 //

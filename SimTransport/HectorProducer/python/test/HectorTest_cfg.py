@@ -16,7 +16,7 @@ process.transport = cms.Path(process.LHCTransport)
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('SinglePiPt10.cfi nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )

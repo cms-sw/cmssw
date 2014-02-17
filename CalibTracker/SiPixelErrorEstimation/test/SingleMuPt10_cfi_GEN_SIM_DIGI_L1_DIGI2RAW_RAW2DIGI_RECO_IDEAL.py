@@ -32,7 +32,7 @@ process.load("CalibTracker/SiPixelErrorEstimation/SiPixelErrorEstimation_cfi")
 process.PixelErrorEstimation.outputFile = cms.untracked.string('./SiPixelErrorEstimation_ntuple.root')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.100 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('SingleMuPt10.cfi nevts:3'),
     name = cms.untracked.string('PyReleaseValidation')
 )

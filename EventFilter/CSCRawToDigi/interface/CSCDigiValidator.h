@@ -8,7 +8,7 @@
 //
 // Original Author:  Lindsey Gray
 //         Created:  Tue Jul 28 18:04:11 CEST 2009
-// $Id: CSCDigiValidator.h,v 1.2 2009/08/03 12:16:56 lgray Exp $
+// $Id: CSCDigiValidator.h,v 1.1 2009/11/09 20:29:43 lgray Exp $
 //
 //
 

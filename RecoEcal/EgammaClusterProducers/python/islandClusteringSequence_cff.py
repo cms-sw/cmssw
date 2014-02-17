@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: islandClusteringSequence.cff,v 1.7 2007/03/13 17:21:44 futyand Exp $
+# $Id: islandClusteringSequence_cff.py,v 1.2 2008/04/21 03:24:10 rpw Exp $
 #
 #------------------
 #Island clustering:

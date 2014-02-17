@@ -21,7 +21,7 @@
 //
 // Original Author:  
 //         Created:  Sat Dec  1 10:17:20 EST 2007
-// $Id$
+// $Id: Signaler.h,v 1.1 2007/12/02 05:17:47 chrjones Exp $
 //
 
 // system include files

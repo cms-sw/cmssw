@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Mar  3 13:34:15 CET 2008
-// $Id: RPCConeBuilderFromES.h,v 1.5 2009/03/20 15:27:49 michals Exp $
+// $Id: RPCConeBuilderFromES.h,v 1.6 2010/02/26 15:50:40 fruboes Exp $
 //
 
 #include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"

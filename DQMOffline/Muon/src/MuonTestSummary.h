@@ -6,8 +6,8 @@
  * *
  *  DQM Client for global summary
  *
- *  $Date: 2009/12/10 13:04:06 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/01/15 17:59:02 $
+ *  $Revision: 1.16 $
  *  \author  G. Mila - INFN Torino
  *  updates:  G. Hesketh - CERN
  *   

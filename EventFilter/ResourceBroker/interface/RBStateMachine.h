@@ -112,7 +112,7 @@ class Fail: public bsc::event<Fail> {
 /**
  * Abstract base for state classes
  *
- * $Author: aspataru $
+ * $Author: smorovic $
  *
  */
 

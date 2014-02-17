@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 16 18:47:04 EDT 2005
-// $Id: DummyFinder.h,v 1.8 2005/10/03 23:12:52 chrjones Exp $
+// $Id: DummyFinder.h,v 1.9 2006/08/31 23:26:25 wmtan Exp $
 //
 
 // system include files

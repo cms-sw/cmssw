@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Fri Aug 10 12:05:36 CET 2007
-// $Id: NuclearInteractionEDProducer.h,v 1.9 2008/04/16 12:14:04 roberfro Exp $
+// $Id: NuclearInteractionEDProducer.h,v 1.10 2010/01/21 10:53:40 adamwo Exp $
 //
 //
 

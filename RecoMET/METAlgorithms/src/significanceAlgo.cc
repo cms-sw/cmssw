@@ -21,7 +21,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: significanceAlgo.cc,v 1.14 2010/04/20 11:02:01 fblekman Exp $
+// $Id: significanceAlgo.cc,v 1.15 2010/04/20 14:56:07 fblekman Exp $
 //
 //
 

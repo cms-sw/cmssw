@@ -13,7 +13,7 @@
 //
 // Original Author:  Piotr Traczyk
 //         Created:  Wed Sep 27 14:54:28 EDT 2006
-// $Id: MuonTimingValidator.cc,v 1.9 2010/03/25 14:08:50 jribnik Exp $
+// $Id: MuonTimingValidator.cc,v 1.10 2012/12/06 14:49:43 eulisse Exp $
 //
 //
 

@@ -8,8 +8,8 @@
  *  A chamber is a GeomDet.
  *  The chamber is composed by 2 or 3 Roll (GeomDetUnit).
  *
- *  $Date: 2010/04/09 12:17:26 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/09/27 09:13:42 $
+ *  $Revision: 1.4 $
  *  \author R. Trentadue
  */
 

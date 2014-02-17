@@ -5,8 +5,8 @@
   \file UtilFunctions.h
   \brief Ecal Monitor Utility functions
   \author Dongwook Jang
-  \version $Revision: 1.4 $
-  \date $Date: 2011/08/05 10:34:43 $
+  \version $Revision: 1.5 $
+  \date $Date: 2011/08/12 08:25:21 $
 */
 
 #include <cmath>

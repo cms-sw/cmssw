@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositePtrCandidate.h,v 1.5 2008/12/05 12:15:18 hegner Exp $
+ * \version $Id: CompositePtrCandidate.h,v 1.6 2009/11/02 21:46:52 srappocc Exp $
  *
  */
 

@@ -21,9 +21,9 @@
 /// parameters/derivatives/covariance as subvector/submatrix
 /// of reduced size.
 ///
-///  $Date: 2010/10/26 19:50:21 $
-///  $Revision: 1.9 $
-/// (last update by $Author: flucke $)
+///  $Date: 2011/09/19 11:44:21 $
+///  $Revision: 1.10 $
+/// (last update by $Author: mussgill $)
 
 // include and not forward declare to ensure automatic conversion from AlignableDet(Unit): 
 // NO: include problems... #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"

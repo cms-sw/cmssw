@@ -3,11 +3,11 @@
    Implementation of class EcalFloatCondObjectContainerHandler
 
    \author Stefano ARGIRO
-   \version $Id: EcalFloatCondObjectContainerHandler.cc,v 1.1 2009/06/30 14:40:11 argiro Exp $
+   \version $Id: EcalFloatCondObjectContainerHandler.cc,v 1.2 2009/11/06 11:32:53 fra Exp $
    \date 09 Sep 2008
 */
 
-static const char CVSId[] = "$Id: EcalFloatCondObjectContainerHandler.cc,v 1.1 2009/06/30 14:40:11 argiro Exp $";
+static const char CVSId[] = "$Id: EcalFloatCondObjectContainerHandler.cc,v 1.2 2009/11/06 11:32:53 fra Exp $";
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBCommon/interface/Time.h"

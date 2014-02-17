@@ -22,7 +22,7 @@
 
  * \endcode
  * \author       Paolo Meridiani
- * \id           $Id: EcalGlobalShowerContainmentCorrectionsVsEta.h,v 1.1 2007/07/13 17:37:06 meridian Exp $
+ * \id           $Id: EcalGlobalShowerContainmentCorrectionsVsEta.h,v 1.2 2007/07/16 17:30:53 meridian Exp $
 */
 
 #include <vector>

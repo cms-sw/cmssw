@@ -10,9 +10,9 @@
 ///
 /// Basic class for management of alignment parameters and correlations 
 ///
-///  $Date: 2010/12/09 19:47:16 $
-///  $Revision: 1.18 $
-/// (last update by $Author: flucke $)
+///  $Date: 2011/05/23 20:50:31 $
+///  $Revision: 1.19 $
+/// (last update by $Author: mussgill $)
 
 namespace edm { class ParameterSet; }
 class AlignmentUserVariables;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu Oct  4 02:28:48 CEST 2007
-// $Id: DetIdAssociatorESProducer.cc,v 1.4 2009/09/06 16:34:57 dmytro Exp $
+// $Id: DetIdAssociatorESProducer.cc,v 1.5 2011/04/21 10:49:56 innocent Exp $
 //
 //
 

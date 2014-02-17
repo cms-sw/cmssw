@@ -1,4 +1,4 @@
-// $Id: EcalLogicID.cc,v 1.1 2006/03/01 23:39:52 egeland Exp $
+// $Id: EcalLogicID.cc,v 1.2 2008/05/08 13:14:37 fra Exp $
 
 #include <string>
 

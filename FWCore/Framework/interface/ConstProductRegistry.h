@@ -16,7 +16,7 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 18:01:21 CEST 2005
-// $Id: ConstProductRegistry.h,v 1.8 2010/10/08 17:55:04 wmtan Exp $
+// $Id: ConstProductRegistry.h,v 1.9 2012/09/27 15:21:21 eulisse Exp $
 //
 
 // system include files

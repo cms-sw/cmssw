@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.h,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: StatisticsReporter.h 
 
 #ifndef EventFilter_SMProxyServer_StatisticsReporter_h
@@ -35,8 +35,8 @@ namespace smproxy {
    * statistics for all MonitorCollections.
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 12:01:12 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:41:54 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener

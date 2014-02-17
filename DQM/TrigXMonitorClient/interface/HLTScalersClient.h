@@ -2,9 +2,12 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.13 2010/03/17 20:56:18 wittich Exp $
+// $Id: HLTScalersClient.h,v 1.14 2010/04/02 20:48:11 wittich Exp $
 
 // $Log: HLTScalersClient.h,v $
+// Revision 1.14  2010/04/02 20:48:11  wittich
+// updates to scale entries by received number of FU's
+//
 // Revision 1.13  2010/03/17 20:56:18  wittich
 // Check for good updates based on mergeCount values
 // add code for rates normalized per FU

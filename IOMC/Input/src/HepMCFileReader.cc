@@ -1,11 +1,11 @@
-// $Id: HepMCFileReader.cc,v 1.9 2009/05/25 12:52:27 fabiocos Exp $
+// $Id: HepMCFileReader.cc,v 1.11 2009/12/01 19:23:11 fabstoec Exp $
 
 /**  
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2009/05/25 12:52:27 $
-*  $Revision: 1.9 $
+*  $Date: 2009/12/01 19:23:11 $
+*  $Revision: 1.11 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 */
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Dec  6 09:18:05 EST 2005
-// $Id: stdNamespaceAdder.cc,v 1.1 2006/12/16 13:31:42 wmtan Exp $
+// $Id: stdNamespaceAdder.cc,v 1.2 2006/12/20 00:23:40 wmtan Exp $
 //
 
 // system include files

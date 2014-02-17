@@ -1,8 +1,8 @@
 /** \class STAMuonAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2007/10/16 17:52:33 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/10/31 05:19:45 $
+ *  $Revision: 1.7 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

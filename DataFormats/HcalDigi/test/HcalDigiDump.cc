@@ -10,8 +10,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2010/02/25 00:29:59 $
-$Revision: 1.16 $
+$Date: 2010/06/30 12:19:10 $
+$Revision: 1.17 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {

@@ -10,8 +10,8 @@
  *
  * \file DCCEBEventBlock.h
  *
- * $Date: 2010/10/04 07:44:38 $
- * $Revision: 1.3 $
+ * $Date: 2012/08/06 21:51:35 $
+ * $Revision: 1.4 $
  *
  * \author N. Almeida
  * 

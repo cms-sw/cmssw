@@ -19,7 +19,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id$
+// $Id: FTSFromVertexToPointFactory.h,v 1.1 2006/06/02 16:21:02 uberthon Exp $
 //
 //
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"

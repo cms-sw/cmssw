@@ -2,7 +2,7 @@
 #define GeneratorInterface_ThePEGInterface_ThePEGInterface_h
 
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.h,v 1.10 2009/05/15 22:55:47 saout Exp $
+ *  $Id: ThePEGInterface.h,v 1.11 2009/11/04 18:28:40 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>

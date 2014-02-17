@@ -1,6 +1,11 @@
-// $Id: HLTScalersClient.cc,v 1.19 2010/07/20 02:58:27 wmtan Exp $
+// $Id: HLTScalersClient.cc,v 1.20 2012/12/06 09:49:36 eulisse Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.20  2012/12/06 09:49:36  eulisse
+// Use `edm::isNotFinite` in place of `std::isnan`.
+//
+// * Required when running `-Ofast` builds.
+//
 // Revision 1.19  2010/07/20 02:58:27  wmtan
 // Add missing #include files
 //

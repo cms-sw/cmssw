@@ -1,4 +1,4 @@
-// $Id: testOneToOneAssociation.cc,v 1.14 2006/12/05 11:16:53 llista Exp $
+// $Id: testOneToOneAssociation.cc,v 1.15 2007/01/22 23:56:59 wmtan Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>

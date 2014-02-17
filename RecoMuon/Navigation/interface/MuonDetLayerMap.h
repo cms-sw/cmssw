@@ -12,8 +12,8 @@
  *
  * Sort the of BarrelDetLayers by radius, ForwardDetLayer by |Z|.
  *
- * $Date: 2006/09/07 18:43:51 $
- * $Revision: 1.4 $
+ * $Date: 2006/10/13 15:06:01 $
+ * $Revision: 1.1 $
  *
  * \author : Stefano Lacaprara, Nicola Amapane
  *

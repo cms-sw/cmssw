@@ -1,11 +1,11 @@
 #ifndef DataFormats_Alignment_TkFittedLasBeam_h
 #define DataFormats_Alignment_TkFittedLasBeam_h
 
-/// \class TkFittedLasBeam ($Revision: 1.3 $)
+/// \class TkFittedLasBeam ($Revision: 1.1 $)
 ///
 /// \author Gero Flucke 
 /// \date May 2009
-/// last update on $Date: 2009/07/27 12:44:16 $ by $Author: flucke $
+/// last update on $Date: 2009/10/13 12:52:25 $ by $Author: flucke $
 ///
 /// An extension of the 'TkLasBeam' containing information about 
 /// a track model fit to the laser hits.

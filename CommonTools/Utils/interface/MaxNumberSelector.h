@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: MaxNumberSelector.h,v 1.1 2007/11/30 13:33:43 llista Exp $
+ * $Id: MaxNumberSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 
 struct MaxNumberSelector {

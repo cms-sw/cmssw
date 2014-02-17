@@ -6,8 +6,8 @@
  *  Compute drift distance using constant drift velocity
  *  read from database.
  *
- *  $Date: 2011/01/31 18:40:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/02/22 16:23:00 $
+ *  $Revision: 1.3 $
  *  \author S.Bolognesi - INFN Torino
  */
 

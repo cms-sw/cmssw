@@ -1,4 +1,4 @@
-// $Id: FRDEventFileWriter.cc,v 1.2 2009/04/24 17:48:10 biery Exp $
+// $Id: FRDEventFileWriter.cc,v 1.3 2010/02/18 09:19:02 mommsen Exp $
 
 #include "IOPool/Streamer/interface/FRDEventFileWriter.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"

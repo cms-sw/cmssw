@@ -15,9 +15,9 @@ process.load('Configuration.EventContent.EventContentHeavyIons_cff')
 process.load("HeavyIonsAnalysis.Configuration.analysisEventContent_cff")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('SD and central skims'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/HeavyIonsAnalysis/Configuration/test/SDmaker_3SD_3CS_PDMinBias_cfg.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/HeavyIonsAnalysis/Configuration/test/SDmaker_3SD_3CS_PDMinBias_cfg.py,v $')
     )
 
 process.Timing = cms.Service("Timing")

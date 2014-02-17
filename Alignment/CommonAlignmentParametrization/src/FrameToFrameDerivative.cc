@@ -1,7 +1,7 @@
 /** \file FrameToFrameDerivative.cc
  *
- *  $Date: 2007/03/12 21:28:48 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/12/14 01:02:34 $
+ *  $Revision: 1.6 $
  */
 
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"

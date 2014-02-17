@@ -1,8 +1,8 @@
 #ifndef HI_MixEvtVtxGenerator_H
 #define HI_MixEvtVtxGenerator_H
 /*
-*   $Date: 2010/10/11 11:40:10 $
-*   $Revision: 1.4 $
+*   $Date: 2010/11/22 12:41:58 $
+*   $Revision: 1.5 $
 */
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

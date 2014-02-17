@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:51 CET 2006
-// $Id: SiStripHistoId.h,v 1.3 2009/02/18 14:28:02 maborgia Exp $
+// $Id: SiStripHistoId.h,v 1.4 2011/05/31 10:38:46 eulisse Exp $
 //
 
 #include <string>

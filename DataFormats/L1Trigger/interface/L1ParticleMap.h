@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.28 2007/08/08 03:49:03 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.29 2007/09/27 22:31:18 ratnik Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.29  2007/09/27 22:31:18  ratnik
+// QA campaign: merge includechecker changes back into the head, corresponding fixes being done in dependent packages
+//
 // Revision 1.28  2007/08/08 03:49:03  wsun
 // Diffractive trigger threshold update from X. Rouby.
 //

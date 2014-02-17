@@ -13,7 +13,7 @@
 //
 // Original Author:  David Wardrope
 //         Created:  Fri Nov 14 15:00:43 GMT 2008
-// $Id: AnalysisErsatz.h,v 1.3 2010/01/07 13:51:08 hegner Exp $
+// $Id: AnalysisErsatz.h,v 1.4 2010/01/14 12:39:56 fabozzi Exp $
 //
 //
 

@@ -5,7 +5,7 @@
  *  Concrete class for the seed used by the second level of the muon HLT.
  *  It stores the information (and the link) from the L1 particle 
  *
- *  $Date: 2008/01/24 $
+ *  $Date: 2008/02/13 14:49:28 $
  *  $Revision: 1.1 $
  *  \author  J.-R. Vlimant 
  */

@@ -11,7 +11,7 @@ Description: Input text file to be loaded into the source cards and output RCT d
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.7 2009/03/26 14:53:03 tapper Exp $
+// $Id: SourceCardTextToRctDigi.cc,v 1.8 2010/08/06 20:24:40 wmtan Exp $
 //
 //
 

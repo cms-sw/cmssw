@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: MLlog4cplus.cc,v 1.8 2007/08/08 08:00:10 meschi Exp $
+// $Id: MLlog4cplus.cc,v 1.9 2008/01/22 18:49:59 muzaffar Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"

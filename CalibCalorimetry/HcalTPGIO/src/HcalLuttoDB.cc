@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Weinberger
 //         Created:  Mon Mar 19 11:53:56 CDT 2007
-// $Id: HcalLuttoDB.cc,v 1.5 2008/01/22 19:07:41 muzaffar Exp $
+// $Id: HcalLuttoDB.cc,v 1.6 2009/12/17 21:20:49 wmtan Exp $
 //
 //
 

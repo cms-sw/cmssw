@@ -15,7 +15,7 @@ Implementation:
 //
 // Original Author:  Martin Grunewald
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: HLTL1NumberFilter.h,v 1.2 2012/01/21 15:00:14 fwyzard Exp $
+// $Id: HLTL1NumberFilter.h,v 1.3 2012/01/23 00:00:15 fwyzard Exp $
 //
 //
 

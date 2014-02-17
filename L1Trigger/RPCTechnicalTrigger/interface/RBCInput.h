@@ -1,4 +1,4 @@
-// $Id: RBCInput.h,v 1.4 2009/05/24 21:45:39 aosorio Exp $
+// $Id: RBCInput.h,v 1.5 2009/07/04 20:07:40 aosorio Exp $
 #ifndef INTERFACE_RBCINPUT_H 
 #define INTERFACE_RBCINPUT_H 1
 

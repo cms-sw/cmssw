@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  * 
- * \version $Id: FreeFunctionSelector.h,v 1.1 2008/01/22 11:17:58 llista Exp $  
+ * \version $Id: FreeFunctionSelector.h,v 1.1 2009/03/03 13:07:26 llista Exp $  
  */
 template<typename T, bool f(const T&)>
 struct FreeFunctionSelector {

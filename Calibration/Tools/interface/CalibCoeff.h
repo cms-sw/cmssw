@@ -6,10 +6,10 @@
  
     \brief intercalibration coefficient
 
-    $Date: 2008/01/23 10:59:53 $
-    $Revision: 1.1.2.1 $
-    $Id: CalibCoeff.h,v 1.1.2.1 2008/01/23 10:59:53 govoni Exp $ 
-    \author $Author: govoni $
+    $Date: 2008/02/25 16:46:55 $
+    $Revision: 1.2 $
+    $Id: CalibCoeff.h,v 1.2 2008/02/25 16:46:55 malberti Exp $ 
+    \author $Author: malberti $
 */
 class CalibCoeff
 {

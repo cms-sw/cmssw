@@ -3,7 +3,7 @@
    test file for EcalShowerContainmentCorrections 
 
    \author Stefano ARGIRO
-   \version $Id: FEDRawData_t.cpp,v 1.2 2006/03/27 10:08:21 argiro Exp $
+   \version $Id: testEcalShowerContaimentCorrections.cc,v 1.1 2007/05/15 20:37:21 argiro Exp $
    \date 28 Jun 2005
 */
 

@@ -1,8 +1,8 @@
 ///  \author    : Gero Flucke
 ///  date       : October 2010
-///  $Revision: 1.2 $
-///  $Date: 2010/11/17 15:55:09 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.7 $
+///  $Date: 2012/01/28 10:18:26 $
+///  (last update by $Author: innocent $)
 
 #include "Geometry/CommonTopologies/interface/BowedSurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"

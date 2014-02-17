@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jun 18 20:37:55 CEST 2010
-// $Id: FWViewEnergyScale.h,v 1.7 2010/11/26 20:24:47 amraktad Exp $
+// $Id: FWViewEnergyScale.h,v 1.8 2010/11/27 22:08:23 amraktad Exp $
 //
 
 // system include files

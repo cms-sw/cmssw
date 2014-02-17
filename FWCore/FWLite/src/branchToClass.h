@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  2 09:04:02 EDT 2006
-// $Id$
+// $Id: branchToClass.h,v 1.1 2006/08/04 18:19:46 chrjones Exp $
 //
 
 // system include files

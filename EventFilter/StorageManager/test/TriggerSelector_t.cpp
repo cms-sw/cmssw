@@ -1,4 +1,4 @@
-// $Id: TriggerSelector_t.cpp,v 1.2 2010/08/06 20:24:33 wmtan Exp $
+// $Id: TriggerSelector_t.cpp,v 1.3 2012/03/28 13:05:34 mommsen Exp $
 
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"

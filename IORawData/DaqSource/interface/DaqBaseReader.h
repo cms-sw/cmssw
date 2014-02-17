@@ -7,8 +7,8 @@
  *  Derived classes must have a constructor accepting a
  *  parameter (const edm::ParameterSet& pset).
  *
- *  $Date: 2009/07/07 16:33:32 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/01/11 16:14:25 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 

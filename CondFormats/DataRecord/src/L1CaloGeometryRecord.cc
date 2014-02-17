@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 23 23:10:22 EDT 2006
-// $Id: L1CaloGeometryRecord.cc,v 1.1 2008/04/16 23:06:56 wsun Exp $
+// $Id: L1CaloGeometryRecord.cc,v 1.2 2008/04/21 17:24:50 wsun Exp $
 //
 
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"

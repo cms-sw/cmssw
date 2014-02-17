@@ -2,8 +2,8 @@
 
 /**
 \class LEPBandPlot
-$Revision: 1.4 $
-$Date: 2009/05/15 09:55:43 $
+$Revision: 1.5 $
+$Date: 2009/09/23 19:41:22 $
 \author D. Piparo (danilo.piparo<at>cern.ch), G. Schott - Universitaet Karlsruhe
 
 This class allows to produce plots like the ones of the 

@@ -1,9 +1,9 @@
 /** \class EcalUncalibRecHitWorkerAnalFit
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
- *  $Id: EcalUncalibRecHitWorkerAnalFit.cc,v 1.16 2007/12/21 15:35:40 ferriff Exp $
- *  $Date: 2007/12/21 15:35:40 $
- *  $Revision: 1.16 $
+ *  $Id: EcalUncalibRecHitWorkerAnalFit.cc,v 1.1 2008/12/10 01:52:42 ferriff Exp $
+ *  $Date: 2008/12/10 01:52:42 $
+ *  $Revision: 1.1 $
  *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
  *
  */

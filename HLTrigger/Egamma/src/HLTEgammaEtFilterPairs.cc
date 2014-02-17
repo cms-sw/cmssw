@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilterPairs
  *
- * $Id: HLTEgammaEtFilterPairs.cc,v 1.3 2011/05/01 08:14:08 gruen Exp $
+ * $Id: HLTEgammaEtFilterPairs.cc,v 1.4 2012/01/21 14:56:57 fwyzard Exp $
  *
  *  \author Alessio Ghezzi
  *

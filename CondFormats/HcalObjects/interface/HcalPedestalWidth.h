@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store PedestalWidth values 4xCapId
 $Author: ratnikov
-$Date: 2008/11/07 16:05:50 $
-$Revision: 1.9 $
+$Date: 2009/03/24 16:05:29 $
+$Revision: 1.10 $
 */
 #include <boost/cstdint.hpp>
 

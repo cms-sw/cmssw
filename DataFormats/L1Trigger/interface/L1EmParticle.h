@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EmParticle.h,v 1.11 2007/11/13 17:27:23 wsun Exp $
+// $Id: L1EmParticle.h,v 1.12 2008/04/03 03:37:20 wsun Exp $
 //
 
 // system include files

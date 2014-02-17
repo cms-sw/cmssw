@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2012/04/13 17:59:44 $
- * $Revision: 1.111.2.1 $
+ * $Date: 2012/04/27 13:45:59 $
+ * $Revision: 1.115 $
  * \author G. Della Ricca
  *
 */

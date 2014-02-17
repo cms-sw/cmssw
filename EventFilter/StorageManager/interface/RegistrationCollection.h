@@ -1,4 +1,4 @@
-// $Id: RegistrationCollection.h,v 1.7.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: RegistrationCollection.h,v 1.8 2011/03/07 15:31:32 mommsen Exp $
 /// @file: RegistrationCollection.h 
 
 #ifndef EventFilter_StorageManager_RegistrationCollection_h
@@ -22,8 +22,8 @@ namespace stor
      Keep a collection of registered event and DQM event consumers.
 
      $Author: mommsen $
-     $Revision: 1.7.4.1 $
-     $Date: 2011/03/07 11:33:04 $
+     $Revision: 1.8 $
+     $Date: 2011/03/07 15:31:32 $
   */
 
   class RegistrationCollection

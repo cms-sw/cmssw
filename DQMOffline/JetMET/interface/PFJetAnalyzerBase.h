@@ -5,8 +5,8 @@
  *
  *  base class for all DQM monitor sources
  *
- *  $Date: 2010/01/18 21:04:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/20 19:12:43 $
+ *  $Revision: 1.3 $
  *  \author F. Chlebana - Fermilab
  */
 

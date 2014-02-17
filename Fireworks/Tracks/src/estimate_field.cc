@@ -2,7 +2,7 @@
 //
 // Package:     Tracks
 // Class  :     estimate_field
-// $Id: estimate_field.cc,v 1.3 2009/08/28 13:30:43 dmytro Exp $
+// $Id: estimate_field.cc,v 1.4 2009/12/11 21:18:45 dmytro Exp $
 //
 
 #include "Math/Vector3D.h"

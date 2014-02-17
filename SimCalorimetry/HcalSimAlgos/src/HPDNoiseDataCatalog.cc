@@ -2,7 +2,7 @@
 // Object to store HPD instance name and noise rate for the instance
 // Project: HPD noise library
 // Author: F.Ratnikov UMd, Jan. 15, 2008
-// $Id: HPDNoiseDataCatalog.cc,v 1.2 2008/01/17 23:35:53 fedor Exp $
+// $Id: HPDNoiseDataCatalog.cc,v 1.3 2008/07/21 18:30:03 tyetkin Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseDataCatalog.h"

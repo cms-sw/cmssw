@@ -3,8 +3,8 @@
 /**
  *   \class LayerCollector
  *   Class collecting all layers of the tracker.  
- *    $Date: 2006/05/23 10:11:01 $
- *    $Revision: 1.2 $
+ *    $Date: 2006/06/01 15:04:40 $
+ *    $Revision: 1.3 $
  *   
  *   
  */

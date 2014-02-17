@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Sat Jan 24 16:20:28 CST 2009
-// $Id: MuonAlignmentFromReference.cc,v 1.38 2011/04/15 22:23:19 khotilov Exp $
+// $Id: MuonAlignmentFromReference.cc,v 1.39 2011/10/13 00:03:12 khotilov Exp $
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 

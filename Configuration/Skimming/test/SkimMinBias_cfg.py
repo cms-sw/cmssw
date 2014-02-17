@@ -4,9 +4,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("minBiasSkim")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('Skim for MinBias'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/Skimming/test/SkimMinBias_cfg.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/Skimming/test/SkimMinBias_cfg.py,v $')
 )
 
 

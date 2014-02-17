@@ -1,4 +1,4 @@
-// $Id: EventMsg.h,v 1.1.2.7 2011/03/08 18:34:19 mommsen Exp $
+// $Id: EventMsg.h,v 1.3 2011/03/08 18:44:55 mommsen Exp $
 /// @file: EventMsg.h 
 
 #ifndef EventFilter_SMProxyServer_EventMsg_h
@@ -17,8 +17,8 @@ namespace smproxy {
    * APIs required for SMPS
    *
    * $Author: mommsen $
-   * $Revision: 1.1.2.7 $
-   * $Date: 2011/03/08 18:34:19 $
+   * $Revision: 1.3 $
+   * $Date: 2011/03/08 18:44:55 $
    */
 
   class EventMsg

@@ -3,7 +3,7 @@
 /**   \Class DTSectCollPhCand.h
  *    A Trigger Server Phi Candidate
  *
- *   $Date: 2007/04/27 08:45:51 $
+ *   $Date: 2008/06/30 13:44:28 $
  *  
  *
  *   \Authors D. Bonacorsi, S. Marcellini

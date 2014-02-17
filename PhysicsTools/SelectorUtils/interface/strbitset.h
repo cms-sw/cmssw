@@ -9,7 +9,7 @@
    to access the underlying bits by a string name instead of via an index.
 
   \author Salvatore Rappoccio
-  \version  $Id: strbitset.h,v 1.7 2010/07/23 01:25:22 srappocc Exp $
+  \version  $Id: strbitset.h,v 1.8 2012/01/03 22:38:26 chrjones Exp $
 */
 
 

@@ -11,8 +11,8 @@
  *    an array of 21 floats for the error matrix of 6 alignment parameters
  *  The lower triangular of the error matrix is stored.
  *
- *  $Date: 2007/04/03 15:59:58 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/08 14:44:38 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 

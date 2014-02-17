@@ -8,8 +8,8 @@
  *  It's used by QTestConfigurationPerser
  *  to check that all necessary parameters are defined.
  * 
- *  $Date: 2006/05/04 10:27:27 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/09 21:28:24 $
+ *  $Revision: 1.1 $
  *  \author Ilaria Segoni
   */
 

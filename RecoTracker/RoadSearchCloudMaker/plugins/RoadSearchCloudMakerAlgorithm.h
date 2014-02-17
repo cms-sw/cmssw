@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2007/08/30 14:59:11 $
-// $Revision: 1.28 $
+// $Author: eulisse $
+// $Date: 2012/10/24 08:10:40 $
+// $Revision: 1.1 $
 //
 
 #include <string>

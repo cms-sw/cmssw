@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: GsfElectronSelector.h,v 1.4 2010/03/18 17:58:22 llista Exp $
+ * $Id: GsfElectronSelector.h,v 1.5 2010/09/27 07:48:51 gpetrucc Exp $
  *
  */
 

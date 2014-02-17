@@ -4,7 +4,7 @@
  *
  *   Class for computing single Traco LUT from given parameters
  * 
- *   $Date: 2009/11/12 14:33:22 $
+ *   $Date: 2011/02/10 12:41:00 $
  * 
  *   \author S. Vanini
  */

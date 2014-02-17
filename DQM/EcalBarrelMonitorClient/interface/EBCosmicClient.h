@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2009/10/28 08:18:20 $
- * $Revision: 1.61 $
+ * $Date: 2010/01/25 21:12:23 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

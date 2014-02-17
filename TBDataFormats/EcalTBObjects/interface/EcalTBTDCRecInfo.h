@@ -7,7 +7,7 @@
  *  Simple container for TDC reconstructed informations 
  *
  *
- *  $Id: $
+ *  $Id: EcalTBTDCRecInfo.h,v 1.1 2006/04/21 09:26:34 meridian Exp $
  */
 
 

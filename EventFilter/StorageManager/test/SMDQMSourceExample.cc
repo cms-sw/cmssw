@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: SMDQMSourceExample.cc,v 1.15 2009/12/18 19:31:10 wmtan Exp $
+  $Id: SMDQMSourceExample.cc,v 1.16 2010/08/06 20:24:32 wmtan Exp $
 
 */
 

@@ -1,5 +1,5 @@
 //
-// $Id: StKinFitter.cc,v 1.7 2010/09/06 11:07:13 snaumann Exp $
+// $Id: StKinFitter.cc,v 1.8 2010/09/06 13:46:16 snaumann Exp $
 //
 
 #include "PhysicsTools/KinFitter/interface/TKinFitter.h"

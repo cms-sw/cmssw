@@ -1,4 +1,4 @@
-// Last commit: $Id: test_Template.cc,v 1.2 2007/07/31 15:20:25 ratnik Exp $
+// Last commit: $Id: test_Template.cc,v 1.3 2010/01/07 11:21:03 lowette Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_Template.h"
 #include "FWCore/Framework/interface/Event.h" 

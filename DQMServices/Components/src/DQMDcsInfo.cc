@@ -2,9 +2,9 @@
  * \file DQMDcsInfo.cc
  * \author A.Meyer - DESY
  * Last Update:
- * $Date: 2010/03/29 18:34:06 $
- * $Revision: 1.2 $
- * $Author: ameyer $
+ * $Date: 2012/08/02 07:59:10 $
+ * $Revision: 1.3 $
+ * $Author: rovere $
  *
  */
 

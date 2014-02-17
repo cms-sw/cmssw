@@ -16,7 +16,7 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: ErrorsAnalyzer.h,v 1.4 2010/05/28 08:47:44 demattia Exp $
+// $Id: ErrorsAnalyzer.h,v 1.5 2012/12/20 16:09:21 emiglior Exp $
 //
 //
 

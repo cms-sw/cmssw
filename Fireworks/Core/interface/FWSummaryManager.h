@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:58 EST 2008
-// $Id: FWSummaryManager.h,v 1.10 2009/08/26 19:06:03 chrjones Exp $
+// $Id: FWSummaryManager.h,v 1.11 2009/09/23 20:34:38 chrjones Exp $
 //
 
 // system include files

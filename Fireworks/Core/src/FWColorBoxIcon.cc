@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 19 15:42:05 CST 2009
-// $Id$
+// $Id: FWColorBoxIcon.cc,v 1.1 2009/03/04 16:40:51 chrjones Exp $
 //
 
 // system include files

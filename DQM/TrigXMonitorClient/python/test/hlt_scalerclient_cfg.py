@@ -1,4 +1,9 @@
 # $Log: hlt_scalerclient_cfg.py,v $
+# Revision 1.5  2008/09/03 02:13:47  wittich
+# - bug fix in L1Scalers
+# - configurable dqm directory in L1SCalers
+# - other minor tweaks in HLTScalers
+#
 # Revision 1.4  2008/09/02 02:37:22  wittich
 # - split L1 code from HLTScalers into L1Scalers
 # - update cfi file accordingly

@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN 
  *
- * \version $Id: CandMapTrait.h,v 1.1 2007/09/17 14:18:33 llista Exp $
+ * \version $Id: CandMapTrait.h,v 1.2 2007/10/20 16:00:52 llista Exp $
  *
  */
 namespace reco {

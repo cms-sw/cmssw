@@ -4,8 +4,8 @@
 /** \class GsfTrackProducerBase
  *  Produce Tracks from TrackCandidates
  *
- *  $Date: 2010/09/29 12:35:43 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/12/14 16:43:48 $
+ *  $Revision: 1.10 $
  *  \author cerati
  */
 

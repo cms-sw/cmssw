@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.h,v 1.8 2009/05/11 16:01:16 saout Exp $
+// $Id: VarProcessor.h,v 1.9 2009/06/03 09:50:14 saout Exp $
 //
 
 #include <algorithm>

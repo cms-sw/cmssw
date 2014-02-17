@@ -2,8 +2,8 @@
  *
  *  Chi2 calculation in survey data for drift tube chambers  
  *
- *  $Date: 2007/04/13 18:05:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/17 07:45:02 $
+ *  $Revision: 1.2 $
  *  \author Pablo Martinez Ruiz del Arbol
  */
 

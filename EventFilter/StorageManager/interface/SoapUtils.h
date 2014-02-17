@@ -1,4 +1,4 @@
-// $Id: SoapUtils.h,v 1.3.18.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: SoapUtils.h,v 1.4 2011/03/07 15:31:32 mommsen Exp $
 /// @file: SoapUtils.h 
 
 #ifndef EventFilter_StorageManager_SoapUtils_h
@@ -17,8 +17,8 @@ namespace stor {
      * Collection of utility functions for handling SOAP messages
      *
      * $Author: mommsen $
-     * $Revision: 1.3.18.1 $
-     * $Date: 2011/03/07 11:33:04 $
+     * $Revision: 1.4 $
+     * $Date: 2011/03/07 15:31:32 $
      */
 
     /**

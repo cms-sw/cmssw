@@ -11,7 +11,7 @@ We calculate the ParameterSetID from the names and values of the
 tracked parameters within a ParameterSet, currently using the MD5
 algorithm.
 
-$Id: ParameterSetID.h,v 1.3 2006/09/20 16:07:08 paterno Exp $
+$Id: ParameterSetID.h,v 1.1 2007/03/04 04:48:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

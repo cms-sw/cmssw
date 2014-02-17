@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Fri Jun  1 12:30:43 CEST 2007
-// $Id$
+// $Id: EcalLaserAPDPNRatiosRcd.h,v 1.1 2007/06/22 13:30:19 fra Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

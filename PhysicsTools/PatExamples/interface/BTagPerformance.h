@@ -6,7 +6,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BTagPerformance.h,v 1.1 2008/08/08 15:00:38 yumiceva Exp $
+ * \version $Id: BTagPerformance.h,v 1.2 2009/10/20 12:24:28 hegner Exp $
  *
  */
 

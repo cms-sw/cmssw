@@ -1,4 +1,4 @@
-// $Id: testMakeCompositeCandidate.cc,v 1.1 2009/02/26 09:17:35 llista Exp $
+// $Id: testMakeCompositeCandidate.cc,v 1.2 2009/10/01 09:14:52 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "CommonTools/CandUtils/interface/makeCompositeCandidate.h"

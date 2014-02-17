@@ -3,8 +3,8 @@
  * Algo for reconstructing 4d segment in DT refitting the 2D phi SL hits and combining
  * the results with the theta view.
  *  
- * $Date: 2006/04/27 14:30:38 $
- * $Revision: 1.4 $
+ * $Date: 2006/04/28 15:21:52 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *

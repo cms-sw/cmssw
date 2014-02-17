@@ -5,9 +5,9 @@
 ///
 /// Concrete class for ROOT-based I/O of AlignmentParameters 
 ///
-///  $Date: 2008/09/02 15:31:23 $
-///  $Revision: 1.6 $
-/// (last update by $Author: flucke $)
+///  $Date: 2009/01/23 15:47:42 $
+///  $Revision: 1.7 $
+/// (last update by $Author: ewidl $)
 
 #include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"

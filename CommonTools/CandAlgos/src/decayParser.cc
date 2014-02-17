@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Aug  7 20:26:31 EDT 2005
-// $Id: decayParser.cc,v 1.1 2009/03/03 13:50:55 llista Exp $
+// $Id: decayParser.cc,v 1.2 2009/05/08 12:54:35 llista Exp $
 //
 #include "CommonTools/CandAlgos/interface/decayParser.h"
 #include <vector>

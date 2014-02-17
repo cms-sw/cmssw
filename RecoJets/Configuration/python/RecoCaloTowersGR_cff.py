@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: RecoCaloTowersGR_cff.py,v 1.5 2008/10/21 14:40:07 oehler Exp $
+# $Id: RecoCaloTowersGR_cff.py,v 1.6 2009/04/21 14:41:57 srappocc Exp $
 #
 # create GR calotowers here
 #

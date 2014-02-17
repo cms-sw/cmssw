@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Tue Jun 15 12:45:45 CDT 2010
-// $Id: FFTJetPatRecoProducer.cc,v 1.4 2011/07/05 06:28:02 igv Exp $
+// $Id: FFTJetPatRecoProducer.cc,v 1.5 2011/07/18 17:08:24 igv Exp $
 //
 //
 

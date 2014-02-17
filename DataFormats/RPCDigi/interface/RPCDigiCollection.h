@@ -3,7 +3,7 @@
 /** \class RPCDigiCollection
  *  
  *  \author Ilaria Segoni 
- *  \version $Id: RPCDigiCollection.h,v 1.1 2005/11/03 15:26:11 segoni Exp $
+ *  \version $Id: RPCDigiCollection.h,v 1.2 2006/05/16 14:36:29 mmaggi Exp $
  *  \date 21 Apr 2005
  */
 

@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: StringObjectFunction.h,v 1.4 2012/06/26 21:09:37 wmtan Exp $
+ * $Id: StringObjectFunction.h,v 1.5 2012/08/03 18:08:09 wmtan Exp $
  */
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CommonTools/Utils/src/ExpressionPtr.h"

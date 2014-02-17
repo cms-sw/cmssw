@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.h,v 1.16 2009/05/20 15:54:19 rofierzy Exp $
+// $Id: HcalDbProducer.h,v 1.17 2009/10/16 22:12:57 kukartse Exp $
 //
 //
 

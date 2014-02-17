@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Thu Dec 11 17:47:39 CET 2008
-// $Id$
+// $Id: TTUBoardSpecsRcd.h,v 1.1 2009/01/28 12:57:34 aosorio Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

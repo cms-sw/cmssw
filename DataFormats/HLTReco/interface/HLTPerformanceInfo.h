@@ -1,5 +1,5 @@
 // -*-c++-*-
-// $Id: HLTPerformanceInfo.h,v 1.14 2008/08/04 14:52:28 bdahmes Exp $
+// $Id: HLTPerformanceInfo.h,v 1.15 2013/04/02 09:10:28 fwyzard Exp $
 #ifndef HLTPERFORMANCEINFO_H
 #define HLTPERFORMANCEINFO_H
 

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 07:06:56 CET 2008
-// $Id: L1CondDBPayloadWriter.h,v 1.6 2009/12/17 23:43:58 wmtan Exp $
+// $Id: L1CondDBPayloadWriter.h,v 1.7 2010/01/20 21:15:56 wsun Exp $
 //
 
 // system include files

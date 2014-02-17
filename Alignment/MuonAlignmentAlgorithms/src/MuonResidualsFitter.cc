@@ -1,4 +1,4 @@
-// $Id: MuonResidualsFitter.cc,v 1.11 2011/04/15 21:48:21 khotilov Exp $
+// $Id: MuonResidualsFitter.cc,v 1.12 2011/10/12 23:44:11 khotilov Exp $
 
 #ifdef STANDALONE_FITTER
 #include "MuonResidualsFitter.h"

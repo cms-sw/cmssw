@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio (Update: Amnon Harel)
-  \version  $Id: JetIDSelectionFunctor.h,v 1.15 2010/08/31 20:31:50 srappocc Exp $
+  \version  $Id: JetIDSelectionFunctor.h,v 1.16 2010/12/01 20:02:41 rwolf Exp $
 */
 
 

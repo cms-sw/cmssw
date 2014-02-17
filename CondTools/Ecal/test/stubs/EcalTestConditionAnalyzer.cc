@@ -3,7 +3,7 @@
    Test analyzer for ecal conditions
 
    \author Stefano ARGIRO
-   \version $Id: EcalTestConditionAnalyzer.cc,v 1.6 2009/07/01 08:16:25 argiro Exp $
+   \version $Id: EcalTestConditionAnalyzer.cc,v 1.7 2009/12/17 23:26:04 wmtan Exp $
    \date 05 Nov 2008
 */
 
@@ -48,7 +48,7 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
 
-static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.6 2009/07/01 08:16:25 argiro Exp $";
+static const char CVSId[] = "$Id: EcalTestConditionAnalyzer.cc,v 1.7 2009/12/17 23:26:04 wmtan Exp $";
 
 /**
  *

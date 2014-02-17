@@ -1,9 +1,9 @@
 /** \class RecHitFilter
  **   simple filter of EcalRecHits
  **
- **  $Id: RecHitFilter.cc,v 1.1 2006/05/04 18:05:44 rahatlou Exp $
- **  $Date: 2006/05/04 18:05:44 $
- **  $Revision: 1.1 $
+ **  $Id: RecHitFilter.cc,v 1.2 2007/03/08 19:11:10 futyand Exp $
+ **  $Date: 2007/03/08 19:11:10 $
+ **  $Revision: 1.2 $
  **  \author Shahram Rahatlou, University of Rome & INFN, May 2006
  **
  ***/

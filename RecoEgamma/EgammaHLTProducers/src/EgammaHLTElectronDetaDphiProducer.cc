@@ -2,7 +2,7 @@
  *
  *  \author Roberto Covarelli (CERN)
  * 
- * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.7 2012/03/29 13:55:39 sani Exp $
+ * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.8 2012/03/29 14:15:04 sani Exp $
  *
  */
 

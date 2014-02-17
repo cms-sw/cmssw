@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Feb 14 10:02:32 CST 2009
-// $Id: FWCollectionSummaryWidget.cc,v 1.23 2010/06/16 14:04:39 matevz Exp $
+// $Id: FWCollectionSummaryWidget.cc,v 1.24 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files

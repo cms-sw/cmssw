@@ -4,8 +4,8 @@
 /** \class GenericHouseholder
  *  Generic implementation of the QR decomposition of a matrix using Householder transformation
  *
- * $Date: 2007/03/14 13:55:40 $
- * $Revision: 1.1 $
+ * $Date: 2010/08/06 20:24:06 $
+ * $Revision: 1.2 $
  * \author Lorenzo Agostino, R.Ofierzynski, CERN
  */
 

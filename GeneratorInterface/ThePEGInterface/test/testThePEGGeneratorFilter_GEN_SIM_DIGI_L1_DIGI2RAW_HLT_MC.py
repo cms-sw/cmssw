@@ -25,9 +25,9 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('Herwig++ example - QCD validation'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/GeneratorInterface/ThePEGInterface/test/testThePEGGeneratorFilter.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ThePEGInterface/test/testThePEGGeneratorFilter_GEN_SIM_DIGI_L1_DIGI2RAW_HLT_MC.py,v $')
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)

@@ -3,8 +3,8 @@
 
 /** \class AlcaBeamMonitor
  * *
- *  $Date: 2010/09/22 22:53:37 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/09/24 06:36:04 $
+ *  $Revision: 1.5 $
  *  \author  Lorenzo Uplegger/FNAL
  *   
  */

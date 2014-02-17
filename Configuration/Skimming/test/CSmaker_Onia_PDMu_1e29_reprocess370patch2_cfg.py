@@ -6,7 +6,7 @@ process = cms.Process("makeSD")
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('Onia central skim'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/Skimming/test/CSmaker_Onia_PDMu_1e29_reprocess370_cfg.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/Skimming/test/CSmaker_Onia_PDMu_1e29_reprocess370patch2_cfg.py,v $')
 )
 
 

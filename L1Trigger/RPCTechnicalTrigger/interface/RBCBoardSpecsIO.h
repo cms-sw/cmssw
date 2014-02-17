@@ -1,4 +1,4 @@
-// $Id: RBCBoardSpecsIO.h,v 1.1 2009/06/04 11:52:58 aosorio Exp $
+// $Id: RBCBoardSpecsIO.h,v 1.2 2009/09/26 13:39:16 elmer Exp $
 #ifndef CONFIGCODE_RBCBOARDSPECSIO_H 
 #define CONFIGCODE_RBCBOARDSPECSIO_H 1
 

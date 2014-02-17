@@ -11,9 +11,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.00 $
+ * \version $Revision: 1.1 $
  *
- * $Id: CorrectedPFMETProducer.h,v 1.18 2011/05/30 15:19:41 veelken Exp $
+ * $Id: CorrectedPFMETProducer.cc,v 1.1 2011/09/13 14:35:34 veelken Exp $
  *
  */
 

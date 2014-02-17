@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2012/03/29 08:42:23 $
+// last change    : $Date: 2012/06/25 13:19:30 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT

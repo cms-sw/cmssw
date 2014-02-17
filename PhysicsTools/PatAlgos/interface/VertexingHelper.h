@@ -8,7 +8,7 @@
    and can use them to select if a candidate is good or not. 
 
   \author   Giovanni Petrucciani
-  \version  $Id: VertexingHelper.h,v 1.3 2008/06/06 14:13:40 gpetrucc Exp $
+  \version  $Id: VertexingHelper.h,v 1.1 2008/07/22 12:47:01 gpetrucc Exp $
 */
 
 

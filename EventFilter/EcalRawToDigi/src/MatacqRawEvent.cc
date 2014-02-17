@@ -1,6 +1,6 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
 /*
- * $Id: MatacqRawEvent.cc,v 1.3 2008/05/02 16:54:08 pgras Exp $
+ * $Id: MatacqRawEvent.cc,v 1.1 2009/02/25 14:44:25 pgras Exp $
  * Original author: Ph. Gras CEA/Saclay 
  */
 

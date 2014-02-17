@@ -3,8 +3,8 @@
  *  \class: MuonShowerInformationFiller
  *  Description: class for muon shower identification
  *
- *  $Date: 2011/10/28 22:10:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/12/23 05:08:50 $
+ *  $Revision: 1.7 $
  
  *
  *  \author: A. Svyatkovskiy, Purdue University

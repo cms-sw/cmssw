@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.46 2011/07/05 13:25:43 mommsen Exp $
+// $Id: Configuration.cc,v 1.47 2012/06/08 10:20:33 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"

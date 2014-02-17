@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:55 CDT 2008
-// $Id: MuonAlignmentInputXML.h,v 1.8 2010/07/30 04:20:13 pivarski Exp $
+// $Id: MuonAlignmentInputXML.h,v 1.9 2011/06/07 19:28:47 khotilov Exp $
 //
 
 // system include files

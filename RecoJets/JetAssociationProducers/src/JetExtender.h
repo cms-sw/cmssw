@@ -3,7 +3,7 @@
 // Combines different Jet associations into single compact object
 // which extends basic Jet information
 // Fedor Ratnikov Sep. 10, 2007
-// $Id: JetExtender.h,v 1.1 2007/09/11 23:57:26 fedor Exp $
+// $Id: JetExtender.h,v 1.2 2010/02/17 17:50:18 wmtan Exp $
 //
 //
 #ifndef JetExtender_h

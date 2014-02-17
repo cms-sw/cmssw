@@ -2,7 +2,7 @@
  * 
  * fed_header.h  
  *
- * $Header: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/FEDRawData/src/fed_header.h,v 1.1 2005/09/30 08:13:36 namapane Exp $
+ * $Header: /local/reps/CMSSW/CMSSW/DataFormats/FEDRawData/src/fed_header.h,v 1.2 2005/10/06 18:25:22 namapane Exp $
  *
  * This file contains the struct definition of the FED-header.
  * The FED-header is inserted by the FED at the top of a data fragment

@@ -4,8 +4,8 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2009/05/08 09:56:38 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/02/20 21:02:35 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

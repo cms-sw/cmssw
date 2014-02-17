@@ -1,5 +1,5 @@
 //
-// $Id: CandidateSummaryTable.cc,v 1.3 2009/08/25 20:48:01 hegner Exp $
+// $Id: CandidateSummaryTable.cc,v 1.4 2010/02/20 21:00:15 wmtan Exp $
 //
 
 /**
@@ -9,7 +9,7 @@
   FIXME FIXME Move to CandAlgos
 
   \author   Giovanni Petrucciani
-  \version  $Id: CandidateSummaryTable.cc,v 1.3 2009/08/25 20:48:01 hegner Exp $
+  \version  $Id: CandidateSummaryTable.cc,v 1.4 2010/02/20 21:00:15 wmtan Exp $
 */
 
 

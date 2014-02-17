@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.h,v 1.14 2011/03/07 15:31:32 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.15 2011/11/08 10:48:40 mommsen Exp $
 /// @file: StatisticsReporter.h 
 
 #ifndef EventFilter_StorageManager_StatisticsReporter_h
@@ -43,8 +43,8 @@ namespace stor {
    * statistics for all MonitorCollections.
    *
    * $Author: mommsen $
-   * $Revision: 1.14 $
-   * $Date: 2011/03/07 15:31:32 $
+   * $Revision: 1.15 $
+   * $Date: 2011/11/08 10:48:40 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener

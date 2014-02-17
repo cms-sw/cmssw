@@ -5,8 +5,8 @@
  *  items. Any and all HLT filters must derive from the HLTFilter
  *  class!
  *
- *  $Date: 2012/01/21 14:52:28 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/02/01 13:50:55 $
+ *  $Revision: 1.9 $
  *
  *  \author Martin Grunewald
  *

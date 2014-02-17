@@ -2,11 +2,11 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2011/04/15 21:51:13 $
- *  $Revision: 1.16 $
+ *  $Date: 2011/10/12 23:44:10 $
+ *  $Revision: 1.17 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  *
- *  $Id: MuonResidualsFitter.h,v 1.16 2011/04/15 21:51:13 khotilov Exp $
+ *  $Id: MuonResidualsFitter.h,v 1.17 2011/10/12 23:44:10 khotilov Exp $
  */
 
 #ifndef STANDALONE_FITTER

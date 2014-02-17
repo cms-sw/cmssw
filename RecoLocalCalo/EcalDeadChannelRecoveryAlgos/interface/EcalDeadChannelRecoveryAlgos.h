@@ -3,8 +3,8 @@
  
 /** \class EcalDeadChannelRecoveryAlgos
   *
-  *  $Date: 2009/04/30 14:08:31 $
-  *  $Revision: 1.6 $
+  *  $Date: 2010/08/06 20:24:54 $
+  *  $Revision: 1.7 $
   */
  
 

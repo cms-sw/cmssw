@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripModule.cc,v 1.18 2009/07/08 18:59:12 lowette Exp $
+// Last commit: $Id: SiStripModule.cc,v 1.19 2009/10/27 09:50:29 lowette Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"

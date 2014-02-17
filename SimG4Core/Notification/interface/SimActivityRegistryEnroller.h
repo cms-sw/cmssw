@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 13 15:08:12 EST 2005
-// $Id: SimActivityRegistryEnroller.h,v 1.3 2005/11/21 22:00:50 chrjones Exp $
+// $Id: SimActivityRegistryEnroller.h,v 1.4 2005/11/24 19:59:52 chrjones Exp $
 //
 
 // system include files

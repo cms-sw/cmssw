@@ -7,7 +7,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: ConcreteStandAloneMuonCandidateProducer.cc,v 1.1 2007/12/14 12:49:28 llista Exp $
+ * $Id: ConcreteStandAloneMuonCandidateProducer.cc,v 1.1 2009/03/04 13:11:29 llista Exp $
  *
  */
 

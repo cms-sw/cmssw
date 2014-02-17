@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: Variable.h,v 1.7 2007/12/08 20:22:57 saout Exp $
+// $Id: Variable.h,v 1.8 2009/03/27 14:33:38 saout Exp $
 //
 
 #include <vector>

@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2010/03/28 05:55:39 $
- * $Revision: 1.25 $
+ * $Date: 2010/03/29 01:30:40 $
+ * $Revision: 1.26 $
  * \author F. Cossutti
  *
 */

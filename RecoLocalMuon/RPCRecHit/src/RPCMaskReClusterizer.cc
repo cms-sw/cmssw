@@ -1,7 +1,7 @@
 
 /** \Class RPCMaskReClusterizer
- *  $Date: 2008/08/12 16:06:39  $
- *  $Revision: 1.0 $
+ *  $Date: 2008/10/14 08:52:31 $
+ *  $Revision: 1.1 $
  *  \author J.C. Sanabria -- UniAndes, Bogota
  */
 

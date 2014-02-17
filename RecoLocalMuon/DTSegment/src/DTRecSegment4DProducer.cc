@@ -1,8 +1,8 @@
 /** \class DTRecSegment4DProducer
  *  Builds the segments in the DT chambers.
  *
- *  $Date: 2008/12/03 12:52:22 $
- *  $Revision: 1.11 $
+ *  $Date: 2012/01/06 12:31:46 $
+ *  $Revision: 1.12 $
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

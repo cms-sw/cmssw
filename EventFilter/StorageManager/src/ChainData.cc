@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.19 2011/08/31 20:12:00 wmtan Exp $
+// $Id: ChainData.cc,v 1.20 2012/04/20 10:48:01 mommsen Exp $
 /// @file: ChainData.cc
 
 #include "IOPool/Streamer/interface/MsgHeader.h"

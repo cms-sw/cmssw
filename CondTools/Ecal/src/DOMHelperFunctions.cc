@@ -1,7 +1,7 @@
 /**
  *  \file Implementation of helper functions
  *
- *  $Id: DOMHelperFunctions.cc,v 1.5 2010/12/16 08:54:06 fay Exp $
+ *  $Id: DOMHelperFunctions.cc,v 1.6 2011/01/21 12:48:59 fwyzard Exp $
  */
 
 

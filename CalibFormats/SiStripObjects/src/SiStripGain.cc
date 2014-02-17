@@ -6,7 +6,7 @@
 //     <Notes on implementation>
 // Original Author:  gbruno
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripGain.cc,v 1.12 2010/04/19 16:17:18 demattia Exp $
+// $Id: SiStripGain.cc,v 1.13 2010/04/27 08:06:06 demattia Exp $
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"

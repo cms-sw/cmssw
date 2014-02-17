@@ -4,8 +4,8 @@
 /*
  * \file EEStatusFlagsClient.h
  *
- * $Date: 2010/02/14 14:35:46 $
- * $Revision: 1.20 $
+ * $Date: 2010/02/14 20:56:24 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */

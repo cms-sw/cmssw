@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Sep 17 14:20:56 CEST 2009
-// $Id$
+// $Id: MuonsGrabber.h,v 1.1 2009/09/23 11:01:55 fruboes Exp $
 //
 
 // system include files

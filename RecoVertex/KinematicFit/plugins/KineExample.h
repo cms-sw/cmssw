@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: KineExample.h,v 1.3 2012/10/23 02:20:37 slava77 Exp $
+// $Id: KineExample.h,v 1.4 2012/10/23 02:24:13 slava77 Exp $
 //
 //
 

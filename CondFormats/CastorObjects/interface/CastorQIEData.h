@@ -8,8 +8,8 @@
 Modified by L.Mundim (Mar/2009)
 POOL object to store QIE parameters
 $Author: ratnikov
-$Date: 2008/07/15 13:00:16 $
-$Revision: 1.9 $
+$Date: 2009/03/26 18:03:15 $
+$Revision: 1.2 $
 */
 
 #include <vector>

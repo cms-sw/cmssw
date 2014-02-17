@@ -1,4 +1,4 @@
-// $Id: DQMKey.h,v 1.5.10.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DQMKey.h,v 1.6 2011/03/07 15:31:31 mommsen Exp $
 /// @file: DQMKey.h 
 
 #ifndef EventFilter_StorageManager_DQMKey_h
@@ -14,8 +14,8 @@ namespace stor {
    * Definition of the DQMKey used in the storage manager
    *
    * $Author: mommsen $
-   * $Revision: 1.5.10.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.6 $
+   * $Date: 2011/03/07 15:31:31 $
    */
   
   struct DQMKey

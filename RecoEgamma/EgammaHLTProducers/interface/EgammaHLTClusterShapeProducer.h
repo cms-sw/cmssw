@@ -8,7 +8,7 @@
 //
 // Original Author:  Roberto Covarelli (CERN)
 //         Created:  Tue Jun 13 14:48:33 CEST 2006
-// $Id: EgammaHLTClusterShapeProducer.h,v 1.1 2009/01/15 14:28:27 covarell Exp $
+// $Id: EgammaHLTClusterShapeProducer.h,v 1.2 2009/02/04 10:59:28 covarell Exp $
 //
 //
 

@@ -1,4 +1,4 @@
-// $Id: Booster.cc,v 1.9 2007/09/27 13:55:04 llista Exp $
+// $Id: Booster.cc,v 1.1 2009/02/26 09:17:34 llista Exp $
 #include "CommonTools/CandUtils/interface/Booster.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <Math/VectorUtil.h>

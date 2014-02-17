@@ -2,8 +2,8 @@
   \file UtilFunctions.cc
   \brief Ecal Monitor Utility functions
   \author Dongwook Jang
-  \version $Revision: 1.5 $
-  \date $Date: 2012/02/28 16:38:14 $
+  \version $Revision: 1.7 $
+  \date $Date: 2012/04/27 13:46:04 $
 */
 
 #include "DQM/EcalCommon/interface/UtilFunctions.h"

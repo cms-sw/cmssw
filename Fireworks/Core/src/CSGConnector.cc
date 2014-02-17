@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:15 CDT 2008
-// $Id: CSGConnector.cc,v 1.4 2009/08/26 18:59:20 amraktad Exp $
+// $Id: CSGConnector.cc,v 1.5 2010/06/18 10:17:14 yana Exp $
 //
 
 // system include files

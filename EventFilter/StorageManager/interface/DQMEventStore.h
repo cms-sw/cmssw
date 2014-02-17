@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.h,v 1.13 2011/08/31 20:11:59 wmtan Exp $
+// $Id: DQMEventStore.h,v 1.14 2012/04/20 10:48:18 mommsen Exp $
 /// @file: DQMEventStore.h 
 
 #ifndef EventFilter_StorageManager_DQMEventStore_h
@@ -33,9 +33,9 @@ namespace stor {
    * class wide temporary buffer to convert I2OChains
    * into DQMEventMsgViews.
    *
-   * $Author: wmtan $
-   * $Revision: 1.13 $
-   * $Date: 2011/08/31 20:11:59 $
+   * $Author: mommsen $
+   * $Revision: 1.14 $
+   * $Date: 2012/04/20 10:48:18 $
    */
 
   template<class EventType, class ConnectionType, class StateMachineType>  

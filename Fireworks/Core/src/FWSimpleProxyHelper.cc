@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 15:13:22 EST 2008
-// $Id: FWSimpleProxyHelper.cc,v 1.5 2012/08/03 18:20:28 wmtan Exp $
+// $Id: FWSimpleProxyHelper.cc,v 1.6 2012/09/21 09:26:26 eulisse Exp $
 //
 
 // system include files

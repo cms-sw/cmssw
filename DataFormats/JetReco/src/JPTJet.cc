@@ -1,6 +1,6 @@
 // JPTJet.cc
 // Fedor Ratnikov UMd
-// $Id: JPTJet.cc,v 1.1 2010/03/04 13:16:36 kodolova Exp $
+// $Id: JPTJet.cc,v 1.2 2010/03/08 21:02:20 kodolova Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"

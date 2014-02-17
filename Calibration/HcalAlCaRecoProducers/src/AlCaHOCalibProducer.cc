@@ -53,7 +53,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.25 2011/11/12 09:39:12 eulisse Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.26 2012/11/02 14:24:42 dlange Exp $
 //
 //
 

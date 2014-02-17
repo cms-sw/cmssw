@@ -1,5 +1,5 @@
 // -*- c++ -*-
-// $Id: MockApplication.h,v 1.6 2011/03/07 15:31:32 mommsen Exp $
+// $Id: MockApplication.h,v 1.7 2011/04/07 09:27:51 mommsen Exp $
 
 #ifndef MOCKAPPLICATION_H
 #define MOCKAPPLICATION_H

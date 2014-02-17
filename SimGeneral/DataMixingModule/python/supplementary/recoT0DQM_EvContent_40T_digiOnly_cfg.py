@@ -61,7 +61,7 @@ process.FEVT.outputCommands.append('keep ESDataFramesSorted_ecalPreshowerDigis_*
 
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.1 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/SimGeneral/DataMixingModule/python/recoT0DQM_EvContent_40T_digiOnly_cfg.py,v $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/SimGeneral/DataMixingModule/python/supplementary/recoT0DQM_EvContent_40T_digiOnly_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with Mag field at 3.8T')
 )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) ## default is false

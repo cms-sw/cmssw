@@ -2,7 +2,7 @@
 #define DataFormats_HepMCCandidate_PdfInfo_h
 /** \class reco::PdfInfo
  *
- * \verson $Id$
+ * \verson $Id: PdfInfo.h,v 1.2 2008/02/29 08:24:32 llista Exp $
  *
  */
 

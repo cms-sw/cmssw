@@ -4,8 +4,8 @@
 /** \class DTLocalTriggerCollection
  *  The collection containing DT Local Triggers in the event.
  *
- *  $Date: 2006/09/06 17:27:28 $
- *  $Revision: $
+ *  $Date: 2006/09/19 14:15:33 $
+ *  $Revision: 1.1 $
  *  \author FR?
  */
 

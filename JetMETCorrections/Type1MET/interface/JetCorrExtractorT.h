@@ -12,9 +12,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: JetCorrExtractorT.h,v 1.4 2011/11/20 10:25:47 veelken Exp $
+ * $Id: JetCorrExtractorT.h,v 1.5 2012/04/19 17:55:52 veelken Exp $
  *
  */
 

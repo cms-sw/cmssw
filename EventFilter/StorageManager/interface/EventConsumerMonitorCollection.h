@@ -1,4 +1,4 @@
-// $Id: EventConsumerMonitorCollection.h,v 1.1.16.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: EventConsumerMonitorCollection.h,v 1.2 2011/03/07 15:31:31 mommsen Exp $
 /// @file: EventConsumerMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_EventConsumerMonitorCollection_h
@@ -15,8 +15,8 @@ namespace stor {
    * A collection of MonitoredQuantities to track event consumer activity.
    *
    * $Author: mommsen $
-   * $Revision: 1.1.16.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:31:31 $
    */
 
   class EventConsumerMonitorCollection: public ConsumerMonitorCollection

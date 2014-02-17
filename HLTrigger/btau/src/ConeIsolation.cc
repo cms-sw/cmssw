@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //      Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: ConeIsolation.cc,v 1.1 2008/12/19 12:53:03 gennai Exp $
+// $Id: ConeIsolation.cc,v 1.2 2011/10/12 09:00:41 fwyzard Exp $
 //
 //
 

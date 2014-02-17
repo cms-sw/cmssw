@@ -1,6 +1,6 @@
 // GenJet.cc
 // Fedor Ratnikov, UMd
-// $Id: GenJet.cc,v 1.11 2008/02/16 14:31:09 oehler Exp $
+// $Id: GenJet.cc,v 1.12 2008/05/26 11:22:12 arizzi Exp $
 
 #include <sstream>
 

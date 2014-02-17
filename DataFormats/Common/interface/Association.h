@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Association.h,v 1.8 2009/11/04 15:30:19 wmtan Exp $
+ * \version $Id: Association.h,v 1.9 2011/03/08 18:47:15 chrjones Exp $
  *
  */
 

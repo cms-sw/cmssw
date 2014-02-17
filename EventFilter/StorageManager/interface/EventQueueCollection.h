@@ -1,4 +1,4 @@
-// $Id: EventQueueCollection.h,v 1.3.16.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: EventQueueCollection.h,v 1.4 2011/03/07 15:31:31 mommsen Exp $
 /// @file: EventQueueCollection.h 
 
 #ifndef EventFilter_StorageManager_EventQueueCollection_h
@@ -14,8 +14,8 @@ namespace stor {
    * A collection of ConcurrentQueue<I2OChain>.
    *
    * $Author: mommsen $
-   * $Revision: 1.3.16.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.4 $
+   * $Date: 2011/03/07 15:31:31 $
    */
 
   typedef QueueCollection<I2OChain> EventQueueCollection;

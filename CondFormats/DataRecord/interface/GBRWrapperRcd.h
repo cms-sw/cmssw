@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Tue Nov  8 22:18:56 CET 2011
-// $Id$
+// $Id: GBRWrapperRcd.h,v 1.1 2011/11/16 17:32:22 bendavid Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

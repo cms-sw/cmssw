@@ -5,8 +5,8 @@
  *
  * Algo for reconstructing 2d segment in DT using a combinatorial approach
  *  
- * $Date: 2008/04/04 15:23:01 $
- * $Revision: 1.10 $
+ * $Date: 2008/12/03 12:52:22 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *

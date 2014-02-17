@@ -17,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Wed Jan 16 15:55:28 CET 2008
-// $Id: HLTMonElectron.h,v 1.4 2008/07/02 08:32:32 mmozer Exp $
+// $Id: HLTMonElectron.h,v 1.5 2009/10/15 11:31:28 fwyzard Exp $
 //
 //
 

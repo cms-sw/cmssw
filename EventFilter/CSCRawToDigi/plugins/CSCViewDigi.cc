@@ -15,7 +15,7 @@
 //
 // Original Author:  Alexandre Sakharov
 //         Created:  Sun May 10 15:43:28 CEST 2009
-// $Id: CSCViewDigi.cc,v 1.2 2009/11/11 19:55:20 rpw Exp $
+// $Id: CSCViewDigi.cc,v 1.4 2010/06/11 15:50:27 asakharo Exp $
 //
 //
 

@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerBaseTask.cc
  * 
- * $Date: 2011/06/10 13:23:26 $
- * $Revision: 1.1 $
+ * $Date: 2013/01/07 16:25:31 $
+ * $Revision: 1.2 $
  * \author C. Battilana - CIEMAT
  *
 */

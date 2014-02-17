@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Dec 18 14:29:14 CET 2009
-// $Id$
+// $Id: SelectZmumuevents.cc,v 1.1 2010/03/17 16:14:10 fruboes Exp $
 //
 //
 

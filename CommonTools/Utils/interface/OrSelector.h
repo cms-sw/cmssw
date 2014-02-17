@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: OrSelector.h,v 1.6 2008/05/20 15:13:27 piccolo Exp $
+ * $Id: OrSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 
 namespace helpers {

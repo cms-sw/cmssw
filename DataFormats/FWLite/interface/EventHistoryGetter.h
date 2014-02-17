@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Wed Feb 10 11:15:16 CST 2010
-// $Id$
+// $Id: EventHistoryGetter.h,v 1.1 2010/02/12 15:24:34 ewv Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 

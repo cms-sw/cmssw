@@ -1,4 +1,4 @@
-// $Id: Notifier.h,v 1.8.12.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: Notifier.h,v 1.9 2011/03/07 15:31:32 mommsen Exp $
 /// @file: Notifier.h 
 
 #ifndef EventFilter_StorageManager_Notifier_h
@@ -16,8 +16,8 @@ namespace stor
     Interface class for handling RCMS notifier
     
     $Author: mommsen $
-    $Revision: 1.8.12.1 $
-    $Date: 2011/03/07 11:33:04 $
+    $Revision: 1.9 $
+    $Date: 2011/03/07 15:31:32 $
   */
 
   class Notifier

@@ -8,8 +8,8 @@
  *  The local residuals for survey points are found for each sensor.
  *  The alignment parameters are found using the HIP algorithm.
  *
- *  $Date: 2007/05/03 20:58:58 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/10/08 16:38:03 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 

@@ -10,9 +10,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ObjectCounter.h,v 1.9 2007/12/31 18:43:14 ratnik Exp $
+ * $Id: ObjectCounter.h,v 1.1 2009/03/03 13:07:27 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"

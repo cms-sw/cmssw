@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.h,v 1.11 2013/02/04 13:37:11 merkelp Exp $
+// $Id: SiPixelRecHitSource.h,v 1.12 2013/02/13 11:12:07 merkelp Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits

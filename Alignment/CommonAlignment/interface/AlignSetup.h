@@ -11,8 +11,8 @@
  *  It returns 0 if the name is not found on get().
  *  It throws an exception if an object of the same name exists on put().
  *
- *  $Date: 2008/02/12 18:06:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/15 18:11:45 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 

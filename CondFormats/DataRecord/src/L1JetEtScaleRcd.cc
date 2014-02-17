@@ -8,7 +8,7 @@
 //
 // Author:      
 // Created:     Wed Oct  4 16:49:43 CEST 2006
-// $Id: L1JetEtScaleRcd.cc,v 1.1 2006/10/04 14:53:17 jbrooke Exp $
+// $Id: L1JetEtScaleRcd.cc,v 1.1 2007/03/16 13:51:29 heath Exp $
 
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"

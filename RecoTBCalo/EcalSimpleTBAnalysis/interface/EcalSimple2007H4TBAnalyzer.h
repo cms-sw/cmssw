@@ -9,7 +9,7 @@
      <Notes on implementation>
 */
 //
-// $Id: EcalSimple2007H4TBAnalyzer.h,v 1.1 2008/11/26 14:49:25 meridian Exp $
+// $Id: EcalSimple2007H4TBAnalyzer.h,v 1.2 2010/01/04 15:09:12 ferriff Exp $
 //
 
 

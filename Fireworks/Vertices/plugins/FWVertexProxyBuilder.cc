@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertexProxyBuilder.cc,v 1.15 2012/03/13 00:11:48 amraktad Exp $
+// $Id: FWVertexProxyBuilder.cc,v 1.16 2012/03/13 04:22:06 amraktad Exp $
 //
 // user include files// user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"

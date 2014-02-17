@@ -13,7 +13,7 @@
 //
 // Original Author:  Romain Rougny
 //         Created:  Tue Feb  3 15:18:02 CET 2009
-// $Id: SiPixelGainCalibrationRejectNoisyAndDead.cc,v 1.5 2009/10/21 15:53:42 heyburn Exp $
+// $Id: SiPixelGainCalibrationRejectNoisyAndDead.cc,v 1.6 2010/01/12 11:29:54 rougny Exp $
 //
 //
 

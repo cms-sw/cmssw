@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: TTUTwoORLogic.h,v 1.1 2009/06/17 15:27:24 aosorio Exp $
 #ifndef INTERFACE_TTUTWOORLOGIC_H 
 #define INTERFACE_TTUTWOORLOGIC_H 1
 

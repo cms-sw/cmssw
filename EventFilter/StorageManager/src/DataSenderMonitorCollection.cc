@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.19 2011/11/14 11:49:22 mommsen Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.20 2012/04/20 10:48:02 mommsen Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>

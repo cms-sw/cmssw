@@ -1,6 +1,6 @@
 # Author     : Andreas Mussgiller
 # Date       : July 1st, 2010
-# last update: $Date: 2010/07/06 11:48:22 $ by $Author: mussgill $
+# last update: $Date: 2011/02/09 09:10:11 $ by $Author: cerminar $
 
 import FWCore.ParameterSet.Config as cms
 

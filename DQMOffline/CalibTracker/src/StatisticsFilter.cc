@@ -13,7 +13,7 @@
 //
 // Original Author:  Gordon Kaussen,40 1-A15,+41227671647,
 //         Created:  Mon Nov 15 10:48:54 CET 2010
-// $Id$
+// $Id: StatisticsFilter.cc,v 1.1 2010/11/15 17:16:31 kaussen Exp $
 //
 //
 

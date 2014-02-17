@@ -24,8 +24,8 @@
  *  The covariance matrix for all structures of a level will be diagonal
  *  given by value^2 * identity.
  *
- *  $Date: 2007/11/15 10:22:42 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/01/07 14:36:23 $
+ *  $Revision: 1.5 $
  *  \author Chung Khim Lae
  */
 

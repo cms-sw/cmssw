@@ -1,4 +1,4 @@
-// $Id: StateMachine.cc,v 1.6 2011/03/07 15:31:32 mommsen Exp $
+// $Id: StateMachine.cc,v 1.7 2011/04/18 15:18:57 mommsen Exp $
 /// @file: StateMachine.cc
 
 #include "EventFilter/StorageManager/interface/EventDistributor.h"

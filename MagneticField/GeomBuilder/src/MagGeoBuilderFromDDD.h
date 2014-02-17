@@ -6,8 +6,8 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2009/05/23 22:36:43 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/10/13 15:26:09 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - INFN Torino
  */
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h" 

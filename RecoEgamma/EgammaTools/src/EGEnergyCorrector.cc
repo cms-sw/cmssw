@@ -1,4 +1,4 @@
-// $Id: EGEnergyCorrector.cc,v 1.7 2011/12/14 14:43:39 bendavid Exp $
+// $Id: EGEnergyCorrector.cc,v 1.8 2011/12/14 20:16:56 bendavid Exp $
 
 #include <TFile.h>
 #include "../interface/EGEnergyCorrector.h"

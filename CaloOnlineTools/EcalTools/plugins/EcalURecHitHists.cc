@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalURecHitHists.cc,v 1.4 2008/04/22 21:08:24 scooper Exp $
+// $Id: EcalURecHitHists.cc,v 1.5 2010/01/04 15:07:40 ferriff Exp $
 //
 //
 

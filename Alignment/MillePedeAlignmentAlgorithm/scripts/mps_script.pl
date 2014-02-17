@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     06-Jul-2007
 #     A. Parenti, DESY Hamburg    27-Mar-2008
-#     $Revision: 1.7 $
-#     $Date: 2011/06/15 14:24:52 $
+#     $Revision: 1.8 $
+#     $Date: 2011/06/15 14:51:45 $
 #
 #  Prepare the run script for this job.
 #  The main action is to embed the output directory

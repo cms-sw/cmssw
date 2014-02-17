@@ -4,8 +4,8 @@
 /** \class RecHitSorter
  *  Sorts the RecHits along the PropagationDirection. Ported from ORCA
  *
- *  $Date: 2007/05/09 12:56:07 $
- *  $Revision: 1.4.2.1 $
+ *  $Date: 2007/05/09 14:17:57 $
+ *  $Revision: 1.5 $
  *  \author todorov, cerati
  */
 

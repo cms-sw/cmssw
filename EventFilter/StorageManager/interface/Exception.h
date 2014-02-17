@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.15.6.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: Exception.h,v 1.16 2011/03/07 15:31:31 mommsen Exp $
 /// @file: Exception.h 
 
 #ifndef EventFilter_StorageManager_Exception_h
@@ -14,8 +14,8 @@ namespace stor {
      List of exceptions thrown by the StorageManager
 
      $Author: mommsen $
-     $Revision: 1.15.6.1 $
-     $Date: 2011/03/07 11:33:04 $
+     $Revision: 1.16 $
+     $Date: 2011/03/07 15:31:31 $
   */
 }
 

@@ -3,7 +3,7 @@
  * 
  * Analyzer to test Shower Containment Corrections
  *   
- * $Id: $
+ * $Id: EcalContainmentCorrectionAnalyzer.cc,v 1.1 2007/07/16 17:26:29 meridian Exp $
  *
 */
 

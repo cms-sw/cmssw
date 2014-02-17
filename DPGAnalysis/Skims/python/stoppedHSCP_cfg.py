@@ -80,8 +80,8 @@ process.source = cms.Source("PoolSource",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/DPGAnalysis/Skims/python/hcal_ecal_HSCP_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/DPGAnalysis/Skims/python/stoppedHSCP_cfg.py,v $'),
     annotation = cms.untracked.string('CRAFT HCALHighEnergy ecalhighenergy and stoppedhSCP skim')
 )
 

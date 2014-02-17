@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: MuonResiduals6DOFrphiFitter.cc,v 1.9 2011/10/12 23:44:11 khotilov Exp $
 
 #ifdef STANDALONE_FITTER
 #include "MuonResiduals6DOFrphiFitter.h"

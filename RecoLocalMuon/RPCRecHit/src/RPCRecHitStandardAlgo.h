@@ -4,7 +4,7 @@
 /** \class RPCRecHitStandardAlgo
  *  Concrete implementation of RPCRecHitBaseAlgo.
  *
- *  $Date: 2006/04/15 21:10:20 $
+ *  $Date: 2006/04/18 16:28:31 $
  *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari
  */

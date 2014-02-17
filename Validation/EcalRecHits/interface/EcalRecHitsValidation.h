@@ -4,7 +4,7 @@
 /*
  * \file EcalRecHitsValidation.h
  *
- * $Date: 2009/07/14 09:13:37 $
+ * $Date: 2009/12/14 22:24:43 $
  * \author C. Rovelli
  *
 */

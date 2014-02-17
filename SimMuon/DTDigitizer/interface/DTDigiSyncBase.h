@@ -4,8 +4,8 @@
 /** \class DTDigiSyncBase
  *  Base class to define the offsets for digis.
  *
- *  $Date: 2006/01/20 15:49:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/01/25 11:09:31 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane, G. Cerminara, R. Bellan - INFN Torino
  */
 

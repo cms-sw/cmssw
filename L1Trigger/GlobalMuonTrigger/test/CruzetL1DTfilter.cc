@@ -3,8 +3,8 @@
 *  
 *  This class is for use with Cosmic MC to simulate the L1 DT trigger in cruzet
 *
-*  $Date: 2008/07/15 09:10:35 $
-*  $Revision: 1.1 $
+*  $Date: 2010/02/11 00:12:35 $
+*  $Revision: 1.2 $
 *
 *  \author Ivan Mikulec
 *

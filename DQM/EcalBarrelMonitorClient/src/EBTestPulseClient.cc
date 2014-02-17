@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2011/10/28 14:15:45 $
- * $Revision: 1.237 $
+ * $Date: 2012/04/27 13:45:59 $
+ * $Revision: 1.240 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

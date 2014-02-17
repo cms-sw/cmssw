@@ -3,10 +3,10 @@
 
 /// \class TrackerScenarioBuilder
 ///
-/// $Date: 2007/10/18 09:57:11 $
-/// $Revision: 1.2 $
+/// $Date: 2009/03/15 17:39:58 $
+/// $Revision: 1.3 $
 ///
-/// $Author: fronga $
+/// $Author: flucke $
 /// \author Frederic Ronga - CERN-PH-CMG
 ///
 /// Builds a scenario from configuration and applies it to the alignable tracker.

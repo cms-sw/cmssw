@@ -3,7 +3,7 @@
 /*
  * \file EcalTBMCInfoProducer.h
  *
- * $Id: EcalTBMCInfoProducer.h,v 1.8 2009/12/14 22:24:19 wmtan Exp $
+ * $Id: EcalTBMCInfoProducer.h,v 1.9 2011/05/20 17:17:34 wmtan Exp $
  *
 */
 

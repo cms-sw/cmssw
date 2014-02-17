@@ -1,4 +1,4 @@
-// $Id: EventRetriever.h,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: EventRetriever.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: EventRetriever.h 
 
 #ifndef EventFilter_SMProxyServer_EventRetriever_h
@@ -34,8 +34,8 @@ namespace smproxy {
    * Retrieve events from the event server
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 12:01:12 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:41:54 $
    */
 
   template<class RegInfo, class QueueCollectionPtr> 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Mar 24 21:38:43 CET 2008
-// $Id: Exception.cc,v 1.1 2008/04/16 23:44:23 wsun Exp $
+// $Id: Exception.cc,v 1.2 2009/08/14 19:58:11 wsun Exp $
 //
 
 // system include files

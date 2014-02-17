@@ -16,7 +16,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Feb 16 14:52:19 CET 2007
-// $Id: RctDigiToSourceCardText.h,v 1.1 2007/03/12 18:30:05 tapper Exp $
+// $Id: RctDigiToSourceCardText.h,v 1.1 2007/04/19 22:27:20 tapper Exp $
 //
 //
 

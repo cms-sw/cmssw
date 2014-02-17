@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id: AlignmentMonitorBase.h,v 1.11 2010/01/06 15:23:09 mussgill Exp $
+// $Id: AlignmentMonitorBase.h,v 1.12 2011/10/12 22:25:58 khotilov Exp $
 //
 
 // system include files

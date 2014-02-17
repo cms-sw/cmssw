@@ -6,7 +6,7 @@
  *  Class to read ideal tracker from DB.
  *
  *  $Date: Fri Jun 29 09:20:52 CEST 2007
- *  $Revision: 1.2 $
+ *  $Revision: 1.3 $
  *  \author Dmitry Yakorev
  */
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

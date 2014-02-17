@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.25 2012/03/16 20:14:53 babar Exp $
+# $Id: sm_hookscript.pl,v 1.26 2012/04/09 12:03:52 babar Exp $
 ################################################################################
 
 # XXX This should be converted into a POE::Wheel object so it's asynchronous

@@ -13,7 +13,7 @@
 //
 // Original Author:  Josh Bendavid
 //         Created:  Tue Nov  8 22:26:45 CET 2011
-// $Id: EGEnergyAnalyzer.cc,v 1.2 2011/12/14 14:43:38 bendavid Exp $
+// $Id: EGEnergyAnalyzer.cc,v 1.3 2011/12/14 21:08:11 bendavid Exp $
 //
 //
 

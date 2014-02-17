@@ -1,4 +1,4 @@
-// $Id: FUProxy.h,v 1.7 2011/03/07 15:31:31 mommsen Exp $
+// $Id: FUProxy.h,v 1.8 2011/04/07 08:02:03 mommsen Exp $
 /// @file: FUProxy.h 
 
 #ifndef EventFilter_StorageManager_FUProxy_h
@@ -18,8 +18,8 @@ namespace stor
    * Following the example in EventFilter/ResourceBroker for BUProxy and SMProxy.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.8 $
+   * $Date: 2011/04/07 08:02:03 $
    */
   
   class FUProxy

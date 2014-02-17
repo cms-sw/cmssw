@@ -17,10 +17,10 @@
  
     \brief solves at best the matrix invertion for calibration 
 
-    $Date: 2008/02/25 17:50:16 $
-    $Revision: 1.2 $
-    $Id: BlockSolver.h,v 1.2 2008/02/25 17:50:16 malberti Exp $ 
-    \author $Author: malberti $
+    $Date: 2011/06/30 10:10:52 $
+    $Revision: 1.1 $
+    $Id: BlockSolver.h,v 1.1 2011/06/30 10:10:52 muzaffar Exp $ 
+    \author $Author: muzaffar $
 */
 struct BlockSolver
 {

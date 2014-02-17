@@ -6,9 +6,9 @@
  * 
  * \author Giovanni Petrucciani 
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: TrackFullCloneSelectorBase.h,v 1.2 2009/08/21 16:25:46 wmtan Exp $
+ * $Id: TrackFullCloneSelectorBase.h,v 1.3 2010/02/11 00:10:51 wmtan Exp $
  *
  */
 

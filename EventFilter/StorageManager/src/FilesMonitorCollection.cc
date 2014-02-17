@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.cc,v 1.14 2011/03/07 15:31:32 mommsen Exp $
+// $Id: FilesMonitorCollection.cc,v 1.15 2011/07/07 09:22:45 mommsen Exp $
 /// @file: FilesMonitorCollection.cc
 
 #include <string>

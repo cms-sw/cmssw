@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalCosmicsHists.h,v 1.3 2009/08/27 17:13:24 ferriff Exp $
+// $Id: EcalCosmicsHists.h,v 1.4 2010/01/04 15:07:39 ferriff Exp $
 //
 //
 

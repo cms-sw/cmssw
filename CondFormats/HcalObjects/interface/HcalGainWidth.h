@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store GainWidth values 4xCapId
 $Author: ratnikov
-$Date: 2007/12/10 18:37:06 $
-$Revision: 1.5 $
+$Date: 2007/12/14 13:31:40 $
+$Revision: 1.6 $
 */
 #include <boost/cstdint.hpp>
 

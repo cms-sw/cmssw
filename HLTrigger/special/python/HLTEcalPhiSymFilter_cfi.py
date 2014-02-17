@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # Ecal PhiSymmetry
 #
 # Author: Stefano Argiro
-# $Id: HLTEcalPhiSymFilter_cfi.py,v 1.3 2008/06/16 14:11:11 gruen Exp $
+# $Id: HLTEcalPhiSymFilter_cfi.py,v 1.4 2009/10/06 08:27:48 argiro Exp $
 
 # 
 # eCut_barrel : threshold to accept rechits

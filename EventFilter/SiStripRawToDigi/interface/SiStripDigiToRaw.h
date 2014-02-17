@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.h,v 1.22 2009/08/19 13:39:21 bbetchar Exp $
+// Last commit: $Id: SiStripDigiToRaw.h,v 1.23 2009/09/14 14:01:03 nc302 Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H

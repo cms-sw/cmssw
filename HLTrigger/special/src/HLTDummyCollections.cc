@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Tue May 19 09:54:19 CEST 2009
-// $Id: HLTDummyCollections.cc,v 1.3 2009/08/06 11:23:34 fwyzard Exp $
+// $Id: HLTDummyCollections.cc,v 1.4 2010/07/30 04:55:49 wmtan Exp $
 //
 //
 

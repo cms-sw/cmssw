@@ -1,9 +1,9 @@
 /** \class EcalTPSkimmer
  *   produce a subset of TP information
  *
- *  $Id: EcalTPSkimmer.cc,v 1.1 2010/10/01 16:27:18 ferriff Exp $
- *  $Date: 2010/10/01 16:27:18 $
- *  $Revision: 1.1 $
+ *  $Id: EcalTPSkimmer.cc,v 1.2 2010/10/02 16:13:54 ferriff Exp $
+ *  $Date: 2010/10/02 16:13:54 $
+ *  $Revision: 1.2 $
  *  \author Federico Ferri, CEA/Saclay Irfu/SPP
  *
  **/

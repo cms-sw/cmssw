@@ -1,7 +1,7 @@
 /* 
  *  \class EcalStatusAnalyzer
  *
- *  $Date: 2010/10/21 22:03:33 $
+ *  $Date: 2012/02/09 10:07:37 $
  *  author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */

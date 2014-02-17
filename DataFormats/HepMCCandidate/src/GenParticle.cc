@@ -1,4 +1,4 @@
-// $Id: GenParticle.cc,v 1.1 2007/09/11 16:17:14 llista Exp $
+// $Id: GenParticle.cc,v 1.2 2007/10/15 13:03:36 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include <iostream>
 using namespace reco;

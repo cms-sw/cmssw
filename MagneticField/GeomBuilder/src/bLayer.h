@@ -5,8 +5,8 @@
  *  A layer of barrel volumes. Holds a list of volumes and 12 sectors.
  *  It is assumed that the geometry is 12-fold periodic in phi!
  *
- *  $Date: 2005/09/06 15:48:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/09/27 15:15:52 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - INFN Torino
  */
 

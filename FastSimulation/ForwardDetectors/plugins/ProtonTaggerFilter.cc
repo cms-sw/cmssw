@@ -8,7 +8,7 @@
  * Author: Dmitry Zaborov
  */
 
-// Version: $Id: ProtonTaggerFilter.cc,v 1.3 2009/03/03 14:02:39 abdullin Exp $
+// Version: $Id: ProtonTaggerFilter.cc,v 1.4 2009/04/28 12:01:09 dzaborov Exp $
 
 #include "FastSimulation/ForwardDetectors/plugins/ProtonTaggerFilter.h"
 

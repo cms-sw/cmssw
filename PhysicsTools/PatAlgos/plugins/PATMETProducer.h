@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.h,v 1.9 2009/06/08 13:51:35 hegner Exp $
+// $Id: PATMETProducer.h,v 1.10 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of METType.
 
   \author   Steven Lowette
-  \version  $Id: PATMETProducer.h,v 1.9 2009/06/08 13:51:35 hegner Exp $
+  \version  $Id: PATMETProducer.h,v 1.10 2009/06/25 23:49:35 gpetrucc Exp $
 */
 
 

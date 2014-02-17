@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Sep 20 12:13:20 CEST 2007
-// $Id: SiPixelCalibConfigurationReadDb.cc,v 1.2 2009/02/10 09:27:50 fblekman Exp $
+// $Id: SiPixelCalibConfigurationReadDb.cc,v 1.3 2010/01/07 19:07:31 heyburn Exp $
 //
 //
 

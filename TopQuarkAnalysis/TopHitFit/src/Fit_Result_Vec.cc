@@ -1,5 +1,5 @@
 //
-// $Id: Fit_Result_Vec.cc,v 1.7 2011/04/26 13:35:49 haryo Exp $
+// $Id: Fit_Result_Vec.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 // File: src/Fit_Result_Vec.cc
 // Purpose: Hold a set of Fit_Result structures.

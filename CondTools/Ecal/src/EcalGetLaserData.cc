@@ -11,7 +11,7 @@
 //
 // Original Author:  Vladlen Timciuc
 //         Created:  Wed Jul  4 13:55:56 CEST 2007
-// $Id: EcalGetLaserData.cc,v 1.5 2009/12/21 14:22:03 ebecheva Exp $
+// $Id: EcalGetLaserData.cc,v 1.6 2010/10/18 22:04:26 wmtan Exp $
 //
 //
 

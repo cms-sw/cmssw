@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataHelper.h,v 1.7 2009/06/25 16:56:45 gpetrucc Exp $
+// $Id: PATUserDataHelper.h,v 1.8 2010/02/20 21:00:13 wmtan Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataHelper_h
@@ -23,7 +23,7 @@
 	    This also can add "in situ" string-parser-based methods directly. 
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataHelper.h,v 1.7 2009/06/25 16:56:45 gpetrucc Exp $
+  \version  $Id: PATUserDataHelper.h,v 1.8 2010/02/20 21:00:13 wmtan Exp $
 */
 
 

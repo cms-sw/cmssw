@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.h,v 1.13 2011/03/07 15:31:32 mommsen Exp $
+// $Id: RunMonitorCollection.h,v 1.14 2011/11/08 10:48:40 mommsen Exp $
 /// @file: RunMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_RunMonitorCollection_h
@@ -21,8 +21,8 @@ namespace stor {
    * in the current run
    *
    * $Author: mommsen $
-   * $Revision: 1.13 $
-   * $Date: 2011/03/07 15:31:32 $
+   * $Revision: 1.14 $
+   * $Date: 2011/11/08 10:48:40 $
    */
   
   class RunMonitorCollection : public MonitorCollection

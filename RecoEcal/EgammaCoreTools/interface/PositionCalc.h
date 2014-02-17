@@ -8,7 +8,7 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.13 2009/03/25 18:00:08 ferriff Exp $
+ * \version $Id: PositionCalc.h,v 1.14 2010/11/16 15:09:27 argiro Exp $
  *
  */
 

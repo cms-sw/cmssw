@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleDecaySelector.cc,v 1.3 2010/01/11 13:26:23 hegner Exp $
+ * \version $Id: GenParticleDecaySelector.cc,v 1.4 2010/02/11 00:12:56 wmtan Exp $
  *
  */
 

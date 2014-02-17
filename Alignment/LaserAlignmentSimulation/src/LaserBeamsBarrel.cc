@@ -1,8 +1,8 @@
 /** \file LaserBeamsBarrel.cc
  *  
  *
- *  $Date: 2010/09/09 18:22:48 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/09/16 06:25:53 $
+ *  $Revision: 1.8 $
  *  \author Maarten Thomas
  */
 

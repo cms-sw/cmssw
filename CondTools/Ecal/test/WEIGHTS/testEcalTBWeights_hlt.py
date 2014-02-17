@@ -7,7 +7,7 @@
 #
 # sed 's/EcalTBWeights/your-record/g' testTemplate.py > testyourrecord.py
 #
-# Stefano Argiro', $Id: testEcalTBWeights.py,v 1.1 2008/11/14 15:46:03 argiro Exp $
+# Stefano Argiro', $Id: testEcalTBWeights_hlt.py,v 1.1 2010/04/15 12:38:23 depasse Exp $
 #
 #
 

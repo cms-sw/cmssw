@@ -1,4 +1,4 @@
-// $Id: XHTMLMonitor.cc,v 1.3.16.1 2011/03/07 11:33:06 mommsen Exp $
+// $Id: XHTMLMonitor.cc,v 1.4 2011/03/07 15:31:32 mommsen Exp $
 /// @file: XHTMLMonitor.cc
 
 #include "EventFilter/StorageManager/interface/XHTMLMonitor.h"

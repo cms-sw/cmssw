@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.34 2010/04/20 09:28:13 dstrom Exp $
+// Last commit: $Id: FedConnections.cc,v 1.35 2011/09/02 11:25:25 eulisse Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

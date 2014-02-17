@@ -10,7 +10,7 @@
  * are bit-packed into a 8-bit word.
  *
  * Original author: A. Bonato
- * $Id$
+ * $Id: AlignmentClusterFlag.h,v 1.2 2009/10/12 13:11:33 flucke Exp $
  */
 
 class AlignmentClusterFlag

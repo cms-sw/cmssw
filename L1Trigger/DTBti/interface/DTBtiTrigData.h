@@ -5,8 +5,8 @@
  *    DTBtiChip Trigger Data
  *
  *
- *   $Date: 2006/07/19 10:18:31 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/04/27 08:37:37 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi, S. Vanini
  *

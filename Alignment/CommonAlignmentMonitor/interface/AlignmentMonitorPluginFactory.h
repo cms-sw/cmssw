@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Apr 23 15:29:01 CDT 2007
-// $Id$
+// $Id: AlignmentMonitorPluginFactory.h,v 1.1 2007/04/23 22:19:13 pivarski Exp $
 //
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"

@@ -4,8 +4,8 @@
 /*
  * \file EBSelectiveReadoutTask.h
  *
- * $Date: 2010/11/10 10:43:29 $
- * $Revision: 1.18 $
+ * $Date: 2011/03/03 22:05:50 $
+ * $Revision: 1.19 $
  * \author P. Gras
  * \author E. Di Marco
  *

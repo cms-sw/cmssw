@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: NamedCompositeCandidate.h,v 1.4 2008/07/22 06:07:44 llista Exp $
+ * \version $Id: NamedCompositeCandidate.h,v 1.5 2008/12/05 12:15:18 hegner Exp $
  *
  */
 

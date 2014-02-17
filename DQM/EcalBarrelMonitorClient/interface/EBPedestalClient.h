@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2010/02/14 14:35:44 $
- * $Revision: 1.82 $
+ * $Date: 2010/02/14 20:56:22 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *

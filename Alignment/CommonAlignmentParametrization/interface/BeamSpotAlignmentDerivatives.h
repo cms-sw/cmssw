@@ -7,9 +7,9 @@
 ///
 /// Calculates derivatives for the alignable beam spot
 ///
-///  $Date: 2007/03/12 21:28:48 $
-///  $Revision: 1.4 $
-/// (last update by $Author: cklae $)
+///  $Date: 2010/09/10 11:18:29 $
+///  $Revision: 1.1 $
+/// (last update by $Author: mussgill $)
 
 class TrajectoryStateOnSurface;
 

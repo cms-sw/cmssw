@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Andrea Bocci,Bld. 40 Room 4-A01,+41227671545,
 //         Created:  Tue Nov 10 12:00:46 CET 2009
-// $Id: ArbitraryLogError.cc,v 1.1 2009/11/10 14:19:19 fwyzard Exp $
+// $Id: ArbitraryLogError.cc,v 1.2 2009/11/10 15:03:48 fwyzard Exp $
 //
 //
 

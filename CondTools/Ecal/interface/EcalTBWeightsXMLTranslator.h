@@ -3,7 +3,7 @@
    and vice versa   
 
    \author Stefano ARGIRO
-   \version $Id: EcalTBWeightsXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
+   \version $Id: EcalTBWeightsXMLTranslator.h,v 1.2 2009/06/30 14:40:11 argiro Exp $
    \date 21 Aug 2008
 */
 

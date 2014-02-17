@@ -10,8 +10,8 @@
  *  using the static build() method. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2007/10/06 20:21:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/05/05 13:32:08 $
+ *  $Revision: 1.4 $
  */
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"

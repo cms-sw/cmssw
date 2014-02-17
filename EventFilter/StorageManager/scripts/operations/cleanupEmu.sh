@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: cleanupEmu.sh,v 1.14 2010/10/29 08:02:34 gbauer Exp $
+# $Id: cleanupEmu.sh,v 1.15 2011/01/31 15:45:14 gbauer Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh

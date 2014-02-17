@@ -8,7 +8,7 @@
 //
 // Original Author:  Tomasz Frueboes
 //         Created:  Fri Feb 22 12:26:49 CET 2008
-// $Id: L1RPCConeBuilder.cc,v 1.4 2008/12/12 13:57:14 fruboes Exp $
+// $Id: L1RPCConeBuilder.cc,v 1.6 2009/04/10 15:36:30 fruboes Exp $
 //
 
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"

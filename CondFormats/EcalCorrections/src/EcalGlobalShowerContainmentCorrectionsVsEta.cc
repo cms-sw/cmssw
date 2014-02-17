@@ -1,6 +1,6 @@
 // Implementation of class EcalGlobalShowerContainmentCorrectionsVsEta
 // Author: Paolo Meridiani
-// $Id: EcalGlobalShowerContainmentCorrectionsVsEta.cc,v 1.1 2007/07/13 17:37:04 meridian Exp $
+// $Id: EcalGlobalShowerContainmentCorrectionsVsEta.cc,v 1.2 2007/07/16 17:30:54 meridian Exp $
 
 #include "CondFormats/EcalCorrections/interface/EcalGlobalShowerContainmentCorrectionsVsEta.h"
 #include <DataFormats/DetId/interface/DetId.h>

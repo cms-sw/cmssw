@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea RIZZI
 //         Created:  Mon Dec  7 18:02:10 CET 2009
-// $Id: GoodVertexFilter.cc,v 1.3 2010/02/03 13:14:23 arizzi Exp $
+// $Id: GoodVertexFilter.cc,v 1.4 2010/02/28 20:10:01 wmtan Exp $
 //
 //
 

@@ -5,8 +5,8 @@
  *  A ring of periodic, possibly overlapping vertical detectors.
  *  Designed for forward muon CSC/RPC chambers.
  *
- *  $Date: 2006/06/02 12:21:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/06/02 15:19:39 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 

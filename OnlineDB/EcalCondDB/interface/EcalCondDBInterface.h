@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.38 2011/05/27 14:37:14 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.39 2011/09/14 13:27:59 organtin Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/

@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Fri Nov  7 18:37:16 CET 2008
-// $Id: HcalL1TriggerObjectsRcd.h,v 1.1 2008/11/08 21:19:31 rofierzy Exp $
+// $Id: HcalL1TriggerObjectsRcd.h,v 1.2 2012/11/12 21:13:54 dlange Exp $
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"

@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Schmitt
 //         Created:  Sat Jul 12 17:43:33 CEST 2008
-// $Id: CSCSkim.cc,v 1.11 2011/12/22 08:39:44 eulisse Exp $
+// $Id: CSCSkim.cc,v 1.12 2012/01/10 14:04:51 eulisse Exp $
 //
 //
 //======================================================================

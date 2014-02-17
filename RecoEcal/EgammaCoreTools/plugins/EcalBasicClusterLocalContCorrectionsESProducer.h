@@ -11,7 +11,7 @@
      
  \author  Stefano Argiro
          Created:  Mon Mar  5 08:39:12 CET 2007
- \id $Id: EcalBasicClusterLocalContCorrectionsESProducer.h,v 1.1 2007/07/25 15:22:47 argiro Exp $
+ \id $Id: EcalBasicClusterLocalContCorrectionsESProducer.h,v 1.1 2012/04/19 13:13:10 argiro Exp $
 */
 
 #include "FWCore/Framework/interface/ESProducer.h"

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Aug 19 13:20:34 EDT 2008
-// $Id$
+// $Id: IntersectingIOVRecordIntervalFinder.h,v 1.1 2008/08/19 20:30:07 chrjones Exp $
 //
 
 // system include files

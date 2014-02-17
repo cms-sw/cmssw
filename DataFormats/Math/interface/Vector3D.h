@@ -1,6 +1,6 @@
 #ifndef Math_Vector3D_h
 #define Math_Vector3D_h
-// $Id: Vector3D.h,v 1.12 2006/11/20 09:06:52 llista Exp $
+// $Id: Vector3D.h,v 1.13 2007/07/31 15:20:15 ratnik Exp $
 #include "Math/Vector3D.h"
 
 namespace math {

@@ -8,7 +8,7 @@
 //
 // Author:      
 // Created:     Thu Sep 14 11:54:26 CDT 2006
-// $Id$
+// $Id: HcalTPGRecord.cc,v 1.1 2006/09/14 16:59:05 mansj Exp $
 
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"

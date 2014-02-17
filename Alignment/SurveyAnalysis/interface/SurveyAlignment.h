@@ -5,8 +5,8 @@
  *
  *  Alignment using only survey info (no tracks) as a proof of principle.
  *
- *  $Date: 2007/05/03 20:58:58 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/10/08 16:38:03 $
+ *  $Revision: 1.5 $
  *  \author Chung Khim Lae
  */
 

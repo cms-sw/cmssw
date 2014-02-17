@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: T_EventSetup_HcalTimingParams.cc,v 1.1 2011/10/21 14:33:29 xiezhen Exp $
 //
 
 // system include files

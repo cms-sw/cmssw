@@ -4,8 +4,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2008/04/23 16:56:34 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/08/07 12:30:37 $
+ *  $Revision: 1.24 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 

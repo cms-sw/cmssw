@@ -4,8 +4,8 @@
 /** \class AlignableDTSuperLayer
  *  The alignable muon DT superlayer.
  *
- *  $Date: Wed Mar 26 22:20:38 CET 2008 $
- *  $Revision: 1.0 $
+ *  $Date: 2008/03/26 21:59:00 $
+ *  $Revision: 1.1 $
  *  \author Jim Pivarski - Texas A&M University
  */
  

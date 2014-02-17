@@ -1,4 +1,4 @@
-// $Id: FaultyEventStreamHandler.cc,v 1.5 2012/04/20 10:48:02 mommsen Exp $
+// $Id: FaultyEventStreamHandler.cc,v 1.6 2012/10/17 10:13:25 mommsen Exp $
 /// @file: FaultyEventStreamHandler.cc
 
 #include "FWCore/Utilities/interface/Exception.h"

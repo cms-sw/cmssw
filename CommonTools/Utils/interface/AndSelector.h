@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AndSelector.h,v 1.7 2008/05/20 15:13:27 piccolo Exp $
+ * $Id: AndSelector.h,v 1.1 2009/02/20 16:20:38 llista Exp $
  */
 
 namespace helpers {

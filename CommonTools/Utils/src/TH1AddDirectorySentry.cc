@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Nov  8 12:16:02 EST 2007
-// $Id: TH1AddDirectorySentry.cc,v 1.1 2009/03/03 13:07:30 llista Exp $
+// $Id: TH1AddDirectorySentry.cc,v 1.1 2010/01/05 14:21:14 hegner Exp $
 //
 
 // system include files

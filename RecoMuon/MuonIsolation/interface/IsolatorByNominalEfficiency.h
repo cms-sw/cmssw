@@ -6,7 +6,7 @@
  *  defined so that a cut at a value X will give X efficiency
  *  on the reference signal (W->munu). See CMS/Note 2002/040 for details.
  *
- *  $Date: 2007/11/14 02:11:21 $
+ *  $Date: 2012/01/27 06:02:20 $
  *  \author M. Konecki, N. Amapane
  */
 

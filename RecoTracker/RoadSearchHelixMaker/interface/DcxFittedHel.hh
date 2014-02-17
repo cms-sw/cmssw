@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxFittedHel.hh,v 1.2 2006/03/22 22:47:37 stevew Exp $
+// 	$Id: DcxFittedHel.hh,v 1.3 2006/04/10 22:06:41 stevew Exp $
 //
 // Description:
 //	Class Header for |DcxFittedHel| - helix fitting class

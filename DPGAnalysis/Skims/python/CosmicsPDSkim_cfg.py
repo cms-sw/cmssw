@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("SKIM")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
-    name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/DPGAnalysis/Skims/python/CosmicsPDSkim_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/DPGAnalysis/Skims/python/CosmicsPDSkim_cfg.py,v $'),
     annotation = cms.untracked.string('Combined Cosmics skim')
 )
 

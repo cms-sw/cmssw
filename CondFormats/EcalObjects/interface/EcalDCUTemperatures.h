@@ -3,7 +3,7 @@
 /**
  * Author: Paolo Meridiani
  * Created: 14 November 2006
- * $Id: $
+ * $Id: EcalDCUTemperatures.h,v 1.1 2006/11/16 18:19:44 meridian Exp $
  **/
 
 

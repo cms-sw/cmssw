@@ -8,9 +8,9 @@
 /// Abstract base class for I/O of AlignmentUserVariables.
 /// Note that it is the caller's responsibility to delete objects created during reading.
 ///
-///  $Date: 2007/01/23 16:07:08 $
-///  $Revision: 1.4 $
-///  $Author: fronga $ (at least last update...)
+///  $Date: 2007/10/08 14:38:15 $
+///  $Revision: 1.5 $
+///  $Author: cklae $ (at least last update...)
 
 class AlignmentUserVariables;
 

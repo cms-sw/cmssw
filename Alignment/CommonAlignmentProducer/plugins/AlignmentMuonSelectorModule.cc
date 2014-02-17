@@ -6,9 +6,9 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: AlignmentMuonSelectorModule.cc,v 1.3 2008/02/04 19:32:26 flucke Exp $
+ * $Id: AlignmentMuonSelectorModule.cc,v 1.4 2009/03/09 23:00:27 flucke Exp $
  *
  */
 

@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Wed Nov  2 17:46:33 CET 2011
-// $Id$
+// $Id: RPCNoiseStripsObjectRcd.h,v 1.1 2011/11/07 08:09:34 mmaggi Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"

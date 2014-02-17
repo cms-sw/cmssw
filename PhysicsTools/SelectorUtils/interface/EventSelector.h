@@ -8,7 +8,7 @@
   This is a placeholder. 
 
   \author Salvatore Rappoccio
-  \version  $Id: EventSelector.h,v 1.1 2009/12/21 19:27:08 srappocc Exp $
+  \version  $Id: EventSelector.h,v 1.2 2010/04/30 14:30:07 srappocc Exp $
 */
 
 

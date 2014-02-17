@@ -8,7 +8,7 @@
  *
  * \author Chiara Genta
  *
- * \version $Id: TrackingStateInfo.h,v 1.1 2007/04/16 13:25:06 genta Exp $
+ * \version $Id: TrackingStateInfo.h,v 1.2 2011/12/22 19:19:31 innocent Exp $
  *
  */
 

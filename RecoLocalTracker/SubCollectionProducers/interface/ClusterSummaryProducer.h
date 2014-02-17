@@ -16,7 +16,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Thu Jun 23 09:33:08 CDT 2011
-// $Id: ClusterSummaryProducer.h,v 1.3 2012/02/02 18:17:38 msegala Exp $
+// $Id: ClusterSummaryProducer.h,v 1.4 2012/12/26 19:56:28 wmtan Exp $
 //
 //
 

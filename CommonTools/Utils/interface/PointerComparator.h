@@ -8,7 +8,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: PointerComparator.h,v 1.1 2007/04/23 20:43:09 llista Exp $
+ * $Id: PointerComparator.h,v 1.1 2009/02/24 14:52:46 llista Exp $
  *
  */
 #include "FWCore/Utilities/interface/EDMException.h"

@@ -12,7 +12,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 14:28:43 EDT 2006
-// $Id: L1EmParticleFwd.h,v 1.3 2006/08/28 03:10:40 wsun Exp $
+// $Id: L1EmParticleFwd.h,v 1.4 2007/04/02 08:03:13 wsun Exp $
 //
 
 // system include files

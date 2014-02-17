@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb  7 15:36:37 CST 2012
-// $Id$
+// $Id: DeleteEarlyModules.cc,v 1.1 2012/02/09 22:12:57 chrjones Exp $
 //
 
 // system include files

@@ -3,7 +3,7 @@
    Declaration of class IntercalibConstantsHandler
 
    \author Stefano ARGIRO
-   \version $Id: EcalIntercalibConstantsHandler.h,v 1.1 2008/11/14 15:46:05 argiro Exp $
+   \version $Id: EcalIntercalibConstantsHandler.h,v 1.2 2009/06/30 14:40:11 argiro Exp $
    \date 09 Sep 2008
 */
 

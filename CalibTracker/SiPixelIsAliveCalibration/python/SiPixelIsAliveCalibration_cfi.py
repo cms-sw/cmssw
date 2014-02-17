@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #  CMSSW configuration init file for pixel alive calibrations in CMSSW>=180
 #  Original Author:  Freya Blekman
 #          Created:  December 6 2007  
-#  $Id: SiPixelIsAliveCalibration.cfi,v 1.8 2008/02/22 14:27:46 fblekman Exp $
+#  $Id: SiPixelIsAliveCalibration_cfi.py,v 1.2 2008/04/21 00:27:43 rpw Exp $
 #
 #
 siPixelIsAliveCalibration = cms.EDFilter("SiPixelIsAliveCalibration",

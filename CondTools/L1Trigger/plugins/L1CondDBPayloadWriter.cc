@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 07:05:15 CET 2008
-// $Id: L1CondDBPayloadWriter.cc,v 1.17 2010/02/09 21:52:35 wsun Exp $
+// $Id: L1CondDBPayloadWriter.cc,v 1.18 2010/02/16 21:59:24 wsun Exp $
 //
 //
 
