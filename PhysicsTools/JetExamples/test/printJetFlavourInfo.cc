@@ -113,13 +113,14 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
       float dist = reco::deltaR( aJet->eta(), aJet->phi(), (*it)->eta(), (*it)->phi() );
       float dist2 = reco::deltaR( aJet->rapidity(), aJet->phi(), (*it)->rapidity(), (*it)->phi() );
       std::cout << "                        b hadron " << (it-bHadrons.begin())
-                << " PdgID, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
-                                                                                << ", (" << (*it)->pt()
-                                                                                << ","  << (*it)->eta()
-                                                                                << ","  << (*it)->rapidity()
-                                                                                << ","  << (*it)->phi()
-                                                                                << "), " << dist
-                                                                                << ", " << dist2 << std::endl;
+                << " PdgID, status, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
+                                                                                        << ", " << (*it)->status()
+                                                                                        << ", (" << (*it)->pt()
+                                                                                        << ","  << (*it)->eta()
+                                                                                        << ","  << (*it)->rapidity()
+                                                                                        << ","  << (*it)->phi()
+                                                                                        << "), " << dist
+                                                                                        << ", " << dist2 << std::endl;
     }
 
     const reco::GenParticleRefVector & cHadrons = aInfo.getcHadrons();
@@ -129,13 +130,14 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
       float dist = reco::deltaR( aJet->eta(), aJet->phi(), (*it)->eta(), (*it)->phi() );
       float dist2 = reco::deltaR( aJet->rapidity(), aJet->phi(), (*it)->rapidity(), (*it)->phi() );
       std::cout << "                       c hadron " << (it-cHadrons.begin())
-                << " PdgID, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
-                                                                                << ", (" << (*it)->pt()
-                                                                                << ","  << (*it)->eta()
-                                                                                << ","  << (*it)->rapidity()
-                                                                                << ","  << (*it)->phi()
-                                                                                << "), " << dist
-                                                                                << ", " << dist2 << std::endl;
+                << " PdgID, status, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
+                                                                                        << ", " << (*it)->status()
+                                                                                        << ", (" << (*it)->pt()
+                                                                                        << ","  << (*it)->eta()
+                                                                                        << ","  << (*it)->rapidity()
+                                                                                        << ","  << (*it)->phi()
+                                                                                        << "), " << dist
+                                                                                        << ", " << dist2 << std::endl;
     }
     // ----------------------- Partons -------------------------------
     std::cout << "                      Parton-based flavour: " << aInfo.getPartonFlavour() << std::endl;
@@ -147,13 +149,14 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
       float dist = reco::deltaR( aJet->eta(), aJet->phi(), (*it)->eta(), (*it)->phi() );
       float dist2 = reco::deltaR( aJet->rapidity(), aJet->phi(), (*it)->rapidity(), (*it)->phi() );
       std::cout << "                        Parton " << (it-partons.begin())
-                << " PdgID, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
-                                                                                << ", (" << (*it)->pt()
-                                                                                << ","  << (*it)->eta()
-                                                                                << ","  << (*it)->rapidity()
-                                                                                << ","  << (*it)->phi()
-                                                                                << "), " << dist
-                                                                                << ", " << dist2 << std::endl;
+                << " PdgID, status, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
+                                                                                        << ", " << (*it)->status()
+                                                                                        << ", (" << (*it)->pt()
+                                                                                        << ","  << (*it)->eta()
+                                                                                        << ","  << (*it)->rapidity()
+                                                                                        << ","  << (*it)->phi()
+                                                                                        << "), " << dist
+                                                                                        << ", " << dist2 << std::endl;
     }
 
     if( useSubjets_ )
@@ -197,13 +200,14 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
             float dist = reco::deltaR( aSubjet->eta(), aSubjet->phi(), (*it)->eta(), (*it)->phi() );
             float dist2 = reco::deltaR( aSubjet->rapidity(), aSubjet->phi(), (*it)->rapidity(), (*it)->phi() );
             std::cout << "                             b hadron " << (it-bHadrons.begin())
-                      << " PdgID, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
-                                                                                      << ", (" << (*it)->pt()
-                                                                                      << ","  << (*it)->eta()
-                                                                                      << ","  << (*it)->rapidity()
-                                                                                      << ","  << (*it)->phi()
-                                                                                      << "), " << dist
-                                                                                      << ", " << dist2 << std::endl;
+                      << " PdgID, status, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
+                                                                                              << ", " << (*it)->status()
+                                                                                              << ", (" << (*it)->pt()
+                                                                                              << ","  << (*it)->eta()
+                                                                                              << ","  << (*it)->rapidity()
+                                                                                              << ","  << (*it)->phi()
+                                                                                              << "), " << dist
+                                                                                              << ", " << dist2 << std::endl;
           }
 
           const reco::GenParticleRefVector & cHadrons = aInfo.getcHadrons();
@@ -213,13 +217,14 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
             float dist = reco::deltaR( aSubjet->eta(), aSubjet->phi(), (*it)->eta(), (*it)->phi() );
             float dist2 = reco::deltaR( aSubjet->rapidity(), aSubjet->phi(), (*it)->rapidity(), (*it)->phi() );
             std::cout << "                            c hadron " << (it-cHadrons.begin())
-                      << " PdgID, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
-                                                                                      << ", (" << (*it)->pt()
-                                                                                      << ","  << (*it)->eta()
-                                                                                      << ","  << (*it)->rapidity()
-                                                                                      << ","  << (*it)->phi()
-                                                                                      << "), " << dist
-                                                                                      << ", " << dist2 << std::endl;
+                      << " PdgID, status, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
+                                                                                              << ", " << (*it)->status()
+                                                                                              << ", (" << (*it)->pt()
+                                                                                              << ","  << (*it)->eta()
+                                                                                              << ","  << (*it)->rapidity()
+                                                                                              << ","  << (*it)->phi()
+                                                                                              << "), " << dist
+                                                                                              << ", " << dist2 << std::endl;
           }
           // ----------------------- Partons -------------------------------
           std::cout << "                           Parton-based flavour: " << aInfo.getPartonFlavour() << std::endl;
@@ -231,13 +236,14 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
             float dist = reco::deltaR( aSubjet->eta(), aSubjet->phi(), (*it)->eta(), (*it)->phi() );
             float dist2 = reco::deltaR( aSubjet->rapidity(), aSubjet->phi(), (*it)->rapidity(), (*it)->phi() );
             std::cout << "                             Parton " << (it-partons.begin())
-                      << " PdgID, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
-                                                                                      << ", (" << (*it)->pt()
-                                                                                      << ","  << (*it)->eta()
-                                                                                      << ","  << (*it)->rapidity()
-                                                                                      << ","  << (*it)->phi()
-                                                                                      << "), " << dist
-                                                                                      << ", " << dist2 << std::endl;
+                      << " PdgID, status, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
+                                                                                              << ", " << (*it)->status()
+                                                                                              << ", (" << (*it)->pt()
+                                                                                              << ","  << (*it)->eta()
+                                                                                              << ","  << (*it)->rapidity()
+                                                                                              << ","  << (*it)->phi()
+                                                                                              << "), " << dist
+                                                                                              << ", " << dist2 << std::endl;
           }
         }
       }
