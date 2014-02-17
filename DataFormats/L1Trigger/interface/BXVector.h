@@ -55,6 +55,9 @@ class BXVector  {
   // add element with given BX index
   void push_back( int bx, T object );
 
+  // add clear member
+  void clear();
+
   // random access
   const T& at( int bx, int i ) const;
 

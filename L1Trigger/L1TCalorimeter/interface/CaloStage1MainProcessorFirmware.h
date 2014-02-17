@@ -15,7 +15,9 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
+
 #include "CaloStage1JetAlgorithm.h"
+#include "CaloStage1TauAlgorithm.h"
 
 namespace l1t {
 
@@ -25,17 +27,17 @@ namespace l1t {
     virtual ~CaloStage1MainProcessorFirmwareImp1();
     virtual void processEvent(const std::vector<CaloEmCand> &,
                               const std::vector<CaloRegion> &,
-			      std::vector<EGamma> & egammas,
-			      std::vector<Tau> & taus,
-			      std::vector<Jet> & jets,
-			      std::vector<EtSum> & etsums);
+			      std::vector<EGamma> * egammas,
+			      std::vector<Tau> * taus,
+			      std::vector<Jet> * jets,
+			      std::vector<EtSum> * etsums);
   private:
 
     //CaloParams const & m_db;
     FirmwareVersion const & m_fwv;
 
     //CaloStage1EGammaAlgorithm* m_egAlgo;
-    //CaloStage1TauAlgoritmh* m_tauAlgo;
+    CaloStage1TauAlgorithm* m_tauAlgo;
     CaloStage1JetAlgorithm* m_jetAlgo;
     //CaloStage1EtSumAlgorithm* m_sumAlgo;
 

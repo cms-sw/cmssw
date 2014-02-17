@@ -1,5 +1,5 @@
-#ifndef DataFormats_L1Trigger_CaloTower_h
-#define DataFormats_L1Trigger_CaloTower_h
+#ifndef DataFormats_L1TCalorimeter_CaloTower_h
+#define DataFormats_L1TCalorimeter_CaloTower_h
 
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
@@ -13,7 +13,7 @@ namespace l1t {
   class CaloTower : public L1Candidate {
     
   public:
-    CaloTower(){}
+    CaloTower():etEm_(0.),etHad_(0.),hwEtEm_(0),hwEtHad_(0){}
     CaloTower( const LorentzVector& p4,
 	       double etEm=0.,
 	       double etHad=0.,
@@ -33,11 +33,11 @@ namespace l1t {
     void setHwFGEm( int fg );
     void setHwEtHad( int et );
 
-    double etEm();
-    double etHad();
-    int hwEtEm();
-    int hwFGEm();
-    int hwEtHad();
+    double etEm()const;
+    double etHad()const;
+    int hwEtEm()const;
+    int hwEtHad()const;
+    int hwFGEm() const;
 
   private:
     
