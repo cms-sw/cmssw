@@ -97,6 +97,9 @@ namespace l1t {
     bool m_dumpGTRecord;
     int m_minBx;
     int m_maxBx;
+    int m_minBxVectors;
+    int m_maxBxVectors;
+
     
   };
 
@@ -112,10 +115,11 @@ namespace l1t {
       uGtExtToken = consumes<BXVector<L1uGtExtBlk>>(iConfig.getParameter<InputTag>("uGtExtInputTag"));
 
       m_minBx           = iConfig.getParameter<int>("minBx");
-      m_maxBx           = iConfig.getParameter<int>("maxBx"); 
-    
+      m_maxBx           = iConfig.getParameter<int>("maxBx");     
       m_dumpGTRecord    = iConfig.getParameter<bool>("dumpGTRecord");
 
+      m_minBxVectors    = iConfig.getParameter<int>("minBxVec");
+      m_maxBxVectors    = iConfig.getParameter<int>("maxBxVec"); 
       m_dumpTestVectors = iConfig.getParameter<bool>("dumpVectors");        
       std::string fileName = iConfig.getParameter<std::string>("tvFileName");
       if(m_dumpTestVectors) m_testVectorFile.open(fileName.c_str());
@@ -284,7 +288,7 @@ namespace l1t {
     
     // Dump Test Vectors for this bx       
     if(m_dumpTestVectors) {
-       for(int i=m_minBx; i<=m_maxBx; i++) {
+       for(int i=m_minBxVectors; i<=m_maxBxVectors; i++) {
          if(  (i>=egammas->getFirstBX() && i<=egammas->getLastBX())&&
 	      (i>=muons->getFirstBX()   && i<=muons->getLastBX())  &&
 	      (i>=taus->getFirstBX()    && i<=taus->getLastBX())   &&

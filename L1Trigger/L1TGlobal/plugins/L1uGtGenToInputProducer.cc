@@ -184,18 +184,19 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   int bxLast  = bxLast_;
 
   // For now, set bx = 0, update in future
-  int bxEval = 0;
+  // int bxEval = 0;
 
   int maxNumMuCands  = 8;
   int maxNumJetCands = 12;
   int maxNumEGCands  = 12;
   int maxNumTauCands = 8;
 
+  // Default values for EG/Tau. Redefined for individual objects below
   double maxPt_ = 255.;
   int ptSteps_ = 510;
   double minEta_ = -5.;
   double maxEta_ = 5.;
-  int etaSteps_ = 144;
+  int etaSteps_ = 230;
   int phiSteps_ = 144;
 
   //outputs
@@ -271,10 +272,6 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     //muons->push_back(bxEval, mu);
 
     muonVec.push_back(mu);
-  }
-
-  for( int iMu=0; iMu<int(muonVec.size()); iMu++ ){
-    muons->push_back(bxEval, muonVec[iMu]);
   }
 
 
@@ -431,6 +428,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    //etsums->push_back(bxEval, htTotal);  
    etsumVec.push_back(htTotal);
 
+/*
    counter_++;
    if(counter_==1){
      muonVec_bxm2 = muonVec;
@@ -461,6 +459,9 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
      etsumVec_bxp1 = etsumVec;
    }
    else if( counter_==5 ){
+*/
+ 
+    // Insert all the bx into the L1 Collections
 
      // Fill Muons
      for( int iMu=0; iMu<int(muonVec_bxm2.size()); iMu++ ){
@@ -548,14 +549,40 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
      }
 
      // reset counter
-     counter_ = 0;
-   }
+//     counter_ = 0;
+//   }
+
 
   iEvent.put(egammas);
   iEvent.put(muons);
   iEvent.put(taus);
   iEvent.put(jets);
   iEvent.put(etsums);
+
+// Now shift the bx data by one to prepare for next event.
+     muonVec_bxm2 = muonVec_bxm1;
+     egammaVec_bxm2 = egammaVec_bxm1;
+     tauVec_bxm2 = tauVec_bxm1;
+     jetVec_bxm2 = jetVec_bxm1;
+     etsumVec_bxm2 = etsumVec_bxm1;      
+
+     muonVec_bxm1 = muonVec_bx0;
+     egammaVec_bxm1 = egammaVec_bx0;
+     tauVec_bxm1 = tauVec_bx0;
+     jetVec_bxm1 = jetVec_bx0;
+     etsumVec_bxm1 = etsumVec_bx0;      
+
+     muonVec_bx0 = muonVec_bxp1;
+     egammaVec_bx0 = egammaVec_bxp1;
+     tauVec_bx0 = tauVec_bxp1;
+     jetVec_bx0 = jetVec_bxp1;
+     etsumVec_bx0 = etsumVec_bxp1;      
+
+     muonVec_bxp1 = muonVec;
+     egammaVec_bxp1 = egammaVec;
+     tauVec_bxp1 = tauVec;
+     jetVec_bxp1 = jetVec;
+     etsumVec_bxp1 = etsumVec;   
 
 }
 

@@ -464,9 +464,9 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     // DataFormats/L1Trigger/L1uGtProducerReadoutSetupFwd
 
     //
-    bool receiveMu = !false;
+    bool receiveMu = true;
     bool receiveEG = true;
-    bool receiveTau = false;    
+    bool receiveTau = true;    
     bool receiveJet = true;
     bool receiveETM = false;
     bool receiveETT = false;
