@@ -31,7 +31,7 @@ GEMCSCPadDigiValidation::GEMCSCPadDigiValidation(DQMStore* dbe,
         else nPads = npadsGE21;
         name_prefix  = std::string("_r")+region[region_num]+"_st"+station[station_num]+"_l"+layer[layer_num];
         label_prefix = "region"+region[region_num]+" station "+station[station_num]+" layer "+layer[layer_num];
-        theCSCPad_phipad[region_num][station_num][layer_num] = dbe_->book2D( ("pad_dg_phistrip"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; Pad number; phi [rad]").c_str(), 280,-TMath::Pi(),TMath::Pi(), nPads/2,0,nPads );
+        theCSCPad_phipad[region_num][station_num][layer_num] = dbe_->book2D( ("pad_dg_phipad"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad]; Pad number").c_str(), 280,-TMath::Pi(),TMath::Pi(), nPads/2,0,nPads );
         theCSCPad[region_num][station_num][layer_num] = dbe_->book1D( ("pad_dg"+name_prefix).c_str(), ("Digi occupancy per pad number: "+label_prefix+";Pad number; entries").c_str(), nPads,0.5,nPads+0.5);
       }
     }
