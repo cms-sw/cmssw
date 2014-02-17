@@ -25,7 +25,7 @@ struct JetWrapper
     { /*....*/	}        //constructor
 
   const l1slhc::L1TowerJet* mJet;
-  const  tComparisonDirection* mComparisonDirection;
+  const tComparisonDirection* mComparisonDirection;
 };
 
 
@@ -40,9 +40,9 @@ bool operator> ( JetWrapper& aA , JetWrapper& aB )
 
  //those aA and aB with the same energy are all that remain
  if ( *(aA.mComparisonDirection) == phi ){
-         return (  abs( aA.mJet-> AsymPhi() ) <= abs( aB.mJet->AsymPhi() ) );
+         return ( abs( aA.mJet->AsymPhi() ) <= abs( aB.mJet->AsymPhi() ) );
  }else{
-         return ( abs( aA.mJet-> AsymEta() )  <= abs(  aB.mJet->AsymEta() ) );	
+         return ( abs( aA.mJet->AsymEta() ) <= abs( aB.mJet->AsymEta() ) );	
  }	
 
 
@@ -99,27 +99,42 @@ L1TowerJetFilter1D::~L1TowerJetFilter1D(  )
 
 void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
 {
-  if ( mComparisonDirection == phi && aPhi != mCaloTriggerSetup->phiMin() ) return;
-  else if ( mComparisonDirection == eta && aEta != mCaloTriggerSetup->etaMin() ) return;
 
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//  When we call fetch, we use the Wisconsin coordinate system
-//  ie aEta, aPhi, lEta and lPhi need to be defined between mCaloTriggerSetup->phiMin() , mCaloTriggerSetup->phiMax(), etc.
-// ie aEta 4->60, aPhi 4->75
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  // Avoid looping over the same TTs multiple times
+  if      ( (mComparisonDirection == phi) && (aPhi != mCaloTriggerSetup->phiMin()) ) return;
+  else if ( (mComparisonDirection == eta) && (aEta != mCaloTriggerSetup->etaMin()) ) return;
+
+
+
+
+  //-----------------------------------------------------------------------------------------------------------------------------------------------
+  //  When we call fetch, we use the Wisconsin coordinate system
+  //  ie aEta, aPhi, lEta and lPhi need to be defined between mCaloTriggerSetup->phiMin() , mCaloTriggerSetup->phiMax(), etc.
+  //  ie aEta 4->60, aPhi 4->75
+  //-----------------------------------------------------------------------------------------------------------------------------------------------
 
   //declare a vector of structs to pass to algorithm 
   std::vector< JetWrapper > lJetWrapperVector;
+
+  // ******************************
+  // *        Phi direction       *
+  // ******************************
   if ( mComparisonDirection == phi ){
+    // Store all jets in a ring of phi for a given iEta
     for(  int lPhi = mCaloTriggerSetup->phiMin() ; lPhi <= mCaloTriggerSetup->phiMax() ; ++lPhi ){
       l1slhc::L1TowerJetCollection::const_iterator lIt = fetch( aEta, lPhi);
       if( lIt != mInputCollection->end(  ) ){
-        lJetWrapperVector.push_back( JetWrapper( *lIt , mComparisonDirection ) ); 		
+	lJetWrapperVector.push_back( JetWrapper( *lIt , mComparisonDirection ) ); 		
       }
     }
     lJetWrapperVector.resize(128);    //algorithm requires 2^N inputs
-  }else{ 	// eta	
+  }
+  // ******************************
+  // *        Eta direction       *
+  // ******************************
+  else{ 	// eta	
+    // Store all jets in a strip of eta for a given iPhi
     for(  int lEta = mCaloTriggerSetup->etaMin() ; lEta <= mCaloTriggerSetup->etaMax() ; ++lEta ){
       l1slhc::L1TowerJetCollection::const_iterator lIt = fetch( lEta, aPhi);
       if( lIt != mInputCollection->end(  ) ){
@@ -130,11 +145,11 @@ void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
   }
 
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------
 //  When we call iEta() and iPhi() on the Jets, we use the sensible integer coordinate system
 //  ie Eta runs from -28-28 with no 0, and Phi runs from 1-72
 // This system is used everywhere beyond this point
-//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------
 
 //  std::cout << "Sorting Jets produced by " << sourceName() << std::endl;  
 //   for( std::vector<JetWrapper>::iterator lIt =lJetWrapperVector.begin(); lIt != lJetWrapperVector.end(); ++lIt){
@@ -201,11 +216,11 @@ void L1TowerJetFilter1D::algorithm( const int &aEta, const int &aPhi )
           for( int i = -lJetsize +1 ; i != lJetsize  ; ++i ){
             int lEta( (*lIt).mJet->iEta() + i );
             // no eta=0 in this coordinate system: need to allow for this
-            if(lEta == 0 && i<0) lEta = (*lIt).mJet->iEta() - lJetsize;
-            if(lEta == 0 && i>0) lEta = (*lIt).mJet->iEta() + lJetsize;
+            if( (lEta == 0) && (i < 0 )) lEta = (*lIt).mJet->iEta() - lJetsize;
+	    if( (lEta == 0) && (i > 0) ) lEta = (*lIt).mJet->iEta() + lJetsize;
             lVetos.push_back( lEta);
           }
-          if( lCounter > mNumOfOutputJets ) break;  //only N jets per ring/strip
+          if( lCounter >= mNumOfOutputJets ) break;  //only N jets per ring/strip
         }
       }
     }

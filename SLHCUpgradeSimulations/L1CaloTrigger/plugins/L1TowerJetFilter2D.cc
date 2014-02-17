@@ -1,3 +1,5 @@
+// Original Author:  Robyn Elizabeth Lucas,510 1-002,+41227673823,
+// Modifications  :  Mark Baber Imperial College, London
 
 #include "SLHCUpgradeSimulations/L1CaloTrigger/interface/L1CaloAlgoBase.h"
 
@@ -6,6 +8,7 @@
 
 #include "SLHCUpgradeSimulations/L1CaloTrigger/interface/BitonicSort.hpp"
 
+// Direction in which to filter overlapping jets
 enum tComparisonDirection { eta , phi };
 
 struct JetWrapper2D
@@ -38,9 +41,9 @@ bool operator> ( JetWrapper2D& aA , JetWrapper2D& aB )
 
   //those aA and aB with the same energy are all that remain
   if ( *(aA.mComparisonDirection) == phi ){
-    return (  abs( aA.mJet-> AsymPhi() ) <= abs( aB.mJet->AsymPhi() ) );
+    return ( abs( aA.mJet-> AsymPhi() ) <= abs( aB.mJet->AsymPhi() ) );
   }else{
-    return ( abs( aA.mJet-> AsymEta() )  <= abs(  aB.mJet->AsymEta() ) );	
+    return ( abs( aA.mJet-> AsymEta() ) <= abs( aB.mJet->AsymEta() ) );	
   }	
 
 }
@@ -57,7 +60,7 @@ class L1TowerJetFilter2D:public L1CaloAlgoBase < l1slhc::L1TowerJetCollection , 
 
 	void algorithm( const int &, const int & );
 
-   // int DO_ONCE;
+
   private:
         
     tComparisonDirection mComparisonDirection;
@@ -105,11 +108,11 @@ void L1TowerJetFilter2D::algorithm( const int &aEta, const int &aPhi )
   if( aEta != mCaloTriggerSetup->etaMin() )return;
 
 
-//---------------------------------------------------------------------------------------------------
-//  When we call fetch, we use the Wisconsin coordinate system
-//  ie aEta, aPhi, lEta and lPhi need to be defined between mCaloTriggerSetup->phiMin() , mCaloTriggerSetup->phiMax(), etc.
-// ie aEta 4->60, aPhi 4->75
-//---------------------------------------------------------------------------------------------------
+  //---------------------------------------------------------------------------------------------------
+  //  When we call fetch, we use the Wisconsin coordinate system
+  //  ie aEta, aPhi, lEta and lPhi need to be defined between mCaloTriggerSetup->phiMin() , mCaloTriggerSetup->phiMax(), etc.
+  // ie aEta 4->60, aPhi 4->75
+  //---------------------------------------------------------------------------------------------------
 
     //declare a vector of structs to pass to algorithm 
   
@@ -130,40 +133,33 @@ void L1TowerJetFilter2D::algorithm( const int &aEta, const int &aPhi )
   
       }
     }
-    lJetWrapper2DVector.resize(4096); //resize to nearest power of 2 to 72*56
+    lJetWrapper2DVector.resize(4096); //resize to nearest power of 2 to 72*56 for the bitonic sort algorithm
   
   
-  //--------------------------------------------------------------------------------------------------
-  //  When we call iEta() and iPhi() on the Jets, we use the sensible integer coordinate system
-  //  ie Eta runs from -28-28 with no 0, and Phi runs from 1-72
-  // This system is used everywhere beyond this point
-  //--------------------------------------------------------------------------------------------------
-  
-    //std::cout << "Sorting Jets produced by " << sourceName() << std::endl;
-  
-  //  for( std::vector<JetWrapper2D>::iterator lIt =lJetWrapper2DVector.begin(); lIt != lJetWrapper2DVector.end(); ++lIt){
-  //    if( (*lIt).mJet )	{
-        //std::cout << "Before sort, (eta, phi) = " << (*lIt).mJet->iEta() << " " << (*lIt).mJet->iPhi() <<"  energy " << (*lIt).mJet->E() << " and asym = " << (*lIt).mJet->AsymPhi() <<std::endl;	
-  //    }
-   // }
-  
-    // sort jets around eta/phi by energy
+    //--------------------------------------------------------------------------------------------------
+    //  When we call iEta() and iPhi() on the Jets, we use the sensible integer coordinate system
+    //  ie Eta runs from -28-28 with no 0, and Phi runs from 1-72
+    // This system is used everywhere beyond this point
+    //--------------------------------------------------------------------------------------------------
+    
+    // sort jets around eta/phi by energy and relevant asymmetry parameter
     std::vector<JetWrapper2D>::iterator lStart( lJetWrapper2DVector.begin() );
     std::vector<JetWrapper2D>::iterator lEnd( lJetWrapper2DVector.end() );	
     BitonicSort< JetWrapper2D >( down , lStart , lEnd );
   
     //Filter the jets with vetoes
     std::deque< std::pair<int, int> > lVetos; 
-    int lCounter(0);
+    int lJetCounter(0);
     for( std::vector<JetWrapper2D>::iterator lIt =lJetWrapper2DVector.begin(); lIt != lJetWrapper2DVector.end(); ++lIt){
  
       if( (*lIt).mJet ){ //if jet exists	
         int lJetsize =  (*lIt).mJet->JetSize() ;
         bool lVetoed( false );
   
+	// Check jet iEta and iPhi against jet iEta, iPhi veto list
         for( std::deque< std::pair<int, int> >::iterator lIt2 = lVetos.begin() ; lIt2 != lVetos.end() ; ++ lIt2 ){
   
-          if ( (*lIt).mJet->iEta() == (*lIt2).first && (*lIt).mJet->iPhi()  == (*lIt2).second ){ 
+          if ( ((*lIt).mJet->iEta() == (*lIt2).first) && ((*lIt).mJet->iPhi() == (*lIt2).second) ){ 
             //if jet is already vetoed break
             lVetoed = true;
             break;
@@ -172,15 +168,13 @@ void L1TowerJetFilter2D::algorithm( const int &aEta, const int &aPhi )
   
         if( !lVetoed ){	//if jet not vetoed then add to collection and create vetoes around it
 
-//            std::cout <<" Added jet to the output collection = (" << (*lIt).mJet->iEta() << " , " << (*lIt).mJet->iPhi() <<"), energy = " << (*lIt).mJet->E() << " and asym = " << (*lIt).mJet->AsymPhi() <<" it "<< lCounter <<std::endl;	
-          
           mOutputCollection->insert( (*lIt).mJet->iEta() , (*lIt).mJet->iPhi() , *((*lIt).mJet)  );
-          lCounter++;
+          lJetCounter++;
           for( int i = -lJetsize +1 ; i != lJetsize ; ++i ){
   
             int lPhi( (*lIt).mJet->iPhi() + i );
             if( lPhi >  72 ) lPhi -=  72;
-            if( lPhi <  1 ) lPhi +=  72;
+            if( lPhi <  1 )  lPhi +=  72;
             std::pair<int,int> veto;
             veto.second = lPhi;
             //for each phi, want to eradicate all the etas along it
@@ -188,14 +182,14 @@ void L1TowerJetFilter2D::algorithm( const int &aEta, const int &aPhi )
               int lEta( (*lIt).mJet->iEta() + j );
   
               // no eta=0 in this coordinate system: need to allow for this
-              if(lEta == 0 && j<0) lEta = (*lIt).mJet->iEta() - lJetsize;
-              if(lEta == 0 && j>0) lEta = (*lIt).mJet->iEta() + lJetsize;
+              if( (lEta == 0) && (j < 0) ) lEta = (*lIt).mJet->iEta() - lJetsize;
+	      if( (lEta == 0) && (j > 0) ) lEta = (*lIt).mJet->iEta() + lJetsize;
   
               veto.first = lEta;
               lVetos.push_back( veto );
             }
           }
-          if( lCounter > mNumOfOutputJets ) break;  //only N jets per ring/strip
+          if( lJetCounter >= mNumOfOutputJets ) break;  //only N jets per ring/strip
         }
       }//jet exists
     }

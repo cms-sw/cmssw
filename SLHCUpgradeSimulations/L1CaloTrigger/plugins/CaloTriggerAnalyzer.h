@@ -1,7 +1,7 @@
 //
 // Original Author:  Michail BACHTIS
 //         Created:  Tue Jul 22 12:21:36 CEST 2008
-// $Id: CaloTriggerAnalyzer.h,v 1.4 2010/09/28 19:11:29 iross Exp $
+// $Id: CaloTriggerAnalyzer.h,v 1.3 2010/08/18 18:49:35 iross Exp $
 
 
 
