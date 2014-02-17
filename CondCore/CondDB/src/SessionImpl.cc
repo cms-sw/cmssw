@@ -86,6 +86,7 @@ namespace cond {
 
     void SessionImpl::startTransaction( bool readOnly ){
       if( !transaction.get() ){ 
+	/**
 	cond::DbConnection oraConnection;
 	cond::DbSession oraSession =  oraConnection.createSession();
 	oraSession.open( coralSession, connectionString ); 
@@ -102,6 +103,13 @@ namespace cond {
 	    transaction.reset( new CondDBTransaction( coralSession ) );
 	  }
 	}
+	**/
+        //***
+	coralSession->transaction().start( readOnly );
+	iovSchemaHandle.reset( new IOVSchema( coralSession->nominalSchema() ) );
+	gtSchemaHandle.reset( new GTSchema( coralSession->nominalSchema() ) );  		       
+	transaction.reset( new CondDBTransaction( coralSession ) );
+	//***
       } else {
 	if(!readOnly ) throwException( "An update transaction is already active.",
 				       "SessionImpl::startTransaction" );

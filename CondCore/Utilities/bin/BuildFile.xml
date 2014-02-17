@@ -50,6 +50,9 @@
 <bin   file="conddb_test_gt_load.cpp" name="conddb_test_gt_load">
   <use   name="CondCore/CondDB"/>
 </bin>
+<bin   file="conddb_test_gt_perf.cpp" name="conddb_test_gt_perf">
+  <use   name="CondCore/CondDB"/>
+</bin>
 <bin   file="conddb_migrate_gt.cpp" name="conddb_migrate_gt">
   <use   name="CondCore/CondDB"/>
 </bin>
