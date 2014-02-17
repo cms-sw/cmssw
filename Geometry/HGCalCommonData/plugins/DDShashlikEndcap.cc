@@ -31,6 +31,7 @@ DDShashlikEndcap::initialize(const DDNumericArguments & nArgs,
   m_rMin        = int( nArgs["rMin"] );
   m_rMax        = int( nArgs["rMax"] );
   m_zoffset     = nArgs["zoffset"];
+  m_xyoffset    = nArgs["xyoffset"];
   m_n           = int( nArgs["n"] );
   m_startCopyNo = int( nArgs["startCopyNo"] );
   m_incrCopyNo  = int( nArgs["incrCopyNo"] );
@@ -43,10 +44,20 @@ DDShashlikEndcap::initialize(const DDNumericArguments & nArgs,
 void
 DDShashlikEndcap::execute( DDCompactView& cpv )
 {
-  int copyNo = m_startCopyNo;
+  int lastCopyNo = m_startCopyNo;
+  lastCopyNo = createQuarter( cpv,  1,  1, lastCopyNo );
+  lastCopyNo = createQuarter( cpv, -1,  1, lastCopyNo );
+  lastCopyNo = createQuarter( cpv, -1, -1, lastCopyNo );
+  lastCopyNo = createQuarter( cpv,  1, -1, lastCopyNo );
+}
+
+int
+DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadrant, int startCopyNo )
+{
+  int copyNo = startCopyNo;
   double tiltAngle = m_tiltAngle;
-  double xphi = tiltAngle;
-  double yphi = tiltAngle;
+  double xphi = xQuadrant*tiltAngle;
+  double yphi = yQuadrant*tiltAngle;
   double theta  = 90.*CLHEP::deg;
   double phiX = 0.0;
   double phiY = theta;
@@ -54,15 +65,15 @@ DDShashlikEndcap::execute( DDCompactView& cpv )
   double offsetZ = m_zoffset;
   double offsetX = offsetZ * tan( xphi );
   double offsetY = offsetZ * tan( yphi );
-  double offsetLimitX = m_rMax;
-  double offsetLimitY = m_rMax;
 
-  for( int iy = 0; offsetY < offsetLimitY; ++iy )
+  while( abs(offsetY) < m_rMax )
   {
-    for( int ix = 0; offsetX < offsetLimitX; ++ix )
-    {      
+    while( abs(offsetX) < m_rMax )
+    {
+      double limit = sqrt( offsetX*offsetX + offsetY*offsetY );
+      
       // Make sure we do not add supermodules in rMin area
-      if( sqrt( offsetX*offsetX + offsetY*offsetY ) > m_rMin )
+      if( limit > m_rMin && limit < m_rMax )
       {
 	DDRotation rotation;
 	std::string rotstr( "NULL" );
@@ -83,18 +94,17 @@ DDShashlikEndcap::execute( DDCompactView& cpv )
 	DDName parentName = parent().name(); 
 	cpv.position( DDName( m_childName ), parentName, copyNo, tran, rotation );
 
-	if (sqrt(offsetX*offsetX + offsetY*offsetY) > m_rMax)
-	  offsetLimitX = offsetX;
-	
 	copyNo += m_incrCopyNo;
       }
-      xphi += 2.*tiltAngle;
+      xphi +=  xQuadrant*2.*tiltAngle;
       offsetX = offsetZ * tan( xphi );
     }
-    yphi += 2.*tiltAngle;
-    xphi = tiltAngle;
+    yphi += yQuadrant*2.*tiltAngle;
+    xphi =  xQuadrant*tiltAngle;
     offsetX = offsetZ * tan( xphi );
     offsetY = offsetZ * tan( yphi );
   }
+  
+  return copyNo;
 }
 

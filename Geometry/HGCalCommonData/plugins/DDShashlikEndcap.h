@@ -22,12 +22,15 @@ public:
 
 private:
 
+  int createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadrant, int startCopyNo );
+
   double        m_startAngle;   // Start angle 
   double        m_tiltAngle;    // Tilt  angle
   int           m_invert;       // Inverted or forward
   double        m_rMin;         // Inner radius
   double        m_rMax;         // Outer radius
   double        m_zoffset;      // Offset in z
+  double        m_xyoffset;     // Offset in x or y
   int           m_n;            // Mumber of copies
   int           m_startCopyNo;  // Start copy Number
   int           m_incrCopyNo;   // Increment copy Number
