@@ -1,27 +1,18 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoParticleFlow/PFClusterProducer/plugins/PFClusterProducer.h"
-#include "RecoParticleFlow/PFClusterProducer/plugins/PFHCALSuperClusterProducer.h"
-
-
-DEFINE_FWK_MODULE(PFClusterProducer);
-DEFINE_FWK_MODULE(PFHCALSuperClusterProducer);
-
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitDualNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigator.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloTowerNavigator.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitHCALNavigator.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFECALHashNavigator.h"
+//#include "RecoParticleFlow/PFClusterProducer/interface/PFECALHashNavigator.h"
 
 
 EDM_REGISTER_PLUGINFACTORY(PFRecHitNavigationFactory, "PFRecHitNavigationFactory");
 
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalBarrelNavigator, "PFRecHitEcalBarrelNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalEndcapNavigator, "PFRecHitEcalEndcapNavigator");
-DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFECALHashNavigator, "PFECALHashNavigator");
-DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalNavigator, "PFRecHitEcalNavigator");
+//DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFECALHashNavigator, "PFECALHashNavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitECALNavigator, "PFRecHitECALNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitCaloTowerNavigator, "PFRecHitCaloTowerNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitPreshowerNavigator, "PFRecHitPreshowerNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCALNavigator, "PFRecHitHCALNavigator");

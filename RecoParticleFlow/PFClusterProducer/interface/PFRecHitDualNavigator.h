@@ -26,11 +26,11 @@ class PFRecHitDualNavigator : public PFRecHitNavigatorBase {
 
   }
 
-  void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits) {
+  void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
       if (hit.layer() ==  D1)
-	barrelNav_->associateNeighbours(hit,hits);
+	barrelNav_->associateNeighbours(hit,hits,refProd);
       else if (hit.layer() ==  D2)
-	endcapNav_->associateNeighbours(hit,hits);
+	endcapNav_->associateNeighbours(hit,hits,refProd);
   }
 
  protected:
@@ -42,7 +42,7 @@ class PFRecHitDualNavigator : public PFRecHitNavigatorBase {
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigator.h"
 
-typedef  PFRecHitDualNavigator<PFLayer::ECAL_BARREL,PFRecHitEcalBarrelNavigator,PFLayer::ECAL_ENDCAP,PFRecHitEcalEndcapNavigator> PFRecHitEcalNavigator;
+typedef  PFRecHitDualNavigator<PFLayer::ECAL_BARREL,PFRecHitEcalBarrelNavigator,PFLayer::ECAL_ENDCAP,PFRecHitEcalEndcapNavigator> PFRecHitECALNavigator;
 
 
 
