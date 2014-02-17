@@ -90,8 +90,8 @@
    <version ClassVersion="10" checksum="2692173055"/>
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
-  <class name="pat::Photon"  ClassVersion="13">
-   <version ClassVersion="13" checksum="2855219241"/>
+  <class name="pat::Photon"  ClassVersion="15">
+   <version ClassVersion="15" checksum="640503406"/>
   </class>
   <class name="pat::Jet"  ClassVersion="11">
    <field name="caloTowersTemp_" transient="true"/>
