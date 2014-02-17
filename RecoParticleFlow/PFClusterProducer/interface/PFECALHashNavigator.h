@@ -66,7 +66,7 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 
   }
 
-  void associateNeighbours(reco::PFRecHit& rh,std::auto_ptr<reco::PFRecHitCollection>& hits) {
+  void associateNeighbours(reco::PFRecHit& rh,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refprod) {
 
 
 
@@ -83,14 +83,14 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
   DetId west  = move( center, WEST );  
 
 
-  associateNeighbour(north,rh,hits,true);
-  associateNeighbour(northeast,rh,hits,false);
-  associateNeighbour(south,rh,hits,true);
-  associateNeighbour(southwest,rh,hits,false);
-  associateNeighbour(east,rh,hits,true);
-  associateNeighbour(southeast,rh,hits,false);
-  associateNeighbour(west,rh,hits,true);
-  associateNeighbour(northwest,rh,hits,false);
+  associateNeighbour(north,rh,hits,refprod,0,1,0);
+  associateNeighbour(northeast,rh,hits,refprod,1,1,0);
+  associateNeighbour(south,rh,hits,refprod,0,-1,0);
+  associateNeighbour(southwest,rh,hits,refprod,-1,-1,0);
+  associateNeighbour(east,rh,hits,refprod,1,0,0);
+  associateNeighbour(southeast,rh,hits,refprod,1,-1,0);
+  associateNeighbour(west,rh,hits,refprod,-1,0,0);
+  associateNeighbour(northwest,rh,hits,refprod,-1,1,0);
 
   }
 
