@@ -45,11 +45,6 @@ namespace cond {
       m_transaction( *m_session ){      
     }
 
-    Session::Session( boost::shared_ptr<coral::ISessionProxy>& session, const std::string& connectionString ):
-      m_session( new SessionImpl( session, connectionString ) ),
-      m_transaction( *m_session ){
-    }
-
     Session::Session( const Session& rhs ):
       m_session( rhs.m_session ),
       m_transaction( rhs.m_transaction ){
