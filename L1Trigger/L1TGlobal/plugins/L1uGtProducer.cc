@@ -468,21 +468,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     bool receiveEG = true;
     bool receiveTau = true;    
     bool receiveJet = true;
-    bool receiveETM = false;
-    bool receiveETT = false;
-    bool receiveHTT = false;
-    bool receiveHTM = false;
-    bool receiveJetCounts = false;
-    bool receiveHfBitCounts = false;
-    bool receiveHfRingEtSums = false;
-
-// Use these variables in a trivial way to test compilation
-    if(receiveMu | receiveEG | receiveTau | 
-       receiveJet | 
-       receiveETM | receiveETT | receiveHTT | receiveHTM |
-       receiveJetCounts | receiveHfBitCounts |
-       receiveHfRingEtSums) receiveEG = true;
-
+    bool receiveEtSums = true;
 
 /*  *** Boards need redefining *****
     for (CItBoardMaps
@@ -653,7 +639,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
         			     receiveEG, m_nrL1EG,
         			     receiveTau, m_nrL1Tau,				     
         			     receiveJet, m_nrL1Jet,
-        			     receiveETM, receiveETT, receiveHTT, receiveHTM     );
+        			     receiveEtSums     );
 
      m_uGtBrd->receiveMuonObjectData(iEvent, m_muInputTag,
                                      receiveMu, m_nrL1Mu  );

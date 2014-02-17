@@ -219,9 +219,9 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
       int status = mcParticle.status();
       int pdgId  = mcParticle.pdgId();
       double pt  = mcParticle.pt();
-
-      // Only use status 1 particles
-      if( status!=1 ) continue;
+      
+      // Only use status 1 particles  (Tau's need to be allowed through..take status 2 taus)
+      if( status!=1 && !(abs(pdgId)==15 && status==2) ) continue;
 
       int absId = abs(pdgId);
 
