@@ -36,6 +36,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
+
 //
 // class declaration
 //
@@ -62,6 +64,12 @@ namespace l1t {
 
       // ----------member data ---------------------------
 
+      int bxFirst_, bxLast_; // bx range to process
+
+      std::vector<edm::EDGetToken> ecalToken_;  // this is a crazy way to store multi-BX info
+      std::vector<edm::EDGetToken> hcalToken_;  // should be replaced with a BXVector< > or similar
+
+      int ietaMin_, ietaMax_, iphiMin_, iphiMax_;
 
   }; 
   

@@ -2,18 +2,20 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
 l1t::CaloTower::CaloTower( const LorentzVector& p4,
-		   double etEm,
-		   double etHad,
-		   int pt,
-		   int eta,
-		   int phi,
-		   int qual,
-		   int hwEtEm,
-		   int hwEtHad)
+			   double etEm,
+			   double etHad,
+			   int pt,
+			   int eta,
+			   int phi,
+			   int qual,
+			   int hwEtEm,
+			   int hwEtHad,
+			   int hwFGEm)
   : L1Candidate(p4, pt, eta, phi, qual),
     etEm_(etEm),
     etHad_(etHad),
     hwEtEm_(hwEtEm),
+    hwFGEm_(hwFGEm),
     hwEtHad_(hwEtHad)
 {
   
@@ -44,6 +46,11 @@ void l1t::CaloTower::setHwEtHad(int et)
   hwEtHad_ = et;
 }
 
+void l1t::CaloTower::setHwFGEm(int fg)
+{
+  hwFGEm_ = fg;
+}
+
 
 double l1t::CaloTower::etEm()const
 {
@@ -64,3 +71,9 @@ int l1t::CaloTower::hwEtHad()const
 {
   return hwEtHad_;
 }
+
+int l1t::CaloTower::hwFGEm() const
+{
+  return hwFGEm_;
+}
+
