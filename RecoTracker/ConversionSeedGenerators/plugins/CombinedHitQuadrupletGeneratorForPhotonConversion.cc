@@ -8,7 +8,7 @@ CombinedHitQuadrupletGeneratorForPhotonConversion::CombinedHitQuadrupletGenerato
   : theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers"))),
     theMaxElement(cfg.getParameter<unsigned int>("maxElement"))
 {
-  theGenerator = std::make_unique<HitQuadrupletGeneratorFromLayerPairForPhotonConversion>( 0, 1, &theLayerCache, 0, theMaxElement);
+  theGenerator = std::make_unique<HitQuadrupletGeneratorFromLayerPairForPhotonConversion>( 0, 1, &theLayerCache, theMaxElement);
 }
 
 
@@ -28,11 +28,12 @@ void CombinedHitQuadrupletGeneratorForPhotonConversion::hitPairs(const TrackingR
   size_t maxHitQuadruplets=1000000;
   edm::Handle<SeedingLayerSetsHits> hlayers;
   ev.getByToken(theSeedingLayerToken, hlayers);
-  assert(hlayers->numberOfLayersInSet() == 2);
+  const SeedingLayerSetsHits& layers = *hlayers;
+  assert(layers.numberOfLayersInSet() == 2);
+
 
   for(SeedingLayerSetsHits::LayerSetIndex i=0; i<hlayers->size() && result.size() < maxHitQuadruplets; ++i) {
-    theGenerator->setSeedingLayers((*hlayers)[i]);
-    theGenerator->hitPairs( region, result, ev, es);
+    theGenerator->hitPairs( region, result, layers[i], ev, es);
   }
   theLayerCache.clear();
 }
