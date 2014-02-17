@@ -10,8 +10,7 @@
 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 
-PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config) {
-
+PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, edm::ConsumesCollector && iC) {
 
   minR9Barrel_        = config.getParameter<double>("minR9Barrel");
   minR9Endcap_        = config.getParameter<double>("minR9Endcap");
@@ -19,6 +18,9 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config) {
 
   barrelEcalHits_   = config.getParameter<edm::InputTag>("barrelEcalHits");
   endcapEcalHits_   = config.getParameter<edm::InputTag>("endcapEcalHits");
+  barrelEcalHitsToken_   = iC.consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("barrelEcalHits"));
+  endcapEcalHitsToken_   = iC.consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("endcapEcalHits"));
+
   //  candidateP4type_ = config.getParameter<std::string>("candidateP4type") ;
 
 
@@ -112,11 +114,7 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
     minR9=minR9Endcap_;
   }
 
- 
-
-  EcalClusterLazyTools lazyTools(evt, iSetup, barrelEcalHits_,endcapEcalHits_);  
-
-
+  EcalClusterLazyTools lazyTools(evt, iSetup, barrelEcalHitsToken_,endcapEcalHitsToken_);  
 
   ////////////// Here default Ecal corrections based on electrons  ////////////////////////
   if ( thePhoton.r9() > minR9 ) {

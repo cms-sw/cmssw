@@ -26,13 +26,13 @@ public:
 
   virtual ~ElectronIDAlgo(){};
 
-  void baseSetup(const edm::ParameterSet& conf) ;
+  //void baseSetup(const edm::ParameterSet& conf) ;
   virtual void setup(const edm::ParameterSet& conf)  {};
   virtual double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) {return 0.;};
 
  protected:
 
-  EcalClusterLazyTools getClusterShape(const edm::Event&, const edm::EventSetup&);
+  //EcalClusterLazyTools getClusterShape(const edm::Event&, const edm::EventSetup&);
 
   edm::InputTag reducedBarrelRecHitCollection_;
   edm::InputTag reducedEndcapRecHitCollection_;

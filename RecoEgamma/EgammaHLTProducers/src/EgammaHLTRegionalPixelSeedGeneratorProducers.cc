@@ -81,8 +81,8 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::Configu
 
   edm::ParameterSetDescription orederedHitsPSET;
   orederedHitsPSET.add<std::string>("ComponentName", "StandardHitPairGenerator");
-  orederedHitsPSET.add<std::string>("SeedingLayers", "hltESPPixelLayerPairs");
-  orederedHitsPSET.add<unsigned int>("maxElement", 0);
+  orederedHitsPSET.add<edm::InputTag>("SeedingLayers", edm::InputTag("PixelLayerPairs"));
+   orederedHitsPSET.add<unsigned int>("maxElement", 0);
   desc.add<edm::ParameterSetDescription>("OrderedHitsFactoryPSet", orederedHitsPSET);
 
   descriptions.add(("hltEgammaHLTRegionalPixelSeedGeneratorProducers"), desc);  
