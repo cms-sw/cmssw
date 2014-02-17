@@ -1,0 +1,4508 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="tid.xml">
+		<Tubs name="TSFX" rMin="22.2*cm" rMax="51.2*cm" dz="20*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SFSG" rMin="22.8*cm" rMax="51.2*cm" dz="3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SFSH" rMin="22.8*cm" rMax="51.2*cm" dz="2.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SFWA" rMin="22.38*cm" rMax="51.2*cm" dz="5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SFD1" rMin="22.8*cm" rMax="51.2*cm" dz="1.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SD11" rMin="22.8*cm" rMax="51.2*cm" dz="4*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SCMF" rMin="46*cm" rMax="49*cm" dz="3.5*mm" startPhi="-9.25*deg" deltaPhi="18.5*deg"/>
+		<Tubs name="SXRV" rMin="46.2*cm" rMax="51.2*cm" dz="3.5*mm" startPhi="-3.125*deg" deltaPhi="6.25*deg"/>
+		<Tubs name="SD21" rMin="38.75*cm" rMax="41.15*cm" dz="300*mum" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SD31" rMin="27.25*cm" rMax="27.55*cm" dz="1.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SD41" rMin="34.85*cm" rMax="35.15*cm" dz="1.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trd1 name="SAD1" dz="7.795*cm" dy1="1.35*mm" dy2="1.35*mm" dx1="4.27335*cm" dx2="6.3515*cm"/>
+		<Trd1 name="S0D1" dz="7.795*cm" dy1="1.35*mm" dy2="1.35*mm" dx1="4.27335*cm" dx2="6.3515*cm"/>
+		<Trd1 name="SXD1" dz="5.645*cm" dy1="150*mum" dy2="150*mum" dx1="3.19*cm" dx2="4.695*cm"/>
+		<Trd1 name="SCD1" dz="5.535*cm" dy1="150*mum" dy2="150*mum" dx1="3.09*cm" dx2="4.595*cm"/>
+		<Box name="SUD1" dx="4.695*cm" dy="250*mum" dz="6.5*mm"/>
+		<Box name="SHD1" dx="2.35*cm" dy="250*mum" dz="1.25*cm"/>
+		<Trd1 name="S1D1" dz="1.9*cm" dy1="250*mum" dy2="250*mum" dx1="5.695*cm" dx2="6.20154*cm"/>
+		<Trd1 name="S2D1" dz="5.895*cm" dy1="300*mum" dy2="300*mum" dx1="4.27335*cm" dx2="5.845*cm"/>
+		<Trd1 name="S3D1" dz="5.495*cm" dy1="300*mum" dy2="300*mum" dx1="3.03003*cm" dx2="4.495*cm"/>
+		<Trd1 name="SYD1" dz="5.645*cm" dy1="150*mum" dy2="150*mum" dx1="3.19*cm" dx2="4.695*cm"/>
+		<Trd1 name="SCG1" dz="5.535*cm" dy1="150*mum" dy2="150*mum" dx1="3.09*cm" dx2="4.595*cm"/>
+		<Trapezoid name="SVD1" dz="4.695*cm" alp1="0*deg" bl1="8.84359*mm" tl1="8.84359*mm" h1="250*mum" alp2="0*deg" bl2="4.15641*mm" tl2="4.15641*mm" h2="250*mum" phi="0*deg" theta="2.8576453*deg"/>
+		<Box name="S4D1" dx="3*cm" dy="750*mum" dz="1.5*cm"/>
+		<Box name="SOOL" dx="7.5*mm" dy="4*mm" dz="1.9*mm"/>
+		<Trd1 name="SED1" dz="7.795*cm" dy1="1.35*mm" dy2="1.35*mm" dx1="4.27335*cm" dx2="6.3515*cm"/>
+		<Box name="S5D1" dx="1.6*cm" dy="5*cm" dz="300*mum"/>
+		<Tubs name="SFD2" rMin="22.8*cm" rMax="51.2*cm" dz="1.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SD12" rMin="22.8*cm" rMax="51.2*cm" dz="4*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SD22" rMin="45.71*cm" rMax="48.11*cm" dz="300*mum" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SD32" rMin="33.85*cm" rMax="34.15*cm" dz="1.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SD42" rMin="43.85*cm" rMax="44.15*cm" dz="1.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trd1 name="SAD2" dz="6.665*cm" dy1="1.35*mm" dy2="1.35*mm" dx1="5.49301*cm" dx2="7.279*cm"/>
+		<Trd1 name="S0D2" dz="6.665*cm" dy1="1.35*mm" dy2="1.35*mm" dx1="5.49301*cm" dx2="7.279*cm"/>
+		<Trd1 name="SXD2" dz="4.515*cm" dy1="150*mum" dy2="150*mum" dx1="4.41*cm" dx2="5.62*cm"/>
+		<Trd1 name="SCD2" dz="4.405*cm" dy1="150*mum" dy2="150*mum" dx1="4.31*cm" dx2="5.52*cm"/>
+		<Box name="SUD2" dx="5.62*cm" dy="250*mum" dz="6.5*mm"/>
+		<Box name="SHD2" dx="2.35*cm" dy="250*mum" dz="1.25*cm"/>
+		<Trd1 name="S1D2" dz="1.9*cm" dy1="250*mum" dy2="250*mum" dx1="6.62*cm" dx2="7.12913*cm"/>
+		<Trd1 name="S2D2" dz="4.765*cm" dy1="300*mum" dy2="300*mum" dx1="5.49301*cm" dx2="6.77*cm"/>
+		<Trd1 name="S3D2" dz="4.365*cm" dy1="300*mum" dy2="300*mum" dx1="4.25033*cm" dx2="5.42*cm"/>
+		<Trd1 name="SYD2" dz="4.515*cm" dy1="150*mum" dy2="150*mum" dx1="4.41*cm" dx2="5.62*cm"/>
+		<Trd1 name="SCG2" dz="4.405*cm" dy1="150*mum" dy2="150*mum" dx1="4.31*cm" dx2="5.52*cm"/>
+		<Trapezoid name="SVD2" dz="5.62*cm" alp1="0*deg" bl1="9.30532*mm" tl1="9.30532*mm" h1="250*mum" alp2="0*deg" bl2="3.69468*mm" tl2="3.69468*mm" h2="250*mum" phi="0*deg" theta="2.857645*deg"/>
+		<Box name="S4D2" dx="3*cm" dy="750*mum" dz="1.5*cm"/>
+		<Trd1 name="SED2" dz="6.665*cm" dy1="1.35*mm" dy2="1.35*mm" dx1="5.49301*cm" dx2="7.279*cm"/>
+		<Box name="S5D2" dx="1.6*cm" dy="1.52*cm" dz="300*mum"/>
+		<Tubs name="SFS3" rMin="22.8*cm" rMax="51.2*cm" dz="1.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SS13" rMin="22.8*cm" rMax="51.2*cm" dz="4*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SS23" rMin="32.8*cm" rMax="35.2*cm" dz="300*mum" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SS33" rMin="35.65*cm" rMax="35.95*cm" dz="1.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SS43" rMin="44.45*cm" rMax="44.75*cm" dz="1.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trd1 name="SAS3" dz="7.79*cm" dy1="550*mum" dy2="550*mum" dx1="4.0935*cm" dx2="5.35033*cm"/>
+		<Trd1 name="S0S3" dz="7.79*cm" dy1="550*mum" dy2="550*mum" dx1="4.0935*cm" dx2="5.35033*cm"/>
+		<Trd1 name="SXS3" dz="5.64*cm" dy1="150*mum" dy2="150*mum" dx1="3.25*cm" dx2="4.16*cm"/>
+		<Trd1 name="SCS3" dz="5.53*cm" dy1="150*mum" dy2="150*mum" dx1="3.15*cm" dx2="4.06*cm"/>
+		<Box name="SUS3" dx="3.25*cm" dy="250*mum" dz="6.5*mm"/>
+		<Box name="SHS3" dx="2.35*cm" dy="250*mum" dz="1.25*cm"/>
+		<Trd1 name="S1S3" dz="1.9*cm" dy1="250*mum" dy2="250*mum" dx1="3.94346*cm" dx2="4.25*cm"/>
+		<Trd1 name="S2S3" dz="5.89*cm" dy1="300*mum" dy2="300*mum" dx1="4.4*cm" dx2="5.35033*cm"/>
+		<Trd1 name="S3S3" dz="5.49*cm" dy1="300*mum" dy2="300*mum" dx1="3.05*cm" dx2="3.93575*cm"/>
+		<Box name="S4S3" dx="3*cm" dy="750*mum" dz="1.5*cm"/>
+		<Trd1 name="SES3" dz="7.79*cm" dy1="550*mum" dy2="550*mum" dx1="4.0935*cm" dx2="5.35033*cm"/>
+		<Box name="S5S3" dx="1.6*cm" dy="7.975*cm" dz="300*mum"/>
+		<Tubs name="SFWB" rMin="22.38*cm" rMax="51.2*cm" dz="5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SFWC" rMin="22.38*cm" rMax="51.2*cm" dz="5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Polycone name="SFSC" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="73*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="1.225*m" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="1.225*m" rMin="52*cm" rMax="1.14*m"/>
+			<ZSection z="1.23*m" rMin="52*cm" rMax="1.14*m"/>
+			<ZSection z="1.23*m" rMin="1.135*m" rMax="1.14*m"/>
+			<ZSection z="2.82*m" rMin="1.135*m" rMax="1.14*m"/>
+		</Polycone>
+		<Polycone name="SF01" startPhi="-7.5*deg" deltaPhi="15*deg">
+			<ZSection z="74.47*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="74.53*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="74.53*cm" rMin="52.34*cm" rMax="52.4*cm"/>
+			<ZSection z="77.97*cm" rMin="52.34*cm" rMax="52.4*cm"/>
+			<ZSection z="77.97*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="78.03*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="78.03*cm" rMin="52.34*cm" rMax="52.4*cm"/>
+			<ZSection z="81.47*cm" rMin="52.34*cm" rMax="52.4*cm"/>
+			<ZSection z="81.47*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="81.53*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="81.53*cm" rMin="52.34*cm" rMax="52.4*cm"/>
+			<ZSection z="86.44*cm" rMin="52.34*cm" rMax="52.4*cm"/>
+		</Polycone>
+		<Polycone name="SF02" startPhi="-7.5*deg" deltaPhi="15*deg">
+			<ZSection z="86.44*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="86.56*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="86.56*cm" rMin="52.28*cm" rMax="52.4*cm"/>
+			<ZSection z="89.94*cm" rMin="52.28*cm" rMax="52.4*cm"/>
+			<ZSection z="89.94*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="90.06*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="90.06*cm" rMin="52.28*cm" rMax="52.4*cm"/>
+			<ZSection z="93.44*cm" rMin="52.28*cm" rMax="52.4*cm"/>
+			<ZSection z="93.44*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="93.56*cm" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="93.56*cm" rMin="52.28*cm" rMax="52.4*cm"/>
+			<ZSection z="1.0141*m" rMin="52.28*cm" rMax="52.4*cm"/>
+		</Polycone>
+		<Polycone name="SF03" startPhi="-7.5*deg" deltaPhi="15*deg">
+			<ZSection z="1.0141*m" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="1.0159*m" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="1.0159*m" rMin="52.22*cm" rMax="52.4*cm"/>
+			<ZSection z="1.0491*m" rMin="52.22*cm" rMax="52.4*cm"/>
+			<ZSection z="1.0491*m" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="1.0509*m" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="1.0509*m" rMin="52.22*cm" rMax="52.4*cm"/>
+			<ZSection z="1.0841*m" rMin="52.22*cm" rMax="52.4*cm"/>
+			<ZSection z="1.0841*m" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="1.0859*m" rMin="52*cm" rMax="52.4*cm"/>
+			<ZSection z="1.0859*m" rMin="52.22*cm" rMax="52.4*cm"/>
+			<ZSection z="1.225*m" rMin="52.22*cm" rMax="52.4*cm"/>
+		</Polycone>
+		<Polycone name="SF04" startPhi="-7.5*deg" deltaPhi="15*deg">
+			<ZSection z="1.225*m" rMin="52.22*cm" rMax="1.135*m"/>
+			<ZSection z="1.22583*m" rMin="52.22*cm" rMax="1.135*m"/>
+			<ZSection z="1.2268*m" rMin="52.22*cm" rMax="52.22*cm"/>
+		</Polycone>
+		<Tubs name="SF05" rMin="1.135*m" rMax="1.13583*m" dz="79.75*cm" startPhi="-7.5*deg" deltaPhi="15*deg"/>
+		<Tubs name="SFSD" rMin="35*cm" rMax="51*cm" dz="5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SFSE" rMin="51.2*cm" rMax="52*cm" dz="24.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="SFSF" rMin="51.3*cm" rMax="51.9*cm" dz="24.5*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="tid.xml">
+		<LogicalPart name="TSFX" category="unspecified">
+			<rSolid name="TSFX"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SFSG" category="unspecified">
+			<rSolid name="SFSG"/>
+			<rMaterial name="materials:TID_CF"/>
+		</LogicalPart>
+		<LogicalPart name="SFSH" category="unspecified">
+			<rSolid name="SFSH"/>
+			<rMaterial name="materials:TID_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="SFWA" category="unspecified">
+			<rSolid name="SFWA"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SFD1" category="unspecified">
+			<rSolid name="SFD1"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SD11" category="unspecified">
+			<rSolid name="SD11"/>
+			<rMaterial name="materials:TID_mech"/>
+		</LogicalPart>
+		<LogicalPart name="SCMF" category="unspecified">
+			<rSolid name="SCMF"/>
+			<rMaterial name="materials:TID_Cool_Manifold"/>
+		</LogicalPart>
+		<LogicalPart name="SXRV" category="unspecified">
+			<rSolid name="SXRV"/>
+			<rMaterial name="materials:TID_Wheel_Fixation"/>
+		</LogicalPart>
+		<LogicalPart name="SD21" category="unspecified">
+			<rSolid name="SD21"/>
+			<rMaterial name="materials:TID_ICB1"/>
+		</LogicalPart>
+		<LogicalPart name="SD31" category="unspecified">
+			<rSolid name="SD31"/>
+			<rMaterial name="materials:TID_Cool_ring"/>
+		</LogicalPart>
+		<LogicalPart name="SD41" category="unspecified">
+			<rSolid name="SD41"/>
+			<rMaterial name="materials:TID_Cool_ring"/>
+		</LogicalPart>
+		<LogicalPart name="SAD1" category="unspecified">
+			<rSolid name="SAD1"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="S0D1" category="unspecified">
+			<rSolid name="S0D1"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SXD1" category="unspecified">
+			<rSolid name="SXD1"/>
+			<rMaterial name="materials:TID_Side_Wafer"/>
+		</LogicalPart>
+		<LogicalPart name="SCD1" category="unspecified">
+			<rSolid name="SCD1"/>
+			<rMaterial name="materials:TID_Wafer"/>
+		</LogicalPart>
+		<LogicalPart name="SUD1" category="unspecified">
+			<rSolid name="SUD1"/>
+			<rMaterial name="materials:TID_PitchAdapter"/>
+		</LogicalPart>
+		<LogicalPart name="SHD1" category="unspecified">
+			<rSolid name="SHD1"/>
+			<rMaterial name="materials:TID_ele1"/>
+		</LogicalPart>
+		<LogicalPart name="S1D1" category="unspecified">
+			<rSolid name="S1D1"/>
+			<rMaterial name="materials:TID_frame_top"/>
+		</LogicalPart>
+		<LogicalPart name="S2D1" category="unspecified">
+			<rSolid name="S2D1"/>
+			<rMaterial name="materials:TID_frame_side"/>
+		</LogicalPart>
+		<LogicalPart name="S3D1" category="unspecified">
+			<rSolid name="S3D1"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SYD1" category="unspecified">
+			<rSolid name="SYD1"/>
+			<rMaterial name="materials:TID_Side_Wafer"/>
+		</LogicalPart>
+		<LogicalPart name="SCG1" category="unspecified">
+			<rSolid name="SCG1"/>
+			<rMaterial name="materials:TID_Wafer"/>
+		</LogicalPart>
+		<LogicalPart name="SVD1" category="unspecified">
+			<rSolid name="SVD1"/>
+			<rMaterial name="materials:TID_PitchAdapter"/>
+		</LogicalPart>
+		<LogicalPart name="S4D1" category="unspecified">
+			<rSolid name="S4D1"/>
+			<rMaterial name="materials:TID_ICC1"/>
+		</LogicalPart>
+		<LogicalPart name="SOOL" category="unspecified">
+			<rSolid name="SOOL"/>
+			<rMaterial name="materials:TID_Cool_insert"/>
+		</LogicalPart>
+		<LogicalPart name="SED1" category="unspecified">
+			<rSolid name="SED1"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="S5D1" category="unspecified">
+			<rSolid name="S5D1"/>
+			<rMaterial name="materials:TID_ICB1"/>
+		</LogicalPart>
+		<LogicalPart name="SFD2" category="unspecified">
+			<rSolid name="SFD2"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SD12" category="unspecified">
+			<rSolid name="SD12"/>
+			<rMaterial name="materials:TID_mech"/>
+		</LogicalPart>
+		<LogicalPart name="SD22" category="unspecified">
+			<rSolid name="SD22"/>
+			<rMaterial name="materials:TID_ICB2"/>
+		</LogicalPart>
+		<LogicalPart name="SD32" category="unspecified">
+			<rSolid name="SD32"/>
+			<rMaterial name="materials:TID_Cool_ring"/>
+		</LogicalPart>
+		<LogicalPart name="SD42" category="unspecified">
+			<rSolid name="SD42"/>
+			<rMaterial name="materials:TID_Cool_ring"/>
+		</LogicalPart>
+		<LogicalPart name="SAD2" category="unspecified">
+			<rSolid name="SAD2"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="S0D2" category="unspecified">
+			<rSolid name="S0D2"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SXD2" category="unspecified">
+			<rSolid name="SXD2"/>
+			<rMaterial name="materials:TID_Side_Wafer"/>
+		</LogicalPart>
+		<LogicalPart name="SCD2" category="unspecified">
+			<rSolid name="SCD2"/>
+			<rMaterial name="materials:TID_Wafer"/>
+		</LogicalPart>
+		<LogicalPart name="SUD2" category="unspecified">
+			<rSolid name="SUD2"/>
+			<rMaterial name="materials:TID_PitchAdapter"/>
+		</LogicalPart>
+		<LogicalPart name="SHD2" category="unspecified">
+			<rSolid name="SHD2"/>
+			<rMaterial name="materials:TID_ele2"/>
+		</LogicalPart>
+		<LogicalPart name="S1D2" category="unspecified">
+			<rSolid name="S1D2"/>
+			<rMaterial name="materials:TID_frame_top"/>
+		</LogicalPart>
+		<LogicalPart name="S2D2" category="unspecified">
+			<rSolid name="S2D2"/>
+			<rMaterial name="materials:TID_frame_side"/>
+		</LogicalPart>
+		<LogicalPart name="S3D2" category="unspecified">
+			<rSolid name="S3D2"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SYD2" category="unspecified">
+			<rSolid name="SYD2"/>
+			<rMaterial name="materials:TID_Side_Wafer"/>
+		</LogicalPart>
+		<LogicalPart name="SCG2" category="unspecified">
+			<rSolid name="SCG2"/>
+			<rMaterial name="materials:TID_Wafer"/>
+		</LogicalPart>
+		<LogicalPart name="SVD2" category="unspecified">
+			<rSolid name="SVD2"/>
+			<rMaterial name="materials:TID_PitchAdapter"/>
+		</LogicalPart>
+		<LogicalPart name="S4D2" category="unspecified">
+			<rSolid name="S4D2"/>
+			<rMaterial name="materials:TID_ICC1"/>
+		</LogicalPart>
+		<LogicalPart name="SED2" category="unspecified">
+			<rSolid name="SED2"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="S5D2" category="unspecified">
+			<rSolid name="S5D2"/>
+			<rMaterial name="materials:TID_ICB2"/>
+		</LogicalPart>
+		<LogicalPart name="SFS3" category="unspecified">
+			<rSolid name="SFS3"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SS13" category="unspecified">
+			<rSolid name="SS13"/>
+			<rMaterial name="materials:TID_mech"/>
+		</LogicalPart>
+		<LogicalPart name="SS23" category="unspecified">
+			<rSolid name="SS23"/>
+			<rMaterial name="materials:TID_ICB3"/>
+		</LogicalPart>
+		<LogicalPart name="SS33" category="unspecified">
+			<rSolid name="SS33"/>
+			<rMaterial name="materials:TID_Cool_ring"/>
+		</LogicalPart>
+		<LogicalPart name="SS43" category="unspecified">
+			<rSolid name="SS43"/>
+			<rMaterial name="materials:TID_Cool_ring"/>
+		</LogicalPart>
+		<LogicalPart name="SAS3" category="unspecified">
+			<rSolid name="SAS3"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="S0S3" category="unspecified">
+			<rSolid name="S0S3"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SXS3" category="unspecified">
+			<rSolid name="SXS3"/>
+			<rMaterial name="materials:TID_Side_Wafer"/>
+		</LogicalPart>
+		<LogicalPart name="SCS3" category="unspecified">
+			<rSolid name="SCS3"/>
+			<rMaterial name="materials:TID_Wafer"/>
+		</LogicalPart>
+		<LogicalPart name="SUS3" category="unspecified">
+			<rSolid name="SUS3"/>
+			<rMaterial name="materials:TID_PitchAdapter"/>
+		</LogicalPart>
+		<LogicalPart name="SHS3" category="unspecified">
+			<rSolid name="SHS3"/>
+			<rMaterial name="materials:TID_ele3"/>
+		</LogicalPart>
+		<LogicalPart name="S1S3" category="unspecified">
+			<rSolid name="S1S3"/>
+			<rMaterial name="materials:TID_frame_top"/>
+		</LogicalPart>
+		<LogicalPart name="S2S3" category="unspecified">
+			<rSolid name="S2S3"/>
+			<rMaterial name="materials:TID_frame_side"/>
+		</LogicalPart>
+		<LogicalPart name="S3S3" category="unspecified">
+			<rSolid name="S3S3"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="S4S3" category="unspecified">
+			<rSolid name="S4S3"/>
+			<rMaterial name="materials:TID_ICC2"/>
+		</LogicalPart>
+		<LogicalPart name="SES3" category="unspecified">
+			<rSolid name="SES3"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="S5S3" category="unspecified">
+			<rSolid name="S5S3"/>
+			<rMaterial name="materials:TID_ICB3"/>
+		</LogicalPart>
+		<LogicalPart name="SFWB" category="unspecified">
+			<rSolid name="SFWB"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SFWC" category="unspecified">
+			<rSolid name="SFWC"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SFSC" category="unspecified">
+			<rSolid name="SFSC"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SF01" category="unspecified">
+			<rSolid name="SF01"/>
+			<rMaterial name="materials:TID_in_cable"/>
+		</LogicalPart>
+		<LogicalPart name="SF02" category="unspecified">
+			<rSolid name="SF02"/>
+			<rMaterial name="materials:TID_in_cable"/>
+		</LogicalPart>
+		<LogicalPart name="SF03" category="unspecified">
+			<rSolid name="SF03"/>
+			<rMaterial name="materials:TID_in_cable"/>
+		</LogicalPart>
+		<LogicalPart name="SF04" category="unspecified">
+			<rSolid name="SF04"/>
+			<rMaterial name="materials:TID_in_cable"/>
+		</LogicalPart>
+		<LogicalPart name="SF05" category="unspecified">
+			<rSolid name="SF05"/>
+			<rMaterial name="materials:TID_ax_cable"/>
+		</LogicalPart>
+		<LogicalPart name="SFSD" category="unspecified">
+			<rSolid name="SFSD"/>
+			<rMaterial name="materials:TID_Connector"/>
+		</LogicalPart>
+		<LogicalPart name="SFSE" category="unspecified">
+			<rSolid name="SFSE"/>
+			<rMaterial name="materials:TID_CF"/>
+		</LogicalPart>
+		<LogicalPart name="SFSF" category="unspecified">
+			<rSolid name="SFSF"/>
+			<rMaterial name="materials:TID_Nomex"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tid.xml">
+		<PosPart copyNumber="1">
+			<rParent name="trak:SVTX"/>
+			<rChild name="tid:TSFX"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="93*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trak:SVTX"/>
+			<rChild name="tid:TSFX"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-93*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:TSFX"/>
+			<rChild name="tid:SFSG"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="17.8*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFSG"/>
+			<rChild name="tid:SFSH"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:TSFX"/>
+			<rChild name="tid:SFWA"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-15*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFWA"/>
+			<rChild name="tid:SFD1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFWB"/>
+			<rChild name="tid:SFD1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFWC"/>
+			<rChild name="tid:SFD1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SD11"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SD11"/>
+			<rChild name="tid:SCMF"/>
+			<rRotation name="rotations:RM1932"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SD11"/>
+			<rChild name="tid:SCMF"/>
+			<rRotation name="rotations:RM1933"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SD12"/>
+			<rChild name="tid:SCMF"/>
+			<rRotation name="rotations:RM2058"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SD12"/>
+			<rChild name="tid:SCMF"/>
+			<rRotation name="rotations:RM2059"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SS13"/>
+			<rChild name="tid:SCMF"/>
+			<rRotation name="rotations:RM2264"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SS13"/>
+			<rChild name="tid:SCMF"/>
+			<rRotation name="rotations:RM2265"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SD11"/>
+			<rChild name="tid:SXRV"/>
+			<rRotation name="rotations:R090"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SD11"/>
+			<rChild name="tid:SXRV"/>
+			<rRotation name="rotations:R210"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SD11"/>
+			<rChild name="tid:SXRV"/>
+			<rRotation name="rotations:RM748"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SD21"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SD21"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SD31"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SD31"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SD41"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SD41"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:RM1872"/>
+			<Translation x="-30.325*cm" y="0*fm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:RM1882"/>
+			<Translation x="-26.2622*cm" y="-15.1625*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:RM1892"/>
+			<Translation x="-15.1625*cm" y="-26.2622*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:RM1902"/>
+			<Translation x="0*fm" y="-30.325*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:90XD"/>
+			<Translation x="30.325*cm" y="0*fm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:RM1822"/>
+			<Translation x="26.2622*cm" y="15.1625*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:RM1832"/>
+			<Translation x="15.1625*cm" y="26.2622*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:RM1842"/>
+			<Translation x="0*fm" y="30.325*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:RM1852"/>
+			<Translation x="-15.1625*cm" y="26.2622*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:RM1862"/>
+			<Translation x="-26.2622*cm" y="15.1625*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:RM1912"/>
+			<Translation x="15.1625*cm" y="-26.2622*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SAD1"/>
+			<rRotation name="rotations:RM1922"/>
+			<Translation x="26.2622*cm" y="-15.1625*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SAD1"/>
+			<rChild name="tid:S0D1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SED1"/>
+			<rChild name="tid:S0D1"/>
+			<rRotation name="rotations:R180"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0D1"/>
+			<rChild name="tid:SXD1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-1*mm" z="-1.65*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SXD1"/>
+			<rChild name="tid:SCD1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0D1"/>
+			<rChild name="tid:SUD1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-1.1*mm" z="4.645*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0D1"/>
+			<rChild name="tid:SHD1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-1.1*mm" z="6.545*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:S0D1"/>
+			<rChild name="tid:SHD1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="1.1*mm" z="6.545*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0D1"/>
+			<rChild name="tid:S1D1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-600*mum" z="5.895*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:S0D1"/>
+			<rChild name="tid:S1D1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="600*mum" z="5.895*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0D1"/>
+			<rChild name="tid:S2D1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-550*mum" z="-1.9*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:S0D1"/>
+			<rChild name="tid:S2D1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="550*mum" z="-1.9*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S2D1"/>
+			<rChild name="tid:S3D1"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="4*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:S0D1"/>
+			<rChild name="tid:SYD1"/>
+			<rRotation name="rotations:G100"/>
+			<Translation x="0*fm" y="1*mm" z="-1.65*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SYD1"/>
+			<rChild name="tid:SCG1"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:S0D1"/>
+			<rChild name="tid:SVD1"/>
+			<rRotation name="rotations:9NYX"/>
+			<Translation x="5.6356*mm" y="1.1*mm" z="4.645*cm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1867"/>
+			<Translation x="-38.27*cm" y="10.2544*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1872"/>
+			<Translation x="-39.62*cm" y="0*fm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1877"/>
+			<Translation x="-38.27*cm" y="-10.2544*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1882"/>
+			<Translation x="-34.3119*cm" y="-19.81*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1887"/>
+			<Translation x="-28.0156*cm" y="-28.0156*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1892"/>
+			<Translation x="-19.81*cm" y="-34.3119*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1897"/>
+			<Translation x="-10.2544*cm" y="-38.27*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1902"/>
+			<Translation x="0*fm" y="-39.62*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:90XD"/>
+			<Translation x="39.62*cm" y="0*fm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1817"/>
+			<Translation x="38.27*cm" y="10.2544*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1822"/>
+			<Translation x="34.3119*cm" y="19.81*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1827"/>
+			<Translation x="28.0156*cm" y="28.0156*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1832"/>
+			<Translation x="19.81*cm" y="34.3119*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1837"/>
+			<Translation x="10.2544*cm" y="38.27*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1842"/>
+			<Translation x="0*fm" y="39.62*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1847"/>
+			<Translation x="-10.2544*cm" y="38.27*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1852"/>
+			<Translation x="-19.81*cm" y="34.3119*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1857"/>
+			<Translation x="-28.0156*cm" y="28.0156*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1862"/>
+			<Translation x="-34.3119*cm" y="19.81*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1907"/>
+			<Translation x="10.2544*cm" y="-38.27*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1912"/>
+			<Translation x="19.81*cm" y="-34.3119*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1917"/>
+			<Translation x="28.0156*cm" y="-28.0156*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1922"/>
+			<Translation x="34.3119*cm" y="-19.81*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S4D1"/>
+			<rRotation name="rotations:RM1927"/>
+			<Translation x="38.27*cm" y="-10.2544*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="43">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1865"/>
+			<Translation x="-21.5553*cm" y="17.4651*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="44">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1866"/>
+			<Translation x="-25.9029*cm" y="9.93494*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="45">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R165"/>
+			<Translation x="-34.9019*cm" y="12.199*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="46">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R165"/>
+			<Translation x="-36.3254*cm" y="6.88637*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="47">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1870"/>
+			<Translation x="-25.3411*cm" y="11.291*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="48">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1871"/>
+			<Translation x="-27.5916*cm" y="2.89226*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="49">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R180"/>
+			<Translation x="-36.87*cm" y="2.75*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="50">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R180"/>
+			<Translation x="-36.87*cm" y="-2.74999*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="51">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1875"/>
+			<Translation x="-27.4*cm" y="4.34752*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="52">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1876"/>
+			<Translation x="-27.4*cm" y="-4.34752*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="53">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R195"/>
+			<Translation x="-36.3254*cm" y="-6.88637*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="54">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R195"/>
+			<Translation x="-34.9019*cm" y="-12.1989*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="55">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1880"/>
+			<Translation x="-27.5916*cm" y="-2.89226*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="56">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1881"/>
+			<Translation x="-25.3411*cm" y="-11.291*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="57">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R210"/>
+			<Translation x="-33.3054*cm" y="-16.0534*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="58">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R210"/>
+			<Translation x="-30.5554*cm" y="-20.8166*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="59">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1885"/>
+			<Translation x="-25.9029*cm" y="-9.93494*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="60">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1886"/>
+			<Translation x="-21.5553*cm" y="-17.4651*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="61">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R225"/>
+			<Translation x="-28.0156*cm" y="-24.1265*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="62">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R225"/>
+			<Translation x="-24.1265*cm" y="-28.0156*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="63">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1890"/>
+			<Translation x="-22.4489*cm" y="-16.3006*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="64">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1891"/>
+			<Translation x="-16.3006*cm" y="-22.4489*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="65">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R240"/>
+			<Translation x="-20.8166*cm" y="-30.5554*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="66">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R240"/>
+			<Translation x="-16.0534*cm" y="-33.3054*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="67">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1895"/>
+			<Translation x="-17.4651*cm" y="-21.5553*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="68">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1896"/>
+			<Translation x="-9.93494*cm" y="-25.9029*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="69">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R255"/>
+			<Translation x="-12.199*cm" y="-34.9019*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="70">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R255"/>
+			<Translation x="-6.88636*cm" y="-36.3254*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="71">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1900"/>
+			<Translation x="-11.291*cm" y="-25.3411*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="72">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1901"/>
+			<Translation x="-2.89225*cm" y="-27.5916*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="73">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM718"/>
+			<Translation x="-2.75001*cm" y="-36.87*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="74">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM718"/>
+			<Translation x="2.75*cm" y="-36.87*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="36.87*cm" y="2.75*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="36.87*cm" y="-2.75*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1815"/>
+			<Translation x="27.4*cm" y="-4.34752*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1816"/>
+			<Translation x="27.4*cm" y="4.34752*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R015"/>
+			<Translation x="36.3254*cm" y="6.88636*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R015"/>
+			<Translation x="34.9019*cm" y="12.199*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1820"/>
+			<Translation x="27.5916*cm" y="2.89226*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1821"/>
+			<Translation x="25.3411*cm" y="11.291*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R030"/>
+			<Translation x="33.3054*cm" y="16.0534*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R030"/>
+			<Translation x="30.5554*cm" y="20.8166*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1825"/>
+			<Translation x="25.9029*cm" y="9.93494*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1826"/>
+			<Translation x="21.5553*cm" y="17.4651*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R045"/>
+			<Translation x="28.0156*cm" y="24.1265*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R045"/>
+			<Translation x="24.1265*cm" y="28.0156*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1830"/>
+			<Translation x="22.4489*cm" y="16.3006*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1831"/>
+			<Translation x="16.3006*cm" y="22.4489*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="39">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1860"/>
+			<Translation x="-16.3006*cm" y="22.4489*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R060"/>
+			<Translation x="20.8166*cm" y="30.5554*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R060"/>
+			<Translation x="16.0534*cm" y="33.3054*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1835"/>
+			<Translation x="17.4651*cm" y="21.5553*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1836"/>
+			<Translation x="9.93494*cm" y="25.9029*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R075"/>
+			<Translation x="12.199*cm" y="34.9019*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R075"/>
+			<Translation x="6.88636*cm" y="36.3254*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1840"/>
+			<Translation x="11.291*cm" y="25.3411*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1841"/>
+			<Translation x="2.89226*cm" y="27.5916*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R090"/>
+			<Translation x="2.75*cm" y="36.87*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R090"/>
+			<Translation x="-2.75*cm" y="36.87*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1845"/>
+			<Translation x="4.34752*cm" y="27.4*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1846"/>
+			<Translation x="-4.34752*cm" y="27.4*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="29">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R105"/>
+			<Translation x="-6.88636*cm" y="36.3254*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="30">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R105"/>
+			<Translation x="-12.199*cm" y="34.9019*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="31">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1850"/>
+			<Translation x="-2.89226*cm" y="27.5916*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="32">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1851"/>
+			<Translation x="-11.291*cm" y="25.3411*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="33">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R120"/>
+			<Translation x="-16.0534*cm" y="33.3054*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="34">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R120"/>
+			<Translation x="-20.8166*cm" y="30.5554*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="35">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1855"/>
+			<Translation x="-9.93494*cm" y="25.9029*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="36">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1856"/>
+			<Translation x="-17.4651*cm" y="21.5553*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="37">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R135"/>
+			<Translation x="-24.1265*cm" y="28.0156*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="38">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R135"/>
+			<Translation x="-28.0156*cm" y="24.1265*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="81">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM733"/>
+			<Translation x="16.0534*cm" y="-33.3054*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="82">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM733"/>
+			<Translation x="20.8166*cm" y="-30.5554*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="83">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1915"/>
+			<Translation x="9.93493*cm" y="-25.9029*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="40">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1861"/>
+			<Translation x="-22.4489*cm" y="16.3006*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="41">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R150"/>
+			<Translation x="-30.5554*cm" y="20.8166*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="42">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R150"/>
+			<Translation x="-33.3054*cm" y="16.0534*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="75">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1905"/>
+			<Translation x="-4.34753*cm" y="-27.4*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="76">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1906"/>
+			<Translation x="4.34753*cm" y="-27.4*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="77">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1908"/>
+			<Translation x="6.88636*cm" y="-36.3254*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="78">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1908"/>
+			<Translation x="12.199*cm" y="-34.9019*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="79">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1910"/>
+			<Translation x="2.89225*cm" y="-27.5916*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="80">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1911"/>
+			<Translation x="11.291*cm" y="-25.3411*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="84">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1916"/>
+			<Translation x="17.4651*cm" y="-21.5553*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="85">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1918"/>
+			<Translation x="24.1265*cm" y="-28.0156*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="86">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1918"/>
+			<Translation x="28.0156*cm" y="-24.1265*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="87">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1920"/>
+			<Translation x="16.3006*cm" y="-22.4489*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="88">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1921"/>
+			<Translation x="22.4489*cm" y="-16.3006*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="89">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM748"/>
+			<Translation x="30.5554*cm" y="-20.8166*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="90">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM748"/>
+			<Translation x="33.3054*cm" y="-16.0534*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="91">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1925"/>
+			<Translation x="21.5553*cm" y="-17.4651*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="92">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1926"/>
+			<Translation x="25.9029*cm" y="-9.93493*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="93">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1928"/>
+			<Translation x="34.9019*cm" y="-12.199*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="94">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1928"/>
+			<Translation x="36.3254*cm" y="-6.88636*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="95">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1930"/>
+			<Translation x="25.3411*cm" y="-11.291*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="96">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1931"/>
+			<Translation x="27.5916*cm" y="-2.89225*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="97">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="43.77*cm" y="-2.75*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="98">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="43.77*cm" y="2.75*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="99">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1941"/>
+			<Translation x="34*cm" y="-5.22751*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="100">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1942"/>
+			<Translation x="34*cm" y="5.22751*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="101">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R015"/>
+			<Translation x="42.9903*cm" y="8.67221*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="102">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R015"/>
+			<Translation x="41.5668*cm" y="13.9848*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="103">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1946"/>
+			<Translation x="34.1945*cm" y="3.75046*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="104">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1947"/>
+			<Translation x="31.4885*cm" y="13.8492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="105">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R030"/>
+			<Translation x="39.2809*cm" y="19.5034*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="106">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R030"/>
+			<Translation x="36.5309*cm" y="24.2666*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="107">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1951"/>
+			<Translation x="32.0586*cm" y="12.4728*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="108">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1952"/>
+			<Translation x="26.8311*cm" y="21.5272*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="109">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R045"/>
+			<Translation x="32.8946*cm" y="29.0055*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="110">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R045"/>
+			<Translation x="29.0055*cm" y="32.8946*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="111">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1956"/>
+			<Translation x="27.738*cm" y="20.3452*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="112">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1957"/>
+			<Translation x="20.3452*cm" y="27.738*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="135">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1986"/>
+			<Translation x="-20.3452*cm" y="27.738*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="113">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R060"/>
+			<Translation x="24.2666*cm" y="36.5309*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="114">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R060"/>
+			<Translation x="19.5034*cm" y="39.2809*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="115">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1961"/>
+			<Translation x="21.5272*cm" y="26.8311*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="116">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1962"/>
+			<Translation x="12.4728*cm" y="32.0586*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="117">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R075"/>
+			<Translation x="13.9848*cm" y="41.5668*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="118">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R075"/>
+			<Translation x="8.67221*cm" y="42.9903*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="119">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1966"/>
+			<Translation x="13.8492*cm" y="31.4885*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="120">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1967"/>
+			<Translation x="3.75046*cm" y="34.1945*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="121">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R090"/>
+			<Translation x="2.75*cm" y="43.77*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="122">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R090"/>
+			<Translation x="-2.75*cm" y="43.77*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="123">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1971"/>
+			<Translation x="5.22751*cm" y="34*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="124">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1972"/>
+			<Translation x="-5.22751*cm" y="34*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="125">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R105"/>
+			<Translation x="-8.67221*cm" y="42.9903*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="126">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R105"/>
+			<Translation x="-13.9848*cm" y="41.5668*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="127">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1976"/>
+			<Translation x="-3.75046*cm" y="34.1945*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="128">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1977"/>
+			<Translation x="-13.8492*cm" y="31.4885*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="129">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R120"/>
+			<Translation x="-19.5034*cm" y="39.2809*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="130">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R120"/>
+			<Translation x="-24.2666*cm" y="36.5309*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="131">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1981"/>
+			<Translation x="-12.4728*cm" y="32.0586*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="132">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1982"/>
+			<Translation x="-21.5272*cm" y="26.8311*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="133">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R135"/>
+			<Translation x="-29.0055*cm" y="32.8946*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="134">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R135"/>
+			<Translation x="-32.8946*cm" y="29.0055*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="177">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM733"/>
+			<Translation x="19.5034*cm" y="-39.2809*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="178">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM733"/>
+			<Translation x="24.2666*cm" y="-36.5309*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="179">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2041"/>
+			<Translation x="12.4728*cm" y="-32.0586*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="136">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1987"/>
+			<Translation x="-27.738*cm" y="20.3452*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="137">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R150"/>
+			<Translation x="-36.5309*cm" y="24.2666*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="138">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R150"/>
+			<Translation x="-39.2809*cm" y="19.5034*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="139">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1991"/>
+			<Translation x="-26.8311*cm" y="21.5272*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="140">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1992"/>
+			<Translation x="-32.0586*cm" y="12.4728*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="141">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R165"/>
+			<Translation x="-41.5668*cm" y="13.9848*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="142">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R165"/>
+			<Translation x="-42.9903*cm" y="8.67222*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="143">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1996"/>
+			<Translation x="-31.4885*cm" y="13.8492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="144">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1997"/>
+			<Translation x="-34.1945*cm" y="3.75046*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="145">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R180"/>
+			<Translation x="-43.77*cm" y="2.75*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="146">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R180"/>
+			<Translation x="-43.77*cm" y="-2.75*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="147">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2001"/>
+			<Translation x="-34*cm" y="5.22751*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="148">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2002"/>
+			<Translation x="-34*cm" y="-5.22751*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="149">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R195"/>
+			<Translation x="-42.9903*cm" y="-8.67221*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="150">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R195"/>
+			<Translation x="-41.5668*cm" y="-13.9848*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="151">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2006"/>
+			<Translation x="-34.1945*cm" y="-3.75046*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="152">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2007"/>
+			<Translation x="-31.4885*cm" y="-13.8492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="153">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R210"/>
+			<Translation x="-39.2809*cm" y="-19.5034*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="154">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R210"/>
+			<Translation x="-36.5309*cm" y="-24.2666*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="155">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2011"/>
+			<Translation x="-32.0586*cm" y="-12.4728*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="156">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2012"/>
+			<Translation x="-26.8311*cm" y="-21.5272*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="157">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R225"/>
+			<Translation x="-32.8946*cm" y="-29.0055*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="158">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R225"/>
+			<Translation x="-29.0055*cm" y="-32.8946*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="159">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2016"/>
+			<Translation x="-27.738*cm" y="-20.3452*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="160">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2017"/>
+			<Translation x="-20.3452*cm" y="-27.738*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="161">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R240"/>
+			<Translation x="-24.2666*cm" y="-36.5309*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="162">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R240"/>
+			<Translation x="-19.5034*cm" y="-39.2809*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="163">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2021"/>
+			<Translation x="-21.5272*cm" y="-26.8311*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="164">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2022"/>
+			<Translation x="-12.4728*cm" y="-32.0586*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="165">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R255"/>
+			<Translation x="-13.9848*cm" y="-41.5668*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="166">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R255"/>
+			<Translation x="-8.6722*cm" y="-42.9903*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="167">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2026"/>
+			<Translation x="-13.8492*cm" y="-31.4885*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="168">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2027"/>
+			<Translation x="-3.75047*cm" y="-34.1945*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="169">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM718"/>
+			<Translation x="-2.75001*cm" y="-43.77*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="170">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM718"/>
+			<Translation x="2.75001*cm" y="-43.77*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="171">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2031"/>
+			<Translation x="-5.2275*cm" y="-34*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="172">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2032"/>
+			<Translation x="5.2275*cm" y="-34*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="173">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1908"/>
+			<Translation x="8.6722*cm" y="-42.9903*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="174">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1908"/>
+			<Translation x="13.9848*cm" y="-41.5668*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="175">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2036"/>
+			<Translation x="3.75047*cm" y="-34.1945*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="176">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2037"/>
+			<Translation x="13.8492*cm" y="-31.4885*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="180">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2042"/>
+			<Translation x="21.5271*cm" y="-26.8311*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="181">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1918"/>
+			<Translation x="29.0055*cm" y="-32.8946*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="182">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1918"/>
+			<Translation x="32.8946*cm" y="-29.0055*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2046"/>
+			<Translation x="20.3452*cm" y="-27.738*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="184">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2047"/>
+			<Translation x="27.738*cm" y="-20.3452*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="185">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM748"/>
+			<Translation x="36.5309*cm" y="-24.2666*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="186">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM748"/>
+			<Translation x="39.2809*cm" y="-19.5034*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="187">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2051"/>
+			<Translation x="26.8311*cm" y="-21.5272*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="188">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2052"/>
+			<Translation x="32.0586*cm" y="-12.4729*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="189">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1928"/>
+			<Translation x="41.5668*cm" y="-13.9848*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="190">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1928"/>
+			<Translation x="42.9903*cm" y="-8.6722*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="191">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2056"/>
+			<Translation x="31.4885*cm" y="-13.8492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="192">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2057"/>
+			<Translation x="34.1945*cm" y="-3.75047*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="193">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="49.63*cm" y="-2.75*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="194">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="49.63*cm" y="2.75*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="195">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2067"/>
+			<Translation x="44.6*cm" y="-4.26873*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="196">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2068"/>
+			<Translation x="44.6*cm" y="4.26873*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="197">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2070"/>
+			<Translation x="49.4492*cm" y="5.0477*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="198">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2070"/>
+			<Translation x="48.5888*cm" y="10.48*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="199">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2072"/>
+			<Translation x="44.7187*cm" y="2.7608*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="200">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2073"/>
+			<Translation x="43.3831*cm" y="11.1932*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="201">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM592"/>
+			<Translation x="48.0507*cm" y="12.7211*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="202">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM592"/>
+			<Translation x="46.3511*cm" y="17.9519*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="203">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2077"/>
+			<Translation x="43.7362*cm" y="9.72235*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="204">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2078"/>
+			<Translation x="41.098*cm" y="17.842*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="205">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2080"/>
+			<Translation x="45.4691*cm" y="20.0813*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="206">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2080"/>
+			<Translation x="42.9722*cm" y="24.9818*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="207">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2082"/>
+			<Translation x="41.6768*cm" y="16.4445*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="208">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2083"/>
+			<Translation x="37.8009*cm" y="24.0514*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="231">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2112"/>
+			<Translation x="11.1932*cm" y="43.3831*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="209">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM601"/>
+			<Translation x="41.7679*cm" y="26.947*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="210">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM601"/>
+			<Translation x="38.5351*cm" y="31.3966*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="211">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2087"/>
+			<Translation x="38.5913*cm" y="22.7617*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="212">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2088"/>
+			<Translation x="33.5731*cm" y="29.6687*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="213">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R045"/>
+			<Translation x="37.0382*cm" y="33.1492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="214">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R045"/>
+			<Translation x="33.1492*cm" y="37.0382*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="215">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2092"/>
+			<Translation x="34.5554*cm" y="28.5185*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="216">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2093"/>
+			<Translation x="28.5185*cm" y="34.5554*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="217">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM610"/>
+			<Translation x="31.3966*cm" y="38.5351*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="218">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM610"/>
+			<Translation x="26.947*cm" y="41.7679*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="219">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2097"/>
+			<Translation x="29.6687*cm" y="33.5731*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="220">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2098"/>
+			<Translation x="22.7617*cm" y="38.5913*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="221">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2100"/>
+			<Translation x="24.9818*cm" y="42.9722*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="222">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2100"/>
+			<Translation x="20.0813*cm" y="45.4691*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="223">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2102"/>
+			<Translation x="24.0514*cm" y="37.8009*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="224">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2103"/>
+			<Translation x="16.4445*cm" y="41.6769*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="225">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM619"/>
+			<Translation x="17.9519*cm" y="46.3511*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="226">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM619"/>
+			<Translation x="12.7211*cm" y="48.0507*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="227">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2107"/>
+			<Translation x="17.842*cm" y="41.098*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="228">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2108"/>
+			<Translation x="9.72235*cm" y="43.7362*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="229">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2110"/>
+			<Translation x="10.48*cm" y="48.5888*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="230">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2110"/>
+			<Translation x="5.0477*cm" y="49.4492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="273">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R180"/>
+			<Translation x="-49.63*cm" y="2.75001*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="274">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R180"/>
+			<Translation x="-49.63*cm" y="-2.75*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="275">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2167"/>
+			<Translation x="-44.6*cm" y="4.26873*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="232">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2113"/>
+			<Translation x="2.7608*cm" y="44.7187*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="233">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R090"/>
+			<Translation x="2.75*cm" y="49.63*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="234">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R090"/>
+			<Translation x="-2.75*cm" y="49.63*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="235">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2117"/>
+			<Translation x="4.26873*cm" y="44.6*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="236">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2118"/>
+			<Translation x="-4.26873*cm" y="44.6*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="237">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2120"/>
+			<Translation x="-5.0477*cm" y="49.4492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="238">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2120"/>
+			<Translation x="-10.48*cm" y="48.5888*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="239">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2122"/>
+			<Translation x="-2.7608*cm" y="44.7187*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="240">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2123"/>
+			<Translation x="-11.1932*cm" y="43.3831*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="241">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM637"/>
+			<Translation x="-12.7211*cm" y="48.0507*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="242">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM637"/>
+			<Translation x="-17.9519*cm" y="46.3511*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="243">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2127"/>
+			<Translation x="-9.72235*cm" y="43.7362*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="244">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2128"/>
+			<Translation x="-17.842*cm" y="41.098*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="245">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2130"/>
+			<Translation x="-20.0813*cm" y="45.4691*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="246">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2130"/>
+			<Translation x="-24.9818*cm" y="42.9722*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="247">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2132"/>
+			<Translation x="-16.4445*cm" y="41.6769*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="248">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2133"/>
+			<Translation x="-24.0514*cm" y="37.8009*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="249">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM646"/>
+			<Translation x="-26.947*cm" y="41.7679*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="250">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM646"/>
+			<Translation x="-31.3966*cm" y="38.5351*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="251">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2137"/>
+			<Translation x="-22.7617*cm" y="38.5913*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="252">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2138"/>
+			<Translation x="-29.6687*cm" y="33.5731*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="253">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R135"/>
+			<Translation x="-33.1492*cm" y="37.0383*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="254">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R135"/>
+			<Translation x="-37.0383*cm" y="33.1492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="255">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2142"/>
+			<Translation x="-28.5185*cm" y="34.5554*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="256">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2143"/>
+			<Translation x="-34.5554*cm" y="28.5185*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="257">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM655"/>
+			<Translation x="-38.5351*cm" y="31.3966*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="258">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM655"/>
+			<Translation x="-41.7679*cm" y="26.947*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="259">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2147"/>
+			<Translation x="-33.5731*cm" y="29.6687*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="260">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2148"/>
+			<Translation x="-38.5913*cm" y="22.7617*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="261">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM579"/>
+			<Translation x="-42.9722*cm" y="24.9818*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="262">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM579"/>
+			<Translation x="-45.4691*cm" y="20.0813*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="263">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2152"/>
+			<Translation x="-37.8009*cm" y="24.0514*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="264">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2153"/>
+			<Translation x="-41.6769*cm" y="16.4445*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="265">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM664"/>
+			<Translation x="-46.3511*cm" y="17.9519*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="266">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM664"/>
+			<Translation x="-48.0507*cm" y="12.7211*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="267">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2157"/>
+			<Translation x="-41.098*cm" y="17.842*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="268">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2158"/>
+			<Translation x="-43.7362*cm" y="9.72235*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="269">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2160"/>
+			<Translation x="-48.5888*cm" y="10.48*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="270">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2160"/>
+			<Translation x="-49.4492*cm" y="5.0477*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="271">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2162"/>
+			<Translation x="-43.3831*cm" y="11.1932*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="272">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2163"/>
+			<Translation x="-44.7187*cm" y="2.7608*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="276">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2168"/>
+			<Translation x="-44.6*cm" y="-4.26873*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="277">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2170"/>
+			<Translation x="-49.4492*cm" y="-5.04769*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="278">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2170"/>
+			<Translation x="-48.5888*cm" y="-10.48*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="279">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2172"/>
+			<Translation x="-44.7187*cm" y="-2.7608*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="280">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2173"/>
+			<Translation x="-43.3831*cm" y="-11.1932*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="281">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM682"/>
+			<Translation x="-48.0507*cm" y="-12.7211*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="282">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM682"/>
+			<Translation x="-46.3511*cm" y="-17.9519*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="283">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2177"/>
+			<Translation x="-43.7362*cm" y="-9.72235*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="284">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2178"/>
+			<Translation x="-41.098*cm" y="-17.842*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="285">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2180"/>
+			<Translation x="-45.4691*cm" y="-20.0813*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="286">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2180"/>
+			<Translation x="-42.9722*cm" y="-24.9818*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="287">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2182"/>
+			<Translation x="-41.6769*cm" y="-16.4445*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="288">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2183"/>
+			<Translation x="-37.8009*cm" y="-24.0514*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="289">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM691"/>
+			<Translation x="-41.7679*cm" y="-26.947*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="290">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM691"/>
+			<Translation x="-38.5351*cm" y="-31.3966*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="291">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2187"/>
+			<Translation x="-38.5913*cm" y="-22.7617*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="292">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2188"/>
+			<Translation x="-33.5731*cm" y="-29.6687*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="293">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R225"/>
+			<Translation x="-37.0383*cm" y="-33.1492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="294">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:R225"/>
+			<Translation x="-33.1492*cm" y="-37.0383*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="295">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2192"/>
+			<Translation x="-34.5554*cm" y="-28.5185*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="296">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2193"/>
+			<Translation x="-28.5185*cm" y="-34.5554*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="297">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM700"/>
+			<Translation x="-31.3966*cm" y="-38.5351*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="298">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM700"/>
+			<Translation x="-26.947*cm" y="-41.7679*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="299">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2197"/>
+			<Translation x="-29.6687*cm" y="-33.5731*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="300">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2198"/>
+			<Translation x="-22.7617*cm" y="-38.5913*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="301">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2200"/>
+			<Translation x="-24.9818*cm" y="-42.9722*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="302">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2200"/>
+			<Translation x="-20.0813*cm" y="-45.4691*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="303">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2202"/>
+			<Translation x="-24.0514*cm" y="-37.8009*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="304">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2203"/>
+			<Translation x="-16.4445*cm" y="-41.6769*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="305">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM709"/>
+			<Translation x="-17.9519*cm" y="-46.3511*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="306">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM709"/>
+			<Translation x="-12.7211*cm" y="-48.0507*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="307">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2207"/>
+			<Translation x="-17.842*cm" y="-41.098*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="308">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2208"/>
+			<Translation x="-9.72237*cm" y="-43.7362*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="309">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2210"/>
+			<Translation x="-10.48*cm" y="-48.5888*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="310">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2210"/>
+			<Translation x="-5.04771*cm" y="-49.4492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="311">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2212"/>
+			<Translation x="-11.1932*cm" y="-43.3831*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="312">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2213"/>
+			<Translation x="-2.76081*cm" y="-44.7187*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="313">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM718"/>
+			<Translation x="-2.74999*cm" y="-49.63*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="314">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM718"/>
+			<Translation x="2.74999*cm" y="-49.63*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="315">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2217"/>
+			<Translation x="-4.26872*cm" y="-44.6*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="316">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2218"/>
+			<Translation x="4.26872*cm" y="-44.6*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="317">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2220"/>
+			<Translation x="5.04771*cm" y="-49.4492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="318">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2220"/>
+			<Translation x="10.48*cm" y="-48.5888*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="319">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2222"/>
+			<Translation x="2.76081*cm" y="-44.7187*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="320">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2223"/>
+			<Translation x="11.1931*cm" y="-43.3831*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="321">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM727"/>
+			<Translation x="12.7211*cm" y="-48.0507*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="322">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM727"/>
+			<Translation x="17.9519*cm" y="-46.3511*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="323">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2227"/>
+			<Translation x="9.72236*cm" y="-43.7362*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="324">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2228"/>
+			<Translation x="17.8419*cm" y="-41.098*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="325">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2230"/>
+			<Translation x="20.0813*cm" y="-45.4691*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="326">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2230"/>
+			<Translation x="24.9818*cm" y="-42.9722*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="327">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2232"/>
+			<Translation x="16.4445*cm" y="-41.6768*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="328">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2233"/>
+			<Translation x="24.0514*cm" y="-37.8009*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="329">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM736"/>
+			<Translation x="26.947*cm" y="-41.7679*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="330">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM736"/>
+			<Translation x="31.3966*cm" y="-38.5351*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="331">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2237"/>
+			<Translation x="22.7618*cm" y="-38.5912*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="332">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2238"/>
+			<Translation x="29.6687*cm" y="-33.5731*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="333">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1918"/>
+			<Translation x="33.1492*cm" y="-37.0382*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="334">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM1918"/>
+			<Translation x="37.0382*cm" y="-33.1492*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="335">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2242"/>
+			<Translation x="28.5185*cm" y="-34.5554*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="336">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2243"/>
+			<Translation x="34.5554*cm" y="-28.5185*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="337">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM745"/>
+			<Translation x="38.5351*cm" y="-31.3966*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="338">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM745"/>
+			<Translation x="41.7679*cm" y="-26.947*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="339">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2247"/>
+			<Translation x="33.5731*cm" y="-29.6687*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="340">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2248"/>
+			<Translation x="38.5912*cm" y="-22.7618*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="341">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM588"/>
+			<Translation x="42.9722*cm" y="-24.9818*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="342">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM588"/>
+			<Translation x="45.4691*cm" y="-20.0813*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="343">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2252"/>
+			<Translation x="37.8009*cm" y="-24.0514*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="344">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2253"/>
+			<Translation x="41.6768*cm" y="-16.4445*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="345">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM754"/>
+			<Translation x="46.3511*cm" y="-17.9519*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="346">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM754"/>
+			<Translation x="48.0507*cm" y="-12.7211*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="347">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2257"/>
+			<Translation x="41.098*cm" y="-17.842*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="348">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2258"/>
+			<Translation x="43.7362*cm" y="-9.72237*cm" z="-9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="349">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2260"/>
+			<Translation x="48.5888*cm" y="-10.48*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="350">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2260"/>
+			<Translation x="49.4492*cm" y="-5.04771*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="351">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2262"/>
+			<Translation x="43.3831*cm" y="-11.1931*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="352">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SOOL"/>
+			<rRotation name="rotations:RM2263"/>
+			<Translation x="44.7187*cm" y="-2.76082*cm" z="9.5*mm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1867"/>
+			<Translation x="-29.2917*cm" y="7.84869*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1877"/>
+			<Translation x="-29.2917*cm" y="-7.84869*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1887"/>
+			<Translation x="-21.443*cm" y="-21.443*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1897"/>
+			<Translation x="-7.84869*cm" y="-29.2917*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1817"/>
+			<Translation x="29.2917*cm" y="7.84869*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1827"/>
+			<Translation x="21.443*cm" y="21.443*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1837"/>
+			<Translation x="7.84869*cm" y="29.2917*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1847"/>
+			<Translation x="-7.84869*cm" y="29.2917*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1857"/>
+			<Translation x="-21.443*cm" y="21.443*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1907"/>
+			<Translation x="7.84869*cm" y="-29.2917*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1917"/>
+			<Translation x="21.443*cm" y="-21.443*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:SED1"/>
+			<rRotation name="rotations:RM1927"/>
+			<Translation x="29.2917*cm" y="-7.84869*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S5D1"/>
+			<rRotation name="rotations:R045"/>
+			<Translation x="-32.633*cm" y="32.633*cm" z="-4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S5D1"/>
+			<rRotation name="rotations:R060"/>
+			<Translation x="-39.9671*cm" y="23.075*cm" z="4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S5D1"/>
+			<rRotation name="rotations:R225"/>
+			<Translation x="32.633*cm" y="-32.633*cm" z="-4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFD1"/>
+			<rChild name="tid:S5D1"/>
+			<rRotation name="rotations:R240"/>
+			<Translation x="39.9671*cm" y="-23.075*cm" z="4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFWA"/>
+			<rChild name="tid:SFD2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="3.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFWB"/>
+			<rChild name="tid:SFD2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="3.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFWC"/>
+			<rChild name="tid:SFD2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="3.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SD12"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SD22"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SD22"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SD32"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SD32"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SD42"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SD42"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:90XD"/>
+			<Translation x="38.355*cm" y="0*fm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:RM1822"/>
+			<Translation x="33.2164*cm" y="19.1775*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:RM1832"/>
+			<Translation x="19.1775*cm" y="33.2164*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:RM1842"/>
+			<Translation x="0*fm" y="38.355*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:RM1852"/>
+			<Translation x="-19.1775*cm" y="33.2164*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:RM1862"/>
+			<Translation x="-33.2164*cm" y="19.1775*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:RM1872"/>
+			<Translation x="-38.355*cm" y="0*fm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:RM1882"/>
+			<Translation x="-33.2164*cm" y="-19.1775*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:RM1892"/>
+			<Translation x="-19.1775*cm" y="-33.2164*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:RM1902"/>
+			<Translation x="0*fm" y="-38.355*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:RM1912"/>
+			<Translation x="19.1775*cm" y="-33.2164*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SAD2"/>
+			<rRotation name="rotations:RM1922"/>
+			<Translation x="33.2164*cm" y="-19.1775*cm" z="-1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SAD2"/>
+			<rChild name="tid:S0D2"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SED2"/>
+			<rChild name="tid:S0D2"/>
+			<rRotation name="rotations:R180"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0D2"/>
+			<rChild name="tid:SXD2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-1*mm" z="-1.65*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SXD2"/>
+			<rChild name="tid:SCD2"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0D2"/>
+			<rChild name="tid:SUD2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-1.1*mm" z="3.515*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0D2"/>
+			<rChild name="tid:SHD2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-1.1*mm" z="5.415*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:S0D2"/>
+			<rChild name="tid:SHD2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="1.1*mm" z="5.415*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0D2"/>
+			<rChild name="tid:S1D2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-600*mum" z="4.765*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:S0D2"/>
+			<rChild name="tid:S1D2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="600*mum" z="4.765*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0D2"/>
+			<rChild name="tid:S2D2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-550*mum" z="-1.9*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:S0D2"/>
+			<rChild name="tid:S2D2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="550*mum" z="-1.9*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S2D2"/>
+			<rChild name="tid:S3D2"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="4*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:S0D2"/>
+			<rChild name="tid:SYD2"/>
+			<rRotation name="rotations:G100"/>
+			<Translation x="0*fm" y="1*mm" z="-1.65*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SYD2"/>
+			<rChild name="tid:SCG2"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:S0D2"/>
+			<rChild name="tid:SVD2"/>
+			<rRotation name="rotations:9NYX"/>
+			<Translation x="4.50748*mm" y="1.1*mm" z="3.515*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:90XD"/>
+			<Translation x="46.52*cm" y="0*fm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1817"/>
+			<Translation x="44.9349*cm" y="12.0403*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1822"/>
+			<Translation x="40.2875*cm" y="23.26*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1827"/>
+			<Translation x="32.8946*cm" y="32.8946*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1832"/>
+			<Translation x="23.26*cm" y="40.2875*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1837"/>
+			<Translation x="12.0403*cm" y="44.9349*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1842"/>
+			<Translation x="0*fm" y="46.52*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1847"/>
+			<Translation x="-12.0403*cm" y="44.9349*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1852"/>
+			<Translation x="-23.26*cm" y="40.2875*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1857"/>
+			<Translation x="-32.8946*cm" y="32.8946*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1862"/>
+			<Translation x="-40.2875*cm" y="23.26*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1867"/>
+			<Translation x="-44.9349*cm" y="12.0403*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1872"/>
+			<Translation x="-46.52*cm" y="0*fm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1877"/>
+			<Translation x="-44.9349*cm" y="-12.0403*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1882"/>
+			<Translation x="-40.2875*cm" y="-23.26*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1887"/>
+			<Translation x="-32.8946*cm" y="-32.8946*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1892"/>
+			<Translation x="-23.26*cm" y="-40.2875*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1897"/>
+			<Translation x="-12.0403*cm" y="-44.9349*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1902"/>
+			<Translation x="0*fm" y="-46.52*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1907"/>
+			<Translation x="12.0403*cm" y="-44.9349*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1912"/>
+			<Translation x="23.26*cm" y="-40.2875*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1917"/>
+			<Translation x="32.8946*cm" y="-32.8946*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1922"/>
+			<Translation x="40.2875*cm" y="-23.26*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S4D2"/>
+			<rRotation name="rotations:RM1927"/>
+			<Translation x="44.9349*cm" y="-12.0403*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1817"/>
+			<Translation x="37.0481*cm" y="9.927*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1827"/>
+			<Translation x="27.1211*cm" y="27.1211*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1837"/>
+			<Translation x="9.927*cm" y="37.0481*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1847"/>
+			<Translation x="-9.927*cm" y="37.0481*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1857"/>
+			<Translation x="-27.1211*cm" y="27.1211*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1867"/>
+			<Translation x="-37.0481*cm" y="9.92701*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1877"/>
+			<Translation x="-37.0481*cm" y="-9.927*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1887"/>
+			<Translation x="-27.1211*cm" y="-27.1211*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1897"/>
+			<Translation x="-9.92701*cm" y="-37.0481*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1907"/>
+			<Translation x="9.927*cm" y="-37.0481*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1917"/>
+			<Translation x="27.1211*cm" y="-27.1211*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:SED2"/>
+			<rRotation name="rotations:RM1927"/>
+			<Translation x="37.0481*cm" y="-9.92701*cm" z="1.365*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S5D2"/>
+			<rRotation name="rotations:R075"/>
+			<Translation x="-47.9389*cm" y="12.8452*cm" z="-4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S5D2"/>
+			<rRotation name="rotations:R090"/>
+			<Translation x="-49.63*cm" y="0*fm" z="4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S5D2"/>
+			<rRotation name="rotations:R255"/>
+			<Translation x="47.9389*cm" y="-12.8452*cm" z="-4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFD2"/>
+			<rChild name="tid:S5D2"/>
+			<rRotation name="rotations:RM718"/>
+			<Translation x="49.63*cm" y="0*fm" z="4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFWA"/>
+			<rChild name="tid:SFS3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-3.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFWB"/>
+			<rChild name="tid:SFS3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-3.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFWC"/>
+			<rChild name="tid:SFS3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-3.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SS13"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SS23"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SS23"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SS33"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SS33"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SS43"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SS43"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-6.1*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:90XD"/>
+			<Translation x="43.09*cm" y="0*fm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2074"/>
+			<Translation x="40.981*cm" y="13.3155*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2084"/>
+			<Translation x="34.8605*cm" y="25.3277*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2094"/>
+			<Translation x="25.3277*cm" y="34.8605*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2104"/>
+			<Translation x="13.3155*cm" y="40.981*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM1842"/>
+			<Translation x="0*fm" y="43.09*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2124"/>
+			<Translation x="-13.3155*cm" y="40.981*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2134"/>
+			<Translation x="-25.3277*cm" y="34.8605*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2144"/>
+			<Translation x="-34.8605*cm" y="25.3277*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2154"/>
+			<Translation x="-40.981*cm" y="13.3155*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM1872"/>
+			<Translation x="-43.09*cm" y="0*fm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2174"/>
+			<Translation x="-40.981*cm" y="-13.3155*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2184"/>
+			<Translation x="-34.8605*cm" y="-25.3277*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2194"/>
+			<Translation x="-25.3277*cm" y="-34.8605*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="29">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2204"/>
+			<Translation x="-13.3155*cm" y="-40.981*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="31">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM1902"/>
+			<Translation x="0*fm" y="-43.09*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="33">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2224"/>
+			<Translation x="13.3155*cm" y="-40.981*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="35">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2234"/>
+			<Translation x="25.3277*cm" y="-34.8605*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="37">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2244"/>
+			<Translation x="34.8605*cm" y="-25.3277*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="39">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SAS3"/>
+			<rRotation name="rotations:RM2254"/>
+			<Translation x="40.981*cm" y="-13.3155*cm" z="-1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SAS3"/>
+			<rChild name="tid:S0S3"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SES3"/>
+			<rChild name="tid:S0S3"/>
+			<rRotation name="rotations:R180"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0S3"/>
+			<rChild name="tid:SXS3"/>
+			<rRotation name="rotations:R180"/>
+			<Translation x="0*fm" y="-200*mum" z="1.65*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SXS3"/>
+			<rChild name="tid:SCS3"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0S3"/>
+			<rChild name="tid:SUS3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-300*mum" z="-4.64*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0S3"/>
+			<rChild name="tid:SHS3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-300*mum" z="-6.54*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0S3"/>
+			<rChild name="tid:S1S3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="200*mum" z="-5.89*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S0S3"/>
+			<rChild name="tid:S2S3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="250*mum" z="1.9*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:S2S3"/>
+			<rChild name="tid:S3S3"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-4*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:90XD"/>
+			<Translation x="33.8*cm" y="0*fm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2069"/>
+			<Translation x="33.3839*cm" y="5.28748*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2074"/>
+			<Translation x="32.1457*cm" y="10.4448*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2079"/>
+			<Translation x="30.116*cm" y="15.3449*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2084"/>
+			<Translation x="27.3448*cm" y="19.8671*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM1827"/>
+			<Translation x="23.9002*cm" y="23.9002*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2094"/>
+			<Translation x="19.8671*cm" y="27.3448*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2099"/>
+			<Translation x="15.3449*cm" y="30.116*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2104"/>
+			<Translation x="10.4448*cm" y="32.1457*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2109"/>
+			<Translation x="5.28749*cm" y="33.3839*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM1842"/>
+			<Translation x="0*fm" y="33.8*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2119"/>
+			<Translation x="-5.28748*cm" y="33.3839*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2124"/>
+			<Translation x="-10.4448*cm" y="32.1457*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2129"/>
+			<Translation x="-15.3449*cm" y="30.116*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2134"/>
+			<Translation x="-19.8671*cm" y="27.3448*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM1857"/>
+			<Translation x="-23.9002*cm" y="23.9002*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2144"/>
+			<Translation x="-27.3448*cm" y="19.8671*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2149"/>
+			<Translation x="-30.116*cm" y="15.3449*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="19">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2154"/>
+			<Translation x="-32.1457*cm" y="10.4448*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2159"/>
+			<Translation x="-33.3839*cm" y="5.28749*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM1872"/>
+			<Translation x="-33.8*cm" y="0*fm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2169"/>
+			<Translation x="-33.3839*cm" y="-5.28748*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2174"/>
+			<Translation x="-32.1457*cm" y="-10.4448*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2179"/>
+			<Translation x="-30.116*cm" y="-15.3449*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2184"/>
+			<Translation x="-27.3448*cm" y="-19.8671*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM1887"/>
+			<Translation x="-23.9002*cm" y="-23.9002*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2194"/>
+			<Translation x="-19.8671*cm" y="-27.3448*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2199"/>
+			<Translation x="-15.3449*cm" y="-30.116*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="29">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2204"/>
+			<Translation x="-10.4448*cm" y="-32.1457*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="30">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2209"/>
+			<Translation x="-5.28749*cm" y="-33.3839*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="31">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM1902"/>
+			<Translation x="0*fm" y="-33.8*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="32">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2219"/>
+			<Translation x="5.28748*cm" y="-33.3839*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="33">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2224"/>
+			<Translation x="10.4448*cm" y="-32.1457*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="34">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2229"/>
+			<Translation x="15.3449*cm" y="-30.116*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="35">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2234"/>
+			<Translation x="19.8671*cm" y="-27.3448*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="36">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM1917"/>
+			<Translation x="23.9002*cm" y="-23.9002*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="37">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2244"/>
+			<Translation x="27.3448*cm" y="-19.8671*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="38">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2249"/>
+			<Translation x="30.116*cm" y="-15.3449*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="39">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2254"/>
+			<Translation x="32.1457*cm" y="-10.4448*cm" z="-5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="40">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S4S3"/>
+			<rRotation name="rotations:RM2259"/>
+			<Translation x="33.3839*cm" y="-5.28749*cm" z="5.35*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2069"/>
+			<Translation x="42.5595*cm" y="6.74076*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2079"/>
+			<Translation x="38.3935*cm" y="19.5624*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM1827"/>
+			<Translation x="30.4692*cm" y="30.4692*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2099"/>
+			<Translation x="19.5625*cm" y="38.3935*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2109"/>
+			<Translation x="6.74076*cm" y="42.5595*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2119"/>
+			<Translation x="-6.74076*cm" y="42.5595*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2129"/>
+			<Translation x="-19.5624*cm" y="38.3935*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM1857"/>
+			<Translation x="-30.4692*cm" y="30.4692*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="18">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2149"/>
+			<Translation x="-38.3935*cm" y="19.5625*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="20">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2159"/>
+			<Translation x="-42.5595*cm" y="6.74076*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2169"/>
+			<Translation x="-42.5595*cm" y="-6.74076*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2179"/>
+			<Translation x="-38.3935*cm" y="-19.5624*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM1887"/>
+			<Translation x="-30.4692*cm" y="-30.4692*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2199"/>
+			<Translation x="-19.5625*cm" y="-38.3935*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="30">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2209"/>
+			<Translation x="-6.74076*cm" y="-42.5595*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="32">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2219"/>
+			<Translation x="6.74076*cm" y="-42.5595*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="34">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2229"/>
+			<Translation x="19.5624*cm" y="-38.3935*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="36">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM1917"/>
+			<Translation x="30.4692*cm" y="-30.4692*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="38">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2249"/>
+			<Translation x="38.3935*cm" y="-19.5625*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="40">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:SES3"/>
+			<rRotation name="rotations:RM2259"/>
+			<Translation x="42.5595*cm" y="-6.74076*cm" z="1.195*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S5S3"/>
+			<rRotation name="rotations:R010"/>
+			<Translation x="-7.49726*cm" y="42.5191*cm" z="-4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S5S3"/>
+			<rRotation name="rotations:RM2267"/>
+			<Translation x="-14.0564*cm" y="40.8228*cm" z="4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S5S3"/>
+			<rRotation name="rotations:R190"/>
+			<Translation x="7.49726*cm" y="-42.5191*cm" z="-4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFS3"/>
+			<rChild name="tid:S5S3"/>
+			<rRotation name="rotations:RM2269"/>
+			<Translation x="14.0564*cm" y="-40.8228*cm" z="4.3*mm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:TSFX"/>
+			<rChild name="tid:SFWB"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="-3*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:TSFX"/>
+			<rChild name="tid:SFWC"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="12*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:SVTX"/>
+			<rChild name="tid:SFSC"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trak:SVTX"/>
+			<rChild name="tid:SFSC"/>
+			<rRotation name="rotations:180D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM2264"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM1932"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM2058"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM2276"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM2277"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM2278"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM2265"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM1933"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM2059"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM2282"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM2283"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF01"/>
+			<rRotation name="rotations:RM2284"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM2058"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM2264"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM1932"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM2276"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM2277"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM2278"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM2265"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM1933"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM2059"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM2282"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM2283"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF02"/>
+			<rRotation name="rotations:RM2284"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM2264"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM1932"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM2058"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM2276"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM2277"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM2278"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM2265"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM1933"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM2059"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM2282"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM2283"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF03"/>
+			<rRotation name="rotations:RM2284"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM2264"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM1932"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM2058"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM2276"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM2277"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM2278"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM2265"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM1933"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM2059"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM2282"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM2283"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF04"/>
+			<rRotation name="rotations:RM2284"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM2264"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM1932"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM2058"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM2276"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM2277"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM2278"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM2265"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM1933"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM2059"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM2282"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM2283"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="tid:SFSC"/>
+			<rChild name="tid:SF05"/>
+			<rRotation name="rotations:RM2284"/>
+			<Translation x="0*fm" y="0*fm" z="2.0225*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:SVTX"/>
+			<rChild name="tid:SFSD"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="1.18*m"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trak:SVTX"/>
+			<rChild name="tid:SFSD"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-1.18*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trak:SVTX"/>
+			<rChild name="tid:SFSE"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="97.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trak:SVTX"/>
+			<rChild name="tid:SFSE"/>
+			<rRotation name="rotations:180D"/>
+			<Translation x="0*fm" y="0*fm" z="-97.5*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tid:SFSE"/>
+			<rChild name="tid:SFSF"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

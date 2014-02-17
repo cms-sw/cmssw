@@ -1,0 +1,12 @@
+Fitting with resolution, scale, bgr function # 30 23 0 - Iteration 0
+  Results of the fit: parameter 27 has value 1.00005+-4.96131e-05 + 0 - 0
+  Results of the fit: parameter 28 has value -0.000470175+-6.11962e-05 + 0 - 0
+  Results of the fit: parameter 29 has value 0.993755+-0.130813 + 0 - 0
+  Results of the fit: parameter 30 has value -0.00056359+-6.22414e-05 + 0 - 0
+  Results of the fit: parameter 31 has value 0.117607+-0.123786 + 0 - 0
+  Results of the fit: parameter 32 has value -0.000673051+-5.22398e-05 + -4.87667e-05 - 4.8097e-05
+  Results of the fit: parameter 33 has value 1.55464+-0.0849325 + -0.0786706 - 0.0769771
+  Results of the fit: parameter 34 has value -0.000851459+-5.24866e-05 + -4.89876e-05 - 4.93307e-05
+  Results of the fit: parameter 35 has value 0.329137+-0.0695882 + -0.0597516 - 0.0615099
+  Results of the fit: parameter 36 has value 0.665692+-0.0217718 + -0.0218749 - 0.0215431
+  Results of the fit: parameter 37 has value -7.61951e-05+-1.56165e-05 + -1.54399e-05 - 1.57105e-05

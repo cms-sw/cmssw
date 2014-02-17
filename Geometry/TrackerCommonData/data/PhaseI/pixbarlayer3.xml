@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="pixbarlayer3.xml" eval="true">
+ <Constant name="Ladders"           value="64"/> 
+ <Constant name="CoolDist"          value="16.0*cm"/>
+ <Constant name="CoolRadius"        value="0.0900*cm"/>
+ <Constant name="LadderOffset"        value="0.225*cm"/>
+ <Constant name="Cool1Offset"        value="0.9*cm"/>
+ <Constant name="Cool2Offset"        value="-0.1*cm"/>
+ <Constant name="OuterFirst"        value="1"/>
+</ConstantsSection>
+
+<Algorithm name="track:DDPixBarLayerUpgradeAlgo">
+  <rParent name="pixbarlayer3:PixelBarrelLayer3"/>
+  <String name="GeneralMaterial"   value="materials:Air"/>
+  <Numeric name="Ladders"          value="[pixbarlayer3:Ladders]"/>
+  <Numeric name="LayerDz"          value="[pixbarlayer:LayerDz]"/>
+  <Numeric name="CoolDz"           value="[pixbarlayer:CoolDz]"/>
+  <Numeric name="CoolThick"        value="[pixbarlayer:CoolThick]"/>
+  <Numeric name="CoolRadius"       value="[pixbarlayer3:CoolRadius]"/>
+  <Numeric name="CoolDist"         value="[pixbarlayer3:CoolDist]"/>
+  <Numeric name="Cool1Offset"         value="[pixbarlayer3:Cool1Offset]"/>
+  <Numeric name="Cool2Offset"         value="[pixbarlayer3:Cool2Offset]"/>
+  <String name="CoolMaterial"      value="materials:Bpix_CO2_-20C"/>
+  <String name="CoolTubeMaterial"  value="materials:Bpix_Pipe_Steel"/>
+  <String name="LadderName"        value="pixbarladderfull3:PixelBarrelLadderFull3"/>
+  <Numeric name="LadderWidth"      value="[pixbarladderfull3:LadderWidth]"/>
+  <Numeric name="LadderThick"      value="[pixbarladderfull3:LadderThick]"/>
+  <Numeric name="LadderOffset"      value="[pixbarlayer3:LadderOffset]"/>
+  <Numeric name="OuterFirst"       value="[pixbarlayer3:OuterFirst]"/>
+
+</Algorithm>
+
+</DDDefinition>

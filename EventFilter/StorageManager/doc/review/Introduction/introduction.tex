@@ -1,0 +1,31 @@
+% $Id: introduction.tex,v 1.5 2008/05/26 20:08:54 gbauer Exp $
+
+\section{\label{sec:intro}Introduction}
+
+The Large Hadron Collider (LHC) at CERN is scheduled to begin operation in 2008 
+and will deliver proton-proton collisions to the CMS detector at a center-of-mass energy 
+of up to 14~TeV and a crossing rate of 40~MHz. 
+This rate must be reduced significantly to comply with the limitations of the computing resources to process the collected data for physics analysis. 
+At the same time interesting physics signals must be triggered with high efficiency. 
+CMS uses a two level trigger system to reduce the rate to approximately 100~Hz. 
+The Level-1 trigger is based on custom hardware and designed to reduce the rate to about 100~kHz, corresponding to 100~GB/s, assuming an average event size of 1~MB. 
+The High Level Trigger (HLT) is purely software-based and  must achieve the remaining data reduction by executing quality algorithms with an average event processing time of 40~ms. 
+Events accepted by the HLT are send to the Storage Manager system, where they are organized in streams according to the specific physics content as identified by the HLT filter decision. 
+The HLT output rate is nominally expected to be 100-300~Hz and the event size 1-2.5~MB. 
+We therefore designed a system which is able to handle 1~GB/s throughput with a buffer of 3 days, 
+equivalent to 250~TB.
+Beside collecting event data, the Storage Manager is responsible for collection of Data Quality Monitoring (DQM) information produced in the HLT. 
+Events and DQM information are written to disk and a fraction of the information can be served to consumer clients. 
+The raw data files on disk are then moved to the Tier-0 computing center for further processing. 
+
+The primary functions of the Storage Manager are the following:
+\begin{itemize}
+\item Receive events from HLT,
+\item Write events to disks at up to 1~GB/s (baseline),
+\item Transport files to the Tier-0 at up to 1~GB/s,
+\item Buffer data to up to 3 days,
+\item Serve events and monitoring elements to online monitoring clients,
+\end{itemize}
+
+Recently, however, CMS management has recently decided upon some more aggressive throughput goals,
+and we will also discuss this upgraded SM. 

@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <!-- LAYER 3 EXT FW -->
+    <ConstantsSection label="tibstring2ur.xml" eval="true">
+        <Constant name="zero" value="0.0*fm"/>
+        <Constant name="FBSign" value="[tibstringpar:FWSign]"/>
+        <Constant name="IESign" value="[tibstringpar:EXT3Sign]"/>
+        <Constant name="MotherCableL" value="56.14*cm-2*[tibstringpar:MCHeadDz]"/>
+        <Constant name="ThisStringL" value="[tibstring2:StringUpPlsL]"/>
+        <Constant name="ThatStringL" value="[tibstringpar:StringL]-[ThisStringL]"/>
+        <Constant name="CoolL" value="0.5*[tibstringpar:StringL]-13.76*mm-2*[tibstringpar:CoolPipeDx]"/>
+        <Constant name="Det0Z" value="74.5760*mm"/>
+        <Constant name="Det1Z" value="301.441*mm"/>
+        <Constant name="Det2Z" value="527.901*mm"/>
+        <Constant name="ShiftDet" value="-[FBSign]*0.5*[ThatStringL]+[IESign]*[tibmodpar:WaferZ]"/>
+        <Constant name="ShiftAOHLedge" value="[ShiftDet]+[IESign]*([tibmodpar:ModuleDz]+[tibmodpar:AOHLedgeModOffset])"/>
+        <Constant name="ShiftAOHBox" value="[ShiftDet]+[IESign]*([tibmodpar:ModuleDz]+[tibmodpar:AOHBoxDz])"/>
+        <Constant name="ShiftMCModConn" value="[ShiftDet]+[IESign]*([tibmodpar:ModuleDz]+[tibstringpar:MCModConnOffset])"/>
+        <Constant name="MCHeadZ" value="[FBSign]*(0.5*[ThisStringL]-[tibstringpar:MCHeadDz])"/>
+        <Constant name="MCZ" value="[FBSign]*(0.5*[ThisStringL]-0.5*[MotherCableL]-2*[tibstringpar:MCHeadDz])"/>
+        <Constant name="CoolSZ" value="[FBSign]*(0.5*[ThisStringL]-0.5*[CoolL])"/>
+        <Constant name="CoolWZ" value="[FBSign]*([ThisStringL]/2-[CoolL]-[tibstringpar:CoolPipeDx])"/>
+    </ConstantsSection>
+    <SolidSection label="tibstring2ur.xml">
+        <Box name="TIBString2UpPlsCoolBox" dx="[tibstringpar:CoolBoxDx]" dy="[tibstringpar:CoolBoxDy]" dz="[ThisStringL]/2"/>
+        <Box name="TIBString2UpPlsModuleBox" dx="[tibmodpar:ModuleDx]" dy="[tibmodpar:SSModuleDy]" dz="[ThisStringL]/2"/>
+        <Box name="TIBString2UpPlsCableBox" dx="[tibstringpar:CableBoxDx]" dy="[tibstringpar:SSCableBoxDy]" dz="[ThisStringL]/2"/>
+        <UnionSolid name="TIBString2UpPlsModAndCool">
+            <rSolid name="TIBString2UpPlsModuleBox"/>
+            <rSolid name="TIBString2UpPlsCoolBox"/>
+            <Translation x="[zero]" y="[tibstringpar:SSCoolBoxY]" z="[zero]"/>
+        </UnionSolid>
+        <UnionSolid name="TIBString2UpPls">
+            <rSolid name="TIBString2UpPlsModAndCool"/>
+            <rSolid name="TIBString2UpPlsCableBox"/>
+            <Translation x="[zero]" y="[tibstringpar:SSCableBoxY]" z="[zero]"/>
+        </UnionSolid>
+        <Box name="TIBString2UpPlsCable" dx="[tibstringpar:MotherCableW]/2" dy="[tibstringpar:MotherCableT]/2" dz="[MotherCableL]/2"/>
+        <Box name="TIBString2UpPlsCoolS" dx="[tibstringpar:CoolPipeDx]" dy="[tibstringpar:CoolPipeDy]" dz="[CoolL]/2"/>
+        <Box name="TIBString2UpPlsCoolW" dx="[tibstringpar:CoolPipeX]+[tibstringpar:CoolPipeDx]" dy="[tibstringpar:CoolPipeDy]" dz="[tibstringpar:CoolPipeDx]"/>
+    </SolidSection>
+    <LogicalPartSection label="tibstring2ur.xml">
+        <LogicalPart name="TIBString2UpPls1" category="unspecified">
+            <rSolid name="TIBString2UpPls"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="TIBString2UpPlsCable" category="unspecified">
+            <rSolid name="TIBString2UpPlsCable"/>
+            <rMaterial name="tibmaterial:TIB_MCable"/>
+        </LogicalPart>
+        <LogicalPart name="TIBString2UpPlsCoolS" category="unspecified">
+            <rSolid name="TIBString2UpPlsCoolS"/>
+            <rMaterial name="tibmaterial:TIB_CoolPipe"/>
+        </LogicalPart>
+        <LogicalPart name="TIBString2UpPlsCoolW" category="unspecified">
+            <rSolid name="TIBString2UpPlsCoolW"/>
+            <rMaterial name="tibmaterial:TIB_CoolPipe"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <Algorithm name="track:DDTrackerZPosAlgo">
+        <rParent name="tibstring2ur:TIBString2UpPls1"/>
+        <String name="ChildName" value="tibmodule2:TIBModule2"/>
+        <Numeric name="StartCopyNo" value="1"/>
+        <Numeric name="IncrCopyNo" value="1"/>
+        <Vector name="ZPositions" type="numeric" nEntries="3">
+            ([Det0Z]+[ShiftDet]), ([Det1Z]+[ShiftDet]), ([Det2Z]+[ShiftDet]) </Vector>
+        <Vector name="Rotations" type="string" nEntries="3">
+            tibstringpar:180D, tibstringpar:180D, tibstringpar:180D</Vector>
+    </Algorithm>
+    <PosPartSection label="tibstring2ur.xml">
+        <PosPart copyNumber="1">
+            <rParent name="tibstring2ur:TIBString2UpPls1"/>
+            <rChild name="tibstringpar:MCHead"/>
+            <Translation x="[tibstringpar:MCHeadX]" y="[tibstringpar:SSMCHeadY]" z="[MCHeadZ]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="tibstring2ur:TIBString2UpPls1"/>
+            <rChild name="tibstring2ur:TIBString2UpPlsCable"/>
+            <Translation x="[tibstringpar:MotherCableX]" y="[tibstringpar:SSMotherCableY]" z="[MCZ]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="tibstring2ur:TIBString2UpPls1"/>
+            <rChild name="tibstring2ur:TIBString2UpPlsCoolS"/>
+            <Translation x="-[tibstringpar:CoolPipeX]" y="[tibstringpar:SSCoolPipeY]" z="[CoolSZ]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="tibstring2ur:TIBString2UpPls1"/>
+            <rChild name="tibstring2ur:TIBString2UpPlsCoolS"/>
+            <Translation x="[tibstringpar:CoolPipeX]" y="[tibstringpar:SSCoolPipeY]" z="[CoolSZ]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="tibstring2ur:TIBString2UpPls1"/>
+            <rChild name="tibstring2ur:TIBString2UpPlsCoolW"/>
+            <Translation x="[zero]" y="[tibstringpar:SSCoolPipeY]" z="[CoolWZ]"/>
+        </PosPart>
+    </PosPartSection>
+    <Algorithm name="track:DDTrackerXYZPosAlgo">
+        <rParent name="tibstring2ur:TIBString2UpPls1"/>
+        <String name="ChildName" value="tibmodpar:TIBModLedgeBox"/>
+        <Numeric name="StartCopyNo" value="1"/>
+        <Numeric name="IncrCopyNo" value="1"/>
+        <Vector name="XPositions" type="numeric" nEntries="3">
+            [zero], [zero], [zero]</Vector>
+        <Vector name="YPositions" type="numeric" nEntries="3">
+            [tibmodpar:SSLedgeBoxY], [tibmodpar:SSLedgeBoxY], [tibmodpar:SSLedgeBoxY]</Vector>
+        <Vector name="ZPositions" type="numeric" nEntries="3">
+            ([Det0Z]+[ShiftDet]), ([Det1Z]+[ShiftDet]), ([Det2Z]+[ShiftDet]) </Vector>
+        <Vector name="Rotations" type="string" nEntries="3">
+            tibstringpar:180D, tibstringpar:180D, tibstringpar:180D</Vector>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerXYZPosAlgo">
+        <rParent name="tibstring2ur:TIBString2UpPls1"/>
+        <String name="ChildName" value="tibmodpar:TIBAOHLedge"/>
+        <Numeric name="StartCopyNo" value="1"/>
+        <Numeric name="IncrCopyNo" value="1"/>
+        <Vector name="XPositions" type="numeric" nEntries="3">
+            [zero], [zero], [zero]</Vector>
+        <Vector name="YPositions" type="numeric" nEntries="3">
+            [tibmodpar:SSLedgeBoxY], [tibmodpar:SSLedgeBoxY], [tibmodpar:SSLedgeBoxY]</Vector>
+        <Vector name="ZPositions" type="numeric" nEntries="3">
+            ([Det0Z]+[ShiftAOHLedge]), ([Det1Z]+[ShiftAOHLedge]), ([Det2Z]+[ShiftAOHLedge]) </Vector>
+        <Vector name="Rotations" type="string" nEntries="3">
+            tibstringpar:NULL, tibstringpar:NULL, tibstringpar:NULL</Vector>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerXYZPosAlgo">
+        <rParent name="tibstring2ur:TIBString2UpPls1"/>
+        <String name="ChildName" value="tibmodpar:TIBSSAOHBox"/>
+        <Numeric name="StartCopyNo" value="1"/>
+        <Numeric name="IncrCopyNo" value="1"/>
+        <Vector name="XPositions" type="numeric" nEntries="3">
+            [tibmodpar:SSAOHBoxX], [tibmodpar:SSAOHBoxX], [tibmodpar:SSAOHBoxX]</Vector>
+        <Vector name="YPositions" type="numeric" nEntries="3">
+            [tibmodpar:SSAOHBoxY], [tibmodpar:SSAOHBoxY], [tibmodpar:SSAOHBoxY]</Vector>
+        <Vector name="ZPositions" type="numeric" nEntries="3">
+            ([Det0Z]+[ShiftAOHBox]), ([Det1Z]+[ShiftAOHBox]), ([Det2Z]+[ShiftAOHBox]) </Vector>
+        <Vector name="Rotations" type="string" nEntries="3">
+            tibstringpar:180D, tibstringpar:180D, tibstringpar:180D</Vector>
+    </Algorithm>
+    <Algorithm name="track:DDTrackerXYZPosAlgo">
+        <rParent name="tibstring2ur:TIBString2UpPls1"/>
+        <String name="ChildName" value="tibstringpar:SSMCModConn"/>
+        <Numeric name="StartCopyNo" value="1"/>
+        <Numeric name="IncrCopyNo" value="1"/>
+        <Vector name="XPositions" type="numeric" nEntries="3">
+            [tibstringpar:MCModConnX], [tibstringpar:MCModConnX], [tibstringpar:MCModConnX]</Vector>
+        <Vector name="YPositions" type="numeric" nEntries="3">
+            [tibstringpar:SSMCModConnY], [tibstringpar:SSMCModConnY], [tibstringpar:SSMCModConnY]</Vector>
+        <Vector name="ZPositions" type="numeric" nEntries="3">
+            ([Det0Z]+[ShiftMCModConn]), ([Det1Z]+[ShiftMCModConn]), ([Det2Z]+[ShiftMCModConn]) </Vector>
+        <Vector name="Rotations" type="string" nEntries="3">
+            tibstringpar:NULL, tibstringpar:NULL, tibstringpar:NULL</Vector>
+    </Algorithm>
+</DDDefinition>

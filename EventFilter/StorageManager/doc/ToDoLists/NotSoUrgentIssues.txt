@@ -1,0 +1,53 @@
+// $Id: NotSoUrgentIssues.txt,v 1.3 2009/06/10 15:22:14 dshpakov Exp $
+
+This file shall collect items which should be addressed at some point
+during the re-factoring process, but which are not urgent or not
+possible to be done now.
+
+
+- Doxygen documentation for StateMachine
+The current comments are not recognized by doxygen. In addition, the
+methods should be documented, too.
+
+
+- Improve handling of XMLString in XHTMLMaker (from Marc):
+There is one that is both repeated many times and is ugly: the XMLCh
+pointer returned by a call to XMLString::transcode (called from _xs)
+must be given to XMLString::release when one is done using it. This is
+a terrible interface, and unfortunately means one must litter code
+with calls to XMLString::release, or one must make a helper class to
+handle it automatically. My first attempt to do so failed because of
+the circular conversions that seemed to be needed. Perhaps with a more
+rested brain, some cleaner solution will become obvious. But for now,
+the code works in the way Dennis designed it to work, and the tests
+pass, and valgrind raised no (Xerces-C++ related) complaints.  
+
+
+- Move to XDAQ_INSTANTIATOR macros (see bottom of StorageManager.cc)
+This will break backwards compatibility as the configuration(s) need to
+be changed.
+
+
+- Use caching for web pages?
+Idea from Dennis: do not regenerate the web page for each request, but
+employ some caching. Need to find balance btw overhead to create the
+webpage and the requirement to have current data.
+
+
+- Consider to use boost::unordered_map instead of std::map
+This will be available from boost 1.38 onwards. unordered_map is the
+upcoming Standard's name for a hashmap.
+
+
+- Include more information in the consumer registration message or
+data inside the SM (e.g. initial run number) so that we can definitively
+tell a consumer that it should disconnect and reregister because its
+registration is stale (or has been reused).
+
+
+- Move consumer registration data out of the serialized parameter set
+and into the registration message so that we aren't bothered by which
+parameters are tracked and untracked.
+
+
+- Replace sprintf calls in various files with the C++ way.

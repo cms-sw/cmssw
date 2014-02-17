@@ -1,0 +1,19 @@
+// Changed the number of the resolution from 8 to 9 to test the parser
+Fitting with resolution, scale, bgr function # 8 14 2 - Iteration 0
+  Results of the fit: parameter 11 has value 1.01642+-0.000250146
+  Results of the fit: parameter 12 has value -0.000373666+-5.51494e-06
+  Results of the fit: parameter 13 has value -0.00133924+-0.000573485
+  Results of the fit: parameter 14 has value -0.00257868+-0.000550932
+  Results of the fit: parameter 15 has value 0.000342598+-0.000179935
+  Results of the fit: parameter 16 has value 0+-0
+  Results of the fit: parameter 17 has value 0+-0
+  Results of the fit: parameter 18 has value 0+-0
+Fitting with resolution, scale, bgr function # 8 14 2 - Iteration 1
+  Results of the fit: parameter 11 has value 0.999265+-0.000256081
+  Results of the fit: parameter 12 has value -3.78327e-06+-5.76294e-06
+  Results of the fit: parameter 13 has value 0.00492894+-0.00023782
+  Results of the fit: parameter 14 has value -0.00563188+-0.000144471
+  Results of the fit: parameter 15 has value 0.00167483+-6.37812e-05
+  Results of the fit: parameter 16 has value 0+-0
+  Results of the fit: parameter 17 has value 0+-0
+  Results of the fit: parameter 18 has value 0+-0

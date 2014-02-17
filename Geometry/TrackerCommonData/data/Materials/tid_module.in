@@ -1,0 +1,136 @@
+TID MODULES
+============
+
+$$  This includes all the volumes that make up the TID modules
+$$  as well as the electronics !
+
+
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, type
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+
+o Cooling insert 
+  --------------
+
+MC Volume:  21 mm^3 (average of the MCVolume of the inserts for DS and SS modules)
+            [WAS: 1.5 X 0.8 X 0.38 cm^3 ==> 0.456 cm^3]
+
+
+This mainly Aluminium, and not much known about it yet...
+
+20070920 EM
+Actual physical volume (in mm): 9 x 13 x 4 (box) - 9 x pi/2 x (3.5/2)^2 (half-hole)= 468 mm^3- 43 mm^3 = 425 mm^3  
+
+Make it 100 % Aluminium but scale the actual physical volume
+to a smaller volume (210 mm^3) to get the right mass in the available volume
+.......................................................................
+# "TID module cooling inserts"   "TID_CoolInsert"  0.210     -1
+* 1 "Aluminium insert"            "Aluminium"       0.425      1   SUP
+.......................................................................
+=======================================================================
+
+o TID HV kapton 
+  -------------
+
+20071013 GSguazzoni
+
+MCVolume: 40cm^2*0.3mm = 1.2 cm^3
+
+(1) Kapton thickness 120 micron
+(2) Copper traces and pad estimated 2.45cm^2 
+(3) SMD resistors
+(4) SMD capacitors (~0.2g)
+(5) Silicon sensor siliconic glue (0.5g)
+(6) Module aluminum fixings 
+(7) Stainless stell screws
+               
+......................................................................
+# "TID KaptonHV"            "T_TIDModKaptonBox"     1.20000   -1.
+* 1 "Kapton"                "T_Kapton"              0.01200   40   ELE
+* 2 "Copper"                "Copper"                0.00038   2.45 ELE
+* 3 "Resistors"             "Ceramic"               0.00320    1   ELE
+* 4 "Capacitors"            "Barium_Titanate"       0.01661    2   ELE
+* 5 "Glue"                  "Silicone_Gel"          0.51813    1   SUP
+* 6 "Inserts"               "Aluminium"             0.00926    2   SUP
+* 7 "Screws"                "Iron"                  0.00381    2   SUP
+......................................................................
+======================================================================
+
+o TID DS Module Spacers
+  ---------------------
+
+20070919  EM 
+
+MCVolume: 1.*1.*0.050 cm^3
+
+Volumes per cm2
+
+......................................................................
+# "DS Module Spacer per cm2" "TID_Spacer"          0.05000   -1.
+* 1 "Alumina"              "Alumina"               0.03800    1  SUP
+* 2 "Glue"                 "Epoxy"                 0.01200    1  SUP
+......................................................................
+
+
+o TID SS Module AOH box  
+  ---------------------
+
+20070919  EM 
+
+(1-7) from TIB, in addition piece of cooling pipe !
+
+MCVolume: 2.7cm*2.8cm*0.6cm = 4.536 cm^3
+
+(1)   AOH
+(2-5) Hybrid AOH tail + connector + stiffner 
+(6)   Hybrid LV tail (no connector)
+(8)   Piece of cooling pipe, approx. length 2.8 cm 
+      Aluminium  3.5mm OD, 2.8 mm ID
+      Coolant      C6F14 -30
+      Only the radial piece included (the circular piece is accounted in the cooling ring)
+
+      Missing the aluminium of the "C" piece.
+
+......................................................................
+# "TIDSSAOHBox"            "TID_SSAOHBox"           4.536     -1.
+* 1 "AOH"                  "TIBTID_AOH"             3.45000    1  ELE
+* 2 "NAIS Conn case"       "Polyethylene"           0.16842    1  ELE
+* 3 "NAIS Conn pins"       "T_Bronze"               0.01237    1  ELE
+* 4 "Stiffner"             "T_FR4"                  0.11176    1  ELE
+* 5 "AOH tail"             "TIBTID_HybridTails"     0.01860 3.66  ELE
+* 6 "LV tail"              "TIBTID_HybridTails"     0.01860 2.94  ELE
+* 7 "Screws"               "Iron"                   0.00381    2  SUP
+* 8 "Cooling pipe 2.8 cm"  "TID_CoolPipe"           0.0962   2.8  COL
+......................................................................
+======================================================================
+
+o TID DS Module AOH box  
+  ---------------------
+
+20070919 EM
+
+MCVolume: 2.7cm*5.6cm*0.6cm = 9.072 cm^3
+              
+......................................................................
+# "TIDDSAOHBox"            "TID_DSAOHBox"          9.072   -1.
+* 1 "2x SS AOH Box"        "TID_SSAOHBox"          4.536    2  ELE
+......................................................................
+======================================================================
+
+# "END"  "END"  0.  0.   
+this has to be the last line !

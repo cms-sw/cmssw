@@ -1,0 +1,2 @@
+{1 JetEta 1 JetPt [0]+[1]*pow(x/500.0,[2]) Correction L3Absolute}
+-2.5        2.5         5           4           500         1.72318     1.08809     2.76737     

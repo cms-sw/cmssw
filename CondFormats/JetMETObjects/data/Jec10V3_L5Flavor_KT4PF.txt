@@ -1,0 +1,34 @@
+# L5 flavor corrections for IC5 algorithm
+# [gJ] (gluons from diJet mixture)
+# [qJ] (uds quarks from diJet mixture)
+# [cJ] (c quark from diJet mixture)
+# [bJ] (b quark from diJet mixture)
+# [gT] (gluons from ttbar events)
+# [qT] (uds quarks from ttbar events)
+# [cT] (c quark from ttbar events)
+# [bT] (b quark from ttbar events)
+# placeholder flavor corrections for PFJets
+[bJ]
+{1  JetEta  1   JetPt  [0] Correction L5Flavor}
+  -999    999          3          1   3500     1.0
+[cJ]
+{1  JetEta  1   JetPt  [0] Correction L5Flavor}
+  -999    999          3          1   3500     1.0
+[qJ]
+{1  JetEta  1   JetPt  [0] Correction L5Flavor}
+  -999    999          3          1   3500     1.0
+[gJ]
+{1  JetEta  1   JetPt  [0] Correction L5Flavor}
+  -999    999          3          1   3500     1.0
+[bT]
+{1  JetEta  1   JetPt  [0] Correction L5Flavor}
+  -999    999          3          1   3500     1.0
+[cT]
+{1  JetEta  1   JetPt  [0] Correction L5Flavor}
+  -999    999          3          1   3500     1.0
+[qT]
+{1  JetEta  1   JetPt  [0] Correction L5Flavor}
+  -999    999          3          1   3500     1.0
+[gT]
+{1  JetEta  1   JetPt  [0] Correction L5Flavor}
+  -999    999          3          1   3500     1.0

@@ -1,0 +1,82 @@
+
+/*!
+
+\page EventFilter_StorageManager Package EventFilter/StorageManager
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/StorageManager/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/StorageManager/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+The XDAQ application StorageManager is provided by this package.
+
+The architecture of the Filter Farm is described <a
+href="https://twiki.cern.ch/twiki/bin/view/CMS/FilterUnitDesign">here</a>.
+
+The StorageManager application is documented <a
+href="https://twiki.cern.ch/twiki/bin/view/CMS/FilterUnitOutputHandling">here</a>.
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- stor::StorageManager
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+The StorageManager package defines 2 modules:
+- EventStreamHttpReader: Input source for event consumers to get events from the
+    Storage Manager or SMProxyServer Event Server.
+- DQMHttpSource: An input source for DQM consumers to get DQM histograms from the
+    StorageManager or SMProxyServer.
+
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+
+The following unit tests are provided in the test/ directory:
+- CommandQueue_t: tests the internal command queue
+- ConcurrentQueue_t: test of the generic queue template used in the SM
+- ConsumerID_t: test of consumer ID
+- ConsumerRegistrationInfo_t: test of the consumer registration
+- DiskWriter_t: test of disk-writing thread
+- EnquingPolicyTag_t: test of the enqueuing policy
+- MockNotifier_t: test for the RCMS notifier mockup used in the unit tests
+- EventDistributor_t: test of the event distributor
+- EventQueueCollection_t: test of the collection of event queues used for the consumers
+- ExpirableQueue_t: test of the ExpirableQueue template
+- FragmentStore_t: test of the event fragment store
+- I2OChain_t: test of the I2OChain used to handle I2O event fragments
+- InitMsgCollection_t: test of the collection of INIT messages
+- MonitoredQuantity_t: test for monitoring infrastructure
+- QueueID_t: test of QueueID
+- ResourceMonitorCollection_t: test of monitoring of resources
+- Sleep_t: test of facilities for various sleep periods
+- StreamQueue_t: test of the queue used to write events
+- Time_t: test of time retrieval
+- TriggerSelector_t:
+- state_machine_t: test of the SM state machine
+- xhtmlmaker_t: test of HTML page generation
+
+
+In addition, a stand-alone 'demoSystem' is found in the test/demoSystem directory.
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+
+stable
+
+
+<hr>
+Last updated:
+@DATE@  Author: <a href="mailto:remigius.mommsen@cern.ch">Remi Mommsen</a>
+*/
+

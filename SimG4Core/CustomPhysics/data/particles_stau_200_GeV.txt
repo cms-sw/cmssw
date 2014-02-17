@@ -1,0 +1,5 @@
+Block MASS   #
+#  PDG code   mass                 particle
+        1000015    200.866  #  tau1
+        -1000015    200.866  #  tau1bar
+Block       

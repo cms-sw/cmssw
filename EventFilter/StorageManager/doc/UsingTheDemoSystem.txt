@@ -1,0 +1,158 @@
+INTRODUCTION
+------------
+
+The demoSystem provides a way to run stand-alone storage manager tests
+(using an AutoBU process to generate events).  
+
+It has the following features:
+   * runnable from either bash or csh
+   * configurable number of filter units (1 to 8)
+   * separate XDAQ processes for each of the following:  BU/RB, SM,
+     FUEventProcessors, ProxyServer, XDAQ Consumer.
+   * configurable small or large HLT configuration
+   * aliases to start event consumers connected to either the Storage Manager
+     or the Proxy Server
+   * aliases to start DQM consumers connected to either the Storage Manager
+     or the Proxy Server
+   * ability to easily switch between hosts (when one file server is used for
+     a cluster of PCs)
+   * support for multiple developers to run on the same host (although the CPU
+     could get bogged down, of course)
+
+
+BUILDING THE PACKAGES NEEDEDED FOR THE DEMO SYSTEM
+--------------------------------------------------
+
+If you already have a CMSSW project area, then you can use the following
+steps to build the packages that are needed by the demoSystem:
+   * 'cd <yourProjectArea>/src'
+   * 'cvs co -r <desiredSMBranchOrTag> EventFilter/StorageManager', if not
+     already done, where <desiredSMBranchOrTag> could be
+     refdev01_scratch_branch or CMSSW_3_0_0_pre7 or some other choice
+   * 'cvs co -r <releaseTag> EventFilter/AutoBU', if not already done
+   * 'cvs co -r <releaseTag> EventFilter/ResourceBroker', if not already done
+   * 'cvs co -r <releaseTag> EventFilter/Processor', if not already done
+   * 'cvs co -r <releaseTag> EventFilter/SMProxyServer', if not already done
+   * 'scramv1 b'
+
+
+RUNNING THE DEMO SYSTEM
+-----------------------
+
+First-time steps:
+   * 'cd <yourProjectArea>/src/EventFilter/StorageManager/test/'
+   * decide on a base port number for your demo system, and configure the
+     system to use that port number (and the current host). In order for
+     multiple developers to use the same host for running demo systems, they
+     must use different TCPIP ports for the XDAQ processes and different files
+     as the basis for the shared memory keys. The shared memory key file is
+     set up by the testSetup script mentioned later. Using different TCPIP
+     ports is as simple as choosing a range that no one else is using
+     (e.g. 45000 - 46999) and configuring the demo system to use that
+     range. Please use the following steps to configure the hostname, port
+     number, and configuration file type:
+      * './configureHosts.sh -h' to see the command arguments that the script
+        expects 
+      * './configureHosts.sh <yourBasePortNumber>' (hostname is
+        defaulted to the current host)
+
+To start the system:
+   * 'cd <yourProjectArea>/src/EventFilter/StorageManager/test/'
+   * 'source testSetup.sh' or 'source testSetup.csh' depending on whether
+     you use bash or csh
+   * 'startEverything' (this starts the XDAQ executables and drives the system
+     through Configure and Enable transitions)
+
+To verify that events are flowing through the system:
+   * 'cd <yourProjectArea>/src/EventFilter/StorageManager/test/'
+   * 'source testSetup.sh' or 'source testSetup.csh' (if not already done)
+   * 'startConsumer' (an event consumer connected to the SM)
+      * OR 'startProxyConsumer' (an event consumer connected to the
+        proxy server)
+      * OR 'startDQMConsumer' (a DQM histogram consumer connected to the SM)
+      * OR 'startProxyDQMConsumer' (a DQM histogram consumer connected to the
+        proxy server)
+      * (note that DQM histogram consumers only receive histogram updates
+        every minute or so)
+
+To drive the system through various transitions:
+   * 'cd <yourProjectArea>/src/EventFilter/StorageManager/test/'
+   * 'source testSetup.sh' or 'source testSetup.csh' (if not already done)
+   * 'globalStop'
+      * OR 'globalHalt'
+      * OR 'globalConfigure'
+      * OR 'globalEnable'
+      * (note that the 'startEverything' command mentioned above always
+        sends the Configure and Enable transition requests to the system)
+
+To destroy all XDAQ processes and clean up the shared memory segments (this
+can be run at any time):
+   * 'cd <yourProjectArea>/src/EventFilter/StorageManager/test/'
+   * 'source testSetup.sh' or 'source testSetup.csh' (if not already done)
+   * 'killEverything' (note that this command will not gracefully close data
+     files if run while a run is in progress - you should use the globalStop
+     command for that. However, it will always get you back to a state in
+     which you can run startEverything again.)
+
+
+GENERAL NOTES
+-------------
+
+To modify the system to run on a different host, simply re-run the
+configureHosts.csh script as shown here:
+   * log into the new host
+   * 'cd <yourProjectArea>/src/EventFilter/StorageManager/test'
+   * './configureHosts.csh <yourBasePortNumber>' (the hostname is
+     determined automatically by the script) 
+These steps are useful when you need to switch between PCs in a cluster and
+you have a demo system set up on a shared file system on that cluster.
+
+Log files from the XDAQ processes are located in application-based
+subdirectories underneath <demoSystemDir>/logs. Please check the log files
+if/when you are experiencing problems. Log files that are older than one day
+are cleaned up whenever you run the killEverything command. (So, you should
+either use the killEverything command to completely shut down a demo system or
+remember to clean up stale log files yourself.) The script that actually does
+the work is <demoSystemDir>/bin/removeOldLogFiles.sh.
+
+Data files from the Storage Manager are written to subdirectories underneath
+<demoSystemDir>/db. (This root directory path can be changed by modifying the
+filePath parameter in the StorageManager section of the
+<demoSystemDir>/cfg/sm_autobu_8fu.xml.base file and re-running the
+configureHosts.csh script from the <demoSystemDir>/.. directory.) Data files
+that are older than 10 minutes are cleaned up whenever you run the killEverything
+command. (So, you should either use the killEverything command to completely
+shut down a demo system or remember to clean up stale data files yourself.) The
+script that actually does the work is
+<demoSystemDir>/bin/removeOldDataFiles.sh.
+
+To change the number of filter units, modify the value of the
+SMDEV_FU_PROCESS_COUNT environmental variable (either by setting it by hand or
+modifying its setting in testSetup.[c]sh). Valid values are 1, 2, 3, 4, 5, 6,
+7, and 8. (Note that you need to kill and restart the system for the change to
+take effect.)
+
+To change whether a small or large HLT configuration is used, modify the value
+of the SMDEV_BIG_HLT_CONFIG environmental variable (either by setting it by
+hand or modifying its setting in testSetup.[c]sh). Valid values are 0 (small
+config) and 1 (large config). (Note that you need to kill and restart the
+system for the change to take effect.)
+
+To change the number or characteristics of the SM output streams, edit
+<demoSystemDir>/cfg/sm_streams.py (or sm_streams.cfg).
+
+To change the simulated lumi section interval, modify the evtsPerLS parameter
+in the <demoSystemDir>/cfg/fu_twoOut.py configuration file (or the
+fu_twoOut.cfg version if you are using an older release with the cfg-based
+configuration files).
+
+To enable the writing of DQM histogram archive files by the SMProxyServer,
+change the values of the collateDQM and archiveDQM parameters to true in the
+SMProxyServer section of the <demoSystemDir>/cfg/sm_autobu_8fu.xml.base file
+and re-run the configureHosts.csh script from the <demoSystemDir>/.. directory.
+With the proxy server archiveIntervalDQM parameter set to 1, histogram archive
+files will be created at the end of each lumi section and at the end of each
+run. Larger interval values will reduce the frequency of file creation. Setting
+the archiveIntervalDQM parameter to zero will tell the SMProxyServer to only
+output histogram archive files at the end of a run. The histogram files will
+appear in the <demoSystemDir>/smpsDQM directory. 

@@ -1,0 +1,107 @@
+\section{Design and Implementation}
+
+\subsection{Architecture}
+
+\subsubsection{Data Flow}
+
+\subsubsection{Current Base Design}
+
+\begin{figure}[hbtp]
+  \begin{center}
+    \includegraphics[width=5.5in]{SM_architecture_base.eps}
+    \caption{Base design.}
+    \label{fig:base_design}
+  \end{center}
+\end{figure}
+
+\subsubsection{Implementation Details}
+
+\begin{figure}[hbtp]
+  \begin{center}
+    \includegraphics[width=5.5in]{SM_base_code1_prt-2.eps}
+    \caption{FUEventProcessor call sequence for setting the run number.}
+    \label{fig:base_FUEP_code}
+  \end{center}
+\end{figure}
+
+\begin{figure}[hbtp]
+  \begin{center}
+    \includegraphics[width=5.5in]{SM_base_code2_prt-2.eps}
+    \caption{Storage Manager configuration sequence.}
+    \label{fig:base_SMCF_code}
+  \end{center}
+\end{figure}
+
+\begin{figure}[hbtp]
+  \begin{center}
+    \includegraphics[width=6.0in]{SM_base_code3_prt-2.eps}
+    \caption{Storage Manager sequence for prototype 2 code used in
+    MTCC phase 2.}
+    \label{fig:base_SMMTCC_code}
+  \end{center}
+\end{figure}
+
+\begin{figure}[hbtp]
+  \begin{center}
+    \includegraphics[width=6.0in]{SM_prd_code3_prt-2.eps}
+    \caption{Storage Manager sequence for production code.}
+    \label{fig:base_SMPRD_code}
+  \end{center}
+\end{figure}
+
+
+\subsubsection{Possible Extension}
+
+\begin{figure}[hbtp]
+  \begin{center}
+    \includegraphics[width=5.5in]{SM_architecture_opt1.eps}
+    \caption{Base design with integrated concatenator.}
+    \label{fig:opt1_design}
+  \end{center}
+\end{figure}
+
+
+\subsubsection{Future Design}
+
+\begin{figure}[hbtp]
+  \begin{center}
+    \includegraphics[width=5.5in]{SM_architecture_opt2.eps}
+    \caption{Distributed Design.}
+    \label{fig:opt2_design}
+  \end{center}
+\end{figure}
+
+\subsubsection{Interaction with Tier-0}
+
+\subsubsection{Interaction with Run Control}
+
+Include DQM (hot disks, caches?)
+
+
+\subsection{Communication and Output}
+
+\subsubsection{Application protocol}
+
+\flushleft{\bf Event Filter Unit (message formats)}
+
+\flushleft{\bf Run Control}
+
+\flushleft{\bf Tier-0}
+
+\subsubsection{File formats}
+
+Include index file
+
+\subsection{Functions and Implementation}
+
+\subsubsection{FU Output module}
+
+\subsubsection{SM Input module and Collector}
+
+\subsubsection{Internal event processing}
+
+\subsubsection{SM Output module}
+
+\subsubsection{Event Server Manager}
+
+\subsubsection{Monitoring, Statistics and Book-keeping}

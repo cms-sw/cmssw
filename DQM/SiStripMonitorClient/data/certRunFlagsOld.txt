@@ -1,0 +1,155 @@
+65941 14-Oct-2008 Bad     wrong firmeware in TOB, no tracks anywhere
+65943 14-Oct-2008 Bad     wrong firmware, no tracks anywhere
+65945 14-Oct-2008 Bad     wrong firmeware in TOB, no tracks anywhere
+65947 14-Oct-2008 Bad     wrong firmeware in TOB, no tracks anywhere
+65948 14-Oct-2008 Bad     wrong firmeware in TOB, no tracks anywhere
+65956 14-Oct-2008 Bad     wrong firmeware in TOB, no tracks anywhere
+66467 16-Oct-2008 Good    1827 events w/CTF tracks; no T0 DQM output available, flag based on the Online file
+66470 16-Oct-2008 Good    284 events w/CTF tracks; 25% reconstructed, no T0 DQM output available, flag base on the Online file
+66471 16-Oct-2008 Good    7315 events w/CTF tracks; 58% reconstructed, no T0 DQM output available, flag based on the Online file
+66475 16-Oct-2008 Good    17435 events w/CTF tracks; 64% reconstructed, no T0 DQM output available, flag based on the Online file
+66480 16-Oct-2008 Bad     interrupted, never fully reconstructed
+66533 16-Oct-2008 Waiting 13181 events w/CTF tracks; 11% reconstructed, no T0 DQM output available
+66569 16-Oct-2008 Waiting 12 events w/CTF tracks; 11% reconstructed, no T0 DQM output available
+66604 16-Oct-2008 Good    15833 events w/CTF tracks;
+66612 17-Oct-2008 Good    685 events w/CTF tracks;
+66615 17-Oct-2008 Good    18605 events w/CTF tracks;
+66637 17-Oct-2008 Good    24441 events w/CTF tracks;
+66644 17-Oct-2008 Good    15145 events w/CTF tracks; no T0 DQM output, flag based on the Online file
+66657 17-Oct-2008 Waiting 3370 events w/CTF tracks; no T0 DQM output, no Online file
+66662 17-Oct-2008 Good    2445 events w/CTF tracks
+66668 17-Oct-2008 Good    1368 events w/CTF tracks
+66676 17-Oct-2008 Good    70327 events w/CTF tracks
+66692 17-Oct-2008 Good    20713 events w/CTF tracks
+66703 18-Oct-2008 Good    57065 events w/CTF tracks
+66706 18-Oct-2008 Good    25209 events w/CTF tracks
+66709 18-Oct-2008 Good    6467 events w/CTF tracks; T0 DQM output incomplete, # tracks = 9299
+66711 18-Oct-2008 Good    15452 events w/CTF tracks;
+66714 18-Oct-2008 Good    123411 events w/CTF tracks;
+66716 18-Oct-2008 Good    23905 events w/CTF tracks;
+66720 18-Oct-2008 Good    43495 events w/CTF tracks;
+66722 18-Oct-2008 Good    172919 events w/CTF tracks;
+66733 19-Oct-2008 Good    25194 events w/CTF tracks;
+66739 19-Oct-2008 Good    143251 events w/CTF tracks;
+66740 19-Oct-2008 Good    94183 events w/CTF tracks;
+66746 19-Oct-2008 Good    108347 events w/CTF tracks;
+66748 20-Oct-2008 Good    127423 events w/CTF tracks;
+66752 20-Oct-2008 Good    9233 events w/CTF tracks; no elog, no T0 DQM output available, flag based on the Online file
+66757 20-Oct-2008 Good    10494 events w/CTF tracks; 84% reconstructed, no T0 DQM output available, flag based on the Online file
+66783 20-Oct-2008 Good    131872 events w/CTF tracks;
+66887 20-Oct-2008 Good    2074 events w/CTF tracks; # tracks = 3078
+66893 20-Oct-2008 Good    3350 events w/CTF tracks; # tracks = 5396
+66904 20-Oct-2008 Good    29703 events w/CTF tracks; 83% harvested, no S/N information
+66910 21-Oct-2008 Good    # tracks = 1588, not fully reconstructed
+66952 21-Oct-2008 Good    17661 events w/CTF tracks; 87% reconstructed, no T0 output available, flag based on the Online file
+66955 21-Oct-2008 Good    821 events w/CTF tracks;
+66983 21-Oct-2008 Good    3816 events w/CTF tracks; no T0 DQM output, no Online file
+66984 21-Oct-2008 Good    5798 events w/CTF tracks; no T0 DQM output, no Online file
+66987 21-Oct-2008 Good    2827 events w/CTF tracks; # tracks = 7601, no S/N information
+66989 21-Oct-2008 Good    790 events w/CTF tracks; # tracks = 3399, low recHits per track, no S/N information
+66993 21-Oct-2008 Good    1408 events w/CTF tracks; # tracks = 3568, slight low tracking efficiency, no S/N information
+67033 21-Oct-2008 Bad     no tracks (DAQ error ?)
+67038 21-Oct-2008 Bad     no tracks (DAQ error ?)
+67039 22-Oct-2008 Bad     no tracks(DAQ error ?)
+67043 22-Oct-2008 Waiting 32% reconstructed, no tracks in the T0 DQM output
+67049 22-Oct-2008 Bad     no tracks (DAQ error ?)
+67085 22-Oct-2008 Bad     no tracks (DAQ error ?)
+67114 23-Oct-2008 Bad     no tracks
+67122 23-Oct-2008 Good    845 events w/CTF tracks;
+67124 22-Oct-2008 Good    3789 events w/CTF tracks; less than 10k tracks
+67126 22-Oct-2008 Good    31530 events w/CTF tracks;
+67128 22-Oct-2008 Good    31138 events w/CTF tracks;
+67139 22-Oct-2008 Good    31368 events w/CTF tracks;
+67141 23-Oct-2008 Good    203637 events w/CTF tracks;
+67147 24-Oct-2008 Good    103831 events w/CTF tracks;
+67173 24-Oct-2008 Good    119967 events w/CTF tracks;
+67219 24-Oct-2008 Good    10698 events w/CTF tracks;
+67225 24-Oct-2008 Good    78238 events w/CTF tracks;
+67534 25-Oct-2008 Good    16146 events w/CTF tracks;
+67538 25-Oct-2008 Good    7545 events w/CTF tracks;
+67539 25-Oct-2008 Good    82615 events w/CTF tracks;
+67541 25-Oct-2008 Good    34697 events w/CTF tracks;
+67544 25-Oct-2008 Good    18456 events w/CTF tracks; T0 DQM ouput only partially harvested
+67548 25-Oct-2008 Good    16319 events w/CTF tracks;
+67557 25-Oct-2008 Good    11994 events w/CTF tracks; T0 DQM ouput only partially harvested
+67573 25-Oct-2008 Good    80470 events w/CTF tracks; T0 DQM ouput only partially harvested
+67645 25-Oct-2008 Good    22476 events w/CTF tracks; T0 DQM ouput only partially harvested
+67647 26-Oct-2008 Good    382695 events w/CTF tracks; T0 DQM ouput only partially harvested
+67810 27-Oct-2008 Good    26859 events w/CTF tracks;
+67818 28-Oct-2008 Good    239262 events w/CTF tracks;
+67838 29-Oct-2008 Good    543550 events w/CTF tracks; T0 DQM ouput only partially harvested
+67977 31-Oct-2008 Good    25261 events w/CTF tracks;
+68000 31-Oct-2008 Good    11439 events w/CTF tracks;
+68021 31-Oct-2008 Good    414586 events w/CTF tracks;
+68094 31-Oct-2008 Good    42258 events w/CTF tracks;
+68100 31-Oct-2008 Good    279572 events w/CTF tracks; # tracks = 2280, less then 5% harvested
+68124 31-Oct-2008 Good    47979 events w/CTF tracks;
+68129 31-Oct-2008 Good    132326 events w/CTF tracks; T0 DQM output missing, flag based on the Online file
+68141 31-Oct-2008 Good    113441 events w/CTF tracks;
+68264 31-Oct-2008 Good    83757 events w/CTF tracks;
+68273  1-Nov-2008 Good    10546 events w/CTF tracks;
+68276  1-Nov-2008 Good    79963 events w/CTF tracks;
+68279  1-Nov-2008 Good    122320 events w/CTF tracks;
+68286  1-Nov-2008 Bad     4076 events w/CTF tracks; low S/N in TID and TEC
+68288  1-Nov-2008 Good    195781 events w/CTF tracks;
+68500  2-Nov-2008 Good    127845 events w/CTF tracks; 9% harvested
+68665  2-Nov-2008 Good    110659 events w/CTF tracks;
+68904  2-Nov-2008 Good    2390 events w/CTF tracks;
+68926  2-Nov-2008 Good    31945 events w/CTF tracks;
+68949  2-Nov-2008 Good    13268 events w/CTF tracks;
+68958  3-Nov-2008 Good    401003 events w/CTF tracks; T0 DQM output only partially harvested
+69046  3-Nov-2008 Good    56230 events w/CTF tracks; T0 DQM output only partially harvested
+69253  4-Nov-2008 Bad     Ntracks = 131, # events = 388,#clusters on track (TID) = 0, S/N(TID) = 0
+69256  4-Nov-2008 Bad     no T0 DQM output, S/N (TID, TOB) from the online file is very low, run with errors
+69269  4-Nov-2008 Good    11520 events w/CTF tracks; T0 DQM output only partially harvested
+69272  4-Nov-2008 Waiting the Mechanical View is missing from the T0 DQM output and Online file
+69273  4-Nov-2008 Good    7728 events w/CTF tracks; the Mechanical View is missing from the T0 DQM output,  flag based on the Online file
+69276  4-Nov-2008 Good    19012 events w/CTF tracks; T0 DQM output only partially harvested
+69310  4-Nov-2008 Good    3255 events w/CTF tracks; no T0 DQM output, not fully reconstructed yet, flag based on the Online file
+69333  4-Nov-2008 Good    4680 events w/CTF tracks; # tracks = 6500
+69335  4-Nov-2008 Good    4280 events w/CTF tracks; # tracks = 7003
+69343  4-Nov-2008 Good    3363 events w/CTF tracks; # tracks = 5510
+69351  5-Nov-2008 Bad     12994 events w/CTF tracks; # tracks = 8395, low tracking efficiency, not fully reconstructed(89%)
+69357  5-Nov-2008 Good    2796 events w/CTF tracks; # tracks = 4348
+69365  5-Nov-2008 Bad     1819 events w/CTF tracks; # tracks = 2710, tracking efficiency close to 0
+69382  5-Nov-2008 Good    20270 events w/CTF tracks; T0 DQM output only partially harvested
+69396  5-Nov-2008 Good    57563 events w/CTF tracks; T0 DQM output only partially harvested
+69522  5-Nov-2008 Bad     8923 events w/CTF tracks; low tracking efficiency, T0 DQM output only partially harvested
+69536  6-Nov-2008 Good    no T0 DQM output, 68% reconstructed, flag based on the online file
+69557  6-Nov-2008 Waiting 12871 events w/CTF tracks; less than 1% harvested
+69559  6-Nov-2008 Good    6366 events w/CTF tracks; TEC: many noisy modules, high # of fake tracks reconstructed
+69564  6-Nov-2008 Good    9986 events w/CTF tracks; TEC: very high # of fake tracks, S/Ncorr_landauPeack = 0
+69572  6-Nov-2008 Good    1970 events w/CTF tracks;
+69573  6-Nov-2008 Bad     3992 events w/CTF tracks; low # of recHits_perTrack_mean, S/N for TID = 16, 48% harvested
+69578  6-Nov-2008 Good    1209 events w/CTF tracks;
+69594  6-Nov-2008 Good    54097 events w/CTF tracks;
+69750  7-Nov-2008 Good    11182 events w/CTF tracks; slightly low tracking efficiency
+69788  7-Nov-2008 Bad     13559 events w/CTF tracks; Statistics too low.  2 % reconstructed and harvested, no tracks reconstructed.
+69797  7-Nov-2008 Bad     1959 events w/CTF tracks; Very low trackin efficiency, low recHits per Track, S/N for TID = 17
+69800  7-Nov-2008 Bad     3224 events w/CTF tracks; Very low tracking efficiency, low recHits per track, S/N for TID = 15
+69850  7-Nov-2008 Bad     11123 events w/CTF tracks; S/N for TID and TEC = 16, low recHits per Track
+69874  7-Nov-2008 Bad     15076 events w/CTF tracks; S/N for TID = 19, for TEC = 17, many noisy clusters, low recHits per Track
+69892  7-Nov-2008 Bad     14746 events w/CTF tracks; S/N for TID and TEC = 15, low recHits per Track
+69902  7-Nov-2008 Good    21196 events w/CTF tracks; tracking efficiency not in the trend (too high)
+69912  7-Nov-2008 Good    229234 events w/CTF tracks; tracking efficiency not in the trend (too high)
+69997  8-Nov-2008 Good    47995 events w/CTF tracks;
+70036  8-Nov-2008 Good    77302 events w/CTF tracks;
+70088  8-Nov-2008 Good    18295 events w/CTF tracks;
+70147  8-Nov-2008 Good    38898 events w/CTF tracks; no T0 DQM output, flag based on the Online file
+70170  8-Nov-2008 Good    40640 events w/CTF tracks; no T0 DQM output, flag based on the Online file
+70195  9-Nov-2008 Good    412960 events w/CTF tracks; Chi2_entries very high
+70410 10-Nov-2008 Good    13343 events w/CTF tracks;
+70411 10-Nov-2008 Good    3919 events w/CTF tracks;
+70412 10-Nov-2008 Good    14178 events w/CTF tracks;
+70413 10-Nov-2008 Good    1768 events w/CTF tracks;
+70414 10-Nov-2008 Good    15726 events w/CTF tracks; no T0 DQM output, flag based on the Online file
+70415 10-Nov-2008 Good    17263 events w/CTF tracks; 97% reconstructed, 85% harvested
+70416 10-Nov-2008 Good    15401 events w/CTF tracks;
+70417 10-Nov-2008 Good    15892 events w/CTF tracks;
+70421 10-Nov-2008 Good    856 events w/CTF tracks; 9% reconstructed, no T0 DQM output, flag based on the Online file
+70516 10-Nov-2008 Good    441 events w/CTF tracks;
+70637 10-Nov-2008 Good    3759 events w/CTF tracks; 79% reconstructed, 50% harvested
+70659 10-Nov-2008 Good    4642 events w/CTF tracks;
+70664 10-Nov-2008 Good    29802 events w/CTF tracks;
+70674 11-Nov-2008 Good    35263 events w/CTF tracks;
+70675 11-Nov-2008 Good    71458 events w/CTF tracks;

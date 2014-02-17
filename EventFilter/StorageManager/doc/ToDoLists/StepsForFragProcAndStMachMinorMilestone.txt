@@ -1,0 +1,33 @@
+20-Mar-2009
+
+This file contains ideas for the steps that we should take to complete
+the "Incorporate FragmentProcessor and state machine into existing code"
+task on the task list.  (The completion of this task is called out as
+one of our minor milestones with a target completion date of 20-Mar-2009.)
+
+1) eliminate the use of the old JobController and FragmentCollector classes
+ -> the worker classes that are passed into these classes need to be
+    bundled and passed to the FragmentProcessor (some of them only 
+    temporarily).  InitMsgCollection, EventServer, DQMEventServer,
+    SMFUSenderList.
+ -> we need to group the SM configuration parameters in some sort of
+    container or wrapper.  Are these params all infospace entries?
+    Do we have a model for wrapping infospace entries already?  (The
+    monitoring infospace params may be different than the configuration
+    ones [read vs write?].)
+
+2) the work done in the FragmentCollector processXYZ methods needs to
+   temporarily be included in EventDistributor::addEventToRelevantQueues.
+ -> more details needed
+
+3) remove the use of the old EventFilter/Utilities/StateMachine in
+   StorageManager.cc.  Currently, this appears to consist of the following:
+   - switch the xoap bindings to use SM callbacks directly
+   - add posting of new state machine events to the SM callbacks
+   - implement a new way to fetch the state name (for displays)
+   - implement the posting of new state information to run control in
+     the new state classes
+
+4) decide upon, document, and implement the creation of the worker classes
+   that we need.
+

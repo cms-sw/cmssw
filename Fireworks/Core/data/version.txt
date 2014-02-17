@@ -1,0 +1,4 @@
+5.2-1
+DataFormats: CMSSW_5_2_5
+patched DataFormats/FWLite V01-15-00
+patched FWCore/FWLite V00-26-00 
