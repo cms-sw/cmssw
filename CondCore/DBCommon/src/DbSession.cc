@@ -207,16 +207,12 @@ const std::string& cond::DbSession::blobStreamingService() const
 
 cond::DbTransaction& cond::DbSession::transaction()
 {
-  if(!m_implementation->connection.get() || !m_implementation->connection->isOpen())
-    throw cond::Exception("DbSession::transaction: cannot open transaction. Underlying connection is closed.");
   if(!m_implementation->transaction.get())
     throw cond::Exception("DbSession::transaction: cannot get transaction. Session has not been open.");
   return *m_implementation->transaction;
 }
 
 ora::Database& cond::DbSession::storage(){
-  if(!m_implementation->connection.get() || !m_implementation->connection->isOpen())
-    throw cond::Exception("DbSession::storage: cannot access the storage. Underlying connection is closed.");
   if(!m_implementation->database.get())
     throw cond::Exception("DbSession::storage: cannot access the database. Session has not been open.");
   return *m_implementation->database;
@@ -299,7 +295,7 @@ std::string cond::DbSession::classNameForItem( const std::string& objectId ){
   std::string ret("");
   if( !oid.isInvalid() ){
     ora::Container cont = storage().containerHandle( oid.containerId() );
-    ret = cont.className();
+    ret = cont.realClassName();
   }
   return ret; 
 }
