@@ -11,8 +11,8 @@ process.source = cms.Source("PoolSource",
 
 
 process.pfClusterComparator = cms.EDAnalyzer("PFClusterComparator",
-                                             PFClusters = cms.InputTag("particleFlowClusterECAL"),
-                                             PFClustersCompare = cms.InputTag("particleFlowClusterECALNew"),
+                                             PFClusters = cms.InputTag("particleFlowClusterHO"),
+                                             PFClustersCompare = cms.InputTag("particleFlowClusterHONew"),
                                              verbose = cms.untracked.bool(True),
                                              printBlocks = cms.untracked.bool(True)
                                              )

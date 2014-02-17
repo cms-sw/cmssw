@@ -3,12 +3,11 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
 
+#include <unordered_map>
+
 class LocalMaximum2DSeedFinder : public SeedFinderBase {
  public:
-  LocalMaximum2DSeedFinder(const edm::ParameterSet& conf) :
-    SeedFinderBase(conf),
-    _seedingThresholdPt2(std::pow(conf.getParameter<double>("seedingThresholdPt"),2.0)),
-    _nNeighbours(conf.getParameter<unsigned>("nNeighbours")) { }
+  LocalMaximum2DSeedFinder(const edm::ParameterSet& conf);
   LocalMaximum2DSeedFinder(const LocalMaximum2DSeedFinder&) = delete;
   LocalMaximum2DSeedFinder& operator=(const LocalMaximum2DSeedFinder&) = delete;
 
@@ -16,11 +15,13 @@ class LocalMaximum2DSeedFinder : public SeedFinderBase {
 		  const std::vector<bool>& mask,
 		  std::vector<bool>& seedable );
 
- private:
-  const double _seedingThresholdPt2;
+ private:  
   const unsigned _nNeighbours;
 
-  static const std::vector<unsigned> _noNeighbours;
+  static const reco::PFRecHitRefVector _noNeighbours;
+  const std::unordered_map<std::string,int> _layerMap;
+  std::unordered_map<int,std::pair<double,double> > 
+    _thresholds;
 };
 
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderFactory.h"

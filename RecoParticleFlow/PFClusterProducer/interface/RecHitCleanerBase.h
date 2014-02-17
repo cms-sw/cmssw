@@ -10,8 +10,7 @@
 
 class RecHitCleanerBase {
  public:
-  RecHitCleanerBase(const edm::ParameterSet& conf) :
-    _cleaningThreshold(conf.getParameter<double>("cleaningThreshold")) { }
+  RecHitCleanerBase(const edm::ParameterSet& conf) { }
   RecHitCleanerBase(const RecHitCleanerBase& ) = delete;
   RecHitCleanerBase& operator=(const RecHitCleanerBase&) = delete;
 
@@ -19,9 +18,6 @@ class RecHitCleanerBase {
 		     std::vector<bool>&) = 0;
 
   const std::string& name() const { return _algoName; }
-
- protected:
-  const float _cleaningThreshold;  
 
  private:
   const std::string _algoName;

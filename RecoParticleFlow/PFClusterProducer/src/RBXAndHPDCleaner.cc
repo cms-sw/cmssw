@@ -20,7 +20,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
   ordered_hits.reserve(input->size());
   for( unsigned i = 0; i < input->size(); ++i ) {
     std::pair<unsigned,double> val = std::make_pair(i,input->at(i).energy());
-    auto pos = std::lower_bound(ordered_hits.begin(),ordered_hits.end(),
+    auto pos = std::upper_bound(ordered_hits.begin(),ordered_hits.end(),
 				val, greaterByEnergy);
     ordered_hits.insert(pos,val);
   }   
@@ -85,15 +85,14 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 	// check if rechit is a seed
 	unsigned nN = 0 ; // neighbours over threshold
 	bool isASeed = true;
-	const std::vector<unsigned>& neighbours4 = rechit.neighbours4();
-	for( unsigned in=0; in < neighbours4.size(); ++in ) {
-	  const reco::PFRecHit& neighbour = input->at(in);
-	  if( neighbour.energy() > rechit.energy() ) {	    
+	const reco::PFRecHitRefVector& neighbours4 = rechit.neighbours4();
+	for( const reco::PFRecHitRef& neighbour : neighbours4 ) {
+	  if( neighbour->energy() > rechit.energy() ) {	    
 	    --nSeeds; --nSeeds0;
 	    isASeed = false;
 	    break;
 	  } else {
-	    if( neighbour.energy() > 0.4 ) ++nN;
+	    if( neighbour->energy() > 0.4 ) ++nN;
 	  }
 	}
 	if ( isASeed && !nN ) --nSeeds0;
@@ -111,9 +110,9 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 	  break;
 	}
 	const double rhenergy = rechit.energy();
-	const double rhphi = rechit.positionREP().phi();
+	const double rhphi = rechit.position().phi();
 	const double rhphi2 = rhphi*rhphi;
-	const double rheta = rechit.positionREP().eta();
+	const double rheta = rechit.position().eta();
 	const double rheta2 = rheta*rheta;
 	theEnergies.emplace(rhenergy,rechits[jh]);
 	totalEnergy += rhenergy;
@@ -146,7 +145,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 	unsigned nHPD15 = 0;
 	for( const auto& itHPD : theHPDs ) {
 	  int hpdN = itHPD.first;
-	  const auto& hpdHits = itHPD.second;
+	  const std::vector<unsigned>& hpdHits = itHPD.second;
 	  if( ( std::abs(hpdN) < 100 && hpdHits.size() > 14 ) || 
 	      ( std::abs(hpdN) > 100 && hpdHits.size() > 14 ) ) ++nHPD15;
 	}
@@ -184,7 +183,7 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
       const reco::PFRecHit & rechit = input->at(rhidx);
       const double e = rechit.energy();
       totalEnergy += e;
-      totalEnergy += e*e;
+      totalEnergy2 += e*e;
       theEnergies.emplace(rechit.energy(),rhidx); 
     }
     totalEnergy /= rechits.size();
@@ -223,9 +222,12 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 	neighbour0 = ( nb1 > 0 ? _hpds.find(nb1-1) : _hpds.find(nb1+1) );
 	break;
       }
+    } else {
+      neighbour0 = _hpds.end();
     }
+    
     if( neighbour2 != _hpds.end() ) {
-      const int nb2 = neighbour1->first;
+      const int nb2 = neighbour2->first;
       switch( std::abs(nb2) ) {
       case 72:
 	neighbour3 = ( nb2 > 0 ? _hpds.find(1) : _hpds.find(-1) );
@@ -237,7 +239,10 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
 	neighbour3 = ( nb2 > 0 ? _hpds.find(nb2+1) : _hpds.find(nb2-1) );
 	break;
       }
+    } else {
+      neighbour3 = _hpds.end();
     }
+    
     size1 = neighbour1 != _hpds.end() ? neighbour1->second.size() : 0;
     size2 = neighbour2 != _hpds.end() ? neighbour2->second.size() : 0;
     if( size1 > 10 ) {

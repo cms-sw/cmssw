@@ -13,6 +13,33 @@ positionCalcECAL_3x3_nodepth = positionCalcECAL_all_nodepth.clone(
     posCalcNCrystals = cms.int32(9)
     )
 
+positionCalcHCAL_cross_nodepth = positionCalcECAL_all_nodepth.clone(
+    posCalcNCrystals = cms.int32(5),
+    logWeightDenominator = cms.double(0.8)
+    )
+
+positionCalcHCAL_all_nodepth = positionCalcHCAL_cross_nodepth.clone(
+    posCalcNCrystals = cms.int32(-1)
+    )
+
+positionCalcHO_cross_nodepth = positionCalcECAL_all_nodepth.clone(
+    posCalcNCrystals = cms.int32(5),
+    logWeightDenominator = cms.double(0.5)
+    )
+
+positionCalcHO_all_nodepth = positionCalcHO_cross_nodepth.clone(
+    posCalcNCrystals = cms.int32(-1)
+    )
+
+positionCalcHF_cross_nodepth = positionCalcECAL_all_nodepth.clone(
+    posCalcNCrystals = cms.int32(5),
+    logWeightDenominator = cms.double(0.8)
+    )
+
+positionCalcHF_all_nodepth = positionCalcHF_cross_nodepth.clone(
+    posCalcNCrystals = cms.int32(-1)
+    )
+
 positionCalcPS_all_nodepth = positionCalcECAL_all_nodepth.clone(
     logWeightDenominator = cms.double(6e-5)
     )
