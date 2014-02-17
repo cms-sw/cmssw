@@ -34,7 +34,11 @@ class JetDeltaRValueMapProducer : public edm::EDProducer {
 public:
 
   typedef std::vector<T> JetsInput;
+<<<<<<< HEAD
   typedef edm::ValueMap<float> JetValueMap; 
+=======
+  typedef edm::ValueMap<double> JetValueMap; 
+>>>>>>> First try at a jet-to-value valuemap for grooming.
 
 
   JetDeltaRValueMapProducer ( edm::ParameterSet const & params ) :
@@ -57,7 +61,11 @@ public:
 
 
       std::auto_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
+<<<<<<< HEAD
       edm::ValueMap<float>::Filler filler(*jetValueMap);
+=======
+      edm::ValueMap<double>::Filler filler(*jetValueMap);
+>>>>>>> First try at a jet-to-value valuemap for grooming.
 
 
       edm::Handle< typename edm::View<T> > h_jets1;
@@ -65,7 +73,11 @@ public:
       edm::Handle< typename edm::View<T> > h_jets2;
       iEvent.getByToken( matchedToken_, h_jets2 );
 
+<<<<<<< HEAD
       std::vector<float> values; values.reserve( h_jets1->size() );
+=======
+      std::vector<double> values; values.reserve( h_jets1->size() );
+>>>>>>> First try at a jet-to-value valuemap for grooming.
 
       // Now set the Ptrs with the orphan handles.
       for ( typename edm::View<T>::const_iterator ibegin = h_jets1->begin(),
@@ -78,7 +90,11 @@ public:
 
 	  if ( reco::deltaR( *ijet, *jjet) < distMin_ ) {
 	    // Check the selection
+<<<<<<< HEAD
 	    float value = evaluation_(*jjet);
+=======
+	    double value = evaluation_(*jjet);
+>>>>>>> First try at a jet-to-value valuemap for grooming.
 	    // Fill to the vector
 	    values.push_back( value );
 	    found = true;	    
@@ -93,6 +109,10 @@ public:
       iEvent.put(jetValueMap);
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> First try at a jet-to-value valuemap for grooming.
     }
 
   protected:
