@@ -243,6 +243,9 @@ class MatrixReader(object):
                         if self.apply:
                             if stepIndex in self.apply or stepName in self.apply:
                                 cmd +=' '+self.addCommand
+                            if self.wm: # add top-level option
+                                cmd=cmd.replace('DQMROOT','DQM')
+                                cmd=cmd.replace('--filetype DQM','')
                         else:
                             cmd +=' '+self.addCommand
                 commands.append(cmd)
@@ -332,6 +335,8 @@ class MatrixReader(object):
                     line += ' @@@'
                 else:
                     line += ' @@@ '+commands[0]
+                # add top-level option    
+                line=line.replace('DQMROOT','DQM')
                 writtenWF+=1
                 outFile.write(line+'\n')
 
@@ -344,6 +349,8 @@ class MatrixReader(object):
                     stepIndex=index+1
                     if 'dasquery.log' in cmd: continue
                     line = 'STEP%d ++ '%(stepIndex,) +stepName + ' @@@ '+cmd
+                    # add top-level option
+                    line=line.replace('DQMROOT','DQM')
                     outFile.write(line+'\n')
                 outFile.write('\n'+'\n')
             outFile.close()
