@@ -52,21 +52,15 @@ DDShashlikEndcap::execute( DDCompactView& cpv )
   double phiY = theta;
   double phiZ = 3*theta; 
   double offsetZ = m_zoffset;
-  double offsetX = offsetZ * sin( 2 * xphi );
-  double offsetY = offsetZ * sin( 2 * yphi );
+  double offsetX = offsetZ * tan( xphi );
+  double offsetY = offsetZ * tan( yphi );
   double offsetLimitX = m_rMax;
   double offsetLimitY = m_rMax;
 
-  for( int iy = 0; offsetY < offsetLimitY; ++iy, yphi += 2*tiltAngle )
+  for( int iy = 0; offsetY < offsetLimitY; ++iy )
   {
-    xphi = tiltAngle;
-    offsetX = offsetZ * sin( xphi );
-    offsetY = offsetZ * sin( yphi );
-
-    for( int ix = 0; offsetX < offsetLimitX; ++ix, xphi += 2*tiltAngle )
-    {
-      offsetX = offsetZ * sin( xphi );
-      
+    for( int ix = 0; offsetX < offsetLimitX; ++ix )
+    {      
       // Make sure we do not add supermodules in rMin area
       if( sqrt( offsetX*offsetX + offsetY*offsetY ) > m_rMin )
       {
@@ -89,12 +83,18 @@ DDShashlikEndcap::execute( DDCompactView& cpv )
 	DDName parentName = parent().name(); 
 	cpv.position( DDName( m_childName ), parentName, copyNo, tran, rotation );
 
-	if (sqrt(offsetX*offsetX + offsetY*offsetY) >= m_rMax)
+	if (sqrt(offsetX*offsetX + offsetY*offsetY) > m_rMax)
 	  offsetLimitX = offsetX;
 	
 	copyNo += m_incrCopyNo;
       }
+      xphi += 2.*tiltAngle;
+      offsetX = offsetZ * tan( xphi );
     }
+    yphi += 2.*tiltAngle;
+    xphi = tiltAngle;
+    offsetX = offsetZ * tan( xphi );
+    offsetY = offsetZ * tan( yphi );
   }
 }
 
