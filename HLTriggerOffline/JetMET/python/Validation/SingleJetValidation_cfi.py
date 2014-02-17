@@ -23,11 +23,11 @@ SingleJetMetPaths = cms.EDAnalyzer("HLTJetMETValidation",
     #HLTLow                = cms.untracked.InputTag(hltlow15),
     #HLTPath               = cms.untracked.InputTag(hltname15),
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
-    GenJetAlgorithm       = cms.untracked.InputTag("ak5GenJets"),
+    GenJetAlgorithm       = cms.untracked.InputTag("ak4GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
     GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),
-    #WriteFile = cms.untracked.bool(True)                               
+    #WriteFile = cms.untracked.bool(True)
 )
 
 SingleJetValidation = cms.Sequence(SingleJetMetPaths)

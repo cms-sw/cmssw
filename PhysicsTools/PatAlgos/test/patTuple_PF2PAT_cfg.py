@@ -8,7 +8,7 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 # this function will modify the PAT sequences.
 from PhysicsTools.PatAlgos.tools.pfTools import *
 postfix = "PFlow"
-jetAlgo="AK5"
+jetAlgo="AK4"
 usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix)
 
 # to turn on type-1 MET corrections, use the following call
@@ -51,6 +51,9 @@ getattr(process,"pfNoMuon"+postfix).verbose = False
 
 # enable delta beta correction for muon selection in PF2PAT?
 getattr(process,"pfIsolatedMuons"+postfix).doDeltaBetaCorrection = cms.bool(False)
+
+# Temporary fix to have AK5 payloads until the AK4 payloads are ready
+process.patJetCorrFactorsPFlow.payload = 'AK5PFchs' 
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

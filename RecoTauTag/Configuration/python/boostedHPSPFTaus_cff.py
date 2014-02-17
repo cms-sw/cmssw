@@ -17,11 +17,11 @@ pfNoPileUpForBoostedTaus = boostedTaus.pfNoPileUp.clone(
     bottomCollection = cms.InputTag('particleFlow')
 )
 
-##import RecoJets.JetProducers.ak5PFJetsPruned_cfi as boostedTaus2
-import RecoJets.JetProducers.ak5PFJets_cfi as boostedTaus2
+##import RecoJets.JetProducers.ak4PFJetsPruned_cfi as boostedTaus2
+import RecoJets.JetProducers.ak4PFJets_cfi as boostedTaus2
 import RecoJets.JetProducers.CMSBoostedTauSeedingParameters_cfi as boostedTaus3
-##ca8PFJetsCHSprunedForBoostedTaus = boostedTaus2.ak5PFJetsPruned.clone(
-ca8PFJetsCHSprunedForBoostedTaus = boostedTaus2.ak5PFJets.clone(
+##ca8PFJetsCHSprunedForBoostedTaus = boostedTaus2.ak4PFJetsPruned.clone(
+ca8PFJetsCHSprunedForBoostedTaus = boostedTaus2.ak4PFJets.clone(
     boostedTaus3.CMSBoostedTauSeedingParameters,
     src = cms.InputTag('pfNoPileUpForBoostedTaus'),
     jetPtMin = cms.double(10.0),
@@ -44,11 +44,11 @@ recoTauAK5PFJets08Region.src = cms.InputTag('boostedTauSeeds')
 recoTauAK5PFJets08Region.pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
 recoTauAK5PFJets08Region.pfCandAssocMapSrc = cms.InputTag('boostedTauSeeds', 'pfCandAssocMapForIsolation')
 
-ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag('boostedTauSeeds')
+ak4PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag('boostedTauSeeds')
 
-ak5PFJetsRecoTauChargedHadrons.jetSrc = cms.InputTag('boostedTauSeeds')
-ak5PFJetsRecoTauChargedHadrons.builders[1].dRcone = cms.double(0.3)
-ak5PFJetsRecoTauChargedHadrons.builders[1].dRconeLimitedToJetArea = cms.bool(True)
+ak4PFJetsRecoTauChargedHadrons.jetSrc = cms.InputTag('boostedTauSeeds')
+ak4PFJetsRecoTauChargedHadrons.builders[1].dRcone = cms.double(0.3)
+ak4PFJetsRecoTauChargedHadrons.builders[1].dRconeLimitedToJetArea = cms.bool(True)
 
 combinatoricRecoTaus.jetSrc = cms.InputTag('boostedTauSeeds')
 combinatoricRecoTaus.builders[0].pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')

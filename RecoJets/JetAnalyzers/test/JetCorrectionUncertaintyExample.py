@@ -113,7 +113,7 @@ process.ak5pfl2l3  = cms.EDAnalyzer('JetCorrectorDemo',
 
 #############   jpt jets ##
 process.ak5jptl2l3  = cms.EDAnalyzer('JetCorrectorDemo',
-    JetCorrectionService     = cms.string('ak5JPTL2L3Residual'),
+    JetCorrectionService     = cms.string('ak4JPTL2L3Residual'),
     UncertaintyTag           = cms.string('Uncertainty'),
     UncertaintyFile          = cms.string(''),
     PayloadName              = cms.string('AK5JPT'),

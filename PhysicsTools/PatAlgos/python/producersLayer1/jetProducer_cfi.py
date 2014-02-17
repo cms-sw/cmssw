@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patJets = cms.EDProducer("PATJetProducer",
     # input
-    jetSource = cms.InputTag("ak5PFJetsCHS"),
+    jetSource = cms.InputTag("ak4PFJetsCHS"),
     # add user data
     userData = cms.PSet(
       # add custom classes here
@@ -51,13 +51,13 @@ patJets = cms.EDProducer("PATJetProducer",
     tagInfoSources  = cms.VInputTag(),
     # track association
     addAssociatedTracks    = cms.bool(True),
-    trackAssociationSource = cms.InputTag("ak5JetTracksAssociatorAtVertexPF"),
+    trackAssociationSource = cms.InputTag("ak4JetTracksAssociatorAtVertexPF"),
     # jet charge
     addJetCharge    = cms.bool(True),
     jetChargeSource = cms.InputTag("patJetCharge"),
-    # add jet ID for calo jets. This should be of type ak5JetID, ak7JetID, ...
+    # add jet ID for calo jets. This should be of type ak4JetID, ak7JetID, ...
     addJetID = cms.bool(False),
-    jetIDMap = cms.InputTag("ak5JetID"),
+    jetIDMap = cms.InputTag("ak4JetID"),
     # mc matching
     addGenPartonMatch   = cms.bool(True),                           ## switch on/off matching to quarks from hard scatterin
     embedGenPartonMatch = cms.bool(True),                           ## switch on/off embedding of the GenParticle parton for this jet

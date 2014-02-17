@@ -10,14 +10,14 @@ from CommonTools.ParticleFlow.pfNoPileUpJME_cff  import *
 
 
 # sequential top projection cleaning
-from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi import * 
-from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import * 
+from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi import *
+from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoTau_cfi import *
 
 
 # b-tagging
-from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
+from RecoJets.JetAssociationProducers.ak4JTA_cff import ak4JetTracksAssociatorAtVertex
 from RecoBTag.ImpactParameter.impactParameter_cfi import impactParameterTagInfos
 from RecoBTag.SecondaryVertex.secondaryVertexTagInfos_cfi import secondaryVertexTagInfos
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexBJetTags_cfi import combinedSecondaryVertexBJetTags
@@ -55,7 +55,7 @@ pfIsolatedMuonsEI = cms.EDFilter(
     (muonRef.pfIsolationR04().sumChargedHadronPt+
     max(0.,muonRef.pfIsolationR04().sumNeutralHadronEt+
     muonRef.pfIsolationR04().sumPhotonEt-
-    0.50*muonRef.pfIsolationR04().sumPUPt))/pt < 0.20 && 
+    0.50*muonRef.pfIsolationR04().sumPUPt))/pt < 0.20 &&
     (muonRef.isPFMuon && (muonRef.isGlobalMuon || muonRef.isTrackerMuon) )'''
     ),
     makeClones = cms.bool(True)
@@ -135,7 +135,7 @@ pfTauEISequence = cms.Sequence(
     )
 
 #### B-tagging ####
-pfJetTrackAssociatorEI = ak5JetTracksAssociatorAtVertex.clone (
+pfJetTrackAssociatorEI = ak4JetTracksAssociatorAtVertex.clone (
     src = cms.InputTag("pfJetsEI")
     )
 impactParameterTagInfosEI = impactParameterTagInfos.clone(
@@ -146,7 +146,7 @@ secondaryVertexTagInfosEI = secondaryVertexTagInfos.clone(
     )
 combinedSecondaryVertexBJetTagsEI = combinedSecondaryVertexBJetTags.clone(
     tagInfos = cms.VInputTag(cms.InputTag("impactParameterTagInfosEI"),
-                             cms.InputTag("secondaryVertexTagInfosEI"))    
+                             cms.InputTag("secondaryVertexTagInfosEI"))
     )
 
 
@@ -159,25 +159,25 @@ EIsequence = cms.Sequence(
     pfPileUpEI +
     pfPileUpJMEEI +
     pfNoPileUpEI +
-    pfNoPileUpJMEEI + 
+    pfNoPileUpJMEEI +
     pfAllMuonsEI +
-    pfMuonsFromVertexEI + 
+    pfMuonsFromVertexEI +
     pfIsolatedMuonsEI +
     pfNoMuon +
     pfNoMuonJME +
     pfAllElectronsEI +
-    pfElectronsFromVertexEI + 
-    pfIsolatedElectronsEI +    
+    pfElectronsFromVertexEI +
+    pfIsolatedElectronsEI +
     pfNoElectron +
     pfNoElectronJME +
     pfJetSequenceEI +
-    pfNoJetEI + 
+    pfNoJetEI +
     pfTauEISequence +
     pfNoTauEI +
     pfMetEI+
     pfJetTrackAssociatorEI+
     impactParameterTagInfosEI+
     secondaryVertexTagInfosEI+
-    combinedSecondaryVertexBJetTagsEI    
+    combinedSecondaryVertexBJetTagsEI
     )
 

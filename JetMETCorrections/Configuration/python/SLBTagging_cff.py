@@ -9,8 +9,8 @@ from RecoBTag.SoftLepton.softElectronTagInfos_cfi import *
 # SOFT ELECTRON TAGGING
 #
 ak5GenJetsSoftElectronTagInfos  = softElectronTagInfos.clone(jets = 'ak5GenJets')
-ak5CaloJetsSoftElectronTagInfos = softElectronTagInfos.clone(jets = 'ak5CaloJets')
-ak5PFJetsSoftElectronTagInfos   = softElectronTagInfos.clone(jets = 'ak5PFJets')
+ak4CaloJetsSoftElectronTagInfos = softElectronTagInfos.clone(jets = 'ak4CaloJets')
+ak4PFJetsSoftElectronTagInfos   = softElectronTagInfos.clone(jets = 'ak4PFJets')
 
 ak7GenJetsSoftElectronTagInfos  = softElectronTagInfos.clone(jets = 'ak7GenJets')
 ak7CaloJetsSoftElectronTagInfos = softElectronTagInfos.clone(jets = 'ak7CaloJets')
@@ -46,8 +46,8 @@ softMuonTagInfosGMPT = softMuonTagInfos.clone(
     )
 
 ak5GenJetsSoftMuonTagInfos  = softMuonTagInfosGMPT.clone(jets = 'ak5GenJets')
-ak5CaloJetsSoftMuonTagInfos = softMuonTagInfosGMPT.clone(jets = 'ak5CaloJets')
-ak5PFJetsSoftMuonTagInfos   = softMuonTagInfosGMPT.clone(jets = 'ak5PFJets')
+ak4CaloJetsSoftMuonTagInfos = softMuonTagInfosGMPT.clone(jets = 'ak4CaloJets')
+ak4PFJetsSoftMuonTagInfos   = softMuonTagInfosGMPT.clone(jets = 'ak4PFJets')
 
 ak7GenJetsSoftMuonTagInfos  = softMuonTagInfosGMPT.clone(jets = 'ak7GenJets')
 ak7CaloJetsSoftMuonTagInfos = softMuonTagInfosGMPT.clone(jets = 'ak7CaloJets')
@@ -82,11 +82,11 @@ ic5PFJetsSoftMuonTagInfos   = softMuonTagInfosGMPT.clone(jets = 'ic5PFJets')
 ak5GenJetsSLBSequence = cms.Sequence(
     ak5GenJetsSoftMuonTagInfos*softPFElectrons*ak5GenJetsSoftElectronTagInfos
     )
-ak5CaloJetsSLBSequence = cms.Sequence(
-    ak5CaloJetsSoftMuonTagInfos*softPFElectrons*ak5CaloJetsSoftElectronTagInfos
+ak4CaloJetsSLBSequence = cms.Sequence(
+    ak4CaloJetsSoftMuonTagInfos*softPFElectrons*ak4CaloJetsSoftElectronTagInfos
     )
-ak5PFJetsSLBSequence = cms.Sequence(
-    ak5PFJetsSoftMuonTagInfos*softPFElectrons*ak5PFJetsSoftElectronTagInfos
+ak4PFJetsSLBSequence = cms.Sequence(
+    ak4PFJetsSoftMuonTagInfos*softPFElectrons*ak4PFJetsSoftElectronTagInfos
     )
 
 # ak7

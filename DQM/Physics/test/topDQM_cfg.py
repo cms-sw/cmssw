@@ -39,7 +39,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ## --------------------------------------------------------------------
 process.GlobalTag.globaltag = 'START38_V12::All' 
 process.load('JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff')
-process.prefer("ak5CaloL2L3")
+process.prefer("ak4CaloL2L3")
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
