@@ -60,10 +60,12 @@ process.out.outputCommands.append( 'keep *_mvaTrigNoIPPAT_*_*' )
 #  parameters:
 ## ------------------------------------------------------
 #
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS150ns')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1')
 #                                         ##
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
-process.source.fileNames = filesRelValTTbarPileUpGENSIMRECO
+#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
+#process.source.fileNames = filesRelValTTbarPileUpGENSIMRECO # currently not available at CERN
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+process.source.fileNames = filesRelValProdTTbarAODSIM
 #                                         ##
 process.maxEvents.input = 100
 #                                         ##
