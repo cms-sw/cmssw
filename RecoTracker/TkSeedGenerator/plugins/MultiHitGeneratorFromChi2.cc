@@ -134,18 +134,16 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 					SeedingLayerSetsHits::SeedingLayerSet pairLayers,
 					std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers)
 { 
-  thePairGenerator->setSeedingLayers(pairLayers);
-
   unsigned int debug_Id0 = detIdsToDebug[0];
   unsigned int debug_Id1 = detIdsToDebug[1];
   unsigned int debug_Id2 = detIdsToDebug[2];
 
-  if (debug) cout << "pair: " << thePairGenerator->innerLayer().name() << "+" <<  thePairGenerator->outerLayer().name() << " 3rd lay size: " << thirdLayers.size() << endl;
+  if (debug) cout << "pair: " << thePairGenerator->innerLayer(pairLayers).name() << "+" <<  thePairGenerator->outerLayer(pairLayers).name() << " 3rd lay size: " << thirdLayers.size() << endl;
 
   //gc: first get the pairs
   OrderedHitPairs pairs;
   pairs.reserve(30000);
-  thePairGenerator->hitPairs(region,pairs,ev,es);
+  thePairGenerator->hitPairs(region,pairs,ev,es, pairLayers);
   if (debug) cout << endl;
   if (pairs.empty()) {
     //cout << "empy pairs" << endl;

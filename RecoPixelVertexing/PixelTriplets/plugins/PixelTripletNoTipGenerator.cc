@@ -55,8 +55,7 @@ void PixelTripletNoTipGenerator::hitTriplets(
 
   OrderedHitPairs pairs; pairs.reserve(30000);
   OrderedHitPairs::const_iterator ip;
-  thePairGenerator->setSeedingLayers(pairLayers);
-  thePairGenerator->hitPairs(region,pairs,ev,es);
+  thePairGenerator->hitPairs(region,pairs,ev,es, pairLayers);
 
   if (pairs.size() ==0) return;
 
@@ -67,8 +66,8 @@ void PixelTripletNoTipGenerator::hitTriplets(
      thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
   }
 
-  const DetLayer * firstLayer = thePairGenerator->innerLayer().detLayer();
-  const DetLayer * secondLayer = thePairGenerator->outerLayer().detLayer();
+  const DetLayer * firstLayer = thePairGenerator->innerLayer(pairLayers).detLayer();
+  const DetLayer * secondLayer = thePairGenerator->outerLayer(pairLayers).detLayer();
   if (!firstLayer || !secondLayer) return;
 
   MultipleScatteringParametrisation sigma1RPhi( firstLayer, es);

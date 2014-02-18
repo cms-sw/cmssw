@@ -91,8 +91,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
 
   // Generate pairs
   OrderedHitPairs pairs; pairs.reserve(30000);
-  thePairGenerator->setSeedingLayers(pairLayers);
-  thePairGenerator->hitPairs(region,pairs,ev,es);
+  thePairGenerator->hitPairs(region,pairs,ev,es, pairLayers);
 
   if (pairs.size() == 0) return;
 
