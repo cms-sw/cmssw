@@ -66,11 +66,19 @@ namespace reco {
       neighbours_.clear();
     }
 
-    PFRecHitRefVector neighbours4();
-    PFRecHitRefVector neighbours8();
+    PFRecHitRefVector neighbours4() {
+      return neighbours4_;
+    }
+    PFRecHitRefVector neighbours8() {
+      return neighbours8_;
+    }
 
     PFRecHitRefVector neighbours() {
       return neighbours_;
+    }
+
+    std::vector<unsigned short> neighbourInfos() {
+      return neighbourInfos_;
     }
 
 
@@ -154,6 +162,11 @@ namespace reco {
     /// indices to existing neighbours (1 common side)
     PFRecHitRefVector   neighbours_;
     std::vector< unsigned short >   neighbourInfos_;
+
+    //Caching the neighbours4/8 per request of Lindsey
+    PFRecHitRefVector   neighbours4_;
+    PFRecHitRefVector   neighbours8_;
+
 
     /// number of corners
     static const unsigned    nCorners_;
