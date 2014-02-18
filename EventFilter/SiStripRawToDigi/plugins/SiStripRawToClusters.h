@@ -38,7 +38,7 @@ namespace sistrip {
     
     void updateCabling( const edm::EventSetup& setup );
     
-    edm::InputTag productLabel_;
+    edm::EDGetTokenT<FEDRawDataCollection> token_;
     const SiStripRegionCabling* cabling_;
     uint32_t cacheId_;
     std::auto_ptr<StripClusterizerAlgorithm> clusterizer_;
