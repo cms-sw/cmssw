@@ -157,8 +157,8 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
     }
     h->Sumw2();
     _elements[name] = iBooker.book1D(name, h);
-    LogDebug("ExoticaValidation") << "                        booked histo with name " << name << "\n"
-				  << "                        at location " << (unsigned long int)_elements[name];
+    //    LogDebug("ExoticaValidation") << "                        booked histo with name " << name << "\n"
+    //				  << "                        at location " << (unsigned long int)_elements[name];
     delete h;
 }
 

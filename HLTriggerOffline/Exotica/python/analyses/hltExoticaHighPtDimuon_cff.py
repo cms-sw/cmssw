@@ -5,7 +5,7 @@ HighPtDimuonPSet = cms.PSet(
         "HLT_Mu17_Mu8_v",
         "HLT_Mu17_TkMu8_v",
         ),
-    recMuonLabel  = cms.string("muons"),
+    recMuonLabel  = cms.InputTag("muons"),
     # -- Analysis specific cuts
     minCandidates = cms.uint32(2),
     # -- Analysis specific binnings

@@ -30,6 +30,14 @@ HLTExoticaValidator::HLTExoticaValidator(const edm::ParameterSet& pset) :
     // Prepare the event collections to be used.
     _collections = new EVTColContainer;
 
+    // Create a new subanalysis for each of the analysis names.
+    // Notice that the constructor takes the full parameter set,
+    // the analysis name and the consumesCollector() separately.
+    for (size_t i = 0; i < _analysisnames.size() ; ++i) {
+        HLTExoticaSubAnalysis analyzer(_pset, _analysisnames.at(i), consumesCollector());
+        _analyzers.push_back(analyzer);
+    }
+
 }
 
 HLTExoticaValidator::~HLTExoticaValidator()
@@ -50,14 +58,6 @@ HLTExoticaValidator::~HLTExoticaValidator()
 void HLTExoticaValidator::dqmBeginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
 {
     LogDebug("ExoticaValidation") << "In HLTExoticaValidator::dqmBeginRun()";
-
-    // Create a new subanalysis for each of the analysis names.
-    // Notice that the constructor takes the full parameter set AND
-    // the analysis separately.
-    for (size_t i = 0; i < _analysisnames.size() ; ++i) {
-        HLTExoticaSubAnalysis analyzer(_pset, _analysisnames.at(i));
-        _analyzers.push_back(analyzer);
-    }
 
     // Call the Plotter beginRun (which stores the triggers paths..:)
     for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin();

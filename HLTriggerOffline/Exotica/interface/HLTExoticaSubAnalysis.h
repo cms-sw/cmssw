@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -42,14 +43,17 @@
 
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaPlotter.h"
 
-
 #include<vector>
 #include<set>
 #include<map>
 #include<cstring>
 
+/// Class to manage all object collections from a centralized place.
 class EVTColContainer;
 
+/// This class is the main workhorse of the package.
+/// It makes the histograms for one given analysis, taking care
+/// of all HLT paths related to that analysis.
 class HLTExoticaSubAnalysis {
 public:
     enum {
@@ -58,55 +62,73 @@ public:
     };
 
     HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
-                          const std::string & analysisname);
+                          const std::string & analysisname,
+			  edm::ConsumesCollector && consCollector);
     ~HLTExoticaSubAnalysis();
     void beginJob();
-    void subAnalysisBookHistos(DQMStore::IBooker &iBooker, const edm::Run & iRun, const edm::EventSetup & iSetup);
     void beginRun(const edm::Run & iRun, const edm::EventSetup & iEventSetup);
+
+    /// Method to book all relevant histograms in the DQMStore.
+    /// Uses the IBooker interface for thread safety.
+    /// Intended to be called from master object.
+    void subAnalysisBookHistos(DQMStore::IBooker &iBooker, const edm::Run & iRun, const edm::EventSetup & iSetup);
+
+    /// Method to fill all relevant histograms.
+    /// Notice that we update the EVTColContaner to point to the collections we want.
     void analyze(const edm::Event & iEvent, const edm::EventSetup & iEventSetup, EVTColContainer * cols);
 
+private:
     /// Return the objects (muons,electrons,photons,...) needed by a HLT path.
     /// Will in general return: 0 for muon, 1 for electron, 2 for photon,
-    /// 3 for PFMET, for for PFTau, 6 for Jet.
+    /// 3 for PFMET, 4 for PFTau, 5 for Jet.
     /// Notice that this function is really based on a parsing of the name of
-    /// the path; any incongruences theremay lead to problems.
+    /// the path; any incongruences there may lead to problems.
     const std::vector<unsigned int> getObjectsType(const std::string & hltpath) const;
 
-
-private:
-    /// Books the maps, telling which collection should come from witch label
-    void bookobjects(const edm::ParameterSet & anpset);
-    /// Gets the collections booked
-    void initobjects(const edm::Event & iEvent, EVTColContainer * col);
+    /// Creates the maps that map  which collection should come from which label
+    void getNamesOfObjects(const edm::ParameterSet & anpset);
+    /// Registers consumption of objects
+    void registerConsumes(edm::ConsumesCollector & consCollector);
+    /// Gets the collections themselves
+    void getHandlesToObjects(const edm::Event & iEvent, EVTColContainer * col);
+    /// Initializes the selectors of the objects based on which object it is
     void initSelector(const unsigned int & objtype);
+    /// This function applies the selectors initialized previously to the objects,
+    /// and matches the passing objects to HLT objects.
     void insertCandidates(const unsigned int & objtype, const EVTColContainer * col,
                           std::vector<MatchStruct> * matches);
 
+    /// The internal functions to book and fill histograms
     void bookHist(DQMStore::IBooker &iBooker, const std::string & source, const std::string & objType,
                   const std::string & variable);
     void fillHist(const std::string & source, const std::string & objType,
                   const std::string & variable, const float & value);
 
+    /// Internal, working copy of the PSet passed from above.
     edm::ParameterSet _pset;
 
+    /// The name of this sub-analysis
     std::string _analysisname;
 
     /// The minimum number of reco/gen candidates needed by the analysis
     unsigned int _minCandidates;
 
-    std::string _hltProcessName;
-
-    /// the hlt paths with regular expressions
+    /// The hlt paths to check for.
     std::vector<std::string> _hltPathsToCheck;
-    /// the hlt paths found in the hltConfig
+    /// The hlt paths found in the hltConfig
     std::set<std::string> _hltPaths;
-
-    /// Relation between the short version of a path
+    /// Relation between the short and long versions of the path
     std::map<std::string, std::string> _shortpath2long;
 
-    // The name of the object collections to be used in this analysis.
-    std::string _genParticleLabel;
-    std::map<unsigned int, std::string> _recLabels;
+    /// The labels of the object collections to be used in this analysis.
+    std::string _hltProcessName;
+    edm::InputTag _genParticleLabel;
+    edm::InputTag _trigResultsLabel;
+    std::map<unsigned int, edm::InputTag> _recLabels;
+    /// And also the tokens to get the object collections
+    edm::EDGetTokenT<reco::GenParticleCollection> _genParticleToken;
+    edm::EDGetTokenT<edm::TriggerResults> _trigResultsToken;
+    std::map<unsigned int, edm::EDGetToken> _tokens;
 
     /// Some kinematical parameters
     std::vector<double> _parametersEta;
@@ -130,8 +152,10 @@ private:
     /// The plotters: managers of each hlt path where the plots are done
     std::vector<HLTExoticaPlotter> _plotters;
 
+    /// Interface to the HLT information
     HLTConfigProvider _hltConfig;
 
+    /// Structure of the MonitorElements
     std::map<std::string, MonitorElement *> _elements;
 };
 

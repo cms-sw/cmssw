@@ -59,6 +59,17 @@ process.MessageLogger.ExoticaValidationMessages = cms.untracked.PSet(
     ExoticaValidation = cms.untracked.PSet(limit = cms.untracked.int32(1000))
     )
 
+process.MessageLogger.categories.extend(["GetManyWithoutRegistration","GetByLabelWithoutRegistration"])
+
+_messageSettings = cms.untracked.PSet(
+    reportEvery = cms.untracked.int32(1),
+    optionalPSet = cms.untracked.bool(True),
+    limit = cms.untracked.int32(10000000)
+    )
+
+process.MessageLogger.cerr.GetManyWithoutRegistration = _messageSettings
+process.MessageLogger.cerr.GetByLabelWithoutRegistration = _messageSettings
+
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *', 

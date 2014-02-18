@@ -3,14 +3,13 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaSubAnalysis.h"
 #include "HLTriggerOffline/Exotica/src/EVTColContainer.cc"
 #include "HLTriggerOffline/Exotica/src/MatchStruct.cc"
-
-#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "TPRegexp.h"
 #include "TString.h"
@@ -18,23 +17,19 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-#include "HLTriggerOffline/Exotica/interface/HLTExoticaSubAnalysis.h"
-#include "HLTriggerOffline/Exotica/src/MatchStruct.cc"
-
-#include "TPRegexp.h"
-#include "TString.h"
-
 #include <set>
 #include <algorithm>
 
 /// Constructor
 HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
-                                             const std::string & analysisname) :
+                                             const std::string & analysisname,
+					     edm::ConsumesCollector && consCollector) :
     _pset(pset),
     _analysisname(analysisname),
     _minCandidates(0),
     _hltProcessName(pset.getParameter<std::string>("hltProcessName")),
     _genParticleLabel(pset.getParameter<std::string>("genParticleLabel")),
+    _trigResultsLabel("TriggerResults", "", _hltProcessName),
     _parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
     _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
@@ -53,6 +48,8 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
 
     // If this analysis has a particular set of binnings, use it.
     // (Taken from the analysis-specific parameter set, of course)
+    // The "true" in the beginning of _pset.insert() means
+    // "overwrite the parameter if need be".
     if (anpset.exists("parametersTurnOn")) {
         _parametersTurnOn = anpset.getParameter<std::vector<double> >("parametersTurnOn");
         _pset.insert(true, "parametersTurnOn", anpset.retrieve("parametersTurnOn"));
@@ -66,12 +63,16 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
         _pset.insert(true, "parametersPhi", anpset.retrieve("parametersPhi"));
     }
 
-    // Collections labels (but genparticles already initialized)
-    // *** initializing _recLabels data member, essentially
-    this->bookobjects(anpset);
+    // Get names of objects that we may want to get from the event.
+    // Notice that genParticles are dealt with separately.
+    this->getNamesOfObjects(anpset);
+    
+    // Since now we have the names, we should register the consumption
+    // of objects.
+    this->registerConsumes(consCollector);
 
     // Generic objects: Initialization of basic phase space cuts.
-    for (std::map<unsigned int, std::string>::const_iterator it = _recLabels.begin();
+    for (std::map<unsigned int, edm::InputTag>::const_iterator it = _recLabels.begin();
          it != _recLabels.end(); ++it) {
         const std::string objStr = EVTColContainer::getTypeString(it->first);
         _genCut[it->first] = pset.getParameter<std::string>(std::string(objStr + "_genCut").c_str());
@@ -79,7 +80,7 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     }
 
     //--- Updating parameters if has to be modified for this particular specific analysis
-    for (std::map<unsigned int, std::string>::const_iterator it = _recLabels.begin();
+    for (std::map<unsigned int, edm::InputTag>::const_iterator it = _recLabels.begin();
          it != _recLabels.end(); ++it) {
         const std::string objStr = EVTColContainer::getTypeString(it->first);
         try {
@@ -144,7 +145,7 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
     iBooker.setCurrentFolder(baseDir);
 
     // Book the gen/reco analysis-dependent histograms (denominators)
-    for (std::map<unsigned int, std::string>::const_iterator it = _recLabels.begin();
+    for (std::map<unsigned int, edm::InputTag>::const_iterator it = _recLabels.begin();
          it != _recLabels.end(); ++it) {
         const std::string objStr = EVTColContainer::getTypeString(it->first);
         std::vector<std::string> sources(2);
@@ -233,7 +234,7 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
         // Sanity check: the object needed by a trigger path should be
         // introduced by the user via config python (_recLabels datamember)
         std::vector<unsigned int> userInstantiate;
-        for (std::map<unsigned int, std::string>::iterator it = _recLabels.begin() ;
+        for (std::map<unsigned int, edm::InputTag>::iterator it = _recLabels.begin() ;
              it != _recLabels.end(); ++it) {
             userInstantiate.push_back(it->first);
         }
@@ -268,7 +269,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::analyze()";
 
     // Initialize the collection (the ones which hasn't been initialiazed yet)
-    this->initobjects(iEvent, cols);
+    this->getHandlesToObjects(iEvent, cols);
 
     // Utility map
     std::map<unsigned int, std::string> u2str;
@@ -281,7 +282,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     // Make each good GEN object into the base cand for a MatchStruct
     // Our definition of "good" is "passes the selector" defined in the config .py
     std::vector<MatchStruct> * matches = new std::vector<MatchStruct>;
-    for (std::map<unsigned int, std::string>::iterator it = _recLabels.begin();
+    for (std::map<unsigned int, edm::InputTag>::iterator it = _recLabels.begin();
          it != _recLabels.end(); ++it) {
         // Here we are filling the vector of StringCutObjectSelector<reco::GenParticle>
         // with objects constructed from the strings saved in _genCut.
@@ -310,7 +311,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     matches->clear();
     // --- same for RECO objects
     // Extraction of the objects candidates
-    for (std::map<unsigned int, std::string>::iterator it = _recLabels.begin();
+    for (std::map<unsigned int, edm::InputTag>::iterator it = _recLabels.begin();
          it != _recLabels.end(); ++it) {
         // Reco selectors (the function takes into account if it was instantiated
         // before or not) ### Thiago ---> Then why don't we put it in the beginRun???
@@ -341,7 +342,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
         // Just the first two different ones, if there are more
         std::map<unsigned int, int> * countobjects = new std::map<unsigned int, int>;
         // Initializing the count of the used object
-        for (std::map<unsigned int, std::string>::iterator co = _recLabels.begin();
+        for (std::map<unsigned int, edm::InputTag>::iterator co = _recLabels.begin();
              co != _recLabels.end(); ++co) {
             countobjects->insert(std::pair<unsigned int, int>(co->first, 0));
         }
@@ -423,94 +424,157 @@ const std::vector<unsigned int> HLTExoticaSubAnalysis::getObjectsType(const std:
 }
 
 // Booking the maps: recLabels and genParticle selectors
-void HLTExoticaSubAnalysis::bookobjects(const edm::ParameterSet & anpset)
+void HLTExoticaSubAnalysis::getNamesOfObjects(const edm::ParameterSet & anpset)
 {
-    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::bookobjects()";
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::getNamesOfObjects()";
 
     if (anpset.exists("recMuonLabel")) {
-        _recLabels[EVTColContainer::MUON] = anpset.getParameter<std::string>("recMuonLabel");
+        _recLabels[EVTColContainer::MUON] = anpset.getParameter<edm::InputTag>("recMuonLabel");
         _genSelectorMap[EVTColContainer::MUON] = 0 ;
     }
     if (anpset.exists("recElecLabel")) {
-        _recLabels[EVTColContainer::ELEC] = anpset.getParameter<std::string>("recElecLabel");
+        _recLabels[EVTColContainer::ELEC] = anpset.getParameter<edm::InputTag>("recElecLabel");
         _genSelectorMap[EVTColContainer::ELEC] = 0 ;
     }
     if (anpset.exists("recPhotonLabel")) {
-        _recLabels[EVTColContainer::PHOTON] = anpset.getParameter<std::string>("recPhotonLabel");
+        _recLabels[EVTColContainer::PHOTON] = anpset.getParameter<edm::InputTag>("recPhotonLabel");
         _genSelectorMap[EVTColContainer::PHOTON] = 0 ;
     }
     if (anpset.exists("recPFMETLabel")) {
-        _recLabels[EVTColContainer::PFMET] = anpset.getParameter<std::string>("recPFMETLabel");
+        _recLabels[EVTColContainer::PFMET] = anpset.getParameter<edm::InputTag>("recPFMETLabel");
         _genSelectorMap[EVTColContainer::PFMET] = 0 ;
     }
     if (anpset.exists("recPFTauLabel")) {
-        _recLabels[EVTColContainer::PFTAU] = anpset.getParameter<std::string>("recPFTauLabel");
+        _recLabels[EVTColContainer::PFTAU] = anpset.getParameter<edm::InputTag>("recPFTauLabel");
         _genSelectorMap[EVTColContainer::PFTAU] = 0 ;
     }
     if (anpset.exists("recJetLabel")) {
-        _recLabels[EVTColContainer::JET] = anpset.getParameter<std::string>("recJetLabel");
+        _recLabels[EVTColContainer::JET] = anpset.getParameter<edm::InputTag>("recJetLabel");
         _genSelectorMap[EVTColContainer::JET] = 0 ;
     }
 
     if (_recLabels.size() < 1) {
-        edm::LogError("ExoticaValidation") << "HLTExoticaSubAnalysis::bookobjects, "
+        edm::LogError("ExoticaValidation") << "HLTExoticaSubAnalysis::getNamesOfObjects, "
                                            << "Not included any object (recMuonLabel, recElecLabel, ...)  "
                                            << "in the analysis " << _analysisname;
         return;
     }
 }
 
-// Setting the collections of objects in EVTColContainer
-void HLTExoticaSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer * col)
+// Register consumption of objects.
+// I have chosen to centralize all consumes() calls here.
+void HLTExoticaSubAnalysis::registerConsumes(edm::ConsumesCollector & iC)
 {
-    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::initobjects()";
+    // Register that we are getting genParticles
+    _genParticleToken = iC.consumes<reco::GenParticleCollection>(_genParticleLabel);    
+   
+    // Register that we are getting the trigger results
+    _trigResultsToken = iC.consumes<edm::TriggerResults>(_trigResultsLabel);
+    // Loop over _recLabels, see what we need, and register.
+    // Then save the registered token in _tokens.
+    // Remember: _recLabels is a map<uint, edm::InputTag>
+    // Remember: _tokens    is a map<uint, edm::EDGetToken>
+    LogDebug("ExoticaValidation") << "We have got " << _recLabels.size() << "recLabels";
+    for (std::map<unsigned int, edm::InputTag>::iterator it = _recLabels.begin();
+         it != _recLabels.end(); ++it) {
+        if (it->first == EVTColContainer::MUON) {
+	    edm::EDGetTokenT<reco::MuonCollection> particularToken = iC.consumes<reco::MuonCollection>(it->second);
+	    edm::EDGetToken token(particularToken);
+	    _tokens[it->first] = token;
+	} 
+	else if (it->first == EVTColContainer::ELEC) {
+            edm::EDGetTokenT<reco::GsfElectronCollection> particularToken = iC.consumes<reco::GsfElectronCollection>(it->second);
+	    edm::EDGetToken token(particularToken);
+	    _tokens[it->first] = token;
+	} 
+	else if (it->first == EVTColContainer::PHOTON) {
+            edm::EDGetTokenT<reco::PhotonCollection> particularToken = iC.consumes<reco::PhotonCollection>(it->second);
+	    edm::EDGetToken token(particularToken);
+	    _tokens[it->first] = token;
+	} 
+	else if (it->first == EVTColContainer::PFMET) {
+            edm::EDGetTokenT<reco::PFMETCollection> particularToken = iC.consumes<reco::PFMETCollection>(it->second);
+	    edm::EDGetToken token(particularToken);
+	    _tokens[it->first] = token;
+	} 
+	else if (it->first == EVTColContainer::PFTAU) {
+            edm::EDGetTokenT<reco::PFTauCollection> particularToken = iC.consumes<reco::PFTauCollection>(it->second);
+	    edm::EDGetToken token(particularToken);
+	    _tokens[it->first] = token;
+	} 
+	else if (it->first == EVTColContainer::JET) {
+            edm::EDGetTokenT<reco::PFJetCollection> particularToken = iC.consumes<reco::PFJetCollection>(it->second);
+	    edm::EDGetToken token(particularToken);
+	    _tokens[it->first] = token;
+	} 
+	else {
+            edm::LogError("ExoticaValidation") << "HLTExoticaSubAnalysis::registerConsumes"
+                                               << " NOT IMPLEMENTED (yet) ERROR: '" << it->second.label() << "'";
+        }
+    }
+    
+}
+
+// Setting the collections of objects in EVTColContainer
+void HLTExoticaSubAnalysis::getHandlesToObjects(const edm::Event & iEvent, EVTColContainer * col)
+{
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::getHandlesToObjects()";
 
     if (! col->isCommonInit()) {
         // Extract the trigger results (path info, pass,...)
         edm::Handle<edm::TriggerResults> trigResults;
-        edm::InputTag trigResultsTag("TriggerResults", "", _hltProcessName);
-        iEvent.getByLabel(trigResultsTag, trigResults);
+        iEvent.getByToken(_trigResultsToken, trigResults);
         if (trigResults.isValid()) {
             col->triggerResults = trigResults.product();
+	    LogDebug("ExoticaValidation") << "Added handle to triggerResults";
         }
 
-        // GenParticle collection if it is there
+        // Extract the genParticles
         edm::Handle<reco::GenParticleCollection> genPart;
-        iEvent.getByLabel(_genParticleLabel, genPart);
+        iEvent.getByToken(_genParticleToken, genPart);
         if (genPart.isValid()) {
             col->genParticles = genPart.product();
+	    LogDebug("ExoticaValidation") << "Added handle to genParticles";
         }
     }
 
-    for (std::map<unsigned int, std::string>::iterator it = _recLabels.begin();
-         it != _recLabels.end(); ++it) {
+    // Loop over the tokens and extract all other objects
+    LogDebug("ExoticaValidation") << "We have got " << _tokens.size() << "tokens";
+    for (std::map<unsigned int, edm::EDGetToken>::iterator it = _tokens.begin();
+         it != _tokens.end(); ++it) {
         if (it->first == EVTColContainer::MUON) {
             edm::Handle<reco::MuonCollection> theHandle;
-            iEvent.getByLabel(it->second, theHandle);
+            iEvent.getByToken(it->second, theHandle);
             col->set(theHandle.product());
-        } else if (it->first == EVTColContainer::ELEC) {
+        } 
+	else if (it->first == EVTColContainer::ELEC) {
             edm::Handle<reco::GsfElectronCollection> theHandle;
-            iEvent.getByLabel(it->second, theHandle);
+            iEvent.getByToken(it->second, theHandle);
             col->set(theHandle.product());
-        } else if (it->first == EVTColContainer::PHOTON) {
+        } 
+	else if (it->first == EVTColContainer::PHOTON) {
             edm::Handle<reco::PhotonCollection> theHandle;
-            iEvent.getByLabel(it->second, theHandle);
+            iEvent.getByToken(it->second, theHandle);
             col->set(theHandle.product());
-        } else if (it->first == EVTColContainer::PFMET) {
+        } 
+	else if (it->first == EVTColContainer::PFMET) {
             edm::Handle<reco::PFMETCollection> theHandle;
-            iEvent.getByLabel(it->second, theHandle);
+            iEvent.getByToken(it->second, theHandle);
             col->set(theHandle.product());
-        } else if (it->first == EVTColContainer::PFTAU) {
+        } 
+	else if (it->first == EVTColContainer::PFTAU) {
             edm::Handle<reco::PFTauCollection> theHandle;
-            iEvent.getByLabel(it->second, theHandle);
+            iEvent.getByToken(it->second, theHandle);
             col->set(theHandle.product());
-        } else if (it->first == EVTColContainer::JET) {
+        } 
+	else if (it->first == EVTColContainer::JET) {
             edm::Handle<reco::PFJetCollection> theHandle;
-            iEvent.getByLabel(it->second, theHandle);
+            iEvent.getByToken(it->second, theHandle);
             col->set(theHandle.product());
-        } else {
-            edm::LogError("ExoticaValidation") << "HLTExoticaSubAnalysis::initobjects "
-                                               << " NOT IMPLEMENTED (yet) ERROR: '" << it->second << "'";
+        }
+	else {
+            edm::LogError("ExoticaValidation") << "HLTExoticaSubAnalysis::getHandlesToObjects "
+                                               << " NOT IMPLEMENTED (yet) ERROR: '" << it->first << "'";
         }
     }
 }
@@ -602,51 +666,54 @@ void HLTExoticaSubAnalysis::initSelector(const unsigned int & objtype)
 void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const EVTColContainer * cols, std::vector<MatchStruct> * matches)
 {
     
-    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::insertCandidates()";
-
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::insertCandidates()\n" 
+				  << "Our objType is " << EVTColContainer::getTypeString(objType);
+	
     if (objType == EVTColContainer::MUON) {
         for (size_t i = 0; i < cols->muons->size(); i++) {
-            if (_recMuonSelector->operator()(cols->muons->at(i))) {
-                matches->push_back(MatchStruct(&cols->muons->at(i), objType));
-		LogDebug("ExoticaValidation") << "Inserting muon";
-            }
+	    LogDebug("ExoticaValidation") << "Inserting muon " << i ;
+	    if (_recMuonSelector->operator()(cols->muons->at(i))) {
+		matches->push_back(MatchStruct(&cols->muons->at(i), objType));
+	    }
         }
     } else if (objType == EVTColContainer::ELEC) {
         for (size_t i = 0; i < cols->electrons->size(); i++) {
+	    LogDebug("ExoticaValidation") << "Inserting electron " << i ;
             if (_recElecSelector->operator()(cols->electrons->at(i))) {
                 matches->push_back(MatchStruct(&cols->electrons->at(i), objType));
-		LogDebug("ExoticaValidation") << "Inserting electron";
             }
         }
     } else if (objType == EVTColContainer::PHOTON) {
         for (size_t i = 0; i < cols->photons->size(); i++) {
+	    LogDebug("ExoticaValidation") << "Inserting photon " << i ;
             if (_recPhotonSelector->operator()(cols->photons->at(i))) {
                 matches->push_back(MatchStruct(&cols->photons->at(i), objType));
-		LogDebug("ExoticaValidation") << "Inserting photon";
             }
         }
     } else if (objType == EVTColContainer::PFMET) {
         for (size_t i = 0; i < cols->pfMETs->size(); i++) {
-            if (_recPFMETSelector->operator()(cols->pfMETs->at(i))) {
+	    LogDebug("ExoticaValidation") << "Inserting PFMET " << i ;
+	    if (_recPFMETSelector->operator()(cols->pfMETs->at(i))) {
                 matches->push_back(MatchStruct(&cols->pfMETs->at(i), objType));
-		LogDebug("ExoticaValidation") << "Inserting PFMET";
-            }
+	    }
         }
     } else if (objType == EVTColContainer::PFTAU) {
         for (size_t i = 0; i < cols->pfTaus->size(); i++) {
-            if (_recPFTauSelector->operator()(cols->pfTaus->at(i))) {
+	    LogDebug("ExoticaValidation") << "Inserting PFtau " << i ;
+	    if (_recPFTauSelector->operator()(cols->pfTaus->at(i))) {
                 matches->push_back(MatchStruct(&cols->pfTaus->at(i), objType));
-		LogDebug("ExoticaValidation") << "Inserting PFtau";
-            }
+	    }
         }
     } else if (objType == EVTColContainer::JET) {
         for (size_t i = 0; i < cols->jets->size(); i++) {
+	    LogDebug("ExoticaValidation") << "Inserting jet " << i ;
             if (_recJetSelector->operator()(cols->jets->at(i))) {
                 matches->push_back(MatchStruct(&cols->jets->at(i), objType));
-		LogDebug("ExoticaValidation") << "Inserting jet";
             }
         }
     }
+    LogDebug("ExoticaValidation") << "IS THIS WORKING OR NOT???";
+	
     /* else
     {
     FIXME: ERROR NOT IMPLEMENTED
