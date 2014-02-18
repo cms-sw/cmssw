@@ -106,10 +106,11 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
             m_caloInputTag(parSet.getParameter<edm::InputTag> ("caloInputTag")),
 
             m_produceL1GtDaqRecord(parSet.getParameter<bool> ("ProduceL1GtDaqRecord")),
-            m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),
-
+            m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),           
+	    
             m_emulateBxInEvent(parSet.getParameter<int> ("EmulateBxInEvent")),
-            m_recordLength(parSet.getParameter<std::vector<int> > ("RecordLength")),
+	    m_L1DataBxInEvent(parSet.getParameter<int> ("L1DataBxInEvent")),
+
             m_alternativeNrBxBoardDaq(parSet.getParameter<unsigned int> ("AlternativeNrBxBoardDaq")),
             m_psBstLengthBytes(parSet.getParameter<int> ("BstLengthBytes")),
             m_algorithmTriggersUnprescaled(parSet.getParameter<bool> ("AlgorithmTriggersUnprescaled")),
@@ -139,8 +140,6 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
                 << "\nWrite Psb content to L1 GT DAQ Record:          " << m_writePsbL1GtDaqRecord
                 << " \n"
                 << "\nNumber of BxInEvent to be emulated:             " << m_emulateBxInEvent
-                << "\nNumber of BXs corresponding to alternative 0:   " << m_recordLength.at(0)
-                << "\nNumber of BXs corresponding to alternative 1:   " << m_recordLength.at(1)
                 << " \n"
                 << "\nAlternative for number of BX in GT DAQ record:   0x" << std::hex
                 << m_alternativeNrBxBoardDaq
@@ -165,22 +164,25 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
         }
     }
 
-    int requiredRecordLength = std::max(m_recordLength.at(0), m_recordLength.at(1));
-    if ((m_emulateBxInEvent >= 0) && (m_emulateBxInEvent < requiredRecordLength) ) {
 
-        m_emulateBxInEvent = requiredRecordLength;
+    if ( ( m_L1DataBxInEvent > 0 ) && ( ( m_L1DataBxInEvent % 2 ) == 0 )) {
+        m_L1DataBxInEvent = m_L1DataBxInEvent - 1;
 
         if (m_verbosity) {
             edm::LogWarning("L1uGtProducer")
-                    << "\nWARNING: Number of bunch crossing required to be emulated ( "
-                    << m_emulateBxInEvent << " BX) smaller as required in RecordLength:"
-                    << "\n  Number of BXs corresponding to alternative 0:   " << m_recordLength.at(0)
-                    << "\n  Number of BXs corresponding to alternative 1:   " << m_recordLength.at(1)
-                    << "\nEmulating " << requiredRecordLength << " BX!"
-                    << "\n"
+                    << "\nWARNING: Number of bunch crossing for incoming L1 Data rounded to: "
+                    << m_L1DataBxInEvent << "\n         The number must be an odd number!\n"
                     << std::endl;
         }
+    } else if( m_L1DataBxInEvent<0) {
+        m_L1DataBxInEvent = 1;
 
+        if (m_verbosity) {
+            edm::LogWarning("L1uGtProducer")
+                    << "\nWARNING: Number of bunch crossing for incoming L1 Data was changed to: "
+                    << m_L1DataBxInEvent << "\n         The number must be an odd positive number!\n"
+                    << std::endl;
+        }        
     }
 
     
@@ -288,8 +290,11 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
         m_emulateBxInEvent = m_totalBxInEvent;
     }
 
-    int minBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
-    int maxBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;
+    int minEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
+    int maxEmulBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;
+
+    int minL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - m_L1DataBxInEvent;
+    int maxL1DataBxInEvent = (m_L1DataBxInEvent + 1)/2 - 1;
 
     // process event iEvent
     // get / update the stable parameters from the EventSetup
@@ -331,40 +336,13 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
 
         // Initialize Board
-        m_uGtBrd->init(m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1Jet, minBxInEvent, maxBxInEvent );
+        m_uGtBrd->init(m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1Jet, minL1DataBxInEvent, maxL1DataBxInEvent );
 
         //
         m_l1GtStableParCacheID = l1GtStableParCacheID;
 
     }
 
-    int recordLength0 = m_recordLength.at(0);
-    int recordLength1 = m_recordLength.at(1);
-
-    if ((recordLength0 < 0) || (recordLength1 < 0) ) {
-
-        // take them from event setup
-        // FIXME implement later - temporary solution
-
-        recordLength0 = m_emulateBxInEvent;
-        recordLength1 = m_emulateBxInEvent;
-
-    }
-
-
-    if (m_verbosity) {
-
-        LogDebug("l1t|Global")
-                << "\nTotal number of BX to emulate in the GT readout record: "
-                << m_emulateBxInEvent << " = " << "[" << minBxInEvent << ", " << maxBxInEvent
-                << "] BX\n"
-                << "\nNumber of BX for alternative 0:  " << recordLength0
-                << "\nNumber of BX for alternative 1:  " << recordLength1
-                << "\nActive boards in L1 GT DAQ record (hex format) = " << std::hex
-                << std::setw(sizeof(m_activeBoardsGtDaq) * 2) << std::setfill('0')
-                << m_activeBoardsGtDaq << std::dec << std::setfill(' ')
-                << std::endl;
-    }
 
     // get / update the board maps from the EventSetup
     // local cache & check on cacheIdentifier
@@ -510,8 +488,8 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
     // Produce the Output Records for the GT
     std::auto_ptr<L1uGtRecBxCollection> uGtRecord( new L1uGtRecBxCollection());
-    std::auto_ptr<L1uGtAlgBxCollection> uGtAlgRecord( new L1uGtAlgBxCollection(0,minBxInEvent,maxBxInEvent));
-    std::auto_ptr<L1uGtExtBxCollection> uGtExtRecord( new L1uGtExtBxCollection(0,minBxInEvent,maxBxInEvent));
+    std::auto_ptr<L1uGtAlgBxCollection> uGtAlgRecord( new L1uGtAlgBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
+    std::auto_ptr<L1uGtExtBxCollection> uGtExtRecord( new L1uGtExtBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
    
 
     // * produce the L1GlobalTriggerObjectMapRecord
@@ -666,7 +644,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     }
 
     // loop over BxInEvent
-    for (int iBxInEvent = minBxInEvent; iBxInEvent <= maxBxInEvent;
+    for (int iBxInEvent = minEmulBxInEvent; iBxInEvent <= maxEmulBxInEvent;
             ++iBxInEvent) {
 
         //  run GTL
@@ -725,7 +703,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
     	std::ostringstream myCoutStream;
 
-       for(int bx=minBxInEvent; bx<maxBxInEvent; bx++) {
+       for(int bx=minEmulBxInEvent; bx<maxEmulBxInEvent; bx++) {
         
 	   /// Needs error checking that something exists at this bx.
 	   (uGtRecord->at(0)).print(myCoutStream); 
