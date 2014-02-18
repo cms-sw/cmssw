@@ -14,7 +14,7 @@ CombinedMultiHitGenerator::CombinedMultiHitGenerator(const edm::ParameterSet& cf
   edm::ParameterSet generatorPSet = cfg.getParameter<edm::ParameterSet>("GeneratorPSet");
   std::string       generatorName = generatorPSet.getParameter<std::string>("ComponentName");
   theGenerator.reset(MultiHitGeneratorFromPairAndLayersFactory::get()->create(generatorName, generatorPSet));
-  theGenerator->init(HitPairGeneratorFromLayerPair( 0, 1, &theLayerCache), &theLayerCache);
+  theGenerator->init(std::make_unique<HitPairGeneratorFromLayerPair>(0, 1, &theLayerCache), &theLayerCache);
 }
 
 CombinedMultiHitGenerator::~CombinedMultiHitGenerator() {}
@@ -33,8 +33,7 @@ void CombinedMultiHitGenerator::hitSets(
 
   std::vector<LayerTriplets::LayerSetAndLayers> trilayers = LayerTriplets::layers(layers);
   for(const auto& setAndLayers: trilayers) {
-    theGenerator->setSeedingLayers(setAndLayers.first, setAndLayers.second);
-    theGenerator->hitSets( region, result, ev, es);
+    theGenerator->hitSets( region, result, ev, es, setAndLayers.first, setAndLayers.second);
   }
   theLayerCache.clear();
 }
