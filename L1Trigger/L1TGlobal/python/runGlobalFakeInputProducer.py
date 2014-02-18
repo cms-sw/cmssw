@@ -19,7 +19,7 @@ process.load('L1Trigger/L1TGlobal/l1tGt_debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(10)
     )
 
 # Input source
@@ -124,20 +124,11 @@ process.simL1uGtDigis = cms.EDProducer("l1t::L1uGtProducer",
     #TechnicalTriggersUnprescaled = cms.bool(False),
     ProduceL1GtObjectMapRecord = cms.bool(True),
     AlgorithmTriggersUnmasked = cms.bool(False),
-    EmulateBxInEvent = cms.int32(5),
+    EmulateBxInEvent = cms.int32(1),
+    L1DataBxInEvent = cms.int32(5),
     AlgorithmTriggersUnprescaled = cms.bool(False),
     ProduceL1GtDaqRecord = cms.bool(True),
-    #ReadTechnicalTriggerRecords = cms.bool(True),
-    RecordLength = cms.vint32(3, 0),
-    #TechnicalTriggersUnmasked = cms.bool(False),
-    #ProduceL1GtEvmRecord = cms.bool(True),
-    #GmtInputTag = cms.InputTag("gtDigis"),
     GmtInputTag = cms.InputTag("gtInput"),
-    #TechnicalTriggersVetoUnmasked = cms.bool(False),
-    #AlternativeNrBxBoardEvm = cms.uint32(0),
-    #TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag("simBscDigis"), cms.InputTag("simRpcTechTrigDigis"), cms.InputTag("simHcalTechTrigDigis")),
-    #CastorInputTag = cms.InputTag("castorL1Digis"),
-    #GctInputTag = cms.InputTag("gctReEmulDigis"),
     caloInputTag = cms.InputTag("gtInput"),
     AlternativeNrBxBoardDaq = cms.uint32(0),
     #WritePsbL1GtDaqRecord = cms.bool(True),
