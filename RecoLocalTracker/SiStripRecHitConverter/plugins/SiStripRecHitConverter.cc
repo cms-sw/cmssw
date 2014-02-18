@@ -6,10 +6,13 @@ SiStripRecHitConverter::SiStripRecHitConverter(edm::ParameterSet const& conf)
     matchedRecHitsTag( conf.getParameter<std::string>( "matchedRecHits" ) ), 
     rphiRecHitsTag( conf.getParameter<std::string>( "rphiRecHits" ) ), 
     stereoRecHitsTag( conf.getParameter<std::string>( "stereoRecHits" ) ),
-    clusterProducer(conf.getParameter<edm::InputTag>("ClusterProducer")),
-    lazyGetterProducer(conf.getParameter<edm::InputTag>("LazyGetterProducer")),
     regional(conf.getParameter<bool>("Regional"))
 {
+  if (regional) {
+    clusterProducerRegional = consumes<edm::RefGetter<SiStripCluster> >(conf.getParameter<edm::InputTag>("ClusterProducer"));
+    lazyGetterProducer = consumes<edm::LazyGetter<SiStripCluster> >(conf.getParameter<edm::InputTag>("LazyGetterProducer"));
+  } else clusterProducer = consumes<edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("ClusterProducer"));
+
   produces<SiStripMatchedRecHit2DCollection>( matchedRecHitsTag );
   produces<SiStripRecHit2DCollection>( rphiRecHitsTag );
   produces<SiStripRecHit2DCollection>( stereoRecHitsTag );
@@ -25,9 +28,9 @@ produce(edm::Event& e, const edm::EventSetup& es)
   edm::Handle<edm::LazyGetter<SiStripCluster> > lazygetter;
   
   if (regional){
-    e.getByLabel(clusterProducer, refclusters);
-    e.getByLabel(lazyGetterProducer, lazygetter);
-  } else e.getByLabel(clusterProducer, clusters);
+    e.getByToken(clusterProducer, refclusters);
+    e.getByToken(lazyGetterProducer, lazygetter);
+  } else e.getByToken(clusterProducer, clusters);
   
   SiStripRecHitConverterAlgorithm::products output;
   recHitConverterAlgorithm.initialize(es);

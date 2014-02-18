@@ -14,6 +14,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "boost/cstdint.hpp"
 #include <iostream>
 #include <string>
@@ -33,7 +34,7 @@ namespace sistrip {
     
   private:
     unsigned int runNumber_;
-    edm::InputTag productLabel_;
+    edm::EDGetTokenT<FEDRawDataCollection> token_;
     const SiStripFedCabling * cabling_;
     uint32_t cacheId_;
     DetIdCollection detids_;
