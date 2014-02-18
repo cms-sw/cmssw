@@ -1,0 +1,8 @@
+<lcgdict>
+<selection>
+  <class name="L1GObject"/>
+  <class name="std::vector<L1GObject>"/>
+  <class name="edm::Wrapper<std::vector<L1GObject> >"/>
+  <class name="L1RecoMatch"/>
+</selection>
+</lcgdict>
