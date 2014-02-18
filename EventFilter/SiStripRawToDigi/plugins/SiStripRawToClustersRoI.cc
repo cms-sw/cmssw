@@ -16,12 +16,6 @@ SiStripRawToClustersRoI::SiStripRawToClustersRoI(const edm::ParameterSet& conf) 
   muons_(conf.getUntrackedParameter<bool>("Muons",false)),
   taujets_(conf.getUntrackedParameter<bool>("TauJets",false)),
   bjets_(conf.getUntrackedParameter<bool>("BJets",false)),
-  siStripLazyGetter_(conf.getParameter<edm::InputTag>("SiStripLazyGetter")),
-  electronBarrelL2_(conf.getParameter<edm::InputTag>("ElectronBarrelL2")),
-  electronEndcapL2_(conf.getParameter<edm::InputTag>("ElectronEndcapL2")),
-  muonL2_(conf.getParameter<edm::InputTag>("MuonL2")),
-  taujetL2_(conf.getParameter<edm::InputTag>("TauJetL2")),
-  bjetL2_(conf.getParameter<edm::InputTag>("BJetL2")),
   electrondeta_(conf.getUntrackedParameter<double>("ElectronEtaWindow",0.2)),
   electrondphi_(conf.getUntrackedParameter<double>("ElectronPhiWindow",0.2)),
   muondeta_(conf.getUntrackedParameter<double>("MuonEtaWindow",0.2)),
@@ -31,6 +25,21 @@ SiStripRawToClustersRoI::SiStripRawToClustersRoI(const edm::ParameterSet& conf) 
   bjetdeta_(conf.getUntrackedParameter<double>("BJetEtaWindow",0.2)),
   bjetdphi_(conf.getUntrackedParameter<double>("BJetPhiWindow",0.2))
 {
+  siStripLazyGetter_ = consumes<edm::LazyGetter<SiStripCluster> >(conf.getParameter<edm::InputTag>("SiStripLazyGetter"));
+
+  if (electrons_) {
+    electronBarrelL2_= consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("ElectronBarrelL2"));
+    electronEndcapL2_= consumes<reco::SuperClusterCollection>(conf.getParameter<edm::InputTag>("ElectronEndcapL2"));
+  }
+  if (muons_) {
+    muonL2_= consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("MuonL2"));
+  }
+  if (taujets_) {
+    taujetL2_= consumes<reco::CaloJetCollection>(conf.getParameter<edm::InputTag>("TauJetL2"));
+  }
+  if (bjets_) {
+    bjetL2_= consumes<reco::CaloJetCollection>(conf.getParameter<edm::InputTag>("BJetL2"));
+  }
   produces< RefGetter >();
 }
 
@@ -43,9 +52,9 @@ void SiStripRawToClustersRoI::beginRun( const edm::Run&, const edm::EventSetup& 
 void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& setup) {
   
   updateCabling( setup );  
-  
+
   edm::Handle< LazyGetter > lazygetter;
-  event.getByLabel(siStripLazyGetter_,lazygetter);
+  event.getByToken(siStripLazyGetter_,lazygetter);
   
   /// All regions 
   
@@ -69,8 +78,8 @@ void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& 
   if (electrons_) {
 	edm::Handle<reco::SuperClusterCollection> barrelcollection;
 	edm::Handle<reco::SuperClusterCollection> endcapcollection;
-	event.getByLabel(electronBarrelL2_,barrelcollection);
-	event.getByLabel(electronEndcapL2_,endcapcollection);
+	event.getByToken(electronBarrelL2_,barrelcollection);
+	event.getByToken(electronEndcapL2_,endcapcollection);
 	if (barrelcollection.isValid()) {
 	  electrons(*barrelcollection,*refgetter,lazygetter);
 	}
@@ -83,7 +92,7 @@ void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& 
 
   if (muons_) {
 	edm::Handle<reco::TrackCollection> collection;
-	event.getByLabel(muonL2_,collection);
+	event.getByToken(muonL2_,collection);
 	if (collection.isValid()) {
 	  muons(*collection,*refgetter,lazygetter);
 	}
@@ -93,7 +102,7 @@ void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& 
 
   if (taujets_) {
 	edm::Handle<reco::CaloJetCollection> collection;
-	event.getByLabel(taujetL2_,collection);
+	event.getByToken(taujetL2_,collection);
 	if (collection.isValid()) {
 	  taujets(*collection,*refgetter,lazygetter);
 	}
@@ -103,7 +112,7 @@ void SiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetup& 
 
   if (bjets_) {
 	edm::Handle<reco::CaloJetCollection> collection;
-	event.getByLabel(bjetL2_,collection);
+	event.getByToken(bjetL2_,collection);
 	if (collection.isValid()) {
 	  bjets(*collection,*refgetter,lazygetter);
 	}
