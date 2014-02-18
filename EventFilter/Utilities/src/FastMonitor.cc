@@ -36,7 +36,7 @@ FastMonitor::~FastMonitor() {
 
 void FastMonitor::addFastPathDefinition(std::string const& defPathFast, bool strict) {
    haveFastPath_=true;
-   defpathFast_=defPathFast;
+   defPathFast_=defPathFast;
    DataPointDefinition::getDataPointDefinitionFor(defPathFast_, dpdFast_);
    fastPathStrictChecking_=strict;
 }
@@ -59,7 +59,7 @@ void FastMonitor::registerFastGlobalMonitorable(JsonMonitorable *newMonitorable)
 {
         DataPoint *dp = new DataPoint(sourceInfo_,defPathFast_,true);
         dp->trackMonitorable(newMonitorable,false);
-        dataPointsFast_.push_back(dp);
+        dataPointsFastOnly_.push_back(dp);
 }
 
 //per-stream variables
@@ -129,14 +129,14 @@ void FastMonitor::commit(std::vector<unsigned int> *streamLumisPtr)
   //fast path:
   if (haveFastPath_) {
     std::vector<std::string> const& fjsonNames = dpdFast_.getNames();
-    fregDpCount_ = dataPointsFast_.size();
-    assert(!(fastStrictChecking_ && fjsonNames.size()==fregDpCount_));
+    fregDpCount_ = dataPointsFastOnly_.size();
+    assert(!(fastPathStrictChecking_ && fjsonNames.size()==fregDpCount_));
     std::map<unsigned int,bool> fhasJson;
     for (unsigned int i=0;i<fjsonNames.size();i++)
     {
       bool notFoundVar=true;
       for (unsigned int j=0;j<fregDpCount_;j++) {
-	if (dataPointsFast_[j]->getName()==fjsonNames[i])
+	if (dataPointsFastOnly_[j]->getName()==fjsonNames[i])
 	{
 	  jsonDpIndexFast_.push_back(j);
 	  fhasJson[j]=true;
@@ -144,13 +144,13 @@ void FastMonitor::commit(std::vector<unsigned int> *streamLumisPtr)
 	  break;
 	}
       }
-      if (notFoundVar_)
+      if (notFoundVar)
       {
-	assert(!strictChecking_);
+	assert(!fastPathStrictChecking_);
 	//push dummy DP if not registered by the service so that we output required JSON/CSV
 	DataPoint *dummyDp = new DataPoint(sourceInfo_,defPathFast_);
 	dummyDp->trackDummy(fjsonNames[i],true);
-	dataPointsFast_.push_back(dummyDp);
+	dataPointsFastOnly_.push_back(dummyDp);
 	jsonDpIndexFast_.push_back(dataPoints_.size()-1);
 
       }

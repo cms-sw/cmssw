@@ -41,7 +41,6 @@ public:
 
 	DataPoint(std::string const& source, std::string const& definition, bool fast=false) :
                  source_(source), definition_(definition), isFastOnly_(fast) { }
-	//TODO: expected/maxUpdates still useful ? = unsigned int expectedUpdates = 1, unsigned int maxUpdates = 0
 
 	~DataPoint();
 
@@ -133,7 +132,7 @@ protected:
 
 	std::vector<MonPtrMap> streamDataMaps_;
 	MonPtrMap globalDataMap_;
-	void *tracked_;
+	void *tracked_ = nullptr;
 
         //stream lumi block position
 	std::vector<unsigned int> *streamLumisPtr_ = nullptr;

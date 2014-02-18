@@ -24,11 +24,15 @@ public:
 
 	virtual ~FastMonitor();
 
+        void addFastPathDefinition(std::string const& defPathFast, bool strict);
 	//1 is default
 	void setNStreams(unsigned int nStreams) {nStreams_=nStreams;}
 
 	//register global monitorable
 	void registerGlobalMonitorable(JsonMonitorable *newMonitorable, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
+
+	//register fastPath global monitorable
+        void registerFastGlobalMonitorable(JsonMonitorable *newMonitorable);
 
 	//register per-stream monitores vector (unsigned int)
 	void registerStreamMonitorableUIntVec(std::string const& name, 
@@ -95,6 +99,7 @@ private:
 	unsigned int recentSnaps_ = 0;
 	unsigned int recentSnapsTimer_ = 0;
 	unsigned int regDpCount_ = 0;
+	unsigned int fregDpCount_ = 0;
 
 	std::unordered_set<std::string> uids_;
 
