@@ -38,12 +38,12 @@
 
 
 
-  <class name="reco::PFRecHit" ClassVersion="14">
+  <class name="reco::PFRecHit" ClassVersion="15">
    <version ClassVersion="11" checksum="3727193351"/>
    <version ClassVersion="12" checksum="207373238"/>
    <version ClassVersion="13" checksum="2553278843"/>
    <version ClassVersion="14" checksum="3941705446"/>
-
+   <version ClassVersion="15" checksum="2156607168"/>
   </class>
 
 

@@ -63,7 +63,10 @@ PFRecHit::PFRecHit(const PFRecHit& other) :
   position_(other.position_), 
   axisxyz_(other.axisxyz_),
   cornersxyz_(other.cornersxyz_),
-  neighbours_(other.neighbours_)
+  neighbours_(other.neighbours_),
+  neighbourInfos_(other.neighbourInfos_),
+  neighbours4_(other.neighbours4_),
+  neighbours8_(other.neighbours8_)
 {}
 
 
@@ -129,41 +132,14 @@ void PFRecHit::addNeighbour(short x,short y,short z,const PFRecHitRef& ref) {
   neighbours_.push_back(ref);
   neighbourInfos_.push_back(bitmask);
 
-}
-
-PFRecHitRefVector PFRecHit::neighbours4() {
-  PFRecHitRefVector out;
-  const unsigned short b111 = 7;
-
-  for (unsigned int i=0;i<neighbours_.size();++i) {
-    unsigned short mask = neighbourInfos_.at(i);
-    //check that z is 0
-    if (((b111 << 9) & mask) != 0 )
-      continue;
-    //if both |x| and |y| are not 0 continue 
-    if (((b111 << 1) & mask) != 0 && ((b111 << 5) & mask) != 0 )
-      continue;
+  if (z==0) {
+    neighbours8_.push_back(ref);
+    //find only the 4 neighbours
+    if (absx+absy==1)
+      neighbours4_.push_back(ref);
+  }
     
-    out.push_back(neighbours_.at(i));
-      
-  }
-  return out; 
-}
 
-PFRecHitRefVector PFRecHit::neighbours8() {
-  PFRecHitRefVector out;
-  const unsigned short b111 = 7;
-
-  for (unsigned int i=0;i<neighbours_.size();++i) {
-    unsigned short mask = neighbourInfos_.at(i);
-    //check that z is 0
-    if (((b111 << 9) & mask) != 0 )
-      continue;
-
-    out.push_back(neighbours_.at(i));
-
-  }
-  return out; 
 }
 
 
