@@ -167,7 +167,7 @@ namespace evf{
 
 	  // lock the monitor
 	  fmt_.monlock_.lock();
-          doSnapshot(false,lastGlobalLumi_,false,false,0);//fast output disabled for now
+          doSnapshot(true,lastGlobalLumi_,false,false,0);//fast output disabled for now
 	  fmt_.monlock_.unlock();
 
 	  ::sleep(sleepTime_);
@@ -182,7 +182,7 @@ namespace evf{
       unsigned int nStreams_;
       unsigned int nThreads_;
       int sleepTime_;
-      std::string /*rootDirectory_,*/ microstateDefPath_, outputDefPath_;
+      std::string /*rootDirectory_,*/ microstateDefPath_, fastMicrostateDefPath_, outputDefPath_;
       std::string fastName_, fastPath_, slowName_;
 
       //variables that are used by/monitored by FastMonitoringThread / FastMonitor
@@ -232,6 +232,12 @@ namespace evf{
       std::map<unsigned int,unsigned int> sourceEventsReport_;
 
       bool threadIDAvailable_ = false;
+
+      std::atomic<unsigned long> totalEventsProcessed_;
+
+      std::string moduleLegendFile_;
+      std::string pathLegendFile_;
+      bool pathLegendWritten_ = false;
     };
 
 }

@@ -35,6 +35,7 @@ namespace evf{
       std::vector<unsigned int> microstateEncoded_;
       std::vector<unsigned int> ministateEncoded_;
       std::vector<AtomicMonUInt*> processed_;
+      IntJ fastPathProcessedJ_;
       std::vector<unsigned int> threadMicrostateEncoded_;
 
       //tracking luminosity of a stream
@@ -58,6 +59,9 @@ namespace evf{
         fastThroughputJ_.setName("Throughput");
         fastAvgLeadTimeJ_.setName("AverageLeadTime");
 	fastFilesProcessedJ_.setName("FilesProcessed");
+
+        fastPathProcessedJ_ = 0;
+        fastPathProcessedJ_.setName("Processed");
       }
 
       //to be called after fast monitor is constructed
@@ -88,6 +92,10 @@ namespace evf{
 	  fm->registerStreamMonitorableUIntVec("Microstate",&threadMicrostateEncoded_,true,&microstateBins_);
 
         fm->registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,0);
+
+        //replace with global cumulative event counter for fast path
+        fm->registerFastGlobalMonitorable(&fastPathProcessedJ_);//,false,0);
+
 	//provide vector with updated per stream lumis and let it finish initialization
 	fm->commit(&streamLumi_);
       }
@@ -97,8 +105,10 @@ namespace evf{
     FastMonitoringThread() : m_stoprequest(false) {
     }
 
-    void resetFastMonitor(std::string const& microStateDefPath) {
+    void resetFastMonitor(std::string const& microStateDefPath, std::string const& fastMicroStateDefPath) {
       jsonMonitor_.reset(new FastMonitor(microStateDefPath,false)); //strict checking -> set to true to enable
+      if (fastMicroStateDefPath.size())
+        jsonMonitor_->addFastPathDefinition(fastMicroStateDefPath,false);
     }
 
     void start(void (FastMonitoringService::*fp)(),FastMonitoringService *cp){

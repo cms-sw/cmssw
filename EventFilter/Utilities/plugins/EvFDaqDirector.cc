@@ -549,6 +549,7 @@ namespace evf {
     // 1. Check suggested file
     nextFile = getRawFilePath(ls,index);
     if (stat(nextFile.c_str(), &buf) == 0) {
+     
       previousFileSize_ = buf.st_size;
       fsize = buf.st_size;
       return true;

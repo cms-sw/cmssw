@@ -73,7 +73,7 @@ class IntJ: public JsonMonitorable {
 
 public:
 	IntJ() : JsonMonitorable(), theVar_(0) {}
-	IntJ(int val) : JsonMonitorable(), theVar_(val) {}
+	IntJ(long val) : JsonMonitorable(), theVar_(val) {}
 
 	virtual ~IntJ() {}
 
@@ -87,28 +87,28 @@ public:
 		updates_=0;
 		notSame_=0;
 	}
-	void operator=(int sth) {
+	void operator=(long sth) {
 		theVar_ = sth;
 		updates_=1;
 		notSame_=0;
 	}
-	int & value() {
+	long & value() {
 		return theVar_;
 	}
 
-	void update(int sth) {
+	void update(long sth) {
 		theVar_=sth;
 		if (updates_ && theVar_!=sth) notSame_=true;
 		updates_++;
 	}
 
-	void add(int sth) {
+	void add(long sth) {
 		theVar_+=sth;
 		updates_++;
 	}
 
 private:
-	int theVar_;
+	long theVar_;
 };
 
 

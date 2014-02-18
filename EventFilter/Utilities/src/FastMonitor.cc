@@ -161,10 +161,12 @@ void FastMonitor::commit(std::vector<unsigned int> *streamLumisPtr)
 
 	assert(!(fastPathStrictChecking_ && !notFoundVarSlow));
 	//push dummy DP if not registered by the service so that we output required JSON/CSV
-	DataPoint *dummyDp = new DataPoint(sourceInfo_,defPathFast_);
-	dummyDp->trackDummy(fjsonNames[i],true);
-	dataPointsFastOnly_.push_back(dummyDp);
-	jsonDpIndexFast_.push_back(dummyDp);
+	if (notFoundVarSlow) {
+	  DataPoint *dummyDp = new DataPoint(sourceInfo_,defPathFast_);
+	  dummyDp->trackDummy(fjsonNames[i],true);
+	  dataPointsFastOnly_.push_back(dummyDp);
+	  jsonDpIndexFast_.push_back(dummyDp);
+        }
       }
     }
   } 
@@ -213,7 +215,7 @@ void FastMonitor::outputCSV(std::string const& path)
       }
     std::ofstream outputFile;
     outputFile.open(path.c_str(), std::fstream::out | std::fstream::trunc);
-    outputFile << defPath_ << std::endl;
+    outputFile << defPathFast_ << std::endl;
     outputFile << ss.str();
     outputFile << std::endl;
     outputFile.close();
@@ -235,7 +237,7 @@ bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi) {
         recentSnaps_ = recentSnapsTimer_ = 0;
 
         Json::Value serializeRoot;
-        for (unsigned int j=0; j< jsonDpIndex_.size();j++) { 
+        for (unsigned int j=0; j< jsonDpIndex_.size();j++) {
           dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot,lumi,j==0);
 	}
 

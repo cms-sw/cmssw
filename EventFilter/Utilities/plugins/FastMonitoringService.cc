@@ -10,6 +10,7 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/FileIO.h"
 
 
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
@@ -35,9 +36,11 @@ namespace evf{
     ,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
     //,rootDirectory_(iPS.getUntrackedParameter<std::string>("rootDirectory", "/data"))
     ,microstateDefPath_(iPS.getUntrackedParameter<std::string>("microstateDefPath", "/tmp/def.jsd"))
+    ,fastMicrostateDefPath_(iPS.getUntrackedParameter<std::string>("fastMicrostateDefPath", "/tmp/def.jsd"))
     ,outputDefPath_(iPS.getUntrackedParameter<std::string>("outputDefPath", "/tmp/def.jsd"))
     ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "states"))
     ,slowName_(iPS.getUntrackedParameter<std::string>("slowName", "lumi"))
+    ,totalEventsProcessed_(0)
   {
     reg.watchPreallocate(this, &FastMonitoringService::preallocate);//receiving information on number of threads
     reg.watchJobFailure(this,&FastMonitoringService::jobFailure);//global
@@ -93,6 +96,16 @@ namespace evf{
     boost::filesystem::path fast = workingDirectory_;
     fast /= fastFileName.str();
     fastPath_ = fast.string();
+
+    std::ostringstream moduleLegFile;
+    moduleLegFile << "microstatelegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
+    moduleLegendFile_  = (workingDirectory_/moduleLegFile.str()).string();
+
+    
+    std::ostringstream pathLegFile;
+    pathLegFile << "pathlegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
+    pathLegendFile_  = (workingDirectory_/pathLegFile.str()).string();
+
 
     /*
      * initialize the fast monitor with:
@@ -191,7 +204,7 @@ namespace evf{
     lumiFromSource_=0;
 
     //startup monitoring
-    fmt_.resetFastMonitor(microstateDefPath_);
+    fmt_.resetFastMonitor(microstateDefPath_,fastMicrostateDefPath_);
     fmt_.jsonMonitor_->setNStreams(nStreams_);
     fmt_.m_data.registerVariables(fmt_.jsonMonitor_.get(), nStreams_, threadIDAvailable_ ? nThreads_:0);
     std::atomic_thread_fence(std::memory_order_acquire);
@@ -223,7 +236,11 @@ namespace evf{
     //std::cout << "path legenda*****************" << std::endl;
    // std::cout << makePathLegenda()   << std::endl;
     std::cout << "module legenda***************" << std::endl;
-    std::cout << makeModuleLegenda() << std::endl;
+    std::string && moduleLegStr = makeModuleLegenda();
+    std::cout << moduleLegStr << std::endl;
+    FileIO::writeStringToFile(moduleLegendFile_, moduleLegStr);
+
+
     macrostate_ = FastMonitoringThread::sJobReady;
 
     //update number of entries in module histogram
@@ -308,7 +325,7 @@ namespace evf{
 	  fmt_.m_data.fastThroughputJ_.value() = throughput;
 
 	  //update
-	  doSnapshot(true,lumi,true,false,0);
+	  doSnapshot(false,lumi,true,false,0);
 
 	  // create file name for slow monitoring file
 	  std::stringstream slowFileName;
@@ -423,11 +440,18 @@ namespace evf{
       else {
 	collectedPathList_[sc.streamID()]->store(true,std::memory_order_seq_cst);
         fmt_.m_data.ministateBins_=encPath_[sc.streamID()].vecsize();
-	initPathsLock_.unlock();
 	//print paths
 	//finished collecting path names
-	std::cout << "path legenda*****************" << std::endl;
-	std::cout << makePathLegenda()   << std::endl;
+	//
+	if (!pathLegendWritten_) {
+	  std::cout << "path legenda*****************" << std::endl;
+          std::string pathLegendStr =  makePathLegenda();
+	  std::cout << pathLegendStr  << std::endl;
+          FileIO::writeStringToFile(pathLegendFile_, pathLegendStr);
+          pathLegendWritten_=true;
+        }
+
+	initPathsLock_.unlock();
       }
     }
     else {
@@ -464,6 +488,10 @@ namespace evf{
     (*(fmt_.m_data.processed_[sc.streamID()]))++;
 #endif
     eventCountForPathInit_[sc.streamID()]++;
+
+    //fast path counter (events accumulated in a run)
+    totalEventsProcessed_.fetch_add(1,std::memory_order_relaxed);
+    fmt_.m_data.fastPathProcessedJ_ = totalEventsProcessed_.load(std::memory_order_relaxed); 
     //fmt_.monlock_.unlock();
   }
 
@@ -599,7 +627,6 @@ namespace evf{
 
   void FastMonitoringService::doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID)
   {
-
     // update macrostate
     fmt_.m_data.fastMacrostateJ_ = macrostate_;
 
