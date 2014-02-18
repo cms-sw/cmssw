@@ -81,6 +81,7 @@ void DataPoint::trackMonitorable(JsonMonitorable *monitorable,bool NAifZeroUpdat
     NAifZeroUpdates_=NAifZeroUpdates;
 
 }
+
 void DataPoint::trackVectorUInt(std::string const& name, std::vector<unsigned int>  *monvec, bool NAifZeroUpdates)
 {
     name_=name;

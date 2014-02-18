@@ -34,6 +34,13 @@ FastMonitor::~FastMonitor() {
   for (auto dp: dataPoints_) delete dp;
 }
 
+void FastMonitor::addFastPathDefinition(std::string const& defPathFast, bool strict) {
+   haveFastPath_=true;
+   defpathFast_=defPathFast;
+   DataPointDefinition::getDataPointDefinitionFor(defPathFast_, dpdFast_);
+   fastPathStrictChecking_=strict;
+}
+
 //per-process variables
 void FastMonitor::registerGlobalMonitorable(JsonMonitorable *newMonitorable, bool NAifZeroUpdates, unsigned int *nBins)
 {
@@ -45,6 +52,14 @@ void FastMonitor::registerGlobalMonitorable(JsonMonitorable *newMonitorable, boo
 
 	//check if same name is registered twice
 	assert(uids_.insert(newMonitorable->getName()).second);
+}
+
+//fast path: no merge operation is performed
+void FastMonitor::registerFastGlobalMonitorable(JsonMonitorable *newMonitorable)
+{
+        DataPoint *dp = new DataPoint(sourceInfo_,defPathFast_,true);
+        dp->trackMonitorable(newMonitorable,false);
+        dataPointsFast_.push_back(dp);
 }
 
 //per-stream variables
@@ -80,36 +95,67 @@ void FastMonitor::registerStreamMonitorableUIntVecAtomic(std::string const& name
 
 void FastMonitor::commit(std::vector<unsigned int> *streamLumisPtr)
 {
-	std::vector<std::string> const& jsonNames= dpd_.getNames();
-	regDpCount_ = dataPoints_.size();
-	assert(!(strictChecking_ && jsonNames.size()==regDpCount_));
+  std::vector<std::string> const& jsonNames= dpd_.getNames();
+  regDpCount_ = dataPoints_.size();
+  assert(!(strictChecking_ && jsonNames.size()==regDpCount_));
 
-	std::map<unsigned int,bool> hasJson;
-	for (unsigned int i=0;i<jsonNames.size();i++)
+  std::map<unsigned int,bool> hasJson;
+  for (unsigned int i=0;i<jsonNames.size();i++)
+  {
+    bool notFoundVar=true;
+    for (unsigned int j=0;j<regDpCount_;j++) {
+      if (dataPoints_[j]->getName()==jsonNames[i])
+      {
+	dataPoints_[j]->setOperation(dpd_.getOperationFor(i));
+	jsonDpIndex_.push_back(j);
+	hasJson[j]=true;
+	notFoundVar=false;
+	break;
+      }
+    }
+    if (notFoundVar) {
+      assert(!strictChecking_);
+      //push dummy DP if not registered by the service so that we output required JSON/CSV
+      DataPoint *dummyDp = new DataPoint(sourceInfo_,defPath_);
+      dummyDp->trackDummy(jsonNames[i],true);
+      dataPoints_.push_back(dummyDp);
+      jsonDpIndex_.push_back(dataPoints_.size()-1);
+    }
+  }
+  for (unsigned int i=0;i<regDpCount_;i++) {
+    dataPoints_[i]->setStreamLumiPtr(streamLumisPtr);
+  }
+
+  //fast path:
+  if (haveFastPath_) {
+    std::vector<std::string> const& fjsonNames = dpdFast_.getNames();
+    fregDpCount_ = dataPointsFast_.size();
+    assert(!(fastStrictChecking_ && fjsonNames.size()==fregDpCount_));
+    std::map<unsigned int,bool> fhasJson;
+    for (unsigned int i=0;i<fjsonNames.size();i++)
+    {
+      bool notFoundVar=true;
+      for (unsigned int j=0;j<fregDpCount_;j++) {
+	if (dataPointsFast_[j]->getName()==fjsonNames[i])
 	{
-	  bool notFoundVar=true;
-	  for (unsigned int j=0;j<regDpCount_;j++) {
-	    if (dataPoints_[j]->getName()==jsonNames[i])
-	    {
-	      dataPoints_[j]->setOperation(dpd_.getOperationFor(i));
-	      jsonDpIndex_.push_back(j);
-              hasJson[j]=true;
-	      notFoundVar=false;
-	      break;
-	    }
-	  }
-	  if (notFoundVar) {
-	    assert(!strictChecking_);
-	    //push dummy DP if not registered by the service so that we output required JSON/CSV
-	    DataPoint *dummyDp = new DataPoint(sourceInfo_,defPath_);
-	    dummyDp->trackDummy(jsonNames[i],true);
-	    dataPoints_.push_back(dummyDp);
-	    jsonDpIndex_.push_back(dataPoints_.size()-1);
-	  }
+	  jsonDpIndexFast_.push_back(j);
+	  fhasJson[j]=true;
+	  notFoundVar=false;
+	  break;
 	}
-	for (unsigned int i=0;i<regDpCount_;i++) {
-		dataPoints_[i]->setStreamLumiPtr(streamLumisPtr);
-	}
+      }
+      if (notFoundVar_)
+      {
+	assert(!strictChecking_);
+	//push dummy DP if not registered by the service so that we output required JSON/CSV
+	DataPoint *dummyDp = new DataPoint(sourceInfo_,defPathFast_);
+	dummyDp->trackDummy(fjsonNames[i],true);
+	dataPointsFast_.push_back(dummyDp);
+	jsonDpIndexFast_.push_back(dataPoints_.size()-1);
+
+      }
+    }
+  } 
 }
 
 //update everything

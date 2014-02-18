@@ -39,7 +39,8 @@ public:
 
 	DataPoint() { }
 
-	DataPoint(std::string const& source, std::string const& definition) :	source_(source), definition_(definition) { }
+	DataPoint(std::string const& source, std::string const& definition, bool fast=false) :
+                 source_(source), definition_(definition), isFastOnly_(fast) { }
 	//TODO: expected/maxUpdates still useful ? = unsigned int expectedUpdates = 1, unsigned int maxUpdates = 0
 
 	~DataPoint();
@@ -141,6 +142,7 @@ protected:
 	bool isAtomic_ = false;
 	bool isDummy_ = false;
 	bool NAifZeroUpdates_ = false;
+        bool isFastOnly_;
 	
 	MonType monType_;
 	OperationType opType_;
@@ -153,6 +155,8 @@ protected:
 	unsigned int * nBinsPtr_ = nullptr;
 	int cacheI_;//int cache
 	bool isCached_=0;
+
+	unsigned int fastIndex_ = 0;
 
 
 };

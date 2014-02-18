@@ -72,17 +72,23 @@ public:
 private:
 
 	std::string defPath_;
+	std::string defPathFast_;
 	bool strictChecking_;
+        bool fastPathStrictChecking_;
 	bool useSource_;
 	bool useDefinition_;
+        bool haveFastPath_=false;
 
 	unsigned int nStreams_;
 
 	std::string sourceInfo_;
 	DataPointDefinition dpd_;
+	DataPointDefinition dpdFast_;
 
 	std::vector<DataPoint*> dataPoints_;
+	std::vector<DataPoint*> dataPointsFastOnly_;
 	std::vector<unsigned int> jsonDpIndex_;
+	std::vector<unsigned int> jsonDpIndexFast_;
 	std::vector<DataPoint*> orphanedDps_;
 	std::map<std::string,unsigned int> dpNameMap_;
 

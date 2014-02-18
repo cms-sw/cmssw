@@ -99,7 +99,7 @@ namespace evf {
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {
       throw cms::Exception("DaqDirector") << " Error checking for base dir "
-					  << base_dir_ << " mkdir error:" << strerror(errno) << "\n";
+    					  << base_dir_ << " mkdir error:" << strerror(errno) << "\n";
     }
 
     //bu_run_dir: for FU, for which the base dir is local and the BU is remote, it is expected to be there
