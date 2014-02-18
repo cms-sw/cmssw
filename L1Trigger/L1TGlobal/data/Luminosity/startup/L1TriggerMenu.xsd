@@ -46,36 +46,40 @@
         │   │   │       ├── lower (xs:unsignedInt)
         │   │   │       └── upper (xs:unsignedInt)
         │   │   └── relativeBx (l1t:RelativeBx)
-        │   ├── condMuon (l1t:MuonCondition) ( to be defined ]
+        │   ├── condMuon (l1t:MuonCondition) ( to be defined )
         │   │   ├── name (xs:string)
         │   │   ├── description (l1t:Description)
         │   │   ├── locked (xs:boolean)
         │   │   ├── type (l1t:ConditionType)
         │   │   ├── etComparison (l1t:EtComparison)
         │   │   └── relativeBx (l1t:RelativeBx)
-        │   ├── condEnergySums (l1t:EnergySumsCondition) ( to be defined ]
+        │   ├── condEnergySums (l1t:EnergySumsCondition) ( to be defined )
         │   │   ├── name (xs:string)
         │   │   ├── description (l1t:Description)
         │   │   └── locked (xs:boolean)
-        │   ├── condCorrelation (l1t:CorrelationCondition) ( to be defined ]
+        │   ├── condCorrelation (l1t:CorrelationCondition) ( to be defined )
         │   │   ├── name (xs:string)
         │   │   ├── description (l1t:Description)
         │   │   └── locked (xs:boolean)
-        │   ├── condInvariantMass (l1t:InvariantMassCondition) ( to be defined ]
+        │   ├── condInvariantMass (l1t:InvariantMassCondition) ( to be defined )
         │   │   ├── name (xs:string)
         │   │   ├── description (l1t:Description)
         │   │   └── locked (xs:boolean)
-        │   ├── condDeltaR (l1t:DeltaRCondition) ( to be defined ]
-        │   │   ├── name (xs:string)
-        │   │   ├── description (l1t:Description)
-        │   │   └── locked (xs:boolean)
+        │   └── condDeltaR (l1t:DeltaRCondition) ( to be defined )
+        │       ├── name (xs:string)
+        │       ├── description (l1t:Description)
+        │       └── locked (xs:boolean)
         └── algorithms (l1t:AlgorithmList)
             └── algorithm (l1t:Algorithm)
                 ├── name (l1t:AlgorithmName)
                 ├── index (l1t:AlgorithmIndex)
+                ├── hardwareIndex
                 ├── equation (l1t:AlgorithmEquation)
                 ├── description (l1t:Description)
-                └── locked (xs:boolean)
+                ├── locked (xs:boolean)
+                └── mapping (l1t:AlgorithmMapping)
+                    ├── module (l1t:AlgorithmMappingModule)
+                    └── index (l1t:AlgorithmMappingIndex)
 
     ************************************************************************
 
@@ -86,7 +90,7 @@
         ├── description (l1t:Description)
         └── locked (xs:boolean)
 
-    Condition complex types:
+    All condition complex types:
 
         CalorimeterCondition (l1t:Condition)
         MuonCondition (l1t:Condition)
@@ -121,11 +125,17 @@
 
         Window
 
+    All complex type Algorithm specific complex types:
+
+        AlgorithmMapping
+
     All simple type Algorithm specific simple types:
 
         AlgorithmName (xs:string)
         AlgorithmIndex (xs:unsignedInt)
         AlgorithmEquation (xs:string)
+        AlgorithmMappingModule (xs:unsignedInt)
+        AlgorithmMappingIndex (xs:unsignedInt)
 
     ************************************************************************
 
@@ -140,7 +150,7 @@
     A valid example XML file will look like this:
 
         <?xml version="1.0" encoding="UTF-8"?>
-        <l1t:l1TriggerMenu version="0.5.0"
+        <l1t:l1TriggerMenu version="0.5.1"
           xmlns:l1t="http://www.cern.ch/l1t"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
@@ -187,6 +197,10 @@
               <l1t:equation>SingelJet_0x0 OR SingelJet_0x0</l1t:equation>
               <l1t:description>An example algorithm wit a nonsense equation.</l1t:description>
               <l1t:locked>false</l1t:locked>
+              <l1t:mapping>
+                <l1t:module>0</l1t:module>
+                <l1t:index>0</l1t:index>
+              </l1t:mapping>
             </l1t:algorithm>
           </l1t:algorithms>
         </l1t:l1TriggerMenu>
@@ -196,7 +210,7 @@
     A valid example XML of a complete empty (l1t:new created) menu:
 
         <?xml version="1.0" encoding="UTF-8"?>
-        <l1t:l1TriggerMenu version="0.5.0"
+        <l1t:l1TriggerMenu version="0.5.1"
           xmlns:l1t="http://www.cern.ch/l1t"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
@@ -472,7 +486,7 @@
   <xs:simpleType name="AlgorithmIndex">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        Unsigned integer of 32 bit for algorithm index. limited in range from 0
+        Unsigned integer of 32 bit for algorithm index. Limited in range from 0
         up to 511.
       </xs:documentation>
     </xs:annotation>
@@ -494,6 +508,29 @@
       <xs:maxLength value="500"/>
       <xs:pattern value="([A-Za-z0-9/(/)_/ ])*"/>
     </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AlgorithmMappedModule">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Unsigned integer of 32 bit for mapped hardware module index. Limited
+        in range from 1 up to 7 modules.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:unsignedInt">
+      <xs:minInclusive value="0"/>
+      <xs:maxExclusive value="7"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AlgorithmMappedIndex">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Unsigned integer of 32 bit for mapped algorithm hardware index per
+        module. Derives from type AlgorithmIndex.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="l1t:AlgorithmIndex"/>
   </xs:simpleType>
 
   <!--
@@ -685,12 +722,25 @@
         Algorithm container holding the name, index and equation.
       </xs:documentation>
     </xs:annotation>
-    <xs:sequence minOccurs="1" maxOccurs="1">
+    <xs:sequence>
       <xs:element name="name" type="l1t:AlgorithmName"/>
       <xs:element name="index" type="l1t:AlgorithmIndex"/>
       <xs:element name="equation" type="l1t:AlgorithmEquation"/>
       <xs:element name="description" type="l1t:Description"/>
       <xs:element name="locked" type="xs:boolean"/>
+      <xs:element name="mapping" type="l1t:AlgorithmMapping"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AlgorithmMapping">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Algorithm mapping holding the hardware module and hardware index.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="module" type="l1t:AlgorithmMappedModule"/>
+      <xs:element name="index" type="l1t:AlgorithmMappedIndex"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -719,7 +769,7 @@
       <xs:element name="conditions" type="l1t:ConditionList"/>
       <xs:element name="algorithms" type="l1t:AlgorithmList"/>
     </xs:sequence>
-    <xs:attribute name="version" type="xs:string" fixed="0.5.0" use="required"/>
+    <xs:attribute name="version" type="xs:string" fixed="0.5.1" use="required"/>
   </xs:complexType>
 
   <!--

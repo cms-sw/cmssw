@@ -240,6 +240,8 @@ namespace l1t
   class AlgorithmName;
   class AlgorithmIndex;
   class AlgorithmEquation;
+  class AlgorithmMappedModule;
+  class AlgorithmMappedIndex;
   class Meta;
   class ConditionList;
   class Condition;
@@ -254,6 +256,7 @@ namespace l1t
   class InvariantMassCondition;
   class DeltaRCondition;
   class Algorithm;
+  class AlgorithmMapping;
   class AlgorithmList;
   class L1TriggerMenu;
 }
@@ -1033,6 +1036,70 @@ namespace l1t
 
     virtual 
     ~AlgorithmEquation ();
+  };
+
+  class AlgorithmMappedModule: public ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type >
+  {
+    public:
+    // Constructors.
+    //
+    AlgorithmMappedModule (const ::xml_schema::unsigned_int&);
+
+    AlgorithmMappedModule (const ::xercesc::DOMElement& e,
+                           ::xml_schema::flags f = 0,
+                           ::xml_schema::container* c = 0);
+
+    AlgorithmMappedModule (const ::xercesc::DOMAttr& a,
+                           ::xml_schema::flags f = 0,
+                           ::xml_schema::container* c = 0);
+
+    AlgorithmMappedModule (const ::std::string& s,
+                           const ::xercesc::DOMElement* e,
+                           ::xml_schema::flags f = 0,
+                           ::xml_schema::container* c = 0);
+
+    AlgorithmMappedModule (const AlgorithmMappedModule& x,
+                           ::xml_schema::flags f = 0,
+                           ::xml_schema::container* c = 0);
+
+    virtual AlgorithmMappedModule*
+    _clone (::xml_schema::flags f = 0,
+            ::xml_schema::container* c = 0) const;
+
+    virtual 
+    ~AlgorithmMappedModule ();
+  };
+
+  class AlgorithmMappedIndex: public ::l1t::AlgorithmIndex
+  {
+    public:
+    // Constructors.
+    //
+    AlgorithmMappedIndex (const ::xml_schema::unsigned_int&);
+
+    AlgorithmMappedIndex (const ::xercesc::DOMElement& e,
+                          ::xml_schema::flags f = 0,
+                          ::xml_schema::container* c = 0);
+
+    AlgorithmMappedIndex (const ::xercesc::DOMAttr& a,
+                          ::xml_schema::flags f = 0,
+                          ::xml_schema::container* c = 0);
+
+    AlgorithmMappedIndex (const ::std::string& s,
+                          const ::xercesc::DOMElement* e,
+                          ::xml_schema::flags f = 0,
+                          ::xml_schema::container* c = 0);
+
+    AlgorithmMappedIndex (const AlgorithmMappedIndex& x,
+                          ::xml_schema::flags f = 0,
+                          ::xml_schema::container* c = 0);
+
+    virtual AlgorithmMappedIndex*
+    _clone (::xml_schema::flags f = 0,
+            ::xml_schema::container* c = 0) const;
+
+    virtual 
+    ~AlgorithmMappedIndex ();
   };
 
   class Meta: public ::xml_schema::type
@@ -2099,13 +2166,38 @@ namespace l1t
     void
     locked (const locked_type& x);
 
+    // mapping
+    // 
+    typedef ::l1t::AlgorithmMapping mapping_type;
+    typedef ::xsd::cxx::tree::traits< mapping_type, char > mapping_traits;
+
+    const mapping_type&
+    mapping () const;
+
+    mapping_type&
+    mapping ();
+
+    void
+    mapping (const mapping_type& x);
+
+    void
+    mapping (::std::auto_ptr< mapping_type > p);
+
     // Constructors.
     //
     Algorithm (const name_type&,
                const index_type&,
                const equation_type&,
                const description_type&,
-               const locked_type&);
+               const locked_type&,
+               const mapping_type&);
+
+    Algorithm (const name_type&,
+               const index_type&,
+               const equation_type&,
+               const description_type&,
+               const locked_type&,
+               ::std::auto_ptr< mapping_type >&);
 
     Algorithm (const ::xercesc::DOMElement& e,
                ::xml_schema::flags f = 0,
@@ -2135,6 +2227,76 @@ namespace l1t
     ::xsd::cxx::tree::one< equation_type > equation_;
     ::xsd::cxx::tree::one< description_type > description_;
     ::xsd::cxx::tree::one< locked_type > locked_;
+    ::xsd::cxx::tree::one< mapping_type > mapping_;
+  };
+
+  class AlgorithmMapping: public ::xml_schema::type
+  {
+    public:
+    // module
+    // 
+    typedef ::l1t::AlgorithmMappedModule module_type;
+    typedef ::xsd::cxx::tree::traits< module_type, char > module_traits;
+
+    const module_type&
+    module () const;
+
+    module_type&
+    module ();
+
+    void
+    module (const module_type& x);
+
+    void
+    module (::std::auto_ptr< module_type > p);
+
+    // index
+    // 
+    typedef ::l1t::AlgorithmMappedIndex index_type;
+    typedef ::xsd::cxx::tree::traits< index_type, char > index_traits;
+
+    const index_type&
+    index () const;
+
+    index_type&
+    index ();
+
+    void
+    index (const index_type& x);
+
+    void
+    index (::std::auto_ptr< index_type > p);
+
+    // Constructors.
+    //
+    AlgorithmMapping (const module_type&,
+                      const index_type&);
+
+    AlgorithmMapping (const ::xercesc::DOMElement& e,
+                      ::xml_schema::flags f = 0,
+                      ::xml_schema::container* c = 0);
+
+    AlgorithmMapping (const AlgorithmMapping& x,
+                      ::xml_schema::flags f = 0,
+                      ::xml_schema::container* c = 0);
+
+    virtual AlgorithmMapping*
+    _clone (::xml_schema::flags f = 0,
+            ::xml_schema::container* c = 0) const;
+
+    virtual 
+    ~AlgorithmMapping ();
+
+    // Implementation.
+    //
+    protected:
+    void
+    parse (::xsd::cxx::xml::dom::parser< char >&,
+           ::xml_schema::flags);
+
+    protected:
+    ::xsd::cxx::tree::one< module_type > module_;
+    ::xsd::cxx::tree::one< index_type > index_;
   };
 
   class AlgorithmList: public ::xml_schema::type
