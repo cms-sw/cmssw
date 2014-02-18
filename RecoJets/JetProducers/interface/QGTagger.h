@@ -27,9 +27,12 @@ class QGTagger : public edm::EDProducer {
 
       // ----------member data -------------------------
       edm::InputTag srcJets, srcRhoIso;
+<<<<<<< HEAD
       edm::EDGetTokenT<reco::PFJetCollection> src_token;
       edm::EDGetTokenT<reco::VertexCollection> vertex_token;
       edm::EDGetTokenT<double> rho_token;
+=======
+>>>>>>> Delete PAT dependencies, redesign without std::map, delete MLP tagger
       std::string jecService;
       TString dataDir;
       bool useCHS;

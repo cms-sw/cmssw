@@ -22,19 +22,28 @@
 QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
   srcJets        ( iConfig.getParameter<edm::InputTag>("srcJets")),
   srcRhoIso      ( iConfig.getParameter<edm::InputTag>("srcRhoIso")),
+<<<<<<< HEAD
   jecService     ( iConfig.getParameter<std::string>("jec")),
   dataDir        ( TString(iConfig.getParameter<std::string>("dataDir"))),
   useCHS         ( iConfig.getParameter<bool>("useCHS"))
+=======
+  jecService     ( iConfig.getUntrackedParameter<std::string>("jec","")),
+  dataDir        ( TString(iConfig.getUntrackedParameter<std::string>("dataDir","RecoJets/JetProducers/data/"))), 
+  useCHS         ( iConfig.getUntrackedParameter<bool>("useCHS", false))
+>>>>>>> Delete PAT dependencies, redesign without std::map, delete MLP tagger
 {
   produces<edm::ValueMap<float>>("qgLikelihood");
   produces<edm::ValueMap<float>>("axis2Likelihood");
   produces<edm::ValueMap<int>>("multLikelihood");
   produces<edm::ValueMap<float>>("ptDLikelihood");
   qgLikelihood 	= new QGLikelihoodCalculator(dataDir, useCHS);
+<<<<<<< HEAD
 
   src_token=consumes<reco::PFJetCollection>(srcJets);
   rho_token=consumes<double>(srcRhoIso);
   vertex_token=consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVerticesWithBS"));
+=======
+>>>>>>> Delete PAT dependencies, redesign without std::map, delete MLP tagger
 }
 
 
@@ -48,6 +57,7 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   //Get rhokt6PFJets and primary vertex
   edm::Handle<double> rhoIso;
+<<<<<<< HEAD
   iEvent.getByToken(rho_token, rhoIso);
 
   edm::Handle<reco::VertexCollection> vertexCollection;
@@ -55,6 +65,15 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   edm::Handle<reco::PFJetCollection> pfJets;
   iEvent.getByToken(src_token, pfJets);
+=======
+  iEvent.getByLabel(srcRhoIso, rhoIso);
+
+  edm::Handle<reco::VertexCollection> vertexCollection;
+  iEvent.getByLabel("offlinePrimaryVerticesWithBS", vertexCollection);
+
+  edm::Handle<reco::PFJetCollection> pfJets;
+  iEvent.getByLabel(srcJets, pfJets);
+>>>>>>> Delete PAT dependencies, redesign without std::map, delete MLP tagger
 
   for(reco::PFJetCollection::const_iterator pfJet = pfJets->begin(); pfJet != pfJets->end(); ++pfJet){
     if(jecService == "") pt = pfJet->pt();
@@ -173,9 +192,15 @@ void QGTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcJets");
   desc.add<edm::InputTag>("srcRhoIso");
+<<<<<<< HEAD
   desc.add<std::string>("dataDir");
   desc.add<std::string>("jec");
   desc.add<bool>("useCHS");
+=======
+  desc.addUntracked<std::string>("dataDir","RecoJets/JetProducers/data/");
+  desc.addUntracked<std::string>("jec","");
+  desc.addUntracked<bool>("useCHS", false);
+>>>>>>> Delete PAT dependencies, redesign without std::map, delete MLP tagger
   descriptions.add("QGTagger", desc);
 }
 
