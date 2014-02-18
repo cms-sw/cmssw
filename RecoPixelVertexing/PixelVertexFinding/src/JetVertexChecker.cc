@@ -55,9 +55,8 @@ class JetVertexChecker : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
-     edm::InputTag m_associator; 
-     edm::InputTag m_primaryVertexProducer;
-     edm::InputTag m_beamSpot;
+     edm::EDGetTokenT<reco::JetTracksAssociationCollection> m_associator; 
+     edm::EDGetTokenT<reco::BeamSpot> m_beamSpot;
      bool m_doFilter;
      double m_cutMinPt;
      double m_cutMinPtRatio; 
@@ -79,8 +78,8 @@ class JetVertexChecker : public edm::EDFilter {
 JetVertexChecker::JetVertexChecker(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-  m_beamSpot          = iConfig.getParameter<edm::InputTag>("beamSpot");
-  m_associator              = iConfig.getParameter<edm::InputTag>("jetTracks");
+  m_beamSpot          = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"));
+  m_associator              = consumes<reco::JetTracksAssociationCollection>(iConfig.getParameter<edm::InputTag>("jetTracks"));
   m_doFilter                = iConfig.getParameter<bool>("doFilter");
   m_cutMinPt                = iConfig.getParameter<double>("minPt");
   m_cutMinPtRatio           = iConfig.getParameter<double>("minPtRatio");
@@ -109,7 +108,7 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
-   iEvent.getByLabel(m_associator, jetTracksAssociation);
+   iEvent.getByToken(m_associator, jetTracksAssociation);
    std::auto_ptr<std::vector<reco::CaloJet> > pOut(new std::vector<reco::CaloJet> );
 
    bool result=true;
@@ -138,7 +137,7 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.put(pOut);
 
    edm::Handle<reco::BeamSpot> beamSpot;
-   iEvent.getByLabel(m_beamSpot,beamSpot);
+   iEvent.getByToken(m_beamSpot,beamSpot);
  
    reco::Vertex::Error e;
    e(0, 0) = 0.0015 * 0.0015;
