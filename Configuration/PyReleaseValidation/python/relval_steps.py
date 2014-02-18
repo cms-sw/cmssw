@@ -269,7 +269,8 @@ baseDataSetRelease=[
     'CMSSW_5_2_1-START52_V4-v1',
     'CMSSW_5_2_1-STARTHI52_V4-v1',
     'CMSSW_5_2_1-PU_START52_V4-v1',
-    'CMSSW_5_2_1-START52_V4_FastSim-v1'
+    'CMSSW_5_2_1-START52_V4_FastSim-v1',
+    'CMSSW_5_3_15-STARTHI53V10A-v1'       # only MB HI for legacy re-digi 
     ]
 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -404,8 +405,7 @@ hiDefaults={'--conditions':'auto:starthi_HIon',
            '--scenario':'HeavyIons'}
 
 steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U2000by5)])
-#steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/Hydjet1p8_TuneDrum_Quenched_MinBias_2760GeV/HiFall13-STARTHI53_V28-v2/GEN-SIM',location='STD')}
-steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
+steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['HydjetQ_B0_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
 steps['HydjetQ_B0_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
 steps['HydjetQ_B8_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B8_2760GeV_cfi',U80by2)])
