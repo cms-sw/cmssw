@@ -637,7 +637,6 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 	cms_uint64_t orbNr = iEvent.orbitNumber();
 	int abBx = iEvent.bunchCrossing();
 	int lumSec = iEvent.luminosityBlock();
-	printf("Orbit Nr %i  Bx Nr %i \n",iEvent.orbitNumber(),iEvent.bunchCrossing());
 	m_uGtBrd->fillGtRecord(uGtRecord,
 		               ver, algBx, extBx, muBx, calBx, psInd,
 		               trgNr, orbNr, abBx, lumSec );

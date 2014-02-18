@@ -84,6 +84,11 @@ namespace l1t {
     int bxFirst_;
     int bxLast_;
 
+    int maxNumMuCands_;  
+    int maxNumJetCands_; 
+    int maxNumEGCands_;  
+    int maxNumTauCands_;
+     
     double jetEtThreshold_;
     double tauEtThreshold_;
     double egEtThreshold_;
@@ -139,6 +144,11 @@ namespace l1t {
     bxFirst_ = iConfig.getParameter<int>("bxFirst");
     bxLast_  = iConfig.getParameter<int>("bxLast");
 
+    maxNumMuCands_  = iConfig.getParameter<int>("maxMuCand");
+    maxNumJetCands_ = iConfig.getParameter<int>("maxJetCand");
+    maxNumEGCands_  = iConfig.getParameter<int>("maxEGCand");
+    maxNumTauCands_ = iConfig.getParameter<int>("maxTauCand");
+
     jetEtThreshold_ = iConfig.getParameter<double>("jetEtThreshold");
     tauEtThreshold_ = iConfig.getParameter<double>("tauEtThreshold");
     egEtThreshold_  = iConfig.getParameter<double>("egEtThreshold");
@@ -183,13 +193,6 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   int bxFirst = bxFirst_;
   int bxLast  = bxLast_;
 
-  // For now, set bx = 0, update in future
-  // int bxEval = 0;
-
-  int maxNumMuCands  = 8;
-  int maxNumJetCands = 12;
-  int maxNumEGCands  = 12;
-  int maxNumTauCands = 8;
 
   // Default values for EG/Tau. Redefined for individual objects below
   double maxPt_ = 255.;
@@ -245,7 +248,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   TMath::Sort(numMuCands,muPtSorted,idxMu);
   for( int iMu=0; iMu<numMuCands; iMu++ ){
 
-    if( iMu>=maxNumMuCands ) continue;
+    if( iMu>=maxNumMuCands_ ) continue;
 
     maxPt_ = 255.;
     ptSteps_ = 510;
@@ -288,7 +291,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   TMath::Sort(numEgCands,egPtSorted,idxEg);
   for( int iEg=0; iEg<numEgCands; iEg++ ){
 
-    if( iEg>=maxNumEGCands ) continue;
+    if( iEg>=maxNumEGCands_ ) continue;
 
     maxPt_ = 255.;
     ptSteps_ = 510;
@@ -326,7 +329,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   TMath::Sort(numTauCands,tauPtSorted,idxTau);
   for( int iTau=0; iTau<numTauCands; iTau++ ){
 
-    if( iTau>=maxNumTauCands ) continue;
+    if( iTau>=maxNumTauCands_ ) continue;
 
     maxPt_ = 255.;
     ptSteps_ = 510;
@@ -367,7 +370,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
       if( genJet->pt()<jetEtThreshold_ ) continue;
 
       //
-      if( nJet>=maxNumJetCands ) continue;
+      if( nJet>=maxNumJetCands_ ) continue;
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
       int pt  = convertPtToHW( genJet->et(), 1023., 2046 );
