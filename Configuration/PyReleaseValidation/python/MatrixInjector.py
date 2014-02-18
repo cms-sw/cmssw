@@ -78,8 +78,6 @@ class MatrixInjector(object):
             "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
             "ConfigCacheURL": self.couch,                     #URL of CouchDB containing Config Cache
             "DbsUrl": "https://cmsweb.cern.ch/dbs/prod/global/DBSReader",
-            #"CouchDBName": self.couchDB,                      #Name of Couch Database containing config cache
-            #- Will contain all configs for all Tasks
             #"SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"],   #Site whitelist
             "TaskChain" : None,                                  #Define number of tasks in chain.
             "nowmTasklist" : [],  #a list of tasks as we put them in
