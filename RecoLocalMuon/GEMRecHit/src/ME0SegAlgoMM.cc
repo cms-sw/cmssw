@@ -257,11 +257,11 @@ ME0SegAlgoMM::chainHits(const EnsambleHitContainer & rechits) {
 
 bool ME0SegAlgoMM::isGoodToMerge(EnsambleHitContainer & newChain, EnsambleHitContainer & oldChain) {
    for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
-    int layer_new = newChain[iRH_new]->me0Id().layer()-1;     
+    int layer_new = newChain[iRH_new]->me0Id().layer();     
     float phi_new = theEnsamble.first->toGlobal(newChain[iRH_new]->localPosition()).phi();
     float eta_new = theEnsamble.first->toGlobal(newChain[iRH_new]->localPosition()).eta();
     for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){      
-      int layer_old = oldChain[iRH_old]->me0Id().layer()-1;
+      int layer_old = oldChain[iRH_old]->me0Id().layer();
       float phi_old = theEnsamble.first->toGlobal(oldChain[iRH_old]->localPosition()).phi();
       float eta_old = theEnsamble.first->toGlobal(oldChain[iRH_old]->localPosition()).eta();
       // to be chained, two hits need to be in neighbouring layers...
