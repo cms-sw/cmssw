@@ -138,7 +138,7 @@ void FastMonitor::commit(std::vector<unsigned int> *streamLumisPtr)
       for (unsigned int j=0;j<fregDpCount_;j++) {
 	if (dataPointsFastOnly_[j]->getName()==fjsonNames[i])
 	{
-	  jsonDpIndexFast_.push_back(j);
+	  jsonDpIndexFast_.push_back(dataPointsFastOnly_[j]);
 	  fhasJson[j]=true;
 	  notFoundVar=false;
 	  break;
@@ -146,13 +146,25 @@ void FastMonitor::commit(std::vector<unsigned int> *streamLumisPtr)
       }
       if (notFoundVar)
       {
-	assert(!fastPathStrictChecking_);
+        //try to find it in slow variables
+
+        bool notFoundVarSlow=true;
+        for (unsigned int j=0;j<regDpCount_;j++) {
+	  if (dataPoints_[j]->getName()==fjsonNames[i])
+	  {
+	    jsonDpIndexFast_.push_back(dataPoints_[j]);
+	    //fhasJson[j]=true;
+	    notFoundVarSlow=false;
+	    break;
+	  }
+	}
+
+	assert(!(fastPathStrictChecking_ && !notFoundVarSlow));
 	//push dummy DP if not registered by the service so that we output required JSON/CSV
 	DataPoint *dummyDp = new DataPoint(sourceInfo_,defPathFast_);
 	dummyDp->trackDummy(fjsonNames[i],true);
 	dataPointsFastOnly_.push_back(dummyDp);
-	jsonDpIndexFast_.push_back(dataPoints_.size()-1);
-
+	jsonDpIndexFast_.push_back(dummyDp);
       }
     }
   } 
@@ -192,11 +204,11 @@ void FastMonitor::snapStreamAtomic(bool outputCSVFile, std::string const& path, 
 void FastMonitor::outputCSV(std::string const& path)
 {
     //output what was specified in JSON in the same order (including dummies)
-    unsigned int monSize = jsonDpIndex_.size();
+    unsigned int monSize = jsonDpIndexFast_.size();
     std::stringstream ss;
     if (monSize)
       for (unsigned int j=0; j< monSize;j++) { 
-	ss << dataPoints_[jsonDpIndex_[j]]->fastOutCSV();
+	ss << jsonDpIndexFast_[j]->fastOutCSV();
 	if (j<monSize-1) ss << ",";
       }
     std::ofstream outputFile;

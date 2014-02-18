@@ -92,7 +92,7 @@ private:
 	std::vector<DataPoint*> dataPoints_;
 	std::vector<DataPoint*> dataPointsFastOnly_;
 	std::vector<unsigned int> jsonDpIndex_;
-	std::vector<unsigned int> jsonDpIndexFast_;
+	std::vector<DataPoint*> jsonDpIndexFast_;
 	std::vector<DataPoint*> orphanedDps_;
 	std::map<std::string,unsigned int> dpNameMap_;
 

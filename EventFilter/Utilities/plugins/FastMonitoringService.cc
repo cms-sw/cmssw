@@ -308,7 +308,7 @@ namespace evf{
 	  fmt_.m_data.fastThroughputJ_.value() = throughput;
 
 	  //update
-	  doSnapshot(false,lumi,true,false,0);
+	  doSnapshot(true,lumi,true,false,0);
 
 	  // create file name for slow monitoring file
 	  std::stringstream slowFileName;
