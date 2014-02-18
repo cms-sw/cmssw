@@ -32,10 +32,6 @@ public:
   virtual void hitPairs( const TrackingRegion& reg, 
       OrderedHitPairs & result, const edm::Event& ev, const edm::EventSetup& es);
 
-  /// from base class
-  virtual CombinedHitPairGenerator * clone() const 
-    { return new CombinedHitPairGenerator(*this); }
-
 private:
   CombinedHitPairGenerator(const CombinedHitPairGenerator & cb); 
 
