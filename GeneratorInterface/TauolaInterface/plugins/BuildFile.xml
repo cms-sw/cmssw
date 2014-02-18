@@ -1,0 +1,14 @@
+<library file="Tauolapp/*.cc" name="TauolappInterface">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="GeneratorInterface/TauolaInterface"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="heppdt"/>
+  <use name="clhep"/>
+  <use name="hepmc"/>
+  <use name="tauolapp"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+

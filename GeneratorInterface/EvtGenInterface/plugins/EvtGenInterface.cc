@@ -1,5 +1,4 @@
-
-#include "GeneratorInterface/ExternalDecays/interface/EvtGenInterface.h"
+#include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterface.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 
@@ -15,25 +14,61 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/Random.h"
+#include "CLHEP/Random/RandFlat.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/myEvtRandomEngine.h"
+#include "EvtGen/EvtGen.hh"
+#include "EvtGenBase/EvtId.hh"
+#include "EvtGenBase/EvtPDL.hh"
+#include "EvtGenBase/EvtDecayTable.hh"
+#include "EvtGenBase/EvtSpinType.hh"
+#include "EvtGenBase/EvtVector4R.hh"
+#include "EvtGenBase/EvtParticle.hh"
+#include "EvtGenBase/EvtScalarParticle.hh"
+#include "EvtGenBase/EvtStringParticle.hh"
+#include "EvtGenBase/EvtDiracParticle.hh"
+#include "EvtGenBase/EvtVectorParticle.hh"
+#include "EvtGenBase/EvtRaritaSchwingerParticle.hh"
+#include "EvtGenBase/EvtTensorParticle.hh"
+#include "EvtGenBase/EvtHighSpinParticle.hh"
+#include "EvtGenBase/EvtStdHep.hh"
+#include "EvtGenBase/EvtSecondary.hh"
+#include "EvtGenModels/EvtPythia.hh"
+
+#include "GeneratorInterface/EvtGenInterface/interface/myEvtRandomEngine.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 
 #include "HepMC/GenEvent.h"
-// #include "HepMC/PythiaWrapper6_2.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-//#define PYGIVE pygive_
-//extern "C" {
-//  void PYGIVE(const char*,int length);
-//}
+namespace PhotosRandomVar {
+  CLHEP::HepRandomEngine* decayRandomEngine;
+}
+
+
+extern "C"{
+
+  void phoini_( void );
+  void photos_( int& );
+
+  double phoran_(int *idummy)
+  {
+    return PhotosRandomVar::decayRandomEngine->flat();
+  }
+  extern struct {
+    // bool qedrad[NMXHEP];
+    bool qedrad[4000]; // hardcoded for now...
+  } phoqed_;
+
+}
+
+
+
 
 using namespace gen;
 using namespace edm;
 
-EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
-{
+EvtGenInterface::EvtGenInterface( const ParameterSet& pset ){
 
   ntotal = 0;
   nevent = 0;
@@ -359,6 +394,11 @@ EvtGenInterface::~EvtGenInterface()
   std::cout << " EvtGenProducer terminating ... " << std::endl; 
   delete m_Py6Service;
 }
+
+void EvtGenInterface::SetPhotosDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){
+  PhotosRandomVar::decayRandomEngine=decayRandomEngine;
+}
+
 
 void EvtGenInterface::init()
 {
