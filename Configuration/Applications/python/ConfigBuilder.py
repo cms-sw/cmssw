@@ -1681,7 +1681,7 @@ class ConfigBuilder(object):
 	    if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
 		    #will get in the schedule, smoothly
 		    for (i,s) in enumerate(valSeqName):
-			    getattr(self.process,'prevalidation_step%s'%NFI(i))._seq = self.process.genstepfilter * getattr(self.process,'prevalidation_step%s'%NFI(i))._seq
+			    getattr(self.process,'validation_step%s'%NFI(i))._seq = self.process.genstepfilter * getattr(self.process,'validation_step%s'%NFI(i))._seq
 
             return
 
