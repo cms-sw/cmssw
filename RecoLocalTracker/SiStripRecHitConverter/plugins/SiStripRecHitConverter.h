@@ -17,8 +17,10 @@ class SiStripRecHitConverter : public edm::EDProducer
   
   SiStripRecHitConverterAlgorithm recHitConverterAlgorithm;
   std::string matchedRecHitsTag, rphiRecHitsTag, stereoRecHitsTag;
-  edm::InputTag clusterProducer, lazyGetterProducer;
   bool regional;
-  
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterProducer;
+  edm::EDGetTokenT<edm::RefGetter<SiStripCluster> > clusterProducerRegional;
+  edm::EDGetTokenT<edm::LazyGetter<SiStripCluster> > lazyGetterProducer;
+
 };
 #endif
