@@ -13,7 +13,6 @@
 
 GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg)
 {
-   const float PI=TMath::Pi();
    cfg_= cfg; 
    simInputLabel_= simInputLabel;
    dbe_= dbe;
@@ -21,6 +20,11 @@ GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , ed
    minEta_ = cfg_.getUntrackedParameter<double>("gemMinEta",1.55);
    maxEta_ = cfg_.getUntrackedParameter<double>("gemMaxEta",2.18);
    buildLUT();
+}
+void GEMSimTrackMatch::bookHisto() 
+{
+   const float PI=TMath::Pi();
+   dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
 
    track_eta        = dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
    track_eta_l1     = dbe_->book1D("track_eta_l1","track_eta_l1",140,1.5,2.2);

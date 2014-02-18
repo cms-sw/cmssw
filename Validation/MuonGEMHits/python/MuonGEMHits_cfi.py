@@ -11,5 +11,4 @@ gemHitsValidation = cms.EDAnalyzer('MuonGEMHits',
 	ntupleTrackChamberDelta = cms.untracked.bool(True),
 	ntupleTrackEff = cms.untracked.bool(True),        
         simTrackMatching = SimTrackMatching,
-        gemSystemSetting = gemSetting
 )
