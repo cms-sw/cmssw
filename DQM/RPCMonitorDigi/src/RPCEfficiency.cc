@@ -1,8 +1,5 @@
 /***************************************
-Author: 
-Camilo Carrillo
-Universidad de los Andes Bogota Colombia
-camilo.carrilloATcern.ch
+Original Author: Camilo Carrillo
 ****************************************/
 
 #include "DQM/RPCMonitorDigi/interface/RPCEfficiency.h"
@@ -18,8 +15,6 @@ camilo.carrilloATcern.ch
 
 //FW Core
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-
 
 int distsector_tmp(int sector1,int sector2){
  
@@ -181,7 +176,7 @@ void RPCEfficiency::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
 	  int rpcsegment = rpcsrv.segment();
 	  int cscchamber = rpcsegment;
 
-          if((station==2||station==3)&&ring==3){
+          if((station==2||station==3||station==4)&&ring==3){
             cscring = 2;
           }
 	   
@@ -213,7 +208,7 @@ void RPCEfficiency::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
           int ring=rpcId.ring();                                                                                             
 	  int cscring = ring;
 	     
-	  if((station==2||station==3)&&ring==3) cscring = 2; //CSC Ring 2 covers rpc ring 2 & 3                              
+	  if((station==2||station==3||station==4)&&ring==3) cscring = 2; //CSC Ring 2 covers rpc ring 2 & 3                              
 
  
           int cscstation=station;                                                                                            
@@ -588,30 +583,22 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 				 fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){
 				
 				RPCDetId  rollId = rollasociated->id();
+				const float stripPredicted=rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
 				
-			// 	RPCGeomServ rpcsrv(rollId);
-// 				std::string nameRoll = rpcsrv.name();
-// 				 LogDebug("rpcefficiency")<<"MB4 \t \t \t \t \t The RPCName is "<<nameRoll;
-				const float stripPredicted=
-				  rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
-				
-				 LogDebug("rpcefficiency")<<"MB4 \t \t \t \t Candidate (from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
+				LogDebug("rpcefficiency")<<"MB4 \t \t \t \t Candidate (from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
 				//--------- HISTOGRAM STRIP PREDICTED FROM DT  MB4 -------------------
 				
-				std::map<std::string, MonitorElement*> meMap=meCollection[rollId.rawId()];
-				
+				std::map<std::string, MonitorElement*> meMap=meCollection[rollId.rawId()];				
 				meIdDT.str("");
 				meIdDT<<"ExpectedOccupancyFromDT_"<<rollId.rawId();
 				meMap[meIdDT.str()]->Fill(stripPredicted);
-				//-------------------------------------------------
-				
 				
 				//-------RecHitPart Just For Residual--------
 				int countRecHits = 0;
 				int cluSize = 0;
 				float minres = 3000.;
 				
-				 LogDebug("rpcefficiency")<<"MB4 \t \t \t \t Getting RecHits in Roll Asociated";
+				LogDebug("rpcefficiency")<<"MB4 \t \t \t \t Getting RecHits in Roll Asociated";
 				typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
 				rangeRecHits recHitCollection =  rpcHits->get(rollasociated->id());
 				RPCRecHitCollection::const_iterator recHit;
@@ -620,7 +607,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 				  countRecHits++;
 				  LocalPoint recHitPos=recHit->localPosition();
 				  float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();	    
-				   LogDebug("rpcefficiency")<<"DT  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction.";
+				  LogDebug("rpcefficiency")<<"DT  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction.";
 				  if(fabs(res)<fabs(minres)){
 				    minres=res;
 				    cluSize = recHit->clusterSize();
@@ -628,7 +615,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 				}		
 				
 				if(countRecHits==0){
-				   LogDebug("rpcefficiency") <<"MB4 \t \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT";
+				  LogDebug("rpcefficiency") <<"MB4 \t \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT";
 				}else{     
 				  assert(minres!=3000); 
 				  
@@ -668,21 +655,20 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }else{
 	 LogDebug("rpcefficiency")<<"MB4 \t This event doesn't have 4D Segment";
       }
-      
   }
   
   
   if(inclcsc){
-     LogDebug("rpcefficiency") <<"\t Getting the CSC Segments";
+    LogDebug("rpcefficiency") <<"\t Getting the CSC Segments";
     edm::Handle<CSCSegmentCollection> allCSCSegments;
     
     iEvent.getByToken(cscSegments, allCSCSegments);
-      
+    
     if(allCSCSegments.isValid()){ 
       if(allCSCSegments->size()>0){
 	statistics->Fill(18);
 	
-	 LogDebug("rpcefficiency")<<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size();
+	LogDebug("rpcefficiency")<<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size();
 	
 	std::map<CSCDetId,int> CSCSegmentsCounter;
 	CSCSegmentCollection::const_iterator segment;
@@ -706,7 +692,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    int cscStation = CSCId.station();
 	    int cscRing = CSCId.ring();
 	    //	    int cscChamber = CSCId.chamber();
-	    int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;//Relacion entre las endcaps
+	    int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;//Relation among the endcaps
 	    int rpcRing = cscRing;
 	    if(cscRing==4)rpcRing =1;
 	    int rpcStation = cscStation;
@@ -736,7 +722,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion,rpcStation,rpcRing,rpcSegment)];
 	       LogDebug("rpcefficiency")<<"CSC \t \t Number of rolls for this CSC = "<<rollsForThisCSC.size();
 	      
-	      if(rpcRing!=1&&rpcStation!=4){
+	      if(rpcRing!=1){
 		
 		//Loop over all the rolls
 		for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
@@ -869,7 +855,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		     LogDebug("rpcefficiency")<<"CSC \t \t \t No, Exrtrapolation too long!, canceled";
 		  }//D so big
 		}//loop over the rolls asociated 
-	      }//Condition over the startup geometry!!!!
+	      }//Condition over the LS1 geometry!!!!
 	    }//Is the segment 4D?
 	  }else{
 	     LogDebug("rpcefficiency")<<"CSC \t \t More than one segment in this chamber, or we are in Station Ring 1 or in Station 4";

@@ -35,8 +35,8 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   rpcRecHitLabel_  = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("RecHitLabel"));
   scalersRawToDigiLabel_  = consumes<DcsStatusCollection>(pset.getParameter<edm::InputTag>("ScalersRawToDigiLabel"));
 
-  numberOfDisks_ = pset.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
-  numberOfInnerRings_ = pset.getUntrackedParameter<int>("NumberOfInnermostEndcapRings", 2);
+  //  numberOfDisks_ = pset.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
+  // numberOfInnerRings_ = pset.getUntrackedParameter<int>("NumberOfInnermostEndcapRings", 2);
 
   noiseFolder_ = pset.getUntrackedParameter<std::string>("NoiseFolder", "AllHits");
   muonFolder_ = pset.getUntrackedParameter<std::string>("MuonFolder", "Muon");
@@ -74,8 +74,11 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
     NumberOfRecHitMuon_ = ibooker.book1D("NumberOfRecHitMuons", "Number of RPC RecHits per Muon", 8, -0.5, 7.5);
   }
    
+
+  std::set<int> disk_set, ring_set;
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+
   //loop on geometry to book all MEs
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Booking histograms per roll. " ;
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
@@ -85,6 +88,13 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
       if(useRollInfo_){
 	for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	  RPCDetId rpcId = (*r)->id();
+
+	  //get station and inner ring
+	  if(rpcId.region()!=0){
+	    disk_set.insert(rpcId.station());
+	    ring_set.insert(rpcId.ring());
+	  }
+
 	  //booking all histograms
 	  RPCGeomServ rpcsrv(rpcId);
 	  std::string nameID = rpcsrv.name();
@@ -97,10 +107,16 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
 	std::string nameID = rpcsrv.chambername();
 	if(useMuonDigis_) bookRollME(ibooker, rpcId,iSetup, muonFolder_, meMuonCollection[nameID]);
 	bookRollME(ibooker, rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
-	
+	if(rpcId.region()!=0){
+	  disk_set.insert(rpcId.station());
+	  ring_set.insert(rpcId.ring());
+	}
       }
     }
   }//end loop on geometry to book all MEs
+
+  numberOfDisks_ = disk_set.size();
+  numberOfInnerRings_ = (*ring_set.begin());
 
   //Clear flags;
   dcs_ = true;
