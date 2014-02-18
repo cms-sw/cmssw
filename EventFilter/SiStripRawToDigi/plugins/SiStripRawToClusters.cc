@@ -15,13 +15,13 @@ using namespace std;
 namespace sistrip {
 
 RawToClusters::RawToClusters( const edm::ParameterSet& conf ) :
-  productLabel_(conf.getParameter<edm::InputTag>("ProductLabel")),
   cabling_(0),
   cacheId_(0),
   clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))),
   rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
   doAPVEmulatorCheck_(conf.existsAs<bool>("DoAPVEmulatorCheck") ? conf.getParameter<bool>("DoAPVEmulatorCheck") : true)
 {
+  token_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("ProductLabel"));
   if ( edm::isDebugEnabled() ) {
     LogTrace("SiStripRawToCluster")
       << "[RawToClusters::" << __func__ << "]"
@@ -54,7 +54,7 @@ RawToClusters::RawToClusters( const edm::ParameterSet& conf ) :
   
     // get raw data
     edm::Handle<FEDRawDataCollection> buffers;
-    event.getByLabel( productLabel_, buffers ); 
+    event.getByToken( token_, buffers ); 
 
     // create lazy unpacker
     boost::shared_ptr<LazyUnpacker> unpacker( new LazyUnpacker( *cabling_, *clusterizer_, *rawAlgos_, *buffers ) );
