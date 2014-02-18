@@ -1234,11 +1234,13 @@ namespace edm {
       lumiTree_.fillAux<LuminosityBlockAux>(pLumiAux);
       conversion(lumiAux, *lumiAuxiliary);
     }
-    if(provenanceAdaptor_) {
-      lumiAuxiliary->setProcessHistoryID(provenanceAdaptor_->convertID(lumiAuxiliary->processHistoryID()));
-    }
-    if(daqProvenanceHelper_) {
-      lumiAuxiliary->setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(lumiAuxiliary->processHistoryID()));
+    if(fileFormatVersion().processHistorySameWithinRun()) {
+      if(provenanceAdaptor_) {
+        lumiAuxiliary->setProcessHistoryID(provenanceAdaptor_->convertID(lumiAuxiliary->processHistoryID()));
+      }
+      if(daqProvenanceHelper_) {
+        lumiAuxiliary->setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(lumiAuxiliary->processHistoryID()));
+      }
     }
     if(lumiAuxiliary->luminosityBlock() == 0 && !fileFormatVersion().runsAndLumis()) {
       lumiAuxiliary->id() = LuminosityBlockID(RunNumber_t(1), LuminosityBlockNumber_t(1));
@@ -1258,11 +1260,13 @@ namespace edm {
       runTree_.fillAux<RunAux>(pRunAux);
       conversion(runAux, *runAuxiliary);
     }
-    if(provenanceAdaptor_) {
-      runAuxiliary->setProcessHistoryID(provenanceAdaptor_->convertID(runAuxiliary->processHistoryID()));
-    }
-    if(daqProvenanceHelper_) {
-      runAuxiliary->setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(runAuxiliary->processHistoryID()));
+    if(fileFormatVersion().processHistorySameWithinRun()) {
+      if(provenanceAdaptor_) {
+        runAuxiliary->setProcessHistoryID(provenanceAdaptor_->convertID(runAuxiliary->processHistoryID()));
+      }
+      if(daqProvenanceHelper_) {
+        runAuxiliary->setProcessHistoryID(daqProvenanceHelper_->mapProcessHistoryID(runAuxiliary->processHistoryID()));
+      }
     }
     return runAuxiliary;
   }
