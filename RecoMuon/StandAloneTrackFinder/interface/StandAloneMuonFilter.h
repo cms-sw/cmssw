@@ -8,6 +8,8 @@
  *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *          D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
+ *  
+ *  Modified by C. Calabria
  */
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -65,18 +67,21 @@ class StandAloneMuonFilter {
   int getDTChamberUsed() const {return dtChambers;}
   int getCSCChamberUsed() const {return cscChambers;}
   int getRPCChamberUsed() const {return rpcChambers;}
+  int getGEMChamberUsed() const {return gemChambers;}
 
   int getTotalCompatibleChambers() const {return totalCompatibleChambers;}
   int getDTCompatibleChambers() const {return dtCompatibleChambers;}
   int getCSCCompatibleChambers() const {return cscCompatibleChambers;}
   int getRPCCompatibleChambers() const {return rpcCompatibleChambers;}
+  int getGEMCompatibleChambers() const {return gemCompatibleChambers;}
+
 
   inline bool goodState() const {return totalChambers >= 2 && 
-				   ((dtChambers + cscChambers) >0 ||
+				   ((dtChambers + cscChambers + gemChambers) >0 ||
 				    onlyRPC());}
   
   inline bool isCompatibilitySatisfied() const {return totalCompatibleChambers >= 2 && 
-						  ((dtCompatibleChambers + cscCompatibleChambers) >0 ||
+						  ((dtCompatibleChambers + cscCompatibleChambers + gemCompatibleChambers) >0 ||
 						   onlyRPC());}
   
   /// return the layer used for the refit
@@ -184,11 +189,13 @@ private:
   int dtChambers;
   int cscChambers;
   int rpcChambers;
+  int gemChambers;
 
   int totalCompatibleChambers;
   int dtCompatibleChambers;
   int cscCompatibleChambers;
   int rpcCompatibleChambers;
+  int gemCompatibleChambers;
 
   const MuonServiceProxy *theService;
   bool theOverlappingChambersFlag;

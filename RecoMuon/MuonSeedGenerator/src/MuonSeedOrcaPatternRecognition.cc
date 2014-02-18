@@ -95,8 +95,8 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   
   // instantiate the accessor
   // Don not use RPC for seeding
-  MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),
-					    enableDTMeasurement,enableCSCMeasurement,false);
+  MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel.label(),theCSCRecSegmentLabel,edm::InputTag(),edm::InputTag(),
+					    enableDTMeasurement,enableCSCMeasurement,false,false);
   double barreldThetaCut = 0.2;
   // still lose good muons to a tighter cut
   double endcapdThetaCut = 1.0;

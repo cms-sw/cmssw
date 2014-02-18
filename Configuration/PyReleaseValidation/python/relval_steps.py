@@ -2535,7 +2535,7 @@ steps['HARVESTUP19']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:upgrade2019', 
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
 		   '--geometry' : 'Extended2019'
                    }
 
@@ -2643,7 +2643,7 @@ steps['HARVESTUP19300']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'W19_300_62E2::All', 
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019,SLHCUpgradeSimulations/Configuration/aging.customise_aging_300',
 		   '--geometry' : 'Extended2019'
                    }
 		   

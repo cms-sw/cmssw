@@ -19,9 +19,9 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
     fRawPedestals (0),
     fRawPedestalWidths (0),
     fValPedestals (0),
-    fValPedestalWidths (0)
-{
-  fTopology=0;
+    fValPedestalWidths (0),
+    fTopology (0) {
+
   m_coder = 0;
   m_shape = 0;
   evt=0;
@@ -31,18 +31,18 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   for(int i=0; i<4; i++) m_stat[i]=0;
   for(int k=0;k<4;k++) state.push_back(true);
 
-// user cfg parameters
+  // user cfg parameters
   m_outputFileMean = ps.getUntrackedParameter<string>("outputFileMeans", "");
   if ( m_outputFileMean.size() != 0 ) {
-    cout << "Hcal pedestal means will be saved to " << m_outputFileMean.c_str() << endl;
+    std::cout << "Hcal pedestal means will be saved to " << m_outputFileMean.c_str() << std::endl;
   } 
   m_outputFileWidth = ps.getUntrackedParameter<string>("outputFileWidths", "");
   if ( m_outputFileWidth.size() != 0 ) {
-    cout << "Hcal pedestal widths will be saved to " << m_outputFileWidth.c_str() << endl;
+    std::cout << "Hcal pedestal widths will be saved to " << m_outputFileWidth.c_str() << std::endl;
   } 
   m_outputFileROOT = ps.getUntrackedParameter<string>("outputFileHist", "");
   if ( m_outputFileROOT.size() != 0 ) {
-    cout << "Hcal pedestal histograms will be saved to " << m_outputFileROOT.c_str() << endl;
+    std::cout << "Hcal pedestal histograms will be saved to " << m_outputFileROOT.c_str() << std::endl;
   } 
   m_nevtsample = ps.getUntrackedParameter<int>("nevtsample",0);
 // for compatibility with previous versions
@@ -52,8 +52,8 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   m_pedValflag = ps.getUntrackedParameter<int>("pedValflag",0);
   if(m_pedValflag<0) m_pedValflag=0;
   if (m_nevtsample>0 && m_pedValflag>0) {
-    cout<<"WARNING - incompatible cfg options: nevtsample = "<<m_nevtsample<<", pedValflag = "<<m_pedValflag<<endl;
-    cout<<"Setting pedValflag = 0"<<endl;
+    std::cout<<"WARNING - incompatible cfg options: nevtsample = "<<m_nevtsample<<", pedValflag = "<<m_pedValflag<<std::endl;
+    std::cout<<"Setting pedValflag = 0"<<std::endl;
     m_pedValflag=0;
   }
   if(m_pedValflag>1) m_pedValflag=1;
@@ -61,7 +61,7 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   if(m_startTS<0) m_startTS=0;
   m_endTS = ps.getUntrackedParameter<int>("lastTS", 9);
 
-  fTopology=new HcalTopology(HcalTopologyMode::LHC,2,3);
+//  fTopology=new HcalTopology(HcalTopologyMode::LHC,2,3);
 
 //  m_logFile.open("HcalPedestalAnalysis.log");
 
@@ -506,11 +506,11 @@ void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT
 int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals, 
 				const HcalPedestalWidths* fInputPedestalWidths,
 				HcalPedestals* fOutputPedestals, 
-				HcalPedestalWidths* fOutputPedestalWidths)
-{
-   int nstat[4];
+				HcalPedestalWidths* fOutputPedestalWidths) {
 
-// Pedestal objects
+  int nstat[4];
+
+  // Pedestal objects
   // inputs...
   fRefPedestals = fInputPedestals;
   fRefPedestalWidths = fInputPedestalWidths;
@@ -521,8 +521,7 @@ int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
     fValPedestalWidths = fOutputPedestalWidths;
     fRawPedestals = new HcalPedestals(fTopology,m_pedsinADC);
     fRawPedestalWidths = new HcalPedestalWidths(fTopology,m_pedsinADC);
-  }
-  else {
+  } else {
     fRawPedestals = fOutputPedestals;
     fRawPedestalWidths = fOutputPedestalWidths;
     fValPedestals = new HcalPedestals(fTopology,m_pedsinADC);
@@ -590,7 +589,7 @@ int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
   hfHists.PEDMEAN->Write();
 
   m_file->Close();
-  cout << "Hcal histograms written to " << m_outputFileROOT.c_str() << endl;
+  std::cout << "Hcal histograms written to " << m_outputFileROOT.c_str() << std::endl;
   return (int)m_AllPedsOK;
 }
 

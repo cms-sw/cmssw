@@ -50,6 +50,7 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
   bool enableDTMeasurement = par.getParameter<bool>("EnableDTMeasurement");
   bool enableCSCMeasurement = par.getParameter<bool>("EnableCSCMeasurement");
   bool enableRPCMeasurement = par.getParameter<bool>("EnableRPCMeasurement");
+  //bool enableGEMMeasurement = par.getParameter<bool>("EnableGEMMeasurement");
 
 //  if(enableDTMeasurement)
   InputTag DTRecSegmentLabel = par.getParameter<InputTag>("DTRecSegmentLabel");
@@ -60,12 +61,17 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
 //  if(enableRPCMeasurement)
   InputTag RPCRecSegmentLabel = par.getParameter<InputTag>("RPCRecSegmentLabel");
 
+//  if(enableGEMMeasurement)
+  //InputTag GEMRecSegmentLabel = par.getParameter<InputTag>("GEMRecSegmentLabel");
+
   theLayerMeasurements= new MuonDetLayerMeasurements(DTRecSegmentLabel,
                                                      CSCRecSegmentLabel,
                                                      RPCRecSegmentLabel,
+                                                     edm::InputTag(),
 						     enableDTMeasurement,
 						     enableCSCMeasurement,
-						     enableRPCMeasurement);
+						     enableRPCMeasurement,
+						     false);
 
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
   

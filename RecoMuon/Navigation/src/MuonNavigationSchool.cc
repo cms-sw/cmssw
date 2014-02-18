@@ -15,6 +15,8 @@
  * Chang Liu:
  * The class links maps for nextLayers and compatibleLayers in the same time.
  *
+ * Cesare Calabria:
+ * GEMs implementation.
  */
 
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
@@ -37,7 +39,7 @@
 using namespace std;
 
 /// Constructor
-MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC ) : theMuonDetLayerGeometry(muonLayout) {
+MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC, bool enableCSC, bool enableGEM ) : theMuonDetLayerGeometry(muonLayout) {
 
   theAllDetLayersInSystem=&muonLayout->allLayers(); 
 
@@ -52,10 +54,13 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
     addBarrelLayer(mbp);
   }
 
-  // get all endcap DetLayers (CSC + optional RPC)
+  // get all endcap DetLayers (CSC + optional RPC, GEM)
   vector<DetLayer*> endcap;
-  if ( enableRPC ) endcap = muonLayout->allEndcapLayers();
-  else endcap = muonLayout->allCSCLayers();
+  if ( enableCSC & enableGEM & enableRPC ) endcap = muonLayout->allEndcapLayers(); //CSC + RPC + GEM 
+  else if ( enableCSC & enableGEM & !enableRPC ) endcap = muonLayout->allEndcapCscGemLayers(); // CSC + GEM
+  else if ( !enableCSC & enableGEM & !enableRPC ) endcap = muonLayout->allGEMLayers(); //GEM only
+  else if ( enableCSC & !enableGEM & !enableRPC ) endcap = muonLayout->allCSCLayers(); //CSC only
+  else endcap = muonLayout->allCSCLayers(); //CSC only for all the remaining cases
 
   for ( vector<DetLayer*>::const_iterator i = endcap.begin(); i != endcap.end(); i++ ) {
     ForwardDetLayer* mep = dynamic_cast<ForwardDetLayer*>(*i);
@@ -376,3 +381,4 @@ void MuonNavigationSchool::createInverseLinks() const {
   }
 
 }
+

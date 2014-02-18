@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <SolidSection label="mf.xml">
+  <Polycone name="ME" startPhi="0*deg" deltaPhi="360*deg">
+   <ZSection z="[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+   <ZSection z="[cms:MuonBeamZ0]" rMin="[cms:MuonBeamR0]" rMax="[cms:CalorMuonR]"/>
+   <ZSection z="[cms:MuonBeamZ0]" rMin="[cms:MERmin0]" rMax="[cms:MBarRmin]"/>
+   <ZSection z="[cms:MEndcapZ0]" rMin="[cms:MERmin1]" rMax="[cms:MBarRmin]"/>
+   <ZSection z="[cms:MBarZ]" rMin="[cms:MERmin1]" rMax="[cms:MBarRmin]"/>
+   <ZSection z="[cms:MBarZ]" rMin="[cms:MERmin1]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:MEndcapZ1]" rMin="[cms:MERmin2]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR1]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR2]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:TotemMuonZ2]" rMin="[cms:TotemMuonR2]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:TotemMuonZ2]" rMin="[cms:MERmin3]" rMax="[cms:CMSR1]"/>
+   <ZSection z="[cms:MuonBeamZ2]" rMin="[cms:MERmin3]" rMax="[cms:CMSR1]"/>
+  </Polycone>
+  <Polycone name="ME1Ring" startPhi="0*deg" deltaPhi="360*deg">
+   <ZSection z="5.641*m  " rMin="1.3*m " rMax="2.8*m  "/>
+   <ZSection z="5.674*m  " rMin="1.3*m " rMax="2.8*m  "/>
+   <ZSection z="5.674*m  " rMin="85*cm " rMax="2.8*m  "/>
+   <ZSection z="6.345*m  " rMin="85*cm " rMax="2.8*m  "/>
+  </Polycone>
+  <Tubs name="ME12Ring" rMin="2.734*m  " rMax="4.685*m  " dz="311.8875*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Polyhedra name="ME13Ring" numSide="36" startPhi="355*deg" deltaPhi="360*deg">
+   <ZSection z="6.625*m  " rMin="4.955*m  " rMax="7*m  "/>
+   <ZSection z="7.265*m  " rMin="4.955*m  " rMax="7*m  "/>
+  </Polyhedra>
+  <Polycone name="ME2Ring" startPhi="0*deg" deltaPhi="360*deg">
+   <ZSection z="7865*mm" rMin="1142*mm" rMax="7020*mm"/>
+   <ZSection z="8509*mm" rMin="1142*mm" rMax="7020*mm"/>
+   <ZSection z="8509*mm" rMin="1361*mm" rMax="7020*mm"/>
+   <ZSection z="8510*mm" rMin="1361*mm" rMax="7020*mm"/>
+  </Polycone>
+  <Tubs name="ME3Ring" rMin="1360*mm" rMax="7.02*m  " dz="32.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ME4Ring" rMin="1530*mm" rMax="7.02*m  " dz="33.675*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="RR2X" rMin="1.97*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+ </SolidSection>
+
+ <LogicalPartSection label="mf.xml">
+  <LogicalPart name="MEP" category="unspecified">
+   <rSolid name="ME"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="MEN" category="unspecified">
+   <rSolid name="ME"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME1RingP" category="unspecified">
+   <rSolid name="ME1Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME1RingN" category="unspecified">
+   <rSolid name="ME1Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME12RingP" category="unspecified">
+   <rSolid name="ME12Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME12RingN" category="unspecified">
+   <rSolid name="ME12Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME13RingP" category="unspecified">
+   <rSolid name="ME13Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME13RingN" category="unspecified">
+   <rSolid name="ME13Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME2RingP" category="unspecified">
+   <rSolid name="ME2Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME2RingN" category="unspecified">
+   <rSolid name="ME2Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME3RingP" category="unspecified">
+   <rSolid name="ME3Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME3RingN" category="unspecified">
+   <rSolid name="ME3Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME4RingP" category="unspecified">
+   <rSolid name="ME4Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME4RingN" category="unspecified">
+   <rSolid name="ME4Ring"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="RR2X" category="unspecified">
+   <rSolid name="RR2X"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+ </LogicalPartSection>
+
+ <PosPartSection label="mf.xml">
+  <PosPart copyNumber="1">
+   <rParent name="muonBase:MUON"/>
+   <rChild name="mf:MEP"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="muonBase:MUON"/>
+   <rChild name="mf:MEN"/>
+   <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME1RingP"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME1RingN"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME12RingP"/>
+   <Translation x="0*fm " y="0*fm " z="6953.1125*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME12RingN"/>
+   <Translation x="0*fm " y="0*fm " z="6953.1125*mm"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME13RingP"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME13RingN"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME2RingP"/>
+   <!-- <Translation x="0*fm " y="0*fm " z="8.1925*m  " /> -->
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME2RingN"/>
+   <!-- <Translation x="0*fm " y="0*fm " z="8.1925*m  " /> -->
+  </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME3RingP"/>
+   <Translation x="0*fm " y="0*fm " z="9.4475*m  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME3RingN"/>
+   <Translation x="0*fm " y="0*fm " z="9.4475*m  "/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mf:ME4RingP"/>
+   <Translation x="0*fm " y="0*fm " z="10.3432*m  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mf:ME4RingN"/>
+   <Translation x="0*fm " y="0*fm " z="10.3432*m  "/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mf:RR2X"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="-28.25*cm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mf:RR2X"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="-28.25*cm+8.1925*m "/>
+  </PosPart>
+ </PosPartSection>
+
+</DDDefinition>

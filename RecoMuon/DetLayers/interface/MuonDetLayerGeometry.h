@@ -5,9 +5,8 @@
  *
  *  Provide access to the DetLayers of muon detectors.
  *
- *  $Date: 2009/07/03 09:12:47 $
- *  $Revision: 1.13 $
  *  \author N. Amapane - CERN
+ *  \modified by R. Radogna & C. Calabria
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -40,6 +39,19 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
   /// return the backward (-Z) CSC DetLayers, inside-out
   const std::vector<DetLayer*>& backwardCSCLayers() const;
 
+/////////////////////////////// GEMs
+
+  /// return the GEM DetLayers (endcap), -Z to +Z
+  const std::vector<DetLayer*>& allGEMLayers() const;
+
+  /// return the forward (+Z) GEM DetLayers, inside-out
+  const std::vector<DetLayer*>& forwardGEMLayers() const;
+
+  /// return the backward (-Z) GEM DetLayers, inside-out
+  const std::vector<DetLayer*>& backwardGEMLayers() const;
+
+//////////////////////////////
+
   /// return all RPC DetLayers, order: backward, barrel, forward
   const std::vector<DetLayer*>& allRPCLayers() const;
 
@@ -61,14 +73,27 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
   /// return all barrel DetLayers (DT+RPC), inside-out
   const std::vector<DetLayer*>& allBarrelLayers() const;
 
-  /// return all endcap DetLayers (CSC+RPC), -Z to +Z
+  /// return all endcap DetLayers (CSC+RPC+GEM), -Z to +Z
   const std::vector<DetLayer*>& allEndcapLayers() const;
 
-  /// return all forward (+Z) layers (CSC+RPC), inside-out
+  /// return all forward (+Z) layers (CSC+RPC+GEM), inside-out
   const std::vector<DetLayer*>& allForwardLayers() const;
 
-  /// return all backward (-Z) layers (CSC+RPC), inside-out
+  /// return all backward (-Z) layers (CSC+RPC+GEM), inside-out
   const std::vector<DetLayer*>& allBackwardLayers() const;
+
+/////////////////////////////// GEMs
+
+  /// return all endcap DetLayers (CSC+GEM), -Z to +Z
+  const std::vector<DetLayer*>& allEndcapCscGemLayers() const;
+
+  /// return all endcap DetLayers (CSC+GEM), -Z to +Z
+  const std::vector<DetLayer*>& allCscGemForwardLayers() const;
+
+  /// return all endcap DetLayers (CSC+GEM), -Z to +Z
+  const std::vector<DetLayer*>& allCscGemBackwardLayers() const;
+
+//////////////////////////////
   
   /// return the DetLayer which correspond to a certain DetId
   virtual const DetLayer* idToLayer(const DetId& detId) const;
@@ -87,6 +112,15 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
   /// All three vectors are ASSUMED to be sorted inside-out
   void addRPCLayers(std::vector<DetLayer*> barrelRPCLayers, std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > endcapRPCLayers);
 
+/////////////////////////////// GEMs
+
+  /// Add GEM layers 
+  /// gemlayers.first=forward (+Z), gemlayers.second=backward (-Z)
+  /// both vectors are ASSUMED to be sorted inside-out
+  void addGEMLayers(std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > gemlayers);
+
+//////////////////////////////
+
   
   DetId makeDetLayerId(const DetLayer* detLayer) const;
   
@@ -95,6 +129,15 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
   std::vector<DetLayer*> cscLayers_fw;
   std::vector<DetLayer*> cscLayers_bk;
   std::vector<DetLayer*> cscLayers_all;
+
+/////////////////////////////// GEMs
+
+  std::vector<DetLayer*> gemLayers_fw;
+  std::vector<DetLayer*> gemLayers_bk;
+  std::vector<DetLayer*> gemLayers_all;
+
+//////////////////////////////
+
   std::vector<DetLayer*> rpcLayers_all;
   std::vector<DetLayer*> rpcLayers_endcap;
   std::vector<DetLayer*> rpcLayers_fw;
@@ -106,6 +149,14 @@ class MuonDetLayerGeometry : public DetLayerGeometry{
   std::vector<DetLayer*> allEndcap;
   std::vector<DetLayer*> allBarrel;
   std::vector<DetLayer*> allDetLayers;
+
+/////////////////////////////// GEMs
+
+  std::vector<DetLayer*> allEndcapCscGem;
+  std::vector<DetLayer*> allCscGemForward;
+  std::vector<DetLayer*> allCscGemBackward;
+
+//////////////////////////////
     
   std::map<DetId,DetLayer*> detLayersMap;
 };

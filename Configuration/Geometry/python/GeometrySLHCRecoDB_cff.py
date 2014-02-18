@@ -6,7 +6,6 @@ from Geometry.CommonDetUnit.globalTrackingSLHCGeometryDB_cfi import *
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingSLHCGeometryDB_cfi import *
-from Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi import *
 trackerSLHCGeometryDB.applyAlignment = cms.bool(False)
 #
 # When there will be an alignment, perhaps, it will use a label 

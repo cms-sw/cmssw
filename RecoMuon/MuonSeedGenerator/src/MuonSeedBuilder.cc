@@ -123,8 +123,8 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   std::vector<int> nSegOnSeed;
 
  // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
-  MuonDetLayerMeasurements muonMeasurements(theDTSegmentLabel,theCSCSegmentLabel,edm::InputTag(),
-                                            enableDTMeasurement,enableCSCMeasurement,false);
+  MuonDetLayerMeasurements muonMeasurements(theDTSegmentLabel,theCSCSegmentLabel,edm::InputTag(),edm::InputTag(),
+                                            enableDTMeasurement,enableCSCMeasurement,false,false);
 
  // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
  // MuonDetLayerMeasurements muonMeasurements(enableDTMeasurement,enableCSCMeasurement,false,
