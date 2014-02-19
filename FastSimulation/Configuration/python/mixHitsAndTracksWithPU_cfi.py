@@ -1,28 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-simEcalUnsuppressedDigis = cms.EDAlias( #remove?
-    mixSimCaloHits = cms.VPSet(
-    cms.PSet(type = cms.string('EBDigiCollection')),
-    cms.PSet(type = cms.string('EEDigiCollection')),
-    cms.PSet(type = cms.string('ESDigiCollection'))
-    )
-    )
-
 simEcalUnsuppressedDigis = cms.EDAlias(
     mix = cms.VPSet(
     cms.PSet(type = cms.string('EBDigiCollection')),
     cms.PSet(type = cms.string('EEDigiCollection')),
     cms.PSet(type = cms.string('ESDigiCollection'))
-    )
-    )
-
-simHcalUnsuppressedDigis = cms.EDAlias(#remove?
-    mixSimCaloHits = cms.VPSet(
-    cms.PSet(type = cms.string('HBHEDataFramesSorted')),
-    cms.PSet(type = cms.string('HFDataFramesSorted')),
-    cms.PSet(type = cms.string('HODataFramesSorted')),
-    cms.PSet(type = cms.string('HcalUpgradeDataFramesSorted')),
-    cms.PSet(type = cms.string('ZDCDataFramesSorted'))
     )
     )
 
@@ -37,9 +19,16 @@ simHcalUnsuppressedDigis = cms.EDAlias(
     )
 
 generalTracks = cms.EDAlias(
-    mix = cms.VPSet( cms.PSet(type=cms.string('recoTracks') ) )
+    mix = cms.VPSet( cms.PSet(type=cms.string('recoTracks'),
+                              fromProductInstance = cms.string('generalTracks'),
+                              toProductInstance = cms.string('') ),
+                     cms.PSet(type=cms.string('recoTrackExtras'),
+                              fromProductInstance = cms.string('generalTracks'),
+                              toProductInstance = cms.string('') ),
+                     cms.PSet(type=cms.string('TrackingRecHitsOwned'),
+                              fromProductInstance = cms.string('generalTracks'),
+                              toProductInstance = cms.string('') ) )
     )
-
 
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 import SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff
@@ -75,7 +64,7 @@ mix = cms.EDProducer("MixingModule",
                                            tracker = cms.PSet(trackAccumulator)),
                      LabelPlayback = cms.string(''),
                      maxBunch = cms.int32(0),
-                     minBunch = cms.int32(0), ## -4in terms of 25nsec
+                     minBunch = cms.int32(0), ## in terms of 25nsec
 
                      bunchspace = cms.int32(250), ##ns
                      mixProdStep1 = cms.bool(False),
@@ -87,7 +76,7 @@ mix = cms.EDProducer("MixingModule",
                      
                      input = cms.SecSource("PoolSource",
                          nbPileupEvents = cms.PSet(
-                         averageNumber = cms.double(16.)  ###fede prova tracce
+                         averageNumber = cms.double(0.) 
                          ),
                          type = cms.string('poisson'),
                          sequential = cms.untracked.bool(False),

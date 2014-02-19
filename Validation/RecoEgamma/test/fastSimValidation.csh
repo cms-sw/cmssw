@@ -1,4 +1,5 @@
-#!/bin/csh
+#!/bin/csh -x
+##!/bin/csh
 
 #This script can be used to generate a web page to compare histograms from 
 #two input root files produced using the EDAnalyzers in RecoEgamma/Examples,
@@ -16,13 +17,14 @@
 #which can then be viewed in a web browser using validation.html.
 
 #=============BEGIN CONFIGURATION=================
-setenv TYPE Photons
+setenv TYPE GEDPhotons
+setenv ANALYZERNAME pfPhotonValidator
 setenv CMSSWver1 7_0_0
 setenv RELEASE 7_0_0
-setenv PRERELEASE pre8
+setenv PRERELEASE pre12
 
-setenv FULLGLOBALTAG START70_V2_amend-v4
-setenv FASTGLOBALTAG START70_V1_FastSim-v1
+setenv FULLGLOBALTAG POSTLS170_V1-v1
+setenv FASTGLOBALTAG START70_V5_FastSim-v1
 
 setenv RELEASE ${RELEASE}_${PRERELEASE}
 #setenv RELEASE ${RELEASE}
@@ -64,10 +66,10 @@ setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaFlatPt10T
 
 else if ($SAMPLE == H130GGgluonfusion) then 
 
-setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Efficiencies
-setenv HISTOPATHNAME_Photons DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Photons
-setenv HISTOPATHNAME_Conversions DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/ConversionInfo
-setenv FULLSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
+setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/${ANALYZERNAME}/Efficiencies
+setenv HISTOPATHNAME_Photons DQMData/Run\ 1/EgammaV/Run\ summary/${ANALYZERNAME}/Photons
+setenv HISTOPATHNAME_Conversions DQMData/Run\ 1/EgammaV/Run\ summary/${ANALYZERNAME}/ConversionInfo
+setenv FULLSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion_13__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
 setenv FASTSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FASTGLOBALTAG}__DQM.root
 
 
@@ -126,7 +128,7 @@ cd $OUTDIR
 #The list of histograms to be compared for each TYPE can be configured below:
 
 
-if ( $TYPE == Photons ) then
+if ( $TYPE == Photons || $TYPE == GEDPhotons ) then
 
 
 cat > efficiencyForPhotons <<EOF
@@ -515,8 +517,8 @@ rm end.C
 if ( $TYPE == PixelMatchGsfElectron ) then
   setenv ANALYZER PixelMatchGsfElectronAnalyzer
   setenv CFG read_gsfElectrons
-else if ( $TYPE == Photons ) then
-  setenv ANALYZER PhotonValidator
+else if ( $TYPE == Photons || $TYPE == GEDPhotons  ) then
+  setenv ANALYZER  ${ANALYZERNAME}
   setenv CFG PhotonValidator_cfg
 endif
 

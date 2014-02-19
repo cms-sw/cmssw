@@ -10,8 +10,7 @@
 
 // #include "HepMC/PythiaWrapper6_2.h"
 
-namespace CLHEP
-{
+namespace CLHEP {
    class HepRandomEngine;
 }
 
@@ -45,6 +44,7 @@ namespace gen
          // initialise Pythia on first call from "dummy" instance
          virtual void enter();
 
+         CLHEP::HepRandomEngine* randomEngine() const { return fRandomEngine; }
          void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
 
      private:

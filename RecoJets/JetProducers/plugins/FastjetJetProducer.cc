@@ -8,25 +8,20 @@
 
 #include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
 
-#include "RecoJets/JetProducers/interface/JetSpecific.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/BasicJetCollection.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/BasicJetCollection.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -166,6 +161,8 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
 
   }
 
+  input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(src_);
+
 }
 
 
@@ -201,8 +198,9 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
 {
 
     // read in the track candidates
-    edm::Handle<edm::View<reco::RecoChargedRefCandidate> > inputsHandle;
-    iEvent.getByLabel(src_, inputsHandle);
+  edm::Handle<edm::View<reco::RecoChargedRefCandidate> > inputsHandle;
+    iEvent.getByToken(input_chrefcand_token_, inputsHandle);
+
     // make collection with pointers so we can play around with it
     std::vector<edm::Ptr<reco::RecoChargedRefCandidate> > allInputs;
     std::vector<edm::Ptr<reco::Candidate> > origInputs;
@@ -213,7 +211,7 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
 
     // read in the PV collection
     edm::Handle<reco::VertexCollection> pvCollection;
-    iEvent.getByLabel(srcPVs_, pvCollection);
+    iEvent.getByToken(input_vertex_token_, pvCollection);
     // define the overall output jet container
     std::auto_ptr<std::vector<reco::TrackJet> > jets(new std::vector<reco::TrackJet>() );
 

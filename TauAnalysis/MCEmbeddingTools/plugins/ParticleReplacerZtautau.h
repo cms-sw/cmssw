@@ -51,7 +51,7 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
   virtual void endJob();
 
  private:
-  void transformMuMu2LepLep(reco::Particle*, reco::Particle*);
+  void transformMuMu2LepLep(CLHEP::HepRandomEngine& randomEngine, reco::Particle*, reco::Particle*);
   void transformMuMu2TauNu(reco::Particle*, reco::Particle*);
 
   HepMC::GenEvent* processEventWithTauola(HepMC::GenEvent*);
@@ -132,8 +132,6 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
   int targetParticle2AbsPdgID_;
 	
   int maxNumberOfAttempts_;
-
-  static CLHEP::HepRandomEngine* decayRandomEngine;
 
 };
 

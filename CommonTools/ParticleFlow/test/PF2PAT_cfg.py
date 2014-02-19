@@ -9,18 +9,14 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
-
-# the following line does not work anymore:
-# process.load("CommonTools.ParticleFlow.Sources/Data/source_124120_cfi")
-
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
     'file:/uscms/home/rappocc/nobackup/analysis/GED/CMSSW_6_1_0_pre3/src/401.0_TTbar+TTbarFSPU2/step1.root'
-    
+
     ))
-    
-     
-                   
+
+
+
 print process.source
 
 # path ---------------------------------------------------------------
@@ -36,7 +32,7 @@ process.load("CommonTools.ParticleFlow.PF2PAT_cff")
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.p = cms.Path(
-    process.PF2PAT 
+    process.PF2PAT
     )
 
 # output ------------------------------------------------------------
@@ -58,7 +54,7 @@ process.pf2pat.outputCommands.extend( process.PF2PATEventContent.outputCommands 
 process.pf2pat.outputCommands.extend( process.PF2PATStudiesEventContent.outputCommands )
 
 process.outpath = cms.EndPath(
-    process.pf2pat 
+    process.pf2pat
 #    process.aod
     )
 

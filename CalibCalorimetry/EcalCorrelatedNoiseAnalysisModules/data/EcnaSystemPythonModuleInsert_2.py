@@ -2,6 +2,7 @@
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 process.ecalEBunpacker.InputLabel = cms.string('ecalPacker')
+process.ecalEBunpacker.InputLabel = cms.InputTag('hltEcalCalibrationRaw')
 
 # ECAL Geometry:
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")

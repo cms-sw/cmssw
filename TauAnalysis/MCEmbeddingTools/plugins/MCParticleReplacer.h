@@ -56,6 +56,8 @@ class MCParticleReplacer : public edm::EDProducer
     evt_->put(product, instanceName);
   }
 
+  edm::StreamID getStreamID() const { assert(evt_ != nullptr); return evt_->streamID(); }
+
  private:
   enum HepMcMode { kInvalid = 0, kNew, kReplace };
   static HepMcMode stringToHepMcMode(const std::string& name);

@@ -7,9 +7,10 @@
 #include "SimMuon/Neutron/src/RootNeutronWriter.h"
 #include "SimMuon/Neutron/src/NeutronWriter.h"
 #include "SimMuon/Neutron/src/EDMNeutronWriter.h"
-#include "CLHEP/Random/RandomEngine.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
+#include "CLHEP/Random/RandFlat.h"
 
 #include <algorithm>
 
@@ -25,7 +26,7 @@ public:
 
 SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset) 
 : theHitWriter(0),
-  theRandFlat(0),
+  useRandFlat(false),
   theInputTag(pset.getParameter<edm::InputTag>("input")),
   theNeutronTimeCut(pset.getParameter<double>("neutronTimeCut")),
   theTimeWindow(pset.getParameter<double>("timeWindow")),
@@ -58,8 +59,7 @@ SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset)
           "which is not present in the configuration file.  You must add the service\n"
           "in the configuration file or remove the modules that require it.";
     }
-    CLHEP::HepRandomEngine& engine = rng->getEngine();
-    theRandFlat = new CLHEP::RandFlat(engine);
+    useRandFlat = true;
   }
   else 
   {
@@ -73,7 +73,6 @@ SubsystemNeutronWriter::~SubsystemNeutronWriter()
 {
   printStats();
   delete theHitWriter;
-  delete theRandFlat;
 }
 
 
@@ -90,6 +89,11 @@ void SubsystemNeutronWriter::printStats() {
 
 void SubsystemNeutronWriter::produce(edm::Event & e, edm::EventSetup const& c)
 {
+  CLHEP::HepRandomEngine* engine = nullptr;
+  if(useRandFlat) {
+    edm::Service<edm::RandomNumberGenerator> rng;
+    engine = &rng->getEngine(e.streamID());
+  }
   theHitWriter->beginEvent(e,c);
   ++theNEvents;
   edm::Handle<edm::PSimHitContainer> hits;
@@ -109,7 +113,7 @@ void SubsystemNeutronWriter::produce(edm::Event & e, edm::EventSetup const& c)
       hitsByChamberItr != hitsByChamber.end(); ++hitsByChamberItr)
   {
     int chambertype = chamberType(hitsByChamberItr->first);
-    writeHits(chambertype, hitsByChamberItr->second);
+    writeHits(chambertype, hitsByChamberItr->second, engine);
   }
   theHitWriter->endEvent();
 }
@@ -123,7 +127,8 @@ void SubsystemNeutronWriter::initialize(int chamberType)
 }
 
 
-void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & chamberHits)
+void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & chamberHits,
+                                       CLHEP::HepRandomEngine* engine)
 {
 
   sort(chamberHits.begin(), chamberHits.end(), SortByTime());
@@ -142,8 +147,8 @@ void SubsystemNeutronWriter::writeHits(int chamberType, edm::PSimHitContainer & 
         startTime = tof;
         // set the time to be [t0, t0+25] at start of event
         smearing = theT0;
-        if(theRandFlat) {
-          smearing += theRandFlat->fire(25.);
+        if(useRandFlat) {
+          smearing += CLHEP::RandFlat::shoot(engine, 25.);
         }
         if(!cluster.empty()) {
           LogDebug("SubsystemNeutronWriter") << "filling old cluster";

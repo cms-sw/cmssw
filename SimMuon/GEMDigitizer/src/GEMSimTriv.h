@@ -13,11 +13,8 @@
 class GEMGeometry;
 class GEMSynchronizer;
 
-namespace CLHEP
-{
+namespace CLHEP {
   class HepRandomEngine;
-  class RandFlat;
-  class RandPoissonQ;
 }
 
 class GEMSimTriv: public GEMSim
@@ -28,11 +25,11 @@ public:
 
   ~GEMSimTriv();
 
-  void simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer& rpcHits);
+  void simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer& rpcHits,
+                CLHEP::HepRandomEngine*) override;
 
-  void simulateNoise(const GEMEtaPartition*);
-
-  void setRandomEngine(CLHEP::HepRandomEngine& eng);
+  void simulateNoise(const GEMEtaPartition*,
+                     CLHEP::HepRandomEngine*) override;
 
 private:
 
@@ -43,11 +40,5 @@ private:
   int nbxing_;
   double rate_;
   double gate_;
-
-  //  CLHEP::HepRandomEngine* rndEngine;
-  CLHEP::RandFlat* flatDistr1_;
-  CLHEP::RandFlat* flatDistr2_;
-  CLHEP::RandPoissonQ *poissonDistr_;
 };
-
 #endif

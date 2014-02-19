@@ -3,14 +3,12 @@
 
 #include "boost/lexical_cast.hpp"
 
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
 #include "GeneratorInterface/HijingInterface/interface/HijingHadronizer.h"
 #include "GeneratorInterface/HijingInterface/interface/HijingPythiaWrapper.h"
@@ -22,6 +20,7 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/HeavyIon.h"
 #include "HepMC/SimpleVector.h"
+
 #include "CLHEP/Random/RandomEngine.h"
 
 static const double pi = 3.14159265358979;
@@ -30,6 +29,33 @@ using namespace edm;
 using namespace std;
 using namespace gen;
 
+static CLHEP::HepRandomEngine* hijRandomEngine;
+
+extern "C"
+{
+   float gen::hijran_(int *idummy)
+   {
+      return hijRandomEngine->flat();
+   }
+}
+
+extern "C" {
+   float ran_(unsigned int* iseed){
+      return hijRandomEngine->flat();
+      //      return ranff_(iseed);
+      //      return gen::pyr_(0);
+   }
+}
+
+extern "C" {
+   float rlu_(unsigned int* iseed){
+      return hijRandomEngine->flat();
+      //      return ranff_(iseed);
+      //      return gen::pyr_(0);
+   }
+}
+
+const std::vector<std::string> HijingHadronizer::theSharedResources = { edm::SharedResourceNames::kPythia6 };
 
 HijingHadronizer::HijingHadronizer(const ParameterSet &pset) :
     BaseHadronizer(pset),
@@ -51,9 +77,6 @@ HijingHadronizer::HijingHadronizer(const ParameterSet &pset) :
     rotate_(pset.getParameter<bool>("rotateEventPlane"))
 {
   // Default constructor
-  Service<RandomNumberGenerator> rng;
-  hijRandomEngine = &(rng->getEngine());
-
 }
 
 
@@ -62,6 +85,14 @@ HijingHadronizer::~HijingHadronizer()
 {
   // destructor
 }
+
+
+//_____________________________________________________________________
+void HijingHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v)
+{
+  hijRandomEngine = v;
+}
+
 
 //_____________________________________________________________________
 void HijingHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)

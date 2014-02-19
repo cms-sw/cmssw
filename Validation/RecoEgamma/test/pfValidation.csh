@@ -20,13 +20,18 @@
 setenv ANALYZERNAME1 PhotonValidator
 setenv ANALYZERNAME2 pfPhotonValidator
 #setenv TYPE GEDPhotons
-setenv TYPE fullGEDPhotons
+setenv TYPE GEDPhotons
 setenv COMPAREWITH Photons
 setenv CMSSWver1 7_0_0
 setenv RELEASE   7_0_0
-setenv PRERELEASE pre9
-setenv FULLGLOBALTAG START70_V2_gedEG-v2
+setenv PRERELEASE pre11
+setenv LHCENERGY   13
+setenv UPGRADE True
+setenv PU True
+setenv PUlevel 25ns
 
+#setenv FULLGLOBALTAG POSTLS162_V4_OldEG-v1
+setenv FULLGLOBALTAG PU${PUlevel}_POSTLS162_V4-v1
 
 setenv RELEASE ${RELEASE}_${PRERELEASE}
 #setenv RELEASE ${RELEASE}
@@ -66,7 +71,7 @@ setenv SAMPLE H130GGgluonfusion
 
 if ($SAMPLE == SingleGammaPt10) then
 
-setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
+setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10_UP15__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
 
 
 else if ($SAMPLE == SingleGammaPt35) then 
@@ -76,8 +81,10 @@ setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_$
 
 else if ($SAMPLE == H130GGgluonfusion) then 
 
-setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
+setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${LHCENERGY}__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
+#setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
 #setenv ROOTFILE ${WorkDir1}/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO_2K.root
+
 
 
 else if ($SAMPLE == PhotonJets_Pt_10) then
@@ -98,6 +105,10 @@ endif
 setenv CURRENTDIR $PWD
 setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation
 cd $OUTPATH
+
+#setenv RELEASE {$RELEASE}_OldEG
+#setenv RELEASE {$RELEASE}_OldTrk
+
 if (! -d $RELEASE) then
   mkdir $RELEASE
 endif
@@ -115,7 +126,15 @@ if (! -d vs${COMPAREWITH} ) then
 endif
 setenv OUTPATH $OUTPATH/vs${COMPAREWITH}
 
+
+if ( $UPGRADE == True && $PU == False ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
+else if ( $UPGRADE == True && $PU == True ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV_PU${PUlevel}
+else 
 setenv OUTDIR $OUTPATH/${SAMPLE}
+endif
+
 if (! -d $OUTDIR) then
   cd $OUTPATH
   mkdir $OUTDIR

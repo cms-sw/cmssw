@@ -3,7 +3,7 @@
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
-//#include "CLHEP/Random/RandGaussQ.h"
+
 #include <iostream>
 
 //#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
@@ -70,11 +70,12 @@ EcalCoder::fullScaleEnergy( const DetId & detId ) const
 }
 
 void 
-EcalCoder::analogToDigital( const EcalSamples& clf , 
+EcalCoder::analogToDigital( CLHEP::HepRandomEngine* engine,
+                            const EcalSamples& clf ,
 			    EcalDataFrame&     df    ) const 
 {
    df.setSize( clf.size() ) ;
-   encode( clf, df );
+   encode( clf, df, engine );
 /*   std::cout<<"   **Id=" ;
    if( CaloGenericDetId( clf.id() ).isEB() )
    {
@@ -94,7 +95,8 @@ EcalCoder::analogToDigital( const EcalSamples& clf ,
 
 void 
 EcalCoder::encode( const EcalSamples& ecalSamples , 
-		   EcalDataFrame&     df            ) const
+		   EcalDataFrame&     df,
+                   CLHEP::HepRandomEngine* engine ) const
 {
    assert( 0 != m_peds ) ;
 
@@ -155,10 +157,12 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 
    if( m_addNoise )
    {
-      noisy[0]->noisify( noiseframe[0] ) ; // high gain
+     noisy[0]->noisify( noiseframe[0], engine ) ; // high gain
       if( 0 == noisy[1] ) noisy[0]->noisify( noiseframe[1] ,
+                                             engine,
 					     &noisy[0]->vecgau() ) ; // med 
       if( 0 == noisy[2] ) noisy[0]->noisify( noiseframe[2] ,
+                                             engine,
 					     &noisy[0]->vecgau() ) ; // low
    }
 
@@ -187,6 +191,7 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 	     noiseframe[igain-1].isBlank()    ) // not already done
 	 {
 	    noisy[igain-1]->noisify( noiseframe[igain-1] ,
+                                     engine,
 				     &noisy[0]->vecgau()   ) ;
 //	    std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
 	 }

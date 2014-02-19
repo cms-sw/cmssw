@@ -296,7 +296,8 @@ namespace edm {
                                     ModuleCallingContext const* mcc,
                                     int bunchCrossing, int eventId,
                                     int& vertexOffset,
-                                    const edm::EventSetup& setup) {
+                                    const edm::EventSetup& setup,
+                                    StreamID const& streamID) {
 
     InternalContext internalContext(eventPrincipal.id(), mcc);
     ParentContext parentContext(&internalContext);
@@ -307,7 +308,7 @@ namespace edm {
       adjuster->doOffset(bunchSpace_, bunchCrossing, eventPrincipal, &moduleCallingContext, eventId, vertexOffset);
     }
     PileUpEventPrincipal pep(eventPrincipal, &moduleCallingContext, bunchCrossing);
-    accumulateEvent(pep, setup);
+    accumulateEvent(pep, setup, streamID);
 
     for (auto const& worker : workers_) {
       LogDebug("MixingModule") <<" merging Event:  id " << eventPrincipal.id();
@@ -344,7 +345,7 @@ namespace edm {
 
       // Pre-calculate all pileup distributions before we go fishing for events
 
-      source0->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_);
+      source0->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_, e.streamID());
 
     }
 
@@ -388,7 +389,7 @@ namespace edm {
         if (!playback_) {
           inputSources_[readSrcIdx]->readPileUp(e.id(), recordEventID,
                                                 boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, mcc, bunchIdx,
-                                                            _2, vertexOffset, boost::ref(setup)), NumPU_Events
+                                                            _2, vertexOffset, boost::ref(setup), boost::cref(e.streamID())), NumPU_Events, e.streamID()
             );
           playbackInfo_->setStartEventId(recordEventID, readSrcIdx, bunchIdx, KeepTrackOfPileup);
           KeepTrackOfPileup+=NumPU_Events;
@@ -403,7 +404,7 @@ namespace edm {
           inputSources_[readSrcIdx]->playPileUp(
             playEventID,
             boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, mcc, bunchIdx,
-                        dummyId, vertexOffset, boost::ref(setup))
+                        dummyId, vertexOffset, boost::ref(setup), boost::cref(e.streamID()))
             );
         }
       }
@@ -494,9 +495,9 @@ namespace edm {
   }
 
   void
-  MixingModule::accumulateEvent(PileUpEventPrincipal const& event, edm::EventSetup const& setup) {
+  MixingModule::accumulateEvent(PileUpEventPrincipal const& event, edm::EventSetup const& setup, edm::StreamID const& streamID) {
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
-      (*accItr)->accumulate(event, setup);
+      (*accItr)->accumulate(event, setup, streamID);
     }
   }
 

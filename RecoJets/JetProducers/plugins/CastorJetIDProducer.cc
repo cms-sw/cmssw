@@ -20,6 +20,9 @@ CastorJetIDProducer::CastorJetIDProducer(const edm::ParameterSet& iConfig) :
   helper_    ( )
 {
   produces< reco::CastorJetIDValueMap >();
+
+  input_jet_token_ = consumes<edm::View<reco::BasicJet> >(src_);
+
 }
 
 
@@ -39,7 +42,7 @@ CastorJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get the input jets
   edm::Handle< edm::View<reco::BasicJet> > h_jets;
-  iEvent.getByLabel( src_, h_jets );
+  iEvent.getByToken( input_jet_token_, h_jets );
 
   // allocate the jet--->jetid value map
   std::auto_ptr<reco::CastorJetIDValueMap> castorjetIdValueMap( new reco::CastorJetIDValueMap );

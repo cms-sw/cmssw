@@ -76,10 +76,10 @@ DTMeantimerPatternReco::reconstruct(const DTSuperLayer* sl,
     if (debug) 
       cout<<"Reconstructed 2D segments "<<*segment<<endl;
     result.push_back(segment);
-
+    
     delete *(cand++); // delete the candidate!
   }
-  
+
   return result;
 }
 

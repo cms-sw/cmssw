@@ -31,6 +31,7 @@ namespace reco { namespace utils {
 class ClusterChecker {
  public: 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  ClusterChecker(const edm::ParameterSet & conf, edm::ConsumesCollector & iC) ;
   ClusterChecker(const edm::ParameterSet & conf, edm::ConsumesCollector && iC) ;
 #endif
 

@@ -3,6 +3,9 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CLHEP/Random/RandomEngine.h"
+
 #include <iostream>
 #include<list>
 #include<vector>
@@ -85,23 +88,22 @@ PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet& iC
   PixelEfficiency_(iConfig.getUntrackedParameter<double>("PixelEfficiency", 0.8))
 { 
 
-  // initialize the random number generator service
+  // check if the random number generator service was configured
   if(!rng_.isAvailable()) {
     throw cms::Exception("Configuration") << "PythiaFilterIsolatedTrack requires the RandomNumberGeneratorService\n";
   }
-  CLHEP::HepRandomEngine& engine = rng_->getEngine();
-  flatDistribution_ = new CLHEP::RandFlat(engine, 0.0, 1.0);
 }
 
 
 PythiaFilterIsolatedTrack::~PythiaFilterIsolatedTrack()
 {
-  delete flatDistribution_;
 }
 
 
 // ------------ method called to produce the data  ------------
 bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+  CLHEP::HepRandomEngine& engine = rng_->getEngine(iEvent.streamID());
 
   edm::ESHandle<ParticleDataTable> pdt;
   iSetup.getData( pdt );
@@ -162,7 +164,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event& iEvent, const edm::EventSetup
       // if the seed fails the isolation requirement, try a different seed
       // occasionally allow a seed to pass to isolation requirement
       if(getDistInCM(EtaPhi1.first, EtaPhi1.second, EtaPhi2.first, EtaPhi2.second) < IsolCone_ &&
-	 flatDistribution_->fire() < PixelEfficiency_) {
+	 engine.flat() < PixelEfficiency_) {
 	failsIso=true;
 	break;
       }

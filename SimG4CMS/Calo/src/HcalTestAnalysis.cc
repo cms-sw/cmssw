@@ -23,6 +23,7 @@
 #include "G4HCofThisEvent.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Random/Random.h"
 
 #include <cmath>
 #include <iostream>
@@ -320,7 +321,8 @@ void HcalTestAnalysis::update(const EndOfEvent * evt) {
   LogDebug("HcalSim") << "HcalTestAnalysis:: ---  after Fill";
 
   // Qie analysis
-  qieAnalysis();
+  CLHEP::HepRandomEngine* engine = CLHEP::HepRandom::getTheEngine();
+  qieAnalysis(engine);
   LogDebug("HcalSim") << "HcalTestAnalysis:: ---  after QieAnalysis";
 
   // Layers tuples filling
@@ -471,7 +473,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
 }
 
 //-----------------------------------------------------------------------------
-void HcalTestAnalysis::qieAnalysis() {
+void HcalTestAnalysis::qieAnalysis(CLHEP::HepRandomEngine* engine) {
 
   //Fill tuple with hit information
   int hittot = caloHitCache.size();
@@ -546,7 +548,7 @@ void HcalTestAnalysis::qieAnalysis() {
 	  }
 	}
 
-	std::vector<int> cd = myqie->getCode(nhit,hits);
+	std::vector<int> cd = myqie->getCode(nhit, hits, engine);
 	double         eqie = myqie->getEnergy(cd);
 
 	LogDebug("HcalSim") << "HcalTestAnalysis::Qie: Energy in layer " 

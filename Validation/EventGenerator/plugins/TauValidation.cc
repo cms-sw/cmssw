@@ -25,30 +25,29 @@ TauValidation::TauValidation(const edm::ParameterSet& iPSet):
   ,zsmin(-0.5)
   ,zsmax(0.5)
 {    
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
-
   hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
 }
 
-TauValidation::~TauValidation() {}
+TauValidation::~TauValidation(){}
 
-void TauValidation::beginJob()
-{
-  if(dbe){
+void TauValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
+  c.getData( fPDGTable );
+}
+
+void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
     ///Setting the DQM top directories
-    dbe->setCurrentFolder("Generator/Tau");
+    i.setCurrentFolder("Generator/Tau");
     
     // Number of analyzed events
-    nTaus = dbe->book1D("nTaus", "n analyzed Taus", 1, 0., 1.);
-    nPrimeTaus = dbe->book1D("nPrimeTaus", "n analyzed prime Taus", 1, 0., 1.);
+    nTaus = i.book1D("nTaus", "n analyzed Taus", 1, 0., 1.);
+    nPrimeTaus = i.book1D("nPrimeTaus", "n analyzed prime Taus", 1, 0., 1.);
 
     //Kinematics
-    TauPt            = dbe->book1D("TauPt","Tau pT", 100 ,0,100);
-    TauEta           = dbe->book1D("TauEta","Tau eta", 100 ,-2.5,2.5);
-    TauPhi           = dbe->book1D("TauPhi","Tau phi", 100 ,-3.14,3.14);
-    TauProngs        = dbe->book1D("TauProngs","Tau n prongs", 7 ,0,7);
-    TauDecayChannels = dbe->book1D("TauDecayChannels","Tau decay channels", 13 ,0,13);
+    TauPt            = i.book1D("TauPt","Tau pT", 100 ,0,100);
+    TauEta           = i.book1D("TauEta","Tau eta", 100 ,-2.5,2.5);
+    TauPhi           = i.book1D("TauPhi","Tau phi", 100 ,-3.14,3.14);
+    TauProngs        = i.book1D("TauProngs","Tau n prongs", 7 ,0,7);
+    TauDecayChannels = i.book1D("TauDecayChannels","Tau decay channels", 13 ,0,13);
 	TauDecayChannels->setBinLabel(1+undetermined,"?");
     	TauDecayChannels->setBinLabel(1+electron,"e");
     	TauDecayChannels->setBinLabel(1+muon,"mu");
@@ -63,7 +62,7 @@ void TauValidation::beginJob()
 	TauDecayChannels->setBinLabel(1+Kstar,"K^{*}");
 	TauDecayChannels->setBinLabel(1+stable,"Stable");
 
-    TauMothers        = dbe->book1D("TauMothers","Tau mother particles", 10 ,0,10);
+    TauMothers        = i.book1D("TauMothers","Tau mother particles", 10 ,0,10);
 	TauMothers->setBinLabel(1+other,"?");
 	TauMothers->setBinLabel(1+B,"B Decays");
 	TauMothers->setBinLabel(1+D,"D Decays");
@@ -75,100 +74,88 @@ void TauValidation::beginJob()
 	TauMothers->setBinLabel(1+A0,"A^{0}");
 	TauMothers->setBinLabel(1+Hpm,"H^{#pm}");
 
-	DecayLength = dbe->book1D("DecayLength","#tau Decay Length", 100 ,0,20);  DecayLength->setAxisTitle("L_{#tau} (mm)");
-	LifeTime =  dbe->book1D("LifeTime","#tau LifeTime ", 100 ,0,1000E-15);     LifeTime->setAxisTitle("#tau_{#tau}s)");
+	DecayLength = i.book1D("DecayLength","#tau Decay Length", 100 ,0,20);  DecayLength->setAxisTitle("L_{#tau} (mm)");
+	LifeTime =  i.book1D("LifeTime","#tau LifeTime ", 100 ,0,1000E-15);     LifeTime->setAxisTitle("#tau_{#tau}s)");
 
-    TauRtauW          = dbe->book1D("TauRtauW","W->Tau p(leading track)/E(visible tau)", 50 ,0,1);     TauRtauW->setAxisTitle("rtau");
-    TauRtauHpm        = dbe->book1D("TauRtauHpm","Hpm->Tau p(leading track)/E(visible tau)", 50 ,0,1); TauRtauHpm->setAxisTitle("rtau");
+    TauRtauW          = i.book1D("TauRtauW","W->Tau p(leading track)/E(visible tau)", 50 ,0,1);     TauRtauW->setAxisTitle("rtau");
+    TauRtauHpm        = i.book1D("TauRtauHpm","Hpm->Tau p(leading track)/E(visible tau)", 50 ,0,1); TauRtauHpm->setAxisTitle("rtau");
 
-    TauSpinEffectsW_X   = dbe->book1D("TauSpinEffectsWX","Pion energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_X->setAxisTitle("X");
-    TauSpinEffectsHpm_X = dbe->book1D("TauSpinEffectsHpmX","Pion energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_X->setAxisTitle("X");
+    TauSpinEffectsW_X   = i.book1D("TauSpinEffectsWX","Pion energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_X->setAxisTitle("X");
+    TauSpinEffectsHpm_X = i.book1D("TauSpinEffectsHpmX","Pion energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_X->setAxisTitle("X");
 
-    TauSpinEffectsW_eX   = dbe->book1D("TauSpinEffectsWeX","e energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_eX->setAxisTitle("X");
-    TauSpinEffectsHpm_eX = dbe->book1D("TauSpinEffectsHpmeX","e energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_eX->setAxisTitle("X");
+    TauSpinEffectsW_eX   = i.book1D("TauSpinEffectsWeX","e energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_eX->setAxisTitle("X");
+    TauSpinEffectsHpm_eX = i.book1D("TauSpinEffectsHpmeX","e energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_eX->setAxisTitle("X");
 
-    TauSpinEffectsW_muX   = dbe->book1D("TauSpinEffectsWmuX","mu energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_muX->setAxisTitle("X");
-    TauSpinEffectsHpm_muX = dbe->book1D("TauSpinEffectsHpmmuX","mu energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_muX->setAxisTitle("X");
+    TauSpinEffectsW_muX   = i.book1D("TauSpinEffectsWmuX","mu energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_muX->setAxisTitle("X");
+    TauSpinEffectsHpm_muX = i.book1D("TauSpinEffectsHpmmuX","mu energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_muX->setAxisTitle("X");
 
-    TauSpinEffectsW_UpsilonRho   = dbe->book1D("TauSpinEffectsWUpsilonRho","#Upsilon for #rho", 50 ,-1,1);     TauSpinEffectsW_UpsilonRho->setAxisTitle("#Upsilon");
-    TauSpinEffectsHpm_UpsilonRho = dbe->book1D("TauSpinEffectsHpmUpsilonRho","#Upsilon for #rho", 50 ,-1,1);   TauSpinEffectsHpm_UpsilonRho->setAxisTitle("#Upsilon");
+    TauSpinEffectsW_UpsilonRho   = i.book1D("TauSpinEffectsWUpsilonRho","#Upsilon for #rho", 50 ,-1,1);     TauSpinEffectsW_UpsilonRho->setAxisTitle("#Upsilon");
+    TauSpinEffectsHpm_UpsilonRho = i.book1D("TauSpinEffectsHpmUpsilonRho","#Upsilon for #rho", 50 ,-1,1);   TauSpinEffectsHpm_UpsilonRho->setAxisTitle("#Upsilon");
 
-    TauSpinEffectsW_UpsilonA1   = dbe->book1D("TauSpinEffectsWUpsilonA1","#Upsilon for a1", 50 ,-1,1);       TauSpinEffectsW_UpsilonA1->setAxisTitle("#Upsilon");
-    TauSpinEffectsHpm_UpsilonA1 = dbe->book1D("TauSpinEffectsHpmUpsilonA1","#Upsilon for a1", 50 ,-1,1);     TauSpinEffectsHpm_UpsilonA1->setAxisTitle("#Upsilon");
+    TauSpinEffectsW_UpsilonA1   = i.book1D("TauSpinEffectsWUpsilonA1","#Upsilon for a1", 50 ,-1,1);       TauSpinEffectsW_UpsilonA1->setAxisTitle("#Upsilon");
+    TauSpinEffectsHpm_UpsilonA1 = i.book1D("TauSpinEffectsHpmUpsilonA1","#Upsilon for a1", 50 ,-1,1);     TauSpinEffectsHpm_UpsilonA1->setAxisTitle("#Upsilon");
 
-    TauSpinEffectsH_pipiAcoplanarity = dbe->book1D("TauSpinEffectsH_pipiAcoplanarity","H Acoplanarity for #pi^{-}#pi^{+}", 50 ,0,2*TMath::Pi()); TauSpinEffectsH_pipiAcoplanarity->setAxisTitle("Acoplanarity"); 
+    TauSpinEffectsH_pipiAcoplanarity = i.book1D("TauSpinEffectsH_pipiAcoplanarity","H Acoplanarity for #pi^{-}#pi^{+}", 50 ,0,2*TMath::Pi()); TauSpinEffectsH_pipiAcoplanarity->setAxisTitle("Acoplanarity"); 
 
-    TauSpinEffectsH_pipiAcollinearity = dbe->book1D("TauSpinEffectsH_pipiAcollinearity","H Acollinearity for #pi^{-}#pi^{+}", 50 ,0,TMath::Pi()); TauSpinEffectsH_pipiAcollinearity->setAxisTitle("Acollinearity");
-    TauSpinEffectsH_pipiAcollinearityzoom = dbe->book1D("TauSpinEffectsH_pipiAcollinearityzoom","H Acollinearity for #pi^{-}#pi^{+}", 50 ,3,TMath::Pi()); TauSpinEffectsH_pipiAcollinearityzoom->setAxisTitle("Acollinearity");
+    TauSpinEffectsH_pipiAcollinearity = i.book1D("TauSpinEffectsH_pipiAcollinearity","H Acollinearity for #pi^{-}#pi^{+}", 50 ,0,TMath::Pi()); TauSpinEffectsH_pipiAcollinearity->setAxisTitle("Acollinearity");
+    TauSpinEffectsH_pipiAcollinearityzoom = i.book1D("TauSpinEffectsH_pipiAcollinearityzoom","H Acollinearity for #pi^{-}#pi^{+}", 50 ,3,TMath::Pi()); TauSpinEffectsH_pipiAcollinearityzoom->setAxisTitle("Acollinearity");
 
-    TauSpinEffectsZ_MVis   = dbe->book1D("TauSpinEffectsZMVis","Mass of pi+ pi-", 25 ,0,1.1);       TauSpinEffectsZ_MVis->setAxisTitle("M_{#pi^{+}#pi^{-}}");
-    TauSpinEffectsH_MVis   = dbe->book1D("TauSpinEffectsHMVis","Mass of pi+ pi-", 25 ,0,1.1);       TauSpinEffectsZ_MVis->setAxisTitle("M_{#pi^{+}#pi^{-}}");
+    TauSpinEffectsZ_MVis   = i.book1D("TauSpinEffectsZMVis","Mass of pi+ pi-", 25 ,0,1.1);       TauSpinEffectsZ_MVis->setAxisTitle("M_{#pi^{+}#pi^{-}}");
+    TauSpinEffectsH_MVis   = i.book1D("TauSpinEffectsHMVis","Mass of pi+ pi-", 25 ,0,1.1);       TauSpinEffectsZ_MVis->setAxisTitle("M_{#pi^{+}#pi^{-}}");
 
-    TauSpinEffectsZ_Zs   = dbe->book1D("TauSpinEffectsZZs","Z_{s}", zsbins ,zsmin,zsmax);        TauSpinEffectsZ_Zs->setAxisTitle("Z_{s}");
-    TauSpinEffectsH_Zs   = dbe->book1D("TauSpinEffectsHZs","Z_{s}", zsbins ,zsmin,zsmax);        TauSpinEffectsZ_Zs->setAxisTitle("Z_{s}");
+    TauSpinEffectsZ_Zs   = i.book1D("TauSpinEffectsZZs","Z_{s}", zsbins ,zsmin,zsmax);        TauSpinEffectsZ_Zs->setAxisTitle("Z_{s}");
+    TauSpinEffectsH_Zs   = i.book1D("TauSpinEffectsHZs","Z_{s}", zsbins ,zsmin,zsmax);        TauSpinEffectsZ_Zs->setAxisTitle("Z_{s}");
 
-    TauSpinEffectsZ_X= dbe->book1D("TauSpinEffectsZX","X of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
-    TauSpinEffectsH_X= dbe->book1D("TauSpinEffectsH_X","X of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsH_X->setAxisTitle("X");
+    TauSpinEffectsZ_X= i.book1D("TauSpinEffectsZX","X of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
+    TauSpinEffectsH_X= i.book1D("TauSpinEffectsH_X","X of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsH_X->setAxisTitle("X");
 
-    TauSpinEffectsZ_Xf   = dbe->book1D("TauSpinEffectsZXf","X of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
-    TauSpinEffectsH_Xf   = dbe->book1D("TauSpinEffectsHXf","X of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
+    TauSpinEffectsZ_Xf   = i.book1D("TauSpinEffectsZXf","X of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
+    TauSpinEffectsH_Xf   = i.book1D("TauSpinEffectsHXf","X of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
 
-    TauSpinEffectsZ_Xb   = dbe->book1D("TauSpinEffectsZXb","X of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
-    TauSpinEffectsH_Xb   = dbe->book1D("TauSpinEffectsHXb","X of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
+    TauSpinEffectsZ_Xb   = i.book1D("TauSpinEffectsZXb","X of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
+    TauSpinEffectsH_Xb   = i.book1D("TauSpinEffectsHXb","X of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
 
-    TauSpinEffectsZ_eX   = dbe->book1D("TauSpinEffectsZeX","e energy in Z rest frame", 50 ,0,1);     TauSpinEffectsZ_eX->setAxisTitle("X");
-    TauSpinEffectsH_eX = dbe->book1D("TauSpinEffectsHeX","e energy in H rest frame", 50 ,0,1); TauSpinEffectsH_eX->setAxisTitle("X");
+    TauSpinEffectsZ_eX   = i.book1D("TauSpinEffectsZeX","e energy in Z rest frame", 50 ,0,1);     TauSpinEffectsZ_eX->setAxisTitle("X");
+    TauSpinEffectsH_eX = i.book1D("TauSpinEffectsHeX","e energy in H rest frame", 50 ,0,1); TauSpinEffectsH_eX->setAxisTitle("X");
 
-    TauSpinEffectsZ_muX   = dbe->book1D("TauSpinEffectsZmuX","mu energy in z rest frame", 50 ,0,1);     TauSpinEffectsZ_muX->setAxisTitle("X");
-    TauSpinEffectsH_muX = dbe->book1D("TauSpinEffectsHmuX","mu energy in H rest frame", 50 ,0,1); TauSpinEffectsH_muX->setAxisTitle("X");
+    TauSpinEffectsZ_muX   = i.book1D("TauSpinEffectsZmuX","mu energy in z rest frame", 50 ,0,1);     TauSpinEffectsZ_muX->setAxisTitle("X");
+    TauSpinEffectsH_muX = i.book1D("TauSpinEffectsHmuX","mu energy in H rest frame", 50 ,0,1); TauSpinEffectsH_muX->setAxisTitle("X");
 
-     TauSpinEffectsH_rhorhoAcoplanarityminus = dbe->book1D("TauSpinEffectsH_rhorhoAcoplanarityminus","#phi^{*-} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}<0)", 32 ,0,2*TMath::Pi());     TauSpinEffectsH_rhorhoAcoplanarityminus->setAxisTitle("#phi^{*-} (Acoplanarity)");
-     TauSpinEffectsH_rhorhoAcoplanarityplus = dbe->book1D("TauSpinEffectsH_rhorhoAcoplanarityplus","#phi^{*+} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}>0)", 32 ,0,2*TMath::Pi());     TauSpinEffectsH_rhorhoAcoplanarityplus->setAxisTitle("#phi^{*+} (Acoplanarity)");
+     TauSpinEffectsH_rhorhoAcoplanarityminus = i.book1D("TauSpinEffectsH_rhorhoAcoplanarityminus","#phi^{*-} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}<0)", 32 ,0,2*TMath::Pi());     TauSpinEffectsH_rhorhoAcoplanarityminus->setAxisTitle("#phi^{*-} (Acoplanarity)");
+     TauSpinEffectsH_rhorhoAcoplanarityplus = i.book1D("TauSpinEffectsH_rhorhoAcoplanarityplus","#phi^{*+} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}>0)", 32 ,0,2*TMath::Pi());     TauSpinEffectsH_rhorhoAcoplanarityplus->setAxisTitle("#phi^{*+} (Acoplanarity)");
 
-    TauFSRPhotonsN=dbe->book1D("TauFSRPhotonsN","FSR Photons radiating from/with tau (Gauge Boson)", 5 ,-0.5,4.5);
+    TauFSRPhotonsN=i.book1D("TauFSRPhotonsN","FSR Photons radiating from/with tau (Gauge Boson)", 5 ,-0.5,4.5);
     TauFSRPhotonsN->setAxisTitle("N FSR Photons radiating from/with tau");
-    TauFSRPhotonsPt=dbe->book1D("TauFSRPhotonsPt","Pt of FSR Photons radiating from/with tau (Gauge Boson)", 100 ,0,100);
+    TauFSRPhotonsPt=i.book1D("TauFSRPhotonsPt","Pt of FSR Photons radiating from/with tau (Gauge Boson)", 100 ,0,100);
     TauFSRPhotonsPt->setAxisTitle("P_{t} of FSR Photons radiating from/with tau [per tau]");
-    TauFSRPhotonsPtSum=dbe->book1D("TauFSRPhotonsPtSum","Pt of FSR Photons radiating from/with tau (Gauge Boson)", 100 ,0,100);
+    TauFSRPhotonsPtSum=i.book1D("TauFSRPhotonsPtSum","Pt of FSR Photons radiating from/with tau (Gauge Boson)", 100 ,0,100);
     TauFSRPhotonsPtSum->setAxisTitle("P_{t} of FSR Photons radiating from/with tau [per tau]");
 
-    TauBremPhotonsN=dbe->book1D("TauBremPhotonsN","Brem. Photons radiating in tau decay", 5 ,-0.5,4.5);
+    TauBremPhotonsN=i.book1D("TauBremPhotonsN","Brem. Photons radiating in tau decay", 5 ,-0.5,4.5);
     TauBremPhotonsN->setAxisTitle("N FSR Photons radiating from/with tau");
-    TauBremPhotonsPt=dbe->book1D("TauBremPhotonsPt","Sum Brem Pt ", 100 ,0,100);
+    TauBremPhotonsPt=i.book1D("TauBremPhotonsPt","Sum Brem Pt ", 100 ,0,100);
     TauFSRPhotonsPt->setAxisTitle("P_{t} of Brem. Photons radiating in tau decay");    
-    TauBremPhotonsPtSum =dbe->book1D("TauBremPhotonsPtSum","Sum of Brem Pt ", 100 ,0,100);
+    TauBremPhotonsPtSum =i.book1D("TauBremPhotonsPtSum","Sum of Brem Pt ", 100 ,0,100);
     TauFSRPhotonsPtSum->setAxisTitle("Sum P_{t} of Brem. Photons radiating in tau decay");
 
-    JAKID =dbe->book1D("JAKID","JAK ID",NJAKID+1,-0.5,NJAKID+0.5);
-    for(unsigned int i=0; i<NJAKID+1;i++){
+    JAKID =i.book1D("JAKID","JAK ID",NJAKID+1,-0.5,NJAKID+0.5);
+    for(unsigned int j=0; j<NJAKID+1;j++){
       JAKInvMass.push_back(std::vector<MonitorElement *>());
       TString tmp="JAKID";
-      tmp+=i;
-      JAKInvMass.at(i).push_back(dbe->book1D("M"+tmp,"M_{"+tmp+"} (GeV)", 80 ,0,2.0));
-      if(i==TauDecay::JAK_A1_3PI ||
-	 i==TauDecay::JAK_KPIK ||
-	 i==TauDecay::JAK_KPIPI ){
-	JAKInvMass.at(i).push_back(dbe->book1D("M13"+tmp,"M_{13,"+tmp+"} (GeV)", 80 ,0,2.0));
-	JAKInvMass.at(i).push_back(dbe->book1D("M23"+tmp,"M_{23,"+tmp+"} (GeV)", 80 ,0,2.0));
-	JAKInvMass.at(i).push_back(dbe->book1D("M12"+tmp,"M_{12,"+tmp+"} (GeV)", 80 ,0,2.0));
+      tmp+=j;
+      JAKInvMass.at(j).push_back(i.book1D("M"+tmp,"M_{"+tmp+"} (GeV)", 80 ,0,2.0));
+      if(j==TauDecay::JAK_A1_3PI ||
+	 j==TauDecay::JAK_KPIK ||
+	 j==TauDecay::JAK_KPIPI ){
+	JAKInvMass.at(j).push_back(i.book1D("M13"+tmp,"M_{13,"+tmp+"} (GeV)", 80 ,0,2.0));
+	JAKInvMass.at(j).push_back(i.book1D("M23"+tmp,"M_{23,"+tmp+"} (GeV)", 80 ,0,2.0));
+	JAKInvMass.at(j).push_back(i.book1D("M12"+tmp,"M_{12,"+tmp+"} (GeV)", 80 ,0,2.0));
       }
     }
-  }
-  
   return;
 }
 
-void TauValidation::endJob(){
-  return;
-}
 
-void TauValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
-{
-  ///Get PDT Table
-  iSetup.getData( fPDGTable );
-  return;
-}
-void TauValidation::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
 void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 { 
     ///Gathering the HepMCProduct information

@@ -61,6 +61,8 @@ namespace ora {
 
     const std::string& className();
 
+    std::string realClassName();
+
     const std::string& mappingVersion();
 
     size_t size();

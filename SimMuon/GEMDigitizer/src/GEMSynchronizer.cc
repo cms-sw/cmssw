@@ -16,8 +16,7 @@ namespace
 }
 
 
-GEMSynchronizer::GEMSynchronizer(const edm::ParameterSet& config):
-  gauss1_(0), gauss2_(0)
+GEMSynchronizer::GEMSynchronizer(const edm::ParameterSet& config)
 {
   timeResolution_ = config.getParameter<double>("timeResolution");
   averageShapingTime_ = config.getParameter<double>("averageShapingTime");
@@ -33,21 +32,12 @@ GEMSynchronizer::GEMSynchronizer(const edm::ParameterSet& config):
 }
 
 
-void GEMSynchronizer::setRandomEngine(CLHEP::HepRandomEngine& eng)
-{
-  gauss1_ = new CLHEP::RandGaussQ(eng);
-  gauss2_ = new CLHEP::RandGaussQ(eng);
-}
-
-
 GEMSynchronizer::~GEMSynchronizer()
 {
-  if (gauss1_) delete gauss1_;
-  if (gauss2_) delete gauss2_;
 }
 
 
-int GEMSynchronizer::getSimHitBx(const PSimHit* simhit)
+int GEMSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* engine)
 {
   GEMSimSetUp* simsetup = getGEMSimSetUp();
   const GEMGeometry * geometry = simsetup->getGeometry();
@@ -58,7 +48,7 @@ int GEMSynchronizer::getSimHitBx(const PSimHit* simhit)
   LocalPoint simHitPos = simhit->localPosition();
   float tof = simhit->timeOfFlight();
   // random Gaussian time correction due to electronics jitter
-  float randomJitterTime = gauss1_->fire(0., timeJitter_);
+  float randomJitterTime = CLHEP::RandGaussQ::shoot(engine, 0., timeJitter_);
   
   GEMDetId shdetid(simhit->detUnitId());
 
@@ -98,7 +88,7 @@ int GEMSynchronizer::getSimHitBx(const PSimHit* simhit)
     // average time for the signal to propagate from the SimHit to the top of a strip
     float averagePropagationTime =  distanceFromEdge/signalPropagationSpeed_;
     // random Gaussian time correction due to the finite timing resolution of the detector
-    float randomResolutionTime = gauss2_->fire(0., timeResolution_);
+    float randomResolutionTime = CLHEP::RandGaussQ::shoot(engine, 0., timeResolution_);
 
     float simhitTime = tof + (averageShapingTime_ + randomResolutionTime) + (averagePropagationTime + randomJitterTime);
     float referenceTime = calibrationTime + halfStripLength/signalPropagationSpeed_ + averageShapingTime_;
@@ -116,4 +106,3 @@ int GEMSynchronizer::getSimHitBx(const PSimHit* simhit)
   }
   return bx;
 }
-

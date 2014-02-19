@@ -303,21 +303,23 @@ void MatchCandidateBenchmark::fillOne(const reco::Candidate& cand,
 
     std::vector<double> ptBinsPS = parameterSet.getParameter< std::vector<double> >( "VariablePtBins" );
     edm::ParameterSet ptPS = parameterSet.getParameter<edm::ParameterSet>("PtHistoParameter");
-    float* ptBins; 
+    std::vector<float> ptBins;
     if (ptBinsPS.size() > 1) { 
-      ptBins = new float[ptBinsPS.size()];
-      for (size_t i = 0; i < ptBinsPS.size(); i++) 
-	ptBins[i] = ptBinsPS[i]; 
+      ptBins.reserve(ptBinsPS.size());
+      for (size_t i = 0; i < ptBinsPS.size(); i++) {
+        ptBins.push_back(ptBinsPS[i]);
+      }
     } else { 
       Int_t nFixedBins = ptPS.getParameter<int32_t>("nBin");
-      ptBins = new float[nFixedBins+1];
-      for (Int_t i = 0; i <= nFixedBins; i++) 
-	ptBins[i] = ptPS.getParameter<double>("xMin") + i*((ptPS.getParameter<double>("xMax") - ptPS.getParameter<double>("xMin")) / nFixedBins) ; 
+      ptBins.reserve(nFixedBins + 1);
+      for (Int_t i = 0; i <= nFixedBins; i++) {
+        ptBins.push_back( ptPS.getParameter<double>("xMin") + i*((ptPS.getParameter<double>("xMax") - ptPS.getParameter<double>("xMin")) / nFixedBins) );
+      }
       ptBinsPS.resize(nFixedBins);
     }
 
     edm::ParameterSet dptOvptPS = parameterSet.getParameter<edm::ParameterSet>("DeltaPtOvPtHistoParameter");
-    if (matchedCand.pt() > ptBins[0]) { // underflow problem
+    if (matchedCand.pt() > ptBins.at(0)) { // underflow problem
       if (delta_et_Over_et_VS_et_) delta_et_Over_et_VS_et_->Fill( matchedCand.pt(), (cand.pt() - matchedCand.pt()) / matchedCand.pt() );
       if ( fabs(cand.eta()) >= dptOvptPS.getParameter<double>("BREtaMin")  &&  fabs(cand.eta()) <= dptOvptPS.getParameter<double>("BREtaMax"))
 	if (BRdelta_et_Over_et_VS_et_) BRdelta_et_Over_et_VS_et_->Fill( matchedCand.pt(), (cand.pt() - matchedCand.pt())/matchedCand.pt() );
@@ -343,16 +345,15 @@ void MatchCandidateBenchmark::fillOne(const reco::Candidate& cand,
       profileRMS_delta_phi_VS_et_->Fill( matchedCand.pt(), cand.phi() - matchedCand.phi() ); }
     */
 
-    for (size_t i = 0; i < pTRes_.size(); i++) 
-      if (matchedCand.pt() >= ptBins[i] && matchedCand.pt() < ptBins[i+1]) {
+    for (size_t i = 0; i < pTRes_.size(); i++) {
+      if (matchedCand.pt() >= ptBins.at(i) && matchedCand.pt() < ptBins.at(i+1)) {
 	if (pTRes_[i]) pTRes_[i]->Fill( (cand.pt() - matchedCand.pt()) / matchedCand.pt() ) ;
       	if ( fabs(cand.eta()) >= dptOvptPS.getParameter<double>("BREtaMin")  &&  fabs(cand.eta()) <= dptOvptPS.getParameter<double>("BREtaMax"))
 	  if (BRpTRes_[i]) BRpTRes_[i]->Fill( (cand.pt() - matchedCand.pt()) / matchedCand.pt() ) ; // Fill Barrel
       	if ( fabs(cand.eta()) >= dptOvptPS.getParameter<double>("EREtaMin")  &&  fabs(cand.eta()) <= dptOvptPS.getParameter<double>("EREtaMax"))
 	  if (ERpTRes_[i]) ERpTRes_[i]->Fill( (cand.pt() - matchedCand.pt()) / matchedCand.pt() ) ; // Fill Endcap
       }
-    
-    delete ptBins;
+    }
   }
 }
 

@@ -16,6 +16,7 @@ namespace cond {
       if( !simpl.get() ) cond::throwException("The KeyList has not been initialized.","KeyList::load");
       Session s( simpl );
       s.transaction().start( true );
+      m_isOra = s.isOraSession();
       m_data.clear();
       m_objects.resize(keys.size());
       for (size_t i=0; i<keys.size(); ++i) {

@@ -22,27 +22,27 @@
 using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
+namespace {
+  constexpr int LINK_bits = 6;
+  constexpr int ROC_bits  = 5;
+  constexpr int DCOL_bits = 5;
+  constexpr int PXID_bits = 8;
+  constexpr int ADC_bits  = 8;
+  
+  constexpr int ADC_shift  = 0;
+  constexpr int PXID_shift = ADC_shift + ADC_bits;
+  constexpr int DCOL_shift = PXID_shift + PXID_bits;
+  constexpr int ROC_shift  = DCOL_shift + DCOL_bits;
+  constexpr int LINK_shift = ROC_shift + ROC_bits;
+  
+  constexpr PixelDataFormatter::Word32 LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits);
+  constexpr PixelDataFormatter::Word32 ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits);
+  constexpr PixelDataFormatter::Word32 DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
+  constexpr PixelDataFormatter::Word32 PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
+  constexpr PixelDataFormatter::Word32 ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
 
-const int LINK_bits = 6;
-const int ROC_bits  = 5;
-const int DCOL_bits = 5;
-const int PXID_bits = 8;
-const int ADC_bits  = 8;
-
-const int ADC_shift  = 0;
-const int PXID_shift = ADC_shift + ADC_bits;
-const int DCOL_shift = PXID_shift + PXID_bits;
-const int ROC_shift  = DCOL_shift + DCOL_bits;
-const int LINK_shift = ROC_shift + ROC_bits;
-
-const PixelDataFormatter::Word32 LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits);
-const PixelDataFormatter::Word32 ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits);
-const PixelDataFormatter::Word32 DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
-const PixelDataFormatter::Word32 PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
-const PixelDataFormatter::Word32 ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
-
-const PixelDataFormatter::Word64 WORD32_mask = 0xffffffff;
-
+  constexpr PixelDataFormatter::Word64 WORD32_mask = 0xffffffff;
+}
 
 PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
   : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(0), modulesToUnpack(0)
@@ -86,74 +86,123 @@ void PixelDataFormatter::passFrameReverter(const SiPixelFrameReverter* reverter)
   theFrameReverter = reverter;
 }
 
-void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& rawData, Digis& digis, Errors& errors)
+void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& rawData, Collection & digis, Errors& errors)
 {
-  debug = edm::MessageDrop::instance()->debugEnabled;
+  using namespace sipixelobjects;
+
   int nWords = rawData.size()/sizeof(Word64);
   if (nWords==0) return;
 
-  SiPixelFrameConverter * converter = (theCablingTree) ? 
-      new SiPixelFrameConverter(theCablingTree, fedId) : 0;
+  SiPixelFrameConverter converter(theCablingTree, fedId);
 
   // check CRC bit
-  const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);
-  bool CRC_OK = errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors);
-  
-  if(CRC_OK) {
-    // check headers
-    const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
-    bool moreHeaders = true;
-    while (moreHeaders) {
-      header++;
-      if (debug) LogTrace("")<<"HEADER:  " <<  print(*header);
-      bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header, errors);
-      moreHeaders = headerStatus;
-    }
+  const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);  
+  if(!errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors)) return;
 
-    // check trailers
-    bool moreTrailers = true;
-    trailer++;
-    while (moreTrailers) {
-      trailer--;
-      if (debug) LogTrace("")<<"TRAILER: " <<  print(*trailer);
-      bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
-      moreTrailers = trailerStatus;
-    }
+  // check headers
+  const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
+  bool moreHeaders = true;
+  while (moreHeaders) {
+    header++;
+    LogTrace("")<<"HEADER:  " <<  print(*header);
+    bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header, errors);
+    moreHeaders = headerStatus;
+  }
 
-    // data words
-    theWordCounter += 2*(nWords-2);
-    if (debug) LogTrace("")<<"data words: "<< (trailer-header-1);
-    for (const Word64* word = header+1; word != trailer; word++) {
-      if (debug) LogTrace("")<<"DATA:    " <<  print(*word);
-      Word32 w1 =  *word       & WORD32_mask;
-      Word32 w2 =  *word >> 32 & WORD32_mask;
-      if (w1==0) theWordCounter--;
-      if (w2==0) theWordCounter--;
+  // check trailers
+  bool moreTrailers = true;
+  trailer++;
+  while (moreTrailers) {
+    trailer--;
+    LogTrace("")<<"TRAILER: " <<  print(*trailer);
+    bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
+    moreTrailers = trailerStatus;
+  }
 
-      // check status of word...
-      bool notErrorROC1 = errorcheck.checkROC(errorsInEvent, fedId, converter, w1, errors);
-      if (notErrorROC1) {
-        int status1 = word2digi(fedId, converter, includeErrors, useQualityInfo, w1, digis);
-        if (status1) {
-	    LogDebug("PixelDataFormatter::interpretRawData") 
-                    << "status #" <<status1<<" returned for word1";
-            errorsInEvent = true;
-	    errorcheck.conversionError(fedId, converter, status1, w1, errors);
-        }
+  // data words
+  theWordCounter += 2*(nWords-2);
+  LogTrace("")<<"data words: "<< (trailer-header-1);
+
+  int link = -1;
+  int roc  = -1;
+  PixelROC const * rocp=nullptr;
+  bool skipROC=false;
+  edm::DetSet<PixelDigi> * detDigis=nullptr;
+
+  const  Word32 * bw =(const  Word32 *)(header+1);
+  const  Word32 * ew =(const  Word32 *)(trailer);
+  if ( *(ew-1) == 0 ) { ew--;  theWordCounter--;}
+  for (auto word = bw; word < ew; ++word) {
+    LogTrace("")<<"DATA: " <<  print(*word);
+
+    auto ww = *word;
+    //assert(ww==0);
+    if unlikely(ww==0) { theWordCounter--; continue;}
+    int nlink = (ww >> LINK_shift) & LINK_mask; 
+    int nroc  = (ww >> ROC_shift) & ROC_mask;
+    
+    if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
+      link = nlink; roc=nroc;
+      skipROC = likely(roc<25) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
+      if (skipROC) continue;
+      rocp = converter.toRoc(link,roc);
+      if unlikely(!rocp) {
+	errorsInEvent = true;
+	errorcheck.conversionError(fedId, &converter, 2, ww, errors);
+	skipROC=true;
+	continue;
       }
-      bool notErrorROC2 = errorcheck.checkROC(errorsInEvent, fedId, converter, w2, errors);
-      if (notErrorROC2) {
-        int status2 = word2digi(fedId, converter, includeErrors, useQualityInfo, w2, digis);
-        if (status2) {
-	    LogDebug("PixelDataFormatter::interpretRawData") 
-                    << "status #" <<status2<<" returned for word2";
-            errorsInEvent = true;
-	    errorcheck.conversionError(fedId, converter, status2, w2, errors);
-        }
+      auto rawId = rocp->rawId();
+      
+      if (useQualityInfo&(nullptr!=badPixelInfo)) {
+	short rocInDet = (short) rocp->idInDetUnit();
+	skipROC = badPixelInfo->IsRocBad(rawId, rocInDet);
+	if (skipROC) continue;
       }
+      skipROC= modulesToUnpack && ( modulesToUnpack->find(rawId) == modulesToUnpack->end());
+      if (skipROC) continue;
+      
+      detDigis = &digis.find_or_insert(rawId);
+      if ( (*detDigis).empty() ) (*detDigis).data.reserve(32); // avoid the first relocations
     }
-  }  // end if(CRC_OK)
-  delete converter;
+    if unlikely(skipROC) continue;
+    
+    
+    int dcol = (ww >> DCOL_shift) & DCOL_mask;
+    int pxid = (ww >> PXID_shift) & PXID_mask;
+    int adc  = (ww >> ADC_shift) & ADC_mask;
+    
+    LocalPixel::DcolPxid local = { dcol, pxid };
+    if unlikely(!local.valid()) {
+      LogDebug("PixelDataFormatter::interpretRawData") 
+	<< "status #3";
+      errorsInEvent = true;
+      errorcheck.conversionError(fedId, &converter, 3, ww, errors);
+      continue;
+    }
+    
+    GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
+    (*detDigis).data.emplace_back(global.row, global.col, adc);
+    
+    LogTrace("") << (*detDigis).data.back();
+  }
+
+}
+
+void doVectorize(int const * __restrict__ w, int * __restrict__ row, int * __restrict__ col, int * __restrict__ valid, int N, PixelROC const * rocp) {
+  for (int i=0; i<N; ++i) {
+    auto ww = w[i];
+    int dcol = (ww >> DCOL_shift) & DCOL_mask;
+    int pxid = (ww >> PXID_shift) & PXID_mask;
+    // int adc  = (ww >> ADC_shift) & ADC_mask;
+    
+    LocalPixel::DcolPxid local = { dcol, pxid };
+    valid[i] = local.valid();
+    GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
+    row[i]=global.row; col[i]=global.col;
+
+  }
+
 }
 
 
@@ -250,6 +299,7 @@ int PixelDataFormatter::digi2word( cms_uint32_t detId, const PixelDigi& digi,
 }
 
 
+// obsolete...
 int PixelDataFormatter::word2digi(const int fedId, const SiPixelFrameConverter* converter, 
     const bool includeErrors, const bool useQuality, const Word32 & word, Digis & digis) const
 {
@@ -292,12 +342,11 @@ int PixelDataFormatter::word2digi(const int fedId, const SiPixelFrameConverter* 
 
   if (modulesToUnpack && modulesToUnpack->find(detIdx.rawId) == modulesToUnpack->end()) return 0;
 
-  PixelDigi pd(detIdx.row, detIdx.col, adc);
-  digis[detIdx.rawId].push_back(pd);
+  digis[detIdx.rawId].emplace_back(detIdx.row, detIdx.col, adc);
 
   theDigiCounter++;
 
-  if (debug)  LogTrace("") << print(pd);
+  if (debug)  LogTrace("") << digis[detIdx.rawId].back();
   return 0;
 }
 

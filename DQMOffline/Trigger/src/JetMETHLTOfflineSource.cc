@@ -88,7 +88,7 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   CaloJetCorService_   = iConfig.getParameter<std::string>("CaloJetCorService");
   PFJetCorService_     = iConfig.getParameter<std::string>("PFJetCorService");
   //JetID
-  jetID                = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"));
+  jetID                = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"), consumesCollector());
   _fEMF                = iConfig.getUntrackedParameter< double >("fEMF", 0.01);
   _feta                = iConfig.getUntrackedParameter< double >("feta", 2.60);
   _fHPD                = iConfig.getUntrackedParameter< double >("fHPD", 0.98);

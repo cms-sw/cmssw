@@ -120,7 +120,7 @@ PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet, ConsumesCollector&& 
   _highPFMETThreshold   = parameters.getParameter<double>("HighMETThreshold");
 
   //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"), std::move(iC));
 
 }
 

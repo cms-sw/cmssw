@@ -24,6 +24,7 @@
 
 class SeedGeneratorFromRegionHits;
 class MagneticField;
+namespace edm { class ConsumesCollector; }
 
 class SeedFilter {
  public:
@@ -34,7 +35,8 @@ class SeedFilter {
   };
 
   SeedFilter(const edm::ParameterSet& conf,
-	     const Tokens& tokens);
+	     const Tokens& tokens,
+	     edm::ConsumesCollector& iC);
   ~SeedFilter();
 
   void seeds(edm::Event&, const edm::EventSetup&, const reco::SuperClusterRef &, TrajectorySeedCollection *);

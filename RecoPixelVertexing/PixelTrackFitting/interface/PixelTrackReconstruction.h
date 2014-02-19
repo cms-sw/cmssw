@@ -5,6 +5,7 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include <memory>
 
 class PixelFitter;
 class PixelTrackCleaner;
@@ -32,7 +33,7 @@ private:
   const PixelFitter       * theFitter;
   std::unique_ptr<PixelTrackFilter> theFilter;
   PixelTrackCleaner * theCleaner;
-  OrderedHitsGenerator * theGenerator;
+  std::unique_ptr<OrderedHitsGenerator> theGenerator;
   TrackingRegionProducer* theRegionProducer;
   QuadrupletSeedMerger *theMerger_;
 };

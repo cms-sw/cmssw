@@ -4,8 +4,7 @@ process = cms.Process("PFAOD")
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-#     '/store/relval/CMSSW_4_2_3/RelValZTT/GEN-SIM-RECO/START42_V12-v2/0062/4CEA9C47-287B-E011-BAB7-00261894396B.root'
-    '/store/data/Run2011A/HT/AOD/PromptReco-v4/000/166/921/F277100B-BA97-E011-998D-001D09F24D4E.root'
+    '/store/relval/CMSSW_6_2_0_pre8/SingleMu/RECO/PRE_62_V8_RelVal_mu2012D-v1/00000/005835E9-05E0-E211-BA7B-003048F1C7C0.root'
     )
 )
 
@@ -24,7 +23,7 @@ process.out = cms.OutputModule(
 process.load("CommonTools.ParticleFlow.PF2PAT_EventContent_cff")
 process.out.outputCommands.extend( process.prunedAODForPF2PATEventContent.outputCommands )
 
-# additional stuff for Maxime: 
+# additional stuff for Maxime:
 process.out.outputCommands.extend(
     [
       'keep GenEventInfoProduct_*_*_*',

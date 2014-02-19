@@ -7,10 +7,10 @@ process = cms.Process("PFISO")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
- 
+
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_2_0/RelValH130GGgluonfusion/GEN-SIM-RECO/START52_V4A-v1/0248/5AEAC282-0B69-E111-A973-003048FF9AA6.root'))
-   
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_0_0_pre11/RelValProdTTbar/GEN-SIM-RECO/START70_V4-v1/00000/0EA82C3C-646A-E311-9CB3-0025905A6070.root'))
+
 
 # Tae Jeong, could you please remove these from the PF2PAT sequence?
 # they are not used, and are creating problems in such kinds of manipulations:
@@ -49,8 +49,8 @@ process.pfIsoReader = cms.EDAnalyzer("PFIsoReaderDemo",
 
 process.p = cms.Path(
     # process.pfNoPileUpSequence +
-    process.pfParticleSelectionSequence + 
-    process.eleIsoSequence + 
+    process.pfParticleSelectionSequence +
+    process.eleIsoSequence +
     process.muIsoSequence+
     process.phoIsoSequence+
     process.pfIsoReader
@@ -65,7 +65,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.outpath = cms.EndPath(
-    process.out 
+    process.out
     )
 
 

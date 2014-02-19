@@ -148,6 +148,10 @@ void PixelJetPuId::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //get tracks
   Handle<std::vector<reco::Track> > tracks;
   iEvent.getByToken(tracksToken, tracks);
+  unsigned int tsize = tracks->size();
+  float teta[tsize], tphi[tsize];
+  unsigned int i=0;
+  for (auto const & tr : *tracks) { teta[i]=tr.eta(); tphi[i]=tr.phi();++i;}
    
   //get jets
   Handle<edm::View<reco::CaloJet> > jets;
@@ -166,7 +170,7 @@ void PixelJetPuId::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     {
       const reco::Vertex* pv = &*primaryVertex->begin();
       //loop on jets
-      for(edm::View<reco::CaloJet>::const_iterator itJet = jets->begin();  itJet != jets->end(); itJet++ ) {
+      for(edm::View<reco::CaloJet>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++ ) {
 	
 	math::XYZVector jetMomentum = itJet->momentum();
 	GlobalVector direction(jetMomentum.x(), jetMomentum.y(), jetMomentum.z());
@@ -181,21 +185,21 @@ void PixelJetPuId::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  }
 	else 
 	  {
-	    for(std::vector<reco::Track>::const_iterator itTrack = tracks->begin(); itTrack != tracks->end(); ++itTrack) 
-	      {
-		double deltaR2 = reco::deltaR2( jetMomentum, *itTrack );
-		if(deltaR2<0.25)
-		  {
-		    reco::TransientTrack transientTrack = builder->build(*itTrack);
-		    float jetTrackDistance = -((IPTools::jetTrackDistance(transientTrack, direction, *pv)).second).value();
+	    std::vector<reco::Track>::const_iterator itTrack = tracks->begin();
+	    for (unsigned int i=0; i<tsize; ++i) {
+	      float deltaR2=reco::deltaR2(itJet->eta(),itJet->phi(), teta[i],tphi[i]);
+	      if(deltaR2<0.25) {
+		reco::TransientTrack transientTrack = builder->build(*itTrack);
+		float jetTrackDistance = -((IPTools::jetTrackDistance(transientTrack, direction, *pv)).second).value();
 		    
-		    //select the tracks compabible with the jet
-		    if(( itTrack->pt() > m_MinTrackPt) && ( itTrack->normalizedChi2() < m_MaxTrackChi2) && (jetTrackDistance<m_MaxTrackDistanceToJet))
-		      {
-			trMomentum += itTrack->momentum(); //calculate the Sum(trackPt)
-		      }
+		//select the tracks compabible with the jet
+		if(( itTrack->pt() > m_MinTrackPt) && ( itTrack->normalizedChi2() < m_MaxTrackChi2) && (jetTrackDistance<m_MaxTrackDistanceToJet))
+		  {
+		    trMomentum += itTrack->momentum(); //calculate the Sum(trackPt)
 		  }
 	      }
+	      itTrack++;
+	    }
 	    //if Sum(comp.trackPt)/CaloJetPt > minPtRatio or Sum(trackPt) > minPt  the jet is a signal jet
 	    if(trMomentum.rho()/jetMomentum.rho() > m_MinGoodJetTrackPtRatio || trMomentum.rho() > m_MinGoodJetTrackPt ) 
 	      {
