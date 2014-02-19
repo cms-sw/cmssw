@@ -94,7 +94,7 @@ namespace cms
     trackProducer1TrajToken = consumes< std::vector<Trajectory> >(trackProducer1);
     trackProducer2TrajToken = consumes< std::vector<Trajectory> >(trackProducer2);
     trackProducer1AssToken = consumes< TrajTrackAssociationCollection >(trackProducer1);
-    trackProducer1AssToken = consumes< TrajTrackAssociationCollection >(trackProducer2);
+    trackProducer2AssToken = consumes< TrajTrackAssociationCollection >(trackProducer2);
 
   }
 
