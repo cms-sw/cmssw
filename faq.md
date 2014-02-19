@@ -23,27 +23,19 @@ related:
 
 ### How do I subscribe to github?
 
-In order to develop CMSSW you will need a github account and to link it to your
-CERN account. This is easily done by going to [CMS Topic
-Collector][cms-topic-collector].
+In order to develop CMSSW you will need a github account.
 
-* In case you don't, simply click on the "Sign up for free" button 
+* In case you don't have one already, simply go to:
 
-  ![signup button](images/github-signup.png)
+  [https://github.com/join]()
 
-  and follow the instructions to create a new account.
+  and follow the instructions to create a new account. Make sure you use a
+  username people can recognize you easily or to specify your real name.
 
-  Go back to the [CMS Topic Collector][cms-topic-collector] page when done.
-
- * In case you already have an account you can simply use "the Sign in" dialog and
+* In case you already have an account you can simply use "the Sign in" dialog and
 put your username and password.
 
-  ![signin dialog](images/github-signin.png)
-
-Once you are done, you'll be prompted to grant CMS Topic Collector the rights to
-connect to your github account, simply click on "Authorize app".
-
-![signup button](images/github-authorize.png)
+  [https://github.com/login]()
 
 Once you are done you should also setup your personal information:
 
@@ -56,8 +48,6 @@ messages, so you might want to adapt your shall profile as well.
 
 Finally, make sure you [register in github your ssh
 key](https://help.github.com/articles/generating-ssh-keys).
-
-[cms-topic-collector]: https://cern.ch/cmsgit/cmsgit
 
 # Working with CMSSW on github
 
