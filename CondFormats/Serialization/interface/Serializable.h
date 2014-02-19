@@ -25,11 +25,13 @@ namespace serialization {
 // Marks a class/struct as serializable Conditions.
 // It must be used in the end of the class/struct, to avoid
 // changing the default access specifier.
+// Note: the serialization code generator script depends on
+//       the implementation of the macro.
 #define COND_SERIALIZABLE \
     private: \
-        friend class boost::serialization::access; \
         template <class Archive> void serialize(Archive & ar, const unsigned int version); \
-        template <typename CondSerializationT, typename Enabled> friend struct cond::serialization::access;
+        template <typename CondSerializationT, typename Enabled> friend struct cond::serialization::access; \
+        friend class boost::serialization::access;
 
 // Same, but does *not* automatically generate the serialization code.
 // This is useful when special features are required, e.g. versioning
