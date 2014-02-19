@@ -22,6 +22,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -37,8 +39,8 @@ private:
   // ----------member data ---------------------------
   
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::InputTag ecalRechitEBTag_;
-  edm::InputTag ecalRechitEETag_;
+  edm::EDGetTokenT<EcalRecHitCollection>  ecalRechitEBToken_;
+  edm::EDGetTokenT<EcalRecHitCollection>  ecalRechitEEToken_;
   bool EtaOrIeta_;
 
   edm::ParameterSet conf_;

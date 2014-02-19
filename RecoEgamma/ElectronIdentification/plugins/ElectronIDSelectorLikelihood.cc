@@ -31,7 +31,7 @@ double ElectronIDSelectorLikelihood::operator () (const reco::GsfElectron & ele,
     edm::Handle< EcalRecHitCollection > pEERecHits;
     e.getByToken( reducedEndcapRecHitCollectionToken_, pEERecHits );
 
-    EcalClusterLazyTools lazyTools( e, es, reducedBarrelRecHitCollection_, reducedEndcapRecHitCollection_ ) ;
+    EcalClusterLazyTools lazyTools( e, es, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_ ) ;
     return static_cast<double>(likelihoodAlgo_->resultLog (ele,lazyTools)) ;
   }
   return 0;

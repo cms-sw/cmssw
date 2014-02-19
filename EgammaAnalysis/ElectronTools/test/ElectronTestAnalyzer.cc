@@ -67,27 +67,27 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 class ElectronTestAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit ElectronTestAnalyzer(const edm::ParameterSet&);
-      ~ElectronTestAnalyzer();
-
-
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      virtual void myBindVariables();
-      virtual void myVar(const reco::GsfElectron& ele,
-			 const reco::Vertex& vertex,
-			 const TransientTrackBuilder& transientTrackBuilder,
-			 EcalClusterLazyTools myEcalCluster,
-			 bool printDebug = kFALSE);
-			 virtual void evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-
+public:
+  explicit ElectronTestAnalyzer(const edm::ParameterSet&);
+  ~ElectronTestAnalyzer();
+  
+  
+private:
+  virtual void beginJob(const edm::EventSetup&) ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  virtual void myBindVariables();
+  virtual void myVar(const reco::GsfElectron& ele,
+		     const reco::Vertex& vertex,
+		     const TransientTrackBuilder& transientTrackBuilder,
+		     EcalClusterLazyTools myEcalCluster,
+		     bool printDebug = kFALSE);
+  virtual void evaluate_mvas(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  
   bool trainTrigPresel(const reco::GsfElectron& ele);
-
+  
   ParameterSet conf_;
-
+  
   edm::EDGetTokenT<GsfElectronCollection> gsfEleToken_;
   edm::EDGetTokenT<GenParticleCollection> genToken_;
   //edm::EDGetTokenT<edm::HepMCProduct>  mcTruthToken_;
@@ -95,6 +95,8 @@ class ElectronTestAnalyzer : public edm::EDAnalyzer {
   //edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_;
   edm::EDGetTokenT<double> eventrhoToken_;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> reducedEBRecHitCollectionToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> reducedEERecHitCollectionToken_;
 
   EGammaMvaEleEstimator* myMVATrigV0;
   EGammaMvaEleEstimator* myMVATrigNoIPV0;
@@ -181,8 +183,9 @@ ElectronTestAnalyzer::ElectronTestAnalyzer(const edm::ParameterSet& iConfig):
   vertexToken_(consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"))),
   //pfCandToken_(consumes<reco::PFCandidateCollection>(edm::InputTag("particleFlow"))),
   eventrhoToken_(consumes<double>(edm::InputTag("kt6PFJets", "rho"))),
-  muonToken_(consumes<reco::MuonCollection>(edm::InputTag("muons")))
-
+  muonToken_(consumes<reco::MuonCollection>(edm::InputTag("muons"))),
+  reducedEBRecHitCollectionToken_(consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"))),
+  reducedEERecHitCollectionToken_(consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE")))
 {
   Bool_t manualCat = true;
 
@@ -320,12 +323,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     Vertex::Point p(0, 0, 0);
     dummy = Vertex(p, e, 0, 0, 0);
   }
-
-
-  InputTag  reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
-  InputTag  reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
-
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
+  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
 
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
@@ -777,10 +775,7 @@ ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSe
     IdentifiedMuons.push_back(*iM);
   }
 
-  InputTag  reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
-  InputTag  reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
-
-	EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
+  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
 
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
