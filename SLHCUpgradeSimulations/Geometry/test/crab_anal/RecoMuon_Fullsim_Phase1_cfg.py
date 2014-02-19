@@ -135,7 +135,7 @@ process.multiTrackValidator.skipHistoFit = False
 
 ##### with John's changes ##############################
 process.load("SLHCUpgradeSimulations.Geometry.oldTracking_wtriplets")
-process.pixellayertriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
+process.PixelLayerTriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
         'BPix1+BPix3+BPix4',
         'BPix2+BPix3+BPix4',
         'BPix1+BPix2+BPix4',
