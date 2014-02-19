@@ -333,7 +333,7 @@ void L1uGtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
    const int empty = 0;
       
 // Dump Bx (4 digits)
-   myOutFile << std::hex << std::setw(4) << std::setfill('0') << m_absBx;
+   myOutFile << std::dec << std::setw(4) << std::setfill('0') << m_absBx;
 
 // Dump 8 Muons (16 digits + space)
    for(std::vector<l1t::Muon>::const_iterator mu = muons->begin(bx); mu != muons->end(bx); ++mu) {
@@ -426,7 +426,7 @@ void L1uGtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
          } //end loop over algorithm bits       
     
 // Final OR (1 digit + space) 
-         unsigned int finalOr = (algBlk->getFinalOR() & 0xf);    
+         unsigned int finalOr = (algBlk->getFinalOR() & 0x1);    
          myOutFile << " " << std::hex << std::setw(1) << std::setfill('0') << finalOr;
     }
    
@@ -440,14 +440,14 @@ cms_uint64_t L1uGtRecordDump::formatMuon(std::vector<l1t::Muon>::const_iterator 
 
   cms_uint64_t packedVal = 0;
 
-// Order specified in Table 1 of CNS IN-2013/005 ("Input Specification to the Global Trigger Upgrade")
-  packedVal |= ((mu->hwPhi()              & 0x3ff) <<0);
-  packedVal |= ((mu->hwEta()              & 0x1ff) <<10);
-  packedVal |= ((mu->hwPt()               & 0x1ff) <<19);
-  packedVal |= ((mu->hwChargeValid()      & 0x1)   <<28);
-  packedVal |= ((mu->hwCharge()           & 0x1)   <<29);
-  packedVal |= ((mu->hwQual()             & 0xf)   <<30);
-  packedVal |= ((cms_uint64_t)(mu->hwIso()& 0x3)   <<34);  
+// Pack Bits
+  packedVal |= ((mu->hwPhi()                & 0x3ff) <<18);
+  packedVal |= ((mu->hwEta()                & 0x1ff) <<9);
+  packedVal |= ((mu->hwPt()                 & 0x1ff) <<0);
+  packedVal |= ((mu->hwChargeValid()        & 0x1)   <<28);
+  packedVal |= ((mu->hwCharge()             & 0x1)   <<29);
+  packedVal |= ((cms_uint64_t)(mu->hwQual() & 0xf)   <<30);
+  packedVal |= ((cms_uint64_t)(mu->hwIso()  & 0x3)   <<34);  
   
   return packedVal;
 }
@@ -456,10 +456,10 @@ unsigned int L1uGtRecordDump::formatEG(std::vector<l1t::EGamma>::const_iterator 
 
   unsigned int packedVal = 0;
 
-// Order specified in Table 1 of CNS IN-2013/005 ("Input Specification to the Global Trigger Upgrade")  
-  packedVal |= ((eg->hwPhi()   & 0xff)   <<0);
-  packedVal |= ((eg->hwEta()   & 0xff)   <<8);
-  packedVal |= ((eg->hwPt()    & 0x1ff)  <<16);
+// Pack Bits  
+  packedVal |= ((eg->hwPhi()   & 0xff)   <<17);
+  packedVal |= ((eg->hwEta()   & 0xff)   <<9);
+  packedVal |= ((eg->hwPt()    & 0x1ff)  <<0);
   packedVal |= ((eg->hwIso()   & 0x1)    <<25);
   packedVal |= ((eg->hwQual()  & 0x1)    <<26);
   
@@ -470,10 +470,10 @@ unsigned int L1uGtRecordDump::formatTau(std::vector<l1t::Tau>::const_iterator ta
 
   unsigned int packedVal = 0;
   
-// Order specified in Table 1 of CNS IN-2013/005 ("Input Specification to the Global Trigger Upgrade")  
-  packedVal |= ((tau->hwPhi()   & 0xff)   <<0);
-  packedVal |= ((tau->hwEta()   & 0xff)   <<8);
-  packedVal |= ((tau->hwPt()    & 0x1ff)  <<16);
+// Pack Bits  
+  packedVal |= ((tau->hwPhi()   & 0xff)   <<17);
+  packedVal |= ((tau->hwEta()   & 0xff)   <<9);
+  packedVal |= ((tau->hwPt()    & 0x1ff)  <<0);
   packedVal |= ((tau->hwIso()   & 0x1)    <<25);
   packedVal |= ((tau->hwQual()  & 0x1)    <<26);  
   
@@ -484,10 +484,10 @@ unsigned int L1uGtRecordDump::formatJet(std::vector<l1t::Jet>::const_iterator je
 
   unsigned int packedVal = 0;
 
-// Order specified in Table 1 of CNS IN-2013/005 ("Input Specification to the Global Trigger Upgrade")  
-  packedVal |= ((jet->hwPhi()    & 0xff)    <<0);
-  packedVal |= ((jet->hwEta()    & 0xff)    <<8);
-  packedVal |= ((jet->hwPt()     & 0x7ff)   <<16);
+// Pack Bits  
+  packedVal |= ((jet->hwPhi()    & 0xff)    <<19);
+  packedVal |= ((jet->hwEta()    & 0xff)    <<11);
+  packedVal |= ((jet->hwPt()     & 0x7ff)   <<0);
   packedVal |= ((jet->hwQual()   & 0x1)     <<27);
     
   return packedVal;
@@ -497,9 +497,9 @@ unsigned int L1uGtRecordDump::formatMissET(std::vector<l1t::EtSum>::const_iterat
 
   unsigned int packedVal = 0;
 
-// Order specified in Table 1 of CNS IN-2013/005 ("Input Specification to the Global Trigger Upgrade")
-  packedVal |= ((etSum->hwPhi()    & 0xff)    <<0);
-  packedVal |= ((etSum->hwPt()     & 0xfff)   <<8); 
+// Pack Bits
+  packedVal |= ((etSum->hwPhi()    & 0xff)    <<12);
+  packedVal |= ((etSum->hwPt()     & 0xfff)   <<0); 
   
   return packedVal;
 }
@@ -508,7 +508,7 @@ unsigned int L1uGtRecordDump::formatTotalET(std::vector<l1t::EtSum>::const_itera
 
   unsigned int packedVal = 0;
 
-// Order specified in Table 1 of CNS IN-2013/005 ("Input Specification to the Global Trigger Upgrade")
+// Pack Bits
   packedVal |= ((etSum->hwPt()     & 0xfff)   <<0); 
   
   return packedVal;
