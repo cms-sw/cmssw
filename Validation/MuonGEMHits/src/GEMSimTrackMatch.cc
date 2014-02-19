@@ -6,11 +6,6 @@
 #include <TMath.h>
 #include <TH1F.h>
 
-
-
-
-
-
 GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg)
 {
    cfg_= cfg; 
@@ -19,10 +14,10 @@ GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , ed
    minPt_  = cfg_.getUntrackedParameter<double>("gemMinPt",5.0);
    minEta_ = cfg_.getUntrackedParameter<double>("gemMinEta",1.55);
    maxEta_ = cfg_.getUntrackedParameter<double>("gemMaxEta",2.18);
-   buildLUT();
 }
 void GEMSimTrackMatch::bookHisto() 
 {
+   buildLUT();
    const float PI=TMath::Pi();
    dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
 
@@ -86,7 +81,7 @@ bool GEMSimTrackMatch::isSimTrackGood(const SimTrack &t)
 
 void GEMSimTrackMatch::buildLUT()
 {
-  const int maxChamberId_ = GEMDetId().maxChamberId; 
+  const int maxChamberId_ = theGEMGeometry->chambers().size()/4;
   std::vector<int> pos_ids;
   pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId_,1).rawId());
 

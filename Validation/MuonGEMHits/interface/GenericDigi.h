@@ -14,7 +14,7 @@
  $Id:$
 */
 
-#include "Validation/MuonGEMDigis/interface/BaseMatcher.h"
+#include "Validation/MuonGEMHits/interface/BaseMatcher.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -65,3 +65,4 @@ inline float digi_dphi(const Digi& d) { return std::get<7>(d); }
 std::ostream & operator<<(std::ostream & o, const matching::Digi& d);
 
 #endif
+
