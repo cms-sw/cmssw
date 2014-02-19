@@ -944,9 +944,10 @@ steps['COPYPASTE']={'-s':'NONE',
 
 
 # you will need separate scenarios HERE for full and fast 
-upgradeKeys=['2017','2019','BE5D','2017Fast','BE5DFast','BE5DForwardFast']
+upgradeKeys=['2017','2019','BE5D','2017Fast','BE5DFast','BE5DForwardFast','2019WithGEM']
 upgradeGeoms={ '2017' : 'Extended2017',
                '2019' : 'Extended2019',
+               '2019WithGEM' : 'Extended2019',
                'BE5D' : 'ExtendedPhase2TkBE5D',
                '2017Fast' : 'Extended2017',
                'BE5DFast' : 'ExtendedPhase2TkBE',
@@ -954,6 +955,7 @@ upgradeGeoms={ '2017' : 'Extended2017',
                }
 upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
+             '2019WithGEM' : 'auto:upgrade2019',
              'BE5D' : 'auto:upgradePLS3',
              '2017Fast' : 'auto:upgrade2017',
              'BE5DFast' : 'auto:upgradePLS3',
@@ -961,6 +963,7 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
                  '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
+                 '2019WithGEM' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019WithGem',
                  'BE5D' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5D',
                  '2017Fast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimDefault',
                  'BE5DFast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimPhase2',
@@ -981,6 +984,7 @@ upgradeSteps=['GenSimFull','DigiFull','RecoFull','HarvFull','DigiTrkTrigFull','F
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HarvFull'],
                    '2019':['GenSimFull','DigiFull','RecoFull','HarvFull'],
+                   '2019WithGEM':['GenSimFull','DigiFull','RecoFull','HarvFull'],
                    'BE5D':['GenSimFull','DigiTrkTrigFull','RecoFull','HarvFull'],
                    '2017Fast':['FastSim','HarvFast'],
                    'BE5DFast':['FastSim','HarvFast'],
