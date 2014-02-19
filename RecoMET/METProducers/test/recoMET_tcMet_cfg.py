@@ -33,7 +33,7 @@ process.out = cms.OutputModule(
     SelectEvents   = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
     outputCommands = cms.untracked.vstring(
         'drop *',
-        'keep *_*_*_METP'
+        'keep *_*_*_TEST'
         )
     )
 
