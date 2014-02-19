@@ -94,12 +94,12 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::Configu
   desc.add<bool>(("UseZInVertex"), false);
   desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
 
-  ed::ParameterSetDescription orderedHitsPSET;
+  edm::ParameterSetDescription orderedHitsPSET;
   orderedHitsPSET.add<std::string>("ComponentName", "StandardHitPairGenerator");
   orderedHitsPSET.add<edm::InputTag>("SeedingLayers", edm::InputTag("PixelLayerPairs"));
   orderedHitsPSET.add<unsigned int>("maxElement", 0);
   desc.add<edm::ParameterSetDescription>("OrderedHitsFactoryPSet", orderedHitsPSET);
-
+  
   descriptions.add(("hltEgammaHLTRegionalPixelSeedGeneratorProducers"), desc);  
 }
 
