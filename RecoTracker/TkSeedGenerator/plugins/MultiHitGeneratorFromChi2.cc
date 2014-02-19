@@ -33,7 +33,6 @@
 #include <limits>
 
 using namespace std;
-using namespace ctfseeding;
 
 typedef PixelRecoRange<float> Range;
 
@@ -80,14 +79,17 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
 }
 
 void MultiHitGeneratorFromChi2::init(const HitPairGenerator & pairs,
-					 const std::vector<SeedingLayer> &layers,
 					 LayerCacheType *layerCache)
 {
   thePairGenerator = pairs.clone();
-  theLayers = layers;
   theLayerCache = layerCache;
 }
 
+void MultiHitGeneratorFromChi2::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                                                 std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) {
+  thePairGenerator->setSeedingLayers(pairLayers);
+  theLayers = thirdLayers;
+}
 
 namespace {
   inline
@@ -160,7 +162,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 
   //gc: loop over each layer
   for(int il = 0; il < size; il++) {
-    thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
+    thirdHitMap[il] = &(*theLayerCache)(theLayers[il], region, ev, es);
     if (debug) cout << "considering third layer: " << theLayers[il].name() << " with hits: " << thirdHitMap[il]->all().second-thirdHitMap[il]->all().first << endl;
     const DetLayer *layer = theLayers[il].detLayer();
     LayerRZPredictions &predRZ = mapPred[theLayers[il].name()];

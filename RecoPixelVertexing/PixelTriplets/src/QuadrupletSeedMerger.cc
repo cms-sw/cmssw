@@ -63,17 +63,15 @@ namespace {
 ///
 ///
 ///
-QuadrupletSeedMerger::QuadrupletSeedMerger( ) {
+QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC):
+  theLayerBuilder_(iConfig, iC)
+ {
 
   // by default, do not..
   // ..merge triplets
   isMergeTriplets_ = false;
   // ..add remaining triplets
   isAddRemainingTriplets_ = false;
-
-  // default is the layer list from plain quadrupletseedmerging_cff
-  // unless configured contrarily via setLayerListName()
-  layerListName_ = std::string( "PixelSeedMergerQuadruplets" );
 }
 
 void QuadrupletSeedMerger::update(const edm::EventSetup& es) {
@@ -108,9 +106,9 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
   const TrackerTopology *tTopo=tTopoHand.product();
   
   // the list of layers on which quadruplets should be formed
-  edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
-  es.get<TrackerDigiGeometryRecord>().get( layerListName_.c_str(), layerBuilder );
-  theLayerSets_ = layerBuilder->layers( es ); // this is a vector<vector<SeedingLayer> >
+  if(theLayerBuilder_.check(es)) {
+    theLayerSets_ = theLayerBuilder_.layers( es ); // this is a vector<vector<SeedingLayer> >
+  }
 
   
   // make a working copy of the input triplets
@@ -582,15 +580,6 @@ void QuadrupletSeedMerger::setTTRHBuilderLabel( std::string label ) {
 
   theTTRHBuilderLabel_ = label;
   
-}
-
-
-
-///
-///
-///
-void QuadrupletSeedMerger::setLayerListName( std::string layerListName ) {
-  layerListName_ = layerListName;
 }
 
 
