@@ -19,8 +19,7 @@ tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # SEEDING LAYERS
-tobTecStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('tobTecStepSeedLayersA'),
+tobTecStepSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('TOB1+TOB2', 
         'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 
         'TEC3_pos+TEC4_pos', 'TEC4_pos+TEC5_pos', 
@@ -53,8 +52,7 @@ tobTecStepSeedsA.SeedCreatorPSet.OriginTransverseErrorMultiplier = 2.0
 
 
 # SEEDING LAYERS
-tobTecStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('tobTecStepSeedLayersB'),
+tobTecStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('TIB4+TOB1', 'TOB2+TOB3', 
                             'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
                             'TEC2_pos+TEC3_pos', 'TEC2_neg+TEC3_neg',
@@ -302,7 +300,9 @@ tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mult
     ) #end of clone
 
 TobTecStep = cms.Sequence(tobTecStepClusters*
+                          tobTecStepSeedLayersA*
                           tobTecStepSeedsA*
+                          tobTecStepSeedLayersB*
                           tobTecStepSeedsB*
                           tobTecStepSeeds*
                           tobTecStepTrackCandidates*
