@@ -97,6 +97,27 @@ namespace l1t {
     // register what you consume and keep token for later access:
     regionToken = consumes<BXVector<l1t::CaloRegion>>(iConfig.getParameter<InputTag>("CaloRegions"));
     candsToken = consumes<BXVector<l1t::CaloEmCand>>(iConfig.getParameter<InputTag>("CaloEmCands"));
+    int ifwv=iConfig.getParameter<unsigned>("FirmwareVersion");  // LenA  make configurable for now
+    
+
+    m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
+    if (ifwv == 1){
+      LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer -- Running HI implementation\n";
+      std::cout << "L1TCaloStage1Producer -- Running HI implementation\n";
+    }else if (ifwv == 2){
+      LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer -- Running pp implementation\n";
+      std::cout << "L1TCaloStage1Producer -- Running pp implementation\n";
+    }else{
+      LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer -- Unknown implementation.\n";
+      std::cout << "L1TCaloStage1Producer -- Unknown implementation.\n";
+    }
+    m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
+    m_fw = m_factory.create(*m_fwv /*,*m_dbpars*/);
+    //printf("Success create.\n");
+    if (! m_fw) {
+      // we complain here once per job
+      LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: firmware could not be configured.\n";
+    }
 
     // set cache id to zero, will be set at first beginRun:
     m_paramsCacheId = 0;
@@ -222,12 +243,14 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
     //ESHandle<CaloParams> parameters;
     //iE.get<CaloParamsRcd>().get(parameters);
 
+    // LenA move the setting of the firmware version to the L1TCaloStage1Producer constructor
+
     //m_dbpars = boost::shared_ptr<const CaloParams>(parameters.product());
     //m_fwv = boost::shared_ptr<const FirmwareVersion>(new FirmwareVersion());
     //printf("Begin.\n");
-    m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
+    //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
     //printf("Success m_fwv.\n");
-    m_fwv->setFirmwareVersion(1); //hardcode for now, 1=HI, 2=PP
+    //m_fwv->setFirmwareVersion(1); //hardcode for now, 1=HI, 2=PP
     //printf("Success m_fwv version set.\n");
 
     // if (! m_dbpars){
@@ -235,13 +258,13 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
     // }
 
     // Set the current algorithm version based on DB pars from database:
-    m_fw = m_factory.create(*m_fwv /*,*m_dbpars*/);
+    //m_fw = m_factory.create(*m_fwv /*,*m_dbpars*/);
     //printf("Success create.\n");
 
-    if (! m_fw) {
-      // we complain here once per run
-      LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: firmware could not be configured.\n";
-    }
+    //if (! m_fw) {
+    //  // we complain here once per run
+    //  LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: firmware could not be configured.\n";
+    //}
   }
 
 
