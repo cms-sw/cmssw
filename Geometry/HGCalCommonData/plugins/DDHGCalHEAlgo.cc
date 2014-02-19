@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// File: DDHGCalEEAlgo.cc
+// File: DDHGCalHEAlgo.cc
 // Description: Geometry factory class for HGCal (EE)
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -13,17 +13,17 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/HGCalCommonData/plugins/DDHGCalEEAlgo.h"
+#include "Geometry/HGCalCommonData/plugins/DDHGCalHEAlgo.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-DDHGCalEEAlgo::DDHGCalEEAlgo() {
-  edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo info: Creating an instance";
+DDHGCalHEAlgo::DDHGCalHEAlgo() {
+  edm::LogInfo("HGCalGeom") << "DDHGCalHEAlgo info: Creating an instance";
 }
 
-DDHGCalEEAlgo::~DDHGCalEEAlgo() {}
+DDHGCalHEAlgo::~DDHGCalHEAlgo() {}
 
-void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
+void DDHGCalHEAlgo::initialize(const DDNumericArguments & nArgs,
 			       const DDVectorArguments & vArgs,
 			       const DDMapArguments & ,
 			       const DDStringArguments & sArgs,
@@ -32,23 +32,23 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   materials     = vsArgs["MaterialNames"];
   names         = vsArgs["VolumeNames"];
   thick         = vArgs["Thickness"];
+  type          = dbl_to_int(vArgs["Type"]);
+  copyNumber    = dbl_to_int(vArgs["Offsets"]);
+  zMinBlock     = vArgs["ZMinType"];
   rotstr        = sArgs["Rotation"];
   layerType     = dbl_to_int(vArgs["LayerType"]);
   heightType    = dbl_to_int(vArgs["HeightType"]);
-  zMinBlock     = nArgs["zMinBlock"];
-  for (unsigned int i=0; i<materials.size(); ++i) {
-    copyNumber.push_back(1);
-  }
-  edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo: " << materials.size()
+  thickModule   = nArgs["ThickModule"];
+  edm::LogInfo("HGCalGeom") << "DDHGCalHEAlgo: " << materials.size()
 			    << " volumes to be put with rotation " << rotstr
-			    << " starting at " << zMinBlock;
+			    << " in " << layerType.size() << " layers and "
+			    << "module thickness " << thickModule;
   for (unsigned int i=0; i<names.size(); ++i)
     edm::LogInfo("HGCalGeom") << "Volume [" << i << "] " << names[i]
-			      << " of thickness " << thick[i]
-			      << " filled with " << materials[i]
-			      << " first copy number " << copyNumber[i];
-  edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo: " << layerType.size()
-			    << " layers";
+			      << " filled with " << materials[i] << " of type "
+			      << type[i] << " thickness " << thick[i]
+			      << " first copy number " << copyNumber[i]
+			      << " starting at " << zMinBlock[i];
   for (unsigned int i=0; i<layerType.size(); ++i)
     edm::LogInfo("HGCalGeom") << "Layer [" << i << "] with material type " 
 			      << layerType[i] << " height type "
@@ -61,66 +61,71 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   rMaxFront     = vArgs["RMaxFront"];
   idName        = parent().name().name();
   idNameSpace   = DDCurrentNamespace::ns();
-  edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo: Bottom slope " << slopeB
+  edm::LogInfo("HGCalGeom") << "DDHGCalHEAlgo: Bottom slope " << slopeB
 			    << " " << slopeT.size() << " slopes for top";
   for (unsigned int i=0; i<slopeT.size(); ++i)
     edm::LogInfo("HGCalGeom") << "Block [" << i << "] Zmin " << zFront[i]
 			      << " Rmax " << rMaxFront[i] << " Slope " 
 			      << slopeT[i];
-  edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo: Sectors " << sectors
+  edm::LogInfo("HGCalGeom") << "DDHGCalHEAlgo: Sectors " << sectors
 			    << "\tNameSpace:Name " << idNameSpace
 			    << ":" << idName;
 
 }
 
 ////////////////////////////////////////////////////////////////////
-// DDHGCalEEAlgo methods...
+// DDHGCalHEAlgo methods...
 ////////////////////////////////////////////////////////////////////
 
-void DDHGCalEEAlgo::execute(DDCompactView& cpv) {
+void DDHGCalHEAlgo::execute(DDCompactView& cpv) {
   
-  edm::LogInfo("HGCalGeom") << "==>> Constructing DDHGCalEEAlgo...";
+  edm::LogInfo("HGCalGeom") << "==>> Constructing DDHGCalHEAlgo...";
   constructLayers (parent(), cpv);
-  edm::LogInfo("HGCalGeom") << "<<== End of DDHGCalEEAlgo construction ...";
+  edm::LogInfo("HGCalGeom") << "<<== End of DDHGCalHEAlgo construction ...";
 }
 
-void DDHGCalEEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
+void DDHGCalHEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
   
-  edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo test: \t\tInside Layers";
+  edm::LogInfo("HGCalGeom") << "DDHGCalHEAlgo test: \t\tInside Layers";
 
   ///////////////////////////////////////////////////////////////
   //Pointers to the Rotation Matrices and to the Materials
   DDRotation rot(DDName(DDSplit(rotstr).first, DDSplit(rotstr).second));
 
-  double  zi(zMinBlock), zz(zMinBlock);
+  double zz(zMinBlock[0]);
   for (unsigned int i=0; i<layerType.size(); i++) {
-    int     ii    = layerType[i];
-    int     copy  = copyNumber[ii];
+    int   ii       = layerType[i];
+    int   copy     = copyNumber[ii];
     ++copyNumber[ii];
-    double  zo     = zi + thick[ii];
-    double  rinF   = zi * slopeB;
-    double  rinB   = zo * slopeB;
-    double  routF  = (heightType[i] == 0) ? rMax(zi) : rMax(zz);
-    double  routB  = rMax(zo);
+    int   ityp     = type[ii];
+    type[ii]       =-ityp;
+    double zi      = zMinBlock[ii];
+    zMinBlock[ii] += thickModule;
+    double zo      = zi + thick[ii];
+    double rinF    = zi * slopeB;
+    double rinB    = zo * slopeB;
+    double routF   = (heightType[i] == 0) ? rMax(zi) : rMax(zz);
+    double routB   = rMax(zo);
     if (heightType[i] == 0) zz = zo;
     std::string name = "HGCal"+names[ii]+dbl_to_string(copy);
     edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo test: Layer " << i << ":" 
-			      << ii << " Front " << zi << ", " << rinF << ", " 
-			      << routF << " Back " << zo << ", " << rinB 
-			      << ", " << routB;
-    DDHGCalEEAlgo::HGCalEEPar parm = parameterLayer(rinF, routF, rinB, 
-						    routB, zi, zo);
+			      << ii << ":" << ityp << " Front " << zi << ", " 
+			      << rinF << ", " << routF << " Back " << zo 
+			      << ", " << rinB << ", " << routB;
+    DDHGCalHEAlgo::HGCalHEPar parm = (ityp == 0) ?
+      parameterLayer(rinF, routF, rinB, routB, zi, zo) :
+      parameterLayer(ityp, rinF, routF, rinB, routB, zi, zo);
     DDSolid solid = DDSolidFactory::trap(DDName(name, idNameSpace), 
 					 0.5*thick[ii], parm.theta,
 					 parm.phi, parm.yh1, parm.bl1, 
 					 parm.tl1, parm.alp, parm.yh2,
 					 parm.bl2, parm.tl2, parm.alp);
 
-    DDName matName(DDSplit(materials[ii]).first, 
-		   DDSplit(materials[ii]).second);
+    DDName matName(DDSplit(materials[ii]).first,
+                   DDSplit(materials[ii]).second);
     DDMaterial matter(matName);
     DDLogicalPart glog = DDLogicalPart(solid.ddname(), matter, solid);
-    edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo test: " 
+    edm::LogInfo("HGCalGeom") << "DDHGCalHEAlgo test: " 
 			      << solid.name() << " Trap made of " << matName
 			      << " of dimensions " << 0.5*thick[ii] << ", "
 			      << parm.theta/CLHEP::deg << ", " 
@@ -131,20 +136,19 @@ void DDHGCalEEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
 			      << parm.tl2 << ", " << parm.alp/CLHEP::deg;
     DDTranslation r1(parm.xpos, parm.ypos, parm.zpos);
     cpv.position(glog, module, copy, r1, rot);
-    edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo test: " << glog.name()
+    edm::LogInfo("HGCalGeom") << "DDHGCalHEAlgo test: " << glog.name()
 			      << " number " << copy << " positioned in " 
 			      << module.name() << " at " << r1 << " with " 
 			      << rot;
-    zi = zo;
   }   // End of loop on layers
 }
 
 
-DDHGCalEEAlgo::HGCalEEPar 
-DDHGCalEEAlgo::parameterLayer(double rinF, double routF, double rinB, 
+DDHGCalHEAlgo::HGCalHEPar 
+DDHGCalHEAlgo::parameterLayer(double rinF, double routF, double rinB, 
 			      double routB, double zi, double zo) {
 
-  DDHGCalEEAlgo::HGCalEEPar parm;
+  DDHGCalHEAlgo::HGCalHEPar parm;
   //Given rin, rout compute parameters of the trapezoid and 
   //position of the trapezoid for a standrd layer
   double alpha = CLHEP::pi/sectors;
@@ -168,7 +172,52 @@ DDHGCalEEAlgo::parameterLayer(double rinF, double routF, double rinB,
   return parm;
 }
 
-double DDHGCalEEAlgo::rMax(double z) {
+DDHGCalHEAlgo::HGCalHEPar 
+DDHGCalHEAlgo::parameterLayer(int type, double rinF, double routF, double rinB,
+			      double routB, double zi, double zo) {
+
+  DDHGCalHEAlgo::HGCalHEPar parm;
+  //Given rin, rout compute parameters of the trapezoid and 
+  //position of the trapezoid for a standrd layer
+  double alpha = CLHEP::pi/sectors;
+  edm::LogInfo("HGCalGeom") << "Input " << type << " Front " << rinF << " " 
+			    << routF << " " << zi << " Back " << rinB << " " 
+			    << routB << " " << zo <<" Alpha " 
+			    << alpha/CLHEP::deg;
+
+  parm.yh2  = parm.yh1  = 0.5 * (routF*cos(alpha) - rinB);
+  parm.bl2  = parm.bl1  = 0.5 * rinB  * tan(alpha);
+  parm.tl2  = parm.tl1  = 0.5 * routF * sin(alpha);
+  double dx = 0.25* (parm.bl2+parm.tl2-parm.bl1-parm.tl1);
+  double dy = 0.0;
+  parm.xpos = 0.5*(routF*cos(alpha)+rinB);
+  parm.ypos = 0.25*(parm.bl2+parm.tl2+parm.bl1+parm.tl1);
+  parm.zpos = 0.5*(zi+zo);
+  parm.alp  = atan(0.5 * tan(alpha));
+  if (type > 0) {
+    parm.ypos = -parm.ypos;
+  } else {
+    parm.alp  = -parm.alp;
+    dx        = -dx;
+  }
+  double r    = sqrt (dx*dx + dy*dy);
+  edm::LogInfo("HGCalGeom") << "dx|dy|r " << dx << ":" << dy << ":" << r;
+  if (r > 1.0e-8) {
+    parm.theta  = atan (r/(zo-zi));
+    parm.phi    = atan2 (dy, dx);
+  } else {
+    parm.theta  = parm.phi = 0;
+  }
+  edm::LogInfo("HGCalGeom") << "Output Dimensions " << parm.yh1 << " " 
+			    << parm.bl1 << " " << parm.tl1 << " " << parm.yh2 
+			    << " " << parm.bl2 << " " << parm.tl2 << " " 
+			    << parm.alp/CLHEP::deg <<" " <<parm.theta/CLHEP::deg
+			    << " " << parm.phi/CLHEP::deg << " Position " 
+			    << parm.xpos << " " << parm.ypos << " " <<parm.zpos;
+  return parm;
+}
+
+double DDHGCalHEAlgo::rMax(double z) {
 
   double r(0);
   for (unsigned int k=0; k<slopeT.size(); ++k) {

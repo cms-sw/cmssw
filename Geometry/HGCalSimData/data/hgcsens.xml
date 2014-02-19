@@ -8,9 +8,7 @@
     <Parameter name="ReadOutName" value="HGCHitsEE" eval="false"/>
   </SpecPar>
   <SpecPar name="hgche">
-    <PartSelector path="//HEsilsens_.*"/>
-    <PartSelector path="//HEscisens_.*"/>
-    <PartSelector path="//HEgemsens_.*"/>
+    <PartSelector path="//HGCalHE.*Sensitive.*"/>
     <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="HGCHitsHE" eval="false"/>
   </SpecPar>
