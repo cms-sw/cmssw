@@ -11,14 +11,14 @@
 namespace reco { class VoronoiBackground {
 public:
       VoronoiBackground();
-      VoronoiBackground(double pt0, double pt1, double pt2, double mt0, double mt1, double mt2, double v);
+      VoronoiBackground(double pt0, double pt1, double mt0, double mt1, double v);
       virtual ~VoronoiBackground();
 
-  double pt() const{ return pt_corrected; }
+  double pt() const{ return pt_posteq; }
   double pt_equalized() const{ return pt_posteq; }
-  double pt_initial() const{ return pt_preeq; }
+  double pt_subtracted() const{ return pt_preeq; }
 
-  double mt() const{ return mt_corrected; }
+  double mt() const{ return mt_posteq; }
   double mt_equalized() const{ return mt_posteq; }
   double mt_initial() const{ return mt_preeq; }
 
@@ -26,11 +26,9 @@ protected:
 
   double pt_preeq;
   double pt_posteq;
-  double pt_corrected;
 
   double mt_preeq;
   double mt_posteq;
-  double mt_corrected;
 
   double voronoi_area;
 
