@@ -944,11 +944,12 @@ steps['COPYPASTE']={'-s':'NONE',
 
 
 # you will need separate scenarios HERE for full and fast 
-upgradeKeys=['2017','2019','BE5D','2017Fast','BE5DFast','BE5DForwardFast','2019WithGEM']
+upgradeKeys=['2017','2019','BE5D','2017Fast','BE5DFast','BE5DForwardFast','2019WithGEM','BE5DPixel10D']
 upgradeGeoms={ '2017' : 'Extended2017',
                '2019' : 'Extended2019',
                '2019WithGEM' : 'Extended2019',
                'BE5D' : 'ExtendedPhase2TkBE5D',
+               'BE5DPixel10D' : 'ExtendedPhase2TkBE5DPixel10D',
                '2017Fast' : 'Extended2017',
                'BE5DFast' : 'ExtendedPhase2TkBE',
                'BE5DForwardFast' : 'ExtendedPhase2TkBEForward'
@@ -957,6 +958,7 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
              '2019WithGEM' : 'auto:upgrade2019',
              'BE5D' : 'auto:upgradePLS3',
+             'BE5DPixel10D' : 'auto:upgradePLS3',
              '2017Fast' : 'auto:upgrade2017',
              'BE5DFast' : 'auto:upgradePLS3',
              'BE5DForwardFast' : 'auto:upgradePLS3'
@@ -965,6 +967,7 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
                  '2019WithGEM' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019WithGem',
                  'BE5D' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5D',
+                 'BE5DPixel10D' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10D',
                  '2017Fast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimDefault',
                  'BE5DFast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimPhase2',
                  'BE5DForwardFast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimPhase2'
@@ -986,6 +989,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HarvFull'],
                    '2019':['GenSimFull','DigiFull','RecoFull','HarvFull'],
                    '2019WithGEM':['GenSimFull','DigiFull','RecoFull','HarvFull'],
                    'BE5D':['GenSimFull','DigiTrkTrigFull','RecoFull','HarvFull'],
+                   'BE5DPixel10D':['GenSimFull'],
                    '2017Fast':['FastSim','HarvFast'],
                    'BE5DFast':['FastSim','HarvFast'],
                    'BE5DForwardFast':['FastSim','HarvFast'],
