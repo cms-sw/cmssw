@@ -1,5 +1,5 @@
-#ifndef RecoTracker_SeedingLayerSet_SeedingLayerSetsHits
-#define RecoTracker_SeedingLayerSet_SeedingLayerSetsHits
+#ifndef TrackingTools_TransientTrackingRecHit_SeedingLayerSetsHits
+#define TrackingTools_TransientTrackingRecHit_SeedingLayerSetsHits
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
