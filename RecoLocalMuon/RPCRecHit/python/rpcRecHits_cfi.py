@@ -5,7 +5,7 @@ rpcRecHits = cms.EDProducer("RPCRecHitProducer",
 
     ),
     recAlgo = cms.string('RPCRecHitStandardAlgo'),
-    rpcDigiLabel = cms.InputTag("muonRPCDigis"),
+    rpcDigiLabel = cms.InputTag("simMuonRPCDigis"), # hack to bypass D2R and R2D (only for SLHC simulations)
     maskSource = cms.string('File'),
     maskvecfile = cms.FileInPath('RecoLocalMuon/RPCRecHit/data/RPCMaskVec.dat'),
     deadSource = cms.string('File'),
