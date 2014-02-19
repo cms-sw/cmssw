@@ -44,5 +44,10 @@ void CaloStage1JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion
 // NB PU is not in the physical scale!!  Needs to be multiplied by regionLSB
 void puSubtractionPP(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> * subRegions)
 {
-  // do nothing for now
+  // just copy regions into subRegions for now so jetfinder has something to work with
+
+  for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region!= regions.end(); region++){
+    CaloRegion newSubRegion= *region;
+    subRegions->push_back(newSubRegion);
+    }
 }
