@@ -14,8 +14,8 @@ def efficiency_string(objtype,plot_type,triggerpath):
 	objtypeLatex="#gamma"
     elif objtype == "PFTau": 
 	objtypeLatex="#tau"
-    elif objtype == "Jet": 
-	objtypeLatex="Jet"
+    elif objtype == "PFJet": 
+	objtypeLatex="PFJet"
     elif objtype == "MET" :
 	objtypeLatex="MET"
     else:
@@ -61,7 +61,7 @@ def add_reco_strings(strings):
 plot_types = ["TurnOn1", "TurnOn2", "EffEta", "EffPhi"]
 #--- IMPORTANT: Update this collection whenever you introduce a new object
 #               in the code (from EVTColContainer::getTypeString)
-obj_types  = ["Mu","Ele","Photon","PFTau","Jet","MET"]
+obj_types  = ["Mu","Ele","Photon","PFTau","PFJet","MET"]
 #--- IMPORTANT: Trigger are extracted from the hltExoticaValidator_cfi.py module
 triggers = [ ] 
 efficiency_strings = []
@@ -82,6 +82,8 @@ for type in plot_types:
     for obj in obj_types:
 	for trig in triggers:
 	    efficiency_strings.append(efficiency_string(obj,type,trig))
+#for item in efficiency_strings:
+#    print item
 
 add_reco_strings(efficiency_strings)
 
@@ -94,7 +96,12 @@ hltExoticaPostHighPtDielectron = hltExoticaPostProcessor.clone()
 hltExoticaPostHighPtDielectron.subDirs = ['HLT/Exotica/HighPtDielectron']
 hltExoticaPostHighPtDielectron.efficiencyProfile = efficiency_strings
 
+hltExoticaPostMonojet = hltExoticaPostProcessor.clone()
+hltExoticaPostMonojet.subDirs = ['HLT/Exotica/Monojet']
+hltExoticaPostMonojet.efficiencyProfile = efficiency_strings
+
 hltExoticaPostProcessors = cms.Sequence(
 		hltExoticaPostHighPtDimuon +
-		hltExoticaPostHighPtDielectron
+		hltExoticaPostHighPtDielectron +
+		hltExoticaPostMonojet
 )

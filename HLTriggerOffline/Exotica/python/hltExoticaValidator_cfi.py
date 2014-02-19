@@ -15,6 +15,8 @@ import FWCore.ParameterSet.Config as cms
 # The specific analyses to be loaded
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDimuon_cff import HighPtDimuonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDielectron_cff import HighPtDielectronPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff import MonojetPSet
+
 
 hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
 		
@@ -23,7 +25,8 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
     # -- The name of the analysis. This is the name that
     # appears in Run summary/Exotica/ANALYSIS_NAME
     analysis       = cms.vstring("HighPtDimuon",
-                                 "HighPtDielectron"),
+                                 "HighPtDielectron",
+                                 "Monojet"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -98,5 +101,6 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
     #    * Var_genCut, Var_recCut (cms.string): where Var=Mu, Ele, Photon, Jet, PFTau, MET (see above)
 
     HighPtDimuon     = HighPtDimuonPSet,
-    HighPtDielectron = HighPtDielectronPSet
+    HighPtDielectron = HighPtDielectronPSet,
+    Monojet          = MonojetPSet
 )
