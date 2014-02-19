@@ -30,7 +30,7 @@ RecoHiTrackerRECO = cms.PSet(
     #'keep *_hiSelectedTracks_*_*', 
     'keep *_hiGeneralTracks_*_*',
     'keep *_hiConformalPixelTracks_*_*',
-    #'keep *_hiPixel3PrimTracks_*_*', 		
+    'keep *_hiPixel3PrimTracks_*_*', 		
     'keep recoVertexs_hiPixelMedianVertex_*_*',  
     'keep recoVertexs_hiPixelAdaptiveVertex_*_*',  
     'keep recoVertexs_hiSelectedVertex_*_*',
