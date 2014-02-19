@@ -50,6 +50,7 @@
 #include "PhysicsTools/JetMCAlgos/interface/Pythia6PartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/Pythia8PartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/Herwig6PartonSelector.h"
+#include "PhysicsTools/JetMCAlgos/interface/HerwigppPartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/SherpaPartonSelector.h"
 
 //
@@ -141,6 +142,8 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
        partonMode_="Pythia8";
      else if( moduleName.find("Herwig6")!=std::string::npos )
        partonMode_="Herwig6";
+     else if( moduleName.find("ThePEG")!=std::string::npos )
+       partonMode_="Herwig++";
      else if( moduleName.find("Sherpa")!=std::string::npos )
        partonMode_="Sherpa";
      else
@@ -167,13 +170,18 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
        partonSelector_ = PartonSelectorPtr( new Herwig6PartonSelector() );
        edm::LogInfo("PartonModeDefined") << "Using Herwig6 parton selection mode.";
      }
+     else if ( partonMode_=="Herwig++" )
+     {
+       partonSelector_ = PartonSelectorPtr( new HerwigppPartonSelector() );
+       edm::LogInfo("PartonModeDefined") << "Using Herwig++ parton selection mode.";
+     }
      else if ( partonMode_=="Sherpa" )
      {
        partonSelector_ = PartonSelectorPtr( new SherpaPartonSelector() );
        edm::LogInfo("PartonModeDefined") << "Using Sherpa parton selection mode.";
      }
      else
-       throw cms::Exception("InvalidPartonMode") <<"Parton selection mode is invalid: " << partonMode_ << ", use Auto | Pythia6 | Pythia8 | Herwig6 | Sherpa" << std::endl;
+       throw cms::Exception("InvalidPartonMode") <<"Parton selection mode is invalid: " << partonMode_ << ", use Auto | Pythia6 | Pythia8 | Herwig6 | Herwig++ | Sherpa" << std::endl;
    }
 
    edm::Handle<reco::GenParticleCollection> particles;
