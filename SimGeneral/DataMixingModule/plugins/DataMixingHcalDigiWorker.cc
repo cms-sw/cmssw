@@ -838,10 +838,18 @@ namespace edm
     LogInfo("DataMixingHcalDigiWorker") << "total # HF Merged digis: " << HFdigis->size() ;
     LogInfo("DataMixingHcalDigiWorker") << "total # ZDC Merged digis: " << ZDCdigis->size() ;
 
+
+    // make empty collections for now:
+    std::auto_ptr<HBHEUpgradeDigiCollection> hbheupgradeResult(new HBHEUpgradeDigiCollection());
+    std::auto_ptr<HFUpgradeDigiCollection> hfupgradeResult(new HFUpgradeDigiCollection());
+
+
     e.put( HBHEdigis, HBHEDigiCollectionDM_ );
     e.put( HOdigis, HODigiCollectionDM_ );
     e.put( HFdigis, HFDigiCollectionDM_ );
     e.put( ZDCdigis, ZDCDigiCollectionDM_ );
+    e.put( hbheupgradeResult, "HBHEUpgradeDigiCollection" );
+    e.put( hfupgradeResult, "HFUpgradeDigiCollection" );
 
     // clear local storage after this event
     HBHEDigiStorage_.clear();
