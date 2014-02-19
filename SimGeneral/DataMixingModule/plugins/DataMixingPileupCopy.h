@@ -68,6 +68,8 @@ namespace edm
 
       std::string label_;
 
+      bool FoundPlayback_;
+
     };
 }//edm
 
