@@ -1,0 +1,41 @@
+<library file="Tauola/*.cc" name="TauolaFortranInterface">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="GeneratorInterface/TauolaInterface"/>
+  <use name="GeneratorInterface/Pythia6Interface"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="heppdt"/>
+  <use name="clhep"/>
+  <use name="hepmc"/>
+  <use name="tauola"/>
+  <use name="photos"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="Tauolapp/*.cc" name="TauolappInterface">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="GeneratorInterface/TauolaInterface"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="heppdt"/>
+  <use name="clhep"/>
+  <use name="hepmc"/>
+  <use name="tauolapp"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+
+<library   file="TauSpinner/*.cc" name="TauSpinnerInterface">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="SimDataFormats/GeneratorProducts"/>
+  <use name="tauolapp"/>
+  <use name="lhapdf"/>
+  <use name="root"/>
+  <use name="clhep"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
