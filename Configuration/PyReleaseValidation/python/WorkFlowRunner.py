@@ -95,11 +95,12 @@ class WorkFlowRunner(Thread):
             if self.wf.cmdStep3 and ' -n ' not in self.wf.cmdStep3: self.wf.cmdStep3 += ' -n ' + events
             if self.wf.cmdStep4 and ' -n ' not in self.wf.cmdStep4: self.wf.cmdStep4 += ' -n ' + events
 
-            print "run, files, events, label", run, files, events, label 
-            cmd += 'dbs search --noheader --url=http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet '
-            cmd += "--query='find file where dataset like "+self.wf.input.dataSet
-            if run: cmd += " and run=" + run
-            cmd += "' "
+            print "run, files, events, label", run, files, events, label
+            if run:
+                cmd += 'das_client.py --query "file dataset=%s run=%s" | grep "\.root"'%( self.wf.input.dataSet , run)
+            else:
+                cmd += 'das_client.py --query "file dataset=%s" | grep "\.root"'%( self.wf.input.dataSet )
+
             #cmd += ' > %s 2>&1; ' % ('step1_'+self.wf.nameId+'-dbsquery.log',)
             cmd += ' > %s 2>&1; ' % ('step1_dbsquery.log',)
             retStep1 = self.doCmd(cmd)
