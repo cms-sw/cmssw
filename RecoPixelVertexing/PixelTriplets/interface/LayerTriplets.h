@@ -8,7 +8,7 @@
  */
 
 #include <vector>
-#include "RecoTracker/SeedingLayerSetsHits/interface/SeedingLayerSetsHits.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 namespace LayerTriplets {
   using Layer = SeedingLayerSetsHits::SeedingLayer;
