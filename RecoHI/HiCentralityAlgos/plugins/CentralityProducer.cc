@@ -1,19 +1,6 @@
-// -*- C++ -*-
-//
-// Package:    CentralityProducer
-// Class:      CentralityProducer
-// 
-/**\class CentralityProducer CentralityProducer.cc RecoHI/CentralityProducer/src/CentralityProducer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.30 2010/11/06 10:58:46 yilmaz Exp $
 //
 //
 
@@ -24,7 +11,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -56,31 +43,31 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 using namespace std;
+using namespace edm;
+using namespace reco;
 
 //
 // class declaration
 //
-namespace reco{
 
-class CentralityProducer : public edm::EDFilter {
+namespace reco {
+class CentralityProducer : public edm::EDProducer {
    public:
       explicit CentralityProducer(const edm::ParameterSet&);
       ~CentralityProducer();
 
    private:
       virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
       // ----------member data ---------------------------
 
    bool recoLevel_;
 
-   bool doFilter_;
    bool produceHFhits_;
    bool produceHFtowers_;
    bool produceEcalhits_;
-   bool produceBasicClusters_;
    bool produceZDChits_;
    bool produceETmidRap_;
    bool producePixelhits_;
@@ -101,8 +88,6 @@ class CentralityProducer : public edm::EDFilter {
    edm::InputTag  srcTowers_;
    edm::InputTag srcEEhits_;
    edm::InputTag srcEBhits_;
-   edm::InputTag srcBasicClustersEE_;
-   edm::InputTag srcBasicClustersEB_;
    edm::InputTag srcZDChits_;
    edm::InputTag srcPixelhits_;
    edm::InputTag srcTracks_;
@@ -114,8 +99,8 @@ class CentralityProducer : public edm::EDFilter {
   bool useQuality_;
   reco::TrackBase::TrackQuality trackQuality_;
 
-  const TrackerGeometry* trackGeo_;
-  const CaloGeometry* caloGeo_;
+  edm::ESHandle<TrackerGeometry> tGeo;
+  edm::ESHandle<CaloGeometry> cGeo;
 
 };
 
@@ -131,15 +116,10 @@ class CentralityProducer : public edm::EDFilter {
 //
 // constructors and destructor
 //
-  CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig) :
-    trackGeo_(0),
-    caloGeo_(0)
-{
+  CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig) {
    //register your products
-   doFilter_ = iConfig.getParameter<bool>("doFilter");
    produceHFhits_ = iConfig.getParameter<bool>("produceHFhits");
    produceHFtowers_ = iConfig.getParameter<bool>("produceHFtowers");
-   produceBasicClusters_ = iConfig.getParameter<bool>("produceBasicClusters");
    produceEcalhits_ = iConfig.getParameter<bool>("produceEcalhits");
    produceZDChits_ = iConfig.getParameter<bool>("produceZDChits");
    produceETmidRap_ = iConfig.getParameter<bool>("produceETmidRapidity");
@@ -160,10 +140,6 @@ class CentralityProducer : public edm::EDFilter {
       srcEBhits_ = iConfig.getParameter<edm::InputTag>("srcEBhits");
       srcEEhits_ = iConfig.getParameter<edm::InputTag>("srcEEhits");
    }
-   if(produceBasicClusters_){
-      srcBasicClustersEE_ = iConfig.getParameter<edm::InputTag>("srcBasicClustersEE");
-      srcBasicClustersEB_ = iConfig.getParameter<edm::InputTag>("srcBasicClustersEB");
-   }
    if(produceZDChits_){
      srcZDChits_ = iConfig.getParameter<edm::InputTag>("srcZDChits");
      lowGainZDC_ = iConfig.getUntrackedParameter<bool>("lowGainZDC",0);
@@ -171,6 +147,7 @@ class CentralityProducer : public edm::EDFilter {
    if(producePixelhits_){
      srcPixelhits_ = iConfig.getParameter<edm::InputTag>("srcPixelhits");
      doPixelCut_ = iConfig.getParameter<bool>("doPixelCut");
+     srcVertex_ = iConfig.getParameter<edm::InputTag>("srcVertex");
    }
    if(produceTracks_) {
      srcTracks_ = iConfig.getParameter<edm::InputTag>("srcTracks");
@@ -178,7 +155,7 @@ class CentralityProducer : public edm::EDFilter {
    }
    if(producePixelTracks_) srcPixelTracks_ = iConfig.getParameter<edm::InputTag>("srcPixelTracks");
    
-   reuseAny_ = !produceHFhits_ || !produceHFtowers_ || !produceBasicClusters_ || !produceEcalhits_ || !produceZDChits_;
+   reuseAny_ = iConfig.getParameter<bool>("reUseCentrality");
    if(reuseAny_) reuseTag_ = iConfig.getParameter<edm::InputTag>("srcReUse");
 
    useQuality_   = iConfig.getParameter<bool>("UseQuality");
@@ -203,23 +180,12 @@ CentralityProducer::~CentralityProducer()
 //
 
 // ------------ method called to produce the data  ------------
-bool
-CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void
+CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-  using namespace reco;
 
-  if(!trackGeo_ && doPixelCut_){
-    edm::ESHandle<TrackerGeometry> tGeo;
-    iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
-    trackGeo_ = tGeo.product();
-  }
-  
-  if(!caloGeo_ && 0){
-    edm::ESHandle<CaloGeometry> cGeo;
-    iSetup.get<CaloGeometryRecord>().get(cGeo);
-    caloGeo_ = cGeo.product();
-  }
+  if(producePixelhits_) iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
+  if(produceEcalhits_) iSetup.get<CaloGeometryRecord>().get(cGeo);
 
   std::auto_ptr<Centrality> creco(new Centrality());
   Handle<Centrality> inputCentrality;
@@ -240,8 +206,10 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   creco->etHFhitSumMinus_ += rechit.energy();
      }       
   }else{
+    if(reuseAny_){
      creco->etHFhitSumMinus_ = inputCentrality->EtHFhitSumMinus();
      creco->etHFhitSumPlus_ = inputCentrality->EtHFhitSumPlus();
+    }
   }
   
   if(produceHFtowers_ || produceETmidRap_){
@@ -267,50 +235,60 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		 if(eta < -hfEtaCut_) creco->etHFtruncatedMinus_ += tower.pt();
 	      }
 	   }else{
+    	     if(reuseAny_){
 	      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
 	      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
 	      creco->etHFtruncatedMinus_ = inputCentrality->EtHFtruncatedMinus();
 	      creco->etHFtruncatedPlus_ = inputCentrality->EtHFtruncatedPlus();
+    	     }
 	   }
 	   if(produceETmidRap_){
 	      if(fabs(eta) < midRapidityRange_) creco->etMidRapiditySum_ += tower.pt()/(midRapidityRange_*2.);
-	   }else creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
+	   }else if(reuseAny_) creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
 	}
   }else{
+    if(reuseAny_){
      creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
      creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
      creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
+    }
   }
   
-  if(produceBasicClusters_){
+  if(produceEcalhits_){
      creco->etEESumPlus_ = 0;
      creco->etEESumMinus_ = 0;
      creco->etEBSum_ = 0;
-     
-     Handle<BasicClusterCollection> clusters;
-     iEvent.getByLabel(srcBasicClustersEE_, clusters);
-     for( size_t i = 0; i<clusters->size(); ++ i){
-	const BasicCluster & cluster = (*clusters)[ i ];
-	double eta = cluster.eta();
-	double tg = cluster.position().rho()/cluster.position().r();
-	double et = cluster.energy()*tg;
-	if(eta > 0)
-	   creco->etEESumPlus_ += et;
-	if(eta < 0)
-	   creco->etEESumMinus_ += et;
+
+     Handle<EcalRecHitCollection> ebHits;
+     Handle<EcalRecHitCollection> eeHits;
+
+     iEvent.getByLabel(srcEBhits_,ebHits);
+     iEvent.getByLabel(srcEEhits_,eeHits);
+
+     for(unsigned int i = 0; i < ebHits->size(); ++i){
+        const EcalRecHit & hit= (*ebHits)[i];
+        const GlobalPoint& pos=cGeo->getPosition(hit.id());
+        double et = hit.energy()*sin(pos.theta());
+        creco->etEBSum_ += et;
      }
-     
-     iEvent.getByLabel(srcBasicClustersEB_, clusters);
-     for( size_t i = 0; i<clusters->size(); ++ i){
-	const BasicCluster & cluster = (*clusters)[ i ];
-	double tg = cluster.position().rho()/cluster.position().r();
-        double et = cluster.energy()*tg;
-	creco->etEBSum_ += et;
+
+     for(unsigned int i = 0; i < eeHits->size(); ++i){
+        const EcalRecHit & hit= (*eeHits)[i];
+        const GlobalPoint& pos=cGeo->getPosition(hit.id());
+        double et = hit.energy()*sin(pos.theta());
+        double eta = pos.eta();
+        if(eta > 0){
+           creco->etEESumPlus_ += et;
+        }else{
+           creco->etEESumMinus_ += et;
+        }
      }
   }else{
-     creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
-     creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
-     creco->etEBSum_ = inputCentrality->EtEBSum();
+    if(reuseAny_){
+      creco->etEESumMinus_ = inputCentrality->EtEESumMinus();
+      creco->etEESumPlus_ = inputCentrality->EtEESumPlus();
+      creco->etEBSum_ = inputCentrality->EtEBSum();
+    }
   }
   
   if(producePixelhits_){
@@ -331,7 +309,7 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  // add selection if needed, now all hits.
 	  if(doPixelCut_){
 	    const SiPixelRecHit * recHit = &(*recHitIterator);
-	    const PixelGeomDetUnit* pixelLayer = dynamic_cast<const PixelGeomDetUnit*> (trackGeo_->idToDet(recHit->geographicalId()));
+	    const PixelGeomDetUnit* pixelLayer = dynamic_cast<const PixelGeomDetUnit*> (tGeo->idToDet(recHit->geographicalId()));
 	    GlobalPoint gpos = pixelLayer->toGlobal(recHit->localPosition());
 	    math::XYZVector rechitPos(gpos.x(),gpos.y(),gpos.z());
 	    double abeta = fabs(rechitPos.eta());
@@ -348,7 +326,9 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
      creco->pixelMultiplicity_ = nPixel;
   }else{
+    if(reuseAny_){
      creco->pixelMultiplicity_ = inputCentrality->multiplicityPixel();
+    }
   }
 
   if(produceTracks_){
@@ -415,10 +395,12 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      creco->ntracksEtaPtCut_ = trackCounterEtaPt;
 
   }else{
+    if(reuseAny_){
      creco->trackMultiplicity_ = inputCentrality->Ntracks();
      creco->ntracksPtCut_= inputCentrality->NtracksPtCut();
      creco->ntracksEtaCut_= inputCentrality->NtracksEtaCut();
      creco->ntracksEtaPtCut_= inputCentrality->NtracksEtaPtCut();
+    }
   }
 
   if(producePixelTracks_){
@@ -428,7 +410,9 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     creco->nPixelTracks_ = nPixelTracks;
   }
   else{
-    creco->nPixelTracks_ = inputCentrality->NpixelTracks();
+    if(reuseAny_){
+     creco->nPixelTracks_ = inputCentrality->NpixelTracks();
+    }
   }
 
   if(produceZDChits_){
@@ -460,12 +444,14 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	creco->zdcSumMinus_ = -9;
      }
   }else{
+    if(reuseAny_){
      creco->zdcSumMinus_ = inputCentrality->zdcSumMinus();
      creco->zdcSumPlus_ = inputCentrality->zdcSumPlus();
+    }
   }
   
   iEvent.put(creco);
-  return true;
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -476,9 +462,12 @@ CentralityProducer::beginJob()
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-CentralityProducer::endJob() {
-}
+CentralityProducer::endJob()
+{
 }
 
+
 //define this as a plug-in
-DEFINE_FWK_MODULE(reco::CentralityProducer);
+DEFINE_FWK_MODULE(CentralityProducer);
+
+}

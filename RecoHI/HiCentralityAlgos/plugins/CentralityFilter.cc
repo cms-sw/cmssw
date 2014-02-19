@@ -1,19 +1,6 @@
-// -*- C++ -*-
-//
-// Package:    CentralityFilter
-// Class:      CentralityFilter
-// 
-/**\class CentralityFilter CentralityFilter.cc CmsHi/CentralityFilter/src/CentralityFilter.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Tue Jun 29 12:19:49 CEST 2010
-// $Id: CentralityFilter.cc,v 1.5 2010/11/04 09:25:57 yilmaz Exp $
 //
 //
 
