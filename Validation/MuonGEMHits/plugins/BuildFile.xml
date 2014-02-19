@@ -1,0 +1,10 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DQMServices/Core"/>
+<use name="DataFormats/GEMDigi"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="CLHEP"/>
+<use name="Validation/MuonGEMHits"/>
+<use name="boost"/>
+<flags EDM_PLUGIN="1"/>
