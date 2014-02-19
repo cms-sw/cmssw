@@ -10,6 +10,7 @@
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="RecoTracker/TkMSParametrization"/>
 <use   name="RecoTracker/TkSeedingLayers"/>
+<use   name="RecoTracker/SeedingLayerSetsHits"/>
 <export>
   <lib   name="1"/>
 </export>

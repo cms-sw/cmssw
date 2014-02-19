@@ -10,14 +10,15 @@ from Configuration.StandardSequences.RawToDigi_cff import *
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import *
 
 #the quadruplet merger configuration 
+# from this PSet the quadruplet merger uses only the layer list so these could probably be removed
 from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
-pixelseedmergerlayers.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-pixelseedmergerlayers.BPix.HitProducer = cms.string("siPixelRecHits" )
-pixelseedmergerlayers.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-pixelseedmergerlayers.FPix.HitProducer = cms.string("siPixelRecHits" )
+PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
+PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )
 
 # new layer list (3/4 pixel seeding) in stepZero
-pixellayertriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
                                             'BPix2+BPix3+BPix4',
                                             'BPix1+BPix3+BPix4',
                                             'BPix1+BPix2+BPix4',

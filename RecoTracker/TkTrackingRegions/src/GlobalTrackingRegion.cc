@@ -32,6 +32,13 @@ TrackingRegion::Hits GlobalTrackingRegion::hits(
  return layer->hits(ev,es);
 }
 
+TrackingRegion::Hits GlobalTrackingRegion::hits(
+      const edm::Event& ev,
+      const edm::EventSetup& es,
+      const SeedingLayerSetsHits::SeedingLayer& layer) const {
+  return layer.hits();
+}
+
 
 
 HitRZCompatibility* 
