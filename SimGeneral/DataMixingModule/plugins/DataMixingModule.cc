@@ -163,6 +163,10 @@ namespace edm
       produces< HFDigiCollection >();
       produces< ZDCDigiCollection >();
 
+      produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
+      produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
+
+
       if(MergeHcalDigisProd_) {
         edm::ConsumesCollector iC(consumesCollector());
 	HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, iC);
