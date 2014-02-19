@@ -12,48 +12,13 @@
 #include "TH1F.h"
 #include "TCanvas.h"
 
-class MyRandomNumberGenerator : public edm::RandomNumberGenerator 
+#include<iostream>
+#include<iomanip>
+#include<fstream>
+
+int main()
 {
-   public:
-
-      MyRandomNumberGenerator() : edm::RandomNumberGenerator(),
-				  m_seed (123456789),
-				  m_engine (new CLHEP::HepJamesRandom(m_seed)) {}
-      virtual ~MyRandomNumberGenerator() {}
- 
-      virtual CLHEP::HepRandomEngine& getEngine() const { return *m_engine ; }
-      virtual CLHEP::HepRandomEngine& getEngine(edm::StreamID const&) const { return *m_engine ; }
-      virtual CLHEP::HepRandomEngine& getEngine(edm::LuminosityBlockIndex const&) const { return *m_engine ; }
-
-      virtual uint32_t mySeed() const { return m_seed; }
-      virtual void preBeginLumi(edm::LuminosityBlock const& lumi) {}
-      virtual void postEventRead(edm::Event const& event) {}
-
-      virtual std::vector<RandomEngineState> const& getLumiCache(edm::LuminosityBlockIndex const&) const {
-	 return m_states ; }
-      virtual std::vector<RandomEngineState> const& getEventCache(edm::StreamID const&) const {
-	 return m_states ; }
-      virtual void print(std::ostream& os) const {}
-
-   private:
-      MyRandomNumberGenerator(const MyRandomNumberGenerator&) = delete;
-      const MyRandomNumberGenerator& operator=(const MyRandomNumberGenerator&) = delete;
-
-      long m_seed ;
-      CLHEP::HepRandomEngine* m_engine ;
-      std::vector<RandomEngineState > m_states ;
-};
-
-
-int main() 
-{
-   edm::MessageDrop::instance()->debugEnabled = false;
-
-   std::auto_ptr<edm::RandomNumberGenerator> slcptr( new MyRandomNumberGenerator ) ;
-
-   boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::RandomNumberGenerator > > slc ( new edm::serviceregistry::ServiceWrapper<edm::RandomNumberGenerator >( slcptr ) ) ; 
-   edm::ServiceToken token = edm::ServiceRegistry::createContaining( slc ) ;
-   edm::ServiceRegistry::Operate operate( token ) ; 
+  edm::MessageDrop::instance()->debugEnabled = false;
 
   const long seed = 12345;
   CLHEP::HepJamesRandom engine(seed);
