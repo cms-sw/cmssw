@@ -77,8 +77,8 @@ const std::string& ora::Container::className(){
 }
 
 std::string ora::Container::realClassName(){
-  Reflex::Type type = ClassUtils::lookupDictionary( className() );
-  std::string ret = ClassUtils::demangledName( type.TypeInfo() ); 
+  edm::TypeWithDict type = ClassUtils::lookupDictionary( className() );
+  std::string ret = ClassUtils::demangledName( type.typeInfo() );
   ret.erase( std::remove( ret.begin(), ret.end(), ' ' ), ret.end() ); 
   return ret;
 }
