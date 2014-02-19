@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
 
 # TRIPLET SEEDING LAYERS
-tobTecStepSeedLayersTripl = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('tobTecStepSeedLayersTripl'),
+tobTecStepSeedLayersTripl = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TOB
     'TOB1+TOB2+MTOB3',
@@ -89,8 +88,7 @@ tobTecStepSeedsTripl.SeedComparitorPSet = cms.PSet(
         ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
 )
 # PAIR SEEDING LAYERS
-tobTecStepSeedLayersPair = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('tobTecStepSeedLayersPair'),
+tobTecStepSeedLayersPair = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('TOB1+TEC1_pos','TOB1+TEC1_neg', 
                             'TEC1_pos+TEC2_pos','TEC1_neg+TEC2_neg', 
                             'TEC2_pos+TEC3_pos','TEC2_neg+TEC3_neg', 
@@ -135,7 +133,9 @@ tobTecStepSeeds.seedCollections = cms.VInputTag(cms.InputTag('tobTecStepSeedsTri
 
 
 TobTecStep = cms.Sequence(tobTecStepClusters*
+                          tobTecStepSeedLayersTripl*
                           tobTecStepSeedsTripl*
+                          tobTecStepSeedLayersPair*
                           tobTecStepSeedsPair*
                           tobTecStepSeeds*
                           tobTecStepTrackCandidates*

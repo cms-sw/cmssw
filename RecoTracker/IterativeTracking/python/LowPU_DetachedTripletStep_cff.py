@@ -22,9 +22,7 @@ detachedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-detachedTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
-    ComponentName = 'detachedTripletStepSeedLayers'
-    )
+detachedTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 detachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
 detachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
 
@@ -212,6 +210,7 @@ detachedTripletStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackL
 )
 
 DetachedTripletStep = cms.Sequence(detachedTripletStepClusters*
+                                               detachedTripletStepSeedLayers*
                                                detachedTripletStepSeeds*
                                                detachedTripletStepTrackCandidates*
                                                detachedTripletStepTracks*

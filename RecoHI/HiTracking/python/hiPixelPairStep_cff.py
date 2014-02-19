@@ -24,8 +24,7 @@ hiPixelPairClusters = cms.EDProducer("TrackClusterRemover",
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi
-hiPixelPairSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi.pixellayerpairs.clone(
-            ComponentName = 'hiPixelPairSeedLayers',
+hiPixelPairSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi.PixelLayerPairs.clone(
             layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3',
                                     'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
                                     'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
@@ -42,7 +41,7 @@ hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ = 4.0
 # sigmaZVertex is only used when usedFixedError is True -Matt
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.sigmaZVertex = 4.0
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.useFixedError = cms.bool(False)
-hiPixelPairSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.string('hiPixelPairSeedLayers')
+hiPixelPairSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('hiPixelPairSeedLayers')
 hiPixelPairSeeds.OrderedHitsFactoryPSet.maxElement = 5000000
 hiPixelPairSeeds.ClusterCheckPSet.MaxNumberOfPixelClusters = 5000000
 hiPixelPairSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 50000000
@@ -126,6 +125,7 @@ hiPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrac
 # Final sequence
 
 hiPixelPairStep = cms.Sequence(hiPixelPairClusters*
+                               hiPixelPairSeedLayers*
                                hiPixelPairSeeds*
                                hiPixelPairTrackCandidates*
                                hiPixelPairGlobalPrimTracks*
