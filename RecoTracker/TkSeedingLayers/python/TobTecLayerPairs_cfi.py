@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-tobteclayerpairs = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('TobTecLayerPairs'),
-
+TobTecLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
 # Don't bother with TEC8 and 9, as tracking requires 2 hits outside
 # the seeding pairs.
     layerList = cms.vstring('TOB1+TOB2', 
