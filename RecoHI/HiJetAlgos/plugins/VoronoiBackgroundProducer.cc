@@ -1,5 +1,6 @@
 // system include files
 #include <memory>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -17,6 +18,7 @@
 
 #include "RecoHI/HiJetAlgos/interface/VoronoiAlgorithm.h"
 
+using namespace std;
 //
 // class declaration
 //
@@ -35,7 +37,13 @@ class VoronoiBackgroundProducer : public edm::EDProducer {
 
    edm::InputTag src_;
    VoronoiAlgorithm* voronoi_;
+   bool doEqualize_;
+   double equalizeThreshold0_;
+   double equalizeThreshold1_;
    double equalizeR_;
+   bool isCalo_;
+   int etaBins_;
+   int fourierOrder_;
    std::vector<reco::VoronoiBackground> vvm;
 
 };
@@ -54,14 +62,20 @@ class VoronoiBackgroundProducer : public edm::EDProducer {
 //
 VoronoiBackgroundProducer::VoronoiBackgroundProducer(const edm::ParameterSet& iConfig):
    voronoi_(0),
-   equalizeR_(iConfig.getParameter<double>("equalizeR"))
+   doEqualize_(iConfig.getParameter<bool>("doEqualize")),
+   equalizeThreshold0_(iConfig.getParameter<double>("equalizeThreshold0")),
+   equalizeThreshold1_(iConfig.getParameter<double>("equalizeThreshold1")),
+   equalizeR_(iConfig.getParameter<double>("equalizeR")),
+   isCalo_(iConfig.getParameter<bool>("isCalo")),
+   etaBins_(iConfig.getParameter<int>("etaBins")),
+   fourierOrder_(iConfig.getParameter<int>("fourierOrder"))
 {
 
    src_ = iConfig.getParameter<edm::InputTag>("src");
    //register your products
 
    produces<reco::VoronoiMap>();
-
+   produces<std::vector<float> >();
 }
 
 
@@ -81,36 +95,45 @@ VoronoiBackgroundProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    using namespace edm;
    if(voronoi_ == 0){
      bool data = iEvent.isRealData();
-     voronoi_ = new VoronoiAlgorithm(equalizeR_,data);
+     voronoi_ = new VoronoiAlgorithm(equalizeR_,data,isCalo_,std::pair<double, double>(equalizeThreshold0_,equalizeThreshold1_),doEqualize_);
    }
 
    voronoi_->clear();
+   vvm.clear();
 
    edm::Handle<reco::CandidateView> inputsHandle;
    iEvent.getByLabel(src_,inputsHandle);
-   //   std::auto_ptr<reco::VoronoiBackgroundMap> mapout(new reco::VoronoiBackgroundMap());
-   std::auto_ptr<reco::VoronoiMap> mapout(new reco::VoronoiMap());
-
-   reco::VoronoiMap::Filler filler(*mapout);
-   vvm.clear();
 
    for(unsigned int i = 0; i < inputsHandle->size(); ++i){
       reco::CandidateViewRef ref(inputsHandle,i);
       voronoi_->push_back_particle(ref->pt(),ref->eta(),ref->phi(),0);
    }
 
-   std::vector<double> momentum_perp_subtracted = (*voronoi_);
+   std::vector<double> subtracted_momenta = voronoi_->subtracted_unequalized_perp();
+   std::vector<double> equalized_momenta = voronoi_->subtracted_equalized_perp();
+   std::vector<double> particle_area = voronoi_->particle_area();
+   std::vector<double> voronoi_vn = voronoi_->perp_fourier();
+   std::auto_ptr<std::vector<float> > vnout(new std::vector<float>(voronoi_vn.begin(), voronoi_vn.end()));
+   std::auto_ptr<reco::VoronoiMap> mapout(new reco::VoronoiMap());
+   reco::VoronoiMap::Filler filler(*mapout);
 
    for(unsigned int i = 0; i < inputsHandle->size(); ++i){
       reco::CandidateViewRef ref(inputsHandle,i);
-      reco::VoronoiBackground bkg(0,0,momentum_perp_subtracted[i],0,0,0,0);
+      const double pre_eq_pt = subtracted_momenta[i];
+      const double post_eq_pt = equalized_momenta[i];
+      const double area = particle_area[i];
+      const double mass_square = ref->massSqr();
+      const double pre_eq_mt = sqrt(mass_square + pre_eq_pt * pre_eq_pt);
+      const double post_eq_mt = sqrt(mass_square + post_eq_pt * post_eq_pt);
 
+      reco::VoronoiBackground bkg(pre_eq_pt,post_eq_pt,pre_eq_mt,post_eq_mt,area);
+      LogDebug("VoronoiBackgroundProducer")<<"Subtraction --- oldpt : "<<ref->pt()<<" --- newpt : "<<post_eq_pt<<endl;
       vvm.push_back(bkg);
-
    }
 
    filler.insert(inputsHandle,vvm.begin(),vvm.end());
    filler.fill();
+   iEvent.put(vnout);
    iEvent.put(mapout);
  
 }

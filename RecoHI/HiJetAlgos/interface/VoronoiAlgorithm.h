@@ -29,12 +29,14 @@ private:
 		unsigned int reduced_particle_flow_id;
 		double area;
 		double momentum_perp_subtracted;
+		double momentum_perp_subtracted_unequalized;
 		std::set<std::vector<particle_t>::iterator> incident;
 		particle_t(math::PtEtaPhiELorentzVector p,
 				   unsigned int i, double a = NAN,
 				   double ps = NAN)
 			: momentum(p), reduced_particle_flow_id(i), area(a),
 			  momentum_perp_subtracted(ps),
+			  momentum_perp_subtracted_unequalized(ps),
 			  incident(std::set<std::vector<particle_t>::
 					   iterator>())
 		{
@@ -58,12 +60,13 @@ private:
 	polygon_t;
 public:
 	static const size_t nreduced_particle_flow_id = 3;
-	static const size_t nfourier = 3;
+	static const size_t nfourier = 5;
 protected:
 	std::vector<double> _edge_pseudorapidity;
 	std::vector<double> _cms_hcal_edge_pseudorapidity;
 	std::vector<double> _cms_ecal_edge_pseudorapidity;
 	bool _remove_nonpositive;
+	std::pair<double, double> _equalization_threshold;
 	double _radial_distance_square_max;
 	double _positive_bound_scale;
 	bool _subtracted;
@@ -80,7 +83,7 @@ protected:
 	void *_lp_environment;
 	void *_lp_problem;
 	// calibrations
-	UECalibration ue;
+	UECalibration *ue;
 private:
 	void initialize_geometry(void);
 	void allocate(void);
@@ -95,14 +98,14 @@ private:
 	void remove_nonpositive(void);
 	void subtract_if_necessary(void);
 public:
-	VoronoiAlgorithm(const double dr_max,
-					 const bool remove_nonpositive = true);
-	VoronoiAlgorithm(const double dr_max,
-					 const bool remove_nonpositive,
-					 const std::vector<double> edge_pseudorapidity);
-	~VoronoiAlgorithm(void)
-	{
-	}
+	VoronoiAlgorithm(
+		const double dr_max,
+		const bool isRealData = true,
+		const bool isCalo = false,
+		const std::pair<double, double> equalization_threshold =
+		std::pair<double, double>(5.0, 35.0),
+		const bool remove_nonpositive = true);
+	~VoronoiAlgorithm(void);
 	/**
 	 * Add a new unsubtracted particle to the current event
 	 *
@@ -125,7 +128,8 @@ public:
 	 *
 	 * @return	vector of transverse momenta
 	 */
-	operator std::vector<double>(void);
+	std::vector<double> subtracted_equalized_perp(void);
+	std::vector<double> subtracted_unequalized_perp(void);
 	/**
 	 * Returns the area in the Voronoi diagram diagram occupied by
 	 * a given particle
@@ -142,6 +146,8 @@ public:
 	 * indices, using the original indexing
 	 */
 	std::vector<std::set<size_t> > particle_incident(void);
+	std::vector<double> perp_fourier(void);
+	size_t nedge_pseudorapidity(void) const;
 };
 
 #endif

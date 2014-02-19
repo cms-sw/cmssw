@@ -20,7 +20,10 @@ process.TFileService = cms.Service("TFileService",
 
 process.subtract = cms.EDProducer('VoronoiBackgroundProducer',
                                   src = cms.InputTag('particleFlow'),
-                                  equalizeR = cms.double(0.3)
+                                  equalizeR = cms.double(0.3),
+				  doEqualize = cms.bool(True),
+				  equalizeThreshold0 = cms.double(5.0),
+				  equalizeThreshold1 = cms.double(35.0)
                                   )
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')

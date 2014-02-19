@@ -13,7 +13,13 @@ PFTowers = cms.EDProducer("ParticleTowerProducer",
 ## background for HF/Voronoi-style subtraction
 voronoiBackgroundPF = cms.EDProducer('VoronoiBackgroundProducer',
                                      src = cms.InputTag('particleFlowTmp'),
-                                     equalizeR = cms.double(0.3)
+                                     doEqualize = cms.bool(True),
+                                     equalizeThreshold0 = cms.double(5.0),
+                                     equalizeThreshold1 = cms.double(35.0),
+                                     equalizeR = cms.double(0.3),
+                                     isCalo = cms.bool(False),
+                                     etaBins = cms.int32(15),
+                                     fourierOrder = cms.int32(5)                                     
                                      )
 
 
@@ -44,7 +50,7 @@ akVs5PFJets = ak5PFJets.clone(
     subtractorName = cms.string("VoronoiSubtractor"),
     bkg = cms.InputTag("voronoiBackgroundPF"),
     src = cms.InputTag('particleFlowTmp'),
-    dropZeros = cms.untracked.bool(True),
+    dropZeros = cms.bool(True),
     doAreaFastjet = False,
     puPtMin = cms.double(0)
     )
@@ -65,11 +71,14 @@ akPu7PFJets = akPu5PFJets.clone(rParam       = cms.double(0.7), puPtMin = 35)
 
 hiRecoPFJets = cms.Sequence(
     PFTowers
-    *akPu3PFJets*akPu5PFJets
-    *voronoiBackgroundPF*akVs5PFJets
-    *akVs2PFJets*akVs3PFJets*akVs4PFJets*akVs6PFJets*akVs7PFJets
+    *akPu3PFJets*akPu4PFJets*akPu5PFJets
+    *voronoiBackgroundPF
+    *akVs3PFJets*akVs4PFJets*akVs5PFJets
     )
 
-hiRecoAllPFJets = cms.Sequence(hiRecoPFJets * akPu2PFJets*akPu4PFJets*akPu6PFJets*akPu7PFJets)
+hiRecoAllPFJets = cms.Sequence(hiRecoPFJets
+                               *akPu2PFJets*akPu6PFJets*akPu7PFJets
+                               *akVs2PFJets*akVs6PFJets*akVs7PFJets                               
+                               )
 
 

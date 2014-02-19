@@ -981,24 +981,49 @@ namespace {
 
 			_feature.resize(nfeature);
 
-			static const double scale[3] = {
-				1.0 / 4950, 1.0 / 140, 1.0 / 320
-			};
+			// Scale factor to get 95% of the coefficient below 1.0
+			// (where however one order of magnitude tolerance is
+			// acceptable). This is valid for nfourier < 18 (where
+			// interference behavior with the HF geometry starts to
+			// appear)
+
+			std::vector<double> scale(nfourier, 1.0 / 200.0);
+
+			if (nfourier >= 1) {
+				scale[0] = 1.0 / 5400.0;
+			}
+			if (nfourier >= 2) {
+				scale[1] = 1.0 / 130.0;
+			}
+			if (nfourier >= 3) {
+				scale[2] = 1.0 / 220.0;
+			}
 
 			const size_t index_edge_end =
 				_edge_pseudorapidity.size() - 2;
 
-			_feature[0] = scale[0] *
-				((*_perp_fourier)[0             ][2][0][0] +
-				 (*_perp_fourier)[index_edge_end][2][0][0]);
-			for (size_t k = 1; k < nfourier; k++) {
-				_feature[2 * k - 1] = scale[k] *
-					((*_perp_fourier)[0             ][2][k][0] +
-					 (*_perp_fourier)[index_edge_end][2][k][0]);
-				_feature[2 * k] = scale[k] *
-					((*_perp_fourier)[0             ][2][k][1] +
-					 (*_perp_fourier)[index_edge_end][2][k][1]);
+			_feature[0] = 0;
+			for (size_t j = 0; j < nreduced_particle_flow_id; j++) {
+			  _feature[0] += scale[0] *
+			    ((*_perp_fourier)[0             ][j][0][0] +
+			     (*_perp_fourier)[index_edge_end][j][0][0]);
 			}
+			
+			for (size_t k = 1; k < nfourier; k++) {
+			  _feature[2 * k - 1] = 0;
+			  for (size_t j = 0; j < nreduced_particle_flow_id; j++) {
+			    _feature[2 * k - 1] += scale[k] *
+			      ((*_perp_fourier)[0             ][j][k][0] +
+				 (*_perp_fourier)[index_edge_end][j][k][0]);
+			    }
+			  _feature[2 * k] = 0;
+			  for (size_t j = 0; j < nreduced_particle_flow_id; j++) {
+			    _feature[2 * k] += scale[k] *
+			      ((*_perp_fourier)[0             ][j][k][1] +
+				 (*_perp_fourier)[index_edge_end][j][k][1]);
+			    }
+			}
+
 
 #if 0
 			const double event_plane = atan2(_feature[4], _feature[3]);
@@ -1117,7 +1142,7 @@ namespace {
 					}
 				}
 
-				for (size_t j = 0; j < 3; j++) {
+				for (size_t j = 0; j < nreduced_particle_flow_id; j++) {
 				if (j == 2) {
 					// HCAL
 					for (size_t l = 1;
@@ -1148,16 +1173,16 @@ namespace {
 					// interpolation for the pseudorapidity segment
 
 					const double azimuth = iterator->momentum.Phi();
-					const float (*p)[2][46] =
+					const float (*p)[2][82] =
 #ifdef STANDALONE
 						ue_predictor_pf[j][predictor_index]
 #else // STANDALONE
-						ue.ue_predictor_pf[j][predictor_index]
+						ue->ue_predictor_pf[j][predictor_index]
 #endif // STANDALONE
 						;
 					double pred = 0;
 
-					for (size_t l = 0; l < 3; l++) {
+					for (size_t l = 0; l < nfourier; l++) {
 						for (size_t m = 0; m < 2; m++) {
 							float u = p[l][m][0];
 
@@ -1215,17 +1240,17 @@ namespace {
 #else // STANDALONE
 					if (j == 0) {
 						interp =
-							ue.ue_interpolation_pf0[predictor_index][
+							ue->ue_interpolation_pf0[predictor_index][
 								interpolation_index];
 					}
 					else if (j == 1) {
 						interp =
-							ue.ue_interpolation_pf1[predictor_index][
+							ue->ue_interpolation_pf1[predictor_index][
 								interpolation_index];
 					}
 					else if (j == 2) {
 						interp =
-							ue.ue_interpolation_pf2[predictor_index][
+							ue->ue_interpolation_pf2[predictor_index][
 								interpolation_index];
 					}
 #endif // STANDALONE
@@ -1240,17 +1265,19 @@ namespace {
 				}
 				}
 
-					if (std::isfinite(iterator->area)) {
-						// Subtract the PF candidate by density times
-						// Voronoi cell area
-						iterator->momentum_perp_subtracted =
-							iterator->momentum.Pt() -
-							density * iterator->area;
-					}
-					else {
-						iterator->momentum_perp_subtracted =
-							iterator->momentum.Pt();
-					}
+				if (std::isfinite(iterator->area) && density >= 0) {
+					// Subtract the PF candidate by density times
+					// Voronoi cell area
+					iterator->momentum_perp_subtracted =
+						iterator->momentum.Pt() -
+						density * iterator->area;
+				}
+				else {
+					iterator->momentum_perp_subtracted =
+						iterator->momentum.Pt();
+				}
+				iterator->momentum_perp_subtracted_unequalized =
+					iterator->momentum_perp_subtracted;
 			}
 		}
 		void VoronoiAlgorithm::recombine_link(void)
@@ -1261,9 +1288,13 @@ namespace {
 			for (std::vector<particle_t>::const_iterator
 					 iterator_outer = _event.begin();
 				 iterator_outer != _event.end(); iterator_outer++) {
+				radial_distance_square
+					[iterator_outer - _event.begin()]
+					[iterator_outer - _event.begin()] = 0;
+
 				for (std::vector<particle_t>::const_iterator
 						 iterator_inner = _event.begin();
-					 iterator_inner != _event.end();
+					 iterator_inner != iterator_outer;
 					 iterator_inner++) {
 					const double deta = iterator_outer->momentum.Eta() -
 						iterator_inner->momentum.Eta();
@@ -1275,6 +1306,12 @@ namespace {
 						[iterator_outer - _event.begin()]
 						[iterator_inner - _event.begin()] =
 						deta * deta + dphi * dphi;
+					radial_distance_square
+						[iterator_inner - _event.begin()]
+						[iterator_outer - _event.begin()] =
+					radial_distance_square
+						[iterator_outer - _event.begin()]
+						[iterator_inner - _event.begin()];
 				}
 			}
 
@@ -1303,36 +1340,12 @@ namespace {
 				_event.size(), std::vector<size_t>());
 			_recombine_tie.clear();
 
+			// 36 cells corresponds to ~ 3 layers, note that for
+			// hexagonal tiling, cell in proximity = 3 * layer *
+			// (layer + 1)
+			static const size_t npair_max = 36;
+
 			for (size_t i = 0; i < _event.size(); i++) {
-				if (_event[i].momentum_perp_subtracted < 0) {
-					for (size_t j = 0; j < _event.size(); j++) {
-						const bool active_i_j =
-							_active[i] && _active[j];
-						// We take advantage of std::set::count()
-						// returning 0 or 1, and test for a positive
-						// sum.
-						size_t incident_count =
-							_event[i].incident.count(_event.begin() + j) +
-							_event[j].incident.count(_event.begin() + i);
-
-						if (_event[j].momentum_perp_subtracted > 0 &&
-							active_i_j &&
-							(radial_distance_square[i][j] <
-							 _radial_distance_square_max ||
-							 incident_count > 0)) {
-							_recombine_index[j].push_back(
-								_recombine.size());
-							_recombine_index[i].push_back(
-								_recombine.size());
-							_recombine.push_back(
-								std::pair<size_t, size_t>(i, j));
-							_recombine_tie.push_back(
-								radial_distance_square[i][j] /
-								_radial_distance_square_max);
-						}
-					}
-				}
-
 				for (size_t j = 0; j < _event.size(); j++) {
 					const bool active_i_j = _active[i] && _active[j];
 					const size_t incident_count =
@@ -1344,6 +1357,53 @@ namespace {
 						 _radial_distance_square_max ||
 						 incident_count > 0)) {
 						_recombine_unsigned[i].push_back(j);
+					}
+				}
+
+				if (_event[i].momentum_perp_subtracted < 0) {
+					std::vector<double> radial_distance_square_list;
+
+					for (std::vector<size_t>::const_iterator iterator =
+							 _recombine_unsigned[i].begin();
+						 iterator != _recombine_unsigned[i].end();
+						 iterator++) {
+						const size_t j = *iterator;
+
+						if (_event[j].momentum_perp_subtracted > 0) {
+							radial_distance_square_list.push_back(
+								radial_distance_square[i][j]);
+						}
+					}
+
+					double radial_distance_square_max_equalization_cut =
+						_radial_distance_square_max;
+
+					if (radial_distance_square_list.size() >= npair_max) {
+						std::sort(radial_distance_square_list.begin(),
+								  radial_distance_square_list.end());
+						radial_distance_square_max_equalization_cut =
+							radial_distance_square_list[npair_max - 1];
+					}
+
+					for (std::vector<size_t>::const_iterator iterator =
+							 _recombine_unsigned[i].begin();
+						 iterator != _recombine_unsigned[i].end();
+						 iterator++) {
+						const size_t j = *iterator;
+
+						if (_event[j].momentum_perp_subtracted > 0 &&
+							radial_distance_square[i][j] <
+							radial_distance_square_max_equalization_cut) {
+							_recombine_index[j].push_back(
+								_recombine.size());
+							_recombine_index[i].push_back(
+								_recombine.size());
+							_recombine.push_back(
+								std::pair<size_t, size_t>(i, j));
+							_recombine_tie.push_back(
+								radial_distance_square[i][j] /
+								_radial_distance_square_max);
+						}
 					}
 				}
 			}
@@ -1501,6 +1561,11 @@ namespace {
 
 			_ncost = nblock + positive_count;
 
+			const double sum_unequalized_0 = _equalization_threshold.first;
+			const double sum_unequalized_1 = (2.0 / 3.0) * _equalization_threshold.first + (1.0 / 3.0) * _equalization_threshold.second;
+			const double sum_unequalized_2 = (1.0 / 3.0) * _equalization_threshold.first + (2.0 / 3.0) * _equalization_threshold.second;
+			const double sum_unequalized_3 = _equalization_threshold.second;
+
 			std::vector<particle_t>::const_iterator
 				iterator_particle = _event.begin();
 			std::vector<bool>::const_iterator iterator_active =
@@ -1591,7 +1656,6 @@ namespace {
 							index_pseudorapidity * nsector_azimuth +
 							index_azimuth;
 
-
 						// sum_R c_i - o_i >= -d
 						// or: d + sum_R c_i >= o_i
 						// sum_R c_i - o_i <= d
@@ -1611,7 +1675,15 @@ namespace {
 						}
 						sum_unequalized = std::max(0.0, sum_unequalized);
 
-						const double weight = sum_unequalized;
+						if (sum_unequalized >= sum_unequalized_3 ||
+							(sum_unequalized >= sum_unequalized_2 &&
+							 (iterator_particle - _event.begin()) % 2 == 0) ||
+							(sum_unequalized >= sum_unequalized_1 &&
+							 (iterator_particle - _event.begin()) % 4 == 0) ||
+							(sum_unequalized >= sum_unequalized_0 &&
+							 (iterator_particle - _event.begin()) % 8 == 0)) {
+
+						const double weight = sum_unequalized * iterator_particle->area * iterator_particle->area;
 
 						if (weight > 0) {
 							p->push_back_row(
@@ -1663,6 +1735,9 @@ namespace {
 							}
 							index_row++;
 						}
+
+						}
+
 					}
 				}
 			}
@@ -1753,18 +1828,24 @@ namespace {
 			}
 		}
 
-		VoronoiAlgorithm::VoronoiAlgorithm(const double dr_max,
-										   const bool remove_nonpositive)
+		VoronoiAlgorithm::VoronoiAlgorithm(
+			const double dr_max,
+			const bool isRealData,
+			const bool isCalo,
+			const std::pair<double, double> equalization_threshold,
+			const bool remove_nonpositive)
 			: _remove_nonpositive(remove_nonpositive),
+			  _equalization_threshold(equalization_threshold),
 			  _radial_distance_square_max(dr_max * dr_max),
 			  _positive_bound_scale(0.2),
-			  _subtracted(false)
+			  _subtracted(false),
+			  ue(NULL)
 		{
 			initialize_geometry();
-
-			static const size_t nedge_pseudorapidity = 7 + 1;
+			ue = new UECalibration(isRealData, isCalo);
+			static const size_t nedge_pseudorapidity = 15 + 1;
 			static const double edge_pseudorapidity[nedge_pseudorapidity] = {
-				-5.191, -3.0, -1.479, -0.522, 0.522, 1.479, 3.0, 5.191
+				-5.191, -2.650, -2.043, -1.740, -1.479, -1.131, -0.783, -0.522, 0.522, 0.783, 1.131, 1.479, 1.740, 2.043, 2.650, 5.191
 			};
 
 			_edge_pseudorapidity = std::vector<double>(
@@ -1772,18 +1853,12 @@ namespace {
 				edge_pseudorapidity + nedge_pseudorapidity);
 			allocate();
 		}
-		VoronoiAlgorithm::VoronoiAlgorithm(const double dr_max,
-						 const bool remove_nonpositive,
-						 const std::vector<double> edge_pseudorapidity)
-			: _edge_pseudorapidity(edge_pseudorapidity),
-			  _remove_nonpositive(remove_nonpositive),
-			  _radial_distance_square_max(dr_max * dr_max),
-			  _positive_bound_scale(0.2),
-			  _subtracted(false)
+
+		VoronoiAlgorithm::~VoronoiAlgorithm(void)
 		{
-			initialize_geometry();
-			allocate();
+			deallocate();
 		}
+
 		/**
 		 * Add a new unsubtracted particle to the current event
 		 *
@@ -1816,7 +1891,7 @@ namespace {
 		 *
 		 * @return	vector of transverse momenta
 		 */
-		VoronoiAlgorithm::operator std::vector<double>(void)
+		std::vector<double> VoronoiAlgorithm::subtracted_equalized_perp(void)
 		{
 			subtract_if_necessary();
 
@@ -1826,6 +1901,20 @@ namespace {
 					 _event.begin();
 				 iterator != _event.end(); iterator++) {
 				ret.push_back(iterator->momentum_perp_subtracted);
+			}
+
+			return ret;
+		}
+		std::vector<double> VoronoiAlgorithm::subtracted_unequalized_perp(void)
+		{
+			subtract_if_necessary();
+
+			std::vector<double> ret;
+
+			for (std::vector<particle_t>::const_iterator iterator =
+					_event.begin();
+				iterator != _event.end(); iterator++) {
+				ret.push_back(iterator->momentum_perp_subtracted_unequalized);
 			}
 
 			return ret;
@@ -1880,4 +1969,17 @@ namespace {
 			}
 
 			return ret;
+		}
+		std::vector<double> VoronoiAlgorithm::perp_fourier(void)
+		{
+			subtract_if_necessary();
+
+			return std::vector<double>(
+				_perp_fourier->data(),
+				_perp_fourier->data() +
+				_perp_fourier->num_elements());
+		}
+		size_t VoronoiAlgorithm::nedge_pseudorapidity(void) const
+		{
+			return _edge_pseudorapidity.size();
 		}

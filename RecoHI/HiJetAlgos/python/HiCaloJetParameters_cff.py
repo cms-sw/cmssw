@@ -19,7 +19,10 @@ HiCaloJetParameters = cms.PSet(
     doFastJetNonUniform = cms.bool(True),
     puCenters = cms.vdouble(-5,-4,-3,-2,-1,0,1,2,3,4,5),
     puWidth = cms.double(0.8),
-    nExclude = cms.uint32(2)
+    nExclude = cms.uint32(2),
+    dropZeros = cms.bool(True),
+    addNegativesFromCone = cms.bool(True),
+    infinitesimalPt = cms.double(0)
 )
 
 ## default settings for various pileup subtractors
