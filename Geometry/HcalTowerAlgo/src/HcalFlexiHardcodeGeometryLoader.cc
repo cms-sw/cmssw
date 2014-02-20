@@ -264,7 +264,7 @@ void HcalFlexiHardcodeGeometryLoader::fillHE (CaloSubdetectorGeometry* fGeometry
     for (int iPhi = param.phiFirst; iPhi <= param.nPhi; iPhi += param.phiStep, ++kPhi) {
       for (int iside = -1; iside <= 1; iside += 2) { // both detector sides are identical
 	HcalDetId hid (HcalEndcap, param.eta*iside, iPhi, param.depth);
-	float phiCenter = param.phiStart + (kPhi-1)*param.dphi; // middle of the cell
+	float phiCenter = param.phiStart + (kPhi-0.5)*param.dphi; // middle of the cell
 	float etaCenter = 0.5 * (param.etaMin + param.etaMax);
 
 	float perp = param.zMin / sinh (etaCenter);
