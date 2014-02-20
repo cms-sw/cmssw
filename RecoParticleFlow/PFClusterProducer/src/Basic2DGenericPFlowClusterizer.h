@@ -21,9 +21,9 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
     if( _convergencePosCalc ) _convergencePosCalc->update(es);
   }
 
-  void buildPFClusters(const reco::PFClusterCollection&,
-		       const std::vector<bool>&,
-		       reco::PFClusterCollection& outclus);
+  void buildClusters(const reco::PFClusterCollection&,
+		     const std::vector<bool>&,
+		     reco::PFClusterCollection& outclus);
 
  private:  
   const unsigned _maxIterations;

@@ -1,5 +1,5 @@
-#ifndef __TopoClusterBuilderBase_H__
-#define __TopoClusterBuilderBase_H__
+#ifndef __InitialClusteringStepBase_H__
+#define __InitialClusteringStepBase_H__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -19,10 +19,10 @@ namespace edm {
   class EventSetup;
 }
 
-class TopoClusterBuilderBase {
-  typedef TopoClusterBuilderBase TCBB;
+class InitialClusteringStepBase {
+  typedef InitialClusteringStepBase ICSB;
  public:
-  TopoClusterBuilderBase(const edm::ParameterSet& conf):    
+  InitialClusteringStepBase(const edm::ParameterSet& conf):    
     _nSeeds(0), _nClustersFound(0),
     _layerMap({ {"PS2",(int)PFLayer::PS2},
 	        {"PS1",(int)PFLayer::PS1},
@@ -55,22 +55,22 @@ class TopoClusterBuilderBase {
 			  std::make_pair(thresh_E,thresh_pT2));
   }
   }
-  virtual ~TopoClusterBuilderBase() { }
+  virtual ~InitialClusteringStepBase() { }
   // get rid of things we should never use...
-  TopoClusterBuilderBase(const TCBB&) = delete;
-  TCBB& operator=(const TCBB&) = delete;
+  InitialClusteringStepBase(const ICSB&) = delete;
+  ICSB& operator=(const ICSB&) = delete;
 
   virtual void update(const edm::EventSetup&) { }
 
-  virtual void buildTopoClusters(const edm::Handle<reco::PFRecHitCollection>&,
-				 const std::vector<bool>& mask,  // mask flags
-				 const std::vector<bool>& seeds, // seed flags
-				 reco::PFClusterCollection&) = 0; //output
+  virtual void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
+			     const std::vector<bool>& mask,  // mask flags
+			     const std::vector<bool>& seeds, // seed flags
+			     reco::PFClusterCollection&) = 0; //output
 
   std::ostream& operator<<(std::ostream& o) {
-    o << "TopoClusterBuilder with algo \"" << _algoName 
+    o << "InitialClusteringStep with algo \"" << _algoName 
       << "\" located " << _nSeeds << " seeds and built " 
-      << _nClustersFound << " TopoClusters from those seeds. ";
+      << _nClustersFound << " clusters from those seeds. ";
     return o;
   }
 

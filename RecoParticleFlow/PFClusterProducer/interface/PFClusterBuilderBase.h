@@ -40,9 +40,9 @@ class PFClusterBuilderBase {
 
   virtual void update(const edm::EventSetup&) { }
 
-  virtual void buildPFClusters(const reco::PFClusterCollection& topos,
-			       const std::vector<bool>& seedable,
-			       reco::PFClusterCollection& outclus) = 0;
+  virtual void buildClusters(const reco::PFClusterCollection& topos,
+			     const std::vector<bool>& seedable,
+			     reco::PFClusterCollection& outclus) = 0;
 
   std::ostream& operator<<(std::ostream& o) const {
     o << "PFClusterBuilder with algo \"" << _algoName 

@@ -21,10 +21,10 @@ namespace {
 }
 
 void Basic2DGenericTopoClusterizer::
-buildTopoClusters(const edm::Handle<reco::PFRecHitCollection>& input,
-		  const std::vector<bool>& rechitMask,
-		  const std::vector<bool>& seedable,
-		  reco::PFClusterCollection& output) {  
+buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
+	      const std::vector<bool>& rechitMask,
+	      const std::vector<bool>& seedable,
+	      reco::PFClusterCollection& output) {  
   std::vector<bool> used(input->size(),false);
   std::vector<std::pair<unsigned,double> > seeds;
   

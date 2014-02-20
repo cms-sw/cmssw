@@ -18,7 +18,7 @@ particleFlowClusterHFEM = cms.EDProducer(
     recHitsSource = cms.InputTag("particleFlowRecHitHCAL:HFEM"),
     recHitCleaners = cms.VPSet(spikeAndDoubleSpikeCleaner_HFEM),
     seedFinder = localMaxSeeds_HF,
-    topoClusterBuilder = topoClusterizer_HF,
+    initialClusteringStep = topoClusterizer_HF,
     pfClusterBuilder = pfClusterizer_HF
     )
 

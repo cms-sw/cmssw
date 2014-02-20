@@ -2,7 +2,7 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerFactory.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderFactory.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/TopoClusterBuilderFactory.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepFactory.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderFactory.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorFactory.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorFactory.h"
@@ -20,7 +20,7 @@
 #endif
 
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
-  _prodTopoClusters(conf.getUntrackedParameter<bool>("prodTopoClusters",false))
+  _prodInitClusters(conf.getUntrackedParameter<bool>("prodInitialClusters",false))
 {
   _rechitsLabel = consumes<reco::PFRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsSource")); 
   //setup rechit cleaners
@@ -39,16 +39,20 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   SeedFinderBase* sfb = SeedFinderFactory::get()->create(sfName,sfConf);
   _seedFinder.reset(sfb);
   //setup topo cluster builder
-  const edm::ParameterSet& topoConf = 
-    conf.getParameterSet("topoClusterBuilder");
-  const std::string& topoName = topoConf.getParameter<std::string>("algoName");
-  TCBB* topob = TopoClusterBuilderFactory::get()->create(topoName,topoConf);
-  _topoBuilder.reset(topob);
-  //setup pf cluster builder
-  const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
-  const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
-  PFCBB* pfcb = PFClusterBuilderFactory::get()->create(pfcName,pfcConf);
-  _pfClusterBuilder.reset(pfcb);
+  const edm::ParameterSet& initConf = 
+    conf.getParameterSet("initialClusteringStep");
+  const std::string& initName = initConf.getParameter<std::string>("algoName");
+  ICSB* initb = InitialClusteringStepFactory::get()->create(initName,initConf);
+  _initialClustering.reset(initb);
+  //setup pf cluster builder if requested
+  _pfClusterBuilder.reset(NULL);
+  if( conf.exists("pfClusterBuilder") ) {
+    const edm::ParameterSet& pfcConf = 
+      conf.getParameterSet("pfClusterBuilder");
+    const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
+    PFCBB* pfcb = PFClusterBuilderFactory::get()->create(pfcName,pfcConf);
+    _pfClusterBuilder.reset(pfcb);
+  }
   //setup (possible) recalcuation of positions
   _positionReCalc.reset(NULL);
   if( conf.exists("positionReCalc") ) {
@@ -67,22 +71,22 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   }
   
 
-  if( _prodTopoClusters ) {
-    produces<reco::PFClusterCollection>("topoClusters");
+  if( _prodInitClusters ) {
+    produces<reco::PFClusterCollection>("initialClusters");
   }
   produces<reco::PFClusterCollection>();
 }
 
 void PFClusterProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, 
 					     const edm::EventSetup& es) {
-  _topoBuilder->update(es);
+  _initialClustering->update(es);
   _pfClusterBuilder->update(es);
   if( _positionReCalc ) _positionReCalc->update(es);
   
 }
 
 void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
-  _topoBuilder->reset();
+  _initialClustering->reset();
   _pfClusterBuilder->reset();
 
   edm::Handle<reco::PFRecHitCollection> rechits;
@@ -96,15 +100,20 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   std::vector<bool> seedable(rechits->size(),false);
   _seedFinder->findSeeds(rechits,mask,seedable);
 
-  std::auto_ptr<reco::PFClusterCollection> topoClusters;
-  topoClusters.reset(new reco::PFClusterCollection);
-  _topoBuilder->buildTopoClusters(rechits, mask, seedable, *topoClusters);
-  LOGVERB("PFClusterProducer::produce()") << *_topoBuilder;
+  std::auto_ptr<reco::PFClusterCollection> initialClusters;
+  initialClusters.reset(new reco::PFClusterCollection);
+  _initialClustering->buildClusters(rechits, mask, seedable, *initialClusters);
+  LOGVERB("PFClusterProducer::produce()") << *_initialClustering;
 
   std::auto_ptr<reco::PFClusterCollection> pfClusters;
   pfClusters.reset(new reco::PFClusterCollection);
-  _pfClusterBuilder->buildPFClusters(*topoClusters, seedable, *pfClusters);
-  LOGVERB("PFClusterProducer::produce()") << *_pfClusterBuilder;
+  if( _pfClusterBuilder ) { // if we've defined a re-clustering step execute it
+    _pfClusterBuilder->buildClusters(*initialClusters, seedable, *pfClusters);
+    LOGVERB("PFClusterProducer::produce()") << *_pfClusterBuilder;
+  } else {
+    pfClusters->insert(pfClusters->end(),
+		       initialClusters->begin(),initialClusters->end());
+  }
   
   if( _positionReCalc ) {
     _positionReCalc->calculateAndSetPositions(*pfClusters);
@@ -114,6 +123,6 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     _energyCorrector->correctEnergies(*pfClusters);
   }
 
-  if( _prodTopoClusters ) e.put(topoClusters,"topo");
+  if( _prodInitClusters ) e.put(initialClusters,"initialClusters");
   e.put(pfClusters);
 }

@@ -18,7 +18,7 @@ particleFlowClusterHFHAD = cms.EDProducer(
     recHitsSource = cms.InputTag("particleFlowRecHitHCAL:HFHAD"),
     recHitCleaners = cms.VPSet(spikeAndDoubleSpikeCleaner_HFHAD),
     seedFinder = localMaxSeeds_HF,
-    topoClusterBuilder = topoClusterizer_HF,
+    initialClusteringStep = topoClusterizer_HF,
     pfClusterBuilder = pfClusterizer_HF
     )
 

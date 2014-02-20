@@ -18,7 +18,7 @@ particleFlowClusterHCAL = cms.EDProducer(
     recHitsSource = cms.InputTag("particleFlowRecHitHCAL"),
     recHitCleaners = cms.VPSet(rbxAndHPDCleaner),
     seedFinder = localMaxSeeds_HCAL,
-    topoClusterBuilder = topoClusterizer_HCAL,
+    initialClusteringStep = topoClusterizer_HCAL,
     pfClusterBuilder = pfClusterizer_HCAL,
     )
 
