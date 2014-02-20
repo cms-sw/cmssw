@@ -21,11 +21,19 @@ class PixelClusterParameterEstimator;
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+// #define VISTAT
+
+#ifdef VISTAT
+#include<iostream>
+#define COUT std::cout
+#else
+#define COUT LogDebug("")
+#endif
+
 /* Struct of arrays supporting "members of Tk...MeasurementDet
  * implemented with vectors, to be optimized...
    ITEMS THAT DO NOT DEPEND ON THE EVENT
  */
-
 class StMeasurementConditionSet {
 public:
   enum QualityFlags { BadModules=1, // for everybody
@@ -147,6 +155,8 @@ public:
     empty_(cond.nDet(), true),
     activeThisEvent_(cond.nDet(), true),
     detSet_(!cond.isRegional() ? cond.nDet() : 0),
+    detIndex_(!cond.isRegional() ? cond.nDet() : 0,-1),
+    ready_(!cond.isRegional() ? cond.nDet() : 0,true),
     clusterI_(cond.isRegional() ? 2*cond.nDet() : 0),
     refGetter_(0),
     theRawInactiveStripDetIds_(),
@@ -154,6 +164,10 @@ public:
     stripUpdated_(cond.isRegional() ? cond.nDet() : 0), 
     stripRegions_(cond.isRegional() ? cond.nDet() : 0) 
   {
+  }
+
+  ~StMeasurementDetSet() {
+    printStat();
   }
 
   const StMeasurementConditionSet & conditions() const { return *conditionSet_; } 
@@ -164,7 +178,14 @@ public:
     detSet_[i] = detSet;     
     empty_[i] = false;
   }
-  
+
+  void update(int i, int j ) {
+    assert(j>=0); assert(empty_[i]); assert(ready_[i]); 
+    detIndex_[i] = j;
+    empty_[i] = false;
+    incReady();
+  }
+
   void update(int i, std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end) { 
     clusterI_[2*i] = begin - regionalHandle_->begin_record();
     clusterI_[2*i+1] = end - regionalHandle_->begin_record();
@@ -189,8 +210,12 @@ public:
   void setUpdated(int i) { stripUpdated_[i] = true; }
   
   void setEmpty() {
+    printStat();
     std::fill(empty_.begin(),empty_.end(),true);
+    std::fill(ready_.begin(),ready_.end(),true);
+    std::fill(detIndex_.begin(),detIndex_.end(),-1);
     std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),true);
+    incTot(size());
   }
   
   /** \brief Turn on/off the module for reconstruction for one events.
@@ -199,8 +224,8 @@ public:
   
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle() {  return handle_; }
   const edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle() const {  return handle_; }
-  StripDetset & detSet(int i) { return detSet_[i]; }
-  const StripDetset & detSet(int i) const { return detSet_[i]; }
+  // StripDetset & detSet(int i) { return detSet_[i]; }
+  const StripDetset & detSet(int i) const { if (ready_[i]) const_cast<StMeasurementDetSet*>(this)->getDetSet(i);     return detSet_[i]; }
   
   edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return regionalHandle_; }
   const edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() const { return regionalHandle_; }
@@ -214,7 +239,7 @@ public:
   std::vector<uint32_t> & rawInactiveStripDetIds() { return theRawInactiveStripDetIds_; } 
   const std::vector<uint32_t> & rawInactiveStripDetIds() const { return theRawInactiveStripDetIds_; } 
 
-  void resetOnDemandStrips() { std::fill(stripDefined_.begin(), stripDefined_.end(), false); std::fill(stripDefined_.begin(), stripDefined_.end(), false); }
+  void resetOnDemandStrips() { std::fill(stripDefined_.begin(), stripDefined_.end(), false); std::fill(stripUpdated_.begin(), stripUpdated_.end(), false); }
   const bool stripDefined(int i) const { return stripDefined_[i]; }
   const bool stripUpdated(int i) const { return stripUpdated_[i]; }
   void defineStrip(int i, std::pair<unsigned int, unsigned int> range) {
@@ -226,6 +251,21 @@ public:
   const std::pair<unsigned int,unsigned int> & regionRange(int i) const { return stripRegions_[i]; }
 
 private:
+
+  void getDetSet(int i) {
+    if(detIndex_[i]>=0) {
+      detSet_[i].set(*handle_,handle_->item(detIndex_[i]));
+      empty_[i]=false; // better be false already
+      incAct();
+    }  else { // we should not be here
+      detSet_[i] = StripDetset();
+      empty_[i]=true;  
+    }
+    ready_[i]=false;
+    incSet();
+  }
+
+
   friend class  MeasurementTrackerImpl;
   friend class  MeasurementTrackerSiStripRefGetterProducer;
 
@@ -239,6 +279,8 @@ private:
   
   // full reco
   std::vector<StripDetset> detSet_;
+  std::vector<int> detIndex_;
+  std::vector<bool> ready_; // to be cleaned
   
   // --- regional unpacking
   // begin,end "pairs"
@@ -253,6 +295,35 @@ private:
   std::vector<std::pair<unsigned int, unsigned int> > stripRegions_;
   // keyed on glued
   // std::vector<bool> gluedUpdated_;
+
+
+
+#ifdef VISTAT
+  struct Stat {
+    int totDet=0; // all dets
+    int detReady=0; // dets "updated"
+    int detSet=0;  // det actually set not empty
+    int detAct=0;  // det actually set with content
+  };
+
+  mutable Stat stat;
+  void zeroStat() const { stat = Stat(); }
+  void incTot(int n) const { stat.totDet=n;}
+  void incReady() const { stat.detReady++;}
+  void incSet() const { stat.detSet++;}
+  void incAct() const { stat.detAct++;}
+  void printStat() const {
+    COUT << "VI detsets " << stat.totDet <<','<< stat.detReady <<','<< stat.detSet <<','<< stat.detAct << std::endl;
+  }
+
+#else
+  static void zeroStat(){}
+  static void incTot(int){}
+  static void incReady() {}
+  static void incSet() {}
+  static void incAct() {}
+  static void printStat(){}
+#endif
    
 };
 
