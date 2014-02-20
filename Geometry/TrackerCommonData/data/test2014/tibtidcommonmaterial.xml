@@ -176,7 +176,7 @@
         <rMaterial name="materials:Polyethylene" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="TIBTID_ServiceCylinder" density="0.52518*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="TIBTID_ServiceCylinder" density="0.52518*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.47614">
         <rMaterial name="tibtidcommonmaterial:T_MedusaWire" />
       </MaterialFraction>
@@ -211,7 +211,7 @@
         <rMaterial name="materials:Epoxy" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="TIBTID_ServiceDisk1" density="1.1412*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="TIBTID_ServiceDisk1" density="1.1412*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.26175">
         <rMaterial name="tibtidcommonmaterial:T_MedusaWire" />
       </MaterialFraction>
@@ -237,7 +237,7 @@
         <rMaterial name="trackermaterial:T_CarbonFibreStr" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="TIBTID_ServiceDisk2" density="0.684*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="TIBTID_ServiceDisk2" density="0.684*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.26175">
         <rMaterial name="tibtidcommonmaterial:T_MedusaWire" />
       </MaterialFraction>
@@ -263,7 +263,7 @@
         <rMaterial name="trackermaterial:T_CarbonFibreStr" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="TIBTID_OptoPanelFront" density="0.077952*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="TIBTID_OptoPanelFront" density="0.077952*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.8808">
         <rMaterial name="tibtidcommonmaterial:T_RuggRibbon" />
       </MaterialFraction>
@@ -274,7 +274,7 @@
         <rMaterial name="trackermaterial:T_FR4" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="TIBTID_OptoConnectors" density="0.530415*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="TIBTID_OptoConnectors" density="0.530415*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.12072">
         <rMaterial name="trackermaterial:T_FR4" />
       </MaterialFraction>
@@ -291,7 +291,7 @@
         <rMaterial name="tibtidcommonmaterial:T_PigtailMUConn" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="TIBTID_OptoPanelBackInner" density="0.181308*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="TIBTID_OptoPanelBackInner" density="0.181308*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.19522">
         <rMaterial name="trackermaterial:T_FR4" />
       </MaterialFraction>
@@ -305,7 +305,7 @@
         <rMaterial name="trackermaterial:T_Silicone_Gel" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="TIBTID_OptoPanelBackOuter" density="0.159924*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="TIBTID_OptoPanelBackOuter" density="0.159924*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.20963">
         <rMaterial name="trackermaterial:T_FR4" />
       </MaterialFraction>
@@ -316,7 +316,7 @@
         <rMaterial name="tibtidcommonmaterial:T_FiberPigtail" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="TIBTID_Margherita" density="1.2580195*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="TIBTID_Margherita" density="1.2580195*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.25645">
         <rMaterial name="trackermaterial:T_FR4" />
       </MaterialFraction>
@@ -360,7 +360,7 @@
         <rMaterial name="materials:T_Kapton" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="TIBTID_PowerConnectors" density="0.424932*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="TIBTID_PowerConnectors" density="0.424932*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.1342">
         <rMaterial name="trackermaterial:CAB_Al60TIBTID" />
       </MaterialFraction>

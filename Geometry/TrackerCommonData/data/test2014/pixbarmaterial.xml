@@ -173,7 +173,7 @@
         <rMaterial name="trackermaterial:T_Copper" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="Flange_with_Manifold_Layer1" density="6.001116*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="Flange_with_Manifold_Layer1" density="6.001116*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.1636">
         <rMaterial name="trackermaterial:T_FR4" />
       </MaterialFraction>
@@ -193,7 +193,7 @@
         <rMaterial name="trackermaterial:T_Nomex" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="Flange_with_Manifold_Layer2" density="6.415752*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="Flange_with_Manifold_Layer2" density="6.415752*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.14778">
         <rMaterial name="trackermaterial:T_FR4" />
       </MaterialFraction>
@@ -213,7 +213,7 @@
         <rMaterial name="trackermaterial:T_Nomex" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="FlangeInner_with_Manifold_Layer3" density="5.8872*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="FlangeInner_with_Manifold_Layer3" density="5.8872*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.10879">
         <rMaterial name="trackermaterial:T_FR4" />
       </MaterialFraction>
@@ -227,7 +227,7 @@
         <rMaterial name="trackermaterial:T_Aluminium" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="FlangeOuter_Layer3" density="0.517704*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="FlangeOuter_Layer3" density="0.517704*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.11657">
         <rMaterial name="trackermaterial:T_FR4" />
       </MaterialFraction>
@@ -241,7 +241,7 @@
         <rMaterial name="materials:Air" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="cable_endring_to_tube" density="2.331588*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="cable_endring_to_tube" density="2.331588*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.10301">
         <rMaterial name="materials:T_Kapton" />
       </MaterialFraction>
@@ -264,7 +264,7 @@
         <rMaterial name="trackermaterial:T_Copper" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="Layer1_2_EndringPrints" density="1.402032*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="Layer1_2_EndringPrints" density="1.402032*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.01765">
         <rMaterial name="materials:Lead" />
       </MaterialFraction>
@@ -284,7 +284,7 @@
         <rMaterial name="trackermaterial:T_Copper" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="Layer3_EndringPrints" density="1.303776*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="Layer3_EndringPrints" density="1.303776*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.01766">
         <rMaterial name="materials:Lead" />
       </MaterialFraction>
@@ -304,7 +304,7 @@
         <rMaterial name="trackermaterial:T_Copper" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="silicone_pipes_plus_coolant" density="0.31236*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="silicone_pipes_plus_coolant" density="0.31236*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.53007">
         <rMaterial name="materials:C6F14_F2_-10C" />
       </MaterialFraction>
@@ -353,7 +353,7 @@
         <rMaterial name="trackermaterial:T_Nomex" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="SectorB" density="1.049454*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="SectorB" density="1.049454*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.19011">
         <rMaterial name="materials:C6F14_F2_-10C" />
       </MaterialFraction>
@@ -385,7 +385,7 @@
         <rMaterial name="trackermaterial:T_Nomex" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="SectorC" density="1.375654*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="SectorC" density="1.375654*g/cm3" method="mixture by weight"  symbol=" ">
       <MaterialFraction fraction="0.14778">
         <rMaterial name="materials:C6F14_F2_-10C" />
       </MaterialFraction>
