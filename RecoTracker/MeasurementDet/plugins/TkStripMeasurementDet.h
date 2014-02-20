@@ -44,9 +44,9 @@ public:
 
   void setIndex(int i) { index_=i;}
   
-  void update( StMeasurementDetSet & theDets, const detset &detSet ) const { 
-    theDets.update(index(),detSet);
-  }
+  // void update( StMeasurementDetSet & theDets, const detset &detSet ) const { 
+  //  theDets.update(index(),detSet);
+  // }
   void update( StMeasurementDetSet & theDets, std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end ) const { 
     theDets.update(index(), begin, end);
   }
@@ -65,7 +65,7 @@ public:
   
   const detset & theSet(const StMeasurementDetSet & theDets) const {return theDets.detSet(index());}
   const detset & detSet(const StMeasurementDetSet & theDets) const {return theDets.detSet(index());}
-  detset & detSet(StMeasurementDetSet & theDets) const { return theDets.detSet(index());}
+  // detset & detSet(StMeasurementDetSet & theDets) const { return theDets.detSet(index());}
   unsigned int beginClusterI(const StMeasurementDetSet & theDets) const {return theDets.beginClusterI(index());}
   unsigned int endClusterI(const StMeasurementDetSet & theDets) const {return theDets.endClusterI(index());}
   
@@ -200,8 +200,10 @@ private:
 public:
   inline bool accept(SiStripClusterRef const & r, const std::vector<bool> & skipClusters) const {
     if(skipClusters.empty()) return true;
-    if (r.key()>=skipClusters.size()){
-      edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters.size()<<" no skipping done";
+   if (r.key()>=skipClusters.size()){
+      LogDebug("TkStripMeasurementDet")<<r.key()<<" is larger than: "<<skipClusters.size()
+				       <<"\n This must be a new cluster, and therefore should not be skiped most likely.";
+      // edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters.size()<<" no skipping done"; // protect for on demand???
       return true;
     }
     return (not (skipClusters[r.key()]));
