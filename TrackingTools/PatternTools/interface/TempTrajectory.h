@@ -245,7 +245,7 @@ public:
   bool empty() const { return theData.empty();}
 
   /// Value of the raw Chi2 of the trajectory, not normalised to the N.D.F.
-  double chiSquared() const { return theChiSquared;}
+  float chiSquared() const { return theChiSquared;}
 
   /** Direction of "growing" of the trajectory. 
    *  Possible values are alongMomentum (outwards) and 

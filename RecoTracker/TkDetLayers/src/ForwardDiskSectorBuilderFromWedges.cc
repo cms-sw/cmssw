@@ -62,8 +62,8 @@ ForwardDiskSectorBuilderFromWedges::computeBounds( const vector<const TECWedge*>
     float ro = (**iw).specificSurface().outerRadius();
     float zmi = (**iw).surface().position().z() - (**iw).specificSurface().bounds().thickness()/2.;
     float zma = (**iw).surface().position().z() + (**iw).specificSurface().bounds().thickness()/2.;
-    float phi1 = (**iw).surface().position().phi() - (**iw).specificSurface().phiExtension()/2.;
-    float phi2 = (**iw).surface().position().phi() + (**iw).specificSurface().phiExtension()/2.;
+    float phi1 = (**iw).surface().position().phi() - (**iw).specificSurface().phiHalfExtension();
+    float phi2 = (**iw).surface().position().phi() + (**iw).specificSurface().phiHalfExtension();
     rmin = min( rmin, ri);
     rmax = max( rmax, ro);
     zmin = min( zmin, zmi);

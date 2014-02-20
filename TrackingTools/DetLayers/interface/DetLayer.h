@@ -15,19 +15,18 @@
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/NavigableLayer.h"
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 
 #include <vector>
 
-class DetLayer : public  virtual GeometricSearchDet {  
+class DetLayer : public GeometricSearchDet {  
  public:
 
   typedef GeomDetEnumerators::SubDetector SubDetector;
   typedef GeomDetEnumerators::Location Location;
 
-  DetLayer(bool ibar) : theNavigableLayer(0), theSeqNum(-1), iAmBarrel(ibar) {}
+  DetLayer(bool doHaveGroup, bool ibar) : GeometricSearchDet(doHaveGroup), theNavigableLayer(0), theSeqNum(-1), iAmBarrel(ibar) {}
 
   virtual ~DetLayer();
 
