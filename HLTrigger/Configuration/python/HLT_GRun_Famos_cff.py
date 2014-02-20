@@ -23268,31 +23268,6 @@ hltL2TausForPixelIsolation = cms.EDProducer( "HLTCaloJetCollectionProducer",
     TriggerTypes = cms.vint32( 84 ),
     HLTObject = cms.InputTag( "hltL2Tau25eta2p1" )
 )
-hltPixelLayerTripletsReg = cms.EDProducer( "SeedingLayersEDProducer",
-    layerList = cms.vstring( 'BPix1+BPix2+BPix3',
-      'BPix1+BPix2+FPix1_pos',
-      'BPix1+BPix2+FPix1_neg',
-      'BPix1+FPix1_pos+FPix2_pos',
-      'BPix1+FPix1_neg+FPix2_neg' ),
-    TEC = cms.PSet(  ),
-    FPix = cms.PSet( 
-      hitErrorRZ = cms.double( 0.0036 ),
-      hitErrorRPhi = cms.double( 0.0051 ),
-      useErrorsFromParam = cms.bool( True ),
-      HitProducer = cms.string( "hltSiPixelRecHitsReg" ),
-      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" )
-    ),
-    TID = cms.PSet(  ),
-    TOB = cms.PSet(  ),
-    BPix = cms.PSet( 
-      hitErrorRZ = cms.double( 0.006 ),
-      hitErrorRPhi = cms.double( 0.0027 ),
-      useErrorsFromParam = cms.bool( True ),
-      HitProducer = cms.string( "hltSiPixelRecHitsReg" ),
-      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" )
-    ),
-    TIB = cms.PSet(  )
-)
 hltPixelVerticesReg = cms.EDProducer( "PixelVertexProducer",
     WtAverage = cms.bool( True ),
     Method2 = cms.bool( True ),
