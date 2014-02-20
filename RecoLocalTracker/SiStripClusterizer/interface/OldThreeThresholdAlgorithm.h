@@ -25,7 +25,7 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 class StripClusterizerAlgorithmFactory;
 
-class OldThreeThresholdAlgorithm : public StripClusterizerAlgorithm {
+class OldThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
 
   friend class StripClusterizerAlgorithmFactory;
 
@@ -37,9 +37,7 @@ class OldThreeThresholdAlgorithm : public StripClusterizerAlgorithm {
 
   void initialize(const edm::EventSetup&);
 
-  bool stripByStripBegin(uint32_t id) {return false;}
-  void stripByStripAdd(uint16_t strip, uint16_t adc, std::vector<SiStripCluster>& out) {}
-  void stripByStripEnd(std::vector<SiStripCluster>& out) {}
+  bool stripByStripBegin(uint32_t id) override {return false;}
 
   float channelThresholdInNoiseSigma() const { return theChannelThreshold;}
   float seedThresholdInNoiseSigma()    const { return theSeedThreshold;}
