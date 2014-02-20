@@ -4,37 +4,13 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
+#include <unordered_map>
+
 class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
   typedef Basic2DGenericPFlowClusterizer B2DGPF;
  public:
-  Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf) :
-    PFClusterBuilderBase(conf),
-    _maxIterations(conf.getParameter<unsigned>("maxIterations")),
-    _stoppingTolerance(conf.getParameter<double>("stoppingTolerance")),
-    _showerSigma(conf.getParameter<double>("showerSigma")),
-    _excludeOtherSeeds(conf.getParameter<bool>("excludeOtherSeeds")) { 
-    _allCellsPosCalc.reset(NULL);
-    if( conf.exists("allCellsPositionCalc") ) {
-      const edm::ParameterSet& acConf = 
-	conf.getParameterSet("allCellsPositionCalc");
-      const std::string& algoac = 
-	acConf.getParameter<std::string>("algoName");
-      PosCalc* accalc = 
-	PFCPositionCalculatorFactory::get()->create(algoac, acConf);
-      _allCellsPosCalc.reset(accalc);
-    }
-    // if necessary a third pos calc for convergence testing
-    _convergencePosCalc.reset(NULL);
-    if( conf.exists("positionCalcForConvergence") ) {
-      const edm::ParameterSet& convConf = 
-	conf.getParameterSet("positionCalcForConvergence");
-      const std::string& algoconv = 
-	convConf.getParameter<std::string>("algoName");
-      PosCalc* convcalc = 
-	PFCPositionCalculatorFactory::get()->create(algoconv, convConf);
-      _convergencePosCalc.reset(convcalc);
-    }
-  }
+  Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf);
+    
   virtual ~Basic2DGenericPFlowClusterizer() {}
   Basic2DGenericPFlowClusterizer(const B2DGPF&) = delete;
   B2DGPF& operator=(const B2DGPF&) = delete;
@@ -54,6 +30,8 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
   const double _stoppingTolerance;
   const double _showerSigma;
   const bool _excludeOtherSeeds;
+  const std::unordered_map<std::string,int> _layerMap;
+  std::unordered_map<int,double> _recHitEnergyNorms;
   std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;
   std::unique_ptr<PFCPositionCalculatorBase> _convergencePosCalc;
   
