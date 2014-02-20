@@ -11,6 +11,7 @@
  */
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "TLorentzVector.h"
@@ -22,6 +23,7 @@
 struct MatchStruct {
     unsigned int objType;
     float pt;
+    float sumEt;
     float eta;
     float phi;
     // Isn't this, like, absolutely dangerous???
@@ -31,6 +33,7 @@ struct MatchStruct {
     MatchStruct():
         objType(0),
         pt(0),
+	sumEt(0),
         eta(0),
         phi(0),
         thepointer(0)
@@ -44,8 +47,18 @@ struct MatchStruct {
         eta(cand->eta()),
         phi(cand->phi()),
         thepointer(cand)
-
     {
+    }
+
+    /// Constructor from PFMET
+    MatchStruct(const reco::PFMET * cand, const unsigned int & obj) :
+        objType(obj),
+        pt(cand->pt()),
+        eta(cand->eta()),
+        phi(cand->phi()),
+        thepointer(cand)
+    {
+        sumEt=cand->sumEt();
     }
 
     /// Constructor from track

@@ -30,18 +30,12 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #'/store/relval/CMSSW_7_1_0_pre1/RelValZMM_13/GEN-SIM-RECO/POSTLS170_V1-v1/00000/98CCC248-5B86-E311-B20C-02163E00EB5A.root'
-        '/store/relval/CMSSW_7_1_0_pre1/RelValADDMonoJet_d3MD3_13/GEN-SIM-RECO/POSTLS170_V1-v1/00000/2C2E143F-2386-E311-9DD8-02163E00E5B2.root'
-        ),
-    secondaryFileNames = cms.untracked.vstring(
-        #'/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/1800D9BB-795D-E311-BE4B-0025905A60F4.root',
-        #'/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/1A9C0FD0-775D-E311-9FFC-0025905A607A.root',
-        #'/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/743D862C-775D-E311-91AF-0025905A60B4.root',
-        #'/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/AE8D1115-795D-E311-96FD-0025905A611C.root',
-        #'/store/relval/CMSSW_7_0_0_pre9/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/46A2C2A4-6D5D-E311-AF34-0025905A6126.root',
-        #'/store/relval/CMSSW_7_0_0_pre9/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/7225FB21-775D-E311-A071-0025905A6118.root',
-        #'/store/relval/CMSSW_7_0_0_pre9/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/B4DEC9EF-7A5D-E311-A90C-0025905A60A0.root',
-        #'/store/relval/CMSSW_7_0_0_pre9/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/C21C45BB-795D-E311-BDB1-0025905A60A6.root'
-        )
+        #'/store/relval/CMSSW_7_1_0_pre1/RelValADDMonoJet_d3MD3_13/GEN-SIM-RECO/POSTLS170_V1-v1/00000/2C2E143F-2386-E311-9DD8-02163E00E5B2.root'
+        #'/store/relval/CMSSW_7_1_0_pre1/RelValQCD_Pt_600_800_13/GEN-SIM-RECO/POSTLS170_V1-v1/00000/E6B796C9-3686-E311-B7CF-02163E00EB6E.root'
+        #'/store/relval/CMSSW_7_1_0_pre1/RelValZpTT_1500_13TeV_Tauola/GEN-SIM-RECO/POSTLS170_V1-v1/00000/0C7325DD-4986-E311-A342-02163E008F41.root'
+        '/store/relval/CMSSW_7_1_0_pre1/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS170_V1-v1/00000/6E99FADF-4386-E311-8AB5-02163E008CCC.root',
+        '/store/relval/CMSSW_7_1_0_pre1/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS170_V1-v1/00000/82E02E9D-3886-E311-A699-003048D2C0F2.root',
+        '/store/relval/CMSSW_7_1_0_pre1/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS170_V1-v1/00000/5CB7C5E7-4B86-E311-9394-02163E00EB64.root')
 )
 
 process.DQMStore = cms.Service("DQMStore")
@@ -78,7 +72,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 
 process.analyzerpath = cms.Path(
-    process.hltExoticaValidator *
+    process.ExoticaValidationSequence +
     process.MEtoEDMConverter
 )
 

@@ -15,7 +15,10 @@ import FWCore.ParameterSet.Config as cms
 # The specific analyses to be loaded
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDimuon_cff import HighPtDimuonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDielectron_cff import HighPtDielectronPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaEleMu_cff import EleMuPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaPureMET_cff import PureMETPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff import MonojetPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaHT_cff import HTPSet
 
 
 hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
@@ -26,7 +29,10 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
     # appears in Run summary/Exotica/ANALYSIS_NAME
     analysis       = cms.vstring("HighPtDimuon",
                                  "HighPtDielectron",
-                                 "Monojet"),
+                                 "EleMu",
+                                 "PureMET",
+                                 "Monojet",
+                                 "HT"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -59,13 +65,8 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
                                      "eSuperClusterOverP > 0.5 && eSuperClusterOverP < 2.5"), # Loose-like electron
 
     # --- Photons
-    Photon_genCut     = cms.string("abs(pdgId) == 22 && status == 1"),
-    Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4 && hadronicOverEm < 0.1 && ( r9 < 0.85 || ("+\
-		    " ( abs(eta) < 1.479 && sigmaIetaIeta < 0.014  || "+\
-		    "   abs(eta) > 1.479 && sigmaIetaIeta < 0.0035 ) && "+\
-		    " ecalRecHitSumEtConeDR03 < (5.0+0.012*et) && hcalTowerSumEtConeDR03 < (5.0+0.0005*et) &&"+\
-                    " trkSumPtSolidConeDR03 < (5.0 + 0.0002*et)"+\
-		    " )"+")" ), # STILL MISSING THIS INFO
+    Photon_genCut     = cms.string("pt > 20 && abs(eta) < 2.4 && abs(pdgId) == 22 && status == 1"),
+    Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4"), # STILL MISSING THIS INFO
    
     # --- Taus: 
     PFTau_genCut      = cms.string("pt > 20 && abs(eta) < 2.4 && abs(pdgId) == 15 && status == 3"),
@@ -91,7 +92,7 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
     #    - hltPathsToCheck (cms.vstring) : a list of all the trigger pats to be checked 
     #                 in this analysis. Up to the version number _v, but not including 
     #                 the number in order to avoid this version dependence. Example: HLT_Mu18_v
-    #    - recVarLabel (cms.string): where Var can be Muon, Elec, Photon, CaloMET, PFTau. This 
+    #    - recVarLabel (cms.string): where Var is Mu, Ele, Photon, MET, Jet, PFTau, MET. This
     #                 attribute is the name of the INSTANCE LABEL for each RECO collection to 
     #                 be considered in the analysis. Note that the trigger paths rely on some 
     #                 objects which need to be defined here, otherwise the code will complain. 
@@ -99,8 +100,10 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
     # Besides the mandatory attributes, you can redefine the generation and reconstruction cuts
     # for any object you want.
     #    * Var_genCut, Var_recCut (cms.string): where Var=Mu, Ele, Photon, Jet, PFTau, MET (see above)
-
     HighPtDimuon     = HighPtDimuonPSet,
     HighPtDielectron = HighPtDielectronPSet,
-    Monojet          = MonojetPSet
+    EleMu            = EleMuPSet,
+    PureMET          = PureMETPSet,                                 
+    Monojet          = MonojetPSet,
+    HT               = HTPSet
 )

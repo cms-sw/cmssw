@@ -158,6 +158,7 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
             bookHist(iBooker, source, objStr, "Phi");
             bookHist(iBooker, source, objStr, "MaxPt1");
             bookHist(iBooker, source, objStr, "MaxPt2");
+            bookHist(iBooker, source, objStr, "SumEt");
         }
     } // closes loop in _recLabels
 
@@ -230,10 +231,18 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
         _shortpath2long[shortpath] = path;
 
         // Objects needed by the HLT path
-        const std::vector<unsigned int> objsNeedHLT = this->getObjectsType(shortpath);
+	// Thiago: instead of trying to decode the objects from the path,
+	// put the burden on the user to tell us which objects are needed.
+        //const std::vector<unsigned int> objsNeedHLT = this->getObjectsType(shortpath);
+	std::vector<unsigned int> objsNeedHLT;
+        for (std::map<unsigned int, edm::InputTag>::iterator it = _recLabels.begin() ;
+             it != _recLabels.end(); ++it) {
+            objsNeedHLT.push_back(it->first);
+        }
+
+        /*std::vector<unsigned int> userInstantiate;
         // Sanity check: the object needed by a trigger path should be
         // introduced by the user via config python (_recLabels datamember)
-        std::vector<unsigned int> userInstantiate;
         for (std::map<unsigned int, edm::InputTag>::iterator it = _recLabels.begin() ;
              it != _recLabels.end(); ++it) {
             userInstantiate.push_back(it->first);
@@ -252,6 +261,7 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
                 exit(-1); // This should probably throw an exception...
             }
         }
+	*/
         LogTrace("ExoticaValidation") << " --- " << shortpath;
 
         // The hlt path, the objects (electrons, muons, photons, ...)
@@ -261,7 +271,6 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
     }// Okay, at this point we have prepared all the plotters.
 
 }
-
 
 
 void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup, EVTColContainer * cols)
@@ -333,7 +342,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     // GEN + RECO CASE in the same loop
     for (std::map<unsigned int, std::vector<MatchStruct> >::iterator it = sourceMatchMap.begin();
          it != sourceMatchMap.end(); ++it) {
-        // it->first: gen/reco   it->second: HLT matches (std::vector<MatchStruc>)
+        // it->first: gen/reco   it->second: HLT matches (std::vector<MatchStruct>)
         if (it->second.size() < _minCandidates) {  // FIXME: A bug is potentially here: what about the mixed channels?
             continue;
         }
@@ -355,9 +364,12 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
             float pt  = (it->second)[j].pt;
             float eta = (it->second)[j].eta;
             float phi = (it->second)[j].phi;
+            float sumEt = (it->second)[j].sumEt;
 
             this->fillHist(u2str[it->first], objTypeStr, "Eta", eta);
             this->fillHist(u2str[it->first], objTypeStr, "Phi", phi);
+            this->fillHist(u2str[it->first], objTypeStr, "SumEt", sumEt);
+
             if ((*countobjects)[objType] == 0) {
                 this->fillHist(u2str[it->first], objTypeStr, "MaxPt1", pt);
                 // Filled the high pt ...
@@ -586,13 +598,22 @@ void HLTExoticaSubAnalysis::bookHist(DQMStore::IBooker & iBooker,
 				     const std::string & variable)
 {
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::bookHist()";
-
     std::string sourceUpper = source;
     sourceUpper[0] = std::toupper(sourceUpper[0]);
     std::string name = source + objType + variable ;
     TH1F * h = 0;
-
-    if (variable.find("MaxPt") != std::string::npos) {
+    
+    if (variable.find("SumEt") != std::string::npos) {
+        std::string title = "Sum ET of " + sourceUpper + " " + objType;
+        const size_t nBins = _parametersTurnOn.size() - 1;
+        float * edges = new float[nBins + 1];
+        for (size_t i = 0; i < nBins + 1; i++) {
+            edges[i] = _parametersTurnOn[i];
+        }
+        h = new TH1F(name.c_str(), title.c_str(), nBins, edges);
+        delete[] edges;
+    }
+    else if (variable.find("MaxPt") != std::string::npos) {
         std::string desc = (variable == "MaxPt1") ? "Leading" : "Next-to-Leading";
         std::string title = "pT of " + desc + " " + sourceUpper + " " + objType;
         const size_t nBins = _parametersTurnOn.size() - 1;
@@ -631,9 +652,7 @@ void HLTExoticaSubAnalysis::fillHist(const std::string & source,
     std::string name = source + objType + variable ;
 
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::fillHist() " << name << " " << value;
-
     _elements[name]->Fill(value);
-
     LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::fillHist() " << name << " worked";
 }
 
@@ -691,10 +710,13 @@ void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const
             }
         }
     } else if (objType == EVTColContainer::PFMET) {
+	/// This is a special case. Passing a PFMET* to the constructor of
+	/// MatchStruct will trigger the usage of the special constructor which
+	/// also sets the sumEt member.
         for (size_t i = 0; i < cols->pfMETs->size(); i++) {
 	    LogDebug("ExoticaValidation") << "Inserting PFMET " << i ;
 	    if (_recPFMETSelector->operator()(cols->pfMETs->at(i))) {
-                matches->push_back(MatchStruct(&cols->pfMETs->at(i), objType));
+		matches->push_back(MatchStruct(&cols->pfMETs->at(i), objType));
 	    }
         }
     } else if (objType == EVTColContainer::PFTAU) {
@@ -712,7 +734,7 @@ void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const
             }
         }
     }
-    LogDebug("ExoticaValidation") << "IS THIS WORKING OR NOT???";
+
 	
     /* else
     {

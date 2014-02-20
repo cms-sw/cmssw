@@ -52,7 +52,6 @@ struct EVTColContainer {
     const edm::TriggerResults   * triggerResults ;
     EVTColContainer():
         nOfCollections(6),
-//    nOfCollections(5),
         nInitialized(0),
         genParticles(0),
         muons(0),

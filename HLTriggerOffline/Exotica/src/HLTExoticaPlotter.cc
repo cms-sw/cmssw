@@ -1,4 +1,3 @@
-
 /** \file HLTExoticaPlotter.cc
  */
 
@@ -6,11 +5,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
+//#include "DataFormats/Candidate/interface/CandMatchMap.h"
+//#include "DataFormats/MuonReco/interface/Muon.h"
+//#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+//#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaPlotter.h"
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaSubAnalysis.h"
@@ -66,6 +65,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
             bookHist(iBooker, source, objTypeStr, "Phi");
             bookHist(iBooker, source, objTypeStr, "MaxPt1");
             bookHist(iBooker, source, objTypeStr, "MaxPt2");
+            bookHist(iBooker, source, objTypeStr, "SumEt");
         }
     }
 }
@@ -98,11 +98,14 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
         const unsigned int objType = matches[j].objType;
         const std::string objTypeStr = EVTColContainer::getTypeString(matches[j].objType);
 
-        float pt  = matches[j].pt;
-        float eta = matches[j].eta;
-        float phi = matches[j].phi;
+        float pt  =   matches[j].pt;
+        float eta =   matches[j].eta;
+        float phi =   matches[j].phi;
+	float sumEt = matches[j].sumEt;
         this->fillHist(isPassTrigger, source, objTypeStr, "Eta", eta);
         this->fillHist(isPassTrigger, source, objTypeStr, "Phi", phi);
+	this->fillHist(isPassTrigger, source, objTypeStr, "SumEt", sumEt);
+
         if (countobjects[objType] == 0) {
             this->fillHist(isPassTrigger, source, objTypeStr, "MaxPt1", pt);
             // Filled the high pt ...
@@ -133,7 +136,17 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
     std::string name = source + objType + variable + "_" + _hltPath;
     TH1F * h = 0;
 
-    if (variable.find("MaxPt") != std::string::npos) {
+    if (variable.find("SumEt") != std::string::npos) {
+        std::string title = "Sum ET of " + sourceUpper + " " + objType;
+        const size_t nBins = _parametersTurnOn.size() - 1;
+        float * edges = new float[nBins + 1];
+        for (size_t i = 0; i < nBins + 1; i++) {
+            edges[i] = _parametersTurnOn[i];
+        }
+        h = new TH1F(name.c_str(), title.c_str(), nBins, edges);
+        delete[] edges;
+    }
+    else if (variable.find("MaxPt") != std::string::npos) {
         std::string desc = (variable == "MaxPt1") ? "Leading" : "Next-to-Leading";
         std::string title = "pT of " + desc + " " + sourceUpper + " " + objType + " "
                             "where event pass the " + _hltPath;

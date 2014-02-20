@@ -32,6 +32,10 @@ def efficiency_string(objtype,plot_type,triggerpath):
         title = "Next-to-Leading pT Turn-On"
         xAxis = "p_{T} of Next-to-Leading Generated %s (GeV/c)" % (objtype)
         input_type = "gen%sMaxPt2" % (objtype)
+    if plot_type == "TurnOn3":
+        title = "HT Turn-On"
+        xAxis = "HT of Leading Generated %s (GeV/c)" % (objtype)
+        input_type = "gen%sSumEt" % (objtype)
     if plot_type == "EffEta":
         title = "#eta Efficiency"
         xAxis = "#eta of Generated %s " % (objtype)
@@ -58,7 +62,7 @@ def add_reco_strings(strings):
     strings.extend(reco_strings)
 
 
-plot_types = ["TurnOn1", "TurnOn2", "EffEta", "EffPhi"]
+plot_types = ["TurnOn1", "TurnOn2", "TurnOn3", "EffEta", "EffPhi"]
 #--- IMPORTANT: Update this collection whenever you introduce a new object
 #               in the code (from EVTColContainer::getTypeString)
 obj_types  = ["Mu","Ele","Photon","PFTau","PFJet","MET"]
@@ -96,12 +100,27 @@ hltExoticaPostHighPtDielectron = hltExoticaPostProcessor.clone()
 hltExoticaPostHighPtDielectron.subDirs = ['HLT/Exotica/HighPtDielectron']
 hltExoticaPostHighPtDielectron.efficiencyProfile = efficiency_strings
 
+hltExoticaPostEleMu = hltExoticaPostProcessor.clone()
+hltExoticaPostEleMu.subDirs = ['HLT/Exotica/EleMu']
+hltExoticaPostEleMu.efficiencyProfile = efficiency_strings
+
 hltExoticaPostMonojet = hltExoticaPostProcessor.clone()
 hltExoticaPostMonojet.subDirs = ['HLT/Exotica/Monojet']
 hltExoticaPostMonojet.efficiencyProfile = efficiency_strings
 
+hltExoticaPostPureMET = hltExoticaPostProcessor.clone()
+hltExoticaPostPureMET.subDirs = ['HLT/Exotica/PureMET']
+hltExoticaPostPureMET.efficiencyProfile = efficiency_strings
+
+hltExoticaPostHT = hltExoticaPostProcessor.clone()
+hltExoticaPostHT.subDirs = ['HLT/Exotica/HT']
+hltExoticaPostHT.efficiencyProfile = efficiency_strings
+
 hltExoticaPostProcessors = cms.Sequence(
 		hltExoticaPostHighPtDimuon +
 		hltExoticaPostHighPtDielectron +
-		hltExoticaPostMonojet
+		hltExoticaPostEleMu +
+		hltExoticaPostMonojet +
+		hltExoticaPostPureMET +
+		hltExoticaPostHT
 )
