@@ -16,6 +16,61 @@
 #define LOGDRESSED(x) LogDebug(x)
 #endif
 
+Basic2DGenericPFlowClusterizer::
+Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf) :
+    PFClusterBuilderBase(conf),
+    _maxIterations(conf.getParameter<unsigned>("maxIterations")),
+    _stoppingTolerance(conf.getParameter<double>("stoppingTolerance")),
+    _showerSigma(conf.getParameter<double>("showerSigma")),
+    _excludeOtherSeeds(conf.getParameter<bool>("excludeOtherSeeds")),
+    _layerMap({ {"PS2",(int)PFLayer::PS2},
+	        {"PS1",(int)PFLayer::PS1},
+	        {"ECAL_ENDCAP",(int)PFLayer::ECAL_ENDCAP},
+	        {"ECAL_BARREL",(int)PFLayer::ECAL_BARREL},
+	        {"NONE",(int)PFLayer::NONE},
+	        {"HCAL_BARREL1",(int)PFLayer::HCAL_BARREL1},
+	        {"HCAL_BARREL2_RING0",(int)PFLayer::HCAL_BARREL2},
+		{"HCAL_BARREL2_RING1",100*(int)PFLayer::HCAL_BARREL2},
+	        {"HCAL_ENDCAP",(int)PFLayer::HCAL_ENDCAP},
+	        {"HF_EM",(int)PFLayer::HF_EM},
+		{"HF_HAD",(int)PFLayer::HF_HAD} }) { 
+  const std::vector<edm::ParameterSet>& thresholds =
+    conf.getParameterSetVector("recHitEnergyNorms");
+  for( const auto& pset : thresholds ) {
+    const std::string& det = pset.getParameter<std::string>("detector");
+    const double& rhE_norm = pset.getParameter<double>("recHitEnergyNorm");    
+    auto entry = _layerMap.find(det);
+    if( entry == _layerMap.end() ) {
+      throw cms::Exception("InvalidDetectorLayer")
+	<< "Detector layer : " << det << " is not in the list of recognized"
+	<< " detector layers!";
+    }
+    _recHitEnergyNorms.emplace(_layerMap.find(det)->second,rhE_norm);
+  }
+  
+  _allCellsPosCalc.reset(NULL);
+  if( conf.exists("allCellsPositionCalc") ) {
+    const edm::ParameterSet& acConf = 
+      conf.getParameterSet("allCellsPositionCalc");
+    const std::string& algoac = 
+      acConf.getParameter<std::string>("algoName");
+    PosCalc* accalc = 
+      PFCPositionCalculatorFactory::get()->create(algoac, acConf);
+    _allCellsPosCalc.reset(accalc);
+  }
+  // if necessary a third pos calc for convergence testing
+  _convergencePosCalc.reset(NULL);
+  if( conf.exists("positionCalcForConvergence") ) {
+    const edm::ParameterSet& convConf = 
+      conf.getParameterSet("positionCalcForConvergence");
+    const std::string& algoconv = 
+      convConf.getParameter<std::string>("algoName");
+    PosCalc* convcalc = 
+      PFCPositionCalculatorFactory::get()->create(algoconv, convConf);
+    _convergencePosCalc.reset(convcalc);
+  }
+}
+
 void Basic2DGenericPFlowClusterizer::
 buildPFClusters(const reco::PFClusterCollection& input,
 		const std::vector<bool>& seedable,
@@ -92,6 +147,13 @@ growPFClusters(const reco::PFCluster& topo,
   double fractot = 0, fraction = 0;
   for( const reco::PFRecHitFraction& rhf : topo.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
+    int cell_layer = (int)refhit->layer();
+    if( cell_layer == PFLayer::HCAL_BARREL2 && 
+	std::abs(refhit->positionREP().eta()) > 0.34 ) {
+      cell_layer *= 100;
+    }  
+    const double recHitEnergyNorm = 
+      _recHitEnergyNorms.find(cell_layer)->second; 
     const math::XYZPoint& topocellpos_xyz = refhit->position();
     dist.clear(); frac.clear(); fractot = 0;
     // add rechits to clusters, calculating fraction based on distance
@@ -112,8 +174,8 @@ growPFClusters(const reco::PFCluster& topo,
       } else if ( seedable[refhit.key()] && _excludeOtherSeeds ) {
 	fraction = 0.0;
       } else {
-	fraction = cluster.energy() * std::exp( -d*d/2.0 );
-      }
+	fraction = cluster.energy()/recHitEnergyNorm * std::exp( -d*d/2.0 );
+      }      
       fractot += fraction;
       frac.push_back(fraction);
     }
