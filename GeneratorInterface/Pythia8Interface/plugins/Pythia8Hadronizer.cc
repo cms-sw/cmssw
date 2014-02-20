@@ -311,6 +311,12 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
            fMasterGen->particleData.listAll();
   }
 
+  // init decayer
+  fDecayer->readString("ProcessLevel:all = off"); // trick
+  fDecayer->readString("Standalone:allowResDec=on");
+  // pythia->readString("ProcessLevel::resonanceDecays=on");
+  fDecayer->init();
+
   return true;
 }
 
@@ -378,6 +384,12 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     if ( pythiaPylistVerbosity == 12 || pythiaPylistVerbosity == 13 )
            fMasterGen->particleData.listAll();
   }
+
+  // init decayer
+  fDecayer->readString("ProcessLevel:all = off"); // trick
+  fDecayer->readString("Standalone:allowResDec=on");
+  // pythia->readString("ProcessLevel::resonanceDecays=on");
+  fDecayer->init();
 
   return true;
 }
