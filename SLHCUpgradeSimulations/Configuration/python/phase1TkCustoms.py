@@ -177,7 +177,7 @@ def customise_Reco(process,pileup):
     process.MeasurementTracker.inactivePixelDetectorLabels = cms.VInputTag()
 
     # new layer list (3/4 pixel seeding) in InitialStep and pixelTracks
-    process.pixellayertriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+    process.PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
                                                         'BPix2+BPix3+BPix4',
                                                         'BPix1+BPix3+BPix4',
                                                         'BPix1+BPix2+BPix4',
@@ -236,11 +236,12 @@ def customise_Reco(process,pileup):
     process.reconstruction.remove(process.ak7CastorJetID)
 
     #the quadruplet merger configuration     
-    process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
-    process.pixelseedmergerlayers.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.pixelseedmergerlayers.BPix.HitProducer = cms.string("siPixelRecHits" )
-    process.pixelseedmergerlayers.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.pixelseedmergerlayers.FPix.HitProducer = cms.string("siPixelRecHits" )    
+    # from this PSet the quadruplet merger uses only the layer list so these could probably be removed
+    from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
+    PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
+    PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )
     
     # Need these until pixel templates are used
     process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
@@ -266,7 +267,7 @@ def customise_Reco(process,pileup):
     
     # Make pixelTracks use quadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(
-        layerListName = cms.string('PixelSeedMergerQuadruplets'),
+        layerList = PixelSeedMergerQuadruplets,
         addRemainingTriplets = cms.bool(False),
         mergeTriplets = cms.bool(True),
         ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')

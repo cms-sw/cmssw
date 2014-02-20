@@ -3,7 +3,6 @@
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "RecoTracker/ConversionSeedGenerators/interface/ConversionRegion.h"
@@ -16,15 +15,18 @@ class HitQuadrupletGeneratorFromLayerPairForPhotonConversion : public HitPairGen
 public:
 
   typedef CombinedHitPairGenerator::LayerCacheType       LayerCacheType;
-  typedef ctfseeding::SeedingLayer Layer;
+  typedef SeedingLayerSetsHits::SeedingLayerSet Layers;
+  typedef SeedingLayerSetsHits::SeedingLayer Layer;
  
-  HitQuadrupletGeneratorFromLayerPairForPhotonConversion(const Layer& inner,
-				const Layer& outer,
+  HitQuadrupletGeneratorFromLayerPairForPhotonConversion(unsigned int inner,
+                                unsigned int outer,
 				LayerCacheType* layerCache,
 				unsigned int nSize=30000,
 				unsigned int max=0);
 
   virtual ~HitQuadrupletGeneratorFromLayerPairForPhotonConversion() { }
+
+  void setSeedingLayers(Layers layers) override { theSeedingLayers = layers; }
 
   virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs, 
 			 const edm::Event & ev,  const edm::EventSetup& es);
@@ -33,8 +35,8 @@ public:
     return new HitQuadrupletGeneratorFromLayerPairForPhotonConversion(*this);
   }
 
-  const Layer & innerLayer() const { return theInnerLayer; }
-  const Layer & outerLayer() const { return theOuterLayer; }
+  Layer innerLayer() const { return theSeedingLayers[theInnerLayer]; }
+  Layer outerLayer() const { return theSeedingLayers[theOuterLayer]; }
 
   bool failCheckRZCompatibility(const RecHitsSortedInPhi::Hit & hit, const DetLayer& layer, const HitRZCompatibility *checkRZ, const TrackingRegion & region);
   //void checkPhiRange(double phi1, double phi2);
@@ -52,8 +54,9 @@ public:
 private:
   
   LayerCacheType & theLayerCache;
-  Layer theOuterLayer;  
-  Layer theInnerLayer; 
+  Layers theSeedingLayers;
+  const unsigned int theOuterLayer;
+  const unsigned int theInnerLayer;
 
   std::stringstream *ss;
 
