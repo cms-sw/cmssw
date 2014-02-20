@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
 
 # SEEDING LAYERS
-pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('pixelLessStepSeedLayers'),
+pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TIB
     'TIB1+TIB2+MTIB3',
@@ -95,6 +94,7 @@ pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
 
 PixelLessStep = cms.Sequence(
     pixelLessStepClusters*
+    pixelLessStepSeedLayers*
     pixelLessStepSeeds*
     pixelLessStepTrackCandidates*
     pixelLessStepTracks*
