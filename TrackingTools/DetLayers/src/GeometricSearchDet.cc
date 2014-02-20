@@ -3,15 +3,28 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
- GeometricSearchDet::~GeometricSearchDet(){}
+GeometricSearchDet::~GeometricSearchDet(){}
 
- void
- GeometricSearchDet::compatibleDetsV( const TrajectoryStateOnSurface&,
-				      const Propagator&, 
-				      const MeasurementEstimator&,
-				      std::vector<DetWithState>&) const {
-   edm::LogError("DetLayers") << "At the moment not a real implementation" ;
- }
+void
+GeometricSearchDet::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
+				     const Propagator& prop, 
+				     const MeasurementEstimator& est,
+				     std::vector<DetWithState>& result) const {
+  
+  if unlikely(!hasGroups()) edm::LogError("DetLayers") << "At the moment not a real implementation" ;
+
+
+  // standard implementation of compatibleDets() for class which have 
+  // groupedCompatibleDets implemented.
+
+  std::vector<DetGroup> vectorGroups;
+  groupedCompatibleDetsV(startingState,prop,est,vectorGroups);
+  for(auto itDG=vectorGroups.begin(); itDG!=vectorGroups.end();itDG++){
+    for(auto itDGE=itDG->begin(); itDGE!=itDG->end();itDGE++){
+      result.emplace_back(itDGE->det(),itDGE->trajectoryState());
+    }
+  }
+}
 
 void
 GeometricSearchDet::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
@@ -38,28 +51,5 @@ GeometricSearchDet::groupedCompatibleDets( const TrajectoryStateOnSurface& start
   std::vector<DetGroup> result;
   groupedCompatibleDetsV(startingState, prop, est,result);
   return result;
-}
-
-
-
-
-void
-GeometricSearchDetWithGroups::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
-					       const Propagator& prop, 
-					       const MeasurementEstimator& est,
-					       std::vector<DetWithState> &result) const{
-  
-  // standard implementation of compatibleDets() for class which have 
-  // groupedCompatibleDets implemented.
-  
-  std::vector<DetGroup> vectorGroups;
-  groupedCompatibleDetsV(startingState,prop,est,vectorGroups);
-  for(std::vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
-      itDG!=vectorGroups.end();itDG++){
-    for(std::vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
-	itDGE!=itDG->end();itDGE++){
-      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
-    }
-  }
 }
 

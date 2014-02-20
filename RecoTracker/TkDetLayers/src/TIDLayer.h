@@ -12,21 +12,21 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TIDLayer GCC11_FINAL : public RingedForwardLayer, public GeometricSearchDetWithGroups {
+class TIDLayer GCC11_FINAL : public RingedForwardLayer {
  public:
-  TIDLayer(std::vector<const TIDRing*>& rings);
-  ~TIDLayer();
+  TIDLayer(std::vector<const TIDRing*>& rings)  __attribute__ ((cold));
+  ~TIDLayer()  __attribute__ ((cold));
   
   // GeometricSearchDet interface
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::TID;}
@@ -34,7 +34,7 @@ class TIDLayer GCC11_FINAL : public RingedForwardLayer, public GeometricSearchDe
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
-  BoundDisk* computeDisk( const std::vector<const TIDRing*>& rings) const;
+  BoundDisk* computeDisk( const std::vector<const TIDRing*>& rings) const  __attribute__ ((cold));
 
   std::array<int,3> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
 						   const Propagator& prop ) const;
@@ -42,18 +42,18 @@ class TIDLayer GCC11_FINAL : public RingedForwardLayer, public GeometricSearchDe
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,
   //	     const MeasurementEstimator& est) const;
 
-  int findClosest( const GlobalPoint[3] ) const;
+  int findClosest( const GlobalPoint[3] ) const __attribute__ ((hot));
   
-  int findNextIndex( const GlobalPoint[3] , int ) const;
+  int findNextIndex( const GlobalPoint[3] , int ) const __attribute__ ((hot));
   
-  bool overlapInR( const TrajectoryStateOnSurface& tsos, int i, double ymax) const;
+  bool overlapInR( const TrajectoryStateOnSurface& tsos, int i, double ymax) const __attribute__ ((hot));
   
   
   float computeWindowSize( const GeomDet* det, 
   			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
+			   const MeasurementEstimator& est) const __attribute__ ((hot));
   
-  void fillRingPars(int i);
+  void fillRingPars(int i)  __attribute__ ((cold));
 
  private:
   std::vector<GeomDet const*> theBasicComps;
