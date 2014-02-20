@@ -1,77 +1,38 @@
 #include "CombinedMultiHitGenerator.h"
 
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayersFactory.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
 
-
-using namespace std;
-using namespace ctfseeding;
-
-CombinedMultiHitGenerator::CombinedMultiHitGenerator(const edm::ParameterSet& cfg)
-  : initialised(false), theConfig(cfg)
-{ }
-
-void CombinedMultiHitGenerator::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
+CombinedMultiHitGenerator::CombinedMultiHitGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):
+  theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers")))
 {
-//  edm::ParameterSet leyerPSet = cfg.getParameter<edm::ParameterSet>("LayerPSet");
-//  SeedingLayerSets layerSets  = SeedingLayerSetsBuilder(leyerPSet).layers(es);
-
-  std::string layerBuilderName = cfg.getParameter<std::string>("SeedingLayers");
-  edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
-  es.get<TrackerDigiGeometryRecord>().get(layerBuilderName, layerBuilder);
-
-  SeedingLayerSets layerSets  =  layerBuilder->layers(es);
-
-
-  vector<LayerTriplets::LayerPairAndLayers>::const_iterator it;
-  vector<LayerTriplets::LayerPairAndLayers> trilayers=LayerTriplets(layerSets).layers();
-
-  for (it = trilayers.begin(); it != trilayers.end(); it++) {
-    SeedingLayer first = (*it).first.first;
-    SeedingLayer second = (*it).first.second;
-    vector<SeedingLayer> thirds = (*it).second;
-
-    edm::ParameterSet generatorPSet = theConfig.getParameter<edm::ParameterSet>("GeneratorPSet");
-    std::string       generatorName = generatorPSet.getParameter<std::string>("ComponentName");
-
-    MultiHitGeneratorFromPairAndLayers * aGen =
-        MultiHitGeneratorFromPairAndLayersFactory::get()->create(generatorName,generatorPSet);
-
-    aGen->init( HitPairGeneratorFromLayerPair( first, second, &theLayerCache),
-		thirds, &theLayerCache);
-
-    theGenerators.push_back( aGen);
-  }
-
-  initialised = true;
-
+  edm::ParameterSet generatorPSet = cfg.getParameter<edm::ParameterSet>("GeneratorPSet");
+  std::string       generatorName = generatorPSet.getParameter<std::string>("ComponentName");
+  theGenerator.reset(MultiHitGeneratorFromPairAndLayersFactory::get()->create(generatorName, generatorPSet));
+  theGenerator->init(HitPairGeneratorFromLayerPair( 0, 1, &theLayerCache), &theLayerCache);
 }
 
-CombinedMultiHitGenerator::~CombinedMultiHitGenerator()
-{
-  GeneratorContainer::const_iterator it;
-  for (it = theGenerators.begin(); it!= theGenerators.end(); it++) {
-    delete (*it);
-  }
-}
-
+CombinedMultiHitGenerator::~CombinedMultiHitGenerator() {}
 
 void CombinedMultiHitGenerator::hitSets(
    const TrackingRegion& region, OrderedMultiHits & result,
    const edm::Event& ev, const edm::EventSetup& es)
 {
-  if (!initialised) init(theConfig,es);
+  edm::Handle<SeedingLayerSetsHits> hlayers;
+  ev.getByToken(theSeedingLayerToken, hlayers);
+  const SeedingLayerSetsHits& layers = *hlayers;
+  if(layers.numberOfLayersInSet() != 3)
+    throw cms::Exception("Configuration") << "CombinedMultiHitGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 3, got " << layers.numberOfLayersInSet();
 
-  GeneratorContainer::const_iterator i;
-  for (i=theGenerators.begin(); i!=theGenerators.end(); i++) {
-    (**i).hitSets( region, result, ev, es);
+  std::vector<LayerTriplets::LayerSetAndLayers> trilayers = LayerTriplets::layers(layers);
+  for(const auto& setAndLayers: trilayers) {
+    theGenerator->setSeedingLayers(setAndLayers.first, setAndLayers.second);
+    theGenerator->hitSets( region, result, ev, es);
   }
   theLayerCache.clear();
 }
