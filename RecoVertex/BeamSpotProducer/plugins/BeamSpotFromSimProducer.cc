@@ -148,16 +148,29 @@ void BeamSpotFromSimProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
 	if (type=="HLLHCEvtVtxGenerator") {
 
-	  double SigmaX = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaX");
-	  double SigmaY = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaY");
-	  double SigmaZ = ps.getParameterSet("VtxSmeared").getParameter<double>("SigmaZ");
+	  double eproton = ps.getParameterSet("VtxSmeared").getParameter<double>("EprotonInGeV");
+
+	  double betastarx = ps.getParameterSet("VtxSmeared").getParameter<double>("BetaStarCrossingPlaneInm");
+
+	  double betastary = ps.getParameterSet("VtxSmeared").getParameter<double>("BetaStarParallelPlaneInm");
+
+	  double epsilonx = ps.getParameterSet("VtxSmeared").getParameter<double>("NormalizedEmittanceCrossingPlaneInum");
+
+	  double epsilony = ps.getParameterSet("VtxSmeared").getParameter<double>("NormalizedEmittanceParallelPlaneInum");
+
+	  double betagamma=eproton/0.94; //FIXME
+
+	  double SigmaX = sqrt(epsilonx*betastarx/betagamma);
+	  double SigmaY = sqrt(epsilony*betastary/betagamma);
+
+	  double SigmaZ = ps.getParameterSet("VtxSmeared").getParameter<double>("ZsizeInm");
 	  
-	  meanX_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanX");
-	  meanY_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanY");
-	  meanZ_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanZ");
+	  meanX_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanXIncm");
+	  meanY_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanYIncm");
+	  meanZ_ = ps.getParameterSet("VtxSmeared").getParameter<double>("MeanZIncm");
 	  
-	  double HalfCrossingAngle = ps.getParameterSet("VtxSmeared").getParameter<double>("HalfCrossingAngle");
-	  double CrabAngle = ps.getParameterSet("VtxSmeared").getParameter<double>("CrabAngle");
+	  double HalfCrossingAngle = ps.getParameterSet("VtxSmeared").getParameter<double>("HalfCrossingAngleInurad");
+	  double CrabAngle = ps.getParameterSet("VtxSmeared").getParameter<double>("CrabAngleCrossingPlaneInurad");
       
 	  static const double sqrtOneHalf=sqrt(0.5);
 
