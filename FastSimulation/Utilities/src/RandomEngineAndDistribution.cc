@@ -7,7 +7,9 @@
 
 #include "CLHEP/Random/RandomEngine.h"
 
-RandomEngineAndDistribution::RandomEngineAndDistribution(edm::StreamID const& streamID) {
+RandomEngineAndDistribution::RandomEngineAndDistribution(edm::StreamID const& streamID) :
+  engine_(nullptr),
+  rootEngine_(nullptr) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
     throw cms::Exception("Configuration") <<
@@ -22,7 +24,9 @@ RandomEngineAndDistribution::RandomEngineAndDistribution(edm::StreamID const& st
     rootEngine_ = ( (edm::TRandomAdaptor*) engine_ )->getRootEngine();
 }
 
-RandomEngineAndDistribution::RandomEngineAndDistribution(edm::LuminosityBlockIndex const& luminosityBlockIndex) {
+RandomEngineAndDistribution::RandomEngineAndDistribution(edm::LuminosityBlockIndex const& luminosityBlockIndex) :
+  engine_(nullptr),
+  rootEngine_(nullptr) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
     throw cms::Exception("Configuration") <<
@@ -37,7 +41,9 @@ RandomEngineAndDistribution::RandomEngineAndDistribution(edm::LuminosityBlockInd
     rootEngine_ = ( (edm::TRandomAdaptor*) engine_ )->getRootEngine();
 }
 
-RandomEngineAndDistribution::RandomEngineAndDistribution() {
+RandomEngineAndDistribution::RandomEngineAndDistribution() :
+  engine_(nullptr),
+  rootEngine_(nullptr) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
     throw cms::Exception("Configuration") <<
