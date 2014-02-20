@@ -73,6 +73,7 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
     detIdsToDebug.push_back(0);
     detIdsToDebug.push_back(0);
   }
+  filter = 0;
   bfield = 0;
   nomField = -1.;
 }
@@ -82,6 +83,20 @@ void MultiHitGeneratorFromChi2::init(const HitPairGenerator & pairs,
 {
   thePairGenerator = pairs.clone();
   theLayerCache = layerCache;
+}
+
+void MultiHitGeneratorFromChi2::initES(const edm::EventSetup& es) 
+{
+
+  edm::ESHandle<MagneticField> bfield_h;
+  es.get<IdealMagneticFieldRecord>().get(bfield_h);
+  bfield = bfield_h.product();
+  nomField = bfield->nominalValue();
+
+  edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
+  es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
+  filter = filterHandle_.product();
+
 }
 
 void MultiHitGeneratorFromChi2::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
@@ -109,16 +124,6 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 					const edm::Event & ev,
 					const edm::EventSetup& es)
 { 
-
-  //fixme move in initES
-  edm::ESHandle<MagneticField> bfield_h;
-  es.get<IdealMagneticFieldRecord>().get(bfield_h);
-  bfield = bfield_h.product();
-  nomField = bfield->nominalValue();
-
-  edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
-  es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
-  filter = filterHandle_.product();
 
   unsigned int debug_Id0 = detIdsToDebug[0];
   unsigned int debug_Id1 = detIdsToDebug[1];

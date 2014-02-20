@@ -24,6 +24,8 @@ public:
 
   virtual void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) = 0; 
 
+  virtual void initES(const edm::EventSetup& es) = 0; 
+
   virtual void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
                                 std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) = 0;
 };

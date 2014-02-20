@@ -30,6 +30,8 @@ public:
 
   void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) override;
 
+  void initES(const edm::EventSetup& es) override; 
+
   void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
                         std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
 
