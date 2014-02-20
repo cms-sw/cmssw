@@ -79,7 +79,8 @@ namespace edm {
          
          const void* pValue = this->getFromProxy(dataKey,iDesc,iTransientAccessOnly);
          if(0==pValue) {
-            throw cms::Exception("NoProxyException");
+	   throw cms::Exception("NoProxyException")<<"No data of type \""<<iData->m_tag->name()<<"\" with label \""<<
+	     iName<<"\" in record \""<<this->key().name()<<"\"";
          }
          iData->m_data = pValue;
       }

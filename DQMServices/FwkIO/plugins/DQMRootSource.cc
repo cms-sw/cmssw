@@ -40,12 +40,16 @@
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/FileBlock.h"
+#include "DataFormats/Provenance/interface/EventRange.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
@@ -361,6 +365,7 @@ class DQMRootSource : public edm::InputSource
       void readNextItemType();
       bool setupFile(unsigned int iIndex);
       void readElements();
+      bool skipIt(edm::RunNumber_t, edm::LuminosityBlockNumber_t) const;
       
       const DQMRootSource& operator=(const DQMRootSource&); // stop default
 
@@ -387,6 +392,8 @@ class DQMRootSource : public edm::InputSource
       unsigned int m_lastSeenLumi2;
       unsigned int m_filterOnRun;
       bool m_skipBadFiles;
+      std::vector<edm::LuminosityBlockRange> m_lumisToProcess;
+ 
       bool m_justOpenedFileSoNeedToGenerateRunTransition;
       bool m_shouldReadMEs;
       std::set<MonitorElement*> m_lumiElements;
@@ -413,9 +420,13 @@ DQMRootSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.addUntracked<unsigned int>("filterOnRun",0)
     ->setComment("Just limit the process to the selected run.");
   desc.addUntracked<bool>("skipBadFiles",false)
-    ->setComment("Skip the file is it is not valid");
+    ->setComment("Skip the file if it is not valid");
   desc.addUntracked<std::string>("overrideCatalog",std::string())
     ->setComment("An alternate file catalog to use instead of the standard site one.");
+  std::vector<edm::LuminosityBlockRange> defaultLumis;
+  desc.addUntracked<std::vector<edm::LuminosityBlockRange> >("lumisToProcess",defaultLumis)
+    ->setComment("Skip any lumi inside the specified run:lumi range.");
+
   descriptions.addDefault(desc);
 }
 //
@@ -437,9 +448,11 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
   m_lastSeenLumi2(0),
   m_filterOnRun(iPSet.getUntrackedParameter<unsigned int>("filterOnRun", 0)),
   m_skipBadFiles(iPSet.getUntrackedParameter<bool>("skipBadFiles", false)),
+  m_lumisToProcess(iPSet.getUntrackedParameter<std::vector<edm::LuminosityBlockRange> >("lumisToProcess",std::vector<edm::LuminosityBlockRange>())),
   m_justOpenedFileSoNeedToGenerateRunTransition(false),
   m_shouldReadMEs(true)
 {
+  edm::sortAndRemoveOverlaps(m_lumisToProcess);
   if(m_fileIndex ==m_catalog.fileNames().size()) {
     m_nextItemType=edm::InputSource::IsStop;
   } else{
@@ -456,7 +469,6 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
     m_treeReaders[kTProfileIndex].reset(new TreeObjectReader<TProfile>());
     m_treeReaders[kTProfile2DIndex].reset(new TreeObjectReader<TProfile2D>());
   }
-
 }
 
 // DQMRootSource::DQMRootSource(const DQMRootSource& rhs)
@@ -489,6 +501,7 @@ DQMRootSource::~DQMRootSource()
 //
 void DQMRootSource::readEvent_(edm::EventPrincipal&)
 {
+  //std::cout << "readEvent_" << std::endl;
 }
 
 edm::InputSource::ItemType DQMRootSource::getNextItemType()
@@ -524,7 +537,7 @@ DQMRootSource::readLuminosityBlockAuxiliary_()
   assert(m_historyIDs.size() > runLumiRange.m_historyIDIndex);
   //std::cout <<"lumi "<<m_lumiAux.beginTime().value()<<" "<<runLumiRange.m_beginTime<<std::endl;
   m_lumiAux.setProcessHistoryID(m_historyIDs[runLumiRange.m_historyIDIndex]);    
-  
+
   return boost::shared_ptr<edm::LuminosityBlockAuxiliary>(new edm::LuminosityBlockAuxiliary(m_lumiAux));
 }
 
@@ -584,6 +597,7 @@ DQMRootSource::readRun_(edm::RunPrincipal& rpCache)
   rpCache.fillRunPrincipal(processHistoryRegistryForUpdate());
 }
 
+
 void
 DQMRootSource::readLuminosityBlock_( edm::LuminosityBlockPrincipal& lbCache)
 {
@@ -594,36 +608,38 @@ DQMRootSource::readLuminosityBlock_( edm::LuminosityBlockPrincipal& lbCache)
 
   //NOTE: need to reset all lumi block elements at this point
   if( ( m_lastSeenLumi2 != runLumiRange.m_lumi ||
-        m_lastSeenRun2 != runLumiRange.m_run ||
-        m_lastSeenReducedPHID2 != m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex) )
+	m_lastSeenRun2 != runLumiRange.m_run ||
+	m_lastSeenReducedPHID2 != m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex) ) 
       && m_shouldReadMEs) {
-
+    
     edm::Service<DQMStore> store;
     std::vector<MonitorElement*> allMEs = (*store).getAllContents("");
     for(auto const& ME : allMEs) {
       // We do not want to reset Run Products here!
       if (ME->getLumiFlag()) {
-        ME->Reset();
+	ME->Reset();
       }
     }
     m_lastSeenReducedPHID2 = m_reducedHistoryIDs.at(runLumiRange.m_historyIDIndex);
     m_lastSeenRun2 = runLumiRange.m_run;
     m_lastSeenLumi2 = runLumiRange.m_lumi;
   }
+  
   readNextItemType();
-  //std::cout <<"readLuminosityBlock_"<<std::endl;
-
   readElements();
 
   edm::Service<edm::JobReport> jr;
   jr->reportInputLumiSection(lbCache.id().run(),lbCache.id().luminosityBlock());
 
   lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
+
 }
 
 std::unique_ptr<edm::FileBlock>
 DQMRootSource::readFile_() {
   //std::cout <<"readFile_"<<std::endl;
+
+
   auto const numFiles = m_catalog.fileNames().size();
   while(m_fileIndex < numFiles && not setupFile(m_fileIndex++)) {}
 
@@ -725,6 +741,11 @@ void DQMRootSource::readNextItemType()
   do
   {
     shouldContinue = false;
+    while (m_nextIndexItr != m_orderedIndices.end() && skipIt(m_runlumiToRange[*m_nextIndexItr].m_run,m_runlumiToRange[*m_nextIndexItr].m_lumi))
+      {	
+	++m_nextIndexItr;
+      }
+
     if (m_nextIndexItr == m_orderedIndices.end())
     {
       //go to next file
@@ -742,7 +763,7 @@ void DQMRootSource::readNextItemType()
          (nextRunLumiRange.m_lumi == runLumiRange.m_lumi) ) {
       shouldContinue= true;
       ++m_nextIndexItr;
-      //std::cout <<"  advancing " <<nextRunLumiRange.m_run<<" "<<nextRunLumiRange.m_lumi<<std::endl;
+      //std::cout <<"advancing " <<nextRunLumiRange.m_run<<" "<<nextRunLumiRange.m_lumi<<std::endl;
     } 
   } while(shouldContinue);
   
@@ -911,12 +932,12 @@ DQMRootSource::setupFile(unsigned int iIndex)
   {
     indicesTree->GetEntry(index);
 //     std::cout <<"read r:"<<temp.m_run
-//            <<" l:"<<temp.m_lumi
-//            <<" b:"<<temp.m_beginTime
-//            <<" e:"<<temp.m_endTime
-//            <<" fi:" << temp.m_firstIndex
-//            <<" li:" << temp.m_lastIndex
-//            <<" type:" << temp.m_type << std::endl;
+// 	      <<" l:"<<temp.m_lumi
+// 	      <<" b:"<<temp.m_beginTime
+// 	      <<" e:"<<temp.m_endTime
+// 	      <<" fi:" << temp.m_firstIndex
+// 	      <<" li:" << temp.m_lastIndex
+// 	      <<" type:" << temp.m_type << std::endl;
     m_runlumiToRange.push_back(temp);
 
     RunLumiPHIDKey runLumi(m_reducedHistoryIDs.at(temp.m_historyIDIndex), temp.m_run, temp.m_lumi);
@@ -997,6 +1018,18 @@ DQMRootSource::setupFile(unsigned int iIndex)
 
   return 1;
 }
+
+bool
+DQMRootSource::skipIt(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi) const {
+  edm::LuminosityBlockID lumiID = edm::LuminosityBlockID(run, lumi);
+  edm::LuminosityBlockRange lumiRange = edm::LuminosityBlockRange(lumiID, lumiID);
+  bool(*lt)(edm::LuminosityBlockRange const&, edm::LuminosityBlockRange const&) = &edm::lessThan;
+  if(!m_lumisToProcess.empty() && !binary_search_all(m_lumisToProcess, lumiRange, lt)) {
+    return true;
+  }
+  return false;
+}
+
 
 void
 DQMRootSource::logFileAction(char const* msg, char const* fileName) const {
