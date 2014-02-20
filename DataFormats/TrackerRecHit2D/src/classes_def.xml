@@ -1,9 +1,4 @@
 <lcgdict>
-  <class name="BaseSiTrackerRecHit2DLocalPos" ClassVersion="10">
-   <version ClassVersion="10" checksum="1111914457"/>
-     <field name="pos_" transient="true" />	 
-     <field name="err_" transient="true" />	 
-   </class>	 
   <class name="GSSiTrackerRecHit2DLocalPos" ClassVersion="10">
    <version ClassVersion="10" checksum="2474445311"/>
   </class>
