@@ -4,9 +4,9 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
+class  SiStripRecHitMatcher;
+class PixelClusterParameterEstimator;
+class StripClusterParameterEstimator;
 
 class TkTransientTrackingRecHitBuilder GCC11_FINAL : public TransientTrackingRecHitBuilder {
   
