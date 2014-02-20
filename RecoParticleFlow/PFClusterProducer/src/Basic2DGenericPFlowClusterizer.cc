@@ -72,9 +72,9 @@ Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf) :
 }
 
 void Basic2DGenericPFlowClusterizer::
-buildPFClusters(const reco::PFClusterCollection& input,
-		const std::vector<bool>& seedable,
-		reco::PFClusterCollection& output) {
+buildClusters(const reco::PFClusterCollection& input,
+	      const std::vector<bool>& seedable,
+	      reco::PFClusterCollection& output) {
   reco::PFClusterCollection clustersInTopo;
   for( const auto& topocluster : input ) {
     clustersInTopo.clear();
