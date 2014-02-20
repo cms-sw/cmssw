@@ -1,5 +1,5 @@
 
-#include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
+#include "SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"

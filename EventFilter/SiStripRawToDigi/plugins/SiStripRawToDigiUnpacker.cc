@@ -1,4 +1,4 @@
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
+#include "SiStripRawToDigiUnpacker.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"

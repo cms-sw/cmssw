@@ -525,7 +525,8 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       std::auto_ptr<StripMaskContainer> removedStripClusterMask(
          new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips_));
       LogDebug("TrackClusterRemover")<<"total strip to skip: "<<std::count(collectedStrips_.begin(),collectedStrips_.end(),true);
-      iEvent.put( removedStripClusterMask );
+      // std::cout << "TrackClusterRemover " <<"total strip to skip: "<<std::count(collectedStrips_.begin(),collectedStrips_.end(),true) <<std::endl;
+       iEvent.put( removedStripClusterMask );
 
       std::auto_ptr<PixelMaskContainer> removedPixelClusterMask(
          new PixelMaskContainer(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));      

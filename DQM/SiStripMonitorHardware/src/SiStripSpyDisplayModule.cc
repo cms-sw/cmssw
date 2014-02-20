@@ -48,7 +48,8 @@
 // Needed for the FED raw data processing
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferGenerator.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
+
+// #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 
 //for cabling
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
