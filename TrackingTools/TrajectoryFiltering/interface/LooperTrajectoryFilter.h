@@ -3,7 +3,7 @@
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
-class LooperTrajectoryFilter : public TrajectoryFilter {
+class LooperTrajectoryFilter final : public TrajectoryFilter {
 public:
 
   explicit LooperTrajectoryFilter( int minNumberOfHits=13, 

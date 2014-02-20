@@ -49,6 +49,17 @@ namespace {
     return FreeTrajectoryState(x, p, par.charge(), field);
   }
 
+
+  inline
+  FreeTrajectoryState makeFTS(const LocalTrajectoryParameters& par,
+                              const BasicTrajectoryState::SurfaceType& surface,
+                              const MagneticField* field, GlobalVector fieldValue) {
+    GlobalPoint  x = surface.toGlobal(par.position());
+    GlobalVector p = surface.toGlobal(par.momentum());
+    return FreeTrajectoryState(x, p, par.charge(), field, fieldValue);
+  }
+
+
 }
 
 BasicTrajectoryState::
@@ -269,6 +280,21 @@ BasicTrajectoryState::createLocalErrorFromCurvilinearError() const {
 }
  
 
+
+// update in place and in the	very same place
+void 
+BasicTrajectoryState::update( const LocalTrajectoryParameters& p, const SurfaceSide side ){
+   theLocalParameters = p;
+   theSurfaceSide = side;
+   theLocalError = InvalidError();
+   theFreeState=makeFTS(p,surface(),magneticField(), theFreeState.parameters().magneticFieldInTesla());
+  
+   theValid   = true;
+   theLocalParametersValid  = true;
+
+}
+
+
 void
 BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
         const SurfaceType& aSurface,
@@ -304,6 +330,22 @@ BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
     theValid   = true;
     theLocalParametersValid  = true;
 }
+
+
+void
+BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
+        const LocalTrajectoryError& err,
+        const SurfaceSide side)
+{
+    theLocalParameters = p;
+    theLocalError      = err;
+    theSurfaceSide = side;
+    theFreeState=   theFreeState=makeFTS(p,surface(),magneticField(), theFreeState.parameters().magneticFieldInTesla());
+
+    theValid   = true;
+    theLocalParametersValid  = true;
+}
+
 
 void 
 BasicTrajectoryState::rescaleError(double factor) {

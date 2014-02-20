@@ -251,7 +251,7 @@ public:
   /// - Trajectories with only invalid hits:
   ///     raw Chi2 (not norm.) of invalid hits w.r.t. the "default" trajectory
   ///     (traj. containing only the seed information)
-  double chiSquared() const { return (theNumberOfFoundHits ? theChiSquared : theChiSquaredBad);}
+  float chiSquared() const { return (theNumberOfFoundHits ? theChiSquared : theChiSquaredBad);}
 
   /// Number of dof of the trajectory. The method accepts a bool in order to properly 
   /// take into account the presence of magnetic field in the dof computation.
