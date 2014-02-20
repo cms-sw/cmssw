@@ -20,7 +20,6 @@ This package contains the RecHit and RecHit collection definition for pixel and 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- BaseSiTrackerRecHit2DLocalPos Base class for silicon detector RecHits.
 - SiPixelRecHitCollectionfwd 
 - SiPixelRecHitCollection Collection of Pixel RecHits
 - SiPixelRecHitfwd
@@ -31,8 +30,6 @@ This package contains the RecHit and RecHit collection definition for pixel and 
 - SiStripRecHit2DLocalPos Class for silicon strip detector RecHits. It contains a reference to the corresponding SiStripCluster.
 - SiStripRecHit2DMatchedLocalPosCollectionfwd
 - SiStripRecHit2DMatchedLocalPosCollection Collection of matched ilicon strip detector RecHits.
-- SiStripRecHit2DMatchedLocalPosfwd
-- SiStripRecHit2DMatchedLocalPos  Class for silicon strip detector matched RecHits. It contains a reference to the corresponding SiStripRecHit2DLocalPos of mono and stereo detectors.
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->

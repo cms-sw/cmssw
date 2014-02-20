@@ -43,9 +43,9 @@ public:
   // verify that hits can share clusters...
   inline bool sameDetModule(TrackingRecHit const & hit) const;
 
-  virtual LocalPoint localPosition() const  GCC11_FINAL;
+  virtual LocalPoint localPosition() const  GCC11_FINAL { return pos_;}
 
-  virtual LocalError localPositionError() const  GCC11_FINAL;
+  virtual LocalError localPositionError() const  GCC11_FINAL { return err_;}
 
   bool hasPositionAndError() const  GCC11_FINAL; 
  
