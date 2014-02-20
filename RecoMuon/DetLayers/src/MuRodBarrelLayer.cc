@@ -24,6 +24,7 @@
 using namespace std;
 
 MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
+  RodBarrelLayer(false),
   theRods(rods),
   theBinFinder(0),
   isOverlapping(false)
@@ -190,11 +191,6 @@ MuRodBarrelLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startin
   return vector<DetGroup>();
 }
 
-
-bool MuRodBarrelLayer::hasGroups() const {
-  // FIXME : depending on isOverlapping?
-  return false;
-}
 
 
 GeomDetEnumerators::SubDetector MuRodBarrelLayer::subDetector() const {
