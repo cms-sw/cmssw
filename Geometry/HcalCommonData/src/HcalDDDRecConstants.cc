@@ -64,7 +64,7 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
       if (lmax >= lmin) {
 	if (ieta+1 == nOff[1]) {
 	} else if (ieta == nOff[1]) {
-	  HcalDDDRecConstants::HcalEtaBin etabin0 = HcalDDDRecConstants::HcalEtaBin(ieta,etaTable[ieta-2], etaTable[ieta], nfi, phioff[type], phibin[ieta-1]);
+	  HcalDDDRecConstants::HcalEtaBin etabin0 = HcalDDDRecConstants::HcalEtaBin(ieta-1,etaTable[ieta-2], etaTable[ieta], nfi, phioff[type], phibin[ieta-1]);
 	  etabin0.depthStart = dep;
 	  etabin0.layer.push_back(std::pair<int,int>(lmin,lmax));
 	  bins.push_back(etabin0);
