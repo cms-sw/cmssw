@@ -21,7 +21,76 @@
 
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
+#include<tuple>
+
 class TransientTrackingRecHit;
+
+
+class TkStripMeasurementDet;
+
+struct TkStripRecHitIter {
+  using detset = edmNew::DetSet<SiStripCluster>;
+  using new_const_iterator =  detset::const_iterator;
+  
+
+  TkStripRecHitIter(){}
+  TkStripRecHitIter(const TkStripMeasurementDet & imdet,
+		    const TrajectoryStateOnSurface & itsos,
+		    const MeasurementTrackerEvent & idata) : mdet(&imdet),tsos(&itsos),data(&idata){}
+  
+  TkStripRecHitIter(unsigned int ci, unsigned int ce, 
+		    const TkStripMeasurementDet & imdet,
+		    const TrajectoryStateOnSurface & itsos,
+		    const MeasurementTrackerEvent & idata) 
+    : mdet(&imdet),tsos(&itsos),data(&idata), clusterIreg(ci), clusterEreg(ce), regional(true){}
+  
+  
+  TkStripRecHitIter(new_const_iterator ci, new_const_iterator ce, 
+		    const TkStripMeasurementDet & imdet,
+		    const TrajectoryStateOnSurface & itsos,
+		    const MeasurementTrackerEvent & idata) 
+    : mdet(&imdet),tsos(&itsos),data(&idata), clusterI(ci), clusterE(ce), regional(false){}
+  
+  
+  const TkStripMeasurementDet * mdet = 0;
+  const TrajectoryStateOnSurface * tsos=0;
+  const MeasurementTrackerEvent * data=0;
+  
+  unsigned int clusterIreg=0; // regional;
+  unsigned int clusterEreg=0; // regional;
+  
+  new_const_iterator clusterI;
+  new_const_iterator clusterE;
+  bool regional=true;
+  
+  inline SiStripRecHit2D buildHit() const;
+  inline void advance();
+  
+public:
+  
+  bool empty() const { return regional ? ( clusterIreg==clusterEreg) : (clusterI==clusterE); }
+  
+  bool operator==(TkStripRecHitIter const & rh) {
+    return regional ? ( clusterIreg==rh.clusterIreg) : (clusterI==rh.clusterI);
+  }
+  bool operator!=(TkStripRecHitIter const & rh) {
+    return regional ? ( clusterIreg!=rh.clusterIreg) : (clusterI!=rh.clusterI);
+  }
+  bool operator<(TkStripRecHitIter const & rh) {
+    return regional ? ( clusterIreg<rh.clusterIreg) : (clusterI<rh.clusterI);
+  }
+  
+  TkStripRecHitIter & operator++() {
+    advance();
+    return *this;
+  }
+  
+  SiStripRecHit2D operator*() const {
+    return buildHit();
+  } 
+  
+};
+
 
 class TkStripMeasurementDet GCC11_FINAL : public MeasurementDet {
 public:
@@ -79,8 +148,14 @@ public:
   bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {return false;}
   
   
+  std::tuple<TkStripRecHitIter,TkStripRecHitIter> hitRange(const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
+  void advance(TkStripRecHitIter & hi ) const;
+  SiStripRecHit2D hit(TkStripRecHitIter const & hi ) const;
   
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
+
+
+
   void simpleRecHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data, std::vector<SiStripRecHit2D> &result) const ;
   
   virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
@@ -190,9 +265,13 @@ private:
     const GeomDetUnit& gdu( specificGeomDet());
     VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-      res.push_back(SiStripRecHit2D( it->first, it->second, rawId(), cluster));
+
+      res.push_back(SiStripRecHit2D( it->first, it->second, TSiStripRecHit2DLocalPos::sigmaPitch(it->first, it->second,gdu), rawId(), cluster));
     }
   }
+
+
+
  
   
   
@@ -217,5 +296,17 @@ public:
   }
 
 };
+
+
+inline
+SiStripRecHit2D TkStripRecHitIter::buildHit() const {
+  return mdet->hit(*this);
+}
+inline
+void TkStripRecHitIter::advance() {
+  mdet->advance(*this);
+}
+
+
 
 #endif
