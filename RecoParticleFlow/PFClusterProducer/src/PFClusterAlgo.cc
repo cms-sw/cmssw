@@ -1125,8 +1125,9 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
       const PFLayer::Layer layer = rh.layer();
       int iring = 0;
       if (layer==PFLayer::HCAL_BARREL2 && abs(rh.positionREP().Eta())>0.34) iring= 1;
-      
-      const double rh_thresh = parameter( THRESH, layer, 0, iring );
+
+      double rh_thresh = parameter( THRESH, layer, 0, iring );
+      if( rh_thresh <= 0.0 ) rh_thresh = 1.0; // in case of zero threshold do NOT normalize rechit energies
 
       // int layer = rh.layer();
              
