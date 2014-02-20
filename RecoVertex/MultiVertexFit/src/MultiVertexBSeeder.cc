@@ -31,7 +31,7 @@ namespace {
     return ret;
   }
 
-  int verbose()
+  inline int verbose()
   {
     return 0;
   }
@@ -48,7 +48,7 @@ namespace {
     return a;
   }
 
-  bool element ( const reco::TransientTrack & rt, const TransientVertex & rv )
+  inline bool element ( const reco::TransientTrack & rt, const TransientVertex & rv )
   {
     const vector < reco::TransientTrack > trks = rv.originalTracks();
     for ( vector< reco::TransientTrack >::const_iterator i=trks.begin(); i!=trks.end() ; ++i )
@@ -151,7 +151,7 @@ namespace {
     return pts;
   }
 
-  GlobalPoint computePos ( const GlobalTrajectoryParameters & jet,
+  inline GlobalPoint computePos ( const GlobalTrajectoryParameters & jet,
       double s )
   {
     GlobalPoint ret = jet.position();
