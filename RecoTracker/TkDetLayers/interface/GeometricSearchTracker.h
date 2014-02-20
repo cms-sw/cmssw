@@ -21,9 +21,9 @@ class GeometricSearchTracker: public DetLayerGeometry {
 			 const std::vector<ForwardDetLayer*>& negTec,
 			 const std::vector<ForwardDetLayer*>& posPxlFwd,
 			 const std::vector<ForwardDetLayer*>& posTid,
-			 const std::vector<ForwardDetLayer*>& posTec);
+			 const std::vector<ForwardDetLayer*>& posTec) __attribute__ ((cold));
   
-  virtual ~GeometricSearchTracker();
+  virtual ~GeometricSearchTracker() __attribute__ ((cold));
 
   std::vector<DetLayer*> const & allLayers()     const {return theAllLayers;}  
 

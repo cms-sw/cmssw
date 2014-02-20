@@ -11,3 +11,5 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="FWCore/MessageLogger"/>
 
+<flags   CXXFLAGS="-flto -Ofast -ffast-math -mrecip -funsafe-loop-optimizations -ftree-loop-if-convert-stores"/>
+
