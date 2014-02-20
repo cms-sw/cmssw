@@ -19,12 +19,57 @@
  In addition, every piece of data in the EventSetup comes from either an ESSource or an ESProducer.  Every 
  ESSource and ESProducer is assigned a label (referred to here as the moduleLabel) in the configuration of
  the job.  This label may be explicitly set or it may just be the C++ class type of the ESSource/ESProducer.
+ For example, say there is an ESProducer of C++ class type FooESProd. If the python configuration has
+       process.FooESProd = cms.ESProducer("FooESProd", ...)
+ then the module label is 'FooESProd'.
+ If the python configuration has
+       process.add_( cms.ESProducer("FooESProd", ...)
+ then the module label is also 'FooESProd'.
+ However, if the python configuration has
+       process.foos = cms.ESProducer("FooESProd",...)
+ then the module label is 'foos'.
  
  The ESInputTag allows one to specify both the dataLabel and moduleLabel.  The dataLabel is used to find the data
  being requested.  The moduleLabel is only used to determine if the data that was found comes from the specified
  module.  If the data does not come from the module then an error has occurred.  If the moduleLabel is set to the
  empty string then the data is allowed to come from any module.
 
+ Example 1:
+ FooESProd makes Foos with the default dataLabel ("")
+ The module is declared in the python configuration as
+     process.FooESProd = cms.ESProducer("FooESProd",...)
+ The following python configurations for ESInputTag can be used to get its data
+     cms.ESInputTag("")
+     cms.ESInputTag(":")
+     cms.ESInputTag("","")
+     cms.ESInputTag("FooESProd")
+     cms.ESInputTag("FooESProd:")
+     cms.ESInputTag("FooESProd","")
+
+ Example 2:
+ FooESProd makes Foos with the dataLabel "bar"
+ The module is declared in the python configuration as
+     process.FooESProd = cms.ESProducer("FooESProd",...)
+ The following python configurations for ESInputTag can be used to get its data
+     cms.ESInputTag(":bar")
+     cms.ESInputTag("","bar")
+     cms.ESInputTag("FooESProd:bar")
+     cms.ESInputTag("FooESProd","bar")
+
+ Example 3:
+ FooESProd makes Foos with the default dataLabel ("")
+     process.FooESProd = cms.ESProducer("FooESProd",...)
+ Foo2ESProd also makes Foos with the default dataLabel ("")
+     process.Foo2ESProd = cms.ESProducer("Foo2ESProd",...)
+ The jobs has an ESPrefer which states Foos should come from FooESProd
+     process.perferedFoo = cms.ESPrefer("FooESProd")
+ Then to get the data, one can specify the ESInputTag identical to Example 1.
+ However, the following ESInputTags will lead to an exception begin thrown
+     cms.ESInputTag("Foo2ESProd")
+     cms.ESInputTag("Foo2ESProd:")
+     cms.ESInputTag("Foo2ESProd","")
+ The exception happens because FooESProd is the only allowed source of Foos
+ but the ESInputTag says you really wanted them to come from Foo2ESProd.
 */
 //
 // Original Author:  Chris Jones
