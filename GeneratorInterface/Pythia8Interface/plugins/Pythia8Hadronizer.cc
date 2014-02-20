@@ -63,6 +63,9 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
 	
     bool generatePartonsAndHadronize() override;
     bool hadronize();
+
+    virtual bool residualDecay();
+
     void finalizeEvent() override;
 
     void statistics() override;
@@ -306,6 +309,12 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
            fMasterGen->particleData.listAll();
   }
 
+  // init decayer
+  fDecayer->readString("ProcessLevel:all = off"); // trick
+  fDecayer->readString("Standalone:allowResDec=on");
+  // pythia->readString("ProcessLevel::resonanceDecays=on");
+  fDecayer->init();
+
   return true;
 }
 
@@ -345,6 +354,12 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     if ( pythiaPylistVerbosity == 12 || pythiaPylistVerbosity == 13 )
            fMasterGen->particleData.listAll();
   }
+
+  // init decayer
+  fDecayer->readString("ProcessLevel:all = off"); // trick
+  fDecayer->readString("Standalone:allowResDec=on");
+  // pythia->readString("ProcessLevel::resonanceDecays=on");
+  fDecayer->init();
 
   return true;
 }
@@ -411,6 +426,82 @@ bool Pythia8Hadronizer::hadronize()
   event().reset(new HepMC::GenEvent);
   return toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
 
+}
+
+
+bool Pythia8Hadronizer::residualDecay()
+{
+  
+  Event* pythiaEvent = &(fMasterGen->event);
+  
+  int NPartsBeforeDecays = pythiaEvent->size();
+  int NPartsAfterDecays = event().get()->particles_size();
+  int NewBarcode = NPartsAfterDecays;
+
+  for ( int ipart=NPartsAfterDecays; ipart>NPartsBeforeDecays; ipart-- )
+  {
+  
+    HepMC::GenParticle* part = event().get()->barcode_to_particle( ipart );
+ 
+    if ( part->status() == 1 )
+    {
+      fDecayer->event.reset();
+      Particle py8part(  part->pdg_id(), 93, 0, 0, 0, 0, 0, 0,
+                         part->momentum().x(),
+                         part->momentum().y(),
+                         part->momentum().z(),
+                         part->momentum().t(),
+                         part->generated_mass() );
+      HepMC::GenVertex* ProdVtx = part->production_vertex();
+      py8part.vProd( ProdVtx->position().x(), ProdVtx->position().y(),
+                     ProdVtx->position().z(), ProdVtx->position().t() );
+      py8part.tau( (fDecayer->particleData).tau0( part->pdg_id() ) );
+      fDecayer->event.append( py8part );
+      int nentries = fDecayer->event.size();
+      if ( !fDecayer->event[nentries-1].mayDecay() ) continue;
+      fDecayer->next();
+      int nentries1 = fDecayer->event.size(); 
+      // fDecayer->event.list(std::cout);
+      if ( nentries1 <= nentries ) continue; //same number of particles, no decays...
+                         
+      part->set_status(2);
+      
+      Particle& py8daughter = fDecayer->event[nentries]; // the 1st daughter
+      HepMC::GenVertex* DecVtx = new HepMC::GenVertex( HepMC::FourVector(py8daughter.xProd(),
+                                                       py8daughter.yProd(),
+                                                       py8daughter.zProd(),
+                                                       py8daughter.tProd()) );
+      
+      DecVtx->add_particle_in( part ); // this will cleanup end_vertex if exists, replace with the new one
+                                       // I presume (vtx) barcode will be given automatically
+
+      HepMC::FourVector pmom( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
+                        
+      HepMC::GenParticle* daughter =
+                        new HepMC::GenParticle( pmom, py8daughter.id(), 1 );
+        
+      NewBarcode++;
+      daughter->suggest_barcode( NewBarcode );
+      DecVtx->add_particle_out( daughter );
+
+      for ( int ipart1=nentries+1; ipart1<nentries1; ipart1++ )
+      {
+        py8daughter = fDecayer->event[ipart1];
+        HepMC::FourVector pmomN( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
+        HepMC::GenParticle* daughterN =
+                        new HepMC::GenParticle( pmomN, py8daughter.id(), 1 );
+        NewBarcode++;
+        daughterN->suggest_barcode( NewBarcode );
+        DecVtx->add_particle_out( daughterN );
+      }
+      
+      event().get()->add_vertex( DecVtx );
+      // fCurrentEventState->add_vertex( DecVtx );
+
+    }
+ }
+ return true;
+                        
 }
 
 
