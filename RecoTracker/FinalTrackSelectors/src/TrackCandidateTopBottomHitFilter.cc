@@ -2,7 +2,7 @@
 //
 // Package:    TrackCandidateTopBottomHitFilter
 // Class:      TrackCandidateTopBottomHitFilter
-// 
+//
 /**\class TrackCandidateTopBottomHitFilter TrackCandidateTopBottomHitFilter.cc Cruzet/TrackCandidateTopBottomHitFilter/src/TrackCandidateTopBottomHitFilter.cc
 
 Description: <one line class summary>
@@ -32,8 +32,8 @@ Implementation:
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h" 
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 //
 // class decleration
@@ -48,18 +48,18 @@ private:
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-  edm::InputTag label;
+  edm::EDGetTokenT<TrackCandidateCollection> label;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   std::string builderName;
   double seedY;
 };
 
 TrackCandidateTopBottomHitFilter::TrackCandidateTopBottomHitFilter(const edm::ParameterSet& iConfig) {
-  builderName = iConfig.getParameter<std::string>("TTRHBuilder");   
-  label = iConfig.getParameter<edm::InputTag>("Input");
+  builderName = iConfig.getParameter<std::string>("TTRHBuilder");
+  label = consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>("Input"));
   seedY = iConfig.getParameter<double>("SeedY");
 
-  produces<TrackCandidateCollection>();  
+  produces<TrackCandidateCollection>();
 }
 
 
@@ -76,10 +76,10 @@ void TrackCandidateTopBottomHitFilter::produce(edm::Event& iEvent, const edm::Ev
   using namespace std;
 
   Handle<TrackCandidateCollection> pIn;
-  iEvent.getByLabel(label,pIn);
+  iEvent.getByToken(label,pIn);
   std::auto_ptr<TrackCandidateCollection> pOut(new TrackCandidateCollection);
   for (TrackCandidateCollection::const_iterator it=pIn->begin(); it!=pIn->end();++it) {
-    PTrajectoryStateOnDet state = it->trajectoryStateOnDet();   
+    PTrajectoryStateOnDet state = it->trajectoryStateOnDet();
     TrackCandidate::range oldhits = it->recHits();
     TrajectorySeed seed = it->seed();
     TrackCandidate::RecHitContainer hits;
