@@ -28,14 +28,18 @@ class CSCDetId : public DetId {
 
 public:
 
+
   /// Default constructor; fills the common part in the base
   /// and leaves 0 in all other fields
-  CSCDetId();
+  CSCDetId() : DetId(DetId::Muon, MuonSubdetId::CSC){}
+
+#ifndef EDM_ML_DEBUG
 
   /// Construct from a packed id. It is required that the Detector part of
   /// id is Muon and the SubDet part is CSC, otherwise an exception is thrown.
-  CSCDetId(uint32_t id);
-  CSCDetId(DetId id);
+  CSCDetId(uint32_t id) : DetId(id){}
+  CSCDetId(DetId id) : DetId(id){}
+
 
   /// Construct from fully qualified identifier.
   /// Input values are required to be within legal ranges, otherwise an
@@ -43,12 +47,11 @@ public:
   /// iendcap: 1=forward (+Z), 2=backward(-Z)
   CSCDetId( int iendcap, int istation, 
 	    int iring, int ichamber, 
-	    int ilayer = 0 );
+	    int ilayer = 0 ) : DetId(DetId::Muon, MuonSubdetId::CSC) {
+     id_ |= init(iendcap, istation, iring, ichamber, ilayer);
+  }
 
-  /** Copy ctor.
-   */
-  CSCDetId( const CSCDetId& id )
-     : DetId(id.id_) { }  
+#endif
 
   /** Chamber CSCDetId from a Layer CSCDetId
    */
@@ -279,8 +282,7 @@ private:
     // change iring = 1, 2, 3, 4 input to 2, 3, 4, 1 for use inside the DetId
     // i.e. ME1b, ME12, ME13, ME1a externally become stored internally in order ME1a, ME1b, ME12, ME13
     int i = (iring+1)%4;
-    if (i == 0)
-      i = 4;
+    if (i == 0) i = 4;
     return i;
   }
 
@@ -288,8 +290,7 @@ private:
     // reverse intToDetId: change 1, 2, 3, 4 inside the DetId to 4, 1, 2, 3 for external use
     // i.e. output ring # 1, 2, 3, 4 in ME1 means ME1b, ME12, ME13, ME1a as usual in the offline software.
     int i = (iring-1);
-    if (i == 0)
-      i = 4;
+    if (i == 0) i = 4;
     return i;
   }
  

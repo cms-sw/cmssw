@@ -34,8 +34,8 @@ private:
   std::unique_ptr<PixelTrackFilter> theFilter;
   PixelTrackCleaner * theCleaner;
   std::unique_ptr<OrderedHitsGenerator> theGenerator;
-  TrackingRegionProducer* theRegionProducer;
-  QuadrupletSeedMerger *theMerger_;
+  std::unique_ptr<TrackingRegionProducer> theRegionProducer;
+  std::unique_ptr<QuadrupletSeedMerger> theMerger_;
 };
 #endif
 
