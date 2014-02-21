@@ -327,7 +327,7 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
         ss << ",";
       ss << iRegex->str();
     }
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): did not find any paths matching to regexes " << ss.str();
+    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): did not find any paths matching to regexes " << ss.str();
     return false;
   }
 
