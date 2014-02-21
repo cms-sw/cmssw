@@ -4,14 +4,14 @@
 <ConstantsSection label="hgcalHEsil.xml" eval="true">
   <Constant name="ZmaxHEsil" value="4262.9*mm"/>
   <Constant name="rMinHEsil" value="[etaMax:slope]*[ZmaxHEsil]"/>
-  <Constant name="rMaxHEsil" value="([hgcal:rMaxHGCal3]+[hgcal:slope3]*([ZmaxHEsil]-[hgcal:zHGCal3]))"/>
+  <Constant name="rMaxHEsil" value="([hgcal:rMaxHGCal2]+[hgcal:slope3]*([ZmaxHEsil]-[hgcal:zHGCal2]))"/>
   <Constant name="rMapHEsil" value="[rMaxHEsil]*[hgcal:factor1]"/>
 </ConstantsSection> 
 
 <SolidSection label="hgcalHEsil.xml">
  <Polyhedra name="HGCalHESilicon" numSide="1" startPhi="357.5*deg" deltaPhi="5*deg">
   <ZSection z="[hgcal:zMinHE]"  rMin="[hgcal:rMinHEMin]"  rMax="[hgcal:rMapHEMin]"/>
-  <ZSection z="[hgcal:zHGCal3]" rMin="[hgcal:rMinHGCal3]" rMax="[hgcal:rMapHGCal3]"/>
+  <ZSection z="[hgcal:zHGCal2]" rMin="[hgcal:rMinHGCal2]" rMax="[hgcal:rMapHGCal2]"/>
   <ZSection z="[ZmaxHEsil]"     rMin="[rMinHEsil]"        rMax="[rMapHEsil]"/>
  </Polyhedra>
 </SolidSection>
@@ -45,7 +45,7 @@
    HESiliconAbsorber, HESiliconHeatShield, HESiliconSensitive, HESiliconPCB,
    HESiliconAirGap, HESiliconSupport</Vector>
   <Vector name="Thickness" type="numeric" nEntries="6">
-   52.0*mm, 3.0*mm, 0.2*mm, 1.0*mm, 1.0*mm, 50*mm</Vector>
+   52.0*mm, 3.0*mm, 0.1*mm, 2.0*mm, 2.0*mm, 50*mm</Vector>
   <String name="Rotation" value="rotations:YXZ4"/>
   <Vector name="LayerType" type="numeric" nEntries="85"> 5,
    0, 1, 2, 2, 2, 3, 4, 0, 1, 2, 2, 2, 3, 4, 0, 1, 2, 2, 2, 3, 4, 
@@ -53,20 +53,44 @@
    0, 1, 2, 2, 2, 3, 4, 0, 1, 2, 2, 2, 3, 4, 0, 1, 2, 2, 2, 3, 4, 
    0, 1, 2, 2, 2, 3, 4, 0, 1, 2, 2, 2, 3, 4, 0, 1, 2, 2, 2, 3, 4 </Vector>
   <Vector name="HeightType" type="numeric" nEntries="85"> 0,
-   0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0,
-   0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0,
-   0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0,
-   0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0 </Vector>
+   0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 </Vector>
   <Numeric name="zMinBlock"   value="[hgcal:zMinHE]"/>
   <Numeric name="Sectors"     value="72"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
-  <Vector name="SlopeTop" type="numeric" nEntries="3">
-    [hgcal:slope2], [hgcal:slope3], 0</Vector>
-  <Vector name="ZFront" type="numeric" nEntries="3">
-    [hgcal:zHGCal1], [hgcal:zHGCal3], [hgcal:zHGCal4]</Vector>
-  <Vector name="RMaxFront" type="numeric" nEntries="3">
-    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal3], [hgcal:rMaxHGCal4]</Vector>
+  <Vector name="SlopeTop" type="numeric" nEntries="4">
+    [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
+  <Vector name="ZFront" type="numeric" nEntries="4">
+    [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal3], [hgcal:zHGCal4]</Vector>
+  <Vector name="RMaxFront" type="numeric" nEntries="4">
+    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal2], [hgcal:rMaxHGCal3], [hgcal:rMaxHGCal4]</Vector>
+  <Vector name="SlopeTop" type="numeric" nEntries="4">
+    [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
+  <Vector name="ZFront" type="numeric" nEntries="4">
+    [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal3], [hgcal:zHGCal4]</Vector>
+  <Vector name="RMaxFront" type="numeric" nEntries="4">
+    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal2], [hgcal:rMaxHGCal3], [hgcal:rMaxHGCal4]</Vector>
  </Algorithm>
 </PosPartSection>
+
+<SpecParSection label="hgcalHEsil.xml">
+  <SpecPar name="HGCalHESilicon readout granularity per layer">
+    <PartSelector path="//HGCalHESilicon"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+  </SpecPar>
+</SpecParSection>
 
 </DDDefinition>
