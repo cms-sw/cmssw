@@ -87,6 +87,7 @@ l1t::L1uGtBoard::L1uGtBoard() :
     m_candL1EG( new BXVector<const l1t::L1Candidate*>),
     m_candL1Tau( new BXVector<const l1t::L1Candidate*>),
     m_candL1Jet( new BXVector<const l1t::L1Candidate*>),
+    m_candL1EtSum( new BXVector<const l1t::EtSum*>),
     m_isDebugEnabled(edm::isDebugEnabled())
 {
   
@@ -125,6 +126,7 @@ l1t::L1uGtBoard::~L1uGtBoard() {
     delete m_candL1EG;
     delete m_candL1Tau;
     delete m_candL1Jet;
+    delete m_candL1EtSum;
 
 //    delete m_gtEtaPhiConversions;
 
@@ -153,6 +155,7 @@ void l1t::L1uGtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const
   m_candL1EG->setBXRange( m_bxFirst_, m_bxLast_ );
   m_candL1Tau->setBXRange( m_bxFirst_, m_bxLast_ );
   m_candL1Jet->setBXRange( m_bxFirst_, m_bxLast_ );
+  m_candL1EtSum->setBXRange( m_bxFirst_, m_bxLast_ );
   
   m_uGtRecBlk.reset();
   m_uGtAlgBlk.reset();
@@ -181,7 +184,7 @@ void l1t::L1uGtBoard::receiveCaloObjectData(edm::Event& iEvent,
         const bool receiveEG, const int nrL1EG,
 	const bool receiveTau, const int nrL1Tau,	
 	const bool receiveJet, const int nrL1Jet,
-	const bool receiveETM, const bool receiveETT, const bool receiveHTT, const bool receiveHTM) {
+	const bool receiveEtSums) {
 
     if (m_verbosity) {
         LogDebug("l1t|Global")
@@ -281,13 +284,52 @@ void l1t::L1uGtBoard::receiveCaloObjectData(edm::Event& iEvent,
     } //end if ReveiveJet data
 
 
-    if(receiveETM | receiveETT | receiveHTT | receiveHTM) {
+    if(receiveEtSums) {
+        edm::Handle<BXVector<l1t::EtSum>> etSumData;
+        iEvent.getByLabel(caloInputTag, etSumData);
 
+        if(!etSumData.isValid()) {
             if (m_verbosity) {
                 edm::LogWarning("l1t|Global")
-                        << "Loading EtSum Objects not yet implemented"
+                        << "\nWarning: BXVector<l1t::EtSum> with input tag "
+                        << caloInputTag
+                        << "\nrequested in configuration, but not found in the event.\n"
                         << std::endl;
             }
+	} else {
+
+           for(int i = etSumData->getFirstBX(); i <= etSumData->getLastBX(); ++i) {
+
+              //Loop over jet in this bx
+              for(std::vector<l1t::EtSum>::const_iterator etsum = etSumData->begin(i); etsum != etSumData->end(i); ++etsum) {
+	                    
+                  (*m_candL1EtSum).push_back(i,&(*etsum));
+		  
+/*  In case we need to split these out
+	          switch ( etsum->getType() ) {
+		     case l1t::EtSum::EtSumType::kMissingEt:
+		       (*m_candETM).push_back(i,&(*etsum));
+		       LogDebug("l1t|Global") << "ETM:  Pt " << etsum->hwPt() <<  " Phi " << etsum->hwPhi()  << std::endl;
+		       break; 
+		     case l1t::EtSum::EtSumType::kMissingHt:
+		       (*m_candHTM.push_back(i,&(*etsum);
+		       LogDebug("l1t|Global") << "HTM:  Pt " << etsum->hwPt() <<  " Phi " << etsum->hwPhi()  << std::endl;
+		       break; 		     
+		     case l1t::EtSum::EtSumType::kTotalEt:
+		       (*m_candETT.push_back(i,&(*etsum);
+		       LogDebug("l1t|Global") << "ETT:  Pt " << etsum->hwPt() << std::endl;
+		       break; 		     
+		     case l1t::EtSum::EtSumType::kTotalHt:
+		       (*m_candHTT.push_back(i,&(*etsum);
+		       LogDebug("l1t|Global") << "HTT:  Pt " << etsum->hwPt() << std::endl;
+		       break; 		     
+		  }
+*/
+	      
+	      } //end loop over jet in bx
+	   } //end loop over Bx
+	
+	}    
 
       
     }
@@ -1072,10 +1114,12 @@ void l1t::L1uGtBoard::resetCalo() {
   m_candL1EG->clear();
   m_candL1Tau->clear();
   m_candL1Jet->clear();
+  m_candL1EtSum->clear();
 
   m_candL1EG->setBXRange( m_bxFirst_, m_bxLast_ );
   m_candL1Tau->setBXRange( m_bxFirst_, m_bxLast_ );
   m_candL1Jet->setBXRange( m_bxFirst_, m_bxLast_ );
+  m_candL1EtSum->setBXRange( m_bxFirst_, m_bxLast_ );
 
 }
 

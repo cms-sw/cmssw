@@ -78,7 +78,7 @@ public:
         const bool receiveEG, const int nrL1EG,
 	const bool receiveTau, const int nrL1Tau,	
 	const bool receiveJet, const int nrL1Jet,
-	const bool receiveETM, const bool receiveETT, const bool receiveHTT, const bool receiveHTM);
+	const bool receiveEtSums);
 
     void receiveMuonObjectData(
         edm::Event&,
@@ -170,6 +170,15 @@ public:
         return m_candL1Tau;
     }
 
+    /// pointer to Tau data list
+    inline const BXVector<const l1t::EtSum*>* getCandL1EtSum() const
+    {
+        return m_candL1EtSum;
+    }
+
+
+
+/*  Drop individual EtSums for Now
     /// pointer to ETM data list
     inline const l1t::EtSum* getCandL1ETM() const
     {
@@ -193,24 +202,7 @@ public:
     {
         return m_candHTM;
     }
-
-    /// pointer to JetCounts data list
-    inline const l1t::EtSum* getCandL1JetCounts() const
-    {
-        return m_candJetCounts;
-    }
-
-    /// pointer to HfBitCounts data list
-    inline const l1t::EtSum* getCandL1HfBitCounts() const
-    {
-        return m_candHfBitCounts;
-    }
-
-    /// pointer to HfRingEtSums data list
-    inline const l1t::EtSum* getCandL1HfRingEtSums() const
-    {
-        return m_candHfRingEtSums;
-    }
+*/
 
     void setBxFirst(int bx);
     void setBxLast(int bx);
@@ -245,13 +237,12 @@ private:
     BXVector<const l1t::L1Candidate*>* m_candL1EG;
     BXVector<const l1t::L1Candidate*>* m_candL1Tau;
     BXVector<const l1t::L1Candidate*>* m_candL1Jet;
-    const l1t::EtSum* m_candETM;
-    const l1t::EtSum* m_candETT;
-    const l1t::EtSum* m_candHTM;
-    const l1t::EtSum* m_candHTT;
-    const l1t::EtSum* m_candJetCounts;
-    const l1t::EtSum* m_candHfBitCounts;
-    const l1t::EtSum* m_candHfRingEtSums;
+    BXVector<const l1t::EtSum*>* m_candL1EtSum;
+    
+//    BXVector<const l1t::EtSum*>* m_candETM;
+//    BXVector<const l1t::EtSum*>* m_candETT;
+//    BXVector<const l1t::EtSum*>* m_candHTM;
+//    BXVector<const l1t::EtSum*>* m_candHTT;
 
     int m_bxFirst_;
     int m_bxLast_;

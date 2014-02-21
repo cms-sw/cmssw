@@ -359,6 +359,14 @@ namespace l1t
   // 
 
 
+  // AlgorithmMappedModule
+  // 
+
+
+  // AlgorithmMappedIndex
+  // 
+
+
   // Meta
   // 
 
@@ -1204,6 +1212,82 @@ namespace l1t
   locked (const locked_type& x)
   {
     this->locked_.set (x);
+  }
+
+  const Algorithm::mapping_type& Algorithm::
+  mapping () const
+  {
+    return this->mapping_.get ();
+  }
+
+  Algorithm::mapping_type& Algorithm::
+  mapping ()
+  {
+    return this->mapping_.get ();
+  }
+
+  void Algorithm::
+  mapping (const mapping_type& x)
+  {
+    this->mapping_.set (x);
+  }
+
+  void Algorithm::
+  mapping (::std::auto_ptr< mapping_type > x)
+  {
+    this->mapping_.set (x);
+  }
+
+
+  // AlgorithmMapping
+  // 
+
+  const AlgorithmMapping::module_type& AlgorithmMapping::
+  module () const
+  {
+    return this->module_.get ();
+  }
+
+  AlgorithmMapping::module_type& AlgorithmMapping::
+  module ()
+  {
+    return this->module_.get ();
+  }
+
+  void AlgorithmMapping::
+  module (const module_type& x)
+  {
+    this->module_.set (x);
+  }
+
+  void AlgorithmMapping::
+  module (::std::auto_ptr< module_type > x)
+  {
+    this->module_.set (x);
+  }
+
+  const AlgorithmMapping::index_type& AlgorithmMapping::
+  index () const
+  {
+    return this->index_.get ();
+  }
+
+  AlgorithmMapping::index_type& AlgorithmMapping::
+  index ()
+  {
+    return this->index_.get ();
+  }
+
+  void AlgorithmMapping::
+  index (const index_type& x)
+  {
+    this->index_.set (x);
+  }
+
+  void AlgorithmMapping::
+  index (::std::auto_ptr< index_type > x)
+  {
+    this->index_.set (x);
   }
 
 
@@ -2516,6 +2600,114 @@ namespace l1t
 
   AlgorithmEquation::
   ~AlgorithmEquation ()
+  {
+  }
+
+  // AlgorithmMappedModule
+  //
+
+  AlgorithmMappedModule::
+  AlgorithmMappedModule (const ::xml_schema::unsigned_int& _xsd_unsigned_int_base)
+  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (_xsd_unsigned_int_base)
+  {
+  }
+
+  AlgorithmMappedModule::
+  AlgorithmMappedModule (const AlgorithmMappedModule& x,
+                         ::xml_schema::flags f,
+                         ::xml_schema::container* c)
+  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (x, f, c)
+  {
+  }
+
+  AlgorithmMappedModule::
+  AlgorithmMappedModule (const ::xercesc::DOMElement& e,
+                         ::xml_schema::flags f,
+                         ::xml_schema::container* c)
+  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (e, f, c)
+  {
+  }
+
+  AlgorithmMappedModule::
+  AlgorithmMappedModule (const ::xercesc::DOMAttr& a,
+                         ::xml_schema::flags f,
+                         ::xml_schema::container* c)
+  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (a, f, c)
+  {
+  }
+
+  AlgorithmMappedModule::
+  AlgorithmMappedModule (const ::std::string& s,
+                         const ::xercesc::DOMElement* e,
+                         ::xml_schema::flags f,
+                         ::xml_schema::container* c)
+  : ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type > (s, e, f, c)
+  {
+  }
+
+  AlgorithmMappedModule* AlgorithmMappedModule::
+  _clone (::xml_schema::flags f,
+          ::xml_schema::container* c) const
+  {
+    return new class AlgorithmMappedModule (*this, f, c);
+  }
+
+  AlgorithmMappedModule::
+  ~AlgorithmMappedModule ()
+  {
+  }
+
+  // AlgorithmMappedIndex
+  //
+
+  AlgorithmMappedIndex::
+  AlgorithmMappedIndex (const ::xml_schema::unsigned_int& _xsd_unsigned_int_base)
+  : ::l1t::AlgorithmIndex (_xsd_unsigned_int_base)
+  {
+  }
+
+  AlgorithmMappedIndex::
+  AlgorithmMappedIndex (const AlgorithmMappedIndex& x,
+                        ::xml_schema::flags f,
+                        ::xml_schema::container* c)
+  : ::l1t::AlgorithmIndex (x, f, c)
+  {
+  }
+
+  AlgorithmMappedIndex::
+  AlgorithmMappedIndex (const ::xercesc::DOMElement& e,
+                        ::xml_schema::flags f,
+                        ::xml_schema::container* c)
+  : ::l1t::AlgorithmIndex (e, f, c)
+  {
+  }
+
+  AlgorithmMappedIndex::
+  AlgorithmMappedIndex (const ::xercesc::DOMAttr& a,
+                        ::xml_schema::flags f,
+                        ::xml_schema::container* c)
+  : ::l1t::AlgorithmIndex (a, f, c)
+  {
+  }
+
+  AlgorithmMappedIndex::
+  AlgorithmMappedIndex (const ::std::string& s,
+                        const ::xercesc::DOMElement* e,
+                        ::xml_schema::flags f,
+                        ::xml_schema::container* c)
+  : ::l1t::AlgorithmIndex (s, e, f, c)
+  {
+  }
+
+  AlgorithmMappedIndex* AlgorithmMappedIndex::
+  _clone (::xml_schema::flags f,
+          ::xml_schema::container* c) const
+  {
+    return new class AlgorithmMappedIndex (*this, f, c);
+  }
+
+  AlgorithmMappedIndex::
+  ~AlgorithmMappedIndex ()
   {
   }
 
@@ -3906,13 +4098,32 @@ namespace l1t
              const index_type& index,
              const equation_type& equation,
              const description_type& description,
-             const locked_type& locked)
+             const locked_type& locked,
+             const mapping_type& mapping)
   : ::xml_schema::type (),
     name_ (name, ::xml_schema::flags (), this),
     index_ (index, ::xml_schema::flags (), this),
     equation_ (equation, ::xml_schema::flags (), this),
     description_ (description, ::xml_schema::flags (), this),
-    locked_ (locked, ::xml_schema::flags (), this)
+    locked_ (locked, ::xml_schema::flags (), this),
+    mapping_ (mapping, ::xml_schema::flags (), this)
+  {
+  }
+
+  Algorithm::
+  Algorithm (const name_type& name,
+             const index_type& index,
+             const equation_type& equation,
+             const description_type& description,
+             const locked_type& locked,
+             ::std::auto_ptr< mapping_type >& mapping)
+  : ::xml_schema::type (),
+    name_ (name, ::xml_schema::flags (), this),
+    index_ (index, ::xml_schema::flags (), this),
+    equation_ (equation, ::xml_schema::flags (), this),
+    description_ (description, ::xml_schema::flags (), this),
+    locked_ (locked, ::xml_schema::flags (), this),
+    mapping_ (mapping, ::xml_schema::flags (), this)
   {
   }
 
@@ -3925,7 +4136,8 @@ namespace l1t
     index_ (x.index_, f, this),
     equation_ (x.equation_, f, this),
     description_ (x.description_, f, this),
-    locked_ (x.locked_, f, this)
+    locked_ (x.locked_, f, this),
+    mapping_ (x.mapping_, f, this)
   {
   }
 
@@ -3938,7 +4150,8 @@ namespace l1t
     index_ (f, this),
     equation_ (f, this),
     description_ (f, this),
-    locked_ (f, this)
+    locked_ (f, this),
+    mapping_ (f, this)
   {
     if ((f & ::xml_schema::flags::base) == 0)
     {
@@ -4024,6 +4237,20 @@ namespace l1t
         }
       }
 
+      // mapping
+      //
+      if (n.name () == "mapping" && n.namespace_ () == "http://www.cern.ch/l1t")
+      {
+        ::std::auto_ptr< mapping_type > r (
+          mapping_traits::create (i, f, this));
+
+        if (!mapping_.present ())
+        {
+          this->mapping_.set (r);
+          continue;
+        }
+      }
+
       break;
     }
 
@@ -4061,6 +4288,13 @@ namespace l1t
         "locked",
         "http://www.cern.ch/l1t");
     }
+
+    if (!mapping_.present ())
+    {
+      throw ::xsd::cxx::tree::expected_element< char > (
+        "mapping",
+        "http://www.cern.ch/l1t");
+    }
   }
 
   Algorithm* Algorithm::
@@ -4072,6 +4306,111 @@ namespace l1t
 
   Algorithm::
   ~Algorithm ()
+  {
+  }
+
+  // AlgorithmMapping
+  //
+
+  AlgorithmMapping::
+  AlgorithmMapping (const module_type& module,
+                    const index_type& index)
+  : ::xml_schema::type (),
+    module_ (module, ::xml_schema::flags (), this),
+    index_ (index, ::xml_schema::flags (), this)
+  {
+  }
+
+  AlgorithmMapping::
+  AlgorithmMapping (const AlgorithmMapping& x,
+                    ::xml_schema::flags f,
+                    ::xml_schema::container* c)
+  : ::xml_schema::type (x, f, c),
+    module_ (x.module_, f, this),
+    index_ (x.index_, f, this)
+  {
+  }
+
+  AlgorithmMapping::
+  AlgorithmMapping (const ::xercesc::DOMElement& e,
+                    ::xml_schema::flags f,
+                    ::xml_schema::container* c)
+  : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
+    module_ (f, this),
+    index_ (f, this)
+  {
+    if ((f & ::xml_schema::flags::base) == 0)
+    {
+      ::xsd::cxx::xml::dom::parser< char > p (e, true, false);
+      this->parse (p, f);
+    }
+  }
+
+  void AlgorithmMapping::
+  parse (::xsd::cxx::xml::dom::parser< char >& p,
+         ::xml_schema::flags f)
+  {
+    for (; p.more_elements (); p.next_element ())
+    {
+      const ::xercesc::DOMElement& i (p.cur_element ());
+      const ::xsd::cxx::xml::qualified_name< char > n (
+        ::xsd::cxx::xml::dom::name< char > (i));
+
+      // module
+      //
+      if (n.name () == "module" && n.namespace_ () == "http://www.cern.ch/l1t")
+      {
+        ::std::auto_ptr< module_type > r (
+          module_traits::create (i, f, this));
+
+        if (!module_.present ())
+        {
+          this->module_.set (r);
+          continue;
+        }
+      }
+
+      // index
+      //
+      if (n.name () == "index" && n.namespace_ () == "http://www.cern.ch/l1t")
+      {
+        ::std::auto_ptr< index_type > r (
+          index_traits::create (i, f, this));
+
+        if (!index_.present ())
+        {
+          this->index_.set (r);
+          continue;
+        }
+      }
+
+      break;
+    }
+
+    if (!module_.present ())
+    {
+      throw ::xsd::cxx::tree::expected_element< char > (
+        "module",
+        "http://www.cern.ch/l1t");
+    }
+
+    if (!index_.present ())
+    {
+      throw ::xsd::cxx::tree::expected_element< char > (
+        "index",
+        "http://www.cern.ch/l1t");
+    }
+  }
+
+  AlgorithmMapping* AlgorithmMapping::
+  _clone (::xml_schema::flags f,
+          ::xml_schema::container* c) const
+  {
+    return new class AlgorithmMapping (*this, f, c);
+  }
+
+  AlgorithmMapping::
+  ~AlgorithmMapping ()
   {
   }
 
@@ -4149,7 +4488,7 @@ namespace l1t
   //
 
   const L1TriggerMenu::version_type L1TriggerMenu::version_default_value_ (
-    "0.5.0");
+    "0.5.1");
 
   L1TriggerMenu::
   L1TriggerMenu (const meta_type& meta,

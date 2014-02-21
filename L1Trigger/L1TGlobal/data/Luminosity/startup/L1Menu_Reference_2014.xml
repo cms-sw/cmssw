@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 
-<l1t:l1TriggerMenu version="0.5.0"
+<l1t:l1TriggerMenu version="0.5.1"
   xmlns:l1t="http://www.cern.ch/l1t"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
@@ -12,7 +12,7 @@
     <l1t:history>
         <l1t:revision hostname="gtmtca" username="arnold">
             <l1t:author>Arnold</l1t:author>
-            <l1t:datetime>2014-02-13T12:22:08</l1t:datetime>
+            <l1t:datetime>2014-02-17T13:45:26</l1t:datetime>
         </l1t:revision>
     </l1t:history>
   </l1t:meta>
@@ -213,6 +213,10 @@
         <l1t:equation>double_eg_1</l1t:equation>
         <l1t:description>Reference algorithm according to file gtl_module_example.vhd</l1t:description>
         <l1t:locked>1</l1t:locked>
+        <l1t:mapping>
+            <l1t:module>0</l1t:module>
+            <l1t:index>0</l1t:index>
+        </l1t:mapping>
     </l1t:algorithm>
 
     <l1t:algorithm>
@@ -221,30 +225,46 @@
         <l1t:equation>double_jet_1</l1t:equation>
         <l1t:description>Reference algorithm according to file gtl_module_example.vhd</l1t:description>
         <l1t:locked>1</l1t:locked>
+        <l1t:mapping>
+            <l1t:module>0</l1t:module>
+            <l1t:index>1</l1t:index>
+        </l1t:mapping>
     </l1t:algorithm>
 
     <l1t:algorithm>
         <l1t:name>L1_double_eg_and_double_jet_1</l1t:name>
-        <l1t:index>2</l1t:index>
+        <l1t:index>7</l1t:index>
         <l1t:equation>double_eg_1 AND double_jet_1</l1t:equation>
         <l1t:description>Reference algorithm according to file gtl_module_example.vhd</l1t:description>
         <l1t:locked>1</l1t:locked>
+        <l1t:mapping>
+            <l1t:module>0</l1t:module>
+            <l1t:index>2</l1t:index>
+        </l1t:mapping>
     </l1t:algorithm>
 
     <l1t:algorithm>
         <l1t:name>L1_double_jet_2</l1t:name>
-        <l1t:index>3</l1t:index>
+        <l1t:index>15</l1t:index>
         <l1t:equation>double_jet_2</l1t:equation>
         <l1t:description>Reference algorithm according to file gtl_module_example.vhd</l1t:description>
         <l1t:locked>1</l1t:locked>
+        <l1t:mapping>
+            <l1t:module>0</l1t:module>
+            <l1t:index>3</l1t:index>
+        </l1t:mapping>
     </l1t:algorithm>
 
     <l1t:algorithm>
         <l1t:name>L1_double_eg_and_double_jet_2</l1t:name>
-        <l1t:index>4</l1t:index>
+        <l1t:index>16</l1t:index>
         <l1t:equation>double_eg_1 AND double_jet_2</l1t:equation>
         <l1t:description>Reference algorithm according to file gtl_module_example.vhd</l1t:description>
         <l1t:locked>1</l1t:locked>
+        <l1t:mapping>
+            <l1t:module>0</l1t:module>
+            <l1t:index>4</l1t:index>
+        </l1t:mapping>
     </l1t:algorithm>
 
     <l1t:algorithm>
@@ -253,14 +273,22 @@
         <l1t:equation>quad_tau_1</l1t:equation>
         <l1t:description>Reference algorithm according to file gtl_module_example.vhd</l1t:description>
         <l1t:locked>1</l1t:locked>
+        <l1t:mapping>
+            <l1t:module>0</l1t:module>
+            <l1t:index>5</l1t:index>
+        </l1t:mapping>
     </l1t:algorithm>
 
     <l1t:algorithm>
         <l1t:name>L1_double_wsc_tau_2</l1t:name>
-        <l1t:index>6</l1t:index>
+        <l1t:index>31</l1t:index>
         <l1t:equation>double_wsc_tau_2</l1t:equation>
         <l1t:description>Reference algorithm according to file gtl_module_example.vhd</l1t:description>
         <l1t:locked>1</l1t:locked>
+        <l1t:mapping>
+            <l1t:module>0</l1t:module>
+            <l1t:index>6</l1t:index>
+        </l1t:mapping>
     </l1t:algorithm>
 
   </l1t:algorithms>

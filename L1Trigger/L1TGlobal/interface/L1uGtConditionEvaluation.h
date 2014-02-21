@@ -294,9 +294,9 @@ template<class Type1> const bool L1uGtConditionEvaluation::checkRangePhi(const u
     return true;
   }
 
-  unsigned int diff1 = endR - beginR;
-  unsigned int diff2 = bitNumber - beginR;
-  unsigned int diff3 = endR - bitNumber;
+  int diff1 = endR - beginR;
+  int diff2 = bitNumber - beginR;
+  int diff3 = endR - bitNumber;
 
   bool cond1 = ( diff1<0 ) ? false : true;
   bool cond2 = ( diff2<0 ) ? false : true;
@@ -330,9 +330,9 @@ template<class Type1> const bool L1uGtConditionEvaluation::checkRangePhi(const u
   if( passWindow ){
     if( beginVetoR==endVetoR && beginVetoR==-1 ) return true;
 
-    unsigned int diffV1 = endVetoR - beginVetoR;
-    unsigned int diffV2 = bitNumber - beginVetoR;
-    unsigned int diffV3 = endVetoR - bitNumber;
+    int diffV1 = endVetoR - beginVetoR;
+    int diffV2 = bitNumber - beginVetoR;
+    int diffV3 = endVetoR - bitNumber;
 
     bool condV1 = ( diffV1<0 ) ? false : true;
     bool condV2 = ( diffV2<0 ) ? false : true;

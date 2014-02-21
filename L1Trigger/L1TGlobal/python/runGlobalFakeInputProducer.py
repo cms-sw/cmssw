@@ -19,7 +19,7 @@ process.load('L1Trigger/L1TGlobal/l1tGt_debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(10)
     )
 
 # Input source
@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/3A11157B-ED51-E311-BA75-003048679080.root")
     ### Local RelValTTBar
     fileNames = cms.untracked.vstring("/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_3A11157B-ED51-E311-BA75-003048679080.root"),
-    skipEvents = cms.untracked.uint32(80)
+    #skipEvents = cms.untracked.uint32(80)
     ### RelValSingleElectronPt10
     #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/52DE2A7D-E651-E311-8E12-003048FFCBFC.root")
     )
@@ -48,7 +48,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 
 # Flag to switch between using MC particles and injecting individual particles
-useMCtoGT = False#True
+useMCtoGT = True
 
 process.dumpGT = cms.EDAnalyzer("l1t::L1TGlobalInputTester",
                 egInputTag    = cms.InputTag("gtInput"),
@@ -63,6 +63,10 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 process.mcL1GTinput = cms.EDProducer("l1t::L1uGtGenToInputProducer",
                                      bxFirst = cms.int32(-2),
                                      bxLast = cms.int32(2),
+				     maxMuCand = cms.int32(8),
+				     maxJetCand = cms.int32(12),
+				     maxEGCand  = cms.int32(12),
+				     maxTauCand = cms.int32(8),				     
                                      jetEtThreshold = cms.double(1),
                                      tauEtThreshold = cms.double(1),
                                      egEtThreshold  = cms.double(1),
@@ -124,20 +128,11 @@ process.simL1uGtDigis = cms.EDProducer("l1t::L1uGtProducer",
     #TechnicalTriggersUnprescaled = cms.bool(False),
     ProduceL1GtObjectMapRecord = cms.bool(True),
     AlgorithmTriggersUnmasked = cms.bool(False),
-    EmulateBxInEvent = cms.int32(5),
+    EmulateBxInEvent = cms.int32(1),
+    L1DataBxInEvent = cms.int32(5),
     AlgorithmTriggersUnprescaled = cms.bool(False),
     ProduceL1GtDaqRecord = cms.bool(True),
-    #ReadTechnicalTriggerRecords = cms.bool(True),
-    RecordLength = cms.vint32(3, 0),
-    #TechnicalTriggersUnmasked = cms.bool(False),
-    #ProduceL1GtEvmRecord = cms.bool(True),
-    #GmtInputTag = cms.InputTag("gtDigis"),
     GmtInputTag = cms.InputTag("gtInput"),
-    #TechnicalTriggersVetoUnmasked = cms.bool(False),
-    #AlternativeNrBxBoardEvm = cms.uint32(0),
-    #TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag("simBscDigis"), cms.InputTag("simRpcTechTrigDigis"), cms.InputTag("simHcalTechTrigDigis")),
-    #CastorInputTag = cms.InputTag("castorL1Digis"),
-    #GctInputTag = cms.InputTag("gctReEmulDigis"),
     caloInputTag = cms.InputTag("gtInput"),
     AlternativeNrBxBoardDaq = cms.uint32(0),
     #WritePsbL1GtDaqRecord = cms.bool(True),
@@ -156,6 +151,8 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::L1uGtRecordDump",
 		uGtExtInputTag = cms.InputTag("simL1uGtDigis"),
 		minBx          = cms.int32(-2),
 		maxBx          = cms.int32(2),
+		minBxVec       = cms.int32(0),
+		maxBxVec       = cms.int32(0),		
 		dumpGTRecord   = cms.bool(True),
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string("TestVector.txt")
