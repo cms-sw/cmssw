@@ -98,7 +98,7 @@ public:
   
   
   float scale_;
-  
+  bool  preFilter_=false;
 };
 
 
