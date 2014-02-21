@@ -5,7 +5,7 @@ using namespace std;
 
 namespace
 {
-  int verbose()
+  inline int verbose()
   {
     static const int ret = 0; /* SimpleConfigurable<int>
       (0, "LinTrackCache:Debug").value(); */

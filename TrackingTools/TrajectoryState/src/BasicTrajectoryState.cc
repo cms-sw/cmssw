@@ -201,18 +201,22 @@ void BasicTrajectoryState::notValid() {
 }
 
 namespace {
-  void verifyLocalErr(LocalTrajectoryError const & err ) {
-    if unlikely(!err.posDef())
-		 edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n"
-							 <<  err.matrix();
+  void verifyLocalErr(LocalTrajectoryError const & err, const FreeTrajectoryState & state ) {
+     if unlikely(!err.posDef())
+                 edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n"
+                                                        <<  err.matrix()
+                                                         << "\npos/mom/mf " << state.position() << ' ' << state.momentum()
+                                                          <<  ' ' << state.parameters().magneticFieldInTesla();
   }
-  void verifyCurvErr(CurvilinearTrajectoryError const & err ) {
-    if unlikely(!err.posDef())
-		 edm::LogWarning("BasicTrajectoryState") << "curv error not pos-def\n" 
-							 <<  err.matrix();
+  void verifyCurvErr(CurvilinearTrajectoryError const & err, const FreeTrajectoryState & state ) {
+     if unlikely(!err.posDef())
+                 edm::LogWarning("BasicTrajectoryState") << "curv error not pos-def\n" 
+                                                        <<  err.matrix()
+                                                         << "\npos/mom/mf " << state.position() << ' ' << state.momentum()
+                                                         <<  ' ' << state.parameters().magneticFieldInTesla();
   }
-
 }
+
 
 void BasicTrajectoryState::missingError(char const * where) const{
   std::stringstream form;
@@ -239,8 +243,8 @@ void BasicTrajectoryState::checkCurvilinError() const {
 
   theFreeState.setCurvilinearError( cov );
   
-  verifyLocalErr(theLocalError);
-  verifyCurvErr(cov); 
+  verifyLocalErr(theLocalError,theFreeState);
+  verifyCurvErr(cov,theFreeState); 
 }
 
 
@@ -274,8 +278,8 @@ BasicTrajectoryState::createLocalErrorFromCurvilinearError() const {
   //    cout<<"Clocal via curvilinear error"<<endl;
   theLocalError = LocalTrajectoryError(cov);
 
-  verifyCurvErr(theFreeState.curvilinearError());
-  verifyLocalErr(theLocalError);
+  verifyCurvErr(theFreeState.curvilinearError(),theFreeState);
+  verifyLocalErr(theLocalError,theFreeState);
 
 }
  
