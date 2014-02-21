@@ -24,11 +24,11 @@ TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet, StMeasurement
 
 // fast check if the det contains any useful cluster
 bool TkStripMeasurementDet::empty(const MeasurementTrackerEvent & data) const {
-  if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return false;
+  if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return true;
 
-  if(!isRegional()){//old implemetation with DetSet
+  if(!isRegional()){// standard implemetation with DetSet
     const detset & detSet = data.stripData().detSet(index()); 
-    for ( new_const_iterator ci = detSet.begin(); ci != detSet.end(); ++ ci ) {
+    for ( auto ci = detSet.begin(); ci != detSet.end(); ++ ci ) {
       if (isMasked(*ci)) continue;
       SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
       if (accept(cluster, data.stripClustersToSkip()))

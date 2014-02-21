@@ -126,7 +126,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
     }
 
 
-  if ((!emptyMono) &  (!emptyStereo) ) {
+  if ((!monoHits.empty()) &  (!stereoHits.empty()) ) {
     
     const GluedGeomDet* gluedDet = &specificGeomDet();
     LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
