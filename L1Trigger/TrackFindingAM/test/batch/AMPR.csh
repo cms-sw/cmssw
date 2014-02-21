@@ -138,6 +138,8 @@ foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f15`)
 	if ($dealm != "0") then
 	    rm merge_job_${MATTER}_${i}_${j}.sh 
 	    @ processed += 1
+	    @ i += $NPFILE
+	    @ j += $NPFILE
 	    continue
 	endif
 
@@ -229,7 +231,7 @@ foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f15`)
 		echo 'Launching the final merging for file '$OUTF' in directory '$OUTDIR_GRID 
 
 		echo "#\!/bin/bash" > final_job_${MATTER}.sh
-		echo "source $PACKDIR/batch/PR_processor.sh  FINAL MERGED_$OUTF $OUTDIR_GRID $OUTDIR_XROOT ${OUT}_with_AMPR.root $RELEASEDIR" >> final_job_${MATTER}.sh
+		echo "source $PACKDIR/batch/PR_processor.sh  FINAL MERGED $OUTDIR_GRID $OUTDIR_XROOT $OUTF $RELEASEDIR" >> final_job_${MATTER}.sh
 		chmod 755 final_job_${MATTER}.sh
 
 		if (${6} == "BATCH") then	
