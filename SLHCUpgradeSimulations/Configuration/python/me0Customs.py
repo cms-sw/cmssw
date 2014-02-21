@@ -51,7 +51,7 @@ def customise_Reco(process):
     process.me0RecHits.me0DigiLabel = cms.InputTag("simMuonME0Digis")
     process.me0Segments.me0RecHitLabel = cms.InputTag("me0RecHits")
     process.muonlocalreco += process.me0RecHits
-    process.muonlocalreco += me0Segments
+    process.muonlocalreco += process.me0Segments
     process=outputCustoms(process)
     return process
 

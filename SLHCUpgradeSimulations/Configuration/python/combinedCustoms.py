@@ -26,8 +26,6 @@ def cust_phase2_BE5DPixel10D(process):
     process=customiseBE5DPixel10D(process)
     process=customise_HcalPhase1(process)
     process=customise_ev_BE5DPixel10D(process)
-    process=customise_gem(process)
-    process=customise_me0(process)
     return process
 
 def cust_phase2_BE5D(process):
@@ -35,6 +33,8 @@ def cust_phase2_BE5D(process):
     process=customiseBE5D(process)
     process=customise_HcalPhase1(process)
     process=customise_ev_BE5D(process)
+    process=customise_gem(process)
+    process=customise_me0(process)
     return process
 
 def cust_phase2_BE(process):
