@@ -944,7 +944,7 @@ steps['COPYPASTE']={'-s':'NONE',
 
 
 # you will need separate scenarios HERE for full and fast 
-upgradeKeys=['2017','2019','BE5D','2017Fast','BE5DFast','BE5DForwardFast','2019WithGEM','BE5DPixel10D','2017Aging','2019Aging']
+upgradeKeys=['2017','2019','BE5D','2017Fast','BE5DFast','BE5DForwardFast','2019WithGEM','BE5DPixel10D','2017Aging','2019Aging','Extended2023']
 upgradeGeoms={ '2017' : 'Extended2017',
                '2019' : 'Extended2019',
                '2019WithGEM' : 'Extended2019',
@@ -954,7 +954,8 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'BE5DPixel10D' : 'ExtendedPhase2TkBE5DPixel10D',
                '2017Fast' : 'Extended2017',
                'BE5DFast' : 'ExtendedPhase2TkBE',
-               'BE5DForwardFast' : 'ExtendedPhase2TkBEForward'
+               'BE5DForwardFast' : 'ExtendedPhase2TkBEForward',
+               'Extended2023' : 'Extended2023,Extended2023Reco'
                }
 upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
@@ -965,7 +966,8 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              'BE5DPixel10D' : 'auto:upgrade2019',
              '2017Fast' : 'auto:upgrade2017',
              'BE5DFast' : 'auto:upgrade2019',
-             'BE5DForwardFast' : 'auto:upgrade2019'
+             'BE5DForwardFast' : 'auto:upgrade2019',
+             'Extended2023' : 'auto:upgradePLS3'
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
                  '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
@@ -976,7 +978,8 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'BE5DPixel10D' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10D',
                  '2017Fast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimDefault',
                  'BE5DFast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimPhase2',
-                 'BE5DForwardFast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimPhase2'
+                 'BE5DForwardFast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.fastsimPhase2',
+                 'Extended2023' : None
                  }
 ### remember that you need to add a new step for phase 2 to include the track trigger
 ### remember that you need to add fastsim
@@ -1001,6 +1004,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HarvFull'],
                    '2017Fast':['FastSim','HarvFast'],
                    'BE5DFast':['FastSim','HarvFast'],
                    'BE5DForwardFast':['FastSim','HarvFast'],
+                   'Extended2023':['GenSimFull']
                    }
 
 upgradeStepDict={}
@@ -1017,9 +1021,9 @@ for k in upgradeKeys:
                                        '--magField' : '38T_PostLS1',
                                        '--datatier' : 'GEN-SIM',
                                        '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : upgradeGeoms[k],
-                                       '--customise' : upgradeCustoms[k]
+                                       '--geometry' : upgradeGeoms[k]
                                        }
+    if upgradeCustoms[k]!=None : upgradeStepDict['GenSimFull'][k]['--customise']=upgradeCustoms[k]
 
     upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                                       '--conditions':upgradeGTs[k],
@@ -1027,9 +1031,9 @@ for k in upgradeKeys:
                                       '-n':'10',
                                       '--magField' : '38T_PostLS1',
                                       '--eventcontent':'FEVTDEBUGHLT',
-                                      '--customise': upgradeCustoms[k],
                                       '--geometry' : upgradeGeoms[k]
                                       }
+    if upgradeCustoms[k]!=None : upgradeStepDict['DigiFull'][k]['--customise']=upgradeCustoms[k]
 
     upgradeStepDict['DigiTrkTrigFull'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW',
                                              '--conditions':upgradeGTs[k],
@@ -1037,9 +1041,9 @@ for k in upgradeKeys:
                                              '-n':'10',
                                              '--magField' : '38T_PostLS1',
                                              '--eventcontent':'FEVTDEBUGHLT',
-                                             '--customise': upgradeCustoms[k],
                                              '--geometry' : upgradeGeoms[k]
                                              }
+    if upgradeCustoms[k]!=None : upgradeStepDict['DigiTrkTrigFull'][k]['--customise']=upgradeCustoms[k]
 
     upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                                       '--conditions':upgradeGTs[k],
@@ -1047,34 +1051,37 @@ for k in upgradeKeys:
                                       '-n':'10',
                                       '--eventcontent':'FEVTDEBUGHLT,DQM',
                                       '--magField' : '38T_PostLS1',
-                                      '--customise' : upgradeCustoms[k],
                                       '--geometry' : upgradeGeoms[k]
                                       }
+    if upgradeCustoms[k]!=None : upgradeStepDict['RecoFull'][k]['--customise']=upgradeCustoms[k]
     
     upgradeStepDict['HarvFull'][k]={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                                     '--conditions':upgradeGTs[k],
                                     '--mc':'',
                                     '--magField' : '38T_PostLS1',
-                                    '--customise' : upgradeCustoms[k],
                                     '--geometry' : upgradeGeoms[k],
                                     '--scenario' : 'pp'
                                     }
+    if upgradeCustoms[k]!=None : upgradeStepDict['HarvFull'][k]['--customise']=upgradeCustoms[k]
+
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
                                    '--eventcontent':'FEVTDEBUGHLT,DQM',
                                    '--datatier':'GEN-SIM-DIGI-RECO,DQM',
                                    '--conditions':upgradeGTs[k],
                                    '--fast':'',
                                    '--geometry' : upgradeGeoms[k],
-                                   '--customise' : upgradeCustoms[k],
                                    '--relval':'27000,3000'}
+    if upgradeCustoms[k]!=None : upgradeStepDict['FastSim'][k]['--customise']=upgradeCustoms[k]
+
     upgradeStepDict['HarvFast'][k]={'-s':'HARVESTING:validationHarvestingFS',
                                     '--conditions':upgradeGTs[k],
                                     '--mc':'',
                                     '--magField' : '38T_PostLS1',
-                                    '--customise' : upgradeCustoms[k],
                                     '--geometry' : upgradeGeoms[k],
                                     '--scenario' : 'pp'
                                     }
+    if upgradeCustoms[k]!=None : upgradeStepDict['HarvFast'][k]['--customise']=upgradeCustoms[k]
+
 
 upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
                   'SingleElectronPt35_cfi','SingleElectronPt1000_cfi',
