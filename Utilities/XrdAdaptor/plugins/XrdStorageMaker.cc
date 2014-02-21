@@ -1,10 +1,23 @@
+
+#include "FWCore/Utilities/interface/EDMException.h"
+
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
-#include "XrdClient/XrdClientAdmin.hh"
-#include "XrdClient/XrdClientUrlSet.hh"
-#include "XrdClient/XrdClientEnv.hh"
+
+#include "XrdCl/XrdClDefaultEnv.hh"
+
+class MakerResponseHandler : public XrdCl::ResponseHandler
+{
+public:
+    virtual void HandleResponse( XrdCl::XRootDStatus *status,
+                                 XrdCl::AnyObject    *response )
+    {
+        if (response) delete response;
+    }
+
+};
 
 class XrdStorageMaker : public StorageMaker
 {
@@ -15,11 +28,6 @@ public:
 			 const std::string &path,
 			 int mode) override
   {
-    // The important part here is not the cache size (which will get
-    // auto-adjusted), but the fact the cache is set to something non-zero.
-    // If we don't do this before creating the XrdFile object, caching will be
-    // completely disabled, resulting in poor performance.
-    EnvPutInt(NAME_READCACHESIZE, 20*1024*1024);
 
     StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
@@ -39,13 +47,10 @@ public:
   virtual void stagein (const std::string &proto, const std::string &path) override
   {
     std::string fullpath(proto + ":" + path);
-    XrdClientAdmin admin(fullpath.c_str());
-    if (admin.Connect())
-    {
-      XrdOucString str(fullpath.c_str());
-      XrdClientUrlSet url(str);
-      admin.Prepare(url.GetFile().c_str(), kXR_stage | kXR_noerrs, 0);
-    }
+    XrdCl::URL url(fullpath);
+    XrdCl::FileSystem fs(url);
+    std::vector<std::string> fileList; fileList.push_back(url.GetPath());
+    fs.Prepare(fileList, XrdCl::PrepareFlags::Stage, 0, &m_null_handler);
   }
 
   virtual bool check (const std::string &proto,
@@ -53,29 +58,48 @@ public:
 		      IOOffset *size = 0) override
   {
     std::string fullpath(proto + ":" + path);
-    XrdClientAdmin admin(fullpath.c_str());
-    if (! admin.Connect())
-      return false; // FIXME: Throw?
+    XrdCl::URL url(fullpath);
+    XrdCl::FileSystem fs(url);
 
-    long      id;
-    long      flags;
-    long      modtime;
-    long long xrdsize;
+    XrdCl::StatInfo *stat;
+    if (!(fs.Stat(fullpath, stat)).IsOK() || (stat == nullptr))
+    {
+        return false;
+    }
 
-    XrdOucString str(fullpath.c_str());
-    XrdClientUrlSet url(str);
-
-    if (! admin.Stat(url.GetFile().c_str(), id, xrdsize, flags, modtime))
-      return false; // FIXME: Throw?
-
-    *size = xrdsize;
+    if (size) *size = stat->GetSize();
     return true;
   }
 
   virtual void setDebugLevel (unsigned int level) override
   {
-    EnvPutInt("DebugLevel", level);
+    switch (level)
+    {
+      case 0:
+        XrdCl::DefaultEnv::SetLogLevel("Error");
+        break;
+      case 1:
+        XrdCl::DefaultEnv::SetLogLevel("Warning");
+        break;
+      case 2:
+        XrdCl::DefaultEnv::SetLogLevel("Info");
+        break;
+      case 3:
+        XrdCl::DefaultEnv::SetLogLevel("Debug");
+        break;
+      case 4:
+        XrdCl::DefaultEnv::SetLogLevel("Dump");
+        break;
+      default:
+        edm::Exception ex(edm::errors::Configuration);
+        ex << "Invalid log level specified " << level;
+        ex.addContext("Calling XrdStorageMaker::setDebugLevel()");
+        throw ex;
+    }
   }
+
+private:
+  MakerResponseHandler m_null_handler;
 };
 
 DEFINE_EDM_PLUGIN (StorageMakerFactory, XrdStorageMaker, "root");
