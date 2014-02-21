@@ -166,10 +166,11 @@ def setupCrabDict (options):
     crab['email']         = options.email
     if options.crabCondor:
         crab['scheduler'] = 'condor'
-        crab['useServer'] = ''
+#        crab['useServer'] = ''
     else:
-        crab['scheduler'] = 'glite'
-        crab['useServer'] = 'use_server              = 1'
+        crab['scheduler'] = 'remoteGlidein'
+#        crab['useServer'] = 'use_server              = 1'
+    crab['useServer'] = ''
     return crab
 
 
@@ -217,7 +218,9 @@ jobtype                 = cmssw
 
 if __name__ == "__main__":
     email = guessEmail()
-    parser = optparse.OptionParser ("Usage: %prog [options] dataset events_or_events.txt", description='''This program facilitates picking specific events from a data set.  For full details, please visit https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
+    parser = optparse.OptionParser ("Usage: %prog [options] dataset events_or_events.txt", description='''This program 
+facilitates picking specific events from a data set.  For full details, please visit 
+https://twiki.cern.ch/twiki/bin/view/CMS/PickEvents ''')
     parser.add_option ('--output', dest='base', type='string',
                        default='pickevents',
                        help='Base name to use for output files (root, JSON, run and event list, etc.; default "%default")')
@@ -323,3 +326,4 @@ if __name__ == "__main__":
         print "\n%s" % command
         if options.runInteractive and not options.printInteractive:
             os.system (command)
+
