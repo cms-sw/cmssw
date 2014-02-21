@@ -35,7 +35,7 @@ particleFlowClusterPS = cms.EDProducer("PFClusterProducer",
     # n neighbours in PS 
     nNeighbours = cms.int32(8),                                       
     # sigma of the shower in preshower     
-    showerSigma = cms.double(0.2),
+    showerSigma = cms.double(0.3),
     # n crystals for position calculation in PS
     posCalcNCrystal = cms.int32(-1),
     # use cells with common corner to build topo-clusters
