@@ -2885,13 +2885,9 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
       ///examine event for integrity
       //CSCDCCExaminer examiner;
       examiner = new CSCDCCExaminer();
-      examiner->output1().redirect(examiner_out);
-      examiner->output2().redirect(examiner_err);
       if( examinerMask&0x40000 ) examiner->crcCFEB(1);
       if( examinerMask&0x8000  ) examiner->crcTMB (1);
       if( examinerMask&0x0400  ) examiner->crcALCT(1);
-      examiner->output1().show();
-      examiner->output2().show();
       examiner->setMask(examinerMask);
       const short unsigned int *data = (short unsigned int *)fedData.data();
      
