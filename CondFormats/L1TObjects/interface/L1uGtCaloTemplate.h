@@ -80,6 +80,13 @@ public:
 
         unsigned long long deltaPhiRange;
         unsigned int deltaPhiMaxbits;
+
+      unsigned int deltaEtaRangeLower;
+      unsigned int deltaEtaRangeUpper;
+
+      unsigned int deltaPhiRangeLower;
+      unsigned int deltaPhiRangeUpper;
+
     };
 
 

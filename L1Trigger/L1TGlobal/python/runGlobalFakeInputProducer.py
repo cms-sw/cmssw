@@ -154,7 +154,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::L1uGtRecordDump",
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
 		dumpGTRecord   = cms.bool(True),
-		dumpVectors    = cms.bool(False),
+		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string("TestVector.txt")
 		 )
 

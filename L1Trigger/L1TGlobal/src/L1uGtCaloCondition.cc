@@ -263,6 +263,7 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
 	    LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, CONGRATS!! This calo obj passed the condition." << std::endl;
 	  else 
 	    LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, FAIL!! This calo obj failed the condition." << std::endl;
+	  objectsInComb.push_back(index[i]);
         }
 
         // if permutation does not match particle conditions
@@ -295,8 +296,8 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
             L1uGtCaloTemplate::CorrelationParameter corrPar =
                 *(m_gtCaloTemplate->correlationParameter());
 
-            unsigned int candDeltaEta;
-            unsigned int candDeltaPhi;
+            //unsigned int candDeltaEta;
+            //unsigned int candDeltaPhi;
 
             // check candDeltaEta
 
@@ -306,11 +307,15 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
             int signBit[ObjInWscComb] = { 0, 0 };
 
             int scaleEta = 1 << (m_ifCaloEtaNumberBits - 1);
+// 	    LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, m_ifCaloEtaNumberBits = " << m_ifCaloEtaNumberBits
+// 				   << ", scaleEta = " << scaleEta << std::endl;
 
             for (int i = 0; i < ObjInWscComb; ++i) {
                 signBit[i] = ((candVec->at(useBx,index[i]))->hwEta() & scaleEta)
                     >>(m_ifCaloEtaNumberBits - 1);
-                signedEta[i] = ((candVec->at(useBx,index[i]))->hwEta() )%scaleEta;
+		//// DMP: For now, do not scale eta
+                //signedEta[i] = ((candVec->at(useBx,index[i]))->hwEta() )%scaleEta;
+                signedEta[i] = ( (candVec->at(useBx,index[i]))->hwEta() );
 
                 if (signBit[i] == 1) {
                     signedEta[i] = (-1)*signedEta[i];
@@ -318,16 +323,24 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
 
             }
 
-            // compute candDeltaEta - add 1 if signs are different (due to +0/-0 indices)
-            candDeltaEta = static_cast<int> (std::abs(signedEta[1] - signedEta[0]))
-                + static_cast<int> (signBit[1]^signBit[0]);
+//             // compute candDeltaEta - add 1 if signs are different (due to +0/-0 indices)
+//             candDeltaEta = static_cast<int> (std::abs(signedEta[1] - signedEta[0]))
+//                 + static_cast<int> (signBit[1]^signBit[0]);
 
-            if ( !checkBit(corrPar.deltaEtaRange, candDeltaEta) ) {
-                continue;
-            }
+
+	    // check delta eta
+	    if( !checkRangeDeltaEta( signedEta[0], signedEta[1], corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper) ){
+	      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRangeDeltaEta" << std::endl;
+	      continue;
+	    }
+
+//             if ( !checkBit(corrPar.deltaEtaRange, candDeltaEta) ) {
+//                 continue;
+//             }
 
             // check candDeltaPhi
 
+	      /*
             // calculate absolute value of candDeltaPhi
             if ((candVec->at(useBx,index[0]))->hwPhi()> (candVec->at(useBx,index[1]))->hwPhi()) {
                 candDeltaPhi = (candVec->at(useBx,index[0]))->hwPhi() - (candVec->at(useBx,index[1]))->hwPhi();
@@ -366,11 +379,18 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
                     return false;
                 }
             }
+	      */
 
+	    // check delta phi
+	    if( !checkRangeDeltaPhi( (candVec->at(useBx,index[0]))->hwPhi(), (candVec->at(useBx,index[1]))->hwPhi(), 
+				     corrPar.deltaPhiRangeLower, corrPar.deltaPhiRangeUpper) ){
+	      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRangeDeltaPhi" << std::endl;
+	      continue;
+	    }
 
-            if (!checkBit(corrPar.deltaPhiRange, candDeltaPhi)) {
-                continue;
-            }
+//             if (!checkBit(corrPar.deltaPhiRange, candDeltaPhi)) {
+//                 continue;
+//             }
 
         } // end wsc check
 

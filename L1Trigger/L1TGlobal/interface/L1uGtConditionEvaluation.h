@@ -125,6 +125,15 @@ protected:
 						   const Type1& beginVetoR, const Type1& endVetoR ) const;
 
 
+    /// check if a value is in a given range 
+    template<class Type1> const bool checkRangeDeltaEta(const unsigned int obj1Eta, const unsigned int obj2Eta, 
+							const Type1& lowerR, const Type1& upperR ) const;
+
+    /// check if a value is in a given range 
+    template<class Type1> const bool checkRangeDeltaPhi(const unsigned int obj1Phi, const unsigned int obj2Phi,
+							const Type1& lowerR, const Type1& upperR ) const;
+
+
 protected:
 
     /// maximum number of objects received for the evaluation of the condition
@@ -350,6 +359,104 @@ template<class Type1> const bool L1uGtConditionEvaluation::checkRangePhi(const u
   }
 
   LogDebug("l1t|Global") << "=====> HELP!! I'm trapped and I cannot escape! AHHHHHH" << std::endl;
+
+ }
+
+template<class Type1> const bool L1uGtConditionEvaluation::checkRangeDeltaEta(const unsigned int obj1Eta, const unsigned int obj2Eta, 
+									      const Type1& lowerR, const Type1& upperR )  const {
+
+/*   // set condtion to true if beginR==endR = default -1 */
+/*   if( beginR==endR && beginR==-1 ){ */
+/*     return true; */
+/*   } */
+
+  unsigned int compare = obj1Eta - obj2Eta;
+  bool cond = ( (compare>>7) & 1 ) ? false : true;
+
+  unsigned int larger, smaller;
+  if( cond ){
+    larger = obj1Eta;
+    smaller= obj2Eta;
+  }
+  else{
+    larger = obj2Eta;
+    smaller= obj1Eta;
+  }
+
+  unsigned int diff = ( ( larger + ((~smaller + 1) & 255) ) & 255);
+
+  unsigned int diff1 = upperR - lowerR;
+  unsigned int diff2 = diff - lowerR;
+  unsigned int diff3 = upperR - diff;
+
+  bool cond1 = ( (diff1>>7) & 1 ) ? false : true;
+  bool cond2 = ( (diff2>>7) & 1 ) ? false : true;
+  bool cond3 = ( (diff3>>7) & 1 ) ? false : true;
+
+  LogDebug("l1t|Global")
+    << "\n l1t::L1uGtConditionEvaluation"
+    << "\n\t obj1Eta = " << obj1Eta
+    << "\n\t obj2Eta = " << obj2Eta
+    << "\n\t lowerR = " << lowerR
+    << "\n\t upperR = " << upperR
+    << "\n\t compare = " << compare
+    << "\n\t cond = " << cond
+    << "\n\t diff = " << diff
+    << "\n\t diff1 = " << diff1
+    << "\n\t cond1 = " << cond1
+    << "\n\t diff2 = " << diff2
+    << "\n\t cond2 = " << cond2
+    << "\n\t diff3 = " << diff3
+    << "\n\t cond3 = " << cond3
+    << std::endl;
+
+  if( cond1 && (cond2 && cond3 ) )      return true;
+  else if( !cond1 && (cond2 || cond3) ) return true;
+  else{
+    return false;
+  }
+
+ }
+
+
+
+template<class Type1> const bool L1uGtConditionEvaluation::checkRangeDeltaPhi(const unsigned int obj1Phi, const unsigned int obj2Phi, 
+									      const Type1& lowerR, const Type1& upperR )  const {
+
+  int deltaPhi = abs(obj1Phi-obj2Phi);
+  if( deltaPhi>71 ) deltaPhi = 143 - deltaPhi;
+
+  int diff1 = upperR - lowerR;
+  int diff2 = deltaPhi - lowerR;
+  int diff3 = upperR - deltaPhi;
+
+  bool cond1 = ( diff1<0 ) ? false : true;
+  bool cond2 = ( diff2<0 ) ? false : true;
+  bool cond3 = ( diff3<0 ) ? false : true;
+
+  LogDebug("l1t|Global")
+    << "\n l1t::L1uGtConditionEvaluation"
+    << "\n\t obj1Phi = " << obj1Phi
+    << "\n\t obj2Phi = " << obj2Phi
+    << "\n\t deltaPhi = " << deltaPhi
+    << "\n\t lowerR = " << lowerR
+    << "\n\t upperR = " << upperR
+    << "\n\t diff1 = " << diff1
+    << "\n\t cond1 = " << cond1
+    << "\n\t diff2 = " << diff2
+    << "\n\t cond2 = " << cond2
+    << "\n\t diff3 = " << diff3
+    << "\n\t cond3 = " << cond3
+    << std::endl;
+
+  // check if value is in range
+  // for begin <= end takes [begin, end]
+  // for begin >= end takes [begin, end] over zero angle!
+  if( cond1 && (cond2 && cond3 ) )      return true;
+  else if( !cond1 && (cond2 || cond3) ) return true;
+  else{
+    return false;
+  }
 
  }
 
