@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include <string>
 #include <memory>
@@ -28,9 +29,6 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
 //     delete _propagator;
 //     _propagator = 0;
 //   }
-  ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
-
 
   std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
   double mass      = pset_.getParameter<double>("Mass");
@@ -39,6 +37,15 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
   bool useOldAnalPropLogic = pset_.existsAs<bool>("useOldAnalPropLogic") ? 
     pset_.getParameter<bool>("useOldAnalPropLogic") : true;
   double ptMin     = pset_.existsAs<double>("ptMin") ? pset_.getParameter<double>("ptMin") : -1.0;
+
+  ESHandle<MagneticField> magfield;
+  std::string mfName = "";
+  if (pset_.exists("SimpleMagneticField"))
+    mfName = pset_.getParameter<std::string>("SimpleMagneticField");
+  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName,magfield);
+  //  edm::ESInputTag mfESInputTag(mfName);
+  //  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
+  //fixme check that useRK is false when using SimpleMagneticField 
 
   PropagationDirection dir = alongMomentum;
   
