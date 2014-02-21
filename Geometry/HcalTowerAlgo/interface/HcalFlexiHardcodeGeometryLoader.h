@@ -5,7 +5,7 @@
  *
  * $Date: 2012/03/22 10:46:31 $
  * $Revision: 1.3 $
- * \author F.Ratnikov, UMd
+ * \author F.Ratnikov, UMdld
 */
 
 #include "Geometry/CaloGeometry/interface/CaloVGeometryLoader.h"
@@ -14,46 +14,51 @@
 #include <vector>
 
 class HcalTopology;
+class HcalDDDRecConstants;
 
 class HcalFlexiHardcodeGeometryLoader {
 
 public:
   HcalFlexiHardcodeGeometryLoader(const edm::ParameterSet&);
   
-  CaloSubdetectorGeometry* load(const HcalTopology& fTopology);
+  CaloSubdetectorGeometry* load(const HcalTopology& fTopology, const HcalDDDRecConstants& hcons);
 
 private:
 
   struct HBHOCellParameters {
-    HBHOCellParameters (int f_eta, int f_depth, int f_phiFirst, int f_phiStep, int f_dPhi, float f_rMin, float f_rMax, float f_etaMin, float f_etaMax)
-      : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), phiStep(f_phiStep), dphi(f_dPhi), rMin(f_rMin), rMax(f_rMax), etaMin(f_etaMin), etaMax(f_etaMax)
+    HBHOCellParameters (int f_eta, int f_depth, int f_phiFirst, int f_nphi, int f_phiStep, double f_phiStart, double f_dPhi, double f_rMin, double f_rMax, double f_etaMin, double f_etaMax)
+    : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), nPhi(f_nphi), phiStep(f_phiStep), phiStart(f_phiStart), dphi(f_dPhi), rMin(f_rMin), rMax(f_rMax), etaMin(f_etaMin), etaMax(f_etaMax)
     {}
  
     int eta;
     int depth;
     int phiFirst;
+    int nPhi;
     int phiStep;
-    int dphi;
-    float rMin;
-    float rMax;
-    float etaMin;
-    float etaMax;
+    double phiStart;
+    double dphi;
+    double rMin;
+    double rMax;
+    double etaMin;
+    double etaMax;
   };
 
   struct HECellParameters {
-    HECellParameters (int f_eta, int f_depth, int f_phiFirst, int f_phiStep, int f_dPhi, float f_zMin, float f_zMax, float f_etaMin, float f_etaMax)
-      : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), phiStep(f_phiStep), dphi(f_dPhi), zMin(f_zMin), zMax(f_zMax), etaMin(f_etaMin), etaMax(f_etaMax)
+    HECellParameters (int f_eta, int f_depth, int f_phiFirst, int f_nphi, int f_phiStep, double f_phiStart, double f_dPhi, double f_zMin, double f_zMax, double f_etaMin, double f_etaMax)
+    : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), nPhi(f_nphi), phiStep(f_phiStep), phiStart(f_phiStart), dphi(f_dPhi), zMin(f_zMin), zMax(f_zMax), etaMin(f_etaMin), etaMax(f_etaMax)
     {}
  
     int eta;
     int depth;
     int phiFirst;
+    int nPhi;
     int phiStep;
-    int dphi;
-    float zMin;
-    float zMax;
-    float etaMin;
-    float etaMax;
+    double phiStart;
+    double dphi;
+    double zMin;
+    double zMax;
+    double etaMin;
+    double etaMax;
   };
 
   struct HFCellParameters {
@@ -72,9 +77,9 @@ private:
     float rMax;
   };
 
-  std::vector <HBHOCellParameters> makeHBCells (const HcalTopology & topology);
+  std::vector <HBHOCellParameters> makeHBCells (const HcalDDDRecConstants& hcons);
   std::vector <HBHOCellParameters> makeHOCells ();
-  std::vector <HECellParameters> makeHECells (const HcalTopology & topology);
+  std::vector <HECellParameters> makeHECells (const HcalDDDRecConstants& hcons);
   std::vector <HECellParameters> makeHECells_H2 ();
   std::vector <HFCellParameters> makeHFCells ();
 
@@ -84,8 +89,6 @@ private:
 
   int    MAX_HCAL_PHI;
   double DEGREE2RAD;
-
-  std::vector<std::vector<int> > m_segmentation;
   
 };
 
