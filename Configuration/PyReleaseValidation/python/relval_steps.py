@@ -961,11 +961,11 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019WithGEM' : 'auto:upgrade2019',
              '2017Aging' : 'W17_300_62E2::All',
              '2019Aging' : 'W19_300_62E2::All',
-             'BE5D' : 'auto:upgradePLS3',
-             'BE5DPixel10D' : 'auto:upgradePLS3',
+             'BE5D' : 'auto:upgrade2019',
+             'BE5DPixel10D' : 'auto:upgrade2019',
              '2017Fast' : 'auto:upgrade2017',
-             'BE5DFast' : 'auto:upgradePLS3',
-             'BE5DForwardFast' : 'auto:upgradePLS3'
+             'BE5DFast' : 'auto:upgrade2019',
+             'BE5DForwardFast' : 'auto:upgrade2019'
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
                  '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
