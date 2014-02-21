@@ -66,7 +66,6 @@ L1Validator::L1Validator(const edm::ParameterSet& iConfig){
 
   //_fileName = iConfig.getParameter<std::string>("fileName");
 
-  _dbe->setCurrentFolder(_dirName.c_str());
   _Hists = new L1ValidatorHists(_dbe);
 }
 
@@ -173,13 +172,14 @@ void L1Validator::endJob(){
 
 // ------------ method called when starting to processes a run  ------------
 void L1Validator::beginRun(edm::Run const&, edm::EventSetup const&){
+  _dbe->setCurrentFolder(_dirName.c_str());
   _Hists->Book();
 }
 
 // ------------ method called when ending the processing of a run  ------------
 
 void L1Validator::endRun(edm::Run const&, edm::EventSetup const&){
-  _Hists->Normalize();
+  //_Hists->Normalize();
 }
 
 
