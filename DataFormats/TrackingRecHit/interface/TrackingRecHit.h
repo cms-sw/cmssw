@@ -8,6 +8,8 @@
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
+class GeomDet;
+
 class TrackingRecHit {
 public:
 
@@ -29,12 +31,19 @@ public:
   /// definition of equality via shared input
   enum SharedInputType {all, some};
   
-  explicit TrackingRecHit(DetId id, Type type=valid ) : m_id(id), m_status(type) {}
-  explicit TrackingRecHit(id_type id=0, Type type=valid ) : m_id(id), m_status(type) {}
+  explicit TrackingRecHit(DetId id, Type type=valid ) : m_id(id), m_status(type),  m_det(nullptr) {}
+  explicit TrackingRecHit(id_type id=0, Type type=valid ) : m_id(id), m_status(type), m_det(nullptr) {}
 
-  TrackingRecHit(DetId id, unsigned int rt, Type type=valid  ) : m_id(id), m_status((rt<< rttiShift)|int(type)) {}
+  TrackingRecHit(DetId id, unsigned int rt, Type type=valid  ) : m_id(id), m_status((rt<< rttiShift)|int(type)), m_det(nullptr) {}
 
-  
+  TrackingRecHit(DetId id, GeomDet const * idet, Type type=valid ) : m_id(id), m_status(type),  m_det(idet) {}
+  TrackingRecHit(DetId id, GeomDet const * idet, unsigned int rt, Type type=valid  ) : m_id(id), m_status((rt<< rttiShift)|int(type)), m_det(idet) {}
+
+  TrackingRecHit(const GeomDet * idet, DetId id, Type type=valid  ) : m_id(id), m_status(type), m_det(idet){}
+  TrackingRecHit(const GeomDet * idet, DetId id, unsigned int rt, Type type=valid  ) : m_id(id), m_status((rt<< rttiShift)|int(type)),  m_det(idet){}
+  TrackingRecHit(const GeomDet * idet,  TrackingRecHit const & rh) : m_id(rh.m_id), m_status(rh.m_status), m_det(idet){} 
+
+
   virtual ~TrackingRecHit() {}
   
   virtual TrackingRecHit * clone() const = 0;
@@ -60,6 +69,8 @@ public:
 
   id_type rawId() const { return m_id;}
   DetId geographicalId() const {return m_id;}
+
+  const GeomDet * det() const { return m_det;}
   
   virtual LocalPoint localPosition() const = 0;
   
@@ -95,7 +106,9 @@ private:
   id_type m_id;
 
   unsigned int m_status; // bit assigned (type 0-8) (rtti 24-31) 
-    
+
+  const GeomDet * m_det;
+
 };
 
 #endif

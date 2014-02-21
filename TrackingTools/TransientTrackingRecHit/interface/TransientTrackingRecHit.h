@@ -29,13 +29,32 @@ public:
 
 
   TransientTrackingRecHit(){}
+
+
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  template<typename... Args>
+  explicit  TransientTrackingRecHit(Args && ...args) : 
+    TrackingRecHit(std::forward<Args>(args)...) {countTTRH(type());}
+#else
   explicit TransientTrackingRecHit(TrackingRecHit::id_type id, Type type=valid) : 
     TrackingRecHit(id, type)
   {countTTRH(type);}
+
+  TransientTrackingRecHit(TrackingRecHit::id_type id, GeomDet const * idet, Type type=valid) : 
+   TrackingRecHit(id, idet, type)
+  {countTTRH(type);}
+   
+  TransientTrackingRecHit(GeomDet const * idet, TrackingRecHit::id_type id, Type type=valid) : 
+   TrackingRecHit(id, idet, type)
+  {countTTRH(type);}
+
+  TransientTrackingRecHit(const GeomDet * idet,  TrackingRecHit const & rh) : TrackingRecHit(idet,rh)
+  {countTTRH(rh.type());}
+#endif  
   
   explicit TransientTrackingRecHit(TrackingRecHit const & rh) : 
-    TrackingRecHit(rh.geographicalId(), rh.type())
-  {countTTRH(type());}
+  TrackingRecHit(rh)
+  {countTTRH(rh.type());}
 
   virtual ~TransientTrackingRecHit(){}
 
@@ -44,7 +63,6 @@ public:
 
   /// The GomeDet* can be zero for InvalidTransientRecHits and for TConstraintRecHit2Ds
 
-  virtual const GeomDet * det() const =0;
   virtual const Surface * surface() const {return &(det()->surface());}
 
   /// CAUTION: the GeomDetUnit* is zero for composite hits 
