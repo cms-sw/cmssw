@@ -98,11 +98,12 @@ process.pixelLessStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInput
 process.tobTecStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 
 process.muons.TrackerKinkFinderParameters.TrackerRecHitBuilder = cms.string('WithTrackAngle')
+from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
 process.regionalCosmicTrackerSeeds.SeedMergerPSet = cms.PSet(
         mergeTriplets = cms.bool(False),
         ttrhBuilderLabel = cms.string( "PixelTTRHBuilderWithoutAngle" ),
         addRemainingTriplets = cms.bool(False),
-        layerListName = cms.string( "PixelSeedMergerQuadruplets" )
+        layerList = PixelSeedMergerQuadruplets
         )
 process.regionalCosmicTracks.TTRHBuilder = cms.string('WithTrackAngle')
 

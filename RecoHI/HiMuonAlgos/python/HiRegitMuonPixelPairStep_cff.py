@@ -27,9 +27,7 @@ hiRegitMuPixelPairStepClusters = RecoHI.HiTracking.hiRegitPixelPairStep_cff.hiRe
 
 
 # SEEDING LAYERS
-hiRegitMuPixelPairStepSeedLayers =   RecoHI.HiTracking.hiRegitPixelPairStep_cff.hiRegitPixelPairStepSeedLayers.clone(
-    ComponentName = 'hiRegitMuPixelPairStepSeedLayers'
-    )
+hiRegitMuPixelPairStepSeedLayers =   RecoHI.HiTracking.hiRegitPixelPairStep_cff.hiRegitPixelPairStepSeedLayers.clone()
 hiRegitMuPixelPairStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitMuPixelPairStepClusters')
 hiRegitMuPixelPairStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitMuPixelPairStepClusters')
 
@@ -95,6 +93,7 @@ hiRegitMuPixelPairStepSelector               =  RecoHI.HiTracking.hiRegitPixelPa
     )
 
 hiRegitMuonPixelPairStep = cms.Sequence(hiRegitMuPixelPairStepClusters*
+                                        hiRegitMuPixelPairStepSeedLayers*
                                         hiRegitMuPixelPairStepSeeds*
                                         hiRegitMuPixelPairStepTrackCandidates*
                                         hiRegitMuPixelPairStepTracks*
