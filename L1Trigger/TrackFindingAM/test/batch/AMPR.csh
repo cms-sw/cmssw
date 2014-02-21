@@ -154,6 +154,7 @@ foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f15`)
 	    if ($deal != "0") then # This process was ran
 		rm fpr_job_$OUTS1.sh
 		@ secdone += 1
+		@ sec += 1
 		continue
 	    endif
 	    
