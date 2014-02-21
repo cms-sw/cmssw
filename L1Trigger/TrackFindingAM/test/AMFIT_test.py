@@ -85,7 +85,7 @@ process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMPR')
 # Keep the FIT output
 process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMFIT')
 process.RAWSIMoutput.outputCommands.append('drop *_TTTracksFromPattern_*_*')
-
+process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 
 # Path and EndPath definitions
 process.L1AMFIT_step          = cms.Path(process.TTTracksFromPatternswStubs)
