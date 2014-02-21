@@ -121,9 +121,7 @@ void HiggsValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iS
 }//analyze
 
 int HiggsValidation::findHiggsDecayChannel(const HepMC::GenParticle* genParticle,std::vector<HepMC::GenParticle*> &decayprod){
-  
   if(genParticle->status() == 1) return monitoredDecays->stable();
-  
   std::vector<int> children;
   if ( genParticle->end_vertex() ) {
     HepMC::GenVertex::particle_iterator des;
@@ -140,7 +138,9 @@ int HiggsValidation::findHiggsDecayChannel(const HepMC::GenParticle* genParticle
     }
   }
   
-  if(children.size() == 2 && children.at(0) != 0 && children.at(1) != 0) return monitoredDecays->position(children.at(0),children.at(1));
+  if(children.size() == 2 && children.at(0) != 0 && children.at(1) != 0){
+    return monitoredDecays->position(children.at(0),children.at(1));
+  }
   return monitoredDecays->undetermined();
 }
 
