@@ -13,13 +13,15 @@
 
 GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg)
 {
-   const float PI=TMath::Pi();
    cfg_= cfg; 
    simInputLabel_= simInputLabel;
    dbe_= dbe;
    minPt_  = cfg_.getUntrackedParameter<double>("gemDigiMinPt",5.0);
    minEta_ = cfg_.getUntrackedParameter<double>("gemDigiMinEta",1.55);
    maxEta_ = cfg_.getUntrackedParameter<double>("gemDigiMaxEta",2.18);
+}
+void GEMTrackMatch::bookHisto(){
+   const float PI=TMath::Pi();
    buildLUT();
    track_eta =  dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
    track_phi =  dbe_->book1D("track_phi", "track_phi;SimTrack |#eta|;# of tracks", 100,-PI,PI);

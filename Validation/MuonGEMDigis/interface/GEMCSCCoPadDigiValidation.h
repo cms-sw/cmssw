@@ -20,7 +20,7 @@ public:
                          const edm::InputTag & inputTag);
   ~GEMCSCCoPadDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
-
+  void bookHisto();
 
 
  private:

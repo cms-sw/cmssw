@@ -8,10 +8,13 @@
 
 GEMCSCCoPadDigiValidation::GEMCSCCoPadDigiValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag)
-:  GEMBaseValidation(dbe, inputTag) {
+:  GEMBaseValidation(dbe, inputTag) { }
 
-   const int npadsGE11 = 96;
-   int nPads = npadsGE11 ; 
+void GEMCSCCoPadDigiValidation::bookHisto() {
+
+   int npadsGE11 = theGEMGeometry->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
+   int nPads = npadsGE11 ;
+ 
    theCSCCoPad_xy_rm1 = dbe_->book2D("copad_dg_xy_rm1", "Digi occupancy: region -1;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260);
    theCSCCoPad_xy_rp1 = dbe_->book2D("copad_dg_xy_rp1", "Digi occupancy: region  1;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260);
 
@@ -44,7 +47,7 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
   edm::Handle<GEMCSCPadDigiCollection> gem_digis;
   e.getByLabel(theInputTag, gem_digis);
   if (!gem_digis.isValid()) {
-    edm::LogError("GEMDigiValidation") << "Cannot get pads by label "
+    edm::LogError("GEMCSCCoPadDigiValidation") << "Cannot get pads by label "
                                        << theInputTag.encode();
   }
   //std::cout<<" Hello "<<std::endl;
@@ -57,12 +60,8 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
     const BoundPlane & surface = gdet->surface();
     const GEMEtaPartition * roll = theGEMGeometry->etaPartition(id);
 
-//    Int_t detId = id();
     Short_t region = (Short_t) id.region();
-//    Short_t ring = (Short_t) id.ring();
 //    Short_t station = (Short_t) id.station();
-//    Short_t layer = (Short_t) id.layer();
-//    Short_t chamber = (Short_t) id.chamber();
 //    Short_t id_roll = (Short_t) id.roll();
 
     GEMCSCPadDigiCollection::const_iterator digiItr;
@@ -73,8 +72,6 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
       Short_t bx = (Short_t) digiItr->bx();
 
       LocalPoint lp = roll->centreOfPad(digiItr->pad());
-//      Float_t x = (Float_t) lp.x();
-//      Float_t y = (Float_t) lp.y();
 
       GlobalPoint gp = surface.toGlobal(lp);
       Float_t g_r = (Float_t) gp.perp();
@@ -83,9 +80,9 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();
       Float_t g_z = (Float_t) gp.z();
-      edm::LogInfo("CSCCoPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";	
-      edm::LogInfo("CSCCoPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl;	
-      edm::LogInfo("CSCCoPadDIGIValidation")<<"Global bx "<<bx<<std::endl;	
+      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";	
+      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl;	
+      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global bx "<<bx<<std::endl;	
 
       // fill hist
       if ( region== -1 ) {
@@ -104,7 +101,7 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
 
       }
       else {
-        edm::LogInfo("CSCCOPadDIGIValidation")<<"region : "<<region<<std::endl;
+        edm::LogInfo("GEMCSCCOPadDIGIValidation")<<"region : "<<region<<std::endl;
       }
    }
   }
