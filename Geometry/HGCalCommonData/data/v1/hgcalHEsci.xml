@@ -6,8 +6,8 @@
   <Constant name="ZmaxHEsci"  value="5193.0*mm"/>
   <Constant name="rMinHEsci1" value="[etaMax:slope]*[ZminHEsci]"/>
   <Constant name="rMinHEsci2" value="[etaMax:slope]*[ZmaxHEsci]"/>
-  <Constant name="rMaxHEsci1" value="([hgcal:rMaxHGCal3]+[hgcal:slope3]*([ZminHEsci]-[hgcal:zHGCal3]))"/>
-  <Constant name="rMaxHEsci2" value="([hgcal:rMaxHGCal4])"/>
+  <Constant name="rMaxHEsci1" value="([hgcal:rMaxHGCal2]+[hgcal:slope3]*([ZminHEsci]-[hgcal:zHGCal2]))"/>
+  <Constant name="rMaxHEsci2" value="([hgcal:rMaxHGCal3])"/>
   <Constant name="rMapHEsci1" value="[rMaxHEsci1]*[hgcal:factor]"/>
   <Constant name="rMapHEsci2" value="[rMaxHEsci2]*[hgcal:factor]"/>
 </ConstantsSection> 
@@ -15,7 +15,7 @@
 <SolidSection label="hgcalHEsci.xml" >
  <Polyhedra name="HGCalHEScintillator" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
   <ZSection z="[ZminHEsci]"     rMin="[rMinHEsci1]"       rMax="[rMapHEsci1]"/>
-  <ZSection z="[hgcal:zHGCal4]" rMin="[hgcal:rMinHGCal4]" rMax="[hgcal:rMapHGCal4]"/>
+  <ZSection z="[hgcal:zHGCal3]" rMin="[hgcal:rMinHGCal3]" rMax="[hgcal:rMapHGCal3]"/>
   <ZSection z="[ZmaxHEsci]"     rMin="[rMinHEsci2]"       rMax="[rMapHEsci2]"/>
  </Polyhedra>
 </SolidSection>
@@ -59,19 +59,47 @@
    0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1,
    0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1 </Vector>
   <Vector name="HeightType" type="numeric" nEntries="66">
-   0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
-   0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
-   0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0 </Vector>
+   0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1,
+   0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1,
+   0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1 </Vector>
   <Numeric name="ThickModule" value="43.5*mm"/>
   <Numeric name="Sectors"     value="18"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
-  <Vector name="SlopeTop" type="numeric" nEntries="3">
-    [hgcal:slope2], [hgcal:slope3], 0</Vector>
-  <Vector name="ZFront" type="numeric" nEntries="3">
-    [hgcal:zHGCal1], [hgcal:zHGCal3], [hgcal:zHGCal4]</Vector>
-  <Vector name="RMaxFront" type="numeric" nEntries="3">
-    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal3], [hgcal:rMaxHGCal4]</Vector>
+  <Vector name="SlopeTop" type="numeric" nEntries="4">
+    [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
+  <Vector name="ZFront" type="numeric" nEntries="4">
+    [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal3], [hgcal:zHGCal4]</Vector>
+  <Vector name="RMaxFront" type="numeric" nEntries="4">
+    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal2], [hgcal:rMaxHGCal3], [hgcal:rMaxHGCal4]</Vector>
  </Algorithm>
 </PosPartSection>
+
+<SpecParSection label="hgcalHEsci.xml">
+  <SpecPar name="HGCalHEScintillator readout granularity per layer">
+    <PartSelector path="//HGCalHEScintillator"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+  </SpecPar>
+</SpecParSection>
 
 </DDDefinition>
