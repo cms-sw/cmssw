@@ -2,8 +2,8 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="hgcalHEsci.xml" eval="true">
-  <Constant name="ZminHEsci"  value="4410.0*mm"/>
-  <Constant name="ZmaxHEsci"  value="5193.0*mm"/>
+  <Constant name="ZminHEsci"  value="4366.5*mm"/>
+  <Constant name="ZmaxHEsci"  value="5236.5*mm"/>
   <Constant name="rMinHEsci1" value="[etaMax:slope]*[ZminHEsci]"/>
   <Constant name="rMinHEsci2" value="[etaMax:slope]*[ZmaxHEsci]"/>
   <Constant name="rMaxHEsci1" value="([hgcal:rMaxHGCal2]+[hgcal:slope3]*([ZminHEsci]-[hgcal:zHGCal2]))"/>
@@ -51,17 +51,17 @@
   <Vector name="Thickness" type="numeric" nEntries="3">
    34.5*mm, 9.0*mm, 9.0*mm </Vector>
   <Vector name="ZMinType" type="numeric" nEntries="3">
-   4410.0*mm, 4444.5*mm, 4444.5*mm</Vector>
+   4366.5*mm, 4401.0*mm, 4401.0*mm</Vector>
   <Vector name="Offsets" type="numeric" nEntries="3"> 1, 1, 1</Vector>
   <String name="Rotation"     value="rotations:YXZ4"/>
-  <Vector name="LayerType" type="numeric" nEntries="54">
+  <Vector name="LayerType" type="numeric" nEntries="60">
    0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1,
    0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1,
-   0, 2, 1, 0, 2, 1 </Vector>
-  <Vector name="HeightType" type="numeric" nEntries="54">
+   0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1 </Vector>
+  <Vector name="HeightType" type="numeric" nEntries="60">
    0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1,
    0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1,
-   0, 1, 1, 0, 1, 1 </Vector>
+   0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1 </Vector>
   <Numeric name="ThickModule" value="43.5*mm"/>
   <Numeric name="Sectors"     value="18"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
@@ -77,6 +77,8 @@
 <SpecParSection label="hgcalHEsci.xml">
   <SpecPar name="HGCalHEScintillator readout granularity per layer">
     <PartSelector path="//HGCalHEScintillator"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
     <Parameter name="Granularity" value="10*mm"/>
     <Parameter name="Granularity" value="10*mm"/>
     <Parameter name="Granularity" value="10*mm"/>

@@ -48,23 +48,59 @@
    2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6
   </Vector>
   <Vector name="HeightType" type="numeric" nEntries="150">
-   0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0,
-   0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0,
-   0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0,
-   0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0,
-   0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0,
-   0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0
+   0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1
   </Vector>
   <Numeric name="zMinBlock"   value="[hgcal:zMinEE]"/>
   <Numeric name="Sectors"     value="18"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
-  <Vector name="SlopeTop" type="numeric" nEntries="3">
-    [hgcal:slope2], [hgcal:slope3], 0</Vector>
-  <Vector name="ZFront" type="numeric" nEntries="3">
-    [hgcal:zHGCal1], [hgcal:zHGCal3], [hgcal:zHGCal4]</Vector>
-  <Vector name="RMaxFront" type="numeric" nEntries="3">
-    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal3], [hgcal:rMaxHGCal4]</Vector>
+  <Vector name="SlopeTop" type="numeric" nEntries="4">
+    [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
+  <Vector name="ZFront" type="numeric" nEntries="4">
+    [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal3], [hgcal:zHGCal4]</Vector>
+  <Vector name="RMaxFront" type="numeric" nEntries="4">
+    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal2], [hgcal:rMaxHGCal3], [hgcal:rMaxHGCal4]</Vector>
  </Algorithm>
 </PosPartSection> 
+
+<SpecParSection label="hgcalEE.xml">
+  <SpecPar name="HGCalEE readout granularity per layer">
+    <PartSelector path="//HGCalEEM"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+    <Parameter name="Granularity" value="2.5*mm"/>
+  </SpecPar>
+</SpecParSection>
 
 </DDDefinition>
