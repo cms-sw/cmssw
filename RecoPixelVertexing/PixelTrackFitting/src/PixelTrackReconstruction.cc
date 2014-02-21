@@ -35,7 +35,7 @@ using edm::ParameterSet;
 
 PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
 	   edm::ConsumesCollector && iC)
-  : theConfig(cfg), theFitter(0), theCleaner(0), theRegionProducer(0), theMerger_(0)
+  : theConfig(cfg), theFitter(0), theCleaner(0)
 {
   if ( cfg.exists("SeedMergerPSet") ) {
     edm::ParameterSet mergerPSet = theConfig.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
@@ -43,7 +43,7 @@ PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
     edm::ParameterSet seedmergerLayerList = mergerPSet.getParameter<edm::ParameterSet>( "layerList" );
     bool seedmergerAddTriplets = mergerPSet.getParameter<bool>( "addRemainingTriplets" );
     bool seedmergerMergeTriplets = mergerPSet.getParameter<bool>( "mergeTriplets" );
-    theMerger_ = new QuadrupletSeedMerger(seedmergerLayerList, iC);
+    theMerger_.reset(new QuadrupletSeedMerger(seedmergerLayerList, iC));
     theMerger_->setMergeTriplets( seedmergerMergeTriplets );
     theMerger_->setAddRemainingTriplets( seedmergerAddTriplets );
     theMerger_->setTTRHBuilderLabel( seedmergerTTRHBuilderLabel );
@@ -65,12 +65,11 @@ PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
 
   ParameterSet regfactoryPSet = theConfig.getParameter<ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, std::move(iC));
+  theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, std::move(iC)));
 }
   
 PixelTrackReconstruction::~PixelTrackReconstruction() 
 {
-  delete theRegionProducer; theRegionProducer = nullptr;
   halt();
 }
 
@@ -78,8 +77,6 @@ void PixelTrackReconstruction::halt()
 {
   delete theFitter; theFitter=0;
   delete theCleaner; theCleaner=0;
-  delete theRegionProducer; theRegionProducer=0;
-  delete theMerger_; theMerger_=0;
 }
 
 void PixelTrackReconstruction::init(const edm::EventSetup& es)
@@ -93,7 +90,7 @@ void PixelTrackReconstruction::init(const edm::EventSetup& es)
   std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
   if (cleanerName != "none") theCleaner = PixelTrackCleanerFactory::get()->create( cleanerName, cleanerPSet);
 
-  if ( theMerger_ !=0 ) {
+  if (theMerger_) {
     theMerger_->update( es );
   }
 }
