@@ -30,7 +30,7 @@ def customise_Digi(process):
     process.mix.mixObjects.mixSH.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
     process.mix.mixObjects.mixSH.subdets.append('MuonME0Hits')
 
-    process.load('SimMuon.GEMDigitizer.muonME0Digis_cfi')
+    process.load('SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi')
     process.muonDigi += process.simMuonME0Digis
 
     process=outputCustoms(process)
@@ -46,6 +46,13 @@ def customise_RawToDigi(process):
     return process
 
 def customise_Reco(process):
+    process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
+    process.load('RecoLocalMuon.GEMRecHit.me0Segments_cfi')
+    process.me0RecHits.me0DigiLabel = cms.InputTag("simMuonME0Digis")
+    process.me0Segments.me0RecHitLabel = cms.InputTag("me0RecHits")
+    process.muonlocalreco += process.me0RecHits
+    process.muonlocalreco += me0Segments
+    process=outputCustoms(process)
     return process
 
 def customise_DQM(process):
@@ -63,5 +70,6 @@ def outputCustoms(process):
         b=a+'output'
         if hasattr(process,b):
             getattr(process,b).outputCommands.append('keep *_simMuonME0Digis_*_*')
-
+            getattr(process,b).outputCommands.append('keep *_me0RecHits_*_*')
+            getattr(process,b).outputCommands.append('keep *_me0Segments_*_*')
     return process
