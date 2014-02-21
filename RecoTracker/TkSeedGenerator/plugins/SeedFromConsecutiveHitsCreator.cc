@@ -5,6 +5,7 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <FWCore/Utilities/interface/ESInputTag.h>
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
@@ -32,7 +33,9 @@ void SeedFromConsecutiveHitsCreator::init(const TrackingRegion & iregion,
   // get propagator
   es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
   // mag field
-  es.get<IdealMagneticFieldRecord>().get(bfield);
+  es.get<IdealMagneticFieldRecord>().get(mfName_, bfield);  
+  //  edm::ESInputTag mfESInputTag(mfName_);
+  //  es.get<IdealMagneticFieldRecord>().get(mfESInputTag, bfield);  
   nomField = bfield->nominalValue();
   isBOFF = (0==nomField);  
 }
