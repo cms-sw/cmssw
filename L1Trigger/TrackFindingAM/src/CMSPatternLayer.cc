@@ -17,8 +17,7 @@ vector<SuperStrip*> CMSPatternLayer::getSuperStrip(int l, const vector<int>& lad
   vector<SuperStrip*> v;
 
   if(getPhi()==15){ // this is a fake superstrip! We link it to the dump superstrip
-    vector<string> positions;
-    getPositionsFromDC(positions);
+    vector<string> positions=getPositionsFromDC();
     for(unsigned int i=0;i<positions.size();i++){
       SuperStrip* patternStrip = d.getDump();
       v.push_back(patternStrip);
@@ -38,8 +37,7 @@ vector<SuperStrip*> CMSPatternLayer::getSuperStrip(int l, const vector<int>& lad
 	  Segment* patternSegment = patternModule->getSegment(getSegment());
 	  if(patternSegment!=NULL){
 	    int base_index = getStrip()*factor;
-	    vector<string> positions;
-	    getPositionsFromDC(positions);
+	    vector<string> positions = getPositionsFromDC();
 	    for(unsigned int i=0;i<positions.size();i++){
 	      SuperStrip* patternStrip = patternSegment->getSuperStripFromIndex(base_index+PatternLayer::GRAY_POSITIONS[positions[i]]);
 	      v.push_back(patternStrip);
@@ -88,6 +86,22 @@ short CMSPatternLayer::getSegment(){
 string CMSPatternLayer::toString(){
   ostringstream oss;
   oss<<"Ladder "<<getPhi()<<" Module "<<getModule()<<" Segment "<<getSegment()<<" strip "<<getStrip();
+  if(dc_bits[0]!=3){
+    oss<<" (";
+    for(int i=0;i<DC_BITS;i++){
+      if(dc_bits[i]==2)
+	oss<<"X";
+      else if(dc_bits[i]!=3)
+	oss<<(int)dc_bits[i];
+    }
+    oss<<")";
+  }
+  return oss.str();
+}
+
+string CMSPatternLayer::toStringBinary(){
+  ostringstream oss;
+  oss<<getIntValue();
   if(dc_bits[0]!=3){
     oss<<" (";
     for(int i=0;i<DC_BITS;i++){

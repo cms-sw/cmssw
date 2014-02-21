@@ -1,6 +1,8 @@
 #ifndef _TRACK_H_
 #define _TRACK_H_
 
+#include <vector>
+
 using namespace std;
 
 /**
@@ -14,6 +16,7 @@ class Track{
   double phi0;
   double eta0;
   double z0;
+  vector<short> stub_ids;
 
  public:
   /**
@@ -59,6 +62,22 @@ class Track{
      \param z The Z0 of the track
   **/
   void setZ0(double z);
+
+  /**
+     \brief Add a stub to the list of stubs used to create the track
+     \param s The ID of the stub
+  **/
+  void addStubIndex(short s);
+  /**
+     \brief Get the list of the index of stubs used to compute the track
+     \return A vector with the list of index
+  **/
+  vector<short> getStubs();
+
+  /**
+     \brief CLear the list of stubs used to create the track
+  **/
+  void clearStubList();
 
   /**
      \brief Get the PT of the track

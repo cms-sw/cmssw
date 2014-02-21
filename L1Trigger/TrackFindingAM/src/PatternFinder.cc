@@ -42,7 +42,7 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   const int MAX_NB_PATTERNS = 1500;
   const int MAX_NB_HITS = 100;
   const int MAX_NB_LADDERS_PER_LAYER = 16;
-  const int MAX_NB_LAYERS = 6;
+  const int MAX_NB_LAYERS = 8;
 
   /*********************INPUT 1 FILE *************************************/
 
@@ -62,6 +62,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   int *input1_superStrip_layer_3 = new int[MAX_NB_PATTERNS];
   int *input1_superStrip_layer_4 = new int[MAX_NB_PATTERNS];
   int *input1_superStrip_layer_5 = new int[MAX_NB_PATTERNS];
+  int *input1_superStrip_layer_6 = new int[MAX_NB_PATTERNS];
+  int *input1_superStrip_layer_7 = new int[MAX_NB_PATTERNS];
   int *input1_pattern_sector_id = new int[MAX_NB_PATTERNS];
 
   //Array containing the strips arrays
@@ -72,6 +74,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   input1_superStrips[3]=input1_superStrip_layer_3;
   input1_superStrips[4]=input1_superStrip_layer_4;
   input1_superStrips[5]=input1_superStrip_layer_5;
+  input1_superStrips[6]=input1_superStrip_layer_6;
+  input1_superStrips[7]=input1_superStrip_layer_7;
 
   int input1_sector_id=0;
   int input1_sector_layers=0;
@@ -83,6 +87,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   int input1_sector_layer_3[MAX_NB_LADDERS_PER_LAYER];
   int input1_sector_layer_4[MAX_NB_LADDERS_PER_LAYER];
   int input1_sector_layer_5[MAX_NB_LADDERS_PER_LAYER];
+  int input1_sector_layer_6[MAX_NB_LADDERS_PER_LAYER];
+  int input1_sector_layer_7[MAX_NB_LADDERS_PER_LAYER];
 
   int* input1_sector_layers_detail[MAX_NB_LAYERS];
   input1_sector_layers_detail[0]=input1_sector_layer_0;
@@ -91,6 +97,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   input1_sector_layers_detail[3]=input1_sector_layer_3;
   input1_sector_layers_detail[4]=input1_sector_layer_4;
   input1_sector_layers_detail[5]=input1_sector_layer_5;
+  input1_sector_layers_detail[6]=input1_sector_layer_6;
+  input1_sector_layers_detail[7]=input1_sector_layer_7;
 
   int *input1_nbHitPerPattern = new int[MAX_NB_PATTERNS];
   int input1_totalNbHits=0;
@@ -190,6 +198,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   int *input2_superStrip_layer_3 = new int[MAX_NB_PATTERNS];
   int *input2_superStrip_layer_4 = new int[MAX_NB_PATTERNS];
   int *input2_superStrip_layer_5 = new int[MAX_NB_PATTERNS];
+  int *input2_superStrip_layer_6 = new int[MAX_NB_PATTERNS];
+  int *input2_superStrip_layer_7 = new int[MAX_NB_PATTERNS];
   int *input2_pattern_sector_id = new int[MAX_NB_PATTERNS];
 
   //Array containing the strips arrays
@@ -200,6 +210,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   input2_superStrips[3]=input2_superStrip_layer_3;
   input2_superStrips[4]=input2_superStrip_layer_4;
   input2_superStrips[5]=input2_superStrip_layer_5;
+  input2_superStrips[6]=input2_superStrip_layer_6;
+  input2_superStrips[7]=input2_superStrip_layer_7;
 
   int input2_sector_id=0;
   int input2_sector_layers=0;
@@ -211,6 +223,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   int input2_sector_layer_3[MAX_NB_LADDERS_PER_LAYER];
   int input2_sector_layer_4[MAX_NB_LADDERS_PER_LAYER];
   int input2_sector_layer_5[MAX_NB_LADDERS_PER_LAYER];
+  int input2_sector_layer_6[MAX_NB_LADDERS_PER_LAYER];
+  int input2_sector_layer_7[MAX_NB_LADDERS_PER_LAYER];
 
   int* input2_sector_layers_detail[MAX_NB_LAYERS];
   input2_sector_layers_detail[0]=input2_sector_layer_0;
@@ -219,6 +233,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   input2_sector_layers_detail[3]=input2_sector_layer_3;
   input2_sector_layers_detail[4]=input2_sector_layer_4;
   input2_sector_layers_detail[5]=input2_sector_layer_5;
+  input2_sector_layers_detail[6]=input2_sector_layer_6;
+  input2_sector_layers_detail[7]=input2_sector_layer_7;
 
   int *input2_nbHitPerPattern = new int[MAX_NB_PATTERNS];
   int input2_totalNbHits=0;
@@ -315,6 +331,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   int *superStrip_layer_3 = new int[MAX_NB_OUTPUT_PATTERNS];
   int *superStrip_layer_4 = new int[MAX_NB_OUTPUT_PATTERNS];
   int *superStrip_layer_5 = new int[MAX_NB_OUTPUT_PATTERNS];
+  int *superStrip_layer_6 = new int[MAX_NB_OUTPUT_PATTERNS];
+  int *superStrip_layer_7 = new int[MAX_NB_OUTPUT_PATTERNS];
   int *pattern_sector_id = new int[MAX_NB_OUTPUT_PATTERNS];
 
   //Array containing the strips arrays
@@ -325,6 +343,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   superStrips[3]=superStrip_layer_3;
   superStrips[4]=superStrip_layer_4;
   superStrips[5]=superStrip_layer_5;
+  superStrips[6]=superStrip_layer_6;
+  superStrips[7]=superStrip_layer_7;
 
   int sector_id=0;
   int sector_layers=0;
@@ -336,6 +356,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   int sector_layer_3[MAX_NB_LADDERS_PER_LAYER];
   int sector_layer_4[MAX_NB_LADDERS_PER_LAYER];
   int sector_layer_5[MAX_NB_LADDERS_PER_LAYER];
+  int sector_layer_6[MAX_NB_LADDERS_PER_LAYER];
+  int sector_layer_7[MAX_NB_LADDERS_PER_LAYER];
 
   int* sector_layers_detail[MAX_NB_LAYERS];
   sector_layers_detail[0]=sector_layer_0;
@@ -344,6 +366,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   sector_layers_detail[3]=sector_layer_3;
   sector_layers_detail[4]=sector_layer_4;
   sector_layers_detail[5]=sector_layer_5;
+  sector_layers_detail[6]=sector_layer_6;
+  sector_layers_detail[7]=sector_layer_7;
 
   int *nbHitPerPattern = new int[MAX_NB_OUTPUT_PATTERNS];
   int totalNbHits=0;
@@ -383,6 +407,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   SECOUT->Branch("sectorLadders_layer_3",  sector_layer_3, "sectorLadders_layer_3[16]/I");
   SECOUT->Branch("sectorLadders_layer_4",  sector_layer_4, "sectorLadders_layer_4[16]/I");
   SECOUT->Branch("sectorLadders_layer_5",  sector_layer_5, "sectorLadders_layer_5[16]/I");
+  SECOUT->Branch("sectorLadders_layer_6",  sector_layer_6, "sectorLadders_layer_6[16]/I");
+  SECOUT->Branch("sectorLadders_layer_7",  sector_layer_7, "sectorLadders_layer_7[16]/I");
 
 
   PATTOUT->Branch("nbLayers",            &nb_layers);
@@ -397,6 +423,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   PATTOUT->Branch("superStrip3",         superStrip_layer_3, "superStrip3[nbPatterns]/I");
   PATTOUT->Branch("superStrip4",         superStrip_layer_4, "superStrip4[nbPatterns]/I");
   PATTOUT->Branch("superStrip5",         superStrip_layer_5, "superStrip5[nbPatterns]/I");
+  PATTOUT->Branch("superStrip6",         superStrip_layer_6, "superStrip6[nbPatterns]/I");
+  PATTOUT->Branch("superStrip7",         superStrip_layer_7, "superStrip7[nbPatterns]/I");
   PATTOUT->Branch("nbStubs",             nbHitPerPattern, "nbStubs[nbPatterns]/I");
   PATTOUT->Branch("total_nb_stubs",      &totalNbHits, "total_nb_stubs/I");
   PATTOUT->Branch("nbTracks",            &nbTracks, "nbTracks/I");
@@ -583,6 +611,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   delete [] input1_superStrip_layer_3;
   delete [] input1_superStrip_layer_4;
   delete [] input1_superStrip_layer_5;
+  delete [] input1_superStrip_layer_6;
+  delete [] input1_superStrip_layer_7;
   delete [] input1_pattern_sector_id;
 
   delete [] input1_nbHitPerPattern;
@@ -615,6 +645,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   delete [] input2_superStrip_layer_3;
   delete [] input2_superStrip_layer_4;
   delete [] input2_superStrip_layer_5;
+  delete [] input2_superStrip_layer_6;
+  delete [] input2_superStrip_layer_7;
   delete [] input2_pattern_sector_id;
 
   delete [] input2_nbHitPerPattern;
@@ -647,6 +679,8 @@ void PatternFinder::mergeFiles(string outputFile, string inputFile1, string inpu
   delete [] superStrip_layer_3;
   delete [] superStrip_layer_4;
   delete [] superStrip_layer_5;
+  delete [] superStrip_layer_6;
+  delete [] superStrip_layer_7;
   delete [] pattern_sector_id;
   delete [] track_pt;
   delete [] track_phi;
@@ -690,7 +724,7 @@ void PatternFinder::find(int start, int& stop){
   const int MAX_NB_PATTERNS = 1500;
   const int MAX_NB_HITS = 100;
   const int MAX_NB_LADDERS_PER_LAYER = 16;
-  const int MAX_NB_LAYERS = 6;
+  const int MAX_NB_LAYERS = 8;
 
   int nb_layers;
   int nb_patterns=0;
@@ -704,6 +738,8 @@ void PatternFinder::find(int start, int& stop){
   int superStrip_layer_3[MAX_NB_PATTERNS];
   int superStrip_layer_4[MAX_NB_PATTERNS];
   int superStrip_layer_5[MAX_NB_PATTERNS];
+  int superStrip_layer_6[MAX_NB_PATTERNS];
+  int superStrip_layer_7[MAX_NB_PATTERNS];
   int pattern_sector_id[MAX_NB_PATTERNS];
 
   //Array containing the strips arrays
@@ -714,6 +750,8 @@ void PatternFinder::find(int start, int& stop){
   superStrips[3]=superStrip_layer_3;
   superStrips[4]=superStrip_layer_4;
   superStrips[5]=superStrip_layer_5;
+  superStrips[6]=superStrip_layer_6;
+  superStrips[7]=superStrip_layer_7;
 
   int sector_id=0;
   int sector_layers=0;
@@ -725,6 +763,8 @@ void PatternFinder::find(int start, int& stop){
   int sector_layer_3[MAX_NB_LADDERS_PER_LAYER];
   int sector_layer_4[MAX_NB_LADDERS_PER_LAYER];
   int sector_layer_5[MAX_NB_LADDERS_PER_LAYER];
+  int sector_layer_6[MAX_NB_LADDERS_PER_LAYER];
+  int sector_layer_7[MAX_NB_LADDERS_PER_LAYER];
 
   int* sector_layers_detail[MAX_NB_LAYERS];
   sector_layers_detail[0]=sector_layer_0;
@@ -733,6 +773,8 @@ void PatternFinder::find(int start, int& stop){
   sector_layers_detail[3]=sector_layer_3;
   sector_layers_detail[4]=sector_layer_4;
   sector_layers_detail[5]=sector_layer_5;
+  sector_layers_detail[6]=sector_layer_6;
+  sector_layers_detail[7]=sector_layer_7;
 
   int nbHitPerPattern[MAX_NB_PATTERNS];
 
@@ -771,6 +813,8 @@ void PatternFinder::find(int start, int& stop){
   SectorOut->Branch("sectorLadders_layer_3",  sector_layer_3, "sectorLadders_layer_3[16]/I");
   SectorOut->Branch("sectorLadders_layer_4",  sector_layer_4, "sectorLadders_layer_4[16]/I");
   SectorOut->Branch("sectorLadders_layer_5",  sector_layer_5, "sectorLadders_layer_5[16]/I");
+  SectorOut->Branch("sectorLadders_layer_6",  sector_layer_6, "sectorLadders_layer_6[16]/I");
+  SectorOut->Branch("sectorLadders_layer_7",  sector_layer_7, "sectorLadders_layer_7[16]/I");
 
   Out->Branch("nbLayers",            &nb_layers);
   Out->Branch("nbPatterns",          &nb_patterns);
@@ -787,6 +831,8 @@ void PatternFinder::find(int start, int& stop){
   Out->Branch("superStrip3",         superStrip_layer_3, "superStrip3[nbPatterns]/I");
   Out->Branch("superStrip4",         superStrip_layer_4, "superStrip4[nbPatterns]/I");
   Out->Branch("superStrip5",         superStrip_layer_5, "superStrip5[nbPatterns]/I");
+  Out->Branch("superStrip6",         superStrip_layer_6, "superStrip6[nbPatterns]/I");
+  Out->Branch("superStrip7",         superStrip_layer_7, "superStrip7[nbPatterns]/I");
   Out->Branch("nbStubs",             nbHitPerPattern, "nbStubs[nbPatterns]/I");
 
   Out->Branch("track_pt",             track_pt, "track_pt[nbTracks]/F");
@@ -999,6 +1045,7 @@ void PatternFinder::find(int start, int& stop){
       /////////FITTER////
       TrackFitter* fitter = (sectors_map[pattern_list[i]->getIDString()])->getFitter();
       if(fitter!=NULL){
+	fitter->setSectorID(pattern_list[i]->getOfficialID());
 	for(unsigned int l=0;l<pl.size();l++){
 	  fitter->addPattern(pl[l]);
 	}
