@@ -17,19 +17,12 @@ public:
   typedef OmniClusterRef::ClusterStripRef         ClusterRef;
   typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
-
+  template<typename CluRef>
   SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
-		   const DetId& id, 
-		   OmniClusterRef const&  clus) : TrackerSingleRecHit(p,e,id,clus), sigmaPitch_(-1.){}
+		   const DetId& id, GeomDet const * idet,
+		   CluRef const&  clus) : TrackerSingleRecHit(p,e,id,idet,clus), sigmaPitch_(-1.){}
 
-  SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
-		   const DetId& id, 
-		   ClusterRef const&  clus) : TrackerSingleRecHit(p,e,id,clus), sigmaPitch_(-1.){}
-
-  SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
-		   const DetId& id, 
-		   ClusterRegionalRef const& clus) : TrackerSingleRecHit(p,e,id,clus), sigmaPitch_(-1.){}
-  
+ 
   /// method to facilitate the convesion from 2D to 1D hits
   SiStripRecHit1D(const SiStripRecHit2D*);
 

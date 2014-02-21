@@ -26,9 +26,10 @@ public:
 
   // no position (as in persistent)
   BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)) {}
+  BaseTrackerRecHit(DetId id, GeomDet const * idet, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id, idet, (unsigned int)(rt)) {}
 
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
-		     DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)), pos_(p), err_(e){}
+		     DetId id, GeomDet const * idet, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,idet, (unsigned int)(rt)), pos_(p), err_(e){}
 
   trackerHitRTTI::RTTI rtti() const { return trackerHitRTTI::rtti(*this);}
   bool isSingle() const { return trackerHitRTTI::isSingle(*this);}
