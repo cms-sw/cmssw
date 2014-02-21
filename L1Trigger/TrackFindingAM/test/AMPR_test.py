@@ -85,6 +85,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 # Keep the PR output
 process.RAWSIMoutput.outputCommands.append('keep  *_*_*_AMPR')
 process.RAWSIMoutput.outputCommands.append('drop *_TTPatternsFromStub_*_*')
+process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 
 # Path and EndPath definitions
 process.L1AMPR_step          = cms.Path(process.TTPatternsFromStubswStubs)
