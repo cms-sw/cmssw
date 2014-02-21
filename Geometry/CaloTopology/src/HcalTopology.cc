@@ -64,22 +64,33 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
   maxEta_ = (lastHERing_ > lastHFRing_) ? lastHERing_ : lastHFRing_;
 
   //The transition between HE/HF in eta
-  std::vector<double> etaHF = hcons_->getEtaTableHF();
-  std::vector<double> etaHE = hcons_->getEtaTable();
+  etaTableHF  = hcons_->getEtaTableHF();
+  etaTable    = hcons_->getEtaTable();
+  dPhiTableHF = hcons_->getPhiTableHF();
+  dPhiTable   = hcons_->getPhiTable();
   std::pair<int,int>  ietaHF= hcons_->getEtaRange(2);
   double eta = etaBinsHE_[etaBinsHE_.size()-1].etaMax;
-  for (unsigned int i=1; i<etaHF.size(); ++i) {
-    if (eta < etaHF[i]) {
+  for (unsigned int i=1; i<etaTableHF.size(); ++i) {
+    if (eta < etaTableHF[i]) {
       etaHE2HF_ = ietaHF.first + i;
       break;
     }
   }
-  eta = etaHF[0];
+  eta = etaTableHF[0];
   for (int i=(int)(etaBinsHE_.size())-1; i>=0; --i) {
     if (eta < etaBinsHE_[i].etaMax) {
       etaHF2HE_ = ietaHF.first + i;
       break;
     }
+  }
+  const double fiveDegInRad = 2*M_PI/72;
+  for (unsigned int k=0; k<dPhiTable.size(); ++k) {
+    int units = int(dPhiTable[k]/fiveDegInRad+0.5);
+    unitPhi.push_back(units);
+  }
+  for (unsigned int k=0; k<dPhiTableHF.size(); ++k) {
+    int units = int(dPhiTableHF[k]/fiveDegInRad+0.5);
+    unitPhiHF.push_back(units);
   }
   std::cout << "Constants in HcalTopology " << firstHBRing_ << ":" << lastHBRing_ << " " << firstHERing_ << ":" << lastHERing_ << ":" << firstHEDoublePhiRing_ << ":" << firstHEQuadPhiRing_ << ":" << firstHETripleDepthRing_ << " " << firstHFRing_ << ":" << lastHFRing_ << ":" << firstHFQuadPhiRing_ << " " << firstHORing_ << ":" << lastHORing_ << " " << maxDepthHB_ << ":" << maxDepthHE_ << " " << nEtaHB_ << ":" << nEtaHE_ << " " << etaHE2HF_ << ":" << etaHF2HE_ << std::endl;
 }
@@ -674,9 +685,67 @@ bool HcalTopology::decrementDepth(HcalDetId & detId) const {
 
 int HcalTopology::nPhiBins(int etaRing) const {
   int lastPhiBin=singlePhiBins_;
-  if (etaRing>= firstHFQuadPhiRing()) lastPhiBin=doublePhiBins_/2;
+  if      (etaRing>= firstHFQuadPhiRing())   lastPhiBin=doublePhiBins_/2;
   else if (etaRing>= firstHEDoublePhiRing()) lastPhiBin=doublePhiBins_;
   return lastPhiBin;
+}
+
+int HcalTopology::nPhiBins(HcalSubdetector bc, int etaRing) const {
+  static const double twopi = M_PI+M_PI;
+  int lastPhiBin=singlePhiBins_;
+  if (bc == HcalForward) {
+    lastPhiBin = (int)((twopi+0.001)/dPhiTableHF[etaRing-firstHFRing_]);
+  } else {
+    lastPhiBin = (int)((twopi+0.001)/dPhiTable[etaRing-firstHBRing_]);
+  }
+  return lastPhiBin;
+}
+
+int HcalTopology::etaRing(HcalSubdetector bc, double abseta) const {
+
+  int etaring = firstHBRing_;
+  if (bc == HcalForward) {
+    etaring = firstHFRing_;
+    for (unsigned int k=0; k<etaTableHF.size()-1; ++k) {
+      if (abseta < etaTableHF[k+1]) {
+	etaring += k;
+        break;
+      }
+    }
+  } else {
+    for (unsigned int k=0; k<etaTable.size()-1; ++k) {
+      if (abseta < etaTable[k+1]) {
+	etaring += k;
+        break;
+      }
+    }
+  }
+  return etaring;
+}
+
+int HcalTopology::phiBin(HcalSubdetector bc, int etaring, double phi) const {
+  static const double twopi = M_PI+M_PI;
+  //put phi in correct range (0->2pi)
+  if (phi<0.0)   phi += twopi;
+  if (phi>twopi) phi -= twopi;
+  int phibin(1), unit(1), index(0);
+  if (bc == HcalForward) {
+    index = (etaring-firstHFRing_);
+    if (index < (int)(dPhiTableHF.size())) {
+      unit    = unitPhiHF[index];
+      phibin  = static_cast<int>(phi/dPhiTableHF[index])+1;
+    }
+  } else {
+    index = (etaring-firstHBRing_);
+    if (index < (int)(dPhiTable.size())) {
+      phibin  = static_cast<int>(phi/dPhiTable[index])+1;
+      unit    = unitPhi[index];
+    }
+  }
+  int iphi(phibin);
+  if      (unit == 2) iphi = (phibin-1)*2+1;
+  else if (unit == 4) iphi = (phibin-1)*4+3;
+  return iphi;
 }
 
 void HcalTopology::getDepthSegmentation(unsigned ring, std::vector<int> & readoutDepths) const {

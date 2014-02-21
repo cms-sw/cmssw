@@ -103,6 +103,11 @@ public:
 
   /// how many phi segments in this ring
   int nPhiBins(int etaRing) const;
+  int nPhiBins(HcalSubdetector subdet, int etaRing) const;
+
+  /// eta and phi index from eta, phi values
+  int etaRing(HcalSubdetector subdet, double eta) const;
+  int phiBin(HcalSubdetector subdet, int etaRing, double phi) const;
 
   /// for each of the ~17 depth segments, specify which readout bin they belong to
   /// if the ring is not found, the first one with a lower ring will be returned.
@@ -180,6 +185,9 @@ private:
   unsigned int HTSize_;
   unsigned int CALIBSize_;
   unsigned int numberOfShapes_;
+  
+  std::vector<double> etaTable, etaTableHF, dPhiTable, dPhiTableHF;
+  std::vector<int>    unitPhi, unitPhiHF;
 
   int topoVersion_;
     

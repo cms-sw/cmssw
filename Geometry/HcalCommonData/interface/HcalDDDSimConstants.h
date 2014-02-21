@@ -48,6 +48,8 @@ public:
   double                    getPhiBin(const int i) const {return phibin[i];}
   std::pair<double,double>  getPhiCons(int det, int ieta);
   double                    getPhiOff(const int i) const {return phioff[i];}
+  std::vector<double>       getPhiTable() const {return phibin;}
+  std::vector<double>       getPhiTableHF() const {return phitable;}
   std::vector<HcalCellType> HcalCellTypes() const;
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector, int ieta=-1,
 					  int depth=-1) const;
