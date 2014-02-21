@@ -164,27 +164,26 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     std::vector<int> theL1AStrips;
     for(int ila=0; ila<(int)theStrips.size(); ila++){
        bool stripMatchCounter=false;
-       for ( CSCStripDigiCollection::const_iterator itl1 = rstripd.first; itl1 != rstripd.second; ++itl1 ) {
+       for ( auto itl1 = rstripd.first; itl1 != rstripd.second; ++itl1 ) {
 	   int stripNproto = (*itl1).getStrip();
            if( !ganged() ){
    	     if(theStrips[ila]==stripNproto){
                stripMatchCounter=true;
-	       std::vector<int> L1AP=(*itl1).getL1APhase();
+               auto sz = (*itl1).getOverlappedSample().size();
 	       int L1AbitOnPlace=0;
-	       for(int iBit=0; iBit<(int)L1AP.size(); iBit++){
-	          L1AbitOnPlace=L1AbitOnPlace|(L1AP[iBit] << (15-iBit));		
+	       for(auto iBit=0UL; iBit<sz; iBit++){
+		 L1AbitOnPlace |=  ( (*itl1).getL1APhase(iBit) << (15-iBit));		
 	       }
 	       theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
 	     }
-           }
-           else{
+           } else{
              for(int tripl=0; tripl<3; ++tripl){
 	       if(theStrips[ila]==(stripNproto+tripl*16)){
-                 stripMatchCounter=true;
-	         std::vector<int> L1AP=(*itl1).getL1APhase();
-	         int L1AbitOnPlace=0;
-	         for(int iBit=0; iBit<(int)L1AP.size(); iBit++){
-	           L1AbitOnPlace=L1AbitOnPlace|(L1AP[iBit] << (15-iBit));		
+		 stripMatchCounter=true;
+		 auto sz = (*itl1).getOverlappedSample().size();
+		 int L1AbitOnPlace=0;
+		 for(auto iBit=0UL; iBit<sz; iBit++){
+		   L1AbitOnPlace |= ( (*itl1).getL1APhase(iBit) << (15-iBit));		
 	         }
 	         theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
 	       }
@@ -269,13 +268,14 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
 	
   if ( tmax > 2 && tmax < 7 ) { // for time bins 3-6
     int ibin = thisStrip-1;
-		
-    std::copy( thePulseHeightMap[ibin].ph().begin()+istart, 
-	 thePulseHeightMap[ibin].ph().begin()+istop+1, adc.begin() );
-			
-    std::copy( thePulseHeightMap[ibin].phRaw().begin()+istart, 
-	 thePulseHeightMap[ibin].phRaw().begin()+istop+1, adcRaw.begin() );
-  } 
+    if (thePulseHeightMap[ibin].valid()) {
+      std::copy( thePulseHeightMap[ibin].ph().begin()+istart, 
+		 thePulseHeightMap[ibin].ph().begin()+istop+1, adc.begin() );
+      
+      std::copy( thePulseHeightMap[ibin].phRaw().begin()+istart, 
+		 thePulseHeightMap[ibin].phRaw().begin()+istop+1, adcRaw.begin() );
+    } 
+  }
   else {
     adc[0] = 0.1;
     adc[1] = 0.1;
@@ -317,18 +317,21 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
         if ( tmax > 2 && tmax < 7 ) { // for time bin tmax from 3-6
 	  int ibin = testStrip-1;
 	  int jbin = centerStrip-1;
-	  std::copy(thePulseHeightMap[ibin].ph().begin()+istart, 
-	       thePulseHeightMap[ibin].ph().begin()+istop+1, adc1.begin());
-				
-	  std::copy(thePulseHeightMap[ibin].phRaw().begin()+istart, 
-	       thePulseHeightMap[ibin].phRaw().begin()+istop+1, adcRaw1.begin());
-										
-	  std::copy(thePulseHeightMap[jbin].ph().begin()+istart, 
-	       thePulseHeightMap[jbin].ph().begin()+istop+1, adc2.begin());  
-						
-	  std::copy(thePulseHeightMap[jbin].phRaw().begin()+istart, 
-	       thePulseHeightMap[jbin].phRaw().begin()+istop+1, adcRaw2.begin());
-	} 
+	  if (thePulseHeightMap[ibin].valid()) { 
+	    std::copy(thePulseHeightMap[ibin].ph().begin()+istart, 
+		      thePulseHeightMap[ibin].ph().begin()+istop+1, adc1.begin());				
+	    std::copy(thePulseHeightMap[ibin].phRaw().begin()+istart, 
+		      thePulseHeightMap[ibin].phRaw().begin()+istop+1, adcRaw1.begin());
+	  }
+
+	  if (thePulseHeightMap[jbin].valid()) { 
+	    std::copy(thePulseHeightMap[jbin].ph().begin()+istart, 
+		      thePulseHeightMap[jbin].ph().begin()+istop+1, adc2.begin());  
+	    
+	    std::copy(thePulseHeightMap[jbin].phRaw().begin()+istart, 
+		      thePulseHeightMap[jbin].phRaw().begin()+istop+1, adcRaw2.begin());
+	  } 
+	}
 	else {
 	  adc1.assign(4, 0.1);
 	  adcRaw1 = adc1;
@@ -359,18 +362,21 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
   // Loop over strip digis in one CSCLayer and fill PulseHeightMap with pedestal-subtracted
   // SCA pulse heights.
   
-  thePulseHeightMap.clear();
-  thePulseHeightMap.resize(100); //@@ WHY NOT JUST 80?
+ 
+  for (auto & ph : thePulseHeightMap) ph.reset();
 
   // for storing sca pulseheights once they may no longer be integer (e.g. after ped subtraction)
-  std::vector<float> sca;
-  sca.reserve(8);
   for ( CSCStripDigiCollection::const_iterator it = rstripd.first; it != rstripd.second; ++it ) {
     int  thisChannel        = (*it).getStrip(); 
-    std::vector<int> scaRaw = (*it).getADCCounts();
-    sca.clear();
+    auto & stripData = thePulseHeightMap[thisChannel-1];
+    auto & scaRaw = stripData.phRaw_;
+    auto & sca = stripData.ph_;
+
+    auto const &  scaOri = (*it).getADCCounts();
+    assert(scaOri.size()==8);
     // Fill sca from scaRaw, implicitly converting to float
-    std::copy( scaRaw.begin(), scaRaw.end(), std::back_inserter( sca ));
+    std::copy( scaOri.begin(), scaOri.end(), scaRaw.begin());
+    std::copy( scaRaw.begin(), scaRaw.end(), sca.begin());
 
     //@@ Find bin with largest pulseheight (_before_ ped subtraction - shouldn't matter, right?)
     int tmax =  std::max_element( sca.begin(), sca.end() ) - sca.begin(); // counts from 0
@@ -383,24 +389,25 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
     std::for_each( scaRaw.begin(), scaRaw.end(), CSCSubtractPedestal( ped ) );
 
     //@@ Max in first 3 or last time bins is unacceptable, if so set to zero (why?)
-    float phmax = 0.;
+    float phmax = 0.f;
     if ( tmax > 2 && tmax < 7 ) {
       phmax = sca[tmax];
     }
+    stripData.phmax_ = phmax;
+    stripData.tmax_ = tmax;
+
 		
     // Fill the map, possibly apply gains from cond data, and unfold ME1A channels
     // (To apply gains use CSCStripData::op*= which scales only the non-raw sca ph's;
     // but note that both sca & scaRaw are pedestal-subtracted.)
 
     // From StripDigi, thisChannel labels strip channel. Values phmax, tmax, scaRaw, sca belong to thisChannel
-    thePulseHeightMap[thisChannel-1] = CSCStripData( thisChannel, phmax, tmax, scaRaw, sca );
-    if ( useCalib ) thePulseHeightMap[thisChannel-1] *= gainWeight[thisChannel-1];
+    if ( useCalib ) stripData *= gainWeight[thisChannel-1];
 
     // for ganged ME1a need to duplicate values on istrip=thisChannel to iStrip+16 and iStrip+32
     if ( ganged() ) {
       for ( int j = 1; j < 3; ++j ) {  
-	thePulseHeightMap[thisChannel-1+16*j] = CSCStripData( thisChannel+16*j, phmax, tmax, scaRaw, sca );
-	if ( useCalib ) thePulseHeightMap[thisChannel-1+16*j] *= gainWeight[thisChannel-1];
+	thePulseHeightMap[thisChannel-1+16*j] = stripData;
       }
     }
 
@@ -517,12 +524,12 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
   float sum  = 0.;
   float sum_w= 0.;
 
-  std::vector<float> w(4);
-  std::vector<float> wRaw(4);
+  //  std::vector<float> w(4);
+  // std::vector<float> wRaw(4);
   
   for ( size_t i = 0; i != data.size(); ++i ) {
-    w = data[i].ph();
-    wRaw = data[i].phRaw();
+    auto const & w = data[i].ph();
+    auto const & wRaw = data[i].phRaw();
 
     // (Require ADC to be > 0.)
     // No later studies suggest that this only do harm

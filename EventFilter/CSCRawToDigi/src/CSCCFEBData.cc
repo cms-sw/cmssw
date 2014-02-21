@@ -270,7 +270,7 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
       if ( me1a ) strip = strip%64; // reset 65-80 to 1-16 digi
       if ( me1a && zplus ) { strip = 17-strip; } // 1-16 -> 16-1 
       if ( me1b && !zplus) { strip = 65 - strip;} // 1-64 -> 64-1 ...
-      result.push_back(CSCStripDigi(strip, sca, overflow, overlap, errorfl));
+      result.emplace_back(strip, sca, overflow, overlap, errorfl);
     } 
 }
 

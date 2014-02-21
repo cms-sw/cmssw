@@ -38,15 +38,15 @@ void L1ValidatorHists::Book(){
     dR[i] = _dbe->book1D( (Name[i]+"_dR").c_str(), (Name[i]+" dR").c_str(), 20, 0, 1);
     dPt[i] = _dbe->book1D( (Name[i]+"_dPt").c_str(), (Name[i]+" dPt").c_str(), 20, -1, 1);
 
-    N[i]->getTH1()->Sumw2();
-    N_Pt[i]->Sumw2();
-    N_Eta[i]->Sumw2();
-    Eff_Pt[i]->getTH1()->Sumw2();
-    Eff_Eta[i]->getTH1()->Sumw2();
-    TurnOn_15[i]->getTH1()->Sumw2();
-    TurnOn_30[i]->getTH1()->Sumw2();
-    dR[i]->getTH1()->Sumw2();
-    dPt[i]->getTH1()->Sumw2();
+//     N[i]->getTH1()->Sumw2();
+//     N_Pt[i]->Sumw2();
+//     N_Eta[i]->Sumw2();
+//     Eff_Pt[i]->getTH1()->Sumw2();
+//     Eff_Eta[i]->getTH1()->Sumw2();
+//     TurnOn_15[i]->getTH1()->Sumw2();
+//     TurnOn_30[i]->getTH1()->Sumw2();
+//     dR[i]->getTH1()->Sumw2();
+//     dPt[i]->getTH1()->Sumw2();
   }
 
 }
