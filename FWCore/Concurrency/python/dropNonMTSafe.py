@@ -9,7 +9,6 @@ def _dropFromPaths(process,name):
   
 def dropNonMTSafe(process):
   if hasattr(process, "DTDataIntegrityTask"): del process.DTDataIntegrityTask
-  if hasattr(process, "FastTimerService"): del process.FastTimerService
   if hasattr(process, "SiStripDetInfoFileReader"): del process.SiStripDetInfoFileReader
   if hasattr(process, "TkDetMap"): del process.TkDetMap
   if hasattr(process, "DQM"): del process.DQM

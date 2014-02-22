@@ -11,7 +11,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
-#include "RecoTracker/SeedingLayerSetsHits/interface/SeedingLayerSetsHits.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 class TrackingRegion;
 namespace edm { class Event; class EventSetup; }

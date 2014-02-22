@@ -1122,6 +1122,13 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
       
       const reco::PFRecHit& rh = rechit( rhindex, rechits);
       
+      const PFLayer::Layer layer = rh.layer();
+      int iring = 0;
+      if (layer==PFLayer::HCAL_BARREL2 && abs(rh.positionREP().Eta())>0.34) iring= 1;
+
+      double rh_thresh = parameter( THRESH, layer, 0, iring );
+      if( rh_thresh <= 0.0 ) rh_thresh = 1.0; // in case of zero threshold do NOT normalize rechit energies
+
       // int layer = rh.layer();
              
       dist.clear();
@@ -1189,7 +1196,7 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 
 	// the current cell is the seed from the current photon.
 	if( rhindex == seedsintopocluster[ic] && seedexclusion ) {
-	  frc = 1.;
+	  frc = 1./rh_thresh;
 #ifdef PFLOW_DEBUG
 	  if(debug_) cout<<"this cell is a seed for the current photon"<<endl;
 #endif
@@ -1203,7 +1210,12 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 	else {
 	  // Compute the fractions of the cell energy to be assigned to 
 	  // each curpfclusters in the cluster.
-	  frc = ener[ic] * exp ( - dist[ic]*dist[ic] / 2. );
+	  // normalize the cluster energy to the rechit threshold
+	  // to make clustering depend on *relative* energies of 
+	  // rechits to clusters
+	  // this makes the numerical stability cut later not 
+	  // cut overly hard on the PS for instance
+	  frc = (ener[ic]/rh_thresh) * exp ( - dist[ic]*dist[ic] / 2. );
 
 #ifdef PFLOW_DEBUG
 	  if(debug_) {
@@ -1228,7 +1240,7 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
 	  cout<<" frac["<<ic<<"] "<<frac[ic]<<" "<<fractot<<" "<<rh<<endl;
 #endif
 
-	if( fractot ) 
+	if( fractot > 1e-20 || ( rh.detId() == curpfclusters[ic].seed() && fractot > 0.0 ) ) 
 	  frac[ic] /= fractot;
 	else { 
 #ifdef PFLOW_DEBUG
