@@ -24,7 +24,6 @@
 	<class name="PhysicsTFormulaPayload"/>
         <class name="std::vector<PhysicsTFormulaPayload>"/>
 
-
 	<!-- Histogram -->
 	<class name="PhysicsTools::Calibration::Range&lt;float&gt;"/>
 	<class name="PhysicsTools::Calibration::Histogram&lt;float,float&gt;">
@@ -120,4 +119,8 @@
 		<field name="entries" mapping="blob"/>
 		<field name="cacheId" transient="true"/>
 	</class>
+
+        <!-- TGraph -->
+        <class name="PhysicsTGraphPayload"/>
+        <class name="std::vector<PhysicsTGraphPayload>"/>
 </lcgdict>

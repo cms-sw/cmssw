@@ -10,7 +10,7 @@
 #include <vector>
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "RecoTracker/SeedingLayerSetsHits/interface/SeedingLayerSetsHits.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 
 class MultiHitGeneratorFromPairAndLayers : public MultiHitGenerator {
