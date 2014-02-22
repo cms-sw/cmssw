@@ -2,8 +2,12 @@
 #define BaseTrackerRecHit_H
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitGlobalState.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
+
+
 
 #define VI_DEBUG
 
@@ -64,6 +68,36 @@ public:
 
   void getKfComponents1D( KfComponentsHolder & holder ) const;
   void getKfComponents2D( KfComponentsHolder & holder ) const;
+
+
+  // global coordinates
+  // Extension of the TrackingRecHit interface
+  virtual const Surface * surface() const GCC11_FINAL {return &(det()->surface());}
+
+
+  virtual GlobalPoint globalPosition() const GCC11_FINAL {
+      return surface()->toGlobal(localPosition());
+  }
+  
+  GlobalError globalPositionError() const GCC11_FINAL { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
+  float errorGlobalR() const GCC11_FINAL { return std::sqrt(globalPositionError().rerr(globalPosition()));}
+  float errorGlobalZ() const GCC11_FINAL { return std::sqrt(globalPositionError().czz()); }
+  float errorGlobalRPhi() const GCC11_FINAL { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+
+  // once cache removed will obsolete the above
+  TrackingRecHitGlobalState globalState() const {
+    GlobalError  
+      globalError = ErrorFrameTransformer::transform( localPositionError(), *surface() );
+    GlobalPoint gp = globalPosition();
+    float r = gp.perp();
+    float errorRPhi = r*std::sqrt(float(globalError.phierr(gp))); 
+    float errorR = std::sqrt(float(globalError.rerr(gp)));
+    float errorZ = std::sqrt(float(globalError.czz()));
+    return (TrackingRecHitGlobalState){
+      gp.basicVector(), r, gp.barePhi(),
+	errorR,errorZ,errorRPhi
+	};
+  }
 
 
 public:
