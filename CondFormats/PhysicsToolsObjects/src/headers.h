@@ -12,3 +12,5 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
+
+#include "CondFormats/PhysicsToolsObjects/interface/PhysicsTGraphPayload.h"
