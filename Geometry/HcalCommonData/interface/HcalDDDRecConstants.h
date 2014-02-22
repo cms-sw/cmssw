@@ -64,6 +64,8 @@ public:
   int                       getNEta() const {return nEta;}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return phioff[i];}
+  std::vector<double>       getPhiTable()   const {return phibin;}
+  std::vector<double>       getPhiTableHF() const {return phibinHF;}
   std::string               getTopoMode() const {return modeTopo;}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
   void                      initialize(const DDCompactView& cpv,
@@ -95,7 +97,8 @@ private:
   int                 maxDepth[4];// Maximum depth in HB/HE/HF/HO           
   int                 nEta;       // Number of bins in eta for HB and HE
   std::vector<int>    phiGroup;   // Eta Grouping
-  std::vector<double> phibin;     // Phi step for all eta bins
+  std::vector<double> phibin;     // Phi step for all eta bins (HB, HE, HO)
+  std::vector<double> phibinHF;   // Phi step for all eta bins (HF)
   std::vector<int>    phiUnitS;   // Phi unit at SIM stage
   std::vector<int>    layerGroup[nEtaMax];
   std::vector<int>    nOff;     // Speical eta bin #'s in barrel and endcap
