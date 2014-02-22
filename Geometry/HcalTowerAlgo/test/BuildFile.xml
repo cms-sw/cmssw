@@ -5,9 +5,10 @@
 <use   name="FWCore/PythonParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="Geometry/Records"/>
-<bin   file="HcalGeometryTest.cpp">
-</bin>
 <library   file="HcalGeometryAnalyzer.cc" name="testHcalGeometryESProducer">
+ <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="HcalGeometryTester.cc" name="testHcalGeometryHardcodeLoader">
  <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="HcalGeometryDetIdAnalyzer.cc" name="testHcalGeometryDetIdESProducer">
