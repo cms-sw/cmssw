@@ -9,7 +9,6 @@
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-class GeomDetUnit;
 
 #ifdef COUNT_HITS
 void countTTRH( TrackingRecHit::Type);
@@ -65,17 +64,7 @@ public:
 
   virtual const Surface * surface() const {return &(det()->surface());}
 
-  /// CAUTION: the GeomDetUnit* is zero for composite hits 
-  /// (matched hits in the tracker, segments in the muon).
-  /// Always check this pointer before using it!
-  virtual const GeomDetUnit * detUnit() const;
 
-  virtual GlobalPoint globalPosition() const =0;
-  virtual GlobalError globalPositionError() const =0;
-
-  virtual float errorGlobalR() const=0;
-  virtual float errorGlobalZ() const=0;
-  virtual float errorGlobalRPhi() const=0;
 
   /// Returns a copy of the hit with parameters and errors computed with respect 
   /// to the TrajectoryStateOnSurface given as argument.

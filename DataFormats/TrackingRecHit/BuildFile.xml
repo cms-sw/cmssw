@@ -1,5 +1,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/GeometrySurface"/>
+<use   name="Geometry/CommonDetUnit"/>
 <use   name="FWCore/Utilities"/>
 <use   name="clhep"/>
 <use   name="rootrflx"/>

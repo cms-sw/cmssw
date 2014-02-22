@@ -5,10 +5,14 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class GeomDet;
+class GeomDetUnit;
 
 class TrackingRecHit {
 public:
@@ -71,7 +75,13 @@ public:
   DetId geographicalId() const {return m_id;}
 
   const GeomDet * det() const { return m_det;}
+
+  /// CAUTION: the GeomDetUnit* is zero for composite hits 
+  /// (matched hits in the tracker, segments in the muon).
+  /// Always check this pointer before using it!
+  virtual const GeomDetUnit * detUnit() const;
   
+
   virtual LocalPoint localPosition() const = 0;
   
   virtual LocalError localPositionError() const = 0;
@@ -93,6 +103,18 @@ public:
    * means that all inputs of the two hits must be identical; the value "some" means
    * that at least one of the inputs is in common. */
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
+
+
+  //  global coordinates
+  
+  virtual GlobalPoint globalPosition() const;
+  virtual GlobalError globalPositionError() const;
+  
+  virtual float errorGlobalR() const;
+  virtual float errorGlobalZ() const;
+  virtual float errorGlobalRPhi() const;
+
+
 
 protected:
   // used by muon...

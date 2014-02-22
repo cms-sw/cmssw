@@ -8,7 +8,7 @@
 class Plane;
 class TrajectoryStateOnSurface;
 class Surface;
-class TransientTrackingRecHit;
+class TrackingRecHit;
 
 /** The MeasurementEstimator defines the compatibility of a 
  *  TrajectoryStateOnSurface and a RecHit, and of a 
@@ -34,7 +34,7 @@ public:
    *  window estimator, only the first(bool) part is of interest.
    */
   virtual HitReturnType estimate( const TrajectoryStateOnSurface& ts, 
-				  const TransientTrackingRecHit& hit) const = 0;
+				  const TrackingRecHit& hit) const = 0;
 
   /** Returns true if the TrajectoryStateOnSurface is compatible with the
    *  Plane, false otherwise.

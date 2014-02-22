@@ -5,6 +5,8 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
+#define VI_DEBUG
+
 class OmniClusterRef;
 
 namespace trackerHitRTTI {
@@ -44,14 +46,17 @@ public:
   // verify that hits can share clusters...
   inline bool sameDetModule(TrackingRecHit const & hit) const;
 
-  virtual LocalPoint localPosition() const  GCC11_FINAL { return pos_;}
-
-  virtual LocalError localPositionError() const  GCC11_FINAL { return err_;}
-
   bool hasPositionAndError() const  GCC11_FINAL; 
+
+  virtual LocalPoint localPosition() const  GCC11_FINAL { check(); return pos_;}
+
+  virtual LocalError localPositionError() const  GCC11_FINAL { check(); return err_;}
+
  
-  const LocalPoint & localPositionFast()      const { return pos_; }
-  const LocalError & localPositionErrorFast() const { return err_; }
+  const LocalPoint & localPositionFast()      const { check(); return pos_; }
+  const LocalError & localPositionErrorFast() const { check(); return err_; }
+
+
 
   // to be specialized for 1D and 2D
   virtual void getKfComponents( KfComponentsHolder & holder ) const=0;
@@ -68,8 +73,18 @@ public:
   virtual AlgebraicSymMatrix parametersError() const;
   virtual AlgebraicMatrix projectionMatrix() const;
 
- private:
-  
+private:
+
+#ifdef VI_DEBUG
+  void check() const { assert(det());}
+#elif EDM_LM_DEBUG
+  void check() const;
+#else 
+  static check(){}
+#endif
+
+private:
+
   LocalPoint pos_;
   LocalError err_;
 };

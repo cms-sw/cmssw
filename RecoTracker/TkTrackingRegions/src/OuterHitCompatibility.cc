@@ -9,7 +9,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
-bool OuterHitCompatibility::operator() ( const TransientTrackingRecHit * hit) const
+bool OuterHitCompatibility::operator() ( const TrackingRecHit * hit) const
 {
   GlobalPoint hitPos = hit->globalPosition();
   float hitR = hitPos.perp();
