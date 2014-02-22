@@ -35,7 +35,6 @@ public:
 
 
   bool operator() (const TrackingRecHit * hit) const;
-  bool operator() (const TrackingRecHit* hit,  const edm::EventSetup& iSetup) const;
 
   bool checkPhi(float phi, float r) const {
     OuterHitPhiPrediction::Range hitPhiRange = thePhiPrediction(r);

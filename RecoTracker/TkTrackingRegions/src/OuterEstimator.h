@@ -38,14 +38,6 @@ public:
        return theHitCompatibility(&hit) ? std::make_pair(true,1.) : std::make_pair(false,0.) ;
   }
 
-  virtual std::pair<bool,double> estimate(
-      const TrajectoryStateOnSurface& ts, 
-      const TrackingRecHit& hit,  
-      const edm::EventSetup& iSetup) 
-    const {
-       return theHitCompatibility(&hit,iSetup) ? std::make_pair(true,1.) : std::make_pair(false,0.) ;
-  }
- 
   virtual bool estimate(
       const TrajectoryStateOnSurface& ts, 
       const BoundPlane& plane
