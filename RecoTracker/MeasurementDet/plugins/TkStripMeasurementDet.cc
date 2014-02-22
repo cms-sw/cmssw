@@ -236,11 +236,11 @@ SiStripRecHit2D TkStripMeasurementDet::hit(TkStripRecHitIter const & hi ) const 
   if(!isRegional()){
     SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
     LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-    return SiStripRecHit2D(lv.first,lv.second, TSiStripRecHit2DLocalPos::sigmaPitch(lv.first, lv.second,gdu), rawId(), cluster);
+    return SiStripRecHit2D(lv.first,lv.second, TSiStripRecHit2DLocalPos::sigmaPitch(lv.first, lv.second,gdu), rawId(), &gdu, cluster);
   } else {
     SiStripRegionalClusterRef cluster = edm::makeRefToLazyGetter(data.stripData().regionalHandle(),ciR);
     LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-    return SiStripRecHit2D(lv.first,lv.second, TSiStripRecHit2DLocalPos::sigmaPitch(lv.first, lv.second,gdu), rawId(), cluster);
+    return SiStripRecHit2D(lv.first,lv.second, TSiStripRecHit2DLocalPos::sigmaPitch(lv.first, lv.second,gdu), rawId(), &gdu, cluster);
   } 
 }
 

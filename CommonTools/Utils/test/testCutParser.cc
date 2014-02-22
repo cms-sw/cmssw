@@ -83,7 +83,7 @@ void testCutParser::checkAll() {
   reco::TrackBase::CovarianceMatrix cov(e, e + 15);
   trk = reco::Track(chi2, ndof, v, p, -1, cov);
 
-  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), 0, 0, SiStripRecHit2D::ClusterRef());
+  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), 0, 0, nullptr, SiStripRecHit2D::ClusterRef());
 
   edm::TypeWithDict t(typeid(reco::Track));
   o = edm::ObjectWithDict(t, & trk);
