@@ -2,6 +2,7 @@
 <use   name="clhep"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/TrackerRecHit2D"/>

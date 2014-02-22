@@ -26,7 +26,6 @@ PhysicsTools::Calibration::HistogramF3D v31;
 std::vector<PhysicsTools::Calibration::HistogramF3D> v32;
 std::vector<PhysicsTools::Calibration::HistogramD3D> v33;
 
-
 // MVAComputer
 std::vector<PhysicsTools::Calibration::Variable> v19;
 std::vector<PhysicsTools::Calibration::ProcCategory::BinLimits> v20;
@@ -35,7 +34,6 @@ std::pair<std::vector<PhysicsTools::Calibration::ProcMLP::Neuron>, bool> v23;
 PhysicsTools::Calibration::MVAComputerContainer::Entry v24;
 std::vector<PhysicsTools::Calibration::MVAComputerContainer::Entry> v25;
 std::vector<PhysicsTools::Calibration::VarProcessor*> v26;
-
 
 // Performance DB stuff
 PhysicsPerformancePayload p1;          
@@ -52,6 +50,10 @@ PhysicsTFormulaPayload p10;
 std::vector<PhysicsTFormulaPayload> pv10;
 PerformancePayloadFromTFormula p11;
 PerformancePayloadFromBinnedTFormula p12;
+
+// TGraph stuff
+PhysicsTGraphPayload p13;          
+std::vector<PhysicsTGraphPayload> pv13;
 
 }; // struct dictionary
 } // anonymous namespace
