@@ -268,7 +268,8 @@ std::vector<double> HcalDDDSimConstants::getEtaTableHF() const {
   checkInitialized();
   std::vector<double> etas;
   for (unsigned int i=0; i<rTable.size(); ++i) {
-    double eta = -log(tan(0.5*atan(rTable[i]/zVcal)));
+    unsigned int k = rTable.size()-i-1;
+    double eta = -log(tan(0.5*atan(rTable[k]/zVcal)));
     etas.push_back(eta);
   }
   return etas;

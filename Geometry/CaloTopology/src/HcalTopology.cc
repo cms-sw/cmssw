@@ -31,8 +31,19 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
   etaBinsHB_  = hcons_->getEtaBins(0);
   etaBinsHE_  = hcons_->getEtaBins(1);
   nEtaHB_     = (int)(etaBinsHB_.size());
-  nEtaHE_     = (int)(etaBinsHE_.size());
   lastHBRing_ = firstHBRing_+nEtaHB_-1;
+  for (int i = 0; i < (int)(etaBinsHE_.size()); ++i) {
+    if (firstHERing_ > etaBinsHE_[i].ieta) firstHERing_ = etaBinsHE_[i].ieta;
+    if (lastHERing_  < etaBinsHE_[i].ieta) lastHERing_  = etaBinsHE_[i].ieta;
+    int unit = (int)((etaBinsHE_[i].dphi+0.01)/(5.0*CLHEP::deg));
+    if (unit == 2 && firstHEDoublePhiRing_ > etaBinsHE_[i].ieta)
+      firstHEDoublePhiRing_ = etaBinsHE_[i].ieta;
+    if (unit == 4 && firstHEQuadPhiRing_ > etaBinsHE_[i].ieta)
+      firstHEQuadPhiRing_ = etaBinsHE_[i].ieta;
+    if (etaBinsHE_[i].layer.size() > 2 && firstHETripleDepthRing_ > etaBinsHE_[i].ieta) 
+      firstHETripleDepthRing_ = etaBinsHE_[i].ieta;
+  }
+  nEtaHE_     = (lastHERing_ - firstHERing_ + 1);
   if (mode_==HcalTopologyMode::LHC) {
     topoVersion_=0; //DL
     HBSize_     = kHBSizePreLS1; // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
@@ -50,17 +61,6 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
     HTSize_     = kHTSizePreLS1;  //no clue!
     numberOfShapes_ = 500;
   }
-  for (int i = 0; i < nEtaHE_; ++i) {
-    if (firstHERing_ > etaBinsHE_[i].ieta) firstHERing_ = etaBinsHE_[i].ieta;
-    if (lastHERing_  < etaBinsHE_[i].ieta) lastHERing_  = etaBinsHE_[i].ieta;
-    int unit = (int)((etaBinsHE_[i].dphi+0.01)/(5.0*CLHEP::deg));
-    if (unit == 2 && firstHEDoublePhiRing_ > etaBinsHE_[i].ieta)
-      firstHEDoublePhiRing_ = etaBinsHE_[i].ieta;
-    if (unit == 4 && firstHEQuadPhiRing_ > etaBinsHE_[i].ieta)
-      firstHEQuadPhiRing_ = etaBinsHE_[i].ieta;
-    if (etaBinsHE_[i].layer.size() > 2 && firstHETripleDepthRing_ > etaBinsHE_[i].ieta) 
-      firstHETripleDepthRing_ = etaBinsHE_[i].ieta;
-  }
   maxEta_ = (lastHERing_ > lastHFRing_) ? lastHERing_ : lastHFRing_;
 
   //The transition between HE/HF in eta
@@ -68,28 +68,30 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
   etaTable    = hcons_->getEtaTable();
   dPhiTableHF = hcons_->getPhiTableHF();
   dPhiTable   = hcons_->getPhiTable();
-  std::pair<int,int>  ietaHF= hcons_->getEtaRange(2);
-  double eta = etaBinsHE_[etaBinsHE_.size()-1].etaMax;
+  std::pair<int,int>  ietaHF = hcons_->getEtaRange(2);
+  double eta  = etaBinsHE_[etaBinsHE_.size()-1].etaMax;
+  etaHE2HF_   = firstHFRing_;
   for (unsigned int i=1; i<etaTableHF.size(); ++i) {
     if (eta < etaTableHF[i]) {
-      etaHE2HF_ = ietaHF.first + i;
+      etaHE2HF_ = ietaHF.first + i - 1;
       break;
     }
   }
-  eta = etaTableHF[0];
-  for (int i=(int)(etaBinsHE_.size())-1; i>=0; --i) {
+  eta         = etaTableHF[0];
+  etaHF2HE_   = lastHERing_;
+  for (unsigned int i=0; i<etaBinsHE_.size(); ++i) {
     if (eta < etaBinsHE_[i].etaMax) {
-      etaHF2HE_ = ietaHF.first + i;
+      etaHF2HE_ = etaBinsHE_[i].ieta;
       break;
     }
   }
   const double fiveDegInRad = 2*M_PI/72;
   for (unsigned int k=0; k<dPhiTable.size(); ++k) {
-    int units = int(dPhiTable[k]/fiveDegInRad+0.5);
+    int units = (int)(dPhiTable[k]/fiveDegInRad+0.5);
     unitPhi.push_back(units);
   }
   for (unsigned int k=0; k<dPhiTableHF.size(); ++k) {
-    int units = int(dPhiTableHF[k]/fiveDegInRad+0.5);
+    int units = (int)(dPhiTableHF[k]/fiveDegInRad+0.5);
     unitPhiHF.push_back(units);
   }
   std::cout << "Constants in HcalTopology " << firstHBRing_ << ":" << lastHBRing_ << " " << firstHERing_ << ":" << lastHERing_ << ":" << firstHEDoublePhiRing_ << ":" << firstHEQuadPhiRing_ << ":" << firstHETripleDepthRing_ << " " << firstHFRing_ << ":" << lastHFRing_ << ":" << firstHFQuadPhiRing_ << " " << firstHORing_ << ":" << lastHORing_ << " " << maxDepthHB_ << ":" << maxDepthHE_ << " " << nEtaHB_ << ":" << nEtaHE_ << " " << etaHE2HF_ << ":" << etaHF2HE_ << std::endl;
@@ -370,7 +372,7 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
 	    (aieta==firstHERing() && depth<3)) {
 	  ok = false;
 	} else {
-	  for (int i=0; i<nEtaHE_; ++i) {
+	  for (unsigned int i=0; i<etaBinsHE_.size(); ++i) {
 	    if (aieta == etaBinsHE_[i].ieta) {
 	      if (aieta >= firstHEDoublePhiRing() && (iphi%2)==0) ok=false;
 	      if (aieta >= firstHEQuadPhiRing()   && (iphi%4)!=3) ok=false;
@@ -667,7 +669,7 @@ bool HcalTopology::decrementDepth(HcalDetId & detId) const {
       subdet = HcalEndcap;
       etaRing= etaHF2HE_;
       ieta   = (ieta > 0) ? etaRing : -etaRing;
-      for (int i=0; i<nEtaHE_; ++i) {
+      for (unsigned int i=0; i<etaBinsHE_.size(); ++i) {
 	if (etaRing == etaBinsHE_[i].ieta) {
 	  depth = etaBinsHE_[i].depthStart+etaBinsHE_[i].layer.size()-1;
 	  break;
