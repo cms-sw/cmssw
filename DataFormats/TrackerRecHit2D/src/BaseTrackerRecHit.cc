@@ -5,7 +5,7 @@
 
 
 namespace {
-  void
+  inline void
   throwExceptionUninitialized(const char *where)
   {
     throw cms::Exception("BaseTrackerRecHit") << 

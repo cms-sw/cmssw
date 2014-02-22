@@ -11,7 +11,7 @@ class SiStripRecHit1D GCC11_FINAL : public TrackerSingleRecHit {
 public:
 
  
-  SiStripRecHit1D(): sigmaPitch_(-1.){}
+  SiStripRecHit1D(){}
   
   
   typedef OmniClusterRef::ClusterStripRef         ClusterRef;
@@ -20,7 +20,7 @@ public:
   template<typename CluRef>
   SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
 		   const DetId& id, GeomDet const * idet,
-		   CluRef const&  clus) : TrackerSingleRecHit(p,e,id,idet,clus), sigmaPitch_(-1.){}
+		   CluRef const&  clus) : TrackerSingleRecHit(p,e,id,idet,clus){}
 
  
   /// method to facilitate the convesion from 2D to 1D hits
@@ -37,13 +37,6 @@ public:
   virtual void getKfComponents( KfComponentsHolder & holder ) const {getKfComponents1D(holder);}
 
  
-  double sigmaPitch() const { return sigmaPitch_;}
-  void setSigmaPitch(double sigmap) const { sigmaPitch_=sigmap;}
-
-private:
- 
- /// cache for the matcher....
-  mutable double sigmaPitch_;  // transient.... 
 };
 
 #endif
