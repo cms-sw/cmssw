@@ -9,6 +9,10 @@
   <class name="std::vector<reco::PFCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
 
+  <class name="std::pair<unsigned long, edm::Ptr<reco::PFCluster> >"/>
+  <class name="reco::PFCluster::EEtoPSAssociation"/>
+  <class name="edm::Wrapper<reco::PFCluster::EEtoPSAssociation>"/>
+
   <class name="reco::PFRecHitFraction" ClassVersion="10">
    <version ClassVersion="10" checksum="3960206"/>
   </class>
