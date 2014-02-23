@@ -13,6 +13,7 @@ int main()
     testSerialization<PerformanceWorkingPoint>();
     testSerialization<PhysicsPerformancePayload>();
     testSerialization<PhysicsTFormulaPayload>();
+    testSerialization<PhysicsTGraphPayload>();
     testSerialization<PhysicsTools::Calibration::BitSet>();
     testSerialization<PhysicsTools::Calibration::Histogram2D<double,double,double>>();
     testSerialization<PhysicsTools::Calibration::Histogram2D<float,float,float>>();
@@ -47,6 +48,7 @@ int main()
     testSerialization<std::vector<BinningVariables::BinningVariablesType>>();
     testSerialization<std::vector<PerformanceResult::ResultType>>();
     testSerialization<std::vector<PhysicsTFormulaPayload>>();
+    testSerialization<std::vector<PhysicsTGraphPayload>>();
     testSerialization<std::vector<PhysicsTools::Calibration::HistogramD2D>>();
     testSerialization<std::vector<PhysicsTools::Calibration::HistogramD3D>>();
     testSerialization<std::vector<PhysicsTools::Calibration::HistogramD>>();

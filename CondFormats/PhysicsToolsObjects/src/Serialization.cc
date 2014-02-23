@@ -81,6 +81,16 @@ void PhysicsTFormulaPayload::serialize(Archive & ar, const unsigned int)
 COND_SERIALIZATION_INSTANTIATE(PhysicsTFormulaPayload);
 
 template <class Archive>
+void PhysicsTGraphPayload::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(name_);
+    ar & BOOST_SERIALIZATION_NVP(numPoints_);
+    ar & BOOST_SERIALIZATION_NVP(x_);
+    ar & BOOST_SERIALIZATION_NVP(y_);
+}
+COND_SERIALIZATION_INSTANTIATE(PhysicsTGraphPayload);
+
+template <class Archive>
 void PhysicsTools::Calibration::BitSet::serialize(Archive & ar, const unsigned int)
 {
     ar & BOOST_SERIALIZATION_NVP(store);
