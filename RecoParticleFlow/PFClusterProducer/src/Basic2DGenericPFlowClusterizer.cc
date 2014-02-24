@@ -4,6 +4,8 @@
 
 #include "Math/GenVector/VectorUtil.h"
 
+#include "vdt/vdtMath.h"
+
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
 #define LOGWARN(x) edm::LogWarning(x)
@@ -175,7 +177,7 @@ growPFClusters(const reco::PFCluster& topo,
       } else if ( seedable[refhit.key()] && _excludeOtherSeeds ) {
 	fraction = 0.0;
       } else {
-	fraction = cluster.energy()/recHitEnergyNorm * std::exp( -d*d/2.0 );
+	fraction = cluster.energy()/recHitEnergyNorm * vdt::fast_expf( -d*d/2.0 );
       }      
       fractot += fraction;
       frac.push_back(fraction);
