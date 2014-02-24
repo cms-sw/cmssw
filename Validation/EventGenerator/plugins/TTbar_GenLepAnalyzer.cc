@@ -74,11 +74,11 @@ void TTbar_GenLepAnalyzer::bookHistograms(DQMStore::IBooker &i, edm::Run const &
   hists_["lepPt3"   ] = i.book1D("TTbar_lepPt3_"+leps_.label()   , "pt" , 1000,  0., 1000.);
   hists_["lepPt4"   ] = i.book1D("TTbar_lepPt4_"+leps_.label()   , "pt" , 1000,  0., 1000.);
 
-  hists_["lepEtaAll"] = i.book1D("TTbar_lepEtaAll", "eta",  100, -5.,    5.);
-  hists_["lepEta1"  ] = i.book1D("TTbar_lepEta1"  , "eta",  100, -5.,    5.);
-  hists_["lepEta2"  ] = i.book1D("TTbar_lepEta2"  , "eta",  100, -5.,    5.);
-  hists_["lepEta3"  ] = i.book1D("TTbar_lepEta3"  , "eta",  100, -5.,    5.);
-  hists_["lepEta4"  ] = i.book1D("TTbar_lepEta4"  , "eta",  100, -5.,    5.);
+  hists_["lepEtaAll"] = i.book1D("TTbar_lepEtaAll"+leps_.label(), "eta",  100, -5.,    5.);
+  hists_["lepEta1"  ] = i.book1D("TTbar_lepEta1"+leps_.label()  , "eta",  100, -5.,    5.);
+  hists_["lepEta2"  ] = i.book1D("TTbar_lepEta2"+leps_.label()  , "eta",  100, -5.,    5.);
+  hists_["lepEta3"  ] = i.book1D("TTbar_lepEta3"+leps_.label()  , "eta",  100, -5.,    5.);
+  hists_["lepEta4"  ] = i.book1D("TTbar_lepEta4"+leps_.label()  , "eta",  100, -5.,    5.);
 }
 
 

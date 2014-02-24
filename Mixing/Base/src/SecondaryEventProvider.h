@@ -2,11 +2,11 @@
 #define Mixing_Base_SecondaryEventProvider_h
 
 #include "FWCore/Framework/interface/WorkerManager.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "boost/shared_ptr.hpp"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -17,7 +17,6 @@ namespace edm {
   public:
     SecondaryEventProvider(std::vector<ParameterSet>& psets,
              ProductRegistry& pregistry,
-             ExceptionToActionTable const& actions,
              boost::shared_ptr<ProcessConfiguration> processConfiguration);
 
     void beginRun(RunPrincipal& run, const edm::EventSetup& setup, ModuleCallingContext const*);
@@ -32,6 +31,7 @@ namespace edm {
     void endJob() {workerManager_.endJob();}
 
   private:
+    std::unique_ptr<ExceptionToActionTable> exceptionToActionTable_;
     WorkerManager workerManager_;
   };
 }
