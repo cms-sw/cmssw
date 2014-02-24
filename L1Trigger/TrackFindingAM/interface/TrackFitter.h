@@ -19,6 +19,7 @@ class TrackFitter{
   vector<Track*> tracks;
   int nb_layers;
   double sec_phi;//used for sector rotation
+  int sector_id;
 
   friend class boost::serialization::access;
   
@@ -30,6 +31,7 @@ class TrackFitter{
   template<class Archive> void load(Archive & ar, const unsigned int version){
     ar >> nb_layers;
     ar >> sec_phi;
+    sector_id=0;
   }
   
   BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -67,6 +69,11 @@ class TrackFitter{
    **/
   virtual void fit()=0;
   /**
+     \brief Create tracks from a list of hits. The tracks are stored inside the TrackFitter object. If patterns have previously been added to the TrackFitter object, they are not used in this method.
+     \param hits A list of hits to use.
+   **/
+  virtual void fit(vector<Hit*> hits)=0;
+  /**
      \brief Create a copy of the existing object.
      \return A pointer on the copy : you will have to delete this object.
    **/
@@ -89,6 +96,12 @@ class TrackFitter{
 
   void setPhiRotation(double rot);
   double getPhiRotation();
+
+  /**
+     \brief Set the sector used for the fitter
+     \param id The ID of the sector (from 0 to ...)
+  **/
+  void setSectorID(int id);
 
 };
 #endif

@@ -33,7 +33,10 @@ class PatternLayer{
      \brief Map between GRAY code and decimal values
    **/
   static map<string, int> GRAY_POSITIONS;
-  
+  /**
+     \brief Cache between DC bits values and positions
+  **/
+  static map<string, vector<string> > positions_cache;
   /**
      \brief Constructor
   **/
@@ -104,7 +107,7 @@ class PatternLayer{
   /**
      \brief Get the list of positions from the DC bits
   **/
-  void getPositionsFromDC(vector<string>& positions);
+  vector<string> getPositionsFromDC();
 
   /**
      \brief Get the number of DC bits used
