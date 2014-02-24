@@ -30,6 +30,7 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
   const double _stoppingTolerance;
   const double _showerSigma;
   const bool _excludeOtherSeeds;
+  const double _minFracTot;
   const std::unordered_map<std::string,int> _layerMap;
   std::unordered_map<int,double> _recHitEnergyNorms;
   std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;

@@ -23,6 +23,7 @@ Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf) :
     _stoppingTolerance(conf.getParameter<double>("stoppingTolerance")),
     _showerSigma(conf.getParameter<double>("showerSigma")),
     _excludeOtherSeeds(conf.getParameter<bool>("excludeOtherSeeds")),
+    _minFracTot(conf.getParameter<double>("minFracTot")),
     _layerMap({ {"PS2",(int)PFLayer::PS2},
 	        {"PS1",(int)PFLayer::PS1},
 	        {"ECAL_ENDCAP",(int)PFLayer::ECAL_ENDCAP},
@@ -180,7 +181,7 @@ growPFClusters(const reco::PFCluster& topo,
       frac.push_back(fraction);
     }
     for( unsigned i = 0; i < clusters.size(); ++i ) {      
-      if( fractot > 1e-20 || 
+      if( fractot > _minFracTot || 
 	  ( refhit->detId() == clusters[i].seed() && fractot > 0.0 ) ) {
 	frac[i]/=fractot;
       } else {
