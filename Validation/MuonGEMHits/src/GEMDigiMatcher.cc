@@ -1,5 +1,5 @@
-#include "Validation/MuonGEMDigis/interface/GEMDigiMatcher.h"
-#include "Validation/MuonGEMDigis/interface//SimHitMatcher.h"
+#include "Validation/MuonGEMHits/interface/GEMDigiMatcher.h"
+#include "Validation/MuonGEMHits/interface//SimHitMatcher.h"
 
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 

@@ -1,4 +1,4 @@
-#include "Validation/MuonGEMDigis/interface/GEMBaseValidation.h"
+#include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"

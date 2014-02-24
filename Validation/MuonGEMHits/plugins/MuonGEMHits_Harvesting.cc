@@ -230,6 +230,8 @@ MuonGEMHits_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
       dbe_->book1D( TString::Format("%s%s","eff_",gem_ly_odd[i]->GetName()),gem_ly_odd[i]);    
     }
   }
+    //  dbe_->book1D( "test", (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_sh_tof_rm1_l1_all")->getTH1F()->Clone());
+  
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 

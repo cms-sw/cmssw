@@ -35,7 +35,7 @@ public:
   std::pair<int,int> getClosestChambers(int region, float phi);
   bool isSimTrackGood(const SimTrack& );
   void setGeometry(const GEMGeometry* geom); 
-
+  void bookHisto();
 
 
  private:

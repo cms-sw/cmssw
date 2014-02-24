@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "Validation/MuonGEMDigis/interface/GEMBaseValidation.h"
+#include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 
 
 class GEMCSCCoPadDigiValidation : public GEMBaseValidation
@@ -20,7 +20,7 @@ public:
                          const edm::InputTag & inputTag);
   ~GEMCSCCoPadDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
-
+  void bookHisto();
 
 
  private:

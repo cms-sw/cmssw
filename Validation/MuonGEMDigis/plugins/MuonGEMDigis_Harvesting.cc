@@ -66,7 +66,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Validation/MuonGEMDigis/interface/SimTrackDigiMatchManager.h"
+#include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
 
 
 
@@ -184,7 +184,9 @@ MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
       dg_eta_2->Sumw2();
       dg_eta->Divide(gem_trk_eta);
       dg_eta_2->Divide(sh_eta[i]);
-      dbe_->book1D( TString::Format("eff_%s",dg_eta->GetName()),dg_eta); 
+      //TGraphAsymmErrors* eff = new TGraphAsymmErrors( dg_eta, gem_trk_eta);
+ 
+      dbe_->book1D( TString::Format("eff_%s",dg_eta->GetName()),dg_eta ); 
       dbe_->book1D( TString::Format("eff_%s_with_sh",dg_eta_2->GetName()),dg_eta_2); 
     }
   }

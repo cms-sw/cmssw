@@ -21,7 +21,7 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 
-#include "Validation/MuonGEMDigis/interface/SimTrackDigiMatchManager.h"
+#include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
 
 
 class GEMTrackMatch 
@@ -35,7 +35,7 @@ public:
   std::pair<int,int> getClosestChambers(int region, float phi);
   bool isSimTrackGood(const SimTrack& );
   void setGeometry(const GEMGeometry* geom); 
-
+  void bookHisto();
 
  private:
 

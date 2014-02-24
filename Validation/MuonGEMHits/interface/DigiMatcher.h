@@ -9,15 +9,13 @@
  $Id: DigiMatcher.h,v 1.1 2013/02/11 07:33:06 khotilov Exp $
 */
 
-#include "Validation/MuonGEMDigis/interface/BaseMatcher.h"
-#include "Validation/MuonGEMDigis/interface/GenericDigi.h"
+#include "Validation/MuonGEMHits/interface/BaseMatcher.h"
+#include "Validation/MuonGEMHits/interface/GenericDigi.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class SimHitMatcher;
-class CSCGeometry;
 class GEMGeometry;
-class CSCLayerGeometry;
 
 class DigiMatcher : public BaseMatcher
 {
@@ -38,10 +36,6 @@ public:
   /// works for GEM and CSC strip digis
   GlobalPoint digisMeanPosition(const DigiContainer& digis) const;
 
-  /// for CSC strip and wire:
-  /// first calculate median half-strip and widegroup
-  /// then use CSCLayerGeometry::intersectionOfStripAndWire to calculate the intersection
-  GlobalPoint digisCSCMedianPosition(const DigiContainer& strip_digis, const DigiContainer& wire_digis) const;
 
   /// calculate median strip (or wiregroup for wire digis) in a set
   /// assume that the set of digis was from layers of a single chamber
@@ -56,7 +50,6 @@ protected:
 
   const SimHitMatcher* simhit_matcher_;
 
-  const CSCGeometry* csc_geo_;
   const GEMGeometry* gem_geo_;
 
   const DigiContainer no_digis_;

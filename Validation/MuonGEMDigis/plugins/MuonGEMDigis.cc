@@ -66,7 +66,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Validation/MuonGEMDigis/interface/SimTrackDigiMatchManager.h"
+#include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
 #include <vector>
 
 
@@ -95,7 +95,6 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
    //now do what ever initialization is needed
   
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
   theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, stripLabel_ );
   theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, cscPadLabel_ );
   theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, cscCopadLabel_ );
@@ -169,14 +168,19 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 
   iSetup.get<MuonGeometryRecord>().get(gem_geo_);
   gem_geometry_ = &*gem_geo_;
+  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
 
   theGEMStripDigiValidation->setGeometry(gem_geometry_);
+  theGEMStripDigiValidation->bookHisto();
+
   theGEMCSCPadDigiValidation->setGeometry(gem_geometry_);
+  theGEMCSCPadDigiValidation->bookHisto();
   theGEMCSCCoPadDigiValidation->setGeometry(gem_geometry_);
+  theGEMCSCCoPadDigiValidation->bookHisto();
 
 
   theGEMTrackMatch->setGeometry(gem_geometry_);
-
+  theGEMTrackMatch->bookHisto();
 
 
 
