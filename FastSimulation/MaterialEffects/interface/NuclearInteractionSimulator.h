@@ -97,6 +97,8 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
   std::ofstream myOutputFile;
   unsigned myOutputBuffer;
 
+  bool currentValuesWereSet;
+
   //  DaqMonitorBEInterface * dbe;
   //  MonitorElement* hAfter;
   //  MonitorElement* hAfter2;
