@@ -83,6 +83,15 @@ def cust_2023(process):
     process=CustomiseValidation_NoGem_2023(process)
     return process
 
+def cust_2023Muon(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase1(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=customise_gem(process)
+    process=CustomiseValidation_NoGem_2023(process)
+    return process
+
 def noCrossing(process):
     process=customise_NoCrossing(process)
     return process
