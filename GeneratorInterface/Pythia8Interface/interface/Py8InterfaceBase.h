@@ -25,7 +25,6 @@ namespace gen {
 	 
          virtual bool generatePartonsAndHadronize() = 0;
          bool decay() { return true; } // NOT used - let's call it "design imperfection"
-         virtual bool residualDecay();
          bool readSettings( int ); // common func
          virtual bool initializeForInternalPartons() = 0;
          bool declareStableParticles( const std::vector<int>& ); // common func
