@@ -5,6 +5,8 @@
 #include <cmath>
 #include <unordered_map>
 
+#include "vdt/vdtMath.h"
+
 void Basic2DGenericPFlowPositionCalc::
 calculateAndSetPosition(reco::PFCluster& cluster) {
   calculateAndSetPositionActual(cluster);
@@ -72,7 +74,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const double rh_energy = refhit->energy() * ((float)rhf.fraction());
     const double norm = ( rhf.fraction() < _minFractionInCalc ? 
 			  0.0 : 
-			  std::max(0.0,std::log(rh_energy/_logWeightDenom)) );
+			  std::max(0.0,vdt::fast_log(rh_energy/_logWeightDenom)) );
     const math::XYZPoint& rhpos_xyz = refhit->position();
     x += rhpos_xyz.X() * norm;
     y += rhpos_xyz.Y() * norm;

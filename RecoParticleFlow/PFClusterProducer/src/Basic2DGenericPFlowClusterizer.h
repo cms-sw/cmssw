@@ -28,7 +28,7 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
  private:  
   const unsigned _maxIterations;
   const double _stoppingTolerance;
-  const double _showerSigma;
+  const double _showerSigma2;
   const bool _excludeOtherSeeds;
   const double _minFracTot;
   const std::unordered_map<std::string,int> _layerMap;
