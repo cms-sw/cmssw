@@ -15,16 +15,15 @@ void GEMHitsValidation::bookHisto() {
 
 
   Int_t nregion  = theGEMGeometry->regions().size();
-  Int_t nstation = theGEMGeometry->stations().size() / nregion;
-  Int_t nchamber = theGEMGeometry->chambers().size();
+  Int_t nstation = theGEMGeometry->regions()[0]->stations().size() ;
 
-  npart    = theGEMGeometry->etaPartitions().size()/nchamber;
+  npart    = theGEMGeometry->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
 
 
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of region : "<<nregion<<std::endl;
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of stations : "<<nstation<<std::endl;
-  LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of chambers : "<<nchamber<<std::endl;
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of eta partition : "<< npart <<std::endl;
+  std::cout<<"+++ Info : # of eta partition : "<< npart <<std::endl;
 
 
   std::vector< std::string > region;
