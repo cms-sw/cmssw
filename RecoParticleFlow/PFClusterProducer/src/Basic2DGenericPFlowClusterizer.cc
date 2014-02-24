@@ -6,6 +6,8 @@
 
 #include "vdt/vdtMath.h"
 
+#include <iterator>
+
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
 #define LOGWARN(x) edm::LogWarning(x)
@@ -90,12 +92,19 @@ buildClusters(const reco::PFClusterCollection& input,
     // decreases the size of each pf cluster considerably
     prunePFClusters(clustersInTopo);
     // recalculate the positions of the pruned clusters
-    if( clustersInTopo.size() == 1 && _allCellsPosCalc ) {
-      _allCellsPosCalc->calculateAndSetPosition(clustersInTopo.back());
+    if( _convergencePosCalc ) { 
+      // if defined, use the special position calculation for convergence tests
+      _convergencePosCalc->calculateAndSetPositions(clustersInTopo);
     } else {
-      _positionCalc->calculateAndSetPositions(clustersInTopo);
+      if( clustersInTopo.size() == 1 && _allCellsPosCalc ) {
+	_allCellsPosCalc->calculateAndSetPosition(clustersInTopo.back());
+      } else {
+	_positionCalc->calculateAndSetPositions(clustersInTopo);
+      }   
     }
-    output.insert(output.end(),clustersInTopo.begin(),clustersInTopo.end());
+    for( auto& clusterout : clustersInTopo ) {
+      output.insert(output.end(),std::move(clusterout));
+    }
   }
 }
 
@@ -108,7 +117,7 @@ seedPFClustersFromTopo(const reco::PFCluster& topo,
     if( !seedable[rhf.recHitRef().key()] ) continue;
     initialPFClusters.push_back(reco::PFCluster());
     reco::PFCluster& current = initialPFClusters.back();
-    current.addRecHitFraction(rhf);
+    current.recHitFractions().push_back(rhf);
     current.setSeed(rhf.recHitRef()->detId());   
     if( _convergencePosCalc ) {
       _convergencePosCalc->calculateAndSetPosition(current);
@@ -132,15 +141,16 @@ growPFClusters(const reco::PFCluster& topo,
   }      
   if( iter >= _maxIterations || 
       diff <= _stoppingTolerance*toleranceScaling) return;
-  // reset the rechits in this cluster, keeping the previous position  
-  reco::PFClusterCollection clusters_nodepth;
+  // reset the rechits in this cluster, keeping the previous position    
+  std::vector<reco::PFCluster::REPPoint> clus_prev_pos;  
   for( auto& cluster : clusters) {
-    clusters_nodepth.push_back(cluster);
+    const reco::PFCluster::REPPoint& repp = cluster.positionREP();
+    clus_prev_pos.emplace_back(repp.rho(),repp.eta(),repp.phi());
     if( _convergencePosCalc ) {
       if( clusters.size() == 1 && _allCellsPosCalc ) {
-	_allCellsPosCalc->calculateAndSetPosition(clusters_nodepth.back());
+	_allCellsPosCalc->calculateAndSetPosition(cluster);
       } else {
-	_positionCalc->calculateAndSetPosition(clusters_nodepth.back());
+	_positionCalc->calculateAndSetPosition(cluster);
       }
     }
     cluster.recHitFractions().clear();
@@ -160,12 +170,12 @@ growPFClusters(const reco::PFCluster& topo,
     const math::XYZPoint& topocellpos_xyz = refhit->position();
     dist2.clear(); frac.clear(); fractot = 0;
     // add rechits to clusters, calculating fraction based on distance
-    for( auto& cluster : clusters_nodepth ) {      
+    for( auto& cluster : clusters ) {      
       const math::XYZPoint& clusterpos_xyz = cluster.position();
       fraction = 0.0;
       const math::XYZVector deltav = clusterpos_xyz - topocellpos_xyz;
       const double d2 = deltav.Mag2()/_showerSigma2;
-      dist2.push_back( d2 );
+      dist2.emplace_back( d2 );
       if( d2 > 100 ) {
 	LOGDRESSED("Basic2DGenericPFlowClusterizer:growAndStabilizePFClusters")
 	  << "Warning! :: pfcluster-topocell distance is too large! d= "
@@ -180,7 +190,7 @@ growPFClusters(const reco::PFCluster& topo,
 	fraction = cluster.energy()/recHitEnergyNorm * vdt::fast_expf( -0.5*d2 );
       }      
       fractot += fraction;
-      frac.push_back(fraction);
+      frac.emplace_back(fraction);
     }
     for( unsigned i = 0; i < clusters.size(); ++i ) {      
       if( fractot > _minFracTot || 
@@ -201,15 +211,13 @@ growPFClusters(const reco::PFCluster& topo,
       // they create fake photons, in general.
       // (PJ, 16/09/08) 
       if( dist2[i] < 100.0 || frac[i] > 0.9999 ) {	
-	clusters[i].addRecHitFraction(reco::PFRecHitFraction(refhit, frac[i]));
+	clusters[i].recHitFractions().emplace_back(refhit, frac[i]);
       }
     }
   }
   // recalculate positions and calculate convergence parameter
-  double diff2 = 0.0;
-  reco::PFCluster::REPPoint lastPos;
+  double diff2 = 0.0;  
   for( unsigned i = 0; i < clusters.size(); ++i ) {
-    lastPos = clusters[i].positionREP();
     if( _convergencePosCalc ) {
       _convergencePosCalc->calculateAndSetPosition(clusters[i]);
     } else {
@@ -219,25 +227,30 @@ growPFClusters(const reco::PFCluster& topo,
 	_positionCalc->calculateAndSetPosition(clusters[i]);
       }
     }
-    const double delta2 = reco::deltaR2(clusters[i].positionREP(),lastPos);    
+    const double delta2 = 
+      reco::deltaR2(clusters[i].positionREP(),clus_prev_pos[i]);    
     if( delta2 > diff2 ) diff2 = delta2;
   }
   diff = std::sqrt(diff2);
-  dist2.clear(); frac.clear(); clusters_nodepth.clear();// avoid badness
+  dist2.clear(); frac.clear(); clus_prev_pos.clear();// avoid badness
   growPFClusters(topo,seedable,toleranceScaling,iter+1,diff,clusters);
 }
 
 void Basic2DGenericPFlowClusterizer::
 prunePFClusters(reco::PFClusterCollection& clusters) const {
   for( auto& cluster : clusters ) {
-    std::vector<reco::PFRecHitFraction>& allFracs = cluster.recHitFractions();
+    std::vector<reco::PFRecHitFraction> allFracs = 
+      std::move(cluster.recHitFractions());
     std::vector<reco::PFRecHitFraction> prunedFracs;
     prunedFracs.reserve(cluster.recHitFractions().size());
     for( const auto& frac : allFracs ) {
-      if( frac.fraction() > _minFractionToKeep ) prunedFracs.push_back(frac);
+      if( frac.fraction() > _minFractionToKeep ) {
+	prunedFracs.push_back(std::move(frac));
+	cluster.addHitAndFraction( prunedFracs.back().recHitRef()->detId(),
+				   prunedFracs.back().fraction()            );
+      }
     }
     prunedFracs.shrink_to_fit();
-    allFracs.clear();    
-    allFracs = std::move(prunedFracs);
+    cluster.recHitFractions() = std::move(prunedFracs);
   }
 }
