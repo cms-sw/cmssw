@@ -147,6 +147,22 @@ void TTClusterAssociator< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const e
             }
           } /// End of loop over PixelDigiSimLink
         } /// End of loop over all the hits composing the Cluster
+
+        /// Check that the cluster has a non-NULL TP pointer
+        std::vector< edm::Ptr< TrackingParticle > > theseClusterTrackingParticlePtrs = *(clusterToTrackingParticleVectorMap.find( tempCluRef ));
+        bool allOfThemAreNull = true;
+        for ( unsigned int tpi = 0; tpi < theseClusterTrackingParticlePtrs.size() && !allOfThemAreNull; tpi++ )
+        {
+          if ( theseClusterTrackingParticlePtrs.at(tpi).isNull() == false )
+            allOfThemAreNull = false;
+        }
+
+        if ( allOfThemAreNull )
+        {
+          /// In case no TrackingParticle is found at all, drop the map element
+          clusterToTrackingParticleVectorMap.erase( tempCluRef ); /// Use "erase by key"
+        }
+
       }
     } /// End of loop over all the TTClusters of the event
 
