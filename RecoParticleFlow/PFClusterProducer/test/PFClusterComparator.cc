@@ -29,6 +29,17 @@ PFClusterComparator::PFClusterComparator(const edm::ParameterSet& iConfig) {
   printBlocks_ = 
     iConfig.getUntrackedParameter<bool>("printBlocks",false);
 
+  log10E_old = fs_->make<TH1F>("log10E_old","log10(E cluster)",500,-5,5);
+  log10E_new = fs_->make<TH1F>("log10E_new","log10(E cluster)",500,-5,5);
+
+  posX_old = fs_->make<TH1F>("posX_old","log10(E cluster)",50000,0,500);
+  posX_new = fs_->make<TH1F>("posX_new","log10(E cluster)",50000,0,500);
+
+  posY_old = fs_->make<TH1F>("posY_old","log10(E cluster)",50000,0,500);
+  posY_new = fs_->make<TH1F>("posY_new","log10(E cluster)",50000,0,500);
+  
+  posZ_old = fs_->make<TH1F>("posZ_old","log10(E cluster)",50000,0,500);
+  posZ_new = fs_->make<TH1F>("posZ_new","log10(E cluster)",50000,0,500);
 
 
   LogDebug("PFClusterComparator")
@@ -72,6 +83,10 @@ void PFClusterComparator::analyze(const Event& iEvent,
 
   for( unsigned i=0; i<pfClusters->size(); i++ ) {    
     const reco::PFCluster& cluster = pfClusters->at(i);   
+    log10E_old->Fill(std::log10(cluster.energy()));
+    posX_old->Fill(std::abs(cluster.position().x()));
+    posY_old->Fill(std::abs(cluster.position().y()));
+    posZ_old->Fill(std::abs(cluster.position().z()));
     bool foundmatch = false;
     for( unsigned k=0; k<pfClustersCompare->size(); ++k ) {
       const reco::PFCluster& clustercomp = pfClustersCompare->at(k);      
@@ -142,8 +157,12 @@ void PFClusterComparator::analyze(const Event& iEvent,
   std::cout << std::flush << "---- COMPARING NEW TO OLD ----"
 	    << std::endl  << std::flush;
 
-  for( unsigned i=0; i<pfClustersCompare->size(); i++ ) {    
+  for( unsigned i=0; i<pfClustersCompare->size(); i++ ) {     
     const reco::PFCluster& cluster = pfClustersCompare->at(i);   
+    log10E_new->Fill(std::log10(cluster.energy()));
+    posX_new->Fill(std::abs(cluster.position().x()));
+    posY_new->Fill(std::abs(cluster.position().y()));
+    posZ_new->Fill(std::abs(cluster.position().z()));
     bool foundmatch = false;
     for( unsigned k=0; k<pfClusters->size(); ++k ) {
       const reco::PFCluster& clustercomp = pfClusters->at(k);      
