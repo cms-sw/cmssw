@@ -9,7 +9,7 @@
 
 
 
-#define VI_DEBUG
+// #define VI_DEBUG
 
 class OmniClusterRef;
 
@@ -36,6 +36,7 @@ public:
 
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
 		     DetId id, GeomDet const * idet, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,idet, (unsigned int)(rt)), pos_(p), err_(e){
+    if unlikely(!hasPositionAndError()) return;
     LocalError lape = det()->localAlignmentError();
     if (lape.valid())
       err_ = LocalError(err_.xx()+lape.xx(),
@@ -121,7 +122,7 @@ private:
 #elif EDM_LM_DEBUG
   void check() const;
 #else 
-  static check(){}
+  static void check(){}
 #endif
 
 private:
