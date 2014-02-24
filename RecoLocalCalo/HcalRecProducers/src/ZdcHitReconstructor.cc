@@ -33,10 +33,7 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
-  AuxTSvec_(conf.getParameter<std::vector<int> >("AuxTSvec")),
-  myobject(0),
-  theTopology(0)
-  
+  AuxTSvec_(conf.getParameter<std::vector<int> >("AuxTSvec"))
 { 
   std::sort(AuxTSvec_.begin(),AuxTSvec_.end()); // sort vector in ascending TS order
   std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -60,26 +57,17 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   
 }
 
-ZdcHitReconstructor::~ZdcHitReconstructor() {;
-}
-void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es){
+ZdcHitReconstructor::~ZdcHitReconstructor()
+{}
 
-   edm::ESHandle<HcalLongRecoParams> p;
-   es.get<HcalLongRecoParamsRcd>().get(p);
-   myobject = new HcalLongRecoParams(*p.product());
+void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es)
+{}
 
-   edm::ESHandle<HcalTopology> htopo;
-   es.get<HcalRecNumberingRecord>().get(htopo);
-   theTopology=new HcalTopology(*htopo);
-   myobject->setTopo(theTopology);
+void ZdcHitReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es)
+{}
 
-}
-
-void ZdcHitReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
-  delete myobject; myobject=0;
-  delete theTopology; theTopology=0;
-}
-void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
+void
+ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
@@ -92,7 +80,10 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
   edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
   eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
   const HcalSeverityLevelComputer* mySeverity = mycomputer.product();
-  
+
+  edm::ESHandle<HcalLongRecoParams> recoParams;
+  eventSetup.get<HcalLongRecoParamsRcd>().get(recoParams);
+
   // define vectors to pass noiseTS and signalTS
   std::vector<unsigned int> mySignalTS;
   std::vector<unsigned int> myNoiseTS;
@@ -120,7 +111,7 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
 	HcalCoderDb coder (*channelCoder, *shape);
 
 // get db values for signalTSs and noiseTSs
-   const HcalLongRecoParam* myParams = myobject->getValues(detcell);
+   const HcalLongRecoParam* myParams = recoParams->getValues(detcell);
    mySignalTS.clear();
    myNoiseTS.clear();
    mySignalTS = myParams->signalTS();
