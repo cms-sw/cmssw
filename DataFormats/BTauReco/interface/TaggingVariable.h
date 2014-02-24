@@ -51,6 +51,7 @@ namespace reco {
       trackSumJetDeltaR,                        // pseudoangular distance between jet axis and track fourvector sum
 
       vertexCategory,                           // category of secondary vertex (Reco, Pseudo, No)
+  		vertexLeptonCategory,											// category of secondary vertex & soft lepton (RecoNo, PseudoNo, NoNo, RecoMu, PseudoMu, NoMu, RecoEl, PseudoEl, NoEl)
 
       jetNSecondaryVertices,                    // number of reconstructed possible secondary vertices in jet
       jetNSingleTrackVertices,                  // number of single-track ghost-track vertices
@@ -97,6 +98,15 @@ namespace reco {
 						
 			massVertexEnergyFraction,									// vertexmass times fraction of the vertex energy w.r.t. the jet energy
 			vertexBoostOverSqrtJetPt,									// variable related to the boost of the vertex system in flight direction
+
+		  leptonSip2d,                            	// 2D signed impact parameter of the soft lepton
+		  leptonSip3d,                          	 	// 3D signed impact parameter of the soft lepton
+		  leptonPtRel,                          	 	// transverse momentum of the soft lepton wrt. the jet axis
+		  leptonP0Par,                          	 	// momentum of the soft lepton along the jet direction, in the jet rest frame
+		  leptonEtaRel,                         	 	// pseudo)rapidity of the soft lepton along jet axis
+		  leptonDeltaR,                         		// pseudo)angular distance of the soft lepton to jet axis
+		  leptonRatio,                          		// momentum of the soft lepton over jet energy
+		  leptonRatioRel,                       		// momentum of the soft lepton parallel to jet axis over jet energy
 
       algoDiscriminator,                        // discriminator output of an algorithm
 
