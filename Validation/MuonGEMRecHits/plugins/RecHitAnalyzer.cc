@@ -89,7 +89,7 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 //Structures used for filling ME
-#include "GEMCode/RecHitAnalyzer/src/SimRecStructures.h"
+#include "Validation/MuonGEMRecHits/src/SimRecStructures.h"
 
 using namespace std;
 using namespace edm;
@@ -141,8 +141,8 @@ class RecHitAnalyzer : public edm::EDAnalyzer {
     
     edm::Handle<GEMRecHitCollection> gemRecHits_;
     edm::Handle<edm::PSimHitContainer> GEMHits;
-    edm::Handle<edm::SimTrackContainer> sim_tracks;
-    edm::Handle<edm::SimVertexContainer> sim_vertices;
+//    edm::Handle<edm::SimTrackContainer> sim_tracks;
+//    edm::Handle<edm::SimVertexContainer> sim_vertices;
     edm::ESHandle<GEMGeometry> gem_geom_;
     
     const GEMGeometry* gem_geometry_;
@@ -156,17 +156,11 @@ class RecHitAnalyzer : public edm::EDAnalyzer {
     
     //edm::ParameterSet cfg_;
     
-    edm::InputTag simTrackInput_;
     edm::InputTag gemSimHitInput_;
     edm::InputTag gemRecHitInput_;
-    
-    double simTrackMinPt_;
-    double simTrackMaxPt_;
-    double simTrackMinEta_;
-    double simTrackMaxEta_;
-    double simTrackOnlyMuon_;
     float radiusCenter_;
     float chamberHeight_;
+    
     
     std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
     std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
@@ -199,6 +193,9 @@ EffRootFileName_(iConfig.getUntrackedParameter<std::string>("EffRootFileName"))
     folder = folderPath_;
     dbe->setCurrentFolder(folder);
     
+    int num_station=2;
+    std::string station[3]={ "_st1", "_st2", "_st3" };
+    
     //bookMonitorElement(meCollection);
     //---------------------ClustersSize--------------------------------------//
     meCollection["clsDistribution"] = dbe->book1D("clsDistribution","ClusterSizeDistribution",11,-0.5,10.5);
@@ -208,65 +205,42 @@ EffRootFileName_(iConfig.getUntrackedParameter<std::string>("EffRootFileName"))
     meCollection["clsDistribution_rp1_l2"] = dbe->book1D("clsDistribution_rp1_l2","ClusterSizeDistribution, Region=1, Layer=2",11,-0.5,10.5);
     //-----------------------BunchX--------------------------------------//
     meCollection["bxDistribution"] = dbe->book1D("bxDistribution","BunchCrossingDistribution",11,-5.5,5.5);
-    meCollection["bxDistribution_st1"] = dbe->book1D("bxDistribution_st1","BunchCrossingDistribution, Station=1",11,-5.5,5.5);
-    meCollection["bxDistribution_st2"] = dbe->book1D("bxDistribution_st2","BunchCrossingDistribution, Station=2",11,-5.5,5.5);
-    meCollection["bxDistribution_st3"] = dbe->book1D("bxDistribution_st3","BunchCrossingDistribution, Station=3",11,-5.5,5.5);
+    
+    
+    for (int i=0; i<num_station; i++) {
+        
+        //-----------------------BunchX--------------------------------------//
+        meCollection["bxDistribution"+station[i]] = dbe->book1D("bxDistribution"+station[i],"BunchCrossingDistribution, Station="+std::to_string(i+1),11,-5.5,5.5);
+        
+        //-------------------------(x_rec-x_sim)/x_sim-----------------------------------//
+        meCollection["recHitPullX_rm1"+station[i]+"_l1"] = dbe->book1D("recHitPullX_rm1"+station[i]+"_l1","recHitPullX, region-1, station"+std::to_string(i+1)+", layer1",100,-50,+50);
+        meCollection["recHitPullX_rm1"+station[i]+"_l2"] = dbe->book1D("recHitPullX_rm1"+station[i]+"_l2","recHitPullX, region-1, station"+std::to_string(i+1)+", layer2",100,-50,+50);
+        meCollection["recHitPullX_rp1"+station[i]+"_l1"] = dbe->book1D("recHitPullX_rp1"+station[i]+"_l1","recHitPullX, region1, station"+std::to_string(i+1)+", layer1",100,-50,+50);
+        meCollection["recHitPullX_rp1"+station[i]+"_l2"] = dbe->book1D("recHitPullX_rp1"+station[i]+"_l2","recHitPullX, region1, station"+std::to_string(i+1)+", layer2",100,-50,+50);
+        
+        meCollection["recHitDPhi"+station[i]] = dbe->book1D("recHitDPhi"+station[i],"DeltaPhi RecHit, Station="+std::to_string(i+1),100,-0.001,+0.001);
+        meCollection["recHitDPhi"+station[i]+"_cls1"] = dbe->book1D("recHitDPhi"+station[i]+"_cls1","DeltaPhi RecHit, Station="+std::to_string(i+1)+", CLS=1",100,-0.001,+0.001);
+        meCollection["recHitDPhi"+station[i]+"_cls2"] = dbe->book1D("recHitDPhi"+station[i]+"_cls2","DeltaPhi RecHit, Station="+std::to_string(i+1)+", CLS=2",100,-0.001,+0.001);
+        meCollection["recHitDPhi"+station[i]+"_cls3"] = dbe->book1D("recHitDPhi"+station[i]+"_cls3","DeltaPhi RecHit, Station="+std::to_string(i+1)+", CLS=3",100,-0.001,+0.001);
+        
+        //----------------Occupancy XY-------------------------------//
+        meCollection["localrh_xy_rm1"+station[i]+"_l1"] = dbe->book2D("localrh_xy_rm1"+station[i]+"_l1","GEM RecHit occupancy: region-1, station"+std::to_string(i+1)+", layer1",200,-260,260,100,-260,260);
+        meCollection["localrh_xy_rm1"+station[i]+"_l2"] = dbe->book2D("localrh_xy_rm1"+station[i]+"_l2","GEM RecHit occupancy: region-1, station"+std::to_string(i+1)+", layer2",200,-260,260,100,-260,260);
+        meCollection["localrh_xy_rp1"+station[i]+"_l1"] = dbe->book2D("localrh_xy_rp1"+station[i]+"_l1","GEM RecHit occupancy: region1, station"+std::to_string(i+1)+", layer1",200,-260,260,100,-260,260);
+        meCollection["localrh_xy_rp1"+station[i]+"_l2"] = dbe->book2D("localrh_xy_rp1"+station[i]+"_l2","GEM RecHit occupancy: region1, station"+std::to_string(i+1)+", layer2",200,-260,260,100,-260,260);
+    }
+    
+    
+//    meCollection["bxDistribution_st1"] = dbe->book1D("bxDistribution_st1","BunchCrossingDistribution, Station=1",11,-5.5,5.5);
+//    meCollection["bxDistribution_st2"] = dbe->book1D("bxDistribution_st2","BunchCrossingDistribution, Station=2",11,-5.5,5.5);
+//    meCollection["bxDistribution_st3"] = dbe->book1D("bxDistribution_st3","BunchCrossingDistribution, Station=3",11,-5.5,5.5);
     //-------------------------(x_rec-x_sim)/x_sim-----------------------------------//
     meCollection["recHitPullX"] = dbe->book1D("recHitPullX","recHitPullX",100,-50,+50);
-    
-    meCollection["recHitPullX_rm1_st1_l1"] = dbe->book1D("recHitPullX_rm1_st1_l1","recHitPullX, region-1, station1, layer1",100,-50,+50);
-    meCollection["recHitPullX_rm1_st1_l2"] = dbe->book1D("recHitPullX_rm1_st1_l2","recHitPullX, region-1, station1, layer2",100,-50,+50);
-    meCollection["recHitPullX_rp1_st1_l1"] = dbe->book1D("recHitPullX_rp1_st1_l1","recHitPullX, region1, station1, layer1",100,-50,+50);
-    meCollection["recHitPullX_rp1_st1_l2"] = dbe->book1D("recHitPullX_rp1_st1_l2","recHitPullX, region1, station1, layer2",100,-50,+50);
-    
-    meCollection["recHitPullX_rm1_st2_l1"] = dbe->book1D("recHitPullX_rm1_st2_l1","recHitPullX, region-1, station1, layer1",100,-50,+50);
-    meCollection["recHitPullX_rm1_st2_l2"] = dbe->book1D("recHitPullX_rm1_st2_l2","recHitPullX, region-1, station1, layer2",100,-50,+50);
-    meCollection["recHitPullX_rp1_st2_l1"] = dbe->book1D("recHitPullX_rp1_st2_l1","recHitPullX, region1, station1, layer1",100,-50,+50);
-    meCollection["recHitPullX_rp1_st2_l2"] = dbe->book1D("recHitPullX_rp1_st2_l2","recHitPullX, region1, station1, layer2",100,-50,+50);
-    
-    meCollection["recHitPullX_rm1_st3_l1"] = dbe->book1D("recHitPullX_rm1_st3_l1","recHitPullX, region-1, station3, layer1",100,-50,+50);
-    meCollection["recHitPullX_rm1_st3_l2"] = dbe->book1D("recHitPullX_rm1_st3_l2","recHitPullX, region-1, station3, layer2",100,-50,+50);
-    meCollection["recHitPullX_rp1_st3_l1"] = dbe->book1D("recHitPullX_rp1_st3_l1","recHitPullX, region1, station3, layer1",100,-50,+50);
-    meCollection["recHitPullX_rp1_st3_l2"] = dbe->book1D("recHitPullX_rp1_st3_l2","recHitPullX, region1, station3, layer2",100,-50,+50);
     
     
     //-----------------------------------------------------------//
     meCollection["recHitDPhi"] = dbe->book1D("recHitDPhi","DeltaPhi RecHit",100,-0.001,+0.001);
-    meCollection["recHitDPhi_st1"] = dbe->book1D("recHitDPhi_st1","DeltaPhi RecHit, Station=1",100,-0.001,+0.001);
-    meCollection["recHitDPhi_st2"] = dbe->book1D("recHitDPhi_st2","DeltaPhi RecHit, Station=2",100,-0.001,+0.001);
-    meCollection["recHitDPhi_st3"] = dbe->book1D("recHitDPhi_st3","DeltaPhi RecHit, Station=3",100,-0.001,+0.001);
-    
-//    meCollection["recHitDPhi_rm1_l1"] = dbe->book1D("recHitDPhi_rm1_l1","DeltaPhi RecHit, Region=-1, Layer=1",100,-0.001,+0.001);
-//    meCollection["recHitDPhi_rm1_l2"] = dbe->book1D("recHitDPhi_rm1_l2","DeltaPhi RecHit, Region=-1, Layer=2",100,-0.001,+0.001);
-//    meCollection["recHitDPhi_rp1_l1"] = dbe->book1D("recHitDPhi_rp1_l1","DeltaPhi RecHit, Region=1, Layer=1",100,-0.001,+0.001);
-//    meCollection["recHitDPhi_rp1_l2"] = dbe->book1D("recHitDPhi_rp1_l2","DeltaPhi RecHit, Region=1, Layer=2",100,-0.001,+0.001);
-    
-    meCollection["recHitDPhi_st1_cls1"] = dbe->book1D("recHitDPhi_st1_cls1","DeltaPhi RecHit, Station=1, CLS=1",100,-0.001,+0.001);
-    meCollection["recHitDPhi_st1_cls2"] = dbe->book1D("recHitDPhi_st1_cls2","DeltaPhi RecHit, Station=1, CLS=2",100,-0.001,+0.001);
-    meCollection["recHitDPhi_st1_cls3"] = dbe->book1D("recHitDPhi_st1_cls3","DeltaPhi RecHit, Station=1, CLS=3",100,-0.001,+0.001);
-    
-    meCollection["recHitDPhi_st2_cls1"] = dbe->book1D("recHitDPhi_st2_cls1","DeltaPhi RecHit, Station=2, CLS=1",100,-0.001,+0.001);
-    meCollection["recHitDPhi_st2_cls2"] = dbe->book1D("recHitDPhi_st2_cls2","DeltaPhi RecHit, Station=2, CLS=2",100,-0.001,+0.001);
-    meCollection["recHitDPhi_st2_cls3"] = dbe->book1D("recHitDPhi_st2_cls3","DeltaPhi RecHit, Station=2, CLS=3",100,-0.001,+0.001);
-    
-    meCollection["recHitDPhi_st3_cls1"] = dbe->book1D("recHitDPhi_st3_cls1","DeltaPhi RecHit, Station=3, CLS=1",100,-0.001,+0.001);
-    meCollection["recHitDPhi_st3_cls2"] = dbe->book1D("recHitDPhi_st3_cls2","DeltaPhi RecHit, Station=3, CLS=2",100,-0.001,+0.001);
-    meCollection["recHitDPhi_st3_cls3"] = dbe->book1D("recHitDPhi_st3_cls3","DeltaPhi RecHit, Station=3, CLS=3",100,-0.001,+0.001);
-    //-------------------------------------------------//
-    meCollection["localrh_xy_rm1_st1_l1"] = dbe->book2D("localrh_xy_rm1_st1_l1","GEM RecHit occupancy: region-1, station1, layer1",200,-260,260,100,-260,260);
-    meCollection["localrh_xy_rm1_st1_l2"] = dbe->book2D("localrh_xy_rm1_st1_l2","GEM RecHit occupancy: region-1, station1, layer2",200,-260,260,100,-260,260);
-    meCollection["localrh_xy_rp1_st1_l1"] = dbe->book2D("localrh_xy_rp1_st1_l1","GEM RecHit occupancy: region1, station1, layer1",200,-260,260,100,-260,260);
-    meCollection["localrh_xy_rp1_st1_l2"] = dbe->book2D("localrh_xy_rp1_st1_l2","GEM RecHit occupancy: region1, station1, layer2",200,-260,260,100,-260,260);
-    
-    meCollection["localrh_xy_rm1_st2_l1"] = dbe->book2D("localrh_xy_rm1_st2_l1","GEM RecHit occupancy: region-1, station2, layer1",200,-360,360,200,-360,360);
-    meCollection["localrh_xy_rm1_st2_l2"] = dbe->book2D("localrh_xy_rm1_st2_l2","GEM RecHit occupancy: region-1, station2, layer2",200,-360,360,200,-360,360);
-    meCollection["localrh_xy_rp1_st2_l1"] = dbe->book2D("localrh_xy_rp1_st2_l1","GEM RecHit occupancy: region1, station2, layer1",200,-360,360,200,-360,360);
-    meCollection["localrh_xy_rp1_st2_l2"] = dbe->book2D("localrh_xy_rp1_st2_l2","GEM RecHit occupancy: region1, station2, layer2",200,-360,360,200,-360,360);
-    
-    meCollection["localrh_xy_rm1_st3_l1"] = dbe->book2D("localrh_xy_rm1_st3_l1","GEM RecHit occupancy: region-1, station3, layer1",200,-360,360,200,-360,360);
-    meCollection["localrh_xy_rm1_st3_l2"] = dbe->book2D("localrh_xy_rm1_st3_l2","GEM RecHit occupancy: region-1, station3, layer2",200,-360,360,200,-360,360);
-    meCollection["localrh_xy_rp1_st3_l1"] = dbe->book2D("localrh_xy_rp1_st3_l1","GEM RecHit occupancy: region1, station3, layer1",200,-360,360,200,-360,360);
-    meCollection["localrh_xy_rp1_st3_l2"] = dbe->book2D("localrh_xy_rp1_st3_l2","GEM RecHit occupancy: region1, station3, layer2",200,-360,360,200,-360,360);
+
     
     meCollection["localrh_zr_rm1_st1"] = dbe->book2D("localrh_zr_rm1_st1","GEM RecHit occupancy: region-1",200,-573,-564,110,130,240);
     meCollection["localrh_zr_rp1_st1"] = dbe->book2D("localrh_zr_rp1_st1","GEM RecHit occupancy: region1",200,573,564,110,130,240);
