@@ -9,6 +9,8 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 
+#include "vdt/vdtMath.h"
+
 // faithful reimplementation of RecoEcal/EgammaCoreTools PositionCalc
 // sorry Stefano
 
@@ -102,10 +104,10 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     if(ctreta < 0 && _esMinus) clusterT0 = _param_T0_ES;
   }  
   // floats to reproduce exactly the EGM code
-  const float maxDepth = _param_X0*(clusterT0 + std::log(cl_energy_float));
+  const float maxDepth = _param_X0*(clusterT0 + vdt::fast_log(cl_energy_float));
   const float maxToFront = center_cell->getPosition().mag();  
   // calculate the position
-  const double logETot_inv = -std::log(cl_energy_float);
+  const double logETot_inv = -vdt::fast_log(cl_energy_float);
   double position_norm = 0.0;
   double x(0.0),y(0.0),z(0.0);  
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
@@ -113,7 +115,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     const double rh_energy = ((float)refhit->energy()) * ((float)rhf.fraction());
     if( rh_energy > 0.0 ) weight = std::max(0.0,( _param_W0 + 
-						  std::log(rh_energy) + 
+						  vdt::fast_log(rh_energy) + 
 						  logETot_inv ));
     const CaloCellGeometry* cell = ecal_geom->getGeometry(refhit->detId());
     const float depth = maxDepth + maxToFront - cell->getPosition().mag();    

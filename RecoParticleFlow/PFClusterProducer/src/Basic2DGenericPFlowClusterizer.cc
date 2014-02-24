@@ -23,7 +23,7 @@ Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf) :
     PFClusterBuilderBase(conf),
     _maxIterations(conf.getParameter<unsigned>("maxIterations")),
     _stoppingTolerance(conf.getParameter<double>("stoppingTolerance")),
-    _showerSigma(conf.getParameter<double>("showerSigma")),
+    _showerSigma2(std::pow(conf.getParameter<double>("showerSigma"),2.0)),
     _excludeOtherSeeds(conf.getParameter<bool>("excludeOtherSeeds")),
     _minFracTot(conf.getParameter<double>("minFracTot")),
     _layerMap({ {"PS2",(int)PFLayer::PS2},
@@ -146,7 +146,7 @@ growPFClusters(const reco::PFCluster& topo,
     cluster.recHitFractions().clear();
   }
   // loop over topo cluster and grow current PFCluster hypothesis 
-  std::vector<double> dist, frac;
+  std::vector<double> dist2, frac;
   double fractot = 0, fraction = 0;
   for( const reco::PFRecHitFraction& rhf : topo.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
@@ -158,18 +158,18 @@ growPFClusters(const reco::PFCluster& topo,
     const double recHitEnergyNorm = 
       _recHitEnergyNorms.find(cell_layer)->second; 
     const math::XYZPoint& topocellpos_xyz = refhit->position();
-    dist.clear(); frac.clear(); fractot = 0;
+    dist2.clear(); frac.clear(); fractot = 0;
     // add rechits to clusters, calculating fraction based on distance
     for( auto& cluster : clusters_nodepth ) {      
       const math::XYZPoint& clusterpos_xyz = cluster.position();
       fraction = 0.0;
       const math::XYZVector deltav = clusterpos_xyz - topocellpos_xyz;
-      const double d = deltav.R()/_showerSigma;
-      dist.push_back( d );
-      if( d > 10 ) {
+      const double d2 = deltav.Mag2()/_showerSigma2;
+      dist2.push_back( d2 );
+      if( d2 > 100 ) {
 	LOGDRESSED("Basic2DGenericPFlowClusterizer:growAndStabilizePFClusters")
 	  << "Warning! :: pfcluster-topocell distance is too large! d= "
-	  << d;
+	  << d2;
       }
       // fraction assignment logic
       if( refhit->detId() == cluster.seed() && _excludeOtherSeeds ) {
@@ -177,7 +177,7 @@ growPFClusters(const reco::PFCluster& topo,
       } else if ( seedable[refhit.key()] && _excludeOtherSeeds ) {
 	fraction = 0.0;
       } else {
-	fraction = cluster.energy()/recHitEnergyNorm * vdt::fast_expf( -d*d/2.0 );
+	fraction = cluster.energy()/recHitEnergyNorm * vdt::fast_expf( -0.5*d2 );
       }      
       fractot += fraction;
       frac.push_back(fraction);
@@ -200,7 +200,7 @@ growPFClusters(const reco::PFCluster& topo,
       // (about 1% of the clusters) need to be studied, as 
       // they create fake photons, in general.
       // (PJ, 16/09/08) 
-      if( dist[i] < 10.0 || frac[i] > 0.9999 ) {	
+      if( dist2[i] < 100.0 || frac[i] > 0.9999 ) {	
 	clusters[i].addRecHitFraction(reco::PFRecHitFraction(refhit, frac[i]));
       }
     }
@@ -223,7 +223,7 @@ growPFClusters(const reco::PFCluster& topo,
     if( delta2 > diff2 ) diff2 = delta2;
   }
   diff = std::sqrt(diff2);
-  dist.clear(); frac.clear(); clusters_nodepth.clear();// avoid badness
+  dist2.clear(); frac.clear(); clusters_nodepth.clear();// avoid badness
   growPFClusters(topo,seedable,toleranceScaling,iter+1,diff,clusters);
 }
 
