@@ -44,6 +44,8 @@ public:
   int depth() const;
   /// get the channel 
   int channel() const;
+  /// reverse format
+  uint32_t otherForm() const;
 
   uint32_t denseIndex() const ;
 

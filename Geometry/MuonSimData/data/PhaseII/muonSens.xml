@@ -41,10 +41,5 @@
       <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
       <Parameter name="ReadOutName" value="MuonCSCHits"/>
     </SpecPar>
-    <SpecPar name="gem">
-      <PartSelector path="//GHA.*"/>
-      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
-      <Parameter name="ReadOutName" value="MuonGEMHits"/>
-    </SpecPar>
   </SpecParSection>
 </DDDefinition>

@@ -410,10 +410,12 @@ baseMuonAssociatorFS.simtracksTag = "famosSimHits"
 baseMuonAssociatorFS.DTsimhitsTag  = "MuonSimHits:MuonDTHits"
 baseMuonAssociatorFS.CSCsimHitsTag = "MuonSimHits:MuonCSCHits"
 baseMuonAssociatorFS.RPCsimhitsTag = "MuonSimHits:MuonRPCHits"
+baseMuonAssociatorFS.GEMsimhitsTag = "MuonSimHits:MuonGEMHits"
 baseMuonAssociatorFS.simtracksXFTag = "mix:famosSimHits"
 baseMuonAssociatorFS.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
 baseMuonAssociatorFS.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
 baseMuonAssociatorFS.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
+baseMuonAssociatorFS.GEMsimhitsXFTag = "mix:MuonSimHitsMuonGEMHits"
 baseMuonAssociatorFS.ROUList = ['famosSimHitsTrackerHits']
 
 

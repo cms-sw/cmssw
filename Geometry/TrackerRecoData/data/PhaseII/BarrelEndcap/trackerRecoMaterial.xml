@@ -140,7 +140,7 @@
 <PartSelector path="//PixelBarrel/Layer1/Rod1/BModule32Layer1/BModule32Layer1INNERwafer/BModule32Layer1INNERactive"/>
 <PartSelector path="//PixelBarrel/Layer1/Rod1/BModule32Layer1/BModule32Layer1OUTERwafer/BModule32Layer1OUTERactive"/>
 <Parameter name="TrackerRadLength" value="0.0362205"/>
-<Parameter name="TrackerXi" value="0.0000072"/>
+<Parameter name="TrackerXi" value="0.000072"/>
 </SpecPar>
 
 <SpecPar name="TrackerRecMaterialTOBPixelBarrelLayer2" eval="true">

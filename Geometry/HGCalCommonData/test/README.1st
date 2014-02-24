@@ -1,0 +1,2 @@
+cmsRun Geometry/HGCalCommonData/python/dumpShashlikGeometry_cfg.py
+cmsShow -c Geometry/HGCalCommonData/test/shashlik.fwc --sim-geom-file ./cmsSimGeom-4.root

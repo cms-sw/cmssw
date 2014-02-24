@@ -117,6 +117,20 @@ int HcalZDCDetId::channel() const {
   else             return  id_&0xF;
 }
 
+uint32_t HcalZDCDetId::otherForm() const {
+  uint32_t rawId = (id_&0xFE000000);
+  if (id_&0x10000 == 0) {
+    rawId |= (section()&0x7)<<5; 
+    if (zside() > 0) rawId |= 0x100;
+    rawId |= (channel()&0x1F) | 0x10000;
+  } else {
+    rawId |= (section()&0x3)<<4; 
+    if (zside() > 0) rawId |= 0x40;
+    rawId |= channel()&0xF;
+  }
+  return rawId;
+}
+
 uint32_t HcalZDCDetId::denseIndex() const {
    const int se ( section() ) ;
    uint32_t indx = channel() - 1;

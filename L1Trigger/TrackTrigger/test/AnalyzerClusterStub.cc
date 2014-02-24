@@ -639,18 +639,18 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   /// Track Trigger
   edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
-  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterInclusiveHandle;
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTStubHandle;
   /// NOTE: the InputTag for the "Accepted" clusters is different from the "Inclusive" one
-  iEvent.getByLabel( "TTStubsFromPixelDigis", "ClusterAccepted",     PixelDigiTTClusterHandle );
-  iEvent.getByLabel( "TTClustersFromPixelDigis", "ClusterInclusive", PixelDigiTTClusterInclusiveHandle ); 
+  /// "TTClustersFromPixelDigis", "ClusterInclusive" BUT ...
+  /// ... "TTStubsFromPixelDigis", "ClusterAccepted"
+  iEvent.getByLabel( "TTClustersFromPixelDigis", "ClusterInclusive", PixelDigiTTClusterHandle );
   iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted",        PixelDigiTTStubHandle );
 
   /// Track Trigger MC Truth
   edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
   edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > >    MCTruthTTStubHandle;
-  iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", "ClusterAccepted", MCTruthTTClusterHandle );
-  iEvent.getByLabel( "TTStubAssociatorFromPixelDigis", "StubAccepted",       MCTruthTTStubHandle );
+  iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", "ClusterInclusive", MCTruthTTClusterHandle );
+  iEvent.getByLabel( "TTStubAssociatorFromPixelDigis", "StubAccepted",        MCTruthTTStubHandle );
 
   ////////////////////////////////
   /// COLLECT STUB INFORMATION ///

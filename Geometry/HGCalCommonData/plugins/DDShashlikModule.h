@@ -1,5 +1,5 @@
-#ifndef HGCalCommonData_DDShashlikCapsule_h
-#define HGCalCommonData_DDShashlikCapsule_h
+#ifndef HGCalCommonData_DDShashlikModule_h
+#define HGCalCommonData_DDShashlikModule_h
 
 #include <map>
 #include <string>
@@ -7,11 +7,11 @@
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 
-class DDShashlikCapsule : public DDAlgorithm {
+class DDShashlikModule : public DDAlgorithm {
  public:
   //Constructor and Destructor
-  DDShashlikCapsule(); 
-  virtual ~DDShashlikCapsule();
+  DDShashlikModule(); 
+  virtual ~DDShashlikModule();
   
   void initialize(const DDNumericArguments & nArgs,
 		  const DDVectorArguments & vArgs,

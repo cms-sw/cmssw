@@ -211,8 +211,14 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               CSCMotherboardME11* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
 
               tmb11->setCSCGeometry(csc_g);
-              tmb11->setGEMGeometry(gem_g);
- 
+	      if (gem_g != nullptr) {
+		tmb11->setGEMGeometry(gem_g);
+	      } 
+	      else {
+ 		LogTrace("L1CSCTrigger") 
+ 		  << "GEM geometry is unavailable. Running CSC-only trigger algorithm.";
+	      }
+	      
               //LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
  
               tmb11->run(wiredc, compdc, gemPads);

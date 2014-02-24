@@ -186,7 +186,7 @@ void MCatNLOSource::produce(edm::Event &event)
   lhef::CommonBlocks::readHEPRUP(&heprup);
   lhef::CommonBlocks::readHEPEUP(&hepeup);
   hepeup.IDPRUP = heprup.LPRUP[0];
-  std::auto_ptr<LHEEventProduct> lhEvent(new LHEEventProduct(hepeup));
+  std::auto_ptr<LHEEventProduct> lhEvent(new LHEEventProduct(hepeup,hepeup.XWGTUP));
   lhEvent->addComment(makeConfigLine("#IHPRO", ihpro));
   event.put(lhEvent);
 }

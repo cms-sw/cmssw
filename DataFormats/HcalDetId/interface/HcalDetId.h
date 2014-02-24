@@ -45,6 +45,8 @@ public:
   int iphi() const;
   /// get the tower depth
   int depth() const;
+  /// reverse format
+  uint32_t otherForm() const;
   /// get the smallest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_ieta_low() const { return ((ieta()-zside())*5)+zside(); }
   /// get the largest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)
