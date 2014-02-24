@@ -149,7 +149,7 @@ void TTClusterAssociator< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const e
         } /// End of loop over all the hits composing the Cluster
 
         /// Check that the cluster has a non-NULL TP pointer
-        std::vector< edm::Ptr< TrackingParticle > > theseClusterTrackingParticlePtrs = *(clusterToTrackingParticleVectorMap.find( tempCluRef ));
+        std::vector< edm::Ptr< TrackingParticle > > theseClusterTrackingParticlePtrs = clusterToTrackingParticleVectorMap.find( tempCluRef )->second;
         bool allOfThemAreNull = true;
         for ( unsigned int tpi = 0; tpi < theseClusterTrackingParticlePtrs.size() && !allOfThemAreNull; tpi++ )
         {
