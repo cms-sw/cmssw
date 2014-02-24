@@ -38,7 +38,7 @@
   <class name="edm::ValueMap<edm::Ptr<std::vector<reco::PFCandidate> > >"/>
   <class name="std::vector<edm::Ptr<std::vector<reco::PFCandidate> > >"/>
   <class name="edm::ValueMap<edm::Ptr<reco::PFCandidate> >"/>
-
+  <class name="edm::reftobase::RefVectorHolder<reco::PFCandidateRefVector >"/>
 
   <class name="reco::IsolatedPFCandidate"  ClassVersion="10">
    <version ClassVersion="10" checksum="1426765407"/>
