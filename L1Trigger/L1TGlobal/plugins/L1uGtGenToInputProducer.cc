@@ -72,7 +72,7 @@ namespace l1t {
 
     int convertPhiToHW(double iphi, int steps);
     unsigned int convertEtaToHW(double ieta, double minEta, double maxEta, int steps, unsigned int bitMask);
-    int convertPtToHW(double ipt, double maxPt, int steps);
+    int convertPtToHW(double ipt, int maxPt, double step);
 
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
@@ -194,9 +194,11 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   int bxLast  = bxLast_;
 
 
+  // Et scale (in GeV)
+  double pTstep_ = 0.5;
+
   // Default values for EG/Tau. Redefined for individual objects below
-  double maxPt_ = 255.;
-  int ptSteps_ = 510;
+  int maxPt_ = 255;
   double minEta_ = -5.;
   double maxEta_ = 5.;
   int etaSteps_ = 230;
@@ -250,16 +252,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     if( iMu>=maxNumMuCands_ ) continue;
 
-    maxPt_ = 255.;
-    ptSteps_ = 510;
-    minEta_ = -2.45;
+    maxPt_ = 255;
     maxEta_ = 2.45;
     etaSteps_ = 450;
     phiSteps_ = 576;
   
     const reco::Candidate & mcParticle = (*genParticles)[mu_cands_index[idxMu[iMu]]];
 
-    int pt   = convertPtToHW( mcParticle.pt(), maxPt_, ptSteps_ );
+    int pt   = convertPtToHW( mcParticle.pt(), maxPt_, pTstep_ );
     int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_, 0x1ff );
     int phi  = convertPhiToHW( mcParticle.phi(), phiSteps_ );
     int qual = 4;
@@ -293,8 +293,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     if( iEg>=maxNumEGCands_ ) continue;
 
-    maxPt_ = 255.;
-    ptSteps_ = 510;
+    maxPt_ = 255;
     minEta_ = -5.;
     maxEta_ = 5.;
     etaSteps_ = 230;
@@ -302,7 +301,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
     const reco::Candidate & mcParticle = (*genParticles)[eg_cands_index[idxEg[iEg]]];
 
-    int pt   = convertPtToHW( mcParticle.pt(), maxPt_, ptSteps_ );
+    int pt   = convertPtToHW( mcParticle.pt(), maxPt_, pTstep_ );
     int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_ , 0xff);
     int phi  = convertPhiToHW( mcParticle.phi(), phiSteps_ );
     int qual = 1;
@@ -331,8 +330,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     if( iTau>=maxNumTauCands_ ) continue;
 
-    maxPt_ = 255.;
-    ptSteps_ = 510;
+    maxPt_ = 255;
     minEta_ = -5.;
     maxEta_ = 5.;
     etaSteps_ = 230;
@@ -340,7 +338,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
     const reco::Candidate & mcParticle = (*genParticles)[tau_cands_index[idxTau[iTau]]];
 
-    int pt   = convertPtToHW( mcParticle.pt(), maxPt_, ptSteps_ );
+    int pt   = convertPtToHW( mcParticle.pt(), maxPt_, pTstep_ );
     int eta  = convertEtaToHW( mcParticle.eta(), minEta_, maxEta_, etaSteps_ , 0xff);
     int phi  = convertPhiToHW( mcParticle.phi(), phiSteps_ );
     int qual = 1;
@@ -373,7 +371,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
       if( nJet>=maxNumJetCands_ ) continue;
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-      int pt  = convertPtToHW( genJet->et(), 1023., 2046 );
+      int pt  = convertPtToHW( genJet->et(), 1023, pTstep_ );
       int eta = convertEtaToHW( genJet->eta(), -5., 5., 230, 0xff );
       int phi = convertPhiToHW( genJet->phi(), 144 );
 
@@ -394,7 +392,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   edm::Handle<reco::GenMETCollection> genMet;
   // Make sure that you can get genMET
   if( iEvent.getByToken(genMetToken, genMet) ){
-    int pt  = convertPtToHW( genMet->front().pt(), 2047., 4094 );
+    int pt  = convertPtToHW( genMet->front().pt(), 2047, pTstep_ );
     int phi = convertPhiToHW( genMet->front().phi(), 144 );
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
@@ -405,7 +403,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     etsumVec.push_back(etmiss);
 
     // Make Missing Ht slightly smaller and rotated (These are all fake inputs anyway...not supposed to be realistic)
-    pt  = convertPtToHW( genMet->front().pt()*0.9, 2047., 4094 );
+    pt  = convertPtToHW( genMet->front().pt()*0.9, 2047, pTstep_ );
     phi = convertPhiToHW( genMet->front().phi()+ 3.14/5., 144 );
 
     l1t::EtSum htmiss(*p4, l1t::EtSum::EtSumType::kMissingHt,pt, 0,phi, 0); 
@@ -420,13 +418,13 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
 // Put the total Et into EtSums  (Make HTT slightly smaller to tell them apart....not supposed to be realistic) 
-   int pt  = convertPtToHW( sumEt, 2047., 4094 );
+   int pt  = convertPtToHW( sumEt, 2047, pTstep_ );
    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
    l1t::EtSum etTotal(*p4, l1t::EtSum::EtSumType::kTotalEt,pt, 0, 0, 0); 
    //etsums->push_back(bxEval, etTotal);  
    etsumVec.push_back(etTotal);
 
-   pt  = convertPtToHW( sumEt*0.9, 2047., 4094 );
+   pt  = convertPtToHW( sumEt*0.9, 2047, pTstep_ );
    l1t::EtSum htTotal(*p4, l1t::EtSum::EtSumType::kTotalHt,pt, 0, 0, 0); 
    //etsums->push_back(bxEval, htTotal);  
    etsumVec.push_back(htTotal);
@@ -644,13 +642,12 @@ unsigned int L1uGtGenToInputProducer::convertEtaToHW(double ieta, double minEta,
   return hwEta;
 }
 
-int L1uGtGenToInputProducer::convertPtToHW(double ipt, double maxPt, int steps){
+int L1uGtGenToInputProducer::convertPtToHW(double ipt, int maxPt, double step){
 
+  int hwPt = int( ipt/step + 0.0001 );
   // if above max Pt, set to largest value
-  if(ipt >= maxPt) ipt = maxPt - (maxPt/(2*steps)); 
- 
-  int hwPt = int( (ipt/maxPt)*steps + 0.00001 );
-  
+  if( hwPt > maxPt ) hwPt = maxPt;
+
   return hwPt;
 }
 
