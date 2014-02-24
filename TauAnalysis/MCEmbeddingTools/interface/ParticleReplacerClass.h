@@ -37,7 +37,9 @@
 */
 
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
-#include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
+#include "GeneratorInterface/TauolaInterface/interface/TauolaInterfaceBase.h"
+#include "GeneratorInterface/TauolaInterface/interface/TauolaFactory.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -88,7 +90,7 @@ private:
 	bool useTauola_ ;
 	bool useTauolaPolarization_ ;
 	
-	gen::TauolaInterface* tauola_;
+	gen::TauolaInterfaceBase* tauola_;
 
 	bool printEvent_;
 

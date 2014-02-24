@@ -1,11 +1,14 @@
-<use   name="FWCore/ParameterSet"/>
-<use   name="GeneratorInterface/Pythia6Interface"/>
-<use   name="heppdt"/>
-<use   name="SimGeneral/HepPDTRecord"/>
-<use   name="tauolapp"/>
-<use   name="photos"/>
-<use   name="clhep"/>
-<use   name="evtgenlhc"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="heppdt"/>
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="clhep"/>
+<use name="hepmc"/>
+<use name="GeneratorInterface/EvtGenInterface"/>
+<use name="GeneratorInterface/PhotosInterface"/>
+<use name="GeneratorInterface/TauolaInterface"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
+

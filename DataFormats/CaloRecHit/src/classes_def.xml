@@ -2,10 +2,13 @@
   <class name="CaloRecHit" ClassVersion="10">
    <version ClassVersion="10" checksum="582597904"/>
   </class>
-  <class name="reco::CaloCluster" ClassVersion="10">
+  <class name="reco::CaloCluster" ClassVersion="11">
    <version ClassVersion="10" checksum="3936140"/>
+   <version ClassVersion="11" checksum="2938838489"/>
   </class>
-
+  <class name="edm::Wrapper<std::vector<std::pair<unsigned long,edm::Ptr<reco::CaloCluster> > > >"/>
+  <class name="std::vector<std::pair<unsigned long,edm::Ptr<reco::CaloCluster> > >"/>
+  <class name="std::pair<unsigned long, edm::Ptr<reco::CaloCluster> >"/>
   <class name="edm::RefToBase<CaloRecHit>"/>
   <class name="edm::Ptr<reco::CaloCluster>"/>
   <class name="edm::PtrVector<reco::CaloCluster>"/>

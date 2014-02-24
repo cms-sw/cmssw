@@ -81,18 +81,18 @@ towerMakerPF.AllowMissingInputs = False
 particleFlowClusterWithoutHO = cms.Sequence(
     #caloTowersRec*
     towerMakerPF*
+    pfClusteringPS*
     pfClusteringECAL*
-    pfClusteringHCAL*
-    pfClusteringPS
+    pfClusteringHCAL    
 )
 
 particleFlowCluster = cms.Sequence(
     #caloTowersRec*
     towerMakerPF*
+    pfClusteringPS*
     pfClusteringECAL*
     pfClusteringHCAL*
-    pfClusteringHO*
-    pfClusteringPS
+    pfClusteringHO    
 )
 
 

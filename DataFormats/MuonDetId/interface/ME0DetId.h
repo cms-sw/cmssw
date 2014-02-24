@@ -38,7 +38,7 @@ class ME0DetId :public DetId {
       return this->rawId()<r.rawId();
     }
     else{
-      return (this->layer() < r.layer());
+      return (this->layer() >  r.layer());
     }
   }
 
@@ -47,7 +47,7 @@ class ME0DetId :public DetId {
     return int((id_>>RegionStartBit_) & RegionMask_) + minRegionId;
   }
 
-  /// Layer id: each station have two layers of chambers: layer 1 is the inner chamber and layer 2 is the outer chamber (when present)  
+  /// Layer id: each station have two layers of chambers: layer 1 is the inner chamber and layer 6 is the outer chamber 
   int layer() const{
     return int((id_>>LayerStartBit_) & LayerMask_) + minLayerId;
   }

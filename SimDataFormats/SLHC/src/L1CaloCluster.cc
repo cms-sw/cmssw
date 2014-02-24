@@ -1,5 +1,5 @@
 #include "SimDataFormats/SLHC/interface/L1CaloCluster.h"
-
+#include "SimDataFormats/SLHC/interface/L1TowerNav.h"
 #include <stdlib.h>
 
 namespace l1slhc
@@ -7,7 +7,8 @@ namespace l1slhc
 
 	L1CaloCluster::L1CaloCluster(  ):mIeta( 0 ),
 	mIphi( 0 ),
-	mE( 0 ),
+	mEmEt( 0 ),
+	mHadEt( 0 ),
 	mLeadTowerE( 0 ),			       
 	mSecondTowerE( 0 ),
 	mThirdTowerE( 0 ),
@@ -27,13 +28,16 @@ namespace l1slhc
 	mInnerphi( 0 ), 
 	mIsoclusterseg( 0 ), 
 	mIsoclusterstau( 0 ), 
-	mP4( math::PtEtaPhiMLorentzVector( 0.001, 0, 0, 0. ) )
+	mP4( math::PtEtaPhiMLorentzVector( 0.001, 0, 0, 0. ) ),
+	mIsoEmEtEG( 0 ),
+	mIsoHadEtEG( 0 )
 	{
 	}
 
 	L1CaloCluster::L1CaloCluster( const int &iEta, const int &iPhi ):mIeta( iEta ),
 	mIphi( iPhi ),
-	mE( 0 ),
+	mEmEt( 0 ),
+	mHadEt( 0 ),
         mLeadTowerE( 0 ),			       
         mSecondTowerE( 0 ),			       
         mThirdTowerE( 0 ),			       
@@ -53,7 +57,9 @@ namespace l1slhc
 	mInnerphi( 0 ), 
 	mIsoclusterseg( 0 ), 
 	mIsoclusterstau( 0 ), 
-	mP4( math::PtEtaPhiMLorentzVector( 0.001, 0, 0, 0. ) )
+	mP4( math::PtEtaPhiMLorentzVector( 0.001, 0, 0, 0. ) ),
+	mIsoEmEtEG( 0 ),
+	mIsoHadEtEG( 0 )
 	{
 	}
 
@@ -85,11 +91,23 @@ namespace l1slhc
 	}
 
 
-	const int &L1CaloCluster::E(  ) const
+	const int L1CaloCluster::Et( int mode ) const
 	{
-		return mE;
+               int returnEt=0;
+	       if(mode&0x1) returnEt+=mEmEt;
+               if(mode&0x2) returnEt+=mHadEt;
+               return returnEt; 
 	}
 
+        const int &L1CaloCluster::EmEt(  ) const
+	{
+               return mEmEt; 
+	}
+
+        const int &L1CaloCluster::HadEt(  ) const
+	{
+               return mHadEt; 
+	}
 
 	const int &L1CaloCluster::LeadTowerE(  ) const
 	{
@@ -188,6 +206,16 @@ namespace l1slhc
 	{
 		return mIsoenergytau;
 	}
+ 
+        const int &L1CaloCluster::isoEmEtEG(  ) const 
+        {
+                return mIsoEmEtEG;
+        }
+
+        const int &L1CaloCluster::isoHadEtEG(  ) const 
+        {
+                return mIsoHadEtEG;
+        }
 
 	bool L1CaloCluster::isEGamma(  ) const
 	{
@@ -206,15 +234,19 @@ namespace l1slhc
 
 	bool L1CaloCluster::isTau(  ) const
 	{
-		return hasLeadTower(  ) && isCentral(  );
+	       return hasLeadTower(  ) && isCentral(  );
 	}
 
 
-	void L1CaloCluster::setE( const int &E )
+	void L1CaloCluster::setEmEt( const int &E )
 	{
-		mE = E;
+		mEmEt = E;
 	}
-
+ 
+ 	void L1CaloCluster::setHadEt( const int &E )
+	{
+		mHadEt = E;
+	}
 
 	void L1CaloCluster::setLeadTowerE( const int &E )
 	{
@@ -313,7 +345,11 @@ namespace l1slhc
 		mIsoenergytau = tau;
 	}
 
-
+        void L1CaloCluster::setIsoEmAndHadEtEG(const int& isoEmEt,const int& isoHadEt)
+        {
+	        mIsoEmEtEG = isoEmEt;
+                mIsoHadEtEG = isoHadEt;  
+        }
 	void L1CaloCluster::setCentral( const bool & eg )
 	{
 		mCentral = eg;
@@ -334,17 +370,17 @@ namespace l1slhc
 
 	void L1CaloCluster::addConstituent( const L1CaloTowerRef & tower )
 	{
-		mE += tower->E(  );
-		mE += tower->H(  );
+		mEmEt += tower->E(  );
+		mHadEt += tower->H(  ); 
 		mConstituents.push_back( tower );
 	}
 
-	int L1CaloCluster::hasConstituent( const int &eta, const int &phi )
+	int L1CaloCluster::hasConstituent( const int &eta, const int &phi ) const
 	{
 		for ( unsigned int i = 0; i < mConstituents.size(  ); ++i )
 		{
 			L1CaloTowerRef tower = mConstituents.at( i );
-			if ( tower->iEta(  ) == mIeta + eta && tower->iPhi(  ) == mIphi + phi )
+			if ( tower->iEta(  ) == L1TowerNav::getOffsetIEta(mIeta,eta) && tower->iPhi(  ) == L1TowerNav::getOffsetIPhi(L1TowerNav::getOffsetIEta(mIeta,eta),mIphi,phi) ) //SHarper change: fix iEta -ve to +ve and iPhi 72->1 bug, warning need to check behavour when the offset eta is on a phi change boundary
 			{
 				return i;
 			}
@@ -353,7 +389,7 @@ namespace l1slhc
 	}
 
 
-	L1CaloTowerRef L1CaloCluster::getConstituent( const int &pos )
+	L1CaloTowerRef L1CaloCluster::getConstituent( const int &pos ) const
 	{
 		return mConstituents.at( pos );
 	}
@@ -367,8 +403,8 @@ namespace l1slhc
 
 		if ( pos != -1 )
 		{
-			mE = mE - mConstituents.at( pos )->E(  );
-			mE = mE - mConstituents.at( pos )->H(  );
+			mEmEt-=mConstituents.at( pos )->E(  );
+			mHadEt-=mConstituents.at( pos )->H(  ); 
 			mConstituents.erase( mConstituents.begin(  ) + pos );
 		}
 	}
@@ -387,14 +423,14 @@ namespace std
 {
 	bool operator<( const l1slhc::L1CaloCluster & aLeft, const l1slhc::L1CaloCluster & aRight )
 	{
-		if ( aLeft.E(  ) == aRight.E(  ) )
+	  if ( aLeft.EmEt() + aLeft.HadEt() == aRight.EmEt(  ) + aRight.HadEt() )
 		{
 			// for two objects with equal energy, favour the more central one
 			return ( abs( aLeft.iEta(  ) ) > abs( aRight.iEta(  ) ) );
 		}
 		else
 		{
-			return ( aLeft.E(  ) < aRight.E(  ) );
+		  return ( aLeft.EmEt()+aLeft.HadEt() < aRight.EmEt() + aRight.HadEt() );
 		}
 	}
 }
@@ -406,7 +442,7 @@ std::ostream & operator<<( std::ostream & aStream, const l1slhc::L1CaloCluster &
 	aStream << "L1CaloCluster"
 		<< " iEta=" << aL1CaloCluster.iEta(  )
 		<< " iPhi=" << aL1CaloCluster.iPhi(  )
-		<< " E=" << aL1CaloCluster.E(  )
+		<< " E=" << aL1CaloCluster.EmEt(  ) + aL1CaloCluster.HadEt( )
 		<< " eta=" << aL1CaloCluster.p4(  ).eta(  )
 		<< " phi=" << aL1CaloCluster.p4(  ).phi(  )
 		<< " pt=" << aL1CaloCluster.p4(  ).pt(  )

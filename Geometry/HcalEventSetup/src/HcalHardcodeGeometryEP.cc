@@ -28,6 +28,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class HcalTopology;
+class HcalDDDRecConstants;
 
 //
 // constants, enums and typedefs
@@ -52,8 +53,7 @@ HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps ) : 
 }
 
 
-HcalHardcodeGeometryEP::~HcalHardcodeGeometryEP()
-{ 
+HcalHardcodeGeometryEP::~HcalHardcodeGeometryEP() { 
 }
 
 
@@ -64,19 +64,19 @@ HcalHardcodeGeometryEP::~HcalHardcodeGeometryEP()
 // ------------ method called to produce the data  ------------
 
 HcalHardcodeGeometryEP::ReturnType
-HcalHardcodeGeometryEP::produceIdeal( const HcalRecNumberingRecord& iRecord )
-{
+HcalHardcodeGeometryEP::produceIdeal( const HcalRecNumberingRecord& iRecord ) {
 
    edm::LogInfo("HCAL") << "Using default HCAL topology" ;
+   edm::ESHandle<HcalDDDRecConstants> hcons;
+   iRecord.get( hcons ) ;
    edm::ESHandle<HcalTopology> topology ;
    iRecord.get( topology ) ;
    HcalFlexiHardcodeGeometryLoader loader(ps0);
-   return ReturnType (loader.load (*topology));
+   return ReturnType (loader.load (*topology, *hcons));
 }
 
 HcalHardcodeGeometryEP::ReturnType
-HcalHardcodeGeometryEP::produceAligned( const HcalGeometryRecord& iRecord )
-{
+HcalHardcodeGeometryEP::produceAligned( const HcalGeometryRecord& iRecord ) {
   const HcalRecNumberingRecord& idealRecord = iRecord.getRecord<HcalRecNumberingRecord>();
   return produceIdeal (idealRecord);
 }

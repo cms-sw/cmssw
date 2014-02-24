@@ -252,6 +252,7 @@ public:
    Int_t ohBJetPerfL25TagL1FastJet[10]; //[NohBJetL2CorrectedL1FastJet] 
    Int_t ohBJetPerfL3TagL1FastJet[10]; //[NohBJetL2CorrectedL1FastJet] 
    Int_t recoNVrt; // reconstructed vertex info
+   Int_t genNVrt; // generated vertex info
    Float_t recoVrtX[10]; //
    Float_t recoVrtY[10]; //
    Float_t recoVrtZ[10]; //
@@ -4856,6 +4857,7 @@ public:
    TBranch *b_ohIsoPixelTrackHEL3Phi; //!
    TBranch *b_ohIsoPixelTrackHEL3MaxNearP; //!
    TBranch *b_recoNVrt; //!
+   TBranch *b_genNVrt; //!
    TBranch *b_recoVrtX; //!
    TBranch *b_recoVrtY; //!
    TBranch *b_recoVrtZ; //!

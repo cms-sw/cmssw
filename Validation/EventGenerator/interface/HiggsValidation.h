@@ -68,7 +68,7 @@ class HiggsValidation : public edm::EDAnalyzer {
 	if((channels[i].first == abs(pid1) && channels[i].second == abs(pid2)) || 
 	   (channels[i].first == abs(pid2) && channels[i].second == abs(pid1))) return i+1;
       }
-      return channels.size()+1;
+      return undetermined();//channels.size()+1;
     }
 
     size_t size(){return channels.size() + 2;}

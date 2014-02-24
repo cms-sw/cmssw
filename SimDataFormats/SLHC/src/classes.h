@@ -169,6 +169,8 @@ namespace {
 #include "SimDataFormats/SLHC/interface/L1CaloTowerFwd.h"
 #include "SimDataFormats/SLHC/interface/L1CaloCluster.h"
 #include "SimDataFormats/SLHC/interface/L1CaloClusterFwd.h"
+#include "SimDataFormats/SLHC/interface/L1CaloClusterWithSeed.h"
+#include "SimDataFormats/SLHC/interface/L1CaloClusterWithSeedFwd.h"
 #include "SimDataFormats/SLHC/interface/L1CaloJet.h"
 #include "SimDataFormats/SLHC/interface/L1CaloJetFwd.h"
 #include "SimDataFormats/SLHC/interface/L1CaloRegion.h"
@@ -195,6 +197,11 @@ namespace {
     std::vector<l1slhc::L1CaloCluster>                l1calocl;
     l1slhc::L1CaloClusterCollection                   l1caloclcoll;
     edm::Wrapper< l1slhc::L1CaloClusterCollection >   wl1calocl;
+
+    l1slhc::L1CaloClusterWithSeed                 calocls;
+    std::vector<l1slhc::L1CaloClusterWithSeed>    l1calocls;
+	l1slhc::L1CaloClusterWithSeedCollection		  l1caloclscoll;
+    edm::Wrapper< l1slhc::L1CaloClusterWithSeedCollection >   wl1calocls;
 
     l1slhc::L1CaloJet                             calojet;
     std::vector<l1slhc::L1CaloJet>                l1calojetvec;

@@ -1175,26 +1175,35 @@ void PFRootEventManager::readOptions(const char* file,
     exit(1);
   }
 
+  edm::ParameterSet iConfig;
+
+
+
   std::vector<double> muonHCAL;
   std::vector<double> muonECAL;
   std::vector<double> muonHO;
   options_->GetOpt("particle_flow", "muon_HCAL", muonHCAL);
   options_->GetOpt("particle_flow", "muon_ECAL", muonECAL);
   options_->GetOpt("particle_flow", "muon_HO", muonHO);
+  iConfig.addParameter<std::vector<double> >("muon_HCAL",muonHCAL);
+  iConfig.addParameter<std::vector<double> >("muon_ECAL",muonECAL);
+  iConfig.addParameter<std::vector<double> >("muon_HO",muonHO);
 
   assert ( muonHCAL.size() == 2 && muonECAL.size() == 2 && muonHO.size() == 2);
 
   double nSigmaTRACK = 3.0;
   options_->GetOpt("particle_flow", "nsigma_TRACK", nSigmaTRACK);
+  iConfig.addParameter<double>("nsigma_TRACK",nSigmaTRACK);
 
   double ptError = 1.0;
   options_->GetOpt("particle_flow", "pt_error", ptError);
+  iConfig.addParameter<double>("pt_Error",ptError);
   
   std::vector<double> factors45;
   options_->GetOpt("particle_flow", "factors_45", factors45);
   assert ( factors45.size() == 2 );
+  iConfig.addParameter<std::vector<double> >("factors_45",factors45);
 
-  edm::ParameterSet iConfig;
 
 
   double maxDPtOPt;

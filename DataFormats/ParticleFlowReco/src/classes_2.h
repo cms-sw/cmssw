@@ -68,6 +68,10 @@ namespace {
 
     std::vector<reco::PFCluster>                         dummy1;
     edm::Wrapper< std::vector<reco::PFCluster> >         dummy2;
+    
+    reco::PFCluster::EEtoPSAssociation                   dummy1_x;
+    reco::PFCluster::EEtoPSAssociation::value_type       dummy1_xx;
+    edm::Wrapper< reco::PFCluster::EEtoPSAssociation >   dummy1_y;
 
     std::vector<reco::PFRecHit>                          dummy3;
     edm::Ref< std::vector<reco::PFRecHit> >              dummy4;
