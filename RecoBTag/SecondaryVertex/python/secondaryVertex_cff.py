@@ -14,6 +14,8 @@ from RecoBTag.SecondaryVertex.combinedSecondaryVertexMVABJetTags_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackES_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.combinedSecondaryVertexSoftLeptonES_cfi import *
+from RecoBTag.SecondaryVertex.combinedSecondaryVertexSoftLeptonBJetTags_cfi import *
 
 # IVF
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderTagInfos_cfi import *
