@@ -45,9 +45,10 @@ void VoronoiSubtractor::offsetCorrectJets()
   jetOffset_.reserve(fjJets_->size());
 
   for (unsigned int ijet = 0;ijet <fjJets_->size();++ijet) {
-     const fastjet::PseudoJet& fjJet = (*fjJets_)[ijet];
+     fastjet::PseudoJet& fjJet = (*fjJets_)[ijet];
 
-     LogDebug("VoronoiSubtractor")<<"fjJets_ "<<ijet<<"   pt : "<<fjJet.pt()<<" --- eta : "<<fjJet.eta()<<" --- phi : "<<fjJet.phi()<<endl;
+     LogDebug("VoronoiSubtractor")<<"fjJets_ "<<ijet<<"   pt : "<<fjJet.pt()
+				  <<" --- eta : "<<fjJet.eta()<<" --- phi : "<<fjJet.phi()<<endl;
 
      fastjet::PseudoJet subtracted;
      fastjet::PseudoJet unsubtracted;
@@ -67,27 +68,40 @@ void VoronoiSubtractor::offsetCorrectJets()
 	fastjet::PseudoJet candidate(ref->px(),ref->py(),ref->pz(),ref->energy());
 	double orpt = candidate.perp();
 	unsubtracted += candidate;
-	candidate.reset_PtYPhiM(voronoi.pt(),ref->rapidity(),ref->phi(),ref->mass());
-	LogDebug("VoronoiSubtractor")<<"cadidate "<<index<<" --- original pt : "<<orpt<<"  ---  voronoi pt : "<<voronoi.pt()<<" --- ref pt : "<<ref->pt()<<endl;
-	subtracted += candidate;
-     }
-
-     // Loop over dropped candidates to see whether there is any of them
-     // that would belong to this jet:
-
-     for(unsigned int i=0; i < droppedCandidates_.size(); ++i){
-	reco::CandidateViewRef ref(candidates_,droppedCandidates_[i]);
-	fastjet::PseudoJet dropcand(ref->px(),ref->py(),ref->pz(),ref->energy());
-
-	if(match(fjJet,dropcand)){
-	   unsubtractedDropped += dropcand;
+	if(voronoi.pt() > 0){
+	  candidate.reset_PtYPhiM(voronoi.pt(),ref->rapidity(),ref->phi(),ref->mass());
+	  LogDebug("VoronoiSubtractor")<<"candidate "<<index
+				       <<" --- original pt : "<<orpt
+				       <<" ---  voronoi pt : "<<voronoi.pt()
+				       <<" --- ref pt : "<<ref->pt()
+				       <<" --- constituent "<<index
+				       <<" --- pt : "<<fjConstituents[i].perp()
+				       <<" --- eta : "<<fjConstituents[i].pseudorapidity()
+				       <<" --- phi : "<<fjConstituents[i].phi()
+				       <<" --- mass : "<<fjConstituents[i].m()<<endl;
+	  subtracted += candidate;
 	}
      }
+  
+     // Loop over dropped candidates to see whether there is any of them
+     // that would belong to this jet:
+     if(addNegativesFromCone_){
+       for(unsigned int i=0; i < droppedCandidates_.size(); ++i){
+	 reco::CandidateViewRef ref(candidates_,droppedCandidates_[i]);
+	 fastjet::PseudoJet dropcand(ref->px(),ref->py(),ref->pz(),ref->energy());
+	 
+	 if(match(fjJet,dropcand)){
+	   unsubtractedDropped += dropcand;
+	   unsubtracted += dropcand;
+	 }
+       }
+     }
+
+     fjJet.reset_momentum(subtracted);
 
      LogDebug("VoronoiSubtractor")<<"fjJets_ "<<ijet<<"   unsubtracted : "<<unsubtracted.pt()<<endl;
      LogDebug("VoronoiSubtractor")<<"fjJets_ "<<ijet<<"   subtracted : "<<subtracted.pt()<<endl;
      LogDebug("VoronoiSubtractor")<<"fjJets_ "<<ijet<<"   dropped : "<<unsubtractedDropped.pt()<<endl;
-
      jetOffset_[ijet]  = unsubtracted.pt() - fjJet.pt();
 
   }
@@ -119,46 +133,44 @@ void VoronoiSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
       double ptold = input_object->pt();
       double ptnew = voronoi.pt();
 
-      LogDebug("VoronoiSubtractor")<<"pt old : "<<ptold<<" ;   pt new : "<<ptnew<<"  E : "<<input_object->e()<<" rap : "<<input_object->rapidity()<<"  phi : "<<input_object->phi()<<" MASS : "<<input_object->m()<<endl;
-      
-      float mScale = ptnew/ptold; 
-      double candidatePtMin_ = 0;
+      LogDebug("VoronoiSubtractor")<<"pt old : "<<ptold<<" ;   pt new : "<<ptnew
+				   <<"  E : "<<input_object->e()
+				   <<" rap : "<<input_object->rapidity()
+				   <<"  phi : "<<input_object->phi()
+				   <<" MASS : "<<input_object->m()<<endl;
 
-      // If the pt of the candidate is equal to or below 0, 
-      // it is removed from the input collection,
-      // so that the jet clustering algorithm can function properly.
-      // However, we need to keep track of these candidates
-      // in order to determine how much energy has been subtracted in total.
-
-      if(ptnew <= 0.){
-	 mScale = 0.;
-	 droppedCandidates_.push_back(input_object->user_index());
+      // Treatment of candidates with negative pt after subtraction
+      if(ptnew < infinitesimalPt_){
+	if(infinitesimalPt_ > 0){
+	  // Low-pt candidate is assigned a very small finite pt
+	  // so that the jet clustering includes the candidate 
+	  // and can associate it to the jet.
+	  // The original candidate pt is restored
+	  // in the offsetCorrectJets() function.
+	  ptnew = infinitesimalPt_;
+	}else{
+	  // Low-pt candidate is removed from the input collection,
+	  // so that the jet clustering algorithm can function properly.
+	  // However, we need to keep track of these candidates
+	  // in order to determine how much energy has been subtracted in total.
+	  droppedCandidates_.push_back(input_object->user_index());
+	  continue;
+	}
       }
-    
+
       int index = input_object->user_index();
-      double mass = input_object->m();
-      if(mass < 0){
-	 mass = 0;
-      }
 
-      //      LogDebug("VoronoiSubtractor")<<"candidate "<<int(input_object-coll.begin())<<" mScale : "<<mScale<<endl;
-
-      double energy = sqrt(input_object->px()*input_object->px()*mScale*mScale+
-			   input_object->py()*input_object->py()*mScale*mScale+
-			   input_object->pz()*input_object->pz()*mScale*mScale+
-			   mass*mass
-			   );
-
-      fastjet::PseudoJet ps(input_object->px()*mScale, input_object->py()*mScale,
-			    input_object->pz()*mScale, energy);
-
+      fastjet::PseudoJet ps(input_object->four_mom());
+      ps.reset_PtYPhiM(ptnew,input_object->rapidity(),input_object->phi(),input_object->m());
       ps.set_user_index(index);
 
-      //      LogDebug("VoronoiSubtractor")<<"New momentum : "<<ps.pt()<<"   rap : "<<ps.rap()<<"   phi : "<<ps.phi()<<" MASS : "<<ps.m()<<endl;
+      LogDebug("VoronoiSubtractor")<<"New momentum : "<<ps.pt()
+				   <<"   rap : "<<ps.rap()
+				   <<"   phi : "<<ps.phi()
+				   <<" MASS : "<<ps.m()<<endl;
 
-      if(ptnew > candidatePtMin_ || !dropZeroTowers_) newcoll.push_back(ps);
+      newcoll.push_back(ps); 
    }
-
    coll = newcoll;
 }
 

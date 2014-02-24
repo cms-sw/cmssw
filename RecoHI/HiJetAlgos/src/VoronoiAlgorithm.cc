@@ -1683,7 +1683,9 @@ namespace {
 							(sum_unequalized >= sum_unequalized_0 &&
 							 (iterator_particle - _event.begin()) % 8 == 0)) {
 
-						const double weight = sum_unequalized * iterator_particle->area * iterator_particle->area;
+						const double weight = sum_unequalized *
+							std::min(1.0, std::max(1e-3,
+								iterator_particle->area));
 
 						if (weight > 0) {
 							p->push_back_row(
@@ -1792,13 +1794,19 @@ namespace {
 							  x, pi);
 
 			for (size_t k = _ncost; k < x.size(); k++) {
+				if (_event[_recombine[k - _ncost].first].
+					momentum_perp_subtracted < 0 &&
+					_event[_recombine[k - _ncost].second].
+					momentum_perp_subtracted >= 0 && x[k] >= 0) {
 				_event[_recombine[k - _ncost].first].
 					momentum_perp_subtracted += x[k];
 				_event[_recombine[k - _ncost].second].
 					momentum_perp_subtracted -= x[k];
+				}
 			}
 			for (size_t k = 0; k < _event.size(); k++) {
-				if (_nblock_subtract[k] != 0) {
+				if (_nblock_subtract[k] != 0 &&
+					x[_nblock_subtract[k]] >= 0) {
 					_event[k].momentum_perp_subtracted -=
 						x[_nblock_subtract[k]];
 				}

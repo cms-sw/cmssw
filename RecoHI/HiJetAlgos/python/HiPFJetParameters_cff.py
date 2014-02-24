@@ -21,8 +21,8 @@ HiPFJetParameters = cms.PSet(
     puWidth = cms.double(0.8),
     nExclude = cms.uint32(2),
     dropZeros = cms.bool(True),
-    addNegativesFromCone = cms.bool(True),
-    infinitesimalPt = cms.double(0)    
+    addNegativesFromCone = cms.bool(False),
+    infinitesimalPt = cms.double(0.005)    
 )
 
 ## default settings for various pileup subtractors
