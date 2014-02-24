@@ -93,3 +93,8 @@ def outputCustoms(process):
             getattr(process,b).outputCommands.append('keep *_gemRecHits_*_*')
 
     return process
+
+def customise_ValidationNoGem_2023(process):
+    if hasattr(process,'validation_step'):
+    	process.validation_step.remove(process.gemHitsValidation)
+    return process
