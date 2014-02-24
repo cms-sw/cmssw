@@ -1,3 +1,46 @@
+#!/usr/bin/env python
+import sys
+
+"""
+The parameters can be changed by adding commandline arguments of the form
+::
+
+    runGlobalFakeInputProducer.py n=-1
+
+The latter can be used to change parameters in crab.
+"""
+
+n = 10 #number of events
+job = 0 #job number
+njob = 1 #number of jobs
+nevents = n #number of events
+rootout = True #whether to produce root file
+dump = False #dump python
+
+# Argument parsing
+# vvv
+
+if len(sys.argv) > 1 and sys.argv[1].endswith('.py'):
+    sys.argv.pop(0)
+if len(sys.argv) == 2 and ':' in sys.argv[1]:
+    argv = sys.argv[1].split(':')
+else:
+    argv = sys.argv[1:]
+
+for arg in argv:
+    (k, v) = map(str.strip, arg.split('='))
+    if k not in globals():
+        raise "Unknown argument '%s'!" % (k,)
+    if type(globals()[k]) == bool:
+        globals()[k] = v.lower() in ('y', 'yes', 'true', 't', '1')
+    elif type(globals()[k]) == int:
+        globals()[k] = int(v)
+    else:
+        globals()[k] = v
+
+neventsPerJob = nevents/njob
+skip = job * neventsPerJob
+
 
 import FWCore.ParameterSet.Config as cms
 
@@ -19,7 +62,7 @@ process.load('L1Trigger/L1TGlobal/l1tGt_debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(neventsPerJob)
     )
 
 # Input source
@@ -28,17 +71,21 @@ process.source = cms.Source("PoolSource",
     ### Neutrino Gun Sample - PU50
     #fileNames = cms.untracked.vstring("file:/home/puigh/work/L1Upgrade/CMSSW_6_2_0/src/Neutrino_Pt2to20_gun_UpgradeL1TDR-PU50_POSTLS161_V12-v1_001D5CFF-2839-E211-9777-0030487FA483.root")
     ### RelValTTBar
-    #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/3A11157B-ED51-E311-BA75-003048679080.root")
+    #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/1A20137C-E651-E311-A9C6-00304867BFAA.root")
     ### Local RelValTTBar
-    fileNames = cms.untracked.vstring("/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_3A11157B-ED51-E311-BA75-003048679080.root"),
-    #skipEvents = cms.untracked.uint32(80)
+    fileNames = cms.untracked.vstring(
+    "/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_3A11157B-ED51-E311-BA75-003048679080.root",
+    "/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_1A20137C-E651-E311-A9C6-00304867BFAA.root",
+    "/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_2EFD8C7A-E651-E311-8C92-002354EF3BE3.root"
+    ),
+    skipEvents = cms.untracked.uint32(skip)
     ### RelValSingleElectronPt10
     #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/52DE2A7D-E651-E311-8E12-003048FFCBFC.root")
     )
 
 process.output =cms.OutputModule("PoolOutputModule",
         outputCommands = cms.untracked.vstring('keep *'),
-	fileName = cms.untracked.string('testGlobalMCInputProducer.root')
+	fileName = cms.untracked.string('testGlobalMCInputProducer_'+`job`+'.root')
 	)
 	
 process.options = cms.untracked.PSet()
@@ -155,7 +202,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::L1uGtRecordDump",
 		maxBxVec       = cms.int32(0),		
 		dumpGTRecord   = cms.bool(True),
 		dumpVectors    = cms.bool(True),
-		tvFileName     = cms.string("TestVector.txt")
+		tvFileName     = cms.string("TestVector_"+`job`+".txt")
 		 )
 
 
@@ -186,12 +233,14 @@ process.schedule = cms.Schedule(
     process.p1
     )
 #process.schedule.append(process.report)
-process.outpath = cms.EndPath(process.output)
-process.schedule.append(process.outpath)
+if rootout:
+    process.outpath = cms.EndPath(process.output)
+    process.schedule.append(process.outpath)
 
 # Spit out filter efficiency at the end.
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
-outfile = open('dump_runGlobalFakeInputProducer.py','w')
-print >> outfile,process.dumpPython()
-outfile.close()
+if dump:
+    outfile = open('dump_runGlobalFakeInputProducer_'+`job`+'.py','w')
+    print >> outfile,process.dumpPython()
+    outfile.close()
