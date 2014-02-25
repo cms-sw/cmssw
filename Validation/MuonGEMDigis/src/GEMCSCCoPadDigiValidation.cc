@@ -1,9 +1,4 @@
 #include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include <TMath.h>
 
 
 GEMCSCCoPadDigiValidation::GEMCSCCoPadDigiValidation(DQMStore* dbe,

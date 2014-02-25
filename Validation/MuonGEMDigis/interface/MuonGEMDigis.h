@@ -7,15 +7,15 @@
 
 
 #include "DQMServices/Core/interface/DQMStore.h"
+
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
 #include "Validation/MuonGEMDigis/interface/GEMCSCPadDigiValidation.h"
 #include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
-#include "Validation/MuonGEMDigis/interface/GEMTrackMatch.h"
+#include "Validation/MuonGEMDigis/interface/GEMDigiTrackMatch.h"
 
-class GEMStripDigiValidation;
 
 class MuonGEMDigis : public edm::EDAnalyzer
 {
@@ -44,7 +44,7 @@ private:
   GEMStripDigiValidation* theGEMStripDigiValidation;
   GEMCSCPadDigiValidation* theGEMCSCPadDigiValidation;
   GEMCSCCoPadDigiValidation* theGEMCSCCoPadDigiValidation;
-  GEMTrackMatch* theGEMTrackMatch;
+  GEMDigiTrackMatch* theGEMDigiTrackMatch;
 
     
   edm::InputTag stripLabel_;
