@@ -79,7 +79,7 @@ process.Stage1GCT = cms.Sequence(
 
 process.load('L1Trigger.Configuration.SimL1Emulator_cff')
 
-process.simGtDigis.GctInputTag = 'Stage1GCT'
+process.simGtDigis.GctInputTag = 'GCTConverter'
 
 process.p1 = cms.Path(
 #    process.digiStep
