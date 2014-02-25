@@ -57,7 +57,8 @@
   <class name="edm::Ref< std::vector<reco::Track>, reco::Track, edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
 -->  
 
-  <class name="reco::PFTrajectoryPoint" ClassVersion="11">
+  <class name="reco::PFTrajectoryPoint" ClassVersion="12">
+   <version ClassVersion="12" checksum="9999999999"/>
    <version ClassVersion="11" checksum="2337677018"/>
 <!-- Removed by Patrick: avoid many useless PFTrack copies (memory+CPU) and costless for RECO/AOD
     <field name="posrep_" transient="true"/>
