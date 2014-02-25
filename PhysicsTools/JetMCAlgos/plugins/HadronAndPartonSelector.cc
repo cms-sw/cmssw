@@ -13,6 +13,10 @@
  * 
  * - c hadrons that do not have other c hadrons as daughters or a b hadron as mother
  *
+ * In most cases a jet containing a b hadron will also contain a c hadron from the b-hadron decay. However, for low-Pt b
+ * hadrons the c hadron could fly away at a large angle and provide the c flavour to a random nearby jet. Hence, the choice
+ * was made to exclude c hadrons that come from b-hadron decays.
+ * 
  * The parton selection is generator-specific and is described in each of the parton selectors individually.
  * 
  * The producer attempts to automatically determine what generator was used to hadronize events in order to determine
