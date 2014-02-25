@@ -67,6 +67,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
+#include "Validation/MuonGEMDigis/interface/GEMDigiTrackMatch.h"
 #include <vector>
 
 
@@ -98,7 +99,7 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
   theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, stripLabel_ );
   theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, cscPadLabel_ );
   theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, cscCopadLabel_ );
-  theGEMTrackMatch = new GEMTrackMatch(dbe_, simInputLabel_ , simTrackMatching_ );
+  theGEMDigiTrackMatch = new GEMDigiTrackMatch(dbe_, simInputLabel_ , simTrackMatching_ );
 
   
 
@@ -117,7 +118,7 @@ MuonGEMDigis::~MuonGEMDigis()
   delete theGEMStripDigiValidation;
   delete theGEMCSCPadDigiValidation;
   delete theGEMCSCCoPadDigiValidation;
-  delete theGEMTrackMatch;
+  delete theGEMDigiTrackMatch;
 
 
 }
@@ -138,7 +139,7 @@ MuonGEMDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   theGEMStripDigiValidation->analyze(iEvent,iSetup );  
   theGEMCSCPadDigiValidation->analyze(iEvent,iSetup );  
   theGEMCSCCoPadDigiValidation->analyze(iEvent,iSetup );  
-  theGEMTrackMatch->analyze(iEvent,iSetup) ;
+  theGEMDigiTrackMatch->analyze(iEvent,iSetup) ;
   
 
 }
@@ -179,8 +180,8 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
   theGEMCSCCoPadDigiValidation->bookHisto();
 
 
-  theGEMTrackMatch->setGeometry(gem_geometry_);
-  theGEMTrackMatch->bookHisto();
+  theGEMDigiTrackMatch->setGeometry(gem_geometry_);
+  theGEMDigiTrackMatch->bookHisto();
 
 
 
