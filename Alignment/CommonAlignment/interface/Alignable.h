@@ -198,7 +198,7 @@ public:
   /// cache the current position, rotation and other parameters (e.g. surface deformations)
   virtual void cacheTransformation();
 
-  /// restore the previously cached transformation
+  /// restore the previously cached transformation, also for possible components
   virtual void restoreCachedTransformation();
 
   /// Return survey info

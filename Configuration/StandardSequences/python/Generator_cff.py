@@ -64,10 +64,6 @@ from PhysicsTools.HepMCCandAlgos.HiGenParticles_cfi import *
 
 pgen_hi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+hiGenParticles+hiGenJets)
 
-from SimGeneral.MixingModule.MatchVtx_cfi import *
-
-pgen_himix = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+matchVtx+hiGenParticles+hiGenJets)
-
 fixGenInfo = cms.Sequence(GeneInfo * genJetMET)
 
 

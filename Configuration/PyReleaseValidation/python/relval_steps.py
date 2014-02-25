@@ -54,7 +54,7 @@ class InputInfo(object):
         self.ib_blacklist = ib_blacklist
         self.ib_block = ib_block
 
-    def dbs(self):
+    def das(self):
         query_by = "block" if self.ib_block else "dataset"
         query_source = "{0}#{1}".format(self.dataSet, self.ib_block) if self.ib_block else self.dataSet
         if len(self.run) is not 0:
@@ -492,7 +492,7 @@ steps['WJetsLNu_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchT
 steps['ZJetsLNu_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'dy',5591)
 steps['ZJetsLNu_Tune4C_8TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune4C_8TeV_madgraph_pythia8_cff',step1GenDefaults,'dy',5591)
 
-PU={'-n':10,'--pileup':'default','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
+PU={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
 PUFS={'--pileup':'default'}
 PUFS2={'--pileup':'mix_2012_Startup_inTimeOnly'}
 steps['TTbarFSPU']=merge([PUFS,steps['TTbarFS']])
@@ -586,7 +586,8 @@ steps['RECOCOSD']=merge([{'--scenario':'cosmics',
 step2HImixDefaults=merge([{'-n':'10',
                            '--himix':'',
                            '--filein':'file.root',
-                           '--process':'HISIGNAL'
+                           '--process':'HISIGNAL',
+                           '--beamspot':'MatchHI'
                            },hiDefaults,step1Defaults])
 steps['Pyquen_GammaJet_pt20_2760GeV']=merge([{'cfg':'Pyquen_GammaJet_pt20_2760GeV_cfi'},step2HImixDefaults])
 steps['Pyquen_DiJet_pt80to120_2760GeV']=merge([{'cfg':'Pyquen_DiJet_pt80to120_2760GeV_cfi'},step2HImixDefaults])
@@ -618,7 +619,7 @@ steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 steps['RECO_ID']=merge([{'--hltProcess':'HLT2'},steps['RECO']])
 
 steps['RECOHI']=merge([hiDefaults,step3Defaults])
-steps['DIGIHISt3']=steps['DIGIHI']
+steps['DIGIHIMIXSt3']=merge([{'--himix':''}, steps['DIGIHI']])
 
 steps['RECOHID11St3']=merge([{
                               '--process':'ZStoRECO'},
@@ -672,6 +673,7 @@ steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQualit
                     '--filein':'file:PromptCalibProd.root'}
 
 steps['RECOHISt4']=steps['RECOHI']
+steps['RECOHIMIXSt4']=merge([{'--himix':''},steps['RECOHI']])
 
 steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
 steps['HARVGEN']={'-s':'HARVESTING:genHarvesting',
@@ -737,7 +739,7 @@ steps['SKIMD']={'-s':'SKIM:all',
                 '--data':'',
                 '--scenario':'pp',
                 '--filein':'file:step2.root',
-                '--secondfilein':'filelist:step1_dbsquery.log'}
+                '--secondfilein':'filelist:step1_dasquery.log'}
 
 steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:com10_7E33v2','--filein':'file:step3.root'}, steps['SKIMD'] ])
 
@@ -746,7 +748,7 @@ steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--data':'',
                    '--scenario':'cosmics',
                    '--filein':'file:step2.root',
-                   '--secondfilein':'filelist:step1_dbsquery.log'}
+                   '--secondfilein':'filelist:step1_dasquery.log'}
                  
 
 #### for special wfs ###
@@ -778,7 +780,7 @@ steps['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reco
                                   '--process':'rereRECO',
                                   '--datatier':'AOD',
                                   '--eventcontent':'AOD',
-                                  '--secondfilein':'filelist:step1_dbsquery.log',
+                                  '--secondfilein':'filelist:step1_dasquery.log',
                                   },
                                  steps['RECOD']])
 

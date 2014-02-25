@@ -8,8 +8,6 @@
 
 ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet& iConfig, bool verbose):
   ParticleReplacerBase(iConfig),
-  tauola_(iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola")),
-  //tauola_(gen::TauolaInterface::getInstance()),
   pythia_(iConfig),
   particleOrigin_(iConfig.getParameter<std::string>("particleOrigin")),
   forceTauPolarization_(iConfig.getParameter<std::string>("forceTauPolarization")),
@@ -19,9 +17,14 @@ ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet
   forceTauPlusHelicity_(iConfig.getParameter<int>("forceTauPlusHelicity")),
   forceTauMinusHelicity_(iConfig.getParameter<int>("forceTauMinusHelicity")),
   printout_(verbose) {
-  //tauola_->setPSet(iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola"));
-  srand(time(NULL)); // Should we use RandomNumberGenerator service?
+  // tauola_ = (gen::TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauola271215",iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola")));
 
+  srand(time(NULL)); // Should we use RandomNumberGenerator service?
+  /*
+  CLHEP::HepRandomEngine* decayRandomEngine=new CLHEP::HepRandomEngine();
+  decayRandomEngine->setSeeds(time(NULL),232*time(NULL));
+  tauola_->SetDecayRandomEngine(decayRandomEngine);
+  */
   if(forceTauPlusHelicity_ != 0) 
     edm::LogInfo("MuonReplacement") << "[ParticleReplacer::ParticleReplacer] "
                                     << "Forcing tau+ to helicity " << forceTauPlusHelicity_ << std::endl;
@@ -44,7 +47,12 @@ ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet
   throw cms::Exception("UnimplementedFeature") << "ParticleReplacerParticleGun is not usable yet." << std::endl;
 }
 
-ParticleReplacerParticleGun::~ParticleReplacerParticleGun() {}
+ParticleReplacerParticleGun::~ParticleReplacerParticleGun() {
+  /*
+  delete tauola_;
+  delete decayRandomEngine;
+  */
+}
 
 void ParticleReplacerParticleGun::beginJob() {
   gen::Pythia6Service::InstanceWrapper guard(&pythia_);

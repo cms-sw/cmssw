@@ -840,7 +840,7 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
         #outputdir = "%s_%s_SimpleMemReport" % (candFilename,stepname1)
         #outputdir = os.path.join(outdir,outputdir)
         #print "Graph2"
-        #vsize_graph2.Print()#       os.path.join(outputdir,"vsize_graph2.gif"))
+        #vsize_graph2.Print()#       os.path.join(outputdir,"vsize_graph2.png"))
     except IndexError:
         raise SimpMemParseErr(newLogfile)  
     
@@ -900,10 +900,10 @@ def cmpSimpMemReport(rootfilename,outdir,oldLogfile,newLogfile,startevt,batch=Tr
 
         newrootfile = createROOT(outputdir,rootfilename)                
         
-        vsize_canvas.Print(       os.path.join(outputdir,"vsize_graphs.gif"), "gif")
-        rss_canvas.Print(         os.path.join(outputdir,"rss_graphs.gif"  ), "gif")
-        vsize_change_canvas.Print(os.path.join(outputdir,"vsize_change.gif"), "gif")
-        rss_change_canvas.Print(  os.path.join(outputdir,"rss_change.gif"  ), "gif")
+        vsize_canvas.Print(       os.path.join(outputdir,"vsize_graphs.png"), "png")
+        rss_canvas.Print(         os.path.join(outputdir,"rss_graphs.png"  ), "png")
+        vsize_change_canvas.Print(os.path.join(outputdir,"vsize_change.png"), "png")
+        rss_change_canvas.Print(  os.path.join(outputdir,"rss_change.png"  ), "png")
         # write it on file
         map(lambda x: x.Write(), [vsize_graph1,vsize_graph2, rss_graph1, rss_graph2, vsizePerfDiffgraph, rssPerfDiffgraph])
         map(lambda x: x.Write(), [vsize_canvas,rss_canvas,vsize_change_canvas,rss_change_canvas])
@@ -999,11 +999,11 @@ def cmpTimingReport(rootfilename,outdir,oldLogfile,newLogfile,secsperbin,batch=T
         cput.Fill()
         cput.Write("cpu_time_tuple",ROOT.TObject.kOverwrite)
         
-        names = ["graphs.gif","changes.gif","histos.gif"]
+        names = ["graphs.png","changes.png","histos.png"]
         
-        graph_canvas.Print(  os.path.join(outdir,names[0]),"gif")
-        changes_canvas.Print(os.path.join(outdir,names[1]),"gif")
-        histo_canvas.Print(  os.path.join(outdir,names[2]),"gif")
+        graph_canvas.Print(  os.path.join(outdir,names[0]),"png")
+        changes_canvas.Print(os.path.join(outdir,names[1]),"png")
+        histo_canvas.Print(  os.path.join(outdir,names[2]),"png")
         
         map(lambda x:x.Write(),[graph1,graph2,changegraph,hsStack,histo1,histo2])
         

@@ -102,7 +102,10 @@ FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request)
          /* if(!infos[ii].representsSubPart() && minProx != infos[ii].proximity()) {
             continue;
             } */
-         purposes.insert(infos[ii].purpose());
+          // AMT: this is a simple workaround to hide FF proxybuilder
+          //      the proper solution is implemented in CMSSW_7_0_X
+          if (infos[ii].purpose() != "TracksFF")
+             purposes.insert(infos[ii].purpose());
       }
       
       if (purposes.empty())

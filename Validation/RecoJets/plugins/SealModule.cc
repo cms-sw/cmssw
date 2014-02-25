@@ -8,6 +8,7 @@
 #include "JPTJetTester.h"
 #include "JPTJetTesterUnCorr.h"
 #include "JetFileSaver.h"
+#include "CaloJetTesterUnCorr_HeavyIons.h"
 
 DEFINE_FWK_MODULE( PFJetTester );
 DEFINE_FWK_MODULE( CaloJetTester );
@@ -16,3 +17,4 @@ DEFINE_FWK_MODULE( PFJetTesterUnCorr );
 DEFINE_FWK_MODULE( CaloJetTesterUnCorr );
 DEFINE_FWK_MODULE( JPTJetTesterUnCorr );
 DEFINE_FWK_MODULE( JetFileSaver );
+DEFINE_FWK_MODULE( CaloJetTesterUnCorr_HeavyIons );

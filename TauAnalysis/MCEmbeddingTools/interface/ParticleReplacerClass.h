@@ -35,9 +35,8 @@
 #include "HepMC/GenVertex.h"
 #include "HepMC/PythiaWrapper.h"
 */
-
+#include "GeneratorInterface/TauolaInterface/interface/TauolaInterfaceBase.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
-#include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -52,6 +51,7 @@
 #include "TTree.h"
 
 #include<string>
+
 
 class ParticleReplacerClass : public ParticleReplacerBase
 {
@@ -92,8 +92,7 @@ private:
 	bool useTauola_ ;
 	bool useTauolaPolarization_ ;
 	
-	//gen::TauolaInterface* tauola_;
-	gen::TauolaInterface tauola_;
+	gen::TauolaInterfaceBase* tauola_;
 
 	bool printEvent_;
 

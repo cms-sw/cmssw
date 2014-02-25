@@ -5,8 +5,6 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2011/04/18 15:58:30 $
- *  $Revision: 1.13 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -34,20 +32,19 @@ class HRes1DHit{
       // Position, sigma, residual, pull
       //sprintf (histo_n, "1D_%s_hDist",N); sprintf(histo_t, "1D RHit distance from wire");
       //      hDist=0; hDist = dbe_->book1D(histo_n, histo_t, 100, 0,2.5);
-      if (local) dbe_->setCurrentFolder("DT/1DRecHits/");
-      else dbe_->setCurrentFolder("DT/1DRecHits/Res/");
+      dbe_->setCurrentFolder("DT/1DRecHits/Res/");
       
       if(doall){
 	hDist=0; hDist = dbe_->book1D(pre + "_hDist" ,"1D RHit distance from wire", 100, 0,2.5);
 	//hDist       = new TH1F ("1D_"+N+"_hDist", "1D RHit distance from wire", 100, 0,2.5);
 	hResVsAngle = 0; hResVsAngle   = dbe_->book2D(pre+"_hResVsAngle", "1D RHit residual vs impact angle",100, 0.,1.2, 150, -0.5,0.5);    
 	hResVsDistFE = 0; hResVsDistFE = dbe_->book2D(pre+"_hResVsDistFE", "1D RHit residual vs FE distance", 100, 0.,400., 150, -0.5,0.5);    
-	if(!local) dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
+	dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
  	hPullVsPos= 0; hPullVsPos  = dbe_->book2D (pre+"_hPullVsPos", "1D RHit pull vs position", 100, 0,2.5, 100, -5,5);
 	hPullVsAngle = 0; hPullVsAngle  = dbe_->book2D (pre+"_hPullVsAngle", "1D RHit pull vs impact angle",100, 0.,+1.2, 100, -5,5);
 	hPullVsDistFE = 0; hPullVsDistFE  = dbe_->book2D (pre+"_hPullVsDistFE", "1D RHit pull vs FE distance", 100, 0., 400., 100, -5,5);
       }
-      if(!local) dbe_->setCurrentFolder("DT/1DRecHits/Res/");
+      dbe_->setCurrentFolder("DT/1DRecHits/Res/");
       hRes=0; hRes = dbe_->book1D(pre + "_hRes","1D RHit residual", 300, -0.5,0.5);
       hResSt[0] = 0; hResSt[0] = dbe_->book1D(pre + "_hResMB1","1D RHit residual", 300, -0.5,0.5);
       hResSt[1] = 0; hResSt[1] = dbe_->book1D(pre + "_hResMB2","1D RHit residual", 300, -0.5,0.5);
@@ -61,29 +58,30 @@ class HRes1DHit{
       //hResVsPhi   = new TH2F("1D_"+N+"_hResVsPhi", "1D RHit residual vs phi", 100, -3.2, 3.2, 150, -1.5,1.5);
       hResVsPos = 0; hResVsPos   = dbe_->book2D(pre+"_hResVsPos", "1D RHit residual vs position",100, 0, 2.5, 150, -0.5,0.5);    
       //hResVsPos   = new TH2F("1D_"+N+"_hResVsPos", "1D RHit residual vs position",100, 0, 2.5, 150, -1.5,1.5);    
-      if (!local) dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
+      dbe_->setCurrentFolder("DT/1DRecHits/Pull/");
       hPull =0; hPull       = dbe_->book1D (pre+"_hPull", "1D RHit pull", 100, -5,5);
       hPullSt[0] = 0; hPullSt[0] = dbe_->book1D(pre + "_hPullMB1","1D RHit residual", 100, -5,5);
       hPullSt[1] = 0; hPullSt[1] = dbe_->book1D(pre + "_hPullMB2","1D RHit residual", 100, -5,5);
       hPullSt[2] = 0; hPullSt[2] = dbe_->book1D(pre + "_hPullMB3","1D RHit residual", 100, -5,5);
       hPullSt[3] = 0; hPullSt[3] = dbe_->book1D(pre + "_hPullMB4","1D RHit residual", 100, -5,5);
     }
-    /*
-    HRes1DHit(TString name_, TFile* file){
-      name=name_;
-      hDist          = (TH1F *) file->Get("/DQMData/1D_"+name+"_hDist");
-      hRes           = (TH1F *) file->Get("/DQMData/1D_"+name+"_hRes");
-      hResVsEta      = (TH2F *) file->Get("/DQMData/1D_"+name+"_hResVsEta");
-      hResVsPhi      = (TH2F *) file->Get("/DQMData/1D_"+name+"_hResVsPhi");
-      hResVsPos      = (TH2F *) file->Get("/DQMData/1D_"+name+"_hResVsPos");
-      hResVsAngle    = (TH2F *) file->Get("/DQMData/1D_"+name+"_hResVsAngle");
-      hResVsDistFE   = (TH2F *) file->Get("/DQMData/1D_"+name+"_hResVsDistFE");
-      hPull          = (TH1F *) file->Get("/DQMData/1D_"+name+"_hPull");
-      hPullVsPos     = (TH2F *) file->Get("/DQMData/1D_"+name+"_hPullVsPos");
-      hPullVsAngle   = (TH2F *) file->Get("/DQMData/1D_"+name+"_hPullVsAngle");
-      hPullVsDistFE  = (TH2F *) file->Get("/DQMData/1D_"+name+"_hPullVsDistFE");
-    }
-*/
+  
+//     HRes1DHit(TString name_, TFile* file){
+//       name=name_;
+//       base = "/DQMData/Run 1/DT/Run summary/1DRecHits/Res/";
+//       hDist          = (TH1F *) file->Get(base+"1D_"+name+"_hDist");
+//       hRes           = (TH1F *) file->Get(base+"1D_"+name+"_hRes");
+//       hResVsEta      = (TH2F *) file->Get(base+"1D_"+name+"_hResVsEta");
+//       hResVsPhi      = (TH2F *) file->Get(base+"1D_"+name+"_hResVsPhi");
+//       hResVsPos      = (TH2F *) file->Get(base+"1D_"+name+"_hResVsPos");
+//       hResVsAngle    = (TH2F *) file->Get(base+"1D_"+name+"_hResVsAngle");
+//       hResVsDistFE   = (TH2F *) file->Get(base+"1D_"+name+"_hResVsDistFE");
+//       hPull          = (TH1F *) file->Get(base+"1D_"+name+"_hPull");
+//       hPullVsPos     = (TH2F *) file->Get(base+"1D_"+name+"_hPullVsPos");
+//       hPullVsAngle   = (TH2F *) file->Get(base+"1D_"+name+"_hPullVsAngle");
+//       hPullVsDistFE  = (TH2F *) file->Get(base+"1D_"+name+"_hPullVsDistFE");
+//     }
+
 
     ~HRes1DHit(){
       //     delete hDist;
@@ -335,8 +333,7 @@ class HRes2DHit{
       _doall = doall;
       std::string pre ="2D_";
       pre += name_;
-      if(local) dbe_->setCurrentFolder("DT/2DSegments/");
-      else dbe_->setCurrentFolder("DT/2DSegments/Res/");
+      dbe_->setCurrentFolder("DT/2DSegments/Res/");
       if(doall){
 	hRecAngle=0;hRecAngle = dbe_->book1D (pre+"_hRecAngle", "Distribution of Rec segment angles;angle (rad)",100, -3.5, 3.5);
 	hSimAngle=0;hSimAngle = dbe_->book1D (pre+"_hSimAngle", "Distribution of segment angles from SimHits;angle (rad)",100, -3.5, 3.5);
@@ -359,7 +356,7 @@ class HRes2DHit{
       
       hResPos=0;hResPos   = dbe_->book1D (pre+"_hResPos", "Residual on 2D segment position (x at SL center);x_{rec}-x_{sim} (cm)",
 					  150, -0.2, 0.2);
-      if(!local) dbe_->setCurrentFolder("DT/2DSegments/Pull/");
+      dbe_->setCurrentFolder("DT/2DSegments/Pull/");
      
       hPullAngle=0;hPullAngle   = dbe_->book1D (pre+"_hPullAngle", "Pull on 2D segment angle;(angle_{rec}-angle_{sim})/#sigma (rad)", 150, -5, 5);
       hPullPos=0;hPullPos   = dbe_->book1D (pre+"_hPullPos", "Pull on 2D segment position (x at SL center);(x_{rec}-x_{sim} (cm))/#sigma",
@@ -673,8 +670,7 @@ class HRes4DHit{
       pre += name_;
       _doall = doall;
       
-      if(local) dbe_->setCurrentFolder("DT/4DSegments/");    
-      else dbe_->setCurrentFolder("DT/4DSegments/Res/");    
+      dbe_->setCurrentFolder("DT/4DSegments/Res/");    
       if(doall){
 	hRecAlpha=0;hRecAlpha  = dbe_->book1D (pre+"_hRecAlpha", "4D RecHit alpha (RPhi) distribution;#alpha^{x} (rad)", 100, -3.5, 3.5);
 	hRecBeta=0;hRecBeta = dbe_->book1D (pre+"_hRecBeta", "4D RecHit beta distribution:#alpha^{y} (rad)", 100, -3.5, 3.5);
@@ -740,7 +736,7 @@ class HRes4DHit{
 	hResYVsPhiRZ=0;hResYVsPhiRZ    = dbe_->book2D (pre+"_hResYVsPhiRZ",
 						       "4D RecHit residual on position (y) in chamber vs phi in RZ SL;#phi (rad);y_{rec}-y_{sim} (cm)",
 						       100, -3.2, 3.2, 150, -0.6, 0.6);
-	if(!local) dbe_->setCurrentFolder("DT/4DSegments/Pull/");    
+	dbe_->setCurrentFolder("DT/4DSegments/Pull/");    
  	hPullAlphaVsEta=0;hPullAlphaVsEta  = dbe_->book2D (pre+"_hPullAlphaVsEta",
 							   "4D RecHit pull on #alpha_x direction vs eta;#eta;(#alpha^{x}_{rec}-#alpha^{x}_{sim})/#sigma",
 							   100, -2.5, 2.5, 100, -5, 5);
@@ -779,7 +775,7 @@ class HRes4DHit{
                                    100, -3.2, 3.2, 150, -5, 5);
 
       }
-      if(!local) dbe_->setCurrentFolder("DT/4DSegments/Res/");    
+      dbe_->setCurrentFolder("DT/4DSegments/Res/");    
       hResAlpha=0;hResAlpha = dbe_->book1D (pre+"_hResAlpha", 
                                   "4D RecHit residual on #alpha_x direction;#alpha^{x}_{rec}-#alpha^{x}_{sim} (rad)",
 					    200, -0.015, 0.015);
@@ -803,7 +799,7 @@ class HRes4DHit{
 
       // Pulls
        // Pulls
-      if(!local) dbe_->setCurrentFolder("DT/4DSegments/Pull/");    
+      dbe_->setCurrentFolder("DT/4DSegments/Pull/");    
 
       hPullAlpha=0;hPullAlpha = dbe_->book1D (pre+"_hPullAlpha", 
                                    "4D RecHit pull on #alpha_x direction;(#alpha^{x}_{rec}-#alpha^{x}_{sim})/#sigma",

@@ -96,10 +96,14 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
         numCrystal("NumCrystalVeto\\((\\d+\\.\\d+)\\)"),
         numCrystalEtaPhi("NumCrystalEtaPhiVeto\\((\\d+\\.\\d+),(\\d+\\.\\d+)\\)"),
         otherCandidatesDR("OtherCandidatesByDR\\((\\w+:?\\w*:?\\w*),\\s*(\\d+\\.?|\\d*\\.\\d*)\\)"),
+        otherJetConstituentsDR("OtherJetConstituentsDeltaRVeto\\((\\w+:?\\w*:?\\w*),\\s*(\\d+\\.?|\\d*\\.\\d*),\\s*(\\w+:?\\w*:?\\w*),\\s*(\\d+\\.?|\\d*\\.\\d*)\\)"),
         otherCand("^(.*?):(.*)"),
         number("^(\\d+\\.?|\\d*\\.\\d*)$");
     boost::cmatch match;
     
+    //std::cout << "<IsoDepositVetoFactory::make>:" << std::endl;
+    //std::cout << " string = " << string << std::endl;
+
     evdep = 0; // by default it does not depend on this
     if (regex_match(string, match, ecalSwitch)) {
         return new SwitchingEcalVeto(make(match[2].first), (match[1] == "Barrel") );
@@ -130,6 +134,12 @@ IsoDepositVetoFactory::make(const char *string, reco::isodeposit::EventDependent
     } else if (regex_match(string, match, otherCandidatesDR)) {
         OtherCandidatesDeltaRVeto *ret = new OtherCandidatesDeltaRVeto(edm::InputTag(match[1]), 
                                                                         atof(match[2].first));
+        evdep = ret;
+        return ret;    
+    } else if (regex_match(string, match, otherJetConstituentsDR)) {
+        OtherJetConstituentsDeltaRVeto *ret = new OtherJetConstituentsDeltaRVeto(Direction(), 
+						   edm::InputTag(match[1]), atof(match[2].first),
+						   edm::InputTag(match[3]), atof(match[4].first));
         evdep = ret;
         return ret;
     } else if (regex_match(string, match, otherCand)) {
