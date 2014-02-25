@@ -21,6 +21,7 @@ class FastMonitor {
 public:
 
         FastMonitor(std::string const& defPath, bool strictChecking, bool useSource=true, bool useDefinition=true);
+        FastMonitor(DataPointDefinition * defPath, bool strictChecking, bool useSource=true, bool useDefinition=true);
 
 	virtual ~FastMonitor();
 
@@ -86,8 +87,10 @@ private:
 	unsigned int nStreams_;
 
 	std::string sourceInfo_;
-	DataPointDefinition dpd_;
-	DataPointDefinition dpdFast_;
+	DataPointDefinition *dpd_;
+	DataPointDefinition *dpdFast_;
+        bool deleteDef_=false;
+        bool deleteDefFast_=false;
 
 	std::vector<DataPoint*> dataPoints_;
 	std::vector<DataPoint*> dataPointsFastOnly_;

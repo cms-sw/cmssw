@@ -19,26 +19,41 @@
 using namespace jsoncollector;
 
 FastMonitor::FastMonitor(std::string const& defPath, bool strictChecking, bool useSource, bool useDefinition) :
-	defPath_(defPath),strictChecking_(strictChecking),useSource_(useSource),useDefinition_(useDefinition),nStreams_(1)
+	defPath_(defPath),strictChecking_(strictChecking),useSource_(useSource),useDefinition_(useDefinition),nStreams_(1),deleteDef_(true)
 {
 	//get host and PID info
 	if (useSource)
 	  getHostAndPID(sourceInfo_);
 
 	//load definition file
+	dpd_ = new DataPointDefinition();
 	DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_);
+        
 
+}
+
+
+FastMonitor::FastMonitor(DataPointDefinition * dp, bool strictChecking, bool useSource, bool useDefinition) :
+	strictChecking_(strictChecking),useSource_(useSource),useDefinition_(useDefinition),nStreams_(1),dpd_(dp)
+{
+	//get host and PID info
+	if (useSource)
+	  getHostAndPID(sourceInfo_);
 }
 
 FastMonitor::~FastMonitor() {
   for (auto dp: dataPoints_) delete dp;
+  if (deleteDef_) delete dpd_;
+  if (deleteDefFast_) delete dpdFast_;
 }
 
 void FastMonitor::addFastPathDefinition(std::string const& defPathFast, bool strict) {
    haveFastPath_=true;
    defPathFast_=defPathFast;
+   dpdFast_ = new DataPointDefinition();
    DataPointDefinition::getDataPointDefinitionFor(defPathFast_, dpdFast_);
    fastPathStrictChecking_=strict;
+   deleteDefFast_=true;
 }
 
 //per-process variables
@@ -95,7 +110,7 @@ void FastMonitor::registerStreamMonitorableUIntVecAtomic(std::string const& name
 
 void FastMonitor::commit(std::vector<unsigned int> *streamLumisPtr)
 {
-  std::vector<std::string> const& jsonNames= dpd_.getNames();
+  std::vector<std::string> const& jsonNames= dpd_->getNames();
   regDpCount_ = dataPoints_.size();
   assert(!(strictChecking_ && jsonNames.size()==regDpCount_));
 
@@ -106,7 +121,7 @@ void FastMonitor::commit(std::vector<unsigned int> *streamLumisPtr)
     for (unsigned int j=0;j<regDpCount_;j++) {
       if (dataPoints_[j]->getName()==jsonNames[i])
       {
-	dataPoints_[j]->setOperation(dpd_.getOperationFor(i));
+	dataPoints_[j]->setOperation(dpd_->getOperationFor(i));
 	jsonDpIndex_.push_back(j);
 	hasJson[j]=true;
 	notFoundVar=false;
@@ -128,7 +143,7 @@ void FastMonitor::commit(std::vector<unsigned int> *streamLumisPtr)
 
   //fast path:
   if (haveFastPath_) {
-    std::vector<std::string> const& fjsonNames = dpdFast_.getNames();
+    std::vector<std::string> const& fjsonNames = dpdFast_->getNames();
     fregDpCount_ = dataPointsFastOnly_.size();
     assert(!(fastPathStrictChecking_ && fjsonNames.size()==fregDpCount_));
     std::map<unsigned int,bool> fhasJson;

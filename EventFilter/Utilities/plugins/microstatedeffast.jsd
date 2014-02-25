@@ -1,0 +1,32 @@
+{
+   "legend" : [
+      {
+         "name" : "Macrostate",
+         "operation" : "histo"
+      },
+      {
+         "name" : "Ministate",
+         "operation" : "histo"
+      },
+      {
+         "name" : "Microstate",
+         "operation" : "histo"
+      },
+      {
+         "name" : "Processed",
+         "operation" : "sum"
+      },
+      {
+      	 "name" : "Throughput",
+         "operation" : "sum"
+      },
+      {
+      	 "name" : "AverageLeadTime",
+         "operation" : "avg"
+      },
+      {
+      	 "name" : "FilesProcessed",
+         "operation" : "sum"
+      }
+   ]
+}

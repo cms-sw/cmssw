@@ -21,11 +21,11 @@ public:
 	/**
 	 * Serializes a JsonSerializable object to output string
 	 */
-	static bool serialize(JsonSerializable* pObj, std::string& output);
+	static bool serialize(JsonSerializable* pObj, std::string & output);
 	/**
 	 * Deserializes input from a string to the JsonSerializable object
 	 */
-	static bool deserialize(JsonSerializable* pObj, std::string& input);
+	static bool deserialize(JsonSerializable* pObj, std::string & input);
 };
 }
 

@@ -10,11 +10,10 @@
 #include <iomanip>
 #include "boost/filesystem.hpp"
 
-#include "../interface/JsonMonitorable.h"
-#include "../interface/FastMonitor.h"
-#include "../interface/JSONSerializer.h"
-
-#include "FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
+#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
 
 namespace evf {
   template<typename Consumer>
@@ -73,9 +72,11 @@ namespace evf {
     boost::filesystem::path openDatFilePath_;
     IntJ processed_;
     mutable IntJ accepted_;
+    StringJ processCheck_; 
     StringJ filelist_;
     boost::shared_ptr<FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
+    DataPointDefinition outJsonDef_;
 
 
   }; //end-of-class-def
@@ -97,11 +98,25 @@ namespace evf {
     
     processed_.setName("Processed");
     accepted_.setName("Accepted");
+    processCheck_.setName("ProcessCheck");
     filelist_.setName("Filelist");
-    
-    jsonMonitor_.reset(new FastMonitor(jsonDefPath_,false));//TODO:strict?
+
+    outJsonDef_.setMergeMode("pid");
+    outJsonDef_.addLegendItem("Processed","integer","sum");
+    outJsonDef_.addLegendItem("Accepted","integer","sum");
+    outJsonDef_.addLegendItem("ProcessCheck","string","same");
+    outJsonDef_.addLegendItem("Filelist","string","cat");
+    std::stringstream ss;
+    ss <<  baseDir_ << "/" << "output_" << getpid() << ".jsd";
+    std::string outJsonName = ss.str();
+    JSONSerializer::serialize(&outJsonDef_,outJsonName);
+
+    processCheck_="good";
+ 
+    jsonMonitor_.reset(new FastMonitor(&outJsonDef_,true));
     jsonMonitor_->registerGlobalMonitorable(&processed_,false);
     jsonMonitor_->registerGlobalMonitorable(&accepted_,false);
+    jsonMonitor_->registerGlobalMonitorable(&processCheck_,false);
     jsonMonitor_->registerGlobalMonitorable(&filelist_,false);
     jsonMonitor_->commit(nullptr);
   }

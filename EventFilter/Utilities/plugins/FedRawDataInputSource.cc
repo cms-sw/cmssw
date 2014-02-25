@@ -73,7 +73,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
 					edm::Timestamp::invalidTimestamp()));
 
   dpd_ = new DataPointDefinition();
-  DataPointDefinition::getDataPointDefinitionFor(defPath_, *dpd_);
+  DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_);
 
   //make sure that chunk size is N * block size
   assert(eventChunkSize_>=eventChunkBlock_);

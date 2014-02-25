@@ -198,7 +198,6 @@ namespace evf{
     fmt_.m_data.ministateBins_=0;
     fmt_.m_data.microstateBins_ = 0; 
  
-    //TODO: we could do fastpath output even before seeing lumi
     lastGlobalLumi_=0;//this means no fast path before begingGlobalLumi (for now), 
     isGlobalLumiTransition_=true;
     lumiFromSource_=0;
@@ -340,17 +339,17 @@ namespace evf{
           assert(lumiProcessedJptr!=nullptr);
 	  processedEventsPerLumi_[lumi] = lumiProcessedJptr->value();
 
-	  //cross check (debugging)
 	  {
 	    auto itr = sourceEventsReport_.find(lumi);
 	    if (itr==sourceEventsReport_.end()) {
-              std::cout << "ERROR: SOURCE REPORT did not update yet for lumi" << lumi << std::endl;
+              std::cout << "ERROR: SOURCE did not send update for lumi block " << lumi << std::endl;
 	    }
 	    else {
 	      if (itr->second!=processedEventsPerLumi_[lumi]) {
-		std::cout << " ERROR: MISMATCH with SOURCE REPORT from lumi" << lumi << "events(processed):" << processedEventsPerLumi_[lumi]
+		std::cout << " ERROR: MISMATCH with SOURCE update for lumi block" << lumi 
+                          << ", events(processed):" << processedEventsPerLumi_[lumi]
                           << " events(source):" << itr->second << std::endl;
-		assert(0);//DEBUG!
+		assert(0);
 	      }
 	      sourceEventsReport_.erase(itr);
 	    }
@@ -619,7 +618,7 @@ namespace evf{
 	  else {
 		  fmt_.monlock_.unlock();
 		  std::cout << "ERROR: output module wants deleted info " << std::endl;
-		  assert(0);//DEBUG!
+		  assert(0);
 		  return 0;
 	  }
   }
