@@ -31,6 +31,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -46,8 +48,6 @@ private:
       // ----------member data ---------------------------
 
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
-  edm::InputTag ecalRechitEBTag_;
-  edm::InputTag ecalRechitEETag_;
   edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEBToken_;
   edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEEToken_;
   bool useSwissCross_;
