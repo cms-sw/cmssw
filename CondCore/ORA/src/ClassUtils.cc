@@ -80,6 +80,7 @@ bool ora::ClassUtils::checkMappedType( const edm::TypeWithDict& type,
   replaceString(typeName, "unsigned long long", "ULong64_t");
   replaceString(typeName, "long long", "Long64_t");
   replaceString(typeName, "std::basic_string<char> ", "std::string");
+  replaceString(typeName, "std::basic_string<char>", "std::string");
   return (type.qualifiedName() == typeName );
 }
 
