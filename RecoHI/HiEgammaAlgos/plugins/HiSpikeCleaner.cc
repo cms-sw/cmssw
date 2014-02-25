@@ -47,40 +47,27 @@
 //
 
 class HiSpikeCleaner : public edm::EDProducer {
-   public:
-      explicit HiSpikeCleaner(const edm::ParameterSet&);
-      ~HiSpikeCleaner();
-
-   private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
-      
-      // ----------member data ---------------------------
-
-   edm::InputTag sCInputProducer_;
-   edm::InputTag rHInputProducerB_;
-   edm::InputTag rHInputProducerE_;
-
-   std::string outputCollection_;
-   double TimingCut_;
-   double swissCutThr_;
-   double etCut_;
-   
+public:
+  explicit HiSpikeCleaner(const edm::ParameterSet&);
+  ~HiSpikeCleaner();
+  
+private:
+  virtual void beginJob() override ;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
+  
+  // ----------member data ---------------------------
+  
+  edm::EDGetTokenT<reco::SuperClusterCollection>  sCInputProducerToken_;
+  edm::EDGetTokenT<EcalRecHitCollection>  rHInputProducerBToken_;
+  edm::EDGetTokenT<EcalRecHitCollection>  rHInputProducerEToken_;
+  
+  std::string outputCollection_;
+  double TimingCut_;
+  double swissCutThr_;
+  double etCut_; 
 };
 
-//
-// constants, enums and typedefs
-//
-
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 HiSpikeCleaner::HiSpikeCleaner(const edm::ParameterSet& iConfig)
 {
    //register your products
@@ -92,19 +79,16 @@ HiSpikeCleaner::HiSpikeCleaner(const edm::ParameterSet& iConfig)
 */
    //now do what ever other initialization is needed
    
-   rHInputProducerB_  = iConfig.getParameter<edm::InputTag>("recHitProducerBarrel");
-   rHInputProducerE_  = iConfig.getParameter<edm::InputTag>("recHitProducerEndcap");
-
-   sCInputProducer_  = iConfig.getParameter<edm::InputTag>("originalSuperClusterProducer");
-   TimingCut_      = iConfig.getUntrackedParameter<double>  ("TimingCut",4.0);
-   swissCutThr_      = iConfig.getUntrackedParameter<double>("swissCutThr",0.95);
-   etCut_            = iConfig.getParameter<double>("etCut");
-   
-   outputCollection_ = iConfig.getParameter<std::string>("outputColl");
-   produces<reco::SuperClusterCollection>(outputCollection_);
-   
-   
-   
+  rHInputProducerBToken_  = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitProducerBarrel"));
+  rHInputProducerEToken_  = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitProducerEndcap"));
+  
+  sCInputProducerToken_  = consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("originalSuperClusterProducer"));
+  TimingCut_      = iConfig.getUntrackedParameter<double>  ("TimingCut",4.0);
+  swissCutThr_      = iConfig.getUntrackedParameter<double>("swissCutThr",0.95);
+  etCut_            = iConfig.getParameter<double>("etCut");
+  
+  outputCollection_ = iConfig.getParameter<std::string>("outputColl");
+  produces<reco::SuperClusterCollection>(outputCollection_);  
 }
 
 
@@ -125,34 +109,31 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-
    // Get raw SuperClusters from the event    
    Handle<reco::SuperClusterCollection> pRawSuperClusters;
    try { 
-      iEvent.getByLabel(sCInputProducer_, pRawSuperClusters);
+      iEvent.getByToken(sCInputProducerToken_, pRawSuperClusters);
    } catch ( cms::Exception& ex ) {
-      edm::LogError("EgammaSCCorrectionMakerError") 
-	 << "Error! can't get the rawSuperClusters " 
-	 << sCInputProducer_.label() ;
+     edm::LogError("EgammaSCCorrectionMakerError") 
+       << "Error! can't get the rawSuperClusters ";
    }    
    
    // Get the RecHits from the event
    Handle<EcalRecHitCollection> pRecHitsB;
    try { 
-      iEvent.getByLabel(rHInputProducerB_, pRecHitsB);
+      iEvent.getByToken(rHInputProducerBToken_, pRecHitsB);
    } catch ( cms::Exception& ex ) {
-      edm::LogError("EgammaSCCorrectionMakerError") 
-	 << "Error! can't get the RecHits " 
-	 << rHInputProducerB_.label();
+     edm::LogError("EgammaSCCorrectionMakerError") 
+       << "Error! can't get the RecHits ";
    }    
+
    // Get the RecHits from the event                                                                                                            
    Handle<EcalRecHitCollection> pRecHitsE;
    try {
-      iEvent.getByLabel(rHInputProducerE_, pRecHitsE);
+     iEvent.getByToken(rHInputProducerEToken_, pRecHitsE);
    } catch ( cms::Exception& ex ) {
-      edm::LogError("EgammaSCCorrectionMakerError")
-         << "Error! can't get the RecHits "
-         << rHInputProducerE_.label();
+     edm::LogError("EgammaSCCorrectionMakerError")
+       << "Error! can't get the RecHits ";
    }
 
    
@@ -168,7 +149,7 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    const reco::SuperClusterCollection *rawClusters = pRawSuperClusters.product();
    
    
-   EcalClusterLazyTools lazyTool(iEvent, iSetup, rHInputProducerB_,rHInputProducerE_);
+   EcalClusterLazyTools lazyTool(iEvent, iSetup, rHInputProducerBToken_,rHInputProducerEToken_);
 
    // Define a collection of corrected SuperClusters to put back into the event
    std::auto_ptr<reco::SuperClusterCollection> corrClusters(new reco::SuperClusterCollection);
