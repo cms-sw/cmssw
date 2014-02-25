@@ -96,7 +96,7 @@ lfc-mkdir $OUTDIR
 
 # We loop over the data directory in order to find all the files to process
 
-foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f15`) 
+foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f14`) 
 	    
     @ i = 0
     @ j = $NPFILE
