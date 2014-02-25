@@ -90,7 +90,8 @@ namespace l1t {
     unsigned int formatTotalET(std::vector<l1t::EtSum>::const_iterator etSum);
     
     unsigned int m_absBx;
-    
+    int m_bxOffset;
+  
     std::ofstream m_testVectorFile;
     
     bool m_dumpTestVectors;
@@ -124,8 +125,10 @@ namespace l1t {
       std::string fileName = iConfig.getParameter<std::string>("tvFileName");
       if(m_dumpTestVectors) m_testVectorFile.open(fileName.c_str());
       
-      
+      m_bxOffset = iConfig.getParameter<int>("bxOffset");
+
       m_absBx = 0;
+      m_absBx += m_bxOffset;
       
   }
   
