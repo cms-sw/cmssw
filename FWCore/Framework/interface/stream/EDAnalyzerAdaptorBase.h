@@ -84,6 +84,9 @@ namespace edm {
                         ProductHolderIndexHelper const&);
       
       const EDConsumerBase* consumer() const;
+      
+      void modulesDependentUpon(const std::string& iProcessName,
+                                std::vector<const char*>& oModuleLabels) const;
     private:
       EDAnalyzerAdaptorBase(const EDAnalyzerAdaptorBase&); // stop default
       
