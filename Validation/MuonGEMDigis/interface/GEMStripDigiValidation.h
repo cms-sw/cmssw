@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Validation/MuonGEMDigis/interface/GEMBaseValidation.h"
+#include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 
 
 class GEMStripDigiValidation : public GEMBaseValidation

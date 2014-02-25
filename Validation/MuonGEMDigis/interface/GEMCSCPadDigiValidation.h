@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Validation/MuonGEMDigis/interface/GEMBaseValidation.h"
+#include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 class GEMCSCPadDigiValidation : public GEMBaseValidation
 {
 public:
@@ -26,7 +26,6 @@ public:
   MonitorElement* theCSCPad_bx[2][2];
   MonitorElement* theCSCPad_zr_rm1;
   MonitorElement* theCSCPad_zr_rp1;
-
 };
 
 #endif
