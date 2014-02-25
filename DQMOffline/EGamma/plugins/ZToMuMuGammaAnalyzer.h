@@ -190,6 +190,7 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   MonitorElement* h1_mumuGammaInvMass_[3];
 
   MonitorElement* h_phoE_[3];
+  MonitorElement* h_phoSigmaEoverE_[3];
   MonitorElement* h_phoEt_[3];
 
   MonitorElement* h_nPho_[3];

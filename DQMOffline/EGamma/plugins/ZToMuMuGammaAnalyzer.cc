@@ -183,6 +183,7 @@ void ZToMuMuGammaAnalyzer::beginJob()
     
     //ENERGY
     h_phoE_[0]  = dbe_->book1D("phoE","Energy;E (GeV)",eBin,eMin,eMax);
+    h_phoSigmaEoverE_[0]  = dbe_->book1D("phoSigmaEoverE","All Ecal: #sigma_{E}/E;#sigma_{E}/E",eBin,eMin,eMax);
     h_phoEt_[0] = dbe_->book1D("phoEt","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
 
     //NUMBER OF PHOTONS
@@ -264,10 +265,12 @@ void ZToMuMuGammaAnalyzer::beginJob()
       h_nPho_[2]  = dbe_->book1D("nPhoEndcap","Number of Photons per Event;# #gamma", numberBin,numberMin,numberMax);
       //EB ENERGY
       h_phoE_[1]  = dbe_->book1D("phoEBarrel","Energy for Barrel;E (GeV)",eBin,eMin,eMax);
+      h_phoSigmaEoverE_[1]  = dbe_->book1D("phoSigmaEoverEBarrel","Barrel: #sigma_E/E;#sigma_{E}/E",eBin,eMin,eMax);
       h_phoEt_[1] = dbe_->book1D("phoEtBarrel","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
       //EE ENERGY
       h_phoEt_[2] = dbe_->book1D("phoEtEndcap","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
       h_phoE_[2]  = dbe_->book1D("phoEEndcap","Energy for Endcap;E (GeV)",eBin,eMin,eMax);
+      h_phoSigmaEoverE_[2]  = dbe_->book1D("phoSigmaEoverEEndcap","Endcap: #sigma_{E}/E;#sigma_{E}/E",eBin,eMin,eMax);
       //EB GEOMETRICAL
       h_phoEta_[1] = dbe_->book1D("phoEtaBarrel","#eta;#eta",etaBin,etaMin,etaMax);
       h_phoPhi_[1] = dbe_->book1D("phoPhiBarrel","#phi;#phi",phiBin,phiMin,phiMax);
@@ -534,15 +537,15 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   if(validTriggerEvent) triggerEvent = *(triggerEventHandle.product());
 
   // Get the reconstructed photons
-  bool validPhotons=true;
+  //  bool validPhotons=true;
   Handle<reco::PhotonCollection> photonHandle;
   reco::PhotonCollection photonCollection;
   e.getByToken(photon_token_ , photonHandle);
   if ( !photonHandle.isValid()) {
     edm::LogInfo("ZToMuMuGammaAnalyzer") << "Error! Can't get the product: photon_token_" << endl;
-    validPhotons=false;
+    //validPhotons=false;
   }
-  if(validPhotons) photonCollection = *(photonHandle.product());
+  //  if(validPhotons) photonCollection = *(photonHandle.product());
 
   // Get the  PF refined cluster  collection
   Handle<reco::PFCandidateCollection> pfCandidateHandle;
@@ -632,7 +635,7 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 
       h1_mumuInvMass_[0] -> Fill (mumuMass);      
 
-      if (  photonCollection.size() < 1 ) continue;
+      if (   photonHandle->size() < 1 ) continue;
 
       reco::Muon nearMuon;
       reco::Muon farMuon;
@@ -679,8 +682,10 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         h1_mumuGammaInvMass_[iDet] ->Fill (mumuGammaMass);
 	//ENERGY        
         h_phoE_[0]  ->Fill (aPho->energy());
+	h_phoSigmaEoverE_[0] ->Fill( aPho->getCorrectedEnergyError(aPho->getCandidateP4type())/aPho->energy() ); 
         h_phoEt_[0] ->Fill (aPho->et());
         h_phoE_[iDet]  ->Fill (aPho->energy());
+	h_phoSigmaEoverE_[iDet] ->Fill( aPho->getCorrectedEnergyError(aPho->getCandidateP4type())/aPho->energy() ); 
         h_phoEt_[iDet] ->Fill (aPho->et());
         //GEOMETRICAL
         h_phoEta_[0] ->Fill (aPho->eta());
