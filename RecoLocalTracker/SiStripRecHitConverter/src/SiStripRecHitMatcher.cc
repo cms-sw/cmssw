@@ -17,7 +17,7 @@
 
 SiStripRecHitMatcher::SiStripRecHitMatcher(const edm::ParameterSet& conf):
   scale_(conf.getParameter<double>("NSigmaInside")),
-  preFilter_(conf.getUntrackedParameter<bool>("PreFilter",false))  
+  preFilter_(conf.existsAs<bool>("PreFilter") ? conf.getParameter<bool>("PreFilter") : false)  
   {}
 
 SiStripRecHitMatcher::SiStripRecHitMatcher(const double theScale):
