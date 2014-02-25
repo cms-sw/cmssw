@@ -110,11 +110,11 @@ DigiMatcher::digisMeanPosition(const DigiMatcher::DigiContainer& digis) const
   return GlobalPoint(sumx/n, sumy/n, sumz/n);
 }
 
-
+/*
 int DigiMatcher::median(const DigiContainer& digis) const
 {
   size_t sz = digis.size();
-  vector<int> strips(sz);
+  std::vector<int> strips(sz);
   std::transform(digis.begin(), digis.end(), strips.begin(), [](const Digi& d) {return digi_channel(d);} );
   std::sort(strips.begin(), strips.end());
   if ( sz % 2 == 0 ) // even
@@ -126,5 +126,5 @@ int DigiMatcher::median(const DigiContainer& digis) const
     return strips[sz/2];
   }
 }
-
+*/
 

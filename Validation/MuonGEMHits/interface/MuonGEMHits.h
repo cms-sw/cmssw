@@ -38,10 +38,6 @@ private:
   GEMSimTrackMatch* theGEMSimTrackMatch;
   
 
-  void buildLUT();
-  std::pair<int,int> getClosestChambers(int region, float phi);
-
-
   edm::ESHandle<GEMGeometry> gem_geom;
 
   const GEMGeometry* gem_geometry_;

@@ -23,7 +23,6 @@ void GEMHitsValidation::bookHisto() {
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of region : "<<nregion<<std::endl;
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of stations : "<<nstation<<std::endl;
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of eta partition : "<< npart <<std::endl;
-  std::cout<<"+++ Info : # of eta partition : "<< npart <<std::endl;
 
 
   std::vector< std::string > region;
@@ -91,11 +90,8 @@ void GEMHitsValidation::analyze(const edm::Event& e,
                                        << theInputTag.encode();
   }
 
-  //Int_t eventNumber = e.id().event();
   for (auto hits=GEMHits->begin(); hits!=GEMHits->end(); hits++) {
     Int_t particleType = hits->particleType();
-    //Float_t lx = hits->localPosition().x();
-    //Float_t ly = hits->localPosition().y();
     Float_t energyLoss = hits->energyLoss();
     Float_t pabs = hits->pabs();
     Float_t timeOfFlight = hits->timeOfFlight();
@@ -103,30 +99,20 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     const GEMDetId id(hits->detUnitId());
     
     Int_t region = id.region();
-    //Int_t ring = id.ring();
     Int_t station = id.station();
     Int_t layer = id.layer();
-    //Int_t chamber = id.chamber();
     Int_t roll = id.roll();
 
     const LocalPoint p0(0., 0., 0.);
     const GlobalPoint Gp0(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(p0));
-
-    //Float_t Phi_0 = Gp0.phi();
-    //Float_t R_0 = Gp0.perp();
-    //Float_t DeltaPhi = atan(-1*id.region()*pow(-1,id.chamber())*hits->localPosition().x()/(Gp0.perp() + hits->localPosition().y()));
- 
     const LocalPoint hitLP(hits->localPosition());
     const GlobalPoint hitGP(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
     Float_t g_r = hitGP.perp();
-    //Float_t g_eta = hitGP.eta();
-    //Float_t g_phi = hitGP.phi();
     Float_t g_x = hitGP.x();
     Float_t g_y = hitGP.y();
     Float_t g_z = hitGP.z();
 
     const LocalPoint hitEP(hits->entryPoint());
-    //Int_t strip = theGEMGeometry->etaPartition(hits->detUnitId())->strip(hitEP);
 
       // fill hist
       int muonSel=999;

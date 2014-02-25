@@ -9,8 +9,13 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
+#include <TMath.h>
 
 class GEMStripDigiValidation : public GEMBaseValidation
 {

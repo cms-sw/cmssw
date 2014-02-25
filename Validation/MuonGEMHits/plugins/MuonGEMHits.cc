@@ -32,7 +32,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TTree.h"
 #include "TFile.h"
-#include "TGraphAsymmErrors.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 

@@ -44,8 +44,6 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
     edm::LogError("GEMCSCCoPadDigiValidation") << "Cannot get pads by label "
                                        << theInputTag.encode();
   }
-  //std::cout<<" Hello "<<std::endl;
-
   for (GEMCSCPadDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
 
     GEMDetId id = (*cItr).first;
