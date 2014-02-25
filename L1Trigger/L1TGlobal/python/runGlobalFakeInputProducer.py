@@ -5,15 +5,14 @@ import sys
 The parameters can be changed by adding commandline arguments of the form
 ::
 
-    runGlobalFakeInputProducer.py n=-1
+    runGlobalFakeInputProducer.py nevents=-1
 
 The latter can be used to change parameters in crab.
 """
 
-n = 10 #number of events
 job = 0 #job number
 njob = 1 #number of jobs
-nevents = n #number of events
+nevents = 10 #number of events
 rootout = True #whether to produce root file
 dump = False #dump python
 
@@ -41,6 +40,9 @@ for arg in argv:
 neventsPerJob = nevents/njob
 skip = job * neventsPerJob
 
+if skip>4:
+    skip = skip-4
+    neventsPerJob = neventsPerJob+4
 
 import FWCore.ParameterSet.Config as cms
 
@@ -196,13 +198,14 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::L1uGtRecordDump",
 		uGtRecInputTag = cms.InputTag("simL1uGtDigis"),
 		uGtAlgInputTag = cms.InputTag("simL1uGtDigis"),
 		uGtExtInputTag = cms.InputTag("simL1uGtDigis"),
+		bxOffset       = cms.int32(skip),
 		minBx          = cms.int32(-2),
 		maxBx          = cms.int32(2),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
 		dumpGTRecord   = cms.bool(True),
 		dumpVectors    = cms.bool(True),
-		tvFileName     = cms.string("TestVector_"+`job`+".txt")
+		tvFileName     = cms.string( ("TestVector_%03d.txt") % job )
 		 )
 
 
