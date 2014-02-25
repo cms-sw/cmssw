@@ -244,10 +244,13 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
             }
           }
         } /// Stub accepted
+/* NP 2012 02 25
+ * this is commented to avoid memory exhaustion in hi PU events
         else
         {
           tempRejected->push_back( tempTTStub );
         } /// Stub rejected
+*/
       } /// End of nested loop
     } /// End of loop over pairs of Clusters
 
@@ -286,11 +289,14 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
             tempOuter->push_back( *(is.second[bendMap[i].first].getClusterRef(1)) );
             tempOutput->push_back( is.second[bendMap[i].first] );
           }
+/* NP 2012 02 25
+ * this is commented to avoid memory exhaustion in hi PU events
           for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
           {
             /// Reject the rest
             tempRejected->push_back( is.second[bendMap[i].first] );
           }
+*/
         }
       } /// End of loop over temp output
     } /// End store only the selected stubs if max no. stub/ROC is set
@@ -329,6 +335,8 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         tempOutputFiller.abort();
     }
 
+/* NP 2012 02 25
+ * this is commented to avoid memory exhaustion in hi PU events
     if ( tempRejected->size() > 0 )
     {
       typename edmNew::DetSetVector< TTStub< T > >::FastFiller rejectedOutputFiller( *TTStubDSVForOutputRejected, DetId(Id.rawId()) );
@@ -339,6 +347,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
       if ( rejectedOutputFiller.empty() )
         rejectedOutputFiller.abort();
     }
+*/
 
   } /// End of loop over detector elements
 
