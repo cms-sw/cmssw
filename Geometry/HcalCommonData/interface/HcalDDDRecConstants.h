@@ -33,8 +33,9 @@ public:
   ~HcalDDDRecConstants();
 
   struct HcalID {
-    int    eta, phi, depth;
-    HcalID(int et=0, int fi=0, int d=0) : eta(et), phi(fi), depth(d) {}
+    int    subdet, eta, phi, depth;
+    HcalID(int sub=0, int et=0, int fi=0, int d=0) : subdet(sub), eta(et),
+						     phi(fi), depth(d) {}
   };
   struct HcalEtaBin {
     int    ieta, nPhi, depthStart;

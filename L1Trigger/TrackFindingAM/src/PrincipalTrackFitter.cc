@@ -27,6 +27,10 @@ void PrincipalTrackFitter::mergeTracks(){
   //cout<<"Merging of Tracks not implemented"<<endl;
 }
 
+void PrincipalTrackFitter::fit(vector<Hit*> hits){
+  //cout<<"fit(vector<Hit*>) not implemented"<<endl;
+}
+
 void PrincipalTrackFitter::fit(){
   for(unsigned int i=0;i<patterns.size();i++){
     ostringstream oss;

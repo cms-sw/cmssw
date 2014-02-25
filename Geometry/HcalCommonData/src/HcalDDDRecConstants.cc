@@ -101,7 +101,11 @@ HcalDDDRecConstants::HcalID HcalDDDRecConstants::getHCID(int subdet,int ieta,
 
   checkInitialized();
   int    eta(ieta), phi(iphi), depth(idepth);
-  if (subdet == static_cast<int>(HcalBarrel) || 
+  if ((subdet == static_cast<int>(HcalOuter)) ||
+      ((subdet == static_cast<int>(HcalBarrel)) && (lay > 17))) {
+    subdet= static_cast<int>(HcalOuter);
+    depth = 4;
+  } else if (subdet == static_cast<int>(HcalBarrel) || 
       subdet == static_cast<int>(HcalEndcap)) {
     eta      = ietaMap[ieta-1];
     int unit = phiUnitS[ieta-1];
@@ -130,15 +134,13 @@ HcalDDDRecConstants::HcalID HcalDDDRecConstants::getHCID(int subdet,int ieta,
     } else if (eta == nOff[1] && depth > 2) {
        eta = nOff[1]-1;
     }
-  } else if (subdet == static_cast<int>(HcalOuter)) {
-    depth = 4;
   } 
 #ifdef DebugLog
   std::cout << "getHCID: input " << subdet << ":" << ieta << ":" << iphi
 	    << ":" << idepth << ":" << lay << " output " << eta << ":" << phi
 	    << ":" << depth << std::endl;
 #endif
-  return HcalDDDRecConstants::HcalID(eta,phi,depth);
+  return HcalDDDRecConstants::HcalID(subdet,eta,phi,depth);
 }
 
 std::vector<HcalCellType> HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {

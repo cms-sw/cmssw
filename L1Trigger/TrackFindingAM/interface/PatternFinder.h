@@ -10,7 +10,7 @@
 using namespace std;
 
 /**
-   \brief Used to find active patterns in events
+   \brief Used to find active patterns in events. Stubs of the event are injected in a virtual detector, then we count the number of active patterns in the bank (the patterns have previously been linked to the virtual detector's supertrips).
 **/
 class PatternFinder{
  private:

@@ -69,13 +69,13 @@ DetId HcalHitRelabeller::relabel(const uint32_t testId) const {
   std::cout.flush();
 #endif
 
-  if (det==int(HcalBarrel)) {
+  if (id.subdet==int(HcalBarrel)) {
     hid=HcalDetId(HcalBarrel,sign*id.eta,id.phi,id.depth);        
-  } else if (det==int(HcalEndcap)) {
+  } else if (id.subdet==int(HcalEndcap)) {
     hid=HcalDetId(HcalEndcap,sign*id.eta,id.phi,id.depth);    
-  } else if (det==int(HcalOuter)) {
+  } else if (id.subdet==int(HcalOuter)) {
     hid=HcalDetId(HcalOuter,sign*id.eta,id.phi,id.depth);    
-  } else if (det==int(HcalForward)) {
+  } else if (id.subdet==int(HcalForward)) {
     hid=HcalDetId(HcalForward,sign*id.eta,id.phi,id.depth);
   }
 #ifdef DebugLog

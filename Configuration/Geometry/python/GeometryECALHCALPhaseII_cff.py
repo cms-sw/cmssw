@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Geometry.GeometrySimECALHCALPhaseII_cff import *
 
 # Reco ECAL+HCAL geometry
-from Configuration.Geometry.GeometryRecoECALHCAL_cff import *
+from Configuration.Geometry.GeometryRecoECALHCALPhaseII_cff import *
 
 
 

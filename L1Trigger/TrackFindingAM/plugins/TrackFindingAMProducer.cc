@@ -3,6 +3,9 @@
  *  \author Nicola Pozzobon
  *  \date   2013, Jul 18
  *
+ *  \update by S.Viret 
+ *  \date   2014, Feb 17
+ *
  */
 
 #ifndef TRACK_BUILDER_AM_H
@@ -27,6 +30,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerDetUnit.h"
 
 #include "L1Trigger/TrackFindingAM/interface/CMSPatternLayer.h"
 #include "L1Trigger/TrackFindingAM/interface/PatternFinder.h"
@@ -57,21 +61,24 @@ class TrackFindingAMProducer : public edm::EDProducer
     ~TrackFindingAMProducer();
 
   private:
-    /// Data members
-    double                       mMagneticField;
-    unsigned int                 nSectors;
-    unsigned int                 nWedges;
-    std::string                  nBKName;
-    int                          nThresh;
-    SectorTree                   m_st;
-    PatternFinder                *m_pf;
-    const StackedTrackerGeometry *theStackedTracker;
-    edm::InputTag                TTStubsInputTag;
 
-    /// Mandatory methods
-    virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+  /// Data members
+  double                       mMagneticField;
+  std::string                  nBKName;
+  int                          nThresh;
+  SectorTree                   m_st;
+  PatternFinder                *m_pf;
+  const StackedTrackerGeometry *theStackedTracker;
+  edm::InputTag                TTStubsInputTag;
+  edm::InputTag                TTClustersInputTag;
+  std::string                  TTPatternOutputTag;
+
+  /// Mandatory methods
+  virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
+  virtual void endRun( const edm::Run& run, const edm::EventSetup& iSetup );
+  virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+
+  bool inPattern(int j);
 
 }; /// Close class
 
@@ -81,11 +88,10 @@ class TrackFindingAMProducer : public edm::EDProducer
 /// Constructors
 TrackFindingAMProducer::TrackFindingAMProducer( const edm::ParameterSet& iConfig )
 {
-  TTStubsInputTag = iConfig.getParameter< edm::InputTag >( "TTStubsBricks" );
-  nSectors = iConfig.getParameter< int >("NumSectors");
-  nWedges = iConfig.getParameter< int >("NumWedges");
-  nBKName = iConfig.getParameter< std::string >("inputBankFile");
-  nThresh = iConfig.getParameter< int >("threshold");
+  TTStubsInputTag    = iConfig.getParameter< edm::InputTag >( "TTInputStubs" );
+  TTPatternOutputTag = iConfig.getParameter< std::string >( "TTPatternName" );
+  nBKName            = iConfig.getParameter< std::string >("inputBankFile");
+  nThresh            = iConfig.getParameter< int >("threshold");
 
   std::cout << "Loading pattern bank file : " << std::endl;
   std::cout << nBKName << std::endl;
@@ -96,7 +102,7 @@ TrackFindingAMProducer::TrackFindingAMProducer( const edm::ParameterSet& iConfig
   ia >> m_st;
   m_pf = new PatternFinder( m_st.getSuperStripSize(), nThresh, &m_st, "", "" );
 
-  produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( "AML1Tracks" );
+  produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTPatternOutputTag );
 }
 
 /// Destructor
@@ -129,46 +135,36 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   /// before removal of duplicates
   std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
 
-  /// Get the Stubs already stored away
+  /// Get the Stubs/Cluster already stored
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
   iEvent.getByLabel( TTStubsInputTag, TTStubHandle );
 
   /// STEP 0
   /// Prepare output
+
   TTTracksForOutput->clear();
 
   int layer  = 0;
   int ladder = 0;
   int module = 0;
-  int disk   = 0;
-  int lad_cor= 0;
+  int n_active =  m_st.getAllSectors().at(0)->getNbLayers();
 
   /// STEP 1
   /// Loop over input stubs
 
-  //  std::cout << "Start the loop on stubs to transform them into sstrips" << std::endl;
-
   std::vector< Hit* > m_hits;
-
-  for(unsigned int i=0;i<m_hits.size();i++)
-  {
-    delete m_hits[i];
-  }
-
+  for(unsigned int i=0;i<m_hits.size();i++) delete m_hits[i];
   m_hits.clear();
 
+  unsigned int j = 0;
   std::map< unsigned int, edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
 
-  unsigned int j = 0;
   edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator inputIter;
   edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator stubIter;
-  for ( inputIter = TTStubHandle->begin();
-        inputIter != TTStubHandle->end();
-        ++inputIter )
+
+  for ( inputIter = TTStubHandle->begin(); inputIter != TTStubHandle->end(); ++inputIter )
   {
-    for ( stubIter = inputIter->begin();
-          stubIter != inputIter->end();
-          ++stubIter )
+    for ( stubIter = inputIter->begin(); stubIter != inputIter->end(); ++stubIter )
     {
       /// Increment the counter
       j++;
@@ -184,7 +180,6 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       GlobalPoint posStub  = theStackedTracker->findGlobalPosition( &(*tempStubRef) );
 
       StackedTrackerDetId detIdStub( tempStubRef->getDetId() );
-      //bool isPS = theStackedTracker->isPSModule( detIdStub );
 
       const GeomDetUnit* det0 = theStackedTracker->idToDetUnit( detIdStub, 0 );
       const GeomDetUnit* det1 = theStackedTracker->idToDetUnit( detIdStub, 1 );
@@ -210,36 +205,23 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       }
       else if ( detIdStub.isEndcap() )
       {
-        layer  = 10+detIdStub.iZ()+abs(detIdStub.iSide()-2)*7;
-
-        if (layer>10 && layer<=17) disk=(layer-10)%8;
-        if (layer>17 && layer<=24) disk=(layer-17)%8;
-        if (disk>=5) lad_cor = (disk-4)%4;
-
-        ladder = detIdStub.iRing()-1+lad_cor;
+        layer  = 10+detIdStub.iZ()+abs((int)(detIdStub.iSide())-2)*7;
+        ladder = detIdStub.iRing()-1;
         module = detIdStub.iPhi()-1;
       }
 
       module = CMSPatternLayer::getModuleCode(layer,module);
-      if ( module < 0 ) // the stub is on the third Z position on the other side of the tracker -> out of range
-        continue;
+
+      // the stub is on the third Z position on the other side of the tracker -> out of range
+      if ( module < 0 )  continue;
 
       ladder = CMSPatternLayer::getLadderCode(layer, ladder);
 
-      int strip  =  mp0.x();
-      int tp     = -1;
-      float eta  = 0;
-      float phi0 = 0;
-      float spt  = 0;
       float x    = posStub.x();
       float y    = posStub.y();
       float z    = posStub.z();
-      float x0   = 0.;
-      float y0   = 0.;
-      float z0   = 0.;
-      float ip   = sqrt(x0*x0+y0*y0);
 
-      Hit* h = new Hit(layer,ladder, module, segment, strip, j, tp, spt, ip, eta, phi0, x, y, z, x0, y0, z0);
+      Hit* h = new Hit(layer,ladder, module, segment, mp0.x(), j, -1, 0, 0, 0, 0, x, y, z, 0, 0, 0);
       m_hits.push_back(h);
     } /// End of loop over input stubs
   } /// End of loop over DetSetVector
@@ -247,16 +229,15 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   /// STEP 2
   /// PAssing the superstrips into the AM chip
 
-  //  std::cout << "AM chip processing" << std::endl;
-
   std::vector< Sector* > patternsSectors = m_pf->find(m_hits); // AM PR is done here....
 
   /// STEP 3
   /// Collect the info and store the track seed stuff
 
-  //  std::cout << "AM chip processing" << std::endl;
-
   std::vector< Hit* > hits;
+
+  std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
+
   for ( unsigned int i = 0; i < patternsSectors.size(); i++ )
   {
     std::vector< GradedPattern* > pl = patternsSectors[i]->getPatternTree()->getLDPatterns();
@@ -266,23 +247,25 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
     int secID = patternsSectors[i]->getOfficialID();
 
     //    std::cout<<"Found "<<pl.size()<<" patterns in sector " << secID<<std::endl;
-
+    //    std::cout<<"containing "<<n_active<<" layers " << secID<<std::endl;
+  
     //delete the GradedPattern objects
+
     for ( unsigned j = 0; j < pl.size(); j++ )
     {
       hits.clear();
       hits = pl[j]->getHits();
 
       /// Create the Seed in the form of a Track and store it in the output
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > tempVec;
+      tempVec.clear();
 
       for(unsigned k = 0; k < hits.size(); k++ )
-      {
         tempVec.push_back( stubMap[ hits[k]->getID() ] );
-      }
+
 
       TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
       tempTrack.setSector( secID );
+      tempTrack.setWedge( n_active );
       TTTracksForOutput->push_back( tempTrack );
 
       delete pl[j];
@@ -293,9 +276,8 @@ void TrackFindingAMProducer::produce( edm::Event& iEvent, const edm::EventSetup&
   }
 
   /// Put in the event content
-  iEvent.put( TTTracksForOutput, "AML1Tracks" );
+  iEvent.put( TTTracksForOutput, TTPatternOutputTag);
 }
-
 // DEFINE THIS AS A PLUG-IN
 DEFINE_FWK_MODULE(TrackFindingAMProducer);
 

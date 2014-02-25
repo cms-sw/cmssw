@@ -161,6 +161,28 @@ vector<Hit*> Pattern::getHits(int layerPosition){
   return hits;
 }
 
+bool Pattern::contains(Pattern* hdp){
+  if(nb_layer!=hdp->getNbLayers())
+    return false;
+  
+  for(int i=0;i<nb_layer;i++){
+    int factor = (int)pow(2.0,layer_strips[i]->getDCBitsNumber());
+    int base_index = layer_strips[i]->getStrip()*factor;
+    vector<string> positions=layer_strips[i]->getPositionsFromDC();
+    bool found = false;
+    for(unsigned int j=0;j<positions.size();j++){
+      if(hdp->getLayerStrip(i)->getStrip()==base_index+PatternLayer::GRAY_POSITIONS[positions[j]]){
+	found=true;
+	break;
+      }
+    }
+    if(!found){
+      return false;
+    }
+  }
+  return true;
+}
+
 ostream& operator<<(ostream& out, const Pattern& s){
   for(int i=0;i<s.getNbLayers();i++){
     out<<s.layer_strips[i]->toString()<<endl;
