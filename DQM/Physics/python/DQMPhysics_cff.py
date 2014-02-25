@@ -11,7 +11,6 @@ from DQM.Physics.topSingleLeptonDQM_PU_cfi import *
 from DQM.Physics.ewkMuLumiMonitorDQM_cfi import *
 from DQM.Physics.susyDQM_cfi import *
 from DQM.Physics.HiggsDQM_cfi import *
-from DQM.Physics.CentralityDQM_cfi import *
 from JetMETCorrections.Configuration.JetCorrectionProducersAllAlgos_cff import *
 
 ## unused
@@ -37,7 +36,7 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            )
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
-dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI+CentralityDQM)
+dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI)
 
 from DQM.Physics.qcdPhotonsCosmicDQM_cff import *
 dqmPhysicsCosmics = cms.Sequence(dqmPhysics)
