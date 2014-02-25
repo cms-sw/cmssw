@@ -15,7 +15,7 @@
 
 // Centrality
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
+#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 using namespace edm;
