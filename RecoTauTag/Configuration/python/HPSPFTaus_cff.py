@@ -22,6 +22,12 @@ from RecoTauTag.RecoTau.RecoTauDiscriminantCutMultiplexer_cfi import *
 # Load helper functions to change the source of the discriminants
 from RecoTauTag.RecoTau.TauDiscriminatorTools import *
 
+# Load PFjet input parameters
+from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
+
+# deltaBeta correction factor calculated for taus from ak5PFJets (Run I)
+ak5dBetaCorrection=0.0772/0.1687 
+
 # Select those taus that pass the HPS selections
 #  - pt > 15, mass cuts, tauCone cut
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByHPSSelection_cfi import hpsSelectionDiscriminator, decayMode_1Prong0Pi0, decayMode_1Prong1Pi0, decayMode_1Prong2Pi0, decayMode_3Prong0Pi0
@@ -108,6 +114,7 @@ hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr = hpsPFTauDiscriminationByLoos
     deltaBetaFactor = "%0.4f"%(0.0123/0.1687),
     applyOccupancyCut = False,
     applySumPtCut = True,
+    customOuterCone = PFRecoTauPFJetInputs.isolationConeSize
 )
 hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.maximumSumPtCut=hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
@@ -118,6 +125,7 @@ hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr = hpsPFTauDiscriminationByMed
     deltaBetaFactor = "%0.4f"%(0.0462/0.1687),
     applyOccupancyCut = False,
     applySumPtCut = True,
+    customOuterCone = PFRecoTauPFJetInputs.isolationConeSize
 )
 hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.maximumSumPtCut=hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
@@ -128,6 +136,7 @@ hpsPFTauDiscriminationByTightIsolationDBSumPtCorr = hpsPFTauDiscriminationByTigh
     deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
     applyOccupancyCut = False,
     applySumPtCut = True,
+    customOuterCone = PFRecoTauPFJetInputs.isolationConeSize
 )
 hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.maximumSumPtCut=hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
@@ -153,7 +162,7 @@ hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolation
 hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
     ApplyDiscriminationByECALIsolation = True,
-    deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
+    deltaBetaFactor = "%0.4f"%(ak5dBetaCorrection),
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 2.0,
@@ -182,7 +191,7 @@ hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr = hpsPFTauDiscriminationByL
 hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
     ApplyDiscriminationByECALIsolation = True,
-    deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
+    deltaBetaFactor = "%0.4f"%(ak5dBetaCorrection),
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 1.0,
@@ -194,7 +203,7 @@ hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr.qualityCuts.isolation
 hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
     ApplyDiscriminationByECALIsolation = True,
-    deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
+    deltaBetaFactor = "%0.4f"%(ak5dBetaCorrection),
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 0.8,
@@ -587,7 +596,7 @@ hpsPFTauMVA3IsolationChargedIsoPtSum = hpsPFTauDiscriminationByLooseCombinedIsol
     applyDeltaBetaCorrection = cms.bool(False),
     storeRawSumPt = cms.bool(True),
     storeRawPUsumPt = cms.bool(False),
-    customOuterCone = cms.double(0.5),
+    customOuterCone = PFRecoTauPFJetInputs.isolationConeSize,
     isoConeSizeForDeltaBeta = cms.double(0.8),
     verbosity = cms.int32(0)
 )
