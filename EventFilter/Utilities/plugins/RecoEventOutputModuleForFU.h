@@ -109,21 +109,22 @@ namespace evf {
     outJsonDef_.addLegendItem("Filelist","string","cat");
     std::stringstream ss;
     ss << edm::Service<evf::EvFDaqDirector>()->fuBaseDir() << "/" << "output_" << getpid() << ".jsd";
-    std::string outJsonName = ss.str();
+    std::string outJsonDefName = ss.str();
 
     edm::Service<evf::EvFDaqDirector>()->lockInitLock();
     struct stat   fstat;
-    if (stat (outJsonName.c_str(), &fstat) != 0) { //file does not exist
-      std::cout << " writing output definition file " << outJsonName << std::endl;
+    if (stat (outJsonDefName.c_str(), &fstat) != 0) { //file does not exist
+      std::cout << " writing output definition file " << outJsonDefName << std::endl;
       std::string content;
       JSONSerializer::serialize(&outJsonDef_,content);
-      FileIO::writeStringToFile(outJsonName, content);
+      FileIO::writeStringToFile(outJsonDefName, content);
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
 
     processCheck_="good";
  
     jsonMonitor_.reset(new FastMonitor(&outJsonDef_,true));
+    jsonMonitor_->setDefPath(outJsonDefName);
     jsonMonitor_->registerGlobalMonitorable(&processed_,false);
     jsonMonitor_->registerGlobalMonitorable(&accepted_,false);
     jsonMonitor_->registerGlobalMonitorable(&processCheck_,false);

@@ -33,8 +33,8 @@ FastMonitor::FastMonitor(std::string const& defPath, bool strictChecking, bool u
 }
 
 
-FastMonitor::FastMonitor(DataPointDefinition * dp, bool strictChecking, bool useSource, bool useDefinition) :
-	strictChecking_(strictChecking),useSource_(useSource),useDefinition_(useDefinition),nStreams_(1),dpd_(dp)
+FastMonitor::FastMonitor(DataPointDefinition * dpd, bool strictChecking, bool useSource, bool useDefinition) :
+	strictChecking_(strictChecking),useSource_(useSource),useDefinition_(useDefinition),nStreams_(1),dpd_(dpd)
 {
 	//get host and PID info
 	if (useSource)
