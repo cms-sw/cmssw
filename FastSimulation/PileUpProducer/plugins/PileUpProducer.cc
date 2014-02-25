@@ -1,6 +1,8 @@
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -24,7 +26,7 @@
 #include <sys/stat.h>
 #include <cmath>
 
-PileUpProducer::PileUpProducer(edm::ParameterSet const & p) : hprob(0)
+PileUpProducer::PileUpProducer(edm::ParameterSet const & p) : hprob(0), currentValuesWereSet(false)
 {    
 
   // This producer produces an object PileupMixingContent, needed by PileupSummaryInfo
@@ -138,14 +140,11 @@ PileUpProducer::~PileUpProducer() {
 
 void PileUpProducer::beginRun(edm::Run const&, edm::EventSetup const&)
 {
-  
-  gROOT->cd();
-  
   std::string fullPath;
   
   // Read the information from a previous run (to keep reproducibility)
-  bool input = this->read(inputFile);
-  if ( input ) 
+  currentValuesWereSet = this->read(inputFile);
+  if ( currentValuesWereSet )
     std::cout << "***WARNING*** You are reading pile-up information from the file "
 	      << inputFile << " created in an earlier run."
 	      << std::endl;
@@ -181,37 +180,36 @@ void PileUpProducer::beginRun(edm::Run const&, edm::EventSetup const&)
     theBranches[file]->SetAddress(&thePUEvents[file]);
     //
     theNumberOfEntries[file] = theTrees[file]->GetEntries();
-    // RANDOM_NUMBER_ERROR
-    // Random numbers should only be generated in the beginLuminosityBlock method
-    // or event methods of a module
-    RandomEngineAndDistribution random;
-    // Add some randomness (if there was no input file)
-    if ( !input ) 
-      theCurrentEntry[file] 
-	= (unsigned) (theNumberOfEntries[file] * random.flatShoot());
 
-    theTrees[file]->GetEntry(theCurrentEntry[file]);
-    unsigned NMinBias = thePUEvents[file]->nMinBias();
-    theNumberOfMinBiasEvts[file] = NMinBias;
-    // Add some randomness (if there was no input file)
-    if ( !input )
-	theCurrentMinBiasEvt[file] = 
-	  (unsigned) (theNumberOfMinBiasEvts[file] * random.flatShoot());
-    
-    /*
-    std::cout << "File " << theFileNames[file]
-	      << " is opened with " << theNumberOfEntries[file] 
-	      << " entries and will be read from Entry/Event "
-	      << theCurrentEntry[file] << "/" << theCurrentMinBiasEvt[file]
-	      << std::endl;
-    */
+    if ( currentValuesWereSet ) {
+      theTrees[file]->GetEntry(theCurrentEntry[file]);
+      unsigned NMinBias = thePUEvents[file]->nMinBias();
+      theNumberOfMinBiasEvts[file] = NMinBias;
+    }
   }
-  
-  // Return Loot in the same state as it was when entering. 
   gROOT->cd();
-  
 }
- 
+
+void PileUpProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
+  if ( !currentValuesWereSet ) {
+    currentValuesWereSet = true;
+
+    RandomEngineAndDistribution random(lumi.index());
+
+    for ( unsigned file=0; file < theNumberOfFiles; ++file ) {
+      theCurrentEntry[file] =
+        (unsigned) (theNumberOfEntries[file] * random.flatShoot());
+
+      theTrees[file]->GetEntry(theCurrentEntry[file]);
+      unsigned NMinBias = thePUEvents[file]->nMinBias();
+      theNumberOfMinBiasEvts[file] = NMinBias;
+
+      theCurrentMinBiasEvt[file] =
+        (unsigned) (theNumberOfMinBiasEvts[file] * random.flatShoot());
+    }
+  }
+}
+
 void PileUpProducer::endRun(edm::Run const&, edm::EventSetup const&)
 { 
   // Close all local files
@@ -226,10 +224,6 @@ void PileUpProducer::endRun(edm::Run const&, edm::EventSetup const&)
   
   // Close the output file
   myOutputFile.close();
-  
-  // And return Loot in the same state as it was when entering. 
-  gROOT->cd();
-  
 }
 
 void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
@@ -383,7 +377,11 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 
     }
     // End of particle loop
-    
+
+    // ERROR The way this loops through the pileup events breaks
+    // replay. Which events are retrieved for pileup depends on
+    // which previous events were processed.
+
     // Increment for next time
     ++theCurrentMinBiasEvt[file];
     
