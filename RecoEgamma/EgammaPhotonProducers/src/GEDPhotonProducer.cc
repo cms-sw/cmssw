@@ -130,7 +130,7 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
 
   thePhotonEnergyCorrector_ = 
-    new PhotonEnergyCorrector(conf_);
+    new PhotonEnergyCorrector(conf_, consumesCollector());
   if( config.existsAs<edm::ParameterSet>("regressionConfig") ) {
     const edm::ParameterSet regr_conf = 
       config.getParameterSet("regressionConfig");
