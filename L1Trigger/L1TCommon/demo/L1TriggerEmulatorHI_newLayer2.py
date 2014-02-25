@@ -37,7 +37,7 @@ process.output = cms.OutputModule(
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = cms.untracked.vstring('keep *'),
-    fileName = cms.untracked.string('demo_output_HI.root'),
+    fileName = cms.untracked.string('L1Emulator_HI_newLayer2.root'),
     dataset = cms.untracked.PSet(
     filterName = cms.untracked.string(''),
     dataTier = cms.untracked.string('')
@@ -49,8 +49,8 @@ process.options = cms.untracked.PSet()
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 
-process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
-process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
+#process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
+#process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 # process.rctDigis = cms.EDProducer("L1RCTProducer",
 #     hcalDigis = cms.VInputTag(cms.InputTag("hcalTriggerPrimitiveDigis")),
@@ -72,7 +72,7 @@ process.RCTConverter = cms.EDProducer(
     postSamples = cms.uint32(1))
 
 
-process.caloTowers = cms.EDProducer("l1t::L1TCaloTowerProducer")
+#process.caloTowers = cms.EDProducer("l1t::L1TCaloTowerProducer")
 process.caloStage1 = cms.EDProducer(
     "l1t::L1TCaloStage1Producer",
     CaloRegions = cms.InputTag("RCTConverter"),
