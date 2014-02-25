@@ -4,9 +4,9 @@
 #  description: BASH script for the installation of the BlackHat package,
 #               can be used standalone or called from other scripts
 #
-#  author:      Markus Merschmeyer, RWTH Aachen University
-#  date:        2013/05/23
-#  version:     1.0
+#  author:      Markus Merschmeyer, Sebastian Thüer, RWTH Aachen University
+#  date:        2014/02/17
+#  version:     1.1
 #
 
 print_help() {
@@ -15,6 +15,8 @@ print_help() {
     echo "options: -v  version    define BlackHat version ( "${BHVER}" )" && \
     echo "         -d  path       define BlackHat installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
+    echo "         -p  path       apply official BLACKHAT patches ( "${PATCHES}" )" && \
+    echo "                         from this path ( "${PDIR}" )" && \
     echo "         -Q  path       qd installation directory ( "${QDDIR}" )" && \
     echo "         -W  location   (web)location of BlackHat tarball ( "${BHWEBLOCATION}" )" && \
     echo "         -S  filename   file name of BlackHat tarball ( "${BHFILE}" )" && \
@@ -50,10 +52,13 @@ FLGDEBUG="FALSE"           # debug flag for compilation
 FLGXMLFL="FALSE"           # create XML tool definition file for SCRAM?
 FLGKEEPT="FALSE"           # keep the source code tree?
 FLGMCORE="FALSE"           # use multiple cores for compilation
+PATCHES="FALSE"            # apply SHERPA patches
+PDIR="./"                  # path containing patches
+
 
 
 # get & evaluate options
-while getopts :v:d:W:S:C:Q:DXZKh OPT
+while getopts :v:d:p:W:S:C:Q:DXZKh OPT
 do
   case $OPT in
   v) BHVER=$OPTARG ;;
@@ -66,6 +71,7 @@ do
   X) FLGXMLFL=TRUE ;;
   Z) FLGMCORE=TRUE ;;
   K) FLGKEEPT=TRUE ;;
+  p) PATCHES=TRUE && PDIR=$OPTARG ;;  
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -86,7 +92,7 @@ done
 # set up file names
 MSI=$HDIR                            # main installation directory
 MSI=$SCRIPTPATH
-
+bhpatchfile="blackhat_patches_"${BHVER}".tgz" # official patches for current BLACKHAT version
 
 # set BlackHat download location
 if [ "$BHWEBLOCATION" = "" ]; then
@@ -109,6 +115,7 @@ fi
 export BHVER=${BHVER}
 export QDVER=${QDVER}
 # always use absolute path name...
+cd ${PDIR}; PDIR=`pwd`; cd ${HDIR}
 cd ${IDIR}; IDIR=`pwd`
 
 echo " BlackHat installation: "
@@ -122,12 +129,13 @@ echo "  -> debugging mode: '"${FLGDEBUG}"'"
 echo "  -> CMSSW override: '"${FLGXMLFL}"'"
 echo "  -> keep sources:   '"${FLGKEEPT}"'"
 echo "  -> use multiple CPU cores: '"${FLGMCORE}"'"
-
+echo "  -> BlackHat patches: '"${PATCHES}"' in '"${PDIR}"'"
 
 
 # set path to local BlackHat installation
 export BHDIR=${IDIR}"/blackhat-"${BHVER}
 export BHIDIR=${IDIR}"/BH_"${BHVER}
+
 
 
 # add compiler & linker flags
@@ -186,6 +194,28 @@ if [ ! -d ${BHIDIR} ]; then
 #  if [ ! -e configure ]; then
 #    ./bootstrap
 #  fi
+
+### CHANGES 
+# apply the necessary patches
+  
+  if [ "$PATCHES" = "TRUE" ]; then
+	echo " <I> applying patches to BLACKHAT..."
+	if [ -e ${PDIR}/${bhpatchfile} ]; then
+		pfilelist=`tar -xzvf ${PDIR}/${bhpatchfile}`
+		for pfile in `echo ${pfilelist}`; do
+			echo "  -> applying patch: "${pfile}
+			patch -p1 < ${pfile}
+			echo " <I> (patches) removing file "${pfile}
+			rm ${pfile}
+		done
+	else
+		echo " <W> file "${PDIR}/${bhpatchfile}" does not exist,"
+		echo " <W>  cannot apply Sherpa patches"
+	fi
+  fi
+#### CHANGES
+
+
 
   echo " -> configuring BlackHat with options "${COPTS} && \
   ./configure --prefix=${BHIDIR} ${BHCFLAGS} ${COPTS} && \

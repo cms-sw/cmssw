@@ -15,13 +15,13 @@
 #               SHERPA patches/fixes [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen University
-#  date:        2013/10/14
-#  version:     4.2
+#  date:        2014/02/20
+#  version:     4.3
 #
 
 print_help() {
     echo "" && \
-    echo "install_sherpa version 4.1" && echo && \
+    echo "install_sherpa version 4.3" && echo && \
     echo "options: -v  version    define SHERPA version ( "${SHERPAVER}" )" && \
     echo "         -d  path       define (SHERPA) installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
@@ -679,6 +679,8 @@ if [ ! "$QDDIR" = "" ] && [ -e ${QDDIR} ]; then
   if [ "${FLGXMLFL}" = "TRUE" ]; then OPTBH=${OPTBH}" -X"; fi
   if [ "${FLGDEBUG}" = "TRUE" ]; then OPTBH=${OPTBH}" -D"; fi
   if [ "${FLGKEEPT}" = "TRUE" ]; then OPTBH=${OPTBH}" -K"; fi
+  if [ "${PATCHES}" = "TRUE" ]; then OPTBH=${OPTBH}" -p ${PDIR}"; fi  
+  
   if [ ${LVLCLEAN} -gt 0 ]; then OPTBH=${OPTBH}" -C "${LVLCLEAN}; fi
   if [ ! "$BHDIR" = "" ]; then
     echo " -> BlackHat directory is: "${BHDIR}
@@ -1044,10 +1046,17 @@ if [ "$BH" = "TRUE" ]; then
   echo " <I> BlackHat version "${BHVER}" installed in "${BHDIR}
   echo ""
 fi
+if [ "$MPI" = "TRUE" ]; then
+	echo " <I> MPI installed in "${MPIDIR}
+	echo " <I> Please add "${MPI_LIBDIR}" to the LD_LIBRARY_PATH variable:"
+	echo " <I> export LD_LIBRARY_PATH=${MPI_LIBDIR}:\$LD_LIBRARY_PATH"
+	echo " <I> Please add "${MPI_BINDIR}" to the PATH variable:"
+	echo " <I> export PATH=${MPI_BINDIR}:\$PATH"
+fi
 echo " <I> SHERPA version "${SHERPAVER}" installed in "${SHERPADIR}
-echo " <I> Please add "${MPI_LIBDIR}" to the LD_LIBRARY_PATH variable:"
-echo " <I> export LD_LIBRARY_PATH=${MPI_LIBDIR}:\$LD_LIBRARY_PATH"
-echo " <I> Please add "${MPI_BINDIR}" to the PATH variable:"
-echo " <I> export PATH=${MPI_BINDIR}:\$PATH"
+echo " <I>     export SHERPA_INCLUDE_PATH=${SHERPADIR}/include/SHERPA-MC/"
+echo " <I>     export SHERPA_SHARE_PATH=${SHERPADIR}/share/SHERPA-MC/"
+
+
 
 
