@@ -22,12 +22,6 @@ class RandomEngineAndDistribution {
   RandomEngineAndDistribution(edm::StreamID const&);
   RandomEngineAndDistribution(edm::LuminosityBlockIndex const&);
 
-  // This is strongly deprecated, it exists for backward compatibility
-  // for cases where the above two functions cannot be used easily.
-  // It is the intent fix all those cases and delete this function
-  // as soon as possible.
-  RandomEngineAndDistribution();
-
   ~RandomEngineAndDistribution();
 
   CLHEP::HepRandomEngine& theEngine() const { return *engine_; }
