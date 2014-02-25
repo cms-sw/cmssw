@@ -7,6 +7,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
+process.load('Configuration.Geometry.GeometryIdeal_cff')
 
 # Select the Message Logger output you would like to see:
 
@@ -83,8 +84,6 @@ process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
     InputCollection = cms.InputTag("caloStage1")
     )
 
-
-
 process.digiStep = cms.Sequence(
     process.gctDigis
     *process.RCTConverter
@@ -93,9 +92,12 @@ process.digiStep = cms.Sequence(
     *process.GCTConverter
 )
 
+process.load('L1Trigger.Configuration.SimL1Emulator_cff')
+process.simGtDigis.GctInputTag = 'GCTConverter'
 
 process.p1 = cms.Path(
     process.digiStep
+    *process.SimL1Emulator
 #    * process.debug
 #    *process.dumpED
 #    *process.dumpES
