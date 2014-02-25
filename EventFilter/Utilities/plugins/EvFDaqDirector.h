@@ -82,6 +82,8 @@ namespace evf{
       bool getTestModeNoBuilderUnit() { return testModeNoBuilderUnit_;}
       FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
       void unlockAndCloseMergeStream();
+      void lockInitLock();
+      void unlockInitLock();
       void setFMS(evf::FastMonitoringService* fms) {fms_=fms;}
       void updateFileIndex(int const& fileIndex) {currentFileIndex_=fileIndex;}
       std::vector<int>* getStreamFileTracker() {return &streamFileTracker_;}
@@ -149,6 +151,8 @@ namespace evf{
       evf::FastMonitoringService * fms_ = nullptr;
       std::vector<int> streamFileTracker_;
       int currentFileIndex_ = -1;
+
+      pthread_mutex_t init_lock_ = PTHREAD_MUTEX_INITIALIZER;
 
   };
 }

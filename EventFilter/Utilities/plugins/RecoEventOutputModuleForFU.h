@@ -13,6 +13,7 @@
 #include "EventFilter/Utilities/interface/JsonMonitorable.h"
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/plugins/FastMonitoringService.h"
 
 namespace evf {
@@ -107,9 +108,18 @@ namespace evf {
     outJsonDef_.addLegendItem("ProcessCheck","string","same");
     outJsonDef_.addLegendItem("Filelist","string","cat");
     std::stringstream ss;
-    ss <<  baseDir_ << "/" << "output_" << getpid() << ".jsd";
+    ss << edm::Service<evf::EvFDaqDirector>()->fuBaseDir() << "/" << "output_" << getpid() << ".jsd";
     std::string outJsonName = ss.str();
-    JSONSerializer::serialize(&outJsonDef_,outJsonName);
+
+    edm::Service<evf::EvFDaqDirector>()->lockInitLock();
+    struct stat   fstat;
+    if (stat (outJsonName.c_str(), &fstat) != 0) { //file does not exist
+      std::cout << " writing output definition file " << outJsonName << std::endl;
+      std::string content;
+      JSONSerializer::serialize(&outJsonDef_,content);
+      FileIO::writeStringToFile(outJsonName, content);
+    }
+    edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
 
     processCheck_="good";
  

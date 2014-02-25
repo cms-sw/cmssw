@@ -185,6 +185,7 @@ namespace evf {
 	openFULockfileStream(fulockfile, false);
       }
 
+    pthread_mutex_init(&init_lock_,NULL);
 
   }
 
@@ -653,6 +654,14 @@ namespace evf {
     fflush(data_rw_stream);
     fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_fulk);
     fclose(data_rw_stream);
+  }
+
+  void EvFDaqDirector::lockInitLock() {
+    pthread_mutex_lock(&init_lock_);
+  }
+
+  void EvFDaqDirector::unlockInitLock() {
+    pthread_mutex_unlock(&init_lock_);
   }
 
   std::string EvFDaqDirector::inputFileNameStem(const unsigned int ls, const unsigned int index) const {
