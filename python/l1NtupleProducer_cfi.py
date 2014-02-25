@@ -52,6 +52,9 @@ l1NtupleProducer = cms.EDAnalyzer("L1NtupleProducer",
     puMCFile             = cms.untracked.string(""),
     puDataFile           = cms.untracked.string(""),
     puMCHist             = cms.untracked.string(""),
-    puDataHist           = cms.untracked.string("")                         
+    puDataHist           = cms.untracked.string(""),
+
+    useAvgVtx            = cms.untracked.bool(True),
+    maxAllowedWeight     = cms.untracked.double(-1)                         
 )
 

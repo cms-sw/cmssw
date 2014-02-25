@@ -24,6 +24,7 @@
 #include <TCanvas.h>
 
 #include "L1AnalysisEventDataFormat.h"
+#include "L1AnalysisSimulationDataFormat.h"
 #include "L1AnalysisGCTDataFormat.h"
 #include "L1AnalysisGTDataFormat.h"
 #include "L1AnalysisGMTDataFormat.h"
@@ -58,6 +59,7 @@ public:
   bool dol1menu;
 
   L1Analysis::L1AnalysisEventDataFormat        *event_;
+  L1Analysis::L1AnalysisSimulationDataFormat   *simulation_;
   L1Analysis::L1AnalysisGCTDataFormat          *gct_;
   L1Analysis::L1AnalysisGMTDataFormat          *gmt_;
   L1Analysis::L1AnalysisGTDataFormat           *gt_;
@@ -316,7 +318,10 @@ void L1Ntuple::Init()
    std::cout << "Estimate the number of entries ..."<<std::endl;
    nentries_=fChain->GetEntries();
    std::cout << nentries_ << std::endl;
-   event_ = new L1Analysis::L1AnalysisEventDataFormat();
+
+   event_      = new L1Analysis::L1AnalysisEventDataFormat();
+   simulation_ = new L1Analysis::L1AnalysisSimulationDataFormat();
+
    gct_   = new L1Analysis::L1AnalysisGCTDataFormat();
    gmt_   = new L1Analysis::L1AnalysisGMTDataFormat();
    gt_    = new L1Analysis::L1AnalysisGTDataFormat();
@@ -324,9 +329,14 @@ void L1Ntuple::Init()
    dttf_  = new L1Analysis::L1AnalysisDTTFDataFormat();
    csctf_ = new L1Analysis::L1AnalysisCSCTFDataFormat();
 
-   std::cout<<"Setting branch addresses for L1Tree...  "<<std::flush;
+   std::cout<<"Setting branch addresses for L1Tree...  "<<std::endl;
 
    fChain->SetBranchAddress("Event", &event_ );
+   if (fChain->GetBranch("Simulation"))
+     fChain->SetBranchAddress("Simulation", &simulation_ );
+   else
+     std::cout<<"Simulation Branch not added..."<<std::endl;
+
    fChain->SetBranchAddress("GCT",   &gct_   );
    fChain->SetBranchAddress("GMT",   &gmt_   );
    fChain->SetBranchAddress("GT",    &gt_    );

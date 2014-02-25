@@ -21,6 +21,7 @@ l1NtupleProducer = cms.EDAnalyzer("L1NtupleProducer",
     csctfLCTSource       = cms.InputTag("none"),
     csctfStatusSource    = cms.InputTag("none"),
     csctfDTStubsSource   = cms.InputTag("none"),	
+
     maxRPC      	 = cms.uint32(12),
     maxDTBX     	 = cms.uint32(12),
     maxCSC      	 = cms.uint32(12),
@@ -34,6 +35,14 @@ l1NtupleProducer = cms.EDAnalyzer("L1NtupleProducer",
     maxCSCTFTR           = cms.uint32(50),
     maxCSCTFLCTSTR       = cms.uint32(4),
     maxCSCTFLCTS         = cms.uint32(360),
-    maxCSCTFSPS          = cms.uint32(12)      
+    maxCSCTFSPS          = cms.uint32(12),
+
+    puMCFile             = cms.untracked.string(""),
+    puDataFile           = cms.untracked.string(""),
+    puMCHist             = cms.untracked.string(""),
+    puDataHist           = cms.untracked.string(""),
+
+    useAvgVtx            = cms.untracked.bool(True),
+    maxAllowedWeight     = cms.untracked.double(-1)
 )
 

@@ -4,14 +4,19 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
+#include <iostream>
 #include <sys/stat.h>
 
 L1Analysis::L1AnalysisEvent::L1AnalysisEvent(std::string puMCFile, 
 					     std::string puMCHist, 
 					     std::string puDataFile, 
-					     std::string puDataHist) :
+					     std::string puDataHist,
+					     bool useAvgVtx,
+					     double maxWeight) :
   fillHLT_(true),
   doPUWeights_(false),
+  useAvgVtx_(useAvgVtx),
+  maxAllowedWeight_(maxWeight),
   lumiWeights_()
 {
  
@@ -71,19 +76,22 @@ void L1Analysis::L1AnalysisEvent::Set(const edm::Event& e, const edm::InputTag& 
     if (puInfo.isValid()) {
       std::vector<PileupSummaryInfo>::const_iterator pvi;
       
-      float tnpv = -1;
+      float npv = -1;
       for(pvi = puInfo->begin(); pvi != puInfo->end(); ++pvi) {
 	
 	int bx = pvi->getBunchCrossing();
 	
 	if(bx == 0) { 
-	  tnpv = pvi->getTrueNumInteractions();
+	  npv = useAvgVtx_ ? pvi->getTrueNumInteractions() : 
+	                     pvi->getPU_NumInteractions();
 	  continue;
 	}
 	
       }
       
-      weight = lumiWeights_.weight( tnpv );
+      weight = lumiWeights_.weight( npv );
+      if (maxAllowedWeight_ > 0. && weight > maxAllowedWeight_) 
+	weight = maxAllowedWeight_;
       
     }
 

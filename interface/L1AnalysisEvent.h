@@ -26,7 +26,9 @@ namespace L1Analysis
     L1AnalysisEvent(std::string puMCFile, 
 		    std::string puMCHist, 
 		    std::string puDataFile, 
-		    std::string puDataHist);
+		    std::string puDataHist,
+		    bool useAvgVtx,
+		    double maxWeight);
     ~L1AnalysisEvent();
     
     //void Print(std::ostream &os = std::cout) const;
@@ -39,6 +41,9 @@ namespace L1Analysis
   private :
     bool fillHLT_;
     bool doPUWeights_;
+
+    bool   useAvgVtx_;
+    double maxAllowedWeight_;
 
     edm::LumiReWeighting lumiWeights_;
   

@@ -132,7 +132,13 @@ L1NtupleProducer::L1NtupleProducer(const edm::ParameterSet& ps) : csctfPtLUTs_(N
   std::string puMCHist   = ps.getUntrackedParameter<std::string>("puMCHist", "pileup");
   std::string puDataFile = ps.getUntrackedParameter<std::string>("puDataFile", "");
   std::string puDataHist = ps.getUntrackedParameter<std::string>("puDataHist", "pileup");
-  pL1evt                = new L1Analysis::L1AnalysisEvent(puMCFile, puMCHist, puDataFile, puDataHist);
+
+  bool useAvgVtx          = ps.getUntrackedParameter<bool>("useAvgVtx", true);
+  double maxAllowedWeight = ps.getUntrackedParameter<double>("maxAllowedWeight", -1);
+
+  pL1evt                = new L1Analysis::L1AnalysisEvent(puMCFile, puMCHist, 
+							  puDataFile, puDataHist,
+							  useAvgVtx, maxAllowedWeight);
   pL1gmt                = new L1Analysis::L1AnalysisGMT();
   pL1rct                = new L1Analysis::L1AnalysisRCT(maxRCTREG_);
   pL1gt                 = new L1Analysis::L1AnalysisGT();
