@@ -19,7 +19,6 @@ void GEMSimTrackMatch::bookHisto()
    buildLUT();
    const float PI=TMath::Pi();
    dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
-
    track_eta        = dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
    track_eta_l1     = dbe_->book1D("track_eta_l1","track_eta_l1",140,1.5,2.2);
    track_eta_l2     = dbe_->book1D("track_eta_l2","track_eta_l2",140,1.5,2.2);
@@ -64,8 +63,6 @@ void GEMSimTrackMatch::bookHisto()
 
 GEMSimTrackMatch::~GEMSimTrackMatch() {
 }
-
-
 
 void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {

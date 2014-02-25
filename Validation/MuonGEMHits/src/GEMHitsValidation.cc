@@ -44,7 +44,6 @@ void GEMHitsValidation::bookHisto() {
 
 
   for( int i=0 ; i <3 ; i++) {
- 
     gem_sh_zr_rm1[i] =  dbe_->book2D("gem_sh_zr_rm1"+has_muon[i], "SimHit occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,110,130,240);
     gem_sh_zr_rp1[i] =  dbe_->book2D("gem_sh_zr_rp1"+has_muon[i], "SimHit occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200, 564, 573,110,130,240);
  
@@ -110,7 +109,6 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     //Int_t chamber = id.chamber();
     Int_t roll = id.roll();
 
-
     const LocalPoint p0(0., 0., 0.);
     const GlobalPoint Gp0(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(p0));
 
@@ -152,14 +150,12 @@ void GEMHitsValidation::analyze(const edm::Event& e,
 	if ( layer == 1 ) {
           gem_sh_tof_rm1_l1[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ 0 + 0);    // roll + layer + region
-
           gem_sh_tof_rm1_l1[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ 0 + 0);    // roll + layer + region
         }
         else if ( layer ==2 ) {
           gem_sh_tof_rm1_l2[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ npart + 0);
-
           gem_sh_tof_rm1_l2[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ npart + 0);
         }
@@ -173,14 +169,12 @@ void GEMHitsValidation::analyze(const edm::Event& e,
         if ( layer == 1 ) {
           gem_sh_tof_rp1_l1[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ 0 + 2*npart );
-
           gem_sh_tof_rp1_l1[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ 0 + 2*npart );
         }
         else if ( layer == 2 ) {
           gem_sh_tof_rp1_l2[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ npart + 2*npart );
-
           gem_sh_tof_rp1_l2[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ npart + 2*npart );
         }

@@ -6,7 +6,6 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
-
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("DQMServices.Core.DQM_cfg")
 ## Standard sequence
@@ -36,19 +35,14 @@ from DQMServices.Examples.test.ConverterTester_cfi import *
 
 DQMStore = cms.Service("DQMStore")
 
-
 process.MEtoEDMConverter.Verbosity= cms.untracked.int32(1)
 process.MEtoEDMConverter.Frequency= cms.untracked.int32(1)
 process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)
 
-
-
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
-#        'file:/pnfs/user/geonmo/CMSSW_6_2_0_SLHC1/src/Validation/MuonGEMDigis/data/out_digi_2.root'
-#         'file:/pnfs/user/unclok/digi/4954.uosaf0008.sscc.uos.ac.kr/out_sim.root'   
-         'file:/pnfs/user/unclok/gemsim2/4919.uosaf0008.sscc.uos.ac.kr/out_sim.root'   
+         'file:out_sim.root'   
  )
 )
 
@@ -61,8 +55,5 @@ from Validation.MuonGEMHits.simTrackMatching_cfi import SimTrackMatching
 process.load('Validation.MuonGEMHits.MuonGEMHits_cfi') 
 process.gemHitsValidation.outputFile= cms.string('valid.root')
 process.gemHitsValidation.simTrackMatching = SimTrackMatching
-       	
-
-
 process.p = cms.Path(process.gemHitsValidation*process.MEtoEDMConverter)
 process.outpath = cms.EndPath(process.o1)

@@ -9,12 +9,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
-#include <TMath.h>
+#include "Validation/MuonGEMDigis/interface/GEMBaseValidation.h"
 
 
 class GEMCSCCoPadDigiValidation : public GEMBaseValidation
@@ -25,8 +21,6 @@ public:
   ~GEMCSCCoPadDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
   void bookHisto();
-
-
  private:
 
   MonitorElement* theCSCCoPad_xy_rm1;

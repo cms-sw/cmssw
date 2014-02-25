@@ -1,6 +1,5 @@
 #include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
 
-
 GEMCSCCoPadDigiValidation::GEMCSCCoPadDigiValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag)
 :  GEMBaseValidation(dbe, inputTag) { }
@@ -56,8 +55,6 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
     const GEMEtaPartition * roll = theGEMGeometry->etaPartition(id);
 
     Short_t region = (Short_t) id.region();
-//    Short_t station = (Short_t) id.station();
-//    Short_t id_roll = (Short_t) id.roll();
 
     GEMCSCPadDigiCollection::const_iterator digiItr;
     //loop over digis of given roll
@@ -70,7 +67,6 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
 
       GlobalPoint gp = surface.toGlobal(lp);
       Float_t g_r = (Float_t) gp.perp();
-//      Float_t g_eta = (Float_t) gp.eta();
       Float_t g_phi = (Float_t) gp.phi();
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();

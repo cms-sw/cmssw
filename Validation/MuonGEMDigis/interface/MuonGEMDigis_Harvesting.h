@@ -11,8 +11,6 @@
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-
-
 class MuonGEMDigis_Harvesting : public edm::EDAnalyzer
 {
 public:

@@ -101,15 +101,8 @@ MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
 
 MuonGEMHits::~MuonGEMHits()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-
   delete theGEMHitsValidation;
   delete theGEMSimTrackMatch;
-
-
 }
 
 
@@ -127,12 +120,6 @@ MuonGEMHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   theGEMHitsValidation->analyze(iEvent,iSetup );  
   theGEMSimTrackMatch->analyze(iEvent,iSetup );  
-
- 
-  
-
-
-
 }
 
 
@@ -141,8 +128,6 @@ MuonGEMHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 MuonGEMHits::beginJob()
 {
-
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -157,7 +142,6 @@ MuonGEMHits::endJob()
 void 
 MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
- 
   try { 
     iSetup.get<MuonGeometryRecord>().get(gem_geom);
     gem_geometry_ = &*gem_geom;
@@ -167,19 +151,12 @@ MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     hasGEMGeometry_ = false;
     LogDebug("MuonGEMHits") << "+++ Info: GEM geometry is unavailable. +++\n";
   }
-
-
   if( hasGEMGeometry_ == true) {
     theGEMHitsValidation->setGeometry(gem_geometry_);
     theGEMHitsValidation->bookHisto();
     theGEMSimTrackMatch->setGeometry(gem_geometry_);
     theGEMSimTrackMatch->bookHisto();
   }
-  
-
-
-
-
 }
 
 

@@ -15,9 +15,7 @@
 class MuonGEMHits : public edm::EDAnalyzer
 {
 public:
-  /// constructor
   explicit MuonGEMHits(const edm::ParameterSet&);
-  /// destructor
   ~MuonGEMHits();
 
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
@@ -48,7 +46,6 @@ private:
 
   const GEMGeometry* gem_geometry_;
   bool hasGEMGeometry_;
-
 
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
   std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
