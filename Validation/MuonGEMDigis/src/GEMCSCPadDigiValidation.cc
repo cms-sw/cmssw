@@ -39,10 +39,6 @@ void GEMCSCPadDigiValidation::bookHisto() {
       }
     }
   }
-
-
-
-
 }
 
 
@@ -73,7 +69,6 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
     Short_t region = (Short_t) id.region();
     Short_t layer = (Short_t) id.layer();
     Short_t station = (Short_t) id.station();
-
     GEMCSCPadDigiCollection::const_iterator digiItr;
     //loop over digis of given roll
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
@@ -115,7 +110,6 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
       else {
         edm::LogInfo("CSCPadDIGIValidation")<<"region : "<<region<<std::endl;
       }
-      
    }
   }
 }

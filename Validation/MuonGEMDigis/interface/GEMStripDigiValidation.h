@@ -17,8 +17,6 @@
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include <TMath.h>
 
-
-
 class GEMStripDigiValidation : public GEMBaseValidation
 {
 public:
@@ -27,18 +25,12 @@ public:
   ~GEMStripDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
   void bookHisto() ; 
-
-
  private:
 
   MonitorElement* theStrip_xy[2][2];
-
   MonitorElement* theStrip_phistrip[2][3][2];
-
   MonitorElement* theStrip[2][3][2];
-
   MonitorElement* theStrip_bx[2][2];
-
   MonitorElement* theStrip_zr_rm1;
   MonitorElement* theStrip_zr_rp1;
 

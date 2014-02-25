@@ -2,16 +2,12 @@
 #define GEMDigiTrackMatch_H
 
 #include "Validation/MuonGEMHits/interface/GEMTrackMatch.h"
-
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-
-
-
 
 class GEMDigiTrackMatch : public GEMTrackMatch 
 {

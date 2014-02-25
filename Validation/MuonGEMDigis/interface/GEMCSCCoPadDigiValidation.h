@@ -25,8 +25,6 @@ public:
   ~GEMCSCCoPadDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
   void bookHisto();
-
-
  private:
 
   MonitorElement* theCSCCoPad_xy_rm1;

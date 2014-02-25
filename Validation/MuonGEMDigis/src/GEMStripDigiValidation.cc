@@ -44,7 +44,6 @@ void GEMStripDigiValidation::bookHisto() {
       }
     }
   }
-
 }
 
 

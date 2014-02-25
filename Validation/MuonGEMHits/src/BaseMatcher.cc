@@ -1,5 +1,4 @@
 #include "Validation/MuonGEMHits/interface/BaseMatcher.h"
-
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -10,7 +9,6 @@ BaseMatcher::BaseMatcher(const SimTrack& t, const SimVertex& v,
       const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es)
 : trk_(t), vtx_(v), conf_(ps), ev_(ev), es_(es), verbose_(0)
 {
-
   // Get the magnetic field
   es.get< IdealMagneticFieldRecord >().get(magfield_);
 
@@ -23,9 +21,6 @@ BaseMatcher::BaseMatcher(const SimTrack& t, const SimVertex& v,
 BaseMatcher::~BaseMatcher()
 {
 }
-
-
-
 
 GlobalPoint
 BaseMatcher::propagateToZ(GlobalPoint &inner_point, GlobalVector &inner_vec, float z) const

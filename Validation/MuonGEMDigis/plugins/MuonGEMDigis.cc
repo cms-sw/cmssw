@@ -87,40 +87,27 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
 {
   outputFile_ =  ps.getParameter<std::string>("outputFile");
 
-
   stripLabel_ = ps.getParameter<edm::InputTag>("stripLabel");
   cscPadLabel_ = ps.getParameter<edm::InputTag>("cscPadLabel");
   cscCopadLabel_ = ps.getParameter<edm::InputTag>("cscCopadLabel");
   simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
   simTrackMatching_ = ps.getParameterSet("simTrackMatching");
-   //now do what ever initialization is needed
   
   dbe_ = edm::Service<DQMStore>().operator->();
   theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, stripLabel_ );
   theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, cscPadLabel_ );
   theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, cscCopadLabel_ );
   theGEMDigiTrackMatch = new GEMDigiTrackMatch(dbe_, simInputLabel_ , simTrackMatching_ );
-
-  
-
-
 }
 
 
 
 MuonGEMDigis::~MuonGEMDigis()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-
   delete theGEMStripDigiValidation;
   delete theGEMCSCPadDigiValidation;
   delete theGEMCSCCoPadDigiValidation;
   delete theGEMDigiTrackMatch;
-
-
 }
 
 
@@ -140,8 +127,6 @@ MuonGEMDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   theGEMCSCPadDigiValidation->analyze(iEvent,iSetup );  
   theGEMCSCCoPadDigiValidation->analyze(iEvent,iSetup );  
   theGEMDigiTrackMatch->analyze(iEvent,iSetup) ;
-  
-
 }
 
 
@@ -182,9 +167,6 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 
   theGEMDigiTrackMatch->setGeometry(gem_geometry_);
   theGEMDigiTrackMatch->bookHisto();
-
-
-
 }
 
 
@@ -196,29 +178,6 @@ MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-MuonGEMDigis::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-MuonGEMDigis::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-
-
-
-
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 MuonGEMDigis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

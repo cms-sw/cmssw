@@ -28,7 +28,6 @@ class BaseMatcher
 {
 public:
   
-
   BaseMatcher(const SimTrack& t, const SimVertex& v,
       const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es);
 
@@ -70,7 +69,6 @@ private:
   const edm::EventSetup& es_;
 
   int verbose_;
-
 
   edm::ESHandle<MagneticField> magfield_;
   edm::ESHandle<Propagator> propagator_;

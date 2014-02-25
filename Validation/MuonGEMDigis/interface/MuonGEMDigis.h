@@ -7,7 +7,6 @@
 
 
 #include "DQMServices/Core/interface/DQMStore.h"
-
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
@@ -15,7 +14,6 @@
 #include "Validation/MuonGEMDigis/interface/GEMCSCPadDigiValidation.h"
 #include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
 #include "Validation/MuonGEMDigis/interface/GEMDigiTrackMatch.h"
-
 
 class MuonGEMDigis : public edm::EDAnalyzer
 {
@@ -45,7 +43,6 @@ private:
   GEMCSCPadDigiValidation* theGEMCSCPadDigiValidation;
   GEMCSCCoPadDigiValidation* theGEMCSCCoPadDigiValidation;
   GEMDigiTrackMatch* theGEMDigiTrackMatch;
-
     
   edm::InputTag stripLabel_;
   edm::InputTag cscPadLabel_;
@@ -67,12 +64,6 @@ private:
   edm::InputTag input_tag_gem_;
   edm::InputTag input_tag_gemcscpad_;
   edm::InputTag input_tag_gemcsccopad_;
-
-
-  //edm::ParameterSet cfg_;
-  //float minPt_;
-
-
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
   std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
 };
