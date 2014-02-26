@@ -19,10 +19,12 @@
 //
 
 // system include files
+#include <mutex>
 
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
@@ -97,11 +99,16 @@ namespace edm {
       virtual void doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);
 
+      virtual SharedResourcesAcquirer createAcquirer();
+
       void setModuleDescription(ModuleDescription const& md) {
         moduleDescription_ = md;
       }
       ModuleDescription moduleDescription_;
       std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
+      
+      SharedResourcesAcquirer resourcesAcquirer_;
+      std::mutex mutex_;
     };
   }
 }

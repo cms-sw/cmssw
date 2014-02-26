@@ -21,6 +21,9 @@ namespace edm {
   class ModuleCallingContext;
 
   namespace one {
+    namespace impl {
+      template class SharedResourcesUser<edm::one::OutputModuleBase>;
+    }
     namespace outputmodule {
       void RunWatcher::doBeginRun_(RunPrincipal const& rp, ModuleCallingContext const* mcc) {
         beginRun(rp, mcc);

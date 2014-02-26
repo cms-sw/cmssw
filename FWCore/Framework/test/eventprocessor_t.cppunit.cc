@@ -367,25 +367,25 @@ namespace {
         iAR.watchPostBeginJob(this, &Listener::postBeginJob);
         iAR.watchPostEndJob(this, &Listener::postEndJob);
 
-        iAR.watchPreProcessEvent(this, &Listener::preEventProcessing);
-        iAR.watchPostProcessEvent(this, &Listener::postEventProcessing);
+        iAR.watchPreEvent(this, &Listener::preEventProcessing);
+        iAR.watchPostEvent(this, &Listener::postEventProcessing);
 
-        iAR.watchPreModule(this, &Listener::preModule);
-        iAR.watchPostModule(this, &Listener::postModule);
+        iAR.watchPreModuleEvent(this, &Listener::preModule);
+        iAR.watchPostModuleEvent(this, &Listener::postModule);
       }
 
     void postBeginJob() {++postBeginJob_;}
     void postEndJob() {++postEndJob_;}
 
-    void preEventProcessing(edm::EventID const&, edm::Timestamp const&) {
+    void preEventProcessing(edm::StreamContext const&) {
       ++preEventProcessing_;}
-    void postEventProcessing(edm::Event const&, edm::EventSetup const&) {
+    void postEventProcessing(edm::StreamContext const&) {
       ++postEventProcessing_;}
 
-    void preModule(edm::ModuleDescription const&) {
+    void preModule(edm::StreamContext const&, edm::ModuleCallingContext const&) {
       ++preModule_;
     }
-    void postModule(edm::ModuleDescription const&) {
+    void postModule(edm::StreamContext const&, edm::ModuleCallingContext const&) {
       ++postModule_;
     }
 

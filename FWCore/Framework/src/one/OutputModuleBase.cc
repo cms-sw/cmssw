@@ -165,7 +165,12 @@ namespace edm {
     
     OutputModuleBase::~OutputModuleBase() { }
     
+    SharedResourcesAcquirer OutputModuleBase::createAcquirer() {
+      return SharedResourcesAcquirer{};
+    }
+    
     void OutputModuleBase::doBeginJob() {
+      resourcesAcquirer_ = createAcquirer();
       this->beginJob();
     }
     
@@ -182,15 +187,21 @@ namespace edm {
     OutputModuleBase::doEvent(EventPrincipal const& ep,
                               EventSetup const&,
                               ModuleCallingContext const* mcc) {
-      detail::TRBESSentry products_sentry(selectors_);
       
-      if(!wantAllEvents_) {
-        if(!selectors_.wantEvent(ep, mcc)) {
-          return true;
+      {
+        std::lock_guard<std::mutex> guard(mutex_);
+        detail::TRBESSentry products_sentry(selectors_);
+        if(!wantAllEvents_) {
+          if(!selectors_.wantEvent(ep, mcc)) {
+            return true;
+          }
         }
+        {
+          std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
+          write(ep, mcc);
+        }
+        updateBranchParents(ep);
       }
-      write(ep, mcc);
-      updateBranchParents(ep);
       if(remainingEvents_ > 0) {
         --remainingEvents_;
       }

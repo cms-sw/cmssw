@@ -5,7 +5,6 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -18,13 +17,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include <cassert>
@@ -253,6 +250,16 @@ namespace edm {
     endJob();
   }
 
+  SharedResourcesAcquirer*
+  InputSource::resourceSharedWithDelayedReader() const {
+    return resourceSharedWithDelayedReader_();
+  }
+
+  SharedResourcesAcquirer*
+  InputSource::resourceSharedWithDelayedReader_() const {
+    return nullptr;
+  }
+
   void
   InputSource::registerProducts() {
     if(!typeLabelList().empty()) {
@@ -343,8 +350,6 @@ namespace edm {
       }
     }
 
-    Event event(ep, moduleDescription(), nullptr);
-    postRead(event);
     if(remainingEvents_ > 0) --remainingEvents_;
     ++readCount_;
     setTimestamp(ep.time());
@@ -363,8 +368,6 @@ namespace edm {
       result = readIt(eventID, ep, streamContext);
 
       if (result) {
-        Event event(ep, moduleDescription(), nullptr);
-        postRead(event);
         if(remainingEvents_ > 0) --remainingEvents_;
         ++readCount_;
         issueReports(ep.id());
@@ -474,14 +477,6 @@ namespace edm {
       remainingEvents_ -= iSkipped;
     } else {
       remainingEvents_ = 0;
-    }
-  }
-
-  void
-  InputSource::postRead(Event& event) {
-    Service<RandomNumberGenerator> rng;
-    if(rng.isAvailable()) {
-      rng->postEventRead(event);
     }
   }
 

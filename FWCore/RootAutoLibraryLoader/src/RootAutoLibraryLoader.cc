@@ -16,6 +16,7 @@
 #include <map>
 #include "TROOT.h"
 #include "TInterpreter.h"
+#include "TVirtualMutex.h"
 #include "G__ci.h"
 
 // user include files
@@ -43,10 +44,12 @@ namespace {
   class RootLoadFileSentry {
   public:
     RootLoadFileSentry() {
+       R__LOCKGUARD2(gCINTMutex);
        G__setfilecontext("{CMS auto library loader}", &oldIFile_);
     }
 
     ~RootLoadFileSentry() {
+      R__LOCKGUARD2(gCINTMutex);
       G__input_file* ifile = G__get_ifile();
       if (ifile) {
         *ifile = oldIFile_;

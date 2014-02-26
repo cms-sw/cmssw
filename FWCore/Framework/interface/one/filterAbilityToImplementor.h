@@ -35,7 +35,7 @@ namespace edm {
       
       template<>
       struct AbilityToImplementor<edm::one::SharedResources> {
-        typedef edm::one::impl::SharedResourcesUser Type;
+        typedef edm::one::impl::SharedResourcesUser<edm::one::EDFilterBase> Type;
       };
       
       template<>

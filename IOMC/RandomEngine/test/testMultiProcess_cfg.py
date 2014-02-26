@@ -32,7 +32,12 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         initialSeed = cms.untracked.uint32(191),
         engineName = cms.untracked.string('TRandom3')
     ),
-    enableChecking = cms.untracked.bool(True)
+    enableChecking = cms.untracked.bool(True),
+    # It it interesting to set verbose true and check the child seeds
+    # I would have made comparing them a part of the unit test if I knew
+    # how to get the names of them easily, but the child log
+    # filenames include the child PID
+    verbose = cms.untracked.bool(True)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -47,9 +52,7 @@ process.source = cms.Source("EmptySource",
     numberEventsInLuminosityBlock = cms.untracked.uint32(3)
 )
 
-process.t1 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer",
-                            dump = cms.untracked.bool(True),
-                            firstInPath = cms.untracked.bool(True))
+process.t1 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 process.t2 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 process.t3 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
 process.t4 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
