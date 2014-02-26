@@ -13,6 +13,7 @@
 // system include files
 #include <cassert>
 #include <utility>
+#include <cstring>
 
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
@@ -363,6 +364,36 @@ EDConsumerBase::throwConsumesCallAfterFrozen(TypeToGet const& typeToGet, InputTa
                                      << "This must be done in the contructor\n"
                                      << "The product type was: " << typeToGet.type() << "\n"
                                      << "and " << inputTag << "\n";
+}
+
+namespace {
+  struct CharStarComp {
+    bool operator()(const char* iLHS, const char* iRHS) const {
+      return strcmp(iLHS,iRHS) < 0;
+    }
+  };
+}
+
+void
+EDConsumerBase::modulesDependentUpon(const std::string& iProcessName,
+                                     std::vector<const char*>& oModuleLabels
+                                     ) const
+{
+  std::set<const char*, CharStarComp> uniqueModules;
+  for(unsigned int index=0, iEnd=m_tokenInfo.size();index <iEnd; ++index) {
+    auto const& info = m_tokenInfo.get<kLookupInfo>(index);
+    if( not info.m_index.skipCurrentProcess() ) {
+      auto labels = m_tokenInfo.get<kLabels>(index);
+      unsigned int start = labels.m_startOfModuleLabel;
+      const char* processName = &(m_tokenLabels[start+labels.m_deltaToProcessName]);
+      if(processName or processName[0]==0 or
+         iProcessName == processName) {
+        uniqueModules.insert(&(m_tokenLabels[start]));
+      }
+    }
+  }
+  
+  oModuleLabels = std::vector<const char*>(uniqueModules.begin(),uniqueModules.end());
 }
 
 //
