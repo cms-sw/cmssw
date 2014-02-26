@@ -223,6 +223,7 @@ namespace xml_schema
 //
 namespace l1t
 {
+  class UUID;
   class DateTime;
   class Label;
   class Description;
@@ -277,6 +278,44 @@ namespace l1t
 
 namespace l1t
 {
+  class UUID: public ::xml_schema::string
+  {
+    public:
+    // Constructors.
+    //
+    UUID ();
+
+    UUID (const char*);
+
+    UUID (const ::std::string&);
+
+    UUID (const ::xml_schema::string&);
+
+    UUID (const ::xercesc::DOMElement& e,
+          ::xml_schema::flags f = 0,
+          ::xml_schema::container* c = 0);
+
+    UUID (const ::xercesc::DOMAttr& a,
+          ::xml_schema::flags f = 0,
+          ::xml_schema::container* c = 0);
+
+    UUID (const ::std::string& s,
+          const ::xercesc::DOMElement* e,
+          ::xml_schema::flags f = 0,
+          ::xml_schema::container* c = 0);
+
+    UUID (const UUID& x,
+          ::xml_schema::flags f = 0,
+          ::xml_schema::container* c = 0);
+
+    virtual UUID*
+    _clone (::xml_schema::flags f = 0,
+            ::xml_schema::container* c = 0) const;
+
+    virtual 
+    ~UUID ();
+  };
+
   class DateTime: public ::xml_schema::date_time
   {
     public:
@@ -1105,6 +1144,23 @@ namespace l1t
   class Meta: public ::xml_schema::type
   {
     public:
+    // uid
+    // 
+    typedef ::l1t::UUID uid_type;
+    typedef ::xsd::cxx::tree::traits< uid_type, char > uid_traits;
+
+    const uid_type&
+    uid () const;
+
+    uid_type&
+    uid ();
+
+    void
+    uid (const uid_type& x);
+
+    void
+    uid (::std::auto_ptr< uid_type > p);
+
     // name
     // 
     typedef ::l1t::MenuName name_type;
@@ -1138,23 +1194,6 @@ namespace l1t
 
     void
     scalesKey (::std::auto_ptr< scalesKey_type > p);
-
-    // firmwareVersion
-    // 
-    typedef ::l1t::FirmwareVersion firmwareVersion_type;
-    typedef ::xsd::cxx::tree::traits< firmwareVersion_type, char > firmwareVersion_traits;
-
-    const firmwareVersion_type&
-    firmwareVersion () const;
-
-    firmwareVersion_type&
-    firmwareVersion ();
-
-    void
-    firmwareVersion (const firmwareVersion_type& x);
-
-    void
-    firmwareVersion (::std::auto_ptr< firmwareVersion_type > p);
 
     // description
     // 
@@ -1192,15 +1231,15 @@ namespace l1t
 
     // Constructors.
     //
-    Meta (const name_type&,
+    Meta (const uid_type&,
+          const name_type&,
           const scalesKey_type&,
-          const firmwareVersion_type&,
           const description_type&,
           const history_type&);
 
-    Meta (const name_type&,
+    Meta (const uid_type&,
+          const name_type&,
           const scalesKey_type&,
-          const firmwareVersion_type&,
           const description_type&,
           ::std::auto_ptr< history_type >&);
 
@@ -1227,9 +1266,9 @@ namespace l1t
            ::xml_schema::flags);
 
     protected:
+    ::xsd::cxx::tree::one< uid_type > uid_;
     ::xsd::cxx::tree::one< name_type > name_;
     ::xsd::cxx::tree::one< scalesKey_type > scalesKey_;
-    ::xsd::cxx::tree::one< firmwareVersion_type > firmwareVersion_;
     ::xsd::cxx::tree::one< description_type > description_;
     ::xsd::cxx::tree::one< history_type > history_;
   };
@@ -1377,6 +1416,23 @@ namespace l1t
   class Condition: public ::xml_schema::type
   {
     public:
+    // uid
+    // 
+    typedef ::l1t::UUID uid_type;
+    typedef ::xsd::cxx::tree::traits< uid_type, char > uid_traits;
+
+    const uid_type&
+    uid () const;
+
+    uid_type&
+    uid ();
+
+    void
+    uid (const uid_type& x);
+
+    void
+    uid (::std::auto_ptr< uid_type > p);
+
     // name
     // 
     typedef ::l1t::ConditionName name_type;
@@ -1427,7 +1483,8 @@ namespace l1t
 
     // Constructors.
     //
-    Condition (const name_type&,
+    Condition (const uid_type&,
+               const name_type&,
                const description_type&,
                const locked_type&);
 
@@ -1454,6 +1511,7 @@ namespace l1t
            ::xml_schema::flags);
 
     protected:
+    ::xsd::cxx::tree::one< uid_type > uid_;
     ::xsd::cxx::tree::one< name_type > name_;
     ::xsd::cxx::tree::one< description_type > description_;
     ::xsd::cxx::tree::one< locked_type > locked_;
@@ -1841,7 +1899,8 @@ namespace l1t
 
     // Constructors.
     //
-    CalorimeterCondition (const name_type&,
+    CalorimeterCondition (const uid_type&,
+                          const name_type&,
                           const description_type&,
                           const locked_type&,
                           const type_type&,
@@ -1850,7 +1909,8 @@ namespace l1t
                           const objectRequirements_type&,
                           const relativeBx_type&);
 
-    CalorimeterCondition (const name_type&,
+    CalorimeterCondition (const uid_type&,
+                          const name_type&,
                           const description_type&,
                           const locked_type&,
                           const type_type&,
@@ -1946,7 +2006,8 @@ namespace l1t
 
     // Constructors.
     //
-    MuonCondition (const name_type&,
+    MuonCondition (const uid_type&,
+                   const name_type&,
                    const description_type&,
                    const locked_type&,
                    const type_type&,
@@ -1986,7 +2047,8 @@ namespace l1t
     public:
     // Constructors.
     //
-    EnergySumsCondition (const name_type&,
+    EnergySumsCondition (const uid_type&,
+                         const name_type&,
                          const description_type&,
                          const locked_type&);
 
@@ -2011,7 +2073,8 @@ namespace l1t
     public:
     // Constructors.
     //
-    CorrelationCondition (const name_type&,
+    CorrelationCondition (const uid_type&,
+                          const name_type&,
                           const description_type&,
                           const locked_type&);
 
@@ -2036,7 +2099,8 @@ namespace l1t
     public:
     // Constructors.
     //
-    InvariantMassCondition (const name_type&,
+    InvariantMassCondition (const uid_type&,
+                            const name_type&,
                             const description_type&,
                             const locked_type&);
 
@@ -2061,7 +2125,8 @@ namespace l1t
     public:
     // Constructors.
     //
-    DeltaRCondition (const name_type&,
+    DeltaRCondition (const uid_type&,
+                     const name_type&,
                      const description_type&,
                      const locked_type&);
 
@@ -2084,6 +2149,23 @@ namespace l1t
   class Algorithm: public ::xml_schema::type
   {
     public:
+    // uid
+    // 
+    typedef ::l1t::UUID uid_type;
+    typedef ::xsd::cxx::tree::traits< uid_type, char > uid_traits;
+
+    const uid_type&
+    uid () const;
+
+    uid_type&
+    uid ();
+
+    void
+    uid (const uid_type& x);
+
+    void
+    uid (::std::auto_ptr< uid_type > p);
+
     // name
     // 
     typedef ::l1t::AlgorithmName name_type;
@@ -2185,14 +2267,16 @@ namespace l1t
 
     // Constructors.
     //
-    Algorithm (const name_type&,
+    Algorithm (const uid_type&,
+               const name_type&,
                const index_type&,
                const equation_type&,
                const description_type&,
                const locked_type&,
                const mapping_type&);
 
-    Algorithm (const name_type&,
+    Algorithm (const uid_type&,
+               const name_type&,
                const index_type&,
                const equation_type&,
                const description_type&,
@@ -2222,6 +2306,7 @@ namespace l1t
            ::xml_schema::flags);
 
     protected:
+    ::xsd::cxx::tree::one< uid_type > uid_;
     ::xsd::cxx::tree::one< name_type > name_;
     ::xsd::cxx::tree::one< index_type > index_;
     ::xsd::cxx::tree::one< equation_type > equation_;
@@ -2403,17 +2488,6 @@ namespace l1t
     void
     algorithms (::std::auto_ptr< algorithms_type > p);
 
-    // version
-    // 
-    typedef ::xml_schema::string version_type;
-    typedef ::xsd::cxx::tree::traits< version_type, char > version_traits;
-
-    const version_type&
-    version () const;
-
-    static const version_type&
-    version_default_value ();
-
     // Constructors.
     //
     L1TriggerMenu (const meta_type&,
@@ -2450,8 +2524,6 @@ namespace l1t
     ::xsd::cxx::tree::one< meta_type > meta_;
     ::xsd::cxx::tree::one< conditions_type > conditions_;
     ::xsd::cxx::tree::one< algorithms_type > algorithms_;
-    ::xsd::cxx::tree::one< version_type > version_;
-    static const version_type version_default_value_;
   };
 }
 
