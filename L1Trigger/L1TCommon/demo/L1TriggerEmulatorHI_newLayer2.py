@@ -10,10 +10,7 @@ process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
 process.load('Configuration.Geometry.GeometryIdeal_cff')
 
 # Select the Message Logger output you would like to see:
-
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
-#process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -49,28 +46,12 @@ process.options = cms.untracked.PSet()
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 
-#process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
-#process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
-
-# process.rctDigis = cms.EDProducer("L1RCTProducer",
-#     hcalDigis = cms.VInputTag(cms.InputTag("hcalTriggerPrimitiveDigis")),
-#     useEcal = cms.bool(True),
-#     useHcal = cms.bool(True),
-#     ecalDigis = cms.VInputTag(cms.InputTag("ecalTriggerPrimitiveDigis")),
-#     BunchCrossings = cms.vint32(0),
-#     getFedsFromOmds = cms.bool(False),
-# #    getFedsFromOmds = cms.bool(True), # ONLY for online DQM!
-#     queryDelayInLS = cms.uint32(10),
-#     queryIntervalInLS = cms.uint32(100)#,
-# )
-
 process.RCTConverter = cms.EDProducer(
     "l1t::L1TCaloRCTToUpgradeConverter",
-    regionTag = cms.InputTag("gctDigis"),
-    emTag = cms.InputTag("gctDigis"))
+    regionTag = cms.InputTag("simRctDigis"),
+    emTag = cms.InputTag("simRctDigis"))
 
 
-#process.caloTowers = cms.EDProducer("l1t::L1TCaloTowerProducer")
 process.caloStage1 = cms.EDProducer(
     "l1t::L1TCaloStage1Producer",
     CaloRegions = cms.InputTag("RCTConverter"),
@@ -82,16 +63,21 @@ process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
     InputCollection = cms.InputTag("caloStage1")
     )
 
+process.load('L1Trigger.Configuration.SimL1Emulator_cff')
+process.simRctDigis.ecalDigis = cms.VInputTag(cms.InputTag('ecalDigis:EcalTriggerPrimitives'))
+process.simRctDigis.hcalDigis = cms.VInputTag(cms.InputTag('hcalDigis'))
+process.simGtDigis.GctInputTag = 'GCTConverter'
+
 process.digiStep = cms.Sequence(
-    process.gctDigis
-    *process.RCTConverter
-    #        *process.caloTowers
+    process.ecalDigis
+    *process.hcalDigis
+)
+
+process.simGctDigis = cms.Sequence(
+    process.RCTConverter
     *process.caloStage1
     *process.GCTConverter
 )
-
-process.load('L1Trigger.Configuration.SimL1Emulator_cff')
-process.simGtDigis.GctInputTag = 'GCTConverter'
 
 process.p1 = cms.Path(
     process.digiStep

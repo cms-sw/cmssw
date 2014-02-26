@@ -52,8 +52,8 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 process.RCTConverter = cms.EDProducer(
     "l1t::L1TCaloRCTToUpgradeConverter",
-    regionTag = cms.InputTag("gctDigis"),
-    emTag = cms.InputTag("gctDigis"))
+    regionTag = cms.InputTag("simRctDigis"),
+    emTag = cms.InputTag("simRctDigis"))
 
 process.caloTowers = cms.EDProducer("l1t::L1TCaloTowerProducer")
 process.caloStage1 = cms.EDProducer(
@@ -68,21 +68,22 @@ process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
     )
 
 
-process.Stage1GCT = cms.Sequence(
+process.load('L1Trigger.Configuration.SimL1Emulator_cff')
+process.simGtDigis.GctInputTag = 'GCTConverter'
+
+# overwrite old simGctDigis
+process.simGctDigis = cms.Sequence(
         process.RCTConverter
 #        *process.caloTowers
         *process.caloStage1
         *process.GCTConverter
         )
 
-process.load('L1Trigger.Configuration.SimL1Emulator_cff')
-
-process.simGtDigis.GctInputTag = 'GCTConverter'
 
 process.p1 = cms.Path(
 #    process.digiStep
-    process.Stage1GCT
-    *process.SimL1Emulator
+    #process.Stage1GCT
+    process.SimL1Emulator
 #    * process.debug
 #    *process.dumpED
 #    *process.dumpES
