@@ -243,6 +243,7 @@ switchJetCollection(
 for mod in [process.patJets,
             process.patJetsAK5PFCHS,
             process.patJetsEI,
+            process.patJetsCA8PFCHS,
             process.patJetsCA8CMSTopTagSubjets,
             process.patJetsCA8PrunedSubjets,
             process.patJetsCA15HEPTopTagSubjets ] :
@@ -267,32 +268,31 @@ process.patJetsCA15HEPTopTag.tagInfoSources = cms.VInputTag(
 # Apply jet ID to all of the jets upstream. We aren't going to screw around
 # with this, most likely. So, we don't really to waste time with it
 # at the analysis level. 
-#from PhysicsTools.SelectorUtils.pfJetIDSelector_cfi import pfJetIDSelector
-#process.goodPatJetsPFlow = cms.EDFilter("PFJetIDSelectionFunctorFilter",
-#                                        filterParams = pfJetIDSelector.clone(),
-#                                        src = cms.InputTag("selectedPatJetsPFlow")
-#                                        )
+from PhysicsTools.SelectorUtils.pfJetIDSelector_cfi import pfJetIDSelector
+for ilabel in ['PatJets',
+               'PatJetsAK5PFCHS',
+               'PatJetsEI',
+               'PatJetsCA8PFCHS',
+               'PatJetsCA8CMSTopTag',
+               'PatJetsCA8Pruned',
+               'PatJetsCA15HEPTopTag'] :
+    ifilter = cms.EDFilter("PFJetIDSelectionFunctorFilter",
+                            filterParams = pfJetIDSelector.clone(),
+                            src = cms.InputTag("selected" + ilabel)
+                            )
+    setattr( process, 'good' + ilabel, ifilter )
 
 
 # Next, "pack" the pat::Jets that use substructure so we can run b-tagging and JEC's on the subjets. 
 
-
-process.selectedPatJetsCA8PrunedPFPacked = cms.EDProducer("BoostedJetMerger",
-                                                      jetSrc=cms.InputTag("selectedPatJetsCA8Pruned"),
-                                                      subjetSrc=cms.InputTag("selectedPatJetsCA8PrunedSubjets")
+for ilabel in ['PatJetsCA8CMSTopTag',
+               'PatJetsCA8Pruned',
+               'PatJetsCA15HEPTopTag'] :
+    imerger = cms.EDProducer("BoostedJetMerger",
+                            jetSrc=cms.InputTag("good" + ilabel ),
+                            subjetSrc=cms.InputTag("selected" + ilabel + "Subjets")
     )
-
-process.selectedPatJetsCATopTagPFPacked = cms.EDProducer("BoostedJetMerger",
-                                                      jetSrc=cms.InputTag("selectedPatJetsCA8CMSTopTag"),
-                                                      subjetSrc=cms.InputTag("selectedPatJetsCA8CMSTopTagSubjets")
-    )
-
-
-process.selectedPatJetsCAHEPTopTagPFPacked = cms.EDProducer("BoostedJetMerger",
-                                                      jetSrc=cms.InputTag("selectedPatJetsCA15HEPTopTag"),
-                                                      subjetSrc=cms.InputTag("selectedPatJetsCA15HEPTopTagSubjets")
-    )
-
+    setattr( process, 'good' + ilabel + 'Packed', imerger )
 
 
 #print process.out.outputCommands
@@ -309,9 +309,24 @@ process.source.fileNames = ['dcap:///pnfs/cms/WAX/11/store/relval/CMSSW_7_0_0/Re
 process.maxEvents.input = 10
 #                                         ##
 process.out.outputCommands += [
-   'keep *_ak5GenJetsNoNu_*_*',
-   'keep *_ca8GenJetsNoNu_*_*',
-   'keep *_particleFlow_*_*'
+    'keep *_ak5GenJetsNoNu_*_*',
+    'keep *_ca8GenJetsNoNu_*_*',    
+    'keep *_fixedGrid_*_*',
+    'drop *_*_rho*_*',
+    'drop *_*_sigma*_*',    
+    'keep patJets_goodPatJets_*_*',
+    'keep patJets_goodPatJetsAK5PFCHS_*_*',
+    'keep patJets_goodPatJetsCA15HEPTopTagPacked_*_*',
+    'keep patJets_goodPatJetsCA8CMSTopTagPacked_*_*',
+    'keep patJets_goodPatJetsCA8PFCHS_*_*',
+    'keep patJets_goodPatJetsCA8PrunedPacked_*_*',
+    'keep patJets_goodPatJetsEI_*_*',
+    'drop patJets_selected*_*_*',                        # Drop all of the "selected" ones as they are duplicates...
+    'keep patJets_selected*Subjets_*_*',                 # ... except subjets
+    'drop CaloTowers_*_*_*',
+    'drop recoGenJets_*_genJets_*',
+    'drop recoPFCandidates_*_pfCandidates_*',
+    'keep *_particleFlow__*'
    ]
 #                                         ##
 process.out.fileName = 'patTuple_tlbsm_train.root'

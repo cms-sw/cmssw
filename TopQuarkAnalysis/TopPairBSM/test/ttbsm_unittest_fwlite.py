@@ -16,10 +16,10 @@ handle5  = Handle ("std::vector<pat::Electron>")
 
 # for now, label is just a tuple of strings that is initialized just
 # like and edm::InputTag
-label0 = ("selectedPatJets")
-label1 = ("selectedPatJetsCA8PrunedPFPacked")
-label2 = ("selectedPatJetsCATopTagPFPacked")
-label3 = ("selectedPatJets")
+label0 = ("goodPatJets")
+label1 = ("goodPatJetsCA8PrunedPacked")
+label2 = ("goodPatJetsCA8CMSTopTagPacked")
+label3 = ("goodPatJetsCA15HEPTopTagPacked")
 label4 = ("selectedPatMuons")
 label5 = ("selectedPatElectrons")
 
@@ -39,14 +39,26 @@ for event in events:
     # get the product
     jets0 = handle0.product()
 
+
     ijet = 0
     for jet in jets0 :
-        print 'Jet {0:4.0f}, pt = {1:10.2f}, eta = {2:6.2f}, phi = {3:6.2f}, m = {4:6.2f}, vtxmass = {5}'.format(
-            ijet, jet.pt(), jet.eta(), jet.phi(), jet.mass(), jet.tagInfo('secondaryVertex').nSelectedTracks()
-            )
+        print ("Jet {0:4.0f}, pt = {1:10.2f}, eta = {2:6.2f}, phi = {3:6.2f}, m = {4:6.2f}, " +
+               "nda = {5:3.0f}, vtxmass = {6:6.2f}, area = {7:6.2f}, L1 = {8:6.2f}, L2 = {9:6.2f}, L3 = {10:6.2f}, " +
+               "currLevel = {11:s}").format(
+            ijet, jet.pt(), jet.eta(), jet.phi(), jet.mass(), jet.numberOfDaughters(), jet.userFloat('secvtxMass'),
+            jet.jetArea(), jet.jecFactor("L1FastJet"), jet.jecFactor("L2Relative"), jet.jecFactor("L3Absolute"), jet.currentJECLevel()
+            ),
+        if printGen :
+            genPt = 0.
+            if jet.genJetFwdRef().isNonnull() and jet.genJetFwdRef().isAvailable() :
+                genPt = jet.genJetFwdRef().pt()
+            else :
+                genPt = -1.0
+            print (", gen pt = {0:6.2f}").format( genPt )
+        else :
+            print ''
         ijet += 1
-
-
+    
     print '---- ' + label1
     # use getByLabel, just like in cmsRun
     event.getByLabel (label1, handle1)
@@ -87,19 +99,11 @@ for event in events:
 
     ijet = 0
     for jet in jets3 :
-        print ("Jet {0:4.0f}, pt = {1:10.2f}, eta = {2:6.2f}, phi = {3:6.2f}, m = {4:6.2f}, " +
-               "nda = {5:3.0f}, vtxmass = {6:6.2f}, area = {7:6.2f}, L1 = {8:6.2f}, L2 = {9:6.2f}, L3 = {10:6.2f}, " +
-               "currLevel = {11:s}").format(
-            ijet, jet.pt(), jet.eta(), jet.phi(), jet.mass(), jet.numberOfDaughters(), jet.userFloat('secvtxMass'),
-            jet.jetArea(), jet.jecFactor("L1FastJet"), jet.jecFactor("L2Relative"), jet.jecFactor("L3Absolute"), jet.currentJECLevel()
+        print 'Jet {0:4.0f}, pt = {1:10.2f}, eta = {2:6.2f}, phi = {3:6.2f}, m = {4:6.2f}, nda = {5:3.0f}'.format(
+            ijet, jet.pt(), jet.eta(), jet.phi(), jet.mass(), jet.numberOfDaughters()
             ),
-        if printGen :
-            genPt = 0.
-            if jet.genJetFwdRef().isNonnull() and jet.genJetFwdRef().isAvailable() :
-                genPt = jet.genJetFwdRef().pt()
-            else :
-                genPt = -1.0
-            print (", gen pt = {0:6.2f}").format( genPt )
+        if jet.numberOfDaughters() > 2 :
+            print ', ptda1 = {0:6.2f}, ptda1 = {1:6.2f}, ptda2 = {2:6.2f}'.format( jet.daughter(0).pt(), jet.daughter(1).pt(), jet.daughter(2).pt() )
         else :
             print ''
         ijet += 1
