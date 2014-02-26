@@ -96,7 +96,7 @@ lfc-mkdir $OUTDIR
 
 # We loop over the data directory in order to find all the files to process
 
-foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f15`) 
+foreach l (`lcg-ls $INDIR_GRID | cut -d/ -f15`) 
 	    
     @ i = 0
     @ j = $NPFILE
@@ -218,6 +218,8 @@ foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f15`)
     # Third step, all the merged files for the given input
     # file have been processed. Then launch the final merging 
     # 
+
+    echo $processed,$section
 
     if ($processed == $section) then
 
