@@ -26,6 +26,10 @@ public:
     m_tracker.normalize();
   }
 
+  void reset( void ) {
+    m_tracker.reset();
+  }
+
   void draw( void );
 
 private:

@@ -13,16 +13,6 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialProducer_cff")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-                                                   trackingMaterialProducer = cms.PSet(initialSeed = cms.untracked.uint32(123456789),
-                                                                                       engineName = cms.untracked.string('TRandom3')
-                                                                                       ),
-                                                   VtxSmeared = cms.PSet(initialSeed = cms.untracked.uint32(123456789),
-                                                                         engineName = cms.untracked.string('TRandom3')
-                                                                         )
-                                                   )
-process.VtxSmeared.src = cms.InputTag("source")
-
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(

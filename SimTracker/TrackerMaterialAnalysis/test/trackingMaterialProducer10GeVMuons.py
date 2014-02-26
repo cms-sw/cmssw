@@ -8,12 +8,13 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("SimTracker.TrackerMaterialAnalysis.double10GeVMuons_cfi")
 
 # gaussian Vertex Smearing
-process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
+process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 # detector simulation (Geant4-based) with tracking material accounting 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialProducer_cff")
+process.trackingMaterialProducer.UseMagneticField = True
 
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",
@@ -40,5 +41,5 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:material.root')
 )
 
-process.path = cms.Path(process.VtxSmeared*process.trackingMaterialProducer)
+process.path = cms.Path(process.generator + process.VtxSmeared + process.trackingMaterialProducer)
 process.outpath = cms.EndPath(process.out)
