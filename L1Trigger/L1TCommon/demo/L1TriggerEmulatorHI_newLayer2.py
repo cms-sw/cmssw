@@ -67,9 +67,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 process.RCTConverter = cms.EDProducer(
     "l1t::L1TCaloRCTToUpgradeConverter",
     regionTag = cms.InputTag("gctDigis"),
-    emTag = cms.InputTag("gctDigis"),
-    preSamples = cms.uint32(1),
-    postSamples = cms.uint32(1))
+    emTag = cms.InputTag("gctDigis"))
 
 
 #process.caloTowers = cms.EDProducer("l1t::L1TCaloTowerProducer")
