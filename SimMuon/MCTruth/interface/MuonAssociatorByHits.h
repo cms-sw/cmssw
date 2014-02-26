@@ -17,6 +17,7 @@
 #include "SimMuon/MCTruth/interface/DTHitAssociator.h"
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
 #include "SimMuon/MCTruth/interface/RPCHitAssociator.h"
+#include "SimMuon/MCTruth/interface/GEMHitAssociator.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
@@ -55,12 +56,12 @@ class MuonAssociatorByHits : public TrackAssociatorBase {
   void getMatchedIds
     (MapOfMatchedIds & tracker_matchedIds_valid, MapOfMatchedIds & muon_matchedIds_valid,
      MapOfMatchedIds & tracker_matchedIds_INVALID, MapOfMatchedIds & muon_matchedIds_INVALID,
-     int& n_tracker_valid, int& n_dt_valid, int& n_csc_valid, int& n_rpc_valid,
-     int& n_tracker_matched_valid, int& n_dt_matched_valid, int& n_csc_matched_valid, int& n_rpc_matched_valid,
-     int& n_tracker_INVALID, int& n_dt_INVALID, int& n_csc_INVALID, int& n_rpc_INVALID,
-     int& n_tracker_matched_INVALID, int& n_dt_matched_INVALID, int& n_csc_matched_INVALID, int& n_rpc_matched_INVALID,
+     int& n_tracker_valid, int& n_dt_valid, int& n_csc_valid, int& n_rpc_valid, int& n_gem_valid,
+     int& n_tracker_matched_valid, int& n_dt_matched_valid, int& n_csc_matched_valid, int& n_rpc_matched_valid, int& n_gem_matched_valid,
+     int& n_tracker_INVALID, int& n_dt_INVALID, int& n_csc_INVALID, int& n_rpc_INVALID, int& n_gem_INVALID,
+     int& n_tracker_matched_INVALID, int& n_dt_matched_INVALID, int& n_csc_matched_INVALID, int& n_rpc_matched_INVALID, int& n_gem_matched_INVALID,
      trackingRecHit_iterator begin, trackingRecHit_iterator end,
-     TrackerHitAssociator* trackertruth, DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth, 
+     TrackerHitAssociator* trackertruth, DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth, GEMHitAssociator& gemtruth,
      bool printRts, const TrackerTopology *) const;
   
   int getShared(MapOfMatchedIds & matchedIds, TrackingParticleCollection::const_iterator trpart) const;

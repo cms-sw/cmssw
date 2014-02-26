@@ -4,7 +4,7 @@
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="zHGCal1"    value="317.0*cm"/>
   <Constant name="zHGCal2"    value="375.022*cm"/>
-  <Constant name="zHGCal3"    value="449.127*cm"/>
+  <Constant name="zHGCal3"    value="449.7*cm"/>
   <Constant name="zHGCal4"    value="519.3*cm"/>
   <Constant name="zHGCal5"    value="554.1*cm"/>
   <Constant name="zMinEE"     value="3170.0*mm"/>
@@ -22,8 +22,8 @@
   <Constant name="rMinHEMax"  value="[etaMax:slope]*[zMaxHE]"/>
   <Constant name="rMaxHGCal1" value="159.0*cm"/>
   <Constant name="rMaxHGCal2" value="177.5*cm"/>
-  <Constant name="rMaxHGCal3" value="273.76*cm"/>    
-  <Constant name="rMaxHGCal4" value="245.9*cm"/>    
+  <Constant name="rMaxHGCal3" value="266.083*cm"/>    
+  <Constant name="rMaxHGCal4" value="248.16*cm"/>    
   <Constant name="slope2"     value="([rMaxHGCal2]-[rMaxHGCal1])/([zHGCal2]-[zHGCal1])"/>
   <Constant name="slope3"     value="([rMaxHGCal3]-[rMaxHGCal2])/([zHGCal3]-[zHGCal2])"/>
   <Constant name="rMaxEEMin"  value="([rMaxHGCal1]+[slope2]*([zMinEE]-[zHGCal1]))"/>

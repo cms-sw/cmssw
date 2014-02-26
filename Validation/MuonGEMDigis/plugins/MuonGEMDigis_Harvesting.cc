@@ -68,9 +68,6 @@
 
 #include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
 
-
-
-
 //
 // constants, enums and typedefs
 //

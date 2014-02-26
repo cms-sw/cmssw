@@ -7,14 +7,9 @@
 
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-
-#include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
-#include "Validation/MuonGEMDigis/interface/GEMCSCPadDigiValidation.h"
-#include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
-#include "Validation/MuonGEMDigis/interface/GEMTrackMatch.h"
-
 
 class MuonGEMDigis_Harvesting : public edm::EDAnalyzer
 {

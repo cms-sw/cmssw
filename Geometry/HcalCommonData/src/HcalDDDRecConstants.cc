@@ -13,6 +13,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define DebugLog
+
 HcalDDDRecConstants::HcalDDDRecConstants() : tobeInitialized(true), hcons(0) {
 
 #ifdef DebugLog
@@ -406,9 +407,9 @@ void HcalDDDRecConstants::loadSimConst() {
   for (unsigned int i=0; i<etaTableHF.size(); ++i)
     std::cout << " [" << i << "] = " << etaTableHF[i];
   std::cout << std::endl;
-  std::cout << "PhiTableHF";
-  for (unsigned int i=0; i<phiTableHF.size(); ++i)
-    std::cout << " [" << i << "] = " << phiTableHF[i];
+  std::cout << "PhiBinHF";
+  for (unsigned int i=0; i<phibinHF.size(); ++i)
+    std::cout << " [" << i << "] = " << phibinHF[i];
   std::cout << std::endl;
 #endif
 

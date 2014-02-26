@@ -8,8 +8,8 @@
   <Constant name="rMinHEsci2" value="[etaMax:slope]*[ZmaxHEsci]"/>
   <Constant name="rMaxHEsci1" value="([hgcal:rMaxHGCal2]+[hgcal:slope3]*([ZminHEsci]-[hgcal:zHGCal2]))"/>
   <Constant name="rMaxHEsci2" value="([hgcal:rMaxHGCal3])"/>
-  <Constant name="rMapHEsci1" value="[rMaxHEsci1]*[hgcal:factor]"/>
-  <Constant name="rMapHEsci2" value="[rMaxHEsci2]*[hgcal:factor]"/>
+  <Constant name="rMapHEsci1" value="[rMaxHEsci1]*[hgcal:factor2]"/>
+  <Constant name="rMapHEsci2" value="[rMaxHEsci2]*[hgcal:factor2]"/>
 </ConstantsSection> 
 
 <SolidSection label="hgcalHEsci.xml" >
@@ -77,6 +77,7 @@
 <SpecParSection label="hgcalHEsci.xml">
   <SpecPar name="HGCalHEScintillator readout granularity per layer">
     <PartSelector path="//HGCalHEScintillator"/>
+    <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
     <Parameter name="Granularity" value="10*mm"/>
     <Parameter name="Granularity" value="10*mm"/>
     <Parameter name="Granularity" value="10*mm"/>

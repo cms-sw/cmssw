@@ -7,7 +7,7 @@
   <Constant name="rMinHEgem1" value="[etaMax:slope]*[ZminHEgem]"/>
   <Constant name="rMinHEgem2" value="[etaMax:slope]*[ZmaxHEgem]"/>
   <Constant name="rMaxHEgem"  value="[hgcal:rMaxHGCal4]"/>
-  <Constant name="rMapHEgem"  value="[rMaxHEgem]*[hgcal:factor]"/>
+  <Constant name="rMapHEgem"  value="[rMaxHEgem]*[hgcal:factor2]"/>
 </ConstantsSection> 
 
 <SolidSection label="hgcalHEgem.xml" >
@@ -80,6 +80,7 @@
 <SpecParSection label="hgcalHEgem.xml">
   <SpecPar name="HGCalHEGem readout granularity per layer">
     <PartSelector path="//HGCalHEGem"/>
+    <Parameter name="Volume" value="HGCalHEGemSensitive" eval="false"/>
     <Parameter name="Granularity" value="10*mm"/>
     <Parameter name="Granularity" value="10*mm"/>
     <Parameter name="Granularity" value="10*mm"/>

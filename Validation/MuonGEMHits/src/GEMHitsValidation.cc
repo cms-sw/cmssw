@@ -15,15 +15,13 @@ void GEMHitsValidation::bookHisto() {
 
 
   Int_t nregion  = theGEMGeometry->regions().size();
-  Int_t nstation = theGEMGeometry->stations().size() / nregion;
-  Int_t nchamber = theGEMGeometry->chambers().size();
+  Int_t nstation = theGEMGeometry->regions()[0]->stations().size() ;
 
-  npart    = theGEMGeometry->etaPartitions().size()/nchamber;
+  npart    = theGEMGeometry->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
 
 
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of region : "<<nregion<<std::endl;
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of stations : "<<nstation<<std::endl;
-  LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of chambers : "<<nchamber<<std::endl;
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of eta partition : "<< npart <<std::endl;
 
 
@@ -45,7 +43,6 @@ void GEMHitsValidation::bookHisto() {
 
 
   for( int i=0 ; i <3 ; i++) {
- 
     gem_sh_zr_rm1[i] =  dbe_->book2D("gem_sh_zr_rm1"+has_muon[i], "SimHit occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,110,130,240);
     gem_sh_zr_rp1[i] =  dbe_->book2D("gem_sh_zr_rp1"+has_muon[i], "SimHit occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200, 564, 573,110,130,240);
  
@@ -93,11 +90,8 @@ void GEMHitsValidation::analyze(const edm::Event& e,
                                        << theInputTag.encode();
   }
 
-  //Int_t eventNumber = e.id().event();
   for (auto hits=GEMHits->begin(); hits!=GEMHits->end(); hits++) {
     Int_t particleType = hits->particleType();
-    //Float_t lx = hits->localPosition().x();
-    //Float_t ly = hits->localPosition().y();
     Float_t energyLoss = hits->energyLoss();
     Float_t pabs = hits->pabs();
     Float_t timeOfFlight = hits->timeOfFlight();
@@ -105,31 +99,21 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     const GEMDetId id(hits->detUnitId());
     
     Int_t region = id.region();
-    //Int_t ring = id.ring();
     Int_t station = id.station();
     Int_t layer = id.layer();
-    //Int_t chamber = id.chamber();
     Int_t roll = id.roll();
 
 
     const LocalPoint p0(0., 0., 0.);
     const GlobalPoint Gp0(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(p0));
-
-    //Float_t Phi_0 = Gp0.phi();
-    //Float_t R_0 = Gp0.perp();
-    //Float_t DeltaPhi = atan(-1*id.region()*pow(-1,id.chamber())*hits->localPosition().x()/(Gp0.perp() + hits->localPosition().y()));
- 
     const LocalPoint hitLP(hits->localPosition());
     const GlobalPoint hitGP(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
     Float_t g_r = hitGP.perp();
-    //Float_t g_eta = hitGP.eta();
-    //Float_t g_phi = hitGP.phi();
     Float_t g_x = hitGP.x();
     Float_t g_y = hitGP.y();
     Float_t g_z = hitGP.z();
 
     const LocalPoint hitEP(hits->entryPoint());
-    //Int_t strip = theGEMGeometry->etaPartition(hits->detUnitId())->strip(hitEP);
 
       // fill hist
       int muonSel=999;
@@ -153,14 +137,12 @@ void GEMHitsValidation::analyze(const edm::Event& e,
 	if ( layer == 1 ) {
           gem_sh_tof_rm1_l1[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ 0 + 0);    // roll + layer + region
-
           gem_sh_tof_rm1_l1[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ 0 + 0);    // roll + layer + region
         }
         else if ( layer ==2 ) {
           gem_sh_tof_rm1_l2[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ npart + 0);
-
           gem_sh_tof_rm1_l2[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ npart + 0);
         }
@@ -174,14 +156,12 @@ void GEMHitsValidation::analyze(const edm::Event& e,
         if ( layer == 1 ) {
           gem_sh_tof_rp1_l1[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ 0 + 2*npart );
-
           gem_sh_tof_rp1_l1[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ 0 + 2*npart );
         }
         else if ( layer == 2 ) {
           gem_sh_tof_rp1_l2[all]->Fill(timeOfFlight);
           gem_sh_global_eta[all]->Fill( roll+ npart + 2*npart );
-
           gem_sh_tof_rp1_l2[muonSel]->Fill(timeOfFlight);
           gem_sh_global_eta[muonSel]->Fill( roll+ npart + 2*npart );
         }
