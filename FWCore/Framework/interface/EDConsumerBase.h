@@ -73,6 +73,9 @@ namespace edm {
     };
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
     
+    void modulesDependentUpon(const std::string& iProcessName,
+                              std::vector<const char*>& oModuleLabels) const;
+    
   protected:
     friend class ConsumesCollector;
     template<typename T> friend class WillGetIfMatch;
