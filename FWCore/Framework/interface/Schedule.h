@@ -235,6 +235,9 @@ namespace edm {
 
   private:
 
+    /// Check that the schedule is actually runable
+    void checkForCorrectness() const;
+    
     void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
 
     std::shared_ptr<TriggerResultInserter> resultsInserter_;
