@@ -119,7 +119,7 @@ class PFElectronSelector : public Selector<pat::Electron> {
     double chIso = electron.userIsolation(pat::PfChargedHadronIso);
     double nhIso = electron.userIsolation(pat::PfNeutralHadronIso);
     double phIso  = electron.userIsolation(pat::PfGammaIso);
-    double pfIso = ( chIso + max(0.0, nhIso + phIso - rhoIso*AEff) )/ electron.ecalDrivenMomentum().pt();
+    double pfIso = ( chIso + std::max(0.0, nhIso + phIso - rhoIso*AEff) )/ electron.ecalDrivenMomentum().pt();
     int mHits  =  electron.gsfTrack()->trackerExpectedHitsInner().numberOfHits();   
     double mva = electron.electronID("mvaTrigV0");
     //Electron Selection for e+jets
