@@ -20,5 +20,6 @@ ca8PFJetsCHSTrimmedLinks = cms.EDProducer("RecoJetDeltaRValueMapProducer",
 ca8PFJetsCHSFilteredLinks = cms.EDProducer("RecoJetDeltaRValueMapProducer",
                                          src = cms.InputTag("ca8PFJetsCHS"),
                                          matched = cms.InputTag("ca8PFJetsCHSFiltered"),                                         
-                                         distMin = cms.double(0.8)
+                                         distMin = cms.double(0.8),
+                                         value = cms.string('mass')  
                         )
