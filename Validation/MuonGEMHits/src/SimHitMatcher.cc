@@ -6,7 +6,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include <algorithm>
 #include <iomanip>
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 
 namespace {
@@ -30,6 +30,7 @@ SimHitMatcher::SimHitMatcher(const SimTrack& t, const SimVertex& v,
   simInputLabel_ = conf().getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
   setVerbose(conf().getUntrackedParameter<int>("verboseSimHit", 0));
   init();
+  hasGEMGeometry_ = false;
 }
 
 
@@ -41,6 +42,9 @@ void SimHitMatcher::init()
   edm::ESHandle<GEMGeometry> gem_g;
   eventSetup().get<MuonGeometryRecord>().get(gem_g);
   gem_geo_ = &*gem_g;
+
+  if ( gem_geo_ != nullptr) hasGEMGeometry_ = true;
+  else LogDebug("SimHitMatcher")<<"++ Warning : Geometry is null.\n";
 
   edm::Handle<edm::PSimHitContainer> gem_hits;
   edm::Handle<edm::SimTrackContainer> sim_tracks;
@@ -134,6 +138,8 @@ void
 SimHitMatcher::matchSimHitsToSimTrack(std::vector<unsigned int> track_ids,
     const edm::PSimHitContainer& gem_hits)
 {
+  if ( !hasGEMGeometry_) return ;
+
   for (auto& track_id: track_ids)
   {
     for (auto& h: gem_hits)
@@ -311,6 +317,7 @@ SimHitMatcher::nLayersWithHitsInSuperChamber(unsigned int detid) const
 GlobalPoint
 SimHitMatcher::simHitsMeanPosition(const edm::PSimHitContainer& sim_hits) const
 {
+  if ( !hasGEMGeometry_) return GlobalPoint();
   if (sim_hits.empty()) return GlobalPoint(); // point "zero"
 
   float sumx, sumy, sumz;
@@ -337,6 +344,7 @@ SimHitMatcher::simHitsMeanPosition(const edm::PSimHitContainer& sim_hits) const
 
 float SimHitMatcher::simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const
 {
+  if ( !hasGEMGeometry_) return -1.f;
   if (sim_hits.empty()) return -1.f;
 
   float sums = 0.f;
@@ -362,6 +370,7 @@ float SimHitMatcher::simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) con
 std::set<int> SimHitMatcher::hitStripsInDetId(unsigned int detid, int margin_n_strips) const
 {
   set<int> result;
+  if ( !hasGEMGeometry_) return result;
   auto simhits = hitsInDetId(detid);
   if ( is_gem(detid) )
   {

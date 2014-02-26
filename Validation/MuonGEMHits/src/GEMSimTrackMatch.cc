@@ -143,11 +143,11 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       track_eta_l1and2->Fill( fabs(track_.eta));
     }
     if ( track_.gem_sh_layer1 ==0 && track_.gem_sh_layer2==0) {
-      edm::LogInfo("GEMSIM")<<"it has no layer on sh hit!";
+      edm::LogInfo("MuonGEMHit")<<"it has no layer on sh hit!";
     }
 
     // phi efficiency.
-    if( fabs(track_.eta) < 2.12 && fabs( track_.eta) > 1.64 ) {
+    if( fabs(track_.eta) < maxEta_ && fabs( track_.eta) > minEta_ ) {
       track_phi->Fill(  track_.phi  );
       if ( track_.gem_sh_layer1 > 0 ) {
         track_phi_l1->Fill ( track_.phi);

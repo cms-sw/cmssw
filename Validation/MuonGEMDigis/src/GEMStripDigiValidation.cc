@@ -32,15 +32,16 @@ void GEMStripDigiValidation::bookHisto() {
     for( int layer_num = 0 ; layer_num < 2 ; layer_num++) {
       std::string name_prefix  = std::string("_r")+region[region_num]+"_l"+layer[layer_num];
       std::string label_prefix = "region "+region[region_num]+" layer "+layer[layer_num];
-      theStrip_xy[region_num][layer_num] = dbe_->book2D( ("strip_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 260, -260,260,260,-260,260);
       theStrip_bx[region_num][layer_num] = dbe_->book1D( ("strip_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
       for( int station_num = 0 ; station_num < nstations ; station_num++) {
         if ( station_num == 0 ) nstrips = nstripsGE11;
         else nstrips = nstripsGE21; 
         name_prefix  = std::string("_r")+region[region_num]+"_st"+station[station_num]+"_l"+layer[layer_num];
         label_prefix = "region"+region[region_num]+" station "+station[station_num]+" layer "+layer[layer_num];
+
         theStrip_phistrip[region_num][station_num][layer_num] = dbe_->book2D( ("strip_dg_phistrip"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad];strip number").c_str(), 280, -TMath::Pi(), TMath::Pi(), nstrips/2,0,nstrips);
         theStrip[region_num][station_num][layer_num] = dbe_->book1D( ("strip_dg"+name_prefix).c_str(), ("Digi occupancy per stip number: "+label_prefix+";strip number; entries").c_str(), nstrips,0.5,nstrips+0.5);
+        theStrip_xy[region_num][station_num][layer_num] = dbe_->book2D( ("strip_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 260, -260,260,260,-260,260);
       }
     }
   }
@@ -98,7 +99,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
       int station_num = station-1;
       int layer_num = layer-1;
 
-      theStrip_xy[region_num][layer_num]->Fill(g_x,g_y);     
+      theStrip_xy[region_num][station_num][layer_num]->Fill(g_x,g_y);     
       theStrip_phistrip[region_num][station_num][layer_num]->Fill(g_phi,strip);
       theStrip[region_num][station_num][layer_num]->Fill(strip);
       theStrip_bx[region_num][layer_num]->Fill(bx);

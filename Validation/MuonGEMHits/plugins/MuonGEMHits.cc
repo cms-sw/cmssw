@@ -117,8 +117,10 @@ void
 MuonGEMHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  theGEMHitsValidation->analyze(iEvent,iSetup );  
-  theGEMSimTrackMatch->analyze(iEvent,iSetup );  
+  if ( hasGEMGeometry_ ) {
+    theGEMHitsValidation->analyze(iEvent,iSetup );  
+    theGEMSimTrackMatch->analyze(iEvent,iSetup );  
+  }
 }
 
 
@@ -141,14 +143,11 @@ MuonGEMHits::endJob()
 void 
 MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
-  try { 
-    iSetup.get<MuonGeometryRecord>().get(gem_geom);
-    gem_geometry_ = &*gem_geom;
-    hasGEMGeometry_ = true;
+  iSetup.get<MuonGeometryRecord>().get(gem_geom);
+  gem_geometry_ = &*gem_geom;
+  if( gem_geometry_ != nullptr) hasGEMGeometry_ = true;
+  else LogDebug("MuonGEMHits") << "+++ Warning: GEM geometry is unavailable. +++\n";
 
-  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-    LogDebug("MuonGEMHits") << "+++ Info: GEM geometry is unavailable. +++\n";
-  }
   if( hasGEMGeometry_ ) {
     theGEMHitsValidation->setGeometry(gem_geometry_);
     theGEMHitsValidation->bookHisto();

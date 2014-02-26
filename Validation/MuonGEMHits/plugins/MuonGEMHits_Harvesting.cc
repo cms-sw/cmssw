@@ -191,7 +191,7 @@ MuonGEMHits_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
     gem_ly_odd[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_odd_l1or2")->getTH1F()->Clone(); 
     gem_ly_odd[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_odd_l1and2")->getTH1F()->Clone(); 
   }
-  if( track_eta[0] !=nullptr ) {
+  if( track_eta[0] !=nullptr && track_phi[0] != nullptr && gem_lx_even[0] != nullptr && gem_ly_even[0] != nullptr && gem_lx_odd[0] != nullptr && gem_ly_odd[0] != nullptr  ) {
     for ( int i= 0; i<5 ; i++) {
       track_eta[i]->Sumw2();
       track_phi[i]->Sumw2();
@@ -216,8 +216,6 @@ MuonGEMHits_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
       dbe_->book1D( TString::Format("%s%s","eff_",gem_ly_odd[i]->GetName()),gem_ly_odd[i]);    
     }
   }
-    //  dbe_->book1D( "test", (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_sh_tof_rm1_l1_all")->getTH1F()->Clone());
-  
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
