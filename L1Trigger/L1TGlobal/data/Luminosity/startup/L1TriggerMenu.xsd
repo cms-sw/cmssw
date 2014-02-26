@@ -13,9 +13,9 @@
 
         l1TriggerMenu (l1t:L1TriggerMenu)
         ├── meta (l1t:Meta)
+        │   ├── uid (l1t:UUID)
         │   ├── name (l1t:MenuName)
         │   ├── scalesKey (l1t:ScalesKey)
-        │   ├── firmwareVersion (l1t:FirmwareVersion)
         │   ├── description (l1t:Description)
         │   └── history (l1t:History)
         │       └── revision (l1t:Revision)
@@ -23,6 +23,7 @@
         │           └── datetime (l1t:DateTime)
         ├── conditions (l1t:ConditionList)
         │   ├── condCalorimeter (l1t:CalorimeterCondition)
+        │   │   ├── uid (l1t:UUID)
         │   │   ├── name (l1t:ConditionName)
         │   │   ├── description (l1t:Description)
         │   │   ├── locked (xs:boolean)
@@ -47,6 +48,7 @@
         │   │   │       └── upper (xs:unsignedInt)
         │   │   └── relativeBx (l1t:RelativeBx)
         │   ├── condMuon (l1t:MuonCondition) ( to be defined )
+        │   │   ├── uid (l1t:UUID)
         │   │   ├── name (xs:string)
         │   │   ├── description (l1t:Description)
         │   │   ├── locked (xs:boolean)
@@ -54,26 +56,30 @@
         │   │   ├── etComparison (l1t:EtComparison)
         │   │   └── relativeBx (l1t:RelativeBx)
         │   ├── condEnergySums (l1t:EnergySumsCondition) ( to be defined )
+        │   │   ├── uid (l1t:UUID)
         │   │   ├── name (xs:string)
         │   │   ├── description (l1t:Description)
         │   │   └── locked (xs:boolean)
         │   ├── condCorrelation (l1t:CorrelationCondition) ( to be defined )
+        │   │   ├── uid (l1t:UUID)
         │   │   ├── name (xs:string)
         │   │   ├── description (l1t:Description)
         │   │   └── locked (xs:boolean)
         │   ├── condInvariantMass (l1t:InvariantMassCondition) ( to be defined )
+        │   │   ├── uid (l1t:UUID)
         │   │   ├── name (xs:string)
         │   │   ├── description (l1t:Description)
         │   │   └── locked (xs:boolean)
         │   └── condDeltaR (l1t:DeltaRCondition) ( to be defined )
+        │       ├── uid (l1t:UUID)
         │       ├── name (xs:string)
         │       ├── description (l1t:Description)
         │       └── locked (xs:boolean)
         └── algorithms (l1t:AlgorithmList)
             └── algorithm (l1t:Algorithm)
+                ├── uid (l1t:UUID)
                 ├── name (l1t:AlgorithmName)
                 ├── index (l1t:AlgorithmIndex)
-                ├── hardwareIndex
                 ├── equation (l1t:AlgorithmEquation)
                 ├── description (l1t:Description)
                 ├── locked (xs:boolean)
@@ -86,6 +92,7 @@
     Virtual base complex type for all conditions:
 
         Condition (l1t:abstract)
+        ├── uid (l1t:UUID)
         ├── name (xs:string)
         ├── description (l1t:Description)
         └── locked (xs:boolean)
@@ -150,14 +157,14 @@
     A valid example XML file will look like this:
 
         <?xml version="1.0" encoding="UTF-8"?>
-        <l1t:l1TriggerMenu version="0.5.1"
-          xmlns:l1t="http://www.cern.ch/l1t"
+        <l1t:l1TriggerMenu
+          xmlns:l1t="http://www.cern.ch/l1t/0.5.2"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
+          xsi:schemaLocation="http://www.cern.ch/l1t/0.5.2 L1TriggerMenu.xsd">
           <l1t:meta>
+            <l1t:uid>3900d9d7-de4a-4edb-8fb0-538def69b580</l1t:uid>
             <l1t:name>L1Menu_example</l1t:name>
             <l1t:scalesKey>L1T_Scales_example</l1t:scalesKey>
-            <l1t:firmwareVersion>42</l1t:firmwareVersion>
             <l1t:description>This a an example trigger menu.</l1t:description>
             <l1t:history>
               <l1t:revision username="john" hostname="gtslc6.local">
@@ -210,14 +217,14 @@
     A valid example XML of a complete empty (l1t:new created) menu:
 
         <?xml version="1.0" encoding="UTF-8"?>
-        <l1t:l1TriggerMenu version="0.5.1"
-          xmlns:l1t="http://www.cern.ch/l1t"
+        <l1t:l1TriggerMenu
+          xmlns:l1t="http://www.cern.ch/l1t/0.5.2"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
+          xsi:schemaLocation="http://www.cern.ch/l1t/0.5.2 L1TriggerMenu.xsd">
           <l1t:meta>
+            <l1t:uid>d0465bc9-8dc0-4352-a8b8-b099bdc78a6e</l1t:uid>
             <l1t:name>L1Menu_</l1t:name>
             <l1t:scalesKey>L1T_Scales_</l1t:scalesKey>
-            <l1t:firmwareVersion>0</l1t:firmwareVersion>
             <l1t:description></l1t:description>
             <l1t:history>
               <l1t:revision>
@@ -241,9 +248,9 @@
 
 -->
 
-<xs:schema targetNamespace="http://www.cern.ch/l1t"
+<xs:schema targetNamespace="http://www.cern.ch/l1t/0.5.2"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:l1t="http://www.cern.ch/l1t"
+  xmlns:l1t="http://www.cern.ch/l1t/0.5.2"
   elementFormDefault="qualified" attributeFormDefault="unqualified">
 
   <!--
@@ -251,6 +258,19 @@
     Simple types used in the entire L1 trigger menu.
 
   -->
+
+  <xs:simpleType name="UUID">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Container for holding an UUID (universally unique identifier) 128 bit
+        identifier (00000000-0000-0000-0000-000000000000).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="36"/>
+      <xs:pattern value="([a-z0-9]){8}-([a-z0-9]){4}-([a-z0-9]){4}-([a-z0-9]){4}-([a-z0-9]){12}"/>
+    </xs:restriction>
+  </xs:simpleType>
 
   <xs:simpleType name="DateTime">
     <xs:annotation>
@@ -546,9 +566,9 @@
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
+      <xs:element name="uid" type="l1t:UUID"/>
       <xs:element name="name" type="l1t:MenuName"/>
       <xs:element name="scalesKey" type="l1t:ScalesKey"/>
-      <xs:element name="firmwareVersion" type="l1t:FirmwareVersion"/>
       <xs:element name="description" type="l1t:Description"/>
       <xs:element name="history" type="l1t:History"/>
     </xs:sequence>
@@ -578,6 +598,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:sequence minOccurs="1" maxOccurs="1">
+      <xs:element name="uid" type="l1t:UUID"/>
       <xs:element name="name" type="l1t:ConditionName"/>
       <xs:element name="description" type="l1t:Description"/>
       <xs:element name="locked" type="xs:boolean"/>
@@ -723,6 +744,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
+      <xs:element name="uid" type="l1t:UUID"/>
       <xs:element name="name" type="l1t:AlgorithmName"/>
       <xs:element name="index" type="l1t:AlgorithmIndex"/>
       <xs:element name="equation" type="l1t:AlgorithmEquation"/>
@@ -769,7 +791,6 @@
       <xs:element name="conditions" type="l1t:ConditionList"/>
       <xs:element name="algorithms" type="l1t:AlgorithmList"/>
     </xs:sequence>
-    <xs:attribute name="version" type="xs:string" fixed="0.5.1" use="required"/>
   </xs:complexType>
 
   <!--
