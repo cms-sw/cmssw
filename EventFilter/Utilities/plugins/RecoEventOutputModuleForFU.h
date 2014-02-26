@@ -73,6 +73,7 @@ namespace evf {
     boost::filesystem::path openDatFilePath_;
     IntJ processed_;
     mutable IntJ accepted_;
+    IntJ errorEvents_; 
     StringJ processCheck_; 
     StringJ filelist_;
     boost::shared_ptr<FastMonitor> jsonMonitor_;
@@ -90,6 +91,7 @@ namespace evf {
     baseDir_(ps.getUntrackedParameter<std::string>("baseDir","")),
     processed_(0),
     accepted_(0),
+    errorEvents_(0),
     filelist_()
   {
     initializeStreams();
@@ -99,12 +101,14 @@ namespace evf {
     
     processed_.setName("Processed");
     accepted_.setName("Accepted");
+    errorEvents_.setName("ErrorEvents");
     processCheck_.setName("ProcessCheck");
     filelist_.setName("Filelist");
 
     outJsonDef_.setMergeMode("pid");
     outJsonDef_.addLegendItem("Processed","integer","sum");
     outJsonDef_.addLegendItem("Accepted","integer","sum");
+    outJsonDef_.addLegendItem("ErrorEvents","integer","sum");
     outJsonDef_.addLegendItem("ProcessCheck","string","same");
     outJsonDef_.addLegendItem("Filelist","string","cat");
     std::stringstream ss;
@@ -127,6 +131,7 @@ namespace evf {
     jsonMonitor_->setDefPath(outJsonDefName);
     jsonMonitor_->registerGlobalMonitorable(&processed_,false);
     jsonMonitor_->registerGlobalMonitorable(&accepted_,false);
+    jsonMonitor_->registerGlobalMonitorable(&errorEvents_,false);
     jsonMonitor_->registerGlobalMonitorable(&processCheck_,false);
     jsonMonitor_->registerGlobalMonitorable(&filelist_,false);
     jsonMonitor_->commit(nullptr);
