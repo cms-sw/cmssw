@@ -123,10 +123,12 @@ void
 MuonGEMDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  theGEMStripDigiValidation->analyze(iEvent,iSetup );  
-  theGEMCSCPadDigiValidation->analyze(iEvent,iSetup );  
-  theGEMCSCCoPadDigiValidation->analyze(iEvent,iSetup );  
-  theGEMDigiTrackMatch->analyze(iEvent,iSetup) ;
+  if ( hasGEMGeometry_) { 
+    theGEMStripDigiValidation->analyze(iEvent,iSetup );  
+    theGEMCSCPadDigiValidation->analyze(iEvent,iSetup );  
+    theGEMCSCCoPadDigiValidation->analyze(iEvent,iSetup );  
+    theGEMDigiTrackMatch->analyze(iEvent,iSetup) ;
+  }
 }
 
 
@@ -156,17 +158,21 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
   gem_geometry_ = &*gem_geo_;
   dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
 
-  theGEMStripDigiValidation->setGeometry(gem_geometry_);
-  theGEMStripDigiValidation->bookHisto();
+  if ( gem_geometry_ != nullptr) hasGEMGeometry_ = true;
+  else edm::LogError("GEMStripDigiValidation")<<"Can not set geometry from GEMGeometry.\n";
 
-  theGEMCSCPadDigiValidation->setGeometry(gem_geometry_);
-  theGEMCSCPadDigiValidation->bookHisto();
-  theGEMCSCCoPadDigiValidation->setGeometry(gem_geometry_);
-  theGEMCSCCoPadDigiValidation->bookHisto();
+  if ( hasGEMGeometry_ ) {
 
+    theGEMStripDigiValidation->setGeometry(gem_geometry_);
+    theGEMStripDigiValidation->bookHisto();
+    theGEMCSCPadDigiValidation->setGeometry(gem_geometry_);
+    theGEMCSCPadDigiValidation->bookHisto();
+    theGEMCSCCoPadDigiValidation->setGeometry(gem_geometry_);
+    theGEMCSCCoPadDigiValidation->bookHisto();
 
-  theGEMDigiTrackMatch->setGeometry(gem_geometry_);
-  theGEMDigiTrackMatch->bookHisto();
+    theGEMDigiTrackMatch->setGeometry(gem_geometry_);
+    theGEMDigiTrackMatch->bookHisto();
+  }
 }
 
 

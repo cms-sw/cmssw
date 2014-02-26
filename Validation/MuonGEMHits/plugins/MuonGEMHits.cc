@@ -146,7 +146,7 @@ MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
   iSetup.get<MuonGeometryRecord>().get(gem_geom);
   gem_geometry_ = &*gem_geom;
   if( gem_geometry_ != nullptr) hasGEMGeometry_ = true;
-  else LogDebug("MuonGEMHits") << "+++ Warning: GEM geometry is unavailable. +++\n";
+  else edm::LogError("MuonGEMHits") << "+++ Error : GEM geometry is unavailable. +++\n";
 
   if( hasGEMGeometry_ ) {
     theGEMHitsValidation->setGeometry(gem_geometry_);

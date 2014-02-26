@@ -54,7 +54,7 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
   edm::Handle<GEMCSCPadDigiCollection> gem_digis;
   e.getByLabel(theInputTag, gem_digis);
   if (!gem_digis.isValid()) {
-    edm::LogError("GEMDigiValidation") << "Cannot get pads by label "
+    edm::LogError("GEMCSCPadDigiValidation") << "Cannot get pads by label "
                                        << theInputTag.encode();
   }
 
@@ -84,9 +84,9 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();
       Float_t g_z = (Float_t) gp.z();
-      edm::LogInfo("CSCPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";	
-      edm::LogInfo("CSCPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl;	
-      edm::LogInfo("CSCPadDIGIValidation")<<"Global bx "<<bx<<std::endl;	
+      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";	
+      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl;	
+      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global bx "<<bx<<std::endl;	
 
       int region_num=0;
       if ( region == -1 ) region_num = 0 ; 
@@ -107,7 +107,7 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
                 theCSCPad_zr_rp1->Fill(g_z,g_r);
       }
       else {
-        edm::LogInfo("CSCPadDIGIValidation")<<"region : "<<region<<std::endl;
+        edm::LogInfo("GEMCSCPadDIGIValidation")<<"region : "<<region<<std::endl;
       }
    }
   }

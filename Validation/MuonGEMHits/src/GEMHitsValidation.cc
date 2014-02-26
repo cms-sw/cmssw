@@ -10,37 +10,29 @@ GEMHitsValidation::GEMHitsValidation(DQMStore* dbe, const edm::InputTag & inputT
 
 void GEMHitsValidation::bookHisto() {
   LogDebug("MuonGEMHitsValidation")<<"Info : Loading Geometry information\n";
-
   dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
-
 
   Int_t nregion  = theGEMGeometry->regions().size();
   Int_t nstation = theGEMGeometry->regions()[0]->stations().size() ;
-
   npart    = theGEMGeometry->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
-
-
-  LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of region : "<<nregion<<std::endl;
-  LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of stations : "<<nstation<<std::endl;
-  LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of eta partition : "<< npart <<std::endl;
-
+  edm::LogInfo("MuonGEMHitsValidation")<<"+++ Info : # of region : "<<nregion<<std::endl;
+  edm::LogInfo("MuonGEMHitsValidation")<<"+++ Info : # of stations : "<<nstation<<std::endl;
+  edm::LogInfo("MuonGEMHitsValidation")<<"+++ Info : # of eta partition : "<< npart <<std::endl;
 
   std::vector< std::string > region;
   std::vector< std::string > station;
 
   if ( nregion == 2) { region.push_back("-1"); region.push_back("1"); }
-  else LogDebug("MuonGEMHitsValidation")<<"+++ Error : # of regions is not 2!\n";
+  else edm::LogWarning("MuonGEMHitsValidation")<<"+++ Error : # of regions is not 2!\n";
 
   if ( nstation == 1 ) { station.push_back("1"); } 
   else if ( nstation == 3 ) { station.push_back("1"); station.push_back("2"); station.push_back("3"); } 
-  else LogDebug("MuonGEMHitsValidation")<<"+++ Error : # of stations is not 1 or 3.\n"; 
+  else edm::LogWarning("MuonGEMHitsValidation")<<"+++ Error : # of stations is not 1 or 3.\n"; 
 
   std::string layer[2]= { "1","2" } ; 
   std::string has_muon[3]= { "_Muon","_noMuon","_All"} ;
 
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : finish to get geometry information from ES.\n";
-
-
 
   for( int i=0 ; i <3 ; i++) {
     gem_sh_zr_rm1[i] =  dbe_->book2D("gem_sh_zr_rm1"+has_muon[i], "SimHit occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,110,130,240);
@@ -87,7 +79,8 @@ void GEMHitsValidation::analyze(const edm::Event& e,
   e.getByLabel(theInputTag, GEMHits);
   if (!GEMHits.isValid()) {
     edm::LogError("GEMHitsValidation") << "Cannot get GEMHits by label "
-                                       << theInputTag.encode();
+                                      << theInputTag.encode();
+    return ;
   }
 
   for (auto hits=GEMHits->begin(); hits!=GEMHits->end(); hits++) {
