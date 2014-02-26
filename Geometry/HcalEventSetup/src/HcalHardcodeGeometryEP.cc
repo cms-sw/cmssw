@@ -20,7 +20,7 @@
 #include "Geometry/HcalEventSetup/interface/HcalHardcodeGeometryEP.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalFlexiHardcodeGeometryLoader.h"
@@ -49,11 +49,6 @@ HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps ) : 
 		   &HcalHardcodeGeometryEP::produceAligned,
 		   dependsOn( &HcalHardcodeGeometryEP::idealRecordCallBack ),
 		   HcalGeometry::producerTag() );
-
-// disable
-//   setWhatProduced( this,
-//		    &HcalHardcodeGeometryEP::produceIdeal,
-//		    edm::es::Label( "HCAL" ) );
 }
 
 
@@ -68,13 +63,8 @@ HcalHardcodeGeometryEP::~HcalHardcodeGeometryEP()
 
 // ------------ method called to produce the data  ------------
 
-void
-HcalHardcodeGeometryEP::idealRecordCallBack( const IdealGeometryRecord& iRecord )
-{
-}
-
 HcalHardcodeGeometryEP::ReturnType
-HcalHardcodeGeometryEP::produceIdeal( const IdealGeometryRecord& iRecord )
+HcalHardcodeGeometryEP::produceIdeal( const HcalRecNumberingRecord& iRecord )
 {
 
    edm::LogInfo("HCAL") << "Using default HCAL topology" ;
@@ -87,7 +77,7 @@ HcalHardcodeGeometryEP::produceIdeal( const IdealGeometryRecord& iRecord )
 HcalHardcodeGeometryEP::ReturnType
 HcalHardcodeGeometryEP::produceAligned( const HcalGeometryRecord& iRecord )
 {
-  const IdealGeometryRecord& idealRecord = iRecord.getRecord<IdealGeometryRecord>();
+  const HcalRecNumberingRecord& idealRecord = iRecord.getRecord<HcalRecNumberingRecord>();
   return produceIdeal (idealRecord);
 }
 

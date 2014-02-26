@@ -12,6 +12,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 namespace edm {
@@ -32,7 +33,9 @@ public:
 
   static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
     
-  ReturnType produce(const IdealGeometryRecord&);
+  ReturnType produce(const HcalRecNumberingRecord&);
+
+  void       hcalRecordCallBack( const IdealGeometryRecord& ) {}
 
 private:
   // ----------member data ---------------------------

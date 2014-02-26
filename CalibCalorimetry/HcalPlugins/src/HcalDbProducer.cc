@@ -28,8 +28,8 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
-
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "HcalDbProducer.h"
 
@@ -99,7 +99,7 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -117,7 +117,7 @@ void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecor
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -136,7 +136,7 @@ void HcalDbProducer::gainsCallback (const HcalGainsRcd& fRecord) {
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -155,7 +155,7 @@ void HcalDbProducer::gainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -173,7 +173,7 @@ void HcalDbProducer::QIEDataCallback (const HcalQIEDataRcd& fRecord) {
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -191,7 +191,7 @@ void HcalDbProducer::channelQualityCallback (const HcalChannelQualityRcd& fRecor
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -209,7 +209,7 @@ void HcalDbProducer::respCorrsCallback (const HcalRespCorrsRcd& fRecord) {
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -227,7 +227,7 @@ void HcalDbProducer::LUTCorrsCallback (const HcalLUTCorrsRcd& fRecord) {
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -245,7 +245,7 @@ void HcalDbProducer::PFCorrsCallback (const HcalPFCorrsRcd& fRecord) {
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -263,7 +263,7 @@ void HcalDbProducer::timeCorrsCallback (const HcalTimeCorrsRcd& fRecord) {
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -281,7 +281,7 @@ void HcalDbProducer::zsThresholdsCallback (const HcalZSThresholdsRcd& fRecord) {
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -299,7 +299,7 @@ void HcalDbProducer::L1triggerObjectsCallback (const HcalL1TriggerObjectsRcd& fR
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }
@@ -327,7 +327,7 @@ void HcalDbProducer::lutMetadataCallback (const HcalLutMetadataRcd& fRecord) {
 
   if (item->topo()==0) {
     edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     item->setTopo(topo);
   }

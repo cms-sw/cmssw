@@ -165,7 +165,7 @@ class RPCDetId :public DetId {
   static const int maxSubSectorForwardId=	 6;
 
   static const int minRollId=	  0;
-  static const int maxRollId=	  4;
+  static const int maxRollId=	  5;
 
 
  private:

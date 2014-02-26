@@ -14,7 +14,7 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalEndcapRecHitsMaker.h"
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalPreshowerRecHitsMaker.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // Random engine
@@ -191,7 +191,7 @@ void CaloRecHitsProducer::endJob()
 void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 {
    edm::ESHandle<HcalTopology> topo;
-   es.get<IdealGeometryRecord>().get( topo );
+   es.get<HcalRecNumberingRecord>().get( topo );
 
 
   // create empty outputs for HCAL 

@@ -21,7 +21,8 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-class HcalTPGRecord : public edm::eventsetup::DependentRecordImplementation<HcalTPGRecord, boost::mpl::vector<IdealGeometryRecord,HcalDbRecord> >{};
+class HcalTPGRecord : public edm::eventsetup::DependentRecordImplementation<HcalTPGRecord, boost::mpl::vector<HcalRecNumberingRecord,HcalDbRecord> >{};
 
 #endif

@@ -99,9 +99,10 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   std::cout <<" Getting the RPC Geometry"<<std::endl;
+   std::cout <<" RPCGEO :: analyze :: Getting the RPC Geometry"<<std::endl;
    edm::ESHandle<RPCGeometry> rpcGeo;
    iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+   std::cout <<" RPCGEO :: analyze :: Got the RPC Geometry"<<std::endl;
 
    int StripsInCMS=0;
    int counterstripsBarrel=0;
@@ -137,7 +138,7 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
      }
    }
 
-   
+   std::cout <<" RPCGEO :: analyze :: Loop over RPC Chambers"<<std::endl;
    for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
      if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
        RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
@@ -207,12 +208,13 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	 }
        }
 
+       std::cout <<" RPCGEO :: analyze :: Loop over RPC Rolls"<<std::endl;
        for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	 RPCDetId rpcId = (*r)->id();
-	 int stripsinthisroll=(*r)->nstrips();
+	 int n_strips=(*r)->nstrips();
 	 RPCGeomServ rpcsrv(rpcId);
 	 
-	 //std::cout<<rpcId<<rpcsrv.name()<<" strips="<<stripsinthisroll<<std::endl;
+	 //std::cout<<rpcId<<rpcsrv.name()<<" strips="<<n_strips<<std::endl;
 	 
 	 RollsInCMS++;
 	 
@@ -225,9 +227,10 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
 	   float stripl = top_->stripLength();
 	   float stripw = top_->pitch();
-	   areabarrel = areabarrel + stripl*stripw*stripsinthisroll;
-	   sumstripwbarrel=sumstripwbarrel+stripw*stripsinthisroll;
-	   std::cout<<" AllInfo"<<rpcsrv.name()<<" stripl="<<stripl<<" stripw="<<stripw<<" stripsinthisroll="<<stripsinthisroll<<" area roll="<<stripl*stripw<<" area total barrel="<<areabarrel<<std::endl;
+	   areabarrel = areabarrel + stripl*stripw*n_strips;
+	   sumstripwbarrel=sumstripwbarrel+stripw*n_strips;
+	   std::cout<<" All Info for "<<rpcsrv.name()<<" striplength = "<<stripl<<"[cm]  stripwidth = "<<stripw<<"[cm]  strips in this roll = "<<n_strips<<" area roll = "<<stripl*stripw*n_strips<<"[cm^2]"<<std::endl;
+	   // std::cout<<" area total barrel="<<areabarrel<<std::endl;
 	   counterRollsBarrel++; 
 	   if(rpcId.station()==4){
 	     counterRollsMB4++;
@@ -253,13 +256,25 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	 }else{
 	   const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&((*r)->topology()));
 	   float s1 = static_cast<float>(1)-0.5;
-	   float sLast = static_cast<float>(stripsinthisroll)-0.5;
+	   float sLast = static_cast<float>(n_strips)-0.5;
 	   float stripl = top_->stripLength();
 	   float stripw = top_->pitch();
-	   areaendcap = areaendcap + stripw*stripl*stripsinthisroll;
-	   sumstripwendcap=sumstripwendcap+stripw*stripsinthisroll;
+	   areaendcap = areaendcap + stripw*stripl*n_strips;
+	   sumstripwendcap=sumstripwendcap+stripw*n_strips;
+	   // calculation of min and max stripwidth
+	   float radius = top_->radius();
+	   float radius_along_stripside = sqrt(pow(radius, 2) + pow(stripw,2));
+	   // float stripangle = atan(stripw/radius);
+	   // float length_along_stripside = stripw / sin(stripangle);          // Trigonometry
+	   float length_along_stripside = stripl/radius*radius_along_stripside; // Thales
+	   float delta_stripw = sqrt(pow(length_along_stripside,2)-pow(stripl,2));
+	   
+	   float stripw_min = stripw - delta_stripw;
+	   float stripw_max = stripw + delta_stripw;
 
-	   std::cout<<" AllInfo"<<rpcsrv.name()<<" stripl="<<stripl<<" stripw="<<stripw<<" stripsinthisroll="<<stripsinthisroll<<" area roll="<<stripl*stripw<<" area total endcap="<<areaendcap<<std::endl;
+	   std::cout<<" All Info for "<<(int)rpcId<<" = "<<rpcsrv.name()<<" :: striplength = "<<stripl<<"[cm] stripwidth = "<<stripw<<"[cm] strips in this roll = "<<n_strips<<" area roll = "<<stripl*stripw*n_strips<<"[cm^2]"; 
+	   std::cout<<" min stripwidth = "<<stripw_min<<" max stripwidth = "<<stripw_max<<std::endl;
+	   // std::cout<< area total endcap="<<areaendcap<<std::endl;
 	   const BoundPlane & RPCSurface = (*r)->surface();
 	   GlobalPoint FirstStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(s1));
 	   GlobalPoint LastStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(sLast));
@@ -391,7 +406,7 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 
 
 	 	 
-	 for(int strip=1;strip<=stripsinthisroll;++strip){
+	 for(int strip=1;strip<=n_strips;++strip){
 	   //LocalPoint lCentre=(*r)->centreOfStrip(strip);
 	   //const BoundSurface& bSurface = (*r)->surface();
 	   //GlobalPoint gCentre = bSurface.toGlobal(lCentre);

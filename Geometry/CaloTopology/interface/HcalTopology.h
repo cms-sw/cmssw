@@ -37,6 +37,7 @@ public:
   /** Exclude an eta/phi/depth range for a given subdetector */
   int exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi1, int iphi2, int depth1=1, int depth2=4);
 
+  static std::string producerTag() { return "HCAL" ; }
 
   /// return a linear packed id
   virtual unsigned int detId2denseId(const DetId& id) const;

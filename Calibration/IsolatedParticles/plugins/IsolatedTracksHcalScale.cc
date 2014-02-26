@@ -81,12 +81,6 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology); 
   const CaloTopology *caloTopology = theCaloTopology.product();
   
-  /*  
-  edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<IdealGeometryRecord>().get(htopo);
-  const HcalTopology* theHBHETopology = htopo.product();
-  */
-
   // Retrieve the good/bad ECAL channels from the DB
   edm::ESHandle<EcalChannelStatus> ecalChStatus;
   iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);

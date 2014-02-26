@@ -200,7 +200,7 @@ std::auto_ptr<T> produce_impl (const std::string & fTag,
 
 std::auto_ptr<HcalPedestals> HcalOmdsCalibrations::producePedestals (const HcalPedestalsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
 
   return produce_impl<HcalPedestals> (topo, mInputs ["Pedestals"],
@@ -213,7 +213,7 @@ std::auto_ptr<HcalPedestals> HcalOmdsCalibrations::producePedestals (const HcalP
 
 std::auto_ptr<HcalPedestalWidths> HcalOmdsCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalPedestalWidths> (topo, mInputs ["PedestalWidths"], 
 					   mVersion["PedestalWidths"], 
@@ -225,7 +225,7 @@ std::auto_ptr<HcalPedestalWidths> HcalOmdsCalibrations::producePedestalWidths (c
 
 std::auto_ptr<HcalGains> HcalOmdsCalibrations::produceGains (const HcalGainsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalGains> (topo, mInputs ["Gains"], 
 				  mVersion["Gains"], 
@@ -237,7 +237,7 @@ std::auto_ptr<HcalGains> HcalOmdsCalibrations::produceGains (const HcalGainsRcd&
 
 std::auto_ptr<HcalGainWidths> HcalOmdsCalibrations::produceGainWidths (const HcalGainWidthsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalGainWidths> (topo, mInputs ["GainWidths"], 
 				       mVersion["GainWidths"], 
@@ -249,7 +249,7 @@ std::auto_ptr<HcalGainWidths> HcalOmdsCalibrations::produceGainWidths (const Hca
 
 std::auto_ptr<HcalQIEData> HcalOmdsCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalQIEData> (topo, mInputs ["QIEData"], 
 				    mVersion["QIEData"], 
@@ -261,7 +261,7 @@ std::auto_ptr<HcalQIEData> HcalOmdsCalibrations::produceQIEData (const HcalQIEDa
 
 std::auto_ptr<HcalChannelQuality> HcalOmdsCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalChannelQuality> (topo, mInputs ["ChannelQuality"], 
 					   mVersion["ChannelQuality"], 
@@ -273,7 +273,7 @@ std::auto_ptr<HcalChannelQuality> HcalOmdsCalibrations::produceChannelQuality (c
 
 std::auto_ptr<HcalZSThresholds> HcalOmdsCalibrations::produceZSThresholds (const HcalZSThresholdsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalZSThresholds> (topo, mInputs ["ZSThresholds"], 
 					 mVersion["ZSThresholds"], 
@@ -285,7 +285,7 @@ std::auto_ptr<HcalZSThresholds> HcalOmdsCalibrations::produceZSThresholds (const
 
 std::auto_ptr<HcalRespCorrs> HcalOmdsCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalRespCorrs> (topo, mInputs ["RespCorrs"], 
 				      mVersion["RespCorrs"], 
@@ -297,7 +297,7 @@ std::auto_ptr<HcalRespCorrs> HcalOmdsCalibrations::produceRespCorrs (const HcalR
 
 std::auto_ptr<HcalL1TriggerObjects> HcalOmdsCalibrations::produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalL1TriggerObjects> (topo, mInputs ["L1TriggerObjects"], 
 					     mVersion["L1TriggerObjects"], 
@@ -318,7 +318,7 @@ std::auto_ptr<HcalElectronicsMap> HcalOmdsCalibrations::produceElectronicsMap (c
 
 std::auto_ptr<HcalValidationCorrs> HcalOmdsCalibrations::produceValidationCorrs (const HcalValidationCorrsRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalValidationCorrs> (topo, mInputs ["ValidationCorrs"], 
 					    mVersion["ValidationCorrs"], 
@@ -330,7 +330,7 @@ std::auto_ptr<HcalValidationCorrs> HcalOmdsCalibrations::produceValidationCorrs 
 
 std::auto_ptr<HcalLutMetadata> HcalOmdsCalibrations::produceLutMetadata (const HcalLutMetadataRcd& rcd) {
   edm::ESHandle<HcalTopology> htopo;
-  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
   return produce_impl<HcalLutMetadata> (topo, mInputs ["LutMetadata"], 
 					mVersion["LutMetadata"], 

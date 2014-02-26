@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentErrorRcd.h"
 #include "Geometry/Records/interface/PHcalRcd.h"
@@ -25,6 +26,7 @@ class HcalGeometryRecord :
    HcalGeometryRecord,
 		boost::mpl::vector<
                 IdealGeometryRecord,
+                HcalRecNumberingRecord,
 		HcalAlignmentRcd, 
 		HcalAlignmentErrorRcd,
 		GlobalPositionRcd,

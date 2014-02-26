@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -214,7 +214,7 @@ void HcalBaseDQClient::htmlOutput(std::string htmlDir)
 void HcalBaseDQClient::getLogicalMap(const edm::EventSetup& c) {
   if (needLogicalMap_ && logicalMap_==0) {
     edm::ESHandle<HcalTopology> pT;
-    c.get<IdealGeometryRecord>().get(pT);   
+    c.get<HcalRecNumberingRecord>().get(pT);   
     HcalLogicalMapGenerator gen;
     logicalMap_=new HcalLogicalMap(gen.createMap(&(*pT)));
   }

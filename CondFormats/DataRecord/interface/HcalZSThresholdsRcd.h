@@ -20,8 +20,8 @@
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-class HcalZSThresholdsRcd : public edm::eventsetup::DependentRecordImplementation<HcalZSThresholdsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
+class HcalZSThresholdsRcd : public edm::eventsetup::DependentRecordImplementation<HcalZSThresholdsRcd, boost::mpl::vector<HcalRecNumberingRecord> > {};
 
 #endif

@@ -18082,76 +18082,76 @@ startPhi="0*deg" deltaPhi="360*deg" -->
 <Box name="BModule12Layer6OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
 <Box name="Rod6" dx="4.022*mm" dy="45.72*mm" dz="1169.44*mm"/>
 <Tubs name="Layer6" rMin="1063.98*mm" rMax="1096.98*mm" dz="1169.44*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Trd1 name="EModule14Disc8" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule14Disc8INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc8OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc8INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc8OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc8" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule13Disc8INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc8OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc8INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc8OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc8" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule12Disc8INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc8OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc8INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc8OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc8" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule11Disc8INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc8OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc8INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc8OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc8" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule10Disc8INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc8OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc8INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc8OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc8" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule9Disc8INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc8OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc8INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc8OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc8" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule8Disc8INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc8OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc8INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc8OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc8" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule7Disc8INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc8OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc8INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc8OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc8" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule6Disc8INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc8OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc8INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc8OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc8" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule5Disc8INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc8OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc8INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc8OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc8" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule4Disc8INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc8OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc8INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc8OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc8" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule3Disc8INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc8OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc8INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc8OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc8" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule2Disc8INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc8OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc8INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc8OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc8" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule1Disc8INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc8OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc8INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc8OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc8" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule14Disc8INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc8OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc8INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc8OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc8" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule13Disc8INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc8OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc8INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc8OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc8" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule12Disc8INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc8OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc8INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc8OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc8" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule11Disc8INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc8OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc8INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc8OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc8" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule10Disc8INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc8OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc8INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc8OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc8" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule9Disc8INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc8OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc8INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc8OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc8" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule8Disc8INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc8OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc8INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc8OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc8" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule7Disc8INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc8OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc8INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc8OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc8" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule6Disc8INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc8OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc8INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc8OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc8" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule5Disc8INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc8OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc8INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc8OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc8" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule4Disc8INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc8OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc8INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc8OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc8" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule3Disc8INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc8OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc8INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc8OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc8" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule2Disc8INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc8OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc8INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc8OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc8" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule1Disc8INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc8OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc8INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc8OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Tubs name="Ring1Disc8" rMin="288.033*mm" rMax="337.721*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring2Disc8" rMin="320.0*mm" rMax="369.367*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring3Disc8" rMin="366.701*mm" rMax="415.743*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -18167,76 +18167,76 @@ startPhi="0*deg" deltaPhi="360*deg" -->
 <Tubs name="Ring13Disc8" rMin="935.262*mm" rMax="1036.77*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring14Disc8" rMin="994.54*mm" rMax="1095.95*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Disc8" rMin="288.033*mm" rMax="1095.95*mm" dz="28.1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Trd1 name="EModule14Disc9" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule14Disc9INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc9OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc9INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc9OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc9" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule13Disc9INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc9OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc9INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc9OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc9" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule12Disc9INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc9OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc9INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc9OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc9" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule11Disc9INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc9OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc9INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc9OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc9" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule10Disc9INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc9OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc9INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc9OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc9" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule9Disc9INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc9OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc9INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc9OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc9" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule8Disc9INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc9OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc9INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc9OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc9" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule7Disc9INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc9OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc9INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc9OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc9" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule6Disc9INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc9OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc9INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc9OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc9" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule5Disc9INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc9OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc9INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc9OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc9" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule4Disc9INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc9OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc9INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc9OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc9" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule3Disc9INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc9OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc9INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc9OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc9" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule2Disc9INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc9OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc9INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc9OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc9" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule1Disc9INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc9OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc9INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc9OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc9" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule14Disc9INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc9OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc9INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc9OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc9" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule13Disc9INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc9OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc9INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc9OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc9" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule12Disc9INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc9OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc9INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc9OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc9" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule11Disc9INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc9OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc9INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc9OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc9" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule10Disc9INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc9OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc9INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc9OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc9" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule9Disc9INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc9OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc9INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc9OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc9" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule8Disc9INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc9OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc9INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc9OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc9" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule7Disc9INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc9OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc9INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc9OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc9" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule6Disc9INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc9OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc9INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc9OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc9" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule5Disc9INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc9OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc9INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc9OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc9" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule4Disc9INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc9OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc9INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc9OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc9" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule3Disc9INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc9OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc9INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc9OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc9" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule2Disc9INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc9OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc9INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc9OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc9" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule1Disc9INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc9OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc9INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc9OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Tubs name="Ring1Disc9" rMin="288.033*mm" rMax="337.721*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring2Disc9" rMin="320.0*mm" rMax="369.367*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring3Disc9" rMin="366.701*mm" rMax="415.743*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -18252,76 +18252,76 @@ startPhi="0*deg" deltaPhi="360*deg" -->
 <Tubs name="Ring13Disc9" rMin="935.262*mm" rMax="1036.77*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring14Disc9" rMin="994.54*mm" rMax="1095.95*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Disc9" rMin="288.033*mm" rMax="1095.95*mm" dz="28.1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Trd1 name="EModule14Disc10" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule14Disc10INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc10OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc10INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc10OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc10" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule13Disc10INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc10OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc10INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc10OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc10" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule12Disc10INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc10OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc10INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc10OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc10" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule11Disc10INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc10OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc10INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc10OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc10" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule10Disc10INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc10OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc10INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc10OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc10" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule9Disc10INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc10OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc10INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc10OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc10" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule8Disc10INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc10OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc10INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc10OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc10" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule7Disc10INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc10OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc10INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc10OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc10" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule6Disc10INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc10OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc10INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc10OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc10" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule5Disc10INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc10OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc10INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc10OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc10" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule4Disc10INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc10OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc10INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc10OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc10" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule3Disc10INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc10OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc10INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc10OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc10" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule2Disc10INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc10OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc10INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc10OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc10" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule1Disc10INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc10OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc10INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc10OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc10" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule14Disc10INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc10OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc10INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc10OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc10" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule13Disc10INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc10OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc10INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc10OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc10" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule12Disc10INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc10OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc10INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc10OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc10" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule11Disc10INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc10OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc10INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc10OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc10" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule10Disc10INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc10OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc10INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc10OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc10" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule9Disc10INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc10OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc10INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc10OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc10" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule8Disc10INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc10OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc10INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc10OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc10" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule7Disc10INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc10OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc10INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc10OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc10" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule6Disc10INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc10OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc10INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc10OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc10" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule5Disc10INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc10OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc10INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc10OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc10" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule4Disc10INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc10OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc10INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc10OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc10" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule3Disc10INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc10OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc10INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc10OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc10" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule2Disc10INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc10OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc10INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc10OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc10" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule1Disc10INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc10OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc10INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc10OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Tubs name="Ring1Disc10" rMin="288.033*mm" rMax="337.721*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring2Disc10" rMin="320.0*mm" rMax="369.367*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring3Disc10" rMin="366.701*mm" rMax="415.743*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -18337,76 +18337,76 @@ startPhi="0*deg" deltaPhi="360*deg" -->
 <Tubs name="Ring13Disc10" rMin="935.262*mm" rMax="1036.77*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring14Disc10" rMin="994.54*mm" rMax="1095.95*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Disc10" rMin="288.033*mm" rMax="1095.95*mm" dz="28.1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Trd1 name="EModule14Disc11" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule14Disc11INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc11OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc11INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc11OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc11" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule13Disc11INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc11OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc11INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc11OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc11" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule12Disc11INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc11OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc11INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc11OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc11" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule11Disc11INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc11OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc11INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc11OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc11" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule10Disc11INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc11OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc11INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc11OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc11" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="2.1*mm"/>
-<Trd1 name="EModule9Disc11INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc11OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc11INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc11OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc11" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule8Disc11INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc11OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc11INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc11OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc11" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule7Disc11INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc11OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc11INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc11OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc11" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule6Disc11INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc11OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc11INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc11OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc11" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule5Disc11INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc11OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc11INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc11OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc11" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule4Disc11INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc11OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc11INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc11OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc11" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule3Disc11INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc11OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc11INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc11OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc11" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule2Disc11INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc11OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc11INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc11OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc11" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule1Disc11INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc11OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc11INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule1Disc11OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc11" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule14Disc11INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc11OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc11INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc11OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc11" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule13Disc11INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc11OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc11INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc11OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc11" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule12Disc11INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc11OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc11INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc11OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc11" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule11Disc11INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc11OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc11INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc11OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc11" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule10Disc11INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc11OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc11INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc11OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc11" dx="45.72*mm" dy="50.25*mm" dz="2.1*mm"/>
+<Box name="EModule9Disc11INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc11OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc11INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc11OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc11" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule8Disc11INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc11OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc11INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc11OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc11" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule7Disc11INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc11OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc11INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc11OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc11" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule6Disc11INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc11OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc11INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc11OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc11" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule5Disc11INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc11OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc11INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc11OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc11" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule4Disc11INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc11OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc11INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc11OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc11" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule3Disc11INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc11OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc11INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc11OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc11" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule2Disc11INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc11OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc11INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc11OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc11" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule1Disc11INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc11OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc11INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule1Disc11OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Tubs name="Ring1Disc11" rMin="288.033*mm" rMax="337.721*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring2Disc11" rMin="320.0*mm" rMax="369.367*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring3Disc11" rMin="366.701*mm" rMax="415.743*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -18422,71 +18422,71 @@ startPhi="0*deg" deltaPhi="360*deg" -->
 <Tubs name="Ring13Disc11" rMin="935.262*mm" rMax="1036.77*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring14Disc11" rMin="994.54*mm" rMax="1095.95*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Disc11" rMin="288.033*mm" rMax="1095.95*mm" dz="28.1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Trd1 name="EModule14Disc12" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule14Disc12INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc12OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc12INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc12OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc12" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule13Disc12INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc12OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc12INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc12OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc12" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule12Disc12INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc12OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc12INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc12OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc12" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule11Disc12INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc12OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc12INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc12OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc12" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="2.1*mm"/>
-<Trd1 name="EModule10Disc12INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc12OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc12INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc12OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc12" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="2.1*mm"/>
-<Trd1 name="EModule9Disc12INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc12OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc12INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc12OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc12" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule8Disc12INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc12OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc12INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc12OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc12" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule7Disc12INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc12OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc12INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc12OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc12" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule6Disc12INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc12OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc12INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc12OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc12" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule5Disc12INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc12OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc12INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc12OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc12" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule4Disc12INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc12OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc12INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc12OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc12" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule3Disc12INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc12OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc12INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc12OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc12" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule2Disc12INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc12OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc12INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule2Disc12OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc12" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule14Disc12INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc12OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc12INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc12OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc12" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule13Disc12INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc12OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc12INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc12OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc12" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule12Disc12INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc12OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc12INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc12OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc12" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule11Disc12INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc12OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc12INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc12OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc12" dx="45.72*mm" dy="50.25*mm" dz="2.1*mm"/>
+<Box name="EModule10Disc12INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc12OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc12INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc12OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc12" dx="45.72*mm" dy="50.25*mm" dz="2.1*mm"/>
+<Box name="EModule9Disc12INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc12OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc12INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc12OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc12" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule8Disc12INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc12OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc12INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc12OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc12" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule7Disc12INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc12OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc12INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc12OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc12" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule6Disc12INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc12OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc12INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc12OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc12" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule5Disc12INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc12OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc12INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc12OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc12" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule4Disc12INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc12OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc12INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc12OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc12" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule3Disc12INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc12OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc12INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc12OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc12" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule2Disc12INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc12OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc12INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule2Disc12OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Tubs name="Ring2Disc12" rMin="320.0*mm" rMax="369.367*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring3Disc12" rMin="366.701*mm" rMax="415.743*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring4Disc12" rMin="395.179*mm" rMax="444.136*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -18501,66 +18501,66 @@ startPhi="0*deg" deltaPhi="360*deg" -->
 <Tubs name="Ring13Disc12" rMin="935.262*mm" rMax="1036.77*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring14Disc12" rMin="994.54*mm" rMax="1095.95*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Disc12" rMin="320.0*mm" rMax="1095.95*mm" dz="28.1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Trd1 name="EModule14Disc13" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule14Disc13INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc13OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc13INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc13OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc13" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule13Disc13INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc13OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc13INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc13OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc13" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule12Disc13INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc13OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc13INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc13OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc13" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule11Disc13INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc13OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc13INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc13OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc13" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="2.1*mm"/>
-<Trd1 name="EModule10Disc13INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc13OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc13INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc13OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc13" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="2.1*mm"/>
-<Trd1 name="EModule9Disc13INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc13OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc13INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc13OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc13" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule8Disc13INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc13OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc13INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc13OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc13" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule7Disc13INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc13OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc13INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc13OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc13" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule6Disc13INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc13OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc13INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc13OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc13" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule5Disc13INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc13OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc13INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc13OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc13" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule4Disc13INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc13OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc13INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc13OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc13" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule3Disc13INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc13OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc13INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule3Disc13OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc13" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule14Disc13INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc13OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc13INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc13OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc13" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule13Disc13INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc13OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc13INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc13OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc13" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule12Disc13INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc13OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc13INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc13OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc13" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule11Disc13INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc13OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc13INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc13OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc13" dx="45.72*mm" dy="50.25*mm" dz="2.1*mm"/>
+<Box name="EModule10Disc13INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc13OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc13INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc13OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc13" dx="45.72*mm" dy="50.25*mm" dz="2.1*mm"/>
+<Box name="EModule9Disc13INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc13OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc13INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc13OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc13" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule8Disc13INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc13OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc13INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc13OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc13" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule7Disc13INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc13OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc13INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc13OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc13" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule6Disc13INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc13OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc13INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc13OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc13" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule5Disc13INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc13OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc13INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc13OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc13" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule4Disc13INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc13OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc13INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc13OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc13" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule3Disc13INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc13OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc13INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule3Disc13OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Tubs name="Ring3Disc13" rMin="366.701*mm" rMax="415.743*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring4Disc13" rMin="395.179*mm" rMax="444.136*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring5Disc13" rMin="442.302*mm" rMax="490.917*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -18574,61 +18574,61 @@ startPhi="0*deg" deltaPhi="360*deg" -->
 <Tubs name="Ring13Disc13" rMin="935.262*mm" rMax="1036.77*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring14Disc13" rMin="994.54*mm" rMax="1095.95*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Disc13" rMin="366.701*mm" rMax="1095.95*mm" dz="28.1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Trd1 name="EModule14Disc14" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule14Disc14INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc14OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc14INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule14Disc14OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc14" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule13Disc14INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc14OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc14INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule13Disc14OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc14" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="1*mm"/>
-<Trd1 name="EModule12Disc14INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc14OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc14INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule12Disc14OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc14" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="2.1*mm"/>
-<Trd1 name="EModule11Disc14INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc14OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc14INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule11Disc14OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc14" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="2.1*mm"/>
-<Trd1 name="EModule10Disc14INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc14OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc14INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule10Disc14OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc14" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="2.1*mm"/>
-<Trd1 name="EModule9Disc14INNERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc14OUTERwafer" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc14INNERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule9Disc14OUTERactive" dx1="45.72*mm" dx2="45.72*mm" dy1="50.25*mm" dy2="50.25*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc14" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule8Disc14INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc14OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc14INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule8Disc14OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc14" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule7Disc14INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc14OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc14INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule7Disc14OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc14" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule6Disc14INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc14OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc14INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule6Disc14OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc14" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule5Disc14INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc14OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc14INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule5Disc14OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc14" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="2.1*mm"/>
-<Trd1 name="EModule4Disc14INNERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc14OUTERwafer" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc14INNERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
-<Trd1 name="EModule4Disc14OUTERactive" dx1="48*mm" dx2="48*mm" dy1="23.13*mm" dy2="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc14" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule14Disc14INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc14OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc14INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule14Disc14OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc14" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule13Disc14INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc14OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc14INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule13Disc14OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc14" dx="45.72*mm" dy="50.25*mm" dz="1*mm"/>
+<Box name="EModule12Disc14INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc14OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc14INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule12Disc14OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc14" dx="45.72*mm" dy="50.25*mm" dz="2.1*mm"/>
+<Box name="EModule11Disc14INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc14OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc14INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule11Disc14OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc14" dx="45.72*mm" dy="50.25*mm" dz="2.1*mm"/>
+<Box name="EModule10Disc14INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc14OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc14INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule10Disc14OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc14" dx="45.72*mm" dy="50.25*mm" dz="2.1*mm"/>
+<Box name="EModule9Disc14INNERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc14OUTERwafer" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc14INNERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule9Disc14OUTERactive" dx="45.72*mm" dy="50.25*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc14" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule8Disc14INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc14OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc14INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule8Disc14OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc14" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule7Disc14INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc14OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc14INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule7Disc14OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc14" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule6Disc14INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc14OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc14INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule6Disc14OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc14" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule5Disc14INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc14OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc14INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule5Disc14OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc14" dx="48*mm" dy="23.13*mm" dz="2.1*mm"/>
+<Box name="EModule4Disc14INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc14OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc14INNERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
+<Box name="EModule4Disc14OUTERactive" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Tubs name="Ring4Disc14" rMin="395.179*mm" rMax="444.136*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring5Disc14" rMin="442.302*mm" rMax="490.917*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="Ring6Disc14" rMin="467.596*mm" rMax="516.135*mm" dz="10*mm" startPhi="0*deg" deltaPhi="360*deg"/>
