@@ -107,11 +107,10 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
 
   if (!singleBufferMode_)
   {
-    //  usleep(10000);
     for (unsigned int i=0;i<numConcurrentReads_;i++)
     {
       std::unique_lock<std::mutex> lk(startupLock_);
-      //issue a memory fence here and in threads (was crashing without this?)
+      //issue a memory fence here and in threads (constructor was segfaulting without this)
       thread_quit_signal.push_back(false);
       workerJob_.push_back(ReaderInfo(nullptr,nullptr));
       cvReader_.push_back(new std::condition_variable);
@@ -161,7 +160,7 @@ bool FedRawDataInputSource::checkNextEvent()
       if (fms_) fms_->reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
       eventsThisLumi_=0;
       resetLuminosityBlockAuxiliary();
-      std::cout << "----------------RUN ENDED----------------" << std::endl;
+       edm::LogInfo("FedRawDataInputSource") << "----------------RUN ENDED----------------";
       return false;
     }
     case evf::EvFDaqDirector::noFile: {
@@ -622,7 +621,6 @@ void FedRawDataInputSource::readSupervisor()
 
     evf::EvFDaqDirector::FileStatus status =  evf::EvFDaqDirector::noFile;
 
-    //try until there is file
     while (status == evf::EvFDaqDirector::noFile) {
       if (quit_threads_) {
 	stop=true;
@@ -659,7 +657,7 @@ void FedRawDataInputSource::readSupervisor()
       int eventsInNewFile = grabNextJsonFile(jsonFile);
       assert( eventsInNewFile>=0 );
 
-      //calculate needed chunks
+      //calculate n. of needed chunks
       unsigned int neededChunks = fileSize/eventChunkSize_;
       if (fileSize%eventChunkSize_) neededChunks++;
 
@@ -687,14 +685,13 @@ void FedRawDataInputSource::readSupervisor()
 
         workerJob_[newTid].first=newInputFile;
         workerJob_[newTid].second=newChunk;
-	//ls.unlock();
 
 	//wake up the worker thread
 	cvReader_[newTid]->notify_one();
       }
     }
   }
-  //make sure threads finish reading what they have
+  //make sure threads finish reading
   unsigned numFinishedThreads = 0;
   while (numFinishedThreads < workerThreads_.size()) {
     unsigned int tid;
@@ -737,7 +734,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     InputFile * file;
     InputChunk * chunk;
 
-    //condition variable most likely ensures cache coherency for there, but let's leave it here for now
+    //leaving this here for now
     int count = 1;//DEBUG
     while (count && ! (file = workerJob_[tid].first)) {count--;}
     while (count && ! (chunk = workerJob_[tid].second)) {count--;}
@@ -826,7 +823,7 @@ inline bool FedRawDataInputSource::InputFile::advance(unsigned char* & dataPosit
 inline void FedRawDataInputSource::InputFile::moveToPreviousChunk(const size_t size, const size_t offset)
 {
   //this will fail in case of events that are too large
-  assert(size < chunks_[currentChunk_]->size_ - chunkPosition_);//DEBUG
+  assert(size < chunks_[currentChunk_]->size_ - chunkPosition_);
   assert(size - offset < chunks_[currentChunk_]->size_);
   memcpy(chunks_[currentChunk_-1]->buf_+offset,chunks_[currentChunk_]->buf_+chunkPosition_,size);
   chunkPosition_+=size;
