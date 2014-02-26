@@ -4,7 +4,8 @@ import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = (cms.InputTag('hiGlobalPrimTracks'),
                       cms.InputTag('hiSecondPixelTripletGlobalPrimTracks'),
-                      cms.InputTag('hiPixelPairGlobalPrimTracks')),
+                      cms.InputTag('hiPixelPairGlobalPrimTracks')
+                     ),
     hasSelector=cms.vint32(1,1,1),
     selectedTrackQuals = cms.VInputTag(
     cms.InputTag("hiInitialStepSelector","hiInitialStep"),

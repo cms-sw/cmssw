@@ -20,12 +20,12 @@ electronGsfTrackingHi = cms.Sequence(ecalDrivenElectronSeeds *
 # run the supercluster(EE+EB)-GSF track association ==> output: recoGsfElectrons_gsfElectrons__RECO
 from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
-gsfElectrons.ctfTracks     = cms.InputTag("hiSelectedTracks")
-gsfElectronCores.ctfTracks = cms.InputTag("hiSelectedTracks")
+gsfElectrons.ctfTracks     = cms.InputTag("hiGeneralTracks")
+gsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
 pfElectronTranslator.emptyIsOk = cms.bool(True)
 
-ecalDrivenGsfElectrons.ctfTracksTag = cms.InputTag("hiSelectedTracks")
-ecalDrivenGsfElectronCores.ctfTracks = cms.InputTag("hiSelectedTracks")
+ecalDrivenGsfElectrons.ctfTracksTag = cms.InputTag("hiGeneralTracks")
+ecalDrivenGsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
 
 ecalDrivenGsfElectrons.maxHOverEBarrel = cms.double(0.25)
 ecalDrivenGsfElectrons.maxHOverEEndcaps = cms.double(0.25)

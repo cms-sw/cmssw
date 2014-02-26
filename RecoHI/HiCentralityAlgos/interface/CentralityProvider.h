@@ -15,7 +15,7 @@ class CentralityProvider : public CentralityBins {
   CentralityProvider(const edm::EventSetup& iSetup);
   ~CentralityProvider(){;}
 
-  enum VariableType {HFtowers,HFhits,PixelHits,PixelTracks,Tracks,EB,EE,Missing};
+  enum VariableType {HFtowers, HFtowersPlus, HFtowersMinus, HFtowersTrunc, HFtowersPlusTrunc, HFtowersMinusTrunc, HFhits, PixelHits, PixelTracks, Tracks, EB, EE, Missing};
 
   int getNbins() const {return table_.size();}
   double centralityValue() const;
@@ -43,6 +43,7 @@ class CentralityProvider : public CentralityBins {
   unsigned int prevRun_;
   mutable edm::Handle<reco::Centrality> chandle_;
   VariableType varType_;
+  unsigned int pPbRunFlip_;
 };
 
 #endif

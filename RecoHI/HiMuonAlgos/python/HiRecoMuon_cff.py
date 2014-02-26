@@ -2,13 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 
-hiTracks = 'hiSelectedTracks' #heavy ion track label
+hiTracks = 'hiGeneralTracks' #heavy ion track label
 
 # replace with heavy ion track label
 muons = muons1stStep.clone()
 muons.inputCollectionLabels = [hiTracks, 'globalMuons', 'standAloneMuons:UpdatedAtVtx','tevMuons:firstHit','tevMuons:picky','tevMuons:dyt']
 muons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks','tev firstHit', 'tev picky', 'tev dyt']
 muons.TrackExtractorPSet.inputTrackCollection = hiTracks
+muons.minPt = cms.double(0.8)
 #muons.fillGlobalTrackRefits = False
 muonEcalDetIds.inputCollection = "muons"
 
@@ -21,7 +22,9 @@ muIsoDepositCalByAssociatorTowers.inputTags = cms.VInputTag(cms.InputTag("muons:
 
 muonShowerInformation.muonCollection = "muons"
 
-muonreco_plus_isolation.replace(muons1stStep, muons)
+#don't modify somebody else's sequence, create a new one if needed
+muonreco_plus_isolation_PbPb = muonreco_plus_isolation.expandAndClone()
+muonreco_plus_isolation_PbPb.replace(muons1stStep, muons)
 
 globalMuons.TrackerCollectionLabel = hiTracks
 
@@ -33,5 +36,5 @@ muons.JetExtractorPSet.JetCollectionLabel = cms.InputTag("iterativeConePu5CaloJe
 
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
 
-muonRecoPbPb = cms.Sequence(muonreco_plus_isolation)
+muonRecoPbPb = cms.Sequence(muonreco_plus_isolation_PbPb)
 

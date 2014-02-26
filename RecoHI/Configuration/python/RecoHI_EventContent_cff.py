@@ -8,7 +8,6 @@ from RecoHI.HiCentralityAlgos.RecoHiCentrality_EventContent_cff import *
 from RecoHI.HiEvtPlaneAlgos.RecoHiEvtPlane_EventContent_cff import *
 from RecoHI.HiMuonAlgos.RecoHiMuon_EventContent_cff import *
 
-
 # combine RECO, AOD, FEVT content from all RecoHI packages
 # RecoHI event contents to be included by Configuration.EventContent.EventContentHeavyIons_cff
 

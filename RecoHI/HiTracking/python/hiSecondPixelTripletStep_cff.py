@@ -37,12 +37,19 @@ import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
 hiSecondPixelTripletSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
     RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
-    ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
-    RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
-    ptMin = 4.0,
-    originRadius = 0.005,
-    nSigmaZ = 4.0
-    )
+    ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer'),
+	RegionPSet = cms.PSet(
+            precise = cms.bool(True),
+            beamSpot = cms.InputTag("offlineBeamSpot"),
+            useFixedError = cms.bool(False), #def value True
+            nSigmaZ = cms.double(4.0),
+            sigmaZVertex = cms.double(4.0), #def value 3
+            fixedError = cms.double(0.2),
+            VertexCollection = cms.InputTag("hiSelectedVertex"),
+            ptMin = cms.double(0.4),
+            useFoundVertices = cms.bool(True),
+            originRadius = cms.double(0.02)
+        )
     )
 )
 
@@ -62,7 +69,8 @@ hiSecondPixelTripletTrajectoryFilter = TrackingTools.TrajectoryFiltering.Traject
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     maxLostHits = 1,
     minimumNumberOfHits = 6,
-    minPt = 1.0
+    # minPt = 1.0
+    minPt = 0.4
     )
     )
 
@@ -75,16 +83,31 @@ hiSecondPixelTripletChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstima
 
 
 # TRACK BUILDING
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
+# import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
+# hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
+    # ComponentName = 'hiSecondPixelTripletTrajectoryBuilder',
+    # MeasurementTrackerName = '',
+    # trajectoryFilterName = 'hiSecondPixelTripletTrajectoryFilter',
+    # clustersToSkip = cms.InputTag('hiSecondPixelTripletClusters'),
+    # maxCand = 3, #check with 2 and 4
+    # estimator = cms.string('hiSecondPixelTripletChi2Est')
+    # )
+
+ 
+# TRACK BUILDING
+import RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi
+hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi.CkfTrajectoryBuilder.clone(
     ComponentName = 'hiSecondPixelTripletTrajectoryBuilder',
     MeasurementTrackerName = '',
     trajectoryFilterName = 'hiSecondPixelTripletTrajectoryFilter',
     clustersToSkip = cms.InputTag('hiSecondPixelTripletClusters'),
     maxCand = 3,
-    #estimator = cms.string('hiSecondPixelTripletChi2Est')
-    )
-
+    estimator = cms.string('hiSecondPixelTripletChi2Est'),
+    maxDPhiForLooperReconstruction = cms.double(2.0),
+    # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
+    # of the outermost Tracker barrel layer (with B=3.8T)
+    maxPtForLooperReconstruction = cms.double(0.7) 
+    )   
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
@@ -99,7 +122,8 @@ hiSecondPixelTripletTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiSecondPixelTripletGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'hiSecondPixelTripletTrackCandidates',
-    AlgorithmName = cms.string('iter1')
+    AlgorithmName = cms.string('iter1'),
+    Fitter=cms.string('FlexibleKFFittingSmoother')
     )
 
 
@@ -119,7 +143,7 @@ hiSecondPixelTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hi
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
     name = 'hiSecondPixelTripletStep',
     preFilterName = 'hiSecondPixelTripletStepTight',
-    min_nhits = 14
+    # min_nhits = 14
     ),
     ) #end of vpset
     ) #end of clone

@@ -1,19 +1,6 @@
-// -*- C++ -*-
-//
-// Package:    HiTrivialConditionRetriever
-// Class:      HiTrivialConditionRetriever
-// 
-/**\class HiTrivialConditionRetriever HiTrivialConditionRetriever.cc yetkin/HiTrivialConditionRetriever/src/HiTrivialConditionRetriever.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
 //
 // Original Author:  Yetkin Yilmaz
 //         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: HiTrivialConditionRetriever.cc,v 1.1 2010/03/23 21:56:39 yilmaz Exp $
 //
 //
 
