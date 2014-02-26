@@ -86,20 +86,12 @@ MuonGEMHits_Harvesting::MuonGEMHits_Harvesting(const edm::ParameterSet& ps)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
    //now do what ever initialization is needed
-  
 }
 
 
 
 MuonGEMHits_Harvesting::~MuonGEMHits_Harvesting()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-
-
-
 }
 
 
@@ -114,12 +106,6 @@ MuonGEMHits_Harvesting::~MuonGEMHits_Harvesting()
 void
 MuonGEMHits_Harvesting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
- 
-  
-
-
-
 }
 
 
