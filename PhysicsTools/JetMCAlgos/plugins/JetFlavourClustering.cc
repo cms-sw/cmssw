@@ -206,7 +206,7 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig) :
    else if (jetAlgorithm_=="AntiKt")
      fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(fastjet::antikt_algorithm, rParam_) );
    else
-     throw cms::Exception("InvalidJetAlgorithm") <<"Jet clustering algorithm is invalid: " << jetAlgorithm_ << ", use CambridgeAachen | Kt | AntiKt" << std::endl;
+     throw cms::Exception("InvalidJetAlgorithm") << "Jet clustering algorithm is invalid: " << jetAlgorithm_ << ", use CambridgeAachen | Kt | AntiKt" << std::endl;
 }
 
 
@@ -301,7 +301,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::vector<fastjet::PseudoJet> inclusiveJets = fastjet::sorted_by_pt( fjClusterSeq_->inclusive_jets(jetPtMin_) );
 
    if( inclusiveJets.size() < jets->size() )
-     throw cms::Exception("TooFewReclusteredJets") << "There are fewer reclustered than original jets. Please check that the jet algorithm and jet size match those used for the original jet collection.";
+     throw cms::Exception("TooFewReclusteredJets") << "There are fewer reclustered (" << inclusiveJets.size() << ") than original jets (" << jets->size() << "). Please check that the jet algorithm and jet size match those used for the original jet collection.";
 
    // match reclustered and original jets
    std::vector<int> reclusteredIndices;
@@ -312,7 +312,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if( useSubjets_ )
    {
      if( groomedJets->size() > jets->size() )
-       throw cms::Exception("TooManyGroomedJets") << "There are more groomed than original jets. Please check that the jet algorithm, jet size, and Pt threshold match for the two jet collections.";
+       throw cms::Exception("TooManyGroomedJets") << "There are more groomed (" << groomedJets->size() << ") than original jets (" << jets->size() << "). Please check that the jet algorithm, jet size, and Pt threshold match for the two jet collections.";
 
      matchGroomedJets(jets,groomedJets,groomedIndices);
    }
@@ -328,8 +328,15 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for(size_t i=0; i<jets->size(); ++i)
    {
      // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original jets should in principle stay the same
-     if( ( fabs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - jets->at(i).pt() ) / jets->at(i).pt() ) > 0.01 ) // 1% difference in Pt should be sufficient to detect possible misconfigurations
-       throw cms::Exception("JetPtMismatch") << "The reclustered and original jets have different Pt's. Please check that the jet algorithm and jet size match those used for the original jet collection.";
+     if( ( fabs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - jets->at(i).pt() ) / jets->at(i).pt() ) > 1e-3 ) // 0.1% difference in Pt should be sufficient to detect possible misconfigurations
+     {
+       if( jets->at(i).pt() < 10. )  // special handling for low-Pt jets (Pt<10 GeV)
+         edm::LogWarning("JetPtMismatchAtLowPt") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively). Please check that the jet algorithm and jet size match those used for the original jet collection. Since the mismatch is at low Pt, only a warning is printed out.\n"
+                                                 << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
+       else
+         throw cms::Exception("JetPtMismatch") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively). Please check that the jet algorithm and jet size match those used for the original jet collection.\n"
+                                               << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
+     }
 
      reco::GenParticleRefVector clusteredbHadrons;
      reco::GenParticleRefVector clusteredcHadrons;
