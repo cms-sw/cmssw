@@ -1422,6 +1422,17 @@ step2Upg2017Defaults = {'-s':'DIGI,L1,DIGI2RAW',
                   }
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
 
+step2Upg2017EcalFineDefaults = {'-s':'DIGI,L1,DIGI2RAW',
+                 '--conditions':'auto:upgrade2017', 
+                 '--datatier':'GEN-SIM-DIGI-RAW',
+		 '--magField' : '38T_PostLS1',
+		 '-n':'10',
+                 '--eventcontent':'FEVTDEBUGHLT',
+                 '--customise': 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017,SLHCUpgradeSimulations/Configuration/customise_ecalTimeDigi.customise_addEcalTimeDigitizer',
+                 '--geometry' : 'Extended2017'
+                  }
+steps['DIGIUPECALFINE17']=merge([step2Upg2017EcalFineDefaults])
+
 step2Upg2017puDefaults = {'-s':'DIGI,L1,DIGI2RAW',
 		 '--conditions':'auto:upgrade2017', 
 		 '--datatier':'GEN-SIM-DIGI-RAW',
@@ -1442,7 +1453,7 @@ step2Upg2017EcalFinepuDefaults = {'-s':'DIGI,L1,DIGI2RAW',
 		 '--eventcontent':'FEVTDEBUGHLT',
 		 '--magField' : '38T_PostLS1',
 	       '--pileup': 'AVE_20_BX_25ns',
-		 '--customise': 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017,SLHCUpgradeSimulations/Configuration/pileUp_MinBias_TuneZ2star_14TeV_pythia6_620SLHC4_UPG2017ECALFINE.customisePU',
+		 '--customise': 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017,SLHCUpgradeSimulations/Configuration/pileUp_MinBias_TuneZ2star_14TeV_pythia6_620SLHC4_UPG2017ECALFINE.customisePU,SLHCUpgradeSimulations/Configuration/customise_ecalTimeDigi.customise_addEcalTimeDigitizer',
 		 '--geometry' : 'Extended2017'
 #	       '--pileup_input':'dbs:/RelValMinBias_TuneZ2star_14TeV/CMSSW_6_1_2_SLHC6-DES17_61_V5_UPG2017-v1/GEN-SIM'
 		  }
