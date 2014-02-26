@@ -147,10 +147,9 @@ MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     hasGEMGeometry_ = true;
 
   } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-    hasGEMGeometry_ = false;
     LogDebug("MuonGEMHits") << "+++ Info: GEM geometry is unavailable. +++\n";
   }
-  if( hasGEMGeometry_ == true) {
+  if( hasGEMGeometry_ ) {
     theGEMHitsValidation->setGeometry(gem_geometry_);
     theGEMHitsValidation->bookHisto();
     theGEMSimTrackMatch->setGeometry(gem_geometry_);
