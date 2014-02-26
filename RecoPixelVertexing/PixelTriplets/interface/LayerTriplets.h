@@ -8,21 +8,15 @@
  */
 
 #include <vector>
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
-class LayerTriplets {
-public:
-  typedef std::pair<ctfseeding::SeedingLayer, ctfseeding::SeedingLayer> SeedingLayerPair;
-  typedef std::pair<SeedingLayerPair, std::vector<ctfseeding::SeedingLayer> > LayerPairAndLayers;
+namespace LayerTriplets {
+  using Layer = SeedingLayerSetsHits::SeedingLayer;
+  using LayerSet = SeedingLayerSetsHits::SeedingLayerSet;
+  using LayerSetAndLayers = std::pair<LayerSet, std::vector<Layer> >;
 
-  LayerTriplets( const ctfseeding::SeedingLayerSets & sets) : theSets(sets) {}
-
-  std::vector<LayerPairAndLayers> layers() const;
-
-private:
-  ctfseeding::SeedingLayerSets theSets;
-};
+  std::vector<LayerSetAndLayers> layers(const SeedingLayerSetsHits& sets);
+}
 
 #endif
 

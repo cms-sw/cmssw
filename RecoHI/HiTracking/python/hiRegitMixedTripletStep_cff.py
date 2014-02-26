@@ -31,9 +31,7 @@ hiRegitMixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
 
 
 # SEEDING LAYERS A
-hiRegitMixedTripletStepSeedLayersA =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersA.clone(
-    ComponentName = 'hiRegitMixedTripletStepSeedLayersA'
-    )
+hiRegitMixedTripletStepSeedLayersA =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersA.clone()
 hiRegitMixedTripletStepSeedLayersA.BPix.skipClusters = cms.InputTag('hiRegitMixedTripletStepClusters')
 hiRegitMixedTripletStepSeedLayersA.FPix.skipClusters = cms.InputTag('hiRegitMixedTripletStepClusters')
 hiRegitMixedTripletStepSeedLayersA.TEC.skipClusters  = cms.InputTag('hiRegitMixedTripletStepClusters')
@@ -51,9 +49,7 @@ hiRegitMixedTripletStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitMix
 hiRegitMixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin = 1.0
 
 # SEEDING LAYERS B
-hiRegitMixedTripletStepSeedLayersB =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.clone(
-    ComponentName = 'hiRegitMixedTripletStepSeedLayersB',
-    )
+hiRegitMixedTripletStepSeedLayersB =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.clone()
 hiRegitMixedTripletStepSeedLayersB.BPix.skipClusters = cms.InputTag('hiRegitMixedTripletStepClusters')
 hiRegitMixedTripletStepSeedLayersB.TIB.skipClusters  = cms.InputTag('hiRegitMixedTripletStepClusters')
 hiRegitMixedTripletStepSeedLayersB.layerList = cms.vstring('BPix2+BPix3+TIB1','BPix2+BPix3+TIB2')
@@ -125,7 +121,9 @@ hiRegitMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiM
     ) #end of clone  
 
 hiRegitMixedTripletStep = cms.Sequence(hiRegitMixedTripletStepClusters*
+                                       hiRegitMixedTripletStepSeedLayersA*
                                        hiRegitMixedTripletStepSeedsA*
+                                       hiRegitMixedTripletStepSeedLayersB*
                                        hiRegitMixedTripletStepSeedsB*
                                        hiRegitMixedTripletStepSeeds*
                                        hiRegitMixedTripletStepTrackCandidates*

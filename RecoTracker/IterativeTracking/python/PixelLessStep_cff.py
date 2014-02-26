@@ -29,8 +29,7 @@ pixelLessStepSeedClusters = pixelLessStepClusters.clone(
 )
 
 # SEEDING LAYERS
-pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('pixelLessStepSeedLayers'),
+pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('TIB1+TIB2',
         'TID1_pos+TID2_pos','TID2_pos+TID3_pos',
         'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos','TEC4_pos+TEC5_pos',
@@ -214,6 +213,7 @@ pixelLessStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMer
 
 PixelLessStep = cms.Sequence(pixelLessStepClusters*
                              pixelLessStepSeedClusters*
+                             pixelLessStepSeedLayers*
                              pixelLessStepSeeds*
                              pixelLessStepTrackCandidates*
                              pixelLessStepTracks*

@@ -72,11 +72,14 @@ class GeneralHLTOffline : public edm::EDAnalyzer {
   bool streamA_found_;
   HLTConfigProvider hlt_config_;
 
+
   std::string plotDirectoryName;
   std::string hltTag;
   std::string hlt_menu_;
   std::vector< std::vector<std::string> > PDsVectorPathsVector;
   std::vector<std::string> AddedDatasets;
+  edm::EDGetTokenT <edm::TriggerResults>   triggerResultsToken;
+  edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
 
   DQMStore * dbe_;
   MonitorElement * cppath_;
@@ -96,6 +99,9 @@ GeneralHLTOffline::GeneralHLTOffline(const edm::ParameterSet& ps):streamA_found_
                                                             "HLT/General");
 
   hltTag = ps.getParameter<std::string> ("HltProcessName");
+
+  triggerSummaryToken = consumes <trigger::TriggerEvent> (edm::InputTag(std::string("hltTriggerSummaryAOD"), std::string(""), hltTag));
+  triggerResultsToken = consumes <edm::TriggerResults>   (edm::InputTag(std::string("TriggerResults"), std::string(""), hltTag));
 
   if (debugPrint) {
     std::cout << "Inside Constructor" << std::endl;
@@ -119,7 +125,7 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
 
   // Access Trigger Results
   edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByLabel(edm::InputTag("TriggerResults", "", hltTag), triggerResults);
+  iEvent.getByToken(triggerResultsToken, triggerResults);
 
   if (!triggerResults.isValid()) {
     if (debugPrint)
@@ -131,8 +137,7 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
     std::cout << "Found triggerResults" << std::endl;
 
   edm::Handle<trigger::TriggerEvent> aodTriggerEvent;
-  iEvent.getByLabel(edm::InputTag("hltTriggerSummaryAOD", "", hltTag),
-                    aodTriggerEvent);
+  iEvent.getByToken(triggerSummaryToken, aodTriggerEvent);
 
   if (!aodTriggerEvent.isValid()) {
     if (debugPrint)
@@ -171,7 +176,8 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
         if (hist_mini_cppath) {
           TAxis * axis = hist_mini_cppath->GetXaxis();
           if (axis) {
-            int bin_num = axis->FindBin(pathName.c_str());
+	    std::string pathNameNoVer = hlt_config_.removeVersion(PDsVectorPathsVector[iPD][iPath]);
+            int bin_num = axis->FindBin(pathNameNoVer.c_str());
             int bn = bin_num - 1;
             hist_mini_cppath->Fill(bn, 0);
             hist_mini_cppath->SetEntries(hist_mini_cppath->Integral());
@@ -670,7 +676,8 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
 
   if (hist_mini_cppath) {
     TAxis * axis = hist_mini_cppath->GetXaxis();
-    int bin_num = axis->FindBin(path.c_str());
+    std::string pathNameNoVer = hlt_config_.removeVersion(path);
+    int bin_num = axis->FindBin(pathNameNoVer.c_str());
     int bn = bin_num - 1;
     hist_mini_cppath->Fill(bn, 1);
   }

@@ -5,7 +5,7 @@
 #include<map>
 #include<iostream>
 #include<boost/cstdint.hpp>
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 /**
  * Stores the information of the gain for each apv using four vectors <br>
  * A vector<unsigned int> (v_detids) stores the detId. <br>
@@ -43,8 +43,8 @@ class SiStripApvGain {
     ContainerIterator getLastElement(RegistryConstIterator& idet){return v_begin+*(iend_begin+(idet-detid_begin));} 
   };
 
-  SiStripApvGain(){};
-  ~SiStripApvGain(){};
+  SiStripApvGain(){}
+  ~SiStripApvGain(){}
 
   RegistryPointers getRegistryPointers() const {
     RegistryPointers p;
@@ -62,11 +62,19 @@ class SiStripApvGain {
 
   
   bool put(const uint32_t& detID, Range input);
-  const Range getRange(const uint32_t& detID) const;
+  const Range getRange(const uint32_t  detID) const;
+  Range getRangeByPos(unsigned short pos) const;
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
   
-  float   getStripGain     (const uint16_t& strip, const Range& range) const;
-  float   getApvGain  (const uint16_t& apv, const Range& range) const;
+
+#ifdef EDM_ML_DEBUG
+  static float   getStripGain     (const uint16_t& strip, const Range& range);
+  static float   getApvGain  (const uint16_t& apv, const Range& range);
+#else
+  static float   getStripGain (uint16_t strip, const Range& range)  {uint16_t apv = strip/128; return *(range.first+apv);}
+  static float   getApvGain   (uint16_t apv, const Range& range) {return *(range.first+apv);}
+#endif
+
 
   void printDebug(std::stringstream & ss) const;
   void printSummary(std::stringstream & ss) const;

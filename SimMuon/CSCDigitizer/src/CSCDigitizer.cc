@@ -47,7 +47,8 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
                             CSCStripDigiCollection & stripDigis, 
                             CSCComparatorDigiCollection & comparators,
                             DigiSimLinks & wireDigiSimLinks,
-                            DigiSimLinks & stripDigiSimLinks) 
+                            DigiSimLinks & stripDigiSimLinks,
+                            CLHEP::HepRandomEngine* engine)
 {
   // arrange the hits by layer
   std::map<int, edm::PSimHitContainer> hitMap;
@@ -70,7 +71,7 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
   // add neutron background, if needed
   if(theNeutronReader != 0)
   {
-    theNeutronReader->addHits(hitMap);
+    theNeutronReader->addHits(hitMap, engine);
   }
 
   // now loop over layers and run the simulation for each one
@@ -94,7 +95,7 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
 
     // turn the edm::PSimHits into WireHits, using the WireHitSim
     {
-      newWireHits.swap(theWireHitSim->simulate(layer, layerSimHits));
+      newWireHits.swap(theWireHitSim->simulate(layer, layerSimHits, engine));
     }
     if(!newWireHits.empty()) {
       newStripHits.swap(theStripHitSim->simulate(layer, newWireHits));
@@ -102,13 +103,13 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
 
     // turn the hits into wire digis, using the electronicsSim
     {
-      theWireElectronicsSim->simulate(layer, newWireHits);
-      theWireElectronicsSim->fillDigis(wireDigis);
+      theWireElectronicsSim->simulate(layer, newWireHits, engine);
+      theWireElectronicsSim->fillDigis(wireDigis, engine);
       wireDigiSimLinks.insert( theWireElectronicsSim->digiSimLinks() );
     }  
     {
-      theStripElectronicsSim->simulate(layer, newStripHits);
-      theStripElectronicsSim->fillDigis(stripDigis, comparators);
+      theStripElectronicsSim->simulate(layer, newStripHits, engine);
+      theStripElectronicsSim->fillDigis(stripDigis, comparators, engine);
       stripDigiSimLinks.insert( theStripElectronicsSim->digiSimLinks() );
     }
   }
@@ -119,7 +120,7 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
       missingLayerItr != missingLayers.end(); ++missingLayerItr)
   {
     const CSCLayer * layer = findLayer(*missingLayerItr);
-    theStripElectronicsSim->fillMissingLayer(layer, comparators, stripDigis);
+    theStripElectronicsSim->fillMissingLayer(layer, comparators, stripDigis, engine);
   }
 }
 
@@ -184,15 +185,6 @@ void CSCDigitizer::setStripConditions(CSCStripConditions * cond)
 void CSCDigitizer::setParticleDataTable(const ParticleDataTable * pdt)
 {
   theWireHitSim->setParticleDataTable(pdt);
-}
-
-
-void CSCDigitizer::setRandomEngine(CLHEP::HepRandomEngine& engine)
-{
-  theWireHitSim->setRandomEngine(engine);
-  theWireElectronicsSim->setRandomEngine(engine);
-  theStripElectronicsSim->setRandomEngine(engine);
-  if(theNeutronReader) theNeutronReader->setRandomEngine(engine);
 }
 
 

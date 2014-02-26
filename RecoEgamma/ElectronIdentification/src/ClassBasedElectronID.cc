@@ -7,7 +7,7 @@ void ClassBasedElectronID::setup(const edm::ParameterSet& conf)
 
 
   // Get all the parameters
-  baseSetup(conf);
+  //baseSetup(conf);
   
   quality_ =  conf.getParameter<std::string>("electronQuality");
   

@@ -7,7 +7,7 @@ import shutil
 from subprocess import Popen 
 
 class WorkFlowRunner(Thread):
-    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True):
+    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions=""):
         Thread.__init__(self)
         self.wf = wf
 
@@ -18,6 +18,7 @@ class WorkFlowRunner(Thread):
         self.noRun=noRun
         self.dryRun=dryRun
         self.cafVeto=cafVeto
+        self.dasOptions=dasOptions
         
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
         return
@@ -100,7 +101,7 @@ class WorkFlowRunner(Thread):
                     cmd2 =cmd+cmd2+closeCmd(istep,'lumiRanges')
                     lumiRangeFile='step%d_lumiRanges.log'%(istep,)
                     retStep = self.doCmd(cmd2)
-                cmd+=com.das()
+                cmd+=com.das(self.dasOptions)
                 cmd+=closeCmd(istep,'dasquery')
                 retStep = self.doCmd(cmd)
                 #don't use the file list executed, but use the das command of cmsDriver for next step

@@ -3,10 +3,10 @@
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
-class MaxConsecLostHitsTrajectoryFilter : public TrajectoryFilter {
+class MaxConsecLostHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
 
-  explicit MaxConsecLostHitsTrajectoryFilter( int maxHits=-1): theMaxConsecLostHits( maxHits) {}
+  explicit MaxConsecLostHitsTrajectoryFilter( int maxHits=0): theMaxConsecLostHits( maxHits) {}
 
   explicit MaxConsecLostHitsTrajectoryFilter( const edm::ParameterSet & pset):
     theMaxConsecLostHits( pset.getParameter<int>("maxConsecLostHits")) {}
@@ -32,11 +32,11 @@ protected:
 	       Trajectory::lost(*tms[itm-1].recHit())) consecLostHit++;
     }
   
-    if (consecLostHit > theMaxConsecLostHits) return false; 
-    else return true;
+    return  consecLostHit <= theMaxConsecLostHits; 
+
     }
 
-  float theMaxConsecLostHits;
+  int theMaxConsecLostHits;
 
 };
 

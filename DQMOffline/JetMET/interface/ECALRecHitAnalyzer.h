@@ -98,8 +98,9 @@ public:
   DQMStore* dbe_;
 
   // Inputs from Configuration
-  edm::InputTag EBRecHitsLabel_;
-  edm::InputTag EERecHitsLabel_;
+  edm::EDGetTokenT<EBRecHitCollection> EBRecHitsLabel_;
+  edm::EDGetTokenT<EERecHitCollection> EERecHitsLabel_;
+
   bool debug_;
   bool finebinning_;
   std::string FolderName_;

@@ -41,6 +41,7 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include <sstream>
 #include <TFile.h>
 #include <TH1F.h>

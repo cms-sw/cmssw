@@ -43,8 +43,9 @@ using namespace edm;
 using namespace std;
 using namespace CLHEP;
 
-class RandGaussQ;
-
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class BetaBoostEvtVtxGenerator : public edm::EDProducer{
 public:
@@ -53,7 +54,7 @@ public:
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
-  virtual HepMC::FourVector* newVertex() ;
+  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
   virtual void produce( edm::Event&, const edm::EventSetup& ) override;
   virtual TMatrixD* GetInvLorentzBoost();
 
@@ -81,7 +82,6 @@ public:
 
   /// beta function
   double BetaFunction(double z, double z0);
-  CLHEP::HepRandomEngine& getEngine();
 
 private:
   /** Copy constructor */
@@ -102,36 +102,17 @@ private:
   TMatrixD *boost_;
   double fTimeOffset;
   
-  CLHEP::HepRandomEngine*  fEngine;
   edm::InputTag            sourceLabel;
 
-  CLHEP::RandGaussQ*  fRandom ;
-
   bool verbosity_;
-
 };
 
 
 BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p ):
-  fVertex(0), boost_(0), fTimeOffset(0), fEngine(0),
+  fVertex(0), boost_(0), fTimeOffset(0),
   sourceLabel(p.getParameter<edm::InputTag>("src")),
   verbosity_(p.getUntrackedParameter<bool>("verbosity",false))
-{ 
-  
-  edm::Service<edm::RandomNumberGenerator> rng;
-
-  if ( ! rng.isAvailable()) {
-    
-    throw cms::Exception("Configuration")
-      << "The BaseEvtVtxGenerator requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-  fEngine = &engine;
-  fRandom = new CLHEP::RandGaussQ(getEngine());
-
+{
   fX0 =        p.getParameter<double>("X0")*cm;
   fY0 =        p.getParameter<double>("Y0")*cm;
   fZ0 =        p.getParameter<double>("Z0")*cm;
@@ -156,34 +137,28 @@ BetaBoostEvtVtxGenerator::~BetaBoostEvtVtxGenerator()
 {
   delete fVertex ;
   if (boost_ != 0 ) delete boost_;
-  delete fRandom; 
 }
-
-CLHEP::HepRandomEngine& BetaBoostEvtVtxGenerator::getEngine(){
-  return *fEngine;
-}
-
 
 //Hep3Vector* BetaBoostEvtVtxGenerator::newVertex() {
-HepMC::FourVector* BetaBoostEvtVtxGenerator::newVertex() {
+HepMC::FourVector* BetaBoostEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) {
 
 	
   double X,Y,Z;
-	
-  double tmp_sigz = fRandom->fire(0., fSigmaZ);
+
+  double tmp_sigz = CLHEP::RandGaussQ::shoot(engine, 0.0, fSigmaZ);
   Z = tmp_sigz + fZ0;
 
   double tmp_sigx = BetaFunction(Z,fZ0); 
   // need sqrt(2) for beamspot width relative to single beam width
   tmp_sigx /= sqrt(2.0);
-  X = fRandom->fire(0.,tmp_sigx) + fX0; // + Z*fdxdz ;
+  X = CLHEP::RandGaussQ::shoot(engine, 0.0, tmp_sigx) + fX0; // + Z*fdxdz ;
 
   double tmp_sigy = BetaFunction(Z,fZ0);
   // need sqrt(2) for beamspot width relative to single beam width
   tmp_sigy /= sqrt(2.0);
-  Y = fRandom->fire(0.,tmp_sigy) + fY0; // + Z*fdydz;
+  Y = CLHEP::RandGaussQ::shoot(engine, 0.0, tmp_sigy) + fY0; // + Z*fdydz;
 
-  double tmp_sigt = fRandom->fire(0., fSigmaZ);
+  double tmp_sigt = CLHEP::RandGaussQ::shoot(engine, 0.0, fSigmaZ);
   double T = tmp_sigt + fTimeOffset; 
 
   if ( fVertex == 0 ) fVertex = new HepMC::FourVector();
@@ -277,6 +252,13 @@ TMatrixD* BetaBoostEvtVtxGenerator::GetInvLorentzBoost() {
 
 void BetaBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
 {
+  edm::Service<RandomNumberGenerator> rng;
+  if (!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "Attempt to get a random engine when the RandomNumberGeneratorService is not configured.\n"
+         "You must configure the service if you want an engine.\n";
+  }
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(evt.streamID());
   
   
   Handle<HepMCProduct> HepMCEvt ;    
@@ -284,7 +266,7 @@ void BetaBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
   
   // generate new vertex & apply the shift 
   //
-  HepMCEvt->applyVtxGen( newVertex() ) ;
+  HepMCEvt->applyVtxGen( newVertex(engine) ) ;
  
   //HepMCEvt->LorentzBoost( 0., 142.e-6 );
   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
@@ -295,9 +277,6 @@ void BetaBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
   evt.put( NewProduct ) ;       
   return ;
 }
-
-
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(BetaBoostEvtVtxGenerator);

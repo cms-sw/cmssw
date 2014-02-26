@@ -14,7 +14,7 @@ import RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi
 globalPixelSeeds = RecoTracker.TkSeedGenerator.SeedGeneratorFromRegionHitsEDProducer_cfi.seedGeneratorFromRegionHitsEDProducer.clone(
     OrderedHitsFactoryPSet = cms.PSet(
       ComponentName = cms.string('StandardHitPairGenerator'),
-      SeedingLayers = cms.string('PixelLayerPairs')
+      SeedingLayers = cms.InputTag('PixelLayerPairs')
     )
 )    
 

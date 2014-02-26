@@ -49,9 +49,7 @@ class BTagDifferentialPlot {
   TH1F * getDifferentialHistoB_ni   () { return theDifferentialHistoB_ni->getTH1F()   ; }
   TH1F * getDifferentialHistoB_dus  () { return theDifferentialHistoB_dus->getTH1F()  ; }
   TH1F * getDifferentialHistoB_dusg () { return theDifferentialHistoB_dusg->getTH1F() ; }
-  
-  
-
+  TH1F * getDifferentialHistoB_pu   () { return theDifferentialHistoB_pu->getTH1F()   ; }
 
   
  private:
@@ -98,6 +96,7 @@ class BTagDifferentialPlot {
   MonitorElement * theDifferentialHistoB_ni   ;
   MonitorElement * theDifferentialHistoB_dus  ;
   MonitorElement * theDifferentialHistoB_dusg ;
+  MonitorElement * theDifferentialHistoB_pu   ;
 
   // the plot Canvas
 //   TCanvas * thePlotCanvas ;

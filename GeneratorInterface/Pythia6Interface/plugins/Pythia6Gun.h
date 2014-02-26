@@ -24,6 +24,15 @@
 
 #include "HepPID/ParticleIDTranslations.hh"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
+namespace edm {
+  class EventSetup;
+  class LuminosityBlock;
+}
+
 namespace gen
 {
   
@@ -37,6 +46,7 @@ namespace gen
     Pythia6Gun( const edm::ParameterSet& );
     virtual ~Pythia6Gun();
     void beginJob() override;
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void beginRun( edm::Run const&, edm::EventSetup const& ) override;
     void endRun( edm::Run const&, edm::EventSetup const& ) override;
     void produce( edm::Event&, const edm::EventSetup& ) override;
@@ -45,7 +55,7 @@ namespace gen
    
     void attachPy6DecaysToGenEvent();
     void loadEvent( edm::Event& );
-    virtual void generateEvent() = 0;
+    virtual void generateEvent(CLHEP::HepRandomEngine*) = 0;
     HepMC::GenParticle* addAntiParticle( int&, int&, double&, double&, double& ); 
     
     Pythia6Service*  fPy6Service;

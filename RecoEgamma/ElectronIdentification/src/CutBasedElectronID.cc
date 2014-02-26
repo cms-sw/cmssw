@@ -11,7 +11,7 @@
 void CutBasedElectronID::setup(const edm::ParameterSet& conf) {
 
   // Get all the parameters
-  baseSetup(conf);
+  //baseSetup(conf);
 
   type_ = conf.getParameter<std::string>("electronIDType");
   quality_ = conf.getParameter<std::string>("electronQuality");

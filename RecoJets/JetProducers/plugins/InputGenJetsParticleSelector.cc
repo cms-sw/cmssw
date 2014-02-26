@@ -52,6 +52,8 @@ InputGenJetsParticleSelector::InputGenJetsParticleSelector(const edm::ParameterS
 			("excludeFromResonancePids"));
 
   produces <reco::GenParticleRefVector> ();
+
+  input_genpartcoll_token_ = consumes<reco::GenParticleCollection>(inTag);
       
 }
 
@@ -225,8 +227,7 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
   std::auto_ptr<reco::GenParticleRefVector> selected_ (new reco::GenParticleRefVector);
     
   edm::Handle<reco::GenParticleCollection> genParticles;
-  //  evt.getByLabel("genParticles", genParticles );
-  evt.getByLabel(inTag, genParticles );
+  evt.getByToken(input_genpartcoll_token_, genParticles );
     
     
   ParticleVector particles;

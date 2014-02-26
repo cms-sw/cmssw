@@ -12,7 +12,7 @@ HLTCaloJetIDProducer::HLTCaloJetIDProducer(const edm::ParameterSet& iConfig) :
   max_EMF_     (iConfig.getParameter<double>("max_EMF")),
   min_N90_     (iConfig.getParameter<int>("min_N90")),
   min_N90hits_ (iConfig.getParameter<int>("min_N90hits")),
-  jetID_       (iConfig.getParameter<edm::ParameterSet>("JetIDParams"))
+  jetID_       (iConfig.getParameter<edm::ParameterSet>("JetIDParams"), consumesCollector())
 {
   //  produces< reco::CaloJetCollection > ( "hltCaloJetIDCollection" );
   produces< reco::CaloJetCollection > ();

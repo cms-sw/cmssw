@@ -1,7 +1,7 @@
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
+#include "CLHEP/Random/RandGaussQ.h"
 
 template<class M> 
 const double CorrelatedNoisifier<M>::k_precision ( 1.e-7 ) ;
@@ -9,28 +9,17 @@ const double CorrelatedNoisifier<M>::k_precision ( 1.e-7 ) ;
 template<class M> 
 CorrelatedNoisifier<M>::~CorrelatedNoisifier()
 {
-   delete m_rangau ;
 }
 
-typedef edm::Service<edm::RandomNumberGenerator> RanGen ;
-
 template<class M> 
-CorrelatedNoisifier<M>::CorrelatedNoisifier( const M&                symCorMat ,
-					     CLHEP::HepRandomEngine* engine      ) :
-   m_rangau ( 0 != engine ? new CLHEP::RandGaussQ( *engine ) :
-	      ( !RanGen().isAvailable() ? 0 :
-		new CLHEP::RandGaussQ( RanGen()->getEngine() ) ) ) ,
+CorrelatedNoisifier<M>::CorrelatedNoisifier( const M& symCorMat ) :
    m_H ( ROOT::Math::SMatrixIdentity() )
 {
    init( symCorMat ) ;
 }
 
 template<class M> 
-CorrelatedNoisifier<M>::CorrelatedNoisifier( CLHEP::HepRandomEngine* engine    ,
-					     const M&                cholDecMat  ) :
-   m_rangau ( 0 != engine ? new CLHEP::RandGaussQ( *engine ) :
-	      ( !RanGen().isAvailable() ? 0 :
-		new CLHEP::RandGaussQ( RanGen()->getEngine() ) ) ) ,
+CorrelatedNoisifier<M>::CorrelatedNoisifier( int* dummy, const M& cholDecMat  ) :
    m_H ( cholDecMat )
 {
    initChol() ;
@@ -39,12 +28,6 @@ CorrelatedNoisifier<M>::CorrelatedNoisifier( CLHEP::HepRandomEngine* engine    ,
 template<class M>
 void CorrelatedNoisifier<M>::initChol()
 {
-   if( 0 == m_rangau )       
-      throw cms::Exception("Configuration")
-	 << "CorrelatedNoisifier requires the RandomNumberGeneratorService\n"
-	 <<"which is not present in the configuration file.  You must add the service\n"
-	 <<"in the configuration file or remove the modules that require it.";
-
    M symCorMat ;
    for ( unsigned int i = 0 ; i < m_H.kRows ; ++i ) 
    {
@@ -80,12 +63,6 @@ void CorrelatedNoisifier<M>::resetCholDecompMatrix( const M& cholDecMat )
 template<class M>
 void CorrelatedNoisifier<M>::init( const M& symCorMat )
 {
-   if( 0 == m_rangau )       
-      throw cms::Exception("Configuration")
-	 << "CorrelatedNoisifier requires the RandomNumberGeneratorService\n"
-	 <<"which is not present in the configuration file.  You must add the service\n"
-	 <<"in the configuration file or remove the modules that require it.";
-
    checkOffDiagonal( symCorMat );
 
    const bool okDecomp ( m_isIdentity ||
@@ -193,6 +170,7 @@ template<class T>
 void 
 CorrelatedNoisifier<M>::noisify( 
    T& frame ,
+   CLHEP::HepRandomEngine* engine,
    const typename CorrelatedNoisifier<M>::VecDou* rangau ) const
 {
    if( (unsigned int) frame.size() !=
@@ -209,7 +187,7 @@ CorrelatedNoisifier<M>::noisify(
    {
       if( m_H.kRows != m_vecgau.size() )
 	 m_vecgau = VecDou( m_H.kRows, (double) 0.0 ) ;
-      m_rangau->fireArray( m_H.kRows, &m_vecgau.front() ) ;
+      CLHEP::RandGaussQ::shootArray(engine, m_H.kRows, &m_vecgau.front() ) ;
    }
 
    for( unsigned int i ( 0 ) ; i < m_H.kRows ; ++i )

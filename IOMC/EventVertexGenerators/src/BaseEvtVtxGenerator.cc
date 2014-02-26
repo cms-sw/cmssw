@@ -27,7 +27,7 @@ using namespace CLHEP;
 //using namespace HepMC;
 
 BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset ) 
-	: fVertex(0), boost_(0), fTimeOffset(0), fEngine(0),
+	: fVertex(0), boost_(0), fTimeOffset(0),
 	  sourceLabel(pset.getParameter<edm::InputTag>("src"))
 {
    
@@ -41,21 +41,15 @@ BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset )
            "The label of this module MUST be VtxSmeared.";
    }
 */
-      
+
    Service<RandomNumberGenerator> rng;
-
    if ( ! rng.isAvailable()) {
-
      throw cms::Exception("Configuration")
        << "The BaseEvtVtxGenerator requires the RandomNumberGeneratorService\n"
           "which is not present in the configuration file.  You must add the service\n"
           "in the configuration file or remove the modules that require it.";
    }
 
-   CLHEP::HepRandomEngine& engine = rng->getEngine();
-   fEngine = &engine;
-
-      
    produces<bool>(); 
 }
 
@@ -69,15 +63,16 @@ BaseEvtVtxGenerator::~BaseEvtVtxGenerator()
 
 void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
 {
-   
-   
+   edm::Service<edm::RandomNumberGenerator> rng;
+   CLHEP::HepRandomEngine* engine = &rng->getEngine(evt.streamID());
+
    Handle<HepMCProduct> HepMCEvt ;
    
    evt.getByLabel( sourceLabel, HepMCEvt ) ;
    
    // generate new vertex & apply the shift 
    //
-   HepMCEvt->applyVtxGen( newVertex() ) ;
+   HepMCEvt->applyVtxGen( newVertex(engine) ) ;
 
    //HepMCEvt->LorentzBoost( 0., 142.e-6 );
    HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
@@ -89,9 +84,4 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
    evt.put( NewProduct ) ;
       
    return ;
-}
-
-CLHEP::HepRandomEngine& BaseEvtVtxGenerator::getEngine() 
-{
-   return *fEngine;
 }

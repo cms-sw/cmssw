@@ -1,8 +1,8 @@
-<flags   GENREFLEX_ARGS="--"/>
 <use   name="FWCore/Utilities"/>
 <use   name="CondFormats/Common"/>
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="rootrflx"/>
+<use   name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>

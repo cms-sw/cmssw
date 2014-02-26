@@ -5,10 +5,9 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 
 namespace CLHEP {
-   class RandGeneral ;
-   class RandPoissonQ ;
-   class RandFlat ;
-   class HepRandomEngine ; } 
+   class RandGeneral;
+   class HepRandomEngine;
+}
 
 #include <vector>
 
@@ -24,7 +23,7 @@ class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
 
       virtual ~ESDigitizer() ;
 
-      virtual void run( ESDigiCollection& output ) ;
+      virtual void run( ESDigiCollection& output, CLHEP::HepRandomEngine* ) override;
 
       void setDetIds( const std::vector<DetId>& detIds ) ;
 
@@ -32,13 +31,10 @@ class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
 
    private:
 
-      void createNoisyList( std::vector<DetId>& abThreshCh ) ;  
+      void createNoisyList( std::vector<DetId>& abThreshCh, CLHEP::HepRandomEngine* ) ;
 
       const std::vector<DetId>* m_detIds      ;
-      CLHEP::HepRandomEngine*   m_engine      ;
       CLHEP::RandGeneral*       m_ranGeneral  ;
-      CLHEP::RandPoissonQ*      m_ranPois     ;
-      CLHEP::RandFlat*          m_ranFlat     ;
       int                       m_ESGain      ;
       double                    m_histoBin    ;
       double                    m_histoInf    ;
@@ -63,4 +59,3 @@ class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
 };
 
 #endif
-

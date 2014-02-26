@@ -12,15 +12,19 @@
 namespace ctfseeding {
 class HitExtractorPIX : public HitExtractor {
 public:
-  HitExtractorPIX( SeedingLayer::Side & side, int idLayer, const std::string & hitProducer);
+  HitExtractorPIX( SeedingLayer::Side & side, int idLayer, const std::string & hitProducer, edm::ConsumesCollector& iC);
   virtual ~HitExtractorPIX(){}
-  virtual HitExtractor::Hits hits(const SeedingLayer & sl, const edm::Event& , const edm::EventSetup& ) const;
+  virtual HitExtractor::Hits hits(const TransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup& ) const;
   virtual HitExtractorPIX * clone() const { return new HitExtractorPIX(*this); }
 
 private:
+  typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > SkipClustersCollection;
+  void useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) override;
+
+  edm::EDGetTokenT<SkipClustersCollection> theSkipClusters;
+  edm::EDGetTokenT<SiPixelRecHitCollection> theHitProducer;
   SeedingLayer::Side theSide;
   int theIdLayer;
-  std::string theHitProducer; 
 };
 }
 #endif

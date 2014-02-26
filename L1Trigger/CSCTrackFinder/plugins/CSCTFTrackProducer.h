@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <FWCore/Framework/interface/EDProducer.h>
+#include <FWCore/Framework/interface/one/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
 #include <FWCore/Framework/interface/EventSetup.h>
@@ -11,12 +11,12 @@
 
 class CSCTFTrackBuilder;
 
-class CSCTFTrackProducer : public edm::EDProducer
+class CSCTFTrackProducer : public edm::one::EDProducer<edm::one::SharedResources>
 {
  public:
   CSCTFTrackProducer(const edm::ParameterSet&);
   virtual ~CSCTFTrackProducer();
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
   void beginJob();
 
  private:

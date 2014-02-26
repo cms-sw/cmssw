@@ -18,15 +18,16 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 PixelBlade::~PixelBlade(){}
 
 PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets,
-		       vector<const GeomDet*>& backDets):		       
+		       vector<const GeomDet*>& backDets):
+  GeometricSearchDet(true),		       
   theFrontDets(frontDets), theBackDets(backDets) 
 {
   theDets.assign(theFrontDets.begin(),theFrontDets.end());
   theDets.insert(theDets.end(),theBackDets.begin(),theBackDets.end());
 
-  theDiskSector      = BladeShapeBuilderFromDet()(theDets);  
-  theFrontDiskSector = BladeShapeBuilderFromDet()(theFrontDets);
-  theBackDiskSector  = BladeShapeBuilderFromDet()(theBackDets);   
+  theDiskSector      = BladeShapeBuilderFromDet::build(theDets);  
+  theFrontDiskSector = BladeShapeBuilderFromDet::build(theFrontDets);
+  theBackDiskSector  = BladeShapeBuilderFromDet::build(theBackDets);   
 
 
   //--------- DEBUG INFO --------------

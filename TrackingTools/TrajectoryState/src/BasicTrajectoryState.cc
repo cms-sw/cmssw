@@ -49,6 +49,17 @@ namespace {
     return FreeTrajectoryState(x, p, par.charge(), field);
   }
 
+
+  inline
+  FreeTrajectoryState makeFTS(const LocalTrajectoryParameters& par,
+                              const BasicTrajectoryState::SurfaceType& surface,
+                              const MagneticField* field, GlobalVector fieldValue) {
+    GlobalPoint  x = surface.toGlobal(par.position());
+    GlobalVector p = surface.toGlobal(par.momentum());
+    return FreeTrajectoryState(x, p, par.charge(), field, fieldValue);
+  }
+
+
 }
 
 BasicTrajectoryState::
@@ -190,18 +201,22 @@ void BasicTrajectoryState::notValid() {
 }
 
 namespace {
-  void verifyLocalErr(LocalTrajectoryError const & err ) {
-    if unlikely(!err.posDef())
-		 edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n"
-							 <<  err.matrix();
+  void verifyLocalErr(LocalTrajectoryError const & err, const FreeTrajectoryState & state ) {
+     if unlikely(!err.posDef())
+                 edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n"
+                                                        <<  err.matrix()
+                                                         << "\npos/mom/mf " << state.position() << ' ' << state.momentum()
+                                                          <<  ' ' << state.parameters().magneticFieldInTesla();
   }
-  void verifyCurvErr(CurvilinearTrajectoryError const & err ) {
-    if unlikely(!err.posDef())
-		 edm::LogWarning("BasicTrajectoryState") << "curv error not pos-def\n" 
-							 <<  err.matrix();
+  void verifyCurvErr(CurvilinearTrajectoryError const & err, const FreeTrajectoryState & state ) {
+     if unlikely(!err.posDef())
+                 edm::LogWarning("BasicTrajectoryState") << "curv error not pos-def\n" 
+                                                        <<  err.matrix()
+                                                         << "\npos/mom/mf " << state.position() << ' ' << state.momentum()
+                                                         <<  ' ' << state.parameters().magneticFieldInTesla();
   }
-
 }
+
 
 void BasicTrajectoryState::missingError(char const * where) const{
   std::stringstream form;
@@ -228,8 +243,8 @@ void BasicTrajectoryState::checkCurvilinError() const {
 
   theFreeState.setCurvilinearError( cov );
   
-  verifyLocalErr(theLocalError);
-  verifyCurvErr(cov); 
+  verifyLocalErr(theLocalError,theFreeState);
+  verifyCurvErr(cov,theFreeState); 
 }
 
 
@@ -263,11 +278,26 @@ BasicTrajectoryState::createLocalErrorFromCurvilinearError() const {
   //    cout<<"Clocal via curvilinear error"<<endl;
   theLocalError = LocalTrajectoryError(cov);
 
-  verifyCurvErr(theFreeState.curvilinearError());
-  verifyLocalErr(theLocalError);
+  verifyCurvErr(theFreeState.curvilinearError(),theFreeState);
+  verifyLocalErr(theLocalError,theFreeState);
 
 }
  
+
+
+// update in place and in the	very same place
+void 
+BasicTrajectoryState::update( const LocalTrajectoryParameters& p, const SurfaceSide side ){
+   theLocalParameters = p;
+   theSurfaceSide = side;
+   theLocalError = InvalidError();
+   theFreeState=makeFTS(p,surface(),magneticField(), theFreeState.parameters().magneticFieldInTesla());
+  
+   theValid   = true;
+   theLocalParametersValid  = true;
+
+}
+
 
 void
 BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
@@ -304,6 +334,22 @@ BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
     theValid   = true;
     theLocalParametersValid  = true;
 }
+
+
+void
+BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
+        const LocalTrajectoryError& err,
+        const SurfaceSide side)
+{
+    theLocalParameters = p;
+    theLocalError      = err;
+    theSurfaceSide = side;
+    theFreeState=   theFreeState=makeFTS(p,surface(),magneticField(), theFreeState.parameters().magneticFieldInTesla());
+
+    theValid   = true;
+    theLocalParametersValid  = true;
+}
+
 
 void 
 BasicTrajectoryState::rescaleError(double factor) {

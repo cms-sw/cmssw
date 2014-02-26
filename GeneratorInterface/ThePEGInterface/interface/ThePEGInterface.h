@@ -23,10 +23,16 @@
 
 #include "GeneratorInterface/ThePEGInterface/interface/RandomEngineGlue.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class ThePEGInterface {
     public:
 	ThePEGInterface(const edm::ParameterSet &params);
 	virtual ~ThePEGInterface();
+
+        void setPEGRandomEngine(CLHEP::HepRandomEngine*);
 
     protected:
 	void initRepository(const edm::ParameterSet &params) const;

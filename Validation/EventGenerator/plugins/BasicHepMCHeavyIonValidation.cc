@@ -15,8 +15,6 @@ BasicHepMCHeavyIonValidation::BasicHepMCHeavyIonValidation(const edm::ParameterS
   wmanager_(iPSet,consumesCollector()),
 	hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection"))
 {    
-	dbe = 0;
-	dbe = edm::Service<DQMStore>().operator->();
 	QWdebug_ = iPSet.getUntrackedParameter<bool>("QWdebug",false);
 
 	hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
@@ -24,44 +22,33 @@ BasicHepMCHeavyIonValidation::BasicHepMCHeavyIonValidation(const edm::ParameterS
 
 BasicHepMCHeavyIonValidation::~BasicHepMCHeavyIonValidation() {}
 
-void BasicHepMCHeavyIonValidation::beginJob()
-{
-	if(dbe){
-		///Setting the DQM top directories
-		dbe->setCurrentFolder("Generator/HeavyIon");
+void BasicHepMCHeavyIonValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
 
-		// Number of analyzed events
-		nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
-
-		///Booking the ME's
-		Ncoll_hard = dbe->book1D("Ncoll_hard", "Ncoll_hard", 700, 0, 700);
-		Npart_proj = dbe->book1D("Npart_proj", "Npart_proj", 250, 0, 250);
-		Npart_targ = dbe->book1D("Npart_targ", "Npart_targ", 250, 0, 250);
-		Ncoll = dbe->book1D("Ncoll", "Ncoll", 700, 0, 700);
-		N_Nwounded_collisions = dbe->book1D("N_Nwounded_collisions", "N_Nwounded_collisions", 250, 0, 250);
-		Nwounded_N_collisions = dbe->book1D("Nwounded_N_collisions", "Nwounded_N_collisions", 250, 0, 250);
-		Nwounded_Nwounded_collisions = dbe->book1D("Nwounded_Nwounded_collisions", "Nwounded_Nwounded_collisions", 250, 0, 250);
-		spectator_neutrons = dbe->book1D("spectator_neutrons", "spectator_neutrons", 250, 0, 250);
-		spectator_protons = dbe->book1D("spectator_protons", "spectator_protons", 250, 0, 250);
-		impact_parameter = dbe->book1D("impact_parameter", "impact_parameter", 50, 0, 50);
-		event_plane_angle = dbe->book1D("event_plane_angle", "event_plane_angle", 200, -CLHEP::pi, CLHEP::pi);
-		eccentricity = dbe->book1D("eccentricity", "eccentricity", 200, 0, 1.0);
-		sigma_inel_NN = dbe->book1D("sigma_inel_NN", "sigma_inel_NN", 200, 0, 10.0);
-
-	}
-	return;
+  ///Setting the DQM top directories
+  i.setCurrentFolder("Generator/HeavyIon");
+  
+  // Number of analyzed events
+  nEvt = i.book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+  
+  ///Booking the ME's
+  Ncoll_hard = i.book1D("Ncoll_hard", "Ncoll_hard", 700, 0, 700);
+  Npart_proj = i.book1D("Npart_proj", "Npart_proj", 250, 0, 250);
+  Npart_targ = i.book1D("Npart_targ", "Npart_targ", 250, 0, 250);
+  Ncoll = i.book1D("Ncoll", "Ncoll", 700, 0, 700);
+  N_Nwounded_collisions = i.book1D("N_Nwounded_collisions", "N_Nwounded_collisions", 250, 0, 250);
+  Nwounded_N_collisions = i.book1D("Nwounded_N_collisions", "Nwounded_N_collisions", 250, 0, 250);
+  Nwounded_Nwounded_collisions = i.book1D("Nwounded_Nwounded_collisions", "Nwounded_Nwounded_collisions", 250, 0, 250);
+  spectator_neutrons = i.book1D("spectator_neutrons", "spectator_neutrons", 250, 0, 250);
+  spectator_protons = i.book1D("spectator_protons", "spectator_protons", 250, 0, 250);
+  impact_parameter = i.book1D("impact_parameter", "impact_parameter", 50, 0, 50);
+  event_plane_angle = i.book1D("event_plane_angle", "event_plane_angle", 200, -CLHEP::pi, CLHEP::pi);
+  eccentricity = i.book1D("eccentricity", "eccentricity", 200, 0, 1.0);
+  sigma_inel_NN = i.book1D("sigma_inel_NN", "sigma_inel_NN", 200, 0, 10.0);
+  
+  return;
 }
 
-void BasicHepMCHeavyIonValidation::endJob(){return;}
-void BasicHepMCHeavyIonValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
-{
-	///Get PDT Table
-	//iSetup.getData( fPDGTable );
-	return;
-}
-void BasicHepMCHeavyIonValidation::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
-void BasicHepMCHeavyIonValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
-{ 
+void BasicHepMCHeavyIonValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup){ 
 	///counters to zero for every event
 
 	///Gathering the HepMCProduct information

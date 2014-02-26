@@ -78,19 +78,18 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   edm::ParameterSet parameters;
   std::string metname;
 
-  edm::InputTag theCaloJetCollectionLabel; 
-  edm::InputTag theAKJetCollectionLabel;
-  edm::InputTag theSCJetCollectionLabel;
-  edm::InputTag theICJetCollectionLabel;
-  edm::InputTag thePFJetCollectionLabel;
-  edm::InputTag theJPTJetCollectionLabel;
-  edm::InputTag theTriggerResultsLabel;
-
+  edm::EDGetTokenT<std::vector<reco::CaloJet> > theCaloJetCollectionLabel;
+  edm::EDGetTokenT<std::vector<reco::CaloJet> > theAKJetCollectionLabel;
+  edm::EDGetTokenT<std::vector<reco::CaloJet> > theSCJetCollectionLabel;
+  edm::EDGetTokenT<std::vector<reco::CaloJet> > theICJetCollectionLabel;
+  edm::EDGetTokenT<std::vector<reco::JPTJet> > theJPTJetCollectionLabel;
+  edm::EDGetTokenT<std::vector<reco::PFJet> > thePFJetCollectionLabel;
+  edm::EDGetTokenT<edm::TriggerResults> theTriggerResultsLabel;
 
   //Cleaning parameters
   edm::ParameterSet theCleaningParameters;
-  edm::InputTag _theVertexLabel;
-  edm::InputTag _theGTLabel;
+  edm::EDGetTokenT<reco::VertexCollection> _theVertexLabel;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> _theGTLabel;
   std::string _hlt_PhysDec;
 
   bool _hlt_initialized;

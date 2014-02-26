@@ -27,7 +27,7 @@ allPixelTracks = cms.EDProducer("PixelTrackProducer",
     # Ordered hits
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitTripletGenerator'),
-        SeedingLayers = cms.string('PixelLayerTriplets'),
+        SeedingLayers = cms.InputTag('PixelLayerTriplets'),
         GeneratorPSet = cms.PSet(
             ComponentName = cms.string('PixelTripletLowPtGenerator'),
             checkClusterShape       = cms.bool(False),

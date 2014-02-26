@@ -110,7 +110,6 @@ int main() {
   castorResponse.setHitCorrection(&hitCorrection);
 
   CLHEP::HepJamesRandom randomEngine;
-  castorResponse.setRandomEngine(randomEngine);
 
   CastorHitFilter castorHitFilter;
 
@@ -169,8 +168,6 @@ CastorDbService calibratorHandle(emptyPSet);
   CastorCoderFactory coderFactory(CastorCoderFactory::NOMINAL);
   CastorElectronicsSim electronicsSim(&amplifier, &coderFactory);
   amplifier.setDbService(&calibratorHandle);
-  amplifier.setRandomEngine(randomEngine);
-  electronicsSim.setRandomEngine(randomEngine);
   parameterMap.setDbService(&calibratorHandle);
 
   CaloTDigitizer<CastorDigitizerTraits> castorDigitizer(&castorResponse, &electronicsSim, addNoise);
@@ -182,14 +179,14 @@ CastorDbService calibratorHandle(emptyPSet);
   cout << "test hit correction" << std::endl;
   //something breaks here!
   testHitCorrection(&hitCorrection, hits);
-  castorDigitizer.add(hits, 0);
+  castorDigitizer.add(hits, 0, &randomEngine);
   // TODO Add pileups
   //testHitCorrection(&hitCorrection, pileups);
   //castorDigitizer.add(pileups, -3);
  
 
   cout << "castordigitizer.run" << std::endl;
-  castorDigitizer.run(*castorResult);
+  castorDigitizer.run(*castorResult, &randomEngine);
 
   cout << "Castor Frames" << std::endl;
   copy(castorResult->begin(), castorResult->end(), std::ostream_iterator<CastorDataFrame>(std::cout, "\n"));

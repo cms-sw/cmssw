@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <cassert>
 
+#include <vdt/vdtMath.h>
+
 #ifdef MATH_STS
 #include<iostream>
 #endif
@@ -35,7 +37,13 @@ namespace {
 #endif
 
 
+   // valid for |x| < 0.15  (better then 10^-9
+   inline double tan15(double x) {
+      return x * (1 + (x*x) * (0.33331906795501708984375 + (x*x) * 0.135160386562347412109375));
+   }
+
   // valid for z < pi/8
+  //  x * (1 + x*x * (-0.33322894573211669921875 + x*x * (0.1967026889324188232421875 + x*x * (-0.11053790152072906494140625))))  // .1e-7 by Sollya
   inline 
   float atan0(float t) {
     auto z=t;
@@ -65,12 +73,13 @@ namespace {
 TkRadialStripTopology::TkRadialStripTopology(int ns, float aw, float dh, float r, int yAx, float yMid) :
   theNumberOfStrips(ns), theAngularWidth(aw), theAWidthInverse(1.f/aw),theTanAW(std::tan(aw)),
   theDetHeight(dh), theCentreToIntersection(r),
-  theYAxisOrientation(yAx), yCentre( yMid) {   
+  theYAxisOrientation(yAx), yCentre( yMid),
+  theRadialSigma(std::pow(dh, 2.f) * (1.f/12.f)) {   
   // Angular offset of extreme edge of detector, so that angle is
   // zero for a strip lying along local y axis = long symmetry axis of plane of strips
   thePhiOfOneEdge = -(0.5*theNumberOfStrips) * theAngularWidth; // always negative!
   theTanOfOneEdge = std::tan(std::abs(thePhiOfOneEdge));
-  assert(std::abs(thePhiOfOneEdge)<0.35); // < pi/8 (and some tollerance)
+  assert(std::abs(thePhiOfOneEdge)<0.15); // 
 
   LogTrace("TkRadialStripTopology") << "TkRadialStripTopology: constructed with"
         << " strips = " << ns
@@ -86,8 +95,6 @@ TkRadialStripTopology::TkRadialStripTopology(int ns, float aw, float dh, float r
 int TkRadialStripTopology::channel(const LocalPoint& lp) const { return   std::min( int( strip(lp) ), theNumberOfStrips-1 ) ;}
 
 int TkRadialStripTopology::nearestStrip(const LocalPoint & lp) const {   return std::min( nstrips(), static_cast<int>( std::max(float(0), strip(lp)) ) + 1);}
-
-float TkRadialStripTopology::stripAngle(float strip) const { return   yAxisOrientation() * (phiOfOneEdge() +  strip * angularWidth()) ;}
 
 float TkRadialStripTopology::yDistanceToIntersection( float y ) const { return   yAxisOrientation()*y + originToIntersection() ;}
 
@@ -147,14 +154,18 @@ MeasurementPoint TkRadialStripTopology::measurementPosition(const LocalPoint& lp
 			   ( lp.y() - yCentreOfStripPlane() )        / detHeight() );
 }
 
+
 LocalError TkRadialStripTopology::localError(float strip, float stripErr2) const {
+  double phi = stripAngle(strip);
+
   const double
-    phi(stripAngle(strip)), t1(std::tan(phi)), t2(t1*t1),
+    t1(tan15(phi)),    // std::tan(phif)), // (vdt::fast_tanf(phif)), 
+    t2(t1*t1),
     // s1(std::sin(phi)), c1(std::cos(phi)),
     // cs(s1*c1), s2(s1*s1), c2(1-s2), // rotation matrix
 
     tt( stripErr2 * std::pow( centreToIntersection()*angularWidth() ,2.f) ), // tangential sigma^2   *c2
-    rr( std::pow(detHeight(), 2.f) * (1.f/12.f) ),                                   // radial sigma^2( uniform prob density along strip)  *c2
+    rr( theRadialSigma),                                   // radial sigma^2( uniform prob density along strip)  *c2
 
     xx( tt + t2*rr  ),
     yy( t2*tt + rr  ),

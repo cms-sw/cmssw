@@ -25,7 +25,7 @@ HLTJets::HLTJets() {
 }
 
 /*  Setup the analysis to put the branch-variables into the tree. */
-void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
+void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree, edm::ConsumesCollector&& iC) {
     
     edm::ParameterSet myJetParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
     std::vector<std::string> parameterNames = myJetParams.getParameterNames() ;
@@ -38,7 +38,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
         else if ( (*iParam) == "GenJetMin" ) _GenJetMin =  myJetParams.getParameter<double>( *iParam );
     }
 
-    jetID = new reco::helper::JetIDHelper(pSet.getParameter<edm::ParameterSet>("JetIDParams"));
+    jetID = new reco::helper::JetIDHelper(pSet.getParameter<edm::ParameterSet>("JetIDParams"), std::move(iC));
 
     const int kMaxRecoPFJet = 10000;
     jpfrecopt=new float[kMaxRecoPFJet];

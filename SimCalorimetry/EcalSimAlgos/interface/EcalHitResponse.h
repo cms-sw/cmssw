@@ -21,8 +21,6 @@ class CaloSubdetectorGeometry ;
 class CaloVPECorrection       ;
 namespace CLHEP 
 { 
-   class RandPoissonQ         ; 
-   class RandGaussQ           ; 
    class HepRandomEngine      ;
 }
 
@@ -60,13 +58,13 @@ class EcalHitResponse
 
       void add( const EcalSamples* pSam ) ;
 
-      virtual void add( const PCaloHit&  hit ) ;
+      virtual void add( const PCaloHit&  hit, CLHEP::HepRandomEngine* ) ;
 
       virtual void initializeHits() ;
 
       virtual void finalizeHits() ;
 
-      virtual void run( MixCollection<PCaloHit>& hits ) ;
+      virtual void run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* ) ;
 
       virtual unsigned int samplesSize() const = 0 ;
 
@@ -88,21 +86,17 @@ class EcalHitResponse
 
       virtual const EcalSamples* vSamAll( unsigned int i ) const = 0 ;
 
-      virtual void putAnalogSignal( const PCaloHit& inputHit) ;
+      virtual void putAnalogSignal( const PCaloHit& inputHit, CLHEP::HepRandomEngine*) ;
 
       double findLaserConstant(const DetId& detId) const;
 
       EcalSamples* findSignal( const DetId& detId ) ;
 
-      double analogSignalAmplitude( const DetId& id, float energy ) const;
+      double analogSignalAmplitude( const DetId& id, float energy, CLHEP::HepRandomEngine* ) const;
 
       double timeOfFlight( const DetId& detId ) const ;
 
       double phaseShift() const ;
-
-      CLHEP::RandPoissonQ* ranPois() const ;
-
-      CLHEP::RandGaussQ* ranGauss() const ;
 
       void blankOutUsedSamples() ;
 
@@ -131,9 +125,6 @@ class EcalHitResponse
       const CaloVHitFilter*          m_hitFilter     ;
       const CaloSubdetectorGeometry* m_geometry      ;
       const EcalLaserDbService*      m_lasercals     ;
-
-      mutable CLHEP::RandPoissonQ*   m_RandPoisson   ;
-      mutable CLHEP::RandGaussQ*     m_RandGauss     ;
 
       int    m_minBunch   ;
       int    m_maxBunch   ;
