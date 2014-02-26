@@ -12,7 +12,7 @@ from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import l1EventC
 from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import l1EventContent as customise_ev_LB4LPS_2L2S
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
-from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
+from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0, customise_HcalPhase2
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
 from SLHCUpgradeSimulations.Configuration.me0Customs import customise as customise_me0
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
@@ -25,21 +25,21 @@ import SLHCUpgradeSimulations.Configuration.aging as aging
 def cust_phase2_BE5DPixel10D(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10D(process)
-    process=customise_HcalPhase1(process)
+    process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     return process
 
 def cust_phase2_BE5D(process):
     process=customisePostLS1(process)
     process=customiseBE5D(process)
-    process=customise_HcalPhase1(process)
+    process=customise_HcalPhase2(process)
     process=customise_ev_BE5D(process)
     return process
 
 def cust_phase2_BE(process):
     process=customisePostLS1(process)
     process=customiseBE(process)
-    process=customise_HcalPhase1(process)
+    process=customise_HcalPhase2(process)
     process=customise_ev_BE(process)
     return process
 
@@ -77,7 +77,7 @@ def cust_2019WithGem(process):
 def cust_2023(process):
     process=customisePostLS1(process)
     process=customiseBE5D(process)
-    process=customise_HcalPhase1(process)
+    process=customise_HcalPhase2(process)
     process=customise_ev_BE5D(process)
     process=customise_gem(process)
     process=CustomiseValidation_NoGem_2023(process)
@@ -86,7 +86,7 @@ def cust_2023(process):
 def cust_2023Muon(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10D(process)
-    process=customise_HcalPhase1(process)
+    process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem(process)
     process=CustomiseValidation_NoGem_2023(process)
