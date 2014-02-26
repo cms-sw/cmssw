@@ -7,7 +7,7 @@ def customise_addEcalTimeDigitizer(process):
     process.mix.digitizers.ecalTime=cms.PSet(
         ecalTimeDigitizer
       )
-    print  process.mix.digitizers.parameters_()
+#    print  process.mix.digitizers.parameters_()
     return (process)
 
 
