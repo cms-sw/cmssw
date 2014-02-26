@@ -10,11 +10,11 @@
 #include <iomanip>
 #include "boost/filesystem.hpp"
 
-#include "../interface/JsonMonitorable.h"
-#include "../interface/FastMonitor.h"
-#include "../interface/JSONSerializer.h"
-
-#include "FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
+#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/FileIO.h"
+#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
 
 namespace evf {
   template<typename Consumer>
@@ -73,9 +73,12 @@ namespace evf {
     boost::filesystem::path openDatFilePath_;
     IntJ processed_;
     mutable IntJ accepted_;
+    IntJ errorEvents_; 
+    StringJ processCheck_; 
     StringJ filelist_;
     boost::shared_ptr<FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
+    DataPointDefinition outJsonDef_;
 
 
   }; //end-of-class-def
@@ -88,7 +91,8 @@ namespace evf {
     baseDir_(ps.getUntrackedParameter<std::string>("baseDir","")),
     processed_(0),
     accepted_(0),
-    filelist_("")
+    errorEvents_(0),
+    filelist_()
   {
     initializeStreams();
     
@@ -97,13 +101,40 @@ namespace evf {
     
     processed_.setName("Processed");
     accepted_.setName("Accepted");
+    errorEvents_.setName("ErrorEvents");
+    processCheck_.setName("ProcessCheck");
     filelist_.setName("Filelist");
-    vector<JsonMonitorable*> monParams;
-    monParams.push_back(&processed_);
-    monParams.push_back(&accepted_);
-    monParams.push_back(&filelist_);
-    
-    jsonMonitor_.reset(new FastMonitor(monParams, jsonDefPath_));
+
+    outJsonDef_.setMergeMode("pid");
+    outJsonDef_.addLegendItem("Processed","integer","sum");
+    outJsonDef_.addLegendItem("Accepted","integer","sum");
+    outJsonDef_.addLegendItem("ErrorEvents","integer","sum");
+    outJsonDef_.addLegendItem("ProcessCheck","string","same");
+    outJsonDef_.addLegendItem("Filelist","string","cat");
+    std::stringstream ss;
+    ss << edm::Service<evf::EvFDaqDirector>()->fuBaseDir() << "/" << "output_" << getpid() << ".jsd";
+    std::string outJsonDefName = ss.str();
+
+    edm::Service<evf::EvFDaqDirector>()->lockInitLock();
+    struct stat   fstat;
+    if (stat (outJsonDefName.c_str(), &fstat) != 0) { //file does not exist
+      std::cout << " writing output definition file " << outJsonDefName << std::endl;
+      std::string content;
+      JSONSerializer::serialize(&outJsonDef_,content);
+      FileIO::writeStringToFile(outJsonDefName, content);
+    }
+    edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
+
+    processCheck_="good";
+ 
+    jsonMonitor_.reset(new FastMonitor(&outJsonDef_,true));
+    jsonMonitor_->setDefPath(outJsonDefName);
+    jsonMonitor_->registerGlobalMonitorable(&processed_,false);
+    jsonMonitor_->registerGlobalMonitorable(&accepted_,false);
+    jsonMonitor_->registerGlobalMonitorable(&errorEvents_,false);
+    jsonMonitor_->registerGlobalMonitorable(&processCheck_,false);
+    jsonMonitor_->registerGlobalMonitorable(&filelist_,false);
+    jsonMonitor_->commit(nullptr);
   }
   
   template<typename Consumer>
@@ -194,10 +225,10 @@ namespace evf {
 
     // output jsn file
     if(processed_.value()!=0){
-	jsonMonitor_->snap(false, "");
+	jsonMonitor_->snap(false, "",ls.luminosityBlock());
 	const std::string outputJsonNameStream =
 	  edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),stream_label_);
-	jsonMonitor_->outputFullHistoDataPoint(outputJsonNameStream);
+	jsonMonitor_->outputFullJSON(outputJsonNameStream,ls.luminosityBlock());
     }
 
     // reset monitoring params

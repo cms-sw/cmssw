@@ -21,15 +21,28 @@
 #include <string.h>
 #include <stdio.h>
 
+class SystemBounds;
+class GlobalContext;
+class StreamID;
+
 namespace evf{
-  class EvFDaqDirector 
+
+  class FastMonitoringService;
+
+  class EvFDaqDirector
     {
     public:
-      
-      explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg ); 
+
+      enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded };
+
+      explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
       ~EvFDaqDirector(){}
-      void preBeginRun(edm::RunID const& id, edm::Timestamp const& ts);
-      void postEndRun(edm::Run const& run, edm::EventSetup const& es);
+      void preallocate(edm::service::SystemBounds const& bounds);
+      void preBeginRun(edm::GlobalContext const& globalContext);
+      void postEndRun(edm::GlobalContext const& globalContext);
+      void preSourceEvent(edm::StreamID const& streamID);
+      //void preBeginRun(edm::RunID const& id, edm::Timestamp const& ts);
+      //void postEndRun(edm::Run const& run, edm::EventSetup const& es);
       std::string &baseDir(){return base_dir_;}
       std::string &fuBaseDir(){return run_dir_;}
       std::string &smBaseDir(){return sm_base_dir_;}
@@ -57,7 +70,7 @@ namespace evf{
       int readBuLock();
       // DEPRECATED
       //int updateFuLock(unsigned int &ls);
-      bool updateFuLock(unsigned int& ls, std::string& nextFile, bool& eorSeen);
+      FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize);
       void writeLsStatisticsBU(unsigned int, unsigned int, unsigned long long, long long);
       void writeLsStatisticsFU(unsigned int ls, unsigned int events, timeval completion_time){}
       void writeDiskAndThrottleStat(double, int, int);
@@ -69,6 +82,12 @@ namespace evf{
       bool getTestModeNoBuilderUnit() { return testModeNoBuilderUnit_;}
       FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
       void unlockAndCloseMergeStream();
+      void lockInitLock();
+      void unlockInitLock();
+      void setFMS(evf::FastMonitoringService* fms) {fms_=fms;}
+      void updateFileIndex(int const& fileIndex) {currentFileIndex_=fileIndex;}
+      std::vector<int>* getStreamFileTracker() {return &streamFileTracker_;}
+
 
     private:
       bool bulock();
@@ -79,7 +98,7 @@ namespace evf{
       bool mkFuRunDir();
       // This functionality is for emulator running only
       bool createOutputDirectory();
-      bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile);
+      bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize);
       bool findHighestActiveLS(unsigned int& startingLS) const;
       void openFULockfileStream(std::string& fuLockFilePath, bool create);
       std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
@@ -128,6 +147,13 @@ namespace evf{
       struct flock fu_rw_fulk;
       struct flock data_rw_flk;
       struct flock data_rw_fulk;
+
+      evf::FastMonitoringService * fms_ = nullptr;
+      std::vector<int> streamFileTracker_;
+      int currentFileIndex_ = -1;
+
+      pthread_mutex_t init_lock_ = PTHREAD_MUTEX_INITIALIZER;
+
   };
 }
 
