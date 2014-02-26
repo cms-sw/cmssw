@@ -20,66 +20,66 @@ class JsonMonConfig;
 class DataPointDefinition: public JsonSerializable {
 
 public:
-	DataPointDefinition() {}
+  DataPointDefinition() {}
 
-        //DataPointDefinition(std::string const& prefix) : namePrefix_(prefix) {}
-	//DataPointDefinition(const std::vector<std::string>& names, const std::vector<std::string>& operations);
+  //DataPointDefinition(std::string const& prefix) : namePrefix_(prefix) {}
+  //DataPointDefinition(const std::vector<std::string>& names, const std::vector<std::string>& operations);
 
-	virtual ~DataPointDefinition() {}
+  virtual ~DataPointDefinition() {}
 
-	/**
-	 * JSON serialization procedure for this class
-	 */
-	virtual void serialize(Json::Value& root) const;
-	/**
-	 * JSON deserialization procedure for this class
-	 */
-	virtual void deserialize(Json::Value& root);
-	/**
-	 * Returns true if the legend_ has elements
-	 */
-	bool isPopulated() const;
-	/**
-	 * Returns a LegendItem object ref at the specified index
-	 */
-	std::vector<std::string> const& getNames() {return varNames_;}
-	std::vector<std::string> const& getOperations() {return opNames_;}
+  /**
+   * JSON serialization procedure for this class
+   */
+  virtual void serialize(Json::Value& root) const;
+  /**
+   * JSON deserialization procedure for this class
+   */
+  virtual void deserialize(Json::Value& root);
+  /**
+   * Returns true if the legend_ has elements
+   */
+  bool isPopulated() const;
+  /**
+   * Returns a LegendItem object ref at the specified index
+   */
+  std::vector<std::string> const& getNames() {return varNames_;}
+  std::vector<std::string> const& getOperations() {return opNames_;}
 
-	/**
-	 * Loads a DataPointDefinition from a specified reference
-	 */
-	static bool getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition* dpd);
+  /**
+   * Loads a DataPointDefinition from a specified reference
+   */
+  static bool getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition* dpd);
 
-	void setMergeMode(std::string const& mode) {mergeMode_=mode;}
+  void setMergeMode(std::string const& mode) {mergeMode_=mode;}
 
-        void addLegendItem(std::string const& name, std::string const& type, std::string const& operation);
+  void addLegendItem(std::string const& name, std::string const& type, std::string const& operation);
 
-	OperationType getOperationFor(unsigned int index);
+  OperationType getOperationFor(unsigned int index);
 
-	std::string & getDefFilePath() {return defFilePath_;}
-	//void populateMonConfig(std::vector<JsonMonConfig>& monConfig);
+  std::string & getDefFilePath() {return defFilePath_;}
+  //void populateMonConfig(std::vector<JsonMonConfig>& monConfig);
 
-	//known JSON operation names
-	static const std::string SUM;
-	static const std::string AVG;
-	static const std::string SAME;
-	static const std::string HISTO;
-	static const std::string CAT;
+  //known JSON operation names
+  static const std::string SUM;
+  static const std::string AVG;
+  static const std::string SAME;
+  static const std::string HISTO;
+  static const std::string CAT;
 
-	// JSON field names
-	static const std::string MODE;
-	static const std::string MERGE;
-	static const std::string LEGEND;
-	static const std::string PARAM_NAME;
-	static const std::string OPERATION;
-	static const std::string TYPE;
+  // JSON field names
+  static const std::string MODE;
+  static const std::string MERGE;
+  static const std::string LEGEND;
+  static const std::string PARAM_NAME;
+  static const std::string OPERATION;
+  static const std::string TYPE;
 
 private:
-        std::string mergeMode_;
-	std::vector<std::string> varNames_;
-	std::vector<std::string> typeNames_;
-	std::vector<std::string> opNames_;
-	std::string defFilePath_;
+  std::string mergeMode_;
+  std::vector<std::string> varNames_;
+  std::vector<std::string> typeNames_;
+  std::vector<std::string> opNames_;
+  std::string defFilePath_;
 
 //	std::string namePrefix_;
 };

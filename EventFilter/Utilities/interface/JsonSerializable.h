@@ -13,11 +13,11 @@
 namespace jsoncollector {
 class JsonSerializable {
 public:
-	virtual ~JsonSerializable() {
-	}
-	;
-	virtual void serialize(Json::Value& root) const = 0;
-	virtual void deserialize(Json::Value& root) = 0;
+  virtual ~JsonSerializable() {
+  }
+  ;
+  virtual void serialize(Json::Value& root) const = 0;
+  virtual void deserialize(Json::Value& root) = 0;
 };
 }
 

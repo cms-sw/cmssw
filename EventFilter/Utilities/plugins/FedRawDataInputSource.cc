@@ -595,8 +595,8 @@ void FedRawDataInputSource::rewind_()
 {}
 
 
-void FedRawDataInputSource::readSupervisor() {
-
+void FedRawDataInputSource::readSupervisor()
+{
   bool stop=false;
   unsigned int currentLumiSection = 0;
 	
@@ -710,8 +710,8 @@ void FedRawDataInputSource::readSupervisor() {
   }
 }
 
-void FedRawDataInputSource::readWorker(unsigned int tid) {
-
+void FedRawDataInputSource::readWorker(unsigned int tid)
+{
   bool init = true;
   atomic_thread_fence(std::memory_order_acquire);
 
@@ -779,16 +779,16 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
   }
 }
 
-void FedRawDataInputSource::threadError() {
-
+void FedRawDataInputSource::threadError()
+{
   quit_threads_=true;
   throw cms::Exception("FedRawDataInputSource:threadError") << " file reader thread error ";
 
 }
 
 
-inline bool FedRawDataInputSource::InputFile::advance(unsigned char* & dataPosition, const size_t size) {
-
+inline bool FedRawDataInputSource::InputFile::advance(unsigned char* & dataPosition, const size_t size)
+{
   //wait for chunk
   while (!waitForChunk(currentChunk_)) {
     usleep(100000);

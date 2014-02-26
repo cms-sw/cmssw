@@ -29,8 +29,9 @@ const std::string DataPoint::DEFINITION = "definition";
 const std::string DataPoint::DATA = "data";
 
 
-DataPoint::~DataPoint() {
-	if (buf_) delete[] buf_;
+DataPoint::~DataPoint()
+{
+  if (buf_) delete[] buf_;
 }
 
 /*
@@ -40,28 +41,29 @@ DataPoint::~DataPoint() {
  */
 
 
-void DataPoint::serialize(Json::Value& root) const {
-
-	if (source_.size()) {
-	  root[SOURCE] = source_;
-	}
-	if (definition_.size()) {
-	  root[DEFINITION] = definition_;
-	}
-	for (unsigned int i=0;i<data_.size();i++)
-		root[DATA].append(data_[i]);
+void DataPoint::serialize(Json::Value& root) const
+{
+  if (source_.size()) {
+    root[SOURCE] = source_;
+  }
+  if (definition_.size()) {
+    root[DEFINITION] = definition_;
+  }
+  for (unsigned int i=0;i<data_.size();i++)
+    root[DATA].append(data_[i]);
 }
 
 
-void DataPoint::deserialize(Json::Value& root) {
-	source_ = root.get(SOURCE, "").asString();
-	definition_ = root.get(DEFINITION, "").asString();
-	if (root.get(DATA, "").isArray()) {
-		unsigned int size = root.get(DATA, "").size();
-		for (unsigned int i = 0; i < size; i++) {
-			data_.push_back(root.get(DATA, "")[i].asString());
-		}
-	}
+void DataPoint::deserialize(Json::Value& root)
+{
+  source_ = root.get(SOURCE, "").asString();
+  definition_ = root.get(DEFINITION, "").asString();
+  if (root.get(DATA, "").isArray()) {
+    unsigned int size = root.get(DATA, "").size();
+    for (unsigned int i = 0; i < size; i++) {
+      data_.push_back(root.get(DATA, "")[i].asString());
+    }
+  }
 }
 
 /*
@@ -72,53 +74,53 @@ void DataPoint::deserialize(Json::Value& root) {
 
 void DataPoint::trackMonitorable(JsonMonitorable *monitorable,bool NAifZeroUpdates)
 {
-    name_=monitorable->getName();
-    tracked_ = (void*)monitorable;
-    if (dynamic_cast<IntJ*>(monitorable)) monType_=TYPEINT;
-    else if (dynamic_cast<DoubleJ*>(monitorable)) monType_=TYPEDOUBLE;
-    else if (dynamic_cast<StringJ*>(monitorable)) monType_=TYPESTRING;
-    else assert(0);
-    NAifZeroUpdates_=NAifZeroUpdates;
+  name_=monitorable->getName();
+  tracked_ = (void*)monitorable;
+  if (dynamic_cast<IntJ*>(monitorable)) monType_=TYPEINT;
+  else if (dynamic_cast<DoubleJ*>(monitorable)) monType_=TYPEDOUBLE;
+  else if (dynamic_cast<StringJ*>(monitorable)) monType_=TYPESTRING;
+  else assert(0);
+  NAifZeroUpdates_=NAifZeroUpdates;
 
 }
 
 void DataPoint::trackVectorUInt(std::string const& name, std::vector<unsigned int>  *monvec, bool NAifZeroUpdates)
 {
-    name_=name;
-    tracked_ = (void*)monvec;
-    isStream_=true;
-    monType_=TYPEUINT;
-    NAifZeroUpdates_=NAifZeroUpdates;
-    makeStreamLumiMap(monvec->size());
+  name_=name;
+  tracked_ = (void*)monvec;
+  isStream_=true;
+  monType_=TYPEUINT;
+  NAifZeroUpdates_=NAifZeroUpdates;
+  makeStreamLumiMap(monvec->size());
 }
 
 void DataPoint::trackVectorUIntAtomic(std::string const& name, std::vector<AtomicMonUInt*>  *monvec, bool NAifZeroUpdates)
 {
-    name_=name;
-    tracked_ = (void*)monvec;
-    isStream_=true;
-    isAtomic_=true;
-    monType_=TYPEUINT;
-    NAifZeroUpdates_=NAifZeroUpdates;
-    makeStreamLumiMap(monvec->size());
+  name_=name;
+  tracked_ = (void*)monvec;
+  isStream_=true;
+  isAtomic_=true;
+  monType_=TYPEUINT;
+  NAifZeroUpdates_=NAifZeroUpdates;
+  makeStreamLumiMap(monvec->size());
 }
 
 void DataPoint::makeStreamLumiMap(unsigned int size)
 {
-    for (unsigned int i=0;i<size;i++) {
-	    streamDataMaps_.push_back(MonPtrMap());
-    }
+  for (unsigned int i=0;i<size;i++) {
+    streamDataMaps_.push_back(MonPtrMap());
+  }
 }
 
 void DataPoint::serialize(Json::Value& root, bool rootInit, std::string const&input) const
 {
-	if (rootInit) {
-	  if (source_.size())
-	    root[SOURCE] = source_;
-	  if (definition_.size())
-	    root[DEFINITION] = definition_;
-	}
-	root[DATA].append(input);
+  if (rootInit) {
+    if (source_.size())
+      root[SOURCE] = source_;
+    if (definition_.size())
+      root[DEFINITION] = definition_;
+  }
+  root[DATA].append(input);
 }
 
 void DataPoint::snap(unsigned int lumi)
@@ -128,8 +130,8 @@ void DataPoint::snap(unsigned int lumi)
     if (monType_==TYPEUINT)
     {
       for (unsigned int i=0; i<streamDataMaps_.size();i++) {
-	unsigned int streamLumi_=streamLumisPtr_->at(i);//get currently processed stream lumi
-	unsigned int monVal;
+        unsigned int streamLumi_=streamLumisPtr_->at(i);//get currently processed stream lumi
+        unsigned int monVal;
 
 //#if ATOMIC_LEVEL>0 //strictest version
 //        if (isAtomic_) monVal = (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(i)->load(std::memory_order_acquire);
@@ -144,28 +146,28 @@ void DataPoint::snap(unsigned int lumi)
 	if (itr==streamDataMaps_[i].end()) //insert
 	{
 	  if (opType_==OPHISTO) {
-	    if (*nBinsPtr_) {//only if bins >0
-	    	HistoJ<unsigned int> *nh = new HistoJ<unsigned int>(1,MAXUPDATES);
-	    	nh->update(monVal);
-	    	streamDataMaps_[i][streamLumi_] = nh;
-	    }
-	  }
-	  else {//default to SUM
-	    IntJ *nj = new IntJ;
-	    nj->update(monVal);
-	    streamDataMaps_[i][streamLumi_]= nj;
-	  }
-	}
-	else { 
-	  if (opType_==OPHISTO) {
-	    if (*nBinsPtr_) {//only if bins >0
-	    	(static_cast<HistoJ<unsigned int> *>(itr->second.get()))->update(monVal);
-	    }
-	  }
-	  else {
-	    *(static_cast<IntJ*>(itr->second.get()))=monVal;
-	  }
-	}
+            if (*nBinsPtr_) {//only if bins >0
+              HistoJ<unsigned int> *nh = new HistoJ<unsigned int>(1,MAXUPDATES);
+              nh->update(monVal);
+              streamDataMaps_[i][streamLumi_] = nh;
+            }
+          }
+          else {//default to SUM
+            IntJ *nj = new IntJ;
+            nj->update(monVal);
+            streamDataMaps_[i][streamLumi_]= nj;
+          }
+        }
+        else { 
+          if (opType_==OPHISTO) {
+            if (*nBinsPtr_) {//only if bins >0
+              (static_cast<HistoJ<unsigned int> *>(itr->second.get()))->update(monVal);
+            }
+          }
+          else {
+            *(static_cast<IntJ*>(itr->second.get()))=monVal;
+          }
+        }
       }
     }
     else assert(monType_!=TYPEINT);//not yet implemented, application error
@@ -195,12 +197,12 @@ void DataPoint::snapGlobal(unsigned int lumi)
       globalDataMap_[lumi]=sj;
     }
   } else { 
-	  if (monType_==TYPEINT)
-		  static_cast<IntJ*>(itr->second.get())->update((static_cast<IntJ*>(tracked_))->value());
-	  else if (monType_==TYPEDOUBLE)
-		  static_cast<DoubleJ*>(itr->second.get())->update((static_cast<DoubleJ*>(tracked_))->value());
-	  else if (monType_==TYPESTRING)
-		  static_cast<StringJ*>(itr->second.get())->concatenate((static_cast<StringJ*>(tracked_))->value());
+    if (monType_==TYPEINT)
+      static_cast<IntJ*>(itr->second.get())->update((static_cast<IntJ*>(tracked_))->value());
+    else if (monType_==TYPEDOUBLE)
+      static_cast<DoubleJ*>(itr->second.get())->update((static_cast<DoubleJ*>(tracked_))->value());
+    else if (monType_==TYPESTRING)
+      static_cast<StringJ*>(itr->second.get())->concatenate((static_cast<StringJ*>(tracked_))->value());
   }
 }
 
@@ -210,43 +212,43 @@ void DataPoint::snapStreamAtomic(unsigned int streamID, unsigned int lumi)
   isCached_=false;
   if (monType_==TYPEUINT)
   {
-      unsigned int monVal;
-//#if ATOMIC_LEVEL>0 //strictest version
-//      if (isAtomic_) monVal = ((std::vector<AtomicMonUInt*>*)tracked_)->at(streamID)->load(std::memory_order_acquire);
+    unsigned int monVal;
+    //#if ATOMIC_LEVEL>0 //strictest version
+    //      if (isAtomic_) monVal = ((std::vector<AtomicMonUInt*>*)tracked_)->at(streamID)->load(std::memory_order_acquire);
 #if ATOMIC_LEVEL>0
-      if (isAtomic_) monVal = (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(streamID)->load(std::memory_order_relaxed);
+    if (isAtomic_) monVal = (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(streamID)->load(std::memory_order_relaxed);
 #else 
-       if (isAtomic_) monVal = *((static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(streamID));
+    if (isAtomic_) monVal = *((static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(streamID));
 #endif
-      else monVal = (static_cast<std::vector<unsigned int>*>(tracked_))->at(streamID);
+    else monVal = (static_cast<std::vector<unsigned int>*>(tracked_))->at(streamID);
 
-      auto itr =  streamDataMaps_[streamID].find(lumi);
-      if (itr==streamDataMaps_[streamID].end()) //insert
-      {
-	      if (opType_==OPHISTO) {
-		      if (*nBinsPtr_) {
-		      	HistoJ<unsigned int> *h = new HistoJ<unsigned int>(1,MAXUPDATES);
-		      	h->update(monVal);
-		      	streamDataMaps_[streamID][lumi] = h;
-		      }
-	      }
-	      else {//default to SUM
+    auto itr =  streamDataMaps_[streamID].find(lumi);
+    if (itr==streamDataMaps_[streamID].end()) //insert
+    {
+      if (opType_==OPHISTO) {
+        if (*nBinsPtr_) {
+          HistoJ<unsigned int> *h = new HistoJ<unsigned int>(1,MAXUPDATES);
+          h->update(monVal);
+          streamDataMaps_[streamID][lumi] = h;
+        }
+      }
+      else {//default to SUM
 
-		      IntJ *h = new IntJ;
-		      h->update(monVal);
-		      streamDataMaps_[streamID][lumi] = h;
-	      }
+        IntJ *h = new IntJ;
+        h->update(monVal);
+        streamDataMaps_[streamID][lumi] = h;
       }
-      else 
-      { 
-	      if (opType_==OPHISTO) {
-		      if (*nBinsPtr_) {
-		      	static_cast<HistoJ<unsigned int>*>(itr->second.get())->update(monVal);
-		      }
-	      }
-	      else
-		      *(static_cast<IntJ*>(itr->second.get()))=monVal;
+    }
+    else 
+    { 
+      if (opType_==OPHISTO) {
+        if (*nBinsPtr_) {
+          static_cast<HistoJ<unsigned int>*>(itr->second.get())->update(monVal);
+        }
       }
+      else
+        *(static_cast<IntJ*>(itr->second.get()))=monVal;
+    }
   }
   else assert(monType_!=TYPEINT);//not yet implemented
 }
@@ -264,7 +266,7 @@ std::string DataPoint::fastOutCSV()
 #endif 
       else
         ss << (static_cast<std::vector<unsigned int>*>(tracked_))->at(fastIndex_);
- 
+
       fastIndex_ = fastIndex_+1 % (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->size();
       return ss.str();
     }
@@ -280,7 +282,7 @@ JsonMonitorable* DataPoint::mergeAndRetrieveValue(unsigned int lumi)
   for (unsigned int i=0;i<streamDataMaps_.size();i++) {
     auto itr = streamDataMaps_[i].find(lumi);
     if (itr!=streamDataMaps_[i].end()) {
-	    newJ->add(static_cast<IntJ*>(itr->second.get())->value());
+      newJ->add(static_cast<IntJ*>(itr->second.get())->value());
     }
   }
   cacheI_=newJ->value();
@@ -290,107 +292,107 @@ JsonMonitorable* DataPoint::mergeAndRetrieveValue(unsigned int lumi)
 
 void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool initJsonValue)
 {
-	if (initJsonValue) {
-		root[SOURCE] = source_;
-		root[DEFINITION] = definition_;
-	}
+  if (initJsonValue) {
+    root[SOURCE] = source_;
+    root[DEFINITION] = definition_;
+  }
 
-	if (isDummy_) {
-		root[DATA].append("N/A");
-		return;
-	}
-	if (!isStream_) {
-		auto itr = globalDataMap_.find(lumi);
-		if (itr != globalDataMap_.end()) {
-			root[DATA].append(itr->second.get()->toString());
-		}
-		else {
-			if (NAifZeroUpdates_) root[DATA].append("N/A");
-			else if (monType_==TYPESTRING)  root[DATA].append("");
-			else  root[DATA].append("0");
-		}
-		return;
-	}
-	else {
-		assert(monType_==TYPEUINT);
-		if (isCached_) {
-			std::stringstream ss;
-			ss << cacheI_;
-			root[DATA].append(ss.str());
-			return;
-		}
-		if (opType_!=OPHISTO) {//sum is default
-			std::stringstream ss;
-			unsigned int updates=0;
-			unsigned int sum=0;
-			for (unsigned int i=0;i<streamDataMaps_.size();i++) {
-				auto itr = streamDataMaps_[i].find(lumi);
-				if (itr!=streamDataMaps_[i].end()) {
-					sum+=static_cast<IntJ*>(itr->second.get())->value();
-					updates++;
-				}
-			}
-			if (!updates && NAifZeroUpdates_) ss << "N/A";
-			ss << sum;
-			root[DATA].append(ss.str());
-			return;
-		}
-		if (opType_==OPHISTO) {
-			if (nBinsPtr_==nullptr) {
-				root[DATA].append("N/A");
-				return;
-			}
-			if (*nBinsPtr_>bufLen_) {
-				if (buf_) delete[] buf_;
-				bufLen_=*nBinsPtr_;
-				buf_= new uint32_t[bufLen_];
-			}
-			memset(buf_,0,bufLen_*sizeof(uint32_t));
-			unsigned int updates=0;
-			for (unsigned int i=0;i<streamDataMaps_.size();i++) {
-				auto itr = streamDataMaps_[i].find(lumi);
-				if (itr!=streamDataMaps_[i].end()) {
-					HistoJ <unsigned int>* monObj = static_cast<HistoJ<unsigned int>*>(itr->second.get());
-					updates+=monObj->getUpdates();
-					auto &hvec = monObj->value();
-					for (unsigned int i=0;i<hvec.size();i++) {
-						unsigned int thisbin=(unsigned int) hvec[i];
-						if (thisbin<*nBinsPtr_ /*&& thisbin>=0*/) {
-							buf_[thisbin]++;
-						}
-					}
-				}
-			}
-			std::stringstream ss;
-			if (!*nBinsPtr_ || (!updates && NAifZeroUpdates_)) ss << "N/A";
-			else {
-				ss << "[";
-				if (*nBinsPtr_) {
-					for (unsigned int i=0;i<*nBinsPtr_-1;i++) {
-						ss << buf_[i] << ",";
-					}
-					ss << buf_[*nBinsPtr_-1];
-				}
-				ss << "]";
-			}
-			root[DATA].append(ss.str());
-			return;
-		}
-	}
+  if (isDummy_) {
+    root[DATA].append("N/A");
+    return;
+  }
+  if (!isStream_) {
+    auto itr = globalDataMap_.find(lumi);
+    if (itr != globalDataMap_.end()) {
+      root[DATA].append(itr->second.get()->toString());
+    }
+    else {
+      if (NAifZeroUpdates_) root[DATA].append("N/A");
+      else if (monType_==TYPESTRING)  root[DATA].append("");
+      else  root[DATA].append("0");
+    }
+    return;
+  }
+  else {
+    assert(monType_==TYPEUINT);
+    if (isCached_) {
+      std::stringstream ss;
+      ss << cacheI_;
+      root[DATA].append(ss.str());
+      return;
+    }
+    if (opType_!=OPHISTO) {//sum is default
+      std::stringstream ss;
+      unsigned int updates=0;
+      unsigned int sum=0;
+      for (unsigned int i=0;i<streamDataMaps_.size();i++) {
+        auto itr = streamDataMaps_[i].find(lumi);
+        if (itr!=streamDataMaps_[i].end()) {
+          sum+=static_cast<IntJ*>(itr->second.get())->value();
+          updates++;
+        }
+      }
+      if (!updates && NAifZeroUpdates_) ss << "N/A";
+      ss << sum;
+      root[DATA].append(ss.str());
+      return;
+    }
+    if (opType_==OPHISTO) {
+      if (nBinsPtr_==nullptr) {
+        root[DATA].append("N/A");
+        return;
+      }
+      if (*nBinsPtr_>bufLen_) {
+        if (buf_) delete[] buf_;
+        bufLen_=*nBinsPtr_;
+        buf_= new uint32_t[bufLen_];
+      }
+      memset(buf_,0,bufLen_*sizeof(uint32_t));
+      unsigned int updates=0;
+      for (unsigned int i=0;i<streamDataMaps_.size();i++) {
+        auto itr = streamDataMaps_[i].find(lumi);
+        if (itr!=streamDataMaps_[i].end()) {
+          HistoJ <unsigned int>* monObj = static_cast<HistoJ<unsigned int>*>(itr->second.get());
+          updates+=monObj->getUpdates();
+          auto &hvec = monObj->value();
+          for (unsigned int i=0;i<hvec.size();i++) {
+            unsigned int thisbin=(unsigned int) hvec[i];
+            if (thisbin<*nBinsPtr_ /*&& thisbin>=0*/) {
+              buf_[thisbin]++;
+            }
+          }
+        }
+      }
+      std::stringstream ss;
+      if (!*nBinsPtr_ || (!updates && NAifZeroUpdates_)) ss << "N/A";
+      else {
+        ss << "[";
+        if (*nBinsPtr_) {
+          for (unsigned int i=0;i<*nBinsPtr_-1;i++) {
+            ss << buf_[i] << ",";
+          }
+          ss << buf_[*nBinsPtr_-1];
+        }
+        ss << "]";
+      }
+      root[DATA].append(ss.str());
+      return;
+    }
+  }
 }
 
 //wipe out data that will no longer be used
 //should use iterator to erase
 void DataPoint::discardCollected(unsigned int lumi)
 {
-	for (unsigned int i=0;i<streamDataMaps_.size();i++)
-	{
-		auto itr = streamDataMaps_[i].find(lumi);
-		if (itr!=streamDataMaps_[i].end()) streamDataMaps_[i].erase(lumi);
-	}
+  for (unsigned int i=0;i<streamDataMaps_.size();i++)
+  {
+    auto itr = streamDataMaps_[i].find(lumi);
+    if (itr!=streamDataMaps_[i].end()) streamDataMaps_[i].erase(lumi);
+  }
 
-	auto itr = globalDataMap_.find(lumi);
-	if (itr!=globalDataMap_.end())
-		globalDataMap_.erase(lumi);
+  auto itr = globalDataMap_.find(lumi);
+  if (itr!=globalDataMap_.end())
+    globalDataMap_.erase(lumi);
 }
 
