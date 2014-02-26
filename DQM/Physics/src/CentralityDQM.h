@@ -39,6 +39,7 @@ private:
   DQMStore* bei_;  
 
   edm::InputTag centrality_;
+  edm::InputTag vertex_;
   ///////////////////////////
   // Histograms
   ///////////////////////////
@@ -67,6 +68,9 @@ private:
   MonitorElement* h_hiZDCplus;
   MonitorElement* h_hiZDCminus;
 
+  MonitorElement* h_vertex_x;
+  MonitorElement* h_vertex_y;
+  MonitorElement* h_vertex_z;
 };
 
 
