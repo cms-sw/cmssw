@@ -188,7 +188,7 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     //{ printf("skip!!\n"); continue; }
     
     // match hits and digis to this SimTrack
-    SimTrackDigiMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
+    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
 
     const SimHitMatcher& match_sh = match.simhits();
     const GEMDigiMatcher& match_gd = match.gemDigis();

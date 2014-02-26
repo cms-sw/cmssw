@@ -2,7 +2,8 @@
 #define _HOUGHFITTER_H_
 
 #include "TrackFitter.h"
-#include "HoughLocal.h"
+#include "ComputerHough.h"
+
 #include <iomanip>
 #include <set>
 
@@ -15,6 +16,14 @@
 class HoughFitter:public TrackFitter{
 
  private:
+
+  HoughCut* cuts;
+  ComputerHough* ch;
+  float *h_x;
+  float *h_y;
+  float *h_z;
+  unsigned int *h_layer;
+
 
   friend class boost::serialization::access;
   
@@ -30,6 +39,13 @@ class HoughFitter:public TrackFitter{
       cout<<"chargement de HoughFitter"<<endl;
       ar >> boost::serialization::base_object<TrackFitter>(*this);
       ar >> sec_phi;
+      cuts = new HoughCut();
+      ch = new ComputerHough(cuts);
+      h_x= new float[1024];
+      h_y= new float[1024];
+      h_z= new float[1024];
+      h_layer= new unsigned int[1024];
+      ch->DefaultCuts();
     }
   
   BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -50,6 +66,7 @@ class HoughFitter:public TrackFitter{
   void mergePatterns();
   void mergeTracks();
   void fit();
+  void fit(vector<Hit*> hits);
   TrackFitter* clone();
 };
 #endif

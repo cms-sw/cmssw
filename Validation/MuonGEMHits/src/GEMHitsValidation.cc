@@ -1,28 +1,50 @@
 #include "Validation/MuonGEMHits/interface/GEMHitsValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <TMath.h>
 
-GEMHitsValidation::GEMHitsValidation(DQMStore* dbe, const edm::InputTag & inputTag, const edm::ParameterSet& cfg)
+GEMHitsValidation::GEMHitsValidation(DQMStore* dbe, const edm::InputTag & inputTag)
 :  GEMBaseValidation(dbe, inputTag)
-{
-  npart   = cfg.getUntrackedParameter<int>("gemNPart",8);
-  nlayer  = cfg.getUntrackedParameter<int>("gemNLayer",2);
-  nregion = cfg.getUntrackedParameter<int>("gemNRegion",2);
+{}
 
-  std::string region[2]= { "m","p" } ; 
-  std::string station[3]= { "1","2","3" } ; 
+void GEMHitsValidation::bookHisto() {
+  LogDebug("MuonGEMHitsValidation")<<"Info : Loading Geometry information\n";
+
+  dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
+
+
+  Int_t nregion  = theGEMGeometry->regions().size();
+  Int_t nstation = theGEMGeometry->stations().size() / nregion;
+  Int_t nchamber = theGEMGeometry->chambers().size();
+
+  npart    = theGEMGeometry->etaPartitions().size()/nchamber;
+
+
+  LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of region : "<<nregion<<std::endl;
+  LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of stations : "<<nstation<<std::endl;
+  LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of chambers : "<<nchamber<<std::endl;
+  LogDebug("MuonGEMHitsValidation")<<"+++ Info : # of eta partition : "<< npart <<std::endl;
+
+
+  std::vector< std::string > region;
+  std::vector< std::string > station;
+
+  if ( nregion == 2) { region.push_back("-1"); region.push_back("1"); }
+  else LogDebug("MuonGEMHitsValidation")<<"+++ Error : # of regions is not 2!\n";
+
+  if ( nstation == 1 ) { station.push_back("1"); } 
+  else if ( nstation == 3 ) { station.push_back("1"); station.push_back("2"); station.push_back("3"); } 
+  else LogDebug("MuonGEMHitsValidation")<<"+++ Error : # of stations is not 1 or 3.\n"; 
+
   std::string layer[2]= { "1","2" } ; 
   std::string has_muon[3]= { "_Muon","_noMuon","_All"} ;
 
+  LogDebug("MuonGEMHitsValidation")<<"+++ Info : finish to get geometry information from ES.\n";
+
+
 
   for( int i=0 ; i <3 ; i++) {
-    //gem_sh_xy_rm1_l1[i] = dbe_->book2D("gem_sh_xy_rm1_l1"+has_muon[i], "SimHit occupancy : region -1, layer1;globalX [cm]; globalY[cm]", 100,-260,260,100,-260,260);
-    //gem_sh_xy_rm1_l2[i] = dbe_->book2D("gem_sh_xy_rm1_l2"+has_muon[i], "SimHit occupancy : region -1, layer2;globalX [cm]; globalY[cm]", 100,-260,260,100,-260,260);
-    //gem_sh_xy_rp1_l1[i] = dbe_->book2D("gem_sh_xy_rp1_l1"+has_muon[i], "SimHit occupancy : region  1, layer1;globalX [cm]; globalY[cm]", 100,-260,260,100,-260,260);
-    //gem_sh_xy_rp1_l2[i] = dbe_->book2D("gem_sh_xy_rp1_l2"+has_muon[i], "SimHit occupancy : region  1, layer2;globalX [cm]; globalY[cm]", 100,-260,260,100,-260,260);
  
     gem_sh_zr_rm1[i] =  dbe_->book2D("gem_sh_zr_rm1"+has_muon[i], "SimHit occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,110,130,240);
     gem_sh_zr_rp1[i] =  dbe_->book2D("gem_sh_zr_rp1"+has_muon[i], "SimHit occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200, 564, 573,110,130,240);
@@ -42,13 +64,13 @@ GEMHitsValidation::GEMHitsValidation(DQMStore* dbe, const edm::InputTag & inputT
 
   }
 
-  for( int region_num = 0 ; region_num <2 ; region_num++ ) {
-    for( int station_num = 0 ; station_num < 3 ; station_num++) {
-      for( int layer_num = 0 ; layer_num < 2 ; layer_num++) {
-        for( int sel = 0 ; sel < 3 ; sel++) {
+  for( unsigned int region_num = 0 ; region_num < region.size() ; region_num++ ) {
+    for( unsigned int station_num = 0 ; station_num < station.size() ; station_num++) {
+      for( unsigned int layer_num = 0 ; layer_num < 2 ; layer_num++) {
+        for( unsigned int sel = 0 ; sel < 3 ; sel++) {
           std::string hist_name  = std::string("gem_sh_xy_r")+region[region_num]+"_st"+station[station_num]+"_l"+layer[layer_num]+has_muon[sel];
           std::string hist_label = has_muon[sel]+" SimHit occupancy : region"+region[region_num]+" station "+station[station_num]+" layer "+layer[layer_num]+" ; globalX [cm]; globalY[cm]";
-          gem_sh_xy[region_num][station_num][layer_num][sel] = dbe->book2D( hist_name.c_str(), hist_label.c_str(), 100, -260,260,100,-260,260);
+          gem_sh_xy[region_num][station_num][layer_num][sel] = dbe_->book2D( hist_name.c_str(), hist_label.c_str(), 100, -260,260,100,-260,260);
         }   
       }
     }
@@ -88,6 +110,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     Int_t layer = id.layer();
     //Int_t chamber = id.chamber();
     Int_t roll = id.roll();
+
 
     const LocalPoint p0(0., 0., 0.);
     const GlobalPoint Gp0(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(p0));
@@ -142,7 +165,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
           gem_sh_global_eta[muonSel]->Fill( roll+ npart + 0);
         }
         else {
-          //std::cout<<"layer : "<<layer<<std::endl;
+          LogDebug("MuonGEMHitsValidation")<<"+++ Error : layer : "<<layer<<std::endl;
 	}
       }
       else if ( region == 1 ) {
@@ -163,11 +186,11 @@ void GEMHitsValidation::analyze(const edm::Event& e,
           gem_sh_global_eta[muonSel]->Fill( roll+ npart + 2*npart );
         }
         else {
-          //std::cout<<"layer : "<<layer<<std::endl;
+          LogDebug("MuonGEMHitsValidation")<<"+++ Error : layer : "<<layer<<std::endl;
         }
       }
       else {
-        //std::cout<<"region : "<<region<<std::endl;
+        LogDebug("MuonGEMHitsValidation")<<"+++ Error : region : "<<region<<std::endl;
       }
    }
 }

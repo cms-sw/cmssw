@@ -42,15 +42,19 @@ public:
   std::pair<int,int>        getiEtaRange(const int i) const
     {return std::pair<int,int>(etaMin[i],etaMax[i]);}
   std::vector<double>       getEtaTable() const {return etaTable;}
+  std::vector<double>       getEtaTableHF() const;
   std::pair<int,int>        getModHalfHBHE(const int type) const;
   std::vector<int>          getNOff() const {return nOff;}
   double                    getPhiBin(const int i) const {return phibin[i];}
   std::pair<double,double>  getPhiCons(int det, int ieta);
   double                    getPhiOff(const int i) const {return phioff[i];}
+  std::vector<double>       getPhiTable() const {return phibin;}
+  std::vector<double>       getPhiTableHF() const {return phitable;}
   std::vector<HcalCellType> HcalCellTypes() const;
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector, int ieta=-1,
 					  int depth=-1) const;
   void                      initialize(const DDCompactView& cpv);
+  int                       getMaxDepth(const int type) const {return maxDepth[type];}
   unsigned int              numberOfCells(HcalSubdetector) const;
   int                       phiNumber(int phi, int unit) const;
   void                      printTiles() const;
@@ -72,9 +76,9 @@ private:
   void                printTileHB(int eta, int depth) const;
   void                printTileHE(int eta, int depth) const;
   
-  bool             tobeInitialized;
-  static const int nEtaMax=100;
-  static const int nDepthMax=9;
+  bool                tobeInitialized;
+  static const int    nEtaMax=100;
+  static const int    nDepthMax=9;
   int                 maxDepth[4]; // Maximum depths in HB/HE/HF/HO
   std::vector<double> phioff;   // Phi offset for barrel, endcap, forward
   std::vector<double> etaTable; // Eta table 

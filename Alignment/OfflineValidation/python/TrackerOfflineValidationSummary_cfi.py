@@ -9,7 +9,10 @@ TrackerOfflineValidationSummary = cms.EDAnalyzer("TrackerOfflineValidationSummar
    
    # DMR (distribution of median of residuals per module) of X coordinate (Strip)
    TH1DmrXprimeStripModules = cms.PSet(
-     Nbinx = cms.int32(200), xmin = cms.double(-0.05), xmax = cms.double(0.05)
+         # width 2.0 um
+#     Nbinx = cms.int32(500), xmin = cms.double(-0.05), xmax = cms.double(0.05)
+     # width 0.5 um
+    Nbinx = cms.int32(5000), xmin = cms.double(-0.05), xmax = cms.double(0.05)
    ),
    
    # DMR (distribution of median of residuals per module) of Y coordinate (Strip)
@@ -19,12 +22,14 @@ TrackerOfflineValidationSummary = cms.EDAnalyzer("TrackerOfflineValidationSummar
    
    # DMR (distribution of median of residuals per module) of X coordinate (Pixel)
    TH1DmrXprimePixelModules = cms.PSet(
-     Nbinx = cms.int32(200), xmin = cms.double(-0.05), xmax = cms.double(0.05)
+#     Nbinx = cms.int32(500), xmin = cms.double(-0.05), xmax = cms.double(0.05)
+    Nbinx = cms.int32(5000), xmin = cms.double(-0.05), xmax = cms.double(0.05)
    ),
    
    # DMR (distribution of median of residuals per module) of Y coordinate (Pixel)
    TH1DmrYprimePixelModules = cms.PSet(
-     Nbinx = cms.int32(200), xmin = cms.double(-0.05), xmax = cms.double(0.05)
+#     Nbinx = cms.int32(200), xmin = cms.double(-0.05), xmax = cms.double(0.05)
+    Nbinx = cms.int32(5000), xmin = cms.double(-0.05), xmax = cms.double(0.05)
    )
    
 )

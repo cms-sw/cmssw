@@ -386,8 +386,6 @@
  </SpecParSection>
  <SpecParSection label="muonendcapnumbering" eval="true">
   <SpecPar name="MuonEndcapStation1">
-   <PartSelector path="//ME0RingP"/>
-   <PartSelector path="//ME0RingN"/>
    <PartSelector path="//ME1RingP"/>
    <PartSelector path="//ME1RingN"/>
    <PartSelector path="//ME12RingP"/>
@@ -502,18 +500,6 @@
    <PartSelector path="//GHA2.*"/>
    <Parameter name="CopyNoTag" value="[mg_roll]"/>
    <Parameter name="CopyNoOffset" value="4*[super]"/>
-  </SpecPar>
- </SpecParSection>
- <SpecParSection label="muonME0Numbering" eval="true">
-   <SpecPar name="MuonME0Sector">
-   <PartSelector path="//ME0Box"/>
-   <Parameter name="CopyNoTag" value="[m0_sector]"/>
-   <Parameter name="CopyNoOffset" value="1*[super]"/>
-  </SpecPar>
-  <SpecPar name="MuonME0Layer">
-   <PartSelector path="//ME0L.*"/>
-   <Parameter name="CopyNoTag" value="[m0_layer]"/>
-   <Parameter name="CopyNoOffset" value="3*[super]"/>
   </SpecPar>
  </SpecParSection>
 </DDDefinition>

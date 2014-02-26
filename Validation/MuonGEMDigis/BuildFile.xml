@@ -28,6 +28,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="Utilities/General"/>
 <use name="DQMServices/Core"/>
+<use name="Validation/MuonGEMHits"/>
 <export>
   <lib name="1"/>
 </export>

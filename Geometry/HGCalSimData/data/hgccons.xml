@@ -4,9 +4,41 @@
 <SpecParSection label="hgccons.xml" eval="true">
   <SpecPar name="hgc">
     <PartSelector path="//HGCal"/>
-    <Parameter name="Volume" value="HGC" eval="false"/>
+    <Parameter name="Volume"     value="HGC" eval="false"/>
+    <!-- cell size -->
     <Parameter name="GeomParHGC" value="5*mm"/>
-    <Parameter name="GeomParHGC" value="10*mm"/>
+
+    <!-- EE #1 -->
+    <Parameter name="GeomParHGC" value="21"/>
+    <Parameter name="GeomParHGC" value="30"/>
+
+    <!-- EE #2 -->
+    <Parameter name="GeomParHGC" value="71"/>
+    <Parameter name="GeomParHGC" value="80"/>
+
+    <!-- EE #3 -->
+    <Parameter name="GeomParHGC" value="121"/>
+    <Parameter name="GeomParHGC" value="130"/>
+    
+    <!-- HE silicon #1 -->
+    <Parameter name="GeomParHGC" value="17"/>
+    <Parameter name="GeomParHGC" value="24"/>
+
+    <!-- HE silicon #2 -->
+    <Parameter name="GeomParHGC" value="49"/>
+    <Parameter name="GeomParHGC" value="52"/>
+
+    <!-- HE scintillator -->
+    <Parameter name="GeomParHGC" value="45"/>
+    <Parameter name="GeomParHGC" value="66"/>
+
+    <!-- HE gem -->
+    <Parameter name="GeomParHGC" value="25"/>
+    <Parameter name="GeomParHGC" value="32"/>
+
+    <Parameter name="GeomParHGC" value="41"/>
+    <Parameter name="GeomParHGC" value="48"/>
+
   </SpecPar>
 </SpecParSection>
 </DDDefinition>

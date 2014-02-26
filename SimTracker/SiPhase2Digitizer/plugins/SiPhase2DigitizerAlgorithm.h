@@ -269,7 +269,6 @@ class SiPhase2DigitizerAlgorithm  {
     const float interstripCoupling;     
     const float Sigma0; //=0.0007  // Charge diffusion in microns for 300 micron Si
     const float SigmaCoeff; // delta in the diffusion across the strip pitch 
-    const float Dist300;  //=0.0300  // Define 300microns for normalization 
 
     //-- induce_signal
     const float ClusterWidth;       // Gaussian charge cutoff width in sigma units

@@ -24,9 +24,9 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     # to be added here all the other histogram settings
 
     #
-    minEta = cms.double(-5.0),
-    maxEta = cms.double(5.0),
-    nintEta = cms.int32(50),
+    minEta = cms.double(-4.5),
+    maxEta = cms.double(4.5),
+    nintEta = cms.int32(90),
     useFabsEta = cms.bool(False),
     #
     minPt = cms.double(0.1),
@@ -68,8 +68,8 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
 
     # Pileup vertices
     minVertcount = cms.double(-0.5),
-    maxVertcount = cms.double(120.5),
-    nintVertcount = cms.int32(121),
+    maxVertcount = cms.double(160.5),
+    nintVertcount = cms.int32(161),
     #
     #parameters for resolution plots
     ptRes_rangeMin = cms.double(-0.1),

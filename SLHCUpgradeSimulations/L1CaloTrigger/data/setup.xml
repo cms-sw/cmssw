@@ -2,8 +2,8 @@
 <CARD>
 
 
-<SETTINGS ECALTower = "1" 
-          HCALTower = "2" 
+<SETTINGS ECALTower = "0" 
+          HCALTower = "0" 
           ClusterThr = "2" 
           ElectronConstant = "90" 
           ElectronThreshold = "120" 

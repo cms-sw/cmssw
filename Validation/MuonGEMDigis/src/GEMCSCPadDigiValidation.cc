@@ -9,7 +9,7 @@ GEMCSCPadDigiValidation::GEMCSCPadDigiValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag)
 :  GEMBaseValidation(dbe, inputTag)
 {
-  std::string region[2]= { "m","p" } ;
+  std::string region[2]= { "-1","1" } ;
   std::string station[3]= { "1","2","3" } ;
   std::string layer[2]= { "1","2" } ;
 
@@ -23,7 +23,7 @@ GEMCSCPadDigiValidation::GEMCSCPadDigiValidation(DQMStore* dbe,
   for( int region_num = 0 ; region_num <2 ; region_num++ ) {
     for( int layer_num = 0 ; layer_num < 2 ; layer_num++) {
       std::string name_prefix  = std::string("_r")+region[region_num]+"_l"+layer[layer_num];
-      std::string label_prefix = "region"+region[region_num]+" layer "+layer[layer_num];
+      std::string label_prefix = "region "+region[region_num]+" layer "+layer[layer_num];
       theCSCPad_xy[region_num][layer_num] = dbe->book2D( ("pad_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 260, -260,260,260,-260,260);
       theCSCPad_bx[region_num][layer_num] = dbe_->book1D( ("pad_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
       for( int station_num = 0 ; station_num < 3 ; station_num++) {
@@ -31,7 +31,7 @@ GEMCSCPadDigiValidation::GEMCSCPadDigiValidation(DQMStore* dbe,
         else nPads = npadsGE21;
         name_prefix  = std::string("_r")+region[region_num]+"_st"+station[station_num]+"_l"+layer[layer_num];
         label_prefix = "region"+region[region_num]+" station "+station[station_num]+" layer "+layer[layer_num];
-        theCSCPad_phipad[region_num][station_num][layer_num] = dbe_->book2D( ("pad_dg_phistrip"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; Pad number; phi [rad]").c_str(), 280,-TMath::Pi(),TMath::Pi(), nPads/2,0,nPads );
+        theCSCPad_phipad[region_num][station_num][layer_num] = dbe_->book2D( ("pad_dg_phipad"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad]; Pad number").c_str(), 280,-TMath::Pi(),TMath::Pi(), nPads/2,0,nPads );
         theCSCPad[region_num][station_num][layer_num] = dbe_->book1D( ("pad_dg"+name_prefix).c_str(), ("Digi occupancy per pad number: "+label_prefix+";Pad number; entries").c_str(), nPads,0.5,nPads+0.5);
       }
     }

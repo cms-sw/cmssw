@@ -9,7 +9,7 @@ GEMStripDigiValidation::GEMStripDigiValidation(DQMStore* dbe,
 :  GEMBaseValidation(dbe, inputTag)
 {
 
-  std::string region[2]= { "m","p" } ;
+  std::string region[2]= { "-1","1" } ;
   std::string station[3]= { "1","2","3" } ;
   std::string layer[2]= { "1","2" } ;
 
@@ -23,8 +23,8 @@ GEMStripDigiValidation::GEMStripDigiValidation(DQMStore* dbe,
   for( int region_num = 0 ; region_num <2 ; region_num++ ) {
     for( int layer_num = 0 ; layer_num < 2 ; layer_num++) {
       std::string name_prefix  = std::string("_r")+region[region_num]+"_l"+layer[layer_num];
-      std::string label_prefix = "region"+region[region_num]+" layer "+layer[layer_num];
-      theStrip_xy[region_num][layer_num] = dbe->book2D( ("string_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 260, -260,260,260,-260,260);
+      std::string label_prefix = "region "+region[region_num]+" layer "+layer[layer_num];
+      theStrip_xy[region_num][layer_num] = dbe->book2D( ("strip_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 260, -260,260,260,-260,260);
       theStrip_bx[region_num][layer_num] = dbe_->book1D( ("strip_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
       for( int station_num = 0 ; station_num < 3 ; station_num++) {
         if ( station_num == 0 ) nstrips = nstripsGE11;

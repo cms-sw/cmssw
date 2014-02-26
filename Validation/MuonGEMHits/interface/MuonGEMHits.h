@@ -47,7 +47,7 @@ private:
   edm::ESHandle<GEMGeometry> gem_geom;
 
   const GEMGeometry* gem_geometry_;
-
+  bool hasGEMGeometry_;
 
 
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;

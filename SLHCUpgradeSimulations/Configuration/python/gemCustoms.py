@@ -16,8 +16,7 @@ def customise(process):
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
-        n=0
-        process=customise_Validation(process,float(n))
+        process=customise_Validation(process)
 
     return process
 
@@ -70,8 +69,8 @@ def customise_Reco(process):
 
 def customise_DQM(process):
     return process
-    
-def customise_Validation(process, n ):
+
+def customise_Validation(process):
     process.load('Validation.MuonGEMHits.MuonGEMHits_cfi')
     process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
     process.genvalid_all += cms.Sequence( process.gemHitsValidation*process.gemDigiValidation)
@@ -94,4 +93,9 @@ def outputCustoms(process):
             getattr(process,b).outputCommands.append('keep *_simMuonGEMCSCPadDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_gemRecHits_*_*')
 
+    return process
+
+def customise_ValidationNoGem_2023(process):
+    if hasattr(process,'validation_step'):
+    	process.validation_step.remove(process.gemHitsValidation)
     return process

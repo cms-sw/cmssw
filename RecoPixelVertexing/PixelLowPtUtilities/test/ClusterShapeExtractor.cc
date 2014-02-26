@@ -47,7 +47,7 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
  public:
    explicit ClusterShapeExtractor(const edm::ParameterSet& pset);
    ~ClusterShapeExtractor();
-   virtual void beginRun(edm::Run & run,       const edm::EventSetup& es);
+   virtual void beginRun(const edm::Run & run,       const edm::EventSetup& es);
    virtual void analyze (const edm::Event& ev, const edm::EventSetup& es);
    virtual void endJob();
 
@@ -99,7 +99,7 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 };
 
 /*****************************************************************************/
-void ClusterShapeExtractor::beginRun(edm::Run & run, const edm::EventSetup& es)
+void ClusterShapeExtractor::beginRun(const edm::Run & run, const edm::EventSetup& es)
 {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry>          tracker;
@@ -147,8 +147,8 @@ void ClusterShapeExtractor::beginRun(edm::Run & run, const edm::EventSetup& es)
 }
 
 /*****************************************************************************/
-ClusterShapeExtractor::ClusterShapeExtractor
-  (const edm::ParameterSet& pset) : theConfig(pset)
+ClusterShapeExtractor::ClusterShapeExtractor(const edm::ParameterSet& pset)
+    : theConfig(pset), theTracker(nullptr)
 {
   trackProducer = pset.getParameter<string>("trackProducer"); 
   hasSimHits    = pset.getParameter<bool>("hasSimHits"); 
@@ -189,9 +189,15 @@ bool ClusterShapeExtractor::isSuitable(const PSimHit & simHit)
   // Outgoing?
   DetId id = DetId(simHit.detUnitId());
 
-  GlobalVector gvec = theTracker->idToDetUnit(id)->position() -
-                      GlobalPoint(0,0,0);
-  LocalVector  lvec = theTracker->idToDetUnit(id)->toLocal(gvec);
+  if(!theTracker)
+      throw std::runtime_error("theTracker is null.");
+
+  const GeomDetUnit* detUnit = theTracker->idToDetUnit(id);
+  if(!detUnit)
+      throw std::runtime_error("GeomDetUnit not found.");
+
+  GlobalVector gvec = detUnit->position() - GlobalPoint(0,0,0);
+  LocalVector  lvec = detUnit->toLocal(gvec);
   LocalVector  ldir = simHit.exitPoint() - simHit.entryPoint();
 
   bool isOutgoing = (lvec.z()*ldir.z() > 0); 
@@ -203,7 +209,7 @@ bool ClusterShapeExtractor::isSuitable(const PSimHit & simHit)
   // Fast enough? pt > 50 MeV/c
   bool isFast = (simHit.momentumAtEntry().perp() > 0.050);
 
-  return (isOutgoing && isRelevant && isFast);
+  return isOutgoing && isRelevant && isFast;
 }
 
 /*****************************************************************************/
@@ -260,7 +266,6 @@ bool ClusterShapeExtractor::checkSimHits
    pair<unsigned int, float> & key)
 {
   vector<PSimHit> simHits = theHitAssociator->associateHit(recHit);
-
   if(simHits.size() == 1)
   {
     simHit = simHits[0];
@@ -420,7 +425,7 @@ void ClusterShapeExtractor::analyzeSimHits
           & coll.product()->data();
     processPixelRecHits(recHits);
   }
-
+/*
   // Strip hits
   { // rphi and stereo
     vector<edm::Handle<SiStripRecHit2DCollection> > colls;
@@ -448,7 +453,7 @@ void ClusterShapeExtractor::analyzeSimHits
     processMatchedRecHits(recHits);
   }
   }
-
+*/
   delete theHitAssociator;
 }
 
@@ -520,18 +525,15 @@ void ClusterShapeExtractor::analyze
 {
   if(hasSimHits)
   {
-    LogTrace("MinBiasTracking")
-      << " [ClusterShape] analyze simHits, recHits";
+    edm::LogInfo("MinBiasTracking") << " [ClusterShape] analyze simHits, recHits";
     analyzeSimHits(ev, es);
   } 
 
   if(hasRecTracks)
   {
-    LogTrace("MinBiasTracking") 
-      << " [ClusterShape] analyze recHits on recTracks";
+    edm::LogInfo("MinBiasTracking") << " [ClusterShape] analyze recHits on recTracks";
     analyzeRecTracks(ev,es);
   } 
 }
 
 DEFINE_FWK_MODULE(ClusterShapeExtractor);
-

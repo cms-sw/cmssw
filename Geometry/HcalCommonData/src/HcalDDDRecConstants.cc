@@ -14,41 +14,20 @@
 
 //#define DebugLog
 
-HcalDDDRecConstants::HcalDDDRecConstants(const DDCompactView& cpv, 
-					 const HcalDDDSimConstants& hconst) {
+HcalDDDRecConstants::HcalDDDRecConstants() : tobeInitialized(true), hcons(0) {
+
+#ifdef DebugLog
+  std::cout << "HcalDDDRecConstants::HcalDDDRecConstants() constructor" << std::endl;
+#endif
+}
+
+HcalDDDRecConstants::HcalDDDRecConstants(const DDCompactView& cpv, const HcalDDDSimConstants& hconst) : tobeInitialized(true), hcons(0) {
 
 #ifdef DebugLog
   std::cout << "HcalDDDRecConstants::HcalDDDRecConstants (const DDCompactView& cpv, const HcalDDDSimConstants& hconst) constructor" << std::endl;
 #endif
-
-  hcons = &(hconst);
-  std::string attribute = "OnlyForHcalRecNumbering"; 
-  std::string value     = "any";
-  DDValue val(attribute, value, 0.0);
-  
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, DDSpecificsFilter::not_equals,
-		     DDSpecificsFilter::AND, true, // compare strings 
-		     true  // use merged-specifics or simple-specifics
-		     );
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool ok = fv.firstChild();
-
-  if (ok) {
-    //Load the SpecPars
-    loadSpecPars(fv);
-
-    //Load the Sim Constants
-    loadSimConst();
-  } else {
-    edm::LogError("HCalGeom") << "HcalDDDRecConstants: cannot get filtered "
-			      << " view for " << attribute << " not matching "
-			      << value;
-    throw cms::Exception("DDException") << "HcalDDDRecConstants: cannot match " << attribute << " to " << value;
-  }
+  initialize(cpv, hconst);
 }
-
 
 HcalDDDRecConstants::~HcalDDDRecConstants() { 
   //  std::cout << "destructed!!!" << std::endl;
@@ -57,6 +36,7 @@ HcalDDDRecConstants::~HcalDDDRecConstants() {
 std::vector<HcalDDDRecConstants::HcalEtaBin> 
 HcalDDDRecConstants::getEtaBins(const int itype) const {
 
+  checkInitialized();
   std::vector<HcalDDDRecConstants::HcalEtaBin> bins;
   unsigned int type  = (itype == 0) ? 0 : 1;
   unsigned int lymax = (type == 0) ? 17 : 19;
@@ -85,7 +65,7 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
       if (lmax >= lmin) {
 	if (ieta+1 == nOff[1]) {
 	} else if (ieta == nOff[1]) {
-	  HcalDDDRecConstants::HcalEtaBin etabin0 = HcalDDDRecConstants::HcalEtaBin(ieta,etaTable[ieta-2], etaTable[ieta], nfi, phioff[type], phibin[ieta-1]);
+	  HcalDDDRecConstants::HcalEtaBin etabin0 = HcalDDDRecConstants::HcalEtaBin(ieta-1,etaTable[ieta-2], etaTable[ieta], nfi, phioff[type], phibin[ieta-1]);
 	  etabin0.depthStart = dep;
 	  etabin0.layer.push_back(std::pair<int,int>(lmin,lmax));
 	  bins.push_back(etabin0);
@@ -120,8 +100,13 @@ HcalDDDRecConstants::HcalID HcalDDDRecConstants::getHCID(int subdet,int ieta,
 							 int iphi, int lay,
 							 int idepth) const {
 
+  checkInitialized();
   int    eta(ieta), phi(iphi), depth(idepth);
-  if (subdet == static_cast<int>(HcalBarrel) || 
+  if ((subdet == static_cast<int>(HcalOuter)) ||
+      ((subdet == static_cast<int>(HcalBarrel)) && (lay > 17))) {
+    subdet= static_cast<int>(HcalOuter);
+    depth = 4;
+  } else if (subdet == static_cast<int>(HcalBarrel) || 
       subdet == static_cast<int>(HcalEndcap)) {
     eta      = ietaMap[ieta-1];
     int unit = phiUnitS[ieta-1];
@@ -150,19 +135,18 @@ HcalDDDRecConstants::HcalID HcalDDDRecConstants::getHCID(int subdet,int ieta,
     } else if (eta == nOff[1] && depth > 2) {
        eta = nOff[1]-1;
     }
-  } else if (subdet == static_cast<int>(HcalOuter)) {
-    depth = 4;
   } 
 #ifdef DebugLog
   std::cout << "getHCID: input " << subdet << ":" << ieta << ":" << iphi
 	    << ":" << idepth << ":" << lay << " output " << eta << ":" << phi
 	    << ":" << depth << std::endl;
 #endif
-  return HcalDDDRecConstants::HcalID(eta,phi,depth);
+  return HcalDDDRecConstants::HcalID(subdet,eta,phi,depth);
 }
 
 std::vector<HcalCellType> HcalDDDRecConstants::HcalCellTypes(HcalSubdetector subdet) const {
 
+  checkInitialized();
   if (subdet == HcalBarrel || subdet == HcalEndcap) {
     std::vector<HcalCellType> cells;
     int isub   = (subdet == HcalBarrel) ? 0 : 1;
@@ -220,9 +204,42 @@ std::vector<HcalCellType> HcalDDDRecConstants::HcalCellTypes(HcalSubdetector sub
   }
 }
 
+void HcalDDDRecConstants::initialize(const DDCompactView& cpv, 
+				     const HcalDDDSimConstants& hconst) {
+  if (tobeInitialized) {
+    tobeInitialized = false;
+    hcons           = &(hconst);
+    std::string attribute = "OnlyForHcalRecNumbering"; 
+    std::string value     = "any";
+    DDValue val(attribute, value, 0.0);
+    
+    DDSpecificsFilter filter;
+    filter.setCriteria(val, DDSpecificsFilter::not_equals,
+		       DDSpecificsFilter::AND, true, // compare strings 
+		       true  // use merged-specifics or simple-specifics
+		       );
+    DDFilteredView fv(cpv);
+    fv.addFilter(filter);
+    bool ok = fv.firstChild();
+
+    if (ok) {
+      //Load the SpecPars
+      loadSpecPars(fv);
+      
+      //Load the Sim Constants
+      loadSimConst();
+    } else {
+      edm::LogError("HCalGeom") << "HcalDDDRecConstants: cannot get filtered "
+				<< " view for " << attribute << " not matching "
+				<< value;
+      throw cms::Exception("DDException") << "HcalDDDRecConstants: cannot match " << attribute << " to " << value;
+    }
+  }
+}
 
 unsigned int HcalDDDRecConstants::numberOfCells(HcalSubdetector subdet) const {
 
+  checkInitialized();
   if (subdet == HcalBarrel || subdet == HcalEndcap) {
     unsigned int num = 0;
     std::vector<HcalCellType> cellTypes = HcalCellTypes(subdet);
@@ -246,6 +263,7 @@ unsigned int HcalDDDRecConstants::numberOfCells(HcalSubdetector subdet) const {
 
 unsigned int HcalDDDRecConstants::nCells(HcalSubdetector subdet) const {
 
+  checkInitialized();
   if (subdet == HcalBarrel || subdet == HcalEndcap) {
     int isub   = (subdet == HcalBarrel) ? 0 : 1;
     std::vector<HcalDDDRecConstants::HcalEtaBin> etabins = getEtaBins(isub);
@@ -264,8 +282,16 @@ unsigned int HcalDDDRecConstants::nCells(HcalSubdetector subdet) const {
 }
 
 unsigned int HcalDDDRecConstants::nCells() const {
+  checkInitialized();
   return (nCells(HcalBarrel)+nCells(HcalEndcap)+nCells(HcalOuter)+nCells(HcalForward));
 }
+
+void HcalDDDRecConstants::checkInitialized() const {
+  if (tobeInitialized) {
+    edm::LogError("HcalGeom") << "HcalDDDRecConstants : to be initialized correctly";
+    throw cms::Exception("DDException") << "HcalDDDRecConstants: to be initialized";
+  }
+} 
 
 void HcalDDDRecConstants::loadSpecPars(const DDFilteredView& fv) {
 
@@ -352,6 +378,7 @@ void HcalDDDRecConstants::loadSimConst() {
   }
   iEtaMin[1] = ietaHE;
   iEtaMax[0] = ietaHB;
+  etaTableHF = hcons->getEtaTableHF();
 
   // Then Phi bins
   ieta = 0;
@@ -365,6 +392,7 @@ void HcalDDDRecConstants::loadSimConst() {
     int unit = hcons->unitPhi(hcons->getPhiBin(i-1));
     phiUnitS.push_back(unit);
   }
+  phibinHF = hcons->getPhiTableHF();
 #ifdef DebugLog
   std::cout << "Modified eta/deltaphi table for " << nEta << " bins" << std::endl;
   for (int i=0; i<nEta; ++i) 
@@ -374,6 +402,14 @@ void HcalDDDRecConstants::loadSimConst() {
   std::cout << "PhiUnitS";
   for (unsigned int i=0; i<phiUnitS.size(); ++i)
     std::cout << " [" << i << "] = " << phiUnitS[i];
+  std::cout << std::endl;
+  std::cout << "EtaTableHF";
+  for (unsigned int i=0; i<etaTableHF.size(); ++i)
+    std::cout << " [" << i << "] = " << etaTableHF[i];
+  std::cout << std::endl;
+  std::cout << "PhiBinHF";
+  for (unsigned int i=0; i<phibinHF.size(); ++i)
+    std::cout << " [" << i << "] = " << phibinHF[i];
   std::cout << std::endl;
 #endif
 
