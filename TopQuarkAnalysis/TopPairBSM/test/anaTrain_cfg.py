@@ -67,8 +67,10 @@ addMETCollection(process, labelName='patMETPF', metSource='pfType1CorrectedMet')
 ################################################################################################
 from RecoJets.Configuration.RecoPFJets_cff import *
 process.hepTopTagPFJetsCHS = hepTopTagPFJetsCHS.clone(src='pfNoPileUpJME')
-process.ca15PFJetsCHSMassDropFiltered = ca15PFJetsCHSMassDropFiltered.clone()
-process.ca15PFJetsCHSFiltered = ca15PFJetsCHSFiltered.clone()
+
+from RecoJets.JetProducers.caTopTaggers_cff import CATopTagInfos, HEPTopTagInfos
+
+process.CATopTagInfos = CATopTagInfos.clone()
 
 
 ################################################################################################
@@ -87,7 +89,19 @@ addJetCollection(
    labelName = 'AK5PFCHS',
    jetSource = cms.InputTag('ak5PFJetsCHS'),
    algo='ak5',
-   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1')
+   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
+   btagDiscriminators = [
+       'jetBProbabilityBJetTags'
+     , 'jetProbabilityBJetTags'
+     , 'trackCountingHighPurBJetTags'
+     , 'trackCountingHighEffBJetTags'
+     , 'simpleSecondaryVertexHighEffBJetTags'
+     , 'simpleSecondaryVertexHighPurBJetTags'
+     , 'combinedSecondaryVertexBJetTags'
+     ],
+    btagInfos = [
+        'secondaryVertexTagInfos'
+         ]   
    )
 
 addJetCollection(
@@ -103,7 +117,10 @@ addJetCollection(
    labelName = 'CA8CMSTopTag',
    jetSource = cms.InputTag('cmsTopTagPFJetsCHS',''),
    algo='ca8',
-   jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
+   jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+    btagInfos = [
+        'CATopTagInfos'
+         ]   
    )
 
 addJetCollection(
@@ -111,7 +128,19 @@ addJetCollection(
    labelName = 'CA8CMSTopTagSubjets',
    jetSource = cms.InputTag('cmsTopTagPFJetsCHS','caTopSubJets'),
    algo='ca8',
-   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
+   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+   btagDiscriminators = [
+       'jetBProbabilityBJetTags'
+     , 'jetProbabilityBJetTags'
+     , 'trackCountingHighPurBJetTags'
+     , 'trackCountingHighEffBJetTags'
+     , 'simpleSecondaryVertexHighEffBJetTags'
+     , 'simpleSecondaryVertexHighPurBJetTags'
+     , 'combinedSecondaryVertexBJetTags'
+     ],
+    btagInfos = [
+        'secondaryVertexTagInfos'
+         ]
    )
 
 addJetCollection(
@@ -127,7 +156,19 @@ addJetCollection(
    labelName = 'CA8PrunedSubjets',
    jetSource = cms.InputTag('ca8PFJetsCHSPruned','SubJets'),
    algo='ca8',
-   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
+   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+   btagDiscriminators = [
+       'jetBProbabilityBJetTags'
+     , 'jetProbabilityBJetTags'
+     , 'trackCountingHighPurBJetTags'
+     , 'trackCountingHighEffBJetTags'
+     , 'simpleSecondaryVertexHighEffBJetTags'
+     , 'simpleSecondaryVertexHighPurBJetTags'
+     , 'combinedSecondaryVertexBJetTags'
+     ],
+    btagInfos = [
+        'secondaryVertexTagInfos'
+         ]   
    )
 
 
@@ -144,21 +185,7 @@ addJetCollection(
    labelName = 'CA15HEPTopTagSubjets',
    jetSource = cms.InputTag('hepTopTagPFJetsCHS','caTopSubJets'),
    algo='ca8',
-   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
-   )
-
-addJetCollection(
-   process,
-   labelName = 'EI',
-   jetSource = cms.InputTag('pfJetsEI'),
-   algo='ak5',
-   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1')
-   )
-
-switchJetCollection(
-   process,
-   jetSource = cms.InputTag('ak5PFJets'),
-   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
+   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
      , 'jetProbabilityBJetTags'
@@ -168,7 +195,84 @@ switchJetCollection(
      , 'simpleSecondaryVertexHighPurBJetTags'
      , 'combinedSecondaryVertexBJetTags'
      ],
+    btagInfos = [
+        'secondaryVertexTagInfos'
+         ]   
    )
+
+addJetCollection(
+   process,
+   labelName = 'EI',
+   jetSource = cms.InputTag('pfJetsEI'),
+   algo='ak5',
+   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
+   btagDiscriminators = [
+       'jetBProbabilityBJetTags'
+     , 'jetProbabilityBJetTags'
+     , 'trackCountingHighPurBJetTags'
+     , 'trackCountingHighEffBJetTags'
+     , 'simpleSecondaryVertexHighEffBJetTags'
+     , 'simpleSecondaryVertexHighPurBJetTags'
+     , 'combinedSecondaryVertexBJetTags'
+     ],
+    btagInfos = [
+        'secondaryVertexTagInfos'
+         ]   
+   )
+
+switchJetCollection(
+    process,
+    jetSource = cms.InputTag('ak5PFJets'),
+    jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
+    btagDiscriminators = [
+       'jetBProbabilityBJetTags'
+     , 'jetProbabilityBJetTags'
+     , 'trackCountingHighPurBJetTags'
+     , 'trackCountingHighEffBJetTags'
+     , 'simpleSecondaryVertexHighEffBJetTags'
+     , 'simpleSecondaryVertexHighPurBJetTags'
+     , 'combinedSecondaryVertexBJetTags'
+     ],
+    btagInfos = [
+        'secondaryVertexTagInfos'
+         ]
+   )
+
+
+# Add some user functions for the secondary vertex mass. 
+for mod in [process.patJets,
+            process.patJetsAK5PFCHS,
+            process.patJetsEI,
+            process.patJetsCA8CMSTopTagSubjets,
+            process.patJetsCA8PrunedSubjets,
+            process.patJetsCA15HEPTopTagSubjets ] :
+    mod.userData.userFunctions = cms.vstring( "? hasTagInfo('secondaryVertex') && tagInfoSecondaryVertex('secondaryVertex').nVertices() > 0 ? "
+                                                      "tagInfoSecondaryVertex('secondaryVertex').secondaryVertex(0).p4().mass() : 0")
+    mod.userData.userFunctionLabels = cms.vstring('secvtxMass')
+
+
+# Add the top-tagging info which piggy-backs on the b-tagging tag info
+process.patJetsCA8CMSTopTag.addTagInfos = True
+process.patJetsCA8CMSTopTag.tagInfoSources = cms.VInputTag(
+    cms.InputTag('CATopTagInfos')
+    )
+
+process.patJetsCA15HEPTopTag.addTagInfos = True
+process.patJetsCA15HEPTopTag.tagInfoSources = cms.VInputTag(
+    cms.InputTag('HEPTopTagInfos')
+    )
+
+
+
+# Apply jet ID to all of the jets upstream. We aren't going to screw around
+# with this, most likely. So, we don't really to waste time with it
+# at the analysis level. 
+#from PhysicsTools.SelectorUtils.pfJetIDSelector_cfi import pfJetIDSelector
+#process.goodPatJetsPFlow = cms.EDFilter("PFJetIDSelectionFunctorFilter",
+#                                        filterParams = pfJetIDSelector.clone(),
+#                                        src = cms.InputTag("selectedPatJetsPFlow")
+#                                        )
+
 
 # Next, "pack" the pat::Jets that use substructure so we can run b-tagging and JEC's on the subjets. 
 
@@ -202,7 +306,7 @@ process.selectedPatJetsCAHEPTopTagPFPacked = cms.EDProducer("BoostedJetMerger",
 #                                         ##
 process.source.fileNames = ['dcap:///pnfs/cms/WAX/11/store/relval/CMSSW_7_0_0/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/POSTLS170_V3-v1/00000/56210C05-B596-E311-B433-002618943832.root']
 #                                         ##
-process.maxEvents.input = -1
+process.maxEvents.input = 10
 #                                         ##
 process.out.outputCommands += [
    'keep *_ak5GenJetsNoNu_*_*',
