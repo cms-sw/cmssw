@@ -81,14 +81,11 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 }
 
 
-void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void CaloTowerAnalyzer::dqmbeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   Nevents = 0;
   // get ahold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
-
-
-
   if (dbe_) {
  
     dbe_->setCurrentFolder(FolderName_); 
@@ -101,43 +98,50 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
 	    hCT_NEvents_HLT.push_back( dbe_->book1D("METTask_CT_"+HLTBitLabel_[i].label(),HLTBitLabel_[i].label(),2,-0.5,1.5) );
 	  }
       }
+  }
+}
     
+void CaloTowerAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					edm::Run const & iRun,
+					edm::EventSetup const & )
+  {
+    ibooker.setCurrentFolder(FolderName_); 
     //--Store number of events used
-    hCT_Nevents          = dbe_->book1D("METTask_CT_Nevents","",1,0,1);  
+    hCT_Nevents          = ibooker.book1D("METTask_CT_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by CaloTower(ieta,iphi) 
-    hCT_et_ieta_iphi          = dbe_->book2D("METTask_CT_et_ieta_iphi","",83,-41,42, 72,1,73);  
+    hCT_et_ieta_iphi          = ibooker.book2D("METTask_CT_et_ieta_iphi","",83,-41,42, 72,1,73);  
     hCT_et_ieta_iphi->getTH2F()->SetOption("colz");
     hCT_et_ieta_iphi->setAxisTitle("ieta",1);
     hCT_et_ieta_iphi->setAxisTitle("ephi",2);
 
-    hCT_emEt_ieta_iphi        = dbe_->book2D("METTask_CT_emEt_ieta_iphi","",83,-41,42, 72,1,73);  
+    hCT_emEt_ieta_iphi        = ibooker.book2D("METTask_CT_emEt_ieta_iphi","",83,-41,42, 72,1,73);  
     hCT_emEt_ieta_iphi->getTH2F()->SetOption("colz");
     hCT_emEt_ieta_iphi->setAxisTitle("ieta",1);
     hCT_emEt_ieta_iphi->setAxisTitle("ephi",2);
-    hCT_hadEt_ieta_iphi       = dbe_->book2D("METTask_CT_hadEt_ieta_iphi","",83,-41,42, 72,1,73);  
+    hCT_hadEt_ieta_iphi       = ibooker.book2D("METTask_CT_hadEt_ieta_iphi","",83,-41,42, 72,1,73);  
     hCT_hadEt_ieta_iphi->getTH2F()->SetOption("colz");
     hCT_hadEt_ieta_iphi->setAxisTitle("ieta",1);
     hCT_hadEt_ieta_iphi->setAxisTitle("ephi",2);
-    hCT_outerEt_ieta_iphi = dbe_->book2D("METTask_CT_outerEt_ieta_iphi","",83,-41,42, 72,1,73);  
+    hCT_outerEt_ieta_iphi = ibooker.book2D("METTask_CT_outerEt_ieta_iphi","",83,-41,42, 72,1,73);  
     hCT_outerEt_ieta_iphi->getTH2F()->SetOption("colz");
     hCT_outerEt_ieta_iphi->setAxisTitle("ieta",1);
     hCT_outerEt_ieta_iphi->setAxisTitle("ephi",2);
-    hCT_Occ_ieta_iphi         = dbe_->book2D("METTask_CT_Occ_ieta_iphi","",83,-41,42, 72,1,73);  
+    hCT_Occ_ieta_iphi         = ibooker.book2D("METTask_CT_Occ_ieta_iphi","",83,-41,42, 72,1,73);  
     hCT_Occ_ieta_iphi->getTH2F()->SetOption("colz");
     hCT_Occ_ieta_iphi->setAxisTitle("ieta",1);
     hCT_Occ_ieta_iphi->setAxisTitle("ephi",2);
 
-    hCT_Occ_EM_Et_ieta_iphi         = dbe_->book2D("METTask_CT_Occ_EM_Et_ieta_iphi","",83,-41,42, 72,1,73);
+    hCT_Occ_EM_Et_ieta_iphi         = ibooker.book2D("METTask_CT_Occ_EM_Et_ieta_iphi","",83,-41,42, 72,1,73);
     hCT_Occ_EM_Et_ieta_iphi->getTH2F()->SetOption("colz");
     hCT_Occ_EM_Et_ieta_iphi->setAxisTitle("ieta",1);
     hCT_Occ_EM_Et_ieta_iphi->setAxisTitle("ephi",2);
 
-    hCT_Occ_HAD_Et_ieta_iphi         = dbe_->book2D("METTask_CT_Occ_HAD_Et_ieta_iphi","",83,-41,42, 72,1,73);
+    hCT_Occ_HAD_Et_ieta_iphi         = ibooker.book2D("METTask_CT_Occ_HAD_Et_ieta_iphi","",83,-41,42, 72,1,73);
     hCT_Occ_HAD_Et_ieta_iphi->getTH2F()->SetOption("colz");
     hCT_Occ_HAD_Et_ieta_iphi->setAxisTitle("ieta",1);
     hCT_Occ_HAD_Et_ieta_iphi->setAxisTitle("ephi",2);
 
-    hCT_Occ_Outer_Et_ieta_iphi         = dbe_->book2D("METTask_CT_Occ_Outer_Et_ieta_iphi","",83,-41,42, 72,1,73);
+    hCT_Occ_Outer_Et_ieta_iphi         = ibooker.book2D("METTask_CT_Occ_Outer_Et_ieta_iphi","",83,-41,42, 72,1,73);
     hCT_Occ_Outer_Et_ieta_iphi->getTH2F()->SetOption("colz");
     hCT_Occ_Outer_Et_ieta_iphi->setAxisTitle("ieta",1);
     hCT_Occ_Outer_Et_ieta_iphi->setAxisTitle("ephi",2);
@@ -149,45 +153,44 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
     if(finebinning_)
       {
 
-	hCT_etvsieta          = dbe_->book2D("METTask_CT_etvsieta","", 83,-41,42, 10001,0,1001);  
-	hCT_Minetvsieta       = dbe_->book2D("METTask_CT_Minetvsieta","", 83,-41,42, 10001,0,1001);  
-	hCT_Maxetvsieta       = dbe_->book2D("METTask_CT_Maxetvsieta","", 83,-41,42, 10001,0,1001);  
-	hCT_emEtvsieta        = dbe_->book2D("METTask_CT_emEtvsieta","",83,-41,42, 10001,0,1001);  
-	hCT_hadEtvsieta       = dbe_->book2D("METTask_CT_hadEtvsieta","",83,-41,42, 10001,0,1001);  
-	hCT_outerEtvsieta = dbe_->book2D("METTask_CT_outerEtvsieta","",83,-41,42, 10001,0,1001);  
+	hCT_etvsieta          = ibooker.book2D("METTask_CT_etvsieta","", 83,-41,42, 10001,0,1001);  
+	hCT_Minetvsieta       = ibooker.book2D("METTask_CT_Minetvsieta","", 83,-41,42, 10001,0,1001);  
+	hCT_Maxetvsieta       = ibooker.book2D("METTask_CT_Maxetvsieta","", 83,-41,42, 10001,0,1001);  
+	hCT_emEtvsieta        = ibooker.book2D("METTask_CT_emEtvsieta","",83,-41,42, 10001,0,1001);  
+	hCT_hadEtvsieta       = ibooker.book2D("METTask_CT_hadEtvsieta","",83,-41,42, 10001,0,1001);  
+	hCT_outerEtvsieta = ibooker.book2D("METTask_CT_outerEtvsieta","",83,-41,42, 10001,0,1001);  
 	// Integrated over phi
 
-	hCT_Occvsieta         = dbe_->book2D("METTask_CT_Occvsieta","",83,-41,42, 84,0,84);  
-	hCT_SETvsieta         = dbe_->book2D("METTask_CT_SETvsieta","",83,-41,42, 20001,0,2001);  
-	hCT_METvsieta         = dbe_->book2D("METTask_CT_METvsieta","",83,-41,42, 20001,0,2001);  
-	hCT_METPhivsieta      = dbe_->book2D("METTask_CT_METPhivsieta","",83,-41,42, 80,-4,4);  
-	hCT_MExvsieta         = dbe_->book2D("METTask_CT_MExvsieta","",83,-41,42, 10001,-500,501);  
-	hCT_MEyvsieta         = dbe_->book2D("METTask_CT_MEyvsieta","",83,-41,42, 10001,-500,501);  
+	hCT_Occvsieta         = ibooker.book2D("METTask_CT_Occvsieta","",83,-41,42, 84,0,84);  
+	hCT_SETvsieta         = ibooker.book2D("METTask_CT_SETvsieta","",83,-41,42, 20001,0,2001);  
+	hCT_METvsieta         = ibooker.book2D("METTask_CT_METvsieta","",83,-41,42, 20001,0,2001);  
+	hCT_METPhivsieta      = ibooker.book2D("METTask_CT_METPhivsieta","",83,-41,42, 80,-4,4);  
+	hCT_MExvsieta         = ibooker.book2D("METTask_CT_MExvsieta","",83,-41,42, 10001,-500,501);  
+	hCT_MEyvsieta         = ibooker.book2D("METTask_CT_MEyvsieta","",83,-41,42, 10001,-500,501);  
       }
     else 
       {
 	
 	if(allhist_){
-	hCT_etvsieta          = dbe_->book2D("METTask_CT_etvsieta","", 83,-41,42, 200,-0.5,999.5);
-        hCT_Minetvsieta       = dbe_->book2D("METTask_CT_Minetvsieta","", 83,-41,42, 200,-0.5,999.5);
-        hCT_Maxetvsieta       = dbe_->book2D("METTask_CT_Maxetvsieta","", 83,-41,42, 200,-0.5,999.5);
-        hCT_emEtvsieta        = dbe_->book2D("METTask_CT_emEtvsieta","",83,-41,42, 200,-0.5,999.5);
-        hCT_hadEtvsieta       = dbe_->book2D("METTask_CT_hadEtvsieta","",83,-41,42, 200,-0.5,999.5);
-        hCT_outerEtvsieta = dbe_->book2D("METTask_CT_outerEtvsieta","",83,-41,42, 80,-0.5,399.5);
+	hCT_etvsieta          = ibooker.book2D("METTask_CT_etvsieta","", 83,-41,42, 200,-0.5,999.5);
+        hCT_Minetvsieta       = ibooker.book2D("METTask_CT_Minetvsieta","", 83,-41,42, 200,-0.5,999.5);
+        hCT_Maxetvsieta       = ibooker.book2D("METTask_CT_Maxetvsieta","", 83,-41,42, 200,-0.5,999.5);
+        hCT_emEtvsieta        = ibooker.book2D("METTask_CT_emEtvsieta","",83,-41,42, 200,-0.5,999.5);
+        hCT_hadEtvsieta       = ibooker.book2D("METTask_CT_hadEtvsieta","",83,-41,42, 200,-0.5,999.5);
+        hCT_outerEtvsieta = ibooker.book2D("METTask_CT_outerEtvsieta","",83,-41,42, 80,-0.5,399.5);
         // Integrated over phi
 	}
 
-        hCT_Occvsieta         = dbe_->book2D("METTask_CT_Occvsieta","",83,-41,42, 73,-0.5,72.5);
-        hCT_SETvsieta         = dbe_->book2D("METTask_CT_SETvsieta","",83,-41,42, 200,-0.5,1999.5);
-        hCT_METvsieta         = dbe_->book2D("METTask_CT_METvsieta","",83,-41,42, 200,-0.5,1999.5);
-        hCT_METPhivsieta      = dbe_->book2D("METTask_CT_METPhivsieta","",83,-41,42, 80,-4,4);
-        hCT_MExvsieta         = dbe_->book2D("METTask_CT_MExvsieta","",83,-41,42, 100,-499.5,499.5);
-        hCT_MEyvsieta         = dbe_->book2D("METTask_CT_MEyvsieta","",83,-41,42, 100,-499.5,499.5);
+        hCT_Occvsieta         = ibooker.book2D("METTask_CT_Occvsieta","",83,-41,42, 73,-0.5,72.5);
+        hCT_SETvsieta         = ibooker.book2D("METTask_CT_SETvsieta","",83,-41,42, 200,-0.5,1999.5);
+        hCT_METvsieta         = ibooker.book2D("METTask_CT_METvsieta","",83,-41,42, 200,-0.5,1999.5);
+        hCT_METPhivsieta      = ibooker.book2D("METTask_CT_METPhivsieta","",83,-41,42, 80,-4,4);
+        hCT_MExvsieta         = ibooker.book2D("METTask_CT_MExvsieta","",83,-41,42, 100,-499.5,499.5);
+        hCT_MEyvsieta         = ibooker.book2D("METTask_CT_MEyvsieta","",83,-41,42, 100,-499.5,499.5);
 	
       }
     } // allhist
   }
-}
 
 void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {

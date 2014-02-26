@@ -29,7 +29,6 @@ class SUSYDQMAnalyzer: public DQMEDAnalyzer {
 
   virtual void beginJob();
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  //  virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
   virtual void analyze(const edm::Event& , const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
 

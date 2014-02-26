@@ -21,12 +21,12 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 //
 // class decleration
 //
 
-class DataCertificationJetMET : public edm::EDAnalyzer {
+class DataCertificationJetMET : public DQMEDAnalyzer {
    public:
       explicit DataCertificationJetMET(const edm::ParameterSet&);
       ~DataCertificationJetMET();
@@ -36,11 +36,16 @@ class DataCertificationJetMET : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
+      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
       virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
 
       virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
       virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+
+      MonitorElement*  reportSummary;
+      MonitorElement*  CertificationSummary;
+      MonitorElement*  reportSummaryMap;
+      MonitorElement*  CertificationSummaryMap;
 
    // ----------member data ---------------------------
 

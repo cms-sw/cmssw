@@ -210,7 +210,37 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   gtToken_          = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag(gtLabel_));
   
   std::string inputCollectionLabel(mInputCollection_.label());
-  
+  verbose_= parameters_.getParameter<int>("verbose");
+   // monitoring of eta parameter
+  etaBin_ = parameters_.getParameter<int>("etaBin");
+  etaMin_ = parameters_.getParameter<double>("etaMin");
+  etaMax_ = parameters_.getParameter<double>("etaMax");
+  // monitoring of phi paramater
+  phiBin_ = parameters_.getParameter<int>("phiBin");
+  phiMin_ = parameters_.getParameter<double>("phiMin");
+  phiMax_ = parameters_.getParameter<double>("phiMax");
+  // monitoring of the transverse momentum
+  ptBin_ = parameters_.getParameter<int>("ptBin");
+  ptMin_ = parameters_.getParameter<double>("ptMin");
+  ptMax_ = parameters_.getParameter<double>("ptMax");
+  // 
+  eBin_ = parameters_.getParameter<int>("eBin");
+  eMin_ = parameters_.getParameter<double>("eMin");
+  eMax_ = parameters_.getParameter<double>("eMax");
+  // 
+  pBin_ = parameters_.getParameter<int>("pBin");
+  pMin_ = parameters_.getParameter<double>("pMin");
+  pMax_ = parameters_.getParameter<double>("pMax");
+  // 
+  nbinsPV_ = parameters_.getParameter<int>("pVBin");
+  nPVlow_   = parameters_.getParameter<double>("pVMin");
+  nPVhigh_  = parameters_.getParameter<double>("pVMax");
+  //
+  ptThreshold_ = parameters_.getParameter<double>("ptThreshold");
+  ptThresholdUnc_=parameters_.getParameter<double>("ptThresholdUnc");
+  asymmetryThirdJetCut_ = parameters_.getParameter<double>("asymmetryThirdJetCut");
+  balanceThirdJetCut_   = parameters_.getParameter<double>("balanceThirdJetCut");
+
 }  
   
 
@@ -225,101 +255,64 @@ JetAnalyzer::~JetAnalyzer() {
 }
 
 // ***********************************************************
-void JetAnalyzer::beginJob(void) {
+void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+				     edm::Run const & iRun,
+				     edm::EventSetup const & ) {
   
-  dbe_ = edm::Service<DQMStore>().operator->();
+  //  dbe_ = edm::Service<DQMStore>().operator->();
   if(jetCleaningFlag_){
-    dbe_->setCurrentFolder("JetMET/Jet/Cleaned"+mInputCollection_.label());
+    ibooker.setCurrentFolder("JetMET/Jet/Cleaned"+mInputCollection_.label());
     DirName = "JetMET/Jet/Cleaned"+mInputCollection_.label();
   }else{
-    dbe_->setCurrentFolder("JetMET/Jet/Uncleaned"+mInputCollection_.label());
+    ibooker.setCurrentFolder("JetMET/Jet/Uncleaned"+mInputCollection_.label());
     DirName = "JetMET/Jet/Uncleaned"+mInputCollection_.label();
   }
 
-  jetME = dbe_->book1D("jetReco", "jetReco", 3, 1, 4);
+  jetME = ibooker.book1D("jetReco", "jetReco", 3, 1, 4);
   jetME->setBinLabel(1,"CaloJets",1);
   jetME->setBinLabel(2,"PFJets",1);
   jetME->setBinLabel(3,"JPTJets",1);
 
-  // monitoring of eta parameter
-  
-  verbose_= parameters_.getParameter<int>("verbose");
 
-  etaBin_ = parameters_.getParameter<int>("etaBin");
-  etaMin_ = parameters_.getParameter<double>("etaMin");
-  etaMax_ = parameters_.getParameter<double>("etaMax");
-
-  // monitoring of phi paramater
-  phiBin_ = parameters_.getParameter<int>("phiBin");
-  phiMin_ = parameters_.getParameter<double>("phiMin");
-  phiMax_ = parameters_.getParameter<double>("phiMax");
-
-  // monitoring of the transverse momentum
-  ptBin_ = parameters_.getParameter<int>("ptBin");
-  ptMin_ = parameters_.getParameter<double>("ptMin");
-  ptMax_ = parameters_.getParameter<double>("ptMax");
-
-  // 
-  eBin_ = parameters_.getParameter<int>("eBin");
-  eMin_ = parameters_.getParameter<double>("eMin");
-  eMax_ = parameters_.getParameter<double>("eMax");
-
-  // 
-  pBin_ = parameters_.getParameter<int>("pBin");
-  pMin_ = parameters_.getParameter<double>("pMin");
-  pMax_ = parameters_.getParameter<double>("pMax");
-
-  // 
-  nbinsPV_ = parameters_.getParameter<int>("pVBin");
-  nPVlow_   = parameters_.getParameter<double>("pVMin");
-  nPVhigh_  = parameters_.getParameter<double>("pVMax");
-
-  //
-  ptThreshold_ = parameters_.getParameter<double>("ptThreshold");
-  ptThresholdUnc_=parameters_.getParameter<double>("ptThresholdUnc");
-  asymmetryThirdJetCut_ = parameters_.getParameter<double>("asymmetryThirdJetCut");
-  balanceThirdJetCut_   = parameters_.getParameter<double>("balanceThirdJetCut");
-
-  // Generic jet parameters
-  mPt           = dbe_->book1D("Pt",           "pt",                 ptBin_,  ptMin_,  ptMax_);
-  mEta          = dbe_->book1D("Eta",          "eta",               etaBin_, etaMin_, etaMax_);
-  mPhi          = dbe_->book1D("Phi",          "phi",               phiBin_, phiMin_, phiMax_);
+  mPt           = ibooker.book1D("Pt",           "pt",                 ptBin_,  ptMin_,  ptMax_);
+  mEta          = ibooker.book1D("Eta",          "eta",               etaBin_, etaMin_, etaMax_);
+  mPhi          = ibooker.book1D("Phi",          "phi",               phiBin_, phiMin_, phiMax_);
   if(!isJPTJet_){
-    mConstituents = dbe_->book1D("Constituents", "# of constituents",     50,      0,    100);
+    mConstituents = ibooker.book1D("Constituents", "# of constituents",     50,      0,    100);
   }
-  mJetEnergyCorr= dbe_->book1D("JetEnergyCorr", "jet energy correction factor", 50, 0.0,3.0);
-  mJetEnergyCorrVSEta= dbe_->bookProfile("JetEnergyCorrVSEta", "jet energy correction factor VS eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
-  mJetEnergyCorrVSPt= dbe_->bookProfile("JetEnergyCorrVSPt", "jet energy correction factor VS pt", ptBin_, ptMin_,ptMax_, 0.0,3.0);
-  mHFrac        = dbe_->book1D("HFrac",        "HFrac",                140,   -0.2,    1.2);
-  mEFrac        = dbe_->book1D("EFrac",        "EFrac",           52,   -0.02,    1.02);
+  mJetEnergyCorr= ibooker.book1D("JetEnergyCorr", "jet energy correction factor", 50, 0.0,3.0);
+  mJetEnergyCorrVSEta= ibooker.bookProfile("JetEnergyCorrVSEta", "jet energy correction factor VS eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
+  mJetEnergyCorrVSPt= ibooker.bookProfile("JetEnergyCorrVSPt", "jet energy correction factor VS pt", ptBin_, ptMin_,ptMax_, 0.0,3.0);
+  mHFrac        = ibooker.book1D("HFrac",        "HFrac",                140,   -0.2,    1.2);
+  mEFrac        = ibooker.book1D("EFrac",        "EFrac",           52,   -0.02,    1.02);
 
-  mPt_uncor           = dbe_->book1D("Pt_uncor",           "pt for uncorrected jets",                 ptBin_,  ptThresholdUnc_,  ptMax_);
-  mEta_uncor          = dbe_->book1D("Eta_uncor",          "eta for uncorrected jets",               etaBin_, etaMin_, etaMax_);
-  mPhi_uncor          = dbe_->book1D("Phi_uncor",          "phi for uncorrected jets",               phiBin_, phiMin_, phiMax_);
+  mPt_uncor           = ibooker.book1D("Pt_uncor",           "pt for uncorrected jets",                 ptBin_,  ptThresholdUnc_,  ptMax_);
+  mEta_uncor          = ibooker.book1D("Eta_uncor",          "eta for uncorrected jets",               etaBin_, etaMin_, etaMax_);
+  mPhi_uncor          = ibooker.book1D("Phi_uncor",          "phi for uncorrected jets",               phiBin_, phiMin_, phiMax_);
   if(!isJPTJet_){
-    mConstituents_uncor = dbe_->book1D("Constituents_uncor", "# of constituents for uncorrected jets",     50,      0,    100);
+    mConstituents_uncor = ibooker.book1D("Constituents_uncor", "# of constituents for uncorrected jets",     50,      0,    100);
   }
 
-  mDPhi                   = dbe_->book1D("DPhi", "dPhi btw the two leading jets", 100, 0., acos(-1.));
+  mDPhi                   = ibooker.book1D("DPhi", "dPhi btw the two leading jets", 100, 0., acos(-1.));
 
   // Book NPV profiles
   //----------------------------------------------------------------------------
-  mPt_profile           = dbe_->bookProfile("Pt_profile",           "pt",                nbinsPV_, nPVlow_, nPVhigh_,   ptBin_,  ptMin_,  ptMax_);
-  mEta_profile          = dbe_->bookProfile("Eta_profile",          "eta",               nbinsPV_, nPVlow_, nPVhigh_,  etaBin_, etaMin_, etaMax_);
-  mPhi_profile          = dbe_->bookProfile("Phi_profile",          "phi",               nbinsPV_, nPVlow_, nPVhigh_,  phiBin_, phiMin_, phiMax_);
+  mPt_profile           = ibooker.bookProfile("Pt_profile",           "pt",                nbinsPV_, nPVlow_, nPVhigh_,   ptBin_,  ptMin_,  ptMax_);
+  mEta_profile          = ibooker.bookProfile("Eta_profile",          "eta",               nbinsPV_, nPVlow_, nPVhigh_,  etaBin_, etaMin_, etaMax_);
+  mPhi_profile          = ibooker.bookProfile("Phi_profile",          "phi",               nbinsPV_, nPVlow_, nPVhigh_,  phiBin_, phiMin_, phiMax_);
   if(!isJPTJet_){
-    mConstituents_profile = dbe_->bookProfile("Constituents_profile", "# of constituents", nbinsPV_, nPVlow_, nPVhigh_,      50,      0,    100);
+    mConstituents_profile = ibooker.bookProfile("Constituents_profile", "# of constituents", nbinsPV_, nPVlow_, nPVhigh_,      50,      0,    100);
   }
-  mHFrac_profile        = dbe_->bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
-  mEFrac_profile        = dbe_->bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     52,   -0.02,    1.02);
+  mHFrac_profile        = ibooker.bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
+  mEFrac_profile        = ibooker.bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     52,   -0.02,    1.02);
 
   if(!jetCleaningFlag_){//JIDPassFrac_ defines a collection of cleaned jets, for which we will want to fill the cleaning passing fraction
-    mLooseJIDPassFractionVSeta      = dbe_->bookProfile("JetIDPassFractionVSeta","JetIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mLooseJIDPassFractionVSpt       = dbe_->bookProfile("JetIDPassFractionVSpt","JetIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mLooseJIDPassFractionVSptNoHF   = dbe_->bookProfile("JetIDPassFractionVSptNoHF","JetIDPassFractionVSptNoHF",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mLooseJIDPassFractionVSeta      = ibooker.bookProfile("JetIDPassFractionVSeta","JetIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mLooseJIDPassFractionVSpt       = ibooker.bookProfile("JetIDPassFractionVSpt","JetIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mLooseJIDPassFractionVSptNoHF   = ibooker.bookProfile("JetIDPassFractionVSptNoHF","JetIDPassFractionVSptNoHF",ptBin_, ptMin_, ptMax_,0.,1.2);
   }
 
-  mNJets_profile = dbe_->bookProfile("NJets_profile", "number of jets", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+  mNJets_profile = ibooker.bookProfile("NJets_profile", "number of jets", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
  
 
   // Set NPV profiles x-axis title
@@ -335,383 +328,377 @@ void JetAnalyzer::beginJob(void) {
 
   mNJets_profile->setAxisTitle("nvtx",1);
 
-
-
-  //mE                       = dbe_->book1D("E", "E", eBin_, eMin_, eMax_);
-  //mP                       = dbe_->book1D("P", "P", pBin_, pMin_, pMax_);
-  //  mMass                    = dbe_->book1D("Mass", "Mass", 100, 0, 25);
-  //
-  mPhiVSEta                     = dbe_->book2D("PhiVSEta", "PhiVSEta", 50, etaMin_, etaMax_, 24, phiMin_, phiMax_);
+  mPhiVSEta                     = ibooker.book2D("PhiVSEta", "PhiVSEta", 50, etaMin_, etaMax_, 24, phiMin_, phiMax_);
   mPhiVSEta->getTH2F()->SetOption("colz");
   mPhiVSEta->setAxisTitle("#eta",1);
   mPhiVSEta->setAxisTitle("#phi",2);
 
-  mPt_1                    = dbe_->book1D("Pt_1", "Pt spectrum of jets - range 1", 20, 0, 100);   
-  mPt_2                    = dbe_->book1D("Pt_2", "Pt spectrum of jets - range 2", 60, 0, 300);   
-  mPt_3                    = dbe_->book1D("Pt_3", "Pt spectrum of jets - range 3", 100, 0, 5000);
+  mPt_1                    = ibooker.book1D("Pt_1", "Pt spectrum of jets - range 1", 20, 0, 100);   
+  mPt_2                    = ibooker.book1D("Pt_2", "Pt spectrum of jets - range 2", 60, 0, 300);   
+  mPt_3                    = ibooker.book1D("Pt_3", "Pt spectrum of jets - range 3", 100, 0, 5000);
   // Low and high pt trigger paths
-  mPt_Lo                  = dbe_->book1D("Pt_Lo", "Pt (Pass Low Pt Jet Trigger)", 20, 0, 100);   
-  //mEta_Lo                 = dbe_->book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
-  mPhi_Lo                 = dbe_->book1D("Phi_Lo", "Phi (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  mPt_Lo                  = ibooker.book1D("Pt_Lo", "Pt (Pass Low Pt Jet Trigger)", 20, 0, 100);   
+  //mEta_Lo                 = ibooker.book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
+  mPhi_Lo                 = ibooker.book1D("Phi_Lo", "Phi (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   
-  mPt_Hi                  = dbe_->book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
-  mEta_Hi                 = dbe_->book1D("Eta_Hi", "Eta (Pass Hi Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
-  mPhi_Hi                 = dbe_->book1D("Phi_Hi", "Phi (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
-  mNJets                   = dbe_->book1D("NJets", "number of jets", 100, 0, 100);
+  mPt_Hi                  = ibooker.book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
+  mEta_Hi                 = ibooker.book1D("Eta_Hi", "Eta (Pass Hi Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
+  mPhi_Hi                 = ibooker.book1D("Phi_Hi", "Phi (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  mNJets                   = ibooker.book1D("NJets", "number of jets", 100, 0, 100);
   
-  //mPt_Barrel_Lo            = dbe_->book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 20, 0, 100);   
-  //mPhi_Barrel_Lo           = dbe_->book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  //mPt_Barrel_Lo            = ibooker.book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 20, 0, 100);   
+  //mPhi_Barrel_Lo           = ibooker.book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   if(!isJPTJet_){
-    mConstituents_Barrel     = dbe_->book1D("Constituents_Barrel", "Constituents Barrel", 50, 0, 100);
+    mConstituents_Barrel     = ibooker.book1D("Constituents_Barrel", "Constituents Barrel", 50, 0, 100);
   }
-  mHFrac_Barrel            = dbe_->book1D("HFrac_Barrel", "HFrac Barrel", 100, 0, 1);
-  mEFrac_Barrel            = dbe_->book1D("EFrac_Barrel", "EFrac Barrel", 52, -0.02, 1.02);
+  mHFrac_Barrel            = ibooker.book1D("HFrac_Barrel", "HFrac Barrel", 100, 0, 1);
+  mEFrac_Barrel            = ibooker.book1D("EFrac_Barrel", "EFrac Barrel", 52, -0.02, 1.02);
   
-  //mPt_EndCap_Lo            = dbe_->book1D("Pt_EndCap_Lo", "Pt EndCap (Pass Low Pt Jet Trigger)", 20, 0, 100);   
-  //mPhi_EndCap_Lo           = dbe_->book1D("Phi_EndCap_Lo", "Phi EndCap (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  //mPt_EndCap_Lo            = ibooker.book1D("Pt_EndCap_Lo", "Pt EndCap (Pass Low Pt Jet Trigger)", 20, 0, 100);   
+  //mPhi_EndCap_Lo           = ibooker.book1D("Phi_EndCap_Lo", "Phi EndCap (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   if(!isJPTJet_){
-    mConstituents_EndCap     = dbe_->book1D("Constituents_EndCap", "Constituents EndCap", 50, 0, 100);
+    mConstituents_EndCap     = ibooker.book1D("Constituents_EndCap", "Constituents EndCap", 50, 0, 100);
   }
-  mHFrac_EndCap            = dbe_->book1D("HFrac_EndCap", "HFrac EndCap", 100, 0, 1);
-  mEFrac_EndCap            = dbe_->book1D("EFrac_EndCap", "EFrac EndCap", 52, -0.02, 1.02);
+  mHFrac_EndCap            = ibooker.book1D("HFrac_EndCap", "HFrac EndCap", 100, 0, 1);
+  mEFrac_EndCap            = ibooker.book1D("EFrac_EndCap", "EFrac EndCap", 52, -0.02, 1.02);
   
-  //mPt_Forward_Lo           = dbe_->book1D("Pt_Forward_Lo", "Pt Forward (Pass Low Pt Jet Trigger)", 20, 0, 100);  
-  //mPhi_Forward_Lo          = dbe_->book1D("Phi_Forward_Lo", "Phi Forward (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  //mPt_Forward_Lo           = ibooker.book1D("Pt_Forward_Lo", "Pt Forward (Pass Low Pt Jet Trigger)", 20, 0, 100);  
+  //mPhi_Forward_Lo          = ibooker.book1D("Phi_Forward_Lo", "Phi Forward (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   if(!isJPTJet_){
-    mConstituents_Forward    = dbe_->book1D("Constituents_Forward", "Constituents Forward", 50, 0, 100);
+    mConstituents_Forward    = ibooker.book1D("Constituents_Forward", "Constituents Forward", 50, 0, 100);
   }
-  mHFrac_Forward           = dbe_->book1D("HFrac_Forward", "HFrac Forward", 140, -0.2, 1.2);
-  mEFrac_Forward           = dbe_->book1D("EFrac_Forward", "EFrac Forward", 52, -0.02, 1.02);
+  mHFrac_Forward           = ibooker.book1D("HFrac_Forward", "HFrac Forward", 140, -0.2, 1.2);
+  mEFrac_Forward           = ibooker.book1D("EFrac_Forward", "EFrac Forward", 52, -0.02, 1.02);
   
-  mPt_Barrel_Hi            = dbe_->book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
-  mPhi_Barrel_Hi           = dbe_->book1D("Phi_Barrel_Hi", "Phi Barrel (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
-  //mConstituents_Barrel_Hi  = dbe_->book1D("Constituents_Barrel_Hi", "Constituents Barrel (Pass Hi Pt Jet Trigger)", 50, 0, 100);
-  //mHFrac_Barrel_Hi         = dbe_->book1D("HFrac_Barrel_Hi", "HFrac Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 1);
+  mPt_Barrel_Hi            = ibooker.book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
+  mPhi_Barrel_Hi           = ibooker.book1D("Phi_Barrel_Hi", "Phi Barrel (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  //mConstituents_Barrel_Hi  = ibooker.book1D("Constituents_Barrel_Hi", "Constituents Barrel (Pass Hi Pt Jet Trigger)", 50, 0, 100);
+  //mHFrac_Barrel_Hi         = ibooker.book1D("HFrac_Barrel_Hi", "HFrac Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 1);
   
-  mPt_EndCap_Hi            = dbe_->book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 60, 0, 300);  
-  mPhi_EndCap_Hi           = dbe_->book1D("Phi_EndCap_Hi", "Phi EndCap (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
-  //mConstituents_EndCap_Hi  = dbe_->book1D("Constituents_EndCap_Hi", "Constituents EndCap (Pass Hi Pt Jet Trigger)", 50, 0, 100);
-  //mHFrac_EndCap_Hi         = dbe_->book1D("HFrac_EndCap_Hi", "HFrac EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 1);
+  mPt_EndCap_Hi            = ibooker.book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 60, 0, 300);  
+  mPhi_EndCap_Hi           = ibooker.book1D("Phi_EndCap_Hi", "Phi EndCap (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  //mConstituents_EndCap_Hi  = ibooker.book1D("Constituents_EndCap_Hi", "Constituents EndCap (Pass Hi Pt Jet Trigger)", 50, 0, 100);
+  //mHFrac_EndCap_Hi         = ibooker.book1D("HFrac_EndCap_Hi", "HFrac EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 1);
   
-  mPt_Forward_Hi           = dbe_->book1D("Pt_Forward_Hi", "Pt Forward (Pass Hi Pt Jet Trigger)", 60, 0, 300);  
-  mPhi_Forward_Hi          = dbe_->book1D("Phi_Forward_Hi", "Phi Forward (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
-  //mConstituents_Forward_Hi = dbe_->book1D("Constituents_Forward_Hi", "Constituents Forward (Pass Hi Pt Jet Trigger)", 50, 0, 100);
-  //mHFrac_Forward_Hi        = dbe_->book1D("HFrac_Forward_Hi", "HFrac Forward (Pass Hi Pt Jet Trigger)", 100, 0, 1);
+  mPt_Forward_Hi           = ibooker.book1D("Pt_Forward_Hi", "Pt Forward (Pass Hi Pt Jet Trigger)", 60, 0, 300);  
+  mPhi_Forward_Hi          = ibooker.book1D("Phi_Forward_Hi", "Phi Forward (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  //mConstituents_Forward_Hi = ibooker.book1D("Constituents_Forward_Hi", "Constituents Forward (Pass Hi Pt Jet Trigger)", 50, 0, 100);
+  //mHFrac_Forward_Hi        = ibooker.book1D("HFrac_Forward_Hi", "HFrac Forward (Pass Hi Pt Jet Trigger)", 100, 0, 1);
   
-  mPhi_Barrel              = dbe_->book1D("Phi_Barrel", "Phi_Barrel", phiBin_, phiMin_, phiMax_);
-  //mE_Barrel                = dbe_->book1D("E_Barrel", "E_Barrel", eBin_, eMin_, eMax_);
-  mPt_Barrel               = dbe_->book1D("Pt_Barrel", "Pt_Barrel", ptBin_, ptMin_, ptMax_);
+  mPhi_Barrel              = ibooker.book1D("Phi_Barrel", "Phi_Barrel", phiBin_, phiMin_, phiMax_);
+  //mE_Barrel                = ibooker.book1D("E_Barrel", "E_Barrel", eBin_, eMin_, eMax_);
+  mPt_Barrel               = ibooker.book1D("Pt_Barrel", "Pt_Barrel", ptBin_, ptMin_, ptMax_);
   
-  mPhi_EndCap              = dbe_->book1D("Phi_EndCap", "Phi_EndCap", phiBin_, phiMin_, phiMax_);
-  //mE_EndCap                = dbe_->book1D("E_EndCap", "E_EndCap", eBin_, eMin_, 2*eMax_);
-  mPt_EndCap               = dbe_->book1D("Pt_EndCap", "Pt_EndCap", ptBin_, ptMin_, ptMax_);
+  mPhi_EndCap              = ibooker.book1D("Phi_EndCap", "Phi_EndCap", phiBin_, phiMin_, phiMax_);
+  //mE_EndCap                = ibooker.book1D("E_EndCap", "E_EndCap", eBin_, eMin_, 2*eMax_);
+  mPt_EndCap               = ibooker.book1D("Pt_EndCap", "Pt_EndCap", ptBin_, ptMin_, ptMax_);
   
-  mPhi_Forward             = dbe_->book1D("Phi_Forward", "Phi_Forward", phiBin_, phiMin_, phiMax_);
-  //mE_Forward               = dbe_->book1D("E_Forward", "E_Forward", eBin_, eMin_, 4*eMax_);
-  mPt_Forward              = dbe_->book1D("Pt_Forward", "Pt_Forward", ptBin_, ptMin_, ptMax_);
+  mPhi_Forward             = ibooker.book1D("Phi_Forward", "Phi_Forward", phiBin_, phiMin_, phiMax_);
+  //mE_Forward               = ibooker.book1D("E_Forward", "E_Forward", eBin_, eMin_, 4*eMax_);
+  mPt_Forward              = ibooker.book1D("Pt_Forward", "Pt_Forward", ptBin_, ptMin_, ptMax_);
   
   // Leading Jet Parameters
-  mEtaFirst                = dbe_->book1D("EtaFirst", "EtaFirst", 100, -5, 5);
-  mPhiFirst                = dbe_->book1D("PhiFirst", "PhiFirst", 70, -3.5, 3.5);
-  //mEFirst                  = dbe_->book1D("EFirst", "EFirst", 100, 0, 1000);
-  mPtFirst                 = dbe_->book1D("PtFirst", "PtFirst", ptBin_, ptMin_, ptMax_);
+  mEtaFirst                = ibooker.book1D("EtaFirst", "EtaFirst", 100, -5, 5);
+  mPhiFirst                = ibooker.book1D("PhiFirst", "PhiFirst", 70, -3.5, 3.5);
+  //mEFirst                  = ibooker.book1D("EFirst", "EFirst", 100, 0, 1000);
+  mPtFirst                 = ibooker.book1D("PtFirst", "PtFirst", ptBin_, ptMin_, ptMax_);
   
   //--- Calo jet selection only
   if(isCaloJet_) {
 
     // CaloJet specific
-    mMaxEInEmTowers         = dbe_->book1D("MaxEInEmTowers", "MaxEInEmTowers", 150, 0, 150);
-    mMaxEInHadTowers        = dbe_->book1D("MaxEInHadTowers", "MaxEInHadTowers", 150, 0, 150);
+    mMaxEInEmTowers         = ibooker.book1D("MaxEInEmTowers", "MaxEInEmTowers", 150, 0, 150);
+    mMaxEInHadTowers        = ibooker.book1D("MaxEInHadTowers", "MaxEInHadTowers", 150, 0, 150);
     if(!diJetSelectionFlag_ ) {
-      mHadEnergyInHO          = dbe_->book1D("HadEnergyInHO", "HadEnergyInHO", 100, 0, 10);
-      mHadEnergyInHB          = dbe_->book1D("HadEnergyInHB", "HadEnergyInHB", 100, 0, 50);
-      mHadEnergyInHF          = dbe_->book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 50);
-      mHadEnergyInHE          = dbe_->book1D("HadEnergyInHE", "HadEnergyInHE", 100, 0, 100);
-      mEmEnergyInEB           = dbe_->book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 50);
-      mEmEnergyInEE           = dbe_->book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 50);
-      mEmEnergyInHF           = dbe_->book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 100);
+      mHadEnergyInHO          = ibooker.book1D("HadEnergyInHO", "HadEnergyInHO", 100, 0, 10);
+      mHadEnergyInHB          = ibooker.book1D("HadEnergyInHB", "HadEnergyInHB", 100, 0, 50);
+      mHadEnergyInHF          = ibooker.book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 50);
+      mHadEnergyInHE          = ibooker.book1D("HadEnergyInHE", "HadEnergyInHE", 100, 0, 100);
+      mEmEnergyInEB           = ibooker.book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 50);
+      mEmEnergyInEE           = ibooker.book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 50);
+      mEmEnergyInHF           = ibooker.book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 100);
     }
     //JetID variables
-    mresEMF                 = dbe_->book1D("resEMF", "resEMF", 50, 0., 1.);
-    mN90Hits                = dbe_->book1D("N90Hits", "N90Hits", 100, 0., 100);
-    mfHPD                   = dbe_->book1D("fHPD", "fHPD", 50, 0., 1.);
-    mfRBX                   = dbe_->book1D("fRBX", "fRBX", 50, 0., 1.);
+    mresEMF                 = ibooker.book1D("resEMF", "resEMF", 50, 0., 1.);
+    mN90Hits                = ibooker.book1D("N90Hits", "N90Hits", 100, 0., 100);
+    mfHPD                   = ibooker.book1D("fHPD", "fHPD", 50, 0., 1.);
+    mfRBX                   = ibooker.book1D("fRBX", "fRBX", 50, 0., 1.);
   }
 
 
   if(isJPTJet_) {
     //jpt histograms
-    mE   = dbe_->book1D("E", "E", eBin_, eMin_, eMax_);
-    mEt  = dbe_->book1D("Et", "Et", ptBin_, ptMin_, ptMax_);
-    mP   = dbe_->book1D("P", "P", eBin_, eMin_, eMax_);
-    mPtSecond = dbe_->book1D("PtSecond", "PtSecond", ptBin_, ptMin_, ptMax_);
-    mPtThird = dbe_->book1D("PtThird", "PtThird", ptBin_, ptMin_, ptMax_);
-    mPx  = dbe_->book1D("Px", "Px", ptBin_, -ptMax_, ptMax_);
-    mPy  = dbe_->book1D("Py", "Py", ptBin_, -ptMax_, ptMax_);
-    mPz  = dbe_->book1D("Pz", "Pz", ptBin_, -ptMax_, ptMax_);
+    mE   = ibooker.book1D("E", "E", eBin_, eMin_, eMax_);
+    mEt  = ibooker.book1D("Et", "Et", ptBin_, ptMin_, ptMax_);
+    mP   = ibooker.book1D("P", "P", eBin_, eMin_, eMax_);
+    mPtSecond = ibooker.book1D("PtSecond", "PtSecond", ptBin_, ptMin_, ptMax_);
+    mPtThird = ibooker.book1D("PtThird", "PtThird", ptBin_, ptMin_, ptMax_);
+    mPx  = ibooker.book1D("Px", "Px", ptBin_, -ptMax_, ptMax_);
+    mPy  = ibooker.book1D("Py", "Py", ptBin_, -ptMax_, ptMax_);
+    mPz  = ibooker.book1D("Pz", "Pz", ptBin_, -ptMax_, ptMax_);
     
     //JetID variables    
-    mresEMF                 = dbe_->book1D("resEMF", "resEMF", 50, 0., 1.);
-    mN90Hits                = dbe_->book1D("N90Hits", "N90Hits", 100, 0., 100);
-    mfHPD                   = dbe_->book1D("fHPD", "fHPD", 50, 0., 1.);
-    mfRBX                   = dbe_->book1D("fRBX", "fRBX", 50, 0., 1.);
+    mresEMF                 = ibooker.book1D("resEMF", "resEMF", 50, 0., 1.);
+    mN90Hits                = ibooker.book1D("N90Hits", "N90Hits", 100, 0., 100);
+    mfHPD                   = ibooker.book1D("fHPD", "fHPD", 50, 0., 1.);
+    mfRBX                   = ibooker.book1D("fRBX", "fRBX", 50, 0., 1.);
     
-    mnTracks  = dbe_->book1D("nTracks", "number of tracks for correction per jet", 100, 0, 100);
-    mnTracksVSJetPt= dbe_->bookProfile("nTracksVSJetPt","number of tracks for correction per jet vs raw jet p_{T}",ptBin_, ptMin_, ptMax_,100,0,100);
-    mnTracksVSJetEta= dbe_->bookProfile("nTracksVSJetEta","number of tracks for correction per jet vs jet #eta",etaBin_, etaMin_, etaMax_,100,0,100);
+    mnTracks  = ibooker.book1D("nTracks", "number of tracks for correction per jet", 100, 0, 100);
+    mnTracksVSJetPt= ibooker.bookProfile("nTracksVSJetPt","number of tracks for correction per jet vs raw jet p_{T}",ptBin_, ptMin_, ptMax_,100,0,100);
+    mnTracksVSJetEta= ibooker.bookProfile("nTracksVSJetEta","number of tracks for correction per jet vs jet #eta",etaBin_, etaMin_, etaMax_,100,0,100);
     mnTracksVSJetPt ->setAxisTitle("raw JetPt",1);
     mnTracksVSJetEta ->setAxisTitle("raw JetEta",1);
     //define meaningful limits
     
     //ntrackbins,0,ntrackbins
-    mnallPionTracksPerJet=dbe_->book1D("nallPionTracks", "number of pion tracks for correction per jet", 100, 0, 100);
+    mnallPionTracksPerJet=ibooker.book1D("nallPionTracks", "number of pion tracks for correction per jet", 100, 0, 100);
     //trackptbins,0,trackptmax
     //introduce etamax?
-    mallPionTracksPt=dbe_->book1D("allPionTracksPt", "pion track p_{T}", 100, 0., 50.);
-    mallPionTracksEta=dbe_->book1D("allPionTracksEta", "pion track #eta", 50, -2.5, 2.5);
+    mallPionTracksPt=ibooker.book1D("allPionTracksPt", "pion track p_{T}", 100, 0., 50.);
+    mallPionTracksEta=ibooker.book1D("allPionTracksEta", "pion track #eta", 50, -2.5, 2.5);
     //phibins,phimax,phimin
-    mallPionTracksPhi=dbe_->book1D("allPionTracksPhi", "pion track #phi", phiBin_,phiMin_, phiMax_);
+    mallPionTracksPhi=ibooker.book1D("allPionTracksPhi", "pion track #phi", phiBin_,phiMin_, phiMax_);
     //etabins/etamax/etamin
-    mallPionTracksPtVSEta=dbe_->bookProfile("allPionTracksPtVSEta", "pion track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
+    mallPionTracksPtVSEta=ibooker.bookProfile("allPionTracksPtVSEta", "pion track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
     
-    mnInVertexInCaloPionTracksPerJet=dbe_->book1D("nInVertexInCaloPionTracks", "number of pion in cone at calo and vertexs for correction per jet", 100, 0, 100);
-    mInVertexInCaloPionTracksPt=dbe_->book1D("InVertexInCaloPionTracksPt", "pion in cone at calo and vertex p_{T}", 100, 0., 50.);
-    mInVertexInCaloPionTracksEta=dbe_->book1D("InVertexInCaloPionTracksEta", "pion in cone at calo and vertex #eta", 50, -2.5, 2.5);
-    mInVertexInCaloPionTracksPhi=dbe_->book1D("InVertexInCaloPionTracksPhi", "pion in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
-    mInVertexInCaloPionTracksPtVSEta=dbe_->bookProfile("InVertexInCaloPionTracksPtVSEta", "pion in cone at calo and vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+    mnInVertexInCaloPionTracksPerJet=ibooker.book1D("nInVertexInCaloPionTracks", "number of pion in cone at calo and vertexs for correction per jet", 100, 0, 100);
+    mInVertexInCaloPionTracksPt=ibooker.book1D("InVertexInCaloPionTracksPt", "pion in cone at calo and vertex p_{T}", 100, 0., 50.);
+    mInVertexInCaloPionTracksEta=ibooker.book1D("InVertexInCaloPionTracksEta", "pion in cone at calo and vertex #eta", 50, -2.5, 2.5);
+    mInVertexInCaloPionTracksPhi=ibooker.book1D("InVertexInCaloPionTracksPhi", "pion in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
+    mInVertexInCaloPionTracksPtVSEta=ibooker.bookProfile("InVertexInCaloPionTracksPtVSEta", "pion in cone at calo and vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
     //monitor element trackDirectionJetDRHisto
     //monitor element trackImpactPointJetDRHisto
-    mnOutVertexInCaloPionTracksPerJet=dbe_->book1D("nOutVertexInCaloPionTracks", "number of pion in cone at calo and out at vertex for correction per jet", 100, 0, 100);
-    mOutVertexInCaloPionTracksPt=dbe_->book1D("OutVertexInCaloPionTracksPt", "pion in cone at calo and out at vertex p_{T}", 100, 0., 50.);
-    mOutVertexInCaloPionTracksEta=dbe_->book1D("OutVertexInCaloPionTracksEta", "pion in cone at calo and out at vertex #eta", 50, -2.5, 2.5);
-    mOutVertexInCaloPionTracksPhi=dbe_->book1D("OutVertexInCaloPionTracksPhi", "pion in cone at calo and out at vertex #phi", phiBin_,phiMin_, phiMax_);
-    mOutVertexInCaloPionTracksPtVSEta=dbe_->bookProfile("OutVertexInCaloPionTracksPtVSEta", "pion in cone at calo and out at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+    mnOutVertexInCaloPionTracksPerJet=ibooker.book1D("nOutVertexInCaloPionTracks", "number of pion in cone at calo and out at vertex for correction per jet", 100, 0, 100);
+    mOutVertexInCaloPionTracksPt=ibooker.book1D("OutVertexInCaloPionTracksPt", "pion in cone at calo and out at vertex p_{T}", 100, 0., 50.);
+    mOutVertexInCaloPionTracksEta=ibooker.book1D("OutVertexInCaloPionTracksEta", "pion in cone at calo and out at vertex #eta", 50, -2.5, 2.5);
+    mOutVertexInCaloPionTracksPhi=ibooker.book1D("OutVertexInCaloPionTracksPhi", "pion in cone at calo and out at vertex #phi", phiBin_,phiMin_, phiMax_);
+    mOutVertexInCaloPionTracksPtVSEta=ibooker.bookProfile("OutVertexInCaloPionTracksPtVSEta", "pion in cone at calo and out at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
     
-    mnInVertexOutCaloPionTracksPerJet=dbe_->book1D("nInVertexOutCaloPionTracks", "number of pions out cone at calo and and in cone at vertex for correction per jet", 100, 0, 100);
-    mInVertexOutCaloPionTracksPt=dbe_->book1D("InVertexOutCaloPionTracksPt", "pion out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
-    mInVertexOutCaloPionTracksEta=dbe_->book1D("InVertexOutCaloPionTracksEta", "pion out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
-    mInVertexOutCaloPionTracksPhi=dbe_->book1D("InVertexOutCaloPionTracksPhi", "pion out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
-    mInVertexOutCaloPionTracksPtVSEta=dbe_->bookProfile("InVertexOutCaloPionTracksPtVSEta", "pion out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+    mnInVertexOutCaloPionTracksPerJet=ibooker.book1D("nInVertexOutCaloPionTracks", "number of pions out cone at calo and and in cone at vertex for correction per jet", 100, 0, 100);
+    mInVertexOutCaloPionTracksPt=ibooker.book1D("InVertexOutCaloPionTracksPt", "pion out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
+    mInVertexOutCaloPionTracksEta=ibooker.book1D("InVertexOutCaloPionTracksEta", "pion out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
+    mInVertexOutCaloPionTracksPhi=ibooker.book1D("InVertexOutCaloPionTracksPhi", "pion out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
+    mInVertexOutCaloPionTracksPtVSEta=ibooker.bookProfile("InVertexOutCaloPionTracksPtVSEta", "pion out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
     
-    mnallMuonTracksPerJet=dbe_->book1D("nallMuonTracks", "number of muon tracks for correction per jet", 10, 0, 10);
-    mallMuonTracksPt=dbe_->book1D("allMuonTracksPt", "muon track p_{T}", 100, 0., 50.);
-    mallMuonTracksEta=dbe_->book1D("allMuonTracksEta", "muon track #eta", 50, -2.5, 2.5);
-    mallMuonTracksPhi=dbe_->book1D("allMuonTracksPhi", "muon track #phi", phiBin_,phiMin_, phiMax_);
-    mallMuonTracksPtVSEta=dbe_->bookProfile("allMuonTracksPtVSEta", "muon track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
+    mnallMuonTracksPerJet=ibooker.book1D("nallMuonTracks", "number of muon tracks for correction per jet", 10, 0, 10);
+    mallMuonTracksPt=ibooker.book1D("allMuonTracksPt", "muon track p_{T}", 100, 0., 50.);
+    mallMuonTracksEta=ibooker.book1D("allMuonTracksEta", "muon track #eta", 50, -2.5, 2.5);
+    mallMuonTracksPhi=ibooker.book1D("allMuonTracksPhi", "muon track #phi", phiBin_,phiMin_, phiMax_);
+    mallMuonTracksPtVSEta=ibooker.bookProfile("allMuonTracksPtVSEta", "muon track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
     
-    mnInVertexInCaloMuonTracksPerJet=dbe_->book1D("nInVertexInCaloMuonTracks", "number of muons in cone at calo and vertex for correction per jet", 10, 0, 10);
-    mInVertexInCaloMuonTracksPt=dbe_->book1D("InVertexInCaloMuonTracksPt", "muon in cone at calo and vertex p_{T}", 100, 0., 50.);
-    mInVertexInCaloMuonTracksEta=dbe_->book1D("InVertexInCaloMuonTracksEta", "muon in cone at calo and vertex #eta", 50, -2.5, 2.5);
-    mInVertexInCaloMuonTracksPhi=dbe_->book1D("InVertexInCaloMuonTracksPhi", "muon in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
-    mInVertexInCaloMuonTracksPtVSEta=dbe_->bookProfile("InVertexInCaloMuonTracksPtVSEta", "muon in cone at calo and vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+    mnInVertexInCaloMuonTracksPerJet=ibooker.book1D("nInVertexInCaloMuonTracks", "number of muons in cone at calo and vertex for correction per jet", 10, 0, 10);
+    mInVertexInCaloMuonTracksPt=ibooker.book1D("InVertexInCaloMuonTracksPt", "muon in cone at calo and vertex p_{T}", 100, 0., 50.);
+    mInVertexInCaloMuonTracksEta=ibooker.book1D("InVertexInCaloMuonTracksEta", "muon in cone at calo and vertex #eta", 50, -2.5, 2.5);
+    mInVertexInCaloMuonTracksPhi=ibooker.book1D("InVertexInCaloMuonTracksPhi", "muon in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
+    mInVertexInCaloMuonTracksPtVSEta=ibooker.bookProfile("InVertexInCaloMuonTracksPtVSEta", "muon in cone at calo and vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
     
-    mnOutVertexInCaloMuonTracksPerJet=dbe_->book1D("nOutVertexInCaloMuonTracks", "number of muons in cone at calo and out cone at vertex for correction per jet", 10, 0, 10);
-    mOutVertexInCaloMuonTracksPt=dbe_->book1D("OutVertexInCaloMuonTracksPt", "muon in cone at calo and out cone at vertex p_{T}", 100, 0., 50.);
-    mOutVertexInCaloMuonTracksEta=dbe_->book1D("OutVertexInCaloMuonTracksEta", "muon in cone at calo and out cone at vertex #eta", 50, -2.5, 2.5);
-    mOutVertexInCaloMuonTracksPhi=dbe_->book1D("OutVertexInCaloMuonTracksPhi", "muon in cone at calo and out cone at vertex #phi", phiBin_,phiMin_, phiMax_);
-    mOutVertexInCaloMuonTracksPtVSEta=dbe_->bookProfile("OutVertexInCaloMuonTracksPtVSEta", "muon oin cone at calo and out cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+    mnOutVertexInCaloMuonTracksPerJet=ibooker.book1D("nOutVertexInCaloMuonTracks", "number of muons in cone at calo and out cone at vertex for correction per jet", 10, 0, 10);
+    mOutVertexInCaloMuonTracksPt=ibooker.book1D("OutVertexInCaloMuonTracksPt", "muon in cone at calo and out cone at vertex p_{T}", 100, 0., 50.);
+    mOutVertexInCaloMuonTracksEta=ibooker.book1D("OutVertexInCaloMuonTracksEta", "muon in cone at calo and out cone at vertex #eta", 50, -2.5, 2.5);
+    mOutVertexInCaloMuonTracksPhi=ibooker.book1D("OutVertexInCaloMuonTracksPhi", "muon in cone at calo and out cone at vertex #phi", phiBin_,phiMin_, phiMax_);
+    mOutVertexInCaloMuonTracksPtVSEta=ibooker.bookProfile("OutVertexInCaloMuonTracksPtVSEta", "muon oin cone at calo and out cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
     
-    mnInVertexOutCaloMuonTracksPerJet=dbe_->book1D("nInVertexOutCaloMuonTracks", "number of muons out cone at calo and in cone at vertex for correction per jet", 10, 0, 10);
-    mInVertexOutCaloMuonTracksPt=dbe_->book1D("InVertexOutCaloMuonTracksPt", "muon out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
-    mInVertexOutCaloMuonTracksEta=dbe_->book1D("InVertexOutCaloMuonTracksEta", "muon out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
-    mInVertexOutCaloMuonTracksPhi=dbe_->book1D("InVertexOutCaloMuonTracksPhi", "muon out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
-    mInVertexOutCaloMuonTracksPtVSEta=dbe_->bookProfile("InVertexOutCaloMuonTracksPtVSEta", "muon out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+    mnInVertexOutCaloMuonTracksPerJet=ibooker.book1D("nInVertexOutCaloMuonTracks", "number of muons out cone at calo and in cone at vertex for correction per jet", 10, 0, 10);
+    mInVertexOutCaloMuonTracksPt=ibooker.book1D("InVertexOutCaloMuonTracksPt", "muon out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
+    mInVertexOutCaloMuonTracksEta=ibooker.book1D("InVertexOutCaloMuonTracksEta", "muon out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
+    mInVertexOutCaloMuonTracksPhi=ibooker.book1D("InVertexOutCaloMuonTracksPhi", "muon out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
+    mInVertexOutCaloMuonTracksPtVSEta=ibooker.bookProfile("InVertexOutCaloMuonTracksPtVSEta", "muon out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
     
-    mnallElectronTracksPerJet=dbe_->book1D("nallElectronTracks", "number of electron tracks for correction per jet", 10, 0, 10);
-    mallElectronTracksPt=dbe_->book1D("allElectronTracksPt", "electron track p_{T}", 100, 0., 50.);
-    mallElectronTracksEta=dbe_->book1D("allElectronTracksEta", "electron track #eta", 50, -2.5, 2.5);
-    mallElectronTracksPhi=dbe_->book1D("allElectronTracksPhi", "electron track #phi", phiBin_,phiMin_, phiMax_);
-    mallElectronTracksPtVSEta=dbe_->bookProfile("allElectronTracksPtVSEta", "electron track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
+    mnallElectronTracksPerJet=ibooker.book1D("nallElectronTracks", "number of electron tracks for correction per jet", 10, 0, 10);
+    mallElectronTracksPt=ibooker.book1D("allElectronTracksPt", "electron track p_{T}", 100, 0., 50.);
+    mallElectronTracksEta=ibooker.book1D("allElectronTracksEta", "electron track #eta", 50, -2.5, 2.5);
+    mallElectronTracksPhi=ibooker.book1D("allElectronTracksPhi", "electron track #phi", phiBin_,phiMin_, phiMax_);
+    mallElectronTracksPtVSEta=ibooker.bookProfile("allElectronTracksPtVSEta", "electron track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
     
-    mnInVertexInCaloElectronTracksPerJet=dbe_->book1D("nInVertexInCaloElectronTracks", "number of electrons in cone at calo and vertex for correction per jet", 10, 0, 10);
-    mInVertexInCaloElectronTracksPt=dbe_->book1D("InVertexInCaloElectronTracksPt", "electron in cone at calo and vertex p_{T}", 100, 0., 50.);
-    mInVertexInCaloElectronTracksEta=dbe_->book1D("InVertexInCaloElectronTracksEta", "electron in cone at calo and vertex #eta", 50, -2.5, 2.5);
-    mInVertexInCaloElectronTracksPhi=dbe_->book1D("InVertexInCaloElectronTracksPhi", "electron in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
-    mInVertexInCaloElectronTracksPtVSEta=dbe_->bookProfile("InVertexInCaloElectronTracksPtVSEta", "electron in cone at calo and vertex  p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+    mnInVertexInCaloElectronTracksPerJet=ibooker.book1D("nInVertexInCaloElectronTracks", "number of electrons in cone at calo and vertex for correction per jet", 10, 0, 10);
+    mInVertexInCaloElectronTracksPt=ibooker.book1D("InVertexInCaloElectronTracksPt", "electron in cone at calo and vertex p_{T}", 100, 0., 50.);
+    mInVertexInCaloElectronTracksEta=ibooker.book1D("InVertexInCaloElectronTracksEta", "electron in cone at calo and vertex #eta", 50, -2.5, 2.5);
+    mInVertexInCaloElectronTracksPhi=ibooker.book1D("InVertexInCaloElectronTracksPhi", "electron in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
+    mInVertexInCaloElectronTracksPtVSEta=ibooker.bookProfile("InVertexInCaloElectronTracksPtVSEta", "electron in cone at calo and vertex  p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
     
-    mnOutVertexInCaloElectronTracksPerJet=dbe_->book1D("nOutVertexInCaloElectronTracks", "number of electrons in cone at calo and out cone at vertex for correction per jet", 10, 0, 10);
-    mOutVertexInCaloElectronTracksPt=dbe_->book1D("OutVertexInCaloElectronTracksPt", "electron in cone at calo and out cone at vertex p_{T}", 100, 0., 50.);
-    mOutVertexInCaloElectronTracksEta=dbe_->book1D("OutVertexInCaloElectronTracksEta", "electron in cone at calo and out cone at vertex #eta", 50, -2.5, 2.5);
-    mOutVertexInCaloElectronTracksPhi=dbe_->book1D("OutVertexInCaloElectronTracksPhi", "electron in cone at calo and out cone at vertex #phi", phiBin_,phiMin_, phiMax_);
-    mOutVertexInCaloElectronTracksPtVSEta=dbe_->bookProfile("OutVertexInCaloElectronTracksPtVSEta", "electron in cone at calo and out cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+    mnOutVertexInCaloElectronTracksPerJet=ibooker.book1D("nOutVertexInCaloElectronTracks", "number of electrons in cone at calo and out cone at vertex for correction per jet", 10, 0, 10);
+    mOutVertexInCaloElectronTracksPt=ibooker.book1D("OutVertexInCaloElectronTracksPt", "electron in cone at calo and out cone at vertex p_{T}", 100, 0., 50.);
+    mOutVertexInCaloElectronTracksEta=ibooker.book1D("OutVertexInCaloElectronTracksEta", "electron in cone at calo and out cone at vertex #eta", 50, -2.5, 2.5);
+    mOutVertexInCaloElectronTracksPhi=ibooker.book1D("OutVertexInCaloElectronTracksPhi", "electron in cone at calo and out cone at vertex #phi", phiBin_,phiMin_, phiMax_);
+    mOutVertexInCaloElectronTracksPtVSEta=ibooker.bookProfile("OutVertexInCaloElectronTracksPtVSEta", "electron in cone at calo and out cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
     
-    mnInVertexOutCaloElectronTracksPerJet=dbe_->book1D("nInVertexOutCaloElectronTracks", "number of electrons out cone at calo and in cone at vertex for correction per jet", 10, 0, 10);
-    mInVertexOutCaloElectronTracksPt=dbe_->book1D("InVertexOutCaloElectronTracksPt", "electron out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
-    mInVertexOutCaloElectronTracksEta=dbe_->book1D("InVertexOutCaloElectronTracksEta", "electron out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
-    mInVertexOutCaloElectronTracksPhi=dbe_->book1D("InVertexOutCaloElectronTracksPhi", "electron out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
-    mInVertexOutCaloElectronTracksPtVSEta=dbe_->bookProfile("InVertexOutCaloElectronTracksPtVSEta", "electron out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+    mnInVertexOutCaloElectronTracksPerJet=ibooker.book1D("nInVertexOutCaloElectronTracks", "number of electrons out cone at calo and in cone at vertex for correction per jet", 10, 0, 10);
+    mInVertexOutCaloElectronTracksPt=ibooker.book1D("InVertexOutCaloElectronTracksPt", "electron out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
+    mInVertexOutCaloElectronTracksEta=ibooker.book1D("InVertexOutCaloElectronTracksEta", "electron out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
+    mInVertexOutCaloElectronTracksPhi=ibooker.book1D("InVertexOutCaloElectronTracksPhi", "electron out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
+    mInVertexOutCaloElectronTracksPtVSEta=ibooker.bookProfile("InVertexOutCaloElectronTracksPtVSEta", "electron out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
     
-    mInCaloTrackDirectionJetDRHisto_      = dbe_->book1D("InCaloTrackDirectionJetDR",
+    mInCaloTrackDirectionJetDRHisto_      = ibooker.book1D("InCaloTrackDirectionJetDR",
 							 "#Delta R between track direction at vertex and jet axis (track in cone at calo)",50,0.,1.0);
-    mOutCaloTrackDirectionJetDRHisto_      = dbe_->book1D("OutCaloTrackDirectionJetDR",
+    mOutCaloTrackDirectionJetDRHisto_      = ibooker.book1D("OutCaloTrackDirectionJetDR",
 							  "#Delta R between track direction at vertex and jet axis (track out cone at calo)",50,0.,1.0);
-    mInVertexTrackImpactPointJetDRHisto_  = dbe_->book1D("InVertexTrackImpactPointJetDR",
+    mInVertexTrackImpactPointJetDRHisto_  = ibooker.book1D("InVertexTrackImpactPointJetDR",
 							 "#Delta R between track impact point on calo and jet axis (track in cone at vertex)",50,0.,1.0);
-    mOutVertexTrackImpactPointJetDRHisto_ = dbe_->book1D("OutVertexTrackImpactPointJetDR",
+    mOutVertexTrackImpactPointJetDRHisto_ = ibooker.book1D("OutVertexTrackImpactPointJetDR",
 							 "#Delta R between track impact point on calo and jet axis (track out of cone at vertex)",50,0.,1.0);
   }
 
   if(isPFJet_) {
     //PFJet specific histograms
-    mCHFracVSeta_lowPt= dbe_->bookProfile("CHFracVSeta_lowPt","CHFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mNHFracVSeta_lowPt= dbe_->bookProfile("NHFracVSeta_lowPt","NHFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mPhFracVSeta_lowPt= dbe_->bookProfile("PhFracVSeta_lowPt","PhFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mElFracVSeta_lowPt= dbe_->bookProfile("ElFracVSeta_lowPt","ElFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mMuFracVSeta_lowPt= dbe_->bookProfile("MuFracVSeta_lowPt","MuFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mCHFracVSeta_mediumPt= dbe_->bookProfile("CHFracVSeta_mediumPt","CHFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mNHFracVSeta_mediumPt= dbe_->bookProfile("NHFracVSeta_mediumPt","NHFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mPhFracVSeta_mediumPt= dbe_->bookProfile("PhFracVSeta_mediumPt","PhFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mElFracVSeta_mediumPt= dbe_->bookProfile("ElFracVSeta_mediumPt","ElFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mMuFracVSeta_mediumPt= dbe_->bookProfile("MuFracVSeta_mediumPt","MuFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mCHFracVSeta_highPt= dbe_->bookProfile("CHFracVSeta_highPt","CHFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mNHFracVSeta_highPt= dbe_->bookProfile("NHFracVSeta_highPt","NHFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mPhFracVSeta_highPt= dbe_->bookProfile("PhFracVSeta_highPt","PhFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mElFracVSeta_highPt= dbe_->bookProfile("ElFracVSeta_highPt","ElFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mMuFracVSeta_highPt= dbe_->bookProfile("MuFracVSeta_highPt","MuFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mCHFracVSeta_lowPt= ibooker.bookProfile("CHFracVSeta_lowPt","CHFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mNHFracVSeta_lowPt= ibooker.bookProfile("NHFracVSeta_lowPt","NHFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mPhFracVSeta_lowPt= ibooker.bookProfile("PhFracVSeta_lowPt","PhFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mElFracVSeta_lowPt= ibooker.bookProfile("ElFracVSeta_lowPt","ElFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mMuFracVSeta_lowPt= ibooker.bookProfile("MuFracVSeta_lowPt","MuFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mCHFracVSeta_mediumPt= ibooker.bookProfile("CHFracVSeta_mediumPt","CHFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mNHFracVSeta_mediumPt= ibooker.bookProfile("NHFracVSeta_mediumPt","NHFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mPhFracVSeta_mediumPt= ibooker.bookProfile("PhFracVSeta_mediumPt","PhFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mElFracVSeta_mediumPt= ibooker.bookProfile("ElFracVSeta_mediumPt","ElFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mMuFracVSeta_mediumPt= ibooker.bookProfile("MuFracVSeta_mediumPt","MuFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mCHFracVSeta_highPt= ibooker.bookProfile("CHFracVSeta_highPt","CHFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mNHFracVSeta_highPt= ibooker.bookProfile("NHFracVSeta_highPt","NHFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mPhFracVSeta_highPt= ibooker.bookProfile("PhFracVSeta_highPt","PhFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mElFracVSeta_highPt= ibooker.bookProfile("ElFracVSeta_highPt","ElFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mMuFracVSeta_highPt= ibooker.bookProfile("MuFracVSeta_highPt","MuFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
     
     //barrel histograms for PFJets
     // energy fractions
-    mCHFrac_lowPt_Barrel     = dbe_->book1D("CHFrac_lowPt_Barrel", "CHFrac_lowPt_Barrel", 120, -0.1, 1.1);
-    mNHFrac_lowPt_Barrel     = dbe_->book1D("NHFrac_lowPt_Barrel", "NHFrac_lowPt_Barrel", 120, -0.1, 1.1);
-    mPhFrac_lowPt_Barrel     = dbe_->book1D("PhFrac_lowPt_Barrel", "PhFrac_lowPt_Barrel", 120, -0.1, 1.1);
-    mElFrac_lowPt_Barrel     = dbe_->book1D("ElFrac_lowPt_Barrel", "ElFrac_lowPt_Barrel", 120, -0.1, 1.1);
-    mMuFrac_lowPt_Barrel     = dbe_->book1D("MuFrac_lowPt_Barrel", "MuFrac_lowPt_Barrel", 120, -0.1, 1.1);
-    mCHFrac_mediumPt_Barrel  = dbe_->book1D("CHFrac_mediumPt_Barrel", "CHFrac_mediumPt_Barrel", 120, -0.1, 1.1);
-    mNHFrac_mediumPt_Barrel  = dbe_->book1D("NHFrac_mediumPt_Barrel", "NHFrac_mediumPt_Barrel", 120, -0.1, 1.1);
-    mPhFrac_mediumPt_Barrel  = dbe_->book1D("PhFrac_mediumPt_Barrel", "PhFrac_mediumPt_Barrel", 120, -0.1, 1.1);
-    mElFrac_mediumPt_Barrel  = dbe_->book1D("ElFrac_mediumPt_Barrel", "ElFrac_mediumPt_Barrel", 120, -0.1, 1.1);
-    mMuFrac_mediumPt_Barrel  = dbe_->book1D("MuFrac_mediumPt_Barrel", "MuFrac_mediumPt_Barrel", 120, -0.1, 1.1);
-    mCHFrac_highPt_Barrel    = dbe_->book1D("CHFrac_highPt_Barrel", "CHFrac_highPt_Barrel", 120, -0.1, 1.1);
-    mNHFrac_highPt_Barrel    = dbe_->book1D("NHFrac_highPt_Barrel", "NHFrac_highPt_Barrel", 120, -0.1, 1.1);
-    mPhFrac_highPt_Barrel    = dbe_->book1D("PhFrac_highPt_Barrel", "PhFrac_highPt_Barrel", 120, -0.1, 1.1);
-    mElFrac_highPt_Barrel    = dbe_->book1D("ElFrac_highPt_Barrel", "ElFrac_highPt_Barrel", 120, -0.1, 1.1);
-    mMuFrac_highPt_Barrel    = dbe_->book1D("MuFrac_highPt_Barrel", "MuFrac_highPt_Barrel", 120, -0.1, 1.1);
+    mCHFrac_lowPt_Barrel     = ibooker.book1D("CHFrac_lowPt_Barrel", "CHFrac_lowPt_Barrel", 120, -0.1, 1.1);
+    mNHFrac_lowPt_Barrel     = ibooker.book1D("NHFrac_lowPt_Barrel", "NHFrac_lowPt_Barrel", 120, -0.1, 1.1);
+    mPhFrac_lowPt_Barrel     = ibooker.book1D("PhFrac_lowPt_Barrel", "PhFrac_lowPt_Barrel", 120, -0.1, 1.1);
+    mElFrac_lowPt_Barrel     = ibooker.book1D("ElFrac_lowPt_Barrel", "ElFrac_lowPt_Barrel", 120, -0.1, 1.1);
+    mMuFrac_lowPt_Barrel     = ibooker.book1D("MuFrac_lowPt_Barrel", "MuFrac_lowPt_Barrel", 120, -0.1, 1.1);
+    mCHFrac_mediumPt_Barrel  = ibooker.book1D("CHFrac_mediumPt_Barrel", "CHFrac_mediumPt_Barrel", 120, -0.1, 1.1);
+    mNHFrac_mediumPt_Barrel  = ibooker.book1D("NHFrac_mediumPt_Barrel", "NHFrac_mediumPt_Barrel", 120, -0.1, 1.1);
+    mPhFrac_mediumPt_Barrel  = ibooker.book1D("PhFrac_mediumPt_Barrel", "PhFrac_mediumPt_Barrel", 120, -0.1, 1.1);
+    mElFrac_mediumPt_Barrel  = ibooker.book1D("ElFrac_mediumPt_Barrel", "ElFrac_mediumPt_Barrel", 120, -0.1, 1.1);
+    mMuFrac_mediumPt_Barrel  = ibooker.book1D("MuFrac_mediumPt_Barrel", "MuFrac_mediumPt_Barrel", 120, -0.1, 1.1);
+    mCHFrac_highPt_Barrel    = ibooker.book1D("CHFrac_highPt_Barrel", "CHFrac_highPt_Barrel", 120, -0.1, 1.1);
+    mNHFrac_highPt_Barrel    = ibooker.book1D("NHFrac_highPt_Barrel", "NHFrac_highPt_Barrel", 120, -0.1, 1.1);
+    mPhFrac_highPt_Barrel    = ibooker.book1D("PhFrac_highPt_Barrel", "PhFrac_highPt_Barrel", 120, -0.1, 1.1);
+    mElFrac_highPt_Barrel    = ibooker.book1D("ElFrac_highPt_Barrel", "ElFrac_highPt_Barrel", 120, -0.1, 1.1);
+    mMuFrac_highPt_Barrel    = ibooker.book1D("MuFrac_highPt_Barrel", "MuFrac_highPt_Barrel", 120, -0.1, 1.1);
     
     //energies
-    mCHEn_lowPt_Barrel     = dbe_->book1D("CHEn_lowPt_Barrel", "CHEn_lowPt_Barrel", ptBin_, 0., ptMax_);
-    mNHEn_lowPt_Barrel     = dbe_->book1D("NHEn_lowPt_Barrel", "NHEn_lowPt_Barrel", ptBin_, 0., ptMax_);
-    mPhEn_lowPt_Barrel     = dbe_->book1D("PhEn_lowPt_Barrel", "PhEn_lowPt_Barrel", ptBin_, 0., ptMax_);
-    mElEn_lowPt_Barrel     = dbe_->book1D("ElEn_lowPt_Barrel", "ElEn_lowPt_Barrel", ptBin_, 0., ptMax_);
-    mMuEn_lowPt_Barrel     = dbe_->book1D("MuEn_lowPt_Barrel", "MuEn_lowPt_Barrel", ptBin_, 0., ptMax_);
-    mCHEn_mediumPt_Barrel  = dbe_->book1D("CHEn_mediumPt_Barrel", "CHEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
-    mNHEn_mediumPt_Barrel  = dbe_->book1D("NHEn_mediumPt_Barrel", "NHEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
-    mPhEn_mediumPt_Barrel  = dbe_->book1D("PhEn_mediumPt_Barrel", "PhEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
-    mElEn_mediumPt_Barrel  = dbe_->book1D("ElEn_mediumPt_Barrel", "ElEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
-    mMuEn_mediumPt_Barrel  = dbe_->book1D("MuEn_mediumPt_Barrel", "MuEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
-    mCHEn_highPt_Barrel    = dbe_->book1D("CHEn_highPt_Barrel", "CHEn_highPt_Barrel", ptBin_, 0., 1.1*ptMax_);
-    mNHEn_highPt_Barrel    = dbe_->book1D("NHEn_highPt_Barrel", "NHEn_highPt_Barrel", ptBin_, 0., ptMax_);
-    mPhEn_highPt_Barrel    = dbe_->book1D("PhEn_highPt_Barrel", "PhEn_highPt_Barrel", ptBin_, 0., ptMax_);
-    mElEn_highPt_Barrel    = dbe_->book1D("ElEn_highPt_Barrel", "ElEn_highPt_Barrel", ptBin_, 0., ptMax_);
-    mMuEn_highPt_Barrel    = dbe_->book1D("MuEn_highPt_Barrel", "MuEn_highPt_Barrel", ptBin_, 0., ptMax_);
+    mCHEn_lowPt_Barrel     = ibooker.book1D("CHEn_lowPt_Barrel", "CHEn_lowPt_Barrel", ptBin_, 0., ptMax_);
+    mNHEn_lowPt_Barrel     = ibooker.book1D("NHEn_lowPt_Barrel", "NHEn_lowPt_Barrel", ptBin_, 0., ptMax_);
+    mPhEn_lowPt_Barrel     = ibooker.book1D("PhEn_lowPt_Barrel", "PhEn_lowPt_Barrel", ptBin_, 0., ptMax_);
+    mElEn_lowPt_Barrel     = ibooker.book1D("ElEn_lowPt_Barrel", "ElEn_lowPt_Barrel", ptBin_, 0., ptMax_);
+    mMuEn_lowPt_Barrel     = ibooker.book1D("MuEn_lowPt_Barrel", "MuEn_lowPt_Barrel", ptBin_, 0., ptMax_);
+    mCHEn_mediumPt_Barrel  = ibooker.book1D("CHEn_mediumPt_Barrel", "CHEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
+    mNHEn_mediumPt_Barrel  = ibooker.book1D("NHEn_mediumPt_Barrel", "NHEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
+    mPhEn_mediumPt_Barrel  = ibooker.book1D("PhEn_mediumPt_Barrel", "PhEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
+    mElEn_mediumPt_Barrel  = ibooker.book1D("ElEn_mediumPt_Barrel", "ElEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
+    mMuEn_mediumPt_Barrel  = ibooker.book1D("MuEn_mediumPt_Barrel", "MuEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
+    mCHEn_highPt_Barrel    = ibooker.book1D("CHEn_highPt_Barrel", "CHEn_highPt_Barrel", ptBin_, 0., 1.1*ptMax_);
+    mNHEn_highPt_Barrel    = ibooker.book1D("NHEn_highPt_Barrel", "NHEn_highPt_Barrel", ptBin_, 0., ptMax_);
+    mPhEn_highPt_Barrel    = ibooker.book1D("PhEn_highPt_Barrel", "PhEn_highPt_Barrel", ptBin_, 0., ptMax_);
+    mElEn_highPt_Barrel    = ibooker.book1D("ElEn_highPt_Barrel", "ElEn_highPt_Barrel", ptBin_, 0., ptMax_);
+    mMuEn_highPt_Barrel    = ibooker.book1D("MuEn_highPt_Barrel", "MuEn_highPt_Barrel", ptBin_, 0., ptMax_);
     //multiplicities
-    mChMultiplicity_lowPt_Barrel    = dbe_->book1D("ChMultiplicity_lowPt_Barrel", "ChMultiplicity_lowPt_Barrel", 60,0,60);
-    mNeutMultiplicity_lowPt_Barrel   = dbe_->book1D("NeutMultiplicity_lowPt_Barrel", "NeutMultiplicity_lowPt_Barrel", 60,0,60);
-    mMuMultiplicity_lowPt_Barrel    = dbe_->book1D("MuMultiplicity_lowPt_Barrel", "MuMultiplicity_lowPt_Barrel", 10,0,10);
-    mChMultiplicity_mediumPt_Barrel    = dbe_->book1D("ChMultiplicity_mediumPt_Barrel", "ChMultiplicity_mediumPt_Barrel", 60,0,60);
-    mNeutMultiplicity_mediumPt_Barrel   = dbe_->book1D("NeutMultiplicity_mediumPt_Barrel", "NeutMultiplicity_mediumPt_Barrel", 60,0,60);
-    mMuMultiplicity_mediumPt_Barrel    = dbe_->book1D("MuMultiplicity_mediumPt_Barrel", "MuMultiplicity_mediumPt_Barrel", 10,0,10);
-    mChMultiplicity_highPt_Barrel    = dbe_->book1D("ChMultiplicity_highPt_Barrel", "ChMultiplicity_highPt_Barrel", 60,0,60);
-    mNeutMultiplicity_highPt_Barrel   = dbe_->book1D("NeutMultiplicity_highPt_Barrel", "NeutMultiplicity_highPt_Barrel", 60,0,60);
-    mMuMultiplicity_highPt_Barrel    = dbe_->book1D("MuMultiplicity_highPt_Barrel", "MuMultiplicity_highPt_Barrel", 10,0,10);
+    mChMultiplicity_lowPt_Barrel    = ibooker.book1D("ChMultiplicity_lowPt_Barrel", "ChMultiplicity_lowPt_Barrel", 60,0,60);
+    mNeutMultiplicity_lowPt_Barrel   = ibooker.book1D("NeutMultiplicity_lowPt_Barrel", "NeutMultiplicity_lowPt_Barrel", 60,0,60);
+    mMuMultiplicity_lowPt_Barrel    = ibooker.book1D("MuMultiplicity_lowPt_Barrel", "MuMultiplicity_lowPt_Barrel", 10,0,10);
+    mChMultiplicity_mediumPt_Barrel    = ibooker.book1D("ChMultiplicity_mediumPt_Barrel", "ChMultiplicity_mediumPt_Barrel", 60,0,60);
+    mNeutMultiplicity_mediumPt_Barrel   = ibooker.book1D("NeutMultiplicity_mediumPt_Barrel", "NeutMultiplicity_mediumPt_Barrel", 60,0,60);
+    mMuMultiplicity_mediumPt_Barrel    = ibooker.book1D("MuMultiplicity_mediumPt_Barrel", "MuMultiplicity_mediumPt_Barrel", 10,0,10);
+    mChMultiplicity_highPt_Barrel    = ibooker.book1D("ChMultiplicity_highPt_Barrel", "ChMultiplicity_highPt_Barrel", 60,0,60);
+    mNeutMultiplicity_highPt_Barrel   = ibooker.book1D("NeutMultiplicity_highPt_Barrel", "NeutMultiplicity_highPt_Barrel", 60,0,60);
+    mMuMultiplicity_highPt_Barrel    = ibooker.book1D("MuMultiplicity_highPt_Barrel", "MuMultiplicity_highPt_Barrel", 10,0,10);
     //
-    mCHFracVSpT_Barrel= dbe_->bookProfile("CHFracVSpT_Barrel","CHFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mNHFracVSpT_Barrel= dbe_->bookProfile("NHFracVSpT_Barrel","NHFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mPhFracVSpT_Barrel= dbe_->bookProfile("PhFracVSpT_Barrel","PhFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mElFracVSpT_Barrel= dbe_->bookProfile("ElFracVSpT_Barrel","ElFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mMuFracVSpT_Barrel= dbe_->bookProfile("MuFracVSpT_Barrel","MuFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mCHFracVSpT_EndCap= dbe_->bookProfile("CHFracVSpT_EndCap","CHFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mNHFracVSpT_EndCap= dbe_->bookProfile("NHFracVSpT_EndCap","NHFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mPhFracVSpT_EndCap= dbe_->bookProfile("PhFracVSpT_EndCap","PhFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mElFracVSpT_EndCap= dbe_->bookProfile("ElFracVSpT_EndCap","ElFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mMuFracVSpT_EndCap= dbe_->bookProfile("MuFracVSpT_EndCap","MuFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mHFHFracVSpT_Forward= dbe_->bookProfile("HFHFracVSpT_Forward","HFHFracVSpT_Forward",ptBin_, ptMin_, ptMax_,-0.2,1.2);
-    mHFEFracVSpT_Forward= dbe_->bookProfile("HFEFracVSpT_Forward","HFEFracVSpT_Forward",ptBin_, ptMin_, ptMax_,-0.2,1.2);
+    mCHFracVSpT_Barrel= ibooker.bookProfile("CHFracVSpT_Barrel","CHFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mNHFracVSpT_Barrel= ibooker.bookProfile("NHFracVSpT_Barrel","NHFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mPhFracVSpT_Barrel= ibooker.bookProfile("PhFracVSpT_Barrel","PhFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mElFracVSpT_Barrel= ibooker.bookProfile("ElFracVSpT_Barrel","ElFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mMuFracVSpT_Barrel= ibooker.bookProfile("MuFracVSpT_Barrel","MuFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mCHFracVSpT_EndCap= ibooker.bookProfile("CHFracVSpT_EndCap","CHFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mNHFracVSpT_EndCap= ibooker.bookProfile("NHFracVSpT_EndCap","NHFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mPhFracVSpT_EndCap= ibooker.bookProfile("PhFracVSpT_EndCap","PhFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mElFracVSpT_EndCap= ibooker.bookProfile("ElFracVSpT_EndCap","ElFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mMuFracVSpT_EndCap= ibooker.bookProfile("MuFracVSpT_EndCap","MuFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mHFHFracVSpT_Forward= ibooker.bookProfile("HFHFracVSpT_Forward","HFHFracVSpT_Forward",ptBin_, ptMin_, ptMax_,-0.2,1.2);
+    mHFEFracVSpT_Forward= ibooker.bookProfile("HFEFracVSpT_Forward","HFEFracVSpT_Forward",ptBin_, ptMin_, ptMax_,-0.2,1.2);
     //endcap monitoring
     //energy fractions
-    mCHFrac_lowPt_EndCap     = dbe_->book1D("CHFrac_lowPt_EndCap", "CHFrac_lowPt_EndCap", 120, -0.1, 1.1);
-    mNHFrac_lowPt_EndCap     = dbe_->book1D("NHFrac_lowPt_EndCap", "NHFrac_lowPt_EndCap", 120, -0.1, 1.1);
-    mPhFrac_lowPt_EndCap     = dbe_->book1D("PhFrac_lowPt_EndCap", "PhFrac_lowPt_EndCap", 120, -0.1, 1.1);
-    mElFrac_lowPt_EndCap     = dbe_->book1D("ElFrac_lowPt_EndCap", "ElFrac_lowPt_EndCap", 120, -0.1, 1.1);
-    mMuFrac_lowPt_EndCap     = dbe_->book1D("MuFrac_lowPt_EndCap", "MuFrac_lowPt_EndCap", 120, -0.1, 1.1);
-    mCHFrac_mediumPt_EndCap  = dbe_->book1D("CHFrac_mediumPt_EndCap", "CHFrac_mediumPt_EndCap", 120, -0.1, 1.1);
-    mNHFrac_mediumPt_EndCap  = dbe_->book1D("NHFrac_mediumPt_EndCap", "NHFrac_mediumPt_EndCap", 120, -0.1, 1.1);
-    mPhFrac_mediumPt_EndCap  = dbe_->book1D("PhFrac_mediumPt_EndCap", "PhFrac_mediumPt_EndCap", 120, -0.1, 1.1);
-    mElFrac_mediumPt_EndCap  = dbe_->book1D("ElFrac_mediumPt_EndCap", "ElFrac_mediumPt_EndCap", 120, -0.1, 1.1);
-    mMuFrac_mediumPt_EndCap  = dbe_->book1D("MuFrac_mediumPt_EndCap", "MuFrac_mediumPt_EndCap", 120, -0.1, 1.1);
-    mCHFrac_highPt_EndCap    = dbe_->book1D("CHFrac_highPt_EndCap", "CHFrac_highPt_EndCap", 120, -0.1, 1.1);
-    mNHFrac_highPt_EndCap    = dbe_->book1D("NHFrac_highPt_EndCap", "NHFrac_highPt_EndCap", 120, -0.1, 1.1);
-    mPhFrac_highPt_EndCap    = dbe_->book1D("PhFrac_highPt_EndCap", "PhFrac_highPt_EndCap", 120, -0.1, 1.1);
-    mElFrac_highPt_EndCap    = dbe_->book1D("ElFrac_highPt_EndCap", "ElFrac_highPt_EndCap", 120, -0.1, 1.1);
-    mMuFrac_highPt_EndCap    = dbe_->book1D("MuFrac_highPt_EndCap", "MuFrac_highPt_EndCap", 120, -0.1, 1.1);
+    mCHFrac_lowPt_EndCap     = ibooker.book1D("CHFrac_lowPt_EndCap", "CHFrac_lowPt_EndCap", 120, -0.1, 1.1);
+    mNHFrac_lowPt_EndCap     = ibooker.book1D("NHFrac_lowPt_EndCap", "NHFrac_lowPt_EndCap", 120, -0.1, 1.1);
+    mPhFrac_lowPt_EndCap     = ibooker.book1D("PhFrac_lowPt_EndCap", "PhFrac_lowPt_EndCap", 120, -0.1, 1.1);
+    mElFrac_lowPt_EndCap     = ibooker.book1D("ElFrac_lowPt_EndCap", "ElFrac_lowPt_EndCap", 120, -0.1, 1.1);
+    mMuFrac_lowPt_EndCap     = ibooker.book1D("MuFrac_lowPt_EndCap", "MuFrac_lowPt_EndCap", 120, -0.1, 1.1);
+    mCHFrac_mediumPt_EndCap  = ibooker.book1D("CHFrac_mediumPt_EndCap", "CHFrac_mediumPt_EndCap", 120, -0.1, 1.1);
+    mNHFrac_mediumPt_EndCap  = ibooker.book1D("NHFrac_mediumPt_EndCap", "NHFrac_mediumPt_EndCap", 120, -0.1, 1.1);
+    mPhFrac_mediumPt_EndCap  = ibooker.book1D("PhFrac_mediumPt_EndCap", "PhFrac_mediumPt_EndCap", 120, -0.1, 1.1);
+    mElFrac_mediumPt_EndCap  = ibooker.book1D("ElFrac_mediumPt_EndCap", "ElFrac_mediumPt_EndCap", 120, -0.1, 1.1);
+    mMuFrac_mediumPt_EndCap  = ibooker.book1D("MuFrac_mediumPt_EndCap", "MuFrac_mediumPt_EndCap", 120, -0.1, 1.1);
+    mCHFrac_highPt_EndCap    = ibooker.book1D("CHFrac_highPt_EndCap", "CHFrac_highPt_EndCap", 120, -0.1, 1.1);
+    mNHFrac_highPt_EndCap    = ibooker.book1D("NHFrac_highPt_EndCap", "NHFrac_highPt_EndCap", 120, -0.1, 1.1);
+    mPhFrac_highPt_EndCap    = ibooker.book1D("PhFrac_highPt_EndCap", "PhFrac_highPt_EndCap", 120, -0.1, 1.1);
+    mElFrac_highPt_EndCap    = ibooker.book1D("ElFrac_highPt_EndCap", "ElFrac_highPt_EndCap", 120, -0.1, 1.1);
+    mMuFrac_highPt_EndCap    = ibooker.book1D("MuFrac_highPt_EndCap", "MuFrac_highPt_EndCap", 120, -0.1, 1.1);
     //energies
-    mCHEn_lowPt_EndCap     = dbe_->book1D("CHEn_lowPt_EndCap", "CHEn_lowPt_EndCap", ptBin_, 0., ptMax_);
-    mNHEn_lowPt_EndCap     = dbe_->book1D("NHEn_lowPt_EndCap", "NHEn_lowPt_EndCap", ptBin_, 0., ptMax_);
-    mPhEn_lowPt_EndCap     = dbe_->book1D("PhEn_lowPt_EndCap", "PhEn_lowPt_EndCap", ptBin_, 0., ptMax_);
-    mElEn_lowPt_EndCap     = dbe_->book1D("ElEn_lowPt_EndCap", "ElEn_lowPt_EndCap", ptBin_, 0., ptMax_);
-    mMuEn_lowPt_EndCap     = dbe_->book1D("MuEn_lowPt_EndCap", "MuEn_lowPt_EndCap", ptBin_, 0., ptMax_);
-    mCHEn_mediumPt_EndCap  = dbe_->book1D("CHEn_mediumPt_EndCap", "CHEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
-    mNHEn_mediumPt_EndCap  = dbe_->book1D("NHEn_mediumPt_EndCap", "NHEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
-    mPhEn_mediumPt_EndCap  = dbe_->book1D("PhEn_mediumPt_EndCap", "PhEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
-    mElEn_mediumPt_EndCap  = dbe_->book1D("ElEn_mediumPt_EndCap", "ElEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
-    mMuEn_mediumPt_EndCap  = dbe_->book1D("MuEn_mediumPt_EndCap", "MuEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
-    mCHEn_highPt_EndCap    = dbe_->book1D("CHEn_highPt_EndCap", "CHEn_highPt_EndCap", ptBin_, 0., 1.5*ptMax_);
-    mNHEn_highPt_EndCap    = dbe_->book1D("NHEn_highPt_EndCap", "NHEn_highPt_EndCap", ptBin_, 0., ptMax_);
-    mPhEn_highPt_EndCap    = dbe_->book1D("PhEn_highPt_EndCap", "PhEn_highPt_EndCap", ptBin_, 0., ptMax_);
-    mElEn_highPt_EndCap    = dbe_->book1D("ElEn_highPt_EndCap", "ElEn_highPt_EndCap", ptBin_, 0., ptMax_);
-    mMuEn_highPt_EndCap    = dbe_->book1D("MuEn_highPt_EndCap", "MuEn_highPt_EndCap", ptBin_, 0., ptMax_);
+    mCHEn_lowPt_EndCap     = ibooker.book1D("CHEn_lowPt_EndCap", "CHEn_lowPt_EndCap", ptBin_, 0., ptMax_);
+    mNHEn_lowPt_EndCap     = ibooker.book1D("NHEn_lowPt_EndCap", "NHEn_lowPt_EndCap", ptBin_, 0., ptMax_);
+    mPhEn_lowPt_EndCap     = ibooker.book1D("PhEn_lowPt_EndCap", "PhEn_lowPt_EndCap", ptBin_, 0., ptMax_);
+    mElEn_lowPt_EndCap     = ibooker.book1D("ElEn_lowPt_EndCap", "ElEn_lowPt_EndCap", ptBin_, 0., ptMax_);
+    mMuEn_lowPt_EndCap     = ibooker.book1D("MuEn_lowPt_EndCap", "MuEn_lowPt_EndCap", ptBin_, 0., ptMax_);
+    mCHEn_mediumPt_EndCap  = ibooker.book1D("CHEn_mediumPt_EndCap", "CHEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
+    mNHEn_mediumPt_EndCap  = ibooker.book1D("NHEn_mediumPt_EndCap", "NHEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
+    mPhEn_mediumPt_EndCap  = ibooker.book1D("PhEn_mediumPt_EndCap", "PhEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
+    mElEn_mediumPt_EndCap  = ibooker.book1D("ElEn_mediumPt_EndCap", "ElEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
+    mMuEn_mediumPt_EndCap  = ibooker.book1D("MuEn_mediumPt_EndCap", "MuEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
+    mCHEn_highPt_EndCap    = ibooker.book1D("CHEn_highPt_EndCap", "CHEn_highPt_EndCap", ptBin_, 0., 1.5*ptMax_);
+    mNHEn_highPt_EndCap    = ibooker.book1D("NHEn_highPt_EndCap", "NHEn_highPt_EndCap", ptBin_, 0., ptMax_);
+    mPhEn_highPt_EndCap    = ibooker.book1D("PhEn_highPt_EndCap", "PhEn_highPt_EndCap", ptBin_, 0., ptMax_);
+    mElEn_highPt_EndCap    = ibooker.book1D("ElEn_highPt_EndCap", "ElEn_highPt_EndCap", ptBin_, 0., ptMax_);
+    mMuEn_highPt_EndCap    = ibooker.book1D("MuEn_highPt_EndCap", "MuEn_highPt_EndCap", ptBin_, 0., ptMax_);
     //multiplicities
-    mChMultiplicity_lowPt_EndCap    = dbe_->book1D("ChMultiplicity_lowPt_EndCap", "ChMultiplicity_lowPt_EndCap", 60,0,60);
-    mNeutMultiplicity_lowPt_EndCap   = dbe_->book1D("NeutMultiplicity_lowPt_EndCap", "NeutMultiplicity_lowPt_EndCap", 60,0,60);
-    mMuMultiplicity_lowPt_EndCap    = dbe_->book1D("MuMultiplicity_lowPt_EndCap", "MuMultiplicity_lowPt_EndCap", 10,0,10);
-    mChMultiplicity_mediumPt_EndCap    = dbe_->book1D("ChMultiplicity_mediumPt_EndCap", "ChMultiplicity_mediumPt_EndCap", 60,0,60);
-    mNeutMultiplicity_mediumPt_EndCap   = dbe_->book1D("NeutMultiplicity_mediumPt_EndCap", "NeutMultiplicity_mediumPt_EndCap", 60,0,60);
-    mMuMultiplicity_mediumPt_EndCap    = dbe_->book1D("MuMultiplicity_mediumPt_EndCap", "MuMultiplicity_mediumPt_EndCap", 10,0,10);
-    mChMultiplicity_highPt_EndCap    = dbe_->book1D("ChMultiplicity_highPt_EndCap", "ChMultiplicity_highPt_EndCap", 60,0,60);
-    mNeutMultiplicity_highPt_EndCap   = dbe_->book1D("NeutMultiplicity_highPt_EndCap", "NeutMultiplicity_highPt_EndCap", 60,0,60);
-    mMuMultiplicity_highPt_EndCap    = dbe_->book1D("MuMultiplicity_highPt_EndCap", "MuMultiplicity_highPt_EndCap", 10,0,10);
+    mChMultiplicity_lowPt_EndCap    = ibooker.book1D("ChMultiplicity_lowPt_EndCap", "ChMultiplicity_lowPt_EndCap", 60,0,60);
+    mNeutMultiplicity_lowPt_EndCap   = ibooker.book1D("NeutMultiplicity_lowPt_EndCap", "NeutMultiplicity_lowPt_EndCap", 60,0,60);
+    mMuMultiplicity_lowPt_EndCap    = ibooker.book1D("MuMultiplicity_lowPt_EndCap", "MuMultiplicity_lowPt_EndCap", 10,0,10);
+    mChMultiplicity_mediumPt_EndCap    = ibooker.book1D("ChMultiplicity_mediumPt_EndCap", "ChMultiplicity_mediumPt_EndCap", 60,0,60);
+    mNeutMultiplicity_mediumPt_EndCap   = ibooker.book1D("NeutMultiplicity_mediumPt_EndCap", "NeutMultiplicity_mediumPt_EndCap", 60,0,60);
+    mMuMultiplicity_mediumPt_EndCap    = ibooker.book1D("MuMultiplicity_mediumPt_EndCap", "MuMultiplicity_mediumPt_EndCap", 10,0,10);
+    mChMultiplicity_highPt_EndCap    = ibooker.book1D("ChMultiplicity_highPt_EndCap", "ChMultiplicity_highPt_EndCap", 60,0,60);
+    mNeutMultiplicity_highPt_EndCap   = ibooker.book1D("NeutMultiplicity_highPt_EndCap", "NeutMultiplicity_highPt_EndCap", 60,0,60);
+    mMuMultiplicity_highPt_EndCap    = ibooker.book1D("MuMultiplicity_highPt_EndCap", "MuMultiplicity_highPt_EndCap", 10,0,10);
     //forward monitoring
     //energy fraction
-    mHFEFrac_lowPt_Forward    = dbe_->book1D("HFEFrac_lowPt_Forward", "HFEFrac_lowPt_Forward", 140, -0.2, 1.2);
-    mHFHFrac_lowPt_Forward    = dbe_->book1D("HFHFrac_lowPt_Forward", "HFHFrac_lowPt_Forward", 140, -0.2, 1.2);
-    mHFEFrac_mediumPt_Forward = dbe_->book1D("HFEFrac_mediumPt_Forward", "HFEFrac_mediumPt_Forward", 140, -0.2, 1.2);
-    mHFHFrac_mediumPt_Forward = dbe_->book1D("HFHFrac_mediumPt_Forward", "HFHFrac_mediumPt_Forward", 140, -0.2, 1.2);
-    mHFEFrac_highPt_Forward   = dbe_->book1D("HFEFrac_highPt_Forward", "HFEFrac_highPt_Forward", 140, -0.2, 1.2);
-    mHFHFrac_highPt_Forward   = dbe_->book1D("HFHFrac_highPt_Forward", "HFHFrac_highPt_Forward", 140, -0.2, 1.2);
+    mHFEFrac_lowPt_Forward    = ibooker.book1D("HFEFrac_lowPt_Forward", "HFEFrac_lowPt_Forward", 140, -0.2, 1.2);
+    mHFHFrac_lowPt_Forward    = ibooker.book1D("HFHFrac_lowPt_Forward", "HFHFrac_lowPt_Forward", 140, -0.2, 1.2);
+    mHFEFrac_mediumPt_Forward = ibooker.book1D("HFEFrac_mediumPt_Forward", "HFEFrac_mediumPt_Forward", 140, -0.2, 1.2);
+    mHFHFrac_mediumPt_Forward = ibooker.book1D("HFHFrac_mediumPt_Forward", "HFHFrac_mediumPt_Forward", 140, -0.2, 1.2);
+    mHFEFrac_highPt_Forward   = ibooker.book1D("HFEFrac_highPt_Forward", "HFEFrac_highPt_Forward", 140, -0.2, 1.2);
+    mHFHFrac_highPt_Forward   = ibooker.book1D("HFHFrac_highPt_Forward", "HFHFrac_highPt_Forward", 140, -0.2, 1.2);
     //energies
-    mHFEEn_lowPt_Forward    = dbe_->book1D("HFEEn_lowPt_Forward", "HFEEn_lowPt_Forward", ptBin_, 0., ptMax_);
-    mHFHEn_lowPt_Forward    = dbe_->book1D("HFHEn_lowPt_Forward", "HFHEn_lowPt_Forward", ptBin_, 0., ptMax_);
-    mHFEEn_mediumPt_Forward = dbe_->book1D("HFEEn_mediumPt_Forward", "HFEEn_mediumPt_Forward", ptBin_, 0., ptMax_);
-    mHFHEn_mediumPt_Forward = dbe_->book1D("HFHEn_mediumPt_Forward", "HFHEn_mediumPt_Forward", ptBin_, 0., ptMax_);
-    mHFEEn_highPt_Forward   = dbe_->book1D("HFEEn_highPt_Forward", "HFEEn_highPt_Forward", ptBin_, 0., ptMax_);
-    mHFHEn_highPt_Forward   = dbe_->book1D("HFHEn_highPt_Forward", "HFHEn_highPt_Forward", ptBin_, 0., ptMax_);
+    mHFEEn_lowPt_Forward    = ibooker.book1D("HFEEn_lowPt_Forward", "HFEEn_lowPt_Forward", ptBin_, 0., ptMax_);
+    mHFHEn_lowPt_Forward    = ibooker.book1D("HFHEn_lowPt_Forward", "HFHEn_lowPt_Forward", ptBin_, 0., ptMax_);
+    mHFEEn_mediumPt_Forward = ibooker.book1D("HFEEn_mediumPt_Forward", "HFEEn_mediumPt_Forward", ptBin_, 0., ptMax_);
+    mHFHEn_mediumPt_Forward = ibooker.book1D("HFHEn_mediumPt_Forward", "HFHEn_mediumPt_Forward", ptBin_, 0., ptMax_);
+    mHFEEn_highPt_Forward   = ibooker.book1D("HFEEn_highPt_Forward", "HFEEn_highPt_Forward", ptBin_, 0., ptMax_);
+    mHFHEn_highPt_Forward   = ibooker.book1D("HFHEn_highPt_Forward", "HFHEn_highPt_Forward", ptBin_, 0., ptMax_);
     //multiplicities
-    mChMultiplicity_lowPt_Forward     = dbe_->book1D("ChMultiplicity_lowPt_Forward", "ChMultiplicity_lowPt_Forward", 60,0,60);
-    mNeutMultiplicity_lowPt_Forward    = dbe_->book1D("NeutMultiplicity_lowPt_Forward", "NeutMultiplicity_lowPt_Forward", 60,0,60);
-    mChMultiplicity_mediumPt_Forward  = dbe_->book1D("ChMultiplicity_mediumPt_Forward", "ChMultiplicity_mediumPt_Forward", 60,0,60);
-    mNeutMultiplicity_mediumPt_Forward = dbe_->book1D("NeutMultiplicity_mediumPt_Forward", "NeutMultiplicity_mediumPt_Forward", 60,0,60);
-    mChMultiplicity_highPt_Forward    = dbe_->book1D("ChMultiplicity_highPt_Forward", "ChMultiplicity_highPt_Forward", 60,0,60);
-    mNeutMultiplicity_highPt_Forward   = dbe_->book1D("NeutMultiplicity_highPt_Forward", "NeutMultiplicity_highPt_Forward", 60,0,60);
+    mChMultiplicity_lowPt_Forward     = ibooker.book1D("ChMultiplicity_lowPt_Forward", "ChMultiplicity_lowPt_Forward", 60,0,60);
+    mNeutMultiplicity_lowPt_Forward    = ibooker.book1D("NeutMultiplicity_lowPt_Forward", "NeutMultiplicity_lowPt_Forward", 60,0,60);
+    mChMultiplicity_mediumPt_Forward  = ibooker.book1D("ChMultiplicity_mediumPt_Forward", "ChMultiplicity_mediumPt_Forward", 60,0,60);
+    mNeutMultiplicity_mediumPt_Forward = ibooker.book1D("NeutMultiplicity_mediumPt_Forward", "NeutMultiplicity_mediumPt_Forward", 60,0,60);
+    mChMultiplicity_highPt_Forward    = ibooker.book1D("ChMultiplicity_highPt_Forward", "ChMultiplicity_highPt_Forward", 60,0,60);
+    mNeutMultiplicity_highPt_Forward   = ibooker.book1D("NeutMultiplicity_highPt_Forward", "NeutMultiplicity_highPt_Forward", 60,0,60);
     
-    mChargedHadronEnergy = dbe_->book1D("ChargedHadronEnergy", "charged HAD energy",    100, 0, 100);
-    mNeutralHadronEnergy = dbe_->book1D("NeutralHadronEnergy", "neutral HAD energy",    100, 0, 100);
-    mChargedEmEnergy     = dbe_->book1D("ChargedEmEnergy",    "charged EM energy ",    100, 0, 100);
-    mChargedMuEnergy     = dbe_->book1D("ChargedMuEnergy",     "charged Mu energy",     100, 0, 100);
-    mNeutralEmEnergy     = dbe_->book1D("NeutralEmEnergy",     "neutral EM energy",     100, 0, 100);
-    mChargedMultiplicity = dbe_->book1D("ChargedMultiplicity", "charged multiplicity ", 100, 0, 100);
-    mNeutralMultiplicity = dbe_->book1D("NeutralMultiplicity", "neutral multiplicity",  100, 0, 100);
-    mMuonMultiplicity    = dbe_->book1D("MuonMultiplicity",    "muon multiplicity",     100, 0, 100);
+    mChargedHadronEnergy = ibooker.book1D("ChargedHadronEnergy", "charged HAD energy",    100, 0, 100);
+    mNeutralHadronEnergy = ibooker.book1D("NeutralHadronEnergy", "neutral HAD energy",    100, 0, 100);
+    mChargedEmEnergy     = ibooker.book1D("ChargedEmEnergy",    "charged EM energy ",    100, 0, 100);
+    mChargedMuEnergy     = ibooker.book1D("ChargedMuEnergy",     "charged Mu energy",     100, 0, 100);
+    mNeutralEmEnergy     = ibooker.book1D("NeutralEmEnergy",     "neutral EM energy",     100, 0, 100);
+    mChargedMultiplicity = ibooker.book1D("ChargedMultiplicity", "charged multiplicity ", 100, 0, 100);
+    mNeutralMultiplicity = ibooker.book1D("NeutralMultiplicity", "neutral multiplicity",  100, 0, 100);
+    mMuonMultiplicity    = ibooker.book1D("MuonMultiplicity",    "muon multiplicity",     100, 0, 100);
     
     
     // Book NPV profiles
     //----------------------------------------------------------------------------
-    mChargedHadronEnergy_profile = dbe_->bookProfile("ChargedHadronEnergy_profile", "charged HAD energy",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mNeutralHadronEnergy_profile = dbe_->bookProfile("NeutralHadronEnergy_profile", "neutral HAD energy",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mChargedEmEnergy_profile     = dbe_->bookProfile("ChargedEmEnergy_profile",     "charged EM energy",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mChargedMuEnergy_profile     = dbe_->bookProfile("ChargedMuEnergy_profile",     "charged Mu energy",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mNeutralEmEnergy_profile     = dbe_->bookProfile("NeutralEmEnergy_profile",     "neutral EM energy",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mChargedMultiplicity_profile = dbe_->bookProfile("ChargedMultiplicity_profile", "charged multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mNeutralMultiplicity_profile = dbe_->bookProfile("NeutralMultiplicity_profile", "neutral multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mMuonMultiplicity_profile    = dbe_->bookProfile("MuonMultiplicity_profile",    "muon multiplicity",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mChargedHadronEnergy_profile = ibooker.bookProfile("ChargedHadronEnergy_profile", "charged HAD energy",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mNeutralHadronEnergy_profile = ibooker.bookProfile("NeutralHadronEnergy_profile", "neutral HAD energy",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mChargedEmEnergy_profile     = ibooker.bookProfile("ChargedEmEnergy_profile",     "charged EM energy",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mChargedMuEnergy_profile     = ibooker.bookProfile("ChargedMuEnergy_profile",     "charged Mu energy",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mNeutralEmEnergy_profile     = ibooker.bookProfile("NeutralEmEnergy_profile",     "neutral EM energy",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mChargedMultiplicity_profile = ibooker.bookProfile("ChargedMultiplicity_profile", "charged multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mNeutralMultiplicity_profile = ibooker.bookProfile("NeutralMultiplicity_profile", "neutral multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mMuonMultiplicity_profile    = ibooker.bookProfile("MuonMultiplicity_profile",    "muon multiplicity",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
     
     // Set NPV profiles x-axis title
     //----------------------------------------------------------------------------
@@ -724,7 +711,7 @@ void JetAnalyzer::beginJob(void) {
     mNeutralMultiplicity_profile->setAxisTitle("nvtx",1);
     mMuonMultiplicity_profile   ->setAxisTitle("nvtx",1);
     
-    mNeutralFraction     = dbe_->book1D("NeutralConstituentsFraction","Neutral Constituents Fraction",100,0,1);
+    mNeutralFraction     = ibooker.book1D("NeutralConstituentsFraction","Neutral Constituents Fraction",100,0,1);
 
   }
 
@@ -734,13 +721,13 @@ void JetAnalyzer::beginJob(void) {
     //book for each of these selection default histograms
     for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
 	 ic != folderNames_.end(); ic++){
-      bookMESetSelection(DirName+"/"+*ic);
+      bookMESetSelection(DirName+"/"+*ic, ibooker);
     }
   }
 
-  dbe_->setCurrentFolder("JetMET");
-  lumisecME = dbe_->book1D("lumisec", "lumisec", 500, 0., 500.);
-  cleanupME = dbe_->book1D("cleanup", "cleanup", 10, 0., 10.);
+  ibooker.setCurrentFolder("JetMET");
+  lumisecME = ibooker.book1D("lumisec", "lumisec", 500, 0., 500.);
+  cleanupME = ibooker.book1D("cleanup", "cleanup", 10, 0., 10.);
   cleanupME->setBinLabel(1,"Primary Vertex");
   cleanupME->setBinLabel(2,"DCS::Pixel");
   cleanupME->setBinLabel(3,"DCS::SiStrip");
@@ -751,42 +738,42 @@ void JetAnalyzer::beginJob(void) {
   cleanupME->setBinLabel(8,"DCS::HO");
   cleanupME->setBinLabel(9,"DCS::Muon");
 
-  verticesME = dbe_->book1D("vertices", "vertices", 100, 0, 100);
+  verticesME = ibooker.book1D("vertices", "vertices", 100, 0, 100);
 
 
 
 }
 
-void JetAnalyzer::bookMESetSelection(std::string DirName)
+void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker & ibooker)
 {
-  dbe_->setCurrentFolder(DirName);
+  ibooker.setCurrentFolder(DirName);
   // Generic jet parameters
-  mPt           = dbe_->book1D("Pt",           "pt",                 ptBin_,  ptMin_,  ptMax_);
-  mEta          = dbe_->book1D("Eta",          "eta",               etaBin_, etaMin_, etaMax_);
-  mPhi          = dbe_->book1D("Phi",          "phi",               phiBin_, phiMin_, phiMax_);
+  mPt           = ibooker.book1D("Pt",           "pt",                 ptBin_,  ptMin_,  ptMax_);
+  mEta          = ibooker.book1D("Eta",          "eta",               etaBin_, etaMin_, etaMax_);
+  mPhi          = ibooker.book1D("Phi",          "phi",               phiBin_, phiMin_, phiMax_);
   if(!isJPTJet_){
-    mConstituents = dbe_->book1D("Constituents", "# of constituents",     50,      0,    100);
+    mConstituents = ibooker.book1D("Constituents", "# of constituents",     50,      0,    100);
   }
-  mJetEnergyCorr= dbe_->book1D("JetEnergyCorr", "jet energy correction factor", 50, 0.0,3.0);
-  mJetEnergyCorrVSEta= dbe_->bookProfile("JetEnergyCorrVSEta", "jet energy correction factor VS eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
-  mJetEnergyCorrVSPt= dbe_->bookProfile("JetEnergyCorrVSPt", "jet energy correction factor VS pt", ptBin_, ptMin_,ptMax_, 0.0,3.0);
-  mHFrac        = dbe_->book1D("HFrac",        "HFrac",                140,   -0.2,    1.2);
-  mEFrac        = dbe_->book1D("EFrac",        "EFrac",                140,   -0.2,    1.2);
+  mJetEnergyCorr= ibooker.book1D("JetEnergyCorr", "jet energy correction factor", 50, 0.0,3.0);
+  mJetEnergyCorrVSEta= ibooker.bookProfile("JetEnergyCorrVSEta", "jet energy correction factor VS eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
+  mJetEnergyCorrVSPt= ibooker.bookProfile("JetEnergyCorrVSPt", "jet energy correction factor VS pt", ptBin_, ptMin_,ptMax_, 0.0,3.0);
+  mHFrac        = ibooker.book1D("HFrac",        "HFrac",                140,   -0.2,    1.2);
+  mEFrac        = ibooker.book1D("EFrac",        "EFrac",                140,   -0.2,    1.2);
 
-  mDPhi                   = dbe_->book1D("DPhi", "dPhi btw the two leading jets", 100, 0., acos(-1.));
-  mDijetAsymmetry                   = dbe_->book1D("DijetAsymmetry", "DijetAsymmetry", 100, -1., 1.);
-  mDijetBalance                     = dbe_->book1D("DijetBalance",   "DijetBalance",   100, -2., 2.);
+  mDPhi                   = ibooker.book1D("DPhi", "dPhi btw the two leading jets", 100, 0., acos(-1.));
+  mDijetAsymmetry                   = ibooker.book1D("DijetAsymmetry", "DijetAsymmetry", 100, -1., 1.);
+  mDijetBalance                     = ibooker.book1D("DijetBalance",   "DijetBalance",   100, -2., 2.);
 
   // Book NPV profiles
   //----------------------------------------------------------------------------
-  mPt_profile           = dbe_->bookProfile("Pt_profile",           "pt",                nbinsPV_, nPVlow_, nPVhigh_,   ptBin_,  ptMin_,  ptMax_);
-  mEta_profile          = dbe_->bookProfile("Eta_profile",          "eta",               nbinsPV_, nPVlow_, nPVhigh_,  etaBin_, etaMin_, etaMax_);
-  mPhi_profile          = dbe_->bookProfile("Phi_profile",          "phi",               nbinsPV_, nPVlow_, nPVhigh_,  phiBin_, phiMin_, phiMax_);
+  mPt_profile           = ibooker.bookProfile("Pt_profile",           "pt",                nbinsPV_, nPVlow_, nPVhigh_,   ptBin_,  ptMin_,  ptMax_);
+  mEta_profile          = ibooker.bookProfile("Eta_profile",          "eta",               nbinsPV_, nPVlow_, nPVhigh_,  etaBin_, etaMin_, etaMax_);
+  mPhi_profile          = ibooker.bookProfile("Phi_profile",          "phi",               nbinsPV_, nPVlow_, nPVhigh_,  phiBin_, phiMin_, phiMax_);
   if(!isJPTJet_){
-    mConstituents_profile = dbe_->bookProfile("Constituents_profile", "# of constituents", nbinsPV_, nPVlow_, nPVhigh_,      50,      0,    100);
+    mConstituents_profile = ibooker.bookProfile("Constituents_profile", "# of constituents", nbinsPV_, nPVlow_, nPVhigh_,      50,      0,    100);
   }
-  mHFrac_profile        = dbe_->bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
-  mEFrac_profile        = dbe_->bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
+  mHFrac_profile        = ibooker.bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
+  mEFrac_profile        = ibooker.bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
   // met NPV profiles x-axis title
   //----------------------------------------------------------------------------
   mPt_profile          ->setAxisTitle("nvtx",1);
@@ -802,44 +789,44 @@ void JetAnalyzer::bookMESetSelection(std::string DirName)
   //--- Calo jet melection only
   if(isCaloJet_) {
     // CaloJet mpecific
-    mMaxEInEmTowers         = dbe_->book1D("MaxEInEmTowers", "MaxEInEmTowers", 150, 0, 150);
-    mMaxEInHadTowers        = dbe_->book1D("MaxEInHadTowers", "MaxEInHadTowers", 150, 0, 150);
+    mMaxEInEmTowers         = ibooker.book1D("MaxEInEmTowers", "MaxEInEmTowers", 150, 0, 150);
+    mMaxEInHadTowers        = ibooker.book1D("MaxEInHadTowers", "MaxEInHadTowers", 150, 0, 150);
     //JetID variables
-    mresEMF                 = dbe_->book1D("resEMF", "resEMF", 50, 0., 1.);
-    mN90Hits                = dbe_->book1D("N90Hits", "N90Hits", 100, 0., 100);
-    mfHPD                   = dbe_->book1D("fHPD", "fHPD", 50, 0., 1.);
-    mfRBX                   = dbe_->book1D("fRBX", "fRBX", 50, 0., 1.);
+    mresEMF                 = ibooker.book1D("resEMF", "resEMF", 50, 0., 1.);
+    mN90Hits                = ibooker.book1D("N90Hits", "N90Hits", 100, 0., 100);
+    mfHPD                   = ibooker.book1D("fHPD", "fHPD", 50, 0., 1.);
+    mfRBX                   = ibooker.book1D("fRBX", "fRBX", 50, 0., 1.);
     
   }
 
   if(isPFJet_){ 
     //barrel histograms for PFJets
     // energy fractions
-    mCHFrac     = dbe_->book1D("CHFrac", "CHFrac", 120, -0.1, 1.1);
-    mNHFrac     = dbe_->book1D("NHFrac", "NHFrac", 120, -0.1, 1.1);
-    mPhFrac     = dbe_->book1D("PhFrac", "PhFrac", 120, -0.1, 1.1);
-    mElFrac     = dbe_->book1D("ElFrac", "ElFrac", 120, -0.1, 1.1);
-    mMuFrac     = dbe_->book1D("MuFrac", "MuFrac", 120, -0.1, 1.1);
-    mHFEMFrac   = dbe_->book1D("HFEMFrac","HFEMFrac", 120, -0.1, 1.1);
-    mHFHFrac   = dbe_->book1D("HFHFrac", "HFHFrac", 120, -0.1, 1.1);
+    mCHFrac     = ibooker.book1D("CHFrac", "CHFrac", 120, -0.1, 1.1);
+    mNHFrac     = ibooker.book1D("NHFrac", "NHFrac", 120, -0.1, 1.1);
+    mPhFrac     = ibooker.book1D("PhFrac", "PhFrac", 120, -0.1, 1.1);
+    mElFrac     = ibooker.book1D("ElFrac", "ElFrac", 120, -0.1, 1.1);
+    mMuFrac     = ibooker.book1D("MuFrac", "MuFrac", 120, -0.1, 1.1);
+    mHFEMFrac   = ibooker.book1D("HFEMFrac","HFEMFrac", 120, -0.1, 1.1);
+    mHFHFrac   = ibooker.book1D("HFHFrac", "HFHFrac", 120, -0.1, 1.1);
 
-    mChargedMultiplicity = dbe_->book1D("ChargedMultiplicity", "charged multiplicity ", 100, 0, 100);
-    mNeutralMultiplicity = dbe_->book1D("NeutralMultiplicity", "neutral multiplicity",  100, 0, 100);
-    mMuonMultiplicity    = dbe_->book1D("MuonMultiplicity",    "muon multiplicity",     100, 0, 100);
+    mChargedMultiplicity = ibooker.book1D("ChargedMultiplicity", "charged multiplicity ", 100, 0, 100);
+    mNeutralMultiplicity = ibooker.book1D("NeutralMultiplicity", "neutral multiplicity",  100, 0, 100);
+    mMuonMultiplicity    = ibooker.book1D("MuonMultiplicity",    "muon multiplicity",     100, 0, 100);
     
     
     // Book NPV profiles
     //----------------------------------------------------------------------------
-    mCHFrac_profile = dbe_->bookProfile("CHFrac_profile", "charged HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mNHFrac_profile = dbe_->bookProfile("NHFrac_profile", "neutral HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mElFrac_profile    = dbe_->bookProfile("ElFrac_profile",     "Electron Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mMuFrac_profile    = dbe_->bookProfile("MuFrac_profile",     "Muon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mPhFrac_profile    = dbe_->bookProfile("PhFrac_profile",     "Photon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mHFEMFrac_profile  = dbe_->bookProfile("HFEMFrac_profile","HF electomagnetic fraction Profile", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mHFHFrac_profile   = dbe_->bookProfile("HFHFrac_profile", "HF hadronic fraction profile", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    mChargedMultiplicity_profile = dbe_->bookProfile("ChargedMultiplicity_profile", "charged multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mNeutralMultiplicity_profile = dbe_->bookProfile("NeutralMultiplicity_profile", "neutral multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    mMuonMultiplicity_profile    = dbe_->bookProfile("MuonMultiplicity_profile",    "muon multiplicity",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mCHFrac_profile = ibooker.bookProfile("CHFrac_profile", "charged HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mNHFrac_profile = ibooker.bookProfile("NHFrac_profile", "neutral HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mElFrac_profile    = ibooker.bookProfile("ElFrac_profile",     "Electron Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mMuFrac_profile    = ibooker.bookProfile("MuFrac_profile",     "Muon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mPhFrac_profile    = ibooker.bookProfile("PhFrac_profile",     "Photon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mHFEMFrac_profile  = ibooker.bookProfile("HFEMFrac_profile","HF electomagnetic fraction Profile", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mHFHFrac_profile   = ibooker.bookProfile("HFHFrac_profile", "HF hadronic fraction profile", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mChargedMultiplicity_profile = ibooker.bookProfile("ChargedMultiplicity_profile", "charged multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mNeutralMultiplicity_profile = ibooker.bookProfile("NeutralMultiplicity_profile", "neutral multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mMuonMultiplicity_profile    = ibooker.bookProfile("MuonMultiplicity_profile",    "muon multiplicity",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
     
     // met NPV profiles x-axis title
     //----------------------------------------------------------------------------
@@ -854,13 +841,13 @@ void JetAnalyzer::bookMESetSelection(std::string DirName)
     mNeutralMultiplicity_profile->setAxisTitle("nvtx",1);
     mMuonMultiplicity_profile   ->setAxisTitle("nvtx",1);
     
-    mNeutralFraction     = dbe_->book1D("NeutralConstituentsFraction","Neutral Constituents Fraction",100,0,1);
+    mNeutralFraction     = ibooker.book1D("NeutralConstituentsFraction","Neutral Constituents Fraction",100,0,1);
   }
  
 }
 
 // ***********************************************************
-void JetAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   //LogDebug("JetAnalyzer") << "beginRun, run " << run.id();
   //
@@ -899,6 +886,7 @@ void JetAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 // ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  dbe_= edm::Service<DQMStore>().operator->();
   //set general folders first --> change later on for different folders
   if(jetCleaningFlag_){
     dbe_->setCurrentFolder("JetMET/Jet/Cleaned"+mInputCollection_.label());

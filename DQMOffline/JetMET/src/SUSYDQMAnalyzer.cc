@@ -140,51 +140,6 @@ void SUSYDQMAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     //  }
 }
 
-/*
-void SUSYDQMAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-   if( dqm ) {
-    //===========================================================  
-    // book HT histos.
-
-    std::string dir=SUSYFolder;
-    dir+="HT";
-    dqm->setCurrentFolder(dir);
-    hCaloHT = dqm->book1D("Calo_HT", "", 500, 0., 2000);
-    hPFHT   = dqm->book1D("PF_HT"  , "", 500, 0., 2000);
-    hJPTHT  = dqm->book1D("JPT_HT" , "", 500, 0., 2000);
-
-    //===========================================================  
-    // book MET histos.
-
-    dir=SUSYFolder;
-    dir+="MET";
-    dqm->setCurrentFolder(dir);
-    hCaloMET = dqm->book1D("Calo_MET", "", 500, 0., 1000);
-    hPFMET   = dqm->book1D("PF_MET"  , "", 500, 0., 1000);
-    hTCMET   = dqm->book1D("TC_MET"  , "", 500, 0., 1000);
-
-    //===========================================================  
-    // book MHT histos.
-
-    dir=SUSYFolder;
-    dir+="MHT"; 
-    dqm->setCurrentFolder(dir);
-    hCaloMHT = dqm->book1D("Calo_MHT", "", 500, 0., 1000);
-    hPFMHT   = dqm->book1D("PF_MHT"  , "", 500, 0., 1000);
-    hJPTMHT  = dqm->book1D("JPT_MHT" , "", 500, 0., 1000);
-   
-    //===========================================================  
-    // book alpha_T histos.
-
-    dir=SUSYFolder;
-    dir+="Alpha_T";
-    dqm->setCurrentFolder(dir);
-    hCaloAlpha_T = dqm->book1D("Calo_AlphaT", "", 100, 0., 1.);
-    hJPTAlpha_T  = dqm->book1D("PF_AlphaT"  , "", 100, 0., 1.);
-    hPFAlpha_T   = dqm->book1D("JPT_AlphaT"  , "", 100, 0., 1.);
-  } 
-}*/
-
 void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //###########################################################

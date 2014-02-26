@@ -1,6 +1,5 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "DQMOffline/JetMET/interface/JetAnalyzer.h"
 #include "DQMOffline/JetMET/interface/METAnalyzer.h"
 #include "DQMOffline/JetMET/interface/CaloTowerAnalyzer.h"

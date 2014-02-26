@@ -129,14 +129,18 @@ DataCertificationJetMET::endLuminosityBlock(const edm::LuminosityBlock& lumiBloc
 }
 
 // ------------ method called just before starting a new run  ------------
-void 
-DataCertificationJetMET::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
 
-  if (verbose_) std::cout << ">>> BeginRun (DataCertificationJetMET) <<<" << std::endl;
-  //if (verbose_) std::cout << ">>> run = " << run.id() << std::endl;
-
+void DataCertificationJetMET::bookHistograms(DQMStore::IBooker & ibooker,
+				 edm::Run const & iRun,
+				 edm::EventSetup const & ) {
+  reportSummary = ibooker.bookFloat("reportSummary");
+  CertificationSummary = ibooker.bookFloat("CertificationSummary");
+  
+  reportSummaryMap = ibooker.book2D("reportSummaryMap","reportSummaryMap",3,0,3,5,0,5);
+  CertificationSummaryMap = ibooker.book2D("CertificationSummaryMap","CertificationSummaryMap",3,0,3,5,0,5);
 }
+
+
 
 // ------------ method called right after a run ends ------------
 void 
@@ -217,13 +221,13 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   if (verbose_) dbe_->showDirStructure();
 
   //----------
-
+  
   dbe_->setCurrentFolder("JetMET/EventInfo/");    
-  MonitorElement*  reportSummary = dbe_->bookFloat("reportSummary");
-  MonitorElement*  CertificationSummary = dbe_->bookFloat("CertificationSummary");
-
-  MonitorElement*  reportSummaryMap = dbe_->book2D("reportSummaryMap","reportSummaryMap",3,0,3,5,0,5);
-  MonitorElement*  CertificationSummaryMap = dbe_->book2D("CertificationSummaryMap","CertificationSummaryMap",3,0,3,5,0,5);
+  reportSummary = dbe_->get("reportSummary");
+  CertificationSummary = dbe_->get("CertificationSummary");
+  reportSummaryMap = dbe_->get("reportSummaryMap");
+  CertificationSummaryMap = dbe_->get("CertificationSummaryMap");
+  
   reportSummaryMap->getTH2F()->SetStats(kFALSE);
   CertificationSummaryMap->getTH2F()->SetStats(kFALSE);
   reportSummaryMap->getTH2F()->SetOption("colz");

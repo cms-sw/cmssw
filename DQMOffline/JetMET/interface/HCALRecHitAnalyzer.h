@@ -1,4 +1,3 @@
-
 #ifndef HCALRECHITANALYZER_H
 #define HCALRECHITANALYZER_H
 
@@ -13,21 +12,23 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <string>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class HCALRecHitAnalyzer: public edm::EDAnalyzer {
+class HCALRecHitAnalyzer: public DQMEDAnalyzer {
  public:
 
   explicit HCALRecHitAnalyzer(const edm::ParameterSet&);
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   //  virtual void beginJob(void);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  //  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endJob();
-
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) ;
  private:
 
   // DAQ Tools
@@ -42,7 +43,7 @@ class HCALRecHitAnalyzer: public edm::EDAnalyzer {
   std::string FolderName_;
   // Helper Functions
   void FillGeometry(const edm::EventSetup&);
-  virtual void BookHistos();
+
   int Nevents;
 
   //histos

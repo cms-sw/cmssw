@@ -55,14 +55,14 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h" 
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace jetAnalysis {
   class TrackPropagatorToCalo;
   //class StripSignalOverNoiseCalculator;
 }
 
-class JetAnalyzer : public edm::EDAnalyzer {
+class JetAnalyzer : public DQMEDAnalyzer {
  public:
 
   /// Constructor
@@ -71,17 +71,17 @@ class JetAnalyzer : public edm::EDAnalyzer {
   /// Destructor
   virtual ~JetAnalyzer();
   
-  /// Inizialize parameters for histo binning
-  void beginJob(void);
-
+/// Inizialize parameters for histo binning
+//  void beginJob(void);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&);
+ void analyze(const edm::Event&, const edm::EventSetup&);
 
   /// Save the histos
   void endJob(void);
 
   /// Initialize run-based parameters
-  void beginRun(const edm::Run&,  const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&);
 
   /// Finish up a run
   void endRun(const edm::Run&,  const edm::EventSetup&);
@@ -147,7 +147,7 @@ class JetAnalyzer : public edm::EDAnalyzer {
   std::string DirName;
 
   // Book MonitorElements
-  void bookMESetSelection(std::string);
+  void bookMESetSelection(std::string,DQMStore::IBooker &);
   //void bookMonitorElement(std::string, bool);
 
   int    verbose_;

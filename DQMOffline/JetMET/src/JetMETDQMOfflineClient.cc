@@ -47,9 +47,46 @@ void JetMETDQMOfflineClient::endJob()
 
 }
 
-void JetMETDQMOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
+// void JetMETDQMOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
+// {
+// }
+
+void JetMETDQMOfflineClient::bookHistograms(DQMStore::IBooker & ibooker,
+			      edm::Run const & iRun,
+			      edm::EventSetup const & ) {
  
+  ibooker.setCurrentFolder(dirName_+"/"+dirNameMET_);
+  dbe_->setCurrentFolder(dirName_+"/"+dirNameMET_);
+  // Look at all folders (JetMET/MET/CaloMET, JetMET/MET/CaloMETNoHF, etc)
+  std::vector<std::string> fullPathDQMFolders = dbe_->getSubdirs();
+  for(unsigned int i=0;i<fullPathDQMFolders.size();i++) {
+    
+    if (verbose_) std::cout << fullPathDQMFolders[i] << std::endl;      
+    ibooker.setCurrentFolder(fullPathDQMFolders[i]);
+    
+    // Look at all subfolders (JetMET/MET/CaloMET/{All,Cleaup,BeamHaloIDLoosePass, etc})
+    std::vector<std::string> fullPathDQMSubFolders = dbe_->getSubdirs();
+    for(unsigned int j=0;j<fullPathDQMSubFolders.size();j++) {
+      
+      if (verbose_) std::cout << fullPathDQMSubFolders[j] << std::endl;      
+      ibooker.setCurrentFolder(fullPathDQMSubFolders[j]);
+      
+      std::string METMEName="METTask_CaloMET";
+      if ( dbe_->get(fullPathDQMSubFolders[j]+"/"+"METTask_MET") )  METMEName="METTask_MET";
+      if ( dbe_->get(fullPathDQMSubFolders[j]+"/"+"METTask_PfMET")) METMEName="METTask_PfMET";
+      
+      me = dbe_->get(fullPathDQMSubFolders[j]+"/"+METMEName);
+      if ( me->getRootObject() ) {
+	tMET     = me->getTH1F();
+      }
+      int metratebins=tMET->GetNbinsX();
+      float metratemin=tMET->GetXaxis()->GetXmin();
+      float metratemax=tMET->GetXaxis()->GetXmax();
+      hMETRate = ibooker.book1D(METMEName+"Rate",METMEName+"Rate",metratebins,metratemin,metratemax);
+      hMETRate->setTitle(METMEName+" Rate");
+      hMETRate->setAxisTitle("MET Threshold [GeV]",1);
+    }
+  }
 }
 
 
@@ -105,10 +142,8 @@ void JetMETDQMOfflineClient::runClient_()
 
   dbe_->setCurrentFolder(dirName_+"/"+dirNameMET_);
 
-  MonitorElement *me;
-  TH1F *tMET;
   TH1F *tMETRate;
-  MonitorElement *hMETRate;
+  //  MonitorElement *hMETRate;
 
   //
   // --- Producing MET rate plots
@@ -161,13 +196,12 @@ void JetMETDQMOfflineClient::runClient_()
 	  if (totltime){
 	    for (int i=tMETRate->GetNbinsX()-1;i>=0;i--){
 	      tMETRate->SetBinContent(i+1,tMETRate->GetBinContent(i+1)/double(totltime));
+	      hMETRate->Fill(tMETRate->GetBinCenter(i+1),tMETRate->GetBinContent(i+1)/double(totltime));
 	    }
 	  }
 	  if (verbose_) std::cout << "making rate plot done" << std::endl;      
-
-	  hMETRate      = dbe_->book1D(METMEName+"Rate",tMETRate);
- 	  hMETRate->setTitle(METMEName+" Rate");
- 	  hMETRate->setAxisTitle("MET Threshold [GeV]",1);
+	  hMETRate->setTitle(METMEName+" Rate");
+	  hMETRate->setAxisTitle("MET Threshold [GeV]",1);
 	  if (verbose_) std::cout << "booking rate plot ME done" << std::endl;      
 
 	} // me->getRootObject()
@@ -187,7 +221,6 @@ void JetMETDQMOfflineClient::runClient_()
   fullPathDQMFolders.clear();
   fullPathDQMFolders = dbe_->getSubdirs();
   for(unsigned int i=0;i<fullPathDQMFolders.size();i++) {
-
     if (verbose_) std::cout << fullPathDQMFolders[i] << std::endl;      
     dbe_->setCurrentFolder(fullPathDQMFolders[i]);
 
