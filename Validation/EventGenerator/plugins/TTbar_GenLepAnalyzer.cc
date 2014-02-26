@@ -81,11 +81,11 @@ TTbar_GenLepAnalyzer::beginJob()
   hists_["lepPt3"   ] = dbe->book1D("TTbar_lepPt3_"+leps_.label()   , "pt" , 1000,  0., 1000.);
   hists_["lepPt4"   ] = dbe->book1D("TTbar_lepPt4_"+leps_.label()   , "pt" , 1000,  0., 1000.);
 
-  hists_["lepEtaAll"] = dbe->book1D("TTbar_lepEtaAll", "eta",  100, -5.,    5.);
-  hists_["lepEta1"  ] = dbe->book1D("TTbar_lepEta1"  , "eta",  100, -5.,    5.);
-  hists_["lepEta2"  ] = dbe->book1D("TTbar_lepEta2"  , "eta",  100, -5.,    5.);
-  hists_["lepEta3"  ] = dbe->book1D("TTbar_lepEta3"  , "eta",  100, -5.,    5.);
-  hists_["lepEta4"  ] = dbe->book1D("TTbar_lepEta4"  , "eta",  100, -5.,    5.);
+  hists_["lepEtaAll"] = dbe->book1D("TTbar_lepEtaAll"+leps_.label(), "eta",  100, -5.,    5.);
+  hists_["lepEta1"  ] = dbe->book1D("TTbar_lepEta1"+leps_.label()  , "eta",  100, -5.,    5.);
+  hists_["lepEta2"  ] = dbe->book1D("TTbar_lepEta2"+leps_.label()  , "eta",  100, -5.,    5.);
+  hists_["lepEta3"  ] = dbe->book1D("TTbar_lepEta3"+leps_.label()  , "eta",  100, -5.,    5.);
+  hists_["lepEta4"  ] = dbe->book1D("TTbar_lepEta4"+leps_.label()  , "eta",  100, -5.,    5.);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
