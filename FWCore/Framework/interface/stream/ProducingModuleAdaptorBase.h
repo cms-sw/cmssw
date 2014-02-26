@@ -76,6 +76,9 @@ namespace edm {
       void updateLookup(BranchType iBranchType,
                         ProductHolderIndexHelper const&);
 
+      void modulesDependentUpon(const std::string& iProcessName,
+                                std::vector<const char*>& oModuleLabels) const;
+
 
     protected:
       template<typename F> void createStreamModules(F iFunc) {
