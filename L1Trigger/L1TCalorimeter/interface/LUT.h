@@ -8,6 +8,8 @@
 ///    address and output is masked to specifed number of bits
 ///    vector only allocates as necessary, eg we may have a 32 bit address but we obviously dont want to allocate a 4gb vector 
 ///
+/// Error handling: currently waiting guidance on how to deal with this
+/// Exceptions are currently forbiden, emulator fails should not impact on the rest of the software chain. As such, everything silently fails gracefully
 /// \author: Sam Harper - RAL, Jim Brooke - Bristol
 ///
 
@@ -47,7 +49,7 @@ namespace l1t{
 	
     ~LUT(){}
     
-    int data(unsigned int address)const{return dataMask_ & data_.at(addressMask_&address);}
+    int data(unsigned int address)const{return (address&addressMask_)<data_.size() ? dataMask_ & data_[addressMask_&address] : 0;}
     bool read(std::istream& stream);
     void write(std::ostream& stream)const;
 
