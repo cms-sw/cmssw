@@ -232,6 +232,8 @@ class AddJetCollection(ConfigToolBase):
             ## expand tagInfos to what is explicitely required by user + implicit
             ## requirements that come in from one or the other discriminator
             requiredTagInfos = list(btagInfos)
+            if len(requiredTagInfos) > 0 :
+                _newPatJets.addTagInfos = True
             for btagDiscr in btagDiscriminators :
                 for requiredTagInfo in supportedBtagDiscr[btagDiscr] :
                     tagInfoCovered = False
@@ -247,6 +249,7 @@ class AddJetCollection(ConfigToolBase):
             process.load("RecoBTag.Configuration.RecoBTag_cff")
 	    #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
             import RecoBTag.Configuration.RecoBTag_cff as btag
+            import RecoJets.JetProducers.caTopTaggers_cff as toptag
 
             ## prepare setups for simple secondary vertex infos
             setattr(process, "simpleSecondaryVertex2Trk", simpleSecondaryVertex2Trk)
@@ -273,7 +276,9 @@ class AddJetCollection(ConfigToolBase):
                     if btagInfo == 'softPFMuonsTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.softPFMuonsTagInfos.clone(jets = jetSource))
                     if btagInfo == 'softPFElectronsTagInfos':
-                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource))
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource))                        
+                    acceptedTagInfos.append(btagInfo)
+                elif hasattr(toptag, btagInfo) :
                     acceptedTagInfos.append(btagInfo)
                 else:
                     print '  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo)
@@ -298,6 +303,9 @@ class AddJetCollection(ConfigToolBase):
                     process.load( 'RecoBTag.SecondaryVertex.secondaryVertex_cff' )
                 if not hasattr( process, 'bToCharmDecayVertexMerged' ):
                     process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )
+            if 'CATopTagInfos' in acceptedTagInfos :
+                if not hasattr( process, 'CATopTagInfos' ):
+                    process.load( 'RecoJets.JetProducers.CATopTagInfos_cff' )
         else:
             _newPatJets.addBTagInfo = False
             ## adjust output module; these collections will be empty anyhow, but we do it to stay clean
