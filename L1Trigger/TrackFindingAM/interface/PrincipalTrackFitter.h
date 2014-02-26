@@ -44,6 +44,7 @@ class PrincipalTrackFitter:public TrackFitter{
   void mergePatterns();
   void mergeTracks();
   void fit();
+  void fit(vector<Hit*> hits);
   TrackFitter* clone();
 
   void addTrackForPrincipal(int* tracker, double* coord);

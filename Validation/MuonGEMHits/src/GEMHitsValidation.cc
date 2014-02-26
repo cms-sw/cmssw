@@ -103,6 +103,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     Int_t layer = id.layer();
     Int_t roll = id.roll();
 
+
     const LocalPoint p0(0., 0., 0.);
     const GlobalPoint Gp0(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(p0));
     const LocalPoint hitLP(hits->localPosition());

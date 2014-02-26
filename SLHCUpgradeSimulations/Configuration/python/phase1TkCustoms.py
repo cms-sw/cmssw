@@ -28,7 +28,7 @@ def customise(process):
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
-        process=customise_Validation(process,float(n))
+        process=customise_Validation(process)
     process=customise_condOverRides(process)
     
     return process
@@ -89,32 +89,35 @@ def customise_DQM(process,pileup):
         process=customise_trackMon_IterativeTracking_PHASE1PU70(process)
     return process
 
-def customise_Validation(process,pileup):
+def customise_Validation(process):
     process.validation_step.remove(process.PixelTrackingRecHitsValid)
     # We don't run the HLT
     process.validation_step.remove(process.HLTSusyExoVal)
     process.validation_step.remove(process.hltHiggsValidator)
     process.validation_step.remove(process.relvalMuonBits)
-    if pileup>30:
-        process.trackValidator.label=cms.VInputTag(cms.InputTag("cutsRecoTracksHp"))
-        process.tracksValidationSelectors = cms.Sequence(process.cutsRecoTracksHp)
-        process.globalValidation.remove(process.recoMuonValidation)
-        process.validation.remove(process.recoMuonValidation)
-        process.validation_preprod.remove(process.recoMuonValidation)
-        process.validation_step.remove(process.recoMuonValidation)
-        process.validation.remove(process.globalrechitsanalyze)
-        process.validation_prod.remove(process.globalrechitsanalyze)
-        process.validation_step.remove(process.globalrechitsanalyze)
-        process.validation.remove(process.stripRecHitsValid)
-        process.validation_step.remove(process.stripRecHitsValid)
-        process.validation_step.remove(process.StripTrackingRecHitsValid)
-        process.globalValidation.remove(process.vertexValidation)
-        process.validation.remove(process.vertexValidation)
-        process.validation_step.remove(process.vertexValidation)
-        process.mix.input.nbPileupEvents.averageNumber = cms.double(0.0)
-        process.mix.minBunch = cms.int32(0)
-        process.mix.maxBunch = cms.int32(0)
+    return process
 
+def customise_Validation_Trackingonly(process):
+
+    #To allow Tracking to perform special tracking only validation 
+    process.trackValidator.label=cms.VInputTag(cms.InputTag("cutsRecoTracksHp"))
+    process.tracksValidationSelectors = cms.Sequence(process.cutsRecoTracksHp)
+    process.globalValidation.remove(process.recoMuonValidation)
+    process.validation.remove(process.recoMuonValidation)
+    process.validation_preprod.remove(process.recoMuonValidation)
+    process.validation_step.remove(process.recoMuonValidation)
+    process.validation.remove(process.globalrechitsanalyze)
+    process.validation_prod.remove(process.globalrechitsanalyze)
+    process.validation_step.remove(process.globalrechitsanalyze)
+    process.validation.remove(process.stripRecHitsValid)
+    process.validation_step.remove(process.stripRecHitsValid)
+    process.validation_step.remove(process.StripTrackingRecHitsValid)
+    process.globalValidation.remove(process.vertexValidation)
+    process.validation.remove(process.vertexValidation)
+    process.validation_step.remove(process.vertexValidation)
+    process.mix.input.nbPileupEvents.averageNumber = cms.double(0.0)
+    process.mix.minBunch = cms.int32(0)
+    process.mix.maxBunch = cms.int32(0)
     return process
 
 def customise_harvesting(process):

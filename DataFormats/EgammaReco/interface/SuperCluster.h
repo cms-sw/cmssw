@@ -7,7 +7,6 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.26 2013/04/12 12:05:18 argiro Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -19,7 +18,6 @@
 namespace reco {
   class SuperCluster : public CaloCluster {
   public:
-
     typedef math::XYZPoint Point;
 
     /// default constructor
@@ -67,6 +65,12 @@ namespace reco {
     /// seed BasicCluster
     const CaloClusterPtr & seed() const { return seed_; }
 
+    /// const access to the cluster list itself
+    const CaloClusterPtrVector& clusters() const { return clusters_; }
+
+    /// const access to the preshower cluster list itself
+    const CaloClusterPtrVector& preshowerClusters() const { return preshowerClusters_; }
+
     /// fist iterator over BasicCluster constituents
     CaloCluster_iterator clustersBegin() const { return clusters_.begin(); }
 
@@ -77,10 +81,13 @@ namespace reco {
     CaloCluster_iterator preshowerClustersBegin() const { return preshowerClusters_.begin(); }
 
     /// last iterator over PreshowerCluster constituents
-    CaloCluster_iterator preshowerClustersEnd() const { return preshowerClusters_.end(); }
+    CaloCluster_iterator preshowerClustersEnd() const { return preshowerClusters_.end(); }    
 
     /// number of BasicCluster constituents
     size_t clustersSize() const { return clusters_.size(); }
+
+    /// number of BasicCluster PreShower constituents
+    size_t preshowerClustersSize() const { return preshowerClusters_.size(); }
 
     /// list of used xtals by DetId // now inherited by CaloCluster
     //std::vector<DetId> getHitsByDetId() const { return usedHits_; }
@@ -88,14 +95,23 @@ namespace reco {
     /// set reference to seed BasicCluster
     void setSeed( const CaloClusterPtr & r ) { seed_ = r; }
 
+    //(re)-set clusters
+    void setClusters(const CaloClusterPtrVector &clusters) { 
+      clusters_ = clusters;
+      computeRawEnergy();
+    }
+    
+    //(re)-set preshower clusters
+    void setPreshowerClusters(const CaloClusterPtrVector &clusters) { preshowerClusters_ = clusters; }
+    
     /// add reference to constituent BasicCluster
     void addCluster( const CaloClusterPtr & r ) { 
       clusters_.push_back( r ); 
       computeRawEnergy();
-    }
+    }    
 
     /// add reference to constituent BasicCluster
-    void addPreshowerCluster( const CaloClusterPtr & r ) { preshowerClusters_.push_back( r ); }
+    void addPreshowerCluster( const CaloClusterPtr & r ) { preshowerClusters_.push_back( r ); }    
 
     /** Set preshower planes status :
         0 : both planes working

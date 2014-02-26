@@ -10,9 +10,9 @@ namespace csctf_analysis
 
 	TFileDirectory dir = fs->mkdir(dirname);
 	
-	double maxpt=parameters->getUntrackedParameter<double>("MaxPtHist");
-	double minpt=parameters->getUntrackedParameter<double>("MinPtHist");
-	int ptbins=parameters->getUntrackedParameter<double>("BinsPtHist");
+	// double maxpt=parameters->getUntrackedParameter<double>("MaxPtHist");
+	// double minpt=parameters->getUntrackedParameter<double>("MinPtHist");
+	// int ptbins=parameters->getUntrackedParameter<double>("BinsPtHist");
 
 	
 	PtQ1Res = dir.make<TH1F>("PtQ1Res","Pt Q>=1 Resolution",300,-1.5,1.5);

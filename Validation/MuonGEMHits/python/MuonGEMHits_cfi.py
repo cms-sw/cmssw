@@ -15,3 +15,4 @@ gemHitsValidation = cms.EDAnalyzer('MuonGEMHits',
        gemMaxEta = cms.untracked.double(2.5)
     )
 )
+

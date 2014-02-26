@@ -22,6 +22,9 @@ Track::Track(const Track& ref){
   phi0  = ref.phi0;
   eta0  = ref.eta0;
   z0    = ref.z0;
+  for(unsigned int i=0;i<ref.stub_ids.size();i++){
+    stub_ids.push_back(ref.stub_ids[i]);
+  }
 }
 
 void Track::setCurve(double c){
@@ -43,6 +46,20 @@ void Track::setEta0(double p_a){
 void Track::setZ0(double p_b){
   z0=p_b;
 }
+
+void Track::addStubIndex(short s){
+  if(s>=0)
+    stub_ids.push_back(s);
+}
+
+vector<short> Track::getStubs(){
+  return stub_ids;
+}
+
+void Track::clearStubList(){
+  stub_ids.clear();
+}
+
 
 double Track::getCurve(){
   return curve;

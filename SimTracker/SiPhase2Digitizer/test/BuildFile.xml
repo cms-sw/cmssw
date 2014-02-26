@@ -1,0 +1,20 @@
+<use   name="boost"/>
+<use   name="root"/>
+<use   name="SimDataFormats/TrackingHit"/>
+<use   name="SimDataFormats/TrackerDigiSimLink"/>
+<use   name="SimDataFormats/CrossingFrame"/>
+<use   name="DataFormats/SiPixelDigi"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/DetId"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="DQMServices/Core"/>
+<use name="classlib"/>
+<library   file="*.cc" name="SiPhase2DigiTest">
+  <flags   EDM_PLUGIN="1"/>
+  <flags CXXFLAGS="-g3"/>
+</library>

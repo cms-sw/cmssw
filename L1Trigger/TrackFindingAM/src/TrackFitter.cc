@@ -53,3 +53,7 @@ void TrackFitter::setPhiRotation(double rot){
 double TrackFitter::getPhiRotation(){
   return sec_phi;
 }
+
+void TrackFitter::setSectorID(int id){
+  sector_id = id;
+}

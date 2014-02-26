@@ -1,11 +1,16 @@
 #ifndef RecoParticleFlow_PFClusterProducer_PFClusterAlgo_h
 #define RecoParticleFlow_PFClusterProducer_PFClusterAlgo_h
 
+
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
+
+// for E/gamma position calc
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
 #include <string>
 #include <vector>
@@ -28,9 +33,35 @@ class TH2F;
   \author Colin Bernet, Patrick Janot
   \date July 2006
 */
+
+namespace edm {
+  template<> 
+  struct StrictWeakOrdering<reco::PFRecHit> {   
+    typedef unsigned key_type;
+    bool operator()(unsigned a, reco::PFRecHit const& b) const { 
+      return a < b.detId(); 
+    }
+    bool operator()(reco::PFRecHit const& a, unsigned b) const { 
+      return a.detId() < b; 
+    }
+    bool operator()(reco::PFRecHit const& a, reco::PFRecHit const& b) const { 
+      return ( a.detId() < b.detId()  ); 
+    }
+  };
+}
+
 class PFClusterAlgo {
 
  public:
+
+  typedef edm::StrictWeakOrdering<reco::PFRecHit> PFStrictWeakOrdering;
+  typedef edm::SortedCollection<reco::PFRecHit> SortedPFRecHitCollection;
+  typedef edm::Handle<edm::View<reco::PFCluster> > PFClusterHandle;
+
+  enum PositionCalcType { EGPositionCalc,
+			  EGPositionFormula,			  
+			  PFPositionCalc,
+			  kNotDefined };
 
   /// constructor
   PFClusterAlgo();
@@ -49,12 +80,14 @@ class PFClusterAlgo {
   
   /// perform clustering
   void doClustering( const reco::PFRecHitCollection& rechits );
-  void doClustering( const reco::PFRecHitCollection& rechits, const std::vector<bool> & mask );
+  void doClustering( const reco::PFRecHitCollection& rechits, 
+		     const std::vector<bool> & mask );
 
   /// perform clustering in full framework
-  void doClustering( const PFRecHitHandle& rechitsHandle );
-  void doClustering( const PFRecHitHandle& rechitsHandle, const std::vector<bool> & mask );
-  
+  void doClustering( const PFRecHitHandle& rechitsHandle );  
+  void doClustering( const PFRecHitHandle& rechitsHandle, 
+		     const std::vector<bool> & mask );
+    
   /// setters -------------------------------------------------------
   
   /// set barrel threshold
@@ -94,6 +127,26 @@ class PFClusterAlgo {
 
   /// set number of neighbours for  
   void setNNeighbours(int n) { nNeighbours_ = n;}
+
+  // set position calculation variant
+  void setPositionCalcType( const PositionCalcType& t ) {which_pos_calc_ = t;}
+
+  // setup E/gamma position calc
+  void setEGammaPosCalc( const edm::ParameterSet& conf ) { 
+    eg_pos_calc.reset(new PositionCalc(conf));
+  }
+  void setEBGeom(const CaloSubdetectorGeometry* esh) {
+    eb_geom = esh;
+  }
+  void setEEGeom(const CaloSubdetectorGeometry* esh) {
+    ee_geom = esh;
+  }
+  void setPreshowerGeom(const CaloSubdetectorGeometry* esh) {
+    preshower_geom = esh;
+  }
+
+  // set W0 parameter for EG-type position formula
+  void setPosCalcW0( double w0 ) { param_W0_ = w0; }
 
   /// set p1 for position calculation
   void setPosCalcP1( double p1 ) { posCalcP1_ = p1; }
@@ -137,7 +190,7 @@ class PFClusterAlgo {
 
   /// get shower sigma
   double showerSigma() const { return showerSigma_ ;}
-
+  
   /// write histos
   void write();
   /// ----------------------------------------------------------------
@@ -170,7 +223,7 @@ class PFClusterAlgo {
   /// \return cleaned rechits
   std::auto_ptr< std::vector< reco::PFRecHit > >& rechitsCleaned()  
     {return pfRecHitsCleaned_;}
-
+  
   /// \return threshold, seed threshold, (gaussian width, p1 ??)
   /// for a given zone (endcap, barrel, VFCAL ??)
 
@@ -184,7 +237,6 @@ class PFClusterAlgo {
                    DOUBLESPIKE_S6S2
   };
   
-
   /// \return the value of a parameter of a given type, see enum Parameter,
   /// in a given layer. 
     double parameter( Parameter paramtype, PFLayer::Layer layer, unsigned iCoeff = 0, int iring0=0) const; 
@@ -206,7 +258,7 @@ class PFClusterAlgo {
 
  private:
   /// perform clustering
-  void doClusteringWorker( const reco::PFRecHitCollection& rechits );
+  void doClusteringWorker( const reco::PFRecHitCollection& rechits );  
 
   /// Clean HCAL readout box noise and HPD discharge
   void cleanRBXAndHPD( const reco::PFRecHitCollection& rechits );
@@ -240,10 +292,11 @@ class PFClusterAlgo {
   void paint( unsigned rhi, unsigned color=1 );
 
   /// distance to a crack in the ECAL barrel in eta and phi direction
-  std::pair<double,double> dCrack(double phi, double eta);
-  
+  std::pair<double,double> dCrack(double phi, double eta);  
 
   PFRecHitHandle           rechitsHandle_;   
+  // for E\gamma Position calc
+  std::auto_ptr<SortedPFRecHitCollection> sortedRecHits_; 
 
   /// ids of rechits used in seed search
   std::set<unsigned>       idUsedRecHits_;
@@ -277,8 +330,8 @@ class PFClusterAlgo {
   std::auto_ptr< std::vector<reco::PFCluster> > pfClusters_;
   
   /// particle flow rechits cleaned
-  std::auto_ptr< std::vector<reco::PFRecHit> > pfRecHitsCleaned_;
-  
+  std::auto_ptr< std::vector<reco::PFRecHit> > pfRecHitsCleaned_;  
+
   ///  barrel threshold
   double threshBarrel_;
   double threshPtBarrel_;
@@ -318,7 +371,11 @@ class PFClusterAlgo {
   int    posCalcNCrystal_;
 
   /// parameter for position calculation  
+  PositionCalcType which_pos_calc_;
   double posCalcP1_;
+  double param_W0_; // for EG position calc variant
+  std::auto_ptr<PositionCalc> eg_pos_calc; //directly use E/gamma pos calc
+  const CaloSubdetectorGeometry *eb_geom, *ee_geom, *preshower_geom;
 
   /// sigma of shower (cm)
   double showerSigma_;

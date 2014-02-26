@@ -21,7 +21,7 @@ HcalDDDSimConstants::HcalDDDSimConstants() : tobeInitialized(true) {
 
 }
 
-HcalDDDSimConstants::HcalDDDSimConstants(const DDCompactView& cpv) : tobeInitialized(false) {
+HcalDDDSimConstants::HcalDDDSimConstants(const DDCompactView& cpv) : tobeInitialized(true) {
 
 #ifdef DebugLog
   edm::LogInfo("HCalGeom") << "HcalDDDSimConstants::HcalDDDSimConstants ( const DDCompactView& cpv ) constructor";
@@ -47,6 +47,7 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside,
 						 int depth, int etaR,
 						 int iphi) const {
 
+  checkInitialized();
   double etaMn = etaMin[0];
   double etaMx = etaMax[0];
   if (idet==static_cast<int>(HcalEndcap)) {
@@ -239,6 +240,7 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(int det, int etaR, int phi,
 double HcalDDDSimConstants::getEtaHO(double& etaR, double& x, double& y, 
 				     double& z) const {
 
+  checkInitialized();
   if (zho.size() > 4) {
     double eta  = fabs(etaR);
     double r    = std::sqrt(x*x+y*y);
@@ -261,8 +263,21 @@ double HcalDDDSimConstants::getEtaHO(double& etaR, double& x, double& y,
   }
 }
 
+std::vector<double> HcalDDDSimConstants::getEtaTableHF() const {
+
+  checkInitialized();
+  std::vector<double> etas;
+  for (unsigned int i=0; i<rTable.size(); ++i) {
+    unsigned int k = rTable.size()-i-1;
+    double eta = -log(tan(0.5*atan(rTable[k]/zVcal)));
+    etas.push_back(eta);
+  }
+  return etas;
+}
+
 std::pair<int,int> HcalDDDSimConstants::getModHalfHBHE(const int type) const {
 
+  checkInitialized();
   if (type == 0) {
     return std::pair<int,int>(nmodHB,nzHB);
   } else {
@@ -272,6 +287,7 @@ std::pair<int,int> HcalDDDSimConstants::getModHalfHBHE(const int type) const {
 
 std::pair<double,double> HcalDDDSimConstants::getPhiCons(int det, int ieta) {
 
+  checkInitialized();
   double fioff(0), fibin(0);
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
     fioff   = phioff[2];
@@ -333,6 +349,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes() const{
 std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector subdet,
 							     int ieta, int depthl) const {
 
+  checkInitialized();
   std::vector<HcalCellType> cellTypes;
   if (subdet == HcalForward) {
     if (dzVcal < 0) return cellTypes;
@@ -399,34 +416,35 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector sub
 
 void HcalDDDSimConstants::initialize(const DDCompactView& cpv) {
 
-  tobeInitialized = false;
+  if (tobeInitialized) {
+    tobeInitialized = false;
 
-  std::string attribute = "OnlyForHcalSimNumbering"; 
-  std::string value     = "any";
-  DDValue val(attribute, value, 0.0);
+    std::string attribute = "OnlyForHcalSimNumbering"; 
+    std::string value     = "any";
+    DDValue val(attribute, value, 0.0);
   
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, DDSpecificsFilter::not_equals,
-		     DDSpecificsFilter::AND, true, // compare strings otherwise doubles
-		     true  // use merged-specifics or simple-specifics
-		     );
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool ok = fv.firstChild();
+    DDSpecificsFilter filter;
+    filter.setCriteria(val, DDSpecificsFilter::not_equals,
+		       DDSpecificsFilter::AND, true, // compare strings otherwise doubles
+		       true  // use merged-specifics or simple-specifics
+		       );
+    DDFilteredView fv(cpv);
+    fv.addFilter(filter);
+    bool ok = fv.firstChild();
 
-  if (ok) {
-    //Load the SpecPars
-    loadSpecPars(fv);
+    if (ok) {
+      //Load the SpecPars
+      loadSpecPars(fv);
 
-    //Load the Geometry parameters
-    loadGeometry(fv);
-  } else {
-    edm::LogError("HCalGeom") << "HcalDDDSimConstants: cannot get filtered "
-			      << " view for " << attribute << " not matching "
-			      << value;
-    throw cms::Exception("DDException") << "HcalDDDSimConstants: cannot match " << attribute << " to " << value;
+      //Load the Geometry parameters
+      loadGeometry(fv);
+    } else {
+      edm::LogError("HCalGeom") << "HcalDDDSimConstants: cannot get filtered "
+				<< " view for " << attribute << " not matching "
+				<< value;
+      throw cms::Exception("DDException") << "HcalDDDSimConstants: cannot match " << attribute << " to " << value;
+    }
   }
-
 }
 
 unsigned int HcalDDDSimConstants::numberOfCells(HcalSubdetector subdet) const{
@@ -484,6 +502,7 @@ void HcalDDDSimConstants::printTiles() const {
 
 int HcalDDDSimConstants::unitPhi(int det, int etaR) const {
 
+  checkInitialized();
   double dphi = (det == static_cast<int>(HcalForward)) ? phitable[etaR-etaMin[2]] : phibin[etaR-1];
   return unitPhi(dphi);
 }
@@ -497,7 +516,7 @@ int HcalDDDSimConstants::unitPhi(double dphi) const {
 
 void HcalDDDSimConstants::checkInitialized() const {
   if (tobeInitialized) {
-    edm::LogError("HcalGeom") << "HcalDDDSimConstants : ro be initialized correctly";
+    edm::LogError("HcalGeom") << "HcalDDDSimConstants : to be initialized correctly";
     throw cms::Exception("DDException") << "HcalDDDSimConstants: to be initialized";
   }
 } 

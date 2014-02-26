@@ -298,14 +298,27 @@ def createParallelMergeScript( path, validations ):
 
         # introduced to merge individual validation outputs separately
         #  -> avoids problems with merge script
-        repMap["haddLoop"] = ""
+        repMap["haddLoop"] = "mergeRetCode=0\n"
+        repMap["rmUnmerged"] = "if [[ mergeRetCode -eq 0 ]]; then\n"
         for validation in comparisonLists["OfflineValidationParallel"]:
             repMap["haddLoop"] = validation.appendToMergeParJobs(repMap["haddLoop"])
+            repMap["haddLoop"] += "tmpMergeRetCode=${?}\n"
+            repMap["haddLoop"] += ("if [[ mergeRetCode -eq 0 ]]; "
+                                   "then mergeRetCode=${tmpMergeRetCode}; "
+                                   "fi\n")
             repMap["haddLoop"] += ("cmsStage -f "
                                    +validation.getRepMap()["outputFile"]
                                    +" "
                                    +validation.getRepMap()["resultFile"]
                                    +"\n")
+            for f in validation.outputFiles:
+                longName = os.path.join("/store/caf/user/$USER/",
+                                        validation.getRepMap()["eosdir"], f)
+                repMap["rmUnmerged"] += "    cmsRm "+longName+"\n"
+        repMap["rmUnmerged"] += ("else\n"
+                                 "    echo \"WARNING: Merging failed, unmerged"
+                                 " files won't be deleted.\"\n"
+                                 "fi\n")
 
         repMap["RunExtendedOfflineValidation"] = \
             replaceByMap(configTemplates.extendedValidationExecution, repMap)

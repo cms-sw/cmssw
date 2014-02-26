@@ -27,7 +27,6 @@ static const float AVERAGE_GEM_Z(568.6); // [cm]
 class BaseMatcher
 {
 public:
-  
   BaseMatcher(const SimTrack& t, const SimVertex& v,
       const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es);
 

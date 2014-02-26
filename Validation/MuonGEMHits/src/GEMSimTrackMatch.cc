@@ -13,7 +13,6 @@ GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , ed
    maxEta_ = cfg_.getUntrackedParameter<double>("gemMaxEta",2.18);
 }
 
-
 void GEMSimTrackMatch::bookHisto() 
 {
    buildLUT();
