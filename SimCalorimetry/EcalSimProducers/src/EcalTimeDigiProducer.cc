@@ -27,6 +27,12 @@ EcalTimeDigiProducer::EcalTimeDigiProducer( const edm::ParameterSet& params, edm
 {
    mixMod.produces<EcalTimeDigiCollection>(m_EBdigiCollection);
    mixMod.produces<EcalTimeDigiCollection>(m_EEdigiCollection);
+
+   m_BarrelDigitizer = new EcalTimeMapDigitizer(EcalBarrel);
+   m_EndcapDigitizer = new EcalTimeMapDigitizer(EcalEndcap);
+
+   m_BarrelDigitizer->setTimeLayerId(m_timeLayerEB);
+   m_EndcapDigitizer->setTimeLayerId(m_timeLayerEE);
 }
 
 EcalTimeDigiProducer::~EcalTimeDigiProducer() 
@@ -36,14 +42,15 @@ EcalTimeDigiProducer::~EcalTimeDigiProducer()
 void
 EcalTimeDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetup const& eventSetup) {
    checkGeometry( eventSetup );
-//    checkCalibrations( event, eventSetup );
+   //    checkCalibrations( event, eventSetup );
+   // here the methods to clean the maps
    m_BarrelDigitizer->initializeMap();
    m_EndcapDigitizer->initializeMap();
 }
 
 void
 EcalTimeDigiProducer::accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, int bunchCrossing) {
-
+  // accumulate the simHits and do the averages in a given layer per bunch crossing
   if(ebHandle.isValid()) {
     m_BarrelDigitizer->add(*ebHandle.product(), bunchCrossing);
   }
@@ -89,8 +96,7 @@ EcalTimeDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& ev
    std::auto_ptr<EcalTimeDigiCollection> barrelResult   ( new EcalTimeDigiCollection() ) ;
    std::auto_ptr<EcalTimeDigiCollection> endcapResult   ( new EcalTimeDigiCollection() ) ;
    
-   // run the algorithm
-
+   // here basically just put everything in the final collections
    m_BarrelDigitizer->run( *barrelResult ) ;
 
    edm::LogInfo("TimeDigiInfo") << "EB time Digis: " << barrelResult->size() ;
