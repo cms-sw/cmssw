@@ -73,18 +73,28 @@ process.digiStep = cms.Sequence(
     *process.hcalDigis
 )
 
-process.simGctDigis = cms.Sequence(
-    process.RCTConverter
-    *process.caloStage1
-    *process.GCTConverter
-)
+# process.simGctDigis = cms.Sequence(
+#     process.RCTConverter
+#     *process.caloStage1
+#     *process.GCTConverter
+# )
+
+process.SimL1Emulator = cms.Sequence(
+    process.simRctDigis +
+    #process.simGctDigis +
+    process.RCTConverter +
+    process.caloStage1 +
+    process.GCTConverter +
+    process.SimL1MuTriggerPrimitives +
+    process.SimL1MuTrackFinders +
+    process.simRpcTriggerDigis +
+    process.simGmtDigis +
+    process.SimL1TechnicalTriggers +
+    process.simGtDigis )
 
 process.p1 = cms.Path(
     process.digiStep
     *process.SimL1Emulator
-#    * process.debug
-#    *process.dumpED
-#    *process.dumpES
     )
 
 process.output_step = cms.EndPath(process.output)
