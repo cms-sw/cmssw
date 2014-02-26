@@ -1,4 +1,5 @@
 #include "Mixing/Base/src/SecondaryEventProvider.h"
+#include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -6,9 +7,9 @@
 namespace edm {
   SecondaryEventProvider::SecondaryEventProvider(std::vector<ParameterSet>& psets,
                      ProductRegistry& preg,
-                     ExceptionToActionTable const& actions,
                      boost::shared_ptr<ProcessConfiguration> processConfiguration) :
-    workerManager_(boost::shared_ptr<ActivityRegistry>(new ActivityRegistry), actions) {
+    exceptionToActionTable_(new ExceptionToActionTable),
+    workerManager_(boost::shared_ptr<ActivityRegistry>(new ActivityRegistry), *exceptionToActionTable_) {
     std::vector<std::string> shouldBeUsedLabels;
     std::set<std::string> unscheduledLabels;
     const PreallocationConfiguration preallocConfig;

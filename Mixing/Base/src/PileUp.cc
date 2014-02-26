@@ -62,7 +62,7 @@ namespace edm {
 
     if(pset.existsAs<std::vector<ParameterSet> >("producers", true)) {
       std::vector<ParameterSet> producers = pset.getParameter<std::vector<ParameterSet> >("producers");
-      provider_.reset(new SecondaryEventProvider(producers, *productRegistry_, ExceptionToActionTable(), processConfiguration_));
+      provider_.reset(new SecondaryEventProvider(producers, *productRegistry_, processConfiguration_));
     }
 
     productRegistry_->setFrozen();
