@@ -37,7 +37,7 @@ using namespace reco;
 using namespace math;
 
 // ***********************************************************
-METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet/*, ConsumesCollector&& iC*/) {
+METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   parameters = pSet;
 
   outputMEsInRootFile   = parameters.getParameter<bool>("OutputMEsInRootFile");
@@ -130,6 +130,12 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet/*, ConsumesCollector&& iC
     triggerFolderLabels_.push_back(it->getParameter<std::string>("label"));
   }
 
+ cleaningParameters_ = parameters.getParameter<ParameterSet>("CleaningParameters");
+
+  verbose_      = parameters.getParameter<int>("verbose");
+
+  FolderName_              = parameters.getUntrackedParameter<std::string>("FolderName");
+
 //  edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
 //  edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
 //  edm::ParameterSet minbiasparms   = parameters.getParameter<edm::ParameterSet>("minBiasTrigger"  );
@@ -155,7 +161,6 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet/*, ConsumesCollector&& iC
 //
 //  muonEventFlag_      = new GenericTriggerEventFlag( muonparms    , consumesCollector() );
 //  muonExpr_      = muonparms     .getParameter<std::vector<std::string> >("hltPaths");
-
 }
 
 // ***********************************************************
@@ -174,34 +179,15 @@ METAnalyzer::~METAnalyzer() {
 //  delete muonEventFlag_;
 }
 
-void METAnalyzer::beginJob(){
 
-  // trigger information
-//  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
-
-  cleaningParameters_ = parameters.getParameter<ParameterSet>("CleaningParameters");
-  //,
-  // ==========================================================
-  //DCS information
-  // ==========================================================
-
-  //  DCSFilter_ = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"), iC);
-
-  // misc
-  verbose_      = parameters.getParameter<int>("verbose");
-//  etThreshold_  = parameters.getParameter<double>("etThreshold"); // MET threshold
-
-  FolderName_              = parameters.getUntrackedParameter<std::string>("FolderName");
-
-//  highPtJetThreshold_ = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
-//  lowPtJetThreshold_  = parameters.getParameter<double>("LowPtJetThreshold");  // Low Pt Jet threshold
-//  highMETThreshold_   = parameters.getParameter<double>("HighMETThreshold");   // High MET threshold
-
+void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+				     edm::Run const & iRun,
+				     edm::EventSetup const & ) {
   // DQStore stuff
-  dbe_ = edm::Service<DQMStore>().operator->();
-  LogTrace(metname)<<"[METAnalyzer] Parameters initialization";
+  //dbe_ = edm::Service<DQMStore>().operator->();
+  //LogTrace(metname)<<"[METAnalyzer] Parameters initialization";
   std::string DirName = FolderName_+metCollectionLabel_.label();
-  dbe_->setCurrentFolder(DirName);
+  ibooker.setCurrentFolder(DirName);
 
   //dbe_ = dbe;
 
@@ -211,8 +197,8 @@ void METAnalyzer::beginJob(){
 
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
        ic != folderNames_.end(); ic++){
-    bookMESet(DirName+"/"+*ic);
-  }
+    bookMESet(DirName+"/"+*ic, ibooker);
+    }
 }
 
 // ***********************************************************
@@ -228,16 +214,16 @@ void METAnalyzer::endJob() {
 }
 
 // ***********************************************************
-void METAnalyzer::bookMESet(std::string DirName)
+void METAnalyzer::bookMESet(std::string DirName, DQMStore::IBooker & ibooker)
 {
   bool bLumiSecPlot=false;
   if (DirName.find("Uncleaned")!=std::string::npos) bLumiSecPlot=true;
-  bookMonitorElement(DirName,bLumiSecPlot);
+  bookMonitorElement(DirName,ibooker,bLumiSecPlot);
 
   if (DirName.find("Cleaned")!=std::string::npos) {
     for (unsigned i = 0; i<triggerFolderEventFlag_.size(); i++) {
       if (triggerFolderEventFlag_[i]->on()) {
-        bookMonitorElement(DirName+"/"+triggerFolderLabels_[i],false);
+        bookMonitorElement(DirName+"/"+triggerFolderLabels_[i],ibooker,false);
   //      triggerFolderME_.push_back(dbe_->bookString("triggerFolder_"+triggerFolderLabels_[i], triggerFolderExpr_[i][0]));
       }
     }
@@ -274,29 +260,30 @@ void METAnalyzer::bookMESet(std::string DirName)
 //    hTriggerName_Muon = dbe_->bookString("triggerName_Muon", muonExpr_[0]);
 //    if (verbose_) std::cout << "muonEventFlag is on, folder created\n";
 //  }
+
 }
 
 // ***********************************************************
-void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=false)
+void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibooker, bool bLumiSecPlot=false)
 {
   if (verbose_) std::cout << "bookMonitorElement " << DirName << std::endl;
 
-  dbe_->setCurrentFolder(DirName);
+  ibooker.setCurrentFolder(DirName);
 
-  hTrigger    = dbe_->book1D("triggerResults", "triggerResults", 500, 0, 500); 
-//  hTrigger    = dbe_->book1D("triggerResults", "triggerResults", allTriggerNames_.size(), 0, allTriggerNames_.size()); 
+  hTrigger    = ibooker.book1D("triggerResults", "triggerResults", 500, 0, 500); 
+//  hTrigger    = ibooker.book1D("triggerResults", "triggerResults", allTriggerNames_.size(), 0, allTriggerNames_.size()); 
 //  for (unsigned i = 0; i< allTriggerNames_.size(); i++) {
 //    hTrigger->setBinLabel(i, allTriggerNames_[i]);
 //    std::cout<<"Setting label "<<i<<" "<<allTriggerNames_[i]<<std::endl;
 //  }
-  hMEx        = dbe_->book1D("MEx",        "MEx",        200, -500,  500);
-  hMEy        = dbe_->book1D("MEy",        "MEy",        200, -500,  500);
-  hMET        = dbe_->book1D("MET",        "MET",        200,    0, 1000);
-  hSumET      = dbe_->book1D("SumET",      "SumET",      400,    0, 4000);
-  hMETSig     = dbe_->book1D("METSig",     "METSig",      51,    0,   51);
-  hMETPhi     = dbe_->book1D("METPhi",     "METPhi",      60, -3.2,  3.2);
-  hMET_logx   = dbe_->book1D("MET_logx",   "MET_logx",    40,   -1,    7);
-  hSumET_logx = dbe_->book1D("SumET_logx", "SumET_logx",  40,   -1,    7);
+  hMEx        = ibooker.book1D("MEx",        "MEx",        200, -500,  500);
+  hMEy        = ibooker.book1D("MEy",        "MEy",        200, -500,  500);
+  hMET        = ibooker.book1D("MET",        "MET",        200,    0, 1000);
+  hSumET      = ibooker.book1D("SumET",      "SumET",      400,    0, 4000);
+  hMETSig     = ibooker.book1D("METSig",     "METSig",      51,    0,   51);
+  hMETPhi     = ibooker.book1D("METPhi",     "METPhi",      60, -3.2,  3.2);
+  hMET_logx   = ibooker.book1D("MET_logx",   "MET_logx",    40,   -1,    7);
+  hSumET_logx = ibooker.book1D("SumET_logx", "SumET_logx",  40,   -1,    7);
 
   hMEx       ->setAxisTitle("MEx [GeV]",        1);
   hMEy       ->setAxisTitle("MEy [GeV]",        1);
@@ -309,10 +296,10 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
 
   // Book NPV profiles --> would some of these profiles be interesting for other MET types too
   //----------------------------------------------------------------------------
-  meMEx_profile   = dbe_->bookProfile("MEx_profile",   "met.px()",    nbinsPV_, nPVMin_, nPVMax_, 200, -500,  500);
-  meMEy_profile   = dbe_->bookProfile("MEy_profile",   "met.py()",    nbinsPV_, nPVMin_, nPVMax_, 200, -500,  500);
-  meMET_profile   = dbe_->bookProfile("MET_profile",   "met.pt()",    nbinsPV_, nPVMin_, nPVMax_, 200,    0, 1000);
-  meSumET_profile = dbe_->bookProfile("SumET_profile", "met.sumEt()", nbinsPV_, nPVMin_, nPVMax_, 400,    0, 4000);
+  meMEx_profile   = ibooker.bookProfile("MEx_profile",   "met.px()",    nbinsPV_, nPVMin_, nPVMax_, 200, -500,  500);
+  meMEy_profile   = ibooker.bookProfile("MEy_profile",   "met.py()",    nbinsPV_, nPVMin_, nPVMax_, 200, -500,  500);
+  meMET_profile   = ibooker.bookProfile("MET_profile",   "met.pt()",    nbinsPV_, nPVMin_, nPVMax_, 200,    0, 1000);
+  meSumET_profile = ibooker.bookProfile("SumET_profile", "met.sumEt()", nbinsPV_, nPVMin_, nPVMax_, 400,    0, 4000);
   // Set NPV profiles x-axis title
   //----------------------------------------------------------------------------
   meMEx_profile  ->setAxisTitle("nvtx", 1);
@@ -321,88 +308,88 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
   meSumET_profile->setAxisTitle("nvtx", 1);
     
   if(isCaloMet_){
-    hCaloMaxEtInEmTowers    = dbe_->book1D("CaloMaxEtInEmTowers",   "CaloMaxEtInEmTowers"   ,100,0,2000);
+    hCaloMaxEtInEmTowers    = ibooker.book1D("CaloMaxEtInEmTowers",   "CaloMaxEtInEmTowers"   ,100,0,2000);
     hCaloMaxEtInEmTowers->setAxisTitle("Et(Max) in EM Tower [GeV]",1);
-    hCaloMaxEtInHadTowers   = dbe_->book1D("CaloMaxEtInHadTowers",  "CaloMaxEtInHadTowers"  ,100,0,2000);
+    hCaloMaxEtInHadTowers   = ibooker.book1D("CaloMaxEtInHadTowers",  "CaloMaxEtInHadTowers"  ,100,0,2000);
     hCaloMaxEtInHadTowers->setAxisTitle("Et(Max) in Had Tower [GeV]",1);
 
-    hCaloHadEtInHB          = dbe_->book1D("CaloHadEtInHB","CaloHadEtInHB",100,0,2000);
+    hCaloHadEtInHB          = ibooker.book1D("CaloHadEtInHB","CaloHadEtInHB",100,0,2000);
     hCaloHadEtInHB->setAxisTitle("Had Et [GeV]",1);
-    hCaloHadEtInHO          = dbe_->book1D("CaloHadEtInHO","CaloHadEtInHO",25,0,500);
+    hCaloHadEtInHO          = ibooker.book1D("CaloHadEtInHO","CaloHadEtInHO",25,0,500);
     hCaloHadEtInHO->setAxisTitle("Had Et [GeV]",1);
-    hCaloHadEtInHE          = dbe_->book1D("CaloHadEtInHE","CaloHadEtInHE",100,0,2000);
+    hCaloHadEtInHE          = ibooker.book1D("CaloHadEtInHE","CaloHadEtInHE",100,0,2000);
     hCaloHadEtInHE->setAxisTitle("Had Et [GeV]",1);
-    hCaloHadEtInHF          = dbe_->book1D("CaloHadEtInHF","CaloHadEtInHF",50,0,1000);
+    hCaloHadEtInHF          = ibooker.book1D("CaloHadEtInHF","CaloHadEtInHF",50,0,1000);
     hCaloHadEtInHF->setAxisTitle("Had Et [GeV]",1);
-    hCaloEmEtInHF           = dbe_->book1D("CaloEmEtInHF" ,"CaloEmEtInHF" ,25,0,500);
+    hCaloEmEtInHF           = ibooker.book1D("CaloEmEtInHF" ,"CaloEmEtInHF" ,25,0,500);
     hCaloEmEtInHF->setAxisTitle("EM Et [GeV]",1);
-    hCaloEmEtInEE           = dbe_->book1D("CaloEmEtInEE" ,"CaloEmEtInEE" ,50,0,1000);
+    hCaloEmEtInEE           = ibooker.book1D("CaloEmEtInEE" ,"CaloEmEtInEE" ,50,0,1000);
     hCaloEmEtInEE->setAxisTitle("EM Et [GeV]",1);
-    hCaloEmEtInEB           = dbe_->book1D("CaloEmEtInEB" ,"CaloEmEtInEB" ,100,0,2000);
+    hCaloEmEtInEB           = ibooker.book1D("CaloEmEtInEB" ,"CaloEmEtInEB" ,100,0,2000);
     hCaloEmEtInEB->setAxisTitle("EM Et [GeV]",1);
 
-    hCaloMETPhi020  = dbe_->book1D("CaloMETPhi020",  "CaloMETPhi020",   60, -3.2,  3.2);
+    hCaloMETPhi020  = ibooker.book1D("CaloMETPhi020",  "CaloMETPhi020",   60, -3.2,  3.2);
     hCaloMETPhi020 ->setAxisTitle("METPhi [rad] (MET>20 GeV)", 1);
 
-    //hCaloMaxEtInEmTowers    = dbe_->book1D("CaloMaxEtInEmTowers",   "CaloMaxEtInEmTowers"   ,100,0,2000);
+    //hCaloMaxEtInEmTowers    = ibooker.book1D("CaloMaxEtInEmTowers",   "CaloMaxEtInEmTowers"   ,100,0,2000);
     //hCaloMaxEtInEmTowers->setAxisTitle("Et(Max) in EM Tower [GeV]",1);
-    //hCaloMaxEtInHadTowers   = dbe_->book1D("CaloMaxEtInHadTowers",  "CaloMaxEtInHadTowers"  ,100,0,2000);
+    //hCaloMaxEtInHadTowers   = ibooker.book1D("CaloMaxEtInHadTowers",  "CaloMaxEtInHadTowers"  ,100,0,2000);
     //hCaloMaxEtInHadTowers->setAxisTitle("Et(Max) in Had Tower [GeV]",1);
-    hCaloEtFractionHadronic = dbe_->book1D("CaloEtFractionHadronic","CaloEtFractionHadronic",100,0,1);
+    hCaloEtFractionHadronic = ibooker.book1D("CaloEtFractionHadronic","CaloEtFractionHadronic",100,0,1);
     hCaloEtFractionHadronic->setAxisTitle("Hadronic Et Fraction",1);
-    hCaloEmEtFraction       = dbe_->book1D("CaloEmEtFraction",      "CaloEmEtFraction"      ,100,0,1);
+    hCaloEmEtFraction       = ibooker.book1D("CaloEmEtFraction",      "CaloEmEtFraction"      ,100,0,1);
     hCaloEmEtFraction->setAxisTitle("EM Et Fraction",1);
     
-    //hCaloEmEtFraction002    = dbe_->book1D("CaloEmEtFraction002",   "CaloEmEtFraction002"      ,100,0,1);
+    //hCaloEmEtFraction002    = ibooker.book1D("CaloEmEtFraction002",   "CaloEmEtFraction002"      ,100,0,1);
     //hCaloEmEtFraction002->setAxisTitle("EM Et Fraction (MET>2 GeV)",1);
-    //hCaloEmEtFraction010    = dbe_->book1D("CaloEmEtFraction010",   "CaloEmEtFraction010"      ,100,0,1);
+    //hCaloEmEtFraction010    = ibooker.book1D("CaloEmEtFraction010",   "CaloEmEtFraction010"      ,100,0,1);
     //hCaloEmEtFraction010->setAxisTitle("EM Et Fraction (MET>10 GeV)",1);
-    hCaloEmEtFraction020    = dbe_->book1D("CaloEmEtFraction020",   "CaloEmEtFraction020"      ,100,0,1);
+    hCaloEmEtFraction020    = ibooker.book1D("CaloEmEtFraction020",   "CaloEmEtFraction020"      ,100,0,1);
     hCaloEmEtFraction020->setAxisTitle("EM Et Fraction (MET>20 GeV)",1);
 
     if (metCollectionLabel_.label() == "corMetGlobalMuons" ) {
-      hCalomuPt    = dbe_->book1D("CalomuonPt", "CalomuonPt", 50, 0, 500);
-      hCalomuEta   = dbe_->book1D("CalomuonEta", "CalomuonEta", 60, -3.0, 3.0);
-      hCalomuNhits = dbe_->book1D("CalomuonNhits", "CalomuonNhits", 50, 0, 50);
-      hCalomuChi2  = dbe_->book1D("CalomuonNormalizedChi2", "CalomuonNormalizedChi2", 20, 0, 20);
-      hCalomuD0    = dbe_->book1D("CalomuonD0", "CalomuonD0", 50, -1, 1);
-      hCaloMExCorrection       = dbe_->book1D("CaloMExCorrection", "CaloMExCorrection", 100, -500.0,500.0);
-      hCaloMEyCorrection       = dbe_->book1D("CaloMEyCorrection", "CaloMEyCorrection", 100, -500.0,500.0);
-      hCaloMuonCorrectionFlag  = dbe_->book1D("CaloCorrectionFlag","CaloCorrectionFlag", 5, -0.5, 4.5);
+      hCalomuPt    = ibooker.book1D("CalomuonPt", "CalomuonPt", 50, 0, 500);
+      hCalomuEta   = ibooker.book1D("CalomuonEta", "CalomuonEta", 60, -3.0, 3.0);
+      hCalomuNhits = ibooker.book1D("CalomuonNhits", "CalomuonNhits", 50, 0, 50);
+      hCalomuChi2  = ibooker.book1D("CalomuonNormalizedChi2", "CalomuonNormalizedChi2", 20, 0, 20);
+      hCalomuD0    = ibooker.book1D("CalomuonD0", "CalomuonD0", 50, -1, 1);
+      hCaloMExCorrection       = ibooker.book1D("CaloMExCorrection", "CaloMExCorrection", 100, -500.0,500.0);
+      hCaloMEyCorrection       = ibooker.book1D("CaloMEyCorrection", "CaloMEyCorrection", 100, -500.0,500.0);
+      hCaloMuonCorrectionFlag  = ibooker.book1D("CaloCorrectionFlag","CaloCorrectionFlag", 5, -0.5, 4.5);
     }
 
   }
 
   if(isPFMet_){
-    mePhotonEtFraction        = dbe_->book1D("PfPhotonEtFraction",        "pfmet.photonEtFraction()",         50, 0,    1);
-    mePhotonEt                = dbe_->book1D("PfPhotonEt",                "pfmet.photonEt()",                100, 0, 1000);
-    meNeutralHadronEtFraction = dbe_->book1D("PfNeutralHadronEtFraction", "pfmet.neutralHadronEtFraction()",  50, 0,    1);
-    meNeutralHadronEt         = dbe_->book1D("PfNeutralHadronEt",         "pfmet.neutralHadronEt()",         100, 0, 1000);
-    meElectronEtFraction      = dbe_->book1D("PfElectronEtFraction",      "pfmet.electronEtFraction()",       50, 0,    1);
-    meElectronEt              = dbe_->book1D("PfElectronEt",              "pfmet.electronEt()",              100, 0, 1000);
-    meChargedHadronEtFraction = dbe_->book1D("PfChargedHadronEtFraction", "pfmet.chargedHadronEtFraction()",  50, 0,    1);
-    meChargedHadronEt         = dbe_->book1D("PfChargedHadronEt",         "pfmet.chargedHadronEt()",         100, 0, 1000);
-    meMuonEtFraction          = dbe_->book1D("PfMuonEtFraction",          "pfmet.muonEtFraction()",           50, 0,    1);
-    meMuonEt                  = dbe_->book1D("PfMuonEt",                  "pfmet.muonEt()",                  100, 0, 1000);
-    meHFHadronEtFraction      = dbe_->book1D("PfHFHadronEtFraction",      "pfmet.HFHadronEtFraction()",       50, 0,    1);
-    meHFHadronEt              = dbe_->book1D("PfHFHadronEt",              "pfmet.HFHadronEt()",              100, 0, 1000);
-    meHFEMEtFraction          = dbe_->book1D("PfHFEMEtFraction",          "pfmet.HFEMEtFraction()",           50, 0,    1);
-    meHFEMEt                  = dbe_->book1D("PfHFEMEt",                  "pfmet.HFEMEt()",                  100, 0, 1000);
+    mePhotonEtFraction        = ibooker.book1D("PfPhotonEtFraction",        "pfmet.photonEtFraction()",         50, 0,    1);
+    mePhotonEt                = ibooker.book1D("PfPhotonEt",                "pfmet.photonEt()",                100, 0, 1000);
+    meNeutralHadronEtFraction = ibooker.book1D("PfNeutralHadronEtFraction", "pfmet.neutralHadronEtFraction()",  50, 0,    1);
+    meNeutralHadronEt         = ibooker.book1D("PfNeutralHadronEt",         "pfmet.neutralHadronEt()",         100, 0, 1000);
+    meElectronEtFraction      = ibooker.book1D("PfElectronEtFraction",      "pfmet.electronEtFraction()",       50, 0,    1);
+    meElectronEt              = ibooker.book1D("PfElectronEt",              "pfmet.electronEt()",              100, 0, 1000);
+    meChargedHadronEtFraction = ibooker.book1D("PfChargedHadronEtFraction", "pfmet.chargedHadronEtFraction()",  50, 0,    1);
+    meChargedHadronEt         = ibooker.book1D("PfChargedHadronEt",         "pfmet.chargedHadronEt()",         100, 0, 1000);
+    meMuonEtFraction          = ibooker.book1D("PfMuonEtFraction",          "pfmet.muonEtFraction()",           50, 0,    1);
+    meMuonEt                  = ibooker.book1D("PfMuonEt",                  "pfmet.muonEt()",                  100, 0, 1000);
+    meHFHadronEtFraction      = ibooker.book1D("PfHFHadronEtFraction",      "pfmet.HFHadronEtFraction()",       50, 0,    1);
+    meHFHadronEt              = ibooker.book1D("PfHFHadronEt",              "pfmet.HFHadronEt()",              100, 0, 1000);
+    meHFEMEtFraction          = ibooker.book1D("PfHFEMEtFraction",          "pfmet.HFEMEtFraction()",           50, 0,    1);
+    meHFEMEt                  = ibooker.book1D("PfHFEMEt",                  "pfmet.HFEMEt()",                  100, 0, 1000);
     
-    mePhotonEtFraction_profile        = dbe_->bookProfile("PfPhotonEtFraction_profile",        "pfmet.photonEtFraction()",        nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    mePhotonEt_profile                = dbe_->bookProfile("PfPhotonEt_profile",                "pfmet.photonEt()",                nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meNeutralHadronEtFraction_profile = dbe_->bookProfile("PfNeutralHadronEtFraction_profile", "pfmet.neutralHadronEtFraction()", nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meNeutralHadronEt_profile         = dbe_->bookProfile("PfNeutralHadronEt_profile",         "pfmet.neutralHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meElectronEtFraction_profile      = dbe_->bookProfile("PfElectronEtFraction_profile",      "pfmet.electronEtFraction()",      nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meElectronEt_profile              = dbe_->bookProfile("PfElectronEt_profile",              "pfmet.electronEt()",              nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meChargedHadronEtFraction_profile = dbe_->bookProfile("PfChargedHadronEtFraction_profile", "pfmet.chargedHadronEtFraction()", nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meChargedHadronEt_profile         = dbe_->bookProfile("PfChargedHadronEt_profile",         "pfmet.chargedHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meMuonEtFraction_profile          = dbe_->bookProfile("PfMuonEtFraction_profile",          "pfmet.muonEtFraction()",          nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meMuonEt_profile                  = dbe_->bookProfile("PfMuonEt_profile",                  "pfmet.muonEt()",                  nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meHFHadronEtFraction_profile      = dbe_->bookProfile("PfHFHadronEtFraction_profile",      "pfmet.HFHadronEtFraction()",      nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meHFHadronEt_profile              = dbe_->bookProfile("PfHFHadronEt_profile",              "pfmet.HFHadronEt()",              nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meHFEMEtFraction_profile          = dbe_->bookProfile("PfHFEMEtFraction_profile",          "pfmet.HFEMEtFraction()",          nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meHFEMEt_profile                  = dbe_->bookProfile("PfHFEMEt_profile",                  "pfmet.HFEMEt()",                  nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
+    mePhotonEtFraction_profile        = ibooker.bookProfile("PfPhotonEtFraction_profile",        "pfmet.photonEtFraction()",        nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    mePhotonEt_profile                = ibooker.bookProfile("PfPhotonEt_profile",                "pfmet.photonEt()",                nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
+    meNeutralHadronEtFraction_profile = ibooker.bookProfile("PfNeutralHadronEtFraction_profile", "pfmet.neutralHadronEtFraction()", nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meNeutralHadronEt_profile         = ibooker.bookProfile("PfNeutralHadronEt_profile",         "pfmet.neutralHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
+    meElectronEtFraction_profile      = ibooker.bookProfile("PfElectronEtFraction_profile",      "pfmet.electronEtFraction()",      nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meElectronEt_profile              = ibooker.bookProfile("PfElectronEt_profile",              "pfmet.electronEt()",              nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
+    meChargedHadronEtFraction_profile = ibooker.bookProfile("PfChargedHadronEtFraction_profile", "pfmet.chargedHadronEtFraction()", nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meChargedHadronEt_profile         = ibooker.bookProfile("PfChargedHadronEt_profile",         "pfmet.chargedHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
+    meMuonEtFraction_profile          = ibooker.bookProfile("PfMuonEtFraction_profile",          "pfmet.muonEtFraction()",          nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meMuonEt_profile                  = ibooker.bookProfile("PfMuonEt_profile",                  "pfmet.muonEt()",                  nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
+    meHFHadronEtFraction_profile      = ibooker.bookProfile("PfHFHadronEtFraction_profile",      "pfmet.HFHadronEtFraction()",      nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meHFHadronEt_profile              = ibooker.bookProfile("PfHFHadronEt_profile",              "pfmet.HFHadronEt()",              nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
+    meHFEMEtFraction_profile          = ibooker.bookProfile("PfHFEMEtFraction_profile",          "pfmet.HFEMEtFraction()",          nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meHFEMEt_profile                  = ibooker.bookProfile("PfHFEMEt_profile",                  "pfmet.HFEMEt()",                  nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
     
     mePhotonEtFraction_profile       ->setAxisTitle("nvtx", 1);
     mePhotonEt_profile               ->setAxisTitle("nvtx", 1);
@@ -422,39 +409,44 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
 
   if (isCaloMet_){
     if (bLumiSecPlot){
-      hMExLS = dbe_->book2D("MEx_LS","MEx_LS",200,-200,200,50,0.,500.);
+      hMExLS = ibooker.book2D("MEx_LS","MEx_LS",200,-200,200,50,0.,500.);
       hMExLS->setAxisTitle("MEx [GeV]",1);
       hMExLS->setAxisTitle("Lumi Section",2);
-      hMEyLS = dbe_->book2D("MEy_LS","MEy_LS",200,-200,200,50,0.,500.);
+      hMEyLS = ibooker.book2D("MEy_LS","MEy_LS",200,-200,200,50,0.,500.);
       hMEyLS->setAxisTitle("MEy [GeV]",1);
       hMEyLS->setAxisTitle("Lumi Section",2);
     }
   }
 
   if (isTCMet_) {
-    htrkPt    = dbe_->book1D("trackPt", "trackPt", 50, 0, 500);
-    htrkEta   = dbe_->book1D("trackEta", "trackEta", 60, -3.0, 3.0);
-    htrkNhits = dbe_->book1D("trackNhits", "trackNhits", 50, 0, 50);
-    htrkChi2  = dbe_->book1D("trackNormalizedChi2", "trackNormalizedChi2", 20, 0, 20);
-    htrkD0    = dbe_->book1D("trackD0", "trackd0", 50, -1, 1);
-    helePt    = dbe_->book1D("electronPt", "electronPt", 50, 0, 500);
-    heleEta   = dbe_->book1D("electronEta", "electronEta", 60, -3.0, 3.0);
-    heleHoE   = dbe_->book1D("electronHoverE", "electronHoverE", 25, 0, 0.5);
-    hmuPt     = dbe_->book1D("muonPt", "muonPt", 50, 0, 500);
-    hmuEta    = dbe_->book1D("muonEta", "muonEta", 60, -3.0, 3.0);
-    hmuNhits  = dbe_->book1D("muonNhits", "muonNhits", 50, 0, 50);
-    hmuChi2   = dbe_->book1D("muonNormalizedChi2", "muonNormalizedChi2", 20, 0, 20);
-    hmuD0     = dbe_->book1D("muonD0", "muonD0", 50, -1, 1);
+    htrkPt    = ibooker.book1D("trackPt", "trackPt", 50, 0, 500);
+    htrkEta   = ibooker.book1D("trackEta", "trackEta", 60, -3.0, 3.0);
+    htrkNhits = ibooker.book1D("trackNhits", "trackNhits", 50, 0, 50);
+    htrkChi2  = ibooker.book1D("trackNormalizedChi2", "trackNormalizedChi2", 20, 0, 20);
+    htrkD0    = ibooker.book1D("trackD0", "trackd0", 50, -1, 1);
+    helePt    = ibooker.book1D("electronPt", "electronPt", 50, 0, 500);
+    heleEta   = ibooker.book1D("electronEta", "electronEta", 60, -3.0, 3.0);
+    heleHoE   = ibooker.book1D("electronHoverE", "electronHoverE", 25, 0, 0.5);
+    hmuPt     = ibooker.book1D("muonPt", "muonPt", 50, 0, 500);
+    hmuEta    = ibooker.book1D("muonEta", "muonEta", 60, -3.0, 3.0);
+    hmuNhits  = ibooker.book1D("muonNhits", "muonNhits", 50, 0, 50);
+    hmuChi2   = ibooker.book1D("muonNormalizedChi2", "muonNormalizedChi2", 20, 0, 20);
+    hmuD0     = ibooker.book1D("muonD0", "muonD0", 50, -1, 1);
 
-    hMExCorrection       = dbe_->book1D("MExCorrection", "MExCorrection", 100, -500.0,500.0);
-    hMEyCorrection       = dbe_->book1D("MEyCorrection", "MEyCorrection", 100, -500.0,500.0);
-    hMuonCorrectionFlag  = dbe_->book1D("CorrectionFlag","CorrectionFlag", 5, -0.5, 4.5);
+    hMExCorrection       = ibooker.book1D("MExCorrection", "MExCorrection", 100, -500.0,500.0);
+    hMEyCorrection       = ibooker.book1D("MEyCorrection", "MEyCorrection", 100, -500.0,500.0);
+    hMuonCorrectionFlag  = ibooker.book1D("CorrectionFlag","CorrectionFlag", 5, -0.5, 4.5);
   }
+
+  hMETRate      = ibooker.book1D("METRate",        "METRate",        200,    0, 1000);
+
+
 }
 
 // ***********************************************************
-void METAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+
 //  std::cout  << "Run " << iRun.run() << " hltconfig.init " 
 //             << hltConfig_.init(iRun,iSetup,triggerResultsLabel_.process(),changed_) << " length: "<<hltConfig_.triggerNames().size()<<" changed "<<changed_<<std::endl; 
   bool changed(true);
@@ -558,20 +550,6 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	makeRatePlot(DirName+"/"+triggerFolderLabels_[pos],totltime);
       }
     }
-//      if ( highPtJetEventFlag_->on() )
-//	makeRatePlot(DirName+"/"+"triggerName_HighJetPt",totltime);
-//      if ( lowPtJetEventFlag_->on() )
-//	makeRatePlot(DirName+"/"+"triggerName_LowJetPt",totltime);
-//      if ( minBiasEventFlag_->on() )
-//	makeRatePlot(DirName+"/"+"triggerName_MinBias",totltime);
-//      if ( highMETEventFlag_->on() )
-//	makeRatePlot(DirName+"/"+"triggerName_HighMET",totltime);
-//      //      if ( _LowMETEventFlag->on() )
-//      //	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
-//      if ( eleEventFlag_->on() )
-//	makeRatePlot(DirName+"/"+"triggerName_Ele",totltime);
-//      if ( muonEventFlag_->on() )
-//	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
   }
 }
 
@@ -579,36 +557,34 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 // ***********************************************************
 void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
 {
-
   dbe_->setCurrentFolder(DirName);
   MonitorElement *meMET = dbe_->get(DirName+"/"+"MET");
+  MonitorElement *mMETRate = dbe_->get(DirName+"/"+"METRate");
 
   TH1F* tMET;
   TH1F* tMETRate;
 
-  if ( meMET ){
-    if ( meMET->getRootObject() ) {
+  if ( meMET && mMETRate){
+    if ( meMET->getRootObject() && mMETRate->getRootObject()) {
       tMET     = meMET->getTH1F();
 
       // Integral plot & convert number of events to rate (hz)
-      tMETRate = (TH1F*) tMET->Clone("METRate");
+      tMETRate = (TH1F*) tMET->Clone("METRateHist");
       for (int i = tMETRate->GetNbinsX()-1; i>=0; i--){
-	tMETRate->SetBinContent(i+1,tMETRate->GetBinContent(i+2)+tMET->GetBinContent(i+1));
+	mMETRate->setBinContent(i+1,tMETRate->GetBinContent(i+2)+tMET->GetBinContent(i+1));
       }
       for (int i = 0; i<tMETRate->GetNbinsX(); i++){
-	tMETRate->SetBinContent(i+1,tMETRate->GetBinContent(i+1)/double(totltime));
+	mMETRate->setBinContent(i+1,tMETRate->GetBinContent(i+1)/double(totltime));
       }
-
-      tMETRate->SetName("METRate");
-      tMETRate->SetTitle("METRate");
-      hMETRate      = dbe_->book1D("METRate",tMETRate);
     }
   }
+
 }
   
 // ***********************************************************
 void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
+  dbe_= edm::Service<DQMStore>().operator->();
   if (verbose_) std::cout << "METAnalyzer analyze" << std::endl;
 
   std::string DirName = FolderName_+metCollectionLabel_.label();
@@ -1294,7 +1270,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
       }
     }
   } // et threshold cut
-
+ 
 }
 
 //// ***********************************************************

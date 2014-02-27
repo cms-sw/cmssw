@@ -71,34 +71,35 @@
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
-//class METAnalyzer : public METAnalyzerBase {
-class METAnalyzer : public edm::EDAnalyzer{
+
+class METAnalyzer : public DQMEDAnalyzer{
  public:
 
   /// Constructor
-  METAnalyzer(const edm::ParameterSet&/*, edm::ConsumesCollector&&*/);
+  METAnalyzer(const edm::ParameterSet&);
 
   /// Destructor
   virtual ~METAnalyzer();
 
-  /// Inizialize parameters for histo binning
-  void beginJob();
-
   /// Finish up a job
   void endJob();
 
+/// Inizialize parameters for histo binning
+//  void beginJob(void);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
   // Book MonitorElements
-  void bookMESet(std::string);
-  void bookMonitorElement(std::string, bool);
-//  void bookMonitorElementTriggered(std::string, bool);
+  //void bookMESet(std::string);
+  //void bookMonitorElement(std::string, bool);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
 
   /// Initialize run-based parameters
-  void beginRun(const edm::Run&,  const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&);
 
   /// Finish up a run
   void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
@@ -114,6 +115,12 @@ class METAnalyzer : public edm::EDAnalyzer{
 //  bool selectWMuonEvent(const edm::Event&);
 
  private:
+
+ // Book MonitorElements
+  void bookMESet(std::string,DQMStore::IBooker &);
+// Book MonitorElements
+  void bookMonitorElement(std::string,DQMStore::IBooker &, bool );
+
   // ----------member data ---------------------------
   edm::ParameterSet parameters;
   // Switch for verbosity
