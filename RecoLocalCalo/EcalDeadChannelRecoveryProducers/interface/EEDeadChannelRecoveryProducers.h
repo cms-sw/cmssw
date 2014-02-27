@@ -1,8 +1,11 @@
-#ifndef RecoCaloTools_EcalChannelKiller_EcalChannelKiller_HH
-#define RecoCaloTools_EcalChannelKiller_EcalChannelKiller_HH
+#ifndef RecoLocalCalo_EcalDeadChannelRecoveryProducers_EEDeadChannelRecoveryProducers_HH
+#define RecoLocalCalo_EcalDeadChannelRecoveryProducers_EEDeadChannelRecoveryProducers_HH
  
-/** \class EcalChannelKiller
+/** \class EEDeadChannelRecoveryProducers
   *
+  *  $Date: 2013/02/20 22:49:13 $
+  *  $Revision: 1.1 $
+  *  \author Stilianos Kesisoglou - Institute of Nuclear and Particle Physics NCSR Demokritos (Stilianos.Kesisoglou@cern.ch)
   */
  
 // system include files
@@ -17,18 +20,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-
 #include <string>
 
 //
 // class decleration
 //
 
-class EcalChannelKiller : public edm::EDProducer {
+class EEDeadChannelRecoveryProducers : public edm::EDProducer {
    public:
-      explicit EcalChannelKiller(const edm::ParameterSet&);
-      ~EcalChannelKiller();
+      explicit EEDeadChannelRecoveryProducers(const edm::ParameterSet&);
+      ~EEDeadChannelRecoveryProducers();
 
    private:
       virtual void beginJob() ;
@@ -36,11 +37,16 @@ class EcalChannelKiller : public edm::EDProducer {
       virtual void endJob() ;
       
       // ----------member data ---------------------------
+
+  double Sum8GeVThreshold_;
   std::string hitProducer_;
   std::string hitCollection_;
   std::string reducedHitCollection_;
   std::string DeadChannelFileName_;
-  std::vector<EBDetId> ChannelsDeadID;
+  std::vector<EEDetId> ChannelsDeadID;
+  bool CorrectDeadCells_;
+  std::string CorrectionMethod_;
+
 };
 
 
