@@ -161,10 +161,10 @@ std::vector<LorentzVectorParticle> TauA1NuConstrainedFitter::getRefitDaughters()
   std::vector<LorentzVectorParticle> refitParticles;
   UpdateExpandedPar();
   double c(0),b(0);
-  for(unsigned int i=0;i<particles_.size();i++){c+=particles_.at(i).charge();b=particles_.at(i).bField();}
+  for(unsigned int i=0;i<particles_.size();i++){c+=particles_[i].charge();b=particles_[i].bField();}
   TVectorT<double> a1=ComputeA1LorentzVectorPar(exppar);
   TMatrixTSym<double> a1cov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::ComputeA1LorentzVectorPar,exppar,expcov);
-  refitParticles.push_back(LorentzVectorParticle(a1,a1cov,particles_.at(0).pdgId(),c,b));
+  refitParticles.push_back(LorentzVectorParticle(a1,a1cov,particles_[0].pdgId(),c,b));
   TVectorT<double> nu=ComputeNuLorentzVectorPar(exppar);
   TMatrixTSym<double> nucov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::ComputeNuLorentzVectorPar,exppar,expcov);
   refitParticles.push_back(LorentzVectorParticle(nu,nucov,PDGInfo::nu_tau,0.0,b));
@@ -174,7 +174,7 @@ std::vector<LorentzVectorParticle> TauA1NuConstrainedFitter::getRefitDaughters()
 LorentzVectorParticle TauA1NuConstrainedFitter::getMother(){
   UpdateExpandedPar();
   double c(0),b(0);
-  for(unsigned int i=0;i<particles_.size();i++){c+=particles_.at(i).charge();b=particles_.at(i).bField();}
+  for(unsigned int i=0;i<particles_.size();i++){c+=particles_[i].charge();b=particles_[i].bField();}
   TVectorT<double> m=ComputeMotherLorentzVectorPar(exppar);
   TMatrixTSym<double> mcov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::ComputeMotherLorentzVectorPar,exppar,expcov);
   LorentzVectorParticle mymother= LorentzVectorParticle(m,mcov,(int)(-1.0*fabs(PDGInfo::tau_minus)*c),c,b);
