@@ -9,9 +9,12 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2ClusterAlgorithmFirmware.h"
 //#include "DataFormats/Math/interface/LorentzVector.h "
 
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
 
+l1t::CaloStage2ClusterAlgorithmFirmwareImp1::CaloStage2ClusterAlgorithmFirmwareImp1(const CaloParams& params) :
+  params_(params)
+{
 
-l1t::CaloStage2ClusterAlgorithmFirmwareImp1::CaloStage2ClusterAlgorithmFirmwareImp1() {
   // thresholds hard-coded for the moment
   m_seedThreshold    = 4; // 2 GeV
   m_clusterThreshold = 2; // 1 GeV
