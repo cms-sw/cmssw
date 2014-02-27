@@ -29,7 +29,7 @@ bool isFPIXFED(unsigned int fed) {return fed>=32;}
 bool isBPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelBarrel;}
 bool isFPIXModule(unsigned int id) {return DetId(id).subdetId() == PixelSubdetector::PixelEndcap;}
 
-std::ostream& operator<<(std::ostream& s, const PixelUnpackingRegions::Module& m)
+inline std::ostream& operator<<(std::ostream& s, const PixelUnpackingRegions::Module& m)
 {
   s<< (isBPIXModule(m.id) ? "BPIX " : "FPIX ") <<m.id<<" "<<m.fed<<"   "<<m.phi<<"   "<<m.x<<" "<<m.y<<" "<<m.z<<"  "<<sqrt(std::pow(m.x,2)+std::pow(m.y,2));
   return s;
