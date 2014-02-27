@@ -21,8 +21,8 @@ void RawEventFileWriterForBU::handler(int s){
   if (destinationDir_.size() > 0)
     {
       // CREATE EOR file
-      string path = destinationDir_ + "/" + "EoR.jsd";
-      string output = "EOR";
+      std::string path = destinationDir_ + "/" + "EoR.jsd";
+      std::string output = "EOR";
       FileIO::writeStringToFile(path, output);
       //dirty hack: extract run number from destination directory
       std::string::size_type pos = destinationDir_.find("run");
@@ -34,31 +34,27 @@ void RawEventFileWriterForBU::handler(int s){
 }
 
 RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps): lumiMon_(0), outfd_(0),
-									       jsonDefLocation_(ps.getUntrackedParameter<string>("jsonDefLocation","")),
-									       // default to .5ms sleep per event
-									       microSleep_(ps.getUntrackedParameter<int>("microSleep", 0))
+       jsonDefLocation_(ps.getUntrackedParameter<std::string>("jsonDefLocation","")),
+      // default to .5ms sleep per event
+       microSleep_(ps.getUntrackedParameter<int>("microSleep", 0))
 {
   //  initialize(ps.getUntrackedParameter<std::string>("fileName", "testFRDfile.dat"));
   perLumiEventCount_ = 0;
   // set names of the variables to be matched with JSON Definition
   perLumiEventCount_.setName("NEvents");
 
-  // create a vector of all monitorable parameters to be passed to the monitor
-  vector<JsonMonitorable*> lumiMonParams;
-  lumiMonParams.push_back(&perLumiEventCount_);
-
-  // create a DataPointMonitor using vector of monitorable parameters and a path to a JSON Definition file
-  lumiMon_ = new DataPointMonitor(lumiMonParams, jsonDefLocation_);
+  // create a FastMonitor using monitorable parameters and a path to a JSON Definition file
+  lumiMon_ = new FastMonitor(jsonDefLocation_,false);
+  lumiMon_->registerGlobalMonitorable(&perLumiEventCount_,false,nullptr);
+  lumiMon_->commit(nullptr);
 
 
   perFileEventCount_.value() = 0;
   perFileEventCount_.setName("NEvents");
-
-  // create a vector of all monitorable parameters to be passed to the monitor
-  vector<JsonMonitorable*> fileMonParams;
-  fileMonParams.push_back(&perFileEventCount_);
-
-  perFileMon_ = new DataPointMonitor(fileMonParams, jsonDefLocation_);
+  // create a FastMonitor using monitorable parameters and a path to a JSON Definition file
+  perFileMon_ = new FastMonitor(jsonDefLocation_,false);
+  perFileMon_->registerGlobalMonitorable(&perFileEventCount_,false,nullptr);
+  perFileMon_->commit(nullptr);
   instance = this;
 
   // SIGINT Handler
@@ -168,14 +164,13 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
   if (!oldFileName.empty()) {
     //rename(oldFileName.c_str(),destinationDir_.c_str());
 
-    DataPoint dp;
-    perFileMon_->snap(dp);
-    string output;
-    JSONSerializer::serialize(&dp, output);
+    perFileMon_->snap(false, "",ls);
+
     std::stringstream ss;
     ss << destinationDir_ << "/" << oldFileName.substr(oldFileName.rfind("/") + 1, oldFileName.size() - oldFileName.rfind("/") - 5) << ".jsn";
-    string path = ss.str();
-    FileIO::writeStringToFile(path, output);
+    std::string path = ss.str();
+
+    perFileMon_->outputFullJSON(path, ls);//TODO probably should discard old lumi count
     //now that the json file is there, move the raw file
     int fretval = rename(oldFileName.c_str(),(destinationDir_+oldFileName.substr(oldFileName.rfind("/"))).c_str());
     // if (debug_)
@@ -202,21 +197,18 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
 void RawEventFileWriterForBU::endOfLS(int ls)
 {
   //writing empty EoLS file (will be filled with information)
-  // create a DataPoint object and take a snapshot of the monitored data into it
-  DataPoint dp;
-  lumiMon_->snap(dp);
+  //take snapshot of the monitored data into it
+
+  lumiMon_->snap(false,"",ls);
 
   std::ostringstream ostr;
   ostr << destinationDir_ << "/EoLS_" << std::setfill('0') << std::setw(4) << ls << ".jsn";
   int outfd_ = open(ostr.str().c_str(), O_WRONLY | O_CREAT,  S_IRWXU | S_IRWXG | S_IRWXO);
   if(outfd_!=0){close(outfd_); outfd_=0;}
 
+  std::string path = ostr.str();
   // serialize the DataPoint and output it
-  string output;
-  JSONSerializer::serialize(&dp, output);
-
-  string path = ostr.str();
-  FileIO::writeStringToFile(path, output);
+  lumiMon_->outputFullJSON(path, ls);
 
   perLumiEventCount_ = 0;
 }
