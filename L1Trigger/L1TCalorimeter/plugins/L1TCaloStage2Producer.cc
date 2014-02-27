@@ -85,17 +85,19 @@ void
 l1t::L1TCaloStage2Producer::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 
-    m_fwv = boost::shared_ptr<FirmwareVersion>();
-    m_fwv->setFirmwareVersion(1); //hardcode for now
+  CaloParams params;
 
-    // Set the current algorithm version based on DB pars from database:
-    m_processor = m_factory.create(*m_fwv);
-
-    if (! m_processor) {
-      // we complain here once per run
-      edm::LogError("l1t|stage 2") << "L1TCaloStage2Producer: firmware could not be configured.\n";
-    }
-
+  m_fwv = boost::shared_ptr<FirmwareVersion>();
+  m_fwv->setFirmwareVersion(1); //hardcode for now
+  
+  // Set the current algorithm version based on DB pars from database:
+  m_processor = m_factory.create(*m_fwv, params);
+  
+  if (! m_processor) {
+    // we complain here once per run
+    edm::LogError("l1t|stage 2") << "L1TCaloStage2Producer: firmware could not be configured.\n";
+  }
+  
 }
  
 // ------------ method called when ending the processing of a run  ------------
