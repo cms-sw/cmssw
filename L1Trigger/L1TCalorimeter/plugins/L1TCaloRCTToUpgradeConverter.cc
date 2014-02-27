@@ -23,8 +23,8 @@ l1t::L1TCaloRCTToUpgradeConverter::L1TCaloRCTToUpgradeConverter(const edm::Param
   rgnToken_ = consumes<L1CaloRegionCollection>(ps.getParameter<edm::InputTag>("regionTag"));
   emToken_ = consumes<L1CaloEmCollection>(ps.getParameter<edm::InputTag>("emTag"));
 
-  firstBx_ = -ps.getParameter<unsigned>("preSamples");
-  lastBx_  =  ps.getParameter<unsigned>("postSamples");
+  // firstBx_ = -ps.getParameter<unsigned>("preSamples");
+  // lastBx_  =  ps.getParameter<unsigned>("postSamples");
 
 }
 
@@ -43,8 +43,6 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
   // store new formats
   std::auto_ptr<BXVector<l1t::CaloEmCand> > emcands (new l1t::CaloEmCandBxCollection);
   std::auto_ptr<BXVector<l1t::CaloRegion> > regions (new l1t::CaloRegionBxCollection);
-  emcands->setBXRange(firstBx_, lastBx_);
-  regions->setBXRange(firstBx_, lastBx_);
 
   // get old formats
   edm::Handle<L1CaloEmCollection> ems;
@@ -53,9 +51,20 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
   iEvent.getByToken(emToken_, ems);
   iEvent.getByToken(rgnToken_, rgns);
 
+  // get the firstBx_ and lastBx_ from the input datatypes (assume bx for em same as rgn)
+  int firstBx = 0;
+  int lastBx = 0;
+  for (std::vector<L1CaloEmCand>::const_iterator em=ems->begin(); em!=ems->end(); ++em) {
+    int bx = em->bx();
+    if (bx < firstBx) firstBx = bx;
+    if (bx > lastBx) lastBx = bx;
+  }
+
+  emcands->setBXRange(firstBx, lastBx);
+  regions->setBXRange(firstBx, lastBx);
+
   // loop over EM
-  std::vector<L1CaloEmCand>::const_iterator em;
-  for (em=ems->begin(); em!=ems->end(); ++em) {
+  for (std::vector<L1CaloEmCand>::const_iterator em=ems->begin(); em!=ems->end(); ++em) {
 
     // get physical units
     // double pt = 0.;
@@ -78,8 +87,7 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
   }
 
   // loop over regions
-  std::vector<L1CaloRegion>::const_iterator rgn;
-  for (rgn=rgns->begin(); rgn!=rgns->end(); ++rgn) {
+  for (std::vector<L1CaloRegion>::const_iterator rgn=rgns->begin(); rgn!=rgns->end(); ++rgn) {
 
     // get physical units
     // double pt = 0.;

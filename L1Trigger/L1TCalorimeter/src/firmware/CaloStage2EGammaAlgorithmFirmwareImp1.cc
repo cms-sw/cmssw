@@ -18,7 +18,9 @@ namespace l1t{
   int calEgHwFootPrint(const l1t::CaloCluster&,const std::vector<l1t::CaloTower>&);//still needs a permenant home
 }
 
-l1t::CaloStage2EGammaAlgorithmFirmwareImp1::CaloStage2EGammaAlgorithmFirmwareImp1() {
+l1t::CaloStage2EGammaAlgorithmFirmwareImp1::CaloStage2EGammaAlgorithmFirmwareImp1(const CaloParams& params) :
+  params_(params)
+{
 
 
 }

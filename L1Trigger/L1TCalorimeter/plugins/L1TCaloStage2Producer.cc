@@ -1,5 +1,8 @@
 #include "L1Trigger/L1TCalorimeter/plugins/L1TCaloStage2Producer.h"
 
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
+
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
@@ -82,20 +85,23 @@ l1t::L1TCaloStage2Producer::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void
-l1t::L1TCaloStage2Producer::beginRun(edm::Run const&, edm::EventSetup const&)
+l1t::L1TCaloStage2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
 
-    m_fwv = boost::shared_ptr<FirmwareVersion>();
-    m_fwv->setFirmwareVersion(1); //hardcode for now
+  edm::ESHandle<l1t::CaloParams> caloParams;
+  iSetup.get<L1TCaloParamsRcd>().get(caloParams);
 
-    // Set the current algorithm version based on DB pars from database:
-    m_processor = m_factory.create(*m_fwv);
-
-    if (! m_processor) {
-      // we complain here once per run
-      edm::LogError("l1t|stage 2") << "L1TCaloStage2Producer: firmware could not be configured.\n";
-    }
-
+  m_fwv = boost::shared_ptr<FirmwareVersion>();
+  m_fwv->setFirmwareVersion(1); //hardcode for now
+  
+  // Set the current algorithm version based on DB pars from database:
+  m_processor = m_factory.create(*m_fwv, *(caloParams.product()));
+  
+  if (! m_processor) {
+    // we complain here once per run
+    edm::LogError("l1t|stage 2") << "L1TCaloStage2Producer: firmware could not be configured.\n";
+  }
+  
 }
  
 // ------------ method called when ending the processing of a run  ------------

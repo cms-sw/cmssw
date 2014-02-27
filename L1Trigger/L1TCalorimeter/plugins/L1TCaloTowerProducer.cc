@@ -4,6 +4,8 @@
 #include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -57,6 +59,10 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
   //  const L1CaloHcalScale* h = hcalScale.product();
 
+  // get upgrade calo params for internal scales
+  edm::ESHandle<l1t::CaloParams> caloParams;
+  iSetup.get<L1TCaloParamsRcd>().get(caloParams);
+
 
   // loop over crossings
   for (int bx = bxFirst_; bx < bxLast_+1; bx++) {
@@ -77,14 +83,20 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     EcalTrigPrimDigiCollection::const_iterator ecalItr;
     for (ecalItr=ecalTPs->begin(); ecalItr!=ecalTPs->end(); ++ecalItr) {
     
-      int ieta = ecalItr->id().ieta(); 
+      int ieta = ecalItr->id().ieta();
       int iphi = ecalItr->id().iphi();
 
-      int iet = ecalItr->compressedEt();
+      int ietIn = ecalItr->compressedEt();
       int ifg = ecalItr->fineGrain();
 
+      // decompress
+      double et = ecalScale->et( ietIn, abs(ieta), (ieta>0) );
+      int ietOut = floor( et / caloParams->towerLsbE() );
+      int ietOutMask = (int) pow(2,caloParams->towerNBitsE())-1;
+
       int itow = (ieta-1)*72+iphi-1;
-      towers.at(itow).setHwEtEm(iet);
+
+      towers.at(itow).setHwEtEm(ietOut & ietOutMask);
       towers.at(itow).setHwFGEm(ifg);
 
     }
@@ -96,11 +108,16 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       int ieta = hcalItr->id().ieta(); 
       int iphi = hcalItr->id().iphi();
 
-      int iet = hcalItr->SOI_compressedEt();
+      int ietIn = hcalItr->SOI_compressedEt();
       //int ifg = hcalItr->SOI_fineGrain();
 
+      // decompress
+      double et = hcalScale->et( ietIn, abs(ieta), (ieta>0) );
+      int ietOut = floor( et / caloParams->towerLsbH() );
+      int ietOutMask = (int) pow(2,caloParams->towerNBitsH() )-1;
+
       int itow = (ieta-1)*72+iphi-1;
-      towers.at(itow).setHwEtHad(iet);
+      towers.at(itow).setHwEtHad(ietOut & ietOutMask);
       //      towers.at(itow).setHwFGHad(ifg);
 
     }

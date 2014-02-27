@@ -21,8 +21,8 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2EtSumAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2JetSumAlgorithm.h"
 
-//#include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 
 namespace l1t {
@@ -30,7 +30,8 @@ namespace l1t {
   // first iteration
   class CaloStage2MainProcessorFirmwareImp1 : public CaloStage2MainProcessor {
   public:
-    CaloStage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv ); //const CaloParams & dbPars);
+    CaloStage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv, 
+					const CaloParams & params);
     virtual ~CaloStage2MainProcessorFirmwareImp1();
     virtual void processEvent(const std::vector<l1t::CaloTower> &,
 			      std::vector<l1t::EGamma> & egammas,
@@ -39,9 +40,9 @@ namespace l1t {
 			      std::vector<l1t::EtSum> & etsums);
   private:
     
-    //    CaloParams const & m_params;
     FirmwareVersion const & m_fwv;
- 
+    CaloParams const & m_params;
+
     CaloStage2ClusterAlgorithm* m_egClusterAlgo;
     CaloStage2EGammaAlgorithm* m_egAlgo;
     CaloStage2ClusterAlgorithm* m_tauClusterAlgo;

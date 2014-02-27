@@ -5,7 +5,7 @@
 //
 // Package:    L1Trigger/skeleton
 // Class:      skeleton
-// 
+//
 /**\class skeleton skeleton.cc L1Trigger/skeleton/plugins/skeleton.cc
 
  Description: [one line class summary]
@@ -44,8 +44,8 @@
 //
 
 namespace l1t {
-    
-  class L1TCaloRCTToUpgradeConverter : public edm::EDProducer { 
+
+  class L1TCaloRCTToUpgradeConverter : public edm::EDProducer {
   public:
     explicit L1TCaloRCTToUpgradeConverter(const edm::ParameterSet& ps);
     ~L1TCaloRCTToUpgradeConverter();
@@ -56,7 +56,7 @@ namespace l1t {
       virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
-      
+
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -67,10 +67,10 @@ namespace l1t {
       edm::EDGetToken rgnToken_;
       edm::EDGetToken emToken_;
 
-      int firstBx_;
-      int lastBx_;
-  }; 
-  
-} 
+      /* int firstBx_; */
+      /* int lastBx_; */
+  };
+
+}
 
 #endif
