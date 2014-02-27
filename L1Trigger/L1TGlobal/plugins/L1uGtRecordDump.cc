@@ -443,14 +443,14 @@ cms_uint64_t L1uGtRecordDump::formatMuon(std::vector<l1t::Muon>::const_iterator 
 
   cms_uint64_t packedVal = 0;
 
-// Pack Bits
-  packedVal |= ((mu->hwPhi()                & 0x3ff) <<18);
-  packedVal |= ((mu->hwEta()                & 0x1ff) <<9);
-  packedVal |= ((mu->hwPt()                 & 0x1ff) <<0);
-  packedVal |= ((mu->hwChargeValid()        & 0x1)   <<28);
-  packedVal |= ((mu->hwCharge()             & 0x1)   <<29);
-  packedVal |= ((cms_uint64_t)(mu->hwQual() & 0xf)   <<30);
-  packedVal |= ((cms_uint64_t)(mu->hwIso()  & 0x3)   <<34);  
+// Pack Bits                        
+  packedVal |= ((cms_uint64_t)(mu->hwPhi()            & 0x3ff) <<0);	// & 0x3ff) <<18);
+  packedVal |= ((cms_uint64_t)(mu->hwEta()            & 0x1ff) <<23);	// & 0x1ff) <<9);
+  packedVal |= ((cms_uint64_t)(mu->hwPt()             & 0x1ff) <<10);	// & 0x1ff) <<0);
+  packedVal |= ((cms_uint64_t)(mu->hwChargeValid()    & 0x1)   <<34);  // & 0x1)   <<28);
+  packedVal |= ((cms_uint64_t)(mu->hwCharge()         & 0x1)   <<35);  // & 0x1)   <<29);
+  packedVal |= ((cms_uint64_t)(mu->hwQual() 	      & 0xf)   <<19);  // & 0xf)   <<30);
+  packedVal |= ((cms_uint64_t)(mu->hwIso()  	      & 0x3)   <<32);  // & 0x3)   <<34); 
   
   return packedVal;
 }
