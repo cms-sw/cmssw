@@ -22,7 +22,7 @@ double Phi_mpi_pi(double x) {
    return x;
 }
 
-double dPhi(double phi1,double phi2){
+inline double dPhi(double phi1,double phi2){
    phi1=Phi_0_2pi(phi1);
    phi2=Phi_0_2pi(phi2);
    return Phi_mpi_pi(phi1-phi2);
