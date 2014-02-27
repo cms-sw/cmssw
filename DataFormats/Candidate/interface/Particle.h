@@ -9,11 +9,10 @@
  *
  *
  */
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-#include <atomic>
-#endif
+
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/PtEtaPhiMass.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Rtypes.h"
 
@@ -32,103 +31,153 @@ namespace reco {
     /// point in the space
     typedef math::XYZVector Vector;
     /// default constructor
-    Particle();
+    Particle() : qx3_(0), pt_(0), eta_(0), phi_(0), mass_(0),
+		 vertex_(0, 0, 0), pdgId_(0), status_(0){}
+    
+    /// constructor from values
+    Particle( Charge q, const PtEtaPhiMass  & p4, const Point & vertex,
+	      int pdgId, int status, bool integerCharge=true)
+      : qx3_( integerCharge ? q*3 : q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
+	vertex_( vertex ), pdgId_( pdgId ), status_( status ),
+	p4Polar_(pt_, eta_, phi_, mass_), p4Cartesian_(p4Polar_){}
+    
     /// constructor from values
     Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
-	      int pdgId = 0, int status = 0, bool integerCharge = true );
+	      int pdgId = 0, int status = 0, bool integerCharge = true ) :
+      qx3_( integerCharge ? q*3 : q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
+      vertex_( vertex ), pdgId_( pdgId ), status_( status ),
+      p4Polar_(p4), p4Cartesian_(p4){}
+    
     /// constructor from values
     Particle( Charge q, const PolarLorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
-	      int pdgId = 0, int status = 0, bool integerCharge = true );
-    void swap(Particle& other);
+	      int pdgId = 0, int status = 0, bool integerCharge = true ) :
+      qx3_( integerCharge ? q*3 : q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
+      vertex_( vertex ), pdgId_( pdgId ), status_( status ),
+      p4Polar_(p4), p4Cartesian_(p4){}
+    
+
+    /// set internal cache
+    inline void setPolar()  { 
+      p4Polar_ = PolarLorentzVector( pt_, eta_, phi_, mass_ );
+    }
+    /// set internal cache
+    inline void setCartesian()  { 
+      setPolar();
+      p4Cartesian_ = p4Polar_;
+    }
+
     /// destructor
-    virtual ~Particle();
-    // copy ctor
-    Particle(const Particle& srv);
-    // assignment operator
-    Particle& operator=(const Particle& rhs);
+    virtual ~Particle(){}
+ 
     /// electric charge
-    int charge() const;
+    int charge() const { return qx3_ / 3; }
     /// set electric charge
-    void setCharge( Charge q );
+    void setCharge( Charge q ) { qx3_ = q * 3; }
     /// electric charge
-    int threeCharge() const;
+    int threeCharge() const { return qx3_; }
     /// set electric charge
-    void setThreeCharge( Charge qx3 );
+    void setThreeCharge( Charge qx3 ) { qx3_ = qx3; }
     /// four-momentum Lorentz vector
-    const LorentzVector & p4() const;
+    const LorentzVector & p4() const {  return p4Cartesian_; }
     /// four-momentum Lorentz vector
-    const PolarLorentzVector & polarP4() const;
+    const PolarLorentzVector & polarP4() const { return p4Polar_; }
     /// spatial momentum vector
-    Vector momentum() const;
+    Vector momentum() const {  return p4Cartesian_.Vect(); }
     /// boost vector to boost a Lorentz vector 
     /// to the particle center of mass system
-    Vector boostToCM() const;
+    Vector boostToCM() const {  return p4Cartesian_.BoostToCM(); }
     /// magnitude of momentum vector
-    double p() const;
+    double p() const {  return p4Cartesian_.P(); }
     /// energy
-    double energy() const;
+    double energy() const {  return p4Cartesian_.E(); }  
     /// transverse energy 
-    double et() const;
+    double et() const { return p4Polar_.Et(); }  
     /// mass
-    double mass() const;
+    double mass() const { return mass_; }
     /// mass squared
-    double massSqr() const;
+    double massSqr() const { return mass_ * mass_; }
     /// transverse mass
-    double mt() const;
+    double mt() const { return p4Polar_.Mt(); }
     /// transverse mass squared
-    double mtSqr() const;
+    double mtSqr() const { return p4Polar_.Mt2(); }
     /// x coordinate of momentum vector
-    double px() const;
+    double px() const {  return p4Cartesian_.Px(); }
     /// y coordinate of momentum vector
-    double py() const;
+    double py() const {  return p4Cartesian_.Py(); }
     /// z coordinate of momentum vector
-    double pz() const;
+    double pz() const {  return p4Cartesian_.Pz(); }
     /// transverse momentum
-    double pt() const;
+    double pt() const { return pt_; }
     /// momentum azimuthal angle
-    double phi() const;
+    double phi() const { return phi_; }
     /// momentum polar angle
-    double theta() const;
+    double theta() const {  return p4Cartesian_.Theta(); }
     /// momentum pseudorapidity
-    double eta() const;
+    double eta() const { return eta_; }
     /// repidity
-    double rapidity() const;
+    double rapidity() const {  return p4Polar_.Rapidity(); }
     /// repidity
-    double y() const;
+    double y() const { return rapidity(); }
     /// set 4-momentum
-    void setP4( const LorentzVector & p4 );
+    void setP4( const LorentzVector & p4 ) { 
+      p4Cartesian_ = p4;
+      p4Polar_ = p4;
+      pt_ = p4Polar_.pt();
+      eta_ = p4Polar_.eta();
+      phi_ = p4Polar_.phi();
+      mass_ = p4Polar_.mass();
+    }
     /// set 4-momentum
-    void setP4( const PolarLorentzVector & p4 );
+    void setP4( const PolarLorentzVector & p4 ) { 
+      p4Polar_ = p4;
+      p4Cartesian_ = p4;
+      pt_ = p4Polar_.pt();
+      eta_ = p4Polar_.eta();
+      phi_ = p4Polar_.phi();
+      mass_ = p4Polar_.mass();
+    }
     /// set particle mass
-    void setMass( double m );
-    /// set Pz
-    void setPz( double pz );
+    void setMass( double m ) { 
+      mass_ = m;
+      setCartesian();
+      
+    }
+    void setPz( double pz ) {
+      p4Cartesian_.SetPz(pz);
+      p4Polar_ = p4Cartesian_;
+      pt_ = p4Polar_.pt();
+      eta_ = p4Polar_.eta();
+      phi_ = p4Polar_.phi();
+      mass_ = p4Polar_.mass();
+    }
     /// vertex position
-    const Point & vertex() const;
+    const Point & vertex() const { return vertex_; }
     /// x coordinate of vertex position
-    double vx() const;
+    double vx() const { return vertex_.X(); }
     /// y coordinate of vertex position
-    double vy() const;
+    double vy() const { return vertex_.Y(); }
     /// z coordinate of vertex position
-    double vz() const;
+    double vz() const { return vertex_.Z(); }
     /// set vertex
-    void setVertex( const Point & vertex );
+    void setVertex( const Point & vertex ) { vertex_ = vertex; }
     /// PDG identifier
-    int pdgId() const;
+    int pdgId() const { return pdgId_; }
     // set PDG identifier
-    void setPdgId( int pdgId );
+    void setPdgId( int pdgId ) { pdgId_ = pdgId; }
     /// status word
-    int status() const;
+    int status() const { return status_; }
     /// set status word
-    void setStatus( int status );
-    /// long lived flag
-    static const unsigned int longLivedTag;
+    void setStatus( int status ) { status_ = status; }
     /// set long lived flag
-    void setLongLived();
+    void setLongLived() { status_ |= longLivedTag; }
     /// is long lived?
-    bool longLived() const;
+    bool longLived() const { return status_ & longLivedTag; }
 
+  private:
+    static const unsigned int longLivedTag = 65536;
+    
   protected:
+
     /// electric charge
     Charge qx3_;   
     /// four-momentum Lorentz vector
@@ -139,23 +188,11 @@ namespace reco {
     int pdgId_;
     /// status word
     int status_;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     /// internal cache for p4
-    mutable std::atomic<PolarLorentzVector*> p4Polar_;
+    PolarLorentzVector p4Polar_;
     /// internal cache for p4
-    mutable std::atomic<LorentzVector*> p4Cartesian_;
-#else
-    /// internal cache for p4
-    mutable PolarLorentzVector* p4Polar_;
-    /// internal cache for p4
-    mutable LorentzVector* p4Cartesian_;
-#endif
-    /// set internal cache
-    void cachePolar() const;
-    /// set internal cache
-    void cacheCartesian() const;
-    /// clear internal cache
-    void clearCache() const;
+    LorentzVector p4Cartesian_;
+    
   };
 
 }
