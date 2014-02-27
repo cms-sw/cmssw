@@ -27,21 +27,23 @@ class EcalTimeDigi {
   const DetId& id() const { return id_; }
   int size() const { return size_; }
     
-  const float& operator[](int i) const { return data_[i]; }
-  const float& sample(int i) const { return data_[i]; }
+  const float& operator[](unsigned int i) const { return data_[i]; }
+  const float& sample(unsigned int i) const { return data_[i]; }
     
-  void setSize(int size);
-  void setSample(int i, const float& sam) { data_[i]=sam; }
+  void setSize(unsigned int size);
+  void setSample(unsigned int i, const float& sam) { data_[i]=sam; }
+  void setSampleOfInterest(unsigned int i) { sampleOfInterest_=i; }
     
-  static const int MAXSAMPLES = 10;
+  static const unsigned int MAXSAMPLES = 10;
 
   /// Gets the interesting sample
-  int sampleOfInterest() const;
+  unsigned int sampleOfInterest() const { return sampleOfInterest_; }
 
 private:
   
   DetId id_;
-  int size_;
+  unsigned int size_;
+  unsigned int sampleOfInterest_;
   std::vector<float> data_;
 };
 

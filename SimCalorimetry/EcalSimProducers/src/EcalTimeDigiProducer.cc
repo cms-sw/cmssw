@@ -77,7 +77,6 @@ EcalTimeDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const& eve
 
 void
 EcalTimeDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup) {
-  // Step A: Get Inputs
   edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
   edm::Handle<std::vector<PCaloHit> > ebHandle;
   e.getByLabel(ebTag, ebHandle);
@@ -91,18 +90,15 @@ EcalTimeDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup 
 
 void 
 EcalTimeDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventSetup) {
-   // Step B: Create empty output
-
    std::auto_ptr<EcalTimeDigiCollection> barrelResult   ( new EcalTimeDigiCollection() ) ;
    std::auto_ptr<EcalTimeDigiCollection> endcapResult   ( new EcalTimeDigiCollection() ) ;
-   
+
    // here basically just put everything in the final collections
    m_BarrelDigitizer->run( *barrelResult ) ;
-
    edm::LogInfo("TimeDigiInfo") << "EB time Digis: " << barrelResult->size() ;
 
    m_EndcapDigitizer->run( *endcapResult ) ;
-   edm::LogInfo("TimeDigiInfo") << "EE Digis: " << endcapResult->size() ;
+    edm::LogInfo("TimeDigiInfo") << "EE Digis: " << endcapResult->size() ;
 
    event.put( barrelResult,    m_EBdigiCollection ) ;
    event.put( endcapResult,    m_EEdigiCollection ) ;
