@@ -24,7 +24,8 @@ hiRegitMuTobTecStepClusters = RecoTracker.IterativeTracking.TobTecStep_cff.tobTe
 )
 
 # SEEDING LAYERS
-hiRegitMuTobTecStepSeedLayers =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayers.clone()
+hiRegitMuTobTecStepSeedLayers =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersPair.clone()
+hiRegitMuTobTecStepSeedLayers.layerList.append('TOB1+TOB2')
 hiRegitMuTobTecStepSeedLayers.TOB.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
 hiRegitMuTobTecStepSeedLayers.TEC.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
 
