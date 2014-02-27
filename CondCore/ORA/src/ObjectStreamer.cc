@@ -40,12 +40,14 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
                                                     const edm::TypeWithDict& objType,
                                                     RelationalBuffer* operationBuffer ){
   
-  for ( unsigned int i=0;i<ora::helper::BaseSize(objType);i++){
-    edm::BaseWithDict base = ora::helper::BaseAt(objType, i);
+  edm::TypeBases bases(objType);
+  for (auto const & b : bases) {
+    edm::BaseWithDict base(b);
     edm::TypeWithDict baseType = ClassUtils::resolvedType( base.typeOf().toType() );
     buildBaseDataMembers( dataElement, relationalData, baseType, operationBuffer );
-    for ( unsigned int j=0;j<baseType.dataMemberSize();j++){
-      edm::MemberWithDict dataMember = ora::helper::DataMemberAt(baseType, j);      
+    edm::TypeDataMembers members(baseType);
+    for (auto const & member : members) {
+      edm::MemberWithDict dataMember(member);
       DataElement& dataMemberElement = dataElement.addChild( dataMember.offset(), /*base.offsetFP()*/ base.offset() );
       // Ignore the transients and the statics (how to deal with non-const statics?)
       if ( dataMember.isTransient() || dataMember.isStatic() ) continue;
@@ -93,9 +95,9 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
                                                 RelationalBuffer* operationBuffer ){
   buildBaseDataMembers( dataElement, relationalData, m_objectType, operationBuffer );
     // Loop over the data members of the class.
-  for ( unsigned int i=0;i<m_objectType.dataMemberSize();i++){
-
-    edm::MemberWithDict dataMember = ora::helper::DataMemberAt(m_objectType, i);
+  edm::TypeDataMembers members(m_objectType);
+  for (auto const & member : members) {
+    edm::MemberWithDict dataMember(member);
     DataElement& dataMemberElement = dataElement.addChild( dataMember.offset(), 0 );
 
     edm::TypeWithDict declaringType = ClassUtils::resolvedType( dataMember.declaringType());

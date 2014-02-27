@@ -134,9 +134,9 @@ ora::SpecialSTLContainerHandler::SpecialSTLContainerHandler( const edm::TypeWith
 {
   // update dictionary to include base classes members
   //-ap ignore for now:  dictionary.UpdateMembers();
-  for ( unsigned int i=0;i<dictionary.dataMemberSize();i++){
-
-    edm::MemberWithDict field = ora::helper::DataMemberAt(dictionary, i);
+  edm::TypeDataMembers members(dictionary);
+  for (auto const & member : members) {
+    edm::MemberWithDict field(member);
     edm::TypeWithDict fieldType = field.typeOf();
     if ( ! fieldType ) {
       throwException( "The dictionary of the underlying container of \"" +

@@ -60,8 +60,9 @@ ora::RelationalMapping::_sizeInColumns(const edm::TypeWithDict& topLevelClassTyp
       // loop over the data members
       //-ap ignore for now:  typ.UpdateMembers();
       //std::vector<edm::TypeWithDict> carrays;
-      for ( size_t i=0; i< typ.dataMemberSize(); i++){
-        edm::MemberWithDict objMember = ora::helper::DataMemberAt(typ,i);
+      edm::TypeDataMembers members(typ);
+      for (auto const & member : members) {
+        edm::MemberWithDict objMember(member);
 
         // Skip the transient ones
         if ( objMember.isTransient() ) continue;
@@ -550,8 +551,9 @@ namespace ora {
                            const std::string& scopeNameForSchema,
                            TableRegister& tableRegister ){
     std::string className = objType.qualifiedName();
-    for ( size_t i=0; i< ora::helper::BaseSize(objType); i++){
-      edm::BaseWithDict base = ora::helper::BaseAt(objType, i);
+    edm::TypeBases bases(objType);
+    for (auto const & b : bases) {
+      edm::BaseWithDict base(b);
       edm::TypeWithDict baseType = ClassUtils::resolvedType( base.typeOf().toType() );
       if(!baseType){
         throwException( "Class for base \""+base.name()+"\" is not in the dictionary.","ObjectMapping::process");
@@ -559,8 +561,9 @@ namespace ora {
 
       // TO BE FIXED:: here there is still to fix the right scopeName to pass 
       processBaseClasses( mappingElement, baseType, scopeNameForSchema, tableRegister );
-      for ( size_t j=0; j< baseType.dataMemberSize(); j++){
-        edm::MemberWithDict baseMember = ora::helper::DataMemberAt(baseType, j);
+      edm::TypeDataMembers members(baseType);
+      for (auto const & member : members) {
+        edm::MemberWithDict baseMember(member);
         // Skip the transient and the static ones
         if ( baseMember.isTransient() || baseMember.isStatic() || isLoosePersistencyOnWriting( baseMember ) ) continue;
         // Retrieve the data member type
@@ -606,9 +609,9 @@ void ora::ObjectMapping::process( MappingElement& parentElement,
   objectScopeNameForSchema += attributeNameForSchema;
 
   // loop over the data members 
-  for ( size_t i=0; i< objectType.dataMemberSize(); i++){
-
-    edm::MemberWithDict objectMember = ora::helper::DataMemberAt(m_type, i);
+  edm::TypeDataMembers members(objectType);
+  for (auto const & member : members) {
+    edm::MemberWithDict objectMember(member);
     // Skip the transient and the static ones
     if ( objectMember.isTransient() || objectMember.isStatic() || isLoosePersistencyOnWriting( objectMember )) continue;
 
