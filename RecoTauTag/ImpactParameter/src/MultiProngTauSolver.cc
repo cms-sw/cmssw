@@ -1,7 +1,7 @@
 #include "RecoTauTag/ImpactParameter/interface/MultiProngTauSolver.h"
-#include <iostream>
 #include "TMatrixTSym.h"
 #include "TVectorT.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace tauImpactParameter;
 
@@ -82,13 +82,13 @@ bool MultiProngTauSolver::setTauDirectionatThetaGJMax(const TLorentzVector& a1, 
     if(scale<0) scale=1.0;
     double a=(thetaGJMaxvar/dphitheta)-(1-scale);
     double b=1-(thetaGJMaxvar/dphitheta)+(1-scale);
-    std::cout << "SetTauDirectionatThetaGJMax before GF " <<  thetaGJMaxvar << " dot " << acos(a1v.Dot(tau)/(a1v.Mag()*tau.Mag())) << " a1 phi " <<  a1v.Phi() << " tau phi " << tau.Phi() << " a1 theta " <<a1v.Theta() << " tau theta " << tau.Theta()  << std::endl;
+    edm::LogInfo("RecoTauTag/ImpactParameter") << "SetTauDirectionatThetaGJMax before GF " <<  thetaGJMaxvar << " dot " << acos(a1v.Dot(tau)/(a1v.Mag()*tau.Mag())) << " a1 phi " <<  a1v.Phi() << " tau phi " << tau.Phi() << " a1 theta " <<a1v.Theta() << " tau theta " << tau.Theta()  ;
     tau*=a;
     a1v*=b;
     tau+=a1v;
     theta=tau.Theta();
     phi=tau.Phi();
-    std::cout << "SetTauDirectionatThetaGJMax GF " <<  thetaGJMaxvar << " dot " << acos(a1v.Dot(tau)/(a1v.Mag()*tau.Mag())) <<  " phi " << phi << " theta " << theta <<  std::endl;
+    edm::LogInfo("RecoTauTag/ImpactParameter") << "SetTauDirectionatThetaGJMax GF " <<  thetaGJMaxvar << " dot " << acos(a1v.Dot(tau)/(a1v.Mag()*tau.Mag())) <<  " phi " << phi << " theta " << theta ;
     return true;
   }
   return false;
