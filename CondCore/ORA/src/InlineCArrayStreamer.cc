@@ -25,7 +25,7 @@ ora::InlineCArrayStreamerBase::~InlineCArrayStreamerBase(){
 bool ora::InlineCArrayStreamerBase::buildDataElement(DataElement& dataElement,
                                                      IRelationalData& relationalData,
                                                      RelationalBuffer* operationBuffer){
-  m_arrayType = ClassUtils::resolvedType( m_objectType );  
+  m_arrayType = ClassUtils::resolvedType( m_objectType.toType() );  
   if ( ! m_arrayType ) {
     throwException( "Missing dictionary information for the element of array \"" +
                     m_objectType.qualifiedName() + "\"",
