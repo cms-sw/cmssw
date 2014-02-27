@@ -25,7 +25,7 @@ void MultiProngTauSolver::analyticESolver(TLorentzVector& nu_plus,TLorentzVector
 }
 
 void MultiProngTauSolver::numericalESolver(TLorentzVector& nu_plus,TLorentzVector& nu_minus,const TLorentzVector& A1,bool &isReal){
-  double rmin(-100), rmax(100), step(0.01), mtau2(pow(PDGInfo::tau_mass(),2.0)), z1(-999), z2(-999), zmin(-999), min(9999), prev(9999);
+  double rmin(-100), rmax(100), step(0.01), mtau2(PDGInfo::tau_mass()*PDGInfo::tau_mass()), z1(-999), z2(-999), zmin(-999), min(9999), prev(9999);
   double z=rmin;
   TLorentzVector nu,tau;
   for(int i=0;i<=(int)(rmax-rmin)/step;i++){

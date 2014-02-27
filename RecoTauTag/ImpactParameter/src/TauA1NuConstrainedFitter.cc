@@ -131,10 +131,20 @@ TVectorT<double> TauA1NuConstrainedFitter::ComputeMotherLorentzVectorPar(const T
     else{outpar(i)=nupar(i)+a1par(i);}
     //if(i==LorentzVectorParticle::m) outpar(i,0)=PDGInfo::tau_mass();
   }
-  double Enu2=pow(nupar(LorentzVectorParticle::px),2.0)+pow(nupar(LorentzVectorParticle::py),2.0)+pow(nupar(LorentzVectorParticle::pz),2.0);
-  double Ea12=pow(a1par(LorentzVectorParticle::px),2.0)+pow(a1par(LorentzVectorParticle::py),2.0)+pow(a1par(LorentzVectorParticle::pz),2.0)+pow(a1par(LorentzVectorParticle::m),2.0);
-  double P2=pow(outpar(LorentzVectorParticle::px),2.0)+pow(outpar(LorentzVectorParticle::py),2.0)+pow(outpar(LorentzVectorParticle::pz),2.0);
-  outpar(LorentzVectorParticle::m)=sqrt(fabs(pow(sqrt(Enu2)+sqrt(Ea12),2.0)-P2));
+  double nu_px = nupar(LorentzVectorParticle::px);
+  double nu_py = nupar(LorentzVectorParticle::py);
+  double nu_pz = nupar(LorentzVectorParticle::pz); 
+  double Enu2  = nu_px*nu_px + nu_py*nu_py + nu_pz*nu_pz;
+  double a1_px = a1par(LorentzVectorParticle::px);
+  double a1_py = a1par(LorentzVectorParticle::py);
+  double a1_pz = a1par(LorentzVectorParticle::pz);
+  double a1_m =  a1par(LorentzVectorParticle::m);
+  double Ea12  = a1_px*a1_px + a1_py*a1_py + a1_pz*a1_pz + a1_m*a1_m;
+  double outpar_px = outpar(LorentzVectorParticle::px);
+  double outpar_py = outpar(LorentzVectorParticle::py);
+  double outpar_pz = outpar(LorentzVectorParticle::pz);
+  double P2=outpar_px*outpar_px + outpar_py*outpar_py + outpar_pz*outpar_pz;
+   outpar(LorentzVectorParticle::m)=sqrt(fabs(Enu2 + Ea12 + 2*sqrt(Enu2*Ea12)-P2));
   return outpar;
 }
 
