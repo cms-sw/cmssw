@@ -25,6 +25,7 @@ public:
   explicit MemberWithDict(TDataMember*);
   explicit operator bool() const;
   std::string name() const;
+  bool isArray() const;
   bool isConst() const;
   bool isPublic() const;
   bool isStatic() const;
