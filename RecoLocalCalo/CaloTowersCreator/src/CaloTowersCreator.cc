@@ -139,6 +139,14 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 
   if (EScales.instanceLabel=="") produces<CaloTowerCollection>();
   else produces<CaloTowerCollection>(EScales.instanceLabel);
+
+  /*
+  std::cout << "VI Producer " 
+	    << (useRejectedHitsOnly_ ? "use rejectOnly " : " ")
+	    << (allowMissingInputs_ ? "allowMissing " : " " )
+	    <<  nLabels << ' ' << severitynames.size() 
+	    << std::endl;
+  */
 }
 
 void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
@@ -205,9 +213,16 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.setUseRejectedRecoveredHcalHits(useRejectedRecoveredHcalHits_);
   algo_.setUseRejectedRecoveredEcalHits(useRejectedRecoveredEcalHits_);
 
-
-
-
+  /*
+  std::cout << "VI Produce: " 
+	    << (useRejectedHitsOnly_ ? "use rejectOnly " : " ")
+	    << (allowMissingInputs_ ? "allowMissing " : " " )
+	    << (theRecoveredEcalHitsAreUsed_ ? "use RecoveredEcal ": " " )
+	    <<  toks_ecal_.size()
+	    << ' ' << theEcalSeveritiesToBeExcluded_.size()
+	    << ' ' << theEcalSeveritiesToBeUsedInBadTowers_.size() 
+	    << std::endl;
+  */
 
   algo_.begin(); // clear the internal buffer
 
@@ -220,6 +235,9 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   {
     algo_.makeHcalDropChMap();
   }
+
+  // check ecal SevLev
+  if (ecalSevLevelWatcher_.check(c)) algo_.makeEcalBadChs();
 
   // ----------------------------------------------------------
   // For ecal error handling need to 
@@ -281,6 +299,13 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   // Step C: Process
   algo_.finish(*prod);
+
+  /*
+  int totc=0; float totE=0;
+  reco::LeafCandidate::LorentzVector totP4;
+  for (auto const & tw : (*prod) ) { totc += tw.constituents().size(); totE+=tw.energy(); totP4+=tw.p4();}
+  std::cout << "VI " << (*prod).size() << " " << totc << " " << totE << " " << totP4 << std::endl;
+  */
 
   // Step D: Put into the event
   if (EScales.instanceLabel=="") e.put(prod);
