@@ -257,16 +257,19 @@ std::string DataPoint::fastOutCSV()
   if (tracked_) {
     if (isStream_) {
       std::stringstream ss;
-      if (isAtomic_) 
+      if (isAtomic_) { 
 #if ATOMIC_LEVEL>0
         ss << (unsigned int) (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(fastIndex_)->load(std::memory_order_relaxed); 
 #else
         ss << (unsigned int) *((static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(fastIndex_));
 #endif 
-      else
+        fastIndex_ = fastIndex_+1 % (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->size();
+      }
+      else {
         ss << (static_cast<std::vector<unsigned int>*>(tracked_))->at(fastIndex_);
+        fastIndex_ = fastIndex_+1 % (static_cast<std::vector<unsigned int>*>(tracked_))->size();
+      }
 
-      fastIndex_ = fastIndex_+1 % (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->size();
       return ss.str();
     }
     return (static_cast<JsonMonitorable*>(tracked_))->toString();
