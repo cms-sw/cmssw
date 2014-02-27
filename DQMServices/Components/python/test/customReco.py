@@ -14,6 +14,7 @@ def customise(process):
       wantSummary = cms.untracked.bool(True) 
     )
 
+    #using the DQMROOT means that the reco output will be empty
     process.RECOoutput.outputCommands.append('drop *')
     process.RECOoutput.outputCommands.append('keep *_MEtoEDMConverter_*_*')
 
