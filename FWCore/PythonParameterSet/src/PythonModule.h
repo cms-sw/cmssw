@@ -62,7 +62,6 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
   boost::python::class_<edm::FileInPath>("FileInPath", boost::python::init<std::string>())
       .def("fullPath",     &edm::FileInPath::fullPath)
       .def("relativePath", &edm::FileInPath::relativePath)
-      .def("isLocal",      &edm::FileInPath::isLocal)
   ;
 
   boost::python::class_<edm::LuminosityBlockRange>("LuminosityBlockRange", boost::python::init<unsigned int, unsigned int, unsigned int, unsigned int>())

@@ -161,12 +161,6 @@ namespace edm
     return location_;
   }
 
-  bool
-  FileInPath::isLocal() const
-  {
-    return Local == location_;
-  }
-
   std::string
   FileInPath::fullPath() const
   {
