@@ -50,9 +50,13 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 
 process.load('L1Trigger.Configuration.SimL1Emulator_cff')
+process.simRctDigis.ecalDigis = cms.VInputTag(cms.InputTag('ecalDigis:EcalTriggerPrimitives'))
+process.simRctDigis.hcalDigis = cms.VInputTag(cms.InputTag('hcalDigis'))
 
 process.p1 = cms.Path(
-    process.SimL1Emulator
+    process.ecalDigis
+    *process.hcalDigis
+    *process.SimL1Emulator
     )
 
 process.output_step = cms.EndPath(process.output)

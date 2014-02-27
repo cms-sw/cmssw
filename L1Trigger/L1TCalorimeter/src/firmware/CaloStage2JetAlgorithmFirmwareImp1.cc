@@ -8,9 +8,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2JetAlgorithmFirmware.h"
 
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 
-l1t::CaloStage2JetAlgorithmFirmwareImp1::CaloStage2JetAlgorithmFirmwareImp1() {
+l1t::CaloStage2JetAlgorithmFirmwareImp1::CaloStage2JetAlgorithmFirmwareImp1(const CaloParams& params) :
+  params_(params)
+{
 
 
 }
