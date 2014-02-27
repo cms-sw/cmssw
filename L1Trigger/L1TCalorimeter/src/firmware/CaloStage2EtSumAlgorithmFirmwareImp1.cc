@@ -10,7 +10,9 @@
 
 
 
-l1t::CaloStage2EtSumAlgorithmFirmwareImp1::CaloStage2EtSumAlgorithmFirmwareImp1() {
+l1t::CaloStage2EtSumAlgorithmFirmwareImp1::CaloStage2EtSumAlgorithmFirmwareImp1(const CaloParams& params) :
+  params_(params)
+{
 
 
 }

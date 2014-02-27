@@ -14,21 +14,21 @@
 #define CaloStage2EGammaAlgorithmFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2EGammaAlgorithm.h"
-//#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 namespace l1t {
 
   // Imp1 is for v1 and v2
   class CaloStage2EGammaAlgorithmFirmwareImp1 : public CaloStage2EGammaAlgorithm {
   public:
-    CaloStage2EGammaAlgorithmFirmwareImp1(); //const CaloMainProcessorParams & dbPars);
+    CaloStage2EGammaAlgorithmFirmwareImp1(const CaloParams& params); //const CaloMainProcessorParams & dbPars);
     virtual ~CaloStage2EGammaAlgorithmFirmwareImp1();
     virtual void processEvent(const std::vector<CaloCluster> & clusters, 
 			      const std::vector<CaloTower>& towers,
 			      std::vector<EGamma> & egammas);
     
   private:
-    //    CaloParams const & m_params;
+    CaloParams const & params_;
   };
   
 }
