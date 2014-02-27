@@ -9,6 +9,6 @@
  */
 
 
-enum EcalSubdetector { EcalBarrel=1, EcalEndcap=2, EcalPreshower=3, EcalTriggerTower=4, EcalLaserPnDiode=5 };
+enum EcalSubdetector { EcalBarrel=1, EcalEndcap=2, EcalPreshower=3, EcalTriggerTower=4, EcalLaserPnDiode=5, EcalShashlik=6 };
 
 #endif
