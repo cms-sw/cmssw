@@ -42,7 +42,7 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
   
   for ( unsigned int i=0;i<ora::helper::BaseSize(objType);i++){
     edm::BaseWithDict base = ora::helper::BaseAt(objType, i);
-    edm::TypeWithDict baseType = ClassUtils::resolvedType( base.typeOf() );
+    edm::TypeWithDict baseType = ClassUtils::resolvedType( base.typeOf().toType() );
     buildBaseDataMembers( dataElement, relationalData, baseType, operationBuffer );
     for ( unsigned int j=0;j<baseType.dataMemberSize();j++){
       edm::MemberWithDict dataMember = ora::helper::DataMemberAt(baseType, j);      

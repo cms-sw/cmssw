@@ -552,7 +552,7 @@ namespace ora {
     std::string className = objType.qualifiedName();
     for ( size_t i=0; i< ora::helper::BaseSize(objType); i++){
       edm::BaseWithDict base = ora::helper::BaseAt(objType, i);
-      edm::TypeWithDict baseType = ClassUtils::resolvedType( base.typeOf() ); // ?? base.toType() );
+      edm::TypeWithDict baseType = ClassUtils::resolvedType( base.typeOf().toType() );
       if(!baseType){
         throwException( "Class for base \""+base.name()+"\" is not in the dictionary.","ObjectMapping::process");
       }
