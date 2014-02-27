@@ -6,7 +6,6 @@
  */
 
 #include "EventFilter/Utilities/interface/DataPoint.h"
-#include "EventFilter/Utilities/interface/Operations.h"
 
 #include <tbb/concurrent_vector.h>
 
