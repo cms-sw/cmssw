@@ -72,10 +72,11 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   setWhatProduced(this);
    //setWhatProduced(this, conf.getParameter<std::string>("label"));
 
-//    m_params.setFirmwareVersion(conf.getParameter<unsigned>("firmwareVersion"));
-//    m_params.setParamA(conf.getParameter<unsigned>("paramA"));
-//    m_params.setParamB(conf.getParameter<unsigned>("paramB"));
-//    m_params.setParamC(conf.getParameter<double>("paramC"));
+  m_params.setTowerLsbH(conf.getParameter<double>("towerLsbH"));
+  m_params.setTowerLsbE(conf.getParameter<double>("towerLsbE"));
+  m_params.setTowerNBitsH(conf.getParameter<int>("towerNBitsH"));
+  m_params.setTowerNBitsE(conf.getParameter<int>("towerNBitsE"));
+
 }
 
 
