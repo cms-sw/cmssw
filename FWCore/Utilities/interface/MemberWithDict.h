@@ -32,6 +32,8 @@ namespace edm {
 
     TypeWithDict typeOf() const;
 
+    bool isArray() const;
+
     bool isConst() const;
 
     bool isPublic() const;

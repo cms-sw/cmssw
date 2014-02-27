@@ -118,10 +118,12 @@ namespace edm {
     } 
     std::string demangledName(demangled);
     free(demangled);
-    // We must use the same conventions used by REFLEX.
+    // We must use the same conventions previously used by REFLEX.
     // The order of these is important.
     // No space after comma
     replaceString(demangledName, ", ", ",");
+    // No space before opening square bracket
+    replaceString(demangledName, " [", "[");
     // Strip default allocator
     std::string const allocator(",std::allocator<");
     removeParameter(demangledName, allocator);
