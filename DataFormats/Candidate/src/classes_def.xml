@@ -11,6 +11,9 @@
   <ioread sourceClass = "reco::Particle" version="[1-]" targetClass="reco::Particle" source="p4Polar_" target="p4Cartesian_">
    <![CDATA[newObj->setCartesian();]]>
   </ioread>
+  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::Particle" source="float pt_; float eta_; float phi_; float mass_" target="p4Polar_">
+    <![CDATA[p4Polar_ = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> >(onfile.pt_,onfile.eta_,onfile.phi_,onfile.mass_);]]>
+  </ioread>
   <class name="reco::Candidate" ClassVersion="10">
    <version ClassVersion="10" checksum="783896264"/>
     <!-- <field name="mothers_" transient="true"/> -->
