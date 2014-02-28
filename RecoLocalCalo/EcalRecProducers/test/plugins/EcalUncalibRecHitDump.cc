@@ -9,6 +9,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include <iostream>
+
 class EcalUncalibRecHitDump : public edm::EDAnalyzer {
  public:
   explicit EcalUncalibRecHitDump(const edm::ParameterSet&);
