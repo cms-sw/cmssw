@@ -536,7 +536,6 @@ namespace edm {
 
   TypeWithDict
   TypeWithDict::toType() const {
-    TypeWithDict ret;
     if (type_ == nullptr) {
       return *this;
     }
