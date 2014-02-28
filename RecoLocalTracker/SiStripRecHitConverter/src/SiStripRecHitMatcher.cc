@@ -15,13 +15,14 @@
 
 
 
-SiStripRecHitMatcher::SiStripRecHitMatcher(const edm::ParameterSet& conf){   
-  scale_=conf.getParameter<double>("NSigmaInside");  
-}
+SiStripRecHitMatcher::SiStripRecHitMatcher(const edm::ParameterSet& conf):
+  scale_(conf.getParameter<double>("NSigmaInside")),
+  preFilter_(conf.existsAs<bool>("PreFilter") ? conf.getParameter<bool>("PreFilter") : false)  
+  {}
 
-SiStripRecHitMatcher::SiStripRecHitMatcher(const double theScale){   
-  scale_=theScale;  
-}
+SiStripRecHitMatcher::SiStripRecHitMatcher(const double theScale):
+  scale_(theScale){}  
+
 
 
 namespace {

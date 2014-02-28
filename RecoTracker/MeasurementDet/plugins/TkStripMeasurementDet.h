@@ -155,6 +155,7 @@ public:
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
 
 
+  bool empty(const MeasurementTrackerEvent & data) const;
 
   void simpleRecHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data, std::vector<SiStripRecHit2D> &result) const ;
   
