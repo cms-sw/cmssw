@@ -46,7 +46,7 @@ namespace reco {
     typedef std::vector<std::pair<CaloClusterPtr::key_type,edm::Ptr<PFCluster> > > EEtoPSAssociation;
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
   
-    PFCluster() : CaloCluster(CaloCluster::particleFlow), color_(1) {}
+    PFCluster() : CaloCluster(CaloCluster::particleFlow), layer_(PFLayer::NONE), color_(1) {}
 
     /// constructor
     PFCluster(PFLayer::Layer layer, double energy,
@@ -68,7 +68,7 @@ namespace reco {
     void setLayer( PFLayer::Layer layer);
     
     /// cluster layer, see PFLayer.h in this directory
-    PFLayer::Layer  layer() const;     
+    PFLayer::Layer  layer() const;
     
     /// cluster energy
     double        energy() const {return energy_;}
@@ -169,7 +169,9 @@ namespace reco {
     ///Michalis :Add timing information
     double time_;
 
-    
+    /// transient layer
+    PFLayer::Layer layer_; 
+   
     /// \todo move to PFClusterTools
     static int    depthCorMode_;
     
