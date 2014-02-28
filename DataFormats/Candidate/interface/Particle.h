@@ -31,20 +31,20 @@ namespace reco {
     /// point in the space
     typedef math::XYZVector Vector;
     /// default constructor
-    Particle() : vertex_(0, 0, 0), pt_(0), eta_(0), phi_(0), mass_(0),
+    Particle() : vertex_(0, 0, 0),
 		 qx3_(0), pdgId_(0), status_(0){}
     
     /// constructor from values
     Particle( Charge q, const PtEtaPhiMass  & p4, const Point & vertex= Point( 0, 0, 0 ),
 	      int pdgId=0, int status=0, bool integerCharge=true)
-      : vertex_( vertex ),  pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-	p4Polar_(pt_, eta_, phi_, mass_), p4Cartesian_(p4Polar_),
+      : vertex_( vertex ),  p4Polar_( p4.pt(), p4.eta(), p4.phi(), p4.mass() ),
+	p4Cartesian_(p4Polar_),
 	qx3_( integerCharge ? q*3 : q ),pdgId_( pdgId ), status_( status ){}
     
     /// constructor from values
     Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
 	      int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      vertex_( vertex ),  pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
+      vertex_( vertex ), 
       p4Polar_(p4), p4Cartesian_(p4),
       qx3_( integerCharge ? q*3 : q ),pdgId_( pdgId ), status_( status ){}
 
@@ -52,18 +52,13 @@ namespace reco {
     /// constructor from values
     Particle( Charge q, const PolarLorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
 	      int pdgId = 0, int status = 0, bool integerCharge = true ):
-      vertex_( vertex ),  pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
+      vertex_( vertex ), 
       p4Polar_(p4), p4Cartesian_(p4),
       qx3_( integerCharge ? q*3 : q ),pdgId_( pdgId ), status_( status ){}
     
 
     /// set internal cache
-    inline void setPolar()  { 
-      p4Polar_ = PolarLorentzVector( pt_, eta_, phi_, mass_ );
-    }
-    /// set internal cache
     inline void setCartesian()  { 
-      setPolar();
       p4Cartesian_ = p4Polar_;
     }
 
@@ -94,9 +89,9 @@ namespace reco {
     /// transverse energy 
     double et() const { return p4Polar_.Et(); }  
     /// mass
-    double mass() const { return mass_; }
+    double mass() const { return  p4Polar_.mass(); }
     /// mass squared
-    double massSqr() const { return mass_ * mass_; }
+    double massSqr() const { return mass()*mass(); }
     /// transverse mass
     double mt() const { return p4Polar_.Mt(); }
     /// transverse mass squared
@@ -108,13 +103,13 @@ namespace reco {
     /// z coordinate of momentum vector
     double pz() const {  return p4Cartesian_.Pz(); }
     /// transverse momentum
-    double pt() const { return pt_; }
+    double pt() const { return p4Polar_.pt(); }
     /// momentum azimuthal angle
-    double phi() const { return phi_; }
+    double phi() const { return p4Polar_.phi(); }
     /// momentum polar angle
     double theta() const {  return p4Cartesian_.Theta(); }
     /// momentum pseudorapidity
-    double eta() const { return eta_; }
+    double eta() const { return p4Polar_.eta(); }
     /// repidity
     double rapidity() const {  return p4Polar_.Rapidity(); }
     /// repidity
@@ -123,33 +118,23 @@ namespace reco {
     void setP4( const LorentzVector & p4 ) { 
       p4Cartesian_ = p4;
       p4Polar_ = p4;
-      pt_ = p4Polar_.pt();
-      eta_ = p4Polar_.eta();
-      phi_ = p4Polar_.phi();
-      mass_ = p4Polar_.mass();
+
     }
     /// set 4-momentum
     void setP4( const PolarLorentzVector & p4 ) { 
       p4Polar_ = p4;
       p4Cartesian_ = p4;
-      pt_ = p4Polar_.pt();
-      eta_ = p4Polar_.eta();
-      phi_ = p4Polar_.phi();
-      mass_ = p4Polar_.mass();
     }
     /// set particle mass
     void setMass( double m ) { 
-      mass_ = m;
+      p4Polar_.SetM(m);
       setCartesian();
       
     }
     void setPz( double pz ) {
       p4Cartesian_.SetPz(pz);
       p4Polar_ = p4Cartesian_;
-      pt_ = p4Polar_.pt();
-      eta_ = p4Polar_.eta();
-      phi_ = p4Polar_.phi();
-      mass_ = p4Polar_.mass();
+
     }
     /// vertex position
     const Point & vertex() const { return vertex_; }
@@ -182,8 +167,6 @@ namespace reco {
     Point vertex_;
     
     /// four-momentum Lorentz vector
-    float pt_, eta_, phi_, mass_;
-    /// internal cache for p4
     PolarLorentzVector p4Polar_;
     /// internal cache for p4
     LorentzVector p4Cartesian_;
