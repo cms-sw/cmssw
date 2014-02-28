@@ -36,8 +36,9 @@ iterativeTobTecSeeds.newSyntax = True
 #                                  'TEC1_neg+TEC2_neg', 'TEC2_neg+TEC3_neg', 
 #                                  'TEC3_neg+TEC4_neg', 'TEC4_neg+TEC5_neg', 
 #                                  'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg']
-from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecStepSeedLayers
-iterativeTobTecSeeds.layerList = tobTecStepSeedLayers.layerList 
+from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecStepSeedLayersPair
+iterativeTobTecSeeds.layerList = ['TOB1+TOB2']
+iterativeTobTecSeeds.layerList.extend(tobTecStepSeedLayersPair.layerList)
 
 # candidate producer
 #from FastSimulation.Tracking.IterativeFifthCandidateProducer_cff import *

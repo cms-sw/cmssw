@@ -13,13 +13,18 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 
+namespace edm { class EventSetup; }
+
 class MultiHitGeneratorFromPairAndLayers : public MultiHitGenerator {
 
 public:
   typedef LayerHitMapCache  LayerCacheType;
 
   virtual ~MultiHitGeneratorFromPairAndLayers() {}
+
   virtual void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) = 0; 
+
+  virtual void initES(const edm::EventSetup& es) = 0; 
 
   virtual void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
                                 std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) = 0;
