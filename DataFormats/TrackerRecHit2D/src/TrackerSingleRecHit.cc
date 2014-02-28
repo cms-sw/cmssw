@@ -89,7 +89,7 @@ namespace {
   }
   
   bool doingCheck = false;
-  void checkSelf(const TrackingRecHit* one,const TrackingRecHit* two) {
+  inline void checkSelf(const TrackingRecHit* one,const TrackingRecHit* two) {
     doingCheck=true;
     if (!one->sharesInput(one,TrackingRecHit::all)) problem(one,"all");
     if (!one->sharesInput(one,TrackingRecHit::some)) problem(one,"some");

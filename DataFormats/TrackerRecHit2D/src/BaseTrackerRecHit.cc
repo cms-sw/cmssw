@@ -6,7 +6,7 @@
 
 namespace {
   void
-  throwExceptionUninitialized(const char *where)
+  inline throwExceptionUninitialized(const char *where)
   {
     throw cms::Exception("BaseTrackerRecHit") << 
       "Trying to access " << where << " for a RecHit that was read from disk, but since CMSSW_2_1_X local positions are transient.\n" <<
