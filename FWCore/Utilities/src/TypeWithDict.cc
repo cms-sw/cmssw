@@ -538,18 +538,17 @@ namespace edm {
   TypeWithDict::toType() const {
     TypeWithDict ret;
     if (type_ == nullptr) {
-      return ret;
+      return *this;
     }
     TType* ty = gInterpreter->Type_ToType(type_);
     if (ty == nullptr) {
-      return ret;
+      return *this;
     }
     std::type_info const* ti = gInterpreter->Type_TypeInfo(ty);
     if (ti == nullptr) {
-      return ret;
+      return *this;
     }
-    ret = TypeWithDict(*ti);
-    return ret;
+    return TypeWithDict(*ti);
   }
 
   std::string
