@@ -4,12 +4,20 @@
 using namespace std;
 using namespace reco;
 
-
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+std::atomic<int>    PFCluster::depthCorMode_{0};
+std::atomic<double> PFCluster::depthCorA_{0.89};
+std::atomic<double> PFCluster::depthCorB_{7.3};
+std::atomic<double> PFCluster::depthCorAp_{0.89};
+std::atomic<double> PFCluster::depthCorBp_{4.0};
+#else
 int    PFCluster::depthCorMode_ = 0;
 double PFCluster::depthCorA_ = 0.89;
 double PFCluster::depthCorB_ = 7.3;
 double PFCluster::depthCorAp_ = 0.89;
 double PFCluster::depthCorBp_ = 4.0;
+#endif
+
 
 const math::XYZPoint PFCluster::dummyVtx_(0,0,0);
 
