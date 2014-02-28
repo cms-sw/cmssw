@@ -12,7 +12,7 @@
  <Constant name="RootMidZ1"      value="[cms:TrackLumiZ1]-[ZPixelForward]"/>
  <Constant name="RootMidZ2"      value="[cms:TrackLumiZ2]-[ZPixelForward]"/>
  <Constant name="RootMidZ3"      value="[cms:TrackBeamZ1]-[ZPixelForward]"/>
- <Constant name="RootEndZ"       value="2*[RootHalfLength]"/>
+ <Constant name="RootEndZ"       value="2*[RootHalfLength] + 13.*cm"/>
  <Constant name="Zextension"      value="273.11*mm"/>
 
  <Constant name="Disk1Z"         value="[pixfwdDisks:DiskHalfWidth]+[RootStartZ]"/> <!-- 35.75*mm-->
@@ -35,14 +35,16 @@
 <SolidSection label="pixfwd.xml">
  <Polycone name="PixelForward" startPhi="0*deg" deltaPhi="360*deg" >
    <ZSection z="[RootStartZ]" rMin="[cms:TrackBeamR1]" rMax="[RootRadius]"/>
-   <ZSection z="99.00*cm" rMin="[cms:TrackBeamR1]" rMax="[RootRadius]"/>
-   <ZSection z="99.00*cm" rMin="[cms:TrackBeamR1]" rMax="110.0*cm"/>
-   <ZSection z="[RootMidZ1]"   rMin="[cms:TrackBeamR1]" rMax="110.0*cm"/>
-   <ZSection z="[RootMidZ1]"   rMin="[cms:TrackLumiR1]" rMax="110.0*cm"/>
-   <ZSection z="[RootMidZ2]"   rMin="[cms:TrackLumiR1]" rMax="110.0*cm"/>
-   <ZSection z="[RootMidZ2]"   rMin="[cms:TrackBeamR1]" rMax="110.0*cm"/>
-   <ZSection z="[RootMidZ3]"   rMin="[cms:TrackBeamR1]" rMax="110.0*cm"/>
-   <ZSection z="[RootEndZ]"    rMin="[cms:TrackBeamR2]" rMax="110.0*cm"/>
+   <ZSection z="80.13*cm - 29.11*cm" rMin="[cms:TrackBeamR1]" rMax="[RootRadius]"/>
+   <ZSection z="80.13*cm - 29.11*cm" rMin="[cms:TrackBeamR1]" rMax="19.*cm"/>
+   <ZSection z="99.00*cm" rMin="[cms:TrackBeamR1]" rMax="19.*cm"/>
+   <ZSection z="99.00*cm" rMin="[cms:TrackBeamR1]" rMax="110.095*cm"/>
+   <ZSection z="[RootMidZ1]"   rMin="[cms:TrackBeamR1]+0.4*cm" rMax="110.095*cm"/>
+   <ZSection z="[RootMidZ1]"   rMin="[cms:TrackLumiR1]" rMax="110.095*cm"/>
+   <ZSection z="[RootMidZ2]"   rMin="[cms:TrackLumiR1]" rMax="110.095*cm"/>
+   <ZSection z="[RootMidZ2]"   rMin="[cms:TrackBeamR1]+0.8*cm" rMax="110.095*cm"/>
+   <ZSection z="[RootMidZ3]"   rMin="[cms:TrackBeamR1]+1.3*cm" rMax="110.095*cm"/>
+   <ZSection z="[RootEndZ]"    rMin="[cms:TrackBeamR2]" rMax="110.095*cm"/>
 </Polycone>
 </SolidSection>
 
