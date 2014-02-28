@@ -7,7 +7,7 @@
 #ifdef EDM_ML_DEBUG
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-//#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
@@ -129,7 +129,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	if(hitId.subdetId() == MuonSubdetId::DT)
 	  LogTrace("TrackFitters") << " I am DT " << DTWireId(hitId);
 	else if (hitId.subdetId() == MuonSubdetId::CSC )
-	  LogTrace("TrackFitters") << " I am CSC " ;//<< CSCDetId(hitId);
+	  LogTrace("TrackFitters") << " I am CSC " << CSCDetId(hitId);
 	else if (hitId.subdetId() == MuonSubdetId::RPC )
 	  LogTrace("TrackFitters") << " I am RPC " << RPCDetId(hitId);
 	else 

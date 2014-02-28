@@ -118,9 +118,9 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCandidate
   //		
   //get the TrackCandidateCollection from the event
   //
-  //LogDebug("TrackProducer") << 
-    //"get the TrackCandidateCollection from the event, source is " << src_<<"\n";
-    theEvent.getByToken(src_,theTCCollection );  
+  LogDebug("TrackProducer") << 
+  	"get the TrackCandidateCollection from the event, source is " << conf_.getParameter<edm::InputTag>( "src" ) <<"\n";
+  theEvent.getByToken(src_,theTCCollection );  
 
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -134,9 +134,9 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollectio
   //
   //get the TrackCollection from the event
   //
-  //LogDebug("TrackProducer") << 
-    //"get the TrackCollection from the event, source is " << src_<<"\n";
-    theEvent.getByToken(src_,theTCollection );  
+  LogDebug("TrackProducer") << 
+  	"get the TrackCollection from the event, source is " << conf_.getParameter<edm::InputTag>( "src" ) <<"\n";
+  theEvent.getByToken(src_,theTCollection );  
 
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
