@@ -252,7 +252,7 @@ double AntiElectronIDMVA5GBR::MVAValue(Float_t TauEtaAtEcalEntrance,
 {
 
   if ( !isInitialized_ ) {
-    std::cout << "Error: AntiElectronMVA not properly initialized.\n";
+    edm::LogError("ClassNotInitialized") << "Error: AntiElectronMVA not properly initialized.\n";
     return -99.;
   }
 
