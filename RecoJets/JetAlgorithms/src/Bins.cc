@@ -13,7 +13,7 @@ bool Bins::getBin(std::vector<int>& bins, double value, int& low, int& up){
 }
 
 int Bins::getBinNumber(std::vector<int>& bins, double value){
-  if(value <= bins.front() || value >= bins.back()) return -1;
+  if(value < bins.front() || value >= bins.back()) return -1;
   std::vector<int>::iterator binUp = bins.begin() + 1;
   while(value > *binUp) ++binUp;
   return binUp - bins.begin() - 1;
@@ -21,12 +21,12 @@ int Bins::getBinNumber(std::vector<int>& bins, double value){
 
 void Bins::getBins_int(std::vector<int>& bins, int nBins, double xmin, double xmax, bool log){
   const double dx = (log ? std::pow((xmax/xmin), (1./(double)nBins)) : ((xmax - xmin)/(double)nBins));
-  bins.push_back((int)xmin);
+  bins.push_back(xmin);
   double binEdge = xmin;
   for(int i = 1; i < nBins; ++i){
     if(log) binEdge *= dx;
-    else binEdge += (int)dx;
-    bins.push_back((int)(binEdge + 1));
+    else{ binEdge = ceil(binEdge); binEdge += dx;}
+    bins.push_back(ceil(binEdge));
   }
-  bins.push_back((int)xmax);
+  bins.push_back(xmax);
 }
