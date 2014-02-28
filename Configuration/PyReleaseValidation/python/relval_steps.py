@@ -1224,7 +1224,7 @@ for k in upgradeKeys:
                                     '--geometry' : upgradeGeoms[k],
                                     '--scenario' : 'pp'
                                     }
-    if upgradeCustoms[k]!=None : upgradeStepDict['HarvFull'][k]['--customise']=upgradeCustoms[k]
+    if upgradeCustoms[k]!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=upgradeCustoms[k]
 
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
                                    '--eventcontent':'FEVTDEBUGHLT,DQM',
