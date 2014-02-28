@@ -493,17 +493,16 @@ bool RecHitAnalyzer::isSimTrackGood(const SimTrack &t)
 }
 
 void RecHitAnalyzer::bookingME(const GEMGeometry* gem_geometry_){
-    std::cout<<"Print ============================>     "<<gem_geometry_->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->specs()->parameters()[3]<<std::endl;
+    std::cout<<"Print ============================>     "<<gem_geometry_->regions().size()<<std::endl;//[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->specs()->parameters()[3]<<std::endl;
+    int num_region=gem_geometry_->regions().size();
     int num_station=gem_geometry_->stations().size();
     float nStrips=0;
     
+    std::string region[2] ={"m1", "p1"};
     std::string station[3]={ "_st1", "_st2", "_st3" };
 
     meCollection["clsDistribution"] = dbe->book1D("clsDistribution","ClusterSizeDistribution",11,-0.5,10.5);
-    meCollection["clsDistribution_rm1_l1"] = dbe->book1D("clsDistribution_rm1_l1","ClusterSizeDistribution, Region=-1, Layer=1",11,-0.5,10.5);
-    meCollection["clsDistribution_rm1_l2"] = dbe->book1D("clsDistribution_rm1_l2","ClusterSizeDistribution, Region=-1, Layer=2",11,-0.5,10.5);
-    meCollection["clsDistribution_rp1_l1"] = dbe->book1D("clsDistribution_rp1_l1","ClusterSizeDistribution, Region=1, Layer=1",11,-0.5,10.5);
-    meCollection["clsDistribution_rp1_l2"] = dbe->book1D("clsDistribution_rp1_l2","ClusterSizeDistribution, Region=1, Layer=2",11,-0.5,10.5);
+
     meCollection["bxDistribution"] = dbe->book1D("bxDistribution","BunchCrossingDistribution",11,-5.5,5.5);
     meCollection["recHitPullX"] = dbe->book1D("recHitPullX","recHitPullX",100,-50,+50);
     meCollection["recHitDPhi"] = dbe->book1D("recHitDPhi","DeltaPhi RecHit",100,-0.001,+0.001);
@@ -512,41 +511,42 @@ void RecHitAnalyzer::bookingME(const GEMGeometry* gem_geometry_){
     meCollection["strip_rh_tot"] = dbe->book1D("strip_rh_tot","GEM RecHit occupancy per strip number",384,0.5,384.5);
     meCollection["roll_vs_strip_rh"] = dbe->book2D("roll_vs_strip_rh","GEM RecHit occupancy per roll and strip number",768,0.5,768.5,12,0.5,12.5);
     
-    for (int i=0; i<num_station; i++) {
-        
+    for (int k=0; k<num_station; k++){
         //-----------------------BunchX--------------------------------------//
-        meCollection["bxDistribution"+station[i]] = dbe->book1D("bxDistribution"+station[i],"BunchCrossingDistribution, Station="+std::to_string(i+1),11,-5.5,5.5);
+        meCollection["bxDistribution"+station[k]] = dbe->book1D("bxDistribution"+station[k],"BunchCrossingDistribution, Station="+std::to_string(k+1),11,-5.5,5.5);
+        //-----------------------Delta Phi--------------------------------------//
+        meCollection["recHitDPhi"+station[k]] = dbe->book1D("recHitDPhi"+station[k],"DeltaPhi RecHit, Station="+std::to_string(k+1),100,-0.001,+0.001);
+        meCollection["recHitDPhi"+station[k]+"_cls1"] = dbe->book1D("recHitDPhi"+station[k]+"_cls1","DeltaPhi RecHit, Station="+std::to_string(k+1)+", CLS=1",100,-0.001,+0.001);
+        meCollection["recHitDPhi"+station[k]+"_cls2"] = dbe->book1D("recHitDPhi"+station[k]+"_cls2","DeltaPhi RecHit, Station="+std::to_string(k+1)+", CLS=2",100,-0.001,+0.001);
+        meCollection["recHitDPhi"+station[k]+"_cls3"] = dbe->book1D("recHitDPhi"+station[k]+"_cls3","DeltaPhi RecHit, Station="+std::to_string(k+1)+", CLS=3",100,-0.001,+0.001);
+    }
+    
+    for (int j=0; j<num_region; j++){
+        
+        meCollection["clsDistribution_r"+region[j]+"_l1"] = dbe->book1D("clsDistribution_r"+region[j]+"_l1","ClusterSizeDistribution, region "+region[j]+", Layer=1",11,-0.5,10.5);
+        meCollection["clsDistribution_r"+region[j]+"_l2"] = dbe->book1D("clsDistribution_r"+region[j]+"_l2","ClusterSizeDistribution, region "+region[j]+", Layer=2",11,-0.5,10.5);
+        
+        for (int i=0; i<num_station; i++) {
         
         //-------------------------(x_rec-x_sim)/x_sim-----------------------------------//
-        meCollection["recHitPullX_rm1"+station[i]+"_l1"] = dbe->book1D("recHitPullX_rm1"+station[i]+"_l1","recHitPullX, region-1, station"+std::to_string(i+1)+", layer1",100,-50,+50);
-        meCollection["recHitPullX_rm1"+station[i]+"_l2"] = dbe->book1D("recHitPullX_rm1"+station[i]+"_l2","recHitPullX, region-1, station"+std::to_string(i+1)+", layer2",100,-50,+50);
-        meCollection["recHitPullX_rp1"+station[i]+"_l1"] = dbe->book1D("recHitPullX_rp1"+station[i]+"_l1","recHitPullX, region1, station"+std::to_string(i+1)+", layer1",100,-50,+50);
-        meCollection["recHitPullX_rp1"+station[i]+"_l2"] = dbe->book1D("recHitPullX_rp1"+station[i]+"_l2","recHitPullX, region1, station"+std::to_string(i+1)+", layer2",100,-50,+50);
-        
-        meCollection["recHitDPhi"+station[i]] = dbe->book1D("recHitDPhi"+station[i],"DeltaPhi RecHit, Station="+std::to_string(i+1),100,-0.001,+0.001);
-        meCollection["recHitDPhi"+station[i]+"_cls1"] = dbe->book1D("recHitDPhi"+station[i]+"_cls1","DeltaPhi RecHit, Station="+std::to_string(i+1)+", CLS=1",100,-0.001,+0.001);
-        meCollection["recHitDPhi"+station[i]+"_cls2"] = dbe->book1D("recHitDPhi"+station[i]+"_cls2","DeltaPhi RecHit, Station="+std::to_string(i+1)+", CLS=2",100,-0.001,+0.001);
-        meCollection["recHitDPhi"+station[i]+"_cls3"] = dbe->book1D("recHitDPhi"+station[i]+"_cls3","DeltaPhi RecHit, Station="+std::to_string(i+1)+", CLS=3",100,-0.001,+0.001);
+            meCollection["recHitPullX_r"+region[j]+station[i]+"_l1"] = dbe->book1D("recHitPullX_r"+region[j]+station[i]+"_l1","recHitPullX, region "+region[j]+", station"+std::to_string(i+1)+", layer1",100,-50,+50);
+            meCollection["recHitPullX_r"+region[j]+station[i]+"_l2"] = dbe->book1D("recHitPullX_r"+region[j]+station[i]+"_l2","recHitPullX, region "+region[j]+", station"+std::to_string(i+1)+", layer2",100,-50,+50);
         
         //----------------Occupancy XY-------------------------------//
-        meCollection["localrh_xy_rm1"+station[i]+"_l1"] = dbe->book2D("localrh_xy_rm1"+station[i]+"_l1","GEM RecHit occupancy: region-1, station"+std::to_string(i+1)+", layer1",200,-260,260,100,-260,260);
-        meCollection["localrh_xy_rm1"+station[i]+"_l2"] = dbe->book2D("localrh_xy_rm1"+station[i]+"_l2","GEM RecHit occupancy: region-1, station"+std::to_string(i+1)+", layer2",200,-260,260,100,-260,260);
-        meCollection["localrh_xy_rp1"+station[i]+"_l1"] = dbe->book2D("localrh_xy_rp1"+station[i]+"_l1","GEM RecHit occupancy: region1, station"+std::to_string(i+1)+", layer1",200,-260,260,100,-260,260);
-        meCollection["localrh_xy_rp1"+station[i]+"_l2"] = dbe->book2D("localrh_xy_rp1"+station[i]+"_l2","GEM RecHit occupancy: region1, station"+std::to_string(i+1)+", layer2",200,-260,260,100,-260,260);
+            meCollection["localrh_xy_r"+region[j]+station[i]+"_l1"] = dbe->book2D("localrh_xy_r"+region[j]+station[i]+"_l1","GEM RecHit occupancy: region "+region[j]+", station"+std::to_string(i+1)+", layer1",200,-260,260,100,-260,260);
+            meCollection["localrh_xy_r"+region[j]+station[i]+"_l2"] = dbe->book2D("localrh_xy_r"+region[j]+station[i]+"_l2","GEM RecHit occupancy: region"+region[j]+", station"+std::to_string(i+1)+", layer2",200,-260,260,100,-260,260);
         
         //---------------------Strips Occupancy------------------//
         
-        if(i==0) nStrips=384.;  /*Station1*/
-        if(i>0)  nStrips=768.;  /*Station2 & 3*/
-        meCollection["strip_rh_rm1"+station[i]+"_l1_tot"] = dbe->book1D("strip_rh_rm1"+station[i]+"_l1_tot","GEM RecHit occupancy per strip number, region-1 layer1 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5);
-        meCollection["strip_rh_rm1"+station[i]+"_l2_tot"] = dbe->book1D("strip_rh_rm1"+station[i]+"_l2_tot","GEM RecHit occupancy per strip number, region-1 layer2 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5);
-        meCollection["strip_rh_rp1"+station[i]+"_l1_tot"] = dbe->book1D("strip_rh_rp1"+station[i]+"_l1_tot","GEM RecHit occupancy per strip number, region1 layer1 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5);
-        meCollection["strip_rh_rp1"+station[i]+"_l2_tot"] = dbe->book1D("strip_rh_rp1"+station[i]+"_l2_tot","GEM RecHit occupancy per strip number, region1 layer2 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5);
+            if(i==0) nStrips=384.;  /*Station1*/
+            if(i>0)  nStrips=768.;  /*Station2 & 3*/
+            meCollection["strip_rh_r"+region[j]+station[i]+"_l1_tot"] = dbe->book1D("strip_rh_r"+region[j]+station[i]+"_l1_tot","GEM RecHit occupancy per strip number, region "+region[j]+" layer1 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5);
+            meCollection["strip_rh_r"+region[j]+station[i]+"_l2_tot"] = dbe->book1D("strip_rh_r"+region[j]+station[i]+"_l2_tot","GEM RecHit occupancy per strip number, region "+region[j]+" layer2 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5);
         
-        meCollection["roll_vs_strip_rh_rm1"+station[i]+"_l1"] = dbe->book2D("roll_vs_strip_rh_rm1"+station[i]+"_l1","GEM RecHit occupancy per roll and strip number, region-1 layer1 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5,12,0.5,12.5);
-        meCollection["roll_vs_strip_rh_rm1"+station[i]+"_l2"] = dbe->book2D("roll_vs_strip_rh_rm1"+station[i]+"_l2","GEM RecHit occupancy per roll and strip number, region-1 layer2 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5,12,0.5,12.5);
-        meCollection["roll_vs_strip_rh_rp1"+station[i]+"_l1"] = dbe->book2D("roll_vs_strip_rh_rp1"+station[i]+"_l1","GEM RecHit occupancy per roll and strip number, region1 layer1 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5,12,0.5,12.5);
-        meCollection["roll_vs_strip_rh_rp1"+station[i]+"_l2"] = dbe->book2D("roll_vs_strip_rh_rp1"+station[i]+"_l2","GEM RecHit occupancy per roll and strip number, region1 layer2 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5,12,0.5,12.5);
+            meCollection["roll_vs_strip_rh_r"+region[j]+station[i]+"_l1"] = dbe->book2D("roll_vs_strip_rh_r"+region[j]+station[i]+"_l1","GEM RecHit occupancy per roll and strip number, region "+region[j]+" layer1 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5,12,0.5,12.5);
+            meCollection["roll_vs_strip_rh_r"+region[j]+station[i]+"_l2"] = dbe->book2D("roll_vs_strip_rh_r"+region[j]+station[i]+"_l2","GEM RecHit occupancy per roll and strip number, region "+region[j]+" layer2 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5,12,0.5,12.5);
+ 
+        }
     }
 }
 // ------------ method called once each job just before starting event loop  ------------
