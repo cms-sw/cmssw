@@ -5,11 +5,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Geometry")
 
 # gaussian Vertex Smearing
-process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
+process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 # detector simulation (Geant4-based) with tracking material accounting 
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+process.load("Configuration.StandardSequences.GeometryExtended_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialProducer_cff")
 
 # message logger
