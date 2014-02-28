@@ -42,6 +42,10 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
   outputMEsInRootFile   = parameters.getParameter<bool>("OutputMEsInRootFile");
   mOutputFile_   = parameters.getParameter<std::string>("OutputFile");
+
+  LSBegin_     = pSet.getParameter<int>("LSBegin");
+  LSEnd_       = pSet.getParameter<int>("LSEnd");
+
   MetType_ = parameters.getUntrackedParameter<std::string>("METType");
 
   triggerResultsLabel_        = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
@@ -132,35 +136,11 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
  cleaningParameters_ = parameters.getParameter<ParameterSet>("CleaningParameters");
 
-  verbose_      = parameters.getParameter<int>("verbose");
+ verbose_      = parameters.getParameter<int>("verbose");
 
-  FolderName_              = parameters.getUntrackedParameter<std::string>("FolderName");
+ FolderName_              = parameters.getUntrackedParameter<std::string>("FolderName");
 
-//  edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
-//  edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
-//  edm::ParameterSet minbiasparms   = parameters.getParameter<edm::ParameterSet>("minBiasTrigger"  );
-//  edm::ParameterSet highmetparms   = parameters.getParameter<edm::ParameterSet>("highMETTrigger"  );
-//  //  edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
-//  edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
-//  edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
-//
-//  highPtJetEventFlag_ = new GenericTriggerEventFlag( highptjetparms, consumesCollector() );
-//  highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
-//
-//  lowPtJetEventFlag_  = new GenericTriggerEventFlag( lowptjetparms, consumesCollector() );
-//  lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
-//
-//  minBiasEventFlag_   = new GenericTriggerEventFlag( minbiasparms , consumesCollector() );
-//  minbiasExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
-//
-//  highMETEventFlag_   = new GenericTriggerEventFlag( highmetparms , consumesCollector() );
-//  highMETExpr_   = highmetparms  .getParameter<std::vector<std::string> >("hltPaths");
-//
-//  eleEventFlag_       = new GenericTriggerEventFlag( eleparms     , consumesCollector() );
-//  elecExpr_      = eleparms      .getParameter<std::vector<std::string> >("hltPaths");
-//
-//  muonEventFlag_      = new GenericTriggerEventFlag( muonparms    , consumesCollector() );
-//  muonExpr_      = muonparms     .getParameter<std::vector<std::string> >("hltPaths");
+ dbe_ = edm::Service<DQMStore>().operator->();
 }
 
 // ***********************************************************
@@ -169,6 +149,14 @@ METAnalyzer::~METAnalyzer() {
   for (std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
     delete *it;
   }
+  delete DCSFilter_;
+
+  if(outputMEsInRootFile){
+      //dbe->save(mOutputFile_);
+    dbe_->save(mOutputFile_);
+  }
+
+
   //delete DCSFilter_;
 
 //  delete highPtJetEventFlag_;
@@ -204,12 +192,14 @@ void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 // ***********************************************************
 void METAnalyzer::endJob() {
 
-  delete DCSFilter_;
+  std::cout<<" i get to endJob"<<std::endl;
 
- if(outputMEsInRootFile){
+  //delete DCSFilter_;
+
+  //if(outputMEsInRootFile){
       //dbe->save(mOutputFile_);
-    dbe_->save(mOutputFile_);
-  }
+  //dbe_->save(mOutputFile_);
+  //}
 
 }
 
@@ -441,6 +431,10 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
   hMETRate      = ibooker.book1D("METRate",        "METRate",        200,    0, 1000);
 
 
+  ibooker.setCurrentFolder("JetMET");
+  lumisecME = ibooker.book1D("lumisec", "lumisec", 2500, 0., 2500.);
+
+
 }
 
 // ***********************************************************
@@ -512,7 +506,6 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 
 // ***********************************************************
 void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-//void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore * dbe)
 {
   //
   //--- Check the time length of the Run from the lumi section plots
@@ -524,19 +517,31 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   meLumiSec = dbe_->get("JetMET/lumisec");
 
   int totlsec=0;
+  int totlssecsum=0;
   double totltime=0.;
-  if ( meLumiSec->getRootObject() ) {
+  if (meLumiSec &&  meLumiSec->getRootObject() ) {
     tlumisec = meLumiSec->getTH1F();
-    for (int i=0; i<500; i++){
-      if (tlumisec->GetBinContent(i+1)) totlsec++;
+    //check overflow bin (if we have more than 2500 LS in a run)
+    //lumisec is filled every time the analyze section is processed
+    //we know an LS is present only once in a run: normalize how many events we had on average
+    //if lumi fluctuates strongly might be unreliable for overflow bin though
+    for (int i=0; i< (tlumisec->GetNbinsX()); i++){
+      if (tlumisec->GetBinContent(i)!=0){ 
+	totlsec+=1;
+	totlssecsum+=tlumisec->GetBinContent(i);
+      }
     }
+    int num_per_ls=(double)totlssecsum/(double)totlsec;
+    totlsec=totlsec+tlumisec->GetBinContent(tlumisec->GetNbinsX()+1)/(double)num_per_ls;
     totltime = double(totlsec*90); // one lumi sec ~ 90 (sec)
   }
-
+  
+ if (totltime==0.) totltime=1.;
+ 
   std::string dirName = FolderName_+metCollectionLabel_.label()+"/";
   dbe_->setCurrentFolder(dirName);
 
-  if (totltime==0.) totltime=1.;
+ 
 
   //below is the original METAnalyzer formulation
   
@@ -551,6 +556,7 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       }
     }
   }
+  
 }
 
 
@@ -584,11 +590,21 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
 // ***********************************************************
 void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  dbe_= edm::Service<DQMStore>().operator->();
+
+  // *** Fill lumisection ME
+  int myLuminosityBlock;
+  myLuminosityBlock = iEvent.luminosityBlock();
+  lumisecME->Fill(myLuminosityBlock);
+
+  if (myLuminosityBlock<LSBegin_) return;
+  if (myLuminosityBlock>LSEnd_ && LSEnd_>0) return;
+
   if (verbose_) std::cout << "METAnalyzer analyze" << std::endl;
 
   std::string DirName = FolderName_+metCollectionLabel_.label();
   
+
+
 
   // ==========================================================
   // Trigger information

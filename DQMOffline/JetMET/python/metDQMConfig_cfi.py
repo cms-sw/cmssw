@@ -32,6 +32,10 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
     TriggerResultsLabel  = cms.InputTag("TriggerResults::HLT"),
 
+
+    LSBegin = cms.int32(0),
+    LSEnd   = cms.int32(-1),      
+
 #    HLTPathsJetMB = cms.vstring(),
 #    When it is empty, it accepts all the triggers
 

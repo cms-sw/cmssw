@@ -105,6 +105,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   mInputCollection_           =    pSet.getParameter<edm::InputTag>       ("jetsrc");
   
   mOutputFile_   = pSet.getParameter<std::string>("OutputFile");
+
   jetType_ = pSet.getParameter<std::string>("JetType");
   jetCorrectionService_ = pSet.getParameter<std::string> ("JetCorrections");
   
@@ -194,9 +195,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
   
-  LSBegin_     = pSet.getParameter<int>("LSBegin");
-  LSEnd_       = pSet.getParameter<int>("LSEnd");
-  
   processname_ = pSet.getParameter<std::string>("processname");
   
   //jet cleanup parameters
@@ -241,6 +239,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   asymmetryThirdJetCut_ = parameters_.getParameter<double>("asymmetryThirdJetCut");
   balanceThirdJetCut_   = parameters_.getParameter<double>("balanceThirdJetCut");
 
+  dbe_= edm::Service<DQMStore>().operator->();
 }  
   
 
@@ -252,6 +251,12 @@ JetAnalyzer::~JetAnalyzer() {
 
   delete DCSFilterForDCSMonitoring_;
   delete DCSFilterForJetMonitoring_;
+  LogTrace(metname)<<"[JetAnalyzer] Saving the histos";
+  //--- Jet
+  if(outputMEsInRootFile){
+      //dbe_->save(mOutputFile_);
+    dbe_->save(mOutputFile_);
+  }
 }
 
 // ***********************************************************
@@ -726,7 +731,6 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   }
 
   ibooker.setCurrentFolder("JetMET");
-  lumisecME = ibooker.book1D("lumisec", "lumisec", 500, 0., 500.);
   cleanupME = ibooker.book1D("cleanup", "cleanup", 10, 0., 10.);
   cleanupME->setBinLabel(1,"Primary Vertex");
   cleanupME->setBinLabel(2,"DCS::Pixel");
@@ -886,7 +890,7 @@ void JetAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 // ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  dbe_= edm::Service<DQMStore>().operator->();
+
   //set general folders first --> change later on for different folders
   if(jetCleaningFlag_){
     dbe_->setCurrentFolder("JetMET/Jet/Cleaned"+mInputCollection_.label());
@@ -895,14 +899,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     dbe_->setCurrentFolder("JetMET/Jet/Uncleaned"+mInputCollection_.label());
     DirName = "JetMET/Jet/Uncleaned"+mInputCollection_.label();
   }
-  
-  // *** Fill lumisection ME
-  int myLuminosityBlock;
-  myLuminosityBlock = iEvent.luminosityBlock();
-  lumisecME->Fill(myLuminosityBlock);
-
-  if (myLuminosityBlock<LSBegin_) return;
-  if (myLuminosityBlock>LSEnd_ && LSEnd_>0) return;
+ 
 
   // **** Get the TriggerResults container
   edm::Handle<edm::TriggerResults> triggerResults;
@@ -1942,17 +1939,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ***********************************************************
 void JetAnalyzer::endJob(void) {
-  
-  LogTrace(metname)<<"[JetAnalyzer] Saving the histos";
-
-
-  //--- Jet
-
-
-  if(outputMEsInRootFile){
-      //dbe_->save(mOutputFile_);
-    dbe_->save(mOutputFile_);
-  }
+ 
   
 }
 

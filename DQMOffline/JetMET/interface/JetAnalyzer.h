@@ -282,14 +282,10 @@ class JetAnalyzer : public DQMEDAnalyzer {
   bool hltInitialized_;
   bool bypassAllPVChecks_;
 
-  int LSBegin_;
-  int LSEnd_;
-
   HLTConfigProvider hltConfig_;
   std::string processname_;
 
   //MonitorElement* hltpathME;
-  MonitorElement* lumisecME;
   MonitorElement* cleanupME;
   MonitorElement* verticesME;
 

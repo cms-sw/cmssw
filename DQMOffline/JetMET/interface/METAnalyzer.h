@@ -235,6 +235,10 @@ class METAnalyzer : public DQMEDAnalyzer{
   double nPVMin_; 
   double nPVMax_;
 
+
+  int LSBegin_;
+  int LSEnd_;
+
   bool bypassAllPVChecks_;
   bool bypassAllDCSChecks_;
 
@@ -274,6 +278,8 @@ class METAnalyzer : public DQMEDAnalyzer{
   bool hTriggerLabelsIsSet_;
   //only in for PF
 //  MonitorElement* meTriggerName_PhysDec;
+
+  MonitorElement* lumisecME;
   MonitorElement* hTrigger;
   //MonitorElement* hNevents;
   MonitorElement* hMEx;

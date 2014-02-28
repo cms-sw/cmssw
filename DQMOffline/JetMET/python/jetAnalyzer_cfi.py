@@ -51,10 +51,7 @@ jetAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     # Jet-related
     #   
 
-    JetCleaningFlag            = cms.untracked.bool(False),
-
-    LSBegin = cms.int32(0),
-    LSEnd   = cms.int32(-1),                                
+    JetCleaningFlag            = cms.untracked.bool(False),                          
                                 
     #Cleanup parameters
     CleaningParameters = cleaningParameters.clone(
