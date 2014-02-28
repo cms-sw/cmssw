@@ -163,6 +163,10 @@ namespace edm
       produces< HFDigiCollection >();
       produces< ZDCDigiCollection >();
 
+      produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
+      produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
+
+
       if(MergeHcalDigisProd_) {
         edm::ConsumesCollector iC(consumesCollector());
 	HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, iC);
@@ -424,7 +428,7 @@ namespace edm
           continue;
 
 	if (isource==0) 
-          source->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_);
+          source->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_, e.streamID());
 
 	int NumPU_Events = 0;
 	if (isource ==0) { 
@@ -439,7 +443,8 @@ namespace edm
                 recordEventID,
                 boost::bind(&DataMixingModule::pileWorker, boost::ref(*this),
                             _1, bunchCrossing, _2, boost::cref(ES), mcc),
-		NumPU_Events
+		NumPU_Events,
+                e.streamID()
                 );
       }
     }

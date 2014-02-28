@@ -109,7 +109,15 @@ workflows[5.5] = ['ZTT',['ZTTFS','HARVESTFS']]
 
 workflows[5.6]  = ['QCD_FlatPt_15_3000', ['QCDFlatPt153000FS','HARVESTFS']]
 workflows[5.7] = ['H130GGgluonfusion', ['H130GGgluonfusionFS','HARVESTFS']]
-#GF: include fast_sim_13 
+
+### fastsim_13 TeV ###
+workflows[135.1] = ['TTbar_13', ['TTbarFS_13','HARVESTUP15FS']]
+workflows[135.4] = ['ZEE_13', ['ZEEFS_13','HARVESTUP15FS']]
+workflows[135.5] = ['ZTT_13',['ZTTFS_13','HARVESTUP15FS']]
+
+workflows[135.6]  = ['QCD_FlatPt_15_3000_13', ['QCDFlatPt153000FS_13','HARVESTUP15FS']]
+workflows[135.7] = ['H130GGgluonfusion_13', ['H130GGgluonfusionFS_13','HARVESTUP15FS']]
+
 
 ### standard set ###
 ## particle guns
@@ -198,8 +206,8 @@ workflows[1310] = ['', ['ADDMonoJet_d3MD3_13','DIGIUP15','RECOUP15','HARVESTUP15
 workflows[1312] = ['', ['ZpMM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1314] = ['', ['WpM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
-workflows[1340] = ['', ['RelValPythia6_BuJpsiK_TuneZ2star_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1341] = ['', ['RelValRSKKGluon_m3000GeV_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1340] = ['', ['Pythia6_BuJpsiK_TuneZ2star_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1341] = ['', ['RSKKGluon_m3000GeV_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 workflows[1343] = ['', ['ZpMM_2250_13TeV_Tauola','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1344] = ['', ['ZpEE_2250_13TeV_Tauola','DIGIUP15','RECOUP15','HARVESTUP15']]

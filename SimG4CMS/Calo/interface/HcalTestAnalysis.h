@@ -27,6 +27,10 @@ class BeginOfRun;
 class BeginOfEvent;
 class EndOfEvent;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class HcalTestAnalysis : public SimWatcher,
 			 public Observer<const BeginOfJob *>, 
 			 public Observer<const BeginOfRun *>, 
@@ -50,7 +54,7 @@ private:
   std::vector<int> layerGrouping(int);
   std::vector<int> towersToAdd(int centre, int nadd);
   void   fill(const EndOfEvent * ev);
-  void   qieAnalysis();
+  void   qieAnalysis(CLHEP::HepRandomEngine*);
   void   layerAnalysis();
   double timeOfFlight(int det, int layer, double eta);
 

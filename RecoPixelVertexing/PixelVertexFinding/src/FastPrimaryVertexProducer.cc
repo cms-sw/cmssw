@@ -2,7 +2,7 @@
 //
 // Package:    FastPrimaryVertexProducer
 // Class:      FastPrimaryVertexProducer
-// 
+//
 /**\class FastPrimaryVertexProducer FastPrimaryVertexProducer.cc RecoBTag/FastPrimaryVertexProducer/src/FastPrimaryVertexProducer.cc
 
  Description: [one line class summary]
@@ -77,26 +77,27 @@ class FastPrimaryVertexProducer : public edm::EDProducer {
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      edm::InputTag m_clusters;
-      edm::InputTag m_jets;
-      edm::InputTag m_beamSpot;
-      std::string m_pixelCPE; 
-      double m_maxZ; 
+      edm::EDGetTokenT<SiPixelClusterCollectionNew> m_clusters;
+      edm::EDGetTokenT<edm::View<reco::Jet> > m_jets;
+      edm::EDGetTokenT<reco::BeamSpot> m_beamSpot;
+      std::string m_pixelCPE;
+      double m_maxZ;
       double m_maxSizeX;
       double m_maxDeltaPhi;
-      double m_clusterLength;	
+      double m_clusterLength;
+
 };
 
 FastPrimaryVertexProducer::FastPrimaryVertexProducer(const edm::ParameterSet& iConfig)
 {
-  m_clusters          = iConfig.getParameter<edm::InputTag>("clusters");
-  m_jets              = iConfig.getParameter<edm::InputTag>("jets");
-  m_beamSpot          = iConfig.getParameter<edm::InputTag>("beamSpot");
+  m_clusters          = consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("clusters"));
+  m_jets              = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"));
+  m_beamSpot          = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"));
   m_pixelCPE          = iConfig.getParameter<std::string>("pixelCPE");
-  m_maxZ	      = iConfig.getParameter<double>("maxZ");	
-  m_maxSizeX	      = iConfig.getParameter<double>("maxSizeX");	
-  m_maxDeltaPhi       = iConfig.getParameter<double>("maxDeltaPhi");	
-  m_clusterLength     = iConfig.getParameter<double>("clusterLength");	
+  m_maxZ	      = iConfig.getParameter<double>("maxZ");
+  m_maxSizeX	      = iConfig.getParameter<double>("maxSizeX");
+  m_maxDeltaPhi       = iConfig.getParameter<double>("maxDeltaPhi");
+  m_clusterLength     = iConfig.getParameter<double>("clusterLength");
   produces<reco::VertexCollection>();
 }
 
@@ -110,11 +111,11 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    using namespace std;
 
    Handle<SiPixelClusterCollectionNew> cH;
-   iEvent.getByLabel(m_clusters,cH);
+   iEvent.getByToken(m_clusters,cH);
    const SiPixelClusterCollectionNew & pixelClusters = *cH.product();
 
    Handle<edm::View<reco::Jet> > jH;
-   iEvent.getByLabel(m_jets,jH);
+   iEvent.getByToken(m_jets,jH);
    const edm::View<reco::Jet> & jets = *jH.product();
 
    CaloJetCollection selectedJets;
@@ -126,23 +127,23 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       if(ca ==0) abort();
       selectedJets.push_back(*ca);
 //    std::cout << "Jet eta,phi,pt: "<< it->eta() << "," << it->phi() << "," << it->pt()   << std::endl;
-    } 
+    }
    }
-  
-   edm::ESHandle<PixelClusterParameterEstimator> pe; 
+
+   edm::ESHandle<PixelClusterParameterEstimator> pe;
    const PixelClusterParameterEstimator * pp ;
-   iSetup.get<TkPixelCPERecord>().get(m_pixelCPE , pe );  
+   iSetup.get<TkPixelCPERecord>().get(m_pixelCPE , pe );
    pp = pe.product();
 
    edm::Handle<BeamSpot> beamSpot;
-   iEvent.getByLabel(m_beamSpot,beamSpot);
- 
+   iEvent.getByToken(m_beamSpot,beamSpot);
+
    edm::ESHandle<TrackerGeometry> tracker;
    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
    const TrackerGeometry * trackerGeometry = tracker.product();
 
 
-   float lengthBmodule=6.66;//cm 
+   float lengthBmodule=6.66;//cm
    std::vector<float> zProjections;
    for(CaloJetCollection::const_iterator jit = selectedJets.begin() ; jit != selectedJets.end() ; jit++)
    {
@@ -152,7 +153,7 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
      float pt=jit->pt();
 
      float jetZOverRho = jit->momentum().Z()/jit->momentum().Rho();
-     int minSizeY = fabs(2.*jetZOverRho)-1; 
+     int minSizeY = fabs(2.*jetZOverRho)-1;
      int  maxSizeY = fabs(2.*jetZOverRho)+2;
      if( fabs(jit->eta()) > 1.6)
      {
@@ -166,7 +167,7 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         Point3DBase<float, GlobalTag> modulepos=trackerGeometry->idToDet(id)->position();
         float zmodule = modulepos.z() - ((modulepos.x()-beamSpot->x0())*px+(modulepos.y()-beamSpot->y0())*py)/pt * pz/pt;
         if ((fabs(deltaPhi(jit->momentum().Phi(),modulepos.phi()))< m_maxDeltaPhi*2)&&(fabs(zmodule)<(m_maxZ+lengthBmodule/2))){
-       
+
         for(size_t j = 0 ; j < detset.size() ; j ++) // Loop on pixel clusters on this module
         {
 	  const SiPixelCluster & aCluster =  detset[j];
@@ -175,38 +176,38 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
             GlobalPoint v_bs(v.x()-beamSpot->x0(),v.y()-beamSpot->y0(),v.z());
             if(fabs(deltaPhi(jit->momentum().Phi(),v_bs.phi())) < m_maxDeltaPhi)
             {
-              float z = v.z() - ((v.x()-beamSpot->x0())*px+(v.y()-beamSpot->y0())*py)/pt * pz/pt;   
+              float z = v.z() - ((v.x()-beamSpot->x0())*px+(v.y()-beamSpot->y0())*py)/pt * pz/pt;
               if(fabs(z) < m_maxZ)
               {
-	        zProjections.push_back(z); 
-	      }	
+	        zProjections.push_back(z);
+	      }
   	    }
-          } //if compatible cluster   
+          } //if compatible cluster
 	} // loop on module hits
       } // if compatible module
     } // loop on pixel modules
-      
+
    } // loop on selected jets
   std::sort(zProjections.begin(),zProjections.end());
-   
+
   std::vector<float>::iterator itCenter = zProjections.begin();
   std::vector<float>::iterator itLeftSide = zProjections.begin();
   std::vector<float>::iterator itRightSide = zProjections.begin();
   std::vector<int> counts;
-  float zCluster = m_clusterLength/2.0; //cm 
+  float zCluster = m_clusterLength/2.0; //cm
   int max=0;
   std::vector<float>::iterator left,right;
   for(;itCenter!=zProjections.end(); itCenter++)
   {
-  
+
     while(itLeftSide != zProjections.end() && (*itCenter - *itLeftSide) > zCluster  ) itLeftSide++;
     while(itRightSide != zProjections.end() && (*itRightSide - *itCenter) < zCluster  ) itRightSide++;
-   
+
     int n= itRightSide-itLeftSide;
-   // std::cout << "algo :"<< *itCenter << " " << itCenter-zProjections.begin() << "  dists: " <<  (*itCenter - *itLeftSide) << " " << (*itRightSide - *itCenter) << " count: " <<  n << std::endl; 
+   // std::cout << "algo :"<< *itCenter << " " << itCenter-zProjections.begin() << "  dists: " <<  (*itCenter - *itLeftSide) << " " << (*itRightSide - *itCenter) << " count: " <<  n << std::endl;
     counts.push_back(n);
     if(n > max) {
-         max=n; 
+         max=n;
          left=itLeftSide;
     }
     if(n >= max) {
@@ -217,14 +218,14 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   }
 
 
- 
 
-  float res=0; 
-  if(zProjections.size() > 0) 
+
+  float res=0;
+  if(zProjections.size() > 0)
   {
      res=*(left+(right-left)/2);
 //     std::cout << "RES " << res << std::endl;
-     Vertex::Error e; 
+     Vertex::Error e;
      e(0, 0) = 0.0015 * 0.0015;
      e(1, 1) = 0.0015 * 0.0015;
      e(2, 2) = 1.5 * 1.5;
@@ -249,7 +250,7 @@ FastPrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
    }
 
- 
+
 }
 
 

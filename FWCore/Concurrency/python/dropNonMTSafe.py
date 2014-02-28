@@ -9,7 +9,6 @@ def _dropFromPaths(process,name):
   
 def dropNonMTSafe(process):
   if hasattr(process, "DTDataIntegrityTask"): del process.DTDataIntegrityTask
-  if hasattr(process, "FastTimerService"): del process.FastTimerService
   if hasattr(process, "SiStripDetInfoFileReader"): del process.SiStripDetInfoFileReader
   if hasattr(process, "TkDetMap"): del process.TkDetMap
   if hasattr(process, "DQM"): del process.DQM
@@ -24,7 +23,7 @@ def dropNonMTSafe(process):
   _dropFromPaths(process,"SiStripMonitorTrackCommon")
   _dropFromPaths(process,"SiStripMonitorTrack_hi")
 
-  process.options = cms.untracked.PSet(numberOfThreads = cms.untracked.uint32(8),
+  process.options = cms.untracked.PSet(numberOfThreads = cms.untracked.uint32(4),
                                        sizeOfStackForThreadsInKB = cms.untracked.uint32(10*1024),
                                        numberOfStreams = cms.untracked.uint32(0))
                                        

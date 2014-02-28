@@ -1005,13 +1005,16 @@ bool GsfElectronAlgo::isPreselected( GsfElectron * ele )
 	float mvaValue=generalData_->sElectronMVAEstimator->mva( *(ele),*(eventData_->event));
 	bool passCutBased=ele->passingCutBasedPreselection();
 	bool passPF=ele->passingPflowPreselection();
-	if(generalData_->strategyCfg.gedElectronMode==true){
+	if(generalData_->strategyCfg.gedElectronMode){
 		bool passmva=mvaValue>generalData_->strategyCfg.PreSelectMVA;
 		if(!ele->ecalDrivenSeed()){
-			return passmva;
+		  if(ele->pt() > generalData_->strategyCfg.MaxElePtForOnlyMVA) 
+		    return passmva && passCutBased;
+		  else
+		    return passmva;
 		}	
 		else{
-			return passCutBased || passPF || passmva;
+		  return passCutBased || passPF || passmva;
 		}
 	}
 	else{
@@ -1044,9 +1047,11 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag( GsfElectron * ele, const reco
   // kind of seeding
   bool eg = ele->core()->ecalDrivenSeed() ;
   bool pf = ele->core()->trackerDrivenSeed() && !ele->core()->ecalDrivenSeed() ;
+  bool gedMode = generalData_->strategyCfg.gedElectronMode;
   if (eg&&pf) { throw cms::Exception("GsfElectronAlgo|BothEcalAndPureTrackerDriven")<<"An electron cannot be both egamma and purely pflow" ; }
   if ((!eg)&&(!pf)) { throw cms::Exception("GsfElectronAlgo|NeitherEcalNorPureTrackerDriven")<<"An electron cannot be neither egamma nor purely pflow" ; }
-  const CutsConfiguration * cfg = (eg?&generalData_->cutsCfg:&generalData_->cutsCfgPflow) ;
+
+  const CutsConfiguration * cfg = ((eg||gedMode)?&generalData_->cutsCfg:&generalData_->cutsCfgPflow);
 
   // Et cut
   double etaValue = EleRelPoint(ele->superCluster()->position(),bs.position()).eta() ;

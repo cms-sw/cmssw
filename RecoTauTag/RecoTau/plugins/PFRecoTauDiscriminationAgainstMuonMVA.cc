@@ -88,7 +88,7 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
   ~PFRecoTauDiscriminationAgainstMuonMVA()
   {
     delete mvaReader_;
-    delete mvaInput_;
+    delete[] mvaInput_;
     for ( std::vector<TFile*>::iterator it = inputFilesToDelete_.begin();
 	  it != inputFilesToDelete_.end(); ++it ) {
       delete (*it);

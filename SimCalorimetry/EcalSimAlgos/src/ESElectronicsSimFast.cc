@@ -1,10 +1,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 
@@ -12,31 +9,16 @@ ESElectronicsSimFast::ESElectronicsSimFast( bool addNoise ) :
    m_addNoise ( addNoise ) ,
    m_MIPToGeV (        0 ) ,
    m_peds     (        0 ) ,
-   m_mips     (        0 ) ,
-   m_ranGau   (        0 )
+   m_mips     (        0 )
 {
    // Preshower "Fast" Electronics Simulation
    // gain = 1 : low gain for data taking 
    // gain = 2 : high gain for calibration and low energy runs
    // For 300(310/320) um Si, the MIP is 78.47(81.08/83.7) keV
-
-   if( m_addNoise )
-   {
-      edm::Service<edm::RandomNumberGenerator> rng;
-      if( !rng.isAvailable() ) 
-      {
-	 throw cms::Exception("Configuration")
-	    << "ESElectroncSimFast requires the RandomNumberGeneratorService\n"
-	    "which is not present in the configuration file.  You must add the service\n"
-	    "in the configuration file or remove the modules that require it.";
-      }
-      m_ranGau = new CLHEP::RandGaussQ( rng->getEngine(), 0, 1 ) ;
-   }
 }
 
 ESElectronicsSimFast::~ESElectronicsSimFast()
 {
-   delete m_ranGau ;
 }
 
 void 
@@ -58,16 +40,14 @@ ESElectronicsSimFast::setMIPToGeV( double MIPToGeV )
 }
 
 void 
-ESElectronicsSimFast::analogToDigital( ESSamples&   cs, 
-				       ESDataFrame& df, 
-				       bool         isNoise ) const
+ESElectronicsSimFast::analogToDigital( CLHEP::HepRandomEngine* engine,
+                                       ESSamples&   cs,
+			               ESDataFrame& df,
+			               bool         isNoise ) const
 {
    assert( 0 != m_peds &&
 	   0 != m_mips &&
 	   0 < m_MIPToGeV ) ; // sanity check
-
-   assert( ( !m_addNoise ) ||
-	   0 != m_ranGau ) ; // sanity check
 
    df.setSize( cs.size() ) ;
 
@@ -86,7 +66,7 @@ ESElectronicsSimFast::analogToDigital( ESSamples&   cs,
    for( unsigned int i ( 0 ) ; i != cs.size(); ++i ) 
    {
       const double noi ( isNoise || (!m_addNoise) ? 0 :
-			 sigma*m_ranGau->fire() ) ;
+			 sigma*CLHEP::RandGaussQ::shoot(engine, 0, 1) ) ;
     
       double signal = cs[i]*ADCGeV + noi + baseline ;
 

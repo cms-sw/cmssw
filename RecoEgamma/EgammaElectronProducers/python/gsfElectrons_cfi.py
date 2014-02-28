@@ -28,7 +28,8 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
 
     gedElectronMode= cms.bool(False),
     PreSelectMVA = cms.double(-0.1),
-    
+    MaxElePtForOnlyMVA = cms.double(50.0),
+                                        
     # steering
     useGsfPfRecTracks = cms.bool(True),
     applyPreselection = cms.bool(False),

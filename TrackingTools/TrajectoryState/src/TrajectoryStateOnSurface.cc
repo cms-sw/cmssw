@@ -74,6 +74,7 @@ update( const LocalTrajectoryParameters& p,
     }
 }
 
+
 void
 TrajectoryStateOnSurface::
 update( const LocalTrajectoryParameters& p,

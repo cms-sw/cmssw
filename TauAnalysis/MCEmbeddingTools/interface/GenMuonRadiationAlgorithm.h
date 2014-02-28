@@ -24,6 +24,7 @@
  */
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/PhotosInterface/interface/PhotosInterfaceBase.h"
 #include "GeneratorInterface/PhotosInterface/interface/PhotosFactory.h"
@@ -38,7 +39,7 @@ class GenMuonRadiationAlgorithm
   explicit GenMuonRadiationAlgorithm(const edm::ParameterSet&);
   ~GenMuonRadiationAlgorithm();
 
-  reco::Candidate::LorentzVector compFSR(const reco::Candidate::LorentzVector&, int, const reco::Candidate::LorentzVector&, int&);
+  reco::Candidate::LorentzVector compFSR(const edm::StreamID& streamID, const reco::Candidate::LorentzVector&, int, const reco::Candidate::LorentzVector&, int&);
 
  private:
   double beamEnergy_;
@@ -53,8 +54,6 @@ class GenMuonRadiationAlgorithm
   static bool pythia_isInitialized_;
 
   int verbosity_;
-
-  static CLHEP::HepRandomEngine* decayRandomEngine;
 };
 
 #endif

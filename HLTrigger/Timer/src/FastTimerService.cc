@@ -1411,7 +1411,7 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<uint32_t>( "dqmLumiSectionsRange",   2500  );   // ~ 16 hours
   desc.addUntracked<std::string>(   "dqmPath",           "HLT/TimerService");
   desc.addUntracked<edm::InputTag>( "luminosityProduct", edm::InputTag("hltScalersRawToDigi"))->setComment("deprecated: this parameter is ignored");
-  desc.addUntracked<std::vector<unsigned int> >("supportedProcesses", { })->setComment("deprecated: this parameter is ignored");
+  desc.addUntracked<std::vector<unsigned int> >("supportedProcesses", std::vector<unsigned int> { })->setComment("deprecated: this parameter is ignored");
   descriptions.add("FastTimerService", desc);
 }
 

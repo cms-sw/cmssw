@@ -105,6 +105,14 @@ namespace edm {
 
     template< typename T>
     void
+    ProducingModuleAdaptorBase<T>::modulesDependentUpon(const std::string& iProcessName,
+                                                        std::vector<const char*>& oModuleLabels) const {
+      assert(not m_streamModules.empty());
+      return m_streamModules[0]->modulesDependentUpon(iProcessName, oModuleLabels);
+    }
+
+    template< typename T>
+    void
     ProducingModuleAdaptorBase<T>::updateLookup(BranchType iType,
                                         ProductHolderIndexHelper const& iHelper) {
       for(auto mod: m_streamModules) {

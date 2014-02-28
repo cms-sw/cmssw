@@ -5,8 +5,6 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandGaussQ.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 

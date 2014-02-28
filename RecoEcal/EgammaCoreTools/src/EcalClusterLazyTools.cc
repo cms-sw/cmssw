@@ -22,130 +22,63 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
-//EcalClusterLazyTools::EcalClusterLazyTools( const edm::Event &ev, const edm::EventSetup &es, const edm::InputTag& redEBRecHits, const edm::InputTag& redEERecHits,const edm::ParameterSet& config )
-EcalClusterLazyTools::EcalClusterLazyTools( const edm::Event &ev, const edm::EventSetup &es, const edm::InputTag& redEBRecHits, const edm::InputTag& redEERecHits)
-{
-        getGeometry( es );
-        getTopology( es );
-        getEBRecHits( ev, redEBRecHits );
-        getEERecHits( ev, redEERecHits );
-	getIntercalibConstants( es );
-	getADCToGeV ( es );
-	getLaserDbService ( es );
+EcalClusterLazyTools::EcalClusterLazyTools( const edm::Event &ev, const edm::EventSetup &es, edm::EDGetTokenT<EcalRecHitCollection> token1, edm::EDGetTokenT<EcalRecHitCollection> token2) {
 
-  //AA
-  //Flags and Severities to be excluded from photon calculations
-/*
-  const std::vector<std::string> flagnames = 
-    config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
+  ebRHToken_ = token1;
+  eeRHToken_ = token2;
 
-  flagsexcl_= 
-    StringToEnumValue<EcalRecHit::Flags>(flagnames);
-
-  const std::vector<std::string> severitynames = 
-    config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
-
-  severitiesexcl_= 
-    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
-  //AA
-
-  //AA
-*/
-  //Get the severity level object
-//  edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
-//  es.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
-  //
-
-}
-
-EcalClusterLazyTools::EcalClusterLazyTools( const edm::Event &ev, const edm::EventSetup &es, const edm::InputTag& redEBRecHits, const edm::InputTag& redEERecHits,const edm::ParameterSet& config)
-{
-        getGeometry( es );
-        getTopology( es );
-        getEBRecHits( ev, redEBRecHits );
-        getEERecHits( ev, redEERecHits );
-        getIntercalibConstants( es );
-        getADCToGeV ( es );
-        getLaserDbService ( es );
-
-//  edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
-//  es.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
-
-}
-
-EcalClusterLazyTools::EcalClusterLazyTools( const edm::Event &ev, const edm::EventSetup &es, const edm::InputTag& redEBRecHits, const edm::InputTag& redEERecHits, const edm::InputTag& redESRecHits)
-{
-        getGeometry( es );
-        getTopology( es );
-        getEBRecHits( ev, redEBRecHits );
-        getEERecHits( ev, redEERecHits );
-        getESRecHits( ev, redESRecHits );
-        getIntercalibConstants( es );
-        getADCToGeV ( es );
-        getLaserDbService ( es );
-
+  getGeometry( es );
+  getTopology( es );
+  getEBRecHits( ev );
+  getEERecHits( ev );
+  getIntercalibConstants( es );
+  getADCToGeV ( es );
+  getLaserDbService ( es );
 }
 
 EcalClusterLazyTools::~EcalClusterLazyTools()
-{
-}
+{}
 
-
-
-void EcalClusterLazyTools::getGeometry( const edm::EventSetup &es )
-{
+void EcalClusterLazyTools::getGeometry( const edm::EventSetup &es ) {
         edm::ESHandle<CaloGeometry> pGeometry;
         es.get<CaloGeometryRecord>().get(pGeometry);
         geometry_ = pGeometry.product();
 }
 
-
-
-void EcalClusterLazyTools::getTopology( const edm::EventSetup &es )
-{
+void EcalClusterLazyTools::getTopology( const edm::EventSetup &es ) {
         edm::ESHandle<CaloTopology> pTopology;
         es.get<CaloTopologyRecord>().get(pTopology);
         topology_ = pTopology.product();
 }
 
-
-
-void EcalClusterLazyTools::getEBRecHits( const edm::Event &ev, const edm::InputTag& redEBRecHits )
-{
-        edm::Handle< EcalRecHitCollection > pEBRecHits;
-        ev.getByLabel( redEBRecHits, pEBRecHits );
-        ebRecHits_ = pEBRecHits.product();
+void EcalClusterLazyTools::getEBRecHits( const edm::Event &ev ) {
+  edm::Handle< EcalRecHitCollection > pEBRecHits;
+  ev.getByToken( ebRHToken_, pEBRecHits );
+  ebRecHits_ = pEBRecHits.product();
 }
 
-
-
-void EcalClusterLazyTools::getEERecHits( const edm::Event &ev, const edm::InputTag& redEERecHits )
-{
-        edm::Handle< EcalRecHitCollection > pEERecHits;
-        ev.getByLabel( redEERecHits, pEERecHits );
-        eeRecHits_ = pEERecHits.product();
+void EcalClusterLazyTools::getEERecHits( const edm::Event &ev ) {
+  edm::Handle< EcalRecHitCollection > pEERecHits;
+  ev.getByToken( eeRHToken_, pEERecHits );
+  eeRecHits_ = pEERecHits.product();
 }
 
+void EcalClusterLazyTools::getESRecHits( const edm::Event &ev ) {
 
-
-void EcalClusterLazyTools::getESRecHits( const edm::Event &ev, const edm::InputTag& redESRecHits )
-{
-        edm::Handle< EcalRecHitCollection > pESRecHits;
-        ev.getByLabel( redESRecHits, pESRecHits );
-        esRecHits_ = pESRecHits.product();
-
-        // make the map of rechits
-        rechits_map_.clear();
-        if (pESRecHits.isValid()) {
-          EcalRecHitCollection::const_iterator it;
-          for (it = pESRecHits->begin(); it != pESRecHits->end(); ++it) {
-            // remove bad ES rechits
-            if (it->recoFlag()==1 || it->recoFlag()==14 || (it->recoFlag()<=10 && it->recoFlag()>=5)) continue;
-            //Make the map of DetID, EcalRecHit pairs
-            rechits_map_.insert(std::make_pair(it->id(), *it));
-          }
-        }
-
+  edm::Handle< EcalRecHitCollection > pESRecHits;
+  ev.getByToken( esRHToken_, pESRecHits );
+  esRecHits_ = pESRecHits.product();
+  // make the map of rechits
+  rechits_map_.clear();
+  if (pESRecHits.isValid()) {
+    EcalRecHitCollection::const_iterator it;
+    for (it = pESRecHits->begin(); it != pESRecHits->end(); ++it) {
+      // remove bad ES rechits
+      if (it->recoFlag()==1 || it->recoFlag()==14 || (it->recoFlag()<=10 && it->recoFlag()>=5)) continue;
+      //Make the map of DetID, EcalRecHit pairs
+      rechits_map_.insert(std::make_pair(it->id(), *it));
+    }
+  }
 }
 
 

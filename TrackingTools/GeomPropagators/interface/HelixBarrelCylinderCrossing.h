@@ -15,11 +15,13 @@ class Cylinder;
 
 class HelixBarrelCylinderCrossing {
 
+public:
+  enum Solution {bothSol, bestSol, onlyPos};
+
   typedef double                   TmpType;
   typedef Basic2DVector<TmpType>   Point; // for private use only
   typedef Basic2DVector<TmpType>   Vector; // for private use only
 
-public:
 
   typedef GlobalPoint    PositionType;
   typedef GlobalVector   DirectionType;
@@ -27,7 +29,7 @@ public:
   HelixBarrelCylinderCrossing( const GlobalPoint& startingPos,
 			       const GlobalVector& startingDir,
 			       double rho, PropagationDirection propDir, 
-			       const Cylinder& cyl);
+			       const Cylinder& cyl, Solution sol=bothSol);
 
   bool hasSolution() const { return theSolExists;}
 
@@ -61,21 +63,20 @@ public:
 
 private:
 
-  bool           theSolExists;
-  double         theS;
   PositionType   thePos;
   DirectionType  theDir;
-  Vector         theD;
-  int            theActualDir;
+  double         theS;
+  bool           theSolExists;
+
 
   PositionType   thePos1;
   PositionType   thePos2;
 
 
-  void chooseSolution( const Point& p1, const Point& p2,
-		       const PositionType& startingPos,
-		       const DirectionType& startingDir, 
-		       PropagationDirection propDir) dso_internal;
+  std::pair<Vector,int> chooseSolution( const Point& p1, const Point& p2,
+					const PositionType& startingPos,
+					const DirectionType& startingDir, 
+					PropagationDirection propDir) dso_internal;
 
 };
 

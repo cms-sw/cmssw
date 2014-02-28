@@ -8,10 +8,10 @@ using reco::modules::TrackMultiSelector;
 //using reco::modules::TrackMultiSelector::Block;
 
 TrackMultiSelector::Block::Block(const edm::ParameterSet & cfg) :
-    pt(p2p<double>(cfg,"pt")), 
+    pt(p2p<double>(cfg,"pt")),
     vlayers(p2p<uint32_t>(cfg,"validLayers")),
     lhits(p2p<uint32_t>(cfg,"lostHits")),
-    chi2n(p2p<double>(cfg,"chi2n")), 
+    chi2n(p2p<double>(cfg,"chi2n")),
     d0(cfg.getParameter<double>("d0")),
     dz(cfg.getParameter<double>("dz")),
     d0Rel(cfg.getParameter<double>("d0Rel")),
@@ -21,7 +21,6 @@ TrackMultiSelector::Block::Block(const edm::ParameterSet & cfg) :
 
 TrackMultiSelector::TrackMultiSelector( const edm::ParameterSet & cfg ) :
     src_( cfg.getParameter<edm::InputTag>( "src" ) ),
-    vertices_( cfg.getParameter<edm::InputTag>( "vertices" ) ),
     copyExtras_(cfg.getUntrackedParameter<bool>("copyExtras", false)),
     copyTrajectories_(cfg.getUntrackedParameter<bool>("copyTrajectories", false)),
     splitOutputs_( cfg.getUntrackedParameter<bool>("splitOutputs", false) ),
@@ -30,9 +29,15 @@ TrackMultiSelector::TrackMultiSelector( const edm::ParameterSet & cfg ) :
     vtxChi2Prob_( cfg.getParameter<double>("vtxChi2Prob") )
 {
     edm::ParameterSet beamSpotPSet = cfg.getParameter<edm::ParameterSet>("beamspot");
-    beamspot_   = beamSpotPSet.getParameter<edm::InputTag>("src");
-    beamspotDZsigmas_ = beamSpotPSet.getParameter<double>("dzSigmas"); 
-    beamspotD0_ = beamSpotPSet.getParameter<double>("d0"); 
+    beamspot_   = consumes<reco::BeamSpot>(beamSpotPSet.getParameter<edm::InputTag>("src"));
+    beamspotDZsigmas_ = beamSpotPSet.getParameter<double>("dzSigmas");
+    beamspotD0_ = beamSpotPSet.getParameter<double>("d0");
+    vertices_= consumes<reco::VertexCollection>( cfg.getParameter<edm::InputTag>( "vertices" ) );
+    tokenTracks= consumes<reco::TrackCollection>(src_);
+    if (copyTrajectories_) {
+      tokenTraj= consumes<std::vector<Trajectory> >(src_);
+      tokenTrajTrack= consumes<TrajTrackAssociationCollection>(src_);
+    }
 
     typedef std::vector<edm::ParameterSet> VPSet;
     VPSet psets = cfg.getParameter<VPSet>("cutSets");
@@ -44,7 +49,7 @@ TrackMultiSelector::TrackMultiSelector( const edm::ParameterSet & cfg ) :
     if (splitOutputs_) {
         char buff[15];
         for (size_t i = 0; i < blocks_.size(); ++i) {
-            sprintf(buff,"set%d", static_cast<int>(i+1)); 
+            sprintf(buff,"set%d", static_cast<int>(i+1));
             labels_.push_back(std::string(buff));
         }
     } else {
@@ -63,14 +68,14 @@ TrackMultiSelector::TrackMultiSelector( const edm::ParameterSet & cfg ) :
                 produces< TrajTrackAssociationCollection >(l).setBranchAlias( alias + "TrajectoryTrackAssociations" + l);
             }
         }
-    } 
+    }
 
     size_t nblocks = splitOutputs_ ? blocks_.size() : 1;
     selTracks_ = new std::auto_ptr<reco::TrackCollection>[nblocks];
-    selTrackExtras_ = new std::auto_ptr<reco::TrackExtraCollection>[nblocks]; 
-    selHits_ = new std::auto_ptr<TrackingRecHitCollection>[nblocks]; 
-    selTrajs_ = new std::auto_ptr< std::vector<Trajectory> >[nblocks]; 
-    selTTAss_ = new std::auto_ptr< TrajTrackAssociationCollection >[nblocks]; 
+    selTrackExtras_ = new std::auto_ptr<reco::TrackExtraCollection>[nblocks];
+    selHits_ = new std::auto_ptr<TrackingRecHitCollection>[nblocks];
+    selTrajs_ = new std::auto_ptr< std::vector<Trajectory> >[nblocks];
+    selTTAss_ = new std::auto_ptr< TrajTrackAssociationCollection >[nblocks];
     rTracks_ = std::vector<reco::TrackRefProd>(nblocks);
     rHits_ = std::vector<TrackingRecHitRefProd>(nblocks);
     rTrackExtras_ = std::vector<reco::TrackExtraRefProd>(nblocks);
@@ -79,23 +84,23 @@ TrackMultiSelector::TrackMultiSelector( const edm::ParameterSet & cfg ) :
         selTracks_[i] = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection());
         selTrackExtras_[i] = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
         selHits_[i] = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
-        selTrajs_[i] = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
+        selTrajs_[i] = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>());
         selTTAss_[i] = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
     }
- 
+
 }
 
 TrackMultiSelector::~TrackMultiSelector() {
-    delete [] selTracks_; 
+    delete [] selTracks_;
     delete [] selTrackExtras_;
     delete [] selHits_;
     delete [] selTrajs_;
     delete [] selTTAss_;
 }
 
-void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es ) 
+void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 {
-    using namespace std; 
+    using namespace std;
     using namespace edm;
     using namespace reco;
 
@@ -106,18 +111,18 @@ void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     Handle< TrajTrackAssociationCollection > hTTAss;
 
     edm::Handle<reco::VertexCollection> hVtx;
-    evt.getByLabel(vertices_, hVtx);
+    evt.getByToken(vertices_, hVtx);
     std::vector<Point> points;
     if (vtxNumber_ != 0) selectVertices(*hVtx, points);
 
     edm::Handle<reco::BeamSpot> hBsp;
-    evt.getByLabel(beamspot_, hBsp);
+    evt.getByToken(beamspot_, hBsp);
 
-    evt.getByLabel( src_, hSrcTrack );
+    evt.getByToken( tokenTracks, hSrcTrack );
 
     for (size_t i = 0; i < nblocks; i++) {
         selTracks_[i] = auto_ptr<TrackCollection>(new TrackCollection());
-        rTracks_[i] = evt.getRefBeforePut<TrackCollection>(labels_[i]);      
+        rTracks_[i] = evt.getRefBeforePut<TrackCollection>(labels_[i]);
         if (copyExtras_) {
             selTrackExtras_[i] = auto_ptr<TrackExtraCollection>(new TrackExtraCollection());
             selHits_[i] = auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
@@ -125,12 +130,12 @@ void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es )
             rTrackExtras_[i] = evt.getRefBeforePut<TrackExtraCollection>(labels_[i]);
         }
     }
-    
+
     if (copyTrajectories_) whereItWent_.resize(hSrcTrack->size());
     size_t current = 0;
     for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
         const Track & trk = * it;
-        short where = select(trk, *hBsp, points); 
+        short where = select(trk, *hBsp, points);
         if (where == -1) {
             if (copyTrajectories_) whereItWent_[current] = std::pair<short, reco::TrackRef>(-1, reco::TrackRef());
             continue;
@@ -160,18 +165,18 @@ void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es )
     if ( copyTrajectories_ ) {
         Handle< vector<Trajectory> > hTraj;
         Handle< TrajTrackAssociationCollection > hTTAss;
-        evt.getByLabel(src_, hTTAss);
-        evt.getByLabel(src_, hTraj);
+        evt.getByToken(tokenTrajTrack, hTTAss);
+        evt.getByToken(tokenTraj, hTraj);
         for (size_t i = 0; i < nblocks; i++) {
             rTrajectories_[i] = evt.getRefBeforePut< vector<Trajectory> >(labels_[i]);
-            selTrajs_[i] = auto_ptr< vector<Trajectory> >(new vector<Trajectory>()); 
+            selTrajs_[i] = auto_ptr< vector<Trajectory> >(new vector<Trajectory>());
             selTTAss_[i] = auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
         }
         for (size_t i = 0, n = hTraj->size(); i < n; ++i) {
             Ref< vector<Trajectory> > trajRef(hTraj, i);
             TrajTrackAssociationCollection::const_iterator match = hTTAss->find(trajRef);
             if (match != hTTAss->end()) {
-                const Ref<TrackCollection> &trkRef = match->val; 
+                const Ref<TrackCollection> &trkRef = match->val;
                 short oldKey = static_cast<short>(trkRef.key());
                 if (whereItWent_[oldKey].first != -1) {
                     int where = whereItWent_[oldKey].first;
@@ -188,7 +193,7 @@ void TrackMultiSelector::produce( edm::Event& evt, const edm::EventSetup& es )
         const std::string & lbl = ( splitOutputs_ ? labels_[i] : emptyString);
         evt.put(selTracks_[i], lbl);
         if (copyExtras_ ) {
-            evt.put(selTrackExtras_[i], lbl); 
+            evt.put(selTrackExtras_[i], lbl);
             evt.put(selHits_[i], lbl);
             if ( copyTrajectories_ ) {
                 evt.put(selTrajs_[i], lbl);
@@ -210,7 +215,7 @@ inline bool  TrackMultiSelector::testVtx ( const reco::Track &tk, const reco::Be
     }
     for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
         double dz = abs(tk.dz(*point)), d0 = abs(tk.dxy(*point));
-        if ((dz < cut.dz) && (d0 < cut.d0) 
+        if ((dz < cut.dz) && (d0 < cut.d0)
 	    && fabs(dz/std::max(dzErr,1e-9)) < cut.dzRel && (d0/std::max(d0Err,1e-8) < cut.d0Rel )) return true;
     }
     return false;
@@ -225,7 +230,7 @@ short TrackMultiSelector::select(const reco::Track &tk, const reco::BeamSpot &be
              ( itb->chi2n.first <= chi2n ) && ( chi2n <= itb->chi2n.second ) &&
              ( itb->pt.first    <= pt    ) && ( pt    <= itb->pt.second    ) &&
              ( itb->lhits.first <= lhits ) && ( lhits <= itb->lhits.second ) &&
-             testVtx(tk, beamSpot, points, *itb) ) 
+             testVtx(tk, beamSpot, points, *itb) )
         {
             return which;
         }
@@ -235,11 +240,11 @@ short TrackMultiSelector::select(const reco::Track &tk, const reco::BeamSpot &be
 void TrackMultiSelector::selectVertices(const reco::VertexCollection &vtxs, std::vector<Point> &points) {
     using namespace reco;
 
-    int32_t toTake = vtxNumber_; 
+    int32_t toTake = vtxNumber_;
     for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
-        if ((it->tracksSize() >= vtxTracks_)  && 
+        if ((it->tracksSize() >= vtxTracks_)  &&
                 ( (it->chi2() == 0.0) || (TMath::Prob(it->chi2(), static_cast<int32_t>(it->ndof()) ) >= vtxChi2Prob_) ) ) {
-            points.push_back(it->position()); 
+            points.push_back(it->position());
             toTake--; if (toTake == 0) break;
         }
     }

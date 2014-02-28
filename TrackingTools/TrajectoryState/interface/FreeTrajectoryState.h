@@ -47,6 +47,17 @@ public:
     theCurvilinearError(InvalidError())
   {}
   
+
+  FreeTrajectoryState(const GlobalPoint& aX,
+                      const GlobalVector& aP,
+                      TrackCharge aCharge,
+                      const MagneticField* fieldProvider,
+                     GlobalVector fieldValue) :
+    theGlobalParameters(aX, aP, aCharge, fieldProvider,fieldValue),
+    theCurvilinearError(InvalidError())
+  {}
+
+
   
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CurvilinearTrajectoryError& aCurvilinearError) :

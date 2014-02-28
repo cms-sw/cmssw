@@ -10,9 +10,11 @@
 
 class MeasurementEstimator;
 
-class DetRod : public virtual GeometricSearchDet   {
+class DetRod : public GeometricSearchDet {
  public:
-  
+
+  using GeometricSearchDet::GeometricSearchDet;
+
   virtual ~DetRod();
   
  

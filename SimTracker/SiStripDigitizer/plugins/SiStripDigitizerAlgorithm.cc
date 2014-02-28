@@ -26,7 +26,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CLHEP/Random/RandFlat.h"
 
-SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng):
+SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf):
   lorentzAngleName(conf.getParameter<std::string>("LorentzAngle")),
   theThreshold(conf.getParameter<double>("NoiseSigmaThreshold")),
   cmnRMStib(conf.getParameter<double>("cmnRMStib")),
@@ -51,12 +51,11 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   cosmicShift(conf.getUntrackedParameter<double>("CosmicDelayShift")),
   inefficiency(conf.getParameter<double>("Inefficiency")),
   pedOffset((unsigned int)conf.getParameter<double>("PedestalsOffset")),
-  theSiHitDigitizer(new SiHitDigitizer(conf, eng)),
+  theSiHitDigitizer(new SiHitDigitizer(conf)),
   theSiPileUpSignals(new SiPileUpSignals()),
-  theSiNoiseAdder(new SiGaussianTailNoiseAdder(theThreshold, eng)),
+  theSiNoiseAdder(new SiGaussianTailNoiseAdder(theThreshold)),
   theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC)),
-  theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
-  theFlatDistribution(new CLHEP::RandFlat(eng, 0., 1.)) {
+  theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)) {
 
   if (peakMode) {
     LogDebug("StripDigiInfo")<<"APVs running in peak mode (poor time resolution)";
@@ -111,7 +110,8 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
                                              size_t inputBeginGlobalIndex,
                                              const StripGeomDetUnit* det,
                                              const GlobalVector& bfield,
-					     const TrackerTopology *tTopo) {
+					     const TrackerTopology *tTopo,
+                                             CLHEP::HepRandomEngine* engine) {
   // produce SignalPoints for all SimHits in detector
   unsigned int detID = det->geographicalId().rawId();
   int numStrips = (det->specificTopology()).nstrips();  
@@ -128,7 +128,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 
   uint32_t detId = det->geographicalId().rawId();
   // First: loop on the SimHits
-  if(theFlatDistribution->fire()>inefficiency) {
+  if(CLHEP::RandFlat::shoot(engine) > inefficiency) {
     AssociationInfoForChannel* pDetIDAssociationInfo; // I only need this if makeDigiSimLinks_ is true...
     if( makeDigiSimLinks_ ) pDetIDAssociationInfo=&(associationInfoForDetId_[detId]); // ...so only search the map if that is the case
     std::vector<float> previousLocalAmplitude; // Only used if makeDigiSimLinks_ is true. Needed to work out the change in amplitude.
@@ -145,7 +145,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
         size_t localFirstChannel = numStrips;
         size_t localLastChannel  = 0;
         // process the hit
-        theSiHitDigitizer->processHit(&*simHitIter, *det, bfield, langle, locAmpl, localFirstChannel, localLastChannel, tTopo);
+        theSiHitDigitizer->processHit(&*simHitIter, *det, bfield, langle, locAmpl, localFirstChannel, localLastChannel, tTopo, engine);
           
 		  //APV Killer to simulate HIP effect
 		  //------------------------------------------------------
@@ -157,8 +157,8 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
 				float charge = particle->charge();
 				bool isHadron = particle->isHadron();
 			    if(charge!=0 && isHadron){
-			  		if(theFlatDistribution->fire()<APVSaturationProb){
-			 	   	 	int FirstAPV = localFirstChannel/128;
+					if(CLHEP::RandFlat::shoot(engine) < APVSaturationProb){
+                                                int FirstAPV = localFirstChannel/128;
 				 		int LastAPV = localLastChannel/128;
 						std::cout << "-------------------HIP--------------" << std::endl;
 						std::cout << "Killing APVs " << FirstAPV << " - " <<LastAPV << " " << detID <<std::endl;
@@ -217,7 +217,8 @@ SiStripDigitizerAlgorithm::digitize(
 			   edm::ESHandle<SiStripGain> & gainHandle,
 			   edm::ESHandle<SiStripThreshold> & thresholdHandle,
 			   edm::ESHandle<SiStripNoises> & noiseHandle,
-			   edm::ESHandle<SiStripPedestals> & pedestalHandle) {
+			   edm::ESHandle<SiStripPedestals> & pedestalHandle,
+                           CLHEP::HepRandomEngine* engine) {
   unsigned int detID = det->geographicalId().rawId();
   int numStrips = (det->specificTopology()).nstrips();  
 
@@ -253,7 +254,7 @@ SiStripDigitizerAlgorithm::digitize(
 	  if(RefStrip<numStrips){
 	 	float noiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange);
 		float gainValue = gainHandle->getStripGain(RefStrip, detGainRange);
-		theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue);
+		theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue, engine);
 	  }
 	}
     DigitalVecType digis;
@@ -329,7 +330,7 @@ SiStripDigitizerAlgorithm::digitize(
 				}
 			}
 			
-			theSiNoiseAdder->addNoiseVR(detAmpl, noiseRMSv);
+                    theSiNoiseAdder->addNoiseVR(detAmpl, noiseRMSv, engine);
 		}			
 		
 		//adding the CMN
@@ -348,7 +349,7 @@ SiStripDigitizerAlgorithm::digitize(
 		    cmnRMS = cmnRMStec;
 		  }
 		  cmnRMS *= theElectronPerADC;
-          theSiNoiseAdder->addCMNoise(detAmpl, cmnRMS, badChannels);
+                  theSiNoiseAdder->addCMNoise(detAmpl, cmnRMS, badChannels, engine);
 		}
 		
         		

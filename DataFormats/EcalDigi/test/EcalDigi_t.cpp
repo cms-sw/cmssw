@@ -50,10 +50,10 @@ TestEcalDigi<DigiCollection>::TestEcalDigi() : sv(10){
 
 namespace {
 
-  void check_ctor(EBDigiCollection const& digis) {
+  inline void check_ctor(EBDigiCollection const& digis) {
     CPPUNIT_ASSERT(digis.subdetId()==EcalBarrel);
   }
-  void check_ctor(EEDigiCollection const& digis) {
+  inline void check_ctor(EEDigiCollection const& digis) {
     CPPUNIT_ASSERT(digis.subdetId()==EcalEndcap);
   }
 

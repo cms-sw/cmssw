@@ -20,7 +20,7 @@ public:
   static AlgebraicSymMatrix parError( const LocalError& le, const GeomDet& det);
 
   /// Fills in KFComponents delegating to hit2dLocalPos, plus adding APE if available
-  /// hit2dLocalPos MUST BE a 2D rechit measuring local position (e.g. BaseSiTrackerRecHit2DLocalPos)
+  /// hit2dLocalPos MUST BE a 2D rechit measuring local position (e.g. BaseTrackerRecHit2D)
   static void getKfComponents( KfComponentsHolder & holder, 
 			       const TrackingRecHit &hit2dLocalPos,
 			       const GeomDet& det);

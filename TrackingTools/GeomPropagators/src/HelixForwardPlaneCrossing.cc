@@ -1,9 +1,7 @@
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 #include <cmath>
 #include <vdt/vdtMath.h>
-#include <cfloat>
 
 HelixForwardPlaneCrossing::HelixForwardPlaneCrossing(const PositionType& point,
 						     const DirectionType& direction,
@@ -35,25 +33,7 @@ HelixForwardPlaneCrossing::HelixForwardPlaneCrossing(const PositionType& point,
   theSinTheta = pt2*ptI*pI;
 
 }
-//
-// Propagation status  and path length to intersection
-//
-std::pair<bool,double>
-HelixForwardPlaneCrossing::pathLength(const Plane& plane) {
-  //
-  // Protect against p_z=0 and calculate path length
-  //
-  if ( std::abs(theCosTheta/theSinTheta)<FLT_MIN )  return std::pair<bool,double>(false,0);
 
-  double dS = (plane.position().z()-theZ0) / theCosTheta;
-
-  if ( (thePropDir==alongMomentum && dS<0.) ||
-       (thePropDir==oppositeToMomentum && dS>0.) )  return std::pair<bool,double>(false,0);
-  //
-  // Return result
-  //
-  return std::pair<bool,double>(true,dS);
-}
 //
 // Position on helix after a step of path length s. 
 //
@@ -72,7 +52,6 @@ HelixForwardPlaneCrossing::position (double s) const {
   //   2nd order approximation.
   //
   if ( std::abs(theCachedDPhi)>1.e-4 ) {
-    // "standard" helix formula
     // "standard" helix formula
     double o = 1./theRho;
     return PositionTypeDouble(theX0+(-theSinPhi0*(1.-theCachedCDPhi)+theCosPhi0*theCachedSDPhi)*o,
@@ -98,8 +77,7 @@ HelixForwardPlaneCrossing::direction (double s) const {
   if ( s!=theCachedS ) {
     theCachedS = s;
     theCachedDPhi = theCachedS*theRho*theSinTheta;
-    theCachedSDPhi = sin(theCachedDPhi);
-    theCachedCDPhi = cos(theCachedDPhi);
+    vdt::fast_sincos(theCachedDPhi,theCachedSDPhi,theCachedCDPhi);
   }
 
   if ( fabs(theCachedDPhi)>1.e-4 ) {

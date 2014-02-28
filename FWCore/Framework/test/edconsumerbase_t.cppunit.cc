@@ -512,7 +512,7 @@ TestEDConsumerBase::testMay()
   const auto vint_blank_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance",0);
   {
     std::vector<edm::InputTag> vTags={ {"label","instance","process"}, {"labelC","instanceC","processC"} };
-    std::vector<edm::InputTag> vMayTags={};
+    std::vector<edm::InputTag> vMayTags;
     IntsMayConsumer consumer{vTags,vMayTags};
     consumer.updateLookup(edm::InEvent,helper);
     
@@ -538,7 +538,7 @@ TestEDConsumerBase::testMay()
   }
 
   {
-    std::vector<edm::InputTag> vTags={};
+    std::vector<edm::InputTag> vTags;
     std::vector<edm::InputTag> vMayTags={ {"label","instance","process"}, {"labelC","instanceC","processC"} };
     IntsMayConsumer consumer{vTags,vMayTags};
     consumer.updateLookup(edm::InEvent,helper);
@@ -588,7 +588,7 @@ TestEDConsumerBase::testMay()
     CPPUNIT_ASSERT(indicesMay.end() != std::find(indicesMay.begin(),indicesMay.end(), edm::ProductHolderIndexAndSkipBit(vint_c, false)));
   }
   {
-    std::vector<edm::InputTag> vTags={};
+    std::vector<edm::InputTag> vTags;
     std::vector<edm::InputTag> vMayTags={ {"label","instance",""}, {"labelC","instanceC","@skipCurrentProcess"} };
     IntsMayConsumer consumer{vTags,vMayTags};
     consumer.updateLookup(edm::InEvent,helper);

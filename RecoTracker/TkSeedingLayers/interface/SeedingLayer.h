@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
@@ -26,8 +26,7 @@ public:
   SeedingLayer( const std::string & name, int seqNum,
                 const DetLayer* layer,
                 const TransientTrackingRecHitBuilder * hitBuilder,
-                const HitExtractor * hitExtractor,  
-                bool usePredefinedErrors = false, float hitErrorRZ = 0., float hitErrorRPhi=0.);
+                const HitExtractor * hitExtractor);
 
   std::string name() const;
   int seqNum() const;
@@ -41,13 +40,9 @@ public:
   
   const TransientTrackingRecHitBuilder * hitBuilder() const;
 
-  bool hasPredefinedHitErrors() const;
-  float predefinedHitErrorRZ() const;
-  float predefinedHitErrorRPhi() const;
- 
 private:
   class SeedingLayerImpl;
-  boost::shared_ptr<SeedingLayerImpl> theImpl;
+  std::shared_ptr<SeedingLayerImpl> theImpl;
 };
 
 }

@@ -218,7 +218,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
   ME_HLT_BX = NULL;
   ME_HLT_CUSTOM_BX = NULL;
 
-  jetID = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"));
+  jetID = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"), consumesCollector());
   
   recHitsEBTag_ = iConfig.getUntrackedParameter<edm::InputTag>("RecHitsEBTag",edm::InputTag("reducedEcalRecHitsEB"));
   recHitsEETag_ = iConfig.getUntrackedParameter<edm::InputTag>("RecHitsEETag",edm::InputTag("reducedEcalRecHitsEE"));
@@ -2352,7 +2352,7 @@ void FourVectorHLTOffline::selectElectrons(const edm::Event& iEvent, const edm::
 
       if(pEBRecHits.isValid() && pEERecHits.isValid()) {
       
-        EcalClusterLazyTools lazyTool(iEvent, iSetup, recHitsEBTag_, recHitsEETag_); 
+        EcalClusterLazyTools lazyTool(iEvent, iSetup, recHitsEBToken, recHitsEEToken); 
         const reco::CaloCluster* bc = iter->superCluster()->seed().get(); // get the basic cluster
       
         float eleMaxOver3x3 = ( lazyTool.eMax(*bc) / lazyTool.e3x3(*bc)  );

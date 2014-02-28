@@ -80,6 +80,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		|| fname.find("placeholders.hpp") != std::string::npos) return;	
 
 	clang::QualType t =  D->getType();  
+	if ( support::isSafeClassName( t.getAsString() ) ) return;
 	const Decl * PD = AC->getDecl();
 	std::string dname =""; 
 	std::string sdname =""; 
@@ -106,7 +107,6 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 
 	if ( (D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local ) && ! clangcms::support::isConst( t ) )
 	{
-	    if ( support::isSafeClassName( t.getAsString() ) ) return;
 		std::string buf;
 	    	llvm::raw_string_ostream os(buf);
 		os << "function '"<<dname << "' accesses or modifies non-const static local variable '" << svname<< "'.\n";

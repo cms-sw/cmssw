@@ -47,6 +47,7 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
 
   desc.add<bool>("gedElectronMode",true) ;
   desc.add<double>("PreSelectMVA",-0.1) ;
+  desc.add<double>("MaxElePtForOnlyMVA",50.0) ;
 
   // steering
   desc.add<bool>("useGsfPfRecTracks",true) ;
@@ -215,6 +216,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   strategyCfg_.ctfTracksCheck = cfg.getParameter<bool>("ctfTracksCheck");
   strategyCfg_.gedElectronMode = cfg.getParameter<bool>("gedElectronMode");
   strategyCfg_.PreSelectMVA = cfg.getParameter<double>("PreSelectMVA");  
+  strategyCfg_.MaxElePtForOnlyMVA = cfg.getParameter<double>("MaxElePtForOnlyMVA");  
   strategyCfg_.useEcalRegression = cfg.getParameter<bool>("useEcalRegression");
   strategyCfg_.useCombinationRegression = cfg.getParameter<bool>("useCombinationRegression");
 

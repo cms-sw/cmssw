@@ -7,6 +7,7 @@
 #include <bitset>
 #include <vector>
 #include <iosfwd>
+#include <atomic>
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader2006.h"
@@ -144,8 +145,8 @@ class CSCALCTHeader {
   //maximum header size is 116 words
   unsigned short int theOriginalBuffer[116];
   
-  static bool debug;
-  static unsigned short int firmwareVersion;
+  static std::atomic<bool> debug;
+  static std::atomic<unsigned short int> firmwareVersion;
 
   ///size of the 2007 header in words
   unsigned short int sizeInWords2007_, bxn0, bxn1;

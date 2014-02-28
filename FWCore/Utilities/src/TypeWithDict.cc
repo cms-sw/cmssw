@@ -174,8 +174,8 @@ namespace edm {
       {std::string("unsigned int"), TypeWithDict(typeid(unsigned int))},
       {std::string("long"), TypeWithDict(typeid(long))},
       {std::string("unsigned long"), TypeWithDict(typeid(unsigned long))},
-      {std::string("long long"), TypeWithDict(typeid(int))},
-      {std::string("unsigned long long"), TypeWithDict(typeid(int))},
+      {std::string("long long"), TypeWithDict(typeid(long long))},
+      {std::string("unsigned long long"), TypeWithDict(typeid(unsigned long long))},
       {std::string("float"), TypeWithDict(typeid(float))},
       {std::string("double"), TypeWithDict(typeid(double))},
       // {std::string("long double"), TypeWithDict(typeid(long double))}, // ROOT does not seem to know about long double

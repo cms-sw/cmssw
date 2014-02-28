@@ -64,9 +64,6 @@ namespace cond {
       // constructor
       explicit Session( const std::shared_ptr<SessionImpl>& sessionImpl );
 
-      // constructor
-      Session( boost::shared_ptr<coral::ISessionProxy>& session, const std::string& connectionString );
-
       // 
       Session( const Session& rhs );
       
@@ -140,9 +137,10 @@ namespace cond {
       // TO BE REMOVED in the long term. The new code will use coralSession().
       coral::ISchema& nominalSchema();
       
+      bool isOraSession(); 
+
     private:
       cond::Hash storePayloadData( const std::string& payloadObjectType, const cond::Binary& payloadData, const boost::posix_time::ptime& creationTime );
-      bool isOraSession(); 
       
     private:
       

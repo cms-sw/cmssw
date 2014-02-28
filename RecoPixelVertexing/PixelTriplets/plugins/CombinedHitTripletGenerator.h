@@ -7,13 +7,18 @@
  */ 
 
 #include <vector>
+#include <memory>
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
+#include <string>
+#include <memory>
 
 class TrackingRegion;
 class HitTripletGeneratorFromPairAndLayers;
-namespace ctfseeding { class SeedingLayer;}
+class SeedingLayerSetsHits;
 
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
@@ -24,7 +29,7 @@ public:
 
 public:
 
-  CombinedHitTripletGenerator( const edm::ParameterSet& cfg);
+  CombinedHitTripletGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   virtual ~CombinedHitTripletGenerator();
 
@@ -33,14 +38,10 @@ public:
       const edm::Event & ev,  const edm::EventSetup& es);
 
 private:
-  void init(const edm::ParameterSet & cfg, const edm::EventSetup& es);
+  edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 
-  mutable bool initialised;
-
-  edm::ParameterSet         theConfig;
   LayerCacheType            theLayerCache;
 
-  typedef std::vector<HitTripletGeneratorFromPairAndLayers* > GeneratorContainer;
-  GeneratorContainer        theGenerators;
+  std::unique_ptr<HitTripletGeneratorFromPairAndLayers> theGenerator;
 };
 #endif

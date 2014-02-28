@@ -111,9 +111,10 @@
 
 
 
-  <class name="reco::GsfElectronCore" ClassVersion="11">
+  <class name="reco::GsfElectronCore" ClassVersion="12">
    <version ClassVersion="10" checksum="2226610106"/>
    <version ClassVersion="11" checksum="2637403054"/>
+   <version ClassVersion="12" checksum="2885797746"/>
   </class>
   <ioread sourceClass="reco::GsfElectronCore" version="[1-10]" targetClass="reco::GsfElectronCore" source="reco::SuperClusterRef pflowSuperCluster_;" target="parentSuperCluster_">
     <![CDATA[parentSuperCluster_ = onfile.pflowSuperCluster_;]]>

@@ -132,6 +132,12 @@ if __name__ == '__main__':
                       dest='wmcontrol',
                       default=None,
                       )
+    parser.add_option('--revertDqmio',
+                      help='When submitting workflows to wmcontrol, force DQM outout to use pool and not DQMIO',
+                      choices=['yes','no'],
+                      dest='revertDqmio',
+                      default='no',
+                      )
     parser.add_option('--optionswm',
                       help='Specify a few things for wm injection',
                       default='',
@@ -180,6 +186,11 @@ if __name__ == '__main__':
                       default=False,
                       action='store_true')
 
+    parser.add_option('--das-options',
+                      help='Options to be passed to das_client.py.',
+                      dest='dasOptions',
+                      default="--limit 0",
+                      action='store')
 
     
     opt,args = parser.parse_args()

@@ -61,7 +61,7 @@ MuCorrMETAnalyzer::MuCorrMETAnalyzer(const edm::ParameterSet& pSet, edm::Consume
   //  _lowMuCorrMETThreshold = parameters.getParameter<double>("LowMuCorrMETThreshold");       // Low MET threshold
 
   //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"), std::move(iC));
 
 }
 

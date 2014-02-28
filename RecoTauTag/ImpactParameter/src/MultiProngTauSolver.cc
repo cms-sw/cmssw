@@ -1,7 +1,7 @@
 #include "RecoTauTag/ImpactParameter/interface/MultiProngTauSolver.h"
-#include <iostream>
 #include "TMatrixTSym.h"
 #include "TVectorT.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace tauImpactParameter;
 
@@ -25,7 +25,7 @@ void MultiProngTauSolver::analyticESolver(TLorentzVector& nu_plus,TLorentzVector
 }
 
 void MultiProngTauSolver::numericalESolver(TLorentzVector& nu_plus,TLorentzVector& nu_minus,const TLorentzVector& A1,bool &isReal){
-  double rmin(-100), rmax(100), step(0.01), mtau2(pow(PDGInfo::tau_mass(),2.0)), z1(-999), z2(-999), zmin(-999), min(9999), prev(9999);
+  double rmin(-100), rmax(100), step(0.01), mtau2(PDGInfo::tau_mass()*PDGInfo::tau_mass()), z1(-999), z2(-999), zmin(-999), min(9999), prev(9999);
   double z=rmin;
   TLorentzVector nu,tau;
   for(int i=0;i<=(int)(rmax-rmin)/step;i++){
@@ -82,13 +82,13 @@ bool MultiProngTauSolver::setTauDirectionatThetaGJMax(const TLorentzVector& a1, 
     if(scale<0) scale=1.0;
     double a=(thetaGJMaxvar/dphitheta)-(1-scale);
     double b=1-(thetaGJMaxvar/dphitheta)+(1-scale);
-    std::cout << "SetTauDirectionatThetaGJMax before GF " <<  thetaGJMaxvar << " dot " << acos(a1v.Dot(tau)/(a1v.Mag()*tau.Mag())) << " a1 phi " <<  a1v.Phi() << " tau phi " << tau.Phi() << " a1 theta " <<a1v.Theta() << " tau theta " << tau.Theta()  << std::endl;
+    edm::LogInfo("RecoTauTag/ImpactParameter") << "SetTauDirectionatThetaGJMax before GF " <<  thetaGJMaxvar << " dot " << acos(a1v.Dot(tau)/(a1v.Mag()*tau.Mag())) << " a1 phi " <<  a1v.Phi() << " tau phi " << tau.Phi() << " a1 theta " <<a1v.Theta() << " tau theta " << tau.Theta()  ;
     tau*=a;
     a1v*=b;
     tau+=a1v;
     theta=tau.Theta();
     phi=tau.Phi();
-    std::cout << "SetTauDirectionatThetaGJMax GF " <<  thetaGJMaxvar << " dot " << acos(a1v.Dot(tau)/(a1v.Mag()*tau.Mag())) <<  " phi " << phi << " theta " << theta <<  std::endl;
+    edm::LogInfo("RecoTauTag/ImpactParameter") << "SetTauDirectionatThetaGJMax GF " <<  thetaGJMaxvar << " dot " << acos(a1v.Dot(tau)/(a1v.Mag()*tau.Mag())) <<  " phi " << phi << " theta " << theta ;
     return true;
   }
   return false;

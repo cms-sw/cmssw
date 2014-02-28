@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -119,7 +120,12 @@ namespace cms{
 
     //services
     es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
-    es.get<IdealMagneticFieldRecord>().get( theMagField );
+    std::string mfName = "";
+    if (conf_.exists("SimpleMagneticField"))
+      mfName = conf_.getParameter<std::string>("SimpleMagneticField");
+    es.get<IdealMagneticFieldRecord>().get(mfName,theMagField );
+    //    edm::ESInputTag mfESInputTag(mfName);
+    //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
 
     if (!theInitialState){
       // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.
@@ -296,7 +302,10 @@ namespace cms{
       // end of loop over seeds
       
       if (theSeedCleaner) theSeedCleaner->done();
-      
+   
+      // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << std::endl;
+
+   
       // Step E: Clean the results to avoid duplicate tracks
       // Rejected ones just flagged as invalid.
       theTrajectoryCleaner->clean(rawResult);
@@ -357,7 +366,9 @@ namespace cms{
       //}
 
       //analyseCleanedTrajectories(unsmoothedResult);
-      
+   
+      int viTotHits=0;   
+   
       if (theTrackCandidateOutput){
 	// Step F: Convert to TrackCandidates
        output->reserve(unsmoothedResult.size());
@@ -375,6 +386,8 @@ namespace cms{
 	      hitIt != thits.end(); ++hitIt) {
 	   recHits.push_back( (**hitIt).hit()->clone());
 	 }
+
+         viTotHits+=thits.size();        
 
 	 LogDebug("CkfPattern") << "getting initial state.";
 	 const bool doBackFit = !doSeedingRegionRebuilding && !reverseTrajectories;
@@ -408,7 +421,8 @@ namespace cms{
 						    << "number of Seed: " << collseed->size()<<endl
       						    <<PrintoutHelper::regressionTest(*tracker,unsmoothedResult);
 
-      
+      assert(viTotHits>=0); // just to use it...
+      // std::cout << "VICkfPattern result " << output->size() << " " << viTotHits << std::endl;
      
       if (theTrajectoryOutput){ outputT->swap(unsmoothedResult);}
 

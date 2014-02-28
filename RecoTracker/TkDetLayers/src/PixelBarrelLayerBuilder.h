@@ -16,7 +16,7 @@ class PixelBarrelLayerBuilder {
  public:
   PixelBarrelLayerBuilder(){};
   PixelBarrelLayer* build(const GeometricDet* aPixelBarrelLayer,
-			  const TrackerGeometry* theGeomDetGeometry);
+			  const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
 
   
 };
