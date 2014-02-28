@@ -106,7 +106,7 @@ private:
     SiStripRecHitMatcher::Collector & collector() { return collector_; }
     bool hasNewMatchedHits() const { return hasNewHits_;  }
     void clearNewMatchedHitsFlag() { hasNewHits_ = false; }
-    static bool filter() { return false;}   // if true mono-colection will been filter using the estimator before matching  
+    bool filter() const { return matcher_->preFilter();}   // if true mono-colection will been filter using the estimator before matching  
     size_t size() const { return target_.size();}
     const MeasurementEstimator  & estimator() { return est_;}
   private: 
