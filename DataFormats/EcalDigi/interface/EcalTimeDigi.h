@@ -32,18 +32,18 @@ class EcalTimeDigi {
     
   void setSize(unsigned int size);
   void setSample(unsigned int i, const float& sam) { data_[i]=sam; }
-  void setSampleOfInterest(unsigned int i) { sampleOfInterest_=i; }
+  void setSampleOfInterest(int i) { sampleOfInterest_=i; }
     
   static const unsigned int MAXSAMPLES = 10;
 
-  /// Gets the interesting sample
-  unsigned int sampleOfInterest() const { return sampleOfInterest_; }
+  /// Gets the BX==0 sample. If =-1 then it means that only OOT hits are present
+  int sampleOfInterest() const { return sampleOfInterest_; }
 
 private:
   
   DetId id_;
   unsigned int size_;
-  unsigned int sampleOfInterest_;
+  int sampleOfInterest_;
   std::vector<float> data_;
 };
 
