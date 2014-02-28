@@ -3,8 +3,6 @@
 #include <iostream>
 #include <string>
 #include <map>
-
-
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DQM/RPCMonitorClient/interface/RPCEfficiencySecond.h>
 #include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
@@ -15,7 +13,7 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
   
   std::map<std::string, MonitorElement*> meMap;
    
-  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
+  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); 
 
   std::string folder = folderPath+ "RollByRoll/" +  folderStr->folderStructure(detId);
 
@@ -25,7 +23,6 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
 
   RPCGeomServ RPCname(detId);
   std::string nameRoll = RPCname.name();
-
   char detUnitLabel[128];
   char layerLabel[128];
 
