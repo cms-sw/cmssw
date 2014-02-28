@@ -1,5 +1,12 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducer.h"
 
+namespace {
+  bool sortByDetId(const reco::PFRecHit& a,
+		   const reco::PFRecHit& b) {
+    return a.detId() < b.detId();
+  }
+}
+
  PFRecHitProducer:: PFRecHitProducer(const edm::ParameterSet& iConfig)
 {
 
@@ -44,6 +51,8 @@ void
    for (unsigned int i=0;i<creators_.size();++i) {
      creators_.at(i)->importRecHits(out,cleaned,iEvent,iSetup);
    }
+
+   std::sort(out->begin(),out->end(),sortByDetId);
 
    //create a refprod here
    edm::RefProd<reco::PFRecHitCollection> refProd = 
