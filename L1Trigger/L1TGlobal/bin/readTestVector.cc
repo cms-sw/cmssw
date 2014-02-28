@@ -16,10 +16,14 @@
 
 #include <boost/program_options.hpp>
 
-// The default XML file to load.
-#define XML_OUTPUT "sample.xml"
+#include "TH1.h"
+#include "TFile.h"
 
 const int MAX_ALGO_BITS = 512;
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 std::string zeroes128 = std::string(128,'0');
 std::string zeroes16 = std::string(16,'0');
@@ -29,11 +33,11 @@ std::vector<int> l1taccepts;
 std::vector<std::string> l1tnames;
 std::vector<int> l1taccepts_evt;
 
-void parseMuons( std::vector<std::string> muons );
-void parseEGs(   std::vector<std::string> egs );
-void parseTaus(  std::vector<std::string> taus );
-void parseJets(  std::vector<std::string> jets );
-void parseEtSums(std::vector<std::string> etsums );
+void parseMuons( std::vector<std::string> muons, bool verbose );
+void parseEGs(   std::vector<std::string> egs, bool verbose );
+void parseTaus(  std::vector<std::string> taus, bool verbose );
+void parseJets(  std::vector<std::string> jets, bool verbose );
+void parseEtSums(std::vector<std::string> etsums, bool verbose );
 
 void parseAlgo( std::string algo );
 
@@ -43,6 +47,30 @@ l1t::Tau unpackTaus( std::string itau );
 l1t::Jet unpackJets( std::string ijet );
 l1t::EtSum unpackEtSums( std::string ietsum, l1t::EtSum::EtSumType type );
 
+double convertPtFromHW( int hwPt, double max, double step );
+double convertEtaFromHW( int hwEta, double max, double step );
+double convertPhiFromHW( int hwPhi, double step );
+
+
+TH1D* h_l1jet_pt_;
+TH1D* h_l1jet_eta_;
+TH1D* h_l1jet_phi_;
+TH1D* h_l1jet_num_;
+
+
+double MaxLepPt_ = 255;
+double MaxJetPt_ = 1023;
+
+double MaxCaloEta_ = 5.0;
+double MaxMuonEta_ = 2.45;
+
+double PhiStepCalo_ = 144;
+double phiStepMuon_ = 576;
+
+double EtaStepCalo_ = 230;
+double EtaStepMuon_ = 450;
+
+double PtStep_ = 0.5;
 
 
 // The application.
@@ -50,8 +78,9 @@ int main( int argc, char** argv ){
   using namespace boost;
   namespace po = boost::program_options;
 
-  std::string vector_file;// = "";
-  std::string xml_file;// = XML_OUTPUT;
+  std::string vector_file;
+  std::string xml_file;
+  std::string histo_file;
   bool dumpEvents;
   int maxEvents;
 
@@ -59,6 +88,7 @@ int main( int argc, char** argv ){
   desc.add_options()
     ("vector_file,i", po::value<std::string>(&vector_file)->default_value(""), "Input file")
     ("menu_file,m",   po::value<std::string>(&xml_file)->default_value(""), "Menu file")
+    ("hist_file,o", po::value<std::string>(&histo_file)->default_value(""), "Output histogram file")
     ("dumpEvents,d",  po::value<bool>(&dumpEvents)->default_value(false), "Dump event-by-event information")
     ("maxEvents,n",  po::value<int>(&maxEvents)->default_value(-1), "Number of events (default is all)")
     ("help,h", "Produce help message")
@@ -97,6 +127,16 @@ int main( int argc, char** argv ){
     std::cout << "No menu file specified" << std::endl;
   }
 
+  bool output = true;
+  if( histo_file=="" ){
+    output = false;
+  }
+
+  TFile* histofile = NULL;
+  if( output ){
+    histofile = new TFile(histo_file.c_str(),"RECREATE");
+    histofile->cd();
+  }
 
   l1taccepts.resize(MAX_ALGO_BITS);
   l1taccepts_evt.resize(MAX_ALGO_BITS);
@@ -119,6 +159,14 @@ int main( int argc, char** argv ){
       l1tnames[index] = name;
     }
   }
+
+  /// Setup histograms
+  h_l1jet_pt_  = new TH1D("h_l1jet_pt", ";L1 jet p_{T}", int((MaxJetPt_+PtStep_)/(4*PtStep_) + 1.001), 0, MaxJetPt_+PtStep_ );
+  h_l1jet_eta_ = new TH1D("h_l1jet_eta",";L1 jet #eta",  int(EtaStepCalo_/2+0.0001), -MaxCaloEta_, MaxCaloEta_ );
+  h_l1jet_phi_ = new TH1D("h_l1jet_phi",";L1 jet #phi",  PhiStepCalo_+1, 0, 2*M_PI );
+  h_l1jet_num_ = new TH1D("h_l1jet_num",";L1 Number of jets",  13, 0, 13 );
+
+
 
   std::ifstream file(vector_file);
   std::string line;
@@ -152,14 +200,12 @@ int main( int argc, char** argv ){
 	       >> etsum[0] >> etsum[1] >> etsum[2] >> etsum[3] 
 	       >> ex >> alg >> fin;
 
-    if( dumpEvents ){
-      printf("  <==== BX = %s ====>\n",bx.c_str());
-      parseMuons(mu);
-      parseEGs(eg);
-      parseTaus(tau);
-      parseJets(jet);
-      parseEtSums(etsum);
-    }
+    if( dumpEvents ) printf("  <==== BX = %s ====>\n",bx.c_str());
+    parseMuons(mu, dumpEvents);
+    parseEGs(eg, dumpEvents);
+    parseTaus(tau, dumpEvents);
+    parseJets(jet, dumpEvents);
+    parseEtSums(etsum, dumpEvents);
 
     parseAlgo(alg);
 
@@ -203,90 +249,108 @@ int main( int argc, char** argv ){
     }
   }
 
+
+  if( output ){
+    histofile->Write();
+    histofile->Close();
+  }
+
+
   return 0;
 }
 
 
 // Parse Objects
-void parseMuons( std::vector<std::string> muons ){
+void parseMuons( std::vector<std::string> muons, bool verbose ){
 
-  printf("    == Muons ==\n");
+  if( verbose) printf("    == Muons ==\n");
   for( unsigned int i=0; i<muons.size(); i++ ){
     std::string imu = muons[i];
     if( imu==zeroes16 ) continue;
 
     l1t::Muon mu = unpackMuons( imu );
 
-    printf(" l1t::Muon %d:\t pt = %d,\t eta = %d,\t phi = %d\n", i, mu.hwPt(), mu.hwEta(), mu.hwPhi());
+    if( verbose) printf(" l1t::Muon %d:\t pt = %d,\t eta = %d,\t phi = %d\n", i, mu.hwPt(), mu.hwEta(), mu.hwPhi());
   }
   return;
 }
-void parseEGs( std::vector<std::string> egs ){
+void parseEGs( std::vector<std::string> egs, bool verbose ){
 
-  printf("    == EGammas ==\n");
+  if( verbose) printf("    == EGammas ==\n");
   for( unsigned int i=0; i<egs.size(); i++ ){
     std::string ieg = egs[i];
     if( ieg==zeroes8 ) continue;
 
     l1t::EGamma eg = unpackEGs( ieg );
 
-    printf(" l1t::EGamma %d:\t pt = %d,\t eta = %d,\t phi = %d\n", i, eg.hwPt(), eg.hwEta(), eg.hwPhi());
+    if( verbose) printf(" l1t::EGamma %d:\t pt = %d,\t eta = %d,\t phi = %d\n", i, eg.hwPt(), eg.hwEta(), eg.hwPhi());
   }
   return;
 }
-void parseTaus( std::vector<std::string> taus ){
+void parseTaus( std::vector<std::string> taus, bool verbose ){
 
-  printf("    == Taus ==\n");
+  if( verbose) printf("    == Taus ==\n");
   for( unsigned int i=0; i<taus.size(); i++ ){
     std::string itau = taus[i];
     if( itau==zeroes8 ) continue;
 
     l1t::Tau tau = unpackTaus( itau );
 
-    printf(" l1t::Tau %d:\t pt = %d,\t eta = %d,\t phi = %d\n", i, tau.hwPt(), tau.hwEta(), tau.hwPhi());
+    if( verbose) printf(" l1t::Tau %d:\t pt = %d,\t eta = %d,\t phi = %d\n", i, tau.hwPt(), tau.hwEta(), tau.hwPhi());
   }
   return;
 }
-void parseJets( std::vector<std::string> jets ){
+void parseJets( std::vector<std::string> jets, bool verbose ){
 
-  printf("    == Jets ==\n");
+  if( verbose) printf("    == Jets ==\n");
+  int njet=0;
   for( unsigned int i=0; i<jets.size(); i++ ){
     std::string ijet = jets[i];
     if( ijet==zeroes8 ) continue;
-
+    njet++;
     l1t::Jet jet = unpackJets( ijet );
 
-    printf(" l1t::Jet %d:\t pt = %d,\t eta = %d,\t phi = %d\n", i, jet.hwPt(), jet.hwEta(), jet.hwPhi());
+    double pt = convertPtFromHW( jet.hwPt(), MaxJetPt_, PtStep_ );
+    double eta = convertEtaFromHW( jet.hwEta(), MaxCaloEta_, EtaStepCalo_ );
+    double phi = convertPhiFromHW( jet.hwPhi(), PhiStepCalo_ );
+
+    h_l1jet_pt_->Fill( pt );
+    h_l1jet_eta_->Fill( eta );
+    h_l1jet_phi_->Fill( phi );
+
+    if( verbose) printf(" l1t::Jet %d:\t pt = %d (%.1f),\t eta = %d (%+.2f),\t phi = %d (%.2f)\n", i, jet.hwPt(), pt, jet.hwEta(), eta, jet.hwPhi(), phi);
   }
+  h_l1jet_num_->Fill(njet);
+
   return;
 }
-void parseEtSums( std::vector<std::string> etsum ){
+void parseEtSums( std::vector<std::string> etsum, bool verbose ){
 
-  printf("    == EtSums ==\n");
+  if( verbose) printf("    == EtSums ==\n");
 
   //et sum
   std::string iet = etsum[0];
   if( iet!=zeroes8 ){
     l1t::EtSum et = unpackEtSums( iet, l1t::EtSum::EtSumType::kTotalEt );
-    printf(" l1t::EtSum TotalEt:\t Et = %d\n", et.hwPt());
+    if( verbose) printf(" l1t::EtSum TotalEt:\t Et = %d\n", et.hwPt());
   }
   //ht sum
   std::string iht = etsum[1];
   if( iht!=zeroes8 ){
     l1t::EtSum ht = unpackEtSums( iht, l1t::EtSum::EtSumType::kTotalHt );
-    printf(" l1t::EtSum TotalHt:\t Ht = %d\n", ht.hwPt());
+    if( verbose) printf(" l1t::EtSum TotalHt:\t Ht = %d\n", ht.hwPt());
   }
   //etm
   std::string ietm = etsum[2];
   if( ietm!=zeroes8 ){
     l1t::EtSum etm = unpackEtSums( ietm, l1t::EtSum::EtSumType::kMissingEt );
-    printf(" l1t::EtSum MissingEt:\t Et = %d,\t phi = %d\n", etm.hwPt(), etm.hwPhi());
+    if( verbose) printf(" l1t::EtSum MissingEt:\t Et = %d,\t phi = %d\n", etm.hwPt(), etm.hwPhi());
   }
   //htm
   std::string ihtm = etsum[3];
   if( ihtm!=zeroes8 ){
     l1t::EtSum htm = unpackEtSums( ihtm, l1t::EtSum::EtSumType::kMissingHt );
-    printf(" l1t::EtSum MissingHt:\t Et = %d,\t phi = %d\n", htm.hwPt(), htm.hwPhi());
+    if( verbose) printf(" l1t::EtSum MissingHt:\t Et = %d,\t phi = %d\n", htm.hwPt(), htm.hwPhi());
   }
 
   return;
@@ -408,7 +472,22 @@ l1t::EtSum unpackEtSums( std::string ietsum, l1t::EtSum::EtSumType type ){
   return sum;
 }
 
+// Conversion into physical coordinates from HW
+double convertPtFromHW( int hwPt, double max, double step ){
+  double pt = double(hwPt)/step;
+  if( pt>max ) pt = max;
+  return pt;
+}
 
+double convertEtaFromHW( int hwEta, double max, double step ){
+  double binWidth = 2*max/step;
+  double eta = ( hwEta<115 ) ? double(hwEta)*binWidth+0.5*binWidth : -(double(256-hwEta)*binWidth -0.5*binWidth);
+  return eta;
+}
+double convertPhiFromHW( int hwPhi, double step ){
+  double phi = double(hwPhi)/step * 2 * M_PI;
+  return phi;
+}
 
 
 // eof
