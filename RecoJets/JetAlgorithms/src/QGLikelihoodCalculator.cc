@@ -7,8 +7,8 @@
 #include <cstdlib>
 
 #include "TMath.h"
+#include "TH1F.h"
 
-#include <map>
 using namespace std;
 
 
@@ -24,84 +24,73 @@ QGLikelihoodCalculator::QGLikelihoodCalculator( TString dataDir, bool chs){
   Bins::getBins_int(PtBins, Bins::nPtBins, Bins::Pt0, Bins::Pt1, true);
   PtBins.push_back(4000);
 
+  for(int i = 0; i < 2*2*3*Bins::nPtBins*Bins::nRhoBins; ++i) plots.push_back(nullptr);
+}
+
+int QGLikelihoodCalculator::indexTH1F(int etaIndex, int qgIndex, int varIndex, int ptIndex, int rhoIndex){
+  return (((etaIndex + 2*qgIndex)*3 + varIndex)*Bins::nPtBins + ptIndex)*Bins::nRhoBins + rhoIndex;
+}
+
+void QGLikelihoodCalculator::loadTH1F(int etaIndex, int qgIndex, int varIndex, int ptIndex, int rhoIndex){
+  int index = indexTH1F(etaIndex, qgIndex, varIndex, ptIndex, rhoIndex);
+  TString ptMin = TString::Format("%d", PtBins.at(ptIndex));
+  TString ptMax = TString::Format("%d", PtBins.at(ptIndex+1));
+  TString rhoMin = TString::Format("%d", RhoBins.at(rhoIndex));
+  TString varName;
+  if(varIndex == 0) varName = "nPFCand_QC_ptCutJet0";
+  if(varIndex == 1) varName = "ptD_QCJet0";
+  if(varIndex == 2) varName = "axis2_QCJet0";
+  TString histoName = "rhoBins_pt" + ptMin + "_" + ptMax + "/" + varName + (etaIndex==0?"":"_F") + "_" + (qgIndex==0?"quark":"gluon") + "_pt" + ptMin + "_" + ptMax + "_rho" + rhoMin;
+  histoFile->GetObject(histoName, plots.at(index)); 
+  if(!plots.at(index)){ std::cout << "Error (RecoJets/JetAlgorithms/QGLikelihoodCalculator.cc): " << histoName << " not found!" << std::endl; exit(1);}
+  if(plots.at(index)->GetEntries()<50 ) 	plots.at(index)->Rebin(5); 	// try to make it more stable
+  else if(plots.at(index)->GetEntries()<500 ) 	plots.at(index)->Rebin(2); 	// try to make it more stable
+  plots.at(index)->Scale(1./plots.at(index)->Integral("width")); 
 }
 
 
-float QGLikelihoodCalculator::computeQGLikelihood2012( float pt, float eta, float rho, int nPFCandidates_QC_ptCut, float ptD_QC, float axis2_QC ) {
+float QGLikelihoodCalculator::computeQGLikelihood2012(float pt, float eta, float rho, int nPFCandidates_QC_ptCut, float ptD_QC, float axis2_QC){
 
-  // in forward use inclusive 127-4000 bin
-  if( fabs(eta)>2.5 && pt>127. ) pt = 128.;
+  int etaIndex = (fabs(eta)>2.5);
+  if(etaIndex && pt>127.) pt = 128.;		// in forward use inclusive 127-4000 bin
 
-  std::vector<std::string> varName;
-  //varName.push_back("nPFCand_QCJet0");
-  if( fabs(eta)<2.5 ) {
-    varName.push_back("nPFCand_QC_ptCutJet0");
-    varName.push_back("ptD_QCJet0");
-    varName.push_back("axis2_QCJet0");
-  } else {
-    varName.push_back("nPFCand_QC_ptCutJet0_F");
-    varName.push_back("ptD_QCJet0_F");
-    varName.push_back("axis2_QCJet0_F");
-  }
+  int ptBin = Bins::getBinNumber(PtBins, pt);
+  if(ptBin == -1) return -1;
+  int rhoBin = Bins::getBinNumber(RhoBins, rho);
+  if(rhoBin == -1) return -1;
 
   std::vector<float> vars;
   vars.push_back(nPFCandidates_QC_ptCut);
   vars.push_back(ptD_QC);
   vars.push_back(-log(axis2_QC)); //-log
 
-  std::vector<int> RhoBins;
-  std::vector<int> PtBins;
-
-  Bins::getBins_int(RhoBins, Bins::nRhoBins, Bins::Rho0, Bins::Rho1, false);
-  Bins::getBins_int(PtBins, Bins::nPtBins, Bins::Pt0, Bins::Pt1, true);
-  PtBins.push_back(4000);
-
-  int ptMin=0, ptMax = 0, rhoMin = 0, rhoMax = 0;
-  if(!Bins::getBin(PtBins, pt, ptMin, ptMax)) return -1;
-  if(!Bins::getBin(RhoBins, rho, rhoMin, rhoMax)) return -1;
-
   float Q=1;
   float G=1;
-  char histoName[1023];
 
+  for(unsigned int varIndex = 0; varIndex < 3; ++varIndex){
+    int index = indexTH1F(etaIndex, 0, varIndex, ptBin, rhoBin);
+    if(!plots.at(index)) loadTH1F(etaIndex, 0, varIndex, ptBin, rhoBin); 
 
-  for(unsigned int i=0;i<vars.size();i++){
-    //get Histo
-    float Qi(1),Gi(1),mQ,mG;
-    sprintf( histoName, "rhoBins_pt%d_%d/%s_quark_pt%d_%d_rho%d", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
-    if( plots_[histoName] == nullptr ) { //first time 
-      plots_[histoName]=(TH1F*)histoFile_->Get(histoName); 
-      if( plots_[histoName]->GetEntries()<50 ) plots_[histoName]->Rebin(5); // try to make it more stable
-      else if( plots_[histoName]->GetEntries()<500 ) plots_[histoName]->Rebin(2); // try to make it more stable
-    }
-    if( plots_[histoName] == nullptr ) fprintf(stderr,"Histo %s does not exists\n",histoName); //DEBUG
-    plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
-
-    Qi=plots_[histoName]->GetBinContent(plots_[histoName]->FindBin(vars[i]));
-    mQ=plots_[histoName]->GetMean();
+    float Qi = plots.at(index)->GetBinContent(plots.at(index)->FindBin(vars[varIndex]));
+    float mQ = plots.at(index)->GetMean();
 	
-    sprintf( histoName, "rhoBins_pt%d_%d/%s_gluon_pt%d_%d_rho%d", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
-    if( plots_[histoName] == nullptr ) { // first time
-      plots_[histoName]=(TH1F*)histoFile_->Get(histoName);
-      if( plots_[histoName]->GetEntries()<50 ) plots_[histoName]->Rebin(5); // try to make it more stable
-      else if( plots_[histoName]->GetEntries()<500 ) plots_[histoName]->Rebin(2); // try to make it more stable
-    }
-    if( plots_[histoName] == nullptr) fprintf(stderr,"Histo %s does not exists\n",histoName); //DEBUG
-    plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
+    index = indexTH1F(etaIndex, 1, varIndex, ptBin, rhoBin);
+    if(!plots.at(index)) loadTH1F(etaIndex, 1, varIndex, ptBin, rhoBin); 
 
-    Gi=plots_[histoName]->GetBinContent(plots_[histoName]->FindBin(vars[i]));
-    mG=plots_[histoName]->GetMean();
+    float Gi = plots.at(index)->GetBinContent(plots.at(index)->FindBin(vars[varIndex]));
+    float mG = plots.at(index)->GetMean();
+
 	
     float epsilon=0;
     float delta=0.000001;
-    if( Qi<=epsilon && Gi<=epsilon){
+    if(Qi <= epsilon && Gi <= epsilon){
       if(mQ>mG){
-	if(vars[i]>mQ){ Qi=1-delta;Gi=delta;}
-	else if(vars[i]<mG){Qi=delta;Gi=1-delta;}
+	if(vars[varIndex] > mQ){ Qi = 1-delta; Gi = delta;}
+	else if(vars[varIndex] < mG){ Qi = delta; Gi = 1-delta;}
       }
       else if(mQ<mG){
-	if(vars[i]<mQ) {Qi=1-delta;Gi=delta;}
-	else if(vars[i]>mG){Qi=delta;Gi=1-delta;}
+	if(vars[varIndex]<mQ) { Qi = 1-delta; Gi = delta;}
+	else if(vars[varIndex]>mG){Qi = delta;Gi = 1-delta;}
       }
     } 
 
