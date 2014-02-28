@@ -121,7 +121,6 @@ namespace sistrip {
     
     //retrieve the scope mode digis
     edm::Handle<sistrip::SpyDigiConverter::DSVRawDigis> scopeDigisHandle;
-    //    event.getByLabel(productLabel_, scopeDigisHandle);
     event.getByToken(productToken_, scopeDigisHandle);
     
     //32-bit to accomodate known CMSSW container

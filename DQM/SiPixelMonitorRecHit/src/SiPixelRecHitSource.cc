@@ -125,7 +125,6 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
   //cout << eventNo << endl;
   // get input data
   edm::Handle<SiPixelRecHitCollection>  recHitColl;
-  //iEvent.getByLabel( src_, recHitColl ); //original
   iEvent.getByToken( src_, recHitColl );
 
   std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
