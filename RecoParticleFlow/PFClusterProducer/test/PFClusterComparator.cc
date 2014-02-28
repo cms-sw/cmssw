@@ -60,6 +60,7 @@ PFClusterComparator::beginRun(const edm::Run& run,
 
 void PFClusterComparator::analyze(const Event& iEvent, 
 				  const EventSetup& iSetup) {
+  std::map<unsigned,unsigned> detId_count;
     
   // get PFClusters
 
@@ -81,8 +82,9 @@ void PFClusterComparator::analyze(const Event& iEvent,
   std::cout << std::flush << "---- COMPARING OLD TO NEW ----"
 	    << std::endl  << std::flush;
 
-  for( unsigned i=0; i<pfClusters->size(); i++ ) {    
+  for( unsigned i=0; i<pfClusters->size(); i++ ) {  
     const reco::PFCluster& cluster = pfClusters->at(i);   
+    detId_count[cluster.seed().rawId()] += 1;
     log10E_old->Fill(std::log10(cluster.energy()));
     posX_old->Fill(std::abs(cluster.position().x()));
     posY_old->Fill(std::abs(cluster.position().y()));
@@ -90,7 +92,7 @@ void PFClusterComparator::analyze(const Event& iEvent,
     bool foundmatch = false;
     for( unsigned k=0; k<pfClustersCompare->size(); ++k ) {
       const reco::PFCluster& clustercomp = pfClustersCompare->at(k);      
-      if( cluster.seed() == clustercomp.seed() ) {
+      if( cluster.seed().rawId() == clustercomp.seed().rawId() ) {
 	foundmatch = true;
 	const double denergy = std::abs(cluster.energy() - 
 					clustercomp.energy());
@@ -101,11 +103,12 @@ void PFClusterComparator::analyze(const Event& iEvent,
 	const double dy = std::abs(cluster.position().y() - 
 				     clustercomp.position().y());
 	const double dz = std::abs(cluster.position().z() - 
-				     clustercomp.position().z());
+				     clustercomp.position().z());	
 	if( denergy/std::abs(cluster.energy()) >  1e-5 ) {
 	  std::cout << "   " << cluster.seed() 
 		    << " Energies different by larger than tolerance! "
 		    << "( "<< denergy << " )"
+		    << "[ " << detId_count[cluster.seed().rawId()] << " ]" 
 		    << " Old: " << std::setprecision(7) 
 		    << cluster.energy() << " GeV , New: "
 		    << clustercomp.energy() << " GeV" << std::endl;	  
@@ -113,7 +116,8 @@ void PFClusterComparator::analyze(const Event& iEvent,
 	if( dcenergy/std::abs(cluster.correctedEnergy()) >  1e-5 ) {
 	  std::cout << "   " << cluster.seed() 
 		    << " Corrected energies different by larger than tolerance! "
-		    << "( "<< denergy << " )"
+		    << "( "<< dcenergy << " )"
+		    << "[ " << detId_count[cluster.seed().rawId()] << " ]" 
 		    << " Old: " << std::setprecision(7) 
 		    << cluster.correctedEnergy() << " GeV , New: "
 		    << clustercomp.correctedEnergy() << " GeV" << std::endl;	  
@@ -123,6 +127,7 @@ void PFClusterComparator::analyze(const Event& iEvent,
 	  std::cout << "***" << cluster.seed() 
 		    << " X's different by larger than tolerance! "
 		    << "( "<< dx << " )"
+		    << "[ " << detId_count[cluster.seed().rawId()] << " ]" 
 		    << " Old: " << std::setprecision(7) 
 		    << cluster.position().x() << " , New: "
 		    << clustercomp.position().x() << std::endl;
@@ -132,6 +137,7 @@ void PFClusterComparator::analyze(const Event& iEvent,
 	  std::cout << "---" << cluster.seed() 
 		    << " Y's different by larger than tolerance! "
 		    << "( "<< dy << " )"
+		    << "[ " << detId_count[cluster.seed().rawId()] << " ]" 
 		    << " Old: " << std::setprecision(7) 
 		    << cluster.position().y() << " , New: "
 		    << clustercomp.position().y() << std::endl;
@@ -141,6 +147,7 @@ void PFClusterComparator::analyze(const Event& iEvent,
 	  std::cout << "+++" << cluster.seed() 
 		    << " Z's different by larger than tolerance! "
 		    << "( "<< dz << " )"
+		    << "[ " << detId_count[cluster.seed().rawId()] <<" ]" 
 		    << " Old: " << std::setprecision(7) 
 		    << cluster.position().z() << " , New: "
 		    << clustercomp.position().z() << std::endl;
