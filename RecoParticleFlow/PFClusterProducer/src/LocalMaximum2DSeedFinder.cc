@@ -76,6 +76,9 @@ findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
     //get the neighbours of this seed
     const reco::PFRecHitRefVector* myNeighbours;
     switch( _nNeighbours ) {
+    case -1:
+      myNeighbours = &maybeseed.neighbours();
+      break;
     case 0: // for HF clustering
       myNeighbours = &_noNeighbours;
       break;

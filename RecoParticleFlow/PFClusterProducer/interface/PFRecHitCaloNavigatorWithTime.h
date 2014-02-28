@@ -1,0 +1,178 @@
+#ifndef RecoParticleFlow_PFClusterProducer_PFRecHitCaloNavigatorWithTime_h
+#define RecoParticleFlow_PFClusterProducer_PFRecHitCaloNavigatorWithTime_h
+
+
+#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+
+#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
+#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
+#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+
+
+template <typename D,typename T>
+class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
+ public:
+  PFRecHitCaloNavigatorWithTime(const edm::ParameterSet& iConfig) {
+    binning_ = iConfig.getParameter<std::vector<double> >("timeDigitization");
+  }
+
+  void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
+      DetId detid( hit.detId() );
+      
+      CaloNavigator<D> navigator(detid, topology_);
+      
+      DetId N(0);
+      DetId E(0);
+      DetId S(0);
+      DetId W(0);
+      DetId NW(0);
+      DetId NE(0);
+      DetId SW(0);
+      DetId SE(0);
+
+
+      N=navigator.north();  
+      associateNeighbour(N,hit,hits,refProd,0,1,0);
+
+
+      if (N !=DetId(0)) {
+	NE=navigator.east();
+      }
+      else 
+	{
+	  navigator.home();
+	  E=navigator.east();
+	  NE=navigator.north();
+	}
+      associateNeighbour(NE,hit,hits,refProd,1,1,0);
+      navigator.home();
+
+      S = navigator.south();
+      associateNeighbour(S,hit,hits,refProd,0,-1,0);
+      
+      if (S !=DetId(0)) {
+	SW = navigator.west();
+      } else {
+	navigator.home();
+	W=navigator.west();
+	SW=navigator.south();
+      }
+      associateNeighbour(SW,hit,hits,refProd,-1,-1,0);
+      navigator.home();
+
+      E = navigator.east();
+      associateNeighbour(E,hit,hits,refProd,1,0,0);
+      
+      if (E !=DetId(0)) {
+	SE = navigator.south();
+      } else {
+	navigator.home();
+	S=navigator.south();
+	SE=navigator.east();
+      }
+      associateNeighbour(SE,hit,hits,refProd,1,-1,0);
+      navigator.home();
+
+
+      W = navigator.west();
+      associateNeighbour(W,hit,hits,refProd,-1,0,0);
+
+      if (W !=DetId(0)) {
+	NW = navigator.north();
+      } else {
+	navigator.home();
+	N=navigator.north();
+	NW=navigator.west();
+      }
+      associateNeighbour(NW,hit,hits,refProd,-1,1,0);
+  }
+
+
+
+ protected:
+
+  unsigned int get_bin(float time) {
+    for (unsigned int i=0;i<binning_.size();++i) {
+      if (i==0) {
+	if (time<=binning_[0])
+	  return 0;
+      }
+      else if (i==binning_[binning_.size()-1]) {
+	if (time>binning_[binning_.size()-1])
+	  return binning_.size()-1;
+      }
+      else {
+	if (time>binning_[i-1] && time<=binning_[i] )
+	  return i;
+      }
+    }
+    return -9999;
+  }
+
+
+
+  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi,short depth) {
+    for( unsigned int i=0;i<hits->size();++i) 
+      if (hits->at(i).detId()==id.rawId()) {
+	reco::PFRecHitRef ref(refProd,i);
+	if (abs(get_bin(hit.time())-get_bin(ref->time()))<=1)
+	  hit.addNeighbour(eta,phi,depth,ref);
+	break;
+      }
+  }
+
+
+
+  const T *topology_;
+  std::vector<double> binning_;
+
+
+
+};
+
+class PFRecHitEcalBarrelNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<EBDetId,EcalBarrelTopology> {
+ public:
+  PFRecHitEcalBarrelNavigatorWithTime(const edm::ParameterSet& iConfig):
+    PFRecHitCaloNavigatorWithTime(iConfig)
+    {
+
+    }
+
+  void beginEvent(const edm::EventSetup& iSetup) {
+    edm::ESHandle<CaloGeometry> geoHandle;
+    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    topology_ = new EcalBarrelTopology(geoHandle);
+  }
+};
+
+class PFRecHitEcalEndcapNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<EEDetId,EcalEndcapTopology> {
+ public:
+  PFRecHitEcalEndcapNavigatorWithTime(const edm::ParameterSet& iConfig):
+    PFRecHitCaloNavigatorWithTime(iConfig)
+    {
+
+    }
+
+  void beginEvent(const edm::EventSetup& iSetup) {
+    edm::ESHandle<CaloGeometry> geoHandle;
+    iSetup.get<CaloGeometryRecord>().get(geoHandle);
+    topology_ = new EcalEndcapTopology(geoHandle);
+  }
+};
+
+
+#endif
+
+

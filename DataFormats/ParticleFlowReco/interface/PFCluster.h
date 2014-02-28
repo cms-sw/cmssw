@@ -72,6 +72,11 @@ namespace reco {
     
     /// cluster energy
     double        energy() const {return energy_;}
+
+    /// cluster time
+    double        time() const {return time_;}
+
+    void         setTime(double time) {time_ = time;}
     
     /// cluster position: rho, eta, phi
     const REPPoint&       positionREP() const {return posrep_;}
@@ -143,7 +148,27 @@ namespace reco {
     
     /// cluster position: rho, eta, phi (transient)
     REPPoint            posrep_;
-    
+
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+     /// \todo move to PFClusterTools
+    static std::atomic<int>    depthCorMode_;
+
+    /// \todo move to PFClusterTools
+    static std::atomic<double> depthCorA_;
+
+    /// \todo move to PFClusterTools
+    static std::atomic<double> depthCorB_ ;
+
+    /// \todo move to PFClusterTools
+    static std::atomic<double> depthCorAp_;
+
+    /// \todo move to PFClusterTools
+    static std::atomic<double> depthCorBp_;
+#else
+
+    ///Michalis :Add timing information
+    double time_;
+
     
     /// \todo move to PFClusterTools
     static int    depthCorMode_;

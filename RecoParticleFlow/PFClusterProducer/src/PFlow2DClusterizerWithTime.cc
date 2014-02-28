@@ -1,4 +1,4 @@
-#include "Basic2DGenericPFlowClusterizer.h"
+#include "PFlow2DClusterizerWithTime.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -20,12 +20,14 @@
 #define LOGDRESSED(x) LogDebug(x)
 #endif
 
-Basic2DGenericPFlowClusterizer::
-Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf) :
+PFlow2DClusterizerWithTime::
+PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
     PFClusterBuilderBase(conf),
     _maxIterations(conf.getParameter<unsigned>("maxIterations")),
     _stoppingTolerance(conf.getParameter<double>("stoppingTolerance")),
     _showerSigma2(std::pow(conf.getParameter<double>("showerSigma"),2.0)),
+    _timeSigma_eb(std::pow(conf.getParameter<double>("timeSigmaEB"),2.0)),
+    _timeSigma_ee(std::pow(conf.getParameter<double>("timeSigmaEE"),2.0)),
     _excludeOtherSeeds(conf.getParameter<bool>("excludeOtherSeeds")),
     _minFracTot(conf.getParameter<double>("minFracTot")),
     _layerMap({ {"PS2",(int)PFLayer::PS2},
@@ -76,7 +78,7 @@ Basic2DGenericPFlowClusterizer(const edm::ParameterSet& conf) :
   }
 }
 
-void Basic2DGenericPFlowClusterizer::
+void PFlow2DClusterizerWithTime::
 buildClusters(const reco::PFClusterCollection& input,
 	      const std::vector<bool>& seedable,
 	      reco::PFClusterCollection& output) {
@@ -108,7 +110,7 @@ buildClusters(const reco::PFClusterCollection& input,
   }
 }
 
-void Basic2DGenericPFlowClusterizer::
+void PFlow2DClusterizerWithTime::
 seedPFClustersFromTopo(const reco::PFCluster& topo,
 		       const std::vector<bool>& seedable,
 		       reco::PFClusterCollection& initialPFClusters) const {
@@ -127,7 +129,7 @@ seedPFClustersFromTopo(const reco::PFCluster& topo,
   }
 }
 
-void Basic2DGenericPFlowClusterizer::
+void PFlow2DClusterizerWithTime::
 growPFClusters(const reco::PFCluster& topo,
 	       const std::vector<bool>& seedable,
 	       const unsigned toleranceScaling,
@@ -135,7 +137,7 @@ growPFClusters(const reco::PFCluster& topo,
 	       double diff,
 	       reco::PFClusterCollection& clusters) const {
   if( iter >= _maxIterations ) {
-    LOGDRESSED("Basic2DGenericPFlowClusterizer:growAndStabilizePFClusters")
+    LOGDRESSED("PFlow2DClusterizerWithTime:growAndStabilizePFClusters")
       <<"reached " << _maxIterations << " iterations, terminated position "
       << "fit with diff = " << diff;
   }      
@@ -157,6 +159,8 @@ growPFClusters(const reco::PFCluster& topo,
   }
   // loop over topo cluster and grow current PFCluster hypothesis 
   std::vector<double> dist2, frac;
+
+
   double fractot = 0, fraction = 0;
   for( const reco::PFRecHitFraction& rhf : topo.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
@@ -174,10 +178,20 @@ growPFClusters(const reco::PFCluster& topo,
       const math::XYZPoint& clusterpos_xyz = cluster.position();
       fraction = 0.0;
       const math::XYZVector deltav = clusterpos_xyz - topocellpos_xyz;
-      const double d2 = deltav.Mag2()/_showerSigma2;
-      dist2.emplace_back( d2 );
+      double d2 = deltav.Mag2()/_showerSigma2;
+      double t2 =(cluster.time()-refhit->time())*(cluster.time()-refhit->time());
+
+      
+      if (cell_layer == PFLayer::HCAL_BARREL1 ||cell_layer == PFLayer::HCAL_BARREL2 ||cell_layer == PFLayer::ECAL_BARREL)
+	t2=t2/_timeSigma_eb;
+      else if (cell_layer == PFLayer::HCAL_ENDCAP ||cell_layer == PFLayer::HF_EM ||cell_layer == PFLayer::HF_HAD)
+	t2=t2/_timeSigma_ee;
+
+      d2=d2+t2;
+      dist2.emplace_back( d2);
+
       if( d2 > 100 ) {
-	LOGDRESSED("Basic2DGenericPFlowClusterizer:growAndStabilizePFClusters")
+	LOGDRESSED("PFlow2DClusterizerWithTime:growAndStabilizePFClusters")
 	  << "Warning! :: pfcluster-topocell distance is too large! d= "
 	  << d2;
       }
@@ -236,7 +250,7 @@ growPFClusters(const reco::PFCluster& topo,
   growPFClusters(topo,seedable,toleranceScaling,iter+1,diff,clusters);
 }
 
-void Basic2DGenericPFlowClusterizer::
+void PFlow2DClusterizerWithTime::
 prunePFClusters(reco::PFClusterCollection& clusters) const {
   for( auto& cluster : clusters ) {
     std::vector<reco::PFRecHitFraction> allFracs = 
