@@ -29,6 +29,6 @@ class PFRecHitProducer : public edm::EDProducer {
       virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
-      std::vector<PFRecHitCreatorBase*> creators_;
-      PFRecHitNavigatorBase* navigator_;
+      std::vector<std::unique_ptr<PFRecHitCreatorBase> > creators_;
+      std::unique_ptr<PFRecHitNavigatorBase> navigator_;
 };
