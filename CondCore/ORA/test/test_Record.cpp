@@ -13,7 +13,7 @@
 #include "cxxabi.h"
 
 namespace {
-  void printMem(char const * title) {
+  inline void printMem(char const * title) {
     std::cout << "\n--- " << title <<" ---"<< std::endl;
 #ifdef __APPLE__
     std::cout << "not supported" << std::endl;
