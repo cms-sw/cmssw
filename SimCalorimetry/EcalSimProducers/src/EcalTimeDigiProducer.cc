@@ -16,7 +16,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
-#define ecal_time_debug 1
+//#define ecal_time_debug 1
 
 EcalTimeDigiProducer::EcalTimeDigiProducer( const edm::ParameterSet& params, edm::EDProducer& mixMod ) :
    DigiAccumulatorMixMod(),
@@ -32,6 +32,10 @@ EcalTimeDigiProducer::EcalTimeDigiProducer( const edm::ParameterSet& params, edm
 
    m_BarrelDigitizer = new EcalTimeMapDigitizer(EcalBarrel);
    m_EndcapDigitizer = new EcalTimeMapDigitizer(EcalEndcap);
+
+#ifdef ecal_time_debug
+   std::cout << "[EcalTimeDigiProducer]::Create EB " << m_EBdigiCollection << " and EE " << m_EEdigiCollection << " collections and digitizers" << std::endl;
+#endif
 
    m_BarrelDigitizer->setTimeLayerId(m_timeLayerEB);
    m_EndcapDigitizer->setTimeLayerId(m_timeLayerEE);
