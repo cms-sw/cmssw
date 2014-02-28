@@ -1,4 +1,4 @@
-#include "RecoHI/HiCentralityAlgos/interface/CentralityTableHandler.h"
+#include "RecoHI/HiCentralityAlgos/plugins/CentralityTableHandler.h"
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 #include "CondCore/PopCon/interface/PopConAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
