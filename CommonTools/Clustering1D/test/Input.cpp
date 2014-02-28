@@ -12,7 +12,7 @@ using namespace std;
 
 namespace
 {
-Cluster1D<string> createCluster ( float pos, float err, float weight, string name )
+inline Cluster1D<string> createCluster ( float pos, float err, float weight, string name )
 {
     vector < const string * > names;
     names.push_back ( new string(name) );
@@ -39,7 +39,7 @@ Cluster1D<string> createCluster ( float pos, float err, float weight )
     return ret;
 }
 
-void deleteCluster ( vector < Cluster1D<string> > & clus )
+inline void deleteCluster ( vector < Cluster1D<string> > & clus )
 {
     cout << "[Deleting Sequence] ..." << flush;
     for ( vector< Cluster1D<string> >::const_iterator i=clus.begin();
@@ -106,7 +106,7 @@ vector < Cluster1D<string> > fourItems()
  *  In this function the user gives the name of
  *  the "secnario"
  */
-vector < Cluster1D<string> > createInput( string name )
+inline vector < Cluster1D<string> > createInput( string name )
 {
     // that's a map that maps the function to ordinary names.
     map < string, vector < Cluster1D<string> > (*)() > inputs;
@@ -133,7 +133,7 @@ vector < Cluster1D<string> > createInput( string name )
 /**
  *  The user gives the number of clusters
  */
-vector < Cluster1D<string> > createInput ( int n )
+inline vector < Cluster1D<string> > createInput ( int n )
 {
     vector < Cluster1D<string> > ret;
     for ( int i=0; i< n ; ++i )
