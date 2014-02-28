@@ -98,15 +98,15 @@ int main( int argc, char** argv ){
   }
 
 
-  l1taccepts.resize(512);
-  l1taccepts_evt.resize(512);
+  l1taccepts.resize(MAX_ALGO_BITS);
+  l1taccepts_evt.resize(MAX_ALGO_BITS);
   for( unsigned int i=0; i<l1taccepts.size(); i++ ) l1taccepts[i] = 0;
 
   if( readXML ){
     // Load XML.
     std::auto_ptr<l1t::L1TriggerMenu> tm(l1t::l1TriggerMenu(xml_file));
 
-    l1tnames.resize(512);
+    l1tnames.resize(MAX_ALGO_BITS);
     l1t::AlgorithmList algorithms = tm->algorithms();
     for( l1t::AlgorithmList::algorithm_const_iterator i = algorithms.algorithm().begin();
          i != algorithms.algorithm().end(); ++i ){
@@ -143,7 +143,6 @@ int main( int argc, char** argv ){
 
   while(std::getline(file, line)){
     evt++;
-    if( evt==maxEvents ) break;
     std::stringstream linestream(line);
     linestream >> bx 
 	       >> mu[0] >> mu[1] >> mu[2] >> mu[3] >> mu[4] >> mu[5] >> mu[6] >> mu[7] 
@@ -188,6 +187,7 @@ int main( int argc, char** argv ){
       printf("\n\n");
     }
 
+    if( evt==maxEvents ) break;
   }
 
   printf(" =========== Summary of results ==========\n");
@@ -298,7 +298,7 @@ void parseAlgo( std::string algo ){
 
   // clear the algo per event
   l1taccepts_evt.clear();
-  l1taccepts_evt.resize(512);
+  l1taccepts_evt.resize(MAX_ALGO_BITS);
 
   // Return if no triggers fired
   if( algo==zeroes128 ) return;
