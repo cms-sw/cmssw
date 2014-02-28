@@ -5,7 +5,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200)
     )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:step3_redoClusters.root')
+    fileNames = cms.untracked.vstring('file:step3_stdexp.root')
 )
 
 process.TFileService = cms.Service('TFileService',
