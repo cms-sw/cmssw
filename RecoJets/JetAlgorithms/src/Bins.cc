@@ -3,17 +3,9 @@
 #include <vector>
 #include <cmath>
 
-bool Bins::getBin(std::vector<int>& bins, double value, int& low, int& up){
-  if(value <= bins.front() || value >= bins.back()) return false;
-  std::vector<int>::iterator binUp = bins.begin() + 1;
-  while(value > *binUp) ++binUp;
-  low = *(binUp-1);
-  up = *(binUp);
-  return true;
-}
 
 int Bins::getBinNumber(std::vector<int>& bins, double value){
-  if(value < bins.front() || value >= bins.back()) return -1;
+  if(value < bins.front() || value > bins.back()) return -1;
   std::vector<int>::iterator binUp = bins.begin() + 1;
   while(value > *binUp) ++binUp;
   return binUp - bins.begin() - 1;
