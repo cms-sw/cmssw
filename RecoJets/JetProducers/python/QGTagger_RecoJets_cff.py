@@ -6,6 +6,9 @@ kt6PFJetsIsoQG = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
 kt6PFJetsIsoQG.Rho_EtaMax = cms.double(2.5)
 
 QGTagger = cms.EDProducer('QGTagger',
-  srcRhoIso       = cms.InputTag('kt6PFJetsIsoQG','rho'),
+  srcRhoIso     = cms.InputTag('kt6PFJetsIsoQG','rho'),
+  jec		= cms.string(''),
+  dataDir	= cms.string('RecoJets/JetProducers/data/'),
+  useCHS	= cms.bool(False)
 )
 
