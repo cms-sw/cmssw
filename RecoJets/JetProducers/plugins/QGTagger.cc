@@ -22,9 +22,9 @@
 QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
   srcJets        ( iConfig.getParameter<edm::InputTag>("srcJets")),
   srcRhoIso      ( iConfig.getParameter<edm::InputTag>("srcRhoIso")),
-  jecService     ( iConfig.getUntrackedParameter<std::string>("jec","")),
-  dataDir        ( TString(iConfig.getUntrackedParameter<std::string>("dataDir","RecoJets/JetProducers/data/"))), 
-  useCHS         ( iConfig.getUntrackedParameter<bool>("useCHS", false))
+  jecService     ( iConfig.getParameter<std::string>("jec")),
+  dataDir        ( TString(iConfig.getParameter<std::string>("dataDir"))),
+  useCHS         ( iConfig.getParameter<bool>("useCHS"))
 {
   produces<edm::ValueMap<float>>("qgLikelihood");
   produces<edm::ValueMap<float>>("axis2Likelihood");
@@ -169,9 +169,9 @@ void QGTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcJets");
   desc.add<edm::InputTag>("srcRhoIso");
-  desc.addUntracked<std::string>("dataDir","RecoJets/JetProducers/data/");
-  desc.addUntracked<std::string>("jec","");
-  desc.addUntracked<bool>("useCHS", false);
+  desc.add<std::string>("dataDir");
+  desc.add<std::string>("jec");
+  desc.add<bool>("useCHS");
   descriptions.add("QGTagger", desc);
 }
 
