@@ -31,29 +31,30 @@ namespace reco {
     /// point in the space
     typedef math::XYZVector Vector;
     /// default constructor
-    Particle() : qx3_(0), pt_(0), eta_(0), phi_(0), mass_(0),
-		 vertex_(0, 0, 0), pdgId_(0), status_(0){}
+    Particle() : vertex_(0, 0, 0), pt_(0), eta_(0), phi_(0), mass_(0),
+		 qx3_(0), pdgId_(0), status_(0){}
     
     /// constructor from values
     Particle( Charge q, const PtEtaPhiMass  & p4, const Point & vertex,
-	      int pdgId, int status, bool integerCharge=true)
-      : qx3_( integerCharge ? q*3 : q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-	vertex_( vertex ), pdgId_( pdgId ), status_( status ),
-	p4Polar_(pt_, eta_, phi_, mass_), p4Cartesian_(p4Polar_){}
+	      int pdgId=0, int status=0, bool integerCharge=true)
+      : vertex_( vertex ),  pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
+	p4Polar_(pt_, eta_, phi_, mass_), p4Cartesian_(p4Polar_),
+	qx3_( integerCharge ? q*3 : q ),pdgId_( pdgId ), status_( status ){}
     
     /// constructor from values
     Particle( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
 	      int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      qx3_( integerCharge ? q*3 : q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vertex ), pdgId_( pdgId ), status_( status ),
-      p4Polar_(p4), p4Cartesian_(p4){}
+      vertex_( vertex ),  pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
+      p4Polar_(p4), p4Cartesian_(p4),
+      qx3_( integerCharge ? q*3 : q ),pdgId_( pdgId ), status_( status ){}
+
     
     /// constructor from values
     Particle( Charge q, const PolarLorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
-	      int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      qx3_( integerCharge ? q*3 : q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vertex ), pdgId_( pdgId ), status_( status ),
-      p4Polar_(p4), p4Cartesian_(p4){}
+	      int pdgId = 0, int status = 0, bool integerCharge = true ):
+      vertex_( vertex ),  pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
+      p4Polar_(p4), p4Cartesian_(p4),
+      qx3_( integerCharge ? q*3 : q ),pdgId_( pdgId ), status_( status ){}
     
 
     /// set internal cache
@@ -177,21 +178,23 @@ namespace reco {
     static const unsigned int longLivedTag = 65536;
     
   protected:
-
-    /// electric charge
-    Charge qx3_;   
-    /// four-momentum Lorentz vector
-    float pt_, eta_, phi_, mass_;
     /// vertex position
     Point vertex_;
-    /// PDG identifier
-    int pdgId_;
-    /// status word
-    int status_;
+    
+    /// four-momentum Lorentz vector
+    float pt_, eta_, phi_, mass_;
     /// internal cache for p4
     PolarLorentzVector p4Polar_;
     /// internal cache for p4
     LorentzVector p4Cartesian_;
+
+    /// electric charge
+    Charge qx3_;   
+
+    /// PDG identifier
+    int pdgId_;
+    /// status word
+    int status_;
     
   };
 

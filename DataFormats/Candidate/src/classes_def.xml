@@ -4,6 +4,7 @@
    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
    <field name="p4Polar_" transient="true" />
    <field name="p4Cartesian_" transient="true" />
+   <version ClassVersion="11" checksum="654690828"/>
    <version ClassVersion="11" checksum="2698562380"/>
    <version ClassVersion="10" checksum="2605909260"/>
   </class>
