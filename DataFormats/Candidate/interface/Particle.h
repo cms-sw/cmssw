@@ -35,7 +35,7 @@ namespace reco {
 		 qx3_(0), pdgId_(0), status_(0){}
     
     /// constructor from values
-    Particle( Charge q, const PtEtaPhiMass  & p4, const Point & vertex,
+    Particle( Charge q, const PtEtaPhiMass  & p4, const Point & vertex= Point( 0, 0, 0 ),
 	      int pdgId=0, int status=0, bool integerCharge=true)
       : vertex_( vertex ),  pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
 	p4Polar_(pt_, eta_, phi_, mass_), p4Cartesian_(p4Polar_),
