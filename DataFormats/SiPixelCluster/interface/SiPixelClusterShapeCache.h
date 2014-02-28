@@ -87,16 +87,14 @@ public:
   template <typename T>
   void insert(const ClusterRef& cluster, const T& data) {
     static_assert(T::ArrayType::capacity() <= 16, "T::ArrayType::capacity() more than 16, bit field too narrow");
-    assert(productId_ == cluster.id());
-    assert(cluster.index() < data_.size());
+    checkRef(cluster);
 
     data_[cluster.index()] = Field(sizeData_.size(), data.size.size(), data.isStraight, data.isComplete, data.hasBigPixelsOnlyInside);
     std::copy(data.size.begin(), data.size.end(), std::back_inserter(sizeData_));
   }
 
   SiPixelClusterShapeData get(const ClusterRef& cluster, const PixelGeomDetUnit *pixDet) const {
-    assert(productId_ == cluster.id());
-    assert(cluster.index() < data_.size());
+    checkRef(cluster);
     Field f = data_[cluster.index()];
     if(!f.filled) {
       assert(getter_);
@@ -112,6 +110,8 @@ public:
 #endif
 
 private:
+  void checkRef(const ClusterRef& cluster) const;
+
   std::vector<Field> data_;
   std::vector<std::pair<int, int> > sizeData_;
   std::shared_ptr<LazyGetter> getter_;
