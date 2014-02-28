@@ -2,10 +2,11 @@
 
 
 
-EcalTimeDigi::EcalTimeDigi() : size_(0), data_(MAXSAMPLES) {
+EcalTimeDigi::EcalTimeDigi() : id_(0), size_(0), sampleOfInterest_(-1), data_(MAXSAMPLES)  {
 }
+
 EcalTimeDigi::EcalTimeDigi(const DetId& id) : id_(id),
-					      size_(0), data_(MAXSAMPLES) {
+					      size_(0), sampleOfInterest_(-1), data_(MAXSAMPLES) {
 }
 
 void EcalTimeDigi::setSize(unsigned int size) {

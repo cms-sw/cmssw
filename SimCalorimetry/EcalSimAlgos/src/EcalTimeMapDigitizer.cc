@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-#define ecal_time_debug 1
+//#define ecal_time_debug 1
 
 const float EcalTimeMapDigitizer::MIN_ENERGY_THRESHOLD=5e-5; //50 KeV threshold to consider a valid hit in the timing detector
 
@@ -208,23 +208,46 @@ EcalTimeMapDigitizer::run( EcalTimeDigiCollection& output  )
   
   for( unsigned int i ( 0 ) ; i != ssize ; ++i )
     {
+
+ #ifdef ecal_time_debug
+      std::cout << "----- in digi loop " << i << std::endl;
+ #endif
+
       output.push_back( Digi(vSamAll( m_index[i] )->id) );
-      int nTimeHits=0;
+
+      unsigned int nTimeHits=0;
+      float timeHits[vSamAll( m_index[i] )->time_average_capacity];
+      unsigned int timeBX[vSamAll( m_index[i] )->time_average_capacity];
 
       for ( unsigned int j ( 0 ) ; j !=  vSamAll( m_index[i] )->time_average_capacity; ++j ) //here sampling on the OOTPU 
 	{
 	  if (vSamAll( m_index[i] )->nhits[j]>0)
 	    {
-	      if ( j== -m_minBunch) //the actual bunchCrossing average
-		output.back().setSampleOfInterest(nTimeHits);
-
-	      output.back().setSample(nTimeHits++,(j+m_minBunch)*BUNCHSPACE + vSamAll( m_index[i] )->average_time[j]);
+	      timeHits[nTimeHits]= vSamAll( m_index[i] )->average_time[j];
+	      timeBX[nTimeHits++]= m_minBunch+j;
 	    }
 	}
+
       output.back().setSize(nTimeHits);
 
+      for (unsigned int j ( 0 ) ; j !=  nTimeHits; ++j ) //filling the !zero hits
+	{
+	  output.back().setSample(j,timeHits[j]);
+	  if (timeBX[j]==0)
+	    {
+#ifdef ecal_time_debug
+	      std::cout << "setting interesting sample " << j << std::endl;
+#endif
+	    output.back().setSampleOfInterest(j);
+	    }
+	}
+      
  #ifdef ecal_time_debug
-       std::cout << "digi " << output.back().id().rawId() << "\t" << output.back().size() <<  "\t" << output.back().sample(output.back().sampleOfInterest()) << std::endl;
+      std::cout << "digi " << output.back().id().rawId() << "\t" << output.back().size();
+       if (output.back().sampleOfInterest()>0)
+ 	std::cout <<  "\tBX0 time " << output.back().sample(output.back().sampleOfInterest()) << std::endl;
+       else
+ 	std::cout <<  "\tNo in time hits" << std::endl;
  #endif
     }
 #ifdef ecal_time_debug

@@ -16,6 +16,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
+//#define ecal_time_debug 1
+
 EcalTimeDigiProducer::EcalTimeDigiProducer( const edm::ParameterSet& params, edm::EDProducer& mixMod ) :
    DigiAccumulatorMixMod(),
    m_EBdigiCollection ( params.getParameter<std::string>("EBtimeDigiCollection") ) ,
@@ -72,6 +74,10 @@ EcalTimeDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const& eve
   edm::Handle<std::vector<PCaloHit> > eeHandle;
   e.getByLabel(eeTag, eeHandle);
 
+#ifdef ecal_time_debug
+  std::cout << "[EcalTimeDigiProducer]::Accumulate Hits HS  event" << std::endl;
+#endif
+
   accumulateCaloHits(ebHandle, eeHandle, 0);
 }
 
@@ -85,6 +91,9 @@ EcalTimeDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup 
   edm::Handle<std::vector<PCaloHit> > eeHandle;
   e.getByLabel(eeTag, eeHandle);
 
+#ifdef ecal_time_debug
+  std::cout << "[EcalTimeDigiProducer]::Accumulate Hits for BC " << e.bunchCrossing() << std::endl;
+#endif
   accumulateCaloHits(ebHandle, eeHandle, e.bunchCrossing());
 }
 
@@ -93,12 +102,30 @@ EcalTimeDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& ev
    std::auto_ptr<EcalTimeDigiCollection> barrelResult   ( new EcalTimeDigiCollection() ) ;
    std::auto_ptr<EcalTimeDigiCollection> endcapResult   ( new EcalTimeDigiCollection() ) ;
 
+#ifdef ecal_time_debug
+   std::cout << "[EcalTimeDigiProducer]::finalizeEvent" << std::endl;
+#endif
+
    // here basically just put everything in the final collections
    m_BarrelDigitizer->run( *barrelResult ) ;
+
+#ifdef ecal_time_debug
+   std::cout << "[EcalTimeDigiProducer]::EB Digi size " <<  barrelResult->size() << std::endl;
+#endif
+
    edm::LogInfo("TimeDigiInfo") << "EB time Digis: " << barrelResult->size() ;
 
    m_EndcapDigitizer->run( *endcapResult ) ;
+
+#ifdef ecal_time_debug
+   std::cout << "[EcalTimeDigiProducer]::EE Digi size " <<  endcapResult->size() << std::endl;
+#endif
+
     edm::LogInfo("TimeDigiInfo") << "EE Digis: " << endcapResult->size() ;
+
+#ifdef ecal_time_debug
+    std::cout << "[EcalTimeDigiProducer]::putting collections into the event " << std::endl;
+#endif
 
    event.put( barrelResult,    m_EBdigiCollection ) ;
    event.put( endcapResult,    m_EEdigiCollection ) ;
