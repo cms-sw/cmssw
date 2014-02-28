@@ -39,7 +39,7 @@ public:
 
   /// calculate median strip (or wiregroup for wire digis) in a set
   /// assume that the set of digis was from layers of a single chamber
-  int median(const DigiContainer& digis) const;
+  //int median(const DigiContainer& digis) const;
 
   /// for GEM:
   /// find a GEM digi with its position that is the closest in deltaR to the provided CSC global position

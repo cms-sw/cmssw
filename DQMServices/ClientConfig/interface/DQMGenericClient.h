@@ -10,6 +10,7 @@
  *  $Revision: 1.10 $
  *
  *  \author Junghwan Goh - SungKyunKwan University
+ *  \modified Cesare Calabria - Università & INFN Bari
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -78,7 +79,7 @@ class DQMGenericClient : public edm::EDAnalyzer
   void normalizeToEntries(const std::string& startDir, const std::string& histName, const std::string& normHistName);
   void makeCumulativeDist(const std::string& startDir, const std::string& cdName);
 
-  void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME);
+  void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME, MonitorElement * rmsME);
 
  private:
   unsigned int verbose_;
