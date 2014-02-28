@@ -11,13 +11,13 @@
   std::vector<edm::ParameterSet> creators = iConfig.getParameter<std::vector<edm::ParameterSet> >("producers");
   for (unsigned int i=0;i<creators.size();++i) {
       std::string name = creators.at(i).getParameter<std::string>("name");
-      creators_.push_back(PFRecHitFactory::get()->create(name,creators.at(i),iC));
+      creators_.push_back(std::unique_ptr<PFRecHitCreatorBase>(PFRecHitFactory::get()->create(name,creators.at(i),iC)));
   }
 
 
   edm::ParameterSet navSet = iConfig.getParameter<edm::ParameterSet>("navigator");
 
-  navigator_ = PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"),navSet);
+  navigator_ = std::unique_ptr<PFRecHitNavigatorBase>(PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"),navSet));
     
 }
 

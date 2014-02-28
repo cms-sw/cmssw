@@ -21,7 +21,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitQTestBase.h"
-
+#include <memory>
 
 
 class PFRecHitCreatorBase {
@@ -31,7 +31,7 @@ class PFRecHitCreatorBase {
     std::vector<edm::ParameterSet> qTests =   iConfig.getParameter<std::vector<edm::ParameterSet> >("qualityTests");
     for (unsigned int i=0;i<qTests.size();++i) {
       std::string name = qTests.at(i).getParameter<std::string>("name");
-      qualityTests_.push_back(PFRecHitQTestFactory::get()->create(name,qTests.at(i)));
+      qualityTests_.push_back(std::unique_ptr<PFRecHitQTestBase>(PFRecHitQTestFactory::get()->create(name,qTests.at(i))));
     }
   }
 
@@ -40,7 +40,7 @@ class PFRecHitCreatorBase {
   virtual void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&,std::auto_ptr<reco::PFRecHitCollection>& ,const edm::Event&,const edm::EventSetup&)=0;
 
  protected:
-  std::vector<PFRecHitQTestBase*> qualityTests_;
+  std::vector<std::unique_ptr<PFRecHitQTestBase> > qualityTests_;
 
 };
  
