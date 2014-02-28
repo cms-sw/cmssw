@@ -16,7 +16,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
-//#define ecal_time_debug 1
+#define ecal_time_debug 1
 
 EcalTimeDigiProducer::EcalTimeDigiProducer( const edm::ParameterSet& params, edm::EDProducer& mixMod ) :
    DigiAccumulatorMixMod(),
