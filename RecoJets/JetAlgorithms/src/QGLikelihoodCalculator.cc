@@ -49,7 +49,7 @@ void QGLikelihoodCalculator::loadTH1F(int etaIndex, int qgIndex, int varIndex, i
 }
 
 
-float QGLikelihoodCalculator::computeQGLikelihood2012(float pt, float eta, float rho, int nPFCandidates_QC_ptCut, float ptD_QC, float axis2_QC){
+float QGLikelihoodCalculator::computeQGLikelihood2012(float pt, float eta, float rho, float nPFCandidates_QC_ptCut, float ptD_QC, float axis2_QC){
 
   int etaIndex = (fabs(eta)>2.5);
   if(etaIndex && pt>127.) pt = 128.;		// in forward use inclusive 127-4000 bin
@@ -59,10 +59,7 @@ float QGLikelihoodCalculator::computeQGLikelihood2012(float pt, float eta, float
   int rhoBin = Bins::getBinNumber(RhoBins, rho);
   if(rhoBin == -1) return -1;
 
-  std::vector<float> vars;
-  vars.push_back(nPFCandidates_QC_ptCut);
-  vars.push_back(ptD_QC);
-  vars.push_back(-log(axis2_QC)); //-log
+  std::vector<float> vars = {nPFCandidates_QC_ptCut, ptD_QC, -log(axis2_QC)};
 
   float Q=1;
   float G=1;

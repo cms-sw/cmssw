@@ -2,8 +2,6 @@
 //  
 //    QGLikelihoodCalculator - Class
 //    for the computation of the QG likelihood.
-//    Needs files provided by having run the
-//    Ntp1Finalizer_QG on QCD samples.
 //
 // ------------------------------------------------------------
 
@@ -22,7 +20,7 @@ class QGLikelihoodCalculator{
   QGLikelihoodCalculator( TString dataDir, bool chs = false);
    ~QGLikelihoodCalculator(){};
 
-  float computeQGLikelihood2012( float pt, float eta, float rho, int nPFCandidates_QC, float ptD_QC, float axis2_QC );
+  float computeQGLikelihood2012( float pt, float eta, float rho, float nPFCandidates_QC, float ptD_QC, float axis2_QC );
   float likelihoodProduct( float nCharged, float nNeutral, float ptD, float rmsCand, TH1F* h1_nCharged, TH1F* h1_nNeutral, TH1F* h1_ptD, TH1F* h1_rmsCand);
 
  private:
@@ -31,9 +29,6 @@ class QGLikelihoodCalculator{
 
   TFile* histoFile;
   std::vector<TH1F*> plots;
-
-  unsigned int nPtBins_;
-  unsigned int nRhoBins_;
 
   std::vector<int> RhoBins;
   std::vector<int> PtBins;
