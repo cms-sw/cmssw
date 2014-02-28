@@ -103,13 +103,6 @@ void SiStripMonitorRawData::analyze(edm::Event const& iEvent, edm::EventSetup co
 
   // get DigiCollection object from Event
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > digi_collection;
-  /*
-  // retrieve producer name of input StripDigiCollection
-  std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
-  std::string digiType = "VirginRaw";
-  //you have a collection as there are all the digis for the event for every detector
-  iEvent.getByLabel(digiProducer, digiType, digi_collection);
-  */
   iEvent.getByToken(digiToken_, digi_collection);
 
   for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), 
