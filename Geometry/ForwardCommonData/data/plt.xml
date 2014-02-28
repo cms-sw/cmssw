@@ -1,144 +1,204 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
- <ConstantsSection label="plt">
-  <Constant name="pltTilt" value="10*deg"/>
-  <Constant name="pltBladeR" value="54*mm"/>
-  <Constant name="pltBladeZ" value="30*mm"/>
-  <Constant name="pltBladeX" value="6*mm"/>
-  <Constant name="pltBladeY" value="6*mm"/>
-  <Constant name="pltBladeThickness" value="0.5*mm"/>
-  <Constant name="pltSensorXoff" value="-3*mm"/>
-  <Constant name="pltSensorX" value="2*mm"/>
-  <Constant name="pltSensorY" value="2*mm"/>
-  <Constant name="pltSensorThickness" value="1*mm"/>
-  <Constant name="pltSensorZ" value="[pltBladeThickness]+[pltSensorThickness]"/>
-  <Constant name="pltBackBoneX" value="1*mm"/>
-  <Constant name="pltBackBoneY" value="1*mm"/>
-  <Constant name="pltBackBoneZ" value="35*mm"/>
- </ConstantsSection>
- <SolidSection label="pltSolids">
-  <Box name="PLT_Telescope" dx="1*cm" dy="1*cm" dz="3.5*cm"/>
-  <Box name="PLT_Backbone" dx="[pltBackBoneX]" dy="[pltBackBoneY]" dz="[pltBackBoneZ]"/>
-  <Box name="PLT_Blade" dx="[pltBladeX]" dy="[pltBladeY]" dz="[pltBladeThickness]"/>
-  <Box name="PLTSensitiveDetector" dx="[pltSensorX]" dy="[pltSensorY]" dz="[pltSensorThickness]"/>
- </SolidSection>
- <RotationSection label="pltRotations">
-  <Rotation name="PLTrot1" phiX="0*deg" thetaX="90.*deg+[pltTilt]" phiY="90.*deg" thetaY="90.*deg" phiZ="0.*deg" thetaZ="[pltTilt]"/>
-  <Rotation name="PLTrot2" phiX="45.*deg" thetaX="90.*deg+[pltTilt]" phiY="135.*deg" thetaY="90.*deg" phiZ="45.*deg" thetaZ="[pltTilt]"/>
-  <Rotation name="PLTrot3" phiX="90.*deg" thetaX="90.*deg+[pltTilt]" phiY="180.*deg" thetaY="90.*deg" phiZ="90.*deg" thetaZ="[pltTilt]"/>
-  <Rotation name="PLTrot4" phiX="135.*deg" thetaX="90.*deg+[pltTilt]" phiY="225.*deg" thetaY="90.*deg" phiZ="135.*deg" thetaZ="[pltTilt]"/>
-  <Rotation name="PLTrot5" phiX="180.*deg" thetaX="90.*deg+[pltTilt]" phiY="270.*deg" thetaY="90.*deg" phiZ="180.*deg" thetaZ="[pltTilt]"/>
-  <Rotation name="PLTrot6" phiX="225.*deg" thetaX="90.*deg+[pltTilt]" phiY="315.*deg" thetaY="90.*deg" phiZ="225.*deg" thetaZ="[pltTilt]"/>
-  <Rotation name="PLTrot7" phiX="270.*deg" thetaX="90.*deg+[pltTilt]" phiY="0.*deg" thetaY="90.*deg" phiZ="270.*deg" thetaZ="[pltTilt]"/>
-  <Rotation name="PLTrot8" phiX="315.*deg" thetaX="90.*deg+[pltTilt]" phiY="45.*deg" thetaY="90.*deg" phiZ="315.*deg" thetaZ="[pltTilt]"/>
- </RotationSection>
- <LogicalPartSection label="PLTLog">
-  <LogicalPart name="PLT_Telescope" category="unspecified">
-   <rSolid name="PLT_Telescope"/>
-   <rMaterial name="materials:Air"/>
-  </LogicalPart>
-  <LogicalPart name="PLT_Backbone" category="unspecified">
-   <rSolid name="PLT_Backbone"/>
-   <rMaterial name="materials:Copper"/>
-  </LogicalPart>
-  <LogicalPart name="PLT_Blade" category="unspecified">
-   <rSolid name="PLT_Blade"/>
-   <rMaterial name="trackermaterial:T_G10"/>
-  </LogicalPart>
-  <LogicalPart name="PLTSensitiveDetector" category="unspecified">
-   <rSolid name="PLTSensitiveDetector"/>
-   <rMaterial name="materials:Carbon"/>
-  </LogicalPart>
- </LogicalPartSection>
- <!-- Position of plt volumes -->
- <PosPartSection label="pltPar">
-  <PosPart copyNumber="1">
-   <rParent name="forward:PLT"/>
-   <rChild name="plt:PLT_Telescope"/>
-   <Translation x="[pltBladeR]*cos(0*deg)" y="[pltBladeR]*sin(0*deg)" z="0*cm"/>
-   <rRotation name="PLTrot1"/>
-  </PosPart>
-  <PosPart copyNumber="2">
-   <rParent name="forward:PLT"/>
-   <rChild name="plt:PLT_Telescope"/>
-   <Translation x="[pltBladeR]*cos(45*deg)" y="[pltBladeR]*sin(45*deg)" z="0*cm"/>
-   <rRotation name="PLTrot2"/>
-  </PosPart>
-  <PosPart copyNumber="3">
-   <rParent name="forward:PLT"/>
-   <rChild name="plt:PLT_Telescope"/>
-   <Translation x="[pltBladeR]*cos(90*deg)" y="[pltBladeR]*sin(90*deg)" z="0*cm"/>
-   <rRotation name="PLTrot3"/>
-  </PosPart>
-  <PosPart copyNumber="4">
-   <rParent name="forward:PLT"/>
-   <rChild name="plt:PLT_Telescope"/>
-   <Translation x="[pltBladeR]*cos(135*deg)" y="[pltBladeR]*sin(135*deg)" z="0*cm"/>
-   <rRotation name="PLTrot4"/>
-  </PosPart>
-  <PosPart copyNumber="5">
-   <rParent name="forward:PLT"/>
-   <rChild name="plt:PLT_Telescope"/>
-   <Translation x="[pltBladeR]*cos(180*deg)" y="[pltBladeR]*sin(180*deg)" z="0*cm"/>
-   <rRotation name="PLTrot5"/>
-  </PosPart>
-  <PosPart copyNumber="6">
-   <rParent name="forward:PLT"/>
-   <rChild name="plt:PLT_Telescope"/>
-   <Translation x="[pltBladeR]*cos(225*deg)" y="[pltBladeR]*sin(225*deg)" z="0*cm"/>
-   <rRotation name="PLTrot6"/>
-  </PosPart>
-  <PosPart copyNumber="7">
-   <rParent name="forward:PLT"/>
-   <rChild name="plt:PLT_Telescope"/>
-   <Translation x="[pltBladeR]*cos(270*deg)" y="[pltBladeR]*sin(270*deg)" z="0*cm"/>
-   <rRotation name="PLTrot7"/>
-  </PosPart>
-  <PosPart copyNumber="8">
-   <rParent name="forward:PLT"/>
-   <rChild name="plt:PLT_Telescope"/>
-   <Translation x="[pltBladeR]*cos(315*deg)" y="[pltBladeR]*sin(315*deg)" z="0*cm"/>
-   <rRotation name="PLTrot8"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-   <rParent name="plt:PLT_Telescope"/>
-   <rChild name="plt:PLT_Backbone"/>
-   <Translation x="[pltBladeX]" y="-[pltBladeY]-[pltBackBoneY]" z="0*cm"/>
-  </PosPart>
-  <PosPart copyNumber="2">
-   <rParent name="plt:PLT_Telescope"/>
-   <rChild name="plt:PLT_Backbone"/>
-   <Translation x="[pltBladeX]" y="[pltBladeY]+[pltBackBoneY]" z="0*cm"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-   <rParent name="plt:PLT_Telescope"/>
-   <rChild name="plt:PLT_Blade"/>
-   <Translation x="0*fm" y="0*fm" z="[pltBladeZ]"/>
-  </PosPart>
-  <PosPart copyNumber="2">
-   <rParent name="plt:PLT_Telescope"/>
-   <rChild name="plt:PLT_Blade"/>
-   <Translation x="0*fm" y="0*fm" z="0*cm"/>
-  </PosPart>
-  <PosPart copyNumber="3">
-   <rParent name="plt:PLT_Telescope"/>
-   <rChild name="plt:PLT_Blade"/>
-   <Translation x="0*fm" y="0*fm" z="-[pltBladeZ]"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-   <rParent name="plt:PLT_Telescope"/>
-   <rChild name="plt:PLTSensitiveDetector"/>
-   <Translation x="[pltSensorXoff]" y="0*fm" z="[pltBladeZ]-[pltSensorZ]"/>
-  </PosPart>
-  <PosPart copyNumber="2">
-   <rParent name="plt:PLT_Telescope"/>
-   <rChild name="plt:PLTSensitiveDetector"/>
-   <Translation x="[pltSensorXoff]" y="0*fm" z="-[pltSensorZ]"/>
-  </PosPart>
-  <PosPart copyNumber="3">
-   <rParent name="plt:PLT_Telescope"/>
-   <rChild name="plt:PLTSensitiveDetector"/>
-   <Translation x="[pltSensorXoff]" y="0*fm" z="-[pltBladeZ]-[pltSensorZ]"/>
-  </PosPart>
- </PosPartSection>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL 
+    ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    
+    <!-- Author: Christian Contreras-Campana -->
+    <!-- Transition to Silicon from Diamond done by Steven M. Kaplan -->
+    
+    <!-- Declare constants used in the PLT DDL -->
+    <ConstantsSection label="cassette_build.xml" eval="true">
+        <Constant name = "pltTilt" value = "1.57*deg" />
+        
+        <Constant name = "SiPlane0RtoCenter" value = "48.5*mm" />
+        <Constant name = "SiPlane1RtoCenter" value = "49.5*mm" />
+        <Constant name = "SiPlane2RtoCenter" value = "50.5*mm" />
+        
+        <Constant name = "SiPlane0ZtoCenter" value = "1714.1*mm" />
+        <Constant name = "SiPlane1ZtoCenter" value = "1751.8*mm" />
+        <Constant name = "SiPlane2ZtoCenter" value = "1789.5*mm" />
+        
+        <Constant name = "ROCWidthX" value = "10.0*mm"  />
+        <Constant name = "ROCWidthY" value = "10.0*mm"  />
+        <Constant name = "SiThkZ"   value = "0.30*mm" />
+        
+        <Constant name = "TelWidthX" value = "[ROCWidthX]+2.*mm" />
+        <Constant name = "TelWidthY" value = "[ROCWidthY]" />
+        <Constant name = "TelWidthZ" value = "[SiPlane2ZtoCenter]-[SiPlane0ZtoCenter]+[SiThkZ]"  />
+        <Constant name = "PLTMaxR"   value = "sqrt((([SiPlane2RtoCenter]+[ROCWidthX]/2.)*([SiPlane2RtoCenter]+[ROCWidthX]/2.))+([ROCWidthX]/2.)*([ROCWidthX]/2.))" />
+        
+        <Constant name = "NumberOfRows" value = "80" />
+        <Constant name = "NumberOfColumns" value = "52" />
+        <Constant name = "PixelRowWidth" value = "0.1*mm" />
+        <Constant name = "PixelColumnWidth" value = "0.15*mm" />
+        <Constant name = "ActiveAreaColumnWidth" value = "[PixelColumnWidth]*[NumberOfColumns]" />
+        <Constant name = "ActiveAreaRowWidth" value = "[PixelRowWidth]*[NumberOfRows]" />
+        
+    </ConstantsSection>
+    
+    <!-- Declare PLT component Solids  -->
+    <SolidSection label="main.xml">
+        
+        <!-- Declare telescope components-->
+        <Box  name="PLTSensorPlane"        dx="[ROCWidthX]/2."       dy="[ROCWidthY]/2."       
+        dz="[SiThkZ]/2." /> 
+        
+        <Tubs name="PLT"    startPhi="0.0*deg" deltaPhi="360*deg" rMin="0.*mm" 
+        rMax="[PLTMaxR]" 
+        dz="[TelWidthZ]/2."/>
+        <!--
+        <Tubs name="Telescope"      startPhi="-22.5*deg" deltaPhi="45.*deg" rMin="0.*mm"
+        rMax="56.*mm"  dz="[TelWidthZ]"/> -->
+        
+        <Box  name="Telescope"  dx="[TelWidthX]/2."  dy="[TelWidthY]/2."   dz="[TelWidthZ]/2." />
+        
+        <Box  name="PLTPixel"  dx="[PixelColumnWidth]/2."  dy="[PixelRowWidth]/2."   dz="[SiThkZ]/2." />
+        
+        <Box name ="PLTSensorRow" dx="[ActiveAreaColumnWidth]/2." dy="[PixelRowWidth]/2." dz="[SiThkZ]/2." />
+        
+    </SolidSection>
+    
+    <RotationSection label="cassette_build.xml">
+        <!-- Telescope rotation matrix -->
+        <Rotation name="RotTel1" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
+        phiX="-90.0*deg" phiY="0.0*deg"  phiZ="0.0*deg" />
+        <Rotation name="RotTel2" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
+        phiX="-45.0*deg" phiY="45.0*deg"  phiZ="45.0*deg" />
+        <Rotation name="RotTel3" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
+        phiX="0.0*deg" phiY="90.0*deg"  phiZ="90.0*deg" />
+        <Rotation name="RotTel4" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
+        phiX="45.0*deg" phiY="135.0*deg"  phiZ="135.0*deg" />
+        <Rotation name="RotTel5" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
+        phiX="90.0*deg" phiY="180.0*deg"  phiZ="180.0*deg" />
+        <Rotation name="RotTel6" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
+        phiX="135.0*deg" phiY="225.0*deg"  phiZ="225.0*deg" />
+        <Rotation name="RotTel7" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
+        phiX="180.0*deg" phiY="270.0*deg"  phiZ="270.0*deg" />
+        <Rotation name="RotTel8" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
+        phiX="225.0*deg" phiY="315.0*deg"  phiZ="315.0*deg" />
+    </RotationSection>
+    
+    
+    <!-- Define the Physical PLT Solids, i.e. the Logical Parts --> 
+    <LogicalPartSection label="main.xml">
+        <!--Changed all materials to be materials:Vacuum except for silicon -->
+        <!-- Telescope logical parts -->
+        <LogicalPart name="PLT" category="unspecified">
+            <rSolid name="PLT"/>
+            <rMaterial name="materials:Vacuum"/>
+        </LogicalPart>
+        
+        <LogicalPart name="Telescope" category="unspecified">
+            <rSolid name="Telescope"/>
+            <rMaterial name="materials:Vacuum"/>
+        </LogicalPart>
+        
+        <LogicalPart name="PLTSensorPlane" category="unspecified">
+            <rSolid name="PLTSensorPlane"/>
+            <rMaterial name="materials:Vacuum"/> 
+        </LogicalPart>
+        
+        <LogicalPart name="PLTSensorRow" category="unspecified">
+            <rSolid name="PLTSensorRow"/>
+            <rMaterial name="materials:Vacuum"/>
+        </LogicalPart>
+        
+        <LogicalPart name="PLTPixel" category="unspecified">
+            <rSolid name="PLTPixel"/>
+            <rMaterial name="materials:Silicon"/>
+        </LogicalPart>
+        
+    </LogicalPartSection>
+    
+    <!-- Position the Silicon in the telescope and copy the telescope to have 8 of them.  Take this amalgamation of 8 telescopes then copy it to have one on each end of the IP--> 
+    <PosPartSection label="main.xml">
+        
+        <!-- Positioning Silicon in the telescope -->
+        
+        <!-- Copy the pixels into a row to form the columns -->
+        <Algorithm name="global:DDLinear">
+            <rParent name="PLTSensorRow"/>
+            <String name="ChildName" value="PLTPixel"/>
+            <Numeric name="StartCopyNo" value="0"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="[NumberOfColumns]"/>
+            <Numeric name="Delta" value="[PixelColumnWidth]"/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[ActiveAreaColumnWidth]/2.+[PixelColumnWidth]/2.,0.*mm,0.*mm </Vector>
+            <Numeric name="Theta" value="90*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <!-- Copy the rows to form the sensor plane! -->
+        <Algorithm name="global:DDLinear">
+            <rParent name="PLTSensorPlane"/>
+            <String name="ChildName" value="PLTSensorRow"/>
+            <Numeric name="StartCopyNo" value="0"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="[NumberOfRows]"/>
+            <Numeric name="Delta" value="[PixelRowWidth]"/>
+            <Vector name="Base" type="numeric" nEntries="3"> 0.*mm,-[ROCWidthY]/2.+[PixelRowWidth]/2.,0.*mm </Vector>
+            <Numeric name="Theta" value="90*deg"/>
+            <Numeric name="Phi" value="90.*deg"/>
+        </Algorithm>
+        
+        <PosPart copyNumber="0">
+            <rParent name="Telescope"/>
+            <rChild name="PLTSensorPlane"/>
+            <Translation x="-[TelWidthX]/2.+[ROCWidthX]/2." y="0.*mm" z="-[TelWidthZ]/2.+[SiThkZ]/2." />
+            <rRotation  name="rotations:000D" />
+        </PosPart>
+        
+        <PosPart copyNumber="1">
+            <rParent name="Telescope"/>
+            <rChild name="PLTSensorPlane"/>
+            <Translation x="-[TelWidthX]/2.+[ROCWidthX]/2.+1.*mm" y="0.*mm" z="0.*mm" />
+            <rRotation  name="rotations:000D" />
+        </PosPart>
+        
+        <PosPart copyNumber="2">
+            <rParent name="Telescope"/>
+            <rChild name="PLTSensorPlane"/>
+            <Translation x="-[TelWidthX]/2.+[ROCWidthX]/2.+2.*mm" y="0.*mm" z="[TelWidthZ]/2.-[SiThkZ]/2" />
+            <rRotation  name="rotations:000D" />
+        </PosPart>
+
+        <PosPart copyNumber="1">
+            <rParent name="pltbcm:PLTBCM"/>
+            <rChild name="PLT"/>
+            <Translation x="0.*mm" y="0.*mm" z="[SiPlane1ZtoCenter]-[pltbcm:PltBcmZ]" />
+            <rRotation name="rotations:000D"/>
+        </PosPart>
+
+        <!--      Old positioning without PLTBCM volume
+        <PosPart copyNumber="1">
+            <rParent name="cms:CMSE"/>
+            <rChild name="PLT"/>
+            <Translation x="0.*mm" y="0.*mm" z="[SiPlane1ZtoCenter]" />
+            <rRotation name="rotations:000D"/>
+        </PosPart>
+
+	
+        <PosPart copyNumber="0">
+            <rParent name="cms:CMSE"/>
+            <rChild name="PLT"/>
+            <Translation x="0.*mm" y="0.*mm" z="-[SiPlane1ZtoCenter]" />
+            <rRotation name="rotations:180D"/>
+        </PosPart> -->
+        
+        <Algorithm name="global:DDAngular">
+            <rParent name="PLT"/>
+            <String name="ChildName" value="Telescope"/>
+            <Numeric name="StartCopyNo" value="0"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="8"/>
+            <Numeric name="Radius" value="[SiPlane1RtoCenter]"/>
+            <Numeric name="StartAngle" value="0.*deg"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="24"> 0.*deg, 0.*deg, 0*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg </Vector>
+        </Algorithm>
+        
+        
+    </PosPartSection>
+    
 </DDDefinition>
