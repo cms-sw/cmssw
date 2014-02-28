@@ -196,6 +196,10 @@ in particular people working on lxplus can use:
 
     export CMSSW_GIT_REFERENCE=/afs/cern.ch/cms/git-cmssw-mirror/cmssw.git
 
+or in case you have CVMFS available you can set it too:
+
+    export CMSSW_GIT_REFERENCE=/cvmfs/cms.cern.ch/cmssw.git
+
 ### How do I setup a local mirror?
 
 Git allows you to mirror a repository by doing:
