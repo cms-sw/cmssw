@@ -81,11 +81,8 @@ recoTauPileUpVertices = cms.EDFilter(
     minTrackSumPt = cms.double(5),
     filter = cms.bool(False),
 )
-# import jet filtering sequence
-from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import tauInputJets
 
 recoTauCommonSequence = cms.Sequence(
-    tauInputJets *
     ak5PFJetTracksAssociatorAtVertex *
     recoTauAK5PFJets08Region*
     recoTauPileUpVertices*
