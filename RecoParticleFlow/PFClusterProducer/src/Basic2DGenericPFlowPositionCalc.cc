@@ -26,10 +26,13 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       << " Found a cluster with no seed: " << cluster;
   }  				
   double cl_energy = 0;  
+  double cl_time = 0;  
   double max_e = 0.0;  
   PFLayer::Layer max_e_layer = PFLayer::NONE;
   reco::PFRecHitRef refseed;  
-  // find the seed and max layer
+  // find the seed and max layer and also calculate time
+  //Michalis : Even if we dont use timing in clustering here we should fill
+  //the time information for the cluster
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     if( refhit->detId() == cluster.seed() ) refseed = refhit;
@@ -40,12 +43,17 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
 	<< "The input of the particle flow clustering seems to be corrupted.";
     }
     cl_energy += rh_energy;    
+    //Michalis : timing should not be weighted by fraction but by energy 
+    //to take into account that the timing resolution improves with energy
+    cl_time += rh_energy*refhit->time();   
+
     if( rh_energy > max_e ) {
       max_e = rh_energy;
       max_e_layer = rhf.recHitRef()->layer();
     }    
   }
   cluster.setEnergy(cl_energy);
+  cluster.setTime(cl_time/cl_energy);
   cluster.setLayer(max_e_layer);
   // calculate the position
   double position_norm = 0.0;

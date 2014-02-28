@@ -28,6 +28,7 @@ PFCluster::PFCluster(PFLayer::Layer layer, double energy,
 	       PFLayer::toCaloID(layer),
 	       CaloCluster::particleFlow ),
   posrep_( position_.Rho(), position_.Eta(), position_.Phi() ),
+  time_(-99.),
   color_(2)
 {  }
   
@@ -37,7 +38,7 @@ void PFCluster::reset() {
   energy_ = 0;
   position_ *= 0;
   posrep_ *= 0;
-  
+  time_=-99.;
   rechits_.clear();
 
   CaloCluster::reset();
