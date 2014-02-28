@@ -9,16 +9,23 @@
 <use   name="root"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/DataRecord"/>
+
 <library   file="EcalLocalRecoTask.cc" name="testEcalLocalReco">
   <flags   EDM_PLUGIN="1"/>
 </library>
+
 <library   file="stubs/EcalBasicUncalibRecHitFilter.cc" name="EcalBasicUncalibRecHitFilter">
   <flags   EDM_PLUGIN="1"/>
 </library>
+
 <library   file="EcalCompactTrigPrimProducerTest.cc" name="testEcalCompactTrigPrimProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
 
 <library   file="stubs/EcalSampleMaskRecordESProducer.cc" name="testEcalSampleMaskRecordESProducer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   file="plugins/*.cc" name="testEcalRecHitProducersPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
