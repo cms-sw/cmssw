@@ -263,11 +263,11 @@ std::string DataPoint::fastOutCSV()
 #else
         ss << (unsigned int) *((static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(fastIndex_));
 #endif 
-        fastIndex_ = fastIndex_+1 % (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->size();
+        fastIndex_ = (fastIndex_+1) % (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->size();
       }
       else {
         ss << (static_cast<std::vector<unsigned int>*>(tracked_))->at(fastIndex_);
-        fastIndex_ = fastIndex_+1 % (static_cast<std::vector<unsigned int>*>(tracked_))->size();
+        fastIndex_ = (fastIndex_+1) % (static_cast<std::vector<unsigned int>*>(tracked_))->size();
       }
 
       return ss.str();
