@@ -41,8 +41,6 @@
 
 #include <iostream>
 
-const bool MYDEBUG = false;
-
 class RectangularPixelTopology;
 class MagneticField;
 class PixelCPEBase : public PixelClusterParameterEstimator 
@@ -76,7 +74,7 @@ public:
 				      const GeomDetUnit    & det ) const 
     {
       nRecHitsTotal_++ ;
-      if(MYDEBUG) std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
+      //std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
       setTheDet( det, cl );
       computeAnglesFromDetPosition(cl);
       
@@ -84,7 +82,7 @@ public:
       LocalPoint lp = localPosition( cl);
       LocalError le = localError( cl);        
       
-    if(MYDEBUG) std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
+      //std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
 
       return std::make_pair( lp, le );
     }
@@ -98,7 +96,7 @@ public:
   {
     nRecHitsTotal_++ ;
 
-    if(MYDEBUG)  std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
+    //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
 
     setTheDet( det, cl );
     computeAnglesFromTrajectory(cl, ltp);
@@ -107,7 +105,7 @@ public:
     LocalPoint lp = localPosition( cl); 
     LocalError le = localError( cl);        
 
-    if(MYDEBUG) std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
+    //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
     
     return std::make_pair( lp, le );
   } 
@@ -174,7 +172,6 @@ public:
   mutable const PixelGeomDetUnit * theDet;
   
   // gavril : replace RectangularPixelTopology with PixelTopology
-  //mutable const RectangularPixelTopology * theTopol;
   mutable const PixelTopology * theTopol;
   mutable const RectangularPixelTopology * theRecTopol;
 
@@ -182,18 +179,13 @@ public:
 
   mutable GeomDetType::SubDetector thePart;
   mutable  Local3DPoint theOrigin;
-  //mutable EtaCorrection theEtaFunc;
   mutable float theThickness;
   mutable float thePitchX;
   mutable float thePitchY;
-  //mutable float theOffsetX;
-  //mutable float theOffsetY;
   mutable float theNumOfRow;
   mutable float theNumOfCol;
   mutable float theDetZ;
   mutable float theDetR;
-  //mutable float theLShiftX;
-  //mutable float theLShiftY;
   mutable float theSign;
 
   //--- Cluster-level quantities (may need more)
@@ -232,13 +224,10 @@ public:
 
   //---------------------------
   mutable LocalVector driftDirection_;  // drift direction cached // &&&
-  //mutable float lorentzShiftX_;   // a FULL shift, in pitch units 
-  //mutable float lorentzShiftY_;   // a FULL shift,
   mutable float lorentzShiftInCmX_;   // a FULL shift, in cm
   mutable float lorentzShiftInCmY_;   // a FULL shift, in cm
 
   // Added new members
-  //   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
   float lAOffset_; // la used to calculate the offset from configuration (for testing) 
   float lAWidthBPix_;  // la used to calculate the cluster width from conf.  
   float lAWidthFPix_;  // la used to calculate the cluster width from conf.
@@ -264,7 +253,6 @@ public:
   
   // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
   // with track angles to handle surface deformations (bows/kinks)
-  //mutable Topology::LocalTrackPred* loc_trk_pred;
   mutable Topology::LocalTrackPred loc_trk_pred_;
 
   mutable LocalTrajectoryParameters loc_traj_param_;
@@ -275,16 +263,14 @@ public:
 private:
   void computeAnglesFromDetPosition(const SiPixelCluster & cl ) const;
   
-
   void computeAnglesFromTrajectory (const SiPixelCluster & cl, 
 				    const LocalTrajectoryParameters & ltp) const;
 
 protected:
   void  setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const ;
 
-  LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
-  LocalVector driftDirection       ( LocalVector bfield ) const ; //wrong sign
-  //LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
+  LocalVector driftDirection       ( GlobalVector bfield ) const ; 
+  LocalVector driftDirection       ( LocalVector bfield ) const ; 
   void computeLorentzShifts() const ;
 
   bool isFlipped() const;              // is the det flipped or not?
@@ -293,16 +279,7 @@ protected:
   //  Cluster-level services.
   //---------------------------------------------------------------------------
    
- 
-
-  //--- The Lorentz shift correction
-  //float lorentzShiftX() const;
-  //float lorentzShiftY() const;
-
-
   LocalVector const & getDrift() const {return  driftDirection_ ;}
- 
-
  
   Param const & param() const;
  

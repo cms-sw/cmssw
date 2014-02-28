@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
 
     ComponentName = cms.string('PixelCPEGeneric'),
-    TanLorentzAnglePerTesla = cms.double(0.106),
     Alpha2Order = cms.bool(True),
     PixelErrorParametrization = cms.string('NOTcmsim'),
 
@@ -42,14 +41,21 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     # petar, for clusterProbability() from TTRHs
     ClusterProbComputationFlag = cms.int32(0),
 
-    # new parameters added in 1/14, dk         
+    # new parameters added in 1/14, dk
+    # LA defined by hand, FOR TESTING ONLY, not for production   
+    # 0.0 means that the offset is taken from DB        
     #lAOffset = cms.untracked.double(0.0),
-    lAOffset = cms.untracked.double(0.098),
+    #lAOffset = cms.untracked.double(0.098),
     #lAWidthBPix = cms.untracked.double(0.0),
     #lAWidthFPix = cms.untracked.double(0.0),
-    lAWidthBPix = cms.untracked.double(0.098),
-    lAWidthFPix = cms.untracked.double(0.058),
-    # useLAWidthFromDB = cms.untracked.bool("False"),                                      
+    #lAWidthBPix = cms.untracked.double(0.098),
+    #lAWidthFPix = cms.untracked.double(0.058),
+    # Flag to select the source of LA-Width
+    # Normal = True, use LA from DB, not ready yet
+    useLAWidthFromDB = cms.bool(False),                             
+    # if lAWith=0 and useLAWidthFromDB=false than width is calculated from lAOffset.         
+    # Use the LA-Offsets from Alignment instead of our calibration
+    useLAAlignmentOffsets = cms.bool(False),                             
                                            
 )
 

@@ -59,17 +59,34 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   DoCosmics_                 = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_       = conf.getParameter<bool>("LoadTemplatesFromDB");
 
+  // This LA related parameters are only relevant for the Generic algo
+
+  lAOffset_ = conf.getUntrackedParameter<double>("lAOffset",0.0);
+  lAWidthBPix_  = conf.getUntrackedParameter<double>("lAWidthBPix",0.0);
+  lAWidthFPix_  = conf.getUntrackedParameter<double>("lAWidthFPix",0.0);
+  // Use LA-offset from config, for testing only
+  if(lAOffset_>0.0) useLAOffsetFromConfig_ = true;
+  // Use LA-width from config, split into fpix & bpix, for testing only
+  if(lAWidthBPix_>0.0 || lAWidthFPix_>0.0) useLAWidthFromConfig_ = true;
+
+  // Use LA-width from DB. If both (upper and this) are false LA-width is calcuated from LA-offset
+  useLAWidthFromDB_ = 
+    conf.getParameter<bool>("useLAWidthFromDB");
+  // Use Alignment LA-offset 
+  useLAAlignmentOffsets_ = 
+    conf.getParameter<bool>("useLAAlignmentOffsets");
+
+
   if ( !UseErrorsFromTemplates_ && ( TruncatePixelCharge_       || 
 				     IrradiationBiasCorrection_ || 
 				     DoCosmics_                 ||
-				     LoadTemplatesFromDB_ ) )
-    {
-      throw cms::Exception("PixelCPEGeneric::PixelCPEGeneric: ") 
-	  << "\nERROR: UseErrorsFromTemplates_ is set to False in PixelCPEGeneric_cfi.py. "
-	  << " In this case it does not make sense to set any of the following to True: " 
-	  << " TruncatePixelCharge_, IrradiationBiasCorrection_, DoCosmics_, LoadTemplatesFromDB_ !!!" 
-	  << "\n\n";
-    }
+				     LoadTemplatesFromDB_ ) )  {
+    throw cms::Exception("PixelCPEGeneric::PixelCPEGeneric: ") 
+      << "\nERROR: UseErrorsFromTemplates_ is set to False in PixelCPEGeneric_cfi.py. "
+      << " In this case it does not make sense to set any of the following to True: " 
+      << " TruncatePixelCharge_, IrradiationBiasCorrection_, DoCosmics_, LoadTemplatesFromDB_ !!!" 
+      << "\n\n";
+  }
 
   if ( UseErrorsFromTemplates_ )
 	{
@@ -100,8 +117,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   //cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_       << endl;
   //cout << endl;
 
-  //yes, these should be config parameters!
-  //default case...
+  // Default case for rechit errors in case other, more correct, errors are not vailable
+  // This are constants. Maybe there is a more efficienct way to store them.
   xerr_barrel_l1_= {0.00115, 0.00120, 0.00088};
   xerr_barrel_l1_def_=0.01030;
   yerr_barrel_l1_= {0.00375,0.00230,0.00250,0.00250,0.00230,0.00230,0.00210,0.00210,0.00240};
@@ -156,7 +173,7 @@ LocalPoint
 PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const 
 {
 
-  if(MYDEBUG) cout<<" in PixelCPEGeneric:localPosition - "<<endl; //dk
+  //cout<<" in PixelCPEGeneric:localPosition - "<<endl; //dk
 
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
 
@@ -383,7 +400,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
  
     } // if ( IrradiationBiasCorrection_ )
 	
-  if(MYDEBUG) cout<<" in PixelCPEGeneric:localPosition - pos = "<<xPos<<" "<<yPos<<endl; //dk
+  //cout<<" in PixelCPEGeneric:localPosition - pos = "<<xPos<<" "<<yPos<<endl; //dk
 
   //--- Now put the two together
   LocalPoint pos_in_local( xPos, yPos );
@@ -416,7 +433,7 @@ generic_position_formula( int size,                //!< Size of this projection.
 			 ) const
 {
 
-  if(MYDEBUG) cout<<" in PixelCPEGeneric:generic_position_formula - "<<endl; //dk
+  //cout<<" in PixelCPEGeneric:generic_position_formula - "<<endl; //dk
 
   
   float geom_center = 0.5f * ( upper_edge_first_pix + lower_edge_last_pix );
@@ -442,7 +459,7 @@ generic_position_formula( int size,                //!< Size of this projection.
     //    - 2.f * half_lorentz_shift;                    // (in cm) &&& check fpix!  
   
 
-  if(MYDEBUG) cout<<" in PixelCPEGeneric:generic_position_formula - "<<W_inner<<" "<<W_pred<<endl; //dk
+  //cout<<" in PixelCPEGeneric:generic_position_formula - "<<W_inner<<" "<<W_pred<<endl; //dk
 
   //--- Total length of the two edge pixels (first+last)
   float sum_of_edge = 2.0f;
@@ -479,7 +496,7 @@ generic_position_formula( int size,                //!< Size of this projection.
   //float hit_pos = geom_center + 0.5f*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
   float hit_pos = geom_center + 0.5f*(Qdiff/Qsum) * W_eff;
 
-  if(MYDEBUG) cout<<" in PixelCPEGeneric:generic_position_formula - "<<hit_pos<<" "<<lorentz_shift*0.5<<endl; //dk
+  //cout<<" in PixelCPEGeneric:generic_position_formula - "<<hit_pos<<" "<<lorentz_shift*0.5<<endl; //dk
 
  #ifdef EDM_ML_DEBUG
   //--- Debugging output
@@ -616,7 +633,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster) const
   // Find if cluster contains double (big) pixels. 
   bool bigInX = theRecTopol->containsBigPixelInX( minPixelRow, maxPixelRow ); 	 
   bool bigInY = theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
-  if unlikely(  isUpgrade_ ||(!with_track_angle && DoCosmics_) )
+  if unlikely(  isUpgrade_ ||(!with_track_angle && DoCosmics_) )  
     {
       //cout << "Track angles are not known and we are processing cosmics." << endl; 
       //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;

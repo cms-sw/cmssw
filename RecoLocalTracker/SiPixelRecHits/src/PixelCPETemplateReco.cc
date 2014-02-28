@@ -57,7 +57,7 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   //-- Use Magnetic field at (0,0,0) to select a template ID [Morris, 6/25/08] (temporary until we implement DB access)
   
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
-  DoLorentz_ = conf.getParameter<bool>("DoLorentz");
+  DoLorentz_ = conf.getParameter<bool>("DoLorentz"); // True when LA from alignment is used
   LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB");
 
   //cout << " PixelCPETemplateReco : (int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
