@@ -12,7 +12,6 @@ class Bins{
   const static int Rho1=40;
   const static int PtLastExtend=4000;
 
-  static bool getBin(std::vector<int>& bins, double value, int& low, int& up);
   static void getBins_int(std::vector<int>& bins, int nBins, double xmin, double xmax, bool plotLog=true);
   static int getBinNumber(std::vector<int>& bins, double value);
 };
