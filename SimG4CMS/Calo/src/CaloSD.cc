@@ -21,11 +21,11 @@
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
         SensitiveDetectorCatalog & clg, 
         edm::ParameterSet const & p, const SimTrackManager* manager,
-        int tSlice, bool ignoreTkID) : 
+	       double timeSliceUnit, bool ignoreTkID) : 
   SensitiveCaloDetector(name, cpv, clg, p),
   G4VGFlashSensitiveDetector(), theTrack(0), preStepPoint(0), eminHit(0), 
   eminHitD(0), m_trackManager(manager), currentHit(0), runInit(false),
-  timeSlice(tSlice), ignoreTrackID(ignoreTkID), hcID(-1), theHC(0), 
+  timeSlice(timeSliceUnit), ignoreTrackID(ignoreTkID), hcID(-1), theHC(0), 
   meanResponse(0) {
   //Add Hcal Sentitive Detector Names
 

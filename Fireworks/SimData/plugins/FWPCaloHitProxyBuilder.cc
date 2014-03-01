@@ -41,7 +41,8 @@ void FWPCaloHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pr
    int index = 0;
    for (std::vector<PCaloHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
    {  
-      const float* corners = item()->getGeom()->getCorners((*it).id());
+     std::cout << "Hello " << (*it).depth() << std::endl;
+     const float* corners = item()->getGeom()->getCorners((*it).id());
 
       std::vector<float> scaledCorners(24);
       if (corners)
