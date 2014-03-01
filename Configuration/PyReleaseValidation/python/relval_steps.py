@@ -1086,7 +1086,7 @@ steps['COPYPASTE']={'-s':'NONE',
 
 
 # you will need separate scenarios HERE for full and fast 
-upgradeKeys=['2017','2019','BE5D','2017Fast','BE5DFast','BE5DForwardFast','2019WithGEM','BE5DPixel10D','2017Aging','2019Aging','Extended2023','Extended2023HGCalMuon','Extended2023SHCal','Extended2023SHCal4Eta','Extended2023TTI','Extended2023Muon']
+upgradeKeys=['2017','2017EcalTime', '2019','BE5D','2017Fast','BE5DFast','BE5DForwardFast','2019WithGEM','BE5DPixel10D','2017Aging','2019Aging','Extended2023','Extended2023HGCalMuon','Extended2023SHCal','Extended2023SHCal4Eta','Extended2023TTI','Extended2023Muon']
 upgradeGeoms={ '2017' : 'Extended2017',
                '2019' : 'Extended2019',
                '2019WithGEM' : 'Extended2019',
@@ -1102,7 +1102,8 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'Extended2023SHCal' : 'Extended2023SHCal,Extended2023SHCalReco',
                'Extended2023SHCal4Eta' : 'Extended2023SHCal4Eta,Extended2023SHCalReco',
                'Extended2023TTI' : 'Extended2023TTI,Extended2023TTIReco',
-               'Extended2023Muon' : 'Extended2023Muon,Extended2023MuonReco'
+               'Extended2023Muon' : 'Extended2023Muon,Extended2023MuonReco',
+               '2017EcalTime' : 'Extended2017'
                }
 upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
@@ -1119,7 +1120,8 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              'Extended2023SHCal' : 'auto:upgradePLS3',
              'Extended2023SHCal4Eta' : 'auto:upgradePLS3',
              'Extended2023TTI' : 'auto:upgradePLS3',
-             'Extended2023Muon' : 'auto:upgradePLS3'
+             'Extended2023Muon' : 'auto:upgradePLS3',
+             '2017EcalTime' : 'auto:upgrade2017'
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
                  '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
@@ -1136,7 +1138,8 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'Extended2023SHCal' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
                  'Extended2023SHCal4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
                  'Extended2023TTI' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms_TTI.cust_phase2_BE5D',
-                 'Extended2023Muon' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Muon'
+                 'Extended2023Muon' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Muon',
+                 '2017EcalTime' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017,SLHCUpgradeSimulations/Configuration/customiseECalSD_1ps_granularity,SLHCUpgradeSimulations/Configuration/customise_ecalTimeDigi.customise_addEcalTimeDigitizer'
                  }
 ### remember that you need to add a new step for phase 2 to include the track trigger
 ### remember that you need to add fastsim
@@ -1166,7 +1169,8 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HarvFull'],
                    'Extended2023SHCal':['GenSimFull','DigiFull','RecoFull','HarvFull'],
                    'Extended2023SHCal4Eta':['GenSimFull','DigiFull','RecoFull','HarvFull'],
                    'Extended2023TTI':['GenSimFull','DigiTrkTrigFull','RecoFull','HarvFull'],
-                   'Extended2023Muon':['GenSimFull','DigiFull','RecoFull','HarvFull']
+                   'Extended2023Muon':['GenSimFull','DigiFull','RecoFull','HarvFull'],
+                   '2017EcalTime':['GenSimFull','DigiFull','RecoFull','HarvFull'],
                    }
 
 upgradeStepDict={}

@@ -112,6 +112,7 @@ EBHitResponse::putAPDSignal( const DetId& detId  ,
 double 
 EBHitResponse::apdSignalAmplitude( const PCaloHit& hit ) const 
 {
+  //  std::cout << "*** " << hit.depth() << std::endl;
    assert( 1 == hit.depth() ||
 	   2 == hit.depth()    ) ;
 
@@ -213,7 +214,7 @@ void
 EBHitResponse::add( const PCaloHit& hit ) 
 {
   if (!edm::isNotFinite( hit.time() ) && ( 0 == hitFilter() || hitFilter()->accepts( hit ) ) ) {
-     if( 0 == hit.depth() ) // for now take only nonAPD hits
+    if( 0 == hit.depth() || hit.depth() >=100 ) // for now take only nonAPD hits
      {
         if( !m_apdOnly ) putAnalogSignal( hit ) ;
      }
@@ -254,40 +255,40 @@ EBHitResponse::run( MixCollection<PCaloHit>& hits )
 	  ( 0 == hitFilter() ||
 	    hitFilter()->accepts( hit ) ) )
       { 
-	 if( 0 == hit.depth() ) // for now take only nonAPD hits
-	 {
+	if( 0 == hit.depth() || hit.depth() >=100 ) // for now take only nonAPD hits
+	  {
 	    if( !m_apdOnly ) putAnalogSignal( hit ) ;
-	 }
-	 else // APD hits here
-	 {
+	  }
+	else // APD hits here
+	  {
 	    if( apdParameters()->addToBarrel() ||
 		m_apdOnly                         )
-	    {
-	       const unsigned int icell ( EBDetId( hit.id() ).denseIndex() ) ;
-	       m_apdNpeVec[ icell ] += apdSignalAmplitude( hit ) ;
-	       if( 0 == m_apdTimeVec[ icell ] ) m_apdTimeVec[ icell ] = hit.time() ;
-	    }
-	 }
+	      {
+		const unsigned int icell ( EBDetId( hit.id() ).denseIndex() ) ;
+		m_apdNpeVec[ icell ] += apdSignalAmplitude( hit ) ;
+		if( 0 == m_apdTimeVec[ icell ] ) m_apdTimeVec[ icell ] = hit.time() ;
+	      }
+	  }
       }
    }
-
+   
    if( apdParameters()->addToBarrel() ||
        m_apdOnly                         )
-   {
-      for( unsigned int i ( 0 ) ; i != bSize ; ++i )
-      {
-	 if( 0 < m_apdNpeVec[i] )
+     {
+       for( unsigned int i ( 0 ) ; i != bSize ; ++i )
 	 {
-	    putAPDSignal( EBDetId::detIdFromDenseIndex( i ),
-			  m_apdNpeVec[i] ,
-			  m_apdTimeVec[i]                    ) ;
-
-	    // now zero out for next time
-	    m_apdNpeVec[i] = 0. ;
-	    m_apdTimeVec[i] = 0. ;
+	   if( 0 < m_apdNpeVec[i] )
+	     {
+	       putAPDSignal( EBDetId::detIdFromDenseIndex( i ),
+			     m_apdNpeVec[i] ,
+			     m_apdTimeVec[i]                    ) ;
+	       
+	       // now zero out for next time
+	       m_apdNpeVec[i] = 0. ;
+	       m_apdTimeVec[i] = 0. ;
+	     }
 	 }
-      }
-   }
+     }
 }
 
 unsigned int
