@@ -63,6 +63,11 @@ def cust_2017(process):
 #    process=fixRPCConditions(process)
     return process
 
+def cust_2017EcalTime(process):
+    process=cust_2017(process)
+    process=cust_ecalTime(process)
+    return process
+
 def cust_2019(process):
     process=customisePostLS1(process)
     process=customisePhase1Tk(process)
