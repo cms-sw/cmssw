@@ -33,6 +33,7 @@ private:
 
   DQMStore* dbe_;
   std::string outputFile_;
+  std::string simInputLabel_;
 
   GEMHitsValidation* theGEMHitsValidation;
   GEMSimTrackMatch* theGEMSimTrackMatch;
