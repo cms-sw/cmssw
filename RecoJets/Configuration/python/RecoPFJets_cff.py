@@ -28,7 +28,6 @@ kt6PFJets.doAreaFastjet = True
 #use active areas and not Voronoi tessellation for the moment
 kt6PFJets.voronoiRfact = 0.9
 ak4PFJets.doAreaFastjet = True
-ak4PFJetsTrimmed.doAreaFastjet = True
 ak5PFJets.doAreaFastjet = True
 ak5PFJetsTrimmed.doAreaFastjet = True
 ak7PFJets.doAreaFastjet = True
