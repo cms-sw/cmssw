@@ -1139,7 +1139,7 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'Extended2023SHCal4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
                  'Extended2023TTI' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms_TTI.cust_phase2_BE5D',
                  'Extended2023Muon' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Muon',
-                 '2017EcalTime' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017,SLHCUpgradeSimulations/Configuration/customiseECalSD_1ps_granularity,SLHCUpgradeSimulations/Configuration/customise_ecalTimeDigi.customise_addEcalTimeDigitizer'
+                 '2017EcalTime' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_ecalTime'
                  }
 ### remember that you need to add a new step for phase 2 to include the track trigger
 ### remember that you need to add fastsim
