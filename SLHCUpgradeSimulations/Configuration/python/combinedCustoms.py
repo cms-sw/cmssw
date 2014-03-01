@@ -3,7 +3,7 @@ from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
-
+from SLHCUpgradeSimulations.Configuration.customise_ecalTime import cust_ecalTime
 from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions
 
 from SLHCUpgradeSimulations.Configuration.phase2TkTilted import customise as customiseTiltedTK
