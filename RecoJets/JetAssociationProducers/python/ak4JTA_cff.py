@@ -29,7 +29,7 @@ ak4JetExtender = cms.EDProducer("JetExtender",
     jets = cms.InputTag("ak4CaloJets"),
     jet2TracksAtCALO = cms.InputTag("ak4JetTracksAssociatorAtCaloFace"),
     jet2TracksAtVX = cms.InputTag("ak4JetTracksAssociatorAtVertex"),
-    coneSize = cms.double(0.5)
+    coneSize = cms.double(0.4)
 )
 
 ak4JTA = cms.Sequence(ak4JetTracksAssociatorAtVertexPF*

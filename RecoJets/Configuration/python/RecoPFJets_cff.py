@@ -27,10 +27,12 @@ kt6PFJets.doRhoFastjet = True
 kt6PFJets.doAreaFastjet = True
 #use active areas and not Voronoi tessellation for the moment
 kt6PFJets.voronoiRfact = 0.9
+ak4PFJets.doAreaFastjet = True
+ak4PFJetsTrimmed.doAreaFastjet = True
 ak5PFJets.doAreaFastjet = True
 ak5PFJetsTrimmed.doAreaFastjet = True
 ak7PFJets.doAreaFastjet = True
-
+ak8PFJets.doAreaFastjet = True
 
 
 kt6PFJetsCentralChargedPileUp = kt6PFJets.clone(
@@ -149,7 +151,7 @@ ca15PFJetsCHSFiltered = ak5PFJetsFiltered.clone(
     )
 
 cmsTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
-hepTopTagPFJetsCHS.src = cms.InputTag("pfNoPileUpJME")
+hepTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
 
 recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            iterativeCone5PFJets+

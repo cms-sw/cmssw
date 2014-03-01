@@ -32,7 +32,7 @@ ak4PFCHSL1Offset = ak4CaloL1Offset.clone(algorithm = 'AK5PFCHS')
 ak4JPTL1Offset = ak4CaloL1Offset.clone(algorithm = 'AK5JPT')
 
 # L1 (JPT Offset) Correction Service
-ak5L1JPTOffset = cms.ESProducer(
+ak4L1JPTOffset = cms.ESProducer(
     'L1JPTOffsetCorrectionESProducer',
     level = cms.string('L1JPTOffset'),
     algorithm = cms.string('AK5JPT'),
@@ -69,7 +69,7 @@ ak4CaloL2Relative = cms.ESProducer(
 ak4PFL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK5PF' )
 ak4PFCHSL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK5PFCHS' )
 ak4JPTL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK5JPT' )
-ak5TrackL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK5TRK' )
+ak4TrackL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK5TRK' )
 
 # L3 (absolute) Correction Services
 ak4CaloL3Absolute = cms.ESProducer(
@@ -80,7 +80,7 @@ ak4CaloL3Absolute = cms.ESProducer(
 ak4PFL3Absolute     = ak4CaloL3Absolute.clone( algorithm = 'AK5PF' )
 ak4PFCHSL3Absolute     = ak4CaloL3Absolute.clone( algorithm = 'AK5PFCHS' )
 ak4JPTL3Absolute    = ak4CaloL3Absolute.clone( algorithm = 'AK5JPT' )
-ak5TrackL3Absolute  = ak4CaloL3Absolute.clone( algorithm = 'AK5TRK' )
+ak4TrackL3Absolute  = ak4CaloL3Absolute.clone( algorithm = 'AK5TRK' )
 
 # Residual Correction Services
 ak4CaloResidual = cms.ESProducer(
@@ -132,11 +132,11 @@ ak4PFCHSL2L3 = cms.ESProducer(
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak4JPTL2L3 = cms.ESProducer(
     'JetCorrectionESChain',
-    correctors = cms.vstring('ak5L1JPTOffset','ak4JPTL2Relative','ak4JPTL3Absolute')
+    correctors = cms.vstring('ak4L1JPTOffset','ak4JPTL2Relative','ak4JPTL3Absolute')
     )
-ak5TrackL2L3 = cms.ESProducer(
+ak4TrackL2L3 = cms.ESProducer(
     'JetCorrectionESChain',
-    correctors = cms.vstring('ak5TrackL2Relative','ak5TrackL3Absolute')
+    correctors = cms.vstring('ak4TrackL2Relative','ak4TrackL3Absolute')
     )
 
 # L2L3Residual CORRECTION SERVICES
@@ -156,7 +156,7 @@ ak4PFCHSL2L3Residual = cms.ESProducer(
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak4JPTL2L3Residual = cms.ESProducer(
     'JetCorrectionESChain',
-    correctors = cms.vstring('ak5L1JPTOffset','ak4JPTL2Relative','ak4JPTL3Absolute','ak4JPTResidual')
+    correctors = cms.vstring('ak4L1JPTOffset','ak4JPTL2Relative','ak4JPTL3Absolute','ak4JPTResidual')
     )
 
 # L1L2L3 CORRECTION SERVICES
@@ -176,7 +176,7 @@ ak4PFCHSL1L2L3 = cms.ESProducer(
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak4JPTL1L2L3 = cms.ESProducer(
     'JetCorrectionESChain',
-    correctors = cms.vstring('ak5L1JPTOffset','ak4JPTL2Relative','ak4JPTL3Absolute')
+    correctors = cms.vstring('ak4L1JPTOffset','ak4JPTL2Relative','ak4JPTL3Absolute')
     )
 
 # L1L2L3Residual CORRECTION SERVICES
@@ -196,7 +196,7 @@ ak4PFCHSL1L2L3Residual = cms.ESProducer(
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
 ak4JPTL1L2L3Residual = cms.ESProducer(
     'JetCorrectionESChain',
-    correctors = cms.vstring('ak5L1JPTOffset','ak4JPTL2Relative','ak4JPTL3Absolute','ak4JPTResidual')
+    correctors = cms.vstring('ak4L1JPTOffset','ak4JPTL2Relative','ak4JPTL3Absolute','ak4JPTResidual')
     )
 
 # L1L2L3 CORRECTION SERVICES WITH FASTJET

@@ -89,7 +89,7 @@ ic5PFJetsL1FastL2L3Residual = ak4PFJetsL2L3.clone(src = 'iterativeCone5PFJets', 
 
 ##------------------  JPT JETS ----------------------------------
 ak4JPTJetsL2L3   = cms.EDProducer('JPTJetCorrectionProducer',
-    src         = cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
+    src         = cms.InputTag('JetPlusTrackZSPCorJetAntiKt4'),
     correctors  = cms.vstring('ak4JPTL2L3')
     )
 
@@ -102,5 +102,5 @@ ak4JPTJetsL1FastL2L3Residual = ak4JPTJetsL2L3.clone(correctors = ['ak4JPTL1FastL
 ##------------------  TRK JETS ----------------------------------
 ak4TrackJetsL2L3   = cms.EDProducer('TrackJetCorrectionProducer',
     src         = cms.InputTag('ak4TrackJets'),
-    correctors  = cms.vstring('ak5TrackL2L3')
+    correctors  = cms.vstring('ak4TrackL2L3')
     )

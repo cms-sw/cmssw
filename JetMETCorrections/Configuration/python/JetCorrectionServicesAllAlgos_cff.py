@@ -36,7 +36,7 @@ ic5PFL1Fastjet   = ak4PFL1Fastjet.clone()
 ak7JPTL1Fastjet  = ak4JPTL1Fastjet.clone()
 
 # SPECIAL L1JPTOffset
-ak7L1JPTOffset = ak5L1JPTOffset.clone()
+ak7L1JPTOffset = ak4L1JPTOffset.clone()
 
 # L2 (relative eta-conformity) Correction Services
 ak7CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK7Calo' )
@@ -307,8 +307,8 @@ kt6PFL1FastL2L3.correctors.insert(0,'ak4PFL1Fastjet')
 ic5PFL1FastL2L3 = ic5PFL2L3.clone()
 ic5PFL1FastL2L3.correctors.insert(0,'ak4PFL1Fastjet')
 
-ak5TrackL1FastL2L3 = ak5TrackL2L3.clone()
-ak5TrackL1FastL2L3.correctors.insert(0,'ak4CaloL1Fastjet')
+ak4TrackL1FastL2L3 = ak4TrackL2L3.clone()
+ak4TrackL1FastL2L3.correctors.insert(0,'ak4CaloL1Fastjet')
 
 # L1FastL2L3Residual CORRECTION SERVICES
 ak7CaloL1FastL2L3Residual = cms.ESProducer(
