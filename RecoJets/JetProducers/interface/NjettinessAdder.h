@@ -13,6 +13,7 @@ class NjettinessAdder : public edm::EDProducer {
  public:
   explicit NjettinessAdder(const edm::ParameterSet& iConfig) :
     src_(iConfig.getParameter<edm::InputTag>("src")),
+    src_token_(consumes<edm::View<reco::PFJet>>(src_)),
     cone_(iConfig.getParameter<double>("cone"))
       {
 	produces<edm::ValueMap<float> >("tau1");
@@ -27,6 +28,7 @@ class NjettinessAdder : public edm::EDProducer {
     
  private:	
     edm::InputTag src_ ;
+    edm::EDGetTokenT<edm::View<reco::PFJet>> src_token_;
     double cone_ ;
 };
 

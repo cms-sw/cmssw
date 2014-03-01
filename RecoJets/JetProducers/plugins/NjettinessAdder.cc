@@ -6,7 +6,7 @@
 void NjettinessAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   // read input collection
   edm::Handle<edm::View<reco::PFJet> > jets;
-  iEvent.getByLabel(src_, jets);
+  iEvent.getByToken(src_token_, jets);
   
   // prepare room for output
   std::vector<float> tau1;         tau1.reserve(jets->size());

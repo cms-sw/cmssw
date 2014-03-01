@@ -4,11 +4,13 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+using namespace std;
+
 void QjetsAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   // read input collection
   //edm::Handle<edm::View<pat::Jet> > jets;
   edm::Handle<edm::View<reco::Jet> > jets;
-  iEvent.getByLabel(src_, jets);
+  iEvent.getByToken(src_token_, jets);
 
   // prepare room for output
   std::vector<float> QjetsVolatility;       QjetsVolatility.reserve(jets->size());

@@ -1,15 +1,6 @@
 #include "RecoJets/JetAlgorithms/interface/QjetsPlugin.h"
 
-QjetsPlugin::QjetsPlugin(double zcut, double dcut_fctr, double exp_min, double exp_max, double rigidity, double truncation_fctr)
-  : _rand_seed_set(false),
-    _zcut(zcut), 
-    _dcut_fctr(dcut_fctr), 
-    _exp_min(exp_min), 
-    _exp_max(exp_max),
-    _rigidity(rigidity), 
-    _truncation_fctr(truncation_fctr)
-{
-} 
+using namespace std;
 
 void QjetsPlugin::SetRandSeed(unsigned int seed){
   _rand_seed_set = true;
