@@ -55,21 +55,20 @@
    <version ClassVersion="10" checksum="783896264"/>
     <!-- <field name="mothers_" transient="true"/> -->
   </class>
-  <class name="reco::LeafCandidate"  ClassVersion="11">
-   <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
-   <field name="p4Polar_" transient="true" />
-   <field name="p4Cartesian_" transient="true" />
-   <field name="cachePolarFixed_" transient="true" />
-   <field name="cacheCartesianFixed_" transient="true" />
+  <class name="reco::LeafCandidate"  ClassVersion="12">
+   <version ClassVersion="12" checksum="3932037675"/>
    <version ClassVersion="11" checksum="1947948955"/>
    <version ClassVersion="10" checksum="4128105563"/>
   </class>
-  <ioread sourceClass = "reco::LeafCandidate" version="[1-11]" targetClass="reco::LeafCandidate" source = "" target="cachePolarFixed_">
-    <![CDATA[cachePolarFixed_ = false;]]>
+  <ioread sourceClass = "reco::LeafCandidate" version="[1-11]" targetClass="reco::LeafCandidate" 
+	  source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> >  vertex_; float pt_; float eta_; float phi_; float mass_; int qx3_; int pdgId_; int status_;" 
+          target="m_state">
+    <![CDATA[
+	     m_state = reco::ParticleState(onfile.qx3_, ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> >(onfile.pt_,onfile.eta_,onfile.phi_,onfile.mass_),
+	     onfile.vertex_, onfile.pdgId_, onfile.status_, false);
+    ]]>
   </ioread>
-  <ioread sourceClass = "reco::LeafCandidate" version="[1-11]" targetClass="reco::LeafCandidate" source = "" target="cacheCartesianFixed_">
-    <![CDATA[cacheCartesianFixed_ = false;]]>
-  </ioread>
+
   <class name="reco::CompositeCandidate" ClassVersion="10">
    <version ClassVersion="10" checksum="2953566340"/>
   </class>
