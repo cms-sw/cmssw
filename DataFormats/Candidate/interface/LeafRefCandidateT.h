@@ -100,9 +100,9 @@ namespace reco {
     /// transverse energy                                                                 
     virtual double et() const GCC11_FINAL  { cachePolar(); return p4Polar_.Et(); }
     /// mass                                                                              
-    virtual float mass() const GCC11_FINAL  { return mass_; }
+    virtual double mass() const GCC11_FINAL  { return mass_; }
     /// mass squared                                                                      
-    virtual float massSqr() const GCC11_FINAL  { return mass_ * mass_; }
+    virtual double massSqr() const GCC11_FINAL  { return mass_ * mass_; }
     /// transverse mass                                                                   
     virtual double mt() const GCC11_FINAL  { cachePolar(); return p4Polar_.Mt(); }
     /// transverse mass squared                                                           
@@ -114,13 +114,13 @@ namespace reco {
     /// z coordinate of momentum vector                                                   
     virtual double pz() const GCC11_FINAL  { cacheCartesian(); return p4Cartesian_.Pz(); }
     /// transverse momentum                                                               
-    virtual float pt() const GCC11_FINAL  { return ref_->pt(); } 
+    virtual double pt() const GCC11_FINAL  { return ref_->pt(); } 
     /// momentum azimuthal angle                                                          
-    virtual float phi() const GCC11_FINAL  { return ref_->phi(); }
+    virtual double phi() const GCC11_FINAL  { return ref_->phi(); }
     /// momentum polar angle                                                              
     virtual double theta() const GCC11_FINAL  { return ref_->theta(); }
     /// momentum pseudorapidity                                                           
-    virtual float eta() const GCC11_FINAL  { return ref_->eta(); }
+    virtual double eta() const GCC11_FINAL  { return ref_->eta(); }
     /// rapidity                                                                          
     virtual double rapidity() const GCC11_FINAL  { cachePolar(); return p4Polar_.Rapidity(); }
     /// rapidity                                                                          
