@@ -44,7 +44,6 @@ class MatrixReader(object):
                              'relval_generator': 'gen-'  ,
                              'relval_production': 'prod-'  ,
                              'relval_ged': 'ged-',
-                             'relval_ecalfine': 'ecalfine-',
                              'relval_upgrade':'upg-',
                              'relval_identity':'id-'
                              }
@@ -55,7 +54,6 @@ class MatrixReader(object):
                       'relval_generator',
                       'relval_production',
                       'relval_ged',
-                      'relval_ecalfine',
                       'relval_upgrade',
                       'relval_identity'                      
                       ]
