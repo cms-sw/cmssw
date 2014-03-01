@@ -21,12 +21,15 @@ def cust_2023flat(process):
     process=customiseFlatTK(process)
     return process
 
-
-######Below are the customized used for SLHC releases 
 def cust_2019(process):
     process=customisePostLS1(process,displayDeprecationWarning=False)
     process=customisePhase1Tk(process)
     process=customise_HcalPhase1(process)
+    return process
+
+def cust_2019EcalTime(process):
+    process=cust_2019(process)
+    process=cust_ecalTime(process)
     return process
 
 def cust_2023MuonOnly(process):
