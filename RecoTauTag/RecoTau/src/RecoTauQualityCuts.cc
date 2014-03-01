@@ -232,70 +232,40 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts)
     passedOptionSet.insert(option);
   }
 
+  unsigned int nCuts = 0;
+  auto getDouble = [&qcuts, &passedOptionSet, &nCuts](const std::string& name) {
+    if(qcuts.exists(name)) {
+      ++nCuts;
+      passedOptionSet.erase(name);
+      return qcuts.getParameter<double>(name);
+    }
+    return -1.0;
+  };
+  auto getUint = [&qcuts, &passedOptionSet, &nCuts](const std::string& name) -> unsigned int {
+    if(qcuts.exists(name)) {
+      ++nCuts;
+      passedOptionSet.erase(name);
+      return qcuts.getParameter<unsigned int>(name);
+    }
+    return 0;
+  };
+
   // Build all the QCuts for tracks
-  if ( qcuts.exists("minTrackPt") ) {
-    trackQCuts_.push_back(boost::bind(qcuts::ptMin, _1, qcuts.getParameter<double>("minTrackPt")));
-    passedOptionSet.erase("minTrackPt");
-  }
-
-  if ( qcuts.exists("maxTrackChi2") ) {
-    trackQCuts_.push_back(boost::bind(qcuts::trkChi2, _1, qcuts.getParameter<double>("maxTrackChi2")));
-    passedOptionSet.erase("maxTrackChi2");
-  }
-
-  if ( qcuts.exists("minTrackPixelHits") ) {
-    uint32_t minTrackPixelHits = qcuts.getParameter<uint32_t>("minTrackPixelHits");
-    if ( minTrackPixelHits >= 1 ) {
-      trackQCuts_.push_back(boost::bind(qcuts::trkPixelHits, _1, minTrackPixelHits));
-    }
-    passedOptionSet.erase("minTrackPixelHits");
-  }
-
-  if ( qcuts.exists("minTrackHits") ) {
-    uint32_t minTrackHits = qcuts.getParameter<uint32_t>("minTrackHits");
-    if ( minTrackHits >= 1 ) {
-      trackQCuts_.push_back(boost::bind(qcuts::trkTrackerHits, _1, minTrackHits));
-    }
-    passedOptionSet.erase("minTrackHits");
-  }
-
-  // The impact parameter functions are bound to our member PV, since they
-  // need it to compute the discriminant value.
-  if ( qcuts.exists("maxTransverseImpactParameter") ) {
-    trackQCuts_.push_back(boost::bind(qcuts::trkTransverseImpactParameter, _1, &pv_, qcuts.getParameter<double>("maxTransverseImpactParameter")));
-    passedOptionSet.erase("maxTransverseImpactParameter");
-  }
-
-  if ( qcuts.exists("maxDeltaZ") ) {
-    trackQCuts_.push_back(boost::bind(qcuts::trkLongitudinalImpactParameter, _1, &pv_, qcuts.getParameter<double>("maxDeltaZ")));
-    passedOptionSet.erase("maxDeltaZ");
-  }
-
-  if ( qcuts.exists("maxDeltaZToLeadTrack") ) {
-    trackQCuts_.push_back(boost::bind(qcuts::trkLongitudinalImpactParameterWrtTrack, _1, &leadTrack_, &pv_, qcuts.getParameter<double>("maxDeltaZToLeadTrack")));
-    passedOptionSet.erase("maxDeltaZToLeadTrack");
-  }
-
+  minTrackPt_ = getDouble("minTrackPt");
+  maxTrackChi2_ = getDouble("maxTrackChi2");
+  minTrackPixelHits_ = getUint("minTrackPixelHits");
+  minTrackHits_ = getUint("minTrackHits");
+  maxTransverseImpactParameter_ = getDouble("maxTransverseImpactParameter");
+  maxDeltaZ_ = getDouble("maxDeltaZ");
+  maxDeltaZToLeadTrack_ = getDouble("maxDeltaZToLeadTrack");
   // Require tracks to contribute a minimum weight to the associated vertex.
-  if ( qcuts.exists("minTrackVertexWeight") ) {
-    double minTrackVertexWeight = qcuts.getParameter<double>("minTrackVertexWeight");
-    if ( minTrackVertexWeight > -1. ) {
-      trackQCuts_.push_back(boost::bind(qcuts::minTrackVertexWeight, _1, &pv_, minTrackVertexWeight));
-    }
-    passedOptionSet.erase("minTrackVertexWeight");
-  }
-
+  minTrackVertexWeight_ = getDouble("minTrackVertexWeight");
+  
   // Build the QCuts for gammas
-  if ( qcuts.exists("minGammaEt") ) {
-    gammaCuts.push_back(boost::bind(qcuts::etMin_cand, _1, qcuts.getParameter<double>("minGammaEt")));
-    passedOptionSet.erase("minGammaEt");
-  }
+  minGammaEt_ = getDouble("minGammaEt");
 
   // Build QCuts for netural hadrons
-  if ( qcuts.exists("minNeutralHadronEt") ) {
-    neutralHadronCuts.push_back(boost::bind(qcuts::etMin_cand, _1, qcuts.getParameter<double>("minNeutralHadronEt")));
-    passedOptionSet.erase("minNeutralHadronEt");
-  }
+  minNeutralHadronEt_ = getDouble("minNeutralHadronEt");
 
   // Check if there are any remaining unparsed QCuts
   if ( passedOptionSet.size() ) {
@@ -328,25 +298,10 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts)
   }
 
   // Make sure there are at least some quality cuts
-  size_t nCuts = chargedHadronCuts.size() + gammaCuts.size() + neutralHadronCuts.size() + trackQCuts_.size();
   if ( !nCuts ) {
     throw cms::Exception("BadQualityCutConfig")
       << " No options were passed to the quality cut class!" << std::endl;
   }
-
-  // Build final level predicate that works on Tracks
-  trackPredicate_ = boost::bind(qcuts::AND, _1, boost::cref(trackQCuts_));
-
-  // Map our QCut collections to the particle Ids they are associated to.
-  candQCuts_[PFCandidate::h]     = chargedHadronCuts;
-  candQCuts_[PFCandidate::gamma] = gammaCuts;
-  candQCuts_[PFCandidate::h0]    = neutralHadronCuts;
-  // We use the same qcuts for muons/electrons and charged hadrons.
-  candQCuts_[PFCandidate::e]     = chargedHadronCuts;
-  candQCuts_[PFCandidate::mu]    = chargedHadronCuts;
-
-  // Build a final level predicate that works on any PFCand
-  candPredicate_ = boost::bind(qcuts::mapAndCutByType, _1, boost::cref(candQCuts_));
 }
 
 std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(const edm::ParameterSet& input) 
@@ -369,14 +324,86 @@ std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(const edm::Para
 
 bool RecoTauQualityCuts::filterTrack(const reco::TrackBaseRef& track) const 
 {
-  return trackPredicate_(track);
+  if(minTrackPt_ >= 0 && !(track->pt() > minTrackPt_)) return false;
+  if(maxTrackChi2_ >= 0 && !(track->normalizedChi2() <= maxTrackChi2_)) return false;
+  if(minTrackPixelHits_ > 0 && !(track->hitPattern().numberOfValidPixelHits() >= minTrackPixelHits_)) return false;
+  if(minTrackHits_ > 0 && !(track->hitPattern().numberOfValidHits() >= minTrackHits_)) return false;
+  if(maxTransverseImpactParameter_ >= 0) {
+    if ( pv_.isNull() ) {
+      edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
+        "RecoTauQualityCuts is invalid. - trkTransverseImpactParameter";
+      return false;
+    }
+    if(!(std::fabs(track->dxy(pv_->position())) <= maxTransverseImpactParameter_))
+      return false;
+  }
+  if(maxDeltaZ_ >= 0) {
+    if ( pv_.isNull() ) {
+      edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
+        "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
+      return false;
+    }
+    if(!(std::fabs(track->dz(pv_->position())) <= maxDeltaZ_))
+      return false;
+  }
+  if(maxDeltaZToLeadTrack_ >= 0) {
+    if ( leadTrack_.isNull()) {
+      edm::LogError("QCutsNoValidLeadTrack") << "Lead track Ref in " <<
+        "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameterWrtTrack";
+      return false;
+    }
+    // shouldn't we check for pv_ too?
+
+    if(!(std::fabs(track->dz(pv_->position()) - leadTrack_->dz(pv_->position())) <= maxDeltaZToLeadTrack_))
+      return false;
+  }
+  if(minTrackVertexWeight_ > -1.0) {
+    if ( pv_.isNull() ) {
+      edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
+        "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
+      return false;
+    }
+    if(!(pv_->trackWeight(track) >= minTrackVertexWeight_))
+      return false;
+  }
+
+  return true;
+}
+
+bool RecoTauQualityCuts::filterGammaCand(const reco::PFCandidate& cand) const {
+  if(minGammaEt_ >= 0 && !(cand.et() > minGammaEt_)) return false;
+  return true;
+}
+
+bool RecoTauQualityCuts::filterNeutralHadronCand(const reco::PFCandidate& cand) const {
+  if(minNeutralHadronEt_ >= 0 && !(cand.et() > minNeutralHadronEt_)) return false;
+  return true;
+}
+
+bool RecoTauQualityCuts::filterCandByType(const reco::PFCandidate& cand) const {
+  switch(cand.particleId()) {
+  case PFCandidate::gamma:
+    return filterGammaCand(cand);
+  case PFCandidate::h0:
+    return filterNeutralHadronCand(cand);
+  // We use the same qcuts for muons/electrons and charged hadrons.
+  case PFCandidate::h:
+  case PFCandidate::e:
+  case PFCandidate::mu:
+    // no cuts ATM (track cuts applied in filterCand)
+    return true;
+  // Return false if we dont' know how to deal with this particle type
+  default:
+    return false;
+  };
+  return false;
 }
 
 bool RecoTauQualityCuts::filterCand(const reco::PFCandidate& cand) const 
 {
   auto track = getTrackRef(cand);
-  if ( track.isNonnull() ) return (trackPredicate_(track) & candPredicate_(cand));
-  return candPredicate_(cand);
+  if ( track.isNonnull() ) return (filterTrack(track) & filterCandByType(cand));
+  return filterCandByType(cand);
 }
 
 void RecoTauQualityCuts::setLeadTrack(const reco::TrackRef& leadTrack) const 
