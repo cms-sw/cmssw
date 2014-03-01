@@ -1,9 +1,9 @@
 <lcgdict>
 <selection>
   <class name="reco::ParticleState" ClassVersion="10">
-    <version ClassVersion="10" checksum="3284148800"/>
+    <version ClassVersion="10" checksum="1573518497"/>
    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
-   <field name="p4Polar_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<Double_t> >" />
+   <field name="p4Polar_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<Double32_t> >" />
    <field name="p4Cartesian_" transient="true" />
   </class>
   <ioread sourceClass = "reco::ParticleState" version="[1-]" targetClass="reco::ParticleState" source="p4Polar_" target="p4Cartesian_">
@@ -16,7 +16,7 @@
    <version ClassVersion="10" checksum="2605909260"/>
   </class>
   <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
-	  source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> >  vertex_;" 
+	  source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>  vertex_;" 
           target="vertex_">
     <![CDATA[
 	     vertex_=onfile.vertex_;
@@ -61,7 +61,7 @@
    <version ClassVersion="10" checksum="4128105563"/>
   </class>
   <ioread sourceClass = "reco::LeafCandidate" version="[1-11]" targetClass="reco::LeafCandidate" 
-	  source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> >  vertex_; float pt_; float eta_; float phi_; float mass_; int qx3_; int pdgId_; int status_;" 
+	  source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>  vertex_; ; float pt_; float eta_; float phi_; float mass_; int qx3_; int pdgId_; int status_;" 
           target="m_state">
     <![CDATA[
 	     m_state = reco::ParticleState(onfile.qx3_, ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> >(onfile.pt_,onfile.eta_,onfile.phi_,onfile.mass_),
