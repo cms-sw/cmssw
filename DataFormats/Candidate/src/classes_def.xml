@@ -1,19 +1,56 @@
 <lcgdict>
 <selection>
-  <class name="reco::Particle" ClassVersion="12">
+  <class name="reco::ParticleState" ClassVersion="10">
+    <version ClassVersion="10" checksum="3284148800"/>
    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
    <field name="p4Polar_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<Double_t> >" />
    <field name="p4Cartesian_" transient="true" />
-   <version ClassVersion="12" checksum="413682517"/>
+  </class>
+  <ioread sourceClass = "reco::ParticleState" version="[1-]" targetClass="reco::ParticleState" source="p4Polar_" target="p4Cartesian_">
+   <![CDATA[newObj->setCartesian();]]>
+  </ioread>
+
+  <class name="reco::Particle" ClassVersion="12">
+   <version ClassVersion="12" checksum="3862199439"/>
    <version ClassVersion="11" checksum="2698562380"/>
    <version ClassVersion="10" checksum="2605909260"/>
   </class>
-  <ioread sourceClass = "reco::Particle" version="[1-]" targetClass="reco::Particle" source="p4Polar_" target="p4Cartesian_">
-   <![CDATA[newObj->setCartesian();]]>
+  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
+	  source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> >  vertex_;" 
+          target="vertex_">
+    <![CDATA[
+	     vertex_=onfile.vertex_;
+    ]]>
   </ioread>
-  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::Particle" source="float pt_; float eta_; float phi_; float mass_" target="p4Polar_">
-    <![CDATA[p4Polar_ = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> >(onfile.pt_,onfile.eta_,onfile.phi_,onfile.mass_);]]>
+  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
+	  source="float pt_; float eta_; float phi_; float mass_;" 
+          target="p4Polar_">
+    <![CDATA[
+	     p4Polar_ = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> >(onfile.pt_,onfile.eta_,onfile.phi_,onfile.mass_);newObj->setCartesian();
+    ]]>
   </ioread>
+  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
+	  source="int qx3_;" 
+          target="qx3_">
+    <![CDATA[
+	     qx3_=onfile.qx3_;
+    ]]>
+  </ioread>
+  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
+	  source="int pdgId_;;" 
+          target="pdgId_">
+    <![CDATA[
+	     pdgId_=onfile.pdgId_;
+    ]]>
+  </ioread>
+  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
+	  source="int status_;" 
+          target="status_">
+    <![CDATA[
+	     status_=onfile.status_;
+    ]]>
+  </ioread>
+
   <class name="reco::Candidate" ClassVersion="10">
    <version ClassVersion="10" checksum="783896264"/>
     <!-- <field name="mothers_" transient="true"/> -->
@@ -27,10 +64,10 @@
    <version ClassVersion="11" checksum="1947948955"/>
    <version ClassVersion="10" checksum="4128105563"/>
   </class>
-  <ioread sourceClass = "reco::LeafCandidate" version="[1-]" targetClass="reco::LeafCandidate" source = "" target="cachePolarFixed_">
+  <ioread sourceClass = "reco::LeafCandidate" version="[1-11]" targetClass="reco::LeafCandidate" source = "" target="cachePolarFixed_">
     <![CDATA[cachePolarFixed_ = false;]]>
   </ioread>
-  <ioread sourceClass = "reco::LeafCandidate" version="[1-]" targetClass="reco::LeafCandidate" source = "" target="cacheCartesianFixed_">
+  <ioread sourceClass = "reco::LeafCandidate" version="[1-11]" targetClass="reco::LeafCandidate" source = "" target="cacheCartesianFixed_">
     <![CDATA[cacheCartesianFixed_ = false;]]>
   </ioread>
   <class name="reco::CompositeCandidate" ClassVersion="10">

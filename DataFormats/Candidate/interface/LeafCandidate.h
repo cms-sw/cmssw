@@ -348,7 +348,7 @@ namespace reco {
     virtual bool isConvertedPhoton() const;
     virtual bool isJet() const;
 
-  protected:
+  private:
     /// electric charge                                                                   
     Charge qx3_;
     /// four-momentum Lorentz vector                                                      
