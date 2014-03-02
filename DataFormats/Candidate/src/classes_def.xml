@@ -15,41 +15,14 @@
    <version ClassVersion="11" checksum="2698562380"/>
    <version ClassVersion="10" checksum="2605909260"/>
   </class>
-  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
-	  source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>  vertex_;" 
-          target="vertex_">
+  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::Particle"
+	  source="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>  vertex_; float pt_; float eta_; float phi_; float mass_; int qx3_; int pdgId_; int status_;" 
+          target="reco::ParticleState::p4Cartesian_;reco::ParticleState::vertex_;reco::ParticleState::p4Polar_;reco::ParticleState::qx3_;reco::ParticleState::pdgId_;reco::ParticleState::status_;">
     <![CDATA[
-	     vertex_=onfile.vertex_;
+	     newObj->construct(onfile.qx3_, onfile.pt_,onfile.eta_,onfile.phi_,onfile.mass_,onfile.vertex_, onfile.pdgId_, onfile.status_);
     ]]>
   </ioread>
-  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
-	  source="float pt_; float eta_; float phi_; float mass_;" 
-          target="p4Polar_">
-    <![CDATA[
-	     p4Polar_ = ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> >(onfile.pt_,onfile.eta_,onfile.phi_,onfile.mass_);newObj->setCartesian();
-    ]]>
-  </ioread>
-  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
-	  source="int qx3_;" 
-          target="qx3_">
-    <![CDATA[
-	     qx3_=onfile.qx3_;
-    ]]>
-  </ioread>
-  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
-	  source="int pdgId_;" 
-          target="pdgId_">
-    <![CDATA[
-	     pdgId_=onfile.pdgId_;
-    ]]>
-  </ioread>
-  <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
-	  source="int status_;" 
-          target="status_">
-    <![CDATA[
-	     status_=onfile.status_;
-    ]]>
-  </ioread>
+
 
   <class name="reco::Candidate" ClassVersion="10">
    <version ClassVersion="10" checksum="783896264"/>
