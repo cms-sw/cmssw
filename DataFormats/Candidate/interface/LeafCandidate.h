@@ -60,6 +60,10 @@ namespace reco {
 		   int pdgId = 0, int status = 0, bool integerCharge = true );
 #endif
 
+    void construct(int qx3,  float pt, float eta, float phi, float mass, const Point & vtx, int pdgId, int status) {
+      m_state = ParticleState(qx3, PolarLorentzVector(pt,eta,phi,mass), vtx, pdgId, status, false);
+    }
+
     /// destructor
     virtual ~LeafCandidate();
     /// first daughter const_iterator
