@@ -6,7 +6,7 @@
    <field name="p4Polar_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<Double32_t> >" />
    <field name="p4Cartesian_" transient="true" />
   </class>
-  <ioread sourceClass = "reco::ParticleState" version="[1-]" targetClass="reco::ParticleState" source="p4Polar_" target="p4Cartesian_">
+  <ioread sourceClass = "reco::ParticleState" version="[1-]" targetClass="reco::ParticleState" source="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > p4Polar_" target="p4Cartesian_">
    <![CDATA[newObj->setCartesian();]]>
   </ioread>
 
@@ -37,7 +37,7 @@
     ]]>
   </ioread>
   <ioread sourceClass = "reco::Particle" version="[1-11]" targetClass="reco::ParticleState" 
-	  source="int pdgId_;;" 
+	  source="int pdgId_;" 
           target="pdgId_">
     <![CDATA[
 	     pdgId_=onfile.pdgId_;
