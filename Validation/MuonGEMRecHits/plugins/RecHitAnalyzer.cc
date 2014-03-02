@@ -242,14 +242,15 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
     //int num_simHit=0;
-    
+    int event=1;
+ 
     iEvent.getByLabel(edm::InputTag("g4SimHits","MuonGEMHits"), GEMHits);
     iEvent.getByLabel(edm::InputTag("gemRecHits"), gemRecHits_);
-    
+   
     for (edm::PSimHitContainer::const_iterator itHit = GEMHits->begin(); itHit!=GEMHits->end(); ++itHit) {
         
         //const GEMDetId id(itHit->detUnitId());
-        
+  
         if(abs(itHit->particleType()) != 13) continue;
         //if(id.region()!=1) continue;
         //num_simHit++;
@@ -261,7 +262,7 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         gem_sh.energyLoss = itHit->energyLoss();
         gem_sh.pabs = itHit->pabs();
         gem_sh.timeOfFlight = itHit->timeOfFlight();
-        
+
         const GEMDetId id(itHit->detUnitId());
         
         gem_sh.region = id.region();
@@ -332,13 +333,13 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             gem_recHit_.globalY_sim = gem_sh.globalY;
             gem_recHit_.globalZ_sim = gem_sh.globalZ;
             gem_recHit_.pull = (gem_sh.x - gem_recHit_.x) / gem_recHit_.xErr;
-            
+           
         /*-----------BunchCrossing----------------*/
             meCollection["bxDistribution"]->Fill(gem_recHit_.bx);
             if(gem_recHit_.station==1) meCollection["bxDistribution_st1"]->Fill(gem_recHit_.bx);
             if(gem_recHit_.station==2) meCollection["bxDistribution_st2"]->Fill(gem_recHit_.bx);
             if(gem_recHit_.station==3) meCollection["bxDistribution_st3"]->Fill(gem_recHit_.bx);
-            
+
             if(gem_recHit_.bx != 0) continue;
             if(isGEMRecHitMatched(gem_recHit_, gem_sh))
             {
@@ -353,7 +354,7 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 meCollection["clsDistribution"]->Fill(gem_recHit_.clusterSize);
                 if(gem_recHit_.region==-1 && gem_recHit_.layer==1) meCollection["clsDistribution_rm1_l1"]->Fill(gem_recHit_.clusterSize);
                 if(gem_recHit_.region==-1 && gem_recHit_.layer==2) meCollection["clsDistribution_rm1_l2"]->Fill(gem_recHit_.clusterSize);
-            
+
                 if(gem_recHit_.region==1 && gem_recHit_.layer==1) meCollection["clsDistribution_rp1_l1"]->Fill(gem_recHit_.clusterSize);
                 if(gem_recHit_.region==1 && gem_recHit_.layer==2) meCollection["clsDistribution_rp1_l2"]->Fill(gem_recHit_.clusterSize);
                 
@@ -473,7 +474,7 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         gem_sh.countMatching = count;
         
     }
-    
+   event++; 
 }
     
 
@@ -493,9 +494,10 @@ bool RecHitAnalyzer::isSimTrackGood(const SimTrack &t)
 }
 
 void RecHitAnalyzer::bookingME(const GEMGeometry* gem_geometry_){
-    std::cout<<"Print ============================>     "<<gem_geometry_->regions().size()<<std::endl;//[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->specs()->parameters()[3]<<std::endl;
+    std::cout<<"Print ============================>     "<<gem_geometry_->regions().size()<<std::endl;//[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->specs()->parameters()[3]<<std::endl; 
+    std::cout<<"Print ============================>     "<<gem_geometry_->regions()[0]->stations().size()<<std::endl;	
     int num_region=gem_geometry_->regions().size();
-    int num_station=gem_geometry_->stations().size();
+    int num_station=gem_geometry_->regions()[0]->stations().size();
     float nStrips=0;
     
     std::string region[2] ={"m1", "p1"};
@@ -548,6 +550,7 @@ void RecHitAnalyzer::bookingME(const GEMGeometry* gem_geometry_){
  
         }
     }
+   std::cout<<"Booking ME OK !!!!!!!!!!!!!!!!!!!!"<<std::endl;
 }
 // ------------ method called once each job just before starting event loop  ------------
 void RecHitAnalyzer::beginJob(){
