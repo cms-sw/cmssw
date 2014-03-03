@@ -24,6 +24,39 @@ void TTClusterAssociator< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const e
   edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
   iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingParticleHandle );
 
+  /// Preliminary task: map SimTracks by TrackingParticle
+  /// Prepare the map
+  std::map< std::pair< unsigned int, EncodedEventId >, edm::Ptr< TrackingParticle > > simTrackUniqueToTPMap;
+  simTrackUniqueToTPMap.clear();
+
+  if ( TrackingParticleHandle->size() != 0 )
+  {
+    /// Loop over TrackingParticles
+    unsigned int tpCnt = 0;
+    std::vector< TrackingParticle >::const_iterator iterTPart;
+    for ( iterTPart = TrackingParticleHandle->begin();
+          iterTPart != TrackingParticleHandle->end();
+          ++iterTPart )
+    {
+      /// Make the pointer to the TrackingParticle
+      edm::Ptr< TrackingParticle > tempTPPtr( TrackingParticleHandle, tpCnt++ );
+
+      /// Get the EncodedEventId
+      EncodedEventId eventId = EncodedEventId( tempTPPtr->eventId() );
+
+      /// Loop over SimTracks inside TrackingParticle
+      std::vector< SimTrack >::const_iterator iterSimTrack;
+      for ( iterSimTrack = tempTPPtr->g4Tracks().begin();
+            iterSimTrack != tempTPPtr->g4Tracks().end();
+            ++iterSimTrack )
+      {
+        /// Build the unique SimTrack Id (which is SimTrack ID + EncodedEventId)
+        std::pair< unsigned int, EncodedEventId > simTrackUniqueId( iterSimTrack->trackId(), eventId );
+        simTrackUniqueToTPMap.insert( std::make_pair( simTrackUniqueId, tempTPPtr ) );
+      }
+    } /// End of loop over TrackingParticles
+  }
+
   /// Loop over InputTags to handle multiple collections
   for ( unsigned int iTag = 0; iTag < TTClustersInputTags.size(); iTag++ )
   {
@@ -34,6 +67,8 @@ void TTClusterAssociator< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const e
     edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > TTClusterHandle;
     iEvent.getByLabel( TTClustersInputTags.at(iTag), TTClusterHandle );
 
+/* NP 2014 02 26
+ * moved up to avoid duplication of work
     /// Preliminary task: map SimTracks by TrackingParticle
     /// Prepare the map
     std::map< std::pair< unsigned int, EncodedEventId >, edm::Ptr< TrackingParticle > > simTrackUniqueToTPMap;
@@ -66,6 +101,7 @@ void TTClusterAssociator< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const e
         }
       } /// End of loop over TrackingParticles
     }
+*/
 
     /// Prepare the necessary maps
     std::map< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > >, std::vector< edm::Ptr< TrackingParticle > > > clusterToTrackingParticleVectorMap;
@@ -147,6 +183,22 @@ void TTClusterAssociator< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const e
             }
           } /// End of loop over PixelDigiSimLink
         } /// End of loop over all the hits composing the Cluster
+
+        /// Check that the cluster has a non-NULL TP pointer
+        std::vector< edm::Ptr< TrackingParticle > > theseClusterTrackingParticlePtrs = clusterToTrackingParticleVectorMap.find( tempCluRef )->second;
+        bool allOfThemAreNull = true;
+        for ( unsigned int tpi = 0; tpi < theseClusterTrackingParticlePtrs.size() && allOfThemAreNull; tpi++ )
+        {
+          if ( theseClusterTrackingParticlePtrs.at(tpi).isNull() == false )
+            allOfThemAreNull = false;
+        }
+
+        if ( allOfThemAreNull )
+        {
+          /// In case no TrackingParticle is found at all, drop the map element
+          clusterToTrackingParticleVectorMap.erase( tempCluRef ); /// Use "erase by key"
+        }
+
       }
     } /// End of loop over all the TTClusters of the event
 
