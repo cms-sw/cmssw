@@ -19,7 +19,6 @@ class RBXAndHPDCleaner : public RecHitCleanerBase {
   std::unordered_map<int,std::vector<unsigned> > _hpds, _rbxs;
 };
 
-#include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerFactory.h"
 DEFINE_EDM_PLUGIN(RecHitCleanerFactory,
 		  RBXAndHPDCleaner,"RBXAndHPDCleaner");
 

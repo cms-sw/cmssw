@@ -52,7 +52,6 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
   void calculateAndSetPositionActual(reco::PFCluster&) const;
 };
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorFactory.h"
 DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory,
 		  ECAL2DPositionCalcWithDepthCorr,
 		  "ECAL2DPositionCalcWithDepthCorr");

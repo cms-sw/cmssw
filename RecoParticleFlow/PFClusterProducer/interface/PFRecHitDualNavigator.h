@@ -40,14 +40,6 @@ class PFRecHitDualNavigator : public PFRecHitNavigatorBase {
 
 };
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigator.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigatorWithTime.h"
-
-typedef  PFRecHitDualNavigator<PFLayer::ECAL_BARREL,PFRecHitEcalBarrelNavigator,PFLayer::ECAL_ENDCAP,PFRecHitEcalEndcapNavigator> PFRecHitECALNavigator;
-typedef  PFRecHitDualNavigator<PFLayer::ECAL_BARREL,PFRecHitEcalBarrelNavigatorWithTime,PFLayer::ECAL_ENDCAP,PFRecHitEcalEndcapNavigatorWithTime> PFRecHitECALNavigatorWithTime;
-
-
-
 #endif
 
 

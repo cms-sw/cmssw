@@ -37,7 +37,6 @@ class PFClusterEMEnergyCorrector : public PFClusterEnergyCorrectorBase {
   
 };
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorFactory.h"
 DEFINE_EDM_PLUGIN(PFClusterEnergyCorrectorFactory,
 		  PFClusterEMEnergyCorrector,
 		  "PFClusterEMEnergyCorrector");

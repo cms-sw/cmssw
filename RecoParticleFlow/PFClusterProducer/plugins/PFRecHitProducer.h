@@ -32,3 +32,6 @@ class PFRecHitProducer : public edm::EDProducer {
       std::vector<std::unique_ptr<PFRecHitCreatorBase> > creators_;
       std::unique_ptr<PFRecHitNavigatorBase> navigator_;
 };
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFRecHitProducer);

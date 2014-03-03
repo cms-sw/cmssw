@@ -36,4 +36,7 @@ class PFClusterEnergyCorrectorBase {
 
 };
 
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+typedef edmplugin::PluginFactory< PFClusterEnergyCorrectorBase* (const edm::ParameterSet&) > PFClusterEnergyCorrectorFactory;
+
 #endif

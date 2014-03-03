@@ -5,8 +5,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorFactory.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderFactory.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
 #include <string>
 #include <iostream>
@@ -64,5 +63,8 @@ class PFClusterBuilderBase {
   std::string _algoName;
   
 };
+
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+typedef edmplugin::PluginFactory< PFClusterBuilderBase* (const edm::ParameterSet&) > PFClusterBuilderFactory;
 
 #endif
