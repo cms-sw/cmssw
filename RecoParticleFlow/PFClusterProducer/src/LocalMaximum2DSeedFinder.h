@@ -24,7 +24,6 @@ class LocalMaximum2DSeedFinder : public SeedFinderBase {
     _thresholds;
 };
 
-#include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderFactory.h"
 DEFINE_EDM_PLUGIN(SeedFinderFactory,
 		  LocalMaximum2DSeedFinder,"LocalMaximum2DSeedFinder");
 

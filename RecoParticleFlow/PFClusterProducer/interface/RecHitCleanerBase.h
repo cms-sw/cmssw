@@ -23,4 +23,7 @@ class RecHitCleanerBase {
   const std::string _algoName;
 };
 
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+typedef edmplugin::PluginFactory< RecHitCleanerBase* (const edm::ParameterSet&) > RecHitCleanerFactory;
+
 #endif

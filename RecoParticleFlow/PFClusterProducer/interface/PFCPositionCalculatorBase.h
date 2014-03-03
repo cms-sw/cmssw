@@ -39,4 +39,8 @@ class PFCPositionCalculatorBase {
 
 };
 
+// define the factory for this base class
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+typedef edmplugin::PluginFactory< PFCPositionCalculatorBase* (const edm::ParameterSet&) > PFCPositionCalculatorFactory;
+
 #endif

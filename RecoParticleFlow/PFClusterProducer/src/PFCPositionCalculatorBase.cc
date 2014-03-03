@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorFactory.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
 EDM_REGISTER_PLUGINFACTORY(PFCPositionCalculatorFactory,
 			   "PFCPositionCalculatorFactory");

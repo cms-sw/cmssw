@@ -1,4 +1,5 @@
 #include "Basic2DGenericPFlowClusterizer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
 

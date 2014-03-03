@@ -31,7 +31,6 @@ class SpikeAndDoubleSpikeCleaner : public RecHitCleanerBase {
   
 };
 
-#include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerFactory.h"
 DEFINE_EDM_PLUGIN(RecHitCleanerFactory,
 		  SpikeAndDoubleSpikeCleaner,"SpikeAndDoubleSpikeCleaner");
 

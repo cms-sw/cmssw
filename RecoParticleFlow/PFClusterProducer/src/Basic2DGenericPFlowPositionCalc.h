@@ -27,7 +27,6 @@ class Basic2DGenericPFlowPositionCalc : public PFCPositionCalculatorBase {
   void calculateAndSetPositionActual(reco::PFCluster&) const;
 };
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorFactory.h"
 DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory,
 		  Basic2DGenericPFlowPositionCalc,
 		  "Basic2DGenericPFlowPositionCalc");

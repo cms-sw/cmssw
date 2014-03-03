@@ -24,4 +24,7 @@ class SeedFinderBase {
   
 };
 
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+typedef edmplugin::PluginFactory< SeedFinderBase* (const edm::ParameterSet&) > SeedFinderFactory;
+
 #endif

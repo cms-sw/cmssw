@@ -1,6 +1,7 @@
 #include "PFlow2DClusterizerWithTime.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 #include "Math/GenVector/VectorUtil.h"
 

@@ -9,8 +9,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderFactory.h"
-
 #include <string>
 #include <iostream>
 #include <unordered_map>
@@ -90,5 +88,8 @@ class InitialClusteringStepBase {
   const std::string _algoName;
   
 };
+
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+typedef edmplugin::PluginFactory< InitialClusteringStepBase* (const edm::ParameterSet&) > InitialClusteringStepFactory;
 
 #endif

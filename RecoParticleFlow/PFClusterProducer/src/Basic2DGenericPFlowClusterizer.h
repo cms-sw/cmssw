@@ -50,7 +50,6 @@ class Basic2DGenericPFlowClusterizer : public PFClusterBuilderBase {
   void prunePFClusters(reco::PFClusterCollection&) const;
 };
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderFactory.h"
 DEFINE_EDM_PLUGIN(PFClusterBuilderFactory,
 		  Basic2DGenericPFlowClusterizer,
 		  "Basic2DGenericPFlowClusterizer");

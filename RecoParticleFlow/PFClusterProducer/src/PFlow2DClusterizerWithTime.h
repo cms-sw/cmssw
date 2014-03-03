@@ -53,7 +53,6 @@ class PFlow2DClusterizerWithTime : public PFClusterBuilderBase {
   void prunePFClusters(reco::PFClusterCollection&) const;
 };
 
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderFactory.h"
 DEFINE_EDM_PLUGIN(PFClusterBuilderFactory,
 		  PFlow2DClusterizerWithTime,
 		  "PFlow2DClusterizerWithTime");

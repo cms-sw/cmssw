@@ -144,37 +144,6 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 
 };
 
-class PFRecHitEcalBarrelNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<EBDetId,EcalBarrelTopology> {
- public:
-  PFRecHitEcalBarrelNavigatorWithTime(const edm::ParameterSet& iConfig):
-    PFRecHitCaloNavigatorWithTime(iConfig)
-    {
-
-    }
-
-  void beginEvent(const edm::EventSetup& iSetup) {
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    topology_ = new EcalBarrelTopology(geoHandle);
-  }
-};
-
-class PFRecHitEcalEndcapNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<EEDetId,EcalEndcapTopology> {
- public:
-  PFRecHitEcalEndcapNavigatorWithTime(const edm::ParameterSet& iConfig):
-    PFRecHitCaloNavigatorWithTime(iConfig)
-    {
-
-    }
-
-  void beginEvent(const edm::EventSetup& iSetup) {
-    edm::ESHandle<CaloGeometry> geoHandle;
-    iSetup.get<CaloGeometryRecord>().get(geoHandle);
-    topology_ = new EcalEndcapTopology(geoHandle);
-  }
-};
-
-
 #endif
 
 

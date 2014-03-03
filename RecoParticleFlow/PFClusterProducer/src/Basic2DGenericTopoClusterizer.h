@@ -29,7 +29,6 @@ class Basic2DGenericTopoClusterizer : public InitialClusteringStepBase {
   
 };
 
-#include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepFactory.h"
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory,
 		  Basic2DGenericTopoClusterizer,
 		  "Basic2DGenericTopoClusterizer");

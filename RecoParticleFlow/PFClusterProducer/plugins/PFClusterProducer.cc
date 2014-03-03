@@ -1,12 +1,5 @@
 #include "PFClusterProducer.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerFactory.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderFactory.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepFactory.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderFactory.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorFactory.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorFactory.h"
-
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
 #define LOGWARN(x) edm::LogWarning(x)
