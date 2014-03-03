@@ -91,6 +91,8 @@ namespace reco {
     double energy() const {  return p4Cartesian_.E(); }  
     /// transverse energy 
     double et() const { return (pt()<=0) ? 0 : p4Polar_.Et(); }  
+    /// transverse energy squared 
+    double et2() const { return (pt()<=0) ? 0 : p4Polar_.Et2(); }  
     /// mass
     double mass() const { return  p4Polar_.mass(); }
     /// mass squared

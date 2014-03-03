@@ -48,7 +48,7 @@ namespace reco {
     LeafCandidate& operator=(LeafCandidate&&)=default;
     LeafCandidate& operator=(LeafCandidate const&)=default;
 #else
-    /// default constructor                                                               
+    // for Reflex to parse...  (compilation will use the above)
     LeafCandidate();
     LeafCandidate( Charge q, const PtEtaPhiMass & p4, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0, bool integerCharge = true );
@@ -120,6 +120,8 @@ namespace reco {
     virtual double energy() const GCC11_FINAL { return m_state.energy(); }
     /// transverse energy                                                                 
     virtual double et() const GCC11_FINAL { return m_state.et(); }
+    /// transverse energy squared (use this for cut!)                                                                 
+    virtual double et2() const GCC11_FINAL { return m_state.et2(); }
     /// mass                                                                              
     virtual double mass() const GCC11_FINAL { return m_state.mass(); }
     /// mass squared                                                                      

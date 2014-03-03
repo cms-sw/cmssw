@@ -81,6 +81,8 @@ namespace reco {
     virtual double energy() const = 0;
     /// transverse energy 
     virtual double et() const = 0;
+    /// transverse energy squared (use this for cut!)                                                                 
+    virtual double et2() const = 0;
     /// mass
     virtual double mass() const = 0;
     /// mass squared
