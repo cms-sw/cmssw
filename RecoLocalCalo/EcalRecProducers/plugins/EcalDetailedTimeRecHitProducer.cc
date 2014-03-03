@@ -1,10 +1,9 @@
 /** \class EcalDetailedTimeRecHitProducer
- *   produce ECAL rechits from uncalibrated rechits
- *
- *  $Id: EcalDetailedTimeRecHitProducer.cc,v 1.7 2012/04/13 18:01:05 yangyong Exp $
- *  $Date: 2012/04/13 18:01:05 $
- *  $Revision: 1.7 $
- *  \author Federico Ferri, University of Milano Bicocca and INFN
+ *   produce ECAL detailed time Rechits
+ *  $Id:  $
+ *  $Date:  $
+ *  $Revision:  $
+ *  \author Paolo Meridiani
  *
  **/
 
@@ -26,6 +25,14 @@
 #include <cmath>
 #include <vector>
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
+
+
 //#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 //#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
@@ -35,11 +42,17 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalTimeDigi.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h" 
 
-
-EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::ParameterSet& ps) {
-
+EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::ParameterSet& ps) :
+  m_geometry(0)
+{
    EBRecHitCollection_ = ps.getParameter<edm::InputTag>("EBRecHitCollection");
    EERecHitCollection_ = ps.getParameter<edm::InputTag>("EERecHitCollection");
 
@@ -48,18 +61,33 @@ EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::Parame
 
    EBDetailedTimeRecHitCollection_        = ps.getParameter<std::string>("EBDetailedTimeRecHitCollection");
    EEDetailedTimeRecHitCollection_        = ps.getParameter<std::string>("EEDetailedTimeRecHitCollection");
+   
+   correctForVertexZPosition_ = ps.getParameter<bool>("correctForVertexZPosition");
+   useMCTruthVertex_ = ps.getParameter<bool>("useMCTruthVertex");
+   recoVertex_       = ps.getParameter<edm::InputTag>("recoVertex");
+   simVertex_       = ps.getParameter<edm::InputTag>("simVertex");
+
+   ebTimeLayer_ = ps.getParameter<int>("EBTimeLayer");
+   eeTimeLayer_ = ps.getParameter<int>("EETimeLayer");
 
    produces< EBRecHitCollection >(EBDetailedTimeRecHitCollection_);
    produces< EERecHitCollection >(EEDetailedTimeRecHitCollection_);
 }
 
 EcalDetailedTimeRecHitProducer::~EcalDetailedTimeRecHitProducer() {
-
 }
+
 
 void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
         using namespace edm;
+        using namespace reco;
+
+	edm::ESHandle<CaloGeometry>               hGeometry   ;
+	es.get<CaloGeometryRecord>().get( hGeometry ) ;
+	
+	m_geometry = &*hGeometry;
+
         Handle< EBRecHitCollection > pEBRecHits;
         Handle< EERecHitCollection > pEERecHits;
 
@@ -124,6 +152,49 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
         std::auto_ptr< EBRecHitCollection > EBDetailedTimeRecHits( new EBRecHitCollection );
         std::auto_ptr< EERecHitCollection > EEDetailedTimeRecHits( new EERecHitCollection );
 
+	GlobalPoint* vertex=0;
+
+	if (correctForVertexZPosition_)
+	  {
+	    if (!useMCTruthVertex_)
+	      {
+	      //Get the first reco vertex
+	      // get primary vertices
+		
+		edm::Handle<VertexCollection> VertexHandle;
+		evt.getByLabel(recoVertex_, VertexHandle);
+		
+		if ( VertexHandle.isValid() )
+		  {
+		    if ((*VertexHandle).size()>0) //at least 1 vertex
+		      {
+			const reco::Vertex* myVertex= &(*VertexHandle)[0];
+			vertex=new GlobalPoint(myVertex->x(),myVertex->y(),myVertex->z());
+		      }
+		  }
+		else {
+		  edm::LogError("EcalDetailedTimeRecHitError") << "Error! can't get the product " << recoVertex_;
+		}
+	      }
+	    else
+	      {
+		edm::Handle<SimVertexContainer> VertexHandle;
+		evt.getByLabel(simVertex_, VertexHandle);
+		
+		if ( VertexHandle.isValid() )
+		  {
+		    if ((*VertexHandle).size()>0) //at least 1 vertex
+		      {
+			assert ((*VertexHandle)[0].vertexId() == 0);
+			const SimVertex* myVertex= &(*VertexHandle)[0];
+			vertex=new GlobalPoint(myVertex->position().x(),myVertex->position().y(),myVertex->position().z());
+		      }
+		  }
+		else {
+		  edm::LogError("EcalDetailedTimeRecHitError") << "Error! can't get the product " << simVertex_;
+		}
+	      }
+	  }
 
         if (EBRecHits && ebTimeDigis) {
                 // loop over uncalibrated rechits to make calibrated ones
@@ -133,7 +204,17 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 		  if (timeDigi!=ebTimeDigis->end())
 		    {
 		      if (timeDigi->sampleOfInterest()>=0)
-			aHit.setTime((*timeDigi)[timeDigi->sampleOfInterest()]);
+			{
+			  float myTime=(*timeDigi)[timeDigi->sampleOfInterest()];
+			  //Vertex corrected ToF
+			  if (vertex)
+			    {
+			      aHit.setTime(myTime+deltaTimeOfFlight(*vertex,(*it).id(),ebTimeLayer_));
+			    }
+			  else
+			    //Uncorrected ToF
+			    aHit.setTime(myTime);
+			}
 		    }
 		    // leave standard time if no timeDigi is associated (e.g. noise recHits)
 		  EBDetailedTimeRecHits->push_back( aHit );
@@ -151,7 +232,17 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 		  if (timeDigi!=eeTimeDigis->end())
 		    {
 		      if (timeDigi->sampleOfInterest()>=0)
-			aHit.setTime((*timeDigi)[timeDigi->sampleOfInterest()]);
+			{
+			  float myTime=(*timeDigi)[timeDigi->sampleOfInterest()];
+			  //Vertex corrected ToF
+			  if (vertex)
+			    {
+			      aHit.setTime(myTime+deltaTimeOfFlight(*vertex,(*it).id(),eeTimeLayer_));
+			    }
+			  else
+			    //Uncorrected ToF
+			    aHit.setTime(myTime);
+			}
 		    }
 		  EEDetailedTimeRecHits->push_back( aHit );
                 }
@@ -162,6 +253,18 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 
         evt.put( EBDetailedTimeRecHits, EBDetailedTimeRecHitCollection_ );
         evt.put( EEDetailedTimeRecHits, EEDetailedTimeRecHitCollection_ );
+
+	if (vertex)
+	  delete vertex;
+}
+
+double EcalDetailedTimeRecHitProducer::deltaTimeOfFlight( GlobalPoint& vertex, const DetId& detId , int layer) const 
+{
+  const CaloCellGeometry* cellGeometry ( m_geometry->getGeometry( detId ) ) ;
+  assert( 0 != cellGeometry ) ;
+  GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( double(layer)+0.5 ); //depth in mm in the middle of the layer position
+  GlobalVector tofVector = layerPos-vertex;
+  return (layerPos.mag()*cm-tofVector.mag()*cm)/(float)c_light ;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

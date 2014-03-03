@@ -26,7 +26,7 @@ from RecoLocalCalo.EcalRecProducers.ecalDetailedTimeRecHit_cfi import *
 ecalUncalibRecHitSequence = cms.Sequence(ecalMultiFitUncalibRecHit*
                                         ecalDetIdToBeRecovered)
 
-ecalRecHitSequence        = cms.Sequence(ecalRecHit*ecalDetailedTimeRecHit*
+ecalRecHitSequence        = cms.Sequence(ecalRecHit*
                                          ecalCompactTrigPrim*
                                          ecalTPSkim+
                                          ecalPreshowerRecHit)

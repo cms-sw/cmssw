@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import *
-from RecoLocalCalo.EcalRecProducers.ecalDetailedTimeRecHit_cfi import *
 
 def cust_ecalTime(process):
     # Store layer in 1 cm for ECAL and 1ps timeSlices
@@ -18,9 +17,12 @@ def cust_ecalTime(process):
                 ecalTimeDigitizer
                 )
 
-    if hasattr(process,'ecalRecHit'):
-        print "___ Adding ecalDetailedTimeRecHit associator "+str(process.ecalRecHitSequence)+" ___"
-#        process.ecalRecHitSequence += ecalDetailedTimeRecHit
+    if hasattr(process,'reconstruction_step'):
+        print "___ Adding ecalDetailedTimeRecHit associator ___"
+        process.load("RecoLocalCalo.EcalRecProducers.ecalDetailedTimeRecHit_cfi")
+        process.reconstruction_step+=process.ecalDetailedTimeRecHit
+        
+#        process.ecalRecHitSequence += 
 
     # Special PU files (temporary)
     if hasattr ( process, 'mix' ):

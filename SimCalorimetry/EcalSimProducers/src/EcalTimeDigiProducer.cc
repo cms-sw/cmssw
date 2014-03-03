@@ -2,9 +2,13 @@
 #include "SimCalorimetry/EcalSimProducers/interface/EcalTimeDigiProducer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTimeMapDigitizer.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -13,8 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
+
 
 //#define ecal_time_debug 1
 
