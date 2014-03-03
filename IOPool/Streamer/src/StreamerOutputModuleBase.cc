@@ -23,7 +23,7 @@
 namespace {
   //A utility function that packs bits from source into bytes, with
   // packInOneByte as the numeber of bytes that are packed from source to dest.
-  void printBits(unsigned char c) {
+  inline void printBits(unsigned char c) {
     for (int i = 7; i >= 0; --i) {
       int bit = ((c >> i) & 1);
       std::cout << " " << bit;
