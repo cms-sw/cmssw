@@ -6,8 +6,6 @@
     <Constant name="Rin2" value="18.00*cm"/>
     <Constant name="Rin3" value="18.6*cm"/>
     <Constant name="RinSupTubCab" value="15.00*cm"/>
-    <Constant name="RinSupTubCab1" value="16.60*cm"/>
-    <Constant name="RinSupTubCab2" value="20.60*cm"/>
     <Constant name="Rout1" value="21.35*cm"/>
     <Constant name="Rout2" value="21.00*cm"/>
     <Constant name="Zv1" value="28.70*cm"/>
@@ -155,7 +153,6 @@
     <Constant name="ServZ" value="[Conn4Z]+                                            ([Conn4T]+[ServT])/2"/>
     <Constant name="ServCablT" value="32.2*cm"/>
     <Constant name="ServCablZ" value="[ServZ]+[ServT]/2+[ServCablT]/2"/>
-    <Constant name="ServCablZ1" value="[ServCablZ]-29.1*cm"/>
     <Constant name="RadialCoolZ" value="29.5*cm"/>
     <Constant name="RadialCoolDZ" value="1.0*cm"/>
     <Constant name="RadialCoolRin" value="4.0*cm"/>
@@ -165,20 +162,24 @@
   </RotationSection>
   <SolidSection label="pixbar.xml">
     <Polycone name="PixelBarrel" startPhi="0*deg" deltaPhi="360*deg">
-      <ZSection z="-118.02*cm" rMin="19.*cm" rMax="49.278*cm"/>
-      <ZSection z="-116.9*cm" rMin="19.*cm" rMax="49.278*cm"/>
-      <ZSection z="-116.9*cm" rMin="19.*cm" rMax="109.65*cm"/>
-      <ZSection z="-80.12*cm" rMin="19.*cm" rMax="109.65*cm"/>
-      <ZSection z="-80.12*cm" rMin="[Rin2]" rMax="109.65*cm"/>
+      <ZSection z="-281.00*cm" rMin="[RinSupTubCab]" rMax="21.8*cm"/>
+      <ZSection z="-245.00*cm" rMin="[RinSupTubCab]" rMax="21.8*cm"/>
+      <ZSection z="-245.00*cm" rMin="[Rin2]" rMax="21.8*cm"/>
+      <ZSection z="-118.5*cm" rMin="[Rin2]" rMax="21.8*cm"/>
+      <ZSection z="-118.5*cm" rMin="[Rin2]" rMax="67.087*cm"/>
+      <ZSection z="-116.9*cm" rMin="[Rin2]" rMax="67.087*cm"/>
+      <ZSection z="-116.9*cm" rMin="[Rin2]" rMax="109.65*cm"/>
       <ZSection z="-28.70*cm" rMin="[Rin2]" rMax="109.65*cm"/>
       <ZSection z="-28.70*cm" rMin="[Rin1]" rMax="109.65*cm"/>
       <ZSection z="28.70*cm" rMin="[Rin1]" rMax="109.65*cm"/>
       <ZSection z="28.70*cm" rMin="[Rin2]" rMax="109.65*cm"/>
-      <ZSection z="80.12*cm" rMin="[Rin2]" rMax="109.65*cm"/>
-      <ZSection z="80.12*cm" rMin="19.*cm" rMax="109.65*cm"/>
-      <ZSection z="116.9*cm" rMin="19.*cm" rMax="109.65*cm"/>
-      <ZSection z="116.9*cm" rMin="19.*cm" rMax="49.278*cm"/>
-      <ZSection z="118.02*cm" rMin="19.*cm" rMax="49.278*cm"/>
+      <ZSection z="116.9*cm" rMin="[Rin2]" rMax="109.65*cm"/>
+      <ZSection z="116.9*cm" rMin="[Rin2]" rMax="67.087*cm"/>
+      <ZSection z="118.5*cm" rMin="[Rin2]" rMax="67.087*cm"/>
+      <ZSection z="118.5*cm" rMin="[Rin2]" rMax="21.8*cm"/>
+      <ZSection z="245.00*cm" rMin="[Rin2]" rMax="21.8*cm"/>
+      <ZSection z="245.00*cm" rMin="[RinSupTubCab]" rMax="21.8*cm"/>
+      <ZSection z="281.00*cm" rMin="[RinSupTubCab]" rMax="21.8*cm"/>
     </Polycone>
     <!--
     <Polycone name="PixelBarrel" startPhi="0*deg" deltaPhi="360*deg">
@@ -293,7 +294,7 @@
     <Tubs name="PixelBarrelConn3" rMin="[Conn3Rin]" rMax="[Conn3Rout]" dz="[Conn3T]/2" startPhi="285*deg" deltaPhi="150*deg"/>
     <Tubs name="PixelBarrelConn4" rMin="[Conn4Rin]" rMax="[Conn3Rout]" dz="[Conn4T]/2" startPhi="285*deg" deltaPhi="150*deg"/>
     <Tubs name="PixelBarrelService" rMin="[ServiceRin]" rMax="[ServiceRout]" dz="[ServT]/2" startPhi="293*deg" deltaPhi="134*deg"/>
-    <Tubs name="PixelBarrelSupTubCables" rMin="[RinSupTubCab1]" rMax="[RinSupTubCab2]" dz="[ServCablT]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="PixelBarrelSupTubCables" rMin="[RinSupTubCab]" rMax="[Conn3Rout]" dz="[ServCablT]/2" startPhi="0*deg" deltaPhi="360*deg"/>
   </SolidSection>
   <LogicalPartSection label="pixbar.xml">
     <LogicalPart name="PixelBarrel" category="unspecified">
@@ -480,7 +481,7 @@
   <PosPartSection label="pixbar.xml">
 <!-- -->
     <PosPart copyNumber="1">
-      <rParent name="tracker:supportR204Z1169"/>
+      <rParent name="pixbar:PixelBarrel"/>
       <rChild name="pixbar:PixelBarrelSuppTub"/>
     </PosPart>
 <!-- -->
@@ -844,31 +845,59 @@
       <Translation x="[zero]" y="[zero]" z="-[Conn3Z]"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="pixfwd:PixelForward"/>
+      <rParent name="pixbar:PixelBarrel"/>
       <rChild name="pixbar:PixelBarrelConn4"/>
-      <Translation x="[zero]" y="[zero]" z="[Conn4Z]-29.11*cm"/>
+      <Translation x="[zero]" y="[zero]" z="[Conn4Z]"/>
     </PosPart>
     <PosPart copyNumber="2">
-      <rParent name="pixfwd:PixelForward"/>
+      <rParent name="pixbar:PixelBarrel"/>
       <rChild name="pixbar:PixelBarrelConn4"/>
       <rRotation name="pixbar:180D"/>
-      <Translation x="[zero]" y="[zero]" z="[Conn4Z]-29.11*cm"/>
+      <Translation x="[zero]" y="[zero]" z="[Conn4Z]"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="pixbar:PixelBarrel"/>
+      <rChild name="pixbar:PixelBarrelConn4"/>
+      <Translation x="[zero]" y="[zero]" z="-[Conn4Z]"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="pixbar:PixelBarrel"/>
+      <rChild name="pixbar:PixelBarrelConn4"/>
+      <rRotation name="pixbar:180D"/>
+      <Translation x="[zero]" y="[zero]" z="-[Conn4Z]"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="pixfwd:PixelForward"/>
+      <rParent name="pixbar:PixelBarrel"/>
       <rChild name="pixbar:PixelBarrelService"/>
-      <Translation x="[zero]" y="[zero]" z="[ServZ]-29.11*cm"/>
+      <Translation x="[zero]" y="[zero]" z="[ServZ]"/>
     </PosPart>
     <PosPart copyNumber="2">
-      <rParent name="pixfwd:PixelForward"/>
+      <rParent name="pixbar:PixelBarrel"/>
       <rChild name="pixbar:PixelBarrelService"/>
       <rRotation name="pixbar:180D"/>
-      <Translation x="[zero]" y="[zero]" z="[ServZ]-29.11*cm"/>
+      <Translation x="[zero]" y="[zero]" z="[ServZ]"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="pixbar:PixelBarrel"/>
+      <rChild name="pixbar:PixelBarrelService"/>
+      <Translation x="[zero]" y="[zero]" z="-[ServZ]"/>
+    </PosPart>
+    <PosPart copyNumber="4">
+      <rParent name="pixbar:PixelBarrel"/>
+      <rChild name="pixbar:PixelBarrelService"/>
+      <rRotation name="pixbar:180D"/>
+      <Translation x="[zero]" y="[zero]" z="-[ServZ]"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="pixfwd:PixelForward"/>
+      <rParent name="pixbar:PixelBarrel"/>
       <rChild name="pixbar:PixelBarrelSupTubCables"/>
-      <Translation x="[zero]" y="[zero]" z="[ServCablZ1]"/>
+      <Translation x="[zero]" y="[zero]" z="[ServCablZ]"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="pixbar:PixelBarrel"/>
+      <rChild name="pixbar:PixelBarrelSupTubCables"/>
+      <rRotation name="pixbar:180D"/>
+      <Translation x="[zero]" y="[zero]" z="-[ServCablZ]"/>
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="pixbar:PixelBarrel"/>
