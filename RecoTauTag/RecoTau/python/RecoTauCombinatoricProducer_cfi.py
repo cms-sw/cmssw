@@ -74,7 +74,7 @@ _combinatoricTauConfig = cms.PSet(
     name = cms.string("combinatoric"),
     plugin = cms.string("RecoTauBuilderCombinatoricPlugin"),
     pfCandSrc = cms.InputTag("particleFlow"),
-    isolationConeSize = cms.double(0.5),
+    isolationConeSize = cms.double(0.4),
     qualityCuts = PFTauQualityCuts,
     decayModes = cms.VPSet(
         combinatoricDecayModeConfigs.config1prong0pi0,
