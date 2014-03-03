@@ -70,11 +70,13 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   if(lAWidthBPix_>0.0 || lAWidthFPix_>0.0) useLAWidthFromConfig_ = true;
 
   // Use LA-width from DB. If both (upper and this) are false LA-width is calcuated from LA-offset
-  useLAWidthFromDB_ = 
-    conf.getParameter<bool>("useLAWidthFromDB");
+  //useLAWidthFromDB_ = conf.getParameter<bool>("useLAWidthFromDB");
+  useLAWidthFromDB_ = conf.existsAs<bool>("useLAWidthFromDB")?
+    conf.getParameter<bool>("useLAWidthFromDB"):false;
+
   // Use Alignment LA-offset 
-  useLAAlignmentOffsets_ = 
-    conf.getParameter<bool>("useLAAlignmentOffsets");
+  useLAAlignmentOffsets_ = conf.existsAs<bool>("useLAAlignmentOffsets")?
+    conf.getParameter<bool>("useLAAlignmentOffsets"):false;
 
 
   if ( !UseErrorsFromTemplates_ && ( TruncatePixelCharge_       || 
