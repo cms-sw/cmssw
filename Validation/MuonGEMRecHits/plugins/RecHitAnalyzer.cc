@@ -125,13 +125,14 @@ class RecHitAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
     
     bool debug_;
+    edm::InputTag gemRecHitInput_;
+    edm::InputTag gemSimHitInput_;
+    edm::InputTag simTrackInput_;
     std::string folderPath_;
     bool EffSaveRootFile_;
     std::string EffRootFileName_;
     
     DQMStore * dbe;
-    
-    
     std::map<std::string, MonitorElement*> meCollection;
     
     edm::Handle<GEMRecHitCollection> gemRecHits_;
@@ -149,11 +150,6 @@ class RecHitAnalyzer : public edm::EDAnalyzer {
     MyGEMSimHit gem_sh;
     MySimTrack track_;
     /*-------------------------------------------------*/
-    
-    //edm::ParameterSet cfg_;
-    
-    edm::InputTag gemSimHitInput_;
-    edm::InputTag gemRecHitInput_;
 
     bool hasGEMGeometry_;
 };
@@ -171,6 +167,9 @@ class RecHitAnalyzer : public edm::EDAnalyzer {
 //
 RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig):
 debug_(iConfig.getUntrackedParameter<bool>("debug")),
+gemRecHitInput_(iConfig.getUntrackedParameter<edm::InputTag>("gemRecHitInput")),
+gemSimHitInput_(iConfig.getUntrackedParameter<edm::InputTag>("gemSimHitInput")),
+simTrackInput_(iConfig.getUntrackedParameter<edm::InputTag>("simTrackInput")),
 folderPath_(iConfig.getUntrackedParameter<std::string>("folderPath")),
 EffSaveRootFile_(iConfig.getUntrackedParameter<bool>("EffSaveRootFile")),
 EffRootFileName_(iConfig.getUntrackedParameter<std::string>("EffRootFileName"))
@@ -181,8 +180,6 @@ EffRootFileName_(iConfig.getUntrackedParameter<std::string>("EffRootFileName"))
     std::string folder;
     folder = folderPath_;
     dbe->setCurrentFolder(folder);
-    std::cout<<"==========================================="<<std::endl;
-    
 }
 
 
@@ -241,19 +238,34 @@ void
 RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     using namespace edm;
-    //int num_simHit=0;
-    int event=1;
  
-    iEvent.getByLabel(edm::InputTag("g4SimHits","MuonGEMHits"), GEMHits);
-    iEvent.getByLabel(edm::InputTag("gemRecHits"), gemRecHits_);
+    iEvent.getByLabel(gemRecHitInput_, gemRecHits_);
+    iEvent.getByLabel(gemSimHitInput_, GEMHits);
+    iEvent.getByLabel(simTrackInput_, sim_tracks);
+   //-----
+    std::vector<int> trackIds;
+    std::vector<int> trackType;
+    const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
+    
+    for (auto& t: sim_trks)
+    {
+        
+        if (!isSimTrackGood(t)) continue;
+        trackType.push_back(t.type());
+        trackIds.push_back(t.trackId());
+        
+    }
+    //------
+//    iEvent.getByLabel(edm::InputTag("g4SimHits","MuonGEMHits"), GEMHits);
+//    iEvent.getByLabel(edm::InputTag("gemRecHits"), gemRecHits_);
    
     for (edm::PSimHitContainer::const_iterator itHit = GEMHits->begin(); itHit!=GEMHits->end(); ++itHit) {
         
         //const GEMDetId id(itHit->detUnitId());
   
         if(abs(itHit->particleType()) != 13) continue;
-        //if(id.region()!=1) continue;
-        //num_simHit++;
+        if(std::find(trackIds.begin(), trackIds.end(), itHit->trackId()) == trackIds.end()) continue;
+        
         gem_sh.eventNumber = iEvent.id().event();
         gem_sh.detUnitId = itHit->detUnitId();
         gem_sh.particleType = itHit->particleType();
@@ -421,7 +433,6 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
                 
                 double glb_R=sqrt(gem_recHit_.globalX*gem_recHit_.globalX+gem_recHit_.globalY*gem_recHit_.globalY);
-                if(gem_recHit_.region==1) cout<<"Raggio Longitudinale: "<<glb_R<<" global Z : "<<gem_recHit_.globalZ<<endl;
                 if(gem_recHit_.station==1 && gem_recHit_.region==-1) meCollection["localrh_zr_rm1_st1"]->Fill(gem_recHit_.globalZ,glb_R);
                 if(gem_recHit_.station==1 && gem_recHit_.region==1) meCollection["localrh_zr_rp1_st1"]->Fill(gem_recHit_.globalZ,glb_R);
                 
@@ -474,7 +485,6 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         gem_sh.countMatching = count;
         
     }
-   event++; 
 }
     
 
@@ -488,14 +498,15 @@ bool RecHitAnalyzer::isSimTrackGood(const SimTrack &t)
     // pt selection
     //if (t.momentum().pt() < simTrackMinPt_) return false;
     // eta selection
-    //const float eta(std::abs(t.momentum().eta()));
-    //if (eta > simTrackMaxEta_ || eta < simTrackMinEta_) return false;
+    const float eta(std::abs(t.momentum().eta()));
+//    if (eta > simTrackMaxEta_ || eta < simTrackMinEta_) return false;
+    if (eta > 2.2 || eta < 1.5) return false;
     return true;
 }
 
 void RecHitAnalyzer::bookingME(const GEMGeometry* gem_geometry_){
-    std::cout<<"Print ============================>     "<<gem_geometry_->regions().size()<<std::endl;//[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->specs()->parameters()[3]<<std::endl; 
-    std::cout<<"Print ============================>     "<<gem_geometry_->regions()[0]->stations().size()<<std::endl;	
+//    std::cout<<"Print ============================>     "<<gem_geometry_->regions().size()<<std::endl;//[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->specs()->parameters()[3]<<std::endl; 
+//    std::cout<<"Print ============================>     "<<gem_geometry_->regions()[0]->stations().size()<<std::endl;	
     int num_region=gem_geometry_->regions().size();
     int num_station=gem_geometry_->regions()[0]->stations().size();
     float nStrips=0;
@@ -521,6 +532,8 @@ void RecHitAnalyzer::bookingME(const GEMGeometry* gem_geometry_){
         meCollection["recHitDPhi"+station[k]+"_cls1"] = dbe->book1D("recHitDPhi"+station[k]+"_cls1","DeltaPhi RecHit, Station="+std::to_string(k+1)+", CLS=1",100,-0.001,+0.001);
         meCollection["recHitDPhi"+station[k]+"_cls2"] = dbe->book1D("recHitDPhi"+station[k]+"_cls2","DeltaPhi RecHit, Station="+std::to_string(k+1)+", CLS=2",100,-0.001,+0.001);
         meCollection["recHitDPhi"+station[k]+"_cls3"] = dbe->book1D("recHitDPhi"+station[k]+"_cls3","DeltaPhi RecHit, Station="+std::to_string(k+1)+", CLS=3",100,-0.001,+0.001);
+        
+        
     }
     
     for (int j=0; j<num_region; j++){
@@ -535,8 +548,8 @@ void RecHitAnalyzer::bookingME(const GEMGeometry* gem_geometry_){
             meCollection["recHitPullX_r"+region[j]+station[i]+"_l2"] = dbe->book1D("recHitPullX_r"+region[j]+station[i]+"_l2","recHitPullX, region "+region[j]+", station"+std::to_string(i+1)+", layer2",100,-50,+50);
         
         //----------------Occupancy XY-------------------------------//
-            meCollection["localrh_xy_r"+region[j]+station[i]+"_l1"] = dbe->book2D("localrh_xy_r"+region[j]+station[i]+"_l1","GEM RecHit occupancy: region "+region[j]+", station"+std::to_string(i+1)+", layer1",200,-260,260,100,-260,260);
-            meCollection["localrh_xy_r"+region[j]+station[i]+"_l2"] = dbe->book2D("localrh_xy_r"+region[j]+station[i]+"_l2","GEM RecHit occupancy: region"+region[j]+", station"+std::to_string(i+1)+", layer2",200,-260,260,100,-260,260);
+            meCollection["localrh_xy_r"+region[j]+station[i]+"_l1"] = dbe->book2D("localrh_xy_r"+region[j]+station[i]+"_l1","GEM RecHit occupancy: region "+region[j]+", station"+std::to_string(i+1)+", layer1",200,-360,360,200,-360,360);
+            meCollection["localrh_xy_r"+region[j]+station[i]+"_l2"] = dbe->book2D("localrh_xy_r"+region[j]+station[i]+"_l2","GEM RecHit occupancy: region"+region[j]+", station"+std::to_string(i+1)+", layer2",200,-360,360,200,-360,360);
         
         //---------------------Strips Occupancy------------------//
         
@@ -550,15 +563,9 @@ void RecHitAnalyzer::bookingME(const GEMGeometry* gem_geometry_){
  
         }
     }
-   std::cout<<"Booking ME OK !!!!!!!!!!!!!!!!!!!!"<<std::endl;
 }
 // ------------ method called once each job just before starting event loop  ------------
 void RecHitAnalyzer::beginJob(){
-
-
-    std::cout<<"===========Job=========="<<std::endl;
-    //bookME(dbe,MEmap);
-    //std::cout<<"Numero delle stazioni =======================>  "<<gem_geometry_->stations().size()<<std::endl;
     
 }
 
@@ -577,8 +584,6 @@ RecHitAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
    try {
     iSetup.get<MuonGeometryRecord>().get(gem_geom_);
     gem_geometry_ = &*gem_geom_;
-    std::cout<<"===========Run=========="<<std::endl;
-    
     } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
         hasGEMGeometry_ = false;
         edm::LogWarning("GEMRecHitAnalyzer") << "+++ Info: GEM geometry is unavailable. +++\n";
@@ -586,7 +591,6 @@ RecHitAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
     
     if(hasGEMGeometry_) {
         
-        //Book MonitorElement
         bookingME(gem_geometry_);
     
     }

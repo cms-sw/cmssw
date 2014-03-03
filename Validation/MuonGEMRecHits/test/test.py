@@ -41,7 +41,7 @@ process.source = cms.Source("PoolSource",
                                       'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/6478f1063444c74e603334fdb6f73345/out_reco_40_4_vgy.root',
                                       'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/6478f1063444c74e603334fdb6f73345/out_reco_41_1_RcW.root',
                                       'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/6478f1063444c74e603334fdb6f73345/out_reco_4_1_bxq.root',
-                                      'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/6478f1063444c74e603334fdb6f73345/out_reco_42_1_fgx.root',
+#                                      'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/6478f1063444c74e603334fdb6f73345/out_reco_42_1_fgx.root',
                                       'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/6478f1063444c74e603334fdb6f73345/out_reco_43_3_kKG.root',
                                       'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/6478f1063444c74e603334fdb6f73345/out_reco_44_1_l0D.root',
                                       'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC5_8EtaPar_LXPLUS_DIGIv4_GeomV5/6478f1063444c74e603334fdb6f73345/out_reco_45_1_sft.root',
@@ -76,7 +76,7 @@ process.source = cms.Source("PoolSource",
 
 process.FILE = cms.OutputModule("PoolOutputModule", fileName = cms.untracked.string('histo.root') )
 
-process.load("Validation.MuonGEMRecHits.CfiFile_cfi")
+process.load("Validation.MuonGEMRecHits.MuonGEMRecHits_cfi")
 #process.RecHitAnalyzer.EffRootFileName="prova2.root"
-process.p = cms.Path(process.RecHitAnalyzer)
+process.p = cms.Path(process.gemRecHitsValidation)
 #process.outpath = cms.EndPath(process.FILE)
