@@ -16,9 +16,5 @@ GEMBaseValidation::~GEMBaseValidation() {
 }
 void GEMBaseValidation::setGeometry(const GEMGeometry* geom)
 { 
-    if ( geom != nullptr ) theGEMGeometry = geom; 
-    else { 
-        edm::LogError("GEMBaseValidation")<<" +++ Error : Can not set GEMGeometry.\n";
-        return ;
-    }
+    theGEMGeometry = geom;
 }

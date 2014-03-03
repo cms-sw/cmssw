@@ -56,7 +56,6 @@ private:
   edm::ESHandle<GEMGeometry> gem_geo_;
 
   const GEMGeometry* gem_geometry_;
-  bool hasGEMGeometry_ ;
 
   edm::InputTag input_tag_gem_;
   edm::InputTag input_tag_gemcscpad_;

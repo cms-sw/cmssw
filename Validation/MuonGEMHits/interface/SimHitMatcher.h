@@ -27,7 +27,7 @@ class SimHitMatcher : public BaseMatcher
 public:
   
   SimHitMatcher(const SimTrack& t, const SimVertex& v,
-      const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es);
+      const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es, const GEMGeometry* gem_geo);
   
   ~SimHitMatcher();
 
@@ -89,7 +89,6 @@ private:
   std::string simInputLabel_;
 
   const GEMGeometry* gem_geo_;
-  bool hasGEMGeometry_ ;
   std::map<unsigned int, unsigned int> trkid_to_index_;
 
   edm::PSimHitContainer no_hits_;

@@ -15,7 +15,6 @@ GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , ed
 
 void GEMSimTrackMatch::bookHisto() 
 {
-   buildLUT();
    const float PI=TMath::Pi();
    dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
    track_eta        = dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
@@ -90,7 +89,7 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     { continue; } 
     
     // match hits to this SimTrack
-    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
+    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup, theGEMGeometry);
     const SimHitMatcher& match_sh = match.simhits();
 
     track_.pt = t.momentum().pt();
@@ -128,7 +127,6 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         else track_.gem_sh_layer2 |= 2;
       }
     }
-
     track_eta->Fill( fabs( track_.eta)  );
     if ( track_.gem_sh_layer1 > 0 ) {
       track_eta_l1->Fill ( fabs(track_.eta));

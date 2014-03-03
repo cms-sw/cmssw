@@ -6,11 +6,6 @@
 #include <TMath.h>
 #include <TH1F.h>
 
-
-
-
-
-
 GEMDigiTrackMatch::GEMDigiTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg) : GEMTrackMatch(dbe,simInputLabel,cfg)
 {
    minPt_  = cfg_.getUntrackedParameter<double>("gemDigiMinPt",5.0);
@@ -20,7 +15,6 @@ GEMDigiTrackMatch::GEMDigiTrackMatch(DQMStore* dbe, std::string simInputLabel , 
 
 void GEMDigiTrackMatch::bookHisto(){
    const float PI=TMath::Pi();
-   buildLUT();
    track_eta =  dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
    track_phi =  dbe_->book1D("track_phi", "track_phi;SimTrack |#eta|;# of tracks", 100,-PI,PI);
 
@@ -79,12 +73,7 @@ void GEMDigiTrackMatch::bookHisto(){
    dg_ly_odd_l1and2 = dbe_->book1D("dg_ly_odd_l1and2","dg_ly_odd_l1and2",100,-100,100);
 }
 
-
-
-
-
-GEMDigiTrackMatch::~GEMDigiTrackMatch() {
-}
+GEMDigiTrackMatch::~GEMDigiTrackMatch() {  }
 
 void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -116,7 +105,7 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
     //{ printf("skip!!\n"); continue; }
     
     // match hits and digis to this SimTrack
-    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
+    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup,theGEMGeometry);
 
     const SimHitMatcher& match_sh = match.simhits();
     const GEMDigiMatcher& match_gd = match.gemDigis();

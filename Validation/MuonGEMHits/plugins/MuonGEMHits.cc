@@ -117,9 +117,17 @@ void
 MuonGEMHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  if ( hasGEMGeometry_ ) {
+  try{
+    iSetup.get<MuonGeometryRecord>().get(gem_geom);
+    gem_geometry_ = &*gem_geom;
+    theGEMHitsValidation->setGeometry(gem_geometry_);
     theGEMHitsValidation->analyze(iEvent,iSetup );  
+
+    theGEMSimTrackMatch->setGeometry(gem_geometry_);
     theGEMSimTrackMatch->analyze(iEvent,iSetup );  
+  }
+  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+      edm::LogError("MuonGEMHits") << "+++ Error : GEM geometry is unavailable during event loop. +++\n";
   }
 }
 
@@ -143,16 +151,14 @@ MuonGEMHits::endJob()
 void 
 MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
-  iSetup.get<MuonGeometryRecord>().get(gem_geom);
-  gem_geometry_ = &*gem_geom;
-  if( gem_geometry_ != nullptr) hasGEMGeometry_ = true;
-  else edm::LogError("MuonGEMHits") << "+++ Error : GEM geometry is unavailable. +++\n";
-
-  if( hasGEMGeometry_ ) {
-    theGEMHitsValidation->setGeometry(gem_geometry_);
-    theGEMHitsValidation->bookHisto();
-    theGEMSimTrackMatch->setGeometry(gem_geometry_);
-    theGEMSimTrackMatch->bookHisto();
+  try{
+    iSetup.get<MuonGeometryRecord>().get(gem_geom);
+    gem_geometry_ = &*gem_geom;
+    theGEMHitsValidation->bookHisto(gem_geometry_);
+    theGEMSimTrackMatch->bookHisto();   // GEMSimTrackMatch needs not Geometry information for booking histogram.
+  } 
+  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+      edm::LogError("MuonGEMHits") << "+++ Error : GEM geometry is unavailable. +++\n";
   }
 }
 

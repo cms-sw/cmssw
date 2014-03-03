@@ -4,8 +4,8 @@ GEMStripDigiValidation::GEMStripDigiValidation(DQMStore* dbe,
 :  GEMBaseValidation(dbe, inputTag)
 {}
 
-void GEMStripDigiValidation::bookHisto() { 
-
+void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) { 
+  theGEMGeometry = geom;  
   std::string region[2]= { "-1","1" } ;
   std::string station[3]= { "1","2","3" } ;
   std::string layer[2]= { "1","2" } ;
