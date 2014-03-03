@@ -75,6 +75,8 @@ def customise_Validation(process):
     process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
     process.load('Validation.MuonGEMRecHits.MuonGEMRecHits_cfi')
     process.genvalid_all += cms.Sequence( process.gemHitsValidation*process.gemDigiValidation*process.gemRecHitsValidation)
+    process.muonAssociatorByHitsESProducer.muonAssociatorByHitsCommonParameters.useGEMs = cms.bool(True)
+    process.muonTrackValidator.useGEMs = cms.bool(True)
     return process
 
 
