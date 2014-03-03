@@ -17,11 +17,12 @@ from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalCompactTrigPrim_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalTPSkim_cfi import *
 
+from RecoLocalCalo.EcalRecProducers.ecalDetailedTimeRecHit_cfi import *
 
 ecalUncalibRecHitSequence = cms.Sequence(ecalGlobalUncalibRecHit*
                                          ecalDetIdToBeRecovered)
 
-ecalRecHitSequence        = cms.Sequence(ecalRecHit*
+ecalRecHitSequence        = cms.Sequence(ecalRecHit*ecalDetailedTimeRecHit*
                                          ecalCompactTrigPrim*
                                          ecalTPSkim+
                                          ecalPreshowerRecHit)

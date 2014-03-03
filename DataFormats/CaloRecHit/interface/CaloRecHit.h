@@ -19,6 +19,7 @@ public:
   float energy() const { return energy_; }
   void setEnergy(float energy) { energy_=energy; }
   float time() const { return time_; }
+  void setTime(float time) { time_=time; }
   const DetId& detid() const { return id_; }
   uint32_t flags() const { return flags_; }
   void setFlags(uint32_t flags) { flags_=flags; }
