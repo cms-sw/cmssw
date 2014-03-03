@@ -43,6 +43,9 @@ EcalDetailedTimeRecHitProducer::EcalDetailedTimeRecHitProducer(const edm::Parame
    EBRecHitCollection_ = ps.getParameter<edm::InputTag>("EBRecHitCollection");
    EERecHitCollection_ = ps.getParameter<edm::InputTag>("EERecHitCollection");
 
+   ebTimeDigiCollection_ = ps.getParameter<edm::InputTag>("EBTimeDigiCollection");
+   eeTimeDigiCollection_ = ps.getParameter<edm::InputTag>("EETimeDigiCollection");
+
    EBDetailedTimeRecHitCollection_        = ps.getParameter<std::string>("EBDetailedTimeRecHitCollection");
    EEDetailedTimeRecHitCollection_        = ps.getParameter<std::string>("EEDetailedTimeRecHitCollection");
 
@@ -89,32 +92,73 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
                 }
         }
 
+        Handle< EcalTimeDigiCollection > pEBTimeDigis;
+        Handle< EcalTimeDigiCollection > pEETimeDigis;
+
+        const EcalTimeDigiCollection* ebTimeDigis =0;
+        const EcalTimeDigiCollection* eeTimeDigis =0;
+
+        if ( ebTimeDigiCollection_.label() != "" && ebTimeDigiCollection_.instance() != "" ) {
+                evt.getByLabel( ebTimeDigiCollection_, pEBTimeDigis);
+                //evt.getByLabel( digiProducer_, pEBTimeDigis);
+                if ( pEBTimeDigis.isValid() ) {
+                        ebTimeDigis = pEBTimeDigis.product(); // get a ptr to the produc
+                        edm::LogInfo("EcalDetailedTimeRecHitInfo") << "total # ebTimeDigis: " << ebTimeDigis->size() ;
+                } else {
+                        edm::LogError("EcalDetailedTimeRecHitError") << "Error! can't get the product " << ebTimeDigiCollection_;
+                }
+        }
+
+        if ( eeTimeDigiCollection_.label() != "" && eeTimeDigiCollection_.instance() != "" ) {
+                evt.getByLabel( eeTimeDigiCollection_, pEETimeDigis);
+                //evt.getByLabel( digiProducer_, pEETimeDigis);
+                if ( pEETimeDigis.isValid() ) {
+                        eeTimeDigis = pEETimeDigis.product(); // get a ptr to the product
+                        edm::LogInfo("EcalDetailedTimeRecHitInfo") << "total # eeTimeDigis: " << eeTimeDigis->size() ;
+                } else {
+                        edm::LogError("EcalDetailedTimeRecHitError") << "Error! can't get the product " << eeTimeDigiCollection_;
+                }
+        }
+
         // collection of rechits to put in the event
         std::auto_ptr< EBRecHitCollection > EBDetailedTimeRecHits( new EBRecHitCollection );
         std::auto_ptr< EERecHitCollection > EEDetailedTimeRecHits( new EERecHitCollection );
 
 
-        if (EBRecHits) {
+        if (EBRecHits && ebTimeDigis) {
                 // loop over uncalibrated rechits to make calibrated ones
                 for(EBRecHitCollection::const_iterator it  = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
 		  EcalRecHit aHit( (*it) );
+		  EcalTimeDigiCollection::const_iterator timeDigi=ebTimeDigis->find((*it).id());
+		  if (timeDigi!=ebTimeDigis->end())
+		    {
+		      if (timeDigi->sampleOfInterest()>=0)
+			aHit.setTime((*timeDigi)[timeDigi->sampleOfInterest()]);
+		    }
+		    // leave standard time if no timeDigi is associated (e.g. noise recHits)
 		  EBDetailedTimeRecHits->push_back( aHit );
                 }
         }
 
-        if (EERecHits)
+        if (EERecHits && eeTimeDigis)
         {
                 // loop over uncalibrated rechits to make calibrated ones
                 for(EERecHitCollection::const_iterator it  = EERecHits->begin();
                                 it != EERecHits->end(); ++it) {
 			
 		  EcalRecHit aHit( *it );
+		  EcalTimeDigiCollection::const_iterator timeDigi=eeTimeDigis->find((*it).id());
+		  if (timeDigi!=eeTimeDigis->end())
+		    {
+		      if (timeDigi->sampleOfInterest()>=0)
+			aHit.setTime((*timeDigi)[timeDigi->sampleOfInterest()]);
+		    }
 		  EEDetailedTimeRecHits->push_back( aHit );
                 }
         }
         // put the collection of recunstructed hits in the event   
-        LogInfo("EcalDetailedTimeRecHitInfo") << "total # EB re-calibrated rechits: " << EBDetailedTimeRecHits->size();
-        LogInfo("EcalDetailedTimeRecHitInfo") << "total # EE re-calibrated rechits: " << EEDetailedTimeRecHits->size();
+        LogInfo("EcalDetailedTimeRecHitInfo") << "total # EB rechits: " << EBDetailedTimeRecHits->size();
+        LogInfo("EcalDetailedTimeRecHitInfo") << "total # EE rechits: " << EEDetailedTimeRecHits->size();
 
         evt.put( EBDetailedTimeRecHits, EBDetailedTimeRecHitCollection_ );
         evt.put( EEDetailedTimeRecHits, EEDetailedTimeRecHitCollection_ );
