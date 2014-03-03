@@ -55,7 +55,7 @@ class SiPixelGainCalibrationForHLT {
   SiPixelGainCalibrationForHLT(float minPed, float maxPed, float minGain, float maxGain);
   ~SiPixelGainCalibrationForHLT(){}
 
-  void initialize() const;
+  void initialize();
 
   bool  put(const uint32_t& detID,Range input, const int& nCols);
   const Range getRange(const uint32_t& detID) const;
@@ -91,7 +91,7 @@ class SiPixelGainCalibrationForHLT {
   std::vector<DetRegistry> indexes;
   float  minPed_, maxPed_, minGain_, maxGain_;
 
-  mutable float pedPrecision, gainPrecision;
+  float pedPrecision, gainPrecision;
 
   unsigned int numberOfRowsToAverageOver_;   //THIS WILL BE HARDCODED TO 80 (all rows in a ROC) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING! 
   unsigned int nBinsToUseForEncoding_;
