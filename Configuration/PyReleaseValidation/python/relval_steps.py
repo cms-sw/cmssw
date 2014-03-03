@@ -1205,9 +1205,17 @@ for k in upgradeKeys:
                                       }
     if upgradeCustoms[k]!=None : upgradeStepDict['DigiFull'][k]['--customise']=upgradeCustoms[k]
 
-    upgradeStepDict['DigiPuFull'][k] = upgradeStepDict['DigiFull'][k]
-    upgradeStepDict['DigiPuFull'][k]['--pileup']='AVE_20_BX_25ns'
-    upgradeStepDict['DigiPuFull'][k]['--pileup_input']='das:/RelValMinBias_TuneZ2star_14TeV/CMSSW_6_1_2_SLHC6-DES17_61_V5_UPG2017-v1/GEN-SIM'
+    upgradeStepDict['DigiPuFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
+                                        '--conditions':upgradeGTs[k],
+                                        '--datatier':'GEN-SIM-DIGI-RAW',
+                                        '-n':'10',
+                                        '--magField' : '38T_PostLS1',
+                                        '--eventcontent':'FEVTDEBUGHLT',
+                                        '--geometry' : upgradeGeoms[k],
+                                        '--pileup' : 'AVE_20_BX_25ns',
+                                        '--pileup_input' : 'das:/RelValMinBias_TuneZ2star_14TeV/CMSSW_6_1_2_SLHC6-DES17_61_V5_UPG2017-v1/GEN-SIM'  
+                                        }
+    if upgradeCustoms[k]!=None : upgradeStepDict['DigiPuFull'][k]['--customise']=upgradeCustoms[k]
 
     upgradeStepDict['DigiTrkTrigFull'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW',
                                              '--conditions':upgradeGTs[k],
@@ -1219,6 +1227,7 @@ for k in upgradeKeys:
                                              }
     if upgradeCustoms[k]!=None : upgradeStepDict['DigiTrkTrigFull'][k]['--customise']=upgradeCustoms[k]
 
+
     upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                                       '--conditions':upgradeGTs[k],
                                       '--datatier':'GEN-SIM-RECO,DQM',
@@ -1228,12 +1237,19 @@ for k in upgradeKeys:
                                       '--geometry' : upgradeGeoms[k]
                                       }
     if upgradeCustoms[k]!=None : upgradeStepDict['RecoFull'][k]['--customise']=upgradeCustoms[k]
-    
-    upgradeStepDict['RecoPuFull'][k] = upgradeStepDict['RecoFull'][k]
-    upgradeStepDict['RecoPuFull'][k]['-s']='RAW2DIGI,L1Reco,RECO,DQM'
-    upgradeStepDict['RecoPuFull'][k]['--pileup']='AVE_20_BX_25ns'
-    upgradeStepDict['RecoPuFull'][k]['--pileup_input']='das:/RelValMinBias_TuneZ2star_14TeV/CMSSW_6_1_2_SLHC6-DES17_61_V5_UPG2017-v1/GEN-SIM'
 
+    upgradeStepDict['RecoPuFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO',
+                                        '--conditions':upgradeGTs[k],
+                                        '--datatier':'GEN-SIM-RECO,DQM',
+                                        '-n':'10',
+                                        '--eventcontent':'FEVTDEBUGHLT,DQM',
+                                        '--magField' : '38T_PostLS1',
+                                        '--geometry' : upgradeGeoms[k],
+                                        '--pileup' : 'AVE_20_BX_25ns',
+                                        '--pileup_input' : 'das:/RelValMinBias_TuneZ2star_14TeV/CMSSW_6_1_2_SLHC6-DES17_61_V5_UPG2017-v1/GEN-SIM'
+                                        }
+    if upgradeCustoms[k]!=None : upgradeStepDict['RecoPuFull'][k]['--customise']=upgradeCustoms[k]
+    
     upgradeStepDict['HarvFull'][k]={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                                     '--conditions':upgradeGTs[k],
                                     '--mc':'',
