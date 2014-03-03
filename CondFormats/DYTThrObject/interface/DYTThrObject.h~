@@ -1,0 +1,11 @@
+#include "DataFormats/DetId/interface/DetId.h"
+#include <vector>
+#include <map>
+
+class DYTThrObject {
+ public:
+  DYTThrObject(){}
+  ~DYTThrObject(){}
+  //std::map<DetId, double> thrsMap;
+  std::vector<double> thrsVec;
+};

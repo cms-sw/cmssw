@@ -55,8 +55,6 @@ class TevMuonProducer : public edm::EDProducer {
   edm::InputTag theGLBCollectionLabel;
   edm::EDGetTokenT<reco::TrackCollection> glbMuonsToken;
   edm::EDGetTokenT<std::vector<Trajectory> > glbMuonsTrajToken;
-  
-
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy* theService;

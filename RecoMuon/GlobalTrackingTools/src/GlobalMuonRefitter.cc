@@ -109,6 +109,7 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theDYTselector = par.getParameter<int>("DYTselector");
   theDYTupdator = par.getParameter<bool>("DYTupdator");
   theDYTuseAPE = par.getParameter<bool>("DYTuseAPE");
+  dytInfo = new reco::DYTInfo();
 
   if (par.existsAs<double>("RescaleErrorFactor")) {
     theRescaleErrorFactor = par.getParameter<double>("RescaleErrorFactor");
@@ -117,15 +118,13 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   else
     theRescaleErrorFactor = 1000.;
   
-
   theCacheId_TRH = 0;
-
 }
+
 
 //--------------
 // Destructor --
 //--------------
-
 GlobalMuonRefitter::~GlobalMuonRefitter() {
 }
 

@@ -146,6 +146,8 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
   // Run the DYT
   filteringAlgo();
 
+  cout << "SONO QUI" << endl;
+  
   return result;
 }
 

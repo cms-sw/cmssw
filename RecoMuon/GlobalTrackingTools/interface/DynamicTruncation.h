@@ -72,7 +72,6 @@ class DynamicTruncation {
     dytInfo.setDYTEstimators(estimatorMap);
     dytInfo.setUsedStations(usedStationMap);
     dytInfo.setIdChambers(idChamberMap);
-    dytInfo.setValidity(true);
     return dytInfo;
   };
  

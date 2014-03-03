@@ -24,11 +24,15 @@ GlobalMuonRefitter = cms.PSet(
     RefitRPCHits = cms.bool(True),
  
     # DYT thresholds:
-    #  first int --> DT threshold
-    # second int --> CSC threshold
-    #  third int --> if 1 APEs are used
-    DYTthrs = cms.vint32(25, 10, 1),
-
+    DYTthrs = cms.vint32(20, 30),
+    # DYT selector:
+    # 0 --> DYT disabled (all muon stations used)
+    # 1 --> all compatible stations
+    # 2 --> stop at second consecutive incompatibility
+    DYTselector = cms.int32(1),
+    DYTupdator = cms.bool(False),
+    DYTuseAPE = cms.bool(False),
+    
     # muon station to be skipped
     SkipStation		= cms.int32(-1),
 

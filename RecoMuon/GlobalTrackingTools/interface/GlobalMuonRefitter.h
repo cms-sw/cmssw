@@ -88,7 +88,7 @@ class GlobalMuonRefitter {
     // get rid of selected station RecHits
     ConstRecHitContainer getRidOfSelectStationHits(const ConstRecHitContainer& hits,
 						   const TrackerTopology *tTopo) const;
-
+    
     // return DYT-related informations
     reco::DYTInfo* getDYTInfo() {return dytInfo;}
 
@@ -153,7 +153,7 @@ class GlobalMuonRefitter {
     int theDYTselector;
     bool theDYTupdator;
     bool theDYTuseAPE;
-    reco::DYTInfo* dytInfo;
+    reco::DYTInfo *dytInfo;
 
     std::string theFitterName;
     edm::ESHandle<TrajectoryFitter> theFitter;
