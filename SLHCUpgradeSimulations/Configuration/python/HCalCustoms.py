@@ -82,6 +82,7 @@ def customise_HcalPhase2(process):
                 process.mix.digitizers.hcal.he.samplingFactors.extend([sf_now]*(29-etaIndex-1))
             etaIndex += 2
         # print len(process.mix.digitizers.hcal.he.samplingFactors),process.mix.digitizers.hcal.he.samplingFactors
+
     return process
 
 def customise_Sim(process):
@@ -189,6 +190,10 @@ def customise_Reco(process):
 
     process.zdcreco.digiLabel = "simHcalUnsuppressedDigis"
     process.hcalnoise.digiCollName=cms.string('simHcalDigis')
+    if hasattr(process, 'hcalnoise'):
+        process.reconstruction_step.remove(process.hcalnoise)
+        # process.reconstruction_step.highlevelreco.metrecoPlusHCALNoise.remove(process.hcalnoise)
+        
 
     # not sure why these are missing - but need to investigate later
     process.reconstruction_step.remove(process.castorreco)
@@ -211,6 +216,14 @@ def customise_DQM(process):
     process.dqmoffline_step.remove(process.hcalRawDataMonitor)
     process.ExoticaDQM.JetIDParams.hbheRecHitsColl=cms.InputTag("hbheUpgradeReco")
     process.ExoticaDQM.JetIDParams.hfRecHitsColl=cms.InputTag("hfUpgradeReco")
+
+    if hasattr(process, 'NoiseRatesDQMOffline'):
+        process.dqmoffline_step.remove(process.NoiseRatesDQMOffline)
+    if hasattr(process, 'HBHENoiseFilterResultProducer'):
+        process.dqmoffline_step.remove(process.HBHENoiseFilterResultProducer)
+    if hasattr(process, 'towerSchemeBAnalyzer'):
+        process.dqmoffline_step.remove(process.towerSchemeBAnalyzer)
+        
     return process
 
 def customise_harvesting(process):
@@ -231,6 +244,11 @@ def customise_ValidationPhase1(process):
     process.RecHitsValidation.HBHERecHitCollectionLabel = cms.untracked.InputTag("hbheUpgradeReco")
     process.RecHitsValidation.HFRecHitCollectionLabel = cms.untracked.InputTag("hfUpgradeReco") 
     process.validation_step.remove(process.globalhitsanalyze)
+
+    if hasattr(process, 'NoiseRatesValidation'):
+        # process.validation_step.hcalRecHitsValidationSequence.remove(process.NoiseRatesValidation)
+        process.validation_step.remove(process.NoiseRatesValidation)
+
     return process
 
 def customise_condOverRides(process):
