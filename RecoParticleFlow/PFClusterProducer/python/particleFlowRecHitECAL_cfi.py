@@ -7,7 +7,9 @@ import FWCore.ParameterSet.Config as cms
 particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
 
     navigator = cms.PSet(
-        name = cms.string("PFRecHitECALNavigator")
+        name = cms.string("PFRecHitECALNavigator"),
+        barrel = cms.PSet( ),
+        endcap = cms.PSet( )
     ),
     producers = cms.VPSet(
            cms.PSet(
