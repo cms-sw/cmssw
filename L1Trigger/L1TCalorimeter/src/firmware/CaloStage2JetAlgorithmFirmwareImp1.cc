@@ -11,7 +11,7 @@
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 
-l1t::CaloStage2JetAlgorithmFirmwareImp1::CaloStage2JetAlgorithmFirmwareImp1(const CaloParams& params) :
+l1t::CaloStage2JetAlgorithmFirmwareImp1::CaloStage2JetAlgorithmFirmwareImp1(CaloParams* params) :
   params_(params)
 {
 

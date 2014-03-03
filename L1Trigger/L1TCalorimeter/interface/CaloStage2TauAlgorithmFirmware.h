@@ -21,13 +21,13 @@ namespace l1t {
   // Imp1 is for v1 and v2
   class CaloStage2TauAlgorithmFirmwareImp1 : public CaloStage2TauAlgorithm {
   public:
-    CaloStage2TauAlgorithmFirmwareImp1(const CaloParams& params); //const CaloMainProcessorParams & dbPars);
+    CaloStage2TauAlgorithmFirmwareImp1(CaloParams* params); //const CaloMainProcessorParams & dbPars);
     virtual ~CaloStage2TauAlgorithmFirmwareImp1();
     virtual void processEvent(const std::vector<CaloCluster> & clusters,
 			      std::vector<Tau> & taus);
     
   private:
-    CaloParams const & params_;
+    CaloParams* params_;
   };
   
 }

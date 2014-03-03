@@ -4,7 +4,9 @@ from L1Trigger.L1TCalorimeter.l1tCaloParams_cfi import *
 from L1Trigger.L1TCalorimeter.l1tCaloStage2TowerDigis_cfi import *
 from L1Trigger.L1TCalorimeter.l1tCaloStage2Digis_cfi import *
 
+#content = cms.EDAnalyzer("EventContentAnalyzer")
+
 L1TCaloStage2 = cms.Sequence(
-    l1tCaloStage2TowerDigis *
+    l1tCaloStage2TowerDigis +
     l1tCaloStage2Digis
 )

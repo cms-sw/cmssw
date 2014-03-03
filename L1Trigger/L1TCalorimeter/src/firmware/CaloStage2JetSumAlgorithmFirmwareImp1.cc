@@ -10,7 +10,7 @@
 
 
 
-l1t::CaloStage2JetSumAlgorithmFirmwareImp1::CaloStage2JetSumAlgorithmFirmwareImp1(const CaloParams& params) :
+l1t::CaloStage2JetSumAlgorithmFirmwareImp1::CaloStage2JetSumAlgorithmFirmwareImp1(CaloParams* params) :
   params_(params)
 {
 

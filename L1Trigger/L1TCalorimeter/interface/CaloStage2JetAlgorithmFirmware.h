@@ -21,12 +21,15 @@ namespace l1t {
   // Imp1 is for v1 and v2
   class CaloStage2JetAlgorithmFirmwareImp1 : public CaloStage2JetAlgorithm {
   public:
-    CaloStage2JetAlgorithmFirmwareImp1(const CaloParams& params);
+    CaloStage2JetAlgorithmFirmwareImp1(CaloParams* params);
     virtual ~CaloStage2JetAlgorithmFirmwareImp1();
     virtual void processEvent(const std::vector<CaloTower> & towers,
 			      std::vector<Jet> & jets);
+
   private:
-    CaloParams const & params_;
+
+    CaloParams* const params_;
+    
   };
   
 }
