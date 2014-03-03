@@ -6,7 +6,7 @@ gemRecHitsValidation = cms.EDAnalyzer("RecHitAnalyzer",
                                       gemSimHitInput = cms.untracked.InputTag('g4SimHits','MuonGEMHits'),
                                       simTrackInput = cms.untracked.InputTag('g4SimHits'),
                                       folderPath = cms.untracked.string('MuonGEMRecHitsV/GEMRecHitTask'),
-                                      EffSaveRootFile = cms.untracked.bool(True),
+                                      EffSaveRootFile = cms.untracked.bool(False),
                                       EffRootFileName = cms.untracked.string('GEMRecHit_ME.root')
                                       
 )
