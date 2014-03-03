@@ -22,11 +22,11 @@ iterativePixelLessSeeds.pTMin = [0.3]
 iterativePixelLessSeeds.maxD0 = [99.]
 iterativePixelLessSeeds.maxZ0 = [99.]
 #-----
-iterativePixelLessSeeds.numberOfHits = [2]
+iterativePixelLessSeeds.numberOfHits = [3]
 #values for the seed compatibility constraint
-iterativePixelLessSeeds.originRadius = [2.0]
-iterativePixelLessSeeds.originHalfLength = [10.0]
-iterativePixelLessSeeds.originpTMin = [0.6] # was 0.5
+iterativePixelLessSeeds.originRadius = [1.0]
+iterativePixelLessSeeds.originHalfLength = [12.0]
+iterativePixelLessSeeds.originpTMin = [0.4] # was 0.6
 iterativePixelLessSeeds.zVertexConstraint = [-1.0]
 iterativePixelLessSeeds.primaryVertices = ['none']
 
