@@ -27,9 +27,11 @@ EgammaHLTBcHcalIsolationProducersRegional::EgammaHLTBcHcalIsolationProducersRegi
 
   recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   caloTowerProducer_         = consumes<CaloTowerCollection>(config.getParameter<edm::InputTag>("caloTowerProducer"));
-  rhoProducer_               = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
 
   doRhoCorrection_           = config.getParameter<bool>("doRhoCorrection");
+  if (doRhoCorrection_)
+    rhoProducer_               = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
+
   rhoMax_                    = config.getParameter<double>("rhoMax"); 
   rhoScale_                  = config.getParameter<double>("rhoScale"); 
 
