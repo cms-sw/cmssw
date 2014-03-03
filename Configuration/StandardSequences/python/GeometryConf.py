@@ -26,6 +26,7 @@ GeometryConf={
     'Extended2023CFCal'   : 'Extended2023CFCal,Extended2023CFCalReco',
     'Extended2023CFCal4Eta'   : 'Extended2023CFCal4Eta,Extended2023CFCal4EtaReco',
     'Extended2023RPCUpscope'   : 'Extended2023RPCUpscope,Extended2023RPCUpscopeReco',
+    'ExtendedPhase1Pixel10D'   : 'ExtendedPhase1Pixel10D,ExtendedPhase1Pixel10DReco',
     'ExtendedPhase2TkBE'   : 'ExtendedPhase2TkBE,ExtendedPhase2TkBEReco',
     'ExtendedPhase2TkBE5D'   : 'ExtendedPhase2TkBE5D,ExtendedPhase2TkBE5DReco',
     'ExtendedPhase2TkBE5DPixel10D'   : 'ExtendedPhase2TkBE5DPixel10D,ExtendedPhase2TkBE5DPixel10DReco',
