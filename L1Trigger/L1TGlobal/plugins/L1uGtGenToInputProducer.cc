@@ -101,30 +101,30 @@ namespace l1t {
 
     int counter_;
 
-  std::vector<l1t::Muon> muonVec_bxm2;
-  std::vector<l1t::Muon> muonVec_bxm1;
-  std::vector<l1t::Muon> muonVec_bx0;
-  std::vector<l1t::Muon> muonVec_bxp1;
+    std::vector<l1t::Muon> muonVec_bxm2;
+    std::vector<l1t::Muon> muonVec_bxm1;
+    std::vector<l1t::Muon> muonVec_bx0;
+    std::vector<l1t::Muon> muonVec_bxp1;
 
-  std::vector<l1t::EGamma> egammaVec_bxm2;
-  std::vector<l1t::EGamma> egammaVec_bxm1;
-  std::vector<l1t::EGamma> egammaVec_bx0;
-  std::vector<l1t::EGamma> egammaVec_bxp1;
+    std::vector<l1t::EGamma> egammaVec_bxm2;
+    std::vector<l1t::EGamma> egammaVec_bxm1;
+    std::vector<l1t::EGamma> egammaVec_bx0;
+    std::vector<l1t::EGamma> egammaVec_bxp1;
 
-  std::vector<l1t::Tau> tauVec_bxm2;
-  std::vector<l1t::Tau> tauVec_bxm1;
-  std::vector<l1t::Tau> tauVec_bx0;
-  std::vector<l1t::Tau> tauVec_bxp1;
+    std::vector<l1t::Tau> tauVec_bxm2;
+    std::vector<l1t::Tau> tauVec_bxm1;
+    std::vector<l1t::Tau> tauVec_bx0;
+    std::vector<l1t::Tau> tauVec_bxp1;
 
-  std::vector<l1t::Jet> jetVec_bxm2;
-  std::vector<l1t::Jet> jetVec_bxm1;
-  std::vector<l1t::Jet> jetVec_bx0;
-  std::vector<l1t::Jet> jetVec_bxp1;
+    std::vector<l1t::Jet> jetVec_bxm2;
+    std::vector<l1t::Jet> jetVec_bxm1;
+    std::vector<l1t::Jet> jetVec_bx0;
+    std::vector<l1t::Jet> jetVec_bxp1;
 
-  std::vector<l1t::EtSum> etsumVec_bxm2;
-  std::vector<l1t::EtSum> etsumVec_bxm1;
-  std::vector<l1t::EtSum> etsumVec_bx0;
-  std::vector<l1t::EtSum> etsumVec_bxp1;
+    std::vector<l1t::EtSum> etsumVec_bxm2;
+    std::vector<l1t::EtSum> etsumVec_bxm1;
+    std::vector<l1t::EtSum> etsumVec_bx0;
+    std::vector<l1t::EtSum> etsumVec_bxp1;
 
   };
 
@@ -270,18 +270,15 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     int mip = 1;
     int tag = 1;
 
+    // Eta outside of acceptance
+    if( eta>=9999 ) continue;
+
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
     l1t::Muon mu(*p4, pt, eta, phi, qual, charge, chargeValid, iso, mip, tag);
-    //muons->push_back(bxEval, mu);
-
     muonVec.push_back(mu);
   }
 
-
-  // Use to sum the energy of the objects in the event for ETT and HTT
-  // sum all EG, taus and jets
-  double sumEt = 0;
 
   // EG Collection
   int numEgCands = int( eg_cands_index.size() );
@@ -308,14 +305,13 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     int qual = 1;
     int iso  = 1;
 
+    // Eta outside of acceptance
+    if( eta>=9999 ) continue;
+
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
     l1t::EGamma eg(*p4, pt, eta, phi, qual, iso);
-    //egammas->push_back(bxEval, eg);
     egammaVec.push_back(eg);
-
-    //Keep running sum of total Et
-    sumEt += mcParticle.pt();
   }
   
 
@@ -345,16 +341,20 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     int qual = 1;
     int iso  = 1;
 
+    // Eta outside of acceptance
+    if( eta>=9999 ) continue;
+
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
     l1t::Tau tau(*p4, pt, eta, phi, qual, iso);
-    //taus->push_back(bxEval, tau);
     tauVec.push_back(tau);
-    
-    //Keep running sum of total Et
-    sumEt += mcParticle.pt();    
   }
 
+
+
+  // Use to sum the energy of the objects in the event for ETT and HTT
+  // sum all jets
+  double sumEt = 0;
 
   int nJet = 0;
   edm::Handle<reco::GenJetCollection > genJets;
@@ -376,10 +376,12 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
       int eta = convertEtaToHW( genJet->eta(), -5., 5., 230, 0xff );
       int phi = convertPhiToHW( genJet->phi(), 144 );
 
+      // Eta outside of acceptance
+      if( eta>=9999 ) continue;
+
       int qual = 0;
 
       l1t::Jet jet(*p4, pt, eta, phi, qual);
-      //jets->push_back(bxEval, jet);
       jetVec.push_back(jet);
 
       nJet++;     
@@ -400,7 +402,6 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     // Missing Et
     l1t::EtSum etmiss(*p4, l1t::EtSum::EtSumType::kMissingEt,pt, 0,phi, 0); 
-    //etsums->push_back(bxEval, etmiss);  
     etsumVec.push_back(etmiss);
 
     // Make Missing Ht slightly smaller and rotated (These are all fake inputs anyway...not supposed to be realistic)
@@ -408,7 +409,6 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     phi = convertPhiToHW( genMet->front().phi()+ 3.14/5., 144 );
 
     l1t::EtSum htmiss(*p4, l1t::EtSum::EtSumType::kMissingHt,pt, 0,phi, 0); 
-    //etsums->push_back(bxEval, htmiss);  
     etsumVec.push_back(htmiss);
 
 
@@ -422,137 +422,99 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    int pt  = convertPtToHW( sumEt, 2047, pTstep_ );
    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
    l1t::EtSum etTotal(*p4, l1t::EtSum::EtSumType::kTotalEt,pt, 0, 0, 0); 
-   //etsums->push_back(bxEval, etTotal);  
    etsumVec.push_back(etTotal);
 
    pt  = convertPtToHW( sumEt*0.9, 2047, pTstep_ );
    l1t::EtSum htTotal(*p4, l1t::EtSum::EtSumType::kTotalHt,pt, 0, 0, 0); 
-   //etsums->push_back(bxEval, htTotal);  
    etsumVec.push_back(htTotal);
 
-/*
-   counter_++;
-   if(counter_==1){
-     muonVec_bxm2 = muonVec;
-     egammaVec_bxm2 = egammaVec;
-     tauVec_bxm2 = tauVec;
-     jetVec_bxm2 = jetVec;
-     etsumVec_bxm2 = etsumVec;
-   }
-   else if(counter_==2){
-     muonVec_bxm1 = muonVec;
-     egammaVec_bxm1 = egammaVec;
-     tauVec_bxm1 = tauVec;
-     jetVec_bxm1 = jetVec;
-     etsumVec_bxm1 = etsumVec;
-   }
-   else if(counter_==3){
-     muonVec_bx0 = muonVec;
-     egammaVec_bx0 = egammaVec;
-     tauVec_bx0 = tauVec;
-     jetVec_bx0 = jetVec;
-     etsumVec_bx0 = etsumVec;
-   }
-   else if( counter_==4 ){
-     muonVec_bxp1 = muonVec;
-     egammaVec_bxp1 = egammaVec;
-     tauVec_bxp1 = tauVec;
-     jetVec_bxp1 = jetVec;
-     etsumVec_bxp1 = etsumVec;
-   }
-   else if( counter_==5 ){
-*/
  
-    // Insert all the bx into the L1 Collections
+   // Insert all the bx into the L1 Collections
 
-     // Fill Muons
-     for( int iMu=0; iMu<int(muonVec_bxm2.size()); iMu++ ){
-       muons->push_back(-2, muonVec_bxm2[iMu]);
-     }
-     for( int iMu=0; iMu<int(muonVec_bxm1.size()); iMu++ ){
-       muons->push_back(-1, muonVec_bxm1[iMu]);
-     }
-     for( int iMu=0; iMu<int(muonVec_bx0.size()); iMu++ ){
-       muons->push_back(0, muonVec_bx0[iMu]);
-     }
-     for( int iMu=0; iMu<int(muonVec_bxp1.size()); iMu++ ){
-       muons->push_back(1, muonVec_bxp1[iMu]);
-     }
-     for( int iMu=0; iMu<int(muonVec.size()); iMu++ ){
-       muons->push_back(2, muonVec[iMu]);
-     }
+   // Fill Muons
+   for( int iMu=0; iMu<int(muonVec_bxm2.size()); iMu++ ){
+     muons->push_back(-2, muonVec_bxm2[iMu]);
+   }
+   for( int iMu=0; iMu<int(muonVec_bxm1.size()); iMu++ ){
+     muons->push_back(-1, muonVec_bxm1[iMu]);
+   }
+   for( int iMu=0; iMu<int(muonVec_bx0.size()); iMu++ ){
+     muons->push_back(0, muonVec_bx0[iMu]);
+   }
+   for( int iMu=0; iMu<int(muonVec_bxp1.size()); iMu++ ){
+     muons->push_back(1, muonVec_bxp1[iMu]);
+   }
+   for( int iMu=0; iMu<int(muonVec.size()); iMu++ ){
+     muons->push_back(2, muonVec[iMu]);
+   }
 
-     // Fill Egammas
-     for( int iEG=0; iEG<int(egammaVec_bxm2.size()); iEG++ ){
-       egammas->push_back(-2, egammaVec_bxm2[iEG]);
-     }
-     for( int iEG=0; iEG<int(egammaVec_bxm1.size()); iEG++ ){
-       egammas->push_back(-1, egammaVec_bxm1[iEG]);
-     }
-     for( int iEG=0; iEG<int(egammaVec_bx0.size()); iEG++ ){
-       egammas->push_back(0, egammaVec_bx0[iEG]);
-     }
-     for( int iEG=0; iEG<int(egammaVec_bxp1.size()); iEG++ ){
-       egammas->push_back(1, egammaVec_bxp1[iEG]);
-     }
-     for( int iEG=0; iEG<int(egammaVec.size()); iEG++ ){
-       egammas->push_back(2, egammaVec[iEG]);
-     }
+   // Fill Egammas
+   for( int iEG=0; iEG<int(egammaVec_bxm2.size()); iEG++ ){
+     egammas->push_back(-2, egammaVec_bxm2[iEG]);
+   }
+   for( int iEG=0; iEG<int(egammaVec_bxm1.size()); iEG++ ){
+     egammas->push_back(-1, egammaVec_bxm1[iEG]);
+   }
+   for( int iEG=0; iEG<int(egammaVec_bx0.size()); iEG++ ){
+     egammas->push_back(0, egammaVec_bx0[iEG]);
+   }
+   for( int iEG=0; iEG<int(egammaVec_bxp1.size()); iEG++ ){
+     egammas->push_back(1, egammaVec_bxp1[iEG]);
+   }
+   for( int iEG=0; iEG<int(egammaVec.size()); iEG++ ){
+     egammas->push_back(2, egammaVec[iEG]);
+   }
 
-     // Fill Taus
-     for( int iTau=0; iTau<int(tauVec_bxm2.size()); iTau++ ){
-       taus->push_back(-2, tauVec_bxm2[iTau]);
-     }
-     for( int iTau=0; iTau<int(tauVec_bxm1.size()); iTau++ ){
-       taus->push_back(-1, tauVec_bxm1[iTau]);
-     }
-     for( int iTau=0; iTau<int(tauVec_bx0.size()); iTau++ ){
-       taus->push_back(0, tauVec_bx0[iTau]);
-     }
-     for( int iTau=0; iTau<int(tauVec_bxp1.size()); iTau++ ){
-       taus->push_back(1, tauVec_bxp1[iTau]);
-     }
-     for( int iTau=0; iTau<int(tauVec.size()); iTau++ ){
-       taus->push_back(2, tauVec[iTau]);
-     }
+   // Fill Taus
+   for( int iTau=0; iTau<int(tauVec_bxm2.size()); iTau++ ){
+     taus->push_back(-2, tauVec_bxm2[iTau]);
+   }
+   for( int iTau=0; iTau<int(tauVec_bxm1.size()); iTau++ ){
+     taus->push_back(-1, tauVec_bxm1[iTau]);
+   }
+   for( int iTau=0; iTau<int(tauVec_bx0.size()); iTau++ ){
+     taus->push_back(0, tauVec_bx0[iTau]);
+   }
+   for( int iTau=0; iTau<int(tauVec_bxp1.size()); iTau++ ){
+     taus->push_back(1, tauVec_bxp1[iTau]);
+   }
+   for( int iTau=0; iTau<int(tauVec.size()); iTau++ ){
+     taus->push_back(2, tauVec[iTau]);
+   }
 
-     // Fill Jets
-     for( int iJet=0; iJet<int(jetVec_bxm2.size()); iJet++ ){
-       jets->push_back(-2, jetVec_bxm2[iJet]);
-     }
-     for( int iJet=0; iJet<int(jetVec_bxm1.size()); iJet++ ){
-       jets->push_back(-1, jetVec_bxm1[iJet]);
-     }
-     for( int iJet=0; iJet<int(jetVec_bx0.size()); iJet++ ){
-       jets->push_back(0, jetVec_bx0[iJet]);
-     }
-     for( int iJet=0; iJet<int(jetVec_bxp1.size()); iJet++ ){
-       jets->push_back(1, jetVec_bxp1[iJet]);
-     }
-     for( int iJet=0; iJet<int(jetVec.size()); iJet++ ){
-       jets->push_back(2, jetVec[iJet]);
-     }
+   // Fill Jets
+   for( int iJet=0; iJet<int(jetVec_bxm2.size()); iJet++ ){
+     jets->push_back(-2, jetVec_bxm2[iJet]);
+   }
+   for( int iJet=0; iJet<int(jetVec_bxm1.size()); iJet++ ){
+     jets->push_back(-1, jetVec_bxm1[iJet]);
+   }
+   for( int iJet=0; iJet<int(jetVec_bx0.size()); iJet++ ){
+     jets->push_back(0, jetVec_bx0[iJet]);
+   }
+   for( int iJet=0; iJet<int(jetVec_bxp1.size()); iJet++ ){
+     jets->push_back(1, jetVec_bxp1[iJet]);
+   }
+   for( int iJet=0; iJet<int(jetVec.size()); iJet++ ){
+     jets->push_back(2, jetVec[iJet]);
+   }
 
-     // Fill Etsums
-     for( int iETsum=0; iETsum<int(etsumVec_bxm2.size()); iETsum++ ){
-       etsums->push_back(-2, etsumVec_bxm2[iETsum]);
-     }
-     for( int iETsum=0; iETsum<int(etsumVec_bxm1.size()); iETsum++ ){
-       etsums->push_back(-1, etsumVec_bxm1[iETsum]);
-     }
-     for( int iETsum=0; iETsum<int(etsumVec_bx0.size()); iETsum++ ){
-       etsums->push_back(0, etsumVec_bx0[iETsum]);
-     }
-     for( int iETsum=0; iETsum<int(etsumVec_bxp1.size()); iETsum++ ){
-       etsums->push_back(1, etsumVec_bxp1[iETsum]);
-     }
-     for( int iETsum=0; iETsum<int(etsumVec.size()); iETsum++ ){
-       etsums->push_back(2, etsumVec[iETsum]);
-     }
-
-     // reset counter
-//     counter_ = 0;
-//   }
+   // Fill Etsums
+   for( int iETsum=0; iETsum<int(etsumVec_bxm2.size()); iETsum++ ){
+     etsums->push_back(-2, etsumVec_bxm2[iETsum]);
+   }
+   for( int iETsum=0; iETsum<int(etsumVec_bxm1.size()); iETsum++ ){
+     etsums->push_back(-1, etsumVec_bxm1[iETsum]);
+   }
+   for( int iETsum=0; iETsum<int(etsumVec_bx0.size()); iETsum++ ){
+     etsums->push_back(0, etsumVec_bx0[iETsum]);
+   }
+   for( int iETsum=0; iETsum<int(etsumVec_bxp1.size()); iETsum++ ){
+     etsums->push_back(1, etsumVec_bxp1[iETsum]);
+   }
+   for( int iETsum=0; iETsum<int(etsumVec.size()); iETsum++ ){
+     etsums->push_back(2, etsumVec[iETsum]);
+   }
 
 
   iEvent.put(egammas);
@@ -561,30 +523,30 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.put(jets);
   iEvent.put(etsums);
 
-// Now shift the bx data by one to prepare for next event.
-     muonVec_bxm2 = muonVec_bxm1;
-     egammaVec_bxm2 = egammaVec_bxm1;
-     tauVec_bxm2 = tauVec_bxm1;
-     jetVec_bxm2 = jetVec_bxm1;
-     etsumVec_bxm2 = etsumVec_bxm1;      
+  // Now shift the bx data by one to prepare for next event.
+  muonVec_bxm2 = muonVec_bxm1;
+  egammaVec_bxm2 = egammaVec_bxm1;
+  tauVec_bxm2 = tauVec_bxm1;
+  jetVec_bxm2 = jetVec_bxm1;
+  etsumVec_bxm2 = etsumVec_bxm1;
 
-     muonVec_bxm1 = muonVec_bx0;
-     egammaVec_bxm1 = egammaVec_bx0;
-     tauVec_bxm1 = tauVec_bx0;
-     jetVec_bxm1 = jetVec_bx0;
-     etsumVec_bxm1 = etsumVec_bx0;      
+  muonVec_bxm1 = muonVec_bx0;
+  egammaVec_bxm1 = egammaVec_bx0;
+  tauVec_bxm1 = tauVec_bx0;
+  jetVec_bxm1 = jetVec_bx0;
+  etsumVec_bxm1 = etsumVec_bx0;
 
-     muonVec_bx0 = muonVec_bxp1;
-     egammaVec_bx0 = egammaVec_bxp1;
-     tauVec_bx0 = tauVec_bxp1;
-     jetVec_bx0 = jetVec_bxp1;
-     etsumVec_bx0 = etsumVec_bxp1;      
+  muonVec_bx0 = muonVec_bxp1;
+  egammaVec_bx0 = egammaVec_bxp1;
+  tauVec_bx0 = tauVec_bxp1;
+  jetVec_bx0 = jetVec_bxp1;
+  etsumVec_bx0 = etsumVec_bxp1;
 
-     muonVec_bxp1 = muonVec;
-     egammaVec_bxp1 = egammaVec;
-     tauVec_bxp1 = tauVec;
-     jetVec_bxp1 = jetVec;
-     etsumVec_bxp1 = etsumVec;   
+  muonVec_bxp1 = muonVec;
+  egammaVec_bxp1 = egammaVec;
+  tauVec_bxp1 = tauVec;
+  jetVec_bxp1 = jetVec;
+  etsumVec_bxp1 = etsumVec;
 
 }
 
@@ -627,12 +589,11 @@ int L1uGtGenToInputProducer::convertPhiToHW(double iphi, int steps){
 
 unsigned int L1uGtGenToInputProducer::convertEtaToHW(double ieta, double minEta, double maxEta, int steps, unsigned int bitMask){
 
-  
    double binWidth = (maxEta - minEta)/steps;
      
-   //if we are outside the limits (or right on it) ...shift to make sure it is in the range of hwEta
-   if(ieta <= minEta) ieta = minEta+binWidth/2.;
-   if(ieta >= maxEta) ieta = maxEta-binWidth/2.;
+   //if we are outside the limits, set error
+   if(ieta < minEta) return 99999;//ieta = minEta+binWidth/2.;
+   if(ieta > maxEta) return 99999;//ieta = maxEta-binWidth/2.;
       
    int binNum = (int)(ieta/binWidth);
    if(ieta<0.) binNum--;
