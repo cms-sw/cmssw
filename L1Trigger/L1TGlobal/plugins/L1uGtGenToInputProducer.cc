@@ -253,6 +253,7 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     if( iMu>=maxNumMuCands_ ) continue;
 
     maxPt_ = 255;
+    minEta_ = -2.45;
     maxEta_ = 2.45;
     etaSteps_ = 450;
     phiSteps_ = 576;
