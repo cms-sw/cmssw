@@ -1,6 +1,7 @@
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace Pythia8;
 
@@ -55,11 +56,19 @@ bool Py8InterfaceBase::declareStableParticles( const std::vector<int>& pdgIds )
     // 
     // well, actually it looks like Py8 operates in PDT id's rather than Py6's
     //
-    // int PyID = HepPID::translatePDTtoPythia( pdgIds[i] ); 
+//    int PyID = HepPID::translatePDTtoPythia( pdgIds[i] ); 
     int PyID = pdgIds[i]; 
     std::ostringstream pyCard ;
     pyCard << PyID <<":mayDecay=false";
-    fMasterGen->readString( pyCard.str() );
+
+    if ( fMasterGen->particleData.isParticle( PyID ) ) {
+       fMasterGen->readString( pyCard.str() );
+    } else {
+
+       edm::LogWarning("DataNotUnderstood") << "Pythia8 does not "
+                                            << "recognize particle id = " 
+                                            << PyID << std::endl;
+    } 
     // alternative:
     // set the 2nd input argument warn=false 
     // - this way Py8 will NOT print warnings about unknown particle code(s)

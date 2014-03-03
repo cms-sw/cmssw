@@ -206,7 +206,7 @@ bool HeaderLess::operator() (const LHERunInfoProduct::Header &a,
 }
 
 bool LHERunInfoProduct::isTagComparedInMerge(const std::string& tag) {
-	return !(tag == "" || tag.find("Alpgen") == 0 || tag == "MGGridCard" || tag == "MGGenerationInfo");
+        return !(tag == "" || tag.find("Alpgen") == 0 || tag == "MGGridCard" || tag == "MGGenerationInfo" || tag=="MGRunCard" || tag == "mgruncard" || tag=="MadSpin" || tag=="madspin");
 }
 
 bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
