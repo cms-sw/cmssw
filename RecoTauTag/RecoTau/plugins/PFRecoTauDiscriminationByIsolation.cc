@@ -74,10 +74,18 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
 	<< " These options are mutually exclusive.";
     }
 
+    if ( pset.exists("baselineConeSize") ) {
+      baselineCone_ = pset.getParameter<double>("baselineConeSize");
+    } else {
+      baselineCone_ = 0.5;
+    }
+
     if ( pset.exists("customOuterCone") ) {
       customIsoCone_ = pset.getParameter<double>("customOuterCone");
+      coneSizeCorrection_=customIsoCone_*customIsoCone_/(baselineCone_*baselineCone_);
     } else {
       customIsoCone_ = -1;
+      coneSizeCorrection_=1.0;
     }
 
     // Get the quality cuts specific to the isolation region
@@ -169,7 +177,9 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   bool applyRelativeSumPtCut_;
   double maximumRelativeSumPt_;
   double customIsoCone_;
-  
+  double baselineCone_;
+  double coneSizeCorrection_;
+
   // Options to store the raw value in the discriminator instead of boolean pass/fail flag
   bool storeRawOccupancy_;
   bool storeRawSumPt_;
@@ -237,6 +247,7 @@ void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event, con
     event.getByToken(vertex_token, vertices);
     size_t nVtxThisEvent = vertices->size();
     deltaBetaFactorThisEvent_ = deltaBetaFormula_->Eval(nVtxThisEvent);
+    if (customIsoCone_ >= 0.) deltaBetaFactorThisEvent_*=coneSizeCorrection_;
   }
 
   if ( applyRhoCorrection_ ) {
