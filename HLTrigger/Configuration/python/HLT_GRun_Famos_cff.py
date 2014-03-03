@@ -3240,271 +3240,493 @@ hltMuons = cms.EDProducer( "MuonIdProducer",
     ptThresholdToFillCandidateP4WithGlobalFit = cms.double( 200.0 ),
     minNumberOfMatches = cms.int32( 1 )
 )
-hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducerECAL",
-    crossBarrelEndcapBorder = cms.bool( False ),
-    verbose = cms.untracked.bool( False ),
-    ecalRecHitsEE = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
-    ecalRecHitsEB = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
-    thresh_Cleaning_EB = cms.double( 2.0 ),
-    timing_Cleaning = cms.bool( True ),
-    thresh_Barrel = cms.double( 0.08 ),
-    thresh_Cleaning_EE = cms.double( 1.0E9 ),
-    topological_Cleaning = cms.bool( True ),
-    thresh_Endcap = cms.double( 0.3 )
-)
-hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
-    ECAL_Compensate = cms.bool( False ),
-    ECAL_Dead_Code = cms.uint32( 10 ),
-    MinLongTiming_Cut = cms.double( -5.0 ),
-    verbose = cms.untracked.bool( False ),
-    ECAL_Compensation = cms.double( 0.5 ),
-    MaxLongTiming_Cut = cms.double( 5.0 ),
-    weight_HFhad = cms.double( 1.0 ),
-    ApplyPulseDPG = cms.bool( True ),
-    ECAL_Threshold = cms.double( 10.0 ),
-    ApplyTimeDPG = cms.bool( False ),
-    caloTowers = cms.InputTag( "hltTowerMakerForPF" ),
-    hcalRecHitsHBHE = cms.InputTag( "hltHbhereco" ),
-    LongFibre_Fraction = cms.double( 0.1 ),
-    MaxShortTiming_Cut = cms.double( 5.0 ),
-    HcalMaxAllowedHFLongShortSev = cms.int32( 9 ),
-    thresh_Barrel = cms.double( 0.4 ),
-    navigation_HF = cms.bool( True ),
-    HcalMaxAllowedHFInTimeWindowSev = cms.int32( 9 ),
-    HF_Calib_29 = cms.double( 1.07 ),
-    LongFibre_Cut = cms.double( 120.0 ),
-    EM_Depth = cms.double( 22.0 ),
-    weight_HFem = cms.double( 1.0 ),
-    LongShortFibre_Cut = cms.double( 30.0 ),
-    MinShortTiming_Cut = cms.double( -5.0 ),
-    HCAL_Calib = cms.bool( True ),
-    thresh_HF = cms.double( 0.4 ),
-    HcalMaxAllowedHFDigiTimeSev = cms.int32( 9 ),
-    thresh_Endcap = cms.double( 0.4 ),
-    HcalMaxAllowedChannelStatusSev = cms.int32( 9 ),
-    hcalRecHitsHF = cms.InputTag( "hltHfreco" ),
-    ShortFibre_Cut = cms.double( 60.0 ),
-    ApplyLongShortDPG = cms.bool( True ),
-    HF_Calib = cms.bool( True ),
-    HAD_Depth = cms.double( 47.0 ),
-    ShortFibre_Fraction = cms.double( 0.01 ),
-    HCAL_Calib_29 = cms.double( 1.35 )
-)
-hltParticleFlowRecHitPS = cms.EDProducer( "PFRecHitProducerPS",
-    ecalRecHitsES = cms.InputTag( 'hltESRecHitAll','EcalRecHitsES' ),
-    thresh_Barrel = cms.double( 7.0E-6 ),
-    verbose = cms.untracked.bool( False ),
-    thresh_Endcap = cms.double( 7.0E-6 )
-)
-hltParticleFlowClusterECAL = cms.EDProducer( "PFClusterProducer",
-    posCalcNCrystal = cms.int32( 9 ),
-    verbose = cms.untracked.bool( False ),
-    showerSigma = cms.double( 1.5 ),
-    thresh_DoubleSpike_Barrel = cms.double( 10.0 ),
-    thresh_Pt_Barrel = cms.double( 0.0 ),
-    thresh_Clean_Barrel = cms.double( 4.0 ),
-    PFRecHits = cms.InputTag( "hltParticleFlowRecHitECAL" ),
-    cleanRBXandHPDs = cms.bool( False ),
-    depthCor_B = cms.double( 7.4 ),
-    depthCor_A = cms.double( 0.89 ),
-    nNeighbours = cms.int32( 8 ),
-    thresh_DoubleSpike_Endcap = cms.double( 1.0E9 ),
-    PFClustersPS = cms.InputTag( "" ),
-    minS4S1_Clean_Barrel = cms.vdouble( 0.04, -0.024 ),
-    thresh_Pt_Seed_Barrel = cms.double( 0.0 ),
-    thresh_Pt_Endcap = cms.double( 0.0 ),
-    thresh_Preshower = cms.double( 0.0 ),
-    PositionCalcConfig = cms.PSet( 
-      T0_barl = cms.double( 7.4 ),
-      LogWeighted = cms.bool( True ),
-      T0_endc = cms.double( 3.1 ),
-      T0_endcPresh = cms.double( 1.2 ),
-      W0 = cms.double( 4.2 ),
-      X0 = cms.double( 0.89 )
+hltParticleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
+
+    navigator = cms.PSet(
+        name = cms.string("PFRecHitECALNavigator"),
+        barrel = cms.PSet( ),
+        endcap = cms.PSet( )
     ),
-    thresh_Barrel = cms.double( 0.08 ),
-    applyCrackCorrections = cms.bool( False ),
-    thresh_Clean_Endcap = cms.double( 15.0 ),
-    thresh_Seed_Barrel = cms.double( 0.23 ),
-    depthCor_Mode = cms.int32( 1 ),
-    depthCor_B_preshower = cms.double( 4.0 ),
-    useCornerCells = cms.bool( True ),
-    depthCor_A_preshower = cms.double( 0.89 ),
-    thresh_Endcap = cms.double( 0.3 ),
-    thresh_Pt_Seed_Endcap = cms.double( 0.15 ),
-    minS4S1_Clean_Endcap = cms.vdouble( 0.02, -0.0125 ),
-    thresh_Seed_Endcap = cms.double( 0.6 ),
-    PositionCalcType = cms.string( "PFPositionCalc" ),
-    minS6S2_DoubleSpike_Endcap = cms.double( -1.0 ),
-    minS6S2_DoubleSpike_Barrel = cms.double( 0.04 )
+    producers = cms.VPSet(
+           cms.PSet(
+             name = cms.string("PFEBRecHitCreator"),
+             src  = cms.InputTag('hltEcalRecHitAll','EcalRecHitsEB'),
+             isEndcap = cms.bool(False),
+             qualityTests = cms.VPSet(
+                  cms.PSet(
+                  name = cms.string("PFRecHitQTestThreshold"),
+                  threshold = cms.double(0.08)
+                  ),
+                  cms.PSet(
+                  name = cms.string("PFRecHitQTestECAL"),
+                  cleaningThreshold = cms.double(2.0),
+                  timingCleaning = cms.bool(True),
+                  topologicalCleaning = cms.bool(True),
+                  skipTTRecoveredHits = cms.bool(True)
+                  )
+             )
+           ),
+          cms.PSet(
+            name = cms.string("PFEERecHitCreator"),
+            src  = cms.InputTag('hltEcalRecHitAll','EcalRecHitsEE'),
+            isEndcap = cms.bool(True),
+            qualityTests = cms.VPSet(
+                 cms.PSet(
+                 name = cms.string("PFRecHitQTestThreshold"),
+                 threshold = cms.double(0.3)
+                 ),
+                 cms.PSet(
+                 name = cms.string("PFRecHitQTestECAL"),
+                 cleaningThreshold = cms.double(2.0),
+                 timingCleaning = cms.bool(True),
+                 topologicalCleaning = cms.bool(True),
+                 skipTTRecoveredHits = cms.bool(True)
+                 )
+            )
+          )
+    )
+          
 )
-hltParticleFlowClusterHCAL = cms.EDProducer( "PFClusterProducer",
-    posCalcNCrystal = cms.int32( 5 ),
-    verbose = cms.untracked.bool( False ),
-    showerSigma = cms.double( 10.0 ),
-    thresh_DoubleSpike_Barrel = cms.double( 1.0E9 ),
-    thresh_Pt_Barrel = cms.double( 0.0 ),
-    thresh_Clean_Barrel = cms.double( 100000.0 ),
-    PFRecHits = cms.InputTag( "hltParticleFlowRecHitHCAL" ),
-    cleanRBXandHPDs = cms.bool( True ),
-    depthCor_B = cms.double( 7.4 ),
-    depthCor_A = cms.double( 0.89 ),
-    nNeighbours = cms.int32( 4 ),
-    thresh_DoubleSpike_Endcap = cms.double( 1.0E9 ),
-    PFClustersPS = cms.InputTag( "" ),
-    minS4S1_Clean_Barrel = cms.vdouble( 0.032, -0.045 ),
-    thresh_Pt_Seed_Barrel = cms.double( 0.0 ),
-    thresh_Pt_Endcap = cms.double( 0.0 ),
-    thresh_Preshower = cms.double( 0.0 ),
-    PositionCalcConfig = cms.PSet( 
-      T0_barl = cms.double( 7.4 ),
-      LogWeighted = cms.bool( True ),
-      T0_endc = cms.double( 3.1 ),
-      T0_endcPresh = cms.double( 1.2 ),
-      W0 = cms.double( 4.2 ),
-      X0 = cms.double( 0.89 )
-    ),
-    thresh_Barrel = cms.double( 0.8 ),
-    applyCrackCorrections = cms.bool( False ),
-    thresh_Clean_Endcap = cms.double( 100000.0 ),
-    thresh_Seed_Barrel = cms.double( 0.8 ),
-    depthCor_Mode = cms.int32( 0 ),
-    depthCor_B_preshower = cms.double( 4.0 ),
-    useCornerCells = cms.bool( True ),
-    depthCor_A_preshower = cms.double( 0.89 ),
-    thresh_Endcap = cms.double( 0.8 ),
-    thresh_Pt_Seed_Endcap = cms.double( 0.0 ),
-    minS4S1_Clean_Endcap = cms.vdouble( 0.032, -0.045 ),
-    thresh_Seed_Endcap = cms.double( 1.1 ),
-    PositionCalcType = cms.string( "PFPositionCalc" ),
-    minS6S2_DoubleSpike_Endcap = cms.double( -1.0 ),
-    minS6S2_DoubleSpike_Barrel = cms.double( -1.0 )
+hltParticleFlowRecHitHCAL = cms.EDProducer("PFCTRecHitProducer",
+    caloTowers = cms.InputTag("hltTowerMakerForPF"),
+    hcalRecHitsHBHE = cms.InputTag("hltHbhereco"),
+    hcalRecHitsHF = cms.InputTag("hltHfreco"),
+    # cell threshold in barrel 
+    thresh_Barrel = cms.double(0.4),
+    # cell threshold in HF
+    thresh_HF = cms.double(0.4),
+    # cell threshold in endcap 
+    thresh_Endcap = cms.double(0.4),
+    # Navigation in HF: 
+    # False = no real clustering in HF
+    # True  = do clustering in HF
+    navigation_HF = cms.bool(True),
+#AUGUSTE: TO BE CHECKED:
+    weight_HFem = cms.double(1.000),
+    weight_HFhad = cms.double(1.000),
+#   weight_HFem = cms.double(1.0),
+#   weight_HFhad = cms.double(1.0)
+
+# HCAL calibration for tower 29
+    HCAL_Calib = cms.bool(True),
+    HF_Calib = cms.bool(True),
+    HCAL_Calib_29 = cms.double(1.35),
+    HF_Calib_29 = cms.double(1.07),
+
+# Cut short fibres if no long fibre energy
+    ShortFibre_Cut = cms.double(60.),
+    LongFibre_Fraction = cms.double(0.10),
+
+# Cut long fibres if no short fibre energy
+    LongFibre_Cut = cms.double(120.),
+    ShortFibre_Fraction = cms.double(0.01),
+
+# Also apply DPG cleaning
+    ApplyLongShortDPG = cms.bool(True),
+
+# Cut on timing if sufficient energy (in both long and short fibres)
+    LongShortFibre_Cut = cms.double(1E9),
+    #MinLongTiming_Cut = cms.double(-11.),
+    #MaxLongTiming_Cut = cms.double(+8.),
+    #MinShortTiming_Cut = cms.double(-10.),
+    #MaxShortTiming_Cut = cms.double(+8.),
+    MinLongTiming_Cut = cms.double(-5.),
+    MaxLongTiming_Cut = cms.double(+5.),
+    MinShortTiming_Cut = cms.double(-5.),
+    MaxShortTiming_Cut = cms.double(+5.),
+
+# Also apply DPG cleaning
+    ApplyTimeDPG = cms.bool(False),
+    ApplyPulseDPG = cms.bool(False),
+# Specify maximum severity levels for which each HCAL flag will still be treated as "normal".  (If the flag severity is larger than the level, the appropriate PF cleaning will take place.)  These ints are similar to the HcalAcceptSeverityLevel parameter used in default CaloTowers, but do not necessarily have to share the same value. 
+                                        
+    HcalMaxAllowedHFLongShortSev = cms.int32(9),
+    HcalMaxAllowedHFDigiTimeSev = cms.int32(9),
+    HcalMaxAllowedHFInTimeWindowSev = cms.int32(9),
+    HcalMaxAllowedChannelStatusSev = cms.int32(9),
+                                              
+                                        
+
+# Compensate for ECAL dead channels                                        
+    ECAL_Compensate = cms.bool(False),
+    ECAL_Threshold = cms.double(10.),
+    ECAL_Compensation = cms.double(0.5),
+    ECAL_Dead_Code = cms.uint32(10),
+
+# Depth correction (in cm) for hadronic and electromagnetic rechits
+    EM_Depth = cms.double(22.),
+    HAD_Depth = cms.double(47.),                              
+
+    navigator = cms.PSet(
+        name = cms.string("PFRecHitCaloTowerNavigator")
+    )
+
 )
-hltParticleFlowClusterHFEM = cms.EDProducer( "PFClusterProducer",
-    posCalcNCrystal = cms.int32( 5 ),
-    verbose = cms.untracked.bool( False ),
-    showerSigma = cms.double( 10.0 ),
-    thresh_DoubleSpike_Barrel = cms.double( 1.0E9 ),
-    thresh_Pt_Barrel = cms.double( 0.0 ),
-    thresh_Clean_Barrel = cms.double( 80.0 ),
-    PFRecHits = cms.InputTag( 'hltParticleFlowRecHitHCAL','HFEM' ),
-    cleanRBXandHPDs = cms.bool( False ),
-    depthCor_B = cms.double( 7.4 ),
-    depthCor_A = cms.double( 0.89 ),
-    nNeighbours = cms.int32( 0 ),
-    thresh_DoubleSpike_Endcap = cms.double( 1.0E9 ),
-    PFClustersPS = cms.InputTag( "" ),
-    minS4S1_Clean_Barrel = cms.vdouble( 0.11, -0.19 ),
-    thresh_Pt_Seed_Barrel = cms.double( 0.0 ),
-    thresh_Pt_Endcap = cms.double( 0.0 ),
-    thresh_Preshower = cms.double( 0.0 ),
-    PositionCalcConfig = cms.PSet( 
-      T0_barl = cms.double( 7.4 ),
-      LogWeighted = cms.bool( True ),
-      T0_endc = cms.double( 3.1 ),
-      T0_endcPresh = cms.double( 1.2 ),
-      W0 = cms.double( 4.2 ),
-      X0 = cms.double( 0.89 )
+hltParticleFlowRecHitPS = cms.EDProducer("PFRecHitProducer",
+    navigator = cms.PSet(
+        name = cms.string("PFRecHitPreshowerNavigator")
     ),
-    thresh_Barrel = cms.double( 0.8 ),
-    applyCrackCorrections = cms.bool( False ),
-    thresh_Clean_Endcap = cms.double( 80.0 ),
-    thresh_Seed_Barrel = cms.double( 1.4 ),
-    depthCor_Mode = cms.int32( 0 ),
-    depthCor_B_preshower = cms.double( 4.0 ),
-    useCornerCells = cms.bool( False ),
-    depthCor_A_preshower = cms.double( 0.89 ),
-    thresh_Endcap = cms.double( 0.8 ),
-    thresh_Pt_Seed_Endcap = cms.double( 0.0 ),
-    minS4S1_Clean_Endcap = cms.vdouble( 0.11, -0.19 ),
-    thresh_Seed_Endcap = cms.double( 1.4 ),
-    PositionCalcType = cms.string( "PFPositionCalc" ),
-    minS6S2_DoubleSpike_Endcap = cms.double( -1.0 ),
-    minS6S2_DoubleSpike_Barrel = cms.double( -1.0 )
+    producers = cms.VPSet(
+           cms.PSet(
+             name = cms.string("PFPSRecHitCreator"),
+             src  = cms.InputTag('hltESRecHitAll','EcalRecHitsES'),
+             qualityTests = cms.VPSet(
+                  cms.PSet(
+                  name = cms.string("PFRecHitQTestThreshold"),
+                  threshold = cms.double(7e-6)
+                  )
+             )
+           )
+    )
+
 )
-hltParticleFlowClusterHFHAD = cms.EDProducer( "PFClusterProducer",
-    posCalcNCrystal = cms.int32( 5 ),
-    verbose = cms.untracked.bool( False ),
-    showerSigma = cms.double( 10.0 ),
-    thresh_DoubleSpike_Barrel = cms.double( 1.0E9 ),
-    thresh_Pt_Barrel = cms.double( 0.0 ),
-    thresh_Clean_Barrel = cms.double( 120.0 ),
-    PFRecHits = cms.InputTag( 'hltParticleFlowRecHitHCAL','HFHAD' ),
-    cleanRBXandHPDs = cms.bool( False ),
-    depthCor_B = cms.double( 7.4 ),
-    depthCor_A = cms.double( 0.89 ),
-    nNeighbours = cms.int32( 0 ),
-    thresh_DoubleSpike_Endcap = cms.double( 1.0E9 ),
-    PFClustersPS = cms.InputTag( "" ),
-    minS4S1_Clean_Barrel = cms.vdouble( 0.045, -0.08 ),
-    thresh_Pt_Seed_Barrel = cms.double( 0.0 ),
-    thresh_Pt_Endcap = cms.double( 0.0 ),
-    thresh_Preshower = cms.double( 0.0 ),
-    PositionCalcConfig = cms.PSet( 
-      T0_barl = cms.double( 7.4 ),
-      LogWeighted = cms.bool( True ),
-      T0_endc = cms.double( 3.1 ),
-      T0_endcPresh = cms.double( 1.2 ),
-      W0 = cms.double( 4.2 ),
-      X0 = cms.double( 0.89 )
+hltParticleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
+    pfClusterBuilder = cms.PSet(
+        algoName = cms.string('Basic2DGenericPFlowClusterizer'),
+        maxIterations = cms.uint32(50),
+        minFracTot = cms.double(1e-20),
+        allCellsPositionCalc = cms.PSet(
+            minAllowedNormalization = cms.double(1e-09),
+            minFractionInCalc = cms.double(1e-09),
+            logWeightDenominator = cms.double(0.08),
+            posCalcNCrystals = cms.int32(-1),
+            algoName = cms.string('Basic2DGenericPFlowPositionCalc')
+        ),
+        showerSigma = cms.double(1.5),
+        positionCalc = cms.PSet(
+            minAllowedNormalization = cms.double(1e-09),
+            minFractionInCalc = cms.double(1e-09),
+            logWeightDenominator = cms.double(0.08),
+            posCalcNCrystals = cms.int32(9),
+            algoName = cms.string('Basic2DGenericPFlowPositionCalc')
+        ),
+        recHitEnergyNorms = cms.VPSet(cms.PSet(
+            detector = cms.string('ECAL_BARREL'),
+            recHitEnergyNorm = cms.double(0.08)
+        ), 
+            cms.PSet(
+                detector = cms.string('ECAL_ENDCAP'),
+                recHitEnergyNorm = cms.double(0.3)
+            )),
+        stoppingTolerance = cms.double(1e-08),
+        positionCalcForConvergence = cms.PSet(
+            algoName = cms.string('ECAL2DPositionCalcWithDepthCorr'),
+            minFractionInCalc = cms.double(0.0),
+            T0_ES = cms.double(1.2),
+            W0 = cms.double(4.2),
+            minAllowedNormalization = cms.double(0.0),
+            X0 = cms.double(0.89),
+            T0_EB = cms.double(7.4),
+            T0_EE = cms.double(3.1)
+        ),
+        minFractionToKeep = cms.double(1e-07),
+        excludeOtherSeeds = cms.bool(True)
     ),
-    thresh_Barrel = cms.double( 0.8 ),
-    applyCrackCorrections = cms.bool( False ),
-    thresh_Clean_Endcap = cms.double( 120.0 ),
-    thresh_Seed_Barrel = cms.double( 1.4 ),
-    depthCor_Mode = cms.int32( 0 ),
-    depthCor_B_preshower = cms.double( 4.0 ),
-    useCornerCells = cms.bool( False ),
-    depthCor_A_preshower = cms.double( 0.89 ),
-    thresh_Endcap = cms.double( 0.8 ),
-    thresh_Pt_Seed_Endcap = cms.double( 0.0 ),
-    minS4S1_Clean_Endcap = cms.vdouble( 0.045, -0.08 ),
-    thresh_Seed_Endcap = cms.double( 1.4 ),
-    PositionCalcType = cms.string( "PFPositionCalc" ),
-    minS6S2_DoubleSpike_Endcap = cms.double( -1.0 ),
-    minS6S2_DoubleSpike_Barrel = cms.double( -1.0 )
+    positionReCalc = cms.PSet(
+        algoName = cms.string('ECAL2DPositionCalcWithDepthCorr'),
+        minFractionInCalc = cms.double(0.0),
+        T0_ES = cms.double(1.2),
+        W0 = cms.double(4.2),
+        minAllowedNormalization = cms.double(0.0),
+        X0 = cms.double(0.89),
+        T0_EB = cms.double(7.4),
+        T0_EE = cms.double(3.1)
+    ),
+    initialClusteringStep = cms.PSet(
+        algoName = cms.string('Basic2DGenericTopoClusterizer'),
+        thresholdsByDetector = cms.VPSet(cms.PSet(
+            detector = cms.string('ECAL_BARREL'),
+            gatheringThresholdPt = cms.double(0.0),
+            gatheringThreshold = cms.double(0.08)
+        ), 
+            cms.PSet(
+                detector = cms.string('ECAL_ENDCAP'),
+                gatheringThresholdPt = cms.double(0.0),
+                gatheringThreshold = cms.double(0.3)
+            )),
+        useCornerCells = cms.bool(True)
+    ),
+    recHitCleaners = cms.VPSet(cms.PSet(
+        algoName = cms.string('SpikeAndDoubleSpikeCleaner'),
+        cleaningByDetector = cms.VPSet(cms.PSet(
+            minS4S1_a = cms.double(0.04),
+            minS4S1_b = cms.double(-0.024),
+            fractionThresholdModifier = cms.double(3.0),
+            energyThresholdModifier = cms.double(2.0),
+            doubleSpikeThresh = cms.double(10.0),
+            singleSpikeThresh = cms.double(4.0),
+            doubleSpikeS6S2 = cms.double(0.04),
+            detector = cms.string('ECAL_BARREL')
+        ), 
+            cms.PSet(
+                minS4S1_a = cms.double(0.02),
+                minS4S1_b = cms.double(-0.0125),
+                fractionThresholdModifier = cms.double(3.0),
+                energyThresholdModifier = cms.double(2.0),
+                doubleSpikeThresh = cms.double(1000000000.0),
+                singleSpikeThresh = cms.double(15.0),
+                doubleSpikeS6S2 = cms.double(-1.0),
+                detector = cms.string('ECAL_ENDCAP')
+            ))
+    )),
+    seedFinder = cms.PSet(
+        algoName = cms.string('LocalMaximum2DSeedFinder'),
+        thresholdsByDetector = cms.VPSet(cms.PSet(
+            seedingThreshold = cms.double(0.6),
+            seedingThresholdPt = cms.double(0.15),
+            detector = cms.string('ECAL_ENDCAP')
+        ), 
+            cms.PSet(
+                seedingThreshold = cms.double(0.23),
+                seedingThresholdPt = cms.double(0.0),
+                detector = cms.string('ECAL_BARREL')
+            )),
+        nNeighbours = cms.uint32(8)
+    ),
+    recHitsSource = cms.InputTag("hltParticleFlowRecHitECAL")
 )
-hltParticleFlowClusterPS = cms.EDProducer( "PFClusterProducer",
-    posCalcNCrystal = cms.int32( -1 ),
-    verbose = cms.untracked.bool( False ),
-    showerSigma = cms.double( 0.2 ),
-    thresh_DoubleSpike_Barrel = cms.double( 1.0E9 ),
-    thresh_Pt_Barrel = cms.double( 0.0 ),
-    thresh_Clean_Barrel = cms.double( 100000.0 ),
-    PFRecHits = cms.InputTag( "hltParticleFlowRecHitPS" ),
-    cleanRBXandHPDs = cms.bool( False ),
-    depthCor_B = cms.double( 7.4 ),
-    depthCor_A = cms.double( 0.89 ),
-    nNeighbours = cms.int32( 8 ),
-    thresh_DoubleSpike_Endcap = cms.double( 1.0E9 ),
-    PFClustersPS = cms.InputTag( "" ),
-    minS4S1_Clean_Barrel = cms.vdouble( 0.0, 0.0 ),
-    thresh_Pt_Seed_Barrel = cms.double( 0.0 ),
-    thresh_Pt_Endcap = cms.double( 0.0 ),
-    thresh_Preshower = cms.double( 0.0 ),
-    PositionCalcConfig = cms.PSet( 
-      T0_barl = cms.double( 7.4 ),
-      LogWeighted = cms.bool( True ),
-      T0_endc = cms.double( 3.1 ),
-      T0_endcPresh = cms.double( 1.2 ),
-      W0 = cms.double( 4.2 ),
-      X0 = cms.double( 0.89 )
+hltParticleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
+    recHitsSource = cms.InputTag("hltParticleFlowRecHitHCAL"),
+    pfClusterBuilder = cms.PSet(
+        algoName = cms.string('Basic2DGenericPFlowClusterizer'),
+        maxIterations = cms.uint32(50),
+        minFracTot = cms.double(1e-20),
+        allCellsPositionCalc = cms.PSet(
+            minAllowedNormalization = cms.double(1e-09),
+            minFractionInCalc = cms.double(1e-09),
+            logWeightDenominator = cms.double(0.8),
+            posCalcNCrystals = cms.int32(-1),
+            algoName = cms.string('Basic2DGenericPFlowPositionCalc')
+        ),
+        showerSigma = cms.double(10.0),
+        positionCalc = cms.PSet(
+            minAllowedNormalization = cms.double(1e-09),
+            minFractionInCalc = cms.double(1e-09),
+            logWeightDenominator = cms.double(0.8),
+            posCalcNCrystals = cms.int32(5),
+            algoName = cms.string('Basic2DGenericPFlowPositionCalc')
+        ),
+        recHitEnergyNorms = cms.VPSet(cms.PSet(
+            detector = cms.string('HCAL_BARREL1'),
+            recHitEnergyNorm = cms.double(0.8)
+        ), 
+            cms.PSet(
+                detector = cms.string('HCAL_ENDCAP'),
+                recHitEnergyNorm = cms.double(0.8)
+            )),
+        stoppingTolerance = cms.double(1e-08),
+        minFractionToKeep = cms.double(1e-07),
+        excludeOtherSeeds = cms.bool(True)
     ),
-    thresh_Barrel = cms.double( 6.0E-5 ),
-    applyCrackCorrections = cms.bool( False ),
-    thresh_Clean_Endcap = cms.double( 100000.0 ),
-    thresh_Seed_Barrel = cms.double( 1.2E-4 ),
-    depthCor_Mode = cms.int32( 0 ),
-    depthCor_B_preshower = cms.double( 4.0 ),
-    useCornerCells = cms.bool( False ),
-    depthCor_A_preshower = cms.double( 0.89 ),
-    thresh_Endcap = cms.double( 6.0E-5 ),
-    thresh_Pt_Seed_Endcap = cms.double( 0.0 ),
-    minS4S1_Clean_Endcap = cms.vdouble( 0.0, 0.0 ),
-    thresh_Seed_Endcap = cms.double( 1.2E-4 ),
-    PositionCalcType = cms.string( "PFPositionCalc" ),
-    minS6S2_DoubleSpike_Endcap = cms.double( -1.0 ),
-    minS6S2_DoubleSpike_Barrel = cms.double( -1.0 )
+    initialClusteringStep = cms.PSet(
+        algoName = cms.string('Basic2DGenericTopoClusterizer'),
+        thresholdsByDetector = cms.VPSet(cms.PSet(
+            detector = cms.string('HCAL_BARREL1'),
+            gatheringThresholdPt = cms.double(0.0),
+            gatheringThreshold = cms.double(0.8)
+        ), 
+            cms.PSet(
+                detector = cms.string('HCAL_ENDCAP'),
+                gatheringThresholdPt = cms.double(0.0),
+                gatheringThreshold = cms.double(0.8)
+            )),
+        useCornerCells = cms.bool(True)
+    ),
+    recHitCleaners = cms.VPSet(cms.PSet(
+        algoName = cms.string('RBXAndHPDCleaner')
+    )),
+    seedFinder = cms.PSet(
+        algoName = cms.string('LocalMaximum2DSeedFinder'),
+        thresholdsByDetector = cms.VPSet(cms.PSet(
+            seedingThreshold = cms.double(0.8),
+            seedingThresholdPt = cms.double(0.0),
+            detector = cms.string('HCAL_BARREL1')
+        ), 
+            cms.PSet(
+                seedingThreshold = cms.double(1.1),
+                seedingThresholdPt = cms.double(0.0),
+                detector = cms.string('HCAL_ENDCAP')
+            )),
+        nNeighbours = cms.uint32(4)
+    )
+)
+hltParticleFlowClusterHFEM = cms.EDProducer("PFClusterProducer",
+    recHitsSource = cms.InputTag("hltParticleFlowRecHitHCAL","HFEM"),
+    pfClusterBuilder = cms.PSet(
+        algoName = cms.string('Basic2DGenericPFlowClusterizer'),
+        maxIterations = cms.uint32(50),
+        minFracTot = cms.double(1e-20),
+        allCellsPositionCalc = cms.PSet(
+            minAllowedNormalization = cms.double(1e-09),
+            minFractionInCalc = cms.double(1e-09),
+            logWeightDenominator = cms.double(0.8),
+            posCalcNCrystals = cms.int32(-1),
+            algoName = cms.string('Basic2DGenericPFlowPositionCalc')
+        ),
+        showerSigma = cms.double(10.0),
+        positionCalc = cms.PSet(
+            minAllowedNormalization = cms.double(1e-09),
+            minFractionInCalc = cms.double(1e-09),
+            logWeightDenominator = cms.double(0.8),
+            posCalcNCrystals = cms.int32(5),
+            algoName = cms.string('Basic2DGenericPFlowPositionCalc')
+        ),
+        recHitEnergyNorms = cms.VPSet(cms.PSet(
+            detector = cms.string('HF_EM'),
+            recHitEnergyNorm = cms.double(0.8)
+        )),
+        stoppingTolerance = cms.double(1e-08),
+        minFractionToKeep = cms.double(1e-07),
+        excludeOtherSeeds = cms.bool(True)
+    ),
+    initialClusteringStep = cms.PSet(
+        algoName = cms.string('Basic2DGenericTopoClusterizer'),
+        thresholdsByDetector = cms.VPSet(cms.PSet(
+            detector = cms.string('HF_EM'),
+            gatheringThresholdPt = cms.double(0.0),
+            gatheringThreshold = cms.double(0.8)
+        )),
+        useCornerCells = cms.bool(False)
+    ),
+    recHitCleaners = cms.VPSet(cms.PSet(
+        algoName = cms.string('SpikeAndDoubleSpikeCleaner'),
+        cleaningByDetector = cms.VPSet(cms.PSet(
+            minS4S1_a = cms.double(0.11),
+            minS4S1_b = cms.double(-0.19),
+            fractionThresholdModifier = cms.double(1.0),
+            energyThresholdModifier = cms.double(1.0),
+            doubleSpikeThresh = cms.double(1000000000.0),
+            singleSpikeThresh = cms.double(80.0),
+            doubleSpikeS6S2 = cms.double(-1.0),
+            detector = cms.string('HF_EM')
+        ))
+    )),
+    seedFinder = cms.PSet(
+        algoName = cms.string('LocalMaximum2DSeedFinder'),
+        thresholdsByDetector = cms.VPSet(cms.PSet(
+            seedingThreshold = cms.double(1.4),
+            seedingThresholdPt = cms.double(0.0),
+            detector = cms.string('HF_EM')
+        )),
+        nNeighbours = cms.uint32(0)
+    )
+)
+hltParticleFlowClusterHFHAD = cms.EDProducer("PFClusterProducer",
+    recHitsSource = cms.InputTag("hltParticleFlowRecHitHCAL","HFHAD"),
+    pfClusterBuilder = cms.PSet(
+        algoName = cms.string('Basic2DGenericPFlowClusterizer'),
+        maxIterations = cms.uint32(50),
+        minFracTot = cms.double(1e-20),
+        allCellsPositionCalc = cms.PSet(
+            minAllowedNormalization = cms.double(1e-09),
+            minFractionInCalc = cms.double(1e-09),
+            logWeightDenominator = cms.double(0.8),
+            posCalcNCrystals = cms.int32(-1),
+            algoName = cms.string('Basic2DGenericPFlowPositionCalc')
+        ),
+        showerSigma = cms.double(10.0),
+        positionCalc = cms.PSet(
+            minAllowedNormalization = cms.double(1e-09),
+            minFractionInCalc = cms.double(1e-09),
+            logWeightDenominator = cms.double(0.8),
+            posCalcNCrystals = cms.int32(5),
+            algoName = cms.string('Basic2DGenericPFlowPositionCalc')
+        ),
+        recHitEnergyNorms = cms.VPSet(cms.PSet(
+            detector = cms.string('HF_HAD'),
+            recHitEnergyNorm = cms.double(0.8)
+        )),
+        stoppingTolerance = cms.double(1e-08),
+        minFractionToKeep = cms.double(1e-07),
+        excludeOtherSeeds = cms.bool(True)
+    ),
+    initialClusteringStep = cms.PSet(
+        algoName = cms.string('Basic2DGenericTopoClusterizer'),
+        thresholdsByDetector = cms.VPSet(cms.PSet(
+            detector = cms.string('HF_HAD'),
+            gatheringThresholdPt = cms.double(0.0),
+            gatheringThreshold = cms.double(0.8)
+        )),
+        useCornerCells = cms.bool(False)
+    ),
+    recHitCleaners = cms.VPSet(cms.PSet(
+        algoName = cms.string('SpikeAndDoubleSpikeCleaner'),
+        cleaningByDetector = cms.VPSet(cms.PSet(
+            minS4S1_a = cms.double(0.045),
+            minS4S1_b = cms.double(-0.08),
+            fractionThresholdModifier = cms.double(1.0),
+            energyThresholdModifier = cms.double(1.0),
+            doubleSpikeThresh = cms.double(1000000000.0),
+            singleSpikeThresh = cms.double(120.0),
+            doubleSpikeS6S2 = cms.double(-1.0),
+            detector = cms.string('HF_HAD')
+        ))
+    )),
+    seedFinder = cms.PSet(
+        algoName = cms.string('LocalMaximum2DSeedFinder'),
+        thresholdsByDetector = cms.VPSet(cms.PSet(
+            seedingThreshold = cms.double(1.4),
+            seedingThresholdPt = cms.double(0.0),
+            detector = cms.string('HF_HAD')
+        )),
+        nNeighbours = cms.uint32(0)
+    )
+)
+hltParticleFlowClusterPS = cms.EDProducer("PFClusterProducer",
+    recHitsSource = cms.InputTag("hltParticleFlowRecHitPS"),
+    pfClusterBuilder = cms.PSet(
+        algoName = cms.string('Basic2DGenericPFlowClusterizer'),
+        maxIterations = cms.uint32(50),
+        showerSigma = cms.double(0.3),
+        recHitEnergyNorms = cms.VPSet(cms.PSet(
+            detector = cms.string('PS1'),
+            recHitEnergyNorm = cms.double(6e-05)
+        ), 
+            cms.PSet(
+                detector = cms.string('PS2'),
+                recHitEnergyNorm = cms.double(6e-05)
+            )),
+        positionCalc = cms.PSet(
+            minAllowedNormalization = cms.double(1e-09),
+            minFractionInCalc = cms.double(1e-09),
+            logWeightDenominator = cms.double(6e-05),
+            posCalcNCrystals = cms.int32(-1),
+            algoName = cms.string('Basic2DGenericPFlowPositionCalc')
+        ),
+        minFracTot = cms.double(1e-20),
+        stoppingTolerance = cms.double(1e-08),
+        minFractionToKeep = cms.double(1e-07),
+        excludeOtherSeeds = cms.bool(True)
+    ),
+    initialClusteringStep = cms.PSet(
+        algoName = cms.string('Basic2DGenericTopoClusterizer'),
+        thresholdsByDetector = cms.VPSet(cms.PSet(
+            detector = cms.string('PS1'),
+            gatheringThresholdPt = cms.double(0.0),
+            gatheringThreshold = cms.double(6e-05)
+        ), 
+            cms.PSet(
+                detector = cms.string('PS2'),
+                gatheringThresholdPt = cms.double(0.0),
+                gatheringThreshold = cms.double(6e-05)
+            )),
+        useCornerCells = cms.bool(False)
+    ),
+    recHitCleaners = cms.VPSet(),
+    seedFinder = cms.PSet(
+        algoName = cms.string('LocalMaximum2DSeedFinder'),
+        thresholdsByDetector = cms.VPSet(cms.PSet(
+            seedingThreshold = cms.double(0.00012),
+            seedingThresholdPt = cms.double(0.0),
+            detector = cms.string('PS1')
+        ), 
+            cms.PSet(
+                seedingThreshold = cms.double(0.00012),
+                seedingThresholdPt = cms.double(0.0),
+                detector = cms.string('PS2')
+            )),
+        nNeighbours = cms.uint32(4)
+    )
 )
 hltLightPFTracks = cms.EDProducer( "LightPFTrackProducer",
     TrackQuality = cms.string( "none" ),
