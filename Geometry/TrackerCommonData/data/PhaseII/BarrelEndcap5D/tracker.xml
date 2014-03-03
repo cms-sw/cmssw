@@ -16023,7 +16023,28 @@
 </LogicalPart>
 </LogicalPartSection>
 <SolidSection label="tracker.xml">
+<!--
 <Tubs name="Tracker" rMin="25*mm" rMax="1190*mm" dz="2910*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+-->
+    <Polycone name="Tracker" startPhi="0*deg" deltaPhi="360*deg">
+      <ZSection z="-291.0*cm" rMin="7.4*cm" rMax="120.0*cm"/>
+      <ZSection z="-270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
+      <ZSection z="-270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
+      <ZSection z="-194.8*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
+      <ZSection z="-180.0*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
+      <ZSection z="-180.0*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
+      <ZSection z="-172.2*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
+      <ZSection z="-172.2*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
+      <ZSection z="172.2*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
+      <ZSection z="172.2*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
+      <ZSection z="180.0*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
+      <ZSection z="180.0*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
+      <ZSection z="194.8*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
+      <ZSection z="270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
+      <ZSection z="270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
+      <ZSection z="291.0*cm" rMin="7.4*cm" rMax="120.0*cm"/>
+    </Polycone>
+ 
 <Box name="BModule1Layer1" dx="48*mm" dy="23.13*mm" dz="1.4*mm"/>
 <Box name="BModule1Layer1INNERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
 <Box name="BModule1Layer1OUTERwafer" dx="48*mm" dy="23.13*mm" dz="0.1*mm"/>
@@ -17131,26 +17152,40 @@
 <Tubs name="serviceR1179Z2415" rMin="1179.9*mm" rMax="1189.9*mm" dz="205.659*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR1179Z2765" rMin="1179.9*mm" rMax="1189.9*mm" dz="144.2*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR1190Z2910" rMin="1190*mm" rMax="1200*mm" dz="2910*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR214Z1160" rMin="214.978*mm" rMax="492.978*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!--<Tubs name="supportR214Z1160" rMin="214.978*mm" rMax="492.978*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/> -->
+<Tubs name="supportR214Z1160" rMin="224.978*mm" rMax="492.978*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR670Z1179" rMin="670.978*mm" rMax="1064.98*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR204Z1169" rMin="204.878*mm" rMax="214.878*mm" dz="1169.44*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR1096Z1169" rMin="1096.08*mm" rMax="1106.08*mm" dz="1169.44*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!-- <Tubs name="supportR204Z1169" rMin="204.878*mm" rMax="214.878*mm" dz="1169.44*mm" startPhi="0*deg" deltaPhi="360*deg"/> -->
+<Tubs name="supportR204Z1169" rMin="203.578*mm" rMax="213.578*mm" dz="1169.44*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!--<Tubs name="supportR1096Z1169" rMin="1096.08*mm" rMax="1106.08*mm" dz="1169.44*mm" startPhi="0*deg" deltaPhi="360*deg"/> -->
+<Tubs name="supportR1096Z1169" rMin="1096.98*mm" rMax="1106.98*mm" dz="1169.44*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR1101Z1320" rMin="1101.05*mm" rMax="1111.05*mm" dz="650.278*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR235Z1320" rMin="235.459*mm" rMax="245.459*mm" dz="650.278*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR249Z285" rMin="249.779*mm" rMax="342.246*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR375Z285" rMin="375.571*mm" rMax="492.878*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR525Z285" rMin="525.32*mm" rMax="670.878*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR702Z285" rMin="702.611*mm" rMax="872.779*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR904Z285" rMin="904.18*mm" rMax="1064.88*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!-- <Tubs name="supportR249Z285" rMin="249.779*mm" rMax="342.246*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/> -->
+<Tubs name="supportR249Z285" rMin="251.079*mm" rMax="341.446*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!--<Tubs name="supportR375Z285" rMin="375.571*mm" rMax="492.878*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
+<Tubs name="supportR375Z285" rMin="376.371*mm" rMax="492.078*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!--<Tubs name="supportR525Z285" rMin="525.32*mm" rMax="670.878*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
+<Tubs name="supportR525Z285" rMin="526.12*mm" rMax="669.978*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!--<Tubs name="supportR702Z285" rMin="702.611*mm" rMax="872.779*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
+<Tubs name="supportR702Z285" rMin="703.511*mm" rMax="871.879*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!--<Tubs name="supportR904Z285" rMin="904.18*mm" rMax="1064.88*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
+<Tubs name="supportR904Z285" rMin="905.08*mm" rMax="1063.98*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR214Z1170" rMin="214.978*mm" rMax="492.978*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR670Z1189" rMin="670.978*mm" rMax="1064.98*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR1101Z2621" rMin="1101.05*mm" rMax="1111.05*mm" dz="650.278*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR235Z2621" rMin="235.459*mm" rMax="245.459*mm" dz="650.278*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR249Z295" rMin="249.779*mm" rMax="342.246*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR375Z295" rMin="375.571*mm" rMax="492.878*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR525Z295" rMin="525.32*mm" rMax="670.878*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR702Z295" rMin="702.611*mm" rMax="872.779*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR904Z295" rMin="904.18*mm" rMax="1064.88*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!-- <Tubs name="supportR249Z295" rMin="249.779*mm" rMax="342.246*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/> -->
+<!--<Tubs name="supportR249Z295" rMin="251.079*mm" rMax="342.246*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
+<Tubs name="supportR249Z295" rMin="251.079*mm" rMax="341.446*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!--<Tubs name="supportR375Z295" rMin="375.571*mm" rMax="492.878*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
+<Tubs name="supportR375Z295" rMin="376.371*mm" rMax="492.078*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!--<Tubs name="supportR525Z295" rMin="525.32*mm" rMax="670.878*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
+<Tubs name="supportR525Z295" rMin="526.12*mm" rMax="669.978*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!--<Tubs name="supportR702Z295" rMin="702.611*mm" rMax="872.779*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
+<Tubs name="supportR702Z295" rMin="703.511*mm" rMax="871.879*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<!--<Tubs name="supportR904Z295" rMin="904.18*mm" rMax="1064.88*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>-->
+<Tubs name="supportR904Z295" rMin="905.08*mm" rMax="1063.98*mm" dz="5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
 <PosPartSection label="tracker.xml">
 <PosPart copyNumber="1">
@@ -22606,224 +22641,226 @@
 <Translation x="0*mm" y="0*mm" z="2325*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR214Z1150"/>
 <Translation x="0*mm" y="0*mm" z="1159.77*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR214Z1169"/>
-<Translation x="0*mm" y="0*mm" z="1174.44*mm"/>
+<Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR342Z1150"/>
 <Translation x="0*mm" y="0*mm" z="1159.77*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR342Z1169"/>
-<Translation x="0*mm" y="0*mm" z="1174.44*mm"/>
+<Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR492Z1150"/>
 <Translation x="0*mm" y="0*mm" z="1159.77*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR492Z1169"/>
-<Translation x="0*mm" y="0*mm" z="1174.44*mm"/>
+<Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR670Z1169"/>
-<Translation x="0*mm" y="0*mm" z="1174.54*mm"/>
+<Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR872Z1169"/>
-<Translation x="0*mm" y="0*mm" z="1174.54*mm"/>
+<Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR1064Z1169"/>
-<Translation x="0*mm" y="0*mm" z="1174.54*mm"/>
+<Translation x="0*mm" y="0*mm" z="1174.443*mm"/> <!-- 1174.44*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR214Z-1169"/>
 <Translation x="0*mm" y="0*mm" z="-1159.77*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR214Z-1179"/>
-<Translation x="0*mm" y="0*mm" z="-1174.44*mm"/>
+<Translation x="0*mm" y="0*mm" z="-1174.443*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR342Z-1169"/>
-<Translation x="0*mm" y="0*mm" z="-1159.77*mm"/>
+<Translation x="0*mm" y="0*mm" z="-1159.77*mm"/> 
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR342Z-1179"/>
-<Translation x="0*mm" y="0*mm" z="-1174.44*mm"/>
+<Translation x="0*mm" y="0*mm" z="-1174.443*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR492Z-1169"/>
-<Translation x="0*mm" y="0*mm" z="-1159.77*mm"/>
+<Translation x="0*mm" y="0*mm" z="-1159.77*mm"/> 
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR492Z-1179"/>
-<Translation x="0*mm" y="0*mm" z="-1174.44*mm"/>
+<Translation x="0*mm" y="0*mm" z="-1174.443*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR670Z-1179"/>
 <Translation x="0*mm" y="0*mm" z="-1174.54*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR872Z-1179"/>
 <Translation x="0*mm" y="0*mm" z="-1174.54*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR1064Z-1179"/>
 <Translation x="0*mm" y="0*mm" z="-1174.54*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR1179Z1250"/>
-<Translation x="0*mm" y="0*mm" z="1250.29*mm"/>
+<Translation x="0*mm" y="0*mm" z="1250.29*mm"/> <!-- 1250.29-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR1179Z1444"/>
-<Translation x="0*mm" y="0*mm" z="1445*mm"/>
+<Translation x="0*mm" y="0*mm" z="1445.0*mm"/> <!-- 1445.0*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR1179Z1715"/>
-<Translation x="0*mm" y="0*mm" z="1715.8*mm"/>
+<Translation x="0*mm" y="0*mm" z="1715.8*mm"/> <!-- 1715.8*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR1179Z2036"/>
-<Translation x="0*mm" y="0*mm" z="2036.36*mm"/>
+<Translation x="0*mm" y="0*mm" z="2036.36*mm"/> <!-- 2036.36*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR1179Z2415"/>
-<Translation x="0*mm" y="0*mm" z="2415.84*mm"/>
+<Translation x="0*mm" y="0*mm" z="2415.84*mm"/> <!-- 2415.84*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:serviceR1179Z2765"/>
-<Translation x="0*mm" y="0*mm" z="2765.8*mm"/>
+<Translation x="0*mm" y="0*mm" z="2765.3*mm"/> <!-- 2765.8*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR1190Z2910"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR214Z1160"/>
-<Translation x="0*mm" y="0*mm" z="1165.2*mm"/>
+<Translation x="0*mm" y="0*mm" z="1184.64*mm"/> <!-- 1165.2*mm-->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR670Z1179"/>
 <Translation x="0*mm" y="0*mm" z="1184.64*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR204Z1169"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR1096Z1169"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixfwd:PixelForward"/>
 <rChild name="tracker:supportR1101Z1320"/>
-<Translation x="0*mm" y="0*mm" z="1971.22*mm"/>
+<Translation x="0*mm" y="0*mm" z="1680.22*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixfwd:PixelForward"/>
 <rChild name="tracker:supportR235Z1320"/>
-<Translation x="0*mm" y="0*mm" z="1971.22*mm"/>
+<Translation x="0*mm" y="0*mm" z="1680.22*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR249Z285"/>
 <Translation x="0*mm" y="0*mm" z="290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR375Z285"/>
 <Translation x="0*mm" y="0*mm" z="290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR525Z285"/>
 <Translation x="0*mm" y="0*mm" z="290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR702Z285"/>
 <Translation x="0*mm" y="0*mm" z="290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR904Z285"/>
 <Translation x="0*mm" y="0*mm" z="290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR214Z1170"/>
-<Translation x="0*mm" y="0*mm" z="-1165.2*mm"/>
+<Translation x="0*mm" y="0*mm" z="-1184.64*mm"/> <!-- 1165.2*mm -->
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR670Z1189"/>
 <Translation x="0*mm" y="0*mm" z="-1184.64*mm"/>
 </PosPart>
+<!--
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixfwd:PixelForward"/>
 <rChild name="tracker:supportR1101Z2621"/>
 <Translation x="0*mm" y="0*mm" z="-1971.22*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixfwd:PixelForward"/>
 <rChild name="tracker:supportR235Z2621"/>
 <Translation x="0*mm" y="0*mm" z="-1971.22*mm"/>
 </PosPart>
+-->
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR249Z295"/>
 <Translation x="0*mm" y="0*mm" z="-290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR375Z295"/>
 <Translation x="0*mm" y="0*mm" z="-290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR525Z295"/>
 <Translation x="0*mm" y="0*mm" z="-290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR702Z295"/>
 <Translation x="0*mm" y="0*mm" z="-290*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
-<rParent name="tracker:Tracker"/>
+<rParent name="pixbar:PixelBarrel"/>
 <rChild name="tracker:supportR904Z295"/>
 <Translation x="0*mm" y="0*mm" z="-290*mm"/>
 </PosPart>
