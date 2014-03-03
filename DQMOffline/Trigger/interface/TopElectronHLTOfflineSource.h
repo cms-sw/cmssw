@@ -23,6 +23,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "DataFormats/Common/interface/ValueMap.h"
+
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 class TopElectronHLTOfflineSource : public edm::EDAnalyzer 
@@ -155,6 +157,7 @@ class TopElectronHLTOfflineSource : public edm::EDAnalyzer
   edm::EDGetTokenT<reco::GsfElectronCollection> electronLabel_;
   edm::EDGetTokenT<reco::VertexCollection> primaryVertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpot_;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > eleIdTokenCollection_;
 
   edm::Handle<trigger::TriggerEvent> triggerEvent_;
   

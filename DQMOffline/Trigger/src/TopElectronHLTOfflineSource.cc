@@ -80,6 +80,8 @@ void TopElectronHLTOfflineSource::beginJob()
 			
 		}
 	}
+  for (size_t i = 0; i < electronIdNames_.size(); i++)
+    eleIdTokenCollection_.push_back(consumes<edm::ValueMap<float> >((edm::InputTag)electronIdNames_[i])); 
 	//std::cout <<"done"<<std::endl;
 }
 void TopElectronHLTOfflineSource::setupHistos(std::vector<EleMEs> topEleHists)
@@ -303,7 +305,7 @@ void TopElectronHLTOfflineSource::fill(EleMEs& eleMEs, const edm::Event& iEvent,
 		bool eId = true;
 
 		edm::Handle<edm::ValueMap<float> > eIdMapHandle;
-		iEvent.getByLabel(eleMEs.eleIdNames()[j], eIdMapHandle);
+    iEvent.getByToken(eleIdTokenCollection_[j], eIdMapHandle);
 		const edm::ValueMap<float>& eIdMap = *eIdMapHandle;
 		eId = eIdMap[edm::Ref<reco::GsfElectronCollection>(eleHandle_, eleIndex)];
 		
