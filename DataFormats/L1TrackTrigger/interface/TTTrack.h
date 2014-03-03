@@ -126,8 +126,8 @@ TTTrack< T >::TTTrack()
   theWedge        = 0;
   theChi24Par     = 0.0;
   theChi25Par     = 0.0;
-  theStubPtConsistency4Par     = 0.0;
-  theStubPtConsistency5Par     = 0.0;
+  theStubPtConsistency4Par = 0.0;
+  theStubPtConsistency5Par = 0.0;
   valid4ParFit    = false;
   valid5ParFit    = false;
 }
@@ -148,8 +148,8 @@ TTTrack< T >::TTTrack( std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > 
   theWedge        = 0;
   theChi24Par     = 0.0;
   theChi25Par     = 0.0;
-  theStubPtConsistency4Par     = 0.0;
-  theStubPtConsistency5Par     = 0.0;
+  theStubPtConsistency4Par = 0.0;
+  theStubPtConsistency5Par = 0.0;
   valid4ParFit    = false;
   valid5ParFit    = false;
 }
@@ -166,11 +166,13 @@ void TTTrack< T >::setMomentum( GlobalVector aMomentum, unsigned int nPar ) {
   }
 
   if (nPar==4) {
+    valid4ParFit = true;
     theMomentum4Par=aMomentum;
   }
 
   if (nPar==5) {
-    theMomentum4Par=aMomentum;
+    valid5ParFit = true;
+    theMomentum5Par=aMomentum;
   }
 
   return;
@@ -191,7 +193,7 @@ GlobalVector TTTrack< T >::getMomentum(unsigned int nPar) const{
   }
 
   if (nPar==5) {
-    return theMomentum4Par;
+    return theMomentum5Par;
   }
 
   return GlobalVector(0.0,0.0,0.0);
@@ -208,10 +210,12 @@ void TTTrack< T >::setRInv(double aRInv, unsigned int nPar) {
   }
 
   if (nPar==4) {
+    valid4ParFit = true;
     theRInv4Par=aRInv;
   }
 
   if (nPar==5) {
+    valid5ParFit = true;
     theRInv5Par=aRInv;
   }
 
@@ -248,11 +252,13 @@ void TTTrack< T >::setPOCA(GlobalPoint aPOCA, unsigned int nPar){
   }
 
   if (nPar==4) {
+    valid4ParFit = true;
     thePOCA4Par=aPOCA;
   }
 
   if (nPar==5) {
-    thePOCA4Par=aPOCA;
+    valid5ParFit = true;
+    thePOCA5Par=aPOCA;
   }
 
   return;
@@ -272,7 +278,7 @@ GlobalPoint TTTrack< T >::getPOCA(unsigned int nPar) const
   }
 
   if (nPar==5) {
-    return thePOCA4Par;
+    return thePOCA5Par;
   }
 
   return GlobalPoint(0.0,0.0,0.0);
@@ -288,10 +294,12 @@ void TTTrack< T >::setChi2(double aChi2, unsigned int nPar) {
   }
 
   if (nPar==4) {
+    valid4ParFit = true;
     theChi24Par=aChi2;
   }
 
   if (nPar==5) {
+    valid5ParFit = true;
     theChi25Par=aChi2;
   }
 
@@ -355,10 +363,12 @@ void TTTrack< T >::setStubPtConsistency(double aStubPtConsistency, unsigned int 
   }
 
   if (nPar==4) {
+    valid4ParFit = true;
     theStubPtConsistency4Par=aStubPtConsistency;
   }
 
   if (nPar==5) {
+    valid5ParFit = true;
     theStubPtConsistency5Par=aStubPtConsistency;
   }
 
