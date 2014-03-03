@@ -16,6 +16,12 @@ namespace {
     else if ( cand.gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(cand.gsfTrackRef());
     else return reco::TrackBaseRef();
   }
+
+  // Translate GsfTrackRef to TrackBaseRef
+  template <typename T>
+  reco::TrackBaseRef convertRef(const T& ref) {
+    return reco::TrackBaseRef(ref);
+  }
 }
 
 // Quality cut implementations
@@ -261,6 +267,13 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts)
   // Require tracks to contribute a minimum weight to the associated vertex.
   minTrackVertexWeight_ = getDouble("minTrackVertexWeight");
   
+  // Use bit-wise & to avoid conditional code
+  checkHitPattern_ = (minTrackPixelHits_ > 0) & (minTrackHits_ > 0);
+  checkPV_ = (maxTransverseImpactParameter_ >= 0) &
+             (maxDeltaZ_ >= 0) &
+             (maxDeltaZToLeadTrack_ >= 0) &
+             (minTrackVertexWeight_ >= 0);
+
   // Build the QCuts for gammas
   minGammaEt_ = getDouble("minGammaEt");
 
@@ -322,50 +335,48 @@ std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(const edm::Para
   return std::make_pair(puCuts, nonPUCuts);
 }
 
-bool RecoTauQualityCuts::filterTrack(const reco::TrackBaseRef& track) const 
+bool RecoTauQualityCuts::filterTrack(const reco::TrackBaseRef& track) const
 {
+  return filterTrack_(track);
+}
+
+bool RecoTauQualityCuts::filterTrack(const reco::TrackRef& track) const
+{
+  return filterTrack_(track);
+}
+
+template <typename T>
+bool RecoTauQualityCuts::filterTrack_(const T& trackRef) const
+{
+  const Track *track = trackRef.get();
   if(minTrackPt_ >= 0 && !(track->pt() > minTrackPt_)) return false;
   if(maxTrackChi2_ >= 0 && !(track->normalizedChi2() <= maxTrackChi2_)) return false;
-  if(minTrackPixelHits_ > 0 && !(track->hitPattern().numberOfValidPixelHits() >= minTrackPixelHits_)) return false;
-  if(minTrackHits_ > 0 && !(track->hitPattern().numberOfValidHits() >= minTrackHits_)) return false;
-  if(maxTransverseImpactParameter_ >= 0) {
-    if ( pv_.isNull() ) {
-      edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
-        "RecoTauQualityCuts is invalid. - trkTransverseImpactParameter";
-      return false;
-    }
-    if(!(std::fabs(track->dxy(pv_->position())) <= maxTransverseImpactParameter_))
-      return false;
+  if(checkHitPattern_) {
+    const reco::HitPattern hitPattern = track->hitPattern();
+    if(minTrackPixelHits_ > 0 && !(hitPattern.numberOfValidPixelHits() >= minTrackPixelHits_)) return false;
+    if(minTrackHits_ > 0 && !(hitPattern.numberOfValidHits() >= minTrackHits_)) return false;
   }
-  if(maxDeltaZ_ >= 0) {
-    if ( pv_.isNull() ) {
-      edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
-        "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
-      return false;
-    }
-    if(!(std::fabs(track->dz(pv_->position())) <= maxDeltaZ_))
-      return false;
+  if(checkPV_ && pv_.isNull()) {
+    edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
+      "RecoTauQualityCuts is invalid. - filterTrack";
+    return false;
   }
+
+  if(maxTransverseImpactParameter_ >= 0 &&
+     !(std::fabs(track->dxy(pv_->position())) <= maxTransverseImpactParameter_))
+      return false;
+  if(maxDeltaZ_ >= 0 && !(std::fabs(track->dz(pv_->position())) <= maxDeltaZ_)) return false;
   if(maxDeltaZToLeadTrack_ >= 0) {
     if ( leadTrack_.isNull()) {
       edm::LogError("QCutsNoValidLeadTrack") << "Lead track Ref in " <<
-        "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameterWrtTrack";
+        "RecoTauQualityCuts is invalid. - filterTrack";
       return false;
     }
-    // shouldn't we check for pv_ too?
 
     if(!(std::fabs(track->dz(pv_->position()) - leadTrack_->dz(pv_->position())) <= maxDeltaZToLeadTrack_))
       return false;
   }
-  if(minTrackVertexWeight_ > -1.0) {
-    if ( pv_.isNull() ) {
-      edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
-        "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
-      return false;
-    }
-    if(!(pv_->trackWeight(track) >= minTrackVertexWeight_))
-      return false;
-  }
+  if(minTrackVertexWeight_ > -1.0 && !(pv_->trackWeight(convertRef(trackRef)) >= minTrackVertexWeight_)) return false;
 
   return true;
 }
@@ -401,9 +412,20 @@ bool RecoTauQualityCuts::filterCandByType(const reco::PFCandidate& cand) const {
 
 bool RecoTauQualityCuts::filterCand(const reco::PFCandidate& cand) const 
 {
-  auto track = getTrackRef(cand);
-  if ( track.isNonnull() ) return (filterTrack(track) & filterCandByType(cand));
-  return filterCandByType(cand);
+  auto trackRef = cand.trackRef();
+  bool result = true;
+  if(trackRef.isNonnull()) {
+    result = filterTrack_(trackRef);
+  }
+  else {
+    auto gsfTrackRef = cand.gsfTrackRef();
+    if(gsfTrackRef.isNonnull()) {
+      result = filterTrack_(gsfTrackRef);
+    }
+  }
+  if(result)
+    result = filterCandByType(cand);
+  return result;
 }
 
 void RecoTauQualityCuts::setLeadTrack(const reco::TrackRef& leadTrack) const 

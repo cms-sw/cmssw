@@ -56,7 +56,7 @@ class RecoTauQualityCuts
 
   /// Filter a single Track
   bool filterTrack(const reco::TrackBaseRef& track) const;
-  bool filterTrack(const reco::TrackRef& track) const { return filterTrack(reco::TrackBaseRef(track)); }
+  bool filterTrack(const reco::TrackRef& track) const;
 
   /// Filter a collection of Tracks
   template<typename Coll> 
@@ -88,6 +88,7 @@ class RecoTauQualityCuts
   }
 
  private:
+  template <typename T> bool filterTrack_(const T& trackRef) const;
   bool filterGammaCand(const reco::PFCandidate& cand) const;
   bool filterNeutralHadronCand(const reco::PFCandidate& cand) const;
   bool filterCandByType(const reco::PFCandidate& cand) const;
@@ -107,7 +108,8 @@ class RecoTauQualityCuts
   double minTrackVertexWeight_;
   double minGammaEt_;
   double minNeutralHadronEt_;
-
+  bool checkHitPattern_;
+  bool checkPV_;
 };
 
 // Split an input set of quality cuts into those that need to be inverted
