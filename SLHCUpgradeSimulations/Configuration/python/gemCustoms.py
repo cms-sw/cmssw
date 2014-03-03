@@ -73,7 +73,8 @@ def customise_DQM(process):
 def customise_Validation(process):
     process.load('Validation.MuonGEMHits.MuonGEMHits_cfi')
     process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
-    process.genvalid_all += cms.Sequence( process.gemHitsValidation*process.gemDigiValidation)
+    process.load('Validation.MuonGEMRecHits.MuonGEMRecHits_cfi')
+    process.genvalid_all += cms.Sequence( process.gemHitsValidation*process.gemDigiValidation*process.gemRecHitsValidation)
     return process
 
 
