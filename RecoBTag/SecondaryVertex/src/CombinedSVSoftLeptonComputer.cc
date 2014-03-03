@@ -476,32 +476,23 @@ CombinedSVSoftLeptonComputer::operator () (const TrackIPTagInfo &ipInfo,
 	if(leptonCategory == 0){ //  no soft lepton
   	if (vtxType == btag::Vertices::RecoVertex)
 			vertexLepCat = 0;
-  	if (vtxType == btag::Vertices::PseudoVertex)
+  	else if (vtxType == btag::Vertices::PseudoVertex)
 			vertexLepCat = 1;
-  	if (vtxType == btag::Vertices::NoVertex){
-//			cout << "here 1" << endl;
+  	else
 			vertexLepCat = 2;
-//			cout << "here 2" << endl;
-		}
 	} else if(leptonCategory == 1){ // soft muon
   	if (vtxType == btag::Vertices::RecoVertex)
 			vertexLepCat = 3;
-  	if (vtxType == btag::Vertices::PseudoVertex)
+  	else if(vtxType == btag::Vertices::PseudoVertex)
 			vertexLepCat = 4;
-  	if (vtxType == btag::Vertices::NoVertex){
-//			cout << "here 3" << endl;
-			vertexLepCat = 5;
-//			cout << "here 4" << endl;
-		}
+  	else 			vertexLepCat = 5;
 	} else if(leptonCategory == 2){ // soft electron	
   	if (vtxType == btag::Vertices::RecoVertex)
 			vertexLepCat = 6;
-  	if (vtxType == btag::Vertices::PseudoVertex)
+  	else if (vtxType == btag::Vertices::PseudoVertex)
 			vertexLepCat = 7;
-  	if (vtxType == btag::Vertices::NoVertex)
+  	else 
 			vertexLepCat = 8;
-	} else {
-		throw cms::Exception("InvalidConfiguration") << "From CombinedSVSoftLeptonComputer::operator: problem with soft lepton Category" << std::endl;	
 	}
 	
 	vars.insert(btau::vertexLeptonCategory, vertexLepCat , true);	
