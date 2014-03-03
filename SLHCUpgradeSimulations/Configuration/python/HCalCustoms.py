@@ -69,6 +69,20 @@ def customise_HcalPhase1(process):
     process=customise_condOverRides(process)
     return process
 
+def customise_HcalPhase2(process):
+    process = customise_HcalPhase1(process)
+    if hasattr(process,'digitisation_step') and hasattr(process, 'mix'):
+        process.mix.digitizers.hcal.he.photoelectronsToAnalog = cms.vdouble([10.]*29)
+        etaIndex = 21-16 #start at ieta 21 but subtract off the 15 in hb plus 1 for zero indexing
+        while len(process.mix.digitizers.hcal.he.samplingFactors) < 29:
+            sf_now = process.mix.digitizers.hcal.he.samplingFactors[etaIndex]
+            if etaIndex+1 < len(process.mix.digitizers.hcal.he.samplingFactors):
+                process.mix.digitizers.hcal.he.samplingFactors.insert(etaIndex+1, sf_now)
+            else:
+                process.mix.digitizers.hcal.he.samplingFactors.extend([sf_now]*(29-etaIndex-1))
+            etaIndex += 2
+        # print len(process.mix.digitizers.hcal.he.samplingFactors),process.mix.digitizers.hcal.he.samplingFactors
+    return process
 
 def customise_Sim(process):
     process.g4SimHits.HCalSD.TestNumberingScheme = True
@@ -95,8 +109,7 @@ def customise_Digi(process):
         process.mix.digitizers.hcal.he.pixels = cms.int32(4500*4*2)
         process.mix.digitizers.hcal.HFUpgradeQIE = True
         process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
-        process.mix.digitizers.hcal.doTimeSlew = False 
-
+        process.mix.digitizers.hcal.doTimeSlew = False
     if hasattr(process,'simHcalDigis'):
         process.simHcalDigis.useConfigZSvalues=cms.int32(1)
         process.simHcalDigis.HBlevel=cms.int32(16)

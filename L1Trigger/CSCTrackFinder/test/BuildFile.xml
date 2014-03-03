@@ -19,33 +19,33 @@
 # to generate and test PT and SR LUTs, 
 # please don't remove them
 
-#<library file="analysis/CSCMakeSRLUT.cc" name="CSCMakeSRLUT">
-#     <flags EDM_PLUGIN="1"/>
-#</library>
+###<library file="analysis/CSCMakeSRLUT.cc" name="CSCMakeSRLUT">
+###     <flags EDM_PLUGIN="1"/>
+###</library>
 
-#<library file="analysis/CSCMakePTLUT.cc" name="CSCMakePTLUT">
-#     <flags EDM_PLUGIN="1"/>
-#</library>
+###<library file="analysis/CSCMakePTLUT.cc" name="CSCMakePTLUT">
+###     <flags EDM_PLUGIN="1"/>
+###</library>
 
 #The following plugins require this library to be built
 
-#<library file="src/*.cc" name="CSCTFAnaHelpers">
-#</library>
+###<library file="src/*.cc" name="CSCTFAnaHelpers">
+###</library>
 
-#<library file="analysis/CSCTFEfficiency.cc" name="CSCTFEfficiency">
-#     <flags EDM_PLUGIN="1"/>
-#     <lib name="CSCTFAnaHelpers"/>
-#</library>
+###<library file="analysis/CSCTFEfficiency.cc" name="CSCTFEfficiency">
+###     <flags EDM_PLUGIN="1"/>
+###     <lib name="CSCTFAnaHelpers"/>
+###</library>
 
-#<library file="analysis/LCT*.cc" name="CSCTFLCTAna">
-#     <flags EDM_PLUGIN="1"/>
-#     <lib name="CSCTFAnaHelpers"/>
-#     <use name="DataFormats/Luminosity"/>
-#</library>
+###<library file="analysis/LCT*.cc" name="CSCTFLCTAna">
+###     <flags EDM_PLUGIN="1"/>
+###     <lib name="CSCTFAnaHelpers"/>
+###     <use name="DataFormats/Luminosity"/>
+###</library>
 
-#<library file="analysis/CSCTFFilter.cc" name="CSCTFFilter">
-#     <flags EDM_PLUGIN="1"/>
-#     <lib name="CSCTFAnaHelpers"/>
-#</library>
+###<library file="analysis/CSCTFFilter.cc" name="CSCTFFilter">
+###     <flags EDM_PLUGIN="1"/>
+###     <lib name="CSCTFAnaHelpers"/>
+###</library>
 
 
