@@ -54,7 +54,7 @@ class SiPixelGainCalibrationOffline {
   SiPixelGainCalibrationOffline(float minPed, float maxPed, float minGain, float maxGain);
   ~SiPixelGainCalibrationOffline(){}
 
-  void initialize() const{}
+  void initialize(){}
 
 
   bool  put(const uint32_t& detID,Range input, const int& nCols);
