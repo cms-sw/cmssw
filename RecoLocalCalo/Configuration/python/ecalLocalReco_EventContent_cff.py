@@ -13,13 +13,16 @@ ecalLocalRecoFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_ecalMultiFitUncalibRecHit_*_*', 
         'keep *_ecalPreshowerRecHit_*_*', 
-        'keep *_ecalRecHit_*_*')
+        'keep *_ecalRecHit_*_*',
+        'keep *_ecalDetailedTimeRecHit_*_*'
+        )
 )
 #RECO content
 ecalLocalRecoRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_ecalPreshowerRecHit_*_*', 
         'keep *_ecalRecHit_*_*',
+        'keep *_ecalDetailedTimeRecHit_*_*',
         'keep *_ecalCompactTrigPrim_*_*',
         'keep *_ecalTPSkim_*_*'
         )
@@ -27,6 +30,7 @@ ecalLocalRecoRECO = cms.PSet(
 #AOD content
 ecalLocalRecoAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
+    'keep *_ecalDetailedTimeRecHit_*_*'
         )
 )
 
