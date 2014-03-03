@@ -1,16 +1,12 @@
 #include "Validation/MuonGEMHits/interface/SimHitMatcher.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-
-
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-
 #include <algorithm>
 #include <iomanip>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -23,7 +19,6 @@ bool is_gem(unsigned int detid)
   return false;
 }
 
-
 }
 
 
@@ -34,9 +29,7 @@ SimHitMatcher::SimHitMatcher(const SimTrack& t, const SimVertex& v,
   simMuOnlyGEM_ = conf().getUntrackedParameter<bool>("simMuOnlyGEM", true);
   discardEleHitsGEM_ = conf().getUntrackedParameter<bool>("discardEleHitsGEM", true);
   simInputLabel_ = conf().getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
-
   setVerbose(conf().getUntrackedParameter<int>("verboseSimHit", 0));
-
   init();
 }
 
@@ -46,7 +39,6 @@ SimHitMatcher::~SimHitMatcher() {}
 
 void SimHitMatcher::init()
 {
-
   edm::ESHandle<GEMGeometry> gem_g;
   eventSetup().get<MuonGeometryRecord>().get(gem_g);
   gem_geo_ = &*gem_g;
@@ -69,16 +61,13 @@ void SimHitMatcher::init()
   }
   vector<unsigned> track_ids = getIdsOfSimTrackShower(trk().trackId(), *sim_tracks.product(), *sim_vertices.product());
 
-
   matchSimHitsToSimTrack(track_ids, *gem_hits.product());
 
   if (verbose())
   {
-
     auto gem_det_ids = detIdsGEM();
     for (auto id: gem_det_ids)
     {
-      //auto& gem_simhits = hitsInDetId(id);
       auto gem_simhits = hitsInDetId(id);
       auto gem_simhits_gp = simHitsMeanPosition(gem_simhits);
       auto strips = hitStripsInDetId(id);
@@ -112,7 +101,6 @@ SimHitMatcher::getIdsOfSimTrackShower(unsigned int initial_trk_id,
   result.push_back(initial_trk_id);
 
   if (! (simMuOnlyGEM_ ) ) return result;
-
   for (auto& t: sim_tracks)
   {
     SimTrack last_trk = t;
@@ -394,15 +382,12 @@ std::set<int> SimHitMatcher::hitStripsInDetId(unsigned int detid, int margin_n_s
   return result;
 }
 
-
-
 std::set<int> SimHitMatcher::hitPadsInDetId(unsigned int detid) const
 {
   set<int> none;
   if (gem_detids_to_pads_.find(detid) == gem_detids_to_pads_.end()) return none;
   return gem_detids_to_pads_.at(detid);
 }
-
 
 std::set<int>
 SimHitMatcher::hitCoPadsInDetId(unsigned int detid) const
@@ -439,7 +424,6 @@ SimHitMatcher::nPadsWithHits() const
   return result;
 }
 
-
 int
 SimHitMatcher::nCoincidencePadsWithHits() const
 {
@@ -451,5 +435,3 @@ SimHitMatcher::nCoincidencePadsWithHits() const
   }
   return result;
 }
-
-

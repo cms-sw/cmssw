@@ -1,34 +1,41 @@
 #include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include <TMath.h>
-
 
 GEMCSCCoPadDigiValidation::GEMCSCCoPadDigiValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag)
-:  GEMBaseValidation(dbe, inputTag) {
+:  GEMBaseValidation(dbe, inputTag) { }
 
-   const int npadsGE11 = 96;
-   int nPads = npadsGE11 ; 
-   theCSCCoPad_xy_rm1 = dbe_->book2D("copad_dg_xy_rm1", "Digi occupancy: region -1;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260);
-   theCSCCoPad_xy_rp1 = dbe_->book2D("copad_dg_xy_rp1", "Digi occupancy: region  1;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260);
-
-   theCSCCoPad_phipad_rm1 =  dbe_->book2D("copad_dg_phipad_rm1", "Digi occupancy: region -1; phi [rad];pad number ", 280, -TMath::Pi(),TMath::Pi(),nPads/2,0,nPads);
-   theCSCCoPad_phipad_rp1 =  dbe_->book2D("copad_dg_phipad_rp1", "Digi occupancy: region  1; phi [rad];pad number ", 280, -TMath::Pi(),TMath::Pi(),nPads/2,0,nPads);
+void GEMCSCCoPadDigiValidation::bookHisto() {
+  const double PI = TMath::Pi();
+  std::string region[2]= { "-1","1" } ;
+  std::string station[3]= { "1","2","3" } ;
 
 
-   theCSCCoPad_rm1 =  dbe_->book1D("copad_dg_rm1", "Digi occupancy per stip number: region -1;pad number; entries", nPads,0.5,nPads+0.5);
-   theCSCCoPad_rp1 =  dbe_->book1D("copad_dg_rp1", "Digi occupancy per stip number: region  1;pad number; entries", nPads,0.5,nPads+0.5);
+  int npadsGE11 = theGEMGeometry->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
+  int npadsGE21 = 0;
+  int nPads = 0;
 
+  int nregions = theGEMGeometry->regions().size();
+  int nstations = theGEMGeometry->regions()[0]->stations().size(); 
+  if ( nstations > 1 ) {
+    npadsGE21  = theGEMGeometry->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
+  }
+  theCSCCoPad_zr_rm1 =  dbe_->book2D("copad_dg_zr_rm1", "Digi occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,55,130,240);
+  theCSCCoPad_zr_rp1 =  dbe_->book2D("copad_dg_zr_rp1", "Digi occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200, 564, 573,55,130,240);
 
-   theCSCCoPad_bx_rm1 = dbe_->book1D("copad_dg_bx_rm1", "Bunch crossing: region -1; bunch crossing ; entries", 11,-5.5,5.5);
-   theCSCCoPad_bx_rp1 = dbe_->book1D("copad_dg_bx_rp1", "Bunch crossing: region  1; bunch crossing ; entries", 11,-5.5,5.5);
-
-
-   theCSCCoPad_zr_rm1 =  dbe_->book2D("copad_dg_zr_rm1", "Digi occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,55,130,240);
-   theCSCCoPad_zr_rp1 =  dbe_->book2D("copad_dg_zr_rp1", "Digi occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200, 564, 573,55,130,240);
+  for( int region_num = 0 ; region_num < nregions ; region_num++ ) {
+      std::string name_prefix  = std::string("_r")+region[region_num];
+      std::string label_prefix = "region "+region[region_num];
+      theCSCCoPad_bx[region_num] = dbe_->book1D( ("copad_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
+      for( int station_num = 0 ; station_num < nstations ; station_num++) {
+        if ( station_num == 0 ) nPads = npadsGE11;
+        else nPads = npadsGE21;
+        name_prefix  = std::string("_r")+region[region_num]+"_st"+station[station_num];
+        label_prefix = "region"+region[region_num]+" station "+station[station_num];
+        theCSCCoPad_phipad[region_num][station_num] = dbe_->book2D( ("copad_dg_phipad"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad]; Pad number").c_str(), 280,-PI,PI, nPads/2,0,nPads );
+        theCSCCoPad[region_num][station_num] = dbe_->book1D( ("copad_dg"+name_prefix).c_str(), ("Digi occupancy per pad number: "+label_prefix+";Pad number; entries").c_str(), nPads,0.5,nPads+0.5);
+        theCSCCoPad_xy[region_num][station_num] = dbe_->book2D( ("copad_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 260, -260,260,260,-260,260);
+      }
+    }
 }
 
 
@@ -44,11 +51,9 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
   edm::Handle<GEMCSCPadDigiCollection> gem_digis;
   e.getByLabel(theInputTag, gem_digis);
   if (!gem_digis.isValid()) {
-    edm::LogError("GEMDigiValidation") << "Cannot get pads by label "
+    edm::LogError("GEMCSCCoPadDigiValidation") << "Cannot get pads by label "
                                        << theInputTag.encode();
   }
-  //std::cout<<" Hello "<<std::endl;
-
   for (GEMCSCPadDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
 
     GEMDetId id = (*cItr).first;
@@ -57,13 +62,8 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
     const BoundPlane & surface = gdet->surface();
     const GEMEtaPartition * roll = theGEMGeometry->etaPartition(id);
 
-//    Int_t detId = id();
-    Short_t region = (Short_t) id.region();
-//    Short_t ring = (Short_t) id.ring();
-//    Short_t station = (Short_t) id.station();
-//    Short_t layer = (Short_t) id.layer();
-//    Short_t chamber = (Short_t) id.chamber();
-//    Short_t id_roll = (Short_t) id.roll();
+    Short_t region  = (Short_t)  id.region();
+    Short_t station = (Short_t) id.station();
 
     GEMCSCPadDigiCollection::const_iterator digiItr;
     //loop over digis of given roll
@@ -73,38 +73,36 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
       Short_t bx = (Short_t) digiItr->bx();
 
       LocalPoint lp = roll->centreOfPad(digiItr->pad());
-//      Float_t x = (Float_t) lp.x();
-//      Float_t y = (Float_t) lp.y();
 
       GlobalPoint gp = surface.toGlobal(lp);
       Float_t g_r = (Float_t) gp.perp();
-//      Float_t g_eta = (Float_t) gp.eta();
       Float_t g_phi = (Float_t) gp.phi();
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();
       Float_t g_z = (Float_t) gp.z();
-      edm::LogInfo("CSCCoPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";	
-      edm::LogInfo("CSCCoPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl;	
-      edm::LogInfo("CSCCoPadDIGIValidation")<<"Global bx "<<bx<<std::endl;	
+      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";	
+      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl;	
+      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global bx "<<bx<<std::endl;	
+
+      int region_num=0;
+      if ( region == -1 ) region_num = 0 ; 
+      else if (region == 1 ) region_num = 1; 
+      int station_num = station-1;
+
+      theCSCCoPad_xy[region_num][station_num]->Fill(g_x,g_y);     
+      theCSCCoPad_phipad[region_num][station_num]->Fill(g_phi,pad);
+      theCSCCoPad[region_num][station_num]->Fill(pad);
+      theCSCCoPad_bx[region_num]->Fill(bx);
 
       // fill hist
       if ( region== -1 ) {
                 theCSCCoPad_zr_rm1->Fill(g_z,g_r);
-	        theCSCCoPad_xy_rm1->Fill(g_x,g_y); 
-            theCSCCoPad_phipad_rm1->Fill(g_phi , pad);
-                   theCSCCoPad_rm1->Fill(pad);
-                theCSCCoPad_bx_rm1->Fill(bx);
       }
       else if ( region == 1 ) {
                 theCSCCoPad_zr_rp1->Fill(g_z,g_r);
-                theCSCCoPad_xy_rp1->Fill(g_x,g_y);
-            theCSCCoPad_phipad_rp1->Fill(g_phi, pad);
-                   theCSCCoPad_rp1->Fill(pad);
-                theCSCCoPad_bx_rp1->Fill(bx);
-
       }
       else {
-        edm::LogInfo("CSCCOPadDIGIValidation")<<"region : "<<region<<std::endl;
+        edm::LogInfo("GEMCSCCOPadDIGIValidation")<<"region : "<<region<<std::endl;
       }
    }
   }

@@ -27,70 +27,24 @@
 class GEMTrackMatch 
 {
 public:
-  GEMTrackMatch(DQMStore* , std::string , edm::ParameterSet);
-  ~GEMTrackMatch();
-  void analyze(const edm::Event& e, const edm::EventSetup&);
+  GEMTrackMatch(DQMStore* dbe, std::string simInputLabel, edm::ParameterSet cfg);
+  virtual ~GEMTrackMatch();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup&) = 0 ;
 
   void buildLUT();
   std::pair<int,int> getClosestChambers(int region, float phi);
   bool isSimTrackGood(const SimTrack& );
   void setGeometry(const GEMGeometry* geom); 
+  virtual void bookHisto() = 0 ;
 
 
- private:
+ protected:
 
   edm::ParameterSet cfg_;
   std::string simInputLabel_;
   DQMStore* dbe_; 
   const GEMGeometry* theGEMGeometry;   
 
-  
-  MonitorElement* track_eta;
-  MonitorElement* track_phi;
-
-  MonitorElement* track_dg_eta;
-  MonitorElement* track_sh_eta;
-
-  MonitorElement* dg_eta[4];
-  MonitorElement* dg_sh_eta[4]; 
-
-
-  MonitorElement* dg_phi[4];
-  MonitorElement* dg_sh_phi[4]; 
-
-  MonitorElement* pad_eta[4];
-  MonitorElement* pad_phi[4];
-
-
-  MonitorElement* dg_lx_even;
-  MonitorElement* dg_lx_even_l1;
-  MonitorElement* dg_lx_even_l2;
-  MonitorElement* dg_lx_even_l1or2;
-  MonitorElement* dg_lx_even_l1and2;
-
-  MonitorElement* dg_ly_even;
-  MonitorElement* dg_ly_even_l1;
-  MonitorElement* dg_ly_even_l2;
-  MonitorElement* dg_ly_even_l1or2;
-  MonitorElement* dg_ly_even_l1and2;
-
-  MonitorElement* dg_lx_odd;
-  MonitorElement* dg_lx_odd_l1;
-  MonitorElement* dg_lx_odd_l2;
-  MonitorElement* dg_lx_odd_l1or2;
-  MonitorElement* dg_lx_odd_l1and2;
-
-  MonitorElement* dg_ly_odd;
-  MonitorElement* dg_ly_odd_l1;
-  MonitorElement* dg_ly_odd_l2;
-  MonitorElement* dg_ly_odd_l1or2;
-  MonitorElement* dg_ly_odd_l1and2;
-
-
-
-
-
-  
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
   std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
 
