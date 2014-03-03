@@ -28,6 +28,7 @@ namespace l1t {
 			      std::vector<l1t::Jet> & jets) = 0;    
 
     virtual ~CaloStage2JetAlgorithm(){};
+
   }; 
   
 } 

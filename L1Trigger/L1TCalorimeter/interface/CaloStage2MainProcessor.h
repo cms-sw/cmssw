@@ -20,6 +20,7 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 namespace l1t {
     
@@ -32,6 +33,7 @@ namespace l1t {
 			      std::vector<l1t::EtSum> & etsums) = 0;    
 
     virtual ~CaloStage2MainProcessor(){};
+
   }; 
   
 } 

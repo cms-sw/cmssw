@@ -1,4 +1,36 @@
-#include "L1Trigger/L1TCalorimeter/plugins/L1TCaloTowerProducer.h"
+// -*- C++ -*-
+//
+// Package:    L1Trigger/skeleton
+// Class:      skeleton
+// 
+/**\class skeleton skeleton.cc L1Trigger/skeleton/plugins/skeleton.cc
+
+ Description: [one line class summary]
+
+ Implementation:
+     [Notes on implementation]
+*/
+//
+// Original Author:  James Brooke
+//         Created:  Thu, 05 Dec 2013 17:39:27 GMT
+//
+//
+
+
+// system include files
+#include <boost/shared_ptr.hpp>
+
+// user include files
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
 #include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
@@ -11,6 +43,46 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
+
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
+
+
+//
+// class declaration
+//
+
+namespace l1t {
+    
+  class L1TCaloTowerProducer : public edm::EDProducer { 
+  public:
+    explicit L1TCaloTowerProducer(const edm::ParameterSet& ps);
+    ~L1TCaloTowerProducer();
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+;
+
+  private:
+      virtual void beginJob() override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
+      
+      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
+      // ----------member data ---------------------------
+
+      int bxFirst_, bxLast_; // bx range to process
+
+      std::vector<edm::EDGetToken> ecalToken_;  // this is a crazy way to store multi-BX info
+      std::vector<edm::EDGetToken> hcalToken_;  // should be replaced with a BXVector< > or similar
+
+      int ietaMin_, ietaMax_, iphiMin_, iphiMax_;
+
+  }; 
+  
+} 
 
 
 l1t::L1TCaloTowerProducer::L1TCaloTowerProducer(const edm::ParameterSet& ps) :
@@ -76,8 +148,10 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     iEvent.getByToken(ecalToken_[ibx], ecalTPs);
 
     // create output vector
-    int nTow = (iphiMax_-iphiMin_) * (ietaMax_-ietaMin_);  // leave a gap at ieta=0 for now?
+    int nTow = (iphiMax_-iphiMin_) * (ietaMax_-ietaMin_-1);  // leave a gap at ieta=0 for now?
     std::vector< l1t::CaloTower > towers(nTow);
+
+    std::cout << nTow << std::endl;
 
     // loop over ECAL TPs
     EcalTrigPrimDigiCollection::const_iterator ecalItr;
@@ -94,8 +168,7 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       int ietOut = floor( et / caloParams->towerLsbE() );
       int ietOutMask = (int) pow(2,caloParams->towerNBitsE())-1;
 
-      int itow = (ieta-1)*72+iphi-1;
-
+      int itow = CaloTools::caloTowerHash(ieta, iphi);
       towers.at(itow).setHwEtEm(ietOut & ietOutMask);
       towers.at(itow).setHwFGEm(ifg);
 
@@ -116,7 +189,7 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       int ietOut = floor( et / caloParams->towerLsbH() );
       int ietOutMask = (int) pow(2,caloParams->towerNBitsH() )-1;
 
-      int itow = (ieta-1)*72+iphi-1;
+      int itow = CaloTools::caloTowerHash(ieta, iphi);
       towers.at(itow).setHwEtHad(ietOut & ietOutMask);
       //      towers.at(itow).setHwFGHad(ifg);
 
@@ -129,7 +202,7 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       for (int iphi=iphiMin_; iphi<iphiMax_+1; iphi++) {
 
-	int itow = (ieta-1)*72+iphi-1;
+	int itow = CaloTools::caloTowerHash(ieta, iphi);
 
 	// get ECAL/HCAL raw numbers
 	int ietEcal = towers.at(itow).hwEtEm();
@@ -154,7 +227,7 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   }
 
-  //  iEvent.put(towers);
+  iEvent.put(towersColl);
  
 }
 

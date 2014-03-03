@@ -27,8 +27,7 @@ namespace l1t {
   public:
     typedef boost::shared_ptr<CaloStage2MainProcessor> ReturnType;
 
-    ReturnType create(const FirmwareVersion & fwv,
-		      const CaloParams & params);
+    ReturnType create(const FirmwareVersion & fwv, CaloParams* params);
 
     // (Why not make "create" a static member function? You could...
     // But this way allows you to add additional customizations to the

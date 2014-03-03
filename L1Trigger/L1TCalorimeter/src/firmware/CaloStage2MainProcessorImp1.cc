@@ -19,18 +19,18 @@
 
 using namespace std;
 
-l1t::CaloStage2MainProcessorFirmwareImp1::CaloStage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv, const CaloParams & params ) :
+l1t::CaloStage2MainProcessorFirmwareImp1::CaloStage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv, CaloParams* params) :
   m_fwv(fwv),
   m_params(params)
 {
 
-  m_egClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(params);
-  m_egAlgo = new CaloStage2EGammaAlgorithmFirmwareImp1(params);
-  m_tauClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(params);
-  m_tauAlgo = new CaloStage2TauAlgorithmFirmwareImp1(params);
-  m_jetAlgo = new CaloStage2JetAlgorithmFirmwareImp1(params);
-  m_sumAlgo = new CaloStage2EtSumAlgorithmFirmwareImp1(params);
-  m_jetSumAlgo = new CaloStage2JetSumAlgorithmFirmwareImp1(params);
+  m_egClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params);
+  m_egAlgo = new CaloStage2EGammaAlgorithmFirmwareImp1(m_params);
+  m_tauClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params);
+  m_tauAlgo = new CaloStage2TauAlgorithmFirmwareImp1(m_params);
+  m_jetAlgo = new CaloStage2JetAlgorithmFirmwareImp1(m_params);
+  m_sumAlgo = new CaloStage2EtSumAlgorithmFirmwareImp1(m_params);
+  m_jetSumAlgo = new CaloStage2JetSumAlgorithmFirmwareImp1(m_params);
   
 }
 
@@ -38,6 +38,12 @@ l1t::CaloStage2MainProcessorFirmwareImp1::~CaloStage2MainProcessorFirmwareImp1()
 { 
 
 };
+
+
+//void l1t::CaloStage2MainProcessorFirmwareImp1::setParams(CaloParams* params) {
+//  m_params = params;
+//}
+
 
 //need to switch to BXVector
 void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & towers,

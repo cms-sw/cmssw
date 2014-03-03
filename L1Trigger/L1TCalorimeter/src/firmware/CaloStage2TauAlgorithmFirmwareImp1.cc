@@ -10,7 +10,7 @@
 
 
 
-l1t::CaloStage2TauAlgorithmFirmwareImp1::CaloStage2TauAlgorithmFirmwareImp1(const CaloParams& params) :
+l1t::CaloStage2TauAlgorithmFirmwareImp1::CaloStage2TauAlgorithmFirmwareImp1(CaloParams* params) :
   params_(params)
 {
 

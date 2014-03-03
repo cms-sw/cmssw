@@ -16,8 +16,8 @@ using namespace std;
 using namespace edm;
 
 l1t::CaloStage2FirmwareFactory::ReturnType
-l1t::CaloStage2FirmwareFactory::create(const FirmwareVersion & fwv, 
-				       const CaloParams& params) {
+l1t::CaloStage2FirmwareFactory::create(const FirmwareVersion & fwv, CaloParams* params) {
+
   ReturnType p;
   unsigned v = fwv.firmwareVersion();
   

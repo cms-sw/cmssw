@@ -30,9 +30,10 @@ namespace l1t {
   // first iteration
   class CaloStage2MainProcessorFirmwareImp1 : public CaloStage2MainProcessor {
   public:
-    CaloStage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv, 
-					const CaloParams & params);
+    CaloStage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv, CaloParams* params);
+
     virtual ~CaloStage2MainProcessorFirmwareImp1();
+
     virtual void processEvent(const std::vector<l1t::CaloTower> &,
 			      std::vector<l1t::EGamma> & egammas,
 			      std::vector<l1t::Tau> & taus,
@@ -41,7 +42,7 @@ namespace l1t {
   private:
     
     FirmwareVersion const & m_fwv;
-    CaloParams const & m_params;
+    CaloParams* m_params;
 
     CaloStage2ClusterAlgorithm* m_egClusterAlgo;
     CaloStage2EGammaAlgorithm* m_egAlgo;
