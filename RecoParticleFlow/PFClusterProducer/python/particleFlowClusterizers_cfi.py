@@ -93,6 +93,31 @@ pfClusterizer_ECAL = cms.PSet(
                             )
     )
 
+pfClusterizerWithTime_ECAL = cms.PSet(
+    algoName = cms.string("PFlow2DClusterizerWithTime"),
+    #pf clustering parameters
+    minFractionToKeep = cms.double(1e-7),
+    positionCalc = positionCalcECAL_3x3_nodepth,
+    allCellsPositionCalc = positionCalcECAL_all_nodepth,
+    positionCalcForConvergence = positionCalcECAL_all_withdepth,
+    showerSigma = cms.double(1.5),
+    timeSigmaEB = cms.double(5000), 
+    timeSigmaEE = cms.double(10000), 
+    stoppingTolerance = cms.double(1e-8),
+    maxIterations = cms.uint32(50),
+    excludeOtherSeeds = cms.bool(True),
+    minFracTot = cms.double(1e-20), ## numerical stabilization
+    recHitEnergyNorms = cms.VPSet(
+                            cms.PSet( detector = cms.string("ECAL_BARREL"),
+                                      recHitEnergyNorm = cms.double(0.08)
+                                      ),
+                            cms.PSet( detector = cms.string("ECAL_ENDCAP"),
+                                      recHitEnergyNorm = cms.double(0.3)
+                                      )
+                            )
+    )
+
+
 pfClusterizer_HCAL = cms.PSet(
     algoName = cms.string("Basic2DGenericPFlowClusterizer"),
     #pf clustering parameters
