@@ -44,7 +44,7 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 
 
       N=navigator.north();  
-      associateNeighbour(N,hit,hits,refProd,0,1,0);
+      associateNeighbour(N,hit,hits,refProd,0,1);
 
 
       if (N !=DetId(0)) {
@@ -56,11 +56,11 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 	  E=navigator.east();
 	  NE=navigator.north();
 	}
-      associateNeighbour(NE,hit,hits,refProd,1,1,0);
+      associateNeighbour(NE,hit,hits,refProd,1,1);
       navigator.home();
 
       S = navigator.south();
-      associateNeighbour(S,hit,hits,refProd,0,-1,0);
+      associateNeighbour(S,hit,hits,refProd,0,-1);
       
       if (S !=DetId(0)) {
 	SW = navigator.west();
@@ -69,11 +69,11 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 	W=navigator.west();
 	SW=navigator.south();
       }
-      associateNeighbour(SW,hit,hits,refProd,-1,-1,0);
+      associateNeighbour(SW,hit,hits,refProd,-1,-1);
       navigator.home();
 
       E = navigator.east();
-      associateNeighbour(E,hit,hits,refProd,1,0,0);
+      associateNeighbour(E,hit,hits,refProd,1,0);
       
       if (E !=DetId(0)) {
 	SE = navigator.south();
@@ -82,12 +82,12 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 	S=navigator.south();
 	SE=navigator.east();
       }
-      associateNeighbour(SE,hit,hits,refProd,1,-1,0);
+      associateNeighbour(SE,hit,hits,refProd,1,-1);
       navigator.home();
 
 
       W = navigator.west();
-      associateNeighbour(W,hit,hits,refProd,-1,0,0);
+      associateNeighbour(W,hit,hits,refProd,-1,0);
 
       if (W !=DetId(0)) {
 	NW = navigator.north();
@@ -96,7 +96,7 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 	N=navigator.north();
 	NW=navigator.west();
       }
-      associateNeighbour(NW,hit,hits,refProd,-1,1,0);
+      associateNeighbour(NW,hit,hits,refProd,-1,1);
   }
 
 
@@ -123,11 +123,13 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 
 
 
-  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi,short depth) {
+  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi) {
+    int depth=0;
     for( unsigned int i=0;i<hits->size();++i) 
       if (hits->at(i).detId()==id.rawId()) {
 	reco::PFRecHitRef ref(refProd,i);
-	if (abs(get_bin(hit.time())-get_bin(ref->time()))<=1)
+	depth =get_bin(hit.time())-get_bin(hits->at(i).time());
+	if (abs(depth)<=1)
 	  hit.addNeighbour(eta,phi,depth,ref);
 	break;
       }

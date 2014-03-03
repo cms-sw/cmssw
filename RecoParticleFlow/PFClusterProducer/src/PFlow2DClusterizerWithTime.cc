@@ -179,15 +179,14 @@ growPFClusters(const reco::PFCluster& topo,
       fraction = 0.0;
       const math::XYZVector deltav = clusterpos_xyz - topocellpos_xyz;
       double d2 = deltav.Mag2()/_showerSigma2;
-      double t2 =(cluster.time()-refhit->time())*(cluster.time()-refhit->time());
+      const double t2 =(cluster.time()-refhit->time())*(cluster.time()-refhit->time());
 
       
       if (cell_layer == PFLayer::HCAL_BARREL1 ||cell_layer == PFLayer::HCAL_BARREL2 ||cell_layer == PFLayer::ECAL_BARREL)
-	t2=t2/_timeSigma_eb;
+	d2=d2+t2/_timeSigma_eb;
       else if (cell_layer == PFLayer::HCAL_ENDCAP ||cell_layer == PFLayer::HF_EM ||cell_layer == PFLayer::HF_HAD)
-	t2=t2/_timeSigma_ee;
+	d2=d2+t2/_timeSigma_ee;
 
-      d2=d2+t2;
       dist2.emplace_back( d2);
 
       if( d2 > 100 ) {

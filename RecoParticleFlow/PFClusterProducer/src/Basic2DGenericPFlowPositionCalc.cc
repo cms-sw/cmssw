@@ -43,8 +43,6 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
 	<< "The input of the particle flow clustering seems to be corrupted.";
     }
     cl_energy += rh_energy;    
-    //Michalis : timing should not be weighted by fraction but by energy 
-    //to take into account that the timing resolution improves with energy
     cl_time += rh_energy*refhit->time();   
 
     if( rh_energy > max_e ) {

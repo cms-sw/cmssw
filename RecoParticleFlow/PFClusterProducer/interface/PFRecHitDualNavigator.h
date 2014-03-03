@@ -16,8 +16,8 @@ class PFRecHitDualNavigator : public PFRecHitNavigatorBase {
 
 
   PFRecHitDualNavigator(const edm::ParameterSet& iConfig){
-    barrelNav_ = new barrel(iConfig);
-    endcapNav_ = new endcap(iConfig);
+    barrelNav_ = new barrel(iConfig.getParameter<edm::ParameterSet>("barrel"));
+    endcapNav_ = new endcap(iConfig.getParameter<edm::ParameterSet>("endcap"));
   }
 
   void beginEvent(const edm::EventSetup& iSetup) {
@@ -41,8 +41,10 @@ class PFRecHitDualNavigator : public PFRecHitNavigatorBase {
 };
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigator.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigatorWithTime.h"
 
 typedef  PFRecHitDualNavigator<PFLayer::ECAL_BARREL,PFRecHitEcalBarrelNavigator,PFLayer::ECAL_ENDCAP,PFRecHitEcalEndcapNavigator> PFRecHitECALNavigator;
+typedef  PFRecHitDualNavigator<PFLayer::ECAL_BARREL,PFRecHitEcalBarrelNavigatorWithTime,PFLayer::ECAL_ENDCAP,PFRecHitEcalEndcapNavigatorWithTime> PFRecHitECALNavigatorWithTime;
 
 
 
