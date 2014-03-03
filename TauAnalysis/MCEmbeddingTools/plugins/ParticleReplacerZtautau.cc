@@ -281,9 +281,9 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
     const reco::Particle& muon2 = muons.at(1);
     reco::Particle embedLepton1(muon1.charge(), muon1.p4(), muon1.vertex(), muon1.pdgId(), 0, true);
     reco::Particle embedLepton2(muon2.charge(), muon2.p4(), muon2.vertex(), muon2.pdgId(), 0, true);
-    if ( targetParticle1AbsPdgID_ != 13 ) {
-      transformMuMu2LepLep(decayRandomEngine, &embedLepton1, &embedLepton2);
-    }
+    // Also call this for the mumu->mumu case, to set the correct status values
+    // and to apply the rotation:
+    transformMuMu2LepLep(decayRandomEngine, &embedLepton1, &embedLepton2);
     embedParticles.push_back(embedLepton1);
     embedParticles.push_back(embedLepton2);
   } else if ( transformationMode_ == 3 ) { // mumu -> taunu (Z -> W boson)
