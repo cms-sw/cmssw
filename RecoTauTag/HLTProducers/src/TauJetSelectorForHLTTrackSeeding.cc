@@ -1,18 +1,9 @@
 #include "RecoTauTag/HLTProducers/interface/TauJetSelectorForHLTTrackSeeding.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/TrackJet.h"
-#include "DataFormats/JetReco/interface/TrackJetCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 
 TauJetSelectorForHLTTrackSeeding::TauJetSelectorForHLTTrackSeeding(const edm::ParameterSet& iConfig):
-  inputTrackJetTag_(iConfig.getParameter< edm::InputTag > ("inputTrackJetTag")),
-  inputCaloJetTag_(iConfig.getParameter< edm::InputTag > ("inputCaloJetTag")),
-  inputTrackTag_(iConfig.getParameter< edm::InputTag > ("inputTrackTag")),
   ptMinCaloJet_(iConfig.getParameter< double > ("ptMinCaloJet")),
   etaMinCaloJet_(iConfig.getParameter< double > ("etaMinCaloJet")),
   etaMaxCaloJet_(iConfig.getParameter< double > ("etaMaxCaloJet")),
@@ -24,6 +15,10 @@ TauJetSelectorForHLTTrackSeeding::TauJetSelectorForHLTTrackSeeding(const edm::Pa
   nTrkMaxInCaloCone_(iConfig.getParameter< int > ("nTrkMaxInCaloCone"))
 {
    //now do what ever initialization is needed
+  inputTrackJetToken_ = consumes< reco::TrackJetCollection >(iConfig.getParameter< edm::InputTag > ("inputTrackJetTag"));
+  inputCaloJetToken_  = consumes< reco::CaloJetCollection >(iConfig.getParameter< edm::InputTag > ("inputCaloJetTag"));
+  inputTrackToken_    = consumes< reco::TrackCollection >(iConfig.getParameter< edm::InputTag > ("inputTrackTag"));
+
   produces<reco::TrackJetCollection>();
 }
 
@@ -48,7 +43,7 @@ TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSe
    std::auto_ptr< reco::TrackJetCollection > augmentedTrackJets (new reco::TrackJetCollection);
 
    edm::Handle<reco::TrackJetCollection> trackjets;
-   iEvent.getByLabel(inputTrackJetTag_, trackjets);
+   iEvent.getByToken(inputTrackJetToken_, trackjets);
 
    for (reco::TrackJetCollection::const_iterator trackjet = trackjets->begin();
 	  trackjet != trackjets->end(); trackjet++) {
@@ -56,10 +51,10 @@ TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSe
    }
 
    edm::Handle<reco::TrackCollection> tracks;
-   iEvent.getByLabel(inputTrackTag_,tracks);
+   iEvent.getByToken(inputTrackToken_,tracks);
 
    edm::Handle<reco::CaloJetCollection> calojets;
-   iEvent.getByLabel(inputCaloJetTag_,calojets);
+   iEvent.getByToken(inputCaloJetToken_,calojets);
 
    const double tauConeSize2       = tauConeSize_ * tauConeSize_;
    const double isolationConeSize2 = isolationConeSize_ * isolationConeSize_;
