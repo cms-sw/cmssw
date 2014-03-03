@@ -1,21 +1,23 @@
 #########
 #
-# Example script to run the python extractor on MC events
-# produced with the full geometry and official software
+# Example script to run the extractor on events containing
+# the L1 tracking info produced with the full geometry
+# and official software
 #
-# This script extract the AM pattern reco output
+# This script extract the AM pattern reco output just the pattern 
+# info or the full stuff if available
 #
 # Usage: cmsRun extract_AM_info.py
 #
 # More info:
-# http://sviret.web.cern.ch/sviret/Welcome.php?n=CMS.HLLHCTuto
+# http://sviret.web.cern.ch/sviret/Welcome.php?n=CMS.HLLHCTuto620
 #
-# Look at STEP V
+# Look at part 6.2.1 of the tutorial
 #
 # Author: S.Viret (viret@in2p3.fr)
-# Date  : 17/02/2014
+# Date  : 27/02/2014
 #
-# Script tested with release CMSSW_6_2_0_SLHC7
+# Script tested with release CMSSW_6_2_0_SLHC8
 #
 #########
 
@@ -64,10 +66,12 @@ process.MIBextraction.doPixel          = True
 process.MIBextraction.doMatch          = True
 process.MIBextraction.doMC             = True
 process.MIBextraction.doSTUB           = True
-process.MIBextraction.CLUS_container   = cms.string( "MergePROutput" )
-process.MIBextraction.STUB_container   = cms.string( "MergePROutput" )
-process.MIBextraction.CLUS_name        = cms.string( "ClusInPattern" ) 
-process.MIBextraction.STUB_name        = cms.string( "StubInPattern" )
+process.MIBextraction.doL1TRK          = True
+process.MIBextraction.L1pattern_tag    = cms.InputTag( "MergePROutput", "AML1Patterns")
+
+# Choose the first line if you have only the patterns 
+process.MIBextraction.L1track_tag      = cms.InputTag( "", "")
+#process.MIBextraction.L1track_tag      = cms.InputTag( "MergeFITOutput", "AML1Tracks")
 
 process.p = cms.Path(process.MIBextraction)
 

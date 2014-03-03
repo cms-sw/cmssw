@@ -65,11 +65,11 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
   double offsetZ = m_zoffset;
   double offsetX = offsetZ * tan( xphi );
   double offsetY = offsetZ * tan( yphi );
-
-  while( abs(offsetY) < m_rMax )
-  {
-    while( abs(offsetX) < m_rMax )
-    {
+  int row(0), column(0);
+  while( abs(offsetX) < m_rMax ) {
+    column++;
+    while( abs(offsetY) < m_rMax ) {
+      row++;
       double limit = sqrt( offsetX*offsetX + offsetY*offsetY );
       
       // Make sure we do not add supermodules in rMin area
@@ -93,18 +93,17 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
 	
 	DDName parentName = parent().name(); 
 	cpv.position( DDName( m_childName ), parentName, copyNo, tran, rotation );
-
 	copyNo += m_incrCopyNo;
       }
-      xphi +=  xQuadrant*2.*tiltAngle;
-      offsetX = offsetZ * tan( xphi );
+      yphi += yQuadrant*2.*tiltAngle;
+      offsetY = offsetZ * tan( yphi );
     }
-    yphi += yQuadrant*2.*tiltAngle;
-    xphi =  xQuadrant*tiltAngle;
+    xphi +=  xQuadrant*2.*tiltAngle;
+    yphi  =  yQuadrant*tiltAngle;
     offsetX = offsetZ * tan( xphi );
     offsetY = offsetZ * tan( yphi );
   }
-  
+  std::cout << row << " rows and " << column << " columns in quadrant " << xQuadrant << ":" << yQuadrant << std::endl;
   return copyNo;
 }
 
