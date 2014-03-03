@@ -103,6 +103,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig):
   produces<reco::SuperClusterCollection>();
   produces<reco::CaloClusterCollection>(ebeeClustersCollection_);
   produces<reco::CaloClusterCollection>(esClustersCollection_);  
+  produces<reco::ConversionCollection>();
   
   //PFElectrons Configuration
   algo_config.mvaEleCut
@@ -408,23 +409,15 @@ PFEGammaProducer::produce(edm::Event& iEvent,
 
   edm::RefProd<reco::PFCandidateEGammaExtraCollection> egXtraProd = 
     iEvent.getRefBeforePut<reco::PFCandidateEGammaExtraCollection>();
-  
-  size_t non_zero_sc_idx = 0; 
-  
+    
   //set the correct references to refined SC and EG extra using the refprods
   for (unsigned int i=0; i < egCandidates_->size(); ++i) {
     reco::PFCandidate &cand = egCandidates_->at(i);
     reco::PFCandidateEGammaExtra &xtra = egExtra_->at(i);
-    reco::SuperCluster& rsc = sClusters_->at(non_zero_sc_idx);
     
     reco::PFCandidateEGammaExtraRef extraref(egXtraProd,i);
-    reco::SuperClusterRef refinedSCRef;
-    // only set refined SC refs where the is valid!
-    if( rsc.energy() != 0.0 ) {      
-      refinedSCRef = reco::SuperClusterRef(sClusterProd,non_zero_sc_idx++);
-    } else {
-      sClusters_->erase(sClusters_->begin() + non_zero_sc_idx);
-    }
+    reco::SuperClusterRef refinedSCRef(sClusterProd,i);
+
     xtra.setSuperClusterRef(refinedSCRef); 
     cand.setSuperClusterRef(refinedSCRef);
     cand.setPFEGammaExtraRef(extraref);    
@@ -488,9 +481,15 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     sc.setPreshowerClusters(psclusters);  
   }
   
+  //create and fill references to single leg conversions
+  edm::RefProd<reco::ConversionCollection> convProd = iEvent.getRefBeforePut<reco::ConversionCollection>();
+  singleLegConv_.reset(new reco::ConversionCollection);  
+  createSingleLegConversions(*egExtra_, *singleLegConv_, convProd);
+  
   // release our demonspawn into the wild to cause havoc
   iEvent.put(sClusters_);
   iEvent.put(egExtra_);  
+  iEvent.put(singleLegConv_);
   iEvent.put(egCandidates_); 
 }
 
@@ -575,3 +574,61 @@ PFEGammaProducer::setPFVertexParameters(bool useVertex,
   pfeg_->setPhotonPrimaryVtx(primaryVertex_ );
   
 }
+
+void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras, reco::ConversionCollection &oneLegConversions, const edm::RefProd<reco::ConversionCollection> &convProd) {
+ 
+  math::Error<3>::type error;
+  for (auto &extra : extras){
+    for (const auto &tkrefmva : extra.singleLegConvTrackRefMva()) {
+      const reco::Track &trk = *tkrefmva.first;
+            
+      const reco::Vertex convVtx(trk.innerPosition(), error);
+      std::vector<reco::TrackRef> OneLegConvVector;
+      OneLegConvVector.push_back(tkrefmva.first);
+      std::vector< float > OneLegMvaVector;
+      OneLegMvaVector.push_back(tkrefmva.second);
+      std::vector<reco::CaloClusterPtr> dummymatchingBC;
+      reco::CaloClusterPtrVector scPtrVec;
+      scPtrVec.push_back(edm::refToPtr(extra.superClusterRef()));
+
+      std::vector<math::XYZPointF>trackPositionAtEcalVec;
+      std::vector<math::XYZPointF>innPointVec;
+      std::vector<math::XYZVectorF>trackPinVec;
+      std::vector<math::XYZVectorF>trackPoutVec;
+      math::XYZPointF trackPositionAtEcal(trk.outerPosition().X(), trk.outerPosition().Y(), trk.outerPosition().Z());
+      trackPositionAtEcalVec.push_back(trackPositionAtEcal);
+      
+      math::XYZPointF innPoint(trk.innerPosition().X(), trk.innerPosition().Y(), trk.innerPosition().Z());
+      innPointVec.push_back(innPoint);
+
+      math::XYZVectorF trackPin(trk.innerMomentum().X(), trk.innerMomentum().Y(), trk.innerMomentum().Z());
+      trackPinVec.push_back(trackPin);
+
+      math::XYZVectorF trackPout(trk.outerMomentum().X(), trk.outerMomentum().Y(), trk.outerMomentum().Z());
+      trackPoutVec.push_back( trackPout );
+      
+      float DCA = trk.d0() ;
+      float mvaval = tkrefmva.second;
+      reco::Conversion singleLegConvCandidate(scPtrVec, 
+                                          OneLegConvVector,
+                                          trackPositionAtEcalVec,
+                                          convVtx,
+                                          dummymatchingBC,
+                                          DCA,
+                                          innPointVec,
+                                          trackPinVec,
+                                          trackPoutVec,
+                                          mvaval,                         
+                                          reco::Conversion::pflow);
+      singleLegConvCandidate.setOneLegMVA(OneLegMvaVector); 
+      oneLegConversions.push_back(singleLegConvCandidate);
+            
+      reco::ConversionRef convref(convProd,oneLegConversions.size()-1);
+      extra.addSingleLegConversionRef(convref);
+    
+    }
+
+  } 
+  
+}
+

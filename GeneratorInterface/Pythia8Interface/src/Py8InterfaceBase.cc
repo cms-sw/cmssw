@@ -1,6 +1,7 @@
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace Pythia8;
 
@@ -55,11 +56,19 @@ bool Py8InterfaceBase::declareStableParticles( const std::vector<int>& pdgIds )
     // 
     // well, actually it looks like Py8 operates in PDT id's rather than Py6's
     //
-    // int PyID = HepPID::translatePDTtoPythia( pdgIds[i] ); 
+//    int PyID = HepPID::translatePDTtoPythia( pdgIds[i] ); 
     int PyID = pdgIds[i]; 
     std::ostringstream pyCard ;
     pyCard << PyID <<":mayDecay=false";
-    fMasterGen->readString( pyCard.str() );
+
+    if ( fMasterGen->particleData.isParticle( PyID ) ) {
+       fMasterGen->readString( pyCard.str() );
+    } else {
+
+       edm::LogWarning("DataNotUnderstood") << "Pythia8 does not "
+                                            << "recognize particle id = " 
+                                            << PyID << std::endl;
+    } 
     // alternative:
     // set the 2nd input argument warn=false 
     // - this way Py8 will NOT print warnings about unknown particle code(s)
@@ -80,87 +89,6 @@ bool Py8InterfaceBase:: declareSpecialSettings( const std::vector<std::string>& 
    }
 
    return true;
-}
-
-bool Py8InterfaceBase::residualDecay() 
-{
-  
-/*
-  Event* pythiaEvent = &(fMasterPtr->event);
-  
-  assert(fCurrentEventState);
-  
-  int NPartsBeforeDecays = pythiaEvent->size();
-  // int NPartsAfterDecays = event().get()->particles_size();
-  int NPartsAfterDecays = fCurrentEventState->particles_size();
-  int NewBarcode = NPartsAfterDecays;
-   
-  for ( int ipart=NPartsAfterDecays; ipart>NPartsBeforeDecays; ipart-- )
-  {
-
-    // HepMC::GenParticle* part = event().get()->barcode_to_particle( ipart );
-    HepMC::GenParticle* part = fCurrentEventState->barcode_to_particle( ipart );
-
-    if ( part->status() == 1 )
-    {
-      fDecayerPtr->event.reset();
-      Particle py8part(  part->pdg_id(), 93, 0, 0, 0, 0, 0, 0,
-                         part->momentum().x(),
-                         part->momentum().y(),
-                         part->momentum().z(),
-                         part->momentum().t(),
-                         part->generated_mass() );
-      HepMC::GenVertex* ProdVtx = part->production_vertex();
-      py8part.vProd( ProdVtx->position().x(), ProdVtx->position().y(), 
-                     ProdVtx->position().z(), ProdVtx->position().t() );
-      py8part.tau( (fDecayerPtr->particleData).tau0( part->pdg_id() ) );
-      fDecayerPtr->event.append( py8part );
-      int nentries = fDecayerPtr->event.size();
-      if ( !fDecayerPtr->event[nentries-1].mayDecay() ) continue;
-      fDecayerPtr->next();
-      int nentries1 = fDecayerPtr->event.size();
-      // --> fDecayerPtr->event.list(std::cout);
-      if ( nentries1 <= nentries ) continue; //same number of particles, no decays...
-	    
-      part->set_status(2);
-	    
-      Particle& py8daughter = fDecayerPtr->event[nentries]; // the 1st daughter
-      HepMC::GenVertex* DecVtx = new HepMC::GenVertex( HepMC::FourVector(py8daughter.xProd(),
-                                                       py8daughter.yProd(),
-                                                       py8daughter.zProd(),
-                                                       py8daughter.tProd()) );
-
-      DecVtx->add_particle_in( part ); // this will cleanup end_vertex if exists, replace with the new one
-                                       // I presume (vtx) barcode will be given automatically
-	    
-      HepMC::FourVector pmom( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
-	    
-      HepMC::GenParticle* daughter =
-                        new HepMC::GenParticle( pmom, py8daughter.id(), 1 );
-	    
-      NewBarcode++;
-      daughter->suggest_barcode( NewBarcode );
-      DecVtx->add_particle_out( daughter );
-	    	    
-      for ( ipart=nentries+1; ipart<nentries1; ipart++ )
-      {
-        py8daughter = fDecayerPtr->event[ipart];
-        HepMC::FourVector pmomN( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );	    
-        HepMC::GenParticle* daughterN =
-                        new HepMC::GenParticle( pmomN, py8daughter.id(), 1 );
-        NewBarcode++;
-        daughterN->suggest_barcode( NewBarcode );
-        DecVtx->add_particle_out( daughterN );
-      }
-	    
-      // event().get()->add_vertex( DecVtx );
-      fCurrentEventState->add_vertex( DecVtx );
-
-    }
- } 
-*/   
- return true;
- 
 }
 
 

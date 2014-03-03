@@ -132,6 +132,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("sigmaIetaIetaCutEndcap"));     
   //
 
+  thePhotonEnergyCorrector_ = new PhotonEnergyCorrector(conf_, consumesCollector());
+
   // Register the product
   produces< reco::PhotonCollection >(PhotonCollection_);
 
@@ -139,7 +141,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
 PhotonProducer::~PhotonProducer() 
 {
-
+  delete thePhotonEnergyCorrector_;
   //delete energyCorrectionF;
 }
 
@@ -150,11 +152,9 @@ void  PhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & theEv
     thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
     edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
     thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_);
-
     thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
     edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
     thePhotonMIPHaloTagger_->setup(mipVariableSet);
-    thePhotonEnergyCorrector_ = new PhotonEnergyCorrector(conf_);
     thePhotonEnergyCorrector_ -> init(theEventSetup); 
 }
 
@@ -162,7 +162,6 @@ void  PhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEven
 
   delete thePhotonIsolationCalculator_;
   delete thePhotonMIPHaloTagger_;
-  delete thePhotonEnergyCorrector_;
 }
 
 

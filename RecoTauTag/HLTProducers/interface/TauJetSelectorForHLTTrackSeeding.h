@@ -14,6 +14,13 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/TrackJet.h"
+#include "DataFormats/JetReco/interface/TrackJetCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 class TauJetSelectorForHLTTrackSeeding : public edm::EDProducer {
 
 public:
@@ -27,9 +34,9 @@ private:
       
   // ----------member data ---------------------------
 
-  const edm::InputTag inputTrackJetTag_;
-  const edm::InputTag inputCaloJetTag_;
-  const edm::InputTag inputTrackTag_;
+  edm::EDGetTokenT<reco::TrackJetCollection> inputTrackJetToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection> inputCaloJetToken_;
+  edm::EDGetTokenT<reco::TrackCollection> inputTrackToken_;
   const double ptMinCaloJet_;
   const double etaMinCaloJet_;
   const double etaMaxCaloJet_;

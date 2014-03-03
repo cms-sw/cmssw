@@ -21,14 +21,14 @@
  */
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDProducer.h>
+#include <FWCore/Framework/interface/one/EDProducer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
 
 class CSCTriggerPrimitivesBuilder;
 
-class CSCTriggerPrimitivesProducer : public edm::EDProducer
+class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<edm::one::SharedResources>
 {
  public:
   explicit CSCTriggerPrimitivesProducer(const edm::ParameterSet&);
