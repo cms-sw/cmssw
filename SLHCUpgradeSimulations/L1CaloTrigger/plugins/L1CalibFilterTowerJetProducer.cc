@@ -57,10 +57,6 @@ using namespace reco;
 using namespace l1extra;
 
 
-//bool myfunction (float i,float j) { return (i>j); }
-
-//bool sortTLorentz (TLorentzVector i,TLorentzVector j) { return ( i.Pt()>j.Pt() ); }
-
 
 class L1CalibFilterTowerJetProducer : public edm::EDProducer {
    public:
@@ -79,24 +75,11 @@ class L1CalibFilterTowerJetProducer : public edm::EDProducer {
       virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
     
-      float get_rho(double L1rho);
 
-    //fwd calibration: V ROUGH (only to L1extra particles)
-//       double rough_ptcal(double pt);
-    
-      double Median(vector<double> aVec);
-
-      void TMVA_calibration();
       // ----------member data ---------------------------
       ParameterSet conf_;
-    
-      ifstream indata;
 
-    
-      edm::FileInPath inMVAweights_edm;
       float l1Pt, l1Eta;
-      TMVA::Reader *reader;
-      float val_pt_cal(float l1pt, float l1eta);
 };
 
 
@@ -111,8 +94,6 @@ conf_(iConfig)
     produces< L1EtMissParticleCollection >( "TowerMHT" ) ;
     produces<double>("TowerHT");
     
-  //look up tables
-    inMVAweights_edm = iConfig.getParameter<edm::FileInPath> ("inMVA_weights_file");
 
 }
 
@@ -174,8 +155,9 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
         float l1wEta_ = il1->WeightedEta();
         float l1wPhi_ = il1->WeightedPhi() ;
 
-        //Get the calibration factors from the MVA lookup table
-        float cal_Pt_ = val_pt_cal( l1Pt_ , l1wEta_) * l1Pt_;
+
+	// Currently no calibration is applied
+	double cal_Pt_ = l1Pt_;
 
         math::PtEtaPhiMLorentzVector p4;
 
@@ -190,10 +172,7 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
         if( cal_Pt_>15 ) mht+=upgrade_jet;
 
          // add jet to L1Extra list
-        outputExtraCen->push_back( L1JetParticle( math::PtEtaPhiMLorentzVector( cal_Pt_,
-                                          									    l1wEta_,
-                                          									    l1wPhi_,
-                                          									    0. ),
+        outputExtraCen->push_back( L1JetParticle( math::PtEtaPhiMLorentzVector( cal_Pt_, l1wEta_, l1wPhi_, 0. ),
              					        Ref< L1GctJetCandCollection >(),   0 )
    			                      );
      }
@@ -201,11 +180,8 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
   
   
 
-	// create L1Extra object
-	math::PtEtaPhiMLorentzVector p4tmp = math::PtEtaPhiMLorentzVector( mht.pt(),
-									   0.,
-									   mht.phi(),
-									   0. ) ;
+     // create L1Extra object
+     math::PtEtaPhiMLorentzVector p4tmp = math::PtEtaPhiMLorentzVector( mht.pt(), 0., mht.phi(), 0. ) ;
 	
 	L1EtMissParticle l1extraMHT(p4tmp,
 			     L1EtMissParticle::kMHT,
@@ -233,9 +209,7 @@ L1CalibFilterTowerJetProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1CalibFilterTowerJetProducer::beginJob()
-{
-
+L1CalibFilterTowerJetProducer::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -247,9 +221,6 @@ L1CalibFilterTowerJetProducer::endJob() {
 void 
 L1CalibFilterTowerJetProducer::beginRun(edm::Run&, edm::EventSetup const&)
 {    
-
-    //read in calibration for pt from TMVA
-    TMVA_calibration();
 }
 
 // ------------ method called when ending the processing of a run  ------------
@@ -280,40 +251,8 @@ L1CalibFilterTowerJetProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   descriptions.addDefault(desc);
 }
 
-//
-// member functions
-//
 
-void L1CalibFilterTowerJetProducer::TMVA_calibration()
-{
-  cout<<"Getting lookup from MVA"<<endl;
 
-  reader = new TMVA::Reader("!Color:Silent");
-  reader->AddVariable( "l1Pt", &l1Pt);
-  reader->AddVariable( "l1Eta", &l1Eta);
-//  reader->AddVariable( "l1Phi", &l1Phi);
-//  reader->AddVariable( "MVA_Rho", &MVA_Rho );
-
-   cout<<"Booking MVA reader"<<endl;
-
-  reader->BookMVA("BDT method",inMVAweights_edm.fullPath().c_str());
-
-  cout<<"MVA reader booked: start processing events."<<endl;
-
-}
-
-float
-L1CalibFilterTowerJetProducer::val_pt_cal(float l1pt, float l1eta)
-{
-  l1Eta=l1eta;
-  l1Pt=l1pt;
-
-  Float_t val = (reader->EvaluateRegression(TString("BDT method") ))[0];
-
-  //cout<<"l1 pt: " << l1pt <<" corr_pt_1 "<<corr_pt_1<<endl;  
-  return val;
-
-}
 
 
 
