@@ -92,7 +92,7 @@ def customise_Reco(process,pileup):
                                                         'BPix1+FPix1_pos+FPix2_pos',
                                                         'BPix1+FPix1_neg+FPix2_neg',
                                                         'FPix1_pos+FPix2_pos+FPix3_pos',
-                                                        'FPix1_neg+FPix2_neg+FPix3_neg'
+                                                        'FPix1_neg+FPix2_neg+FPix3_neg',
                                                         # ale
                                                         'BPix1+FPix1_pos+FPix3_pos',
                                                         'BPix1+FPix1_neg+FPix3_neg',
