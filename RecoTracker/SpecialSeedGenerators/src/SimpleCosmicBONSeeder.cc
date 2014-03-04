@@ -9,6 +9,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 
 #include <numeric>
@@ -16,7 +17,7 @@ typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 using namespace std;
 SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) : 
   conf_(conf),
-  theLsb(conf.getParameter<edm::ParameterSet>("TripletsPSet")),
+  theLsb(conf.getParameter<edm::ParameterSet>("TripletsPSet"), consumesCollector()),
   writeTriplets_(conf.getParameter<bool>("writeTriplets")),
   seedOnMiddle_(conf.existsAs<bool>("seedOnMiddle") ? conf.getParameter<bool>("seedOnMiddle") : false),
   rescaleError_(conf.existsAs<double>("rescaleError") ? conf.getParameter<double>("rescaleError") : 1.0),
@@ -171,12 +172,14 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
 
     hitTriplets.clear();
     hitTriplets.reserve(0);
-    SeedingLayerSets lss = theLsb.layers(es);
+    if(theLsb.check(es)) {
+      theLss = theLsb.layers(es);
+    }
     SeedingLayerSets::const_iterator iLss;
 
     double minRho = region_.ptMin() / ( 0.003 * magfield->inTesla(GlobalPoint(0,0,0)).z() );
 
-    for (iLss = lss.begin(); iLss != lss.end(); iLss++){
+    for (iLss = theLss.begin(); iLss != theLss.end(); iLss++){
         SeedingLayers ls = *iLss;
         if (ls.size() != 3){
             throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << ls.size() <<" layers in set instead of 3 ";
@@ -189,8 +192,8 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
         std::vector<SeedingHit>::const_iterator iOuterHit,iMiddleHit,iInnerHit;
 
         if (tripletsVerbosity_ > 0) {
-            std::cout << "GenericTripletGenerator iLss = " << layerTripletNames_[iLss - lss.begin()]
-                    << " (" << (iLss - lss.begin()) << "): # = " 
+            std::cout << "GenericTripletGenerator iLss = " << layerTripletNames_[iLss - theLss.begin()]
+                    << " (" << (iLss - theLss.begin()) << "): # = " 
                     << innerHits.size() << "/" << middleHits.size() << "/" << outerHits.size() << std::endl;
         }
 
@@ -292,8 +295,8 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
             }
         }
         if ((tripletsVerbosity_ > 0) && (hitTriplets.size() > sizBefore)) {
-            std::cout << "                        iLss = " << layerTripletNames_[iLss - lss.begin()]
-                << " (" << (iLss - lss.begin()) << "): # = " 
+            std::cout << "                        iLss = " << layerTripletNames_[iLss - theLss.begin()]
+                << " (" << (iLss - theLss.begin()) << "): # = " 
                 << innerHits.size() << "/" << middleHits.size() << "/" << outerHits.size() 
                 << ": Found " << (hitTriplets.size() - sizBefore) << " seeds [running total: " << hitTriplets.size() << "]"
                 << std::endl ;

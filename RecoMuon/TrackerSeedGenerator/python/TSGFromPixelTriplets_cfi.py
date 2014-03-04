@@ -5,7 +5,7 @@ SeedGeneratorParameters = cms.PSet(
     ComponentName = cms.string('TSGFromOrderedHits'),
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitTripletGenerator'),
-        SeedingLayers = cms.string('PixelLayerTriplets'),
+        SeedingLayers = cms.InputTag('PixelLayerTriplets'),
         GeneratorPSet = cms.PSet(
             PixelTripletHLTGenerator
         )
