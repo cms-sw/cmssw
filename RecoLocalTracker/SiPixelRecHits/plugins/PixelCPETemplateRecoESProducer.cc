@@ -20,7 +20,9 @@ using namespace edm;
 PixelCPETemplateRecoESProducer::PixelCPETemplateRecoESProducer(const edm::ParameterSet & p) 
 {
   std::string myname = p.getParameter<std::string>("ComponentName");
-  DoLorentz_ = p.getParameter<bool>("DoLorentz"); // True when LA from alignment is used
+
+  //DoLorentz_ = p.getParameter<bool>("DoLorentz"); // True when LA from alignment is used
+  DoLorentz_ = p.existsAs<bool>("DoLorentz")?p.getParameter<bool>("DoLorentz"):false;
 
   pset_ = p;
   setWhatProduced(this,myname);
