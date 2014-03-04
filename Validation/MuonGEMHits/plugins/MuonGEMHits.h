@@ -1,5 +1,5 @@
-#ifndef MuonGEMDigis_Harvesting_H
-#define MuonGEMDigis_Harvesting_H
+#ifndef MuonGEMHits_H
+#define MuonGEMHits_H
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -10,19 +10,13 @@
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-#include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
-#include "Validation/MuonGEMDigis/interface/GEMCSCPadDigiValidation.h"
-#include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
-#include "Validation/MuonGEMDigis/interface/GEMTrackMatch.h"
-
-
-class MuonGEMDigis_Harvesting : public edm::EDAnalyzer
+#include "Validation/MuonGEMHits/interface/GEMHitsValidation.h"
+#include "Validation/MuonGEMHits/interface/GEMSimTrackMatch.h"
+class MuonGEMHits : public edm::EDAnalyzer
 {
 public:
-  /// constructor
-  explicit MuonGEMDigis_Harvesting(const edm::ParameterSet&);
-  /// destructor
-  ~MuonGEMDigis_Harvesting();
+  explicit MuonGEMHits(const edm::ParameterSet&);
+  ~MuonGEMHits();
 
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 
@@ -38,7 +32,19 @@ public:
 private:
 
   DQMStore* dbe_;
+  std::string outputFile_;
+  std::string simInputLabel_;
+
+  GEMHitsValidation* theGEMHitsValidation;
+  GEMSimTrackMatch* theGEMSimTrackMatch;
   
 
+  edm::ESHandle<GEMGeometry> gem_geom;
+
+  const GEMGeometry* gem_geometry_;
+  bool hasGEMGeometry_;
+
+  std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
+  std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
 };
 #endif
