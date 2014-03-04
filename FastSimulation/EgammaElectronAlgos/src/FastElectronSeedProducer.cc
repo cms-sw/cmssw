@@ -167,7 +167,6 @@ FastElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 void
 FastElectronSeedProducer::filterClusters
  ( const edm::Handle<reco::SuperClusterCollection> & superClusters,
-   //HBHERecHitMetaCollection * mhbhe,
    reco::SuperClusterRefVector & sclRefs )
  {
   // filter the superclusters

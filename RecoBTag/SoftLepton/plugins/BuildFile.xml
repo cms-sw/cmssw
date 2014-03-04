@@ -19,7 +19,6 @@
   <use name="FWCore/Utilities"/>
   <use name="RecoBTag/SoftLepton"/>
   <use name="RecoBTau/JetTagComputer"/>
-  <use name="RecoCaloTools/MetaCollections"/>
   <use name="RecoCaloTools/Selectors"/>
   <use name="TrackingTools/IPTools"/>
   <use name="TrackingTools/Records"/>

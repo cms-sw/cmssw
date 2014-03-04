@@ -45,7 +45,6 @@ class FastElectronSeedProducer : public edm::EDProducer
  private:
 
   void filterClusters(const edm::Handle<reco::SuperClusterCollection>& superClusters,
-		      //HBHERecHitMetaCollection* mhbhe,
 		      reco::SuperClusterRefVector& sclRefs);
 
   /*
