@@ -3,11 +3,9 @@ import FWCore.ParameterSet.Config as cms
 
 
 photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
-
-    Name = cms.untracked.string('photonAnalysis'),
-
-    phoProducer = cms.InputTag('photons'),
-
+    ComponentName = cms.string('photonAnalysis'),
+    phoProducer = cms.InputTag('gedPhotons'),
+    analyzerName = cms.string('gedPhotonAnalyzer'),
     photonIDLoose = cms.InputTag('PhotonIDProd:PhotonCutBasedIDLoose'),
     photonIDTight = cms.InputTag('PhotonIDProd:PhotonCutBasedIDTight'),																
 
@@ -22,6 +20,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     standAlone = cms.bool(False),
                                 
     minPhoEtCut = cms.double(20.0),
+    maxPhoEta   = cms.double(2.5),
     invMassEtCut = cms.double(20.0),                             
               
     cutStep = cms.double(20.0),

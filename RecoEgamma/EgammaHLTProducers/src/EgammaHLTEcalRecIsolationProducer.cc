@@ -9,16 +9,9 @@
 
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalRecIsolationProducer.h"
-
-
-// Framework
-//#include "FWCore/Framework/interface/ESHandle.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-//nclude "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -29,14 +22,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTEcalRecIsolationProducer::EgammaHLTEcalRecIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
-  // use configuration file to setup input/output collection names
-  //inputs
+
   recoEcalCandidateProducer_      = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   ecalBarrelRecHitProducer_       = consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("ecalBarrelRecHitProducer"));
   ecalEndcapRecHitProducer_       = consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("ecalEndcapRecHitProducer"));
-  rhoProducer_                    = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
 
   doRhoCorrection_                = config.getParameter<bool>("doRhoCorrection");
+  if (doRhoCorrection_)
+    rhoProducer_                    = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
+
   rhoMax_                         = config.getParameter<double>("rhoMax"); 
   rhoScale_                       = config.getParameter<double>("rhoScale"); 
 
