@@ -88,6 +88,24 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
 process.l1tCaloStage2TowerDigis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
 process.l1tCaloStage2TowerDigis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
 
+
+# enable debug message logging for our modules
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    destinations   = cms.untracked.vstring(
+	'detailedInfo',
+	'critical'
+    ),
+    detailedInfo   = cms.untracked.PSet(
+	threshold  = cms.untracked.string('DEBUG') 
+    ),
+    debugModules = cms.untracked.vstring(
+	'l1tCaloStage2TowerDigis',
+	'l1tCaloStage2Digis'
+    )
+)
+
+
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)

@@ -125,6 +125,8 @@ l1t::L1TCaloStage2Producer::produce(edm::Event& iEvent, const edm::EventSetup& i
   
   int bxFirst = towers->getFirstBX();
   int bxLast = towers->getLastBX();
+
+  LogDebug("L1TDebug") << "First BX=" << bxFirst << ", last BX=" << bxLast << std::endl;
   
   //outputs
   std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection(0, bxFirst, bxLast));
@@ -133,26 +135,33 @@ l1t::L1TCaloStage2Producer::produce(edm::Event& iEvent, const edm::EventSetup& i
   std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection(0, bxFirst, bxLast));
   
   // loop over BX
-  for(int i = towers->getFirstBX(); i < towers->getLastBX(); ++i) {
+  for(int ibx = bxFirst; ibx < bxLast+1; ++ibx) {
     std::auto_ptr< std::vector<l1t::CaloTower> > localTowers (new std::vector<l1t::CaloTower>);
     std::auto_ptr< std::vector<l1t::EGamma> > localEGammas (new std::vector<l1t::EGamma>);
     std::auto_ptr< std::vector<l1t::Tau> > localTaus (new std::vector<l1t::Tau>);
     std::auto_ptr< std::vector<l1t::Jet> > localJets (new std::vector<l1t::Jet>);
     std::auto_ptr< std::vector<l1t::EtSum> > localEtSums (new std::vector<l1t::EtSum>);
     
-    for(std::vector<l1t::CaloTower>::const_iterator tower = towers->begin(i);
-	tower != towers->end(i);
+    LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << towers->size(ibx) << std::endl;
+
+    for(std::vector<l1t::CaloTower>::const_iterator tower = towers->begin(ibx);
+	tower != towers->end(ibx);
 	++tower) {
       localTowers->push_back(*tower);
     }
-    
+
+    LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << localTowers->size() << std::endl;    
+
     m_processor->processEvent(*localTowers,
 			      *localEGammas, *localTaus, *localJets, *localEtSums);
     
-    for(std::vector<l1t::EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg) egammas->push_back(i, *eg);
-    for(std::vector<l1t::Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau) taus->push_back(i, *tau);
-    for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet) jets->push_back(i, *jet);
-    for(std::vector<l1t::EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum) etsums->push_back(i, *etsum);
+    for(std::vector<l1t::EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg) egammas->push_back(ibx, *eg);
+    for(std::vector<l1t::Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau) taus->push_back(ibx, *tau);
+    for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet) jets->push_back(ibx, *jet);
+    for(std::vector<l1t::EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum) etsums->push_back(ibx, *etsum);
+
+    LogDebug("L1TDebug") << "BX=" << ibx << ", N(EG)=" << localEGammas->size() << ", N(Tau)=" << localTaus->size() << ", N(Jet)=" << localJets->size() << ", N(Sums)=" << localEtSums->size() << std::endl;    
+
   }
   
   iEvent.put(egammas);

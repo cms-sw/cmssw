@@ -73,6 +73,8 @@ namespace l1t {
 
       // ----------member data ---------------------------
 
+    int verbosity_;
+
       int bxFirst_, bxLast_; // bx range to process
 
       std::vector<edm::EDGetToken> ecalToken_;  // this is a crazy way to store multi-BX info
@@ -86,6 +88,7 @@ namespace l1t {
 
 
 l1t::L1TCaloTowerProducer::L1TCaloTowerProducer(const edm::ParameterSet& ps) :
+  verbosity_(0),
   bxFirst_(0),
   bxLast_(0),
   ecalToken_(bxLast_+1-bxFirst_),
@@ -104,6 +107,8 @@ l1t::L1TCaloTowerProducer::L1TCaloTowerProducer(const edm::ParameterSet& ps) :
     ecalToken_[ibx] = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalToken"));
     hcalToken_[ibx] = consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalToken"));
   }
+
+  verbosity_ = ps.getParameter<int>("verbosity");
 
 }
 
@@ -135,9 +140,10 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   edm::ESHandle<l1t::CaloParams> caloParams;
   iSetup.get<L1TCaloParamsRcd>().get(caloParams);
 
+  LogDebug("L1TDebug") << "First BX=" << bxFirst_ << ", last BX=" << bxLast_ << std::endl;
 
   // loop over crossings
-  for (int bx = bxFirst_; bx < bxLast_+1; bx++) {
+  for (int bx = bxFirst_; bx < bxLast_+1; ++bx) {
    
     int ibx = bx-bxFirst_;
  
@@ -151,12 +157,11 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     int nTow = (iphiMax_-iphiMin_) * (ietaMax_-ietaMin_-1);  // leave a gap at ieta=0 for now?
     std::vector< l1t::CaloTower > towers(nTow);
 
-    std::cout << nTow << std::endl;
-
     // loop over ECAL TPs
     EcalTrigPrimDigiCollection::const_iterator ecalItr;
-    for (ecalItr=ecalTPs->begin(); ecalItr!=ecalTPs->end(); ++ecalItr) {
-    
+    int nEcal=0;
+    for (ecalItr=ecalTPs->begin(); ecalItr!=ecalTPs->end(); ++ecalItr, ++nEcal) {
+
       int ieta = ecalItr->id().ieta();
       int iphi = ecalItr->id().iphi();
 
@@ -176,7 +181,8 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     // loop over HCAL TPs
     HcalTrigPrimDigiCollection::const_iterator hcalItr;
-    for (hcalItr=hcalTPs->begin(); hcalItr!=hcalTPs->end(); ++hcalItr) {
+    int nHcal=0;
+    for (hcalItr=hcalTPs->begin(); hcalItr!=hcalTPs->end(); ++hcalItr, ++nHcal) {
     
       int ieta = hcalItr->id().ieta(); 
       int iphi = hcalItr->id().iphi();
@@ -217,13 +223,15 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       }
     }
-   
+
     // copy towers to BXVector
     // could do this more quickly with improved BXVector interface
     std::vector<l1t::CaloTower>::const_iterator towItr;
     for (towItr=towers.begin(); towItr!=towers.end(); ++towItr) {
       towersColl->push_back(bx, (*towItr) );
     }
+
+    LogDebug("L1TDebug") << "BX=" << bx << ", N(ECAL)=" << nEcal << ", N(HCAL)=" << nHcal << ", N(Towers)=" << towersColl->size(bx) << std::endl;
 
   }
 
