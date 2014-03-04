@@ -51,7 +51,6 @@ MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
   simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel","g4SimHits"); 
 
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
   outputFile_ =  ps.getParameter<std::string>("outputFile");
 
   theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits") );
@@ -100,6 +99,8 @@ MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     edm::LogError("MuonGEMHits") << "+++ Error : GEM geometry is unavailable. +++\n";
     return;
   }
+
+  dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
   
   if( hasGEMGeometry_ ) {
     theGEMHitsValidation->setGeometry(gem_geometry_);
