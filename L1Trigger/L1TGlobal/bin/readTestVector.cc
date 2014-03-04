@@ -48,24 +48,47 @@ l1t::Jet unpackJets( std::string ijet );
 l1t::EtSum unpackEtSums( std::string ietsum, l1t::EtSum::EtSumType type );
 
 double convertPtFromHW( int hwPt, double max, double step );
-double convertEtaFromHW( int hwEta, double max, double step );
+double convertEtaFromHW( int hwEta, double max, double step, int hwMax );
 double convertPhiFromHW( int hwPhi, double step );
 
+
+TH1D* h_l1mu_pt_;
+TH1D* h_l1mu_eta_;
+TH1D* h_l1mu_phi_;
+TH1D* h_l1mu_num_;
 
 TH1D* h_l1jet_pt_;
 TH1D* h_l1jet_eta_;
 TH1D* h_l1jet_phi_;
 TH1D* h_l1jet_num_;
 
+TH1D* h_l1eg_pt_;
+TH1D* h_l1eg_eta_;
+TH1D* h_l1eg_phi_;
+TH1D* h_l1eg_num_;
+
+TH1D* h_l1tau_pt_;
+TH1D* h_l1tau_eta_;
+TH1D* h_l1tau_phi_;
+TH1D* h_l1tau_num_;
+
+TH1D* h_l1ht_;
+TH1D* h_l1et_;
+TH1D* h_l1htm_et_;
+TH1D* h_l1etm_et_;
+TH1D* h_l1htm_phi_;
+TH1D* h_l1etm_phi_;
+
 
 double MaxLepPt_ = 255;
 double MaxJetPt_ = 1023;
+double MaxEt_ = 2047;
 
 double MaxCaloEta_ = 5.0;
 double MaxMuonEta_ = 2.45;
 
 double PhiStepCalo_ = 144;
-double phiStepMuon_ = 576;
+double PhiStepMuon_ = 576;
 
 double EtaStepCalo_ = 230;
 double EtaStepMuon_ = 450;
@@ -161,11 +184,32 @@ int main( int argc, char** argv ){
   }
 
   /// Setup histograms
+  h_l1mu_pt_  = new TH1D("h_l1mu_pt", ";L1 #mu p_{T}", int((MaxLepPt_+PtStep_)/(PtStep_) + 1.001), 0, MaxLepPt_+PtStep_ );
+  h_l1mu_eta_ = new TH1D("h_l1mu_eta",";L1 #mu #eta",  int(EtaStepMuon_/2+0.0001), -MaxMuonEta_, MaxMuonEta_ );
+  h_l1mu_phi_ = new TH1D("h_l1mu_phi",";L1 #mu #phi",  PhiStepMuon_+1, 0, 2*M_PI );
+  h_l1mu_num_ = new TH1D("h_l1mu_num",";L1 Number of #mu",  10, 0, 10 );
+
   h_l1jet_pt_  = new TH1D("h_l1jet_pt", ";L1 jet p_{T}", int((MaxJetPt_+PtStep_)/(4*PtStep_) + 1.001), 0, MaxJetPt_+PtStep_ );
   h_l1jet_eta_ = new TH1D("h_l1jet_eta",";L1 jet #eta",  int(EtaStepCalo_/2+0.0001), -MaxCaloEta_, MaxCaloEta_ );
   h_l1jet_phi_ = new TH1D("h_l1jet_phi",";L1 jet #phi",  PhiStepCalo_+1, 0, 2*M_PI );
   h_l1jet_num_ = new TH1D("h_l1jet_num",";L1 Number of jets",  13, 0, 13 );
 
+  h_l1eg_pt_  = new TH1D("h_l1eg_pt", ";L1 EG p_{T}", int((MaxLepPt_+PtStep_)/(PtStep_) + 1.001), 0, MaxLepPt_+PtStep_ );
+  h_l1eg_eta_ = new TH1D("h_l1eg_eta",";L1 EG #eta",  int(EtaStepCalo_/2+0.0001), -MaxCaloEta_, MaxCaloEta_ );
+  h_l1eg_phi_ = new TH1D("h_l1eg_phi",";L1 EG #phi",  PhiStepCalo_+1, 0, 2*M_PI );
+  h_l1eg_num_ = new TH1D("h_l1eg_num",";L1 Number of EGs",  13, 0, 13 );
+
+  h_l1tau_pt_  = new TH1D("h_l1tau_pt", ";L1 #tau p_{T}", int((MaxLepPt_+PtStep_)/(PtStep_) + 1.001), 0, MaxLepPt_+PtStep_ );
+  h_l1tau_eta_ = new TH1D("h_l1tau_eta",";L1 #tau #eta",  int(EtaStepCalo_/2+0.0001), -MaxCaloEta_, MaxCaloEta_ );
+  h_l1tau_phi_ = new TH1D("h_l1tau_phi",";L1 #tau #phi",  PhiStepCalo_+1, 0, 2*M_PI );
+  h_l1tau_num_ = new TH1D("h_l1tau_num",";L1 Number of #tau",  13, 0, 13 );
+
+  h_l1ht_ = new TH1D("h_l1ht_", ";L1 #SigmaH_{T}", int((MaxEt_+PtStep_)/(16*PtStep_) + 1.001), 0, MaxEt_+PtStep_ );
+  h_l1et_ = new TH1D("h_l1et_", ";L1 #SigmaE_{T}", int((MaxEt_+PtStep_)/(16*PtStep_) + 1.001), 0, MaxEt_+PtStep_ );
+  h_l1htm_et_ = new TH1D("h_l1htm_et_", ";L1 Missing H_{T}", int((MaxEt_+PtStep_)/(16*PtStep_) + 1.001), 0, MaxEt_+PtStep_ );
+  h_l1etm_et_ = new TH1D("h_l1etm_et_", ";L1 Missing E_{T}", int((MaxEt_+PtStep_)/(16*PtStep_) + 1.001), 0, MaxEt_+PtStep_ );
+  h_l1htm_phi_ = new TH1D("h_l1htm_phi_", ";L1 Missing H_{T} #phi", PhiStepCalo_+1, 0, 2*M_PI );
+  h_l1etm_phi_ = new TH1D("h_l1etm_phi_", ";L1 Missing E_{T} #phi", PhiStepCalo_+1, 0, 2*M_PI );
 
 
   std::ifstream file(vector_file);
@@ -264,40 +308,73 @@ int main( int argc, char** argv ){
 void parseMuons( std::vector<std::string> muons, bool verbose ){
 
   if( verbose) printf("    == Muons ==\n");
+  int nmu=0;
   for( unsigned int i=0; i<muons.size(); i++ ){
     std::string imu = muons[i];
     if( imu==zeroes16 ) continue;
-
+    nmu++;
     l1t::Muon mu = unpackMuons( imu );
 
-    if( verbose) printf(" l1t::Muon %d:\t pt = %d,\t eta = %d,\t phi = %d\n", i, mu.hwPt(), mu.hwEta(), mu.hwPhi());
+    double pt = convertPtFromHW( mu.hwPt(), MaxLepPt_, PtStep_ );
+    double eta = convertEtaFromHW( mu.hwEta(), MaxMuonEta_, EtaStepMuon_, 0x1ff );
+    double phi = convertPhiFromHW( mu.hwPhi(), PhiStepMuon_ );
+
+    h_l1mu_pt_->Fill( pt );
+    h_l1mu_eta_->Fill( eta );
+    h_l1mu_phi_->Fill( phi );
+
+    if( verbose) printf(" l1t::Muon %d:\t pt = %d (%.1f),\t eta = %d (%+.2f),\t phi = %d (%.2f)\n", i, mu.hwPt(), pt, mu.hwEta(), eta, mu.hwPhi(), phi);
   }
+  h_l1mu_num_->Fill(nmu);
+
   return;
 }
 void parseEGs( std::vector<std::string> egs, bool verbose ){
 
   if( verbose) printf("    == EGammas ==\n");
+  int neg=0;
   for( unsigned int i=0; i<egs.size(); i++ ){
     std::string ieg = egs[i];
     if( ieg==zeroes8 ) continue;
-
+    neg++;
     l1t::EGamma eg = unpackEGs( ieg );
 
-    if( verbose) printf(" l1t::EGamma %d:\t pt = %d,\t eta = %d,\t phi = %d\n", i, eg.hwPt(), eg.hwEta(), eg.hwPhi());
+    double pt = convertPtFromHW( eg.hwPt(), MaxLepPt_, PtStep_ );
+    double eta = convertEtaFromHW( eg.hwEta(), MaxCaloEta_, EtaStepCalo_, 0xff );
+    double phi = convertPhiFromHW( eg.hwPhi(), PhiStepCalo_ );
+
+    h_l1eg_pt_->Fill( pt );
+    h_l1eg_eta_->Fill( eta );
+    h_l1eg_phi_->Fill( phi );
+
+    if( verbose) printf(" l1t::EGamma %d:\t pt = %d (%.1f),\t eta = %d (%+.2f),\t phi = %d (%.2f)\n", i, eg.hwPt(), pt, eg.hwEta(), eta, eg.hwPhi(), phi);
   }
+  h_l1eg_num_->Fill(neg);
+
   return;
 }
 void parseTaus( std::vector<std::string> taus, bool verbose ){
 
   if( verbose) printf("    == Taus ==\n");
+  int ntau=0;
   for( unsigned int i=0; i<taus.size(); i++ ){
     std::string itau = taus[i];
     if( itau==zeroes8 ) continue;
-
+    ntau++;
     l1t::Tau tau = unpackTaus( itau );
 
-    if( verbose) printf(" l1t::Tau %d:\t pt = %d,\t eta = %d,\t phi = %d\n", i, tau.hwPt(), tau.hwEta(), tau.hwPhi());
+    double pt = convertPtFromHW( tau.hwPt(), MaxLepPt_, PtStep_ );
+    double eta = convertEtaFromHW( tau.hwEta(), MaxCaloEta_, EtaStepCalo_, 0xff );
+    double phi = convertPhiFromHW( tau.hwPhi(), PhiStepCalo_ );
+
+    h_l1tau_pt_->Fill( pt );
+    h_l1tau_eta_->Fill( eta );
+    h_l1tau_phi_->Fill( phi );
+
+    if( verbose) printf(" l1t::Tau %d:\t pt = %d (%.1f),\t eta = %d (%+.2f),\t phi = %d (%.2f)\n", i, tau.hwPt(), pt, tau.hwEta(), eta, tau.hwPhi(), phi);
   }
+  h_l1tau_num_->Fill(ntau);
+
   return;
 }
 void parseJets( std::vector<std::string> jets, bool verbose ){
@@ -311,7 +388,7 @@ void parseJets( std::vector<std::string> jets, bool verbose ){
     l1t::Jet jet = unpackJets( ijet );
 
     double pt = convertPtFromHW( jet.hwPt(), MaxJetPt_, PtStep_ );
-    double eta = convertEtaFromHW( jet.hwEta(), MaxCaloEta_, EtaStepCalo_ );
+    double eta = convertEtaFromHW( jet.hwEta(), MaxCaloEta_, EtaStepCalo_, 0xff );
     double phi = convertPhiFromHW( jet.hwPhi(), PhiStepCalo_ );
 
     h_l1jet_pt_->Fill( pt );
@@ -332,24 +409,36 @@ void parseEtSums( std::vector<std::string> etsum, bool verbose ){
   std::string iet = etsum[0];
   if( iet!=zeroes8 ){
     l1t::EtSum et = unpackEtSums( iet, l1t::EtSum::EtSumType::kTotalEt );
+    double pt = convertPtFromHW( et.hwPt(), MaxEt_, PtStep_ );
+    h_l1et_->Fill( pt );
     if( verbose) printf(" l1t::EtSum TotalEt:\t Et = %d\n", et.hwPt());
   }
   //ht sum
   std::string iht = etsum[1];
   if( iht!=zeroes8 ){
     l1t::EtSum ht = unpackEtSums( iht, l1t::EtSum::EtSumType::kTotalHt );
+    double pt = convertPtFromHW( ht.hwPt(), MaxEt_, PtStep_ );
+    h_l1ht_->Fill( pt );
     if( verbose) printf(" l1t::EtSum TotalHt:\t Ht = %d\n", ht.hwPt());
   }
   //etm
   std::string ietm = etsum[2];
   if( ietm!=zeroes8 ){
     l1t::EtSum etm = unpackEtSums( ietm, l1t::EtSum::EtSumType::kMissingEt );
+    double pt = convertPtFromHW( etm.hwPt(), MaxEt_, PtStep_ );
+    double phi = convertPhiFromHW( etm.hwPhi(), PhiStepCalo_ );
+    h_l1etm_et_->Fill( pt );
+    h_l1etm_phi_->Fill( phi );
     if( verbose) printf(" l1t::EtSum MissingEt:\t Et = %d,\t phi = %d\n", etm.hwPt(), etm.hwPhi());
   }
   //htm
   std::string ihtm = etsum[3];
   if( ihtm!=zeroes8 ){
     l1t::EtSum htm = unpackEtSums( ihtm, l1t::EtSum::EtSumType::kMissingHt );
+    double pt = convertPtFromHW( htm.hwPt(), MaxEt_, PtStep_ );
+    double phi = convertPhiFromHW( htm.hwPhi(), PhiStepCalo_ );
+    h_l1htm_et_->Fill( pt );
+    h_l1htm_phi_->Fill( phi );
     if( verbose) printf(" l1t::EtSum MissingHt:\t Et = %d,\t phi = %d\n", htm.hwPt(), htm.hwPhi());
   }
 
@@ -391,13 +480,13 @@ l1t::Muon unpackMuons( std::string imu ){
   char* endPtr = (char*) imu.c_str();
   cms_uint64_t packedVal = strtoull( imu.c_str(), &endPtr, 16 );
 
-  int pt  = (packedVal>>0)  & 0x1ff;
-  int eta = (packedVal>>9)  & 0x1ff;
-  int phi = (packedVal>>18) & 0x3ff;
-  int iso = (packedVal>>34) & 0x1;
-  int qual= (packedVal>>30) & 0x1;
-  int charge = (packedVal>>29) & 0x1;
-  int chargeValid = (packedVal>>28) & 0x1;
+  int pt  = (packedVal>>10) & 0x1ff;
+  int eta = (packedVal>>23) & 0x1ff;
+  int phi = (packedVal>>0)  & 0x3ff;
+  int iso = (packedVal>>32) & 0x1;
+  int qual= (packedVal>>19) & 0x1;
+  int charge = (packedVal>>35) & 0x1;
+  int chargeValid = (packedVal>>34) & 0x1;
   int mip = 1;
   int tag = 1;
 
@@ -479,9 +568,10 @@ double convertPtFromHW( int hwPt, double max, double step ){
   return pt;
 }
 
-double convertEtaFromHW( int hwEta, double max, double step ){
+double convertEtaFromHW( int hwEta, double max, double step, int hwMax ){
+  hwMax++;
   double binWidth = 2*max/step;
-  double eta = ( hwEta<115 ) ? double(hwEta)*binWidth+0.5*binWidth : -(double(256-hwEta)*binWidth -0.5*binWidth);
+  double eta = ( hwEta<int(hwMax/2+1.001) ) ? double(hwEta)*binWidth+0.5*binWidth : -(double(hwMax-hwEta)*binWidth -0.5*binWidth);
   return eta;
 }
 double convertPhiFromHW( int hwPhi, double step ){
