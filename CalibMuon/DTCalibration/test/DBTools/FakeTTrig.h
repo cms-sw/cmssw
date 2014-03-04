@@ -16,10 +16,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-namespace CLHEP {
-  class RandGaussQ;
-}
-
 #include <string>
 class DTGeometry;
 class DTSuperLayer;
@@ -35,6 +31,7 @@ public:
 
   // Operations
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
   virtual void endJob();
 
@@ -61,8 +58,6 @@ private:
   // Get the tTrigMap
   edm::ESHandle<DTTtrig> tTrigMapRef;
 
-  // the random generator
-  CLHEP::RandGaussQ* theGaussianDistribution;
-
+  bool dataBaseWriteWasDone;
 };
 #endif
