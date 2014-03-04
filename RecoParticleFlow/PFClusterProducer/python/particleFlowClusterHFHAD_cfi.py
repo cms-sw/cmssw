@@ -22,14 +22,14 @@ _spikeAndDoubleSpikeCleaner_HFHAD = cms.PSet(
 
 #seeding
 _localMaxSeeds_HFHAD = cms.PSet(
-    algoName = cms.string("LocalMaximum2DSeedFinder"),
+    algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HF_HAD"),
               seedingThreshold = cms.double(1.4),
               seedingThresholdPt = cms.double(0.0)
               )
     ),
-    nNeighbours = cms.uint32(0)
+    nNeighbours = cms.int32(0)
 )
 
 #topo clusters

@@ -33,7 +33,7 @@ _spikeAndDoubleSpikeCleaner_ECAL = cms.PSet(
 
 #seeding
 _localMaxSeeds_ECAL = cms.PSet(
-    algoName = cms.string("LocalMaximum2DSeedFinder"),
+    algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("ECAL_ENDCAP"),
               seedingThreshold = cms.double(0.6),
@@ -44,7 +44,7 @@ _localMaxSeeds_ECAL = cms.PSet(
               seedingThresholdPt = cms.double(0.0)
               )
     ),
-    nNeighbours = cms.uint32(8)
+    nNeighbours = cms.int32(8)
 )
 
 # topo clusterizer

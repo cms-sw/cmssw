@@ -9,7 +9,7 @@ _rbxAndHPDCleaner = cms.PSet(
 
 #seeding
 _localMaxSeeds_HCAL = cms.PSet(
-    algoName = cms.string("LocalMaximum2DSeedFinder"),
+    algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HCAL_BARREL1"),
               seedingThreshold = cms.double(0.8),
@@ -20,7 +20,7 @@ _localMaxSeeds_HCAL = cms.PSet(
               seedingThresholdPt = cms.double(0.0)
               )
     ),
-    nNeighbours = cms.uint32(4)
+    nNeighbours = cms.int32(4)
 )
 
 #topo clusters

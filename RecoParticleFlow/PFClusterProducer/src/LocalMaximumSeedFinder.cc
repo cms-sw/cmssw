@@ -1,6 +1,6 @@
-#include "LocalMaximum2DSeedFinder.h"
+#include "LocalMaximumSeedFinder.h"
 
-const reco::PFRecHitRefVector LocalMaximum2DSeedFinder::_noNeighbours;
+const reco::PFRecHitRefVector LocalMaximumSeedFinder::_noNeighbours;
 
 namespace {
   bool greaterByEnergy(const std::pair<unsigned,double>& a,
@@ -9,10 +9,10 @@ namespace {
   }
 }
 
-LocalMaximum2DSeedFinder::
-LocalMaximum2DSeedFinder(const edm::ParameterSet& conf) : 
+LocalMaximumSeedFinder::
+LocalMaximumSeedFinder(const edm::ParameterSet& conf) : 
   SeedFinderBase(conf),   
-  _nNeighbours(conf.getParameter<unsigned>("nNeighbours")),
+  _nNeighbours(conf.getParameter<int>("nNeighbours")),
   _layerMap({ {"PS2",(int)PFLayer::PS2},
 	      {"PS1",(int)PFLayer::PS1},
 	      {"ECAL_ENDCAP",(int)PFLayer::ECAL_ENDCAP},
@@ -44,7 +44,7 @@ LocalMaximum2DSeedFinder(const edm::ParameterSet& conf) :
 }
 
 // the starting state of seedable is all false!
-void LocalMaximum2DSeedFinder::
+void LocalMaximumSeedFinder::
 findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
 	   const std::vector<bool>& mask,
 	   std::vector<bool>& seedable ) {
@@ -90,7 +90,7 @@ findSeeds( const edm::Handle<reco::PFRecHitCollection>& input,
       break;
     default:
       throw cms::Exception("InvalidConfiguration")
-	<< "LocalMaximum2DSeedFinder only accepts nNeighbors = {0,4,8}";    
+	<< "LocalMaximumSeedFinder only accepts nNeighbors = {-1,0,4,8}";    
     }
     seedable[idx] = true;
     for( const reco::PFRecHitRef& neighbour : *myNeighbours ) {
