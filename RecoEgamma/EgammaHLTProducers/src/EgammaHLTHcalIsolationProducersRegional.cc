@@ -28,9 +28,11 @@ EgammaHLTHcalIsolationProducersRegional::EgammaHLTHcalIsolationProducersRegional
  // use configuration file to setup input/output collection names
   recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   hbheRecHitProducer_        = consumes<HBHERecHitCollection>(config.getParameter<edm::InputTag>("hbheRecHitProducer"));
-  rhoProducer_               = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"))
-;
+
   doRhoCorrection_           = config.getParameter<bool>("doRhoCorrection");
+  if (doRhoCorrection_)
+    rhoProducer_               = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
+
   rhoMax_                    = config.getParameter<double>("rhoMax"); 
   rhoScale_                  = config.getParameter<double>("rhoScale"); 
   

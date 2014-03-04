@@ -10,6 +10,7 @@
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibMuon/DTCalibration/test/DBTools/DTCalibrationMap.h"
@@ -27,6 +28,8 @@
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 
 //Random generator
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
@@ -40,8 +43,9 @@ using namespace edm;
 
 
 
-FakeTTrig::FakeTTrig(const ParameterSet& pset) {
- 
+FakeTTrig::FakeTTrig(const ParameterSet& pset) :
+  dataBaseWriteWasDone(false) {
+
   cout << "[FakeTTrig] Constructor called! " << endl;
 
   // further configurable smearing
@@ -54,10 +58,7 @@ FakeTTrig::FakeTTrig(const ParameterSet& pset) {
     throw cms::Exception("Configuration")
       << "RandomNumberGeneratorService for DTFakeTTrigDB missing in cfg file";
   }
-  theGaussianDistribution = new CLHEP::RandGaussQ(rng->getEngine()); 
-
   ps = pset;
-  
 }
 
 
@@ -74,52 +75,56 @@ void FakeTTrig::beginRun(const edm::Run&, const EventSetup& setup) {
     setup.get<DTTtrigRcd>().get(dbLabel,tTrigMapRef);  
 }
 
-void FakeTTrig::endJob() {
+void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
+  if(!dataBaseWriteWasDone) {
+    dataBaseWriteWasDone = true;
+
+    cout << "[FakeTTrig] entered into beginLuminosityBlock! " << endl;
  
-  cout << "[FakeTTrig] entered into endJob! " << endl;
- 
-  // Get the superlayers and layers list
-  vector<DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
-  // Create the object to be written to DB
-  DTTtrig* tTrigMap = new DTTtrig();
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(lumi.index());
 
-  for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
-       sl != dtSupLylist.end(); sl++) {
+    // Get the superlayers and layers list
+    vector<DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
+    // Create the object to be written to DB
+    DTTtrig* tTrigMap = new DTTtrig();
 
-    // get the time of fly
-    double timeOfFly = tofComputation(*sl);
-    // get the time of wire propagation
-    double timeOfWirePropagation = wirePropComputation(*sl);
-    // get the gaussian smearing
-    double gaussianSmearing = theGaussianDistribution->fire(0.,smearing);
-    // get the fake tTrig pedestal
-    double pedestral = ps.getUntrackedParameter<double>("fakeTTrigPedestal", 500);
+    for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
+         sl != dtSupLylist.end(); sl++) {
 
-    if ( ps.getUntrackedParameter<bool>("readDB", true) ){
-      tTrigMapRef->get((*sl)->id(), tTrigRef, tTrigRMSRef, kFactorRef, DTTimeUnits::ns );
-      // pedestral = tTrigRef;
-      pedestral = tTrigRef +  kFactorRef*tTrigRMSRef ;
+      // get the time of fly
+      double timeOfFly = tofComputation(*sl);
+      // get the time of wire propagation
+      double timeOfWirePropagation = wirePropComputation(*sl);
+      // get the gaussian smearing
+      double gaussianSmearing = CLHEP::RandGaussQ::shoot(engine, 0., smearing);
+      // get the fake tTrig pedestal
+      double pedestral = ps.getUntrackedParameter<double>("fakeTTrigPedestal", 500);
+
+      if ( ps.getUntrackedParameter<bool>("readDB", true) ){
+        tTrigMapRef->get((*sl)->id(), tTrigRef, tTrigRMSRef, kFactorRef, DTTimeUnits::ns );
+        // pedestral = tTrigRef;
+        pedestral = tTrigRef +  kFactorRef*tTrigRMSRef ;
+      }
+
+      DTSuperLayerId slId = (*sl)->id();
+      // if the FakeTtrig has to be smeared with a Gaussian
+      double fakeTTrig = pedestral + timeOfFly + timeOfWirePropagation + gaussianSmearing;
+      // if the FakeTtrig is scaled of a number of bunch crossing
+      //  double fakeTTrig = pedestral - 75.;
+      tTrigMap->set(slId, fakeTTrig, 0,0, DTTimeUnits::ns);
     }
 
-    DTSuperLayerId slId = (*sl)->id();
-    // if the FakeTtrig has to be smeared with a Gaussian
-    double fakeTTrig = pedestral + timeOfFly + timeOfWirePropagation + gaussianSmearing;
-    // if the FakeTtrig is scaled of a number of bunch crossing
-    //  double fakeTTrig = pedestral - 75.;
-    tTrigMap->set(slId, fakeTTrig, 0,0, DTTimeUnits::ns);
-
+    // Write the object in the DB
+    cout << "[FakeTTrig] Writing ttrig object to DB!" << endl;
+    string record = "DTTtrigRcd";
+    DTCalibDBUtils::writeToDB<DTTtrig>(record, tTrigMap);
   }
-
-  // Write the object in the DB
-  cout << "[FakeTTrig] Writing ttrig object to DB!" << endl;
-  string record = "DTTtrigRcd";
-  DTCalibDBUtils::writeToDB<DTTtrig>(record, tTrigMap);
-  
 }
 
-				      
-
-
+void FakeTTrig::endJob() { 
+  cout << "[FakeTTrig] entered into endJob! " << endl;
+}
 
 double FakeTTrig::tofComputation(const DTSuperLayer* superlayer) {
 
