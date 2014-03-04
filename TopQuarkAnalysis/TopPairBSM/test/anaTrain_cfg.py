@@ -4,6 +4,35 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.options.allowUnscheduled = cms.untracked.bool(True)
 #process.Tracer = cms.Service("Tracer")
 
+###############################
+####### Parameters ############
+###############################
+from FWCore.ParameterSet.VarParsing import VarParsing
+options = VarParsing ('python')
+
+
+options.register ('tlbsmTag',
+                  'tlbsm_71x_v1',
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.string,
+                  'TLBSM tag use in production')
+
+
+options.register ('usePythia8',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Use status codes from Pythia8 rather than Pythia6")
+
+
+options.register ('usePythia6andPythia8',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Use status codes from Pythia8 and Pythia6")
+
+options.parseArguments()
+
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 process.load("RecoJets.Configuration.RecoGenJets_cff")
@@ -17,6 +46,50 @@ from TopQuarkAnalysis.TopPairBSM.filters_cff import applyFilters
 ######### TO DO : TURN ON FILTERS ###########
 #applyFilters(process)
 print 'CAVEAT : Filters are not yet implemented'
+
+######### TO DO : TURN ON TRIGGERS! #########
+
+
+
+
+################################################################################################
+############################ Pruned GenParticles ###############################################
+################################################################################################
+
+# prune gen particles
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.prunedGenParticles = cms.EDProducer("GenParticlePruner",
+                                            src = cms.InputTag("genParticles"),
+                                            select = cms.vstring(
+                                                "drop  *"
+                                                ,"keep status = 3" #keeps  particles from the hard matrix element
+                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
+                                                ,"keep (abs(pdgId)  = 15) & status = 3" #keeps taus
+                                                )
+                                            )
+
+if options.usePythia8 :
+    process.prunedGenParticles.select = cms.vstring(
+                                                "drop  *"
+                                                ,"keep status = 21" #keeps  particles from the hard matrix element
+                                                ,"keep status = 22" #keeps  particles from the hard matrix element
+                                                ,"keep status = 23" #keeps  particles from the hard matrix element
+                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
+                                                ,"keep (abs(pdgId)  = 15) & (status = 21 || status = 22 || status = 23) " #keeps taus
+                                                )
+if options.usePythia6andPythia8 :
+    process.prunedGenParticles.select = cms.vstring(
+                                                "drop  *"
+                                                ,"keep status = 3" #keeps  particles from the hard matrix element
+                                                ,"keep status = 21" #keeps  particles from the hard matrix element
+                                                ,"keep status = 22" #keeps  particles from the hard matrix element
+                                                ,"keep status = 23" #keeps  particles from the hard matrix element
+                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
+                                                ,"keep (abs(pdgId)  = 15) & (status = 3 || status = 21 || status = 22 || status = 23)" #keeps taus
+                                                )                                      
+
+
+    
 
 
 ################################################################################################
@@ -304,7 +377,8 @@ for ilabel in ['PatJetsCA8CMSTopTag',
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-process.source.fileNames = ['dcap:///pnfs/cms/WAX/11/store/relval/CMSSW_7_0_0/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/POSTLS170_V3-v1/00000/56210C05-B596-E311-B433-002618943832.root']
+#process.source.fileNames = ['/store/relval/CMSSW_7_0_0/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/POSTLS170_V3-v1/00000/56210C05-B596-E311-B433-002618943832.root']
+process.source.fileNames = ['file:/uscms_data/d2/rappocc/analysis/Common/CMSSW_7_0_0/src/25.0_TTbar+TTbar+DIGI+RECO+HARVEST+ALCATT/step3.root']
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##
@@ -326,9 +400,10 @@ process.out.outputCommands += [
     'drop CaloTowers_*_*_*',
     'drop recoGenJets_*_genJets_*',
     'drop recoPFCandidates_*_pfCandidates_*',
-    'keep *_particleFlow__*'
+    'keep *_particleFlow__*',
+    'keep *_prunedGenParticles_*_*',
    ]
 #                                         ##
-process.out.fileName = 'patTuple_tlbsm_train.root'
+process.out.fileName = 'patTuple_tlbsm_train_' + options.tlbsmTag + '.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
