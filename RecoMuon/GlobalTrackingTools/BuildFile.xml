@@ -14,6 +14,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/GEMGeometry"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/DTGeometry"/>
 <use   name="PhysicsTools/UtilAlgos"/>
