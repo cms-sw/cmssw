@@ -25,7 +25,10 @@ template <typename D,typename T>
 class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
  public:
   PFRecHitCaloNavigatorWithTime(const edm::ParameterSet& iConfig) {
-    binning_ = iConfig.getParameter<std::vector<double> >("timeDigitization");
+    noiseLevel_ = iConfig.getParameter<double>("noiseLevel");
+    noiseTerm_ = iConfig.getParameter<double>("noiseTerm");
+    constantTerm_ = iConfig.getParameter<double>("constantTerm");
+    sigmaCut_ = iConfig.getParameter<double>("sigmaCut");
   }
 
   void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
@@ -103,28 +106,11 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 
  protected:
 
-  unsigned int get_bin(float time) {
-    for (unsigned int i=0;i<binning_.size();++i) {
-      if (i==0) {
-	if (time<=binning_[0])
-	  return 0;
-      }
-      else if (i==binning_[binning_.size()-1]) {
-	if (time>binning_[binning_.size()-1])
-	  return binning_.size()-1;
-      }
-      else {
-	if (time>binning_[i-1] && time<=binning_[i] )
-	  return i;
-      }
-    }
-    return -9999;
-  }
-
-
 
   void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi) {
-    int depth=0;
+    double sigma=0.0;
+    double aeff=0.0;
+    
     const reco::PFRecHit temp(id,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
     auto found_hit = std::lower_bound(hits->begin(),hits->end(),
 				      temp,
@@ -133,9 +119,10 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 					return a.detId() < b.detId();
 				      });
     if( found_hit != hits->end() && found_hit->detId() == id.rawId() ) {
-      depth = get_bin(hit.time())-get_bin(found_hit->time());
-      if( std::abs(depth) <= 1 ) {
-	hit.addNeighbour(eta,phi,depth,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
+      aeff = hit.energy()*found_hit->energy()/sqrt(hit.energy()*hit.energy()+found_hit->energy()*found_hit->energy());
+      sigma = sqrt(noiseTerm_*noiseLevel_/aeff)*(noiseTerm_*noiseLevel_/aeff)+2*constantTerm_*constantTerm_;
+      if(abs(hit.time()-found_hit->time())/sigma<sigmaCut_) {
+	hit.addNeighbour(eta,phi,0,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
       }
     }
   }
@@ -143,7 +130,10 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 
 
   const T *topology_;
-  std::vector<double> binning_;
+  double noiseLevel_;
+  double noiseTerm_;
+  double constantTerm_;
+  double sigmaCut_;
 
 
 
