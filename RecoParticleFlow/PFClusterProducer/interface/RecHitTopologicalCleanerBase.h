@@ -1,5 +1,5 @@
-#ifndef __RecHitCleanerBase_H__
-#define __RecHitCleanerBase_H__
+#ifndef __RecHitTopologicalCleanerBase_H__
+#define __RecHitTopologicalCleanerBase_H__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -8,11 +8,11 @@
 
 #include <string>
 
-class RecHitCleanerBase {
+class RecHitTopologicalCleanerBase {
  public:
-  RecHitCleanerBase(const edm::ParameterSet& conf) { }
-  RecHitCleanerBase(const RecHitCleanerBase& ) = delete;
-  RecHitCleanerBase& operator=(const RecHitCleanerBase&) = delete;
+  RecHitTopologicalCleanerBase(const edm::ParameterSet& conf) { }
+  RecHitTopologicalCleanerBase(const RecHitTopologicalCleanerBase& ) = delete;
+  RecHitTopologicalCleanerBase& operator=(const RecHitTopologicalCleanerBase&) = delete;
 
   virtual void clean(const edm::Handle<reco::PFRecHitCollection>&, 
 		     std::vector<bool>&) = 0;
@@ -24,6 +24,6 @@ class RecHitCleanerBase {
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< RecHitCleanerBase* (const edm::ParameterSet&) > RecHitCleanerFactory;
+typedef edmplugin::PluginFactory< RecHitTopologicalCleanerBase* (const edm::ParameterSet&) > RecHitTopologicalCleanerFactory;
 
 #endif

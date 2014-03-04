@@ -1,11 +1,11 @@
 #ifndef __SpikeAndDoubleSpikeCleaner_H__
 #define __SpikeAndDoubleSpikeCleaner_H__
 
-#include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerBase.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
 
 #include <unordered_map>
 
-class SpikeAndDoubleSpikeCleaner : public RecHitCleanerBase {
+class SpikeAndDoubleSpikeCleaner : public RecHitTopologicalCleanerBase {
  public:
   
   struct spike_cleaning {
@@ -31,7 +31,7 @@ class SpikeAndDoubleSpikeCleaner : public RecHitCleanerBase {
   
 };
 
-DEFINE_EDM_PLUGIN(RecHitCleanerFactory,
+DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory,
 		  SpikeAndDoubleSpikeCleaner,"SpikeAndDoubleSpikeCleaner");
 
 #endif
