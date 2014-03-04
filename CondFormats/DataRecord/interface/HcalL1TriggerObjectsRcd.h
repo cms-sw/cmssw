@@ -20,8 +20,8 @@
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-class HcalL1TriggerObjectsRcd : public edm::eventsetup::DependentRecordImplementation<HcalL1TriggerObjectsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
+class HcalL1TriggerObjectsRcd : public edm::eventsetup::DependentRecordImplementation<HcalL1TriggerObjectsRcd, boost::mpl::vector<HcalRecNumberingRecord> > {};
 
 #endif

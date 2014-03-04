@@ -32,7 +32,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TTree.h"
 #include "TFile.h"
-#include "TGraphAsymmErrors.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -84,6 +83,8 @@
 //
 MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
 {
+  hasGEMGeometry_ = false;
+
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
   outputFile_ =  ps.getParameter<std::string>("outputFile");
@@ -91,7 +92,7 @@ MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
    //now do what ever initialization is needed
   
   std::string simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel","g4SimHits"); 
-  theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits"),ps.getParameterSet("gemSystemSetting") );
+  theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits") );
   theGEMSimTrackMatch  = new GEMSimTrackMatch(dbe_, simInputLabel_ , ps.getParameterSet("simTrackMatching") );
 }
 
@@ -99,15 +100,8 @@ MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
 
 MuonGEMHits::~MuonGEMHits()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-
   delete theGEMHitsValidation;
   delete theGEMSimTrackMatch;
-
-
 }
 
 
@@ -125,12 +119,6 @@ MuonGEMHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   theGEMHitsValidation->analyze(iEvent,iSetup );  
   theGEMSimTrackMatch->analyze(iEvent,iSetup );  
-
- 
-  
-
-
-
 }
 
 
@@ -139,8 +127,6 @@ MuonGEMHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 MuonGEMHits::beginJob()
 {
-
-
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -155,18 +141,20 @@ MuonGEMHits::endJob()
 void 
 MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
+  try { 
+    iSetup.get<MuonGeometryRecord>().get(gem_geom);
+    gem_geometry_ = &*gem_geom;
+    hasGEMGeometry_ = true;
 
-  iSetup.get<MuonGeometryRecord>().get(gem_geom);
-  gem_geometry_ = &*gem_geom;
-
-
-
-  theGEMHitsValidation->setGeometry(gem_geometry_);
-  theGEMSimTrackMatch->setGeometry(gem_geometry_);
-
-
-
-
+  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    LogDebug("MuonGEMHits") << "+++ Info: GEM geometry is unavailable. +++\n";
+  }
+  if( hasGEMGeometry_ ) {
+    theGEMHitsValidation->setGeometry(gem_geometry_);
+    theGEMHitsValidation->bookHisto();
+    theGEMSimTrackMatch->setGeometry(gem_geometry_);
+    theGEMSimTrackMatch->bookHisto();
+  }
 }
 
 

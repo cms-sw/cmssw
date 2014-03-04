@@ -15,6 +15,7 @@ from Geometry.TrackerNumberingBuilder.trackerTopologyConstants_cfi import *
 #Muon
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+from Geometry.GEMGeometryBuilder.gemGeometry_cfi import *
 
 #  Alignment
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerSLHCGeometry_cff import *
@@ -36,6 +37,10 @@ CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
 )
 
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
+
+## Include EE and ES back temporarily
+from Geometry.CaloEventSetup.CaloGeometry_cff import *
+
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalTopology_cfi import *
@@ -43,4 +48,5 @@ from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
+from Geometry.HcalCommonData.hcalNumberingInitialization_cfi import *
 

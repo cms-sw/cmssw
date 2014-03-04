@@ -962,7 +962,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
   
     // get the hcal topology
     edm::ESHandle<HcalTopology> hcalTopology;
-    iSetup.get<IdealGeometryRecord>().get( hcalTopology );
+    iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
     
     // HCAL rechits 
     //    vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  

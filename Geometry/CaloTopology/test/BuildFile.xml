@@ -1,7 +1,10 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="Geometry/CaloTopology"/>
-<bin   file="testCaloTowerTopology.cpp">
-</bin>
-<bin   file="testHcalTopology.cpp">
-</bin>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/HcalCommonData"/>
+<use   name="CoralBase"/>
+
+<bin   file="testCaloTowerTopology.cpp"> </bin>
+<flags   EDM_PLUGIN="1"/>
+<library   file="HcalTopologyTester.cc" name="testGeometryHcalTopology"> </library>

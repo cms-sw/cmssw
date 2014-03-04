@@ -31,7 +31,7 @@ September 21, 2009  Added HcalLutMetadata - Gena Kukartsev
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
@@ -84,7 +84,7 @@ namespace edmtest
    HcalDumpConditions::analyze(const edm::Event& e, const edm::EventSetup& context)
   {
     edm::ESHandle<HcalTopology> topology ;
-    context.get<IdealGeometryRecord>().get( topology );
+    context.get<HcalRecNumberingRecord>().get( topology );
 
     using namespace edm::eventsetup;
     std::cout <<"HcalDumpConditions::analyze-> I AM IN RUN NUMBER "<<e.id().run() <<std::endl;

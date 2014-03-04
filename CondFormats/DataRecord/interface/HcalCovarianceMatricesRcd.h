@@ -20,8 +20,8 @@
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-class HcalCovarianceMatricesRcd : public edm::eventsetup::DependentRecordImplementation<HcalCovarianceMatricesRcd, boost::mpl::vector<IdealGeometryRecord> > {};
+class HcalCovarianceMatricesRcd : public edm::eventsetup::DependentRecordImplementation<HcalCovarianceMatricesRcd, boost::mpl::vector<HcalRecNumberingRecord> > {};
 
 #endif

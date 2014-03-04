@@ -1,17 +1,17 @@
-/*! \class   TTStubBuilder
- *  \brief   Plugin to load the Stub finding algorithm and produce the
- *           collection of Stubs that goes in the event content.
- *  \details After moving from SimDataFormats to DataFormats,
- *           the template structure of the class was maintained
- *           in order to accomodate any types other than PixelDigis
- *           in case there is such a need in the future.
- *
- *  \author Andrew W. Rose
- *  \author Nicola Pozzobon
- *  \author Ivan Reid
- *  \date   2013, Jul 18
- *
- */
+/*! \class TTStubBuilder
+* \brief Plugin to load the Stub finding algorithm and produce the
+* collection of Stubs that goes in the event content.
+* \details After moving from SimDataFormats to DataFormats,
+* the template structure of the class was maintained
+* in order to accomodate any types other than PixelDigis
+* in case there is such a need in the future.
+*
+* \author Andrew W. Rose
+* \author Nicola Pozzobon
+* \author Ivan Reid
+* \date 2013, Jul 18
+*
+*/
 
 #ifndef L1_TRACK_TRIGGER_STUB_BUILDER_H
 #define L1_TRACK_TRIGGER_STUB_BUILDER_H
@@ -48,9 +48,9 @@ class TTStubBuilder : public edm::EDProducer
 
   private:
     /// Data members
-    const StackedTrackerGeometry          *theStackedTracker;
+    const StackedTrackerGeometry *theStackedTracker;
     edm::ESHandle< TTStubAlgorithm< T > > theStubFindingAlgoHandle;
-    edm::InputTag                         TTClustersInputTag;
+    edm::InputTag TTClustersInputTag;
 
     /// Mandatory methods
     virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
@@ -63,12 +63,12 @@ class TTStubBuilder : public edm::EDProducer
 
 }; /// Close class
 
-/*! \brief   Implementation of methods
- *  \details Here, in the header file, the methods which do not depend
- *           on the specific type <T> that can fit the template.
- *           Other methods, with type-specific features, are implemented
- *           in the source file.
- */
+/*! \brief Implementation of methods
+* \details Here, in the header file, the methods which do not depend
+* on the specific type <T> that can fit the template.
+* Other methods, with type-specific features, are implemented
+* in the source file.
+*/
 
 /// Constructors
 template< typename T >
@@ -93,7 +93,7 @@ void TTStubBuilder< T >::beginRun( const edm::Run& run, const edm::EventSetup& i
   iSetup.get< StackedTrackerGeometryRecord >().get( StackedTrackerGeomHandle );
   theStackedTracker = StackedTrackerGeomHandle.product();
 
-  /// Get the stub finding algorithm 
+  /// Get the stub finding algorithm
   iSetup.get< TTStubAlgorithmRecord >().get( theStubFindingAlgoHandle );
 
   /// Print some information when loaded
@@ -111,7 +111,7 @@ void TTStubBuilder< T >::endRun( const edm::Run& run, const edm::EventSetup& iSe
 /// Implement the producer
 template< typename T >
 void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
-{  
+{
   /// Prepare output
   std::auto_ptr< edmNew::DetSetVector< TTCluster< T > > > TTClusterDSVForOutput( new edmNew::DetSetVector< TTCluster< T > > );
   std::auto_ptr< edmNew::DetSetVector< TTStub< T > > > TTStubDSVForOutputTemp( new edmNew::DetSetVector< TTStub< T > > );
@@ -186,7 +186,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
     const GeomDetUnit* det0 = theStackedTracker->idToDetUnit( Id, 0 );
     const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
     const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
-    const int chipSize = 2 * top0->rowsperroc();             /// Need to find ASIC size in half-strip units
+    const int chipSize = 2 * top0->rowsperroc(); /// Need to find ASIC size in half-strip units
     std::map< int, std::vector< TTStub< T > > > moduleStubs; /// Temporary storage for stubs before max check
 
     /// Loop over pairs of Clusters
@@ -206,7 +206,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         /// Check for compatibility
         bool thisConfirmation = false;
         int thisDisplacement = 999999;
-        int thisOffset = 0; 
+        int thisOffset = 0;
 
         theStubFindingAlgoHandle->PatternHitCorrelation( thisConfirmation, thisDisplacement, thisOffset, tempTTStub );
 
@@ -229,7 +229,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
             /// This means that only some of them do
             /// Put in the temporary output
             int chip = tempTTStub.getTriggerPosition() / chipSize; /// Find out which ASIC
-            if ( moduleStubs.find( chip ) == moduleStubs.end() )   /// Already a stub for this ASIC?
+            if ( moduleStubs.find( chip ) == moduleStubs.end() ) /// Already a stub for this ASIC?
             {
               /// No, so new entry
               std::vector< TTStub< T > > tempStubs;
@@ -244,10 +244,13 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
             }
           }
         } /// Stub accepted
-        else
-        {
-          tempRejected->push_back( tempTTStub );
-        } /// Stub rejected
+/* NP 2014 02 25
+* this is commented to avoid memory exhaustion in hi PU events
+else
+{
+tempRejected->push_back( tempTTStub );
+} /// Stub rejected
+*/
       } /// End of nested loop
     } /// End of loop over pairs of Clusters
 
@@ -286,11 +289,14 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
             tempOuter->push_back( *(is.second[bendMap[i].first].getClusterRef(1)) );
             tempOutput->push_back( is.second[bendMap[i].first] );
           }
-          for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
-          {
-            /// Reject the rest
-            tempRejected->push_back( is.second[bendMap[i].first] );
-          }
+/* NP 2014 02 25
+* this is commented to avoid memory exhaustion in hi PU events
+for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
+{
+/// Reject the rest
+tempRejected->push_back( is.second[bendMap[i].first] );
+}
+*/
         }
       } /// End of loop over temp output
     } /// End store only the selected stubs if max no. stub/ROC is set
@@ -329,16 +335,19 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         tempOutputFiller.abort();
     }
 
-    if ( tempRejected->size() > 0 )
-    {
-      typename edmNew::DetSetVector< TTStub< T > >::FastFiller rejectedOutputFiller( *TTStubDSVForOutputRejected, DetId(Id.rawId()) );
-      for ( unsigned int m = 0; m < tempRejected->size(); m++ )
-      {
-        rejectedOutputFiller.push_back( tempRejected->at(m) );
-      }
-      if ( rejectedOutputFiller.empty() )
-        rejectedOutputFiller.abort();
-    }
+/* NP 2014 02 25
+* this is commented to avoid memory exhaustion in hi PU events
+if ( tempRejected->size() > 0 )
+{
+typename edmNew::DetSetVector< TTStub< T > >::FastFiller rejectedOutputFiller( *TTStubDSVForOutputRejected, DetId(Id.rawId()) );
+for ( unsigned int m = 0; m < tempRejected->size(); m++ )
+{
+rejectedOutputFiller.push_back( tempRejected->at(m) );
+}
+if ( rejectedOutputFiller.empty() )
+rejectedOutputFiller.abort();
+}
+*/
 
   } /// End of loop over detector elements
 
@@ -461,4 +470,3 @@ bool TTStubBuilder< T >::SortStubBendPairs( const std::pair< unsigned int, doubl
 }
 
 #endif
-

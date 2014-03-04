@@ -82,7 +82,7 @@ PFRecHitProducerHO::createRecHits(vector<reco::PFRecHit>& rechits,
   
   // get the HO topology
   edm::ESHandle<HcalTopology> hcalBarrelTopology;
-  iSetup.get<IdealGeometryRecord>().get(hcalBarrelTopology);
+  iSetup.get<HcalRecNumberingRecord>().get(hcalBarrelTopology);
   
   if(!neighbourmapcalculated_)
     hoNeighbArray( *hcalBarrelGeometry,

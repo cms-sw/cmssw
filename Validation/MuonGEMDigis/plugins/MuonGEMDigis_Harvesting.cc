@@ -66,10 +66,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Validation/MuonGEMDigis/interface/SimTrackDigiMatchManager.h"
-
-
-
+#include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
 
 //
 // constants, enums and typedefs

@@ -59,7 +59,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
     //*********************************************************************************************
 
     edm::ESHandle<HcalTopology> hcalTopology;
-    iRecord.getRecord<IdealGeometryRecord>().get( hcalTopology );
+    iRecord.getRecord<HcalRecNumberingRecord>().get( hcalTopology );
 
     // We know that the numer of shapes chanes with changing depth
     // so, this check is temporary disabled. We need to implement

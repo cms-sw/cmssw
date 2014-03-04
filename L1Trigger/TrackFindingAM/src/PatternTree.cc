@@ -131,3 +131,15 @@ void PatternTree::addPatternForMerging(GradedPattern* ldp){
      }
   }
 }
+
+bool PatternTree::checkPattern(Pattern* lp, Pattern* hp){
+  if(lp==NULL || hp==NULL)
+    return false;
+  string key = lp->getKey();
+  map<string, PatternTrunk*>::iterator it = patterns.find(key);
+  if(it==patterns.end())//not found
+    return false;
+  else{
+    return (it->second)->checkPattern(hp);
+  }
+}

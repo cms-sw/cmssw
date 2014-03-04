@@ -40,6 +40,7 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 )
 
 process.load("Geometry.HcalEventSetup.HcalDDDGeometry_cfi")
+process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
 
 process.prod = cms.EDAnalyzer("HcalDDDGeometryAnalyzer")
 

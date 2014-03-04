@@ -27,6 +27,11 @@ void KarimakiTrackFitter::fit(){
   }
 }
 
+void KarimakiTrackFitter::fit(vector<Hit*> hits){
+  cout<<"fit(vector<Hit*>) not implemented"<<endl;
+}
+
+
 void KarimakiTrackFitter::fitPattern(Pattern* p){
   double parZX[2][2];
   double resZX[2];

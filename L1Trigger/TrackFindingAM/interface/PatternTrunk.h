@@ -15,7 +15,7 @@
 using namespace std;
 
 /**
-   \brief A PatternTrunk can contain one low definition pattern and all the associated full definitions patterns
+   \brief A PatternTrunk can contain one low definition pattern and all the associated full definitions patterns (all high definition patterns contnained have the same low resolution version). Used to store patterns and compute variable resolution patterns : we keep the low resolution versions and compute the DC bits values from the high resolution patterns.
 **/
 
 class PatternTrunk{
@@ -91,6 +91,13 @@ class PatternTrunk{
      \return A pointer on the copy
   **/
   GradedPattern* getActivePattern(int active_threshold);
+
+  /**
+     \brief Check if the high resolution pattern is already in the bank when DC bits are activated
+     \param hp The attern to check
+     \result True if the pattern is already in tha bank, false otherwise
+   **/
+  bool checkPattern(Pattern* hp);
 
  private:
   GradedPattern* lowDefPattern;

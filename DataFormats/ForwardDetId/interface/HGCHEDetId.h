@@ -14,8 +14,7 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   HGCHEDetId(uint32_t rawid);
   /** Constructor from subdetector, zplus, layer, module, cell numbers */
-  HGCHEDetId(ForwardSubdetector subdet, int zp, int lay, int mod, 
-	     int cellx, int celly);
+  HGCHEDetId(ForwardSubdetector subdet, int zp, int lay, int mod, int subsec, int cell);
   /** Constructor from a generic cell id */
   HGCHEDetId(const DetId& id);
   /** Assignment from a generic cell id */

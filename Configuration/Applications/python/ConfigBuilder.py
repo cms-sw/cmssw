@@ -33,7 +33,7 @@ defaultOptions.arguments = ""
 defaultOptions.name = "NO NAME GIVEN"
 defaultOptions.evt_type = ""
 defaultOptions.filein = ""
-defaultOptions.dbsquery=""
+defaultOptions.dasquery=""
 defaultOptions.secondfilein = ""
 defaultOptions.customisation_file = ""
 defaultOptions.customise_commands = ""
@@ -116,13 +116,13 @@ def filesFromList(fileName,s=None):
 		print "found parent files:",sec
 	return (prim,sec)
 	
-def filesFromDBSQuery(query,s=None):
+def filesFromDASQuery(query,s=None):
 	import os
 	import FWCore.ParameterSet.Config as cms
 	prim=[]
 	sec=[]
 	print "the query is",query
-	for line in os.popen('dbs search --query "%s"'%(query)):
+	for line in os.popen('das_client.py --query "%s"'%(query)):
 		if line.count(".root")>=2:
 			#two files solution...
 			entries=line.replace("\n","").split()
@@ -335,8 +335,8 @@ class ConfigBuilder(object):
 			print "entry",entry
 			if entry.startswith("filelist:"):
 				filesFromList(entry[9:],self.process.source)
-			elif entry.startswith("dbs:"):
-				filesFromDBSQuery('find file where dataset = %s'%(entry[4:]),self.process.source)
+			elif entry.startswith("dbs:") or entry.startswith("das:"):
+				filesFromDASQuery('file dataset = %s'%(entry[4:]),self.process.source)
 			else:
 				self.process.source.fileNames.append(self._options.dirin+entry)
 		if self._options.secondfilein:
@@ -346,12 +346,12 @@ class ConfigBuilder(object):
 				print "entry",entry
 				if entry.startswith("filelist:"):
 					self.process.source.secondaryFileNames.extend((filesFromList(entry[9:]))[0])
-				elif entry.startswith("dbs:"):
-					self.process.source.secondaryFileNames.extend((filesFromDBSQuery('find file where dataset = %s'%(entry[4:])))[0])
+				elif entry.startswith("dbs:") or entry.startswith("das:"):
+					self.process.source.secondaryFileNames.extend((filesFromDASQuery('file dataset = %s'%(entry[4:])))[0])
 				else:
 					self.process.source.secondaryFileNames.append(self._options.dirin+entry)
 
-        if self._options.filein or self._options.dbsquery:
+        if self._options.filein or self._options.dasquery:
 	   if self._options.filetype == "EDM":
 		   self.process.source=cms.Source("PoolSource",
 						  fileNames = cms.untracked.vstring(),
@@ -387,9 +387,9 @@ class ConfigBuilder(object):
            if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
-	if self._options.dbsquery!='':
+	if self._options.dasquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
-	       filesFromDBSQuery(self._options.dbsquery,self.process.source)
+	       filesFromDASQuery(self._options.dasquery,self.process.source)
 
 	if self._options.inputCommands:
 		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
@@ -629,8 +629,8 @@ class ConfigBuilder(object):
 
 		mixingDict.pop('file')
 		if self._options.pileup_input:
-			if self._options.pileup_input.startswith('dbs'):
-				mixingDict['F']=filesFromDBSQuery('find file where dataset = %s'%(self._options.pileup_input[4:],))[0]
+			if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
+				mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
 			else:
 				mixingDict['F']=self._options.pileup_input.split(',')
 		specialization=defineMixing(mixingDict,self._options.fast)
@@ -1259,7 +1259,7 @@ class ConfigBuilder(object):
 	except:
 		loadFailure=True
 		#if self.process.source and self.process.source.type_()=='EmptySource':
-		if not (self._options.filein or self._options.dbsquery):
+		if not (self._options.filein or self._options.dasquery):
 			raise Exception("Neither gen fragment of input files provided: this is an inconsistent GEN step configuration")
 			
 	if not loadFailure:
@@ -1621,38 +1621,56 @@ class ConfigBuilder(object):
 
 
     def prepare_VALIDATION(self, sequence = 'validation'):
+	    print sequence,"in preparing validation"
             self.loadDefaultOrSpecifiedCFF(sequence,self.VALIDATIONDefaultCFF)
+	    from Validation.Configuration.autoValidation import autoValidation
             #in case VALIDATION:something:somethingelse -> something,somethingelse
             sequence=sequence.split('.')[-1]
             if sequence.find(',')!=-1:
-                    prevalSeqName=sequence.split(',')[0]
-                    valSeqName=sequence.split(',')[1]
+                    prevalSeqName=sequence.split(',')[0].split('+')
+                    valSeqName=sequence.split(',')[1].split('+')
+		    self.expandMapping(prevalSeqName,autoValidation,index=0)
+		    self.expandMapping(valSeqName,autoValidation,index=1)
             else:
-                    postfix=''
-                    if sequence:
-                            postfix='_'+sequence
-                    prevalSeqName='prevalidation'+postfix
-                    valSeqName='validation'+postfix
-                    if not hasattr(self.process,valSeqName):
-                            prevalSeqName=''
-                            valSeqName=sequence
+		    if '@' in sequence:
+			    prevalSeqName=sequence.split('+')
+			    valSeqName=sequence.split('+')
+			    self.expandMapping(prevalSeqName,autoValidation,index=0)
+			    self.expandMapping(valSeqName,autoValidation,index=1)
+		    else:
+			    postfix=''
+			    if sequence:
+				    postfix='_'+sequence
+			    prevalSeqName=['prevalidation'+postfix]
+			    valSeqName=['validation'+postfix]
+			    if not hasattr(self.process,valSeqName[0]):
+				    prevalSeqName=['']
+				    valSeqName=[sequence]
 
-            if not 'DIGI' in self.stepMap and not self._options.fast and not valSeqName.startswith('genvalid'):
+	    def NFI(index):
+		    ##name from index, required to keep backward compatibility
+		    if index==0:
+			    return ''
+		    else:
+			    return '%s'%index
+		    
+            if not 'DIGI' in self.stepMap and not self._options.fast and not any(map( lambda s : s.startswith('genvalid'), valSeqName)):
 		    if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
 			    self._options.restoreRNDSeeds=True
 
             #rename the HLT process in validation steps
 	    if ('HLT' in self.stepMap and not self._options.fast) or self._options.hltProcess:
-		    self.renameHLTprocessInSequence(valSeqName)
-                    if prevalSeqName:
-                            self.renameHLTprocessInSequence(prevalSeqName)
-
-            if prevalSeqName:
-                    self.process.prevalidation_step = cms.Path( getattr(self.process, prevalSeqName ) )
-                    self.schedule.append(self.process.prevalidation_step)
-
-	    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
-            self.schedule.append(self.process.validation_step)
+		    for s in valSeqName+prevalSeqName:
+			    if s:
+				    self.renameHLTprocessInSequence(s)
+	    for (i,s) in enumerate(prevalSeqName):
+		    if s:
+			    setattr(self.process,'prevalidation_step%s'%NFI(i),  cms.Path( getattr(self.process, s)) )
+			    self.schedule.append(getattr(self.process,'prevalidation_step%s'%NFI(i)))
+			    
+	    for (i,s) in enumerate(valSeqName):
+		    setattr(self.process,'validation_step%s'%NFI(i), cms.EndPath( getattr(self.process, s)))
+		    self.schedule.append(getattr(self.process,'validation_step%s'%NFI(i)))
 
 	    if not 'DIGI' in self.stepMap and not self._options.fast:
 		    self.executeAndRemember("process.mix.playback = True")
@@ -1662,7 +1680,8 @@ class ConfigBuilder(object):
 
 	    if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
 		    #will get in the schedule, smoothly
-		    self.process.validation_step._seq = self.process.genstepfilter * self.process.validation_step._seq
+		    for (i,s) in enumerate(valSeqName):
+			    getattr(self.process,'validation_step%s'%NFI(i))._seq = self.process.genstepfilter * getattr(self.process,'validation_step%s'%NFI(i))._seq
 
             return
 
@@ -1811,7 +1830,11 @@ class ConfigBuilder(object):
         # decide which HARVESTING paths to use
         harvestingList = sequence.split("+")
 	from DQMOffline.Configuration.autoDQM import autoDQM
-	self.expandMapping(harvestingList,autoDQM,index=1)
+	from Validation.Configuration.autoValidation import autoValidation
+	import copy
+	combined_mapping = copy.deepcopy( autoDQM )
+	combined_mapping.update( autoValidation )
+	self.expandMapping(harvestingList,combined_mapping,index=-1)
 	
 	if len(set(harvestingList))!=len(harvestingList):
 		harvestingList=list(set(harvestingList))
@@ -2094,7 +2117,7 @@ class ConfigBuilder(object):
 		if hasattr(self.process.source,"secondaryFileNames"):
 			if len(self.process.source.secondaryFileNames.value()):
 				ioJson['secondary']=self.process.source.secondaryFileNames.value()
-		if self._options.pileup_input and self._options.pileup_input.startswith('dbs'):
+		if self._options.pileup_input and (self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:')):
 			ioJson['pileup']=self._options.pileup_input[4:]
 		for (o,om) in self.process.outputModules_().items():
 			ioJson[o]=om.fileName.value()

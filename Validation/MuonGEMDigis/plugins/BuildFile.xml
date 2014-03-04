@@ -6,4 +6,5 @@
 <use name="Geometry/GEMGeometry"/>
 <use name="CLHEP"/>
 <use name="Validation/MuonGEMDigis"/>
+<use name="rootcore"/>
 <flags EDM_PLUGIN="1"/>

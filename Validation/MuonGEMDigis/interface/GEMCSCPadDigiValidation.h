@@ -9,10 +9,13 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Validation/MuonGEMDigis/interface/GEMBaseValidation.h"
+#include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 
-
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
+#include <TMath.h>
 class GEMCSCPadDigiValidation : public GEMBaseValidation
 {
 public:
@@ -20,22 +23,15 @@ public:
                          const edm::InputTag & inputTag);
   ~GEMCSCPadDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
-
-
-
+  void bookHisto();
  private:
 
   MonitorElement* theCSCPad_xy[2][2];
-
   MonitorElement* theCSCPad_phipad[2][3][2];
-
   MonitorElement* theCSCPad[2][3][2];
-
   MonitorElement* theCSCPad_bx[2][2];
-
   MonitorElement* theCSCPad_zr_rm1;
   MonitorElement* theCSCPad_zr_rp1;
-
 };
 
 #endif

@@ -416,15 +416,8 @@ cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/merge_TrackerOffli
 # ls -al .oO[datadir]Oo./AlignmentValidation*.root > .oO[datadir]Oo./log_rootfilelist.txt
 ls -al AlignmentValidation*.root > .oO[datadir]Oo./log_rootfilelist.txt
 
-# Remove parallel job files if merged file exists
-for file in $(cmsLs -l /store/caf/user/$USER/.oO[eosdir]Oo. |awk '{print $5}')
-do
-    if [[ ${file} = /store/caf/user/$USER/.oO[eosdir]Oo./AlignmentValidation*_[0-9].root ]]
-    then
-        cmsRm ${file}
-    fi
-done
-
+# Remove parallel job files
+.oO[rmUnmerged]Oo.
 """
 
 

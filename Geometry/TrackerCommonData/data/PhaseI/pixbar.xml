@@ -355,11 +355,11 @@
  <Tubs name="PixelBarrelConnToST"   rMin="[ConnToSTRin]" rMax="[ConnToSTRout]"
        dz="[ConnToSTT]/2"           startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelConn3"   rMin="[Conn3Rin]"           rMax="[Conn3Rout]"
-       dz="[Conn3T]/2"           startPhi="285*deg"        deltaPhi="150*deg"/>
+       dz="[Conn3T]/2"           startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelConn4"   rMin="[Conn4Rin]"           rMax="[Conn3Rout]"
-       dz="[Conn4T]/2"           startPhi="285*deg"        deltaPhi="150*deg"/>
+       dz="[Conn4T]/2"           startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelService" rMin="[ServiceRin]"           rMax="[ServiceRout]"
-       dz="[ServT]/2"            startPhi="293*deg"        deltaPhi="134*deg"/>
+       dz="[ServT]/2"            startPhi="0*deg"        deltaPhi="360*deg"/>
  <Tubs name="PixelBarrelSupTubCables" rMin="[RinSupTubCab]" rMax="[Conn3Rout]"
        dz="[ServCablT]/2"            startPhi="0*deg"        deltaPhi="360*deg"/>
 </SolidSection>
@@ -539,19 +539,19 @@
  </LogicalPart>
  <LogicalPart name="PixelBarrelConn3" category="unspecified">
   <rSolid name="PixelBarrelConn3"/>
-  <rMaterial name="pixbarmaterial:SupplyTubeConn3"/>
+  <rMaterial name="pixbarmaterial:SupplyTubeConn3_3Disks"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelConn4" category="unspecified">
   <rSolid name="PixelBarrelConn4"/>
-  <rMaterial name="pixbarmaterial:SectorC"/>
+  <rMaterial name="pixbarmaterial:SectorC_3Disks"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelService" category="unspecified">
   <rSolid name="PixelBarrelService"/>
-  <rMaterial name="pixbarmaterial:SectorA"/>
+  <rMaterial name="pixbarmaterial:SectorA_3Disks"/>
  </LogicalPart>
  <LogicalPart name="PixelBarrelSupTubCables" category="unspecified">
   <rSolid name="PixelBarrelSupTubCables"/>
-  <rMaterial name="pixbarmaterial:PixelBarrelSupTubCables2"/>
+  <rMaterial name="pixbarmaterial:PixelBarrelSupTubCables2_3Disks"/>
  </LogicalPart>
 </LogicalPartSection>
 

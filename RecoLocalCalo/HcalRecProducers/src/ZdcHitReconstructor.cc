@@ -12,6 +12,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include <iostream>
 
@@ -68,7 +69,7 @@ void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es)
    myobject = new HcalLongRecoParams(*p.product());
 
    edm::ESHandle<HcalTopology> htopo;
-   es.get<IdealGeometryRecord>().get(htopo);
+   es.get<HcalRecNumberingRecord>().get(htopo);
    theTopology=new HcalTopology(*htopo);
    myobject->setTopo(theTopology);
 

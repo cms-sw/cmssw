@@ -1,32 +1,40 @@
 #include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include <TMath.h>
 GEMStripDigiValidation::GEMStripDigiValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag)
 :  GEMBaseValidation(dbe, inputTag)
-{
+{}
 
-  std::string region[2]= { "m","p" } ;
+void GEMStripDigiValidation::bookHisto() { 
+
+  std::string region[2]= { "-1","1" } ;
   std::string station[3]= { "1","2","3" } ;
   std::string layer[2]= { "1","2" } ;
 
   theStrip_zr_rm1 = dbe_->book2D("strip_dg_zr_rm1", "Digi occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564, 55,130,240);
   theStrip_zr_rp1 = dbe_->book2D("strip_dg_zr_rp1", "Digi occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200,564,573,55,130,240);
 
-  int nstripsGE11 = 384;
-  int nstripsGE21 = 768;
+  int nstripsGE11  = theGEMGeometry->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
+  int nstripsGE21 = 0;
+
+  int nregions = theGEMGeometry->regions().size();
+  int nstations = theGEMGeometry->regions()[0]->stations().size(); 
+  
+  if ( nstations > 1 ) {
+    nstripsGE21  = theGEMGeometry->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
+  }
+  else LogDebug("GEMStripDIGIValidation")<<"Info : Only 1 station is existed.\n";
+
 
   int nstrips = 0;
-  for( int region_num = 0 ; region_num <2 ; region_num++ ) {
+
+
+  for( int region_num = 0 ; region_num <nregions ; region_num++ ) {
     for( int layer_num = 0 ; layer_num < 2 ; layer_num++) {
       std::string name_prefix  = std::string("_r")+region[region_num]+"_l"+layer[layer_num];
-      std::string label_prefix = "region"+region[region_num]+" layer "+layer[layer_num];
-      theStrip_xy[region_num][layer_num] = dbe->book2D( ("string_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 260, -260,260,260,-260,260);
+      std::string label_prefix = "region "+region[region_num]+" layer "+layer[layer_num];
+      theStrip_xy[region_num][layer_num] = dbe_->book2D( ("strip_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 260, -260,260,260,-260,260);
       theStrip_bx[region_num][layer_num] = dbe_->book1D( ("strip_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
-      for( int station_num = 0 ; station_num < 3 ; station_num++) {
+      for( int station_num = 0 ; station_num < nstations ; station_num++) {
         if ( station_num == 0 ) nstrips = nstripsGE11;
         else nstrips = nstripsGE21; 
         name_prefix  = std::string("_r")+region[region_num]+"_st"+station[station_num]+"_l"+layer[layer_num];
@@ -36,7 +44,6 @@ GEMStripDigiValidation::GEMStripDigiValidation(DQMStore* dbe,
       }
     }
   }
-
 }
 
 
@@ -52,7 +59,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
   edm::Handle<GEMDigiCollection> gem_digis;
   e.getByLabel(theInputTag, gem_digis);
   if (!gem_digis.isValid()) {
-    edm::LogError("GEMDigiValidation") << "Cannot get strips by label "
+    edm::LogError("GEMStripDigiValidation") << "Cannot get strips by label "
                                        << theInputTag.encode();
   }
   for (GEMDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
@@ -81,9 +88,9 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();
       Float_t g_z = (Float_t) gp.z();
-      edm::LogInfo("StripDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<std::endl;	
-      edm::LogInfo("StripDIGIValidation")<<"Global strip "<<strip<<"Global phi "<<g_phi<<std::endl;	
-      edm::LogInfo("StripDIGIValidation")<<"Global bx "<<bx<<std::endl;	
+      edm::LogInfo("GEMStripDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<std::endl;	
+      edm::LogInfo("GEMStripDIGIValidation")<<"Global strip "<<strip<<"Global phi "<<g_phi<<std::endl;	
+      edm::LogInfo("GEMStripDIGIValidation")<<"Global bx "<<bx<<std::endl;	
       // fill hist
       int region_num=0 ;
       if ( region ==-1 ) region_num = 0 ;

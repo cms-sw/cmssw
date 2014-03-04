@@ -6,6 +6,8 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopologyMode.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+
 
 /** \class HcalTopology
 
@@ -26,7 +28,8 @@
 class HcalTopology : public CaloSubdetectorTopology {
 public:
 
-  HcalTopology( HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::tm_LHC_PreLS1);
+  HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::tm_LHC_PreLS1);
+  HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::tm_LHC_PreLS1);
 	
   HcalTopologyMode::Mode mode() const {return mode_;}
   HcalTopologyMode::TriggerMode triggerMode() const { return triggerMode_; }
@@ -37,6 +40,7 @@ public:
   /** Exclude an eta/phi/depth range for a given subdetector */
   int exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi1, int iphi2, int depth1=1, int depth2=4);
 
+  static std::string producerTag() { return "HCAL" ; }
 
   /// return a linear packed id
   virtual unsigned int detId2denseId(const DetId& id) const;
@@ -74,6 +78,8 @@ public:
   bool decIPhi(const HcalDetId& id, HcalDetId &neighbor) const;
   /** Get the detector behind this one */
   bool incrementDepth(HcalDetId& id) const;
+  /** Get the detector in front of this one */
+  bool decrementDepth(HcalDetId& id) const;
 
   int firstHBRing() const {return firstHBRing_;}
   int lastHBRing()  const {return lastHBRing_;}
@@ -84,8 +90,9 @@ public:
   int firstHORing() const {return firstHORing_;}
   int lastHORing()  const {return lastHORing_;}
 
-  int firstHEDoublePhiRing() const {return firstHEDoublePhiRing_;} 
-  int firstHFQuadPhiRing() const { return firstHFQuadPhiRing_; }
+  int firstHEDoublePhiRing()   const {return firstHEDoublePhiRing_;} 
+  int firstHEQuadPhiRing()     const {return firstHEQuadPhiRing_;} 
+  int firstHFQuadPhiRing()     const { return firstHFQuadPhiRing_; }
   int firstHETripleDepthRing() const {return firstHETripleDepthRing_;}
   int singlePhiBins() const {return singlePhiBins_;}
   int doublePhiBins() const {return doublePhiBins_;}
@@ -96,6 +103,11 @@ public:
 
   /// how many phi segments in this ring
   int nPhiBins(int etaRing) const;
+  int nPhiBins(HcalSubdetector subdet, int etaRing) const;
+
+  /// eta and phi index from eta, phi values
+  int etaRing(HcalSubdetector subdet, double eta) const;
+  int phiBin(HcalSubdetector subdet, int etaRing, double phi) const;
 
   /// for each of the ~17 depth segments, specify which readout bin they belong to
   /// if the ring is not found, the first one with a lower ring will be returned.
@@ -142,30 +154,29 @@ private:
   bool validDetIdPreLS1(const HcalDetId& id) const;
   bool validRaw(const HcalDetId& id) const;
   unsigned int detId2denseIdPreLS1 (const DetId& id) const;
+  bool isExcluded(const HcalDetId& id) const;
 
+  const HcalDDDRecConstants *hcons_;
   std::vector<HcalDetId> exclusionList_;
   bool excludeHB_, excludeHE_, excludeHO_, excludeHF_;
 
   HcalTopologyMode::Mode mode_;
   HcalTopologyMode::TriggerMode triggerMode_;
-  bool isExcluded(const HcalDetId& id) const;
 
-  const int firstHBRing_;
-  const int lastHBRing_;
-  const int firstHERing_;
-  const int lastHERing_;
-  const int firstHFRing_;
-  const int lastHFRing_;
-  const int firstHORing_;
-  const int lastHORing_;
+  int firstHBRing_, lastHBRing_;
+  int firstHERing_, lastHERing_;
+  int firstHFRing_, lastHFRing_;
+  int firstHORing_, lastHORing_;
 
-  const int firstHEDoublePhiRing_;
-  const int firstHFQuadPhiRing_;
-  const int firstHETripleDepthRing_;
-  const int singlePhiBins_;
-  const int doublePhiBins_;
-  const int maxDepthHB_;
-  const int maxDepthHE_;
+  std::vector<HcalDDDRecConstants::HcalEtaBin> etaBinsHB_, etaBinsHE_;
+  int nEtaHB_, nEtaHE_;
+
+  int firstHEDoublePhiRing_, firstHEQuadPhiRing_, firstHFQuadPhiRing_;
+  int firstHETripleDepthRing_;
+  int singlePhiBins_, doublePhiBins_;
+  int maxDepthHB_, maxDepthHE_;
+  int etaHE2HF_, etaHF2HE_;
+  int maxEta_;
 
   unsigned int HBSize_;
   unsigned int HESize_;
@@ -173,7 +184,10 @@ private:
   unsigned int HFSize_;
   unsigned int HTSize_;
   unsigned int CALIBSize_;
-  const unsigned int numberOfShapes_;
+  unsigned int numberOfShapes_;
+  
+  std::vector<double> etaTable, etaTableHF, dPhiTable, dPhiTableHF;
+  std::vector<int>    unitPhi, unitPhiHF;
 
   int topoVersion_;
     

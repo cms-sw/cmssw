@@ -215,10 +215,10 @@ void HcalPedestalAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
   eventSetup.get<HcalDbRecord>().get(conditions);
 
   if (m_topo==0) {
-    const IdealGeometryRecord& record = eventSetup.get<IdealGeometryRecord>();
     edm::ESHandle<HcalTopology> topology;
-    record.get (topology);
+    eventSetup.get<HcalRecNumberingRecord>().get( topology );
     m_topo=new HcalTopology(*topology);
+    m_pedAnal->setTopology(m_topo);
   }
   
 

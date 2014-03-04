@@ -121,7 +121,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
   const CaloTopology *caloTopology = theCaloTopology.product();
   
   edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<IdealGeometryRecord>().get(htopo);
+  iSetup.get<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* theHBHETopology = htopo.product();
 
   //===================== save L1 Trigger information =======================
