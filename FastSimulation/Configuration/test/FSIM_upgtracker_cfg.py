@@ -203,18 +203,12 @@ process.validation_test = cms.EndPath(process.trackingTruthValid+process.tracksV
 process.trackValidator.outputFile='trackvalidation.root'
 process.trackValidator.associators = cms.vstring('TrackAssociatorByChi2','TrackAssociatorByHitsRecoDenom')
 
-<<<<<<< HEAD
-#process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
-#process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
-#process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2) 
-=======
 process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
 process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
 process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2)
 process.trackerTopologyConstants.pxf_sideStartBit = cms.uint32(23)
 process.trackerTopologyConstants.pxf_diskStartBit = cms.uint32(18)
 process.trackerTopologyConstants.pxf_bladeStartBit = cms.uint32(12)
->>>>>>> AndrewLevin/TrackerFlexSim
 
 #process.outpath = cms.EndPath(process.o1*process.display*process.DQMoutput)
 # If we keep the trackvalidation.root file we don't need the dqm output
