@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Geometry.HGCalCommonData.shashlikCapsuleGeometryXML_cfi")
+process.load("Geometry.HGCalCommonData.testShashlikXML_cfi")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
@@ -59,6 +59,6 @@ process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     type       = cms.string('CheckOverlap'),
     Resolution = cms.untracked.int32(1000),
-    NodeNames  = cms.untracked.vstring('ShashlikCapsule')
+    NodeNames  = cms.untracked.vstring('CALO')
 ))
 

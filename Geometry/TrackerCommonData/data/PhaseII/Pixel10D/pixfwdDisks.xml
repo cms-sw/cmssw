@@ -5,7 +5,7 @@
  <Constant name="DiskRmin1to7"         value="37.5*mm"/>
  <Constant name="DiskRmin8to10"         value="86.7*mm"/>
  <Constant name="DiskRmax"         value="166.0*mm"/><!-- 166.00*mm-->
- <Constant name="DiskHalfWidth"    value="39.75*mm"/>  <!-- 35.75*mm-->
+ <Constant name="DiskHalfWidth"    value="37.5*mm"/>  <!-- 35.75*mm-->
 </ConstantsSection>
  
 <SolidSection label="pixfwdDisks.xml">

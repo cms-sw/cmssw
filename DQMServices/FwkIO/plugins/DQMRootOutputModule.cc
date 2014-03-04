@@ -19,6 +19,7 @@
 #include <memory>
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <boost/filesystem.hpp>
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
@@ -187,6 +188,7 @@ private:
   virtual void writeRun(edm::RunPrincipal const&);
   virtual bool isFileOpen() const;
   virtual void openFile(edm::FileBlock const&);
+  virtual void postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren) override final;
 
 
   virtual void startEndFile();
@@ -359,6 +361,27 @@ DQMRootOutputModule::openFile(edm::FileBlock const&)
   m_dqmKindToTypeIndex[MonitorElement::DQM_KIND_TH3F]=kTH3FIndex;
   m_dqmKindToTypeIndex[MonitorElement::DQM_KIND_TPROFILE]=kTProfileIndex;
   m_dqmKindToTypeIndex[MonitorElement::DQM_KIND_TPROFILE2D]=kTProfile2DIndex;
+}
+
+
+void
+DQMRootOutputModule::postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren) {
+  // this is copied from IOPool/Output/src/PoolOutputModule.cc, for consistency
+  unsigned int digits = 0;
+  while (numberOfChildren != 0) {
+    ++digits;
+    numberOfChildren /= 10;
+  }
+  // protect against zero numberOfChildren
+  if (digits == 0) {
+    digits = 3;
+  }
+
+  char buffer[digits + 2];
+  snprintf(buffer, digits + 2, "_%0*d", digits, childIndex);
+
+  boost::filesystem::path filename(m_fileName);
+  m_fileName = (filename.parent_path() / (filename.stem().string() + buffer + filename.extension().string())).string();
 }
 
 

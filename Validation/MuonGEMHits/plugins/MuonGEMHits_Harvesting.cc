@@ -86,20 +86,12 @@ MuonGEMHits_Harvesting::MuonGEMHits_Harvesting(const edm::ParameterSet& ps)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
    //now do what ever initialization is needed
-  
 }
 
 
 
 MuonGEMHits_Harvesting::~MuonGEMHits_Harvesting()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-
-
-
 }
 
 
@@ -114,12 +106,6 @@ MuonGEMHits_Harvesting::~MuonGEMHits_Harvesting()
 void
 MuonGEMHits_Harvesting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
- 
-  
-
-
-
 }
 
 
@@ -230,6 +216,8 @@ MuonGEMHits_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
       dbe_->book1D( TString::Format("%s%s","eff_",gem_ly_odd[i]->GetName()),gem_ly_odd[i]);    
     }
   }
+    //  dbe_->book1D( "test", (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_sh_tof_rm1_l1_all")->getTH1F()->Clone());
+  
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 

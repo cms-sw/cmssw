@@ -3,6 +3,7 @@
 #include "../interface/PatternLayer.h"
 
 map<string, int> PatternLayer::GRAY_POSITIONS = PatternLayer::CreateMap();
+map<string, vector<string> > PatternLayer::positions_cache;
 
 map<string, int> PatternLayer::CreateMap(){
   map<string, int> p;
@@ -110,10 +111,25 @@ void PatternLayer::getPositionsFromDC(vector<char> dc, vector<string>& positions
   }
 }
 
-void PatternLayer::getPositionsFromDC(vector<string>& positions){
+vector<string> PatternLayer::getPositionsFromDC(){
+
   vector<char> v;
   for(int i=0;i<DC_BITS;i++){
     v.push_back(dc_bits[i]);
   }
-  getPositionsFromDC(v,positions);
+
+  string ref(v.begin(),v.end());
+
+  //check if we already have the result
+  map<string, vector<string> >::iterator it = positions_cache.find(ref);
+  if(it!=positions_cache.end()){ // already computed
+    return it->second;
+  }
+
+  //not yet computed
+  vector<string> n_vec;
+  getPositionsFromDC(v,n_vec);
+  //keep the result for later usage
+  positions_cache[ref]=n_vec;
+  return n_vec;
 }
