@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 #seeding
 _localMaxSeeds_HO = cms.PSet(
-    algoName = cms.string("LocalMaximum2DSeedFinder"),
+    algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HCAL_BARREL2_RING0"),
               seedingThreshold = cms.double(1.0),
@@ -17,7 +17,7 @@ _localMaxSeeds_HO = cms.PSet(
               seedingThresholdPt = cms.double(0.0)
               )
     ),
-    nNeighbours = cms.uint32(4)
+    nNeighbours = cms.int32(4)
 )
 
 #topo clusters

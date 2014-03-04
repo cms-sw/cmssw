@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #### PF CLUSTER PRESHOWER ####
 #seeding
 _localMaxSeeds_PS = cms.PSet(
-    algoName = cms.string("LocalMaximum2DSeedFinder"),
+    algoName = cms.string("LocalMaximumSeedFinder"),
     ### seed finding parameters    
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("PS1"),
@@ -15,7 +15,7 @@ _localMaxSeeds_PS = cms.PSet(
               seedingThresholdPt = cms.double(0.0)
               )
     ),
-    nNeighbours = cms.uint32(4)
+    nNeighbours = cms.int32(4)
 )
 
 #topo clusters

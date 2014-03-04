@@ -5119,7 +5119,7 @@ hltParticleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
             ))
     )),
     seedFinder = cms.PSet(
-        algoName = cms.string('LocalMaximum2DSeedFinder'),
+        algoName = cms.string('LocalMaximumSeedFinder'),
         thresholdsByDetector = cms.VPSet(cms.PSet(
             seedingThreshold = cms.double(0.6),
             seedingThresholdPt = cms.double(0.15),
@@ -5130,7 +5130,7 @@ hltParticleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
                 seedingThresholdPt = cms.double(0.0),
                 detector = cms.string('ECAL_BARREL')
             )),
-        nNeighbours = cms.uint32(8)
+        nNeighbours = cms.int32(8)
     ),
     recHitsSource = cms.InputTag("hltParticleFlowRecHitECAL")
 )
@@ -5185,7 +5185,7 @@ hltParticleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
         algoName = cms.string('RBXAndHPDCleaner')
     )),
     seedFinder = cms.PSet(
-        algoName = cms.string('LocalMaximum2DSeedFinder'),
+        algoName = cms.string('LocalMaximumSeedFinder'),
         thresholdsByDetector = cms.VPSet(cms.PSet(
             seedingThreshold = cms.double(0.8),
             seedingThresholdPt = cms.double(0.0),
@@ -5196,7 +5196,7 @@ hltParticleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
                 seedingThresholdPt = cms.double(0.0),
                 detector = cms.string('HCAL_ENDCAP')
             )),
-        nNeighbours = cms.uint32(4)
+        nNeighbours = cms.int32(4)
     )
 )
 hltParticleFlowClusterHFEM = cms.EDProducer("PFClusterProducer",
@@ -5251,13 +5251,13 @@ hltParticleFlowClusterHFEM = cms.EDProducer("PFClusterProducer",
         ))
     )),
     seedFinder = cms.PSet(
-        algoName = cms.string('LocalMaximum2DSeedFinder'),
+        algoName = cms.string('LocalMaximumSeedFinder'),
         thresholdsByDetector = cms.VPSet(cms.PSet(
             seedingThreshold = cms.double(1.4),
             seedingThresholdPt = cms.double(0.0),
             detector = cms.string('HF_EM')
         )),
-        nNeighbours = cms.uint32(0)
+        nNeighbours = cms.int32(0)
     )
 )
 hltParticleFlowClusterHFHAD = cms.EDProducer("PFClusterProducer",
@@ -5312,13 +5312,13 @@ hltParticleFlowClusterHFHAD = cms.EDProducer("PFClusterProducer",
         ))
     )),
     seedFinder = cms.PSet(
-        algoName = cms.string('LocalMaximum2DSeedFinder'),
+        algoName = cms.string('LocalMaximumSeedFinder'),
         thresholdsByDetector = cms.VPSet(cms.PSet(
             seedingThreshold = cms.double(1.4),
             seedingThresholdPt = cms.double(0.0),
             detector = cms.string('HF_HAD')
         )),
-        nNeighbours = cms.uint32(0)
+        nNeighbours = cms.int32(0)
     )
 )
 hltParticleFlowClusterPS = cms.EDProducer("PFClusterProducer",
@@ -5363,7 +5363,7 @@ hltParticleFlowClusterPS = cms.EDProducer("PFClusterProducer",
     ),
     recHitCleaners = cms.VPSet(),
     seedFinder = cms.PSet(
-        algoName = cms.string('LocalMaximum2DSeedFinder'),
+        algoName = cms.string('LocalMaximumSeedFinder'),
         thresholdsByDetector = cms.VPSet(cms.PSet(
             seedingThreshold = cms.double(0.00012),
             seedingThresholdPt = cms.double(0.0),
@@ -5374,7 +5374,7 @@ hltParticleFlowClusterPS = cms.EDProducer("PFClusterProducer",
                 seedingThresholdPt = cms.double(0.0),
                 detector = cms.string('PS2')
             )),
-        nNeighbours = cms.uint32(4)
+        nNeighbours = cms.int32(4)
     )
 >>>>>>> update HLT config for FAMOS and dual navigators:HLTrigger/Configuration/python/HLT_2013_Famos_cff.py
 )
