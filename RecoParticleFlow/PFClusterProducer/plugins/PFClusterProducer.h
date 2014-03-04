@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerBase.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
@@ -19,7 +19,7 @@
 
 
 class PFClusterProducer : public edm::EDProducer {
-  typedef RecHitCleanerBase RHCB;
+  typedef RecHitTopologicalCleanerBase RHCB;
   typedef InitialClusteringStepBase ICSB;
   typedef PFClusterBuilderBase PFCBB;
   typedef PFCPositionCalculatorBase PosCalc;
@@ -37,7 +37,7 @@ class PFClusterProducer : public edm::EDProducer {
   // options
   const bool _prodInitClusters;
   // the actual algorithm
-  std::vector<std::unique_ptr<RecHitCleanerBase> > _cleaners;
+  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase> > _cleaners;
   std::unique_ptr<SeedFinderBase> _seedFinder;
   std::unique_ptr<InitialClusteringStepBase> _initialClustering;
   std::unique_ptr<PFClusterBuilderBase> _pfClusterBuilder;

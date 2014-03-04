@@ -22,7 +22,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   for( const auto& conf : cleanerConfs ) {
     const std::string& cleanerName = 
       conf.getParameter<std::string>("algoName");
-    RHCB* cleaner = RecHitCleanerFactory::get()->create(cleanerName,conf);
+    RHCB* cleaner = 
+      RecHitTopologicalCleanerFactory::get()->create(cleanerName,conf);
     _cleaners.push_back(std::unique_ptr<RHCB>(cleaner));
   }
   // setup seed finding
@@ -86,7 +87,7 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(_rechitsLabel,rechits);  
   
   std::vector<bool> mask(rechits->size(),true);
-  for( const std::unique_ptr<RecHitCleanerBase>& cleaner : _cleaners ) {
+  for( const auto& cleaner : _cleaners ) {
     cleaner->clean(rechits, mask);
   }
 

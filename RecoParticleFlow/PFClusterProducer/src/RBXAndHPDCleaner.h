@@ -1,14 +1,14 @@
 #ifndef __RBXAndHPDCleaner_H__
 #define __RBXAndHPDCleaner_H__
 
-#include "RecoParticleFlow/PFClusterProducer/interface/RecHitCleanerBase.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
 
 #include <unordered_map>
 
-class RBXAndHPDCleaner : public RecHitCleanerBase {
+class RBXAndHPDCleaner : public RecHitTopologicalCleanerBase {
  public:
   RBXAndHPDCleaner(const edm::ParameterSet& conf) :
-    RecHitCleanerBase(conf) { }
+    RecHitTopologicalCleanerBase(conf) { }
   RBXAndHPDCleaner(const RBXAndHPDCleaner&) = delete;
   RBXAndHPDCleaner& operator=(const RBXAndHPDCleaner&) = delete;
 
@@ -19,7 +19,7 @@ class RBXAndHPDCleaner : public RecHitCleanerBase {
   std::unordered_map<int,std::vector<unsigned> > _hpds, _rbxs;
 };
 
-DEFINE_EDM_PLUGIN(RecHitCleanerFactory,
+DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory,
 		  RBXAndHPDCleaner,"RBXAndHPDCleaner");
 
 #endif
