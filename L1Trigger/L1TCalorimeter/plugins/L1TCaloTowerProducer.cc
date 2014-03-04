@@ -154,8 +154,7 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     iEvent.getByToken(ecalToken_[ibx], ecalTPs);
 
     // create output vector
-    int nTow = (iphiMax_-iphiMin_) * (ietaMax_-ietaMin_-1);  // leave a gap at ieta=0 for now?
-    std::vector< l1t::CaloTower > towers(nTow);
+    std::vector< l1t::CaloTower > towers( CaloTools::caloTowerHashMax() );
 
     // loop over ECAL TPs
     EcalTrigPrimDigiCollection::const_iterator ecalItr;

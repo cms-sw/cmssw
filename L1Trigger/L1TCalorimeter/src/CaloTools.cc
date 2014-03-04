@@ -41,6 +41,21 @@ size_t l1t::CaloTools::caloTowerHash(int iEta,int iPhi)
   }
 }
 
+
+size_t l1t::CaloTools::caloTowerHashMax()
+{
+  // OK, yes this is dirty and should be fixed in next iteration
+  const int kHBHEEnd=28;
+  const int kHFBegin=29;
+  const int kHFEnd=32;
+  const int kHFNrPhi=72/4;
+  const int kHBHENrPhi=72;
+
+  return ((kHFEnd-kHFBegin)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
+ 
+}
+
+
 int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTower>& towers,
 			      int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,SubDet etMode)
 {
