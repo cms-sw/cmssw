@@ -22,7 +22,7 @@ class TkTransientTrackingRecHitBuilder GCC11_FINAL : public TransientTrackingRec
   const PixelClusterParameterEstimator * pixelClusterParameterEstimator(){return pixelCPE;}
   const StripClusterParameterEstimator * stripClusterParameterEstimator(){return stripCPE;}
   const SiStripRecHitMatcher           * siStripRecHitMatcher(){return theMatcher;}
-
+  const TrackingGeometry               * geometry() const  { return tGeometry_;}
 
 private:
   TransientTrackingRecHit::RecHitPointer oldbuild (const TrackingRecHit * p) const ;
