@@ -37,7 +37,7 @@
  <Constant name="TotemBeamZ2"  value="13.381*m"/>
  <Constant name="TotemBeamZ3"  value="13.439*m"/>
  <Constant name="TotemBeamZ4"  value="13.465*m"/>
- <Constant name="TotemBeamR1"  value="11.64*cm"/>
+ <Constant name="TotemBeamR1"  value="11.785*cm"/>
  <Constant name="TotemBeamR2"  value="12.15*cm"/>
  <Constant name="TotemBeamR3"  value="12.20*cm"/>
  <Constant name="TotemBeamR4"  value="3.675*cm"/>

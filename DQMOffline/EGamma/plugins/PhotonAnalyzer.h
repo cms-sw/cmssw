@@ -120,7 +120,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
  
  private:
   //
-
+  bool  photonSelection (  const reco::PhotonRef & p );
   float  phiNormalization( float& a);
 
   MonitorElement* bookHisto(std::string histoName, std::string title, int bin, double min, double max);
@@ -164,6 +164,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_token_;
   
   double minPhoEtCut_;
+  double photonMaxEta_;
   double invMassEtCut_;
 
   double cutStep_;
@@ -263,6 +264,14 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_hcalSumEBarrel_;
   std::vector<std::vector<MonitorElement*> > h_hcalSumEEndcap_;
 
+  std::vector<std::vector<MonitorElement*> > h_phoIsoBarrel_;
+  std::vector<std::vector<MonitorElement*> > h_phoIsoEndcap_;
+  std::vector<std::vector<MonitorElement*> > h_chHadIsoBarrel_;
+  std::vector<std::vector<MonitorElement*> > h_chHadIsoEndcap_;
+  std::vector<std::vector<MonitorElement*> > h_nHadIsoBarrel_;
+  std::vector<std::vector<MonitorElement*> > h_nHadIsoEndcap_;
+
+
   std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEta_;
   std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEta_;
   std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEta_;
@@ -274,6 +283,9 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEt_;
   std::vector<std::vector<MonitorElement*> > p_nTrackIsolHollowVsEt_;
   std::vector<std::vector<MonitorElement*> > p_trackPtSumHollowVsEt_;
+
+  
+
 
   std::vector<std::vector<MonitorElement*> > p_r9VsEt_;
   std::vector<std::vector<MonitorElement*> > p_r9VsEta_;
@@ -354,6 +366,7 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<std::vector<MonitorElement*> > > p_hcalSumVsEt_;
 
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoE_;
+  std::vector<std::vector<std::vector<MonitorElement*> > > h_phoSigmaEoverE_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoEt_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_r9_;
   std::vector<std::vector<std::vector<MonitorElement*> > > h_phoPhi_;

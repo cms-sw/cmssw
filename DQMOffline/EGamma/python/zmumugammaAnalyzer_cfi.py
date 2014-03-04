@@ -3,24 +3,17 @@ import FWCore.ParameterSet.Config as cms
 
 
 zmumugammaAnalysis = cms.EDAnalyzer("ZToMuMuGammaAnalyzer",
-
-    Name = cms.untracked.string('zmumugammaAnalysis'),
-
+                                    
+    ComponentName = cms.string('zmumugammaAnalysis'),
+    analyzerName = cms.string('zmumugammaGedValidation'),
     phoProducer = cms.InputTag('gedPhotons'),
-
-    photonIDLoose = cms.InputTag('PhotonIDProd:PhotonCutBasedIDLoose'),
-    photonIDTight = cms.InputTag('PhotonIDProd:PhotonCutBasedIDTight'),
-									
+    pfCandidates = cms.InputTag("particleFlow"),
+    valueMapPhoToParticleBasedIso = cms.string("gedPhotons"),                                
     muonProducer = cms.InputTag('muons'),
-
     barrelRecHitProducer = cms.InputTag('reducedEcalRecHitsEB'),
-
     endcapRecHitProducer = cms.InputTag('reducedEcalRecHitsEE'),
-
     triggerEvent = cms.InputTag("hltTriggerSummaryAOD",""),
-									
     beamSpot = cms.InputTag("offlineBeamSpot"),
-									
     prescaleFactor = cms.untracked.int32(1),
 #
     standAlone = cms.bool(False),
@@ -59,9 +52,10 @@ zmumugammaAnalysis = cms.EDAnalyzer("ZToMuMuGammaAnalyzer",
                                 # 3 provides output of the store step + 2
 
     useTriggerFiltering = cms.bool(False),
-    splitHistosEBEE = cms.bool(False),
-	use2DHistos = cms.bool(False),
-
+    splitHistosEBEE = cms.bool(True),
+    makeProfiles = cms.bool(True),
+    use2DHistos = cms.bool(False),
+        
     ##### Histogram Ranges and Bins                               
 
     eBin = cms.int32(150),
