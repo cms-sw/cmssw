@@ -395,7 +395,7 @@ steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_cfi',K250by100)
 
 ## pPb tests
 step1PPbDefaults={'--beamspot':'Realistic8TeVCollisionPPbBoost'}
-steps['AMPT_PPb_5020GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaults,genS('AMPT_PPb_5020GeV_MinimumBias_cfi',K9by100)])
+steps['Hijing_PPb_5020GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaults,genS('Hijing_PPb_MinimumBias_cfi',K9by100)])
                                              
 ## heavy ions tests
 U500by5={'--relval': '500,5'}
