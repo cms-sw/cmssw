@@ -4,6 +4,7 @@
 namespace l1t {
    UnpackerCollections::UnpackerCollections(edm::Event& event) :
       event_(event),
+      jets_(new JetBxCollection()),
       taus_(new TauBxCollection())
    {
    }
@@ -11,6 +12,7 @@ namespace l1t {
    UnpackerCollections::~UnpackerCollections()
    {
       // For every member:
+      event_.put(jets_);
       event_.put(taus_);
    }
 
@@ -18,6 +20,7 @@ namespace l1t {
    UnpackerCollections::registerCollections(L1TRawToDigi *prod)
    {
       // For every member:
+      prod->produces<JetBxCollection>();
       prod->produces<TauBxCollection>();
    }
 }

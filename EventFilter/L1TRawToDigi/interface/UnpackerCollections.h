@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 
+#include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 
 namespace l1t {
@@ -13,6 +14,7 @@ namespace l1t {
          UnpackerCollections(edm::Event& event);
          ~UnpackerCollections();
 
+         inline JetBxCollection * const getJetCollection() const { return jets_.get(); };
          inline TauBxCollection * const getTauCollection() const { return taus_.get(); };
 
          static void registerCollections(L1TRawToDigi*);
@@ -24,6 +26,7 @@ namespace l1t {
 
          edm::Event& event_;
 
+         std::auto_ptr<JetBxCollection> jets_;
          std::auto_ptr<TauBxCollection> taus_;
    };
 }

@@ -65,12 +65,21 @@ process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
     InputCollection = cms.InputTag("caloStage1")
     )
 
+process.L1Packer = cms.EDProducer("l1t::L1TDigiToRaw",
+        InputLabel = cms.InputTag("caloStage1"),
+        FedId = cms.int32(100))
+
+process.L1Unpacker = cms.EDProducer("l1t::L1TRawToDigi",
+        InputLabel = cms.InputTag("L1Packer"),
+        FedId = cms.int32(100))
 
 process.digiStep = cms.Sequence(
         process.RCTConverter
 #        *process.caloTowers
         *process.caloStage1
         *process.GCTConverter
+        *process.L1Packer
+        *process.L1Unpacker
         )
 
 
