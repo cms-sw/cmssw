@@ -42,20 +42,9 @@ void L1TrackNtuplePlot(TString type) {
   // ----------------------------------------------------------------------------------------------------------------
   // read ntuples
   TChain* tree = new TChain("L1TrackNtuple/eventTree");
-  if (type=="SingleMuon") {
-    tree->Add("RootFiles/SingleMuPlus_BE5D_TrkPerf.root");
-    tree->Add("RootFiles/SingleMuMinus_BE5D_TrkPerf.root");
-  }
-  else if (type=="SingleElectron") {
-    tree->Add("RootFiles/SingleElectron_BE5D_TrkPerf.root");
-    tree->Add("RootFiles/SinglePositron_BE5D_TrkPerf.root");
-  }
-  else if (type=="test") {
-    tree->Add("test_TrkPerf.root");
-  }
-  else {
-    tree->Add("RootFiles/"+type+"_BE5D_TrkPerf.root");
-  }
+
+  if (type=="test") tree->Add("test_TrkPerf.root");
+  else tree->Add("RootFiles/"+type+"_BE5D_TrkPerf.root");
 
   if (tree->GetEntries() == 0) {
     cout << "File doesn't exist or is empty, returning..." << endl;
@@ -229,8 +218,8 @@ void L1TrackNtuplePlot(TString type) {
   // resolution histograms
   TH1F* h_res_pt    = new TH1F("res_pt",    ";p_{T} residual (L1 - sim) [GeV]; L1 tracks / 0.05",   200,-5.0,   5.0);
   TH1F* h_res_ptRel = new TH1F("res_ptRel", ";p_{T} residual (L1 - sim) / p_{T}; L1 tracks / 0.01", 200,-1.0,   1.0);
-  TH1F* h_res_eta   = new TH1F("res_eta",   ";#eta residual (L1 - sim); L1 tracks / 0.0002",        100,-0.01, 0.01);
-  TH1F* h_res_phi   = new TH1F("res_phi",   ";#phi residual (L1 - sim) [rad]; L1 tracks / 0.0001",  100,-0.005,0.005);
+  TH1F* h_res_eta   = new TH1F("res_eta",   ";#eta residual (L1 - sim); L1 tracks / 0.0002",        100,-0.01,  0.01);
+  TH1F* h_res_phi   = new TH1F("res_phi",   ";#phi residual (L1 - sim) [rad]; L1 tracks / 0.0001",  100,-0.005, 0.005);
   TH1F* h_res_z0    = new TH1F("res_z0",    ";z_{0} residual (L1 - sim) [cm]; L1 tracks / 0.02",    100,-1,     1);
   TH1F* h_res_z0_C  = new TH1F("res_z0_C",  ";z_{0} residual (L1 - sim) [cm]; L1 tracks / 0.02",    100,-1,     1);
   TH1F* h_res_z0_I  = new TH1F("res_z0_I",  ";z_{0} residual (L1 - sim) [cm]; L1 tracks / 0.02",    100,-1,     1);

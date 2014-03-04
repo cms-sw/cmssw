@@ -365,7 +365,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     float tmp_tp_pt  = iterTP->pt();
     float tmp_tp_eta = iterTP->eta();
     float tmp_tp_phi = iterTP->phi(); 
-    float tmp_tp_z0  = iterTP->vz()/10.0; //variable stored in mm...
+    float tmp_tp_z0  = iterTP->vz();
     int tmp_tp_pdgid = iterTP->pdgId();
     
     if (MyProcess==13 && abs(tmp_tp_pdgid) != 13) continue;
