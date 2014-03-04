@@ -1245,7 +1245,7 @@ for k in upgradeKeys:
     if upgradeCustoms[k]!=None : upgradeStepDict['HARVESTFast'][k]['--customise']=upgradeCustoms[k]
 
 
-upgradeFragments=['FourMuPt_1_200_cfi','TenMuE_0_200_cfi','SingleElectronPt10_cfi',
+upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
                   'SingleElectronPt35_cfi','SingleElectronPt1000_cfi',
                   'SingleGammaPt10_cfi','SingleGammaPt35_cfi','SingleMuPt1_cfi','SingleMuPt10_cfi',
                   'SingleMuPt100_cfi','SingleMuPt1000_cfi','TTbarLepton_Tauola_8TeV_cfi','Wjet_Pt_80_120_8TeV_cfi',
@@ -1269,7 +1269,7 @@ upgradeFragments=['FourMuPt_1_200_cfi','TenMuE_0_200_cfi','SingleElectronPt10_cf
 		  'SingleMuPt1Extended_cfi',
 		  'SingleMuPt10Extended_cfi',
                   'SingleMuPt100Extended_cfi',
-		  'SingleMuPt1000Extended_cfi']
+		  'SingleMuPt1000Extended_cfi','TenMuE_0_200_cfi']
 
 howMuches={'FourMuPt_1_200_cfi':Kby(10,100),
            'TenMuE_0_200_cfi':Kby(10,100),
