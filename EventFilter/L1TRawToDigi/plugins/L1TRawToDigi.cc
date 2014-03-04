@@ -56,12 +56,13 @@ namespace l1t {
       const unsigned char *data = l1tRcd.data();
       // FIXME is the 8 right?
       const unsigned data_end = l1tRcd.size() - 8;
-      unsigned idx = 0;
+      unsigned idx = 16;
 
       // Extract header data
       // uint32_t event_id = pop(data, idx) & 0xFFFFFF;
 
       uint32_t id = pop(data, idx);
+      id = pop(data, idx);
       // uint32_t bx_id = (id >> 16) & 0xFFF;
       // uint32_t orbit_id = (id >> 4) & 0x1F;
       // uint32_t board_id = id & 0xF;
