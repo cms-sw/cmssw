@@ -25,7 +25,7 @@ namespace l1t {
    //
 
    inline uint32_t pop(const unsigned char* ptr, unsigned& idx) {
-      uint32_t res = ptr[idx + 0] | (ptr[idx + 1] << 4) | (ptr[idx + 2] << 8) | (ptr[idx + 3] << 12);
+      uint32_t res = ptr[idx + 0] | (ptr[idx + 1] << 8) | (ptr[idx + 2] << 16) | (ptr[idx + 3] << 24);
       idx += 4;
       return res;
    }
