@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-GEOM="phase1"
+#GEOM="phase1"
 #GEOM="phase2BE"
 #GEOM="phase1forward"
 #GEOM="phase2BEforward"
+GEOM="phase2TkBE5DPixel10D"
 
 process = cms.Process("PROD")
 
@@ -120,7 +121,10 @@ elif GEOM=="phase2BEforward":
 # keep NI so to allow thickness to be properly treated in the interaction geometry
     process.famosSimHits.MaterialEffects.NuclearInteraction = cms.bool(True)
     process.KFFittingSmootherWithOutlierRejection.EstimateCut = cms.double(50.0)
-
+elif GEOM=="phase2TkBE5DPixel10D":
+    process.load('FastSimulation.Configuration.GeometriesPhase2TkBE5DPixel10D_cff')
+    from Configuration.AlCa.autoCond import autoCond
+    process.GlobalTag.globaltag = cms.string('DES17_62_V7::All')    
 else:
     print "GEOM is undefined or ill-defined, stopping here"
     sys.exit(1)
@@ -199,6 +203,18 @@ process.validation_test = cms.EndPath(process.trackingTruthValid+process.tracksV
 process.trackValidator.outputFile='trackvalidation.root'
 process.trackValidator.associators = cms.vstring('TrackAssociatorByChi2','TrackAssociatorByHitsRecoDenom')
 
+<<<<<<< HEAD
+#process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
+#process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
+#process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2) 
+=======
+process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
+process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
+process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2)
+process.trackerTopologyConstants.pxf_sideStartBit = cms.uint32(23)
+process.trackerTopologyConstants.pxf_diskStartBit = cms.uint32(18)
+process.trackerTopologyConstants.pxf_bladeStartBit = cms.uint32(12)
+>>>>>>> AndrewLevin/TrackerFlexSim
 
 #process.outpath = cms.EndPath(process.o1*process.display*process.DQMoutput)
 # If we keep the trackvalidation.root file we don't need the dqm output
@@ -225,6 +241,25 @@ process.schedule = cms.Schedule( process.simulation,process.prevalidation_step,p
 
 #call to customisation function cust_phase2_BE imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
 #process = cust_phase2_BE(process)
+
+
+#from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import customise as customiseBE5DPixel10D
+#from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_phase2_BE5DPixel10D
+#process = cust_phase2_BE5DPixel10D(process)
+#process = customiseBE5DPixel10D(process)
+
+process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_BarrelEndcap5DPixel10D_cff')
+process.trackerNumberingSLHCGeometry.layerNumberPXB = cms.uint32(20)
+process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
+process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
+process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2)
+process.trackerTopologyConstants.pxb_layerMask = cms.uint32(15)
+process.trackerTopologyConstants.pxb_ladderMask = cms.uint32(255)
+process.trackerTopologyConstants.pxb_moduleMask = cms.uint32(1023)
+process.trackerTopologyConstants.pxf_diskStartBit = cms.uint32(18)
+process.trackerTopologyConstants.pxf_bladeStartBit = cms.uint32(12)
+process.trackerTopologyConstants.pxf_panelStartBit = cms.uint32(10)
+process.trackerTopologyConstants.pxf_moduleMask = cms.uint32(255)
 
 #call to customisation function noCrossing imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
 #process = noCrossing(process)
