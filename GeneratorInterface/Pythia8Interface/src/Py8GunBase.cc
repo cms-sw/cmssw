@@ -116,9 +116,9 @@ bool Py8GunBase::residualDecay()
          daughter->suggest_barcode( NewBarcode );
          DecVtx->add_particle_out( daughter );
 	    	    
-         for ( ipart=nentries+1; ipart<nentries1; ipart++ )
+         for ( int ipart1=nentries+1; ipart1<nentries1; ipart1++ )
          {
-            py8daughter = fDecayer->event[ipart];
+            py8daughter = fDecayer->event[ipart1];
             HepMC::FourVector pmomN( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );	    
             HepMC::GenParticle* daughterN =
                                 new HepMC::GenParticle( pmomN, py8daughter.id(), 1 );
