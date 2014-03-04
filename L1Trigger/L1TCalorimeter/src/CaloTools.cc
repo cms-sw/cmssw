@@ -41,7 +41,6 @@ size_t l1t::CaloTools::caloTowerHash(int iEta,int iPhi)
   }
 }
 
-
 size_t l1t::CaloTools::caloTowerHashMax()
 {
   // OK, yes this is dirty and should be fixed in next iteration
