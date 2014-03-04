@@ -33,7 +33,8 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p
   setWhatProduced(this,myname);
 
 
-  std::cout<<" ESProducer "<<myname<<" "<<useLAWidthFromDB_<<" "<<useLAAlignmentOffsets_<<std::endl;
+  //std::cout<<" ESProducer "<<myname<<" "<<useLAWidthFromDB_<<" "<<useLAAlignmentOffsets_<<std::endl;
+
 }
 
 PixelCPEGenericESProducer::~PixelCPEGenericESProducer() {}
