@@ -7,8 +7,8 @@
 
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
-      inputLabel_(config.getParameter<edm::InputTag>("inputLabel")),
-      fedId_(config.getParameter<int>("l1tFedId"))
+      inputLabel_(config.getParameter<edm::InputTag>("InputLabel")),
+      fedId_(config.getParameter<int>("FedId"))
    {
       // Register products
       UnpackerCollections::registerCollections(this);
@@ -164,7 +164,7 @@ namespace l1t {
      desc.setUnknown();
      descriptions.addDefault(desc);
    }
-
-   //define this as a plug-in
-   DEFINE_FWK_MODULE(L1TRawToDigi);
 }
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(l1t::L1TRawToDigi);
