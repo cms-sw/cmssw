@@ -40,16 +40,16 @@ namespace l1t {
       event.getByLabel(inputLabel_, feds);
 
       if (!feds.isValid()) {
-         // TODO Handle error
+         LogError("L1T") << "Cannot unpack: no collection found with input tag "
+            << inputLabel_;
          return;
       }
 
       const FEDRawData& l1tRcd = feds->FEDData(fedId_);
 
       if (l1tRcd.size() < 20) {
-         LogDebug("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
+         LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
             << l1tRcd.size() << "). Returning empty collections!";
-         // TODO Handle error
          return;
       }
 
@@ -71,11 +71,10 @@ namespace l1t {
       uint32_t payload_size = (id >> 8) & 0xFFFF;
       // uint32_t event_type = id & 0xFF;
 
-      if (l1tRcd.size() != payload_size * 4) {
-         LogDebug("L1T") << "Cannot unpack: invalid L1T raw data size in header (size = "
-            << l1tRcd.size() << ", expected " << payload_size * 4
-            << "). Returning empty collections!";
-         // TODO Handle error
+      if (l1tRcd.size() < payload_size * 4 + 36) {
+         LogError("L1T") << "Cannot unpack: invalid L1T raw data size in header (size = "
+            << l1tRcd.size() << ", expected " << payload_size * 4 + 36
+            << " + padding). Returning empty collections!";
          return;
       }
 
