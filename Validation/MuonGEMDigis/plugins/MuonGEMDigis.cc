@@ -60,7 +60,6 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
   simTrackMatching_ = ps.getParameterSet("simTrackMatching");
   
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
   outputFile_ =  ps.getParameter<std::string>("outputFile");
 
   theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, stripLabel_ );
@@ -115,6 +114,8 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     edm::LogError("MuonGEMDigis") << "+++ Error : GEM geometry is unavailable. +++\n";
     return;
   }
+
+  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
 
   if ( hasGEMGeometry_ ) {
 
