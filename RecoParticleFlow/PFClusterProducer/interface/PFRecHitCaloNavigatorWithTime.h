@@ -125,14 +125,19 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 
   void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi) {
     int depth=0;
-    for( unsigned int i=0;i<hits->size();++i) 
-      if (hits->at(i).detId()==id.rawId()) {
-	reco::PFRecHitRef ref(refProd,i);
-	depth =get_bin(hit.time())-get_bin(hits->at(i).time());
-	if (abs(depth)<=1)
-	  hit.addNeighbour(eta,phi,depth,ref);
-	break;
+    const reco::PFRecHit temp(id,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
+    auto found_hit = std::lower_bound(hits->begin(),hits->end(),
+				      temp,
+				      [](const reco::PFRecHit& a, 
+					 const reco::PFRecHit& b){
+					return a.detId() < b.detId();
+				      });
+    if( found_hit != hits->end() && found_hit->detId() == id.rawId() ) {
+      depth = get_bin(hit.time())-get_bin(found_hit->time());
+      if( std::abs(depth) <= 1 ) {
+	hit.addNeighbour(eta,phi,depth,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
       }
+    }
   }
 
 
