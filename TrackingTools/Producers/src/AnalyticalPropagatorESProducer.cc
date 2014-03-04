@@ -32,8 +32,9 @@ AnalyticalPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord
   std::string mfName = "";
   if (pset_.exists("SimpleMagneticField"))
     mfName = pset_.getParameter<std::string>("SimpleMagneticField");
-  edm::ESInputTag mfESInputTag(mfName);
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
+  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName,magfield);
+  //  edm::ESInputTag mfESInputTag(mfName);
+  //  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
 
   std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
   double dphiCut   = pset_.getParameter<double>("MaxDPhi");   

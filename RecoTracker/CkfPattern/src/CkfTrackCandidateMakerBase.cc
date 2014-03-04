@@ -123,8 +123,9 @@ namespace cms{
     std::string mfName = "";
     if (conf_.exists("SimpleMagneticField"))
       mfName = conf_.getParameter<std::string>("SimpleMagneticField");
-    edm::ESInputTag mfESInputTag(mfName);
-    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
+    es.get<IdealMagneticFieldRecord>().get(mfName,theMagField );
+    //    edm::ESInputTag mfESInputTag(mfName);
+    //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
 
     if (!theInitialState){
       // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.

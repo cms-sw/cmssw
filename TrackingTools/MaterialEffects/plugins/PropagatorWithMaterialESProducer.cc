@@ -42,8 +42,9 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
   std::string mfName = "";
   if (pset_.exists("SimpleMagneticField"))
     mfName = pset_.getParameter<std::string>("SimpleMagneticField");
-  edm::ESInputTag mfESInputTag(mfName);
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
+  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName,magfield);
+  //  edm::ESInputTag mfESInputTag(mfName);
+  //  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
   //fixme check that useRK is false when using SimpleMagneticField 
 
   PropagationDirection dir = alongMomentum;

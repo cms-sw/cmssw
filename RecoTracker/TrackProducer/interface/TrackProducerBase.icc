@@ -67,9 +67,9 @@ TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
   if (useSimpleMF){
      mfName = conf_.getParameter<std::string>("SimpleMagneticField"); 
   }
-  edm::ESInputTag mfESInputTag(mfName);
-  //  setup.get<IdealMagneticFieldRecord>().get(mfName, theMF);  
-  setup.get<IdealMagneticFieldRecord>().get(mfESInputTag, theMF);  
+  setup.get<IdealMagneticFieldRecord>().get(mfName, theMF);  
+  //  edm::ESInputTag mfESInputTag(mfName);
+  //  setup.get<IdealMagneticFieldRecord>().get(mfESInputTag, theMF);  
 
   //
   // get the fitter from the ES
