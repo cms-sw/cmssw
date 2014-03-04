@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+
 gemHitsValidation = cms.EDAnalyzer('MuonGEMHits',
     outputFile = cms.string(''),
     verbose = cms.untracked.int32(0),
@@ -14,3 +15,4 @@ gemHitsValidation = cms.EDAnalyzer('MuonGEMHits',
        gemMaxEta = cms.untracked.double(2.5)
     )
 )
+
