@@ -30,6 +30,7 @@ PhotonOfflineClient::PhotonOfflineClient(const edm::ParameterSet& pset)
   dbe_->setVerbose(0);
   parameters_ = pset;
 
+  analyzerName_    = pset.getParameter<string>("analyzerName");
   cutStep_       = pset.getParameter<double>("cutStep");
   numberOfSteps_ = pset.getParameter<int>("numberOfSteps");
 
@@ -89,27 +90,28 @@ void PhotonOfflineClient::runClient()
 
   if(batch_)  dbe_->open(inputFileName_);
 
-  if(!dbe_->dirExists("Egamma/PhotonAnalyzer")){
-    //cout << "egamma directory doesn't exist..." << std::endl;
+  //std::cout << " PostProcessing analyzer name " << analyzerName_ << std::endl;
+  if(!dbe_->dirExists("Egamma/"+analyzerName_)){
+    std::cout << "Folder Egamma/"+analyzerName_+" does not exist - Abort the efficiency calculation "  << std::endl;
     return;
   }
 
   //find out how many histograms are in the various folders
-  histo_index_photons_     = dbe_->get("Egamma/PhotonAnalyzer/numberOfHistogramsInPhotonsFolder")->getIntValue();
-  histo_index_conversions_ = dbe_->get("Egamma/PhotonAnalyzer/numberOfHistogramsInConversionsFolder")->getIntValue();
-  histo_index_efficiency_  = dbe_->get("Egamma/PhotonAnalyzer/numberOfHistogramsInEfficiencyFolder")->getIntValue();
-  histo_index_invMass_     = dbe_->get("Egamma/PhotonAnalyzer/numberOfHistogramsInInvMassFolder")->getIntValue();
+  histo_index_photons_     = dbe_->get("Egamma/"+analyzerName_+"/numberOfHistogramsInPhotonsFolder")->getIntValue();
+  histo_index_conversions_ = dbe_->get("Egamma/"+analyzerName_+"/numberOfHistogramsInConversionsFolder")->getIntValue();
+  histo_index_efficiency_  = dbe_->get("Egamma/"+analyzerName_+"/numberOfHistogramsInEfficiencyFolder")->getIntValue();
+  histo_index_invMass_     = dbe_->get("Egamma/"+analyzerName_+"/numberOfHistogramsInInvMassFolder")->getIntValue();
 
-  dbe_->setCurrentFolder("Egamma/PhotonAnalyzer/");
+  dbe_->setCurrentFolder("Egamma/"+analyzerName_+"/");
   dbe_->removeElement("numberOfHistogramsInPhotonsFolder");
   dbe_->removeElement("numberOfHistogramsInConversionsFolder");
   dbe_->removeElement("numberOfHistogramsInEfficiencyFolder");
   dbe_->removeElement("numberOfHistogramsInInvMassFolder");
 
-  string AllPath    = "Egamma/PhotonAnalyzer/AllPhotons/";
-  string IsoPath    = "Egamma/PhotonAnalyzer/GoodCandidatePhotons/";
-  string NonisoPath = "Egamma/PhotonAnalyzer/BackgroundPhotons/";
-  string EffPath    = "Egamma/PhotonAnalyzer/Efficiencies/";
+  string AllPath    = "Egamma/"+analyzerName_+"/AllPhotons/";
+  string IsoPath    = "Egamma/"+analyzerName_+"/GoodCandidatePhotons/";
+  string NonisoPath = "Egamma/"+analyzerName_+"/BackgroundPhotons/";
+  string EffPath    = "Egamma/"+analyzerName_+"/Efficiencies/";
 
   //booking efficiency histograms
   dbe_->setCurrentFolder(EffPath);
@@ -231,7 +233,7 @@ void PhotonOfflineClient::runClient()
     for (int cut = 0; cut !=numberOfSteps_; ++cut) {
 
       currentFolder_.str("");
-      currentFolder_ << "Egamma/PhotonAnalyzer/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV/";
+      currentFolder_ << "Egamma/"+analyzerName_+"/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV/";
 
       //making bad channel histograms
 
@@ -394,7 +396,7 @@ vector<vector<MonitorElement*> > PhotonOfflineClient::book2DHistoVector(string h
     for(uint type=0;type!=types_.size();++type){  //looping over isolation type
 
       currentFolder_.str("");
-      currentFolder_ << "Egamma/PhotonAnalyzer/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV";
+      currentFolder_ << "Egamma/"+analyzerName_+"/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV";
       if(conversionPlot) currentFolder_ << "/Conversions";
 
       dbe_->setCurrentFolder(currentFolder_.str());
@@ -457,7 +459,7 @@ vector<vector<vector<MonitorElement*> > > PhotonOfflineClient::book3DHistoVector
       for(uint part=0;part!=parts_.size();++part){    //looping over different parts of the ecal
 
 	currentFolder_.str("");
-	currentFolder_ << "Egamma/PhotonAnalyzer/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV";
+	currentFolder_ << "Egamma/"+analyzerName_+"/" << types_[type] << "Photons/Et above " << (cut+1)*cutStep_ << " GeV";
 	if(conversionPlot) currentFolder_ << "/Conversions";
 
 	dbe_->setCurrentFolder(currentFolder_.str());
