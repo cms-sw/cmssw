@@ -42,6 +42,7 @@ private:
   double        jetRad_;
   std::string   mJetAlgo_;
   int           QjetsPreclustering_;
+  edm::Service<edm::RandomNumberGenerator> rng_;
 };
 
 

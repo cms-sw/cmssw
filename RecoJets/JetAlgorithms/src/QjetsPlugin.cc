@@ -17,7 +17,7 @@ string QjetsPlugin::description() const{
 }
 
 void QjetsPlugin::run_clustering(fastjet::ClusterSequence & cs) const{
-  Qjets qjets(_zcut, _dcut_fctr, _exp_min, _exp_max, _rigidity, _truncation_fctr);
+  Qjets qjets(_zcut, _dcut_fctr, _exp_min, _exp_max, _rigidity, _truncation_fctr, _rnEngine);
   if(_rand_seed_set)
     qjets.SetRandSeed(_seed);
   qjets.Cluster(cs);
