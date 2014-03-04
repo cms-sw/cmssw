@@ -98,7 +98,7 @@ namespace edm {
     this->resetAll();
 
     try {
-      try {
+      convertException::wrap([&]() {
         try {
           if (T::isEvent_) {
             setupOnDemandSystem(dynamic_cast<EventPrincipal&>(ep), es);
@@ -117,13 +117,7 @@ namespace edm {
             throw;
           }
         }
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& ex) {
       if (ex.context().empty()) {

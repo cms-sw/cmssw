@@ -299,15 +299,9 @@ namespace edm {
              filler->fill(descriptions);
 
              try {
-               try {
+               convertException::wrap([&]() {
                  descriptions.validate(*(itMaker->second.pset_), serviceType);
-               }
-               catch (cms::Exception& e) { throw; }
-               catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-               catch (std::exception& e) { convertException::stdToEDM(e); }
-               catch(std::string& s) { convertException::stringToEDM(s); }
-               catch(char const* c) { convertException::charPtrToEDM(c); }
-               catch (...) { convertException::unknownToEDM(); }
+               });
              }
              catch (cms::Exception & iException) {
                std::ostringstream ost;
@@ -316,16 +310,10 @@ namespace edm {
                throw;
              }
              try {
-               try {
+               convertException::wrap([&]() {
                  // This creates the service
                  itMaker->second.add(*this);
-               }
-               catch (cms::Exception& e) { throw; }
-               catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-               catch (std::exception& e) { convertException::stdToEDM(e); }
-               catch(std::string& s) { convertException::stringToEDM(s); }
-               catch(char const* c) { convertException::charPtrToEDM(c); }
-               catch (...) { convertException::unknownToEDM(); }
+               });
              }
              catch (cms::Exception & iException) {
                std::ostringstream ost;
