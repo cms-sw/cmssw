@@ -217,13 +217,13 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
     gettimeofday(&tv, 0);
     const edm::Timestamp lsopentime( (unsigned long long) tv.tv_sec * 1000000 + (unsigned long long) tv.tv_usec );
 
-    edm::LuminosityBlockAuxiliary* luminosityBlockAuxiliary =
+    edm::LuminosityBlockAuxiliary* lumiBlockAuxiliary =
       new edm::LuminosityBlockAuxiliary(
         runAuxiliary()->run(),
         lumiSection, lsopentime,
         edm::Timestamp::invalidTimestamp());
 
-    setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
+    setLuminosityBlockAuxiliary(lumiBlockAuxiliary);
     luminosityBlockAuxiliary()->setProcessHistoryID(processHistoryID_);
 
     edm::LogInfo("FedRawDataInputSource") << "New lumi section " << lumiSection << " opened";
