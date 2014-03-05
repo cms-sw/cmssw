@@ -62,8 +62,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   Handle<L1TEtSumCollection> EtSum;
   e.getByToken(EtSumToken_,EtSum);
 
-  edm::ESHandle< L1CaloEtScale > etScale ;
-  es.get< L1JetEtScaleRcd >().get( etScale ) ;
+  edm::ESHandle< L1CaloEtScale > jetScale ;
+  es.get< L1JetEtScaleRcd >().get( jetScale ) ;
 
 
   // create the em and jet collections
@@ -124,8 +124,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	itTau != Tau->end(itBX); ++itTau){
       bool forward= (itTau->hwEta() < 4 || itTau->hwEta() > 17);
       //int hackPt = itTau->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
-      double hackPt = static_cast<double>(itTau->hwPt()) * etScale->linearLsb();
-      hackPt = etScale->rank(hackPt);
+      double hackPt = static_cast<double>(itTau->hwPt()) * jetScale->linearLsb();
+      hackPt = jetScale->rank(hackPt);
       if(hackPt > 0x3f) hackPt = 0x3f;
       L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), itTau->hwEta(),
 			   true, forward,0, 0, itBX);
@@ -144,8 +144,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	itJet != Jet->end(itBX); ++itJet){
       bool forward=(itJet->hwEta() < 4 || itJet->hwEta() > 17);
       //int hackPt = itJet->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
-      double hackPt = static_cast<double>(itJet->hwPt()) * etScale->linearLsb();
-      hackPt = etScale->rank(hackPt);
+      double hackPt = static_cast<double>(itJet->hwPt()) * jetScale->linearLsb();
+      hackPt = jetScale->rank(hackPt);
       if(hackPt > 0x3f) hackPt = 0x3f;
       L1GctJetCand JetCand(hackPt, itJet->hwPhi(), itJet->hwEta(),
 			   false, forward,0, 0, itBX);
