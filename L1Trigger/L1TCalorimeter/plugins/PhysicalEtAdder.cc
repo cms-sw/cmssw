@@ -17,6 +17,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <vector>
 
+#include "math.h"
+
+double getPhysicalEta(int etaIndex);
+double getPhysicalPhi(int phiIndex);
+
 l1t::PhysicalEtAdder::PhysicalEtAdder(const edm::ParameterSet& ps) {
 
   produces<L1TEGammaCollection>();
@@ -82,13 +87,18 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(L1TEGammaCollection::const_iterator itEGamma = old_egammas->begin(bx);
 	itEGamma != old_egammas->end(bx); ++itEGamma)
     {
-      double pt = itEGamma->hwPt() * emScale->linearLsb();
-      //double eta = getPhysicalEta(itEGamma->hwEta());
-      //double phi = getPhysicalPhi(itEgamma->hwPhi());
-      double eta = itEGamma->hwEta();
-      double phi = itEGamma->hwPhi();
+      const double pt = itEGamma->hwPt() * emScale->linearLsb();
+      const double eta = getPhysicalEta(itEGamma->hwEta());
+      const double phi = getPhysicalPhi(itEGamma->hwPhi());
+      //const double eta = itEGamma->hwEta();
+      //const double phi = itEGamma->hwPhi();
 
-      math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(pt, eta, phi, 0);
+      const double px = pt*cos(phi);
+      const double py = pt*sin(phi);
+      const double pz = pt*sinh(eta);
+      const double e = sqrt(px*px + py*py + pz*pz);
+      math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+
       l1t::EGamma *eg = new l1t::EGamma(*p4, itEGamma->hwPt(),
 				       itEGamma->hwEta(), itEGamma->hwPhi(),
 				       itEGamma->hwQual(), itEGamma->hwIso());
@@ -178,3 +188,36 @@ l1t::PhysicalEtAdder::fillDescriptions(edm::ConfigurationDescriptions& descripti
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(l1t::PhysicalEtAdder);
+
+double getPhysicalEta(int etaIndex)
+{
+  const double rgnEtaValues[11] = {
+     0.174, // HB and inner HE bins are 0.348 wide
+     0.522,
+     0.870,
+     1.218,
+     1.566,
+     1.956, // Last two HE bins are 0.432 and 0.828 wide
+     2.586,
+     3.250, // HF bins are 0.5 wide
+     3.750,
+     4.250,
+     4.750
+  };
+  if(etaIndex < 11) {
+    return -rgnEtaValues[-(etaIndex - 10)]; // 0-10 are negative eta values
+  }
+  else if (etaIndex < 22) {
+    return rgnEtaValues[etaIndex - 11]; // 11-21 are positive eta values
+  }
+  return -9;
+}
+
+double getPhysicalPhi(int phiIndex)
+{
+  if (phiIndex < 10)
+    return 2. * M_PI * phiIndex / 18.;
+  if (phiIndex < 18)
+    return -M_PI + 2. * M_PI * (phiIndex - 9) / 18.;
+  return -9;
+}
