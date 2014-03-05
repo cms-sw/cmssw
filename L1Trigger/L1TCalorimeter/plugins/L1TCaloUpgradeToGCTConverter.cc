@@ -127,7 +127,12 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
       double hackPt = static_cast<double>(itTau->hwPt()) * jetScale->linearLsb();
       hackPt = jetScale->rank(hackPt);
       if(hackPt > 0x3f) hackPt = 0x3f;
-      L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), itTau->hwEta(),
+
+      unsigned iEta = itTau->hwEta();
+      unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
+      unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
+
+      L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), gtEta,
 			   true, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
@@ -147,7 +152,12 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
       double hackPt = static_cast<double>(itJet->hwPt()) * jetScale->linearLsb();
       hackPt = jetScale->rank(hackPt);
       if(hackPt > 0x3f) hackPt = 0x3f;
-      L1GctJetCand JetCand(hackPt, itJet->hwPhi(), itJet->hwEta(),
+
+      unsigned iEta = itJet->hwEta();
+      unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
+      unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
+      
+      L1GctJetCand JetCand(hackPt, itJet->hwPhi(), gtEta,
 			   false, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
