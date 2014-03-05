@@ -138,7 +138,7 @@ namespace cms
 	edm::Ref< edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster = edmNew::makeRefTo( inputhandle, clustIt);
 	// Make a RecHit and add it to the DetSet
 	// old : recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
-	SiPixelRecHit hit( lp, le, detIdObject, cluster);
+	SiPixelRecHit hit( lp, le, detIdObject, genericDet, cluster);
 	// Copy the extra stuff;
 	hit.setRawQualityWord( cpe_->rawQualityWord() );
 	// 

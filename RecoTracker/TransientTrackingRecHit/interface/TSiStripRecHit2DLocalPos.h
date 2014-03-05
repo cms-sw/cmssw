@@ -127,17 +127,17 @@ private:
 
     StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(rh->stripCluster(), *gdu);
     auto sPitch = sigmaPitch(lval.first, lval.second, *gdu);
-    theHitData = SiStripRecHit2D(lval.first, lval.second, sPitch,geom->geographicalId(),rh->omniCluster());
+    theHitData = SiStripRecHit2D(lval.first, lval.second, sPitch,geom->geographicalId(), geom, rh->omniCluster());
 
   }
   
   /// Creates the TrackingRecHit internally, avoids redundent cloning
   TSiStripRecHit2DLocalPos( const LocalPoint& pos, const LocalError& err,
-			    const GeomDet* det,
+			    const GeomDet* idet,
 			    const OmniClusterRef & clust,
 			    const StripClusterParameterEstimator* cpe) :
-    TValidTrackingRecHit(det), 
-    theCPE(cpe), theHitData(pos, err, sigmaPitch(pos, err, *static_cast<const GeomDetUnit*>(det)), det->geographicalId(), clust) {} 
+    TValidTrackingRecHit(idet), 
+    theCPE(cpe), theHitData(pos, err, sigmaPitch(pos, err, *static_cast<const GeomDetUnit*>(idet)), idet->geographicalId(), idet, clust) {} 
     
   virtual TSiStripRecHit2DLocalPos* clone() const {
     return new TSiStripRecHit2DLocalPos(*this);

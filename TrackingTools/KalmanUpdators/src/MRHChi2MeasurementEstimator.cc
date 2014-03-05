@@ -8,7 +8,7 @@
 
 std::pair<bool,double>
 MRHChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
-				   const TransientTrackingRecHit& aRecHit) const {
+				   const TrackingRecHit& aRecHit) const {
   if (!aRecHit.isValid()) {
 	throw cms::Exception("MRHChi2MeasurementEstimator") << "Invalid RecHit passed to the MRHChi2MeasurementEstimator ";
   }
@@ -22,7 +22,7 @@ MRHChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
   double est=0;
   double annealing = mHit.getAnnealingFactor();
   LogDebug("MRHChi2MeasurementEstimator") << "Current annealing factor is " << annealing; 		
-  TransientTrackingRecHit::ConstRecHitContainer components = aRecHit.transientHits();
+  TransientTrackingRecHit::ConstRecHitContainer components = mHit.transientHits();
   LogDebug("MRHChi2MeasurementEstimator") << "this hit has " << components.size() << " components";	
   for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iter = components.begin(); iter != components.end(); iter++){		
   	Vec r = asSVector<2>((*iter)->parameters()) - me.measuredParameters<2>(**iter);
