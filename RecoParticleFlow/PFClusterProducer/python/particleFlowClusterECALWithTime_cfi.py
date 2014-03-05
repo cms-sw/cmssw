@@ -121,7 +121,7 @@ _emEnergyCorrector = cms.PSet(
 particleFlowClusterECALWithTimeUncorrected = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitECALWithTime"),
-    recHitCleaners = cms.VPSet(_spikeAndDoubleSpikeCleaner_ECAL),
+    recHitCleaners = cms.VPSet(),
     seedFinder = _localMaxSeeds_ECAL,
     initialClusteringStep = _topoClusterizer_ECAL,
     pfClusterBuilder = _pfClusterizerWithTime_ECAL,
