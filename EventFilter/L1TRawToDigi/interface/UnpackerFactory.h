@@ -14,30 +14,14 @@ namespace l1t {
    class UnpackerFactory {
       public:
          static Unpackers createUnpackers(const FirmwareVersion&);
-         static void registerUnpackerFactory(UnpackerFactory *f);
 
       private:
          virtual bool hasUnpackerFor(const FirmwareVersion&) = 0;
          virtual std::pair<BlockId, BaseUnpacker*> create(const FirmwareVersion&) = 0;
 
+         static std::vector<UnpackerFactory*> createFactories();
          static std::vector<UnpackerFactory*> factories_;
    };
-
-   template<typename T>
-   class UnpackerFactoryRegistration {
-      private:
-         UnpackerFactoryRegistration() { reg; };
-         static bool reg;
-         static bool init() {
-            UnpackerFactory::registerUnpackerFactory(new T);
-            return true;
-         };
-
-         static UnpackerFactoryRegistration<T> singleton;
-   };
-
-   template<typename T> bool UnpackerFactoryRegistration<T>::reg = UnpackerFactoryRegistration<T>::init();
-   template<typename T> UnpackerFactoryRegistration<T> UnpackerFactoryRegistration<T>::singleton;
 }
 
 #endif

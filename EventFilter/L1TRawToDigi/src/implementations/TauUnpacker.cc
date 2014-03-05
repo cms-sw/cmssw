@@ -15,8 +15,8 @@ namespace l1t {
          TauBxCollection* res;
    };
 
-   class TauUnpackerFactory : UnpackerFactory, UnpackerFactoryRegistration<TauUnpackerFactory> {
-      private:
+   class TauUnpackerFactory : UnpackerFactory {
+      public:
          virtual bool hasUnpackerFor(const FirmwareVersion& fw) {
             return true;
          };
