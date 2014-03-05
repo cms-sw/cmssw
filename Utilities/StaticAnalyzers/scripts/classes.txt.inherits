@@ -499,6 +499,7 @@ member data class __gnu_cxx::hash_map
 member data class boost::shared_ptr
 member data class btag::LeptonSelector
 member data class defaultRKPropagator::Product
+member data class edm::AtomicPtrCache
 member data class edm::ESHandle
 member data class edm::Event
 member data class edm::FileInPath

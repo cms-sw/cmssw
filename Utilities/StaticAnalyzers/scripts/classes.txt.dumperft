@@ -618,6 +618,10 @@ class PerformanceWPRecord
 class PerformanceWorkingPoint
 class PhotonConversionMVAComputerRcd
 class PhysicsPerformancePayload
+class PhysicsTFormulaPayload
+class PhysicsTFormulaPayloadRcd
+class PhysicsTGraphPayload
+class PhysicsTGraphPayloadRcd
 class PhysicsTools::Calibration::MVAComputer
 class PhysicsTools::Calibration::MVAComputerContainer
 class PhysicsTools::Calibration::VHistogramD2D
@@ -837,6 +841,7 @@ class ZDCGeometryRecord
 class anotherPedestalsRcd
 class cond::BaseKeyed
 class cond::KeyList
+class cond::persistency::KeyList
 class condex::Efficiency
 class cscdqm::DCSData
 class datakey_t::Dummy
@@ -1056,7 +1061,9 @@ member data class boost::shared_ptr
 member data class boost::unordered::unordered_map
 member data class cond::IOVKeysDescription
 member data class cond::IOVProxy
+member data class cond::persistency::IOVProxy
 member data class edm::ESHandle
+member data class edm::ESWatcher
 member data class edm::FileInPath
 member data class edm::Handle
 member data class edm::InputTag
