@@ -110,15 +110,9 @@ namespace edm {
     filler->fill(descriptions);
 
     try {
-      try {
+      convertException::wrap([&]() {
         descriptions.validate(*main_input, std::string("source"));
-      }
-      catch (cms::Exception& e) { throw; }
-      catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch (std::string& s) { convertException::stringToEDM(s); }
-      catch (char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch (cms::Exception & iException) {
       std::ostringstream ost;
@@ -147,15 +141,9 @@ namespace edm {
     try {
       //even if we have an exception, send the signal
       std::shared_ptr<int> sentry(nullptr,[areg,&md](void*){areg->postSourceConstructionSignal_(md);});
-      try {
+      convertException::wrap([&]() {
         input = std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
-      }
-      catch (cms::Exception& e) { throw; }
-      catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch (std::string& s) { convertException::stringToEDM(s); }
-      catch (char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch (cms::Exception& iException) {
       std::ostringstream ost;
@@ -578,15 +566,9 @@ namespace edm {
     //   looper_->beginOfJob(es);
     //}
     try {
-      try {
+      convertException::wrap([&]() {
         input_->doBeginJob();
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& ex) {
       ex.addContext("Calling beginJob for the source");
@@ -1267,7 +1249,7 @@ namespace edm {
       nextItemTypeFromProcessingEvents_=InputSource::IsEvent;
       asyncStopRequestedWhileProcessingEvents_=false;
       try {
-        try {
+        convertException::wrap([&]() {
           
           InputSource::ItemType itemType;
           
@@ -1334,13 +1316,7 @@ namespace edm {
               break;
             }
           }  // End of loop over state machine events
-        } // Try block
-        catch (cms::Exception& e) { throw; }
-        catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-        catch (std::exception& e) { convertException::stdToEDM(e); }
-        catch(std::string& s) { convertException::stringToEDM(s); }
-        catch(char const* c) { convertException::charPtrToEDM(c); }
-        catch (...) { convertException::unknownToEDM(); }
+        }); // convertException::wrap
       } // Try block
       // Some comments on exception handling related to the boost state machine:
       //

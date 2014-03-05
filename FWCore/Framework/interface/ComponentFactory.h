@@ -89,15 +89,9 @@ template<typename T>
          }
          
          try {
-           try {
+           return convertException::wrap([&]() -> boost::shared_ptr<base_type> {
              return it->second->addTo(esController, iProvider, iConfiguration, replaceExisting);
-           }
-           catch (cms::Exception& e) { throw; }
-           catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-           catch (std::exception& e) { convertException::stdToEDM(e); }
-           catch(std::string& s) { convertException::stringToEDM(s); }
-           catch(char const* c) { convertException::charPtrToEDM(c); }
-           catch (...) { convertException::unknownToEDM(); }
+           });
          }
          catch(cms::Exception & iException) {
            std::string edmtype = iConfiguration.template getParameter<std::string>("@module_edm_type");

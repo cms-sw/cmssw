@@ -34,16 +34,10 @@ namespace edm {
   void
   ExceptionCollector::call(boost::function<void(void)> f) {
     try {
-      try {
+      convertException::wrap([&f]() {
         f();
-      }
-      catch (cms::Exception& e) { throw; }
-      catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch (std::string& s) { convertException::stringToEDM(s); }
-      catch (char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
-    }      
+      });
+    }
     catch (cms::Exception const& ex) {
       ++nExceptions_;
       if (nExceptions_ == 1) {

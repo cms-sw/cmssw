@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
   EventProcessorWithSentry proc;
 
   try {
-    try {
+    returnCode = edm::convertException::wrap([&]()->int {
 
       // NOTE: MacOs X has a lower rlimit for opened file descriptor than Linux (256
       // in Snow Leopard vs 512 in SLC5). This is a problem for some of the workflows
@@ -358,26 +358,8 @@ int main(int argc, char* argv[]) {
 
       context = "Calling endJob";
       proc->endJob();
-    }
-    catch (cms::Exception& e) {
-      throw;
-    }
-    // The functions in the following catch blocks throw an edm::Exception
-    catch(std::bad_alloc& bda) {
-      edm::convertException::badAllocToEDM();
-    }
-    catch (std::exception& e) {
-      edm::convertException::stdToEDM(e);
-    }
-    catch(std::string& s) {
-      edm::convertException::stringToEDM(s);
-    }
-    catch(char const* c) {
-      edm::convertException::charPtrToEDM(c);
-    }
-    catch (...) {
-      edm::convertException::unknownToEDM();
-    }
+      return returnCode;
+    });
   }
   // All exceptions which are not handled before propagating
   // into main will get caught here.
