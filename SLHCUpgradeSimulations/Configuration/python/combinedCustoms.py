@@ -20,6 +20,7 @@ from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise_ValidationNoGem_2023 as CustomiseValidation_NoGem_2023
+from SLHCUpgradeSimulations.Configuration.customise_ecalTime import cust_ecalTime
 
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
@@ -67,6 +68,11 @@ def cust_2017(process):
     process=customisePhase1Tk(process)
     process=customise_HcalPhase0(process)
 #    process=fixRPCConditions(process)
+    return process
+
+def cust_2017EcalTime(process):
+    process=cust_2017(process)
+    process=cust_ecalTime(process)
     return process
 
 def cust_2019(process):
