@@ -11,6 +11,7 @@
 
 #include "boost/filesystem.hpp"
 
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
 #include "FWCore/Sources/interface/RawInputSource.h"
@@ -91,6 +92,7 @@ private:
   std::unique_ptr<FRDEventMsgView> event_;
 
   edm::EventID eventID_;
+  edm::ProcessHistoryID processHistoryID_;
 
   unsigned int currentLumiSection_;
   unsigned int eventsThisLumi_;

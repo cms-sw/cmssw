@@ -57,6 +57,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   fuOutputDir_(edm::Service<evf::EvFDaqDirector>()->fuBaseDir()),
   daqProvenanceHelper_(edm::TypeID(typeid(FEDRawDataCollection))),
   eventID_(),
+  processHistoryID_(),
   currentLumiSection_(0),
   eventsThisLumi_(0),
   dpd_(nullptr)
@@ -67,7 +68,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
                                         << testModeNoBuilderUnit_ << ", read-ahead chunk size: " << (eventChunkSize_/1048576)
                                         << " MB on host " << thishost;
 
-  daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
+  processHistoryID_ = daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
   setNewRun();
   setRunAuxiliary(new edm::RunAuxiliary(runNumber_, edm::Timestamp::beginOfTime(),
 					edm::Timestamp::invalidTimestamp()));
@@ -130,6 +131,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   else {
     dataBuffer_ = new unsigned char[eventChunkSize_];
   }
+
+  runAuxiliary()->setProcessHistoryID(processHistoryID_);
 }
 
 FedRawDataInputSource::~FedRawDataInputSource()
@@ -221,6 +224,9 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
         edm::Timestamp::invalidTimestamp());
 
     setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
+    luminosityBlockAuxiliary()->setProcessHistoryID(processHistoryID_);
+
+    edm::LogInfo("FedRawDataInputSource") << "New lumi section " << lumiSection << " opened";
   }
 }
 
@@ -423,6 +429,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
 
   edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true,
                           edm::EventAuxiliary::PhysicsTrigger);
+  aux.setProcessHistoryID(processHistoryID_);
   makeEvent(eventPrincipal, aux);
 
   edm::WrapperOwningHolder edp(new edm::Wrapper<FEDRawDataCollection>(rawData),
