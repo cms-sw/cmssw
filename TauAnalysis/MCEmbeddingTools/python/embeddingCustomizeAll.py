@@ -219,7 +219,10 @@ def customise(process):
 
   print "Setting rfRotationAngle to %1.0f" % process.customization_options.rfRotationAngle.value()
   process.generator.Ztautau.rfRotationAngle = process.customization_options.rfRotationAngle
-  
+
+  print "Setting muon radiation corrections to \"%s\"" % process.customization_options.applyMuonRadiationCorrection.value()
+  process.generator.Ztautau.applyMuonRadiationCorrection = process.customization_options.applyMuonRadiationCorrection
+
   if process.customization_options.overrideBeamSpot.value():
     bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v28_offline")
     process.GlobalTag.toGet = cms.VPSet(
