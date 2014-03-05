@@ -110,6 +110,23 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(L1TTauCollection::const_iterator itTau = old_taus->begin(bx);
 	itTau != old_taus->end(bx); ++itTau)
     {
+      const double pt = itTau->hwPt() * jetScale->linearLsb();
+      const double eta = getPhysicalEta(itTau->hwEta());
+      const double phi = getPhysicalPhi(itTau->hwPhi());
+      //const double eta = itTau->hwEta();
+      //const double phi = itTau->hwPhi();
+
+      const double px = pt*cos(phi);
+      const double py = pt*sin(phi);
+      const double pz = pt*sinh(eta);
+      const double e = sqrt(px*px + py*py + pz*pz);
+      math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+
+      l1t::Tau *tau = new l1t::Tau(*p4, itTau->hwPt(),
+				   itTau->hwEta(), itTau->hwPhi(),
+				   itTau->hwQual());
+      new_taus->push_back(bx, *tau);
+
     }
 
     for(L1TJetCollection::const_iterator itJet = old_jets->begin(bx);
