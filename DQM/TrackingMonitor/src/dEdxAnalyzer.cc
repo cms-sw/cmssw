@@ -56,6 +56,7 @@ dEdxAnalyzer::endJob()
     }
 }
 
+/*
 // -- BeginRun
 //---------------------------------------------------------------------------------//
 void dEdxAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
@@ -64,10 +65,17 @@ void dEdxAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   // Initialize the GenericTriggerEventFlag
   if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
 }
+*/
 
-
-void dEdxAnalyzer::beginJob()
+void dEdxAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+				  edm::Run const & iRun,
+				  edm::EventSetup const & iSetup ) 
 {
+
+  // Initialize the GenericTriggerEventFlag
+  if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
+  
+
     // parameters from the configuration
     std::string MEFolderName   = conf_.getParameter<std::string>("FolderName"); 
 
@@ -132,6 +140,11 @@ void dEdxAnalyzer::beginJob()
 
        }
     }
+
+}
+
+void dEdxAnalyzer::beginJob()
+{
 }
 
 
