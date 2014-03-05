@@ -674,7 +674,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
       sumMuonP4_embedded += reco::Candidate::LorentzVector((*genParticle)->momentum().px(), (*genParticle)->momentum().py(), (*genParticle)->momentum().pz(), (*genParticle)->momentum().e());
     }
   }
-  if ( (sumMuonP4_embedded.pt() - sumMuonP4_replaced.pt()) > (1.e-3*sumMuonP4_replaced.pt()) ) {
+  if ( fabs(sumMuonP4_embedded.pt() - sumMuonP4_replaced.pt()) > (1.e-3*sumMuonP4_replaced.pt()) ) {
     edm::LogWarning ("<MCEmbeddingValidationAnalyzer::analyze>")
       << "Transverse momentum of embedded tau leptons = " << sumMuonP4_embedded.pt() 
       << " differs from transverse momentum of replaced muons = " << sumMuonP4_replaced.pt() << " !!" << std::endl;
