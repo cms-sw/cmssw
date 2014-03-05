@@ -377,7 +377,7 @@ namespace edm {
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
 
     try {
-      try {
+      convertException::wrap([&]() {
 
         if (T::isEvent_) {
           ++timesRun_;
@@ -404,13 +404,7 @@ namespace edm {
           state_ = Fail;
           if (T::isEvent_) ++timesFailed_;
         }
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& ex) {
 

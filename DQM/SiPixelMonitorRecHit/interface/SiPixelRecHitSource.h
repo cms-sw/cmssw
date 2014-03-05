@@ -85,6 +85,7 @@
        bool ringOn, bladeOn, diskOn; 
        
        bool firstRun;
+       bool isUpgrade;
 
  };
 

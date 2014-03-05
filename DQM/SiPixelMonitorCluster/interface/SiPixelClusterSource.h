@@ -94,14 +94,19 @@
        int nBigEvents;
        MonitorElement* bigFpixClusterEventRate;
        int bigEventSize;
+       bool isUpgrade;
 
   MonitorElement* meClPosLayer1;
   MonitorElement* meClPosLayer2;
   MonitorElement* meClPosLayer3;
+  MonitorElement* meClPosLayer4;
   MonitorElement* meClPosDisk1pz;
   MonitorElement* meClPosDisk2pz;
+  MonitorElement* meClPosDisk3pz;
   MonitorElement* meClPosDisk1mz;
   MonitorElement* meClPosDisk2mz;
+  MonitorElement* meClPosDisk3mz;
+
 
   //define Token(-s)
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > srcToken_;
