@@ -13,7 +13,9 @@
 
 // Data Formats
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
@@ -91,7 +93,7 @@ SiPixelRawDataErrorModule::~SiPixelRawDataErrorModule() {}
 //
 // Book histograms for errors with detId
 //
-void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, int type) {
+void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, int type, bool isUpgrade) {
 }
 //
 // Book histograms for errors within a FED
