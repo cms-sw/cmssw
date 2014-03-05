@@ -219,7 +219,7 @@ class GsfElectronAlgo {
     void displayInternalElectrons( const std::string & title ) const ;
     void clonePreviousElectrons() ;
     void completeElectrons() ; // do not redo cloned electrons done previously
-    void addPflowInfo() ;
+    void addPflowInfo() ; // now deprecated
     void setAmbiguityData( bool ignoreNotPreselected = true ) ;
     void removeNotPreselectedElectrons() ;
     void removeAmbiguousElectrons() ;
