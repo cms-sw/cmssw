@@ -23,7 +23,7 @@ public:
     theMaxChi2(maxChi2), theNSigma(nSigma) {}
 
   virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts,
-					   const TransientTrackingRecHit &) const = 0;
+					   const TrackingRecHit &) const = 0;
 
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
 			 const Plane& plane) const;
