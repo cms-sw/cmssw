@@ -115,6 +115,22 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(L1TJetCollection::const_iterator itJet = old_jets->begin(bx);
 	itJet != old_jets->end(bx); ++itJet)
     {
+      const double pt = itJet->hwPt() * jetScale->linearLsb();
+      const double eta = getPhysicalEta(itJet->hwEta());
+      const double phi = getPhysicalPhi(itJet->hwPhi());
+      //const double eta = itJet->hwEta();
+      //const double phi = itJet->hwPhi();
+
+      const double px = pt*cos(phi);
+      const double py = pt*sin(phi);
+      const double pz = pt*sinh(eta);
+      const double e = sqrt(px*px + py*py + pz*pz);
+      math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+
+      l1t::Jet *jet = new l1t::Jet(*p4, itJet->hwPt(),
+				   itJet->hwEta(), itJet->hwPhi(),
+				   itJet->hwQual());
+      new_jets->push_back(bx, *jet);
 
     }
 
