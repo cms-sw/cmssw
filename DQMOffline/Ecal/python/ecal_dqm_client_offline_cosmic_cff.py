@@ -29,3 +29,5 @@ ecal_dqm_client_offline = cms.Sequence(
     ecalMonitorClient +
     ecalMEFormatter
 )
+
+ecalMonitorClient.workers.remove('TrigPrimClient')

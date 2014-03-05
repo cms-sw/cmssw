@@ -15,12 +15,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Common/interface/EventBase.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -28,11 +25,7 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
-#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -47,22 +40,10 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalCleaningAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
 #include "DQMOffline/Ecal/interface/ESRecoSummary.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
-#include "TVector3.h"
 
 #include <iostream>
 #include <cmath>
-#include <fstream>
 //using namespace std;
 //
 // constructors and destructor
@@ -110,11 +91,6 @@ ESRecoSummary::~ESRecoSummary()
 // ------------ method called to for each event  ------------
 void ESRecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 {
-  
-  //Get the magnetic field
-  edm::ESHandle<MagneticField> theMagField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-
   //Preshower RecHits
   edm::Handle<ESRecHitCollection> recHitsES;
   ev.getByToken (esRecHitCollection_, recHitsES) ;

@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Common/interface/EventBase.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -41,22 +40,10 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalCleaningAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
 #include "DQMOffline/Ecal/interface/EERecoSummary.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
-#include "TVector3.h"
 
 #include <iostream>
 #include <cmath>
-#include <fstream>
 
 //
 // constructors and destructor
@@ -130,11 +117,6 @@ EERecoSummary::~EERecoSummary()
 // ------------ method called to for each event  ------------
 void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 {
-  
-  //Get the magnetic field
-  edm::ESHandle<MagneticField> theMagField;
-  iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-
   // --- REDUCED REC HITS ------------------------------------------------------------------------------------- 
   // ... endcap
   edm::Handle<EcalRecHitCollection> redRecHitsEE;

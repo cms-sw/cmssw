@@ -23,7 +23,7 @@ ecalTrigPrimTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
         #    HLTMuonPath = cms.untracked.string('HLT_Mu5_v*'),
         #    HLTCaloPath = cms.untracked.string('HLT_SingleJet*'),
-        runOnEmul = cms.untracked.bool(False)
+        runOnEmul = cms.untracked.bool(True)
     ),
     MEs = cms.untracked.PSet(
         LowIntMap = cms.untracked.PSet(
