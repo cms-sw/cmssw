@@ -198,11 +198,13 @@ LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   }
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-LogMessageMonitor::beginJob()
+void LogMessageMonitor::bookHistograms(DQMStore::IBooker & ibooker,
+				       edm::Run const & iRun,
+				       edm::EventSetup const & iSetup)
 {
+
+  if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
+
    std::string MEFolderName = conf_.getParameter<std::string>("LogFolderName"); 
 
    dqmStore_->setCurrentFolder(MEFolderName);
@@ -258,6 +260,14 @@ LogMessageMonitor::beginJob()
 
 }
 
+/*
+// ------------ method called once each job just before starting event loop  ------------
+void 
+LogMessageMonitor::beginJob()
+{
+
+}
+*/
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 LogMessageMonitor::endJob() 
@@ -271,13 +281,14 @@ LogMessageMonitor::endJob()
     }
 }
 
+/*
 // ------------ method called when starting to processes a run  ------------
 void 
 LogMessageMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
-}
 
+}
+*/
 // ------------ method called when ending the processing of a run  ------------
 void 
 LogMessageMonitor::endRun(edm::Run const&, edm::EventSetup const&)

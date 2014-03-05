@@ -150,11 +150,10 @@ void TrackingMonitor::beginJob(void)
     
 }
 
-// -- BeginRun
-//---------------------------------------------------------------------------------//
-void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
+				     edm::Run const & iRun,
+				     edm::EventSetup const & iSetup) 
 {
-  
    // parameters from the configuration
    std::string Quality      = conf_.getParameter<std::string>("Quality");
    std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
@@ -452,7 +451,17 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
   
   // Initialize the GenericTriggerEventFlag
   if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
+  
 }
+
+/*
+// -- BeginRun
+//---------------------------------------------------------------------------------//
+void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+{
+  
+}
+*/
 
 // - BeginLumi
 // ---------------------------------------------------------------------------------//

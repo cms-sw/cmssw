@@ -73,11 +73,10 @@ TrackEfficiencyMonitor::~TrackEfficiencyMonitor()
 //-----------------------------------------------------------------------------------
 {}
 
-
-
-
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::beginJob(void) 
+void TrackEfficiencyMonitor::bookHistograms(DQMStore::IBooker & ibooker,
+					    edm::Run const & /* iRun */,
+					    edm::EventSetup const & /* iSetup */)
 //-----------------------------------------------------------------------------------
 {
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
@@ -251,6 +250,14 @@ void TrackEfficiencyMonitor::beginJob(void)
   histname = "signDeltaY_";
   signDeltaY = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, signDeltaYBin, signDeltaYMin, signDeltaYMax);
   signDeltaY->setAxisTitle("");
+
+}
+
+
+//-----------------------------------------------------------------------------------
+void TrackEfficiencyMonitor::beginJob(void) 
+//-----------------------------------------------------------------------------------
+{
   
 }
 

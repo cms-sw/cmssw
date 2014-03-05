@@ -44,22 +44,14 @@ TrackSplittingMonitor::TrackSplittingMonitor(const edm::ParameterSet& iConfig)
 TrackSplittingMonitor::~TrackSplittingMonitor() { 
 }
 
-void TrackSplittingMonitor::beginJob(void) {
-	
+void TrackSplittingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
+					   edm::Run const & /* iRun */,
+					   edm::EventSetup const & /* iSetup */)
+  
+{
+
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
   dqmStore_->setCurrentFolder(MEFolderName);
-  
-  //get input tags
-  plotMuons_ = conf_.getParameter<bool>("ifPlotMuons");
-
-  // cuts
-  pixelHitsPerLeg_ = conf_.getParameter<int>("pixelHitsPerLeg");
-  totalHitsPerLeg_ = conf_.getParameter<int>("totalHitsPerLeg");
-  d0Cut_ = conf_.getParameter<double>("d0Cut");
-  dzCut_ = conf_.getParameter<double>("dzCut");
-  ptCut_ = conf_.getParameter<double>("ptCut");
-  norchiCut_ = conf_.getParameter<double>("norchiCut");
-  
   
   // bin declarations
   int    ddxyBin = conf_.getParameter<int>("ddxyBin");
@@ -150,6 +142,21 @@ void TrackSplittingMonitor::beginJob(void) {
     ddxyNormalizedResiduals_global_->setAxisTitle( "#delta p_{T}/#sigma(p_{T})" );
     ddxyNormalizedResiduals_global_->setAxisTitle( "#delta 1/p_{T}/#sigma(1/p_{T})" );
   }
+
+}
+
+void TrackSplittingMonitor::beginJob(void) 
+{	
+  //get input tags
+  plotMuons_ = conf_.getParameter<bool>("ifPlotMuons");
+
+  // cuts
+  pixelHitsPerLeg_ = conf_.getParameter<int>("pixelHitsPerLeg");
+  totalHitsPerLeg_ = conf_.getParameter<int>("totalHitsPerLeg");
+  d0Cut_ = conf_.getParameter<double>("d0Cut");
+  dzCut_ = conf_.getParameter<double>("dzCut");
+  ptCut_ = conf_.getParameter<double>("ptCut");
+  norchiCut_ = conf_.getParameter<double>("norchiCut");
 	  
 }
 
