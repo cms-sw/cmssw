@@ -30,9 +30,9 @@ public:
   ~SiPixelRecHit() {}
   
   SiPixelRecHit( const LocalPoint& pos , const LocalError& err,
-		 const DetId& id, 
+		 const DetId& id, GeomDet const * idet,
 		 ClusterRef const&  clus) : 
-    TrackerSingleRecHit(pos,err,id,clus), 
+    TrackerSingleRecHit(pos,err,id,idet, clus), 
     qualWord_(0) 
   {}
   

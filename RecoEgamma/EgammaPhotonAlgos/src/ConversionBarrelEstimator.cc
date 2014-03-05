@@ -10,7 +10,7 @@
 
   // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts, 
-							    const TransientTrackingRecHit& hit) const {
+							    const TrackingRecHit& hit) const {
   std::pair<bool,double> result;
   
   //std::cout << "  ConversionBarrelEstimator::estimate( const TrajectoryStateOnSurface& ts, const TransientTrackingRecHit& hit) " << std::endl;

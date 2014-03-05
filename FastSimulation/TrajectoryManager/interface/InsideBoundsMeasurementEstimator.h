@@ -11,7 +11,7 @@ public:
 
   std::pair<bool,double> 
     estimate(const TrajectoryStateOnSurface& tsos,
-	     const TransientTrackingRecHit& aRecHit) const; 
+	     const TrackingRecHit& aRecHit) const; 
 
   virtual Local2DVector 
   maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
