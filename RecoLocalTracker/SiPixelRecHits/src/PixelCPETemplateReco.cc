@@ -57,7 +57,9 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   //-- Use Magnetic field at (0,0,0) to select a template ID [Morris, 6/25/08] (temporary until we implement DB access)
   
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
-  DoLorentz_ = conf.getParameter<bool>("DoLorentz"); // True when LA from alignment is used
+  //DoLorentz_ = conf.getParameter<bool>("DoLorentz"); // True when LA from alignment is used
+  DoLorentz_ = conf.existsAs<bool>("DoLorentz")?conf.getParameter<bool>("DoLorentz"):false;
+
   LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB");
 
   //cout << " PixelCPETemplateReco : (int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
@@ -453,9 +455,9 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
       templYrec_ += lp.y();
 
       // Compute the Alignment Group Corrections [template ID should already be selected from call to reco procedure]
-      // The Generic Lorentz drift was calculated just after the setTheDet call
-      if ( DoLorentz_ )
-	{
+      if ( DoLorentz_ ) {
+	  // Donly if the lotentzshift has meaningfull numbers
+	if( lorentzShiftInCmX_!= 0.0 ||  lorentzShiftInCmY_!= 0.0 ) {   
 	  // the LA width/shift returned by templates use (+)
 	  // the LA width/shift produced by PixelCPEBase for positive LA is (-)
 	  // correct this by iserting (-)
@@ -467,6 +469,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
 	  //cout << "templateLorwidthCmX  = " << templateLorwidthCmX  
 	  //   << ", lorentzShiftInCmX = " << lorentzShiftInCmX_ << endl;
 	}
+      }
 
     }
     
