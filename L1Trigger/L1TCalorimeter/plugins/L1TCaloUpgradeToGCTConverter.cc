@@ -123,7 +123,9 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     for(L1TTauCollection::const_iterator itTau = Tau->begin(itBX);
 	itTau != Tau->end(itBX); ++itTau){
       bool forward= (itTau->hwEta() < 4 || itTau->hwEta() > 17);
-      int hackPt = itTau->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
+      //int hackPt = itTau->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
+      double hackPt = static_cast<double>(itTau->hwPt()) * etScale->linearLsb();
+      hackPt = etScale->rank(hackPt);
       if(hackPt > 0x3f) hackPt = 0x3f;
       L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), itTau->hwEta(),
 			   true, forward,0, 0, itBX);
