@@ -40,30 +40,30 @@ boostedTauSeeds = cms.EDProducer("BoostedTauSeedsProducer",
 )
 
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
-recoTauAK5PFJets08Region.src = cms.InputTag('boostedTauSeeds')
-recoTauAK5PFJets08Region.pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
-recoTauAK5PFJets08Region.pfCandAssocMapSrc = cms.InputTag('boostedTauSeeds', 'pfCandAssocMapForIsolation')
 
-ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag('boostedTauSeeds')
+# recoTauAK5PFJets08Region.src = cms.InputTag('boostedTauSeeds')
+# recoTauAK5PFJets08Region.pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
+# recoTauAK5PFJets08Region.pfCandAssocMapSrc = cms.InputTag('boostedTauSeeds', 'pfCandAssocMapForIsolation')
 
-ak5PFJetsRecoTauChargedHadrons.jetSrc = cms.InputTag('boostedTauSeeds')
-ak5PFJetsRecoTauChargedHadrons.builders[1].dRcone = cms.double(0.3)
-ak5PFJetsRecoTauChargedHadrons.builders[1].dRconeLimitedToJetArea = cms.bool(True)
+# ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag('boostedTauSeeds')
 
-combinatoricRecoTaus.jetSrc = cms.InputTag('boostedTauSeeds')
-combinatoricRecoTaus.builders[0].pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
-combinatoricRecoTaus.modifiers.remove(combinatoricRecoTaus.modifiers[3])
+# ak5PFJetsRecoTauChargedHadrons.jetSrc = cms.InputTag('boostedTauSeeds')
+# ak5PFJetsRecoTauChargedHadrons.builders[1].dRcone = cms.double(0.3)
+# ak5PFJetsRecoTauChargedHadrons.builders[1].dRconeLimitedToJetArea = cms.bool(True)
 
-hpsPFTauDiscriminationByLooseMuonRejection3.dRmuonMatch = cms.double(0.3)
-hpsPFTauDiscriminationByLooseMuonRejection3.dRmuonMatchLimitedToJetArea = cms.bool(True)
-hpsPFTauDiscriminationByTightMuonRejection3.dRmuonMatch = cms.double(0.3)
-hpsPFTauDiscriminationByTightMuonRejection3.dRmuonMatchLimitedToJetArea = cms.bool(True)
+# combinatoricRecoTaus.jetSrc = cms.InputTag('boostedTauSeeds')
+# combinatoricRecoTaus.builders[0].pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
+# combinatoricRecoTaus.modifiers.remove(combinatoricRecoTaus.modifiers[3])
+
+# hpsPFTauDiscriminationByLooseMuonRejection3.dRmuonMatch = cms.double(0.3)
+# hpsPFTauDiscriminationByLooseMuonRejection3.dRmuonMatchLimitedToJetArea = cms.bool(True)
+# hpsPFTauDiscriminationByTightMuonRejection3.dRmuonMatch = cms.double(0.3)
+# hpsPFTauDiscriminationByTightMuonRejection3.dRmuonMatchLimitedToJetArea = cms.bool(True)
 
 produceAndDiscriminateBoostedHPSPFTaus = cms.Sequence(
     pfPileUpForBoostedTaus*
     pfNoPileUpForBoostedTaus*
     ca8PFJetsCHSprunedForBoostedTaus*
-    boostedTauSeeds*
-    PFTau
-)    
+    boostedTauSeeds
+)
 
