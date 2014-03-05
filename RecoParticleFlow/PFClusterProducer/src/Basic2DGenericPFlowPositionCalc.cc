@@ -27,12 +27,14 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   }  				
   double cl_energy = 0;  
   double cl_time = 0;  
+  double cl_timeweight=0.0;
   double max_e = 0.0;  
   PFLayer::Layer max_e_layer = PFLayer::NONE;
   reco::PFRecHitRef refseed;  
   // find the seed and max layer and also calculate time
   //Michalis : Even if we dont use timing in clustering here we should fill
-  //the time information for the cluster
+  //the time information for the cluster. This should use the timing resolution(1/E)
+  //so the weight should be fraction*E^2
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     if( refhit->detId() == cluster.seed() ) refseed = refhit;
@@ -42,8 +44,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
 	<<"rechit " << refhit->detId() << " has a NaN energy... " 
 	<< "The input of the particle flow clustering seems to be corrupted.";
     }
-    cl_energy += rh_energy;    
-    cl_time += rh_energy*refhit->time();   
+    cl_energy += rh_energy;
+    cl_timeweight+=refhit->energy()*refhit->energy()*rhf.fraction();
+    cl_time += refhit->energy()*refhit->energy()*rhf.fraction()*refhit->time();   
 
     if( rh_energy > max_e ) {
       max_e = rh_energy;
@@ -51,7 +54,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     }    
   }
   cluster.setEnergy(cl_energy);
-  cluster.setTime(cl_time/cl_energy);
+  cluster.setTime(cl_time/cl_timeweight);
   cluster.setLayer(max_e_layer);
   // calculate the position
   double position_norm = 0.0;
