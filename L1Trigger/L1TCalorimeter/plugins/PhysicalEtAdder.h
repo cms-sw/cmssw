@@ -25,6 +25,17 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
+
+typedef BXVector<l1t::EGamma> L1TEGammaCollection;
+typedef BXVector<l1t::Tau> L1TTauCollection;
+typedef BXVector<l1t::Jet> L1TJetCollection;
+typedef BXVector<l1t::EtSum> L1TEtSumCollection;
+
+
 //
 // class declaration
 //

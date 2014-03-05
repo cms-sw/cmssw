@@ -1,5 +1,8 @@
 #include "L1Trigger/L1TCalorimeter/plugins/PhysicalEtAdder.h"
 
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -11,21 +14,24 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+
 #include <vector>
 
 //#include <stdio.h>
 
 l1t::PhysicalEtAdder::PhysicalEtAdder(const edm::ParameterSet& ps) {
 
-  produces<l1t::L1TEGammaCollection>();
-  produces<l1t::L1TTauCollection>();
-  produces<l1t::L1TJetCollection>();
-  produces<l1t::L1TEtSumCollection>();
+  produces<L1TEGammaCollection>();
+  produces<L1TTauCollection>();
+  produces<L1TJetCollection>();
+  produces<L1TEtSumCollection>();
 
-  EGammaToken_ = consumes<L1TEGammaCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  TauToken_ = consumes<L1TTauCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  JetToken_ = consumes<L1TJetCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  EtSumToken_ = consumes<L1TEtSumCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  EGammaToken_ = consumes<L1TEGammaCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  TauToken_ = consumes<L1TTauCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  JetToken_ = consumes<L1TJetCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  EtSumToken_ = consumes<L1TEtSumCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
 }
 
 l1t::PhysicalEtAdder::~PhysicalEtAdder() {
@@ -37,15 +43,15 @@ void
 l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // store new collections which include physical quantities
-  std::auto_ptr<l1t::L1TEGammaCollection> new_egammas (new l1t::L1TEGammaCollection);
-  std::auto_ptr<l1t::L1TTauCollection> new_taus (new l1t::L1TTauCollection);
-  std::auto_ptr<l1t::L1TJetCollection> new_jets (new l1t::L1TJetCollection);
-  std::auto_ptr<l1t::L1TEtSumCollection> new_etsums (new l1t::L1TEtSumCollection);
+  std::auto_ptr<L1TEGammaCollection> new_egammas (new L1TEGammaCollection);
+  std::auto_ptr<L1TTauCollection> new_taus (new L1TTauCollection);
+  std::auto_ptr<L1TJetCollection> new_jets (new L1TJetCollection);
+  std::auto_ptr<L1TEtSumCollection> new_etsums (new L1TEtSumCollection);
 
-  edm::Handle<l1t::L1TEGammaCollection> old_egammas;
-  edm::Handle<l1t::L1TTauCollection> old_taus;
-  edm::Handle<l1t::L1TJetCollection> old_jets;
-  edm::Handle<l1t::L1TEtSumCollection> old_etsums;
+  edm::Handle<L1TEGammaCollection> old_egammas;
+  edm::Handle<L1TTauCollection> old_taus;
+  edm::Handle<L1TJetCollection> old_jets;
+  edm::Handle<L1TEtSumCollection> old_etsums;
 
   iEvent.getByToken(EGammaToken_, old_egammas);
   iEvent.getByToken(TauToken_, old_taus);
