@@ -14,8 +14,8 @@
 #               install_fastjet.sh
 #               SHERPA patches/fixes [see below]
 #
-#  author:      Markus Merschmeyer, RWTH Aachen University
-#  date:        2014/02/20
+#  author:      Markus Merschmeyer, Sebastian Thüer, RWTH Aachen University
+#  date:        2014/02/22
 #  version:     4.3
 #
 

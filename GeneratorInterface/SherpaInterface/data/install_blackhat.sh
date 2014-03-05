@@ -5,7 +5,7 @@
 #               can be used standalone or called from other scripts
 #
 #  author:      Markus Merschmeyer, Sebastian Thüer, RWTH Aachen University
-#  date:        2014/02/17
+#  date:        2014/02/22
 #  version:     1.1
 #
 
