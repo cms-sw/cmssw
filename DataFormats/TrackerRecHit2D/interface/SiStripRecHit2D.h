@@ -20,26 +20,13 @@ public:
     TrackerSingleRecHit(id, clus),
     sigmaPitch_(-1.) {}
 
-
+  template<typename CluRef>
   SiStripRecHit2D( const LocalPoint& pos, const LocalError& err, float isigmaPitch,
-		   const DetId& id,
-		   OmniClusterRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
+		   const DetId& id, GeomDet const * idet,
+		   CluRef const& clus) : 
+    TrackerSingleRecHit(pos,err,id, idet, clus),
     sigmaPitch_(isigmaPitch) {}
  
-  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err, float isigmaPitch,
-		   const DetId& id,
-		   ClusterRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
-    sigmaPitch_(isigmaPitch) {}
-
-
-  SiStripRecHit2D(const LocalPoint& pos, const LocalError& err, float isigmaPitch,
-		  const DetId& id,
-		  ClusterRegionalRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
-    sigmaPitch_(isigmaPitch) {}
-
 				
   ClusterRef cluster()  const { return cluster_strip() ; }
   void setClusterRef(ClusterRef const & ref)  {setClusterStripRef(ref);}

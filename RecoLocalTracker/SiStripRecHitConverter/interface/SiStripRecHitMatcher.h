@@ -315,7 +315,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
 	//...and add it to the Rechit collection 
 	
 	collectorHelper.collector()(SiStripMatchedRecHit2D(LocalPoint(position), error,gluedDet->geographicalId() ,
-							   &monoRH,si.secondHit));
+							   gluedDet,&monoRH,si.secondHit));
       }
       
     } // loop on cache info
