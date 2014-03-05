@@ -9,6 +9,32 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <typeinfo>
 
+
+
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+
+// A fake Det class
+
+class MyDet : public GeomDet {
+ public:
+  MyDet(BoundPlane * bp) :
+    GeomDet(bp){}
+  
+  virtual DetId geographicalId() const {return DetId();}
+  virtual std::vector< const GeomDet*> components() const {
+    return std::vector< const GeomDet*>();
+  }
+  
+  /// Which subdetector
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::DT;}
+  
+};  
+
+
+
+
 class testCutParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testCutParser);
   CPPUNIT_TEST(checkAll);
@@ -82,7 +108,13 @@ void testCutParser::checkAll() {
   reco::TrackBase::CovarianceMatrix cov(e, e + 15);
   trk = reco::Track(chi2, ndof, v, p, -1, cov);
 
-  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), 0, 0, SiStripRecHit2D::ClusterRef());
+
+  GlobalPoint gp(0,0,0);
+  BoundPlane* plane = new BoundPlane( gp, Surface::RotationType());
+  MyDet mdet(plane);
+  GeomDet *  det =  &mdet;
+
+  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), 0, 0, det, SiStripRecHit2D::ClusterRef());
 
   edm::TypeWithDict t(typeid(reco::Track));
   o = edm::ObjectWithDict(t, & trk);

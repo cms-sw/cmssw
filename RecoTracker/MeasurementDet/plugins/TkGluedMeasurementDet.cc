@@ -349,8 +349,19 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::HitCollectorForFastMeasu
 {
 }
 
+
 void
 TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit2D const& hit2d) 
+{
+  hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
+  std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, hit2d);
+  if (!diffEst.first) return;
+  target_.add(std::move(TSiStripMatchedRecHit::build(geomDet_, &hit2d, matcher_, cpe_ )),diffEst.second);
+}
+
+/*
+void
+TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit2D const& hit2d)
 {
   static thread_local std::auto_ptr<TSiStripMatchedRecHit> lcache;
   std::auto_ptr<TSiStripMatchedRecHit> & cache = lcache;
@@ -365,6 +376,7 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit
   } 
   hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
 }
+*/
 
 void
 TkGluedMeasurementDet::HitCollectorForFastMeasurements::addProjected(const TransientTrackingRecHit& hit,
