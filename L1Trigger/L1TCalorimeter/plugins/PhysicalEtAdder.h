@@ -47,8 +47,8 @@ namespace l1t {
     explicit PhysicalEtAdder(const edm::ParameterSet& ps);
     ~PhysicalEtAdder();
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
       virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;

@@ -2,6 +2,8 @@
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
@@ -12,14 +14,8 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 
-#include "DataFormats/Math/interface/LorentzVector.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
-
-
 #include <vector>
-
-//#include <stdio.h>
 
 l1t::PhysicalEtAdder::PhysicalEtAdder(const edm::ParameterSet& ps) {
 
@@ -59,8 +55,64 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(EtSumToken_, old_etsums);
 
 
+  //get the proper scales for conversion to physical et
+  edm::ESHandle< L1CaloEtScale > emScale ;
+  iSetup.get< L1EmEtScaleRcd >().get( emScale ) ;
+
+  edm::ESHandle< L1CaloEtScale > jetScale ;
+  iSetup.get< L1JetEtScaleRcd >().get( jetScale ) ;
+
+  edm::ESHandle< L1CaloEtScale > hwForJetScale ;
+  iSetup.get< L1JetEtScaleRcd >().get( hwForJetScale ) ;
+
+  edm::ESHandle< L1CaloEtScale > htMissScale ;
+  std::vector< bool > htMissMatched ;
+  iSetup.get< L1HtMissScaleRcd >().get( htMissScale ) ;
+
+  int firstBX = old_egammas->getFirstBX();
+  int lastBX = old_egammas->getLastBX();
+
+  new_egammas->setBXRange(firstBX, lastBX);
+  new_taus->setBXRange(firstBX, lastBX);
+  new_jets->setBXRange(firstBX, lastBX);
+  new_taus->setBXRange(firstBX, lastBX);
+
+  for(int bx = firstBX; bx <= lastBX; ++bx)
+  {
+    for(L1TEGammaCollection::const_iterator itEGamma = old_egammas->begin(bx);
+	itEGamma != old_egammas->end(bx); ++itEGamma)
+    {
+      double pt = itEGamma->hwPt() * emScale->linearLsb();
+      //double eta = getPhysicalEta(itEGamma->hwEta());
+      //double phi = getPhysicalPhi(itEgamma->hwPhi());
+      double eta = itEGamma->hwEta();
+      double phi = itEGamma->hwPhi();
+
+      math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(pt, eta, phi, 0);
+      l1t::EGamma *eg = new l1t::EGamma(*p4, itEGamma->hwPt(),
+				       itEGamma->hwEta(), itEGamma->hwPhi(),
+				       itEGamma->hwQual(), itEGamma->hwIso());
+      new_egammas->push_back(bx, *eg);
 
 
+    }
+
+    for(L1TTauCollection::const_iterator itTau = old_taus->begin(bx);
+	itTau != old_taus->end(bx); ++itTau)
+    {
+    }
+
+    for(L1TJetCollection::const_iterator itJet = old_jets->begin(bx);
+	itJet != old_jets->end(bx); ++itJet)
+    {
+
+    }
+
+    for(L1TEtSumCollection::const_iterator itEtSum = old_etsums->begin(bx);
+	itEtSum != old_etsums->end(bx); ++itEtSum)
+    {
+    }
+  }
 
   iEvent.put(new_egammas);
   iEvent.put(new_taus);
