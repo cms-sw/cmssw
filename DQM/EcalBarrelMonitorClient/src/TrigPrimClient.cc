@@ -1,48 +1,52 @@
 #include "../interface/TrigPrimClient.h"
 
-#include "DQM/EcalBarrelMonitorTasks/interface/TrigPrimTask.h"
-
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+
+#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <cmath>
 
-namespace ecaldqm {
-
-  TrigPrimClient::TrigPrimClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "TrigPrimClient")
+namespace ecaldqm
+{
+  TrigPrimClient::TrigPrimClient() :
+    DQWorkerClient(),
+    minEntries_(0),
+    errorFractionThreshold_(0.)
   {
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
-    source_(sEtRealMap, "TrigPrimTask", TrigPrimTask::kEtRealMap, sources);
-    source_(sEtEmulError, "TrigPrimTask", TrigPrimTask::kEtEmulError, sources);
-    source_(sTimingError, "TrigPrimTask", TrigPrimTask::kTimingError, sources);
-    source_(sMatchedIndex, "TrigPrimTask", TrigPrimTask::kMatchedIndex, sources);
+    qualitySummaries_.insert("EmulQualitySummary");
+  }
+  
+  void
+  TrigPrimClient::setParams(edm::ParameterSet const& _params)
+  {
+    minEntries_ = _params.getUntrackedParameter<int>("minEntries");
+    errorFractionThreshold_ = _params.getUntrackedParameter<double>("errorFractionThreshold");
   }
 
   void
-  TrigPrimClient::bookMEs()
+  TrigPrimClient::producePlots(ProcessType)
   {
-    DQWorker::bookMEs();
+    MESet& meTimingSummary(MEs_.at("TimingSummary"));
+    MESet& meNonSingleSummary(MEs_.at("NonSingleSummary"));
+    MESet& meEmulQualitySummary(MEs_.at("EmulQualitySummary"));
 
-    MEs_[kEmulQualitySummary]->resetAll(-1.);
-  }
-
-  void
-  TrigPrimClient::producePlots()
-  {
-    //    MEs_[kTiming]->reset();
-    MEs_[kTimingSummary]->reset();
-    MEs_[kNonSingleSummary]->reset();
+    MESet const& sEtEmulError(sources_.at("EtEmulError"));
+    MESet const& sMatchedIndex(sources_.at("MatchedIndex"));
 
     uint32_t mask(1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING);
 
     for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++){
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
 
+      bool doMask(meEmulQualitySummary.maskMatches(ttid, mask, statusManager_));
+
       float towerEntries(0.);
       float tMax(0.5);
       float nMax(0.);
       for(int iBin(0); iBin < 6; iBin++){
-	float entries(sources_[sMatchedIndex]->getBinEntries(ttid, iBin + 1));
+	float entries(sMatchedIndex.getBinContent(ttid, iBin + 1));
 	towerEntries += entries;
 
 	if(entries > nMax){
@@ -51,33 +55,24 @@ namespace ecaldqm {
 	}
       }
 
-      //      MEs_[kTiming]->setBinContent(ttid, tMax);
-      MEs_[kTimingSummary]->setBinContent(ttid, tMax);
+      meTimingSummary.setBinContent(ttid, tMax);
 
-      if(towerEntries < 1.){
-	fillQuality_(kEmulQualitySummary, ttid, mask, 2.);
+      if(towerEntries < minEntries_){
+	meEmulQualitySummary.setBinContent(ttid, doMask ? kMUnknown : kUnknown);
 	continue;
       }
 
       float nonsingleFraction(1. - nMax / towerEntries);
 
       if(nonsingleFraction > 0.)
-	MEs_[kNonSingleSummary]->setBinContent(ttid, nonsingleFraction);
+	meNonSingleSummary.setBinContent(ttid, nonsingleFraction);
 
-      float quality(sources_[sEtEmulError]->getBinContent(ttid) > 0. || sources_[sTimingError]->getBinContent(ttid) > 0. ? 0. : 1.);
-      fillQuality_(kEmulQualitySummary, ttid, mask, quality);
+      if(sEtEmulError.getBinContent(ttid) / towerEntries > errorFractionThreshold_)
+        meEmulQualitySummary.setBinContent(ttid, doMask ? kMBad : kBad);
+      else
+        meEmulQualitySummary.setBinContent(ttid, doMask ? kMGood : kGood);
     }
-  }
-
-  /*static*/
-  void
-  TrigPrimClient::setMEData(std::vector<MEData>& _data)
-  {
-    _data[kTimingSummary] = MEData("TimingSummary", BinService::kEcal2P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
-    _data[kNonSingleSummary] = MEData("NonSingleSummary", BinService::kEcal2P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
-    _data[kEmulQualitySummary] = MEData("EmulQualitySummary", BinService::kEcal2P, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH2F);
   }
 
   DEFINE_ECALDQM_WORKER(TrigPrimClient);
 }
-

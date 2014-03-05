@@ -1,7 +1,9 @@
 #ifndef PedestalTask_H
 #define PedestalTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
+
+#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
@@ -9,52 +11,44 @@ namespace ecaldqm {
 
   class PedestalTask : public DQWorkerTask {
   public:
-    PedestalTask(const edm::ParameterSet &, const edm::ParameterSet &);
-    ~PedestalTask();
+    PedestalTask();
+    ~PedestalTask() {}
 
-    void bookMEs() override;
+    bool filterRunType(short const*) override;
 
-    bool filterRunType(const std::vector<short>&) override;
+    bool analyze(void const*, Collections) override;
 
-    void analyze(const void*, Collections) override;
+    template<typename DigiCollection> void runOnDigis(DigiCollection const&);
+    void runOnPnDigis(EcalPnDiodeDigiCollection const&);
 
-    void runOnDigis(const EcalDigiCollection&);
-    void runOnPnDigis(const EcalPnDiodeDigiCollection&);
+  private:
+    void setParams(edm::ParameterSet const&) override;
 
-    enum Constants {
-      nGain = 3,
-      nPNGain = 2
-    };
+    std::map<int, unsigned> gainToME_;
+    std::map<int, unsigned> pnGainToME_;
 
-    enum MESets {
-      kOccupancy, // h2f
-      kPedestal = kOccupancy + nGain, // profile2d
-      kPNOccupancy = kPedestal + nGain,
-      kPNPedestal = kPNOccupancy + nPNGain, // profile2d
-      nMESets = kPNPedestal + nPNGain
-    };
-
-    static void setMEData(std::vector<MEData>&);
-
-  protected:
-    std::vector<int> MGPAGains_;
-    std::vector<int> MGPAGainsPN_;
-
-    bool enable_[BinService::nDCC];
+    bool enable_[nDCC];
   };
 
-  inline void PedestalTask::analyze(const void* _p, Collections _collection){
+  inline bool PedestalTask::analyze(void const* _p, Collections _collection){
     switch(_collection){
     case kEBDigi:
+      if(_p) runOnDigis(*static_cast<EBDigiCollection const*>(_p));
+      return true;
+      break;
     case kEEDigi:
-      runOnDigis(*static_cast<const EcalDigiCollection*>(_p));
+      if(_p) runOnDigis(*static_cast<EEDigiCollection const*>(_p));
+      return true;
       break;
     case kPnDiodeDigi:
-      runOnPnDigis(*static_cast<const EcalPnDiodeDigiCollection*>(_p));
+      if(_p) runOnPnDigis(*static_cast<EcalPnDiodeDigiCollection const*>(_p));
+      return true;
       break;
     default:
       break;
     }
+
+    return false;
   }
 
 }

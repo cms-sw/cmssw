@@ -1,4 +1,3 @@
-
 /*!
   \file MonitorElementsDb.cc
   \brief Generate a Monitor Element from DB data

@@ -1,45 +1,25 @@
 #ifndef PresampleClient_H
 #define PresampleClient_H
 
-#include "DQM/EcalCommon/interface/DQWorkerClient.h"
+#include "DQWorkerClient.h"
 
-namespace ecaldqm {
-
+namespace ecaldqm
+{
   class PresampleClient : public DQWorkerClient {
   public:
-    PresampleClient(const edm::ParameterSet &, const edm::ParameterSet &);
+    PresampleClient();
     ~PresampleClient() {}
 
-    void bookMEs() override;
+    void producePlots(ProcessType) override;
 
-    void producePlots() override;
+  private:
+    void setParams(edm::ParameterSet const&) override;
 
-    enum MESets {
-      kQuality,
-      kMean,
-      kMeanDCC,
-      kRMS,
-      kRMSMap,
-      kRMSMapSummary,
-      kQualitySummary,
-      nMESets
-    };
-
-    static void setMEData(std::vector<MEData>&);
-
-    enum Sources {
-      sPedestal,
-      nSources
-    };
-
-  protected:
     int minChannelEntries_;
-    int minTowerEntries_;
     float expectedMean_;
-    float meanThreshold_;
-    float rmsThreshold_;
-    float rmsThresholdHighEta_;
-    float noisyFracThreshold_;
+    float toleranceMean_;
+    float toleranceRMS_;
+    float toleranceRMSFwd_;
   };
 
 }
