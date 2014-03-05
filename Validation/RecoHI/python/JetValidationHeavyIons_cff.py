@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ### genjet cleaning for improved matching in HI environment
 
 from RecoHI.HiJetAlgos.HiGenCleaner_cff import *
+from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
 
 iterativeCone5HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('iterativeCone5HiGenJets'))
 iterativeCone7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('iterativeCone7HiGenJets'))
@@ -53,25 +54,29 @@ JetAnalyzerAkPU3Calo = cms.EDAnalyzer("CaloJetTesterUnCorr_HeavyIons",
     reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-JetAnalyzerAkPU5PF = cms.EDAnalyzer("PFJetTesterUnCorr",
-                                    src = cms.InputTag("akPu5PFJets"),
-                                    srcGen = cms.InputTag("ak5HiCleanedGenJets"),
-                                    srcRho = cms.InputTag("akPu5PFJets","rho"),
-				    genEnergyFractionThreshold = cms.double(0.05),
-                                    genPtThreshold = cms.double(1.0),
-                                    RThreshold = cms.double(0.3),
-                                    reverseEnergyFractionThreshold = cms.double(0.5)
-                                    )
+JetAnalyzerAkPU5PF = cms.EDAnalyzer("PFJetTesterUnCorr_HeavyIons",
+    src = cms.InputTag("akPu5PFJets"),
+    srcGen = cms.InputTag("ak5HiCleanedGenJets"),
+    pfCandidateLabel = cms.InputTag("particleFlowTmp"),
+    pfPtMin  = cms.double(1.0),
+    srcRho = cms.InputTag("akPu5PFJets","rho"),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)
+)
 
-JetAnalyzerAkPU3PF = cms.EDAnalyzer("PFJetTesterUnCorr",
-                                    src = cms.InputTag("akPu3PFJets"),
-                                    srcGen = cms.InputTag("ak3HiCleanedGenJets"),
-				    srcRho = cms.InputTag("akPu3PFJets","rho"),
-                                    genEnergyFractionThreshold = cms.double(0.05),
-                                    genPtThreshold = cms.double(1.0),
-                                    RThreshold = cms.double(0.3),
-                                    reverseEnergyFractionThreshold = cms.double(0.5)
-                                    )
+JetAnalyzerAkPU3PF = cms.EDAnalyzer("PFJetTesterUnCorr_HeavyIons",
+    src = cms.InputTag("akPu3PFJets"),
+    srcGen = cms.InputTag("ak3HiCleanedGenJets"),
+    pfCandidateLabel = cms.InputTag("particleFlowTmp"),
+    pfPtMin  = cms.double(1.0),
+    srcRho = cms.InputTag("akPu3PFJets","rho"),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)
+)
 
 
 JetAnalyzerAkVs2Calo = cms.EDAnalyzer("CaloJetTesterUnCorr_HeavyIons",
@@ -135,88 +140,100 @@ JetAnalyzerAkVs7Calo = cms.EDAnalyzer("CaloJetTesterUnCorr_HeavyIons",
     reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-JetAnalyzerAkVs2PF = cms.EDAnalyzer("PFJetTesterUnCorr",
-                                    src = cms.InputTag("akVs2PFJets"),
-                                    srcGen = cms.InputTag("ak2HiCleanedGenJets"),
-                        	    srcRho = cms.InputTag("akVs2PFJets","rho"),
-                                    genEnergyFractionThreshold = cms.double(0.05),
-                                    genPtThreshold = cms.double(1.0),
-                                    RThreshold = cms.double(0.3),
-                                    reverseEnergyFractionThreshold = cms.double(0.5)
+JetAnalyzerAkVs2PF = cms.EDAnalyzer("PFJetTesterUnCorr_HeavyIons",
+    src = cms.InputTag("akVs2PFJets"),
+    srcGen = cms.InputTag("ak2HiCleanedGenJets"),
+    pfCandidateLabel = cms.InputTag("particleFlowTmp"),
+    pfPtMin  = cms.double(1.0),
+    srcRho = cms.InputTag("akVs2PFJets","rho"),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-JetAnalyzerAkVs3PF = cms.EDAnalyzer("PFJetTesterUnCorr",
-                                    src = cms.InputTag("akVs3PFJets"),
-                                    srcGen = cms.InputTag("ak3HiCleanedGenJets"),
-                        	    srcRho = cms.InputTag("akVs3PFJets","rho"),
-                                    genEnergyFractionThreshold = cms.double(0.05),
-                                    genPtThreshold = cms.double(1.0),
-                                    RThreshold = cms.double(0.3),
-                                    reverseEnergyFractionThreshold = cms.double(0.5)
+JetAnalyzerAkVs3PF = cms.EDAnalyzer("PFJetTesterUnCorr_HeavyIons",
+    src = cms.InputTag("akVs3PFJets"),
+    srcGen = cms.InputTag("ak3HiCleanedGenJets"),
+    pfCandidateLabel = cms.InputTag("particleFlowTmp"),
+    pfPtMin  = cms.double(1.0),
+    srcRho = cms.InputTag("akVs3PFJets","rho"),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-JetAnalyzerAkVs4PF = cms.EDAnalyzer("PFJetTesterUnCorr",
-                                    src = cms.InputTag("akVs4PFJets"),
-                                    srcGen = cms.InputTag("ak4HiCleanedGenJets"),
-                        	    srcRho = cms.InputTag("akVs4PFJets","rho"),
-                                    genEnergyFractionThreshold = cms.double(0.05),
-                                    genPtThreshold = cms.double(1.0),
-                                    RThreshold = cms.double(0.3),
-                                    reverseEnergyFractionThreshold = cms.double(0.5)
+JetAnalyzerAkVs4PF = cms.EDAnalyzer("PFJetTesterUnCorr_HeavyIons",
+    src = cms.InputTag("akVs4PFJets"),
+    srcGen = cms.InputTag("ak4HiCleanedGenJets"),
+    pfCandidateLabel = cms.InputTag("particleFlowTmp"),
+    pfPtMin  = cms.double(1.0),
+    srcRho = cms.InputTag("akVs4PFJets","rho"),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-JetAnalyzerAkVs5PF = cms.EDAnalyzer("PFJetTesterUnCorr",
-                                    src = cms.InputTag("akVs5PFJets"),
-                                    srcGen = cms.InputTag("ak5HiCleanedGenJets"),
-                        	    srcRho = cms.InputTag("akVs5PFJets","rho"),
-                                    genEnergyFractionThreshold = cms.double(0.05),
-                                    genPtThreshold = cms.double(1.0),
-                                    RThreshold = cms.double(0.3),
-                                    reverseEnergyFractionThreshold = cms.double(0.5)
+JetAnalyzerAkVs5PF = cms.EDAnalyzer("PFJetTesterUnCorr_HeavyIons",
+    src = cms.InputTag("akVs5PFJets"),
+    srcGen = cms.InputTag("ak5HiCleanedGenJets"),
+    pfCandidateLabel = cms.InputTag("particleFlowTmp"),
+    pfPtMin  = cms.double(1.0),
+    srcRho = cms.InputTag("akVs5PFJets","rho"),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)
 )
 
-JetAnalyzerAkVs6PF = cms.EDAnalyzer("PFJetTesterUnCorr",
-                                    src = cms.InputTag("akVs6PFJets"),
-                                    srcGen = cms.InputTag("ak6HiCleanedGenJets"),
-                        	    srcRho = cms.InputTag("akVs6PFJets","rho"),
-                                    genEnergyFractionThreshold = cms.double(0.05),
-                                    genPtThreshold = cms.double(1.0),
-                                    RThreshold = cms.double(0.3),
-                                    reverseEnergyFractionThreshold = cms.double(0.5)
+JetAnalyzerAkVs6PF = cms.EDAnalyzer("PFJetTesterUnCorr_HeavyIons",
+    src = cms.InputTag("akVs6PFJets"),
+    srcGen = cms.InputTag("ak6HiCleanedGenJets"),
+    pfCandidateLabel = cms.InputTag("particleFlowTmp"),
+    pfPtMin  = cms.double(1.0),
+    srcRho = cms.InputTag("akVs6PFJets","rho"),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)
 )
-				    
-JetAnalyzerAkVs7PF = cms.EDAnalyzer("PFJetTesterUnCorr",
-                                    src = cms.InputTag("akVs7PFJets"),
-                                    srcGen = cms.InputTag("ak7HiCleanedGenJets"),
-                        	    srcRho = cms.InputTag("akVs7PFJets","rho"),
-                                    genEnergyFractionThreshold = cms.double(0.05),
-                                    genPtThreshold = cms.double(1.0),
-                                    RThreshold = cms.double(0.3),
-                                    reverseEnergyFractionThreshold = cms.double(0.5)
+
+JetAnalyzerAkVs7PF = cms.EDAnalyzer("PFJetTesterUnCorr_HeavyIons",
+    src = cms.InputTag("akVs7PFJets"),
+    srcGen = cms.InputTag("ak7HiCleanedGenJets"),
+    pfCandidateLabel = cms.InputTag("particleFlowTmp"),
+    pfPtMin  = cms.double(1.0),
+    srcRho = cms.InputTag("akVs7PFJets","rho"),
+    genEnergyFractionThreshold = cms.double(0.05),
+    genPtThreshold = cms.double(1.0),
+    RThreshold = cms.double(0.3),
+    reverseEnergyFractionThreshold = cms.double(0.5)
 )				    			    
-							    
+
 hiJetValidation = cms.Sequence(
-     ak3HiCleanedGenJets
-   #* ak5HiCleanedGenJets
+       ak3HiCleanedGenJets
+     * ak5HiCleanedGenJets
    #* ak7HiCleanedGenJets
    * JetAnalyzerICPU5Calo
    #* JetAnalyzerICPU7Calo
    * JetAnalyzerAkPU3Calo
-   #* JetAnalyzerAkPU5Calo
-   * JetAnalyzerAkPU3PF
+  # * JetAnalyzerAkPU5Calo
+   #* JetAnalyzerAkPU3PF
    #* JetAnalyzerAkPU5PF
 	
    #* JetAnalyzerAkVs2Calo	   
    * JetAnalyzerAkVs3Calo	   
-   #* JetAnalyzerAkVs4Calo	   
-   #* JetAnalyzerAkVs5Calo	   
+   * JetAnalyzerAkVs4Calo
+   * JetAnalyzerAkVs5Calo
    #* JetAnalyzerAkVs6Calo
    #* JetAnalyzerAkVs7Calo
 
    #* JetAnalyzerAkVs2PF
    * JetAnalyzerAkVs3PF
-   #* JetAnalyzerAkVs4PF	   
-   #* JetAnalyzerAkVs5PF
+   * JetAnalyzerAkVs4PF
+   * JetAnalyzerAkVs5PF
    #* JetAnalyzerAkVs6PF	   
    #* JetAnalyzerAkVs7PF
 
