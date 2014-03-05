@@ -37,7 +37,8 @@ public:
 
   SiStripRecHitMatcher(const edm::ParameterSet& conf);
   SiStripRecHitMatcher(const double theScale);
-  
+
+  bool preFilter() const { return preFilter_;}  
 
   // optimized matching iteration (the algo is the same, just recoded)
   template<typename MonoIterator, typename StereoIterator,  typename CollectorHelper>
@@ -98,7 +99,7 @@ public:
   
   
   float scale_;
-  
+  bool  preFilter_=false;
 };
 
 
@@ -314,7 +315,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
 	//...and add it to the Rechit collection 
 	
 	collectorHelper.collector()(SiStripMatchedRecHit2D(LocalPoint(position), error,gluedDet->geographicalId() ,
-							   &monoRH,si.secondHit));
+							   gluedDet,&monoRH,si.secondHit));
       }
       
     } // loop on cache info

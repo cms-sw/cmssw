@@ -38,7 +38,9 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 //
 #include <string>
 #include <stdlib.h>
@@ -55,7 +57,8 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
   reducedSet( conf_.getUntrackedParameter<bool>("reducedSet",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
   ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
-  bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) )
+  bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ),
+  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
@@ -193,7 +196,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
 
-      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
 	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
@@ -220,7 +223,34 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 	if(isPIB && mask) continue;
 		
 	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
-      }
+      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
+	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
+	uint32_t id = detId();
+	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
+	
+        PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(id)).halfCylinder();
+        int disk   = PixelEndcapNameUpgrade(DetId(id)).diskName();
+        int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
+        int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
+        int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
+
+        char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
+        char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
+        char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+        char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+        char smodule[80];sprintf(smodule,"Module_%i",module);
+        std::string side_str = sside;
+	std::string disk_str = sdisk;
+	bool mask = side_str.find("HalfCylinder_1")!=string::npos||
+	            side_str.find("HalfCylinder_2")!=string::npos||
+		    side_str.find("HalfCylinder_4")!=string::npos||
+		    disk_str.find("Disk_2")!=string::npos;
+	// clutch to take all of FPIX, but no BPIX:
+	mask = false;
+	if(isPIB && mask) continue;
+		
+	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
+      }//endif(isUpgrade)
     }
   }
   LogDebug ("PixelDQM") << " ---> Adding Module for Additional Errors " << endl;
@@ -259,8 +289,8 @@ void SiPixelRawDataErrorSource::bookMEs(){
     /// Create folder tree and book histograms 
 
     if(modOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first)) {
-        (*struct_iter).second->book( conf_, 0 );
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,0,isUpgrade)) {
+        (*struct_iter).second->book( conf_, 0 ,isUpgrade );
       }
       else {
         //std::cout<<"PIB! not booking histograms for non-PIB modules!"<<std::endl;
@@ -270,8 +300,8 @@ void SiPixelRawDataErrorSource::bookMEs(){
     }
     
     if(ladOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)) {
-        (*struct_iter).second->book( conf_, 1 );
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)) {
+        (*struct_iter).second->book( conf_, 1 , isUpgrade );
       }
       else {
         LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
@@ -279,8 +309,8 @@ void SiPixelRawDataErrorSource::bookMEs(){
     }
     
     if(bladeOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)) {
-        (*struct_iter).second->book( conf_, 4 );
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)) {
+        (*struct_iter).second->book( conf_, 4 ,isUpgrade );
       }
       else {
         LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";

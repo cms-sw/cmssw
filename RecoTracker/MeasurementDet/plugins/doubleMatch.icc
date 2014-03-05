@@ -42,6 +42,7 @@ namespace {
 #include "DataFormats/GeometrySurface/interface/LocalError.h" 
 
 namespace {
+  inline
   void print(const char* where, const TrajectoryStateOnSurface& t1,const TrajectoryStateOnSurface& t2) {
     std::cout << where<< std::endl;
     std::cout <<  t1.localParameters().vector() << std::endl;
@@ -50,8 +51,6 @@ namespace {
     std::cout <<  t2.localError().positionError() << std::endl;
 
   }
-
-
 }
 
 
@@ -72,28 +71,39 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
   auto mf = monoHits.size();
   auto sf = stereoHits.size();
   
-  // mono does not require "projection"
+  bool emptyMono = false;
+  bool emptyStereo = false;
+
+  // mono does require "projection" for precise estimate
   if (collector.filter()) {
-    //TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
-    theMonoDet->recHits(ts,collector.estimator(),data,monoHits,diffs); 
+    emptyMono = theMonoDet->empty(data);
+    if likely(!emptyMono) {
+	TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
+	theMonoDet->recHits(mts,collector.estimator(),data,monoHits,diffs);
+      }
     // print("mono", mts,ts);
     mf = monoHits.size();
   }
-  else
+  else {
     monoHits = theMonoDet->recHits(ts, data);
+    emptyMono = monoHits.empty();
+  }
 
-  // stereo in principle requires "projection"
-  TrajectoryStateOnSurface pts = ts;
+  // stereo requires "projection" for precision and change in coordinates
   diffs.clear();
   if (collector.filter()) {
-    TrajectoryStateOnSurface pts = fastProp(ts,geomDet().surface(),theStereoDet->geomDet().surface());
-    theStereoDet->recHits(pts,collector.estimator(),data,stereoHits,diffs);
-    // print("stereo", pts,ts);
+    emptyStereo = theStereoDet->empty(data);
+    if likely(!emptyStereo) {
+	TrajectoryStateOnSurface pts = fastProp(ts,geomDet().surface(),theStereoDet->geomDet().surface());
+	theStereoDet->recHits(pts,collector.estimator(),data,stereoHits,diffs);
+	// print("stereo", pts,ts);
+      }
     sf = stereoHits.size();
   }
-  else
-    stereoHits= theStereoDet->recHits(pts,data);
-
+  else {
+    stereoHits= theStereoDet->recHits(ts,data);
+    emptyStereo = stereoHits.empty();
+  }
 
   if (collector.filter()) {
     auto mh = monoHits.size();
@@ -101,26 +111,22 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
     stat(mh,sh,mf,sf);
   }
 
-  if (stereoHits.empty()&&monoHits.empty()) return;
+  if unlikely( emptyMono &  emptyStereo) return;
 
-  if( (!theStereoDet->isActive(data)) ||
-       ((!collector.filter())&&stereoHits.empty())
-      ) {
-    // make mono TTRHs and project them
-    projectOnGluedDet( collector, monoHits, glbDir);
-    return;
-  }
+  if unlikely(emptyStereo) {
+      // make mono TTRHs and project them
+      projectOnGluedDet( collector, monoHits, glbDir);
+      return;
+    }
   
-  if (  (!theMonoDet->isActive(data)) ||
-	((!collector.filter())&&monoHits.empty())
-	) {
-    // make stereo TTRHs and project them
+  if unlikely( emptyMono ) {
+      // make stereo TTRHs and project them
     projectOnGluedDet( collector, stereoHits, glbDir);
     return;
-  }
+    }
 
 
-  if ((!stereoHits.empty())&&(!monoHits.empty())) {
+  if ((!monoHits.empty()) &  (!stereoHits.empty()) ) {
     
     const GluedGeomDet* gluedDet = &specificGeomDet();
     LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));

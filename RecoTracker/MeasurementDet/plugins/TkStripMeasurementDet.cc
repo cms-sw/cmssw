@@ -21,11 +21,38 @@ TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet, StMeasurement
     }
   }
 
+
+// fast check if the det contains any useful cluster
+bool TkStripMeasurementDet::empty(const MeasurementTrackerEvent & data) const {
+  if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return true;
+
+  if(!isRegional()){// standard implemetation with DetSet
+    const detset & detSet = data.stripData().detSet(index()); 
+    for ( auto ci = detSet.begin(); ci != detSet.end(); ++ ci ) {
+      if (isMasked(*ci)) continue;
+      SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
+      if (accept(cluster, data.stripClustersToSkip()))
+	return false;
+    }
+    return true;
+  }
+  // on demand
+  unsigned int ci = beginClusterI(data.stripData()), ce = endClusterI(data.stripData()); 
+  for (; ci != ce; ++ci){
+    SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(data.stripData().regionalHandle(),ci);
+    if (isMasked(*clusterRef)) continue;
+    if (accept(clusterRef, data.stripClustersToSkip()))
+      return false;
+  }
+  return true;  
+}
+
+
 TkStripMeasurementDet::RecHitContainer 
 TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data) const
 {
   RecHitContainer result;
-  if ( (!isActive(data)) || isEmpty(data.stripData())) return result;
+  if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return result;
   if(!isRegional()){//old implemetation with DetSet
     const detset & detSet = data.stripData().detSet(index()); 
     result.reserve(detSet.size());
@@ -56,7 +83,7 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const Measur
 bool
 TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data, 
 				RecHitContainer & result, std::vector<float> & diffs ) const {
-  if ( (!isActive(data)) || isEmpty(data.stripData())) return false;
+  if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return false;
 
   auto oldSize = result.size();
 
@@ -236,11 +263,11 @@ SiStripRecHit2D TkStripMeasurementDet::hit(TkStripRecHitIter const & hi ) const 
   if(!isRegional()){
     SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
     LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-    return SiStripRecHit2D(lv.first,lv.second, TSiStripRecHit2DLocalPos::sigmaPitch(lv.first, lv.second,gdu), rawId(), cluster);
+    return SiStripRecHit2D(lv.first,lv.second, TSiStripRecHit2DLocalPos::sigmaPitch(lv.first, lv.second,gdu), rawId(), &gdu, cluster);
   } else {
     SiStripRegionalClusterRef cluster = edm::makeRefToLazyGetter(data.stripData().regionalHandle(),ciR);
     LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-    return SiStripRecHit2D(lv.first,lv.second, TSiStripRecHit2DLocalPos::sigmaPitch(lv.first, lv.second,gdu), rawId(), cluster);
+    return SiStripRecHit2D(lv.first,lv.second, TSiStripRecHit2DLocalPos::sigmaPitch(lv.first, lv.second,gdu), rawId(), &gdu, cluster);
   } 
 }
 

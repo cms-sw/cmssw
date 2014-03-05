@@ -8,9 +8,9 @@ public:
 
   typedef BaseTrackerRecHit Base;
   ProjectedSiStripRecHit2D() {};
-  ProjectedSiStripRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , 
+  ProjectedSiStripRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , GeomDet const * idet,
 			    const SiStripRecHit2D* originalHit) :
-    BaseTrackerRecHit(pos, err, id, trackerHitRTTI::proj), originalHit_(*originalHit) {}
+    BaseTrackerRecHit(pos, err, id, idet, trackerHitRTTI::proj), originalHit_(*originalHit) {}
     
   virtual ProjectedSiStripRecHit2D* clone() const {return new ProjectedSiStripRecHit2D( *this); }
 

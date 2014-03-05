@@ -141,7 +141,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
 PhotonProducer::~PhotonProducer() 
 {
-
+  delete thePhotonEnergyCorrector_;
   //delete energyCorrectionF;
 }
 
@@ -162,7 +162,6 @@ void  PhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEven
 
   delete thePhotonIsolationCalculator_;
   delete thePhotonMIPHaloTagger_;
-  delete thePhotonEnergyCorrector_;
 }
 
 

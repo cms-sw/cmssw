@@ -92,7 +92,11 @@ namespace edm {
       typedef CallEndLuminosityBlockProduce<T> MyEndLuminosityBlockProduce;
       
       void setupStreamModules() override final {
-        this->createStreamModules([this] () -> M* {return impl::makeStreamModule<T>(*m_pset,m_global.get());});
+        this->createStreamModules([this] () -> M* {
+          auto tmp = impl::makeStreamModule<T>(*m_pset,m_global.get());
+          MyGlobal::set(tmp,m_global.get());
+          return tmp;
+        });
         m_pset= nullptr;
       }
 
@@ -100,7 +104,6 @@ namespace edm {
         MyGlobal::endJob(m_global.get());
       }
       void setupRun(M* iProd, RunIndex iIndex) override final {
-        MyGlobal::set(iProd,m_global.get());
         MyGlobalRun::set(iProd, m_runs[iIndex].get());
       }
       void streamEndRunSummary(M* iProd,
