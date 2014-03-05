@@ -332,8 +332,8 @@ baseDataSetRelease=[
     'CMSSW_6_1_0_pre6-STARTHI61_V6-v1', # Run1 HI GEN-SIM (only HydjetQ_B0_2760)
     'CMSSW_6_2_0_pre8-PRE_ST62_V8-v3',  # pPb 
     'CMSSW_7_1_0_pre1-POSTLS170_V1-v1', # 13 TeV samples with postLs1 geometry and updated mag field
-    'CMSSW_6_2_0_pre8-PRE_SH62_V15-v1'  # Run1 HI GEN-SIM (only HydjetQ_B8_2760)
-    'CMSSW_7_1_0_pre1-POSTLS170_V1-v4', # GEN-SIM for 13 TeV BuJPsiK sample
+    'CMSSW_6_2_0_pre8-PRE_SH62_V15-v1', # Run1 HI GEN-SIM (only HydjetQ_B8_2760)
+    'CMSSW_7_1_0_pre1-POSTLS170_V1-v4'  # GEN-SIM for 13 TeV BuJPsiK sample
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
