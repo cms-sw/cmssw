@@ -1,5 +1,5 @@
 ///step03
-/// \class l1t::CaloStage1EGammaAlgorithm
+/// \class l1t::Stage1Layer2EGammaAlgorithm
 ///
 /// Description: interface for MP firmware
 ///
@@ -8,10 +8,10 @@
 /// \author: Kalanand Mishra - Fermilab
 ///
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1EGammaAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EGammaAlgorithm.h"
 
 
-void l1t::CaloStage1EGammaAlgorithm::processEvent(const std::vector<l1t::CaloStage1Cluster> & clusters, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma> & egammas, std::list<L1GObject> & rlxEGList, std::list<L1GObject> & isoEGList) { 
+void l1t::Stage1Layer2EGammaAlgorithm::processEvent(const std::vector<l1t::CaloStage1Cluster> & clusters, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma> & egammas, std::list<L1GObject> & rlxEGList, std::list<L1GObject> & isoEGList) {
 
   egtSeed = 0;
   puLevel = 0.0;
@@ -41,7 +41,7 @@ void l1t::CaloStage1EGammaAlgorithm::processEvent(const std::vector<l1t::CaloSta
             }
 
 
-	    rlxEGList.push_back(L1GObject(et, egtCand->eta(), 
+	    rlxEGList.push_back(L1GObject(et, egtCand->eta(),
 					  egtCand->phi(), "EG"));
 	    rlxEGList.back().associatedRegionEt_ = regionEt;
 
@@ -49,11 +49,11 @@ void l1t::CaloStage1EGammaAlgorithm::processEvent(const std::vector<l1t::CaloSta
 
 	    double isolation = regionEt - puLevel - et;   // Core isolation (could go less than zero)
 	    double relativeIsolation = isolation / et;
-	    
-	    
+
+
 	    if(relativeIsolation < relativeIsolationCut) {
 	      // Relative isolation makes it to IsoEG
-	      isoEGList.push_back(L1GObject(et, egtCand->eta(), 
+	      isoEGList.push_back(L1GObject(et, egtCand->eta(),
 					    egtCand->phi(), "IsoEG"));
 	    }
 	    break;
@@ -66,4 +66,3 @@ void l1t::CaloStage1EGammaAlgorithm::processEvent(const std::vector<l1t::CaloSta
   rlxEGList.reverse();
   isoEGList.reverse();
 }
-

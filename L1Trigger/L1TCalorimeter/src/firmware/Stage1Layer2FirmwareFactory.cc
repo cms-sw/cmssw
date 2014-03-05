@@ -1,5 +1,5 @@
 ///
-/// \class l1t::CaloStage1FirmwareFactory
+/// \class l1t::Stage1Layer2FirmwareFactory
 ///
 ///
 /// \author: R. Alex Barbieri
@@ -12,9 +12,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessorFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2MainProcessorFirmware.h"
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1FirmwareFactory.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2FirmwareFactory.h"
 
 
 using namespace std;
@@ -22,8 +22,8 @@ using namespace edm;
 
 namespace l1t {
 
-  CaloStage1FirmwareFactory::ReturnType
-  CaloStage1FirmwareFactory::create(const FirmwareVersion & m_fwv /*,const CaloParams & dbPars*/){
+  Stage1Layer2FirmwareFactory::ReturnType
+  Stage1Layer2FirmwareFactory::create(const FirmwareVersion & m_fwv /*,const CaloParams & dbPars*/){
     ReturnType p;
     unsigned fwv = m_fwv.firmwareVersion();
     //unsigned fwv = 1;
@@ -34,10 +34,10 @@ namespace l1t {
 
     switch (fwv){
     case 1:
-      p = ReturnType(new CaloStage1MainProcessorFirmwareImp1(m_fwv /*dbPars*/));
+      p = ReturnType(new Stage1Layer2MainProcessorFirmwareImp1(m_fwv /*dbPars*/));
       break;
     case 2:
-      p = ReturnType(new CaloStage1MainProcessorFirmwareImp1(m_fwv /*dbPars*/));
+      p = ReturnType(new Stage1Layer2MainProcessorFirmwareImp1(m_fwv /*dbPars*/));
       break;
     default:
       // Invalid Firmware, log an error:

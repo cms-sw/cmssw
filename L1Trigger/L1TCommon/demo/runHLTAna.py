@@ -12,7 +12,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             #fileNames = cms.untracked.vstring("root://xrootd.cmsaf.mit.edu//store/user/pkurt/HidjetQuenchedMinBias/44X_Embeddeding_workflow_test_dijet80_RECO_v4/86245d447b905f80021c91863b830407/step4_RAW2DIGI_L1Reco_RECO_VALIDATION_DQM_4_1_lmt.root")
-                            fileNames = cms.untracked.vstring("file:/net/hisrv0001/home/luck/UCT2015/CMSSW_7_1_0_pre2/src/L1Trigger/L1TCommon/demo/demo_output_HI.root")
+                            fileNames = cms.untracked.vstring("file:L1Emulator_HI_oldGCT.root")
                             #fileNames = cms.untracked.vstring("file:/net/hisrv0001/home/luck/UCT2015/CMSSW_7_0_0_pre8/src/L1Trigger/L1TCommon/demo/demo_output_full_norm.root")
                            )
 
@@ -38,7 +38,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 #####################################################################################
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName=cms.string("hltana_HI_newLayer2.root"))
+                                   fileName=cms.string("hltana_HI_oldGCT.root"))
 
 #process.load('HLTrigger.HLTanalyzers.hltanalysis_cff')
 #from HLTrigger.HLTanalyzers.HLTBitAnalyser_cfi import *
@@ -61,4 +61,3 @@ process.hltanalysis = process.hltbitanalysis.clone(
     )
 
 process.hltAna = cms.Path(process.hltanalysis)
-
