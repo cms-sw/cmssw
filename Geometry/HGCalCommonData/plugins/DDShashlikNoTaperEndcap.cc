@@ -71,7 +71,7 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
   //double offsetY = offsetZ * tan( yphi );
   double offsetX = xQuadrant*0.5*offsetXY;
   double offsetY = yQuadrant*0.5*offsetXY;
-
+  
   while( abs(offsetX) < m_rMax)
   {
     column++;
@@ -128,7 +128,7 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
 
   }
   
-  std::cout << row << " rows and " << column << " columns in quadrant " << xQuadrant << ":" << yQuadrant << std::endl;
+  // std::cout << row << " rows and " << column << " columns in quadrant " << xQuadrant << ":" << yQuadrant << std::endl;
   return copyNo;
 }
 
