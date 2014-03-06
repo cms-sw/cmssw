@@ -25,8 +25,8 @@ class Multi5x5SuperClusterProducer : public edm::EDProducer
 
       ~Multi5x5SuperClusterProducer();
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endJob() override;
 
    private:
 
