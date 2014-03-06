@@ -12,8 +12,8 @@ ecalCertification = cms.EDAnalyzer("EcalDQMonitorClient",
     ),
     # task parameters (included from indivitual cfis)
     workerParameters = cms.untracked.PSet(
-        CertificationClient = ecalCertificationClient
+        CertificationClient = ecalCertificationClient.clone()
     ),
-    commonParameters = ecalCommonParams,
+    commonParameters = ecalCommonParams.clone(willConvertToEDM = cms.untracked.bool(False)),
     verbosity = cms.untracked.int32(0)
 )

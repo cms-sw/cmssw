@@ -58,9 +58,11 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps) :
   edm::ParameterSet const& collectionTags(_ps.getUntrackedParameterSet("collectionTags"));
 
   for(unsigned iCol(0); iCol < ecaldqm::nCollections; iCol++){
-    if(hasTaskToRun[iCol] || iCol == ecaldqm::kEcalRawData)
+    if(hasTaskToRun[iCol])
       dependencies.push_back(ecaldqm::Dependency(ecaldqm::Collections(iCol)));
   }
+  if(collectionTags.existsAs<edm::InputTag>("EcalRawData"))
+    dependencies.push_back(ecaldqm::Dependency(ecaldqm::kEcalRawData));
 
   formSchedule(dependencies.formSequence(), collectionTags);
 

@@ -1,3 +1,0 @@
-from DQM.EcalBarrelMonitorClient.EcalCertification_cfi import ecalCertification
-
-ecalBarrelDataCertificationTask = ecalCertification.clone()

@@ -44,7 +44,7 @@ namespace ecaldqm {
       MEs_.erase(std::string("DAQContents"));
     }
     else
-      throw cms::Exception("InvalidConfiguration") << "Nonthing to do in TowerStatusTask";
+      throw cms::Exception("InvalidConfiguration") << "Nothing to do in TowerStatusTask";
   }
 
   void
