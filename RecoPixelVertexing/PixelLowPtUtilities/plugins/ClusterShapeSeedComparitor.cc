@@ -43,21 +43,24 @@ class PixelClusterShapeSeedComparitor : public SeedComparitor {
         bool compatibleHit(const TrackingRecHit &hit, const GlobalVector &direction) const ;
 
         std::string filterName_;
-        mutable edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
+        edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
         edm::EDGetTokenT<SiPixelClusterShapeCache> pixelClusterShapeCacheToken_;
-        edm::Handle<SiPixelClusterShapeCache> pixelClusterShapeCache_;
-        bool filterAtHelixStage_;
-        bool filterPixelHits_, filterStripHits_;
+        const SiPixelClusterShapeCache *pixelClusterShapeCache_;
+        const bool filterAtHelixStage_;
+        const bool filterPixelHits_, filterStripHits_;
 };
 
 
 PixelClusterShapeSeedComparitor::PixelClusterShapeSeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) :
     filterName_(cfg.getParameter<std::string>("ClusterShapeHitFilterName")),
-    pixelClusterShapeCacheToken_(iC.consumes<SiPixelClusterShapeCache>(cfg.getParameter<edm::InputTag>("ClusterShapeCacheSrc"))),
+    pixelClusterShapeCache_(nullptr),
     filterAtHelixStage_(cfg.getParameter<bool>("FilterAtHelixStage")),
     filterPixelHits_(cfg.getParameter<bool>("FilterPixelHits")),
     filterStripHits_(cfg.getParameter<bool>("FilterStripHits"))
 {
+  if(filterPixelHits_) {
+    pixelClusterShapeCacheToken_ = iC.consumes<SiPixelClusterShapeCache>(cfg.getParameter<edm::InputTag>("ClusterShapeCacheSrc"));
+  }
 }
 
 PixelClusterShapeSeedComparitor::~PixelClusterShapeSeedComparitor() 
@@ -67,7 +70,11 @@ PixelClusterShapeSeedComparitor::~PixelClusterShapeSeedComparitor()
 void
 PixelClusterShapeSeedComparitor::init(const edm::Event& ev, const edm::EventSetup& es) {
     es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
-    ev.getByToken(pixelClusterShapeCacheToken_, pixelClusterShapeCache_);
+    if(filterPixelHits_) {
+      edm::Handle<SiPixelClusterShapeCache> hcache;
+      ev.getByToken(pixelClusterShapeCacheToken_, hcache);
+      pixelClusterShapeCache_ = hcache.product();
+    }
 }
 
 
