@@ -12,6 +12,7 @@
     <use   name="DataFormats/CaloTowers"/>    
     <use   name="Geometry/CaloTopology"/>    
     <use   name="Geometry/CaloGeometry"/>
+    <use   name="DataFormats/L1TrackTrigger"/>
     <use   name="SimDataFormats/SLHC"/>
     <use   name="root"/>
     <use   name="FastSimulation/Particle"/>
@@ -23,6 +24,7 @@
     <use   name="SimDataFormats/Vertex"/>
     <use   name="SimDataFormats/TrackingHit"/>
     <use   name="SimDataFormats/CrossingFrame"/>
+    <use   name="SimDataFormats/TrackingAnalysis"/>
     <use   name="RecoLocalTracker/SiPixelRecHits"/>
     <use   name="PhysicsTools/UtilAlgos"/>
     <use   name="FWCore/ServiceRegistry"/>
