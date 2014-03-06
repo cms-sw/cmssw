@@ -148,7 +148,7 @@ process.reconstruction_fromRECO.insert(tgrIndexFromReco, process.trackingGlobalR
 # The commands included in splitter_tracking_setup_cff.py instruct 
 # the tracking machinery to use the clusters and rechits generated after 
 # cluster splitting (instead of the default clusters and rechits)
-from RecoLocalTracker.SubCollectionProducers.splitter_tracking_setup_cff import customizeTracking
+from RecoLocalTracker.SubCollectionProducers.splitter_tracking_RunI_setup_cff import customizeTracking
 customizeTracking('splitClusters', 'splitClusters', 'mySiPixelRecHits', 'mySiStripRecHits')
 
 
@@ -204,8 +204,6 @@ process.GlobalTag.globaltag = 'START70_V5::All'
 #process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
 process.hbhereco.hbheInput= cms.InputTag("hbheprereco::SPLIT")
-
-
 # Path and EndPath definitions
 process.init_step = cms.Path(cms.Sequence(process.RawToDigi*process.localreco*process.offlineBeamSpot+process.recopixelvertexing))
 process.dump_step = cms.Path(process.dump)

@@ -173,7 +173,6 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 # Other statements
 
 process.GlobalTag.globaltag = 'MC_71_V1::All'
-#process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 
 
 # Path and EndPath definitions

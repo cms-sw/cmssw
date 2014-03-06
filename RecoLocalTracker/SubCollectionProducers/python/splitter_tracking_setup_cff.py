@@ -163,4 +163,3 @@ def customizeTracking(newpixclusters, newstripclusters, newpixrechits, newstripr
 
 
 
-
