@@ -75,8 +75,8 @@ def customise_Validation(process):
     process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
     process.load('Validation.MuonGEMRecHits.MuonGEMRecHits_cfi')
     process.load('Validation.RecoMuon.MuonTrackValidator_cfi')
-    process.load('SimMuon.MCTruth.MuonAssociatorByHits_cfi')
-    process.genvalid_all += cms.Sequence(
+    process.load('SimMuon.MCTruth.MuonAssociatorByHitsESProducer_cfi')
+    process.globalValidation += cms.Sequence(
         process.gemHitsValidation *
         process.gemDigiValidation *
         process.gemRecHitsValidation
@@ -89,7 +89,7 @@ def customise_Validation(process):
 def customise_harvesting(process):
     process.load('Validation.MuonGEMHits.PostProcessor_cff')
     process.load('Validation.MuonGEMDigis.PostProcessor_cff')
-    process.genHarvesting += cms.Sequence(
+    process.postValidation += cms.Sequence(
         process.MuonGEMHitsPostProcessors * 
         process.MuonGEMDigisPostProcessors
     )
