@@ -158,7 +158,7 @@ namespace evf{
       }
 
       void dowork() { // the function to be called in the thread. Thread completes when function returns.
-	std::atomic_thread_fence(std::memory_order_acquire);
+        monInit_.store(true,std::memory_order_acquire);
 	while (!fmt_.m_stoprequest) {
 	  std::cout << "Current states: Ms=" << fmt_.m_data.fastMacrostateJ_.value()
 	   << " ms=" << encPath_[0].encode(ministate_[0])
@@ -233,6 +233,8 @@ namespace evf{
       std::string moduleLegendFile_;
       std::string pathLegendFile_;
       bool pathLegendWritten_ = false;
+
+      std::atomic<bool> monInit_;
     };
 
 }

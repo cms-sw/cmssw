@@ -204,7 +204,7 @@ namespace evf{
     fmt_.resetFastMonitor(microstateDefPath_,fastMicrostateDefPath_);
     fmt_.jsonMonitor_->setNStreams(nStreams_);
     fmt_.m_data.registerVariables(fmt_.jsonMonitor_.get(), nStreams_, threadIDAvailable_ ? nThreads_:0);
-    std::atomic_thread_fence(std::memory_order_release);
+    monInit_.store(false,std::memory_order_release);
     fmt_.start(&FastMonitoringService::dowork,this);
   }
 
