@@ -7,12 +7,15 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -22,6 +25,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
+#    'file:ZpTT_1500_8TeV_Tauola_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root',
     'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_0.root',
     'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_1.root',
     'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_2.root',
@@ -32,7 +36,7 @@ process.source = cms.Source("PoolSource",
     'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_7.root',
     'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_8.root',
     'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTauTau_GEN-SIM-RAW_9.root'
-    ),
+),
 
 )
                             
@@ -51,7 +55,7 @@ process.templates.LoadTemplatesFromDB = False
 # This is the default speed. Recommended.
 process.StripCPEfromTrackAngleESProducer.TemplateRecoSpeed = 0;
 
-# Split clusters have larger errors. Appropriate errors can be 
+# Split clusters have larger errors. Appropriate errors can be
 # assigned by turning UseStripSplitClusterErrors = True. The strip hit pull  
 # distributons improve considerably, but it does not help with b-tagging, 
 # so leave it False by default 
@@ -116,20 +120,45 @@ process.Vertex2TracksDefault = AssociationMaps.clone(
     MaxNumberOfAssociations = cms.int32(1)
 )
 
+
+tgrIndex = process.globalreco.index(process.trackingGlobalReco)
+tgrIndexFromReco = process.reconstruction_fromRECO.index(process.trackingGlobalReco)
+process.globalreco.remove(process.trackingGlobalReco)
+process.reconstruction_fromRECO.remove(process.trackingGlobalReco)
+del process.trackingGlobalReco
+del process.ckftracks
+del process.ckftracks_wodEdX
+del process.ckftracks_plus_pixelless
+del process.ckftracks_woBH
+del process.iterTracking
+del process.InitialStep
+del process.LowPtTripletStep
+del process.PixelPairStep
+del process.DetachedTripletStep
+del process.MixedTripletStep
+del process.PixelLessStep
+del process.TobTecStep
+
+# Load the new Iterative Tracking configuration
+process.load("RecoTracker.Configuration.RecoTrackerRunI_cff")
+
+process.globalreco.insert(tgrIndex, process.trackingGlobalReco)
+process.reconstruction_fromRECO.insert(tgrIndexFromReco, process.trackingGlobalReco)
+
 # The commands included in splitter_tracking_setup_cff.py instruct 
 # the tracking machinery to use the clusters and rechits generated after 
 # cluster splitting (instead of the default clusters and rechits)
-process.load('RecoLocalTracker.SubCollectionProducers.splitter_tracking_setup_cff')
+process.load('RecoLocalTracker.SubCollectionProducers.splitter_tracking_RunI_setup_cff')
 
 process.fullreco = cms.Sequence(process.globalreco*process.highlevelreco)
-process.Globalreco = cms.Sequence(process.globalreco)
-process.Highlevelreco = cms.Sequence(process.highlevelreco)
+## process.Globalreco = cms.Sequence(process.globalreco)
+## process.Highlevelreco = cms.Sequence(process.highlevelreco)
 
 process.options = cms.untracked.PSet(
 
 )
 
-process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+#process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
 # Output definition
 process.PixelTreeSplit = cms.EDAnalyzer(
@@ -155,7 +184,7 @@ process.PixelTreeSplit = cms.EDAnalyzer(
 
 process.RECOoutput = cms.OutputModule("PoolOutputModule",
     outputCommands = process.RECOSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('ZpTauTau8TeV_split_new.root'),
+    fileName = cms.untracked.string('ZpTauTau8TeV_split.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('RECO')
     )
@@ -166,6 +195,8 @@ process.RECOoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 # Other statements
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'START70_V5::All', '')
 
 process.GlobalTag.globaltag = 'START70_V5::All'
 #process.GlobalTag.globaltag = 'GR_R_52_V7::All'
@@ -177,6 +208,7 @@ process.dump_step = cms.Path(process.dump)
 process.splitClusters_step=cms.Path(process.splitClusters)
 process.newrechits_step=cms.Path(process.newrechits)
 process.fullreco_step=cms.Path(process.fullreco)
+
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RECOoutput_step = cms.EndPath(process.RECOoutput)
 #process.pixeltree_tempsplit =cms.Path(process.PixelTreeSplit)
