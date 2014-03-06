@@ -180,7 +180,7 @@ private:
 GEMRecHitAnalyzer::GEMRecHitAnalyzer(const edm::ParameterSet& iConfig)
   : hasGEMGeometry_(true)
 {
-  auto cfg_ = iConfig.getParameter<edm::ParameterSet>("simTrackMatching");
+  cfg_ = iConfig.getParameter<edm::ParameterSet>("simTrackMatching");
   auto simTrack = cfg_.getParameter<edm::ParameterSet>("simTrack");
   simTrackInput_ = simTrack.getParameter<edm::InputTag>("input");
   simTrackMinPt_ = simTrack.getParameter<double>("minPt");
