@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <ConstantsSection label="shashliksupermodule.xml" eval="true">
+   <!-- ccn: all of these changed for no-taper option
+    <Constant name="moduleTiltAngle"        value="atan(([shashlikmodule:widthBack]-[shashlikmodule:widthFront] ) / [shashlikmodule:moduleThickness] )"/>
+    ccn: Although not used in the no-taper version 
+      I think this calc of R should be R="[0.5*shashlikmodule:widthFront]/tan(0.5*[shashliksupermodule:moduleTiltAngle])"/>
+    <Constant name="R" value="[shashlikmodule:widthFront]/tan([shashliksupermodule:moduleTiltAngle])"/>
+    <Constant name="superModuleWidthFront"  value="sin(5*[moduleTiltAngle])*[shashliksupermodule:R]"/>
+    <Constant name="superModuleWidthBack"   value="tan(5*[moduleTiltAngle])*([shashliksupermodule:R]+[shashlikmodule:moduleThickness])"/>
+    <Constant name="superModuleThickness"   value="[shashlikmodule:moduleThickness]"/>
+   -->
+   <Constant name="moduleTiltAngle"        value="atan(([shashlikmodule:widthBack]-[shashlikmodule:widthFront] ) / [shashlikmodule:moduleThickness] )"/>
+   <Constant name="R" value="0.0"/>
+   <Constant name="superModuleWidthFront"  value="5.0*[shashlikmodule:widthFront]"/>
+   <Constant name="superModuleWidthBack"   value="5.0*[shashlikmodule:widthBack]"/>
+   <Constant name="superModuleThickness"   value="[shashlikmodule:moduleThickness]"/>
+
+ </ConstantsSection>
+
+ <SolidSection label="shashliksupermodule.xml">
+   <!-- Trapezoid name="ShashlikSupermodule" dz="0.5*[shashlikmodule:moduleThickness]" alp1="0*deg" 
+    bl1="2.5*[shashlikmodule:widthFront]" tl1="2.5*[shashlikmodule:widthFront]" h1="2.5*[shashlikmodule:widthFront]"
+    alp2="0*deg" bl2="2.5*[shashlikmodule:widthBack]" tl2="2.5*[shashlikmodule:widthBack]" 
+    h2="2.5*[shashlikmodule:widthBack]" phi="0*deg" theta="0*deg"/ -->
+   <Trapezoid name="ShashlikSupermodule" dz="0.5*[shashliksupermodule:superModuleThickness]" alp1="0*deg" 
+    bl1="0.5*[shashliksupermodule:superModuleWidthFront]" tl1="0.5*[shashliksupermodule:superModuleWidthFront]" h1="0.5*[shashliksupermodule:superModuleWidthFront]"
+    alp2="0*deg" bl2="0.5*[shashliksupermodule:superModuleWidthBack]" tl2="0.5*[shashliksupermodule:superModuleWidthBack]" 
+    h2="0.5*[shashliksupermodule:superModuleWidthBack]" phi="0*deg" theta="0*deg"/>
+ </SolidSection>
+ 
+ <LogicalPartSection label="shashliksupermodule.xml">
+  <LogicalPart name="ShashlikSupermodule" category="unspecified">
+    <rSolid name="ShashlikSupermodule"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+ </LogicalPartSection>
+
+ <Algorithm name="shashlik:DDShashlikNoTaperSupermodule">
+  <rParent name="shashliksupermodule:ShashlikSupermodule"/>
+  <String name="ChildName" value="shashlikmodule:ShashlikModule"/>
+  <Numeric name="n" value="5"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo"  value="1"/>
+  <Numeric name="invert"      value="1"/>
+  <Numeric name="stepAngle"   value="atan(([shashlikmodule:widthBack]-[shashlikmodule:widthFront] ) / [shashlikmodule:moduleThickness] )"/>
+  <Numeric name="startAngle"  value="0*deg"/>
+  <Numeric name="rPosition"   value="0*cm"/>
+  <Numeric name="zoffset"     value="0.5*([shashlikmodule:widthFront]+[shashlikmodule:widthBack])"/>
+ </Algorithm>
+
+</DDDefinition>
