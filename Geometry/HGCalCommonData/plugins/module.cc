@@ -12,5 +12,5 @@ DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHGCalHEAlgo, "hgcal:DDHGCalHEAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDShashlikModule, "shashlik:DDShashlikModule");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDShashlikSupermodule, "shashlik:DDShashlikSupermodule");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDShashlikEndcap, "shashlik:DDShashlikEndcap");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDShashlikSupermodule, "shashlik:DDShashlikNoTaperSupermodule");
-DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDShashlikEndcap, "shashlik:DDShashlikNoTaperEndcap");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDShashlikNoTaperSupermodule, "shashlik:DDShashlikNoTaperSupermodule");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDShashlikNoTaperEndcap, "shashlik:DDShashlikNoTaperEndcap");
