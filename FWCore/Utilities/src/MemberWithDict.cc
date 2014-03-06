@@ -31,8 +31,8 @@ namespace edm {
         name << '[';
         name << dataMember_->GetMaxIndex(i);
         name << ']';
-        return TypeWithDict::byName(name.str(), dataMember_->Property());
       }
+      return TypeWithDict::byName(name.str(), dataMember_->Property());
     } 
     return TypeWithDict::byName(dataMember_->GetTypeName(), dataMember_->Property());
   }

@@ -75,7 +75,7 @@ bool ora::STLContainerWriter::build( DataElement& offset,
                       m_objectType.qualifiedName() + "\"",
                       "STLContainerWriter::build" );
     }
-    std::string keyName = keyType.name();
+    std::string keyName("key_type");
     // Retrieve the relevant mapping element
     MappingElement::iterator iMe = m_mappingElement.find( keyName );
     if ( iMe == m_mappingElement.end() ) {
@@ -98,13 +98,13 @@ bool ora::STLContainerWriter::build( DataElement& offset,
                     "STLContainerWriter::build" );
   }
 
-  std::string valueName = valueType.name();
+  std::string valueName("value_type");
   // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( valueName );
   if ( iMe == m_mappingElement.end() ) {
     // Try again with the name of a possible typedef
-    valueName = valueType.unscopedNameWithTypedef();
-    iMe = m_mappingElement.find( valueName );
+    std::string valueName2 = valueType.unscopedNameWithTypedef();
+    iMe = m_mappingElement.find( valueName2 );
     if ( iMe == m_mappingElement.end() ) {
       throwException( "Item for \"" + valueName + "\" not found in the mapping element",
                       "STLContainerWriter::build" );
@@ -287,7 +287,7 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
                       "STLContainerReader::build" );
     }
 
-    std::string keyName = keyType.name();
+    std::string keyName("key_type");
     // Retrieve the relevant mapping element
     MappingElement::iterator iMe = m_mappingElement.find( keyName );
     if ( iMe == m_mappingElement.end() ) {
@@ -311,13 +311,13 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
                     "STLContainerReader::build" );
   }
 
-  std::string valueName = valueType.name();
+  std::string valueName("value_type");
   // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( valueName );
   if ( iMe == m_mappingElement.end() ) {
     // Try again with the name of a possible typedef
-    valueName = valueType.unscopedNameWithTypedef();
-    iMe = m_mappingElement.find( valueName );
+    std::string valueName2 = valueType.unscopedNameWithTypedef();
+    iMe = m_mappingElement.find( valueName2 );
     if ( iMe == m_mappingElement.end() ) {
       throwException( "Item for \"" + valueName + "\" not found in the mapping element",
                       "STLContainerReader::build" );
