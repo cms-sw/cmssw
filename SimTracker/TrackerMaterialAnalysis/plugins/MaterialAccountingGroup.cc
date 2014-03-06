@@ -185,17 +185,23 @@ std::string MaterialAccountingGroup::info(void) const
 }
 
 
-void MaterialAccountingGroup::savePlots(void)
+void MaterialAccountingGroup::savePlots(const char * directory)
 {
-  m_file = new TFile((m_name + ".root").c_str(), "RECREATE");
-  savePlot(m_dedx_spectrum,   m_name + "_dedx_spectrum");
-  savePlot(m_radlen_spectrum, m_name + "_radlen_spectrum");
-  savePlot(m_dedx_vs_eta,     averageEnergyLoss(),       m_name + "_dedx_vs_eta");
-  savePlot(m_dedx_vs_z,       averageEnergyLoss(),       m_name + "_dedx_vs_z");
-  savePlot(m_dedx_vs_r,       averageEnergyLoss(),       m_name + "_dedx_vs_r");
-  savePlot(m_radlen_vs_eta,   averageRadiationLengths(), m_name + "_radlen_vs_eta");
-  savePlot(m_radlen_vs_z,     averageRadiationLengths(), m_name + "_radlen_vs_z");
-  savePlot(m_radlen_vs_r,     averageRadiationLengths(), m_name + "_radlen_vs_r");
+  std::string basename;
+  if (directory and strlen(directory)) {
+    basename = directory;
+    basename += "/";
+  }
+  basename += m_name;
+  m_file = new TFile((basename + ".root").c_str(), "RECREATE");
+  savePlot(m_dedx_spectrum,   basename + "_dedx_spectrum");
+  savePlot(m_radlen_spectrum, basename + "_radlen_spectrum");
+  savePlot(m_dedx_vs_eta,     averageEnergyLoss(),       basename + "_dedx_vs_eta");
+  savePlot(m_dedx_vs_z,       averageEnergyLoss(),       basename + "_dedx_vs_z");
+  savePlot(m_dedx_vs_r,       averageEnergyLoss(),       basename + "_dedx_vs_r");
+  savePlot(m_radlen_vs_eta,   averageRadiationLengths(), basename + "_radlen_vs_eta");
+  savePlot(m_radlen_vs_z,     averageRadiationLengths(), basename + "_radlen_vs_z");
+  savePlot(m_radlen_vs_r,     averageRadiationLengths(), basename + "_radlen_vs_r");
   m_file->Write();
   m_file->Close();
 

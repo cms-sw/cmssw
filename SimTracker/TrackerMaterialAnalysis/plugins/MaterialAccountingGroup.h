@@ -151,7 +151,7 @@ public:
   std::string info(void) const;
 
   /// save the plots
-  void savePlots(void);
+  void savePlots(const char * directory);
  
 private:
   void savePlot(TH1F * plot, const std::string & name);
