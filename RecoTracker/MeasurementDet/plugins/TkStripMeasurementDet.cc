@@ -80,6 +80,65 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const Measur
 }
 
 
+
+bool TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
+					   std::vector<SiStripRecHit2D> &result) const  {
+  if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return false;
+
+  auto oldSize = result.size();
+
+  float utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
+  if(!isRegional()){//old implemetation with DetSet
+ 
+    const detset & detSet = data.stripData().detSet(index()); 
+    auto rightCluster = 
+      std::find_if( detSet.begin(), detSet.end(), [utraj](const SiStripCluster& hit) { return hit.barycenter() > utraj; });
+    
+    if ( rightCluster != detSet.begin()) {
+      // there are hits on the left of the utraj
+      auto leftCluster = rightCluster;
+      while ( --leftCluster >=  detSet.begin()) {
+	SiStripClusterRef clusterref = edmNew::makeRefTo( data.stripData().handle(), leftCluster ); 
+	bool isCompatible = filteredRecHits(clusterref, stateOnThisDet, est, data.stripClustersToSkip(), result);
+	if(!isCompatible) break; // exit loop on first incompatible hit
+      }
+    }
+    for ( ; rightCluster != detSet.end(); rightCluster++) {
+      SiStripClusterRef clusterref = edmNew::makeRefTo( data.stripData().handle(), rightCluster ); 
+      bool isCompatible = filteredRecHits(clusterref, stateOnThisDet, est, data.stripClustersToSkip(), result);
+      if(!isCompatible) break; // exit loop on first incompatible hit
+    }
+    
+  }// end block with DetSet
+  else{
+    
+    LogDebug("TkStripMeasurementDet")<<" finding left/ right";
+    unsigned int rightCluster = beginClusterI(data.stripData());
+    unsigned int endCluster = endClusterI(data.stripData());
+    result.reserve(endCluster-rightCluster);
+    for (; rightCluster!= endCluster;++rightCluster){
+      SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(data.stripData().regionalHandle(),rightCluster);
+      if (clusterref->barycenter() > utraj) break;
+    }
+    
+    unsigned int leftCluster = 1;
+    for (unsigned int iReadBackWard=1; iReadBackWard<=(rightCluster-beginClusterI(data.stripData())) ; ++iReadBackWard){
+      leftCluster=rightCluster-iReadBackWard;
+      SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(data.stripData().regionalHandle(),leftCluster);
+      bool isCompatible = filteredRecHits(  clusterref, stateOnThisDet, est, data.stripClustersToSkip(), result);
+	if(!isCompatible) break; // exit loop on first incompatible hit
+    }
+    for ( ; rightCluster != endCluster; ++rightCluster) {
+      SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(data.stripData().regionalHandle(),rightCluster);
+      bool isCompatible = filteredRecHits(  clusterref, stateOnThisDet, est, data.stripClustersToSkip(), result);
+      if(!isCompatible) break; // exit loop on first incompatible hit
+    }
+  }
+  return result.size()>oldSize;
+}
+
+
+
 bool
 TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data, 
 				RecHitContainer & result, std::vector<float> & diffs ) const {

@@ -3,14 +3,14 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-class TransientTrackingRecHit;
+class TrackingRecHit;
 class MagneticField;
 class Plane;
 
 class RecHitPropagator {
 public:
 
-  TrajectoryStateOnSurface propagate( const TransientTrackingRecHit& hit,
+  TrajectoryStateOnSurface propagate( const TrackingRecHit& hit,
 				      const Plane& plane, 
 				      const TrajectoryStateOnSurface& ts) const;
 

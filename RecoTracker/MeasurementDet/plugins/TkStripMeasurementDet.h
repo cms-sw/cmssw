@@ -158,6 +158,7 @@ public:
   bool empty(const MeasurementTrackerEvent & data) const;
 
   void simpleRecHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data, std::vector<SiStripRecHit2D> &result) const ;
+  bool simpleRecHits( const TrajectoryStateOnSurface& ts, const MeasurementEstimator& est, const MeasurementTrackerEvent & data, std::vector<SiStripRecHit2D> &result) const ;
   
   virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
 			RecHitContainer & result, std::vector<float> & diffs) const;
@@ -209,6 +210,28 @@ public:
     }
     return isCompatible;
   }
+
+
+  template<class ClusterRefT>
+  bool filteredRecHits( const ClusterRefT& cluster, const TrajectoryStateOnSurface& ltp,  const MeasurementEstimator& est, const std::vector<bool> & skipClusters,
+			std::vector<SiStripRecHit2D> & result) const {
+    if (isMasked(*cluster)) return true;
+    const GeomDetUnit& gdu( specificGeomDet());
+    if (!accept(cluster, skipClusters)) return true;
+    VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
+    bool isCompatible(false);
+    for(auto vl : vlv) {
+      auto && recHit  = SiStripRecHit2D( vl.first, vl.second, TSiStripRecHit2DLocalPos::sigmaPitch(vl.first, vl.second,gdu), rawId(), &gdu, cluster);
+      std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
+      LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
+      if ( diffEst.first ) {
+	result.push_back(std::move(recHit));
+	isCompatible = true;
+      }
+    }
+    return isCompatible;
+  }
+
 
 
   
