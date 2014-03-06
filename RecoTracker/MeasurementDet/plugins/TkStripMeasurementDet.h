@@ -221,7 +221,7 @@ public:
     VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     bool isCompatible(false);
     for(auto vl : vlv) {
-      auto && recHit  = SiStripRecHit2D( vl.first, vl.second, TSiStripRecHit2DLocalPos::sigmaPitch(vl.first, vl.second,gdu), rawId(), &gdu, cluster);
+      auto && recHit  = SiStripRecHit2D( vl.first, vl.second, rawId(), &gdu, cluster);
       std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
       LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
       if ( diffEst.first ) {
@@ -289,7 +289,7 @@ private:
     const GeomDetUnit& gdu( specificGeomDet());
     VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-      res.push_back(SiStripRecHit2D( it->first, it->second, TSiStripRecHit2DLocalPos::sigmaPitch(it->first, it->second,gdu), rawId(), &gdu, cluster));
+      res.push_back(SiStripRecHit2D( it->first, it->second, rawId(), &gdu, cluster));
     }
   }
 

@@ -13,6 +13,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
+
+
 class GluedGeomDet;
 
 #include <cfloat>
@@ -39,6 +42,16 @@ public:
   SiStripRecHitMatcher(const double theScale);
 
   bool preFilter() const { return preFilter_;}  
+
+
+  inline   
+  static float sigmaPitch(LocalPoint const& pos, LocalError const & err, 
+		   const StripTopology& topol) {
+    MeasurementError error = topol.measurementError(pos,err);
+    auto pitch=topol.localPitch(pos);
+    return error.uu()*pitch*pitch;
+  }
+
 
   // optimized matching iteration (the algo is the same, just recoded)
   template<typename MonoIterator, typename StereoIterator,  typename CollectorHelper>
@@ -177,7 +190,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     
     const SiStripRecHit2D & secondHit = CollectorHelper::stereoHit(seconditer);
     
-    float sigmap22 =secondHit.sigmaPitch();
+    float sigmap22 = sigmaPitch(secondHit.localPosition(),secondHit.localPositionError(),partnertopol);
     // assert (sigmap22>=0);
     
     auto STEREOpointX=partnertopol.measurementPosition( secondHit.localPositionFast()).x();
@@ -278,8 +291,8 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     double s1 = -m01;
     double l1 = 1./(c1*c1+s1*s1);
     
-    // FIXME: here for test...
-    float sigmap12 = monoRH.sigmaPitch();
+    float sigmap12 = sigmaPitch(monoRH.localPosition(), monoRH.localPositionError(),topol);
+    // float sigmap12 = monoRH.sigmaPitch();
     // assert(sigmap12>=0); 
 
     //float code
