@@ -120,7 +120,6 @@ namespace evf{
       void preModuleBeginJob(edm::ModuleDescription const&);
       void postBeginJob();
       void postEndJob();
-      void prePathBeginRun(const std::string& pathName);//NOT USED
 
       void postGlobalBeginRun(edm::GlobalContext const&);
       void preGlobalBeginLumi(edm::GlobalContext const&);

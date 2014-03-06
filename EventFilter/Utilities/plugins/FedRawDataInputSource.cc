@@ -947,16 +947,6 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::readNextChunkIntoBuffer()
 
     if ( status == evf::EvFDaqDirector::newFile ) {
 
-      //update file index for the later file deletion
-      currentFileIndex_++;
-      daqDirector_->updateFileIndex(currentFileIndex_);
-
-      if (!streamFileTrackerPtr_) {
-	streamFileTrackerPtr_ = daqDirector_->getStreamFileTracker();
-	nStreams_ = streamFileTrackerPtr_->size();
-	if (nStreams_>10) checkEvery_=nStreams_;
-      }
-
       for (unsigned int i=0;i<readBlocks_;i++)
       {
 	const uint32_t last = ::read(fileDescriptor_,( void*) (dataBuffer_+bufferLeft_), eventChunkBlock_);
@@ -1003,6 +993,15 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::searchForNextFile()
     if (fileDescriptor_ != -1) {
       openFile_ = nextFile;
       edm::LogInfo("FedRawDataInputSource") << " opened file " << nextFile;
+
+      //update file index for the later file deletion
+      currentFileIndex_++;
+      daqDirector_->updateFileIndex(currentFileIndex_);
+      if (!streamFileTrackerPtr_) {
+	streamFileTrackerPtr_ = daqDirector_->getStreamFileTracker();
+	nStreams_ = streamFileTrackerPtr_->size();
+	if (nStreams_>10) checkEvery_=nStreams_;
+      }
     }
     else
     {

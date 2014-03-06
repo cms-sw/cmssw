@@ -39,7 +39,6 @@ namespace evf{
       std::vector<unsigned int> threadMicrostateEncoded_;
 
       //tracking luminosity of a stream
-      //std::vector<std::atomic<unsigned int>*> streamLumi_;
       std::vector<unsigned int> streamLumi_;
 
       //N bins for histograms
@@ -93,8 +92,8 @@ namespace evf{
 
         fm->registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,0);
 
-        //replace with global cumulative event counter for fast path
-        fm->registerFastGlobalMonitorable(&fastPathProcessedJ_);//,false,0);
+        //global cumulative event counter is used for fast path
+        fm->registerFastGlobalMonitorable(&fastPathProcessedJ_);
 
 	//provide vector with updated per stream lumis and let it finish initialization
 	fm->commit(&streamLumi_);
@@ -106,7 +105,7 @@ namespace evf{
     }
 
     void resetFastMonitor(std::string const& microStateDefPath, std::string const& fastMicroStateDefPath) {
-      jsonMonitor_.reset(new FastMonitor(microStateDefPath,false)); //strict checking -> set to true to enable
+      jsonMonitor_.reset(new FastMonitor(microStateDefPath,false));
       if (fastMicroStateDefPath.size())
         jsonMonitor_->addFastPathDefinition(fastMicroStateDefPath,false);
     }
@@ -123,8 +122,7 @@ namespace evf{
 
   private:
 
-    //volatile bool m_stoprequest;
-    mutable bool m_stoprequest;//most likely same effect as volatile (should be atomic to be completely correct)
+    std::atomic<bool> m_stoprequest;
     boost::shared_ptr<boost::thread> m_thread;
     MonitorData m_data;
     boost::mutex monlock_;

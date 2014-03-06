@@ -49,8 +49,6 @@ namespace evf{
     reg.watchPostBeginJob(this,&FastMonitoringService::postBeginJob);
     reg.watchPostEndJob(this,&FastMonitoringService::postEndJob);
 
-    //reg.watchPrePathBeginRun(this,&FastMonitoringService::prePathBeginRun);//there is no equivalent of this now
-
     reg.watchPreGlobalBeginLumi(this,&FastMonitoringService::preGlobalBeginLumi);//global lumi
     reg.watchPreGlobalEndLumi(this,&FastMonitoringService::preGlobalEndLumi);
     reg.watchPostGlobalEndLumi(this,&FastMonitoringService::postGlobalEndLumi);
@@ -232,18 +230,18 @@ namespace evf{
 
   void FastMonitoringService::postBeginJob()
   {
-    //std::cout << "path legenda*****************" << std::endl;
-   // std::cout << makePathLegenda()   << std::endl;
     std::cout << "module legenda***************" << std::endl;
     std::string && moduleLegStr = makeModuleLegenda();
+    //will not print this as it is large and saved to a file
     std::cout << moduleLegStr << std::endl;
     FileIO::writeStringToFile(moduleLegendFile_, moduleLegStr);
-
 
     macrostate_ = FastMonitoringThread::sJobReady;
 
     //update number of entries in module histogram
-    fmt_.m_data.microstateBins_ = encModule_.vecsize(); 
+    fmt_.monlock_.lock();
+    fmt_.m_data.microstateBins_ = encModule_.vecsize();
+    fmt_.monlock_.unlock();
   }
 
   void FastMonitoringService::postEndJob()
@@ -252,25 +250,12 @@ namespace evf{
     fmt_.stop();
   }
 
-
-  //this is gone
-  void FastMonitoringService::prePathBeginRun(const std::string& pathName)
-  {
-    return ;
-    //bonus track, now monitoring path execution too...
-    // here we are forced to use string keys...
-//    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>update path map with " << pathName << std::endl;
-//    encPath_.update((void*)&pathName);
-  }
-
   void FastMonitoringService::postGlobalBeginRun(edm::GlobalContext const& gc)
   {
     macrostate_ = FastMonitoringThread::sRunning;
   }
 
-
-  //start new lumi (can be before last global end lumi)
-  void FastMonitoringService::preGlobalBeginLumi(edm::GlobalContext const& gc)//edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime)
+  void FastMonitoringService::preGlobalBeginLumi(edm::GlobalContext const& gc)
   {
 	  std::cout << "FastMonitoringService: Pre-begin LUMI: " << gc.luminosityBlockID().luminosityBlock() << std::endl;
 
@@ -287,25 +272,17 @@ namespace evf{
 		  unsigned int oldLumi = lastGlobalLumisClosed_.back();
 		  lastGlobalLumisClosed_.pop();
 		  lumiStartTime_.erase(oldLumi);
-		  //throughput_.erase(oldLumi);
 		  avgLeadTime_.erase(oldLumi);
 		  filesProcessedDuringLumi_.erase(oldLumi);
 		  accuSize_.erase(oldLumi);
 		  processedEventsPerLumi_.erase(oldLumi);
-		  //streamEoLMap_.erase(oldLumi);
 	  }
 	  lastGlobalLumi_= newLumi;
 	  isGlobalLumiTransition_=false;
 
-	  //put a map for streams to report if they had EOL (else we have to update some variables)
-	  //std::vector<bool> streamEolVec_;
-	  //for (unsigned int i=0;i<nStreams_;i++) streamEolVec_.push_back(false);
-	  //streamEoLMap_[newLumi] = streamEolVec_;
-
 	  fmt_.monlock_.unlock();
   }
 
-  //global end lumi (no streams will process this further)
   void FastMonitoringService::preGlobalEndLumi(edm::GlobalContext const& gc)
   {
 	  unsigned int lumi = gc.luminosityBlockID().luminosityBlock();
@@ -383,16 +360,8 @@ namespace evf{
     fmt_.m_data.streamLumi_[sid] = sc.eventID().luminosityBlock();
 
     //reset collected values for this stream
-
-    //instead of setting to 0, do atomic subtract (for consistent counting in case of data races)
     *(fmt_.m_data.processed_[sid])=0;
-    //assuming the worst: that beginLumi runs in different thread than endLumi and does not yet see postEvent changes
 
-    //unsigned int val = fmt_.m_data.processed_[sid]->load(std::memory_order_consume);
-//    while (streamCounterUpdating_[sid]->load(std::memory_order_acquire)) {}
-//    unsigned int val = fmt_.m_data.processed_[sid]->load(std::memory_order_relaxed);
-
-//    fmt_.m_data.processed_[sid]->fetch_sub(val,std::memory_order_release);
     ministate_[sid]=&nopath_;
     microstate_[sid]=&reservedMicroStateNames[mInvalid];
     //#if TBB_IMPLEMENT_CPP0X
@@ -427,30 +396,28 @@ namespace evf{
     //hack: assume memory is synchronized after ~50 events seen by each stream
     if (unlikely(eventCountForPathInit_[sc.streamID()]<50) && false==collectedPathList_[sc.streamID()]->load(std::memory_order_acquire))
     {
-      initPathsLock_.lock();
+      //protection between stream threads, as well as the service monitoring thread
+      fmt_.monlock_.lock();
       if (firstEventId_[sc.streamID()]==0) 
 	firstEventId_[sc.streamID()]=sc.eventID().event();
       if (sc.eventID().event()==firstEventId_[sc.streamID()])
       {
 	encPath_[sc.streamID()].update((void*)&pc.pathName());
-	initPathsLock_.unlock();
+	fmt_.monlock_.unlock();
 	return;
       }
       else {
-	collectedPathList_[sc.streamID()]->store(true,std::memory_order_seq_cst);
-        fmt_.m_data.ministateBins_=encPath_[sc.streamID()].vecsize();
-	//print paths
 	//finished collecting path names
-	//
+	collectedPathList_[sc.streamID()]->store(true,std::memory_order_seq_cst);
+	fmt_.m_data.ministateBins_=encPath_[sc.streamID()].vecsize();
 	if (!pathLegendWritten_) {
 	  std::cout << "path legenda*****************" << std::endl;
-          std::string pathLegendStr =  makePathLegenda();
+	  std::string pathLegendStr =  makePathLegenda();
 	  std::cout << pathLegendStr  << std::endl;
-          FileIO::writeStringToFile(pathLegendFile_, pathLegendStr);
-          pathLegendWritten_=true;
-        }
-
-	initPathsLock_.unlock();
+	  FileIO::writeStringToFile(pathLegendFile_, pathLegendStr);
+	  pathLegendWritten_=true;
+	}
+	fmt_.monlock_.unlock();
       }
     }
     else {
@@ -497,17 +464,14 @@ namespace evf{
   void FastMonitoringService::preSourceEvent(edm::StreamID sid)
   {
     microstate_[sid.value()] = &reservedMicroStateNames[mIdle];
-
     //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mIdle];
     //#endif
-
   }
 
   void FastMonitoringService::postSourceEvent(edm::StreamID sid)
   {
     microstate_[sid.value()] = &reservedMicroStateNames[mFwkOvh];
-
     //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mFwkOvh];
     //#endif
@@ -590,7 +554,6 @@ namespace evf{
 		  lumiFromSource_=lumi;
 		  leadTimes_.clear();
 	  }
-	  //TODO:improve precision?
 	  unsigned long elapsedTime = (fileLookStop_.tv_sec - fileLookStart_.tv_sec) * 1000000 // sec to us
 	                              + (fileLookStop_.tv_usec - fileLookStart_.tv_usec); // us
 	  // add this to lead times for this lumi
