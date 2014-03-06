@@ -115,7 +115,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
       thread_quit_signal.push_back(false);
       workerJob_.push_back(ReaderInfo(nullptr,nullptr));
       cvReader_.push_back(new std::condition_variable);
-      atomic_thread_fence(std::memory_order_release);
+      //atomic_thread_fence(std::memory_order_release);
+      supervisorInit_.store(false,std::memory_order_release);
       workerThreads_.push_back(new std::thread(&FedRawDataInputSource::readWorker,this,i));
       startupCv_.wait(lk);
     }
@@ -717,7 +718,8 @@ void FedRawDataInputSource::readSupervisor()
 void FedRawDataInputSource::readWorker(unsigned int tid)
 {
   bool init = true;
-  atomic_thread_fence(std::memory_order_acquire);
+  supervisorInit_.exchange(true,std::memory_order_acquire);
+  //atomic_thread_fence(std::memory_order_acquire);
 
   while (1) {
 

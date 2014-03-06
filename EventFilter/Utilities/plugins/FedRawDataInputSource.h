@@ -214,6 +214,7 @@ private:
   boost::filesystem::path openFile_;
   int currentInputEventCount_ = 0;
 
+  std::atomic<bool> supervisorInit_;
 
 
 };
