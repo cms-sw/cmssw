@@ -14,7 +14,7 @@ ROOT.gROOT.SetBatch(1)
 
 if __name__ == "__main__":  
 
-  inputFile = '/afs/cern.ch/work/r/rradogna/GEM_Geometry/new_digi_4Mar/CMSSW_6_2_X_SLHC_2014-03-01-0200/src/GEMCode/GEMValidation/test/gem_localrec_ana.root'
+  inputFile = 'gem_localrec_ana.root'
   outputFile = 'gem_localrec_ana_tmp.root'
   targetDir = './'
   
