@@ -69,7 +69,7 @@ class L1RCTLookupTables {
   unsigned int eGammaETCode(float ecal, float hcal, int iAbsEta) const;
   unsigned int jetMETETCode(float ecal, float hcal, int iAbsEta) const;
   bool hOeFGVetoBit(float ecal, float hcal, bool fgbit) const;
-  bool activityBit(float ecal, float hcal) const;
+  bool activityBit(float ecal, float hcal,bool fgbit) const;
 
  private:
 

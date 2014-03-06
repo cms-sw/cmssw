@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/types.h"
@@ -39,7 +40,7 @@ bool dddGetStringRaw(const DDFilteredView & view, const std::string & name, std:
 }
 
 static inline
-double dddGetDouble(const std::string & s, DDFilteredView const & view) {
+double dddGetDouble(const std::string & s, const DDFilteredView & view) {
   std::string value;
   if (dddGetStringRaw(view, s, value))
     return double(::atof(value.c_str()));
@@ -48,7 +49,7 @@ double dddGetDouble(const std::string & s, DDFilteredView const & view) {
 }
 
 static inline
-std::string dddGetString(const std::string & s, DDFilteredView const & view) {
+std::string dddGetString(const std::string & s, const DDFilteredView & view) {
   std::string value;
   if (dddGetStringRaw(view, s, value))
     return value;
@@ -56,7 +57,7 @@ std::string dddGetString(const std::string & s, DDFilteredView const & view) {
     return std::string();
 }
 
-static inline 
+static inline
 std::ostream & operator<<(std::ostream & out, const math::XYZVector & v) {
   out << std::fixed << std::setprecision(3);
   return out << "(" << v.rho() << ", " << v.z() << ", " << v.phi() << ")";
@@ -70,8 +71,8 @@ public:
 
 private:
   void analyze(const edm::Event &, const edm::EventSetup &);
-  void beginJob() {}
-  void endJob();
+
+  edm::ESWatcher<IdealGeometryRecord> m_geometryWatcher;
 };
 
 ListGroups::ListGroups(const edm::ParameterSet &) {
@@ -81,34 +82,32 @@ ListGroups::~ListGroups() {
 }
 
 void
-ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
-  edm::ESTransientHandle<DDCompactView> hDdd;
-  setup.get<IdealGeometryRecord>().get( hDdd );
-  DDFilteredView fv(*hDdd);
+ListGroups::analyze(const edm::Event &, const edm::EventSetup & setup) {
+  if (m_geometryWatcher.check(setup)) {
+    edm::ESTransientHandle<DDCompactView> cv;
+    setup.get<IdealGeometryRecord>().get(cv);
+    DDFilteredView fv(*cv);
 
-  DDSpecificsFilter filter;
-  filter.setCriteria(DDValue("TrackingMaterialGroup", ""), DDSpecificsFilter::not_equals);
-  fv.addFilter(filter);
+    DDSpecificsFilter filter;
+    filter.setCriteria(DDValue("TrackingMaterialGroup", ""), DDSpecificsFilter::not_equals);
+    fv.addFilter(filter);
 
-  while (fv.next()) {
-    // print the group name and full hierarchy of all items
-    std::cout << dddGetString("TrackingMaterialGroup", fv) << '\t';
+    while (fv.next()) {
+      // print the group name and full hierarchy of all items
+      std::cout << dddGetString("TrackingMaterialGroup", fv) << '\t';
 
-    // start from 2 to skip the leading /OCMS[0]/CMSE[1] part
-    const DDGeoHistory & history = fv.geoHistory();
-    std::cout << '/';
-    for (unsigned int h = 2; h < history.size(); ++h)
-      std::cout << '/' << history[h].logicalPart().name().name() << '[' << history[h].copyno() << ']';
+      // start from 2 to skip the leading /OCMS[0]/CMSE[1] part
+      const DDGeoHistory & history = fv.geoHistory();
+      std::cout << '/';
+      for (unsigned int h = 2; h < history.size(); ++h)
+        std::cout << '/' << history[h].logicalPart().name().name() << '[' << history[h].copyno() << ']';
 
-    // DD3Vector and DDTranslation are the same type as math::XYZVector
-    math::XYZVector position = fv.translation() / 10.;  // mm -> cm
-    std::cout << "\t" << position << std::endl;
-  };
-  std::cout << std::endl;
-}
-
-void
-ListGroups::endJob() {
+      // DD3Vector and DDTranslation are the same type as math::XYZVector
+      math::XYZVector position = fv.translation() / 10.;  // mm -> cm
+      std::cout << "\t" << position << std::endl;
+    };
+    std::cout << std::endl;
+  }
 }
 
 //-------------------------------------------------------------------------
