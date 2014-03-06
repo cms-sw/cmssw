@@ -3,12 +3,10 @@
 
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 
-#include "boost/thread/thread.hpp"
-
 #include <iostream>
 #include <vector>
-
-
+#include <thread>
+#include <mutex>
 
 using namespace jsoncollector;
 
@@ -112,7 +110,7 @@ namespace evf{
 
     void start(void (FastMonitoringService::*fp)(),FastMonitoringService *cp){
       assert(!m_thread);
-      m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(fp,cp)));
+      m_thread = boost::shared_ptr<std::thread>(new std::thread(fp,cp));
     }
     void stop(){
       assert(m_thread);
@@ -123,9 +121,9 @@ namespace evf{
   private:
 
     std::atomic<bool> m_stoprequest;
-    boost::shared_ptr<boost::thread> m_thread;
+    boost::shared_ptr<std::thread> m_thread;
     MonitorData m_data;
-    boost::mutex monlock_;
+    std::mutex monlock_;
 
     std::unique_ptr<FastMonitor> jsonMonitor_;
 

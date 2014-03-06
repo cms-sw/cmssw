@@ -239,9 +239,8 @@ namespace evf{
     macrostate_ = FastMonitoringThread::sJobReady;
 
     //update number of entries in module histogram
-    fmt_.monlock_.lock();
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
     fmt_.m_data.microstateBins_ = encModule_.vecsize();
-    fmt_.monlock_.unlock();
   }
 
   void FastMonitoringService::postEndJob()
@@ -263,8 +262,7 @@ namespace evf{
 	  gettimeofday(&lumiStartTime, 0);
 	  unsigned int newLumi = gc.luminosityBlockID().luminosityBlock();
 
-	  fmt_.monlock_.lock();
-
+          std::lock_guard<std::mutex> lock(fmt_.monlock_);
 
 	  lumiStartTime_[newLumi]=lumiStartTime;
 	  while (!lastGlobalLumisClosed_.empty()) {
@@ -279,8 +277,6 @@ namespace evf{
 	  }
 	  lastGlobalLumi_= newLumi;
 	  isGlobalLumiTransition_=false;
-
-	  fmt_.monlock_.unlock();
   }
 
   void FastMonitoringService::preGlobalEndLumi(edm::GlobalContext const& gc)
@@ -290,7 +286,8 @@ namespace evf{
 	  timeval lumiStopTime;
 	  gettimeofday(&lumiStopTime, 0);
 
-	  fmt_.monlock_.lock();
+          std::lock_guard<std::mutex> lock(fmt_.monlock_);
+
 	  // Compute throughput
 	  timeval stt = lumiStartTime_[lumi];
 	  unsigned long usecondsForLumi = (lumiStopTime.tv_sec - stt.tv_sec)*1000000
@@ -343,7 +340,6 @@ namespace evf{
 	  fmt_.jsonMonitor_->discardCollected(lumi);//we don't do further updates for this lumi
 
 	  isGlobalLumiTransition_=true;
-	  fmt_.monlock_.unlock();
   }
 
   void FastMonitoringService::postGlobalEndLumi(edm::GlobalContext const& gc)
@@ -356,7 +352,7 @@ namespace evf{
   void FastMonitoringService::preStreamBeginLumi(edm::StreamContext const& sc)
   {
     unsigned int sid = sc.streamID().value();
-    fmt_.monlock_.lock();
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
     fmt_.m_data.streamLumi_[sid] = sc.eventID().luminosityBlock();
 
     //reset collected values for this stream
@@ -367,13 +363,12 @@ namespace evf{
     //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()]=&reservedMicroStateNames[mInvalid];
     //#endif
-    fmt_.monlock_.unlock();
   }
 
   void FastMonitoringService::preStreamEndLumi(edm::StreamContext const& sc)
   {
     unsigned int sid = sc.streamID().value();
-    fmt_.monlock_.lock();
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
 #if ATOMIC_LEVEL>=2
     //spinlock to make sure we are not still updating event counter somewhere
     while (streamCounterUpdating_[sid]->load(std::memory_order_acquire)) {}
@@ -386,7 +381,6 @@ namespace evf{
     //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()]=&reservedMicroStateNames[mInvalid];
     //#endif
-    fmt_.monlock_.unlock();
   }
 
 
@@ -397,13 +391,13 @@ namespace evf{
     if (unlikely(eventCountForPathInit_[sc.streamID()]<50) && false==collectedPathList_[sc.streamID()]->load(std::memory_order_acquire))
     {
       //protection between stream threads, as well as the service monitoring thread
-      fmt_.monlock_.lock();
+      std::lock_guard<std::mutex> lock(fmt_.monlock_);
+
       if (firstEventId_[sc.streamID()]==0) 
 	firstEventId_[sc.streamID()]=sc.eventID().event();
       if (sc.eventID().event()==firstEventId_[sc.streamID()])
       {
 	encPath_[sc.streamID()].update((void*)&pc.pathName());
-	fmt_.monlock_.unlock();
 	return;
       }
       else {
@@ -417,7 +411,6 @@ namespace evf{
 	  FileIO::writeStringToFile(pathLegendFile_, pathLegendStr);
 	  pathLegendWritten_=true;
 	}
-	fmt_.monlock_.unlock();
       }
     }
     else {
@@ -523,7 +516,8 @@ namespace evf{
 
   //from source - needs changes to source to track per-lumi file processing
   void FastMonitoringService::accumulateFileSize(unsigned int lumi, unsigned long fileSize) {
-	fmt_.monlock_.lock();
+        std::lock_guard<std::mutex> lock(fmt_.monlock_);
+
 	if (accuSize_.find(lumi)==accuSize_.end()) accuSize_[lumi] = fileSize;
 	else accuSize_[lumi] += fileSize;
 
@@ -531,7 +525,6 @@ namespace evf{
 	  filesProcessedDuringLumi_[lumi] = 1;
 	else
 	  filesProcessedDuringLumi_[lumi]++;
-	fmt_.monlock_.unlock();
   }
 
   //should be measured by the source and provided when found
@@ -549,7 +542,8 @@ namespace evf{
 	 std::cout << "Stopped looking for .raw file at: s=" << fileLookStop_.tv_sec << ": ms = "
 	 << fileLookStop_.tv_usec / 1000.0 << std::endl;
 	 */
-	  fmt_.monlock_.lock();
+          std::lock_guard<std::mutex> lock(fmt_.monlock_);
+
 	  if (lumi>lumiFromSource_) {
 		  lumiFromSource_=lumi;
 		  leadTimes_.clear();
@@ -566,29 +560,26 @@ namespace evf{
 		  for (unsigned int i = 0; i < leadTimes_.size(); i++) totTime += leadTimes_[i];
 		  avgLeadTime_[lumi] = 0.001*(totTime / leadTimes_.size());
 	  }
-	  fmt_.monlock_.unlock();
   }
 
   //for the output module
   unsigned int FastMonitoringService::getEventsProcessedForLumi(unsigned int lumi) {
-	  fmt_.monlock_.lock();
-	  auto it = processedEventsPerLumi_.find(lumi);
-	  if (it!=processedEventsPerLumi_.end()) {
-		  unsigned int proc = it->second;
-		  fmt_.monlock_.unlock();
-		  return proc;
-	  }
-	  else {
-		  fmt_.monlock_.unlock();
-		  std::cout << "ERROR: output module wants deleted info " << std::endl;
-		  assert(0);
-		  return 0;
-	  }
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
+
+    auto it = processedEventsPerLumi_.find(lumi);
+    if (it!=processedEventsPerLumi_.end()) {
+      unsigned int proc = it->second;
+      return proc;
+    }
+    else {
+      std::cout << "ERROR: output module wants deleted info " << std::endl;
+      assert(0);
+      return 0;
+    }
   }
 
 
-  void FastMonitoringService::doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID)
-  {
+  void FastMonitoringService::doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID) {
     // update macrostate
     fmt_.m_data.fastMacrostateJ_ = macrostate_;
 
@@ -628,14 +619,13 @@ namespace evf{
   void FastMonitoringService::reportEventsThisLumiInSource(unsigned int lumi,unsigned int events)
   {
 
-      fmt_.monlock_.lock();
-      auto itr = sourceEventsReport_.find(lumi);
-      if (itr!=sourceEventsReport_.end())
-        sourceEventsReport_[lumi]+=events;
-      else 
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
+    auto itr = sourceEventsReport_.find(lumi);
+    if (itr!=sourceEventsReport_.end())
+      sourceEventsReport_[lumi]+=events;
+    else 
       sourceEventsReport_[lumi]=events;
 
-      fmt_.monlock_.unlock();
   }
 } //end namespace evf
 

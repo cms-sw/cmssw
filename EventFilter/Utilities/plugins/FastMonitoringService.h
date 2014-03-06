@@ -164,11 +164,10 @@ namespace evf{
 	   << " ms=" << encPath_[0].encode(ministate_[0])
 	      << " us=" << encModule_.encode(microstate_[0]) << std::endl;
 
-	  // lock the monitor
-	  fmt_.monlock_.lock();
-          doSnapshot(true,lastGlobalLumi_,false,false,0);//fast output disabled for now
-	  fmt_.monlock_.unlock();
-
+	  {
+            std::lock_guard<std::mutex> lock(fmt_.monlock_);
+            doSnapshot(true,lastGlobalLumi_,false,false,0);//fast output disabled for now
+          }
 	  ::sleep(sleepTime_);
 	}
       }
@@ -218,9 +217,6 @@ namespace evf{
       //to disable this behavior, set #ATOMIC_LEVEL 0 or 1 in DataPoint.h
       std::vector<std::atomic<bool>*> streamCounterUpdating_;
 
-      //std::map<unsigned int,std::vector<bool>> streamEoLMap_;
-
-      boost::mutex initPathsLock_;
       std::vector<unsigned long> firstEventId_;
       std::vector<std::atomic<bool>*> collectedPathList_;
       std::vector<unsigned int> eventCountForPathInit_;
