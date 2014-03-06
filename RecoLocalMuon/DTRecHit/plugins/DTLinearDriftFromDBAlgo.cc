@@ -14,6 +14,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
+#include "CondFormats/DataRecord/interface/DTRecoUncertaintiesRcd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace edm;
@@ -47,8 +50,17 @@ void DTLinearDriftFromDBAlgo::setES(const EventSetup& setup) {
   setup.get<DTMtimeRcd>().get(mTimeHandle);
   mTimeMap = &*mTimeHandle;
   
+  ESHandle<DTRecoUncertainties> uncerts;
+  setup.get<DTRecoUncertaintiesRcd>().get(uncerts);
+  uncertMap = &*uncerts;
+
+  // check uncertainty map type
+  if (uncerts->type()!="uniformPerStep") edm::LogError("NotImplemented") << "Uncertainty type unknown: " << uncerts->type();
+
   if(debug) 
     cout << "[DTLinearDriftFromDBAlgo] meanTimer version: " << mTimeMap->version()<<endl;
+    cout << "                          uncertDB  version: " << uncerts->type()<<endl;
+
 }
 
 
@@ -137,12 +149,15 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
 
   // Read the vDrift and reso for this wire
   float vDrift = 0;
-  float hitResolution = 0;//FIXME: should use this!
+  float hitMTResolution = 0; // Value from vdrift DB; obsolete.
   // vdrift is cm/ns , resolution is cm
   mTimeMap->get(wireId.superlayerId(),
 	        vDrift,
-	        hitResolution,
+	        hitMTResolution,
 	        DTVelocityUnits::cm_per_ns);
+
+  // Read the uncertainty from the DB for the given channel and step
+  float hitResolution = uncertMap->get(wireId, step-1);
 
   //only in step 3
   if(doVdriftCorr && step == 3){
