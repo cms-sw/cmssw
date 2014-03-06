@@ -35,6 +35,14 @@ public:
     TrackerSingleRecHit(pos,err,id,idet, clus), 
     qualWord_(0) 
   {}
+
+  SiPixelRecHit( const LocalPoint& pos , const LocalError& err, SiPixelRecHitQuality::QualWordType qual,
+		 const DetId& id, GeomDet const * idet,
+		 ClusterRef const&  clus) : 
+    TrackerSingleRecHit(pos,err,id,idet, clus), 
+    qualWord_(qual) 
+  {}
+
   
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
   
