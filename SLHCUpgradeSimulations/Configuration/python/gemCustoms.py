@@ -75,13 +75,13 @@ def customise_Validation(process):
     process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
     process.load('Validation.MuonGEMRecHits.MuonGEMRecHits_cfi')
     process.load('Validation.RecoMuon.MuonTrackValidator_cfi')
-    process.load('SimMuon.MCTruth.MuonAssociatorByHitsESProducer_cfi')
+    process.load('SimMuon.MCTruth.MuonAssociatorByHits_cfi')
     process.globalValidation += cms.Sequence(
         process.gemHitsValidation *
         process.gemDigiValidation *
         process.gemRecHitsValidation
     )
-    process.muonAssociatorByHitsESProducer.muonAssociatorByHitsCommonParameters.useGEMs = cms.bool(True)
+    process.muonAssociatorByHits.muonAssociatorByHitsCommonParameters.useGEMs = cms.bool(True)
     process.muonTrackValidator.useGEMs = cms.bool(True)
     return process
 
