@@ -6,6 +6,7 @@
 
 #include "boost/filesystem.hpp"
 
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Sources/interface/RawInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -68,6 +69,7 @@ private:
   boost::filesystem::path openFile_;
   FILE* fileStream_;
   edm::EventID eventID_;
+  edm::ProcessHistoryID processHistoryID_;
 
   unsigned int currentLumiSection_;
   boost::filesystem::path currentInputJson_;
