@@ -866,7 +866,7 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
       doProfileX(nDThits_vs_eta[w],h_DThits_eta[w]);    
       doProfileX(nCSChits_vs_eta[w],h_CSChits_eta[w]);    
       doProfileX(nRPChits_vs_eta[w],h_RPChits_eta[w]);    
-      doProfileX(nGEMhits_vs_eta[w],h_GEMhits_eta[w]);    
+      if (useGEMs_) doProfileX(nGEMhits_vs_eta[w],h_GEMhits_eta[w]);    
 
       doProfileX(nlosthits_vs_eta[w],h_losthits_eta[w]);    
       //vs phi
