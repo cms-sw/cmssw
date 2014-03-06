@@ -1085,8 +1085,27 @@ steps['COPYPASTE']={'-s':'NONE',
 
 
 
-# you will need separate scenarios HERE for full and fast 
-upgradeKeys=['2017','2019','BE5D','2017Fast','BE5DFast','BE5DForwardFast','2019WithGEM','BE5DPixel10D','2017Aging','2019Aging','Extended2023','Extended2023HGCalMuon','Extended2023SHCal','Extended2023SHCal4Eta','Extended2023TTI','Extended2023Muon']
+# You will need separate scenarios HERE for full and fast. DON'T CHANGE THE ORDER, only
+# append new keys. Otherwise the numbering for the runTheMatrix tests will change.
+upgradeKeys=['2017',
+             '2019',
+             'BE5D',
+             '2017Fast',
+             'BE5DFast',
+             'BE5DForwardFast',
+             '2019WithGEM',
+             'BE5DPixel10D',
+             '2017Aging',
+             '2019Aging',
+             'Extended2023',
+             'Extended2023HGCalMuon',
+             'Extended2023SHCal',
+             'Extended2023SHCal4Eta',
+             'Extended2023TTI',
+             'Extended2023Muon',
+             'Extended2023CFCal',
+             'Extended2023CFCal4Eta'
+             ]
 upgradeGeoms={ '2017' : 'Extended2017',
                '2019' : 'Extended2019',
                '2019WithGEM' : 'Extended2019',
@@ -1102,7 +1121,9 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'Extended2023SHCal' : 'Extended2023SHCal,Extended2023SHCalReco',
                'Extended2023SHCal4Eta' : 'Extended2023SHCal4Eta,Extended2023SHCalReco',
                'Extended2023TTI' : 'Extended2023TTI,Extended2023TTIReco',
-               'Extended2023Muon' : 'Extended2023Muon,Extended2023MuonReco'
+               'Extended2023Muon' : 'Extended2023Muon,Extended2023MuonReco',
+               'Extended2023CFCal' : 'Extended2023CFCal,Extended2023CFCalReco',
+               'Extended2023CFCal4Eta' : 'Extended2023CFCal4Eta,Extended2023CFCal4EtaReco'
                }
 upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
@@ -1119,7 +1140,9 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              'Extended2023SHCal' : 'auto:upgradePLS3',
              'Extended2023SHCal4Eta' : 'auto:upgradePLS3',
              'Extended2023TTI' : 'auto:upgradePLS3',
-             'Extended2023Muon' : 'auto:upgradePLS3'
+             'Extended2023Muon' : 'auto:upgradePLS3',
+             'Extended2023CFCal' : 'auto:upgradePLS3',
+             'Extended2023CFCal4Eta' : 'auto:upgradePLS3'
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
                  '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
@@ -1136,7 +1159,9 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'Extended2023SHCal' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
                  'Extended2023SHCal4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
                  'Extended2023TTI' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms_TTI.cust_phase2_BE5D',
-                 'Extended2023Muon' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Muon'
+                 'Extended2023Muon' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Muon',
+                 'Extended2023CFCal' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
+                 'Extended2023CFCal4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023'
                  }
 ### remember that you need to add a new step for phase 2 to include the track trigger
 ### remember that you need to add fastsim
@@ -1166,7 +1191,9 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCal':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCal4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023TTI':['GenSimFull','DigiTrkTrigFull','RecoFull','HARVESTFull'],
-                   'Extended2023Muon':['GenSimFull','DigiFull','RecoFull','HARVESTFull']
+                   'Extended2023Muon':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023CFCal':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023CFCal4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull']
                    }
 
 upgradeStepDict={}
@@ -1258,9 +1285,23 @@ upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
                   'QCD_Pt_80_120_14TeV_cfi','H200ChargedTaus_Tauola_14TeV_cfi','JpsiMM_14TeV_cfi','TTbar_Tauola_14TeV_cfi',
                   'WE_14TeV_cfi','ZEE_14TeV_cfi','ZTT_Tauola_All_hadronic_14TeV_cfi','H130GGgluonfusion_14TeV_cfi',
                   'PhotonJet_Pt_10_14TeV_cfi','QQH1352T_Tauola_14TeV_cfi',
-                  'MinBias_TuneZ2star_14TeV_pythia6_cff','WM_14TeV_cfi','ZMM_14TeV_cfi']
+                  'MinBias_TuneZ2star_14TeV_pythia6_cff','WM_14TeV_cfi','ZMM_14TeV_cfi',
+		  'FourMuExtendedPt_1_200_cfi',
+		  'TenMuExtendedE_0_200_cfi',
+		  'SingleElectronPt10Extended_cfi',
+                  'SingleElectronPt35Extended_cfi',
+		  'SingleElectronPt1000Extended_cfi',
+                  'SingleGammaPt10Extended_cfi',
+		  'SingleGammaPt35Extended_cfi',
+		  'SingleMuPt1Extended_cfi',
+		  'SingleMuPt10Extended_cfi',
+                  'SingleMuPt100Extended_cfi',
+		  'SingleMuPt1000Extended_cfi','TenMuE_0_200_cfi']
 
 howMuches={'FourMuPt_1_200_cfi':Kby(10,100),
+           'TenMuE_0_200_cfi':Kby(10,100),
+           'FourMuExtendedPt_1_200_cfi':Kby(10,100),
+           'TenMuExtendedE_0_200_cfi':Kby(10,100),
            'SingleElectronPt10_cfi':Kby(9,300),
            'SingleElectronPt35_cfi':Kby(9,500),
            'SingleElectronPt1000_cfi':Kby(9,50),
@@ -1270,6 +1311,15 @@ howMuches={'FourMuPt_1_200_cfi':Kby(10,100),
            'SingleMuPt10_cfi':Kby(25,500),
            'SingleMuPt100_cfi':Kby(9,500),
            'SingleMuPt1000_cfi':Kby(9,500),
+           'SingleElectronPt10Extended_cfi':Kby(9,300),
+           'SingleElectronPt35Extended_cfi':Kby(9,500),
+           'SingleElectronPt1000Extended_cfi':Kby(9,50),
+           'SingleGammaPt10Extended_cfi':Kby(9,300),
+           'SingleGammaPt35Extended_cfi':Kby(9,50),
+           'SingleMuPt1Extended_cfi':Kby(25,1000),
+           'SingleMuPt10Extended_cfi':Kby(25,500),
+           'SingleMuPt100Extended_cfi':Kby(9,500),
+           'SingleMuPt1000Extended_cfi':Kby(9,500),
            'TTbarLepton_Tauola_8TeV_cfi':Kby(9,100),
            'Wjet_Pt_80_120_8TeV_cfi':Kby(9,100),
            'Wjet_Pt_3000_3500_8TeV_cfi':Kby(9,50),
@@ -1312,6 +1362,9 @@ howMuches={'FourMuPt_1_200_cfi':Kby(10,100),
            }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_cfi': 'FourMuPt1_200',
+                            'FourMuExtendedPt_1_200_cfi': 'FourMuExtendedPt1_200',
+                            'TenMuE_0_200_cfi': 'TenMuE_0_200',
+                            'TenMuExtendedE_0_200_cfi': 'TenMuExtendedE_0_200',
                             'SingleElectronPt10_cfi' : 'SingleElectronPt10',
                             'SingleElectronPt35_cfi' : 'SingleElectronPt35',
                             'SingleElectronPt1000_cfi' : 'SingleElectronPt1000',
@@ -1321,6 +1374,15 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_cfi': 'FourMuPt1_200',
                             'SingleMuPt10_cfi' : 'SingleMuPt10',
                             'SingleMuPt100_cfi' : 'SingleMuPt100',
                             'SingleMuPt1000_cfi' : 'SingleMuPt1000',
+                            'SingleElectronPt10Extended_cfi' : 'SingleElectronPt10Extended',
+                            'SingleElectronPt35Extended_cfi' : 'SingleElectronPt35Extended',
+                            'SingleElectronPt1000Extended_cfi' : 'SingleElectronPt1000Extended',
+                            'SingleGammaPt10Extended_cfi' : 'SingleGammaPt10Extended',
+                            'SingleGammaPt35Extended_cfi' : 'SingleGammaPt35Extended',
+                            'SingleMuPt1Extended_cfi' : 'SingleMuPt1Extended',
+                            'SingleMuPt10Extended_cfi' : 'SingleMuPt10Extended',
+                            'SingleMuPt100Extended_cfi' : 'SingleMuPt100Extended',
+                            'SingleMuPt1000Extended_cfi' : 'SingleMuPt1000Extended',
                             'TTbarLepton_Tauola_8TeV_cfi' : 'TTbarLepton_8TeV',
                             'Wjet_Pt_80_120_8TeV_cfi' : 'Wjet_Pt_80_120_8TeV',
                             'Wjet_Pt_3000_3500_8TeV_cfi' : 'Wjet_Pt_3000_3500_8TeV',

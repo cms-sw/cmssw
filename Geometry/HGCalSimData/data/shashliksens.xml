@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SpecParSection label="shashliksens.xml" eval="true">
+  <SpecPar name="shcalee">
+    <PartSelector path="//ShashlikActive.*"/>
+    <Parameter name="SensitiveDetector" value="ShashlikSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="EcalHitsEK" eval="false"/>
+    <Parameter name="ModuleLength" value="56.75*mm"/>
+    <Parameter name="FiberLength"  value="0.75*mm"/>
+    <Parameter name="FiberLength"  value="4.75*mm"/>
+    <Parameter name="FiberLength"  value="8.75*mm"/>
+    <Parameter name="FiberLength"  value="12.75*mm"/>
+    <Parameter name="FiberLength"  value="16.75*mm"/>
+    <Parameter name="FiberLength"  value="20.75*mm"/>
+    <Parameter name="FiberLength"  value="24.75*mm"/>
+    <Parameter name="FiberLength"  value="28.75*mm"/>
+    <Parameter name="FiberLength"  value="32.75*mm"/>
+    <Parameter name="FiberLength"  value="36.75*mm"/>
+    <Parameter name="FiberLength"  value="40.75*mm"/>
+    <Parameter name="FiberLength"  value="44.75*mm"/>
+    <Parameter name="FiberLength"  value="48.75*mm"/>
+    <Parameter name="FiberLength"  value="52.75*mm"/>
+    <Parameter name="FiberLength"  value="56.75*mm"/>
+    <Parameter name="FiberLength"  value="60.75*mm"/>
+    <Parameter name="FiberLength"  value="64.75*mm"/>
+    <Parameter name="FiberLength"  value="68.75*mm"/>
+    <Parameter name="FiberLength"  value="72.75*mm"/>
+    <Parameter name="FiberLength"  value="76.75*mm"/>
+    <Parameter name="FiberLength"  value="80.75*mm"/>
+    <Parameter name="FiberLength"  value="84.75*mm"/>
+    <Parameter name="FiberLength"  value="88.75*mm"/>
+    <Parameter name="FiberLength"  value="92.75*mm"/>
+    <Parameter name="FiberLength"  value="96.75*mm"/>
+    <Parameter name="FiberLength"  value="100.75*mm"/>
+    <Parameter name="FiberLength"  value="104.75*mm"/>
+    <Parameter name="FiberLength"  value="108.75*mm"/>
+    <Parameter name="FiberLength"  value="112.75*mm"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>

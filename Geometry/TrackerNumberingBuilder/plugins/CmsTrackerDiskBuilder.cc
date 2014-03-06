@@ -116,7 +116,8 @@ CmsTrackerDiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   GeometricDet::GeometricDetContainer zmaxpanels;  // So, zmin panel is always closer to ip.
 
   uint32_t totalblade = comp.size()/2;
-  if( totalblade != m_totalBlade )
+  //  std::cout << "pixel_disk " << pixel_disk << endl; 
+  if( totalblade != m_totalBlade && totalblade != 34 )
     edm::LogError( "CmsTrackerDiskBuilder" ) << "ERROR, The Total Number of Blade in one disk is " << totalblade << "; configured " << m_totalBlade;
 
   zminpanels.reserve( totalblade );
