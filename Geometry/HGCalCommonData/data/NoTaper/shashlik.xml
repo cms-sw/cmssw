@@ -14,8 +14,8 @@
 
 <SolidSection label="shashlik.xml">
   <Polycone name="SHCalEE" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zSHCal1]" rMin="[rMinSHCal1]" rMax="[rMaxSHCal1]"/>
-    <ZSection z="[zSHCal2]" rMin="[rMinSHCal2]" rMax="[rMaxSHCal2]"/>
+    <ZSection z="[zSHCal1]" rMin="([rMinSHCal1] - 1.5*cm)" rMax="([rMaxSHCal1] + 0.16*cm)"/>
+    <ZSection z="[zSHCal2]" rMin="([rMinSHCal2] - 1.5*cm)" rMax="([rMaxSHCal2] + 0.16*cm)"/>
   </Polycone>
 </SolidSection>
 
