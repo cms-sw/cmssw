@@ -4,21 +4,21 @@
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 GEMBaseValidation::GEMBaseValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag)
 {
   dbe_ = dbe;
   theInputTag = inputTag;
-
 }
 
 
 GEMBaseValidation::~GEMBaseValidation() {
- 
-
 }
-
-
-
-
+void GEMBaseValidation::setGeometry(const GEMGeometry* geom)
+{ 
+    if ( geom != nullptr ) theGEMGeometry = geom; 
+    else { 
+        edm::LogError("GEMBaseValidation")<<" +++ Error : Can not set GEMGeometry.\n";
+        return ;
+    }
+}
