@@ -45,7 +45,7 @@ DumpDBToFile::DumpDBToFile(const ParameterSet& pset) {
   dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
 
   if(dbToDump != "VDriftDB" && dbToDump != "TTrigDB" && dbToDump != "TZeroDB" 
-     && dbToDump != "NoiseDB" && dbToDump != "DeadDB" && dbToDump != "ChannelsDB")
+     && dbToDump != "NoiseDB" && dbToDump != "DeadDB" && dbToDump != "ChannelsDB" && dbToDump != "RecoUncertDB")
     cout << "[DumpDBToFile] *** Error: parameter dbToDump is not valid, check the cfg file" << endl;
 }
 
@@ -227,7 +227,31 @@ void DumpDBToFile::endJob() {
 
 	theCalibFile->addCell(wireId, consts);
       }
-    } 
+    } else if(dbToDump == "RecoUncertDB") {
+      cout << "RecoUncertDB type: " << uncertMap->type() << endl;
+      for(DTRecoUncertainties::const_iterator wireAndUncerts = uncertMap->begin();
+	  wireAndUncerts != uncertMap->end(); wireAndUncerts++) {
+	DTWireId wireId((*wireAndUncerts).first);
+	vector<float> values = (*wireAndUncerts).second;
+	
+	cout << wireId;
+	copy(values.begin(), values.end(), ostream_iterator<float>(cout, " cm, "));
+	cout << endl;
+
+	vector<float> consts;
+	consts.push_back(-1);
+	consts.push_back(-1);
+	consts.push_back(-1);
+	consts.push_back(-1);
+	consts.push_back(-1);
+	consts.push_back(-9999999);      
+	consts.push_back(-9999999);
+	consts.push_back(-1);
+	consts.insert(consts.end(), values.begin(), values.end());
+
+	theCalibFile->addCell(wireId, consts);
+      }
+    }
     //Write constants into file
     theCalibFile->writeConsts(theOutputFileName);
   }
@@ -260,32 +284,6 @@ void DumpDBToFile::endJob() {
 	   << "layer "   << roLink->layerId << ' ' 
 	   << "wire "    << roLink->cellId << ' '<<endl;
     }
-  }  else if(dbToDump == "RecoUncertDB") {
-      for(DTRecoUncertainties::const_iterator wireAndUncerts = uncertMap->begin();
-	  wireAndUncerts != uncertMap->end(); wireAndUncerts++) {
-	DTWireId wireId((*wireAndUncerts).first);
-	vector<float> values = (*wireAndUncerts).second;
-	
-	cout << wireId;
-	copy(values.begin(), values.end(), ostream_iterator<char>(cout, " um, "));
-	cout << endl;
-
-	vector<float> consts;
-	consts.push_back(-1);
-	consts.push_back(-1);
-	consts.push_back(-1);
-	consts.push_back(-1);
-	consts.push_back(-1);
-	consts.push_back(-9999999);      
-	consts.push_back(-9999999);
-	consts.push_back(-1);
-	consts.insert(consts.end(), values.begin(), values.end());
-
-	theCalibFile->addCell(wireId, consts);
-	
-      } 
-    //Write constants into file
-    theCalibFile->writeConsts(theOutputFileName);
   }
 
 

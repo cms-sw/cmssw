@@ -29,7 +29,9 @@ public:
     theType = tt;
   };
   
-  std::string type() const {
+  /// Label specifying the structure of the payload; currently supported:
+  /// "uniformPerStep" (uniform uncertainties per SL and step; index 0-3 = uncertainties for steps 1-4 in cm)
+  const std::string& type() const {
     return theType;
   }
 

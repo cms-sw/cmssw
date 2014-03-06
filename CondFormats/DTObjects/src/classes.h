@@ -75,8 +75,9 @@ namespace CondFormats_DTObjects {
 //    std::vector< std::pair<DTMtimeId,DTMtimeData> > blah4;
 //    std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> > blah5;
 
+    
+    std::pair<uint32_t, std::vector<float> > p_payload;
     std::map<uint32_t, std::vector<float> > payload;
-
 
   };
 }
