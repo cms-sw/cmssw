@@ -37,6 +37,22 @@ namespace {
 }
 
 
+// needed by the obsolete version still in use on some architectures
+void
+SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
+			     SimpleHitIterator begin, SimpleHitIterator end,
+			     edm::OwnVector<SiStripMatchedRecHit2D> & collector, 
+			     const GluedGeomDet* gluedDet,
+			     LocalVector trackdirection) const {
+
+  std::vector<SiStripMatchedRecHit2D*> result;
+  result.reserve(end-begin);
+  match(monoRH,begin,end,result,gluedDet,trackdirection);
+  for (std::vector<SiStripMatchedRecHit2D*>::iterator p=result.begin(); p!=result.end();
+       p++) collector.push_back(*p);
+}
+
+
 void
 SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 			     SimpleHitIterator begin, SimpleHitIterator end,
