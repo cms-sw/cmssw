@@ -1,5 +1,5 @@
-#ifndef BINS_H
-#define BINS_H
+#ifndef QGLIKELIHOOD_BINS_H
+#define QGLIKELIHOOD_BINS_H
 #include <vector>
 
 class Bins{
