@@ -55,50 +55,41 @@ def customise_LocalReco(process):
     
     process.muonlocalreco += process.me0RecHits
     process.muonlocalreco += process.me0Segments
-    
-    process=outputCustoms(process)
     return process
 
-def customise_GlobalRecoFast(process):
+def customise_GlobalRecoInclude(process):
     process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
     process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
     process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
-
     process.load('FastSimulation.Muons.me0SegmentProducer_cfi')
     process.load('RecoMuon.MuonIdentification.me0SegmentMatcher_cfi')
     process.load('RecoMuon.MuonIdentification.me0MuonConverter_cfi')
-
+    return process
+    
+def customise_GlobalRecoFast(process):
     process.reconstructionWithFamos += process.me0SegmentProducer
     process.reconstructionWithFamos += process.me0SegmentMatcher
     process.reconstructionWithFamos += process.me0MuonConverter
-    
-    process=outputCustoms(process)
     return process
     
 def customise_GlobalRecoFull(process):
-    process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
-    process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
-    process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
-
-    process.load('FastSimulation.Muons.me0SegmentProducer_cfi')
-    process.load('RecoMuon.MuonIdentification.me0SegmentMatcher_cfi')
-    process.load('RecoMuon.MuonIdentification.me0MuonConverter_cfi')
-
     process.reconstruction += process.me0SegmentProducer
     process.reconstruction += process.me0SegmentMatcher
     process.reconstruction += process.me0MuonConverter
-    
-    process=outputCustoms(process)
     return process
 
 def customise_RecoFast(process):
-    customise_LocalReco(process)
-    customise_GlobalRecoFast(process)
+    process=customise_LocalReco(process)
+    process=customise_GlobalRecoInclude(process)
+    process=customise_GlobalRecoFast(process)
+    process=outputCustoms(process)
     return process
 
 def customise_RecoFull(process):
-    customise_LocalReco(process)
-    customise_GlobalRecoFull(process)
+    process=customise_LocalReco(process)
+    process=customise_GlobalRecoInclude(process)
+    process=customise_GlobalRecoFull(process)
+    process=outputCustoms(process)
     return process
 
 def customise_DQM(process):
