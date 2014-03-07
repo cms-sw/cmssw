@@ -8,7 +8,7 @@ kt6PFJetsIsoQG.Rho_EtaMax = cms.double(2.5)
 QGTagger = cms.EDProducer('QGTagger',
   srcRhoIso     = cms.InputTag('kt6PFJetsIsoQG','rho'),
   jec		= cms.string(''),
-  dataDir	= cms.string('RecoJets/JetProducers/data/'),
-  useCHS	= cms.bool(False)
+  dataDir	= cms.string('CondFormats/JetMETObjects/data/'),
+  useCHS	= cms.bool(True)
 )
 
