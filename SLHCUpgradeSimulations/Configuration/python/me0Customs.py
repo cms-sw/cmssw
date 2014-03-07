@@ -46,12 +46,27 @@ def customise_RawToDigi(process):
     return process
 
 def customise_Reco(process):
+    ## local 
     process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
     process.load('RecoLocalMuon.GEMRecHit.me0Segments_cfi')
     process.me0RecHits.me0DigiLabel = cms.InputTag("simMuonME0Digis")
     process.me0Segments.me0RecHitLabel = cms.InputTag("me0RecHits")
     process.muonlocalreco += process.me0RecHits
     process.muonlocalreco += process.me0Segments
+
+    ## global
+    process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
+    process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
+    process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
+
+    process.load('FastSimulation.Muons.me0SegmentProducer_cfi')
+    process.load('RecoMuon.MuonIdentification.me0SegmentMatcher_cfi')
+    process.load('RecoMuon.MuonIdentification.me0MuonConverter_cfi')
+
+    process.reconstruction += process.me0SegmentProducer
+    process.reconstruction += process.me0SegmentMatcher
+    process.reconstruction += process.me0MuonConverter
+
     process=outputCustoms(process)
     return process
 
@@ -72,4 +87,7 @@ def outputCustoms(process):
             getattr(process,b).outputCommands.append('keep *_simMuonME0Digis_*_*')
             getattr(process,b).outputCommands.append('keep *_me0RecHits_*_*')
             getattr(process,b).outputCommands.append('keep *_me0Segments_*_*')
+            getattr(process,b).outputCommands.append('keep *_me0SegmentProducer_*_*')
+            getattr(process,b).outputCommands.append('keep *_me0SegmentMatcher_*_*')
+            getattr(process,b).outputCommands.append('keep *_me0MuonConverter_*_*')
     return process
