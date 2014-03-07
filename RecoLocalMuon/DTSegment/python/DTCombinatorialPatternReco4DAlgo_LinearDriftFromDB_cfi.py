@@ -19,14 +19,17 @@ DTCombinatorialPatternReco4DAlgo_LinearDriftFromDB = cms.PSet(
         # this is the RecHit1D algo!!
         DTLinearDriftFromDBAlgo,
         debug = cms.untracked.bool(False),
+
         # Parameters for the cleaner
         nUnSharedHitsMin = cms.int32(2),
+
         # the input type. 
         # If true the instructions in setDTRecSegment2DContainer will be schipped and the 
         # theta segment will be recomputed from the 1D rechits
         # If false the theta segment will be taken from the Event. Caveat: in this case the
         # event must contain the 2D segments!
         AllDTRecHits = cms.bool(True),
+
         # Parameters for  T0 fit segment in the Updator 
         performT0SegCorrection = cms.bool(False),
         hit_afterT0_resolution = cms.double(0.03),
