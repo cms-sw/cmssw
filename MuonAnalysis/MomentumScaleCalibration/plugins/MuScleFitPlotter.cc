@@ -1,6 +1,8 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
+//  $Date: 2012/05/07 10:03:34 $
+//  $Revision: 1.23 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 // ----------------------------------------------------------------------------------
@@ -285,14 +287,30 @@ void MuScleFitPlotter::fillGenSim(edm::Handle<edm::HepMCProduct> evtMC, edm::Han
   }*/
 }
 
-// Find and store in histograms the reconstructed resonance and muons
-// --------------------------------------------------------------
-void MuScleFitPlotter::fillRec(std::vector<reco::LeafCandidate>& muons)
+// // Find and store in histograms the reconstructed resonance and muons
+// // --------------------------------------------------------------
+// void MuScleFitPlotter::fillRec(std::vector<reco::LeafCandidate>& muons)
+// {
+//   for(std::vector<reco::LeafCandidate>::const_iterator mu1 = muons.begin(); mu1!=muons.end(); mu1++){
+//     mapHisto["hRecMu"]->Fill(mu1->p4());
+//     mapHisto["hRecMuVSEta"]->Fill(mu1->p4());
+//     for(std::vector<reco::LeafCandidate>::const_iterator mu2 = muons.begin(); mu2!=muons.end(); mu2++){  
+//       if (mu1->charge()<0 || mu2->charge()>0)
+// 	continue;
+//       reco::Particle::LorentzVector Res (mu1->p4()+mu2->p4());
+//       mapHisto["hRecMuPMuM"]->Fill(Res);	  
+//     } 
+//   }
+//   mapHisto["hRecMu"]->Fill(muons.size());
+// }
+
+/// Used when running on the root tree containing preselected muon pairs
+void MuScleFitPlotter::fillRec(std::vector<MuScleFitMuon>& muons)
 {
-  for(std::vector<reco::LeafCandidate>::const_iterator mu1 = muons.begin(); mu1!=muons.end(); mu1++){
+  for(std::vector<MuScleFitMuon>::const_iterator mu1 = muons.begin(); mu1!=muons.end(); mu1++){
     mapHisto["hRecMu"]->Fill(mu1->p4());
     mapHisto["hRecMuVSEta"]->Fill(mu1->p4());
-    for(std::vector<reco::LeafCandidate>::const_iterator mu2 = muons.begin(); mu2!=muons.end(); mu2++){  
+    for(std::vector<MuScleFitMuon>::const_iterator mu2 = muons.begin(); mu2!=muons.end(); mu2++){  
       if (mu1->charge()<0 || mu2->charge()>0)
 	continue;
       reco::Particle::LorentzVector Res (mu1->p4()+mu2->p4());
@@ -301,6 +319,7 @@ void MuScleFitPlotter::fillRec(std::vector<reco::LeafCandidate>& muons)
   }
   mapHisto["hRecMu"]->Fill(muons.size());
 }
+
 
 /// Used when running on the root tree containing preselected muon pairs
 void MuScleFitPlotter::fillTreeRec( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & savedPairs )
