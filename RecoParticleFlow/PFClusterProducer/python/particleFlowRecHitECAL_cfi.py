@@ -15,7 +15,6 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
            cms.PSet(
              name = cms.string("PFEBRecHitCreator"),
              src  = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-             isEndcap = cms.bool(False),
              qualityTests = cms.VPSet(
                   cms.PSet(
                   name = cms.string("PFRecHitQTestThreshold"),
@@ -33,7 +32,6 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
           cms.PSet(
             name = cms.string("PFEERecHitCreator"),
             src  = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-            isEndcap = cms.bool(True),
             qualityTests = cms.VPSet(
                  cms.PSet(
                  name = cms.string("PFRecHitQTestThreshold"),
