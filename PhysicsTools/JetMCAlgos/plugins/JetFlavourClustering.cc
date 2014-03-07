@@ -331,10 +331,13 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if( ( fabs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - jets->at(i).pt() ) / jets->at(i).pt() ) > 1e-3 ) // 0.1% difference in Pt should be sufficient to detect possible misconfigurations
      {
        if( jets->at(i).pt() < 10. )  // special handling for low-Pt jets (Pt<10 GeV)
-         edm::LogWarning("JetPtMismatchAtLowPt") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively). Please check that the jet algorithm and jet size match those used for the original jet collection. Since the mismatch is at low Pt, only a warning is printed out.\n"
+         edm::LogWarning("JetPtMismatchAtLowPt") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
+                                                 << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected.\n"
+                                                 << "Since the mismatch is at low Pt, it is ignored and only a warning is printed out.\n"
                                                  << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
        else
-         throw cms::Exception("JetPtMismatch") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively). Please check that the jet algorithm and jet size match those used for the original jet collection.\n"
+         throw cms::Exception("JetPtMismatch") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
+                                               << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected.\n"
                                                << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
      }
 
