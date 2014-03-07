@@ -85,6 +85,7 @@ public:
   int ptsign() {
     int ptsgn=-1.0;
     if (diphi()<iphiouter()) ptsgn=-ptsgn;
+    if (layer_>999 && z_>0.0) ptsgn=-ptsgn; //sign fix for forward endcap
     return ptsgn;
   }
 

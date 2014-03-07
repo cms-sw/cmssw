@@ -108,6 +108,14 @@ public:
 
 	    if (fabs(z0)>15.0) continue;
 
+	    double pt1=stubs_[iSector][i].pt();
+	    double pt2=D->stubs_[jSector][j].pt();
+	    double pttracklet=0.3*3.8/(rinv*100);
+	    bool pass1=fabs(1.0/pt1-1.0/pttracklet)<0.5;
+	    bool pass2=fabs(1.0/pt2-1.0/pttracklet)<0.5;
+	    bool pass=pass1&&pass2;
+	    if (!pass) continue;
+
 	    //cout << "L1TDisk found tracklet"<<endl;
  
 	    L1TTracklet tracklet(rinv,phi0,t,z0);
@@ -223,11 +231,12 @@ public:
 	      dist=hypot(rdeltaphi/rphicut2,deltar/rcut2);
 	    }
 
+	    /*
 	    double pt1=D->stubs_[jSector][j].pt();
 	    double pttracklet=aTracklet.pt(3.8);
 	    bool pass1=fabs(1.0/pt1-1.0/pttracklet)<0.5;
-
 	    if (!pass1) continue;
+	    */
 
 	    if (dist<bestdist){
 	      bestdist=dist;

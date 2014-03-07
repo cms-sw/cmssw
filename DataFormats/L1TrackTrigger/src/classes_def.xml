@@ -40,5 +40,63 @@
   <class pattern="edm::Wrapper<edm::Ptr<TTTrack<*>>>" />
   <class pattern="edm::Wrapper<std::vector<edm::Ptr<TTTrack<*>>>>" />
 
+ <class name="L1TkPrimaryVertex" ClassVersion="11">
+  <version ClassVersion="11" checksum="863057557"/>
+ </class>
+ <class name="std::vector<L1TkPrimaryVertex>"/>
+ <class name="edm::Wrapper<std::vector<L1TkPrimaryVertex> >"/>
+  <class name="edm::Ref<std::vector<L1TkPrimaryVertex>,L1TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<L1TkPrimaryVertex>,L1TkPrimaryVertex> >"/>
+
+  <class name="l1extra::L1TkEtMissParticle" ClassVersion="11">
+   <version ClassVersion="11" checksum="950167147"/>
+  </class>
+  <class name="std::vector<l1extra::L1TkEtMissParticle>"/>
+ <class name="edm::Wrapper<l1extra::L1TkEtMissParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1extra::L1TkEtMissParticle> >"/>
+
+  <class name="l1extra::L1TkEmParticle" ClassVersion="10">
+   <version ClassVersion="10" checksum="4061452071"/>
+  </class>
+  <class name="std::vector<l1extra::L1TkEmParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1extra::L1TkEmParticle> >"/>
+  <class name="edm::Ref<std::vector<l1extra::L1TkEmParticle>,l1extra::L1TkEmParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1TkEmParticle>,l1extra::L1TkEmParticle> >"/>
+
+  <class name="l1extra::L1TkElectronParticle" ClassVersion="10">
+   <version ClassVersion="10" checksum="1448523362"/>
+  </class>
+  <class name="std::vector<l1extra::L1TkElectronParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1extra::L1TkElectronParticle> >"/>
+  <class name="edm::Ref<std::vector<l1extra::L1TkElectronParticle>,l1extra::L1TkElectronParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1TkElectronParticle>,l1extra::L1TkElectronParticle> >"/>
+
+  <class name="l1extra::L1TkJetParticle" ClassVersion="10">
+   <version ClassVersion="10" checksum="2684897040"/>
+  </class>
+  <class name="std::vector<l1extra::L1TkJetParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1extra::L1TkJetParticle> >"/>
+  <class name="edm::Ref<std::vector<l1extra::L1TkJetParticle>,l1extra::L1TkJetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1TkJetParticle>,l1extra::L1TkJetParticle> >"/>
+
+  <class name="edm::RefProd< std::vector<l1extra::L1TkJetParticle> >"/>
+  
+  <class name="l1extra::L1TkHTMissParticle" ClassVersion="11">
+   <version ClassVersion="11" checksum="4141571377"/>
+  </class>
+  <class name="std::vector<l1extra::L1TkHTMissParticle>"/>
+  <class name="edm::Wrapper<l1extra::L1TkHTMissParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1extra::L1TkHTMissParticle> >"/>
+
+  <class name="l1extra::L1TkMuonParticle" ClassVersion="10">
+   <version ClassVersion="10" checksum="1626250068"/>
+  </class>
+  <class name="std::vector<l1extra::L1TkMuonParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1extra::L1TkMuonParticle> >"/>
+  <class name="edm::Ref<std::vector<l1extra::L1TkMuonParticle>,l1extra::L1TkMuonParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1TkMuonParticle>,l1extra::L1TkMuonParticle> >"/>
+
+  <class name="l1extra::L1TkTauParticle" ClassVersion="10">
+   <version ClassVersion="10" checksum="755577729"/>
+  </class>
+  <class name="std::vector<l1extra::L1TkTauParticle>"/>
+  <class name="edm::Wrapper<std::vector<l1extra::L1TkTauParticle> >"/>
+  <class name="edm::Ref<std::vector<l1extra::L1TkTauParticle>,l1extra::L1TkTauParticle,edm::refhelper::FindUsingAdvance<std::vector<l1extra::L1TkTauParticle>,l1extra::L1TkTauParticle> >"/>
+
 </lcgdict>
 
