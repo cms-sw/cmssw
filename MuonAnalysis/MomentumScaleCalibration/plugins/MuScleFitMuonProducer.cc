@@ -10,6 +10,7 @@
 //
 // Original Author:  Marco De Mattia,40 3-B32,+41227671551,
 //         Created:  Tue Jun 22 13:50:22 CEST 2010
+// $Id: MuScleFitMuonProducer.cc,v 1.7 2010/12/13 11:19:01 demattia Exp $
 //
 //
 
@@ -50,9 +51,9 @@ class MuScleFitMuonProducer : public edm::EDProducer {
       ~MuScleFitMuonProducer();
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void beginJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
       template<class T> std::auto_ptr<T> applyCorrection(const edm::Handle<T> & allMuons);
 
   edm::InputTag theMuonLabel_;
