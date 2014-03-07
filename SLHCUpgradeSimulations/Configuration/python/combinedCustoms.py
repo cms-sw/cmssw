@@ -12,26 +12,32 @@ from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import customis
 from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import customise as customiseLB4LPS_2L2S
 from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import l1EventContent as customise_ev_LB6PS
 from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import l1EventContent as customise_ev_LB4LPS_2L2S
-
+from SLHCUpgradeSimulations.Configuration.phase1TkCustomsPixel10D import customise as customisePhase1TkPixel10D
 from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import customise as customiseTTI
 from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventContent_TTI as customise_ev_l1tracker
 
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
-from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
+from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0, customise_HcalPhase2
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
 from SLHCUpgradeSimulations.Configuration.me0Customs import customise as customise_me0
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise_ValidationNoGem_2023 as CustomiseValidation_NoGem_2023
-
+from SLHCUpgradeSimulations.Configuration.customise_ecalTime import cust_ecalTime
 import SLHCUpgradeSimulations.Configuration.aging as aging
+
+def cust_phase1_Pixel10D(process):
+    process=customisePostLS1(process)
+    process=customisePhase1TkPixel10D(process)
+    process=customise_HcalPhase1(process)
+    return process 
 
 def cust_phase2_BE5DPixel10D(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10D(process)
-    process=customise_HcalPhase1(process)
+    process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     return process
 
@@ -45,7 +51,7 @@ def cust_phase2_BE5D(process):
 def cust_phase2_BE(process):
     process=customisePostLS1(process)
     process=customiseBE(process)
-    process=customise_HcalPhase1(process)
+    process=customise_HcalPhase2(process)
     process=customise_ev_BE(process)
     return process
 
@@ -68,6 +74,11 @@ def cust_2017(process):
 #    process=fixRPCConditions(process)
     return process
 
+def cust_2017EcalTime(process):
+    process=cust_2017(process)
+    process=cust_ecalTime(process)
+    return process
+
 def cust_2019(process):
     process=customisePostLS1(process)
     process=customisePhase1Tk(process)
@@ -83,7 +94,7 @@ def cust_2019WithGem(process):
 def cust_2023(process):
     process=customisePostLS1(process)
     process=customiseBE5D(process)
-    process=customise_HcalPhase1(process)
+    process=customise_HcalPhase2(process)
     process=customise_ev_BE5D(process)
     process=customise_gem(process)
     process=CustomiseValidation_NoGem_2023(process)
@@ -92,7 +103,7 @@ def cust_2023(process):
 def cust_2023Muon(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10D(process)
-    process=customise_HcalPhase1(process)
+    process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem(process)
     process=CustomiseValidation_NoGem_2023(process)
