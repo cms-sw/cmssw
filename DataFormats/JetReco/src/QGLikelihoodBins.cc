@@ -1,4 +1,4 @@
-#include "RecoJets/JetAlgorithms/interface/Bins.h"
+#include "DataFormats/JetReco/interface/QGLikelihoodBins.h"
 #include <iostream>
 #include <vector>
 #include <cmath>

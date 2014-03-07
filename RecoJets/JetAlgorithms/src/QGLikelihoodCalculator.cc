@@ -1,5 +1,5 @@
 #include "RecoJets/JetAlgorithms/interface/QGLikelihoodCalculator.h"
-#include "RecoJets/JetAlgorithms/interface/Bins.h"
+#include "DataFormats/JetReco/interface/QGLikelihoodBins.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <iostream>
