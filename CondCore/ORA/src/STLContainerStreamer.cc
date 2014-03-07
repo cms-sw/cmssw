@@ -387,18 +387,18 @@ void ora::STLContainerReader::read( void* destinationData ) {
 
   size_t cursorSize = m_query->selectionSize(m_recordId, m_recordId.size()-1);
   unsigned int i=0;
+  // Create a new element for the array
+  void* objectData = 0;
+  if(isElementFundamental){
+    objectData = &primitiveStub;
+  } else {
+    objectData = iteratorReturnType.construct().address();
+  }
+
   while ( i< cursorSize ){
 
     m_recordId[m_recordId.size()-1] = (int)i;
     m_query->selectRow( m_recordId );
-
-    // Create a new element for the array
-    void* objectData = 0;
-    if(isElementFundamental){
-      objectData = &primitiveStub;
-    } else {
-      objectData = iteratorReturnType.construct().address();
-    }
 
     void* componentData = objectData;
     void* keyData = 0;
@@ -416,15 +416,15 @@ void ora::STLContainerReader::read( void* destinationData ) {
     size_t prevSize = m_arrayHandler->size( address );
     m_arrayHandler->appendNewElement( address, objectData );
     bool inserted = m_arrayHandler->size( address )>prevSize;
-    if ( ! ( iteratorReturnType.isFundamental() ) ) {
-      iteratorReturnType.destruct( objectData );
-    }
     if ( !inserted ) {
       throwException( "Could not insert a new element in the array type \"" +
                       m_objectType.qualifiedName() + "\"",
                       "STLContainerReader::read" );
     }
     ++i;
+  }
+  if ( ! ( iteratorReturnType.isFundamental() ) ) {
+    iteratorReturnType.destruct( objectData );
   }
 
   m_arrayHandler->finalize( address );
