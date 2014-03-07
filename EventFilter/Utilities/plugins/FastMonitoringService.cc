@@ -622,7 +622,7 @@ namespace evf{
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
     auto itr = sourceEventsReport_.find(lumi);
     if (itr!=sourceEventsReport_.end())
-      sourceEventsReport_[lumi]+=events;
+      itr->second+=events;
     else 
       sourceEventsReport_[lumi]=events;
 
