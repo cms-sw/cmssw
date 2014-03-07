@@ -1,5 +1,5 @@
-#ifndef QGTagger_h
-#define QGTagger_h
+#ifndef JetProducers_QGTagger_h
+#define JetProducers_QGTagger_h
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -11,8 +11,6 @@
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 #include "RecoJets/JetAlgorithms/interface/QGLikelihoodCalculator.h"
-#include "RecoJets/JetAlgorithms/interface/QGMLPCalculator.h"
-
 
 class QGTagger : public edm::EDProducer {
    public:
@@ -22,17 +20,20 @@ class QGTagger : public edm::EDProducer {
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      template <class jetClass> void calcVariables(const jetClass *jet, edm::Handle<reco::VertexCollection> vC, TString type);
+      template <class jetClass> void calcVariables(const jetClass *jet, edm::Handle<reco::VertexCollection> vC);
+      void putInEvent(std::string, edm::Handle<reco::PFJetCollection>, std::vector<float>*, edm::Event&);
+      void putInEvent(std::string, edm::Handle<reco::PFJetCollection>, std::vector<int>*, edm::Event&);
+
 
       // ----------member data -------------------------
-      edm::InputTag src, srcRho, srcRhoIso;
+      edm::InputTag srcJets, srcRhoIso;
       std::string jecService;
       TString dataDir;
-      Bool_t useCHS, isPatJet;
+      bool useCHS;
       QGLikelihoodCalculator *qgLikelihood;
-      QGMLPCalculator *qgMLP;
-      std::map<TString, Float_t> variables;
-      const JetCorrector *JEC;           
+      float pt, axis2, ptD;
+      int mult;
+      const JetCorrector *JEC;
 };
 
 #endif
