@@ -94,12 +94,12 @@ def customise_GlobalRecoFull(process):
 def customise_RecoFast(process):
     customise_LocalReco(process)
     customise_GlobalRecoFast(process)
-    return proces
+    return process
 
 def customise_RecoFull(process):
     customise_LocalReco(process)
     customise_GlobalRecoFull(process)
-    return proces
+    return process
 
 def customise_DQM(process):
     return process
