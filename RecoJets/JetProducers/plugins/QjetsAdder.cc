@@ -4,11 +4,13 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+using namespace std;
+
 void QjetsAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   // read input collection
   //edm::Handle<edm::View<pat::Jet> > jets;
   edm::Handle<edm::View<reco::Jet> > jets;
-  iEvent.getByLabel(src_, jets);
+  iEvent.getByToken(src_token_, jets);
 
   // prepare room for output
   std::vector<float> QjetsVolatility;       QjetsVolatility.reserve(jets->size());
@@ -54,9 +56,12 @@ void QjetsAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     if (nqjetconstits < (unsigned int) QjetsPreclustering_) constits = out_jets_basic.at(0).constituents();
     else constits = out_jets_basic.at(0).associated_cluster_sequence()->exclusive_subjets_up_to(out_jets_basic.at(0),QjetsPreclustering_);
 
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
+    qjetsAlgo_.SetRNEngine(engine);
     // create probabilistic recusterings
     for(unsigned int ii = 0 ; ii < (unsigned int) ntrial_ ; ii++){
-      qjetsAlgo_.SetRandSeed(iEvent.id().event()*100 + (jetIt - jets->begin())*ntrial_ + ii );// set random seed for reprudcibility. We need a smarted scheme
+      //qjetsAlgo_.SetRandSeed(iEvent.id().event()*100 + (jetIt - jets->begin())*ntrial_ + ii );// set random seed for reprudcibility. We need a smarted scheme
       fastjet::ClusterSequence qjet_seq(constits, qjet_def);
       vector<fastjet::PseudoJet> inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(cutoff_));
       if (inclusive_jets2.size()>0){ // fill the massvalue only if the reclustering was successfull

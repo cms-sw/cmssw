@@ -6,6 +6,8 @@
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="DataFormats/HepMCCandidate"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/ServiceRegistry"/>
 <export>
   <lib   name="1"/>
 </export>
