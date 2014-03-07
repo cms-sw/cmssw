@@ -26,14 +26,11 @@ def customise_Digi(process):
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')
     )
-
     process.mix.mixObjects.mixSH.crossingFrames.append('MuonME0Hits')
     process.mix.mixObjects.mixSH.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
     process.mix.mixObjects.mixSH.subdets.append('MuonME0Hits')
-
     process.load('SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi')
     process.muonDigi += process.simMuonME0Digis
-
     process=outputCustoms(process)
     return process
 
@@ -49,10 +46,8 @@ def customise_RawToDigi(process):
 def customise_LocalReco(process):
     process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
     process.load('RecoLocalMuon.GEMRecHit.me0Segments_cfi')
-    
     process.me0RecHits.me0DigiLabel = cms.InputTag("simMuonME0Digis")
     process.me0Segments.me0RecHitLabel = cms.InputTag("me0RecHits")
-    
     process.muonlocalreco += process.me0RecHits
     process.muonlocalreco += process.me0Segments
     return process
