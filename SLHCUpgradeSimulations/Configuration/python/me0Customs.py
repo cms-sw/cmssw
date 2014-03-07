@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def customise(process,isFast):
+def customise(process):
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'L1simulation_step'):
