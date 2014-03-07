@@ -51,6 +51,7 @@ calculateAndSetPositions(reco::PFClusterCollection& clusters) {
 void ECAL2DPositionCalcWithDepthCorr::
 calculateAndSetPositionActual(reco::PFCluster& cluster) const {  
   constexpr double preshowerStartEta =  1.653;
+  constexpr double preshowerEndEta = 2.6;
   if( !cluster.seed() ) {
     throw cms::Exception("ClusterWithNoSeed")
       << " Found a cluster with no seed: " << cluster;
@@ -99,7 +100,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   const CaloCellGeometry* center_cell = 
     ecal_geom->getGeometry(refmax->detId());
   const double ctreta = center_cell->getPosition().eta();
-  if( std::abs(ctreta) > preshowerStartEta ) { // need to change T0 if in ES
+  const double actreta = std::abs(ctreta);
+  // need to change T0 if in ES
+  if( actreta > preshowerStartEta && actreta < preshowerEndEta ) { 
     if(ctreta > 0 && _esPlus ) clusterT0 = _param_T0_ES;
     if(ctreta < 0 && _esMinus) clusterT0 = _param_T0_ES;
   }  
