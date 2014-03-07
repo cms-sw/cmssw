@@ -37,7 +37,9 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
 
     //do you want the T0 correction?
     applyT0corr = pset.getParameter<bool>("performT0SegCorrection");
-    computeT0corr = pset.getUntrackedParameter<bool>("computeT0Seg",true);
+
+    computeT0corr = pset.existsAs<bool>("computeT0Seg") ?
+      pset.getParameter<bool>("computeT0Seg") : true;
 
     // the updator
     theUpdator = new DTSegmentUpdator(pset);
@@ -131,7 +133,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
     cout << "Reconstructing of the Phi segments" << endl;
   }
 
-  vector<DTHitPairForFit*> pairPhiOwned;
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhiOwned;
   vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates(pairPhiOwned);
 
   if (debug) cout << "There are " << resultPhi.size() << " Phi cand" << endl;
@@ -250,15 +252,13 @@ DTCombinatorialPatternReco4D::reconstruct() {
   // finally delete the candidates!
   for (vector<DTSegmentCand*>::iterator phi=resultPhi.begin();
        phi!=resultPhi.end(); ++phi) delete *phi;
-  for (vector<DTHitPairForFit*>::iterator phiPair = pairPhiOwned.begin();
-       phiPair!=pairPhiOwned.end(); ++phiPair) delete *phiPair;
 
   return result;
 }
 
 
 
-vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandidates(vector<DTHitPairForFit*> &pairPhiOwned){
+vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandidates(vector<std::shared_ptr<DTHitPairForFit>> &pairPhiOwned){
 
   DTSuperLayerId slId;
 
@@ -275,9 +275,9 @@ vector<DTSegmentCand*> DTCombinatorialPatternReco4D::buildPhiSuperSegmentsCandid
 
   const DTSuperLayer *sl = theDTGeometry->superLayer(slId);
 
-  vector<DTHitPairForFit*> pairPhi1 = the2DAlgo->initHits(sl,theHitsFromPhi1);
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhi1 = the2DAlgo->initHits(sl,theHitsFromPhi1);
   // same sl!! Since the fit will be in the sl phi 1!
-  vector<DTHitPairForFit*> pairPhi2 = the2DAlgo->initHits(sl,theHitsFromPhi2);
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhi2 = the2DAlgo->initHits(sl,theHitsFromPhi2);
   // copy the pairPhi2 in the pairPhi1 vector 
   copy(pairPhi2.begin(),pairPhi2.end(),back_inserter(pairPhi1));
 
