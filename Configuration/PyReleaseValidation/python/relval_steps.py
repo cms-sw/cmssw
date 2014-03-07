@@ -1190,7 +1190,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuon':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCal':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCal4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023TTI':['GenSimFull','DigiTrkTrigFull','RecoFull','HARVESTFull'],
+                   'Extended2023TTI':['GenSimFull','DigiTrkTrigFull'], ##no need to go beyond local reco
                    'Extended2023Muon':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023CFCal':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023CFCal4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull']
@@ -1224,7 +1224,7 @@ for k in upgradeKeys:
                                       }
     if upgradeCustoms[k]!=None : upgradeStepDict['DigiFull'][k]['--customise']=upgradeCustoms[k]
 
-    upgradeStepDict['DigiTrkTrigFull'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW',
+    upgradeStepDict['DigiTrkTrigFull'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,RECO:pixeltrackerlocalreco',
                                              '--conditions':upgradeGTs[k],
                                              '--datatier':'GEN-SIM-DIGI-RAW',
                                              '-n':'10',

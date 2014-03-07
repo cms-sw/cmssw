@@ -101,7 +101,7 @@ def cust_2023Muon(process):
 def cust_2023TTI(process):
     process=customisePostLS1(process)
     process=customiseTTI(process)
-    process=customiseBE5D(process)
+    process=customiseBE5DPixel10D(process)
     process=customise_HcalPhase0(process)
     process=customise_ev_l1tracker(process)
 
