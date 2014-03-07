@@ -110,7 +110,6 @@ namespace {
           (el_message.find("already in TClassTable") != std::string::npos) ||
           (el_message.find("matrix not positive definite") != std::string::npos) ||
           (el_message.find("not a TStreamerInfo object") != std::string::npos) ||
-          (el_message.find("nbins is <=0") != std::string::npos) ||
           (el_message.find("Problems declaring payload") != std::string::npos) ||
           (el_location.find("Fit") != std::string::npos) ||
           (el_location.find("TDecompChol::Solve") != std::string::npos) ||
