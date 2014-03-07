@@ -2,31 +2,10 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 // severity level for ECAL
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
-
-const std::vector<double>& 
-CaloTowersCreator::getGridValues()
-{
-  static std::vector<double> retval;
-  
-  if (retval.size() == 0)
-    {
-      retval.push_back(0.);
-      retval.push_back(10.);
-      retval.push_back(20.);
-      retval.push_back(30.);
-      retval.push_back(40.);
-      retval.push_back(50.);
-      retval.push_back(100.);
-      retval.push_back(1000.); 
-    }
-
-  return retval;
-}
 
 
 CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) : 
@@ -118,14 +97,14 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
     toks_ecal_.push_back(consumes<EcalRecHitCollection>(ecalLabels_[i]));
 
 
-  EBEScale=EScales.EBScale; 
-  EEEScale=EScales.EEScale; 
-  HBEScale=EScales.HBScale; 
-  HESEScale=EScales.HESScale; 
-  HEDEScale=EScales.HEDScale; 
-  HOEScale=EScales.HOScale; 
-  HF1EScale=EScales.HF1Scale; 
-  HF2EScale=EScales.HF2Scale; 
+  EBEScale=eScales_.EBScale; 
+  EEEScale=eScales_.EEScale; 
+  HBEScale=eScales_.HBScale; 
+  HESEScale=eScales_.HESScale; 
+  HEDEScale=eScales_.HEDScale; 
+  HOEScale=eScales_.HOScale; 
+  HF1EScale=eScales_.HF1Scale; 
+  HF2EScale=eScales_.HF2Scale; 
 
   // get the Ecal severities to be excluded
   const std::vector<std::string> severitynames = 
@@ -137,8 +116,8 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
    theEcalSeveritiesToBeUsedInBadTowers_ =  
      StringToEnumValue<EcalSeverityLevel::SeverityLevel>(conf.getParameter<std::vector<std::string> >("EcalSeveritiesToBeUsedInBadTowers") );
 
-  if (EScales.instanceLabel=="") produces<CaloTowerCollection>();
-  else produces<CaloTowerCollection>(EScales.instanceLabel);
+  if (eScales_.instanceLabel=="") produces<CaloTowerCollection>();
+  else produces<CaloTowerCollection>(eScales_.instanceLabel);
 }
 
 void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
@@ -205,10 +184,6 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.setUseRejectedRecoveredHcalHits(useRejectedRecoveredHcalHits_);
   algo_.setUseRejectedRecoveredEcalHits(useRejectedRecoveredEcalHits_);
 
-
-
-
-
   algo_.begin(); // clear the internal buffer
 
   // can't chain these in a big OR statement, or else it'll
@@ -244,15 +219,12 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
     else if ((ec_tmp->begin()->detid()).subdetId() == EcalEndcap ) {
       eeHandle = ec_tmp;
     }
-
   }
 
   algo_.setEbHandle(ebHandle);
   algo_.setEeHandle(eeHandle);
 
   //-----------------------------------------------------------
-
-
 
   bool present;
 
@@ -278,14 +250,10 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   // Step B: Create empty output
   std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
-
   // Step C: Process
   algo_.finish(*prod);
 
   // Step D: Put into the event
-  if (EScales.instanceLabel=="") e.put(prod);
-  else e.put(prod,EScales.instanceLabel);
-
-
+  if (eScales_.instanceLabel=="") e.put(prod);
+  else e.put(prod,eScales_.instanceLabel);
 }
-
