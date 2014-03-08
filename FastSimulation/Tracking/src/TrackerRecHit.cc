@@ -355,20 +355,20 @@ TrackerRecHit::makesATripletWith(const TrackerRecHit& anotherHit,
 
   if(seedingAlgo == "SecondPixelTriplets") {
 
+    if (theSubDetId == 2 && anotherSubDetId == 2 && yetAnotherSubDetId == 2){
+
+      std::cout << "theLayerNumber = " << theLayerNumber << std::endl;
+      std::cout << "anotherLayerNumber = " << anotherLayerNumber << std::endl;
+      std::cout << "yetAnotherLayerNumber = " << yetAnotherLayerNumber << std::endl;
+      
+    }
+
     isAProperTriplet = 
       (theSubDetId == 2 && anotherSubDetId == 2 && yetAnotherSubDetId == 2)
       &&
-      (
-       ( theLayerNumber == 2  && anotherLayerNumber == 3 && yetAnotherLayerNumber == 4)
-       ||
-       ( theLayerNumber == 3  && anotherLayerNumber == 4 && yetAnotherLayerNumber == 5)
-       ||
-       ( theLayerNumber == 4  && anotherLayerNumber == 5 && yetAnotherLayerNumber == 6)
-       ||
-       ( theLayerNumber == 5  && anotherLayerNumber == 6 && yetAnotherLayerNumber == 7)
-       ||
-       ( theLayerNumber == 6  && anotherLayerNumber == 7 && yetAnotherLayerNumber == 8)
-       );
+      theLayerNumber <= 8  
+      && anotherLayerNumber <= 9 
+      && yetAnotherLayerNumber <= 10;
   }
   else {
   isAProperTriplet = 
