@@ -54,9 +54,7 @@ class CastorTowerProducer : public edm::EDProducer {
       ~CastorTowerProducer();
 
    private:
-      virtual void beginJob() override ;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
       virtual void ComputeTowerVariable(const edm::RefVector<edm::SortedCollection<CastorRecHit> >& usedRecHits, double&  Ehot, double& depth);
       
       // member data
@@ -266,18 +264,6 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.put(OutputTowers);
 } 
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void CastorTowerProducer::beginJob() {
-  LogDebug("CastorTowerProducer")
-    <<"Starting CastorTowerProducer";
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void CastorTowerProducer::endJob() {
-  LogDebug("CastorTowerProducer")
-    <<"Ending CastorTowerProducer";
-}
 
 void CastorTowerProducer::ComputeTowerVariable(const edm::RefVector<edm::SortedCollection<CastorRecHit> >& usedRecHits, double&  Ehot, double& depth) {
 

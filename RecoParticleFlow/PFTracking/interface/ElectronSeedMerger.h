@@ -16,9 +16,7 @@ class ElectronSeedMerger : public edm::EDProducer {
       ~ElectronSeedMerger();
   
    private:
-      virtual void beginJob(){} ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob(){}
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
  
 
       edm::ParameterSet conf_;

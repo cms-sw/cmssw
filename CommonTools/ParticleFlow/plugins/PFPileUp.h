@@ -42,9 +42,7 @@ class PFPileUp : public edm::EDProducer {
 
   ~PFPileUp();
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-
-  virtual void beginJob();
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 
