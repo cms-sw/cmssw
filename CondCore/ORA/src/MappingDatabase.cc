@@ -1,4 +1,5 @@
 #include "CondCore/ORA/interface/Exception.h"
+#include "ClassUtils.h"
 #include "MappingDatabase.h"
 #include "IDatabaseSchema.h"
 #include "MappingTree.h"
@@ -12,7 +13,7 @@
 
 std::string
 ora::MappingDatabase::versionOfClass( const edm::TypeWithDict& dictionary ){
-  std::string className = dictionary.qualifiedName();
+  std::string className = dictionary.cppName();
   Reflex::PropertyList classProps = ora::helper::Properties(dictionary);
   std::string classVersion = MappingRules::defaultClassVersion(className);
   if(classProps.HasProperty(MappingRules::classVersionPropertyNameInDictionary())){
@@ -273,7 +274,7 @@ void ora::MappingDatabase::insertClassVersion( const edm::TypeWithDict& dictiona
                                                int containerId,
                                                const std::string& mappingVersion,
                                                bool asBase  ){
-  std::string className = dictionaryEntry.qualifiedName();
+  std::string className = dictionaryEntry.cppName();
   std::string classVersion = versionOfClass( dictionaryEntry );
   insertClassVersion( className, classVersion, depIndex, containerId, mappingVersion, asBase );
 }
@@ -282,7 +283,7 @@ void ora::MappingDatabase::setMappingVersionForClass( const edm::TypeWithDict& d
                                                       int containerId,
                                                       const std::string& mappingVersion,
                                                       bool dependency ){
-  std::string className = dictionaryEntry.qualifiedName();
+  std::string className = dictionaryEntry.cppName();
   std::string classVersion = versionOfClass( dictionaryEntry );
   std::string classId = MappingRules::classId( className, classVersion );
   std::string mv("");

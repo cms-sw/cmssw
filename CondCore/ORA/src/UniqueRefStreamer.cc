@@ -33,11 +33,11 @@ namespace ora {
           m_depInsert->addId( *iC );
         }
 
-        MappingElement::iterator iMe = mapping.find( objectType.qualifiedName() );
+        MappingElement::iterator iMe = mapping.find( objectType.cppName() );
         // the first inner mapping is the relevant...
         if( iMe == mapping.end()){
           throwException("Could not find a mapping element for class \""+
-                         objectType.qualifiedName()+"\"",
+                         objectType.cppName()+"\"",
                          "DependentClassWriter::write");
         }
         RelationalStreamerFactory streamerFactory( contSchema );
@@ -85,11 +85,11 @@ namespace ora {
         m_type = objectType;
         m_depQuery.reset( new SelectOperation( depMapping.tableName(), contSchema.storageSchema()));
         m_depQuery->addWhereId(  depMapping.columnNames()[ 1 ] );
-        MappingElement::iterator iMap = depMapping.find( m_type.qualifiedName() );
+        MappingElement::iterator iMap = depMapping.find( m_type.cppName() );
         // the first inner mapping is the good one ...
         if( iMap == depMapping.end()){
           throwException("Could not find a mapping element for class \""+
-                         m_type.qualifiedName()+"\"",
+                         m_type.cppName()+"\"",
                          "DependentClassReadBuffer::ReadBuffer");
         }
         MappingElement& mapping = iMap->second;
@@ -238,7 +238,7 @@ void ora::UniqueRefWriter::write( int oid,
     refObj.typeOf().functionMemberByName("typeInfo").invoke(refObj, &refTIObj);
     
     edm::TypeWithDict refType = ClassUtils::lookupDictionary( *refTypeInfo );
-    className = refType.qualifiedName();
+    className = refType.cppName();
 
     // building the dependent buffer
     MappingElement& depMapping =  m_schema.mappingForDependentClass( refType, true );    

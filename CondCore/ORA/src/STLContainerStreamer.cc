@@ -40,7 +40,7 @@ bool ora::STLContainerWriter::build( DataElement& offset,
                                      RelationalBuffer& operationBuffer ){
   if( !m_objectType ){
     throwException( "Missing dictionary information for the type of the container \"" +
-                    m_objectType.qualifiedName() + "\"",
+                    m_objectType.cppName() + "\"",
                     "STLContainerWriter::build" );
   }
   m_localElement.clear();
@@ -72,7 +72,7 @@ bool ora::STLContainerWriter::build( DataElement& offset,
     edm::TypeWithDict keyResolvedType = ClassUtils::resolvedType(keyType);
     if ( ! keyType || !keyResolvedType ) {
       throwException( "Missing dictionary information for the key type of the container \"" +
-                      m_objectType.qualifiedName() + "\"",
+                      m_objectType.cppName() + "\"",
                       "STLContainerWriter::build" );
     }
     std::string keyName("key_type");
@@ -94,7 +94,7 @@ bool ora::STLContainerWriter::build( DataElement& offset,
   // Check the component type
   if ( ! valueType || !valueResolvedType ) {
     throwException( "Missing dictionary information for the content type of the container \"" +
-                    m_objectType.qualifiedName() + "\"",
+                    m_objectType.cppName() + "\"",
                     "STLContainerWriter::build" );
   }
 
@@ -149,13 +149,13 @@ void ora::STLContainerWriter::write( int oid,
     firstMember = iteratorReturnType.dataMemberByName( "first" );
     if ( ! firstMember ) {
       throwException( "Could not find the data member \"first\" for the class \"" +
-                      iteratorReturnType.qualifiedName() + "\"",
+                      iteratorReturnType.cppName() + "\"",
                       "STLContainerWriter::write" );
     }
     secondMember = iteratorReturnType.dataMemberByName( "second" );
     if ( ! secondMember ) {
       throwException( "Could not retrieve the data member \"second\" for the class \"" +
-                      iteratorReturnType.qualifiedName() + "\"",
+                      iteratorReturnType.cppName() + "\"",
                       "STLContainerWriter::write" );
     }
   }
@@ -283,7 +283,7 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
 
     if ( ! keyType ||!keyResolvedType ) {
       throwException( "Missing dictionary information for the key type of the container \"" +
-                      m_objectType.qualifiedName() + "\"",
+                      m_objectType.cppName() + "\"",
                       "STLContainerReader::build" );
     }
 
@@ -307,7 +307,7 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
   // Check the component type
   if ( ! valueType ||!valueResolvedType ) {
     throwException( "Missing dictionary information for the content type of the container \"" +
-                    m_objectType.qualifiedName() + "\"",
+                    m_objectType.cppName() + "\"",
                     "STLContainerReader::build" );
   }
 
@@ -370,13 +370,13 @@ void ora::STLContainerReader::read( void* destinationData ) {
     firstMember = iteratorReturnType.dataMemberByName( "first" );
     if ( ! firstMember ) {
       throwException("Could not retrieve the data member \"first\" of the class \"" +
-                     iteratorReturnType.qualifiedName() + "\"",
+                     iteratorReturnType.cppName() + "\"",
                      "STLContainerReader::read" );
     }
     secondMember = iteratorReturnType.dataMemberByName( "second" );
     if ( ! secondMember ) {
       throwException( "Could not retrieve the data member \"second\" of the class \"" +
-                      iteratorReturnType.qualifiedName() + "\"",
+                      iteratorReturnType.cppName() + "\"",
                       "STLContainerReader::read" );
     }
   }
@@ -418,7 +418,7 @@ void ora::STLContainerReader::read( void* destinationData ) {
     bool inserted = m_arrayHandler->size( address )>prevSize;
     if ( !inserted ) {
       throwException( "Could not insert a new element in the array type \"" +
-                      m_objectType.qualifiedName() + "\"",
+                      m_objectType.cppName() + "\"",
                       "STLContainerReader::read" );
     }
     ++i;

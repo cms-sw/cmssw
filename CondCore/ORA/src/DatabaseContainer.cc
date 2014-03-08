@@ -41,11 +41,11 @@ namespace ora {
 	  InsertOperation* topLevelInsert = &operationBuffer.newInsert( topLevelMapping.tableName() );
 	  topLevelInsert->addId(  topLevelMapping.columnNames()[ 0 ] );
 	  const edm::TypeWithDict& type = m_contSchema.type();
-	  MappingElement::iterator iMap = topLevelMapping.find( type.qualifiedName() );
+	  MappingElement::iterator iMap = topLevelMapping.find( type.cppName() );
 	  // the first inner mapping is the relevant...
 	  if( iMap == topLevelMapping.end()){
 	    throwException("Could not find a mapping element for class \""+
-			   type.qualifiedName()+"\"",
+			   type.cppName()+"\"",
 			   "WriteBuffer::flush");
 	  }
 	  MappingElement& mapping = iMap->second;
@@ -106,11 +106,11 @@ namespace ora {
 	  topLevelUpdate->addId(  topLevelMapping.columnNames()[ 0 ] );
 	  topLevelUpdate->addWhereId(  topLevelMapping.columnNames()[ 0 ] );
 	  const edm::TypeWithDict& type = m_contSchema.type();
-	  MappingElement::iterator iMap = topLevelMapping.find( type.qualifiedName() );
+	  MappingElement::iterator iMap = topLevelMapping.find( type.cppName() );
 	  // the first inner mapping is the relevant...
 	  if( iMap == topLevelMapping.end()){
 	    throwException("Could not find a mapping element for class \""+
-			   type.qualifiedName()+"\"",
+			   type.cppName()+"\"",
 			   "UpdateBuffer::flush");
 	  }
 	  MappingElement& mapping = iMap->second;
@@ -151,11 +151,11 @@ namespace ora {
 
         MappingElement& topLevelMapping = contSchema.mapping().topElement();
         m_topLevelQuery.addWhereId(  topLevelMapping.columnNames()[ 0 ] );
-        MappingElement::iterator iMap = topLevelMapping.find( m_type.qualifiedName() );
+        MappingElement::iterator iMap = topLevelMapping.find( m_type.cppName() );
         // the first inner mapping is the good one ...
         if( iMap == topLevelMapping.end()){
           throwException("Could not find a mapping element for class \""+
-                         m_type.qualifiedName()+"\"",
+                         m_type.cppName()+"\"",
                          "ReadBuffer::ReadBuffer");
         }
         MappingElement& mapping = iMap->second;
@@ -282,7 +282,7 @@ void* ora::IteratorBuffer::getItem(){
 
 void* ora::IteratorBuffer::getItemAsType( const edm::TypeWithDict& asType ){
   if( !ClassUtils::isType( type(), asType ) ){
-    throwException("Provided output object type \""+asType.qualifiedName()+"\" does not match with the container type \""+type().qualifiedName(), 
+    throwException("Provided output object type \""+asType.cppName()+"\" does not match with the container type \""+type().cppName(), 
 		   "ora::IteratorBuffer::getItemsAsType" );
   } 
   return getItem();
@@ -419,7 +419,7 @@ void* ora::DatabaseContainer::fetchItemAsType(int itemId,
     m_readBuffer.reset( new ReadBuffer( *m_schema ) );
   }
   if( !ClassUtils::isType( type(), asType ) ){
-    throwException("Provided output object type \""+asType.qualifiedName()+"\" does not match with the container type \""+type().qualifiedName(), 
+    throwException("Provided output object type \""+asType.cppName()+"\" does not match with the container type \""+type().cppName(), 
 		   "ora::DatabaseContainer::fetchItemAsType" );
   } 
   return m_readBuffer->read( itemId );

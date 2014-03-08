@@ -28,7 +28,7 @@ bool ora::InlineCArrayStreamerBase::buildDataElement(DataElement& dataElement,
   m_arrayType = ClassUtils::resolvedType( m_objectType.toType() );  
   if ( ! m_arrayType ) {
     throwException( "Missing dictionary information for the element of array \"" +
-                    m_objectType.qualifiedName() + "\"",
+                    m_objectType.cppName() + "\"",
                     "InlineCArrayStreamerBase::buildDataElement" );
   }
   // Loop over the elements of the array.

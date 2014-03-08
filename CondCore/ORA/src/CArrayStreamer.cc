@@ -46,7 +46,7 @@ bool ora::CArrayWriter::build( DataElement& offset,
   // Check the component type
   if ( ! arrayType || !arrayResolvedType ) {
     throwException( "Missing dictionary information for the element type of the array \"" +
-                    m_objectType.qualifiedName() + "\"",
+                    m_objectType.cppName() + "\"",
                     "CArrayWriter::build" );
   }
   
@@ -198,7 +198,7 @@ bool ora::CArrayReader::build( DataElement& offset,
   // Check the component type
   if ( ! arrayType || !arrayResolvedType ) {
     throwException( "Missing dictionary information for the element type of the array \"" +
-                    m_objectType.qualifiedName() + "\"",
+                    m_objectType.cppName() + "\"",
                     "CArrayReader::build" );
   }
 
