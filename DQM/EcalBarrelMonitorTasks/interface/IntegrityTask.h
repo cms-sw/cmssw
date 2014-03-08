@@ -1,60 +1,52 @@
 #ifndef IntegrityTask_H
 #define IntegrityTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
+
+#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-namespace ecaldqm {
+namespace ecaldqm
+{
 
   class IntegrityTask : public DQWorkerTask {
   public:
-    IntegrityTask(const edm::ParameterSet &, const edm::ParameterSet&);
-    ~IntegrityTask();
+    IntegrityTask();
+    ~IntegrityTask() {}
 
-    void bookMEs() override;
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
+    bool analyze(void const*, Collections) override;
 
-    void analyze(const void*, Collections) override;
-
-    void runOnErrors(const DetIdCollection &, Collections);
-    void runOnErrors(const EcalElectronicsIdCollection &, Collections);
-
-    enum MESets {
-      kByLumi,
-      kTotal,
-      kGain,
-      kChId,
-      kGainSwitch,
-      kBlockSize,
-      kTowerId,
-      kFEDNonFatal,
-      nMESets
-    };
-
-    static void setMEData(std::vector<MEData>&);
-
-  private:
-    int hltTaskMode_; // 0 -> Do not produce FED plots; 1 -> Only produce FED plots; 2 -> Do both
-    std::string hltTaskFolder_;
+    template<class C> void runOnDetIdCollection(C const&, Collections);
+    void runOnElectronicsIdCollection(EcalElectronicsIdCollection const&, Collections);
   };
 
-  inline void IntegrityTask::analyze(const void* _p, Collections _collection){
+  inline bool IntegrityTask::analyze(void const* _p, Collections _collection){
     switch(_collection){
-    case kGainErrors:
-    case kChIdErrors:
-    case kGainSwitchErrors:
-      runOnErrors(*static_cast<const DetIdCollection*>(_p), _collection);
+    case kEBGainErrors:
+    case kEBChIdErrors:
+    case kEBGainSwitchErrors:
+      if(_p) runOnDetIdCollection(*static_cast<EBDetIdCollection const*>(_p), _collection);
+      return true;
+    case kEEGainErrors:
+    case kEEChIdErrors:
+    case kEEGainSwitchErrors:
+      if(_p) runOnDetIdCollection(*static_cast<EEDetIdCollection const*>(_p), _collection);
+      return true;
       break;
     case kTowerIdErrors:
     case kBlockSizeErrors:
-      runOnErrors(*static_cast<const EcalElectronicsIdCollection*>(_p), _collection);
+      if(_p) runOnElectronicsIdCollection(*static_cast<EcalElectronicsIdCollection const*>(_p), _collection);
+      return true;
       break;
     default:
       break;
     }
+
+    return false;
   }
 
 }

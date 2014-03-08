@@ -123,12 +123,6 @@ void  DeDxEstimatorProducer::beginRun(edm::Run const& run, const edm::EventSetup
    MakeCalibrationMap();
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void  DeDxEstimatorProducer::endJob(){
-   MODsColl.clear();
-}
-
-
 
 
 void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)

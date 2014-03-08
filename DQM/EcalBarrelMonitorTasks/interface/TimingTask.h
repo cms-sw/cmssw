@@ -1,7 +1,7 @@
 #ifndef TimingTask_H
 #define TimingTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -9,40 +9,33 @@ namespace ecaldqm {
 
   class TimingTask : public DQWorkerTask {
   public:
-    TimingTask(const edm::ParameterSet &, const edm::ParameterSet &);
-    ~TimingTask();
+    TimingTask();
+    ~TimingTask() {}
 
-    bool filterRunType(const std::vector<short>&) override;
+    bool filterRunType(short const*) override;
 
-    void analyze(const void*, Collections) override;
+    bool analyze(void const*, Collections) override;
 
-    void runOnRecHits(const EcalRecHitCollection &, Collections);
-
-    enum MESets {
-      kTimeMap,
-      kTimeAmp,
-      kTimeAll,
-      kTimeAllMap,
-      kTimeAmpAll,
-      nMESets
-    };
-
-    static void setMEData(std::vector<MEData>&);
+    void runOnRecHits(EcalRecHitCollection const&, Collections);
 
   private:
+    void setParams(edm::ParameterSet const&) override;
+
     float energyThresholdEB_;
     float energyThresholdEE_;
   };
 
-  inline void TimingTask::analyze(const void* _p, Collections _collection){
+  inline bool TimingTask::analyze(void const* _p, Collections _collection){
     switch(_collection){
     case kEBRecHit:
     case kEERecHit:
-      runOnRecHits(*static_cast<const EcalRecHitCollection*>(_p), _collection);
+      if(_p) runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
+      return true;
       break;
     default:
       break;
     }
+    return false;
   }
 
 }

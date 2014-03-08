@@ -1,93 +1,71 @@
 #ifndef TrigPrimTask_H
 #define TrigPrimTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-
-class EcalTrigTowerConstituentsMap;
 
 namespace ecaldqm {
 
   class TrigPrimTask : public DQWorkerTask {
   public:
-    TrigPrimTask(const edm::ParameterSet &, const edm::ParameterSet &);
-    ~TrigPrimTask();
+    TrigPrimTask();
+    ~TrigPrimTask() {}
 
-    void bookMEs() override;
+    void addDependencies(DependencySet&) override;
 
-    void analyze(const void*, Collections) override;
+    bool analyze(void const*, Collections) override;
 
-    void beginRun(const edm::Run &, const edm::EventSetup &) override;
-    void beginEvent(const edm::Event &, const edm::EventSetup &) override;
+    void beginEvent(edm::Event const&, edm::EventSetup const&) override;
 
-    void runOnRealTPs(const EcalTrigPrimDigiCollection &);
-    void runOnEmulTPs(const EcalTrigPrimDigiCollection &);
-    void runOnDigis(const EcalDigiCollection &);
-
-    enum MESets {
-      kEtReal,
-      //      kEtEmul,
-      kEtMaxEmul,
-      kEtRealMap,
-      //      kEtEmulMap,
-      kEtSummary,
-      kMatchedIndex,
-      kEmulMaxIndex,
-      kTimingError,
-      kEtVsBx,
-      kOccVsBx,
-      kLowIntMap,
-      kMedIntMap,
-      kHighIntMap,
-      kTTFlags,
-      kTTFMismatch,
-/*       kTimingCalo, */
-/*       kTimingMuon, */
-      kEtEmulError,
-      kFGEmulError,
-      nMESets
-    };
-
-    static void setMEData(std::vector<MEData>&);
+    void runOnRealTPs(EcalTrigPrimDigiCollection const&);
+    void runOnEmulTPs(EcalTrigPrimDigiCollection const&);
+    template<typename DigiCollection> void runOnDigis(DigiCollection const&);
 
     enum Constants {
       nBXBins = 15
     };
 
   private:
-    const EcalTrigTowerConstituentsMap* ttMap_;
-    const EcalTrigPrimDigiCollection* realTps_;
+    void setParams(edm::ParameterSet const&) override;
+
+    EcalTrigPrimDigiCollection const* realTps_;
 
     bool runOnEmul_;
 
-    int expectedTiming_;
-    std::string HLTCaloPath_;
-    std::string HLTMuonPath_;
-    bool HLTCaloBit_;
-    bool HLTMuonBit_;
+/*     std::string HLTCaloPath_; */
+/*     std::string HLTMuonPath_; */
+/*     bool HLTCaloBit_; */
+/*     bool HLTMuonBit_; */
 
     int bxBinEdges_[nBXBins + 1];
-    float bxBin_;
+    double bxBin_;
 
     std::map<uint32_t, unsigned> towerReadouts_;
   };
 
-  inline void TrigPrimTask::analyze(const void* _p, Collections _collection){
+  inline bool TrigPrimTask::analyze(void const* _p, Collections _collection){
     switch(_collection){
     case kTrigPrimDigi:
-      runOnRealTPs(*static_cast<const EcalTrigPrimDigiCollection*>(_p));
+      if(_p) runOnRealTPs(*static_cast<EcalTrigPrimDigiCollection const*>(_p));
+      return true;
       break;
     case kTrigPrimEmulDigi:
-      runOnEmulTPs(*static_cast<const EcalTrigPrimDigiCollection*>(_p));
+      if(_p && runOnEmul_) runOnEmulTPs(*static_cast<EcalTrigPrimDigiCollection const*>(_p));
+      return runOnEmul_;
       break;
     case kEBDigi:
+      if(_p) runOnDigis(*static_cast<EBDigiCollection const*>(_p));
+      return true;
+      break;
     case kEEDigi:
-      runOnDigis(*static_cast<const EcalDigiCollection*>(_p));
+      if(_p) runOnDigis(*static_cast<EEDigiCollection const*>(_p));
+      return true;
       break;
     default:
       break;
     }
+    return false;
   }
 
 }
