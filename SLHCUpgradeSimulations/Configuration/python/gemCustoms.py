@@ -78,12 +78,13 @@ def customise_Validation(process):
     process.load('SimMuon.MCTruth.MuonAssociatorByHits_cfi')
     process.muonAssociatorByHitsCommonParameters.useGEMs = cms.bool(True)
     process.muonTrackValidator.useGEMs = cms.bool(True)
-    process.globalValidation += cms.Sequence(
+    process.genvalid_all += cms.Sequence(
         process.gemHitsValidation *
         process.gemDigiValidation *
         process.gemRecHitsValidation
     )
     return process
+
 
 def customise_harvesting(process):
     process.load('Validation.MuonGEMHits.PostProcessor_cff')
