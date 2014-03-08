@@ -58,10 +58,8 @@ class APVCyclePhaseProducerFromL1TS : public edm::EDProducer {
       ~APVCyclePhaseProducerFromL1TS();
 
 private:
-  virtual void beginJob() override ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
 
   bool isBadRun(const unsigned int) const;
   
@@ -322,17 +320,6 @@ APVCyclePhaseProducerFromL1TS::produce(edm::Event& iEvent, const edm::EventSetup
 
   iEvent.put(apvphases);
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-APVCyclePhaseProducerFromL1TS::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-APVCyclePhaseProducerFromL1TS::endJob() {
 }
 
 bool 

@@ -44,9 +44,7 @@ class JetPlusTrackProducer : public edm::EDProducer {
    public:
       explicit JetPlusTrackProducer(const edm::ParameterSet&);
       ~JetPlusTrackProducer();
-      virtual void beginJob();
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
    // ---------- private data members ---------------------------
    private:

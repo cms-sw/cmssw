@@ -5,10 +5,10 @@
 <use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/EcalRawData"/>
 <use   name="DataFormats/EcalRecHit"/>
-<use   name="TBDataFormats/EcalTBObjects"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="DataFormats/L1GlobalMuonTrigger"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
@@ -17,8 +17,9 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>
-<use name="Geometry/CaloTopology"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="Geometry/CaloTopology"/>
 <use   name="rootphysics"/>
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>

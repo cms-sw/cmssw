@@ -104,16 +104,5 @@ JetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put( jetIdValueMap );
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-JetIDProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-JetIDProducer::endJob() {
-}
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(JetIDProducer);

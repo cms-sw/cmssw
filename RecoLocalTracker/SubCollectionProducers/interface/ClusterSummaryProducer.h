@@ -70,8 +70,8 @@ class ClusterSummaryProducer : public edm::EDProducer {
       ~ClusterSummaryProducer(){};
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void beginJob() override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
       void decodeInput(std::vector<std::string> &, std::string );
       

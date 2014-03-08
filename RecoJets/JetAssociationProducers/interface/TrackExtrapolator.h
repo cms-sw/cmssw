@@ -61,9 +61,8 @@ class TrackExtrapolator : public edm::EDProducer {
       ~TrackExtrapolator();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+
       
       // ----------member data ---------------------------
 

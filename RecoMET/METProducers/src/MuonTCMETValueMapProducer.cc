@@ -196,12 +196,6 @@ void MuonTCMETValueMapProducer::beginJob()
 }
 
 //____________________________________________________________________________||
-void MuonTCMETValueMapProducer::endJob()
-{
-
-}
-
-//____________________________________________________________________________||
 bool MuonTCMETValueMapProducer::isGoodMuon( const reco::Muon* muon )
 {
   double d0    = -999;

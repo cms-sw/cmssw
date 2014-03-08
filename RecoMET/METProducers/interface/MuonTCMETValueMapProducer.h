@@ -47,9 +47,8 @@ public:
 
 
 private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
   edm::Handle<reco::MuonCollection>    muons_;
   edm::Handle<reco::BeamSpot>          beamSpot_;
