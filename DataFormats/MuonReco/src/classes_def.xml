@@ -1,10 +1,23 @@
 <lcgdict>
+<!--
   <class name="reco::Muon" ClassVersion="14">
    <version ClassVersion="11" checksum="199341143"/>
    <version ClassVersion="12" checksum="1157850969"/>
    <version ClassVersion="13" checksum="73400658"/>
    <version ClassVersion="14" checksum="3316837126"/>
-
+  </class>
+-->
+<!--
+  <class name="reco::Muon" ClassVersion="12">
+   <version ClassVersion="11" checksum="199341143"/>
+   <version ClassVersion="12" checksum="1157850969"/>
+   <version ClassVersion="12" checksum="3316837126"/>
+  </class>
+-->
+  <class name="reco::Muon" ClassVersion="12">
+   <version ClassVersion="11" checksum="199341143"/>
+   <version ClassVersion="12" checksum="3316837126"/>
+   <version ClassVersion="13" checksum="3316837126"/>
   </class>
   <class name="std::vector<reco::Muon>"/>
   <class name="edm::Wrapper<std::vector<reco::Muon> >"/>
@@ -161,5 +174,23 @@
   <class name="edm::PtrVector<reco::Muon>" />
   <class name="edm::Wrapper<edm::PtrVector<reco::Muon> >" />
 
+  <selection>
+    <class name="std::vector<EmulatedME0Segment>"/>
+    <class name="EmulatedME0Segment" ClassVersion="11">
+      <version ClassVersion="11" checksum="2771665507"/>
+    </class>
+    <class name="edm::Wrapper<std::vector<EmulatedME0Segment> >"/>
+    
+    <class name="edm::Ref<std::vector<EmulatedME0Segment>,EmulatedME0Segment,edm::refhelper::FindUsingAdvance<std::vector<EmulatedME0Segment>,EmulatedME0Segment> >"/>
+    
+    <class name="std::vector<reco::ME0Muon>"/>
+    <class name="reco::ME0Muon" ClassVersion="14">
+      <version ClassVersion="14" checksum="13864262"/>
+    </class>
+    <class name="edm::Wrapper<std::vector<reco::ME0Muon> >"/>
+    
+    <class name="edm::Ref<std::vector<reco::ME0Muon>,reco::ME0Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::ME0Muon>,reco::ME0Muon> >"/>
+  </selection>
+  
 </lcgdict>
 

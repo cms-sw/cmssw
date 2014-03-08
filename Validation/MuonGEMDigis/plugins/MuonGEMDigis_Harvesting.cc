@@ -1,24 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    MuonGEMDigis_Harvesting
-// Class:      MuonGEMDigis_Harvesting
-// 
-/**\class MuonGEMDigis_Harvesting MuonGEMDigis_Harvesting.cc Validation/MuonGEMDigis_Harvesting/plugins/MuonGEMDigis_Harvesting.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Geonmo RYU
-//         Created:  Mon, 07 Oct 2013 12:45:56 GMT
-//         Based on :  /GEMCode/GEMValidation/plugin/GEMDigiAnalyzer.cc
-// $Id$
-//
-//
-
-
 // system include files
 #include <memory>
 
@@ -35,8 +14,6 @@
 #include "TGraphAsymmErrors.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "Validation/MuonGEMDigis/interface/MuonGEMDigis_Harvesting.h"
 
 ///Data Format
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
@@ -67,82 +44,44 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
+#include "Validation/MuonGEMDigis/plugins/MuonGEMDigis_Harvesting.h"
 
 
-
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 MuonGEMDigis_Harvesting::MuonGEMDigis_Harvesting(const edm::ParameterSet& ps)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
 }
 
 
-
 MuonGEMDigis_Harvesting::~MuonGEMDigis_Harvesting()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
 }
 
 
-
-
-
-//
-// member functions
-//
-
-// ------------ method called for each event  ------------
 void
 MuonGEMDigis_Harvesting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  
-
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
 
 void 
 MuonGEMDigis_Harvesting::beginJob()
 {
-
-
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
 
 void 
 MuonGEMDigis_Harvesting::endJob() 
 {
 }
 
-// ------------ method called when starting to processes a run  ------------
 
 void 
 MuonGEMDigis_Harvesting::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
-
-
-
-
-
 }
 
 
-// ------------ method called when ending the processing of a run  ------------
 void 
 MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
 {
@@ -159,7 +98,6 @@ MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
   TH1F* sh_eta[4]={nullptr};
   TH1F* sh_phi[4]={nullptr};
   
-
   if ( dbe_->get("MuonGEMDigisV/GEMDigiTask/track_phi") != nullptr && dbe_->get("MuonGEMDigisV/GEMDigiTask/track_eta") !=nullptr ) {
     gem_trk_phi = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/track_phi")->getTH1F()->Clone();
     gem_trk_eta = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/track_eta")->getTH1F()->Clone();
@@ -296,28 +234,6 @@ MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
 }
 
 
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-MuonGEMDigis_Harvesting::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-MuonGEMDigis_Harvesting::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-
-
-
-
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 MuonGEMDigis_Harvesting::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

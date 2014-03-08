@@ -42,6 +42,8 @@ public:
 
   void initPulseCorr(int toadd); 
 
+  void setD1W(double w1);
+
   // set RecoParams channel-by-channel.
   void setRecoParams(bool correctForTimeslew, bool correctForPulse, bool setLeakCorrection, int pileupCleaningID, float phaseNS);
 
@@ -68,6 +70,7 @@ private:
   std::auto_ptr<HcalPulseContainmentManager> pulseCorr_;
   bool setForData_;
   bool setLeakCorrection_;
+  double weight1;
   int pileupCleaningID_;
 };
 

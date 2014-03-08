@@ -466,18 +466,16 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     aTrack.setMomentum( GlobalVector ( GlobalVector::Cylindrical(fabs(track.pt(mMagneticFieldStrength)), 
 								  track.phi0(), 
-								 fabs(track.pt(mMagneticFieldStrength))*sinh(track.eta())) ) );
+								 fabs(track.pt(mMagneticFieldStrength))*sinh(track.eta())) ) ,4);
     
-    aTrack.setRInv(track.rinv());
+    aTrack.setRInv(track.rinv(),4);
 
     aTrack.setSector(999); //this is currently not retrained by the algorithm
     aTrack.setWedge(999); //not used by the tracklet implementations
 
-    aTrack.setChi2(track.chisq());
+    aTrack.setChi2(track.chisq(),4);
 
-    aTrack.setPOCA(bsPosition);
-
-    aTrack.setFitParNo(4);
+    aTrack.setPOCA(bsPosition,4);
 
     
     

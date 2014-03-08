@@ -21,6 +21,7 @@ class MuonTrackValidator : public edm::EDAnalyzer, protected MuonTrackValidatorB
     dirName_ = pset.getParameter<std::string>("dirName");
     associatormap = pset.getParameter< edm::InputTag >("associatormap");
     UseAssociators = pset.getParameter< bool >("UseAssociators");
+    useGEMs_ = pset.getParameter< bool >("useGEMs");
     tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
 					  pset.getParameter<double>("minRapidityTP"),
 					  pset.getParameter<double>("maxRapidityTP"),
@@ -138,6 +139,7 @@ private:
   std::string dirName_;
   edm::InputTag associatormap;
   bool UseAssociators;
+  bool useGEMs_;
   double minPhi, maxPhi;
   int nintPhi;
   bool useGsf;

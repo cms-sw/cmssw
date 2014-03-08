@@ -6,6 +6,8 @@
 </bin>
 <bin   file="printEEDetId.cpp">
 </bin>
+<bin   file="printEKDetId.cpp">
+</bin>
 <bin   file="testScHashedIndex.cpp">
 </bin>
 <bin   file="testEEHashedIndex.cpp">

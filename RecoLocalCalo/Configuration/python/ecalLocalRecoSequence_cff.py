@@ -17,7 +17,6 @@ from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalCompactTrigPrim_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalTPSkim_cfi import *
 
-
 ecalUncalibRecHitSequence = cms.Sequence(ecalGlobalUncalibRecHit*
                                          ecalDetIdToBeRecovered)
 

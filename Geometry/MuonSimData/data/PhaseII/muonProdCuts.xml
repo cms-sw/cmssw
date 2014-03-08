@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="ProductionCuts" eval="true">
+  <SpecPar name="Muon">
+   <PartSelector path="//MUON"/>
+   <Parameter name="CMSCutsRegion" value="Muon" eval="false"/>
+   <Parameter name="ProdCutsForGamma" value="100.*mm"/>
+   <Parameter name="ProdCutsForElectrons" value="10.*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="10.*mm"/>
+  </SpecPar>
+  <SpecPar name="MuonIron">
+   <PartSelector path="//MGNT"/>
+   <PartSelector path="//YBSepar.*"/>
+   <PartSelector path="//COI.*"/>
+   <PartSelector path="//COCF"/>
+   <PartSelector path="//YB.*"/>
+   <PartSelector path="//ZStopSpace"/>
+   <PartSelector path="//SupportTubeForHE.*"/>
+   <PartSelector path="//YN.*"/>
+   <PartSelector path="//YE1.*"/>
+   <PartSelector path="//YE2.*"/>
+   <PartSelector path="//YE3.*"/>
+   <!-- if you want to re-stage YE4, then remove the comments around this element   <PartSelector path="//YE4.*"/>   -->
+   <PartSelector path="//ShieldingME4.*"/>
+   <PartSelector path="//ShieldingBoronPoly.*"/>
+   <PartSelector path="//ME11SupportDisk"/>
+   <Parameter name="CMSCutsRegion" value="MuonIron" eval="false"/>
+   <Parameter name="ProdCutsForGamma" value="1.*mm"/>
+   <Parameter name="ProdCutsForElectrons" value="1.*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="1.*mm"/>
+  </SpecPar>
+  <SpecPar name="MuonChamber">
+   <PartSelector path="//MB.*N"/>
+   <PartSelector path="//MB.*P"/>
+   <PartSelector path="//ME.*Space"/>
+   <PartSelector path="//RR.*"/>
+   <Parameter name="CMSCutsRegion" value="MuonChamber" eval="false"/>
+   <Parameter name="ProdCutsForGamma" value="1.*mm"/>
+   <Parameter name="ProdCutsForElectrons" value="0.002*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="0.002*mm"/>
+  </SpecPar>
+  <SpecPar name="MuonSensitive_DT-CSC">
+   <!-- 1 keV for gamma/e-, 1 MeV for e+ -->
+   <PartSelector path="//MB.*PhiGas"/>
+   <PartSelector path="//MB.*ZGas"/>
+   <PartSelector path="//ME.*ActiveGasVol"/>
+   <Parameter name="CMSCutsRegion" value="MuonSensitive_DT-CSC" eval="false"/>
+   <Parameter name="ProdCutsForGamma" value="25.*mm"/>
+   <Parameter name="ProdCutsForElectrons" value="1.*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="2.5*m"/>
+  </SpecPar>
+  <SpecPar name="MuonSensitive_RPC">
+   <!-- 10 keV for gamma/e-, 1 MeV for e+ -->
+   <PartSelector path="//MB.*RPC_.*Gas.*"/>
+   <!--    <PartSelector path="//REA.*"/>  -->
+   <PartSelector path="//REB.*"/>
+   <PartSelector path="//REC.*"/>
+   <!--    <PartSelector path="//RED.*"/>  -->
+   <PartSelector path="//REE.*"/>
+   <PartSelector path="//REF.*"/>
+   <PartSelector path="//REG.*"/>
+   <PartSelector path="//REH.*"/>
+   <Parameter name="CMSCutsRegion" value="MuonSensitive_RPC" eval="false"/>
+   <Parameter name="ProdCutsForGamma" value="8.5*m"/>
+   <Parameter name="ProdCutsForElectrons" value="8.*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="2.5*m"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>
