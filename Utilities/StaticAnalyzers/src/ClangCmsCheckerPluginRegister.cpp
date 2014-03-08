@@ -40,6 +40,7 @@ void clang_registerCheckers ( clang::ento::CheckerRegistry &registry)
 	registry.addChecker< clangcms::ClassDumperCT>( "optional.ClassDumperCT", "dumps template edm::Wrapper,edm::RunCache,edm::LuminosityBlockCache, and edm::GlobalCache types which define data classes " );
 	registry.addChecker< clangcms::ClassDumperFT>( "optional.ClassDumperFT", "dumps macro TYPELOOKUP_DATA_REG types which define data classes" );
 	registry.addChecker< clangcms::ClassDumperInherit>( "optional.ClassDumperInherit", "Dumps classes inheriting from data classes" );
+	registry.addChecker< clangcms::ClassDumper>( "optional.ClassDumper", "Dumps class memmbers and base classes " );
 	registry.addChecker< clangcms::FiniteMathChecker>( "cms.NonFiniteMath", "Reports usage of isnan and isinf." );
 	registry.addChecker< clangcms::UsingNamespace>( "cms.CodeRules.UsingNamespace", "Checks for 'using namespace' or 'using std::' in header files" );
 	registry.addChecker< clangcms::CatchAll>( "cms.CodeRules.CatchAll", "Checks for 'catch(...)' in source files" );
