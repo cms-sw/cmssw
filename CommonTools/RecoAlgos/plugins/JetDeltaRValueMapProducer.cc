@@ -34,7 +34,7 @@ class JetDeltaRValueMapProducer : public edm::EDProducer {
 public:
 
   typedef std::vector<T> JetsInput;
-  typedef edm::ValueMap<double> JetValueMap; 
+  typedef edm::ValueMap<float> JetValueMap; 
 
 
   JetDeltaRValueMapProducer ( edm::ParameterSet const & params ) :
@@ -44,7 +44,7 @@ public:
       value_( params.getParameter<std::string>("value") ),
       evaluation_( value_ )
   {
-        produces< JetValueMap >();
+        produces< JetValueMap >(value_);
   }
 
   virtual ~JetDeltaRValueMapProducer() {}
@@ -57,7 +57,7 @@ public:
 
 
       std::auto_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
-      edm::ValueMap<double>::Filler filler(*jetValueMap);
+      edm::ValueMap<float>::Filler filler(*jetValueMap);
 
 
       edm::Handle< typename edm::View<T> > h_jets1;
@@ -65,7 +65,7 @@ public:
       edm::Handle< typename edm::View<T> > h_jets2;
       iEvent.getByToken( matchedToken_, h_jets2 );
 
-      std::vector<double> values; values.reserve( h_jets1->size() );
+      std::vector<float> values; values.reserve( h_jets1->size() );
 
       // Now set the Ptrs with the orphan handles.
       for ( typename edm::View<T>::const_iterator ibegin = h_jets1->begin(),
@@ -78,7 +78,7 @@ public:
 
 	  if ( reco::deltaR( *ijet, *jjet) < distMin_ ) {
 	    // Check the selection
-	    double value = evaluation_(*jjet);
+	    float value = evaluation_(*jjet);
 	    // Fill to the vector
 	    values.push_back( value );
 	    found = true;	    
@@ -90,8 +90,7 @@ public:
       filler.fill();
 
       // put  in Event
-      iEvent.put(jetValueMap);
-
+      iEvent.put(jetValueMap,value_);
 
 
     }
