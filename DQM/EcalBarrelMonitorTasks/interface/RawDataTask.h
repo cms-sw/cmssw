@@ -1,64 +1,37 @@
 #ifndef RawDataTask_H
 #define RawDataTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-namespace ecaldqm {
+#include "DataFormats/Provenance/interface/RunID.h"
 
+namespace ecaldqm
+{
   class RawDataTask : public DQWorkerTask {
   public:
-    RawDataTask(const edm::ParameterSet &, const edm::ParameterSet &);
-    ~RawDataTask();
+    RawDataTask();
+    ~RawDataTask() {}
 
-    void bookMEs() override;
+    void addDependencies(DependencySet&) override;
 
-    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
-    void beginEvent(const edm::Event &, const edm::EventSetup &) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void beginEvent(edm::Event const&, edm::EventSetup const&) override;
 
-    void analyze(const void*, Collections) override;
+    bool analyze(void const*, Collections) override;
 
-    void runOnSource(const FEDRawDataCollection &, Collections);
-    void runOnRawData(const EcalRawDataCollection &, Collections);
-
-    enum MESets {
-      kEventTypePreCalib, // h1f
-      kEventTypeCalib, // h1f
-      kEventTypePostCalib, // h1f
-      kCRC, // h1f
-      kRunNumber, // h1f
-      kOrbit, // h1f
-      kTriggerType, // h1f
-      kL1ADCC, // h1f
-      kL1AFE, // h1f
-      //      kL1AFEMap, // h2f
-      kL1ATCC, // h1f
-      kL1ASRP, // h1f
-      kBXDCC, // h1f
-      kBXFE, // h1f
-      kBXTCC, // h1f
-      kBXSRP, // h1f
-      kDesyncByLumi, // h1f
-      kDesyncTotal, // h1f
-      kFEStatus, // h1f
-      kFEByLumi, // h1f
-      kFEDEntries,
-      kFEDFatal,
-      nMESets
-    };
+    void runOnSource(FEDRawDataCollection const&);
+    void runOnRawData(EcalRawDataCollection const&);
 
     enum Constants {
       nEventTypes = 25
     };
 
-    static void setMEData(std::vector<MEData>&);
-
   private:
-    int hltTaskMode_; // 0 -> Do not produce FED plots; 1 -> Only produce FED plots; 2 -> Do both
-    std::string hltTaskFolder_;
-    int run_;
+    edm::RunNumber_t runNumber_; // run number needed regardless of single-/multi-thread operation
     int l1A_;
     int orbit_;
     int bx_;
@@ -67,17 +40,20 @@ namespace ecaldqm {
 
   };
 
-  inline void RawDataTask::analyze(const void* _p, Collections _collection){
+  inline bool RawDataTask::analyze(void const* _p, Collections _collection){
     switch(_collection){
     case kSource:
-      runOnSource(*static_cast<const FEDRawDataCollection*>(_p), _collection);
+      if(_p) runOnSource(*static_cast<FEDRawDataCollection const*>(_p));
+      return true;
       break;
     case kEcalRawData:
-      runOnRawData(*static_cast<const EcalRawDataCollection*>(_p), _collection);
+      if(_p) runOnRawData(*static_cast<EcalRawDataCollection const*>(_p));
+      return true;
       break;
     default:
       break;
     }
+    return false;
   }
 
 }

@@ -31,12 +31,8 @@ public:
   /// dtor
   virtual ~SiPixelRawToDigi();
 
-
-  /// dummy end of job 
-  virtual void endJob() {}
-
   /// get data, convert to digis attach againe to Event
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
 private:
 
