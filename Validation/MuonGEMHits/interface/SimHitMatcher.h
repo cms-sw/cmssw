@@ -16,7 +16,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-
 #include <vector>
 #include <map>
 #include <set>
@@ -34,7 +33,6 @@ public:
 
   /// access to all the GEM SimHits
   const edm::PSimHitContainer& simHitsGEM() const {return gem_hits_;}
-
   /// GEM partitions' detIds with SimHits
   std::set<unsigned int> detIdsGEM() const;
 
@@ -64,7 +62,6 @@ public:
   /// How many coincidence pads with simhits in GEM did this simtrack get?
   int nCoincidencePadsWithHits() const;
 
-
   /// calculate Global average position for a provided collection of simhits
   GlobalPoint simHitsMeanPosition(const edm::PSimHitContainer& sim_hits) const;
 
@@ -92,11 +89,9 @@ private:
   std::string simInputLabel_;
 
   const GEMGeometry* gem_geo_;
-
   std::map<unsigned int, unsigned int> trkid_to_index_;
 
   edm::PSimHitContainer no_hits_;
-
   edm::PSimHitContainer gem_hits_;
   std::map<unsigned int, edm::PSimHitContainer > gem_detid_to_hits_;
   std::map<unsigned int, edm::PSimHitContainer > gem_chamber_to_hits_;

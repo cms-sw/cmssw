@@ -69,19 +69,31 @@ def customise_Reco(process):
 
 def customise_DQM(process):
     return process
+
 def customise_Validation(process):
     process.load('Validation.MuonGEMHits.MuonGEMHits_cfi')
     process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
-    process.genvalid_all += cms.Sequence( process.gemHitsValidation*process.gemDigiValidation)
+    process.load('Validation.MuonGEMRecHits.MuonGEMRecHits_cfi')
+    process.load('Validation.RecoMuon.MuonTrackValidator_cfi')
+    process.load('SimMuon.MCTruth.MuonAssociatorByHits_cfi')
+    process.muonAssociatorByHitsCommonParameters.useGEMs = cms.bool(True)
+    process.muonTrackValidator.useGEMs = cms.bool(True)
+    process.genvalid_all += cms.Sequence(
+        process.gemHitsValidation *
+        process.gemDigiValidation *
+        process.gemRecHitsValidation
+    )
     return process
 
 
 def customise_harvesting(process):
     process.load('Validation.MuonGEMHits.PostProcessor_cff')
     process.load('Validation.MuonGEMDigis.PostProcessor_cff')
-    process.genHarvesting += process.MuonGEMHitsPostProcessors
-    process.genHarvesting += process.MuonGEMDigisPostProcessors
-    return (process)
+    process.postValidation += cms.Sequence(
+        process.MuonGEMHitsPostProcessors * 
+        process.MuonGEMDigisPostProcessors
+    )
+    return process
 
 def outputCustoms(process):
     alist=['AODSIM','RECOSIM','FEVTSIM','FEVTDEBUG','FEVTDEBUGHLT','RECODEBUG','RAWRECOSIMHLT','RAWRECODEBUGHLT']
