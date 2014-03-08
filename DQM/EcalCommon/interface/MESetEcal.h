@@ -6,46 +6,72 @@
 namespace ecaldqm
 {
 
+  /* class MESetEcal
+     implements plot <-> detector part relationship
+     base class for channel-binned histograms
+     MESetEcal is only filled given an object identifier and a bin (channel id does not give a bin)
+  */
+
   class MESetEcal : public MESet
   {
   public :
-    MESetEcal(std::string const&, MEData const&, int logicalDimensions_, bool _readOnly = false);
+    MESetEcal(std::string const&, binning::ObjectType, binning::BinningType, MonitorElement::Kind, unsigned, binning::AxisSpecs const* = 0, binning::AxisSpecs const* = 0, binning::AxisSpecs const* = 0);
+    MESetEcal(MESetEcal const&);
     ~MESetEcal();
 
-    void book();
-    bool retrieve() const;
+    MESet& operator=(MESet const&) override;
 
-    void fill(DetId const&, double _wx = 1., double _wy = 1., double _w = 1.);
-    void fill(unsigned, double _wx = 1., double _wy = 1., double _w = 1.);
-    void fill(double, double _wy = 1., double _w = 1.);
+    MESet* clone(std::string const& = "") const override;
 
-    void setBinContent(DetId const&, double, double _err = 0.);
-    void setBinContent(unsigned, double, double _err = 0.);
+    void book(DQMStore&) override;
+    void book(DQMStore::IBooker&) override;
+    bool retrieve(DQMStore const&, std::string* = 0) const override;
 
-    void setBinEntries(DetId const&, double);
-    void setBinEntries(unsigned, double);
+    void fill(DetId const&, double = 1., double = 1., double = 1.) override;
+    void fill(EcalElectronicsId const&, double = 1., double = 1., double = 1.) override;
+    void fill(int, double = 1., double = 1., double = 1.) override;
+    void fill(double, double = 1., double = 1.) override;
 
-    double getBinContent(DetId const&, int _bin = 0) const;
-    double getBinContent(unsigned, int _bin = 0) const;
+    void setBinContent(DetId const&, int, double) override;
+    void setBinContent(EcalElectronicsId const&, int, double) override;
+    void setBinContent(int, int, double) override;
 
-    double getBinError(DetId const&, int _bin = 0) const;
-    double getBinError(unsigned, int _bin = 0) const;
+    void setBinError(DetId const&, int, double) override;
+    void setBinError(EcalElectronicsId const&, int, double) override;
+    void setBinError(int, int, double) override;
 
-    double getBinEntries(DetId const&, int _bin = 0) const;
-    double getBinEntries(unsigned, int _bin = 0) const;
+    void setBinEntries(DetId const&, int, double) override;
+    void setBinEntries(EcalElectronicsId const&, int, double) override;
+    void setBinEntries(int, int, double) override;
 
-    void reset(double _content = 0., double _err = 0., double _entries = 0.);
+    double getBinContent(DetId const&, int) const override;
+    double getBinContent(EcalElectronicsId const&, int) const override;
+    double getBinContent(int, int) const override;
 
-    std::vector<std::string> generateNames() const;
+    double getBinError(DetId const&, int) const override;
+    double getBinError(EcalElectronicsId const&, int) const override;
+    double getBinError(int, int) const override;
+
+    double getBinEntries(DetId const&, int) const override;
+    double getBinEntries(EcalElectronicsId const&, int) const override;
+    double getBinEntries(int, int) const override;
+
+    virtual int findBin(DetId const&, double, double = 0.) const;
+    virtual int findBin(EcalElectronicsId const&, double, double = 0.) const;
+    virtual int findBin(int, double, double = 0.) const;
+
+    bool isVariableBinning() const override;
+
+    std::vector<std::string> generatePaths() const;
 
   protected :
-    virtual void find_(uint32_t) const;
-    virtual void fill_(double); // method for derived classes
+    unsigned logicalDimensions_;
+    binning::AxisSpecs const* xaxis_;
+    binning::AxisSpecs const* yaxis_;
+    binning::AxisSpecs const* zaxis_;
 
-    const unsigned logicalDimensions_;
-
-    mutable uint32_t cacheId_;
-    mutable std::pair<unsigned, std::vector<int> > cache_;
+  private:
+    template<class Bookable> void doBook_(Bookable&);
   };
 
 }

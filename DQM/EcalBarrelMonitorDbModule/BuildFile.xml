@@ -1,10 +1,13 @@
 <use   name="CoralBase"/>
 <use   name="DQMServices/Core"/>
+<use   name="DQM/EcalCommon"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Concurrency"/>
+<use   name="CondCore/DBOutputService"/>
+<use name="OnlineDB/EcalCondDB"/>
 <use   name="RelationalAccess"/>
 <use   name="rootcore"/>
 <use   name="rootgraphics"/>

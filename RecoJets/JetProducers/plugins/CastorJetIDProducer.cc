@@ -84,16 +84,5 @@ CastorJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put( castorjetIdValueMap );
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-CastorJetIDProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-CastorJetIDProducer::endJob() {
-}
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(CastorJetIDProducer);

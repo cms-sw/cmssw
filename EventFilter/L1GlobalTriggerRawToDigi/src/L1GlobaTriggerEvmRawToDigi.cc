@@ -132,12 +132,6 @@ L1GlobalTriggerEvmRawToDigi::~L1GlobalTriggerEvmRawToDigi() {
 
 // member functions
 
-void L1GlobalTriggerEvmRawToDigi::beginJob() {
-
-    // empty now
-
-}
-
 // method called to produce the data
 void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
@@ -822,12 +816,6 @@ void L1GlobalTriggerEvmRawToDigi::dumpFedRawData(
                 << payload[i] << std::dec << std::setfill(' ') << std::endl;
     }
 
-}
-
-//
-void L1GlobalTriggerEvmRawToDigi::endJob() {
-
-    // empty now
 }
 
 // static class members

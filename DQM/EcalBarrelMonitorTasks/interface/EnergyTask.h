@@ -1,54 +1,42 @@
 #ifndef EnergyTask_H
 #define EnergyTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-class CaloTopology;
 
 namespace ecaldqm {
 
   class EnergyTask : public DQWorkerTask {
   public:
-    EnergyTask(const edm::ParameterSet &, const edm::ParameterSet&);
-    ~EnergyTask();
+    EnergyTask();
+    ~EnergyTask() {}
 
-    bool filterRunType(const std::vector<short>&) override;
+    bool filterRunType(short const*) override;
 
-    void beginRun(const edm::Run &, const edm::EventSetup &) override;
+    bool analyze(void const*, Collections) override;
 
-    void analyze(const void*, Collections) override;
-
-    void runOnRecHits(const EcalRecHitCollection &);
-
-    enum MESets {
-      kHitMap, // profile2d
-      kHitMapAll,
-      //      k3x3Map, // profile2d 
-      kHit, // h1f
-      kHitAll,
-      kMiniCluster, // h1f
-      nMESets
-    };
-
-    static void setMEData(std::vector<MEData>&);
+    void runOnRecHits(EcalRecHitCollection const&);
 
   private:
-    const CaloTopology *topology_;
+    void setParams(edm::ParameterSet const&) override;
+
     bool isPhysicsRun_;
-    float threshS9_;
+    //    float threshS9_;
   };
 
-  inline void EnergyTask::analyze(const void* _p, Collections _collection){
+  inline bool EnergyTask::analyze(void const* _p, Collections _collection){
     switch(_collection){
     case kEBRecHit:
     case kEERecHit:
-      runOnRecHits(*static_cast<const EcalRecHitCollection*>(_p));
+      if(_p) runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p));
+      return true;
       break;
     default:
       break;
     }
+
+    return false;
   }
 
 }
