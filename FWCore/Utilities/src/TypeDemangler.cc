@@ -72,16 +72,6 @@ namespace {
   } 
 
   void
-  replaceString(std::string& demangledName, std::string const& from, std::string const& to) {
-    // from must not be a substring of to.
-    std::string::size_type length = from.size(); 
-    std::string::size_type pos = 0;
-    while((pos = demangledName.find(from, pos)) != std::string::npos) {
-       demangledName.replace(pos, length, to); 
-    }
-  }
-
-  void
   constBeforeIdentifier(std::string& demangledName) {
     std::string const toBeMoved(" const");
     std::string::size_type const asize = toBeMoved.size();
@@ -105,6 +95,16 @@ namespace {
 }
 
 namespace edm {
+  void
+  replaceString(std::string& demangledName, std::string const& from, std::string const& to) {
+    // from must not be a substring of to.
+    std::string::size_type length = from.size(); 
+    std::string::size_type pos = 0;
+    while((pos = demangledName.find(from, pos)) != std::string::npos) {
+       demangledName.replace(pos, length, to); 
+    }
+  }
+
   std::string
   typeDemangle(char const* mangledName) {
     int status = 0;

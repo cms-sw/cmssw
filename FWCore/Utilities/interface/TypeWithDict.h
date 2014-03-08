@@ -83,6 +83,7 @@ public:
   bool isTypedef() const;
   bool isVirtual() const;
   std::string qualifiedName() const;
+  std::string cppName() const;
   std::string unscopedName() const;
   std::string name() const;
   std::string unscopedNameWithTypedef() const;
