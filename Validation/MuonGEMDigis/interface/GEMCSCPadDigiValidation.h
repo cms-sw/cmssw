@@ -26,7 +26,7 @@ public:
   void bookHisto();
  private:
 
-  MonitorElement* theCSCPad_xy[2][2];
+  MonitorElement* theCSCPad_xy[2][3][2];
   MonitorElement* theCSCPad_phipad[2][3][2];
   MonitorElement* theCSCPad[2][3][2];
   MonitorElement* theCSCPad_bx[2][2];

@@ -3,16 +3,21 @@ from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import customise as customiseBE
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import customise as customiseBE5D
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import customise as customiseBE5DPixel10D
-from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import customise as customiseLB6PS
-from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import customise as customiseLB4LPS_2L2S
+
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import l1EventContent as customise_ev_BE
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import l1EventContent as customise_ev_BE5D
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import l1EventContent as customise_ev_BE5DPixel10D
+
+from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import customise as customiseLB6PS
+from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import customise as customiseLB4LPS_2L2S
 from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import l1EventContent as customise_ev_LB6PS
 from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import l1EventContent as customise_ev_LB4LPS_2L2S
+from SLHCUpgradeSimulations.Configuration.phase1TkCustomsPixel10D import customise as customisePhase1TkPixel10D
+from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import customise as customiseTTI
+from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventContent_TTI as customise_ev_l1tracker
+
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
-from SLHCUpgradeSimulations.Configuration.phase1TkCustomsPixel10D import customise as customisePhase1TkPixel10D
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0, customise_HcalPhase2
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
 from SLHCUpgradeSimulations.Configuration.me0Customs import customise as customise_me0
@@ -21,7 +26,6 @@ from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise_ValidationNoGem_2023 as CustomiseValidation_NoGem_2023
 from SLHCUpgradeSimulations.Configuration.customise_ecalTime import cust_ecalTime
-
 import SLHCUpgradeSimulations.Configuration.aging as aging
 
 def cust_phase1_Pixel10D(process):
@@ -51,13 +55,13 @@ def cust_phase2_BE(process):
     process=customise_ev_BE(process)
     return process
 
-def cust_phase2_LB6PS(process):
+def cust_phase2_LB6PS(process): #obsolete
     process=customisePostLS1(process)
     process=customiseLB6PS(process)
     process=customise_ev_LB6PS(process)
     return process
 
-def cust_phase2_LB4LPS_2L2S(process):
+def cust_phase2_LB4LPS_2L2S(process):#obsolete
     process=customisePostLS1(process)
     process=customiseLB4LPS_2L2S(process)
     process=customise_ev_LB4LPS_2L2S(process)
@@ -93,7 +97,6 @@ def cust_2023(process):
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5D(process)
     process=customise_gem(process)
-    process=CustomiseValidation_NoGem_2023(process)
     return process
 
 def cust_2023Muon(process):
@@ -102,7 +105,16 @@ def cust_2023Muon(process):
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem(process)
-    process=CustomiseValidation_NoGem_2023(process)
+    process=customise_me0(process)
+    return process
+
+def cust_2023TTI(process):
+    process=customisePostLS1(process)
+    process=customiseTTI(process)
+    process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase0(process)
+    process=customise_ev_l1tracker(process)
+
     return process
 
 def noCrossing(process):

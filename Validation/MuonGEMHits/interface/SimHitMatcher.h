@@ -89,7 +89,6 @@ private:
   std::string simInputLabel_;
 
   const GEMGeometry* gem_geo_;
-
   std::map<unsigned int, unsigned int> trkid_to_index_;
 
   edm::PSimHitContainer no_hits_;

@@ -6,6 +6,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include <algorithm>
 #include <iomanip>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
