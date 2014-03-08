@@ -1,76 +1,63 @@
 #ifndef OccupancyTask_H
 #define OccupancyTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-namespace ecaldqm {
-
+namespace ecaldqm
+{
   class OccupancyTask : public DQWorkerTask {
   public:
-    OccupancyTask(const edm::ParameterSet &, const edm::ParameterSet&);
-    ~OccupancyTask();
+    OccupancyTask();
+    ~OccupancyTask() {}
 
-    bool filterRunType(const std::vector<short>&) override;
+    bool filterRunType(short const*) override;
 
-    void analyze(const void*, Collections) override;
+    bool analyze(void const*, Collections) override;
 
-    void runOnDigis(const EcalDigiCollection &);
-    void runOnTPDigis(const EcalTrigPrimDigiCollection &);
-    void runOnRecHits(const EcalRecHitCollection &, Collections);
-
-    enum MESets {
-      kDigi, // h2f
-      kDigiProjEta, // h1f
-      kDigiProjPhi, // h1f
-      kDigiAll,
-      kDigiDCC,
-      //      kRecHit, // h2f
-      //      kRecHitProjEta, // h1f
-      //      kRecHitProjPhi, // h1f
-      kRecHit1D,
-      kRecHitThr, // h2f
-      kRecHitThrProjEta, // h1f
-      kRecHitThrProjPhi, // h1f
-      kRecHitThrAll, // h1f
-      kTPDigi, // h2f
-      kTPDigiProjEta, // h1f
-      kTPDigiProjPhi, // h1f
-      kTPDigiThr, // h2f
-      kTPDigiThrProjEta, // h1f
-      kTPDigiThrProjPhi, // h1f
-      kTPDigiThrAll,
-      nMESets
-    };
-
-    static void setMEData(std::vector<MEData>&);
+    void runOnRawData(EcalRawDataCollection const&);
+    template<typename DigiCollection> void runOnDigis(DigiCollection const&, Collections);
+    void runOnTPDigis(EcalTrigPrimDigiCollection const&);
+    void runOnRecHits(EcalRecHitCollection const&, Collections);
 
   private:
+    void setParams(edm::ParameterSet const&) override;
+
     float recHitThreshold_;
     float tpThreshold_;
-
   };
 
-  inline void OccupancyTask::analyze(const void* _p, Collections _collection){
+  inline bool OccupancyTask::analyze(void const* _p, Collections _collection){
     switch(_collection){
+    case kEcalRawData:
+      if(_p) runOnRawData(*static_cast<EcalRawDataCollection const*>(_p));
+      return true;
     case kEBDigi:
+      if(_p) runOnDigis(*static_cast<EBDigiCollection const*>(_p), _collection);
+      return true;
+      break;
     case kEEDigi:
-      runOnDigis(*static_cast<const EcalDigiCollection*>(_p));
+      if(_p) runOnDigis(*static_cast<EEDigiCollection const*>(_p), _collection);
+      return true;
       break;
     case kTrigPrimDigi:
-      runOnTPDigis(*static_cast<const EcalTrigPrimDigiCollection*>(_p));
+      if(_p) runOnTPDigis(*static_cast<EcalTrigPrimDigiCollection const*>(_p));
+      return true;
       break;
     case kEBRecHit:
     case kEERecHit:
-      runOnRecHits(*static_cast<const EcalRecHitCollection*>(_p), _collection);
+      if(_p) runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
+      return true;
       break;
     default:
       break;
     }
-  }
 
+    return false;
+  }
 }
 
 #endif
