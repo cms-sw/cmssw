@@ -13,12 +13,12 @@ def customise(process):
         process=customise_RecoFull(process)
     if hasattr(process,'famosWithEverything'):
         process=customise_RecoFast(process)
+    if hasattr(process,'validation_step'):
+        process=customise_Validation(process)
     if hasattr(process,'dqmoffline_step'):
         process=customise_DQM(process)
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
-    if hasattr(process,'validation_step'):
-        process=customise_Validation(process)
     return process
 
 def customise_Digi(process):
@@ -62,38 +62,38 @@ def customise_GlobalRecoInclude(process):
     return process
     
 def customise_GlobalRecoFast(process):
+    process=customise_GlobalRecoInclude(process)
     process.reconstructionWithFamos += process.me0SegmentProducer
     process.reconstructionWithFamos += process.me0SegmentMatcher
     process.reconstructionWithFamos += process.me0MuonConverter
     return process
     
 def customise_GlobalRecoFull(process):
-    process.reconstruction += process.me0SegmentProducer
-    process.reconstruction += process.me0SegmentMatcher
-    process.reconstruction += process.me0MuonConverter
+    process=customise_GlobalRecoInclude(process)
+    process.muonGlobalReco += process.me0SegmentProducer
+    process.muonGlobalReco += process.me0SegmentMatcher
+    process.muonGlobalReco += process.me0MuonConverter
     return process
 
 def customise_RecoFast(process):
     process=customise_LocalReco(process)
-    process=customise_GlobalRecoInclude(process)
     process=customise_GlobalRecoFast(process)
     process=outputCustoms(process)
     return process
 
 def customise_RecoFull(process):
     process=customise_LocalReco(process)
-    process=customise_GlobalRecoInclude(process)
     process=customise_GlobalRecoFull(process)
     process=outputCustoms(process)
+    return process
+
+def customise_Validation(process):
     return process
 
 def customise_DQM(process):
     return process
 
 def customise_harvesting(process):
-    return process
-
-def customise_Validation(process):
     return process
 
 def outputCustoms(process):
