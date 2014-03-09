@@ -4,6 +4,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 
 /*  a Hit composed by a "single" measurement
@@ -31,6 +32,12 @@ public:
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
 		      DetId id, GeomDet const * idet,
 		      CluRef const&  clus) : Base(p,e,id, idet, trackerHitRTTI::single), cluster_(clus){}
+
+
+  // a single hit is on a detunit
+  const GeomDetUnit* detUnit() const {
+    return static_cast<const GeomDetUnit*>(det());
+  }
 
   
   // used by trackMerger (to be improved)
