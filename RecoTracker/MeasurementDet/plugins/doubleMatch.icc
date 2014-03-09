@@ -15,10 +15,14 @@ namespace {
       return *reinterpret_cast<const SiStripRecHit2D*>((**monoHit).hit());
     }
     
+    inline static SiStripRecHit2D const & monoHit(std::vector<SiStripRecHit2D>::const_iterator iter) {
+      return *iter;
+    }
+    
     inline static SiStripRecHit2D const & stereoHit(std::vector<SiStripRecHit2D>::const_iterator iter) {
       return *iter;
     }
-
+    
     inline static SiStripRecHit2D const & stereoHit(TkGluedMeasurementDet::RecHitContainer::const_iterator hit) {
       return *reinterpret_cast<const SiStripRecHit2D*>((**hit).hit());
     }
@@ -32,6 +36,15 @@ namespace {
 	m_collector.addProjected( **monoHit, glbDir );
       }
     }
+
+    inline void closure(std::vector<SiStripRecHit2D>::const_iterator monoHit) {
+      if (m_collector.hasNewMatchedHits()) {
+	m_collector.clearNewMatchedHitsFlag();
+      } else {
+	m_collector.addProjected( *monoHit, glbDir );
+      }
+    }
+  
     
   };
 
@@ -64,9 +77,8 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
   // vsStereoHits.resize(simpleSteroHitsByValue.size());
   //std::transform(simpleSteroHitsByValue.begin(), simpleSteroHitsByValue.end(), vsStereoHits.begin(), take_address());
 
-  RecHitContainer monoHits;
-  RecHitContainer stereoHits;
-  std::vector<float>  diffs;
+  std::vector<SiStripRecHit2D> monoHits;
+  std::vector<SiStripRecHit2D> stereoHits;
 
   auto mf = monoHits.size();
   auto sf = stereoHits.size();
@@ -79,29 +91,28 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, cons
     emptyMono = theMonoDet->empty(data);
     if likely(!emptyMono) {
 	TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
-	theMonoDet->recHits(mts,collector.estimator(),data,monoHits,diffs);
+	theMonoDet->simpleRecHits(mts,collector.estimator(),data,monoHits);
       }
     // print("mono", mts,ts);
     mf = monoHits.size();
   }
   else {
-    monoHits = theMonoDet->recHits(ts, data);
+    theMonoDet->simpleRecHits(ts, data,monoHits);
     emptyMono = monoHits.empty();
   }
 
   // stereo requires "projection" for precision and change in coordinates
-  diffs.clear();
   if (collector.filter()) {
     emptyStereo = theStereoDet->empty(data);
     if likely(!emptyStereo) {
 	TrajectoryStateOnSurface pts = fastProp(ts,geomDet().surface(),theStereoDet->geomDet().surface());
-	theStereoDet->recHits(pts,collector.estimator(),data,stereoHits,diffs);
+	theStereoDet->simpleRecHits(pts,collector.estimator(),data,stereoHits);
 	// print("stereo", pts,ts);
       }
     sf = stereoHits.size();
   }
   else {
-    stereoHits= theStereoDet->recHits(ts,data);
+    theStereoDet->simpleRecHits(ts,data,stereoHits);
     emptyStereo = stereoHits.empty();
   }
 

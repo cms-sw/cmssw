@@ -7,7 +7,7 @@
 class SiStripRecHit2D GCC11_FINAL : public TrackerSingleRecHit {
 public:
 
-  SiStripRecHit2D(): sigmaPitch_(-1.){}
+  SiStripRecHit2D() {}
 
   ~SiStripRecHit2D() {} 
 
@@ -17,15 +17,13 @@ public:
   // no position (as in persistent)
   SiStripRecHit2D(const DetId& id,
 		  OmniClusterRef const& clus) : 
-    TrackerSingleRecHit(id, clus),
-    sigmaPitch_(-1.) {}
+    TrackerSingleRecHit(id, clus){}
 
   template<typename CluRef>
-  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err, float isigmaPitch,
+  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
 		   const DetId& id, GeomDet const * idet,
 		   CluRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, idet, clus),
-    sigmaPitch_(isigmaPitch) {}
+    TrackerSingleRecHit(pos,err,id, idet, clus) {}
  
 				
   ClusterRef cluster()  const { return cluster_strip() ; }
@@ -36,15 +34,9 @@ public:
   virtual int dimension() const {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
 
- 
-  float sigmaPitch() const { return sigmaPitch_;}
 
   
 private:
-
-  /// cache for the matcher....
-  float sigmaPitch_;  // transient....
-
  
 };
 

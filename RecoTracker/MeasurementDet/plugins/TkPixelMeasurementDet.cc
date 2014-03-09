@@ -58,7 +58,7 @@ TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
 {
   const GeomDetUnit& gdu( specificGeomDet());
   LocalValues lv = cpe()->localParameters( * cluster, gdu, ltp );
-  return TSiPixelRecHit::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe());
+  return TSiPixelRecHit::build( lv.first, lv.second, cpe()->rawQualityWord(), &fastGeomDet(), cluster, cpe());
 }
 
 TkPixelMeasurementDet::RecHitContainer 

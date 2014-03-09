@@ -115,7 +115,7 @@ void testCutParser::checkAll() {
   MyDet mdet(plane);
   GeomDet *  det =  &mdet;
 
-  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), 0, 0, det, SiStripRecHit2D::ClusterRef());
+  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), 0, det, SiStripRecHit2D::ClusterRef());
 
   edm::TypeWithDict t(typeid(reco::Track));
   o = edm::ObjectWithDict(t, & trk);
