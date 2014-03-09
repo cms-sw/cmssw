@@ -120,7 +120,7 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 				      });
     if( found_hit != hits->end() && found_hit->detId() == id.rawId() ) {
       aeff = hit.energy()*found_hit->energy()/sqrt(hit.energy()*hit.energy()+found_hit->energy()*found_hit->energy());
-      sigma = sqrt(noiseTerm_*noiseLevel_/aeff)*(noiseTerm_*noiseLevel_/aeff)+2*constantTerm_*constantTerm_;
+      sigma = sqrt((noiseTerm_*noiseLevel_/aeff)*(noiseTerm_*noiseLevel_/aeff)+2*constantTerm_*constantTerm_);
       if(abs(hit.time()-found_hit->time())/sigma<sigmaCut_) {
 	hit.addNeighbour(eta,phi,0,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
       }
