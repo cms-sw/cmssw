@@ -31,6 +31,7 @@ PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
     _timeSigma_ee(std::pow(conf.getParameter<double>("timeSigmaEE"),2.0)),
     _excludeOtherSeeds(conf.getParameter<bool>("excludeOtherSeeds")),
     _minFracTot(conf.getParameter<double>("minFracTot")),
+
     _layerMap({ {"PS2",(int)PFLayer::PS2},
 	        {"PS1",(int)PFLayer::PS1},
 	        {"ECAL_ENDCAP",(int)PFLayer::ECAL_ENDCAP},
@@ -42,6 +43,8 @@ PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
 	        {"HCAL_ENDCAP",(int)PFLayer::HCAL_ENDCAP},
 	        {"HF_EM",(int)PFLayer::HF_EM},
 		{"HF_HAD",(int)PFLayer::HF_HAD} }) { 
+
+
   const std::vector<edm::ParameterSet>& thresholds =
     conf.getParameterSetVector("recHitEnergyNorms");
   for( const auto& pset : thresholds ) {
@@ -183,11 +186,18 @@ growPFClusters(const reco::PFCluster& topo,
       const double t2 =(cluster.time()-refhit->time())*(cluster.time()-refhit->time());
 
       
-      if (cell_layer == PFLayer::HCAL_BARREL1 ||cell_layer == PFLayer::HCAL_BARREL2 ||cell_layer == PFLayer::ECAL_BARREL)
-	d2=d2+t2/_timeSigma_eb;
-      else if (cell_layer == PFLayer::HCAL_ENDCAP ||cell_layer == PFLayer::HF_EM ||cell_layer == PFLayer::HF_HAD)
-	d2=d2+t2/_timeSigma_ee;
+      if (cell_layer == PFLayer::HCAL_BARREL1 ||
+	  cell_layer == PFLayer::HCAL_BARREL2 ||
+	  cell_layer == PFLayer::ECAL_BARREL) {
+	  d2=d2+t2/_timeSigma_eb;
+      }
 
+      else if (cell_layer == PFLayer::HCAL_ENDCAP ||
+	       cell_layer == PFLayer::HF_EM ||
+	       cell_layer == PFLayer::HF_HAD) {
+	  d2=d2+t2/_timeSigma_ee;
+
+      }
       dist2.emplace_back( d2);
 
       if( d2 > 100 ) {

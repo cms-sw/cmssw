@@ -10,13 +10,13 @@ particleFlowRecHitECALWithTime = cms.EDProducer("PFRecHitProducer",
         barrel = cms.PSet(
              noiseLevel = cms.double(0.042),   
              noiseTerm  = cms.double(27.5),
-             constantTerm = cms.double(0.27),
+             constantTerm = cms.double(10),
              sigmaCut = cms.double(1.0)
         ),
         endcap = cms.PSet(
              noiseLevel = cms.double(0.14),   
              noiseTerm  = cms.double(36.1),
-             constantTerm = cms.double(0.18),
+             constantTerm = cms.double(10),
              sigmaCut = cms.double(1.0)
         )
     ),
