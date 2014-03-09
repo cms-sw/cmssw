@@ -39,7 +39,7 @@ bool ora::OraReferenceStreamerBase::buildDataElement(DataElement& dataElement,
   if( m_objectType != refType ){
     bool foundRef = ClassUtils::findBaseType( m_objectType, refType, baseOffsetFunc );
     if(!foundRef){
-      throwException("Type \""+m_objectType.qualifiedName()+"\" is not an Ora Reference.",
+      throwException("Type \""+m_objectType.cppName()+"\" is not an Ora Reference.",
                      "OraReferenceStreamerBase::buildDataElement");
     } 
   }

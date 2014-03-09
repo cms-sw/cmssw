@@ -35,7 +35,7 @@ namespace ora {
   };
   
   std::string nameFromClass( const edm::TypeWithDict& contType ){
-    return contType.qualifiedName();
+    return contType.cppName();
   }
   
   Container getContainerFromSession( const std::string& name, const edm::TypeWithDict& contType, DatabaseSession& session ){

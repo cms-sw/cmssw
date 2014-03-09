@@ -75,7 +75,7 @@ ora::STLContainerHandler::STLContainerHandler( const edm::TypeWithDict& dictiona
   TClass* cl = dictionary.getClass();
   m_collProxy = cl->GetCollectionProxy();
   if( !m_collProxy ){
-    throwException( "Cannot create \"TVirtualCollectionProxy\" for type \""+m_type.qualifiedName()+"\"",
+    throwException( "Cannot create \"TVirtualCollectionProxy\" for type \""+m_type.cppName()+"\"",
                     "STLContainerHandler::STLContainerHandler");
   }
 
@@ -101,7 +101,7 @@ ora::IArrayIteratorHandler*
 ora::STLContainerHandler::iterate( const void* address ){
   if ( ! m_iteratorReturnType ) {
     throwException( "Missing the dictionary information for the value_type member of the container \"" +
-                    m_type.qualifiedName() + "\"",
+                    m_type.cppName() + "\"",
                     "STLContainerHandler::iterate" );
   }
   void *addr = const_cast<void*>(address);
@@ -140,7 +140,7 @@ ora::SpecialSTLContainerHandler::SpecialSTLContainerHandler( const edm::TypeWith
     edm::TypeWithDict fieldType = field.typeOf();
     if ( ! fieldType ) {
       throwException( "The dictionary of the underlying container of \"" +
-                      dictionary.qualifiedName() + "\" is not available",
+                      dictionary.cppName() + "\" is not available",
                       "SpecialSTLContainerHandler" );
     }
     if ( ClassUtils::isTypeContainer(fieldType) ) {
@@ -151,7 +151,7 @@ ora::SpecialSTLContainerHandler::SpecialSTLContainerHandler( const edm::TypeWith
   }
   if ( !m_containerHandler.get() ) {
     throwException( "Could not retrieve the underlying container of \"" +
-                    dictionary.qualifiedName() + "\" is not available",
+                    dictionary.cppName() + "\" is not available",
                     "SpecialSTLContainerHandler" );
   }
 }

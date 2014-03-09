@@ -212,7 +212,7 @@ void ora::BlobMapping::process( MappingElement& parentElement,
                                 const std::string& attributeName,
                                 const std::string& attributeNameForSchema,
                                 const std::string& scopeNameForSchema ){
-  std::string className = m_type.qualifiedName();
+  std::string className = m_type.cppName();
   processLeafElement(parentElement,
                      ora::MappingElement::blobMappingElementType(),
                      className,
@@ -233,7 +233,7 @@ void ora::OraReferenceMapping::process( MappingElement& parentElement,
                                         const std::string& attributeName,
                                         const std::string& attributeNameForSchema,
                                         const std::string& scopeNameForSchema ){
-  std::string className = m_type.qualifiedName();
+  std::string className = m_type.cppName();
   std::string elementType = ora::MappingElement::OraReferenceMappingElementType();
   if(!m_tableRegister.checkTable( parentElement.tableName())){
     throwException("Table \""+parentElement.tableName()+"\" has not been allocated.",
@@ -268,7 +268,7 @@ void ora::UniqueReferenceMapping::process( MappingElement& parentElement,
                                            const std::string& attributeNameForSchema,
                                            const std::string& scopeNameForSchema ){
     
-  std::string typeName = m_type.qualifiedName();
+  std::string typeName = m_type.cppName();
   if(!m_tableRegister.checkTable( parentElement.tableName())){
     throwException("Table \""+parentElement.tableName()+"\" has not been allocated.",
                    "UniqueReferenceMapping::process");
@@ -311,7 +311,7 @@ void ora::OraPtrMapping::process( MappingElement& parentElement,
                                   const std::string& attributeNameForSchema,
                                   const std::string& scopeNameForSchema ){
   
-  std::string typeName = m_type.qualifiedName();
+  std::string typeName = m_type.cppName();
   ora::MappingElement& me = parentElement.appendSubElement( ora::MappingElement::OraPointerMappingElementType(), attributeName, typeName, parentElement.tableName() );
   me.setColumnNames( parentElement.columnNames() );
 
@@ -335,7 +335,7 @@ void ora::NamedRefMapping::process( MappingElement& parentElement,
                                     const std::string& attributeName,
                                     const std::string& attributeNameForSchema, 
                                     const std::string& scopeNameForSchema ){
-  std::string typeName = m_type.qualifiedName();
+  std::string typeName = m_type.cppName();
   ora::MappingElement& me = parentElement.appendSubElement( ora::MappingElement::namedReferenceMappingElementType(), attributeName, typeName, parentElement.tableName() );
 
   std::vector< std::string > cols;
@@ -375,7 +375,7 @@ void ora::ArrayMapping::process( MappingElement& parentElement,
   }
   m_tableRegister.insertTable(arrayTable);
 
-  std::string className = m_type.qualifiedName();
+  std::string className = m_type.cppName();
 
   std::string elementType = ora::MappingElement::arrayMappingElementType();
   if(ora::ClassUtils::isTypePVector(m_type) || ora::ClassUtils::isTypeQueryableVector(m_type)){
@@ -420,18 +420,18 @@ void ora::ArrayMapping::process( MappingElement& parentElement,
     contentType = ClassUtils::containerDataType( m_type );
     keyType = ClassUtils::containerKeyType( m_type );
     if( !keyType || !ClassUtils::resolvedType(keyType) ){
-      throwException( "Cannot not resolve the type of the key item of container \""+m_type.qualifiedName()+"\".",
+      throwException( "Cannot not resolve the type of the key item of container \""+m_type.cppName()+"\".",
                       "ArrayMapping::process");
     }
   }
   else {
     // Not supported container
-      throwException( "Container type=\""+m_type.qualifiedName()+"\".is not supported.",
+      throwException( "Container type=\""+m_type.cppName()+"\".is not supported.",
                       "ArrayMapping::process");    
   }
 
   if( !contentType || !ClassUtils::resolvedType(contentType) ){
-      throwException( "Cannot not resolve the type of the content item of container \""+m_type.qualifiedName()+"\".",
+      throwException( "Cannot not resolve the type of the content item of container \""+m_type.cppName()+"\".",
                       "ArrayMapping::process");
   }
   RelationalMappingFactory mappingFactory( m_tableRegister );
@@ -460,7 +460,7 @@ void ora::CArrayMapping::process( MappingElement& parentElement,
                                   const std::string& scopeNameForSchema ){
   edm::TypeWithDict arrayElementType = m_type.toType();
   if( !arrayElementType || !ClassUtils::resolvedType( arrayElementType ) ){
-    throwException("Cannot resolve the type of the content of the array \""+m_type.qualifiedName()+"\".",
+    throwException("Cannot resolve the type of the content of the array \""+m_type.cppName()+"\".",
                    "CArrayMapping::process");
   }
 
@@ -468,7 +468,7 @@ void ora::CArrayMapping::process( MappingElement& parentElement,
     throwException("Table \""+parentElement.tableName()+"\" has not been allocated.",
                    "CArrayMapping::process");
   }
-  std::string className = m_type.qualifiedName();
+  std::string className = m_type.cppName();
   RelationalMappingFactory mappingFactory( m_tableRegister );
 
   std::string arrayScopeNameForSchema = scopeNameForSchema;
@@ -550,7 +550,7 @@ namespace ora {
                            const edm::TypeWithDict& objType,
                            const std::string& scopeNameForSchema,
                            TableRegister& tableRegister ){
-    std::string className = objType.qualifiedName();
+    std::string className = objType.cppName();
     edm::TypeBases bases(objType);
     for (auto const & b : bases) {
       edm::BaseWithDict base(b);
@@ -569,7 +569,7 @@ namespace ora {
         // Retrieve the data member type
         edm::TypeWithDict type = ClassUtils::resolvedType( baseMember.typeOf() );
         edm::TypeWithDict declaringType = ClassUtils::resolvedType( baseMember.declaringType());
-        std::string scope = declaringType.qualifiedName();
+        std::string scope = declaringType.cppName();
         // Retrieve the field name
         std::string objectMemberName = ora::MappingRules::scopedVariableName( baseMember.name(), scope );
         std::string objectMemberNameForSchema = ora::MappingRules::scopedVariableForSchemaObjects( baseMember.name(), scope );
@@ -593,7 +593,7 @@ void ora::ObjectMapping::process( MappingElement& parentElement,
                                   const std::string& attributeName,
                                   const std::string& attributeNameForSchema,
                                   const std::string& scopeNameForSchema ){
-  std::string className = m_type.qualifiedName();
+  std::string className = m_type.cppName();
   std::string elementType = ora::MappingElement::objectMappingElementType();
   ora::MappingElement& me = parentElement.appendSubElement( elementType, attributeName, className, parentElement.tableName() );
   me.setColumnNames( parentElement.columnNames() );

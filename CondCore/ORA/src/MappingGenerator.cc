@@ -16,7 +16,7 @@ ora::MappingGenerator::~MappingGenerator(){}
 void ora::MappingGenerator::createNewMapping( const std::string& containerName,
                                               const edm::TypeWithDict& classDictionary,
                                               MappingTree& destination ){
-  std::string className = classDictionary.qualifiedName();
+  std::string className = classDictionary.cppName();
 
   size_t sz = RelationalMapping::sizeInColumns( classDictionary );
   if(sz > MappingRules::MaxColumnsPerTable){
@@ -58,7 +58,7 @@ void ora::MappingGenerator::createNewMapping( const std::string& containerName,
 void ora::MappingGenerator::createNewDependentMapping( const edm::TypeWithDict& classDictionary,
                                                        const MappingTree& parentClassMapping,
                                                        MappingTree& destination ){
-  std::string className = classDictionary.qualifiedName();
+  std::string className = classDictionary.cppName();
   
   size_t sz = RelationalMapping::sizeInColumns( classDictionary );
   if(sz > MappingRules::MaxColumnsPerTable){

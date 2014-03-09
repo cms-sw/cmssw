@@ -361,6 +361,15 @@ namespace edm {
   }
 
   std::string
+  TypeWithDict::cppName() const {
+    std::string cName = qualifiedName();
+    // Get rid of silly ROOT typedefs
+    replaceString(cName, "ULong64_t", "unsigned long long");
+    replaceString(cName, "Long64_t", "long long");
+    return cName;
+  }
+
+  std::string
   TypeWithDict::qualifiedName() const {
     if (type_ == nullptr) {
       return "undefined";

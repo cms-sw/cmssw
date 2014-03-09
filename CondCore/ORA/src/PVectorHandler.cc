@@ -61,12 +61,12 @@ ora::PVectorHandler::PVectorHandler( const edm::TypeWithDict& dictionary ):
 {
   edm::MemberWithDict privateVectorAttribute = m_type.dataMemberByName("m_vec");
   if(privateVectorAttribute){
-    assert(!strcmp("ora::PVector<cond::IOVElement>",m_type.qualifiedName().c_str()));
+    assert(!strcmp("ora::PVector<cond::IOVElement>",m_type.cppName().c_str()));
     m_vecAttributeOffset = privateVectorAttribute.offset();
     ROOT::TCollectionProxyInfo* collProxyPtr = ROOT::TCollectionProxyInfo::Generate(ROOT::TCollectionProxyInfo::Pushback<std::vector<cond::IOVElement> >());
     m_collProxy.reset( collProxyPtr );
     if(! m_collProxy.get() ){
-      throwException( "Cannot find \"createTCollectionProxyInfo\" function for type \""+m_type.qualifiedName()+"\"",
+      throwException( "Cannot find \"createTCollectionProxyInfo\" function for type \""+m_type.cppName()+"\"",
                       "PVectorHandler::PVectorHandler");
     }
   }
@@ -110,7 +110,7 @@ ora::IArrayIteratorHandler*
 ora::PVectorHandler::iterate( const void* address ){
   if ( ! m_iteratorReturnType ) {
     throwException( "Missing the dictionary information for the value_type member of the container \"" +
-                    m_type.qualifiedName() + "\"",
+                    m_type.cppName() + "\"",
                     "PVectorHandler" );
   }
   m_collEnv.fObject = static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset;

@@ -52,7 +52,7 @@ const edm::TypeWithDict& ora::Object::type() const {
 }
 
 std::string ora::Object::typeName() const {
-  return m_type.qualifiedName();
+  return m_type.cppName();
 }
 
 void* ora::Object::cast( const std::type_info& typeInfo ) const{

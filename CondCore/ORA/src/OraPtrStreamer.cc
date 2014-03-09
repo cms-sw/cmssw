@@ -44,7 +44,7 @@ namespace ora {
         // Check the component type
         if ( ! ptrType || !ptrResolvedType ) {
           throwException( "Missing dictionary information for the type of the pointer \"" +
-                          m_objectType.qualifiedName() + "\"",
+                          m_objectType.cppName() + "\"",
                           "OraPtrReadBuffer::build" );
         }
 
@@ -165,7 +165,7 @@ bool ora::OraPtrWriter::build(DataElement& dataElement,
   // Check the component type
   if ( ! ptrType || !ptrResolvedType ) {
     throwException( "Missing dictionary information for the type of the pointer \"" +
-                    m_objectType.qualifiedName() + "\"",
+                    m_objectType.cppName() + "\"",
                     "OraPtrWriter::build" );
   }
 
@@ -230,7 +230,7 @@ bool ora::OraPtrUpdater::build(DataElement& dataElement,
   // Check the component type
   if ( ! ptrType || !ptrResolvedType ) {
     throwException( "Missing dictionary information for the type of the pointer \"" +
-                    m_objectType.qualifiedName() + "\"",
+                    m_objectType.cppName() + "\"",
                     "OraPtrUpdater::build" );
   }
 

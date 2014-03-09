@@ -53,7 +53,7 @@ ora::ContainerSchema::ContainerSchema( int containerId,
                                        DatabaseSession& session ):
   m_containerId( containerId ),
   m_containerName( containerName ),
-  m_className( containerType.qualifiedName( ) ),
+  m_className( containerType.cppName( ) ),
   m_classDict( containerType ),
   m_session( session ),
   m_loaded( false ),
@@ -172,7 +172,7 @@ void ora::ContainerSchema::evolve(){
   MappingGenerator mapGen( m_session.schema().storageSchema() );
   // retrieve the base mapping
   MappingTree baseMapping;
-  if( !m_session.mappingDatabase().getBaseMappingForContainer( m_classDict.qualifiedName(), m_containerId, baseMapping )){
+  if( !m_session.mappingDatabase().getBaseMappingForContainer( m_classDict.cppName(), m_containerId, baseMapping )){
     throwException("Base mapping has not been found in the database.",
                    "ContainerSchema::evolve");
   }
@@ -187,12 +187,12 @@ void ora::ContainerSchema::evolve(){
 }
 
 void ora::ContainerSchema::evolve( const edm::TypeWithDict& dependentClass, MappingTree& baseMapping ){
-  std::string className = dependentClass.qualifiedName();
+  std::string className = dependentClass.cppName();
   MappingGenerator mapGen( m_session.schema().storageSchema() );
   std::map<std::string,MappingTree*>::iterator iDep =
     m_dependentMappings.insert( std::make_pair( className, new MappingTree ) ).first;
-  if( baseMapping.className() != dependentClass.qualifiedName() ){
-    throwException("Provided base mapping does not map class \""+dependentClass.qualifiedName()+"\".",
+  if( baseMapping.className() != dependentClass.cppName() ){
+    throwException("Provided base mapping does not map class \""+dependentClass.cppName()+"\".",
                    "ContainerSchema::evolve");    
   }
   mapGen.createNewDependentMapping( dependentClass, m_mapping, baseMapping, *iDep->second );
@@ -247,7 +247,7 @@ ora::MappingTree& ora::ContainerSchema::mapping( bool writeEnabled ){
 bool ora::ContainerSchema::loadMappingForDependentClass( const edm::TypeWithDict& dependentClassDict ){
   if( !dependentClassDict ) throwException("The dependent class has not been found in the dictionary.",
 					   "ContainerSchema::loadMappingForDependentClass");
-  std::string className = dependentClassDict.qualifiedName();
+  std::string className = dependentClassDict.cppName();
   std::map<std::string,MappingTree*>::iterator iDep = m_dependentMappings.find( className );
   if( iDep ==  m_dependentMappings.end() ){
     // not in cache, search the database...
@@ -264,7 +264,7 @@ bool ora::ContainerSchema::loadMappingForDependentClass( const edm::TypeWithDict
 }
 
 void ora::ContainerSchema::create( const edm::TypeWithDict& dependentClassDict ){
-  std::string className = dependentClassDict.qualifiedName();
+  std::string className = dependentClassDict.cppName();
   std::map<std::string,MappingTree*>::iterator iDep =
     m_dependentMappings.insert( std::make_pair( className, new MappingTree ) ).first;
   MappingGenerator mapGen( m_session.schema().storageSchema() );
@@ -279,7 +279,7 @@ void ora::ContainerSchema::create( const edm::TypeWithDict& dependentClassDict )
 }
 
 void ora::ContainerSchema::extend( const edm::TypeWithDict& dependentClassDict ){
-  std::string className = dependentClassDict.qualifiedName();
+  std::string className = dependentClassDict.cppName();
   MappingTree baseMapping;
   if( !m_session.mappingDatabase().getBaseMappingForContainer( className,
                                                                m_containerId, baseMapping ) ){
@@ -300,7 +300,7 @@ bool ora::ContainerSchema::extendIfRequired( const edm::TypeWithDict& dependentC
 
 ora::MappingElement& ora::ContainerSchema::mappingForDependentClass( const edm::TypeWithDict& dependentClassDict,
                                                                      bool writeEnabled ){
-  std::string className = dependentClassDict.qualifiedName();
+  std::string className = dependentClassDict.cppName();
   if( ! loadMappingForDependentClass( dependentClassDict ) ){
     if( writeEnabled ){
       // check if a base is available:

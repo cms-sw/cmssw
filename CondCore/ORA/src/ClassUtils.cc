@@ -72,16 +72,14 @@ bool ora::ClassUtils::checkMappedType( const edm::TypeWithDict& type,
     return mappedTypeName=="int";
   } else if ( isTypeOraVector( type ) ){
     return isTypeNameOraVector( mappedTypeName );
-  } else if ( type.qualifiedName() == mappedTypeName ) {
+  } else if ( type.cppName() == mappedTypeName ) {
     return true;
   }
   // ROOT 6 uses these typedefs in names.
   std::string typeName(mappedTypeName); 
-  replaceString(typeName, "unsigned long long", "ULong64_t");
-  replaceString(typeName, "long long", "Long64_t");
   replaceString(typeName, "std::basic_string<char> ", "std::string");
   replaceString(typeName, "std::basic_string<char>", "std::string");
-  return (type.qualifiedName() == typeName );
+  return (type.cppName() == typeName );
 }
 
 bool ora::ClassUtils::findBaseType( edm::TypeWithDict& type, edm::TypeWithDict& baseType, size_t& func ){
@@ -155,7 +153,7 @@ edm::TypeWithDict ora::ClassUtils::lookupDictionary( const std::string& classNam
 
 void* ora::ClassUtils::constructObject( const edm::TypeWithDict& typ ){
   void* ptr = 0;
-  if( typ.qualifiedName()=="std::string"){
+  if( typ.cppName()=="std::string"){
     ptr = new std::string("");
   } else {
     ptr = typ.construct().address();
@@ -164,7 +162,7 @@ void* ora::ClassUtils::constructObject( const edm::TypeWithDict& typ ){
 }
 
 bool ora::ClassUtils::isTypeString(const edm::TypeWithDict& typ){
-  std::string name = typ.qualifiedName();
+  std::string name = typ.cppName();
   return ( name == "std::string" ||
            name == "std::basic_string<char>" );
 }

@@ -83,7 +83,7 @@ namespace ora {
         edm::TypeWithDict storeBaseType = ClassUtils::containerSubType(m_objectType,"range_store_base_type");
         if( !storeBaseType ){
           throwException( "Missing dictionary information for the range store base type of the container \"" +
-                          m_objectType.qualifiedName() + "\"",
+                          m_objectType.cppName() + "\"",
                           "QVQueryMaker::build" );          
         }
         
@@ -94,7 +94,7 @@ namespace ora {
         // Check the component type
         if ( ! valueType ||!valueResolvedType ) {
           throwException( "Missing dictionary information for the content type of the container \"" +
-                          m_objectType.qualifiedName() + "\"",
+                          m_objectType.cppName() + "\"",
                           "QVQueryMaker::build" );
         }
         std::string valueName = valueType.name();
@@ -226,13 +226,13 @@ namespace ora {
         edm::MemberWithDict firstMember = iteratorDereferenceReturnType.dataMemberByName( "first" );
         if ( ! firstMember ) {
           throwException( "Could not retrieve the data member \"first\" of the class \"" +
-                          iteratorDereferenceReturnType.qualifiedName() + "\"",
+                          iteratorDereferenceReturnType.cppName() + "\"",
                           "QVQueryMakerAndLoad::read" );
         }
         edm::MemberWithDict secondMember = iteratorDereferenceReturnType.dataMemberByName( "second" );
         if ( ! secondMember ) {
           throwException( "Could not retrieve the data member \"second\" of the class \"" +
-                          iteratorDereferenceReturnType.qualifiedName() + "\"",
+                          iteratorDereferenceReturnType.cppName() + "\"",
                           "QVQueryMakerAndLoad::read" );
         }
 
@@ -262,7 +262,7 @@ namespace ora {
           iteratorDereferenceReturnType.destruct( objectData );
           if ( !inserted ) {
             throwException( "Could not insert a new element in the array type \"" +
-                            m_objectType.qualifiedName() + "\"",
+                            m_objectType.cppName() + "\"",
                             "QVQueryMakerAndLoad::executeAndLoad" );
           }
           ++i;

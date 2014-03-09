@@ -56,13 +56,13 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
       if ( ! dataMemberType ) {
         throwException( "Missing dictionary information for data member \"" +
                         dataMember.name() + "\" of class \"" +
-                        baseType.qualifiedName() + "\"",
+                        baseType.cppName() + "\"",
                         "ObjectStreamerBase::buildBaseDataMembers" );
       }
       
       // check if the member is from a class in the inheritance tree
       edm::TypeWithDict declaringType = ClassUtils::resolvedType( dataMember.declaringType());
-      std::string scope = declaringType.qualifiedName();
+      std::string scope = declaringType.cppName();
       // Get the data member name
       std::string dataMemberName = MappingRules::scopedVariableName( dataMember.name(), scope );
       // Retrieve the relevant mapping element
@@ -70,7 +70,7 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
       if ( iDataMemberMapping != m_mapping.end() ) {
         MappingElement& dataMemberMapping = iDataMemberMapping->second;
 	if( !ClassUtils::checkMappedType(dataMemberType,dataMemberMapping.variableType()) ){
-	  throwException( "Data member \""+dataMemberName +"\" type \"" + dataMemberType.qualifiedName() +
+	  throwException( "Data member \""+dataMemberName +"\" type \"" + dataMemberType.cppName() +
 			  "\" does not match with the expected type in the mapping \""+dataMemberMapping.variableType()+"\".",
 			  "ObjectStreamerBase::buildBaseDataMembers" );
 	}
@@ -113,7 +113,7 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
     if ( ! dataMemberType ) {
       throwException( "Missing dictionary information for data member \"" +
                       dataMember.name() + "\" of class \"" +
-                      m_objectType.qualifiedName() + "\"",
+                      m_objectType.cppName() + "\"",
                       "ObjectStreamerBase::buildDataMembers" );
     }
       
@@ -127,7 +127,7 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
     if ( idataMemberMapping != m_mapping.end() ) {
       MappingElement& dataMemberMapping = idataMemberMapping->second;
       if( !ClassUtils::checkMappedType(dataMemberType,dataMemberMapping.variableType())){
-        throwException( "Data member  \""+dataMemberName +"\" type \"" + dataMemberType.qualifiedName() +
+        throwException( "Data member  \""+dataMemberName +"\" type \"" + dataMemberType.cppName() +
                         "\" does not match with the expected type in the mapping \""+dataMemberMapping.variableType()+"\".",
                         "ObjectStreamerBase::buildDataMembers" );
       }
