@@ -182,8 +182,6 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(gemSimHitInput_, gemSimHits_);
   iEvent.getByLabel(simTrackInput_, simTracks_);
 
-  std::cout << "does this work?" << std::endl;
-
   std::vector<int> trackIds;
   std::vector<int> trackType;
 
@@ -194,8 +192,6 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     trackType.push_back(t.type());
     trackIds.push_back(t.trackId());
   }
-  
-  std::cout << "does this work?" << std::endl;
 
   for (edm::PSimHitContainer::const_iterator itHit = gemSimHits_->begin(); itHit!=gemSimHits_->end(); ++itHit) {
         
@@ -245,8 +241,6 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     int count = 0;
     //std::cout<<"SimHit: region "<<gem_simHit_.region<<" station "<<gem_simHit_.station<<" layer "<<gem_simHit_.layer<<" chamber "<<gem_simHit_.chamber<<" roll "<<gem_simHit_.roll<<" strip "<<gem_simHit_.strip<<" type "<<itHit->particleType()<<" id "<<itHit->trackId()<<std::endl;
 
-    std::cout << "does this work?" << std::endl;
-
     for (GEMRecHitCollection::const_iterator recHit = gemRecHits_->begin(); recHit != gemRecHits_->end(); ++recHit) {
       gem_recHit_.x = recHit->localPosition().x();
       gem_recHit_.xErr = recHit->localPositionError().xx();
@@ -255,8 +249,6 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       gem_recHit_.bx = recHit->BunchX();
       gem_recHit_.clusterSize = recHit->clusterSize();
       gem_recHit_.firstClusterStrip = recHit->firstClusterStrip();
-      
-    std::cout << "does this work?" << std::endl;
 
       GEMDetId id((*recHit).gemId());
       
@@ -266,15 +258,10 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       gem_recHit_.layer = (Short_t) id.layer();
       gem_recHit_.chamber = (Short_t) id.chamber();
       gem_recHit_.roll = (Short_t) id.roll();
-      
-      std::cout << "does this work?" << std::endl;
 
       LocalPoint hitLP = recHit->localPosition();
       GlobalPoint hitGP = gem_geometry_->idToDet((*recHit).gemId())->surface().toGlobal(hitLP);
 
-      std::cout << "geometry?" << std::endl;
-
-      
       gem_recHit_.globalR = hitGP.perp();
       gem_recHit_.globalEta = hitGP.eta();
       gem_recHit_.globalPhi = hitGP.phi();
@@ -291,8 +278,6 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       gem_recHit_.globalZ_sim = gem_simHit_.globalZ;
       gem_recHit_.pull = (gem_simHit_.x - gem_recHit_.x) / gem_recHit_.xErr;
 
-      std::cout << "does this work?" << std::endl;
-
       // abbreviations
       int re(gem_recHit_.region);
       int st(gem_recHit_.station);
@@ -304,8 +289,6 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(st==1) meCollection_["bxDistribution_st1"]->Fill(gem_recHit_.bx);
       if(st==2) meCollection_["bxDistribution_st2"]->Fill(gem_recHit_.bx);
       if(st==3) meCollection_["bxDistribution_st3"]->Fill(gem_recHit_.bx);
-      
-      std::cout << "post BX " << std::endl;
 
       if(gem_recHit_.bx != 0) continue;
       if(isGEMRecHitMatched(gem_recHit_, gem_simHit_)) {
@@ -506,6 +489,7 @@ MuonGEMRecHits::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
   try {
     iSetup.get<MuonGeometryRecord>().get(gem_geom_);
     gem_geometry_ = &*gem_geom_;
+    hasGEMGeometry_ = true;
   } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
     hasGEMGeometry_ = false;
     edm::LogWarning("MuonGEMRecHits") << "+++ Info: GEM geometry is unavailable. +++\n";
