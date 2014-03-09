@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include <cmath>
+#include <iostream>
 
 uint32_t EcalMonitorPrescaler::filterBits_[EcalMonitorPrescaler::nPrescalers] = {
   (1 << EcalDCCHeaderBlock::MTCC) |
