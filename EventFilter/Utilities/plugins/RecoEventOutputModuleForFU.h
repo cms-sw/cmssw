@@ -109,7 +109,7 @@ namespace evf {
     outJsonDef_.addLegendItem("Processed","integer","sum");
     outJsonDef_.addLegendItem("Accepted","integer","sum");
     outJsonDef_.addLegendItem("ErrorEvents","integer","sum");
-    outJsonDef_.addLegendItem("ProcessCheck","string","same");
+    outJsonDef_.addLegendItem("ErrorReturnCodes","string","cat");
     outJsonDef_.addLegendItem("Filelist","string","cat");
     std::stringstream ss;
     ss << edm::Service<evf::EvFDaqDirector>()->fuBaseDir() << "/" << "output_" << getpid() << ".jsd";
