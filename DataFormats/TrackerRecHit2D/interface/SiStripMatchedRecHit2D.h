@@ -3,6 +3,8 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
+#include "TkCloner.h"
+
 class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
  public:
   typedef BaseTrackerRecHit Base;
@@ -53,6 +55,14 @@ class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
   virtual std::vector<const TrackingRecHit*> recHits() const; 
 
   virtual std::vector<TrackingRecHit*> recHits(); 
+
+  virtual bool canImproveWithTrack() const {return true;}
+private:
+  // double dispatch
+  virtual SiStripMatchedRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner(*this,tsos);
+  }
+ 
     
  private:
    OmniClusterRef clusterMono_, clusterStereo_;

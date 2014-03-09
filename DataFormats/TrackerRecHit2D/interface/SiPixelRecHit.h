@@ -18,6 +18,7 @@
 //! Quality word packing
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 
+#include "TkCloner.h"
 
 class SiPixelRecHit GCC11_FINAL : public TrackerSingleRecHit {
   
@@ -27,8 +28,7 @@ public:
   
   SiPixelRecHit(): qualWord_(0) {}
   
-  ~SiPixelRecHit() {}
-  
+  ~SiPixelRecHit(){}
 
   SiPixelRecHit( const LocalPoint& pos , const LocalError& err, SiPixelRecHitQuality::QualWordType qual,
 		 const DetId& id, GeomDet const * idet,
@@ -47,6 +47,13 @@ public:
   virtual int dimension() const {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
   
+  
+  virtual bool canImproveWithTrack() const {return true;}
+private:
+  // double dispatch
+  virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner(*this,tsos);
+  }
   
   //--------------------------------------------------------------------------
   //--- Accessors of other auxiliary quantities

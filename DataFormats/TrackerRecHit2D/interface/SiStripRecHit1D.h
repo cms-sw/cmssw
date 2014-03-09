@@ -7,6 +7,9 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
+#include "TkCloner.h"
+
+
 class SiStripRecHit1D GCC11_FINAL : public TrackerSingleRecHit { 
 public:
 
@@ -35,6 +38,14 @@ public:
 
   virtual int dimension() const {return 1;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const {getKfComponents1D(holder);}
+
+  virtual bool canImproveWithTrack() const {return true;}
+private:
+  // double dispatch
+  virtual SiStripRecHit1D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner(*this,tsos);
+  }
+ 
 
  
 };
