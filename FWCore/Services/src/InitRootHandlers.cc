@@ -129,6 +129,7 @@ namespace {
           (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
           (el_location.find("TUnixSystem::SetDisplay") != std::string::npos) ||
           (el_location.find("TGClient::GetFontByName") != std::string::npos) ||
+	  (el_message.find("nbins is <=0 - set to nbins = 1") != std::string::npos) ||
           (level < kError and
            (el_location.find("CINTTypedefBuilder::Setup")!= std::string::npos) and
            (el_message.find("possible entries are in use!") != std::string::npos))) {
