@@ -40,6 +40,10 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
                                                     const edm::TypeWithDict& objType,
                                                     RelationalBuffer* operationBuffer ){
   
+  // Don't look for base classes of std:: stuff
+  if(objType.name().substr(0,5) == "std::") {
+    return;
+  } 
   edm::TypeBases bases(objType);
   for (auto const & b : bases) {
     edm::BaseWithDict base(b);
