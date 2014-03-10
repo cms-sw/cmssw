@@ -11,12 +11,6 @@
 using namespace std;
 
 
-PixelToFEDAssociateFromAscii::BarrelConnections PixelToFEDAssociateFromAscii::theBarrel
-   = PixelToFEDAssociateFromAscii::BarrelConnections();
-PixelToFEDAssociateFromAscii::EndcapConnections PixelToFEDAssociateFromAscii::theEndcap
-   = PixelToFEDAssociateFromAscii::EndcapConnections();
-
-
 PixelToFEDAssociateFromAscii::PixelToFEDAssociateFromAscii(const string & fn) {
   init(fn);
 }
@@ -169,7 +163,7 @@ void PixelToFEDAssociateFromAscii::init(const string & cfg_name)
 }
 
 void PixelToFEDAssociateFromAscii::send(
-    pair<int,vector<Bdu> > & b, pair<int,vector<Edu> > & e) const 
+    pair<int,vector<Bdu> > & b, pair<int,vector<Edu> > & e)
 {
   if (b.second.size() > 0) theBarrel.push_back(b);
   if (e.second.size() > 0) theEndcap.push_back(e);
