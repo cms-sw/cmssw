@@ -36,7 +36,7 @@ namespace evf{
     ,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
     //,rootDirectory_(iPS.getUntrackedParameter<std::string>("rootDirectory", "/data"))
     ,microstateDefPath_(iPS.getUntrackedParameter<std::string>("microstateDefPath", "/tmp/def.jsd"))
-    ,fastMicrostateDefPath_(iPS.getUntrackedParameter<std::string>("fastMicrostateDefPath", "/tmp/def.jsd"))
+    ,fastMicrostateDefPath_(iPS.getUntrackedParameter<std::string>("fastMicrostateDefPath", ,microstateDefPath_))
     ,outputDefPath_(iPS.getUntrackedParameter<std::string>("outputDefPath", "/tmp/def.jsd"))
     ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "states"))
     ,slowName_(iPS.getUntrackedParameter<std::string>("slowName", "lumi"))
