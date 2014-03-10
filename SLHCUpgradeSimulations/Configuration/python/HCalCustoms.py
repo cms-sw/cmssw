@@ -200,6 +200,8 @@ def customise_Reco(process):
     process.reconstruction_step.remove(process.CastorTowerReco)
     process.reconstruction_step.remove(process.ak7BasicJets)
     process.reconstruction_step.remove(process.ak7CastorJetID)
+
+    process.reconstruction_step.remove(process.hcalnoise)
     return process
 
 def customise_DQM(process):

@@ -30,11 +30,8 @@ def customise_Digi(process):
     process.mix.mixObjects.mixSH.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
     process.mix.mixObjects.mixSH.subdets.append('MuonGEMHits')
 
-    process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
-    process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
-    process.muonDigi += process.simMuonGEMDigis
-    process.muonDigi += process.simMuonGEMCSCPadDigis
-
+    process.load('SimMuon.GEMDigitizer.muonGEMDigi_cff')
+    process.muonDigi += process.muonGEMDigi
     process=outputCustoms(process)
     return process
 
@@ -60,28 +57,30 @@ def customise_RawToDigi(process):
 
 def customise_Reco(process):
     process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
-    process.gemRecHits.gemDigiLabel = cms.InputTag("simMuonGEMDigis")
     process.muonlocalreco += process.gemRecHits
-    process=outputCustoms(process)
     process.standAloneMuons.STATrajBuilderParameters.EnableGEMMeasurement = cms.bool(True)
     process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+    process=outputCustoms(process)
     return process
 
 def customise_DQM(process):
     return process
+
 def customise_Validation(process):
-    process.load('Validation.MuonGEMHits.MuonGEMHits_cfi')
-    process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
-    process.genvalid_all += cms.Sequence( process.gemHitsValidation*process.gemDigiValidation)
+    process.load('Validation.Configuration.gemSimValid_cff')
+    process.genvalid_all += process.gemSimValid
+
+    process.load('Validation.RecoMuon.MuonTrackValidator_cfi')
+    process.load('SimMuon.MCTruth.MuonAssociatorByHits_cfi')
+    process.muonAssociatorByHitsCommonParameters.useGEMs = cms.bool(True)
+    process.muonTrackValidator.useGEMs = cms.bool(True)
     return process
 
 
 def customise_harvesting(process):
-    process.load('Validation.MuonGEMHits.PostProcessor_cff')
-    process.load('Validation.MuonGEMDigis.PostProcessor_cff')
-    process.genHarvesting += process.MuonGEMHitsPostProcessors
-    process.genHarvesting += process.MuonGEMDigisPostProcessors
-    return (process)
+    process.load('Validation.Configuration.gemPostValidation_cff')
+    process.postValidation += process.gemPostValidation
+    return process
 
 def outputCustoms(process):
     alist=['AODSIM','RECOSIM','FEVTSIM','FEVTDEBUG','FEVTDEBUGHLT','RECODEBUG','RAWRECOSIMHLT','RAWRECODEBUGHLT']
@@ -92,9 +91,4 @@ def outputCustoms(process):
             getattr(process,b).outputCommands.append('keep *_simMuonGEMCSCPadDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_gemRecHits_*_*')
 
-    return process
-
-def customise_ValidationNoGem_2023(process):
-    if hasattr(process,'validation_step'):
-    	process.validation_step.remove(process.gemHitsValidation)
     return process
