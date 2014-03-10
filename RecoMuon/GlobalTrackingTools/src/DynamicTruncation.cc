@@ -39,8 +39,8 @@ using namespace reco;
 
 
 DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceProxy& theService) {
-  propagator = theService.propagator("SmartPropagator");
-  propagatorPF = theService.propagator("SmartPropagatorOpposite");
+  propagator = theService.propagator("SmartPropagatorAny");
+  propagatorPF = theService.propagator("SmartPropagatorAny");
   propagatorCompatibleDet = theService.propagator("SteppingHelixPropagatorAny");
   theG = theService.trackingGeometry();
   theService.eventSetup().get<TransientRecHitRecord>().get("MuonRecHitBuilder",theMuonRecHitBuilder);
@@ -59,8 +59,8 @@ DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceP
   useDBforThr = thrManager->isValidThdDB();
   if (useDBforThr) dytThresholds = thrManager->getInitialThresholds();
 
-  if (useDBforThr) cout << "Thresholds will be taken from DB.\n";
-  else cout << "Thresholds will be taken from cfg file.\n";
+  //  if (useDBforThr) cout << "Thresholds will be taken from DB.\n";
+  //  else cout << "Thresholds will be taken from cfg file.\n";
 }
 
 DynamicTruncation::~DynamicTruncation() {
@@ -74,6 +74,34 @@ void DynamicTruncation::update(TrajectoryStateOnSurface& tsos, ConstRecHitPointe
   if (temp.isValid()) tsos = updatorHandle->update(tsos, *rechit);
 }
 
+void DynamicTruncation::updateWithDThits(TrajectoryStateOnSurface& tsos, DTRecSegment4D const &bestDTSeg) {
+  ConstRecHitContainer tmprecHits;
+  vector<const TrackingRecHit*> DTrh = bestDTSeg.recHits();
+  for (vector<const TrackingRecHit*>::iterator it = DTrh.begin(); it != DTrh.end(); it++) {
+    tmprecHits.push_back(theMuonRecHitBuilder->build(*it)); 
+  }
+  sort(tmprecHits);
+  for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
+    DTLayerId layid((*it)->det()->geographicalId());
+    TrajectoryStateOnSurface temp = propagator->propagate(tsos, theG->idToDet(layid)->surface());
+    if (temp.isValid()) tsos = updatorHandle->update(temp, **it);
+  }
+}
+
+void DynamicTruncation::updateWithCSChits(TrajectoryStateOnSurface& tsos, CSCSegment const &bestCSCSeg) {
+  ConstRecHitContainer tmprecHits;
+  vector<CSCRecHit2D> CSCrh = bestCSCSeg.specificRecHits();
+  for (vector<CSCRecHit2D>::iterator it = CSCrh.begin(); it != CSCrh.end(); ++it) {
+    tmprecHits.push_back(theMuonRecHitBuilder->build(&*it));
+  }
+  sort(tmprecHits);
+  for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
+    cout << "CSC RH mag = " << (*it)->globalPosition().mag() << endl;
+    const CSCLayer* cscLayer = cscGeom->layer((*it)->det()->geographicalId());
+    TrajectoryStateOnSurface temp = propagator->propagate(tsos, cscLayer->surface());  
+    if (temp.isValid()) tsos = updatorHandle->update(temp, **it);
+  }
+}
 
 
 /////////////////////////////////
@@ -81,25 +109,22 @@ void DynamicTruncation::update(TrajectoryStateOnSurface& tsos, ConstRecHitPointe
 /////////////////////////////////
 void DynamicTruncation::setSelector(int selector) {
   if (selector < 0 || selector > 2) throw cms::Exception("NotAvailable") << "DYT selector: wrong option!" << endl;
-  cout << "DYT selector set to " << selector << ".\n";
-  if (selector == 0) cout << "[DYT disabled]\n";
-  if (selector == 1) cout << "[use all compatible stations]\n";
-  if (selector == 2) cout << "[stop at second consecutive incompatible station]\n";
+  //if (selector == 0) cout << "[DYT disabled]\n";
+  //if (selector == 1) cout << "[use all compatible stations]\n";
+  //if (selector == 2) cout << "[stop at second consecutive incompatible station]\n";
   DYTselector = selector;
 
 }
 
 void DynamicTruncation::setUseAPE(bool useAPE_) {
-  if (!useAPE_) cout << "The use of APE is disabled." << endl;
   useAPE = useAPE_;
 }
 
 void DynamicTruncation::setUpdateState(bool upState) {
-  if (!upState) cout << "KF state updator disabled." << endl;
   doUpdateOfKFStates = upState;
 }
 
-void DynamicTruncation::setThr(const std::vector<int>& thr) {
+void DynamicTruncation::setThr(const vector<int>& thr) {
   if (thr.size() == 2) {
     for (unsigned int i = 0; i < thr.size(); i++)
       if (thr[i] >= 0) Thrs.push_back(thr[i]);
@@ -124,9 +149,9 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
   cscApeMap = thrManager->GetCSCApeMap();
 
   // Get Last tracker TSOS (updated)
-  std::vector<TrajectoryMeasurement> muonMeasurements = traj.measurements();
+  vector<TrajectoryMeasurement> muonMeasurements = traj.measurements();
   TrajectoryMeasurement lastTKm = muonMeasurements.front();
-  for (std::vector<TrajectoryMeasurement>::const_iterator imT = muonMeasurements.begin(); imT != muonMeasurements.end(); imT++ ) {
+  for (vector<TrajectoryMeasurement>::const_iterator imT = muonMeasurements.begin(); imT != muonMeasurements.end(); imT++ ) {
     if ( !(*imT).recHit()->isValid() ) continue;
     const TransientTrackingRecHit* hit = &(*(*imT).recHit());
     if (hit->geographicalId().det() == DetId::Tracker) {
@@ -145,8 +170,6 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
 
   // Run the DYT
   filteringAlgo();
-
-  cout << "SONO QUI" << endl;
   
   return result;
 }
@@ -179,22 +202,6 @@ void DynamicTruncation::filteringAlgo() {
     vector<DTRecSegment4D> dtSegs   = dtSegMap[it->first];
     vector<CSCSegment> cscSegs      = cscSegMap[it->first];
     
-
-    /////////////////
-    // Debug stuff //
-    /////////////////
-    if (it->second.front().subdetId() == MuonSubdetId::DT) {
-      DTChamberId ch(it->second.front());
-      cout << ch << " - DT segs: " << dtSegs.size() << " - CSC segs: " << cscSegs.size() << endl;
-    } else {
-      CSCDetId ch(it->second.front());
-      cout << ch << " - DT segs: " << dtSegs.size() << " - CSC segs: " << cscSegs.size() << endl;
-    }
-    /////////////////
-    /////////////////
-    /////////////////
-
-
     // DT case: find the most compatible segment 
     TrajectoryStateOnSurface tsosDTlayer;
     testDTstation(currentState, dtSegs, bestDTEstimator, bestDTSeg, tsosDTlayer);
@@ -207,7 +214,7 @@ void DynamicTruncation::filteringAlgo() {
     bool chosenLayer = chooseLayers(incompConLay, bestDTEstimator, bestDTSeg, tsosDTlayer, bestCSCEstimator, bestCSCSeg, tsosCSClayer);
     fillDYTInfos(stLayer, chosenLayer, incompConLay, bestDTEstimator, bestCSCEstimator, bestDTSeg, bestCSCSeg); 
   }
-  cout << "Number of used stations = " << nStationsUsed << endl;
+  //cout << "Number of used stations = " << nStationsUsed << endl;
 }
 
 
@@ -251,10 +258,10 @@ void DynamicTruncation::fillDYTInfos(int const &st, bool const &chosenLayer, int
 
 
 //===> compatibleDets
-void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface &tsos, map<int, std::vector<DetId> > &detMap) {
+void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface &tsos, map<int, vector<DetId> > &detMap) {
   MuonPatternRecoDumper dumper;
   MeasurementEstimator *theEstimator = new Chi2MeasurementEstimator(1000, 1000);
-  std::vector<const DetLayer *> navLayers;
+  vector<const DetLayer *> navLayers;
   navLayers = navigation->compatibleLayers(*(currentState.freeState()), alongMomentum);
   unsigned int ilayerCorrected = 0;
   for ( unsigned int ilayer=0; ilayer<navLayers.size(); ilayer++ ) {
@@ -262,9 +269,9 @@ void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface &tsos, map<int, 
     if (navLayers[ilayer]->subDetector() != GeomDetEnumerators::DT &&
 	navLayers[ilayer]->subDetector() != GeomDetEnumerators::CSC) continue;
     ilayerCorrected++;
-    std::vector<DetLayer::DetWithState> comps = navLayers[ilayer]->compatibleDets(currentState, *propagatorCompatibleDet, *theEstimator);
-    cout << comps.size() << " compatible Dets with " << navLayers[ilayer]->subDetector() << " Layer " << ilayer << " " 
-	 << dumper.dumpLayer(navLayers[ilayer]);
+    vector<DetLayer::DetWithState> comps = navLayers[ilayer]->compatibleDets(currentState, *propagatorCompatibleDet, *theEstimator);
+    //cout << comps.size() << " compatible Dets with " << navLayers[ilayer]->subDetector() << " Layer " << ilayer << " " 
+    //<< dumper.dumpLayer(navLayers[ilayer]);
     if (comps.size() > 0) {
       for ( unsigned int icomp=0; icomp<comps.size(); icomp++ ) {
 		DetId id(comps[icomp].first->geographicalId().rawId());
@@ -281,7 +288,7 @@ void DynamicTruncation::fillSegmentMaps( map<int, vector<DetId> > &compatibleIds
                                          map<int, vector<DTRecSegment4D> > &dtSegMap,
                                          map<int, vector<CSCSegment> > &cscSegMap) {
   for (map<int, vector<DetId> >::iterator it=compatibleIds.begin(); it!=compatibleIds.end(); ++it) {
-    std::vector<DetId> ids = compatibleIds[it->first];
+    vector<DetId> ids = compatibleIds[it->first];
     for (unsigned j = 0; j < ids.size(); j++) {
       if (ids[j].subdetId() == MuonSubdetId::CSC) {
         CSCDetId ch(ids[j]);
@@ -310,7 +317,7 @@ void DynamicTruncation::testDTstation(TrajectoryStateOnSurface &startingState, v
     if (useAPE) apeLoc = ErrorFrameTransformer().transform(dtApeMap.find(chamber)->second, theG->idToDet(chamber)->surface());
     StateSegmentMatcher estim(tsosdt, segments[iSeg], apeLoc);
     double estimator = estim.value();      
-    cout << "estimator DT = " << estimator << endl;
+    //cout << "estimator DT = " << estimator << endl;
     if (estimator >= bestEstimator) continue; 
     bestEstimator = estimator;
     bestSeg = segments[iSeg];
@@ -330,7 +337,7 @@ void DynamicTruncation::testCSCstation(TrajectoryStateOnSurface &startingState, 
     if (useAPE) apeLoc = ErrorFrameTransformer().transform(cscApeMap.find(chamber)->second, theG->idToDet(chamber)->surface());
     StateSegmentMatcher estim(tsoscsc, segments[iSeg], apeLoc);
     double estimator = estim.value();
-    cout << "estimator CSC = " << estimator << endl;
+    //cout << "estimator CSC = " << estimator << endl;
     if (estimator >= bestEstimator) continue;
     bestEstimator = estimator;
     bestSeg = segments[iSeg]; 
@@ -341,7 +348,7 @@ void DynamicTruncation::testCSCstation(TrajectoryStateOnSurface &startingState, 
 //===> useSegment
 void DynamicTruncation::useSegment(DTRecSegment4D const &bestDTSeg, TrajectoryStateOnSurface const &tsosDT) {
   result.push_back(theMuonRecHitBuilder->build(&bestDTSeg));
-  if (doUpdateOfKFStates) currentState = updatorHandle->update(tsosDT, *theMuonRecHitBuilder->build(&bestDTSeg));
+  if (doUpdateOfKFStates) updateWithDThits(currentState, bestDTSeg);
   else currentState = tsosDT;
 }
 
@@ -349,7 +356,7 @@ void DynamicTruncation::useSegment(DTRecSegment4D const &bestDTSeg, TrajectorySt
 //===> useSegment 
 void DynamicTruncation::useSegment(CSCSegment const &bestCSCSeg, TrajectoryStateOnSurface const &tsosCSC) {
   result.push_back(theMuonRecHitBuilder->build(&bestCSCSeg));
-  if (doUpdateOfKFStates) currentState = updatorHandle->update(tsosCSC, *theMuonRecHitBuilder->build(&bestCSCSeg));
+  if (doUpdateOfKFStates) updateWithCSChits(currentState, bestCSCSeg);
   else currentState = tsosCSC;
 }
 
@@ -404,12 +411,10 @@ bool DynamicTruncation::chooseLayers(int &incompLayers, double const &bestDTEsti
 				     double const &bestCSCEstimator, CSCSegment const &bestCSCSeg, TrajectoryStateOnSurface const &tsosCSC) {
   double initThr = MAX_THR;
   if (bestDTEstimator == MAX_THR && bestCSCEstimator == MAX_THR) return false;
-
   if (bestDTEstimator <= bestCSCEstimator) {
     // Get threshold for the chamber
     if (useDBforThr) getThresholdFromDB(initThr, DetId(bestDTSeg.chamberId()));
     else getThresholdFromCFG(initThr, DetId(bestDTSeg.chamberId())); 
-    cout << "Threshold: " << initThr << endl;
     if (DYTselector == 0) {useSegment(bestDTSeg, tsosDT); return true;}
     if (DYTselector == 1 && bestDTEstimator < initThr) {useSegment(bestDTSeg, tsosDT); return true;}
     if (DYTselector == 2 && incompLayers < 2 && bestDTEstimator < initThr) {useSegment(bestDTSeg, tsosDT); return true;}
@@ -417,7 +422,6 @@ bool DynamicTruncation::chooseLayers(int &incompLayers, double const &bestDTEsti
     // Get threshold for the chamber
     if (useDBforThr) getThresholdFromDB(initThr, DetId(bestCSCSeg.cscDetId()));
     else getThresholdFromCFG(initThr, DetId(bestCSCSeg.cscDetId()));
-    cout << "Threshold: " << initThr << endl;
     if (DYTselector == 0) {useSegment(bestCSCSeg, tsosCSC); return true;}
     if (DYTselector == 1 && bestCSCEstimator < initThr) {useSegment(bestCSCSeg, tsosCSC); return true;}
     if (DYTselector == 2 && incompLayers < 2 && bestCSCEstimator < initThr) {useSegment(bestCSCSeg, tsosCSC); return true;}
@@ -436,20 +440,18 @@ void DynamicTruncation::getThresholdFromDB(double& thr, DetId const& id) {
       break;
     }
   }
-  cout << "thr before pt = " << thr << endl;
   correctThrByPtAndEta(thr);
-  cout << "thr after pt = " << thr << endl;
 }
 
 
 //===> correctThrByPtAndEta
 void DynamicTruncation::correctThrByPtAndEta(double& thr) {
-  //muonPTest 
-  if (fabs(muonETAest) <= 0.8) thr *= 0.5;
-  if (fabs(muonETAest) > 0.8 && fabs(muonETAest) <= 1.2) thr *= 0.5;
-  if (fabs(muonETAest) > 1.2 && fabs(muonETAest) <= 1.6) thr *= 0.5;
-  if (fabs(muonETAest) > 1.6 && fabs(muonETAest) <= 2.0) thr *= 0.5;
-  if (fabs(muonETAest) > 2.0) thr *= 0.5;
+
+  //////////////////////////////////////
+  // This section will be implemented //
+  //    after the release of APEs     //
+  //////////////////////////////////////
+
 }
 
 
@@ -461,4 +463,15 @@ void DynamicTruncation::getThresholdFromCFG(double& thr, DetId const& id) {
   if (id.subdetId() == MuonSubdetId::CSC) {
     thr = Thrs[1];
   }
+}
+
+
+//===> sort
+void DynamicTruncation::sort(ConstRecHitContainer& recHits) {
+  unsigned int i=0;
+  unsigned int j=0;
+  ConstRecHitContainer::size_type n = recHits.size();
+  for(i=1; i<n; ++i)
+    for(j=n-1; j>=i; --j)
+      if(recHits[j-1]->globalPosition().mag() > recHits[j]->globalPosition().mag()) swap (recHits[j-1],recHits[j]);
 }

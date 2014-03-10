@@ -85,6 +85,8 @@ class DynamicTruncation {
   void                 fillDYTInfos(int const&, bool const&, int&, double const&, double const&, DTRecSegment4D const&, CSCSegment const&);
   int                  stationfromDet(DetId const&);
   void                 update(TrajectoryStateOnSurface&, ConstRecHitPointer);
+  void                 updateWithDThits(TrajectoryStateOnSurface&, DTRecSegment4D const &);
+  void                 updateWithCSChits(TrajectoryStateOnSurface&, CSCSegment const &);
   void                 getThresholdFromDB(double&, DetId const&);
   void                 correctThrByPtAndEta(double&);
   void                 getThresholdFromCFG(double&, DetId const&);
@@ -92,6 +94,7 @@ class DynamicTruncation {
   void                 testCSCstation(TrajectoryStateOnSurface&, std::vector<CSCSegment> const &, double&, CSCSegment&, TrajectoryStateOnSurface&);
   void                 useSegment(DTRecSegment4D const &, TrajectoryStateOnSurface const &);
   void                 useSegment(CSCSegment const &, TrajectoryStateOnSurface const &); 
+  void                 sort(ConstRecHitContainer&);
 
   ConstRecHitContainer result, prelFitMeas;
   bool useAPE;

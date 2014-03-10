@@ -135,8 +135,8 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
       reco::TrackRef glbRef(glbMuons,trackIndex);
       
       vector<Trajectory> refitted=theRefitter->refit(*track,theRefitIndex[ww],tTopo);
-
-      //if (theRefits[ww] == "dyt") dytTmp[glbCounter] = *theRefitter->getDYTInfo();
+      
+      if (theRefits[ww] == "dyt") dytTmp[glbCounter] = *theRefitter->getDYTInfo();
       glbCounter++;
 
       if (refitted.size()>0) {
@@ -150,9 +150,9 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     theTrackLoader->loadTracks(trajectories,event,miniMap,theRefits[ww]);
   }
 
-  //  filler.insert(glbMuons, dytTmp.begin(), dytTmp.end());
-  //  filler.fill();
-  //  event.put(dytInfo, "dytInfo");
+  filler.insert(glbMuons, dytTmp.begin(), dytTmp.end());
+  filler.fill();
+  event.put(dytInfo, "dytInfo");
     
   LogTrace(metname) << "Done." << endl;    
 
