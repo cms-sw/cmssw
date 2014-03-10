@@ -24,7 +24,8 @@ HLTMhtProducer::HLTMhtProducer(const edm::ParameterSet & iConfig) :
   jetsLabel_              ( iConfig.getParameter<edm::InputTag>("jetsLabel") ),
   pfCandidatesLabel_      ( iConfig.getParameter<edm::InputTag>("pfCandidatesLabel") ) {
     m_theJetToken = consumes<edm::View<reco::Jet>>(jetsLabel_);
-    m_thePFCandidateToken = consumes<reco::PFCandidateCollection>(pfCandidatesLabel_);
+    if (pfCandidatesLabel_.label() == "") excludePFMuons_ = false;
+    if (excludePFMuons_) m_thePFCandidateToken = consumes<reco::PFCandidateCollection>(pfCandidatesLabel_);
 
     // Register the products
     produces<reco::METCollection>();
@@ -52,9 +53,6 @@ void HLTMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     // Create a pointer to the products
     std::auto_ptr<reco::METCollection> result(new reco::METCollection());
-
-    if (pfCandidatesLabel_.label() == "")
-        excludePFMuons_ = false;
 
     edm::Handle<reco::JetView> jets;
     iEvent.getByToken(m_theJetToken, jets);
