@@ -372,7 +372,8 @@ struct RecoMuonValidator::MuonME {
 
     hErrP_vs_P_   ->Fill(simP  , errP  );
     hErrPt_vs_Pt_ ->Fill(simPt , errPt );
-    hErrQPt_vs_Pt_->Fill(simQPt, errQPt);
+    //hErrQPt_vs_Pt_->Fill(simQPt, errQPt);
+    hErrQPt_vs_Pt_->Fill(simPt, errQPt);
 
     hErrEta_vs_Eta_->Fill(simEta, errEta);
 

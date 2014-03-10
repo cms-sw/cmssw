@@ -17,7 +17,7 @@
 
 ME0SegmentProducer::ME0SegmentProducer(const edm::ParameterSet& pas) : iev(0) {
 	
-    inputObjectsTag = pas.getParameter<edm::InputTag>("inputObjects");
+    inputObjectsTag = pas.getParameter<edm::InputTag>("me0RecHitLabel");
     segmentBuilder_ = new ME0SegmentBuilder(pas); // pass on the PS
 
   	// register what this produces
