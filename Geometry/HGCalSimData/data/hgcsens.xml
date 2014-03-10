@@ -10,12 +10,12 @@
   <SpecPar name="hgchesil">
     <PartSelector path="//.*HESiliconSensitive.*"/>
     <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
-    <Parameter name="ReadOutName" value="HGCHitsHEsil" eval="false"/>
+    <Parameter name="ReadOutName" value="HGCHitsHE" eval="false"/>
   </SpecPar>
   <SpecPar name="hgchesci">
     <PartSelector path="//.*HEScintillatorSensitive.*"/>
     <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
-    <Parameter name="ReadOutName" value="HGCHitsHEsci" eval="false"/>
+    <Parameter name="ReadOutName" value="HGCHitsHE" eval="false"/>
   </SpecPar>
 <!--
   <SpecPar name="hgchegem">
