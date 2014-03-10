@@ -68,7 +68,7 @@ def customise_DQM(process):
 
 def customise_Validation(process):
     process.load('Validation.Configuration.gemSimValid_cff')
-    process.genvalid_all += gemSimValid
+    process.genvalid_all += process.gemSimValid
 
     process.load('Validation.RecoMuon.MuonTrackValidator_cfi')
     process.load('SimMuon.MCTruth.MuonAssociatorByHits_cfi')
@@ -79,7 +79,7 @@ def customise_Validation(process):
 
 def customise_harvesting(process):
     process.load('Validation.Configuration.gemPostValidation_cff')
-    process.postValidation += cms.gemPostValidation
+    process.postValidation += process.gemPostValidation
     return process
 
 def outputCustoms(process):
