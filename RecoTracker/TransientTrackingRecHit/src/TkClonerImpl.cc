@@ -1,39 +1,106 @@
-#include "RecoTracker/TransientTrackingRecHit/interface/TKClonerImpl.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
+
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 
 
 
-SiPixelRecHit * TKClonerImpl::operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface& tsos) const {
+SiPixelRecHit * TkClonerImpl::operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
   const SiPixelCluster& clust = *hit.cluster();  
   PixelClusterParameterEstimator::LocalValues lv = 
-    theCPE->localParameters( clust, hit.detUnit(), tsos);
-  return new SiPixelRecHit(lv.first, lv.second, theCPE->rawQualityWord(), hit.det()->geographicalId() hit.det(), clus());
+    pixelCPE->localParameters( clust, *hit.detUnit(), tsos);
+  return new SiPixelRecHit(lv.first, lv.second, pixelCPE->rawQualityWord(), hit.det()->geographicalId(), hit.det(), hit.cluster());
 
 }
 
-SiStripRecHit2D * TKClonerImpl::operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
-
-
-}
-
-
-
-SiStripRecHit1D * TKClonerImpl::operator()(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
-
+SiStripRecHit2D * TkClonerImpl::operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+    /// FIXME: this only uses the first cluster and ignores the others
+    const SiStripCluster&  clust = hit.stripCluster();  
+    StripClusterParameterEstimator::LocalValues lv = 
+      stripCPE->localParameters( clust, *hit.detUnit(), tsos);
+ return new SiStripRecHit2D(lv.first, lv.second,hit.det()->geographicalId(), hit.det(), hit.cluster());
 
 }
 
 
 
-SiStripMatchedRecHit2D * TKClonerImpl::operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+SiStripRecHit1D * TkClonerImpl::operator()(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const {
+  /// FIXME: this only uses the first cluster and ignores the others
+  const SiStripCluster&  clust = hit.stripCluster();  
+  StripClusterParameterEstimator::LocalValues lv = 
+    stripCPE->localParameters( clust, *hit.detUnit(), tsos);
+  LocalError le(lv.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
+  return new SiStripRecHit1D(lv.first, le, hit.det()->geographicalId(), hit.det(), hit.cluster());
+}
+
+
+
+namespace {
+#undef RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitProj
+#undef RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitLGL
+#ifdef RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitLGL 
+// Local lo Global lo Local
+  inline LocalTrajectoryParameters gluedToStereo(const TrajectoryStateOnSurface &tsos, const GluedGeomDet *gdet) {    
+    const BoundPlane &stripPlane = gdet->stereoDet()->surface();
+    LocalPoint  lp = stripPlane.toLocal(tsos.globalPosition());
+    LocalVector ld = stripPlane.toLocal(tsos.globalParameters().momentum());
+    return LocalTrajectoryParameters(lp,ld,tsos.charge());
+  }
+#elif defined(RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitProj)
+  // A la RecHitProjector
+  inline LocalTrajectoryParameters gluedToStereo(const TrajectoryStateOnSurface &tsos, const GluedGeomDet *gdet) {
+    const BoundPlane &stripPlane = gdet->stereoDet()->surface();
+    double delta = stripPlane.localZ( tsos.globalPosition());
+    LocalVector ld = stripPlane.toLocal(tsos.globalParameters().momentum());
+    LocalPoint  lp = stripPlane.toLocal(tsos.globalPosition()) - ld*delta/ld.z();
+    return LocalTrajectoryParameters(lp,ld,tsos.charge());
+  }
+#else
+  // Dummy
+  inline const LocalTrajectoryParameters & gluedToStereo(const TrajectoryStateOnSurface &tsos, const GluedGeomDet *gdet) {
+    return tsos.localParameters();
+  }
+#endif
+}
+
+SiStripMatchedRecHit2D * TkClonerImpl::operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+    const GeomDet * det = hit.det();
+    const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (det);
+    LocalVector tkDir = (tsos.isValid() ? tsos.localDirection() : 
+			 det->surface().toLocal( det->position()-GlobalPoint(0,0,0)));
+
+
+    const SiStripCluster& monoclust   = hit.monoCluster();  
+    const SiStripCluster& stereoclust = hit.stereoCluster();
+    
+    StripClusterParameterEstimator::LocalValues lvMono = 
+      stripCPE->localParameters( monoclust, *gdet->monoDet(), tsos);
+    StripClusterParameterEstimator::LocalValues lvStereo = 
+      stripCPE->localParameters( stereoclust, *gdet->stereoDet(), gluedToStereo(tsos, gdet));
+      
+    SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second, 
+					       gdet->monoDet()->geographicalId(),gdet->monoDet(),
+					       hit.monoClusterRef());
+    SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
+						 gdet->stereoDet()->geographicalId(),gdet->stereoDet(),
+						 hit.stereoClusterRef());
+    
+
+    return theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,true);
 
 
 }

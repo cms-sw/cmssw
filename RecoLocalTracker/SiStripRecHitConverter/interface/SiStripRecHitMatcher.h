@@ -65,7 +65,7 @@ public:
   SiStripMatchedRecHit2D * match(const SiStripRecHit2D *monoRH, 
 				 const SiStripRecHit2D *stereoRH,
 				 const GluedGeomDet* gluedDet,
-				 LocalVector trackdirection) const;
+				 LocalVector trackdirection, bool force=false) const;
 
   
 // this is the one used by the RecHitConverter

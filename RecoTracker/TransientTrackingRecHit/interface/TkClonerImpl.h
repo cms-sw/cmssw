@@ -1,7 +1,7 @@
-#ifndef TKClonerRecHit_H
-#define TKClonerRecHit_H
+#ifndef TKClonerImplRecHit_H
+#define TKClonerImplRecHit_H
 
-#include "DataFormats/TrackingRecHit/interface/TKCloner.h"
+#include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 
 
 class SiPixelRecHit;
@@ -12,7 +12,9 @@ class SiStripMatchedRecHit2D;
 class PixelClusterParameterEstimator;
 class StripClusterParameterEstimator;
 class SiStripRecHitMatcher;
-class TkClonerImpl final : public TKCloner {
+
+
+class TkClonerImpl final : public TkCloner {
 public:
 
   virtual SiPixelRecHit * operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const;

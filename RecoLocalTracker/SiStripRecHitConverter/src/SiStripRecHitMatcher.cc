@@ -269,7 +269,7 @@ SiStripMatchedRecHit2D *
 SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH, 
 			    const SiStripRecHit2D *stereoRH,
 			    const GluedGeomDet* gluedDet,
-			    LocalVector trackdirection) const {
+			    LocalVector trackdirection, bool force) const {
   // stripdet = mono
   // partnerstripdet = stereo
   const GeomDetUnit* stripdet = gluedDet->monoDet();
@@ -347,7 +347,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   Local2DPoint position(solution(0),solution(1));
   
 
-  if (!((gluedDet->surface()).bounds().inside(position,10.f*scale_))) return nullptr;                                                       
+  if ((!force) &&  (!((gluedDet->surface()).bounds().inside(position,10.f*scale_))) ) return nullptr;                                                       
   
 
   double c2 = -m10;
@@ -369,7 +369,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
 
   //if it is inside the gluedet bonds
   //Change NSigmaInside in the configuration file to accept more hits
-  if((gluedDet->surface()).bounds().inside(position,error,scale_)) 
+  if(force || (gluedDet->surface()).bounds().inside(position,error,scale_)) 
     return new SiStripMatchedRecHit2D(LocalPoint(position), error,gluedDet->geographicalId(), gluedDet, monoRH,stereoRH);
   return nullptr;
 }
