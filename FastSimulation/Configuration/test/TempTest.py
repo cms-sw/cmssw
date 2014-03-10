@@ -236,9 +236,8 @@ process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNo
 
 #Putting the lines from custom.py here
 
-from RecoMuon.MuonIdentification.me0Customs import customise
-
-process = customise(process)
+from SLHCUpgradeSimulations.Configuration.me0Customs import *
+process = customise_GlobalRecoFull(process)
 
 #print "XXXXXXXXXXXX"
 #print process.famosWithEverything
