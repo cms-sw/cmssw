@@ -7,17 +7,17 @@
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 
-#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
-#include <EventFilter/DTRawToDigi/interface/DTControlData.h>
+#include <DataFormats/DTDigi/interface/DTDDUWords.h>
+#include <DataFormats/DTDigi/interface/DTControlData.h>
 
-#include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
+// #include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <EventFilter/DTRawToDigi/plugins/DTDDUUnpacker.h>
-#include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
+// #include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+ 
 #include <iostream>
 
 using namespace std;
@@ -30,19 +30,19 @@ DTDDUUnpacker::DTDDUUnpacker(const edm::ParameterSet& ps) : dduPSet(ps) {
   
   // parameters
   localDAQ = dduPSet.getUntrackedParameter<bool>("localDAQ",false);
-  performDataIntegrityMonitor = dduPSet.getUntrackedParameter<bool>("performDataIntegrityMonitor",false);
+//   performDataIntegrityMonitor = dduPSet.getUntrackedParameter<bool>("performDataIntegrityMonitor",false);
   debug = dduPSet.getUntrackedParameter<bool>("debug",false);
 
-  // enable DQM if Service is available
-  if(performDataIntegrityMonitor) {
-    if (edm::Service<DTDataMonitorInterface>().isAvailable()) {
-      dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
-    } else {
-      LogWarning("DTRawToDigi|DTDDUUnpacker") << 
-	"[DTDDUUnpacker] WARNING! Data Integrity Monitoring requested but no DTDataMonitorInterface Service available" << endl;
-      performDataIntegrityMonitor = false;
-    }
-  }
+//   // enable DQM if Service is available
+//   if(performDataIntegrityMonitor) {
+//     if (edm::Service<DTDataMonitorInterface>().isAvailable()) {
+//       dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
+//     } else {
+//       LogWarning("DTRawToDigi|DTDDUUnpacker") << 
+// 	"[DTDDUUnpacker] WARNING! Data Integrity Monitoring requested but no DTDataMonitorInterface Service available" << endl;
+//       performDataIntegrityMonitor = false;
+//     }
+//   }
 
 }
 
@@ -59,6 +59,8 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 				     std::auto_ptr<DTLocalTriggerCollection>& triggerProduct,
 				     uint16_t rosList) {
 
+//   std::cout << "DTDDUUnpacker: inside interpretRawData\n";
+  
   // Definitions
   const int wordSize_32 = 4;
   const int wordSize_64 = 8;
@@ -96,7 +98,10 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 
 
   // Control DDU data
-  DTDDUData controlData(dduHeader,dduTrailer);
+//   DTDDUData controlData(dduHeader,dduTrailer);
+  // Initialize control data
+  controlData.addDDUHeader(dduHeader);
+  controlData.addDDUTrailer(dduTrailer);
   // check the CRC set in the FED trailer (FCRC errors)
   controlData.checkCRCBit(index8 + datasize - 1*wordSize_64);
 
@@ -158,8 +163,8 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
   // unpacking the ROS payload
   ros25Unpacker->interpretRawData(index32, datasize, dduID, mapping, detectorProduct, triggerProduct, theROSList);
 
-  // Perform DQM if requested
-  if (performDataIntegrityMonitor) 
-    dataMonitor->processFED(controlData, ros25Unpacker->getROSsControlData(),dduID);  
+//   // Perform DQM if requested
+//   if (performDataIntegrityMonitor) 
+//     dataMonitor->processFED(controlData, ros25Unpacker->getROSsControlData(),dduID);  
   
 }

@@ -6,8 +6,8 @@
 
 #include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
 
-#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
-#include <EventFilter/DTRawToDigi/interface/DTControlData.h>
+#include <DataFormats/DTDigi/interface/DTDDUWords.h>
+#include <DataFormats/DTDigi/interface/DTControlData.h>
 #include <EventFilter/DTRawToDigi/interface/DTROChainCoding.h>
 
 #include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
@@ -41,16 +41,16 @@ DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps) {
   performDataIntegrityMonitor = ps.getUntrackedParameter<bool>("performDataIntegrityMonitor",false);
   debug = ps.getUntrackedParameter<bool>("debug",false);
 
-  // enable DQM if Service is available
-  if(performDataIntegrityMonitor) {
-    if (edm::Service<DTDataMonitorInterface>().isAvailable()) {
-      dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
-    } else {
-      LogWarning("DTRawToDigi|DTROS25Unpacker") << 
-	"[DTROS25Unpacker] WARNING! Data Integrity Monitoring requested but no DTDataMonitorInterface Service available" << endl;
-      performDataIntegrityMonitor = false;
-    }
-  }
+//   // enable DQM if Service is available
+//   if(performDataIntegrityMonitor) {
+//     if (edm::Service<DTDataMonitorInterface>().isAvailable()) {
+//       dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
+//     } else {
+//       LogWarning("DTRawToDigi|DTROS25Unpacker") << 
+// 	"[DTROS25Unpacker] WARNING! Data Integrity Monitoring requested but no DTDataMonitorInterface Service available" << endl;
+//       performDataIntegrityMonitor = false;
+//     }
+//   }
 
 }
 
@@ -65,7 +65,8 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 				       std::auto_ptr<DTLocalTriggerCollection>& triggerProduct,
 				       uint16_t rosList) {
 
-
+//   std::cout << "DTDROS25Unpacker: inside interpretRawData\n";
+  
   int dduID;
   if (readDDUIDfromDDU) dduID = dduIDfromDDU;
   else dduID = hardcodedDDUID;
@@ -101,6 +102,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
       // matching the ROS number with the enabled DDU channel
       if ( rosID <= 12 && !((rosList & int(pow(2., (rosID-1) )) ) >> (rosID-1) ) ) continue;
       if (debug) cout<<"[DTROS25Unpacker]: ros list: "<<rosList <<" ROS ID "<<rosID<<endl;
+//       cout<<"[DTROS25Unpacker]: ros list: "<<rosList <<" ROS ID "<<rosID<<endl;
     }
 
     // FRC prepare info for DTLocalTrigger: wheel and sector corresponding to this ROS
@@ -283,8 +285,9 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	    int numofscword = scPrivateHeaderWord.NumberOf16bitWords();
 	    int leftword = numofscword;
 
-	    if(debug) cout<<"                   SC PrivateHeader (number of words + subheader = "
-			  << scPrivateHeaderWord.NumberOf16bitWords() << ")" <<endl;
+// 	    if(debug) cout<<"                   SC PrivateHeader (number of words + subheader = "
+            cout<<"                   SC PrivateHeader (number of words + subheader = "
+                << scPrivateHeaderWord.NumberOf16bitWords() << ")" <<endl;
 
 	    // if no SC data -> no loop ;
 	    // otherwise subtract 1 word (subheader) and countdown for bx assignment
@@ -388,13 +391,15 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	  } //  end if first data following SCheader is not SCData
 
 	  if (DTROSWordType(word).type() == DTROSWordType::SCTrailer) {
+            std::cout << "SC trailer word added to control data!\n";
 	    DTLocalTriggerTrailerWord scTrailerWord(word);
 	    // add infos for data integrity monitoring
 	    controlData.addSCHeader(scHeaderWord);
 	    controlData.addSCTrailer(scTrailerWord);
 
-	    if (debug) cout<<"                   SC Trailer, # of words: "
-			   << scTrailerWord.wordCount() <<endl;
+// 	    if (debug) cout<<"                   SC Trailer, # of words: "
+            cout<<"                   SC Trailer, # of words: "
+                << scTrailerWord.wordCount() <<endl;
 	  }
 	}
 
@@ -410,9 +415,10 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
       // Perform dqm if requested:
       // DQM IS PERFORMED FOR EACH ROS SEPARATELY
       if (performDataIntegrityMonitor) {
-	dataMonitor->processROS25(controlData, dduID, rosID);
+// 	dataMonitor->processROS25(controlData, dduID, rosID);
 	// fill the vector with ROS's control data
 	controlDataFromAllROS.push_back(controlData);
+        std::cout << "control data pushed back to AllROS vector!\n"; 
       }
 
     }

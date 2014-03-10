@@ -104,6 +104,8 @@ public:
     *this = obj;
   }
 
+  DTROSWordType() : word_(0) {};
+  
   /// Destructor
   virtual ~DTROSWordType() {};
 

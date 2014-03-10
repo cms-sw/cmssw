@@ -15,4 +15,121 @@
 <class name="MuonDigiCollection<DTChamberId,DTLocalTrigger>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<DTChamberId,DTLocalTrigger>>" splitLevel="0"/> 
 
+<class name="DTDDUData" ClassVersion="10">
+ <version ClassVersion="10" checksum="3247221019"/>
+</class>
+<class name="std::vector<DTDDUData>"/>
+<class name="edm::Wrapper<DTDDUCollection>" splitLevel="0"/> 
+      
+<class name="DTDDUFirstStatusWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="2864743371"/>
+</class>
+<class name="std::vector<DTDDUFirstStatusWord>"/>
+        
+<class name="DTDDUSecondStatusWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="4245571052"/>
+</class>
+<class name="std::vector<DTDDUSecondStatusWord>"/>
+
+<class name="DTROBHeaderWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="1333834137"/>
+</class>
+<class name="std::vector<DTROBHeaderWord>"/>
+<class name="std::pair<int,DTROBHeaderWord>"/>
+<class name="std::vector<std::pair<int,DTROBHeaderWord> >"/>
+
+<class name="DTROBTrailerWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="3446695193"/>
+</class>
+<class name="std::vector<DTROBTrailerWord>"/>
+
+<class name="DTROS25Data" ClassVersion="10">
+ <version ClassVersion="10" checksum="3275851564"/>
+ </class>
+<class name="std::vector<DTROS25Data>"/>
+<class name="std::vector<std::vector<DTROS25Data>>"/>
+<class name="edm::Wrapper<DTROS25Collection>" splitLevel="0"/> 
+    
+<class name="DTROSWordType" ClassVersion="10">
+  <version ClassVersion="10" checksum="2127947763"/>
+</class>
+<class name="std::vector<DTROSWordType>"/>
+
+<class name="DTROSHeaderWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="1493183748"/>
+</class>
+<class name="std::vector<DTROSHeaderWord>"/>
+
+<class name="DTROSTrailerWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="3924744026"/>
+</class>
+<class name="std::vector<DTROSTrailerWord>"/>
+    
+<class name="DTROSErrorWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="279821949"/>
+</class>
+<class name="std::vector<DTROSErrorWord>"/>
+
+<class name="DTROSDebugWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="1163521698"/>
+</class>
+<class name="std::vector<DTROSDebugWord>"/>
+  
+<class name="DTTDCHeaderWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="2971120991"/>
+</class>
+<class name="std::vector<DTTDCHeaderWord>"/>
+<class name="std::pair<int,DTTDCHeaderWord>"/>
+<class name="std::vector<std::pair<int,DTTDCHeaderWord> >"/>
+  
+<class name="DTTDCTrailerWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="4063588459"/>
+</class>
+<class name="std::vector<DTTDCTrailerWord>"/>
+<class name="std::pair<int,DTTDCTrailerWord>"/>
+<class name="std::vector<std::pair<int,DTTDCTrailerWord> >"/>
+
+<class name="DTTDCMeasurementWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="2938068322"/>
+</class>
+<class name="std::vector<DTTDCMeasurementWord>"/>
+<class name="std::pair<int,DTTDCMeasurementWord>"/>
+<class name="std::vector<std::pair<int,DTTDCMeasurementWord> >"/>
+  
+<class name="DTTDCErrorWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="2204123462"/>
+</class>
+<class name="std::vector<DTTDCErrorWord>"/>
+<class name="std::pair<int,DTTDCErrorWord>"/>
+<class name="std::vector<std::pair<int,DTTDCErrorWord> >"/>
+
+<class name="DTLocalTriggerHeaderWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="4112781649"/>
+</class>
+<class name="std::vector<DTLocalTriggerHeaderWord>"/>
+<class name="std::pair<DTLocalTriggerHeaderWord,int>"/>
+<class name="std::vector<std::pair<DTLocalTriggerHeaderWord,int> >"/>
+  
+<class name="DTLocalTriggerTrailerWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="3193603137"/>
+</class>
+<class name="std::vector<DTLocalTriggerTrailerWord>"/>
+<class name="std::pair<DTLocalTriggerTrailerWord,int>"/>
+<class name="std::vector<std::pair<DTLocalTriggerTrailerWord,int> >"/>
+
+<class name="DTLocalTriggerDataWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="1544939352"/>
+</class>
+<class name="std::vector<DTLocalTriggerDataWord>"/>
+<class name="std::pair<DTLocalTriggerDataWord,int>"/>
+<class name="std::vector<std::pair<DTLocalTriggerDataWord,int> >"/>
+
+<class name="DTLocalTriggerSectorCollectorHeaderWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="672323324"/>
+</class>
+  
+<class name="DTLocalTriggerSectorCollectorSubHeaderWord" ClassVersion="10">
+ <version ClassVersion="10" checksum="2064975052"/>
+</class>
+    
 </lcgdict>

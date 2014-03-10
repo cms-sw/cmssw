@@ -8,7 +8,7 @@
  *  \revision I. Josa - Ciemat Madrid
  */
 
-#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
+#include <DataFormats/DTDigi/interface/DTDDUWords.h>
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include <DataFormats/FEDRawData/src/fed_trailer.h>
@@ -68,6 +68,7 @@ public:
  inline const DTLocalTriggerSectorCollectorSubHeaderWord& getSCPrivSubHeader() const { return theSCPrivateSubHeader;}
 
  inline void clean() {
+   std::cout << "DTROS25Data::clean(): Cleaning DTROS25Data.\n";
    theROSHeader = 0; 
    theROSTrailer = 0;
    theROSErrors.clear(); 
@@ -78,6 +79,8 @@ public:
    theTDCData.clear(); 
    theTDCError.clear(); 
    theSCData.clear(); 
+   theSCHeader = 0;
+   theSCTrailer = 0;
  }
  
 
@@ -113,6 +116,12 @@ public:
  DTDDUData(const FEDHeader & dduHeader, const FEDTrailer & dduTrailer):
    theDDUHeader(dduHeader),
    theDDUTrailer(dduTrailer),
+   crcErrorBitSet(false)
+ {}
+ 
+ DTDDUData():
+   theDDUHeader(0),
+   theDDUTrailer(0),
    crcErrorBitSet(false)
  {}
 
@@ -158,5 +167,7 @@ private:
 
 };
 
+typedef std::vector<std::vector<DTROS25Data> > DTROS25Collection;
+typedef std::vector<DTDDUData> DTDDUCollection;
 
 #endif

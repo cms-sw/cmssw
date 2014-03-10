@@ -7,6 +7,18 @@
  <class name="FEDRawDataCollection" ClassVersion="10">
   <version ClassVersion="10" checksum="2136542618"/>
  </class>
+ <class name="FEDHeader" ClassVersion="10">
+  <version ClassVersion="10" checksum="611523769"/>
+ </class>
+ <class name="FEDTrailer" ClassVersion="10">
+  <version ClassVersion="10" checksum="120358665"/>
+ </class>
+ <class name="fedh_struct" ClassVersion="10">
+  <version ClassVersion="10" checksum="3158059546"/>
+ </class>
+ <class name="fedt_struct" ClassVersion="10">
+  <version ClassVersion="10" checksum="1999934329"/>
+ </class>
  <class name="edm::Wrapper<FEDRawDataCollection>" splitLevel="0"/>
  <class name="edm::RefProd<FEDRawDataCollection>"/>
 </lcgdict>
