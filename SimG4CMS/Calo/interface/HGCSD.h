@@ -49,7 +49,7 @@ private:
   std::vector<double>           gpar;
   G4int                         mumPDG, mupPDG; 
   double                        eminHit;
-
+  int                           myFwdSubdet_;
 };
 
 #endif // HGCSD_h
