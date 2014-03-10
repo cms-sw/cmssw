@@ -1,73 +1,95 @@
+/** \class HLTPFJetIDProducer
+ *
+ * See header file for documentation
+ *
+ *  \author a Jet/MET person
+ *
+ */
+
 #include "HLTrigger/JetMET/interface/HLTPFJetIDProducer.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/Common/interface/Handle.h"
 
+
+// Constructor
 HLTPFJetIDProducer::HLTPFJetIDProducer(const edm::ParameterSet& iConfig) :
-  jetsInput_   (iConfig.getParameter<edm::InputTag>("jetsInput")),
-  min_NHEF_     (iConfig.getParameter<double>("min_NHEF")),
-  max_NHEF_     (iConfig.getParameter<double>("max_NHEF")),
-  min_NEMF_     (iConfig.getParameter<double>("min_NEMF")),
-  max_NEMF_     (iConfig.getParameter<double>("max_NEMF")),
-  min_CEMF_     (iConfig.getParameter<double>("min_CEMF")),
-  max_CEMF_     (iConfig.getParameter<double>("max_CEMF")),
-  min_CHEF_     (iConfig.getParameter<double>("min_CHEF")),
-  max_CHEF_     (iConfig.getParameter<double>("max_CHEF")),
-  min_pt_       (iConfig.getParameter<double>("min_pt"))
-{
-  m_thePFJetToken = consumes<reco::PFJetCollection>(jetsInput_);
-  produces< reco::PFJetCollection > ();
+  minPt_    (iConfig.getParameter<double>("minPt")),
+  CHF_      (iConfig.getParameter<double>("CHF")),
+  NHF_      (iConfig.getParameter<double>("NHF")),
+  CEF_      (iConfig.getParameter<double>("CEF")),
+  NEF_      (iConfig.getParameter<double>("NEF")),
+  NCH_      (iConfig.getParameter<int>("NCH")),
+  NTOT_     (iConfig.getParameter<int>("NTOT")),
+  inputTag_ (iConfig.getParameter<edm::InputTag>("jetsInput")) {
+    m_thePFJetToken = consumes<reco::PFJetCollection>(inputTag_);
+
+    // Register the products
+    produces<reco::PFJetCollection>();
 }
 
-void HLTPFJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("jetsInput",edm::InputTag("hltAntiKT5PFJets"));
-  desc.add<double>("min_NHEF",-999.0);
-  desc.add<double>("max_NHEF",999.0);
-  desc.add<double>("min_NEMF",-999.0);
-  desc.add<double>("max_NEMF",999.0);
-  desc.add<double>("min_CEMF",-999.0);
-  desc.add<double>("max_CEMF",999.0);
-  desc.add<double>("min_CHEF",-999.0);
-  desc.add<double>("max_CHEF",999.0);
-  desc.add<double>("min_pt",30.0);
-  descriptions.add("hltPFJetIDProducer", desc);
+// Destructor
+HLTPFJetIDProducer::~HLTPFJetIDProducer() {}
+
+// Fill descriptions
+void HLTPFJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<double>("minPt", 20.);
+    desc.add<double>("CHF", -99.);
+    desc.add<double>("NHF", 99.);
+    desc.add<double>("CEF", 99.);
+    desc.add<double>("NEF", 99.);
+    desc.add<int>("NCH", 0);
+    desc.add<int>("NTOT", 0);
+    desc.add<edm::InputTag>("jetsInput", edm::InputTag("hltAntiKT4PFJets"));
+    descriptions.add("hltPFJetIDProducer", desc);
 }
 
-void HLTPFJetIDProducer::beginJob()
-{
+// Produce the products
+void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-}
+    // Create a pointer to the products
+    std::auto_ptr<reco::PFJetCollection> result (new reco::PFJetCollection());
 
-HLTPFJetIDProducer::~HLTPFJetIDProducer()
-{
+    edm::Handle<reco::PFJetCollection> pfjets;
+    iEvent.getByToken(m_thePFJetToken, pfjets);
 
-}
+    for (reco::PFJetCollection::const_iterator j = pfjets->begin(); j != pfjets->end(); ++j) {
+        bool pass = false;
+        double pt = j->pt();
+        double eta = j->eta();
 
-void HLTPFJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+        if (!(pt > 0.))  continue;  // skip jets with zero or negative pt
 
-  edm::Handle<reco::PFJetCollection> pfjets;
-  iEvent.getByToken(m_thePFJetToken,pfjets);
+        if (pt < minPt_) {
+            pass = true;
 
-  std::auto_ptr<reco::PFJetCollection> result (new reco::PFJetCollection);
+        //} else if (std::abs(eta) >= 2.4) {
+        //    pass = true;
 
-  for (reco::PFJetCollection::const_iterator pfjetc = pfjets->begin(); 
-       pfjetc != pfjets->end(); ++pfjetc) {
-      
-    if (std::abs(pfjetc->eta()) >= 2.4) {
-      result->push_back(*pfjetc);
-    } else {
-      if (pfjetc->pt()<min_pt_) result->push_back(*pfjetc);
-      else if ((pfjetc->neutralHadronEnergyFraction() >= min_NHEF_) && (pfjetc->neutralHadronEnergyFraction() <= max_NHEF_) && 
-	       (pfjetc->neutralEmEnergyFraction() >= min_NEMF_) && (pfjetc->neutralEmEnergyFraction() <= max_NEMF_) &&
-	       (pfjetc->chargedEmEnergyFraction() >= min_CEMF_) && (pfjetc->chargedEmEnergyFraction() <= max_CEMF_) &&
-	       (pfjetc->chargedHadronEnergyFraction() >= min_CHEF_) && (pfjetc->chargedHadronEnergyFraction() <= max_CHEF_)) {
-	result->push_back(*pfjetc);
-      }
+        } else {
+            double chf  = j->chargedHadronEnergyFraction();
+            //double nhf  = j->neutralHadronEnergyFraction() + j->HFHadronEnergyFraction();
+            double nhf  = j->neutralHadronEnergyFraction();
+            double cef  = j->chargedEmEnergyFraction();
+            double nef  = j->neutralEmEnergyFraction();
+            int    nch  = j->chargedMultiplicity();
+            int    ntot = j->numberOfDaughters();
+
+            pass = true;
+            pass = pass && (ntot > NTOT_);
+            pass = pass && (nef < NEF_);
+            pass = pass && (nhf < NHF_);
+            pass = pass && (cef < CEF_ || std::abs(eta) >= 2.4);
+            pass = pass && (chf > CHF_ || std::abs(eta) >= 2.4);
+            pass = pass && (nch > NCH_ || std::abs(eta) >= 2.4);
+        }
+
+        if (pass)  result->push_back(*j);
     }
-  } // pfjetc
 
-  iEvent.put( result);
-
+    // Put the products into the Event
+    iEvent.put(result);
 }

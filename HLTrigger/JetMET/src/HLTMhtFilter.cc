@@ -1,80 +1,81 @@
 /** \class HLTMhtFilter
-*
-*
-*  \author Gheorghe Lungu
-*
-*/
+ *
+ * See header file for documentation
+ *
+ *  \author Steven Lowette
+ *
+ */
 
 #include "HLTrigger/JetMET/interface/HLTMhtFilter.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include <vector>
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 
-//
-// constructors and destructor
-//
-HLTMhtFilter::HLTMhtFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
-{
-  inputMhtTag_ = iConfig.getParameter< edm::InputTag > ("inputMhtTag");
-  minMht_      = iConfig.getParameter<double> ("minMht");
-  m_theMhtToken = consumes<reco::METCollection>(inputMhtTag_);
+// Constructor
+HLTMhtFilter::HLTMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iConfig),
+  minMht_    ( iConfig.getParameter<std::vector<double> >("minMht") ),
+  mhtLabels_ ( iConfig.getParameter<std::vector<edm::InputTag> >("mhtLabels") ),
+  nOrs_      ( mhtLabels_.size() ) {  // number of settings to .OR.
+    if (!(mhtLabels_.size() == minMht_.size()) ||
+        mhtLabels_.size() == 0 ) {
+        nOrs_ = (minMht_.size()    < nOrs_ ? minMht_.size()    : nOrs_);
+        edm::LogError("HLTMhtFilter") << "inconsistent module configuration!";
+    }
+
+    for(unsigned int i=0; i<nOrs_; ++i) {
+        m_theMhtToken.push_back(consumes<reco::METCollection>(mhtLabels_[i]));
+    }
+
 }
 
-HLTMhtFilter::~HLTMhtFilter(){}
+// Destructor
+HLTMhtFilter::~HLTMhtFilter() {}
 
-void HLTMhtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("inputMhtTag",edm::InputTag("hltMht30"));
-  desc.add<double>("minMht",0.0);
-  descriptions.add("hltMhtFilter",desc);
+// Fill descriptions
+void HLTMhtFilter::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+    std::vector<edm::InputTag> tmp1(1, edm::InputTag("hltMhtProducer"));
+    std::vector<double>        tmp2(1, 0.);
+    edm::ParameterSetDescription desc;
+    makeHLTFilterDescription(desc);
+    desc.add<std::vector<edm::InputTag> >("mhtLabels", tmp1);
+    tmp2[0] =  70; desc.add<std::vector<double> >("minMht", tmp2);
+    descriptions.add("hltMhtFilter", desc);
 }
 
-// ------------ method called to produce the data  ------------
-bool
-  HLTMhtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
-  using namespace trigger;
+// Make filter decision
+bool HLTMhtFilter::hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
-  // The filter object
-  if (saveTags()) filterproduct.addCollectionTag(inputMhtTag_);
+    reco::METRef mhtref;
 
-  METRef ref;
-  
-  Handle<METCollection> recomhts;
-  iEvent.getByToken(m_theMhtToken,recomhts);
+    bool accept = false;
 
-  // look at all candidates,  check cuts and add to filter object
-  int n(0), flag(0);
-  double mht(0);
+    // Take the .OR. of all sets of requirements
+    for (unsigned int i = 0; i < nOrs_; ++i) {
+
+      // Create the reference to the output filter objects
+      if (saveTags())  filterproduct.addCollectionTag(mhtLabels_[i]);
+
+      edm::Handle<reco::METCollection> hmht;
+      iEvent.getByToken(m_theMhtToken[i], hmht);
+      double mht = 0;
+      if (hmht->size() > 0)  mht = hmht->front().pt();
+      
+      // Check if the event passes this cut set
+      accept = accept || (mht > minMht_[i]);
+      // In principle we could break if accepted, but in order to save
+      // for offline analysis all possible decisions we keep looping here
+      // in term of timing this will not matter much; typically 1 or 2 cut-sets
+      // will be checked only
+      
+      // Store the ref (even if it is not accepted)
+      mhtref = reco::METRef(hmht, 0);
+      
+      filterproduct.addObject(trigger::TriggerMHT, mhtref);  // save as TriggerMHT object
+    }
     
-  
-  for (METCollection::const_iterator recomht = recomhts->begin(); recomht != recomhts->end(); recomht++) {
-    mht = recomht->pt();
-  }
-  
-  if( mht > minMht_) flag=1;
-  
-  if (flag==1) {
-    for (METCollection::const_iterator recomht = recomhts->begin(); recomht != recomhts->end(); recomht++) {
-      ref = METRef(recomhts,distance(recomhts->begin(),recomht));
-      filterproduct.addObject(TriggerMHT,ref);
-      n++;
-    } 
-  }
-  
-  // filter decision
-  bool accept(n>0);
-  
-  return accept;
+    return accept;
 }
