@@ -9,6 +9,8 @@ l1tCaloParamsSource = cms.ESSource(
 
 l1tStage2CaloParams = cms.ESProducer(
     "l1t::L1TCaloParamsESProducer",
+    firmwarePP = cms.int32(1),
+    firmwareMP = cms.int32(1),
     towerLsbH = cms.double(0.5),
     towerLsbE = cms.double(0.5),
     towerNBitsH = cms.int32(8),

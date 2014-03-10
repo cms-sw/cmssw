@@ -12,6 +12,8 @@
 #ifndef CaloParams_h
 #define CaloParams_h
 
+//#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
+
 #include <iostream>
 
 namespace l1t {
@@ -25,12 +27,16 @@ namespace l1t {
     ~CaloParams() {}
 
     // getters
+/*     FirmwareVersion firmwarePP() const { return vFirmwarePP_; } */
+/*     FirmwareVersion firmwareMP() const { return vFirmwareMP_; } */
     double towerLsbH() const { return towerLsbH_; }
     double towerLsbE() const { return towerLsbE_; }
     int towerNBitsH() const { return towerNBitsH_; }
     int towerNBitsE() const { return towerNBitsE_; }
     
     // setters
+/*     void setFirmwarePP(FirmwareVersion v) { vFirmwarePP_ = v; } */
+/*     void setFirmwareMP(FirmwareVersion v) { vFirmwareMP_ = v; } */
     void setTowerLsbH(double lsb) { towerLsbH_ = lsb; }
     void setTowerLsbE(double lsb) { towerLsbE_ = lsb; }
     void setTowerNBitsH(int n) { towerNBitsH_ = n; }
@@ -41,6 +47,10 @@ namespace l1t {
     friend std::ostream& operator<<(std::ostream& o, const CaloParams & p) { p.print(o); return o; }
     
   private:
+
+    /* Firmware */
+/*     l1t::FirmwareVersion vFirmwarePP_; */
+/*     l1t::FirmwareVersion vFirmwareMP_; */
 
     /* Inputs */
     double towerLsbH_;

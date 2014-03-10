@@ -39,6 +39,11 @@ namespace l1t {
 			      std::vector<l1t::Tau> & taus,
 			      std::vector<l1t::Jet> & jets,
 			      std::vector<l1t::EtSum> & etsums);
+
+    void print(std::ostream&) const;
+
+    friend std::ostream& operator<<(std::ostream& o, const CaloStage2MainProcessorFirmwareImp1 & p) { p.print(o); return o; }
+
   private:
     
     FirmwareVersion const & m_fwv;

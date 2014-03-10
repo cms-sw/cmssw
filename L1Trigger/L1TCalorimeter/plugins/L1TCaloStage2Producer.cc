@@ -76,7 +76,7 @@ namespace l1t {
 
     // parameters
     unsigned long long m_paramsCacheId;
-    boost::shared_ptr<FirmwareVersion> m_fwv;
+    FirmwareVersion m_fwv;
     CaloParams* m_params;
 
     // the processor
@@ -98,7 +98,11 @@ l1t::L1TCaloStage2Producer::L1TCaloStage2Producer(const edm::ParameterSet& ps) {
   // register what you consume and keep token for later access:
   m_towerToken = consumes<l1t::CaloTowerBxCollection>(ps.getParameter<edm::InputTag>("towerToken"));
   
+  // placeholder for the parameters
   m_params = new CaloParams;
+
+  // set firmware version from python config for now
+  m_fwv.setFirmwareVersion(ps.getParameter<int>("firmware"));
  
 }
 
@@ -115,8 +119,6 @@ l1t::L1TCaloStage2Producer::produce(edm::Event& iEvent, const edm::EventSetup& i
   using namespace edm;
   
   LogDebug("l1t|stage 2") << "L1TCaloStage2Producer::produce function called..." << std::endl;
-  
-  // check parameters !
   
   
   //inputs
@@ -187,40 +189,51 @@ void
 l1t::L1TCaloStage2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
 
-  // first check if the firmware has been updated
-  // but really we're not doing that right now
-  m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion());
-  m_fwv->setFirmwareVersion(1);
-  
-  // Set the current algorithm version based on DB pars from database:
-  m_processor = m_factory.create(*m_fwv, m_params);
-  
-  if (! m_processor) {
-    // we complain here once per run
-    edm::LogError("l1t|caloStage2") << "L1TCaloStage2Producer: firmware could not be configured.\n";
-  }
-  
-  // next check if the parameters have changed
-  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();  
+  // update parameters and algorithms at run start, if they have changed
+  // update params first because the firmware factory relies on pointer to params
 
-  if (id != m_paramsCacheId){ // Need to update:
+  // parameters
+
+  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();  
+  
+  if (id != m_paramsCacheId) {
+
     m_paramsCacheId = id;
-    
-    // Retrieve the  yellow parameters from the event setup:
+
     edm::ESHandle<CaloParams> paramsHandle;
     iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
-    
-    // use placement new to replace old object with a new one
-    // note this copies the object received from EventSetup
+
+    // replace our local copy of the parameters with a new one using placement new
     m_params->~CaloParams();
     m_params = new (m_params) CaloParams(*paramsHandle.product());
     
+    LogDebug("L1TDebug") << *m_params << std::endl;
+
     if (! m_params){
-      edm::LogError("l1t|caloStage2") << "L1TCaloStage2Producer: could not retreive params from Event Setup" << std::endl;            
+      edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;            
     }
+
+  }
+
+  // firmware
+
+  if ( !m_processor ) { // in future, also check if the firmware cache ID has changed !
+    
+    //     m_fwv = ; // get new firmware version in future
+    
+    // Set the current algorithm version based on DB pars from database:
+    m_processor = m_factory.create(m_fwv, m_params);
+    
+    if (! m_processor) {
+      // we complain here once per run
+      edm::LogError("l1t|caloStage2") << "Firmware could not be configured.\n";
+    }
+    
+    LogDebug("L1TDebug") << "Processor object : " << (m_processor?1:0) << std::endl;
     
   }
   
+
 }
 
 

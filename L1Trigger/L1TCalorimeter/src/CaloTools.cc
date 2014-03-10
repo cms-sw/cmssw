@@ -26,7 +26,7 @@ size_t l1t::CaloTools::caloTowerHash(int iEta,int iPhi)
   const int kHFEnd=32;
   const int kHFNrPhi=72/4;
   const int kHBHENrPhi=72;
-  const int kNrTowers = ((kHFEnd-kHFBegin)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
+  const int kNrTowers = ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
   const int kNrHBHETowers = kHBHEEnd*kHBHENrPhi;
   
   const int absIEta = abs(iEta);
@@ -41,6 +41,7 @@ size_t l1t::CaloTools::caloTowerHash(int iEta,int iPhi)
   }
 }
 
+
 size_t l1t::CaloTools::caloTowerHashMax()
 {
   // OK, yes this is dirty and should be fixed in next iteration
@@ -50,7 +51,7 @@ size_t l1t::CaloTools::caloTowerHashMax()
   const int kHFNrPhi=72/4;
   const int kHBHENrPhi=72;
 
-  return ((kHFEnd-kHFBegin)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
+  return ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
  
 }
 

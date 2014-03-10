@@ -69,3 +69,20 @@ void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1
   etsums.insert( etsums.end(), jetsums.begin(), jetsums.end() );
 
 }
+
+
+void l1t::CaloStage2MainProcessorFirmwareImp1::print(std::ostream& out) const {
+
+  out << "Calo Stage 2 Main Processor" << std::endl;
+
+  out << "  EG cluster algo  : " << (m_egClusterAlgo?1:0) << std::endl;
+  out << "  EG ID algo       : " << (m_egAlgo?1:0) << std::endl;
+  out << "  Tau cluster algo : " << (m_tauClusterAlgo?1:0) << std::endl;
+  out << "  Tau ID algo      : " << (m_tauAlgo?1:0) << std::endl;
+  out << "  Jet algo         : " << (m_jetAlgo?1:0) << std::endl;
+  out << "  Jet sum algo     : " << (m_jetSumAlgo?1:0) << std::endl;
+  out << "  Sums algo        : " << (m_sumAlgo?1:0) << std::endl;
+
+}
+
+
