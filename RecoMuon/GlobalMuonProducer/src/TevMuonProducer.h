@@ -27,6 +27,9 @@
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
+typedef edm::ValueMap<reco::DYTInfo> DYTestimators;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -52,8 +55,6 @@ class TevMuonProducer : public edm::EDProducer {
   edm::InputTag theGLBCollectionLabel;
   edm::EDGetTokenT<reco::TrackCollection> glbMuonsToken;
   edm::EDGetTokenT<std::vector<Trajectory> > glbMuonsTrajToken;
-  
-
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy* theService;

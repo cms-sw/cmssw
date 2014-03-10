@@ -4,6 +4,8 @@
  *  Description:
  *  utility class for the dynamical truncation algorithm
  *
+ *  $Date: 2010/06/27 17:33:14 $
+ *  $Revision: 1.3 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -42,8 +44,8 @@ ChamberSegmentUtility::ChamberSegmentUtility(const edm::Event& Event, const edm:
   Event.getByLabel("dt4DSegments", all4DSegments);
 
   unsigned int index = 0;
-  for (  CSCSegmentCollection::id_iterator chamberId = CSCSegments->id_begin();
-         chamberId != CSCSegments->id_end(); ++chamberId, ++index ) {
+  for (CSCSegmentCollection::id_iterator chamberId = CSCSegments->id_begin();
+       chamberId != CSCSegments->id_end(); ++chamberId, ++index ) {
     
     CSCSegmentCollection::range  range = CSCSegments->get((*chamberId));
     
@@ -65,35 +67,30 @@ ChamberSegmentUtility::ChamberSegmentUtility(const edm::Event& Event, const edm:
 
     for (DTRecSegment4DCollection::const_iterator segment = range.first;
          segment!=range.second; ++segment){
-      
       if ((*chamberIdIt).station() == 1) dtsegMap[1].push_back(*segment);
       if ((*chamberIdIt).station() == 2) dtsegMap[2].push_back(*segment);
       if ((*chamberIdIt).station() == 3) dtsegMap[3].push_back(*segment);
       if ((*chamberIdIt).station() == 4) dtsegMap[4].push_back(*segment);
     }
   }
-
-
 }
 
 
 
 vector<CSCSegment> ChamberSegmentUtility::getCSCSegmentsInChamber(CSCDetId sel)
 {
-  
-  // loop on segments 4D   
+  std::vector<CSCSegment> cscseg;
+
+  // loop on segments
   unsigned int index = 0;
-  for (  CSCSegmentCollection::id_iterator chamberId = CSCSegments->id_begin();
-	 chamberId != CSCSegments->id_end(); ++chamberId, ++index ) {
-    
-    if ((*chamberId).chamber() != sel.chamber()) continue;
-    
-    // Get the range for the corresponding ChamberId                                                                                                                     
+  for (CSCSegmentCollection::id_iterator chamberId = CSCSegments->id_begin();
+       chamberId != CSCSegments->id_end(); ++chamberId, ++index) {
+
     CSCSegmentCollection::range  range = CSCSegments->get((*chamberId));
     
-    // Loop over the rechits of this DetUnit                                                                                                                            
+    if ((*chamberId) != sel) continue;
     for (CSCSegmentCollection::const_iterator segment = range.first;
-	 segment!=range.second; ++segment) {
+         segment!=range.second; ++segment) {
       cscseg.push_back(*segment);
     }
   }
@@ -104,6 +101,7 @@ vector<CSCSegment> ChamberSegmentUtility::getCSCSegmentsInChamber(CSCDetId sel)
 
 vector<DTRecSegment4D> ChamberSegmentUtility::getDTSegmentsInChamber(DTChamberId sel)
 {
+  std::vector<DTRecSegment4D> dtseg;
 
   // loop on segments 4D                                                                                                                                                      
   DTRecSegment4DCollection::id_iterator chamberIdIt;
@@ -127,9 +125,8 @@ vector<DTRecSegment4D> ChamberSegmentUtility::getDTSegmentsInChamber(DTChamberId
 
 
 
-vector<CSCRecHit2D> ChamberSegmentUtility::getCSCRHmap(const CSCSegment& selected)
+vector<CSCRecHit2D> ChamberSegmentUtility::getCSCRHmap(const CSCSegment &selected)
 {
-
   vector<CSCRecHit2D> allchRH;
   
   // loop on segments 4D                                                       
@@ -153,7 +150,7 @@ vector<CSCRecHit2D> ChamberSegmentUtility::getCSCRHmap(const CSCSegment& selecte
 }
 
   
-vector<DTRecHit1D> ChamberSegmentUtility::getDTRHmap(const DTRecSegment4D& selected)
+vector<DTRecHit1D> ChamberSegmentUtility::getDTRHmap(const DTRecSegment4D &selected)
 {
   
   vector<DTRecHit1D> allchRH;

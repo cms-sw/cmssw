@@ -7,6 +7,8 @@
  *  Description:
  *  utility class for the dynamical truncation algorithm
  *
+ *  $Date: 2010/06/27 17:32:41 $
+ *  $Revision: 1.3 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -42,6 +44,9 @@ class ChamberSegmentUtility {
   // Get the 4D segments in a DT chamber
   std::vector<DTRecSegment4D> getDTSegmentsInChamber(DTChamberId);
 
+  // Get the 2D segments in a DT chamber                          
+  std::vector<DTRecSegment2D> getDTSegments2DInChamber(DTChamberId);
+
   // Get the list of DT chambers with segments
   const std::map<int, std::vector<DTRecSegment4D> >& getDTlist() const { return dtsegMap; };
 
@@ -61,10 +66,8 @@ class ChamberSegmentUtility {
   edm::Handle<CSCSegmentCollection> CSCSegments;
   edm::ESHandle<DTGeometry> dtGeom;
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
-
-  std::vector<DTRecSegment4D> dtseg;
-  std::vector<CSCSegment> cscseg;
   std::map<int, std::vector<DTRecSegment4D> > dtsegMap;
+  std::map<int, std::vector<DTRecSegment2D> > dtseg2DMap;
   std::map<int, std::vector<CSCSegment> > cscsegMap;
   DTChamberId selectedDT;
   CSCDetId selectedCSC;

@@ -33,10 +33,11 @@
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
-# <use   name="TrackPropagation/SteppingHelixPropagator"/>
+<use   name="CondCore/DBOutputService"/>
 <use   name="Utilities/General"/>
 <use   name="Utilities/Timing"/>
 <use   name="CondFormats/Alignment"/>
+<use   name="CondFormats/DYTThrObject"/>
 <use   name="root"/>
 <export>
   <lib   name="1"/>

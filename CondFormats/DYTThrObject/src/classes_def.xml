@@ -1,0 +1,5 @@
+<lcgdict>
+   <class name="DYTThrObject" class_version="0"/>
+   <class name="DYTThrObject::dytThrStruct"/>
+   <class name="std::vector<DYTThrObject::dytThrStruct>"/>
+</lcgdict>  
