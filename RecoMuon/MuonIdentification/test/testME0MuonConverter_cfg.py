@@ -23,21 +23,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:///somewhere/simevent.root') ##/somewhere/simevent.root" }
-
 )
 
-process.me0SegmentProducer = cms.EDProducer("EmulatedME0SegmentProducer")
+process.load('RecoMuon.MuonIdentification.me0MuonReco_cff')
+process.p = cms.Path(process.me0MuonReco)
 
-process.me0SegmentMatcher = cms.EDProducer("ME0SegmentMatcher",
-                                           DebugHistos = cms.string('DebugHistos.root'),
-                                           debug = cms.bool(True)
-)
-
-process.me0MuonConverter = cms.EDProducer("ME0MuonConverter")
-
-process.p = cms.Path(process.me0SegmentProducer+
-                     process.me0SegmentMatcher+
-                     process.me0MuonConverter)
 process.PoolSource.fileNames = [
     #'file:/afs/cern.ch/work/d/dnash/PixelProduction/TryFour/CMSSW_6_1_2_SLHC8/src/FastSimulation/Configuration/test/20GeV.root'
     #'file:/afs/cern.ch/work/d/dnash/PixelProduction/ReCheckout/CMSSW_6_1_2_SLHC8/src/FastSimulation/Configuration/test/Zmumu.root'
