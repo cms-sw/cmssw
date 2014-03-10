@@ -54,10 +54,10 @@ class ChamberSegmentUtility {
   const std::map<int, std::vector<CSCSegment> >& getCSClist() const { return cscsegMap; };
 
   // Get the map association between segments4d and rechits
-  std::vector<DTRecHit1D> getDTRHmap(DTRecSegment4D);
+  std::vector<DTRecHit1D> getDTRHmap(const DTRecSegment4D&);
 
   // Get the map association between segments4d and rechits 
-  std::vector<CSCRecHit2D> getCSCRHmap(CSCSegment);
+  std::vector<CSCRecHit2D> getCSCRHmap(const CSCSegment&);
 
   
  private:

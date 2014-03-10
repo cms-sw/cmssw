@@ -125,7 +125,7 @@ vector<DTRecSegment4D> ChamberSegmentUtility::getDTSegmentsInChamber(DTChamberId
 
 
 
-vector<CSCRecHit2D> ChamberSegmentUtility::getCSCRHmap(CSCSegment selected)
+vector<CSCRecHit2D> ChamberSegmentUtility::getCSCRHmap(const CSCSegment &selected)
 {
   vector<CSCRecHit2D> allchRH;
   
@@ -150,7 +150,7 @@ vector<CSCRecHit2D> ChamberSegmentUtility::getCSCRHmap(CSCSegment selected)
 }
 
   
-vector<DTRecHit1D> ChamberSegmentUtility::getDTRHmap(DTRecSegment4D selected)
+vector<DTRecHit1D> ChamberSegmentUtility::getDTRHmap(const DTRecSegment4D &selected)
 {
   
   vector<DTRecHit1D> allchRH;
