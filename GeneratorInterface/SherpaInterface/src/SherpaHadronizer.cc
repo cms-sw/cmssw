@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -23,57 +24,73 @@
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 #include "GeneratorInterface/SherpaInterface/interface/SherpackFetcher.h"
+
+#include "CLHEP/Random/RandomEngine.h"
 
 class SherpaHadronizer : public gen::BaseHadronizer {
 public:
   SherpaHadronizer(const edm::ParameterSet &params);
   ~SherpaHadronizer();
-  
+
   bool readSettings( int ) { return true; }
   bool initializeForInternalPartons();
   bool declareStableParticles(const std::vector<int> &pdgIds);
-  bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
+  bool declareSpecialSettings( const std::vector<std::string>& ) { return true; }
   void statistics();
   bool generatePartonsAndHadronize();
   bool decay();
   bool residualDecay();
   void finalizeEvent();
   const char *classname() const { return "SherpaHadronizer"; }
-  
+
 private:
-  
+
+  virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+
   std::string SherpaProcess;
   std::string SherpaChecksum;
   std::string SherpaPath;
   std::string SherpaPathPiece;
   std::string SherpaResultDir;
   double SherpaDefaultWeight;
-  edm::ParameterSet	SherpaParameterSet;
-  unsigned int	maxEventsToPrint;
-  
+  edm::ParameterSet  SherpaParameterSet;
+  unsigned int maxEventsToPrint;
+
   SHERPA::Sherpa Generator;
-  CLHEP::HepRandomEngine* randomEngine;
-  
 };
 
 class CMS_SHERPA_RNG: public ATOOLS::External_RNG {
 public:
-  CMS_SHERPA_RNG(){randomEngine = &gen::getEngineReference();};
-private: 
+  CMS_SHERPA_RNG() : randomEngine(nullptr) {
+	edm::Service<edm::RandomNumberGenerator>rng;
+	if (!rng.isAvailable()){
+		throw cms::Exception("RN Generator") << "Initialization of CMS_SHERPA_RNG failed"
+		<<"Could not optain edm::RandomNumberGenerator";
+	}
+	else {
+		setRandomEngine(&(rng->getEngine()));
+	}
+}
+	 
+  void setRandomEngine(CLHEP::HepRandomEngine* v) { randomEngine = v; }
+private:
   CLHEP::HepRandomEngine* randomEngine;
-  double Get();
+  double Get() override;
 };
 
-
+void SherpaHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v) {
+  CMS_SHERPA_RNG* cmsSherpaRng = dynamic_cast<CMS_SHERPA_RNG*>(ATOOLS::ran->GetExternalRng());
+  assert(cmsSherpaRng != nullptr);
+  cmsSherpaRng->setRandomEngine(v);
+}
 
 SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   BaseHadronizer(params),
   SherpaParameterSet(params.getParameter<edm::ParameterSet>("SherpaParameters"))
 {
   if (!params.exists("SherpaProcess")) SherpaProcess="";
-	else SherpaProcess=params.getParameter<std::string>("SherpaProcess");
+   else SherpaProcess=params.getParameter<std::string>("SherpaProcess");
   if (!params.exists("SherpaPath")) SherpaPath="";
     else SherpaPath=params.getParameter<std::string>("SherpaPath");
   if (!params.exists("SherpaPathPiece")) SherpaPathPiece="";
@@ -85,17 +102,17 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   if (!params.exists("maxEventsToPrint")) maxEventsToPrint=0;
     else maxEventsToPrint=params.getParameter<int>("maxEventsToPrint");
 
-	
+
   spf::SherpackFetcher Fetcher(params);
-  int retval=Fetcher.Fetch();	
+  int retval=Fetcher.Fetch();
   if (retval != 0) {
-	std::cout << "SherpaHadronizer: Preparation of Sherpack failed ... " << std::endl;
-	std::cout << "SherpaHadronizer: Error code: " << retval << std::endl;
-	std::terminate();  
-	  
-  }	  
+   std::cout << "SherpaHadronizer: Preparation of Sherpack failed ... " << std::endl;
+   std::cout << "SherpaHadronizer: Error code: " << retval << std::endl;
+   std::terminate();
+
+  }
   // The ids (names) of parameter sets to be read (Analysis,Run) to create Analysis.dat, Run.dat
-  //They are given as a vstring.  
+  //They are given as a vstring.
   std::vector<std::string> setNames = SherpaParameterSet.getParameter<std::vector<std::string> >("parameterSets");
   //Loop all set names...
   for ( unsigned i=0; i<setNames.size(); ++i ) {
@@ -103,11 +120,11 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
     std::vector<std::string> pars = SherpaParameterSet.getParameter<std::vector<std::string> >(setNames[i]);
     std::cout << "Write Sherpa parameter set " << setNames[i] <<" to "<<setNames[i]<<".dat "<<std::endl;
     std::string datfile =  SherpaPath + "/" + setNames[i] +".dat";
-    std::ofstream os(datfile.c_str());  
+    std::ofstream os(datfile.c_str());
     // Loop over all strings and write the according *.dat
     for(std::vector<std::string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
       os<<(*itPar)<<std::endl;
-    } 
+    }
   }
 
   //To be conform to the default Sherpa usage create a command line:
@@ -116,8 +133,8 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   //Path where the Sherpa libraries are stored
   std::string shPath = "PATH=" + SherpaPath;
   // new for Sherpa 1.3.0, suggested by authors
-  std::string shPathPiece = "PATH_PIECE=" + SherpaPathPiece; 
-  //Path where results are stored 
+  std::string shPathPiece = "PATH_PIECE=" + SherpaPathPiece;
+  //Path where results are stored
   std::string shRes  = "RESULT_DIRECTORY=" + SherpaResultDir; // from Sherpa 1.2.0 on
   //Name of the external random number class
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
@@ -133,8 +150,8 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   argv[3]=(char*)shRes.c_str();
   argv[4]=(char*)shRng.c_str();
   argv[5]=(char*)shNoMT.c_str();
- 
-  //initialize Sherpa with the command line
+
+ //initialize Sherpa with the command line
   Generator.InitializeTheRun(argc,argv);
 }
 
@@ -147,12 +164,12 @@ bool SherpaHadronizer::initializeForInternalPartons()
   ATOOLS::s_loader->LoadLibrary("SherpaHepMCOutput");
   //initialize Sherpa
   Generator.InitializeTheEventHandler();
-  
+
   return true;
 }
 
 #if 0
-// naive Sherpa HepMC status fixup //FIXME 
+// naive Sherpa HepMC status fixup //FIXME
 static int getStatus(const HepMC::GenParticle *p)
 {
   return status;
@@ -167,7 +184,7 @@ bool SherpaHadronizer::declareStableParticles(const std::vector<int> &pdgIds)
       iter != pdgIds.end(); ++iter)
     if (!markStable(*iter))
       return false;
-  
+
   return true;
 #else
   return false;
@@ -178,14 +195,14 @@ bool SherpaHadronizer::declareStableParticles(const std::vector<int> &pdgIds)
 void SherpaHadronizer::statistics()
 {
   //calculate statistics
-  Generator.SummarizeRun(); 
+  Generator.SummarizeRun();
 
   //get the xsec from EventHandler
   SHERPA::Event_Handler* theEventHandler = Generator.GetEventHandler();
   double xsec_val = theEventHandler->TotalXS();
   double xsec_err = theEventHandler->TotalErr();
-  
-  //set the internal cross section in pb in GenRunInfoProduct 
+
+  //set the internal cross section in pb in GenRunInfoProduct
   runInfo().setInternalXSec(GenRunInfoProduct::XSec(xsec_val,xsec_err));
 
 }
@@ -216,8 +233,8 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
     double weight((*sp)["Weight"]->Get<double>());
     double ef((*sp)["Enhance"]->Get<double>());
     double weight_norm((*sp)["Weight_Norm"]->Get<double>());
-    // in case of unweighted events sherpa puts the max weight as event weight. 
-    // this is not optimal, we want 1 for unweighted events, so we check 
+    // in case of unweighted events sherpa puts the max weight as event weight.
+    // this is not optimal, we want 1 for unweighted events, so we check
     // whether we are producing unweighted events ("EVENT_GENERATION_MODE" == "1")
     if ( ATOOLS::ToType<int>( ATOOLS::rpa->gen.Variable("EVENT_GENERATION_MODE") ) == 1 ) {
       if (weight_norm!=0) {
@@ -231,36 +248,36 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
     SHERPA::HepMC2_Interface hm2i;
     HepMC::GenEvent* evt = new HepMC::GenEvent();
     hm2i.Sherpa2HepMC(blobs, *evt, weight);
-    resetEvent(evt);         
+    resetEvent(evt);
     return true;
   }
   else {
     return false;
-  }  
+  }
 }
 
 bool SherpaHadronizer::decay()
 {
-	return true;
+   return true;
 }
 
 bool SherpaHadronizer::residualDecay()
 {
-	return true;
+   return true;
 }
 
 void SherpaHadronizer::finalizeEvent()
 {
 #if 0
-	for(HepMC::GenEvent::particle_iterator iter = event->particles_begin();
-	    iter != event->particles_end(); iter++)
-		(*iter)->set_status(getStatus(*iter));
+   for(HepMC::GenEvent::particle_iterator iter = event->particles_begin();
+       iter != event->particles_end(); iter++)
+      (*iter)->set_status(getStatus(*iter));
 #endif
-	//******** Verbosity *******
-	if (maxEventsToPrint > 0) {
-		maxEventsToPrint--;
-		event()->print();		
-	}
+   //******** Verbosity *******
+   if (maxEventsToPrint > 0) {
+      maxEventsToPrint--;
+      event()->print();
+   }
 }
 
 
@@ -273,10 +290,17 @@ ATOOLS::External_RNG *ATOOLS::Getter<ATOOLS::External_RNG,ATOOLS::RNG_Key,CMS_SH
 void ATOOLS::Getter<ATOOLS::External_RNG,ATOOLS::RNG_Key,CMS_SHERPA_RNG>::PrintInfo(std::ostream &str,const size_t) const
 { str<<"CMS_SHERPA_RNG interface"; }
 
-double CMS_SHERPA_RNG::Get(){
+double CMS_SHERPA_RNG::Get() {
+  if(randomEngine == nullptr) {
+    throw edm::Exception(edm::errors::LogicError)
+      << "The Sherpa code attempted to a generate random number while\n"
+      << "the engine pointer was null. This might mean that the code\n"
+      << "was modified to generate a random number outside the event and\n"
+      << "beginLuminosityBlock methods, which is not allowed.\n";
+  }
   return randomEngine->flat();
 }
-   
+
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 typedef edm::GeneratorFilter<SherpaHadronizer, gen::ExternalDecayDriver> SherpaGeneratorFilter;
