@@ -9,6 +9,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig)
@@ -61,6 +62,9 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   Handle<L1TEtSumCollection> EtSum;
   e.getByToken(EtSumToken_,EtSum);
+
+  edm::ESHandle< L1CaloEtScale > emScale ;
+  es.get< L1EmEtScaleRcd >().get( emScale ) ;
 
   edm::ESHandle< L1CaloEtScale > jetScale ;
   es.get< L1JetEtScaleRcd >().get( jetScale ) ;
@@ -132,7 +136,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
       unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
       unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
 
-      L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), gtEta,
+      L1GctJetCand TauCand(hackPt, itTau->hwPhi(), gtEta,
 			   true, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
@@ -153,10 +157,13 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
       hackPt = jetScale->rank(hackPt);
       if(hackPt > 0x3f) hackPt = 0x3f;
 
+      //printf("jetlinearLsb: %lf\n",jetScale->linearLsb());
+      //printf("emlinearLsb: %lf]n",emScale->linearLsb());
+
       unsigned iEta = itJet->hwEta();
       unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
       unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
-      
+
       L1GctJetCand JetCand(hackPt, itJet->hwPhi(), gtEta,
 			   false, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,

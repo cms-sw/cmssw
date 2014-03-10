@@ -61,8 +61,12 @@ process.caloStage1 = cms.EDProducer(
     FirmwareVersion = cms.uint32(1)  ## 1=HI algo, 2= pp algo
     )
 
+process.Physicalizer = cms.EDProducer("l1t::PhysicalEtAdder",
+                                      InputCollection = cms.InputTag("caloStage1")
+)
+
 process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
-    InputCollection = cms.InputTag("caloStage1")
+    InputCollection = cms.InputTag("Physicalizer")
     )
 
 process.load('L1Trigger.Configuration.SimL1Emulator_cff')
@@ -86,6 +90,7 @@ process.SimL1Emulator = cms.Sequence(
     #process.simGctDigis +
     process.RCTConverter +
     process.caloStage1 +
+    process.Physicalizer +
     process.GCTConverter +
     process.SimL1MuTriggerPrimitives +
     process.SimL1MuTrackFinders +

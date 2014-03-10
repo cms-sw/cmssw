@@ -47,15 +47,11 @@ process.options = cms.untracked.PSet()
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 
-process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
-process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
-
 process.RCTConverter = cms.EDProducer(
     "l1t::L1TCaloRCTToUpgradeConverter",
     regionTag = cms.InputTag("simRctDigis"),
     emTag = cms.InputTag("simRctDigis"))
 
-process.caloTowers = cms.EDProducer("l1t::L1TCaloTowerProducer")
 process.caloStage1 = cms.EDProducer(
     "l1t::Stage1Layer2Producer",
     CaloRegions = cms.InputTag("RCTConverter"),
@@ -63,8 +59,12 @@ process.caloStage1 = cms.EDProducer(
     FirmwareVersion = cms.uint32(1)  ## 1=HI algo, 2= pp algo
     )
 
+process.Physicalizer = cms.EDProducer("l1t::PhysicalEtAdder",
+                                      InputCollection = cms.InputTag("caloStage1")
+)
+
 process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
-    InputCollection = cms.InputTag("caloStage1")
+    InputCollection = cms.InputTag("Physicalizer")
     )
 
 
@@ -74,8 +74,8 @@ process.simGtDigis.GctInputTag = 'GCTConverter'
 # overwrite old simGctDigis
 process.simGctDigis = cms.Sequence(
         process.RCTConverter
-#        *process.caloTowers
         *process.caloStage1
+        *process.Physicalizer
         *process.GCTConverter
         )
 
@@ -84,9 +84,6 @@ process.p1 = cms.Path(
 #    process.digiStep
     #process.Stage1GCT
     process.SimL1Emulator
-#    * process.debug
-#    *process.dumpED
-#    *process.dumpES
     )
 
 

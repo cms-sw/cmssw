@@ -110,7 +110,9 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(L1TTauCollection::const_iterator itTau = old_taus->begin(bx);
 	itTau != old_taus->end(bx); ++itTau)
     {
-      const double pt = itTau->hwPt() * jetScale->linearLsb();
+      //const double pt = itTau->hwPt() * jetScale->linearLsb();
+      //jets, taus measured in caloregion scale for Layer2
+      const double pt = itTau->hwPt() * emScale->linearLsb();
       const double eta = getPhysicalEta(itTau->hwEta());
       const double phi = getPhysicalPhi(itTau->hwPhi());
       //const double eta = itTau->hwEta();
@@ -132,7 +134,9 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(L1TJetCollection::const_iterator itJet = old_jets->begin(bx);
 	itJet != old_jets->end(bx); ++itJet)
     {
-      const double pt = itJet->hwPt() * jetScale->linearLsb();
+      //const double pt = itJet->hwPt() * jetScale->linearLsb();
+      //jets, taus measured in caloregion scale for Layer2
+      const double pt = itJet->hwPt() * emScale->linearLsb();
       const double eta = getPhysicalEta(itJet->hwEta());
       const double phi = getPhysicalPhi(itJet->hwPhi());
       //const double eta = itJet->hwEta();
@@ -222,6 +226,7 @@ l1t::PhysicalEtAdder::fillDescriptions(edm::ConfigurationDescriptions& descripti
 //define this as a plug-in
 DEFINE_FWK_MODULE(l1t::PhysicalEtAdder);
 
+// grabbed these from the UCT2015 codebase.
 double getPhysicalEta(int etaIndex)
 {
   const double rgnEtaValues[11] = {
