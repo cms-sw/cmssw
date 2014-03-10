@@ -1,8 +1,5 @@
 /** \file Alignable.cc
  *
- *  $Date: 2011/05/23 20:53:18 $
- *  $Revision: 1.22 $
- *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
@@ -250,9 +247,17 @@ void Alignable::cacheTransformation()
 
 void Alignable::restoreCachedTransformation()
 {
+  // first treat itself
   theSurface = theCachedSurface;
   theDisplacement = theCachedDisplacement;
   theRotation = theCachedRotation;
+
+  // now treat components (a clean design would move that to AlignableComposite...)
+  const Alignables comps(this->components());
+
+  for (Alignables::const_iterator it = comps.begin(); it != comps.end(); ++it) {
+    (*it)->restoreCachedTransformation();
+  }
 }
 
 //__________________________________________________________________________________________________
