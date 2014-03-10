@@ -44,35 +44,27 @@ def customise_RawToDigi(process):
     return process
 
 def customise_LocalReco(process):
-    process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
-    process.load('RecoLocalMuon.GEMRecHit.me0Segments_cfi')
-    process.me0RecHits.me0DigiLabel = cms.InputTag("simMuonME0Digis")
-    process.me0Segments.me0RecHitLabel = cms.InputTag("me0RecHits")
-    process.muonlocalreco += process.me0RecHits
-    process.muonlocalreco += process.me0Segments
+    process.load('RecoLocalMuon.GEMRecHit.me0LocalReco_cff')
+    process.muonlocalreco += process.me0LocalReco
+    process=outputCustoms(process)
     return process
 
 def customise_GlobalRecoInclude(process):
     process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
     process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
     process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
-    process.load('FastSimulation.Muons.me0SegmentProducer_cfi')
-    process.load('RecoMuon.MuonIdentification.me0SegmentMatcher_cfi')
-    process.load('RecoMuon.MuonIdentification.me0MuonConverter_cfi')
     return process
-    
+
 def customise_GlobalRecoFast(process):
-    process=customise_GlobalRecoInclude(process)
-    process.reconstructionWithFamos += process.me0SegmentProducer
-    process.reconstructionWithFamos += process.me0SegmentMatcher
-    process.reconstructionWithFamos += process.me0MuonConverter
+    customise_GlobalRecoInclude(process)
+    process.load('RecoMuon.MuonIdentification.me0MuonReco_cff')
+    process.reconstructionWithFamos += process.me0MuonReco
     return process
-    
+
 def customise_GlobalRecoFull(process):
-    process=customise_GlobalRecoInclude(process)
-    process.muonGlobalReco += process.me0SegmentProducer
-    process.muonGlobalReco += process.me0SegmentMatcher
-    process.muonGlobalReco += process.me0MuonConverter
+    customise_GlobalRecoInclude(process)
+    process.load('RecoMuon.MuonIdentification.me0MuonReco_cff')
+    process.muonGlobalReco += process.me0MuonReco
     return process
 
 def customise_RecoFast(process):
