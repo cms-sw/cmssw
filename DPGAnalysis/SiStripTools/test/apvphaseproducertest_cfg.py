@@ -86,9 +86,10 @@ process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
 
 #process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts_cfi")
 
-import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi 
+import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi 
+process.APVPhases = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi.APVPhases 
+#import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi 
 #process.APVPhases2011 = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi.APVPhases 
-process.APVPhases = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi.APVPhases 
 #import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2010_cfi 
 #process.APVPhases2010 = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2010_cfi.APVPhases 
 
