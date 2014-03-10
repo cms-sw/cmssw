@@ -26,8 +26,6 @@ HLTMhtFilter::HLTMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iConfi
         edm::LogError("HLTMhtFilter") << "inconsistent module configuration!";
     }
 
-    moduleLabel_ = iConfig.getParameter<std::string>("@module_label");
-
     for(unsigned int i=0; i<nOrs_; ++i) {
         m_theMhtToken.push_back(consumes<reco::METCollection>(mhtLabels_[i]));
     }
@@ -55,30 +53,31 @@ bool HLTMhtFilter::hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     reco::METRef mhtref;
 
-    // Create the reference to the output filter objects
-    if (saveTags())  filterproduct.addCollectionTag(moduleLabel_);
-
     bool accept = false;
 
     // Take the .OR. of all sets of requirements
     for (unsigned int i = 0; i < nOrs_; ++i) {
-        edm::Handle<reco::METCollection> hmht;
-        iEvent.getByToken(m_theMhtToken[i], hmht);
-        double mht = 0;
-        if (hmht->size() > 0)  mht = hmht->front().pt();
 
-        // Check if the event passes this cut set
-        accept = accept || (mht > minMht_[i]);
-        // In principle we could break if accepted, but in order to save
-        // for offline analysis all possible decisions we keep looping here
-        // in term of timing this will not matter much; typically 1 or 2 cut-sets
-        // will be checked only
+      // Create the reference to the output filter objects
+      if (saveTags())  filterproduct.addCollectionTag(mhtLabels_[i]);
 
-        // Store the ref (even if it is not accepted)
-        mhtref = reco::METRef(hmht, 0);
-
-        filterproduct.addObject(trigger::TriggerMHT, mhtref);  // save as TriggerMHT object
+      edm::Handle<reco::METCollection> hmht;
+      iEvent.getByToken(m_theMhtToken[i], hmht);
+      double mht = 0;
+      if (hmht->size() > 0)  mht = hmht->front().pt();
+      
+      // Check if the event passes this cut set
+      accept = accept || (mht > minMht_[i]);
+      // In principle we could break if accepted, but in order to save
+      // for offline analysis all possible decisions we keep looping here
+      // in term of timing this will not matter much; typically 1 or 2 cut-sets
+      // will be checked only
+      
+      // Store the ref (even if it is not accepted)
+      mhtref = reco::METRef(hmht, 0);
+      
+      filterproduct.addObject(trigger::TriggerMHT, mhtref);  // save as TriggerMHT object
     }
-
+    
     return accept;
 }

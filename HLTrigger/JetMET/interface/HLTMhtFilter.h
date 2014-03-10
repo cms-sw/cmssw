@@ -38,7 +38,6 @@ class HLTMhtFilter : public HLTFilter {
     std::vector<edm::InputTag> mhtLabels_;
 
     unsigned int nOrs_;  /// number of pairs of MHT
-    std::string moduleLabel_;
 
     std::vector<edm::EDGetTokenT<reco::METCollection> > m_theMhtToken;
 };

@@ -38,8 +38,6 @@ HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iC
         edm::LogError("HLTHtMhtFilter") << "inconsistent module configuration!";
     }
 
-    moduleLabel_ = iConfig.getParameter<std::string>("@module_label");
-
     for(unsigned int i=0; i<nOrs_; ++i) {
         m_theHtToken.push_back(consumes<reco::METCollection>(htLabels_[i]));
         m_theMhtToken.push_back(consumes<reco::METCollection>(mhtLabels_[i]));
@@ -73,40 +71,43 @@ bool HLTHtMhtFilter::hltFilter(edm::Event & iEvent, const edm::EventSetup & iSet
     // Create a pointer to the output filter objects
     std::auto_ptr<reco::METCollection> result(new reco::METCollection());
 
-    // Create the reference to the output filter objects
-    if (saveTags())  filterproduct.addCollectionTag(moduleLabel_);
-
     bool accept = false;
 
     // Take the .OR. of all sets of requirements
     for (unsigned int i = 0; i < nOrs_; ++i) {
-        edm::Handle<reco::METCollection> hht;
-        iEvent.getByToken(m_theHtToken[i], hht);
-        double ht = 0;
-        if (hht->size() > 0)  ht = hht->front().sumEt();
+      // Create the reference to the output filter objects
+      if (saveTags()) {
+	filterproduct.addCollectionTag(htLabels_[i]);
+	filterproduct.addCollectionTag(mhtLabels_[i]);
+      }
 
-        edm::Handle<reco::METCollection> hmht;
-        iEvent.getByToken(m_theMhtToken[i], hmht);
-        double mht = 0;
-        if (hmht->size() > 0)  mht = hmht->front().pt();
-
-        // Check if the event passes this cut set
-        accept = accept || (ht > minHt_[i] && mht > minMht_[i] && sqrt(mht + meffSlope_[i]*ht) > minMeff_[i]);
-        // In principle we could break if accepted, but in order to save
-        // for offline analysis all possible decisions we keep looping here
-        // in term of timing this will not matter much; typically 1 or 2 cut-sets
-        // will be checked only
-
-        // Store the object that was cut on and the ref to it
-        // (even if it is not accepted)
-        reco::MET htmht(ht, hmht->front().p4(), reco::MET::Point(0, 0, 0));
-        result->push_back(htmht);
-
-        edm::Ref<reco::METCollection> htmhtref(iEvent.getRefBeforePut<reco::METCollection>(), i);  // reference to i-th object
-        filterproduct.addObject(trigger::TriggerMHT, htmhtref);  // save as TriggerMHT object
+      edm::Handle<reco::METCollection> hht;
+      iEvent.getByToken(m_theHtToken[i], hht);
+      double ht = 0;
+      if (hht->size() > 0)  ht = hht->front().sumEt();
+      
+      edm::Handle<reco::METCollection> hmht;
+      iEvent.getByToken(m_theMhtToken[i], hmht);
+      double mht = 0;
+      if (hmht->size() > 0)  mht = hmht->front().pt();
+      
+      // Check if the event passes this cut set
+      accept = accept || (ht > minHt_[i] && mht > minMht_[i] && sqrt(mht + meffSlope_[i]*ht) > minMeff_[i]);
+      // In principle we could break if accepted, but in order to save
+      // for offline analysis all possible decisions we keep looping here
+      // in term of timing this will not matter much; typically 1 or 2 cut-sets
+      // will be checked only
+      
+      // Store the object that was cut on and the ref to it
+      // (even if it is not accepted)
+      reco::MET htmht(ht, hmht->front().p4(), reco::MET::Point(0, 0, 0));
+      result->push_back(htmht);
+      
+      edm::Ref<reco::METCollection> htmhtref(iEvent.getRefBeforePut<reco::METCollection>(), i);  // reference to i-th object
+      filterproduct.addObject(trigger::TriggerMHT, htmhtref);  // save as TriggerMHT object
     }
-
+    
     iEvent.put(result);
-
+    
     return accept;
 }
