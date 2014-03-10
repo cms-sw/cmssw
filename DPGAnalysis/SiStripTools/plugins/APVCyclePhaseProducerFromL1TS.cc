@@ -28,6 +28,10 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -39,9 +43,13 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <iostream>
 
 #include "TH1F.h"
 #include "TProfile.h"
+
+#include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
@@ -64,15 +72,20 @@ private:
   virtual void endJob() override ;
 
   bool isBadRun(const unsigned int) const;
+  void printConfiguration(std::stringstream& ss) const;
   
       // ----------member data ---------------------------
 
+  edm::ESWatcher<SiStripConfObjectRcd> m_eswatcher;
   const edm::InputTag _l1tscollection;
-  const std::vector<std::string> _defpartnames;
-  const std::vector<int> _defphases;
+  const bool m_ignoreDB;
+  const std::string m_rcdLabel;
+  std::vector<std::string> _defpartnames;
+  std::vector<int> _defphases;
   const bool _wantHistos;
-  const bool _useEC0;
-  const int _magicOffset;
+  bool _useEC0;
+  int _magicOffset;
+  bool m_badRun;
   const unsigned int m_maxLS;
   const unsigned int m_LSfrac;
 
@@ -114,12 +127,16 @@ private:
 // constructors and destructor
 //
 APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::ParameterSet& iConfig):
+  m_eswatcher(),
   _l1tscollection(iConfig.getParameter<edm::InputTag>("l1TSCollection")),
+  m_ignoreDB(iConfig.getUntrackedParameter<bool>("ignoreDB",false)),
+  m_rcdLabel(iConfig.getUntrackedParameter<std::string>("recordLabel","apvphaseoffsets")),
   _defpartnames(iConfig.getParameter<std::vector<std::string> >("defaultPartitionNames")),
   _defphases(iConfig.getParameter<std::vector<int> >("defaultPhases")),
   _wantHistos(iConfig.getUntrackedParameter<bool>("wantHistos",false)),
   _useEC0(iConfig.getUntrackedParameter<bool>("useEC0",false)),
   _magicOffset(iConfig.getUntrackedParameter<int>("magicOffset",8)),
+  m_badRun(false),
   m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",250)),
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",16)),
   m_rhm(),
@@ -128,6 +145,11 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
   _lastResync(-1),_lastHardReset(-1),_lastStart(-1),
   _lastEventCounter0(-1),_lastOrbitCounter0(-1),_lastTestEnable(-1)
 {
+
+  std::stringstream ss;
+  printConfiguration(ss);
+  edm::LogInfo("ConfigurationAtConstruction") << ss.str();
+  
 
   produces<APVCyclePhaseCollection,edm::InEvent>();
 
@@ -173,7 +195,28 @@ APVCyclePhaseProducerFromL1TS::beginRun(const edm::Run& iRun, const edm::EventSe
 
 {
 
-  // reset offset vector
+  // update the parameters from DB
+
+  if(!m_ignoreDB && m_eswatcher.check(iSetup)) {
+    edm::ESHandle<SiStripConfObject> confObj;
+    iSetup.get<SiStripConfObjectRcd>().get(m_rcdLabel,confObj);
+
+    std::stringstream summary;
+    confObj->printDebug(summary);
+    LogDebug("SiStripConfObjectSummary") << summary.str();
+
+    _defpartnames = confObj->get<std::vector<std::string> >("defaultPartitionNames");
+    _defphases    = confObj->get<std::vector<int> >("defaultPhases");
+    _useEC0       = confObj->get<bool>("useEC0");
+    m_badRun      = confObj->get<bool>("badRun");
+    _magicOffset  = confObj->get<int>("magicOffset");
+
+    std::stringstream ss;
+    printConfiguration(ss);
+    edm::LogInfo("UpdatedConfiguration") << ss.str();
+
+
+  }
 
   if(_wantHistos) {
 
@@ -342,9 +385,27 @@ APVCyclePhaseProducerFromL1TS::isBadRun(const unsigned int run) const {
     if( run >= runpair->first && run <= runpair->second) return true;
   }
 
-  return false;
+  return m_badRun;
 
 }
 
+void
+APVCyclePhaseProducerFromL1TS::printConfiguration(std::stringstream& ss) const {
+
+  ss << _defpartnames.size() << " default partition names: ";
+  for(std::vector<std::string>::const_iterator part=_defpartnames.begin();part!=_defpartnames.end();++part) {
+    ss << *part << " ";
+  }
+  ss << std::endl;
+  ss << _defphases.size() << " default phases: ";
+  for(std::vector<int>::const_iterator phase=_defphases.begin();phase!=_defphases.end();++phase) {
+    ss << *phase << " ";
+  }
+  ss << std::endl;
+  ss << " Magic offset: " << _magicOffset << std::endl;
+  ss << " use ECO: " << _useEC0 << std::endl;
+  ss << " bad run: " << m_badRun << std::endl;
+
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(APVCyclePhaseProducerFromL1TS);
