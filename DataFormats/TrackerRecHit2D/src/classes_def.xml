@@ -31,11 +31,8 @@
 
   <class name="SiStripRecHit2D"  ClassVersion="12">
    <version ClassVersion="12" checksum="2350660116"/>
-    <field name="sigmaPitch_" transient="true" />
    <version ClassVersion="11" checksum="2157674799"/>
-    <field name="sigmaPitch_" transient="true" />
    <version ClassVersion="10" checksum="4057204970"/>
-    <field name="sigmaPitch_" transient="true" />
   </class>
 
 

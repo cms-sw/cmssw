@@ -56,12 +56,10 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
     StripClusterParameterEstimator::LocalValues lvStereo = 
       theCPE->localParameters( stereoclust, *gdet->stereoDet(), gluedToStereo(ts, gdet));
       
-    auto sPitch = TSiStripRecHit2DLocalPos::sigmaPitch(lvMono.first, lvMono.second,*gdet->monoDet());
-    SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second, sPitch,
+    SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second, 
 					       gdet->monoDet()->geographicalId(),gdet->monoDet(),
 					       orig->monoClusterRef());
-    sPitch = TSiStripRecHit2DLocalPos::sigmaPitch(lvStereo.first, lvStereo.second, *gdet->stereoDet());
-    SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second, sPitch,
+    SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
 						 gdet->stereoDet()->geographicalId(),gdet->stereoDet(),
 						 orig->stereoClusterRef());
     const SiStripMatchedRecHit2D* better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
@@ -129,12 +127,10 @@ TSiStripMatchedRecHit::transientHits () const {
   StripClusterParameterEstimator::LocalValues lvStereo = 
     theCPE->localParameters( stereoclust, *gdet->stereoDet());
  
-  auto sPitch = TSiStripRecHit2DLocalPos::sigmaPitch(lvMono.first, lvMono.second,*gdet->monoDet());
-  SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second, sPitch,
+  SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second, 
 					     gdet->monoDet()->geographicalId(),gdet->monoDet(),
 					     orig->monoClusterRef());
-  sPitch = TSiStripRecHit2DLocalPos::sigmaPitch(lvStereo.first, lvStereo.second, *gdet->stereoDet());
-  SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second, sPitch,
+  SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second, 
 					       gdet->stereoDet()->geographicalId(),gdet->stereoDet(),
 						 orig->stereoClusterRef());
   SiStripMatchedRecHit2D* better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);

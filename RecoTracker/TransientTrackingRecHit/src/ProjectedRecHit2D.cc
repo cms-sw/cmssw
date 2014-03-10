@@ -15,6 +15,17 @@ GenericTransientTrackingRecHit( det, new ProjectedSiStripRecHit2D( pos, err, det
   theOriginalDet = originalDet;
 }
 
+ProjectedRecHit2D::ProjectedRecHit2D( const LocalPoint& pos, const LocalError& err,
+				      const GeomDet* det, const GeomDet* originalDet,
+				      const TrackingRecHit& originalHit, const StripClusterParameterEstimator* cpe) :
+GenericTransientTrackingRecHit( det, new ProjectedSiStripRecHit2D( pos, err, det->geographicalId(), det,
+								     static_cast<const SiStripRecHit2D*>(&originalHit) ) ) 
+{
+  theCPE = cpe;
+  theOriginalDet = originalDet;
+}
+
+
 ProjectedRecHit2D::RecHitPointer 
 ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
 {

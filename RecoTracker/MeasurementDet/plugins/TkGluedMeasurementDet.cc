@@ -207,7 +207,6 @@ TkGluedMeasurementDet::RecHitContainer
 TkGluedMeasurementDet::projectOnGluedDet( const RecHitContainer& hits,
 					  const TrajectoryStateOnSurface& ts) const
 {
-  if (hits.empty()) return hits;
   TrackingRecHitProjector<ProjectedRecHit2D> proj;
   RecHitContainer result;
   for ( RecHitContainer::const_iterator ihit = hits.begin(); ihit!=hits.end(); ihit++) {
@@ -227,6 +226,31 @@ TkGluedMeasurementDet::projectOnGluedDet( Collector& collector,
   }
 }
 
+TkGluedMeasurementDet::RecHitContainer 
+TkGluedMeasurementDet::projectOnGluedDet( std::vector<SiStripRecHit2D> const & hits,
+					  const TrajectoryStateOnSurface& ts) const
+{
+  TrackingRecHitProjector<ProjectedRecHit2D> proj;
+  RecHitContainer result;
+  for ( auto const & hit : hits)
+    result.push_back( proj.project(hit, fastGeomDet(), ts, theCPE));
+  return result;
+}
+
+template<typename Collector>
+void 
+TkGluedMeasurementDet::projectOnGluedDet( Collector& collector,
+                                          std::vector<SiStripRecHit2D> const & hits,
+                                          const GlobalVector & gdir ) const 
+{
+  for ( auto const & hit : hits)
+    collector.addProjected(hit, gdir );
+}
+
+
+
+
+
 void TkGluedMeasurementDet::checkProjection(const TrajectoryStateOnSurface& ts, 
 					    const RecHitContainer& monoHits, 
 					    const RecHitContainer& stereoHits) const
@@ -239,12 +263,12 @@ void TkGluedMeasurementDet::checkProjection(const TrajectoryStateOnSurface& ts,
   }
 }
 
-void TkGluedMeasurementDet::checkHitProjection(const TransientTrackingRecHit& hit,
+void TkGluedMeasurementDet::checkHitProjection(const TrackingRecHit& hit,
 					       const TrajectoryStateOnSurface& ts, 
 					       const GeomDet& det) const
 {
   TrackingRecHitProjector<ProjectedRecHit2D> proj;
-  TransientTrackingRecHit::RecHitPointer projectedHit = proj.project( hit, det, ts);
+  TransientTrackingRecHit::RecHitPointer projectedHit = proj.project( hit, det, ts, theCPE);
 
   RecHitPropagator prop;
   TrajectoryStateOnSurface propState = prop.propagate( hit, det.surface(), ts);
@@ -330,11 +354,11 @@ TkGluedMeasurementDet::HitCollectorForRecHits::HitCollectorForRecHits(const Geom
 }
 
 void
-TkGluedMeasurementDet::HitCollectorForRecHits::addProjected(const TransientTrackingRecHit& hit,
+TkGluedMeasurementDet::HitCollectorForRecHits::addProjected(const TrackingRecHit& hit,
                                                             const GlobalVector & gdir)
 {
     TrackingRecHitProjector<ProjectedRecHit2D> proj;
-    target_.push_back( proj.project( hit, *geomDet_, gdir));
+    target_.push_back( proj.project( hit, *geomDet_, gdir, cpe_));
 }
 
 TkGluedMeasurementDet::HitCollectorForFastMeasurements::HitCollectorForFastMeasurements
@@ -379,12 +403,12 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit
 */
 
 void
-TkGluedMeasurementDet::HitCollectorForFastMeasurements::addProjected(const TransientTrackingRecHit& hit,
+TkGluedMeasurementDet::HitCollectorForFastMeasurements::addProjected(const TrackingRecHit& hit,
                                                             const GlobalVector & gdir)
 {
     // here we're ok with some extra casual new's and delete's
     TrackingRecHitProjector<ProjectedRecHit2D> proj;
-    RecHitPointer && phit = proj.project( hit, *geomDet_, gdir );
+    RecHitPointer && phit = proj.project( hit, *geomDet_, gdir,  cpe_ );
     std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, *phit);
     if ( diffEst.first) {
       target_.add(phit, diffEst.second);
