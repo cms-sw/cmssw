@@ -11,11 +11,11 @@ HGCEEDetId::HGCEEDetId() : DetId() {
 HGCEEDetId::HGCEEDetId(uint32_t rawid) : DetId(rawid) {
 }
 
-HGCEEDetId::HGCEEDetId(ForwardSubdetector subdet, int zp, int lay, int mod, int subsec, int cell) : DetId(Forward,subdet) 
+HGCEEDetId::HGCEEDetId(ForwardSubdetector subdet, int zp, int lay, int sec, int subsec, int cell) : DetId(Forward,subdet) 
 {  
   uint32_t rawid=0;
   rawid |= ((cell   & 0xffff) << 0 );
-  rawid |= ((mod    & 0x1f)   << 16);
+  rawid |= ((sec    & 0x1f)   << 16);
   rawid |= ((subsec & 0x1)    << 21);
   rawid |= ((lay    & 0x1f)   << 22);
   if(zp>0) rawid |= ((zp     & 0x1)    << 27);
@@ -51,7 +51,7 @@ std::ostream& operator<<(std::ostream& s,const HGCEEDetId& id) {
 			 << " zpos=" << id.zside() 
 			 << " layer=" << id.layer() 
 			 << " phi sub-sector" << id.subsector()
-			 << " module=" << id.module() 
+			 << " sector=" << id.sector() 
 			 << " cell=" << id.cell();
   default : return s << id.rawId();
   }
