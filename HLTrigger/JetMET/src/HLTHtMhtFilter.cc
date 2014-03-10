@@ -43,8 +43,6 @@ HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iC
         m_theMhtToken.push_back(consumes<reco::METCollection>(mhtLabels_[i]));
     }
 
-    // Register the products
-    produces<reco::METCollection>();
 }
 
 // Destructor
@@ -67,9 +65,6 @@ void HLTHtMhtFilter::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
 // Make filter decision
 bool HLTHtMhtFilter::hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
-
-    // Create a pointer to the output filter objects
-    std::auto_ptr<reco::METCollection> result(new reco::METCollection());
 
     bool accept = false;
 
@@ -100,14 +95,11 @@ bool HLTHtMhtFilter::hltFilter(edm::Event & iEvent, const edm::EventSetup & iSet
       
       // Store the object that was cut on and the ref to it
       // (even if it is not accepted)
-      reco::MET htmht(ht, hmht->front().p4(), reco::MET::Point(0, 0, 0));
-      result->push_back(htmht);
-      
-      edm::Ref<reco::METCollection> htmhtref(iEvent.getRefBeforePut<reco::METCollection>(), i);  // reference to i-th object
-      filterproduct.addObject(trigger::TriggerMHT, htmhtref);  // save as TriggerMHT object
+      edm::Ref<reco::METCollection> htref(hht,0);
+      edm::Ref<reco::METCollection> mhtref(hmht,0);
+      filterproduct.addObject(trigger::TriggerTHT, htref);  // save as TriggerTHT object
+      filterproduct.addObject(trigger::TriggerMHT, mhtref);  // save as TriggerMHT object
     }
-    
-    iEvent.put(result);
-    
+
     return accept;
 }

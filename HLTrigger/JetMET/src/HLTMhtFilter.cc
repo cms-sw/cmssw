@@ -30,8 +30,6 @@ HLTMhtFilter::HLTMhtFilter(const edm::ParameterSet & iConfig) : HLTFilter(iConfi
         m_theMhtToken.push_back(consumes<reco::METCollection>(mhtLabels_[i]));
     }
 
-    // Register the products
-    produces<reco::METCollection>();
 }
 
 // Destructor
