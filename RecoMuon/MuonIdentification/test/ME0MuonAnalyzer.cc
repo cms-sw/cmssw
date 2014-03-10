@@ -1,12 +1,10 @@
 #include "FWCore/Framework/interface/Event.h"
-
 #include <FWCore/PluginManager/interface/ModuleDef.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <DataFormats/Common/interface/Handle.h>
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
@@ -16,33 +14,23 @@
 #include <DataFormats/MuonReco/interface/ME0Muon.h>
 #include <DataFormats/MuonReco/interface/ME0MuonCollection.h>
 
-// #include "CLHEP/Matrix/SymMatrix.h"
-// #include "CLHEP/Matrix/Matrix.h"
-// #include "CLHEP/Vector/ThreeVector.h"
-
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-//#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "TLorentzVector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-//#include "TRandom3.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
-//#include "DataFormats/Math/interface/deltaPhi.h"
-//#include <deltaR.h>
-
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
@@ -55,20 +43,19 @@
 #include "TFile.h"
 #include <TProfile.h>
 
-
-class TestAnalyzer_ME0 : public edm::EDAnalyzer {
+class ME0MuonAnalyzer : public edm::EDAnalyzer 
+{
 public:
-  explicit TestAnalyzer_ME0(const edm::ParameterSet&);
-  ~TestAnalyzer_ME0();
 
+  explicit ME0MuonAnalyzer(const edm::ParameterSet&);
+  ~ME0MuonAnalyzer();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob();
-  void beginJob();
 
-  //protected:
-  
-  private:
+private:
+
   TFile* histoFile;
   TH1F *Candidate_Eta;  TH1F *Mass_h;  int NumCands; int NumSegs;
   TH1F *Segment_Eta;  TH1F *Track_Eta; TH1F *Track_Pt;  TH1F *ME0Muon_Eta; TH1F *ME0Muon_Pt; 
@@ -79,12 +66,10 @@ public:
   TH1F *MuonAllTracksEff_Eta;  TH1F *MuonAllTracksEff_Pt;
   TH1F *MuonUnmatchedTracksEff_Eta;  TH1F *MuonUnmatchedTracksEff_Pt;
   int TrackCount;
-
-
-//Removing this
 };
 
-TestAnalyzer_ME0::TestAnalyzer_ME0(const edm::ParameterSet& iConfig) 
+
+ME0MuonAnalyzer::ME0MuonAnalyzer(const edm::ParameterSet& iConfig) 
 {
   histoFile = new TFile(iConfig.getParameter<std::string>("HistoFile").c_str(), "recreate");
   NumCands = 0;
@@ -93,8 +78,7 @@ TestAnalyzer_ME0::TestAnalyzer_ME0(const edm::ParameterSet& iConfig)
 }
 
 
-
-void TestAnalyzer_ME0::beginJob()
+void ME0MuonAnalyzer::beginJob()
 {
   Candidate_Eta = new TH1F("Candidate_Eta"      , "Candidate #eta"   , 40, 2.2, 4.2 );
 
@@ -133,40 +117,29 @@ void TestAnalyzer_ME0::beginJob()
 }
 
 
-TestAnalyzer_ME0::~TestAnalyzer_ME0(){}
+ME0MuonAnalyzer::~ME0MuonAnalyzer(){}
+
 
 void
-TestAnalyzer_ME0::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-
+ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
   using namespace edm;
-
-  //run_ = (int)iEvent.id().run();
-  //event_ = (int)iEvent.id().event();
-
-
-    //David's functionality
-    
 
   using namespace reco;
 
-  // Handle <ME0MuonCollection > OurMuons;
-  // iEvent.getByLabel <ME0MuonCollection> ("me0SegmentMatcher", OurMuons);
-
-  Handle <std::vector<RecoChargedCandidate> > OurCandidates;
+  edm::Handle <std::vector<RecoChargedCandidate> > OurCandidates;
   iEvent.getByLabel <std::vector<RecoChargedCandidate> > ("me0MuonConverter", OurCandidates);
 
-  Handle<std::vector<EmulatedME0Segment> > OurSegments;
+  edm::Handle<std::vector<EmulatedME0Segment> > OurSegments;
   iEvent.getByLabel<std::vector<EmulatedME0Segment> >("me0SegmentProducer", OurSegments);
 
-  Handle<GenParticleCollection> genParticles;
+  edm::Handle<GenParticleCollection> genParticles;
   iEvent.getByLabel<GenParticleCollection>("genParticles", genParticles);
 
-  Handle <TrackCollection > generalTracks;
+  edm::Handle <TrackCollection > generalTracks;
   iEvent.getByLabel <TrackCollection> ("generalTracks", generalTracks);
 
-  Handle <std::vector<ME0Muon> > OurMuons;
+  edm::Handle <std::vector<ME0Muon> > OurMuons;
   iEvent.getByLabel <std::vector<ME0Muon> > ("me0SegmentMatcher", OurMuons);
 
 
@@ -229,8 +202,6 @@ TestAnalyzer_ME0::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
       ME0MuonID++;
   }
-  
-
 
   //unsigned int recosize=OurCandidates->size();
   for (std::vector<EmulatedME0Segment>::const_iterator thisSegment = OurSegments->begin();
@@ -312,11 +283,10 @@ TestAnalyzer_ME0::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     Double_t Mass = (CandidateVector1+CandidateVector2).M();
     Mass_h->Fill(Mass);
   }
-  
-  
 }
 
-void TestAnalyzer_ME0::endJob() 
+
+void ME0MuonAnalyzer::endJob() 
 {
   histoFile->cd();
   Candidate_Eta->Write();
@@ -376,4 +346,4 @@ void TestAnalyzer_ME0::endJob()
   delete histoFile; histoFile = 0;
 }
 
-DEFINE_FWK_MODULE(TestAnalyzer_ME0);
+DEFINE_FWK_MODULE(ME0MuonAnalyzer);
