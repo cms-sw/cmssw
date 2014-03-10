@@ -1223,7 +1223,7 @@ for k in upgradeKeys:
                                        '--eventcontent': 'FEVTDEBUG',
                                        '--geometry' : upgradeGeoms[k]
                                        }
-    if upgradeCustoms[k]!=None : upgradeStepDict['GenSimFull'][k]['--customise']=upgradeCustoms[k]
+    if upgradeCustoms[k]!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=upgradeCustoms[k]
 
     upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                                       '--conditions':upgradeGTs[k],
