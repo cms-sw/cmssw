@@ -17,6 +17,12 @@ class SiStripRecHitMatcher;
 class TkClonerImpl final : public TkCloner {
 public:
 
+  TkClonerImpl(const PixelClusterParameterEstimator * ipixelCPE,
+	       const StripClusterParameterEstimator * istripCPE,
+	       const SiStripRecHitMatcher           * iMatcher
+	       ): pixelCPE(ipixelCPE), stripCPE(istripCPE), theMatcher(iMatcher){}
+
+
   virtual SiPixelRecHit * operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const;
   virtual SiStripRecHit2D * operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
   virtual SiStripRecHit1D * operator()(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const;

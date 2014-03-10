@@ -30,8 +30,8 @@ public:
   
   template<typename CluRef>
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
-		      DetId id, GeomDet const * idet,
-		      CluRef const&  clus) : Base(p,e,id, idet, trackerHitRTTI::single), cluster_(clus){}
+		      GeomDet const & idet,
+		      CluRef const&  clus) : Base(p,e,idet, trackerHitRTTI::single), cluster_(clus){}
 
 
   // a single hit is on a detunit

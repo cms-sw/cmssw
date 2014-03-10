@@ -503,14 +503,14 @@ void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all,
             //// to get a RecHitPointer to SiStripRecHit2D, the only  method that works is
             //// RecHitPointer MuonTransientTrackingRecHit::build(const GeomDet*,const TrackingRecHit*)
             SiStripRecHit2D* st = new SiStripRecHit2D(pos,error,
-                                                      (*lone_tec)->geographicalId().rawId(),Tstrip->detUnit(),
+                                                      *Tstrip->detUnit(),
                                                       strip->cluster());
             *lone_tec = mtt_rechit->build((*lone_tec)->det(),st);
           }
           else {
             
             SiStripRecHit2D* st = new SiStripRecHit2D(pos,error,
-                                                      (*lone_tec)->geographicalId().rawId(),Tstrip->detUnit(),
+                                                      *Tstrip->detUnit(),
                                                       strip->cluster_regional());
             *lone_tec = mtt_rechit->build((*lone_tec)->det(),st);
           }

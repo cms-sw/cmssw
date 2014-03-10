@@ -234,7 +234,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
       //...and add it to the Rechit collection 
 
       const SiStripRecHit2D* secondHit = *seconditer;
-      collector(SiStripMatchedRecHit2D(position, error,gluedDet->geographicalId() ,gluedDet,
+      collector(SiStripMatchedRecHit2D(position, error,*gluedDet,
 				       monoRH,secondHit));
     }
   }
@@ -370,7 +370,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   //if it is inside the gluedet bonds
   //Change NSigmaInside in the configuration file to accept more hits
   if(force || (gluedDet->surface()).bounds().inside(position,error,scale_)) 
-    return new SiStripMatchedRecHit2D(LocalPoint(position), error,gluedDet->geographicalId(), gluedDet, monoRH,stereoRH);
+    return new SiStripMatchedRecHit2D(LocalPoint(position), error, *gluedDet, monoRH,stereoRH);
   return nullptr;
 }
 

@@ -57,10 +57,10 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
       theCPE->localParameters( stereoclust, *gdet->stereoDet(), gluedToStereo(ts, gdet));
       
     SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second, 
-					       gdet->monoDet()->geographicalId(),gdet->monoDet(),
+					       *gdet->monoDet(),
 					       orig->monoClusterRef());
     SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
-						 gdet->stereoDet()->geographicalId(),gdet->stereoDet(),
+						 *gdet->stereoDet(),
 						 orig->stereoClusterRef());
     const SiStripMatchedRecHit2D* better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
     
@@ -128,10 +128,10 @@ TSiStripMatchedRecHit::transientHits () const {
     theCPE->localParameters( stereoclust, *gdet->stereoDet());
  
   SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second, 
-					     gdet->monoDet()->geographicalId(),gdet->monoDet(),
+					     *gdet->monoDet(),
 					     orig->monoClusterRef());
   SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second, 
-					       gdet->stereoDet()->geographicalId(),gdet->stereoDet(),
+					       *gdet->stereoDet(),
 						 orig->stereoClusterRef());
   SiStripMatchedRecHit2D* better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir);
   

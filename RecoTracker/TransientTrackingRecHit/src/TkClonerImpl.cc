@@ -23,7 +23,7 @@ SiPixelRecHit * TkClonerImpl::operator()(SiPixelRecHit const & hit, TrajectorySt
   const SiPixelCluster& clust = *hit.cluster();  
   PixelClusterParameterEstimator::LocalValues lv = 
     pixelCPE->localParameters( clust, *hit.detUnit(), tsos);
-  return new SiPixelRecHit(lv.first, lv.second, pixelCPE->rawQualityWord(), hit.det()->geographicalId(), hit.det(), hit.cluster());
+  return new SiPixelRecHit(lv.first, lv.second, pixelCPE->rawQualityWord(), *hit.det(), hit.cluster());
 
 }
 
@@ -32,7 +32,7 @@ SiStripRecHit2D * TkClonerImpl::operator()(SiStripRecHit2D const & hit, Trajecto
     const SiStripCluster&  clust = hit.stripCluster();  
     StripClusterParameterEstimator::LocalValues lv = 
       stripCPE->localParameters( clust, *hit.detUnit(), tsos);
- return new SiStripRecHit2D(lv.first, lv.second,hit.det()->geographicalId(), hit.det(), hit.cluster());
+ return new SiStripRecHit2D(lv.first, lv.second, *hit.det(), hit.cluster());
 
 }
 
@@ -44,7 +44,7 @@ SiStripRecHit1D * TkClonerImpl::operator()(SiStripRecHit1D const & hit, Trajecto
   StripClusterParameterEstimator::LocalValues lv = 
     stripCPE->localParameters( clust, *hit.detUnit(), tsos);
   LocalError le(lv.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
-  return new SiStripRecHit1D(lv.first, le, hit.det()->geographicalId(), hit.det(), hit.cluster());
+  return new SiStripRecHit1D(lv.first, le, *hit.det(), hit.cluster());
 }
 
 
@@ -93,10 +93,10 @@ SiStripMatchedRecHit2D * TkClonerImpl::operator()(SiStripMatchedRecHit2D const &
       stripCPE->localParameters( stereoclust, *gdet->stereoDet(), gluedToStereo(tsos, gdet));
       
     SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second, 
-					       gdet->monoDet()->geographicalId(),gdet->monoDet(),
+					       *gdet->monoDet(),
 					       hit.monoClusterRef());
     SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second,
-						 gdet->stereoDet()->geographicalId(),gdet->stereoDet(),
+						 *gdet->stereoDet(),
 						 hit.stereoClusterRef());
     
 

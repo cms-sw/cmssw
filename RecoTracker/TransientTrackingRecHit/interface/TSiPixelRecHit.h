@@ -98,7 +98,7 @@ private:
 		  const clusterRef & clust,
 		  const PixelClusterParameterEstimator* cpe) :
     TValidTrackingRecHit(det), theCPE(cpe),
-    theHitData( pos, err, qual, det->geographicalId(), det, clust){}
+    theHitData( pos, err, qual, *det, clust){}
 
 
   virtual TSiPixelRecHit * clone() const {

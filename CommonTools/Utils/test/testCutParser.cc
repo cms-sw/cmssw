@@ -113,9 +113,8 @@ void testCutParser::checkAll() {
   GlobalPoint gp(0,0,0);
   BoundPlane* plane = new BoundPlane( gp, Surface::RotationType());
   MyDet mdet(plane);
-  GeomDet *  det =  &mdet;
-
-  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), 0, det, SiStripRecHit2D::ClusterRef());
+ 
+  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), mdet, SiStripRecHit2D::ClusterRef());
 
   edm::TypeWithDict t(typeid(reco::Track));
   o = edm::ObjectWithDict(t, & trk);

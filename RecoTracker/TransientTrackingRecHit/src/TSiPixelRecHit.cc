@@ -35,7 +35,7 @@ TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh,
     if (gdu){
       PixelClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
       LogDebug("TSiPixelRecHit")<<"calculating coarse position/error.";
-      theHitData = SiPixelRecHit(lval.first, lval.second, theCPE->rawQualityWord(), geom->geographicalId(), geom, rh->cluster());
+      theHitData = SiPixelRecHit(lval.first, lval.second, theCPE->rawQualityWord(), *geom, rh->cluster());
     }else{
       edm::LogError("TSiPixelRecHit") << " geomdet does not cast into geomdet unit. cannot create pixel local parameters.";
     }

@@ -22,9 +22,9 @@ public:
 
   template<typename CluRef>
   SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
-		   const DetId& id, GeomDet const * idet,
+		   GeomDet const & idet,
 		   CluRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, idet, clus) {}
+    TrackerSingleRecHit(pos,err, idet, clus) {}
  
 				
   ClusterRef cluster()  const { return cluster_strip() ; }

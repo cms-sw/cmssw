@@ -22,8 +22,8 @@ public:
 
   template<typename CluRef>
   SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
-		   const DetId& id, GeomDet const * idet,
-		   CluRef const&  clus) : TrackerSingleRecHit(p,e,id,idet,clus){}
+		   GeomDet const & idet,
+		   CluRef const&  clus) : TrackerSingleRecHit(p,e,idet,clus){}
 
  
   /// method to facilitate the convesion from 2D to 1D hits

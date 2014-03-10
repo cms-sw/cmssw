@@ -30,10 +30,11 @@ public:
   
   ~SiPixelRecHit(){}
 
-  SiPixelRecHit( const LocalPoint& pos , const LocalError& err, SiPixelRecHitQuality::QualWordType qual,
-		 const DetId& id, GeomDet const * idet,
+  SiPixelRecHit( const LocalPoint& pos , const LocalError& err, 
+		 SiPixelRecHitQuality::QualWordType qual,
+		 GeomDet const & idet,
 		 ClusterRef const&  clus) : 
-    TrackerSingleRecHit(pos,err,id,idet, clus), 
+    TrackerSingleRecHit(pos,err,idet, clus), 
     qualWord_(qual) 
   {}
 

@@ -126,7 +126,7 @@ private:
     LogDebug("TSiStripRecHit2DLocalPos")<<"calculating coarse position/error.";
 
     StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(rh->stripCluster(), *gdu);
-    theHitData = SiStripRecHit2D(lval.first, lval.second, geom->geographicalId(), geom, rh->omniCluster());
+    theHitData = SiStripRecHit2D(lval.first, lval.second, *geom, rh->omniCluster());
 
   }
   
@@ -136,7 +136,7 @@ private:
 			    const OmniClusterRef & clust,
 			    const StripClusterParameterEstimator* cpe) :
     TValidTrackingRecHit(idet), 
-    theCPE(cpe), theHitData(pos, err, idet->geographicalId(), idet, clust) {} 
+    theCPE(cpe), theHitData(pos, err, *idet, clust) {} 
     
   virtual TSiStripRecHit2DLocalPos* clone() const {
     return new TSiStripRecHit2DLocalPos(*this);

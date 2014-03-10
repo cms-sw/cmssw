@@ -32,11 +32,10 @@ public:
 
   // no position (as in persistent)
   BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)) {}
-  BaseTrackerRecHit(DetId id, GeomDet const * idet, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id, idet, (unsigned int)(rt)) {}
 
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
-		     DetId id, GeomDet const * idet, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,idet, (unsigned int)(rt)), pos_(p), err_(e){
-    if unlikely(!hasPositionAndError()) return;
+		     GeomDet const & idet, trackerHitRTTI::RTTI rt) :  
+    TrackingRecHit(idet.geographicalId(),&idet, (unsigned int)(rt)), pos_(p), err_(e){
     LocalError lape = det()->localAlignmentError();
     if (lape.valid())
       err_ = LocalError(err_.xx()+lape.xx(),
