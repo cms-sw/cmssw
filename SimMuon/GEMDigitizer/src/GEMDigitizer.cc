@@ -8,11 +8,10 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 
-GEMDigitizer::GEMDigitizer(const edm::ParameterSet& config, CLHEP::HepRandomEngine& eng)
+GEMDigitizer::GEMDigitizer(const edm::ParameterSet& config)
 {
   modelName_ = config.getParameter<std::string>("digiModel");
   gemSim_ = GEMSimFactory::get()->create(modelName_, config.getParameter<edm::ParameterSet>("digiModelConfig"));
-  gemSim_->setRandomEngine(eng);
 }
 
 
@@ -24,7 +23,8 @@ GEMDigitizer::~GEMDigitizer()
 
 void GEMDigitizer::digitize(MixCollection<PSimHit> & simHits, 
                             GEMDigiCollection & digis,
-                            StripDigiSimLinks & digiSimLinks)
+                            StripDigiSimLinks & digiSimLinks,
+                            CLHEP::HepRandomEngine* engine)
 {
   gemSim_->setGEMSimSetUp(simSetUp_);
   
@@ -49,8 +49,8 @@ void GEMDigitizer::digitize(MixCollection<PSimHit> & simHits,
 
     //LogDebug("GEMDigitizer") << "GEMDigitizer: found " << partSimHits.size() <<" hit(s) in the eta partition";
     
-    gemSim_->simulate(p, partSimHits);
-    gemSim_->simulateNoise(p);
+    gemSim_->simulate(p, partSimHits, engine);
+    gemSim_->simulateNoise(p, engine);
     gemSim_->fillDigis(p->id(), digis);
     digiSimLinks.insert(gemSim_->stripDigiSimLinks());
   }

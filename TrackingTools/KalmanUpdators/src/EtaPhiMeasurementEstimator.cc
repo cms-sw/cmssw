@@ -8,7 +8,7 @@
 
 std::pair<bool,double> 
 EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
-				   const TransientTrackingRecHit& aRecHit) const {
+				   const TrackingRecHit& aRecHit) const {
 
   double dEta = fabs(tsos.globalPosition().eta() - aRecHit.globalPosition().eta());
   double dPhi = deltaPhi< double > (tsos.globalPosition().phi(), aRecHit.globalPosition().phi());

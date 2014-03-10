@@ -42,7 +42,7 @@ private:
   float gain(const uint16_t& strip)  const { return gainHandle->getStripGain( strip, gainRange ); }
   uint16_t applyGain(const uint16_t& strip,const uint16_t& adc );
 
-  const edm::InputTag _inputTag;
+  edm::EDGetTokenT<ClusterCollection> token;
   SiStripApvGain::Range gainRange;
   edm::ESHandle<SiStripGain> gainHandle;
   uint32_t gain_cache_id, detId;
@@ -52,8 +52,10 @@ private:
 
 SiStripClusterToDigiProducer::
 SiStripClusterToDigiProducer(const edm::ParameterSet& conf) 
-  : _inputTag( conf.getParameter<edm::InputTag>("ClusterProducer") ){
+{
   
+  token = consumes<ClusterCollection>(conf.getParameter<edm::InputTag>("ClusterProducer"));
+
   produces< DigiCollection > ("ZeroSuppressed");
   produces< DigiCollection > ("VirginRaw"     );
   produces< DigiCollection > ("ProcessedRaw"  );
@@ -68,7 +70,7 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
   
   std::vector<DetDigiCollection> output_base; 
   edm::Handle<ClusterCollection> input ;
-  event.getByLabel(_inputTag,input);
+  event.getByToken(token,input);
 
   if(input.isValid())
     process(*input, output_base);

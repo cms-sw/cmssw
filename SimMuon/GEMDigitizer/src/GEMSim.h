@@ -13,7 +13,6 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "CLHEP/Random/RandomEngine.h"
 
 #include <map>
 #include <set>
@@ -23,6 +22,10 @@ class GEMGeometry;
 class GEMSimSetUp;
 class PSimHit;
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class GEMSim
 {
 public:
@@ -31,11 +34,11 @@ public:
 
   virtual ~GEMSim() {}
 
-  virtual void simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer& rpcHits) = 0;
+  virtual void simulate(const GEMEtaPartition* roll, const edm::PSimHitContainer& rpcHits,
+                        CLHEP::HepRandomEngine*) = 0;
 
-  virtual void simulateNoise(const GEMEtaPartition* roll) = 0;
-
-  virtual void setRandomEngine(CLHEP::HepRandomEngine& eng) = 0;
+  virtual void simulateNoise(const GEMEtaPartition* roll,
+                             CLHEP::HepRandomEngine*) = 0;
 
   virtual void fillDigis(int rollDetId, GEMDigiCollection& digis);
 

@@ -26,8 +26,6 @@ ________________________________________________________________________
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -84,7 +82,6 @@ public:
 
   /// beta function
   double BetaFunction(double z, double z0);
-  CLHEP::HepRandomEngine& getEngine();
 
 private:
   /** Copy constructor */
@@ -105,7 +102,6 @@ private:
   TMatrixD *boost_;
   double fTimeOffset;
   
-  CLHEP::HepRandomEngine*  fEngine;
   edm::InputTag            sourceLabel;
 
   CLHEP::RandGaussQ*  fRandom ;
@@ -119,7 +115,7 @@ private:
 
 
 MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset ):
-  fVertex(0), boost_(0), fTimeOffset(0), fEngine(0),
+  fVertex(0), boost_(0), fTimeOffset(0),
   signalLabel(pset.getParameter<edm::InputTag>("signalLabel")),
   hiLabel(pset.getParameter<edm::InputTag>("heavyIonLabel")),
   useRecVertex(pset.exists("useRecVertex")?pset.getParameter<bool>("useRecVertex"):false)
@@ -127,18 +123,6 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset 
 
   vtxOffset.resize(3);
   if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset"); 
-  edm::Service<edm::RandomNumberGenerator> rng;
-
-  if ( ! rng.isAvailable()) {
-    
-    throw cms::Exception("Configuration")
-      << "The BaseEvtVtxGenerator requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-  fEngine = &engine;
 
   produces<bool>("matchedVertex"); 
   
@@ -149,10 +133,6 @@ MixBoostEvtVtxGenerator::~MixBoostEvtVtxGenerator()
   delete fVertex ;
   if (boost_ != 0 ) delete boost_;
   delete fRandom; 
-}
-
-CLHEP::HepRandomEngine& MixBoostEvtVtxGenerator::getEngine(){
-  return *fEngine;
 }
 
 

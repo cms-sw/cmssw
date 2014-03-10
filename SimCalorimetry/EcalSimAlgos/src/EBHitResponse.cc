@@ -9,6 +9,7 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 
 EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap , 
@@ -32,14 +33,9 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
    pasy ( 0 == apdPars ? 0 : apdParameters()->nonlParms()[6] ) ,
    pext ( 0 == apdPars ? 0 : nonlFunc1( pelo ) ) ,
    poff ( 0 == apdPars ? 0 : nonlFunc1( pehi ) ) ,
-   pfac ( 0 == apdPars ? 0 : ( pasy - poff )*2./M_PI ) 
+   pfac ( 0 == apdPars ? 0 : ( pasy - poff )*2./M_PI ),
+   m_isInitialized(false)
 {
-   for( unsigned int i ( 0 ) ; i != kNOffsets ; ++i )
-   {
-      m_timeOffVec[ i ] +=
-	 ranGauss()->fire( 0 , apdParameters()->timeOffWidth() ) ;
-   }
-
    const EBDetId detId ( EBDetId::detIdFromDenseIndex( 0 ) ) ;
    const CaloSimParameters& parameters ( parameterMap->simParameters( detId ) ) ;
 
@@ -59,6 +55,17 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
 
 EBHitResponse::~EBHitResponse()
 {
+}
+
+void
+EBHitResponse::initialize(CLHEP::HepRandomEngine* engine)
+{
+   m_isInitialized = true;
+   for( unsigned int i ( 0 ) ; i != kNOffsets ; ++i )
+   {
+      m_timeOffVec[ i ] +=
+        CLHEP::RandGaussQ::shoot(engine, 0, apdParameters()->timeOffWidth() ) ;
+   }
 }
 
 const APDSimParameters*
@@ -92,6 +99,11 @@ EBHitResponse::putAPDSignal( const DetId& detId  ,
 
    const double jitter ( time - timeOfFlight( detId ) ) ;
 
+   if(!m_isInitialized) {
+      throw cms::Exception("LogicError")
+        << "EBHitResponse::putAPDSignal called without initializing\n";
+   }
+
    const double tzero ( apdShape()->timeToRise()
 			- jitter
 			- offsets()[ EBDetId( detId ).denseIndex()%kNOffsets ]
@@ -110,7 +122,7 @@ EBHitResponse::putAPDSignal( const DetId& detId  ,
 }
 
 double 
-EBHitResponse::apdSignalAmplitude( const PCaloHit& hit ) const 
+EBHitResponse::apdSignalAmplitude( const PCaloHit& hit, CLHEP::HepRandomEngine* engine ) const
 {
    assert( 1 == hit.depth() ||
 	   2 == hit.depth()    ) ;
@@ -121,8 +133,11 @@ EBHitResponse::apdSignalAmplitude( const PCaloHit& hit ) const
 
    // do we need to do Poisson statistics for the photoelectrons?
    if( apdParameters()->doPEStats() &&
-       !m_apdOnly                      ) npe = ranPois()->fire( npe ) ;
+       !m_apdOnly                      ) {
 
+      CLHEP::RandPoissonQ randPoissonQ(*engine, npe);
+      npe = randPoissonQ.fire();
+   }
    assert( 0 != m_intercal ) ;
    double fac ( 1 ) ;
    findIntercalibConstant( hit.id(), fac ) ;
@@ -210,12 +225,12 @@ EBHitResponse::finalizeHits() {
 }
 
 void 
-EBHitResponse::add( const PCaloHit& hit ) 
+EBHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
   if (!edm::isNotFinite( hit.time() ) && ( 0 == hitFilter() || hitFilter()->accepts( hit ) ) ) {
      if( 0 == hit.depth() ) // for now take only nonAPD hits
      {
-        if( !m_apdOnly ) putAnalogSignal( hit ) ;
+       if( !m_apdOnly ) putAnalogSignal( hit, engine ) ;
      }
      else // APD hits here
      {
@@ -223,7 +238,7 @@ EBHitResponse::add( const PCaloHit& hit )
             m_apdOnly                         )
         {
            const unsigned int icell ( EBDetId( hit.id() ).denseIndex() ) ;
-           m_apdNpeVec[ icell ] += apdSignalAmplitude( hit ) ;
+           m_apdNpeVec[ icell ] += apdSignalAmplitude( hit, engine ) ;
            if( 0 == m_apdTimeVec[ icell ] ) m_apdTimeVec[ icell ] = hit.time() ;
         }
      }
@@ -231,7 +246,7 @@ EBHitResponse::add( const PCaloHit& hit )
 }
 
 void 
-EBHitResponse::run( MixCollection<PCaloHit>& hits ) 
+EBHitResponse::run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* engine )
 {
    if( 0 != index().size() ) blankOutUsedSamples() ;
 
@@ -256,7 +271,7 @@ EBHitResponse::run( MixCollection<PCaloHit>& hits )
       { 
 	 if( 0 == hit.depth() ) // for now take only nonAPD hits
 	 {
-	    if( !m_apdOnly ) putAnalogSignal( hit ) ;
+           if( !m_apdOnly ) putAnalogSignal( hit, engine ) ;
 	 }
 	 else // APD hits here
 	 {
@@ -264,7 +279,7 @@ EBHitResponse::run( MixCollection<PCaloHit>& hits )
 		m_apdOnly                         )
 	    {
 	       const unsigned int icell ( EBDetId( hit.id() ).denseIndex() ) ;
-	       m_apdNpeVec[ icell ] += apdSignalAmplitude( hit ) ;
+	       m_apdNpeVec[ icell ] += apdSignalAmplitude( hit, engine ) ;
 	       if( 0 == m_apdTimeVec[ icell ] ) m_apdTimeVec[ icell ] = hit.time() ;
 	    }
 	 }

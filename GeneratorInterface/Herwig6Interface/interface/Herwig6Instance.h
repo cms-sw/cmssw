@@ -3,7 +3,9 @@
 
 #include "GeneratorInterface/Core/interface/FortranInstance.h"
 
-namespace CLHEP { class HepRandomEngine; } // forward declaration
+namespace CLHEP {
+    class HepRandomEngine;
+}
 
 namespace gen {
 
@@ -15,8 +17,7 @@ extern "C" {
 
 class Herwig6Instance : public FortranInstance {
     public:
-	Herwig6Instance(CLHEP::HepRandomEngine *randomEngine = 0);
-	Herwig6Instance(int dummy);
+	Herwig6Instance();
 	virtual ~Herwig6Instance();
 
 	// passes a configuration parameter
@@ -27,6 +28,8 @@ class Herwig6Instance : public FortranInstance {
 
         // method to open External Particle Spectra Files
         void openParticleSpecFile(const std::string fileName);
+
+         void setHerwigRandomEngine(CLHEP::HepRandomEngine* v) { randomEngine = v; }
 
     protected:
 	// intercept HERWIG warnings and errors (default: no)

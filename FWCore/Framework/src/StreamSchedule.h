@@ -366,7 +366,7 @@ namespace edm {
 
     ++total_events_;
     try {
-      try {
+      convertException::wrap([&]() {
         try {
           if (runTriggerPaths<T>(ep, es, &streamContext_)) {
             ++total_passed_;
@@ -400,13 +400,7 @@ namespace edm {
 
         if (endpathsAreActive_) runEndPaths<T>(ep, es, &streamContext_);
         resetEarlyDelete();
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& ex) {
       if (ex.context().empty()) {
@@ -433,17 +427,11 @@ namespace edm {
     workerManager_.processOneOccurrence<T>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
 
     try {
-      try {
+      convertException::wrap([&]() {
         runTriggerPaths<T>(ep, es, &streamContext_);
 
         if (endpathsAreActive_) runEndPaths<T>(ep, es, &streamContext_);
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& ex) {
       if (ex.context().empty()) {

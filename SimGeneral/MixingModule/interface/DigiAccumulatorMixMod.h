@@ -31,6 +31,7 @@ namespace edm {
   class EventSetup;
   class LuminosityBlock;
   class Run;
+  class StreamID;
 }
 
 class PileUpEventPrincipal;
@@ -54,7 +55,7 @@ class DigiAccumulatorMixMod {
     virtual void accumulate(edm::Event const& event, edm::EventSetup const& setup) = 0;
 
     // Accumulate digis or other data for each pileup event, one at a time.
-    virtual void accumulate(PileUpEventPrincipal const& event, edm::EventSetup const& setup) = 0;
+    virtual void accumulate(PileUpEventPrincipal const& event, edm::EventSetup const& setup, edm::StreamID const&) = 0;
 
     // 1. Finalize digi collections or other data for each event.
     // 2. Put products in Event with appropriate instance labels

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <ConstantsSection label="pltbcm">
+ <!-- PLT-BCM volume constants -->
+    <Constant name="PltBcmZ1" value="1.700*m"/>
+    <Constant name="PltBcmZ2" value="1.900*m"/>
+    <Constant name="PltBcmZ"             value="([PltBcmZ2]+[PltBcmZ1])/2"/>
+    <Constant name="PltBcmDZ"            value="([PltBcmZ2]-[PltBcmZ1])/2"/>
+    <Constant name="PltBcmInnerRadius"   value="[cms:TrackBeamR1]"/>
+    <Constant name="PltBcmOuterRadius"   value="[cms:TrackLumiR1]"/>
+ </ConstantsSection>
+ 
+ <!-- Create geometrical shapes of volumes-->
+ <SolidSection label="pltbcm">
+    <Tubs name="PLTBCM" rMin="[PltBcmInnerRadius]" rMax="[PltBcmOuterRadius]" dz="[PltBcmDZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+ </SolidSection>
+ 
+ <!-- Define the materials of the geometrical shapes -->
+ <LogicalPartSection label="pltbcm">
+    <LogicalPart name="PLTBCM" category="unspecified">
+       <rSolid name="PLTBCM"/>
+       <rMaterial name="materials:Air"/>
+   </LogicalPart>
+ </LogicalPartSection>
+ 
+ <!-- Position --> 
+ <PosPartSection label="pltbcm">
+    <!-- Volumes in -Z and +Z --> 
+     <PosPart copyNumber="1">
+       <rParent name="pixfwd:PixelForwardZPlus"/>
+       <rChild name="PLTBCM"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm" y="0*fm" z="[PltBcmZ]-([pixfwd:ZPixelForward]+[pixfwd:RootStartZ])"/>
+    </PosPart>
+     <PosPart copyNumber="2">
+       <rParent name="pixfwd:PixelForwardZMinus"/>
+       <rChild name="PLTBCM"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm" y="0*fm" z="[PltBcmZ]-([pixfwd:ZPixelForward]+[pixfwd:RootStartZ])"/>
+    </PosPart>
+ </PosPartSection>
+</DDDefinition>

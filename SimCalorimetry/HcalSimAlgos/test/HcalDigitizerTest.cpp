@@ -40,7 +40,7 @@
 using namespace std;
 using namespace cms;
 
-void testHitCorrection(HcalHitCorrection * correction, MixCollection<PCaloHit> & hits)
+void testHitCorrection(HcalHitCorrection * correction, MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine* engine)
 {
   correction->fillChargeSums(hits);
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
@@ -50,7 +50,7 @@ void testHitCorrection(HcalHitCorrection * correction, MixCollection<PCaloHit> &
       if (detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId){
 	std::cout<<"ZDC -- ";
     } 
-      std::cout << "HIT charge " << correction->charge(*hitItr) << " delay " << correction->delay(*hitItr)
+      std::cout << "HIT charge " << correction->charge(*hitItr) << " delay " << correction->delay(*hitItr, engine)
 		<< " Timebin " << correction->timeBin(*hitItr) <<std::endl;
     }
 }
@@ -170,11 +170,6 @@ int main() {
   zdcResponse.setHitCorrection(&hitCorrection);
 
   CLHEP::HepJamesRandom randomEngine;
-  hbheResponse.setRandomEngine(randomEngine);
-  hoSiPMResponse.setRandomEngine(randomEngine);
-  hoResponse.setRandomEngine(randomEngine);
-  hfResponse.setRandomEngine(randomEngine);
-  zdcResponse.setRandomEngine(randomEngine);
 
   HBHEHitFilter hbheHitFilter;
   HOHitFilter hoHitFilter;
@@ -223,8 +218,6 @@ int main() {
   HcalCoderFactory coderFactory(HcalCoderFactory::NOMINAL);
   HcalElectronicsSim electronicsSim(&amplifier, &coderFactory);
   amplifier.setDbService(&calibratorHandle);
-  amplifier.setRandomEngine(randomEngine);
-  electronicsSim.setRandomEngine(randomEngine);
   parameterMap.setDbService(&calibratorHandle);
   siPMParameterMap.setDbService(&calibratorHandle);
 
@@ -246,11 +239,11 @@ int main() {
 
   MixCollection<PCaloHit> hitCollection(&crossingFrame);
 
-  testHitCorrection(&hitCorrection, hitCollection);
+  testHitCorrection(&hitCorrection, hitCollection, &randomEngine);
   std::cout << "HBHE " << std::endl;
-  hbheResponse.run(hitCollection);
+  hbheResponse.run(hitCollection, &randomEngine);
   std::cout << "SIPM " << std::endl;
-  hoSiPMResponse.run(hitCollection);
+  hoSiPMResponse.run(hitCollection, &randomEngine);
   //hbheDigitizer.run(hitCollection, *hbheResult);
   //hoDigitizer.run(hitCollection, *hoResult);
   //hfDigitizer.run(hitCollection, *hfResult);

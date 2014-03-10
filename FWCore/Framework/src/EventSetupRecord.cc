@@ -180,16 +180,10 @@ EventSetupRecord::getFromProxy(DataKey const & iKey ,
    
    if(0!=proxy) {
       try {
-         try {
+        convertException::wrap([&]() {
             hold = proxy->get(*this, iKey,iTransientAccessOnly);
             iDesc = proxy->providerDescription(); 
-         }
-         catch (cms::Exception& e) { throw; }
-         catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-         catch (std::exception& e) { convertException::stdToEDM(e); }
-         catch(std::string& s) { convertException::stringToEDM(s); }
-         catch(char const* c) { convertException::charPtrToEDM(c); }
-         catch (...) { convertException::unknownToEDM(); }
+        });
       }
       catch(cms::Exception& e) {
          addTraceInfoToCmsException(e,iKey.name().value(),proxy->providerDescription(), iKey);
@@ -216,15 +210,9 @@ EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
    const DataProxy* proxy = find(aKey);
    if(0 != proxy) {
       try {
-         try {
+         convertException::wrap([&]() {
             proxy->doGet(*this, aKey, aGetTransiently);
-         }
-         catch (cms::Exception& e) { throw; }
-         catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-         catch (std::exception& e) { convertException::stdToEDM(e); }
-         catch(std::string& s) { convertException::stringToEDM(s); }
-         catch(char const* c) { convertException::charPtrToEDM(c); }
-         catch (...) { convertException::unknownToEDM(); }
+         });
       }
       catch( cms::Exception& e) {
          addTraceInfoToCmsException(e,aKey.name().value(),proxy->providerDescription(), aKey);

@@ -20,25 +20,13 @@ public:
     TrackerSingleRecHit(id, clus),
     sigmaPitch_(-1.) {}
 
-
-  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
-		   const DetId& id,
-		   OmniClusterRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
-    sigmaPitch_(-1.) {}
+  template<typename CluRef>
+  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err, float isigmaPitch,
+		   const DetId& id, GeomDet const * idet,
+		   CluRef const& clus) : 
+    TrackerSingleRecHit(pos,err,id, idet, clus),
+    sigmaPitch_(isigmaPitch) {}
  
-  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
-		   const DetId& id,
-		   ClusterRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
-    sigmaPitch_(-1.) {}
-
-
-  SiStripRecHit2D(const LocalPoint& pos, const LocalError& err,
-		  const DetId& id,
-		  ClusterRegionalRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
-    sigmaPitch_(-1.) {}
 				
   ClusterRef cluster()  const { return cluster_strip() ; }
   void setClusterRef(ClusterRef const & ref)  {setClusterStripRef(ref);}
@@ -49,14 +37,13 @@ public:
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
 
  
-  double sigmaPitch() const { return sigmaPitch_;}
-  void setSigmaPitch(double sigmap) const { sigmaPitch_=sigmap;}
+  float sigmaPitch() const { return sigmaPitch_;}
 
   
 private:
 
   /// cache for the matcher....
-  mutable double sigmaPitch_;  // transient....
+  float sigmaPitch_;  // transient....
 
  
 };

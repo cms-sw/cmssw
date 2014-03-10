@@ -80,7 +80,7 @@ EcalMIPRecHitFilter::EcalMIPRecHitFilter(const edm::ParameterSet& iConfig) :
   minAmp1_(             iConfig.getUntrackedParameter<double>("AmpMinSeed", 0.063) ),
   minAmp2_(             iConfig.getUntrackedParameter<double>("AmpMin2", 0.045) ),
   minSingleAmp_(        iConfig.getUntrackedParameter<double>("SingleAmpMin", 0.108) ),
-  maskedList_(          iConfig.getUntrackedParameter<std::vector<int>>("maskedChannels", {}) ),   // this is using the ashed index
+  maskedList_(          iConfig.getUntrackedParameter<std::vector<int>>("maskedChannels", std::vector<int>{}) ),   // this is using the ashed index
   side_(                iConfig.getUntrackedParameter<int>("side", 3) )
 {
   // now do what ever initialization is needed
@@ -221,7 +221,7 @@ void EcalMIPRecHitFilter::fillDescriptions(edm::ConfigurationDescriptions & desc
   desc.addUntracked<double>("AmpMinSeed", 0.045);
   desc.addUntracked<double>("AmpMin2", 0.045);
   desc.addUntracked<double>("SingleAmpMin", 0.108);
-  desc.addUntracked<std::vector<int>>("maskedChannels", {});
+  desc.addUntracked<std::vector<int>>("maskedChannels", std::vector<int>{});
   desc.addUntracked<int>("side", 3);
 
   descriptions.add("ecalMIPRecHitFilter", desc);

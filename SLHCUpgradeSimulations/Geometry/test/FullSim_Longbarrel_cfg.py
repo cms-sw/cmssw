@@ -157,7 +157,7 @@ process.multiTrackValidator.skipHistoFit = False
 
 ##### with John's changes ##############################
 process.load("SLHCUpgradeSimulations.Geometry.oldTracking_wtriplets")
-process.pixellayertriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
+process.PixelLayerTriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
         'BPix1+BPix3+BPix4',
         'BPix2+BPix3+BPix4',
         'BPix1+BPix2+BPix4',
@@ -197,10 +197,10 @@ process.cutsTPFake.lip = cms.double(90.0)
 process.siPixelRecHits.CPE = 'PixelCPEfromTrackAngle'
 process.MeasurementTracker.PixelCPE = 'PixelCPEfromTrackAngle'
 process.ttrhbwr.PixelCPE = 'PixelCPEfromTrackAngle'
-process.mixedlayerpairs.BPix.TTRHBuilder = cms.string('WithTrackAngle')
-process.mixedlayerpairs.FPix.TTRHBuilder = cms.string('WithTrackAngle')
-process.pixellayertriplets.BPix.TTRHBuilder = cms.string('WithTrackAngle')
-process.pixellayertriplets.FPix.TTRHBuilder = cms.string('WithTrackAngle')
+process.MixedLayerPairs.BPix.TTRHBuilder = cms.string('WithTrackAngle')
+process.MixedLayerPairs.FPix.TTRHBuilder = cms.string('WithTrackAngle')
+process.PixelLayerTriplets.BPix.TTRHBuilder = cms.string('WithTrackAngle')
+process.PixelLayerTriplets.FPix.TTRHBuilder = cms.string('WithTrackAngle')
 process.ctfWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
 process.MeasurementTracker.stripClusterProducer=cms.string('')

@@ -62,7 +62,7 @@ private:
 EcalSimpleUncalibRecHitFilter::EcalSimpleUncalibRecHitFilter(const edm::ParameterSet& iConfig) :
   EcalUncalibRecHitToken_(  consumes<EcalUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("EcalUncalibRecHitCollection")) ),
   minAdc_(                  iConfig.getUntrackedParameter<double>("adcCut", 12) ),
-  maskedList_(              iConfig.getUntrackedParameter<std::vector<int>>("maskedChannels", {}) )     // this is using the ashed index
+  maskedList_(              iConfig.getUntrackedParameter<std::vector<int>>("maskedChannels", std::vector<int>{}) )     // this is using the ashed index
 {
   // now do what ever initialization is needed
 }
@@ -131,7 +131,7 @@ void EcalSimpleUncalibRecHitFilter::fillDescriptions(edm::ConfigurationDescripti
 
   desc.add<edm::InputTag>("EcalUncalibRecHitCollection", edm::InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEB"));
   desc.addUntracked<double>("adcCut", 12.);
-  desc.addUntracked<std::vector<int>>("maskedChannels", {});
+  desc.addUntracked<std::vector<int>>("maskedChannels", std::vector<int>{});
 
   descriptions.add("ecalSimpleUncalibRecHitFilter", desc);
 }

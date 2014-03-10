@@ -81,8 +81,6 @@ private:
     const double errZ;
 
     const unsigned nVerticesToMake;
-
-    CLHEP::RandGauss* rGauss_;
 };
 
 //
@@ -105,8 +103,7 @@ FFTJetVertexAdder::FFTJetVertexAdder(const edm::ParameterSet& ps)
       init_param(double, errX),
       init_param(double, errY),
       init_param(double, errZ),
-      init_param(unsigned, nVerticesToMake),
-      rGauss_(0)
+      init_param(unsigned, nVerticesToMake)
 {
     produces<reco::VertexCollection>(outputLabel);
 }
@@ -114,7 +111,6 @@ FFTJetVertexAdder::FFTJetVertexAdder(const edm::ParameterSet& ps)
 
 FFTJetVertexAdder::~FFTJetVertexAdder()
 {
-    delete rGauss_;
 }
 
 
@@ -122,6 +118,9 @@ FFTJetVertexAdder::~FFTJetVertexAdder()
 void FFTJetVertexAdder::produce(
     edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::RandGauss rGauss(rng->getEngine(iEvent.streamID()));
+
     // get PFCandidates
     std::auto_ptr<reco::VertexCollection> pOutput(new reco::VertexCollection);
 
@@ -162,9 +161,9 @@ void FFTJetVertexAdder::produce(
 
     for (unsigned iv=0; iv<nVerticesToMake; ++iv)
     {
-        const double x0 = (*rGauss_)(xmean, xwidth);
-        const double y0 = (*rGauss_)(ymean, ywidth);
-        const double z0 = (*rGauss_)(zmean, zwidth);
+        const double x0 = rGauss(xmean, xwidth);
+        const double y0 = rGauss(ymean, ywidth);
+        const double z0 = rGauss(zmean, zwidth);
         const reco::Vertex::Point position(x0, y0, z0);
         pOutput->push_back(reco::Vertex(position, err, chi2, nDof, 0));
     }
@@ -193,15 +192,12 @@ void FFTJetVertexAdder::produce(
 // ------------ method called once each job just before starting event loop
 void FFTJetVertexAdder::beginJob()
 {
-    if (!rGauss_)
-    {
-        edm::Service<edm::RandomNumberGenerator> rng;
-        if ( !rng.isAvailable() )
-            throw cms::Exception("FFTJetBadConfig")
-                << "ERROR in FFTJetVertexAdder:"
-                " failed to initialize the random number generator"
-                << std::endl;
-        rGauss_ = new CLHEP::RandGauss(rng->getEngine());
+    edm::Service<edm::RandomNumberGenerator> rng;
+    if ( !rng.isAvailable() ) {
+        throw cms::Exception("FFTJetBadConfig")
+            << "ERROR in FFTJetVertexAdder:"
+               " failed to initialize the random number generator"
+            << std::endl;
     }
 }
 

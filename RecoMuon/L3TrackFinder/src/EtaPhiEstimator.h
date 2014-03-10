@@ -22,7 +22,7 @@ class EtaPhiEstimator : public Chi2MeasurementEstimatorBase {
       { }
 
     virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface& tsos,
-					    const TransientTrackingRecHit& aRecHit) const{
+					    const TrackingRecHit& aRecHit) const{
       
       std::pair<bool,double> primaryResult = estimator_->estimate(tsos,aRecHit);
 

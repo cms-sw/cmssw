@@ -215,12 +215,12 @@ class GsfElectron : public RecoCandidate
          eSeedClusterOverP(0.),
          eSeedClusterOverPout(0.),
          eEleClusterOverPout(0.),
-         deltaEtaSuperClusterAtVtx(std::numeric_limits<float>::infinity()),
-         deltaEtaSeedClusterAtCalo(std::numeric_limits<float>::infinity()),
-         deltaEtaEleClusterAtCalo(std::numeric_limits<float>::infinity()),
-         deltaPhiEleClusterAtCalo(std::numeric_limits<float>::infinity()),
-         deltaPhiSuperClusterAtVtx(std::numeric_limits<float>::infinity()),
-         deltaPhiSeedClusterAtCalo(std::numeric_limits<float>::infinity())
+         deltaEtaSuperClusterAtVtx(std::numeric_limits<float>::max()),
+         deltaEtaSeedClusterAtCalo(std::numeric_limits<float>::max()),
+         deltaEtaEleClusterAtCalo(std::numeric_limits<float>::max()),
+         deltaPhiEleClusterAtCalo(std::numeric_limits<float>::max()),
+         deltaPhiSuperClusterAtVtx(std::numeric_limits<float>::max()),
+         deltaPhiSeedClusterAtCalo(std::numeric_limits<float>::max())
         {}
      } ;
 
@@ -367,11 +367,11 @@ class GsfElectron : public RecoCandidate
       float hcalDepth1OverEcalBc ; // hcal over ecal seed cluster energy using 1st hcal depth (using hcal towers behind clusters)
       float hcalDepth2OverEcalBc ; // hcal over ecal seed cluster energy using 2nd hcal depth (using hcal towers behind clusters)
       ShowerShape()
-       : sigmaEtaEta(std::numeric_limits<float>::infinity()),
-       sigmaIetaIeta(std::numeric_limits<float>::infinity()),
-       sigmaIphiIphi(std::numeric_limits<float>::infinity()),
+       : sigmaEtaEta(std::numeric_limits<float>::max()),
+       sigmaIetaIeta(std::numeric_limits<float>::max()),
+       sigmaIphiIphi(std::numeric_limits<float>::max()),
 	     e1x5(0.), e2x5Max(0.), e5x5(0.),
-	     r9(-std::numeric_limits<float>::infinity()),
+	     r9(-std::numeric_limits<float>::max()),
        hcalDepth1OverEcal(0.), hcalDepth2OverEcal(0.),
        hcalDepth1OverEcalBc(0.), hcalDepth2OverEcalBc(0.)
        {}
@@ -479,16 +479,16 @@ class GsfElectron : public RecoCandidate
 
     struct ConversionRejection
      {
-      int flags ;  // -infinity:not-computed, other: as computed by Puneeth conversion code
+      int flags ;  // -max:not-computed, other: as computed by Puneeth conversion code
       TrackBaseRef partner ; // conversion partner
       float dist ; // distance to the conversion partner
       float dcot ; // difference of cot(angle) with the conversion partner track
       float radius ; // signed conversion radius
       ConversionRejection()
-       : flags(-std::numeric_limits<float>::infinity()),
-         dist(std::numeric_limits<float>::infinity()),
-         dcot(std::numeric_limits<float>::infinity()),
-         radius(std::numeric_limits<float>::infinity())
+       : flags(-1),
+         dist(std::numeric_limits<float>::max()),
+         dcot(std::numeric_limits<float>::max()),
+         radius(std::numeric_limits<float>::max())
        {}
      } ;
 
@@ -540,11 +540,11 @@ class GsfElectron : public RecoCandidate
       float etOutsideMustache ;
       MvaInput()
        : earlyBrem(-2), lateBrem(-2),
-         sigmaEtaEta(std::numeric_limits<float>::infinity()),
+         sigmaEtaEta(std::numeric_limits<float>::max()),
          hadEnergy(0.),
-         deltaEta(std::numeric_limits<float>::infinity()),
+         deltaEta(std::numeric_limits<float>::max()),
          nClusterOutsideMustache(-2),
-         etOutsideMustache(-std::numeric_limits<float>::infinity())
+         etOutsideMustache(-std::numeric_limits<float>::max())
        {}
      } ;
 

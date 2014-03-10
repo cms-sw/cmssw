@@ -193,19 +193,13 @@ namespace edm {
           ++i) {
       ++nwrwue;
       try {
-        try {
+        convertException::wrap([&]() {
           if(T::isEvent_) {
             should_continue = i->runWorker<T>(ep, es, streamID, context);
           } else {
             should_continue = i->runWorker<T>(ep, es, streamID, context);
           }
-        }
-        catch (cms::Exception& e) { throw; }
-        catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-        catch (std::exception& e) { convertException::stdToEDM(e); }
-        catch(std::string& s) { convertException::stringToEDM(s); }
-        catch(char const* c) { convertException::charPtrToEDM(c); }
-        catch (...) { convertException::unknownToEDM(); }
+        });
       }
       catch(cms::Exception& ex) {
         // handleWorkerFailure may throw a new exception.

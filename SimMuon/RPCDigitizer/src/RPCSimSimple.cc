@@ -4,18 +4,10 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
 #include <cmath>
 
-//#include "CLHEP/config/CLHEP.h"
-#include "CLHEP/Random/Random.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
-
 
 #include<cstring>
 #include<iostream>
@@ -34,25 +26,15 @@ RPCSimSimple::RPCSimSimple(const edm::ParameterSet& config) : RPCSim(config){
   _rpcSync = new RPCSynchronizer(config);
 }
 
-void RPCSimSimple::setRandomEngine(CLHEP::HepRandomEngine& eng){
-  flatDistribution1 = new CLHEP::RandFlat(eng);
-  flatDistribution2 = new CLHEP::RandFlat(eng);
-  poissonDistribution = new CLHEP::RandPoissonQ(eng);
-  _rpcSync->setRandomEngine(eng);
-}
-
-
 RPCSimSimple::~RPCSimSimple(){
-  delete flatDistribution1;
-  delete flatDistribution2;
-  delete poissonDistribution;
   delete _rpcSync;
 }
 
 
 void
 RPCSimSimple::simulate(const RPCRoll* roll,
-		       const edm::PSimHitContainer& rpcHits)
+		       const edm::PSimHitContainer& rpcHits,
+                       CLHEP::HepRandomEngine* engine)
 {
   _rpcSync->setRPCSimSetUp(getRPCSimSetUp());
   theRpcDigiSimLinks.clear();
@@ -66,7 +48,7 @@ RPCSimSimple::simulate(const RPCRoll* roll,
  
     // Here I hould check if the RPC are up side down;
     const LocalPoint& entr=_hit->entryPoint();
-    int time_hit = _rpcSync->getSimHitBx(&(*_hit));
+    int time_hit = _rpcSync->getSimHitBx(&(*_hit), engine);
     //    const LocalPoint& exit=_hit->exitPoint();
 	
     std::pair<int, int> digi(topology.channel(entr)+1,
@@ -78,7 +60,8 @@ RPCSimSimple::simulate(const RPCRoll* roll,
 }
 
 
-void RPCSimSimple::simulateNoise(const RPCRoll* roll)
+void RPCSimSimple::simulateNoise(const RPCRoll* roll,
+                                 CLHEP::HepRandomEngine* engine)
 {
 
   RPCDetId rpcId = roll->id();
@@ -105,12 +88,13 @@ void RPCSimSimple::simulateNoise(const RPCRoll* roll)
   
   double ave = rate*nbxing*gate*area*1.0e-9;
 
-  N_hits = poissonDistribution->fire(ave);
+  CLHEP::RandPoissonQ randPoissonQ(*engine, ave);
+  N_hits = randPoissonQ.fire();
 
   for (int i = 0; i < N_hits; i++ ){
-    int strip = static_cast<int>(flatDistribution1->fire(1, nstrips));
+    int strip = static_cast<int>(CLHEP::RandFlat::shoot(engine, 1, nstrips));
     int time_hit;
-    time_hit = (static_cast<int>(flatDistribution2->fire((nbxing*gate)/gate))) - nbxing/2;
+    time_hit = (static_cast<int>(CLHEP::RandFlat::shoot(engine, (nbxing*gate)/gate))) - nbxing/2;
     std::pair<int, int> digi(strip,time_hit);
     strips.insert(digi);
   }

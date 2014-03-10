@@ -5,11 +5,11 @@
 #include <stdint.h>
 #include <vector>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/GenParticle.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 
-#include <Pythia.h>
-#include <HepMCInterface.h>
+#include "Pythia8/Pythia.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
@@ -112,6 +112,8 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     bool EV1_MPIvetoOn;
 
     static const std::vector<std::string> p8SharedResources;
+    
+    std::string slhafile_;
 };
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
@@ -170,8 +172,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if( params.exists( "SLHAFileForPythia8" ) ) {
     std::string slhafilenameshort = params.getParameter<string>("SLHAFileForPythia8");
     edm::FileInPath f1( slhafilenameshort );
-    std::string slhafilename = f1.fullPath();
-    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafilename;
+    slhafile_ = f1.fullPath();
+    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafile_;
     fMasterGen->readString(pythiacommandslha);
     for ( ParameterCollector::const_iterator line = fParameters.begin();
           line != fParameters.end(); ++line ) {
@@ -343,7 +345,35 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
        fJetMatchingHook->init ( lheRunInfo() );
     }
     
+    //pythia 8 doesn't currently support reading SLHA table from lhe header in memory
+    //so dump it to a temp file and set the appropriate pythia parameters to read it
+    std::vector<std::string> slha = lheRunInfo()->findHeader("slha");
+    const char *fname = std::tmpnam(NULL);
+    //read slha header from lhe only if header is present AND no slha header was specified
+    //for manual loading.
+    bool doslha = !slha.empty() && slhafile_.empty();
+    
+    if (doslha) {
+      std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
+      std::string block;
+      for(std::vector<std::string>::const_iterator iter = slha.begin();
+        iter != slha.end(); ++iter) {
+              file << *iter;
+      }
+      file.close();
+
+      std::string lhareadcmd = "SLHA:readFrom = 2";    
+      std::string lhafilecmd = std::string("SLHA:file = ") + std::string(fname);
+
+      fMasterGen->readString(lhareadcmd);    
+      fMasterGen->readString(lhafilecmd); 
+    }
+    
     fMasterGen->init(lhaUP.get());
+    
+    if (doslha) {
+      std::remove( fname );
+    }
 
   }
   
@@ -431,18 +461,18 @@ bool Pythia8Hadronizer::hadronize()
 
 bool Pythia8Hadronizer::residualDecay()
 {
-  
+
   Event* pythiaEvent = &(fMasterGen->event);
-  
+
   int NPartsBeforeDecays = pythiaEvent->size();
   int NPartsAfterDecays = event().get()->particles_size();
   int NewBarcode = NPartsAfterDecays;
 
   for ( int ipart=NPartsAfterDecays; ipart>NPartsBeforeDecays; ipart-- )
   {
-  
+
     HepMC::GenParticle* part = event().get()->barcode_to_particle( ipart );
- 
+
     if ( part->status() == 1 )
     {
       fDecayer->event.reset();
@@ -460,26 +490,26 @@ bool Pythia8Hadronizer::residualDecay()
       int nentries = fDecayer->event.size();
       if ( !fDecayer->event[nentries-1].mayDecay() ) continue;
       fDecayer->next();
-      int nentries1 = fDecayer->event.size(); 
+      int nentries1 = fDecayer->event.size();
       // fDecayer->event.list(std::cout);
       if ( nentries1 <= nentries ) continue; //same number of particles, no decays...
-                         
+
       part->set_status(2);
-      
+
       Particle& py8daughter = fDecayer->event[nentries]; // the 1st daughter
       HepMC::GenVertex* DecVtx = new HepMC::GenVertex( HepMC::FourVector(py8daughter.xProd(),
                                                        py8daughter.yProd(),
                                                        py8daughter.zProd(),
                                                        py8daughter.tProd()) );
-      
+
       DecVtx->add_particle_in( part ); // this will cleanup end_vertex if exists, replace with the new one
                                        // I presume (vtx) barcode will be given automatically
 
       HepMC::FourVector pmom( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
-                        
+
       HepMC::GenParticle* daughter =
                         new HepMC::GenParticle( pmom, py8daughter.id(), 1 );
-        
+
       NewBarcode++;
       daughter->suggest_barcode( NewBarcode );
       DecVtx->add_particle_out( daughter );
@@ -494,14 +524,14 @@ bool Pythia8Hadronizer::residualDecay()
         daughterN->suggest_barcode( NewBarcode );
         DecVtx->add_particle_out( daughterN );
       }
-      
+
       event().get()->add_vertex( DecVtx );
       // fCurrentEventState->add_vertex( DecVtx );
 
     }
  }
  return true;
-                        
+
 }
 
 

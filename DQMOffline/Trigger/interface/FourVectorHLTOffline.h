@@ -93,9 +93,10 @@
 */
 #include "DataFormats/Math/interface/deltaR.h"
 #include  "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-
 
 
 #include <iostream>
@@ -325,9 +326,32 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
       std::string muonRecoCollectionName_;
       bool monitorDaemon_;
       int theHLTOutputType;
+      edm::EDGetTokenT <edm::TriggerResults> triggerResultsToken;
+      edm::EDGetTokenT <edm::TriggerResults> triggerResultsFUToken;
+      edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
+      edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryFUToken;
+      edm::EDGetTokenT <reco::BeamSpot> beamSpotToken;
+      edm::EDGetTokenT <reco::MuonCollection> muonRecoCollectionToken;
+      edm::EDGetTokenT <reco::GsfElectronCollection> gsfElectronToken;
+      edm::EDGetTokenT <std::vector<reco::PFTau> > tauProdToken;
+      edm::EDGetTokenT <reco::CaloJetCollection> iC5calojetToken;
+      edm::EDGetTokenT <reco::JetTagCollection> jlipBtagToken;
+      edm::EDGetTokenT <reco::JetTagCollection> softMuBtagToken;
+      edm::EDGetTokenT <reco::CaloMETCollection> METToken;
+      edm::EDGetTokenT <reco::PhotonCollection> photonToken;
+      edm::EDGetTokenT <reco::TrackCollection> pixelTrackToken;
+      edm::EDGetTokenT <edm::SortedCollection<EcalRecHit> > recHitsEBToken;
+      edm::EDGetTokenT <edm::SortedCollection<EcalRecHit> > recHitsEEToken;
+      edm::EDGetTokenT <std::vector<reco::PFTau> > hpsPFTauProdToken;
+      edm::EDGetTokenT <reco::PFTauDiscriminator> tauDscrmtr1Token;
+      edm::EDGetTokenT <reco::PFTauDiscriminator> tauDscrmtr2Token;
+      edm::EDGetTokenT <reco::PFTauDiscriminator> tauDscrmtr3Token;
+
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
-      edm::InputTag recHitsEBTag_, recHitsEETag_;
+      edm::InputTag recHitsEBTag_;
+      edm::InputTag recHitsEETag_;
+
       HLTConfigProvider hltConfig_;
       // data across paths
       MonitorElement* scalersSelect;

@@ -209,7 +209,7 @@ namespace {
         n.tau = getParameterSafe(HLTCP, filterName, "MinJets");
       }
     }
-    else if(moduleType == "HLT1PFTau") {
+    else if(moduleType == "HLT1Tau" || moduleType == "HLT1PFTau") {
       //n.tau = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
       n.tau = getParameterSafe(HLTCP, filterName, "MinN");
     }
@@ -229,7 +229,7 @@ namespace {
       n.tau = num;
       n.electron = num;
     }
-    else if(moduleType == "HLT2MuonPFTau") {
+    else if(moduleType == "HLT2MuonTau" || moduleType == "HLT2MuonPFTau") {
       //int num = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
       int num = getParameterSafe(HLTCP, filterName, "MinN");
       n.tau = num;
@@ -327,7 +327,7 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
         ss << ",";
       ss << iRegex->str();
     }
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): did not find any paths matching to regexes " << ss.str();
+    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): did not find any paths matching to regexes " << ss.str();
     return false;
   }
 

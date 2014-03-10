@@ -29,8 +29,8 @@ iterativeInitialSeeds.newSyntax = True
 #                                   'BPix1+BPix2+FPix1_neg',
 #                                   'BPix1+FPix1_pos+FPix2_pos',
 #                                   'BPix1+FPix1_neg+FPix2_neg']
-from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import pixellayertriplets
-iterativeInitialSeeds.layerList = pixellayertriplets.layerList
+from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import PixelLayerTriplets
+iterativeInitialSeeds.layerList = PixelLayerTriplets.layerList
 
 # candidate producer
 import FastSimulation.Tracking.TrackCandidateProducer_cfi

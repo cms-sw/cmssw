@@ -25,6 +25,12 @@
 #include "boost/bind.hpp"
 #include "boost/ref.hpp"
 
+#include "boost/graph/graph_traits.hpp"
+#include "boost/graph/adjacency_list.hpp"
+#include "boost/graph/depth_first_search.hpp"
+#include "boost/graph/visitors.hpp"
+
+
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -33,6 +39,7 @@
 #include <list>
 #include <map>
 #include <exception>
+#include <sstream>
 
 namespace edm {
   namespace {
@@ -888,6 +895,8 @@ namespace edm {
   }
 
   void Schedule::beginJob(ProductRegistry const& iRegistry) {
+    checkForCorrectness();
+    
     globalSchedule_->beginJob(iRegistry);
   }
   
@@ -1025,5 +1034,267 @@ namespace edm {
     for(auto const& s: streamSchedules_) {
       s->clearCounters();
     }
+  }
+  
+  //====================================
+  // Schedule::checkForCorrectness algorithm
+  //
+  // The code creates a 'dependency' graph between all
+  // modules. A module depends on another module if
+  // 1) it 'consumes' data produced by that module
+  // 2) it appears directly after the module within a Path
+  //
+  // If there is a cycle in the 'dependency' graph then
+  // the schedule may be unrunnable. The schedule is still
+  // runnable if all cycles have at least two edges which
+  // connect modules only by Path dependencies (i.e. not
+  // linked by a data dependency).
+  //
+  //  Example 1:
+  //  C consumes data from B
+  //  Path 1: A + B + C
+  //  Path 2: B + C + A
+  //
+  //  Cycle: A after C [p2], C consumes B, B after A [p1]
+  //  Since this cycle has 2 path only edges it is OK since
+  //  A and (B+C) are independent so their run order doesn't matter
+  //
+  //  Example 2:
+  //  B consumes A
+  //  C consumes B
+  //  Path: C + A
+  //
+  //  Cycle: A after C [p], C consumes B, B consumes A
+  //  Since this cycle has 1 path only edge it is unrunnable.
+  //
+  //  Example 3:
+  //  A consumes B
+  //  B consumes C
+  //  C consumes A
+  //  (no Path since unscheduled execution)
+  //
+  //  Cycle: A consumes B, B consumes C, C consumes A
+  //  Since this cycle has 0 path only edges it is unrunnable.
+  //====================================
+  
+  namespace {
+    typedef std::pair<unsigned int, unsigned int> SimpleEdge;
+    typedef std::map<SimpleEdge, std::vector<unsigned int>> EdgeToPathMap;
+    
+    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
+
+    typedef boost::graph_traits<Graph>::edge_descriptor Edge;
+    struct cycle_detector : public boost::dfs_visitor<> {
+      
+      cycle_detector(EdgeToPathMap const& iEdgeToPathMap,
+                     std::vector<std::string> const& iPathNames,
+                     std::map<std::string,unsigned int> const& iModuleNamesToIndex):
+      m_edgeToPathMap(iEdgeToPathMap),
+      m_pathNames(iPathNames),
+      m_namesToIndex(iModuleNamesToIndex){}
+      
+      void tree_edge(Edge iEdge, Graph const&) {
+        m_stack.push_back(iEdge);
+      }
+
+      void finish_edge(Edge iEdge, Graph const& iGraph) {
+        if(not m_stack.empty()) {
+          if (iEdge == m_stack.back()) {
+            m_stack.pop_back();
+          }
+        }
+      }
+
+      //Called if a cycle happens
+      void back_edge(Edge iEdge, Graph const& iGraph) {
+        //NOTE: If the path containing the cycle contains two or more
+        // path only edges then there is no problem
+        
+        typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
+        IndexMap const& index = get(boost::vertex_index, iGraph);
+        
+        unsigned int vertex = index[target(iEdge,iGraph)];
+
+        //Find last edge which starts with this vertex
+        std::list<Edge>::iterator itFirst = m_stack.begin();
+        {
+          bool seenVertex = false;
+          while(itFirst != m_stack.end()) {
+            if(not seenVertex) {
+              if(index[source(*itFirst,iGraph)] == vertex) {
+                seenVertex = true;
+              }
+            } else
+            if (index[source(*itFirst,iGraph)] != vertex) {
+              break;
+            }
+            ++itFirst;
+          }
+          if(itFirst != m_stack.begin()) {
+            --itFirst;
+          }
+        }
+        //This edge has not been added to the stack yet
+        // making a copy allows us to add it in but not worry
+        // about removing it at the end of the routine
+        std::vector<Edge> tempStack;
+        tempStack.reserve(m_stack.size()+1);
+        tempStack.insert(tempStack.end(),itFirst,m_stack.end());
+        tempStack.emplace_back(iEdge);
+        
+        unsigned int nPathDependencyOnly =0;
+        for(auto const& edge: tempStack) {
+          unsigned int in =index[source(edge,iGraph)];
+          unsigned int out =index[target(edge,iGraph)];
+
+          auto iFound = m_edgeToPathMap.find(SimpleEdge(in,out));
+          bool pathDependencyOnly = true;
+          for(auto dependency : iFound->second) {
+            if (dependency == std::numeric_limits<unsigned int>::max()) {
+              pathDependencyOnly = false;
+              break;
+            }
+          }
+          if (pathDependencyOnly) {
+            ++nPathDependencyOnly;
+          }
+        }
+        if(nPathDependencyOnly < 2) {
+          reportError(tempStack,index,iGraph);
+        }
+      }
+    private:
+      std::string const& pathName(unsigned int iIndex) const {
+        return m_pathNames[iIndex];
+      }
+      
+      std::string const& moduleName(unsigned int iIndex) const {
+        for(auto const& item : m_namesToIndex) {
+          if(item.second == iIndex) {
+            return item.first;
+          }
+        }
+        assert(false);
+      }
+      
+      void
+      reportError(std::vector<Edge>const& iEdges,
+                  boost::property_map<Graph, boost::vertex_index_t>::type const& iIndex,
+                  Graph const& iGraph) const {
+        std::stringstream oStream;
+        oStream <<"Module run order problem found: \n";
+        bool first_edge = true;
+        for(auto const& edge: iEdges) {
+          unsigned int in =iIndex[source(edge,iGraph)];
+          unsigned int out =iIndex[target(edge,iGraph)];
+          
+          if(first_edge) {
+            first_edge = false;
+          } else {
+            oStream<<", ";
+          }
+          oStream <<moduleName(in);
+          
+          auto iFound = m_edgeToPathMap.find(SimpleEdge(in,out));
+          bool pathDependencyOnly = true;
+          for(auto dependency : iFound->second) {
+            if (dependency == std::numeric_limits<unsigned int>::max()) {
+              pathDependencyOnly = false;
+              break;
+            }
+          }
+          if (pathDependencyOnly) {
+            oStream <<" after "<<moduleName(out)<<" [path "<<pathName(iFound->second[0])<<"]";
+          } else {
+            oStream <<" consumes "<<moduleName(out);
+          }
+        }
+        oStream<<"\n Running in the threaded framework would lead to indeterminate results."
+        "\n Please change order of modules in mentioned Path(s) to avoid inconsistent module ordering.";
+        
+        LogError("UnrunnableSchedule")<<oStream.str();
+      }
+      
+      EdgeToPathMap const& m_edgeToPathMap;
+      std::vector<std::string> const& m_pathNames;
+      std::map<std::string,unsigned int> m_namesToIndex;
+      
+      std::list<Edge> m_stack;
+    };
+  }
+  
+  void
+  Schedule::checkForCorrectness() const
+  {
+    //Need to lookup names to ids quickly
+    std::map<std::string,unsigned int> moduleNamesToIndex;
+    for(auto worker: allWorkers()) {
+      moduleNamesToIndex.insert( std::make_pair(worker->description().moduleLabel(),
+                                         worker->description().id()));
+    }
+    
+    //If a module to module dependency comes from a path, remember which path
+    EdgeToPathMap edgeToPathMap;
+
+    //determine the path dependencies
+    std::vector<std::string> pathNames;
+    {
+      streamSchedules_[0]->availablePaths(pathNames);
+      
+      std::vector<std::string> moduleNames;
+      std::vector<std::string> reducedModuleNames;
+      unsigned int pathIndex=0;
+      for(auto const& path: pathNames) {
+        moduleNames.clear();
+        reducedModuleNames.clear();
+        std::set<std::string> alreadySeenNames;
+        
+        streamSchedules_[0]->modulesInPath(path,moduleNames);
+        std::string lastModuleName;
+        unsigned int lastModuleIndex;
+        for(auto const& name: moduleNames) {
+          auto found = alreadySeenNames.insert(name);
+          if(found.second) {
+            //first time for this path
+            unsigned int moduleIndex = moduleNamesToIndex[name];
+            if(not lastModuleName.empty() ) {
+              edgeToPathMap[std::make_pair(moduleIndex,lastModuleIndex)].push_back(pathIndex);
+            }
+            lastModuleName = name;
+            lastModuleIndex = moduleIndex;
+          }
+        }
+        ++pathIndex;
+      }
+    }
+    {
+      std::vector<const char*> dependentModules;
+      //determine the data dependencies
+      for(auto const& worker: allWorkers()) {
+        dependentModules.clear();
+        //NOTE: what about aliases?
+        worker->modulesDependentUpon(dependentModules);
+        auto found = moduleNamesToIndex.find(worker->description().moduleLabel());
+        if (found == moduleNamesToIndex.end()) {
+          //The module was from a previous process
+          continue;
+        }
+        unsigned int moduleIndex = found->second;
+        for(auto name: dependentModules) {
+          edgeToPathMap[std::make_pair(moduleIndex, moduleNamesToIndex[name])].push_back(std::numeric_limits<unsigned int>::max());
+        }
+      }
+    }
+    //Now use boost graph library to find cycles in the dependencies
+    std::vector<SimpleEdge> outList;
+    outList.reserve(edgeToPathMap.size());
+    for(auto const& edgeInfo: edgeToPathMap) {
+      outList.push_back(edgeInfo.first);
+    }
+    
+    Graph g(outList.begin(),outList.end(), moduleNamesToIndex.size());
+    
+    cycle_detector detector(edgeToPathMap,pathNames,moduleNamesToIndex);
+    boost::depth_first_search(g,boost::visitor(detector));
   }
 }

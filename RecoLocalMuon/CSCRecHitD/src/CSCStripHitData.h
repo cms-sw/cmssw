@@ -24,8 +24,8 @@ class CSCStripHitData
   
   int strip() const {return istrip_;}
   int tmax() const {return  tmax_;}
-  std::vector<float> ph() const { return ph_;}
-  std::vector<float> phRaw() const { return phRaw_;}
+  std::vector<float> const & ph() const { return ph_;}
+  std::vector<float> const & phRaw() const { return phRaw_;}
 
   /// Order by 2nd ph bin
   bool operator<( const CSCStripHitData & data ) const { return ph_[1] < data.ph_[1]; }

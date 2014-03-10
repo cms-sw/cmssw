@@ -18,7 +18,7 @@ class DeltaRFilter : public std::unary_function<CandType, bool> {
     DeltaRFilter(const reco::Candidate::LorentzVector& axis, double min, double max)
       : eta_(axis.eta()),
         phi_(axis.phi()),
-        min2_(min*min), 
+        min2_(min < 0. ? -min*min : min*min),
         max2_(max*max) 
     {}
     bool operator()(const CandType& b) const 

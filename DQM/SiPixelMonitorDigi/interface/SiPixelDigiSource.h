@@ -95,6 +95,8 @@
        int nDP2P2M1;
        int nDP2P2M2;
        int nDP2P2M3;
+       int nDP3P1M1;
+       int nDP3P2M1;
        int nDM1P1M1;
        int nDM1P1M2;
        int nDM1P1M3;
@@ -109,6 +111,8 @@
        int nDM2P2M1;
        int nDM2P2M2;
        int nDM2P2M3;
+       int nDM3P1M1;
+       int nDM3P2M1;
        int nL1M1;
        int nL1M2;
        int nL1M3;
@@ -121,6 +125,10 @@
        int nL3M2;
        int nL3M3;
        int nL3M4;
+       int nL4M1;
+       int nL4M2;
+       int nL4M3;
+       int nL4M4;
        int nBigEvents;
        int nBPIXDigis;
        int nFPIXDigis;
@@ -139,6 +147,7 @@
        MonitorElement* meNDigisCHANBarrelL1_;
        MonitorElement* meNDigisCHANBarrelL2_;
        MonitorElement* meNDigisCHANBarrelL3_;
+       MonitorElement* meNDigisCHANBarrelL4_;
        MonitorElement* meNDigisCHANBarrelCh1_;
        MonitorElement* meNDigisCHANBarrelCh2_;
        MonitorElement* meNDigisCHANBarrelCh3_;
@@ -178,25 +187,27 @@
        MonitorElement* meNDigisCHANEndcap_;
        MonitorElement* meNDigisCHANEndcapDp1_;
        MonitorElement* meNDigisCHANEndcapDp2_;
+       MonitorElement* meNDigisCHANEndcapDp3_;
        MonitorElement* meNDigisCHANEndcapDm1_;
        MonitorElement* meNDigisCHANEndcapDm2_;
+       MonitorElement* meNDigisCHANEndcapDm3_;
        
        int bigEventSize;
-       
+       bool isUpgrade;
        bool firstRun;
        
-       std::string I_name[1440];
-       unsigned int I_detId[1440];
-       int I_fedId[1440];
-       int I_linkId1[1440];
-       int I_linkId2[1440];
+       std::string I_name[1856];
+       unsigned int I_detId[1856];
+       int I_fedId[1856];
+       int I_linkId1[1856];
+       int I_linkId2[1856];
        int nDigisPerFed[40];
        int nDigisPerChan[1152];
-       int nDigisPerDisk[4];
-       int numberOfDigis[192];
+       int nDigisPerDisk[6];
+       int numberOfDigis[336];
        int nDigisA;
        int nDigisB;
-
+       
        //define Token(-s)
        edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > srcToken_;
  };

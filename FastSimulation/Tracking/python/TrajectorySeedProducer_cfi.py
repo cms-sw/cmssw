@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer2",
+trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
     # The smallest number of layer crossed to create a track candidate
     minRecHits = cms.vuint32(5),
     beamSpot = cms.InputTag("offlineBeamSpot"),

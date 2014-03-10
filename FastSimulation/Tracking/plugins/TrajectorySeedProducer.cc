@@ -148,10 +148,10 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
           }
         }
         // TIB(1-4)
-        else if (layerSpec.name.substr(0,3)=="TIB" ) {
+        else if (layerSpec.name.substr(0,3)=="TIB" || layerSpec.name.substr(0,4)=="MTIB") {
           layerSpec.subDet=TIB;
           layerSpec.side=BARREL;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(3,1).c_str());
+          layerSpec.idLayer = std::atoi(layerSpec.name.substr(layerSpec.name.find('B')+1,1).c_str());
           if (layerSpec.idLayer>4 || layerSpec.idLayer==0) {
             throw cms::Exception("FastSimulation/Tracking/python")
               << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
@@ -159,13 +159,13 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
           }
         }
         // TID(1-3)(pos, neg)
-        else if (layerSpec.name.substr(0,3)=="TID" ) {
+        else if (layerSpec.name.substr(0,3)=="TID" || layerSpec.name.substr(0,4)=="MTID") {
           layerSpec.subDet=TID;
           if(layerSpec.name.substr(layerSpec.name.size()-3)=="pos")
             layerSpec.side = POS_ENDCAP;
           else
             layerSpec.side = NEG_ENDCAP;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(3,1).c_str());
+          layerSpec.idLayer = std::atoi(layerSpec.name.substr(layerSpec.name.find('D')+1,1).c_str());
           if (layerSpec.idLayer>3 || layerSpec.idLayer==0) {
             throw cms::Exception("FastSimulation/Tracking/python")
               << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
@@ -184,13 +184,13 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
           }
         }
         // TEC(1-9)(pos, neg)
-        else if (layerSpec.name.substr(0,3)=="TEC" ) {
+        else if (layerSpec.name.substr(0,3)=="TEC" || layerSpec.name.substr(0,4)=="MTEC") {
           layerSpec.subDet=TEC;
           if(layerSpec.name.substr(layerSpec.name.size()-3)=="pos")
             layerSpec.side = POS_ENDCAP;
           else
             layerSpec.side = NEG_ENDCAP;
-          layerSpec.idLayer = std::atoi(layerSpec.name.substr(3,1).c_str());
+          layerSpec.idLayer = std::atoi(layerSpec.name.substr(layerSpec.name.find('C')+1,1).c_str());
           if (layerSpec.idLayer>9 || layerSpec.idLayer==0) {
             throw cms::Exception("FastSimulation/Tracking/python")
               << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
@@ -201,7 +201,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
           throw cms::Exception("FastSimulation/Tracking/python")
             << "Bad data naming in IterativeInitialStep_cff.py  iterativeInitialSeeds.layerList" << std::endl
             << "Layer: " << layerSpec.name << ", shouldn't exist" << std::endl
-            << "Case sensitive names: BPix FPix TIB TID TOB TEC" << std::endl;
+            << "Case sensitive names: BPix FPix TIB MTIB TID MTID TOB TEC MTEC" << std::endl;
         }
         //
         tempResult.push_back(layerSpec);

@@ -10,9 +10,9 @@ class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
   SiStripMatchedRecHit2D(){}
   ~SiStripMatchedRecHit2D(){}
 
-  SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , 
+  SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , GeomDet const * idet,
 			  const SiStripRecHit2D* rMono,const SiStripRecHit2D* rStereo):
-    BaseTrackerRecHit(pos, err, id, trackerHitRTTI::match), clusterMono_(rMono->omniClusterRef()), clusterStereo_(rStereo->omniClusterRef()){}
+    BaseTrackerRecHit(pos, err, id, idet, trackerHitRTTI::match), clusterMono_(rMono->omniClusterRef()), clusterStereo_(rStereo->omniClusterRef()){}
 
   // by value, as they will not exists anymore...
   SiStripRecHit2D  stereoHit() const { return SiStripRecHit2D(stereoId(),stereoClusterRef()) ;}

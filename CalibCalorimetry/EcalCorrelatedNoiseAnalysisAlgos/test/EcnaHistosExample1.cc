@@ -1,5 +1,5 @@
 //################## EcnaHistosExample1.cc ####################
-// B. Fabbro      06/07/2011
+// B. Fabbro      09/08/2012
 //
 //   Drawing histos with TEcnaHistos
 //   with and without direct calls to TEcnaRead methods
@@ -25,7 +25,7 @@ int main ( int argc, char **argv )
 
   if( fEcnaParPathsEB->GetPaths() == kTRUE && fEcnaParPathsEE->GetPaths() == kTRUE )
     {
-      cout << "*EcnaHistosExample> Starting ROOT session" << endl;
+      std::cout << "*EcnaHistosExample> Starting ROOT session" << std::endl;
       TRint theApp("App", &argc, argv);
 
       //--------------------------------------------------------------------
@@ -79,8 +79,7 @@ int main ( int argc, char **argv )
 
       //............................. Pedestals
       MyHistosEB->SetHistoMin(0.); MyHistosEB->SetHistoMax();
-      //MyHistosEB->Plot1DHisto("Crystal#", "Ped", "SM");
-      MyHistosEB->Plot1DHisto("Crystal#", "Pedd", "SMod");
+      MyHistosEB->Plot1DHisto("Crystal#", "Ped", "SM");
 
       //............................. 
       fKeyAnaType    = "StdPeg12";
@@ -89,8 +88,7 @@ int main ( int argc, char **argv )
       fKeySuMoNumber =     11;
 
       //.................................... EtaPhiSuperModuleMeanCorss (EB)
-      //MyHistosEB->PlotDetector("MCs", "SM");
-      MyHistosEB->PlotDetector("MCsxxx", "Dee");
+      MyHistosEB->PlotDetector("MCs", "SM");
 
 #define FPLO
 #ifdef FPLO
@@ -109,13 +107,21 @@ int main ( int argc, char **argv )
       MyHistosEB->FileParameters("StdPeg12", fKeyNbOfSamples,
 				 fKeyRunNumber, fKeyFirstEvt, fKeyLastEvt, fKeyNbOfEvts ,fKeySuMoNumber);
       MyHistosEB->SetHistoMax(2.5);  MyHistosEB->SetHistoScaleY("LOG");
-      MyHistosEB->Plot1DHisto("LowFrequencyNoise", "NbOfXtals", "SM", "SAME");
+      //MyHistosEB->Plot1DHisto("LowFrequencyNoise", "NbOfXtals", "SM", "SAME");
+
+      std::cout << "*EcnaHistosExample1> *** TEST OF WRONG CODE (BEGINNING)."
+	   << " MESSAGE: < code not found > (and lists after) ARE THERE ON PURPOSE."  << std::endl << std::endl;
+
+      MyHistosEB->Plot1DHisto("LowFrequencyNoise", "NbOfXtal", "SM", "SAME");
+      std::cout << std::endl <<
+        "*EcnaHistosExample1> *** TEST OF WRONG CODE (END)."
+	   << " MESSAGE: < code not found > (and lists after) WERE THERE ON PURPOSE."  << std::endl;
+
       //.................................
       fKeySuMoNumber = 4;
       MyHistosEB->FileParameters("StdPeg12", fKeyNbOfSamples,
 				 fKeyRunNumber, fKeyFirstEvt, fKeyLastEvt, fKeyNbOfEvts, fKeySuMoNumber);
-      //MyHistosEB->Plot1DHisto("LowFrequencyNoise", "NbOfXtals", "SM", "SAME");
-      MyHistosEB->Plot1DHisto("LowFrequencyNois", "NbOfXtal", "SMccc", "SAMEvv");
+      MyHistosEB->Plot1DHisto("LowFrequencyNoise", "NbOfXtals", "SM", "SAME");
       //.................................
       fKeySuMoNumber = 5;
       MyHistosEB->FileParameters("StdPeg12", fKeyNbOfSamples,
@@ -181,8 +187,7 @@ int main ( int argc, char **argv )
       TowEcha = 15;
       MyHistosEB->Plot1DHisto("SampleSigma", "NOS", SMtower, TowEcha, "SAME");
       TowEcha = 16;
-      //MyHistosEB->Plot1DHisto("SampleSigma", "NOS", SMtower, TowEcha, "SAME");
-      MyHistosEB->Plot1DHisto("SampleSig", "NO", SMtower, TowEcha, "SAM");
+      MyHistosEB->Plot1DHisto("SampleSigma", "NOS", SMtower, TowEcha, "SAME");
 #endif // SIGM
 
 
@@ -227,8 +232,7 @@ int main ( int argc, char **argv )
       MyHistosEB->PlotHistory("Time", "LFN", run_par_file_name, SMtower, TowEcha, "SAME n");
       MyHistosEB->PlotHistory("Time", "HFN", run_par_file_name, SMtower, TowEcha, "SAME n");
       MyHistosEB->PlotHistory("Time", "MeanCorss", run_par_file_name, SMtower, TowEcha, "SAME n");
-      //MyHistosEB->PlotHistory("Time", "SigCorss", run_par_file_name, SMtower, TowEcha, "SAME n");
-      MyHistosEB->PlotHistory("Tim", "SigCors", run_par_file_name, SMtower, TowEcha, "SAME b");
+      MyHistosEB->PlotHistory("Time", "SigCorss", run_par_file_name, SMtower, TowEcha, "SAME n");
 #endif // SIGS
 
 #define SIGE
@@ -269,14 +273,14 @@ int main ( int argc, char **argv )
 #endif // SIGE
       //.......................................................................
 
-      cout << "*H4Cna(main)> End of the example. You can quit ROOT (.q)"  << endl;
+      std::cout << "*EcnaHistosExample1> End of the example. You can quit ROOT (.q)"  << std::endl;
 
       Bool_t retVal = kTRUE;
       theApp.Run(retVal);
-      cout << endl
-	   << "*EcnaHistosExample> Terminating ROOT session." << endl;
+      std::cout << std::endl
+	   << "*EcnaHistosExample> Terminating ROOT session." << std::endl;
       theApp.Terminate(0);
-      cout << "*EcnaHistosExample> Exiting main program." << endl;
+      std::cout << "*EcnaHistosExample> Exiting main program." << std::endl;
       exit(0);
 
       delete MyHistosEB;                          xCdelete++;
@@ -284,13 +288,13 @@ int main ( int argc, char **argv )
 
       if ( xCnew != xCdelete )
 	{
-	  cout << "!H4Cna(main)> WRONG MANAGEMENT OF ALLOCATIONS: xCnew = "
-	       << xCnew << ", xCdelete = " << xCdelete << '\007' << endl;
+	  std::cout << "!EcnaHistosExample1> WRONG MANAGEMENT OF ALLOCATIONS: xCnew = "
+	       << xCnew << ", xCdelete = " << xCdelete << '\007' << std::endl;
 	}
       else
 	{
-	  //  cout << "*H4Cna(main)> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: xCnew = "
-	  //      << xCnew << ", xCdelete = " << xCdelete << endl;
+	  //  std::cout << "*EcnaHistosExample1> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: xCnew = "
+	  //      << xCnew << ", xCdelete = " << xCdelete << std::endl;
 	}
     }
 }

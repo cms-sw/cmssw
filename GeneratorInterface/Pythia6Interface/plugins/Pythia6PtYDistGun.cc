@@ -11,8 +11,6 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace edm;
@@ -25,8 +23,7 @@ Pythia6PtYDistGun::Pythia6PtYDistGun( const ParameterSet& pset ) :
    ParameterSet pgun_params = 
       pset.getParameter<ParameterSet>("PGunParameters"); 
    
-   fPtYGenerator = new PtYDistributor( pgun_params.getParameter<FileInPath>("kinematicsFile"), 
-                                       getEngineReference(), 
+   fPtYGenerator = new PtYDistributor( pgun_params.getParameter<FileInPath>("kinematicsFile"),
 				       pgun_params.getParameter<double>("MaxPt"),
                                        pgun_params.getParameter<double>("MinPt"),
 				       pgun_params.getParameter<double>("MaxY"), 
@@ -40,7 +37,7 @@ Pythia6PtYDistGun::~Pythia6PtYDistGun()
    if ( fPtYGenerator ) delete fPtYGenerator;
 }
 
-void Pythia6PtYDistGun::generateEvent()
+void Pythia6PtYDistGun::generateEvent(CLHEP::HepRandomEngine* engine)
 {
    Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
 
@@ -66,8 +63,8 @@ void Pythia6PtYDistGun::generateEvent()
 	 int dum = 0;
 	 double pt=0, y=0, u=0, ee=0, the=0;
 	 
-	 pt = fPtYGenerator->firePt();
-	 y  = fPtYGenerator->fireY();
+	 pt = fPtYGenerator->firePt(engine);
+	 y  = fPtYGenerator->fireY(engine);
 	 u  = exp(y); 
 	 
 	 double mass = pymass_(py6PID);

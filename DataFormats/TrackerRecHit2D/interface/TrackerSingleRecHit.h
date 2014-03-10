@@ -27,21 +27,11 @@ public:
 		      OmniClusterRef const&  clus) : 
     Base(id, trackerHitRTTI::single), cluster_(clus){}
   
+  template<typename CluRef>
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
-		      DetId id,
-		      OmniClusterRef const&  clus) : Base(p,e,id, trackerHitRTTI::single), cluster_(clus){}
+		      DetId id, GeomDet const * idet,
+		      CluRef const&  clus) : Base(p,e,id, idet, trackerHitRTTI::single), cluster_(clus){}
 
-  TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
-		      DetId id,
-		      ClusterPixelRef const&  clus) : Base(p,e,id, trackerHitRTTI::single), cluster_(clus){}
-
-  TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
-		      DetId id,
-		      ClusterStripRef const&  clus) : Base(p,e,id, trackerHitRTTI::single), cluster_(clus){}
-
-  TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
-		      DetId id,  
-		      ClusterRegionalRef const& clus) :  Base(p,e,id, trackerHitRTTI::single), cluster_(clus){}
   
   // used by trackMerger (to be improved)
   virtual OmniClusterRef const & firstClusterRef() const  GCC11_FINAL { return cluster_;}

@@ -26,10 +26,6 @@
 #include <fstream>
 #include <vector>
 
-namespace CLHEP {
-  class RandFlat;
-}
-
 class EcalTBMCInfoProducer: public edm::EDProducer{
   
  public:
@@ -69,10 +65,6 @@ private:
   ROOT::Math::Rotation3D * fromCMStoTB;
 
   std::string GenVtxLabel;
-
-  CLHEP::RandFlat *flatDistribution_;
- 
-
 };
 
 #endif

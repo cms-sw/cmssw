@@ -5,7 +5,7 @@
 
 
 namespace {
-  void
+  inline void
   throwExceptionUninitialized(const char *where)
   {
     throw cms::Exception("BaseTrackerRecHit") << 
@@ -19,20 +19,17 @@ namespace {
   }
 }
 
+#ifdef EDM_LM_DEBUG
+void BaseTrackerRecHit::check() const {
+  if (!hasPositionAndError()) throwExceptionUninitialized("localPosition or Error");
+}
+#endif
 
 bool BaseTrackerRecHit::hasPositionAndError() const {
-    return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
-           (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
-}
-
-LocalPoint BaseTrackerRecHit::localPosition() const {
-    if (!hasPositionAndError()) throwExceptionUninitialized("localPosition");
-    return pos_;
-}
-
-LocalError BaseTrackerRecHit::localPositionError() const{ 
-    if (!hasPositionAndError()) throwExceptionUninitialized("localPositionError");
-    return err_;
+  return det();
+  
+  //  return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
+  //       (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
 }
 
 
@@ -40,7 +37,7 @@ LocalError BaseTrackerRecHit::localPositionError() const{
 void
 BaseTrackerRecHit::getKfComponents1D( KfComponentsHolder & holder ) const 
 {
-  if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
+  // if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
   AlgebraicVector1 & pars = holder.params<1>();
   pars[0] = pos_.x(); 
   
@@ -57,7 +54,7 @@ BaseTrackerRecHit::getKfComponents1D( KfComponentsHolder & holder ) const
 void
 BaseTrackerRecHit::getKfComponents2D( KfComponentsHolder & holder ) const 
 {
-  if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
+  //if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
    AlgebraicVector2 & pars = holder.params<2>();
    pars[0] = pos_.x(); 
    pars[1] = pos_.y();

@@ -8,7 +8,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
 #include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
 
 #include <HepMC/GenCrossSection.h>
 #include <HepMC/GenEvent.h>
@@ -22,9 +21,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -35,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 using namespace edm;
 using namespace std;
 using namespace gen;
@@ -44,17 +41,19 @@ using namespace gen;
 
 EPOS::IO_EPOS conv;
 
+static CLHEP::HepRandomEngine* reggeGribovRandomEngine;
+
 extern "C"
 {
   float gen::rangen_()
   {
-    float a = float(gFlatDistribution_->fire());
+    float a = float(reggeGribovRandomEngine->flat());
     return a;
   }
 
   double gen::drangen_(int *idummy)
   {
-    double a = gFlatDistribution_->fire();
+    double a = reggeGribovRandomEngine->flat();
     return a;
   }
 }
@@ -73,19 +72,9 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
   m_SkipNuclFrag(pset.getParameter<bool>("skipNuclFrag")),
   m_NEvent(0),
   m_NParticles(0),
-  m_ImpactParameter(0.)
+  m_ImpactParameter(0.),
+  m_IsInitialized(false)
 {
-  Service<RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable())
-    {
-      throw cms::Exception("Configuration")
-        << "ReggeGribovPartonMCHadronizer requires the RandomNumberGeneratorService\n"
-        "which is not present in the configuration file.  You must add the service\n"
-        "in the configuration file or remove the modules that require it.";
-    }
-
-  gFlatDistribution_.reset(new CLHEP::RandFlat(rng->getEngine(), 0., 1.));
-
   int  nevet       = 1; //needed for CS
   int  noTables    = 0; //don't calculate tables
   int  LHEoutput   = 0; //no lhe
@@ -101,9 +90,6 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
   //change impact paramter
   nucl2_.bminim = float(m_bMin);
   nucl2_.bmaxim = float(m_bMax);
-
-  //use set parameters to init models
-  crmc_init_f_();
 }
 
 
@@ -111,8 +97,15 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
 ReggeGribovPartonMCHadronizer::~ReggeGribovPartonMCHadronizer()
 {
   // destructor
-  gFlatDistribution_.reset();
 }
+
+
+//_____________________________________________________________________
+void ReggeGribovPartonMCHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v)
+{
+  reggeGribovRandomEngine = v;
+}
+
 
 //_____________________________________________________________________
 bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
@@ -218,8 +211,13 @@ bool ReggeGribovPartonMCHadronizer::declareStableParticles ( const std::vector<i
 
 bool ReggeGribovPartonMCHadronizer::initializeForInternalPartons()
 {
- return true;
- }
+  if (!m_IsInitialized) {
+    //use set parameters to init models
+    crmc_init_f_();
+    m_IsInitialized = true;
+  }
+  return true;
+}
 
 bool ReggeGribovPartonMCHadronizer::initializeTablePaths()
 {

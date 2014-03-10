@@ -3,9 +3,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -47,12 +44,13 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
   : ParticleReplacerBase(cfg),
     generatorMode_(cfg.getParameter<std::string>("generatorMode")),
     beamEnergy_(cfg.getParameter<double>("beamEnergy")),
-    tauola_(gen::TauolaInterface::getInstance()),
     applyMuonRadiationCorrection_(false),
     muonRadiationAlgo_(0),
     pythia_(cfg)
 {
-  tauola_->setPSet(cfg.getParameter<edm::ParameterSet>("TauolaOptions"));
+  tauola_ = (gen::TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp113a",cfg.getParameter<edm::ParameterSet>("TauolaOptions")));
+  // settings?
+  // usesResource(edm::SharedResourceNames::kTauola);
   maxNumberOfAttempts_ = ( cfg.exists("maxNumberOfAttempts") ) ?
     cfg.getParameter<int>("maxNumberOfAttempts") : 10000;
 
@@ -146,16 +144,6 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
 
   rfRotationAngle_ = cfg.getParameter<double>("rfRotationAngle")*TMath::Pi()/180.;
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( !rng.isAvailable() ) 
-    throw cms::Exception("Configuration")
-      << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
-      << "which appears to be absent. Please add that service to your configuration\n"
-      << "or remove the modules that require it.\n";
-
-  // this is a global variable defined in GeneratorInterface/ExternalDecays/src/ExternalDecayDriver.cc
-  decayRandomEngine = &rng->getEngine();
-
   std::string applyMuonRadiationCorrection_string = cfg.getParameter<std::string>("applyMuonRadiationCorrection");
   if ( applyMuonRadiationCorrection_string != "" ) {
     edm::ParameterSet cfgMuonRadiationAlgo;
@@ -244,6 +232,16 @@ namespace
 
 std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vector<reco::Particle>& muons, const reco::Vertex* evtVtx, const HepMC::GenEvent* genEvt, MCParticleReplacer* producer)
 {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( !rng.isAvailable() ) 
+    throw cms::Exception("Configuration")
+      << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+      << "which appears to be absent. Please add that service to your configuration\n"
+      << "or remove the modules that require it.\n";
+
+  CLHEP::HepRandomEngine& decayRandomEngine = rng->getEngine(producer->getStreamID());
+  tauola_->setRandomEngine(&decayRandomEngine);
+
   if ( evtVtx != 0 ) throw cms::Exception("Configuration") 
     << "ParticleReplacerZtautau does NOT support using primary vertex as the origin for taus !!\n";
 
@@ -283,9 +281,9 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
     const reco::Particle& muon2 = muons.at(1);
     reco::Particle embedLepton1(muon1.charge(), muon1.p4(), muon1.vertex(), muon1.pdgId(), 0, true);
     reco::Particle embedLepton2(muon2.charge(), muon2.p4(), muon2.vertex(), muon2.pdgId(), 0, true);
-    if ( targetParticle1AbsPdgID_ != 13 ) {
-      transformMuMu2LepLep(&embedLepton1, &embedLepton2);
-    }
+    // Also call this for the mumu->mumu case, to set the correct status values
+    // and to apply the rotation:
+    transformMuMu2LepLep(decayRandomEngine, &embedLepton1, &embedLepton2);
     embedParticles.push_back(embedLepton1);
     embedParticles.push_back(embedLepton2);
   } else if ( transformationMode_ == 3 ) { // mumu -> taunu (Z -> W boson)
@@ -401,7 +399,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
 	  if ( deltaR(otherParticle->p4(), embedParticle->p4()) > 1.e-3 ) sumOtherParticlesP4 += otherParticle->p4();
 	}
 	int errorFlag = 0;
-	reco::Candidate::LorentzVector muonFSR = muonRadiationAlgo_->compFSR(embedParticle->p4(), embedParticle->charge(), sumOtherParticlesP4, errorFlag);
+	reco::Candidate::LorentzVector muonFSR = muonRadiationAlgo_->compFSR(producer->getStreamID(), embedParticle->p4(), embedParticle->charge(), sumOtherParticlesP4, errorFlag);
 	double embedParticlePx_corrected = embedParticle->px() + muonFSR.px();
 	double embedParticlePy_corrected = embedParticle->py() + muonFSR.py();
 	double embedParticlePz_corrected = embedParticle->pz() + muonFSR.pz();
@@ -479,7 +477,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
 	//	    << " Py = " << embedParticle->py() << "," 
 	//	    << " Pz = " << embedParticle->pz() << std::endl;
 	int errorFlag = 0;
-	reco::Candidate::LorentzVector muonFSR = muonRadiationAlgo_->compFSR(embedParticle->p4(), embedParticle->charge(), sumOtherParticlesP4, errorFlag);
+	reco::Candidate::LorentzVector muonFSR = muonRadiationAlgo_->compFSR(producer->getStreamID(), embedParticle->p4(), embedParticle->charge(), sumOtherParticlesP4, errorFlag);
 	//std::cout << "muonFSR:" 
 	//	    << " En = " << muonFSR.E() << "," 
 	//	    << " Px = " << muonFSR.px() << "," 
@@ -886,7 +884,7 @@ namespace
   }
 }
 
-void ParticleReplacerZtautau::transformMuMu2LepLep(reco::Particle* muon1, reco::Particle* muon2)
+void ParticleReplacerZtautau::transformMuMu2LepLep(CLHEP::HepRandomEngine& randomEngine, reco::Particle* muon1, reco::Particle* muon2)
 {
 //--- transform a muon pair into an electron/tau pair,
 //    taking into account the difference between muon and electron/tau mass
@@ -916,7 +914,7 @@ void ParticleReplacerZtautau::transformMuMu2LepLep(reco::Particle* muon1, reco::
   if ( rfRotationAngle_ != 0. ) {
     double rfRotationAngle_value = rfRotationAngle_;
     if ( rfRotationAngle_ == -1. ) {
-      double u = decayRandomEngine->flat();
+      double u = randomEngine.flat();
       rfRotationAngle_value = 2.*TMath::Pi()*u;
     }
     

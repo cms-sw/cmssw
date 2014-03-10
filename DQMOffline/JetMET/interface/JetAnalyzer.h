@@ -13,6 +13,7 @@
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMOffline/JetMET/interface/JetAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,7 +42,7 @@ class JetAnalyzer : public JetAnalyzerBase {
 
   /// Constructor
   //  JetAnalyzer(const edm::ParameterSet&, JetServiceProxy *theService);
-  JetAnalyzer(const edm::ParameterSet&);
+  JetAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
   
   /// Destructor
   virtual ~JetAnalyzer();

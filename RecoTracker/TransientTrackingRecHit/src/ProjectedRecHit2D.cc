@@ -7,7 +7,7 @@
 ProjectedRecHit2D::ProjectedRecHit2D( const LocalPoint& pos, const LocalError& err,
 				      const GeomDet* det, const GeomDet* originalDet,
 				      const TransientTrackingRecHit& originalTransientHit) :
-  GenericTransientTrackingRecHit( det, new ProjectedSiStripRecHit2D( pos, err, det->geographicalId(), 
+GenericTransientTrackingRecHit( det, new ProjectedSiStripRecHit2D( pos, err, det->geographicalId(), det,
 								     static_cast<const SiStripRecHit2D*>(originalTransientHit.hit()) ) ) 
 {
   const TSiStripRecHit2DLocalPos* specificOriginalTransientHit = static_cast<const TSiStripRecHit2DLocalPos*>(&originalTransientHit);
@@ -75,8 +75,8 @@ ProjectedRecHit2D::ProjectedRecHit2D( const GeomDet * geom, const GeomDet* origi
       if(!originalHit().cluster().isNull()){
 	const SiStripCluster& clust = *(originalHit().cluster());  
 	
-	StripClusterParameterEstimator::LocalValues lv = 
-	  theCPE->localParameters( clust, *detUnit());
+	StripClusterParameterEstimator::LocalValues lv =
+            theCPE->localParameters( clust, *reinterpret_cast<const GeomDetUnit *>(theOriginalDet));
 	
 	RecHitPointer updatedOriginalHit = 
 	  TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
@@ -87,8 +87,8 @@ ProjectedRecHit2D::ProjectedRecHit2D( const GeomDet * geom, const GeomDet* origi
       }else{
 	const SiStripCluster& clust = *(originalHit().cluster_regional());  
 	
-	StripClusterParameterEstimator::LocalValues lv = 
-	  theCPE->localParameters( clust, *detUnit());
+	StripClusterParameterEstimator::LocalValues lv =
+            theCPE->localParameters( clust, *reinterpret_cast<const GeomDetUnit *>(theOriginalDet));
 	
 	RecHitPointer updatedOriginalHit = 
 	  TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 

@@ -98,11 +98,15 @@ namespace edm {
                                                unsigned int iNumberOfChildren) override;
     virtual std::string workerType() const override;
 
-    virtual void itemsToGet(BranchType branchType, std::vector<ProductHolderIndexAndSkipBit>& indexes) const {
+    virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels) const override {
+      module_->modulesDependentUpon(module_->moduleDescription().processName(),oModuleLabels);
+    }
+
+    virtual void itemsToGet(BranchType branchType, std::vector<ProductHolderIndexAndSkipBit>& indexes) const override {
       module_->itemsToGet(branchType, indexes);
     }
 
-    virtual void itemsMayGet(BranchType branchType, std::vector<ProductHolderIndexAndSkipBit>& indexes) const {
+    virtual void itemsMayGet(BranchType branchType, std::vector<ProductHolderIndexAndSkipBit>& indexes) const override {
       module_->itemsMayGet(branchType, indexes);
     }
 

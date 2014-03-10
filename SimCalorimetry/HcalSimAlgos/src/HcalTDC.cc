@@ -3,19 +3,19 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CLHEP/Random/RandGaussQ.h"
+
 HcalTDC::HcalTDC(unsigned int thresholdDAC) : theTDCParameters(), 
 					      theDbService(0),
 					      theDAC(thresholdDAC),
-					      lsb(3.74),
-					      theRandGaussQ(0) {}
+					      lsb(3.74) {}
 
 HcalTDC::~HcalTDC() {
-  if (theRandGaussQ) delete theRandGaussQ;
 }
 
-void HcalTDC::timing(const CaloSamples& lf, HcalUpgradeDataFrame& digi) const {
+void HcalTDC::timing(const CaloSamples& lf, HcalUpgradeDataFrame& digi, CLHEP::HepRandomEngine* engine) const {
 
-  float const TDC_Threshold(getThreshold(digi.id()));
+  float const TDC_Threshold(getThreshold(digi.id(), engine));
   float const TDC_Threshold_hyst(TDC_Threshold);
   bool risingReady(true), fallingReady(false);
   int tdcBins = theTDCParameters.nbins();
@@ -105,7 +105,7 @@ void HcalTDC::timing(const CaloSamples& lf, HcalUpgradeDataFrame& digi) const {
   } // loop over bunch crossing bins
 }
 
-double HcalTDC::getThreshold(const HcalGenericDetId & detId) const {
+double HcalTDC::getThreshold(const HcalGenericDetId & detId, CLHEP::HepRandomEngine* engine) const {
   // subtract off pedestal and noise once
   double pedestal = theDbService->getHcalCalibrations(detId).pedestal(0);
   double pedestalWidth = theDbService->getHcalCalibrationWidths(detId).pedestal(0);
@@ -117,7 +117,7 @@ double HcalTDC::getThreshold(const HcalGenericDetId & detId) const {
   // the pedestal is assumed to be evenly distributed in time with some
   // random variation.
 
-  return lsb*theDAC - theRandGaussQ->shoot(pedestal,  pedestalWidth)/theTDCParameters.deltaT()/theTDCParameters.nbins();
+  return lsb*theDAC - CLHEP::RandGaussQ::shoot(engine, pedestal,  pedestalWidth)/theTDCParameters.deltaT()/theTDCParameters.nbins();
 }
 
 double HcalTDC::getHysteresisThreshold(double nominal) const {
@@ -127,10 +127,6 @@ double HcalTDC::getHysteresisThreshold(double nominal) const {
   // threshold
 
   return nominal - 0.365*lsb;
-}
-
-void HcalTDC::setRandomEngine(CLHEP::HepRandomEngine & engine) {
-  theRandGaussQ = new CLHEP::RandGaussQ(engine);
 }
 
 void HcalTDC::setDbService(const HcalDbService * service) {

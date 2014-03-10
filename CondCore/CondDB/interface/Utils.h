@@ -7,12 +7,13 @@
 #include <cxxabi.h>
 #include <algorithm>
 #include <iostream>
+#include <tuple>
 
 namespace cond {
 
   namespace {
 
-    std::string demangledName( const std::type_info& typeInfo ){
+    inline std::string demangledName( const std::type_info& typeInfo ){
       int status = 0;
       std::string ret("");
       char* realname = abi::__cxa_demangle( typeInfo.name(), 0, 0, &status);
@@ -25,18 +26,22 @@ namespace cond {
       return ret;
     }
 
-    std::tuple<std::string,std::string,std::string> parseConnectionString( const std::string& connectionString ){
+    inline std::tuple<std::string,std::string,std::string> parseConnectionString( const std::string& connectionString ){
       size_t ptr = 0;
       size_t techEnd = connectionString.find( ':' );
-      if( techEnd == std::string::npos ) throwException( "Connection string is invalid (0)","parseConnectionString" );
+      if( techEnd == std::string::npos ) throwException( "Connection string "+connectionString+" is invalid format.",
+							 "parseConnectionString" );
       std::string technology = connectionString.substr(ptr,techEnd);
       std::string service("");
       ptr = techEnd+1;
-      if( technology != "sqlite_file" ){
-	if( connectionString.substr( ptr,2 )!="//" ) throwException( "Connection string is invalid (1)","parseConnectionString" );
+      if( technology != "sqlite_file" && technology != "sqlite" ){
+	if( connectionString.substr( ptr,2 )!="//" ) throwException( "Connection string "+connectionString+
+								     " is invalid format for technology \""+
+								     technology+"\".","parseConnectionString" );
 	ptr += 2;
 	size_t serviceEnd = connectionString.find( '/', ptr );
-	if( serviceEnd == std::string::npos ) throwException( "Connection string is invalid (2)","parseConnectionString" );
+	if( serviceEnd == std::string::npos ) throwException( "Connection string "+connectionString+" is invalid.",
+							      "parseConnectionString" );
 	service = connectionString.substr( ptr, serviceEnd-ptr );
 	ptr = serviceEnd+1;
       }

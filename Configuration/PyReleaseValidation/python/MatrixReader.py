@@ -245,7 +245,7 @@ class MatrixReader(object):
                             if stepIndex in self.apply or stepName in self.apply:
                                 cmd +=' '+self.addCommand
                         else:
-                            cmd +=' '+self.addCommand
+                          cmd +=' '+self.addCommand
                     if self.wm and self.revertDqmio=='yes':
                         cmd=cmd.replace('DQMROOT','DQM')
                         cmd=cmd.replace('--filetype DQM','')

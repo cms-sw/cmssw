@@ -6,12 +6,15 @@
       digitized data frame
    */
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "CLHEP/Random/RandFlat.h"
 
 class CastorDataFrame;
 
 class CastorAmplifier;
 class CastorCoderFactory;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class CastorElectronicsSim {
 public:
@@ -19,19 +22,16 @@ public:
                      const CastorCoderFactory * coderFactory);
   ~CastorElectronicsSim();
 
-  void setRandomEngine(CLHEP::HepRandomEngine & engine);
-
-  void analogToDigital(CaloSamples & linearFrame, CastorDataFrame & result);
+  void analogToDigital(CLHEP::HepRandomEngine*, CaloSamples & linearFrame, CastorDataFrame & result);
 
   /// Things that need to be initialized every event
-void newEvent();
+  void newEvent(CLHEP::HepRandomEngine*);
 
 private:
-  template<class Digi> void convert(CaloSamples & frame, Digi & result);
+  template<class Digi> void convert(CaloSamples & frame, Digi & result, CLHEP::HepRandomEngine*);
 
   CastorAmplifier * theAmplifier;
   const CastorCoderFactory * theCoderFactory;
-  CLHEP::RandFlat * theRandFlat;
 
   int theStartingCapId;
 };

@@ -1,0 +1,1349 @@
+#!/usr/bin/env python
+'''CMS Conditions DB command-line tool.
+'''
+
+import argparse
+import datetime
+import getpass
+import logging
+import netrc
+import os
+import re
+import sys
+import subprocess
+import tempfile
+import textwrap
+
+import sqlalchemy
+
+import CondCore.Utilities.conddblib as conddb
+
+
+# TODO: Diffs may look better in the -/+ mode, instead the 2 columns mode.
+# TODO: Colored diff! (green +, red -)
+# TODO: Support the old connection string syntax, e.g. sqlite_file://...
+
+# Utility functions
+
+def _rawdict(obj):
+    return dict([(str(column), getattr(obj, column)) for column in obj.__table__.columns.keys()])
+
+
+def _get_payload_full_hash(session, payload, check=True):
+    # Limited to 2 to know whether there is more than one in a single query
+    payloads = session.query(conddb.Payload.hash).\
+            filter(conddb.Payload.hash.like('%s%%' % payload.lower())).\
+            limit(2).\
+            all()
+
+    if check:
+        if len(payloads) == 0:
+            raise Exception('There is no payload matching %s in the database.' % payload)
+        if len(payloads) > 1:
+            raise Exception('There is more than one payload matching %s in the database. Please provide a longer prefix.' % payload)
+
+    return payloads[0].hash if len(payloads) == 1 else None
+
+
+def _dump_payload(session, payload, loadonly):
+    data = session.query(conddb.Payload.data).\
+        filter(conddb.Payload.hash == payload).\
+        one()[0]
+    logging.info('Loading %spayload %s of length %s ...', '' if loadonly else 'and dumping ', payload, len(data))
+    print 'Data (TODO: Replace with the call to the actual compiled C++ tool):', repr(data)
+
+
+def _identify_object(session, objtype, name):
+    # We can't just use get() here since frontier fetches the entire
+    # BLOBs by default when requesting them in a column
+
+    if objtype is not None:
+        # Check the type is correct (i.e. if the object exists)
+        if objtype == 'tag':
+            if not _exists(session, conddb.Tag.name, name):
+                raise Exception('There is no tag named %s in the database.' % name)
+        elif objtype == 'gt':
+            if not _exists(session, conddb.GlobalTag.name, name):
+                raise Exception('There is no global tag named %s in the database.' % name)
+        elif objtype == 'payload':
+            # In the case of a payload, check and also return the full hash
+            return objtype, _get_payload_full_hash(session, name)
+
+        return objtype, name
+
+    # Search for the object
+    tag = _exists(session, conddb.Tag.name, name)
+    global_tag = _exists(session, conddb.GlobalTag.name, name)
+    payload_hash = _get_payload_full_hash(session, name, check = False)
+
+    count = len(filter(None, [tag, global_tag, payload_hash]))
+    if count > 1:
+        raise Exception('There is more than one object named %s in the database.' % name)
+    if count == 0:
+        raise Exception('There is no tag, global tag or (unique) payload named %s in the database.' % name)
+
+    if tag:
+        return 'tag', name
+    elif global_tag:
+        return 'gt', name
+    elif payload_hash is not None:
+        return 'payload', payload_hash
+
+    raise Exception('Should not have arrived here.')
+
+
+def _get_editor(args):
+    if args.editor is not None:
+        return args.editor
+
+    editor = os.environ.get('EDITOR')
+    if editor is None:
+        raise Exception('An editor was not provided and the EDITOR environment variable does not exist either.')
+
+    return editor
+
+
+def _run_editor(editor, tempfd):
+    tempfd.flush()
+    subprocess.check_call('%s %s' % (editor, tempfd.name), shell=True)
+    tempfd.seek(0)
+
+
+def _parse_timestamp(timestamp):
+    try:
+        return datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S.%f')
+    except ValueError:
+        pass
+
+    try:
+        return datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+    except ValueError:
+        pass
+
+    try:
+        return datetime.datetime.strptime(timestamp, '%Y-%m-%d')
+    except ValueError:
+        pass
+
+    raise Exception("Could not parse timestamp '%s'" % timestamp)
+
+
+def _confirm_changes(args):
+    output(args, 'Confirm changes? [n]', newline=False)
+    if not args.yes and raw_input().lower() not in ['y', 'yes']:
+        raise Exception('Aborted by the user.')
+
+
+def _exists(session, primary_key, value):
+    return session.query(primary_key).\
+        filter(primary_key == value).\
+        count() != 0
+
+
+def _regexp(connection, field, regexp):
+    '''To be used inside filter().
+    '''
+
+    if connection.is_oracle or connection.is_frontier:
+        return sqlalchemy.func.regexp_like(field, regexp)
+    elif connection.is_sqlite:
+        # Relies on being a SingletonThreadPool
+        connection.engine.pool.connect().create_function('regexp', 2, lambda data, regexp: re.search(regexp, data) is not None)
+        return sqlalchemy.func.regexp(field, regexp)
+    else:
+        raise Exception('Unimplemented.')
+
+
+def _ilike_or_regexp(args, connection, field, term):
+    '''To be used inside filter().
+    '''
+
+    if args.regexp:
+        return _regexp(connection, field, term)
+
+    return field.ilike('%%%s%%' % term)
+
+
+def _ilike_or_regexp_highlight(args, string, term):
+    '''Highlights the strings that would have matched _ilike_or_regexp()
+    in the database, i.e. performs the same search client-side and adds
+    colors around the matches
+    '''
+
+    highlight = colors.bold_red + '\\1' + colors.end
+
+    if args.regexp:
+        return re.sub('(%s)' % term, highlight, string)
+
+    return re.sub('(%s)' % re.escape(term), highlight, string, flags=re.IGNORECASE)
+
+
+def _list_object(obj):
+    table = []
+
+    for column in obj.__table__.columns.keys():
+        table.append([column, getattr(obj, column)])
+
+    return table
+
+
+def _output_list_object(args, obj):
+    output_table(args,
+        _list_object(obj),
+        ['Property', 'Value'],
+    )
+
+
+def _diff_objects(object1, object2):
+    table = []
+
+    columns = object1.__table__.columns.keys()
+    columns.remove('name')
+    for column in columns:
+        value1 = getattr(object1, column)
+        value2 = getattr(object2, column)
+        if value1 != value2:
+            table.append([column, value1, value2])
+
+    return table
+
+
+def _output_diff_objects(args, object1, object2):
+    output_table(args,
+        _diff_objects(object1, object2),
+        ['Property', '%s Value' % str_db_object(args.db, args.first), '%s Value' % str_db_object(args.destdb, args.second)],
+    )
+
+
+def _default(value, default_value='-'):
+    return default_value if value is None else value
+
+
+def _truefalse(value):
+    return 'Present' if value else '-'
+
+
+def _check_same_object(args):
+    if (args.destdb is None or args.db == args.destdb) and (args.second is None or args.first == args.second):
+        raise Exception('The source object and the destination object are the same (i.e. same database and same name): %s' % str_db_object(args.db, args.first))
+
+
+def _connect(db, init, verbose, read_only, force):
+    logging.debug('Connecting to %s ...', db)
+    connection = conddb.connect(db, init=init, verbose=0 if verbose is None else verbose - 1)
+
+    if not read_only:
+        if connection.is_read_only:
+            raise Exception('Impossible to edit a read-only database.')
+
+        if connection.is_official:
+            if force:
+                logging.warning('You are going to edit an official database. If you are not one of the Offline DB experts but have access to the password for other reasons, please stop now.')
+            else:
+                raise Exception('Editing official databases is forbidden. Use the official DropBox to upload conditions. If you need a special intervention on the database, see the contact help: %s' % conddb.contact_help)
+
+    return connection
+
+
+def connect(args, init=False, read_only=True):
+    args.force = args.force if 'force' in dir(args) else False
+    if 'destdb' in args:
+        if args.destdb is None or args.db == args.destdb:
+            args.destdb = args.db
+            connection = _connect(args.db, init, args.verbose, read_only, args.force)
+            return connection, connection
+
+        # read_only refers to the destination database only
+        # (the source is always read_only) -- see copy() command
+        return _connect(args.db, init, args.verbose, True, args.force), _connect(args.destdb, init, args.verbose, read_only, args.force)
+
+    return _connect(args.db, init, args.verbose, read_only, args.force)
+
+
+def str_db_object(db, name):
+    return '%s::%s' % (db, name)
+
+
+def str_iov(since, insertion_time):
+    return '(%s, %s)' % (since, insertion_time)
+
+
+def str_record(record, label):
+    return '(%s, %s)' % (record, label)
+
+
+class Colors(object):
+    normal_template = '\033[9%sm'
+    bold_template = '\033[9%s;1m'
+
+    bold = '\033[1m'
+
+    black   = normal_template % 0
+    red     = normal_template % 1
+    green   = normal_template % 2
+    yellow  = normal_template % 3
+    blue    = normal_template % 4
+    magenta = normal_template % 5
+    cyan    = normal_template % 6
+    white   = normal_template % 7
+
+    bold_black   = bold_template % 0
+    bold_red     = bold_template % 1
+    bold_green   = bold_template % 2
+    bold_yellow  = bold_template % 3
+    bold_blue    = bold_template % 4
+    bold_magenta = bold_template % 5
+    bold_cyan    = bold_template % 6
+    bold_white   = bold_template % 7
+
+    end = '\033[0m'
+
+    def __init__(self, args):
+        if args.nocolors:
+            # TODO: Also disable if we are not running in a terminal
+            for member in dir(self):
+                if not member.startswith('_'):
+                    setattr(self, member, '')
+
+
+colors = None
+
+
+def output(args, string, *parameters, **kwargs):
+    if args.quiet:
+        return
+
+    output_file = kwargs.get('output_file', sys.stdout)
+
+    print >>output_file, string % parameters + colors.end,
+
+    if kwargs.get('newline', True):
+        print >>output_file
+
+
+def _strip_colors(args, string):
+    '''Strips colors (i.e. ANSI sequences).
+    '''
+
+    if args.nocolors:
+        return string
+
+    return re.sub('\x1b\[[;\d]*[A-Za-z]', '', string)
+
+
+def _ljust_colors(args, string, width, fillchar=' '):
+    '''Same as string.ljust(width, fillchar) but supporting colors.
+    '''
+
+    if args.nocolors:
+        return string.ljust(width, fillchar)
+
+    return string + fillchar * (width - len(_strip_colors(args, string)))
+
+
+def output_table(args, table, headers, filters=None, output_file=None, no_first_header=False):
+    if args.quiet:
+        return
+
+    if output_file is None:
+        output_file = sys.stdout
+
+    if filters is None:
+        filters = [None] * len(headers)
+
+    def max_length_filter(s):
+        s = str(s).replace('\n', '\\n')
+        return '%s...' % s[:conddb.name_length] if len(s) > conddb.name_length else s
+
+    new_table = [[] for i in range(len(table))]
+    for column_index in range(len(headers)):
+        for row_index, row in enumerate(table):
+            cell = max_length_filter(row[column_index])
+            if filters[column_index] is not None:
+                cell = filters[column_index](cell)
+            new_table[row_index].append(cell)
+
+    # Calculate the width of each column
+    widths = []
+    for column_index in range(len(headers)):
+        width = len(headers[column_index])
+        for row in new_table:
+            width = max(width, len(_strip_colors(args, row[column_index])))
+        widths.append(width)
+
+    # Print the table
+    header_separator = '-'
+    column_separator = ''
+
+    for column_index, header in enumerate(headers):
+        output(args, colors.bold + _ljust_colors(args, header, widths[column_index]) + ' ' + column_separator, newline=False, output_file=output_file)
+    output(args, '', output_file=output_file)
+
+    for column_index in range(len(headers)):
+        output(args, (' ' if column_index == 0 and no_first_header else header_separator) * widths[column_index] + ' ' + column_separator, newline=False, output_file=output_file)
+    output(args, '', output_file=output_file)
+
+    for row in new_table:
+        for column_index, cell in enumerate(row):
+            output(args, _ljust_colors(args, cell, widths[column_index]) + ' ' + column_separator, newline=False, output_file=output_file)
+        output(args, '', output_file=output_file)
+    output(args, '', output_file=output_file)
+
+
+# Commands
+def help(args):
+    output(args, colors.bold + 'CMS Condition DB command-line tool.')
+    output(args, '')
+    output(args, colors.bold + 'Usage')
+    output(args, colors.bold + '-----')
+    output(args, '')
+    output(args, '  This tool provides several subcommands, each of those')
+    output(args, '  serves a well-defined purpose.')
+    output(args, '')
+    output(args, '  To see the list of available subcommands and the global options, run:')
+    output(args, '')
+    output(args, '    conddb -h')
+    output(args, '')
+    output(args, '  To see the help of a subcommand and its options, run:')
+    output(args, '')
+    output(args, '    conddb <command> -h.')
+    output(args, '    e.g. conddb list -h')
+    output(args, '')
+    output(args, '')
+    output(args, colors.bold + 'Exit status')
+    output(args, colors.bold + '-----------')
+    output(args, '')
+    output(args, '  0  =  OK.')
+    output(args, '  1  =  Runtime error (i.e. any kind of error not related to syntax).')
+    output(args, '  2  =  Usage/syntax error.')
+    output(args, '')
+    output(args, '')
+    output(args, colors.bold + 'Database parameter (--db)')
+    output(args, colors.bold + '-------------------------')
+    output(args, '  ' + '\n  '.join(textwrap.dedent(conddb.database_help).splitlines()))
+    output(args, '')
+    output(args, '')
+    output(args, colors.bold + 'Contact help')
+    output(args, colors.bold + '------------')
+    output(args, '')
+    output(args, '  ' + '\n  '.join(textwrap.wrap(conddb.contact_help)))
+    output(args, '')
+
+
+def init(args):
+    connection = connect(args, init=True, read_only=False)
+
+    logging.info('Initializing database...')
+    connection.init(drop=args.drop)
+
+
+def status(args):
+    connection = connect(args)
+
+    valid = connection.is_valid()
+
+    output(args, 'Database Status:')
+    output(args, '')
+    output(args, '         Schema:  %s', 'OK (required tables are present)' if valid else 'Wrong (missing required tables)')
+    if not valid:
+        return
+
+    session = connection.session()
+
+    tag_count = session.query(conddb.Tag.name).count()
+    payload_count = session.query(conddb.Payload.hash).count()
+    global_tag_count = session.query(conddb.GlobalTag.name).count()
+
+    output(args, '         # tags:  %s  %s', tag_count, '(the last %s inserted are shown below)' % args.limit if tag_count > 0 else '')
+    output(args, '     # payloads:  %s  %s', payload_count, '(the last %s inserted are shown below)' % args.limit if payload_count > 0 else '')
+    output(args, '  # global tags:  %s  %s', global_tag_count, '(the last %s inserted are shown below)' % args.limit if global_tag_count > 0 else '')
+    output(args, '')
+
+    if tag_count > 0:
+        output_table(args,
+            session.query(conddb.Tag.name, conddb.Tag.time_type, conddb.Tag.object_type, conddb.Tag.synchronization, conddb.Tag.insertion_time, conddb.Tag.description).\
+                order_by(conddb.Tag.insertion_time.desc()).\
+                limit(args.limit).\
+                all(),
+            ['Name', 'Time Type', 'Object Type', 'Synchronization', 'Insertion Time', 'Description'],
+        )
+
+    if payload_count > 0:
+        output_table(args,
+            session.query(conddb.Payload.hash, conddb.Payload.object_type, conddb.Payload.version, conddb.Payload.insertion_time).\
+                order_by(conddb.Payload.insertion_time.desc()).\
+                limit(args.limit).\
+                all(),
+            ['Payload', 'Object Type', 'Version', 'Insertion Time'],
+        )
+
+    if global_tag_count > 0:
+        output_table(args,
+            session.query(conddb.GlobalTag.name, conddb.GlobalTag.release, conddb.GlobalTag.insertion_time, conddb.GlobalTag.description).\
+                order_by(conddb.GlobalTag.insertion_time.desc()).\
+                limit(args.limit).\
+                all(),
+            ['Global Tag', 'Release', 'Insertion Time', 'Description'],
+        )
+
+
+def search(args):
+    connection = connect(args)
+    session = connection.session()
+
+    max_limit = 100
+    if args.limit > max_limit:
+        raise Exception('The limit on the number of returned results is capped at %s. Please use a reasonable limit.' % max_limit)
+
+    if connection.is_frontier and ':' in args.string:
+        raise Exception('Sorry, the colon : character is not allowed in queries to Frontier (yet). Please use another search term or connect to Oracle directly.')
+
+    logging.info('Searching with a limit of %s results per type of object, starting from the latest inserted ones. If you do not find your object, please try to be more specific or increase the limit of returned results.', args.limit)
+
+    if args.nocolors:
+        _ilike_or_regexp_highlight_filter = None
+    else:
+        def _ilike_or_regexp_highlight_filter(cell):
+            return _ilike_or_regexp_highlight(args, cell, args.string)
+
+    output_table(args,
+        session.query(conddb.Tag.name, conddb.Tag.time_type, conddb.Tag.object_type, conddb.Tag.synchronization, conddb.Tag.insertion_time, conddb.Tag.description).\
+            filter(
+                _ilike_or_regexp(args, connection, conddb.Tag.name, args.string)
+                | _ilike_or_regexp(args, connection, conddb.Tag.object_type, args.string)
+                | _ilike_or_regexp(args, connection, conddb.Tag.description, args.string)
+            ).\
+            order_by(conddb.Tag.insertion_time.desc()).\
+            limit(args.limit).\
+            all(),
+        ['Tag', 'Time Type', 'Object Type', 'Synchronization', 'Insertion Time', 'Description'],
+        filters = [_ilike_or_regexp_highlight_filter, None, _ilike_or_regexp_highlight_filter, None, None, _ilike_or_regexp_highlight_filter],
+    )
+
+    output_table(args,
+        session.query(conddb.Payload.hash, conddb.Payload.object_type, conddb.Payload.version, conddb.Payload.insertion_time).\
+            filter(
+                _ilike_or_regexp(args, connection, conddb.Payload.hash, args.string)
+                | _ilike_or_regexp(args, connection, conddb.Payload.object_type, args.string)
+            ).\
+            order_by(conddb.Payload.insertion_time.desc()).\
+            limit(args.limit).\
+            all(),
+        ['Payload', 'Object Type', 'Version', 'Insertion Time'],
+        filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, None, None],
+    )
+
+    output_table(args,
+        session.query(conddb.GlobalTag.name, conddb.GlobalTag.release, conddb.GlobalTag.insertion_time, conddb.GlobalTag.description).\
+            filter(
+                _ilike_or_regexp(args, connection, conddb.GlobalTag.name, args.string)
+                | _ilike_or_regexp(args, connection, conddb.GlobalTag.release, args.string)
+                | _ilike_or_regexp(args, connection, conddb.GlobalTag.description, args.string)
+            ).\
+            order_by(conddb.GlobalTag.insertion_time.desc()).\
+            limit(args.limit).\
+            all(),
+        ['Global Tag', 'Release', 'Insertion Time', 'Description'],
+        filters = [_ilike_or_regexp_highlight_filter, _ilike_or_regexp_highlight_filter, None, _ilike_or_regexp_highlight_filter],
+    )
+
+
+def _inserted_before(timestamp):
+    '''To be used inside filter().
+    '''
+
+    if timestamp is None:
+        # XXX: Returning None does not get optimized (skipped) by SQLAlchemy,
+        #      and returning True does not work in Oracle (generates "and 1"
+        #      which breaks Oracle but not SQLite). For the moment just use
+        #      this dummy condition.
+        return sqlalchemy.literal(True) == sqlalchemy.literal(True)
+
+    return conddb.IOV.insertion_time <= _parse_timestamp(timestamp)
+
+
+def _high(n):
+    return int(n) >> 32
+
+
+def _low(n):
+    return int(n) & 0xffffffff
+
+
+def _since_filter(time_type):
+    '''Returns a filter function for the given time type that returns
+    a human-readable string of the given since.
+
+    For run (sinces are 32-bit unsigned integers), hash (sinces are strings)
+    and user (sinces are strings) the filter returns the sinces unchanged.
+
+    The time sinces are 64-bit integers built from a pair (UNIX time,
+    microseconds), each 32-bit wide. The filter returns a readable timestamp,
+    including the microseconds.
+
+    The lumi sinces are 64-bit integers built from a pair (run, lumi),
+    each 32-bit wide. The filter returns a string with both numbers, split.
+    '''
+
+    if time_type == conddb.TimeType.time:
+        return lambda since: str(datetime.datetime.fromtimestamp(_high(since)).replace(microsecond = _low(since)))
+
+    if time_type == conddb.TimeType.lumi:
+        return lambda since: '%s Lumi %5s' % (_high(since), _low(since))
+
+    return lambda since: since
+
+
+def list_(args):
+    connection = connect(args)
+    session = connection.session()
+
+    for name in args.name:
+        is_tag = _exists(session, conddb.Tag.name, name)
+        if is_tag:
+            if args.long:
+                _output_list_object(args, session.query(conddb.Tag).get(name))
+
+            logging.info('Listing with a limit of %s IOVs, starting from the highest since. If you need to see more, please increase the limit of returned results.', args.limit)
+
+            time_type = session.query(conddb.Tag.time_type).\
+                filter(conddb.Tag.name == name).\
+                scalar()
+
+            output_table(args,
+                session.query(conddb.IOV.since, conddb.IOV.insertion_time, conddb.IOV.payload_hash, conddb.Payload.object_type).\
+                    join(conddb.IOV.payload).\
+                    filter(
+                        conddb.IOV.tag_name == name,
+                        _inserted_before(args.snapshot),
+                    ).\
+                    order_by(conddb.IOV.since.desc(), conddb.IOV.insertion_time.desc()).\
+                    limit(args.limit).\
+                    from_self().\
+                    order_by(conddb.IOV.since, conddb.IOV.insertion_time).\
+                    all(),
+                ['Since', 'Insertion Time', 'Payload', 'Object Type'],
+                filters = [_since_filter(time_type), None, None, None],
+            )
+
+        is_global_tag = _exists(session, conddb.GlobalTag.name, name)
+        if is_global_tag:
+            if args.long:
+                _output_list_object(args, session.query(conddb.GlobalTag).get(name))
+
+            output_table(args,
+                session.query(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label, conddb.GlobalTagMap.tag_name).\
+                    filter(conddb.GlobalTagMap.global_tag_name == name).\
+                    order_by(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label).\
+                    all(),
+                ['Record', 'Label', 'Tag'],
+            )
+
+        if not is_tag and not is_global_tag:
+            raise Exception('There is no tag or global tag named %s in the database.' % name)
+
+
+def _diff_tags(args, session1, session2, first, second):
+    tag1 = session1.query(conddb.Tag).get(first)
+    tag2 = session2.query(conddb.Tag).get(second)
+
+    if args.long:
+        _output_diff_objects(args, tag1, tag2)
+
+    if tag1.time_type != tag2.time_type:
+        output(args, 'Skipping diff of IOVs, since the time_type is different.')
+    else:
+        iovs1 = dict(session1.query(conddb.IOV.since, conddb.IOV.payload_hash).\
+            filter(
+                conddb.IOV.tag_name == first,
+                _inserted_before(args.snapshot),
+            ).\
+            all()
+        )
+        iovs2 = dict(session2.query(conddb.IOV.since, conddb.IOV.payload_hash).\
+            filter(
+                conddb.IOV.tag_name == second,
+                _inserted_before(args.snapshot),
+            ).\
+            all()
+        )
+
+        table = []
+        iovs = [(x, iovs1.get(x), iovs2.get(x)) for x in sorted(set(iovs1) | set(iovs2))]
+
+        # Since 1 != 2 and both are != than any payload,
+        # this will trigger printing the last line [last_since, Infinity)
+        iovs.append(('Infinity', 1, 2))
+
+        prev_since, prev_payload1, prev_payload2, prev_equal = None, None, None, None
+        for since, payload1, payload2 in iovs:
+            if prev_since is None:
+                # First time
+                prev_equal = payload1 == payload2
+                prev_since = since
+                prev_payload1, prev_payload2 = payload1, payload2
+                continue
+
+            # If None, the payloads are the previous one
+            if payload1 is None:
+                payload1 = prev_payload1
+            if payload2 is None:
+                payload2 = prev_payload2
+
+            if prev_equal:
+                # If the previous payloads were equal and these ones
+                # were too, we do not print anything (and we do not update
+                # the prev_since). If the previous were equal but these
+                # are different, the equal-range has finished: we print it.
+                if payload1 != payload2:
+                    if not args.short:
+                        table.append(('[%s, %s)' % (prev_since, since), '=', '='))
+                    prev_since = since
+            else:
+                # If the previous payloads were not equal, we print them,
+                # since we print all the different ranges (even if they are
+                # contiguous). However, we skip in the case these payloads
+                # and both equal to the previous ones (and we do not
+                # update the prev_since). Should not be common, since
+                # there is no point on having contiguous IOVs with the same
+                # payloads in a tag.
+                if payload1 != prev_payload1 or payload2 != prev_payload2:
+                    table.append(('[%s, %s)' % (prev_since, since), _default(prev_payload1), _default(prev_payload2)))
+                    prev_since = since
+
+            prev_equal = payload1 == payload2
+            prev_payload1, prev_payload2 = payload1, payload2
+
+        output_table(args,
+            table,
+            ['Range', '%s Payload' % str_db_object(args.db, first), '%s Payload' % str_db_object(args.destdb, second)],
+        )
+
+
+def diff(args):
+    _check_same_object(args)
+
+    connection1, connection2 = connect(args)
+    session1, session2 = connection1.session(), connection2.session()
+
+    if args.second is None:
+        args.second = args.first
+
+    is_tag1 = _exists(session1, conddb.Tag.name, args.first)
+    is_tag2 = _exists(session2, conddb.Tag.name, args.second)
+    if is_tag1 and is_tag2:
+        _diff_tags(args, session1, session2, args.first, args.second)
+
+    is_global_tag1 = _exists(session1, conddb.GlobalTag.name, args.first)
+    is_global_tag2 = _exists(session2, conddb.GlobalTag.name, args.second)
+    if is_global_tag1 and is_global_tag2:
+        global_tag1 = session1.query(conddb.GlobalTag).get(args.first)
+        global_tag2 = session2.query(conddb.GlobalTag).get(args.second)
+
+        if args.long:
+            _output_diff_objects(args, global_tag1, global_tag2)
+
+        map1 = dict([(tuple(x[:2]), x[2]) for x in session1.query(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label, conddb.GlobalTagMap.tag_name).\
+            filter(conddb.GlobalTagMap.global_tag_name == args.first)
+        ])
+        map2 = dict([(tuple(x[:2]), x[2]) for x in session2.query(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label, conddb.GlobalTagMap.tag_name).\
+            filter(conddb.GlobalTagMap.global_tag_name == args.second)
+        ])
+
+        records = sorted(set(map1) | set(map2))
+
+        table = []
+        diff_tags = set([])
+        for record in records:
+            value1 = map1.get(record)
+            value2 = map2.get(record)
+
+            if value1 is None or value2 is None or value1 != value2:
+                table.append((record[0], record[1], _default(value1), _default(value2)))
+                diff_tags.add((value1, value2))
+
+        output_table(args,
+            table,
+            ['Record', 'Label', '%s Tag' % str_db_object(args.db, args.first), '%s Tag' % str_db_object(args.destdb, args.second)],
+        )
+
+        if args.deep:
+            for tag1, tag2 in diff_tags:
+                _diff_tags(args, session1, session2, tag1, tag2)
+
+    if not (is_tag1 and is_tag2) and not (is_global_tag1 and is_global_tag2):
+        raise Exception('There are no tag or global tag pairs named %s and %s in the database(s).' % (args.first, args.second))
+
+
+def _copy_tag(args, session1, session2, first, second):
+    logging.info('Copying tag %s to %s ...', str_db_object(args.db, first), str_db_object(args.destdb, second))
+
+    # Copy the tag
+    tag = _rawdict(session1.query(conddb.Tag).get(args.first))
+    tag['name'] = args.second
+    tag['end_of_validity'] = 0 # XXX: SQLite does not work with long ints...
+    session2.add(conddb.Tag(**tag))
+
+    # Get the closest smaller IOV than the given starting point (args.from),
+    # since it may lie between two sinces. For the ending point (args.to)
+    # is not needed, since the last IOV of a tag always goes up to infinity.
+    # In the case where the starting point is before any IOV, we do not need
+    # to cut the query anyway.
+    prev_iov = None
+    if getattr(args, 'from') is not None:
+        prev_iov = session1.query(conddb.IOV.since).\
+            filter(
+                conddb.IOV.tag_name == args.first,
+                conddb.IOV.since <= getattr(args, 'from'),
+            ).\
+            order_by(conddb.IOV.since.desc()).\
+            limit(1).\
+            scalar()
+        logging.debug('The closest smaller IOV than the given starting one (--from) is %s...', prev_iov)
+
+
+    # Copy the distinct payloads referenced in the IOVs of the tag
+    # FIXME: Put the DISTINCT query as a subquery (we can't directly use distinct on BLOBs)
+    query = session1.query(conddb.IOV.payload_hash).filter(conddb.IOV.tag_name == args.first)
+    if prev_iov is not None:
+        query = query.filter(conddb.IOV.since >= prev_iov)
+    if args.to is not None:
+        query = query.filter(conddb.IOV.since <= args.to)
+    query = query.distinct()
+    for (payload_hash, ) in query:
+        if _exists(session2, conddb.Payload.hash, payload_hash):
+            logging.info('Skipping copy of payload %s to %s since it already exists...', str_db_object(args.db, payload_hash), str_db_object(args.destdb, payload_hash))
+        else:
+            logging.info('Copying payload %s to %s ...', str_db_object(args.db, payload_hash), str_db_object(args.destdb, payload_hash))
+            session2.add(conddb.Payload(** _rawdict(session1.query(conddb.Payload).filter(conddb.Payload.hash == payload_hash).one())))
+
+    # Copy the IOVs of the tag
+    query = session1.query(conddb.IOV).filter(conddb.IOV.tag_name == args.first)
+    if prev_iov is not None:
+        query = query.filter(conddb.IOV.since >= prev_iov)
+    if args.to is not None:
+        query = query.filter(conddb.IOV.since <= args.to)
+    for iov in query:
+        logging.debug('Copying IOV %s -> %s...', str_iov(iov.since, iov.insertion_time), iov.payload_hash)
+        iov = _rawdict(iov)
+        iov['tag_name'] = args.second
+
+        # In the first IOV of the tag we need to use the starting point given
+        # by the user, instead of the one coming from the source tag; unless
+        # the starting point was before any IOV: in such case, up to the first
+        # IOV there is no payload, so we use the one from the source tag.
+        # Note that we need to replace it for every insertion time (since
+        # the primary key is (since, insertion_time).
+        if prev_iov is not None and iov['since'] == prev_iov:
+            iov['since'] = getattr(args, 'from')
+            first_iov = False
+
+        session2.add(conddb.IOV(**iov))
+
+
+def copy(args):
+    _check_same_object(args)
+
+    connection1, connection2 = connect(args, read_only=False)
+    session1, session2 = connection1.session(), connection2.session()
+
+    args.type, args.first = _identify_object(session1, args.type, args.first)
+
+    if args.type == 'payload':
+        if args.second is None:
+            args.second = args.first
+        elif args.first != args.second:
+            raise Exception('Cannot modify the name (hash) of a payload while copying, since the hash has to match the data.')
+
+        logging.info('Copying payload %s to %s ...', str_db_object(args.db, args.first), str_db_object(args.destdb, args.second))
+
+        # Copy the payload
+        session2.add(conddb.Payload(**_rawdict(session1.query(conddb.Payload).get(args.first))))
+
+        _confirm_changes(args)
+        session2.commit()
+
+
+    elif args.type == 'tag':
+        if args.second is None:
+            args.second = args.first
+
+        _copy_tag(args, session1, session2, args.first, args.second)
+
+        _confirm_changes(args)
+        session2.commit()
+
+
+    elif args.type == 'gt':
+        if args.second is None:
+            args.second = args.first
+
+        logging.info('Copying global tag %s to %s ...', str_db_object(args.db, args.first), str_db_object(args.destdb, args.second))
+
+        # Copy the global tag
+        global_tag = _rawdict(session1.query(conddb.GlobalTag).get(args.first))
+        global_tag['name'] = args.second
+        session2.add(conddb.GlobalTag(**global_tag))
+
+        # Copy the tags of the global tag
+        query = session1.query(conddb.GlobalTagMap.tag_name).filter(conddb.GlobalTagMap.global_tag_name == args.first).distinct()
+        for (tag, ) in query:
+            if _exists(session2, conddb.Tag.name, tag):
+                logging.warn('Skipping copy of tag %s to %s since it already exists... *The tags may differ in content*', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
+            else:
+                _copy_tag(args, session1, session2, tag, tag)
+
+        # Copy the map of the global tag
+        query = session1.query(conddb.GlobalTagMap).filter(conddb.GlobalTagMap.global_tag_name == args.first)
+        for map_ in query:
+            logging.debug('Copying global tag map %s -> %s ...', str_record(map_.record, map_.label), map_.tag_name)
+            map_ = _rawdict(map_)
+            map_['global_tag_name'] = args.second
+            session2.add(conddb.GlobalTagMap(**map_))
+
+        _confirm_changes(args)
+        session2.commit()
+
+
+def edit(args):
+    connection = connect(args, read_only=False)
+    session = connection.session()
+
+    args.type, name = _identify_object(session, args.type, args.name)
+
+    if args.editor is None:
+        editor = _get_editor(args)
+
+    with tempfile.NamedTemporaryFile() as tempfd:
+
+        if args.type == 'payload':
+            raise Exception('TODO')
+
+            properties = session.query(conddb.Payload.object_type, conddb.Payload.version, conddb.Payload.insertion_time).\
+                filter(conddb.Payload.hash == name).\
+                one()
+            columns = properties.keys()
+
+            tempfd.write('''# Editing payload %s
+#
+# You can modify rows/lines after the headers. Then, save the file and
+# quit the editor. The changes will be recognized and you will be asked
+# for confirmation before the changes are written into the database.
+#
+# The order of the rows does not matter. Whitespace is not important.
+# Lines starting with # are ignored.
+#
+# You can edit the insertion time -- however, note that if these conditions
+# are to be uploaded to an official database, the times will be anyway
+# replaced with the actual insertion times.
+
+''' % payload_hash)
+
+            table = zip(columns, properties)
+            output_table(args,
+                table,
+                ['Property', 'Value'],
+                output_file = tempfd,
+            )
+
+            _run_editor(editor, tempfd)
+
+            new_table = []
+            in_table = False
+            for line in tempfd.readlines():
+                line = line.strip()
+                if len(line) == 0 or line.startswith('#'):
+                    continue
+
+                if not in_table:
+                    if all([x == '-' for x in line.replace(' ','')]):
+                        in_table = True
+                    continue
+
+                key, value = line.split(None, 1)
+
+                if key == 'insertion_time':
+                    value = _parse_timestamp(value)
+
+                new_table.append((key, value))
+
+            table = set(table)
+            new_table = set(new_table)
+
+            added = new_table - table
+            deleted = table - new_table
+
+            if len(added) == 0 and len(deleted) == 0:
+                raise Exception('No changes found.')
+
+            values = dict(new_table)
+            if set(values.keys()) != set(columns):
+                raise Exception('It is not possible to modify the name of the properties or add/remove them. Please only modify the values.')
+
+            changes = [('+' if x in added else '-', x[0], x[1]) for x in added | deleted]
+            output_table(args,
+                sorted(changes, key=lambda x: (x[1], 0 if x[0] == '-' else 1)),
+                ['', 'Property', 'Value'],
+                no_first_header = True,
+            )
+
+            _confirm_changes(args)
+
+            payload = session.query(conddb.Payload).\
+                filter(conddb.Payload.hash == payload_hash).\
+                update(dict(added | deleted))
+            session.commit()
+
+
+        elif args.type == 'tag':
+            table = session.query(conddb.IOV.since, conddb.IOV.insertion_time, conddb.IOV.payload_hash).\
+                filter(conddb.IOV.tag_name == name).\
+                order_by(conddb.IOV.since, conddb.IOV.insertion_time).\
+                all()
+
+            output_table(args,
+                table,
+                ['Since', 'Insertion Time', 'Payload'],
+                output_file = tempfd,
+            )
+
+            tempfd.write('''
+# Editing tag %s
+#
+# You can add, remove or modify rows/lines after the headers.
+# Then, save the file and quit the editor.
+# The changes will be recognized and you will be asked for confirmation
+# before the changes are written into the database.
+#
+# The order of the rows does not matter. Whitespace is not important.
+# Lines starting with # are ignored.
+#
+# Payload hashes do not need to be full -- a prefix is enough if unique.
+# The program will fill find the full hash.
+#
+# You can edit insertion times -- however, note that if these conditions
+# are to be uploaded to an official database, the times will be anyway
+# replaced with the actual insertion times. The format must be
+# one of the following: '2013-01-20', '2013-01-20 10:11:12' or
+# '2013-01-20 10:11:12.123123'.
+#
+# Suggestion: open another terminal to copy the payloads you need.
+''' % name)
+
+            _run_editor(editor, tempfd)
+
+            new_table = []
+            for index, line in enumerate(tempfd.readlines()):
+                if index in {0, 1}:
+                    continue
+
+                line = line.strip()
+
+                if len(line) == 0 or line.startswith('#'):
+                    continue
+
+                splitted = line.split()
+                if len(splitted) == 3:
+                    since, insertion_timestamp, payload = splitted
+                elif len(splitted) == 4:
+                    since, insertion_date, insertion_time, payload = splitted
+                    insertion_timestamp = '%s %s' % (insertion_date, insertion_time)
+                else:
+                    raise Exception('Each line must contain the since, timestamp and payload fields in the required format.')
+
+                # If they payload length is equal, assume it exists --
+                # this avoids queries for the unmodified payloads.
+                if len(payload) > conddb.hash_length:
+                    raise Exception('Payload hash too long.')
+                elif len(payload) < conddb.hash_length:
+                    payload = _get_payload_full_hash(session, payload)
+
+                new_table.append((int(since), _parse_timestamp(insertion_timestamp), payload))
+
+            if len(new_table) != len(set([x[0] for x in new_table])):
+                raise Exception('Duplicated since.')
+
+            table = set(table)
+            new_table = set(new_table)
+
+            added = new_table - table
+            deleted = table - new_table
+
+            if len(added) == 0 and len(deleted) == 0:
+                raise Exception('No changes found.')
+
+            changes = [('+' if x in added else '-', x[0], x[1], x[2]) for x in added | deleted]
+            output_table(args,
+                sorted(changes, key=lambda x: (x[1], 0 if x[0] == '-' else 1)),
+                ['', 'Since', 'Insertion Time', 'Payload'],
+                no_first_header = True,
+            )
+
+            _confirm_changes(args)
+
+            # Use session.delete() instead of bulk delete to let SQLAlchemy use UPDATE
+            # (since we may disable DELETE in Oracle for the tables)
+            for since, insertion_time, _ in deleted:
+                session.delete(session.query(conddb.IOV).get((name, since, insertion_time)))
+            for since, insertion_time, payload in added:
+                session.add(conddb.IOV(tag_name=name, since=since, insertion_time=insertion_time, payload_hash=payload))
+            session.commit()
+
+        elif args.type == 'gt':
+            table = session.query(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label, conddb.GlobalTagMap.tag_name).\
+                filter(conddb.GlobalTagMap.global_tag_name == name).\
+                order_by(conddb.GlobalTagMap.record, conddb.GlobalTagMap.label).\
+                all()
+
+            output_table(args,
+                table,
+                ['Record', 'Label', 'Tag'],
+                output_file = tempfd,
+            )
+
+            tempfd.write('''
+# Editing global tag %s
+#
+# You can add, remove or modify rows/lines after the headers.
+# Then, save the file and quit the editor.
+# The changes will be recognized and you will be asked for confirmation
+# before the changes are written into the database.
+#
+# To mark records without label, use a single '%s' character.
+#
+# The order of the rows does not matter. Whitespace is not important.
+# Lines starting with # are ignored.
+''' % (name, conddb.empty_label))
+
+            _run_editor(editor, tempfd)
+
+            new_table = []
+            for index, line in enumerate(tempfd.readlines()):
+                if index in {0, 1}:
+                    continue
+
+                line = line.strip()
+
+                if len(line) == 0 or line.startswith('#'):
+                    continue
+
+                record, label, tag = line.split()
+
+                new_table.append((record, label, tag))
+
+            if len(new_table) != len(set([(x[0], x[1]) for x in new_table])):
+                raise Exception('Duplicated (record, label) pair.')
+
+            table = set(table)
+            new_table = set(new_table)
+
+            added = new_table - table
+            deleted = table - new_table
+
+            if len(added) == 0 and len(deleted) == 0:
+                raise Exception('No changes found.')
+
+            changes = [('+' if x in added else '-', x[0], x[1], x[2]) for x in added | deleted]
+            output_table(args,
+                sorted(changes, key=lambda x: (x[1], 0 if x[0] == '-' else 1)),
+                ['', 'Record', 'Label', 'Tag'],
+                no_first_header = True,
+            )
+
+            _confirm_changes(args)
+
+            # Use session.delete() instead of bulk delete to let SQLAlchemy use UPDATE
+            # (since we may disable DELETE in Oracle for the tables)
+            for record, label, _ in deleted:
+                session.delete(session.query(conddb.GlobalTagMap).get((name, record, label)))
+            for record, label, tag in added:
+                session.add(conddb.GlobalTagMap(global_tag_name=name, record=record, label=label, tag_name=tag))
+            session.commit()
+
+
+def delete(args):
+    connection = connect(args, read_only=False)
+    session = connection.session()
+
+    args.type, name = _identify_object(session, args.type, args.name)
+
+    if args.type == 'payload':
+        output_table(args,
+            [('-', name, )],
+            ['', 'Payload'],
+            no_first_header = True,
+        )
+
+        _confirm_changes(args)
+
+        session.query(conddb.Payload).\
+            filter(conddb.Payload.hash == name).\
+            delete()
+        session.commit()
+
+    elif args.type == 'tag':
+        output_table(args,
+            [('-', name, )],
+            ['', 'Tag'],
+            no_first_header = True,
+        )
+
+        _confirm_changes(args)
+
+        session.query(conddb.IOV).\
+            filter(conddb.IOV.tag_name == name).\
+            delete()
+        session.query(conddb.Tag).\
+            filter(conddb.Tag.name == name).\
+            delete()
+        session.commit()
+
+    elif args.type == 'gt':
+        output_table(args,
+            [('-', name, )],
+            ['', 'Global Tag'],
+            no_first_header = True,
+        )
+
+        _confirm_changes(args)
+
+        session.query(conddb.GlobalTagMap).\
+            filter(conddb.GlobalTagMap.global_tag_name == name).\
+            delete()
+        session.query(conddb.GlobalTag).\
+            filter(conddb.GlobalTag.name == name).\
+            delete()
+        session.commit()
+
+
+def dump(args):
+    connection = connect(args)
+    session = connection.session()
+
+    args.type, name = _identify_object(session, args.type, args.name)
+
+    if args.type == 'payload':
+        _dump_payload(session, name, args.loadonly)
+
+    elif args.type == 'tag':
+        for payload, in session.query(conddb.IOV.payload_hash).\
+            filter(conddb.IOV.tag_name == name).\
+            distinct():
+            _dump_payload(session, payload, args.loadonly)
+
+    elif args.type == 'gt':
+        for payload, in session.query(conddb.IOV.payload_hash).\
+            filter(conddb.GlobalTagMap.global_tag_name == name, conddb.IOV.tag_name == conddb.GlobalTagMap.tag_name).\
+            distinct():
+            _dump_payload(session, payload, args.loadonly)
+
+
+def main():
+    '''Entry point.
+    '''
+
+    global colors
+
+    if len(sys.argv) == 1:
+        class Args(object):
+            quiet = False
+            nocolors = False
+        colors = Colors(Args())
+        help(Args())
+        sys.exit(2)
+
+    parser = argparse.ArgumentParser(description='CMS Condition DB command-line tool. For general help (manual page), use the help subcommand.', epilog='Contact help: %s' % conddb.contact_help)
+    parser.add_argument('--db', '-d', default='pro', help='Database to run the command on. Run the help subcommand for more information: conddb help')
+    parser.add_argument('--verbose', '-v', action='count', help='Verbosity level. -v prints debugging information of this tool, like tracebacks in case of errors. -vv prints, in addition, all SQL statements issued. -vvv prints, in addition, all results returned by queries.')
+    parser.add_argument('--quiet', '-q', action='store_true', help='Quiet mode. Disables all standard output.')
+    parser.add_argument('--yes', '-y', action='store_true', help='Acknowledged mode. Disables confirmation prompts before writes to the database.')
+    parser.add_argument('--nocolors', action='store_true', help='Disable colors. TODO: This is automatically done when the output is not connected to a terminal (e.g. a file).')
+    parser.add_argument('--editor', '-e', default=None, help='Editor to use. Default: the content of the EDITOR environment variable.')
+    parser.add_argument('--force', action='store_true', help='Force edit in official databases. Only meant for experts.')
+    parser_subparsers = parser.add_subparsers(title='Available subcommands')
+
+    parser_help = parser_subparsers.add_parser('help', description='General help (manual page).')
+    parser_help.set_defaults(func=help)
+
+    parser_init = parser_subparsers.add_parser('init', description='Initializes a CMS Condition DB, i.e. creates tables, sequences, indexes, etc. if they do not exist.')
+    parser_init.add_argument('--drop', action='store_true', help='Drop tables before creating them. Note: This will destroy all the data.')
+    parser_init.set_defaults(func=init)
+
+    parser_status = parser_subparsers.add_parser('status', description='Shows a summary of the status of a database.')
+    parser_status.add_argument('--limit', '-L', type=int, default=5, help='Limit on the number of results per type of object. The returned results are the latest N inserted into the database.')
+    parser_status.set_defaults(func=status)
+
+    parser_list = parser_subparsers.add_parser('list', description='Lists the contents of objects. For a tag, a list of IOVs. For a global tag, a mapping tag <-> record. If there is ambiguity, all are listed.')
+    parser_list.add_argument('name', nargs='+', help="Name of the object. This can be a tag's name or a global tag's name. It must exactly match -- if needed, use the search command first to look for it.")
+    parser_list.add_argument('--long', '-l', action='store_true', help='Long output. Lists the properties (e.g. description) of the objects as well (not only their content).')
+    parser_list.add_argument('--snapshot', '-T', default=None, help="Snapshot time. If provided, the output will represent the state of the IOVs inserted into database up to the given time. The format of the string must be one of the following: '2013-01-20', '2013-01-20 10:11:12' or '2013-01-20 10:11:12.123123'.")
+    parser_list.add_argument('--limit', '-L', type=int, default=100, help='Limit on the number of IOVs returned. The returned results are the latest N IOVs. Only applies when listing tags.')
+    parser_list.set_defaults(func=list_)
+
+    parser_diff = parser_subparsers.add_parser('diff', description='Compares the contents of two objects. For tags, their IOVs are compared to determine which ranges have different payloads. For global tags, their tag names are compared. Both objects must be of the same type. If there is more than one valid pair (ambiguity), all diffs are listed.')
+    parser_diff.add_argument('first', help="Name of the first object (i.e. source, old). This can be a tag's name or a global tag's name. It must exactly match -- if needed, use the search command first to look for it.")
+    parser_diff.add_argument('second', nargs='?', default=None, help='Name of the second object (i.e. destination, new). Ditto. Default: same as the first object (i.e. useful to compare the same object in different databases).')
+    parser_diff.add_argument('--destdb', '-d', default=None, help='Database of the second object (destination database). Same values allowed as for --db. Default: same as the first database.')
+    parser_diff.add_argument('--short', '-s', action='store_true', help='Short diff. In tag diffs, do not include the ranges where IOVs are equal (while they do not provide more information, they make the output readable).')
+    parser_diff.add_argument('--long', '-l', action='store_true', help='Long output. Compares the properties (e.g. description) of the objects as well (not only their content).')
+    parser_diff.add_argument('--deep', '-D', action='store_true', help='Deep diff. In global tag diffs, if two tag names are different for the same record, it compares the tags themselves with a tag diff (different tags are probably similar in a global tag, e.g. two versions of a tag).')
+    parser_diff.add_argument('--payload', '-p', action='store_true', help='TODO: Payload diff. In a tag diff or a --deep global tag diff, for each range where a payload is different, the payloads are compared via a diff on the dump of both payloads.')
+    parser_diff.add_argument('--snapshot', '-T', default=None, help="Snapshot time. If provided, the output will represent the state of the IOVs inserted into database up to the given time. The format of the string must be one of the following: '2013-01-20', '2013-01-20 10:11:12' or '2013-01-20 10:11:12.123123'.")
+    parser_diff.set_defaults(func=diff)
+
+    parser_search = parser_subparsers.add_parser('search', description='Searches various types of objects matching a case-insensitive string: tags (by name, object type and description), payloads (by SHA1 hash), global tags (by name, release and description) and records (by name, label and object type). The returned list is limited, by default, to 10 per type of object.')
+    parser_search.add_argument('string', help='Search string. Case-insensitive.')
+    parser_search.add_argument('--regexp', '-r', action='store_true', help='Regexp mode. The search string is a regular expression.')
+    parser_search.add_argument('--limit', '-L', type=int, default=10, help='Limit on the number of results per type of object. The returned results are the latest N inserted into the database.')
+    parser_search.set_defaults(func=search)
+
+    parser_copy = parser_subparsers.add_parser('copy', description='Copies objects between databases. For tags, their dependent payloads are copied automatically if they do not exist in the destination database yet (or skipped if they already do). For global tags, their dependent tags are copied automatically if they do not exist in the destination database yet. However, if they exist, a warning is printed (TODO: do not print the warning if they do not differ).')
+    parser_copy.add_argument('first', help="Name of the first object (i.e. source, old). This can be a tag's name, a global tag's name or a payload's SHA1 hexadecimal hash (or a prefix if unique). It must exactly match -- if needed, use the search command first to look for it.")
+    parser_copy.add_argument('second', nargs='?', default=None, help='Name of the second object (i.e. destination, new). Ditto. Default: same as the first object. (i.e. useful to keep the name when copying an object between databases). Note that for payloads the names must be equal (since it is the SHA1 hash of the data) -- therefore, when copying payloads you should omit this parameter to take the default (same name).')
+    parser_copy.add_argument('--destdb', '-d', default=None, help='Database of the second object (destination database). Same values allowed as for --db. Default: same as the first database.')
+    parser_copy.add_argument('--from', '-f', type=int, help='From IOV: copy only from this IOV onwards. Only valid when copying tags.')
+    parser_copy.add_argument('--to', '-t', type=int, help='To IOV: copy only up to this IOV. Only valid when copying tags.')
+    parser_copy.add_argument('--type', default=None, choices=['tag', 'gt', 'payload'], help='Type of the objects. Use it if there is ambiguity (should be really rare).')
+    parser_copy.set_defaults(func=copy)
+
+    parser_edit = parser_subparsers.add_parser('edit', description='Edits an object. Opens up your $EDITOR with prefilled text about the object. There you can modify the data. Save the file and quit the editor. The modified data will be written into the database. e.g. for a tag, its attributes and the list of IOVs/payloads appears and are modifiable.')
+    parser_edit.add_argument('name', help="Name of the object. This can be a tag's name (edits its attributes and its IOVs/payloads), a global tag's name (edits its attributes and its mapping records <-> tags) or a payload's SHA1 hexadecimal hash (or a prefix if unique; TODO: edits its attributes). It must exactly match -- if needed, use the search command first to look for it.")
+    parser_edit.add_argument('--type', default=None, choices=['tag', 'gt', 'payload'], help='Type of the object. Use it if there is ambiguity (should be really rare).')
+    parser_edit.set_defaults(func=edit)
+
+    parser_delete = parser_subparsers.add_parser('delete', description='Deletes an object. Fails if the object is referenced somewhere else in the database.')
+    parser_delete.add_argument('name', help="Name of the object. This can be a tag's name, a global tag's name or a payload's SHA1 hexadecimal hash (or a prefix if unique). It must exactly match -- if needed, use the search command first to look for it.")
+    parser_delete.add_argument('--deep', '-D', action='store_true', help='TODO: Deep delete. In tag deletes, deletes its payloads (fails if they are used in other tags). In global tag deletes, deletes its tags (fails if they are used by another global tag).')
+    parser_delete.add_argument('--type', default=None, choices=['tag', 'gt', 'payload'], help='Type of the object. Use it if there is ambiguity (should be really rare).')
+    parser_delete.set_defaults(func=delete)
+
+    parser_dump = parser_subparsers.add_parser('dump', description='Dumps deserialized payloads, using the current CMSSW release.')
+    parser_dump.add_argument('name', help="Name of the object. This can be a payload's SHA1 hexadecimal hash (or a prefix if unique), a tag's name (all payloads referenced in the tag will be dumped) or a global tag's name (all payloads referenced in the global tag will be dumped).")
+    parser_dump.add_argument('--loadonly', action='store_true', help='Load only: Do not dump, only load the (deserialize) payload in memory -- useful for testing the load of an entire global tag with the current CMSSW release.')
+    parser_dump.add_argument('--type', default=None, choices=['payload', 'tag', 'gt'], help='Type of the object. Use it if there is ambiguity (should be really rare).')
+    parser_dump.set_defaults(func=dump)
+
+    args = parser.parse_args()
+
+    logging.basicConfig(
+        format = '[%(asctime)s] %(levelname)s: %(message)s',
+        level = logging.DEBUG if args.verbose >= 1 else logging.INFO,
+    )
+
+    colors = Colors(args)
+
+    if args.verbose >= 1:
+        # Include the traceback
+        args.func(args)
+    else:
+        # Only one error line
+        try:
+            args.func(args)
+        except Exception as e:
+            logging.error(e)
+            sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()
+

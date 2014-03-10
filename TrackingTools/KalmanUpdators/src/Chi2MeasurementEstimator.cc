@@ -6,7 +6,7 @@
 
 std::pair<bool,double> 
 Chi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
-				   const TransientTrackingRecHit& aRecHit) const {
+				   const TrackingRecHit& aRecHit) const {
     switch (aRecHit.dimension()) {
         case 1: return estimate<1>(tsos,aRecHit);
         case 2: return estimate<2>(tsos,aRecHit);
@@ -19,7 +19,7 @@ Chi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 
 template <unsigned int D> std::pair<bool,double> 
 Chi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
-				   const TransientTrackingRecHit& aRecHit) const {
+				   const TrackingRecHit& aRecHit) const {
   typedef typename AlgebraicROOTObject<D,5>::Matrix MatD5;
   typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;
   typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;

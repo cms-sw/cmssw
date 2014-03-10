@@ -8,9 +8,6 @@
 
 #include "CondCore/ESSources/interface/registration_macros.h"
 
-
-
-
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
 #include "CondFormats/DataRecord/interface/SiStripDeDxMipRcd.h"
@@ -26,12 +23,17 @@ REGISTER_PLUGIN(SiStripDeDxKaon_3D_Rcd, PhysicsTools::Calibration::HistogramD3D)
 #include "CondFormats/DataRecord/interface/SiStripDeDxElectron_3D_Rcd.h"
 REGISTER_PLUGIN(SiStripDeDxElectron_3D_Rcd, PhysicsTools::Calibration::HistogramD3D);
 
+#include "CondFormats/DataRecord/interface/PhysicsTFormulaPayloadRcd.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
+REGISTER_PLUGIN(PhysicsTFormulaPayloadRcd, PhysicsTFormulaPayload);
+
+#include "CondFormats/DataRecord/interface/PhysicsTGraphPayloadRcd.h"
+#include "CondFormats/PhysicsToolsObjects/interface/PhysicsTGraphPayload.h"
+REGISTER_PLUGIN(PhysicsTGraphPayloadRcd, PhysicsTGraphPayload);
 
 #include "CondFormats/DataRecord/interface/DropBoxMetadataRcd.h"
 #include "CondFormats/Common/interface/DropBoxMetadata.h"
-
-
-REGISTER_PLUGIN(DropBoxMetadataRcd,DropBoxMetadata);
+REGISTER_PLUGIN(DropBoxMetadataRcd, DropBoxMetadata);
 
 
 

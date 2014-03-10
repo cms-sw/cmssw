@@ -16,7 +16,7 @@
 
 #include "TFile.h"
 #include "TH1F.h"
-
+#include <iostream>
 const unsigned int edm::BMixingModule::maxNbSources_ =4;
 
 namespace
@@ -282,5 +282,15 @@ namespace edm {
       if(inputSources_[endIdx]) inputSources_[endIdx]->endJob();
     }
   }
+
+  void BMixingModule::createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
+
+  void BMixingModule::checkSignal(const edm::Event &e) {std::cout << "BMixingModule::checkSignal must be overwritten!" << std::endl;}
+
+  void BMixingModule::setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
+
+  void BMixingModule::setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
+
+  void BMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& c) {std::cout << "BMixingModule::doPileUp must be overwritten!" << std::endl;}
 
 } //edm

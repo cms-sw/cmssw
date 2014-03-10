@@ -10,7 +10,7 @@ namespace {
     return 0;
   }
 
-  void remove ( vector < TransientVertex > & vtces,
+  inline void remove ( vector < TransientVertex > & vtces,
                 const vector < reco::TransientTrack > & trks )
   {
     cout << "[MultiVertexReconstructor] fixme remove not yet implemented" << endl;

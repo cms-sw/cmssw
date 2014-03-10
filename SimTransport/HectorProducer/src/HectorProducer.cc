@@ -1,6 +1,10 @@
 // Framework headers
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "IOMC/RandomEngine/src/TRandomAdaptor.h"
+
 // SimpleConfigurable replacement
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,8 +19,13 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
+#include "CLHEP/Random/RandomEngine.h"
+
 #include <iostream>
 #include <memory>
+#include <string>
+
+class TRandom3;
 
 using std::cout;
 using std::endl;
@@ -39,6 +48,13 @@ HectorProducer::HectorProducer(edm::ParameterSet const & parameters): eventsAnal
 		      m_FP420Transport,
 		      m_ZDCTransport);
   
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable() ) {
+    throw cms::Exception("Configuration")
+      << "LHCTransport (HectorProducer) requires the RandomNumberGeneratorService\n"
+         "which is not present in the configuration file.  You must add the service\n"
+         "in the configuration file or remove the modules that require it.";
+  }
 }
 
 HectorProducer::~HectorProducer(){
@@ -54,7 +70,15 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
 
   using namespace edm;
   using namespace std;
-  
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
+  if ( engine->name() != "TRandom3" ) {
+    throw cms::Exception("Configuration")
+      << "The TRandom3 engine type must be used with HectorProducer, Random Number Generator Service not correctly configured!";
+  }
+  TRandom3* rootEngine = ( (edm::TRandomAdaptor*) engine )->getRootEngine();
+
   eventsAnalysed++;
   
   Handle<HepMCProduct>  HepMCEvt;   
@@ -77,16 +101,16 @@ void HectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & es){
   if(m_FP420Transport) {
     hector->clear();
     hector->add( evt_ ,es);
-    hector->filterFP420();
+    hector->filterFP420(rootEngine);
   }
   if(m_ZDCTransport) {
     hector->clear();
     hector->add( evt_ ,es);
-    hector->filterZDC();
+    hector->filterZDC(rootEngine);
     
     hector->clear();
     hector->add( evt_ ,es);
-    hector->filterD1();
+    hector->filterD1(rootEngine);
   }
   evt_ = hector->addPartToHepMC( evt_ );
   if (m_verbosity) {
