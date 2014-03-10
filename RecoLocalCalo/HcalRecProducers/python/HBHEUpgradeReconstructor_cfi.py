@@ -9,6 +9,7 @@ hbheUpgradeReco = cms.EDProducer("HcalSimpleReconstructor",
     dropZSmarkedPassed = cms.bool(True),
     firstSample = cms.int32(4),
     samplesToAdd = cms.int32(2),
-    tsFromDB = cms.bool(True)
+    tsFromDB = cms.bool(True), 
+    firstDepthWeight = cms.double(0.417)  # 0.5/1.2
 )
 

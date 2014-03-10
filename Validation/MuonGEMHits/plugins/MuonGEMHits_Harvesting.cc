@@ -1,24 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    MuonGEMHits_Harversting
-// Class:      MuonGEMHits
-// 
-/**\class MuonGEMHits MuonGEMHits.cc Validation/MuonGEMHits/plugins/MuonGEMHits.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Geonmo RYU
-//         Created:  Mon, 07 Oct 2013 12:45:56 GMT
-//       Based on :  /GEMCode/GEMValidation/plugin/GEMDigiAnalyzer.cc
-// $Id$
-//
-//
-
-
 // system include files
 #include <memory>
 
@@ -35,8 +14,6 @@
 #include "TGraphAsymmErrors.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "Validation/MuonGEMHits/interface/MuonGEMHits_Harvesting.h"
 
 ///Data Format
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
@@ -67,90 +44,44 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
+#include "Validation/MuonGEMHits/plugins/MuonGEMHits_Harvesting.h"
 
 
-
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 MuonGEMHits_Harvesting::MuonGEMHits_Harvesting(const edm::ParameterSet& ps)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
-   //now do what ever initialization is needed
-  
 }
-
 
 
 MuonGEMHits_Harvesting::~MuonGEMHits_Harvesting()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-
-
-
 }
 
 
-
-
-
-//
-// member functions
-//
-
-// ------------ method called for each event  ------------
 void
 MuonGEMHits_Harvesting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
- 
-  
-
-
-
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
 
 void 
 MuonGEMHits_Harvesting::beginJob()
 {
-
-
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
 
 void 
 MuonGEMHits_Harvesting::endJob() 
 {
 }
 
-// ------------ method called when starting to processes a run  ------------
 
 void 
 MuonGEMHits_Harvesting::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
-
-
-
 }
 
 
-// ------------ method called when ending the processing of a run  ------------
 void 
 MuonGEMHits_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
 {
@@ -205,7 +136,7 @@ MuonGEMHits_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
     gem_ly_odd[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_odd_l1or2")->getTH1F()->Clone(); 
     gem_ly_odd[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_odd_l1and2")->getTH1F()->Clone(); 
   }
-  if( track_eta[0] !=nullptr ) {
+  if( track_eta[0] !=nullptr && track_phi[0] != nullptr && gem_lx_even[0] != nullptr && gem_ly_even[0] != nullptr && gem_lx_odd[0] != nullptr && gem_ly_odd[0] != nullptr  ) {
     for ( int i= 0; i<5 ; i++) {
       track_eta[i]->Sumw2();
       track_phi[i]->Sumw2();
@@ -230,12 +161,10 @@ MuonGEMHits_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
       dbe_->book1D( TString::Format("%s%s","eff_",gem_ly_odd[i]->GetName()),gem_ly_odd[i]);    
     }
   }
-    //  dbe_->book1D( "test", (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_sh_tof_rm1_l1_all")->getTH1F()->Clone());
-  
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+
 void
 MuonGEMHits_Harvesting::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

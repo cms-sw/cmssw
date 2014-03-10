@@ -26,5 +26,7 @@
   <use   name="SimDataFormats/Track"/>
   <use   name="TrackingTools/DetLayers"/>
   <use   name="TrackingTools/PatternTools"/>
-  <use   name="Utilities/General"/>
+  <use   name="Utilities/General"/>  
+  <use   name="TrackPropagation/SteppingHelixPropagator"/>
+
 </library>
