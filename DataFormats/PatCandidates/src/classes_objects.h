@@ -16,6 +16,7 @@
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
 #include "DataFormats/PatCandidates/interface/Conversion.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 namespace DataFormats_PatCandidates {
   struct dictionaryobjects {
@@ -34,6 +35,7 @@ namespace DataFormats_PatCandidates {
   std::vector<pat::GenericParticle>::const_iterator v_p_gp_ci;
   std::vector<pat::Hemisphere>::const_iterator	    v_p_h_ci;
   std::vector<pat::Conversion>::const_iterator      v_p_c_ci;
+  std::vector<pat::PackedCandidate>::const_iterator      v_p_pc_ci;
 
   /*   PAT Object Collection Wrappers   */
   edm::Wrapper<std::vector<pat::Electron> >	    w_v_p_e;
@@ -49,6 +51,7 @@ namespace DataFormats_PatCandidates {
   edm::Wrapper<std::vector<pat::GenericParticle> >  w_v_p_gp;
   edm::Wrapper<std::vector<pat::Hemisphere> >	    w_v_p_h;
   edm::Wrapper<std::vector<pat::Conversion> >       w_v_p_c;
+  edm::Wrapper<std::vector<pat::PackedCandidate> >       w_v_pc_c;
 
   /*   PAT Object References   */
   pat::ElectronRef	    p_r_e;
