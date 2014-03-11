@@ -161,6 +161,17 @@ bool FedRawDataInputSource::checkNextEvent()
 {
   switch (singleBufferMode_ ? cacheNextEvent() : nextEvent() ) {
     case evf::EvFDaqDirector::runEnded: {
+
+      //create EoL file before ending run
+      if ( currentLumiSection_ > 0 ) {
+        const std::string fuEoLS = daqDirector_->getEoLSFilePathOnFU(currentLumiSection_);
+        struct stat buf;
+        bool found = (stat(fuEoLS.c_str(), &buf) == 0);
+        if ( !found ) {
+          int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+          close(eol_fd);
+        }
+      }
       if (fms_) fms_->reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
       eventsThisLumi_=0;
       resetLuminosityBlockAuxiliary();
