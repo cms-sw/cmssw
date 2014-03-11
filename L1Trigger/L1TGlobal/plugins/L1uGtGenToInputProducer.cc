@@ -351,6 +351,14 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   }
 
 
+  // Temporary hack to increase number of EGs and taus
+  int maxOtherEGs = 4;
+  int maxOtherTaus = 8;
+  int numCurrentEGs  = int( egammaVec.size() );
+  int numCurrentTaus = int( tauVec.size() );
+
+  int numExtraEGs=0, numExtraTaus=0;
+  // end hack
 
   // Use to sum the energy of the objects in the event for ETT and HTT
   // sum all jets
@@ -384,7 +392,35 @@ L1uGtGenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
       l1t::Jet jet(*p4, pt, eta, phi, qual);
       jetVec.push_back(jet);
 
-      nJet++;     
+      nJet++;
+
+      // Temporary hack to increase number of EGs and taus
+      if( (numExtraEGs+numCurrentEGs)<maxNumEGCands_ && numExtraEGs<maxOtherEGs ){
+	numExtraEGs++;
+
+	int EGpt   = convertPtToHW( genJet->et(), maxPt_, pTstep_ );
+	int EGeta  = convertEtaToHW( genJet->eta(), minEta_, maxEta_, etaSteps_ , 0xff);
+	int EGphi  = convertPhiToHW( genJet->phi(), phiSteps_ );
+	int EGqual = 1;
+	int EGiso  = 1;
+
+	l1t::EGamma eg(*p4, EGpt, EGeta, EGphi, EGqual, EGiso);
+	egammaVec.push_back(eg);
+      }
+
+      if( (numExtraTaus+numCurrentTaus)<maxNumTauCands_ && numExtraTaus<maxOtherTaus ){
+	numExtraTaus++;
+
+	int Taupt   = convertPtToHW( genJet->et(), maxPt_, pTstep_ );
+	int Taueta  = convertEtaToHW( genJet->eta(), minEta_, maxEta_, etaSteps_ , 0xff);
+	int Tauphi  = convertPhiToHW( genJet->phi(), phiSteps_ );
+	int Tauqual = 1;
+	int Tauiso  = 1;
+
+	l1t::Tau tau(*p4, Taupt, Taueta, Tauphi, Tauqual, Tauiso);
+	tauVec.push_back(tau);
+      }
+      // end hack
     }
   }
   else {
