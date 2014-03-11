@@ -136,9 +136,9 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
       break;
      default:
        // does one need this exception?
-       cout<<" something wrong"<<endl;
-      //throw cms::Exception("PixelCPEBase::setTheDet :")
-      //<< "PixelCPEBase: A non-pixel detector type in here?" ;
+       //cout<<" something wrong"<<endl;
+       throw cms::Exception("PixelCPEBase::setTheDet :")
+	 << "PixelCPEBase: A non-pixel detector type in here?" ;
     }
     
     //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
