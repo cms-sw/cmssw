@@ -26,7 +26,7 @@ public:
   
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > ClusterRef;
   
-  SiPixelRecHit(): qualWord_(0) {}
+  SiPixelRecHit(){}
   
   ~SiPixelRecHit(){}
 
@@ -34,9 +34,8 @@ public:
 		 SiPixelRecHitQuality::QualWordType qual,
 		 GeomDet const & idet,
 		 ClusterRef const&  clus) : 
-    TrackerSingleRecHit(pos,err,idet, clus), 
-    qualWord_(qual) 
-  {}
+    TrackerSingleRecHit(pos,err,idet, clus){
+    qualWord_=qual; }
 
   
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
@@ -56,15 +55,6 @@ private:
     return cloner(*this,tsos);
   }
   
-  //--------------------------------------------------------------------------
-  //--- Accessors of other auxiliary quantities
-  //--- Added Oct 07 by Petar for 18x.
-private:
-  // *************************************************************************
-  //
-  SiPixelRecHitQuality::QualWordType  qualWord_ ;   // unsigned int 32-bit wide
-  //
-  // *************************************************************************
   
 public:
   //--- The overall probability.  flags is the 32-bit-packed set of flags that

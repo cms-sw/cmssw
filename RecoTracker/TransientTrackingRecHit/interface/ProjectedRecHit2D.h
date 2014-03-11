@@ -46,7 +46,9 @@ public:
 
   RecHitPointer clone( const TrajectoryStateOnSurface& ts) const;
 
-  const SiStripRecHit2D& originalHit() const { return static_cast<const ProjectedSiStripRecHit2D*>( hit() )->originalHit();}
+  SiStripRecHit2D originalHit() const { return static_cast<const ProjectedSiStripRecHit2D*>( hit() )->originalHit();}
+  ProjectedSiStripRecHit2D const & specificHit() const { return *static_cast<const ProjectedSiStripRecHit2D*>( hit() );}
+
 
   virtual ConstRecHitContainer 	transientHits () const;
 
