@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # /dev/CMSSW_6_2_0/HIon/V24 (CMSSW_6_2_0_pre6_HLT2)
 =======
 # /dev/CMSSW_7_1_0/HIon/V8 (CMSSW_7_1_0_pre4_HLT5)
@@ -7,11 +8,15 @@
 =======
 # /dev/CMSSW_7_1_0/HIon/V9 (CMSSW_7_1_0_pre4_HLT5)
 >>>>>>> Fix InputTags of PF RecHit modules
+=======
+# /dev/CMSSW_7_1_0/HIon/V10 (CMSSW_7_1_0_pre4_HLT5)
+>>>>>>> More InputTag fixes
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   tableName = cms.string('/dev/CMSSW_6_2_0/HIon/V24')
@@ -21,6 +26,9 @@ HLTConfigVersion = cms.PSet(
 =======
   tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V9')
 >>>>>>> Fix InputTags of PF RecHit modules
+=======
+  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V10')
+>>>>>>> More InputTag fixes
 )
 
 streams = cms.PSet( 

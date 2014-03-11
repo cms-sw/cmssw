@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # /dev/CMSSW_6_2_0/GRun/V24 (CMSSW_6_2_0_pre6_HLT2)
 =======
 # /dev/CMSSW_7_1_0/GRun/V8 (CMSSW_7_1_0_pre4_HLT5)
@@ -7,12 +8,16 @@
 =======
 # /dev/CMSSW_7_1_0/GRun/V9 (CMSSW_7_1_0_pre4_HLT5)
 >>>>>>> Fix InputTags of PF RecHit modules
+=======
+# /dev/CMSSW_7_1_0/GRun/V10 (CMSSW_7_1_0_pre4_HLT5)
+>>>>>>> More InputTag fixes
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   tableName = cms.string('/dev/CMSSW_6_2_0/GRun/V24')
@@ -22,6 +27,9 @@ HLTConfigVersion = cms.PSet(
 =======
   tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V9')
 >>>>>>> Fix InputTags of PF RecHit modules
+=======
+  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V10')
+>>>>>>> More InputTag fixes
 )
 
 CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
@@ -5062,7 +5070,7 @@ hltParticleFlowRecHitHCAL = cms.EDProducer( "PFCTRecHitProducer",
     HcalMaxAllowedHFDigiTimeSev = cms.int32( 9 ),
     thresh_Endcap = cms.double( 0.4 ),
     HcalMaxAllowedChannelStatusSev = cms.int32( 9 ),
-    hcalRecHitsHF = cms.InputTag( "hfreco" ),
+    hcalRecHitsHF = cms.InputTag( "hltHfreco" ),
     ShortFibre_Cut = cms.double( 60.0 ),
     ApplyLongShortDPG = cms.bool( True ),
     HF_Calib = cms.bool( True ),

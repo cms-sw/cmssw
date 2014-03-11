@@ -1,5 +1,6 @@
 <<<<<<< HEAD:HLTrigger/Configuration/python/HLT_8E33v2_cff.py
 <<<<<<< HEAD:HLTrigger/Configuration/python/HLT_8E33v2_cff.py
+<<<<<<< HEAD:HLTrigger/Configuration/python/HLT_8E33v2_cff.py
 # /online/collisions/2012/8e33/v2.2/HLT/V8 (CMSSW_6_2_0_pre6_HLT2)
 =======
 # /online/collisions/2012/8e33/v3.1/HLT/V8 (CMSSW_7_1_0_pre4_HLT5)
@@ -7,11 +8,15 @@
 =======
 # /online/collisions/2012/8e33/v3.1/HLT/V9 (CMSSW_7_1_0_pre4_HLT5)
 >>>>>>> Fix InputTags of PF RecHit modules:HLTrigger/Configuration/python/HLT_2013_cff.py
+=======
+# /online/collisions/2012/8e33/v3.1/HLT/V10 (CMSSW_7_1_0_pre4_HLT5)
+>>>>>>> More InputTag fixes:HLTrigger/Configuration/python/HLT_2013_cff.py
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
+<<<<<<< HEAD:HLTrigger/Configuration/python/HLT_8E33v2_cff.py
 <<<<<<< HEAD:HLTrigger/Configuration/python/HLT_8E33v2_cff.py
 <<<<<<< HEAD:HLTrigger/Configuration/python/HLT_8E33v2_cff.py
   tableName = cms.string('/online/collisions/2012/8e33/v2.2/HLT/V8')
@@ -21,6 +26,9 @@ HLTConfigVersion = cms.PSet(
 =======
   tableName = cms.string('/online/collisions/2012/8e33/v3.1/HLT/V9')
 >>>>>>> Fix InputTags of PF RecHit modules:HLTrigger/Configuration/python/HLT_2013_cff.py
+=======
+  tableName = cms.string('/online/collisions/2012/8e33/v3.1/HLT/V10')
+>>>>>>> More InputTag fixes:HLTrigger/Configuration/python/HLT_2013_cff.py
 )
 
 streams = cms.PSet( 
@@ -8512,7 +8520,7 @@ hltParticleFlowRecHitHCAL = cms.EDProducer( "PFCTRecHitProducer",
     HcalMaxAllowedHFDigiTimeSev = cms.int32( 9 ),
     thresh_Endcap = cms.double( 0.4 ),
     HcalMaxAllowedChannelStatusSev = cms.int32( 9 ),
-    hcalRecHitsHF = cms.InputTag( "hfreco" ),
+    hcalRecHitsHF = cms.InputTag( "hltHfreco" ),
     ShortFibre_Cut = cms.double( 60.0 ),
     ApplyLongShortDPG = cms.bool( True ),
     HF_Calib = cms.bool( True ),
