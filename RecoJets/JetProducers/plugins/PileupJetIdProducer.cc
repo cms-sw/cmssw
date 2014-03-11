@@ -16,9 +16,57 @@ Implementation:
 //
 //
 
-#include <memory>
-#include "RecoJets/JetProducers/plugins/PileupJetIdProducer.h"
 
+// system include files
+#include <memory>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
+#include "RecoJets/JetProducers/interface/PileupJetIdAlgo.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
+// ------------------------------------------------------------------------------------------
+class PileupJetIdProducer : public edm::EDProducer {
+public:
+	explicit PileupJetIdProducer(const edm::ParameterSet&);
+	~PileupJetIdProducer();
+
+	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+	virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      
+
+	void initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData);
+
+	edm::InputTag jets_, vertexes_, jetids_, rho_;
+	std::string jec_;
+	bool runMvas_, produceJetIds_, inputIsCorrected_, applyJec_;
+	std::vector<std::pair<std::string, PileupJetIdAlgo *> > algos_;
+	
+	bool residualsFromTxt_;
+	edm::FileInPath residualsTxt_;
+	FactorizedJetCorrector *jecCor_;
+	std::vector<JetCorrectorParameters> jetCorPars_;
+};
 
 // ------------------------------------------------------------------------------------------
 PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
@@ -51,12 +99,6 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 			produces<edm::ValueMap<int> > (label+"Id");
 		}
 	}
-
-	input_jet_token_ = consumes<edm::View<reco::Jet> >(jets_);
-	input_vertex_token_ = consumes<reco::VertexCollection>(vertexes_);
-        input_vm_pujetid_token_ = consumes<edm::ValueMap<StoredPileupJetIdentifier> >(jetids_);
-        input_rho_token_ = consumes<double>(rho_); 
-
 }
 
 
@@ -77,18 +119,18 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
 	// Input jets
 	Handle<View<Jet> > jetHandle;
-	iEvent.getByToken(input_jet_token_,jetHandle);
+	iEvent.getByLabel(jets_,jetHandle);
 	const View<Jet> & jets = *jetHandle;
 	// vertexes 
 	Handle<VertexCollection> vertexHandle;
 	if(  produceJetIds_ ) {
-	        iEvent.getByToken(input_vertex_token_, vertexHandle);
+		iEvent.getByLabel(vertexes_, vertexHandle);
 	}
 	const VertexCollection & vertexes = *(vertexHandle.product());
 	// input variables
 	Handle<ValueMap<StoredPileupJetIdentifier> > vmap;
 	if( ! produceJetIds_ ) {
-		iEvent.getByToken(input_vm_pujetid_token_, vmap);
+		iEvent.getByLabel(jetids_, vmap);
 	}
 	// rho
 	edm::Handle< double > rhoH;
@@ -124,7 +166,7 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		if( applyJec_ ) {
 			// If haven't done it get rho from the event
 			if( rho == 0. ) {
-				iEvent.getByToken(input_rho_token_,rhoH);
+				iEvent.getByLabel(rho_,rhoH);
 				rho = *rhoH;
 			}
 			// jet corrector

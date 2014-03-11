@@ -76,7 +76,7 @@ namespace jptJetAnalysis {
 
 const char* JPTJetAnalyzer::messageLoggerCatregory = "JetPlusTrackDQM";
 
-JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config, edm::ConsumesCollector&& iC)
+JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config)
   : histogramPath_(config.getParameter<std::string>("HistogramPath")),
     verbose_(config.getUntrackedParameter<bool>("PrintDebugMessages",false)),
     writeDQMStore_(config.getUntrackedParameter<bool>("WriteDQMStore")),
@@ -87,7 +87,7 @@ JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config, edm::ConsumesCol
     correctedPtMin_(config.getParameter<double>("correctedPtThreshold")),
     trackPropagator_(new jptJetAnalysis::TrackPropagatorToCalo),
     sOverNCalculator_(new jptJetAnalysis::StripSignalOverNoiseCalculator),
-    jetID_(new reco::helper::JetIDHelper(config.getParameter<edm::ParameterSet>("JetIDParams"), std::move(iC)))
+    jetID_(new reco::helper::JetIDHelper(config.getParameter<edm::ParameterSet>("JetIDParams")))
 {
   //print config to debug log
   std::ostringstream debugStream;

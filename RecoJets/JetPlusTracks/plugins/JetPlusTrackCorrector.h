@@ -1,11 +1,6 @@
 #ifndef RecoJets_JetPlusTrack_JetPlusTrackCorrector_h
 #define RecoJets_JetPlusTrack_JetPlusTrackCorrector_h
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/View.h"
@@ -19,6 +14,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "boost/range/iterator_range.hpp"
 #include <sstream>
@@ -184,7 +180,7 @@ class JetPlusTrackCorrector {
  public: 
 
   /// Constructor
-  JetPlusTrackCorrector( const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC );
+  JetPlusTrackCorrector( const edm::ParameterSet& );
 
   /// Destructor
   virtual ~JetPlusTrackCorrector();
@@ -450,17 +446,6 @@ class JetPlusTrackCorrector {
   float theSumEnergyWithoutEff;
   float theSumPtForBeta;
   jpt::Efficiency not_used{response_,efficiency_,leakage_};
-
-  // ---------- Private data members ----------
-
- private:
-  edm::EDGetTokenT<reco::JetTracksAssociation::Container> input_jetTracksAtVertex_token_;
-  edm::EDGetTokenT<reco::JetTracksAssociation::Container> input_jetTracksAtCalo_token_;
-  edm::EDGetTokenT<RecoMuons> inut_reco_muons_token_;
-  edm::EDGetTokenT<reco::VertexCollection> input_pvCollection_token_;
-  edm::EDGetTokenT<RecoElectrons> input_reco_elecs_token_;     
-  edm::EDGetTokenT<RecoElectronIds> input_reco_elec_ids_token_;
-
 };
 
 // ---------- Inline methods ----------

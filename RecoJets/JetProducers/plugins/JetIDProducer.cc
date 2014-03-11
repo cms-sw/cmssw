@@ -17,13 +17,10 @@
 //
 JetIDProducer::JetIDProducer(const edm::ParameterSet& iConfig) :
   src_       ( iConfig.getParameter<edm::InputTag>("src") ),
-  helper_    ( iConfig, consumesCollector() ),
-  muHelper_  ( iConfig, consumesCollector() )
+  helper_    ( iConfig ),
+  muHelper_  ( iConfig )
 {
   produces< reco::JetIDValueMap >();
-
-  input_jet_token_ = consumes<edm::View<reco::CaloJet> >(src_);
-
 }
 
 
@@ -43,7 +40,7 @@ JetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get the input jets
   edm::Handle< edm::View<reco::CaloJet> > h_jets;
-  iEvent.getByToken( input_jet_token_, h_jets );
+  iEvent.getByLabel( src_, h_jets );
 
   // allocate the jet--->jetid value map
   std::auto_ptr<reco::JetIDValueMap> jetIdValueMap( new reco::JetIDValueMap );

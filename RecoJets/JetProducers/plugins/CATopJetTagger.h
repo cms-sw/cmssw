@@ -81,8 +81,6 @@ class CATopJetTagger : public edm::EDProducer {
   double      WMass_;
   bool        verbose_;
 
-  edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
-
 };
 
 

@@ -91,15 +91,11 @@ JetPlusTrackProducerAA::JetPlusTrackProducerAA(const edm::ParameterSet& iConfig)
 //=>
    mExtrapolations = iConfig.getParameter<edm::InputTag> ("extrapolations");
 //=>
-   mJPTalgo  = new JetPlusTrackCorrector(iConfig, consumesCollector());
+   mJPTalgo  = new JetPlusTrackCorrector(iConfig);
    if(useZSP) mZSPalgo  = new ZSPJPTJetCorrector(iConfig);
 
    produces<reco::JPTJetCollection>().setBranchAlias(alias); 
-
-   input_jets_token_ = consumes<edm::View<reco::CaloJet> >(src);
-   input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
-   input_tracks_token_ = consumes<reco::TrackCollection>(mTracks);
-   input_extrapolations_token_ = consumes<std::vector<reco::TrackExtrapolation> >(mExtrapolations);
+     
 }
 
 
@@ -127,10 +123,10 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // get stuff from Event
   edm::Handle <edm::View <reco::CaloJet> > jets_h;
-  iEvent.getByToken (input_jets_token_, jets_h);
+  iEvent.getByLabel (src, jets_h);
   
   edm::Handle <reco::TrackCollection> tracks_h;
-  iEvent.getByToken (input_tracks_token_, tracks_h);
+  iEvent.getByLabel (mTracks, tracks_h);
   
   std::vector <reco::TrackRef> fTracks;
   fTracks.reserve (tracks_h->size());
@@ -140,7 +136,7 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 //=>
   edm::Handle <std::vector<reco::TrackExtrapolation> > extrapolations_h;
-  iEvent.getByToken(input_extrapolations_token_, extrapolations_h);
+  iEvent.getByLabel (mExtrapolations, extrapolations_h);
 
 //  std::cout<<"JetPlusTrackProducerAA::produce, extrapolations_h="<<extrapolations_h->size()<<std::endl;  
 //=>
@@ -312,7 +308,7 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    
 // If we add primary vertex
    edm::Handle<reco::VertexCollection> pvCollection;
-   iEvent.getByToken(input_vertex_token_, pvCollection);
+   iEvent.getByLabel(srcPVs_,pvCollection);
    if ( pvCollection.isValid() && pvCollection->size()>0 ) vertex_=pvCollection->begin()->position();
  
    reco::JPTJet fJet(p4, vertex_, specific, corrected.getJetConstituents()); 

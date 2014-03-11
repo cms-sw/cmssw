@@ -10,6 +10,7 @@
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
+#include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 #include "Alignment/CommonAlignmentParametrization/interface/BeamSpotAlignmentDerivatives.h"
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 #include "CondFormats/Alignment/interface/Definitions.h"
@@ -96,11 +97,10 @@ BeamSpotAlignmentParameters::derivatives( const TrajectoryStateOnSurface &tsos,
 
   if (ali == alidet) { // same alignable => same frame
     return BeamSpotAlignmentDerivatives()(tsos);
-  } else {
-    throw cms::Exception("MisMatch")
-      << "BeamSpotAlignmentParameters::derivatives: The hit alignable must match the "
-      << "aligned one, i.e. these parameters make only sense for AlignableBeamSpot.\n";
-    return AlgebraicMatrix(N_PARAM, 2); // please compiler
+  } else { // different alignable => transform into correct frame
+    const AlgebraicMatrix deriv = BeamSpotAlignmentDerivatives()(tsos);
+    FrameToFrameDerivative ftfd;
+    return ftfd.frameToFrameDerivative(alidet, ali) * deriv;
   }
 }
 

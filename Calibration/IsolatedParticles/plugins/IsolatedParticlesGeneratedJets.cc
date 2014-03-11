@@ -44,7 +44,7 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event& iEvent, const edm
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(tok_parts_, genParticles);
 
-  JetMatchingTools jetMatching (iEvent, consumesCollector());
+  JetMatchingTools jetMatching (iEvent);
   std::vector <std::vector <const reco::GenParticle*> > genJetConstituents (genJets->size());
 
   int njets = 0;

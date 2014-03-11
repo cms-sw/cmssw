@@ -96,7 +96,8 @@ FrameToFrameDerivative::getDerivative(const align::RotationType &objectRot,
   derivative[5][4] = derivBB[2][1];
   derivative[5][5] = derivBB[2][2];
   
-  return derivative;
+  return(derivative.T());
+
 }
 
 

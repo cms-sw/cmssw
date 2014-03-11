@@ -31,9 +31,6 @@
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/JPTJet.h"
 
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-
 //=>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -67,8 +64,8 @@ class JetPlusTrackProducerAA : public edm::EDProducer {
                                                                                  reco::TrackRefVector&);
 
  private:
-
-    // ---------- private data members ---------------------------      
+      
+// Data      
       JetPlusTrackCorrector*        mJPTalgo;
       ZSPJPTJetCorrector*              mZSPalgo; 
       edm::InputTag                 src;
@@ -83,10 +80,5 @@ class JetPlusTrackProducerAA : public edm::EDProducer {
 //=>
       edm::InputTag mExtrapolations;
 //=>
-
-      edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
-      edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;  
-      edm::EDGetTokenT<reco::TrackCollection> input_tracks_token_;
-      edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > input_extrapolations_token_;
-
+      // ----------member data ---------------------------
 };

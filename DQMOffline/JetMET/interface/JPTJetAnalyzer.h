@@ -9,7 +9,6 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMOffline/JetMET/interface/JetAnalyzerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -46,7 +45,7 @@ class SiStripRecHit2D;
 class JPTJetAnalyzer : public JetAnalyzerBase {
  public:
   /// Constructor
-  JPTJetAnalyzer(const edm::ParameterSet& config, edm::ConsumesCollector&& iC);
+  JPTJetAnalyzer(const edm::ParameterSet& config);
   
   /// Destructor
   virtual ~JPTJetAnalyzer();

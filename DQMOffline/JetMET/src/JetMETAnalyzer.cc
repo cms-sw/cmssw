@@ -83,70 +83,70 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   // --- do the analysis on the Jets
   if(theJetAnalyzerFlag) {
-    theAKJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"), std::move(iC));
+    theAKJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
     theAKJetAnalyzer->setSource("AntiKtJets");
     if(theSConeJetAnalyzerFlag) {
-      theSCJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"), std::move(iC));
+      theSCJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
       theSCJetAnalyzer->setSource("SISConeJets");
     }
     if(theIConeJetAnalyzerFlag){
-      theICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"), std::move(iC));
+      theICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("jetAnalysis"));
       theICJetAnalyzer->setSource("IterativeConeJets");
     }
   }
 
   if(theJetCleaningFlag) {
-    theCleanedAKJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"), std::move(iC));
+    theCleanedAKJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"));
     theCleanedAKJetAnalyzer->setSource("CleanedAntiKtJets");
     if(theSConeJetAnalyzerFlag){
-      theCleanedSCJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"), std::move(iC));
+      theCleanedSCJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"));
       theCleanedSCJetAnalyzer->setSource("CleanedSISConeJets");
     }
     if(theIConeJetAnalyzerFlag){
-      theCleanedICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"), std::move(iC));
+      theCleanedICJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("CleanedjetAnalysis"));
       theCleanedICJetAnalyzer->setSource("CleanedIterativeConeJets");
     }
   }
 
   if(theDiJetSelectionFlag){
-    theDiJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("DijetAnalysis"), std::move(iC));
+    theDiJetAnalyzer  = new JetAnalyzer(parameters.getParameter<ParameterSet>("DijetAnalysis"));
     theDiJetAnalyzer->setSource("DiJets");
   }
 
   // Do Pt analysis
   if(theJetPtAnalyzerFlag ) {
-    thePtAKJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("PtAnalysis"), std::move(iC));
+    thePtAKJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("PtAnalysis"));
     thePtAKJetAnalyzer->setSource("PtAnalysisAntiKtJets");
     if(theSConeJetAnalyzerFlag){
-      thePtSCJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("PtAnalysis"), std::move(iC));
+      thePtSCJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("PtAnalysis"));
       thePtSCJetAnalyzer->setSource("PtAnalysisSISConeJets");
     }
     if(theIConeJetAnalyzerFlag){
-      thePtICJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("PtAnalysis"), std::move(iC));
+      thePtICJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("PtAnalysis"));
       thePtICJetAnalyzer->setSource("PtAnalysisIterativeConeJets");
     }
   }
   // Do Cleaned Pt analysis
   if(theJetPtCleaningFlag ) {
-    theCleanedPtAKJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("CleanedPtAnalysis"), std::move(iC));
+    theCleanedPtAKJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("CleanedPtAnalysis"));
     theCleanedPtAKJetAnalyzer->setSource("PtAnalysisCleanedAntiKtJets");
     if(theSConeJetAnalyzerFlag){
-      theCleanedPtSCJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("CleanedPtAnalysis"), std::move(iC));
+      theCleanedPtSCJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("CleanedPtAnalysis"));
       theCleanedPtSCJetAnalyzer->setSource("PtAnalysisCleanedSISConeJets");
     }
     if(theIConeJetAnalyzerFlag){
-      theCleanedPtICJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("CleanedPtAnalysis"), std::move(iC));
+      theCleanedPtICJetAnalyzer  = new JetPtAnalyzer(parameters.getParameter<ParameterSet>("CleanedPtAnalysis"));
       theCleanedPtICJetAnalyzer->setSource("PtAnalysisCleanedIterativeConeJets");
     }
   }
 
   // --- do the analysis on JPT Jets
   if(theJPTJetAnalyzerFlag) {
-    theJPTJetAnalyzer  = new JPTJetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"), std::move(iC));
+    theJPTJetAnalyzer  = new JPTJetAnalyzer(parameters.getParameter<ParameterSet>("JPTJetAnalysis"));
   }
   // --- do the analysis on JPT Cleaned Jets
   if(theJPTJetCleaningFlag) {
-    theCleanedJPTJetAnalyzer  = new JPTJetAnalyzer(parameters.getParameter<ParameterSet>("CleanedJPTJetAnalysis"), std::move(iC));
+    theCleanedJPTJetAnalyzer  = new JPTJetAnalyzer(parameters.getParameter<ParameterSet>("CleanedJPTJetAnalysis"));
   }
 
   // --- do the analysis on the PFJets

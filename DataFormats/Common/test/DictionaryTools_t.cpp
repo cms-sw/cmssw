@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
-#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 
@@ -136,13 +135,6 @@ namespace {
     if(bool(type)) {
       std::string demangledName(edm::typeDemangle(typeid(T).name()));
       CPPUNIT_ASSERT(type.name() == demangledName);
-
-      edm::TypeID tid(type.typeInfo());
-      CPPUNIT_ASSERT(tid.className() == demangledName);
-
-      edm::TypeWithDict typeFromName = edm::TypeWithDict::byName(demangledName);
-      edm::TypeID tidFromName(typeFromName.typeInfo());
-      CPPUNIT_ASSERT(tidFromName.className() == demangledName);
     }
   }
 
@@ -151,7 +143,6 @@ namespace {
     checkIt<std::vector<T> >();
     checkIt<edm::Wrapper<T> >();
     checkIt<edm::Wrapper<std::vector<T> > >();
-    checkIt<T>();
   }
 }
 
@@ -171,5 +162,6 @@ void TestDictionaries::demangling() {
   checkDemangling<double>();
   checkDemangling<bool>();
   checkDemangling<std::string>();
+  checkIt<std::string>();
 }
 

@@ -11,7 +11,6 @@
 #include "TChain.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -69,7 +68,7 @@ class HLTJets {
 public:
     HLTJets(); 
     
-    void setup(const edm::ParameterSet& pSet, TTree* tree, edm::ConsumesCollector&& iC);
+    void setup(const edm::ParameterSet& pSet, TTree* tree);
     
     /** Analyze the Data */
     void analyze(edm::Event const& iEvent,

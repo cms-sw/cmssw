@@ -10,6 +10,9 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 using namespace edm;
@@ -34,7 +37,7 @@ namespace {
   }
 }
 
-JetMatchingTools::JetMatchingTools (const edm::Event& fEvent, edm::ConsumesCollector&& iC )
+JetMatchingTools::JetMatchingTools (const edm::Event& fEvent) 
   : mEvent (&fEvent),
     mEBRecHitCollection (0),
     mEERecHitCollection (0),
@@ -47,28 +50,14 @@ JetMatchingTools::JetMatchingTools (const edm::Event& fEvent, edm::ConsumesColle
     mSimTrackCollection (0),
     mSimVertexCollection (0),
     mGenParticleCollection (0)
-{
-
-  input_ebrechits_token_ =	 iC.mayConsume<EBRecHitCollection>(edm::InputTag ("ecalRecHit:EcalRecHitsEB")); 
-  input_eerechits_token_ =	 iC.mayConsume<EERecHitCollection>(edm::InputTag ("ecalRecHit:EcalRecHitsEE"));       
-  input_hbherechits_token_ =	 iC.mayConsume<HBHERecHitCollection>(edm::InputTag ("hbhereco"));     
-  input_horechits_token_ =	 iC.mayConsume<HORecHitCollection>(edm::InputTag ("horeco"));       
-  input_hfrechits_token_ =	 iC.mayConsume<HFRecHitCollection>(edm::InputTag ("hfreco"));       
-  input_pcalohits_ebcal_token_ =  iC.mayConsume<edm::PCaloHitContainer>(edm::InputTag ("g4SimHits:EcalHitsEB"));  
-  input_pcalohits_eecal_token_ =  iC.mayConsume<edm::PCaloHitContainer>(edm::InputTag ("g4SimHits:EcalHitsEE"));    
-  input_pcalohits_hcal_token_ =  iC.mayConsume<edm::PCaloHitContainer>(edm::InputTag ("g4SimHits:HcalHits"));
-  input_simtrack_token_ =	 iC.mayConsume<edm::SimTrackContainer>(edm::InputTag ("g4SimHits"));   
-  input_simvertex_token_ =	 iC.mayConsume<edm::SimVertexContainer>(edm::InputTag ("g4SimHits"));  
-  input_cands_token_ =           iC.mayConsume<reco::CandidateCollection>(edm::InputTag ("genParticleCandidates"));
-
-}
+{}
 
 JetMatchingTools::~JetMatchingTools () {}
 
 const EBRecHitCollection* JetMatchingTools::getEBRecHitCollection () {
   if (!mEBRecHitCollection) {
     edm::Handle<EBRecHitCollection> recHits;
-    mEvent->getByToken (input_ebrechits_token_, recHits);
+    mEvent->getByLabel (edm::InputTag ("ecalRecHit:EcalRecHitsEB"), recHits);
     mEBRecHitCollection = &*recHits;
   }
   return mEBRecHitCollection;
@@ -76,7 +65,7 @@ const EBRecHitCollection* JetMatchingTools::getEBRecHitCollection () {
 const EERecHitCollection* JetMatchingTools::getEERecHitCollection () {
   if (!mEERecHitCollection) {
     edm::Handle<EERecHitCollection> recHits;
-    mEvent->getByToken (input_eerechits_token_, recHits);
+    mEvent->getByLabel (edm::InputTag ("ecalRecHit:EcalRecHitsEE"), recHits);
     mEERecHitCollection = &*recHits;
   }
   return mEERecHitCollection;
@@ -84,7 +73,7 @@ const EERecHitCollection* JetMatchingTools::getEERecHitCollection () {
 const HBHERecHitCollection* JetMatchingTools::getHBHERecHitCollection () {
   if (!mHBHERecHitCollection) {
     edm::Handle<HBHERecHitCollection> recHits;
-    mEvent->getByToken (input_hbherechits_token_, recHits);
+    mEvent->getByLabel (edm::InputTag ("hbhereco"), recHits);
     mHBHERecHitCollection = &*recHits;
   }
   return mHBHERecHitCollection;
@@ -92,7 +81,7 @@ const HBHERecHitCollection* JetMatchingTools::getHBHERecHitCollection () {
 const HORecHitCollection* JetMatchingTools::getHORecHitCollection () {
   if (!mHORecHitCollection) {
     edm::Handle<HORecHitCollection> recHits;
-    mEvent->getByToken (input_horechits_token_, recHits);
+    mEvent->getByLabel (edm::InputTag ("horeco"), recHits);
     mHORecHitCollection = &*recHits;
   }
   return mHORecHitCollection;
@@ -100,7 +89,7 @@ const HORecHitCollection* JetMatchingTools::getHORecHitCollection () {
 const HFRecHitCollection* JetMatchingTools::getHFRecHitCollection () {
   if (!mHFRecHitCollection) {
     edm::Handle<HFRecHitCollection> recHits;
-    mEvent->getByToken (input_hfrechits_token_, recHits);
+    mEvent->getByLabel (edm::InputTag ("hfreco"), recHits);
     mHFRecHitCollection = &*recHits;
   }
   return mHFRecHitCollection;
@@ -108,7 +97,7 @@ const HFRecHitCollection* JetMatchingTools::getHFRecHitCollection () {
 const PCaloHitContainer* JetMatchingTools::getEBSimHitCollection () {
   if (!mEBSimHitCollection) {
     edm::Handle<PCaloHitContainer> simHits;
-    mEvent->getByToken (input_pcalohits_ebcal_token_, simHits);
+    mEvent->getByLabel (edm::InputTag ("g4SimHits:EcalHitsEB"), simHits);
     mEBSimHitCollection = &*simHits;
   }
   return mEBSimHitCollection;
@@ -116,7 +105,7 @@ const PCaloHitContainer* JetMatchingTools::getEBSimHitCollection () {
 const PCaloHitContainer* JetMatchingTools::getEESimHitCollection () {
   if (!mEESimHitCollection) {
     edm::Handle<PCaloHitContainer> simHits;
-    mEvent->getByToken (input_pcalohits_eecal_token_, simHits);
+    mEvent->getByLabel (edm::InputTag ("g4SimHits:EcalHitsEE"), simHits);
     mEESimHitCollection = &*simHits;
   }
   return mEESimHitCollection;
@@ -124,7 +113,7 @@ const PCaloHitContainer* JetMatchingTools::getEESimHitCollection () {
 const PCaloHitContainer* JetMatchingTools::getHcalSimHitCollection () {
   if (!mHcalSimHitCollection) {
     edm::Handle<PCaloHitContainer> simHits;
-    mEvent->getByToken (input_pcalohits_hcal_token_, simHits);
+    mEvent->getByLabel (edm::InputTag ("g4SimHits:HcalHits"), simHits);
     mHcalSimHitCollection = &*simHits;
   }
   return mHcalSimHitCollection;
@@ -132,7 +121,7 @@ const PCaloHitContainer* JetMatchingTools::getHcalSimHitCollection () {
 const SimTrackContainer* JetMatchingTools::getSimTrackCollection () {
   if (!mSimTrackCollection) {
     edm::Handle<SimTrackContainer> simHits;
-    mEvent->getByToken (input_simtrack_token_, simHits);
+    mEvent->getByLabel (edm::InputTag ("g4SimHits"), simHits);
     mSimTrackCollection = &*simHits;
   }
   return mSimTrackCollection;
@@ -140,7 +129,7 @@ const SimTrackContainer* JetMatchingTools::getSimTrackCollection () {
 const SimVertexContainer* JetMatchingTools::getSimVertexCollection () {
   if (!mSimVertexCollection) {
     edm::Handle<SimVertexContainer> simHits;
-    mEvent->getByToken (input_simvertex_token_, simHits);
+    mEvent->getByLabel (edm::InputTag ("g4SimHits"), simHits);
     mSimVertexCollection = &*simHits;
   }
   return mSimVertexCollection;
@@ -148,7 +137,7 @@ const SimVertexContainer* JetMatchingTools::getSimVertexCollection () {
 const reco::CandidateCollection* JetMatchingTools::getGenParticlesCollection () {
   if (!mGenParticleCollection) {
     edm::Handle<reco::CandidateCollection> handle;
-    mEvent->getByToken (input_cands_token_, handle);
+    mEvent->getByLabel (edm::InputTag ("genParticleCandidates"), handle);
     mGenParticleCollection = &*handle;
   }
   return mGenParticleCollection;
