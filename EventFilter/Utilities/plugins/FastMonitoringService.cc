@@ -610,7 +610,7 @@ namespace evf{
     
     if (isGlobalEOL)
     {//only update global variables
-      fmt_.jsonMonitor_->snapGlobal(outputCSV, fastPath_,forLumi);
+      fmt_.jsonMonitor_->snapGlobal(false, fastPath_,forLumi);
     }
     else
       fmt_.jsonMonitor_->snap(outputCSV, fastPath_,forLumi);
