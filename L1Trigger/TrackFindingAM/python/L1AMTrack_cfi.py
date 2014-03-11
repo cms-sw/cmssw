@@ -17,7 +17,7 @@ TTTracksFromPattern = cms.EDProducer("TrackFitHoughProducer",
 
 # AM output merging sequence
 MergePROutput = cms.EDProducer("AMOutputMerger",
-   TTInputClusters     = cms.InputTag("TTClustersFromPixelDigis", "ClusterInclusive"),
+   TTInputClusters     = cms.InputTag("TTStubsFromPixelDigis", "ClusterAccepted"),
    TTInputStubs        = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
    TTInputPatterns     = cms.VInputTag(cms.InputTag("TTPatternsFromStub", "AML1Patterns")),                               
    TTFiltClustersName  = cms.string("ClusInPattern"),
@@ -26,7 +26,7 @@ MergePROutput = cms.EDProducer("AMOutputMerger",
 )
 
 MergeFITOutput = cms.EDProducer("AMOutputMerger",
-   TTInputClusters     = cms.InputTag("TTClustersFromPixelDigis", "ClusterInclusive"),
+   TTInputClusters     = cms.InputTag("TTStubsFromPixelDigis", "ClusterAccepted"),
    TTInputStubs        = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
    TTInputPatterns     = cms.VInputTag(cms.InputTag("TTTracksFromPattern", "AML1Tracks")),                               
    TTFiltClustersName  = cms.string("ClusInTrack"),
