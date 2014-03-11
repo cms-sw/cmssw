@@ -125,7 +125,7 @@ namespace evf {
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
 
-    errroRetCodes_="";
+    errorRetCodes_="";
  
     jsonMonitor_.reset(new FastMonitor(&outJsonDef_,true));
     jsonMonitor_->setDefPath(outJsonDefName);
