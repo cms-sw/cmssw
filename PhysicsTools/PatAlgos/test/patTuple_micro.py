@@ -67,6 +67,11 @@ process.selectedPatTaus.cut = cms.string("pt > 20")
 
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
 switchOnTriggerStandAlone( process )
+process.patTrigger.packTriggerPathNames = cms.bool(True)
+process.selectedPatTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
+    src = cms.InputTag("patTrigger"),
+    cut = cms.string("!filterLabels.empty()")
+)
 
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
@@ -94,7 +99,7 @@ process.out.outputCommands = [
 
     #'keep double_*_rho_*', ## need to understand what are the rho's in 70X
 
-    'keep *_patTrigger_*_PAT', ## This needs to be revised
+    'keep *_selectedPatTrigger_*_PAT',
     'keep *_l1extraParticles_*_HLT',
     'keep *_TriggerResults_*_HLT',
 
@@ -103,6 +108,9 @@ process.out.outputCommands = [
     'keep *_prunedGenParticles_*_*',
     'keep LHEEventProduct_source_*_*',
     'keep PileupSummaryInfos_*_*_*',
+    'keep GenRunInfoProduct_*_*_*',
+    'keep GenFilterInfo_*_*_*',
+
 ]
 process.out.dropMetaData = cms.untracked.string('ALL')
 
