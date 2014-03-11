@@ -3,7 +3,7 @@
  * \author David Nash
  */
 
-#include <RecoMuon/MuonIdentification/src/ME0SegmentMatcher.h>
+#include <RecoMuon/MuonIdentification/interface/ME0SegmentMatcher.h>
 
 #include <FWCore/PluginManager/interface/ModuleDef.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -39,17 +39,13 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
     LogDebug("ME0SegmentMatcher") << "start producing segments for " << ++iev << "th event ";
 
-   
-
     //Getting the objects we'll need
-    
     using namespace edm;
     ESHandle<MagneticField> bField;
     setup.get<IdealMagneticFieldRecord>().get(bField);
     ESHandle<Propagator> shProp;
     setup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", shProp);
-
-    
+   
     using namespace reco;
 
     Handle<std::vector<EmulatedME0Segment> > OurSegments;

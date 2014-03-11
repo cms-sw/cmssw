@@ -27,5 +27,4 @@ simMuonGEMDigis = cms.EDProducer("GEMDigiProducer",
     minPabsNoiseCLS = cms.double(0.),
     simulateIntrinsicNoise = cms.bool(False),
     scaleLumi = cms.double(1.)
-
 )
