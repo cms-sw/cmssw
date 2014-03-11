@@ -15,6 +15,7 @@
   <use   name="boost"/>
   <lib name="boost_serialization"/>
   <lib name="boost_program_options"/>
+  <lib name="boost_iostreams"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 
