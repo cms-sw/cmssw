@@ -54,7 +54,6 @@ void HcalDigisClient::booking(std::string subdetopt) {
     HistLim ietaLim(82, -41., 41.);
 
    int n_depth = 7;
-//   if (doSLHC_){n_depth = 7;} 
   
     for (int depth = 1; depth <= n_depth; depth++) {
         strtmp = "HcalDigiTask_occupancy_vs_ieta_depth" + str(depth) + "_" + subdetopt;
