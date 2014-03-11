@@ -118,7 +118,7 @@ namespace cond {
     bool OraPayloadTable::select( const cond::Hash& payloadHash, std::string& objectType, cond::Binary& payloadData ){
       ora::Object obj = m_session.getObject( payloadHash );
       objectType = obj.typeName();
-      payloadData = cond::Binary( obj.makeShared() );
+      payloadData.fromOraObject(obj );
       return true;
     }
 
@@ -129,8 +129,7 @@ namespace cond {
       
     cond::Hash OraPayloadTable::insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 
 					     const boost::posix_time::ptime& ){
-      void* ptr = payloadData.share().get();
-      ora::Object obj( ptr, objectType );
+      ora::Object obj = payloadData.oraObject();
       std::string tok = m_session.storeObject( obj, objectType );
       m_session.flush();
       return tok;
