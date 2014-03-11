@@ -345,18 +345,16 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf  (histo, "occupancy_map_HB2" );
       occupancy_map_HB2 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 
-      if (doSLHC_){
-         sprintf  (histo, "occupancy_map_HB3" );
-         occupancy_map_HB3 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-         sprintf  (histo, "occupancy_map_HB4" );
-         occupancy_map_HB4 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-         sprintf  (histo, "occupancy_map_HB5" );
-         occupancy_map_HB5 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-         sprintf  (histo, "occupancy_map_HB6" );
-         occupancy_map_HB6 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-         sprintf  (histo, "occupancy_map_HB7" );
-         occupancy_map_HB7 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-      }
+      sprintf  (histo, "occupancy_map_HB3" );
+      occupancy_map_HB3 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "occupancy_map_HB4" );
+      occupancy_map_HB4 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "occupancy_map_HB5" );
+      occupancy_map_HB5 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "occupancy_map_HB6" );
+      occupancy_map_HB6 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "occupancy_map_HB7" );
+      occupancy_map_HB7 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 
       sprintf  (histo, "occupancy_map_HE1" );
       occupancy_map_HE1 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
@@ -365,16 +363,14 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf  (histo, "occupancy_map_HE3" );
       occupancy_map_HE3 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
    
-      if (doSLHC_){
-         sprintf  (histo, "occupancy_map_HE4" );
-         occupancy_map_HE4 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-         sprintf  (histo, "occupancy_map_HE5" );
-         occupancy_map_HE5 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-         sprintf  (histo, "occupancy_map_HE6" );
-         occupancy_map_HE6 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-         sprintf  (histo, "occupancy_map_HE7" );
-         occupancy_map_HE7 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
-      }
+      sprintf  (histo, "occupancy_map_HE4" );
+      occupancy_map_HE4 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "occupancy_map_HE5" );
+      occupancy_map_HE5 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "occupancy_map_HE6" );
+      occupancy_map_HE6 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      sprintf  (histo, "occupancy_map_HE7" );
+      occupancy_map_HE7 = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
 
       sprintf  (histo, "occupancy_map_HO" );
       occupancy_map_HO = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);      
@@ -389,18 +385,16 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf  (histo, "occupancy_vs_ieta_HB2" );
       occupancy_vs_ieta_HB2 = dbe_->book1D(histo, histo, 82, -41., 41.);
 
-      if (doSLHC_){
-         sprintf  (histo, "occupancy_vs_ieta_HB3" );
-         occupancy_vs_ieta_HB3 = dbe_->book1D(histo, histo, 82, -41., 41.);
-         sprintf  (histo, "occupancy_vs_ieta_HB4" );
-         occupancy_vs_ieta_HB4 = dbe_->book1D(histo, histo, 82, -41., 41.);
-         sprintf  (histo, "occupancy_vs_ieta_HB5" );
-         occupancy_vs_ieta_HB5 = dbe_->book1D(histo, histo, 82, -41., 41.);
-         sprintf  (histo, "occupancy_vs_ieta_HB6" );
-         occupancy_vs_ieta_HB6 = dbe_->book1D(histo, histo, 82, -41., 41.);
-         sprintf  (histo, "occupancy_vs_ieta_HB7" );
-         occupancy_vs_ieta_HB7 = dbe_->book1D(histo, histo, 82, -41., 41.);
-      }
+      sprintf  (histo, "occupancy_vs_ieta_HB3" );
+      occupancy_vs_ieta_HB3 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      sprintf  (histo, "occupancy_vs_ieta_HB4" );
+      occupancy_vs_ieta_HB4 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      sprintf  (histo, "occupancy_vs_ieta_HB5" );
+      occupancy_vs_ieta_HB5 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      sprintf  (histo, "occupancy_vs_ieta_HB6" );
+      occupancy_vs_ieta_HB6 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      sprintf  (histo, "occupancy_vs_ieta_HB7" );
+      occupancy_vs_ieta_HB7 = dbe_->book1D(histo, histo, 82, -41., 41.);
 
 
       sprintf  (histo, "occupancy_vs_ieta_HE1" );
@@ -410,16 +404,14 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
       sprintf  (histo, "occupancy_vs_ieta_HE3" );
       occupancy_vs_ieta_HE3 = dbe_->book1D(histo, histo, 82, -41., 41.);
  
-      if (doSLHC_){
-         sprintf  (histo, "occupancy_vs_ieta_HE4" );
-         occupancy_vs_ieta_HE4 = dbe_->book1D(histo, histo, 82, -41., 41.);
-         sprintf  (histo, "occupancy_vs_ieta_HE5" );
-         occupancy_vs_ieta_HE5 = dbe_->book1D(histo, histo, 82, -41., 41.);
-         sprintf  (histo, "occupancy_vs_ieta_HE6" );
-         occupancy_vs_ieta_HE6 = dbe_->book1D(histo, histo, 82, -41., 41.);
-         sprintf  (histo, "occupancy_vs_ieta_HE7" );
-         occupancy_vs_ieta_HE7 = dbe_->book1D(histo, histo, 82, -41., 41.);
-      }
+      sprintf  (histo, "occupancy_vs_ieta_HE4" );
+      occupancy_vs_ieta_HE4 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      sprintf  (histo, "occupancy_vs_ieta_HE5" );
+      occupancy_vs_ieta_HE5 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      sprintf  (histo, "occupancy_vs_ieta_HE6" );
+      occupancy_vs_ieta_HE6 = dbe_->book1D(histo, histo, 82, -41., 41.);
+      sprintf  (histo, "occupancy_vs_ieta_HE7" );
+      occupancy_vs_ieta_HE7 = dbe_->book1D(histo, histo, 82, -41., 41.);
 
       sprintf  (histo, "occupancy_vs_ieta_HO" );
       occupancy_vs_ieta_HO = dbe_->book1D(histo, histo, 82, -41., 41.);

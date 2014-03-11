@@ -15,8 +15,8 @@
 //         Created:  Wed Mar 23 11:42:34 CET 2011
 // $Id: HcalDigisValidation.cc,v 1.6 2012/11/12 03:39:19 lhx Exp $
 //
+// Adapted for SLHC by Azeddine Kasmi  
 //
-
 #include <Validation/HcalDigis/interface/HcalDigisValidation.h>
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -66,7 +66,7 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
     // defaults are for HB
 
     HistLim Ndigis(2600, 0., 2600.);
-    HistLim ndigis(505, -10., 1000.);
+    HistLim ndigis(605, -10., 1200.); // AK
     HistLim sime(200, 0., 1.0);
 //    HistLim digiAmp(2050, -100., 4000.);
     HistLim digiAmp(205, -100., 4000.);
@@ -127,14 +127,12 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
         sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth4_%s", sub);
         book2D(histo, ietaLim, iphiLim);
 
-        if (doSLHC_){
-           sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth5_%s", sub);
-           book2D(histo, ietaLim, iphiLim);
-           sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth6_%s", sub);
-           book2D(histo, ietaLim, iphiLim);
-           sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth7_%s", sub);
-           book2D(histo, ietaLim, iphiLim);        
-        }
+        sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth5_%s", sub);
+        book2D(histo, ietaLim, iphiLim);
+        sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth6_%s", sub);
+        book2D(histo, ietaLim, iphiLim);
+        sprintf(histo, "HcalDigiTask_ieta_iphi_occupancy_map_depth7_%s", sub);
+        book2D(histo, ietaLim, iphiLim);        
 
 
         // occupancies vs ieta
@@ -150,14 +148,12 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
         sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth4_%s", sub);
         book1D(histo, ietaLim);
 
-        if (doSLHC_){
-           sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth5_%s", sub);
-           book1D(histo, ietaLim);
-           sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth6_%s", sub);
-           book1D(histo, ietaLim);
-           sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth7_%s", sub);
-           book1D(histo, ietaLim);
-        }
+        sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth5_%s", sub);
+        book1D(histo, ietaLim);
+        sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth6_%s", sub);
+        book1D(histo, ietaLim);
+        sprintf(histo, "HcalDigiTask_occupancy_vs_ieta_depth7_%s", sub);
+        book1D(histo, ietaLim);
 
 
         // maps of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
@@ -789,10 +785,9 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 	  else strtmp = "HcalDigiTask_all_amplitudes_vs_bin_1D_depth2_" + subdet_;
 	  fill1D(strtmp, double(ii), val);
 	}
-	
+
 	  strtmp = "HcalDigiTask_signal_amplitude_vs_bin_all_depths_" + subdet_;
 	  fill2D(strtmp, double(ii), val);
-	
 	
 	// HB/HE/HO
 	if (isubdet != 4 && ii >= 4 && ii <= 7) {
@@ -862,7 +857,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
       if (ampl1 > 10. || ampl2 > 10. || ampl3 > 10. || ampl4 > 10.) indigis++;
       
       // fraction 5,6 bins if ampl. is big.
-      if (ampl1 > 50. &&  isubdet != 4) {
+      if (ampl1 > 1000. &&  isubdet != 4) {  // used to be 50
 	double fBin5 = tool[4] - calibrations.pedestal((*digiItr)[4].capid());
 	double fBin67 = tool[5] + tool[6]
 	  - calibrations.pedestal((*digiItr)[5].capid())
@@ -879,7 +874,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
       }
       
       //Special for HF
-      if (isubdet == 4 && ampl1 > 50. && depth == 1) {
+      if (isubdet == 4 && ampl1 > 1000. && depth == 1) {     // used to be 50
 	double fBin5 = tool[2] - calibrations.pedestal((*digiItr)[2].capid());
 	double fBin67 = tool[3] + tool[4]
 	  - calibrations.pedestal((*digiItr)[3].capid())
@@ -900,8 +895,20 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
       fill1D(strtmp, ampl2);
       strtmp = "HcalDigiTask_signal_amplitude_depth3_" + subdet_;
       fill1D(strtmp, ampl3);
+
+      if (doSLHC_){
       strtmp = "HcalDigiTask_signal_amplitude_depth4_" + subdet_;
       fill1D(strtmp, ampl4);
+      strtmp = "HcalDigiTask_signal_amplitude_depth5_" + subdet_;
+      fill1D(strtmp, ampl5);
+      strtmp = "HcalDigiTask_signal_amplitude_depth6_" + subdet_;
+      fill1D(strtmp, ampl6);
+      strtmp = "HcalDigiTask_signal_amplitude_depth7_" + subdet_;
+      fill1D(strtmp, ampl7);   
+
+      }
+
+
     }
   } // End of CYCLE OVER CELLS =============================================
   
@@ -1031,21 +1038,21 @@ void HcalDigisValidation::eval_occupancy() {
       cnorm = monitor(strtmp)->getBinContent(i, j) / fev;
       monitor(strtmp)->setBinContent(i, j, cnorm);
       sumphi_4 += monitor(strtmp)->getBinContent(i, j);
-      
-      if (doSLHC_){
-	strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth5_" + subdet_;
-	cnorm = monitor(strtmp)->getBinContent(i, j) / fev;
-	monitor(strtmp)->setBinContent(i, j, cnorm);
-	sumphi_5 += monitor(strtmp)->getBinContent(i, j);
-	strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth6_" + subdet_;
-	cnorm = monitor(strtmp)->getBinContent(i, j) / fev;
-	monitor(strtmp)->setBinContent(i, j, cnorm);
-	sumphi_6 += monitor(strtmp)->getBinContent(i, j);
-	strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth7_" + subdet_;
-	cnorm = monitor(strtmp)->getBinContent(i, j) / fev;
-	monitor(strtmp)->setBinContent(i, j, cnorm);
-	sumphi_7 += monitor(strtmp)->getBinContent(i, j);
-      }
+
+      strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth5_" + subdet_;
+      cnorm = monitor(strtmp)->getBinContent(i, j) / fev;
+      monitor(strtmp)->setBinContent(i, j, cnorm);
+      sumphi_5 += monitor(strtmp)->getBinContent(i, j);
+
+      strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth6_" + subdet_;
+      cnorm = monitor(strtmp)->getBinContent(i, j) / fev;
+      monitor(strtmp)->setBinContent(i, j, cnorm);
+      sumphi_6 += monitor(strtmp)->getBinContent(i, j);
+
+      strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth7_" + subdet_;
+      cnorm = monitor(strtmp)->getBinContent(i, j) / fev;
+      monitor(strtmp)->setBinContent(i, j, cnorm);
+      sumphi_7 += monitor(strtmp)->getBinContent(i, j);
       
     }
     
@@ -1082,17 +1089,17 @@ void HcalDigisValidation::eval_occupancy() {
     strtmp = "HcalDigiTask_occupancy_vs_ieta_depth4_" + subdet_;
     fill1D(strtmp, deta, cnorm);
     
-    if (doSLHC_){
-      cnorm = sumphi_5 / phi_factor;
-      strtmp = "HcalDigiTask_occupancy_vs_ieta_depth5_" + subdet_;
-      fill1D(strtmp, deta, cnorm);
-      cnorm = sumphi_6 / phi_factor;
-      strtmp = "HcalDigiTask_occupancy_vs_ieta_depth6_" + subdet_;
-      fill1D(strtmp, deta, cnorm);
-      cnorm = sumphi_7 / phi_factor;
-      strtmp = "HcalDigiTask_occupancy_vs_ieta_depth7_" + subdet_;
-      fill1D(strtmp, deta, cnorm);
-    }
+    cnorm = sumphi_5 / phi_factor;
+    strtmp = "HcalDigiTask_occupancy_vs_ieta_depth5_" + subdet_;
+    fill1D(strtmp, deta, cnorm);
+
+    cnorm = sumphi_6 / phi_factor;
+    strtmp = "HcalDigiTask_occupancy_vs_ieta_depth6_" + subdet_;
+    fill1D(strtmp, deta, cnorm);
+ 
+    cnorm = sumphi_7 / phi_factor;
+    strtmp = "HcalDigiTask_occupancy_vs_ieta_depth7_" + subdet_;
+    fill1D(strtmp, deta, cnorm);
     
   } // end of i-loop
   

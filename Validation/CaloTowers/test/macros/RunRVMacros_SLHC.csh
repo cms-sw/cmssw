@@ -102,7 +102,7 @@ cd ../
 
 
 #Process Startup TTbar
-root -b -q 'RelValMacro.C("'${OLD_VERS}'","'${NEW_VERS}'","'HcalRecHitValidationRelVal_TTbar_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_${NEW_VERS}.root'","InputRelVal_Medium_SLHC.txt",'${harvest}')'
+root -b -q 'RelValMacroSLHC.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_TTbar_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_Startup_${NEW_VERS}.root'","InputRelVal_Medium_SLHC.txt",'${harvest}')'
 
 mv *HcalDigi*.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/HcalDigis/
 mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/CaloTowers/
@@ -111,7 +111,7 @@ mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbar/RecHits/
 
 
 #Process Startup QCD
-root -b -q 'RelValMacro.C("'${OLD_VERS}_QCD'","'${NEW_VERS}_QCD'","'HcalRecHitValidationRelVal_QCD80_120_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD80_120_${NEW_VERS}.root'","InputRelVal_Medium_SLHC.txt",'${harvest}')'
+root -b -q 'RelValMacroSLHC.C("'${OLD_VERS}_QCD'","'${NEW_VERS}_QCD'","'HcalRecHitValidationRelVal_QCD80_120_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD80_120_${NEW_VERS}.root'","InputRelVal_Medium_SLHC.txt",'${harvest}')'
 
 mv *HcalDigi*.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/HcalDigis/
 mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/CaloTowers/
@@ -119,7 +119,7 @@ mv RBX*gif          ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/RBX/
 mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCD/RecHits/
 
 #Process Startup HighPtQCD
-root -b -q 'RelValMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_HighPtQCD_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_HighPtQCD_Startup_${NEW_VERS}.root'","InputRelVal_Medium_SLHC.txt",'${harvest}')'
+root -b -q 'RelValMacroSLHC.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_HighPtQCD_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_HighPtQCD_Startup_${NEW_VERS}.root'","InputRelVal_Medium_SLHC.txt",'${harvest}')'
 
 mv *HcalDigi*.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/HighPtQCD/HcalDigis/
 mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/HighPtQCD/CaloTowers/
@@ -127,7 +127,7 @@ mv RBX*gif          ${NEW_VERS}_vs_${OLD_VERS}_RelVal/HighPtQCD/RBX/
 mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/HighPtQCD/RecHits/
 
 #Process Startup MinBias
-root -b -q 'RelValMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_MinBias_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_MinBias_Startup_${NEW_VERS}.root'","InputRelVal_Medium_SLHC.txt",'${harvest}')'
+root -b -q 'RelValMacroSLHC.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_MinBias_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_MinBias_Startup_${NEW_VERS}.root'","InputRelVal_Medium_SLHC.txt",'${harvest}')'
 
 mv *HcalDigi*.gif   ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/HcalDigis/
 mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/CaloTowers/
