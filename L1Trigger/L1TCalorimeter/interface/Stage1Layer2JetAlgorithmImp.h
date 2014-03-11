@@ -9,7 +9,7 @@
 
 //
 // This header file contains the class definitions for all of the concrete
-// implementations of the firmware interface. The CaloStage1FirmwareFactory
+// implementations of the firmware interface. The Stage1Layer2FirmwareFactory
 // selects the appropriate implementation based on the firmware version in the
 // configuration.
 //
@@ -17,15 +17,15 @@
 #ifndef L1TCALOSTAGE1JETALGORITHMIMP_H
 #define L1TCALOSTAGE1JETALGORITHMIMP_H
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2JetAlgorithm.h"
 //#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 
 namespace l1t {
 
-  class CaloStage1JetAlgorithmImpHI : public CaloStage1JetAlgorithm {
+  class Stage1Layer2JetAlgorithmImpHI : public Stage1Layer2JetAlgorithm {
   public:
-    CaloStage1JetAlgorithmImpHI(/*const CaloParams & dbPars*/);
-    virtual ~CaloStage1JetAlgorithmImpHI();
+    Stage1Layer2JetAlgorithmImpHI(/*const CaloParams & dbPars*/);
+    virtual ~Stage1Layer2JetAlgorithmImpHI();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      std::vector<l1t::Jet> * jets);
     //private:
@@ -33,10 +33,10 @@ namespace l1t {
     //double regionLSB_;
   };
 
-  class CaloStage1JetAlgorithmImpPP : public CaloStage1JetAlgorithm {
+  class Stage1Layer2JetAlgorithmImpPP : public Stage1Layer2JetAlgorithm {
   public:
-    CaloStage1JetAlgorithmImpPP(/*const CaloParams & dbPars*/);
-    virtual ~CaloStage1JetAlgorithmImpPP();
+    Stage1Layer2JetAlgorithmImpPP(/*const CaloParams & dbPars*/);
+    virtual ~Stage1Layer2JetAlgorithmImpPP();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      std::vector<l1t::Jet> * jets);
     //private:

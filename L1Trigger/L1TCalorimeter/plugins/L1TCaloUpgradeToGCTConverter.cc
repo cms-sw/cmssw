@@ -9,6 +9,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig)
@@ -62,8 +63,11 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   Handle<L1TEtSumCollection> EtSum;
   e.getByToken(EtSumToken_,EtSum);
 
-  edm::ESHandle< L1CaloEtScale > etScale ;
-  es.get< L1JetEtScaleRcd >().get( etScale ) ;
+  edm::ESHandle< L1CaloEtScale > emScale ;
+  es.get< L1EmEtScaleRcd >().get( emScale ) ;
+
+  edm::ESHandle< L1CaloEtScale > jetScale ;
+  es.get< L1JetEtScaleRcd >().get( jetScale ) ;
 
 
   // create the em and jet collections
@@ -123,9 +127,16 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     for(L1TTauCollection::const_iterator itTau = Tau->begin(itBX);
 	itTau != Tau->end(itBX); ++itTau){
       bool forward= (itTau->hwEta() < 4 || itTau->hwEta() > 17);
-      int hackPt = itTau->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
+      //int hackPt = itTau->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
+      double hackPt = static_cast<double>(itTau->hwPt()) * jetScale->linearLsb();
+      hackPt = jetScale->rank(hackPt);
       if(hackPt > 0x3f) hackPt = 0x3f;
-      L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), itTau->hwEta(),
+
+      unsigned iEta = itTau->hwEta();
+      unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
+      unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
+
+      L1GctJetCand TauCand(hackPt, itTau->hwPhi(), gtEta,
 			   true, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
@@ -142,10 +153,18 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	itJet != Jet->end(itBX); ++itJet){
       bool forward=(itJet->hwEta() < 4 || itJet->hwEta() > 17);
       //int hackPt = itJet->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
-      double hackPt = static_cast<double>(itJet->hwPt()) * etScale->linearLsb();
-      hackPt = etScale->rank(hackPt);
+      double hackPt = static_cast<double>(itJet->hwPt()) * jetScale->linearLsb();
+      hackPt = jetScale->rank(hackPt);
       if(hackPt > 0x3f) hackPt = 0x3f;
-      L1GctJetCand JetCand(hackPt, itJet->hwPhi(), itJet->hwEta(),
+
+      //printf("jetlinearLsb: %lf\n",jetScale->linearLsb());
+      //printf("emlinearLsb: %lf]n",emScale->linearLsb());
+
+      unsigned iEta = itJet->hwEta();
+      unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
+      unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
+
+      L1GctJetCand JetCand(hackPt, itJet->hwPhi(), gtEta,
 			   false, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);

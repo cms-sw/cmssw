@@ -1,18 +1,18 @@
 ///step03
-/// \class l1t::CaloStage1EGammaAlgorithm
+/// \class l1t::Stage1Layer2EGammaAlgorithm
 ///
 /// Description: interface for MP firmware
 ///
 /// Implementation:
 ///
 /// \authors: Jim Brooke - University of Bristol
-///           Kalanand Mishra - Fermilab 
+///           Kalanand Mishra - Fermilab
 ///
 
 //
 
-#ifndef CaloStage1EGammaAlgorithm_h
-#define CaloStage1EGammaAlgorithm_h
+#ifndef Stage1Layer2EGammaAlgorithm_h
+#define Stage1Layer2EGammaAlgorithm_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloStage1Cluster.h"
@@ -27,16 +27,16 @@
 
 
 namespace l1t {
-    
-  class CaloStage1EGammaAlgorithm { 
+
+  class Stage1Layer2EGammaAlgorithm {
   public:
     virtual void processEvent(const std::vector<l1t::CaloStage1Cluster> & clusters,
 			      const std::vector<l1t::CaloRegion> & regions,
-			      std::vector<l1t::EGamma> & egammas, 
-			      std::list<L1GObject> & rlxEGList, 
-			      std::list<L1GObject> & isoEGList) = 0;    
+			      std::vector<l1t::EGamma> & egammas,
+			      std::list<L1GObject> & rlxEGList,
+			      std::list<L1GObject> & isoEGList) = 0;
 
-    virtual ~CaloStage1EGammaAlgorithm(){};
+    virtual ~Stage1Layer2EGammaAlgorithm(){};
 
 
     unsigned int egtSeed;
@@ -44,8 +44,8 @@ namespace l1t {
     double puLevel;
     double relativeIsolationCut;
     double relativeJetIsolationCut;
-  }; 
-  
-} 
+  };
+
+}
 
 #endif

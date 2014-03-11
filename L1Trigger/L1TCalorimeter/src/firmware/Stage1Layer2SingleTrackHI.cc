@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1TauAlgorithmImp.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2TauAlgorithmImp.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
@@ -6,13 +6,13 @@
 using namespace std;
 using namespace l1t;
 
-CaloStage1SingleTrackHI::CaloStage1SingleTrackHI() {}
+Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI() {}
 
-CaloStage1SingleTrackHI::~CaloStage1SingleTrackHI(){};
+Stage1Layer2SingleTrackHI::~Stage1Layer2SingleTrackHI(){};
 
 void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t);
 
-void CaloStage1SingleTrackHI::processEvent(/*const std::vector<l1t::CaloStage1Cluster> & clusters,*/
+void Stage1Layer2SingleTrackHI::processEvent(/*const std::vector<l1t::CaloStage1> & clusters,*/
   const std::vector<l1t::CaloEmCand> & clusters,
   const std::vector<l1t::CaloRegion> & regions,
   std::vector<l1t::Tau> * taus)

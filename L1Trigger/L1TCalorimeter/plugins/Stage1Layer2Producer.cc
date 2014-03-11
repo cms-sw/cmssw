@@ -1,5 +1,5 @@
 ///
-/// \class l1t::L1TCaloStage1Producer
+/// \class l1t::Stage1Layer2Producer
 ///
 /// Description: Emulator for the stage 1 jet algorithms.
 ///
@@ -39,8 +39,8 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1FirmwareFactory.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2MainProcessor.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2FirmwareFactory.h"
 
 // print statements
 //#include <stdio.h>
@@ -54,10 +54,10 @@ namespace l1t {
 // class declaration
 //
 
-  class L1TCaloStage1Producer : public EDProducer {
+  class Stage1Layer2Producer : public EDProducer {
   public:
-    explicit L1TCaloStage1Producer(const ParameterSet&);
-    ~L1TCaloStage1Producer();
+    explicit Stage1Layer2Producer(const ParameterSet&);
+    ~Stage1Layer2Producer();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -74,9 +74,9 @@ namespace l1t {
     //boost::shared_ptr<const FirmwareVersion> m_fwv;
     boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
 
-    boost::shared_ptr<CaloStage1MainProcessor> m_fw; // Firmware to run per event, depends on database parameters.
+    boost::shared_ptr<Stage1Layer2MainProcessor> m_fw; // Firmware to run per event, depends on database parameters.
 
-    CaloStage1FirmwareFactory m_factory; // Factory to produce algorithms based on DB parameters
+    Stage1Layer2FirmwareFactory m_factory; // Factory to produce algorithms based on DB parameters
 
     // to be extended with other "consumes" stuff
     EDGetToken regionToken;
@@ -86,7 +86,7 @@ namespace l1t {
   //
   // constructors and destructor
   //
-  L1TCaloStage1Producer::L1TCaloStage1Producer(const ParameterSet& iConfig)
+  Stage1Layer2Producer::Stage1Layer2Producer(const ParameterSet& iConfig)
   {
     // register what you produce
     produces<BXVector<l1t::EGamma>>();
@@ -102,21 +102,21 @@ namespace l1t {
 
     m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
     if (ifwv == 1){
-      LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer -- Running HI implementation\n";
-      std::cout << "L1TCaloStage1Producer -- Running HI implementation\n";
+      LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer -- Running HI implementation\n";
+      std::cout << "Stage1Layer2Producer -- Running HI implementation\n";
     }else if (ifwv == 2){
-      LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer -- Running pp implementation\n";
-      std::cout << "L1TCaloStage1Producer -- Running pp implementation\n";
+      LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer -- Running pp implementation\n";
+      std::cout << "Stage1Layer2Producer -- Running pp implementation\n";
     }else{
-      LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer -- Unknown implementation.\n";
-      std::cout << "L1TCaloStage1Producer -- Unknown implementation.\n";
+      LogError("l1t|stage 1 jets") << "Stage1Layer2Producer -- Unknown implementation.\n";
+      std::cout << "Stage1Layer2Producer -- Unknown implementation.\n";
     }
     m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
     m_fw = m_factory.create(*m_fwv /*,*m_dbpars*/);
     //printf("Success create.\n");
     if (! m_fw) {
       // we complain here once per job
-      LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: firmware could not be configured.\n";
+      LogError("l1t|stage 1 jets") << "Stage1Layer2Producer: firmware could not be configured.\n";
     }
 
     // set cache id to zero, will be set at first beginRun:
@@ -124,7 +124,7 @@ namespace l1t {
   }
 
 
-  L1TCaloStage1Producer::~L1TCaloStage1Producer()
+  Stage1Layer2Producer::~Stage1Layer2Producer()
   {
   }
 
@@ -136,10 +136,10 @@ namespace l1t {
 
 // ------------ method called to produce the data ------------
 void
-L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
+Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
 {
 
-  LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer::produce function called...\n";
+  LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer::produce function called...\n";
 
   //return;
 
@@ -219,20 +219,20 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop ------------
 void
-L1TCaloStage1Producer::beginJob()
+Stage1Layer2Producer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop ------------
 void
-L1TCaloStage1Producer::endJob() {
+Stage1Layer2Producer::endJob() {
 }
 
 // ------------ method called when starting to processes a run ------------
 
-void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
+void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
-  LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer::beginRun function called...\n";
+  LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer::beginRun function called...\n";
 
   //unsigned long long id = iE.get<CaloParamsRcd>().cacheIdentifier();
 
@@ -243,7 +243,7 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
     //ESHandle<CaloParams> parameters;
     //iE.get<CaloParamsRcd>().get(parameters);
 
-    // LenA move the setting of the firmware version to the L1TCaloStage1Producer constructor
+    // LenA move the setting of the firmware version to the Stage1Layer2Producer constructor
 
     //m_dbpars = boost::shared_ptr<const CaloParams>(parameters.product());
     //m_fwv = boost::shared_ptr<const FirmwareVersion>(new FirmwareVersion());
@@ -254,7 +254,7 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
     //printf("Success m_fwv version set.\n");
 
     // if (! m_dbpars){
-    //   LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: could not retreive DB params from Event Setup\n";
+    //   LogError("l1t|stage 1 jets") << "Stage1Layer2Producer: could not retreive DB params from Event Setup\n";
     // }
 
     // Set the current algorithm version based on DB pars from database:
@@ -263,7 +263,7 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
 
     //if (! m_fw) {
     //  // we complain here once per run
-    //  LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: firmware could not be configured.\n";
+    //  LogError("l1t|stage 1 jets") << "Stage1Layer2Producer: firmware could not be configured.\n";
     //}
   }
 
@@ -271,14 +271,14 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
 }
 
 // ------------ method called when ending the processing of a run ------------
-void L1TCaloStage1Producer::endRun(Run const& iR, EventSetup const& iE){
+void Stage1Layer2Producer::endRun(Run const& iR, EventSetup const& iE){
 
 }
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void
-L1TCaloStage1Producer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+Stage1Layer2Producer::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
@@ -289,4 +289,4 @@ L1TCaloStage1Producer::fillDescriptions(ConfigurationDescriptions& descriptions)
 } // namespace
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::L1TCaloStage1Producer);
+DEFINE_FWK_MODULE(l1t::Stage1Layer2Producer);
