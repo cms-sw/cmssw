@@ -61,9 +61,7 @@ private:
   bool exceptionState() {return setExceptionState_;}
 
   //functions for single buffered reader
-  evf::EvFDaqDirector::FileStatus cacheNextEvent();
   evf::EvFDaqDirector::FileStatus readNextChunkIntoBuffer();
-  evf::EvFDaqDirector::FileStatus searchForNextFile();
 
   //variables
   evf::FastMonitoringService* fms_=nullptr;
@@ -202,20 +200,16 @@ private:
   unsigned int nStreams_ = 0;
   unsigned int checkEvery_ = 10;
 
+  //supervisor thread wakeup
+  std::mutex mWakeup_;
+  std::vector<std::condition_variable*> cvWakeup_;
 
-
-  //variables for the single buffered reader
+  //variables for the single buffered mode
   bool singleBufferMode_;
-  unsigned char *dataBuffer_ = nullptr;
-  unsigned char *bufferCursor_ = nullptr;
-  uint32_t bufferLeft_ = 0;
   int fileDescriptor_ = -1;
-  boost::filesystem::path currentInputJson_;
-  boost::filesystem::path openFile_;
-  int currentInputEventCount_ = 0;
+  uint32_t bufferInputRead_ = 0;
 
-  std::atomic<bool> supervisorInit_;
-
+  std::atomic<bool> threadInit_;
 
 };
 
