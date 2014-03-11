@@ -55,12 +55,13 @@ void DTLinearDriftFromDBAlgo::setES(const EventSetup& setup) {
   uncertMap = &*uncerts;
 
   // check uncertainty map type
-  if (uncerts->type()!="uniformPerStep") edm::LogError("NotImplemented") << "Uncertainty type unknown: " << uncerts->type();
+  if (uncerts->version()>1) edm::LogError("NotImplemented") << "DT Uncertainty DB version unknown: " << uncerts->version();
 
-  if(debug) 
+  if(debug) {
     cout << "[DTLinearDriftFromDBAlgo] meanTimer version: " << mTimeMap->version()<<endl;
-    cout << "                          uncertDB  version: " << uncerts->type()<<endl;
-
+    cout << "                          uncertDB  version: " << uncerts->version()<<endl;
+  }
+  
 }
 
 

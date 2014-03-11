@@ -244,7 +244,7 @@ void DumpFileToDB::endJob() {
     DTRecoUncertainties* uncert = new DTRecoUncertainties();
 
     // FIXME: should come from the configuration; to be changed whenever a new schema for values is introduced.
-    uncert->setType("uniformPerStep"); // Uniform uncertainties per SL and step; parameters 0-3 are for steps 1-4.
+    uncert->setVersion(1); // Uniform uncertainties per SL and step; parameters 0-3 are for steps 1-4.
 
     // Loop over file entries
     for(DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();

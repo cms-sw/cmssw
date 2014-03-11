@@ -228,7 +228,7 @@ void DumpDBToFile::endJob() {
 	theCalibFile->addCell(wireId, consts);
       }
     } else if(dbToDump == "RecoUncertDB") {
-      cout << "RecoUncertDB type: " << uncertMap->type() << endl;
+      cout << "RecoUncertDB version: " << uncertMap->version() << endl;
       for(DTRecoUncertainties::const_iterator wireAndUncerts = uncertMap->begin();
 	  wireAndUncerts != uncertMap->end(); wireAndUncerts++) {
 	DTWireId wireId((*wireAndUncerts).first);
