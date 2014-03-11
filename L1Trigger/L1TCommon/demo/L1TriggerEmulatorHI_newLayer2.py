@@ -13,7 +13,7 @@ process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(10)
     )
 
 # Input source
@@ -51,56 +51,44 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V27A::All', '')
 
-process.RCTConverter = cms.EDProducer(
+process.rctLayer2Format = cms.EDProducer(
     "l1t::L1TCaloRCTToUpgradeConverter",
     regionTag = cms.InputTag("simRctDigis"),
     emTag = cms.InputTag("simRctDigis"))
 
 
-process.caloStage1 = cms.EDProducer(
+process.Layer2HW = cms.EDProducer(
     "l1t::Stage1Layer2Producer",
-    CaloRegions = cms.InputTag("RCTConverter"),
-    CaloEmCands = cms.InputTag("RCTConverter"),
+    CaloRegions = cms.InputTag("rctLayer2Format"),
+    CaloEmCands = cms.InputTag("rctLayer2Format"),
     FirmwareVersion = cms.uint32(1)  ## 1=HI algo, 2= pp algo
     )
 
-process.Physicalizer = cms.EDProducer("l1t::PhysicalEtAdder",
-                                      InputCollection = cms.InputTag("caloStage1")
+process.Layer2Phys = cms.EDProducer("l1t::PhysicalEtAdder",
+                                    InputCollection = cms.InputTag("Layer2HW")
 )
 
-process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
-    InputCollection = cms.InputTag("Physicalizer")
+process.Layer2gctFormat = cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
+    InputCollection = cms.InputTag("Layer2Phys")
     )
 
 process.load('L1Trigger.Configuration.SimL1Emulator_cff')
 process.simRctDigis.ecalDigis = cms.VInputTag(cms.InputTag('ecalDigis:EcalTriggerPrimitives'))
 process.simRctDigis.hcalDigis = cms.VInputTag(cms.InputTag('hcalDigis'))
-process.simGtDigis.GctInputTag = 'GCTConverter'
+process.simGtDigis.GctInputTag = 'Layer2gctFormat'
 
 process.digiStep = cms.Sequence(
     process.ecalDigis
     *process.hcalDigis
 )
 
-# process.simGctDigis = cms.Sequence(
-#     process.RCTConverter
-#     *process.caloStage1
-#     *process.GCTConverter
-# )
-
-process.SimL1Emulator = cms.Sequence(
-    process.simRctDigis +
-    #process.simGctDigis +
-    process.RCTConverter +
-    process.caloStage1 +
-    process.Physicalizer +
-    process.GCTConverter +
-    process.SimL1MuTriggerPrimitives +
-    process.SimL1MuTrackFinders +
-    process.simRpcTriggerDigis +
-    process.simGmtDigis +
-    process.SimL1TechnicalTriggers +
-    process.simGtDigis )
+#overwrites simGctDigis in SimL1Emulator
+process.simGctDigis = cms.Sequence(
+    process.rctLayer2Format
+    *process.Layer2HW
+    *process.Layer2Phys
+    *process.Layer2gctFormat
+)
 
 process.p1 = cms.Path(
     process.digiStep
