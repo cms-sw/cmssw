@@ -75,7 +75,6 @@ detachedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
     ComponentName = 'detachedTripletStepTrajectoryBuilder',
     MeasurementTrackerName = '',
     trajectoryFilterName = 'detachedTripletStepTrajectoryFilter',
-    clustersToSkip = cms.InputTag('detachedTripletStepClusters'),
     maxCand = 3,
     alwaysUseInvalidHits = True,
     estimator = cms.string('detachedTripletStepChi2Est'),
