@@ -4,6 +4,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 
 TauSpinnerFilter::TauSpinnerFilter(const edm::ParameterSet& pset):
   src_(pset.getParameter<edm::InputTag>("src"))
@@ -16,15 +17,7 @@ TauSpinnerFilter::TauSpinnerFilter(const edm::ParameterSet& pset):
 }
 
 bool TauSpinnerFilter::filter(edm::Event& e, edm::EventSetup const& es){
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if(!rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
-      "which appears to be absent.  Please add that service to your configuration\n"
-      "or remove the modules that require it." << std::endl;
-  }
-  fRandomEngine = &rng->getEngine();
-
+  edm::RandomEngineSentry<TauSpinnerFilter> randomEngineSentry(this, e.streamID());
   edm::Handle<double> WT;
   e.getByToken(WTToken_,WT);
   if(*(WT.product())>=0 && *(WT.product())<=4.0){

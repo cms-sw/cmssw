@@ -61,6 +61,8 @@ class TauSpinnerCMS : public edm::one::EDProducer<edm::EndRunProducer,edm::one::
   virtual void endJob() override final;
   virtual void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup);
   static  double flat();  
+  void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
+  virtual void initialize();
 
  private:
   bool isReco_;
@@ -89,5 +91,6 @@ class TauSpinnerCMS : public edm::one::EDProducer<edm::EndRunProducer,edm::one::
   static CLHEP::HepRandomEngine* fRandomEngine;
   edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> GenParticleCollectionToken_;
+  static bool fInitialized;
 }; 
 #endif
