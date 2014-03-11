@@ -31,7 +31,7 @@ public:
     theFixedError       = regionPSet.getParameter<double>("fixedError");
 
     theUseFoundVertices = regionPSet.getParameter<bool>("useFoundVertices");
-    theUseFakeVertices  = regionPSet.getParameter<bool>("useFakeVertices");
+    theUseFakeVertices  = regionPSet.existsAs<bool>("useFakeVertices") ? regionPSet.getParameter<bool>("useFakeVertices") : false;
     theUseFixedError    = regionPSet.getParameter<bool>("useFixedError");
     token_vertex      = iC.consumes<reco::VertexCollection>(regionPSet.getParameter<edm::InputTag>("VertexCollection"));
   }   
