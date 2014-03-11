@@ -52,9 +52,6 @@ class GlobalMuonProducer : public edm::EDProducer {
   edm::EDGetTokenT<TrajTrackAssociationCollection> staAssoMapToken;
   edm::EDGetTokenT<reco::TrackToTrackMap> updatedStaAssoMapToken;
 
-
-
-
   MuonTrackFinder* theTrackFinder;
     
   /// the event setup proxy, it takes care the services update

@@ -23,12 +23,8 @@ GlobalMuonRefitter = cms.PSet(
     PropDirForCosmics = cms.bool(False),
     RefitRPCHits = cms.bool(True),
  
-    # DYT thresholds:
+    # DYT stuff
     DYTthrs = cms.vint32(20, 30),
-    # DYT selector:
-    # 0 --> DYT disabled (all muon stations used)
-    # 1 --> all compatible stations
-    # 2 --> stop at second consecutive incompatibility
     DYTselector = cms.int32(1),
     DYTupdator = cms.bool(False),
     DYTuseAPE = cms.bool(False),

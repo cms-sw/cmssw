@@ -105,11 +105,11 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
-  theDYTthrs = par.getParameter< std::vector<int> >("DYTthrs");
-  theDYTselector = par.getParameter<int>("DYTselector");
-  theDYTupdator = par.getParameter<bool>("DYTupdator");
-  theDYTuseAPE = par.getParameter<bool>("DYTuseAPE");
-  dytInfo = new reco::DYTInfo();
+  theDYTthrs     = par.getParameter< std::vector<int> >("DYTthrs");
+  theDYTselector = par.existsAs<int>("DYTselector")?par.getParameter<int>("DYTselector"):1;
+  theDYTupdator = par.existsAs<bool>("DYTupdator")?par.getParameter<bool>("DYTupdator"):false;
+  theDYTuseAPE = par.existsAs<bool>("DYTuseAPE")?par.getParameter<bool>("DYTuseAPE"):false;
+  dytInfo        = new reco::DYTInfo();
 
   if (par.existsAs<double>("RescaleErrorFactor")) {
     theRescaleErrorFactor = par.getParameter<double>("RescaleErrorFactor");

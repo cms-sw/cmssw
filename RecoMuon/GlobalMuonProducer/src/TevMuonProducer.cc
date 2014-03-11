@@ -105,7 +105,6 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   eventSetup.get<IdealGeometryRecord>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
-
   // Take the GLB muon container(s)
   Handle<reco::TrackCollection> glbMuons;
   event.getByToken(glbMuonsToken,glbMuons);
