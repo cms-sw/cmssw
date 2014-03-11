@@ -36,7 +36,10 @@ process.output = cms.OutputModule(
     "PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = cms.untracked.vstring('keep *'),
+    outputCommands = cms.untracked.vstring('keep *',
+                                           'drop FEDRawDataCollection_rawDataRepacker_*_*',
+                                           'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
+),
     fileName = cms.untracked.string('L1Emulator_HI_oldGCT.root'),
     dataset = cms.untracked.PSet(
     filterName = cms.untracked.string(''),
