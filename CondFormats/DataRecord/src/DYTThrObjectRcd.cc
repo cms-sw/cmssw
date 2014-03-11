@@ -1,14 +1,7 @@
-// -*- C++ -*-
+// Package: CondFormats
+// Class  : DYTThrObjectRcd
 //
-// Package:     CondFormats
-// Class  :     DYTThrObjectRcd
-// 
-// Implementation:
-//     [Notes on implementation]
-//
-// Author:      
-// Created:     Fri Jul 13 14:41:25 CEST 2012
-// $Id$
+// Author: D. Pagano - UCL Louvain     
 
 #include "CondFormats/DataRecord/interface/DYTThrObjectRcd.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
