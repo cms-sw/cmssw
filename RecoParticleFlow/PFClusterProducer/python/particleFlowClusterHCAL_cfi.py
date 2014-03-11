@@ -82,5 +82,7 @@ particleFlowClusterHCAL = cms.EDProducer(
     seedFinder = _localMaxSeeds_HCAL,
     initialClusteringStep = _topoClusterizer_HCAL,
     pfClusterBuilder = _pfClusterizer_HCAL,
+    positionReCalc = cms.PSet(),
+    energyCorrector = cms.PSet()
 )
 

@@ -117,5 +117,6 @@ particleFlowClusterECALUncorrected = cms.EDProducer(
     seedFinder = _localMaxSeeds_ECAL,
     initialClusteringStep = _topoClusterizer_ECAL,
     pfClusterBuilder = _pfClusterizer_ECAL,
-    positionReCalc = _positionCalcECAL_all_withdepth
+    positionReCalc = _positionCalcECAL_all_withdepth,
+    energyCorrector = cms.PSet()
     )

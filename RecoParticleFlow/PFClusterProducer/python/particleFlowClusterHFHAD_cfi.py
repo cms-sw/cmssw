@@ -83,6 +83,8 @@ particleFlowClusterHFHAD = cms.EDProducer(
     recHitCleaners = cms.VPSet(_spikeAndDoubleSpikeCleaner_HFHAD),
     seedFinder = _localMaxSeeds_HFHAD,
     initialClusteringStep = _topoClusterizer_HFHAD,
-    pfClusterBuilder = _pfClusterizer_HFHAD
+    pfClusterBuilder = _pfClusterizer_HFHAD,
+    positionReCalc = cms.PSet(),
+    energyCorrector = cms.PSet()
 )
 
