@@ -38,12 +38,12 @@ void PFClusterSelector::produce(edm::Event& iEvent,
 	clusters->at(i).layer() == PFLayer::HCAL_BARREL2) {
 
       for(unsigned int j=0;j<energyRanges_.size();++j) {
-	if (j==0 && energy<energyRanges_.at(0)) {
-	  if ( time >timingCutsLow_[j] &&  time <timingCutsHigh_[j] )
+	if (j==0 ) {
+	  if ( time >timingCutsLow_[j] &&  time <timingCutsHigh_[j] && energy<energyRanges_.at(0))
 	    out->push_back(clusters->at(i));
 	}
-	else if (j==clusters->size()-1 && energy>=energyRanges_.at(j)) {
-	  if ( time >timingCutsLow_[j] &&  time <timingCutsHigh_[j] )
+	else if (j==(energyRanges_.size()-1) ) {
+	  if ( time >timingCutsLow_[j] &&  time <timingCutsHigh_[j] && energy>=energyRanges_.at(j))
 	    out->push_back(clusters->at(i));
 	}
 	else {
@@ -55,23 +55,20 @@ void PFClusterSelector::produce(edm::Event& iEvent,
     }
     else 
       {
-      for(unsigned int j=0;j<energyRanges_.size();++j) {
-	if (j==0 && energy<energyRanges_.at(0)) {
-	  if ( time >timingCutsLowEE_[j] &&  time <timingCutsHighEE_[j] )
-	    out->push_back(clusters->at(i));
+	for(unsigned int j=0;j<energyRanges_.size();++j) {
+	  if (j==0) { 
+	    if ( energy<energyRanges_.at(0) && time >timingCutsLowEE_[j] &&  time <timingCutsHighEE_[j] )
+	      out->push_back(clusters->at(i));
+	  }
+	  else if (j==(energyRanges_.size()-1) ) {
+	    if ( time >timingCutsLowEE_[j] &&  time <timingCutsHighEE_[j] && energy>=energyRanges_.at(j) )
+	      out->push_back(clusters->at(i));
+	  }
+	  else {
+	    if ( energy>energyRanges_[j-1] && energy <= energyRanges_[j]&& time >timingCutsLowEE_[j] &&  time <timingCutsHighEE_[j] )
+	      out->push_back(clusters->at(i));
+	  }
 	}
-	else if (j==clusters->size()-1 && energy>=energyRanges_.at(j)) {
-	  if ( time >timingCutsLowEE_[j] &&  time <timingCutsHighEE_[j] )
-	    out->push_back(clusters->at(i));
-	}
-	else {
-	  if ( energy>energyRanges_[j-1] && energy < energyRanges_[j]&& time >timingCutsLowEE_[j] &&  time <timingCutsHighEE_[j] )
-	    out->push_back(clusters->at(i));
-	}
-      }
-	
-
-
       }
 
   }

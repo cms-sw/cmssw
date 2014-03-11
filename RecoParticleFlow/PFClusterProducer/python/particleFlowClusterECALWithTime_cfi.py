@@ -129,9 +129,19 @@ particleFlowClusterECALWithTimeUncorrected = cms.EDProducer(
     energyCorrector = cms.PSet()
     )
 
-particleFlowClusterECALWithTime = cms.EDProducer(
+particleFlowClusterECALWithTimeSelected = cms.EDProducer(
+    "PFClusterSelector",
+    src = cms.InputTag('particleFlowClusterECALWithTimeUncorrected'),
+    energyRanges = cms.vdouble(0.,0.5,1.,2.,5.,5.),
+    timingCutsLow = cms.vdouble(-16.,-16.,-16.,-12.,-10.,-10.),
+    timingCutsHigh = cms.vdouble(16.,16.,16.,12.,10.,10.),
+    timingCutsEndcapLow = cms.vdouble(-18.,-18.,-18.,-18.,-14.,-14.),
+    timingCutsEndcapHigh = cms.vdouble(18.,18.,18.,18.,14.,14.)
+    )
+
+particleFlowClusterECAL = cms.EDProducer(
     "CorrectedECALPFClusterProducer",
-    inputECAL = cms.InputTag("particleFlowClusterECALWithTimeUncorrected"),
+    inputECAL = cms.InputTag("particleFlowClusterECALWithTimeSelected"),
     inputPS = cms.InputTag("particleFlowClusterPS"),
     minimumPSEnergy = cms.double(0.0),
     energyCorrector = _emEnergyCorrector
