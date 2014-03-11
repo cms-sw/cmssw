@@ -5,7 +5,7 @@ from RecoJets.JetProducers.JetIdParams_cfi import *
 full_53x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_53X_Dec2012.weights.xml"),
+ tmvaWeights = cms.string("CondFormats/JetMETObjects/dataTMVAClassificationCategory_JetID_53X_Dec2012.weights.xml"),
  tmvaMethod  = cms.string("JetIDMVAHighPt"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
@@ -36,7 +36,7 @@ full_53x = cms.PSet(
 full_53x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_53X_chs_Dec2012.weights.xml"),
+ tmvaWeights = cms.string("CondFormats/JetMETObjects/dataTMVAClassificationCategory_JetID_53X_chs_Dec2012.weights.xml"),
  #tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_53X_chs_Dec2012.weights.xml"),
  tmvaMethod  = cms.string("JetIDMVAHighPt"),
  version = cms.int32(-1),
