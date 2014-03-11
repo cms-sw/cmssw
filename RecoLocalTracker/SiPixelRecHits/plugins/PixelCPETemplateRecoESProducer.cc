@@ -26,7 +26,9 @@ PixelCPETemplateRecoESProducer::PixelCPETemplateRecoESProducer(const edm::Parame
 
   pset_ = p;
   setWhatProduced(this,myname);
-  //std::cout<<" from ES Producer Templates "<<myname<<" "<<DoLorentz_<<std::endl;
+
+  //std::cout<<" from ES Producer Templates "<<myname<<" "<<DoLorentz_<<std::endl;  //dk
+
 }
 
 PixelCPETemplateRecoESProducer::~PixelCPETemplateRecoESProducer() {}
@@ -41,17 +43,20 @@ PixelCPETemplateRecoESProducer::produce(const TkPixelCPERecord & iRecord){
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
 
   edm::ESHandle<SiPixelLorentzAngle> lorentzAngle;
-  if(DoLorentz_) {
-    //  LA from alignment 
-    iRecord.getRecord<SiPixelLorentzAngleRcd>().get("laFromAlignment",lorentzAngle);
-  } else { // Normal, deafult LA from calibrations
-    iRecord.getRecord<SiPixelLorentzAngleRcd>().get(lorentzAngle);
+  const SiPixelLorentzAngle * lorentzAngleProduct = 0;
+  if(DoLorentz_) { //  LA correction from alignment 
+    iRecord.getRecord<SiPixelLorentzAngleRcd>().get("fromAlignment",lorentzAngle);
+    lorentzAngleProduct = lorentzAngle.product();
+  } else { // Normal, deafult LA actually is NOT needed
+    //iRecord.getRecord<SiPixelLorentzAngleRcd>().get(lorentzAngle);
+    lorentzAngleProduct=NULL;  // null is ok becuse LA is not use by templates in this mode
   }
 
   ESHandle<SiPixelTemplateDBObject> templateDBobject;
   iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
 
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPETemplateReco(pset_,magfield.product(),lorentzAngle.product(),templateDBobject.product() ));
+  //  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPETemplateReco(pset_,magfield.product(),lorentzAngle.product(),templateDBobject.product() ));
+  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPETemplateReco(pset_,magfield.product(),lorentzAngleProduct,templateDBobject.product() ));
   return cpe_;
 }
 

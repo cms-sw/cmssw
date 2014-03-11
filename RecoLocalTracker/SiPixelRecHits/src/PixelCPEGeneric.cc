@@ -29,8 +29,12 @@ namespace {
 //!  The constructor.
 //-----------------------------------------------------------------------------
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
-	const MagneticField * mag, const SiPixelLorentzAngle * lorentzAngle, const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject) 
-  : PixelCPEBase(conf, mag, lorentzAngle, genErrorParm, templateDBobject)
+				 const MagneticField * mag, 
+				 const SiPixelLorentzAngle * lorentzAngle, 
+				 const SiPixelCPEGenericErrorParm * genErrorParm, 
+				 const SiPixelTemplateDBObject * templateDBobject,
+				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
+  : PixelCPEBase(conf, mag, lorentzAngle, genErrorParm, templateDBobject,lorentzAngleWidth)
 {
   
   if (theVerboseLevel > 0) 

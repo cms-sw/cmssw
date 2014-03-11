@@ -46,7 +46,7 @@ const int cluster_matrix_size_y = 21;
 PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
 					   const MagneticField * mag, const SiPixelLorentzAngle * lorentzAngle, 
 					   const SiPixelTemplateDBObject * templateDBobject) 
-  : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject)
+  : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject, 0)
 {
   //cout << endl;
   //cout << "Constructing PixelCPETemplateReco::PixelCPETemplateReco(...)................................................." << endl;
@@ -466,10 +466,9 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
 	  // now, correctly, we can use the difference of shifts  
 	  templXrec_ += 0.5*(lorentzShiftInCmX_ - templateLorwidthCmX);
 	  templYrec_ += 0.5*(lorentzShiftInCmY_ - templateLorwidthCmY);
-	  //cout << "templateLorwidthCmX  = " << templateLorwidthCmX  
-	  //   << ", lorentzShiftInCmX = " << lorentzShiftInCmX_ << endl;
-	}
-      }
+	  //cout << "Templates: la lorentz offset = " <<(0.5*(lorentzShiftInCmX_-templateLorwidthCmX))<< endl; //dk
+	} //else {cout<<" LA is 0, disable offset corrections "<<endl;} //dk
+      } //else {cout<<" Do not do LA offset correction "<<endl;} //dk
 
     }
     

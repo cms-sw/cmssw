@@ -55,7 +55,9 @@ class PixelCPEGeneric : public PixelCPEBase
 {
  public:
   // PixelCPEGeneric( const DetUnit& det );
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, const SiPixelTemplateDBObject *);
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
+		  const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, 
+		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
   ~PixelCPEGeneric() {;}
 
 

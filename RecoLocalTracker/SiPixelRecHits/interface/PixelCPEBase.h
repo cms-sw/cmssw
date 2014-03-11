@@ -56,8 +56,11 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 
 public:
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
-	       const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
-	       const SiPixelTemplateDBObject * templateDBobject = 0);
+	       const SiPixelLorentzAngle * lorentzAngle = 0, 
+	       const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
+	       const SiPixelTemplateDBObject * templateDBobject = 0,
+	       const SiPixelLorentzAngle * lorentzAngleWidth = 0
+	       );
   
 
  //--------------------------------------------------------------------------
@@ -244,6 +247,7 @@ public:
   mutable const MagneticField * magfield_;          // magnetic field
   
   mutable const SiPixelLorentzAngle * lorentzAngle_;
+  mutable const SiPixelLorentzAngle * lorentzAngleWidth_;  // for the charge width (generic)
   
   mutable const SiPixelCPEGenericErrorParm * genErrorParm_;
   

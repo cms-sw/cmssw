@@ -45,8 +45,11 @@ namespace {
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
-PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const SiPixelLorentzAngle * lorentzAngle, 
-			   const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject)
+PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, 
+			   const SiPixelLorentzAngle * lorentzAngle, 
+			   const SiPixelCPEGenericErrorParm * genErrorParm, 
+			   const SiPixelTemplateDBObject * templateDBobject,
+			   const SiPixelLorentzAngle * lorentzAngleWidth)
   : theDet(nullptr), theTopol(nullptr), theRecTopol(nullptr), theParam(nullptr), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     probabilityX_(0.0), probabilityY_(0.0),
     probabilityQ_(0.0), qBin_(0),
@@ -59,6 +62,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   //--- Lorentz angle tangent per Tesla
 
   lorentzAngle_ = lorentzAngle;
+  lorentzAngleWidth_ = lorentzAngleWidth;
  
   //--- Algorithm's verbosity
   theVerboseLevel = 
@@ -436,7 +440,12 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
   // Use LA from DB or from config 
   float langle = 0.;
   if( !useLAOffsetFromConfig_ ) {  // get it from DB
-    langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
+    if(lorentzAngle_ != NULL) {  // a real LA object 
+      langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
+    } else { // no LA, unused 
+      //cout<<" LA object is NULL, assume LA = 0"<<endl; //dk
+      langle = 0; // set to a fake value
+    }
     if(LocalPrint) cout<<" Will use LA Offset from DB "<<langle<<endl;
   } else {  // from config file 
     langle = lAOffset_;
@@ -445,10 +454,10 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
  
   //We also need the LA values used for the charge width
   // I do not know where to put it best, try here!
-  if(useLAWidthFromDB_) {  // get it from DB
-    //auto langleWidth = FromDB();  // does not yet exist
-    auto langleWidth = langle;  // for testing only
-    if(langle!=0.0) widthLAFraction_ = std::abs(langleWidth/langle);
+  if(useLAWidthFromDB_ && (lorentzAngleWidth_ != NULL) ) {  // get it from DB
+    auto langleWidth = lorentzAngleWidth_->getLorentzAngle(theDet->geographicalId().rawId());
+    if(langleWidth!=0.0) widthLAFraction_ = std::abs(langleWidth/langle);
+    else widthLAFraction_ = 1.0;
     if(LocalPrint)  cout<<" Will use LA Width from DB "<<langleWidth<<" "<<widthLAFraction_<<endl;
   } else if(useLAWidthFromConfig_) { // get from config 
     if(langle!=0.0) widthLAFraction_ = std::abs(lAWidth_/langle);
