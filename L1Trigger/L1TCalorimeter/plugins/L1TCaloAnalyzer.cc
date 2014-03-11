@@ -72,10 +72,15 @@ private:
   edm::EDGetToken m_sumToken;
   
   enum ObjectType{Tower=0x1, EG=0x2, Tau=0x3, Jet=0x4, Sum=0x5};
+  std::vector< ObjectType > types_;
+  std::vector< std::string > typeStr_;
   
+  std::map< ObjectType, TFileDirectory > dirs_;
   std::map< ObjectType, TH1F* > het_;
   std::map< ObjectType, TH1F* > heta_;
   std::map< ObjectType, TH1F* > hphi_;
+  std::map< ObjectType, TH1F* > hem_;
+  std::map< ObjectType, TH1F* > hhad_;
 
 };
 
@@ -91,7 +96,6 @@ private:
 // constructors and destructor
 //
 L1TCaloAnalyzer::L1TCaloAnalyzer(const edm::ParameterSet& iConfig)
-
 {
    //now do what ever initialization is needed
 
@@ -102,6 +106,17 @@ L1TCaloAnalyzer::L1TCaloAnalyzer(const edm::ParameterSet& iConfig)
   m_jetToken   = consumes<l1t::JetBxCollection>      (iConfig.getParameter<edm::InputTag>("jetToken"));
   m_sumToken   = consumes<l1t::EtSumBxCollection>    (iConfig.getParameter<edm::InputTag>("etSumToken"));
 
+  types_.push_back( Tower );
+  types_.push_back( EG );
+  types_.push_back( Tau );
+  types_.push_back( Jet );
+  types_.push_back( Sum );
+
+  typeStr_.push_back( "tower" );
+  typeStr_.push_back( "eg" );
+  typeStr_.push_back( "tau" );
+  typeStr_.push_back( "jet" );
+  typeStr_.push_back( "sum" );
 
 }
 
@@ -125,6 +140,8 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 {
   using namespace edm;
   
+  // only does anything for BX=0 right now
+
   // get TPs ?
   // get regions ?
   // get RCT clusters ?
@@ -134,29 +151,53 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   Handle< BXVector<l1t::CaloTower> > towers;
   iEvent.getByToken(m_towerToken,towers);
 
+  for ( auto itr = towers->begin(0); itr != towers->end(0); ++itr ) {
+    het_.at(Tower)->Fill( itr->hwPt() );
+    heta_.at(Tower)->Fill( itr->hwEta() );
+    hphi_.at(Tower)->Fill( itr->hwPhi() );
+    hem_.at(Tower)->Fill( itr->hwEtEm() );
+    hhad_.at(Tower)->Fill( itr->hwEtHad() );
+  }
+
   // get EG
   Handle< BXVector<l1t::EGamma> > egs;
   iEvent.getByToken(m_egToken,egs);
+
+  for ( auto itr = egs->begin(0); itr != egs->end(0); ++itr ) {
+    het_.at(EG)->Fill( itr->hwPt() );
+    heta_.at(EG)->Fill( itr->hwEta() );
+    hphi_.at(EG)->Fill( itr->hwPhi() );
+  }
 
   // get tau
   Handle< BXVector<l1t::Tau> > taus;
   iEvent.getByToken(m_tauToken,taus);
 
+  for ( auto itr = taus->begin(0); itr != taus->end(0); ++itr ) {
+    het_.at(Tau)->Fill( itr->hwPt() );
+    heta_.at(Tau)->Fill( itr->hwEta() );
+    hphi_.at(Tau)->Fill( itr->hwPhi() );
+  }
+
   // get jet
   Handle< BXVector<l1t::Jet> > jets;
   iEvent.getByToken(m_jetToken,jets);
+
+  for ( auto itr = jets->begin(0); itr != jets->end(0); ++itr ) {
+    het_.at(Jet)->Fill( itr->hwPt() );
+    heta_.at(Jet)->Fill( itr->hwEta() );
+    hphi_.at(Jet)->Fill( itr->hwPhi() );
+  }
 
   // get sums
   Handle< BXVector<l1t::EtSum> > sums;
   iEvent.getByToken(m_sumToken,sums);
 
-  
-//   int bxFirst = towers->getFirstBX();
-//   int bxLast = towers->getLastBX();
-
-
-
-
+  for ( auto itr = sums->begin(0); itr != sums->end(0); ++itr ) {
+    het_.at(Sum)->Fill( itr->hwPt() );
+    heta_.at(Sum)->Fill( itr->hwEta() );
+    hphi_.at(Sum)->Fill( itr->hwPhi() );
+  }
 
 }
 
@@ -168,13 +209,23 @@ L1TCaloAnalyzer::beginJob()
 
   edm::Service<TFileService> fs;
 
-  TFileDirectory dir0 = fs->mkdir("towers");
-  TFileDirectory dir1 = fs->mkdir("eg");
-  TFileDirectory dir2 = fs->mkdir("tau");
-  TFileDirectory dir3 = fs->mkdir("jet");
-  TFileDirectory dir4 = fs->mkdir("sum");
+  auto itr = types_.cbegin();
+  auto str = typeStr_.cbegin();
 
-  
+  for (; itr!=types_.end(); ++itr, ++str ) {
+    
+    dirs_.insert( std::pair< ObjectType, TFileDirectory >(*itr, fs->mkdir(*str) ) );
+    
+    het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "", 50, 0., 100.) ));
+    heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 70, -35., 35.) ));
+    hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 72, 0., 72.) ));
+    
+    if (*itr==Tower) {
+      hem_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("em", "", 50, 0., 100.) ));
+      hhad_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("had", "", 50, 0., 100.) ));
+    }
+
+  }
 
 }
 

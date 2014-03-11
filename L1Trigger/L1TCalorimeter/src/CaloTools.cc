@@ -69,6 +69,7 @@ int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTowe
       const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
       if(etMode&ECAL) hwEtSum+=tower.hwEtEm();
       if(etMode&HCAL) hwEtSum+=tower.hwEtHad();
+      if(etMode&CALO) hwEtSum+=tower.hwPt();
     }
   }
   return hwEtSum;
@@ -86,6 +87,7 @@ size_t l1t::CaloTools::calNrTowers(int iEtaMin,int iEtaMax,int iPhiMin,int iPhiM
       int towerHwEt =0;
       if(etMode&ECAL) towerHwEt+=tower.hwEtEm();
       if(etMode&HCAL) towerHwEt+=tower.hwEtHad();
+      if(etMode&CALO) towerHwEt+=tower.hwPt();
       if(towerHwEt>=minHwEt && towerHwEt<=maxHwEt) nrTowers++;
     }
     nav.east();
