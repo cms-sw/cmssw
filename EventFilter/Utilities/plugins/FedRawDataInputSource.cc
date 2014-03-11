@@ -265,6 +265,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) != std::cv_status::timeout) {
         //DEBUGGING part:
         if (!fileQueue_.try_pop(currentFile_)) {
+          assert(0);
           std::cout << " main thread woken up but data not yet coherent!" << std::endl;
           //might also spinlock...
           usleep(1000);
@@ -694,6 +695,7 @@ void FedRawDataInputSource::readSupervisor()
       else { //DEBUGGING part
         //update might not arrive immediately
         if ((workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty()) {
+          assert(0);
           std::cout << " supervisor thread woken up but data not yet coherent!" << std::endl;
           usleep(1000);
           if ((workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty())
