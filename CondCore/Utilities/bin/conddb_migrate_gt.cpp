@@ -142,7 +142,7 @@ int cond::MigrateGTUtilities::execute(){
     std::string connectionString = std::get<4>( gtitem );
     
     std::cout <<"--> Processing tag "<<tag<<" (objectType: "<<payloadTypeName<<") on account "<<connectionString<<std::endl;
-    auto connectionData = parseConnectionString( connectionString );
+    auto connectionData = persistency::parseConnectionString( connectionString );
     std::string account = std::get<2>( connectionData );
     if( std::get<1>( connectionData )=="FrontierArc" ) {
       size_t len = account.size()-5;

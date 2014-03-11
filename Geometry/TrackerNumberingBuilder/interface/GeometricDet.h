@@ -33,7 +33,7 @@ class GeometricDet {
   typedef DDExpandedView::NavRange NavRange;
 
   typedef std::vector< GeometricDet const *>  ConstGeometricDetContainer;
-  typedef std::vector< GeometricDet const *>  GeometricDetContainer;
+  typedef std::vector< GeometricDet *>  GeometricDetContainer;
 
 #ifdef PoolAlloc  
   typedef std::vector< DDExpandedNode, PoolAlloc<DDExpandedNode> > GeoHistory;
@@ -71,7 +71,7 @@ class GeometricDet {
   /**
    * set or add or clear components
    */
-  void setGeographicalID(DetId id) const {
+  void setGeographicalID(DetId id) {
     _geographicalID = id; 
     //std::cout <<"setGeographicalID " << int(id) << std::endl;
   }
@@ -82,6 +82,7 @@ class GeometricDet {
   }
 #endif
   void addComponents(GeometricDetContainer const & cont);
+  void addComponents(ConstGeometricDetContainer const & cont);
   void addComponent(GeometricDet*);
   /**
    * clearComponents() only empties the container, the components are not deleted!
@@ -102,6 +103,10 @@ class GeometricDet {
     return _container.empty(); 
   }
   
+  GeometricDet* component(size_t index) {
+    return const_cast<GeometricDet*>(_container[index]);
+  }
+
   /**
    * Access methods
    */
@@ -160,11 +165,11 @@ class GeometricDet {
    * components() returns explicit components; please note that in case of a leaf 
    * GeometricDet it returns nothing (an empty vector)
    */
-  GeometricDetContainer & components() {
+  ConstGeometricDetContainer & components() {
     //std::cout << "components1" <<std::endl;
     return _container;
   }  
-  GeometricDetContainer const & components() const {
+  ConstGeometricDetContainer const & components() const {
     //std::cout<<"const components2 "<<std::endl;
     return _container;
   }
@@ -175,7 +180,7 @@ class GeometricDet {
    */
 
   ConstGeometricDetContainer deepComponents() const;
-  void deepComponents(GeometricDetContainer & cont) const;
+  void deepComponents(ConstGeometricDetContainer & cont) const;
 
 #ifdef GEOMETRICDETDEBUG
   //rr
@@ -289,7 +294,7 @@ class GeometricDet {
 
  private:
 
-  GeometricDetContainer _container;
+  ConstGeometricDetContainer _container;
   DDTranslation _trans;
   double _phi;
   double _rho;
@@ -299,8 +304,8 @@ class GeometricDet {
   DDName _ddname;
   GeometricEnumType _type;
   std::vector<double> _params;
-  //FIXME
-  mutable DetId _geographicalID;
+
+  DetId _geographicalID;
 #ifdef GEOMETRICDETDEBUG
   GeoHistory _parents;
   double _volume;
