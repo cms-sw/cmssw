@@ -63,6 +63,49 @@ replaceString(std::string& name, std::string const& from, std::string const& to)
   }
 }
 
+static
+bool
+compareWithSuffixes(std::string const& name, std::string const& other) {
+  size_t pos = name.find('<');
+  if(pos == std::string::npos) {
+    // Not a template instance
+    return false;
+  }
+  size_t nameSize = name.size();
+  if(other.size() >= nameSize) {
+    // Can't be a case with ull qualifiers no name.
+    return false;
+  }
+  if(name.substr(0, pos) != other.substr(0, pos)) {
+    return false;
+  }
+  int nesting = 0;
+  size_t j = pos;
+  for(size_t i = pos; i < nameSize; ++i) {
+    char c = name[i];
+    if (c == '<') ++nesting;
+    if(c != other[j]) {
+      if(c != 'u' && c != 'l') return false;
+      if(nesting == 0) return false;
+      if(!isdigit(name[i-1])) return false;
+      for(size_t n = i-2; n >= pos; --n) {
+        char q = name[n];
+        if(q == '<' || q == ',') break;  
+        if(!isdigit(q)) return false;
+      }
+      for(size_t n = i+1; n < nameSize; ++n) {
+        char q = name[n];
+        if(q == '>' || q == ',') break;  
+        if(q != 'l') return false;
+        ++i;
+      }
+      continue;
+    }
+    if (c == '>') --nesting;
+    ++j;
+  }
+  return true;
+}
 
 bool ora::ClassUtils::checkMappedType( const edm::TypeWithDict& type, 
 				                       const std::string& mappedTypeName ){
@@ -79,7 +122,11 @@ bool ora::ClassUtils::checkMappedType( const edm::TypeWithDict& type,
   std::string typeName(mappedTypeName); 
   replaceString(typeName, "std::basic_string<char> ", "std::string");
   replaceString(typeName, "std::basic_string<char>", "std::string");
-  return (type.cppName() == typeName );
+  if ( type.cppName() == typeName ) {
+    return true;
+  }
+  // Ignore u and l qualifiers off of integer template parameters for comparison
+  return ( compareWithSuffixes( type.cppName(), typeName ) );
 }
 
 bool ora::ClassUtils::findBaseType( edm::TypeWithDict& type, edm::TypeWithDict& baseType, size_t& func ){
