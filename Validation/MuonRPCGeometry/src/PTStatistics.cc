@@ -6,36 +6,35 @@
 //-----------------------------------------------------------------------------
 //  PTStatistics
 //-----------------------------------------------------------------------------
-bool PTStatistics::rateInitilized = false;
-std::vector<long double> PTStatistics::m_rates = std::vector<long double>(RPCpg::ptBins_s,0);
+static std::vector<long double> initializeRates()
+{
+  std::vector<long double> rates(RPCpg::ptBins_s,0);
+  //std::cout << "Initilizing rates" << std::endl;
+  
+  // Note bin=0 is empty during generation
+  // bin=0 is used only when calculating efficiencies (for storing muons,that werent found)
+  for (unsigned int i = 1;i < rates.size(); ++i ){
+    
+    long double low =  RPCpg::pts[i];
+    long double high =  RPCpg::pts[i+1];
+    long double rt = RPCpg::rate(low)-RPCpg::rate(high);
 
-PTStatistics::PTStatistics(){
-   this->assign(RPCpg::ptBins_s,0);
-   
-   if(!rateInitilized){
-     //std::cout << "Initilizing rates" << std::endl;
-     rateInitilized = true;
-     m_rates.assign(RPCpg::ptBins_s,0);
-     
-     // Note bin=0 is empty during generation
-     // bin=0 is used only when calculating efficiencies (for storing muons,that werent found)
-     for (unsigned int i = 1;i < this->m_rates.size(); ++i ){
-
-        long double low =  RPCpg::pts[i];
-        long double high =  RPCpg::pts[i+1];
-        long double rt = RPCpg::rate(low)-RPCpg::rate(high);
-
-       /* std::cout << "PtCode " << i
+    /* std::cout << "PtCode " << i
               << " " << low
               << " " << high
               << " " << rt
               << std::endl;*/
-        this->m_rates.at(i) = rt;
-     }
-
-   }
-
+    rates[i] = rt;
+  }
+  return rates;
 }
+
+const std::vector<long double> PTStatistics::m_rates = initializeRates();
+
+PTStatistics::PTStatistics(){
+   this->assign(RPCpg::ptBins_s,0);
+}   
+
 
 void PTStatistics::update(PTStatistics & otherPtStats){
    
@@ -51,7 +50,7 @@ std::string PTStatistics::toString(){
    std::stringstream ss;
    ss << "PTStats:";
    for (unsigned int i=0; i<this->size();++i){
-      ss << " " << this->at(i);
+      ss << " " << (*this)[i];
    }
    
    return ss.str();
