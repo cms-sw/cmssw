@@ -82,7 +82,7 @@
   <Trd1 name="ME_FR4Skin_2_ME11Layer" dz="81*cm " dy1="[ME11FR4SkinHalfThick]" dy2="[ME11FR4SkinHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
   <Trd1 name="MECU_1_ME11Layer" dz="81*cm " dy1="[ME11CuFoilHalfThick]" dy2="[ME11CuFoilHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
   <Trd1 name="MECU_2_ME11Layer" dz="81*cm " dy1="[ME11CuFoilHalfThick]" dy2="[ME11CuFoilHalfThick]" dx1="15.065*cm" dx2="30.45*cm "/>
-  <Trd1 name="ME1A_ActiveGasVol" dz="22.2*cm" dy1="[ME11ActiveGasVolHalfThick]" dy2="[ME11ActiveGasVolHalfThick]" dx1="9.57*cm" dx2="13.7*cm"/>
+  <Trd1 name="ME1A_ActiveGasVol" dz="22.25*cm" dy1="[ME11ActiveGasVolHalfThick]" dy2="[ME11ActiveGasVolHalfThick]" dx1="9.57*cm" dx2="13.7*cm"/>
   <Trd1 name="ME11_ActiveGasVol" dz="53.75*cm" dy1="[ME11ActiveGasVolHalfThick]" dy2="[ME11ActiveGasVolHalfThick]" dx1="13.7*cm" dx2="23.7*cm"/>
   <Box name="MEEQ" dx="15*cm " dy="2.5*cm " dz="30*cm "/>
   <Tubs name="AlgPinNarrowEnd" rMin="0*mm " rMax="4.06*mm " dz="18.8*mm " startPhi="0*deg" deltaPhi="360*deg"/>
@@ -1564,13 +1564,13 @@
    <rParent name="mf:ME11Layer"/>
    <rChild name="mf:ME1A_ActiveGasVol"/>
    <rRotation name="rotations:000D"/>
-   <Translation x="0*fm " y="0*fm " z="-53*cm "/>
+   <Translation x="0*fm " y="0*fm " z="-53.75*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="mf:ME11Layer"/>
    <rChild name="mf:ME11_ActiveGasVol"/>
    <rRotation name="rotations:000D"/>
-   <Translation x="0*fm " y="0*fm " z="21.25*cm "/>
+   <Translation x="0*fm " y="0*fm " z="22.25*cm "/>
   </PosPart>
   <!-- REB: remove ME11,12,13,21,22 electronics until they can be made more realistic -->
   <!-- <PosPart copyNumber="1">
