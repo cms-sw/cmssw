@@ -41,6 +41,13 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     # petar, for clusterProbability() from TTRHs
     ClusterProbComputationFlag = cms.int32(0),
 
+    # new parameters added in 1/14, dk
+    # LA defined by hand, FOR TESTING ONLY, not for production   
+    # 0.0 means that the offset is taken from DB        
+    #lAOffset = cms..double(0.0),
+    #lAWidthBPix = cms.double(0.0),
+    #lAWidthFPix = cms.double(0.0),
+
     # Flag to select the source of LA-Width
     # Normal = True, use LA from DB, not ready yet
     useLAWidthFromDB = cms.bool(False),                             

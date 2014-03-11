@@ -65,9 +65,16 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 
   // This LA related parameters are only relevant for the Generic algo
 
-  lAOffset_ = conf.getUntrackedParameter<double>("lAOffset",0.0);
-  lAWidthBPix_  = conf.getUntrackedParameter<double>("lAWidthBPix",0.0);
-  lAWidthFPix_  = conf.getUntrackedParameter<double>("lAWidthFPix",0.0);
+  //lAOffset_ = conf.getUntrackedParameter<double>("lAOffset",0.0);
+  lAOffset_ = conf.existsAs<double>("lAOffset")?
+              conf.getParameter<double>("lAOffset"):0.0;
+  //lAWidthBPix_  = conf.getUntrackedParameter<double>("lAWidthBPix",0.0);
+  lAWidthBPix_ = conf.existsAs<double>("lAWidthBPix")?
+                 conf.getParameter<double>("lAWidthBPix"):0.0;
+  //lAWidthFPix_  = conf.getUntrackedParameter<double>("lAWidthFPix",0.0);
+  lAWidthFPix_ = conf.existsAs<double>("lAWidthFPix")?
+                 conf.getParameter<double>("lAWidthFPix"):0.0;
+
   // Use LA-offset from config, for testing only
   if(lAOffset_>0.0) useLAOffsetFromConfig_ = true;
   // Use LA-width from config, split into fpix & bpix, for testing only
