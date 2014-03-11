@@ -23,7 +23,7 @@ std::ostream & operator<<(std::ostream & o, const matching::Digi& d)
   int q = digi_quality(d);
   int p = digi_pattern(d);
   int wg = digi_wg(d);
-  float dphi = digi_wg(d);
+  float dphi = digi_dphi(d);
 
   if (t == CSC_CLCT) o<<id<<" t: CLCT hs "<<ch<<" bx "<<bx<<" q "<<q<<" p "<<p;
   else if (t == CSC_ALCT) o<<id<<" t: ALCT wg "<<ch<<" bx "<<bx<<" q "<<q;
