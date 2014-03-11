@@ -17,6 +17,7 @@
   <use name="FWCore/Concurrency"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
   <use name="SimDataFormats/GeneratorProducts"/>
   <use name="tauolapp"/>
   <use name="lhapdf"/>

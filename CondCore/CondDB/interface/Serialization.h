@@ -117,7 +117,7 @@ namespace cond {
       payload.reset( createPayload<T>(payloadType) );
       ia >> (*payload);
     } else {
-      payload = boost::static_pointer_cast<T>(payloadData.share());
+      payload = boost::static_pointer_cast<T>(payloadData.oraObject().makeShared());
     }
 
     return payload;
