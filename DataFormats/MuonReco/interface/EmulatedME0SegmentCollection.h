@@ -19,8 +19,6 @@ typedef std::vector<EmulatedME0Segment> EmulatedME0SegmentCollection;
 /// persistent reference to a EmulatedME0Segment
 typedef edm::Ref<EmulatedME0SegmentCollection> EmulatedME0SegmentRef;
 
-//typedef std::vector<EmulatedME0Segment> EmulatedME0SegmentCollection; 
-	
 #endif
 
 
