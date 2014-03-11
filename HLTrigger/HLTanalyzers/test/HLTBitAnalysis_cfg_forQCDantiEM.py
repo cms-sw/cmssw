@@ -23,7 +23,9 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     skipBadFiles = cms.untracked.bool( True ),
     fileNames = cms.untracked.vstring(
-'root://xrootd.unl.edu//store/mc/Summer13dr53X/QCD_Pt-30to50_MuEnrichedPt5_TuneZ2star_13TeV-pythia6/GEN-SIM-RAW/PU25bx25_START53_V19D-v1/20000/00C62B95-77E0-E211-8971-20CF305B04CC.root'
+'root://xrootd.unl.edu//store/mc/Summer13dr53X/QCD_Pt-30to50_TuneZ2star_13TeV-pythia6/GEN-SIM-RAW/PU25bx25_START53_V19D-v1/20000/00330F89-44E3-E211-8550-E0CB4E19F981.root'
+#'root://xrootd.unl.edu//store/mc/Summer13dr53X/QCD_Pt-30to50_MuEnrichedPt5_TuneZ2star_13TeV-pythia6/GEN-SIM-RAW/PU25bx25_START53_V19D-v1/20000/00C62B95-77E0-E211-8971-20CF305B04CC.root'
+#'root://xrootd.unl.edu//store/mc/Summer13dr53X/QCD_Pt_30_80_EMEnriched_TuneZ2star_13TeV-pythia6/GEN-SIM-RAW/PU25bx25_START53_V19D-v1/20000/0042293B-89E1-E211-A506-485B39800B97.root'
     )
 )
 
