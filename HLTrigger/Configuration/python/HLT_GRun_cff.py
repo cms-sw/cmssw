@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_0/GRun/V8 (CMSSW_7_1_0_pre4_HLT5)
+# /dev/CMSSW_7_1_0/GRun/V9 (CMSSW_7_1_0_pre4_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V8')
+  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V9')
 )
 
 streams = cms.PSet( 
@@ -7129,7 +7129,7 @@ hltMuons = cms.EDProducer( "MuonIdProducer",
 )
 hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducer",
     producers = cms.VPSet( 
-      cms.PSet(  src = cms.InputTag( 'ecalRecHit','EcalRecHitsEB' ),
+      cms.PSet(  src = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
         qualityTests = cms.VPSet( 
           cms.PSet(  threshold = cms.double( 0.08 ),
             name = cms.string( "PFRecHitQTestThreshold" )
@@ -7143,7 +7143,7 @@ hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducer",
         ),
         name = cms.string( "PFEBRecHitCreator" )
       ),
-      cms.PSet(  src = cms.InputTag( 'ecalRecHit','EcalRecHitsEE' ),
+      cms.PSet(  src = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
         qualityTests = cms.VPSet( 
           cms.PSet(  threshold = cms.double( 0.3 ),
             name = cms.string( "PFRecHitQTestThreshold" )
@@ -7175,8 +7175,8 @@ hltParticleFlowRecHitHCAL = cms.EDProducer( "PFCTRecHitProducer",
     navigator = cms.PSet(  name = cms.string( "PFRecHitCaloTowerNavigator" ) ),
     ECAL_Threshold = cms.double( 10.0 ),
     ApplyTimeDPG = cms.bool( False ),
-    caloTowers = cms.InputTag( "towerMakerPF" ),
-    hcalRecHitsHBHE = cms.InputTag( "hbhereco" ),
+    caloTowers = cms.InputTag( "hltTowerMakerForPF" ),
+    hcalRecHitsHBHE = cms.InputTag( "hltHbhereco" ),
     LongFibre_Fraction = cms.double( 0.1 ),
     MaxShortTiming_Cut = cms.double( 5.0 ),
     HcalMaxAllowedHFLongShortSev = cms.int32( 9 ),
@@ -7204,7 +7204,7 @@ hltParticleFlowRecHitHCAL = cms.EDProducer( "PFCTRecHitProducer",
 )
 hltParticleFlowRecHitPS = cms.EDProducer( "PFRecHitProducer",
     producers = cms.VPSet( 
-      cms.PSet(  src = cms.InputTag( 'ecalPreshowerRecHit','EcalRecHitsES' ),
+      cms.PSet(  src = cms.InputTag( 'hltESRecHitAll','EcalRecHitsES' ),
         qualityTests = cms.VPSet( 
           cms.PSet(  threshold = cms.double( 7.0E-6 ),
             name = cms.string( "PFRecHitQTestThreshold" )
