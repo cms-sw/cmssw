@@ -1,11 +1,11 @@
-# /online/collisions/2012/8e33/v3.1/HLT/V9 (CMSSW_7_1_0_pre4_HLT5)
+# /online/collisions/2012/8e33/v3.1/HLT/V10 (CMSSW_7_1_0_pre4_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v3.1/HLT/V9')
+  tableName = cms.string('/online/collisions/2012/8e33/v3.1/HLT/V10')
 )
 
 CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
@@ -3307,7 +3307,7 @@ hltParticleFlowRecHitHCAL = cms.EDProducer( "PFCTRecHitProducer",
     HcalMaxAllowedHFDigiTimeSev = cms.int32( 9 ),
     thresh_Endcap = cms.double( 0.4 ),
     HcalMaxAllowedChannelStatusSev = cms.int32( 9 ),
-    hcalRecHitsHF = cms.InputTag( "hfreco" ),
+    hcalRecHitsHF = cms.InputTag( "hltHfreco" ),
     ShortFibre_Cut = cms.double( 60.0 ),
     ApplyLongShortDPG = cms.bool( True ),
     HF_Calib = cms.bool( True ),

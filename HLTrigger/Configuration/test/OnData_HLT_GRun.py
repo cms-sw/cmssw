@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_0/GRun/V9 (CMSSW_7_1_0_pre4_HLT5)
+# /dev/CMSSW_7_1_0/GRun/V10 (CMSSW_7_1_0_pre4_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V9')
+  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V10')
 )
 
 process.streams = cms.PSet( 
@@ -9134,7 +9134,7 @@ process.hltParticleFlowRecHitHCAL = cms.EDProducer( "PFCTRecHitProducer",
     HcalMaxAllowedHFDigiTimeSev = cms.int32( 9 ),
     thresh_Endcap = cms.double( 0.4 ),
     HcalMaxAllowedChannelStatusSev = cms.int32( 9 ),
-    hcalRecHitsHF = cms.InputTag( "hfreco" ),
+    hcalRecHitsHF = cms.InputTag( "hltHfreco" ),
     ShortFibre_Cut = cms.double( 60.0 ),
     ApplyLongShortDPG = cms.bool( True ),
     HF_Calib = cms.bool( True ),
