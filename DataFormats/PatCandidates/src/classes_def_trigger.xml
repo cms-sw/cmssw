@@ -24,8 +24,9 @@
   <class name="std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt;::const_iterator" />
   <class name="edm::Wrapper&lt;std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt; &gt;" />
 
-  <class name="pat::TriggerObjectStandAlone"  ClassVersion="10">
+  <class name="pat::TriggerObjectStandAlone"  ClassVersion="11">
    <version ClassVersion="10" checksum="3478292234"/>
+   <version ClassVersion="11" checksum="167266363"/>
   </class>
   <class name="std::vector&lt;pat::TriggerObjectStandAlone&gt;" />
   <class name="std::vector&lt;pat::TriggerObjectStandAlone&gt;::const_iterator" />
