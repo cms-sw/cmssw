@@ -1,6 +1,5 @@
 using namespace std;
 #include "EventFilter/CastorRawToDigi/plugins/CastorRawToDigi.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -13,7 +12,6 @@ using namespace std;
 #include "EventFilter/CastorRawToDigi/interface/CastorRawCollections.h"
 
 CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
-  dataTag_(conf.getParameter<edm::InputTag>("InputLabel")),
   unpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCASTORFEDID),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   ctdcunpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCASTORFEDID),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),
@@ -31,6 +29,8 @@ CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
   expectedOrbitMessageTime_(conf.getUntrackedParameter<int>("ExpectedOrbitMessageTime",-1))
 
 {
+  dataTag_ = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("InputLabel"));
+
   if (fedUnpackList_.empty()) {
     for (int i=FEDNumbering::MINCASTORFEDID; i<=FEDNumbering::MAXCASTORFEDID; i++)
      fedUnpackList_.push_back(i);
@@ -62,7 +62,7 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 {
   // Step A: Get Inputs 
   edm::Handle<FEDRawDataCollection> rawraw;  
-  e.getByLabel(dataTag_,rawraw);
+  e.getByToken(dataTag_,rawraw);
   // get the mapping
   edm::ESHandle<CastorDbService> pSetup;
   es.get<CastorDbRecord>().get( pSetup );

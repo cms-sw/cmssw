@@ -24,6 +24,8 @@
 #include "EventFilter/CastorRawToDigi/interface/CastorUnpacker.h"
 #include "EventFilter/CastorRawToDigi/interface/CastorCtdcUnpacker.h"
 #include "EventFilter/CastorRawToDigi/interface/CastorDataFrameFilter.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 
 class CastorRawToDigi : public edm::EDProducer
 {
@@ -34,7 +36,7 @@ public:
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
-  edm::InputTag dataTag_;
+  edm::EDGetTokenT<FEDRawDataCollection> dataTag_;
   CastorUnpacker unpacker_;
   CastorCtdcUnpacker ctdcunpacker_;
   CastorDataFrameFilter filter_;
