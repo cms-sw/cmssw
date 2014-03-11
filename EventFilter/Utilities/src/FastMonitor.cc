@@ -222,11 +222,13 @@ void FastMonitor::outputCSV(std::string const& path)
   //output what was specified in JSON in the same order (including dummies)
   unsigned int monSize = jsonDpIndexFast_.size();
   std::stringstream ss;
-  if (monSize)
+  if (monSize) {
     for (unsigned int j=0; j< monSize;j++) { 
       ss << jsonDpIndexFast_[j]->fastOutCSV();
       if (j<monSize-1) ss << ",";
     }
+  }
+  else return;
   std::ofstream outputFile;
   outputFile.open(path.c_str(), std::fstream::out | std::fstream::trunc);
   outputFile << defPathFast_ << std::endl;
