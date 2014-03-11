@@ -111,15 +111,6 @@ process.QJetsAdder.jetAlgo=cms.string(alg.upper())
 #Grooming valueMaps
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 
-#process.ca8PFJetsCHSPrunedLinks.src = inputCollection
-#process.ca8PFJetsCHSPrunedLinks.matched = cms.InputTag(inputCollection.value()+"Pruned")
-
-#process.ca8PFJetsCHSTrimmedLinks.src = inputCollection
-#process.ca8PFJetsCHSTrimmedLinks.matched = cms.InputTag(inputCollection.value()+"Trimmed")
-
-#process.ca8PFJetsCHSFilteredLinks.src = inputCollection
-#process.ca8PFJetsCHSFilteredLinks.matched = cms.InputTag(inputCollection.value()+"Filtered")
-
 #---------------------------------------------------------------------------------------------------
 #use PAT to turn ValueMaps into userFloats
 
@@ -134,14 +125,14 @@ patJets.userData.userFloats.src = ['Njettiness:tau1','Njettiness:tau2','Njettine
 
 patJets.userData.userInts.src = ['pileupJetIdEvaluator:cutbasedId','pileupJetIdEvaluator:fullId']
 
-if alg=='ca': patJets.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks:mass',
-                                                 'ca8PFJetsCHSTrimmedLinks:mass',
-                                                 'ca8PFJetsCHSFilteredLinks:mass',
+if alg=='ca': patJets.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks',
+                                                 'ca8PFJetsCHSTrimmedLinks',
+                                                 'ca8PFJetsCHSFilteredLinks',
                                                  ]
 
-elif alg=='ak': patJets.userData.userFloats.src += ['ak8PFJetsCHSPrunedLinks:mass',
-                                                   'ak8PFJetsCHSTrimmedLinks:mass',
-                                                   'ak8PFJetsCHSFilteredLinks:mass',
+elif alg=='ak': patJets.userData.userFloats.src += ['ak8PFJetsCHSPrunedLinks',
+                                                   'ak8PFJetsCHSTrimmedLinks',
+                                                   'ak8PFJetsCHSFilteredLinks',
                                                    ]
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -150,17 +141,20 @@ process.out.outputCommands=['drop *',
                             'keep *_Njettiness_*_*',
                             'keep *_pileupJetId*_*_*',
                             'keep *_QGTagger_*_*',
-                            'keep *_QJetsAdder_*_*',]
+                            'keep *_QJetsAdder_*_*',
+                            ]
 
 if inputCollection.value()=="ca8PFJetsCHS":
-    process.out.outputCommands+=['keep *_patJetsCA8PFCHS_*_*',
+    process.out.outputCommands+=['keep *_ca8PFJetsCHS_*_*',
+                                 'keep *_patJetsCA8PFCHS_*_*',
                                  'keep *_ca8PFJetsCHSPrunedLinks_*_*',
                                  'keep *_ca8PFJetsCHSTrimmedLinks_*_*',
                                  'keep *_ca8PFJetsCHSFilteredLinks_*_*',
                                  ]
 
 elif inputCollection.value()=="ak8PFJetsCHS":
-    process.out.outputCommands+=['keep *_patJetsAK8PFCHS_*_*',
+    process.out.outputCommands+=['keep *_ak8PFJetsCHS_*_*',
+                                 'keep *_patJetsAK8PFCHS_*_*',
                                  'keep *_ak8PFJetsCHSPrunedLinks_*_*',
                                  'keep *_ak8PFJetsCHSTrimmedLinks_*_*',
                                  'keep *_ak8PFJetsCHSFilteredLinks_*_*',
@@ -179,7 +173,7 @@ elif inputCollection.value()=="ak8PFJetsCHS":
 #process.source.fileNames = filesRelValProdTTbarAODSIM
 process.source.fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_0_0_pre11/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/POSTLS162_V4-v1/00000/1CCFFDA6-846A-E311-9E61-0025905964C2.root')
 #                                         ##
-process.maxEvents.input = 500
+process.maxEvents.input = 50
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
