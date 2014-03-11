@@ -71,6 +71,12 @@ private:
   edm::EDGetToken m_jetToken;
   edm::EDGetToken m_sumToken;
   
+  enum ObjectType{Tower=0x1, EG=0x2, Tau=0x3, Jet=0x4, Sum=0x5};
+  
+  std::map< ObjectType, TH1F* > het_;
+  std::map< ObjectType, TH1F* > heta_;
+  std::map< ObjectType, TH1F* > hphi_;
+
 };
 
 //
@@ -167,6 +173,8 @@ L1TCaloAnalyzer::beginJob()
   TFileDirectory dir2 = fs->mkdir("tau");
   TFileDirectory dir3 = fs->mkdir("jet");
   TFileDirectory dir4 = fs->mkdir("sum");
+
+  
 
 }
 
