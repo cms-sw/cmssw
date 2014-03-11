@@ -35,14 +35,14 @@ LHESource::LHESource(const edm::ParameterSet &params,
 	ProducerSourceFromFiles(params, desc, false),
 	reader(new LHEReader(fileNames(), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
 	wasMerged(false),
-	lheProvenanceHelper_(edm::TypeID(typeid(LHEEventProduct)), edm::TypeID(typeid(LHERunInfoProduct))),
+	lheProvenanceHelper_(edm::TypeID(typeid(LHEEventProduct)), edm::TypeID(typeid(LHERunInfoProduct)), productRegistryUpdate()),
 	phid_(),
         runPrincipal_()
 {
         nextEvent();
         lheProvenanceHelper_.lheAugment(runInfo.get());
 	// Initialize metadata, and save the process history ID for use every event.
-	phid_ = lheProvenanceHelper_.lheInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
+	phid_ = lheProvenanceHelper_.lheInit(processHistoryRegistryForUpdate());
 
         // These calls are not wanted, because the principals are used for putting the products.
 	//produces<LHEEventProduct>();
@@ -181,12 +181,18 @@ LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 		              	product.get(), _1));
 
 		if (!runInfoProducts.empty()) {
-			runInfoProducts.front().mergeProduct(*product);
+		  if (runInfoProducts.front().mergeProduct(*product)) {
 			if (!wasMerged) {
 				runInfoProducts.pop_front();
 				runInfoProducts.push_front(product);
 				wasMerged = true;
 			}
+		  } else {
+                    lheProvenanceHelper_.lheAugment(runInfo.get());
+                    // Initialize metadata, and save the process history ID for use every event.
+                    phid_ = lheProvenanceHelper_.lheInit(processHistoryRegistryForUpdate());
+		    resetRunAuxiliary();
+		  }
 		}
 
 		runInfo.reset();
