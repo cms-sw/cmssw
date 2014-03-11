@@ -71,18 +71,19 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     ### Neutrino Gun Sample - PU50
-    #fileNames = cms.untracked.vstring("file:/home/puigh/work/L1Upgrade/CMSSW_6_2_0/src/Neutrino_Pt2to20_gun_UpgradeL1TDR-PU50_POSTLS161_V12-v1_001D5CFF-2839-E211-9777-0030487FA483.root")
+    #fileNames = cms.untracked.vstring("file:/home/puigh/work/L1Upgrade/CMSSW_6_2_0/src/Neutrino_Pt2to20_gun_UpgradeL1TDR-PU50_POSTLS161_V12-v1_001D5CFF-2839-E211-9777-0030487FA483.root"),
+    ### RelValSingleElectronPt10
+    #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/52DE2A7D-E651-E311-8E12-003048FFCBFC.root"),
     ### RelValTTBar
-    #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/1A20137C-E651-E311-A9C6-00304867BFAA.root")
+    #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/1A20137C-E651-E311-A9C6-00304867BFAA.root"),
     ### Local RelValTTBar
     fileNames = cms.untracked.vstring(
     "/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_3A11157B-ED51-E311-BA75-003048679080.root",
     "/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_1A20137C-E651-E311-A9C6-00304867BFAA.root",
-    "/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_2EFD8C7A-E651-E311-8C92-002354EF3BE3.root"
+    "/store/user/puigh/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_2EFD8C7A-E651-E311-8C92-002354EF3BE3.root",
+    "file:/home/winer/RelValTTbar_GEN-SIM-DIGI-RAW-HLTDEBUG_START70_V2_amend-v4_00000_7854097B-E651-E311-96D3-002618B27F8A.root",
     ),
     skipEvents = cms.untracked.uint32(skip)
-    ### RelValSingleElectronPt10
-    #fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/relval/CMSSW_7_0_0_pre8/RelValSingleElectronPt10/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/52DE2A7D-E651-E311-8E12-003048FFCBFC.root")
     )
 
 process.output =cms.OutputModule("PoolOutputModule",
@@ -115,12 +116,18 @@ process.mcL1GTinput = cms.EDProducer("l1t::L1uGtGenToInputProducer",
 				     maxMuCand = cms.int32(8),
 				     maxJetCand = cms.int32(12),
 				     maxEGCand  = cms.int32(12),
-				     maxTauCand = cms.int32(8),				     
+				     maxTauCand = cms.int32(8),				     				     
                                      jetEtThreshold = cms.double(1),
                                      tauEtThreshold = cms.double(1),
                                      egEtThreshold  = cms.double(1),
                                      muEtThreshold  = cms.double(1)
                                      )
+
+process.mcL1GTinput.maxMuCand = cms.int32(8)
+process.mcL1GTinput.maxJetCand = cms.int32(12)
+process.mcL1GTinput.maxEGCand  = cms.int32(12)
+process.mcL1GTinput.maxTauCand = cms.int32(8)
+
 # Fake the input
 process.fakeL1GTinput = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
 
@@ -203,7 +210,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::L1uGtRecordDump",
 		maxBx          = cms.int32(2),
 		minBxVec       = cms.int32(0),
 		maxBxVec       = cms.int32(0),		
-		dumpGTRecord   = cms.bool(True),
+		dumpGTRecord   = cms.bool(False),
 		dumpVectors    = cms.bool(True),
 		tvFileName     = cms.string( ("TestVector_%03d.txt") % job )
 		 )
