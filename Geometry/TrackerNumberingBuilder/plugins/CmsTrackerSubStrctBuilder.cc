@@ -46,7 +46,7 @@ CmsTrackerSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, 
 void
 CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
 {
-  GeometricDet::GeometricDetContainer & comp = det->components();
+  GeometricDet::ConstGeometricDetContainer & comp = det->components();
 
   switch( comp.front()->type())
   {
@@ -65,7 +65,7 @@ CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {
-    comp[i]->setGeographicalID(i+1); // Every subdetector: Layer/Disk/Wheel Number
+    det->component(i)->setGeographicalID(i+1); // Every subdetector: Layer/Disk/Wheel Number
   }
 }
 
