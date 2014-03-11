@@ -100,7 +100,7 @@ TrackFindingAMProducer::TrackFindingAMProducer( const edm::ParameterSet& iConfig
 
   std::ifstream ifs(nBKName.c_str());
 
-  boost::archive::text_iarchive ia(ifs);
+  //boost::archive::text_iarchive ia(ifs);
   boost::iostreams::filtering_stream<boost::iostreams::input> f;
   f.push(boost::iostreams::gzip_decompressor());
   try { 
