@@ -20,6 +20,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 
@@ -56,13 +57,16 @@ private:
     double                   pTcut_1_;
     double                   pTcut_2_;
 
-    edm::InputTag            trackingTruth_;
-    edm::InputTag            PileupInfoLabel_;
+    edm::EDGetTokenT<TrackingParticleCollection>     trackingTruthT_;
+    edm::EDGetTokenT<TrackingVertexCollection>     trackingTruthV_;
+    edm::EDGetTokenT<PileupMixingContent>            PileupInfoLabel_;
+
+    bool LookAtTrackingTruth_ ;
 
     std::string MessageCategory_;
-    std::string simHitLabel_;
-    std::auto_ptr<MixCollection<SimTrack> >   simTracks_;
-    std::auto_ptr<MixCollection<SimVertex> >  simVertexes_;
+    //std::string simHitLabel_;
+    //std::auto_ptr<MixCollection<SimTrack> >   simTracks_;
+    //std::auto_ptr<MixCollection<SimVertex> >  simVertexes_;
 
 
 
