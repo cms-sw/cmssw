@@ -145,6 +145,7 @@ namespace edm {
          std::string indention_;
          std::set<std::string> dumpContextForLabels_;
          bool dumpNonModuleContext_;
+         bool printTimestamps_;
       };
    }
 }
