@@ -95,7 +95,6 @@
   <class name="std::map<uint32_t, std::vector<float> >"/> 
   <class name="DTRecoUncertainties" class_version="10">
     <field name="payload" mapping="blob" />
-    <field name="theVersion" mapping="blob" />
   </class>
 <!-- comment -->
 </lcgdict>

@@ -10,6 +10,8 @@ reReco = False         # Set this to True to re-reconstruct hits
 skipDeltaSuppr = False # Skip DRR (only when reReco=True)
 step2FromDigi = False  # Remake step-2 hits instead of bypassing step-2; useful when re-fitting segments from hits since hits in 2D segments are otherwise non updated. 
 
+# Optional DB for DT uncertainties, es.  "DTRecoUncertainties.db"
+uncertDB = ""
 
 doAngleCorr = False
 
@@ -32,11 +34,12 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 
 ## Uncertainty DB
-#process.GlobalTag.toGet = cms.VPSet(
-#    cms.PSet(record = cms.string("DTRecoUncertaintiesRcd"),
-#             tag = cms.string("DTRecoUncertainties_test"),
-#             connect = cms.untracked.string("sqlite_file:DTRecoUncertainties.db"))
-#)
+if uncertDB != "" : 
+    process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(record = cms.string("DTRecoUncertaintiesRcd"),
+                 tag = cms.string("DTRecoUncertainties_test"),
+                 connect = cms.untracked.string("sqlite_file:"+uncertDB))
+        )
 
 
 
