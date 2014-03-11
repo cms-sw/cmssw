@@ -342,6 +342,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       std::unique_lock<std::mutex> lkw(mWakeup_);
       cvWakeup_.notify_one();
     }
+    bufferInputRead_=0;
     //put the file in pending delete list;
     filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,currentFile_));
     currentFile_=nullptr;
@@ -365,15 +366,13 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     }
 
     unsigned char *dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
-    size_t currentLeft = currentFile_->chunks_[0]->size_ - currentFile_->chunkPosition_;
-  
-    if (currentLeft < headerSize)
+ 
+    if (bufferInputRead_ < headerSize)
     {
       readNextChunkIntoBuffer(currentFile_);
-      //recalculate chunk pocitio
+      //recalculate chunk position
       dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
-      currentLeft = currentFile_->chunks_[0]->size_ - currentFile_->chunkPosition_;
-      if ( currentLeft < headerSize )
+      if ( bufferInputRead_ < headerSize )
       {
       throw cms::Exception("FedRawDataInputSource::cacheNextEvent") <<
 	"Premature end of input file while reading event header";
@@ -399,12 +398,10 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       readNextChunkIntoBuffer(currentFile_);
       //recalculate chunk position
       dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
-      currentLeft = currentFile_->chunks_[0]->size_ - currentFile_->chunkPosition_;
       event_.reset( new FRDEventMsgView(dataPosition) );
     }
     currentFile_->bufferPosition_ += event_->size();
     currentFile_->chunkPosition_ += event_->size();
-
     //last chunk is released when this function is invoked next time
 
   }
@@ -981,28 +978,30 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
   }
 
   if (file->chunkPosition_ == 0) { //in the rare case the last byte barely fit
+    uint32_t existingSize = 0;
     for (unsigned int i=0;i<readBlocks_;i++)
     {
-      const ssize_t last = ::read(fileDescriptor_,( void*) (file->chunks_[0]->buf_), eventChunkBlock_);
+      const ssize_t last = ::read(fileDescriptor_,( void*) (file->chunks_[0]->buf_ + existingSize), eventChunkBlock_);
       bufferInputRead_+=last;
+      existingSize+=last;
     }
   }
   else {
-    const uint32_t chunksize = eventChunkSize_ - file->chunkPosition_;
+    const uint32_t chunksize = file->chunkPosition_;
     const uint32_t blockcount=chunksize/eventChunkBlock_;
     const uint32_t leftsize = chunksize%eventChunkBlock_;
-    uint32_t writePos = file->chunkPosition_;
-    memcpy((void*) file->chunks_[0]->buf_, file->chunks_[0]->buf_ + writePos, writePos);
+    uint32_t existingSize = eventChunkSize_ - file->chunkPosition_;
+    memmove((void*) file->chunks_[0]->buf_, file->chunks_[0]->buf_ + file->chunkPosition_, existingSize);
 
     for (uint32_t i=0;i<blockcount;i++) {
-      const ssize_t last = ::read(fileDescriptor_,( void*) (file->chunks_[0]->buf_ + writePos), eventChunkBlock_);
+      const ssize_t last = ::read(fileDescriptor_,( void*) (file->chunks_[0]->buf_ + existingSize), eventChunkBlock_);
       bufferInputRead_+=last;
-      writePos+=last;
+      existingSize+=last;
     }
     if (leftsize) {
-      const ssize_t last = ::read(fileDescriptor_,( void*)( file->chunks_[0]->buf_ + writePos ), leftsize);
+      const ssize_t last = ::read(fileDescriptor_,( void*)( file->chunks_[0]->buf_ + existingSize ), leftsize);
       bufferInputRead_+=last;
-      writePos+=last;
+      existingSize+=last;
     }
     file->chunkPosition_=0;//data was moved to beginning of the chunk
   }
