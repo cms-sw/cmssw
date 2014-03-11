@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # /dev/CMSSW_6_2_0/GRun/V24 (CMSSW_6_2_0_pre6_HLT2)
 =======
 # /dev/CMSSW_7_1_0/GRun/V8 (CMSSW_7_1_0_pre4_HLT5)
 >>>>>>> PF migration (2730) in HLT via ConfDB
+=======
+# /dev/CMSSW_7_1_0/GRun/V9 (CMSSW_7_1_0_pre4_HLT5)
+>>>>>>> Fix InputTags of PF RecHit modules
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10,10 +14,14 @@ process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
 <<<<<<< HEAD
+<<<<<<< HEAD
   tableName = cms.string('/dev/CMSSW_6_2_0/GRun/V24')
 =======
   tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V8')
 >>>>>>> PF migration (2730) in HLT via ConfDB
+=======
+  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V9')
+>>>>>>> Fix InputTags of PF RecHit modules
 )
 
 process.streams = cms.PSet( 
@@ -10331,7 +10339,7 @@ process.hltMuons = cms.EDProducer( "MuonIdProducer",
 )
 process.hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducer",
     producers = cms.VPSet( 
-      cms.PSet(  src = cms.InputTag( 'ecalRecHit','EcalRecHitsEB' ),
+      cms.PSet(  src = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
         qualityTests = cms.VPSet( 
           cms.PSet(  threshold = cms.double( 0.08 ),
             name = cms.string( "PFRecHitQTestThreshold" )
@@ -10345,7 +10353,7 @@ process.hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducer",
         ),
         name = cms.string( "PFEBRecHitCreator" )
       ),
-      cms.PSet(  src = cms.InputTag( 'ecalRecHit','EcalRecHitsEE' ),
+      cms.PSet(  src = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
         qualityTests = cms.VPSet( 
           cms.PSet(  threshold = cms.double( 0.3 ),
             name = cms.string( "PFRecHitQTestThreshold" )
@@ -10377,8 +10385,8 @@ process.hltParticleFlowRecHitHCAL = cms.EDProducer( "PFCTRecHitProducer",
     navigator = cms.PSet(  name = cms.string( "PFRecHitCaloTowerNavigator" ) ),
     ECAL_Threshold = cms.double( 10.0 ),
     ApplyTimeDPG = cms.bool( False ),
-    caloTowers = cms.InputTag( "towerMakerPF" ),
-    hcalRecHitsHBHE = cms.InputTag( "hbhereco" ),
+    caloTowers = cms.InputTag( "hltTowerMakerForPF" ),
+    hcalRecHitsHBHE = cms.InputTag( "hltHbhereco" ),
     LongFibre_Fraction = cms.double( 0.1 ),
     MaxShortTiming_Cut = cms.double( 5.0 ),
     HcalMaxAllowedHFLongShortSev = cms.int32( 9 ),
@@ -10563,7 +10571,7 @@ process.hltParticleFlowClusterPS = cms.EDProducer( "PFClusterProducer",
 =======
 process.hltParticleFlowRecHitPS = cms.EDProducer( "PFRecHitProducer",
     producers = cms.VPSet( 
-      cms.PSet(  src = cms.InputTag( 'ecalPreshowerRecHit','EcalRecHitsES' ),
+      cms.PSet(  src = cms.InputTag( 'hltESRecHitAll','EcalRecHitsES' ),
         qualityTests = cms.VPSet( 
           cms.PSet(  threshold = cms.double( 7.0E-6 ),
             name = cms.string( "PFRecHitQTestThreshold" )

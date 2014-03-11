@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # /dev/CMSSW_6_2_0/HIon/V24 (CMSSW_6_2_0_pre6_HLT2)
 =======
 # /dev/CMSSW_7_1_0/HIon/V8 (CMSSW_7_1_0_pre4_HLT5)
 >>>>>>> PF migration (2730) in HLT via ConfDB
+=======
+# /dev/CMSSW_7_1_0/HIon/V9 (CMSSW_7_1_0_pre4_HLT5)
+>>>>>>> Fix InputTags of PF RecHit modules
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10,10 +14,14 @@ process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
 <<<<<<< HEAD
+<<<<<<< HEAD
   tableName = cms.string('/dev/CMSSW_6_2_0/HIon/V24')
 =======
   tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V8')
 >>>>>>> PF migration (2730) in HLT via ConfDB
+=======
+  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V9')
+>>>>>>> Fix InputTags of PF RecHit modules
 )
 
 process.streams = cms.PSet( 
