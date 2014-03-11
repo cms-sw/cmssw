@@ -75,5 +75,7 @@ particleFlowClusterPS = cms.EDProducer(
     seedFinder = _localMaxSeeds_PS,
     initialClusteringStep = _topoClusterizer_PS,
     pfClusterBuilder = _pfClusterizer_PS,
+    positionReCalc = cms.PSet(),
+    energyCorrector = cms.PSet()
     )
 

@@ -7370,6 +7370,7 @@ hltParticleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
             )),
         nNeighbours = cms.int32(8)
     ),
+    energyCorrector = cms.PSet(),                                         
     recHitsSource = cms.InputTag("hltParticleFlowRecHitECAL")
 )
 hltParticleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
@@ -7435,7 +7436,9 @@ hltParticleFlowClusterHCAL = cms.EDProducer("PFClusterProducer",
                 detector = cms.string('HCAL_ENDCAP')
             )),
         nNeighbours = cms.int32(4)
-    )
+    ),
+    positionReCalc = cms.PSet(),                                            
+    energyCorrector = cms.PSet()                                         
 )
 hltParticleFlowClusterHFEM = cms.EDProducer("PFClusterProducer",
     recHitsSource = cms.InputTag("hltParticleFlowRecHitHCAL","HFEM"),
@@ -7496,7 +7499,9 @@ hltParticleFlowClusterHFEM = cms.EDProducer("PFClusterProducer",
             detector = cms.string('HF_EM')
         )),
         nNeighbours = cms.int32(0)
-    )
+    ),
+    positionReCalc = cms.PSet(),                                            
+    energyCorrector = cms.PSet()                                         
 )
 hltParticleFlowClusterHFHAD = cms.EDProducer("PFClusterProducer",
     recHitsSource = cms.InputTag("hltParticleFlowRecHitHCAL","HFHAD"),
@@ -7557,7 +7562,9 @@ hltParticleFlowClusterHFHAD = cms.EDProducer("PFClusterProducer",
             detector = cms.string('HF_HAD')
         )),
         nNeighbours = cms.int32(0)
-    )
+    ),
+    positionReCalc = cms.PSet(),                                            
+    energyCorrector = cms.PSet()                                          
 )
 hltParticleFlowClusterPS = cms.EDProducer("PFClusterProducer",
     recHitsSource = cms.InputTag("hltParticleFlowRecHitPS"),
@@ -7613,7 +7620,9 @@ hltParticleFlowClusterPS = cms.EDProducer("PFClusterProducer",
                 detector = cms.string('PS2')
             )),
         nNeighbours = cms.int32(4)
-    )
+    ),
+    positionReCalc = cms.PSet(),                                            
+    energyCorrector = cms.PSet()                                       
 )
 hltLightPFTracks = cms.EDProducer( "LightPFTrackProducer",
     TrackQuality = cms.string( "none" ),

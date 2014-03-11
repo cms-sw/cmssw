@@ -83,6 +83,8 @@ particleFlowClusterHFEM = cms.EDProducer(
     recHitCleaners = cms.VPSet(_spikeAndDoubleSpikeCleaner_HFEM),
     seedFinder = _localMaxSeeds_HFEM,
     initialClusteringStep = _topoClusterizer_HFEM,
-    pfClusterBuilder = _pfClusterizer_HFEM
+    pfClusterBuilder = _pfClusterizer_HFEM,
+    positionReCalc = cms.PSet(),
+    energyCorrector = cms.PSet()
     )
 
