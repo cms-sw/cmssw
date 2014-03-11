@@ -4,6 +4,7 @@
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRootFile.h"
 #include "Riostream.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaRootFile.cc
@@ -21,7 +22,7 @@ ClassImp(TEcnaRootFile)
 TEcnaRootFile::TEcnaRootFile() {
 //constructor without arguments
 
-  // std::cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << std::endl;
+  // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
 
   Init();
 }
@@ -29,7 +30,7 @@ TEcnaRootFile::TEcnaRootFile() {
 TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name, const TString& status) {
 //constructor
 
- // std::cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
 
   Init();
   Long_t i_this = (Long_t)this;
@@ -42,7 +43,7 @@ TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name, co
 TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name) {
 //constructor
 
- // std::cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
 
   Init();
   Long_t i_this = (Long_t)this;
@@ -55,7 +56,7 @@ TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name) {
 TEcnaRootFile::TEcnaRootFile(const Text_t *name, const TString& status) {
 //constructor
 
- // std::cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
 
   Init();
   fRootFileName   = name;
@@ -65,7 +66,7 @@ TEcnaRootFile::TEcnaRootFile(const Text_t *name, const TString& status) {
 TEcnaRootFile::TEcnaRootFile(const Text_t *name) {
 //constructor
 
- // std::cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
 
   Init();
   fRootFileName = name;
@@ -75,7 +76,7 @@ TEcnaRootFile::TEcnaRootFile(const Text_t *name) {
 TEcnaRootFile::~TEcnaRootFile() {
 //destructor
 
-  //std::cout << "[Info Management] CLASS: TEcnaRootFile.      DESTROY OBJECT: this = " << this << std::endl;
+  //cout << "[Info Management] CLASS: TEcnaRootFile.      DESTROY OBJECT: this = " << this << endl;
 
   if( fCnaIndivResult != 0 ){delete fCnaIndivResult;}
 }

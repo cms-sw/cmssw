@@ -17,6 +17,9 @@ DuplicationChecker::DuplicationChecker(const edm::ParameterSet& iPSet):
   if (searchForLHE_) {
     lheEventProduct_ = iPSet.getParameter<edm::InputTag>("lheEventProduct");
   }
+  dbe = 0;
+  dbe = edm::Service<DQMStore>().operator->();
+
   xBjorkenHistory.clear();
 
   if (searchForLHE_) lheEventProductToken_=consumes<LHEEventProduct>(lheEventProduct_);
@@ -29,12 +32,15 @@ DuplicationChecker::~DuplicationChecker()
   xBjorkenHistory.clear();
 }
 
-void DuplicationChecker::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
-  ///Setting the DQM top directories
-  i.setCurrentFolder("Generator/DuplicationCheck");
-  
-  ///Booking the ME's
-  xBjorkenME = i.book1D("xBjorkenME", "x Bjorken ratio", 1000000, 0., 1.);
+void DuplicationChecker::beginJob()
+{
+  if(dbe){
+	///Setting the DQM top directories
+	dbe->setCurrentFolder("Generator/DuplicationCheck");
+	
+	///Booking the ME's
+	xBjorkenME = dbe->book1D("xBjorkenME", "x Bjorken ratio", 1000000, 0., 1.);
+  }
 }
 
 void DuplicationChecker::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
@@ -97,7 +103,6 @@ void DuplicationChecker::findValuesAssociatedWithKey(associationMap &mMap, doubl
     theObjects.push_back(itr);
 }  
 
-/* no corresponding function available  in MultiThreaded version
 void DuplicationChecker::endJob()
 {
 
@@ -121,4 +126,3 @@ void DuplicationChecker::endJob()
   }
 
 }
-*/

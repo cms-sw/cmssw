@@ -1,5 +1,8 @@
 #include "GeneratorInterface/CascadeInterface/plugins/Cascade2Hadronizer.h"
 
+#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
+
+
 #include "HepMC/GenEvent.h" 
 #include "HepMC/PdfInfo.h"
 #include "HepMC/PythiaWrapper6_4.h"  
@@ -9,16 +12,17 @@
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/IO_GenEvent.h"
 
-#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "GeneratorInterface/Core/interface/FortranCallback.h"
-#include "GeneratorInterface/Core/interface/FortranInstance.h"
 
 HepMC::IO_HEPEVT hepevtio;
 
 #include "HepPID/ParticleIDTranslations.hh"
 
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //-- Pythia6 routines and functionalities to pass around Pythia6 params
 
@@ -27,14 +31,12 @@ HepMC::IO_HEPEVT hepevtio;
 
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
-#include "CLHEP/Random/RandomEngine.h"
-
 using namespace edm;
 using namespace std;
 
 #define debug 0
 
-static CLHEP::HepRandomEngine* cascade2RandomEngine;
+CLHEP::RandFlat* fFlat_extern;
 
 extern "C" {
     
@@ -42,7 +44,7 @@ extern "C" {
 
     static int call = 0;
 
-    double rdm_nb = cascade2RandomEngine->flat();
+    double rdm_nb = fFlat_extern->fire();
 
     if(debug && ++call < 100) cout<<"dcasrn from c++, call: "<<call<<" random number: "<<rdm_nb<<endl;
 
@@ -52,7 +54,7 @@ extern "C" {
   
 
 namespace gen {
-
+  
   class Pythia6ServiceWithCallback : public Pythia6Service {
     
   public:
@@ -80,12 +82,16 @@ namespace gen {
     double p[5][pyjets_maxn], v[5][pyjets_maxn];
   } pyjets_local;
   
-  const std::vector<std::string> Cascade2Hadronizer::theSharedResources = { edm::SharedResourceNames::kPythia6,
-                                                                            gen::FortranInstance::kFortranInstance };
-
   Cascade2Hadronizer::Cascade2Hadronizer(edm::ParameterSet const& pset) 
     : BaseHadronizer(pset),
       fPy6Service(new Pythia6ServiceWithCallback(pset)), //-- this will store py6 parameters for further settings 
+      
+      //-- fRandomEngine(&getEngineReference()),
+
+      //-- defined in GeneratorInterface/Core/src/RNDMEngineAccess.cc
+      //-- CLHEP::HepRandomEngine& gen::getEngineReference()
+      //-- { edm::Service<edm::RandomNumberGenerator> rng;
+      //--  return rng->getEngine(); }
 
       fComEnergy(pset.getParameter<double>("comEnergy")),
       fextCrossSection(pset.getUntrackedParameter<double>("crossSection",-1.)),
@@ -100,6 +106,12 @@ namespace gen {
       fDisplayPythiaCards(pset.getUntrackedParameter<bool>("displayPythiaCards",false)){
 
     fParameters = pset.getParameter<ParameterSet>("Cascade2Parameters");
+
+    edm::Service<edm::RandomNumberGenerator> rng;
+    if(debug) cout<<"seed: "<<rng->mySeed()<<endl;
+    CLHEP::HepRandomEngine& engine = rng->getEngine();
+    fFlat = new CLHEP::RandFlat(engine);
+    fFlat_extern = fFlat;
 
     fConvertToPDG = false;
     if(pset.exists("doPDGConvert"))
@@ -131,11 +143,6 @@ namespace gen {
     if(fPy6Service != 0) delete fPy6Service;
   }
   
-  void Cascade2Hadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v) {
-    cascade2RandomEngine = v;
-    fPy6Service->setRandomEngine(v);
-  }
-
   void Cascade2Hadronizer::flushTmpStorage(){
     
     pyjets_local.n = 0 ;

@@ -100,14 +100,10 @@ void  RunHistogramManager::beginRun(const edm::Run& iRun, TFileDirectory& subdir
     beginRun(iRun.run(),subdir);
   }
   else {
-    unsigned int fillnum = 0;
-
     edm::Handle<edm::ConditionsInRunBlock> cirb;
     iRun.getByLabel("conditionsInEdm",cirb);
 
-    if(!cirb.failedToGet() && cirb.isValid()) fillnum=cirb->lhcFillNumber;
-
-    beginRun(fillnum,subdir);
+    beginRun(cirb->lhcFillNumber,subdir);
   }
 }
 

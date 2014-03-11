@@ -3,6 +3,7 @@
 //----------Modified: 24/03/2010
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParCout.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaParCout.cc
@@ -17,7 +18,7 @@ ClassImp(TEcnaParCout)
   TEcnaParCout::~TEcnaParCout()
 {
 //destructor
- // std::cout << "[Info Management] CLASS: TEcnaParCout.       DESTROY OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaParCout.       DESTROY OBJECT: this = " << this << endl;
 }
 //===================================================================
 //
@@ -28,7 +29,7 @@ TEcnaParCout::TEcnaParCout()
 {
 // Constructor without argument
 
- // std::cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << endl;
 
   Init();
 }
@@ -37,7 +38,7 @@ TEcnaParCout::TEcnaParCout(TEcnaObject* pObjectManager)
 {
 // Constructor with argument
 
- // std::cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << endl;
 
   Init();
   Long_t i_this = (Long_t)this;

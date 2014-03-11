@@ -12,10 +12,9 @@ using namespace std;
 using namespace sipixelobjects;
 
 SiPixelFrameConverter::SiPixelFrameConverter(const SiPixelFedCabling* map, int fedId)
-  : theFedId(fedId), theMap(map),
-    theTree(dynamic_cast<SiPixelFedCablingTree const *>(map)),
-    theFed(theTree ? theTree->fed(fedId) : nullptr)
-{}
+  : theFedId(fedId), theMap(map)
+{ }
+
 
 bool SiPixelFrameConverter::hasDetUnit(uint32_t rawId) const
 {
@@ -28,21 +27,32 @@ bool SiPixelFrameConverter::hasDetUnit(uint32_t rawId) const
 }
 
 
-PixelROC const * SiPixelFrameConverter::toRoc(int link, int roc) const {
+int SiPixelFrameConverter::toDetector(const ElectronicIndex & cabling, DetectorIndex & detector) const
+{
   CablingPathToDetUnit path = {static_cast<unsigned int>(theFedId),
-                               static_cast<unsigned int>(link),
-                               static_cast<unsigned int>(roc)}; 
-  const PixelROC * rocp = (theFed) ? theTree->findItemInFed(path, theFed) : theMap->findItem(path);
-  if unlikely(!rocp){
+                               static_cast<unsigned int>(cabling.link),
+                               static_cast<unsigned int>(cabling.roc)}; 
+  const PixelROC * roc = theMap->findItem(path);
+  if (!roc){
     stringstream stm;
     stm << "Map shows no fed="<<theFedId
-        <<", link="<< link
-        <<", roc="<< roc;
+        <<", link="<<cabling.link
+        <<", roc="<<cabling.roc;
     edm::LogWarning("SiPixelFrameConverter") << stm.str();
+    return 2;
   }
-  return rocp;
-}
+  LocalPixel::DcolPxid local = { cabling.dcol, cabling.pxid };
+  if (!local.valid()) return 3;
 
+  GlobalPixel global = roc->toGlobal( LocalPixel(local) );
+  detector.rawId = roc->rawId();
+  detector.row   = global.row;
+  detector.col   = global.col;
+
+  return 0;
+
+
+}
 
 
 int SiPixelFrameConverter::toCabling(

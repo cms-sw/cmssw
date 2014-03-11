@@ -13,8 +13,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -73,16 +71,7 @@ void Pythia6Gun::beginJob()
 
 void Pythia6Gun::beginRun( Run const&, EventSetup const& es )
 {
-   std::cout << " FYI: MSTU(10)=1 is ENFORCED in Py6-PGuns, for technical reasons"
-             << std::endl;
-   return;
-}
-
-void Pythia6Gun::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {
-
    assert ( fPy6Service ) ;
-
-   RandomEngineSentry<Pythia6Service> sentry(fPy6Service, lumi.index());
 
    Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance
 
@@ -93,6 +82,10 @@ void Pythia6Gun::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup co
    call_pygive("MSTU(10)=1");
       
    call_pyinit("NONE", "", "", 0.0);
+   
+   std::cout << " FYI: MSTU(10)=1 is ENFORCED in Py6-PGuns, for technical reasons"
+             << std::endl;
+   return;
 }
 
 void Pythia6Gun::endRun( Run const&, EventSetup const& es )
@@ -201,10 +194,9 @@ void Pythia6Gun::attachPy6DecaysToGenEvent()
 
 void Pythia6Gun::produce( edm::Event& evt, const edm::EventSetup& )
 {
-   RandomEngineSentry<Pythia6Service> sentry(fPy6Service, evt.streamID());
 
-   generateEvent(fPy6Service->randomEngine()) ;
-
+   generateEvent() ;
+   
    fEvt->set_beam_particles(0,0);
    fEvt->set_event_number(evt.id().event()) ;
    fEvt->set_signal_process_id(pypars.msti[0]) ;  

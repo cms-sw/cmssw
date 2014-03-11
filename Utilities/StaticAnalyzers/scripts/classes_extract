@@ -1,0 +1,25 @@
+#!/bin/bash
+#eval `scram runtime -sh`
+	classes=`cmsglimpse -F classes_def.xml$ -G class \
+	| awk 'BEGIN{FS="<class name=\"|\"";} /class name/ { print $2 }' \
+	| awk 'BEGIN{FS="<|>";OFS = "\n";} {print $1, $2, $3, $4, $5, $6, $7, $8, $9}' \
+	| awk 'BEGIN{FS="&lt;|&gt;";OFS = "\n";} {print $1, $2, $3, $4, $5, $6, $7, $8, $9}'\
+	| awk 'BEGIN{FS=",";OFS="\n";} {print $1,$2,$3,$4,$5,$6,$7,$8,$9}'\
+	| awk 'BEGIN{FS="::";OFS="\n";} {print $1,$2,$3,$4,$5,$6,$7,$8,$9}' \
+	| tr " " "\n" | sort -u | grep -v  -e \* -e ^[0-9]  -e \& `
+	echo $classes | tr " " "\n" >/tmp/classes1.txt
+	paths=`cmsglimpse -F classes.h$ -G include \
+	| awk 'BEGIN{FS="\"|<|>";OFS="\n";} /^\#include/ {print $2}'\
+	| grep -v classes.h | tr " " "\n"| sort -u`
+	echo $paths | tr " " "\n"  >/tmp/paths1.txt
+	pathtmp=""
+	cd ${CMSSW_RELEASE_BASE}/src
+			tmps2=` cat /tmp/paths1.txt | ctags -f - -L - | awk '/\tc\t|\tc$/ {print $2}' `
+				#echo $tmps2
+				for tmp2 in $tmps2;do
+					#echo $tmp2
+					tmp3=`basename $tmp2`
+					#echo $tmp3
+                                	test "$tmp3" != "" &&  pathtmp=`grep $tmp3 /tmp/paths1.txt`" "$pathtmp
+				done
+	echo  -e $pathtmp | tr " " "\n" | sort -u >/tmp/headers1.txt

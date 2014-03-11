@@ -9,14 +9,14 @@
 
 #include <ThePEG/Repository/StandardRandom.h>
 
-#include "GeneratorInterface/ThePEGInterface/interface/RandomEngineGlue.h"
+#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "GeneratorInterface/ThePEGInterface/interface/RandomEngineGlue.h"
 
 using namespace ThePEG;
 
 RandomEngineGlue::RandomEngineGlue() :
-	randomEngine(nullptr)
+	randomEngine(&gen::getEngineReference())
 {
 }
 
@@ -32,13 +32,6 @@ void RandomEngineGlue::flush()
 
 void RandomEngineGlue::fill()
 {
-        if(randomEngine == nullptr) {
-          throw edm::Exception(edm::errors::LogicError)
-            << "The PEG code attempted to a generate random number while\n"
-            << "the engine pointer was null. This might mean that the code\n"
-            << "was tried to generate a random number outside the event and\n"
-            << "beginLuminosityBlock methods, which is not allowed.\n";
-        }
 	nextNumber = theNumbers.begin();
 	for(RndVector::iterator it = nextNumber; it != theNumbers.end(); ++it)
 		*it = randomEngine->flat();
@@ -58,7 +51,6 @@ void RandomEngineGlue::doinit() throw(InitException)
 		throw InitException();
 
 	proxy->instance = this;
-        randomEngine = proxy->getRandomEngine();
 	flush();
 }
 

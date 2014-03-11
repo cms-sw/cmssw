@@ -4,6 +4,7 @@
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNArrayD.h"
 #include "Riostream.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaNArrayD.cc
@@ -25,7 +26,7 @@ ClassImp(TEcnaNArrayD)
 TEcnaNArrayD::TEcnaNArrayD(){
 //constructor without argument
 
- // std::cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
   Init();
 }
@@ -33,7 +34,7 @@ TEcnaNArrayD::TEcnaNArrayD(){
 TEcnaNArrayD::TEcnaNArrayD(const TEcnaNArrayD &orig) {
 //copy constructor
 
- // std::cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
   fNd = orig.fNd;
   fN1 = orig.fN1;
@@ -49,7 +50,7 @@ TEcnaNArrayD::TEcnaNArrayD(const TEcnaNArrayD &orig) {
 TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1) {
 //constructor for a 1 dimensional array of size n1. Array is put to 0
 
- // std::cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
   Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
@@ -65,7 +66,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1) {
 TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2) {
 //constructor for a 2 dimensional array of sizes n1,n2. Array is put to 0
 
- // std::cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
   Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
@@ -82,7 +83,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2) {
 TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t n3) {
 //constructor 3 dimensional array of sizes n1,n2,n3. Array is put to 0
 
- // std::cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
   Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
@@ -100,7 +101,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
 TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t n3,Int_t n4) {
 //constructor for a 4 dimensional array of sizes n1,n2,n3,n4. Array is put to 0
 
- // std::cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
   Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
@@ -119,7 +120,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
 TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5) {
 //constructor for a 5 dimensional array of sizes n1,n2,n3,n4,n5. Array is put to 0
 
- // std::cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
   Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
@@ -139,7 +140,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
 TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t n3,Int_t n4,Int_t n5,Int_t n6) {
 //constructor for a 6 dimensional array of sizes n1,n2,n3,n4,n5,n6. Array is put to 0
 
- // std::cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          CREATE OBJECT: this = " << this << endl;
 
   Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaNArrayD", i_this);
@@ -161,7 +162,7 @@ TEcnaNArrayD::TEcnaNArrayD(TEcnaObject* pObjectManager, Int_t n1,Int_t n2,Int_t 
 TEcnaNArrayD::~TEcnaNArrayD() {
 //destructor
 
- // std::cout << "[Info Management] CLASS: TEcnaNArrayD.          DESTROY OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNArrayD.          DESTROY OBJECT: this = " << this << endl;
 
   Clean();
 }
@@ -191,8 +192,8 @@ inline Int_t TEcnaNArrayD::OneDim(Int_t i1) const {
   if ((i1>=fNL - 1) || (i1<0)) {
     i1 = fNL - 1;
     Error("OneDim","Index outside bounds");
-    std::cout << "i1  = " << i1
-    << "; fNL = " << fNL << std::endl;
+    cout << "i1  = " << i1
+    << "; fNL = " << fNL << endl;
   }
   return i1;
 }
@@ -203,8 +204,8 @@ inline Int_t TEcnaNArrayD::OneDim(Int_t i1,Int_t i2) const {
   if ((i>=fNL - 1) || (i<0)) {
     i = fNL - 1;
     Error("OneDim","Index outside bounds");
-    std::cout << "i1  = " << i1  << ", i2 = "  << i2
-    	 << "; fN1 = " << fN1 << ", fNL = " << fNL << std::endl;
+    cout << "i1  = " << i1  << ", i2 = "  << i2
+    	 << "; fN1 = " << fN1 << ", fNL = " << fNL << endl;
   }
   return i;
 }
@@ -215,8 +216,8 @@ inline Int_t TEcnaNArrayD::OneDim(Int_t i1,Int_t i2,Int_t i3) const {
   if ((i>=fNL - 1) || (i<0)) {
     i = fNL - 1;
     Error("OneDim","Index outside bounds");
-    std::cout << "i1  = " << i1  << ", i2 = "  << i2  << ", i3 = "  << i3
-	 << "; fN1 = " << fN1 << ", fN2 = " << fN2 << ", fNL = " << fNL << std::endl;
+    cout << "i1  = " << i1  << ", i2 = "  << i2  << ", i3 = "  << i3
+	 << "; fN1 = " << fN1 << ", fN2 = " << fN2 << ", fNL = " << fNL << endl;
   }
   return i;
 }

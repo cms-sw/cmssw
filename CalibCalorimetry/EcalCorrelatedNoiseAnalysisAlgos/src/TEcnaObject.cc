@@ -1,7 +1,8 @@
 //---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 29/01/2014
+//----------Modified: 24/03/2011
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaObject.cc
@@ -17,7 +18,7 @@ ClassImp(TEcnaObject)
 {
 //destructor
 
-//  std::cout << "[Info Management] CLASS: TEcnaObject.      DESTROY OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaObject.      DESTROY OBJECT: this = " << this << endl;
 }
 
 //===================================================================
@@ -29,7 +30,7 @@ TEcnaObject::TEcnaObject()
 {
 // Constructor without argument
 
-//  std::cout << "[Info Management] CLASS: TEcnaObject.      CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaObject.      CREATE OBJECT: this = " << this << endl;
 
   Long_t PointerValue = (Long_t)this;
   Int_t un = 1;
@@ -41,7 +42,7 @@ TEcnaObject::TEcnaObject()
 
 void  TEcnaObject::Init()
 {
-  fgMaxCar = (Int_t)512;
+  fgMaxCar = 512;
   fTTBELL = '\007';
 
   //................ Init pointers to TEcna Objects
@@ -53,7 +54,6 @@ void  TEcnaObject::Init()
   fObjectTEcnaParCout    = 0;
   fObjectTEcnaParEcal    = 0;
   fObjectTEcnaParHistos  = 0;
-  fObjectTEcnaParPaths   = 0;
   fObjectTEcnaRead       = 0;
   fObjectTEcnaResultType = 0;
   fObjectTEcnaRootFile   = 0;
@@ -69,7 +69,6 @@ void  TEcnaObject::Init()
   fCounterCreateTEcnaParCout    = 0;
   fCounterCreateTEcnaParEcal    = 0;
   fCounterCreateTEcnaParHistos  = 0;
-  fCounterCreateTEcnaParPaths   = 0;
   fCounterCreateTEcnaRead       = 0;
   fCounterCreateTEcnaResultType = 0;
   fCounterCreateTEcnaRootFile   = 0;
@@ -85,7 +84,6 @@ void  TEcnaObject::Init()
   fCounterReusingTEcnaParCout    = 0;
   fCounterReusingTEcnaParEcal    = 0;
   fCounterReusingTEcnaParHistos  = 0;
-  fCounterReusingTEcnaParPaths   = 0;
   fCounterReusingTEcnaRead       = 0;
   fCounterReusingTEcnaResultType = 0;
   fCounterReusingTEcnaRootFile   = 0;
@@ -221,8 +219,8 @@ Bool_t TEcnaObject::RegisterPointer(const TString& ClassName, const Long_t& Poin
   //.........................................................................................
   if( ClassFound == kFALSE )
     {
-      std::cout << "!TEcnaObject::RegisterPointer(...)> Class " << ClassName
-	   << " not found." << fTTBELL << std::endl;
+      cout << "!TEcnaObject::RegisterPointer(...)> Class " << ClassName
+	   << " not found." << fTTBELL << endl;
     }
 
   return ClassFound;
@@ -231,7 +229,7 @@ Bool_t TEcnaObject::RegisterPointer(const TString& ClassName, const Long_t& Poin
 
 Long_t TEcnaObject::GetPointerValue(const TString& ClassName)
 {
-  Long_t PointerValue = (Long_t)0;
+  Long_t PointerValue = 0;
 
   if( ClassName == "TEcnaGui" )
     {
@@ -338,12 +336,12 @@ void TEcnaObject::NumberCreateObjectMessage(const TString& ClassName, const Long
 {
 #define NOCM
 #ifndef NOCM
-  std::cout << "*TEcnaObject::NumberCreateObjectMessage(...)> New ECNA object (pointer = "
+  cout << "*TEcnaObject::NumberCreateObjectMessage(...)> New ECNA object (pointer = "
        << PointerValue << ") from TEcnaObject " << this 
-       << ". Object# = " << std::setw(8) << NbOfObjects
+       << ". Object# = " << setw(8) << NbOfObjects
        << ", Class: " << ClassName;
-  if( NbOfObjects > 1 ){std::cout << " (INFO: more than 1 object)";}
-  std::cout << std::endl;
+  if( NbOfObjects > 1 ){cout << " (INFO: more than 1 object)";}
+  cout << endl;
 #endif // NOCM
 }
 
@@ -351,12 +349,12 @@ void TEcnaObject::NumberReuseObjectMessage(const TString& ClassName, const Long_
 {
 #define NOCR
 #ifndef NOCR
-  if( PointerValue != (Long_t)0 )
+  if( PointerValue != 0 )
     {
-      std::cout << "*TEcnaObject::NumberReuseObjectMessage(...)> INFO: pointer " << PointerValue
+      cout << "*TEcnaObject::GetPointerValue(...)> INFO: pointer " << PointerValue
 	   << " used again from TEcnaObject " << this
-	   << ". " << std::setw(8) << NbOfObjects << " times, class: " << ClassName;
+	   << ". " << setw(8) << NbOfObjects << " times, class: " << ClassName;
     }
-  std::cout << std::endl;
+  cout << endl;
 #endif // NOCR
 }

@@ -2,8 +2,6 @@
 #define gen_ExhumeHadronizer_h
 
 #include <memory>
-#include <string>
-#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -29,7 +27,8 @@ namespace Exhume{
   class CrossSection;
 }
 
-namespace CLHEP {
+namespace CLHEP
+{
   class HepRandomEngine;
 }
 
@@ -63,12 +62,6 @@ namespace gen
      const char* classname() const;
      
   private:
-
-     virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-     virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
-
-     static const std::vector<std::string> theSharedResources;
-
      Pythia6Service* pythia6Service_;
 
      CLHEP::HepRandomEngine* randomEngine_;
@@ -86,7 +79,7 @@ namespace gen
      bool convertToPDG_;
 
      //Pythia6Hadronizer* pythia6Hadronizer_;
-     Exhume::Event* exhumeEvent_;
+     Exhume::Event* exhumeEvent_;	
      Exhume::CrossSection* exhumeProcess_;
   };
 }

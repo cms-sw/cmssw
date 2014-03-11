@@ -39,13 +39,10 @@ public:
   bool checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameConverter* converter, 
 		Word32& errorWord, Errors& errors);
 
-
-
   void conversionError(int fedId, const SiPixelFrameConverter* converter, 
 		       int status, Word32& errorWord, Errors& errors);
 
 private:
-
   bool includeErrors;
 
   cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, 

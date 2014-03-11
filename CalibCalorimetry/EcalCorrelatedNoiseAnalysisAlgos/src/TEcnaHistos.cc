@@ -1,8 +1,9 @@
 //---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //---------Copyright: Those valid for CEA sofware
-//---------Modified: 30/01/2014
+//---------Modified: 04/07/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHistos.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaHistos.cc
@@ -64,34 +65,34 @@ TEcnaHistos::~TEcnaHistos()
 
   if ( fCnew != fCdelete )
     {
-      std::cout << "*TEcnaHistos> WRONG MANAGEMENT OF ALLOCATIONS: fCnew = "
-	   << fCnew << ", fCdelete = " << fCdelete << fTTBELL << std::endl;
+      cout << "*TEcnaHistos> WRONG MANAGEMENT OF ALLOCATIONS: fCnew = "
+	   << fCnew << ", fCdelete = " << fCdelete << fTTBELL << endl;
     }
   else
     {
-     //  std::cout << "*TEcnaHistos> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: fCnew = "
-     //	      << fCnew << ", fCdelete = " << fCdelete << std::endl;
+     //  cout << "*TEcnaHistos> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: fCnew = "
+     //	      << fCnew << ", fCdelete = " << fCdelete << endl;
     }
 
 #define MGRA
 #ifndef MGRA
   if ( fCnewRoot != fCdeleteRoot )
     {
-      std::cout << "*TEcnaHistos> WRONG MANAGEMENT OF ROOT ALLOCATIONS: fCnewRoot = "
-	   << fCnewRoot << ", fCdeleteRoot = " << fCdeleteRoot << std::endl;
+      cout << "*TEcnaHistos> WRONG MANAGEMENT OF ROOT ALLOCATIONS: fCnewRoot = "
+	   << fCnewRoot << ", fCdeleteRoot = " << fCdeleteRoot << endl;
     }
   else
     {
-      std::cout << "*TEcnaHistos> BRAVO! GOOD MANAGEMENT OF ROOT ALLOCATIONS:"
+      cout << "*TEcnaHistos> BRAVO! GOOD MANAGEMENT OF ROOT ALLOCATIONS:"
 	   << " fCnewRoot = " << fCnewRoot <<", fCdeleteRoot = "
-	   << fCdeleteRoot << std::endl;
+	   << fCdeleteRoot << endl;
     }
 #endif // MGRA
 
-  // std::cout << "TEcnaHistos> Leaving destructor" << std::endl;
-  // std::cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << std::endl;
+  // cout << "TEcnaHistos> Leaving destructor" << endl;
+  // cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << endl;
 
- // std::cout << "[Info Management] CLASS: TEcnaHistos.        DESTROY OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaHistos.        DESTROY OBJECT: this = " << this << endl;
 
 }
 
@@ -103,14 +104,14 @@ TEcnaHistos::~TEcnaHistos()
 TEcnaHistos::TEcnaHistos(){
 // Constructor without argument. Call to Init() 
 
- // std::cout << "[Info Management] CLASS: TEcnaHistos.        CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaHistos.        CREATE OBJECT: this = " << this << endl;
 
   Init();
 }
 
 TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString& SubDet)
 {
- // std::cout << "[Info Management] CLASS: TEcnaHistos.        CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaHistos.        CREATE OBJECT: this = " << this << endl;
 
 
   Long_t i_this = (Long_t)this;
@@ -205,7 +206,7 @@ void TEcnaHistos::Init()
   fCnaCommand  = 0;
   fCnaError    = 0;
 
-  fgMaxCar = (Int_t)512;
+  fgMaxCar = 512;
   Int_t MaxCar = fgMaxCar;
 
   //------------------------------ initialisations ----------------------
@@ -916,7 +917,7 @@ void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix_corcc,
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 void TEcnaHistos::PlotMatrix(const TString& UserCorOrCov, const TString& UserBetweenWhat)
@@ -944,7 +945,7 @@ void TEcnaHistos::PlotMatrix(const TString& UserCorOrCov, const TString& UserBet
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 //....................................... Corcc for channels (cStexStin_A, cStexStin_B)
@@ -989,7 +990,7 @@ void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix,
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 void TEcnaHistos::PlotMatrix(const TString& UserCorOrCov, const TString& UserBetweenWhat,
@@ -1029,7 +1030,7 @@ void TEcnaHistos::PlotMatrix(const TString& UserCorOrCov, const TString& UserBet
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::PlotMatrix(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 //---------------------------------------------------------------------------------------
@@ -1061,11 +1062,11 @@ void TEcnaHistos::PlotDetector(const TString& UserHistoCode, const TString& User
 	}
       else
 	{fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-	  std::cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+	  cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << endl;}
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 void TEcnaHistos::PlotDetector(const TVectorD& read_histo, const TString& UserHistoCode, const TString& UserDetector)
@@ -1093,11 +1094,11 @@ void TEcnaHistos::PlotDetector(const TVectorD& read_histo, const TString& UserHi
 	}
       else
 	{fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-	  std::cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+	  cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << endl;}
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::PlotDetector(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 //---------------------------------------------------------------------------------------
@@ -1134,11 +1135,11 @@ void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
 	}
       else
 	{fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-	  std::cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+	  cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& User_Y_Quantity,
@@ -1166,11 +1167,11 @@ void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& Use
 	}
       else
 	{fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-	  std::cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+	  cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 
@@ -1235,7 +1236,7 @@ void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& User_Y_Quantity,
@@ -1274,7 +1275,7 @@ void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& Use
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
@@ -1304,7 +1305,7 @@ void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& User_Y_Quantity,
@@ -1331,7 +1332,7 @@ void TEcnaHistos::Plot1DHisto(const TString& User_X_Quantity, const TString& Use
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << std::endl;}
+      cout << "!TEcnaHistos::Plot1DHisto(...)> Histo cannot be reached." << fTTBELL << endl;}
 }
 
 //---------------------------------------------------------------------------------------
@@ -1363,7 +1364,7 @@ void TEcnaHistos::PlotHistory(const TString& User_X_Quantity, const TString& Use
     }
   else
     {fFlagUserHistoMin = "OFF"; fFlagUserHistoMax = "OFF";
-      std::cout << "!TEcnaHistos::PlotHistory(...)> Histo cannot be reached." << fTTBELL << std::endl;} 
+      cout << "!TEcnaHistos::PlotHistory(...)> Histo cannot be reached." << fTTBELL << endl;} 
 }
 
 //=============================================================================================
@@ -1435,8 +1436,8 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 	    {
 	      fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
 	      TString fp_name_short = fMyRootFile->GetRootFileNameShort();
-	      // std::cout << "*TEcnaHistos::ViewMatrix(...)> Data are analyzed from file ----> "
-	      //      << fp_name_short << std::endl;
+	      // cout << "*TEcnaHistos::ViewMatrix(...)> Data are analyzed from file ----> "
+	      //      << fp_name_short << endl;
 	      //...................................................................... (ViewMatrix) 
 	      for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vStin(i)=(Double_t)0.;}
 	      vStin = fMyRootFile->ReadStinNumbers(fEcal->MaxStinEcnaInStex());
@@ -1854,9 +1855,9 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      TCanvas *MainCanvas = new TCanvas(f_in, f_in, canv_w , canv_h);   fCnewRoot++;
 			      fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 			  
-			      // std::cout << "*TEcnaHistos::ViewMatrix(...)> Plot is displayed on canvas ----> "
-			      //      << fCurrentCanvasName << std::endl;
-			      // std::cout << "*TEcnaHistos::ViewMatrix(...)> fCurrentCanvas = " << fCurrentCanvas << std::endl;
+			      // cout << "*TEcnaHistos::ViewMatrix(...)> Plot is displayed on canvas ----> "
+			      //      << fCurrentCanvasName << endl;
+			      // cout << "*TEcnaHistos::ViewMatrix(...)> fCurrentCanvas = " << fCurrentCanvas << endl;
 			  
 			      delete [] f_in; f_in = 0;                         fCdelete++;
 
@@ -1904,19 +1905,19 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 		    {
 		      if(BetweenWhat == fBetweenSamples)
 			{
-			  std::cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* ==> Wrong channel number in "
+			  cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* ==> Wrong channel number in "
 			       << fFapStinName.Data() << ". Value = "
 			       << i0StinEcha << " (required range: [0, "
 			       << fEcal->MaxCrysInStin()-1 << "] )"
-			       << fTTBELL << std::endl;
+			       << fTTBELL << endl;
 			}
 
 		     // if( BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels )
 		     //	{
-			 // std::cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* ==> Wrong sample index. Value = "
+			 // cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* ==> Wrong sample index. Value = "
 			 //      << i0Sample << " (required range: [0, "
 			 //      << fFapNbOfSamples-1 << "] )"
-			 //      << fTTBELL << std::endl;
+			 //      << fTTBELL << endl;
 			//}
 		    }
 		}
@@ -1927,7 +1928,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 		    {
 		      if( fFlagSubDet == "EB") 
 			{
-			  std::cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
+			  cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
 			       << fFapStinName.Data() << " "
 			       << StexStin_A << ", "
 			       << fFapStinName.Data() << " not found. Available numbers = ";
@@ -1935,14 +1936,14 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			    {
 			      if( vStin(i) > 0 )
 				{
-				  std::cout << vStin(i) << ", ";
+				  cout << vStin(i) << ", ";
 				}
 			    }
 			}
 
 		      if( fFlagSubDet == "EE") 
 			{
-			  std::cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
+			  cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
 			       << fFapStinName.Data() << " "
 			       << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, StexStin_A) << ", "
 			       << fFapStinName.Data() << " not found. Available numbers = ";
@@ -1950,18 +1951,18 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			    {
 			      if( vStin(i) > 0 )
 				{
-				  std::cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";
+				  cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";
 				}
 			    }
 			}
-		      std::cout << fTTBELL << std::endl;
+		      cout << fTTBELL << endl;
 		    }
 		  if ( Stin_Y_ok != 1 )
 		    {
 
 		      if( fFlagSubDet == "EB") 
 			{
-			  std::cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
+			  cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
 			       << fFapStinName.Data() << " "
 			       << StexStin_B << ", "
 			       << fFapStinName.Data() << " not found. Available numbers = ";
@@ -1969,14 +1970,14 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			    {
 			      if( vStin(i) > 0 )
 				{
-				  std::cout << vStin(i) << ", ";
+				  cout << vStin(i) << ", ";
 				}
 			    }
 			}
 
 		      if( fFlagSubDet == "EE") 
 			{
-			  std::cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
+			  cout << "*TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
 			       << fFapStinName.Data() << " "
 			       << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, StexStin_B) << ", "
 			       << fFapStinName.Data() << " not found. Available numbers = ";
@@ -1984,19 +1985,19 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			    {
 			      if( vStin(i) > 0 )
 				{
-				  std::cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";
+				  cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";
 				}
 			    }
 			}     
-		      std::cout << fTTBELL << std::endl;
+		      cout << fTTBELL << endl;
 		    }
 		}
 	    } // end of if ( fMyRootFile->DataExist() == kTRUE )
 	  else
 	    {
 	      fStatusDataExist = kFALSE;
-	      std::cout  << "!TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
-		    << " Histo not available." << fTTBELL << std::endl;
+	      cout  << "!TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
+		    << " Histo not available." << fTTBELL << endl;
 	      fFlagUserHistoMin = "OFF";
 	      fFlagUserHistoMax = "OFF";
 	    }
@@ -2004,15 +2005,15 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
       else
 	{
 	  fStatusFileFound = kFALSE;
-	  std::cout  << "!TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
-		<< " ROOT file not found" << fTTBELL << std::endl;
+	  cout  << "!TEcnaHistos::ViewMatrix(...)> *ERROR* =====> "
+		<< " ROOT file not found" << fTTBELL << endl;
 	}
     } // ---- end of if( (fFapStexNumber > 0) &&  (fFapStexNumber <= fEcal->MaxStexInStas()) ) -----
   else
     {
-      std::cout << "!TEcnaHistos::ViewMatrix(...)> " << fFapStexName.Data()
+      cout << "!TEcnaHistos::ViewMatrix(...)> " << fFapStexName.Data()
 	   << " = " << fFapStexNumber << ". Out of range (range = [1,"
-	   << fEcal->MaxStexInStas() << "]) " << fTTBELL << std::endl;
+	   << fEcal->MaxStexInStas() << "]) " << fTTBELL << endl;
     }
 }  // end of ViewMatrix(...)
 
@@ -2068,8 +2069,8 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 
 	  fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
 	  TString fp_name_short = fMyRootFile->GetRootFileNameShort(); 
-	  // std::cout << "*TEcnaHistos::ViewStin(...)> Data are analyzed from file ----> "
-	  //      << fp_name_short << std::endl;
+	  // cout << "*TEcnaHistos::ViewStin(...)> Data are analyzed from file ----> "
+	  //      << fp_name_short << endl;
 
 	  TVectorD vStin(fEcal->MaxStinEcnaInStex());
 	  for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vStin(i)=(Double_t)0.;}
@@ -2235,7 +2236,7 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 		      TCanvas *MainCanvas = new TCanvas(f_in, f_in, canv_w, canv_h);   fCnewRoot++;
 		      fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 		  
-		      // std::cout << "*TEcnaHistos::ViewStin(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
+		      // cout << "*TEcnaHistos::ViewStin(...)> Plot is displayed on canvas ----> " << f_in << endl;
 		  
 		      delete [] f_in; f_in = 0;                                 fCdelete++;
 		  
@@ -2274,7 +2275,7 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 		}
 	      else
 		{
-		  std::cout << "!TEcnaHistos::ViewStin(...)> *ERROR* =====> "
+		  cout << "!TEcnaHistos::ViewStin(...)> *ERROR* =====> "
 		       << fFapStinName.Data() << " "
 		       << cStexStin << " not found."
 		       << " Available numbers = ";
@@ -2282,12 +2283,12 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 		    {
 		      if( vStin(i) > 0 )
 			{
-			  if( fFlagSubDet == "EB" ){std::cout << (Int_t)vStin(i) << ", ";}
+			  if( fFlagSubDet == "EB" ){cout << (Int_t)vStin(i) << ", ";}
 			  if( fFlagSubDet == "EE" )
-			    {std::cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";}
+			    {cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";}
 			}
 		    }
-		  std::cout << fTTBELL << std::endl;  
+		  cout << fTTBELL << endl;  
 		}
 	    }  // end of if ( myRootFile->DataExist() == kTRUE )
 	  else
@@ -2299,15 +2300,15 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 	{
 	  fStatusFileFound = kFALSE;
 
-	  std::cout << "!TEcnaHistos::ViewStin(...)> *ERROR* =====> "
-	       << " ROOT file not found" << fTTBELL << std::endl;
+	  cout << "!TEcnaHistos::ViewStin(...)> *ERROR* =====> "
+	       << " ROOT file not found" << fTTBELL << endl;
 	}
     }
   else
     {
-      std::cout << "!TEcnaHistos::ViewStin(...)> " << fFapStexName.Data()
+      cout << "!TEcnaHistos::ViewStin(...)> " << fFapStexName.Data()
 	   << " = " << fFapStexNumber << ". Out of range (range = [1,"
-	   << fEcal->MaxStexInStas() << "]) " << fTTBELL << std::endl;
+	   << fEcal->MaxStexInStas() << "]) " << fTTBELL << endl;
     }
 }  // end of ViewStin(...)
 
@@ -2400,8 +2401,8 @@ void TEcnaHistos::TowerCrystalNumbering(const Int_t& SMNumber, const Int_t& n1SM
       TCanvas *MainCanvas = new TCanvas(f_in, f_in, canv_w , canv_h);    fCnewRoot++;
       fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 
-      // std::cout << "*TEcnaHistosEB::TowerCrystalNumbering(...)> Plot is displayed on canvas ----> "
-      //      << f_in << std::endl;
+      // cout << "*TEcnaHistosEB::TowerCrystalNumbering(...)> Plot is displayed on canvas ----> "
+      //      << f_in << endl;
 
       Double_t x_margin = fCnaParHistos->BoxLeftX("bottom_left_box") - 0.005;
       Double_t y_margin = fCnaParHistos->BoxTopY("bottom_right_box") + 0.005;  
@@ -2517,8 +2518,8 @@ void TEcnaHistos::TowerCrystalNumbering(const Int_t& SMNumber, const Int_t& n1SM
     }
   else
     {
-      std::cout << "!TEcnaHistos::TowerCrystalNumbering(...)> SM = " << SMNumber
-	   << ". Out of range ( range = [1," << fEcal->MaxSMInEB() << "] )" << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::TowerCrystalNumbering(...)> SM = " << SMNumber
+	   << ". Out of range ( range = [1," << fEcal->MaxSMInEB() << "] )" << fTTBELL << endl;
     }
 }
 //---------------->  end of TowerCrystalNumbering()
@@ -2593,8 +2594,8 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
       TCanvas *MainCanvas = new TCanvas(f_in, f_in, canv_w , canv_h);    fCnewRoot++;
       fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 
-      // std::cout << "*TEcnaHistosEE::SCCrystalNumbering(...)> Plot is displayed on canvas ----> "
-      //      << f_in << std::endl;
+      // cout << "*TEcnaHistosEE::SCCrystalNumbering(...)> Plot is displayed on canvas ----> "
+      //      << f_in << endl;
 
       Double_t x_margin = fCnaParHistos->BoxLeftX("bottom_left_box") - 0.005;
       Double_t y_margin = fCnaParHistos->BoxTopY("bottom_right_box") + 0.005;
@@ -2664,8 +2665,8 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
     }
   else
     {
-      std::cout << "!TEcnaHistos::SCCrystalNumbering(...)> Dee = " << DeeNumber
-	   << ". Out of range ( range = [1," << fEcal->MaxDeeInEE() << "] )" << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::SCCrystalNumbering(...)> Dee = " << DeeNumber
+	   << ". Out of range ( range = [1," << fEcal->MaxDeeInEE() << "] )" << fTTBELL << endl;
     }
 }
 //---------------->  end of SCCrystalNumbering()
@@ -2831,7 +2832,7 @@ void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber,
   if ( x_direction == "-x" )   // NEVER  IN THIS CASE: xmin->xmax <=> right->left ("-x") direction
     {sup_axis_x = new TGaxis( -(Float_t)MatSize, (Float_t)0, (Float_t)(size_eta*MatSize), (Float_t)0.,
 			      "f1", size_eta, "BCS" , 0.);                                fCnewRoot++;
-    std::cout << "TEcnaHistosEB::ViewTowerGrid()> non foreseen case. eta with -x direction." << fTTBELL << std::endl;}
+    cout << "TEcnaHistosEB::ViewTowerGrid()> non foreseen case. eta with -x direction." << fTTBELL << endl;}
 
   if ( x_direction == "x" )    // ALWAYS IN THIS CASE: xmin->xmax <=> left->right ("x") direction
     {sup_axis_x = new TGaxis( (Float_t)0.      , (Float_t)0., (Float_t)(size_eta*MatSize), (Float_t)0.,
@@ -3082,8 +3083,8 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	{
 	  fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
 	  TString fp_name_short = fMyRootFile->GetRootFileNameShort();
-	  // std::cout << "*TEcnaHistos::ViewStex(...)> Data are analyzed from file ----> "
-	  //      << fp_name_short << std::endl;
+	  // cout << "*TEcnaHistos::ViewStex(...)> Data are analyzed from file ----> "
+	  //      << fp_name_short << endl;
 	  
 	  fStartDate = fMyRootFile->GetStartDate();
 	  fStopDate  = fMyRootFile->GetStopDate();
@@ -3110,7 +3111,7 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
       if (HistoCode == "D_LFN_ChNb") {sprintf(f_in_mat_tit, "Low frequency noise");}
       if (HistoCode == "D_HFN_ChNb") {sprintf(f_in_mat_tit, "High frequency noise");}
       if (HistoCode == "D_SCs_ChNb") {sprintf(f_in_mat_tit, "Sigma of cor(s,s')");}
-
+      
       //................................. Axis parameters
       Int_t  GeoBidSizeHoco = fEcal->MaxStinHocoInStex()*fEcal->MaxCrysHocoInStin();
       Int_t  GeoBidSizeVeco = fEcal->MaxStinVecoInStex()*fEcal->MaxCrysVecoInStin();
@@ -3284,7 +3285,7 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  TCanvas *MainCanvas = new TCanvas(f_in, f_in, canv_w, canv_h);   fCnewRoot++;
 	  fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 
-	  // std::cout << "*TEcnaHistos::ViewStex(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
+	  // cout << "*TEcnaHistos::ViewStex(...)> Plot is displayed on canvas ----> " << f_in << endl;
 	  
 	  delete [] f_in; f_in = 0;                                 fCdelete++;
 	  
@@ -3333,8 +3334,8 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
     {
       fStatusFileFound = kFALSE;
 
-      std::cout << "!TEcnaHistos::ViewStex(...)> *ERROR* =====> "
-	   << " ROOT file not found" << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::ViewStex(...)> *ERROR* =====> "
+	   << " ROOT file not found" << fTTBELL << endl;
     }
 }  // end of ViewStex(...)
 
@@ -3362,8 +3363,8 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
 
       fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
       TString fp_name_short = fMyRootFile->GetRootFileNameShort(); 
-      //std::cout << "*TEcnaHistos::StexHocoVecoLHFCorcc(...)> Data are analyzed from file ----> "
-      //     << fp_name_short << std::endl;
+      //cout << "*TEcnaHistos::StexHocoVecoLHFCorcc(...)> Data are analyzed from file ----> "
+      //     << fp_name_short << endl;
 
       fStartDate = fMyRootFile->GetStartDate();
       fStopDate  = fMyRootFile->GetStopDate();
@@ -3525,8 +3526,8 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
 	      TCanvas *MainCanvas = new TCanvas(f_in, f_in, canv_w, canv_h);   fCnewRoot++;
 	      fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 
-	      // std::cout << "*TEcnaHistos::StexHocoVecoLHFCorcc(...)> Plot is displayed on canvas ----> "
-	      //      << f_in << std::endl;
+	      // cout << "*TEcnaHistos::StexHocoVecoLHFCorcc(...)> Plot is displayed on canvas ----> "
+	      //      << f_in << endl;
 	      
 	      delete [] f_in; f_in = 0;                                 fCdelete++;
 	     
@@ -3577,8 +3578,8 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
     {
       fStatusFileFound = kFALSE;
 
-      std::cout << "!TEcnaHistos::StexHocoVecoLHFCorcc(...)> *ERROR* =====> "
-	   << " ROOT file not found" << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::StexHocoVecoLHFCorcc(...)> *ERROR* =====> "
+	   << " ROOT file not found" << fTTBELL << endl;
     }
 } // end of StexHocoVecoLHFCorcc
 
@@ -3706,10 +3707,7 @@ void TEcnaHistos::SMTowerNumbering(const Int_t& SMNumber)
       //............. matrices reading and histogram filling
       char* f_in_mat_tit = new char[fgMaxCar];                           fCnew++;
 
-      if( SMNumber <= fEcal->MaxSMPhiInEB() )
-	{sprintf(f_in_mat_tit, "               SM tower numbering");}
-      if( SMNumber >  fEcal->MaxSMPhiInEB() )
-	{sprintf(f_in_mat_tit, "          SM tower numbering     ");}
+      sprintf(f_in_mat_tit, "SM tower numbering");
 
       // il faut tracer un bidim vide pour pouvoir tracer la grille et les axes
 
@@ -3746,7 +3744,7 @@ void TEcnaHistos::SMTowerNumbering(const Int_t& SMNumber)
       TCanvas *MainCanvas = new TCanvas(f_in, f_in, canv_w, canv_h);   fCnewRoot++;
       fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 
-      // std::cout << "*TEcnaHistosEB::ViewSM(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
+      // cout << "*TEcnaHistosEB::ViewSM(...)> Plot is displayed on canvas ----> " << f_in << endl;
   
       delete [] f_in; f_in = 0;                                 fCdelete++;
 
@@ -3775,8 +3773,8 @@ void TEcnaHistos::SMTowerNumbering(const Int_t& SMNumber)
     }
   else
     {
-      std::cout << "!TEcnaHistos::SMTowerNumbering(...)> SM = " << SMNumber
-	   << ". Out of range ( range = [1," << fEcal->MaxSMInEB() << "] )" << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::SMTowerNumbering(...)> SM = " << SMNumber
+	   << ". Out of range ( range = [1," << fEcal->MaxSMInEB() << "] )" << fTTBELL << endl;
     }
 }
 // end of SMTowerNumbering
@@ -4150,7 +4148,6 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       TString axis_y_var_name = "  IY  ";
 
       //------------------------------------------------------------------- DeeSCNumbering
-
       //........................................... empty histogram filling
       char* f_in_mat_tit = new char[fgMaxCar];                           fCnew++;
 
@@ -4161,11 +4158,8 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       TH2D* h_empty_bid = new TH2D("grid_bidim_IX_IY", f_in_mat_tit,
 				   nb_binx, xinf_bid,  xsup_bid,
 				   nb_biny, yinf_bid,  ysup_bid);     fCnewRoot++;
-  
-      delete [] f_in_mat_tit;  f_in_mat_tit = 0;         fCdelete++;
-
       h_empty_bid->Reset();
-
+  
       h_empty_bid->GetXaxis()->SetTitle(axis_x_var_name);
       h_empty_bid->GetYaxis()->SetTitle(axis_y_var_name);
 
@@ -4177,7 +4171,7 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
   
       UInt_t canv_h = fCnaParHistos->CanvasFormatH("IXIYDee");
       UInt_t canv_w = fCnaParHistos->CanvasFormatW("IXIYDee");
-
+  
       //............................................... options generales
       fFapStexType = fEcalNumbering->GetEEDeeType(DeeNumber);
 
@@ -4191,7 +4185,7 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       TCanvas *MainCanvas = new TCanvas(f_in, f_in, canv_w, canv_h);   fCnewRoot++;
       fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 
-      // std::cout << "*TEcnaHistosEE::ViewDee(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
+      // cout << "*TEcnaHistosEE::ViewDee(...)> Plot is displayed on canvas ----> " << f_in << endl;
   
       delete [] f_in; f_in = 0;                                 fCdelete++;
 
@@ -4213,13 +4207,11 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       gPad->cd(1);
       TVirtualPad* main_subpad = gPad;
       main_subpad->SetPad(x_low, y_low, x_up, y_up);
-
+  
       h_empty_bid->DrawCopy("COL");   // il faut tracer un bidim vide pour pouvoir tracer la grille et les axes
-
       ViewDeeSCNumberingPad(DeeNumber);
-
       gPad->Update();   // prend beaucoup de temps...
-
+  
       //..................... retour aux options standard
       Bool_t b_true = 1;
       h_empty_bid->SetStats(b_true);    
@@ -4227,11 +4219,13 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       h_empty_bid->Delete(); h_empty_bid = 0;             fCdeleteRoot++;      
 
       //      delete MainCanvas;              fCdeleteRoot++;
+  
+      delete [] f_in_mat_tit;  f_in_mat_tit = 0;         fCdelete++;
     }
   else
     {
-      std::cout << "!TEcnaHistos::DeeSCNumbering(...)> Dee = " << DeeNumber
-	   << ". Out of range ( range = [1," << fEcal->MaxDeeInEE() << "] )" << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::DeeSCNumbering(...)> Dee = " << DeeNumber
+	   << ". Out of range ( range = [1," << fEcal->MaxDeeInEE() << "] )" << fTTBELL << endl;
     }
 }
 // end of DeeSCNumbering
@@ -4597,8 +4591,8 @@ void TEcnaHistos::ViewDeeGrid(const Int_t& DeeNumber, const TString& c_option)
 
   //= SURLIGNAGES (unite de coordonnees: le cristal ou 5 fois le cristal si option corcc)
   //........................... multplicative coefficient for corcc option
-  Int_t coefcc_x = (Int_t)1;
-  Int_t coefcc_y = (Int_t)1;
+  Int_t coefcc_x = 1;
+  Int_t coefcc_y = 1;
   if ( c_option == "corcc"){coefcc_x = fEcal->MaxCrysIXInSC(); coefcc_y = fEcal->MaxCrysIYInSC();}
 
   //............................. lignes horizontales
@@ -4663,7 +4657,7 @@ void TEcnaHistos::ViewDeeGrid(const Int_t& DeeNumber, const TString& c_option)
       //lin->Delete();   // => si on delete, pas de trace de la ligne
       // delete lin;             fCdeleteRoot++;
     }
-  
+
   //.......................... lignes verticales
   Double_t xline = (Double_t)xinf_bid - (Double_t)size_IX;
   
@@ -4707,12 +4701,8 @@ void TEcnaHistos::ViewDeeGrid(const Int_t& DeeNumber, const TString& c_option)
       // delete lin_bas;             fCdeleteRoot++;
     }
 
- 
-  Float_t fcoefcc_x = (Float_t)coefcc_x;
-  Float_t fcoefcc_y = (Float_t)coefcc_y;
-
-  EEDataSectors(fcoefcc_x, fcoefcc_y, DeeNumber, "Dee");
-  EEGridAxis(DeeNumber, "Dee", c_option);
+  EEDataSectors(coefcc_x, coefcc_y, DeeNumber, "Dee");
+  EEGridAxis(coefcc_x, coefcc_y, DeeNumber, "Dee", c_option);
 
 } // end of ViewDeeGrid
 
@@ -4732,9 +4722,9 @@ void TEcnaHistos::SqrtContourLevels(const Int_t& nb_niv, Double_t* cont_niv)
       Int_t ind_niv = num_niv + nb_niv2 - 1;
       if ( ind_niv < 0 || ind_niv > nb_niv )
 	{
-	  std::cout << "!TEcnaHistos::ContourLevels(...)> *** ERROR *** "
+	  cout << "!TEcnaHistos::ContourLevels(...)> *** ERROR *** "
 	       << "wrong contour levels for correlation matrix"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
       else
 	{
@@ -4748,9 +4738,9 @@ void TEcnaHistos::SqrtContourLevels(const Int_t& nb_niv, Double_t* cont_niv)
       Int_t ind_niv = num_niv + nb_niv2 - 1;
       if ( ind_niv < 0 || ind_niv > nb_niv )
 	{
-	  std::cout << "!TEcnaHistos::ContourLevels(...)> *** ERROR *** "
+	  cout << "!TEcnaHistos::ContourLevels(...)> *** ERROR *** "
 	       << "wrong contour levels for correlation matrix"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
       else
 	{
@@ -4904,8 +4894,8 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	    {
 	      xFapNbOfEvts[iStasStex] = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, n1StasStex);
 	      TString fp_name_short = fMyRootFile->GetRootFileNameShort();
-	      // std::cout << "*TEcnaHistos::ViewStas(...)> Data are analyzed from file ----> "
-	      //      << fp_name_short << std::endl;
+	      // cout << "*TEcnaHistos::ViewStas(...)> Data are analyzed from file ----> "
+	      //      << fp_name_short << endl;
 	      
 	      //....................... search for first and last dates
 	      if( iStasStex == 0 )
@@ -4947,8 +4937,8 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  else
 	    {
 	      fStatusFileFound = kFALSE;
-	      std::cout << "!TEcnaHistos::ViewStas(...)> *ERROR* =====> "
-		   << " ROOT file not found" << fTTBELL << std::endl;
+	      cout << "!TEcnaHistos::ViewStas(...)> *ERROR* =====> "
+		   << " ROOT file not found" << fTTBELL << endl;
 	    }
 	}
 
@@ -5039,18 +5029,18 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	    {
 	      fStatusDataExist = kFALSE;
 
-	      std::cout << "!TEcnaHistos::ViewStas(...)>  "
+	      cout << "!TEcnaHistos::ViewStas(...)>  "
 		   << " Data not available for " << fFapStexName << " " << iStasStex+1
-		   << " (Quantity not present in the ROOT file)" << fTTBELL << std::endl;
+		   << " (Quantity not present in the ROOT file)" << fTTBELL << endl;
 	    }
 	} // end of if( fMyRootFile->LookAtRootFile() == kTRUE )	  (ViewStas)
       else
 	{
 	  fStatusFileFound = kFALSE;
 
-	  std::cout << "!TEcnaHistos::ViewStas(...)>  "
+	  cout << "!TEcnaHistos::ViewStas(...)>  "
 	       << " Data not available for " << fFapStexName << " " << iStasStex+1
-	       << " (ROOT file not found)"  << fTTBELL << std::endl;
+	       << " (ROOT file not found)"  << fTTBELL << endl;
 	}
 
       if( fFapNbOfEvts <= xFapNbOfEvts[iStasStex] ){fFapNbOfEvts = xFapNbOfEvts[iStasStex];}
@@ -5142,7 +5132,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
       TCanvas *MainCanvas = new TCanvas(f_in, f_in, canv_w, canv_h);   fCnewRoot++;
       fCurrentCanvas = MainCanvas; fCurrentCanvasName = f_in;
 
-      // std::cout << "*TEcnaHistos::ViewStas(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
+      // cout << "*TEcnaHistos::ViewStas(...)> Plot is displayed on canvas ----> " << f_in << endl;
 	  
       delete [] f_in; f_in = 0;                                 fCdelete++;
 
@@ -5436,15 +5426,15 @@ void TEcnaHistos::ViewEEGrid(const Int_t& vertic_empty_strips)
   for( Int_t DeeNumber = 1; DeeNumber <= 4; DeeNumber++)
     {
       EEDataSectors(coefcc_x, coefcc_y, DeeNumber, "EE");
-      EEGridAxis(DeeNumber, "EE", " "); 
+      EEGridAxis(coefcc_x, coefcc_y, DeeNumber, "EE", " "); 
     }
 
   // vertical line between the two endcaps
-  Double_t xline = (Double_t)coefcc_x*( (Double_t)2.*fEcal->MaxCrysIXInDee()
-			      + ((Double_t)vertic_empty_strips)/(Double_t)2.*fEcal->MaxCrysIXInSC() );
+  Double_t xline = coefcc_x*( 2*fEcal->MaxCrysIXInDee()
+			      + ((Double_t)vertic_empty_strips)/2.*fEcal->MaxCrysIXInSC() );
   
-  Double_t yline_bot = (Double_t)coefcc_y*(Double_t)0.;
-  Double_t yline_top = (Double_t)coefcc_y*(Double_t)fEcal->MaxCrysIYInDee();
+  Double_t yline_bot = coefcc_y*(Double_t)0.;
+  Double_t yline_top = coefcc_y*(Double_t)fEcal->MaxCrysIYInDee();
 
   TLine *lin;
   lin = new TLine(xline, yline_bot, xline, yline_top); fCnewRoot++;
@@ -5452,14 +5442,14 @@ void TEcnaHistos::ViewEEGrid(const Int_t& vertic_empty_strips)
 
   // vertical line in the midles of the two endcaps
   //  xline = xline + coefcc_x*( fEcal->MaxCrysIXInDee()+ 0.5*fEcal->MaxCrysIXInSC() );
-  xline = (Double_t)coefcc_x*(3*fEcal->MaxCrysIXInDee()
+  xline = coefcc_x*(3*fEcal->MaxCrysIXInDee()
 		    + ((Double_t)vertic_empty_strips-1.)*fEcal->MaxCrysIXInSC() );
   TLine *lin12;
   lin12 = new TLine(xline, yline_bot, xline, yline_top); fCnewRoot++;
   lin12->SetLineStyle(2);
   lin12->Draw();
 
-  xline = (Double_t)coefcc_x*(fEcal->MaxCrysIXInDee()
+  xline = coefcc_x*(fEcal->MaxCrysIXInDee()
 		     + ((Double_t)vertic_empty_strips)/3.*fEcal->MaxCrysIXInSC() );
   TLine *lin34;
   lin34 = new TLine(xline, yline_bot, xline, yline_top); fCnewRoot++;
@@ -5467,8 +5457,8 @@ void TEcnaHistos::ViewEEGrid(const Int_t& vertic_empty_strips)
   lin34->Draw();
 
   // horizontal line at IY = 50
-  Double_t xline_end = (Double_t)coefcc_x*( 4*fEcal->MaxCrysIXInDee() + vertic_empty_strips*fEcal->MaxCrysIXInSC());
-  Double_t yline_mid = (Double_t)coefcc_x*fEcal->MaxCrysIYInDee()/2;
+  Double_t xline_end = coefcc_x*( 4*fEcal->MaxCrysIXInDee() + vertic_empty_strips*fEcal->MaxCrysIXInSC());
+  Double_t yline_mid = coefcc_x*fEcal->MaxCrysIYInDee()/2;
 
   TLine *linh;
   linh = new TLine( 0., yline_mid, xline_end, yline_mid); fCnewRoot++;
@@ -5492,11 +5482,10 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
   ngmax = 13;
   Float_t xg_dee_int_bot[13] = { 0, 5, 5, 7, 7, 8, 8, 9, 9,10,10,11,11};
   Float_t yg_dee_int_bot[13] = {39,39,40,40,41,41,42,42,43,43,45,45,50};
-  
   for(Int_t i=0;i<ngmax;i++){
     xg_dee_int_bot[i] = coefcc_x*xg_dee_int_bot[i];
     yg_dee_int_bot[i] = coefcc_y*yg_dee_int_bot[i];}
-
+  
   Float_t XgDeeIntBotRight[13]; Float_t YgDeeIntBotRight[13];
   Float_t XgDeeIntTopRight[13]; Float_t YgDeeIntTopRight[13];
   
@@ -5517,11 +5506,11 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
 
   TGraph *BDeeIntBotRight = new TGraph(ngmax, XgDeeIntBotRight, YgDeeIntBotRight);
   BDeeIntBotRight->SetLineWidth(LineWidth);
-  BDeeIntBotRight->DrawGraph(ngmax, XgDeeIntBotRight, YgDeeIntBotRight);
+  BDeeIntBotRight->Draw();
   
   TGraph *BDeeIntTopRight = new TGraph(ngmax, XgDeeIntTopRight, YgDeeIntTopRight);
   BDeeIntTopRight->SetLineWidth(LineWidth);
-  BDeeIntTopRight->DrawGraph(ngmax, XgDeeIntTopRight, YgDeeIntTopRight);
+  BDeeIntTopRight->Draw();
 
   // surlignage du bord externe du Dee  (unite de coordonnees: le cristal)
   ngmax = 21;
@@ -5551,11 +5540,11 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
   
   TGraph *BDeeExtBotRight = new TGraph(ngmax, XgDeeExtBotRight, YgDeeExtBotRight);
   BDeeExtBotRight->SetLineWidth(LineWidth);
-  BDeeExtBotRight->DrawGraph(ngmax, XgDeeExtBotRight, YgDeeExtBotRight);
+  BDeeExtBotRight->Draw();
   
   TGraph *BDeeExtTopRight = new TGraph(ngmax, XgDeeExtTopRight, YgDeeExtTopRight);
   BDeeExtTopRight->SetLineWidth(LineWidth);
-  BDeeExtTopRight->DrawGraph(ngmax, XgDeeExtTopRight, YgDeeExtTopRight);
+  BDeeExtTopRight->Draw();
 
   char* f_in = new char[fgMaxCar];                           fCnew++;
   
@@ -5583,7 +5572,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
 	}      
       TGraph *BDeeDataSec9 = new TGraph(ngmax, XgDeeDataSec9, YgDeeDataSec9);
       BDeeDataSec9->SetLineWidth(LineWidth);
-      BDeeDataSec9->DrawGraph(ngmax, XgDeeDataSec9, YgDeeDataSec9);      
+      BDeeDataSec9->Draw();      
     }
 
   //================= S1->S2(EE-)
@@ -5607,7 +5596,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
 
   TGraph *BDeeDataSec1 = new TGraph(ngmax, XgDeeDataSec1, YgDeeDataSec1);
   BDeeDataSec1->SetLineWidth(LineWidth);
-  BDeeDataSec1->DrawGraph(ngmax, XgDeeDataSec1, YgDeeDataSec1);
+  BDeeDataSec1->Draw();
 
   //================= S2->S3(EE-)
   ngmax = 6;
@@ -5629,7 +5618,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
     }
   TGraph *BDeeDataSec2 = new TGraph(ngmax, XgDeeDataSec2, YgDeeDataSec2);
   BDeeDataSec2->SetLineWidth(LineWidth);
-  BDeeDataSec2->DrawGraph(ngmax, XgDeeDataSec2, YgDeeDataSec2);
+  BDeeDataSec2->Draw();
  
   //================= S3->S4(EE-)
   ngmax = 10;
@@ -5651,7 +5640,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
     }
   TGraph *BDeeDataSec3 = new TGraph(ngmax, XgDeeDataSec3, YgDeeDataSec3);
   BDeeDataSec3->SetLineWidth(LineWidth);
-  BDeeDataSec3->DrawGraph(ngmax, XgDeeDataSec3, YgDeeDataSec3);
+  BDeeDataSec3->Draw();
  
   //================= S4->S5(EE-)
   ngmax = 6;
@@ -5673,7 +5662,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
     }
   TGraph *BDeeDataSec4 = new TGraph(ngmax, XgDeeDataSec4, YgDeeDataSec4);
   BDeeDataSec4->SetLineWidth(LineWidth);
-  BDeeDataSec4->DrawGraph(ngmax, XgDeeDataSec4, YgDeeDataSec4);
+  BDeeDataSec4->Draw();
   
 
   //..................................... Numeros des secteurs S_i (option "Dee" seulement)
@@ -5837,7 +5826,8 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
 
 //==========================================================================================
 
-void TEcnaHistos::EEGridAxis( const Int_t&   DeeNumber, const TString& opt_plot,  const TString& c_option)
+void TEcnaHistos::EEGridAxis(const Float_t& coefcc_x,  const Float_t& coefcc_y,
+			     const Int_t&   DeeNumber, const TString& opt_plot,  const TString& c_option)
 {
   //------------------ trace axes en IX et IY --------------- EEGridAxis
   //=============================================================================== Axe IX
@@ -6113,7 +6103,7 @@ void TEcnaHistos::XtalSamplesEv(const TVectorD& arg_read_histo, const Int_t& arg
 	      else
 		{
 		  fStatusFileFound = kFALSE;
-		  std::cout << "!TEcnaHistos::XtalSamplesEv(...)> Data not available (ROOT file not found)." << std::endl;
+		  cout << "!TEcnaHistos::XtalSamplesEv(...)> Data not available (ROOT file not found)." << endl;
 		}
 	      if( fStatusFileFound == kTRUE && fStatusDataExist == kTRUE ){aOKData = kTRUE;}
 	    }
@@ -6132,16 +6122,16 @@ void TEcnaHistos::XtalSamplesEv(const TVectorD& arg_read_histo, const Int_t& arg
 	      for( Int_t i0_stin_echa=0; i0_stin_echa<fEcal->MaxCrysInStin(); i0_stin_echa++)
 		{
 		  if( fFapStexName == "SM" )
-		    {std::cout << "*TEcnaHistos::XtalSamplesEv(...)> channel " << std::setw(2) << i0_stin_echa << ": ";}
+		    {cout << "*TEcnaHistos::XtalSamplesEv(...)> channel " << setw(2) << i0_stin_echa << ": ";}
 		  if( fFapStexName == "Dee" )
-		    {std::cout << "*TEcnaHistos::XtalSamplesEv(...)> Xtal " << std::setw(2) << i0_stin_echa+1 << ": ";}
+		    {cout << "*TEcnaHistos::XtalSamplesEv(...)> Xtal " << setw(2) << i0_stin_echa+1 << ": ";}
 		  
 		  for( Int_t i0_samp=0; i0_samp<fFapNbOfSamples; i0_samp++ )
 		    {
 		      read_histo_samps(i0_samp) = read_histo(i0_stin_echa*fFapNbOfSamples+i0_samp);
-		      std::cout << std::setprecision(4) << std::setw(8) << read_histo_samps(i0_samp) << ", " ;
+		      cout << setprecision(4) << setw(8) << read_histo_samps(i0_samp) << ", " ;
 		    }
-		  std::cout << std::endl;
+		  cout << endl;
 		  ViewHisto(read_histo_samps, xAlreadyRead,
 			    StexStin_A, i0_stin_echa, fZerv, "D_MSp_SpNb", fAllXtalsInStinPlot);
 		  xAlreadyRead++;
@@ -6150,7 +6140,7 @@ void TEcnaHistos::XtalSamplesEv(const TVectorD& arg_read_histo, const Int_t& arg
 	    }
 	  else
 	    {
-	      std::cout << "!TEcnaHistos::XtalSamplesEv(...)> Data not available." << std::endl;
+	      cout << "!TEcnaHistos::XtalSamplesEv(...)> Data not available." << endl;
 	    }
 	}
       
@@ -6164,8 +6154,8 @@ void TEcnaHistos::XtalSamplesEv(const TVectorD& arg_read_histo, const Int_t& arg
     }
   else
     {
-      std::cout << "!TEcnaHistos::XtalSamplesEv(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
-	   << " out of range (range = [1," << fEcal->MaxStexInStas() << "])" << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::XtalSamplesEv(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
+	   << " out of range (range = [1," << fEcal->MaxStexInStas() << "])" << fTTBELL << endl;
     }
 }
 
@@ -6205,7 +6195,7 @@ void TEcnaHistos::EvSamplesXtals(const TVectorD& arg_read_histo, const Int_t& ar
 	      else
 		{
 		  fStatusFileFound = kFALSE;
-		  std::cout << "!TEcnaHistos::EvSamplesXtals(...)> Data not available (ROOT file not found)." << std::endl;
+		  cout << "!TEcnaHistos::EvSamplesXtals(...)> Data not available (ROOT file not found)." << endl;
 		}
 	      if( fStatusFileFound == kTRUE && fStatusDataExist == kTRUE ){aOKData = kTRUE;}
 	    }
@@ -6223,16 +6213,16 @@ void TEcnaHistos::EvSamplesXtals(const TVectorD& arg_read_histo, const Int_t& ar
 	      for( Int_t i0_stin_echa=0; i0_stin_echa<fEcal->MaxCrysInStin(); i0_stin_echa++)
 		{
 		  if( fFapStexName == "SM" )
-		    {std::cout << "*TEcnaHistos::EvSamplesXtals(...)> channel " << std::setw(2) << i0_stin_echa << ": ";}
+		    {cout << "*TEcnaHistos::EvSamplesXtals(...)> channel " << setw(2) << i0_stin_echa << ": ";}
 		  if( fFapStexName == "Dee" )
-		    {std::cout << "*TEcnaHistos::EvSamplesXtals(...)> Xtal " << std::setw(2) << i0_stin_echa+1 << ": ";}
+		    {cout << "*TEcnaHistos::EvSamplesXtals(...)> Xtal " << setw(2) << i0_stin_echa+1 << ": ";}
 		  
 		  for( Int_t i0_samp=0; i0_samp<fFapNbOfSamples; i0_samp++ )
 		    {
 		      read_histo_samps(i0_samp) = read_histo(i0_stin_echa*fFapNbOfSamples+i0_samp);
-		      std::cout << std::setprecision(4) << std::setw(8) << read_histo_samps(i0_samp) << ", " ;
+		      cout << setprecision(4) << setw(8) << read_histo_samps(i0_samp) << ", " ;
 		    }
-		  std::cout << std::endl;
+		  cout << endl;
 		  ViewHisto(read_histo_samps, xAlreadyRead,
 			    StexStin_A, i0_stin_echa, fZerv, "D_MSp_SpDs", fAllXtalsInStinPlot);
 		  xAlreadyRead++;
@@ -6241,7 +6231,7 @@ void TEcnaHistos::EvSamplesXtals(const TVectorD& arg_read_histo, const Int_t& ar
 	    }
 	  else
 	    {
-	      std::cout << "!TEcnaHistos::EvSamplesXtals(...)> Data not available." << std::endl;
+	      cout << "!TEcnaHistos::EvSamplesXtals(...)> Data not available." << endl;
 	    }
 	}
       
@@ -6255,8 +6245,8 @@ void TEcnaHistos::EvSamplesXtals(const TVectorD& arg_read_histo, const Int_t& ar
     }
   else
     {
-      std::cout << "!TEcnaHistos::EvSamplesXtals(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
-	   << " out of range (range = [1," << fEcal->MaxStexInStas() << "])" << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::EvSamplesXtals(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
+	   << " out of range (range = [1," << fEcal->MaxStexInStas() << "])" << fTTBELL << endl;
     }
 } // end of EvSamplesXtals(...)
 
@@ -6296,7 +6286,7 @@ void TEcnaHistos::XtalSamplesSigma(const TVectorD& arg_read_histo, const Int_t& 
 	      else
 		{
 		  fStatusFileFound = kFALSE;
-		  std::cout << "!TEcnaHistos::XtalSamplesSigma(...)> Data not available (ROOT file not found)." << std::endl;
+		  cout << "!TEcnaHistos::XtalSamplesSigma(...)> Data not available (ROOT file not found)." << endl;
 		}
 	      if( fStatusFileFound == kTRUE && fStatusDataExist == kTRUE ){aOKData = kTRUE;}
 	    }
@@ -6314,16 +6304,16 @@ void TEcnaHistos::XtalSamplesSigma(const TVectorD& arg_read_histo, const Int_t& 
 	      for( Int_t i0_stin_echa=0; i0_stin_echa<fEcal->MaxCrysInStin(); i0_stin_echa++)
 		{
 		  if( fFapStexName == "SM" )
-		    {std::cout << "*TEcnaHistos::XtalSamplesSigma(...)> channel " << std::setw(2) << i0_stin_echa << ": ";}
+		    {cout << "*TEcnaHistos::XtalSamplesSigma(...)> channel " << setw(2) << i0_stin_echa << ": ";}
 		  if( fFapStexName == "Dee" )
-		    {std::cout << "*TEcnaHistos::XtalSamplesSigma(...)> Xtal " << std::setw(2) << i0_stin_echa+1 << ": ";}
+		    {cout << "*TEcnaHistos::XtalSamplesSigma(...)> Xtal " << setw(2) << i0_stin_echa+1 << ": ";}
 		  
 		  for( Int_t i0_samp=0; i0_samp<fFapNbOfSamples; i0_samp++ )
 		    {
 		      read_histo_samps(i0_samp) = read_histo(i0_stin_echa*fFapNbOfSamples+i0_samp);
-		      std::cout << std::setprecision(3) << std::setw(6) << read_histo_samps(i0_samp) << ", " ;
+		      cout << setprecision(3) << setw(6) << read_histo_samps(i0_samp) << ", " ;
 		    }
-		  std::cout << std::endl;
+		  cout << endl;
 		  ViewHisto(read_histo_samps, xAlreadyRead,
 			    StexStin_A, i0StinEcha, fZerv, "D_SSp_SpNb", fAllXtalsInStinPlot);
 		  xAlreadyRead++;    
@@ -6332,7 +6322,7 @@ void TEcnaHistos::XtalSamplesSigma(const TVectorD& arg_read_histo, const Int_t& 
 	    }
 	  else
 	    {
-	      std::cout << "!TEcnaHistos::XtalSamplesSigma(...)> Data not available." << std::endl;
+	      cout << "!TEcnaHistos::XtalSamplesSigma(...)> Data not available." << endl;
 	    }
 	}
 
@@ -6346,8 +6336,8 @@ void TEcnaHistos::XtalSamplesSigma(const TVectorD& arg_read_histo, const Int_t& 
     }
   else
     {
-      std::cout << "!TEcnaHistos::XtalSamplesSigma(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
-	   << " out of range (range = [1," << fEcal->MaxStexInStas() << "])" << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::XtalSamplesSigma(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
+	   << " out of range (range = [1," << fEcal->MaxStexInStas() << "])" << fTTBELL << endl;
     }
 }
 
@@ -6387,7 +6377,7 @@ void TEcnaHistos::SigmaSamplesXtals(const TVectorD& arg_read_histo, const Int_t&
 	      else
 		{
 		  fStatusFileFound = kFALSE;
-		  std::cout << "!TEcnaHistos::SigmaSamplesXtals(...)> Data not available (ROOT file not found)." << std::endl;
+		  cout << "!TEcnaHistos::SigmaSamplesXtals(...)> Data not available (ROOT file not found)." << endl;
 		}
 	      if( fStatusFileFound == kTRUE && fStatusDataExist == kTRUE ){aOKData = kTRUE;}
 	    }
@@ -6406,16 +6396,16 @@ void TEcnaHistos::SigmaSamplesXtals(const TVectorD& arg_read_histo, const Int_t&
 	      for( Int_t i0_stin_echa=0; i0_stin_echa<fEcal->MaxCrysInStin(); i0_stin_echa++)
 		{
 		  if( fFapStexName == "SM" )
-		    {std::cout << "*TEcnaHistos::SigmaSamplesXtals(...)> channel " << std::setw(2) << i0_stin_echa << ": ";}
+		    {cout << "*TEcnaHistos::SigmaSamplesXtals(...)> channel " << setw(2) << i0_stin_echa << ": ";}
 		  if( fFapStexName == "Dee" )
-		    {std::cout << "*TEcnaHistos::SigmaSamplesXtals(...)> Xtal " << std::setw(2) << i0_stin_echa+1 << ": ";}
+		    {cout << "*TEcnaHistos::SigmaSamplesXtals(...)> Xtal " << setw(2) << i0_stin_echa+1 << ": ";}
 		  
 		  for( Int_t i0_samp=0; i0_samp<fFapNbOfSamples; i0_samp++ )
 		    {
 		      read_histo_samps(i0_samp) = read_histo(i0_stin_echa*fFapNbOfSamples+i0_samp);
-		      std::cout << std::setprecision(3) << std::setw(6) << read_histo_samps(i0_samp) << ", " ;
+		      cout << setprecision(3) << setw(6) << read_histo_samps(i0_samp) << ", " ;
 		    }
-		  std::cout << std::endl;
+		  cout << endl;
 		  ViewHisto(read_histo_samps, xAlreadyRead,
 			    StexStin_A, i0StinEcha, fZerv, "D_SSp_SpDs", fAllXtalsInStinPlot);
 		  xAlreadyRead++;    
@@ -6424,7 +6414,7 @@ void TEcnaHistos::SigmaSamplesXtals(const TVectorD& arg_read_histo, const Int_t&
 	    }
 	  else
 	    {
-	      std::cout << "!TEcnaHistos::SigmaSamplesXtals(...)> Data not available." << std::endl;
+	      cout << "!TEcnaHistos::SigmaSamplesXtals(...)> Data not available." << endl;
 	    }
 	}
       
@@ -6438,8 +6428,8 @@ void TEcnaHistos::SigmaSamplesXtals(const TVectorD& arg_read_histo, const Int_t&
     }
   else
     {
-      std::cout << "!TEcnaHistos::SigmaSamplesXtals(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
-	   << " out of range (range = [1," << fEcal->MaxStexInStas() << "])" << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::SigmaSamplesXtals(...)> " << fFapStexName.Data() << " number = " << fFapStexNumber
+	   << " out of range (range = [1," << fEcal->MaxStexInStas() << "])" << fTTBELL << endl;
     }
 } // end of SigmaSamplesXtals(...)
 
@@ -6483,10 +6473,10 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
       main_subpad = ActivePad(HistoCode.Data(), opt_plot.Data());  // => return 0 if canvas has been closed
       if( main_subpad == 0 )
 	{
-	  std::cout << "*TEcnaHistos::ViewHisto(...)> WARNING ===> Canvas has been closed in option SAME or SAME n."
-	       << std::endl
+	  cout << "*TEcnaHistos::ViewHisto(...)> WARNING ===> Canvas has been closed in option SAME or SAME n."
+	       << endl
 	       << "                              Please, restart with a new canvas."
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	  
 	  ReInitCanvas(HistoCode, opt_plot);
 	  xCanvasExists = 0;
@@ -6512,12 +6502,12 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 	  
 	  if( XVarHisto != XVariableMemo )
 	    {
-	      std::cout << "!TEcnaHistos::ViewHisto(...)> *** ERROR *** ===> X coordinate changed in option SAME n." << std::endl
-		   << "                              Present  X = " << XVarHisto << std::endl
-		   << "                              Present  Y = " << YVarHisto << std::endl
-		   << "                              Previous X = " << XVariableMemo << std::endl
+	      cout << "!TEcnaHistos::ViewHisto(...)> *** ERROR *** ===> X coordinate changed in option SAME n." << endl
+		   << "                              Present  X = " << XVarHisto << endl
+		   << "                              Present  Y = " << YVarHisto << endl
+		   << "                              Previous X = " << XVariableMemo << endl
 		   << "                              Previous Y = " << YVariableMemo 
-		   << fTTBELL << std::endl;
+		   << fTTBELL << endl;
 	      SameXVarMemo = 0;
 	    }
 	  else
@@ -6544,12 +6534,12 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 	  
 	  if( YVarHisto != YVariableMemo )
 	    {
-	      std::cout << "!TEcnaHistos::ViewHisto(...)> *** ERROR *** ===> Y coordinate changed in option SAME n." << std::endl
-		   << "                              Present  X = " << XVarHisto << std::endl
-		   << "                              Present  Y = " << YVarHisto << std::endl
-		   << "                              Previous X = " << XVariableMemo << std::endl
+	      cout << "!TEcnaHistos::ViewHisto(...)> *** ERROR *** ===> Y coordinate changed in option SAME n." << endl
+		   << "                              Present  X = " << XVarHisto << endl
+		   << "                              Present  Y = " << YVarHisto << endl
+		   << "                              Previous X = " << XVariableMemo << endl
 		   << "                              Previous Y = " << YVariableMemo 
-		   << fTTBELL << std::endl;
+		   << fTTBELL << endl;
 	      SameYVarMemo = 0;
 	    }
 	  else
@@ -6574,8 +6564,8 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
       Int_t NbBinsMemo = GetNbBinsFromMemo(HistoCode, opt_plot);
       if( xNbBins != NbBinsMemo )
 	{
-	  std::cout << "!TEcnaHistos::ViewHisto(...)> *** ERROR *** ===> Number of bins changed in option SAME or SAME n."
-	       << " Present number = " << xNbBins << ", requested number = " << NbBinsMemo << fTTBELL << std::endl;
+	  cout << "!TEcnaHistos::ViewHisto(...)> *** ERROR *** ===> Number of bins changed in option SAME or SAME n."
+	       << " Present number = " << xNbBins << ", requested number = " << NbBinsMemo << fTTBELL << endl;
 	  OkBinsMemoSameOne = 0;
 	}
     }
@@ -6651,8 +6641,8 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 			{
 			  xFapNbOfEvts[iStasStex] = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, n1StasStex);
 			  fp_name_short = fMyRootFile->GetRootFileNameShort();
-			  // std::cout << "*TEcnaHistos::ViewHisto(...)> Data are analyzed from file ----> "
-			  //      << fp_name_short << std::endl;
+			  // cout << "*TEcnaHistos::ViewHisto(...)> Data are analyzed from file ----> "
+			  //      << fp_name_short << endl;
 			  //....................... search for first and last dates
 			  if( iStasStex == 0 )
 			    {
@@ -6730,8 +6720,8 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 				    }
 				  else
 				    {
-				      std::cout << "!TEcnaHistos::ViewHisto(...)> <EB> i_xgeo = " << i_xgeo
-					   << ". OUT OF RANGE ( range = [0,"<< SizeForPlot << "] " << std::endl;
+				      cout << "!TEcnaHistos::ViewHisto(...)> <EB> i_xgeo = " << i_xgeo
+					   << ". OUT OF RANGE ( range = [0,"<< SizeForPlot << "] " << endl;
 				    }  
 				}
 			      //...................................... EE    (ViewHisto)
@@ -6831,21 +6821,21 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 					}// end of if(StexDSStin >=1 && StexDSStin <= fEcalNumbering->GetMaxSCInDS(StexDataSector))
 				      else
 					{
-					  std::cout << "!TEcnaHistos::ViewHisto(...)> <EE>  StexDSStin = " << StexDSStin
+					  cout << "!TEcnaHistos::ViewHisto(...)> <EE>  StexDSStin = " << StexDSStin
 					       << ". OUT OF RANGE ( range = [1,"
 					       << fEcalNumbering->GetMaxSCInDS(StexDataSector)
 					       << "]. DeeNumber =  " << DeeNumber
 					       << ", n1DeeSCEcna = " << n1DeeSCEcna
 					       << ", StexDataSector = "  << StexDataSector 
-					       << ", i_xgeo = "  << i_xgeo << std::endl;
+					       << ", i_xgeo = "  << i_xgeo << endl;
 					}
 				    }// end of if( StexDataSector >= 1 && StexDataSector <= 9 )
 				  else
 				    {
-				      //std::cout << "!TEcnaHistos::ViewHisto(...)> <EE>  StexDataSector = " << StexDataSector
+				      //cout << "!TEcnaHistos::ViewHisto(...)> <EE>  StexDataSector = " << StexDataSector
 				      //     << ". OUT OF RANGE ( range = [1,9]. DeeNumber = " << DeeNumber
 				      //     << ", n1DeeSCEcna = " << n1DeeSCEcna
-				      //     << ", i_xgeo = "  << i_xgeo << std::endl;
+				      //     << ", i_xgeo = "  << i_xgeo << endl;
 				    }
 				  //......................................... transfert read_histo -> histo_for_plot
 				  if( i_xgeo >= -1 && i_xgeo < SizeForPlot )
@@ -6901,26 +6891,26 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 				    } // end of if( i_xgeo >= -1 && i_xgeo < SizeForPlot )
 				  else
 				    {
-				      //std::cout << "!TEcnaHistos::ViewHisto(...)> <EE>  i_xgeo = " << i_xgeo
-				      //     << ". OUT OF RANGE ( range = [0,"<< SizeForPlot << "] " << std::endl;
+				      //cout << "!TEcnaHistos::ViewHisto(...)> <EE>  i_xgeo = " << i_xgeo
+				      //     << ". OUT OF RANGE ( range = [0,"<< SizeForPlot << "] " << endl;
 				    }
 				}// end of if( fFlagSubDet == "EE" )
 			    }// end of for(Int_t i0StexStinEcna=0; i0StexStinEcna<fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
 			}
 		      else
 			{
-			  std::cout << "!TEcnaHistos::ViewHisto(...)>  "
+			  cout << "!TEcnaHistos::ViewHisto(...)>  "
 			       << " Data not available for " << fFapStexName << " " << iStasStex+1
-			       << " (Quantity not present in the ROOT file)" << std::endl;
+			       << " (Quantity not present in the ROOT file)" << endl;
 			}
 		    } // end of if ( fMyRootFile->LookAtRootFile() == kTRUE )   (ViewHisto/Stas)
 		  else
 		    {
 		      fStatusFileFound = kFALSE;
 
-		      std::cout << "!TEcnaHistos::ViewHisto(...)>  "
+		      cout << "!TEcnaHistos::ViewHisto(...)>  "
 			   << " Data not available for " << fFapStexName << " " << iStasStex+1
-			   << " (ROOT file not found)" << std::endl;
+			   << " (ROOT file not found)" << endl;
 		    }
 
 		  if( fFapNbOfEvts <= xFapNbOfEvts[iStasStex] ){fFapNbOfEvts = xFapNbOfEvts[iStasStex];}
@@ -6955,8 +6945,8 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		    {
 		      fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
 		      fp_name_short = fMyRootFile->GetRootFileNameShort();
-		      // std::cout << "*TEcnaHistos::ViewHisto(...)> Data are analyzed from file ----> "
-		      //      << fp_name_short << std::endl;
+		      // cout << "*TEcnaHistos::ViewHisto(...)> Data are analyzed from file ----> "
+		      //      << fp_name_short << endl;
 		      
 		      fStartDate = fMyRootFile->GetStartDate();
 		      fStopDate  = fMyRootFile->GetStopDate();
@@ -7078,7 +7068,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 						      histo_for_plot_memo[i_xgeo]++;
 						      if( histo_for_plot_memo[i_xgeo] >= 2 )
 							{
-							  std::cout << "! histo_memo[" << i_xgeo
+							  cout << "! histo_memo[" << i_xgeo
 							       << "] = " << histo_for_plot_memo[i_xgeo]
 							       << ", nSCCons = " <<  nSCCons
 							       << ", SC_in_DS = " << SC_in_DS
@@ -7086,7 +7076,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 							       << ", SCOffset = " << SCOffset
 							       << ", n1DeeSCEcna = " << n1DeeSCEcna
 							       << ", n1SCEcha = " << n1SCEcha
-							       << ", n1FinalSCEcha = " << n1FinalSCEcha << std::endl;
+							       << ", n1FinalSCEcha = " << n1FinalSCEcha << endl;
 							}
 						      //.............................. transfert read_histo -> histo_for_plot
 						      if( i_xgeo >= 0 && i_xgeo < SizeForPlot )
@@ -7096,51 +7086,51 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 							}
 						      else
 							{
-							  std::cout << "!TEcnaHistos::ViewHisto(...)> <EE>  i_xgeo = " << i_xgeo
-							       << ". OUT OF RANGE ( range = [0,"<< SizeForPlot << "] " << std::endl;
+							  cout << "!TEcnaHistos::ViewHisto(...)> <EE>  i_xgeo = " << i_xgeo
+							       << ". OUT OF RANGE ( range = [0,"<< SizeForPlot << "] " << endl;
 							}
 						    } // end of  if( read_histo[i0DeeEcha] > 0 )
 						} // end of if( SC_in_DS >= 1 && SC_in_DS <= fEcalNumbering->GetMaxSCInDS(DataSector) )
 					      else
 						{
-						  std::cout << "!TEcnaHistos::ViewHisto(...)> <EE>  SC_in_DS = " << SC_in_DS
+						  cout << "!TEcnaHistos::ViewHisto(...)> <EE>  SC_in_DS = " << SC_in_DS
 						       << ". OUT OF RANGE ( range = [1,"
 						       << fEcalNumbering->GetMaxSCInDS(DataSector) << "] "
 						       << ", DataSector = " << DataSector
 						       << ", n1DeeSCEcna = " << n1DeeSCEcna
 						       << ", n1SCEcha = " << n1SCEcha
 						       << ", i0DeeEcha = " << i0DeeEcha
-						       << std::endl;
+						       << endl;
 						}
 					    } // end of if( DataSector >= 1 && DataSector <= 9 )
 					  else
 					    {
 					      if( DataSector != 0 )
 						{
-						  std::cout << "!TEcnaHistos::ViewHisto(...)> <EE>  DataSector = " << DataSector
+						  cout << "!TEcnaHistos::ViewHisto(...)> <EE>  DataSector = " << DataSector
 						       << ". OUT OF RANGE ( range = [1,9] "
 						       << ", n1DeeSCEcna = " << n1DeeSCEcna
 						       << ", n1SCEcha = " << n1SCEcha
 						       << ", i0DeeEcha = " << i0DeeEcha
-						       << std::endl;
+						       << endl;
 						}
 					    }
 					} // end of if( n1DeeSCEcna >= 1 && n1DeeSCEcna <= fEcal->MaxSCEcnaInDee() )
 				      else
 					{
-					  std::cout << "!TEcnaHistos::ViewHisto(...)> <EE>  n1DeeSCEcna = " << n1DeeSCEcna
+					  cout << "!TEcnaHistos::ViewHisto(...)> <EE>  n1DeeSCEcna = " << n1DeeSCEcna
 					       << ". OUT OF RANGE ( range = [1,"<< fEcal->MaxSCEcnaInDee() << "] "
 					       << ", n1SCEcha = " << n1SCEcha
 					       << ", i0DeeEcha = " << i0DeeEcha
-					       << std::endl;
+					       << endl;
 					}
 				    } // end of if(n1SCEcha >= 1 && n1SCEcha <= fEcal->MaxCrysInSC() )
 				  else
 				    {
-				      std::cout << "!TEcnaHistos::ViewHisto(...)> <EE>  n1SCEcha = " << n1SCEcha
+				      cout << "!TEcnaHistos::ViewHisto(...)> <EE>  n1SCEcha = " << n1SCEcha
 					   << ". OUT OF RANGE ( range = [1,"<< fEcal->MaxCrysInSC() << "] "
 					   << ", i0DeeEcha = " << i0DeeEcha
-					   << std::endl;
+					   << endl;
 				    }
 				}
 			    } // end of if( OKPlot == 1 && opt_plot != "ASCII" )
@@ -7148,16 +7138,16 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		    } // end of if(ok_view_histo == kTRUE)
 		  else
 		    {
-		      std::cout << "!TEcnaHistos::ViewHisto(...)> *ERROR* =====> "
-			   << " ok_view_histo != kTRUE " << fTTBELL << std::endl;
+		      cout << "!TEcnaHistos::ViewHisto(...)> *ERROR* =====> "
+			   << " ok_view_histo != kTRUE " << fTTBELL << endl;
 		    }
 		} // end of if(fMyRootFile->LookAtRootFile() == kTRUE)
 	      else
 		{
 		  fStatusFileFound = kFALSE;
 
-		  std::cout << "!TEcnaHistos::ViewHisto(...)> *ERROR* =====> "
-		       << " ROOT file not found" << fTTBELL << std::endl;
+		  cout << "!TEcnaHistos::ViewHisto(...)> *ERROR* =====> "
+		       << " ROOT file not found" << fTTBELL << endl;
 		}
 	    } // end of if(fFapStexNumber > 0)
 	} // end of if( HistoType == "Global" || HistoType == "Proj" || HistoType == "SampGlobal" || HistoType == "SampProj" )
@@ -7202,15 +7192,15 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		}
 	      else
 		{
-		  std::cout << "!TEcnaHistos::ViewHisto(...)> *ERROR* =====> "
-		       << " ROOT file not found" << fTTBELL << std::endl;
+		  cout << "!TEcnaHistos::ViewHisto(...)> *ERROR* =====> "
+		       << " ROOT file not found" << fTTBELL << endl;
 		}
 	    }
 	  else
 	    {
-	      std::cout << "!TEcnaHistos::ViewHisto(...)> " << fFapStexName.Data()
+	      cout << "!TEcnaHistos::ViewHisto(...)> " << fFapStexName.Data()
 		   << " = " << fFapStexNumber << ". Out of range (range = [1,"
-		   << fEcal->MaxStexInStas() << "]) " << fTTBELL << std::endl;
+		   << fEcal->MaxStexInStas() << "]) " << fTTBELL << endl;
 	    }
 	}
 
@@ -7466,8 +7456,8 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		} // end of if( OKPlot > 0 )
 	      else
 		{
-		  std::cout << "!TEcnaHistos::ViewHisto(...)> Histo not available."
-		       << fTTBELL << std::endl;
+		  cout << "!TEcnaHistos::ViewHisto(...)> Histo not available."
+		       << fTTBELL << endl;
 		}
 	    }
 	}
@@ -7914,14 +7904,14 @@ Int_t TEcnaHistos::ModifiedSCEchaForNotConnectedSCs(const Int_t& n1DeeNumber,
      //======================= ERROR message if ModifiedSCEcha is not correct
   if( ModifiedSCEcha < 1 || ModifiedSCEcha > fEcal->MaxCrysInSC() )
     {
-      std::cout << "! *** ERROR *** > ModifiedSCEcha = " << ModifiedSCEcha
+      cout << "! *** ERROR *** > ModifiedSCEcha = " << ModifiedSCEcha
 	   << ", SC_in_DS = " << SC_in_DS
 	   << ", nSCCons = " << nSCCons
 	   << ", n1DeeSCEcna = " << n1DeeSCEcna
 	   << ", n1SCEcha = " << n1SCEcha
 	   << ", ModifiedSCEcha = " << ModifiedSCEcha
 	   << ", TypQuad = " << TypQuad
-	   << fTTBELL << std::endl;
+	   << fTTBELL << endl;
     }
 
  
@@ -7964,10 +7954,10 @@ void TEcnaHistos::ViewHistime(const TString& list_of_run_file_name,
       main_subpad = ActivePad(HistoCode.Data(), opt_plot.Data());  // => return 0 if canvas has been closed
       if( main_subpad == 0 )
 	{
-	  std::cout << "*TEcnaHistos::ViewHistime(...)> WARNING ===> Canvas has been closed in option SAME or SAME n."
-	       << std::endl
+	  cout << "*TEcnaHistos::ViewHistime(...)> WARNING ===> Canvas has been closed in option SAME or SAME n."
+	       << endl
 	       << "                               Please, restart with a new canvas."
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	  
 	  ReInitCanvas(HistoCode, opt_plot);
 	  xCanvasExists = 0;
@@ -7993,12 +7983,12 @@ void TEcnaHistos::ViewHistime(const TString& list_of_run_file_name,
 	  
 	  if( XVarHisto != XVariableMemo )
 	    {
-	      std::cout << "!TEcnaHistos::ViewHistime(...)> *** ERROR *** ===> X coordinate changed in option SAME n." << std::endl
-		   << "                               Present  X = " << XVarHisto << std::endl
-		   << "                               Present  Y = " << YVarHisto << std::endl
-		   << "                               Previous X = " << XVariableMemo << std::endl
+	      cout << "!TEcnaHistos::ViewHistime(...)> *** ERROR *** ===> X coordinate changed in option SAME n." << endl
+		   << "                               Present  X = " << XVarHisto << endl
+		   << "                               Present  Y = " << YVarHisto << endl
+		   << "                               Previous X = " << XVariableMemo << endl
 		   << "                               Previous Y = " << YVariableMemo 
-		   << fTTBELL << std::endl;
+		   << fTTBELL << endl;
 	      SameXVarMemo = 0;
 	    }
 	  else
@@ -8025,12 +8015,12 @@ void TEcnaHistos::ViewHistime(const TString& list_of_run_file_name,
 	  
 	  if( YVarHisto != YVariableMemo )
 	    {
-	      std::cout << "!TEcnaHistos::ViewHistime(...)> *** ERROR *** ===> Y coordinate changed in option SAME n." << std::endl
-		   << "                               Present  X = " << XVarHisto << std::endl
-		   << "                               Present  Y = " << YVarHisto << std::endl
-		   << "                               Previous X = " << XVariableMemo << std::endl
+	      cout << "!TEcnaHistos::ViewHistime(...)> *** ERROR *** ===> Y coordinate changed in option SAME n." << endl
+		   << "                               Present  X = " << XVarHisto << endl
+		   << "                               Present  Y = " << YVarHisto << endl
+		   << "                               Previous X = " << XVariableMemo << endl
 		   << "                               Previous Y = " << YVariableMemo 
-		   << fTTBELL << std::endl;
+		   << fTTBELL << endl;
 	      SameYVarMemo = 0;
 	    }
 	  else
@@ -8133,9 +8123,9 @@ void TEcnaHistos::ViewHistime(const TString& list_of_run_file_name,
 		    {
 		      fStatusFileFound = kFALSE;
 
-		      std::cout << "!TEcnaHistos::ViewHistime(...)> *ERROR* =====> "
+		      cout << "!TEcnaHistos::ViewHistime(...)> *ERROR* =====> "
 			   << " ROOT file not found for run " << fT1DRunNumber[i_run]
-			   << fTTBELL << std::endl << std::endl;
+			   << fTTBELL << endl << endl;
 		    }
 		} // end of for(Int_t i_run = 0; i_run < nb_of_runs_in_list; i_run++)
 
@@ -8231,8 +8221,8 @@ void TEcnaHistos::ViewHistime(const TString& list_of_run_file_name,
 			    }
 			  else
 			    {
-			      std::cout << "!TEcnaHistos::ViewHistime(...)> Histo not available. "
-				   << fTTBELL << std::endl;
+			      cout << "!TEcnaHistos::ViewHistime(...)> Histo not available. "
+				   << fTTBELL << endl;
 			    }
 			} // end of if ( fMyRootFile->LookAtRootFile() == kTRUE )
 		      else
@@ -8530,19 +8520,19 @@ void TEcnaHistos::ViewHistime(const TString& list_of_run_file_name,
 		}
 	      else
 		{
-		  std::cout << "!TEcnaHistos::ViewHistime(...)> The list of runs in file: " << list_of_run_file_name 
-		       << " has " << nb_of_runs_in_list << " run numbers" << std::endl
+		  cout << "!TEcnaHistos::ViewHistime(...)> The list of runs in file: " << list_of_run_file_name 
+		       << " has " << nb_of_runs_in_list << " run numbers" << endl
 		       << " but none of them correspond to an existing ROOT file."
-		       << fTTBELL << std::endl;
+		       << fTTBELL << endl;
 		}
 	    } // end of if( fFapStexNumber > 0 )
 	  else
 	    {
-	      std::cout << "!TEcnaHistos::ViewHistime(...)> *ERROR* =====> "
+	      cout << "!TEcnaHistos::ViewHistime(...)> *ERROR* =====> "
 		   << fFapStexName << " number = " << fFapStexNumber << ". "
 		   << fFapStexName << " number must be in range [1," << fEcal->MaxStexInStas() << "] ";
-	      if( fFlagSubDet == "EB" ){std::cout << " (or [-18,+18])";}
-		std::cout << fTTBELL << std::endl;
+	      if( fFlagSubDet == "EB" ){cout << " (or [-18,+18])";}
+		cout << fTTBELL << endl;
 	    }
 	  delete [] exist_indic;  exist_indic = 0;         fCdelete++;
 	} // end of if( nb_of_runs_in_list > 0 )
@@ -8550,13 +8540,13 @@ void TEcnaHistos::ViewHistime(const TString& list_of_run_file_name,
 	{
 	  if( nb_of_runs_in_list == 0 )
 	    {
-	      std::cout << "!TEcnaHistos::ViewHistime(...)> The list of runs in file: " << list_of_run_file_name
-		   << " is empty !" << fTTBELL << std::endl;
+	      cout << "!TEcnaHistos::ViewHistime(...)> The list of runs in file: " << list_of_run_file_name
+		   << " is empty !" << fTTBELL << endl;
 	    }
 	  if( nb_of_runs_in_list < 0 )
 	    {
-	      std::cout << "!TEcnaHistos::ViewHistime(...)> " << list_of_run_file_name
-		   << ": file not found in directory: " << fCfgHistoryRunListFilePath.Data() << fTTBELL << std::endl;
+	      cout << "!TEcnaHistos::ViewHistime(...)> " << list_of_run_file_name
+		   << ": file not found in directory: " << fCfgHistoryRunListFilePath.Data() << fTTBELL << endl;
 	    }
 	}
     }  // end of if( OKHisto == 1 )
@@ -8599,8 +8589,8 @@ Int_t TEcnaHistos::GetHistoryRunListParameters(const TString& list_of_run_file_n
   //========= immediate return if file name is an empty string
   if( list_of_run_file_name.Data() == '\0' )
     {
-      std::cout << "!TEcnaHistos::GetHistoryRunListParameters(...)> *** ERROR *** =====> "
-	   << " EMPTY STRING for list of run file name." << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::GetHistoryRunListParameters(...)> *** ERROR *** =====> "
+	   << " EMPTY STRING for list of run file name." << fTTBELL << endl;
     }
   else
     {
@@ -8648,7 +8638,7 @@ Int_t TEcnaHistos::GetHistoryRunListParameters(const TString& list_of_run_file_n
 	{   
 	  //...................................... first reading to get the number of runs in the list
 	  fFcin_f.clear();
-	  std::string xHeadComment;
+	  string xHeadComment;
 	  fFcin_f >> xHeadComment;
 	  Int_t cRunNumber;
 	  Int_t list_size_read = 0;
@@ -8660,10 +8650,10 @@ Int_t TEcnaHistos::GetHistoryRunListParameters(const TString& list_of_run_file_n
 
 	  //====== Return to the beginning of the file =====
 	  fFcin_f.clear();
-	  fFcin_f.seekg(0, std::ios::beg);
+	  fFcin_f.seekg(0, ios::beg);
 	  //================================================
 
-	  std::string yHeadComment;
+	  string yHeadComment;
 	  fFcin_f >> yHeadComment;
 
 	  //....................... Set fFapMaxNbOfRuns to -1 at first call (first read file)
@@ -8695,12 +8685,12 @@ Int_t TEcnaHistos::GetHistoryRunListParameters(const TString& list_of_run_file_n
 	  //................. check maximum value for allocation
 	  if( fFapMaxNbOfRuns > fCnaParHistos->MaxNbOfRunsInLists() )
 	    {
-	      std::cout << "TEcnaHistos::GetHistoryRunListParameters(...)> Max number of runs in HistoryRunList = "
+	      cout << "TEcnaHistos::GetHistoryRunListParameters(...)> Max number of runs in HistoryRunList = "
 		   << fFapMaxNbOfRuns
 		   << " too large, forced to parameter TEcnaParHistos->fMaxNbOfRunsInLists value (= "
 		   << fCnaParHistos->MaxNbOfRunsInLists()
 		   << "). Please, set this parameter to a larger value than " << fFapMaxNbOfRuns
-		   << fTTBELL << std::endl;
+		   << fTTBELL << endl;
 	      fFapMaxNbOfRuns = fCnaParHistos->MaxNbOfRunsInLists();
 	    }
 	  //................................. Alloc of the array and init
@@ -8712,8 +8702,8 @@ Int_t TEcnaHistos::GetHistoryRunListParameters(const TString& list_of_run_file_n
 		}
 	      else
 		{
-		  std::cout << "!TEcnaHistos::GetHistoryRunListParameters(...)> *** ERROR *** =====> fFapMaxNbOfRuns = "
-		       << fFapMaxNbOfRuns << ". Forced to 1." << fTTBELL << std::endl;
+		  cout << "!TEcnaHistos::GetHistoryRunListParameters(...)> *** ERROR *** =====> fFapMaxNbOfRuns = "
+		       << fFapMaxNbOfRuns << ". Forced to 1." << fTTBELL << endl;
 		  fFapMaxNbOfRuns = 1;
 		  fT1DRunNumber = new Int_t[fFapMaxNbOfRuns];               fCnew++;
 		}
@@ -8735,8 +8725,8 @@ Int_t TEcnaHistos::GetHistoryRunListParameters(const TString& list_of_run_file_n
       else
 	{
 	  fFcin_f.clear();
-	  std::cout << "!TEcnaHistos::GetHistoryRunListParameters(...)> *** ERROR *** =====> "
-	       << xFileNameRunList.Data() << " : file not found." << fTTBELL << std::endl;
+	  cout << "!TEcnaHistos::GetHistoryRunListParameters(...)> *** ERROR *** =====> "
+	       << xFileNameRunList.Data() << " : file not found." << fTTBELL << endl;
 	  nb_of_runs_in_list = -1;
 	}
     }
@@ -8781,8 +8771,8 @@ void TEcnaHistos::SetRunNumberFromList(const Int_t& xArgIndexRun, const Int_t& M
     }
   else
     {
-      std::cout << "!TEcnaHistos::SetRunNumberFromList(...)> **** ERROR **** Run index out of range in list of runs. xArgIndexRun = "
-	   << xArgIndexRun << " (MaxNbOfRuns = "<< MaxNbOfRuns << ")" << std::endl;
+      cout << "!TEcnaHistos::SetRunNumberFromList(...)> **** ERROR **** Run index out of range in list of runs. xArgIndexRun = "
+	   << xArgIndexRun << " (MaxNbOfRuns = "<< MaxNbOfRuns << ")" << endl;
     }
 }
 
@@ -8849,7 +8839,7 @@ Bool_t TEcnaHistos::GetOkViewHisto(TEcnaRead*    aMyRootFile,
 	    Int_t StinNumber = StexStin_A;
 	    if( fFlagSubDet == "EE" )
 	      {StinNumber = fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, StexStin_A);}
-	    std::cout << "!TEcnaHistos::GetOkViewHisto(...)> *ERROR* =====> " << "File: " << root_file_name
+	    cout << "!TEcnaHistos::GetOkViewHisto(...)> *ERROR* =====> " << "File: " << root_file_name
 		 << ", " << fFapStinName.Data() << " "
 		 << StinNumber
 		 << " not found. Available numbers = ";
@@ -8857,12 +8847,12 @@ Bool_t TEcnaHistos::GetOkViewHisto(TEcnaRead*    aMyRootFile,
 	      {
 		if( vStin(i) > 0 )
 		  {
-		    if( fFlagSubDet == "EB" ){std::cout << vStin(i) << ", ";}
+		    if( fFlagSubDet == "EB" ){cout << vStin(i) << ", ";}
 		    if( fFlagSubDet == "EE" )
-		      {std::cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";}
+		      {cout << fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fFapStexNumber, (Int_t)vStin(i)) << ", ";}
 		  }
 	      }
-	    std::cout << fTTBELL << std::endl;
+	    cout << fTTBELL << endl;
 	    ok_view = -1;
 	  }
 	  else 
@@ -8885,16 +8875,16 @@ Bool_t TEcnaHistos::GetOkViewHisto(TEcnaRead*    aMyRootFile,
 	  if( fFlagSubDet == "EE" ){Choffset = 1;}
 	  if( ( (HistoType == "H1Basic") || (HistoType == "Evol") || (HistoType == "EvolProj") )
 	      && !( (i0StinEcha >= 0) && (i0StinEcha<fEcal->MaxCrysInStin()) ) )
-	    {std::cout << "!TEcnaHistos::GetOkViewHisto(...)> *ERROR* =====> " << "File: " << root_file_name
+	    {cout << "!TEcnaHistos::GetOkViewHisto(...)> *ERROR* =====> " << "File: " << root_file_name
 		  << ". Wrong channel number. Value = " << i0StinEcha << " (required range: [" << Choffset << ", "
 		  << fEcal->MaxCrysInStin()-1+Choffset << "] )"
-		  << fTTBELL << std::endl;}
+		  << fTTBELL << endl;}
 	  if( (HistoCode == "D_Adc_EvDs" || HistoCode == "D_Adc_EvNb") &&
 	      !((i0Sample >= 0) && (i0Sample <fFapNbOfSamples)) )
-	    {std::cout << "!TEcnaHistos::GetOkViewHisto(...)> *ERROR* =====> " << "File: " << root_file_name
+	    {cout << "!TEcnaHistos::GetOkViewHisto(...)> *ERROR* =====> " << "File: " << root_file_name
 		  << ". Wrong sample index. Value = " << i0Sample << " (required range: [0, "
 		  << fFapNbOfSamples-1 << "] )"
-		  << fTTBELL << std::endl;}
+		  << fTTBELL << endl;}
 	  ok_max_elt = -1;
 	}
       
@@ -8904,16 +8894,16 @@ Bool_t TEcnaHistos::GetOkViewHisto(TEcnaRead*    aMyRootFile,
 	}
       else
 	{
-	  std::cout << "!TEcnaHistos::GetOkViewHisto(...)> At least one ERROR has been detected. ok_view = " << ok_view
-	       << ", ok_max_elt = " << ok_max_elt << fTTBELL << std::endl;
+	  cout << "!TEcnaHistos::GetOkViewHisto(...)> At least one ERROR has been detected. ok_view = " << ok_view
+	       << ", ok_max_elt = " << ok_max_elt << fTTBELL << endl;
 	}
     }
   else
     {
       fStatusDataExist = kFALSE;
 
-      std::cout << "!TEcnaHistos::GetOkViewHisto(...)> No data in ROOT file "
-	   << ", aMyRootFile->DataExist() = " << aMyRootFile->DataExist() << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::GetOkViewHisto(...)> No data in ROOT file "
+	   << ", aMyRootFile->DataExist() = " << aMyRootFile->DataExist() << fTTBELL << endl;
     }
   return ok_view_histo;
 }
@@ -9176,7 +9166,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
       {MainCanvas = CreateCanvas(HistoCode, opt_plot, canvas_name, canv_w, canv_h);
       fCurrentPad = gPad; fCurrentCanvas = MainCanvas; fCurrentCanvasName = canvas_name.Data();}}
 
-  // std::cout << "*TEcnaHistos::HistoPlot(...)> Plot is displayed on canvas ----> " << canvas_name.Data() << std::endl;
+  // cout << "*TEcnaHistos::HistoPlot(...)> Plot is displayed on canvas ----> " << canvas_name.Data() << endl;
 
   //--------------- EE => SC for construction, EB => Xtal in SM (default: Stin ECNA number, i0StinEcha)
   Int_t Stex_StinCons = StexStin_A;   // Stex_StinCons = Tower for EB, SC for construction for EE
@@ -9830,8 +9820,8 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
     }
   else    // else du if(main_subpad !=0)
     {
-      std::cout << "*TEcnaHistos::HistoPlot(...)> Canvas not found. Previously closed in option SAME."
-	   << fTTBELL << std::endl;
+      cout << "*TEcnaHistos::HistoPlot(...)> Canvas not found. Previously closed in option SAME."
+	   << fTTBELL << endl;
 
       ReInitCanvas(HistoCode, opt_plot);
       xMemoPlotSame = 0;
@@ -10092,7 +10082,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	}
     }
   
-  // std::cout << "*TEcnaHistos::HistimePlot(...)> Plot is displayed on canvas ----> " << canvas_name.Data() << std::endl;
+  // cout << "*TEcnaHistos::HistimePlot(...)> Plot is displayed on canvas ----> " << canvas_name.Data() << endl;
 
   //--------------- EE => SC for construction, EB => Xtal in SM (default: Stin ECNA number, i0StinEcha)
   Int_t Stex_StinCons = StexStin_A;   // Stex_StinCons = Tower for EB, SC for construction for EE
@@ -10439,8 +10429,8 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
     }
   else    // else du if(main_subpad !=0)
     {
-      std::cout << "*TEcnaHistos::HistimePlot(...)> Canvas not found. Previously closed in option SAME."
-	   << fTTBELL << std::endl;
+      cout << "*TEcnaHistos::HistimePlot(...)> Canvas not found. Previously closed in option SAME."
+	   << fTTBELL << endl;
 
       ReInitCanvas(HistoCode, opt_plot);
       xMemoPlotSame = 0;
@@ -11118,14 +11108,14 @@ TVectorD TEcnaHistos::GetHistoValues(const TVectorD& arg_read_histo, const Int_t
 
   if( arg_AlreadyRead >= 1 )
     {
-      //std::cout << "*TEcnaHistos::GetHistoValues(...)> arg_AlreadyRead = " << arg_AlreadyRead << std::endl;
+      //cout << "*TEcnaHistos::GetHistoValues(...)> arg_AlreadyRead = " << arg_AlreadyRead << endl;
       for(Int_t i=0; i<HisSizeRead; i++){plot_histo(i)=arg_read_histo(i);}
       fStatusDataExist = kTRUE; i_data_exist++;
     }
 
   if( arg_AlreadyRead == 0 )
     {
-      //std::cout << "*TEcnaHistos::GetHistoValues(...)> arg_AlreadyRead = " << arg_AlreadyRead << std::endl;
+      //cout << "*TEcnaHistos::GetHistoValues(...)> arg_AlreadyRead = " << arg_AlreadyRead << endl;
       TVectorD read_histo(HisSizeRead); for(Int_t i=0; i<HisSizeRead; i++){read_histo(i)=(Double_t)0.;}
 
       if( HistoCode == "D_MSp_SpNb" || HistoCode == "D_MSp_SpDs" ||
@@ -11150,9 +11140,9 @@ TVectorD TEcnaHistos::GetHistoValues(const TVectorD& arg_read_histo, const Int_t
 	    }
 	  else
 	    {
-	      std::cout << "!TEcnaHistos::GetHistoValues(...)> *** ERROR *** > HisSizeRead greater than HisSizePlot"
+	      cout << "!TEcnaHistos::GetHistoValues(...)> *** ERROR *** > HisSizeRead greater than HisSizePlot"
 		   << " for plot as a function of sample#. HisSizeRead = " << HisSizeRead
-		   << ", HisSizePlot = " << HisSizePlot << fTTBELL << std::endl;
+		   << ", HisSizePlot = " << HisSizePlot << fTTBELL << endl;
 	    }
 	} // end of if( HistoCode == "D_MSp_SpNb" || HistoCode == "D_SSp_SpNb" " ||
 	  //            HistoCode == "D_SSp_SpNb" || HistoCode == "D_SSp_SpDs" )
@@ -11222,16 +11212,16 @@ TVectorD TEcnaHistos::GetHistoValues(const TVectorD& arg_read_histo, const Int_t
 	    }
 	  else
 	    {
-	      std::cout << "!TEcnaHistos::GetHistoValues(...)> *** ERROR *** > HisSizeRead not equal to HisSizePlot."
+	      cout << "!TEcnaHistos::GetHistoValues(...)> *** ERROR *** > HisSizeRead not equal to HisSizePlot."
 		   << " HisSizeRead = " << HisSizeRead
-		   << ", HisSizePlot = " << HisSizePlot << fTTBELL << std::endl;
+		   << ", HisSizePlot = " << HisSizePlot << fTTBELL << endl;
 	    }
 	}  // end of if( !(HistoCode == "D_MSp_SpNb" || HistoCode == "D_SSp_SpNb") )
     }  // end of if( arg_AlreadyRead == 0 )
 
   if( i_data_exist == 0 )
     {
-      std::cout << "!TEcnaHistos::GetHistoValues(...)> Histo not found." << fTTBELL << std::endl;
+      cout << "!TEcnaHistos::GetHistoValues(...)> Histo not found." << fTTBELL << endl;
     }
 
   return plot_histo;
@@ -12813,15 +12803,15 @@ void TEcnaHistos::PlotCloneOfCurrentCanvas()
 	}
       else
 	{
-	  std::cout << "TEcnaHistos::PlotCloneOfCurrentCanvas()> Last canvas has been removed. No clone can be done."
-	       << std::endl << "                                        Please, display the canvas again."
-	       << fTTBELL << std::endl;
+	  cout << "TEcnaHistos::PlotCloneOfCurrentCanvas()> Last canvas has been removed. No clone can be done."
+	       << endl << "                                        Please, display the canvas again."
+	       << fTTBELL << endl;
 	}
     }
   else
     {
-      std::cout << "TEcnaHistos::PlotCloneOfCurrentCanvas()> No canvas has been created. No clone can be done."
-	   << fTTBELL << std::endl;
+      cout << "TEcnaHistos::PlotCloneOfCurrentCanvas()> No canvas has been created. No clone can be done."
+	   << fTTBELL << endl;
     }
 }
 
@@ -12974,8 +12964,8 @@ TVirtualPad* TEcnaHistos::ActivePad(const TString& HistoCode, const TString& opt
     }
     
   if( main_subpad == 0 )
-    {std::cout << "*TEcnaHistos::ActivePad(...)> main_subpad = "
-	  << main_subpad << ". This canvas has been closed." << std::endl;}
+    {cout << "*TEcnaHistos::ActivePad(...)> main_subpad = "
+	  << main_subpad << ". This canvas has been closed." << endl;}
 
   return main_subpad;
 }
@@ -13023,7 +13013,7 @@ void TEcnaHistos::DoCanvasClosed()
   fCurrentOptPlot = "NADA";  // to avoid fClosed... = kTRUE if other canvas than those above Closed (i.e. 2D plots)
   fCurrentHistoCode = "NADA";
 
-  std::cout << "!TEcnaHistos::DoCanvasClosed(...)> WARNING: canvas has been closed." << std::endl;
+  cout << "!TEcnaHistos::DoCanvasClosed(...)> WARNING: canvas has been closed." << endl;
 }
 
 void TEcnaHistos::SetParametersPavTxt(const TString& HistoCode, const TString& opt_plot)
@@ -13116,7 +13106,7 @@ TPaveText* TEcnaHistos::ActivePavTxt(const TString& HistoCode, const TString& op
     }
   
   if( main_pavtxt == 0 )
-    {std::cout << "*TEcnaHistos::ActivePavTxt(...)> ERROR: main_pavtxt = " << main_pavtxt << std::endl;}
+    {cout << "*TEcnaHistos::ActivePavTxt(...)> ERROR: main_pavtxt = " << main_pavtxt << endl;}
 
   return main_pavtxt;
 }
@@ -13653,9 +13643,9 @@ void TEcnaHistos::NewCanvas(const TString& opt_plot)
     }
   else
     {
-      std::cout << "TEcnaHistos::NewCanvas(...)> *** ERROR *** " << opt_plot.Data() << ": "
+      cout << "TEcnaHistos::NewCanvas(...)> *** ERROR *** " << opt_plot.Data() << ": "
 	   << "unknown option for NewCanvas. Only " << fSameOnePlot << " option is accepted."
-	   << fTTBELL << std::endl;
+	   << fTTBELL << endl;
     }
 }
 
@@ -13982,7 +13972,7 @@ TString TEcnaHistos::AsciiFileName(){return fAsciiFileName.Data();}
 //======= A T T E N T I O N ========= A T T E N T I O N ========= A T T E N T I O N ==============!!!!
 //      A EVITER ABSOLUMENT quand on est sous TEcnaGui CAR LE cin >> BLOQUE X11
 //      puisqu'on n'a pas la main dans la fenetre de compte-rendu de la CNA
-//     {Int_t cintoto; std::cout << "taper 0 pour continuer" << std::endl; cin >> cintoto;}
+//     {Int_t cintoto; cout << "taper 0 pour continuer" << endl; cin >> cintoto;}
 //                         *=================================================*
 //                         |                                                 |
 //++++++++++++++++++++++++|  A T T E N T I O N:  PAS DE TEST "cintoto" ici! |+++++++++++++++++++++!!!!

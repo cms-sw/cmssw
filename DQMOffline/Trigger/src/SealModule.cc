@@ -17,8 +17,6 @@
 #include "DQMOffline/Trigger/interface/TopHLTDiMuonDQMClient.h"
 #include "DQMOffline/Trigger/interface/HLTInclusiveVBFSource.h"
 #include "DQMOffline/Trigger/interface/HLTInclusiveVBFClient.h"
-#include "DQMOffline/Trigger/interface/TopDiLeptonHLTOfflineDQM.h"
-#include "DQMOffline/Trigger/interface/TopSingleLeptonHLTOfflineDQM.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(FourVectorHLTClient);
@@ -39,5 +37,3 @@ DEFINE_FWK_MODULE(TopHLTDiMuonDQM);
 DEFINE_FWK_MODULE(TopHLTDiMuonDQMClient);
 DEFINE_FWK_MODULE(HLTInclusiveVBFSource);
 DEFINE_FWK_MODULE(HLTInclusiveVBFClient);
-DEFINE_FWK_MODULE(TopDiLeptonHLTOfflineDQM);
-DEFINE_FWK_MODULE(TopSingleLeptonHLTOfflineDQM);

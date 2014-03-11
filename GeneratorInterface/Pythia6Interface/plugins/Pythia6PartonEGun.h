@@ -3,10 +3,6 @@
 
 #include "Pythia6PartonGun.h"
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
 namespace gen {
 
    class Pythia6PartonEGun : public Pythia6PartonGun
@@ -19,7 +15,7 @@ namespace gen {
       
       protected:
 
-         void generateEvent(CLHEP::HepRandomEngine*) ;
+         void generateEvent() ;
       
       private:
       

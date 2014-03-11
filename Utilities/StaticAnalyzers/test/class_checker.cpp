@@ -42,19 +42,6 @@ ClassTest::testConst() const
     //int * localPtrToInt = &m_testInteger;
 } 
 
-class Thing
-{
-private:
-
-int num;
-
-public:
-
-Thing(): num{0} {}
-int getnum() {return num;}
-void putnum(int x) {num=x;}
-};
-
 class Foo
 {
 
@@ -63,11 +50,10 @@ private:
 int Var_;
 int & RVar_=Var_;
 int * PVar_=&RVar_;
-Thing * T_p;
 
 public:
 
-Foo(): Var_{0}{T_p= new Thing;}
+Foo(): Var_{0}{}
 void func1(int  x) {return;} //OK
 void func2(int &x) {return;} // cound be bad 
 void func3(int *x) {return;} // could be bad
@@ -80,7 +66,6 @@ int * nonConstAccess() const {return PVar_;} //bad
 int & nonConstRefAccess() const { return  RVar_; } //bad ?
 int const * constAccess() const {return PVar_;} //OK
 int const & constRefAccess() const { return RVar_; } //OK ?
-Thing * getThing() { return T_p; }
 
 };
 
@@ -126,8 +111,6 @@ void produce()
 	foo->nonConstFunc();
 	foo_.nonConstFunc(); //should fail member data (object) call non const functions 
 	foo_.constFunc(); //OK because const won't modify self
-	foo->getThing()->getnum();
-	foo_.getThing()->getnum();
 	method1(i_);
 	method1(I);
 	modifyStatic(I);

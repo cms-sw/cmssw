@@ -29,10 +29,6 @@
 
 #include "GeneratorInterface/ThePEGInterface/interface/ThePEGInterface.h"
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
 using namespace std;
 using namespace ThePEG;
 using namespace lhef;
@@ -45,9 +41,6 @@ class ThePEGHadronisation : public ThePEGInterface, public Hadronisation {
 	~ThePEGHadronisation();
 
     private:
-
-        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { setPEGRandomEngine(v); }
-
 	void doInit();
 	std::auto_ptr<HepMC::GenEvent> doHadronisation();
 	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo);

@@ -16,7 +16,6 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
-// $Id: EcnaAnalyzer.h,v 1.3 2013/04/05 20:17:20 wmtan Exp $
 //
 //
 
@@ -65,7 +64,6 @@
 //#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 // user include files
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
@@ -76,7 +74,7 @@
 
 ///-----------------------------------------------------------
 ///   EcnaAnalyzer.h
-///   Update: 11/0'/2011
+///   Update: 16/02/2011
 ///   Authors:   B.Fabbro (bernard.fabbro@cea.fr)
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
@@ -100,8 +98,6 @@
 ///                  AnalysisName  RunType         Gain    DBLS (Dynamic BaseLine Substraction)
 ///                  ..........................................
 ///
-///                  AdcAny        any run type       0    No
-///
 ///                  AdcPed1       fPEDESTAL_STD      3    No
 ///                  AdcPed6       fPEDESTAL_STD      2    No
 ///                  AdcPed12      fPEDESTAL_STD      1    No
@@ -110,8 +106,6 @@
 ///
 ///                  AdcLaser      fLASER_STD         0    No
 ///                  AdcPes12      fPEDSIM            0    No
-///
-///                  AdcPhys       fPHYSICS_GLOBAL    0    No
 ///
 ///
 ///                  AdcSPed1      fPEDESTAL_STD      3    Yes
@@ -232,12 +226,9 @@ class EcnaAnalyzer : public edm::EDAnalyzer {
   Int_t* fNbOfTreatedFedsInDee;
   Int_t* fNbOfTreatedFedsInStex;
 
-
-  Int_t fANY_RUN;
   Int_t fPEDESTAL_STD;
   Int_t fPEDESTAL_GAP;
   Int_t fLASER_STD;
-  Int_t fPHYSICS_GLOBAL;
   Int_t fPEDSIM;
 
   time_t*  fTimeFirst;

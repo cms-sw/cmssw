@@ -2,19 +2,18 @@
 #define gen_Cascade2Hadronizer_h
 
 #include <memory>
-#include <string>
-#include <vector>
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 namespace HepMC {
   class GenEvent;
 }
 
 namespace CLHEP {
-  class HepRandomEngine;
+  class RandFlat;
 }
 
 namespace gen {
@@ -50,11 +49,6 @@ namespace gen {
     
   private:
     
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-    virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
-
-    static const std::vector<std::string> theSharedResources;
-
     //-- methods
     
     void flushTmpStorage();
@@ -66,6 +60,8 @@ namespace gen {
     edm::ParameterSet fParameters;
     
     Pythia6Service* fPy6Service;
+ 
+    CLHEP::RandFlat* fFlat;
 
     double fComEnergy ;  //-- irrelevant for setting py6 as hadronizer (or if anything, it should be picked up from LHERunInfoProduct)
     double fextCrossSection;

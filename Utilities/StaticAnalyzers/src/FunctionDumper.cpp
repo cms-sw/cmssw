@@ -87,7 +87,6 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
 	std::ofstream file(tname.c_str(),std::ios::app);
 	file<<ostring;
-	Visit(CE->getCallee()->IgnoreParens());
 }
 
 void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,

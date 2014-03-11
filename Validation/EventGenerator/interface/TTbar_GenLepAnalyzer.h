@@ -26,10 +26,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -50,16 +51,27 @@
 // class declaration
 //
 
-class TTbar_GenLepAnalyzer : public DQMEDAnalyzer {
+class TTbar_GenLepAnalyzer : public edm::EDAnalyzer {
    public:
       explicit TTbar_GenLepAnalyzer(const edm::ParameterSet&);
       ~TTbar_GenLepAnalyzer();
 
-      virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 
    private:
+      virtual void beginJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
+
+      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+      virtual void endRun(edm::Run const&, edm::EventSetup const&);
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+
       // ----------member data ---------------------------
+      ///ME's "container"
+      DQMStore *dbe;
 
       edm::InputTag leps_;
       std::map<std::string, MonitorElement*> hists_;

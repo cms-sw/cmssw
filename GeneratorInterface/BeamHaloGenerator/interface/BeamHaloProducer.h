@@ -10,25 +10,18 @@
 
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
 namespace edm
 {
-  class BeamHaloProducer : public one::EDProducer<EndRunProducer, one::WatchLuminosityBlocks> {
+  class BeamHaloProducer : public one::EDProducer<EndRunProducer> {
   public:
 
     /// Constructor
     BeamHaloProducer(const ParameterSet &);
     /// Destructor
     virtual ~BeamHaloProducer();
-
-    void setRandomEngine(CLHEP::HepRandomEngine* v);
 
   private:
 	bool call_ki_bhg_init(long& seed);
@@ -38,10 +31,8 @@ namespace edm
 
   private:
 
-    virtual void produce(Event & e, const EventSetup & es) override;
-    virtual void endRunProduce(Run & r, const EventSetup & es) override;
-    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override { }
+    virtual void produce(Event & e, const EventSetup & es);
+    virtual void endRunProduce(Run & r, const EventSetup & es);
 
     void clear();
 
@@ -55,8 +46,6 @@ namespace edm
 	float EG_MIN_;
 	float EG_MAX_;
 	std::string G3FNAME_;
-
-    bool isInitialized_;
   };
 
 }

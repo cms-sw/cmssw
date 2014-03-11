@@ -7,7 +7,6 @@
 <use name="SimGeneral/HepPDTRecord"/>
 <use name="clhep"/>
 <use name="hepmc"/>
-<use name="GeneratorInterface/Core"/>
 <use name="GeneratorInterface/EvtGenInterface"/>
 <use name="GeneratorInterface/PhotosInterface"/>
 <use name="GeneratorInterface/TauolaInterface"/>

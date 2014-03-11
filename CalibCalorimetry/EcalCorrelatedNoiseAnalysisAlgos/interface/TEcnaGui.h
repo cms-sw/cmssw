@@ -38,14 +38,14 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaGui.h
-///   Update: 05/10/2012
+///   Update: 14/02/2011
 ///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
 ///
 ///   ECNA web page:
 ///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
+///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
 ///-----------------------------------------------------------
 ///
 /// This class provides a dialog box for ECNA (Ecal Correlated Noise Analysis)
@@ -179,20 +179,20 @@
 ///       TEcnaParPaths* pCnaParPaths = new TEcnaParPaths(MyEcnaObjectManager);
 ///       if( pCnaParPaths->GetPaths() == kTRUE )
 ///         {
-///           std::cout << "*EcnaGuiEB> Starting ROOT session" << std::endl;
+///           cout << "*EcnaGuiEB> Starting ROOT session" << endl;
 ///           TRint theApp("App", &argc, argv);
 ///           
-///           std::cout << "*EcnaGuiEB> Starting ECNA session" << std::endl;
+///           cout << "*EcnaGuiEB> Starting ECNA session" << endl;
 ///           TEcnaGui* mainWin = new TEcnaGui(MyEcnaObjectManager, "EB", gClient->GetRoot(), 395, 710);
 ///           mainWin->DialogBox();
 ///           Bool_t retVal = kTRUE;
 ///           theApp.Run(retVal);
-///           std::cout << "*EcnaGuiEB> End of ECNA session." << std::endl;
+///           cout << "*EcnaGuiEB> End of ECNA session." << endl;
 ///           delete mainWin;
 ///     
-///           std::cout << "*EcnaGuiEB> End of ROOT session." << std::endl;
+///           cout << "*EcnaGuiEB> End of ROOT session." << endl;
 ///           theApp.Terminate(0);
-///           std::cout << "*EcnaGuiEB> Exiting main program." << std::endl;
+///           cout << "*EcnaGuiEB> Exiting main program." << endl;
 ///           exit(0);
 ///         }
 ///     }
@@ -204,8 +204,7 @@
 ///
 ///   Location of the ECNA web page:
 ///
-///   http://cms-fabbro.web.cern.ch/cms-fabbro/
-///   cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
+///   http://cms-fabbro.web.cern.ch/cms-fabbro/cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
 ///
 ///   For questions or comments, please send e-mail to: bernard.fabbro@cea.fr 
 ///
@@ -973,7 +972,6 @@ class TEcnaGui : public TGMainFrame {
   virtual  ~TEcnaGui();
 
   void Init();
-  void InitGuiParameters();
   void DialogBox();
 
   void InitKeys();

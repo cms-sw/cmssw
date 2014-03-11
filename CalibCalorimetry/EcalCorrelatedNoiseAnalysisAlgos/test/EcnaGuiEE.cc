@@ -34,20 +34,20 @@ int main(int argc, char **argv)
   TEcnaParPaths* pCnaParPaths = new TEcnaParPaths(MyEcnaObjectManager);
   if( pCnaParPaths->GetPaths() == kTRUE )
     {
-      std::cout << "*EcnaGuiEE> Starting ROOT session" << std::endl;
+      cout << "*EcnaGuiEE> Starting ROOT session" << endl;
       TRint theApp("App", &argc, argv);
       
-      std::cout << "*EcnaGuiEE> Starting ECNA session" << std::endl;
+      cout << "*EcnaGuiEE> Starting ECNA session" << endl;
       TEcnaGui* mainWin = new TEcnaGui(MyEcnaObjectManager, "EE", gClient->GetRoot(), 395, 710);
       mainWin->DialogBox();
       Bool_t retVal = kTRUE;
       theApp.Run(retVal);
-      std::cout << "*EcnaGuiEE> End of ECNA session." << std::endl;
+      cout << "*EcnaGuiEE> End of ECNA session." << endl;
       delete mainWin;
       
-      std::cout << "*EcnaGuiEE> End of ROOT session." << std::endl;
+      cout << "*EcnaGuiEE> End of ROOT session." << endl;
       theApp.Terminate(0);
-      std::cout << "*EcnaGuiEE> Exiting main program." << std::endl;
+      cout << "*EcnaGuiEE> Exiting main program." << endl;
       exit(0);
     }
 }

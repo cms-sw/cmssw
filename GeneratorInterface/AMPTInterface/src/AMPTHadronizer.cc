@@ -7,6 +7,10 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
 #include "GeneratorInterface/AMPTInterface/interface/AMPTHadronizer.h"
 #include "GeneratorInterface/AMPTInterface/interface/AMPTWrapper.h"
@@ -26,14 +30,14 @@ using namespace edm;
 using namespace std;
 using namespace gen;
 
-static CLHEP::HepRandomEngine* amptRandomEngine;
+CLHEP::HepRandomEngine* _amptRandomEngine;
 
 extern "C"
 {
   float gen::ranart_(int *idummy)
   {
     if(0) idummy = idummy; 
-    float rannum = amptRandomEngine->flat();
+    float rannum = _amptRandomEngine->flat();
     return rannum;
   }
 }
@@ -43,7 +47,7 @@ extern "C"
   float gen::ran1_(int *idummy)
   {
     if(0) idummy = idummy;
-    return amptRandomEngine->flat();
+    return _amptRandomEngine->flat();
   }
 }
 
@@ -96,17 +100,15 @@ AMPTHadronizer::AMPTHadronizer(const ParameterSet &pset) :
     cosphi0_(1.),
     rotate_(pset.getParameter<bool>("rotateEventPlane"))
 {
+  // Default constructor
+  edm::Service<RandomNumberGenerator> rng;
+  _amptRandomEngine = &(rng->getEngine());
 }
+
 
 //_____________________________________________________________________
 AMPTHadronizer::~AMPTHadronizer()
 {
-}
-
-//_____________________________________________________________________
-void AMPTHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v)
-{
-  amptRandomEngine = v;
 }
 
 //_____________________________________________________________________

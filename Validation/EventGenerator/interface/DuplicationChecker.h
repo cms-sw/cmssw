@@ -23,7 +23,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -36,7 +35,8 @@
 
 #include "Validation/EventGenerator/interface/WeightManager.h"
 
-class DuplicationChecker : public DQMEDAnalyzer {
+class DuplicationChecker : public edm::EDAnalyzer
+{
   
  public:
 
@@ -45,10 +45,11 @@ class DuplicationChecker : public DQMEDAnalyzer {
 
   explicit DuplicationChecker(const edm::ParameterSet&);
   virtual ~DuplicationChecker();
-
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-
+  void beginJob();
+  void endJob();  
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&){ return;}
+  virtual void endRun(const edm::Run&, const edm::EventSetup&){ return;}
   void findValuesAssociatedWithKey(associationMap &mMap, double &key, itemList &theObjects);  
   
  private:
@@ -61,6 +62,8 @@ class DuplicationChecker : public DQMEDAnalyzer {
 
   associationMap xBjorkenHistory;
 	
+  DQMStore *dbe;
+
   MonitorElement* xBjorkenME;
 
   edm::EDGetTokenT<LHEEventProduct> lheEventProductToken_;

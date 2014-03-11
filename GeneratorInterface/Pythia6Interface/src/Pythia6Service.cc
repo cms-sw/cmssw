@@ -18,6 +18,8 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
+
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 // #include "GeneratorInterface/Core/interface/ParameterCollector.h"
@@ -81,7 +83,7 @@ Pythia6Service::Pythia6Service()
 }
 
 Pythia6Service::Pythia6Service( const ParameterSet& ps )
-  : fRandomEngine(nullptr), fUnitSLHA(24), fUnitPYUPDA(25)
+  : fRandomEngine(&getEngineReference()), fUnitSLHA(24), fUnitPYUPDA(25)
 {
    if (fPythia6Owner)
       throw cms::Exception("PythiaError") <<

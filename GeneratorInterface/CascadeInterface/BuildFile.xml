@@ -1,5 +1,4 @@
 <use   name="boost"/>
-<use   name="FWCore/Concurrency"/>
 <use   name="FWCore/Framework"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="GeneratorInterface/Core"/>

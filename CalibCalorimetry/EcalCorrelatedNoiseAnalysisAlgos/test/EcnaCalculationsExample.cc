@@ -31,12 +31,7 @@ int main ( int argc, char **argv )
   Int_t   fKeyNbOfSamples =    10;      // Number of required samples
 
   TEcnaObject* myTEcnaManager = new TEcnaObject();
-  
-  std::cout << "!EcnaCalculationsExample> CONTROLE 1" << std::endl;
-
   TEcnaRun* MyRunEB = new TEcnaRun(myTEcnaManager, "EB", fKeyNbOfSamples);       xCnew++;
-  
-  std::cout << "!EcnaCalculationsExample> CONTROLE 2" << std::endl;
 
   //.............. Declarations and default values
 
@@ -47,14 +42,11 @@ int main ( int argc, char **argv )
   Int_t   fKeyLastEvt     =      0;      // Last Event number  (to be analyzed)
   Int_t   fKeyNbOfEvts    =    150;      // Number of events (events to be analyzed)
   Int_t   fKeySuMoNumber  =     18;      // Super-module number (EB)
-
-
+  
   MyRunEB->GetReadyToReadData(fKeyAnaType.Data(),  fKeyRunNumber,
 			      fKeyFirstEvt,        fKeyLastEvt,  fKeyNbOfEvts, fKeySuMoNumber);
 
   Bool_t ok_read = MyRunEB->ReadSampleAdcValues();
-
-
   
   if( ok_read == kTRUE )
     {
@@ -75,36 +67,36 @@ int main ( int argc, char **argv )
 
       if( ok_root_file == kTRUE )
 	{
-	  std::cout << "*EcnaCalculationsExample> Write ROOT file OK" << std::endl;
+	  cout << "*EcnaCalculationsExample> Write ROOT file OK" << endl;
 	}
       else 
 	{
-	  std::cout << "!EcnaCalculationsExample> Writing ROOT file failure."
-	       << fTTBELL << std::endl;
+	  cout << "!EcnaCalculationsExample> Writing ROOT file failure."
+	       << fTTBELL << endl;
 	}
     }
   else
     {
-      std::cout << "!EcnaCalculationsExample> ROOT file not found."
-	   << fTTBELL << std::endl;
+      cout << "!EcnaCalculationsExample> ROOT file not found."
+	   << fTTBELL << endl;
     }
   //.......................................................................
 
   delete MyRunEB;                          xCdelete++;
 
-      std::cout << "*H4Cna(main)> End of the example."  << std::endl;
+      cout << "*H4Cna(main)> End of the example."  << endl;
 
   if ( xCnew != xCdelete )
     {
-      std::cout << "!H4Cna(main)> WRONG MANAGEMENT OF ALLOCATIONS: xCnew = "
-	   << xCnew << ", xCdelete = " << xCdelete << '\007' << std::endl;
+      cout << "!H4Cna(main)> WRONG MANAGEMENT OF ALLOCATIONS: xCnew = "
+	   << xCnew << ", xCdelete = " << xCdelete << '\007' << endl;
     }
   else
     {
-      //  std::cout << "*H4Cna(main)> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: xCnew = "
-      //      << xCnew << ", xCdelete = " << xCdelete << std::endl;
+      //  cout << "*H4Cna(main)> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: xCnew = "
+      //      << xCnew << ", xCdelete = " << xCdelete << endl;
     }
 
-  std::cout << "*EcnaCalculationsExample> Exiting main program." << std::endl;
+  cout << "*EcnaCalculationsExample> Exiting main program." << endl;
   exit(0);
 }

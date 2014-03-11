@@ -1,8 +1,9 @@
 //----------Author's Name: B.Fabbro, F.X.Gentit + EB table from P.Jarry  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA software
-//----------Modified:28/01/2014
+//----------Modified:30/06/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
+using namespace std;
 
 //--------------------------------------
 //  TEcnaNumbering.cc
@@ -34,7 +35,7 @@ ClassImp(TEcnaNumbering)
 TEcnaNumbering::TEcnaNumbering() {
 // Constructor without argument: call to method Init()
 
-//  std::cout << "[Info Management] CLASS: TEcnaNumbering.    CREATE OBJECT: this = " << this << std::endl;
+//  cout << "[Info Management] CLASS: TEcnaNumbering.    CREATE OBJECT: this = " << this << endl;
 
   Init();
 }
@@ -42,7 +43,7 @@ TEcnaNumbering::TEcnaNumbering() {
 TEcnaNumbering::TEcnaNumbering(TEcnaObject* pObjectManager, const TString& SubDet) {
 // Constructor with argument: call to methods Init() and SetEcalSubDetector(const TString&)
 
- // std::cout << "[Info Management] CLASS: TEcnaNumbering.    CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNumbering.    CREATE OBJECT: this = " << this << endl;
 
   Init();
   Long_t i_this = (Long_t)this;
@@ -63,7 +64,7 @@ TEcnaNumbering::TEcnaNumbering(TEcnaObject* pObjectManager, const TString& SubDe
 TEcnaNumbering::TEcnaNumbering(const TString& SubDet, const TEcnaParEcal* pEcal) {
 // Constructor with argument: call to methods Init() and SetEcalSubDetector(const TString&)
 
- // std::cout << "[Info Management] CLASS: TEcnaNumbering.    CREATE OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNumbering.    CREATE OBJECT: this = " << this << endl;
 
   Init();
   SetEcalSubDetector(SubDet.Data(), pEcal);
@@ -102,7 +103,7 @@ TEcnaNumbering::~TEcnaNumbering() {
   if (fT2d_RecovDeeSC != 0){delete [] fT2d_RecovDeeSC; fCdelete++;}
   if (fT1d_RecovDeeSC != 0){delete [] fT1d_RecovDeeSC; fCdelete++;}
 
- // std::cout << "[Info Management] CLASS: TEcnaNumbering.    DESTROY OBJECT: this = " << this << std::endl;
+ // cout << "[Info Management] CLASS: TEcnaNumbering.    DESTROY OBJECT: this = " << this << endl;
 
 }
 //------------------------------------------------------------- Init()
@@ -112,7 +113,7 @@ void TEcnaNumbering::Init()
 
   //.............................. Initialisations
   fTTBELL  = '\007';
-  fgMaxCar = (Int_t)512;
+  fgMaxCar = 512;
 
   //....................... Barrel
   fT2dSMCrys  = 0;
@@ -321,7 +322,7 @@ void TEcnaNumbering::BuildBarrelCrysTable()
 	      fT1dTowEcha[n1SMCrys-1] = ic-1;          // fT1dTowEcha[] : range = [0,24]
 	    }
 	}
-      // std::cout << "#TEcnaNumbering::TBuildBarrelCrysTable()> Crys Table Building done" << std::endl;
+      // cout << "#TEcnaNumbering::TBuildBarrelCrysTable()> Crys Table Building done" << endl;
 
       delete [] jch_type;                       fCdelete++;
       delete [] jch_type_d1;                    fCdelete++;
@@ -331,7 +332,7 @@ void TEcnaNumbering::BuildBarrelCrysTable()
     }
   else
     {
-      // std::cout << "#TEcnaNumbering::TBuildBarrelCrysTable()> No Building of Crys Table since it is already done." << std::endl;
+      // cout << "#TEcnaNumbering::TBuildBarrelCrysTable()> No Building of Crys Table since it is already done." << endl;
     }
 }
 
@@ -360,15 +361,15 @@ Int_t TEcnaNumbering::Get1SMCrysFrom1SMTowAnd0TowEcha(const Int_t& n1SMTow,
       else
 	{
 	  n1SMCrys = -2;   // Electronic Cnannel in Tower out of range 
-	  std::cout << "!TEcnaNumbering::Get1SMCrysFrom1SMTowAnd0TowEcha(...)> Electronic Channel in Tower out of range."
-	       << " i0TowEcha = " << i0TowEcha << "(n1SMTow = " << n1SMTow << ")" << fTTBELL << std::endl;
+	  cout << "!TEcnaNumbering::Get1SMCrysFrom1SMTowAnd0TowEcha(...)> Electronic Channel in Tower out of range."
+	       << " i0TowEcha = " << i0TowEcha << "(n1SMTow = " << n1SMTow << ")" << fTTBELL << endl;
 	}
     }
   else
     {
       n1SMCrys = -3;   // Tower number in SM out of range
-      std::cout << "!TEcnaNumbering::Get1SMCrysFrom1SMTowAnd0TowEcha(...)> Tower number in SM out of range."
-	   << " n1SMTow = " << n1SMTow << "(i0TowEcha = " << i0TowEcha << ")" << fTTBELL << std::endl;
+      cout << "!TEcnaNumbering::Get1SMCrysFrom1SMTowAnd0TowEcha(...)> Tower number in SM out of range."
+	   << " n1SMTow = " << n1SMTow << "(i0TowEcha = " << i0TowEcha << ")" << fTTBELL << endl;
     }
 
   return n1SMCrys;   // Range = [1,1700]
@@ -393,8 +394,8 @@ Int_t TEcnaNumbering::Get0TowEchaFrom1SMCrys(const Int_t& n1SMCrys)
   else
     {
       i0TowEcha = -2;
-      std::cout << "!TEcnaNumbering::Get0TowEchaFrom1SMCrys(...)> Crystal number in SM out of range."
-	   << " n1SMCrys = " << n1SMCrys << fTTBELL << std::endl;
+      cout << "!TEcnaNumbering::Get0TowEchaFrom1SMCrys(...)> Crystal number in SM out of range."
+	   << " n1SMCrys = " << n1SMCrys << fTTBELL << endl;
     }
   return i0TowEcha;   // range = [0,24]
 }
@@ -412,8 +413,8 @@ Int_t TEcnaNumbering::Get1SMTowFrom1SMCrys(const Int_t& n1SMCrys)
   else
     {
       n1SMtox = -1;
-      std::cout << "!TEcnaNumbering::Get1SMTowFrom1SMCrys(...)> Crystal number in SM out of range."
-	   << " n1SMCrys = " << n1SMCrys << fTTBELL << std::endl;
+      cout << "!TEcnaNumbering::Get1SMTowFrom1SMCrys(...)> Crystal number in SM out of range."
+	   << " n1SMCrys = " << n1SMCrys << fTTBELL << endl;
     }
   return n1SMtox;   // range = [1,68]
 }
@@ -545,9 +546,9 @@ Double_t TEcnaNumbering::GetEta(const Int_t& n1EBSM, const Int_t& n1SMTow,
     }
   else
     {
-      std::cout << "TEcnaNumbering::GetEta(...)> SM = " << n1EBSM
+      cout << "TEcnaNumbering::GetEta(...)> SM = " << n1EBSM
 	   << ". Out of range (range = [1," << fEcal->MaxSMInEB() << "])" 
-	   << fTTBELL << std::endl; 
+	   << fTTBELL << endl; 
     }
   return eta;
 }
@@ -738,9 +739,9 @@ Double_t TEcnaNumbering::GetPhiInSM(const Int_t& n1EBSM,
     }
   else
     {
-      std::cout << "TEcnaNumbering::GetPhiInSM(...)> SM = " << n1EBSM
+      cout << "TEcnaNumbering::GetPhiInSM(...)> SM = " << n1EBSM
 	   << ". Out of range (range = [1," << fEcal->MaxSMInEB() << "])" 
-	   << fTTBELL << std::endl; 
+	   << fTTBELL << endl; 
     }
   phi_in_SM = 20 - phi_in_SM;
   return phi_in_SM;
@@ -762,9 +763,9 @@ Double_t TEcnaNumbering::GetPhi(const Int_t& n1EBSM,
     }
   else
     {
-      std::cout << "TEcnaNumbering::GetPhi(...)> SM = " << n1EBSM
+      cout << "TEcnaNumbering::GetPhi(...)> SM = " << n1EBSM
 	   << ". Out of range (range = [1," << fEcal->MaxSMInEB() << "])" 
-	   << fTTBELL << std::endl; 
+	   << fTTBELL << endl; 
     }
   return phi;
 }
@@ -1176,14 +1177,14 @@ void TEcnaNumbering::BuildEndcapCrysTable()
 		}
 	    }
 	}
-      // std::cout << "#TEcnaNumbering::TBuildEndcapCrysTable()> Crys Table Building done" << std::endl;
+      // cout << "#TEcnaNumbering::TBuildEndcapCrysTable()> Crys Table Building done" << endl;
 
       delete [] type;                           fCdelete++;
       delete [] type_d1;                        fCdelete++;
     }
   else
     {
-      // std::cout << "#TEcnaNumbering::TBuildEndcapCrysTable()> No Building of Crys Table since it is already done " << std::endl;
+      // cout << "#TEcnaNumbering::TBuildEndcapCrysTable()> No Building of Crys Table since it is already done " << endl;
     }
 }
 
@@ -1809,15 +1810,15 @@ Int_t TEcnaNumbering::Get1DeeCrysFrom1DeeSCEcnaAnd0SCEcha(const Int_t&  n1DeeSCE
       else
 	{
 	  n1DeeCrys = -2;   // Electronic Cnannel in Super-Crystal out of range
-	  std::cout << "!TEcnaNumbering::Get1DeeCrysFrom1DeeSCEcnaAnd0SCEcha(...)> Electronic Channel in SuperCrystal = "
-	       << i0SCEcha+1 << ". Out of range (range = [1," << fEcal->MaxCrysInSC() << "])" << fTTBELL << std::endl;
+	  cout << "!TEcnaNumbering::Get1DeeCrysFrom1DeeSCEcnaAnd0SCEcha(...)> Electronic Channel in SuperCrystal = "
+	       << i0SCEcha+1 << ". Out of range (range = [1," << fEcal->MaxCrysInSC() << "])" << fTTBELL << endl;
 	}
     }
   else
     {
       n1DeeCrys = -3;   // Super-Crystal number in Dee out of range
-      std::cout << "!TEcnaNumbering::Get1DeeCrysFrom1DeeSCEcnaAnd0SCEcha(...)> Super-Crystal number in Dee out of range."
-	   << " n1DeeSCEcna = " << n1DeeSCEcna << fTTBELL << std::endl;
+      cout << "!TEcnaNumbering::Get1DeeCrysFrom1DeeSCEcnaAnd0SCEcha(...)> Super-Crystal number in Dee out of range."
+	   << " n1DeeSCEcna = " << n1DeeSCEcna << fTTBELL << endl;
     }
 
   return n1DeeCrys;  // Range = [1,5000]
@@ -1843,8 +1844,8 @@ Int_t TEcnaNumbering::Get1SCEchaFrom1DeeCrys(const Int_t& n1DeeCrys, const TStri
   else
     {
       n1SCEcha = -2;
-      std::cout << "!TEcnaNumbering::Get1SCEchaFrom1DeeCrys(...)> Crystal number in Dee out of range."
-	   << " n1DeeCrys = " << n1DeeCrys << "(max = " << fEcal->MaxCrysEcnaInDee() << ")" << fTTBELL << std::endl;
+      cout << "!TEcnaNumbering::Get1SCEchaFrom1DeeCrys(...)> Crystal number in Dee out of range."
+	   << " n1DeeCrys = " << n1DeeCrys << "(max = " << fEcal->MaxCrysEcnaInDee() << ")" << fTTBELL << endl;
     }
   return n1SCEcha;   // range = [1,25]
 }
@@ -1863,8 +1864,8 @@ Int_t TEcnaNumbering::Get1DeeSCEcnaFrom1DeeCrys(const Int_t& n1DeeCrys, const TS
   else
     {
       n1DeeSCEcna = -1;
-      std::cout << "!TEcnaNumbering::Get1DeeSCEcnaFrom1DeeCrys(...)> Crystal number in Dee out of range."
-	   << " n1DeeCrys = " << n1DeeCrys << "(max = " << fEcal->MaxCrysEcnaInDee() << ")" << fTTBELL << std::endl;
+      cout << "!TEcnaNumbering::Get1DeeSCEcnaFrom1DeeCrys(...)> Crystal number in Dee out of range."
+	   << " n1DeeCrys = " << n1DeeCrys << "(max = " << fEcal->MaxCrysEcnaInDee() << ")" << fTTBELL << endl;
     }
   return n1DeeSCEcna;  // range = [1,200]
 }
@@ -1920,24 +1921,24 @@ Int_t TEcnaNumbering::GetDSFrom1DeeSCEcna(const Int_t& n1DeeNumber, const Int_t&
 	}
       else
 	{
-	  std::cout << "!TEcnaNumbering::GetDSFrom1DeeSCEcna(...)> n1DeeSCEcna = " << n1DeeSCEcna
+	  cout << "!TEcnaNumbering::GetDSFrom1DeeSCEcna(...)> n1DeeSCEcna = " << n1DeeSCEcna
 	       << ". Out of range ( range = [1," << fEcal->MaxSCEcnaInDee() << "] )"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
     }
   else
     {
       if( n1DeeNumber != 0 )
 	{
-	  std::cout << "!TEcnaNumbering::GetDSFrom1DeeSCEcna(...)> n1DeeNumber = " << n1DeeNumber 
+	  cout << "!TEcnaNumbering::GetDSFrom1DeeSCEcna(...)> n1DeeNumber = " << n1DeeNumber 
 	       << ". Out of range ( range = [1," << fEcal->MaxDeeInEE() << "] )"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
       else
 	{
-	  std::cout << "TEcnaNumbering::GetDSFrom1DeeSCEcna(...)> Dee = " << n1DeeNumber
+	  cout << "TEcnaNumbering::GetDSFrom1DeeSCEcna(...)> Dee = " << n1DeeNumber
 	       << ". Out of range (range = [1," << fEcal->MaxDeeInEE() << "])" 
-	       << fTTBELL << std::endl; 
+	       << fTTBELL << endl; 
 	}
     }
   return data_sector;
@@ -1979,24 +1980,24 @@ Int_t TEcnaNumbering::GetDSSCFrom1DeeSCEcna(const Int_t& n1DeeNumber, const Int_
 	}
       else
 	{
-	  std::cout << "!TEcnaNumbering::GetDSSCFrom1DeeSCEcna(...)> n1DeeSCEcna = " << n1DeeSCEcna
+	  cout << "!TEcnaNumbering::GetDSSCFrom1DeeSCEcna(...)> n1DeeSCEcna = " << n1DeeSCEcna
 	       << ". Out of range ( range = [1," << fEcal->MaxSCEcnaInDee() << "] )"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
     }
   else
     {
       if( n1DeeNumber != 0 )
 	{
-	  std::cout << "!TEcnaNumbering::GetDSSCFrom1DeeSCEcna(...)> n1DeeNumber = " << n1DeeNumber 
+	  cout << "!TEcnaNumbering::GetDSSCFrom1DeeSCEcna(...)> n1DeeNumber = " << n1DeeNumber 
 	       << ". Out of range ( range = [1," << fEcal->MaxDeeInEE() << "] )"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
       else
 	{
-	  std::cout << "TEcnaNumbering::GetDSSCFrom1DeeSCEcna(...)> Dee = " << n1DeeNumber
+	  cout << "TEcnaNumbering::GetDSSCFrom1DeeSCEcna(...)> Dee = " << n1DeeNumber
 	       << ". Out of range (range = [1," << fEcal->MaxDeeInEE() << "])" 
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
     }
   return ds_sc;
@@ -2016,9 +2017,9 @@ Int_t TEcnaNumbering::GetDeeSCConsFrom1DeeSCEcna(const Int_t& n1DeeNumber, const
 	}
       else
 	{
-	  std::cout << "!TEcnaNumbering::GetDeeSCConsFrom1DeeSCEcna(...)> *** WARNING *** n1DeeSCEcna = " << n1DeeSCEcna
+	  cout << "!TEcnaNumbering::GetDeeSCConsFrom1DeeSCEcna(...)> *** WARNING *** n1DeeSCEcna = " << n1DeeSCEcna
 	       << ". Out of range ( range = [1," << fEcal->MaxSCEcnaInDee()
-	       << "] ). Nb for const. forced to " << fT2d_DeeSCCons[n1DeeNumber-1][19] << "." << std::endl;
+	       << "] ). Nb for const. forced to " << fT2d_DeeSCCons[n1DeeNumber-1][19] << "." << endl;
 	  dee_sc_cons = fT2d_DeeSCCons[n1DeeNumber-1][19];
 	}
     }
@@ -2026,15 +2027,15 @@ Int_t TEcnaNumbering::GetDeeSCConsFrom1DeeSCEcna(const Int_t& n1DeeNumber, const
     {
       if( n1DeeNumber != 0 )
 	{
-	  std::cout << "!TEcnaNumbering::GetDeeSCConsFrom1DeeSCEcna(...)> n1DeeNumber = " << n1DeeNumber 
+	  cout << "!TEcnaNumbering::GetDeeSCConsFrom1DeeSCEcna(...)> n1DeeNumber = " << n1DeeNumber 
 	       << ". Out of range ( range = [1," << fEcal->MaxDeeInEE() << "] )"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
       else
 	{
-	  std::cout << "TEcnaNumbering::GetDeeSCConsFrom1DeeSCEcna(...)> Dee = " << n1DeeNumber
+	  cout << "TEcnaNumbering::GetDeeSCConsFrom1DeeSCEcna(...)> Dee = " << n1DeeNumber
 	       << ". Out of range (range = [1," << fEcal->MaxDeeInEE() << "])" 
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
     }
   return dee_sc_cons;
@@ -2080,25 +2081,25 @@ Int_t TEcnaNumbering::Get1DeeSCEcnaFromDeeSCCons(const Int_t& n1DeeNumber, const
 	}
       else
 	{
-	  std::cout << "!TEcnaNumbering::Get1DeeSCEcnaFromDeeSCCons(...)> DeeSCCons = " << DeeSCCons
+	  cout << "!TEcnaNumbering::Get1DeeSCEcnaFromDeeSCCons(...)> DeeSCCons = " << DeeSCCons
 	       << ". Out of range ( range = [ " << off_set_cons+1
 	       << "," << fEcal->MaxSCForConsInDee()+off_set_cons << "] )"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
     }
   else
     {
       if( n1DeeNumber != 0 )
 	{
-	  std::cout << "!TEcnaNumbering::Get1DeeSCEcnaFromDeeSCCons(...)> n1DeeNumber = " << n1DeeNumber 
+	  cout << "!TEcnaNumbering::Get1DeeSCEcnaFromDeeSCCons(...)> n1DeeNumber = " << n1DeeNumber 
 	       << ". Out of range ( range = [1," << fEcal->MaxDeeInEE() << "] )"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
       else
 	{
-	  std::cout << "TEcnaNumbering::Get1DeeSCEcnaFromDeeSCCons(...)> Dee = " << n1DeeNumber
+	  cout << "TEcnaNumbering::Get1DeeSCEcnaFromDeeSCCons(...)> Dee = " << n1DeeNumber
 	       << ". Out of range (range = [1," << fEcal->MaxDeeInEE() << "])" 
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
     }
   return dee_sc_ecna;
@@ -2473,10 +2474,10 @@ Int_t TEcnaNumbering::Get0StexEchaFrom1StexStinAnd0StinEcha(const Int_t& n1StexS
     {StexEcha = (n1StexStin-1)*fEcal->MaxCrysInStin() + i0StinEcha;}
   else
     {
-      std::cout << "!TEcnaNumbering::Get0StexEchaFrom1StexStinAnd0StinEcha *** ERROR ***> VALUE"
+      cout << "!TEcnaNumbering::Get0StexEchaFrom1StexStinAnd0StinEcha *** ERROR ***> VALUE"
 	   << " OUT OF RANGE. Forced to -1. Argument values: n1StexStin = " << n1StexStin
 	   << ", channel = " << i0StinEcha
-	   << fTTBELL << std::endl;
+	   << fTTBELL << endl;
     }
   return StexEcha;
 }
@@ -2631,8 +2632,8 @@ Int_t TEcnaNumbering::MaxCrysInStinEcna(const Int_t& n1DeeNumber, const Int_t& n
 	}
       else
 	{
-	  std::cout << "!TEcnaNumbering::MaxCrysInStinEcna(...)> " << s_option
-	       << ": unknown option." << fTTBELL << std::endl;
+	  cout << "!TEcnaNumbering::MaxCrysInStinEcna(...)> " << s_option
+	       << ": unknown option." << fTTBELL << endl;
 	}
     }
   return max_crys;

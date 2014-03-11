@@ -9,6 +9,7 @@
  */
 
 // framework & common header files
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -22,8 +23,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -31,13 +30,16 @@
 
 #include "Validation/EventGenerator/interface/WeightManager.h"
 
-class BasicHepMCHeavyIonValidation : public DQMEDAnalyzer {
+class BasicHepMCHeavyIonValidation : public edm::EDAnalyzer
+{
 	public:
 		explicit BasicHepMCHeavyIonValidation(const edm::ParameterSet&);
 		virtual ~BasicHepMCHeavyIonValidation();
-
-		virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-		virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+		virtual void beginJob();
+		virtual void endJob();  
+		virtual void analyze(const edm::Event&, const edm::EventSetup&);
+		virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+		virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
 	private:
 		WeightManager wmanager_;
@@ -46,6 +48,9 @@ class BasicHepMCHeavyIonValidation : public DQMEDAnalyzer {
 
 		/// PDT table
 		//edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
+
+		///ME's "container"
+		DQMStore *dbe;
 
 		MonitorElement* nEvt;
 

@@ -134,6 +134,7 @@ class BeamFitter {
   }
  private:
 
+  const char * formatBTime( const std::time_t &);
   // Update the fbeginTimeOfFit etc from the refTime
   void updateBTime();
   std::vector<BSTrkParameters> fBSvector;

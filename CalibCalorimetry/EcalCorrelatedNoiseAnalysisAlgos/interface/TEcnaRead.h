@@ -24,14 +24,14 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaRead.h
-///   Update: 05/05/2012
+///   Update: 15/02/2011
 ///   Authors:   B.Fabbro (bernard.fabbro@cea.fr), FX Gentit
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
 ///
 ///   ECNA web page:
 ///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
+///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
 ///-----------------------------------------------------------
 ///
 ///==============> INTRODUCTION
@@ -96,7 +96,7 @@
 ///
 ///     if( MyCnaRead->LookAtRootFile() == kFALSE )
 ///        {
-///          std::cout << "*** ERROR: ROOT file not found" << std::endl;
+///          cout << "*** ERROR: ROOT file not found" << endl;
 ///        }
 ///      else
 ///        {
@@ -122,7 +122,7 @@
 ///             }
 ///           else
 ///             {
-///               std::cout << "problem while reading file. data not available. " << std::endl;
+///               cout << "problem while reading file. data not available. " << endl;
 ////            }
 ///
 ///        }

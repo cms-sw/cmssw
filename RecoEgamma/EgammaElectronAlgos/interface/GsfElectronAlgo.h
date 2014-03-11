@@ -101,8 +101,7 @@ class GsfElectronAlgo {
       // for backward compatibility
       bool ctfTracksCheck ;
       bool gedElectronMode;
-      float PreSelectMVA;	
-      float MaxElePtForOnlyMVA;
+      float PreSelectMVA;		
       // GED-Regression (ECAL and combination)
       bool useEcalRegression;
       bool useCombinationRegression;  

@@ -4,7 +4,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "GeneratorInterface/ExhumeInterface/interface/Event.h"
-#include "CLHEP/Random/RandomEngine.h"
+#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
+
 //////////////////////////////////////////////////////////////////////////////
 Exhume::Event::Event(CrossSection &Process_, CLHEP::HepRandomEngine* engine){
 

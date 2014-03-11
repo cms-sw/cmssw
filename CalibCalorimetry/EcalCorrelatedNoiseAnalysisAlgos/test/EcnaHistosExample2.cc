@@ -32,7 +32,7 @@ int main ( int argc, char **argv )
   //                      Init
   //--------------------------------------------------------------------
   
-  std::cout << "*EcalCorrelatedNoiseExampleHistos> Starting ROOT session" << std::endl;
+  cout << "*EcalCorrelatedNoiseExampleHistos> Starting ROOT session" << endl;
   TRint theApp("App", &argc, argv);
 
   TString    fTTBELL = "\007";
@@ -116,8 +116,8 @@ int main ( int argc, char **argv )
 	}
       else
 	{
-	  std::cout  << "!EcnaHistosExample2> *ERROR* =====> "
-		<< " ROOT file not found" << fTTBELL << std::endl;
+	  cout  << "!EcnaHistosExample2> *ERROR* =====> "
+		<< " ROOT file not found" << fTTBELL << endl;
 	}
 
 #endif //  HGLO
@@ -143,8 +143,8 @@ int main ( int argc, char **argv )
 	}
       else
 	{
-	  std::cout  << "!EcnaHistosExample2> *ERROR* =====> "
-		<< " ROOT file not found" << fTTBELL << std::endl;
+	  cout  << "!EcnaHistosExample2> *ERROR* =====> "
+		<< " ROOT file not found" << fTTBELL << endl;
 	}
 #endif // HBAE 
 
@@ -168,8 +168,8 @@ int main ( int argc, char **argv )
 	}
       else
 	{
-	  std::cout  << "!EcnaHistosExample2> *ERROR* =====> "
-		<< " ROOT file not found" << fTTBELL << std::endl;
+	  cout  << "!EcnaHistosExample2> *ERROR* =====> "
+		<< " ROOT file not found" << fTTBELL << endl;
 	}
 #endif // PMCC
 
@@ -192,25 +192,25 @@ int main ( int argc, char **argv )
 
 	  MyHistosEB->FileParameters(fMyRootFileEB);
 
-	  std::cout << "EcnahistosExample2> *************** Plot1DHisto 1 crystal ONLYONE  ******************" << std::endl;
+	  cout << "EcnahistosExample2> *************** Plot1DHisto 1 crystal ONLYONE  ******************" << endl;
 	  TowEcha = 12;
 	  read_histo_2 = fMyRootFileEB->Read1DHisto(fEcalParEB->MaxCrysInTow()*fEcalParEB->MaxSampADC(),
 						    "SigmaOfSamples", SMtower);
 
-	  std::cout << "*EcnaHistosExample2> channel " << std::setw(2) << TowEcha << ": ";
+	  cout << "*EcnaHistosExample2> channel " << setw(2) << TowEcha << ": ";
 	  for( Int_t i0_samp=0; i0_samp<fEcalParEB->MaxSampADC(); i0_samp++ )
 	    {
 	      read_histo_samps(i0_samp) = read_histo_2(TowEcha*fEcalParEB->MaxSampADC()+i0_samp);
-	      std::cout << std::setprecision(4) << std::setw(8) << read_histo_samps(i0_samp) << ", " ;
+	      cout << setprecision(4) << setw(8) << read_histo_samps(i0_samp) << ", " ;
 	    }
-	  std::cout << std::endl;
+	  cout << endl;
 
 	  MyHistosEB->Plot1DHisto(read_histo_samps, "Sample", "SSp", SMtower, TowEcha);
       
-	  std::cout << "EcnahistosExample2> ***************** Plot1DHisto 1 crystal ONLYONE  ****************" << std::endl;
+	  cout << "EcnahistosExample2> ***************** Plot1DHisto 1 crystal ONLYONE  ****************" << endl;
 	  MyHistosEB->Plot1DHisto("Sample", "SSp", SMtower,  TowEcha);
       
-	  std::cout << "EcnahistosExample2> ******************** All Xtals Plot1DHisto **********************" << std::endl;
+	  cout << "EcnahistosExample2> ******************** All Xtals Plot1DHisto **********************" << endl;
 	  SMtower = 59;
 	  read_histo_2 = fMyRootFileEB->Read1DHisto(fEcalParEB->MaxCrysInTow()*fEcalParEB->MaxSampADC(),
 						    "SampleMean", SMtower);
@@ -219,48 +219,48 @@ int main ( int argc, char **argv )
 	  MyHistosEB->SetHistoMin(180.); MyHistosEB->SetHistoMax(220.); 
 	  MyHistosEB->Plot1DHisto(read_histo_2, "Sample#", "SampleMean", SMtower); 
       
-	  std::cout << "EcnahistosExample2> ****************** Plot1DHisto 1 crystal SAME *******************" << std::endl;
+	  cout << "EcnahistosExample2> ****************** Plot1DHisto 1 crystal SAME *******************" << endl;
 
 	  TowEcha = 13;
-	  std::cout << "*EcnaHistosExample2> channel " << std::setw(2) << TowEcha << ": ";
+	  cout << "*EcnaHistosExample2> channel " << setw(2) << TowEcha << ": ";
 	  for( Int_t i0_samp=0; i0_samp<fEcalParEB->MaxSampADC(); i0_samp++ )
 	    {
 	      read_histo_samps(i0_samp) = read_histo_2(TowEcha*fEcalParEB->MaxSampADC()+i0_samp);
-	      std::cout << std::setprecision(4) << std::setw(8) << read_histo_samps(i0_samp) << ", " ;
+	      cout << setprecision(4) << setw(8) << read_histo_samps(i0_samp) << ", " ;
 	    }
-	  std::cout << std::endl;
+	  cout << endl;
 	  MyHistosEB->SetHistoMin(180.); MyHistosEB->SetHistoMax(220.); 
 	  MyHistosEB->Plot1DHisto(read_histo_samps, "Sample", "SampleMean", SMtower, TowEcha, "SAME");
 
 	  TowEcha = 14;
-	  std::cout << "*EcnaHistosExample2> channel " << std::setw(2) << TowEcha << ": ";
+	  cout << "*EcnaHistosExample2> channel " << setw(2) << TowEcha << ": ";
 	  for( Int_t i0_samp=0; i0_samp<fEcalParEB->MaxSampADC(); i0_samp++ )
 	    {
 	      read_histo_samps(i0_samp) = read_histo_2(TowEcha*fEcalParEB->MaxSampADC()+i0_samp);
-	      std::cout << std::setprecision(4) << std::setw(8) << read_histo_samps(i0_samp) << ", " ;
+	      cout << setprecision(4) << setw(8) << read_histo_samps(i0_samp) << ", " ;
 	    }
-	  std::cout << std::endl;
+	  cout << endl;
 	  MyHistosEB->Plot1DHisto(read_histo_samps, "SampleNumber", "SampleMean", SMtower, TowEcha, "SAME");
 
 	  TowEcha = 15;
-	  std::cout << "*EcnaHistosExample2> channel " << std::setw(2) << TowEcha << ": ";
+	  cout << "*EcnaHistosExample2> channel " << setw(2) << TowEcha << ": ";
 	  for( Int_t i0_samp=0; i0_samp<fEcalParEB->MaxSampADC(); i0_samp++ )
 	    {
 	      read_histo_samps(i0_samp) = read_histo_2(TowEcha*fEcalParEB->MaxSampADC()+i0_samp);
-	      std::cout << std::setprecision(4) << std::setw(8) << read_histo_samps(i0_samp) << ", " ;
+	      cout << setprecision(4) << setw(8) << read_histo_samps(i0_samp) << ", " ;
 	    }
-	  std::cout << std::endl;
+	  cout << endl;
 	  MyHistosEB->Plot1DHisto(read_histo_samps, "Sample#", "SampleMean", SMtower, TowEcha, "SAME");
 
 
-	  std::cout << "EcnahistosExample2> ******************** Plot1DHisto 1 crystal ONLYONE **************" << std::endl;
+	  cout << "EcnahistosExample2> ******************** Plot1DHisto 1 crystal ONLYONE **************" << endl;
 	  MyHistosEB->SetHistoMin(180.); MyHistosEB->SetHistoMax(220.); 
 	  MyHistosEB->Plot1DHisto(read_histo_samps, "Sample", "SampMean", SMtower, TowEcha);
 	}
       else
 	{
-	  std::cout  << "!EcnaHistosExample2> *ERROR* =====> "
-		<< " ROOT file not found" << fTTBELL << std::endl;
+	  cout  << "!EcnaHistosExample2> *ERROR* =====> "
+		<< " ROOT file not found" << fTTBELL << endl;
 	}
 
 #endif // NODR
@@ -294,8 +294,8 @@ int main ( int argc, char **argv )
 	    }
 	  else
 	    {
-	      std::cout  << "!EcnaHistosExample2> *ERROR* =====> "
-		    << " ROOT file not found" << fTTBELL << std::endl;
+	      cout  << "!EcnaHistosExample2> *ERROR* =====> "
+		    << " ROOT file not found" << fTTBELL << endl;
 	    }
 	}
       
@@ -335,8 +335,8 @@ int main ( int argc, char **argv )
 	    }
 	  else
 	    {
-	      std::cout  << "!EcnaHistosExample2> *ERROR* =====> "
-		    << " ROOT file not found" << fTTBELL << std::endl;
+	      cout  << "!EcnaHistosExample2> *ERROR* =====> "
+		    << " ROOT file not found" << fTTBELL << endl;
 	    }
 	}
       
@@ -382,8 +382,8 @@ int main ( int argc, char **argv )
 	    }
 	  else
 	    {
-	      std::cout  << "!EcnaHistosExample2> *ERROR* =====> "
-		    << " ROOT file not found" << fTTBELL << std::endl;
+	      cout  << "!EcnaHistosExample2> *ERROR* =====> "
+		    << " ROOT file not found" << fTTBELL << endl;
 	    }
 	}
       
@@ -444,8 +444,8 @@ int main ( int argc, char **argv )
 	    }
 	  else
 	    {
-	      std::cout  << "!EcnaHistosExample2> *ERROR* =====> "
-		    << " ROOT file not found" << fTTBELL << std::endl;
+	      cout  << "!EcnaHistosExample2> *ERROR* =====> "
+		    << " ROOT file not found" << fTTBELL << endl;
 	    }
 	}
       
@@ -477,14 +477,14 @@ int main ( int argc, char **argv )
       //
       //=====================================================================
 
-      std::cout << "*H4Cna(main)> End of the example. You can quit ROOT (.q)"  << std::endl;
+      cout << "*H4Cna(main)> End of the example. You can quit ROOT (.q)"  << endl;
 
       Bool_t retVal = kTRUE;
       theApp.Run(retVal);
-      std::cout << std::endl
-	   << "*EcalCorrelatedNoiseExampleHistos> Terminating ROOT session." << std::endl;
+      cout << endl
+	   << "*EcalCorrelatedNoiseExampleHistos> Terminating ROOT session." << endl;
       theApp.Terminate(0);
-      std::cout << "*EcalCorrelatedNoiseExampleHistos> Exiting main program." << std::endl;
+      cout << "*EcalCorrelatedNoiseExampleHistos> Exiting main program." << endl;
       exit(0);
       
       delete MyHistosEB;  // always after exit(0) (because of TEcnaHistos::DoCanvasClosed())

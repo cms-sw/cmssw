@@ -16,7 +16,6 @@ void DQMEDAnalyzer::beginStream(edm::StreamID id)
 
 void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
                              edm::EventSetup const &iSetup) {
-  dqmBeginRun(iRun, iSetup);
   DQMStore * store = edm::Service<DQMStore>().operator->();
   store->bookTransaction([this, &iRun, &iSetup](DQMStore::IBooker &b) {
                            this->bookHistograms(b, iRun, iSetup);
@@ -24,6 +23,7 @@ void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
                          iRun.run(),
                          streamId(),
                          iRun.moduleCallingContext()->moduleDescription()->id());
+  dqmBeginRun(iRun, iSetup);
 }
 
 

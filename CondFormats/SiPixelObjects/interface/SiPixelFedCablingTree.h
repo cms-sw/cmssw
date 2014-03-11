@@ -2,13 +2,13 @@
 #define SiPixelFedCablingTree_H
 
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include <string>
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 
-class SiPixelFedCablingTree final : public  SiPixelFedCabling {
+class SiPixelFedCablingTree : public  SiPixelFedCabling {
 
 public:
   typedef sipixelobjects::PixelFEDCabling PixelFEDCabling;
@@ -34,15 +34,13 @@ public:
 
   virtual std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const;
 
-  virtual const sipixelobjects::PixelROC* findItem(const sipixelobjects::CablingPathToDetUnit & path) const;  
-
-  const sipixelobjects::PixelROC* findItemInFed(const sipixelobjects::CablingPathToDetUnit & path, 
-						const PixelFEDCabling * aFed) const;  
+  virtual const sipixelobjects::PixelROC* findItem(
+     const sipixelobjects::CablingPathToDetUnit & path) const;  
 
   int checkNumbering() const;
 
 private:
   std::string theVersion; 
-  std::unordered_map<int, PixelFEDCabling> theFedCablings;
+  std::map<int, PixelFEDCabling> theFedCablings;
 };
 #endif

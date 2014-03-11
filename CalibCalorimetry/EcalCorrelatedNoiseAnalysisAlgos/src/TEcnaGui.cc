@@ -1,9 +1,10 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 28/01/2014
+//----------Modified: 13/04/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
 #include <cstdlib>
+using namespace std;
 
 //--------------------------------------
 //  TEcnaGui.cc
@@ -21,8 +22,8 @@ ClassImp(TEcnaGui)
 
 #define DEST
 #ifdef DEST
-  // std::cout << "TEcnaGui> Entering destructor" << std::endl;
-  // std::cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << std::endl;
+  // cout << "TEcnaGui> Entering destructor" << endl;
+  // cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << endl;
  
   //.... general variables 
   //if ( fHistos             != 0 ) {delete fHistos;             fCdelete++;}
@@ -578,13 +579,13 @@ ClassImp(TEcnaGui)
 
   if ( fCnew != fCdelete )
     {
-      std::cout << "*TEcnaGui> WRONG MANAGEMENT OF ALLOCATIONS: fCnew = "
-	   << fCnew << ", fCdelete = " << fCdelete << std::endl;
+      cout << "*TEcnaGui> WRONG MANAGEMENT OF ALLOCATIONS: fCnew = "
+	   << fCnew << ", fCdelete = " << fCdelete << endl;
     }
   else
     {
-      //std::cout << "*TEcnaGui> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: fCnew = "
-      //   << fCnew << ", fCdelete = " << fCdelete << std::endl;
+      //cout << "*TEcnaGui> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: fCnew = "
+      //   << fCnew << ", fCdelete = " << fCdelete << endl;
     }
 
 #endif // DEST
@@ -593,21 +594,21 @@ ClassImp(TEcnaGui)
 #ifndef MGRA
   if ( fCnewRoot != fCdeleteRoot )
     {
-      std::cout << "*TEcnaGui> WRONG MANAGEMENT OF ROOT ALLOCATIONS: fCnewRoot = "
-	   << fCnewRoot << ", fCdeleteRoot = " << fCdeleteRoot << std::endl;
+      cout << "*TEcnaGui> WRONG MANAGEMENT OF ROOT ALLOCATIONS: fCnewRoot = "
+	   << fCnewRoot << ", fCdeleteRoot = " << fCdeleteRoot << endl;
     }
   else
     {
-      std::cout << "*TEcnaGui> BRAVO! GOOD MANAGEMENT OF ROOT ALLOCATIONS:"
+      cout << "*TEcnaGui> BRAVO! GOOD MANAGEMENT OF ROOT ALLOCATIONS:"
 	   << " fCnewRoot = " << fCnewRoot <<", fCdeleteRoot = "
-	   << fCdeleteRoot << std::endl;
+	   << fCdeleteRoot << endl;
     }
 #endif // MGRA
 
-  // std::cout << "TEcnaGui> Leaving destructor" << std::endl;
-  // std::cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << std::endl;
+  // cout << "TEcnaGui> Leaving destructor" << endl;
+  // cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << endl;
 
-  // std::cout << "[Info Management] CLASS: TEcnaGui.           DESTROY OBJECT: this = " << this << std::endl;
+  // cout << "[Info Management] CLASS: TEcnaGui.           DESTROY OBJECT: this = " << this << endl;
 
 }
 //   end of destructor
@@ -626,12 +627,10 @@ TEcnaGui::TEcnaGui()
 TEcnaGui::TEcnaGui(TEcnaObject* pObjectManager, const TString& SubDet, const TGWindow *p, UInt_t w, UInt_t h):
 TGMainFrame(p, w, h) 
 {
-  // std::cout << "[Info Management] CLASS: TEcnaGui.           CREATE OBJECT: this = " << this << std::endl;
+  // cout << "[Info Management] CLASS: TEcnaGui.           CREATE OBJECT: this = " << this << endl;
 
-  // std::cout << "TEcnaGui> Entering constructor with arguments" << std::endl;
-  // std::cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << std::endl;
-
-  Init();
+  // cout << "TEcnaGui> Entering constructor with arguments" << endl;
+  // cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << endl;
 
   fObjectManager = (TEcnaObject*)pObjectManager;
   Long_t i_this = (Long_t)this;
@@ -712,7 +711,7 @@ TGMainFrame(p, w, h)
 
   //fMyRootFile = 0;
 
-  InitGuiParameters();
+  Init();
 }
 
 void TEcnaGui::Init()
@@ -723,13 +722,10 @@ void TEcnaGui::Init()
   fCnewRoot    = 0;
   fCdeleteRoot = 0;
 
-  fgMaxCar = (Int_t)512;
+
+  Int_t fgMaxCar = (Int_t)512;
   fTTBELL = '\007';
 
-}
-
-void TEcnaGui::InitGuiParameters()
-{
   //........................ init View and Cna parameters
 
   //............................................................................
@@ -3259,9 +3255,9 @@ void TEcnaGui::DialogBox()
 //  fKeyPyf = listchain;
   
 //  fCnaCommand++;
-//  std::cout << "   *TEcnaGui [" << fCnaCommand
+//  cout << "   *TEcnaGui [" << fCnaCommand
 //       << "]> Registration of file name for python file source sector -> "
-//       << fKeyPyf.Data() << std::endl;
+//       << fKeyPyf.Data() << endl;
 //}
 //----------------------------------------------------------------------
 void TEcnaGui::DoButtonAna()
@@ -3273,9 +3269,9 @@ void TEcnaGui::DoButtonAna()
   fKeyAnaType = bufferchain;
   
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of analysis name -> "
-       << fKeyAnaType << std::endl;
+       << fKeyAnaType << endl;
 }
 
 //----------------------------------------------------------------------
@@ -3290,11 +3286,11 @@ void TEcnaGui::DoButtonNors()
   if ( !(fKeyNbOfSamples >= 1 && fKeyNbOfSamples <= fEcal->MaxSampADC()) )
     {
       fCnaError++;
-      std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===>"
+      cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===>"
 	   << " Number of required samples for reading ROOT file = " << fKeyNbOfSamples
-	   << ": OUT OF RANGE, " << std::endl 
+	   << ": OUT OF RANGE, " << endl 
 	   << "                                        forced to the default value (="
-	   << fEcal->MaxSampADC() << ")." << fTTBELL << std::endl;
+	   << fEcal->MaxSampADC() << ")." << fTTBELL << endl;
       fKeyNbOfSamples = fEcal->MaxSampADC();
       DisplayInEntryField(fNorsText,fKeyNbOfSamples);
     }
@@ -3316,9 +3312,9 @@ void TEcnaGui::DoButtonNors()
   fSampBut->SetText(xSampButText);
   
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of number of samples in ROOT file -> "
-       << fKeyNbOfSamples << std::endl;
+       << fKeyNbOfSamples << endl;
 }
 //----------------------------------------------------------------------
 void TEcnaGui::DoButtonNbSampForCalc()
@@ -3332,18 +3328,18 @@ void TEcnaGui::DoButtonNbSampForCalc()
   if ( !(fKeyNbOfSampForCalc >= 1 && fKeyNbOfSampForCalc <= fKeyNbOfSamples) )
     {
       fCnaError++;
-      std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===>"
+      cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===>"
 	   << " Number of required samples for calculations = " << fKeyNbOfSampForCalc
-	   << ": OUT OF RANGE, " << std::endl 
+	   << ": OUT OF RANGE, " << endl 
 	   << "                                        forced to the default value (="
-	   << fKeyNbOfSamples << ")." << fTTBELL << std::endl;
+	   << fKeyNbOfSamples << ")." << fTTBELL << endl;
       fKeyNbOfSampForCalc = fKeyNbOfSamples;
       DisplayInEntryField(fNbSampForCalcText,fKeyNbOfSampForCalc);
     }
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of number of samples for calculations -> "
-       << fKeyNbOfSampForCalc << std::endl;
+       << fKeyNbOfSampForCalc << endl;
 }
 
 //----------------------------------------------------------------------
@@ -3356,9 +3352,9 @@ void TEcnaGui::DoButtonRun()
   fKeyRunNumberString = bufferchain;
   fKeyRunNumber = atoi(bufferchain);
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of run number -> "
-       << fKeyRunNumber << std::endl;
+       << fKeyRunNumber << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3373,16 +3369,16 @@ void TEcnaGui::DoButtonFev()
   if ( fKeyFirstReqEvtNumber <= 0)
     {
       fCnaError++;
-      std::cout << "   !TEcnaGui (" << fCnaError << ") *ERROR* ===> "
+      cout << "   !TEcnaGui (" << fCnaError << ") *ERROR* ===> "
 	   << " First event number = " << fKeyFirstReqEvtNumber
-	   << ": negative. " << std::endl 
-	   << fTTBELL << std::endl;
+	   << ": negative. " << endl 
+	   << fTTBELL << endl;
     }
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of first requested event number -> "
-       << fKeyFirstReqEvtNumber << std::endl;
+       << fKeyFirstReqEvtNumber << endl;
 }
 //-------------------------------------------------------------------
 void TEcnaGui::DoButtonLev()
@@ -3396,16 +3392,16 @@ void TEcnaGui::DoButtonLev()
   if ( fKeyLastReqEvtNumber <= fKeyFirstReqEvtNumber )
     {
       fCnaError++;
-      std::cout << "   !TEcnaGui (" << fCnaError << ") *WARNING* ===> "
+      cout << "   !TEcnaGui (" << fCnaError << ") *WARNING* ===> "
 	   << " Last requested event number = " << fKeyLastReqEvtNumber
 	   << ": less than first requested event number (= " << fKeyFirstReqEvtNumber << ")." 
-	   << std::endl;
+	   << endl;
     }
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of last requested event number -> "
-       << fKeyLastReqEvtNumber << std::endl;
+       << fKeyLastReqEvtNumber << endl;
 }
 //-------------------------------------------------------------------
 void TEcnaGui::DoButtonRev()
@@ -3421,26 +3417,26 @@ void TEcnaGui::DoButtonRev()
   if( fKeyLastReqEvtNumber < fKeyFirstReqEvtNumber)
     {
       fCnaError++;
-      std::cout << "   !TEcnaGui (" << fCnaError << ") *WARNING* ===> "
+      cout << "   !TEcnaGui (" << fCnaError << ") *WARNING* ===> "
 	   << " Last requested event number = " << fKeyLastReqEvtNumber
 	   << " less than first requested event number = " << fKeyFirstReqEvtNumber
-	   << std::endl;
+	   << endl;
     }
 
   if ( fKeyLastReqEvtNumber >= fKeyFirstReqEvtNumber && fKeyReqNbOfEvts > nb_range_evts )
     {
       fCnaError++;
-      std::cout << "   !TEcnaGui (" << fCnaError << ") *WARNING* ===> "
+      cout << "   !TEcnaGui (" << fCnaError << ") *WARNING* ===> "
 	   << " Nb of requested events = " << fKeyReqNbOfEvts
 	   << ": out of range (range = " << fKeyFirstReqEvtNumber << ","
 	   << fKeyLastReqEvtNumber << ") => " << nb_range_evts << " events."
-	   << std::endl;
+	   << endl;
     }
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of requested number of events -> "
-       << fKeyReqNbOfEvts << std::endl;
+       << fKeyReqNbOfEvts << endl;
 }
 
 //-------------------------------------------------------------------
@@ -3455,9 +3451,9 @@ void TEcnaGui::DoButtonStex()
   if( fSubDet == "EB" )
     {
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Registration of SuperModule number -> "
-	   << fKeyStexNumber << std::endl;
+	   << fKeyStexNumber << endl;
 
       //.......... Positive number for EB- [-1,-18] -> [19,36]  
       if( fKeyStexNumber < 0 ){fKeyStexNumber = - fKeyStexNumber + fEcal->MaxSMInEB()/2;}
@@ -3465,11 +3461,11 @@ void TEcnaGui::DoButtonStex()
       if( (fKeyStexNumber < 0) || (fKeyStexNumber > fEcal->MaxSMInEB() )  )
 	{
 	  fCnaError++;
-	  std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> "
+	  cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> "
 	       << " EB / SM number = " << fKeyStexNumber
 	       << ": out of range. Range = 0 (EB) or [ 1 ," << fEcal->MaxSMInEB() << " ] (SM)"
 	       << " or [ -" << fEcal->MaxSMInEBMinus() << ", +" <<  fEcal->MaxSMInEBPlus() << "] (SM)"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
     }
 
@@ -3503,17 +3499,17 @@ void TEcnaGui::DoButtonStex()
 	}
       //............................................ Command message
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Registration of Dee number -> "
-	   << fKeyStexNumber << std::endl;
+	   << fKeyStexNumber << endl;
       
       if ( (fKeyStexNumber < 0) || (fKeyStexNumber > fEcal->MaxDeeInEE() )  )
 	{
 	  fCnaError++;
-	  std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> "
+	  cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> "
 	       << " EE / Dee number = " << fKeyStexNumber
 	       << ": out of range. Range = 0 (EE) or [ 1 ," << fEcal->MaxDeeInEE() << " ] (Dee)"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
     }  // -- end of if( fSubDet == "EE" ) -------
 }
@@ -3528,9 +3524,9 @@ void TEcnaGui::DoButtonVminD_NOE_ChNb()
   fKeyVminD_NOE_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymin for plot 'number of events' -> "
-       << fKeyVminD_NOE_ChNb << std::endl;
+       << fKeyVminD_NOE_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3543,9 +3539,9 @@ void TEcnaGui::DoButtonVmaxD_NOE_ChNb()
   fKeyVmaxD_NOE_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymax for plot 'number of events' -> "
-       << fKeyVmaxD_NOE_ChNb << std::endl;
+       << fKeyVmaxD_NOE_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3558,9 +3554,9 @@ void TEcnaGui::DoButtonVminD_Ped_ChNb()
   fKeyVminD_Ped_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymin for plot 'pedestal' -> "
-       << fKeyVminD_Ped_ChNb << std::endl;
+       << fKeyVminD_Ped_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3573,9 +3569,9 @@ void TEcnaGui::DoButtonVmaxD_Ped_ChNb()
   fKeyVmaxD_Ped_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymax for plot 'pedestal' -> "
-       << fKeyVmaxD_Ped_ChNb << std::endl;
+       << fKeyVmaxD_Ped_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3588,9 +3584,9 @@ void TEcnaGui::DoButtonVminD_TNo_ChNb()
   fKeyVminD_TNo_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymin for plot 'total noise' -> "
-       << fKeyVminD_TNo_ChNb << std::endl;
+       << fKeyVminD_TNo_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3603,9 +3599,9 @@ void TEcnaGui::DoButtonVmaxD_TNo_ChNb()
   fKeyVmaxD_TNo_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymax for plot 'total noise' -> "
-       << fKeyVmaxD_TNo_ChNb << std::endl;
+       << fKeyVmaxD_TNo_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3618,9 +3614,9 @@ void TEcnaGui::DoButtonVminD_MCs_ChNb()
   fKeyVminD_MCs_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymin for plot 'mean cor(s,s')' -> "
-       << fKeyVminD_MCs_ChNb << std::endl;
+       << fKeyVminD_MCs_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3633,9 +3629,9 @@ void TEcnaGui::DoButtonVmaxD_MCs_ChNb()
   fKeyVmaxD_MCs_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymax for plot 'mean cor(s,s')' -> "
-       << fKeyVmaxD_MCs_ChNb << std::endl;
+       << fKeyVmaxD_MCs_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3649,9 +3645,9 @@ void TEcnaGui::DoButtonVminD_LFN_ChNb()
   fKeyVminD_LFN_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymin for plot 'low frequency noise' -> "
-       << fKeyVminD_LFN_ChNb << std::endl;
+       << fKeyVminD_LFN_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3664,9 +3660,9 @@ void TEcnaGui::DoButtonVmaxD_LFN_ChNb()
   fKeyVmaxD_LFN_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymax for plot 'low frequency noise' -> "
-       << fKeyVmaxD_LFN_ChNb << std::endl;
+       << fKeyVmaxD_LFN_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3679,9 +3675,9 @@ void TEcnaGui::DoButtonVminD_HFN_ChNb()
   fKeyVminD_HFN_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymin for plot 'high frequency noise' -> "
-       << fKeyVminD_HFN_ChNb << std::endl;
+       << fKeyVminD_HFN_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3694,9 +3690,9 @@ void TEcnaGui::DoButtonVmaxD_HFN_ChNb()
   fKeyVmaxD_HFN_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymax for plot 'high frequency noise' -> "
-       << fKeyVmaxD_HFN_ChNb << std::endl;
+       << fKeyVmaxD_HFN_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3709,9 +3705,9 @@ void TEcnaGui::DoButtonVminD_SCs_ChNb()
   fKeyVminD_SCs_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymin for plot 'sigma of cor(s,s')' -> "
-       << fKeyVminD_SCs_ChNb << std::endl;
+       << fKeyVminD_SCs_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3724,9 +3720,9 @@ void TEcnaGui::DoButtonVmaxD_SCs_ChNb()
   fKeyVmaxD_SCs_ChNb = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymax for plot 'sigma of cor(s,s')' -> "
-       << fKeyVmaxD_SCs_ChNb << std::endl;
+       << fKeyVmaxD_SCs_ChNb << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3739,9 +3735,9 @@ void TEcnaGui::DoButtonVminLFccMos()
   fKeyVminLFccMos = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymin for plot 'mean LF |cor(c,c')|' -> "
-       << fKeyVminLFccMos << std::endl;
+       << fKeyVminLFccMos << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3754,9 +3750,9 @@ void TEcnaGui::DoButtonVmaxLFccMos()
   fKeyVmaxLFccMos = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymax for plot 'mean LF |cor(c,c')|' -> "
-       << fKeyVmaxLFccMos << std::endl;
+       << fKeyVmaxLFccMos << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3769,9 +3765,9 @@ void TEcnaGui::DoButtonVminHFccMos()
   fKeyVminHFccMos = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymin for plot 'mean HF |cor(c,c')|' -> "
-       << fKeyVminHFccMos << std::endl;
+       << fKeyVminHFccMos << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3784,9 +3780,9 @@ void TEcnaGui::DoButtonVmaxHFccMos()
   fKeyVmaxHFccMos = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymax for plot 'mean HF |cor(c,c')|' -> "
-       << fKeyVmaxHFccMos << std::endl;
+       << fKeyVmaxHFccMos << endl;
 }
 
 //-------------------------------------------------------------------
@@ -3800,9 +3796,9 @@ void TEcnaGui::DoButtonVminLHFcc()
   fKeyVminLHFcc = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymin for plot 'cor(c,c') in "
-       << fStinName.Data() << "s' -> " << fKeyVminLHFcc << std::endl;
+       << fStinName.Data() << "s' -> " << fKeyVminLHFcc << endl;
 }
 //-------------------------------------------------------------------
 
@@ -3815,9 +3811,9 @@ void TEcnaGui::DoButtonVmaxLHFcc()
   fKeyVmaxLHFcc = (Double_t)atof(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of Ymax for plot 'cor(c,c') in "
-       << fStinName.Data() << "s' -> " << fKeyVmaxLHFcc << std::endl;
+       << fStinName.Data() << "s' -> " << fKeyVmaxLHFcc << endl;
 }
 
 //-------------------------------------------------------------------
@@ -3842,26 +3838,26 @@ void TEcnaGui::DoButtonStinA()
   if( fSubDet == "EB" )
     {
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Registration of " << fStinName.Data() << " number -> "
-	   << xReadStinANumberForCons << std::endl;
+	   << xReadStinANumberForCons << endl;
 
       if ( (fKeyStinANumber < 1) || (fKeyStinANumber > fEcal->MaxStinEcnaInStex())  )
 	{
 	  fCnaError++;
-	  std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> " << fStinName.Data()
+	  cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> " << fStinName.Data()
 	       << " number = " << fKeyStinANumber
 	       << ": out of range ( range = [ 1 ," << fEcal->MaxStinEcnaInStex() << " ] ) "
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
     }
   
   if( fSubDet == "EE" )
     {
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Registration of " << fStinName.Data() << " number for construction -> "
-	   << xReadStinANumberForCons << std::endl;
+	   << xReadStinANumberForCons << endl;
 
       if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxDeeInEE() )
 	{
@@ -3872,18 +3868,18 @@ void TEcnaGui::DoButtonStinA()
 	      xReadStinANumberForCons > fEcal->MaxSCForConsInDee()+off_set_cons )
 	    {
 	      fCnaError++;
-	      std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> SC nb for construction = "
+	      cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> SC nb for construction = "
 		   << xReadStinANumberForCons << ". Out of range ( range = [ " << off_set_cons+1
 		   << "," << fEcal->MaxSCForConsInDee()+off_set_cons << "] )"
-		   << fTTBELL << std::endl;
+		   << fTTBELL << endl;
 	    }
 	}
       else
 	{
 	  fCnaError++;
-	  std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> DeeNumber = " <<  fKeyStexNumber
+	  cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> DeeNumber = " <<  fKeyStexNumber
 	       << ". Out of range ( range = [1," << fEcal->MaxDeeInEE() << "] )"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}      
     }
 }
@@ -3902,19 +3898,19 @@ void TEcnaGui::DoButtonStinB()
     {fKeyStinBNumber = fEcalNumbering->Get1DeeSCEcnaFromDeeSCCons(fKeyStexNumber, xReadStinBNumberForCons);}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of " << fStinName.Data() << "' number -> "
-       << xReadStinBNumberForCons << std::endl;
+       << xReadStinBNumberForCons << endl;
 
   if( fSubDet == "EB" )
     {
       if ( (fKeyStinBNumber < 1) || (fKeyStinBNumber > fEcal->MaxStinEcnaInStex())  )
 	{
 	  fCnaError++;
-	  std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> " << fStinName.Data()
+	  cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> " << fStinName.Data()
 	       << "' number = " << fKeyStinBNumber
 	       << ": out of range ( range = [ 1 ," << fEcal->MaxStinEcnaInStex() << " ] ) "
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
     }
   
@@ -3929,18 +3925,18 @@ void TEcnaGui::DoButtonStinB()
 	      xReadStinBNumberForCons > fEcal->MaxSCForConsInDee()+off_set_cons )
 	    {
 	      fCnaError++;
-	      std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> SC nb for construction = "
+	      cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> SC nb for construction = "
 		   << xReadStinBNumberForCons << ". Out of range ( range = [ " << off_set_cons+1
 		   << "," << fEcal->MaxSCForConsInDee()+off_set_cons << "] )"
-		   << fTTBELL << std::endl;
+		   << fTTBELL << endl;
 	    }
 	}
       else
 	{
 	  fCnaError++;
-	  std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> DeeNumber = " <<  fKeyStexNumber
+	  cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> DeeNumber = " <<  fKeyStexNumber
 	       << ". Out of range ( range = [1," << fEcal->MaxDeeInEE() << "] )"
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}      
     }
 }
@@ -3967,18 +3963,18 @@ void TEcnaGui::DoButtonChan()
 
   fKeyChanNumber = xReadNumber-Choffset;   // fKeyChanNumber : range = [0,25]
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of " << ChString.Data() << " number -> "
-       << xReadNumber << std::endl;
+       << xReadNumber << endl;
   
   if ( (fKeyChanNumber < 0) || (fKeyChanNumber > fEcal->MaxCrysInStin()-1 )  )
     {
       fCnaError++;
-      std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> "
+      cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> "
 	   << ChString.Data() << " number in " << fStinName.Data() << " = " << xReadNumber
 	   << ": out of range ( range = [" << Choffset << ","
 	   << fEcal->MaxCrysInStin()-1+Choffset << "] )"
-	   << fTTBELL << std::endl;
+	   << fTTBELL << endl;
     } 
 }
 //-------------------------------------------------------------------
@@ -3990,17 +3986,17 @@ void TEcnaGui::DoButtonSamp()
   Int_t xKeySampNumber = atoi(bufferchain);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of sample number -> "
-       << xKeySampNumber << std::endl;
+       << xKeySampNumber << endl;
 
   if ( (xKeySampNumber < 1) || (xKeySampNumber > fKeyNbOfSamples )  )
     {
       fCnaError++;
-      std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> "
+      cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> "
      	   << " Sample number = " << xKeySampNumber
      	   << ": out of range ( range = [ 1 ," << fKeyNbOfSamples << " ] )"
-     	   << fTTBELL << std::endl;
+     	   << fTTBELL << endl;
     }
 
   fKeySampNumber = xKeySampNumber-1;
@@ -4016,9 +4012,9 @@ void TEcnaGui::DoButtonRul()
   if( listchain[0] == '\0' )
     {
       fCnaError++;
-      std::cout << "   !TEcnaGui (" << fCnaError << ") *ERROR* ===> "
+      cout << "   !TEcnaGui (" << fCnaError << ") *ERROR* ===> "
 	   << " Empty file name in entry for TIME EVOLUTION plots."
-	   << fTTBELL << std::endl;
+	   << fTTBELL << endl;
       fKeyFileNameRunList = fKeyRunListInitCode;
     }
   else
@@ -4033,18 +4029,18 @@ void TEcnaGui::DoButtonRul()
 	  listchain[0] == tchiffr [8] || listchain[0] == tchiffr [9] )
 	{
 	  fCnaError++;
-	  std::cout << "   !TEcnaGui (" << fCnaError << ") *ERROR* ===> "
+	  cout << "   !TEcnaGui (" << fCnaError << ") *ERROR* ===> "
 	       << " Please, enter a file name beginning with an alphabetic letter."
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	}
       else
 	{
 	  fKeyFileNameRunList = listchain;
 	  
 	  fCnaCommand++;
-	  std::cout << "   *TEcnaGui [" << fCnaCommand
+	  cout << "   *TEcnaGui [" << fCnaCommand
 	       << "]> Registration of run list file name for history plots -> "
-	       << fKeyFileNameRunList.Data() << std::endl;
+	       << fKeyFileNameRunList.Data() << endl;
 	}
     }
 }
@@ -4058,9 +4054,9 @@ void TEcnaGui::DoButtonGent()
   fKeyGeneralTitle = listchain;
   
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Registration of general title -> "
-       << fKeyGeneralTitle.Data() << std::endl;
+       << fKeyGeneralTitle.Data() << endl;
 }
 //-------------------------------------------------------------------
 //
@@ -4076,8 +4072,8 @@ void TEcnaGui::DoButtonLogx()
   fMemoScaleX = fKeyScaleX;
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> X axis -> " << fKeyScaleX << " scale " << std::endl;
+  cout << "   *TEcnaGui [" << fCnaCommand
+       << "]> X axis -> " << fKeyScaleX << " scale " << endl;
 }
 void TEcnaGui::DoButtonLogy()
 {
@@ -4086,8 +4082,8 @@ void TEcnaGui::DoButtonLogy()
   fMemoScaleY = fKeyScaleY;
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Y axis -> " << fKeyScaleY << " scale " << std::endl;
+  cout << "   *TEcnaGui [" << fCnaCommand
+       << "]> Y axis -> " << fKeyScaleY << " scale " << endl;
 }
 
 void TEcnaGui::DoButtonProjy()
@@ -4097,8 +4093,8 @@ void TEcnaGui::DoButtonProjy()
   fMemoProjY = fKeyProjY;
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> 1D Histo display -> " << fKeyProjY << " mode " << std::endl;
+  cout << "   *TEcnaGui [" << fCnaCommand
+       << "]> 1D Histo display -> " << fKeyProjY << " mode " << endl;
 }
 
 //------------------------------------------------------------------- Colors + Exit
@@ -4116,16 +4112,16 @@ void TEcnaGui::DoButtonColPal()
     {sColPalComment = "Rainbow option:   red-orange-yellow-green-blue-indigo-purple";}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Color palette -> " << sColPalComment << std::endl;
+  cout << "   *TEcnaGui [" << fCnaCommand
+       << "]> Color palette -> " << sColPalComment << endl;
 }
 
 void TEcnaGui::DoButtonExit()
 {
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Exit CNA session."
-       << std::endl;
+       << endl;
   //............................ Quit the ROOT session
   fButExit->SetCommand(".q");
 }
@@ -4135,8 +4131,8 @@ void TEcnaGui::DoButtonExit()
 void TEcnaGui::DoButtonClone()
 {
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> Clone last canvas. " << std::endl;
+  cout << "   *TEcnaGui [" << fCnaCommand
+       << "]> Clone last canvas. " << endl;
 
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());      /*fCnew++*/ ;}
   fHistos->PlotCloneOfCurrentCanvas();
@@ -4145,18 +4141,18 @@ void TEcnaGui::DoButtonClone()
 void TEcnaGui::DoButtonRoot()
 {
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> This is ROOT version " << gROOT->GetVersion()
-       << std::endl;
+       << endl;
 }
 //-------------------------------------------------------------------
 void TEcnaGui::DoButtonHelp()
 {
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
-       << "]> HELP: for documentation, see the ECNA web page: " << std::endl
-       << "    http://cms-fabbro.web.cern.ch/cms-fabbro/cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm"
-       << std::endl;
+  cout << "   *TEcnaGui [" << fCnaCommand
+       << "]> HELP: for documentation, see the ECNA web page: " << endl
+       << "    http://cms-fabbro.web.cern.ch/cms-fabbro/cna_new/Correlated_Noise_analysis/ECNA_main_page.htm"
+       << endl;
 }
 
 //===================================================================
@@ -4411,8 +4407,8 @@ void TEcnaGui::HandleMenu(Int_t id)
     {
       if(fKeyFileNameRunList == fKeyRunListInitCode )
 	{fCnaError++;
-	  std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> "
-	       << " EMPTY STRING for list of run file name (TIME EVOLUTION plots)." << fTTBELL << std::endl;}
+	  cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===> "
+	       << " EMPTY STRING for list of run file name (TIME EVOLUTION plots)." << fTTBELL << endl;}
       else
 	{
 	  //........................................ Pedestals                 (HandleMenu / ViewHistime)
@@ -4611,8 +4607,8 @@ void TEcnaGui::SubmitOnBatchSystem(const TString& QueueCode)
   if( (fConfirmSubmit == 1) && (fConfirmRunNumber == fKeyRunNumber) )
     {
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
-	   << "]> Submitting job in batch mode for run " << fConfirmRunNumber << std::endl;
+      cout << "   *TEcnaGui [" << fCnaCommand
+	   << "]> Submitting job in batch mode for run " << fConfirmRunNumber << endl;
 
       //.......................... get the path "modules/data"
       // /afs/cern.ch/user/U/USERNAME/cmssw/CMSSW_X_Y_Z/src/CalibCalorimetry/EcalCorrelatedNoiseAnalysisModules/data/
@@ -4747,17 +4743,17 @@ void TEcnaGui::SubmitOnBatchSystem(const TString& QueueCode)
 
       if( i_exec_python != 0 )
 	{
-	  std::cout << "*TEcnaGui> Script for python file building was executed with error code = "
-	       << i_exec_python << "." << std::endl
-	       << "           python file: " << fPythonFileName.Data() << ".py" << std::endl
-	       << "           Command: " << CnaExecPythonCommand.Data() << std::endl
-	       << fTTBELL << std::endl;
+	  cout << "*TEcnaGui> Script for python file building was executed with error code = "
+	       << i_exec_python << "." << endl
+	       << "           python file: " << fPythonFileName.Data() << ".py" << endl
+	       << "           Command: " << CnaExecPythonCommand.Data() << endl
+	       << fTTBELL << endl;
 	}
       else
 	{
-	  std::cout << "*TEcnaGui> Script for python file building was successfully executed." << std::endl
-	       << "           python file: " << fPythonFileName.Data() << ".py" << std::endl
-	       << "           (Command: " << CnaExecPythonCommand.Data() << ")" << std::endl;
+	  cout << "*TEcnaGui> Script for python file building was successfully executed." << endl
+	       << "           python file: " << fPythonFileName.Data() << ".py" << endl
+	       << "           (Command: " << CnaExecPythonCommand.Data() << ")" << endl;
 
 	  //========================================================== Job submission script
 	  TString CnaSubmitCommand = ModulesdataPath;
@@ -4793,16 +4789,16 @@ void TEcnaGui::SubmitOnBatchSystem(const TString& QueueCode)
       
 	  if( i_exec_submit != 0 )
 	    {
-	      std::cout << "*TEcnaGui> Script for job submission was executed with error code = "
-		   << i_exec_submit << "."  << std::endl
-		   << "          Command: " << CnaExecSubmitCommand.Data() << std::endl
-		   << fTTBELL << std::endl;
+	      cout << "*TEcnaGui> Script for job submission was executed with error code = "
+		   << i_exec_submit << "."  << endl
+		   << "          Command: " << CnaExecSubmitCommand.Data() << endl
+		   << fTTBELL << endl;
 	    }
 	  else
 	    {
-	      std::cout << "*TEcnaGui> Job with configuration file: " << fPythonFileName.Data()
-		   << " was successfully submitted." << std::endl
-		   << "          (Command: " << CnaExecSubmitCommand.Data() << ")" << std::endl;	  
+	      cout << "*TEcnaGui> Job with configuration file: " << fPythonFileName.Data()
+		   << " was successfully submitted." << endl
+		   << "          (Command: " << CnaExecSubmitCommand.Data() << ")" << endl;	  
 	    }
       
 	  fConfirmSubmit          = 0;
@@ -4815,10 +4811,10 @@ void TEcnaGui::SubmitOnBatchSystem(const TString& QueueCode)
       if( fKeyAnaType.BeginsWith("Adc") )
 	{
 	  fCnaCommand++;
-	  std::cout << "   *TEcnaGui [" << fCnaCommand
+	  cout << "   *TEcnaGui [" << fCnaCommand
 	       << "]> Request for submitting job in batch mode for run " << fKeyRunNumber
 	       << ". Syntax OK. Please, click again to confirm."
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	  
 	  fConfirmSubmit          = 1;
 	  fConfirmRunNumber       = fKeyRunNumber;
@@ -4827,10 +4823,10 @@ void TEcnaGui::SubmitOnBatchSystem(const TString& QueueCode)
       else
 	{
 	  fCnaError++;
-	  std::cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===>"
+	  cout << "   !TEcnaGui (" << fCnaError << ") *** ERROR *** ===>"
 	       << " Analysis name = " << fKeyAnaType
 	       << ": should begin with 'Adc'."
-	       << " Please, change the analysis name." << fTTBELL << std::endl;
+	       << " Please, change the analysis name." << fTTBELL << endl;
 	  
 	  fConfirmSubmit          = 0;
 	  fConfirmRunNumber       = 0;
@@ -4850,9 +4846,9 @@ void TEcnaGui::CleanBatchFiles(const TString& clean_code)
   //Clean python files, submission scripts,...
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Clean requested with code: " << clean_code
-       << std::endl;
+       << endl;
 
   //================================ CLEAN SUBMISSION SCRIPTS ===================================
   if( clean_code == "Sub"  || clean_code == "All")
@@ -4885,16 +4881,16 @@ void TEcnaGui::CleanBatchFiles(const TString& clean_code)
 
       if( i_exec_cleansubmission != 0 )
 	{
-	  std::cout << "*TEcnaGui> Script for submission script clean was executed with error code = "
-	       << i_exec_cleansubmission << "."  << std::endl
-	       << "          Command: " << CnaExecCleanSubmissionCommand.Data() << std::endl
-	       << fTTBELL << std::endl;
+	  cout << "*TEcnaGui> Script for submission script clean was executed with error code = "
+	       << i_exec_cleansubmission << "."  << endl
+	       << "          Command: " << CnaExecCleanSubmissionCommand.Data() << endl
+	       << fTTBELL << endl;
 	}
       else
 	{
-	  std::cout << "*TEcnaGui> Script for submission script clean"
-	       << " was successfully executed." << std::endl
-	       << "          (Command: " << CnaExecCleanSubmissionCommand.Data() << ")" << std::endl;	  
+	  cout << "*TEcnaGui> Script for submission script clean"
+	       << " was successfully executed." << endl
+	       << "          (Command: " << CnaExecCleanSubmissionCommand.Data() << ")" << endl;	  
 	}
 
     }
@@ -4930,16 +4926,16 @@ void TEcnaGui::CleanBatchFiles(const TString& clean_code)
 
       if( i_exec_cleanjobreport != 0 )
 	{
-	  std::cout << "*TEcnaGui> Script for LSFJOB report clean was executed with error code = "
-	       << i_exec_cleanjobreport << "."  << std::endl
-	       << "          Command: " << CnaExecCleanJobreportCommand.Data() << std::endl
-	       << fTTBELL << std::endl;
+	  cout << "*TEcnaGui> Script for LSFJOB report clean was executed with error code = "
+	       << i_exec_cleanjobreport << "."  << endl
+	       << "          Command: " << CnaExecCleanJobreportCommand.Data() << endl
+	       << fTTBELL << endl;
 	}
       else
 	{
-	  std::cout << "*TEcnaGui> Script for LSFJOB report clean"
-	       << " was successfully executed." << std::endl
-	       << "          (Command: " << CnaExecCleanJobreportCommand.Data() << ")" << std::endl;	  
+	  cout << "*TEcnaGui> Script for LSFJOB report clean"
+	       << " was successfully executed." << endl
+	       << "          (Command: " << CnaExecCleanJobreportCommand.Data() << ")" << endl;	  
 	}
     }
 
@@ -4971,16 +4967,16 @@ void TEcnaGui::CleanBatchFiles(const TString& clean_code)
 
       if( i_exec_cleanpython != 0 )
 	{
-	  std::cout << "*TEcnaGui> Script for python file clean was executed with error code = "
-	       << i_exec_cleanpython << "."  << std::endl
-	       << "          Command: " << CnaExecCleanPythonCommand.Data() << std::endl
-	       << fTTBELL << std::endl;
+	  cout << "*TEcnaGui> Script for python file clean was executed with error code = "
+	       << i_exec_cleanpython << "."  << endl
+	       << "          Command: " << CnaExecCleanPythonCommand.Data() << endl
+	       << fTTBELL << endl;
 	}
       else
 	{
-	  std::cout << "*TEcnaGui> Script for python file clean"
-	       << " was successfully executed." << std::endl
-	       << "          (Command: " << CnaExecCleanPythonCommand.Data() << ")" << std::endl;	  
+	  cout << "*TEcnaGui> Script for python file clean"
+	       << " was successfully executed." << endl
+	       << "          (Command: " << CnaExecCleanPythonCommand.Data() << ")" << endl;	  
 	}
     }
 }
@@ -4996,9 +4992,9 @@ void TEcnaGui::Calculations(const TString& calc_code)
   //Calculations of quantities (Pedestals, correlations, ... )
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Calculations requested with code: " << calc_code
-       << std::endl;
+       << endl;
 
   //===== Check if Analysis name is right 
   if( fKeyAnaType == "AdcPed1"  || fKeyAnaType == "AdcSPed1"  ||   
@@ -5031,9 +5027,9 @@ void TEcnaGui::Calculations(const TString& calc_code)
 
 		  if( MyRun->ReadSampleAdcValues(fKeyNbOfSampForCalc) == kTRUE )
 		    {
-		      std::cout << "*TEcnaGui::Calculations> File "
+		      cout << "*TEcnaGui::Calculations> File "
 			   << MyRun->GetRootFileNameShort() << " found. Starting calculations."
-			   << std::endl;
+			   << endl;
 
 		      MyRun->GetReadyToCompute();
 
@@ -5050,7 +5046,7 @@ void TEcnaGui::Calculations(const TString& calc_code)
 			    {
 			      //------ Additional calculations:
 			      //       "correlations" between Xtals and Stins (long time, big file)
-			      std::cout << "*TEcnaGui::Calculations> Please, wait." << std::endl;
+			      cout << "*TEcnaGui::Calculations> Please, wait." << endl;
 			  
 			      MyRun->Expert1Calculations();    //   (long time, big file)
 			      // <=> MyRun->LowFrequencyCorrelationsBetweenChannels();     //   (big file)
@@ -5065,7 +5061,7 @@ void TEcnaGui::Calculations(const TString& calc_code)
 			    {
 			      //---Additional calculations:
 			      //   "correlations" between Stins (long time, "normal" size file)
-			      std::cout << "*TEcnaGui::Calculations> Please, wait." << std::endl;
+			      cout << "*TEcnaGui::Calculations> Please, wait." << endl;
 
 			      MyRun->Expert2Calculations();    //  (long time but not big file)
 
@@ -5139,20 +5135,20 @@ void TEcnaGui::Calculations(const TString& calc_code)
 
 		      if( MyRun->WriteNewRootFile(calc_file_name.Data()) == kTRUE )
 			{
-			  std::cout << "*TEcnaGui::Calculations> Done. Write ROOT file: "
-			       << MyRun->GetNewRootFileNameShort() << " OK" << std::endl << std::endl;
+			  cout << "*TEcnaGui::Calculations> Done. Write ROOT file: "
+			       << MyRun->GetNewRootFileNameShort() << " OK" << endl << endl;
 			}
 		      else 
 			{
-			  std::cout << "!TEcnaGui::Calculations> Writing ROOT file failure for file "
+			  cout << "!TEcnaGui::Calculations> Writing ROOT file failure for file "
 			       << MyRun->GetNewRootFileNameShort()
-			       << fTTBELL << std::endl << std::endl;
+			       << fTTBELL << endl << endl;
 			}
 		    }
 		  else
 		    {
-		      std::cout << "!TEcnaGui::Calculations> " << MyRun->GetRootFileNameShort() << ": file not found."
-			   << fTTBELL << std::endl << std::endl;
+		      cout << "!TEcnaGui::Calculations> " << MyRun->GetRootFileNameShort() << ": file not found."
+			   << fTTBELL << endl << endl;
 		    }
 		  //.......................................................................
 		  delete MyRun; MyRun = 0;                    fCdelete++;
@@ -5161,28 +5157,28 @@ void TEcnaGui::Calculations(const TString& calc_code)
 	    } // end of if( fKeyNbOfSamples >= fKeyNbOfSampForCalc )
 	  else
 	    {
-	      std::cout << "!TEcnaGui::Calculations> *** ERROR *** Number of samples in file (=" << fKeyNbOfSamples
-		   << ") less than number of samples for calculations (= " << fKeyNbOfSampForCalc << "). " << std::endl;
+	      cout << "!TEcnaGui::Calculations> *** ERROR *** Number of samples in file (=" << fKeyNbOfSamples
+		   << ") less than number of samples for calculations (= " << fKeyNbOfSampForCalc << "). " << endl;
 	    }
 	} // end of if( calc_code == "Std" || ( ( calc_code == "Scc" || calc_code == "Stt" ) && fConfirmCalcScc == 1 ) )
       else
 	{
-	  std::cout << "   *TEcnaGui [" << fCnaCommand
+	  cout << "   *TEcnaGui [" << fCnaCommand
 	       << "]> Calculation requested with option " << calc_code
 	       << ". This can last more than 5 minutes. Please, click again to confirm."
-	       << fTTBELL << std::endl;
+	       << fTTBELL << endl;
 	  fConfirmCalcScc = 1;
 	}
     }
   else
     {
-      std::cout << "!TEcnaGui::Calculations> fKeyAnaType = " << fKeyAnaType
-	   << "  : wrong code in analysis name." << std::endl
-	   << "                        List of available standard analysis names for calculations: " << std::endl
-	   << "                        AdcPed1,  AdcPed6,  AdcPed12,  AdcPeg12,  AdcLaser,  AdcPes12," << std::endl
-	   << "                        AdcSPed1, AdcSPed6, AdcSPed12, AdcSPeg12, AdcSLaser, AdcSPes12," << std::endl
+      cout << "!TEcnaGui::Calculations> fKeyAnaType = " << fKeyAnaType
+	   << "  : wrong code in analysis name." << endl
+	   << "                        List of available standard analysis names for calculations: " << endl
+	   << "                        AdcPed1,  AdcPed6,  AdcPed12,  AdcPeg12,  AdcLaser,  AdcPes12," << endl
+	   << "                        AdcSPed1, AdcSPed6, AdcSPed12, AdcSPeg12, AdcSLaser, AdcSPes12," << endl
 	   << "                        AdcPhys,  AdcAny (all names must begin with 'Adc')."
-	   << fTTBELL << std::endl; 
+	   << fTTBELL << endl; 
     }
 }
 //==========================================================================
@@ -5196,14 +5192,14 @@ void TEcnaGui::MessageCnaCommandReplyA(const TString& first_same_plot)
 {
   // reply message of the Cna command
 
-  std::cout << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
+  cout << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
        << ", 1st req. evt#: " << fKeyFirstReqEvtNumber
-       << ", last req. evt#: " << fKeyLastReqEvtNumber << std::endl;
+       << ", last req. evt#: " << fKeyLastReqEvtNumber << endl;
   
   if( first_same_plot == "ASCII" )
     {
-      std::cout  << "                   " << fStexName.Data() << ": " << fKeyStexNumber
-	    << ", option: " << first_same_plot << std::endl;
+      cout  << "                   " << fStexName.Data() << ": " << fKeyStexNumber
+	    << ", option: " << first_same_plot << endl;
     }
 }
 
@@ -5219,15 +5215,15 @@ void TEcnaGui::MessageCnaCommandReplyB(const TString& first_same_plot)
 	    {
 	      TString xAsciiFileName = fHistos->AsciiFileName();
 	      if( xAsciiFileName != "?" )
-		{std::cout  << "               Histo written in ASCII file: " << xAsciiFileName.Data();}
+		{cout  << "               Histo written in ASCII file: " << xAsciiFileName.Data();}
 	    }
 	}
       else
 	{
-	  std::cout  << "               No writing in ASCII file since "
+	  cout  << "               No writing in ASCII file since "
 		<< fStexName.Data() << " number = " << fKeyStexNumber;
 	}
-      std::cout << std::endl;
+      cout << endl;
     }
 }
 
@@ -5246,7 +5242,7 @@ void TEcnaGui::ViewMatrixLowFrequencyMeanCorrelationsBetweenStins(const TString&
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Low Frequency Mean Cor(c,c') for each pair of " << fStinName.Data()
        << "s. Option: "
        << option_plot;
@@ -5268,7 +5264,7 @@ void TEcnaGui::ViewMatrixHighFrequencyMeanCorrelationsBetweenStins(const TString
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> High Frequency Mean Cor(c,c') for each pair of " << fStinName.Data()
        << "s. Option: "
        << option_plot;
@@ -5293,7 +5289,7 @@ void TEcnaGui::ViewMatrixLowFrequencyCorrelationsBetweenChannels(const Int_t&  c
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Low Frequency Correlation matrix between channels. "
        << fStinName.Data() << " A: " << cStexStin_A
        << ", " << fStinName.Data() << " B: " << cStexStin_B
@@ -5317,7 +5313,7 @@ void TEcnaGui::ViewMatrixHighFrequencyCorrelationsBetweenChannels(const Int_t&  
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> High Frequency Correlation matrix between channels. "
        << fStinName.Data() << " A: " << cStexStin_A
        << ", " << fStinName.Data() << " B: " << cStexStin_B
@@ -5341,7 +5337,7 @@ void TEcnaGui::ViewStexLowFrequencyCorcc()
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> LF Correlations between channels for each " << fStinName.Data()
        << " in " << fStexName.Data() << ". 2D histo. "
        << fStexName.Data() << ": " << fKeyStexNumber;
@@ -5364,7 +5360,7 @@ void TEcnaGui::ViewStexHighFrequencyCorcc()
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> HF Correlations between channels for each " << fStinName.Data()
        << " in " << fStexName.Data() << ". 2D histo. "
        << fStexName.Data() << ": " << fKeyStexNumber;
@@ -5392,7 +5388,7 @@ void TEcnaGui::ViewMatrixCorrelationSamples(const Int_t&  cStexStin_A, const Int
   if(fSubDet == "EE"){ChOffset = 1;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Correlation matrix between samples. "
        << fStinName.Data() << ": " << cStexStin_A  << ", channel " << i0StinEcha + ChOffset
        << ", option: " << option_plot;
@@ -5420,7 +5416,7 @@ void TEcnaGui::ViewMatrixCovarianceSamples(const Int_t&  cStexStin_A, const Int_
   if(fSubDet == "EE"){ChOffset = 1;}
   
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Covariance matrix between samples. "
        << fStinName.Data() << ": " << cStexStin_A  << ", channel " << i0StinEcha + ChOffset
        << ", option: " << option_plot;
@@ -5450,7 +5446,7 @@ void TEcnaGui::ViewStinCorrelationSamples(const Int_t& cStexStin)
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Correlation matrices between samples for each channel of "
        << fStinName.Data() << " " << cStexStin;
   MessageCnaCommandReplyA("DUMMY"); 
@@ -5472,7 +5468,7 @@ void TEcnaGui::ViewStinCovarianceSamples(const Int_t& cStexStin)
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Covariance matrices between samples for each channel of "
        << fStinName.Data() << " " << cStexStin;
   MessageCnaCommandReplyA("DUMMY");
@@ -5499,7 +5495,7 @@ void TEcnaGui::ViewSorSNumberOfEvents()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);      
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Number of Events. 2D histo. "
 	   << fStexName.Data() << ": " << fKeyStexNumber;
     }
@@ -5508,7 +5504,7 @@ void TEcnaGui::ViewSorSNumberOfEvents()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Average Number of Events. 2D histo for "
 	   << fSubDet.Data();
     }
@@ -5535,7 +5531,7 @@ void TEcnaGui::ViewSorSPedestals()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);      
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Pedestals. 2D histo. "
 	   << fStexName.Data() << ": " << fKeyStexNumber;
     }
@@ -5544,7 +5540,7 @@ void TEcnaGui::ViewSorSPedestals()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Pedestals. 2D histo for "
 	   << fSubDet.Data();
     }
@@ -5571,7 +5567,7 @@ void TEcnaGui::ViewSorSTotalNoise()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);      
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Total noise. 2D histo. "
 	   << fStexName.Data() << ": " << fKeyStexNumber;
     }
@@ -5580,7 +5576,7 @@ void TEcnaGui::ViewSorSTotalNoise()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Average total noise. 2D histo for "
 	   << fSubDet.Data();
     }
@@ -5607,7 +5603,7 @@ void TEcnaGui::ViewSorSLowFrequencyNoise()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);      
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Low frequency noise. 2D histo. "
 	   << fStexName.Data() << ": " << fKeyStexNumber;
     }
@@ -5616,7 +5612,7 @@ void TEcnaGui::ViewSorSLowFrequencyNoise()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Average low frequency noise. 2D histo for "
 	   << fSubDet.Data();
     }
@@ -5642,7 +5638,7 @@ void TEcnaGui::ViewSorSHighFrequencyNoise()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);      
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> High frequency noise. 2D histo. "
 	   << fStexName.Data() << ": " << fKeyStexNumber;
     }
@@ -5651,7 +5647,7 @@ void TEcnaGui::ViewSorSHighFrequencyNoise()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Average high frequency noise. 2D histo for "
 	   << fSubDet.Data();
     }
@@ -5681,7 +5677,7 @@ void TEcnaGui::ViewSorSMeanCorss()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);      
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Mean cor(s,s'). 2D histo. "
 	   << fStexName.Data() << ": " << fKeyStexNumber;
     }
@@ -5690,7 +5686,7 @@ void TEcnaGui::ViewSorSMeanCorss()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Average mean cor(s,s'). 2D histo for "
 	   << fSubDet.Data();
     }
@@ -5720,7 +5716,7 @@ void TEcnaGui::ViewSorSSigmaOfCorss()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);      
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Sigma of Cor(s,s'). 2D histo. "
 	   << fStexName.Data() << ": " << fKeyStexNumber;
     }
@@ -5729,7 +5725,7 @@ void TEcnaGui::ViewSorSSigmaOfCorss()
       fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			      fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, 0);
       fCnaCommand++;
-      std::cout << "   *TEcnaGui [" << fCnaCommand
+      cout << "   *TEcnaGui [" << fCnaCommand
 	   << "]> Average sigma of Cor(s,s'). 2D histo for "
 	   << fSubDet.Data();
     }
@@ -5765,9 +5761,9 @@ void TEcnaGui::ViewStinCrystalNumbering(const Int_t& StexStinEcna)
     {StinNumber = fEcalNumbering->GetDeeSCConsFrom1DeeSCEcna(fKeyStexNumber,StexStinEcna);}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Crystal numbering for " << " " << fStexName.Data() << " "
-       << fKeyStexNumber << ", " << fStinName.Data() << " " << StinNumber << std::endl;
+       << fKeyStexNumber << ", " << fStinName.Data() << " " << StinNumber << endl;
 
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
   fHistos->GeneralTitle(fKeyGeneralTitle);
@@ -5787,9 +5783,9 @@ void TEcnaGui::ViewStexStinNumbering()
   // and is in the entry field of the Stex button (fKeyStexNumber)
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> " << fStinName.Data() << " numbering for " << fStexName.Data()
-       << " " << fKeyStexNumber << std::endl;
+       << " " << fKeyStexNumber << endl;
 
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->GeneralTitle(fKeyGeneralTitle);
@@ -5813,7 +5809,7 @@ void TEcnaGui::ViewHistoSorSNumberOfEventsOfCrystals(const TString& first_same_p
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Number of events for crystals";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -5836,7 +5832,7 @@ void TEcnaGui::ViewHistoSorSNumberOfEventsDistribution(const TString& first_same
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Number of events distribution";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -5860,7 +5856,7 @@ void TEcnaGui::ViewHistoSorSPedestalsOfCrystals(const TString& first_same_plot)
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Pedestals";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -5883,7 +5879,7 @@ void TEcnaGui::ViewHistoSorSPedestalsDistribution(const TString& first_same_plot
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Pedestals distribution";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -5907,7 +5903,7 @@ void TEcnaGui::ViewHistoSorSTotalNoiseOfCrystals(const TString& first_same_plot)
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Total noise";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -5930,7 +5926,7 @@ void TEcnaGui::ViewHistoSorSTotalNoiseDistribution(const TString& first_same_plo
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);  
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Total noise distribution";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -5955,7 +5951,7 @@ void TEcnaGui::ViewHistoSorSLowFrequencyNoiseOfCrystals(const TString& first_sam
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Low frequency noise";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -5978,7 +5974,7 @@ void TEcnaGui::ViewHistoSorSLowFrequencyNoiseDistribution(const TString& first_s
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Low frequency noise distribution";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -6002,7 +5998,7 @@ void TEcnaGui::ViewHistoSorSHighFrequencyNoiseOfCrystals(const TString& first_sa
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> High frequency noise";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -6025,7 +6021,7 @@ void TEcnaGui::ViewHistoSorSHighFrequencyNoiseDistribution(const TString& first_
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> High frequency noise distribution";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -6049,7 +6045,7 @@ void TEcnaGui::ViewHistoSorSMeanCorssOfCrystals(const TString& first_same_plot)
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Mean cor(s,s')";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -6072,7 +6068,7 @@ void TEcnaGui::ViewHistoSorSMeanCorssDistribution(const TString& first_same_plot
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Mean cor(s,s') distribution";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -6095,7 +6091,7 @@ void TEcnaGui::ViewHistoSorSSigmaOfCorssOfCrystals(const TString& first_same_plo
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Sigma of cor(s,s')";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -6118,7 +6114,7 @@ void TEcnaGui::ViewHistoSorSSigmaOfCorssDistribution(const TString& first_same_p
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Sigma of cor(s,s') distribution";
   MessageCnaCommandReplyA(first_same_plot);
 
@@ -6143,12 +6139,12 @@ void TEcnaGui::ViewHistoCrystalSampleMeans(const Int_t&  cStexStin_A, const Int_
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Sample means"
        << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
        << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
        << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal" << crystal
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_Ped_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb);
@@ -6169,12 +6165,12 @@ void TEcnaGui::ViewHistoCrystalSampleMeansDistribution(const Int_t&  cStexStin_A
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Sample means"
        << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
        << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
        << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal" << crystal
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_Ped_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb);
@@ -6194,12 +6190,12 @@ void TEcnaGui::ViewHistoCrystalSampleSigmas(const Int_t&  cStexStin_A, const Int
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Sample sigmas"
        << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
        << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
        << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal:" << crystal
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_TNo_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb); 
@@ -6219,12 +6215,12 @@ void TEcnaGui::ViewHistoCrystalSampleSigmasDistribution(const Int_t&  cStexStin_
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Sample sigmas"
        << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
        << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
        << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal:" << crystal
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_TNo_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb); 
@@ -6246,12 +6242,12 @@ void TEcnaGui::ViewHistoCrystalSampleValues(const Int_t& cStexStin_A, const Int_
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> ADC sample values"
        << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
        << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
        << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal: " << crystal
-       << ", sample: " << n1Sample << ", option: " << first_same_plot << std::endl;
+       << ", sample: " << n1Sample << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_Ped_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb); 
@@ -6272,12 +6268,12 @@ void TEcnaGui::ViewHistoSampleEventDistribution(const Int_t& cStexStin_A, const 
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> ADC event distribution"
        << ". Analysis: " << fKeyAnaType << ", Run: " << fKeyRunNumber
        << ", 1st req. evt#: " << fKeyFirstReqEvtNumber << ", last req. evt#: " << fKeyLastReqEvtNumber
        << ", Stex: " << fKeyStexNumber << ", " << fStinName.Data() << ": " << cStexStin_A << ", crystal: " << crystal
-       << ", sample " << n1Sample << ", option: " << first_same_plot << std::endl;
+       << ", sample " << n1Sample << ", option: " << first_same_plot << endl;
  
   fHistos->SetHistoMin(fKeyVminD_Ped_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb);
@@ -6297,11 +6293,11 @@ void TEcnaGui::ViewHistimeCrystalPedestals(const TString&  run_par_file_name,
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Pedestal history"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_Ped_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb); 
@@ -6322,11 +6318,11 @@ void TEcnaGui::ViewHistimeCrystalPedestalsRuns(const TString&  run_par_file_name
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Pedestal history distribution"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_Ped_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_Ped_ChNb); 
@@ -6348,11 +6344,11 @@ void TEcnaGui::ViewHistimeCrystalTotalNoise(const TString&  run_par_file_name,
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Total noise history"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_TNo_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb); 
@@ -6373,11 +6369,11 @@ void TEcnaGui::ViewHistimeCrystalTotalNoiseRuns(const TString&  run_par_file_nam
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Total noise history distribution"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_TNo_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_TNo_ChNb); 
@@ -6398,11 +6394,11 @@ void TEcnaGui::ViewHistimeCrystalLowFrequencyNoise(const TString&  run_par_file_
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Low frequency noise history"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_LFN_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_LFN_ChNb); 
@@ -6423,11 +6419,11 @@ void TEcnaGui::ViewHistimeCrystalLowFrequencyNoiseRuns(const TString&  run_par_f
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Low frequency noise history distribution"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_LFN_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_LFN_ChNb); 
@@ -6448,11 +6444,11 @@ void TEcnaGui::ViewHistimeCrystalHighFrequencyNoise(const TString&  run_par_file
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> High frequency noise history"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_HFN_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_HFN_ChNb); 
@@ -6473,11 +6469,11 @@ void TEcnaGui::ViewHistimeCrystalHighFrequencyNoiseRuns(const TString&  run_par_
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> High frequency noise history distribution"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_HFN_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_HFN_ChNb); 
@@ -6498,11 +6494,11 @@ void TEcnaGui::ViewHistimeCrystalMeanCorss(const TString&  run_par_file_name,
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Mean corss history"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_MCs_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
@@ -6523,11 +6519,11 @@ void TEcnaGui::ViewHistimeCrystalMeanCorssRuns(const TString&  run_par_file_name
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Mean corss history distribution"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_MCs_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_MCs_ChNb);
@@ -6548,11 +6544,11 @@ void TEcnaGui::ViewHistimeCrystalSigmaOfCorss(const TString& run_par_file_name,
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Sigma of corss history"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_SCs_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_SCs_ChNb);
@@ -6573,11 +6569,11 @@ void TEcnaGui::ViewHistimeCrystalSigmaOfCorssRuns(const TString& run_par_file_na
   if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/;}
 
   fCnaCommand++;
-  std::cout << "   *TEcnaGui [" << fCnaCommand
+  cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Sigma of corss history distribution"
        << ". Run parameters file name: " << run_par_file_name
        << ", " << fStinName.Data() << ": " << cStexStin_A << ", channel: " << i0StinEcha
-       << ", option: " << first_same_plot << std::endl;
+       << ", option: " << first_same_plot << endl;
 
   fHistos->SetHistoMin(fKeyVminD_SCs_ChNb);
   fHistos->SetHistoMax(fKeyVmaxD_SCs_ChNb);

@@ -65,7 +65,7 @@ process.MessageLogger.suppressInfo.append("newTracksFromOtobV0")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
-                    fileNames = cms.untracked.vstring(options.inputFiles),
+                    fileNames = cms.untracked.vstring(),
     
 #                    skipBadFiles = cms.untracked.bool(True),
                     inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")

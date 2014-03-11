@@ -10,14 +10,15 @@
 
 #include "boost/lexical_cast.hpp"
 
-#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
-#include "GeneratorInterface/Core/interface/FortranInstance.h"
 #include "GeneratorInterface/HydjetInterface/interface/HydjetHadronizer.h"
 #include "GeneratorInterface/HydjetInterface/interface/HydjetWrapper.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
@@ -47,8 +48,6 @@ namespace {
    }
 }
 
-const std::vector<std::string> HydjetHadronizer::theSharedResources = { edm::SharedResourceNames::kPythia6,
-                                                                        gen::FortranInstance::kFortranInstance };
 
 //_____________________________________________________________________
 HydjetHadronizer::HydjetHadronizer(const ParameterSet &pset) :
@@ -108,13 +107,6 @@ HydjetHadronizer::~HydjetHadronizer()
   // destructor
   call_pystat(1);
   delete pythia6Service_;
-}
-
-
-//_____________________________________________________________________
-void HydjetHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v)
-{
-  pythia6Service_->setRandomEngine(v);
 }
 
 

@@ -1,6 +1,8 @@
+#include <CLHEP/Random/RandomEngine.h>
 
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
@@ -45,11 +47,17 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
   AllMu(pset.getParameter<bool>("AcptAllMu")),
   extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
   extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.)),
-  cmVerbosity_(pset.getParameter<bool>("Verbosity")),
-  isInitialized_(false)
+  cmVerbosity_(pset.getParameter<bool>("Verbosity"))
   {
     //if not specified (i.e. negative) then use MinP also for MinP_CMS
     if(MinP_CMS < 0) MinP_CMS = MinP;
+
+    edm::Service<RandomNumberGenerator> rng;
+    if (!rng.isAvailable())
+      throw cms::Exception("Configuration")
+         << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+            "which appears to be absent.  Please add that service to your configuration\n"
+            "or remove the modules that require it." << std::endl;
 
     // set up the generator
     CosMuoGen = new CosmicMuonGenerator();
@@ -91,6 +99,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setMaxEnu(MaxEn);    
     CosMuoGen->setNuProdAlt(NuPrdAlt);
     CosMuoGen->setAcptAllMu(AllMu);
+    CosMuoGen->initialize(&rng->getEngine());
     produces<HepMCProduct>();
     produces<GenEventInfoProduct>();
     produces<GenRunInfoProduct, edm::InRun>();
@@ -101,15 +110,6 @@ edm::CosMuoGenProducer::~CosMuoGenProducer(){
   delete CosMuoGen;
   //  delete fEvt;
   clear();
-}
-
-void edm::CosMuoGenProducer::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&)
-{
-  if(!isInitialized_) {
-    isInitialized_ = true;
-    RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen, lumi.index());
-    CosMuoGen->initialize(randomEngineSentry.randomEngine());
-  }
 }
 
 void edm::CosMuoGenProducer::endRunProduce( Run &run, const EventSetup& es )
@@ -131,8 +131,6 @@ void edm::CosMuoGenProducer::clear(){}
 
 void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 {  
-  RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen, e.streamID());
-
   // generate event
   if (!MultiMuon) {
     CosMuoGen->nextEvent();

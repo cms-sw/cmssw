@@ -28,7 +28,6 @@ namespace edm {
     static const std::string kPhotos;
     static const std::string kTauola;
     static const std::string kEvtGen;
-    static const std::string kHerwig6;
   };
 
   // Each time the following function is called, it returns a different

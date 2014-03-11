@@ -23,8 +23,6 @@ for tracks in selectedTracks :
     locals()[label].doDCAPlots       = doPlotsPCA[tracks]
     locals()[label].doDCAwrtPVPlots  = doPlotsPCA[tracks]
     locals()[label].doDCAwrt000Plots = doPlotsPCA[tracks]
-    locals()[label].numCut           = numCutString[tracks]
-    locals()[label].denCut           = denCutString[tracks]
     locals()[label].setLabel(label)
     
 
@@ -40,8 +38,6 @@ for tracks in selectedTracks :
     locals()[label].doDCAPlots       = doPlotsPCA[tracks]
     locals()[label].doDCAwrtPVPlots  = doPlotsPCA[tracks]
     locals()[label].doDCAwrt000Plots = doPlotsPCA[tracks]
-    locals()[label].numCut           = numCutString[tracks]
-    locals()[label].denCut           = denCutString[tracks]
     locals()[label].setLabel(label)
 
 

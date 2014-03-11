@@ -40,6 +40,9 @@ ________________________________________________________________________
 BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet & p )
 : BaseEvtVtxGenerator(p)
 { 
+  
+  fRandom = new CLHEP::RandGaussQ(getEngine());
+
   readDB_=p.getParameter<bool>("readDB");
   if (!readDB_){
     fX0 =        p.getParameter<double>("X0")*cm;
@@ -64,6 +67,7 @@ BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet & p )
 
 BetafuncEvtVtxGenerator::~BetafuncEvtVtxGenerator() 
 {
+    delete fRandom; 
 }
 
 void BetafuncEvtVtxGenerator::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& iEventSetup){
@@ -96,25 +100,25 @@ void BetafuncEvtVtxGenerator::update(const edm::EventSetup& iEventSetup){
 }
 
 //Hep3Vector* BetafuncEvtVtxGenerator::newVertex() {
-HepMC::FourVector* BetafuncEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) {
+HepMC::FourVector* BetafuncEvtVtxGenerator::newVertex() {
 
 	
 	double X,Y,Z;
 	
-	double tmp_sigz = CLHEP::RandGaussQ::shoot(engine, 0., fSigmaZ);
+	double tmp_sigz = fRandom->fire(0., fSigmaZ);
 	Z = tmp_sigz + fZ0;
 
 	double tmp_sigx = BetaFunction(Z,fZ0); 
 	// need sqrt(2) for beamspot width relative to single beam width
 	tmp_sigx /= sqrt(2.0);
-	X = CLHEP::RandGaussQ::shoot(engine, 0., tmp_sigx) + fX0; // + Z*fdxdz ;
+	X = fRandom->fire(0.,tmp_sigx) + fX0; // + Z*fdxdz ;
 
 	double tmp_sigy = BetaFunction(Z,fZ0);
 	// need sqrt(2) for beamspot width relative to single beam width
 	tmp_sigy /= sqrt(2.0);
-	Y = CLHEP::RandGaussQ::shoot(engine, 0., tmp_sigy) + fY0; // + Z*fdydz;
+	Y = fRandom->fire(0.,tmp_sigy) + fY0; // + Z*fdydz;
 
-	double tmp_sigt = CLHEP::RandGaussQ::shoot(engine, 0., fSigmaZ);
+	double tmp_sigt = fRandom->fire(0., fSigmaZ);
 	double T = tmp_sigt + fTimeOffset; 
 
 	if ( fVertex == 0 ) fVertex = new HepMC::FourVector();

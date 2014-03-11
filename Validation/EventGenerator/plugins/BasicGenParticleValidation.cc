@@ -19,6 +19,8 @@ BasicGenParticleValidation::BasicGenParticleValidation(const edm::ParameterSet& 
   matchPr_(iPSet.getParameter<double>("matchingPrecision")),
   verbosity_(iPSet.getUntrackedParameter<unsigned int>("verbosity",0))
 {    
+  dbe = 0;
+  dbe = edm::Service<DQMStore>().operator->();
 
   hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
   genparticleCollectionToken_=consumes<reco::GenParticleCollection>(genparticleCollection_);
@@ -28,44 +30,53 @@ BasicGenParticleValidation::BasicGenParticleValidation(const edm::ParameterSet& 
 
 BasicGenParticleValidation::~BasicGenParticleValidation() {}
 
-
-
-void BasicGenParticleValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
+void BasicGenParticleValidation::beginJob()
+{
+  if(dbe){
 	///Setting the DQM top directories
-	i.setCurrentFolder("Generator/GenParticles");
+	dbe->setCurrentFolder("Generator/GenParticles");
 	
 	///Booking the ME's
     
     // Number of analyzed events
-    nEvt = i.book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
 
 	///multiplicity
-	genPMultiplicity = i.book1D("genPMultiplicty", "Log(No. all GenParticles)", 50, -1, 5); //Log
+	genPMultiplicity = dbe->book1D("genPMultiplicty", "Log(No. all GenParticles)", 50, -1, 5); //Log
     //difference in HepMC and reco multiplicity
-    genMatched = i.book1D("genMatched", "Difference reco - matched", 50, -25, 25);
+    genMatched = dbe->book1D("genMatched", "Difference reco - matched", 50, -25, 25);
     //multiple matching
-    multipleMatching = i.book1D("multipleMatching", "multiple reco HepMC matching", 50, 0, 50);
+    multipleMatching = dbe->book1D("multipleMatching", "multiple reco HepMC matching", 50, 0, 50);
     //momentum difference of matched particles
-    matchedResolution = i.book1D("matchedResolution", "log10(momentum difference of matched particles)", 70, -10., -3.);
+    matchedResolution = dbe->book1D("matchedResolution", "log10(momentum difference of matched particles)", 70, -10., -3.);
 
     // GenJet general distributions
-    genJetMult = i.book1D("genJetMult", "GenJet multiplicity", 50, 0, 50);
-    genJetEnergy = i.book1D("genJetEnergy", "Log10(GenJet energy)", 60, -1, 5);
-    genJetPt = i.book1D("genJetPt", "Log10(GenJet pt)", 60, -1, 5);
-    genJetEta = i.book1D("genJetEta", "GenJet eta", 220, -11, 11);
-    genJetPhi = i.book1D("genJetPhi", "GenJet phi", 360, -180, 180);
-    genJetDeltaEtaMin = i.book1D("genJetDeltaEtaMin", "GenJet minimum rapidity gap", 30, 0, 30);
+    genJetMult = dbe->book1D("genJetMult", "GenJet multiplicity", 50, 0, 50);
+    genJetEnergy = dbe->book1D("genJetEnergy", "Log10(GenJet energy)", 60, -1, 5);
+    genJetPt = dbe->book1D("genJetPt", "Log10(GenJet pt)", 60, -1, 5);
+    genJetEta = dbe->book1D("genJetEta", "GenJet eta", 220, -11, 11);
+    genJetPhi = dbe->book1D("genJetPhi", "GenJet phi", 360, -180, 180);
+    genJetDeltaEtaMin = dbe->book1D("genJetDeltaEtaMin", "GenJet minimum rapidity gap", 30, 0, 30);
     
-    genJetPto1 = i.book1D("genJetPto1", "GenJet multiplicity above 1 GeV", 50, 0, 50);
-    genJetPto10 = i.book1D("genJetPto10", "GenJet multiplicity above 10 GeV", 50, 0, 50);
-    genJetPto100 = i.book1D("genJetPto100", "GenJet multiplicity above 100 GeV", 50, 0, 50);
-    genJetCentral = i.book1D("genJetCentral", "GenJet multiplicity |eta|.lt.2.5", 50, 0, 50);
+    genJetPto1 = dbe->book1D("genJetPto1", "GenJet multiplicity above 1 GeV", 50, 0, 50);
+    genJetPto10 = dbe->book1D("genJetPto10", "GenJet multiplicity above 10 GeV", 50, 0, 50);
+    genJetPto100 = dbe->book1D("genJetPto100", "GenJet multiplicity above 100 GeV", 50, 0, 50);
+    genJetCentral = dbe->book1D("genJetCentral", "GenJet multiplicity |eta|.lt.2.5", 50, 0, 50);
 
-    genJetTotPt = i.book1D("genJetTotPt", "Log10(GenJet total pt)", 100, -5, 5);
+    genJetTotPt = dbe->book1D("genJetTotPt", "Log10(GenJet total pt)", 100, -5, 5);
 
+  }
   return;
 }
 
+void BasicGenParticleValidation::endJob(){return;}
+void BasicGenParticleValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
+{
+  ///Get PDT Table
+  iSetup.getData( fPDGTable );
+  return;
+}
+void BasicGenParticleValidation::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
 void BasicGenParticleValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 { 
 

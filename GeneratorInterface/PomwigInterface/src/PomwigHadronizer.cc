@@ -21,7 +21,6 @@
 #include <HepMC/IO_HERWIG.h>
 #include "HepPID/ParticleIDTranslations.hh"
 
-#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -32,7 +31,6 @@
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
-#include "GeneratorInterface/Core/interface/FortranInstance.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
@@ -88,9 +86,6 @@ extern "C" {
 	void mysetpdfpath_(const char *path);
 }
 
-const std::vector<std::string> PomwigHadronizer::theSharedResources = { edm::SharedResourceNames::kHerwig6,
-                                                                         gen::FortranInstance::kFortranInstance };
-
 PomwigHadronizer::PomwigHadronizer(const edm::ParameterSet &params) :
 	BaseHadronizer(params),
 	needClear(false),
@@ -115,11 +110,6 @@ PomwigHadronizer::PomwigHadronizer(const edm::ParameterSet &params) :
 PomwigHadronizer::~PomwigHadronizer()
 {
 	clear();
-}
-
-void PomwigHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v)
-{
-        setHerwigRandomEngine(v);
 }
 
 void PomwigHadronizer::clear()
