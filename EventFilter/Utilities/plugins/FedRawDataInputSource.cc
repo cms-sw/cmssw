@@ -250,18 +250,21 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     {
       edm::LogInfo("FedRawDataInputSource") << "No rawdata files at this time";
       //sleep until wakeup (only in single-buffer mode) or timeout
-      if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100))) {
+      std::unique_lock<std::mutex> lkw(mWakeup_);
+      if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) != std::cv_status::timeout) {
         //DEBUGGING part:
         if (!fileQueue_.try_pop(currentFile_)) {
           std::cout << " main thread woken up but data not yet coherent!" << std::endl;
           //might also spinlock...
           usleep(1000);
-          if (!fileQueue_.try_pop(currentFile_)) std::cout << " main thread sleep didn't help!" << std::endl;
-          else break;
+          if (!fileQueue_.try_pop(currentFile_)) {
+            std::cout << " main thread sleep didn't help!" << std::endl;
+            return evf::EvFDaqDirector::noFile;
+          }
         }
-        else break;
       }
-      return evf::EvFDaqDirector::noFile;
+      //return evf::EvFDaqDirector::noFile;
+      else return evf::EvFDaqDirector::noFile;//debugging only
     }
     status = currentFile_->status_;
     if ( status == evf::EvFDaqDirector::runEnded)
@@ -326,8 +329,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     //try to wake up supervisor thread which might be sleeping waiting for the free chunk
     if (singleBufferMode_) {
       std::unique_lock<std::mutex> lkw(mWakeup_);
-      cvWakeup_.cv.notify_one();
-      lkw.unlock();
+      cvWakeup_.notify_one();
     }
     //put the file in pending delete list;
     filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,currentFile_));
@@ -346,7 +348,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
   if (singleBufferMode_) {
 
     //should already be there
-    while (!waitForChunk(currentFile_->currentChunk_)) {
+    while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
       usleep(10000);
       if (currentFile_->parent_->exceptionState()) currentFile_->parent_->threadError();
     }
@@ -360,7 +362,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       //recalculate chunk pocitio
       dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
       currentLeft = currentFile_->chunks_[0]->size_ - currentFile_->chunkPosition_;
-      if ( currentLeft_ < headerSize )
+      if ( currentLeft < headerSize )
       {
       throw cms::Exception("FedRawDataInputSource::cacheNextEvent") <<
 	"Premature end of input file while reading event header";
@@ -389,15 +391,15 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       currentLeft = currentFile_->chunks_[0]->size_ - currentFile_->chunkPosition_;
       event_.reset( new FRDEventMsgView(dataPosition) );
     }
-    currentFile_->bufferPosition+=event_->size();
-    currentFile_->chunkPosition+=event_->size();
+    currentFile_->bufferPosition_ += event_->size();
+    currentFile_->chunkPosition_ += event_->size();
 
     //last chunk is released when this function is invoked next time
 
   }
   //multibuffer mode:
   else
-    {
+  {
     //wait for the current chunk to become added to the vector
     while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
       usleep(100000);
@@ -450,7 +452,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 	assert(!chunkEnd);
 	chunkIsFree_=false;
       }
-
+    }
   }//end multibuffer mode
 
   if ( verifyAdler32_ && event_->version() >= 3 )
@@ -494,6 +496,10 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   edm::WrapperOwningHolder edp(new edm::Wrapper<FEDRawDataCollection>(rawData),
                                edm::Wrapper<FEDRawDataCollection>::getInterface());
 
+  //FWCore API for up to 7_1_0_pre2
+  //eventPrincipal.put(daqProvenanceHelper_.branchDescription(), edp,
+  //                   daqProvenanceHelper_.dummyProvenance());
+  
   eventPrincipal.put(daqProvenanceHelper_.branchDescription(), edp,
                      daqProvenanceHelper_.dummyProvenance());
 
@@ -673,7 +679,7 @@ void FedRawDataInputSource::readSupervisor()
     {
       std::unique_lock<std::mutex> lkw(mWakeup_);
       //sleep until woken up by condition or a timeout
-      if (!cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100))) {
+      if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout) {
         counter++;
         if (!(counter%10)) edm::LogInfo("FedRawDataInputSource") << " No free chunks or threads..." << std::endl;
       }
@@ -737,67 +743,68 @@ void FedRawDataInputSource::readSupervisor()
       jsonFile.replace_extension(".jsn");
       int eventsInNewFile = grabNextJsonFile(jsonFile);
       assert( eventsInNewFile>=0 );
-      assert(!(eventsInNewFile>0 ^^ fileSize>0));//file without events must be empty
+      assert((eventsInNewFile>0) == (fileSize>0));//file without events must be empty
 
-      if (!singleBufferMode_)
-        //calculate number of needed chunks
-        unsigned int neededChunks = fileSize/eventChunkSize_;
-        if (fileSize%eventChunkSize_) neededChunks++;
+      if (!singleBufferMode_) {
+	//calculate number of needed chunks
+	unsigned int neededChunks = fileSize/eventChunkSize_;
+	if (fileSize%eventChunkSize_) neededChunks++;
 
         InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,nextFile,fileSize,neededChunks,eventsInNewFile,this);
         fileQueue_.push(newInputFile);
 
 	for (unsigned int i=0;i<neededChunks;i++) {
 
-	//get thread
-        unsigned int newTid;
-	while (!workerPool_.try_pop(newTid)) {
-		usleep(100000);
+	  //get thread
+	  unsigned int newTid;
+	  while (!workerPool_.try_pop(newTid)) {
+	    usleep(100000);
+	  }
+
+	  InputChunk * newChunk;
+	  while (!freeChunks_.try_pop(newChunk)) {
+	    usleep(100000);
+	  }
+
+	  std::unique_lock<std::mutex> lk(mReader_);
+
+	  unsigned int toRead = eventChunkSize_;
+	  if (i==neededChunks-1 && fileSize%eventChunkSize_) toRead = fileSize%eventChunkSize_;
+	  newChunk->reset(i*eventChunkSize_,toRead,i);
+
+	  workerJob_[newTid].first=newInputFile;
+	  workerJob_[newTid].second=newChunk;
+
+	  //wake up the worker thread
+	  cvReader_[newTid]->notify_one();
 	}
-
-        InputChunk * newChunk;
-        while (!freeChunks_.try_pop(newChunk)) {
-		usleep(100000);
-	}
-
-        std::unique_lock<std::mutex> lk(mReader_);
-
-	unsigned int toRead = eventChunkSize_;
-	if (i==neededChunks-1 && fileSize%eventChunkSize_) toRead = fileSize%eventChunkSize_;
-	newChunk->reset(i*eventChunkSize_,toRead,i);
-
-        workerJob_[newTid].first=newInputFile;
-        workerJob_[newTid].second=newChunk;
-
-	//wake up the worker thread
-	cvReader_[newTid]->notify_one();
       }
-      else 
-      {
-        if (!eventsInNewFile) {
-          //still queue file for lumi update
-          std::unique_lock<std::mutex> lkw(mWakeup_);
-          InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,nextFile,0,0,0,this);
-          fileQueue_.push(newInputFile);
-          cvWakeup_.cv.notify_one();
-          return;
-        }
-        //in single-buffer mode put single chunk in the file and let the main thread read the file
-        InputChunk * newChunk;
-        //should be available immediately
-        while(!freeChunks_.try_pop(newChunk)) usleep(100000);
+      else {
+	if (!eventsInNewFile) {
+	  //still queue file for lumi update
+	  std::unique_lock<std::mutex> lkw(mWakeup_);
+	  InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,nextFile,0,0,0,this);
+	  fileQueue_.push(newInputFile);
+	  cvWakeup_.notify_one();
+	  return;
+	}
+	//in single-buffer mode put single chunk in the file and let the main thread read the file
+	InputChunk * newChunk;
+	//should be available immediately
+	while(!freeChunks_.try_pop(newChunk)) usleep(100000);
 
         std::unique_lock<std::mutex> lkw(mWakeup_);
+
         unsigned int toRead = eventChunkSize_;
         if (fileSize%eventChunkSize_) toRead = fileSize%eventChunkSize_;
         newChunk->reset(0,toRead,0);
         newChunk->readComplete_=true;
-        newInputfile->chunks_[0]=newChunk;
 
         //push file and wakeup main thread
         InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,nextFile,fileSize,1,eventsInNewFile,this);
+        newInputFile->chunks_[0]=newChunk;
         fileQueue_.push(newInputFile);
-        cvWakeup_.cv.notify_one();
+        cvWakeup_.notify_one();
       }
     }
   }
@@ -812,8 +819,8 @@ void FedRawDataInputSource::readSupervisor()
     numFinishedThreads++;
   }
   for (unsigned int i=0;i<workerThreads_.size();i++) {
-	  workerThreads_[i]->join();
-	  delete workerThreads_[i];
+    workerThreads_[i]->join();
+    delete workerThreads_[i];
   }
 }
 
@@ -951,17 +958,14 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
 
   if (fileDescriptor_<0) {
     fileDescriptor_ = open(file->fileName_.c_str(), O_RDONLY);
-    bufferInputRead_ = 0;_
+    bufferInputRead_ = 0;
     //off_t pos = lseek(fileDescriptor,0,SEEK_SET);
-    if (file->fileDescriptor_>=0) 
+    if (fileDescriptor_>=0) 
       edm::LogInfo("FedRawDataInputSource") << " opened file " << file->fileName_;
     else
     {
-      edm::LogError("FedRawDataInputSource") <<
-	"readWorker failed to open file " << file->fileName_ << " fd:" << fileDescriptor <<
-	" or seek to offset " << chunk->offset_ << ", lseek returned:" << pos;
-      setExceptionState_=true;
-      return;
+      throw cms::Exception("FedRawDataInputSource:readNextChunkIntoBuffer") << "failed to open file "
+            << file->fileName_ << " fd:" << fileDescriptor_;
     }
   }
 
@@ -976,7 +980,7 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
     const uint32_t chunksize = eventChunkSize_ - file->chunkPosition_;
     const uint32_t blockcount=chunksize/eventChunkBlock_;
     const uint32_t leftsize = chunksize%eventChunkBlock_;
-    const uint32_t writePos = file->chunkPosition;
+    uint32_t writePos = file->chunkPosition_;
     memcpy((void*) file->chunks_[0]->buf_, file->chunks_[0]->buf_ + writePos, writePos);
 
     for (uint32_t i=0;i<blockcount;i++) {
@@ -991,7 +995,7 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
     }
     file->chunkPosition_=0;//data was moved to beginning of the chunk
   }
-  if (bufferInputRead_ == file->fileSize) { // no more data in this file 
+  if (bufferInputRead_ == file->fileSize_) { // no more data in this file 
     if (fileDescriptor_!=-1)
     {
       edm::LogInfo("FedRawDataInputSource") << "Closing input file " << file->fileName_;

@@ -32,7 +32,10 @@ namespace jsoncollector {
 class DataPointDefinition;
 }
 
+
 class FedRawDataInputSource: public edm::RawInputSource {
+
+class InputFile;
 
 public:
   explicit FedRawDataInputSource(edm::ParameterSet const&,edm::InputSourceDescription const&);
@@ -61,7 +64,7 @@ private:
   bool exceptionState() {return setExceptionState_;}
 
   //functions for single buffered reader
-  evf::EvFDaqDirector::FileStatus readNextChunkIntoBuffer();
+  void readNextChunkIntoBuffer(InputFile *file);
 
   //variables
   evf::FastMonitoringService* fms_=nullptr;
@@ -202,7 +205,7 @@ private:
 
   //supervisor thread wakeup
   std::mutex mWakeup_;
-  std::vector<std::condition_variable*> cvWakeup_;
+  std::condition_variable cvWakeup_;
 
   //variables for the single buffered mode
   bool singleBufferMode_;
