@@ -44,7 +44,7 @@ public:
       value_( params.getParameter<std::string>("value") ),
       evaluation_( value_ )
   {
-        produces< JetValueMap >(value_);
+        produces< JetValueMap >();
   }
 
   virtual ~JetDeltaRValueMapProducer() {}
@@ -90,7 +90,7 @@ public:
       filler.fill();
 
       // put  in Event
-      iEvent.put(jetValueMap,value_);
+      iEvent.put(jetValueMap);
 
 
     }
