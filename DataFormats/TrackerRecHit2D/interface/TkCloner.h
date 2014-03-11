@@ -7,6 +7,7 @@ class SiPixelRecHit;
 class SiStripRecHit2D;
 class SiStripRecHit1D;
 class SiStripMatchedRecHit2D;
+class ProjectedSiStripRecHit2D;
 
 class TkCloner {
 public:
@@ -18,6 +19,7 @@ public:
   virtual SiStripRecHit2D * operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const=0;
   virtual SiStripRecHit1D * operator()(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const=0;
   virtual SiStripMatchedRecHit2D * operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const=0;
+  virtual ProjectedSiStripRecHit2D * operator()(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const=0;
 
 };
 #endif

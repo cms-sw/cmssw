@@ -2,6 +2,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 
@@ -24,7 +25,6 @@ SiPixelRecHit * TkClonerImpl::operator()(SiPixelRecHit const & hit, TrajectorySt
   PixelClusterParameterEstimator::LocalValues lv = 
     pixelCPE->localParameters( clust, *hit.detUnit(), tsos);
   return new SiPixelRecHit(lv.first, lv.second, pixelCPE->rawQualityWord(), *hit.det(), hit.cluster());
-
 }
 
 SiStripRecHit2D * TkClonerImpl::operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
@@ -32,8 +32,7 @@ SiStripRecHit2D * TkClonerImpl::operator()(SiStripRecHit2D const & hit, Trajecto
     const SiStripCluster&  clust = hit.stripCluster();  
     StripClusterParameterEstimator::LocalValues lv = 
       stripCPE->localParameters( clust, *hit.detUnit(), tsos);
- return new SiStripRecHit2D(lv.first, lv.second, *hit.det(), hit.cluster());
-
+ return new SiStripRecHit2D(lv.first, lv.second, *hit.det(), hit.omniCluster());
 }
 
 
@@ -44,7 +43,7 @@ SiStripRecHit1D * TkClonerImpl::operator()(SiStripRecHit1D const & hit, Trajecto
   StripClusterParameterEstimator::LocalValues lv = 
     stripCPE->localParameters( clust, *hit.detUnit(), tsos);
   LocalError le(lv.second.xx(),0.,std::numeric_limits<float>::max()); //Correct??
-  return new SiStripRecHit1D(lv.first, le, *hit.det(), hit.cluster());
+  return new SiStripRecHit1D(lv.first, le, *hit.det(), hit.omniCluster());
 }
 
 
@@ -83,7 +82,6 @@ SiStripMatchedRecHit2D * TkClonerImpl::operator()(SiStripMatchedRecHit2D const &
     LocalVector tkDir = (tsos.isValid() ? tsos.localDirection() : 
 			 det->surface().toLocal( det->position()-GlobalPoint(0,0,0)));
 
-
     const SiStripCluster& monoclust   = hit.monoCluster();  
     const SiStripCluster& stereoclust = hit.stereoCluster();
     
@@ -99,8 +97,16 @@ SiStripMatchedRecHit2D * TkClonerImpl::operator()(SiStripMatchedRecHit2D const &
 						 *gdet->stereoDet(),
 						 hit.stereoClusterRef());
     
-
     return theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,true);
 
-
 }
+
+
+ProjectedSiStripRecHit2D * TkClonerImpl::operator()(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
+  const SiStripCluster& clust = hit.stripCluster();
+  const GeomDetUnit * gdu = reinterpret_cast<const GeomDetUnit *>(hit.originalDet());
+  //if (!gdu) std::cout<<"no luck dude"<<std::endl;
+  StripClusterParameterEstimator::LocalValues lv = stripCPE->localParameters(clust, *gdu, tsos);
+  return new ProjectedSiStripRecHit2D(lv.first, lv.second, *hit.det(), *hit.originalDet(), hit.omniCluster());
+}
+

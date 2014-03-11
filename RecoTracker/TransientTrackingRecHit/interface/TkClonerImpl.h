@@ -4,11 +4,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 
 
-class SiPixelRecHit;
-class SiStripRecHit2D;
-class SiStripRecHit1D;
-class SiStripMatchedRecHit2D;
-
 class PixelClusterParameterEstimator;
 class StripClusterParameterEstimator;
 class SiStripRecHitMatcher;
@@ -27,6 +22,7 @@ public:
   virtual SiStripRecHit2D * operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
   virtual SiStripRecHit1D * operator()(SiStripRecHit1D const & hit, TrajectoryStateOnSurface const& tsos) const;
   virtual SiStripMatchedRecHit2D * operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
+  virtual ProjectedSiStripRecHit2D * operator()(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
 
 private:
   const PixelClusterParameterEstimator * pixelCPE;
