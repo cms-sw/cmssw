@@ -17,8 +17,8 @@ private:
   virtual void sortNS( DDFilteredView& , GeometricDet* );
   virtual void buildComponent( DDFilteredView& , GeometricDet*, std::string );
   
-  void PhiPosNegSplit_innerOuter( std::vector< GeometricDet const *>::iterator begin,
-				  std::vector< GeometricDet const *>::iterator end );
+  void PhiPosNegSplit_innerOuter( GeometricDet::ConstGeometricDetContainer::iterator begin,
+				  GeometricDet::ConstGeometricDetContainer::iterator end );
   unsigned int m_totalBlade;
 };
 

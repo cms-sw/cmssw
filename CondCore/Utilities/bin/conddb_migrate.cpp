@@ -5,6 +5,7 @@
 #include "CondCore/DBCommon/interface/Auth.h"
 
 #include "CondCore/CondDB/interface/ConnectionPool.h"
+#include "CondCore/CondDB/interface/Utils.h"
 #include "CondCore/CondDB/interface/IOVEditor.h"
 #include "CondCore/CondDB/interface/IOVProxy.h"
 
@@ -56,7 +57,7 @@ int cond::MigrateUtilities::execute(){
   std::string destConnect = getOptionValue<std::string>("destConnect" );
 
   std::string sourceConnect = getOptionValue<std::string>("sourceConnect");
-  std::tuple<std::string,std::string,std::string> connPars = parseConnectionString( sourceConnect );
+  std::tuple<std::string,std::string,std::string> connPars = persistency::parseConnectionString( sourceConnect );
   if( std::get<0>( connPars ) == "frontier" ) throwException("Cannot migrate data from FronTier cache.","MigrateUtilities::execute");
 
   std::cout <<"# Connecting to source database on "<<sourceConnect<<std::endl;

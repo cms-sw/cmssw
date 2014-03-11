@@ -167,7 +167,7 @@ double ElectronEnergyCalibrator::stringToDouble(const string &str)
 	return val;
 }
 
-void ElectronEnergyCalibrator::calibrate(SimpleElectron &electron)
+void ElectronEnergyCalibrator::calibrate(SimpleElectron &electron, edm::StreamID const& streamID)
 {
     double scale = 1.0;
     double dsigMC=0.; 
@@ -299,7 +299,7 @@ void ElectronEnergyCalibrator::calibrate(SimpleElectron &electron)
                     }
                 } else 
                 {
-                    CLHEP::RandFlat flatRandom(rng->getEngine());	
+                    CLHEP::RandFlat flatRandom(rng->getEngine(streamID));
 	                double rn = flatRandom.fire();
                 	if ( rn > lumiRatio_ ) 
                     {
@@ -411,7 +411,7 @@ void ElectronEnergyCalibrator::calibrate(SimpleElectron &electron)
 
     if ( isMC_ ) 
     {
-        CLHEP::RandGaussQ gaussDistribution(rng->getEngine(), 1.,dsigMC);
+        CLHEP::RandGaussQ gaussDistribution(rng->getEngine(streamID), 1.,dsigMC);
         corrMC = gaussDistribution.fire();
         if ( verbose_ ) 
         {

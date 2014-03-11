@@ -39,14 +39,14 @@ namespace cond {
       bool isLoggingEnabled() const;
       void setParameters( const edm::ParameterSet& connectionPset );
       void configure();
-      Session createSession( const std::string& connectionString, bool writeCapable=false, BackendType backType=ORA_DB );
+      Session createSession( const std::string& connectionString, bool writeCapable=false, BackendType backType=DEFAULT_DB );
       Session createReadOnlySession( const std::string& connectionString, const std::string& transactionId );
       
     private:
       Session createSession( const std::string& connectionString, 
 			     const std::string& transactionId, 
 			     bool writeCapable=false, 
-			     BackendType backType=ORA_DB );
+			     BackendType backType=DEFAULT_DB );
       void configure( coral::IConnectionServiceConfiguration& coralConfig);
     private:
       std::string m_authPath;
@@ -55,7 +55,6 @@ namespace cond {
       bool m_loggingEnabled = false;
       // this one has to be moved!
       cond::CoralServiceManager* m_pluginManager = 0; 
-      std::vector<std::string> m_refreshtablelist;
       std::map<std::string,int> m_dbTypes;
     };
   }

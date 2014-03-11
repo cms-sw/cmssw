@@ -179,7 +179,7 @@ size_t cond::DecodingKey::init( const std::string& keyFileName, const std::strin
 	}
       }
     } else {
-      std::string msg = "Provided Key File \""+m_fileName+"\" is invalid.";
+      std::string msg = "Required Key File \""+m_fileName+"\" is missing or unreadable.";
       throwException(msg,"DecodingKey::init");      
     }
   }

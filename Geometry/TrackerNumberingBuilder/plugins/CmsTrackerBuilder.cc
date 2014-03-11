@@ -49,13 +49,13 @@ CmsTrackerBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::str
 void
 CmsTrackerBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
 {  
-  GeometricDet::GeometricDetContainer & comp = det->components();
+  GeometricDet::ConstGeometricDetContainer & comp = det->components();
   std::stable_sort( comp.begin(), comp.end(), subDetByType());
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {
     uint32_t temp= comp[i]->type();
-    comp[i]->setGeographicalID(temp);
+    det->component(i)->setGeographicalID(temp);
   }
 }
 
