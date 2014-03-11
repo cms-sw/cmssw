@@ -31,6 +31,20 @@ namespace ora {
     void* m_ptr;
     edm::TypeWithDict m_type;
   };
+
+  template<> 
+  inline
+  Object::Object( const Object& rhs ):
+    m_ptr( rhs.m_ptr ),
+    m_type( rhs.m_type ){
+  }
+
+}
+
+template <typename T>
+inline
+ora::Object::Object( const T& obj ):
+  Object( &obj, typeid(obj) ){
 }
 
 template <typename T>
