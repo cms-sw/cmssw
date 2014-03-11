@@ -16,3 +16,15 @@ def dropNonMuonCollections(process):
     )
     return process
 
+def keepMuonTrackVertexCollections(process):
+    process.FEVTDEBUGoutput.outputCommands = cms.untracked.vstring(
+        'drop *_*_*_*',
+        'keep SimTracks_*_*_*',
+        'keep SimVertexs_*_*_*',
+        'keep *_*_MuonCSCHits_*',
+        'keep *_*_MuonRPCHits_*',
+        'keep *_*_MuonDTHits_*',
+        'keep *_*_MuonGEMHits_*',
+        'keep *_*_MuonME0Hits_*'
+    )
+    return process
