@@ -329,7 +329,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
            edSumNeutralHadronEt= cms.InputTag('elEDIsoValueNeutral04')),
 
    SoftElecMVAFilesString = cms.vstring(
-    "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_9Dec2013.weights.xml"
+    "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_7Feb2014.weights.xml"
                                 ),
 )
 
