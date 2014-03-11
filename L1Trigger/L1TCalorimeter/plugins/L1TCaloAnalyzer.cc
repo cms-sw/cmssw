@@ -36,6 +36,7 @@
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
@@ -66,12 +67,19 @@ private:
   
   // ----------member data ---------------------------
   edm::EDGetToken m_towerToken;
+  edm::EDGetToken m_clusterToken;
   edm::EDGetToken m_egToken;
   edm::EDGetToken m_tauToken;
   edm::EDGetToken m_jetToken;
   edm::EDGetToken m_sumToken;
   
-  enum ObjectType{Tower=0x1, EG=0x2, Tau=0x3, Jet=0x4, Sum=0x5};
+  enum ObjectType{Tower=0x1,
+		  Cluster=0x2,
+		  EG=0x3,
+		  Tau=0x4,
+		  Jet=0x5,
+		  Sum=0x6};
+  
   std::vector< ObjectType > types_;
   std::vector< std::string > typeStr_;
   
@@ -107,12 +115,14 @@ L1TCaloAnalyzer::L1TCaloAnalyzer(const edm::ParameterSet& iConfig)
   m_sumToken   = consumes<l1t::EtSumBxCollection>    (iConfig.getParameter<edm::InputTag>("etSumToken"));
 
   types_.push_back( Tower );
+  types_.push_back( Cluster );
   types_.push_back( EG );
   types_.push_back( Tau );
   types_.push_back( Jet );
   types_.push_back( Sum );
 
   typeStr_.push_back( "tower" );
+  typeStr_.push_back( "cluster" );
   typeStr_.push_back( "eg" );
   typeStr_.push_back( "tau" );
   typeStr_.push_back( "jet" );
@@ -157,6 +167,16 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     hphi_.at(Tower)->Fill( itr->hwPhi() );
     hem_.at(Tower)->Fill( itr->hwEtEm() );
     hhad_.at(Tower)->Fill( itr->hwEtHad() );
+  }
+
+  // get cluster
+  Handle< BXVector<l1t::CaloCluster> > clusters;
+  iEvent.getByToken(m_clusterToken,clusters);
+
+  for ( auto itr = clusters->begin(0); itr !=clusters->end(0); ++itr ) {
+    het_.at(Cluster)->Fill( itr->hwPt() );
+    heta_.at(Cluster)->Fill( itr->hwEta() );
+    hphi_.at(Cluster)->Fill( itr->hwPhi() );
   }
 
   // get EG

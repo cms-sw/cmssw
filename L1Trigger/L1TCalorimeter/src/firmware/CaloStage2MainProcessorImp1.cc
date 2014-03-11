@@ -47,10 +47,11 @@ l1t::CaloStage2MainProcessorFirmwareImp1::~CaloStage2MainProcessorFirmwareImp1()
 
 //need to switch to BXVector
 void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & towers,
-						       std::vector<l1t::EGamma> & egammas,
-						       std::vector<l1t::Tau> & taus,
-						       std::vector<l1t::Jet> & jets,
-						       std::vector<l1t::EtSum> & etsums) {
+							    std::vector<l1t::CaloCluster> & clusters,
+							    std::vector<l1t::EGamma> & egammas,
+							    std::vector<l1t::Tau> & taus,
+							    std::vector<l1t::Jet> & jets,
+							    std::vector<l1t::EtSum> & etsums) {
 
   std::vector<l1t::CaloCluster> egClusters;
   std::vector<l1t::CaloCluster> tauClusters;
@@ -64,6 +65,8 @@ void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1
   m_jetAlgo->processEvent( towers, jets );
   m_sumAlgo->processEvent( towers, towersums );
   m_jetSumAlgo->processEvent( jets, jetsums );  
+
+  clusters.insert( clusters.end(), egClusters.begin(), egClusters.end() );
 
   etsums.insert( etsums.end(), towersums.begin(), towersums.end() );
   etsums.insert( etsums.end(), jetsums.begin(), jetsums.end() );

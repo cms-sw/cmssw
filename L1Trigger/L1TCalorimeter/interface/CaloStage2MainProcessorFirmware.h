@@ -35,6 +35,7 @@ namespace l1t {
     virtual ~CaloStage2MainProcessorFirmwareImp1();
 
     virtual void processEvent(const std::vector<l1t::CaloTower> &,
+			      std::vector<l1t::CaloCluster> & clusters,
 			      std::vector<l1t::EGamma> & egammas,
 			      std::vector<l1t::Tau> & taus,
 			      std::vector<l1t::Jet> & jets,
