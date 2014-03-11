@@ -37,7 +37,7 @@
 <use   name="Utilities/General"/>
 <use   name="Utilities/Timing"/>
 <use   name="CondFormats/Alignment"/>
-<use   name="CondFormats/DYTThrObject"/>
+<use   name="CondFormats/RecoMuonObjects"/>
 <use   name="root"/>
 <export>
   <lib   name="1"/>

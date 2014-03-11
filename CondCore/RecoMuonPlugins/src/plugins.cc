@@ -4,6 +4,6 @@
 REGISTER_PLUGIN(MuScleFitDBobjectRcd,MuScleFitDBobject);
 
 #include "CondCore/PluginSystem/interface/registration_macros.h"
-#include "CondFormats/DYTThrObject/interface/DYTThrObject.h"
+#include "CondFormats/RecoMuonObjects/interface/DYTThrObject.h"
 #include "CondFormats/DataRecord/interface/DYTThrObjectRcd.h"
 REGISTER_PLUGIN(DYTThrObjectRcd,DYTThrObject);

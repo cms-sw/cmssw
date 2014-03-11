@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/DYTThrObject/interface/DYTThrObject.h"
+#include "CondFormats/RecoMuonObjects/interface/DYTThrObject.h"
 #include "CondFormats/DataRecord/interface/DYTThrObjectRcd.h" 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

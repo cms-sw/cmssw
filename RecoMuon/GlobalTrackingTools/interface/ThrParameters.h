@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "CondFormats/DYTThrObject/interface/DYTThrObject.h"
+#include "CondFormats/RecoMuonObjects/interface/DYTThrObject.h"
 #include "CondFormats/DataRecord/interface/DYTThrObjectRcd.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
