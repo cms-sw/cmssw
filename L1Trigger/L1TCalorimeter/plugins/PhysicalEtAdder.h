@@ -1,24 +1,13 @@
-#ifndef L1TCaloTowerProducer_h
-#define L1TCaloTowerProducer_h
+#ifndef PhysicalEtAdder_h
+#define PhysicalEtAdder_h
 
-// -*- C++ -*-
+// Original Author:  Alex Barbieri
 //
-// Package:    L1Trigger/skeleton
-// Class:      skeleton
-// 
-/**\class skeleton skeleton.cc L1Trigger/skeleton/plugins/skeleton.cc
+// This class adds physical values of eta, phi, and pt to the L1 Dataformats
 
- Description: [one line class summary]
 
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  James Brooke
-//         Created:  Thu, 05 Dec 2013 17:39:27 GMT
-//
-//
-
+// system include files
+#include <memory>
 
 // system include files
 #include <boost/shared_ptr.hpp>
@@ -36,6 +25,15 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
+
+typedef BXVector<l1t::EGamma> L1TEGammaCollection;
+typedef BXVector<l1t::Tau> L1TTauCollection;
+typedef BXVector<l1t::Jet> L1TJetCollection;
+typedef BXVector<l1t::EtSum> L1TEtSumCollection;
 
 
 //
@@ -43,20 +41,19 @@
 //
 
 namespace l1t {
-    
-  class L1TCaloTowerProducer : public edm::EDProducer { 
-  public:
-    explicit L1TCaloTowerProducer(const edm::ParameterSet& ps);
-    ~L1TCaloTowerProducer();
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-;
+  class PhysicalEtAdder : public edm::EDProducer {
+  public:
+    explicit PhysicalEtAdder(const edm::ParameterSet& ps);
+    ~PhysicalEtAdder();
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
       virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
-      
+
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -64,15 +61,12 @@ namespace l1t {
 
       // ----------member data ---------------------------
 
-      int bxFirst_, bxLast_; // bx range to process
+      edm::EDGetToken EGammaToken_;
+      edm::EDGetToken TauToken_;
+      edm::EDGetToken JetToken_;
+      edm::EDGetToken EtSumToken_;
+  };
 
-      std::vector<edm::EDGetToken> ecalToken_;  // this is a crazy way to store multi-BX info
-      std::vector<edm::EDGetToken> hcalToken_;  // should be replaced with a BXVector< > or similar
-
-      int ietaMin_, ietaMax_, iphiMin_, iphiMax_;
-
-  }; 
-  
-} 
+}
 
 #endif

@@ -10,8 +10,8 @@
 
 //
 
-#ifndef CaloStage1MainProcessor_h
-#define CaloStage1MainProcessor_h
+#ifndef Stage1Layer2MainProcessor_h
+#define Stage1Layer2MainProcessor_h
 
 
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
@@ -27,7 +27,7 @@
 
 namespace l1t {
 
-  class CaloStage1MainProcessor {
+  class Stage1Layer2MainProcessor {
   public:
     virtual void processEvent(const std::vector<CaloEmCand> &,
 			      const std::vector<CaloRegion> &,
@@ -36,7 +36,7 @@ namespace l1t {
 			      std::vector<Jet> * jets,
 			      std::vector<EtSum> * etsums) = 0;
 
-    virtual ~CaloStage1MainProcessor(){};
+    virtual ~Stage1Layer2MainProcessor(){};
   };
 
 }

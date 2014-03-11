@@ -88,11 +88,33 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
 process.l1tCaloStage2TowerDigis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
 process.l1tCaloStage2TowerDigis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
 
+process.load('L1Trigger.L1TCalorimeter.l1tCaloAnalyzer_cfi')
+
+# enable debug message logging for our modules
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    destinations   = cms.untracked.vstring(
+	'detailedInfo',
+	'critical'
+    ),
+    detailedInfo   = cms.untracked.PSet(
+	threshold  = cms.untracked.string('DEBUG') 
+    ),
+    debugModules = cms.untracked.vstring(
+	'l1tCaloStage2TowerDigis',
+	'l1tCaloStage2Digis'
+    )
+)
+
+# TTree output file
+process.load("CommonTools.UtilAlgos.TFileService_cfi")
+process.TFileService.fileName = cms.string('l1t.root')
+
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.digitisation_step = cms.Path(process.pdigi)
-process.L1simulation_step = cms.Path(process.SimL1Emulator+process.L1TCaloStage2)
+process.L1simulation_step = cms.Path(process.SimL1Emulator+process.L1TCaloStage2+process.l1tCaloAnalyzer)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.output_step = cms.EndPath(process.output)

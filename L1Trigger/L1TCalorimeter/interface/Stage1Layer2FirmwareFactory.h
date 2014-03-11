@@ -1,5 +1,5 @@
 ///
-/// \class l1t::CaloStage1FirmwareFactory
+/// \class l1t::Stage1Layer2FirmwareFactory
 ///
 /// Implementation:
 /// Demonstrates how to define the firmware interface.
@@ -17,13 +17,13 @@
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2MainProcessor.h"
 
 namespace l1t {
 
-  class CaloStage1FirmwareFactory {
+  class Stage1Layer2FirmwareFactory {
   public:
-    typedef boost::shared_ptr<CaloStage1MainProcessor> ReturnType;
+    typedef boost::shared_ptr<Stage1Layer2MainProcessor> ReturnType;
 
     ReturnType create(const FirmwareVersion & fwv /*,const CaloParams & dbPars*/);
 

@@ -1,5 +1,5 @@
 ///
-/// \class l1t::CaloStage1JetAlgorithmImpHI
+/// \class l1t::Stage1Layer2JetAlgorithmImpHI
 ///
 ///
 /// \author: R. Alex Barbieri MIT
@@ -7,7 +7,7 @@
 
 // This example implements algorithm version 1 and 2.
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithmImp.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2JetAlgorithmImp.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 
 // Taken from UCT code. Might not be appropriate. Refers to legacy L1 objects.
@@ -18,15 +18,15 @@
 using namespace std;
 using namespace l1t;
 
-CaloStage1JetAlgorithmImpPP::CaloStage1JetAlgorithmImpPP(/*const CaloParams & dbPars*/)/* : db(dbPars)*/{}
+Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(/*const CaloParams & dbPars*/)/* : db(dbPars)*/{}
 //: regionLSB_(0.5) {}
 
-CaloStage1JetAlgorithmImpPP::~CaloStage1JetAlgorithmImpPP(){};
+Stage1Layer2JetAlgorithmImpPP::~Stage1Layer2JetAlgorithmImpPP(){};
 
 void puSubtractionPP(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> * subRegions);
 
 
-void CaloStage1JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion> & regions,
+void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion> & regions,
 					       std::vector<l1t::Jet> * jets){
 
   std::vector<l1t::CaloRegion> * subRegions = new std::vector<l1t::CaloRegion>();

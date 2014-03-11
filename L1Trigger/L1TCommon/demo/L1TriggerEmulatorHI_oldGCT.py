@@ -16,7 +16,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(50)
     )
 
 # Input source
@@ -36,7 +36,10 @@ process.output = cms.OutputModule(
     "PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = cms.untracked.vstring('keep *'),
+    outputCommands = cms.untracked.vstring('keep *',
+                                           'drop FEDRawDataCollection_rawDataRepacker_*_*',
+                                           'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
+),
     fileName = cms.untracked.string('L1Emulator_HI_oldGCT.root'),
     dataset = cms.untracked.PSet(
     filterName = cms.untracked.string(''),
@@ -47,7 +50,8 @@ process.options = cms.untracked.PSet()
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V27A::All', '')
 
 process.load('L1Trigger.Configuration.SimL1Emulator_cff')
 process.simRctDigis.ecalDigis = cms.VInputTag(cms.InputTag('ecalDigis:EcalTriggerPrimitives'))
