@@ -74,7 +74,7 @@ namespace evf {
     IntJ processed_;
     mutable IntJ accepted_;
     IntJ errorEvents_; 
-    StringJ processCheck_; 
+    StringJ errorRetCodes_; 
     StringJ filelist_;
     boost::shared_ptr<FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
@@ -102,7 +102,7 @@ namespace evf {
     processed_.setName("Processed");
     accepted_.setName("Accepted");
     errorEvents_.setName("ErrorEvents");
-    processCheck_.setName("ProcessCheck");
+    errorRetCodes_.setName("ErrorReturnCodes");
     filelist_.setName("Filelist");
 
     outJsonDef_.setMergeMode("pid");
@@ -125,14 +125,14 @@ namespace evf {
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
 
-    processCheck_="good";
+    errroRetCodes_="";
  
     jsonMonitor_.reset(new FastMonitor(&outJsonDef_,true));
     jsonMonitor_->setDefPath(outJsonDefName);
     jsonMonitor_->registerGlobalMonitorable(&processed_,false);
     jsonMonitor_->registerGlobalMonitorable(&accepted_,false);
     jsonMonitor_->registerGlobalMonitorable(&errorEvents_,false);
-    jsonMonitor_->registerGlobalMonitorable(&processCheck_,false);
+    jsonMonitor_->registerGlobalMonitorable(&errorRetCodes_,false);
     jsonMonitor_->registerGlobalMonitorable(&filelist_,false);
     jsonMonitor_->commit(nullptr);
   }
