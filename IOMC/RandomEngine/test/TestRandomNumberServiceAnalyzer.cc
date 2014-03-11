@@ -89,10 +89,6 @@ TestRandomNumberServiceAnalyzer::TestRandomNumberServiceAnalyzer(edm::ParameterS
     rng->print();
     std::cout << "*** TestRandomNumberServiceAnalyzer constructor " << rng->mySeed() << "\n";
   }
-  if(rng->getEngine().name() !="RanecuEngine") {
-    //std::cout <<rng->getEngine().name()<<" "<<rng->mySeed()<<" "<<rng->getEngine().getSeed()<<std::endl;
-    assert(static_cast<long>(rng->mySeed())==rng->getEngine().getSeed());
-  }
 }
 
 TestRandomNumberServiceAnalyzer::~TestRandomNumberServiceAnalyzer() {
@@ -100,6 +96,12 @@ TestRandomNumberServiceAnalyzer::~TestRandomNumberServiceAnalyzer() {
 
 void
 TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if(rng->getEngine(iEvent.streamID()).name() !="RanecuEngine") {
+    assert(static_cast<long>(rng->mySeed())==rng->getEngine(iEvent.streamID()).getSeed());
+  }
+
   // Add some sleep for the different child processes in attempt
   // to ensure all the child processes get events to process.
   if(multiprocess_) {
@@ -107,7 +109,6 @@ TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
   }
   ++count_;
 
-  edm::Service<edm::RandomNumberGenerator> rng;
   if(dump_) {
     std::cout << "*** TestRandomNumberServiceAnalyzer analyze " << rng->mySeed() << "\n";
   }
@@ -121,7 +122,7 @@ TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
           << "/" << iEvent.eventAuxiliary().event()
           << "\n";
   outFile << rng->mySeed() << "\n";
-  outFile << rng->getEngine().name() << "\n";
+  outFile << rng->getEngine(iEvent.streamID()).name() << "\n";
   
   // Get a reference to the engine.  This call can
   // be here or it can be in the module constructor
@@ -130,7 +131,7 @@ TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
   // the engine, reset the state of the engine, or try
   // to destroy the engine object.  The service takes
   // care of those actions.
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
+  CLHEP::HepRandomEngine& engine = rng->getEngine(iEvent.streamID());
 
   // Generate random numbers distributed flatly between 0 and 1
   randomNumberEvent0_ = engine.flat();
@@ -165,7 +166,7 @@ TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
     }
     outFile << moduleDescription().moduleLabel() << "\n";
     outFile << rng->mySeed() << "\n";
-    outFile << rng->getEngine().name() << "\n";
+    outFile << rng->getEngine(iEvent.streamID()).name() << "\n";
 
     outFile << "Event random numbers\n";
     outFile << randomNumberEvent0_ << "\n";
@@ -193,7 +194,7 @@ TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
     }
     outFile << moduleDescription().moduleLabel() << "\n";
     outFile << rng->mySeed() << "\n";
-    outFile << rng->getEngine().name() << "\n";
+    outFile << rng->getEngine(iEvent.streamID()).name() << "\n";
 
     outFile << "Event random numbers\n";
     outFile << randomNumberEvent0_ << "\n";
@@ -222,7 +223,7 @@ TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
     }
     outFile << moduleDescription().moduleLabel() << "\n";
     outFile << rng->mySeed() << "\n";
-    outFile << rng->getEngine().name() << "\n";
+    outFile << rng->getEngine(iEvent.streamID()).name() << "\n";
 
     outFile << "Event random numbers\n";
     outFile << randomNumberEvent0_ << "\n";
@@ -243,7 +244,6 @@ void TestRandomNumberServiceAnalyzer::beginJob() {
   edm::Service<edm::RandomNumberGenerator> rng;
   if(dump_) {
     std::cout << "*** TestRandomNumberServiceAnalyzer beginJob " << rng->mySeed() << "\n";
-    std::cout << rng->getEngine().name() << "\n";
   }
 }
 
@@ -289,9 +289,9 @@ void TestRandomNumberServiceAnalyzer::beginLuminosityBlock(edm::LuminosityBlock 
   outFile << "*** TestRandomNumberServiceAnalyzer beginLumi " << lumi.luminosityBlockAuxiliary().run()
           << "/" << lumi.luminosityBlockAuxiliary().luminosityBlock()  << "\n";
   outFile << rng->mySeed() << "\n";
-  outFile << rng->getEngine().name() << "\n";
+  outFile << rng->getEngine(lumi.index()).name() << "\n";
 
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
+  CLHEP::HepRandomEngine& engine = rng->getEngine(lumi.index());
 
   // Generate random numbers distributed flatly between 0 and 1
   randomNumberLumi0_ = engine.flat();
