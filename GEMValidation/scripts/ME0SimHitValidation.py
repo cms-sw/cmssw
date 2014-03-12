@@ -15,30 +15,30 @@ ROOT.gROOT.SetBatch(1)
 #_______________________________________________________________________________
 def me0SimHitOccupancyXY():
   draw_occ(targetDir, "sh_me0_xy_rm1_l1" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region-1, layer1;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rm1,l1,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rm1,l1,sel), "COLZ")
   draw_occ(targetDir, "sh_me0_xy_rm1_l2" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region-1, layer2;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rm1,l2,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rm1,l2,sel), "COLZ")
   draw_occ(targetDir, "sh_me0_xy_rm1_l3" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region-1, layer3;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rm1,l3,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rm1,l3,sel), "COLZ")
   draw_occ(targetDir, "sh_me0_xy_rm1_l4" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region-1, layer4;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rm1,l4,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rm1,l4,sel), "COLZ")
   draw_occ(targetDir, "sh_me0_xy_rm1_l5" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region-1, layer5;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rm1,l5,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rm1,l5,sel), "COLZ")
   draw_occ(targetDir, "sh_me0_xy_rm1_l6" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region-1, layer6;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rm1,l6,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rm1,l6,sel), "COLZ")
   
   draw_occ(targetDir, "sh_me0_xy_rp1_l1" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region1, layer1;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rp1,l1,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rp1,l1,sel), "COLZ")
   draw_occ(targetDir, "sh_me0_xy_rp1_l2" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region1, layer2;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rp1,l2,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rp1,l2,sel), "COLZ")
   draw_occ(targetDir, "sh_me0_xy_rp1_l3" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region1, layer3;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rp1,l3,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rp1,l3,sel), "COLZ")
   draw_occ(targetDir, "sh_me0_xy_rp1_l4" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region1, layer4;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rp1,l4,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rp1,l4,sel), "COLZ")
   draw_occ(targetDir, "sh_me0_xy_rp1_l5" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region1, layer5;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rp1,l5,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rp1,l5,sel), "COLZ")
   draw_occ(targetDir, "sh_me0_xy_rp1_l6" + suff, ext, treeME0SimHits, pre + " SimHit occupancy: region1, layer6;globalX [cm];globalY [cm]", 
-           "h_", "(120,-280,280,120,-280,280)", "globalY:globalX", AND(rp1,l6,sel), "COLZ")
+           "h_", "(120,-280,280,120,-280,280)", "globalX:globalY", AND(rp1,l6,sel), "COLZ")
 
 #_______________________________________________________________________________
 def me0SimHitOccupancyRZ():
