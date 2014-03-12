@@ -13,6 +13,9 @@ namespace ora {
   class Object {
     public:
     Object();
+    template <typename T>
+    explicit Object( const T& obj );
+    Object( const void* ptr, const std::type_info& typeInfo );
     Object( const void* ptr, const edm::TypeWithDict& type );
     Object( const void* ptr, const std::string& typeName );
     Object( const Object& rhs);
