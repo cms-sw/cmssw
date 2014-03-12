@@ -16,11 +16,15 @@ void PFJetMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
   hww.Load_pfjets_area();
   hww.Load_pfjets_trackCountingHighEffBJetTag();
 
+  bool validToken;
+
   edm::Handle<edm::View<reco::Jet> >    pfjetsHandle;
-  iEvent.getByToken(PFJetCollection_,  pfjetsHandle	);
+  validToken = iEvent.getByToken(PFJetCollection_,  pfjetsHandle	);
+  if(!validToken) return;
 
   edm::Handle<reco::JetFloatAssociation::Container> trackCountingHighEffBJetTags;
-  iEvent.getByToken(BJetTags_, trackCountingHighEffBJetTags);
+  validToken = iEvent.getByToken(BJetTags_, trackCountingHighEffBJetTags);
+  if(!validToken) return;
     
   for(edm::View<reco::Jet>::const_iterator jet_it = pfjetsHandle->begin(); jet_it != pfjetsHandle->end(); jet_it++) {
        

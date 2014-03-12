@@ -20,9 +20,12 @@ void VertexMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSe
   hww.Load_vtxs_sumpt();
   hww.Load_vtxs_covMatrix();
 
+  bool validToken;
+
   // get the primary vertices
   edm::Handle<reco::VertexCollection> vertexHandle;
-  iEvent.getByToken(thePVCollection_, vertexHandle); 
+  validToken = iEvent.getByToken(thePVCollection_, vertexHandle); 
+  if(!validToken) return;
   const reco::VertexCollection *vertexCollection = vertexHandle.product();
 
   unsigned int index = 0;

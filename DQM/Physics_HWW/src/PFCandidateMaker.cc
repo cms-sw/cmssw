@@ -28,25 +28,31 @@ void PFCandidateMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Ev
 
   PFPileUpAlgo *pfPileUpAlgo_ = new PFPileUpAlgo();
 
+  bool validToken;
+
   //get pfcandidates
   const reco::PFCandidateCollection *pfCandidates;
   Handle<PFCandidateCollection> pfCandidatesHandle;
-  iEvent.getByToken(PFCandidateCollection_, pfCandidatesHandle);
+  validToken = iEvent.getByToken(PFCandidateCollection_, pfCandidatesHandle);
+  if(!validToken) return;
   pfCandidates  = pfCandidatesHandle.product();
 
   //get pfelectrons
   typedef edm::ValueMap<reco::PFCandidatePtr> PFCandMap;
   Handle<PFCandMap> pfElectronsHandle;
-  iEvent.getByToken(PFElectrons_, pfElectronsHandle);
+  validToken = iEvent.getByToken(PFElectrons_, pfElectronsHandle);
+  if(!validToken) return;
   const PFCandMap *pfElectrons  = pfElectronsHandle.product();
 
   // get tracks
   Handle<reco::TrackCollection>  track_h;
-  iEvent.getByToken(TrackCollection_, track_h);
+  validToken = iEvent.getByToken(TrackCollection_, track_h);
+  if(!validToken) return;
 
   // get vertices
   Handle<reco::VertexCollection> vertex_h;
-  iEvent.getByToken(thePVCollection_, vertex_h);
+  validToken = iEvent.getByToken(thePVCollection_, vertex_h);
+  if(!validToken) return;
   const reco::VertexCollection *vertices = vertex_h.product();
 
 

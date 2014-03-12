@@ -32,8 +32,11 @@ void GSFTrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
   hww.Load_gsftrks_phiErr();
   hww.Load_gsftrks_d0phiCov();
 
+  bool validToken;
+
   Handle<edm::View<reco::GsfTrack> > track_h;
-  iEvent.getByToken(GSFTrack_, track_h);
+  validToken = iEvent.getByToken(GSFTrack_, track_h);
+  if(!validToken) return;
 
   edm::ESHandle<MagneticField> theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);

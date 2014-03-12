@@ -18,8 +18,11 @@ void PFElectronMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Eve
 
   hww.Load_pfels_p4();
 
+  bool validToken;
+
   Handle<PFCandMap > pfCandidatesHandle;
-  iEvent.getByToken( PFElectrons_, pfCandidatesHandle );
+  validToken = iEvent.getByToken( PFElectrons_, pfCandidatesHandle );
+  if(!validToken) return;
   const ValueMap<reco::PFCandidatePtr> *pfCandidates  = pfCandidatesHandle.product();
   
   PFCandMap::const_iterator pf_pit = pfCandidates->begin();

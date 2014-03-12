@@ -21,20 +21,21 @@ void RhoMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSetup
   edm::Handle<double> ww_rho_vorH;
   edm::Handle<double> kt6pf_foregiso_rhoH;
 
-  iEvent.getByToken( Rho_, rhoH);
-  if(rhoH.isValid()){
-    hww.evt_rho() = *rhoH;
-  }
-  iEvent.getByToken( wwRho_, ww_rhoH);
-  if(ww_rhoH.isValid()){
-    hww.evt_ww_rho() = *ww_rhoH;
-  }
-  iEvent.getByToken( wwRhoVor_ , ww_rho_vorH);
-  if(ww_rho_vorH.isValid()){
-    hww.evt_ww_rho_vor() = *ww_rho_vorH;
-  }
-  iEvent.getByToken( RhoForEGIso_ , kt6pf_foregiso_rhoH);
-  if(kt6pf_foregiso_rhoH.isValid()){
-    hww.evt_kt6pf_foregiso_rho() = *kt6pf_foregiso_rhoH;
-  }
+  bool validToken;
+
+  validToken = iEvent.getByToken( Rho_, rhoH);
+  if(!validToken) return;
+  hww.evt_rho() = *rhoH;
+
+  validToken = iEvent.getByToken( wwRho_, ww_rhoH);
+  if(!validToken) return;
+  hww.evt_ww_rho() = *ww_rhoH;
+
+  validToken = iEvent.getByToken( wwRhoVor_ , ww_rho_vorH);
+  if(!validToken) return;
+  hww.evt_ww_rho_vor() = *ww_rho_vorH;
+
+  validToken = iEvent.getByToken( RhoForEGIso_ , kt6pf_foregiso_rhoH);
+  if(!validToken) return;
+  hww.evt_kt6pf_foregiso_rho() = *kt6pf_foregiso_rhoH;
 }

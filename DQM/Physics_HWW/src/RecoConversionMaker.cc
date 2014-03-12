@@ -38,12 +38,16 @@ void RecoConversionMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm:
   hww.Load_convs_chi2();
   hww.Load_convs_dl();
 
+  bool validToken;
+
   // get reco Conversions
   Handle<View<Conversion> > convs_h;
-  iEvent.getByToken(Conversion_, convs_h);
+  validToken = iEvent.getByToken(Conversion_, convs_h);
+  if(!validToken) return;
   
   Handle<BeamSpot> beamSpotH;
-  iEvent.getByToken(BeamSpot_, beamSpotH);
+  validToken = iEvent.getByToken(BeamSpot_, beamSpotH);
+  if(!validToken) return;
 
   for(View<Conversion>::const_iterator it = convs_h->begin();
       it != convs_h->end(); it++) { 

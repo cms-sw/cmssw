@@ -35,14 +35,18 @@ void MVAJetIdMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
   hww.Load_pfjets_mvavalue();
   hww.Load_pfjets_JEC();
 
+  bool validToken;
+
   //Uncorrected Jets
   Handle<PFJetCollection>       lHUCJets;
-  iEvent.getByToken(PFJetCollection_, lHUCJets);
+  validToken = iEvent.getByToken(PFJetCollection_, lHUCJets);
+  if(!validToken) return;
   PFJetCollection               lUCJets = *lHUCJets;
 
   // vertices    
   Handle<reco::VertexCollection> lHVertices;
-  iEvent.getByToken(thePVCollection_, lHVertices); 
+  validToken = iEvent.getByToken(thePVCollection_, lHVertices); 
+  if(!validToken) return;
   VertexCollection lVertices = *lHVertices;
 
   const JetCorrector* corrector=0;

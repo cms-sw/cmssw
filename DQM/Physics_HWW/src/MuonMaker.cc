@@ -66,13 +66,15 @@ void MuonMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSetu
   hww.Load_mus_isoR03_pf_PhotonEt();
   hww.Load_mus_isoR03_pf_PUPt();
 
+  bool validToken;
 
   ///////////////
   // Get Muons //
   ///////////////
 
   Handle<View<Muon> > muon_h;
-  iEvent.getByToken( Muon_ , muon_h );
+  validToken = iEvent.getByToken( Muon_ , muon_h );
+  if(!validToken) return;
 
   
   /////////////////////////////////
@@ -80,7 +82,8 @@ void MuonMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSetu
   /////////////////////////////////
 
   Handle<ValueMap<MuonShower> > showerMap;
-  iEvent.getByToken( MuonShower_ , showerMap );
+  validToken = iEvent.getByToken( MuonShower_ , showerMap );
+  if(!validToken) return;
 
 
   //////////////////
@@ -88,7 +91,8 @@ void MuonMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSetu
   //////////////////
 
   edm::Handle<reco::VertexCollection> vertexHandle;
-  iEvent.getByToken( thePVCollection_ , vertexHandle );  
+  validToken = iEvent.getByToken( thePVCollection_ , vertexHandle );  
+  if(!validToken) return;
 
 
   ///////////////////////
@@ -96,7 +100,8 @@ void MuonMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSetu
   ///////////////////////
 
   edm::Handle<reco::PFCandidateCollection> pfCand_h;
-  iEvent.getByToken( PFCandidateCollection_ , pfCand_h );
+  validToken = iEvent.getByToken( PFCandidateCollection_ , pfCand_h );
+  if(!validToken) return;
 
 
   //////////////
@@ -104,7 +109,8 @@ void MuonMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSetu
   //////////////
 
   Handle<reco::BeamSpot> beamspot_h;
-  iEvent.getByToken(BeamSpot_, beamspot_h);
+  validToken = iEvent.getByToken(BeamSpot_, beamspot_h);
+  if(!validToken) return;
   const reco::BeamSpot &beamSpotreco = *(beamspot_h.product());
   const Point beamSpot = Point(beamSpotreco.x0(), beamSpotreco.y0(), beamSpotreco.z0());
 
@@ -114,7 +120,8 @@ void MuonMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSetu
   //////////////////////////
 
   Handle<MuonCollection> muons;
-  iEvent.getByToken( MuonCollection_, muons );
+  validToken = iEvent.getByToken( MuonCollection_, muons );
+  if(!validToken) return;
 
   ///////////
   // Muons // 
