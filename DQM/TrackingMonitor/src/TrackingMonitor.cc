@@ -207,34 +207,34 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      edm::LogWarning("TrackingMonitor")  << "State Name is invalid, using 'ImpactPoint' by default";
    }
 
-   dqmStore_->setCurrentFolder(MEFolderName);
+   ibooker.setCurrentFolder(MEFolderName);
 
    // book the General Property histograms
    // ---------------------------------------------------------------------------------//
 
    if (doGeneralPropertiesPlots_ || doAllPlots){
   
-     dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
+     ibooker.setCurrentFolder(MEFolderName+"/GeneralProperties");
 
      histname = "NumberOfTracks_" + CategoryName;
        // MODIFY by Mia in order to cope w/ high multiplicity
-     NumberOfTracks = dqmStore_->book1D(histname, histname, 3*TKNoBin, TKNoMin, (TKNoMax+0.5)*3.-0.5);
+     NumberOfTracks = ibooker.book1D(histname, histname, 3*TKNoBin, TKNoMin, (TKNoMax+0.5)*3.-0.5);
      NumberOfTracks->setAxisTitle("Number of Tracks per Event", 1);
      NumberOfTracks->setAxisTitle("Number of Events", 2);
   
      histname = "NumberOfMeanRecHitsPerTrack_" + CategoryName;
-     NumberOfMeanRecHitsPerTrack = dqmStore_->book1D(histname, histname, MeanHitBin, MeanHitMin, MeanHitMax);
+     NumberOfMeanRecHitsPerTrack = ibooker.book1D(histname, histname, MeanHitBin, MeanHitMin, MeanHitMax);
      NumberOfMeanRecHitsPerTrack->setAxisTitle("Mean number of valid RecHits per Track", 1);
      NumberOfMeanRecHitsPerTrack->setAxisTitle("Entries", 2);
   
      histname = "NumberOfMeanLayersPerTrack_" + CategoryName;
-     NumberOfMeanLayersPerTrack = dqmStore_->book1D(histname, histname, MeanLayBin, MeanLayMin, MeanLayMax);
+     NumberOfMeanLayersPerTrack = ibooker.book1D(histname, histname, MeanLayBin, MeanLayMin, MeanLayMax);
      NumberOfMeanLayersPerTrack->setAxisTitle("Mean number of Layers per Track", 1);
      NumberOfMeanLayersPerTrack->setAxisTitle("Entries", 2);
   
      if (doFractionPlot_) {
        histname = "FractionOfGoodTracks_" + CategoryName;
-       FractionOfGoodTracks = dqmStore_->book1D(histname, histname, 101, -0.005, 1.005);
+       FractionOfGoodTracks = ibooker.book1D(histname, histname, 101, -0.005, 1.005);
        FractionOfGoodTracks->setAxisTitle("Fraction of Tracks (w.r.t. generalTracks)", 1);
        FractionOfGoodTracks->setAxisTitle("Entries", 2);
      }
@@ -242,10 +242,10 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 
    if ( doLumiAnalysis ) {
      // add by Mia in order to deal with LS transitions
-     dqmStore_->setCurrentFolder(MEFolderName+"/LSanalysis");
+     ibooker.setCurrentFolder(MEFolderName+"/LSanalysis");
   
      histname = "NumberOfTracks_lumiFlag_" + CategoryName;
-     NumberOfTracks_lumiFlag = dqmStore_->book1D(histname, histname, 3*TKNoBin, TKNoMin, (TKNoMax+0.5)*3.-0.5);
+     NumberOfTracks_lumiFlag = ibooker.book1D(histname, histname, 3*TKNoBin, TKNoMin, (TKNoMax+0.5)*3.-0.5);
      NumberOfTracks_lumiFlag->setAxisTitle("Number of Tracks per Event", 1);
      NumberOfTracks_lumiFlag->setAxisTitle("Number of Events", 2);
   
@@ -257,23 +257,23 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 
    if ( doProfilesVsLS_ || doAllPlots) {
   
-     dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
+     ibooker.setCurrentFolder(MEFolderName+"/GeneralProperties");
   
      histname = "NumberOfTracksVsLS_"+ CategoryName;
-     NumberOfTracksVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax, TKNoMin, (TKNoMax+0.5)*3.-0.5,"");
+     NumberOfTracksVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax, TKNoMin, (TKNoMax+0.5)*3.-0.5,"");
      NumberOfTracksVsLS->getTH1()->SetBit(TH1::kCanRebin);
      NumberOfTracksVsLS->setAxisTitle("#Lumi section",1);
      NumberOfTracksVsLS->setAxisTitle("Number of  Tracks",2);
   
      histname = "NumberOfRecHitsPerTrackVsLS_" + CategoryName;
-     NumberOfRecHitsPerTrackVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax,0.,40.,"");
+     NumberOfRecHitsPerTrackVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,0.,40.,"");
      NumberOfRecHitsPerTrackVsLS->getTH1()->SetBit(TH1::kCanRebin);
      NumberOfRecHitsPerTrackVsLS->setAxisTitle("#Lumi section",1);
      NumberOfRecHitsPerTrackVsLS->setAxisTitle("Mean number of RecHits per track",2);
   
      if (doFractionPlot_) {
        histname = "GoodTracksFractionVsLS_"+ CategoryName;
-       GoodTracksFractionVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax,0,1.1,"");
+       GoodTracksFractionVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,0,1.1,"");
        GoodTracksFractionVsLS->getTH1()->SetBit(TH1::kCanRebin);
        GoodTracksFractionVsLS->setAxisTitle("#Lumi section",1);
        GoodTracksFractionVsLS->setAxisTitle("Fraction of Good Tracks",2);
@@ -286,9 +286,9 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
    if ( doPUmonitoring_ ) {
   
      for (size_t i=0; i<theVertexMonitor.size(); i++)
-       theVertexMonitor[i]->beginJob(dqmStore_);
+       theVertexMonitor[i]->initHisto(ibooker);
   
-     dqmStore_->setCurrentFolder(MEFolderName+"/PUmonitoring");
+     ibooker.setCurrentFolder(MEFolderName+"/PUmonitoring");
   
      if ( doPlotsVsGoodPVtx_ ) {
        // get binning from the configuration
@@ -297,7 +297,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        double GoodPVtxMax   = conf_.getParameter<double>("GoodPVtxMax");
     
        histname = "NumberOfTracksVsGoodPVtx";
-       NumberOfTracksVsGoodPVtx = dqmStore_->bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,TKNoMin, (TKNoMax+0.5)*3.-0.5,"");
+       NumberOfTracksVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,TKNoMin, (TKNoMax+0.5)*3.-0.5,"");
        NumberOfTracksVsGoodPVtx->getTH1()->SetBit(TH1::kCanRebin);
        NumberOfTracksVsGoodPVtx->setAxisTitle("Number of PV",1);
        NumberOfTracksVsGoodPVtx->setAxisTitle("Mean number of Tracks per Event",2);
@@ -312,7 +312,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        double BXlumiMax   = BXlumiParameters.getParameter<double>("BXlumiMax");
     
        histname = "NumberOfTracksVsBXlumi_"+ CategoryName;
-       NumberOfTracksVsBXlumi = dqmStore_->bookProfile(histname,histname, BXlumiBin,BXlumiMin,BXlumiMax, TKNoMin, TKNoMax,"");
+       NumberOfTracksVsBXlumi = ibooker.bookProfile(histname,histname, BXlumiBin,BXlumiMin,BXlumiMax, TKNoMin, TKNoMax,"");
        NumberOfTracksVsBXlumi->getTH1()->SetBit(TH1::kCanRebin);
        NumberOfTracksVsBXlumi->setAxisTitle("lumi BX [10^{30}Hzcm^{-2}]",1);
        NumberOfTracksVsBXlumi->setAxisTitle("Mean number of Tracks",2);
@@ -320,12 +320,12 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      }
    }
 
-   theTrackAnalyzer->beginRun(dqmStore_);
+   theTrackAnalyzer->initHisto(ibooker);
 
    // book the Seed Property histograms
    // ---------------------------------------------------------------------------------//
 
-   dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
+   ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
 
    doAllSeedPlots      = conf_.getParameter<bool>("doSeedParameterHistos");
    doSeedNumberPlot    = conf_.getParameter<bool>("doSeedNumberHisto");
@@ -338,16 +338,16 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
    edm::InputTag seedProducer   = conf_.getParameter<edm::InputTag>("SeedProducer");
 
    if (doAllSeedPlots || doSeedNumberPlot){
-     dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
+     ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
      histname = "NumberOfSeeds_"+ seedProducer.label() + "_"+ CategoryName;
-     NumberOfSeeds = dqmStore_->book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
+     NumberOfSeeds = ibooker.book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
      NumberOfSeeds->setAxisTitle("Number of Seeds per Event", 1);
      NumberOfSeeds->setAxisTitle("Number of Events", 2);
      
      if ( doSeedLumiAnalysis_ ) {
-       dqmStore_->setCurrentFolder(MEFolderName+"/LSanalysis");
+       ibooker.setCurrentFolder(MEFolderName+"/LSanalysis");
        histname = "NumberOfSeeds_lumiFlag_"+ seedProducer.label() + "_"+ CategoryName;
-       NumberOfSeeds_lumiFlag = dqmStore_->book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
+       NumberOfSeeds_lumiFlag = ibooker.book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
        NumberOfSeeds_lumiFlag->setAxisTitle("Number of Seeds per Event", 1);
        NumberOfSeeds_lumiFlag->setAxisTitle("Number of Events", 2);
      }
@@ -355,7 +355,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
    }
 
    if (doAllSeedPlots || doSeedVsClusterPlot){
-     dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
+     ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
 
      ClusterLabels=  conf_.getParameter<std::vector<std::string> >("ClusterLabels");
   
@@ -374,7 +374,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
   
      for (uint i=0; i<ClusterLabels.size(); i++){
        histname = "SeedsVsClusters_" + seedProducer.label() + "_Vs_" + ClusterLabels[i] + "_" + CategoryName;
-       SeedsVsClusters.push_back(dynamic_cast<MonitorElement*>(dqmStore_->book2D(histname, histname, histoBin[i], histoMin[i], histoMax[i],
+       SeedsVsClusters.push_back(dynamic_cast<MonitorElement*>(ibooker.book2D(histname, histname, histoBin[i], histoMin[i], histoMax[i],
 										 TKNoSeedBin, TKNoSeedMin, TKNoSeedMax)));
        SeedsVsClusters[i]->setAxisTitle("Number of Clusters", 1);
        SeedsVsClusters[i]->setAxisTitle("Number of Seeds", 2);
@@ -385,17 +385,17 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
   //    if (doAllPlots) doTkCandPlots=true;
   
   if (doTkCandPlots){
-    dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
+    ibooker.setCurrentFolder(MEFolderName+"/TrackBuilding");
     
     edm::InputTag tcProducer     = conf_.getParameter<edm::InputTag>("TCProducer");
     
     histname = "NumberOfTrackCandidates_"+ tcProducer.label() + "_"+ CategoryName;
-    NumberOfTrackCandidates = dqmStore_->book1D(histname, histname, TCNoBin, TCNoMin, TCNoMax);
+    NumberOfTrackCandidates = ibooker.book1D(histname, histname, TCNoBin, TCNoMin, TCNoMax);
     NumberOfTrackCandidates->setAxisTitle("Number of Track Candidates per Event", 1);
     NumberOfTrackCandidates->setAxisTitle("Number of Event", 2);
   }
   
-  theTrackBuildingAnalyzer->beginRun(dqmStore_);
+  theTrackBuildingAnalyzer->initHisto(ibooker);
   
   
   if (doLumiAnalysis) {
@@ -431,13 +431,13 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 		 NClusStrMin,NClusStrMax,NClusStrBin,
 		 NClusPxMin,  NClusPxMax,  NClusPxBin);
     
-    dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
+    ibooker.setCurrentFolder(MEFolderName+"/HitProperties");
     
     for (uint i=0; i<ClusterLabels.size(); i++){
       
-      dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
+      ibooker.setCurrentFolder(MEFolderName+"/HitProperties");
       histname = "TracksVs" + ClusterLabels[i] + "Cluster_" + CategoryName;
-      NumberOfTrkVsClusters.push_back(dynamic_cast<MonitorElement*>(dqmStore_->book2D(histname, histname,
+      NumberOfTrkVsClusters.push_back(dynamic_cast<MonitorElement*>(ibooker.book2D(histname, histname,
 										      histoBin[i], histoMin[i], histoMax[i],
 										      NTrk2DBin,NTrk2DMin,NTrk2DMax
 										      )));
@@ -469,7 +469,7 @@ void TrackingMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumi, con
 
   if (doLumiAnalysis) {
     if ( NumberOfTracks_lumiFlag ) NumberOfTracks_lumiFlag -> Reset();
-    theTrackAnalyzer->doReset(dqmStore_);    
+    theTrackAnalyzer->doReset();    
   }
   if(doAllSeedPlots || doSeedNumberPlot) {
     if ( doSeedLumiAnalysis_ )
