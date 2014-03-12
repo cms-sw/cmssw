@@ -49,8 +49,7 @@ CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
   if (unpackTTP_)
     produces<HcalTTPDigiCollection>();
 
-//  if (unpackCalib_)
-//    produces<HcalCalibDigiCollection>();
+  tok_input_ = consumes<FEDRawDataCollection>(dataTag_);
 
 }
 
@@ -62,7 +61,7 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 {
   // Step A: Get Inputs 
   edm::Handle<FEDRawDataCollection> rawraw;  
-  e.getByLabel(dataTag_,rawraw);
+  e.getByToken(tok_input_,rawraw);
   // get the mapping
   edm::ESHandle<CastorDbService> pSetup;
   es.get<CastorDbRecord>().get( pSetup );
