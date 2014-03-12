@@ -362,17 +362,17 @@ bool SeedingLayerSetsBuilder::check(const edm::EventSetup& es) {
   return geometryWatcher_.check(es) | trhWatcher_.check(es);
 }
 
-std::pair<std::vector<unsigned int>, ctfseeding::SeedingLayer::Hits> SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es) const {
-  std::pair<std::vector<unsigned int>, ctfseeding::SeedingLayer::Hits> ret;
-  ret.first.reserve(theLayers.size());
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+void
+SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es,
+			      std::vector<unsigned int> & indices, ctfseeding::SeedingLayer::Hits & hits) const {
+  indices.reserve(theLayers.size());
   for(unsigned int i=0; i<theLayers.size(); ++i) {
     // The index of the first hit of this layer
-    ret.first.push_back(ret.second.size());
+    indices.push_back(hits.size());
 
     // Obtain and copy the hits
-    ctfseeding::SeedingLayer::Hits tmp = theLayers[i].extractor->hits(*theTTRHBuilders[i], ev, es);
-    std::copy(tmp.begin(), tmp.end(), std::back_inserter(ret.second));
+    ctfseeding::SeedingLayer::Hits && tmp = theLayers[i].extractor->hits((const TkTransientTrackingRecHitBuilder &)(*theTTRHBuilders[i]), ev, es);
+    std::move(tmp.begin(), tmp.end(), std::back_inserter(hits));
   }
-
-  return ret;
 }

@@ -24,6 +24,9 @@ public:
   virtual SiStripMatchedRecHit2D * operator()(SiStripMatchedRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
   virtual ProjectedSiStripRecHit2D * operator()(ProjectedSiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const;
 
+  // project either mono or stero hit...
+  ProjectedSiStripRecHit2D * project(SiStripMatchedRecHit2D const & hit, bool mono, TrajectoryStateOnSurface const& tsos) const;
+
 private:
   const PixelClusterParameterEstimator * pixelCPE;
   const StripClusterParameterEstimator * stripCPE;

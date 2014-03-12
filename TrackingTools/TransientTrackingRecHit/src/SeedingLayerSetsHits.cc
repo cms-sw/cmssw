@@ -20,7 +20,7 @@ SeedingLayerSetsHits::~SeedingLayerSetsHits() {}
 
 
 
-void SeedingLayerSetsHits::swapHits(std::vector<HitIndex>& layerHitIndices, Hits& hits) {
+void SeedingLayerSetsHits::swapHits(std::vector<HitIndex>& layerHitIndices, OwnedHits& hits) {
   layerHitIndices_.swap(layerHitIndices);
   rechits_.swap(hits);
 }
@@ -32,7 +32,7 @@ SeedingLayerSetsHits::Hits SeedingLayerSetsHits::hits(LayerIndex layerIndex) con
 
   Hits ret;
   ret.reserve(end-begin);
-  std::copy(rechits_.begin()+begin, rechits_.begin()+end, std::back_inserter(ret));
+  std::transform(rechits_.begin()+begin, rechits_.begin()+end, std::back_inserter(ret),[](HitPointer const &p){return p.get();});
   return ret;
 }
 
