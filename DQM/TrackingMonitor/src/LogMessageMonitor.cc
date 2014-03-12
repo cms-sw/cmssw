@@ -124,7 +124,6 @@ LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   
     // Take the ErrorSummaryEntry container
   edm::Handle<std::vector<edm::ErrorSummaryEntry> >  errors;
-  //  iEvent.getByLabel("logErrorHarvester",errors);
   iEvent.getByToken(errorToken_,errors);
   // Check that errors is valid
   if(!errors.isValid()) return; 
