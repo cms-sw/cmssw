@@ -28,10 +28,25 @@ void l1t::CaloCluster::setClusterFlag(ClusterFlag flag, bool val)
   }
 };
 
+void l1t::CaloCluster::setHwSeedPt(int pt)
+{
+  m_hwSeedPt = pt;
+}
+
 bool l1t::CaloCluster::checkClusterFlag(ClusterFlag flag) const 
 {
   return (m_clusterFlags & (0x1<<flag));
 };
+
+bool l1t::CaloCluster::isValid() const
+{
+    return ( checkClusterFlag(PASS_THRES_SEED) && checkClusterFlag(PASS_FILTER_CLUSTER) );
+}
+
+int l1t::CaloCluster::hwSeedPt() const
+{
+  return m_hwSeedPt;
+}
 
 int l1t::CaloCluster::fgEta() const
 {

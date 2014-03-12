@@ -15,6 +15,7 @@
 #define L1Trigger_L1TCommon_CaloTools_h
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
 
 namespace l1t {
 
@@ -29,7 +30,8 @@ namespace l1t {
  
     enum SubDet{ECAL=0x1,HCAL=0x2,CALO=0x3}; //CALO is a short cut for ECAL|HCAL
 
-    static const l1t::CaloTower& getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi);
+    static const l1t::CaloTower&   getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi);
+    static const l1t::CaloCluster& getCluster(const std::vector<l1t::CaloCluster>& clusters,int iEta,int iPhi);
 
     //returns a hash suitable for indexing a vector (note does not check for validity yet of iEta,iPhi)
     static size_t caloTowerHash(int iEta,int iPhi);
@@ -45,6 +47,7 @@ namespace l1t {
 
   private:
     static const l1t::CaloTower nullTower_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
+    static const l1t::CaloCluster nullCluster_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
   };
 
 }

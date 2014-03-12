@@ -4,8 +4,9 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2Nav.h"
 
 const l1t::CaloTower l1t::CaloTools::nullTower_;
+const l1t::CaloCluster l1t::CaloTools::nullCluster_;
 
-//currently implimented as a brute force search but this will hopefully change in the future
+//currently implemented as a brute force search but this will hopefully change in the future
 //with standarising the layout of std::vector<l1t::CaloTower>
 const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi)
 {
@@ -14,6 +15,16 @@ const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>
   }
   return nullTower_;
 }
+
+const l1t::CaloCluster& l1t::CaloTools::getCluster(const std::vector<l1t::CaloCluster>& clusters,int iEta,int iPhi)
+{
+  for(size_t clusterNr=0;clusterNr<clusters.size();clusterNr++){
+    if(clusters[clusterNr].hwEta()==iEta && clusters[clusterNr].hwPhi()==iPhi) return clusters[clusterNr];
+  }
+  return nullCluster_;
+}
+
+
 
 //this implimentation has not all the necessary info yet, we need to check the exact HF numbering
 //(iEta=-28,iPhi=1)=index 0 to (iEta=28,iPhi=72)=index 28*72*2-1
