@@ -49,9 +49,6 @@ namespace edm {
       RandomNumberGeneratorService(ParameterSet const& pset, ActivityRegistry& activityRegistry);
       virtual ~RandomNumberGeneratorService();
 
-      /// Use this to get the random number engine, this is the only function most users should call.
-      virtual CLHEP::HepRandomEngine& getEngine() const;
-
       /// Exists for backward compatibility.
       virtual uint32_t mySeed() const;
 
@@ -109,6 +106,9 @@ namespace edm {
       RandomNumberGeneratorService(RandomNumberGeneratorService const&); // disallow default
 
       RandomNumberGeneratorService const& operator=(RandomNumberGeneratorService const&); // disallow default
+
+      /// Use this to get the random number engine, this is the only function most users should call.
+      virtual CLHEP::HepRandomEngine& getEngine() const;
 
       // These two functions are called internally to keep track
       // of which module is currently active
