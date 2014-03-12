@@ -12,8 +12,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <Pythia.h>
-#include <HepMCInterface.h>
+#include "Pythia8/Pythia.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 
 // foward declarations
 namespace edm {
