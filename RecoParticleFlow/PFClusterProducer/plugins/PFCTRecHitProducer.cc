@@ -822,8 +822,8 @@ PFCTRecHitProducer::~PFCTRecHitProducer() {}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PFCTRecHitProducer::beginRun(const edm::Run& run,
-			   const EventSetup& es) {
+PFCTRecHitProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi,
+					 const EventSetup& es) {
 
   // Get cleaned channels in the HCAL and HF 
   // HCAL channel status map ****************************************

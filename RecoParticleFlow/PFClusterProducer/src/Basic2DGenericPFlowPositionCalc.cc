@@ -1,6 +1,7 @@
 #include "Basic2DGenericPFlowPositionCalc.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include <cmath>
 #include <unordered_map>
@@ -39,7 +40,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     if( refhit->detId() == cluster.seed() ) refseed = refhit;
     const double rh_energy = refhit->energy() * rhf.fraction();    
-    if( std::isnan(rh_energy) ) {
+    if( edm::isNotFinite(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
 	<<"rechit " << refhit->detId() << " has a NaN energy... " 
 	<< "The input of the particle flow clustering seems to be corrupted.";

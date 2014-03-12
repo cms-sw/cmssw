@@ -23,11 +23,6 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
-using namespace std;
-using namespace edm;
-
-
-
 
 class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 
@@ -67,9 +62,9 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 	  layer = PFLayer::PS2;
 	  break;
 	default:
-	  LogError("PFRecHitProducerPS")
+	  edm::LogError("PFRecHitProducerPS")
 	    <<"incorrect preshower plane !! plane number "
-	    <<detid.plane()<<endl;
+	    <<detid.plane()<<std::endl;
 	  assert(0);
 	}
  
@@ -80,9 +75,9 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
   
 	// find rechit geometry
 	if(!thisCell) {
-	  LogError("PFPSRecHitCreator")
+	  edm::LogError("PFPSRecHitCreator")
 	    <<"warning detid "<<detid.rawId()
-	    <<" not found in geometry"<<endl;
+	    <<" not found in geometry"<<std::endl;
 	  continue;
 	}
   

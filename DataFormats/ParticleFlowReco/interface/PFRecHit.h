@@ -87,7 +87,7 @@ namespace reco {
       return neighbours_;
     }
 
-    std::vector<unsigned short> neighbourInfos() {
+    const std::vector<unsigned short>& neighbourInfos() {
       return neighbourInfos_;
     }
 
@@ -101,7 +101,7 @@ namespace reco {
     unsigned detId() const {return detId_;}
 
     /// rechit layer
-    const PFLayer::Layer& layer() const { return layer_; }
+    PFLayer::Layer layer() const { return layer_; }
 
     /// rechit energy
     double energy() const { return energy_; }

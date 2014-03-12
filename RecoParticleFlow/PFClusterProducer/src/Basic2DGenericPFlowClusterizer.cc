@@ -118,7 +118,7 @@ seedPFClustersFromTopo(const reco::PFCluster& topo,
     if( !seedable[rhf.recHitRef().key()] ) continue;
     initialPFClusters.push_back(reco::PFCluster());
     reco::PFCluster& current = initialPFClusters.back();
-    current.recHitFractions().push_back(rhf);
+    current.addRecHitFraction(rhf);
     current.setSeed(rhf.recHitRef()->detId());   
     if( _convergencePosCalc ) {
       _convergencePosCalc->calculateAndSetPosition(current);
@@ -154,7 +154,7 @@ growPFClusters(const reco::PFCluster& topo,
 	_positionCalc->calculateAndSetPosition(cluster);
       }
     }
-    cluster.recHitFractions().clear();
+    cluster.resetHitsAndFractions();
   }
   // loop over topo cluster and grow current PFCluster hypothesis 
   std::vector<double> dist2, frac;
@@ -212,7 +212,7 @@ growPFClusters(const reco::PFCluster& topo,
       // they create fake photons, in general.
       // (PJ, 16/09/08) 
       if( dist2[i] < 100.0 || frac[i] > 0.9999 ) {	
-	clusters[i].recHitFractions().emplace_back(refhit, frac[i]);
+	clusters[i].addRecHitFraction(reco::PFRecHitFraction(refhit,frac[i]));
       }
     }
   }
@@ -240,19 +240,9 @@ growPFClusters(const reco::PFCluster& topo,
 void Basic2DGenericPFlowClusterizer::
 prunePFClusters(reco::PFClusterCollection& clusters) const {
   for( auto& cluster : clusters ) {
-    std::vector<reco::PFRecHitFraction> allFracs = 
-      std::move(cluster.recHitFractions());
-    std::vector<reco::PFRecHitFraction> prunedFracs;
-    prunedFracs.reserve(cluster.recHitFractions().size());
-    for( const auto& frac : allFracs ) {
-      if( frac.fraction() > _minFractionToKeep ) {
-	prunedFracs.push_back(std::move(frac));
-	cluster.addHitAndFraction( prunedFracs.back().recHitRef()->detId(),
-				   prunedFracs.back().fraction()            );
-      }
-    }
-    prunedFracs.shrink_to_fit();
-    cluster.recHitFractions() = std::move(prunedFracs);
+    cluster.pruneUsing( [&](const reco::PFRecHitFraction& rhf)
+			{return rhf.fraction() > _minFractionToKeep;} 
+			);    
   }
 }
 
