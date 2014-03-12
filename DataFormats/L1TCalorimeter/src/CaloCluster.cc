@@ -33,6 +33,11 @@ void l1t::CaloCluster::setHwSeedPt(int pt)
   m_hwSeedPt = pt;
 }
 
+void l1t::CaloCluster::setHOverE(int hOverE)
+{
+  m_hOverE = hOverE;
+}
+
 bool l1t::CaloCluster::checkClusterFlag(ClusterFlag flag) const 
 {
   return (m_clusterFlags & (0x1<<flag));

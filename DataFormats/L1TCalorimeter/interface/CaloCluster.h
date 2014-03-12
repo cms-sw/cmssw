@@ -37,6 +37,7 @@ namespace l1t {
 
       void setClusterFlag(ClusterFlag flag, bool val=true);
       void setHwSeedPt(int pt);
+      void setHOverE(int hOverE);
 
       bool checkClusterFlag(ClusterFlag flag) const;
       bool isValid() const;
