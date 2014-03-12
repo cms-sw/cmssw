@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <vector>
 
-#include "math.h"
+//#include "math.h"
 
 double getPhysicalEta(int etaIndex);
 double getPhysicalPhi(int phiIndex);
@@ -94,11 +94,12 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //const double eta = itEGamma->hwEta();
       //const double phi = itEGamma->hwPhi();
 
-      const double px = pt*cos(phi);
-      const double py = pt*sin(phi);
-      const double pz = pt*sinh(eta);
-      const double e = sqrt(px*px + py*py + pz*pz);
-      math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+      // const double px = pt*cos(phi);
+      // const double py = pt*sin(phi);
+      // const double pz = pt*sinh(eta);
+      // const double e = sqrt(px*px + py*py + pz*pz);
+      //math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
 
       l1t::EGamma *eg = new l1t::EGamma(*p4, itEGamma->hwPt(),
 				       itEGamma->hwEta(), itEGamma->hwPhi(),
@@ -119,11 +120,12 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //const double eta = itTau->hwEta();
       //const double phi = itTau->hwPhi();
 
-      const double px = pt*cos(phi);
-      const double py = pt*sin(phi);
-      const double pz = pt*sinh(eta);
-      const double e = sqrt(px*px + py*py + pz*pz);
-      math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+      // const double px = pt*cos(phi);
+      // const double py = pt*sin(phi);
+      // const double pz = pt*sinh(eta);
+      // const double e = sqrt(px*px + py*py + pz*pz);
+      // math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
 
       l1t::Tau *tau = new l1t::Tau(*p4, itTau->hwPt(),
 				   itTau->hwEta(), itTau->hwPhi(),
@@ -143,11 +145,12 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //const double eta = itJet->hwEta();
       //const double phi = itJet->hwPhi();
 
-      const double px = pt*cos(phi);
-      const double py = pt*sin(phi);
-      const double pz = pt*sinh(eta);
-      const double e = sqrt(px*px + py*py + pz*pz);
-      math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+      // const double px = pt*cos(phi);
+      // const double py = pt*sin(phi);
+      // const double pz = pt*sinh(eta);
+      // const double e = sqrt(px*px + py*py + pz*pz);
+      // math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
 
       l1t::Jet *jet = new l1t::Jet(*p4, itJet->hwPt(),
 				   itJet->hwEta(), itJet->hwPhi(),
@@ -166,11 +169,12 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //const double eta = itEtSum->hwEta();
       //const double phi = itEtSum->hwPhi();
 
-      const double px = pt*cos(phi);
-      const double py = pt*sin(phi);
-      const double pz = pt*sinh(eta);
-      const double e = sqrt(px*px + py*py + pz*pz);
-      math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+      // const double px = pt*cos(phi);
+      // const double py = pt*sin(phi);
+      // const double pz = pt*sinh(eta);
+      // const double e = sqrt(px*px + py*py + pz*pz);
+      // math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
 
       l1t::EtSum *eg = new l1t::EtSum(*p4, sumType, itEtSum->hwPt(),
 				      itEtSum->hwEta(), itEtSum->hwPhi(),
