@@ -20,15 +20,15 @@
 #include <vector>
 
 namespace l1t {
-    
-  class Stage1Layer2EtSumAlgorithm { 
+
+  class Stage1Layer2EtSumAlgorithm {
   public:
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      std::vector<l1t::EtSum> & sums) = 0;    
+			      std::vector<l1t::EtSum> * sums) = 0;
 
     virtual ~Stage1Layer2EtSumAlgorithm(){};
-  }; 
-  
-} 
+  };
+
+}
 
 #endif

@@ -8,8 +8,8 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2MainProcessorFirmware.h"
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
-//#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EGammaAlgorithmImp.h"
-//#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EtSumAlgorithmImp.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EGammaAlgorithmImp.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EtSumAlgorithmImp.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2JetAlgorithmImp.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2TauAlgorithmImp.h"
 
