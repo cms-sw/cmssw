@@ -68,7 +68,6 @@ namespace sistrip {
     
     //get the event number and Bx counter from the first valud FED buffer
     edm::Handle<FEDRawDataCollection> rawDataHandle;
-    //    event.getByLabel(rawDataTag_,rawDataHandle);
     event.getByToken(rawDataToken_,rawDataHandle);
     const FEDRawDataCollection& rawData = *rawDataHandle;
     bool fedFound = false;

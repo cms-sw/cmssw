@@ -107,7 +107,6 @@ namespace sistrip {
     if (lRunNum == prevRun_) return;
 
     edm::Handle<FEDRawDataCollection> lHandle;
-    //    aEvt.getByLabel( srcTag_, lHandle ); 
     aEvt.getByToken( srcToken_, lHandle ); 
     const FEDRawDataCollection& buffers = *lHandle;
 

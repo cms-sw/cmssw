@@ -114,9 +114,8 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
       edm::InputTag(conversionIOTrackProducer_));
 
   pfCandidates_  = consumes<reco::PFCandidateCollection>(pset.getParameter<edm::InputTag>("pfCandidates"));
-  //  valueMapPhoPFCandIso_ = consumes <edm::ValueMap<std::vector<std::pair<reco::PFCandidateRef, bool> > > > (pset.getParameter<edm::InputTag>("valueMapPhoToParticleBasedIso"));
   valueMapPhoPFCandIso_ = pset.getParameter<std::string>("valueMapPhoToParticleBasedIso");
-
+  particleBasedIso_token = consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(pset.getUntrackedParameter<edm::InputTag>("particleBasedIso",edm::InputTag("particleBasedIsolation",valueMapPhoPFCandIso_)));
 
   minPhoEtCut_ = pset.getParameter<double>("minPhoEtCut");
   convTrackMinPtCut_ = pset.getParameter<double>("convTrackMinPtCut");
@@ -1636,7 +1635,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef> > > phoToParticleBasedIsoMapHandle;
   edm::ValueMap<std::vector<reco::PFCandidateRef> > phoToParticleBasedIsoMap;
   if ( fName_ == "pfPhotonValidator") {
-    e.getByLabel("particleBasedIsolation",valueMapPhoPFCandIso_,phoToParticleBasedIsoMapHandle);
+    e.getByToken(particleBasedIso_token,phoToParticleBasedIsoMapHandle);
     if ( ! phoToParticleBasedIsoMapHandle.isValid()) {
       edm::LogInfo("PhotonValidator") << "Error! Can't get the product: valueMap photons to particle based iso " << std::endl;
       

@@ -89,20 +89,8 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
   event.getByToken( vec_TrackingParticle_Token_, TruthTrackContainer );
   
   const TrackingParticleCollection *tPC   = TruthTrackContainer.product();
-  //  const TrackingVertexCollection   *tVC   = TruthVertexContainer.product();
 
-  /*
-  // Get and print HepMC event for comparison
-  edm::Handle<edm::HepMCProduct> hepMC;
-  event.getByLabel("source",hepMC);
-  const edm::HepMCProduct *mcp = hepMC.product();
-  //  const HepMC::GenEvent *genEvent = mcp -> GetEvent();
-  */
-  //  cout << "Found " << tPC -> size() << " tracks and " << tVC -> size() << " vertices." <<endl;
-   
-
-// Loop over TrackingParticle's
-
+  // Loop over TrackingParticle's
   for (TrackingParticleCollection::const_iterator t = tPC -> begin(); t != tPC -> end(); ++t) {
     //if(t -> trackerPSimHit().size() ==0) cout << " Track with 0 SimHit " << endl;
 
