@@ -34,8 +34,13 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
     }
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
-      edm::Handle<EcalRecHitCollection> recHitHandle;
 
+      for (unsigned int i=0;i<qualityTests_.size();++i) {
+	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
+      }
+
+
+      edm::Handle<EcalRecHitCollection> recHitHandle;
       edm::ESHandle<CaloGeometry> geoHandle;
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
   

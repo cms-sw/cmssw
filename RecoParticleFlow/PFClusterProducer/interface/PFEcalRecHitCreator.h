@@ -34,6 +34,12 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
     }
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+
+      for (unsigned int i=0;i<qualityTests_.size();++i) {
+	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
+      }
+
+
       edm::Handle<EcalRecHitCollection> recHitHandle;
 
       edm::ESHandle<CaloGeometry> geoHandle;
