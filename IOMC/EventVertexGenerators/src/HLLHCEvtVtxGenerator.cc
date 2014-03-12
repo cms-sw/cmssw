@@ -109,7 +109,7 @@ HepMC::FourVector* HLLHCEvtVtxGenerator::newVertex() {
   z+=fMeanZ;
   t+=fTimeOffset;
 
-  std::cout << "X Y Z T : "<<x<<" "<<y<<" "<<z<<" "<<t<<std::endl;
+  //std::cout << "X Y Z T : "<<x<<" "<<y<<" "<<z<<" "<<t<<std::endl;
 
   fVertex->set( x, y, z, t );
 
