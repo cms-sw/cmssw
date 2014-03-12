@@ -65,7 +65,6 @@ SiStripFEDDumpPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 {
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
-  //  iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
   iEvent.getByToken(rawDataToken_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   

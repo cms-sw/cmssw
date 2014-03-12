@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -16,7 +15,7 @@
 DetectorStateFilter::DetectorStateFilter( const edm::ParameterSet & pset ) {
    verbose_        = pset.getUntrackedParameter<bool>( "DebugOn", false );
    detectorType_   = pset.getUntrackedParameter<std::string>( "DetectorType", "sistrip");
-   dcsStatusLabel_ = pset.getUntrackedParameter<edm::InputTag>( "DcsStatusLabel", edm::InputTag("scalersRawToDigi") );
+   dcsStatusLabel_ = consumes<DcsStatusCollection>(pset.getUntrackedParameter<edm::InputTag>( "DcsStatusLabel", edm::InputTag("scalersRawToDigi")));
 
    nEvents_         = 0;
    nSelectedEvents_ = 0;
@@ -34,7 +33,7 @@ bool DetectorStateFilter::filter( edm::Event & evt, edm::EventSetup const& es) {
   // Check Detector state Only for Real Data and return true for MC
   if (evt.isRealData()) {
     edm::Handle<DcsStatusCollection> dcsStatus;
-    evt.getByLabel(dcsStatusLabel_, dcsStatus);
+    evt.getByToken(dcsStatusLabel_, dcsStatus);
     if (dcsStatus.isValid()) {
       if (detectorType_ == "pixel" && dcsStatus->size() > 0 ) {
 	  if ((*dcsStatus)[0].ready(DcsStatus::BPIX) && 

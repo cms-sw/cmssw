@@ -168,14 +168,6 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   double weight =   wmanager_.weight(iEvent);
 
   //////////////////////////////////////////////
-  /*
-  edm::Handle<double> WT;
-  iEvent.getByLabel(edm::InputTag("TauSpinnerGen","TauSpinnerWT"),WT);
-  weight = 1.0;
-  if(*(WT.product())>1e-3 && *(WT.product())<=10.0) weight=(*(WT.product()));
-  else {weight=1.0;}
-  */
-  ///////////////////////////////////////////////
 
   // find taus
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); iter++) {

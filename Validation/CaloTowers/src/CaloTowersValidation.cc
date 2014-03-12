@@ -488,7 +488,6 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
   
   if (imc != 0){
     edm::Handle<edm::HepMCProduct> evtMC;
-    //  ev.getByLabel("VtxSmeared",evtMC);
     event.getByToken(tok_evt_,evtMC);  // generator in late 310_preX
     if (!evtMC.isValid()) {
       std::cout << "no HepMCProduct found" << std::endl;    

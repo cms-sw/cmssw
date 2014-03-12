@@ -760,7 +760,6 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   if(imc != 0) { 
 
   edm::Handle<edm::HepMCProduct> evtMC;
-  //  ev.getByLabel("VtxSmeared",evtMC);
   ev.getByToken(tok_evt_,evtMC);  // generator in late 310_preX
   if (!evtMC.isValid()) {
     std::cout << "no HepMCProduct found" << std::endl;    

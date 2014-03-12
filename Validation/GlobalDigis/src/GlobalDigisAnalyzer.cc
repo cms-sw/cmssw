@@ -1603,7 +1603,6 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
   
   edm::Handle<edm::PSimHitContainer> rpcsimHit;
   iEvent.getByToken(RPCSimHit_Token_, rpcsimHit);
-  //  iEvent.getByLabel("g4SimHits", "MuonRPCHits", rpcsimHit);
   bool validrpcsim = true;
   if (!rpcsimHit.isValid()) {
     LogDebug(MsgLoggerCat)
