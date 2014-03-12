@@ -167,7 +167,6 @@ TestRandomNumberServiceGlobal::TestRandomNumberServiceGlobal(edm::ParameterSet c
   if(dump_) {
     edm::Service<edm::RandomNumberGenerator> rng;
     std::cout << "*** TestRandomNumberServiceGlobal constructor " << rng->mySeed() << "\n";
-    std::cout << rng->getEngine().name() << "\n";
   }
 }
 
@@ -185,7 +184,7 @@ TestRandomNumberServiceGlobal::analyze(edm::StreamID streamID, edm::Event const&
   if(dump_) {
     edm::Service<edm::RandomNumberGenerator> rng;
     std::cout << "*** TestRandomNumberServiceGlobal analyze " << rng->mySeed() << "\n";
-    std::cout << rng->getEngine().name() << "\n";
+    std::cout << rng->getEngine(streamID).name() << "\n";
   }
 
   TestRandomNumberServiceStreamCache* cache = streamCache(streamID);
@@ -287,7 +286,6 @@ void TestRandomNumberServiceGlobal::beginJob() {
   if(dump_) {
     edm::Service<edm::RandomNumberGenerator> rng;
     std::cout << "*** TestRandomNumberServiceGlobal beginJob " << rng->mySeed() << "\n";
-    std::cout << rng->getEngine().name() << "\n";
   }
 }
 
@@ -295,7 +293,6 @@ void TestRandomNumberServiceGlobal::endJob() {
   if(dump_) {
     edm::Service<edm::RandomNumberGenerator> rng;
     std::cout << "*** TestRandomNumberServiceGlobal endJob " << rng->mySeed() << "\n";
-    std::cout << rng->getEngine().name() << "\n";
   }
 }
 
@@ -306,7 +303,7 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
   if(dump_) {
     edm::Service<edm::RandomNumberGenerator> rng;
     std::cout << "*** TestRandomNumberServiceGlobal beginLuminosityBlock " << rng->mySeed() << "\n";
-    std::cout << rng->getEngine().name() << "\n";
+    std::cout << rng->getEngine(lumi.index()).name() << "\n";
   }
 
   std::shared_ptr<TestRandomNumberServiceLumiCache> lumiCache(new TestRandomNumberServiceLumiCache);

@@ -56,8 +56,8 @@ namespace edm {
     const std::uint32_t RandomNumberGeneratorService::maxSeedHepJames =  900000000U;
     const std::uint32_t RandomNumberGeneratorService::maxSeedTRandom3 = 4294967295U;
 
-    // This supports the no argument getEngine function and the mySeed function
-    // DELETE THIS WHEN/IF both those functions are deleted.
+    // This supports the mySeed function
+    // DELETE THIS WHEN/IF that functions is deleted.
     thread_local std::string RandomNumberGeneratorService::moduleLabel_;
 
     RandomNumberGeneratorService::RandomNumberGeneratorService(ParameterSet const& pset,
@@ -202,41 +202,8 @@ namespace edm {
         activityRegistry.watchPostModuleStreamEndLumi(this, &RandomNumberGeneratorService::postModuleStreamEndLumi);
       }
 
-      // The following for loop and the code it contains support the no argument getEngine function
-      // DELETE IT when/if that function is deleted.
-      for(auto const& i : seedsAndNameMap_) {
-        std::string const& label = i.first;
-        std::string const& name = i.second.engineName();
-        VUint32 const& seeds = i.second.seeds();
-
-        if(name == "RanecuEngine") {
-          std::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::RanecuEngine());
-          long int seedL[2];
-          seedL[0] = static_cast<long int>(seeds[0]);
-          seedL[1] = static_cast<long int>(seeds[1]);
-          engine->setSeeds(seedL,0);
-          oldEngineMap_[label] = engine;
-        }
-        // For the other engines, one seed is required
-        else {
-          long int seedL = static_cast<long int>(seeds[0]);
-
-          if(name == "HepJamesRandom") {
-            std::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::HepJamesRandom(seedL));
-            oldEngineMap_[label] = engine;
-          } else { // TRandom3, currently the only other possibility
-
-            std::uint32_t seedu32 = static_cast<std::uint32_t>(seedL);
-            assert(seeds[0] == seedu32);
-
-            std::shared_ptr<CLHEP::HepRandomEngine> engine(new TRandomAdaptor(seedL));
-            oldEngineMap_[label] = engine;
-          }
-        }
-      }
-
-      // The next 5 lines support the no argument getEngine function and the mySeed function
-      // DELETE THEM when/if both functions are deleted.
+      // The next 5 lines support the mySeed function
+      // DELETE THEM when/if that function is deleted.
       activityRegistry.watchPostModuleConstruction(this, &RandomNumberGeneratorService::postModuleConstruction);
       activityRegistry.watchPreModuleBeginJob(this, &RandomNumberGeneratorService::preModuleBeginJob);
       activityRegistry.watchPostModuleBeginJob(this, &RandomNumberGeneratorService::postModuleBeginJob);
@@ -321,45 +288,6 @@ namespace edm {
       return *iter->labelAndEngine()->engine();
     }
 
-    // TO BE DELETED, THIS CAN ONLY BE USED WITH TYPE "ONE" MODULES.
-    // REPLAY DOES NOT WORK WITH THIS VERSION OF GETENGINE.
-    CLHEP::HepRandomEngine&
-    RandomNumberGeneratorService::getEngine() const {
-      std::string label;
-      ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
-      if(mcc == nullptr) {
-        if(!moduleLabel_.empty()) {
-          label = moduleLabel_;
-        }
-        else {
-          throw Exception(errors::LogicError)
-            << "RandomNumberGeneratorService::getEngine()\n"
-               "Requested a random number engine from the RandomNumberGeneratorService\n"
-               "when no module was active. ModuleCallingContext is null\n";
-        }
-      } else {
-        label = mcc->moduleDescription()->moduleLabel();
-      }
-      std::map<std::string, std::shared_ptr<CLHEP::HepRandomEngine> >::const_iterator iter = oldEngineMap_.find(label);
-      if(iter == oldEngineMap_.end()) {
-        throw Exception(errors::Configuration)
-          << "The module with label \""
-          << label
-          << "\" requested a random number engine from the \n"
-             "RandomNumberGeneratorService, but that module was not configured\n"
-             "for random numbers.  An engine is created only if a seed(s) is provided\n"
-             "in the configuration file.  Please add the following PSet to the\n"
-             "configuration file for the RandomNumberGeneratorService:\n\n"
-             "  " << label << " = cms.PSet(\n"
-             "    initialSeed = cms.untracked.uint32(your_seed),\n"
-             "    engineName = cms.untracked.string('TRandom3')\n"
-             "  )\n"
-             "where you replace \"your_seed\" with a number and add a comma if necessary\n"
-            "The \"engineName\" parameter is optional. If absent the default is \"HepJamesRandom\".\n";
-      }
-      return *iter->second;
-    }
-
     // PROBABLY TO BE DELETED, This returns the configured seed without
     // any of the modifications for streams, forking, or the offset configuration
     // parameter. Maybe useful to use for debugging/checks, but dangerous if one tries
@@ -438,13 +366,13 @@ namespace edm {
       if(iter != seedsAndNameMap_.end()) {
         iter->second.setModuleID(description.id());
       }
-      // The next line supports the no argument getEngine function and the mySeed function
-      // DELETE IT when/if both functions are deleted.
+      // The next line supports the mySeed function
+      // DELETE IT when/if that function is deleted.
       moduleLabel_ = description.moduleLabel();
     }
 
-    // The next 5 functions support the no argument getEngine function and the mySeed function
-    // DELETE THEM when/if both functions are deleted.
+    // The next 5 functions support the mySeed function
+    // DELETE THEM when/if that function is deleted.
     void
     RandomNumberGeneratorService::postModuleConstruction(ModuleDescription const& description) {
       moduleLabel_.clear();

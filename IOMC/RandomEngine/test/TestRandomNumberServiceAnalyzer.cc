@@ -93,11 +93,6 @@ TestRandomNumberServiceAnalyzer::~TestRandomNumberServiceAnalyzer() {
 void
 TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if(rng->getEngine(iEvent.streamID()).name() !="RanecuEngine") {
-    assert(static_cast<long>(rng->mySeed())==rng->getEngine(iEvent.streamID()).getSeed());
-  }
-
   // Add some sleep for the different child processes in attempt
   // to ensure all the child processes get events to process.
   if(multiprocess_) {
