@@ -65,6 +65,9 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
     produces<EESrFlagCollection>(eeSrFlagCollection_);
   }
 
+  useFullReadout_ = false;
+  useFullReadout_ = params.getParameter<bool>("UseFullReadout");
+
   theGeometry = 0;
   theTriggerTowerMap = 0;
   theElecMap = 0;
@@ -82,7 +85,13 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   if(useCondDb_){
     //getting selective readout configuration:
     edm::ESHandle<EcalSRSettings> hSr;
-    eventSetup.get<EcalSRSettingsRcd>().get(hSr);
+
+    if(useFullReadout_){
+      eventSetup.get<EcalSRSettingsRcd>().get("fullReadout",hSr);
+    }
+    else{
+      eventSetup.get<EcalSRSettingsRcd>().get(hSr);
+    }
     settings_ = hSr.product();
   }
   
