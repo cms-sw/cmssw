@@ -21,10 +21,6 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "DataFormats/MuonReco/interface/MuonQuality.h"
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
@@ -46,7 +42,10 @@ GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& 
   double maxChi2 = iConfig.getParameter<double>("MaxChi2");
   double nSigma = iConfig.getParameter<double>("nSigma");
   theEstimator = new Chi2MeasurementEstimator(maxChi2,nSigma);
- 
+
+  glbMuonsToken=consumes<reco::TrackCollection>(inputCollection_);
+  linkCollectionToken=consumes<reco::MuonTrackLinksCollection>(inputLinksCollection_);
+
   produces<edm::ValueMap<reco::MuonQuality> >();
 }
 
@@ -70,10 +69,10 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   // Take the GLB muon container(s)
   edm::Handle<reco::TrackCollection> glbMuons;
-  iEvent.getByLabel(inputCollection_,glbMuons);
+  iEvent.getByToken(glbMuonsToken,glbMuons);
   
   edm::Handle<reco::MuonTrackLinksCollection>    linkCollectionHandle;
-  iEvent.getByLabel(inputLinksCollection_, linkCollectionHandle);
+  iEvent.getByToken(linkCollectionToken,linkCollectionHandle);
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
