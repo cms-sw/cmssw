@@ -33,7 +33,6 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
       }
 
-
       edm::Handle<edm::SortedCollection<Digi> > recHitHandle;
 
       edm::ESHandle<CaloGeometry> geoHandle;
@@ -44,6 +43,9 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	geoHandle->getSubdetectorGeometry(DetId::Hcal, Detector);
 
       const Geometry *hcalGeo =dynamic_cast< const Geometry* > (gTmp);
+
+
+
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for (unsigned int i=0;i<recHitHandle->size();++i) {
