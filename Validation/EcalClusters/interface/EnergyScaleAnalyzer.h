@@ -60,7 +60,13 @@ class EnergyScaleAnalyzer : public edm::EDAnalyzer {
       
       std::string outputFile_; // output file
   
-      std::string hepMCLabel_;
+      edm::EDGetTokenT<edm::HepMCProduct> hepMCLabel_;
+      edm::EDGetTokenT<reco::SuperClusterCollection> hybridSuperClusters_token;
+      edm::EDGetTokenT<reco::SuperClusterCollection> dynamicHybridSuperClusters_token;
+      edm::EDGetTokenT<reco::SuperClusterCollection> correctedHybridSuperClusters_token;
+      edm::EDGetTokenT<reco::SuperClusterCollection> correctedDynamicHybridSuperClusters_token;
+      edm::EDGetTokenT<reco::SuperClusterCollection> correctedFixedMatrixSuperClustersWithPreshower_token;
+      edm::EDGetTokenT<reco::SuperClusterCollection> fixedMatrixSuperClustersWithPreshower_token;
 
        // root file to store histograms
       TFile*  rootFile_;

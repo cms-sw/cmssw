@@ -115,7 +115,6 @@ SiStripShotFilter::filter(edm::Event& iEvent,
   
   //get digi data
   edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
-  //  iEvent.getByLabel(digicollection_,digis);
   iEvent.getByToken(digiToken_,digis);
 
   // loop on detector with digis

@@ -289,11 +289,6 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
   // get DigiCollection object from Event
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > digi_collection;
   //you have a collection as there are all the digis for the event for every detector
-  /*
-  // retrieve producer name of input StripDigiCollection
-  std::string digiProducer = conf_.getParameter<std::string>("DigiProducer");
-  iEvent.getByLabel(digiProducer, digiType, digi_collection);
-  */
   iEvent.getByToken(digiToken_, digi_collection);
 
   //Increase the number of iterations ...

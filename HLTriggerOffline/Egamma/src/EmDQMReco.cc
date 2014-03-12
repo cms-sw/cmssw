@@ -599,22 +599,6 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
   totalreco->Fill(numOfHLTCollectionLabels+0.5);
   totalmatchreco->Fill(numOfHLTCollectionLabels+.5);
 
-  /* edm::Handle< edm::View<reco::GsfElectron> > recoParticles;
-  event.getByLabel("gsfElectrons", recoParticles);
-
-  std::vector<reco::GsfElectron> allSortedRecoParticles;
-
-  for(edm::View<reco::GsfElectron>::const_iterator currentRecoParticle = recoParticles->begin(); currentRecoParticle != recoParticles->end(); currentRecoParticle++){
-  if (  !((*currentRecoParticle).et() > 2.0)  )  continue;
-    reco::GsfElectron tmpcand( *(currentRecoParticle) );
-    allSortedRecoParticles.push_back(tmpcand);
-  }
-
-  std::sort(allSortedRecoParticles.begin(), allSortedRecoParticles.end(),pTRecoComparator_);*/
-
-  // Were enough high energy gen particles found?
-  // It was an event worth keeping. Continue.
-
   ////////////////////////////////////////////////////////////
   //  Fill the bin labeled "Total"                          //
   //   This will be the number of events looked at.         //
