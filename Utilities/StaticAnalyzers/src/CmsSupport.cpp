@@ -131,7 +131,7 @@ bool support::isDataClass(const std::string & name) {
 		buffer = FM.getBufferForFile(FM.getFile(fname1));
 	else 
 		buffer = FM.getBufferForFile(FM.getFile(fname2));	
-	os <<"class "<< name <<"\n";
+	os <<"class '"<< name <<"'\n";
 	llvm::StringRef Rname(os.str());
 	if ( buffer->getBuffer().find(Rname) == llvm::StringRef::npos ) return false;
 	return true;

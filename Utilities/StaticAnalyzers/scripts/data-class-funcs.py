@@ -15,6 +15,7 @@ classes = set()
 dataclassfuncs = set()
 badclasses = set()
 esdclasses = set()
+flaggedclasses = set()
 
 import networkx as nx
 G=nx.DiGraph()
@@ -24,7 +25,7 @@ H=nx.DiGraph()
 f = open('classes.txt.dumperft')
 for line in f:
 	if datacl.search(line) :
-		classname = re.sub('\n','',re.sub(datacl,'',line))
+		classname = line.split("'")[1] 
 		classes.add(classname)
 f.close()
 
@@ -32,30 +33,30 @@ f = open('classes.txt.inherits')
 
 for line in f:
 	if datacl.search(line) :
-		classname = re.sub('\n','',re.sub(datacl,'',line))
+		classname = line.split("'")[1] 
 		classes.add(classname)
 f.close()
 
-f = open('functions.txt')
+f = open('class-checker.txt.sorted')
 for line in f:
-	fields = line.split("'")
-	nspace = fname.split(fields[1])
-	classname = nspace[-1]
-	if classname in classes :
-		name = classname[-1]
-		badclasses.add(name)
+	if mbcl.search(line):
+		fields = line.split("'")
+		classname = fields[1]
+		funcname = fields[3]
+		if classname in classes :
+			badclasses.add(classname)
 f.close()
 
 f = open('classes.txt.dumperall.sorted')
 for line in f :
 	if mbcl.search(line) :
 		fields = line.split("'")
-	if fields[2] == ' member data class ':
-		H.add_edge(fields[1],fields[3])
-	if fields[2] == ' templated member data class ':
-		H.add_edge(fields[1],fields[3])
-	if fields[2] == ' base class ':
-		H.add_edge(fields[1],fields[3])
+		if fields[2] == ' member data class ':
+			H.add_edge(fields[1],fields[3])
+		if fields[2] == ' templated member data class ':
+			H.add_edge(fields[1],fields[3])
+		if fields[2] == ' base class ':
+			H.add_edge(fields[1],fields[3])
 
 f.close()
 
@@ -99,14 +100,9 @@ objtree = nx.shortest_path(H)
 
 for esdclass in esdclasses:
 	for badclass in badclasses:
-		if esdclass in badclass:
-			print esdclass+" is a flagged class"
-		else:
-			if H.has_node(badclass) and H.has_node(esdclass) and nx.has_path(H,esdclass, badclass) :
-				print esdclass+" contains a flagged class "+badclass+" in objtree \'",
-				for objt in objtree[esdclass][badclass]:
-					print objt+";",
-				print "\'."
+		if H.has_node(badclass) and H.has_node(esdclass) and nx.has_path(H,esdclass, badclass) :
+			print "Event setup data class '"+esdclass+"' contains, inherits from or is a flagged class '"+badclass+"'."
+			flaggedclasses.add(esdclass)
 		
 	
 
@@ -118,7 +114,12 @@ for dataclassfunc in dataclassfuncs:
 			n = handle.match(m.group(1))
 			if n : esdclass = n.group(2)
 			else : esdclass = "None"
-			print "Event setup data "+esdclass+" is accessed in call stack \'",
-			for path in paths[tfunc][dataclassfunc]:
-				print path+"; ",
-			print "'."
+#			print "Event setup data '"+esdclass+"' is accessed in call stack '",
+#			for path in paths[tfunc][dataclassfunc]:
+#				print path+"; ",
+#			print "'."
+			if esdclass in flaggedclasses:
+				print "Flagged event setup data class '"+esdclass+"' is accessed in call stack '",
+				for path in paths[tfunc][dataclassfunc]:
+					print path+"; ",
+				print "'."

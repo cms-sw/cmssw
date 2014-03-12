@@ -597,7 +597,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
   	llvm::SmallString<100> buf;
   	llvm::raw_svector_ostream os(buf);
 	std::string name = RD->getQualifiedNameAsString();
-//	if ( ! support::isDataClass(name) ) return;
+	if ( ! support::isDataClass(name) ) return;
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
 	if (  !m_exception.reportClass( DLoc, BR ) ) return;
 
