@@ -36,8 +36,9 @@ GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& 
   theService = new MuonServiceProxy(serviceParameters);     
   
   // TrackRefitter parameters
+  edm::ConsumesCollector iC  = consumesCollector();
   edm::ParameterSet refitterParameters = iConfig.getParameter<edm::ParameterSet>("RefitterParameters");
-  theGlbRefitter = new GlobalMuonRefitter(refitterParameters, theService);
+  theGlbRefitter = new GlobalMuonRefitter(refitterParameters, theService, iC);
 
   edm::ParameterSet trackMatcherPSet = iConfig.getParameter<edm::ParameterSet>("GlobalMuonTrackMatcher");
   theGlbMatcher = new GlobalMuonTrackMatcher(trackMatcherPSet,theService);

@@ -11,12 +11,12 @@
  */
 
 #include "DataFormats/Common/interface/Handle.h"
-
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
@@ -57,7 +57,7 @@ class GlobalMuonRefitter {
   public:
 
     /// constructor with Parameter Set and MuonServiceProxy
-    GlobalMuonRefitter(const edm::ParameterSet&, const MuonServiceProxy*);
+    GlobalMuonRefitter(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
           
     /// destructor
     virtual ~GlobalMuonRefitter();
@@ -131,6 +131,8 @@ class GlobalMuonRefitter {
     edm::InputTag theCSCRecHitLabel;
     edm::Handle<DTRecHitCollection>    theDTRecHits;
     edm::Handle<CSCRecHit2DCollection> theCSCRecHits;
+    edm::EDGetTokenT<DTRecHitCollection> theDTRecHitToken;
+    edm::EDGetTokenT<CSCRecHit2DCollection> theCSCRecHitToken;
 
     int	  theSkipStation;
     int   theTrackerSkipSystem;

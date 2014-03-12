@@ -50,7 +50,6 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
@@ -67,7 +66,8 @@ using namespace edm;
 //----------------
 
 GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
-				       const MuonServiceProxy* service) : 
+				       const MuonServiceProxy* service,
+				       edm::ConsumesCollector& iC) : 
   theCosmicFlag(par.getParameter<bool>("PropDirForCosmics")),
   theDTRecHitLabel(par.getParameter<InputTag>("DTRecSegmentLabel")),
   theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
@@ -113,8 +113,9 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   }
   else
     theRescaleErrorFactor = 1000.;
-  
 
+  theDTRecHitToken=iC.consumes<DTRecHitCollection>(theDTRecHitLabel);
+  theCSCRecHitToken=iC.consumes<CSCRecHit2DCollection>(theCSCRecHitLabel);
   theCacheId_TRH = 0;
 
 }
@@ -133,8 +134,8 @@ GlobalMuonRefitter::~GlobalMuonRefitter() {
 void GlobalMuonRefitter::setEvent(const edm::Event& event) {
 
   theEvent = &event;
-  event.getByLabel(theDTRecHitLabel, theDTRecHits);
-  event.getByLabel(theCSCRecHitLabel, theCSCRecHits);
+  event.getByToken(theDTRecHitToken, theDTRecHits);
+  event.getByToken(theCSCRecHitToken, theCSCRecHits);   
 }
 
 
