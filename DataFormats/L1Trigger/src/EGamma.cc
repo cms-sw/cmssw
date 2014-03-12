@@ -9,12 +9,21 @@ l1t::EGamma::EGamma( const LorentzVector& p4,
 		     int iso )
   : L1Candidate(p4, pt, eta, phi, qual, iso)
 {
-  
+
 }
 
-l1t::EGamma::~EGamma() 
+l1t::EGamma::EGamma( const PolarLorentzVector& p4,
+		     int pt,
+		     int eta,
+		     int phi,
+		     int qual,
+		     int iso )
+  : L1Candidate(p4, pt, eta, phi, qual, iso)
 {
 
 }
 
+l1t::EGamma::~EGamma()
+{
 
+}
