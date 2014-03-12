@@ -211,18 +211,23 @@ HiMixingModule::HiMixingModule(const edm::ParameterSet& pset)
 	    if (object=="HepMCProduct"){
 	       workers_.push_back(new HiMixingWorker<HepMCProduct>(object,inputs,label));
 	       produces<CrossingFrame<HepMCProduct> >(label);
+	       consumes<HepMCProduct>(tag);
 	    }else if (object=="SimTrack"){
 	       workers_.push_back(new HiMixingWorker<SimTrack>(object,inputs,label));
 	       produces<CrossingFrame<SimTrack> >(label);
+	       consumes<std::vector<SimTrack> >(tag);
 	    }else if (object=="SimVertex"){
 	       workers_.push_back(new HiMixingWorker<SimVertex>(object,inputs,label));
 	       produces<CrossingFrame<SimVertex> >(label);
+	       consumes<std::vector<SimVertex> >(tag);
 	    }else if (object=="PSimHit"){
 	       workers_.push_back(new HiMixingWorker<PSimHit>(object,inputs,label));
 	       produces<CrossingFrame<PSimHit> >(label);
+	       consumes<std::vector<PSimHit> >(tag);
 	    }else if (object=="PCaloHit"){
 	       workers_.push_back(new HiMixingWorker<PCaloHit>(object,inputs,label));
 	       produces<CrossingFrame<PCaloHit> >(label);
+	       consumes<std::vector<PCaloHit> >(tag);
 	    }else LogInfo("Error")<<"What the hell is this object?!";
 	    
 	    LogInfo("HiMixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;	 
