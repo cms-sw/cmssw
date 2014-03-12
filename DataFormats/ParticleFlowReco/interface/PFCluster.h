@@ -9,10 +9,12 @@
 #include "Rtypes.h" 
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
 #endif
@@ -56,15 +58,16 @@ namespace reco {
 
     /// resets clusters parameters
     void reset();
+
+    /// reset only hits and fractions
+    void resetHitsAndFractions();
     
     /// add a given fraction of the rechit
     void addRecHitFraction( const reco::PFRecHitFraction& frac);
     
     /// vector of rechit fractions
     const std::vector< reco::PFRecHitFraction >& recHitFractions() const 
-      { return rechits_; }
-    std::vector< reco::PFRecHitFraction >& recHitFractions() 
-      { return rechits_; }
+      { return rechits_; }    
     
     /// set layer
     void setLayer( PFLayer::Layer layer);
@@ -143,6 +146,21 @@ namespace reco {
     double vy() const { return vertex().y(); }
     double vz() const { return vertex().z(); }    
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    template<typename pruner>
+      void pruneUsing(pruner prune) {
+      hitsAndFractions_.clear();
+      std::vector<reco::PFRecHitFraction>::iterator iter = 
+	std::stable_partition(rechits_.begin(),rechits_.end(),prune);
+      rechits_.erase(iter,rechits_.end());
+      hitsAndFractions_.reserve(rechits_.size());
+      for( const auto& hitfrac : rechits_ ) {
+	hitsAndFractions_.emplace_back(hitfrac.recHitRef()->detId(),
+				       hitfrac.fraction());
+      }
+    }
+#endif
+    
   private:
     
     /// vector of rechit fractions (transient)
@@ -193,9 +211,6 @@ namespace reco {
 
     /// color (transient)
     int                 color_;
-    
-    friend class ::PFClusterAlgo;
-    
   };
 }
 

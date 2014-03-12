@@ -28,7 +28,7 @@ class PFClusterEMEnergyCorrector : public PFClusterEnergyCorrectorBase {
   }
 
  private:  
-  bool _applyCrackCorrections;
+  const bool _applyCrackCorrections;
   const reco::PFCluster::EEtoPSAssociation* _assoc;
   unsigned _idx;
   std::unique_ptr<PFEnergyCalibration> _calibrator;

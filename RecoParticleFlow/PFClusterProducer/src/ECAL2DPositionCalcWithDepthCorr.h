@@ -25,7 +25,9 @@ class ECAL2DPositionCalcWithDepthCorr : public PFCPositionCalculatorBase {
     _caloGeom(NULL),
     _ebGeom(NULL),
     _eeGeom(NULL),
-    _esGeom(NULL) { }
+    _esGeom(NULL),
+    _esPlus(false),
+    _esMinus(false) { }
   ECAL2DPositionCalcWithDepthCorr(const ECAL2DPositionCalcWithDepthCorr&) = delete;
   ECAL2DPositionCalcWithDepthCorr& operator=(const ECAL2DPositionCalcWithDepthCorr&) = delete;
 

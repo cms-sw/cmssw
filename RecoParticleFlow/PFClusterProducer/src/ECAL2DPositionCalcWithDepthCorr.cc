@@ -27,7 +27,7 @@ update(const edm::EventSetup& es) {
     _esGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
     // ripped from RecoEcal/EgammaCoreTools 
     for( uint32_t ic = 0; 
-	 ic != _esGeom->getValidDetIds().size() && 
+	 ic < _esGeom->getValidDetIds().size() && 
 	   ( !_esPlus || !_esMinus ); ++ic ) {
 	const double z = _esGeom->getGeometry( _esGeom->getValidDetIds()[ic] )->getPosition().z();
 	_esPlus = _esPlus || ( 0 < z ) ;
@@ -58,6 +58,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   }  				
   double cl_energy = 0;  
   double cl_energy_float = 0;
+  double cl_time = 0;  
+  double cl_timeweight=0.0;
   double max_e = 0.0;  
   double clusterT0 = 0.0;
   PFLayer::Layer max_e_layer = PFLayer::NONE;
@@ -74,6 +76,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     }
     cl_energy += rh_energy;
     cl_energy_float += rh_energyf;
+    cl_timeweight+=refhit->energy()*refhit->energy()*rhf.fraction();
+    cl_time += refhit->energy()*refhit->energy()*rhf.fraction()*refhit->time();   
     if( rh_energy > max_e ) {
       max_e = rh_energy;
       max_e_layer = rhf.recHitRef()->layer();
@@ -81,6 +85,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     }    
   }
   cluster.setEnergy(cl_energy);
+  cluster.setTime(cl_time/cl_timeweight);
   cluster.setLayer(max_e_layer);
   const CaloSubdetectorGeometry* ecal_geom = NULL;
   // get seed geometry information  

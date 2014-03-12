@@ -1,5 +1,4 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 using namespace std;
 using namespace reco;
@@ -47,6 +46,12 @@ void PFCluster::reset() {
   
 }
 
+void PFCluster::resetHitsAndFractions() {
+
+  rechits_.clear();
+  hitsAndFractions_.clear();
+  
+}
 
 void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 

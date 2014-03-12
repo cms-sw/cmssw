@@ -22,10 +22,6 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
-using namespace std;
-using namespace edm;
-
-
 
 template <typename Geometry,PFLayer::Layer Layer,int Detector>
   class PFEcalRecHitCreator :  public  PFRecHitCreatorBase {
@@ -64,9 +60,9 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
   
 	// find rechit geometry
 	if(!thisCell) {
-	  LogError("PFEcalRecHitCreator")
+	  edm::LogError("PFEcalRecHitCreator")
 	    <<"warning detid "<<detid.rawId()
-	    <<" not found in geometry"<<endl;
+	    <<" not found in geometry"<<std::endl;
 	  continue;
 	}
   
