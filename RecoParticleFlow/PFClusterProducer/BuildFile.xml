@@ -1,5 +1,9 @@
+<use   name="CondFormats/HcalObjects"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/ParticleFlowReco"/>
+<use   name="RecoLocalCalo/HcalRecAlgos"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>

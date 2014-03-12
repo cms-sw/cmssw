@@ -12,7 +12,13 @@ particleFlowRecHitHO = cms.EDProducer("PFRecHitProducer",
                   name = cms.string("PFRecHitQTestHOThreshold"),
                   threshold_ring0 = cms.double(0.4),
                   threshold_ring12 = cms.double(1.0)
+                  ),
+                  cms.PSet(
+                  name = cms.string("PFRecHitQTestHCALChannel"),
+                  maxSeverity = cms.int32(11)
                   )
+                  
+
              )
            )
     )
