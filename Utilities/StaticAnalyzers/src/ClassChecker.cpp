@@ -475,7 +475,8 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
 
 void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
 
-  if ( support::isSafeClassName( CE->getRecordDecl()->getQualifiedNameAsString() ) ) return; 
+  const clang::CXXRecordDecl * RD = CE->getRecordDecl();
+  if ( !RD || support::isSafeClassName( RD->getQualifiedNameAsString() ) ) return; 
   llvm::SmallString<100> buf;
   llvm::raw_svector_ostream os(buf);
 
@@ -486,9 +487,7 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
  
   os << "'";
   CE->printPretty(os,0,Policy);
-  os<<"' is a non-const member function that could modify member data object '";
-  CE->getImplicitObjectArgument()->printPretty(os,0,Policy);
-  os << "'\n";
+  os<<"' is a non-const member function that could modify member data object of type '"<<RD->getQualifiedNameAsString()<<"'\n";
   const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
   std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "'\n";
   clang::ento::PathDiagnosticLocation CELoc =
@@ -596,7 +595,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 	
   	llvm::SmallString<100> buf;
   	llvm::raw_svector_ostream os(buf);
-	std::string name = RD->getQualifiedNameAsString();
+	std::string name = RD->getNameAsString();
 	if ( ! support::isDataClass(name) ) return;
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
 	if (  !m_exception.reportClass( DLoc, BR ) ) return;
@@ -621,9 +620,9 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 					clang::QualType RTy = Ctx.getCanonicalType(RQT);
 					clang::QualType CTy = Ctx.getCanonicalType(CQT);
 					clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
-					if ((RTy->isPointerType() || RTy->isReferenceType() ))
-					if (!support::isConst(RTy) ) 
-					if ( MD->getNameAsString().find("clone")==std::string::npos )  
+					if ( (RTy->isPointerType() || RTy->isReferenceType() ) 
+					&&(!support::isConst(RTy) ) 
+					&& ( MD->getNameAsString().find("clone")==std::string::npos ) )  
 					{
 						llvm::SmallString<100> buf;
 						llvm::raw_svector_ostream os(buf);

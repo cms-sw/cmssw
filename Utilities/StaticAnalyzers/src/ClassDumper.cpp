@@ -65,7 +65,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 							std::string buf;
 							llvm::raw_string_ostream os(buf);
 							SD->getNameForDiagnostic(os,Policy,1);
-							std::string cfname ="member data class '"+os.str()+"' ";
+							std::string cfname ="member data class '"+os.str()+"'";
 							writeLog(crname+" "+cfname,tname);
 					// Recurse the template args
 							for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
@@ -75,7 +75,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 								std::string taname = TAD->getQualifiedNameAsString();
 								std::string sdname = SD->getQualifiedNameAsString();
 								std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
-								writeLog(crname+cfname,tname);
+								writeLog(crname+" "+cfname,tname);
 								}
 							}
 					} else {
@@ -95,7 +95,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 			const clang::CXXRecordDecl * BRD = J->getType()->getAsCXXRecordDecl();
 			if (!BRD) continue;
 			std::string bname = BRD->getQualifiedNameAsString();
-			std::string cbname = "base class '"+bname+"' ";
+			std::string cbname = "base class '"+bname+"'";
 			writeLog(crname+" "+cbname,tname);
 		}
 
