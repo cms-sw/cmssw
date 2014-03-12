@@ -10,11 +10,13 @@
 */
 
 #include "GEMCode/GEMValidation/src/CSCDigiMatcher.h"
+#include "GEMCode/GEMValidation/src/GEMDigiMatcher.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
 #include "GEMCode/GEMValidation/src/ALCT.h" 
 #include "GEMCode/GEMValidation/src/CLCT.h" 
 #include "GEMCode/GEMValidation/src/LCT.h" 
@@ -36,7 +38,11 @@ class CSCStubMatcher : public DigiMatcher
 {
 public:
 
-  CSCStubMatcher(SimHitMatcher& sh, CSCDigiMatcher& dg);
+  typedef std::map<int, std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > > GEMPads;
+  typedef std::pair<unsigned int, const GEMCSCPadDigi*> GEMPadBX;
+  typedef std::vector<GEMPadBX> GEMPadsBX;
+
+  CSCStubMatcher(SimHitMatcher& sh, CSCDigiMatcher& dg, GEMDigiMatcher& gem_dg);
   
   ~CSCStubMatcher();
 
@@ -91,6 +97,7 @@ private:
   void matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplcts);
 
   const CSCDigiMatcher* digi_matcher_;
+  const GEMDigiMatcher* gem_digi_matcher_;
 
   edm::InputTag clctInput_;
   edm::InputTag alctInput_;

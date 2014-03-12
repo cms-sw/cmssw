@@ -5,7 +5,7 @@ SimTrackMatchManager::SimTrackMatchManager(const SimTrack& t, const SimVertex& v
 : simhits_(t, v, ps, ev, es)
 , gem_digis_(simhits_)
 , csc_digis_(simhits_)
-, stubs_(simhits_, csc_digis_)
+, stubs_(simhits_, csc_digis_, gem_digis_)
 , tracks_()// stubs_
 , gem_rechits_(simhits_)
 {}

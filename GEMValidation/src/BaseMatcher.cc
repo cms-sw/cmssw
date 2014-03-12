@@ -104,10 +104,28 @@ BaseMatcher::propagateToZ(float z) const
   return propagateToZ(inner_point, inner_vec, z);
 }
 
+
 GlobalPoint
 BaseMatcher::propagatedPositionGEM() const
 {
   const double eta(trk().momentum().eta());
   const int endcap( (eta > 0.) ? 1 : -1);
   return propagateToZ(endcap*AVERAGE_GEM_Z);
+}
+
+
+unsigned int
+BaseMatcher::gemDetFromCSCDet(unsigned int id,int layer)
+{
+  CSCDetId cscId(id);
+  // returns the gem superr chamber for a given ME1/1 chamber(ME1/1a + ME1/1b)
+  GEMDetId gemId(cscId.zendcap(), 1, cscId.station(), layer, cscId.chamber(),0); 
+  return gemId.rawId();
+}
+
+
+std::pair<unsigned int, unsigned int> 
+BaseMatcher::gemDetsFromCSCDet(unsigned int id)
+{
+  return std::make_pair(gemDetFromCSCDet(id,1),gemDetFromCSCDet(id,2));
 }
