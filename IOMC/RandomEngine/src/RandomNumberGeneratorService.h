@@ -56,24 +56,24 @@ namespace edm {
 
       /// Use the next 2 functions to get the random number engine.
       /// These are the only functions most modules should call.
+
       /// Use this engine in event methods
       virtual CLHEP::HepRandomEngine& getEngine(StreamID const& streamID) const override;
+
       /// Use this engine in the global begin luminosity block method
       virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const& luminosityBlockIndex) const override;
 
-      // TO BE DELETED, THIS CAN ONLY BE USED WITH TYPE "ONE" MODULES.
-      // REPLAY DOES NOT WORK WITH THIS VERSION OF GETENGINE.
-      // MULTIPROCESS MODE DOES NOT WORK WITH THIS VERSION OF GETENGINE
-      // The plan is to delete this as soon as we can modify all
-      // modules currently using it.
-      virtual CLHEP::HepRandomEngine& getEngine() const override;
-
-      // PROBABLY TO BE DELETED, This returns the first configured seed without
-      // any of the modifications for streams, forking, or the offset configuration
-      // parameter. Maybe useful to use for debugging/checks, but dangerous if one tries
-      // to create your own engines using it. It is difficult to get the offsets
-      // for streams/forking/offset parameters unique and a module creating engines
-      // with it almost certainly would break replay.
+      // This returns the seed from the configuration. In the unusual case where an
+      // an engine type takes multiple seeds to initialize a sequence, this function
+      // only returns the first. As a general rule, this function should not be used,
+      // but is available for backward compatibility and debugging. It might be useful
+      // for some types of tests. Using this to seed engines constructed in modules is
+      // not recommended because (unless done very carefully) it will create duplicate
+      // sequences in different threads and/or data races. Also, if engines are created
+      // by modules the replay mechanism will be broken.
+      // Because it is dangerous and could be misused, this function might be deleted
+      // someday if we ever find time to delete all uses of it in CMSSW. There are of
+      // order 10 last time I checked ...
       virtual std::uint32_t mySeed() const override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
@@ -105,8 +105,8 @@ namespace edm {
       void preModuleStreamEndLumi(StreamContext const& sc, ModuleCallingContext const& mcc);
       void postModuleStreamEndLumi(StreamContext const& sc, ModuleCallingContext const& mcc);
 
-      // The next 5 functions support the no argument getEngine function and the mySeed function
-      // DELETE THEM when/if both functions are deleted.
+      // The next 5 functions support the mySeed function
+      // DELETE THEM when/if that function is deleted.
       void postModuleConstruction(ModuleDescription const& description);
       void preModuleBeginJob(ModuleDescription const& description);
       void postModuleBeginJob(ModuleDescription const& description);
@@ -274,14 +274,10 @@ namespace edm {
 
       std::uint32_t eventSeedOffset_;
 
-      // The next data member supports the no argument getEngine function
-      // DELETE IT when/if that function is deleted.
-      std::map<std::string, std::shared_ptr<CLHEP::HepRandomEngine> > oldEngineMap_;
-
       bool verbose_;
 
-      // The next data member supports the no argument getEngine function and the mySeed function
-      // DELETE IT when/if both functions are deleted.
+      // The next data member supports the mySeed function
+      // DELETE IT when/if that function is deleted.
       static thread_local std::string moduleLabel_;
 
       static const std::vector<std::uint32_t>::size_type maxSeeds;
