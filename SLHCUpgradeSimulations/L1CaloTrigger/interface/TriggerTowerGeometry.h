@@ -7,6 +7,10 @@ class TriggerTowerGeometry
 	TriggerTowerGeometry(  )
 	{
 
+	        // Calculate the TT phi width, 2*PI/PhiTTs
+	        mDeltaPhi = 6.28318530718/72.;
+
+		// Store the TT eta widths
 		for ( int i = 1; i <= 20; ++i )
 			mMappingeta[i] = 0.087;
 
@@ -37,7 +41,10 @@ class TriggerTowerGeometry
 
 	double phi( const int& iPhi )
 	{
-		return ( double( iPhi )-0.5 ) * 0.087;
+
+	  //BUG - Should use: deltaPhi = 2*pi/72
+	  //return ( double( iPhi )-0.5 ) * 0.087;
+	  return ( double( iPhi ) - 0.5 ) * mDeltaPhi;
 	}
 
 	double towerEtaSize( const int& iEta )
@@ -47,11 +54,14 @@ class TriggerTowerGeometry
 
 	double towerPhiSize( const int& iPhi )
 	{
-		return 0.087;
+	  
+	  return mDeltaPhi;
+	  //return 0.087;
 	}
 
   private:
 	std::map < int, double >mMappingeta;
+	double mDeltaPhi;
 };
 
 #endif

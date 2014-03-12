@@ -6,7 +6,8 @@
 
 using namespace edm;
 TTbar_Kinematics::TTbar_Kinematics(const edm::ParameterSet& iConfig) :
-  genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag"))
+  hepmcCollection_(iConfig.getParameter<edm::InputTag>("hepmcCollection"))
+  ,genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag"))
 {
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
@@ -37,40 +38,49 @@ TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if(!evt_info.isValid()) return;
   weight = evt_info->weight() ;
 
+  /*
   // --- get TopQuarkAnalysis TtGenEvent
   Handle<TtGenEvent> genEvt;
   iEvent.getByLabel("genEvt", genEvt);
 
   if(!genEvt.isValid())return;
+  */
 
-  const reco::GenParticle*        top = 0;
-  const reco::GenParticle*    antitop = 0;
-  const reco::GenParticle*     bottom = 0;
-  const reco::GenParticle* antibottom = 0;
-  const reco::GenParticle*      Wplus = 0;
-  const reco::GenParticle*      Wmin  = 0;
+  ///Gathering the HepMCProduct information
+  edm::Handle<HepMCProduct> evt;
+  iEvent.getByLabel(hepmcCollection_, evt);
 
-  top        = genEvt->top();
-  antitop    = genEvt->topBar();
-  bottom     = genEvt->b();
-  antibottom = genEvt->bBar();
-  Wplus      = genEvt->wPlus();
-  Wmin       = genEvt->wMinus();
+  //Get EVENT
+  HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
 
-  tlv_Top        = TLorentzVector(0,0,0,0) ;
-  tlv_TopBar     = TLorentzVector(0,0,0,0) ;
-  tlv_Bottom     = TLorentzVector(0,0,0,0) ;
-  tlv_BottomBar  = TLorentzVector(0,0,0,0) ;
-  tlv_Wplus      = TLorentzVector(0,0,0,0) ;
-  tlv_Wmin       = TLorentzVector(0,0,0,0) ;
-  tlv_TTbar      = TLorentzVector(0,0,0,0);
-
-  if(top)        tlv_Top.SetPxPyPzE(top->p4().px(),top->p4().py(),top->p4().pz(),top->p4().e());
-  if(antitop)    tlv_TopBar.SetPxPyPzE(antitop->p4().px(),antitop->p4().py(),antitop->p4().pz(),antitop->p4().e());
-  if(bottom)     tlv_Bottom.SetPxPyPzE(bottom->p4().px(),bottom->p4().py(),bottom->p4().pz(),bottom->p4().e());
-  if(antibottom) tlv_BottomBar.SetPxPyPzE(antibottom->p4().px(),antibottom->p4().py(),antibottom->p4().pz(),antibottom->p4().e());
-  if(Wplus)      tlv_Wplus.SetPxPyPzE(Wplus->p4().px(),Wplus->p4().py(),Wplus->p4().pz(),Wplus->p4().e());
-  if(Wmin)       tlv_Wmin.SetPxPyPzE(Wmin->p4().px(),Wmin->p4().py(),Wmin->p4().pz(),Wmin->p4().e());
+  TLorentzVector tlv_Top, tlv_TopBar, tlv_Bottom, tlv_BottomBar ,tlv_Wplus ,tlv_Wmin , tlv_TTbar;
+  bool top(false), antitop(false), antibottom(false), bottom(false), Wplus(false), Wmin(false);
+  for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); iter++) {
+    if((*iter)->pdg_id()==PdtPdgMini::t || (*iter)->pdg_id()==PdtPdgMini::anti_t){
+      if( (*iter)->end_vertex()){
+	HepMC::GenVertex::particle_iterator des;
+	for(des = (*iter)->end_vertex()->particles_begin(HepMC::children);des!= (*iter)->end_vertex()->particles_end(HepMC::children);++des ){
+	  if((*des)->pdg_id()==PdtPdgMini::b){
+	    tlv_Bottom.SetPxPyPzE((*des)->momentum().px(),(*des)->momentum().py(),(*des)->momentum().pz(),(*des)->momentum().e());
+	    bottom=true;
+ 	  }
+          if((*des)->pdg_id()==PdtPdgMini::anti_b){
+	    antibottom=true;
+	    tlv_BottomBar.SetPxPyPzE((*des)->momentum().px(),(*des)->momentum().py(),(*des)->momentum().pz(),(*des)->momentum().e());
+         }
+	  if((*des)->pdg_id()==PdtPdgMini::W_plus){ 
+	    tlv_TopBar.SetPxPyPzE((*iter)->momentum().px(),(*iter)->momentum().py(),(*iter)->momentum().pz(),(*iter)->momentum().e()); antitop=true;
+	    tlv_Wplus.SetPxPyPzE((*des)->momentum().px(),(*des)->momentum().py(),(*des)->momentum().pz(),(*des)->momentum().e()); Wplus=true;
+	  }
+	  if((*des)->pdg_id()==PdtPdgMini::W_minus){ 
+	    tlv_Top.SetPxPyPzE((*iter)->momentum().px(),(*iter)->momentum().py(),(*iter)->momentum().pz(),(*iter)->momentum().e()); top=true;
+	    tlv_Wmin.SetPxPyPzE((*des)->momentum().px(),(*des)->momentum().py(),(*des)->momentum().pz(),(*des)->momentum().e()); Wmin=true;
+	  }
+	}
+      }
+    }
+  }
+	  
   tlv_TTbar = tlv_Top + tlv_TopBar ;
 
   //---topquarkquantities---
@@ -87,12 +97,7 @@ TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     
     //---ttbarpairquantities---
     hTTbarPt->Fill(tlv_TTbar.Pt(),weight);
-    hTTbarPt->Fill(tlv_TTbar.Pt(),weight);
-    
     hTTbarY->Fill(tlv_TTbar.Rapidity(),weight);
-    hTTbarY->Fill(tlv_TTbar.Rapidity(),weight);
-    
-    hTTbarMass->Fill(tlv_TTbar.M(),weight);
     hTTbarMass->Fill(tlv_TTbar.M(),weight);
   }
   if(bottom && antibottom){

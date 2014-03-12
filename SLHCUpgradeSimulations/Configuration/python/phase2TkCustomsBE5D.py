@@ -59,6 +59,13 @@ def customise_Digi(process):
     
     return process
 
+def customise_Digi_TTI(process):
+	# needed in addition to customise_Digi (only bx=0 for TrackingParticles)
+    if hasattr(process,'digitisation_step'):
+    	process.mix.digitizers.mergedtruth.maximumPreviousBunchCrossing = cms.uint32(0)
+    	process.mix.digitizers.mergedtruth.maximumSubsequentBunchCrossing = cms.uint32(0)
+    return process
+
 
 def customise_DigiToRaw(process):
     process.digi2raw_step.remove(process.siPixelRawData)
@@ -231,6 +238,9 @@ def l1EventContent(process):
             getattr(process,b).outputCommands.append('keep *_simSiPixelDigis_*_*')
 
     return process
+
+
+
 
 def customise_DQM(process,pileup):
     # We cut down the number of iterative tracking steps

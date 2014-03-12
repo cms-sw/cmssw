@@ -6,8 +6,8 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Geometry.MuonCommonData.testMFXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
@@ -32,7 +32,7 @@ process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
-runprocess.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(

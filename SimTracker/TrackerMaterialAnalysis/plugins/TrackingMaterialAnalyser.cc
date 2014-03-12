@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <boost/tuple/tuple.hpp>
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,7 +19,6 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingStep.h"
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingTrack.h"
@@ -104,16 +104,20 @@ void TrackingMaterialAnalyser::saveXml(const char* name)
 }
 
 //-------------------------------------------------------------------------
-void TrackingMaterialAnalyser::saveLayerPlots()
+void TrackingMaterialAnalyser::saveLayerPlots(const char * name)
 {
+  if (boost::filesystem::is_directory(name))
+    boost::filesystem::remove_all(name);
+  boost::filesystem::create_directory(name);
   for (unsigned int i = 0; i < m_groups.size(); ++i) {
     MaterialAccountingGroup & layer = *(m_groups[i]);
-    layer.savePlots();
+    layer.savePlots(name);
   }
 }
 
 //-------------------------------------------------------------------------
-void TrackingMaterialAnalyser::endJob(void)
+// FIXME we should save the parameters/xml/plots to a different file per IOV
+void TrackingMaterialAnalyser::save()
 {
   if (m_saveParameters)
     saveParameters("parameters");
@@ -122,7 +126,7 @@ void TrackingMaterialAnalyser::endJob(void)
     saveXml("parameters.xml");
 
   if (m_saveDetailedPlots)
-    saveLayerPlots();
+    saveLayerPlots("layers");
 
   if (m_saveSummaryPlot and m_plotter) {
     m_plotter->normalize();
@@ -131,22 +135,39 @@ void TrackingMaterialAnalyser::endJob(void)
 }
 
 //-------------------------------------------------------------------------
+void TrackingMaterialAnalyser::endJob(void)
+{
+  save();
+}
 
 //-------------------------------------------------------------------------
-void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::EventSetup& setup)
+void TrackingMaterialAnalyser::analyze(const edm::Event & event, const edm::EventSetup & setup)
 {
-  edm::ESTransientHandle<DDCompactView> hDDD;
-  setup.get<IdealGeometryRecord>().get( hDDD );
+  if (m_geometryWatcher.check(setup)) {
+    edm::ESTransientHandle<DDCompactView> hDDD;
+    setup.get<IdealGeometryRecord>().get( hDDD );
 
-  m_groups.reserve( m_groupNames.size() );
-  for (unsigned int i = 0; i < m_groupNames.size(); ++i)
-    m_groups.push_back( new MaterialAccountingGroup( m_groupNames[i], * hDDD) ); 
+    if (m_groups.empty()) {
+      // initialise the layers for the first time
+      m_groups.resize( m_groupNames.size(), nullptr );
+    } else {
+      // the geometry has changed: save the current parameters/xml/plots and re-initialise the layers
+      save();
+      for (unsigned int i = 0; i < m_groups.size(); ++i)
+        delete m_groups[i];
+      if (m_plotter)
+        m_plotter->reset();
+    }
 
-  // INFO
-  std::cout << "TrackingMaterialAnalyser: List of the tracker groups: " << std::endl;
-  for (unsigned int i = 0; i < m_groups.size(); ++i)
-    std::cout << '\t' << m_groups[i]->info() << std::endl;
-  std::cout << std::endl;
+    for (unsigned int i = 0; i < m_groups.size(); ++i)
+      m_groups[i] = new MaterialAccountingGroup( m_groupNames[i], * hDDD);
+
+    // INFO
+    std::cout << "TrackingMaterialAnalyser: List of the tracker groups: " << std::endl;
+    for (unsigned int i = 0; i < m_groups.size(); ++i)
+      std::cout << '\t' << m_groups[i]->info() << std::endl;
+    std::cout << std::endl;
+  }
 
   edm::Handle< std::vector<MaterialAccountingTrack> > h_tracks;
   event.getByLabel(m_material, h_tracks);

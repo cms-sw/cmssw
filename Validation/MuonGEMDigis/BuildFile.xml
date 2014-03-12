@@ -1,0 +1,27 @@
+<use name="boost"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/GEMDigi"/>
+<use name="DataFormats/CLHEP"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="SimDataFormats/TrackerDigiSimLink"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="Utilities/General"/>
+<use name="DQMServices/Core"/>
+<use name="Validation/MuonGEMHits"/>
+<export>
+  <lib name="1"/>
+</export>

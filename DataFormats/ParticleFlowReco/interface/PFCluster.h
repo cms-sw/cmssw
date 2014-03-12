@@ -1,6 +1,7 @@
 #ifndef DataFormats_ParticleFlowReco_PFCluster_h
 #define DataFormats_ParticleFlowReco_PFCluster_h
 
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 #include "Math/GenVector/PositionVector3D.h"
@@ -42,7 +43,7 @@ namespace reco {
   class PFCluster : public CaloCluster {
   public:
 
-
+    typedef std::vector<std::pair<CaloClusterPtr::key_type,edm::Ptr<PFCluster> > > EEtoPSAssociation;
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
   
     PFCluster() : CaloCluster(CaloCluster::particleFlow), color_(1) {}
@@ -50,8 +51,6 @@ namespace reco {
     /// constructor
     PFCluster(PFLayer::Layer layer, double energy,
 	      double x, double y, double z );
-
-
 
     /// resets clusters parameters
     void reset();
@@ -97,9 +96,7 @@ namespace reco {
     
     friend    std::ostream& operator<<(std::ostream& out, 
 				       const PFCluster& cluster);
-    /// counter
-    static unsigned     instanceCounter_;
-    
+
     /// \todo move to PFClusterTools
     static void setDepthCorParameters(int mode, 
 				      double a, double b, 
@@ -131,8 +128,7 @@ namespace reco {
     
     /// dummy vertex access
     math::XYZPoint const & vertex() const { 
-      static math::XYZPoint dummyVtx(0,0,0);
-      return dummyVtx;      
+      return dummyVtx_;      
     }
     double vx() const { return vertex().x(); }
     double vy() const { return vertex().y(); }
@@ -162,7 +158,8 @@ namespace reco {
     /// \todo move to PFClusterTools
     static double depthCorBp_;
     
-    
+    static const math::XYZPoint dummyVtx_;
+
     /// color (transient)
     int                 color_;
     

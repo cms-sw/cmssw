@@ -1,0 +1,22 @@
+<use   name="CommonTools/Statistics"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Utilities"/>
+<use   name="Geometry/Records"/>
+<use   name="TrackPropagation/SteppingHelixPropagator"/>
+<use   name="TrackingTools/Records"/>
+<use   name="TrackingTools/AnalyticalJacobians"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/VolumeBasedEngine"/>
+<use   name="DataFormats/Candidate"/>
+<use   name="MagneticField/VolumeGeometry"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<library   file="TestAnalyzer_Final.cc" name="TestAnalyzer_Final">
+  <flags   EDM_PLUGIN="1"/>
+</library>

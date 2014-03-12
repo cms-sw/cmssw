@@ -10,11 +10,16 @@ HGCHEDetId::HGCHEDetId() : DetId() {
 HGCHEDetId::HGCHEDetId(uint32_t rawid) : DetId(rawid) {
 }
 
-HGCHEDetId::HGCHEDetId(ForwardSubdetector subdet, int zp, int lay, int mod,
-		       int cellx, int celly) : DetId(Forward,subdet) {
-  // (no checking at this point!)
-  id_ |= (((zp>0) ? 0x1000000 : 0) | ((lay&0x3F)<<18) | ((mod&0x3F)<12) |
-	  ((cellx&0x3F)<<6) | (celly&0x3F));
+HGCHEDetId::HGCHEDetId(ForwardSubdetector subdet, int zp, int lay, int sec, int subsec, int cell) : DetId(Forward,subdet) 
+{  
+  uint32_t rawid=0;
+  rawid |= ((cell   & 0xffff) << 0 );
+  rawid |= ((sec    & 0x1f)   << 16);
+  rawid |= ((subsec & 0x1)    << 21);
+  rawid |= ((lay    & 0x1f)   << 22);
+  if(zp>0) rawid |= ((zp     & 0x1)    << 27);
+  rawid |= ((Forward & 0x7)   << 29);
+  id_=rawid;
 }
 
 HGCHEDetId::HGCHEDetId(const DetId& gen) {
@@ -40,7 +45,12 @@ HGCHEDetId& HGCHEDetId::operator=(const DetId& gen) {
 
 std::ostream& operator<<(std::ostream& s,const HGCHEDetId& id) {
   switch (id.subdet()) {
-  case(HGCHE) : return s << "(HGCHE " << id.zside() << ',' << id.layer() << ',' << id.module() << ',' << id.cellX() << ',' << id.cellY() << ')';
+  case(HGCHE) : return s << "isHE=" << id.isHE() 
+			 << " zpos=" << id.zside() 
+			 << " layer=" << id.layer() 
+			 << " phi sub-sector" << id.subsector()
+			 << " sector=" << id.sector() 
+			 << " cell=" << id.cell();
   default : return s << id.rawId();
   }
 }

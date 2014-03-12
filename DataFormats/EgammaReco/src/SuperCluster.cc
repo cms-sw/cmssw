@@ -1,6 +1,6 @@
-// $Id: SuperCluster.cc,v 1.18 2012/10/22 20:23:27 argiro Exp $
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include <algorithm>
 using namespace reco;
 
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position ) :
@@ -79,8 +79,6 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
   }
   computeRawEnergy();
 }
-
-
 
 void SuperCluster::computeRawEnergy() {
 

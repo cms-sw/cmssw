@@ -1,10 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+
 particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     # verbosity 
     verbose = cms.untracked.bool(False),
+    #corrections
+    applyCrackCorrections = cms.bool(False),
     # PFRecHit collection          
     PFRecHits = cms.InputTag("particleFlowRecHitECAL"),
+    PFClustersPS = cms.InputTag('particleFlowClusterPS'), #for EE->PS assoc.
+    thresh_Preshower = cms.double(0.0),
     #PFCluster Collection name
     #PFClusterCollectionName =  cms.string("ECAL"),                                
     #----all thresholds are in GeV
@@ -42,8 +47,17 @@ particleFlowClusterECAL = cms.EDProducer("PFClusterProducer",
     posCalcNCrystal = cms.int32(9),
     # use cells with common corner to build topo-clusters
     useCornerCells = cms.bool(True),
-    # enable cleaning of RBX and HPD (HCAL only);                                         
+    # enable cleaning of RBX and HPD (HCAL only);             
     cleanRBXandHPDs = cms.bool(False),
+    PositionCalcType = cms.string('EGPositionCalc'),
+    # e/gamma position calc config  
+    PositionCalcConfig = cms.PSet( T0_barl = cms.double(7.4),
+                                   T0_endc = cms.double(3.1),
+                                   T0_endcPresh = cms.double(1.2),
+                                   LogWeighted = cms.bool(True),
+                                   W0 = cms.double(4.2),
+                                   X0 = cms.double(0.89)
+                                   ),
     # depth correction for ECAL clusters:
     #   0: no depth correction
     #   1: electrons/photons - depth correction is proportionnal to E

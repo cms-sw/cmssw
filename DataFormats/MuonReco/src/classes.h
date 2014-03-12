@@ -24,6 +24,11 @@
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/Common/interface/AssociationMap.h"
 
+#include <DataFormats/MuonReco/interface/EmulatedME0Segment.h>
+#include <DataFormats/MuonReco/interface/ME0Muon.h>
+
+#include <DataFormats/MuonReco/interface/EmulatedME0SegmentCollection.h>
+#include <DataFormats/MuonReco/interface/ME0MuonCollection.h>
 
 #include <vector>
 #include <map>
@@ -128,6 +133,22 @@ namespace {
     edm::PtrVector<reco::Muon>                   pv_muon;
     edm::Wrapper<edm::PtrVector<reco::Muon> >    w_pv_muon;
 
+    //ME0 block
+    EmulatedME0Segment seg;
+    std::vector<EmulatedME0Segment> segs;
+    edm::Wrapper< std::vector<EmulatedME0Segment> > dwc1;
+    
+    reco::ME0Muon muon;
+    std::vector<reco::ME0Muon> muons;
+    edm::Wrapper< std::vector<reco::ME0Muon> > dwc2;
+
+    ME0MuonCollection muoncol;
+    edm::Wrapper<ME0MuonCollection> mcw1;
+    edm::Ref<ME0MuonCollection> mcr1;
+
+    EmulatedME0SegmentCollection segcol;
+    edm::Wrapper<EmulatedME0SegmentCollection> scw1;
+    edm::Ref<EmulatedME0SegmentCollection> scr1;    
   };
 }
 

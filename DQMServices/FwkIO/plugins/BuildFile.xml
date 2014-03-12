@@ -5,6 +5,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Catalog"/>
 <use   name="roothistmatrix"/>
+<use   name="boost_filesystem"/>
 <library   file="*.cc" name="DQMServicesFwkIOPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

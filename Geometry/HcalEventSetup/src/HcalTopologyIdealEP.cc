@@ -37,23 +37,19 @@
 //
 HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
   : m_restrictions(conf.getUntrackedParameter<std::string>("Exclude")),
-    m_pSet( conf )
-{
+    m_pSet( conf ) {
   std::cout << "HcalTopologyIdealEP::HcalTopologyIdealEP" << std::endl;
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::HcalTopologyIdealEP";
   setWhatProduced(this,
-                   &HcalTopologyIdealEP::produce,
-                   dependsOn( &HcalTopologyIdealEP::hcalRecordCallBack ));
+		  &HcalTopologyIdealEP::produce,
+		  dependsOn( &HcalTopologyIdealEP::hcalRecordCallBack ));
 }
 
 
-HcalTopologyIdealEP::~HcalTopologyIdealEP()
-{ 
+HcalTopologyIdealEP::~HcalTopologyIdealEP() { 
 }
 
-void
-HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) 
-{
+void HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
 
   //  edm::ParameterSetDescription hcalTopologyConstants;
   edm::ParameterSetDescription desc;
@@ -68,23 +64,22 @@ HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & descript
 
 // ------------ method called to produce the data  ------------
 HcalTopologyIdealEP::ReturnType
-HcalTopologyIdealEP::produce(const HcalRecNumberingRecord& iRecord)
-{
+HcalTopologyIdealEP::produce(const HcalRecNumberingRecord& iRecord) {
   std::cout << "HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)" << std::endl;
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::produce(const HcalGeometryRecord& iRecord)";
   
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   iRecord.get( pHRNDC );
-  const HcalDDDRecConstants hdc (*pHRNDC);
+  const HcalDDDRecConstants* hdc = &(*pHRNDC);
 
   StringToEnumParser<HcalTopologyMode::Mode> eparser;
-  HcalTopologyMode::Mode mode = eparser.parseString(hdc.getTopoMode());
-  int maxDepthHB = hdc.getMaxDepth(0);
-  int maxDepthHE = hdc.getMaxDepth(1);
+  HcalTopologyMode::Mode mode = eparser.parseString(hdc->getTopoMode());
+  int maxDepthHB = hdc->getMaxDepth(0);
+  int maxDepthHE = hdc->getMaxDepth(1);
   std::cout << "mode = " << mode << ", maxDepthHB = " << maxDepthHB << ", maxDepthHE = " << maxDepthHE << std::endl;
   edm::LogInfo("HCAL") << "mode = " << mode << ", maxDepthHB = " << maxDepthHB << ", maxDepthHE = " << maxDepthHE;
 
-  ReturnType myTopo(new HcalTopology( mode, maxDepthHB, maxDepthHE ));
+  ReturnType myTopo(new HcalTopology(hdc));
 
   HcalTopologyRestrictionParser parser(*myTopo);
   if (!m_restrictions.empty()) {

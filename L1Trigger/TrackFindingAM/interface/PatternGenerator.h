@@ -16,6 +16,7 @@ using namespace std;
 
 /**
    \brief Creates a pattern bank from root muons simulation files.
+   Each event contains only one track. To be used in the pattern creation, it must have at least one stub per used layer (except in the case of fake stubs). 
 **/
 class PatternGenerator{
  private:
@@ -27,6 +28,7 @@ class PatternGenerator{
   float etaMax;
   int nbMaxFakeSuperstrips;
   vector<int> tracker_layers;
+  vector<int> inactive_layers;
   string particuleDirName;
 
   // Containers to load the TTree branches
@@ -52,7 +54,10 @@ class PatternGenerator{
   vector<float>                 *p_m_stub_etaGEN;
 
   TChain* createTChain(string directoryName, string tchainName);
-  int generate(TChain* TT, int* evtIndex, int evtNumber, int* nbTrack, SectorTree* sectors, map<int,pair<float,float> > eta_limits);
+  /**
+     If coverageEstimation!=NULL we do not create patterns, we just test the coverage of the existing bank with new tracks
+   **/
+  int generate(TChain* TT, int* evtIndex, int evtNumber, int* nbTrack, SectorTree* sectors, map<int,pair<float,float> > eta_limits, int* coverageEstimation=NULL);
   
  public:
  /**
@@ -88,7 +93,7 @@ class PatternGenerator{
   void setMaxEta(float maxe);
   /**
      \brief Change the maximum number of fake superstrips that can be used in a pattern
-     \param maxe The maximum number of fakse superstrips in a pattern
+     \param mf The maximum number of fake superstrips in a pattern
   **/
   void setMaxFakeSuperstrips(int mf);
  /**
@@ -96,6 +101,11 @@ class PatternGenerator{
      \param l A vector of int, each integer is a layer number (ex : 8 9 10 for the last 3 layers)
   **/
   void setLayers(vector<int> l);
+ /**
+     \brief Sets the inactive layers (will have only fake stubs but will be present in the bank)
+     \param l A vector of int, each integer is a layer number (ex : 8 9 10 for the last 3 layers)
+  **/
+  void setInactiveLayers(vector<int> l);
   /**
      \brief Set the name of the directory containing the root files with muons informations
      \param f The name of the directory

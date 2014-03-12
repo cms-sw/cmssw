@@ -22,11 +22,17 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   firstSample_(conf.getParameter<int>("firstSample")),
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
   tsFromDB_(conf.getParameter<bool>("tsFromDB")),
+  firstDepthWeight_(1.),
   upgradeHBHE_(false),
   upgradeHF_(false),
   paramTS(0),
   theTopology(0)
 {
+
+  if ( conf.exists("firstDepthWeight") ) {
+    firstDepthWeight_ = conf.getParameter<double>("firstDepthWeight");
+  }
+  reco_.setD1W(firstDepthWeight_); // set depth1=layer0 weight in any case...
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if(!strcasecmp(subd.c_str(),"upgradeHBHE")) {
@@ -91,6 +97,7 @@ void HcalSimpleReconstructor::endRun(edm::Run const&r, edm::EventSetup const & e
 template<class DIGICOLL, class RECHITCOLL> 
 void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& eventSetup)
 {
+
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
@@ -137,7 +144,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
   eventSetup.get<HcalDbRecord>().get(conditions);
 
   if(upgradeHBHE_){
-   
+
     edm::Handle<HBHEUpgradeDigiCollection> digi;
     e.getByLabel(inputLabel_, digi);
 

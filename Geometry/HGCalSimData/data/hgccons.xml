@@ -4,7 +4,8 @@
 <SpecParSection label="hgccons.xml" eval="true">
   <SpecPar name="hgc">
     <PartSelector path="//HGCal"/>
-    <Parameter name="Volume" value="HGC" eval="false"/>
+    <Parameter name="Volume"     value="HGC" eval="false"/>
+    <!-- cell size for sim hits-->
     <Parameter name="GeomParHGC" value="5*mm"/>
     <Parameter name="GeomParHGC" value="10*mm"/>
   </SpecPar>

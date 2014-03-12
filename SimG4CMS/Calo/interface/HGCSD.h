@@ -39,7 +39,7 @@ protected:
 
 private:    
 
-  uint32_t                      setDetUnitId(int, G4ThreeVector, int,int,int);
+  uint32_t                      setDetUnitId(ForwardSubdetector &, int &, int &, int &, G4ThreeVector &, float &, float &, float &, float &);
   std::vector<double>           getDDDArray(const std::string&, 
                                             const DDsvalues_type&);
   bool                          isItinFidVolume (G4ThreeVector&) {return true;}
@@ -49,7 +49,7 @@ private:
   std::vector<double>           gpar;
   G4int                         mumPDG, mupPDG; 
   double                        eminHit;
-
+  int                           myFwdSubdet_;
 };
 
 #endif // HGCSD_h

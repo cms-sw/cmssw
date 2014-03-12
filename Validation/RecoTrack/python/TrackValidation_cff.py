@@ -12,9 +12,8 @@ from SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi import *
 
 TrackAssociatorByHitsRecoDenom= SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone(
     ComponentName = cms.string('TrackAssociatorByHitsRecoDenom'),  
-    useClusterTPAssociation = cms.bool(True),
-    SimToRecoDenominator = cms.string('reco')
     )
+
 # Validation iterative steps
 cutsRecoTracksZero = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
 cutsRecoTracksZero.algorithm=cms.vstring("iter0")
