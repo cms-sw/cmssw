@@ -71,13 +71,15 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
     }
 
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
+      edm::ESHandle<HcalTopology> topo;
+      iSetup.get<IdealGeometryRecord>().get(topo);
       edm::ESHandle<HcalChannelQuality> hcalChStatus;    
       iSetup.get<HcalChannelQualityRcd>().get( hcalChStatus );
       theHcalChStatus_ = hcalChStatus.product();
+      if (!theHcalChStatus_->topo()) theHcalChStatus_->setTopo(topo.product());
       edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
       iSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
       hcalSevLvlComputer_  =  hcalSevLvlComputerHndl.product();
-
     }
 
     bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
@@ -113,10 +115,13 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
       return true;
     }
     bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+
       const HcalDetId& detid = (HcalDetId)rh.detid();
       const HcalChannelStatus* theStatus = theHcalChStatus_->getValues(detid);
       unsigned theStatusValue = theStatus->getValue();
+
       // Now get severity of problems for the given detID, based on the rechit flag word and the channel quality status value
+
       int hitSeverity=hcalSevLvlComputer_->getSeverityLevel(detid, rh.flags(),theStatusValue);
 
       if (hitSeverity>threshold_) {
