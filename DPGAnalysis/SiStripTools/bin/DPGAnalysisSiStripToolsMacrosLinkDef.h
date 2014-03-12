@@ -7,6 +7,7 @@
 #ifdef __CINT__
 #pragma link off all functions;
 #pragma link C++ function PlotOccupancyMap;
+#pragma link C++ function combinedOccupancy;
 #pragma link C++ function AverageRunMultiplicity;
 #pragma link C++ function PlotPixelMultVtxPos;
 #pragma link C++ function DeadTimeAPVCycle;

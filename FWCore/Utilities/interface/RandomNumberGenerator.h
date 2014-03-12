@@ -112,9 +112,6 @@ namespace edm {
     RandomNumberGenerator() {}
     virtual ~RandomNumberGenerator();
 
-    /// Use this to get the random number engine, this is the only function most users should call.
-    virtual CLHEP::HepRandomEngine& getEngine() const = 0;    
-
     virtual CLHEP::HepRandomEngine& getEngine(StreamID const&) const { return getEngine(); }
     virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const&) const { return getEngine(); }
 
@@ -140,6 +137,9 @@ namespace edm {
 
     RandomNumberGenerator(RandomNumberGenerator const&); // stop default
     RandomNumberGenerator const& operator=(RandomNumberGenerator const&); // stop default
+
+    /// Use this to get the random number engine, this is the only function most users should call.
+    virtual CLHEP::HepRandomEngine& getEngine() const = 0;
   };
 }
 #endif

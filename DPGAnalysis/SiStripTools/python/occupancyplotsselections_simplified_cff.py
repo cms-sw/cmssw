@@ -1,5 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
+OccupancyPlotsPixelWantedLayers = cms.VPSet (
+    cms.PSet(detSelection=cms.uint32(110),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f0000-0x12010000")),      # BPix L1
+    cms.PSet(detSelection=cms.uint32(120),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f0000-0x12020000")),      # BPix L2
+    cms.PSet(detSelection=cms.uint32(130),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f0000-0x12030000")),      # BPix L3
+    )
+
 OccupancyPlotsPixelWantedSubDets = cms.VPSet (
     cms.PSet(detSelection=cms.uint32(111),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f00fc-0x12010004")),      # BPix L1 mod 1
     cms.PSet(detSelection=cms.uint32(112),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f00fc-0x12010008")),      # BPix L1 mod 2
@@ -64,6 +70,19 @@ OccupancyPlotsPixelWantedSubDets = cms.VPSet (
     cms.PSet(detSelection=cms.uint32(247),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1f8f03fc-0x15020110"))       # FPix+ D2 pan1 mod4
 #    cms.PSet(detSelection=cms.uint32(),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1f8f03fc-0x15020210"))      # FPix+ D2
 
+    )
+
+OccupancyPlotsStripWantedLayers = cms.VPSet (
+    cms.PSet(detSelection=cms.uint32(1100),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e01c000-0x16004000")),     # TIB L1
+    cms.PSet(detSelection=cms.uint32(1200),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e01c000-0x16008000")),     # TIB L2 
+    cms.PSet(detSelection=cms.uint32(1300),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e01c000-0x1600c000")),     # TIB L3
+    cms.PSet(detSelection=cms.uint32(1400),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e01c000-0x16010000")),     # TIB L4
+    cms.PSet(detSelection=cms.uint32(3100),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e01c000-0x1a004000")),     # TOB L1
+    cms.PSet(detSelection=cms.uint32(3200),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e01c000-0x1a008000")),     # TOB L2
+    cms.PSet(detSelection=cms.uint32(3300),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e01c000-0x1a00c000")),     # TOB L3
+    cms.PSet(detSelection=cms.uint32(3400),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e01c000-0x1a010000")),     # TOB L4
+    cms.PSet(detSelection=cms.uint32(3500),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e01c000-0x1a014000")),     # TOB L5
+    cms.PSet(detSelection=cms.uint32(3600),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e01c000-0x1a018000")),     # TOB L6
     )
 
 OccupancyPlotsStripWantedSubDets = cms.VPSet (
