@@ -71,7 +71,7 @@ using namespace edm;
 
 L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
 						 const MuonServiceProxy* service,
-						 edm::ConsumesCollector& iC) : GlobalTrajectoryBuilderBase(par, service) {
+						 edm::ConsumesCollector& iC) : GlobalTrajectoryBuilderBase(par, service, iC) {
 
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
 
