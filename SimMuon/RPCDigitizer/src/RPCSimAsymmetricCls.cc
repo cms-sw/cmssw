@@ -186,7 +186,7 @@ RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
       std::vector<int> cls;
       
       std::vector<double>  TMPclsAsymmForDetId 
-	= getRPCSimSetUp()->getAsymmetryForCls(rpcId,slice(posX),clsize); //???
+	= getRPCSimSetUp()->getAsymmetryForCls(rpcId,slice(posX),clsize); 
       
       cls.push_back(centralStrip);
       if (clsize > 1){
