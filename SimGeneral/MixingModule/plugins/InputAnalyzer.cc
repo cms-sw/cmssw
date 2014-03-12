@@ -37,8 +37,6 @@
 
 #include "InputAnalyzer.h"
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
 
 //
 // constructors and destructor
