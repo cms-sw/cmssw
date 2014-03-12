@@ -33,7 +33,7 @@ PFCand_AssoMapAlgos::GetInputCollections(edm::Event& iEvent, const edm::EventSet
 	PF_PU_AssoMapAlgos::GetInputCollections(iEvent, iSetup);
 
   	//get the offline beam spot
-  	iEvent.getByLabel(input_BeamSpot_, beamspotH);
+  	iEvent.getByToken(token_BeamSpot_, beamspotH);
 
   	//get the input vertex collection
   	iEvent.getByToken(token_VertexCollection_, vtxcollH);
