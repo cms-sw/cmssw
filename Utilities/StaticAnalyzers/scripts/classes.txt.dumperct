@@ -304,6 +304,7 @@ class RandomEngineState
 class RecoCollectionFP420
 class RecoFP420
 class RecoTracktoTP
+class SeedingLayerSetsHits
 class SiPixelCalibDigi
 class SiPixelCalibDigi::datacontainer
 class SiPixelCalibDigiError
@@ -529,6 +530,7 @@ class reco::JTATagInfo
 class reco::Jet
 class reco::JetCrystalsAssociation
 class reco::JetExtendedAssociation::JetExtendedData
+class reco::JetFlavourInfoMatchingCollection
 class reco::JetFlavourMatchingCollection
 class reco::JetID
 class reco::JetMatchedPartonsCollection
@@ -563,17 +565,21 @@ class reco::PFDisplacedTrackerVertex
 class reco::PFDisplacedVertex
 class reco::PFDisplacedVertexCandidate
 class reco::PFJet
+class reco::PFJetChargedHadronAssociation
 class reco::PFMET
 class reco::PFNuclearInteraction
 class reco::PFRecHit
 class reco::PFRecTrack
+class reco::PFRecoTauChargedHadron
 class reco::PFSimParticle
 class reco::PFSuperCluster
 class reco::PFTau
+class reco::PFTau3ProngSummary
 class reco::PFTauDecayMode
 class reco::PFTauDiscriminator
 class reco::PFTauDiscriminatorByIsolation
 class reco::PFTauTagInfo
+class reco::PFTauTransverseImpactParameter
 class reco::PFTrajectoryPoint
 class reco::PFV0
 class reco::Particle
@@ -693,7 +699,9 @@ member data class SpecificGenMETData
 member data class SpecificPFMETData
 member data class StMeasurementDetSet
 member data class TArrayD
+member data class TLorentzVector
 member data class TString::Rep_t
+member data class TVector3
 member data class TimeSpec
 member data class TrackCandidate
 member data class TrajectorySeed
