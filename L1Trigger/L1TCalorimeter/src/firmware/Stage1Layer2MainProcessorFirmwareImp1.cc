@@ -26,20 +26,32 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
 						       std::vector<Jet> * jets,
 						       std::vector<EtSum> * etsums){
 
-  if (m_fwv.firmwareVersion() == 1) { //HI algo
+  if (m_fwv.firmwareVersion() == 1)
+  { //HI algo
+    //m_egAlgo = new Stage1Layer2EGammaAlgorithmImpHI();
+    //m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpHI();
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpHI(/*m_db*/); //fwv =1 => HI algo
     m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/);
-  } else if( m_fwv.firmwareVersion() == 2 ) { //PP algorithm
+  }
+  else if( m_fwv.firmwareVersion() == 2 )
+  { //PP algorithm
+    //m_egAlgo = new Stage1Layer2EGammaAlgorithmImpPP();
+    //m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP();
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpPP(/*m_db*/); //fwv =2 => PP algo
     m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/); //only for now
-  } else if( m_fwv.firmwareVersion() == 3 ) {
+  }
+  else if( m_fwv.firmwareVersion() == 3 )
+  {
     //m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/);
-  }  else{ // undefined fwv version
+  }
+  else{ // undefined fwv version
     edm::LogError("FWVersionError")
       << "Undefined firmware version passed to Stage1Layer2MainProcessorFirmwareImp1" << std::endl;
     return;
   }
 
+  //m_egAlgo->processEvent(emcands, regions, egammas, rlxEGList, isoEGList);
+  //m_sumAlgo->processEvent(regions, etsums);
   m_jetAlgo->processEvent(regions, jets);
   m_tauAlgo->processEvent(emcands, regions, taus);
 }
