@@ -102,7 +102,7 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 
   ParameterSet regionBuilderPSet = par.getParameter<ParameterSet>("MuonTrackingRegionBuilder");
 
-  theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService);
+  theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService,iC);
 
   // TrackRefitter parameters
   ParameterSet refitterParameters = par.getParameter<ParameterSet>("GlbRefitterParameters");
