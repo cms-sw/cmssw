@@ -11,7 +11,7 @@ addPileupInfo = cms.EDProducer("PileupInformation",
     volumeZ = cms.double(3000.0),
     pTcut_1 = cms.double(0.1),
     pTcut_2 = cms.double(0.5),                               
-    doTrackTruth = cms.untracked.boot(False)                          
+    doTrackTruth = cms.untracked.bool(False)                          
 
 )
 
