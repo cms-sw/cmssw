@@ -9,6 +9,11 @@ ora::Object::Object():
   m_type(){
 }
 
+ora::Object::Object( const void* ptr, const std::type_info& typeInfo ):
+  m_ptr( const_cast<void*>(ptr) ){
+  m_type = ClassUtils::lookupDictionary( typeInfo, true );
+}
+
 ora::Object::Object( const void* ptr, const edm::TypeWithDict& type ):
   m_ptr( const_cast<void*>(ptr) ),
   m_type( type ){  
