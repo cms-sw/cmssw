@@ -31,6 +31,10 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
   produces<edm::ValueMap<int>>("multLikelihood");
   produces<edm::ValueMap<float>>("ptDLikelihood");
   qgLikelihood 	= new QGLikelihoodCalculator(dataDir, useCHS);
+
+  src_token=consumes<reco::PFJetCollection>(srcJets);
+  rho_token=consumes<double>(srcRhoIso);
+  vertex_token=consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVerticesWithBS"));
 }
 
 
@@ -44,13 +48,13 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   //Get rhokt6PFJets and primary vertex
   edm::Handle<double> rhoIso;
-  iEvent.getByLabel(srcRhoIso, rhoIso);
+  iEvent.getByToken(rho_token, rhoIso);
 
   edm::Handle<reco::VertexCollection> vertexCollection;
-  iEvent.getByLabel("offlinePrimaryVerticesWithBS", vertexCollection);
+  iEvent.getByToken(vertex_token, vertexCollection);
 
   edm::Handle<reco::PFJetCollection> pfJets;
-  iEvent.getByLabel(srcJets, pfJets);
+  iEvent.getByToken(src_token, pfJets);
 
   for(reco::PFJetCollection::const_iterator pfJet = pfJets->begin(); pfJet != pfJets->end(); ++pfJet){
     if(jecService == "") pt = pfJet->pt();
