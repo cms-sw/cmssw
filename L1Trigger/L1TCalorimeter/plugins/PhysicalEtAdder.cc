@@ -25,15 +25,15 @@ double getPhysicalPhi(int phiIndex);
 
 l1t::PhysicalEtAdder::PhysicalEtAdder(const edm::ParameterSet& ps) {
 
-  produces<L1TEGammaCollection>();
-  produces<L1TTauCollection>();
-  produces<L1TJetCollection>();
-  produces<L1TEtSumCollection>();
+  produces<l1t::EGammaBxCollection>();
+  produces<l1t::TauBxCollection>();
+  produces<l1t::JetBxCollection>();
+  produces<l1t::EtSumBxCollection>();
 
-  EGammaToken_ = consumes<L1TEGammaCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
-  TauToken_ = consumes<L1TTauCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
-  JetToken_ = consumes<L1TJetCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
-  EtSumToken_ = consumes<L1TEtSumCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  EGammaToken_ = consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  TauToken_ = consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  JetToken_ = consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  EtSumToken_ = consumes<l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
 }
 
 l1t::PhysicalEtAdder::~PhysicalEtAdder() {
@@ -45,15 +45,15 @@ void
 l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // store new collections which include physical quantities
-  std::auto_ptr<L1TEGammaCollection> new_egammas (new L1TEGammaCollection);
-  std::auto_ptr<L1TTauCollection> new_taus (new L1TTauCollection);
-  std::auto_ptr<L1TJetCollection> new_jets (new L1TJetCollection);
-  std::auto_ptr<L1TEtSumCollection> new_etsums (new L1TEtSumCollection);
+  std::auto_ptr<l1t::EGammaBxCollection> new_egammas (new l1t::EGammaBxCollection);
+  std::auto_ptr<l1t::TauBxCollection> new_taus (new l1t::TauBxCollection);
+  std::auto_ptr<l1t::JetBxCollection> new_jets (new l1t::JetBxCollection);
+  std::auto_ptr<l1t::EtSumBxCollection> new_etsums (new l1t::EtSumBxCollection);
 
-  edm::Handle<L1TEGammaCollection> old_egammas;
-  edm::Handle<L1TTauCollection> old_taus;
-  edm::Handle<L1TJetCollection> old_jets;
-  edm::Handle<L1TEtSumCollection> old_etsums;
+  edm::Handle<l1t::EGammaBxCollection> old_egammas;
+  edm::Handle<l1t::TauBxCollection> old_taus;
+  edm::Handle<l1t::JetBxCollection> old_jets;
+  edm::Handle<l1t::EtSumBxCollection> old_etsums;
 
   iEvent.getByToken(EGammaToken_, old_egammas);
   iEvent.getByToken(TauToken_, old_taus);
@@ -85,7 +85,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(int bx = firstBX; bx <= lastBX; ++bx)
   {
-    for(L1TEGammaCollection::const_iterator itEGamma = old_egammas->begin(bx);
+    for(l1t::EGammaBxCollection::const_iterator itEGamma = old_egammas->begin(bx);
 	itEGamma != old_egammas->end(bx); ++itEGamma)
     {
       const double pt = itEGamma->hwPt() * emScale->linearLsb();
@@ -108,7 +108,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
 
-    for(L1TTauCollection::const_iterator itTau = old_taus->begin(bx);
+    for(l1t::TauBxCollection::const_iterator itTau = old_taus->begin(bx);
 	itTau != old_taus->end(bx); ++itTau)
     {
       //const double pt = itTau->hwPt() * jetScale->linearLsb();
@@ -132,7 +132,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
 
-    for(L1TJetCollection::const_iterator itJet = old_jets->begin(bx);
+    for(l1t::JetBxCollection::const_iterator itJet = old_jets->begin(bx);
 	itJet != old_jets->end(bx); ++itJet)
     {
       //const double pt = itJet->hwPt() * jetScale->linearLsb();
@@ -156,7 +156,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
 
-    for(L1TEtSumCollection::const_iterator itEtSum = old_etsums->begin(bx);
+    for(l1t::EtSumBxCollection::const_iterator itEtSum = old_etsums->begin(bx);
 	itEtSum != old_etsums->end(bx); ++itEtSum)
     {
       const double pt = itEtSum->hwPt() * emScale->linearLsb();

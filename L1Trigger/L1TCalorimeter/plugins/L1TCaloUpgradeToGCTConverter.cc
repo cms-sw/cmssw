@@ -30,10 +30,10 @@ l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterS
   produces<L1GctHFRingEtSumsCollection>();
 
   // register what you consume and keep token for later access:
-  EGammaToken_ = consumes<L1TEGammaCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  TauToken_ = consumes<L1TTauCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  JetToken_ = consumes<L1TJetCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  EtSumToken_ = consumes<L1TEtSumCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  EGammaToken_ = consumes<l1t::EGammaBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  TauToken_ = consumes<l1t::TauBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  JetToken_ = consumes<l1t::JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  EtSumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
 }
 
 
@@ -51,16 +51,16 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   LogDebug("l1t|stage 1 Converter") << "L1TCaloUpgradeToGCTConverter::produce function called...\n";
 
   //inputs
-  Handle<L1TEGammaCollection> EGamma;
+  Handle<l1t::EGammaBxCollection> EGamma;
   e.getByToken(EGammaToken_,EGamma);
 
-  Handle<L1TTauCollection> Tau;
+  Handle<l1t::TauBxCollection> Tau;
   e.getByToken(TauToken_,Tau);
 
-  Handle<L1TJetCollection> Jet;
+  Handle<l1t::JetBxCollection> Jet;
   e.getByToken(JetToken_,Jet);
 
-  Handle<L1TEtSumCollection> EtSum;
+  Handle<l1t::EtSumBxCollection> EtSum;
   e.getByToken(EtSumToken_,EtSum);
 
   edm::ESHandle< L1CaloEtScale > emScale ;
@@ -109,7 +109,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   for(int itBX=firstBX; itBX!=lastBX+1; ++itBX){
 
     //looping over EGamma elments with a specific BX
-    for(L1TEGammaCollection::const_iterator itEGamma = EGamma->begin(itBX);
+    for(l1t::EGammaBxCollection::const_iterator itEGamma = EGamma->begin(itBX);
 	itEGamma != EGamma->end(itBX); ++itEGamma){
       bool iso = itEGamma->hwIso();
 
@@ -124,7 +124,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
     //looping over Tau elments with a specific BX
     int tauCount = 0; //max 4
-    for(L1TTauCollection::const_iterator itTau = Tau->begin(itBX);
+    for(l1t::TauBxCollection::const_iterator itTau = Tau->begin(itBX);
 	itTau != Tau->end(itBX); ++itTau){
       bool forward= (itTau->hwEta() < 4 || itTau->hwEta() > 17);
       //int hackPt = itTau->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
@@ -149,7 +149,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     //looping over Jet elments with a specific BX
     int forCount = 0; //max 4
     int cenCount = 0; //max 4
-    for(L1TJetCollection::const_iterator itJet = Jet->begin(itBX);
+    for(l1t::JetBxCollection::const_iterator itJet = Jet->begin(itBX);
 	itJet != Jet->end(itBX); ++itJet){
       bool forward=(itJet->hwEta() < 4 || itJet->hwEta() > 17);
       //int hackPt = itJet->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
