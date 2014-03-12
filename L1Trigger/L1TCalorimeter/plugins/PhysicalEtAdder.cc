@@ -10,6 +10,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
@@ -158,6 +159,24 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(L1TEtSumCollection::const_iterator itEtSum = old_etsums->begin(bx);
 	itEtSum != old_etsums->end(bx); ++itEtSum)
     {
+      const double pt = itEtSum->hwPt() * emScale->linearLsb();
+      const double eta = getPhysicalEta(itEtSum->hwEta());
+      const double phi = getPhysicalPhi(itEtSum->hwPhi());
+      const l1t::EtSum::EtSumType sumType = l1t::EtSum::kMissingEt; //FIXME
+      //const double eta = itEtSum->hwEta();
+      //const double phi = itEtSum->hwPhi();
+
+      const double px = pt*cos(phi);
+      const double py = pt*sin(phi);
+      const double pz = pt*sinh(eta);
+      const double e = sqrt(px*px + py*py + pz*pz);
+      math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
+
+      l1t::EtSum *eg = new l1t::EtSum(*p4, sumType, itEtSum->hwPt(),
+				      itEtSum->hwEta(), itEtSum->hwPhi(),
+				      itEtSum->hwQual());
+      new_etsums->push_back(bx, *eg);
+
     }
   }
 
