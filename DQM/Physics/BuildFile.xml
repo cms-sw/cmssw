@@ -18,4 +18,5 @@
 <use   name="CondFormats/EcalObjects"/>
 <use   name="RecoJets/JetProducers"/>
 <use   name="RecoJets/JetAlgorithms"/>
+<use   name="DQM/Physics_HWW"/>
 <flags   EDM_PLUGIN="1"/> 
