@@ -20,8 +20,8 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V1-v1/00000/262AA156-744A-E311-9829-002618943945.root")
-    #fileNames = cms.untracked.vstring("/store/RelVal/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
+    #fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V1-v1/00000/262AA156-744A-E311-9829-002618943945.root")
+    fileNames = cms.untracked.vstring("/store/RelVal/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
     #fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
     #fileNames = cms.untracked.vstring("file:22610530-FC24-E311-AF35-003048FFD7C2.root")
     #fileNames = cms.untracked.vstring("file:test.root")
@@ -45,40 +45,40 @@ process.options = cms.untracked.PSet()
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 
-process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
-process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
-
-process.RCTConverter = cms.EDProducer(
+#currently runs on gctDigis present in file already
+#see L1TriggerEmulatorHI_newLayer2.py for example of 
+#how to run on simRctDigis
+process.rctLayer2Format = cms.EDProducer(
     "l1t::L1TCaloRCTToUpgradeConverter",
     regionTag = cms.InputTag("gctDigis"),
     emTag = cms.InputTag("gctDigis"))
 
-process.caloTowers = cms.EDProducer("l1t::L1TCaloTowerProducer")
-process.caloStage1 = cms.EDProducer(
+process.Layer2HW = cms.EDProducer(
     "l1t::Stage1Layer2Producer",
-    CaloRegions = cms.InputTag("RCTConverter"),
-    CaloEmCands = cms.InputTag("RCTConverter"),
+    CaloRegions = cms.InputTag("rctLayer2Format"),
+    CaloEmCands = cms.InputTag("rctLayer2Format"),
     FirmwareVersion = cms.uint32(1)  ## 1=HI algo, 2= pp algo
     )
 
-process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
-    InputCollection = cms.InputTag("caloStage1")
-    )
+process.Layer2Phys = cms.EDProducer("l1t::PhysicalEtAdder",
+                                    InputCollection = cms.InputTag("Layer2HW")
+)
 
 
-process.digiStep = cms.Sequence(
-        process.RCTConverter
-#        *process.caloTowers
-        *process.caloStage1
-        *process.GCTConverter
+process.Layer2gctFormat = cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
+                                         InputCollection = cms.InputTag("Layer2Phys")
+)
+
+process.Layer2 = cms.Sequence(
+        process.rctLayer2Format
+        *process.Layer2HW
+        *process.Layer2Phys
+        *process.Layer2gctFormat
         )
 
 
 process.p1 = cms.Path(
-    process.digiStep
-#    * process.debug
-#    *process.dumpED
-#    *process.dumpES
+    process.Layer2
     )
 
 process.output_step = cms.EndPath(process.output)

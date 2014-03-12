@@ -27,7 +27,7 @@ l1t::CaloStage2FirmwareFactory::create(const FirmwareVersion & fwv, CaloParams* 
       break;
   default:
     // Invalid Firmware, log an error:
-    LogError("l1t|stage 2 calo") << "Invalid firmware version requested: " << v << "\n";
+    LogError("l1t|caloStage2") << "Invalid firmware version requested: " << v << "\n";
     break;
   }
   

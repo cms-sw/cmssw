@@ -37,7 +37,7 @@ size_t l1t::CaloTools::caloTowerHash(int iEta,int iPhi)
   const int kHFEnd=32;
   const int kHFNrPhi=72/4;
   const int kHBHENrPhi=72;
-  const int kNrTowers = ((kHFEnd-kHFBegin)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
+  const int kNrTowers = ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
   const int kNrHBHETowers = kHBHEEnd*kHBHENrPhi;
   
   const int absIEta = abs(iEta);
@@ -52,6 +52,21 @@ size_t l1t::CaloTools::caloTowerHash(int iEta,int iPhi)
   }
 }
 
+
+size_t l1t::CaloTools::caloTowerHashMax()
+{
+  // OK, yes this is dirty and should be fixed in next iteration
+  const int kHBHEEnd=28;
+  const int kHFBegin=29;
+  const int kHFEnd=32;
+  const int kHFNrPhi=72/4;
+  const int kHBHENrPhi=72;
+
+  return ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
+ 
+}
+
+
 int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTower>& towers,
 			      int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,SubDet etMode)
 {
@@ -65,6 +80,7 @@ int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTowe
       const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
       if(etMode&ECAL) hwEtSum+=tower.hwEtEm();
       if(etMode&HCAL) hwEtSum+=tower.hwEtHad();
+      if(etMode&CALO) hwEtSum+=tower.hwPt();
     }
   }
   return hwEtSum;
@@ -82,6 +98,7 @@ size_t l1t::CaloTools::calNrTowers(int iEtaMin,int iEtaMax,int iPhiMin,int iPhiM
       int towerHwEt =0;
       if(etMode&ECAL) towerHwEt+=tower.hwEtEm();
       if(etMode&HCAL) towerHwEt+=tower.hwEtHad();
+      if(etMode&CALO) towerHwEt+=tower.hwPt();
       if(towerHwEt>=minHwEt && towerHwEt<=maxHwEt) nrTowers++;
     }
     nav.east();

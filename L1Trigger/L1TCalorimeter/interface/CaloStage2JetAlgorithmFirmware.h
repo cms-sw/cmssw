@@ -26,6 +26,13 @@ namespace l1t {
     virtual void processEvent(const std::vector<CaloTower> & towers,
 			      std::vector<Jet> & jets);
 
+    void create(const std::vector<CaloTower> & towers,
+		std::vector<Jet> & jets);
+    
+    void filter(std::vector<Jet> & jets);
+    
+    void sort(std::vector<Jet> & jets);
+
   private:
 
     CaloParams* const params_;

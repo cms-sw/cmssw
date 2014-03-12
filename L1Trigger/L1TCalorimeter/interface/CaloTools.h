@@ -35,6 +35,9 @@ namespace l1t {
 
     //returns a hash suitable for indexing a vector (note does not check for validity yet of iEta,iPhi)
     static size_t caloTowerHash(int iEta,int iPhi);
+
+    //returns maximum size of hash, for vector allocation
+    static size_t caloTowerHashMax();
     
     //returns the hw Et sum of of a rectangle bounded by iEta-localEtaMin,iEta+localEtaMax,iPhi-localPhiMin,iPhi-localPhiMax (inclusive)
     //sum is either ECAL, HCAL or CALO (ECAL+HCAL) Et
