@@ -151,22 +151,24 @@ namespace edm {
 
     /// Use the next 2 functions to get the random number engine.
     /// These are the only functions most modules should call.
+
     /// Use this engine in event methods
     virtual CLHEP::HepRandomEngine& getEngine(StreamID const&) const = 0;
+
     /// Use this engine in the global begin luminosity block method
     virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const&) const = 0;
 
-    /// THIS IS DEPRECATED AND WILL BE DELETED SOON. IT ALWAYS RETURNS THE ENGINE
-    /// FOR ALL STREAMS and will result in data races if used with multiple threads
-    /// and streams. "One" type modules can use it without data races, but even then
-    /// replay will be broken. Multiple forked processes will not work properly either.
-    virtual CLHEP::HepRandomEngine& getEngine() const = 0;
-
-    /// This returns the first seed from the configuration. In general this is not needed
-    /// but is available for backward compatibility and debugging. Note that use of
-    /// this to seed engines constructed in modules is not recommended and unless done
-    /// carefully will create duplicate sequences in different threads and/or data races.
-    /// THIS MAY ALSO BE DELETED AT SOME POINT.
+    /// This returns the seed from the configuration. In the unusual case where an
+    /// an engine type takes multiple seeds to initialize a sequence, this function
+    /// only returns the first. As a general rule, this function should not be used,
+    /// but is available for backward compatibility and debugging. It might be useful
+    /// for some types of tests. Using this to seed engines constructed in modules is
+    /// not recommended because (unless done very carefully) it will create duplicate
+    /// sequences in different threads and/or data races. Also, if engines are created
+    /// by modules the replay mechanism will be broken.
+    /// Because it is dangerous and could be misused, this function might be deleted
+    /// someday if we ever find time to delete all uses of it in CMSSW. There are of
+    /// order 10 last time I checked ...
     virtual std::uint32_t mySeed() const = 0;
 
     // The following functions should not be used by general users.  They

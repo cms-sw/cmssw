@@ -1,5 +1,4 @@
 *** TestRandomNumberServiceGlobal constructor 83
-TRandom3
 
 
 RandomNumberGeneratorService dump
@@ -35,7 +34,6 @@ RandomNumberGeneratorService dump
         t3 84 TRandom3  engine does not know seeds
         t4 85 HepJamesRandom  85
 *** TestRandomNumberServiceGlobal beginJob 83
-TRandom3
 *** TestRandomNumberServiceGlobal beginLuminosityBlock 83
 TRandom3
 *** TestRandomNumberServiceGlobal analyze 83
@@ -51,4 +49,3 @@ TRandom3
 *** TestRandomNumberServiceGlobal analyze 83
 TRandom3
 *** TestRandomNumberServiceGlobal endJob 83
-TRandom3
