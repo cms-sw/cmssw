@@ -28,6 +28,8 @@ PFCluster::PFCluster(PFLayer::Layer layer, double energy,
 	       PFLayer::toCaloID(layer),
 	       CaloCluster::particleFlow ),
   posrep_( position_.Rho(), position_.Eta(), position_.Phi() ),
+  time_(-99.),
+  layer_(layer),
   color_(2)
 {  }
   
@@ -37,7 +39,8 @@ void PFCluster::reset() {
   energy_ = 0;
   position_ *= 0;
   posrep_ *= 0;
-  
+  time_=-99.;
+  layer_ = PFLayer::NONE;
   rechits_.clear();
 
   CaloCluster::reset();
@@ -81,6 +84,7 @@ double PFCluster::getDepthCorrection(double energy, bool isBelowPS,
 
 void PFCluster::setLayer( PFLayer::Layer layer) {
   // cout<<"calling PFCluster::setLayer "<<layer<<endl;
+  layer_ = layer;
   caloID_ = PFLayer::toCaloID( layer );
   // cout<<"done "<<caloID_<<endl;
 }
@@ -89,6 +93,7 @@ void PFCluster::setLayer( PFLayer::Layer layer) {
 PFLayer::Layer  PFCluster::layer() const {
   
   // cout<<"calling PFCluster::layer "<<caloID()<<" "<<PFLayer::fromCaloID( caloID() )<<endl;
+  if( layer_ != PFLayer::NONE ) return layer_;
   return PFLayer::fromCaloID( caloID() );
 }     
 
