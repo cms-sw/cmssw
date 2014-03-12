@@ -51,7 +51,7 @@ CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
 
 //  if (unpackCalib_)
 //    produces<HcalCalibDigiCollection>();
-
+  consumes<FEDRawDataCollection>(dataTag_);
 }
 
 // Virtual destructor needed.

@@ -45,6 +45,7 @@ RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)
   produces<RPCDigiCollection>();
   produces<RPCRawDataCounts>();
   if (doSynchro_) produces<RPCRawSynchro::ProdItem>();
+  consumes<FEDRawDataCollection>(dataLabel_);
 }
 
 RPCUnpackingModule::~RPCUnpackingModule()

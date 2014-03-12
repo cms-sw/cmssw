@@ -23,6 +23,8 @@ ESRawToDigi::ESRawToDigi(edm::ParameterSet const& ps)
   produces<ESRawDataCollection>();
   produces<ESLocalRawDataCollection>();
   produces<ESDigiCollection>();
+  consumes<FEDRawDataCollection>(sourceTag_);
+  consumes<ESListOfFEDS>(fedsListLabel_);
 }
 
 ESRawToDigi::~ESRawToDigi(){

@@ -118,6 +118,7 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
     m_gtfeWord = new L1GtfeExtWord();
     m_tcsWord = new L1TcsWord();
     m_gtFdlWord = new L1GtFdlWord();
+    consumes<FEDRawDataCollection>(m_evmGtInputTag);
 
 }
 

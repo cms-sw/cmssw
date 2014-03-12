@@ -61,6 +61,7 @@ ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig):
   {
     inputTag_ = iConfig.getParameter<edm::InputTag>("scalersInputTag");
   }
+  consumes<FEDRawDataCollection>(inputTag_);
 }
 
 // Destructor

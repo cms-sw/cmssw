@@ -171,7 +171,9 @@ EcalRawToDigi::EcalRawToDigi(edm::ParameterSet const& conf):
   
   // Build a new ECAL DCC data unpacker
   theUnpacker_ = new DCCDataUnpacker(myMap_,headerUnpacking_,srpUnpacking_,tccUnpacking_,feUnpacking_,memUnpacking_,syncCheck_,feIdCheck_,forceToKeepFRdata_);
-   
+  
+  consumes<FEDRawDataCollection>(dataLabel_);
+  consumes<EcalListOfFEDS>(fedsLabel_);
 }
 
 
