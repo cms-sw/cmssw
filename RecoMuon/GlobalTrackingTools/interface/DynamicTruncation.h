@@ -40,6 +40,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
+#include "RecoMuon/GlobalTrackingTools/interface/ChamberSegmentUtility.h"
 
 
 class DynamicTruncation {
@@ -49,7 +50,7 @@ class DynamicTruncation {
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
-  DynamicTruncation(const edm::Event&, const MuonServiceProxy&);
+  DynamicTruncation(const edm::Event&, const MuonServiceProxy&, edm::ConsumesCollector&);
 
   ~DynamicTruncation();
 
@@ -92,7 +93,7 @@ class DynamicTruncation {
   const edm::EventSetup* theSetup;
   std::vector<double> estimators;
   TrajectoryStateOnSurface currentState;
-  
+  ChamberSegmentUtility* getSegs;
   std::map<DTChamberId, GlobalError> dtApeMap;
   std::map<CSCDetId, GlobalError> cscApeMap; 
 };

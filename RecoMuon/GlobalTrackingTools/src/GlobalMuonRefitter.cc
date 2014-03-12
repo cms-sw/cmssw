@@ -114,6 +114,7 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   else
     theRescaleErrorFactor = 1000.;
 
+  iC_ = &iC;
   theDTRecHitToken=iC.consumes<DTRecHitCollection>(theDTRecHitLabel);
   theCSCRecHitToken=iC.consumes<CSCRecHit2DCollection>(theCSCRecHitLabel);
   theCacheId_TRH = 0;
@@ -239,7 +240,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     if (theMuonHitsOption == 4 ) {
       // here we use the single thr per subdetector (better performance can be obtained using thr as function of eta)
 	
-      DynamicTruncation dytRefit(*theEvent,*theService);
+      DynamicTruncation dytRefit(*theEvent,*theService, *iC_);
       dytRefit.setThr(theDYTthrs.at(0),theDYTthrs.at(1),theDYTthrs.at(2));                                
       DYTRecHits = dytRefit.filter(globalTraj.front());
       //vector<double> est = dytRefit.getEstimators();
