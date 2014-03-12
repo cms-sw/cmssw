@@ -10,7 +10,8 @@ addPileupInfo = cms.EDProducer("PileupInformation",
     vertexDistanceCut = cms.double(0.003),
     volumeZ = cms.double(3000.0),
     pTcut_1 = cms.double(0.1),
-    pTcut_2 = cms.double(0.5)                               
+    pTcut_2 = cms.double(0.5),                               
+    doTrackTruth = cms.untracked.boot(False)                          
 
 )
 
