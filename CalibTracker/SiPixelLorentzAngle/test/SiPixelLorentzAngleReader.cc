@@ -36,20 +36,24 @@ void SiPixelLorentzAngleReader::analyze( const edm::Event& e, const edm::EventSe
 
  if(useSimRcd_ == true) {
    iSetup.get<SiPixelLorentzAngleSimRcd>().get(SiPixelLorentzAngle_);
-   std::cout<<" Show LA for simulations "<<std::endl;
+   edm::LogInfo("SiPixelLorentzAngleReader") <<" Show LA for reconstruction "<<std::endl;
+   //std::cout<<" Show LA for simulations "<<std::endl;
  } else {
    iSetup.get<SiPixelLorentzAngleRcd>().get(SiPixelLorentzAngle_);
-   std::cout<<" Show LA for reconstruction "<<std::endl;
+   //iSetup.get<SiPixelLorentzAngleRcd>().get("fromAlignment",SiPixelLorentzAngle_);
+   //iSetup.get<SiPixelLorentzAngleRcd>().get("forWidth",SiPixelLorentzAngle_);
+   edm::LogInfo("SiPixelLorentzAngleReader") <<" Show LA for reconstruction "<<std::endl;
+   //std::cout<<" Show LA for reconstruction "<<std::endl;
  }
   
-edm::LogInfo("SiPixelLorentzAngleReader") << "[SiPixelLorentzAngleReader::analyze] End Reading SiPixelLorentzAngle" << std::endl;
-  edm::Service<TFileService> fs;
-  LorentzAngleBarrel_ = fs->make<TH1F>("LorentzAngleBarrelPixel","LorentzAngleBarrelPixel",150,0,0.15);
-  LorentzAngleForward_= fs->make<TH1F>("LorentzAngleForwardPixel","LorentzAngleForwardPixel",150,0,0.15);
-  std::map<unsigned int,float> detid_la= SiPixelLorentzAngle_->getLorentzAngles();
-  std::map<unsigned int,float>::const_iterator it;
-  double la_old=-1.;
-  for (it=detid_la.begin();it!=detid_la.end();it++) {
+ edm::LogInfo("SiPixelLorentzAngleReader") << "[SiPixelLorentzAngleReader::analyze] End Reading SiPixelLorentzAngle" << std::endl;
+ edm::Service<TFileService> fs;
+ LorentzAngleBarrel_ = fs->make<TH1F>("LorentzAngleBarrelPixel","LorentzAngleBarrelPixel",150,0,0.15);
+ LorentzAngleForward_= fs->make<TH1F>("LorentzAngleForwardPixel","LorentzAngleForwardPixel",150,0,0.15);
+ std::map<unsigned int,float> detid_la= SiPixelLorentzAngle_->getLorentzAngles();
+ std::map<unsigned int,float>::const_iterator it;
+ double la_old=-1.;
+ for (it=detid_la.begin();it!=detid_la.end();it++) {
     //if(printdebug_) std::cout  << "detid " << it->first << " \t" << " Lorentz angle  " << it->second  << std::endl;
     //if(printdebug_) edm::LogInfo("SiPixelLorentzAngleReader")  << "detid " << it->first << " \t" << " Lorentz angle  " << it->second;
 
@@ -72,16 +76,14 @@ edm::LogInfo("SiPixelLorentzAngleReader") << "[SiPixelLorentzAngleReader::analyz
       int zindex=pdetId.module();
 
       if(printdebug_) {
-
-	std::cout<<"BPix - layer "<<layerC<<" ladder "<<ladderC<<" ring "<<zindex<< " Lorentz angle  " << it->second  << std::endl;
+	//std::cout<<"BPix - layer "<<layerC<<" ladder "<<ladderC<<" ring "<<zindex<< " Lorentz angle  " << it->second  << std::endl;
 	edm::LogInfo("SiPixelLorentzAngleReader")  <<"BPix - layer "<<layerC<<" ladder "<<ladderC<<" ring "<<zindex<< " Lorentz angle  " << it->second;
-
       } else {
 
 	if(ladderC==1) { // print once per ring 
 
 	  if(it->second != la_old) {
-	    std::cout<<"BPix - layer "<<layerC<<" ladder "<<ladderC<<" ring "<<zindex<< " Lorentz angle  " << it->second  << std::endl;
+	    //std::cout<<"BPix - layer "<<layerC<<" ladder "<<ladderC<<" ring "<<zindex<< " Lorentz angle  " << it->second  << std::endl;
 	    edm::LogInfo("SiPixelLorentzAngleReader")  <<"BPix - layer "<<layerC<<" ladder "<<ladderC<<" ring "<<zindex<< " Lorentz angle  " << it->second;
 	  } // else {std::cout<<"same"<<std::endl;}
 
@@ -100,7 +102,7 @@ edm::LogInfo("SiPixelLorentzAngleReader") << "[SiPixelLorentzAngleReader::analyz
       int panel=pdetId.panel(); //panel=1
 
       if(blade==1 && moduleF==1 && side==1 && panel==1) { // print once per disk 
-	std::cout<<"FPix - disk "<<disk<< " Lorentz angle  " << it->second  << std::endl;
+	//std::cout<<"FPix - disk "<<disk<< " Lorentz angle  " << it->second  << std::endl;
 	edm::LogInfo("SiPixelLorentzAngleReader")  <<"FPix - disk "<<disk<< " Lorentz angle  " << it->second;
       }
 
