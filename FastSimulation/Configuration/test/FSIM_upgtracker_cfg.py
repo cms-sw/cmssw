@@ -10,7 +10,7 @@ process = cms.Process("PROD")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(500)
 )
 
 # Include DQMStore, needed by the famosSimHits
@@ -32,8 +32,8 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
 #process.generator.PGunParameters.MinPt=2.0
 #process.generator.PGunParameters.MaxPt=2.0
-#process.generator.PGunParameters.MinEta=-1.8
-#process.generator.PGunParameters.MaxEta=-1.0
+process.generator.PGunParameters.MinEta=-4.5
+process.generator.PGunParameters.MaxEta=4.5
 # process.generator.PGunParameters.MinPhi=1.
 # process.generator.PGunParameters.MaxPhi=1.
 
