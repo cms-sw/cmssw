@@ -15,12 +15,10 @@ HGCEEDetId::HGCEEDetId(ForwardSubdetector subdet, int zp, int lay, int sec, int 
 {  
   uint32_t rawid=0;
   rawid |= ((cell   & 0xffff) << 0 );
-  rawid |= ((sec    & 0x1f)   << 16);
-  rawid |= ((subsec & 0x1)    << 21);
-  rawid |= ((lay    & 0x1f)   << 22);
-  if(zp>0) rawid |= ((zp     & 0x1)    << 27);
-  rawid |= (1                 << 28);
-  rawid |= ((Forward & 0x7)   << 29);
+  rawid |= ((sec    & 0x7f)   << 16);
+  rawid |= ((subsec & 0x1)    << 23);
+  rawid |= ((lay    & 0x7f)   << 24);
+  if(zp>0) rawid |= ((zp     & 0x1)    << 31);
   id_=rawid;
 }
 
