@@ -22,7 +22,7 @@
     <PartSelector path="//.*HEGem1Sensitive.*"/>
     <PartSelector path="//.*HEGem2Sensitive.*"/>
     <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
-    <Parameter name="ReadOutName" value="HGCHitsHEgem" eval="false"/>
+    <Parameter name="ReadOutName" value="HGCHitsHE" eval="false"/>
   </SpecPar>
 -->
 </SpecParSection>
