@@ -4,11 +4,10 @@
     xsi:schemaLocation="http://www.cern.ch/cms/DDL 
     ../../../DetectorDescription/Schema/DDLSchema.xsd">
     
-    <!-- Author: Christian Contreras-Campana -->
-    <!-- Transition to Silicon from Diamond done by Steven M. Kaplan -->
+    <!-- Author: Steven M. Kaplan -->
     
     <!-- Declare constants used in the PLT DDL -->
-    <ConstantsSection label="cassette_build.xml" eval="true">
+    <ConstantsSection label="plt" eval="true">
         <Constant name = "pltTilt" value = "1.57*deg" />
         
         <Constant name = "SiPlane0RtoCenter" value = "48.5*mm" />
@@ -38,13 +37,13 @@
     </ConstantsSection>
     
     <!-- Declare PLT component Solids  -->
-    <SolidSection label="main.xml">
+    <SolidSection label="plt">
         
         <!-- Declare telescope components-->
         <Box  name="PLTSensorPlane"        dx="[ROCWidthX]/2."       dy="[ROCWidthY]/2."       
         dz="[SiThkZ]/2." /> 
         
-        <Tubs name="PLT"    startPhi="0.0*deg" deltaPhi="360*deg" rMin="0.*mm" 
+        <Tubs name="PLT"    startPhi="0.0*deg" deltaPhi="360*deg" rMin="[cms:TrackBeamR1]" 
         rMax="[PLTMaxR]" 
         dz="[TelWidthZ]/2."/>
         <!--
@@ -59,29 +58,8 @@
         
     </SolidSection>
     
-    <RotationSection label="cassette_build.xml">
-        <!-- Telescope rotation matrix -->
-        <Rotation name="RotTel1" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
-        phiX="-90.0*deg" phiY="0.0*deg"  phiZ="0.0*deg" />
-        <Rotation name="RotTel2" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
-        phiX="-45.0*deg" phiY="45.0*deg"  phiZ="45.0*deg" />
-        <Rotation name="RotTel3" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
-        phiX="0.0*deg" phiY="90.0*deg"  phiZ="90.0*deg" />
-        <Rotation name="RotTel4" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
-        phiX="45.0*deg" phiY="135.0*deg"  phiZ="135.0*deg" />
-        <Rotation name="RotTel5" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
-        phiX="90.0*deg" phiY="180.0*deg"  phiZ="180.0*deg" />
-        <Rotation name="RotTel6" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
-        phiX="135.0*deg" phiY="225.0*deg"  phiZ="225.0*deg" />
-        <Rotation name="RotTel7" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
-        phiX="180.0*deg" phiY="270.0*deg"  phiZ="270.0*deg" />
-        <Rotation name="RotTel8" thetaX="90.*deg" thetaY="90.*deg" thetaZ="0.0*deg"
-        phiX="225.0*deg" phiY="315.0*deg"  phiZ="315.0*deg" />
-    </RotationSection>
-    
-    
     <!-- Define the Physical PLT Solids, i.e. the Logical Parts --> 
-    <LogicalPartSection label="main.xml">
+    <LogicalPartSection label="plt">
         <!--Changed all materials to be materials:Vacuum except for silicon -->
         <!-- Telescope logical parts -->
         <LogicalPart name="PLT" category="unspecified">
@@ -112,7 +90,7 @@
     </LogicalPartSection>
     
     <!-- Position the Silicon in the telescope and copy the telescope to have 8 of them.  Take this amalgamation of 8 telescopes then copy it to have one on each end of the IP--> 
-    <PosPartSection label="main.xml">
+    <PosPartSection label="plt">
         
         <!-- Positioning Silicon in the telescope -->
         
@@ -136,9 +114,9 @@
             <Numeric name="IncrCopyNo" value="1"/>
             <Numeric name="N" value="[NumberOfRows]"/>
             <Numeric name="Delta" value="[PixelRowWidth]"/>
-            <Vector name="Base" type="numeric" nEntries="3"> 0.*mm,-[ROCWidthY]/2.+[PixelRowWidth]/2.,0.*mm </Vector>
+            <Vector name="Base" type="numeric" nEntries="3"> 0.*mm,-[ROCWidthY]/2.+[ActiveAreaRowWidth]-([PixelRowWidth]/2.),0.*mm </Vector>
             <Numeric name="Theta" value="90*deg"/>
-            <Numeric name="Phi" value="90.*deg"/>
+            <Numeric name="Phi" value="-90.*deg"/>
         </Algorithm>
         
         <PosPart copyNumber="0">
@@ -195,7 +173,7 @@
             <Numeric name="StartAngle" value="0.*deg"/>
             <Numeric name="RangeAngle" value="360*deg"/>
             <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
-            <Vector name="RotateSolid" type="numeric" nEntries="24"> 0.*deg, 0.*deg, 0*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="24"> 0.*deg, 0.*deg, -90.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg, 0.*deg </Vector>
         </Algorithm>
         
         
