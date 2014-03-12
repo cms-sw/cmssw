@@ -18,8 +18,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <vector>
 
-//#include "math.h"
-
 double getPhysicalEta(int etaIndex);
 double getPhysicalPhi(int phiIndex);
 
@@ -91,14 +89,6 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const double pt = itEGamma->hwPt() * emScale->linearLsb();
       const double eta = getPhysicalEta(itEGamma->hwEta());
       const double phi = getPhysicalPhi(itEGamma->hwPhi());
-      //const double eta = itEGamma->hwEta();
-      //const double phi = itEGamma->hwPhi();
-
-      // const double px = pt*cos(phi);
-      // const double py = pt*sin(phi);
-      // const double pz = pt*sinh(eta);
-      // const double e = sqrt(px*px + py*py + pz*pz);
-      //math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
       math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
 
       l1t::EGamma *eg = new l1t::EGamma(*p4, itEGamma->hwPt(),
@@ -112,19 +102,10 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(l1t::TauBxCollection::const_iterator itTau = old_taus->begin(bx);
 	itTau != old_taus->end(bx); ++itTau)
     {
-      //const double pt = itTau->hwPt() * jetScale->linearLsb();
       //jets, taus measured in caloregion scale for Layer2
       const double pt = itTau->hwPt() * emScale->linearLsb();
       const double eta = getPhysicalEta(itTau->hwEta());
       const double phi = getPhysicalPhi(itTau->hwPhi());
-      //const double eta = itTau->hwEta();
-      //const double phi = itTau->hwPhi();
-
-      // const double px = pt*cos(phi);
-      // const double py = pt*sin(phi);
-      // const double pz = pt*sinh(eta);
-      // const double e = sqrt(px*px + py*py + pz*pz);
-      // math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
       math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
 
       l1t::Tau *tau = new l1t::Tau(*p4, itTau->hwPt(),
@@ -137,19 +118,10 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(l1t::JetBxCollection::const_iterator itJet = old_jets->begin(bx);
 	itJet != old_jets->end(bx); ++itJet)
     {
-      //const double pt = itJet->hwPt() * jetScale->linearLsb();
       //jets, taus measured in caloregion scale for Layer2
       const double pt = itJet->hwPt() * emScale->linearLsb();
       const double eta = getPhysicalEta(itJet->hwEta());
       const double phi = getPhysicalPhi(itJet->hwPhi());
-      //const double eta = itJet->hwEta();
-      //const double phi = itJet->hwPhi();
-
-      // const double px = pt*cos(phi);
-      // const double py = pt*sin(phi);
-      // const double pz = pt*sinh(eta);
-      // const double e = sqrt(px*px + py*py + pz*pz);
-      // math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
       math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
 
       l1t::Jet *jet = new l1t::Jet(*p4, itJet->hwPt(),
@@ -166,14 +138,6 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const double eta = getPhysicalEta(itEtSum->hwEta());
       const double phi = getPhysicalPhi(itEtSum->hwPhi());
       const l1t::EtSum::EtSumType sumType = l1t::EtSum::kMissingEt; //FIXME
-      //const double eta = itEtSum->hwEta();
-      //const double phi = itEtSum->hwPhi();
-
-      // const double px = pt*cos(phi);
-      // const double py = pt*sin(phi);
-      // const double pz = pt*sinh(eta);
-      // const double e = sqrt(px*px + py*py + pz*pz);
-      // math::XYZTLorentzVector *p4 = new math::XYZTLorentzVector(px, py, pz, e);
       math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
 
       l1t::EtSum *eg = new l1t::EtSum(*p4, sumType, itEtSum->hwPt(),

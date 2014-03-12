@@ -3,16 +3,13 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 
-using namespace std;
-using namespace l1t;
+l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI() {}
 
-Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI() {}
-
-Stage1Layer2SingleTrackHI::~Stage1Layer2SingleTrackHI(){};
+l1t::Stage1Layer2SingleTrackHI::~Stage1Layer2SingleTrackHI(){};
 
 void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t);
 
-void Stage1Layer2SingleTrackHI::processEvent(/*const std::vector<l1t::CaloStage1> & clusters,*/
+void l1t::Stage1Layer2SingleTrackHI::processEvent(/*const std::vector<l1t::CaloStage1> & clusters,*/
   const std::vector<l1t::CaloEmCand> & clusters,
   const std::vector<l1t::CaloRegion> & regions,
   std::vector<l1t::Tau> * taus)
@@ -30,7 +27,7 @@ void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> 
   int regionETMaxEta = -1;
   int regionETMaxPhi = -1;
 
-  for(std::vector<CaloRegion>::const_iterator region = sr->begin(); region != sr->end(); region++)
+  for(std::vector<l1t::CaloRegion>::const_iterator region = sr->begin(); region != sr->end(); region++)
   {
     int regionET = region->hwPt();
     if (regionET > regionETMax)
