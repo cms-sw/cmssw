@@ -98,7 +98,7 @@ class ElectronIDMVA {
 	  kEleHcalDepth1OverEcal, 
 	  kEleHcalDepth2OverEcal    
 	};
-	static Double_t     ElectronEffectiveArea(EElectronEffectiveAreaType type, Double_t Eta);
+	Double_t     ElectronEffectiveArea(EElectronEffectiveAreaType type, Double_t Eta);
 
 
     protected:      

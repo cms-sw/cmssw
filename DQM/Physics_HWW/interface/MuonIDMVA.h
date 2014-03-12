@@ -83,7 +83,98 @@ class MuonIDMVA {
 	  kMuEMIso05, 
 	  kMuHadIso05 
 	};
-	static Double_t MuonEffectiveArea(EMuonEffectiveAreaType type, Double_t Eta);
+
+  static const Double_t MuonEffectiveArea(EMuonEffectiveAreaType type, Double_t Eta) {
+
+    Double_t EffectiveArea = 0;
+    if (fabs(Eta) < 1.0) {
+      if (type == kMuChargedIso03) EffectiveArea = 0.000;
+      if (type == kMuNeutralIso03) EffectiveArea = 0.080;
+      if (type == kMuChargedIso04) EffectiveArea = 0.000;
+      if (type == kMuNeutralIso04) EffectiveArea = 0.163;
+      if (type == kMuHadEnergy)    EffectiveArea = 0.000;
+      if (type == kMuHoEnergy)     EffectiveArea = 0.000;
+      if (type == kMuEmEnergy)     EffectiveArea = 0.000;
+      if (type == kMuHadS9Energy)  EffectiveArea = 0.016;
+      if (type == kMuHoS9Energy)   EffectiveArea = 0.000;
+      if (type == kMuEmS9Energy)   EffectiveArea = 0.000;
+      if (type == kMuTrkIso03)     EffectiveArea = 0.000;
+      if (type == kMuEMIso03)      EffectiveArea = 0.080;
+      if (type == kMuHadIso03)     EffectiveArea = 0.025;
+      if (type == kMuTrkIso05)     EffectiveArea = 0.000;
+      if (type == kMuEMIso05)      EffectiveArea = 0.290;
+      if (type == kMuHadIso05)     EffectiveArea = 0.091;
+    } else if (fabs(Eta) >= 1.0 && fabs(Eta) < 1.479 ) {
+      if (type == kMuChargedIso03) EffectiveArea = 0.000;
+      if (type == kMuNeutralIso03) EffectiveArea = 0.083;
+      if (type == kMuChargedIso04) EffectiveArea = 0.000;
+      if (type == kMuNeutralIso04) EffectiveArea = 0.168;
+      if (type == kMuHadEnergy)    EffectiveArea = 0.005;
+      if (type == kMuHoEnergy)     EffectiveArea = 0.000;
+      if (type == kMuEmEnergy)     EffectiveArea = 0.000;
+      if (type == kMuHadS9Energy)  EffectiveArea = 0.041;
+      if (type == kMuHoS9Energy)   EffectiveArea = 0.000;
+      if (type == kMuEmS9Energy)   EffectiveArea = 0.000;
+      if (type == kMuTrkIso03)     EffectiveArea = 0.000;
+      if (type == kMuEMIso03)      EffectiveArea = 0.043;
+      if (type == kMuHadIso03)     EffectiveArea = 0.028;
+      if (type == kMuTrkIso05)     EffectiveArea = 0.000;
+      if (type == kMuEMIso05)      EffectiveArea = 0.184;
+      if (type == kMuHadIso05)     EffectiveArea = 0.106;
+    } else if (fabs(Eta) >= 1.479 && fabs(Eta) < 2.0 ) {
+      if (type == kMuChargedIso03) EffectiveArea = 0.000;
+      if (type == kMuNeutralIso03) EffectiveArea = 0.060;
+      if (type == kMuChargedIso04) EffectiveArea = 0.000;
+      if (type == kMuNeutralIso04) EffectiveArea = 0.131;
+      if (type == kMuHadEnergy)    EffectiveArea = 0.020;
+      if (type == kMuHoEnergy)     EffectiveArea = 0.000;
+      if (type == kMuEmEnergy)     EffectiveArea = 0.000;
+      if (type == kMuHadS9Energy)  EffectiveArea = 0.072;
+      if (type == kMuHoS9Energy)   EffectiveArea = 0.000;
+      if (type == kMuEmS9Energy)   EffectiveArea = 0.000;
+      if (type == kMuTrkIso03)     EffectiveArea = 0.000;
+      if (type == kMuEMIso03)      EffectiveArea = 0.025;
+      if (type == kMuHadIso03)     EffectiveArea = 0.036;
+      if (type == kMuTrkIso05)     EffectiveArea = 0.000;
+      if (type == kMuEMIso05)      EffectiveArea = 0.124;
+      if (type == kMuHadIso05)     EffectiveArea = 0.140;
+    } else if (fabs(Eta) >= 2.0 && fabs(Eta) < 2.25 ) {
+      if (type == kMuChargedIso03) EffectiveArea = 0.000;
+      if (type == kMuNeutralIso03) EffectiveArea = 0.066;
+      if (type == kMuChargedIso04) EffectiveArea = 0.000;
+      if (type == kMuNeutralIso04) EffectiveArea = 0.149;
+      if (type == kMuHadEnergy)    EffectiveArea = 0.056;
+      if (type == kMuHoEnergy)     EffectiveArea = 0.000;
+      if (type == kMuEmEnergy)     EffectiveArea = 0.000;
+      if (type == kMuHadS9Energy)  EffectiveArea = 0.148;
+      if (type == kMuHoS9Energy)   EffectiveArea = 0.000;
+      if (type == kMuEmS9Energy)   EffectiveArea = 0.000;
+      if (type == kMuTrkIso03)     EffectiveArea = 0.000;
+      if (type == kMuEMIso03)      EffectiveArea = 0.025;
+      if (type == kMuHadIso03)     EffectiveArea = 0.050;
+      if (type == kMuTrkIso05)     EffectiveArea = 0.000;
+      if (type == kMuEMIso05)      EffectiveArea = 0.120;
+      if (type == kMuHadIso05)     EffectiveArea = 0.186;
+    } else if (fabs(Eta) >= 2.25 && fabs(Eta) < 2.4 ) {
+      if (type == kMuChargedIso03) EffectiveArea = 0.000;
+      if (type == kMuNeutralIso03) EffectiveArea = 0.098;
+      if (type == kMuChargedIso04) EffectiveArea = 0.000;
+      if (type == kMuNeutralIso04) EffectiveArea = 0.200;
+      if (type == kMuHadEnergy)    EffectiveArea = 0.093;
+      if (type == kMuHoEnergy)     EffectiveArea = 0.000;
+      if (type == kMuEmEnergy)     EffectiveArea = 0.000;
+      if (type == kMuHadS9Energy)  EffectiveArea = 0.260;
+      if (type == kMuHoS9Energy)   EffectiveArea = 0.000;
+      if (type == kMuEmS9Energy)   EffectiveArea = 0.000;
+      if (type == kMuTrkIso03)     EffectiveArea = 0.000;
+      if (type == kMuEMIso03)      EffectiveArea = 0.027;
+      if (type == kMuHadIso03)     EffectiveArea = 0.060;
+      if (type == kMuTrkIso05)     EffectiveArea = 0.000;
+      if (type == kMuEMIso05)      EffectiveArea = 0.139;
+      if (type == kMuHadIso05)     EffectiveArea = 0.228;
+    }
+    return EffectiveArea;
+  }
 
 
     protected:      

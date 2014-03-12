@@ -125,20 +125,13 @@ namespace HWWFunctions {
   // Assuming the constants in EleSelectionType have default numeric values ( 0, 1, 2, ... N ),
   // the last enum constant will have integer value N
   // For the bitmasks to work, N must be <= 63
-  static bool shown = true;
   inline void checkElectronSelections(void){
     using namespace std;
     int n    = (int) EleSelectionType(ELE_LAST);
     int nMax = (int) 8*sizeof(1ll) - 1;
     if( n > nMax ){
-      edm::LogError("InvalidInput") << "enum \"EleSelectionType\" has " << n << " elements but cannot have more than " << nMax << " elements... Exiting.";
-      exit(1);
-    }
-    else{
-      if( !shown ){
-        LogDebug("electronSelections") << endl << "There are " << ( nMax - n ) << " available selectors left in enum EleSelectionType";
-      }
-      shown = true;
+      edm::LogError("InvalidInput") << "enum \"EleSelectionType\" has " << n << " elements but cannot have more than " << nMax << " elements...";
+      //exit(1);
     }
   }
 

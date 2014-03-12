@@ -66,7 +66,7 @@ class MuonEffectiveArea{
     kMuEAData2012
   };
 
-  static Double_t GetMuonEffectiveArea(MuonEffectiveAreaType type, Double_t SCEta, 
+  static const Double_t GetMuonEffectiveArea(MuonEffectiveAreaType type, Double_t SCEta, 
 				       MuonEffectiveAreaTarget EffectiveAreaTarget = kMuEAData2011) {
     
     Double_t EffectiveArea = 0;
