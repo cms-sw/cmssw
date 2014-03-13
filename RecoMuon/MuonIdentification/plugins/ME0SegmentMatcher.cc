@@ -3,7 +3,7 @@
  * \author David Nash
  */
 
-#include <RecoMuon/MuonIdentification/interface/ME0SegmentMatcher.h>
+#include <RecoMuon/MuonIdentification/plugins/ME0SegmentMatcher.h>
 
 #include <FWCore/PluginManager/interface/ModuleDef.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
