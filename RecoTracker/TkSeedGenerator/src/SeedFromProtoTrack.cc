@@ -20,7 +20,12 @@
 
 SeedFromProtoTrack::SeedFromProtoTrack(const reco::Track & proto,  
   const SeedingHitSet & hits, const edm::EventSetup& es)
-  : theValid(true)
+  : theValid(true),
+    thePropagatorWatcher([this](TrackingComponentsRecord const& iRecord) {
+	edm::ESHandle<Propagator>  propagatorHandle;
+	iRecord.get("PropagatorWithMaterial",propagatorHandle);
+	thePropagator.reset( propagatorHandle->clone());
+      })
 {
   for (unsigned int i= 0, n = hits.size(); i< n; ++i) {
     const TrackingRecHit * trh = hits[i]->hit();
@@ -47,9 +52,7 @@ void SeedFromProtoTrack::init(const reco::Track & proto, const edm::EventSetup& 
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
 
-  edm::ESHandle<Propagator>  propagatorHandle;
-  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",propagatorHandle);
-  const Propagator*  propagator = &(*propagatorHandle);
+  thePropagatorWatcher.check(es);
 
   edm::ESHandle<MagneticField> field;
   es.get<IdealMagneticFieldRecord>().get(field);//fixme
@@ -68,7 +71,7 @@ void SeedFromProtoTrack::init(const reco::Track & proto, const edm::EventSetup& 
   const TrackingRecHit & lastHit = theHits.back();
 
   TrajectoryStateOnSurface outerState =
-      propagator->propagate(fts, tracker->idToDet(lastHit.geographicalId())->surface());
+      thePropagator->propagate(fts, tracker->idToDet(lastHit.geographicalId())->surface());
 
   if (!outerState.isValid()){    
     const Surface & surface = tracker->idToDet(lastHit.geographicalId())->surface();

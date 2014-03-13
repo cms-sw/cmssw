@@ -19,7 +19,7 @@ namespace cms {
     }
 
     virtual void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
-    virtual void endJob() {delete dbg; }
+    virtual void endJob() override {delete dbg; }
 
   private:
     virtual TrajectorySeedCollection::const_iterator 

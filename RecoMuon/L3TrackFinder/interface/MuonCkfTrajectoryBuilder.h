@@ -14,21 +14,22 @@ class MuonCkfTrajectoryBuilder : public CkfTrajectoryBuilder {
 			   const TransientTrackingRecHitBuilder* RecHitBuilder,
 			   const MeasurementTracker*             measurementTracker,
 			   const TrajectoryFilter*               filter);
+  MuonCkfTrajectoryBuilder(const MuonCkfTrajectoryBuilder&);
   virtual ~MuonCkfTrajectoryBuilder();
 
   // Return a clone of this, with the data pointer set
-  virtual MuonCkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const ;
+  virtual MuonCkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const override;
 
   
  protected:
-  void collectMeasurement(const DetLayer * layer, const std::vector<const DetLayer*>& nl,const TrajectoryStateOnSurface & currentState, std::vector<TM>& result,int& invalidHits,const Propagator *) const;
+  void collectMeasurement(const DetLayer * layer, const std::vector<const DetLayer*>& nl,const TrajectoryStateOnSurface & currentState, std::vector<TM>& result,int& invalidHits, Propagator *) const;
 
   virtual void findCompatibleMeasurements(const TrajectorySeed&seed, const TempTrajectory& traj, std::vector<TrajectoryMeasurement> & result) const;
   
   //and other fields
   bool theUseSeedLayer;
   double theRescaleErrorIfFail;
-  const Propagator * theProximityPropagator;
+  std::unique_ptr<Propagator> theProximityPropagator;
   Chi2MeasurementEstimatorBase * theEtaPhiEstimator;
   
 };

@@ -66,7 +66,7 @@ class RealCosmicDataAnalyzer : public edm::EDAnalyzer {
 
       virtual void endJob();
 
-      edm::ESHandle<Propagator> propagator() const;
+      Propagator* propagator() const;
 
       edm::InputTag trackLabel_;
 
@@ -508,8 +508,8 @@ void RealCosmicDataAnalyzer::endJob() {
 
 }
 
-edm::ESHandle<Propagator> RealCosmicDataAnalyzer::propagator() const {
-   return theService->propagator("SteppingHelixPropagatorAny");
+Propagator* RealCosmicDataAnalyzer::propagator() const {
+  return theService->propagator("SteppingHelixPropagatorAny").get();
 }
 
 

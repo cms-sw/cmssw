@@ -26,7 +26,8 @@ using namespace std;
 using namespace edm;
 
 /// Constructor
-TrackTransformer::TrackTransformer(const ParameterSet& parameterSet){
+TrackTransformer::TrackTransformer(const ParameterSet& parameterSet)
+{
   
   // Refit direction
   string refitDirectionName = parameterSet.getParameter<string>("RefitDirection");
@@ -62,7 +63,9 @@ void TrackTransformer::setServices(const EventSetup& setup){
   if ( newCacheId_TC != theCacheId_TC ){
     LogTrace(metname) << "Tracking Component changed!";
     theCacheId_TC = newCacheId_TC;
-    setup.get<TrackingComponentsRecord>().get(thePropagatorName,thePropagator);
+    edm::ESHandle<Propagator> propHandle;
+    setup.get<TrackingComponentsRecord>().get(thePropagatorName,propHandle);
+    thePropagator.reset(propHandle->clone());
   }
 
   // Global Tracking Geometry

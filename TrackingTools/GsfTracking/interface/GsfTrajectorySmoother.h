@@ -45,7 +45,7 @@ public:
   /** propagator used (full propagator, if material effects are
    * applied before the update, otherwise purely geometrical part)
    */
-  const Propagator* propagator() const {
+  Propagator* propagator() const {
     if ( thePropagator) return thePropagator;
     else  return theGeomPropagator;
   }
@@ -60,7 +60,7 @@ public:
 
 private:
   GsfPropagatorWithMaterial* thePropagator;
-  const GsfPropagatorAdapter* theGeomPropagator;
+  GsfPropagatorAdapter* theGeomPropagator;
   const FullConvolutionWithMaterial* theConvolutor;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;

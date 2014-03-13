@@ -91,9 +91,9 @@ class MuonGmtPair {
   
   double gmtPt() const { return m_gmt ? m_gmt->ptValue() : -1.; };
 
-  void propagate(edm::ESHandle<MagneticField> bField,
-		 edm::ESHandle<Propagator> propagatorAlong,
-		 edm::ESHandle<Propagator> propagatorOpposite);
+  void propagate(const MagneticField* bField,
+		 Propagator* propagatorAlong,
+		 Propagator* propagatorOpposite);
 
 private :
 
@@ -107,9 +107,9 @@ private :
   const reco::Muon *m_muon;
   const L1MuGMTExtendedCand *m_gmt;
 
-  edm::ESHandle<MagneticField> m_BField;
-  edm::ESHandle<Propagator> m_propagatorAlong;
-  edm::ESHandle<Propagator> m_propagatorOpposite;
+  const MagneticField* m_BField;
+  Propagator* m_propagatorAlong;
+  Propagator* m_propagatorOpposite;
 
   double m_eta;
   double m_phi_bar;
@@ -169,8 +169,8 @@ private:
   HLTConfigProvider m_hltConfig;
 
   edm::ESHandle<MagneticField> m_BField;
-  edm::ESHandle<Propagator> m_propagatorAlong;
-  edm::ESHandle<Propagator> m_propagatorOpposite;
+  std::unique_ptr<Propagator> m_propagatorAlong;
+  std::unique_ptr<Propagator> m_propagatorOpposite;
 
   // histos
   std::map<int, std::map<std::string, MonitorElement*> > m_EfficiencyHistos;

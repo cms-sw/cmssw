@@ -18,20 +18,20 @@ class TIDRing GCC11_FINAL : public GeometricSearchDet {
   ~TIDRing();
   
   // GeometricSearchDet interface
-  virtual const BoundSurface& surface() const {return *theDisk;}
+  virtual const BoundSurface& surface() const override {return *theDisk;}
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
+  virtual const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface&, const Propagator&, 
-		       const MeasurementEstimator&) const;
+  compatible( const TrajectoryStateOnSurface&, Propagator&, 
+		       const MeasurementEstimator&) const override;
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
+			       Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
   
  
   //Extension of interface
@@ -45,13 +45,13 @@ class TIDRing GCC11_FINAL : public GeometricSearchDet {
 				      PropagationDirection propDir) const __attribute__ ((hot));
   
   bool addClosest( const TrajectoryStateOnSurface& tsos,
-		   const Propagator& prop,
+		   Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
 		   std::vector<DetGroup>& result) const __attribute__ ((hot));
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
-			const Propagator& prop,
+			Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 

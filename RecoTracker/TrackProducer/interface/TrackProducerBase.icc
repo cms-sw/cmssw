@@ -1,10 +1,11 @@
+#include <memory>
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 
 /// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <FWCore/Utilities/interface/ESInputTag.h>
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -23,11 +24,11 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
-#include <TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h>
-#include <TrackingTools/DetLayers/interface/GeometricSearchDet.h> 
-#include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
-#include <RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h>
-#include <TrackingTools/MeasurementDet/interface/MeasurementDet.h>
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+#include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -44,7 +45,7 @@ TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
 				  edm::ESHandle<TrackerGeometry>& theG,
 				  edm::ESHandle<MagneticField>& theMF,
 				  edm::ESHandle<TrajectoryFitter>& theFitter,
-				  edm::ESHandle<Propagator>& thePropagator,
+				  Propagator*& thePropagator,
 				  edm::ESHandle<MeasurementTracker>& theMeasTk,
 				  edm::ESHandle<TransientTrackingRecHitBuilder>& theBuilder)
 {
@@ -81,9 +82,13 @@ TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
   // get also the propagator
   //
   LogDebug("TrackProducer") << "get also the propagator" << "\n";
-  std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
-  setup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
-
+  if(propagatorWatcher_.check(setup)) {
+     std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
+     edm::ESHandle<Propagator> propHandle;
+     setup.get<TrackingComponentsRecord>().get(propagatorName,propHandle);
+     propagator_.reset(propHandle->clone());
+  }
+  thePropagator = propagator_.get();
   //
   // get the builder
   //
@@ -151,8 +156,8 @@ template <class T> void
 TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track, 
 					  const Propagator* prop, const MeasurementTrackerEvent* measTk){
   using namespace std;
-  /// have to clone the propagator in order to change its propagation direction. Have to remember to delete the clone!!
-  Propagator* localProp = prop->clone();
+  /// have to clone the propagator in order to change its propagation direction.
+  std::unique_ptr<Propagator> localProp{prop->clone()};
 
   //use negative sigma=-3.0 in order to use a more conservative definition of isInside() for Bounds classes.
   Chi2MeasurementEstimator estimator(30.,-3.0);
@@ -258,7 +263,6 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
   }
   
 
-  delete localProp;
 }
 
 

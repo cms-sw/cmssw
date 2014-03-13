@@ -85,8 +85,8 @@ class DynamicTruncation {
   int  CSCThr;
   bool useAPE;
 
-  edm::ESHandle<Propagator> propagator;
-  edm::ESHandle<Propagator> propagatorCompatibleDet;
+  std::shared_ptr<Propagator> propagator;
+  std::shared_ptr<Propagator> propagatorCompatibleDet;
   edm::ESHandle<GlobalTrackingGeometry> theG;
   edm::ESHandle<CSCGeometry> cscGeom;
   edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;

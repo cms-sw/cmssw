@@ -5,14 +5,14 @@
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 
 TrajectoryStateOnSurface 
-NavPlane::propagate( const Propagator& prop, 
+NavPlane::propagate( Propagator& prop, 
 		     const TrajectoryStateOnSurface& startingState) const
 {
     return prop.propagate( startingState, *theSurfaceP); 
 }
 
 std::pair<TrajectoryStateOnSurface,double>
-NavPlane::propagateWithPath( const Propagator& prop, 
+NavPlane::propagateWithPath( Propagator& prop, 
 		     const TrajectoryStateOnSurface& startingState) const
 {
     return prop.propagateWithPath( startingState, *theSurfaceP); 

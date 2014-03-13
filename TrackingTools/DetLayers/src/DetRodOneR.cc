@@ -41,7 +41,7 @@ void DetRodOneR::initialize()
 // It needs that the basic component to have the compatible() method
 bool DetRodOneR::add( int idet, vector<DetWithState>& result,
 		      const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop, 
+		      Propagator& prop, 
 		      const MeasurementEstimator& est) const
 {
   pair<bool,TrajectoryStateOnSurface> compat = 

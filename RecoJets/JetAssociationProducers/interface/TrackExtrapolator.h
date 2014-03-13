@@ -35,6 +35,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
@@ -54,6 +55,7 @@
 //
 // class declaration
 //
+class TrackingComponentsRecord;
 
 class TrackExtrapolator : public edm::EDProducer {
    public:
@@ -69,6 +71,8 @@ class TrackExtrapolator : public edm::EDProducer {
       edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;    /// Input tracks
       reco::TrackBase::TrackQuality trackQuality_; /// track quality of the tracks we care about
 
+      edm::ESWatcher<TrackingComponentsRecord> propagatorWatcher_;
+      std::unique_ptr<Propagator> propagator_;
 
       // ----------internal functions ---------------------------
 
@@ -77,7 +81,7 @@ class TrackExtrapolator : public edm::EDProducer {
       /// position, momentum, and direction. 
       bool propagateTrackToVolume( const reco::Track& fTrack,
 				   const MagneticField& fField,
-				   const Propagator& fPropagator,
+				   Propagator& fPropagator,
 				   const FiducialVolume& volume,
 				   reco::TrackBase::Point & resultPos,
 				   reco::TrackBase::Vector & resultMom

@@ -32,8 +32,8 @@ class SeedFromGenericPairOrTriplet{
 	SeedFromGenericPairOrTriplet(const MagneticField* mf,
 				     const TrackerGeometry* geom,
 				     const TransientTrackingRecHitBuilder* builder,
-				     const Propagator* propagatorAlong,
-				     const Propagator* propagatorOpposite,
+				     Propagator* propagatorAlong,
+				     Propagator* propagatorOpposite,
 				     const std::vector<int>& charges,		
 				     bool momFromPSet,
 				     double errorRescaling );
@@ -69,8 +69,8 @@ class SeedFromGenericPairOrTriplet{
 	const MagneticField*   theMagfield;
 	const TrackerGeometry* theTracker;
 	const TransientTrackingRecHitBuilder* theBuilder;
-	const Propagator* thePropagatorAlong;
-	const Propagator* thePropagatorOpposite;
+	Propagator* thePropagatorAlong;
+	Propagator* thePropagatorOpposite;
         
 	float theP;
 	bool theSetMomentum;

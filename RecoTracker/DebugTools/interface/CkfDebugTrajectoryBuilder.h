@@ -26,13 +26,13 @@ class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
  private:
   mutable CkfDebugger * theDbg;
   bool analyzeMeasurementsDebugger(TempTrajectory& traj, const std::vector<TM>& meas,
-				   const MeasurementTracker* theMeasurementTracker, const Propagator* theForwardPropagator, 
+				   const MeasurementTracker* theMeasurementTracker, Propagator* theForwardPropagator, 
 				   const Chi2MeasurementEstimatorBase* theEstimator, 
 				   const TransientTrackingRecHitBuilder * theTTRHBuilder) const { 
     return theDbg->analyseCompatibleMeasurements(traj.toTrajectory(),meas,theMeasurementTracker,theForwardPropagator,theEstimator,theTTRHBuilder);
   };
   bool analyzeMeasurementsDebugger(Trajectory& traj, const std::vector<TM>& meas,
-				   const MeasurementTracker* theMeasurementTracker, const Propagator* theForwardPropagator, 
+				   const MeasurementTracker* theMeasurementTracker, Propagator* theForwardPropagator, 
 				   const Chi2MeasurementEstimatorBase* theEstimator, 
 				   const TransientTrackingRecHitBuilder * theTTRHBuilder) const { 
     return theDbg->analyseCompatibleMeasurements(traj,meas,theMeasurementTracker,theForwardPropagator,theEstimator,theTTRHBuilder);

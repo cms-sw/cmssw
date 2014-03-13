@@ -22,7 +22,7 @@ class GeomDetCompatibilityChecker{
    */
   static std::pair<bool, TrajectoryStateOnSurface>  isCompatible(const GeomDet* theDet,
 							  const TrajectoryStateOnSurface& ts,
-							  const Propagator& prop, 
+							  Propagator& prop, 
 							  const MeasurementEstimator& est);  
 };
 

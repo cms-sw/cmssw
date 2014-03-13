@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // products
@@ -73,10 +74,13 @@ class TrackerToMuonPropagator : public edm::EDProducer {
       // ----------member data ---------------------------
 
       edm::InputTag m_globalMuons, m_globalMuonTracks;
-      std::string m_propagator;
+      std::string m_propagatorLabel;
 
       bool m_refitTracker;
       TrackTransformer *m_trackTransformer;
+
+      edm::ESWatcher<TrackingComponentsRecord> m_propagatorWatcher;
+      std::unique_ptr<Propagator> m_propagator;
 };
 
 //
@@ -90,11 +94,16 @@ class TrackerToMuonPropagator : public edm::EDProducer {
 //
 // constructors and destructor
 //
-TrackerToMuonPropagator::TrackerToMuonPropagator(const edm::ParameterSet& iConfig)
+TrackerToMuonPropagator::TrackerToMuonPropagator(const edm::ParameterSet& iConfig):
+  m_propagatorWatcher([this](TrackingComponentsRecord const& iRecord) {
+   edm::ESHandle<Propagator> propagator;
+   iRecord.get(m_propagatorLabel, propagator);
+   m_propagator.reset( propagator->clone());
+    })
 {
    m_globalMuons = iConfig.getParameter<edm::InputTag>("globalMuons");
    m_globalMuonTracks = iConfig.getParameter<edm::InputTag>("globalMuonTracks");
-   m_propagator = iConfig.getParameter<std::string>("propagator");
+   m_propagatorLabel = iConfig.getParameter<std::string>("propagator");
    m_refitTracker = iConfig.getParameter<bool>("refitTrackerTrack");
    if (m_refitTracker) {
       m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("trackerTrackTransformer"));
@@ -131,8 +140,7 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    edm::Handle<reco::TrackCollection> globalMuonTracks;
    iEvent.getByLabel(m_globalMuonTracks, globalMuonTracks);
 
-   edm::ESHandle<Propagator> propagator;
-   iSetup.get<TrackingComponentsRecord>().get(m_propagator, propagator);
+   m_propagatorWatcher.check(iSetup);
 
    edm::ESHandle<TrackerGeometry> trackerGeometry;
    iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometry);
@@ -215,11 +223,11 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	 TrajectoryStateOnSurface extrapolation;
 	 bool extrapolated = false;
 	 if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::DT) {
-	    extrapolation = propagator->propagate(last_tsos, dtGeometry->idToDet(id)->surface());
+	    extrapolation = m_propagator->propagate(last_tsos, dtGeometry->idToDet(id)->surface());
 	    extrapolated = true;
 	 }
 	 else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
-	    extrapolation = propagator->propagate(last_tsos, cscGeometry->idToDet(id)->surface());
+	    extrapolation = m_propagator->propagate(last_tsos, cscGeometry->idToDet(id)->surface());
 	    extrapolated = true;
 	 }
 	 

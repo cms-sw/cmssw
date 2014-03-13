@@ -35,7 +35,7 @@ namespace {
 
   GlobalPoint propagateTrackToCalo (const reco::Track& fTrack,
 				    const MagneticField& fField,
-				    const Propagator& fPropagator)
+				    Propagator& fPropagator)
   {
     GlobalPoint trackPosition (fTrack.vx(), fTrack.vy(), fTrack.vz()); // reference point
     GlobalVector trackMomentum (fTrack.px(), fTrack.py(), fTrack.pz()); // reference momentum
@@ -110,7 +110,7 @@ void JetTracksAssociationDRCalo::produce (reco::JetTracksAssociation::Container*
 					  const std::vector <edm::RefToBase<reco::Jet> >& fJets,
 					  const std::vector <reco::TrackRef>& fTracks,
 					  const MagneticField& fField,
-					  const Propagator& fPropagator) const 
+					  Propagator& fPropagator) const 
 {
   // cache track parameters
   std::vector<ImpactPoint> impacts;
@@ -140,7 +140,7 @@ void JetTracksAssociationDRCalo::produce (reco::JetTracksAssociation::Container*
 
 math::XYZPoint JetTracksAssociationDRCalo::propagateTrackToCalorimeter (const reco::Track& fTrack,
 								   const MagneticField& fField,
-								   const Propagator& fPropagator)
+								   Propagator& fPropagator)
 {
   GlobalPoint result (propagateTrackToCalo (fTrack, fField, fPropagator));
   return math::XYZPoint (result.x(), result.y(), result.z()); 

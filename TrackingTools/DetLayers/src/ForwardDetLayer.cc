@@ -102,7 +102,7 @@ BoundDisk* ForwardDetLayer::computeSurface() {
 
 pair<bool, TrajectoryStateOnSurface>
 ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts, 
-			     const Propagator& prop, 
+			     Propagator& prop, 
 			     const MeasurementEstimator&) const
 {
   if unlikely(theDisk == 0)  edm::LogError("DetLayers") 

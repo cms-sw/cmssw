@@ -55,7 +55,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
-  edm::ESHandle<Propagator> thePropagator;
+  Propagator* thePropagator;
   edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
@@ -74,12 +74,12 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
     LogDebug("TrackProducer") << "run the algorithm" << "\n";
     try{  
       theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			       theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+			       theFitter.product(), thePropagator, theBuilder.product(), bs, algoResults);
     } catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n"; throw;}
   }
   
   //put everything in the event
-  putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, thePropagator,theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
   LogDebug("TrackProducer") << "end" << "\n";
 }
 
@@ -98,7 +98,7 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
-  edm::ESHandle<Propagator> thePropagator;
+  Propagator* thePropagator;
   edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
@@ -117,13 +117,13 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
     LogDebug("TrackProducer") << "run the algorithm" << "\n";
     try{  
       theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			       theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+			       theFitter.product(), thePropagator, theBuilder.product(), bs, algoResults);
     }
     catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n"; throw; }
   }
   
   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-    ttks.push_back( reco::TransientTrack(*((*prod).second.first),thePropagator.product()->magneticField() ));
+    ttks.push_back( reco::TransientTrack(*((*prod).second.first),thePropagator->magneticField() ));
   }
 
   LogDebug("TrackProducer") << "end" << "\n";

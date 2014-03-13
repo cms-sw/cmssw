@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "TFile.h"
 #include "TBranch.h"
@@ -16,6 +17,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
@@ -36,6 +38,7 @@
 //#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 
 class TrackerTopology;
+class TrackingComponentsRecord;
 
 class ResidualRefitting : public edm::EDAnalyzer{
 
@@ -369,7 +372,8 @@ class ResidualRefitting : public edm::EDAnalyzer{
 	const MagneticField* theField;
 	const edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
 	MuonServiceProxy* theService;
-	edm::ESHandle<Propagator> thePropagator;
+	std::unique_ptr<Propagator> thePropagator;
+	edm::ESWatcher<TrackingComponentsRecord> thePropagatorWatcher;
   
 };
 

@@ -24,14 +24,14 @@ public:
 
   static bool add( const GeometricSearchDet& det,
 	    const TrajectoryStateOnSurface& tsos, 
-	    const Propagator& prop,
+	    Propagator& prop,
 	    const MeasurementEstimator& est,
 	    std::vector<DetGroup>& result) __attribute__ ((hot));
   
 
   static bool add( const GeomDet& det,
 	    const TrajectoryStateOnSurface& tsos, 
-	    const Propagator& prop,
+	    Propagator& prop,
 	    const MeasurementEstimator& est,
 	    std::vector<DetGroup>& result) __attribute__ ((hot));
 

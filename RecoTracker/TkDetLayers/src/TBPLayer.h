@@ -51,7 +51,7 @@ class TBPLayer GCC11_FINAL : public TBLayer {
 
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
-			const Propagator& prop,
+			Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 

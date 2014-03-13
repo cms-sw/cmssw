@@ -50,7 +50,7 @@ KalmanAlignmentTrackRefitter::refitTracks( const edm::EventSetup& setup,
   edm::ESHandle< TrackerGeometry > aGeometry;
   edm::ESHandle< MagneticField > aMagneticField;
   edm::ESHandle< TrajectoryFitter > aTrajectoryFitter;
-  edm::ESHandle< Propagator > aPropagator;
+  Propagator* aPropagator;
   edm::ESHandle<MeasurementTracker> theMeasTk;
   edm::ESHandle< TransientTrackingRecHitBuilder > aRecHitBuilder;
 
@@ -198,7 +198,7 @@ KalmanAlignmentTrackRefitter::TrajTrackPairCollection
 KalmanAlignmentTrackRefitter::refitSingleTracklet( const TrackingGeometry* geometry,
 						   const MagneticField* magneticField,
 						   const TrajectoryFitter* fitter,
-						   const Propagator* propagator,
+						   Propagator* propagator,
 						   const TransientTrackingRecHitBuilder* recHitBuilder,
 						   const TransientTrack& fullTrack,
 						   RecHitContainer& recHits,

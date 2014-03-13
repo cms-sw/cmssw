@@ -29,13 +29,13 @@ public:
     fitter(aPropagator, aUpdator, aEstimator) {}
 
 
-  KFSplittingFitter(const Propagator* aPropagator,
+  KFSplittingFitter(Propagator* aPropagator,
 		    const TrajectoryStateUpdator* aUpdator,
 		    const MeasurementEstimator* aEstimator) : 
     fitter(aPropagator, aUpdator, aEstimator) {}
 
-  virtual KFSplittingFitter* clone() const {
-    return new KFSplittingFitter(fitter.propagator(),fitter.updator(),fitter.estimator());
+  virtual KFSplittingFitter* clone() const override {
+    return new KFSplittingFitter(*fitter.propagator(),*fitter.updator(),*fitter.estimator());
   }
   
   Trajectory fitOne(const Trajectory& aTraj,

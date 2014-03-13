@@ -33,7 +33,7 @@ class PixelMatchNextLayers {
 
 public:
   PixelMatchNextLayers(const LayerMeasurements * theLayerMeasurements, const DetLayer* ilayer, FreeTrajectoryState & aFTS,
-	                        const PropagatorWithMaterial *aProp, 
+	                        PropagatorWithMaterial *aProp, 
 		       const BarrelMeasurementEstimator *aBarrelMeas,
 		       const ForwardMeasurementEstimator *aForwardMeas,
 		       const TrackerTopology *tTopo,

@@ -502,8 +502,8 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 				 CurvilinearTrajectoryError(m));
       
       
-      completeSeed(*myPointer, newfts,  thePropagatorAlongMomentum_, ilayer+1);
-      completeSeed(*myPointer, newfts,  thePropagatorAlongMomentum_, ilayer+2);
+      completeSeed(*myPointer, newfts,  thePropagatorAlongMomentum_.get(), ilayer+1);
+      completeSeed(*myPointer, newfts,  thePropagatorAlongMomentum_.get(), ilayer+2);
       
       
     } else { 
@@ -569,8 +569,8 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 	  */
 	  
 	  
-	  completeSeed(*tmItr, newfts,  thePropagatorAlongMomentum_, ilayer+1);
-	  completeSeed(*tmItr, newfts,  thePropagatorAlongMomentum_, ilayer+2);
+	  completeSeed(*tmItr, newfts,  thePropagatorAlongMomentum_.get(), ilayer+1);
+	  completeSeed(*tmItr, newfts,  thePropagatorAlongMomentum_.get(), ilayer+2);
 	  
 	  
 	}
@@ -591,7 +591,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 
 
 void InOutConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
-					     FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) const {
+					     FreeTrajectoryState & fts, Propagator* propagator, int ilayer) const {
   
  //std::cout<<  "InOutConversionSeedFinder::completeSeed ilayer " << ilayer <<  "\n";
   // A seed is made from 2 Trajectory Measuremennts.  The 1st is the input

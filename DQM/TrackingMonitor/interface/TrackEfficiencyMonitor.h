@@ -19,6 +19,7 @@ Monitoring source to measure the track efficiency
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -38,6 +39,7 @@ Monitoring source to measure the track efficiency
 namespace reco{class TransientTrack;}
 
 class DQMStore;
+class TransientTrackRecord;
 
 class TrackEfficiencyMonitor : public DQMEDAnalyzer {
    public:
@@ -112,8 +114,8 @@ class TrackEfficiencyMonitor : public DQMEDAnalyzer {
   MuonServiceProxy *theMuonServiceProxy;
   
   edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;  
-  edm::ESHandle<Propagator> thePropagator;
-  edm::ESHandle<Propagator> thePropagatorCyl;
+  edm::ESWatcher<TransientTrackRecord> thePropagatorWatcher;
+  std::unique_ptr<Propagator> thePropagator;
   edm::ESHandle<TransientTrackBuilder> theTTrackBuilder;
   edm::ESHandle<GeometricSearchTracker> theTracker;
   edm::ESHandle<MagneticField> bField; 

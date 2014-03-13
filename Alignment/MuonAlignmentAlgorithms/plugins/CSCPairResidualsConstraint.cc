@@ -86,7 +86,7 @@ void CSCPairResidualsConstraint::setZplane(const CSCGeometry *cscGeometry) {
   m_Zsurface = Plane::build(Plane::PositionType(0., 0., m_Zplane), Plane::RotationType());
 }
 
-void CSCPairResidualsConstraint::setPropagator(const Propagator *propagator) {
+void CSCPairResidualsConstraint::setPropagator(Propagator *propagator) {
   m_propagator = propagator;
 }
 

@@ -56,7 +56,7 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
-  edm::ESHandle<Propagator> thePropagator;
+  Propagator* thePropagator;
   edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
@@ -75,11 +75,11 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
     //
     LogDebug("GsfTrackProducer") << "run the algorithm" << "\n";
     theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			     theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+			     theFitter.product(), thePropagator, theBuilder.product(), bs, algoResults);
   } catch (cms::Exception &e){ edm::LogInfo("GsfTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n"; throw; }
   //
   //put everything in the event
-  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
+  putInEvt(theEvent, thePropagator, theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputGsfTEColl,
 	   outputTrajectoryColl, algoResults, bs);
   LogDebug("GsfTrackProducer") << "end" << "\n";
 }

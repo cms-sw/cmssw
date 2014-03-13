@@ -75,7 +75,7 @@ namespace {
 
 template <> bool
 TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFitter,
-						 const Propagator * thePropagator,
+						 Propagator * thePropagator,
 						 AlgoProductCollection& algoResults,
 						 TransientTrackingRecHit::RecHitContainer& hits,
 						 TrajectoryStateOnSurface& theTSOS,
@@ -180,7 +180,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 
 template <> bool
 TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * theFitter,
-						    const Propagator * thePropagator,
+						    Propagator * thePropagator,
 						    AlgoProductCollection& algoResults,
 						    TransientTrackingRecHit::RecHitContainer& hits,
 						    TrajectoryStateOnSurface& theTSOS,

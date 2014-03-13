@@ -192,7 +192,7 @@ void CkfDebugger::dumpSimHit(const SimHit& hit) const
 bool CkfDebugger::analyseCompatibleMeasurements(const Trajectory& traj,
 						const std::vector<TrajectoryMeasurement>& meas,
 						const MeasurementTracker* aMeasurementTracker, 
-						const Propagator*                     propagator,
+						Propagator*                     propagator,
 						const Chi2MeasurementEstimatorBase*   estimator,
 						const TransientTrackingRecHitBuilder* aTTRHBuilder)
 {

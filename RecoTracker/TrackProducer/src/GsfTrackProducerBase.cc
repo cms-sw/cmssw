@@ -25,7 +25,7 @@
 
 void 
 GsfTrackProducerBase::putInEvt(edm::Event& evt,
-			       const Propagator* prop,
+			       Propagator* prop,
 			       const MeasurementTracker* measTk,
 			       std::auto_ptr<TrackingRecHitCollection>& selHits,
 			       std::auto_ptr<reco::GsfTrackCollection>& selTracks,
@@ -262,7 +262,7 @@ GsfTrackProducerBase::fillStates (TrajectoryStateOnSurface tsos,
 
 void
 GsfTrackProducerBase::fillMode (reco::GsfTrack& track, const TrajectoryStateOnSurface innertsos,
-				const Propagator& gsfProp,
+				Propagator& gsfProp,
 				const TransverseImpactPointExtrapolator& tipExtrapolator,
 				TrajectoryStateClosestToBeamLineBuilder& tscblBuilder,
 				const reco::BeamSpot& bs) const

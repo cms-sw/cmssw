@@ -30,7 +30,7 @@ BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 			 const TrajectoryFilter*               filter,
                          const TrajectoryFilter*               inOutFilter):
   theUpdator(updator),
-  thePropagatorAlong(propagatorAlong),thePropagatorOpposite(propagatorOpposite),
+  thePropagatorAlong(propagatorAlong->clone()),thePropagatorOpposite(propagatorOpposite->clone()),
   theEstimator(estimator),theTTRHBuilder(recHitBuilder),
   theMeasurementTracker(0),
   theForwardPropagator(0),theBackwardPropagator(0),
@@ -38,6 +38,19 @@ BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
   theInOutFilter(inOutFilter)
 {
   if (conf.exists("clustersToSkip")) std::cerr << "ERROR: " << typeid(*this).name() << " with label " << conf.getParameter<std::string>("@module_label") << " has a clustersToSkip parameter set" << std::endl;
+}
+
+BaseCkfTrajectoryBuilder::
+BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder& iOther):
+  theUpdator(iOther.theUpdator),
+  thePropagatorAlong(iOther.thePropagatorAlong->clone()),
+  thePropagatorOpposite(iOther.thePropagatorOpposite->clone()),
+  theEstimator(iOther.theEstimator),
+  theTTRHBuilder(iOther.theTTRHBuilder),
+  theForwardPropagator(nullptr),
+  theBackwardPropagator(nullptr),
+  theFilter(iOther.theFilter),
+  theInOutFilter(iOther.theInOutFilter) {
 }
 
 

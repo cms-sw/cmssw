@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -30,6 +31,7 @@ class TrackerGeometry;
 class TrajectoryFitter;
 class TransientTrackingRecHitBuilder;
 class NavigationSchool;
+class TrackingComponentsRecord;
 
 template <class T>
 class TrackProducerBase {
@@ -51,7 +53,7 @@ public:
 			 edm::ESHandle<TrackerGeometry>& ,
 			 edm::ESHandle<MagneticField>& ,
 			 edm::ESHandle<TrajectoryFitter>& ,
-			 edm::ESHandle<Propagator>& ,
+			 Propagator*& ,
 			 edm::ESHandle<MeasurementTracker>& ,
 			 edm::ESHandle<TransientTrackingRecHitBuilder>& );
 
@@ -90,6 +92,9 @@ public:
  private:
   edm::ParameterSet conf_;
   edm::EDGetToken src_;
+  edm::ESWatcher<TrackingComponentsRecord> propagatorWatcher_;
+  std::unique_ptr<Propagator> propagator_;
+
  protected:
   std::string alias_;
   bool trajectoryInEvent_;

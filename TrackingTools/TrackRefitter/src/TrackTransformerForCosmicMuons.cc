@@ -61,8 +61,12 @@ void TrackTransformerForCosmicMuons::setServices(const EventSetup& setup){
   if ( newCacheId_TC != theCacheId_TC ){
     LogTrace(metname) << "Tracking Component changed!";
     theCacheId_TC = newCacheId_TC;
-    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRK",thePropagatorIO);
-    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRKOpposite",thePropagatorOI);
+    edm::ESHandle<Propagator> thePropagatorIOHandle;
+    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRK",thePropagatorIOHandle);
+    thePropagatorIO.reset(thePropagatorIOHandle->clone());
+    edm::ESHandle<Propagator> thePropagatorOIHandle;
+    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRKOpposite",thePropagatorOIHandle);
+    thePropagatorOI.reset(thePropagatorOIHandle->clone());
   }
 
   // Global Tracking Geometry
@@ -202,13 +206,13 @@ ESHandle<TrajectorySmoother> TrackTransformerForCosmicMuons::smoother(bool up, i
   else return theSmootherIO;
 }
 
-ESHandle<Propagator> TrackTransformerForCosmicMuons::propagator(bool up, int quad, float sumy) const{
-  if(quad ==1) {if (sumy > 0) return thePropagatorOI; else return thePropagatorIO;}
-  if(quad ==2) {if (sumy > 0) return thePropagatorOI; else return thePropagatorIO;}
-  if(quad ==3) {if (sumy < 0) return thePropagatorOI; else return thePropagatorIO;}
-  if(quad ==4) {if (sumy < 0) return thePropagatorOI; else return thePropagatorIO;}
-  if(up) return thePropagatorIO;
-  else return thePropagatorOI;
+Propagator* TrackTransformerForCosmicMuons::propagator(bool up, int quad, float sumy) const{
+  if(quad ==1) {if (sumy > 0) return thePropagatorOI.get(); else return thePropagatorIO.get();}
+  if(quad ==2) {if (sumy > 0) return thePropagatorOI.get(); else return thePropagatorIO.get();}
+  if(quad ==3) {if (sumy < 0) return thePropagatorOI.get(); else return thePropagatorIO.get();}
+  if(quad ==4) {if (sumy < 0) return thePropagatorOI.get(); else return thePropagatorIO.get();}
+  if(up) return thePropagatorIO.get();
+  else return thePropagatorOI.get();
 }
 
 

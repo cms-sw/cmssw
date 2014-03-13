@@ -32,7 +32,7 @@ class BarrelDetLayer : public DetLayer {
   virtual const BoundSurface&  surface() const  GCC11_FINAL { return *theCylinder;}
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
+  compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
 	      const MeasurementEstimator&) const GCC11_FINAL;
 
   /// DetLayer interface

@@ -25,7 +25,7 @@
 
 std::pair<TrajectoryStateOnSurface,double>
 RKPropagatorInS::propagateWithPath(const FreeTrajectoryState& fts, 
-				   const Plane& plane) const
+				   const Plane& plane)
 {
   GlobalParametersWithPath gp =  propagateParametersOnPlane( fts, plane);
   if unlikely(!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
@@ -37,7 +37,7 @@ RKPropagatorInS::propagateWithPath(const FreeTrajectoryState& fts,
 }
 
 std::pair< TrajectoryStateOnSurface, double> 
-RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& fts, const Cylinder& cyl) const
+RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& fts, const Cylinder& cyl)
 {
   GlobalParametersWithPath gp =  propagateParametersOnCylinder( fts, cyl);
   if  unlikely(!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
@@ -331,13 +331,13 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
 }
 
 TrajectoryStateOnSurface 
-RKPropagatorInS::propagate(const FreeTrajectoryState& fts, const Plane& plane) const
+RKPropagatorInS::propagate(const FreeTrajectoryState& fts, const Plane& plane)
 {
   return propagateWithPath( fts, plane).first;
 }
 
 TrajectoryStateOnSurface
-RKPropagatorInS::propagate( const FreeTrajectoryState& fts, const Cylinder& cyl) const
+RKPropagatorInS::propagate( const FreeTrajectoryState& fts, const Cylinder& cyl)
 {
   return propagateWithPath( fts, cyl).first;
 }

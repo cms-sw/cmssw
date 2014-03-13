@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,30 +31,32 @@
 
 #include <TObjArray.h>
 
+#include <memory>
 #include <vector>
 
 class MagneticField;
 class Propagator;
+class TrackingComponentsRecord;
 
 class CosmicGenFilterHelix : public edm::EDFilter {
  public:
   explicit CosmicGenFilterHelix(const edm::ParameterSet& config);
   virtual ~CosmicGenFilterHelix();
 
-  virtual void beginJob();
-  virtual bool filter(edm::Event &event, const edm::EventSetup &eventSetup);
-  virtual void endJob();
+  virtual void beginJob() override;
+  virtual bool filter(edm::Event &event, const edm::EventSetup &eventSetup) override;
+  virtual void endJob() override;
 
  private:
   /// actually propagate to the defined cylinder
   bool propagateToCutCylinder(const GlobalPoint &vertStart, const GlobalVector &momStart,
 			      int charge, const MagneticField *field,
-                              const Propagator *propagator); //non-const: monitorEnd
+                              Propagator *propagator); //non-const: monitorEnd
   /// true if ID selected, return by value its charge
   bool charge(int id, int &charge) const;
   /// provide magnetic field from Event Setup
   const MagneticField* getMagneticField(const edm::EventSetup &setup) const;
-  const Propagator* getPropagator(const edm::EventSetup &setup) const;
+  Propagator* getPropagator(const edm::EventSetup &setup);
 // ----------member data ---------------------------
 
   const edm::InputTag     theSrc;
@@ -81,4 +84,6 @@ class CosmicGenFilterHelix : public edm::EDFilter {
   TObjArray theHistsBefore; /// hists of properties from generator
   TObjArray theHistsAfter;  /// hists after successfull propagation
 
+  edm::ESWatcher<TrackingComponentsRecord> thePropagatorWatcher;
+  std::unique_ptr<Propagator> thePropagator;
 };

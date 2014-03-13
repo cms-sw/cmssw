@@ -23,19 +23,19 @@ class TOBRod GCC11_FINAL : public DetRod {
   
   // GeometricSearchDet interface
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
+  virtual const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
 
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const  __attribute__ ((cold));
+  compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
+	      const MeasurementEstimator&) const override __attribute__ ((cold));
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
+			       Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
   
  
  private:
@@ -45,7 +45,7 @@ class TOBRod GCC11_FINAL : public DetRod {
 				      PropagationDirection propDir) const __attribute__ ((hot));
   
   bool addClosest( const TrajectoryStateOnSurface& tsos,
-		   const Propagator& prop,
+		   Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
 		   std::vector<DetGroup>& result) const __attribute__ ((hot));
@@ -56,7 +56,7 @@ class TOBRod GCC11_FINAL : public DetRod {
 
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
-			const Propagator& prop,
+			Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 

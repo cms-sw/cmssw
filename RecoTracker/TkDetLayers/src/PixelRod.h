@@ -21,20 +21,20 @@ class PixelRod GCC11_FINAL : public DetRodOneR{
   virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
+  compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
+	      const MeasurementEstimator&) const override;
 
   virtual void
   compatibleDetsV( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
+		  Propagator& prop, 
 		  const MeasurementEstimator& est,
-		  std::vector<DetWithState> & result) const __attribute__ ((hot));
+		  std::vector<DetWithState> & result) const override __attribute__ ((hot));
 
   virtual void  
   groupedCompatibleDetsV( const TrajectoryStateOnSurface&,
-			 const Propagator&,
+			 Propagator&,
 			 const MeasurementEstimator&,
-			 std::vector<DetGroup> &) const;
+			 std::vector<DetGroup> &) const override;
 
 
  private:

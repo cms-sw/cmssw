@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -40,6 +41,8 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
+
+class TrackingComponentsRecord;
 
 class OutsideInMuonSeeder : public edm::EDProducer {
     public:
@@ -77,8 +80,9 @@ class OutsideInMuonSeeder : public edm::EDProducer {
       double minEtaForTEC_, maxEtaForTOB_;
 
       edm::ESHandle<MagneticField>          magfield_;
-      edm::ESHandle<Propagator>             muonPropagator_;
-      edm::ESHandle<Propagator>             trackerPropagator_;
+      edm::ESWatcher<TrackingComponentsRecord> propagatorWatcher_;
+      std::unique_ptr<Propagator>             muonPropagator_;
+      std::unique_ptr<Propagator>           trackerPropagator_;
       edm::ESHandle<GlobalTrackingGeometry> geometry_;
       edm::ESHandle<Chi2MeasurementEstimatorBase>   estimator_;
       edm::ESHandle<TrajectoryStateUpdator>         updator_;
@@ -120,8 +124,14 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     using namespace std;
 
     iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
-    iSetup.get<TrackingComponentsRecord>().get(trackerPropagatorName_, trackerPropagator_);
-    iSetup.get<TrackingComponentsRecord>().get(muonPropagatorName_, muonPropagator_);
+    if(propagatorWatcher_.check(iSetup)) {
+      edm::ESHandle<Propagator> trackPropHandle;
+      iSetup.get<TrackingComponentsRecord>().get(trackerPropagatorName_, trackPropHandle);
+      trackerPropagator_.reset(trackPropHandle->clone());
+      edm::ESHandle<Propagator> muonPropHandle;
+      iSetup.get<TrackingComponentsRecord>().get(muonPropagatorName_, muonPropHandle);
+      muonPropagator_.reset(muonPropHandle->clone());
+    }
     iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
     iSetup.get<TrackingComponentsRecord>().get(estimatorName_,estimator_);  
     iSetup.get<TrackingComponentsRecord>().get(updatorName_,updator_);  

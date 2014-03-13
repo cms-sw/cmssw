@@ -281,7 +281,11 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
   nCompatibleLayers = 0; 
   
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTTrackBuilder);
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",thePropagator);
+  if(thePropagatorWatcher.check(iSetup)) {
+    edm::ESHandle<Propagator> propHandle;
+    iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",propHandle);
+    thePropagator.reset(propHandle->clone());
+  }
   iSetup.get<IdealMagneticFieldRecord>().get(bField); 
   iSetup.get<TrackerRecoGeometryRecord>().get(theTracker);
   theNavigation = new DirectTrackerNavigation(theTracker);

@@ -2,6 +2,7 @@
 #define FastSimulation_Tracking_TrackCandidateProducer_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -9,6 +10,8 @@
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class PropagatorWithMaterial;
+class Propagator;
+class TrackingComponentsRecord;
 
 namespace edm { 
   class ParameterSet;
@@ -50,7 +53,8 @@ class TrackCandidateProducer : public edm::EDProducer
   const TrackerGeometry*  theGeometry;
   const MagneticField*  theMagField;
   PropagatorWithMaterial* thePropagator;
-
+  std::unique_ptr<Propagator> theAnyDirectPropagator;
+  edm::ESWatcher<TrackingComponentsRecord> thePropagatorWatcher;
 
   edm::InputTag seedProducer;
   edm::InputTag hitProducer;

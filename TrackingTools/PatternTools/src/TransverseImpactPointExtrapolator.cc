@@ -43,7 +43,7 @@ TransverseImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface t
 TrajectoryStateOnSurface 
 TransverseImpactPointExtrapolator::extrapolate (const FreeTrajectoryState& fts, 
 						const GlobalPoint& vtx, 
-						const Propagator& p) const
+						Propagator& p) const
 {
   //
   // set propagator for bidirectional propagation
@@ -55,7 +55,7 @@ TransverseImpactPointExtrapolator::extrapolate (const FreeTrajectoryState& fts,
 TrajectoryStateOnSurface 
 TransverseImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface tsos, 
 						const GlobalPoint& vtx, 
-						const Propagator& p) const
+						Propagator& p) const
 {
   if ( !tsos.isValid() )  return tsos;
   //
@@ -68,7 +68,7 @@ TransverseImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface t
 TrajectoryStateOnSurface 
 TransverseImpactPointExtrapolator::doExtrapolation (const TrajectoryStateOnSurface tsos, 
 						    const GlobalPoint& vtx, 
-						    const Propagator& p) const
+						    Propagator& p) const
 {
   //
   // Compute tip surface
@@ -103,7 +103,7 @@ TransverseImpactPointExtrapolator::doExtrapolation (const TrajectoryStateOnSurfa
 TrajectoryStateOnSurface 
 TransverseImpactPointExtrapolator::doExtrapolation (const FreeTrajectoryState& fts, 
 						    const GlobalPoint& vtx, 
-						    const Propagator& p) const
+						    Propagator& p) const
 {
   //
   // Compute tip surface

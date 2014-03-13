@@ -27,7 +27,7 @@ private :
   typedef std::vector<ConstRecHitPointer>             ConstRecHitContainer;
 
 public :
-  SeedFromNuclearInteraction(const Propagator* prop, const TrackerGeometry* geom, const edm::ParameterSet& iConfig);
+  SeedFromNuclearInteraction(Propagator* prop, const TrackerGeometry* geom, const edm::ParameterSet& iConfig);
 
   virtual ~SeedFromNuclearInteraction(){}
 
@@ -89,7 +89,7 @@ private :
 
   double ptMin;                  /**< Minimum transverse momentum of the seed */
 
-  const Propagator*                        thePropagator;
+  Propagator*                        thePropagator;
   const TrackerGeometry*                   theTrackerGeom;
 
   bool construct();

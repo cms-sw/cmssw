@@ -49,7 +49,7 @@ class MuonTrajectoryUpdator {
   /// update the Trajectory with the TrajectoryMeasurement
   virtual std::pair<bool,TrajectoryStateOnSurface>  update(const TrajectoryMeasurement* measurement, 
 							   Trajectory& trajectory,
-							   const Propagator *propagator);
+							   Propagator *propagator);
 
   /// accasso at the propagator
   const MeasurementEstimator *estimator() const {return theEstimator;}
@@ -80,7 +80,7 @@ class MuonTrajectoryUpdator {
   TrajectoryStateOnSurface propagateState(const TrajectoryStateOnSurface& state,
 					  const TrajectoryMeasurement* measurement, 
 					  const TransientTrackingRecHit::ConstRecHitPointer& current,
-					  const Propagator *propagator) const;
+					  Propagator *propagator) const;
   
   ///  the max chi2 allowed
   double theMaxChi2;

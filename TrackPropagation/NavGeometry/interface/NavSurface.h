@@ -35,11 +35,11 @@ public:
 
 /// hook for double dispatch to avoid propagation to generic surface.
     virtual TrajectoryStateOnSurface 
-    propagate( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const = 0;
+    propagate( Propagator& prop, const TrajectoryStateOnSurface& startingState) const = 0;
 
 /// hook for double dispatch to avoid propagation to generic surface.
     virtual TSOSwithPath 
-    propagateWithPath( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const = 0;
+    propagateWithPath( Propagator& prop, const TrajectoryStateOnSurface& startingState) const = 0;
 
 /// Bounds corresponding to a NavVolume if present
     virtual const Bounds* bounds( const NavVolume* vol) = 0;

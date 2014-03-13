@@ -134,16 +134,18 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
     TrajectorySeedCollection & seedCollection,
     const SeedingHitSet & hits,
     const FreeTrajectoryState & fts,
-    const edm::EventSetup& es) const
+    const edm::EventSetup& es)
 {
   // get tracker
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
   
   // get propagator
-  edm::ESHandle<Propagator>  propagatorHandle;
-  es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
-  const Propagator*  propagator = &(*propagatorHandle);
+  if(thePropagatorWatcher.check(es)) {
+    edm::ESHandle<Propagator>  propagatorHandle;
+    es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
+    thePropagator.reset( propagatorHandle->clone());
+  }
   
    // get cloner (FIXME: add to config)
   try { 
@@ -172,8 +174,8 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
   for ( unsigned int iHit = 0; iHit < hits.size() && iHit<1; iHit++) {
     hit = hits[iHit];
     TrajectoryStateOnSurface state = (iHit==0) ? 
-      propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
-      : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
+      thePropagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
+      : thePropagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
     if (!state.isValid()) return 0;
     
     SeedingHitSet::ConstRecHitPointer tth = hits[iHit]; 

@@ -122,7 +122,8 @@ class NuclearTrackCorrector :  public edm::EDProducer {
       edm::ESHandle<TrackerGeometry> theG;
       edm::ESHandle<MagneticField> theMF;
       edm::ESHandle<TrajectoryFitter> theFitter;
-      edm::ESHandle<Propagator> thePropagator;
+      edm::ESWatcher<TrackingComponentsRecord> thePropagatorWatcher;
+      std::unique_ptr<Propagator> thePropagator;
       edm::ParameterSet conf_;
       TransientInitialStateEstimator*  theInitialState;
 

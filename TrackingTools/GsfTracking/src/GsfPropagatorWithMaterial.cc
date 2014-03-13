@@ -50,7 +50,7 @@ GsfPropagatorWithMaterial::GsfPropagatorWithMaterial (const GsfPropagatorAdapter
 
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-					      const Plane& plane) const {
+					      const Plane& plane) {
   //   TimeMe t1(*propWithPathTimer1,false);
   //
   // add material before propagation?
@@ -74,7 +74,7 @@ GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& ts
 
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-					      const Cylinder& cylinder) const {
+					      const Cylinder& cylinder) {
   //   TimeMe t2(*propWithPathTimer2,false);
   //
   // add material before propagation?
@@ -98,7 +98,7 @@ GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& ts
 
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
-					      const Plane& plane) const {
+					      const Plane& plane) {
   static std::atomic<int> nWarn(0);
   if ( nWarn++<5 )
     edm::LogInfo("GsfPropagatorWithMaterial") 
@@ -113,7 +113,7 @@ GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
 
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
-					      const Cylinder& cylinder) const {
+					      const Cylinder& cylinder) {
   static std::atomic<int> nWarn(0);
   if ( nWarn++<5 )
     edm::LogInfo("GsfPropagatorWithMaterial") 
@@ -127,7 +127,7 @@ GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
 }
 
 
-void GsfPropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) const {
+void GsfPropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) {
   theGeometricalPropagator->setPropagationDirection(dir);
   Propagator::setPropagationDirection(dir);
 }

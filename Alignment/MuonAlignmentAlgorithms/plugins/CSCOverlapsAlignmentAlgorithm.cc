@@ -22,6 +22,7 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
    , m_writeTemporaryFile(iConfig.getParameter<std::string>("writeTemporaryFile"))
    , m_readTemporaryFiles(iConfig.getParameter<std::vector<std::string> >("readTemporaryFiles"))
    , m_doAlignment(iConfig.getParameter<bool>("doAlignment"))
+   , m_propagatorCacheId(0)
 {
   if (m_mode_string == std::string("phiy")) m_mode = CSCPairResidualsConstraint::kModePhiy;
   else if (m_mode_string == std::string("phipos")) m_mode = CSCPairResidualsConstraint::kModePhiPos;
@@ -47,8 +48,6 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
     m_trackTransformer = NULL;
     m_propagatorName = std::string("");
   }
-
-  m_propagatorPointer = NULL;
 
   if (m_makeHistograms) {
     edm::Service<TFileService> tFileService;
@@ -228,12 +227,13 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
 void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const EventInfo &eventInfo) {
   edm::ESHandle<Propagator> propagator;
   if (m_slopeFromTrackRefit) {
-    iSetup.get<TrackingComponentsRecord>().get(m_propagatorName, propagator);
-    if (m_propagatorPointer != &*propagator) {
-      m_propagatorPointer = &*propagator;
+    auto const& rec = iSetup.get<TrackingComponentsRecord>();
+    if(m_propagatorCacheId != rec.cacheIdentifier()) {
+      rec.get(m_propagatorName, propagator);
+      m_propagatorPointer.reset( propagator->clone());
 
       for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint = m_residualsConstraints.begin();  residualsConstraint != m_residualsConstraints.end();  ++residualsConstraint) {
-	(*residualsConstraint)->setPropagator(m_propagatorPointer);
+	(*residualsConstraint)->setPropagator(m_propagatorPointer.get());
       }
     }
   }

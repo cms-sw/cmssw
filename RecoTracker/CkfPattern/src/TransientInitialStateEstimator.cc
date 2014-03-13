@@ -19,7 +19,19 @@
 using namespace std;
 
 TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::EventSetup& es,
-								const edm::ParameterSet& conf)
+								const edm::ParameterSet& conf):
+  thePropagatorWatcher([this](TrackingComponentsRecord const& iRecord) {
+      {
+	edm::ESHandle<Propagator> propHandle;
+	iRecord.get(thePropagatorAlongName,propHandle);
+	thePropagatorAlong.reset(propHandle->clone());
+      }
+      {
+	edm::ESHandle<Propagator> propHandle;
+	iRecord.get(thePropagatorOppositeName,propHandle);
+	thePropagatorOpposite.reset(propHandle->clone());
+      }
+    })
 {
   thePropagatorAlongName    = conf.getParameter<std::string>("propagatorAlongTISE");   
   thePropagatorOppositeName = conf.getParameter<std::string>("propagatorOppositeTISE");   
@@ -27,13 +39,11 @@ TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::Event
 
 
   // let's avoid breaking compatibility now
-  es.get<TrackingComponentsRecord>().get(thePropagatorAlongName,thePropagatorAlong);
-  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName,thePropagatorOpposite);
+  thePropagatorWatcher.check(es);
 }
 
 void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es ) {
-  es.get<TrackingComponentsRecord>().get(thePropagatorAlongName,thePropagatorAlong);
-  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName,thePropagatorOpposite);
+  thePropagatorWatcher.check(es);
 }
 
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
@@ -77,7 +87,7 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackF
   // avoid cloning...
   KFUpdator const aKFUpdator;
   Chi2MeasurementEstimator const aChi2MeasurementEstimator( 100., 3);
-  KFTrajectoryFitter backFitter( thePropagatorAlong.product(),
+  KFTrajectoryFitter backFitter( thePropagatorAlong.get(),
 				 &aKFUpdator,
 				 &aChi2MeasurementEstimator,
 				 firstHits.size());

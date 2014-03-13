@@ -49,7 +49,14 @@ float spin(float ph)
 
 /*****************************************************************************/
 ValidHitPairFilter::ValidHitPairFilter
-  (const edm::ParameterSet& ps, edm::ConsumesCollector& iC)
+(const edm::ParameterSet& ps, edm::ConsumesCollector& iC):
+  watchPropagator([this](const TrackingComponentsRecord& iRecord) {
+      edm::ESHandle<Propagator> thePropagatorHandle;
+      iRecord.get("AnalyticalPropagator",
+					     thePropagatorHandle);
+      this->thePropagator.reset(thePropagatorHandle->clone());
+
+    })
 {
 }
 
@@ -80,10 +87,7 @@ void ValidHitPairFilter::update(const edm::Event& ev, const edm::EventSetup& es)
   theMagneticField = magneticFieldHandle.product();
 
   // Get propagator
-  edm::ESHandle<Propagator> thePropagatorHandle;
-  es.get<TrackingComponentsRecord>().get("AnalyticalPropagator",
-                                          thePropagatorHandle);
-  thePropagator = thePropagatorHandle.product();
+  watchPropagator.check(es);
 
   // Bounds, hardwired FIXME
   rzBounds[0].resize(8); phBounds[0].resize(20);

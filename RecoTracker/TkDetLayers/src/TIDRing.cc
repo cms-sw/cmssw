@@ -80,7 +80,7 @@ TIDRing::components() const
 
   
 pair<bool, TrajectoryStateOnSurface>
-TIDRing::compatible( const TrajectoryStateOnSurface&, const Propagator&, 
+TIDRing::compatible( const TrajectoryStateOnSurface&, Propagator&, 
 		  const MeasurementEstimator&) const{
   edm::LogError("TkDetLayers") << "temporary dummy implementation of TIDRing::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
@@ -90,7 +90,7 @@ TIDRing::compatible( const TrajectoryStateOnSurface&, const Propagator&,
 
 void 
 TIDRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-				 const Propagator& prop,
+				 Propagator& prop,
 				 const MeasurementEstimator& est,
 				 std::vector<DetGroup>& result) const
 {
@@ -161,7 +161,7 @@ TIDRing::computeCrossings(const TrajectoryStateOnSurface& startingState,
 }
 
 bool TIDRing::addClosest( const TrajectoryStateOnSurface& tsos,
-			  const Propagator& prop,
+			  Propagator& prop,
 			  const MeasurementEstimator& est,
 			  const SubLayerCrossing& crossing,
 			  vector<DetGroup>& result) const
@@ -174,7 +174,7 @@ bool TIDRing::addClosest( const TrajectoryStateOnSurface& tsos,
 
 
 void TIDRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-				     const Propagator& prop,
+				     Propagator& prop,
 				     const MeasurementEstimator& est,
 				     const SubLayerCrossing& crossing,
 				     float window, 

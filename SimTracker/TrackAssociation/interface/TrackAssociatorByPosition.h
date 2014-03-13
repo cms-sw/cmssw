@@ -36,7 +36,7 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
 			     const TrackingGeometry * geo, 
 			     const Propagator * prop){
      theGeometry = geo;
-     thePropagator = prop;
+     thePropagator.reset( prop->clone() );
      theMinIfNoMatch = iConfig.getParameter<bool>("MinIfNoMatch");
      theQminCut = iConfig.getParameter<double>("QminCut");
      theQCut = iConfig.getParameter<double>("QCut");
@@ -78,7 +78,7 @@ class TrackAssociatorByPosition : public TrackAssociatorBase {
  private:
 
   const TrackingGeometry * theGeometry;
-  const Propagator * thePropagator;
+  mutable std::unique_ptr<Propagator> thePropagator;
   unsigned int theMethod;
   double theQminCut;
   double theQCut;

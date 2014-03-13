@@ -30,7 +30,7 @@ PropagatorWithMaterial::PropagatorWithMaterial (PropagationDirection dir,
 
 pair<TrajectoryStateOnSurface,double> 
 PropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
-					   const Plane& plane) const {
+					   const Plane& plane) {
   TsosWP newTsosWP = theGeometricalPropagator->propagateWithPath(fts,plane);
   if ( (newTsosWP.first).isValid() && !materialAtSource() ) { 
       bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,
@@ -43,7 +43,7 @@ PropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
 
 pair<TrajectoryStateOnSurface,double> 
 PropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
-					   const Cylinder& cylinder) const {
+					   const Cylinder& cylinder) {
   TsosWP newTsosWP = theGeometricalPropagator->propagateWithPath(fts,cylinder);
   if ( (newTsosWP.first).isValid() && !materialAtSource() ) { 
       bool updateOk = theMEUpdator->updateStateInPlace(newTsosWP.first,
@@ -57,7 +57,7 @@ PropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
 
 pair<TrajectoryStateOnSurface,double> 
 PropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-					   const Plane& plane) const {
+					   const Plane& plane) {
   //
   // add material at starting surface, if requested
   //
@@ -84,7 +84,7 @@ PropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
 
 pair<TrajectoryStateOnSurface,double> 
 PropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
-					   const Cylinder& cylinder) const {
+					   const Cylinder& cylinder) {
   //
   // add material at starting surface, if requested
   //
@@ -109,7 +109,7 @@ PropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
   return newTsosWP;
 }
 
-void PropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) const {
+void PropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) {
   theGeometricalPropagator->setPropagationDirection(dir);
   Propagator::setPropagationDirection(dir);
 }

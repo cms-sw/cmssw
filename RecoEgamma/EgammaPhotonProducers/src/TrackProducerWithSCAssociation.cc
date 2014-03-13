@@ -80,7 +80,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
-  edm::ESHandle<Propagator> thePropagator;
+  Propagator* thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   edm::ESHandle<MeasurementTracker> theMeasTk;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
@@ -160,7 +160,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 	  
 	  //build Track
 	  // LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to buildTrack"<< "\n";
-	  bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
+	  bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator,algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
 	  // LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation buildTrack result: " << ok << "\n";
 	  if(ok) {
 	    cont++;
@@ -176,7 +176,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
     //
     //put everything in the event
     // we copy putInEvt to get OrphanHandle filled...
-    putInEvt(theEvent,thePropagator.product(),theMeasTk.product(), 
+    putInEvt(theEvent,thePropagator,theMeasTk.product(), 
 	     outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
     
     // now construct associationmap and put it in the  event
@@ -216,7 +216,7 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
-  edm::ESHandle<Propagator> thePropagator;
+  Propagator* thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   edm::ESHandle<MeasurementTracker> theMeasTk;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
@@ -236,13 +236,13 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
     //
     //LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation run the algorithm" << "\n";
    theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTCCollection, 
-			       theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+			       theFitter.product(), thePropagator, theBuilder.product(), bs, algoResults);
 
   } catch (cms::Exception &e){ edm::LogInfo("TrackProducerWithSCAssociation") << "cms::Exception caught!!!" << "\n" << e << "\n";}
 
 
   for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-    ttks.push_back( reco::TransientTrack(*(((*prod).second).first),thePropagator.product()->magneticField() ));
+    ttks.push_back( reco::TransientTrack(*(((*prod).second).first),thePropagator->magneticField() ));
   }
 
   //LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation end" << "\n";

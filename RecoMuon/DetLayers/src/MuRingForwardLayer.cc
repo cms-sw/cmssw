@@ -88,7 +88,7 @@ MuRingForwardLayer::~MuRingForwardLayer(){
 
 vector<GeometricSearchDet::DetWithState> 
 MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
-				   const Propagator& prop, 
+				   Propagator& prop, 
 				   const MeasurementEstimator& est) const {
   
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardLayer";
@@ -205,7 +205,7 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
 
 vector<DetGroup> 
 MuRingForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-                                           const Propagator& prop,
+                                           Propagator& prop,
                                            const MeasurementEstimator& est) const {
   // FIXME should return only 1 group 
   cout << "dummy implementation of MuRingForwardLayer::groupedCompatibleDets()" << endl;

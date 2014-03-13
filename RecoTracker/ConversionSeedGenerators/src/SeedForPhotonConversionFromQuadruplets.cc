@@ -676,16 +676,18 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::buildSeed(
     const FreeTrajectoryState & fts,
     const edm::EventSetup& es,
     bool apply_dzCut,
-    const TrackingRegion & region) const
+    const TrackingRegion & region)
 {
   // get tracker
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
 
   // get propagator
-  edm::ESHandle<Propagator>  propagatorHandle;
-  es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
-  const Propagator*  propagator = &(*propagatorHandle);
+  if(thePropagatorWatcher.check(es)) {
+    edm::ESHandle<Propagator>  propagatorHandle;
+    es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
+    thePropagator.reset( propagatorHandle->clone());
+  }
 
   // get updator
   KFUpdator  updator;
@@ -699,8 +701,8 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::buildSeed(
   for ( unsigned int iHit = 0; iHit < hits.size() && iHit<2; iHit++) {
     hit = hits[iHit];
     TrajectoryStateOnSurface state = (iHit==0) ?
-      propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
-      : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
+      thePropagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
+      : thePropagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
 
     SeedingHitSet::ConstRecHitPointer tth = hits[iHit];
 
@@ -737,16 +739,18 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(
     const edm::EventSetup& es,
     bool apply_dzCut,
     const TrackingRegion & region,
-    double dzcut) const
+    double dzcut)
 {
   // get tracker
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
 
   // get propagator
-  edm::ESHandle<Propagator>  propagatorHandle;
-  es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
-  const Propagator*  propagator = &(*propagatorHandle);
+  if(thePropagatorWatcher.check(es)) {
+    edm::ESHandle<Propagator>  propagatorHandle;
+    es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
+    thePropagator.reset( propagatorHandle->clone());
+  }
 
    // get cloner (FIXME: add to config)
   auto TTRHBuilder = "WithTrackAngle"; 
@@ -767,8 +771,8 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(
   for ( unsigned int iHit = 0; iHit < hits.size() && iHit<2; iHit++) {
     hit = hits[iHit]->hit();
     TrajectoryStateOnSurface state = (iHit==0) ?
-      propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
-      : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
+      thePropagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
+      : thePropagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
     if (!state.isValid()) {
     	return false;}
 

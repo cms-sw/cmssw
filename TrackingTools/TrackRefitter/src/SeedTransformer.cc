@@ -45,7 +45,13 @@ using namespace edm;
 using namespace reco;
 
 
-SeedTransformer::SeedTransformer(const ParameterSet& iConfig) {
+SeedTransformer::SeedTransformer(const ParameterSet& iConfig) :
+  thePropagatorWatcher([this](TrackingComponentsRecord const& iRecord) {
+      edm::ESHandle<Propagator> propagator;
+      iRecord.get(thePropagatorName,propagator);
+      thePropagator.reset( propagator->clone());
+    })
+{
 
   LogTrace("Reco|TrackingTools|SeedTransformer") << "SeedTransformer constructor called." << endl << endl;
 
@@ -70,11 +76,10 @@ void SeedTransformer::setServices(const EventSetup& iSetup) {
   iSetup.get<IdealMagneticFieldRecord>().get(theMagneticField);
   iSetup.get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
   iSetup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
-  iSetup.get<TrackingComponentsRecord>().get(thePropagatorName,thePropagator);
 
 }
 
-vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) const {
+vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) {
 
   const string metname = "Reco|TrackingTools|SeedTransformer";
 

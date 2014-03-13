@@ -1,12 +1,14 @@
 #ifndef SeedForPhotonConversion1Leg_H
 #define SeedForPhotonConversion1Leg_H
 
+#include <memory>
+
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
@@ -15,6 +17,8 @@
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class FreeTrajectoryState;
+class TrackingComponentsRecord;
+class Propagator;
 
 //
 // this class need to be cleaned and optimized as those in RecoTracker/TkSeedGenerator
@@ -67,13 +71,15 @@ public:
 					   TrajectorySeedCollection & seedCollection,
 					   const SeedingHitSet & hits,
 					   const FreeTrajectoryState & fts,
-					   const edm::EventSetup& es) const;
+					   const edm::EventSetup& es);
 
   SeedingHitSet::RecHitPointer refitHit( SeedingHitSet::ConstRecHitPointer hit, 
 					 const TrajectoryStateOnSurface &state) const;
   
 protected:
   std::string thePropagatorLabel;
+  edm::ESWatcher<TrackingComponentsRecord> thePropagatorWatcher;
+  std::unique_ptr<Propagator> thePropagator;
   double theBOFFMomentum;
 
   // FIXME (well the whole class needs to be fixed!)      

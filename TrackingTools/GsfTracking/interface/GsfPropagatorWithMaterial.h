@@ -39,7 +39,7 @@ class GsfPropagatorWithMaterial : public Propagator {
   /** Propagation to generic surface: specialisation done in base class.
    */
   virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos, 
-					      const Surface& surface) const
+					      const Surface& surface) override
   {
     return Propagator::propagate(tsos,surface);
   }
@@ -47,7 +47,7 @@ class GsfPropagatorWithMaterial : public Propagator {
    *  AnalyticalPropagator, should be implemented to be more general).
    */
   virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos, 
-					      const Plane& plane) const
+					      const Plane& plane) override
   {
     return propagateWithPath(tsos,plane).first;
   }
@@ -55,7 +55,7 @@ class GsfPropagatorWithMaterial : public Propagator {
    *  AnalyticalPropagator, should be implemented to be more general).
    */
   virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos, 
-					      const Cylinder& cylinder) const
+					      const Cylinder& cylinder) override
   {
     return propagateWithPath(tsos,cylinder).first;
   }
@@ -65,7 +65,7 @@ class GsfPropagatorWithMaterial : public Propagator {
    */
   virtual std::pair<TrajectoryStateOnSurface,double> 
   propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-		     const Surface& surface) const
+		     const Surface& surface) override
   {
     return Propagator::propagateWithPath(tsos,surface);
   }
@@ -73,18 +73,18 @@ class GsfPropagatorWithMaterial : public Propagator {
    */
   virtual std::pair<TrajectoryStateOnSurface,double> 
   propagateWithPath (const TrajectoryStateOnSurface&, 
-		     const Plane&) const;
+		     const Plane&) override;
   /** Propagation to cylinder with path length calculation.
    */
   virtual std::pair<TrajectoryStateOnSurface,double> 
   propagateWithPath (const TrajectoryStateOnSurface&, 
-		     const Cylinder&) const;
+		     const Cylinder&) override;
 
   /** Propagation to generic surface: specialisation done in base class.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
   virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts, 
-					      const Surface& surface) const
+					      const Surface& surface) override
   {
     return Propagator::propagate(fts,surface);
   }
@@ -93,7 +93,7 @@ class GsfPropagatorWithMaterial : public Propagator {
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
   virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts, 
-					      const Plane& plane) const
+					      const Plane& plane) override
   {
     return propagateWithPath(fts,plane).first;
   }
@@ -102,7 +102,7 @@ class GsfPropagatorWithMaterial : public Propagator {
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
   virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts, 
-					      const Cylinder& cylinder) const
+					      const Cylinder& cylinder) override
   {
     return propagateWithPath(fts,cylinder).first;
   }
@@ -112,7 +112,7 @@ class GsfPropagatorWithMaterial : public Propagator {
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts, 
-								   const Surface& surface) const
+								   const Surface& surface) override
   {
     return Propagator::propagateWithPath(fts,surface);
   }
@@ -120,18 +120,18 @@ class GsfPropagatorWithMaterial : public Propagator {
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&, 
-								   const Plane&) const;
+								   const Plane&) override;
   /** Propagation to cylinder with path length calculation. 
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&, 
-								   const Cylinder&) const;
+								   const Cylinder&) override;
 
   virtual bool setMaxDirectionChange( float phiMax) { 
     return theGeometricalPropagator->setMaxDirectionChange(phiMax);
   }
 
- virtual void setPropagationDirection (PropagationDirection dir) const;
+ virtual void setPropagationDirection (PropagationDirection dir) override;
 
   enum MaterialLocation {atSource, atDestination, fromDirection};
   /** Choice of location for including material effects:
@@ -147,6 +147,9 @@ class GsfPropagatorWithMaterial : public Propagator {
   }
   /// Access to the geometrical propagator
   const Propagator& geometricalPropagator() const {
+    return *theGeometricalPropagator;
+  }
+  Propagator& geometricalPropagator() {
     return *theGeometricalPropagator;
   }
   /// Access to the convolutor and thus to the material effects

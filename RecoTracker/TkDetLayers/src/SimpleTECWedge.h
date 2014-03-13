@@ -17,19 +17,19 @@ class SimpleTECWedge GCC11_FINAL : public TECWedge{
   ~SimpleTECWedge() __attribute__ ((cold));
   
   // GeometricSearchDet interface
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
+  virtual const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const __attribute__ ((hot));
+  compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
+	      const MeasurementEstimator&) const override __attribute__ ((hot));
 
   virtual void 
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
+			 Propagator& prop,
 			 const MeasurementEstimator& est,
-                         std::vector<DetGroup> & result) const __attribute__ ((hot));
+                         std::vector<DetGroup> & result) const override __attribute__ ((hot));
 
  private:
   const GeomDet* theDet;

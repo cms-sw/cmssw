@@ -49,9 +49,9 @@ double MuonGmtPair::dR() {
 }
 
 
-void MuonGmtPair::propagate(ESHandle<MagneticField> bField,
-			    ESHandle<Propagator> propagatorAlong,
-			    ESHandle<Propagator> propagatorOpposite) {
+void MuonGmtPair::propagate(const MagneticField* bField,
+			    Propagator* propagatorAlong,
+			    Propagator* propagatorOpposite) {
 
   m_BField = bField;
   m_propagatorAlong = propagatorAlong;
@@ -287,8 +287,16 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
 
   eventSetup.get<IdealMagneticFieldRecord>().get(m_BField);
 
-  eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAny",m_propagatorAlong);
-  eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite",m_propagatorOpposite);
+  {
+    ESHandle<Propagator> propHandle;
+    eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAny",propHandle);
+    m_propagatorAlong.reset( propHandle->clone());
+  }
+  {
+    ESHandle<Propagator> propHandle;
+    eventSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite",propHandle);
+    m_propagatorOpposite.reset( propHandle->clone());
+  }
 
   const Vertex primaryVertex = getPrimaryVertex(vertex,beamSpot);
 
@@ -511,14 +519,14 @@ void L1TEfficiencyMuons_Offline::getMuonGmtPairs(edm::Handle<L1MuGMTReadoutColle
   for (; probeMuIt!=probeMuEnd; ++probeMuIt) {
     
     MuonGmtPair pairBestCand((*probeMuIt),0);
-    pairBestCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
+    pairBestCand.propagate(m_BField.product(),m_propagatorAlong.get(),m_propagatorOpposite.get());
     
     gmtIt = gmtContainer.begin();
     
     for(; gmtIt!=gmtEnd; ++gmtIt) {
       
       MuonGmtPair pairTmpCand((*probeMuIt),&(*gmtIt));
-      pairTmpCand.propagate(m_BField,m_propagatorAlong,m_propagatorOpposite);
+      pairTmpCand.propagate(m_BField.product(),m_propagatorAlong.get(),m_propagatorOpposite.get());
 
       if (pairTmpCand.dR() < m_MaxGmtMuonDR && pairTmpCand.gmtPt() > pairBestCand.gmtPt())
 	pairBestCand = pairTmpCand;

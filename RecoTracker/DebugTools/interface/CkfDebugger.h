@@ -58,7 +58,7 @@ class CkfDebugger {
   bool analyseCompatibleMeasurements( const Trajectory&,
 				      const std::vector<TrajectoryMeasurement>&,
 				      const MeasurementTracker*,
-				      const Propagator*,
+				      Propagator*,
 				      const Chi2MeasurementEstimatorBase*,
 				      const TransientTrackingRecHitBuilder*);
 
@@ -100,7 +100,7 @@ class CkfDebugger {
   const MagneticField*             theMagField;
   const GeometricSearchTracker*    theGeomSearchTracker;
   const MeasurementEstimator*  theChi2;
-  const Propagator*                theForwardPropagator;
+  Propagator*                theForwardPropagator;
   TrackerHitAssociator*      hitAssociator;
   const MeasurementTracker*        theMeasurementTracker;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;

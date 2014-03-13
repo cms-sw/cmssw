@@ -205,7 +205,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   const std::vector<BarrelDetLayer*> &blc = theGeometricSearchTracker->tobLayers();
 
   //  TrajectoryStateOnSurface outer = theProxyService->propagator(thePropagatorName)->propagate(cIPFTS,blc.back()->surface());
-  StateOnTrackerBound onBounds(theProxyService->propagator(thePropagatorName).product());
+  StateOnTrackerBound onBounds(theProxyService->propagator(thePropagatorName).get());
   TrajectoryStateOnSurface outer = onBounds(cIPFTS);
 
   if ( !outer.isValid() ) {LogDebug(theCategory) <<"outer state is not valid. no seed."; return;}

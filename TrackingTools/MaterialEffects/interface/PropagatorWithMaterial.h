@@ -42,7 +42,7 @@ public:
   virtual ~PropagatorWithMaterial();
 
   virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos, 
-					      const Plane& plane) const
+					      const Plane& plane) override
   {
     // should be implemented (in case underlying propagator has an independent
     // implementation)
@@ -50,7 +50,7 @@ public:
   }
 
   virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts, 
-					      const Plane& plane) const
+					      const Plane& plane) override
   {
     // should be implemented (in case underlying propagator has an independent
     // implementation)
@@ -58,13 +58,13 @@ public:
   }
 
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-									const Plane& plane) const;
+									const Plane& plane) override;
 
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts, 
-									const Plane& plane) const;
+									const Plane& plane) override;
 
   virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos, 
-					      const Cylinder& cylinder) const
+					      const Cylinder& cylinder) override
   {
     // should be implemented (in case underlying propagator has an independent
     // implementation)
@@ -72,7 +72,7 @@ public:
   }
 
   virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts, 
-					      const Cylinder& cylinder) const
+					      const Cylinder& cylinder) override
   {
     // should be implemented (in case underlying propagator has an independent
     // implementation)
@@ -80,17 +80,17 @@ public:
   }
 
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-									const Cylinder& cylinder) const;
+									const Cylinder& cylinder) override;
 
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts, 
-									const Cylinder& cylinder) const;
+									const Cylinder& cylinder) override;
 
   /// Limit on change in azimuthal angle 
   virtual bool setMaxDirectionChange( float phiMax) { 
     return theGeometricalPropagator->setMaxDirectionChange(phiMax);
   }
   /// Propagation direction
-  virtual void setPropagationDirection (PropagationDirection dir) const;
+  virtual void setPropagationDirection (PropagationDirection dir) override;
 
   enum MaterialLocation {atSource, atDestination, fromDirection};
   /** Choice of location for including material effects:
@@ -113,10 +113,19 @@ public:
     return *theMEUpdator;
   }
 
-  virtual const MagneticField* magneticField() const {return field;}
+  /// Access to the geometrical propagator
+  Propagator& geometricalPropagator() {
+    return *theGeometricalPropagator;
+  }
+  /// Access to the MaterialEffectsUpdator
+  MaterialEffectsUpdator& materialEffectsUpdator() {
+    return *theMEUpdator;
+  }
+
+  virtual const MagneticField* magneticField() const override {return field;}
 
 
-  virtual PropagatorWithMaterial* clone() const
+  virtual PropagatorWithMaterial* clone() const override
     {
       return new PropagatorWithMaterial(*this);
     }

@@ -5,10 +5,14 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace reco { class Track; }
 namespace edm { class EventSetup; }
+class Propagator;
+class TrackingComponentsRecord;
 
 class SeedFromProtoTrack {
 public:
@@ -41,6 +45,8 @@ private:
   bool theValid;
   RecHitContainer theHits;
   PTrajectoryStateOnDet thePTraj;
+  edm::ESWatcher<TrackingComponentsRecord> thePropagatorWatcher;
+  std::unique_ptr<Propagator> thePropagator;
 
 };
 #endif

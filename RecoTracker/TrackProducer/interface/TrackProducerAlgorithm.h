@@ -58,7 +58,7 @@ public:
 			const MagneticField *, 
 			const TrackCandidateCollection&,
 			const TrajectoryFitter *,
-			const Propagator *,
+			Propagator *,
 			const TransientTrackingRecHitBuilder*,
 			const reco::BeamSpot&,
 			AlgoProductCollection &);
@@ -68,7 +68,7 @@ public:
 		    const MagneticField *, 
 		    const TrackCollection&,
 		    const TrajectoryFitter *,
-		    const Propagator *,
+		    Propagator *,
 		    const TransientTrackingRecHitBuilder*,
 		    const reco::BeamSpot&,
 		    AlgoProductCollection &);
@@ -78,7 +78,7 @@ public:
 		       const MagneticField *, 
 		       const TrackMomConstraintAssociationCollection&,
 		       const TrajectoryFitter *,
-		       const Propagator *,
+		       Propagator *,
 		       const TransientTrackingRecHitBuilder*,
 		       const reco::BeamSpot&,
 		       AlgoProductCollection &);
@@ -89,7 +89,7 @@ public:
 		     const MagneticField *, 
 		     const VtxConstraintAssociationCollection&,
 		     const TrajectoryFitter *,
-		     const Propagator *,
+		     Propagator *,
 		     const TransientTrackingRecHitBuilder*,
 		     const reco::BeamSpot&,
 		     AlgoProductCollection &);
@@ -100,14 +100,14 @@ public:
 			      const MagneticField *, 
 			      const TrackParamConstraintAssociationCollection&,
 			      const TrajectoryFitter *,
-			      const Propagator *,
+			      Propagator *,
 			      const TransientTrackingRecHitBuilder*,
 			      const reco::BeamSpot&,
 			      AlgoProductCollection &);
 
   /// Construct Tracks to be put in the event
   bool buildTrack(const TrajectoryFitter *,
-		  const Propagator *,
+		  Propagator *,
 		  AlgoProductCollection& ,
 		  TransientTrackingRecHit::RecHitContainer&,
 		  TrajectoryStateOnSurface& ,
@@ -136,7 +136,7 @@ public:
 
 template <> bool
 TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter *,
-						const Propagator *,
+						Propagator *,
 						AlgoProductCollection& ,
 						TransientTrackingRecHit::RecHitContainer&,
 						TrajectoryStateOnSurface& ,
@@ -150,7 +150,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter *,
 
 template <> bool
 TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter *,
-						   const Propagator *,
+						   Propagator *,
 						   AlgoProductCollection& ,
 						   TransientTrackingRecHit::RecHitContainer&,
 						   TrajectoryStateOnSurface& ,

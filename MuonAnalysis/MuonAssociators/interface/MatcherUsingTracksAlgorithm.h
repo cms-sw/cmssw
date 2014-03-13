@@ -11,6 +11,7 @@
   \version  $Id: MatcherUsingTracksAlgorithm.h,v 1.7 2010/07/12 20:56:10 gpetrucc Exp $
 */
 
+#include <memory>
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -100,7 +101,7 @@ class MatcherUsingTracksAlgorithm {
 
         //- Tools
         edm::ESHandle<MagneticField>          magfield_;
-        edm::ESHandle<Propagator>             propagator_;
+	std::unique_ptr<Propagator>           propagator_;
         edm::ESHandle<GlobalTrackingGeometry> geometry_;
 
         /// Get track reference out of a Candidate (via dynamic_cast to reco::RecoCandidate)

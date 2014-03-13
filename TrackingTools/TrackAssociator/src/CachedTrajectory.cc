@@ -16,7 +16,7 @@
 #include <algorithm>
 
 std::vector<SteppingHelixStateInfo> 
-propagateThoughFromIP(const SteppingHelixStateInfo& state,const Propagator* prop,
+propagateThoughFromIP(const SteppingHelixStateInfo& state,Propagator* prop,
 		      const FiducialVolume& volume,int nsteps,
 		      float step, float minR, float minZ, float maxR, float maxZ) {
    CachedTrajectory neckLace;
@@ -77,7 +77,7 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
 
 void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Plane& plane)
 {
-   if( const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_) )
+   if( SteppingHelixPropagator* shp = dynamic_cast<SteppingHelixPropagator*>(propagator_) )
      {
 	try {
 	   state = shp->propagate(state, plane);
@@ -101,7 +101,7 @@ void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Plane& pla
 
 void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Cylinder& cylinder)
 {
-   if( const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_) )
+   if( SteppingHelixPropagator* shp = dynamic_cast<SteppingHelixPropagator*>(propagator_) )
      {
 	try {
 	   state = shp->propagate(state, cylinder);
@@ -255,7 +255,7 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
      
    // propagate to the plane
    // timers.pop_and_push("CachedTrajectory::propagate::localPropagation",TimerStack::FastMonitoring);
-   if (const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_))
+   if (SteppingHelixPropagator* shp = dynamic_cast<SteppingHelixPropagator*>(propagator_))
      {
 	SteppingHelixStateInfo state;
 	try { 

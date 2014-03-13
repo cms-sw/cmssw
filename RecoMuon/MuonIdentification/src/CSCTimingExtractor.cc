@@ -112,7 +112,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
   
   edm::ESHandle<Propagator> propagator;
   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
-  const Propagator *propag = propagator.product();
+  std::unique_ptr<Propagator> propag{propagator->clone()};
 
   double invbeta=0;
   double invbetaerr=0;

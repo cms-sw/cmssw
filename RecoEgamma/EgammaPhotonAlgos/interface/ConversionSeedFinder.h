@@ -7,6 +7,7 @@
  **
  ***/
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -34,7 +35,7 @@
 // C/C++ headers
 #include <string>
 #include <vector>
-
+#include <memory>
 
 
 
@@ -44,7 +45,7 @@
 class DetLayer;
 class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
-
+class TrackingComponentsRecord;
 
 class ConversionSeedFinder {
 
@@ -117,8 +118,9 @@ class ConversionSeedFinder {
   mutable GlobalPoint theBCPosition_;
   mutable float       theBCEnergy_; 
 
-  const Propagator*  thePropagatorAlongMomentum_;
-  const Propagator*  thePropagatorOppositeToMomentum_;
+  edm::ESWatcher<TrackingComponentsRecord> thePropagatorWatcher_;
+  std::unique_ptr<Propagator>  thePropagatorAlongMomentum_;
+  std::unique_ptr<Propagator>  thePropagatorOppositeToMomentum_;
 
   reco::BeamSpot theBeamSpot_;
   edm::Handle<MeasurementTrackerEvent> theTrackerData_; 

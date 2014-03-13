@@ -55,12 +55,12 @@ public:
 
   virtual void setEvent(const edm::Event&);
 
-  const Propagator* propagator() const {return &*theService->propagator(thePropagatorName);}
+  Propagator* propagator() const {return &*theService->propagator(thePropagatorName);}
 
   //FIXME
-  const Propagator* propagatorAlong() const {return &*theService->propagator("SteppingHelixPropagatorAlong");}
+  Propagator* propagatorAlong() const {return &*theService->propagator("SteppingHelixPropagatorAlong");}
 
-  const Propagator* propagatorOpposite() const {return &*theService->propagator("SteppingHelixPropagatorOpposite");}
+  Propagator* propagatorOpposite() const {return &*theService->propagator("SteppingHelixPropagatorOpposite");}
 
   MuonTrajectoryUpdator* updator() const {return theUpdator;}
 
@@ -109,7 +109,7 @@ private:
   /// check the direction of trajectory by checking the timing 
   void getDirectionByTime(Trajectory&) const;
 
-  std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const Propagator*, const MeasurementEstimator*);
+  std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, Propagator*, const MeasurementEstimator*);
 
   void incrementChamberCounters(const DetLayer* layer, int& dtChambers, int& cscChambers, int& rpcChambers, int& totalChambers);
 

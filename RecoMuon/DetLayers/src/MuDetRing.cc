@@ -48,7 +48,7 @@ MuDetRing::components() const {
 
 
 pair<bool, TrajectoryStateOnSurface>
-MuDetRing::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop, 
+MuDetRing::compatible(const TrajectoryStateOnSurface& ts, Propagator& prop, 
 		      const MeasurementEstimator& est) const {
   
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuDetRing";
@@ -76,7 +76,7 @@ MuDetRing::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop
 
 vector<GeometricSearchDet::DetWithState> 
 MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
-			   const Propagator& prop, 
+			   Propagator& prop, 
 			   const MeasurementEstimator& est) const {
 
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuDetRing";
@@ -171,7 +171,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
 
 vector<DetGroup> 
 MuDetRing::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-				  const Propagator& prop,
+				  Propagator& prop,
 				  const MeasurementEstimator& est) const {
   // FIXME should be implemented to allow returning  overlapping chambers
   // as separate groups!

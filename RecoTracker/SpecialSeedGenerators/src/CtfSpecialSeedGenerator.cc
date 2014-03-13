@@ -86,8 +86,10 @@ void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& i
 	
 	edm::ESHandle<Propagator>  propagatorAlongHandle;
   	iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",propagatorAlongHandle);
+	thePropagatorAlong.reset(propagatorAlongHandle->clone());
 	edm::ESHandle<Propagator>  propagatorOppositeHandle;
         iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite",propagatorOppositeHandle);
+	thePropagatorOpposite.reset(propagatorOppositeHandle->clone());
 
 /*  	edm::ParameterSet hitsfactoryOutInPSet = conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryOutInPSet");
   	std::string hitsfactoryOutInName = hitsfactoryOutInPSet.getParameter<std::string>("ComponentName");
@@ -129,8 +131,8 @@ void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& i
 	theSeedBuilder = new SeedFromGenericPairOrTriplet(theMagfield.product(), 
 							  theTracker.product(), 
 							  theBuilder.product(),
-							  propagatorAlongHandle.product(),
-							  propagatorOppositeHandle.product(),
+							  thePropagatorAlong.get(),
+							  thePropagatorOpposite.get(),
 							  charges,
 							  setMomentum,
 						          conf_.getParameter<double>("ErrorRescaling"));

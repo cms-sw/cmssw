@@ -16,7 +16,7 @@ TBLayer::~TBLayer() {
 
 void 
 TBLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-				 const Propagator& prop,
+				 Propagator& prop,
 				 const MeasurementEstimator& est,
 				 std::vector<DetGroup> & result) const {
   SubLayerCrossings  crossings; 
@@ -84,7 +84,7 @@ SubLayerCrossings TBLayer::computeCrossings( const TrajectoryStateOnSurface& sta
 }
 
 bool TBLayer::addClosest( const TrajectoryStateOnSurface& tsos,
-			  const Propagator& prop,
+			  Propagator& prop,
 			  const MeasurementEstimator& est,
 			  const SubLayerCrossing& crossing,
 			  std::vector<DetGroup>& result) const

@@ -125,7 +125,7 @@ TECLayer::~TECLayer(){
 
 void
 TECLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-					  const Propagator& prop,
+					  Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const {  
   SubLayerCrossings  crossings; 
@@ -223,7 +223,7 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 }
 
 bool TECLayer::addClosest( const TrajectoryStateOnSurface& tsos,
-			   const Propagator& prop,
+			   Propagator& prop,
 			   const MeasurementEstimator& est,
 			   const SubLayerCrossing& crossing,
 			   vector<DetGroup>& result) const
@@ -257,7 +257,7 @@ namespace {
 }
 
 void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-				const Propagator& prop,
+				Propagator& prop,
 				const MeasurementEstimator& est,
 				const SubLayerCrossing& crossing,
 				float window, 

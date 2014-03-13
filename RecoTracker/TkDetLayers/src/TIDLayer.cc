@@ -68,7 +68,7 @@ public:
   
   void
   orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
-		      const Propagator& prop,
+		      Propagator& prop,
 		      std::array<vector<DetGroup>,3> & groups,
 		      std::vector<DetGroup> & result ) {
     
@@ -177,7 +177,7 @@ TIDLayer::~TIDLayer(){
 
 void
 TIDLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
-				 const Propagator& prop,
+				 Propagator& prop,
 				 const MeasurementEstimator& est,
 				 std::vector<DetGroup> & result) const
 {
@@ -237,7 +237,7 @@ TIDLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 
 std::array<int,3> 
 TIDLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
-					 const Propagator& prop ) const
+					 Propagator& prop ) const
 {
   typedef HelixForwardPlaneCrossing Crossing; 
   typedef MeasurementEstimator::Local2DVector Local2DVector;

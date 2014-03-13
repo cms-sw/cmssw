@@ -11,6 +11,8 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
+#include <memory>
+
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
@@ -44,7 +46,7 @@ public:
   edm::ESHandle<MuonDetLayerGeometry> detLayerGeometry() const {return theDetLayerGeometry;}
 
   /// get the propagator
-  edm::ESHandle<Propagator> propagator(std::string propagatorName) const;
+  std::shared_ptr<Propagator> propagator(std::string propagatorName) const;
 
   /// get the whole EventSetup
   const edm::EventSetup &eventSetup() const {return *theEventSetup;}
@@ -59,7 +61,7 @@ public:
  protected:
   
  private:
-  typedef std::map<std::string,  edm::ESHandle<Propagator> > propagators;
+  typedef std::map<std::string,  std::shared_ptr<Propagator> > propagators;
   
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;

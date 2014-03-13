@@ -67,8 +67,12 @@ void TrackTransformerForGlobalCosmicMuons::setServices(const EventSetup& setup){
   if ( newCacheId_TC != theCacheId_TC ){
     LogTrace(metname) << "Tracking Component changed!";
     theCacheId_TC = newCacheId_TC;
-    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRK",thePropagatorIO);
-    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRKOpposite",thePropagatorOI);
+    edm::ESHandle<Propagator> propIO;
+    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRK",propIO);
+    thePropagatorIO.reset(propIO->clone());
+    edm::ESHandle<Propagator> propOI;
+    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRKOpposite",propOI);
+    thePropagatorOI.reset(propOI->clone());
 
   }
 
@@ -186,9 +190,9 @@ ESHandle<TrajectorySmoother> TrackTransformerForGlobalCosmicMuons::smoother(bool
   else return theSmootherIO;
 }
 
-ESHandle<Propagator> TrackTransformerForGlobalCosmicMuons::propagator(bool up) const{
-  if(up) return thePropagatorIO;
-  else return thePropagatorOI;
+Propagator* TrackTransformerForGlobalCosmicMuons::propagator(bool up) const{
+  if(up) return thePropagatorIO.get();
+  else return thePropagatorOI.get();
 }
 
 

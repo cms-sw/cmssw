@@ -247,7 +247,7 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
 }
 
 VolumeCrossReturnType
-NavVolume6Faces::crossToNextVolume( const TrajectoryStateOnSurface& startingState, const Propagator& prop ) const
+NavVolume6Faces::crossToNextVolume( const TrajectoryStateOnSurface& startingState, Propagator& prop ) const
 {
   typedef TrajectoryStateOnSurface TSOS;
   typedef std::pair<TSOS,double> TSOSwithPath;

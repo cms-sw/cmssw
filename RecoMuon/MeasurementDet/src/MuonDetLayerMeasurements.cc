@@ -183,7 +183,7 @@ void MuonDetLayerMeasurements::checkRPCRecHits()
 MeasurementContainer
 MuonDetLayerMeasurements::measurements( const DetLayer* layer,
 					const TrajectoryStateOnSurface& startingState,
-					const Propagator& prop,
+					Propagator& prop,
 					const MeasurementEstimator& est) {
   checkEvent();
   return measurements(layer, startingState, prop, est, *theEvent);
@@ -193,7 +193,7 @@ MuonDetLayerMeasurements::measurements( const DetLayer* layer,
 MeasurementContainer
 MuonDetLayerMeasurements::measurements(const DetLayer* layer,
 				       const TrajectoryStateOnSurface& startingState,
-				       const Propagator& prop,
+				       Propagator& prop,
 				       const MeasurementEstimator& est,
 				       const edm::Event& iEvent) {
   
@@ -252,7 +252,7 @@ MeasurementContainer
 MuonDetLayerMeasurements::fastMeasurements( const DetLayer* layer,
 					    const TrajectoryStateOnSurface& theStateOnDet,
 					    const TrajectoryStateOnSurface& startingState,
-					    const Propagator& prop,
+					    Propagator& prop,
 					    const MeasurementEstimator& est,
 					    const edm::Event& iEvent) {
   MeasurementContainer result;
@@ -278,7 +278,7 @@ MeasurementContainer
 MuonDetLayerMeasurements::fastMeasurements(const DetLayer* layer,
 					   const TrajectoryStateOnSurface& theStateOnDet,
 					   const TrajectoryStateOnSurface& startingState,
-					   const Propagator& prop,
+					   Propagator& prop,
 					   const MeasurementEstimator& est) {
   checkEvent();
   return fastMeasurements(layer, theStateOnDet, startingState, prop, est, *theEvent); 
@@ -288,7 +288,7 @@ MuonDetLayerMeasurements::fastMeasurements(const DetLayer* layer,
 std::vector<TrajectoryMeasurementGroup>
 MuonDetLayerMeasurements::groupedMeasurements(const DetLayer* layer,
 					      const TrajectoryStateOnSurface& startingState,
-					      const Propagator& prop,
+					      Propagator& prop,
 					      const MeasurementEstimator& est) {
   checkEvent();
   return groupedMeasurements(layer, startingState, prop,  est, *theEvent);
@@ -298,7 +298,7 @@ MuonDetLayerMeasurements::groupedMeasurements(const DetLayer* layer,
 std::vector<TrajectoryMeasurementGroup>
 MuonDetLayerMeasurements::groupedMeasurements(const DetLayer* layer,
 					      const TrajectoryStateOnSurface& startingState,
-					      const Propagator& prop,
+					      Propagator& prop,
 					      const MeasurementEstimator& est,
 					      const edm::Event& iEvent) {
   

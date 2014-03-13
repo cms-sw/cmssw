@@ -258,7 +258,7 @@ public:
   bool inSensitiveLocalRegion(double xLocal, double yLocal, int station, int ring);
   bool checkLocal(double yLocal, double yBoundary, int station, int ring);
   void chooseDirection(CLHEP::Hep3Vector & innerPosition, CLHEP::Hep3Vector & outerPosition);
-  const Propagator* propagator(std::string propagatorName) const ;
+  Propagator* propagator(std::string propagatorName) const ;
   TrajectoryStateOnSurface propagate(FreeTrajectoryState & ftsStart, const BoundPlane &bp);
   bool applyTrigger(edm::Handle<edm::TriggerResults> &hltR, const edm::TriggerNames & triggerNames);
   //bool applyTrigger(void);

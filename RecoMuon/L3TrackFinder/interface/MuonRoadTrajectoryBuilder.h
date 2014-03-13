@@ -10,6 +10,7 @@
  */
 
 
+#include <memory>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -164,7 +165,7 @@ class MuonRoadTrajectoryBuilder :public TrajectoryBuilder {
    const MagneticField * theField;
    
    ////propagator handle
-   const Propagator * thePropagator;
+   std::unique_ptr<Propagator> thePropagator;
    
 };
 

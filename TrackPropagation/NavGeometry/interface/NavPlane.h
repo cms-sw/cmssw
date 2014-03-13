@@ -23,24 +23,24 @@ public:
 
     // FIXME: restore covariant return type when gcc version upgraded
     //virtual const Plane& surface() const {return *theSurfaceP;} 
-    virtual const Surface& surface() const {return *theSurfaceP;} 
+    virtual const Surface& surface() const override {return *theSurfaceP;} 
 
     virtual const NavVolume* nextVolume( const NavSurface::LocalPoint& point, 
-					 SurfaceOrientation::Side side) const{
+					 SurfaceOrientation::Side side) const override {
 	return theImpl.nextVolume( point,side);
 
     }
 
     virtual TrajectoryStateOnSurface 
-    propagate( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const;
+    propagate( Propagator& prop, const TrajectoryStateOnSurface& startingState) const override;
 
     virtual NavSurface::TSOSwithPath 
-    propagateWithPath( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const;
+    propagateWithPath( Propagator& prop, const TrajectoryStateOnSurface& startingState) const override;
 
     virtual const Bounds* bounds( const NavVolume* vol) { return theImpl.bounds(vol);}
 
     virtual void addVolume( const NavVolume* vol, const Bounds* bounds, 
-			    SurfaceOrientation::Side side) {
+			    SurfaceOrientation::Side side) override {
 	theImpl.addVolume( vol, bounds, side);
     }
 

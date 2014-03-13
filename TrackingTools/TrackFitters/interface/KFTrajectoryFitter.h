@@ -46,7 +46,7 @@ public:
     }
   
 
-  KFTrajectoryFitter(const Propagator* aPropagator,
+  KFTrajectoryFitter(Propagator* aPropagator,
 		     const TrajectoryStateUpdator* aUpdator,
 		     const MeasurementEstimator* aEstimator,
 		     int minHits = 3,
@@ -77,6 +77,7 @@ public:
 		    const TSOS& firstPredTsos,fitType) const;
 
   const Propagator* propagator() const {return thePropagator;}
+  Propagator* propagator() {return thePropagator;}
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
   
@@ -92,7 +93,7 @@ private:
 		     
 
   static const DetLayerGeometry dummyGeometry;
-  const Propagator* thePropagator;
+  Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
   const DetLayerGeometry* theGeometry;

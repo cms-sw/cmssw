@@ -25,12 +25,12 @@ class TIBLayer GCC11_FINAL : public TBLayer {
 
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
-			const Propagator& prop,
+			Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const __attribute__ ((hot));
+			bool checkClosest) const override __attribute__ ((hot));
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 

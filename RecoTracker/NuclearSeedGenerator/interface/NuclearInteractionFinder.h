@@ -10,6 +10,7 @@
 //! Then it uses the NuclearTester class to decide whether the trajectory has interacted nuclearly or not.
 //! It finally returns a pair of the TM where the nuclear interaction occurs and all compatible TMs associated.
 //-----------------------------------------------------------------------------
+#include <memory>
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -88,7 +89,7 @@ public:
 
 private:
 
-  const Propagator*               thePropagator;
+  std::unique_ptr<Propagator>     thePropagator;
   const MeasurementEstimator*     theEstimator;
   const MeasurementTracker*       theMeasurementTracker;
   const GeometricSearchTracker*   theGeomSearchTracker;

@@ -40,8 +40,11 @@ TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // get stuff from Event Setup
   edm::ESHandle<MagneticField> field_h;
   iSetup.get<IdealMagneticFieldRecord>().get(field_h);
-  edm::ESHandle<Propagator> propagator_h;
-  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", propagator_h);
+  if(propagatorWatcher_.check(iSetup)) {
+    edm::ESHandle<Propagator> propagator_h;
+    iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", propagator_h);
+    propagator_.reset(propagator_h->clone());
+  }
   edm::ESHandle<DetIdAssociator> ecalDetIdAssociator_h;
   iSetup.get<DetIdAssociatorRecord>().get("EcalDetIdAssociator", ecalDetIdAssociator_h);
   FiducialVolume const & ecalvolume = ecalDetIdAssociator_h->volume();
@@ -72,7 +75,7 @@ TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for ( std::vector<reco::TrackRef>::const_iterator trkBegin = goodTracks.begin(),
 	  trkEnd = goodTracks.end(), itrk = trkBegin; 
 	itrk != trkEnd; ++itrk ) {
-    if( propagateTrackToVolume( **itrk, *field_h, *propagator_h, ecalvolume,
+    if( propagateTrackToVolume( **itrk, *field_h, *propagator_, ecalvolume,
 				vresultPos[0], vresultMom[0]) ) {
       extrapolations->push_back( reco::TrackExtrapolation( *itrk, 
 							   vresultPos, 
@@ -86,7 +89,7 @@ TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //
 bool TrackExtrapolator::propagateTrackToVolume( const reco::Track& fTrack,
 						const MagneticField& fField,
-						const Propagator& fPropagator,
+						Propagator& fPropagator,
 						const FiducialVolume& volume,
 						reco::TrackBase::Point & resultPos,
 						reco::TrackBase::Vector & resultMom

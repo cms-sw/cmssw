@@ -59,7 +59,7 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
   void startSeed(const FreeTrajectoryState &) const;
   void completeSeed(const TrajectoryMeasurement & m1,
 			    FreeTrajectoryState & fts, 
-			    const Propagator *, 
+			    Propagator *, 
 			    int layer) const  ;
   void createSeed(const TrajectoryMeasurement & m1,const TrajectoryMeasurement & m2) const;
   FreeTrajectoryState createSeedFTS(const TrajectoryMeasurement & m1, const TrajectoryMeasurement & m2) const;  

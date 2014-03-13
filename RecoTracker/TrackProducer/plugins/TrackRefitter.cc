@@ -59,7 +59,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
-  edm::ESHandle<Propagator> thePropagator;
+  Propagator* thePropagator;
   edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
@@ -80,7 +80,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 
       try {
 	theAlgo.runWithTrack(theG.product(), theMF.product(), *theTCollection, 
-			     theFitter.product(), thePropagator.product(), 
+			     theFitter.product(), thePropagator, 
 			     theBuilder.product(), bs, algoResults);
       }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
       break;
@@ -100,7 +100,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       LogDebug("TrackRefitter") << "run the algorithm" << "\n";
       try {
 	theAlgo.runWithMomentum(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
-				theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
+				theFitter.product(), thePropagator, theBuilder.product(), bs, algoResults);
       }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
       break;
     }
@@ -116,7 +116,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       LogDebug("TrackRefitter") << "run the algorithm" << "\n";
       try {
       theAlgo.runWithVertex(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
-			    theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);      
+			    theFitter.product(), thePropagator, theBuilder.product(), bs, algoResults);      
       }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
     }
   case trackParameters :
@@ -132,7 +132,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       LogDebug("TrackRefitter") << "run the algorithm" << "\n";
       try {
       theAlgo.runWithTrackParameters(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
-				     theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);      
+				     theFitter.product(), thePropagator, theBuilder.product(), bs, algoResults);      
       }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
     }
     //default... there cannot be any other possibility due to the check in the ctor
@@ -140,7 +140,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 
   
   //put everything in th event
-  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, thePropagator, theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
   LogDebug("TrackRefitter") << "end" << "\n";
 }
 

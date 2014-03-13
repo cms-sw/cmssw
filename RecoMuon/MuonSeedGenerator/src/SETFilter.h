@@ -123,7 +123,7 @@ private:
   void incrementChamberCounters(const DetLayer *layer);
  
   /// access at the propagator
-  const Propagator *propagator() const;
+  Propagator *propagator() const;
   
 
   // chi2 functions (calculate chi2)

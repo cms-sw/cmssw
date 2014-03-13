@@ -45,7 +45,7 @@ MuonRoadTrajectoryBuilder::MuonRoadTrajectoryBuilder(const edm::ParameterSet & i
   theMeasurementTracker = mt;
   theMeasurementTrackerEvent = 0; // YES this will crash, Will fix later.
   theField = f;
-  thePropagator = p;
+  thePropagator.reset(p->clone());
 
   theCategory = "Muon|RecoMuon|MuonRoadTrajectoryBuilder";
 
@@ -84,7 +84,7 @@ MuonRoadTrajectoryBuilder::MuonRoadTrajectoryBuilder(const edm::ParameterSet & i
   theOutputAllTraj = iConfig.getParameter<bool>("outputAllTraj");
 
   if (!theSmoother)
-    theSmoother = new KFTrajectorySmoother(thePropagator,theUpdator,theRoadEstimator);
+    theSmoother = new KFTrajectorySmoother(thePropagator.get(),theUpdator,theRoadEstimator);
 }
 
 //destructor

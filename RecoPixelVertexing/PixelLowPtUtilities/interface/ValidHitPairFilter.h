@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 namespace edm { class ParameterSet; class EventSetup; }
 class TrackingRecHit;
@@ -16,6 +17,7 @@ class Propagator;
 class DetLayer;
 class GeomDet;
 class TrackerTopology;
+class TrackingComponentsRecord;
 
 class ValidHitPairFilter : public PixelTrackFilter 
 {
@@ -38,7 +40,8 @@ private:
   const TrackerGeometry * theTracker;
   const GeometricSearchTracker * theGSTracker;
   const MagneticField * theMagneticField;
-  const Propagator*    thePropagator;
+  edm::ESWatcher<TrackingComponentsRecord> watchPropagator;
+  std::unique_ptr<Propagator>    thePropagator;
 
   const std::vector<DetLayer *> detLayers;
   std::vector<float> rzBounds[7];

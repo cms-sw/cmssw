@@ -12,6 +12,7 @@
  *
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
+#include <memory>
 
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerBase.h"
 
@@ -77,10 +78,10 @@ public:
   
  private:
 
-  edm::ESHandle<Propagator> thePropagatorIO;
-  edm::ESHandle<Propagator> thePropagatorOI;
+  std::unique_ptr<Propagator> thePropagatorIO;
+  std::unique_ptr<Propagator> thePropagatorOI;
 
-  edm::ESHandle<Propagator> propagator(bool) const;
+  Propagator* propagator(bool) const;
 
   
   unsigned long long theCacheId_TC;

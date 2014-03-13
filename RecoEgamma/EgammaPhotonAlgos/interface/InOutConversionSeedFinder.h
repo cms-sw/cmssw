@@ -69,7 +69,7 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
 			 float signedpt, unsigned int startingLayer) const ;
   
   std::vector<const reco::CaloCluster*> getSecondCaloClusters(const GlobalPoint & conversionPosition, float charge) const;
-  void completeSeed(const TrajectoryMeasurement & m1,FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) const;
+  void completeSeed(const TrajectoryMeasurement & m1,FreeTrajectoryState & fts, Propagator* propagator, int ilayer) const;
   void createSeed(const TrajectoryMeasurement & m1,  const TrajectoryMeasurement & m2) const ;
 
 

@@ -67,7 +67,7 @@ public:
 			   const TrajectoryFilter*               filter,
 			   const TrajectoryFilter*               inOutFilter = 0);
 
-  BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &other) = default ;
+  BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &other);
   virtual ~BaseCkfTrajectoryBuilder();
 
   // new interface returning the start Trajectory...
@@ -80,8 +80,8 @@ public:
 				    TrajectoryContainer& result) const { assert(0==1);}
 
 
-  virtual void setEvent(const edm::Event& event) const ;
-  virtual void unset() const;
+  virtual void setEvent(const edm::Event& event) const override;
+  virtual void unset() const override;
 
   // Return a clone of this, with the data pointer set
   virtual BaseCkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const = 0;
@@ -98,12 +98,12 @@ public:
   //methods for dubugging 
   virtual bool analyzeMeasurementsDebugger(Trajectory& traj, const std::vector<TrajectoryMeasurement>& meas,
 					   const MeasurementTrackerEvent* theMeasurementTracker, 
-					   const Propagator* theForwardPropagator, 
+					   Propagator* theForwardPropagator, 
 					   const Chi2MeasurementEstimatorBase* theEstimator, 
 					   const TransientTrackingRecHitBuilder * theTTRHBuilder) const {return true;} 
   virtual bool analyzeMeasurementsDebugger(TempTrajectory& traj, const std::vector<TrajectoryMeasurement>& meas,
 					   const MeasurementTrackerEvent* theMeasurementTracker, 
-					   const Propagator* theForwardPropagator, 
+					   Propagator* theForwardPropagator, 
 					   const Chi2MeasurementEstimatorBase* theEstimator, 
 					   const TransientTrackingRecHitBuilder * theTTRHBuilder) const {return true;} 
   virtual void fillSeedHistoDebugger(std::vector<TrajectoryMeasurement>::iterator begin, 
@@ -136,15 +136,15 @@ public:
 
  protected:
   const TrajectoryStateUpdator*         theUpdator;
-  const Propagator*                     thePropagatorAlong;
-  const Propagator*                     thePropagatorOpposite;
+  std::unique_ptr<Propagator>           thePropagatorAlong;
+  std::unique_ptr<Propagator>           thePropagatorOpposite;
   const Chi2MeasurementEstimatorBase*   theEstimator;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const MeasurementTrackerEvent*        theMeasurementTracker;
 
   // these may change from seed to seed
-  mutable const Propagator*             theForwardPropagator;
-  mutable const Propagator*             theBackwardPropagator;
+  mutable Propagator*                   theForwardPropagator;
+  mutable Propagator*                   theBackwardPropagator;
 
  private:
   //  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/

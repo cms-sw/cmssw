@@ -149,6 +149,15 @@ namespace cms{
     es.get<CkfComponentsRecord>().get(theTrajectoryBuilderName,theTrajectoryBuilderHandle);
     theTrajectoryBuilder = dynamic_cast<const BaseCkfTrajectoryBuilder*>(theTrajectoryBuilderHandle.product());    
     assert(theTrajectoryBuilder);
+
+    // propagator
+    if(thePropagatorWatcher.check(es)) {
+      edm::ESHandle<Propagator> propHandle;
+      es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",
+					     propHandle);
+      thePropagator.reset(propHandle->clone());
+    }
+
   }
 
   // Functions that gets called by framework every event
@@ -160,11 +169,6 @@ namespace cms{
     // set the correct navigation
     NavigationSetter setter( *theNavigationSchool);
     
-    // propagator
-    edm::ESHandle<Propagator> thePropagator;
-    es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",
-					   thePropagator);
-
     // method for Debugging
     printHitsDebugger(e);
 

@@ -7,7 +7,7 @@ GeometricSearchDet::~GeometricSearchDet(){}
 
 void
 GeometricSearchDet::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
-				     const Propagator& prop, 
+				     Propagator& prop, 
 				     const MeasurementEstimator& est,
 				     std::vector<DetWithState>& result) const {
   
@@ -28,7 +28,7 @@ GeometricSearchDet::compatibleDetsV( const TrajectoryStateOnSurface& startingSta
 
 void
 GeometricSearchDet::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
-					    const Propagator&,
+					    Propagator&,
 					    const MeasurementEstimator&,
 					    std::vector<DetGroup> &) const {
    edm::LogError("DetLayers") << "At the moment not a real implementation" ;
@@ -37,7 +37,7 @@ GeometricSearchDet::groupedCompatibleDetsV( const TrajectoryStateOnSurface& star
 
 std::vector<GeometricSearchDet::DetWithState> 
 GeometricSearchDet::compatibleDets( const TrajectoryStateOnSurface& startingState,
-				    const Propagator& prop, 
+				    Propagator& prop, 
 				    const MeasurementEstimator& est) const {
   std::vector<DetWithState> result;
   compatibleDetsV( startingState, prop, est,result);
@@ -46,7 +46,7 @@ GeometricSearchDet::compatibleDets( const TrajectoryStateOnSurface& startingStat
 
 std::vector<DetGroup> 
 GeometricSearchDet::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-					   const Propagator& prop,
+					   Propagator& prop,
 					   const MeasurementEstimator& est) const {
   std::vector<DetGroup> result;
   groupedCompatibleDetsV(startingState, prop, est,result);

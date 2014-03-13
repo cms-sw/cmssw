@@ -65,7 +65,12 @@ ResidualRefitting::ResidualRefitting( const edm::ParameterSet & cfg ) :
   outputFile_(0),
   outputTree_(0),
   outputBranch_(0),
-  theField(0)
+  theField(0),
+  thePropagatorWatcher([this](TrackingComponentsRecord const& iRecord) {
+      edm::ESHandle<Propagator> propHandle;
+      iRecord.get( PropagatorSource_, propHandle );
+      thePropagator.reset( propHandle->clone());
+    })
 {
         eventInfo_.evtNum_ = 0;
         eventInfo_.evtNum_ = 0;
@@ -146,7 +151,7 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
 	edm::ESHandle<GlobalTrackingGeometry> globalTrackingGeometry;
 	eventSetup.get<IdealMagneticFieldRecord>().get(field);
 	eventSetup.get<GlobalTrackingGeometryRecord>().get(globalTrackingGeometry);
-	eventSetup.get<TrackingComponentsRecord>().get( PropagatorSource_, thePropagator );
+	thePropagatorWatcher.check(eventSetup);
 	theField = &*field;
 	
 	

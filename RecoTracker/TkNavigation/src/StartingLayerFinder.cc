@@ -30,7 +30,7 @@ StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) const {
 
   //barrel pixel
   TSOS pTsos = 
-    propagator()->propagate(fastFts, firstPixelBarrelLayer()->surface());
+    const_cast<StartingLayerFinder*>(this)->propagator()->propagate(fastFts, firstPixelBarrelLayer()->surface());
   
   if(pTsos.isValid()) {
 
@@ -53,7 +53,7 @@ StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) const {
   const vector<ForwardDetLayer*> nfwd = firstPosPixelFwdLayer();
   for(vector<ForwardDetLayer*>::const_iterator infwd = nfwd.begin();
       infwd != nfwd.end(); infwd++) {
-    pTsos = propagator()->propagate(fastFts, (*infwd)->surface());  
+    pTsos = const_cast<StartingLayerFinder*>(this)->propagator()->propagate(fastFts, (*infwd)->surface());  
     if(pTsos.isValid()) {
       Range nfwdRRange((*infwd)->specificSurface().innerRadius(),
 		       (*infwd)->specificSurface().outerRadius());
@@ -70,7 +70,7 @@ StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) const {
   const vector<ForwardDetLayer*> pfwd = firstPosPixelFwdLayer();
   for(vector<ForwardDetLayer*>::const_iterator ipfwd = pfwd.begin();
       ipfwd != pfwd.end(); ipfwd++) {
-    pTsos = propagator()->propagate(fastFts, (*ipfwd)->surface());
+    pTsos = const_cast<StartingLayerFinder*>(this)->propagator()->propagate(fastFts, (*ipfwd)->surface());
     if(pTsos.isValid()) {
       Range pfwdRRange((*ipfwd)->specificSurface().innerRadius(),
 		       (*ipfwd)->specificSurface().outerRadius());

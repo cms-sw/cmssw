@@ -28,21 +28,21 @@ class MuDetRing : public ForwardDetRingOneZ {
 
   // GeometricSearchDet interface
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const override;
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator& prop, 
-	      const MeasurementEstimator& est) const;
+  compatible( const TrajectoryStateOnSurface& ts, Propagator& prop, 
+	      const MeasurementEstimator& est) const override;
 
   virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
+		  Propagator& prop, 
+		  const MeasurementEstimator& est) const override;
 
   virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
+			 Propagator& prop,
+			 const MeasurementEstimator& est) const override;
 
 
  private:

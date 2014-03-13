@@ -19,19 +19,19 @@ class CompositeTECWedge GCC11_FINAL : public TECWedge{
   ~CompositeTECWedge()  __attribute__ ((cold));
   
   // GeometricSearchDet interface
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
+  virtual const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const __attribute__ ((cold));
+  compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
+	      const MeasurementEstimator&) const override __attribute__ ((cold));
 
   virtual void
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
+			 Propagator& prop,
 			 const MeasurementEstimator& est,
-			 std::vector<DetGroup> & result) const __attribute__ ((hot));
+			 std::vector<DetGroup> & result) const override __attribute__ ((hot));
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
@@ -39,13 +39,13 @@ class CompositeTECWedge GCC11_FINAL : public TECWedge{
 				      PropagationDirection propDir) const __attribute__ ((hot));
 
   bool addClosest( const TrajectoryStateOnSurface& tsos,
-		   const Propagator& prop,
+		   Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
 		   std::vector<DetGroup>& result) const __attribute__ ((hot));
   
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
-			const Propagator& prop,
+			Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 

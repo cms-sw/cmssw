@@ -19,7 +19,7 @@ using namespace std;
 TrajectoryAtInvalidHit::TrajectoryAtInvalidHit( const TrajectoryMeasurement& tm, 
 					    const TrackerTopology* tTopo,
 					    const TrackerGeometry* tracker,
-					    const Propagator& propagator,
+					    Propagator& propagator,
 					    const unsigned int mono)
 {
   if ( tm.backwardPredictedState().isValid() ) 

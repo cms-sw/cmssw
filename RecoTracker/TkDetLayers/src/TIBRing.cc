@@ -122,7 +122,7 @@ TIBRing::~TIBRing(){
 
   
 pair<bool, TrajectoryStateOnSurface>
-TIBRing::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
+TIBRing::compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
 		  const MeasurementEstimator&) const{
   edm::LogError("TkDetLayers") << "temporary dummy implementation of TIBRing::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
@@ -131,7 +131,7 @@ TIBRing::compatible( const TrajectoryStateOnSurface& ts, const Propagator&,
 
 void
 TIBRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-				const Propagator& prop,
+				 Propagator& prop,
 				 const MeasurementEstimator& est,
 				 vector<DetGroup> & result) const
 {
@@ -184,7 +184,7 @@ TIBRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 }
 
 void TIBRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
+			       Propagator& prop,
 			       const MeasurementEstimator& est,
 			       const SubRingCrossings& crossings,
 			       float window, 

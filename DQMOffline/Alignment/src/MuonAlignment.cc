@@ -227,11 +227,13 @@ void MuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
     iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
-  	edm::ESHandle<Propagator> thePropagatorOpp;
-  	iSetup.get<TrackingComponentsRecord>().get( "SmartPropagatorOpposite", thePropagatorOpp );
-  
-  	edm::ESHandle<Propagator> thePropagatorAlo;
- 	iSetup.get<TrackingComponentsRecord>().get( "SmartPropagator", thePropagatorAlo );
+  	edm::ESHandle<Propagator> propOppHandle;
+  	iSetup.get<TrackingComponentsRecord>().get( "SmartPropagatorOpposite", propOppHandle );
+	std::unique_ptr<Propagator> thePropagatorOpp{ propOppHandle->clone() };
+
+  	edm::ESHandle<Propagator> propAloHandle;
+ 	iSetup.get<TrackingComponentsRecord>().get( "SmartPropagator", propAloHandle );
+	std::unique_ptr<Propagator> thePropagatorAlo{propAloHandle->clone() };
 
 //	edm::ESHandle<Propagator> thePropagator;
 //  	iSetup.get<TrackingComponentsRecord>().get( "SmartPropagatorAnyOpposite", thePropagator );
@@ -281,21 +283,21 @@ void MuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      
             TrajectoryStateOnSurface innerTSOS=tTrackSA.outermostMeasurementState();
 //      PropagationDirection propagationDir=alongMomentum;
-            const Propagator * thePropagator;
+            Propagator * thePropagator;
       
             // Define which kind of reco track is used
             if ( (outerPerpSA-innerPerpSA) > 0 ) {
 
                 trackRefitterType = "LHCLike";
                 innerTSOS = tTrackSA.innermostMeasurementState();
-                thePropagator = thePropagatorAlo.product();
+                thePropagator = thePropagatorAlo.get();
 //	propagationDir = alongMomentum;
 	  
             }else {//if ((outerPerpSA-innerPerpSA) < 0 ) {
 	
                 trackRefitterType = "CosmicLike";
                 innerTSOS = tTrackSA.outermostMeasurementState();
-                thePropagator = thePropagatorOpp.product(); 
+                thePropagator = thePropagatorOpp.get();
 //	propagationDir = oppositeToMomentum;
       
             }	

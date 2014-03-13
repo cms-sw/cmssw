@@ -44,7 +44,7 @@ class CosmicMuonUtilities {
 
     TrajectoryStateOnSurface stepPropagate(const TrajectoryStateOnSurface&,
                                            const ConstRecHitPointer&,
-                                           const Propagator&) const;
+                                           Propagator&) const;
 
   private:
   

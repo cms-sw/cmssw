@@ -344,8 +344,8 @@ if(theNavigationType == "Standard"){
  return detLayers;
 }
 
-inline ESHandle<Propagator> DTChamberEfficiency::propagator() const {
-  return theService->propagator("SteppingHelixPropagatorAny");
+inline Propagator* DTChamberEfficiency::propagator() const {
+  return theService->propagator("SteppingHelixPropagatorAny").get();
 }
 
 // Local Variables:

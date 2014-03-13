@@ -343,10 +343,10 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 	  //  std::cout << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorOppositeToMomentum_->propagationDirection() ) << "\n";        
 
        
-	  completeSeed(m1, newfts, thePropagatorOppositeToMomentum_, ilayer-1);
+	  completeSeed(m1, newfts, thePropagatorOppositeToMomentum_.get(), ilayer-1);
 	  // skip a layer, if you haven't already skipped the first layer
 	  if(ilayer == myLayers.size()-1) {
-	    completeSeed(m1, newfts, thePropagatorOppositeToMomentum_, ilayer-2);
+	    completeSeed(m1, newfts, thePropagatorOppositeToMomentum_.get(), ilayer-2);
 	  }
 	}
       }
@@ -401,7 +401,7 @@ MeasurementEstimator * OutInConversionSeedFinder::makeEstimator(const DetLayer *
 
 void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1, 
 					     FreeTrajectoryState & fts, 
-					     const Propagator* propagator, int ilayer) const {
+					     Propagator* propagator, int ilayer) const {
 
   //std::cout <<  "OutInConversionSeedFinder::completeSeed ilayer " << ilayer << "\n";
 

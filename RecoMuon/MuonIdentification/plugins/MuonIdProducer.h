@@ -23,6 +23,7 @@
 //
 //
 
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -31,6 +32,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -63,6 +65,8 @@
 
 class MuonMesh;
 class MuonKinkFinder;
+class TrackingComponentsRecord;
+class Propagator;
 
 class MuonIdProducer : public edm::EDProducer {
  public:
@@ -184,12 +188,14 @@ class MuonIdProducer : public edm::EDProducer {
    edm::InputTag globalTrackQualityInputTag_;
 
    bool fillTrackerKink_;
-   std::auto_ptr<MuonKinkFinder> trackerKinkFinder_;
+   std::unique_ptr<MuonKinkFinder> trackerKinkFinder_;
 
    double caloCut_;
    
    bool arbClean_;
    MuonMesh* meshAlgo_;
 
+   edm::ESWatcher<TrackingComponentsRecord> propagatorWatcher_;
+   std::unique_ptr<Propagator> propagator_;
 };
 #endif
