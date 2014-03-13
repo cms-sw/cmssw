@@ -91,7 +91,6 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     }
     InputTag tagL1ExtraMuTmp( tagL1ExtraMu_.label(), tagL1ExtraMu_.instance() );
     l1ExtraMuGetter_ = edm::GetterOfProducts< l1extra::L1MuonParticleCollection >( edm::InputTagMatch( tagL1ExtraMuTmp.encode() ), this);
-    callWhenNewProductsRegistered( l1ExtraMuGetter_ );
   }
   if ( iConfig.exists( "l1ExtraNoIsoEG" ) ) {
     tagL1ExtraNoIsoEG_ = iConfig.getParameter< InputTag >( "l1ExtraNoIsoEG" );
@@ -101,7 +100,6 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     }
     InputTag tagL1ExtraNoIsoEGTmp( tagL1ExtraNoIsoEG_.label(), tagL1ExtraNoIsoEG_.instance() );
     l1ExtraNoIsoEGGetter_ = edm::GetterOfProducts< l1extra::L1EmParticleCollection >( edm::InputTagMatch( tagL1ExtraNoIsoEGTmp.encode() ), this);
-    callWhenNewProductsRegistered( l1ExtraNoIsoEGGetter_ );
   }
   if ( iConfig.exists( "l1ExtraIsoEG" ) ) {
     tagL1ExtraIsoEG_ = iConfig.getParameter< InputTag >( "l1ExtraIsoEG" );
@@ -111,7 +109,6 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     }
     InputTag tagL1ExtraIsoEGTmp( tagL1ExtraIsoEG_.label(), tagL1ExtraIsoEG_.instance() );
     l1ExtraIsoEGGetter_ = edm::GetterOfProducts< l1extra::L1EmParticleCollection >( edm::InputTagMatch( tagL1ExtraIsoEGTmp.encode() ), this);
-    callWhenNewProductsRegistered( l1ExtraIsoEGGetter_ );
   }
   if ( iConfig.exists( "l1ExtraCenJet" ) ) {
     tagL1ExtraCenJet_ = iConfig.getParameter< InputTag >( "l1ExtraCenJet" );
@@ -121,7 +118,6 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     }
     InputTag tagL1ExtraCenJetTmp( tagL1ExtraCenJet_.label(), tagL1ExtraCenJet_.instance() );
     l1ExtraCenJetGetter_ = edm::GetterOfProducts< l1extra::L1JetParticleCollection >( edm::InputTagMatch( tagL1ExtraCenJetTmp.encode() ), this);
-    callWhenNewProductsRegistered( l1ExtraCenJetGetter_ );
   }
   if ( iConfig.exists( "l1ExtraForJet" ) ) {
     tagL1ExtraForJet_ = iConfig.getParameter< InputTag >( "l1ExtraForJet" );
@@ -131,7 +127,6 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     }
     InputTag tagL1ExtraForJetTmp( tagL1ExtraForJet_.label(), tagL1ExtraForJet_.instance() );
     l1ExtraForJetGetter_ = edm::GetterOfProducts< l1extra::L1JetParticleCollection >( edm::InputTagMatch( tagL1ExtraForJetTmp.encode() ), this);
-    callWhenNewProductsRegistered( l1ExtraForJetGetter_ );
   }
   if ( iConfig.exists( "l1ExtraTauJet" ) ) {
     tagL1ExtraTauJet_ = iConfig.getParameter< InputTag >( "l1ExtraTauJet" );
@@ -141,7 +136,6 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     }
     InputTag tagL1ExtraTauJetTmp( tagL1ExtraTauJet_.label(), tagL1ExtraTauJet_.instance() );
     l1ExtraTauJetGetter_ = edm::GetterOfProducts< l1extra::L1JetParticleCollection >( edm::InputTagMatch( tagL1ExtraTauJetTmp.encode() ), this);
-    callWhenNewProductsRegistered( l1ExtraTauJetGetter_ );
   }
   if ( iConfig.exists( "l1ExtraETM" ) ) {
     tagL1ExtraETM_ = iConfig.getParameter< InputTag >( "l1ExtraETM" );
@@ -151,7 +145,6 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     }
     InputTag tagL1ExtraETMTmp( tagL1ExtraETM_.label(), tagL1ExtraETM_.instance() );
     l1ExtraETMGetter_ = edm::GetterOfProducts< l1extra::L1EtMissParticleCollection >( edm::InputTagMatch( tagL1ExtraETMTmp.encode() ), this);
-    callWhenNewProductsRegistered( l1ExtraETMGetter_ );
   }
   if ( iConfig.exists( "l1ExtraHTM" ) ) {
     tagL1ExtraHTM_ = iConfig.getParameter< InputTag >( "l1ExtraHTM" );
@@ -161,7 +154,6 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     }
     InputTag tagL1ExtraHTMTmp( tagL1ExtraHTM_.label(), tagL1ExtraHTM_.instance() );
     l1ExtraHTMGetter_ = edm::GetterOfProducts< l1extra::L1EtMissParticleCollection >( edm::InputTagMatch( tagL1ExtraHTMTmp.encode() ), this);
-    callWhenNewProductsRegistered( l1ExtraHTMGetter_ );
   }
   if ( iConfig.exists( "mainBxOnly" ) ) mainBxOnly_ = iConfig.getParameter< bool >( "mainBxOnly" );
   if ( iConfig.exists( "saveL1Refs" ) ) saveL1Refs_ = iConfig.getParameter< bool >( "saveL1Refs" );
@@ -170,27 +162,40 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   if ( iConfig.exists( "triggerResults" ) ) tagTriggerResults_ = iConfig.getParameter< InputTag >( "triggerResults" );
   InputTag tagTriggerResultsTmp( tagTriggerResults_.label(), tagTriggerResults_.instance() );
   triggerResultsGetter_ = edm::GetterOfProducts< edm::TriggerResults >( edm::InputTagMatch( tagTriggerResultsTmp.encode() ), this);
-  callWhenNewProductsRegistered( triggerResultsGetter_ );
   if ( iConfig.exists( "triggerEvent" ) ) tagTriggerEvent_ = iConfig.getParameter< InputTag >( "triggerEvent" );
   InputTag tagTriggerEventTmp( tagTriggerEvent_.label(), tagTriggerEvent_.instance() );
   triggerEventGetter_ = edm::GetterOfProducts< trigger::TriggerEvent >( edm::InputTagMatch( tagTriggerEventTmp.encode() ), this);
-  callWhenNewProductsRegistered( triggerResultsGetter_ );
   if ( iConfig.exists( "hltPrescaleLabel" ) )    hltPrescaleLabel_      = iConfig.getParameter< std::string >( "hltPrescaleLabel" );
   if ( iConfig.exists( "hltPrescaleTable" ) ) {
     labelHltPrescaleTable_ = iConfig.getParameter< std::string >( "hltPrescaleTable" );
     InputTag tagHltPrescaleTableRunTmp( labelHltPrescaleTable_, "Run" );
     hltPrescaleTableRunGetter_ = edm::GetterOfProducts< trigger::HLTPrescaleTable >( edm::InputTagMatch( tagHltPrescaleTableRunTmp.encode() ), this, InRun );
-    callWhenNewProductsRegistered( hltPrescaleTableRunGetter_ );
     InputTag tagHltPrescaleTableLumiTmp( labelHltPrescaleTable_, "Lumi" );
     hltPrescaleTableLumiGetter_ = edm::GetterOfProducts< trigger::HLTPrescaleTable >( edm::InputTagMatch( tagHltPrescaleTableLumiTmp.encode() ), this, InLumi );
-    callWhenNewProductsRegistered( hltPrescaleTableLumiGetter_ );
     InputTag tagHltPrescaleTableEventTmp( labelHltPrescaleTable_, "Event" );
     hltPrescaleTableEventGetter_ = edm::GetterOfProducts< trigger::HLTPrescaleTable >( edm::InputTagMatch( tagHltPrescaleTableEventTmp.encode() ), this );
-    callWhenNewProductsRegistered( hltPrescaleTableEventGetter_ );
   }
-  if ( iConfig.exists( "addPathModuleLabels" ) ) addPathModuleLabels_   = iConfig.getParameter< bool >( "addPathModuleLabels" );
+  if ( iConfig.exists( "addPathModuleLabels" ) ) addPathModuleLabels_ = iConfig.getParameter< bool >( "addPathModuleLabels" );
   exludeCollections_.clear();
-  if ( iConfig.exists( "exludeCollections" )  ) exludeCollections_      = iConfig.getParameter< std::vector< std::string > >( "exludeCollections" );
+  if ( iConfig.exists( "exludeCollections" )  ) exludeCollections_ = iConfig.getParameter< std::vector< std::string > >( "exludeCollections" );
+
+  callWhenNewProductsRegistered( [ this, &iConfig ]( edm::BranchDescription const& bd ) {
+    if ( iConfig.exists( "l1ExtraMu" ) ) l1ExtraMuGetter_( bd );
+    if ( iConfig.exists( "l1ExtraNoIsoEG" ) ) l1ExtraNoIsoEGGetter_( bd );
+    if ( iConfig.exists( "l1ExtraIsoEG" ) ) l1ExtraIsoEGGetter_( bd );
+    if ( iConfig.exists( "l1ExtraCenJet" ) ) l1ExtraCenJetGetter_( bd );
+    if ( iConfig.exists( "l1ExtraForJet" ) ) l1ExtraForJetGetter_( bd );
+    if ( iConfig.exists( "l1ExtraTauJet" ) ) l1ExtraTauJetGetter_( bd );
+    if ( iConfig.exists( "l1ExtraETM" ) ) l1ExtraETMGetter_( bd );
+    if ( iConfig.exists( "l1ExtraHTM" ) ) l1ExtraHTMGetter_( bd );
+    triggerResultsGetter_( bd );
+    triggerEventGetter_( bd );
+    if ( iConfig.exists( "hltPrescaleTable" ) ) {
+      hltPrescaleTableRunGetter_( bd );
+      hltPrescaleTableLumiGetter_( bd );
+      hltPrescaleTableEventGetter_( bd );
+    }
+  } );
 
   if ( ! onlyStandAlone_ ) {
     produces< TriggerAlgorithmCollection >();
