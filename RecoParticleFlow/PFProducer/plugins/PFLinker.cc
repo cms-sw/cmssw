@@ -21,8 +21,8 @@ PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
 
   
   muonTag_ = iConfig.getParameter<edm::InputTag>("Muons");
-  inputTagMuons_=consumes<reco::MuonCollection>(muonTag_.label());
-  inputTagMuonMap_=consumes<reco::MuonToMuonMap>(muonTag_.label());
+  inputTagMuons_=consumes<reco::MuonCollection>(muonTag_);
+  inputTagMuonMap_=consumes<reco::MuonToMuonMap>(muonTag_);
   
   nameOutputPF_ 
     = iConfig.getParameter<std::string>("OutputPF");
