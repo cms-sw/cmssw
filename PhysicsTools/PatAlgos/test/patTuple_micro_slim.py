@@ -15,17 +15,7 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 #process.source.fileNames = {'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU25ns_POSTLS170_V3-v2/00000/5A98DF7C-C998-E311-8FF8-003048FEADBC.root'}
-process.source.fileNames = {
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/265B9219-FF98-E311-BF4A-02163E00EA95.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/36598DF8-D098-E311-972E-02163E00E744.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/542AC938-CA98-E311-8928-02163E00E5F5.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/6A95EE20-CD98-E311-8FAE-02163E00A1F2.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/822E181D-D898-E311-8A29-02163E00E928.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/E00EF5A1-CE98-E311-B221-02163E00E8AE.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/F60ED2AC-CB98-E311-ACBA-02163E00E62F.root'
-}
-
-##'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/36598DF8-D098-E311-972E-02163E00E744.root'}
+process.source.fileNames = {'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/36598DF8-D098-E311-972E-02163E00E744.root'}
 #                                         ##
 process.maxEvents.input = -1
 
@@ -75,6 +65,26 @@ process.selectedPatMuons.cut = cms.string("pt > 3")
 process.selectedPatElectrons.cut = cms.string("pt > 5") 
 process.selectedPatTaus.cut = cms.string("pt > 20")
 
+
+
+process.slimmedJets = cms.EDProducer("PATJetSlimmer",
+   clearJetVars = cms.bool(True),
+   clearDaughters = cms.bool(True),
+   clearTrackRefs = cms.bool(True),
+   dropSpecific = cms.bool(False),
+   src = cms.InputTag("selectedPatJets"),
+
+)
+process.slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
+   clearElectronVars = cms.bool(True),
+   clearDaughters = cms.bool(True),
+   clearTrackRefs = cms.bool(True),
+   dropSpecific = cms.bool(False),
+   src = cms.InputTag("selectedPatElectrons"),
+
+)
+
+
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
 switchOnTriggerStandAlone( process )
 process.patTrigger.packTriggerPathNames = cms.bool(True)
@@ -89,7 +99,7 @@ process.selectedPatTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
 
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
-process.out.fileName = 'patTuple_micro.root'
+process.out.fileName = 'patTuple_micro_slim.root'
 process.out.outputCommands = [
     'drop *',
     'keep *_selectedPatPhotons*_*_*',
@@ -120,7 +130,11 @@ process.out.outputCommands = [
     'keep PileupSummaryInfos_*_*_*',
     'keep GenRunInfoProduct_*_*_*',
     'keep GenFilterInfo_*_*_*',
-
+    'keep *_slimmedJets_*_*',
+    'keep *_slimmedElectrons_*_*',
+    'drop *_selectedPatJets_*_*',
+    'drop *_selectedPatElectrons_*_*',
 ]
+
 process.out.dropMetaData = cms.untracked.string('ALL')
 
