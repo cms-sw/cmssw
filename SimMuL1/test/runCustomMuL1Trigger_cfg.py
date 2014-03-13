@@ -88,6 +88,7 @@ process = customise_csc_L1Stubs(process)
 ## GEM-CSC emulator
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise_L1Emulator
 process = customise_L1Emulator(process, ptdphi)
+
 ## upgrade CSC TrackFinder
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1TrackFinder
 process = customise_csc_L1TrackFinder(process)
