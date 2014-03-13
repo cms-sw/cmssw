@@ -861,11 +861,15 @@ class ConfigBuilder(object):
             self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
 
+	if "DIGIPREMIX" in self.stepMap.keys():
+            self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_PreMix_cff"
+
         self.ALCADefaultSeq=None
 	self.LHEDefaultSeq='externalLHEProducer'
         self.GENDefaultSeq='pgen'
         self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
+	self.DIGIPREMIXDefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -1356,6 +1360,17 @@ class ConfigBuilder(object):
 
         if sequence == 'pdigi_valid':
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
+
+	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
+        return
+
+    def prepare_DIGIPREMIX(self, sequence = None):
+        """ Enrich the schedule with the digitisation step"""
+        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+
+	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
+	self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
+
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
