@@ -37,6 +37,8 @@ class ChamberSegmentUtility {
 
   ChamberSegmentUtility(const edm::Event&, const edm::EventSetup&, edm::ConsumesCollector&);
 
+  void initCSU(const edm::Handle<DTRecSegment4DCollection>&, const edm::Handle<CSCSegmentCollection>&);
+
   // Get the 4D segments in a CSC chamber
   std::vector<CSCSegment> getCSCSegmentsInChamber(CSCDetId);
 
@@ -63,8 +65,8 @@ class ChamberSegmentUtility {
   edm::ESHandle<DTGeometry> dtGeom;
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
 
-  edm::EDGetTokenT<CSCSegmentCollection> CSCSegmentsToken;
-  edm::EDGetTokenT<DTRecSegment4DCollection> all4DSegmentsToken;
+  //  edm::EDGetTokenT<CSCSegmentCollection> CSCSegmentsToken;
+  //  edm::EDGetTokenT<DTRecSegment4DCollection> all4DSegmentsToken;
 
   std::vector<DTRecSegment4D> dtseg;
   std::vector<CSCSegment> cscseg;
