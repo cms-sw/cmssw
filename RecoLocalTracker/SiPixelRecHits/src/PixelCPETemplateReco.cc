@@ -46,7 +46,7 @@ const int cluster_matrix_size_y = 21;
 PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
 					   const MagneticField * mag, const SiPixelLorentzAngle * lorentzAngle, 
 					   const SiPixelTemplateDBObject * templateDBobject) 
-  : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject)
+  : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject, 0)
 {
   //cout << endl;
   //cout << "Constructing PixelCPETemplateReco::PixelCPETemplateReco(...)................................................." << endl;
@@ -57,7 +57,11 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   //-- Use Magnetic field at (0,0,0) to select a template ID [Morris, 6/25/08] (temporary until we implement DB access)
   
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
+  //DoLorentz_ = conf.getParameter<bool>("DoLorentz"); // True when LA from alignment is used
+  DoLorentz_ = conf.existsAs<bool>("DoLorentz")?conf.getParameter<bool>("DoLorentz"):false;
+
   LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB");
+
   //cout << " PixelCPETemplateReco : (int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
   //cout << "field_magnitude = " << field_magnitude << endl;
   
@@ -119,6 +123,11 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
   else                                              
     fpix = true;     // yes, it's forward
   
+ // Compute the Lorentz shifts for this detector element for the Alignment Group 
+ if ( DoLorentz_ ) computeLorentzShifts();
+
+
+
   int ID = -9999;
 
   if ( LoadTemplatesFromDB_ )
@@ -444,6 +453,23 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
       // go back to the module coordinate system 
       templXrec_ += lp.x();
       templYrec_ += lp.y();
+
+      // Compute the Alignment Group Corrections [template ID should already be selected from call to reco procedure]
+      if ( DoLorentz_ ) {
+	  // Donly if the lotentzshift has meaningfull numbers
+	if( lorentzShiftInCmX_!= 0.0 ||  lorentzShiftInCmY_!= 0.0 ) {   
+	  // the LA width/shift returned by templates use (+)
+	  // the LA width/shift produced by PixelCPEBase for positive LA is (-)
+	  // correct this by iserting (-)
+	  float templateLorwidthCmX = -micronsToCm*templ_.lorxwidth();
+	  float templateLorwidthCmY = -micronsToCm*templ_.lorywidth();
+	  // now, correctly, we can use the difference of shifts  
+	  templXrec_ += 0.5*(lorentzShiftInCmX_ - templateLorwidthCmX);
+	  templYrec_ += 0.5*(lorentzShiftInCmY_ - templateLorwidthCmY);
+	  //cout << "Templates: la lorentz offset = " <<(0.5*(lorentzShiftInCmX_-templateLorwidthCmX))<< endl; //dk
+	} //else {cout<<" LA is 0, disable offset corrections "<<endl;} //dk
+      } //else {cout<<" Do not do LA offset correction "<<endl;} //dk
+
     }
     
   // Save probabilities and qBin in the quantities given to us by the base class

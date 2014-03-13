@@ -32,7 +32,7 @@ process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
 process.hltPhysicsDeclared.L1GtReadoutRecordTag = 'gtDigis'
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -50,11 +50,18 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(    
 # fill 3273 run 206940
-  "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/206/940/FA55823C-312C-E211-94AB-001D09F29533.root",
+#  "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/206/940/FA55823C-312C-E211-94AB-001D09F29533.root",
+# for MC 
+#  'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_pre10/clus/clus1.root'
+#  'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/clus/clus1.root'
+#  'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/rechits/rechits1.root'
+  'file:../../../../../CMSSW_7_0_0_pre8/src/EventFilter/SiPixelRawToDigi/test/digis.root'
+
   )
 )
 
-process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('206940:0-206940:1027')
+# for data 
+#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('206940:0-206940:1027')
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('histo.root')
@@ -63,25 +70,22 @@ process.TFileService = cms.Service("TFileService",
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
-# what is this?
-# process.load("Configuration.StandardSequences.Services_cff")
-# what is this?
-#process.load("SimTracker.Configuration.SimTracker_cff")
-# needed for global transformation
-# process.load("Configuration.StandardSequences.FakeConditions_cff")
-
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")# Choose the global tag here:
 # 2012
-process.GlobalTag.globaltag = 'GR_P_V40::All'
+#process.GlobalTag.globaltag = 'GR_P_V40::All'
+# MC 2913
+process.GlobalTag.globaltag = 'MC_70_V1::All'
 
 process.analysis = cms.EDAnalyzer("ReadPixClusters",
     Verbosity = cms.untracked.bool(True),
     src = cms.InputTag("siPixelClusters"),
 )
 
-process.p = cms.Path(process.hltPhysicsDeclared*process.hltfilter*process.analysis)
+# for data
+#process.p = cms.Path(process.hltPhysicsDeclared*process.hltfilter*process.analysis)
 #process.p = cms.Path(process.hltPhysicsDeclared*process.analysis)
-#process.p = cms.Path(process.analysis)
+# for MC
+process.p = cms.Path(process.analysis)
 
 
 # define an EndPath to analyze all other path results
