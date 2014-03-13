@@ -33,27 +33,14 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-ChamberSegmentUtility::ChamberSegmentUtility(const edm::Event& Event, 
-					     const edm::EventSetup& Setup,
-					     edm::ConsumesCollector& iC)
-{
-}
+ChamberSegmentUtility::ChamberSegmentUtility()
+{}
 
 void ChamberSegmentUtility::initCSU(const edm::Handle<DTRecSegment4DCollection>& DTSegProd,
 				    const edm::Handle<CSCSegmentCollection>& CSCSegProd) {
   
   all4DSegments = DTSegProd;
   CSCSegments   = CSCSegProd;
-  //  CSCSegmentsToken=iC.consumes<CSCSegmentCollection>(InputTag("cscSegments",""));
-  //  all4DSegmentsToken=iC.consumes<DTRecSegment4DCollection>(InputTag("dt4DSegments",""));
-
-  //  cout << "SONO QUI" << endl;
-
-  //  Event.getByToken(all4DSegmentsToken, all4DSegments);
-  //  Event.getByToken(CSCSegmentsToken, CSCSegments);
-
-  //  Setup.get<MuonGeometryRecord>().get(cscGeometry);
-  //  Setup.get<MuonGeometryRecord>().get(dtGeom);
 
   unsigned int index = 0;
   for (  CSCSegmentCollection::id_iterator chamberId = CSCSegments->id_begin();
@@ -79,7 +66,6 @@ void ChamberSegmentUtility::initCSU(const edm::Handle<DTRecSegment4DCollection>&
 
     for (DTRecSegment4DCollection::const_iterator segment = range.first;
          segment!=range.second; ++segment){
-      
       if ((*chamberIdIt).station() == 1) dtsegMap[1].push_back(*segment);
       if ((*chamberIdIt).station() == 2) dtsegMap[2].push_back(*segment);
       if ((*chamberIdIt).station() == 3) dtsegMap[3].push_back(*segment);
