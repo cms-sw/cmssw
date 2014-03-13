@@ -114,11 +114,12 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   else
     theRescaleErrorFactor = 1000.;
 
+  theCacheId_TRH = 0;
   iC_ = &iC;
   theDTRecHitToken=iC.consumes<DTRecHitCollection>(theDTRecHitLabel);
   theCSCRecHitToken=iC.consumes<CSCRecHit2DCollection>(theCSCRecHitLabel);
-  theCacheId_TRH = 0;
-
+  CSCSegmentsToken = iC.consumes<CSCSegmentCollection>(InputTag("cscSegments"));
+  all4DSegmentsToken=iC.consumes<DTRecSegment4DCollection>(InputTag("dt4DSegments"));
 }
 
 //--------------
@@ -137,6 +138,8 @@ void GlobalMuonRefitter::setEvent(const edm::Event& event) {
   theEvent = &event;
   event.getByToken(theDTRecHitToken, theDTRecHits);
   event.getByToken(theCSCRecHitToken, theCSCRecHits);   
+  event.getByToken(CSCSegmentsToken, CSCSegments);
+  event.getByToken(all4DSegmentsToken, all4DSegments);
 }
 
 
@@ -242,8 +245,8 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 	
       DynamicTruncation dytRefit(*theEvent,*theService, *iC_);
       dytRefit.setThr(theDYTthrs.at(0),theDYTthrs.at(1),theDYTthrs.at(2));                                
+      dytRefit.setProd(all4DSegments, CSCSegments);
       DYTRecHits = dytRefit.filter(globalTraj.front());
-      //vector<double> est = dytRefit.getEstimators();
       if ((DYTRecHits.size() > 1) && (DYTRecHits.front()->globalPosition().mag() > DYTRecHits.back()->globalPosition().mag()))
         stable_sort(DYTRecHits.begin(),DYTRecHits.end(),RecHitLessByDet(alongMomentum));
       outputTraj = transform(globalTrack, track, DYTRecHits);
