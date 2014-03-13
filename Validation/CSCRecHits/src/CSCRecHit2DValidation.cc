@@ -1,14 +1,15 @@
 #include "Validation/CSCRecHits/src/CSCRecHit2DValidation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 
 
-CSCRecHit2DValidation::CSCRecHit2DValidation(DQMStore* dbe, const edm::InputTag & inputTag)
+CSCRecHit2DValidation::CSCRecHit2DValidation(DQMStore* dbe, const edm::InputTag & inputTag, edm::ConsumesCollector && iC)
 : CSCBaseValidation(dbe, inputTag),
   theNPerEventPlot( dbe_->book1D("CSCRecHitsPerEvent", "Number of CSC Rec Hits per event", 100, 0, 500) )
 {
+   rechits_Token_ = iC.consumes<CSCRecHit2DCollection>(inputTag);
+
    dbe_->setCurrentFolder("CSCRecHitsV/CSCRecHitTask");
 
    for(int i = 0; i < 10; ++i)
@@ -52,7 +53,7 @@ void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& e
 {
   // get the collection of CSCRecHrecHitItrD
   edm::Handle<CSCRecHit2DCollection> hRecHits;
-  e.getByLabel(theInputTag, hRecHits);
+  e.getByToken(rechits_Token_, hRecHits);
   const CSCRecHit2DCollection * cscRecHits = hRecHits.product();
 
   unsigned nPerEvent = 0;
