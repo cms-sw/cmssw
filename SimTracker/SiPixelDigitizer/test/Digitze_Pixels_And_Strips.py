@@ -12,18 +12,21 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-# from v7
-#process.load("SimGeneral.MixingModule.pixelDigitizer_cfi")
 # process.load("SimTracker.Configuration.SimTracker_cff")
 process.load("SimG4Core.Configuration.SimG4Core_cff")
 
+# for strips 
+process.load("CalibTracker.SiStripESProducers.SiStripGainSimESProducer_cfi")
+
 # process.load("SimGeneral.MixingModule.mixNoPU_cfi")
+
 from SimGeneral.MixingModule.aliases_cfi import * 
 from SimGeneral.MixingModule.mixObjects_cfi import *
 # from SimGeneral.MixingModule.digitizers_cfi import *
 from SimGeneral.MixingModule.pixelDigitizer_cfi import *
 from SimGeneral.MixingModule.stripDigitizer_cfi import *
 from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
+
 
 process.mix = cms.EDProducer("MixingModule",
 #    digitizers = cms.PSet(theDigitizers),
@@ -37,9 +40,9 @@ process.mix = cms.EDProducer("MixingModule",
    pixel = cms.PSet(
     pixelDigitizer
    ),
-#  strip = cms.PSet(
-#    stripDigitizer
-#  ),
+  strip = cms.PSet(
+    stripDigitizer
+  ),
   ),
 
 #theDigitizersValid = cms.PSet(
@@ -62,6 +65,7 @@ process.mix = cms.EDProducer("MixingModule",
 #    trackingParticles
 #  )
 #),
+
 
     LabelPlayback = cms.string(' '),
     maxBunch = cms.int32(3),
@@ -87,14 +91,14 @@ process.mix = cms.EDProducer("MixingModule",
                           cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
                           cms.InputTag("g4SimHits","TrackerHitsPixelEndcapHighTof"), 
                           cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"), 
-#                          cms.InputTag("g4SimHits","TrackerHitsTECHighTof"), 
-#                          cms.InputTag("g4SimHits","TrackerHitsTECLowTof"), 
-#                          cms.InputTag("g4SimHits","TrackerHitsTIBHighTof"),
-#                          cms.InputTag("g4SimHits","TrackerHitsTIBLowTof"), 
-#                          cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"), 
-#                          cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"), 
-#                          cms.InputTag("g4SimHits","TrackerHitsTOBHighTof"), 
-#                          cms.InputTag("g4SimHits","TrackerHitsTOBLowTof")
+                          cms.InputTag("g4SimHits","TrackerHitsTECHighTof"), 
+                          cms.InputTag("g4SimHits","TrackerHitsTECLowTof"), 
+                          cms.InputTag("g4SimHits","TrackerHitsTIBHighTof"),
+                          cms.InputTag("g4SimHits","TrackerHitsTIBLowTof"), 
+                          cms.InputTag("g4SimHits","TrackerHitsTIDHighTof"), 
+                          cms.InputTag("g4SimHits","TrackerHitsTIDLowTof"), 
+                          cms.InputTag("g4SimHits","TrackerHitsTOBHighTof"), 
+                          cms.InputTag("g4SimHits","TrackerHitsTOBLowTof")
     ),
     type = cms.string('PSimHit'),
     subdets = cms.vstring(
@@ -102,14 +106,14 @@ process.mix = cms.EDProducer("MixingModule",
         'TrackerHitsPixelBarrelLowTof',
         'TrackerHitsPixelEndcapHighTof',
         'TrackerHitsPixelEndcapLowTof',
-#        'TrackerHitsTECHighTof',
-#        'TrackerHitsTECLowTof',
-#        'TrackerHitsTIBHighTof',
-#        'TrackerHitsTIBLowTof',
-#        'TrackerHitsTIDHighTof',
-#        'TrackerHitsTIDLowTof',
-#        'TrackerHitsTOBHighTof',
-#        'TrackerHitsTOBLowTof'
+        'TrackerHitsTECHighTof',
+        'TrackerHitsTECLowTof',
+        'TrackerHitsTIBHighTof',
+        'TrackerHitsTIBLowTof',
+        'TrackerHitsTIDHighTof',
+        'TrackerHitsTIDLowTof',
+        'TrackerHitsTOBHighTof',
+        'TrackerHitsTOBLowTof'
     ),
     crossingFrames = cms.untracked.vstring(),
 #        'MuonCSCHits',
@@ -146,21 +150,22 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
 
 # Choose the global tag here:
 # for v7.0
-process.GlobalTag.globaltag = 'MC_70_V1::All'
+#process.GlobalTag.globaltag = 'MC_70_V1::All'
+process.GlobalTag.globaltag = 'START70_V1::All'
+#process.GlobalTag.globaltag = 'DESIGN70_V1::All'
 
 process.o1 = cms.OutputModule("PoolOutputModule",
-            outputCommands = cms.untracked.vstring('drop *','keep *_*_*_Test'),
-      fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/digis/digis1.root')
+      outputCommands = cms.untracked.vstring('drop *','keep *_*_*_Test'),
+      fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/digis_trk/digis1.root')
 #      fileName = cms.untracked.string('file:dummy.root')
 )
 
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
 
 # modify digitizer parameters
-#process.simSiPixelDigis.ThresholdInElectrons_BPix = 3500.0 
-process.mix.digitizers.pixel.ThresholdInElectrons_BPix = 3500.0 
+#process.mix.digitizers.pixel.ThresholdInElectrons_BPix = 3500.0 
 
-#This process is to run the digitizer, pixel gitizer is now clled by the mix module
+#This process is to run the digitizer:
 process.p1 = cms.Path(process.mix)
 
 process.outpath = cms.EndPath(process.o1)

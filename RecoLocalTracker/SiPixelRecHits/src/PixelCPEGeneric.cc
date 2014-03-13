@@ -29,8 +29,12 @@ namespace {
 //!  The constructor.
 //-----------------------------------------------------------------------------
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
-	const MagneticField * mag, const SiPixelLorentzAngle * lorentzAngle, const SiPixelCPEGenericErrorParm * genErrorParm, const SiPixelTemplateDBObject * templateDBobject) 
-  : PixelCPEBase(conf, mag, lorentzAngle, genErrorParm, templateDBobject)
+				 const MagneticField * mag, 
+				 const SiPixelLorentzAngle * lorentzAngle, 
+				 const SiPixelCPEGenericErrorParm * genErrorParm, 
+				 const SiPixelTemplateDBObject * templateDBobject,
+				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
+  : PixelCPEBase(conf, mag, lorentzAngle, genErrorParm, templateDBobject,lorentzAngleWidth)
 {
   
   if (theVerboseLevel > 0) 
@@ -59,17 +63,43 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   DoCosmics_                 = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_       = conf.getParameter<bool>("LoadTemplatesFromDB");
 
+  // This LA related parameters are only relevant for the Generic algo
+
+  //lAOffset_ = conf.getUntrackedParameter<double>("lAOffset",0.0);
+  lAOffset_ = conf.existsAs<double>("lAOffset")?
+              conf.getParameter<double>("lAOffset"):0.0;
+  //lAWidthBPix_  = conf.getUntrackedParameter<double>("lAWidthBPix",0.0);
+  lAWidthBPix_ = conf.existsAs<double>("lAWidthBPix")?
+                 conf.getParameter<double>("lAWidthBPix"):0.0;
+  //lAWidthFPix_  = conf.getUntrackedParameter<double>("lAWidthFPix",0.0);
+  lAWidthFPix_ = conf.existsAs<double>("lAWidthFPix")?
+                 conf.getParameter<double>("lAWidthFPix"):0.0;
+
+  // Use LA-offset from config, for testing only
+  if(lAOffset_>0.0) useLAOffsetFromConfig_ = true;
+  // Use LA-width from config, split into fpix & bpix, for testing only
+  if(lAWidthBPix_>0.0 || lAWidthFPix_>0.0) useLAWidthFromConfig_ = true;
+
+  // Use LA-width from DB. If both (upper and this) are false LA-width is calcuated from LA-offset
+  //useLAWidthFromDB_ = conf.getParameter<bool>("useLAWidthFromDB");
+  useLAWidthFromDB_ = conf.existsAs<bool>("useLAWidthFromDB")?
+    conf.getParameter<bool>("useLAWidthFromDB"):false;
+
+  // Use Alignment LA-offset 
+  useLAAlignmentOffsets_ = conf.existsAs<bool>("useLAAlignmentOffsets")?
+    conf.getParameter<bool>("useLAAlignmentOffsets"):false;
+
+
   if ( !UseErrorsFromTemplates_ && ( TruncatePixelCharge_       || 
 				     IrradiationBiasCorrection_ || 
 				     DoCosmics_                 ||
-				     LoadTemplatesFromDB_ ) )
-    {
-      throw cms::Exception("PixelCPEGeneric::PixelCPEGeneric: ") 
-	  << "\nERROR: UseErrorsFromTemplates_ is set to False in PixelCPEGeneric_cfi.py. "
-	  << " In this case it does not make sense to set any of the following to True: " 
-	  << " TruncatePixelCharge_, IrradiationBiasCorrection_, DoCosmics_, LoadTemplatesFromDB_ !!!" 
-	  << "\n\n";
-    }
+				     LoadTemplatesFromDB_ ) )  {
+    throw cms::Exception("PixelCPEGeneric::PixelCPEGeneric: ") 
+      << "\nERROR: UseErrorsFromTemplates_ is set to False in PixelCPEGeneric_cfi.py. "
+      << " In this case it does not make sense to set any of the following to True: " 
+      << " TruncatePixelCharge_, IrradiationBiasCorrection_, DoCosmics_, LoadTemplatesFromDB_ !!!" 
+      << "\n\n";
+  }
 
   if ( UseErrorsFromTemplates_ )
 	{
@@ -100,8 +130,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   //cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_       << endl;
   //cout << endl;
 
-  //yes, these should be config parameters!
-  //default case...
+  // Default case for rechit errors in case other, more correct, errors are not vailable
+  // This are constants. Maybe there is a more efficienct way to store them.
   xerr_barrel_l1_= {0.00115, 0.00120, 0.00088};
   xerr_barrel_l1_def_=0.01030;
   yerr_barrel_l1_= {0.00375,0.00230,0.00250,0.00250,0.00230,0.00230,0.00210,0.00210,0.00240};
@@ -155,7 +185,12 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 LocalPoint
 PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const 
 {
+
+  //cout<<" in PixelCPEGeneric:localPosition - "<<endl; //dk
+
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
+
+
   if ( UseErrorsFromTemplates_ )
     {
       templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
@@ -283,11 +318,12 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
     cout << "\t >>> Generic:: processing X" << endl;
 #endif
 
+  float chargeWidth = (lorentzShiftInCmX_ * widthLAFraction_);
   float xPos = 
     generic_position_formula( cluster.sizeX(),
 			      Q_f_X, Q_l_X, 
 			      local_URcorn_LLpix.x(), local_LLcorn_URpix.x(),
-			      0.5*lorentzShiftInCmX_,   // 0.5 * lorentz shift in 
+			      chargeWidth,   // lorentz shift in cm
 			      cotalpha_,
 			      thePitchX,
 			      theRecTopol->isItBigPixelInX( cluster.minPixelRow() ),
@@ -297,33 +333,42 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
                               the_size_cutX);           // cut for eff charge width &&&
 
 
- #ifdef EDM_ML_DEBUG
+  // apply the lorentz offset correction 			     
+  xPos = xPos + (0.5 * lorentzShiftInCmX_);
+
+#ifdef EDM_ML_DEBUG
   if (theVerboseLevel > 20) 
     cout << "\t >>> Generic:: processing Y" << endl;
 #endif
 
+  chargeWidth = (lorentzShiftInCmY_ * widthLAFraction_);
   float yPos = 
     generic_position_formula( cluster.sizeY(),
 			      Q_f_Y, Q_l_Y, 
 			      local_URcorn_LLpix.y(), local_LLcorn_URpix.y(),
-			      0.5*lorentzShiftInCmY_,   // 0.5 * lorentz shift in cm
+			      chargeWidth,   // lorentz shift in cm
 			      cotbeta_,
-			      thePitchY,   // 0.5 * lorentz shift (may be 0)
+			      thePitchY,  
 			      theRecTopol->isItBigPixelInY( cluster.minPixelCol() ),
 			      theRecTopol->isItBigPixelInY( cluster.maxPixelCol() ),
 			      the_eff_charge_cut_lowY,
                               the_eff_charge_cut_highY,
                               the_size_cutY);           // cut for eff charge width &&&
-			     
-  // Apply irradiation corrections.
+
+  // apply the lorentz offset correction 			     
+  yPos = yPos + (0.5 * lorentzShiftInCmY_);
+
+  // Apply irradiation corrections. NOT USED FOR NOW
   if ( IrradiationBiasCorrection_ )
     {
       if ( cluster.sizeX() == 1 )
 	{
 	  
+	  // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
+	  xPos = xPos - (0.5 * lorentzShiftInCmX_);
+
 	  // Find if pixel is double (big). 
-	  bool bigInX = theRecTopol->isItBigPixelInX( cluster.maxPixelRow() );
-	  
+	  bool bigInX = theRecTopol->isItBigPixelInX( cluster.maxPixelRow() );	  
 	  if ( !bigInX ) 
 	    {
 	      //cout << "Apply correction dx1 = " << dx1 << " to xPos = " << xPos << endl;
@@ -344,9 +389,11 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
   if ( cluster.sizeY() == 1 )
     {
       
+      // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
+      yPos = yPos - (0.5 * lorentzShiftInCmY_);
+
       // Find if pixel is double (big). 
-      bool bigInY = theRecTopol->isItBigPixelInY( cluster.maxPixelCol() );
-      
+      bool bigInY = theRecTopol->isItBigPixelInY( cluster.maxPixelCol() );      
       if ( !bigInY ) 
 	{
 	  //cout << "Apply correction dy1 = " << dy1 << " to yPos = " << yPos  << endl;
@@ -366,6 +413,8 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
  
     } // if ( IrradiationBiasCorrection_ )
 	
+  //cout<<" in PixelCPEGeneric:localPosition - pos = "<<xPos<<" "<<yPos<<endl; //dk
+
   //--- Now put the two together
   LocalPoint pos_in_local( xPos, yPos );
   return pos_in_local;
@@ -386,7 +435,7 @@ generic_position_formula( int size,                //!< Size of this projection.
 			  float Q_l,              //!< Charge in the last pixel.
 			  float upper_edge_first_pix, //!< As the name says.
 			  float lower_edge_last_pix,  //!< As the name says.
-			  float half_lorentz_shift,   //!< L-shift at half thickness
+			  float lorentz_shift,   //!< L-shift at half thickness
 			  float cot_angle,        //!< cot of alpha_ or beta_
 			  float pitch,            //!< thePitchX or thePitchY
 			  bool first_is_big,       //!< true if the first is big
@@ -396,6 +445,10 @@ generic_position_formula( int size,                //!< Size of this projection.
 			  float size_cut         //!< Use edge when size == cuts
 			 ) const
 {
+
+  //cout<<" in PixelCPEGeneric:generic_position_formula - "<<endl; //dk
+
+  
   float geom_center = 0.5f * ( upper_edge_first_pix + lower_edge_last_pix );
 
   //--- The case of only one pixel in this projection is separate.  Note that
@@ -403,11 +456,7 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- center of the pixel.
   if ( size == 1 ) 
     {
-      // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
-      if ( IrradiationBiasCorrection_ ) 
 	return geom_center;
-      else
-	return geom_center + half_lorentz_shift;
     }
 
 
@@ -419,8 +468,11 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- Predicted charge width from geometry
   float W_pred = 
     theThickness * cot_angle                     // geometric correction (in cm)
-    - 2.f * half_lorentz_shift;                    // (in cm) &&& check fpix!  
+    - lorentz_shift;                    // (in cm) &&& check fpix!  
+    //    - 2.f * half_lorentz_shift;                    // (in cm) &&& check fpix!  
   
+
+  //cout<<" in PixelCPEGeneric:generic_position_formula - "<<W_inner<<" "<<W_pred<<endl; //dk
 
   //--- Total length of the two edge pixels (first+last)
   float sum_of_edge = 2.0f;
@@ -454,7 +506,10 @@ generic_position_formula( int size,                //!< Size of this projection.
 
   //--- Temporary fix for clusters with both first and last pixel with charge = 0
   if(Qsum==0) Qsum=1.0f;
-  float hit_pos = geom_center + 0.5f*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
+  //float hit_pos = geom_center + 0.5f*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
+  float hit_pos = geom_center + 0.5f*(Qdiff/Qsum) * W_eff;
+
+  //cout<<" in PixelCPEGeneric:generic_position_formula - "<<hit_pos<<" "<<lorentz_shift*0.5<<endl; //dk
 
  #ifdef EDM_ML_DEBUG
   //--- Debugging output
@@ -591,7 +646,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster) const
   // Find if cluster contains double (big) pixels. 
   bool bigInX = theRecTopol->containsBigPixelInX( minPixelRow, maxPixelRow ); 	 
   bool bigInY = theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
-  if unlikely(  isUpgrade_ ||(!with_track_angle && DoCosmics_) )
+  if unlikely(  isUpgrade_ ||(!with_track_angle && DoCosmics_) )  
     {
       //cout << "Track angles are not known and we are processing cosmics." << endl; 
       //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
