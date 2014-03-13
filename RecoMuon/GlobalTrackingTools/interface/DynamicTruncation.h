@@ -54,6 +54,11 @@ class DynamicTruncation {
 
   ~DynamicTruncation();
 
+  void setProd(const edm::Handle<DTRecSegment4DCollection>& DTSegProd, 
+	       const edm::Handle<CSCSegmentCollection>& CSCSegProd) {
+    getSegs->initCSU(DTSegProd, CSCSegProd);
+  }
+
   // Just one thr for DT and one for CSC
   void setThr(int, int, int);
   
