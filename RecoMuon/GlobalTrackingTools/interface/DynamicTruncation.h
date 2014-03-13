@@ -50,7 +50,7 @@ class DynamicTruncation {
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
-  DynamicTruncation(const edm::Event&, const MuonServiceProxy&, edm::ConsumesCollector&);
+  DynamicTruncation(const edm::Event&, const MuonServiceProxy&);
 
   ~DynamicTruncation();
 
