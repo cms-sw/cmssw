@@ -2,10 +2,8 @@
 #define CondFormats_DTObjects_DTRecoUncertainties_H
 
 /** \class DTRecoUncertainties
- *  No description available.
+ *  DB object for storing DT hit uncertatinties.
  *
- *  $Date: $
- *  $Revision: $
  *  \author G. Cerminara - CERN
  */
 
