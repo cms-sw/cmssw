@@ -485,8 +485,8 @@ l1t::Muon unpackMuons( std::string imu ){
   int phi = (packedVal>>0)  & 0x3ff;
   int iso = (packedVal>>32) & 0x1;
   int qual= (packedVal>>19) & 0x1;
-  int charge = (packedVal>>35) & 0x1;
-  int chargeValid = (packedVal>>34) & 0x1;
+  int charge = (packedVal>>34) & 0x1;
+  int chargeValid = (packedVal>>35) & 0x1;
   int mip = 1;
   int tag = 1;
 
