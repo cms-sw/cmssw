@@ -76,9 +76,12 @@ process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
 from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
 process = custom_GE11_6partitions_v1(process)
 
-## upgrade CSC geometry customizations
-from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry, digitizer_timing_pre3_median
+## upgrade CSC geometry 
+from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry
 process = unganged_me1a_geometry(process)
+
+## upgrade CSC digitizer
+from SLHCUpgradeSimulations.Configuration.muonCustoms import digitizer_timing_pre3_median
 process = digitizer_timing_pre3_median(process)
 
 ## upgrade CSC L1 customizations
@@ -86,8 +89,12 @@ from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1Stu
 process = customise_csc_L1Stubs(process)
 
 ## GEM-CSC emulator
-from SLHCUpgradeSimulations.Configuration.gemCustoms import customise_L1Emulator
-process = customise_L1Emulator(process, ptdphi)
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise_L1Emulator as customise_L1EmulatorGEM
+process = customise_L1EmulatorGEM(process, ptdphi)
+
+## RPC-CSC emulator
+from SLHCUpgradeSimulations.Configuration.rpcCustoms import customise_L1Emulator as customise_L1EmulatorRPC
+process = customise_L1EmulatorRPC(process)
 
 ## upgrade CSC TrackFinder
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1TrackFinder
