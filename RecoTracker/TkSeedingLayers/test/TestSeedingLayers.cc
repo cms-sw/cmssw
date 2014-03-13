@@ -31,7 +31,13 @@ struct TestSeedingLayers final : public edm::EDAnalyzer {
 
     std::cout << layers.numberOfLayersInSet() << ' ' << layers.size() << std::endl;
     
-    
+    for (auto const & lset : layers) {
+      std::cout << lset.size();
+      for (auto const & la : lset) {
+	std::cout << ": " << la.name() << ' ' << la.index() << ' ' << la.hits().size();
+      }
+      std::cout << std::endl;
+    }
   }
   
 
