@@ -83,6 +83,8 @@
   };
 //}
 
+//SiPixelLorentzAngle is already the name of a data product
+namespace analyzer {
 class SiPixelLorentzAngle : public edm::EDAnalyzer
 {
  public:
@@ -198,6 +200,6 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
   edm::EDGetTokenT<TrajTrackAssociationCollection> t_trajTrack;
   
 };
-
+}
 
 #endif
