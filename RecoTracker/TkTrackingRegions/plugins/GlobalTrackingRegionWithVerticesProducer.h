@@ -31,6 +31,7 @@ public:
     theFixedError       = regionPSet.getParameter<double>("fixedError");
 
     theUseFoundVertices = regionPSet.getParameter<bool>("useFoundVertices");
+    theUseFakeVertices  = regionPSet.existsAs<bool>("useFakeVertices") ? regionPSet.getParameter<bool>("useFakeVertices") : false;
     theUseFixedError    = regionPSet.getParameter<bool>("useFixedError");
     token_vertex      = iC.consumes<reco::VertexCollection>(regionPSet.getParameter<edm::InputTag>("VertexCollection"));
   }   
@@ -60,7 +61,8 @@ public:
       ev.getByToken(token_vertex,vertexCollection);
 
       for(reco::VertexCollection::const_iterator iV=vertexCollection->begin(); iV != vertexCollection->end() ; iV++) {
-          if (iV->isFake() || !iV->isValid()) continue;
+          if (!iV->isValid()) continue;
+          if (iV->isFake() && !(theUseFakeVertices && theUseFixedError)) continue;
 	  GlobalPoint theOrigin_       = GlobalPoint(iV->x(),iV->y(),iV->z());
 	  double theOriginHalfLength_ = (theUseFixedError ? theFixedError : (iV->zError())*theSigmaZVertex); 
 	  result.push_back( new GlobalTrackingRegion(thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise) );
@@ -90,6 +92,7 @@ private:
   bool thePrecise;
   
   bool theUseFoundVertices;
+  bool theUseFakeVertices;
   bool theUseFixedError;
   edm::EDGetTokenT<reco::VertexCollection> 	 token_vertex; 
   edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 

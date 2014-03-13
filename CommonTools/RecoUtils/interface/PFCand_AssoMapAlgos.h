@@ -11,6 +11,8 @@
 // $Id$
 //
 //
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "CommonTools/RecoUtils/interface/PF_PU_AssoMapAlgos.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -36,7 +38,7 @@ class PFCand_AssoMapAlgos : public PF_PU_AssoMapAlgos  {
  public:
 
    //dedicated constructor for the algorithms
-   PFCand_AssoMapAlgos(const edm::ParameterSet&); 
+   PFCand_AssoMapAlgos(const edm::ParameterSet&, edm::ConsumesCollector &&);
 
    //get all needed collections at the beginning
    void GetInputCollections(edm::Event&, const edm::EventSetup&);
@@ -48,20 +50,20 @@ class PFCand_AssoMapAlgos : public PF_PU_AssoMapAlgos  {
    std::auto_ptr<VertexToPFCandAssMap> CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollection>, const edm::EventSetup&);
 
    //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
-   std::auto_ptr<PFCandToVertexAssMap> SortPFCandAssociationMap(PFCandToVertexAssMap*); 
+   std::auto_ptr<PFCandToVertexAssMap> SortPFCandAssociationMap(PFCandToVertexAssMap*);
 
  protected:
-  //protected functions 
+  //protected functions
 
- private: 
+ private:
   //private functions
 
    int input_MaxNumAssociations_;
 
-   edm::InputTag input_VertexCollection_;
+   edm::EDGetTokenT<reco::VertexCollection> token_VertexCollection_;
    edm::Handle<reco::VertexCollection> vtxcollH;
 
-   edm::InputTag input_BeamSpot_;
+   edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot_;
    edm::Handle<reco::BeamSpot> beamspotH;
 
    edm::ESHandle<MagneticField> bFieldH;

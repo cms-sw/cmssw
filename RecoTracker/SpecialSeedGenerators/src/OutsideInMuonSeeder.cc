@@ -50,7 +50,7 @@ class OutsideInMuonSeeder : public edm::EDProducer {
 
     private:
       /// Labels for input collections
-      edm::InputTag src_;
+      edm::EDGetTokenT<edm::View<reco::Muon> > src_;
 
       /// Muon selection
       StringCutObjectSelector<reco::Muon> selector_;
@@ -95,7 +95,7 @@ class OutsideInMuonSeeder : public edm::EDProducer {
 };
 
 OutsideInMuonSeeder::OutsideInMuonSeeder(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")),
+    src_(consumes<edm::View<reco::Muon> >(iConfig.getParameter<edm::InputTag>("src"))),
     selector_(iConfig.existsAs<std::string>("cut") ? iConfig.getParameter<std::string>("cut") : "", true),
     layersToTry_(iConfig.getParameter<int32_t>("layersToTry")),
     hitsToTry_(iConfig.getParameter<int32_t>("hitsToTry")),
@@ -130,7 +130,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     iEvent.getByToken(measurementTrackerTag_, measurementTracker);
 
     Handle<View<reco::Muon> > src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
 
     
     auto_ptr<vector<TrajectorySeed> > out(new vector<TrajectorySeed>());
