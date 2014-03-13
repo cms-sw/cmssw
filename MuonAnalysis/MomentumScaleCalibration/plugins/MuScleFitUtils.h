@@ -5,6 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
+ *  $Date: 2012/12/19 10:59:24 $
+ *  $Revision: 1.35 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -23,6 +25,8 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/CrossSectionHandler.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundHandler.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/ResolutionFunction.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MuonPair.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/GenMuonPair.h"
 
 #include <vector>
 
@@ -56,8 +60,8 @@ public:
   // Operations
   // ----------
   static std::pair<SimTrack, SimTrack> findBestSimuRes( const std::vector<SimTrack>& simMuons );
-  static std::pair<lorentzVector, lorentzVector> findBestRecoRes( const std::vector<reco::LeafCandidate>& muons );
-  static std::pair <lorentzVector, lorentzVector> findGenMuFromRes( const reco::GenParticleCollection* genParticles);
+  static std::pair<MuScleFitMuon, MuScleFitMuon> findBestRecoRes( const std::vector<MuScleFitMuon>& muons );
+  static std::pair<lorentzVector, lorentzVector> findGenMuFromRes( const reco::GenParticleCollection* genParticles);
   static std::pair<lorentzVector, lorentzVector> findGenMuFromRes( const edm::HepMCProduct* evtMC );
   static std::pair<lorentzVector, lorentzVector> findSimMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC,
 								   const edm::Handle<edm::SimTrackContainer> & simTracks);
@@ -209,6 +213,7 @@ public:
   static std::vector<int> parorder;
 
   static std::vector<std::pair<lorentzVector,lorentzVector> > SavedPair;
+  static std::vector<std::pair<MuScleFitMuon,MuScleFitMuon> > SavedPairMuScleFitMuons;
   static std::vector<std::pair<lorentzVector,lorentzVector> > ReducedSavedPair;
   static std::vector<std::pair<lorentzVector,lorentzVector> > genPair;
   static std::vector<std::pair<lorentzVector,lorentzVector> > simPair;
