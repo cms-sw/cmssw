@@ -10,7 +10,7 @@ Propagator::~Propagator() {}
 
 TrajectoryStateOnSurface 
 Propagator::propagate( const FreeTrajectoryState& state, 
-		       const Surface& sur) const
+		       const Surface& sur)
 {
   // try plane first, most probable case (disk "is a" plane too) 
   const Plane* bp = dynamic_cast<const Plane*>(&sur);
@@ -26,7 +26,7 @@ Propagator::propagate( const FreeTrajectoryState& state,
 
 TrajectoryStateOnSurface 
 Propagator::propagate (const TrajectoryStateOnSurface& state, 
-		       const Surface& sur) const
+		       const Surface& sur)
 {
   // exactly same code as for FreeTrajectoryState
 
@@ -47,7 +47,7 @@ Propagator::propagate (const TrajectoryStateOnSurface& state,
 // propagators that don't benefit from TSOS vs. FTS
 TrajectoryStateOnSurface 
 Propagator::propagate (const TrajectoryStateOnSurface& tsos, 
-		       const Plane& sur) const
+		       const Plane& sur)
 {
   // Protect against null propagations
   if (fabs(sur.toLocal(tsos.globalPosition()).z())<1e-5) {
@@ -61,21 +61,21 @@ Propagator::propagate (const TrajectoryStateOnSurface& tsos,
 // propagators that don't benefit from TSOS vs. FTS
 TrajectoryStateOnSurface 
 Propagator::propagate (const TrajectoryStateOnSurface& tsos, 
-		       const Cylinder& sur) const
+		       const Cylinder& sur)
 {
   return propagate( *tsos.freeState(), sur);
 }
 
 FreeTrajectoryState 
 Propagator::propagate(const FreeTrajectoryState& ftsStart, 
-    const reco::BeamSpot& beamSpot) const{
+    const reco::BeamSpot& beamSpot){
   throw cms::Exception("Propagator::propagate(FTS,beamSpot) not implemented");
 }
 
 
 std::pair< TrajectoryStateOnSurface, double> 
 Propagator::propagateWithPath (const FreeTrajectoryState& state, 
-			       const Surface& sur) const
+			       const Surface& sur)
 {
   // same code as above, only method name changes
 
@@ -93,7 +93,7 @@ Propagator::propagateWithPath (const FreeTrajectoryState& state,
 
 std::pair< TrajectoryStateOnSurface, double> 
 Propagator::propagateWithPath (const TrajectoryStateOnSurface& state, 
-			       const Surface& sur) const
+			       const Surface& sur)
 {
   // same code as above, only method name changes
 
@@ -113,7 +113,7 @@ Propagator::propagateWithPath (const TrajectoryStateOnSurface& state,
 // propagators that don't benefit from TSOS vs. FTS
 std::pair< TrajectoryStateOnSurface, double> 
 Propagator::propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-			       const Plane& sur) const
+			       const Plane& sur)
 {
   return propagateWithPath( *tsos.freeState(), sur);
 }
@@ -122,13 +122,13 @@ Propagator::propagateWithPath (const TrajectoryStateOnSurface& tsos,
 // propagators that don't benefit from TSOS vs. FTS
 std::pair< TrajectoryStateOnSurface, double> 
 Propagator::propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-			       const Cylinder& sur) const
+			       const Cylinder& sur)
 {
   return propagateWithPath( *tsos.freeState(), sur);
 }
 
 std::pair<FreeTrajectoryState, double> 
 Propagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
-			      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const{
+			      const GlobalPoint& pDest1, const GlobalPoint& pDest2){
   throw cms::Exception("Propagator::propagate(FTS,GlobalPoint,GlobalPoint) not implemented");
 }

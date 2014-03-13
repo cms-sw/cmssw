@@ -52,13 +52,13 @@ public:
    *  is not known at the calling point.
    */
   virtual TrajectoryStateOnSurface 
-  propagate (const FreeTrajectoryState&, const Surface&) const;
+  propagate (const FreeTrajectoryState&, const Surface&) ;
 
   virtual TrajectoryStateOnSurface 
-  propagate (const FreeTrajectoryState&, const Plane&) const = 0;
+  propagate (const FreeTrajectoryState&, const Plane&) = 0;
 
   virtual TrajectoryStateOnSurface 
-  propagate (const FreeTrajectoryState&, const Cylinder&) const = 0;
+  propagate (const FreeTrajectoryState&, const Cylinder&) = 0;
 
   /** The following three methods are equivalent to the corresponding
    *  methods above,
@@ -71,17 +71,17 @@ public:
    *  is not known at the calling point.
    */
   virtual TrajectoryStateOnSurface 
-  propagate (const TrajectoryStateOnSurface&, const Surface&) const;
+  propagate (const TrajectoryStateOnSurface&, const Surface&) ;
 
   virtual TrajectoryStateOnSurface 
-  propagate (const TrajectoryStateOnSurface&, const Plane&) const;
+  propagate (const TrajectoryStateOnSurface&, const Plane&) ;
 
   virtual TrajectoryStateOnSurface 
-  propagate (const TrajectoryStateOnSurface&, const Cylinder&) const;
+  propagate (const TrajectoryStateOnSurface&, const Cylinder&) ;
   
   virtual FreeTrajectoryState 
   propagate(const FreeTrajectoryState&, 
-	    const reco::BeamSpot&) const;
+	    const reco::BeamSpot&) ;
 
   /** The methods propagateWithPath() are identical to the corresponding
    *  methods propagate() in what concerns the resulting 
@@ -93,13 +93,13 @@ public:
    *  is not known at the calling point.
    */
   virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Surface&) const;
+  propagateWithPath (const FreeTrajectoryState&, const Surface&);
 
   virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Plane&) const = 0;
+  propagateWithPath (const FreeTrajectoryState&, const Plane&) = 0;
 
   virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const=0;
+  propagateWithPath (const FreeTrajectoryState&, const Cylinder&)=0;
 
   /** The following three methods are equivalent to the corresponding
    *  methods above,
@@ -112,17 +112,17 @@ public:
    *  is not known at the calling point.
    */
   virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const TrajectoryStateOnSurface&, const Surface&) const;
+  propagateWithPath (const TrajectoryStateOnSurface&, const Surface&);
 
   virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const TrajectoryStateOnSurface&, const Plane&) const;
+  propagateWithPath (const TrajectoryStateOnSurface&, const Plane&);
 
   virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const TrajectoryStateOnSurface&, const Cylinder&) const;
+  propagateWithPath (const TrajectoryStateOnSurface&, const Cylinder&);
 
   virtual std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState&, 
-                      const GlobalPoint&, const GlobalPoint&) const;
+                      const GlobalPoint&, const GlobalPoint&);
 
   /** The propagation direction can now be set for every propagator.
    *  There is no more distinction between unidirectional and bidirectional 
@@ -131,7 +131,7 @@ public:
    *  The values "alongMomentum" and "oppositeToMomentum" provide the
    *  functionality of the ex-UnidirectionalPropagator.
    */
-  virtual void setPropagationDirection(PropagationDirection dir) const {
+  virtual void setPropagationDirection(PropagationDirection dir) {
     theDir = dir;
   }
 
@@ -164,15 +164,15 @@ public:
 
 private:
 
-  mutable PropagationDirection theDir;
+  PropagationDirection theDir;
 };
 
 class SetPropagationDirection {
 private:
-  Propagator const & prop;
+  Propagator& prop;
   PropagationDirection oldDir;
 public:
-  SetPropagationDirection(Propagator const & iprop, PropagationDirection dir) : 
+  SetPropagationDirection(Propagator& iprop, PropagationDirection dir) : 
     prop(iprop),
     oldDir(iprop.propagationDirection()) {
     prop.setPropagationDirection(dir);

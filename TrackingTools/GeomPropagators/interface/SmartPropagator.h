@@ -57,7 +57,7 @@ class SmartPropagator GCC11_FINAL : public Propagator {
     }
 
     ///setting the direction fo both components
-    void setPropagationDirection (PropagationDirection dir) const
+    void setPropagationDirection (PropagationDirection dir) override
     {
       Propagator::setPropagationDirection (dir);
       getTkPropagator()->setPropagationDirection(dir);
@@ -67,58 +67,58 @@ class SmartPropagator GCC11_FINAL : public Propagator {
 
     /* Operations as propagator*/ 
     TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
-                                       const Surface& surface) const;
+                                       const Surface& surface) override;
 
     TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos, 
-                                       const Surface& surface) const {
+                                       const Surface& surface) override {
       return Propagator::propagate(tsos,surface);
     }
 
     TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
-                                       const Plane& plane) const;
+                                       const Plane& plane) override;
 
     TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
-                                       const Plane& plane) const {
+                                       const Plane& plane) override {
       return Propagator::propagate(tsos, plane);
     }
 
     TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
-                                       const Cylinder& cylinder) const;
+                                       const Cylinder& cylinder) override;
 
     TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos, 
-                                       const Cylinder& cylinder) const {
+                                       const Cylinder& cylinder) override {
       return Propagator::propagate(tsos, cylinder);
     }
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const FreeTrajectoryState& fts, 
-                        const Surface& surface) const {
+                        const Surface& surface) override {
         return Propagator::propagateWithPath(fts,surface);
       }
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const TrajectoryStateOnSurface& tsos, 
-                        const Surface& surface) const {
+                        const Surface& surface) override {
         return Propagator::propagateWithPath(tsos,surface);
       }
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const FreeTrajectoryState& fts, 
-                        const Plane& plane) const;
+                        const Plane& plane) override;
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const TrajectoryStateOnSurface& tsos, 
-                        const Plane& plane) const {
+                        const Plane& plane) override {
         return Propagator::propagateWithPath(tsos, plane);
       }
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const FreeTrajectoryState& fts, 
-                        const Cylinder& cylinder) const;
+                        const Cylinder& cylinder) override ;
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const TrajectoryStateOnSurface& tsos, 
-                        const Cylinder& cylinder) const {
+                        const Cylinder& cylinder) override {
         return Propagator::propagateWithPath(tsos, cylinder);
       }
 
@@ -133,10 +133,12 @@ class SmartPropagator GCC11_FINAL : public Propagator {
 
     ///return the propagator used inside tracker
     const Propagator* getTkPropagator() const ;
+    Propagator* getTkPropagator() ;
     ///return the propagator used outside tracker
     const Propagator* getGenPropagator() const ;
+    Propagator* getGenPropagator() ;
     ///return the magneticField
-    virtual const MagneticField* magneticField() const {return theField;}
+    virtual const MagneticField* magneticField() const override {return theField;}
 
   private:
     ///build the tracker volume
