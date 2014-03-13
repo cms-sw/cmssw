@@ -21,7 +21,7 @@ PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
 
   
   muonTag_ = iConfig.getParameter<edm::InputTag>("Muons");
-  inputTagMuons_=consumes<reco::MuonCollection>(muonTag_);
+  inputTagMuons_=consumes<reco::MuonCollection>(edm::InputTag(muonTag_.label()));
   inputTagMuonMap_=consumes<reco::MuonToMuonMap>(muonTag_);
   
   nameOutputPF_ 
@@ -53,7 +53,7 @@ PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputElectronsPF_);
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputPhotonsPF_);
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputMergedPF_);
-  if(fillMuonRefs_)  produces<edm::ValueMap<reco::PFCandidatePtr> > ((muonTag_.label()));
+  if(fillMuonRefs_)  produces<edm::ValueMap<reco::PFCandidatePtr> > (muonTag_.label());
 
 }
 
@@ -65,6 +65,8 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     pfCandidates_p(new reco::PFCandidateCollection);
   
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
+  iEvent.getByToken(inputTagGsfElectrons_,gsfElectrons);
+
   std::map<reco::GsfElectronRef,reco::PFCandidatePtr> electronCandidateMap;  
 
 

@@ -246,7 +246,8 @@ PFBlockProducer::produce(Event& iEvent,
   Handle< reco::PFRecTrackCollection > nuclearRecTracks;
   
   Handle< reco::PhotonCollection >  egPhotons;
-  iEvent.getByToken(inputTagEGPhotons_,
+  if (useEGPhotons_)
+    iEvent.getByToken(inputTagEGPhotons_,
 			    egPhotons);
   			       
   Handle< reco::SuperClusterCollection >  sceb;

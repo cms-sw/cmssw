@@ -19,6 +19,8 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "TMVA/Reader.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -138,7 +140,8 @@ class GoodSeedProducer : public edm::EDProducer {
       edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagPSLabel_;
       edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagECLabel_;
       edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagHCLabel_;
-      std::vector<edm::EDGetTokenT<reco::TrackCollection> > tracksContainers_;
+      std::vector<edm::EDGetTokenT<std::vector<Trajectory> > > trajContainers_;
+      std::vector<edm::EDGetTokenT<reco::TrackCollection > > tracksContainers_;
       
 
       std::string fitterName_;

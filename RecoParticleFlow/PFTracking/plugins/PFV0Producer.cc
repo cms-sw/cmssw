@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 using namespace std;
 using namespace edm;
@@ -23,7 +22,7 @@ PFV0Producer::PFV0Producer(const ParameterSet& iConfig):
   std::vector<edm::InputTag> tags =     iConfig.getParameter< vector < InputTag > >("V0List");
 
   for (unsigned int i=0;i<tags.size();++i)
-    V0list_.push_back(consumes<reco::PFV0Collection>(tags[i])); 
+    V0list_.push_back(consumes<reco::VertexCompositeCandidateCollection>(tags[i])); 
 }
 
 PFV0Producer::~PFV0Producer()

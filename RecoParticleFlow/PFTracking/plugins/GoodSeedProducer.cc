@@ -47,9 +47,10 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   //now do what ever initialization is needed
  
   std::vector<edm::InputTag> tags =   iConfig.getParameter< vector < InputTag > >("TkColList");
-  for(unsigned int i=0;i<tags.size();++i)
+  for(unsigned int i=0;i<tags.size();++i) {
+    trajContainers_.push_back(consumes<vector<Trajectory> >(tags[i]));
     tracksContainers_.push_back(consumes<reco::TrackCollection>(tags[i]));
-
+  }
   
   minPt_=iConfig.getParameter<double>("MinPt");
   maxPt_=iConfig.getParameter<double>("MaxPt");
@@ -216,7 +217,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     
     //Trajectory collection
     Handle<vector<Trajectory> > tjCollection;
-    iEvent.getByToken(tracksContainers_[istr], tjCollection);
+    iEvent.getByToken(trajContainers_[istr], tjCollection);
     vector<Trajectory> Tj=*(tjCollection.product());
     
     
