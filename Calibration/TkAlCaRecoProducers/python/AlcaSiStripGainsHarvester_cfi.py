@@ -37,6 +37,6 @@ alcaSiStripGainsHarvester.FirstSetOfConstants = cms.untracked.bool(False)
 alcaSiStripGainsHarvester.CalibrationLevel    = cms.untracked.int32(0) # 0==APV, 1==Laser, 2==module
 
 # THIS is the crucial parameter to use this in harvesting mode                                  
-alcaSiStripGainsHarvester.harvestingMode      = cms.untracked.bool(True),
+alcaSiStripGainsHarvester.harvestingMode      = cms.untracked.bool(True)
 
 
