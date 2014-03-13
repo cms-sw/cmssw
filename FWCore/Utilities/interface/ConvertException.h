@@ -4,10 +4,7 @@
 #include <string>
 #include <exception>
 #include <functional>
-
-namespace cms {
-  class Exception;
-}
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace edm {
   namespace convertException {
