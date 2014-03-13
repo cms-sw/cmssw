@@ -15,43 +15,17 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 #process.source.fileNames = {'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU25ns_POSTLS170_V3-v2/00000/5A98DF7C-C998-E311-8FF8-003048FEADBC.root'}
-process.source.fileNames = {
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/265B9219-FF98-E311-BF4A-02163E00EA95.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/36598DF8-D098-E311-972E-02163E00E744.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/542AC938-CA98-E311-8928-02163E00E5F5.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/6A95EE20-CD98-E311-8FAE-02163E00A1F2.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/822E181D-D898-E311-8A29-02163E00E928.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/E00EF5A1-CE98-E311-B221-02163E00E8AE.root',
-'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/F60ED2AC-CB98-E311-ACBA-02163E00E62F.root'
-}
-
-##'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/36598DF8-D098-E311-972E-02163E00E744.root'}
+process.source.fileNames = {'/store/relval/CMSSW_7_0_0/SingleMu/RECO/GR_R_70_V1_RelVal_zMu2012D-v2/00000/0259E46E-F698-E311-8CFD-003048FF9AC6.root'}
+#/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/36598DF8-D098-E311-972E-02163E00E744.root'}
 #                                         ##
 process.maxEvents.input = -1
 
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-
-process.prunedGenParticles = cms.EDProducer("GenParticlePruner",
-    src = cms.InputTag("genParticles"),
-    select = cms.vstring(
-        "drop  *", # this is the default
-        "keep status == 3",  #keep event summary status3 (for pythia)
-        "++keep abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15", # keep leptons, with history
-        "++keep pdgId == 22 && status == 1 && pt > 10",                    # keep gamma above 10 GeV
-        "drop   status == 2",                                              # drop the shower part of the history
-        "keep++ abs(pdgId) == 15",                                         # but keep keep taus with decays
-        "++keep  4 <= abs(pdgId) <= 6 ",                                   # keep also heavy quarks
-        "++keep  (400 < abs(pdgId) < 600) || (4000 < abs(pdgId) < 6000)",  # and their hadrons 
-        "drop   status == 2 && abs(pdgId) == 22",                          # but remove again gluons in the inheritance chain
-    )
-)
 #### FIXME here we should change all mcMatchers to use these genParticles,
 #### and then turn OFF the embedding of the genParticle in the PAT Objects
 
 process.packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     inputCollection = cms.InputTag("particleFlow"),
-    inputCollectionFromPVLoose = cms.InputTag("pfNoPileUpJME"), 
-    inputCollectionFromPVTight = cms.InputTag("pfNoPileUp"),    
+    inputCollectionFromPV = cms.InputTag("pfNoPileUp"), ## or ForIso? or JME?
 )
 
 process.offlineSlimmedPrimaryVertices = cms.EDProducer("PATVertexSlimmer",
@@ -90,7 +64,7 @@ process.selectedPatTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
 
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
-process.out.fileName = 'patTuple_micro.root'
+process.out.fileName = 'patTuple_micro_singlemu.root'
 process.out.outputCommands = [
     'drop *',
     'keep *_selectedPatPhotons*_*_*',
@@ -103,7 +77,7 @@ process.out.outputCommands = [
 
     'drop *_*_caloTowers_*',
     'drop *_*_pfCandidates_*',
-    'keep *_*_genJets_*',
+##    'drop *_*_genJets_*',
 
     'keep *_offlineSlimmedPrimaryVertices_*_*',
     'keep *_packedPFCandidates_*_*',
@@ -117,11 +91,14 @@ process.out.outputCommands = [
     #'keep *_TriggerResults_*_PAT', # this will be needed for MET filters
 
     'keep *_prunedGenParticles_*_*',
-    'keep LHEEventProduct_source_*_*',
+##    'keep LHEEventProduct_source_*_*',
     'keep PileupSummaryInfos_*_*_*',
-    'keep GenRunInfoProduct_*_*_*',
-    'keep GenFilterInfo_*_*_*',
+##    'keep GenRunInfoProduct_*_*_*',
+##    'keep GenFilterInfo_*_*_*',
 
 ]
 process.out.dropMetaData = cms.untracked.string('ALL')
+
+from PhysicsTools.PatAlgos.tools.coreTools import runOnData
+runOnData( process )
 
