@@ -46,15 +46,15 @@ private:
   std::pair<float,float> mergePhiRanges(
       const std::pair<float,float> &r1, const std::pair<float,float> &r2) const;
 
-  void refit2Hits(TransientTrackingRecHit::ConstRecHitPointer& hit0,
-		  TransientTrackingRecHit::ConstRecHitPointer& hit1,
+  void refit2Hits(SeedingHitSet::ConstRecHitPointer& hit0,
+		  SeedingHitSet::ConstRecHitPointer& hit1,
 		  TrajectoryStateOnSurface& tsos0,
 		  TrajectoryStateOnSurface& tsos1,
 		  const TrackingRegion& region, float nomField, bool isDebug);
   
-  void refit3Hits(TransientTrackingRecHit::ConstRecHitPointer& hit0,
-		  TransientTrackingRecHit::ConstRecHitPointer& hit1,
-		  TransientTrackingRecHit::ConstRecHitPointer& hit2,
+  void refit3Hits(SeedingHitSet::ConstRecHitPointer& hit0,
+		  SeedingHitSet::ConstRecHitPointer& hit1,
+		  SeedingHitSet::ConstRecHitPointer& hit2,
 		  TrajectoryStateOnSurface& tsos0,
 		  TrajectoryStateOnSurface& tsos1,
 		  TrajectoryStateOnSurface& tsos2,

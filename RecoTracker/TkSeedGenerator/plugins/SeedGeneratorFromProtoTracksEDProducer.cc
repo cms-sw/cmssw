@@ -29,7 +29,7 @@ using namespace edm;
 using namespace reco;
 
 template <class T> T sqr( T t) {return t*t;}
-typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
+typedef SeedingHitSet::ConstRecHitPointer Hit;
 
 struct HitLessByRadius { bool operator() (const Hit& h1, const Hit & h2) { return h1->globalPosition().perp2() < h2->globalPosition().perp2(); } };
 

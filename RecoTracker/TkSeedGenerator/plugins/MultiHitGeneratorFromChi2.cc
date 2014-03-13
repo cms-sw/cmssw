@@ -231,8 +231,8 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     SeedingHitSet triplet;
     float minChi2 = std::numeric_limits<float>::max();
 
-    TransientTrackingRecHit::ConstRecHitPointer hit0 = ip->inner();
-    TransientTrackingRecHit::ConstRecHitPointer hit1 = ip->outer();
+    SeedingHitSet::ConstRecHitPointer hit0 = ip->inner();
+    SeedingHitSet::ConstRecHitPointer hit1 = ip->outer();
 
     GlobalPoint gp0 = hit0->globalPosition();
     GlobalPoint gp1 = hit1->globalPosition();
@@ -430,7 +430,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 
 	const RecHitsSortedInPhi::HitIter KDdata = *ih;
 
-	TransientTrackingRecHit::ConstRecHitPointer hit2 = KDdata->hit();
+	SeedingHitSet::ConstRecHitPointer hit2 = KDdata->hit();
 	if (refitHits) {//fixme
 
 	  //fitting all 3 hits takes too much time... do it quickly only for 3rd hit
@@ -617,8 +617,8 @@ MultiHitGeneratorFromChi2::mergePhiRanges(const std::pair<float, float> &r1,
   return std::make_pair(min(r1.first, r2Min), max(r1.second, r2Max));
 }
 
-void MultiHitGeneratorFromChi2::refit2Hits(TransientTrackingRecHit::ConstRecHitPointer& hit1,
-					   TransientTrackingRecHit::ConstRecHitPointer& hit2,
+void MultiHitGeneratorFromChi2::refit2Hits(SeedingHitSet::ConstRecHitPointer& hit1,
+					   SeedingHitSet::ConstRecHitPointer& hit2,
 					   TrajectoryStateOnSurface& state1,
 					   TrajectoryStateOnSurface& state2,
 					   const TrackingRegion& region, float nomField, bool isDebug) {
@@ -682,9 +682,9 @@ void MultiHitGeneratorFromChi2::refit2Hits(TransientTrackingRecHit::ConstRecHitP
 
 }
 
-void MultiHitGeneratorFromChi2::refit3Hits(TransientTrackingRecHit::ConstRecHitPointer& hit0,
-					   TransientTrackingRecHit::ConstRecHitPointer& hit1,
-					   TransientTrackingRecHit::ConstRecHitPointer& hit2,
+void MultiHitGeneratorFromChi2::refit3Hits(SeedingHitSet::ConstRecHitPointer& hit0,
+					   SeedingHitSet::ConstRecHitPointer& hit1,
+					   SeedingHitSet::ConstRecHitPointer& hit2,
 					   TrajectoryStateOnSurface& state0,
 					   TrajectoryStateOnSurface& state1,
 					   TrajectoryStateOnSurface& state2,

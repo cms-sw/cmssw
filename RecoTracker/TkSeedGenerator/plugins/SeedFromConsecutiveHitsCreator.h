@@ -64,7 +64,7 @@ private:
 
   bool checkHit(
       const TrajectoryStateOnSurface &tsos,
-      const TransientTrackingRecHit::ConstRecHitPointer &hit) const dso_hidden;  
+      SeedingHitSet::ConstRecHitPointerhit) const dso_hidden;  
 
   
   CurvilinearTrajectoryError initialError(float sin2Theta) const  dso_hidden;
@@ -73,7 +73,7 @@ private:
 				   const SeedingHitSet & hits,
 				   const FreeTrajectoryState & fts) const  dso_hidden;
 
-  TransientTrackingRecHit::RecHitPointer refitHit(const TransientTrackingRecHit::ConstRecHitPointer &hit, 
+  TransientTrackingRecHit::RecHitPointer refitHit(SeedingHitSet::ConstRecHitPointerhit, 
 						  const TrajectoryStateOnSurface &state) const  dso_hidden;
 
 protected:

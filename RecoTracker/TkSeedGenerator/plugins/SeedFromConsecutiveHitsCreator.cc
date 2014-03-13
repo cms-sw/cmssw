@@ -60,8 +60,8 @@ void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection & seedCol
 bool SeedFromConsecutiveHitsCreator::initialKinematic(GlobalTrajectoryParameters & kine,
 						      const SeedingHitSet & hits) const{
 
-  TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
-  TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
+  SeedingHitSet::ConstRecHitPointer tth1 = hits[0];
+  SeedingHitSet::ConstRecHitPointer tth2 = hits[1];
   
   const GlobalPoint& vertexPos = region->origin();
 
@@ -130,7 +130,7 @@ void SeedFromConsecutiveHitsCreator::buildSeed(
       : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
     if (!state.isValid()) return;
     
-    TransientTrackingRecHit::ConstRecHitPointer const &  tth = hits[iHit]; 
+    SeedingHitSet::ConstRecHitPointer const &  tth = hits[iHit]; 
     
     TransientTrackingRecHit::RecHitPointer const & newtth = refitHit( tth, state);
     
@@ -152,7 +152,7 @@ void SeedFromConsecutiveHitsCreator::buildSeed(
 }
 
 TransientTrackingRecHit::RecHitPointer SeedFromConsecutiveHitsCreator::refitHit(
-      const TransientTrackingRecHit::ConstRecHitPointer &hit, 
+      SeedingHitSet::ConstRecHitPointerhit, 
       const TrajectoryStateOnSurface &state) const
 {
   return hit->clone(state);
@@ -161,7 +161,7 @@ TransientTrackingRecHit::RecHitPointer SeedFromConsecutiveHitsCreator::refitHit(
 bool 
 SeedFromConsecutiveHitsCreator::checkHit(
       const TrajectoryStateOnSurface &tsos,
-      const TransientTrackingRecHit::ConstRecHitPointer &hit) const 
+      SeedingHitSet::ConstRecHitPointerhit) const 
 { 
     return (filter ? filter->compatible(tsos,hit) : true); 
 }
