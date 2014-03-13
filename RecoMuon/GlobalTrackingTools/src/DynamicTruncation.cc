@@ -42,7 +42,7 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceProxy& theService, edm::ConsumesCollector& iC):
+DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceProxy& theService):
   DTThr(0), CSCThr(0), useAPE(false) 
 {
   theEvent = &event;
@@ -56,7 +56,7 @@ DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceP
   theService.eventSetup().get<MuonRecoGeometryRecord>().get(navMuon);
   theService.eventSetup().get<IdealMagneticFieldRecord>().get(magfield);
   navigation = new DirectMuonNavigation(theService.detLayerGeometry());
-  getSegs = new ChamberSegmentUtility(*theEvent, *theSetup, iC);
+  getSegs = new ChamberSegmentUtility();
 }
 
 
