@@ -52,8 +52,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       const Geometry *ecalGeo =dynamic_cast< const Geometry* > (gTmp);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
-      for (unsigned int i=0;i<recHitHandle->size();++i) {
-	const EcalRecHit& erh = (*recHitHandle)[i];
+      for(const auto& erh : *recHitHandle ) {      
 	const DetId& detid = erh.detid();
 	double energy = erh.energy();
 	double time = erh.time();
@@ -114,10 +113,9 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	bool keep=true;
 
 	//Apply Q tests
-	for (unsigned int i=0;i<qualityTests_.size();++i) {
-	  if (!qualityTests_.at(i)->test(rh,erh,rcleaned)) {
-	    keep = false;
-	    
+	for( const auto& qtest : qualityTests_ ) {
+	  if (!qtest->test(rh,erh,rcleaned)) {
+	    keep = false;	    
 	  }
 	}
 	  

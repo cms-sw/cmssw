@@ -31,7 +31,7 @@ class PFRecHitCreatorBase {
     std::vector<edm::ParameterSet> qTests =   iConfig.getParameter<std::vector<edm::ParameterSet> >("qualityTests");
     for (unsigned int i=0;i<qTests.size();++i) {
       std::string name = qTests.at(i).getParameter<std::string>("name");
-      qualityTests_.push_back(std::unique_ptr<PFRecHitQTestBase>(PFRecHitQTestFactory::get()->create(name,qTests.at(i))));
+      qualityTests_.emplace_back(PFRecHitQTestFactory::get()->create(name,qTests.at(i)));
     }
   }
 
