@@ -113,9 +113,9 @@ class ReadPixClusters : public edm::EDAnalyzer {
   TH1F *hpixcharge1,*hpixcharge2, *hpixcharge3, *hpixcharge4, *hpixcharge5;
   TH1F *hcols1,*hcols2,*hcols3,*hrows1,*hrows2,*hrows3;
   TH1F *hpcols1,*hpcols2,*hpcols3,*hprows1,*hprows2,*hprows3;
-  TH1F *hsize1,*hsize2,*hsize3,
-    *hsizex1,*hsizex2,*hsizex3,
-    *hsizey1,*hsizey2,*hsizey3;
+  TH1F *hsize1,*hsize2,*hsize3,*hsize4,*hsize5,
+    *hsizex1,*hsizex2,*hsizex3,*hsizex4,*hsizex5,
+    *hsizey1,*hsizey2,*hsizey3,*hsizey4,*hsizey5;
 
   TH1F *hclusPerDet1,*hclusPerDet2,*hclusPerDet3;
   TH1F *hpixPerDet1,*hpixPerDet2,*hpixPerDet3;
@@ -261,17 +261,17 @@ void ReadPixClusters::beginJob() {
   hdetsPerLay2 = fs->make<TH1F>( "hdetsPerLay2", "Full dets per layer l2",
 				 257, -0.5, 256.5);
  
-  sizeH=1000;
+  sizeH=120;
   lowH = 0.;
-  highH = 100.0; // charge limit in kelec
+  highH = 121.0; // charge limit in kelec
   hcharge1 = fs->make<TH1F>( "hcharge1", "Clu charge l1", sizeH, 0.,highH); //in ke
   hcharge2 = fs->make<TH1F>( "hcharge2", "Clu charge l2", sizeH, 0.,highH);
   hcharge3 = fs->make<TH1F>( "hcharge3", "Clu charge l3", sizeH, 0.,highH);
   hcharge4 = fs->make<TH1F>( "hcharge4", "Clu charge d1", sizeH, 0.,highH);
   hcharge5 = fs->make<TH1F>( "hcharge5", "Clu charge d2", sizeH, 0.,highH);
  
-  sizeH=600;
-  highH = 60.0; // charge limit in kelec
+  sizeH=90;
+  highH = 61.0; // charge limit in kelec
   hpixcharge1 = fs->make<TH1F>( "hpixcharge1", "Pix charge l1",sizeH, 0.,highH);//in ke
   hpixcharge2 = fs->make<TH1F>( "hpixcharge2", "Pix charge l2",sizeH, 0.,highH);
   hpixcharge3 = fs->make<TH1F>( "hpixcharge3", "Pix charge l3",sizeH, 0.,highH);
@@ -300,6 +300,8 @@ void ReadPixClusters::beginJob() {
   hsize1 = fs->make<TH1F>( "hsize1", "layer 1 clu size",sizeH,-0.5,highH);
   hsize2 = fs->make<TH1F>( "hsize2", "layer 2 clu size",sizeH,-0.5,highH);
   hsize3 = fs->make<TH1F>( "hsize3", "layer 3 clu size",sizeH,-0.5,highH);
+  hsize4 = fs->make<TH1F>( "hsize4", "disk 1 clu size",sizeH,-0.5,highH);
+  hsize5 = fs->make<TH1F>( "hsize5", "disk 2 clu size",sizeH,-0.5,highH);
 
   hsizex1 = fs->make<TH1F>( "hsizex1", "lay1 clu size in x",
 		      10,-0.5,9.5);
@@ -307,11 +309,20 @@ void ReadPixClusters::beginJob() {
 		      10,-0.5,9.5);
   hsizex3 = fs->make<TH1F>( "hsizex3", "lay3 clu size in x",
 		      10,-0.5,9.5);
+  hsizex4 = fs->make<TH1F>( "hsizex4", "d1 clu size in x",
+		      10,-0.5,9.5);
+  hsizex5 = fs->make<TH1F>( "hsizex5", "d2 clu size in x",
+		      10,-0.5,9.5);
+
   hsizey1 = fs->make<TH1F>( "hsizey1", "lay1 clu size in y",
 		      20,-0.5,19.5);
   hsizey2 = fs->make<TH1F>( "hsizey2", "lay2 clu size in y",
 		      20,-0.5,19.5);
   hsizey3 = fs->make<TH1F>( "hsizey3", "lay3 clu size in y",
+		      20,-0.5,19.5);
+  hsizey4 = fs->make<TH1F>( "hsizey4", "d1 clu size in y",
+		      20,-0.5,19.5);
+  hsizey5 = fs->make<TH1F>( "hsizey5", "d2 clu size in y",
 		      20,-0.5,19.5);
 
   hevent = fs->make<TH1F>("hevent","event",1000,0,10000000.);
@@ -408,7 +419,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
   hdets->Fill(float(numOf)); // number of modules with pix
 
   // Select events with pixels
-  if(numOf<1) return; // skip events with  pixel dets
+  //if(numOf<1) return; // skip events with  pixel dets
   //if(numOf<4) return; // skip events with few pixel dets
 
   hevent->Fill(float(event));
@@ -846,6 +857,9 @@ void ReadPixClusters::analyze(const edm::Event& e,
 
 	  hcharge4->Fill(ch);
 	  aveCharge4 += ch;
+	  hsize4->Fill(float(size));
+	  hsizex4->Fill(float(sizeX));
+	  hsizey4->Fill(float(sizeY));
 
 	} else if(disk==2) { // disk2 -+z
 
@@ -855,6 +869,9 @@ void ReadPixClusters::analyze(const edm::Event& e,
 
 	  hcharge5->Fill(ch);
 	  aveCharge5 += ch;
+	  hsize5->Fill(float(size));
+	  hsizex5->Fill(float(sizeX));
+	  hsizey5->Fill(float(sizeY));
 
 	} else cout<<" unknown disk "<<disk<<endl; // end fpix disk 
 
