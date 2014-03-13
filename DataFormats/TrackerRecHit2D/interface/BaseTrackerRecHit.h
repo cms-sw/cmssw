@@ -116,6 +116,8 @@ public:
 	};
   }
 
+  /// cluster probability, overloaded by pixel rechits.
+  virtual float clusterProbability() const { return 1.f; }
 
 public:
 
