@@ -8,8 +8,8 @@
 //********** Date  : 29.08.2008 (first version) ******// 
 //****************************************************//
 ////---- digi values in Castor r/o channels 
-//// last revision: 31.05.2011 (Panos Katsas) to remove selecting N events for filling the histograms
-
+////      revision: 31.05.2011 (Panos Katsas) to remove selecting N events for filling the histograms
+//// last revision: 13.03.2014 (Vladimir Popov) QIE validation 2d-histogram
 //==================================================================//
 //======================= Constructor ==============================//
 //==================================================================//
@@ -98,6 +98,10 @@ void CastorDigiMonitor::beginRun(const edm::EventSetup& iSetup)
     	/////  castHists.PEDMEAN =  m_dbe->book1D("Castor Pedestal Mean Values","Castor Pedestal Mean Values",100,0,9);
     	///// castHists.QIERMS  =  m_dbe->book1D("Castor QIE RMS Values","Castor QIE RMS Values",50,0,3);
     	///// castHists.QIEMEAN =  m_dbe->book1D("Castor QIE Mean Values","Castor QIE Mean Values",50,0,10);
+
+	std::string s2 = "QIE_capID+er+dv";
+	std::string s3 = "qieError2D";
+    	h2digierr = m_dbe->book2DD(s3,s2,16,0.5,16.5, 14,0.5,14.5);
 	}
   else
 	{ 
@@ -192,7 +196,22 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, co
       ////---- do histograms for every channel once per 100 events
       //      if( ievt_%100 == 0 && doPerChannel_) perChanHists(detID_,capID_,pedVals_,castHists.PEDVALS, baseFolder_);
       if( doPerChannel_) perChanHists(detID_,capID_,pedVals_,castHists.PEDVALS, baseFolder_); // PK: no special event selection done
-
+   int capid1 = digi.sample(0).capid();
+   for (int i=1; i<digi.size(); i++) {
+     int module = digi.id().module();
+     int sector = digi.id().sector();
+     if(capid1 < 3) capid1++;
+     else capid1 = 0;
+     int capid = digi.sample(i).capid();
+     int dv = digi.sample(i).dv();
+     int er = digi.sample(i).er();
+     int err = (capid != capid1) | er<<1 | (!dv)<<2; // =0
+     if(err !=0) h2digierr->Fill(sector,module);
+//     if(err != 0 && fVerbosity>0)
+//     std::cout<<"event/idigi=" <<ievt_<<"/" <<i<< " cap_cap1_dv_er: " <<
+//	capid <<"="<< capid1 <<" "<< dv <<" "<< er<<" "<< err << std::endl;
+     capid1 = capid;
+   }
     }
   } 
    else {
@@ -218,7 +237,9 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, co
 //==================================================================//
 void CastorDigiMonitor::done()
   {
-  
+  long int hdigierrEntr = h2digierr->getEntries();
+  if(fVerbosity>0) std::cout << "CastorDigiMonitor: capId,er,dv summary (entries="
+	<<hdigierrEntr<<"):"<<std::endl;
   return;
   }
 
