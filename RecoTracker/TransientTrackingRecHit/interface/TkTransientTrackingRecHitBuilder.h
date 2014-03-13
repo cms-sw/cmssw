@@ -4,7 +4,11 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-class  SiStripRecHitMatcher;
+#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
+
+
+
+class SiStripRecHitMatcher;
 class PixelClusterParameterEstimator;
 class StripClusterParameterEstimator;
 
@@ -23,6 +27,9 @@ class TkTransientTrackingRecHitBuilder GCC11_FINAL : public TransientTrackingRec
   const StripClusterParameterEstimator * stripClusterParameterEstimator(){return stripCPE;}
   const SiStripRecHitMatcher           * siStripRecHitMatcher(){return theMatcher;}
   const TrackingGeometry               * geometry() const  { return tGeometry_;}
+
+  // for the time being here...
+  TkClonerImpl cloner() const { return TkClonerImpl(pixelCPE,stripCPE,theMatcher);}
 
 private:
   TransientTrackingRecHit::RecHitPointer oldbuild (const TrackingRecHit * p) const ;
