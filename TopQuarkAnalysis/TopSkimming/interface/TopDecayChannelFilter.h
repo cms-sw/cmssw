@@ -10,10 +10,12 @@ class TopDecayChannelFilter : public edm::EDFilter {
  public:
   TopDecayChannelFilter(const edm::ParameterSet&);
   ~TopDecayChannelFilter();
-  
+
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);  
-  edm::InputTag src_;    
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  edm::InputTag src_;
+  edm::EDGetTokenT<TtGenEvent> genEvt_;
+  edm::EDGetTokenT<reco::GenParticleCollection> parts_;
   S sel_;
   bool checkedSrcType_;
   bool useTtGenEvent_;
@@ -22,6 +24,8 @@ class TopDecayChannelFilter : public edm::EDFilter {
 template<typename S>
 TopDecayChannelFilter<S>::TopDecayChannelFilter(const edm::ParameterSet& cfg):
   src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
+  genEvt_( mayConsume<TtGenEvent>( src_ ) ),
+  parts_( mayConsume<reco::GenParticleCollection>( src_ ) ),
   sel_( cfg ),
   checkedSrcType_(0), useTtGenEvent_(0)
 { }
@@ -39,18 +43,17 @@ TopDecayChannelFilter<S>::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
   if(!checkedSrcType_) {
     checkedSrcType_ = true;
-    if(iEvent.getByLabel( src_, genEvt )) {
+    if(iEvent.getByToken( genEvt_, genEvt )) {
       useTtGenEvent_ = true;
-      iEvent.getByLabel( src_, genEvt );
       return sel_( genEvt->particles(), src_.label() );
     }
   }
   else {
     if(useTtGenEvent_) {
-      iEvent.getByLabel( src_, genEvt );
+      iEvent.getByToken( genEvt_, genEvt );
       return sel_( genEvt->particles(), src_.label() );
     }
   }
-  iEvent.getByLabel( src_,parts );
+  iEvent.getByToken( parts_, parts );
   return sel_( *parts, src_.label() );
 }
