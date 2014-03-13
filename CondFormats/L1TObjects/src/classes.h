@@ -36,8 +36,10 @@
 #include "CondFormats/L1TObjects/interface/L1GtPsbConfig.h"
 #include "CondFormats/L1TObjects/interface/L1GtPsbSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
+#include "CondFormats/L1TObjects/interface/L1uGtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1uGtTriggerMenu.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/L1TObjects/interface/L1RPCBxOrConfig.h"
@@ -61,6 +63,9 @@ namespace CondFormats_L1TObjects {
     std::pair< std::string, L1GtAlgorithm > dummy9a ;
     std::pair<short,L1MuDTEtaPattern> dummy11 ;
     std::pair<int, std::vector<L1GtObject> > dummy13 ;
+    std::vector<L1uGtMuonTemplate> dummy14 ;
+    std::vector<L1uGtCaloTemplate> dummy15 ;
+    std::vector<L1uGtCorrelationTemplate> dummy16 ;
 //    std::vector<L1RPCConeDefinition::TLPSize> dummy15;
 //    std::vector<L1RPCConeDefinition::TRingToTower> dummy15a;
 //    std::vector<L1RPCConeDefinition::TRingToLP> dummy15b;
