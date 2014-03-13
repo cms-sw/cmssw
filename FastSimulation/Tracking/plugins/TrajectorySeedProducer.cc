@@ -456,11 +456,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
 
 #ifdef FAMOS_DEBUG
-    std::cout << "Track number " << tkId << "--------------------------------" <<std::endl;
-    if (tkId>1)
-    {
-    	break;
-    }
+    std::cout << "Track number " << tkId << std::endl;
 #endif
 
     ++nSimTracks;
@@ -508,7 +504,9 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // Check the number of layers crossed
     unsigned numberOfRecHits = 0;
     TrackerRecHit previousHit, currentHit;
-    for ( iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
+    for ( iterRecHit = theRecHitRangeIteratorBegin; 
+	  iterRecHit != theRecHitRangeIteratorEnd; 
+	  ++iterRecHit) { 
       previousHit = currentHit;
       currentHit = TrackerRecHit(&(*iterRecHit),theGeometry,tTopo);
       if ( currentHit.isOnTheSameLayer(previousHit) ) continue;
@@ -538,7 +536,9 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       if ( fabs( theParticle.zImpactParameter(x0,y0) - z0 ) > maxZ0[ialgo] ) continue;
       ++nTracksWithD0Z0;
       
-      std::vector<TrackerRecHit > theSeedHits(numberOfHits[ialgo],static_cast<TrackerRecHit >(TrackerRecHit()));
+      std::vector<TrackerRecHit > 
+	theSeedHits(numberOfHits[ialgo],
+		    static_cast<TrackerRecHit >(TrackerRecHit()));
       TrackerRecHit& theSeedHits0 = theSeedHits[0];
       TrackerRecHit& theSeedHits1 = theSeedHits[1];
       TrackerRecHit& theSeedHits2 = theSeedHits[2];
@@ -848,6 +848,7 @@ TrajectorySeedProducer::compatibleWithBeamAxis(GlobalPoint& gpos1,
 					       unsigned algo) const {
 
   if ( !seedCleaning ) return true;
+
   // The hits 1 and 2 positions, in HepLorentzVector's
   XYZTLorentzVector thePos1(gpos1.x(),gpos1.y(),gpos1.z(),0.);
   XYZTLorentzVector thePos2(gpos2.x(),gpos2.y(),gpos2.z(),0.);
@@ -855,6 +856,7 @@ TrajectorySeedProducer::compatibleWithBeamAxis(GlobalPoint& gpos1,
   std::cout << "ThePos1 = " << thePos1 << std::endl;
   std::cout << "ThePos2 = " << thePos2 << std::endl;
 #endif
+
 
   // Create new particles that pass through the second hit with pT = ptMin 
   // and charge = +/-1
