@@ -31,7 +31,7 @@
 
 
 /* Constructor */ 
-void BeamHaloPropagator::directionCheck(PropagationDirection dir)const {
+void BeamHaloPropagator::directionCheck(PropagationDirection dir) {
 
   //consistency check for direction
   if (getEndCapTkPropagator()->propagationDirection()!=dir && getEndCapTkPropagator()->propagationDirection()!=anyDirection){
@@ -86,13 +86,13 @@ bool BeamHaloPropagator::crossingTk(const FreeTrajectoryState& fts, const Plane&
   return (fts.position().z()*plane.position().z()<0);}
 
 TrajectoryStateOnSurface BeamHaloPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Surface& surface) const {
+                                                    const Surface& surface) {
   return Propagator::propagate( fts, surface);
 }
 
 
 TrajectoryStateOnSurface BeamHaloPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Plane& plane) const {
+                                                    const Plane& plane) {
 
   if (crossingTk(fts,plane)){
     return getCrossTkPropagator()->propagate(fts, plane);}
@@ -102,13 +102,13 @@ TrajectoryStateOnSurface BeamHaloPropagator::propagate(const FreeTrajectoryState
 
 
 TrajectoryStateOnSurface BeamHaloPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Cylinder& cylinder) const {
+                                                    const Cylinder& cylinder) {
   return getCrossTkPropagator()->propagate(fts, cylinder);
 }
 
 std::pair<TrajectoryStateOnSurface,double> 
 BeamHaloPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
-                                   const Plane& plane) const 
+                                   const Plane& plane)
 {
   if (crossingTk(fts,plane)){
     return getCrossTkPropagator()->propagateWithPath(fts, plane);}
@@ -118,7 +118,7 @@ BeamHaloPropagator::propagateWithPath(const FreeTrajectoryState& fts,
 
 std::pair<TrajectoryStateOnSurface,double> 
 BeamHaloPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
-                                   const Cylinder& cylinder) const
+                                   const Cylinder& cylinder)
 {  return getCrossTkPropagator()->propagateWithPath(fts, cylinder);}
 
 
@@ -128,6 +128,14 @@ const Propagator* BeamHaloPropagator::getEndCapTkPropagator() const {
 
 
 const Propagator* BeamHaloPropagator::getCrossTkPropagator() const {
+  LogDebug("BeamHaloPropagator")<<"using the Crossing propagator";
+  return theCrossTkProp;}
+
+Propagator* BeamHaloPropagator::getEndCapTkPropagator() {
+  LogDebug("BeamHaloPropagator")<<"using the EndCap propagator";
+  return theEndCapTkProp;}
+
+Propagator* BeamHaloPropagator::getCrossTkPropagator() {
   LogDebug("BeamHaloPropagator")<<"using the Crossing propagator";
   return theCrossTkProp;}
 

@@ -96,13 +96,13 @@ void SmartPropagator::initTkVolume(float epsilon) {
 
 
 TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Surface& surface) const {
+                                                    const Surface& surface) {
   return Propagator::propagate( fts, surface);
 }
 
 
 TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Plane& plane) const {
+                                                    const Plane& plane) {
 
   if (insideTkVol(fts) && insideTkVol(plane)) {
     return getTkPropagator()->propagate(fts, plane);
@@ -114,7 +114,7 @@ TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& f
 
 
 TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Cylinder& cylinder) const {
+                                                    const Cylinder& cylinder) {
   if (insideTkVol(fts) && insideTkVol(cylinder)) {
     return getTkPropagator()->propagate(fts, cylinder);
   } else {
@@ -125,7 +125,7 @@ TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& f
 
 std::pair<TrajectoryStateOnSurface,double> 
 SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
-                                   const Plane& plane) const 
+                                   const Plane& plane)
 {
   if (insideTkVol(fts) && insideTkVol(plane)) {
     return getTkPropagator()->propagateWithPath(fts, plane);
@@ -136,7 +136,7 @@ SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts,
 
 std::pair<TrajectoryStateOnSurface,double> 
 SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
-                                   const Cylinder& cylinder) const
+                                   const Cylinder& cylinder)
 {
   if (insideTkVol(fts) && insideTkVol(cylinder)) {
     return getTkPropagator()->propagateWithPath(fts, cylinder);
@@ -202,4 +202,16 @@ const Propagator* SmartPropagator::getGenPropagator() const {
 
 }
 
+Propagator* SmartPropagator::getTkPropagator() {
+
+  return theTkProp;
+
+}
+
+
+Propagator* SmartPropagator::getGenPropagator() {
+
+  return theGenProp;
+
+}
 

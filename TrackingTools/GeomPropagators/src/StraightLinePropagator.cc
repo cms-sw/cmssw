@@ -7,7 +7,7 @@
 
 std::pair<TrajectoryStateOnSurface,double> 
 StraightLinePropagator::propagateWithPath(const FreeTrajectoryState& fts, 
-					  const Plane& plane) const
+					  const Plane& plane)
 {
   // propagate parameters
   LocalPoint x;
@@ -28,7 +28,7 @@ StraightLinePropagator::propagateWithPath(const FreeTrajectoryState& fts,
 
 std::pair<TrajectoryStateOnSurface,double> 
 StraightLinePropagator::propagateWithPath(const FreeTrajectoryState& fts, 
-					  const Cylinder& cylinder) const
+					  const Cylinder& cylinder) 
 {
   // propagate parameters
   GlobalPoint x;
