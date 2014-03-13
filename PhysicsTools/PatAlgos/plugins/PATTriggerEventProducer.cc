@@ -8,6 +8,8 @@
 
 #include "FWCore/Utilities/interface/transform.h"
 
+#include "FWCore/Framework/interface/InputTagMatch.h"
+
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
@@ -45,7 +47,10 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
   gtCondLumiInit_( false )
 {
 
-  if ( iConfig.exists( "triggerResults" ) )     tagTriggerResults_  = iConfig.getParameter< InputTag >( "triggerResults" );
+  if ( iConfig.exists( "triggerResults" ) ) tagTriggerResults_ = iConfig.getParameter< InputTag >( "triggerResults" );
+  InputTag tagTriggerResultsTmp( tagTriggerResults_.label(), tagTriggerResults_.instance() );
+  triggerResultsGetter_ = edm::GetterOfProducts< edm::TriggerResults >( edm::InputTagMatch( tagTriggerResultsTmp.encode() ), this);
+  callWhenNewProductsRegistered( triggerResultsGetter_ );
   if ( iConfig.exists( "triggerEvent" ) )       tagTriggerEvent_    = iConfig.getParameter< InputTag >( "triggerEvent" );
   if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
   triggerAlgorithmCollectionToken_ = mayConsume< TriggerAlgorithmCollection >( tagTriggerProducer_ );
@@ -107,7 +112,6 @@ void PATTriggerEventProducer::beginRun(const Run & iRun, const EventSetup & iSet
   } else if ( tagTriggerEvent_.process() != nameProcess_ ) {
     LogWarning( "triggerResultsTag" ) << "TriggerResults process name '" << tagTriggerResults_.process() << "' differs from HLT process name '" << nameProcess_ << "'";
   }
-//   triggerResultsToken_ = mayConsume< TriggerResults >( tagTriggerResults_ ); // FIXME: This works only in the c'tor!
   if ( tagTriggerEvent_.process().empty() || tagTriggerEvent_.process()   == "*" ) {
     tagTriggerEvent_ = InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance(), nameProcess_ );
   } else if ( tagTriggerEvent_.process() != nameProcess_ ) {
