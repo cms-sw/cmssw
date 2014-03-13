@@ -3,9 +3,11 @@ import FWCore.ParameterSet.Config as cms
 # import the needed ingredients
 from Calibration.TkAlCaRecoProducers.AlcaBeamSpotHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripQualityHarvester_cff import *
+from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsHarvester_cff import *
+
 from Calibration.TkAlCaRecoProducers.PCLMetadataWriter_cfi import *
 
-# commoon ingredients
+# common ingredients
 from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
 CondDBCommon.connect = "sqlite_file:promptCalibConditions.db"
 
@@ -31,14 +33,6 @@ ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.
 
 
 ALCAHARVESTBeamSpotByRun_metadata = cms.PSet(record              = cms.untracked.string('BeamSpotObjectsRcdByRun'),
-#                                              destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT"),
-#                                              destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"),
-#                                              tag                 = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_offline"),
-#                                              Timetype            = cms.untracked.string("runnumber"),
-#                                              IOVCheck            = cms.untracked.string("All"),
-#                                              DuplicateTagHLT     = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_hlt"),
-#                                              DuplicateTagEXPRESS = cms.untracked.string(""),
-#                                              DuplicateTagPROMPT  = cms.untracked.string("BeamSpotObjects_PCL_byRun_v0_prompt"),
                                              )
 
 
@@ -51,16 +45,8 @@ ALCAHARVESTBeamSpotByLumi = alcaBeamSpotHarvester.clone()
 ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("lumibased")
 ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdByLumi")
 
-
+# configuration of DropBox metadata and DB output
 ALCAHARVESTBeamSpotByLumi_metadata = cms.PSet(record              = cms.untracked.string('BeamSpotObjectsRcdByLumi'),
-#                                               destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_BEAMSPOT"),
-#                                               destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_BEAMSPOT"),
-#                                               tag                 = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_offline"),
-#                                               Timetype            = cms.untracked.string("lumiid"),
-#                                               IOVCheck            = cms.untracked.string("All"),
-#                                               DuplicateTagHLT     = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_hlt"),
-#                                               DuplicateTagEXPRESS = cms.untracked.string(""),
-#                                               DuplicateTagPROMPT  = cms.untracked.string("BeamSpotObjects_PCL_byLumi_v0_prompt"),
                                               )
 
 ALCAHARVESTBeamSpotByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObjectsRcdByLumi'),
@@ -69,14 +55,6 @@ ALCAHARVESTBeamSpotByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObjec
 
 
 ALCAHARVESTSiStripQuality_metadata = cms.PSet(record              = cms.untracked.string('SiStripBadStripRcd'),
-#                                               destDB              = cms.untracked.string("oracle://cms_orcon_prod/CMS_COND_31X_STRIP"),
-#                                               destDBValidation    = cms.untracked.string("oracle://cms_orcoff_prep/CMS_COND_STRIP"),
-#                                               tag                 = cms.untracked.string("SiStripBadChannel_PCL_v0_offline"),
-#                                               Timetype            = cms.untracked.string("runnumber"),
-#                                               IOVCheck            = cms.untracked.string("All"),
-#                                               DuplicateTagHLT     = cms.untracked.string("SiStripBadChannel_PCL_v0_hlt"),
-#                                               DuplicateTagEXPRESS = cms.untracked.string(""),
-#                                               DuplicateTagPROMPT  = cms.untracked.string("SiStripBadChannel_PCL_v0_prompt"),
                                               )
 
 
@@ -85,12 +63,22 @@ ALCAHARVESTSiStripQuality_dbOutput = cms.PSet(record = cms.string('SiStripBadStr
                                              timetype   = cms.untracked.string('runnumber'))
 
 
+ALCAHARVESTSiStripGains_metadata = cms.PSet(record              = cms.untracked.string('SiStripApvGainRcd'),
+                                              )
+
+
+ALCAHARVESTSiStripGains_dbOutput = cms.PSet(record = cms.string('SiStripApvGainRcd'),
+                                             tag = cms.string('SiStripApvGain_pcl'),
+                                             timetype   = cms.untracked.string('runnumber'))
+
+
+
 # define the paths
 
-BeamSpotByRun = cms.Path(ALCAHARVESTBeamSpotByRun)
+BeamSpotByRun  = cms.Path(ALCAHARVESTBeamSpotByRun)
 BeamSpotByLumi = cms.Path(ALCAHARVESTBeamSpotByLumi)
 SiStripQuality = cms.Path(ALCAHARVESTSiStripQuality)
-
+SiStripGains   = cms.Path(ALCAHARVESTSiStripGains)
 ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(dqmSaver+pclMetadataWriter)
 
 #promptCalibHarvest = cms.Path(alcaBeamSpotHarvester)
