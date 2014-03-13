@@ -63,17 +63,17 @@ public:
     return RecHitPointer( new TSiPixelRecHit( geom, rh, cpe, computeCoarseLocalPosition));
   }
 
-  static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
+  static RecHitPointer build( const LocalPoint& pos, const LocalError& err, SiPixelRecHitQuality::QualWordType qual,
 			      const GeomDet* det, 
 			      const clusterRef & cluster,
 			      const PixelClusterParameterEstimator* cpe) {
-    return RecHitPointer( new TSiPixelRecHit( pos, err, det, cluster, cpe));
+    return RecHitPointer( new TSiPixelRecHit( pos, err, qual, det, cluster, cpe));
   }
 
 
   //!  Probability of the compatibility of the track with the pixel cluster shape.
   virtual float clusterProbability() const {
-    return theHitData.clusterProbability( theClusterProbComputationFlag );
+    return theHitData.clusterProbability( theCPE->clusterProbComputationFlag() );
   }
 
 
@@ -81,7 +81,6 @@ public:
 private:
   const PixelClusterParameterEstimator* theCPE;
   SiPixelRecHit                         theHitData;
-  unsigned int                          theClusterProbComputationFlag;
 
 
   /// This private constructor copies the TrackingRecHit.  It should be used when the 
@@ -94,10 +93,12 @@ private:
 
   /// Another private constructor.  It creates the TrackingRecHit internally, 
   /// avoiding redundent cloning.
-  TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
+  TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,SiPixelRecHitQuality::QualWordType qual,
 		  const GeomDet* det, 
 		  const clusterRef & clust,
-		  const PixelClusterParameterEstimator* cpe);
+		  const PixelClusterParameterEstimator* cpe) :
+    TValidTrackingRecHit(det), theCPE(cpe),
+    theHitData( pos, err, qual, *det, clust){}
 
 
   virtual TSiPixelRecHit * clone() const {
