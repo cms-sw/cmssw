@@ -11,6 +11,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <vector>
+#include <memory>
 #include "FWCore/ParameterSet/interface/types.h"
 
 #include <ext/pool_allocator.h>
@@ -219,7 +220,7 @@ class GeometricDet {
   /**
    *bounds() returns the Bounds.
    */
-   Bounds * bounds() const; 
+  std::unique_ptr<Bounds> bounds() const; 
 #ifdef GEOMETRICDETDEBUG
   int copyno() const {
     //std::cout<<"copyno"<<std::endl;
