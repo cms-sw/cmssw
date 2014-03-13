@@ -59,7 +59,7 @@ private:
   //nominal field value 
   virtual int computeNominalValue() const;
   mutable std::atomic<char> nominalValueCompiuted;
-  mutable int theNominalValue;
+  [[cms::thread_guard("nominalValueCompiuted")]] mutable int theNominalValue;
   enum FooStates {kUnset, kSetting, kSet};
 };
 
