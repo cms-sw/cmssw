@@ -18,17 +18,12 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > XYZTLorentzVec
 using namespace std;
 
 
-namespace zspjpt {
-
-  bool debug = false;
-  
-} // namespace
-
 SimpleZSPJPTJetCorrector::SimpleZSPJPTJetCorrector ()
-{}
+{ debug_=false;}
 
 SimpleZSPJPTJetCorrector::SimpleZSPJPTJetCorrector (const std::string& fDataFile) 
 {
+  debug_=false;
   mParameters = new JetCorrectorParameters (fDataFile,"");
 
   //std::cout<<" Formula "<<((mParameters->definitions()).formula()).c_str()<<std::endl;
@@ -36,7 +31,7 @@ SimpleZSPJPTJetCorrector::SimpleZSPJPTJetCorrector (const std::string& fDataFile
   mFunc            = new TFormula("function",((mParameters->definitions()).formula()).c_str());
 
 // Read parameters
- if (zspjpt::debug) {
+ if (debug_) {
   std::cout<<" Size of parameters as read by SimpleJetCorrectorParameters "<<mParameters->size()<<std::endl;
   for(unsigned int i = 0; i<mParameters->size(); i++){
    const std::vector<float> p = mParameters->record (i).parameters ();
@@ -74,7 +69,7 @@ double SimpleZSPJPTJetCorrector::correctionEtEtaPhiP (double fEt, double fEta, d
      mFunc->SetParameter(i,p[i]);
   }
 
-  if (zspjpt::debug) {
+  if (debug_) {
      cout<<" Et and eta of jet "<<et<<" "<<eta<<" bin "<<band<<" "<<p[1]<<" "<<p[2]<<" "<<p[3]<<
      " "<<p[4]<<" "<<p[5]<<endl;
   } 
@@ -90,13 +85,13 @@ double SimpleZSPJPTJetCorrector::correctionEtEtaPhiP (double fEt, double fEta, d
 //
   if(koef <= 0.000001) 
   {
-   if (zspjpt::debug)  std::cout<<"SimpleZSPJPTJetCorrector::Problem with ZSP corrections "<<koef<<std::endl; 
+   if (debug_)  std::cout<<"SimpleZSPJPTJetCorrector::Problem with ZSP corrections "<<koef<<std::endl; 
   koef = 1.;
   }
 
   double etnew = et/koef;
 
-  if (zspjpt::debug) cout<<" The new energy found "<<etnew<<" "<<et<<" "<<koef<<endl;
+  if (debug_) cout<<" The new energy found "<<etnew<<" "<<et<<" "<<koef<<endl;
   
   return etnew/et;
 }
@@ -115,14 +110,14 @@ double SimpleZSPJPTJetCorrector::correctionPUEtEtaPhiP (double fEt, double fEta,
 
   const std::vector<float> p = mParameters->record (band).parameters ();
 
-  if (zspjpt::debug) {
+  if (debug_) {
      cout<<" Et and eta of jet "<<et<<" "<<eta<<" bin "<<band<<std::endl;
   }
 
   double koef = (et-p[2])/et;
   double etnew = et/koef;
 
-  if (zspjpt::debug) cout<<" The new energy found "<<etnew<<" "<<et<<endl;
+  if (debug_) cout<<" The new energy found "<<etnew<<" "<<et<<endl;
 
   return etnew/et;
 }
