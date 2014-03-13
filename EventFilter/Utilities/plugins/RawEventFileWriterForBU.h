@@ -38,11 +38,15 @@ class RawEventFileWriterForBU
   void initialize(std::string const& destinationDir, std::string const& name, int ls);
   void endOfLS(int ls);
   bool sharedMode() const {return false;}
+  void makeRunPrefix(std::string const& destinationDir);
 
   void handler(int s);
   static void staticHandler(int s) { instance->handler(s); }
 
  private:
+
+  int run_ = -1;
+  std::string runPrefix_;
 
   IntJ perLumiEventCount_;
   FastMonitor* lumiMon_;

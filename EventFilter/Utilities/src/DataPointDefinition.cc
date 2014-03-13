@@ -17,17 +17,18 @@ const std::string DataPointDefinition::AVG = "avg";
 const std::string DataPointDefinition::SAME = "same";
 const std::string DataPointDefinition::HISTO = "histo";
 const std::string DataPointDefinition::CAT = "cat";
-
-const std::string DataPointDefinition::MODE = "mode";
+const std::string DataPointDefinition::BINARYOR = "binaryOr";
 const std::string DataPointDefinition::MERGE = "merge";
+
 const std::string DataPointDefinition::LEGEND = "legend";
+const std::string DataPointDefinition::DATA = "data";
 const std::string DataPointDefinition::PARAM_NAME = "name";
 const std::string DataPointDefinition::OPERATION = "operation";
 const std::string DataPointDefinition::TYPE = "type";
 
 
 //static member
-bool DataPointDefinition::getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition* dpd)
+bool DataPointDefinition::getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition* dpd, std::string *defaultGroup)
 {
   std::string dpdString;
   bool readOK = FileIO::readStringFromFile(defFilePath, dpdString);
@@ -36,35 +37,32 @@ bool DataPointDefinition::getDataPointDefinitionFor(std::string& defFilePath, Da
     std::cout << "Cannot read from JSON definition path: " << defFilePath << std::endl;
     return false;
   }
+  if (!defaultGroup) dpd->setDefaultGroup(LEGEND);
+  else dpd->setDefaultGroup(*defaultGroup);
   JSONSerializer::deserialize(dpd, dpdString);
   return true;
 }
 
 void DataPointDefinition::serialize(Json::Value& root) const
 {
-  if (mergeMode_.size()) {
-    Json::Value modeDef;
-    modeDef[MERGE]=mergeMode_;
-    root[MODE].append(modeDef);
-  }
   for (unsigned int i = 0; i < varNames_.size(); i++) {
     Json::Value currentDef;
     currentDef[PARAM_NAME] = varNames_[i];
     currentDef[OPERATION] = opNames_[i];
     if (typeNames_[i].size()) //only if it was found
       currentDef[TYPE] = typeNames_[i];
-    root[LEGEND].append(currentDef);
+    root[defaultGroup_].append(currentDef);
   }
 }
 
 void DataPointDefinition::deserialize(Json::Value& root)
 {
-  if (root.get(LEGEND, "").isArray()) {
-    unsigned int size = root.get(LEGEND, "").size();
+  if (root.get(defaultGroup_, "").isArray()) {
+    unsigned int size = root.get(defaultGroup_, "").size();
     for (unsigned int i = 0; i < size; i++) {
-      varNames_.push_back(root.get(LEGEND, "")[i].get(PARAM_NAME, "").asString());
-      opNames_.push_back(root.get(LEGEND, "")[i].get(OPERATION, "").asString());
-      typeNames_.push_back(root.get(LEGEND, "")[i].get(TYPE, "").asString());
+      varNames_.push_back(root.get(defaultGroup_, "")[i].get(PARAM_NAME, "").asString());
+      opNames_.push_back(root.get(defaultGroup_, "")[i].get(OPERATION, "").asString());
+      typeNames_.push_back(root.get(defaultGroup_, "")[i].get(TYPE, "").asString());
     }
   }
 }

@@ -5,6 +5,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
+#include "EventFilter/Utilities/interface/FFFNamingSchema.h"
 #include "DirManager.h"
 
 //std headers
@@ -78,7 +79,7 @@ namespace evf{
       unsigned int getRunNumber() const { return run_; }
       unsigned int getJumpLS() const { return jumpLS_; }
       unsigned int getJumpIndex() const { return jumpIndex_; }
-      std::string getJumpFilePath() const { return bu_run_dir_ + "/" + inputFileNameStem(jumpLS_,jumpIndex_) + ".raw"; }
+      std::string getJumpFilePath() const { return bu_run_dir_ + "/" + fffnaming::inputRawFileName(getRunNumber(),jumpLS_,jumpIndex_); }
       bool getTestModeNoBuilderUnit() { return testModeNoBuilderUnit_;}
       FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
       void unlockAndCloseMergeStream();
