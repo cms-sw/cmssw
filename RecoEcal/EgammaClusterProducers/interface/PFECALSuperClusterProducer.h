@@ -25,6 +25,7 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h" 
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 /**\class PFECALSuperClusterProducer 
 
@@ -38,8 +39,6 @@ class CaloSubdetectorGeometry;
 class DetId;
 class GBRForest;
 class GBRWrapperRcd;
-class EcalClusterTools;
-
 
 class PFECALSuperClusterProducer : public edm::EDProducer {
  public:  
