@@ -28,8 +28,6 @@ GlobalMuonRefitter = cms.PSet(
     # second int --> CSC threshold
     #  third int --> if 1 APEs are used
     DYTthrs = cms.vint32(25, 10, 1),
-    DTSegs  = cms.InputTag("dt1DRecHits"),
-    CSCSegs = cms.InputTag("csc2DRecHits"),
     
     # muon station to be skipped
     SkipStation		= cms.int32(-1),
