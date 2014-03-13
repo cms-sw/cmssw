@@ -24,9 +24,9 @@ l1t::CaloStage2MainProcessorFirmwareImp1::CaloStage2MainProcessorFirmwareImp1(co
   m_params(params)
 {
 
-  m_egClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params);
+  m_egClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params, CaloStage2ClusterAlgorithmFirmwareImp1::ClusterInput::E);
   m_egAlgo = new CaloStage2EGammaAlgorithmFirmwareImp1(m_params);
-  m_tauClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params);
+  m_tauClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params, CaloStage2ClusterAlgorithmFirmwareImp1::ClusterInput::EH);
   m_tauAlgo = new CaloStage2TauAlgorithmFirmwareImp1(m_params);
   m_jetAlgo = new CaloStage2JetAlgorithmFirmwareImp1(m_params);
   m_sumAlgo = new CaloStage2EtSumAlgorithmFirmwareImp1(m_params);
