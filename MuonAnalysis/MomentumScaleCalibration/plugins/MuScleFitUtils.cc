@@ -1,8 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2012/12/19 10:59:25 $
- *  $Revision: 1.57 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
+ * Revised S. Casasso, E. Migliore - UniTo & INFN Torino
  */
 // Some notes:
 // - M(Z) after simulation needs to be extracted as a function of |y_Z| in order to be

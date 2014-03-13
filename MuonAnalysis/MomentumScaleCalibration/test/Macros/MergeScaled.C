@@ -1,4 +1,3 @@
-#include <iostream>
 #include "ScaleFraction.C"
 #include "TFile.h"
 #include "TH1F.h"
@@ -13,7 +12,6 @@
  * The present form assumes Upsilons.
  */
 
-using namespace std;
 
 bool first = true;
 

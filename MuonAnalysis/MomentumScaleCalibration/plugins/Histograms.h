@@ -4,10 +4,9 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2012/09/07 07:46:16 $
- *  $Revision: 1.36 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
- */
+ * revised S. Casasso, E. Migliore - UniTo & INFN Torino 
+*/
 
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/Math/interface/LorentzVector.h"
