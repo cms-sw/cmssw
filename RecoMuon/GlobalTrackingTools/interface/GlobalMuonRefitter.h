@@ -22,6 +22,7 @@
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 namespace edm {class Event;}
 namespace reco {class TransientTrack;}
@@ -162,5 +163,10 @@ class GlobalMuonRefitter {
     edm::ConsumesCollector* iC_;
     const MuonServiceProxy* theService;
     const edm::Event* theEvent;
+
+    edm::EDGetTokenT<CSCSegmentCollection> CSCSegmentsToken;
+    edm::EDGetTokenT<DTRecSegment4DCollection> all4DSegmentsToken;
+    edm::Handle<CSCSegmentCollection> CSCSegments;
+    edm::Handle<DTRecSegment4DCollection> all4DSegments;
 };
 #endif
