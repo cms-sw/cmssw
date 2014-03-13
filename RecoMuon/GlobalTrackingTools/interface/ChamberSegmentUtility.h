@@ -35,7 +35,7 @@ class ChamberSegmentUtility {
 
  public:
 
-  ChamberSegmentUtility(const edm::Event&, const edm::EventSetup&, edm::ConsumesCollector&);
+  ChamberSegmentUtility();
 
   void initCSU(const edm::Handle<DTRecSegment4DCollection>&, const edm::Handle<CSCSegmentCollection>&);
 
