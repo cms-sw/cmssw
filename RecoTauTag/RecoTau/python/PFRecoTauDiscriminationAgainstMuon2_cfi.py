@@ -22,7 +22,8 @@ pfRecoTauDiscriminationAgainstMuon2 = cms.EDProducer("PFRecoTauDiscriminationAga
     # optional collection of muons to check for overlap with taus
     srcMuons = cms.InputTag('muons'),
     dRmuonMatch = cms.double(0.3),
-    dRmuonMatchLimitedToJetArea = cms.bool(False),                                                 
+    dRmuonMatchLimitedToJetArea = cms.bool(False),
+    minPtMatchedMuon = cms.double(5.),
 
     # flags to mask/unmask DT, CSC and RPC chambers in individual muon stations.
     # Segments and hits that are present in that muon station are ignored in case the "mask" is set to 1.
