@@ -74,8 +74,9 @@ namespace evf {
     IntJ processed_;
     mutable IntJ accepted_;
     IntJ errorEvents_; 
-    StringJ errorRetCodes_; 
+    IntJ retCodeMask_; 
     StringJ filelist_;
+    StringJ inputFiles_;
     boost::shared_ptr<FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
     DataPointDefinition outJsonDef_;
@@ -92,7 +93,9 @@ namespace evf {
     processed_(0),
     accepted_(0),
     errorEvents_(0),
-    filelist_()
+    retCodeMask_(0),
+    filelist_(),
+    inputFiles_()
   {
     initializeStreams();
     
@@ -102,15 +105,17 @@ namespace evf {
     processed_.setName("Processed");
     accepted_.setName("Accepted");
     errorEvents_.setName("ErrorEvents");
-    errorRetCodes_.setName("ErrorReturnCodes");
+    retCodeMask_.setName("ReturnCodeMask");
     filelist_.setName("Filelist");
+    inputFiles_.setName("InputFiles");
 
-    outJsonDef_.setMergeMode("pid");
-    outJsonDef_.addLegendItem("Processed","integer","sum");
-    outJsonDef_.addLegendItem("Accepted","integer","sum");
-    outJsonDef_.addLegendItem("ErrorEvents","integer","sum");
-    outJsonDef_.addLegendItem("ErrorReturnCodes","string","cat");
-    outJsonDef_.addLegendItem("Filelist","string","cat");
+    outJsonDef_.setDefaultGroup("data");
+    outJsonDef_.addLegendItem("Processed","integer",DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("Accepted","integer",DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("ErrorEvents","integer",DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("ReturnCodeMask","integer",DataPointDefinition::BINARYOR);
+    outJsonDef_.addLegendItem("Filelist","string",DataPointDefinition::MERGE);
+    outJsonDef_.addLegendItem("InputFiles","string",DataPointDefinition::CAT);
     std::stringstream ss;
     ss << edm::Service<evf::EvFDaqDirector>()->fuBaseDir() << "/" << "output_" << getpid() << ".jsd";
     std::string outJsonDefName = ss.str();
@@ -125,15 +130,14 @@ namespace evf {
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
 
-    errorRetCodes_="";
- 
     jsonMonitor_.reset(new FastMonitor(&outJsonDef_,true));
     jsonMonitor_->setDefPath(outJsonDefName);
     jsonMonitor_->registerGlobalMonitorable(&processed_,false);
     jsonMonitor_->registerGlobalMonitorable(&accepted_,false);
     jsonMonitor_->registerGlobalMonitorable(&errorEvents_,false);
-    jsonMonitor_->registerGlobalMonitorable(&errorRetCodes_,false);
+    jsonMonitor_->registerGlobalMonitorable(&retCodeMask_,false);
     jsonMonitor_->registerGlobalMonitorable(&filelist_,false);
+    jsonMonitor_->registerGlobalMonitorable(&inputFiles_,false);
     jsonMonitor_->commit(nullptr);
   }
   

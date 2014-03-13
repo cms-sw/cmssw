@@ -4,11 +4,14 @@
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
+#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 #include <signal.h>
@@ -21,13 +24,11 @@ void RawEventFileWriterForBU::handler(int s){
   if (destinationDir_.size() > 0)
     {
       // CREATE EOR file
-      std::string path = destinationDir_ + "/" + "EoR.jsd";
+      
+      if (run_==-1) makeRunPrefix(destinationDir_);
+
+      std::string path = destinationDir_ + "/" + runPrefix_ + "_ls0000_EoR.jsn";
       std::string output = "EOR";
-      FileIO::writeStringToFile(path, output);
-      //dirty hack: extract run number from destination directory
-      std::string::size_type pos = destinationDir_.find("run");
-      std::string run = destinationDir_.substr(pos+3);
-      path=destinationDir_ + "/" + "EoR_" + run + ".jsn";
       FileIO::writeStringToFile(path, output);
     }
   _exit(0);
@@ -202,7 +203,10 @@ void RawEventFileWriterForBU::endOfLS(int ls)
   lumiMon_->snap(false,"",ls);
 
   std::ostringstream ostr;
-  ostr << destinationDir_ << "/EoLS_" << std::setfill('0') << std::setw(4) << ls << ".jsn";
+
+  if (run_==-1) makeRunPrefix(destinationDir_);
+
+  ostr << destinationDir_ << "/"<< runPrefix_ << "_ls" << std::setfill('0') << std::setw(4) << ls << "_EoLS" << ".jsn";
   int outfd_ = open(ostr.str().c_str(), O_WRONLY | O_CREAT,  S_IRWXU | S_IRWXG | S_IRWXO);
   if(outfd_!=0){close(outfd_); outfd_=0;}
 
@@ -211,4 +215,15 @@ void RawEventFileWriterForBU::endOfLS(int ls)
   lumiMon_->outputFullJSON(path, ls);
 
   perLumiEventCount_ = 0;
+}
+
+void RawEventFileWriterForBU::makeRunPrefix(std::string const& destinationDir)
+{
+  //dirty hack: extract run number from destination directory
+  std::string::size_type pos = destinationDir.find("run");
+  std::string run = destinationDir.substr(pos+3);
+  run_=atoi(run.c_str());
+  std::stringstream ss;
+  ss << "run" << std::setfill('0') << std::setw(6) << run_;
+  runPrefix_ = ss.str();
 }

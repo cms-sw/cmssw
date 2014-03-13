@@ -48,9 +48,9 @@ public:
   /**
    * Loads a DataPointDefinition from a specified reference
    */
-  static bool getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition* dpd);
+  static bool getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition* dpd, std::string *defaultGroup=nullptr);
 
-  void setMergeMode(std::string const& mode) {mergeMode_=mode;}
+  void setDefaultGroup(std::string const& group) {defaultGroup_=group;}
 
   void addLegendItem(std::string const& name, std::string const& type, std::string const& operation);
 
@@ -65,21 +65,22 @@ public:
   static const std::string SAME;
   static const std::string HISTO;
   static const std::string CAT;
+  static const std::string MERGE;
+  static const std::string BINARYOR;
 
   // JSON field names
-  static const std::string MODE;
-  static const std::string MERGE;
   static const std::string LEGEND;
+  static const std::string DATA;
   static const std::string PARAM_NAME;
   static const std::string OPERATION;
   static const std::string TYPE;
 
 private:
-  std::string mergeMode_;
   std::vector<std::string> varNames_;
   std::vector<std::string> typeNames_;
   std::vector<std::string> opNames_;
   std::string defFilePath_;
+  std::string defaultGroup_;
 
 //	std::string namePrefix_;
 };

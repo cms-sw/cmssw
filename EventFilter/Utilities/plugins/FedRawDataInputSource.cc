@@ -34,6 +34,7 @@
 #include "EventFilter/Utilities/plugins/FastMonitoringService.h"
 
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
+#include "EventFilter/Utilities/interface/FFFNamingSchema.h"
 
 //JSON file reader
 #include "EventFilter/Utilities/interface/reader.h"
@@ -509,6 +510,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FED
   return tstamp;
 }
 
+//TODO:use fffnaming
 int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath)
 {
   std::string data;

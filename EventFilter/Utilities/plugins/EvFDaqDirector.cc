@@ -8,6 +8,7 @@
 #include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
 #include "EventFilter/Utilities/plugins/FastMonitoringService.h"
 
+
 #include <iostream>
 #include <sstream>
 #include <sys/time.h>
@@ -269,39 +270,39 @@ namespace evf {
   }
 
   std::string EvFDaqDirector::getRawFilePath(const unsigned int ls, const unsigned int index) const {
-    return bu_run_dir_ + "/" + inputFileNameStem(ls, index) + ".raw";
+    return bu_run_dir_ + "/" + fffnaming::inputRawFileName(run_,ls,index);
   }
 
   std::string EvFDaqDirector::getOpenRawFilePath(const unsigned int ls, const unsigned int index) const {
-    return bu_run_dir_ + "/open/" + inputFileNameStem(ls, index) + ".raw";
+    return bu_run_dir_ + "/open/" + fffnaming::inputRawFileName(run_,ls,index);
   }
 
   std::string EvFDaqDirector::getOpenDatFilePath(const unsigned int ls, std::string const& stream) const {
-    return run_dir_ + "/open/" + outputFileNameStem(ls,stream) + ".dat";
+    return run_dir_ + "/open/" + fffnaming::streamerDataFileNameWithPid(run_,ls,stream);
   }
 
   std::string EvFDaqDirector::getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const {
-    return run_dir_ + "/" + outputFileNameStem(ls,stream) + ".jsn";
+    return run_dir_ + "/" + fffnaming::streamerJsonFileNameWithPid(run_,ls,stream);
   }
 
   std::string EvFDaqDirector::getMergedDatFilePath(const unsigned int ls, std::string const& stream) const {
-    return run_dir_ + "/" + mergedFileNameStem(ls,stream) + ".dat";
+    return run_dir_ + "/" + fffnaming::streamerDataFileNameWithInstance(run_,ls,stream,hostname_);
   }
 
   std::string EvFDaqDirector::getInitFilePath(std::string const& stream) const {
-    return run_dir_ + "/" + initFileName(stream);
+    return run_dir_ + "/" + fffnaming::initFileNameWithPid(run_,0,stream);
   }
 
   std::string EvFDaqDirector::getEoLSFilePathOnBU(const unsigned int ls) const {
-    return bu_run_dir_ + "/" + eolsFileName(ls);
+    return bu_run_dir_ + "/" + fffnaming::eolsFileName(run_,ls);
   }
 
   std::string EvFDaqDirector::getEoLSFilePathOnFU(const unsigned int ls) const {
-    return run_dir_ + "/" + eolsFileName(ls);
+    return run_dir_ + "/" + fffnaming::eolsFileName(run_,ls);
   }
 
   std::string EvFDaqDirector::getEoRFilePath() const {
-    return bu_run_dir_ + "/" + eorFileName();
+    return bu_run_dir_ + "/" + fffnaming::eorFileName(run_);
   }
 
   std::string EvFDaqDirector::getPathForFU() const {
@@ -433,6 +434,7 @@ namespace evf {
 
     if ( fileStatus == noFile ) {
       struct stat buf;
+      std::cout << " looking for EoR file: " << getEoRFilePath().c_str() << std::endl;
       if ( stat(getEoRFilePath().c_str(), &buf) == 0 )
         fileStatus = runEnded;
     }
@@ -664,6 +666,7 @@ namespace evf {
     pthread_mutex_unlock(&init_lock_);
   }
 
+/*
   std::string EvFDaqDirector::inputFileNameStem(const unsigned int ls, const unsigned int index) const {
     std::stringstream ss;
     ss << run_string_
@@ -690,7 +693,8 @@ namespace evf {
     return ss.str();
   }
 
-  std::string EvFDaqDirector::initFileName(std::string const& stream) const {
+
+    std::string EvFDaqDirector::initFileName(std::string const& stream) const {
     std::stringstream ss;
     ss << run_string_
        << "_" << stream
@@ -698,16 +702,6 @@ namespace evf {
        << ".ini";
     return ss.str();
   }
+*/
 
-  std::string EvFDaqDirector::eolsFileName(const unsigned int ls) const {
-    std::stringstream ss;
-    ss << "EoLS_" << std::setfill('0') << std::setw(4) << ls << ".jsn";
-    return ss.str();
-  }
-
-  std::string EvFDaqDirector::eorFileName() const {
-    std::stringstream ss;
-    ss << "EoR_" << std::setfill('0') << std::setw(6) << run_ << ".jsn";
-    return ss.str();
-  }
 }
