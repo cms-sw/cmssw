@@ -10,9 +10,14 @@
 
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#define NO_DICT
+#endif
 
 class GeomDet;
 class GeomDetUnit;
+class TkCloner;
+class TrajectoryStateOnSurface;
 
 class TrackingRecHit {
 public:
@@ -115,6 +120,18 @@ public:
   virtual float errorGlobalRPhi() const;
 
 
+  /// Returns true if the clone( const TrajectoryStateOnSurface&) method returns an
+  /// improved hit, false if it returns an identical copy.
+  /// In order to avoid redundent copies one should call canImproveWithTrack() before 
+  /// calling clone( const TrajectoryStateOnSurface&).
+  ///this will be done inside the TkCloner itself
+  virtual bool canImproveWithTrack() const {return false;}
+private:
+  friend class  TkCloner;
+  // double dispatch
+  virtual TrackingRecHit * clone(TkCloner const&, TrajectoryStateOnSurface const&) const {
+    return clone(); // default
+  }
 
 protected:
   // used by muon...

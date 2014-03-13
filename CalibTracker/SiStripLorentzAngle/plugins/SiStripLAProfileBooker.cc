@@ -361,13 +361,14 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	pitch_detector=-1;       
 	HitNr = 1;    
 	
+        SiStripRecHit2D lhit;
 	TrajectoryStateOnSurface tsos=itm->updatedState();
 	const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
 	if((thit->geographicalId().subdetId() == int(StripSubdetector::TIB)) ||  thit->geographicalId().subdetId()== int(StripSubdetector::TOB)){ //include only barrel
 	  const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
 	  const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>((*thit).hit());
 	  const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>((*thit).hit());
-	  if(phit) hit=&(phit->originalHit());
+	  if(phit) {lhit = phit->originalHit(); hit = &lhit;}
 	  
 	  LocalVector trackdirection=tsos.localDirection();
 	  
