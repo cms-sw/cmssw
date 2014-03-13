@@ -8,10 +8,10 @@
 /// \author: Kalanand Mishra - Fermilab
 ///
 
-#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EGammaAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EGammaAlgorithmImp.h"
 
 
-void l1t::Stage1Layer2EGammaAlgorithm::processEvent(const std::vector<l1t::CaloStage1Cluster> & clusters, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma> & egammas, std::list<L1GObject> & rlxEGList, std::list<L1GObject> & isoEGList) {
+void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloStage1Cluster> & clusters, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma> & egammas, std::list<L1GObject> & rlxEGList, std::list<L1GObject> & isoEGList) {
 
   egtSeed = 0;
   puLevel = 0.0;

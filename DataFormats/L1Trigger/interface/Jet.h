@@ -11,7 +11,7 @@ namespace l1t {
   typedef BXVector<Jet> JetBxCollection;
 
   class Jet : public L1Candidate {
-    
+
   public:
   Jet(){}
   Jet( const LorentzVector& p4,
@@ -19,16 +19,22 @@ namespace l1t {
        int eta=0,
        int phi=0,
        int qual=0);
-    
-  ~Jet();		
-  
+  Jet( const PolarLorentzVector& p4,
+       int pt=0,
+       int eta=0,
+       int phi=0,
+       int qual=0);
+
+
+  ~Jet();
+
   private:
-  
+
   // additional hardware quantities common to L1 global jet
   // there are currently none
-  
+
   };
-  
+
 }
 
 #endif

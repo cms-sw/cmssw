@@ -1,9 +1,8 @@
-// JetFinderMethods.cc
+// PUSubtractionMethods.cc
 // Author: Alex Barbieri
 //
-// This file should contain the different algorithms used to find jets.
-// Currently the standard is the sliding window method, used by both
-// HI and PP.
+// This file should contain the different algorithms used to perform PU, UE subtraction.
+
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"

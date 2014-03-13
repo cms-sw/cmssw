@@ -16,6 +16,8 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2MainProcessor.h"
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
+#include "Stage1Layer2EGammaAlgorithm.h"
+#include "Stage1Layer2EtSumAlgorithm.h"
 #include "Stage1Layer2JetAlgorithm.h"
 #include "Stage1Layer2TauAlgorithm.h"
 
@@ -36,10 +38,10 @@ namespace l1t {
     //CaloParams const & m_db;
     FirmwareVersion const & m_fwv;
 
-    //Stage1Layer2EGammaAlgorithm* m_egAlgo;
+    Stage1Layer2EGammaAlgorithm* m_egAlgo;
     Stage1Layer2TauAlgorithm* m_tauAlgo;
     Stage1Layer2JetAlgorithm* m_jetAlgo;
-    //Stage1Layer2EtSumAlgorithm* m_sumAlgo;
+    Stage1Layer2EtSumAlgorithm* m_sumAlgo;
 
     //Stage1Layer2JetSumAlgorithm* m_jetSumAlgo;
     //Stage1Layer2TowerAlgorithm* m_towerAlgo;

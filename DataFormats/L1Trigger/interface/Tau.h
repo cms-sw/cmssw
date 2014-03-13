@@ -11,7 +11,7 @@ namespace l1t {
   typedef BXVector<Tau> TauBxCollection;
 
   class Tau : public L1Candidate {
-    
+
   public:
     Tau(){}
     Tau( const LorentzVector& p4,
@@ -20,17 +20,24 @@ namespace l1t {
 	    int phi=0,
 	    int qual=0,
 	    int iso=0);
-    
-    ~Tau();		
-   
+    Tau( const PolarLorentzVector& p4,
+	    int pt=0,
+	    int eta=0,
+	    int phi=0,
+	    int qual=0,
+	    int iso=0);
+
+
+    ~Tau();
+
   private:
-    
+
     // additional hardware quantities common to L1 global jet
     // there are currently none
-    
-    
+
+
   };
-  
+
 }
 
 #endif
