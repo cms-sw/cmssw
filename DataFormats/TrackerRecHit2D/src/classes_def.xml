@@ -10,7 +10,8 @@
   </class>
 
 
-  <class name="BaseTrackerRecHit" ClassVersion="10">
+  <class name="BaseTrackerRecHit" ClassVersion="11">
+    <version ClassVersion="11" checksum="135047806"/>
    <version ClassVersion="10" checksum="213945316"/>
      <field name="pos_" transient="true" />	 
      <field name="err_" transient="true" />	 
@@ -38,7 +39,9 @@
   </class>
 
 
-  <class name="ProjectedSiStripRecHit2D" ClassVersion="11">
+  <class name="ProjectedSiStripRecHit2D" ClassVersion="12">
+   <version ClassVersion="12" checksum="3025653452"/>
+   <field name="theOriginalDet" transient="true" />
    <version ClassVersion="11" checksum="1187571635"/>
    <version ClassVersion="10" checksum="1058168814"/>
   </class>
@@ -51,7 +54,8 @@
    <version ClassVersion="10" checksum="2607997209"/>
   </class>
 
-  <class name="SiPixelRecHit" ClassVersion="12">
+  <class name="SiPixelRecHit" ClassVersion="13">
+    <version ClassVersion="13" checksum="2432056380"/>
    <version ClassVersion="12" checksum="1051928582"/>
    <version ClassVersion="11" checksum="790601993"/>
    <version ClassVersion="10" checksum="414205262"/>
