@@ -135,10 +135,10 @@ class GoodSeedProducer : public edm::EDProducer {
 
       // ----------access to event data
       edm::ParameterSet conf_;
-      edm::InputTag pfCLusTagPSLabel_;
-      edm::InputTag pfCLusTagECLabel_;
-      edm::InputTag pfCLusTagHCLabel_;
-      std::vector<edm::InputTag> tracksContainers_;
+      edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagPSLabel_;
+      edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagECLabel_;
+      edm::EDGetTokenT<reco::PFClusterCollection> pfCLusTagHCLabel_;
+      std::vector<edm::EDGetTokenT<reco::TrackCollection> > tracksContainers_;
       
 
       std::string fitterName_;
