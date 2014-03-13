@@ -208,6 +208,7 @@
   <class name="pat::GenericParticleRef" />
   <class name="pat::HemisphereRef" />
   <class name="pat::ConversionRef" />
+  <class name="pat::PackedCandidateRef" />
 
   <!-- PAT Object Ref Vectors -->
   <class name="pat::ElectronRefVector" />
@@ -222,6 +223,7 @@
   <class name="pat::GenericParticleRefVector" />
   <class name="pat::HemisphereRefVector" />
   <class name="pat::ConversionRefVector" />
+  <class name="pat::PackedCandidateRefVector" />
 
   <!-- PAT Object Ref Vector Wrappers -->
   <class name="edm::Wrapper<pat::ElectronRefVector>" />
@@ -267,6 +269,13 @@
  <!-- RefToBaseVector<Candidate> from PATObjetcs  -->
   <class name="edm::reftobase::RefVectorHolder<pat::CompositeCandidateRefVector>" />
   <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::CompositeCandidateRefVector>" />
+
+  <class name="edm::RefProd<pat::PackedCandidateCollection>" />
+  <class name="edm::Association<pat::PackedCandidateCollection>" />
+  <class name="edm::Wrapper<edm::Association<pat::PackedCandidateCollection> >" />
+  <class name="edm::RefProd<reco::PFCandidateCollection>" />
+  <class name="edm::Association<reco::PFCandidateCollection>" />
+  <class name="edm::Wrapper<edm::Association<reco::PFCandidateCollection> >" />
 
   </selection>
  <exclusion>

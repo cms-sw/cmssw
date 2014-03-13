@@ -4,6 +4,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/Association.h"
 /* #include "DataFormats/Math/interface/PtEtaPhiMass.h" */
 
 namespace pat {
@@ -157,8 +159,9 @@ namespace pat {
     /// set vertex                                                                        
     virtual void setVertex( const Point & vertex ) { if (!unpacked_) unpack(); vertex_ = vertex; pack(); }
 
-    virtual const bool & fromPV() const { return fromPV_; }
-    virtual void setFromPV( const bool fromPV )   { fromPV_ = fromPV; }
+    enum PVAssoc { NoPV=0, PVLoose=1, PVTight=2 } ;
+    virtual const PVAssoc fromPV() const { return PVAssoc(fromPV_); }
+    virtual void setFromPV( PVAssoc fromPV )   { fromPV_ = uint8_t(fromPV); }
 
     /// PDG identifier                                                                    
     /// PDG identifier                                                                    
@@ -291,7 +294,7 @@ namespace pat {
     mutable Point vertex_;
     /// PDG identifier                                                                    
     int pdgId_;
-    bool fromPV_;
+    uint8_t fromPV_;
     // are the vectors unpacked
     mutable bool unpacked_;
 
@@ -309,6 +312,9 @@ namespace pat {
     typedef reco::candidate::iterator_imp_specific<daughters> iterator_imp_specific;
   };
 
+  typedef std::vector<pat::PackedCandidate> PackedCandidateCollection;
+  typedef edm::Ref<pat::PackedCandidateCollection> PackedCandidateRef;
+  typedef edm::RefVector<pat::PackedCandidateCollection> PackedCandidateRefVector;
 }
 
 #endif

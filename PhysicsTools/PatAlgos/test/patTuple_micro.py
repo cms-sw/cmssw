@@ -40,7 +40,8 @@ process.prunedGenParticles = cms.EDProducer("GenParticlePruner",
 
 process.packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     inputCollection = cms.InputTag("particleFlow"),
-    inputCollectionFromPV = cms.InputTag("pfNoPileUp"), ## or ForIso? or JME?
+    inputCollectionFromPVLoose = cms.InputTag("pfNoPileUpJME"), 
+    inputCollectionFromPVTight = cms.InputTag("pfNoPileUp"),    
 )
 
 process.offlineSlimmedPrimaryVertices = cms.EDProducer("PATVertexSlimmer",

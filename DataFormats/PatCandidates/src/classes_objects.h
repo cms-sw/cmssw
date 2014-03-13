@@ -66,6 +66,7 @@ namespace DataFormats_PatCandidates {
   pat::GenericParticleRef   p_r_gp;
   pat::HemisphereRef	    p_r_h;
   pat::ConversionRef        p_r_c;
+  pat::PackedCandidateRef        p_r_pc;
 
   /*   PAT Object Ref Vector Wrappers   */
   edm::Wrapper<pat::ElectronRefVector>	        p_rv_e;
@@ -80,6 +81,7 @@ namespace DataFormats_PatCandidates {
   edm::Wrapper<pat::GenericParticleRefVector>   p_rv_gp;
   edm::Wrapper<pat::HemisphereRefVector>	p_rv_h;
   edm::Wrapper<pat::ConversionRefVector>        p_rv_c;
+  edm::Wrapper<pat::PackedCandidateRefVector>        p_rv_pc;
 
   /*   RefToBase<Candidate> from PATObjects   */
     /*   With direct Holder   */
@@ -157,6 +159,9 @@ namespace DataFormats_PatCandidates {
   edm::Ptr<pat::Conversion> ptr_Conversion;
   edm::Ptr<pat::Muon> ptr_Muon;
   edm::Ptr<pat::Tau> ptr_Tau;
+
+  edm::Wrapper<edm::Association<pat::PackedCandidateCollection > > w_asso_pc;
+  edm::Wrapper<edm::Association<reco::PFCandidateCollection > >    w_asso_pfc;
 
   };
 
