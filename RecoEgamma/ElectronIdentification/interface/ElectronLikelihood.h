@@ -58,10 +58,26 @@ class ElectronLikelihood {
                     std::vector<float> &measuremnts, 
                     const EcalClusterLazyTools&) const ;
 
+  //Class to enforce that we only call const functions on LikelihoodPdfProduct
+  // when we are in const functions of ElectronLikelihood
+  class LikelihoodPdfProductPtr {
+  public:
+    LikelihoodPdfProductPtr(): m_ptr(nullptr) {}
+    LikelihoodPdfProductPtr( LikelihoodPdfProduct* iPtr): m_ptr(iPtr) {}
+
+    LikelihoodPdfProduct* operator->() { return m_ptr;}
+    const LikelihoodPdfProduct* operator->() const { return m_ptr;}
+
+    LikelihoodPdfProduct* get() { return m_ptr;}
+
+  private:
+    LikelihoodPdfProduct* m_ptr;
+  };
+
   //! likelihood below 15GeV/c
-  LikelihoodPdfProduct *_EB0lt15lh, *_EB1lt15lh, *_EElt15lh;
+  LikelihoodPdfProductPtr _EB0lt15lh, _EB1lt15lh, _EElt15lh;
   //! likelihood above 15GeV/c
-  LikelihoodPdfProduct *_EB0gt15lh, *_EB1gt15lh, *_EEgt15lh;
+  LikelihoodPdfProductPtr _EB0gt15lh, _EB1gt15lh, _EEgt15lh;
 
   //! general parameters of all the ele id algorithms
   LikelihoodSwitches m_eleIDSwitches ;
