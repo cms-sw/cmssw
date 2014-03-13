@@ -188,7 +188,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
       reco::MuonRef muon(muons_, idxMuon);
       if ( verbosity_ ) edm::LogPrint("PFTauAgainstMuon2") << "muon #" << muon.key() << ": Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() ;
       if ( !(muon->pt() > minPtMatchedMuon_) ) {
-	if ( verbosity_ ){ edm::LogPring("PFTauAgainstMuon2") << " fails Pt cut --> skipping it." ;}
+	if ( verbosity_ ){ edm::LogPrint("PFTauAgainstMuon2") << " fails Pt cut --> skipping it." ;}
 	continue;
        }
       if ( pfLeadChargedHadron.isNonnull() && pfLeadChargedHadron->muonRef().isNonnull() && muon == pfLeadChargedHadron->muonRef() ) {	
