@@ -14,6 +14,11 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include "DataFormats/HcalRecHit/interface/HFRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HORecHit.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
 #include <string>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -34,9 +39,9 @@ class HCALRecHitAnalyzer: public edm::EDAnalyzer {
   DQMStore* dbe_;
 
   // Inputs from Configuration
-  edm::InputTag hBHERecHitsLabel_;
-  edm::InputTag hFRecHitsLabel_;
-  edm::InputTag hORecHitsLabel_;
+  edm::EDGetTokenT<HBHERecHitCollection> hBHERecHitsLabel_;
+  edm::EDGetTokenT<HFRecHitCollection> hFRecHitsLabel_;
+  edm::EDGetTokenT<HORecHitCollection> hORecHitsLabel_;
   bool debug_;
   bool finebinning_;
   std::string FolderName_;

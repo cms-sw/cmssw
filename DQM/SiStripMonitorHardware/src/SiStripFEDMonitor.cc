@@ -209,7 +209,6 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
-  //  iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
   iEvent.getByToken(rawDataToken_,rawDataCollectionHandle);
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
@@ -218,7 +217,6 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   //add the deltaBX value if the product exist
 
   edm::Handle<EventWithHistory> he;
-  //  iEvent.getByLabel("consecutiveHEs",he);
   iEvent.getByToken(heToken_,he);
 
   if(he.isValid() && !he.failedToGet()) {

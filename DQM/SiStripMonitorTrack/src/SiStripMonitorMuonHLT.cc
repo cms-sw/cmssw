@@ -138,21 +138,18 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
   //Access to L3MuonCand
   edm::Handle < reco::RecoChargedCandidateCollection > l3mucands;
   bool accessToL3Muons = true;
-  //  iEvent.getByLabel (l3collectionTag_, l3mucands);
   iEvent.getByToken (l3collectionToken_, l3mucands);
   reco::RecoChargedCandidateCollection::const_iterator cand;
 
   //Access to clusters
   edm::Handle < edm::LazyGetter < SiStripCluster > >clusters;
   bool accessToClusters = true;
-  //  iEvent.getByLabel (clusterCollectionTag_, clusters);
   iEvent.getByToken (clusterCollectionToken_, clusters);
   edm::LazyGetter < SiStripCluster >::record_iterator clust;
  
   //Access to Tracks
   edm::Handle<reco::TrackCollection > trackCollection;
   bool accessToTracks = true;
-  //  iEvent.getByLabel (TrackCollectionTag_, trackCollection);
   iEvent.getByToken (TrackCollectionToken_, trackCollection);
   reco::TrackCollection::const_iterator track;
    /////////////////////////////////////////////////////
