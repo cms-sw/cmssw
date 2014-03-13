@@ -15,6 +15,7 @@ class  PixelCPETemplateRecoESProducer: public edm::ESProducer{
  private:
   boost::shared_ptr<PixelClusterParameterEstimator> cpe_;
   edm::ParameterSet pset_;
+  bool DoLorentz_;
 };
 
 
