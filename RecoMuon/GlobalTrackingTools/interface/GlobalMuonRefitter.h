@@ -160,7 +160,6 @@ class GlobalMuonRefitter {
     std::string theMuonRecHitBuilderName;
     edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
 
-    edm::ConsumesCollector* iC_;
     const MuonServiceProxy* theService;
     const edm::Event* theEvent;
 
