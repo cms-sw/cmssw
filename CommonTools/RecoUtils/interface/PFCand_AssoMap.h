@@ -5,7 +5,7 @@
 //
 // Package:    PFCand_AssoMap
 // Class:      PFCand_AssoMap
-// 
+//
 /**\class PFCand_AssoMap PFCand_AssoMap.cc CommonTools/RecoUtils/plugins/PFCand_AssoMap.cc
 
   Description: Produces a map with association between pf candidates and their particular most probable vertex with a quality of this association
@@ -48,7 +48,7 @@ class PFCand_AssoMap : public edm::EDProducer, public PFCand_AssoMapAlgos {
 
       edm::InputTag input_AssociationType_;
 
-      edm::InputTag input_PFCandidates_;
+      edm::EDGetTokenT<reco::PFCandidateCollection> token_PFCandidates_;
 };
 
 

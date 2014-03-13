@@ -6,6 +6,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
 
 class MuonSelectorVertex : public edm::EDProducer {
 
@@ -17,8 +20,8 @@ class MuonSelectorVertex : public edm::EDProducer {
 
   private:
 
-    edm::InputTag muonSource_;
-    edm::InputTag vertexSource_;
+    edm::EDGetTokenT< std::vector< pat::Muon > > muonSource_;
+    edm::EDGetTokenT< std::vector< reco::Vertex > > vertexSource_;
     double        maxDZ_;
 
 };
@@ -28,13 +31,10 @@ class MuonSelectorVertex : public edm::EDProducer {
 #include <memory>
 #include <cmath>
 
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-
 
 MuonSelectorVertex::MuonSelectorVertex( const edm::ParameterSet & iConfig )
-: muonSource_( iConfig.getParameter< edm::InputTag >( "muonSource" ) )
-, vertexSource_( iConfig.getParameter< edm::InputTag >( "vertexSource" ) )
+: muonSource_( consumes< std::vector< pat::Muon > >( iConfig.getParameter< edm::InputTag >( "muonSource" ) ) )
+, vertexSource_( consumes< std::vector< reco::Vertex > >( iConfig.getParameter< edm::InputTag >( "vertexSource" ) ) )
 , maxDZ_( iConfig.getParameter< double >( "maxDZ" ) )
 {
 
@@ -47,10 +47,10 @@ void MuonSelectorVertex::produce( edm::Event & iEvent, const edm::EventSetup & i
 {
 
   edm::Handle< std::vector< pat::Muon > >  muons;
-  iEvent.getByLabel( muonSource_, muons );
+  iEvent.getByToken( muonSource_, muons );
 
   edm::Handle< std::vector< reco::Vertex > > vertices;
-  iEvent.getByLabel( vertexSource_, vertices );
+  iEvent.getByToken( vertexSource_, vertices );
 
   std::vector< pat::Muon > * selectedMuons( new std::vector< pat::Muon > );
 
