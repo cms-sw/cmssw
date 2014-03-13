@@ -48,8 +48,7 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
 {
 
   if ( iConfig.exists( "triggerResults" ) ) tagTriggerResults_ = iConfig.getParameter< InputTag >( "triggerResults" );
-  InputTag tagTriggerResultsTmp( tagTriggerResults_.label(), tagTriggerResults_.instance() );
-  triggerResultsGetter_ = edm::GetterOfProducts< edm::TriggerResults >( edm::InputTagMatch( tagTriggerResultsTmp.encode() ), this);
+  triggerResultsGetter_ = edm::GetterOfProducts< edm::TriggerResults >( edm::InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance() ) ), this);
   if ( iConfig.exists( "triggerEvent" ) )       tagTriggerEvent_    = iConfig.getParameter< InputTag >( "triggerEvent" );
   if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
   triggerAlgorithmCollectionToken_ = mayConsume< TriggerAlgorithmCollection >( tagTriggerProducer_ );

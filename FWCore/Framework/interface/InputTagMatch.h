@@ -20,7 +20,7 @@ namespace edm {
    class InputTagMatch {
    public:
 
-      InputTagMatch(std::string const& encodedInputTag) : inputTag_(encodedInputTag) { }
+      InputTagMatch(edm::InputTag const& inputTag) : inputTag_(inputTag) { }
 
       bool operator()(edm::BranchDescription const& branchDescription) {
          bool result(true);
