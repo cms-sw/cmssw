@@ -346,19 +346,28 @@ std::pair<DetId, float> EcalClusterToolsT<noZS>::getMaximum( const reco::BasicCl
 template<bool noZS>
 float EcalClusterToolsT<noZS>::recHitEnergy(DetId id, const EcalRecHitCollection *recHits)
 {
-    if ( id == DetId(0) ) {
-        return 0;
-    } else {
-        EcalRecHitCollection::const_iterator it = recHits->find( id );
-        if ( it != recHits->end() ) {
-            return (*it).energy();
-        } else {
-            //throw cms::Exception("EcalRecHitNotFound") << "The recHit corresponding to the DetId" << id.rawId() << " not found in the EcalRecHitCollection";
-            // the recHit is not in the collection (hopefully zero suppressed)
-            return 0;
-        }
-    }
+  if ( id == DetId(0) ) {
     return 0;
+  } else {
+    EcalRecHitCollection::const_iterator it = recHits->find( id );
+    if ( it != recHits->end() ) {
+      if( noZS && ( it->checkFlag(EcalRecHit::kTowerRecovered) ||
+		    it->checkFlag(EcalRecHit::kWeird) ||
+		    (it->detid().subdetId() == EcalBarrel && 
+		     it->checkFlag(EcalRecHit::kDiWeird) ) 
+		    ) 
+	  ) {
+	return 0.0;
+      } else {
+	return (*it).energy();
+      }
+    } else {
+      //throw cms::Exception("EcalRecHitNotFound") << "The recHit corresponding to the DetId" << id.rawId() << " not found in the EcalRecHitCollection";
+      // the recHit is not in the collection (hopefully zero suppressed)
+      return 0;
+    }
+  }
+  return 0;
 }
 
 template<bool noZS>
