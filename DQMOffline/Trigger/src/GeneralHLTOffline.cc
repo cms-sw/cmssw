@@ -504,20 +504,18 @@ void GeneralHLTOffline::setupHltMatrix(const std::string & label, int iPD) {
   if (TH1 * service_histo = service_me->getTH2F())
     service_histo->SetMinimum(0);
 
-  if (label != "MET" && label != "HT") {
-    service_me = dbe_->book1D(h_name_1dEta.c_str(),
-                              h_title_1dEta.c_str(),
-                              numBinsEtaFine, -EtaMax, EtaMax);
-    if (TH1 * service_histo = service_me->getTH1F())
-      service_histo->SetMinimum(0);
-  }
-  if (label != "HT") {
-    service_me = dbe_->book1D(h_name_1dPhi.c_str(),
-                              h_title_1dPhi.c_str(),
-                              numBinsPhiFine, -PhiMaxFine, PhiMaxFine);
-    if (TH1 * service_histo = service_me->getTH1F())
-      service_histo->SetMinimum(0);
-  }
+  service_me = dbe_->book1D(h_name_1dEta.c_str(),
+			    h_title_1dEta.c_str(),
+			    numBinsEtaFine, -EtaMax, EtaMax);
+  if (TH1 * service_histo = service_me->getTH1F())
+    service_histo->SetMinimum(0);
+  
+  service_me = dbe_->book1D(h_name_1dPhi.c_str(),
+			    h_title_1dPhi.c_str(),
+			    numBinsPhiFine, -PhiMaxFine, PhiMaxFine);
+  if (TH1 * service_histo = service_me->getTH1F())
+    service_histo->SetMinimum(0);
+
 
   // make it the top level directory, that is on the same dir level as
   // paths
@@ -621,34 +619,28 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
       std::cout << " label " << label << " fullPathToME1dPhi "
                 << fullPathToME1dPhi << " path "  << path
                 << " Phi " << Phi << " Eta " << Eta << std::endl;
-
-    if (label != "MET" && label != "HT") {
-      MonitorElement * ME_1dEta = dbe_->get(fullPathToME1dEta);
-      if (ME_1dEta) {
-        TH1F * hist_1dEta = ME_1dEta->getTH1F();
-        if (hist_1dEta)
-          hist_1dEta->Fill(Eta);
-      }
+    
+    MonitorElement * ME_1dEta = dbe_->get(fullPathToME1dEta);
+    if (ME_1dEta) {
+      TH1F * hist_1dEta = ME_1dEta->getTH1F();
+      if (hist_1dEta)
+	hist_1dEta->Fill(Eta);
     }
-    if (label != "HT") {
-      MonitorElement * ME_1dPhi = dbe_->get(fullPathToME1dPhi);
-      if (ME_1dPhi) {
-        TH1F * hist_1dPhi = ME_1dPhi->getTH1F();
-        if (hist_1dPhi)
-          hist_1dPhi->Fill(Phi);
-        if (debugPrint)
-          std::cout << "  **FILLED** label " << label << " fullPathToME1dPhi "
-                    << fullPathToME1dPhi << " path "  << path
-                    << " Phi " << Phi << " Eta " << Eta << std::endl;
-      }
+    MonitorElement * ME_1dPhi = dbe_->get(fullPathToME1dPhi);
+    if (ME_1dPhi) {
+      TH1F * hist_1dPhi = ME_1dPhi->getTH1F();
+      if (hist_1dPhi)
+	hist_1dPhi->Fill(Phi);
+      if (debugPrint)
+	std::cout << "  **FILLED** label " << label << " fullPathToME1dPhi "
+		  << fullPathToME1dPhi << " path "  << path
+		  << " Phi " << Phi << " Eta " << Eta << std::endl;
     }
-    if (label != "MET" && label != "HT") {
-      MonitorElement * ME_2d = dbe_->get(fullPathToME);
-      if (ME_2d) {
-        TH2F * hist_2d = ME_2d->getTH2F();
-        if (hist_2d)
-          hist_2d->Fill(Eta, Phi);
-      }
+    MonitorElement * ME_2d = dbe_->get(fullPathToME);
+    if (ME_2d) {
+      TH2F * hist_2d = ME_2d->getTH2F();
+      if (hist_2d)
+	hist_2d->Fill(Eta, Phi);
     }
   }  // end fill top-level histograms
 
