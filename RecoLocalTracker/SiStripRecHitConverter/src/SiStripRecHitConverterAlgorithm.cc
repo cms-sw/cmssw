@@ -56,6 +56,7 @@ run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output)
 { run(input, output, LocalVector(0.,0.,0.)); }
 
 
+/*
 namespace {
   float sigmaPitch(LocalPoint const& pos, LocalError err, 
 		   GeomDetUnit const & stripdet) {
@@ -67,7 +68,7 @@ namespace {
     return error.uu()*pitch*pitch;
   }
 }
-
+*/
 
 void SiStripRecHitConverterAlgorithm::
 run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle, products& output, LocalVector trackdirection)
@@ -93,8 +94,7 @@ run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle, products& ou
       if(isMasked(*cluster,bad128StripBlocks)) continue;
 
       StripClusterParameterEstimator::LocalValues parameters = 	parameterestimator->localParameters(*cluster,du);
-      auto sPitch = sigmaPitch(parameters.first, parameters.second, du);
-      collector.push_back(SiStripRecHit2D( parameters.first, parameters.second, sPitch, id, &du, edmNew::makeRefTo(inputhandle,cluster) ));
+      collector.push_back(SiStripRecHit2D( parameters.first, parameters.second, du, edmNew::makeRefTo(inputhandle,cluster) ));
     }
 
     if (collector.empty()) collector.abort();
@@ -135,8 +135,7 @@ run(edm::Handle<edm::RefGetter<SiStripCluster> >  refGetterhandle,
       if( !goodDet || isMasked(*icluster, bad128StripBlocks)) continue;
       GeomDetUnit const & du = *(tracker->idToDetUnit(detId));
       StripClusterParameterEstimator::LocalValues parameters = parameterestimator->localParameters(*icluster,du);
-      auto sPitch = sigmaPitch(parameters.first, parameters.second, du);
-      collector->push_back(SiStripRecHit2D( parameters.first, parameters.second, sPitch, detId, &du,  makeRefToLazyGetter(lazyGetterhandle,i) ));      
+     collector->push_back(SiStripRecHit2D( parameters.first, parameters.second, du,  makeRefToLazyGetter(lazyGetterhandle,i) ));      
     }
     if(collector->empty()) collector->abort();
   }

@@ -133,14 +133,6 @@ public:
   inline bool  spansTwoRocks() const { return spansTwoROCs_ ;  }
   inline bool  hasFilledProb() const { return hasFilledProb_ ; }
   
-  //--- Flag to control how SiPixelRecHits compute clusterProbability().
-  //--- Note this is set via the configuration file, and it's simply passed
-  //--- to each TSiPixelRecHit.
-  inline unsigned int clusterProbComputationFlag() const 
-    { 
-      return clusterProbComputationFlag_ ; 
-    }
-  
   
   //-----------------------------------------------------------------------------
   //! A convenience method to fill a whole SiPixelRecHitQuality word in one shot.
@@ -212,13 +204,6 @@ public:
   mutable bool  spansTwoROCs_ ;
   mutable bool  hasFilledProb_ ;
 
-  //--- A flag that could be used to change the behavior of
-  //--- clusterProbability() in TSiPixelRecHit (the *transient* one).  
-  //--- The problem is that the transient hits are made after the CPE runs
-  //--- and they don't get the access to the PSet, so we pass it via the
-  //--- CPE itself...
-  //
-  unsigned int clusterProbComputationFlag_ ;
 
   //---------------------------
 

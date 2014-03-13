@@ -4,10 +4,29 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
-
+#include<tuple>
 
 class PixelClusterParameterEstimator : public  ClusterParameterEstimator<SiPixelCluster> {
   public:
+
+  
+  using ReturnType = std::tuple<LocalPoint,LocalError,SiPixelRecHitQuality::QualWordType>;
+
+  // here just to implement it in the clients;
+  // to be properly implemented in the sub-classes in order to make them thread-safe
+  virtual ReturnType getParameters(const SiPixelCluster & cl, 
+				   const GeomDetUnit    & det ) const {
+    auto lv = localParameters(cl,det);
+    return std::make_tuple(lv.first,lv.second,rawQualityWord());
+  }
+  virtual ReturnType getParameters(const SiPixelCluster & cl, 
+				   const GeomDetUnit    & det, 
+				   const LocalTrajectoryParameters & ltp ) const {
+    auto lv = localParameters(cl,det,ltp);
+    return std::make_tuple(lv.first,lv.second,rawQualityWord());
+  }
+
+
 
   PixelClusterParameterEstimator() : clusterProbComputationFlag_(0){}
 
