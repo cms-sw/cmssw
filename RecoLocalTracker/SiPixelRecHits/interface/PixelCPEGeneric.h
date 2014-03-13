@@ -55,7 +55,9 @@ class PixelCPEGeneric : public PixelCPEBase
 {
  public:
   // PixelCPEGeneric( const DetUnit& det );
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, const SiPixelTemplateDBObject *);
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
+		  const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, 
+		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
   ~PixelCPEGeneric() {;}
 
 
@@ -73,7 +75,7 @@ private:
 			    float Q_l,              //!< Charge in the last pixel.
 			    float upper_edge_first_pix, //!< As the name says.
 			    float lower_edge_last_pix,  //!< As the name says.
-			    float half_lorentz_shift,   //!< L-shift at half thickness
+			    float lorentz_shift,   //!< L-width
 			    float cot_angle,            //!< cot of alpha_ or beta_
 			    float pitch,            //!< thePitchX or thePitchY
 			    bool first_is_big,       //!< true if the first is big
