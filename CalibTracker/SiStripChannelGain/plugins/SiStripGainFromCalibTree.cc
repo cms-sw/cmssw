@@ -84,7 +84,9 @@ using __gnu_cxx::hash;
 
 struct stAPVGain{
    unsigned int Index; 
-   unsigned int Bin;
+  //FIXME: removed for the moment since it needs to be computed from a histo that can be
+  // accessed only at the end of the run in the AlCaHarvesting step
+  //unsigned int Bin;
    unsigned int DetId;
    unsigned int APVId;
    unsigned int SubDet;
@@ -131,9 +133,11 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
               void MakeCalibrationMap();
 
 
-      SiStripApvGain* getNewObject() override;
-      edm::Service<TFileService> tfs;
 
+      SiStripApvGain* getNewObject() override;
+
+
+  TFileService *tfs;
   DQMStore* dbe;
   bool harvestingMode;
 
@@ -222,7 +226,7 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
    harvestingMode      = iConfig.getUntrackedParameter<bool>("harvestingMode", false);
 
    dbe = edm::Service<DQMStore>().operator->();
-
+   dbe->setVerbose(10);
 }
 
 void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup)
@@ -231,9 +235,7 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
   cout << "algoBeginRun start" << endl;
   if(!harvestingMode) {
     cout << "   booking start" << endl;
-    // FIXME: decide what should be the folder name following the convention already there for ALCARECOS
     dbe->setCurrentFolder("AlCaReco/SiStripGains/");
-
     Charge_Vs_Index           = dbe->book2D("Charge_Vs_Index"          , "Charge_Vs_Index"          , 72785, 0   , 72784,1000,0,2000);
     Charge_Vs_Index_Absolute  = dbe->book2D("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 72785, 0   , 72784, 500,0,2000);
     Charge_Vs_PathlengthTIB   = dbe->book2D("Charge_Vs_PathlengthTIB"  , "Charge_Vs_PathlengthTIB"  , 20   , 0.3 , 1.3  , 250,0,2000);
@@ -244,23 +246,7 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
     Charge_Vs_PathlengthTECP2 = dbe->book2D("Charge_Vs_PathlengthTECP2", "Charge_Vs_PathlengthTECP2", 20   , 0.3 , 1.3  , 250,0,2000);
     Charge_Vs_PathlengthTECM1 = dbe->book2D("Charge_Vs_PathlengthTECM1", "Charge_Vs_PathlengthTECM1", 20   , 0.3 , 1.3  , 250,0,2000);
     Charge_Vs_PathlengthTECM2 = dbe->book2D("Charge_Vs_PathlengthTECM2", "Charge_Vs_PathlengthTECM2", 20   , 0.3 , 1.3  , 250,0,2000);
-  } else {
-    cout << "   retrieving from DQMStore" << endl;
-    // When running in AlCaHarvesting mode the histos are already booked and should be just retrieved from
-    // DQMStore so that they can be used in the fit
-    Charge_Vs_Index           = dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index");
-    Charge_Vs_Index_Absolute  = dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index_Absolute");
-    Charge_Vs_PathlengthTIB   = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIB");
-    Charge_Vs_PathlengthTOB   = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTOB");
-    Charge_Vs_PathlengthTIDP  = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIDP");
-    Charge_Vs_PathlengthTIDM  = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIDM");
-    Charge_Vs_PathlengthTECP1 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECP1");
-    Charge_Vs_PathlengthTECP2 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECP2");
-    Charge_Vs_PathlengthTECM1 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECM1");
-    Charge_Vs_PathlengthTECM2 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECM2");
-
-  }
-
+  } 
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
    vector<GeomDet*> Det = tkGeom->dets();
@@ -295,7 +281,8 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
           for(unsigned int j=0;j<NAPV;j++){
                 stAPVGain* APV = new stAPVGain;
                 APV->Index         = Index;
-                APV->Bin           = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index);
+		// FIXME: this needs to be removed since there is no access to the histograms in begiRun
+                // APV->Bin           = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index);
                 APV->DetId         = Detid.rawId();
                 APV->APVId         = j;
                 APV->SubDet        = SubDet;
@@ -356,10 +343,27 @@ SiStripGainFromCalibTree::algoEndJob() {
    // FIXME: here put the switch to run the harvesting mode
    
    if(harvestingMode) {
+
+     cout << "   retrieving from DQMStore" << endl;
+     // When running in AlCaHarvesting mode the histos are already booked and should be just retrieved from
+     // DQMStore so that they can be used in the fit
+     // cout << "SIZE: " << dbe->getAllContents("").size() << endl;
+     Charge_Vs_Index           = dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index");
+     Charge_Vs_Index_Absolute  = dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index_Absolute");
+     Charge_Vs_PathlengthTIB   = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIB");
+     Charge_Vs_PathlengthTOB   = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTOB");
+     Charge_Vs_PathlengthTIDP  = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIDP");
+     Charge_Vs_PathlengthTIDM  = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIDM");
+     Charge_Vs_PathlengthTECP1 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECP1");
+     Charge_Vs_PathlengthTECP2 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECP2");
+     Charge_Vs_PathlengthTECM1 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECM1");
+     Charge_Vs_PathlengthTECM2 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECM2");
+
      // these methods are run only in "AlCaHarvesting" mode once the full statistics out of the parallel jobs is
      // harvested and available in the MEs
      algoComputeMPVandGain();
-     storeOnTree();
+     //FIXME: for the moment the tree is disabled in PCL, among other reasons the fact that the TFileSevice is not available @ Tier0
+     if(AlgoMode != "PCL") storeOnTree();
    }
 }
 
@@ -560,7 +564,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
    //if(I>1000)break;
       stAPVGain* APV = it->second;
 
-      Proj = (TH1F*)(Charge_Vs_Index->getTH2F()->ProjectionY("",APV->Bin,APV->Bin,"e"));
+      Proj = (TH1F*)(Charge_Vs_Index->getTH2F()->ProjectionY("",Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index),Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index),"e"));
       if(!Proj)continue;
 
       if(CalibrationLevel==0){
@@ -613,6 +617,8 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
 
 void SiStripGainFromCalibTree::storeOnTree()
 {
+  tfs = edm::Service<TFileService>().operator->();
+
    unsigned int  tree_Index;
    unsigned int  tree_Bin;
    unsigned int  tree_DetId;
@@ -682,7 +688,7 @@ void SiStripGainFromCalibTree::storeOnTree()
       fprintf(Gains,"%i | %i | PreviousGain = %7.5f NewGain = %7.5f (#clusters=%8.0f)\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain, APV->NEntries);
 
       tree_Index      = APV->Index;
-      tree_Bin        = APV->Bin;
+      tree_Bin        = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index);
       tree_DetId      = APV->DetId;
       tree_APVId      = APV->APVId;
       tree_SubDet     = APV->SubDet;
