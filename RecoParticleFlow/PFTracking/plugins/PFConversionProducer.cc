@@ -1,9 +1,6 @@
 #include <memory>
 #include "RecoParticleFlow/PFTracking/plugins/PFConversionProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -28,9 +25,9 @@ PFConversionProducer::PFConversionProducer(const ParameterSet& iConfig):
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFConversionCollection>();
 
-  pfConversionContainer_ = 
-    iConfig.getParameter< InputTag >("conversionCollection");
-  vtx_h=iConfig.getParameter<edm::InputTag>("PrimaryVertexLabel");
+  pfConversionContainer_ =consumes<reco::ConversionCollection>(iConfig.getParameter< InputTag >("conversionCollection")); 
+
+  vtx_h=consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("PrimaryVertexLabel"));
 }
 
 PFConversionProducer::~PFConversionProducer()
@@ -53,14 +50,12 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
   TransientTrackBuilder thebuilder = *(builder.product());
   reco::PFRecTrackRefProd pfTrackRefProd = iEvent.getRefBeforePut<reco::PFRecTrackCollection>();
   Handle<reco::ConversionCollection> convCollH;
-  iEvent.getByLabel(pfConversionContainer_, convCollH);
+  iEvent.getByToken(pfConversionContainer_, convCollH);
   
   const reco::ConversionCollection& convColl = *(convCollH.product());
   
-  Handle<reco::TrackCollection> trackColl;
-  iEvent.getByLabel(pfTrackContainer_, trackColl);
   Handle<reco::VertexCollection> vertex;
-  iEvent.getByLabel(vtx_h, vertex);
+  iEvent.getByToken(vtx_h, vertex);
   //Find PV for IP calculation, if there is no PV in collection than use dummy 
   reco::Vertex dummy;
   const reco::Vertex* pv=&dummy;    
