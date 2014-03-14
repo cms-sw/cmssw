@@ -100,12 +100,11 @@ public:
    std::string name() const { return "CosmicTrackingRegion"; }
 
 private:
-  template <typename T, typename H>
+  template <typename T>
   void hits_(
       const edm::Event& ev,
       const edm::EventSetup& es,
-      const T& layer, H  & result,
-      bool oldStyle) const;
+      const T& layer, TrackingRegion::Hits & result) const;
 
 
 

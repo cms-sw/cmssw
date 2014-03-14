@@ -29,7 +29,10 @@ TrackingRegion::ctfHits CosmicTrackingRegion::hits(const edm::Event& ev,
 						const  ctfseeding::SeedingLayer* layer) const
 {
   TrackingRegion::ctfHits result;
-  hits_(ev, es, *layer, result, true);
+  TrackingRegion::Hits tmp;
+  hits_(ev, es, *layer, tmp);
+  result.reserve(tmp.size());
+  for ( auto h : tmp) result.emplace_back(*h); // not owned
   return result;
 }
 
@@ -38,16 +41,15 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
 						const SeedingLayerSetsHits::SeedingLayer& layer) const
 {
   TrackingRegion::Hits result;
-  hits_(ev, es, layer, result, false);
+  hits_(ev, es, layer, result);
   return result;
 }
 
-template <typename T, typename H>
+template <typename T>
 void CosmicTrackingRegion::hits_(
 				 const edm::Event& ev,
 				 const edm::EventSetup& es,
-				 const T& layer, H  & result,
-				 bool oldStyle) const
+				 const T& layer, TrackingRegion::Hits  & result) const
 {
 
   //get and name collections
@@ -129,14 +131,18 @@ void CosmicTrackingRegion::hits_(
 
   //trajectory measurement
 
+  // std::cout <<"CRegion b " << cache.size() << std::endl;
+
   // waiting for a migration at LayerMeasurements level and at seed builder level
   for (auto const & im : meas) {
     if(!im.recHit()->isValid()) continue;
+    assert(!trackerHitRTTI::isUndef(*im.recHit()->hit()));
     auto ptrHit = (BaseTrackerRecHit *)(im.recHit()->hit()->clone());
-    if (!oldStyle) cache.emplace_back(ptrHit);
+    cache.emplace_back(ptrHit);
     result.emplace_back(ptrHit);
   }
 
+  // std::cout <<"CRegion a " << cache.size() << std::endl;
 
 }
 

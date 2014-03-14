@@ -196,8 +196,12 @@ private:
   using cacheHitPointer = mayown_ptr<BaseTrackerRecHit>;
   using cacheHits=std::vector<cacheHitPointer>;
 
-  // not a solution!  here just to try to get this thing working....
-  // in any case onDemand is NOT thread safe yet
+  
+
+  /*  wait... think! 
+   *  done? questions?  think again, look where this region is constructed
+   *  still question? study tracker code for the next couple of weeks, then we may discuss.  
+   */
   mutable cacheHits cache;
 
 };

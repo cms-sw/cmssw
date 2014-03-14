@@ -288,6 +288,7 @@ TrackingRegion::ctfHits RectangularEtaPhiTrackingRegion::hits(
       const edm::EventSetup& es,
       const  SeedingLayer* layer) const
 {
+  std::cout << "RectangularEtaPhiTrackingRegion old style hits" << std::endl;
   TrackingRegion::ctfHits result;
   hits_(ev, es, *layer, result, [&](const SeedingLayer& l) -> TrackingRegion::ctfHits { return l.hits(ev, es);}, true );
   return result;
@@ -371,6 +372,7 @@ void RectangularEtaPhiTrackingRegion::hits_(
     
     vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, *findDetAndHits);
     result.reserve(meas.size());
+
     // waiting for a migration at LayerMeasurements level and at seed builder level
     for (auto const & im : meas) {
       if(!im.recHit()->isValid()) continue;
