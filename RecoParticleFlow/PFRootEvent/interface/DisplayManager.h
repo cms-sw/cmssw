@@ -9,6 +9,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBrem.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
@@ -249,7 +250,7 @@ class DisplayManager {
   double getMaxEHcal();
   double getMaxEHo();              
      
-     
+  PFGeometry pfGeometry_;
      
 };
 #endif 

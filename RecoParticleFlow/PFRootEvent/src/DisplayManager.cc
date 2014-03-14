@@ -345,31 +345,31 @@ void DisplayManager::createCanvas()
   // Draw ECAL front face
   frontFaceECALXY_.SetX1(0);
   frontFaceECALXY_.SetY1(0);
-  frontFaceECALXY_.SetR1(PFGeometry::innerRadius(PFGeometry::ECALBarrel));
-  frontFaceECALXY_.SetR2(PFGeometry::innerRadius(PFGeometry::ECALBarrel));
+  frontFaceECALXY_.SetR1(pfGeometry_.innerRadius(PFGeometry::ECALBarrel));
+  frontFaceECALXY_.SetR2(pfGeometry_.innerRadius(PFGeometry::ECALBarrel));
   frontFaceECALXY_.SetFillStyle(0);
 
   // Draw HCAL front face
   frontFaceHCALXY_.SetX1(0);
   frontFaceHCALXY_.SetY1(0);
-  frontFaceHCALXY_.SetR1(PFGeometry::innerRadius(PFGeometry::HCALBarrel));
-  frontFaceHCALXY_.SetR2(PFGeometry::innerRadius(PFGeometry::HCALBarrel));
+  frontFaceHCALXY_.SetR1(pfGeometry_.innerRadius(PFGeometry::HCALBarrel));
+  frontFaceHCALXY_.SetR2(pfGeometry_.innerRadius(PFGeometry::HCALBarrel));
   frontFaceHCALXY_.SetFillStyle(0);
 
   if (drawHO_) {
     // Draw HO front face
     frontFaceHOXY_.SetX1(0);
     frontFaceHOXY_.SetY1(0);
-    frontFaceHOXY_.SetR1(PFGeometry::innerRadius(PFGeometry::HOBarrel));
-    frontFaceHOXY_.SetR2(PFGeometry::outerRadius(PFGeometry::HOBarrel));
+    frontFaceHOXY_.SetR1(pfGeometry_.innerRadius(PFGeometry::HOBarrel));
+    frontFaceHOXY_.SetR2(pfGeometry_.outerRadius(PFGeometry::HOBarrel));
     frontFaceHOXY_.SetFillStyle(0);
   }
 
   // Draw ECAL side
-  frontFaceECALRZ_.SetX1(-1.*PFGeometry::innerZ(PFGeometry::ECALEndcap));
-  frontFaceECALRZ_.SetY1(-1.*PFGeometry::innerRadius(PFGeometry::ECALBarrel));
-  frontFaceECALRZ_.SetX2(PFGeometry::innerZ(PFGeometry::ECALEndcap));
-  frontFaceECALRZ_.SetY2(PFGeometry::innerRadius(PFGeometry::ECALBarrel));
+  frontFaceECALRZ_.SetX1(-1.*pfGeometry_.innerZ(PFGeometry::ECALEndcap));
+  frontFaceECALRZ_.SetY1(-1.*pfGeometry_.innerRadius(PFGeometry::ECALBarrel));
+  frontFaceECALRZ_.SetX2(pfGeometry_.innerZ(PFGeometry::ECALEndcap));
+  frontFaceECALRZ_.SetY2(pfGeometry_.innerRadius(PFGeometry::ECALBarrel));
   frontFaceECALRZ_.SetFillStyle(0);
   cout <<"End of DisplayManager::createCanvas()"<<endl; 
 
