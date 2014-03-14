@@ -12,4 +12,8 @@ AnalyzeBeamHalo.StandardDQM = cms.bool(True)
 
 towerSchemeBAnalyzer.AllHist = cms.untracked.bool(False)
 
-jetMETDQMOfflineSourceCosmic = cms.Sequence(HBHENoiseFilterResultProducer*analyzecaloTowersDQM*AnalyzeSUSYDQM*jetAnalyzerSequence*METAnalyzerSequence)
+jetDQMAnalyzerAk5CaloUncleaned.runcosmics = cms.untracked.bool(True)
+ 
+caloMetDQMAnalyzer.runcosmics = cms.untracked.bool(True)
+
+jetMETDQMOfflineSourceCosmic = cms.Sequence(HBHENoiseFilterResultProducer*analyzecaloTowersDQM*AnalyzeSUSYDQM*jetDQMAnalyzerSequenceCosmics*METDQMAnalyzerSequenceCosmics)

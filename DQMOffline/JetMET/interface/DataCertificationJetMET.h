@@ -52,11 +52,13 @@ class DataCertificationJetMET : public DQMEDAnalyzer {
    edm::ParameterSet conf_;
    DQMStore * dbe_;
    edm::Service<TFileService> fs_;
-
    int verbose_;
    bool InMemory_;
    bool isData;
    std::string metFolder;
+   std::string jetAlgo;
+
+   std::string folderName;
 
    bool caloJetMeanTest;
    bool caloJetKSTest;
@@ -70,8 +72,6 @@ class DataCertificationJetMET : public DQMEDAnalyzer {
    bool pfMETKSTest;
    bool tcMETMeanTest;
    bool tcMETKSTest;
-   bool muMETMeanTest;
-   bool muMETKSTest;
 
    bool jetTests[5][2];  //one for each type of jet certification/test type
    bool metTests[5][2];  //one for each type of met certification/test type

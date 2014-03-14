@@ -109,14 +109,18 @@ else:
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
 
 #change values for first jet and met analyzer parameterset -> all other parametersets are cloned from these
-process.jetAnalyzerAk5CaloUncleaned.OutputMEsInRootFile = cms.bool(True)
-process.jetAnalyzerAk5CaloUncleaned.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
-process.jetAnalyzerAk5CaloUncleaned.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
-process.jetAnalyzerAk5CaloUncleaned.processname = cms.string(trigger_set)
-process.tcMetAnalyzer.OutputMEsInRootFile = cms.bool(True)
-process.tcMetAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
-process.tcMetAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
-process.tcMetAnalyzer.processname = cms.string(trigger_set)
+process.jetDQMAnalyzerAk5CaloUncleaned.OutputMEsInRootFile = cms.bool(True)
+process.jetDQMAnalyzerAk5CaloUncleaned.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
+process.jetDQMAnalyzerAk5CaloUncleaned.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
+process.jetDQMAnalyzerAk5CaloUncleaned.processname = cms.string(trigger_set)
+process.tcMetDQMAnalyzer.OutputMEsInRootFile = cms.bool(True)
+process.tcMetDQMAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
+process.tcMetDQMAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
+process.tcMetDQMAnalyzer.processname = cms.string(trigger_set)
+process.caloMetDQMAnalyzer.OutputMEsInRootFile = cms.bool(True)
+process.caloMetDQMAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
+process.caloMetDQMAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
+process.caloMetDQMAnalyzer.processname = cms.string(trigger_set)
 #process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT8E29")
 #process.jetMETAnalyzer.processname = cms.string("HLT8E29")
 
@@ -170,7 +174,7 @@ process.Timing = cms.Service("Timing")
 
 ## # Comment this out or reconfigure to see error messages 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('tcMetAnalyzer'),
+    debugModules = cms.untracked.vstring('tcMetDQMAnalyzer'),
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)

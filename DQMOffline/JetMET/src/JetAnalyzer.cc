@@ -131,7 +131,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
     }else if (JetIDVersion_=="CRAFT08"){
       jetidversion = JetIDSelectionFunctor::CRAFT08;
     }else{
-      std::cout<<"no Valid JetID version given"<<std::endl;
+      if (verbose_) std::cout<<"no Valid JetID version given"<<std::endl;
     }
     if(JetIDQuality_== "MINIMAL"){
       jetidquality = JetIDSelectionFunctor::MINIMAL;
@@ -142,7 +142,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
     }else if (JetIDQuality_=="TIGHT"){
       jetidquality = JetIDSelectionFunctor::TIGHT;
     }else{
-      std::cout<<"no Valid JetID quality given"<<std::endl;
+      if (verbose_) std::cout<<"no Valid JetID quality given"<<std::endl;
     }
     jetIDFunctor=JetIDSelectionFunctor( jetidversion, jetidquality);
 
@@ -153,14 +153,14 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
     if(JetIDVersion_== "FIRSTDATA"){
       pfjetidversion = PFJetIDSelectionFunctor::FIRSTDATA;
     }else{
-      std::cout<<"no valid PF JetID version given"<<std::endl;
+      if (verbose_) std::cout<<"no valid PF JetID version given"<<std::endl;
     }
     if (JetIDQuality_=="LOOSE"){
       pfjetidquality = PFJetIDSelectionFunctor::LOOSE;
     }else if (JetIDQuality_=="TIGHT"){
       pfjetidquality = PFJetIDSelectionFunctor::TIGHT;
     }else{
-      std::cout<<"no Valid PFJetID quality given"<<std::endl;
+     if (verbose_)  std::cout<<"no Valid PFJetID quality given"<<std::endl;
     }
     pfjetIDFunctor=PFJetIDSelectionFunctor( pfjetidversion, pfjetidquality);
   }
@@ -176,14 +176,20 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   theTriggerResultsLabel_        = pSet.getParameter<edm::InputTag>("TriggerResultsLabel");
   triggerResultsToken_          = consumes<edm::TriggerResults>(edm::InputTag(theTriggerResultsLabel_));
   //
+  runcosmics_          = pSet.getUntrackedParameter<bool>("runcosmics", false);
   jetCleaningFlag_            = pSet.getUntrackedParameter<bool>("JetCleaningFlag", true);
+
+  if(runcosmics_){
+    jetCleaningFlag_ =false;
+  }
+
  
   // ==========================================================
   //DCS information
   // ==========================================================
   edm::ConsumesCollector iC  = consumesCollector();
   DCSFilterForJetMonitoring_  = new JetMETDQMDCSFilter(pSet.getParameter<ParameterSet>("DCSFilterForJetMonitoring"), iC);
-  DCSFilterForDCSMonitoring_  = new JetMETDQMDCSFilter("ecal:hbhe:hf:ho:pixel:sistrip:es:muon");
+  DCSFilterForDCSMonitoring_  = new JetMETDQMDCSFilter("ecal:hbhe:hf:ho:pixel:sistrip:es:muon", iC);
   
   //Trigger selectoin
   edm::ParameterSet highptjetparms = pSet.getParameter<edm::ParameterSet>("highPtJetTrigger");
@@ -978,7 +984,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   edm::Handle< edm::ValueMap<reco::JetID> >jetID_ValueMap_Handle;
   if(isJPTJet_ || isCaloJet_){
-    iEvent.getByToken(jetID_ValueMapToken_,jetID_ValueMap_Handle);
+    if(!runcosmics_){
+      iEvent.getByToken(jetID_ValueMapToken_,jetID_ValueMap_Handle);
+    }
   }
 
   //check for collections AND DCS filters
@@ -1075,8 +1083,19 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //jet ID for calojets
     if (isCaloJet_) {
       reco::CaloJetRef calojetref(caloJets, ijet);
-      reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
-      jetpassid = jetIDFunctor((*caloJets)[ijet], jetID);
+      if(!runcosmics_){
+	reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
+	jetpassid = jetIDFunctor((*caloJets)[ijet], jetID);
+	if(jetCleaningFlag_){
+	  Thiscleaned=jetpassid;
+	}
+	if(Thiscleaned && pass_corrected){//if cleaning requested->jet passes a loose ID
+	  mN90Hits = dbe_->get(DirName+"/"+"N90Hits"); if (mN90Hits && mN90Hits->getRootObject()) mN90Hits->Fill (jetID.n90Hits);
+	  mfHPD = dbe_->get(DirName+"/"+"fHPD"); if (mfHPD && mfHPD->getRootObject())             mfHPD->Fill (jetID.fHPD);
+	  mresEMF = dbe_->get(DirName+"/"+"resEMF"); if (mresEMF && mresEMF->getRootObject())     mresEMF->Fill (jetID.restrictedEMF);
+	  mfRBX = dbe_->get(DirName+"/"+"fRBX"); if (mfRBX && mfRBX->getRootObject())             mfRBX->Fill (jetID.fRBX);
+	}
+      }
       if(jetCleaningFlag_){
 	Thiscleaned=jetpassid;
       }
@@ -1114,11 +1133,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	mEmEnergyInEB = dbe_->get(DirName+"/"+"EmEnergyInEB"); if (mEmEnergyInEB && mEmEnergyInEB->getRootObject())    mEmEnergyInEB->Fill ((*caloJets)[ijet].emEnergyInEB());
 	mEmEnergyInEE = dbe_->get(DirName+"/"+"EmEnergyInEE"); if (mEmEnergyInEE && mEmEnergyInEE->getRootObject())    mEmEnergyInEE->Fill ((*caloJets)[ijet].emEnergyInEE());
 	mEmEnergyInHF = dbe_->get(DirName+"/"+"EmEnergyInHF"); if (mEmEnergyInHF && mEmEnergyInHF->getRootObject())    mEmEnergyInHF->Fill ((*caloJets)[ijet].emEnergyInHF());
-	
-	mN90Hits = dbe_->get(DirName+"/"+"N90Hits"); if (mN90Hits && mN90Hits->getRootObject()) mN90Hits->Fill (jetID.n90Hits);
-	mfHPD = dbe_->get(DirName+"/"+"fHPD"); if (mfHPD && mfHPD->getRootObject())             mfHPD->Fill (jetID.fHPD);
-	mresEMF = dbe_->get(DirName+"/"+"resEMF"); if (mresEMF && mresEMF->getRootObject())     mresEMF->Fill (jetID.restrictedEMF);
-	mfRBX = dbe_->get(DirName+"/"+"fRBX"); if (mfRBX && mfRBX->getRootObject())             mfRBX->Fill (jetID.fRBX);
+
       }
     }
     if(isJPTJet_){
@@ -1130,16 +1145,18 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       try {
 	const reco::CaloJet *rawCaloJet = dynamic_cast<const reco::CaloJet*>(&*rawJet);
 	reco::CaloJetRef const theCaloJetRef = (rawJet).castTo<reco::CaloJetRef>();
-	reco::JetID jetID = (*jetID_ValueMap_Handle)[theCaloJetRef];
-	jetpassid = jetIDFunctor(*rawCaloJet, jetID);
-	if(jetCleaningFlag_){
-	  Thiscleaned = jetpassid;
-	}
-	if(Thiscleaned /*&&  ( fabs(rawJet->eta()) < 2.1)*/ && pass_corrected){
-	  mN90Hits = dbe_->get(DirName+"/"+"N90Hits"); if (mN90Hits && mN90Hits->getRootObject())   mN90Hits->Fill (jetID.n90Hits);
-	  mfHPD = dbe_->get(DirName+"/"+"fHPD"); if (mfHPD && mfHPD->getRootObject())               mfHPD->Fill (jetID.fHPD);
-	  mresEMF = dbe_->get(DirName+"/"+"resEMF"); if (mresEMF && mresEMF->getRootObject())       mresEMF->Fill (jetID.restrictedEMF);
-	  mfRBX = dbe_->get(DirName+"/"+"fRBX"); if (mfRBX && mfRBX->getRootObject())               mfRBX->Fill (jetID.fRBX);
+	if(!runcosmics_){
+	  reco::JetID jetID = (*jetID_ValueMap_Handle)[theCaloJetRef];
+	  jetpassid = jetIDFunctor(*rawCaloJet, jetID);
+	  if(jetCleaningFlag_){
+	    Thiscleaned = jetpassid;
+	  }
+	  if(Thiscleaned /*&&  ( fabs(rawJet->eta()) < 2.1)*/ && pass_corrected){
+	    mN90Hits = dbe_->get(DirName+"/"+"N90Hits"); if (mN90Hits && mN90Hits->getRootObject())   mN90Hits->Fill (jetID.n90Hits);
+	    mfHPD = dbe_->get(DirName+"/"+"fHPD"); if (mfHPD && mfHPD->getRootObject())               mfHPD->Fill (jetID.fHPD);
+	    mresEMF = dbe_->get(DirName+"/"+"resEMF"); if (mresEMF && mresEMF->getRootObject())       mresEMF->Fill (jetID.restrictedEMF);
+	    mfRBX = dbe_->get(DirName+"/"+"fRBX"); if (mfRBX && mfRBX->getRootObject())               mfRBX->Fill (jetID.fRBX);
+	  }
 	}
       } catch (const std::bad_cast&) {
 	edm::LogError("JetPlusTrackDQM") << "Failed to cast raw jet to CaloJet. JPT Jet does not appear to have been built from a CaloJet. "
@@ -1713,19 +1730,20 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //dphi cut
     if(fabs(dphi)>2.1){
       if(isCaloJet_){
-	reco::CaloJetRef calojetref1(caloJets, ind1);
-	reco::JetID jetID1 = (*jetID_ValueMap_Handle)[calojetref1];
-	reco::CaloJetRef calojetref2(caloJets, ind2);
-	reco::JetID jetID2 = (*jetID_ValueMap_Handle)[calojetref2];	
-	mN90Hits = dbe_->get(DirName+"/"+"N90Hits"); if (mN90Hits && mN90Hits->getRootObject()) mN90Hits->Fill (jetID1.n90Hits);
-	mfHPD = dbe_->get(DirName+"/"+"fHPD"); if (mfHPD && mfHPD->getRootObject())             mfHPD->Fill (jetID1.fHPD);
-	mresEMF = dbe_->get(DirName+"/"+"resEMF"); if (mresEMF && mresEMF->getRootObject())     mresEMF->Fill (jetID1.restrictedEMF);
-	mfRBX = dbe_->get(DirName+"/"+"fRBX"); if (mfRBX && mfRBX->getRootObject())             mfRBX->Fill (jetID1.fRBX);	  
-	mN90Hits = dbe_->get(DirName+"/"+"N90Hits"); if (mN90Hits && mN90Hits->getRootObject()) mN90Hits->Fill (jetID2.n90Hits);
-	mfHPD = dbe_->get(DirName+"/"+"fHPD"); if (mfHPD && mfHPD->getRootObject())             mfHPD->Fill (jetID2.fHPD);
-	mresEMF = dbe_->get(DirName+"/"+"resEMF"); if (mresEMF && mresEMF->getRootObject())     mresEMF->Fill (jetID2.restrictedEMF);
-	mfRBX = dbe_->get(DirName+"/"+"fRBX"); if (mfRBX && mfRBX->getRootObject())             mfRBX->Fill (jetID2.fRBX);
-	
+	if(!runcosmics_){
+	  reco::CaloJetRef calojetref1(caloJets, ind1);
+	  reco::JetID jetID1 = (*jetID_ValueMap_Handle)[calojetref1];
+	  reco::CaloJetRef calojetref2(caloJets, ind2);
+	  reco::JetID jetID2 = (*jetID_ValueMap_Handle)[calojetref2];	
+	  mN90Hits = dbe_->get(DirName+"/"+"N90Hits"); if (mN90Hits && mN90Hits->getRootObject()) mN90Hits->Fill (jetID1.n90Hits);
+	  mfHPD = dbe_->get(DirName+"/"+"fHPD"); if (mfHPD && mfHPD->getRootObject())             mfHPD->Fill (jetID1.fHPD);
+	  mresEMF = dbe_->get(DirName+"/"+"resEMF"); if (mresEMF && mresEMF->getRootObject())     mresEMF->Fill (jetID1.restrictedEMF);
+	  mfRBX = dbe_->get(DirName+"/"+"fRBX"); if (mfRBX && mfRBX->getRootObject())             mfRBX->Fill (jetID1.fRBX);	  
+	  mN90Hits = dbe_->get(DirName+"/"+"N90Hits"); if (mN90Hits && mN90Hits->getRootObject()) mN90Hits->Fill (jetID2.n90Hits);
+	  mfHPD = dbe_->get(DirName+"/"+"fHPD"); if (mfHPD && mfHPD->getRootObject())             mfHPD->Fill (jetID2.fHPD);
+	  mresEMF = dbe_->get(DirName+"/"+"resEMF"); if (mresEMF && mresEMF->getRootObject())     mresEMF->Fill (jetID2.restrictedEMF);
+	  mfRBX = dbe_->get(DirName+"/"+"fRBX"); if (mfRBX && mfRBX->getRootObject())             mfRBX->Fill (jetID2.fRBX);
+	}
 	mHFrac = dbe_->get(DirName+"/"+"HFrac"); if (mHFrac && mHFrac->getRootObject()) mHFrac->Fill ((*caloJets)[ind1].energyFractionHadronic());
 	mEFrac = dbe_->get(DirName+"/"+"EFrac"); if (mEFrac && mHFrac->getRootObject()) mEFrac->Fill ((*caloJets)[ind1].emEnergyFraction());
 	mMaxEInEmTowers = dbe_->get(DirName+"/"+"MaxEInEmTowers"); if (mMaxEInEmTowers && mMaxEInEmTowers->getRootObject())     mMaxEInEmTowers->Fill ((*caloJets)[ind1].maxEInEmTowers());
@@ -1939,8 +1957,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ***********************************************************
 void JetAnalyzer::endJob(void) {
- 
-  
 }
 
 

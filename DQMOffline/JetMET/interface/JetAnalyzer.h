@@ -299,6 +299,8 @@ class JetAnalyzer : public DQMEDAnalyzer {
   bool diJetSelectionFlag_;
   bool jetCleaningFlag_;
 
+  bool runcosmics_;
+
 //  bool energycorrected;
  
 

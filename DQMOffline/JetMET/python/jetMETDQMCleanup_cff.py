@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 cleaningParameters = cms.PSet(
 
     gtLabel      = cms.InputTag("gtDigis"),

@@ -16,7 +16,7 @@ newAk5PFL1FastL2L3 = ak5PFL1FastL2L3.clone()
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5JPTL1FastL2L3,ak5JPTL1Fastjet,ak5JPTL2Relative,ak5JPTL3Absolute
 newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
 
-jetAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
+jetDQMAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     OutputMEsInRootFile = cms.bool(False),
     OutputFile = cms.string('jetMETMonitoring.root'),
     JetType = cms.string('calo'),#pf, calo or jpt
@@ -51,11 +51,13 @@ jetAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     # Jet-related
     #   
 
-    JetCleaningFlag            = cms.untracked.bool(False),                          
+    JetCleaningFlag            = cms.untracked.bool(False),       
+
+    runcosmics                 = cms.untracked.bool(False),                
                                 
     #Cleanup parameters
     CleaningParameters = cleaningParameters.clone(
-        doPrimaryVertexCheck = cms.bool(False),
+        bypassAllPVChecks = cms.bool(True),
         ),
 
     #for JPT and CaloJetID  
@@ -81,10 +83,10 @@ jetAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     )
 )
 
-jetAnalyzerAk5CaloCleaned=jetAnalyzerAk5CaloUncleaned.clone(
+jetDQMAnalyzerAk5CaloCleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
     JetCleaningFlag   = cms.untracked.bool(True),
     CleaningParameters = cleaningParameters.clone(
-        doPrimaryVertexCheck = cms.bool(True),
+        bypassAllPVChecks = cms.bool(False),
     ),
     jetAnalysis=jetDQMParameters.clone(
         ptThreshold = cms.double(20.),
@@ -94,7 +96,7 @@ jetAnalyzerAk5CaloCleaned=jetAnalyzerAk5CaloUncleaned.clone(
 )
 
 
-jetAnalyzerAk5JPTCleaned=jetAnalyzerAk5CaloCleaned.clone(
+jetDQMAnalyzerAk5JPTCleaned=jetDQMAnalyzerAk5CaloCleaned.clone(
     JetType = cms.string('jpt'),#pf, calo or jpt
     JetCorrections = cms.string("newAk5JPTL1FastL2L3"),
     jetsrc = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
@@ -105,11 +107,11 @@ jetAnalyzerAk5JPTCleaned=jetAnalyzerAk5CaloCleaned.clone(
         alwaysPass = cms.untracked.bool(False)
         )
 )
-#jetAnalyzerAk5JPTCleaned.DCSFilterForJetMonitoring.DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon")
+#jetDQMAnalyzerAk5JPTCleaned.DCSFilterForJetMonitoring.DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon")
 
-jetAnalyzerAk5PFUncleaned=jetAnalyzerAk5CaloUncleaned.clone(
+jetDQMAnalyzerAk5PFUncleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
     CleaningParameters = cleaningParameters.clone(
-        doPrimaryVertexCheck = cms.bool(True),
+       bypassAllPVChecks  = cms.bool(False),
     ),
     #for PFJets: LOOSE,TIGHT
     JetIDQuality               = cms.string("LOOSE"),
@@ -125,9 +127,9 @@ jetAnalyzerAk5PFUncleaned=jetAnalyzerAk5CaloUncleaned.clone(
       alwaysPass = cms.untracked.bool(False)
     )
 )
-#jetAnalyzerAk5PFUncleaned.DCSFilterForJetMonitoring.DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon")
+#jetDQMAnalyzerAk5PFUncleaned.DCSFilterForJetMonitoring.DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon")
 
-jetAnalyzerAk5PFCleaned=jetAnalyzerAk5PFUncleaned.clone(
+jetDQMAnalyzerAk5PFCleaned=jetDQMAnalyzerAk5PFUncleaned.clone(
     JetCleaningFlag   = cms.untracked.bool(True),
     jetAnalysis=jetDQMParameters.clone(
         ptThreshold = cms.double(20.),
@@ -136,3 +138,18 @@ jetAnalyzerAk5PFCleaned=jetAnalyzerAk5PFUncleaned.clone(
         )
 )
 
+jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
+    CleaningParameters = cleaningParameters.clone(
+        bypassAllPVChecks  = cms.bool(False),
+        vertexCollection = cms.InputTag( "hiSelectedVertex" ),
+    ),
+    JetType = cms.string('calo'),#pf, calo or jpt
+    JetCorrections = cms.string(""),# no jet correction available yet?
+    jetsrc = cms.InputTag("iterativeConePu5CaloJets"),
+    JetCleaningFlag            = cms.untracked.bool(True),    
+    DCSFilterForJetMonitoring = cms.PSet(
+      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+      #DebugOn = cms.untracked.bool(True),
+      alwaysPass = cms.untracked.bool(False)
+    )
+)

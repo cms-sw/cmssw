@@ -15,7 +15,7 @@ from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5JPTL1Fa
 newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
 
 
-tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
+tcMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     OutputMEsInRootFile = cms.bool(False),
     OutputFile = cms.string('jetMETMonitoring.root'),
     METType=cms.untracked.string('tc'),
@@ -32,6 +32,7 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
     TriggerResultsLabel  = cms.InputTag("TriggerResults::HLT"),
 
+    runcosmics                 = cms.untracked.bool(False),  
 
     LSBegin = cms.int32(0),
     LSEnd   = cms.int32(-1),      
@@ -126,14 +127,14 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
     InputTCMETValueMap = cms.InputTag("muonTCMETValueMapProducer","muCorrData"),#muonMETValueMapProducer -> calomet vs muonTCMETValueMapProducer
 )
 
-pfMetAnalyzer = tcMetAnalyzer.clone(
+pfMetDQMAnalyzer = tcMetDQMAnalyzer.clone(
     METType=cms.untracked.string('pf'),
     METCollectionLabel     = cms.InputTag("pfMet"),
     JetCollectionLabel  = cms.InputTag("ak5PFJets"),
     JetCorrections = cms.string("newAk5PFL1FastL2L3"),
 )
 
-metAnalyzer = tcMetAnalyzer.clone(
+caloMetDQMAnalyzer = tcMetDQMAnalyzer.clone(
     METType=cms.untracked.string('calo'),
     METCollectionLabel     = cms.InputTag("met"),
     JetCollectionLabel  = cms.InputTag("ak5CaloJets"),

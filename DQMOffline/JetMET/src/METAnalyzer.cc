@@ -90,6 +90,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   //Vertex requirements
   bypassAllPVChecks_    = cleaningParameters_.getParameter<bool>("bypassAllPVChecks");
   bypassAllDCSChecks_    = cleaningParameters_.getParameter<bool>("bypassAllDCSChecks");
+  runcosmics_ = parameters.getUntrackedParameter<bool>("runcosmics");
   vertexTag_    = cleaningParameters_.getParameter<edm::InputTag>("vertexCollection");
   vertexToken_  = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexTag_));
 
@@ -145,7 +146,6 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
 // ***********************************************************
 METAnalyzer::~METAnalyzer() {
-
   for (std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
     delete *it;
   }
@@ -191,8 +191,6 @@ void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
 // ***********************************************************
 void METAnalyzer::endJob() {
-
-  std::cout<<" i get to endJob"<<std::endl;
 
   //delete DCSFilter_;
 
@@ -455,7 +453,7 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 //      hltConfig_.dump("ProcessPSet");
     }
   } else {
-    std::cout << "HLTEventAnalyzerAOD::analyze:"
+    if (verbose_) std::cout << "HLTEventAnalyzerAOD::analyze:"
               << " config extraction failure with process name "
               << triggerResultsLabel_.process() << std::endl;
   }
@@ -556,7 +554,6 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       }
     }
   }
-  
 }
 
 
@@ -803,7 +800,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   edm::Handle< edm::ValueMap<reco::JetID> >jetID_ValueMap_Handle;
   if(isTCMet_ || isCaloMet_){
-    iEvent.getByToken(jetID_ValueMapToken_,jetID_ValueMap_Handle);
+    if(!runcosmics_){
+      iEvent.getByToken(jetID_ValueMapToken_,jetID_ValueMap_Handle);
+    }
   }
 
   if (isPFMet_){ iEvent.getByToken(pfJetsToken_, pfJets);
@@ -842,8 +841,12 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	pt_jet=scale*(*caloJets)[ijet].pt();
 	if(pt_jet> ptThreshold_){
 	  reco::CaloJetRef calojetref(caloJets, ijet);
-	  reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
-	  iscleaned = jetIDFunctorLoose((*caloJets)[ijet], jetID);
+	  if(!runcosmics_){
+	    reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
+	    iscleaned = jetIDFunctorLoose((*caloJets)[ijet], jetID);
+	  }else{
+	    iscleaned=true;
+	  }
 	}
     }
     if(isTCMet_){
@@ -852,8 +855,12 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	const edm::RefToBase<reco::Jet>&  rawJet = (*jptJets)[ijet].getCaloJetRef();
 	const reco::CaloJet *rawCaloJet = dynamic_cast<const reco::CaloJet*>(&*rawJet);
 	reco::CaloJetRef const theCaloJetRef = (rawJet).castTo<reco::CaloJetRef>();
-	reco::JetID jetID = (*jetID_ValueMap_Handle)[theCaloJetRef];
-	iscleaned = jetIDFunctorLoose(*rawCaloJet, jetID);
+	if(!runcosmics_){
+	  reco::JetID jetID = (*jetID_ValueMap_Handle)[theCaloJetRef];
+	  iscleaned = jetIDFunctorLoose(*rawCaloJet, jetID);
+	}else{
+	  iscleaned=true;
+	}
       }
     }
     if(isPFMet_){
@@ -908,7 +915,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(beamHaloSummaryToken_, TheBeamHaloSummary) ;
 
   if (!TheBeamHaloSummary.isValid()) {
-    std::cout << "BeamHaloSummary doesn't exist" << std::endl;
+    if (verbose_) std::cout << "BeamHaloSummary doesn't exist" << std::endl;
   }
 
   bool bBeamHaloID = true;
@@ -1251,7 +1258,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  double d0 = -1 * trkit->dxy( beamSpot_ );
 	  htrkD0    = dbe_->get(DirName+"/"+"trackD0");     if (htrkD0 && htrkD0->getRootObject())        htrkD0->Fill( d0 );
 	}
-      }else{std::cout<<"tracks not valid"<<std::endl;}
+      }else{if (verbose_) std::cout<<"tracks not valid"<<std::endl;}
 
       if(electronHandle_.isValid()) {
 	for( edm::View<reco::GsfElectron>::const_iterator eleit = electronHandle_->begin(); eleit != electronHandle_->end(); eleit++ ) {
@@ -1260,7 +1267,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  heleHoE = dbe_->get(DirName+"/"+"electronHoverE");  if (heleHoE && heleHoE->getRootObject())  heleHoE->Fill( eleit->hadronicOverEm() );
 	}
       }else{
-	std::cout<<"electrons not valid"<<std::endl;
+	if (verbose_) std::cout<<"electrons not valid"<<std::endl;
       }
 
       if(muonHandle_.isValid()) {
@@ -1282,7 +1289,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  hMuonCorrectionFlag = dbe_->get(DirName+"/"+"CorrectionFlag");  if (hMuonCorrectionFlag && hMuonCorrectionFlag->getRootObject())  hMuonCorrectionFlag-> Fill(muCorrData.type());
 	}
       }else{
-	std::cout<<"muons not valid"<<std::endl;
+	if (verbose_)  std::cout<<"muons not valid"<<std::endl;
       }
     }
   } // et threshold cut

@@ -241,6 +241,8 @@ class METAnalyzer : public DQMEDAnalyzer{
 
   bool bypassAllPVChecks_;
   bool bypassAllDCSChecks_;
+  bool runcosmics_;
+
 
 //  int trigJetMB_;
 //  int trigHighPtJet_;
