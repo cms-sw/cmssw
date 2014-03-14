@@ -21,22 +21,17 @@ from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
 process = custom_GE11_6partitions_v1(process)
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:out_L1_PU140_dphi0_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM_ME1b_10k.test.root')
+    fileNames = cms.untracked.vstring('file:out_L1.root')
 )
 
 ## input
-from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
-from GEMCode.GEMValidation.InputFileHelpers import useInputDir
-#process = useInputDir(process, files['_gem98_pt2-50_PU0_pt0_new'], False)
+from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import *
+from GEMCode.GEMValidation.InputFileHelpers import *
+process = useInputDir(process, files['_gem98_pt2-50_PU0_pt0_new'], False)
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("gem-csc_stub_ana2.root")
+    fileName = cms.string("gem-csc_stub_ana.root")
 )
-
-##output file name
-#theOutputFile = "out_GEMCSC_Ana.root"
-#process.TFileService.fileName = theOutputFile#
-#print "OutputFiles: ", theOutputFile
 
 ## global tag for 2019 upgrade studies
 from Configuration.AlCa.GlobalTag import GlobalTag

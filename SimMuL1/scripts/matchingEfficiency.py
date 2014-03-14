@@ -949,10 +949,7 @@ if __name__ == "__main__":
     """
     input_dir = "files/"
     output_dir = "csc_gem_matching/"
-
-    #    input_file = "gem-csc_stub_ana_pt20_PU100_moreStats.root"
-    #    input_file = "out_GEMCSC_Ana.root"
-    input_file = "gem-csc_stub_ana2.root"
+    input_file = "gem-csc_stub_ana.root"
     ext = ".png"
     
     cscMatchingEfficiencyToStripsAndWires(input_dir, input_file, output_dir, ".png")
