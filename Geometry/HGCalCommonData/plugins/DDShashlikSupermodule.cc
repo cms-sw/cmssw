@@ -29,6 +29,10 @@ DDShashlikSupermodule::initialize(const DDNumericArguments & nArgs,
   m_startAngle  = nArgs["startAngle"];
   m_stepAngle   = nArgs["stepAngle"];
   m_invert      = int( nArgs["invert"] );
+  m_SupermoduleWidthFront = nArgs["SupermoduleWidthFront"];
+  m_SupermoduleWidthBack = nArgs["SupermoduleWidthBack"];
+  m_SupermoduleThickness = nArgs["SupermoduleThickness"];
+  m_SupermoduleConcaveDepth = nArgs["SupermoduleConcaveDepth"];
   m_rPos        = nArgs["rPosition"];
   m_zoffset     = nArgs["zoffset"];
   m_n           = int( nArgs["n"] );
@@ -89,11 +93,20 @@ DDShashlikSupermodule::execute( DDCompactView& cpv )
 
 
 
-    //edm::LogInfo("HGCalGeom") << "*****************";
-    //edm::LogInfo("HGCalGeom") << "*****************";
-    //edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: m_startAngle = " << m_startAngle/CLHEP::deg << " deg, m_stepAngle = " << m_stepAngle/CLHEP::deg << " deg, m_zoffset = " << m_zoffset; 
-    //edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: c2c d= "<< dc2c << " = (" << offsetXc2c << "," << offsetYc2c << "," << offsetZc2c << ")"; 
-    //edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: c2secondc d= "<< dc2secondc << " = (" << offsetXc2secondc << "," << offsetYc2secondc << "," << offsetZc2secondc << ")"; 
+    edm::LogInfo("HGCalGeom") << "*****************";
+    edm::LogInfo("HGCalGeom") << "*****************";
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: ";
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: m_SupermoduleWidthFront|Back = " << m_SupermoduleWidthFront << "|" << m_SupermoduleWidthBack;
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: m_SuperModuleConcaveDepth = " << m_SupermoduleConcaveDepth  << ", Thickness=" << m_SupermoduleThickness;
+
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: m_startAngle = " << m_startAngle/CLHEP::deg << " deg, m_stepAngle = " << m_stepAngle/CLHEP::deg << " deg, m_zoffset = " << m_zoffset; 
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: c2c d= "<< dc2c << " = (" << offsetXc2c << "," << offsetYc2c << "," << offsetZc2c << ")"; 
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: c2secondc d= "<< dc2secondc << " = (" << offsetXc2secondc << "," << offsetYc2secondc << "," << offsetZc2secondc << ")"; 
+
+    std::cout << "DDShashlikSuperModule::execute: " << std::endl;
+    std::cout << "DDShashlikSuperModule::execute: m_SupermoduleWidthFront|Back = " << m_SupermoduleWidthFront << "|" << m_SupermoduleWidthBack << std::endl;
+    std::cout << "DDShashlikSuperModule::execute: m_SuperModuleConcaveDepth = " << m_SupermoduleConcaveDepth  << ", Thickness=" << m_SupermoduleThickness << std::endl;
+
 
     for( int iy = 0; iy < 5; ++iy )
     {
