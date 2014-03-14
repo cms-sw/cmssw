@@ -496,7 +496,10 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
 
     // find a matching LCT
     auto clct = clctInChamber(id);
+    if (!is_valid(clct)) continue;
+
     auto alct = alctInChamber(id);
+    if (!is_valid(alct)) continue;
 
     int my_hs = digi_channel(clct);
     int my_wg = digi_wg(alct);
