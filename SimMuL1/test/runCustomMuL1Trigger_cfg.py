@@ -62,11 +62,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-# GEM digitizer
-process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
-# GEM-CSC trigger pad digi producer
-process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
 # customization of the process.pdigi sequence to add the GEM digitizer
+process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
+process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
 from SimMuon.GEMDigitizer.customizeGEMDigi import *
 #process = customize_digi_addGEM(process)  # run all detectors digi
 process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
@@ -97,7 +95,7 @@ tmb.clctToAlct = cms.untracked.bool(False)
 tmb.printAvailablePads = cms.untracked.bool(False)
 tmb.dropLowQualityCLCTsNoGEMs_ME1a = cms.untracked.bool(True)
 tmb.dropLowQualityCLCTsNoGEMs_ME1b = cms.untracked.bool(True)
-tmb.buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(True)
+tmb.buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(False)
 tmb.buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(True)
 tmb.doLCTGhostBustingWithGEMs = cms.untracked.bool(False)
 
@@ -126,10 +124,12 @@ process.source = cms.Source("PoolSource",
   duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
   inputCommands = cms.untracked.vstring('keep  *_*_*_*'),
   fileNames = cms.untracked.vstring('file:out_sim.root')
+#  fileNames = cms.untracked.vstring('/eos/store/user/SingleMuPt2-50Fwdv2_1M/jdimasva-SingleMuPt2-50Fwdv2_100K_DIGI_PU140-7444237097ec40e1cd737724f1a85642/USER')
 )
 
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import *
+<<<<<<< Updated upstream
 from GEMCode.GEMValidation.InputFileHelpers import *
 process = useInputDir(process, eosfiles['_pt2-50_PU140_6part2019'], True)
 
