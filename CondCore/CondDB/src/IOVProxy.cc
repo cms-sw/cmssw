@@ -18,6 +18,7 @@ namespace cond {
       std::string tag;
       cond::TimeType timeType;
       std::string payloadType;
+      cond::SynchronizationType synchronizationType;
       cond::Time_t endOfValidity;
       cond::Time_t lastValidatedTime;
       // iov data
@@ -126,7 +127,7 @@ namespace cond {
       
       checkTransaction( "IOVProxy::load" );
       std::string dummy;
-      if(!m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, 
+      if(!m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, m_data->synchronizationType,
 						    m_data->endOfValidity, dummy, m_data->lastValidatedTime ) ){
 	throwException( "Tag \""+tag+"\" has not been found in the database.","IOVProxy::load");
       }
@@ -170,6 +171,10 @@ namespace cond {
       return m_data.get() ? m_data->payloadType : std::string("");
     }
     
+    cond::SynchronizationType IOVProxy::synchronizationType() const {
+      return m_data.get() ? m_data->synchronizationType : cond::SYNCHRONIZATION_UNKNOWN;
+    }
+
     cond::Time_t IOVProxy::endOfValidity() const {
       return m_data.get() ? m_data->endOfValidity : cond::time::MIN_VAL;
     }
