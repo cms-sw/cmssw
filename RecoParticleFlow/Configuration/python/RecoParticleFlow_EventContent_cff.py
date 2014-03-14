@@ -21,7 +21,7 @@ RecoParticleFlowFEVT = cms.PSet(
     'keep recoPFRecHits_particleFlowRecHitHCAL_Cleaned_*',
     'keep recoPFRecHits_particleFlowRecHitPS_Cleaned_*',
     #'keep recoPFClusters_*_*_*',
-    'keep recoPFClusters_particleFlowClusterECAL_*_*',
+    'keep recoPFClusters_particleFlowClusterECAL_*_*',    
     'keep recoPFClusters_particleFlowClusterHCAL_*_*',
     'keep recoPFClusters_particleFlowClusterHO_*_*',
     'keep recoPFClusters_particleFlowClusterHFEM_*_*',
