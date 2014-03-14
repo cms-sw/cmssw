@@ -5,7 +5,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
@@ -33,6 +32,7 @@ SiStripDCSStatus::SiStripDCSStatus(edm::ConsumesCollector & iC) :
   initialised(false) {
 
   dcsStatusToken_ = iC.consumes<DcsStatusCollection>(edm::InputTag("scalersRawToDigi"));
+  rawDataToken_   = iC.consumes<FEDRawDataCollection>(edm::InputTag("source"));
 }
 //
 // -- Destructor
@@ -109,7 +109,8 @@ void SiStripDCSStatus::initialise(edm::Event const& e, edm::EventSetup const& eS
   auto connectedFEDs = fedCabling_->fedIds();
 
   edm::Handle<FEDRawDataCollection> rawDataHandle;
-  e.getByLabel("source", rawDataHandle);
+  //  e.getByLabel("source", rawDataHandle);
+  e.getByToken(rawDataToken_, rawDataHandle);
 
   if ( !rawDataHandle.isValid() ) {
     rawdataAbsent = true;

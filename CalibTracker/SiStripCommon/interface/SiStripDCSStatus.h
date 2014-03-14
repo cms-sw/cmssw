@@ -7,6 +7,8 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
  
 class SiStripDCSStatus {
  public:
@@ -26,7 +28,8 @@ class SiStripDCSStatus {
   bool rawdataAbsent;
   bool initialised;
 
-  edm::EDGetTokenT<DcsStatusCollection> dcsStatusToken_;
+  edm::EDGetTokenT<DcsStatusCollection>  dcsStatusToken_;
+  edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
 
 };
 
