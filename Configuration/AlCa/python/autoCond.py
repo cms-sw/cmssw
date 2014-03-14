@@ -14,7 +14,7 @@ autoCond = {
     'hltonline'         :   'GR_H_V33::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for POSTLS1 upgrade studies:
     'upgradePLS1'       :   'POSTLS170_V7::All',
-    'upgradePLS150ns'   :   'POSTLS170_V4::All',
+    'upgradePLS150ns'   :   'POSTLS170_V6::All',
     'upgrade2017'       :   'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgrade2019'       :   'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgradePLS3'       :   'POSTLS262_V1::All' # placeholder (GT not meant for standard RelVal)
