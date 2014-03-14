@@ -47,7 +47,7 @@ from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
 process.GEMCSCAnalyzer = cms.EDAnalyzer("GEMCSCAnalyzer",
     verbose = cms.untracked.int32(0),
     stationsToUse = cms.vint32(1,2,3,4),
-    simTrackMatching = simTrackMatching
+    simTrackMatching = SimTrackMatching
 )
 matching = process.GEMCSCAnalyzer.simTrackMatching
 matching.simTrack.minPt = 1.5
