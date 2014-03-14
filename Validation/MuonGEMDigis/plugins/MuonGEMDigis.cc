@@ -1,24 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    MuonGEMDigis
-// Class:      MuonGEMDigis
-// 
-/**\class MuonGEMDigis MuonGEMDigis.cc Validation/MuonGEMDigis/plugins/MuonGEMDigis.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Geonmo RYU
-//         Created:  Mon, 07 Oct 2013 12:45:56 GMT
-//       Based on :  /GEMCode/GEMValidation/plugin/GEMDigiAnalyzer.cc
-// $Id$
-//
-//
-
-
 // system include files
 #include <memory>
 
@@ -35,8 +14,6 @@
 #include "TGraphAsymmErrors.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "Validation/MuonGEMDigis/interface/MuonGEMDigis.h"
 
 ///Data Format
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
@@ -67,153 +44,101 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
+#include "Validation/MuonGEMDigis/interface/GEMDigiTrackMatch.h"
+#include "Validation/MuonGEMDigis/plugins/MuonGEMDigis.h"
 #include <vector>
 
 
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
 {
-  outputFile_ =  ps.getParameter<std::string>("outputFile");
-
+  hasGEMGeometry_ = false;
 
   stripLabel_ = ps.getParameter<edm::InputTag>("stripLabel");
   cscPadLabel_ = ps.getParameter<edm::InputTag>("cscPadLabel");
   cscCopadLabel_ = ps.getParameter<edm::InputTag>("cscCopadLabel");
   simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
   simTrackMatching_ = ps.getParameterSet("simTrackMatching");
-   //now do what ever initialization is needed
   
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
+  outputFile_ =  ps.getParameter<std::string>("outputFile");
+
   theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, stripLabel_ );
   theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, cscPadLabel_ );
   theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, cscCopadLabel_ );
-  theGEMTrackMatch = new GEMTrackMatch(dbe_, simInputLabel_ , simTrackMatching_ );
-
-  
-
-
+  theGEMDigiTrackMatch = new GEMDigiTrackMatch(dbe_, simInputLabel_ , simTrackMatching_ );
 }
-
 
 
 MuonGEMDigis::~MuonGEMDigis()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-
   delete theGEMStripDigiValidation;
   delete theGEMCSCPadDigiValidation;
   delete theGEMCSCCoPadDigiValidation;
-  delete theGEMTrackMatch;
-
-
+  delete theGEMDigiTrackMatch;
 }
 
 
-
-
-
-//
-// member functions
-//
-
-// ------------ method called for each event  ------------
 void
 MuonGEMDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-  theGEMStripDigiValidation->analyze(iEvent,iSetup );  
-  theGEMCSCPadDigiValidation->analyze(iEvent,iSetup );  
-  theGEMCSCCoPadDigiValidation->analyze(iEvent,iSetup );  
-  theGEMTrackMatch->analyze(iEvent,iSetup) ;
-  
-
+  if ( hasGEMGeometry_) { 
+    theGEMStripDigiValidation->analyze(iEvent,iSetup );  
+    theGEMCSCPadDigiValidation->analyze(iEvent,iSetup );  
+    theGEMCSCCoPadDigiValidation->analyze(iEvent,iSetup );  
+    theGEMDigiTrackMatch->analyze(iEvent,iSetup) ;
+  }
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
 
 void 
 MuonGEMDigis::beginJob()
 {
-
-
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
 
 void 
 MuonGEMDigis::endJob() 
 {
 }
 
-// ------------ method called when starting to processes a run  ------------
 
 void 
 MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
-
   iSetup.get<MuonGeometryRecord>().get(gem_geo_);
-  gem_geometry_ = &*gem_geo_;
+  try{
+    gem_geometry_ = &*gem_geo_;
+    hasGEMGeometry_ = true;
+  }
+  catch(edm::eventsetup::NoProxyException<GEMGeometry>& e){
+    edm::LogError("MuonGEMDigis") << "+++ Error : GEM geometry is unavailable. +++\n";
+    return;
+  }
 
-  theGEMStripDigiValidation->setGeometry(gem_geometry_);
-  theGEMCSCPadDigiValidation->setGeometry(gem_geometry_);
-  theGEMCSCCoPadDigiValidation->setGeometry(gem_geometry_);
+  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
 
+  if ( hasGEMGeometry_ ) {
 
-  theGEMTrackMatch->setGeometry(gem_geometry_);
+    theGEMStripDigiValidation->setGeometry(gem_geometry_);
+    theGEMStripDigiValidation->bookHisto();
+    theGEMCSCPadDigiValidation->setGeometry(gem_geometry_);
+    theGEMCSCPadDigiValidation->bookHisto();
+    theGEMCSCCoPadDigiValidation->setGeometry(gem_geometry_);
+    theGEMCSCCoPadDigiValidation->bookHisto();
 
-
-
-
+    theGEMDigiTrackMatch->setGeometry(gem_geometry_);
+    theGEMDigiTrackMatch->bookHisto();
+  }
 }
 
 
-// ------------ method called when ending the processing of a run  ------------
 void 
 MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
 {
-
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-MuonGEMDigis::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-MuonGEMDigis::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-
-
-
-
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 MuonGEMDigis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

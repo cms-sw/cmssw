@@ -3,14 +3,27 @@
 
 <SpecParSection label="hgcsens.xml" eval="true">
   <SpecPar name="hgcee">
-    <PartSelector path="//HGCalEESensitive.*"/>
+    <PartSelector path="//.*EESensitive.*"/>
     <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="HGCHitsEE" eval="false"/>
   </SpecPar>
-  <SpecPar name="hgche">
-    <PartSelector path="//HGCalHE.*Sensitive.*"/>
+  <SpecPar name="hgchesil">
+    <PartSelector path="//.*HESiliconSensitive.*"/>
     <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="HGCHitsHE" eval="false"/>
   </SpecPar>
+  <SpecPar name="hgchesci">
+    <PartSelector path="//.*HEScintillatorSensitive.*"/>
+    <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HGCHitsHE" eval="false"/>
+  </SpecPar>
+<!--
+  <SpecPar name="hgchegem">
+    <PartSelector path="//.*HEGem1Sensitive.*"/>
+    <PartSelector path="//.*HEGem2Sensitive.*"/>
+    <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HGCHitsHE" eval="false"/>
+  </SpecPar>
+-->
 </SpecParSection>
 </DDDefinition>

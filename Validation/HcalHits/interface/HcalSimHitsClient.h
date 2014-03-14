@@ -26,6 +26,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -43,11 +45,12 @@ class HcalSimHitsClient : public edm::EDAnalyzer {
 
   bool verbose_;
   bool debug_;
-  static const int nType = 25;
   static const int nTime = 4;
   static const int nType1 = 4;
   
   std::string dirName_;
+  std::vector<std::string> getHistogramTypes();
+  int            maxDepthHB_, maxDepthHE_, maxDepthHO_, maxDepthHF_;
 
  public:
   explicit HcalSimHitsClient(const edm::ParameterSet& );
@@ -60,7 +63,7 @@ class HcalSimHitsClient : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
   virtual void runClient_();   
-
+  const HcalDDDRecConstants *hcons;
   int SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 
 };

@@ -1,24 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    MuonGEMHits
-// Class:      MuonGEMHits
-// 
-/**\class MuonGEMHits MuonGEMHits.cc Validation/MuonGEMHits/plugins/MuonGEMHits.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Geonmo RYU
-//         Created:  Mon, 07 Oct 2013 12:45:56 GMT
-//       Based on :  /GEMCode/GEMValidation/plugin/GEMDigiAnalyzer.cc
-// $Id$
-//
-//
-
-
 // system include files
 #include <memory>
 
@@ -30,15 +9,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "TTree.h"
-#include "TFile.h"
-#include "TGraphAsymmErrors.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "Validation/MuonGEMHits/interface/MuonGEMHits.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-///Data Format
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
@@ -51,10 +27,11 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
-///Geometry
+#include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
+#include "Validation/MuonGEMHits/plugins/MuonGEMHits.h"
+
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
@@ -62,135 +39,85 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-///Log messages
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
+/// ROOT
+#include "TTree.h"
+#include "TFile.h"
 
 
-
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
 {
   hasGEMGeometry_ = false;
 
+  simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel","g4SimHits"); 
+
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
   outputFile_ =  ps.getParameter<std::string>("outputFile");
 
-   //now do what ever initialization is needed
-  
-  std::string simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel","g4SimHits"); 
   theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits") );
   theGEMSimTrackMatch  = new GEMSimTrackMatch(dbe_, simInputLabel_ , ps.getParameterSet("simTrackMatching") );
 }
 
 
-
 MuonGEMHits::~MuonGEMHits()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-
   delete theGEMHitsValidation;
   delete theGEMSimTrackMatch;
-
-
 }
 
 
-
-
-
-//
-// member functions
-//
-
-// ------------ method called for each event  ------------
 void
 MuonGEMHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-  theGEMHitsValidation->analyze(iEvent,iSetup );  
-  theGEMSimTrackMatch->analyze(iEvent,iSetup );  
-
- 
-  
-
-
-
+  if (hasGEMGeometry_) {
+    theGEMHitsValidation->analyze(iEvent,iSetup);  
+    theGEMSimTrackMatch->analyze(iEvent,iSetup);  
+  }
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
 
 void 
 MuonGEMHits::beginJob()
 {
-
-
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
 
 void 
 MuonGEMHits::endJob() 
 {
 }
 
-// ------------ method called when starting to processes a run  ------------
 
 void 
 MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
- 
-  try { 
-    iSetup.get<MuonGeometryRecord>().get(gem_geom);
+  iSetup.get<MuonGeometryRecord>().get(gem_geom);
+  try{
     gem_geometry_ = &*gem_geom;
     hasGEMGeometry_ = true;
-
-  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-    hasGEMGeometry_ = false;
-    LogDebug("MuonGEMHits") << "+++ Info: GEM geometry is unavailable. +++\n";
+  }
+  catch(edm::eventsetup::NoProxyException<GEMGeometry>& e){
+    edm::LogError("MuonGEMHits") << "+++ Error : GEM geometry is unavailable. +++\n";
+    return;
   }
 
-
-  if( hasGEMGeometry_ == true) {
+  dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
+  
+  if( hasGEMGeometry_ ) {
     theGEMHitsValidation->setGeometry(gem_geometry_);
     theGEMHitsValidation->bookHisto();
     theGEMSimTrackMatch->setGeometry(gem_geometry_);
     theGEMSimTrackMatch->bookHisto();
   }
-  
-
-
-
-
 }
 
 
-// ------------ method called when ending the processing of a run  ------------
 void 
 MuonGEMHits::endRun(edm::Run const&, edm::EventSetup const&)
 {
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+
 void
 MuonGEMHits::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation

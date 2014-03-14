@@ -136,6 +136,8 @@ XrdFile::open (const char *name,
 
   m_name = name;
   m_client = new XrdClient(name);
+  m_client->UseCache(false); // Hack from Prof. Bockelman
+
   if (! m_client->Open(perms, openflags)
       || m_client->LastServerResp()->status != kXR_ok) {
     edm::Exception ex(edm::errors::FileOpenError);

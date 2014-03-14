@@ -6,6 +6,9 @@
   <use   name="SimDataFormats/GeneratorProducts"/>
   <use   name="PhysicsTools/UtilAlgos"/>
   <use   name="CommonTools/UtilAlgos"/>
+<use name="SLHCUpgradeSimulations/L1CaloTrigger"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/L1TrackTrigger"/>
   <use   name="hepmc"/>
   <use   name="root"/>
   <flags   EDM_PLUGIN="1"/>

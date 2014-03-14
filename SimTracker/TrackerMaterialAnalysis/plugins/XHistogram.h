@@ -70,6 +70,15 @@ public:
     Histogram( 0, 0, 0, 0., 0., 0, 0., 0. );        // make ROOT "forget" about unnamed histograms
   }
 
+  void reset( void )
+  {
+    // reset all ROOT histograms
+    for (size_t i = 0; i < m_size; ++i)
+      m_histograms[i]->Reset("ICES");
+    m_normalization->Reset();
+    m_colormap->Reset("ICES");
+  }
+
   /// fill one point
   void fill( double x, double y, const std::vector<double> & weight, double norm );
  

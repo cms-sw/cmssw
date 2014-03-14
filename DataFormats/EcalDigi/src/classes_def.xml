@@ -41,9 +41,11 @@
    <class name="EcalMatacqDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="804498184"/>
    </class>
+   <class name="EcalTimeDigi"/>
    <class name="std::vector<EcalMGPASample>"/>
    <class name="std::vector<EcalFEMSample>"/>
    <class name="std::vector<ESSample>"/>
+   <class name="std::vector<float>"/>
    <class name="std::vector<EcalTriggerPrimitiveSample>"/>
    <class name="std::vector<EcalPseudoStripInputSample>"/>
    <class name="std::vector<ESDataFrame>"/>
@@ -76,6 +78,7 @@
    <class name="edm::Wrapper<EcalTrigPrimCompactColl>" splitLevel="0"/>   
    
    <class name="edm::SortedCollection<ESDataFrame,edm::StrictWeakOrdering<ESDataFrame> >"/>
+   <class name="edm::SortedCollection<EcalTimeDigi,edm::StrictWeakOrdering<EcalTimeDigi> >"/>
    <class name="edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> >"/>
    <class name="edm::SortedCollection<EcalPseudoStripInputDigi,edm::StrictWeakOrdering<EcalPseudoStripInputDigi> >"/>
    <class name="edm::SortedCollection<EBSrFlag,edm::StrictWeakOrdering<EBSrFlag> >"/>
@@ -83,6 +86,7 @@
    <class name="edm::SortedCollection<EcalPnDiodeDigi,edm::StrictWeakOrdering<EcalPnDiodeDigi> >"/>
    <class name="edm::SortedCollection<EcalMatacqDigi,edm::StrictWeakOrdering<EcalMatacqDigi> >"/>
    <class name="edm::Wrapper<edm::SortedCollection<ESDataFrame,edm::StrictWeakOrdering<ESDataFrame> > >" splitLevel="0" id="C3D41492-2914-2291-7C22-BBE6D77043F7"/>
+   <class name="edm::Wrapper<edm::SortedCollection<EcalTimeDigi,edm::StrictWeakOrdering<EcalTimeDigi> > >" splitLevel="0" id=""/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> > > " splitLevel="0" id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
    <class name="edm::Wrapper<edm::SortedCollection<EcalPseudoStripInputDigi,edm::StrictWeakOrdering<EcalPseudoStripInputDigi> > > " splitLevel="0" id=""/>
    <class name="edm::Wrapper<edm::SortedCollection<EBSrFlag,edm::StrictWeakOrdering<EBSrFlag> > >" splitLevel="0" id="C0D3A113-A36C-40F1-A388-28ECE47DCBA5"/>

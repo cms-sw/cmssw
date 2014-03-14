@@ -96,7 +96,7 @@ lfc-mkdir $OUTDIR
 
 # We loop over the data directory in order to find all the files to process
 
-foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f15`) 
+foreach l (`lcg-ls $INDIR_GRID | cut -d/ -f15`) 
 	    
     @ i = 0
     @ j = $NPFILE
@@ -143,7 +143,7 @@ foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f15`)
 	    continue
 	endif
 
-        foreach k (`ls $BANKDIR | grep _sec`) 
+        foreach k (`\ls $BANKDIR | grep _sec`) 
 
 	    # By default, for CMSSW, we loop over all available bank in the directory provided
 	    echo 'Working with bank file '$k
@@ -162,7 +162,7 @@ foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f15`)
 	    
 	    if ($deal == "0") then
 
-		set running = `ls fpr_job_$OUTS1.sh | wc -l`
+		set running = `\ls fpr_job_$OUTS1.sh | wc -l`
 
 		if ($running == "0") then
 
@@ -191,7 +191,7 @@ foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f15`)
 	    # If not process the file
 	    if ($dealm == "0") then
 
-		set running = `ls merge_job_${MATTER}_${i}_${j}.sh | wc -l`
+		set running = `\ls merge_job_${MATTER}_${i}_${j}.sh | wc -l`
 
 		if ($running == "0") then
 
@@ -219,12 +219,14 @@ foreach l (`lcg-ls $INDIR_GRID/ | cut -d/ -f15`)
     # file have been processed. Then launch the final merging 
     # 
 
+    echo $processed,$section
+
     if ($processed == $section) then
 
         # If not process the file
         if ($dealf == "0") then
 
-	    set running = `ls final_job_${MATTER}.sh | wc -l`
+	    set running = `\ls final_job_${MATTER}.sh | wc -l`
 
 	    if ($running == "0") then
 

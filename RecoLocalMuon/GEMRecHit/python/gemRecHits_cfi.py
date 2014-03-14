@@ -5,7 +5,7 @@ gemRecHits = cms.EDProducer("GEMRecHitProducer",
 
     ),
     recAlgo = cms.string('GEMRecHitStandardAlgo'),
-    gemDigiLabel = cms.InputTag("muonGEMDigis"),
+    gemDigiLabel = cms.InputTag("simMuonGEMDigis"),
     maskSource = cms.string('File'),
     maskvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMMaskVec.dat'),
     deadSource = cms.string('File'),

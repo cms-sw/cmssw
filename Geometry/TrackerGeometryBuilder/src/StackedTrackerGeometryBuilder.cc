@@ -144,7 +144,7 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
     {
       DetId id = (**trkIterator).geographicalId();
       double r = (**trkIterator).position().perp();
-      double z = (**trkIterator).position().z();
+      //double z = (**trkIterator).position().z(); not used
 
       ///////////////////
       /// Map PixelBarrel
@@ -230,7 +230,7 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
       /// Map PixelForward
       if ( (**trkIterator).type().isEndcap() &&
            (**trkIterator).type().isTrackerPixel() &&
-           (fabs(z)>70.0) )
+           (fabs(r)>20.0) )//above inner pixel detector
       {
         if (firstElement)
         {

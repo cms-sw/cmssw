@@ -112,9 +112,6 @@ conf_(iConfig)
 {
 
     produces<double>("Rho");
-    
-  //look up tables
-    inRhoData_edm = iConfig.getParameter<edm::FileInPath> ("inRhodata_file");
 
 }
 
@@ -169,12 +166,10 @@ L1TowerJetPUEstimator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       //apply calibration to the raw rho: should we do this at this stage?
       //not sure of the effect on high PU data
 
-      double cal_rhoL1 = raw_rho2 * get_rho(raw_rho2);
-
       ///////////////////////////////////////////////////
       //              SET VALUE OF RHO 
       ///////////////////////////////////////////////////
-      outrho=cal_rhoL1;
+      outrho=raw_rho2;
       
       *outRho = outrho;
 
@@ -200,31 +195,6 @@ L1TowerJetPUEstimator::endJob() {
 void 
 L1TowerJetPUEstimator::beginRun(edm::Run&, edm::EventSetup const&)
 {    
-
-    //read in calibration for rho lookup table
-
-    inrhodata.open(inRhoData_edm.fullPath().c_str());
-    if(!inrhodata) cerr<<" unable to open rho lookup file. "<<endl;
-
-
-    //read into a vector
-    pair<double, double> rho_cal;
-    double L1rho_(9999), calFac_(9999);
-    while ( !inrhodata.eof() ) { // keep reading until end-of-file
-        // sets EOF flag if no value found
-        inrhodata >> L1rho_ >> calFac_ ;
-        
-        rho_cal.first = L1rho_;
-        rho_cal.second= calFac_;
-
-        rho_cal_vec.push_back(rho_cal);
-    }
-    inrhodata.close();
-    
-    cout<<" Read in rho lookup table"<<endl;
-    
-
-   
 }
 
 // ------------ method called when ending the processing of a run  ------------
@@ -276,18 +246,6 @@ double L1TowerJetPUEstimator::Median( vector<double> aVec){
     return median;
 }
 
-
-
-double L1TowerJetPUEstimator::get_rho(double L1_rho)
-{
-
-  //get the rho multiplication factor:
-  //L1_rho * 2 gets the array index
-  if(L1_rho<=40.5)   return rho_cal_vec[L1_rho*2].second;
-  //for L1 rho > 40.5, calibration flattens out
-  else return 1.44576;
-
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TowerJetPUEstimator);

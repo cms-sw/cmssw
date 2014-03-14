@@ -196,12 +196,17 @@ double HLLHCEvtVtxGenerator::p1(double x,
 
   double c=c_light;
   static double two_pi=8.0*atan(1.0);
+  
+  double omegax=two_pi*params.omegax;
+  double omegay=two_pi*params.omegay;
+  double alphax=params.alphax*cos(omegax*(z-c*t)/c);
+  double alphay=params.alphay*cos(omegay*(z-c*t)/c);
 
-  double cax=cos(params.alphax);
-  double sax=sin(params.alphax);
+  double cax=cos(alphax);
+  double sax=sin(alphax);
 
-  double cay=cos(params.alphay);
-  double say=sin(params.alphay);
+  double cay=cos(alphay);
+  double say=sin(alphay);
 
   double ct=cos(params.theta);
   double st=sin(params.theta);

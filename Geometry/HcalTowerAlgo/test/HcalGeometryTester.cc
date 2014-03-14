@@ -97,19 +97,19 @@ void HcalGeometryTester::testClosestCells(CaloSubdetectorGeometry* g,
 					  const HcalTopology& topology ) {
   
   // make sure each cel is its own closest cell
-  HcalDetId barrelDet(HcalBarrel, 1, 1, 1);
+  HcalDetId barrelDet1(HcalBarrel, 1, 1, 1);
   HcalDetId barrelDet2(HcalBarrel, 16, 50, 1);
   HcalDetId endcapDet1(HcalEndcap, -17, 72, 1);
   HcalDetId endcapDet2(HcalEndcap, 29, 35, 1);
   HcalDetId forwardDet1(HcalForward, 30, 71, 1);
   HcalDetId forwardDet3(HcalForward, -40, 71, 1);
   
-  testClosestCell(barrelDet  , g);
-  testClosestCell(barrelDet2 , g);
-  testClosestCell(endcapDet1 , g);
-  testClosestCell(endcapDet2 , g);
-  testClosestCell(forwardDet1, g);
-  testClosestCell(forwardDet3, g);
+  if (topology.valid(barrelDet1))  testClosestCell(barrelDet1 , g);
+  if (topology.valid(barrelDet2))  testClosestCell(barrelDet2 , g);
+  if (topology.valid(endcapDet1))  testClosestCell(endcapDet1 , g);
+  if (topology.valid(endcapDet2))  testClosestCell(endcapDet2 , g);
+  if (topology.valid(forwardDet1)) testClosestCell(forwardDet1, g);
+  if (topology.valid(forwardDet3)) testClosestCell(forwardDet3, g);
   
   const std::vector<DetId>& ids=g->getValidDetIds(DetId::Hcal,HcalBarrel);
   for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
@@ -149,29 +149,37 @@ void HcalGeometryTester::testTriggerGeometry(const HcalTopology& topology) {
   HcalDetId forwardDet3(HcalForward, 40, 71, 1);
 
   typedef std::vector<HcalTrigTowerDetId> TowerDets;
-  TowerDets barrelTowers = trigTowers.towerIds(barrelDet);
-  TowerDets endcapTowers = trigTowers.towerIds(endcapDet);
-  TowerDets forwardTowers1 = trigTowers.towerIds(forwardDet1);
-  TowerDets forwardTowers2 = trigTowers.towerIds(forwardDet2);
-  TowerDets forwardTowers3 = trigTowers.towerIds(forwardDet3);
-
-  std::cout << "Trigger Tower Size: Barrel " << barrelTowers.size() 
-	    << ", Endcap " << endcapTowers.size() << ", Forward "
-	    << forwardTowers1.size() << "|" << forwardTowers2.size()
-	    << "|" << forwardTowers3.size() << std::endl;
-
-  assert(barrelTowers.size() ==1);
-  assert(endcapTowers.size() >=1);
-  assert(forwardTowers1.size() ==1);
-  assert(forwardTowers2.size() ==1);
-  assert(forwardTowers3.size() ==1);
-
-  std::cout << barrelTowers[0] << std::endl;
-  std::cout << endcapTowers[0] << std::endl;
-  if (endcapTowers.size() > 1) std::cout << endcapTowers[1] << std::endl;
-  std::cout << forwardTowers1[0] << std::endl;
-  std::cout << forwardTowers3[0] << std::endl;
-
+  if (topology.valid(barrelDet)) {
+    TowerDets barrelTowers = trigTowers.towerIds(barrelDet);
+    std::cout << "Trigger Tower Size: Barrel " << barrelTowers.size() << "\n";
+    assert(barrelTowers.size() ==1);
+    std::cout << barrelTowers[0] << std::endl;
+  } 
+  if (topology.valid(endcapDet)) {
+    TowerDets endcapTowers = trigTowers.towerIds(endcapDet);
+    std::cout << "Trigger Tower Size: Endcap " << endcapTowers.size() << "\n";
+    assert(endcapTowers.size() >=1);
+    std::cout << endcapTowers[0] << std::endl;
+    if (endcapTowers.size() > 1) std::cout << endcapTowers[1] << std::endl;
+  }
+  if (topology.valid(forwardDet1)) {
+    TowerDets forwardTowers1 = trigTowers.towerIds(forwardDet1);
+    std::cout << "Trigger Tower Size: Forward1 " << forwardTowers1.size() << "\n";
+    assert(forwardTowers1.size() ==1);
+    std::cout << forwardTowers1[0] << std::endl;
+  }
+  if (topology.valid(forwardDet1)) {
+    TowerDets forwardTowers2 = trigTowers.towerIds(forwardDet2);
+    std::cout << "Trigger Tower Size: Forward2 " << forwardTowers2.size() << "\n";
+    assert(forwardTowers2.size() ==1);
+    std::cout << forwardTowers2[0] << std::endl;
+  }
+  if (topology.valid(forwardDet1)) {
+    TowerDets forwardTowers3 = trigTowers.towerIds(forwardDet3);
+    std::cout << "Trigger Tower Size: Forward3 " << forwardTowers3.size() << "\n";
+    assert(forwardTowers3.size() ==1);
+    std::cout << forwardTowers3[0] << std::endl;
+  }
 }
 
 void HcalGeometryTester::testFlexiValidDetIds(CaloSubdetectorGeometry* caloGeom,

@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="shashlik.xml" eval="true">
+  <Constant name="zSHCal1"    value="317.0*cm"/>
+  <Constant name="zSHCal2"    value="368.4*cm"/>
+  <Constant name="rMinSHCal1" value="[etaMax:slope]*[zSHCal1]"/>
+  <Constant name="rMinSHCal2" value="[etaMax:slope]*[zSHCal2]"/>
+  <!-- ccn: below changed from 159 to more-closely match current EE coverage -->
+  <Constant name="rMaxSHCal1" value="154.0*cm"/>
+  <Constant name="rMaxSHCal2" value="181.2*cm"/>
+  <Constant name="deltaZ"     value="2*cm"/>
+</ConstantsSection>
+
+<SolidSection label="shashlik.xml">
+  <Polycone name="SHCalEE" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zSHCal1]" rMin="([rMinSHCal1] - 1.5*cm)" rMax="([rMaxSHCal1] + 0.16*cm)"/>
+    <ZSection z="[zSHCal2]" rMin="([rMinSHCal2] - 1.5*cm)" rMax="([rMaxSHCal2] + 0.16*cm)"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="shashlik.xml">
+  <LogicalPart name="SHCalEE" category="unspecified">
+    <rSolid name="SHCalEE"/>
+    <rMaterial name="materials:E_Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="shashlik.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="SHCalEE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="SHCalEE"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+</PosPartSection>
+
+ <Algorithm name="shashlik:DDShashlikNoTaperEndcap">
+  <rParent name="SHCalEE"/>
+  <String name="ChildName" value="shashliksupermodule:ShashlikSupermodule"/>
+  <Numeric name="n" value="19"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo"  value="1"/>
+  <Numeric name="invert"      value="1"/>
+  <!-- ccn: remove gaps, adjust rMin, rMax. Only valid for no-taper case  -->
+  <Numeric name="rMin"	      value="[rMinSHCal1]+0.5*[shashliksupermodule:superModuleWidthFront]"/>
+  <Numeric name="rMax"	      value="[rMaxSHCal1]-0.5*[shashliksupermodule:superModuleWidthFront]"/> 
+  <Numeric name="tiltAngle"   value="atan((2.5*([shashlikmodule:widthBack]-[shashlikmodule:widthFront]))/[shashlikmodule:moduleThickness]) "/>
+  <!-- ccn: remove gap  -->
+  <Numeric name="zoffset"     value="[zSHCal1]+0.5*[shashlikmodule:moduleThickness]"/>
+  <Numeric name="xyoffset"     value="0.5*([shashliksupermodule:superModuleWidthFront]+[shashliksupermodule:superModuleWidthBack])"/>
+ </Algorithm>
+
+</DDDefinition>
