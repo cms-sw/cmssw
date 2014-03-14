@@ -2,7 +2,6 @@
 #define TrackingTools_TransientTrackingRecHit_SeedingLayerSetsHits
 
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 
@@ -12,6 +11,7 @@
 
 class DetLayer;
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 /**
  * Class to store TransientTrackingRecHits, names, and DetLayer
  * pointers of each ctfseeding::SeedingLayer as they come from
@@ -237,6 +237,9 @@ class SeedingLayerSetsHits {
 private:
   SeedingLayerSetsHits(SeedingLayerSetsHits const&){} 
   SeedingLayerSetsHits& operator=(SeedingLayerSetsHits const&){return *this;}
+
+  std::vector<BaseTrackerRecHit const*> rechits_;
+
 };
 #endif
 

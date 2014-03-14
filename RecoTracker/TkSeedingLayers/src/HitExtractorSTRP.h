@@ -38,9 +38,8 @@ public:
 
   void cleanedOfClusters( const TkTransientTrackingRecHitBuilder& ttrhBuilder, const edm::Event& ev, HitExtractor::Hits & hits, bool matched, unsigned int cleanFrom=0) const;
 
-  bool skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder, TkHitRef matched,
-		edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask,
-		ProjectedSiStripRecHit2D * replaceMe) const;
+  ProjectedSiStripRecHit2D * skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder, TkHitRef matched,
+		edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
 
   bool skipThis(OmniClusterRef const& clus, edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
 

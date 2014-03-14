@@ -53,10 +53,10 @@ bool HitExtractorSTRP::skipThis(OmniClusterRef const& clus,
 
 
 
-bool HitExtractorSTRP::skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
-                                TkHitRef matched,
-				edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask,
-				ProjectedSiStripRecHit2D * replaceMe) const {
+ProjectedSiStripRecHit2D * 
+HitExtractorSTRP::skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
+			   TkHitRef matched,
+			   edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const {
   const SiStripMatchedRecHit2D & hit = (SiStripMatchedRecHit2D const&)(matched);
 
   bool rejectSt   = skipThis(hit.stereoClusterRef(), stripClusterMask);
@@ -64,24 +64,24 @@ bool HitExtractorSTRP::skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuil
 
   if (rejectSt&rejectMono){
     //only skip if both hits are done
-    return true;
+    return nullptr;
   }
 
   auto cloner = ttrhBuilder.cloner();
-  replaceMe = cloner.project(hit, rejectSt, TrajectoryStateOnSurface());
+  auto replaceMe = cloner.project(hit, rejectSt, TrajectoryStateOnSurface());
   if (rejectSt)
     LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the mono hit got projected onto: "<<replaceMe->geographicalId().rawId()<<" key: "<<hit.monoClusterRef().key();
   else if (rejectMono)
     LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the stereo hit got projected onto: "<<replaceMe->geographicalId().rawId()<<" key: "<<hit.stereoClusterRef().key();
 
-  return false;
+  return replaceMe;
 }
 
 
 void HitExtractorSTRP::cleanedOfClusters( const TkTransientTrackingRecHitBuilder& ttrhBuilder,
 					  const edm::Event& ev, HitExtractor::Hits & hits,
 					  bool matched,
-					  unsigned int cleanFrom)const{
+					  unsigned int cleanFrom) const{
   LogDebug("HitExtractorPIX")<<"getting: "<<hits.size()<<" in input.";
   edm::Handle<SkipClustersCollection> stripClusterMask;
   ev.getByToken(theSkipClusters,stripClusterMask);
@@ -89,12 +89,14 @@ void HitExtractorSTRP::cleanedOfClusters( const TkTransientTrackingRecHitBuilder
   unsigned int projected=0;
   for (unsigned int iH=cleanFrom;iH<hits.size();++iH){
     if (matched) {
-      ProjectedSiStripRecHit2D * replaceMe=nullptr;
-      if (skipThis(ttrhBuilder, *hits[iH],stripClusterMask,replaceMe)){
+      ProjectedSiStripRecHit2D * replaceMe = skipThis(ttrhBuilder, *hits[iH],stripClusterMask);
+      if (replaceMe) {
 	LogDebug("HitExtractorSTRP")<<"skipping a matched hit on :"<<hits[iH]->geographicalId().rawId();
 	skipped++;
       }
       hits[iH].reset(replaceMe);
+      if (replaceMe==nullptr) hits[iH].empty();
+      else assert(hits[iH].isOwn());
     }
     else if (skipThis(hits[iH]->firstClusterRef(),stripClusterMask)){
       LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->geographicalId().rawId()<<" key: ";
