@@ -16,22 +16,33 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
 namespace edm {
   class ConfigurationDescriptions;
 }
 
-
 class EgammaHLTPFPhotonIsolationProducer : public edm::EDProducer {
-   public:
-      explicit EgammaHLTPFPhotonIsolationProducer(const edm::ParameterSet&);
-      ~EgammaHLTPFPhotonIsolationProducer();
+ public:
+  explicit EgammaHLTPFPhotonIsolationProducer(const edm::ParameterSet&);
+  ~EgammaHLTPFPhotonIsolationProducer() {};    
       
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+ 
  private:
-  edm::InputTag recoEcalCandidateProducer_;
-  edm::InputTag pfCandidates_;
+  edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateProducer_;
+
+  bool useSCRefs_;
 
   double drMax_;
   double drVetoBarrel_;
@@ -41,12 +52,6 @@ class EgammaHLTPFPhotonIsolationProducer : public edm::EDProducer {
   double energyBarrel_;
   double energyEndcap_;
   int pfToUse_;
-
-  bool doRhoCorrection_;
-  float rhoScale_;
-  float rhoMax_;
-
-  edm::ParameterSet conf_;
 };
 
 #endif
