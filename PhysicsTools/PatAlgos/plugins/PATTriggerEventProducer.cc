@@ -48,7 +48,7 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
 {
 
   if ( iConfig.exists( "triggerResults" ) ) tagTriggerResults_ = iConfig.getParameter< InputTag >( "triggerResults" );
-  triggerResultsGetter_ = edm::GetterOfProducts< edm::TriggerResults >( edm::InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance() ) ), this);
+  triggerResultsGetter_ = GetterOfProducts< TriggerResults >( InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance() ) ), this);
   if ( iConfig.exists( "triggerEvent" ) )       tagTriggerEvent_    = iConfig.getParameter< InputTag >( "triggerEvent" );
   if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
   triggerAlgorithmCollectionToken_ = mayConsume< TriggerAlgorithmCollection >( tagTriggerProducer_ );
@@ -65,9 +65,9 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
   if ( iConfig.exists( "l1GtTag" ) ) tagL1Gt_ = iConfig.getParameter< InputTag >( "l1GtTag" );
   l1GtToken_ = mayConsume< L1GlobalTriggerReadoutRecord >( tagL1Gt_ );
   if ( iConfig.exists( "patTriggerMatches" ) ) tagsTriggerMatcher_ = iConfig.getParameter< std::vector< InputTag > >( "patTriggerMatches" );
-  triggerMatcherTokens_ = vector_transform( tagsTriggerMatcher_, [this](edm::InputTag const & tag) { return mayConsume< TriggerObjectStandAloneMatch >( tag ); } );
+  triggerMatcherTokens_ = vector_transform( tagsTriggerMatcher_, [this](InputTag const & tag) { return mayConsume< TriggerObjectStandAloneMatch >( tag ); } );
 
-  callWhenNewProductsRegistered( [ this, &iConfig ]( edm::BranchDescription const& bd ) {
+  callWhenNewProductsRegistered( [ this, &iConfig ]( BranchDescription const& bd ) {
     triggerResultsGetter_( bd );
   } );
 
