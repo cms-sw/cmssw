@@ -16,7 +16,6 @@
 //
 // Original Author:  Marco De Mattia
 //         Created:  Thu Sep 11 12:16:00 CEST 2008
-// $Id: TestCorrection.h,v 1.9 2010/10/22 17:48:08 wmtan Exp $
 //
 //
 
