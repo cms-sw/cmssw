@@ -476,8 +476,6 @@ void GeneralHLTOffline::setupHltMatrix(const std::string & label, int iPD) {
   std::string PD_Folder;
   std::string Path_Folder;
 
-  // PD_Folder = TString("HLT/GeneralHLTOffline");
-  // if (label != "SingleMu" && label != "SingleElectron" && label != "Jet")
   PD_Folder = TString("HLT/GeneralHLTOffline/"+label);
 
   dbe_->setCurrentFolder(PD_Folder.c_str());
@@ -537,10 +535,6 @@ void GeneralHLTOffline::setupHltMatrix(const std::string & label, int iPD) {
   unsigned int jPath;
   for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) {
     pathName = hlt_config_.removeVersion(PDsVectorPathsVector[iPD][iPath]);
-    //h_name_1dEtaPath = "HLT_" + pathName + "_1dEta";
-    //h_name_1dPhiPath = "HLT_" + pathName + "_1dPhi";
-    //h_title_1dEtaPath = pathName + " Occupancy Vs Eta";
-    //h_title_1dPhiPath = pathName + "Occupancy Vs Phi";
     jPath = iPath + 1;
 
     if (hist_mini_cppath) {
@@ -549,15 +543,6 @@ void GeneralHLTOffline::setupHltMatrix(const std::string & label, int iPD) {
         axis->SetBinLabel(jPath, pathName.c_str());
     }
 
-    //Path_Folder = TString("HLT/GeneralHLTOffline/" + label + "/Paths");
-    //dbe_->setCurrentFolder(Path_Folder.c_str());
-
-    //dbe_->book1D(h_name_1dEtaPath.c_str(),
-    //             h_title_1dEtaPath.c_str(),
-    //             numBinsEtaFine, -EtaMax, EtaMax);
-    //dbe_->book1D(h_name_1dPhiPath.c_str(),
-    //             h_title_1dPhiPath.c_str(),
-    //             numBinsPhiFine, -PhiMaxFine, PhiMaxFine);
 
     if (debugPrint)
       std::cout << "book1D for " << pathName << std::endl;
@@ -592,21 +577,14 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
   fullPathToCPP = "HLT/GeneralHLTOffline/" + label
       + "/cppath_" + label + "_" + hlt_menu_;
 
-  //if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
-    fullPathToME = "HLT/GeneralHLTOffline/"
-        + label + "/HLT_" + label + "_EtaVsPhi";
-    fullPathToME1dEta = "HLT/GeneralHLTOffline/"
-        + label + "/HLT_" + label + "_1dEta";
-    fullPathToME1dPhi = "HLT/GeneralHLTOffline/"
-        + label + "/HLT_" + label + "_1dPhi";
-    //}
+  fullPathToME = "HLT/GeneralHLTOffline/"
+    + label + "/HLT_" + label + "_EtaVsPhi";
+  fullPathToME1dEta = "HLT/GeneralHLTOffline/"
+    + label + "/HLT_" + label + "_1dEta";
+  fullPathToME1dPhi = "HLT/GeneralHLTOffline/"
+    + label + "/HLT_" + label + "_1dPhi";
+  
 
-    //fullPathToME1dEtaPath = "HLT/GeneralHLTOffline/"
-    //  + label + "/Paths/HLT_"
-    //  + hlt_config_.removeVersion(path) + "_1dEta";
-    //fullPathToME1dPhiPath = "HLT/GeneralHLTOffline/"
-    //  + label + "/Paths/HLT_"
-    //  + hlt_config_.removeVersion(path) + "_1dPhi";
 
   TH1F * hist_mini_cppath = NULL;
   MonitorElement * ME_mini_cppath = dbe_->get(fullPathToCPP);
@@ -644,22 +622,6 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
     }
   }  // end fill top-level histograms
 
-  //  if (label != "MET" && label != "HT") {
-  //    MonitorElement * ME_1dEtaPath = dbe_->get(fullPathToME1dEtaPath);
-  //    if (ME_1dEtaPath) {
-  //      TH1F * hist_1dEtaPath = ME_1dEtaPath->getTH1F();
-  //        if (hist_1dEtaPath)
-  //          hist_1dEtaPath->Fill(Eta);
-  //    }
-  //  }
-  //if (label != "HT") {
-  //  MonitorElement * ME_1dPhiPath = dbe_->get(fullPathToME1dPhiPath);
-  //  if (ME_1dPhiPath) {
-  //    TH1F * hist_1dPhiPath = ME_1dPhiPath->getTH1F();
-  //    if (hist_1dPhiPath)
-  //      hist_1dPhiPath->Fill(Phi);
-  //  }
-  //}
 
   if (debugPrint)
     if (label == "MET")
