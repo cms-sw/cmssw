@@ -19,7 +19,7 @@ typedef CaloRecHitMixer<CastorRecHit> CastorRecHitMixer;
 //-------------------------------------------------------------------------------
 
 template <typename T>
-T CaloRecHitMixer<T>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
+T CaloRecHitMixer<T>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType<T>& recHitInfo)
 {
   assert(0); // CV: make sure general function never gets called;
              //     always use template specializations
@@ -31,22 +31,29 @@ T CaloRecHitMixer<T>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& rec
 //       rh2 to Zmumu event
 //
 template <>
-EcalRecHit CaloRecHitMixer<EcalRecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
+EcalRecHit CaloRecHitMixer<EcalRecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType<EcalRecHit>& recHitInfo)
 {
   // CV: take status flags and timing information from simulated tau decay products
   //    (suggested by Florian Beaudette)
-  const CaloRecHit* recHit = 0;
-  if      ( recHitInfo.isRecHit1_ ) recHit = recHitInfo.recHit1_;
-  else if ( recHitInfo.isRecHit2_ ) recHit = recHitInfo.recHit2_;
-  const EcalRecHit* recHit_ecal = static_cast<const EcalRecHit*>(recHit);
+  const EcalRecHit* recHit_ecal = NULL;
+  if      ( recHitInfo.isRecHit1_ ) recHit_ecal = recHitInfo.recHit1_;
+  else if ( recHitInfo.isRecHit2_ ) recHit_ecal = recHitInfo.recHit2_;
+
   assert(recHit_ecal);
   assert(recHitInfo.isRecHitSum_);
+
+  EcalRecHit mergedRecHit(*recHit_ecal);
+  mergedRecHit.setEnergy(recHitInfo.energySum_);
+
+  /* TODO Does not make sense
   uint32_t flagBits = 0;
   for ( int flag = 0; flag < 32; ++flag ) {
     if ( recHit_ecal->checkFlag(flag) ) flagBits += (0x1 << flag);
   }
   EcalRecHit mergedRecHit(recHit_ecal->detid(), recHitInfo.energySum_, recHit_ecal->time(), recHit_ecal->flags(), flagBits);
   mergedRecHit.setAux(recHit_ecal->aux());
+  */
+
   return mergedRecHit;
 }
 
@@ -58,7 +65,7 @@ EcalRecHit CaloRecHitMixer<EcalRecHit>::buildRecHit(const CaloRecHitMixer_mixedR
 namespace
 {
   template <typename T>
-  T buildRecHit_HCAL(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo) 
+  T buildRecHit_HCAL(const CaloRecHitMixer_mixedRecHitInfoType<T>& recHitInfo) 
   {
     // CV: take status flags and timing information from simulated tau decay products
     //    (suggested by Florian Beaudette)
@@ -76,19 +83,19 @@ namespace
 }
 
 template <>
-HBHERecHit CaloRecHitMixer<HBHERecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
+HBHERecHit CaloRecHitMixer<HBHERecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType<HBHERecHit>& recHitInfo)
 {
   return buildRecHit_HCAL<HBHERecHit>(recHitInfo);
 }
 
 template <>
-HORecHit CaloRecHitMixer<HORecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
+HORecHit CaloRecHitMixer<HORecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType<HORecHit>& recHitInfo)
 {
   return buildRecHit_HCAL<HORecHit>(recHitInfo);
 }
 
 template <>
-HFRecHit CaloRecHitMixer<HFRecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
+HFRecHit CaloRecHitMixer<HFRecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType<HFRecHit>& recHitInfo)
 {
   return buildRecHit_HCAL<HFRecHit>(recHitInfo);
 }
@@ -99,7 +106,7 @@ HFRecHit CaloRecHitMixer<HFRecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHi
 //       rh2 to Zmumu event
 //
 template <>
-CastorRecHit CaloRecHitMixer<CastorRecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType& recHitInfo)
+CastorRecHit CaloRecHitMixer<CastorRecHit>::buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType<CastorRecHit>& recHitInfo)
 {
   // CV: take status flags and timing information from simulated tau decay products
   //    (suggested by Florian Beaudette)

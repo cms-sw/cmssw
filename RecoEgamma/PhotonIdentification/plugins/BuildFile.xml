@@ -4,7 +4,6 @@
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="Geometry/CaloGeometry"/>
-<use   name="RecoCaloTools/MetaCollections"/>
 <library   name="RecoEgammaPhotonIdentificationPlugins" file="*.cc">
   <use   name="RecoEgamma/PhotonIdentification"/>
   <flags   EDM_PLUGIN="1"/>
