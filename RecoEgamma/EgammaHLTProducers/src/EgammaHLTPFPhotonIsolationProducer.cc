@@ -12,49 +12,48 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPFPhotonIsolationProducer.h"
 
 // Framework
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
-
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include <DataFormats/Math/interface/deltaR.h>
 
-EgammaHLTPFPhotonIsolationProducer::EgammaHLTPFPhotonIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
+EgammaHLTPFPhotonIsolationProducer::EgammaHLTPFPhotonIsolationProducer(const edm::ParameterSet& config) {
 
-  // use configuration file to setup input/output collection names
-  pfCandidates_           = conf_.getParameter<edm::InputTag>("pfCandidatesProducer");
-  recoEcalCandidateProducer_    = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
+  pfCandidateProducer_       = consumes<reco::PFCandidateCollection>(config.getParameter<edm::InputTag>("pfCandidatesProducer"));
 
-  drMax_          = conf_.getParameter<double>("drMax");
-  drVetoBarrel_   = conf_.getParameter<double>("drVetoBarrel");
-  drVetoEndcap_   = conf_.getParameter<double>("drVetoEndcap");
-  etaStripBarrel_ = conf_.getParameter<double>("etaStripBarrel");
-  etaStripEndcap_ = conf_.getParameter<double>("etaStripEndcap");
-  energyBarrel_   = conf_.getParameter<double>("energyBarrel");
-  energyEndcap_   = conf_.getParameter<double>("energyEndcap");
-  pfToUse_        = conf_.getParameter<int>("pfCandidateType");
+  useSCRefs_ = config.getParameter<bool>("useSCRefs");
+
+  drMax_          = config.getParameter<double>("drMax");
+  drVetoBarrel_   = config.getParameter<double>("drVetoBarrel");
+  drVetoEndcap_   = config.getParameter<double>("drVetoEndcap");
+  etaStripBarrel_ = config.getParameter<double>("etaStripBarrel");
+  etaStripEndcap_ = config.getParameter<double>("etaStripEndcap");
+  energyBarrel_   = config.getParameter<double>("energyBarrel");
+  energyEndcap_   = config.getParameter<double>("energyEndcap");
+  pfToUse_        = config.getParameter<int>("pfCandidateType");
   
-  produces < reco::RecoEcalCandidateIsolationMap >();
+  //register your products
+  if(useSCRefs_) {
+    produces < reco::RecoEcalCandidateIsolationMap >(); 
+    recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
+  } else {
+    produces < reco::ElectronIsolationMap >();
+    electronProducer_          = consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("electronProducer"));
+  }
 }
-
-EgammaHLTPFPhotonIsolationProducer::~EgammaHLTPFPhotonIsolationProducer()
-{}
 
 void EgammaHLTPFPhotonIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("pfCandidatesProducer", edm::InputTag("hltParticleFlowReg"));
+  desc.add<edm::InputTag>("electronProducer", edm::InputTag("hltEle27WP80PixelMatchElectronsL1SeededPF"));
   desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag("hltL1SeededRecoEcalCandidatePF"));
+  desc.add<edm::InputTag>("pfCandidatesProducer",  edm::InputTag("hltParticleFlowReg"));
+  desc.add<bool>("useSCRefs", false);
   desc.add<double>("drMax", 0.3);
   desc.add<double>("drVetoBarrel", 0.0);
   desc.add<double>("drVetoEndcap", 0.070);
@@ -68,78 +67,143 @@ void EgammaHLTPFPhotonIsolationProducer::fillDescriptions(edm::ConfigurationDesc
 
 void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
-  edm::Handle<reco::PFCandidateCollection> pfHandle;
-  iEvent.getByLabel(pfCandidates_, pfHandle);
-
+  edm::Handle<reco::ElectronCollection> electronHandle;
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
-  iEvent.getByLabel(recoEcalCandidateProducer_,recoecalcandHandle);
+  edm::Handle<reco::PFCandidateCollection> pfHandle;
 
-  reco::RecoEcalCandidateIsolationMap isoMap;
+  iEvent.getByToken(pfCandidateProducer_, pfHandle);
+  const reco::PFCandidateCollection* forIsolation = pfHandle.product();
 
-  float dRVeto = -1.;
-  float etaStrip = -1;
-  
-  for (unsigned int iReco = 0; iReco < recoecalcandHandle->size(); iReco++) {
+  reco::ElectronIsolationMap eleMap;
+  reco::RecoEcalCandidateIsolationMap recoEcalCandMap;
 
-    reco::RecoEcalCandidateRef candRef(recoecalcandHandle, iReco);
+  if(useSCRefs_) {
+
+    iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
     
-    if (fabs(candRef->eta()) < 1.479) {
-      dRVeto = drVetoBarrel_;
-      etaStrip = etaStripBarrel_;
-    } else {
-      dRVeto = drVetoEndcap_;
-      etaStrip = etaStripEndcap_;
-    }
-      
-    const reco::PFCandidateCollection* forIsolation = pfHandle.product();
-
-    float sum = 0;
-    for(unsigned i=0; i<forIsolation->size(); i++) {
+    float dRVeto = -1.;
+    float etaStrip = -1;
     
-      const reco::PFCandidate& pfc = (*forIsolation)[i];
+    for (unsigned int iReco = 0; iReco < recoecalcandHandle->size(); iReco++) {
+      reco::RecoEcalCandidateRef candRef(recoecalcandHandle, iReco);
       
-      if (pfc.particleId() ==  pfToUse_) {
-	
-	// FIXME
-	// Do not include the PFCandidate associated by SC Ref to the reco::Photon
-	//if(pfc.superClusterRef().isNonnull() && localPho->superCluster().isNonnull()) {
-	//  if (pfc.superClusterRef() == localPho->superCluster()) 
-	//    continue;
-	//}
-	
-	if (fabs(candRef->eta()) < 1.479) {
-	  if (fabs(pfc.pt()) < energyBarrel_)
-	    continue;
-	} else {
-	  if (fabs(pfc.energy()) < energyEndcap_)
-	    continue;
-	}
-	
-	// Shift the photon direction vector according to the PF vertex
-	math::XYZPoint pfvtx = pfc.vertex();
-	math::XYZVector photon_directionWrtVtx(candRef->superCluster()->x() - pfvtx.x(),
-					       candRef->superCluster()->y() - pfvtx.y(),
-					       candRef->superCluster()->z() - pfvtx.z());
-	
-	float dEta = fabs(photon_directionWrtVtx.Eta() - pfc.momentum().Eta());
-	float dR = deltaR(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
-	
-	if (dEta < etaStrip)
-	  continue;
-	
-	if(dR > drMax_ || dR < dRVeto)
-	  continue;
-	
-	sum += pfc.pt();
+      if (fabs(candRef->eta()) < 1.479) {
+	dRVeto = drVetoBarrel_;
+	etaStrip = etaStripBarrel_;
+      } else {
+	dRVeto = drVetoEndcap_;
+	etaStrip = etaStripEndcap_;
       }
-    }
+      
+      float sum = 0;
 
-    isoMap.insert(candRef, sum);
+      // Loop over the PFCandidates
+      for(unsigned i=0; i<forIsolation->size(); i++) {
+	const reco::PFCandidate& pfc = (*forIsolation)[i];
+	
+	//require that the PFCandidate is a photon
+	if (pfc.particleId() ==  pfToUse_) {
+	  
+	  if (fabs(candRef->eta()) < 1.479) {
+	    if (fabs(pfc.pt()) < energyBarrel_)
+	      continue;
+	  } else {
+	    if (fabs(pfc.energy()) < energyEndcap_)
+	      continue;
+	  }
+	  
+	  // Shift the RecoEcalCandidate direction vector according to the PF vertex
+	  math::XYZPoint pfvtx = pfc.vertex();
+	  math::XYZVector candDirectionWrtVtx(candRef->superCluster()->x() - pfvtx.x(),
+					      candRef->superCluster()->y() - pfvtx.y(),
+					      candRef->superCluster()->z() - pfvtx.z());
+	  
+	  float dEta = fabs(candDirectionWrtVtx.Eta() - pfc.momentum().Eta());
+	  if(dEta < etaStrip) continue;
+	  
+	  float dR = deltaR(candDirectionWrtVtx.Eta(), candDirectionWrtVtx.Phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
+	  if(dR > drMax_ || dR < dRVeto) continue;
+	  
+	  sum += pfc.pt();
+	}
+      }
+      
+      recoEcalCandMap.insert(candRef, sum);
+    }
+    
+  } else {
+
+    iEvent.getByToken(electronProducer_,electronHandle);
+    
+    float dRVeto = -1.;
+    //float etaStrip = -1;
+
+    for(unsigned int iEl=0; iEl<electronHandle->size(); iEl++) {
+      reco::ElectronRef eleRef(electronHandle, iEl);
+
+//      const CaloClusterPtrVector& preshowerClusters() const { return preshowerClusters_; }
+//
+//     /// fist iterator over BasicCluster constituents
+//     CaloCluster_iterator clustersBegin() const { return clusters_.begin(); }
+// 
+//     /// last iterator over BasicCluster constituents
+//     CaloCluster_iterator clustersEnd() const { return clusters_.end(); }
+
+      if (fabs(eleRef->eta()) < 1.479) {
+	dRVeto = drVetoBarrel_;
+	//etaStrip = etaStripBarrel_;
+      } else {
+	dRVeto = drVetoEndcap_;
+	//etaStrip = etaStripEndcap_;
+      }
+      
+      float sum = 0;
+
+      // Loop over the PFCandidates
+      for(unsigned i=0; i<forIsolation->size(); i++) {
+	const reco::PFCandidate& pfc = (*forIsolation)[i];
+	
+	//require that the PFCandidate is a photon
+	if (pfc.particleId() ==  pfToUse_) {
+	  
+	  if (fabs(eleRef->eta()) < 1.479) {
+	    if (fabs(pfc.pt()) < energyBarrel_)
+	      continue;
+	  } else {
+	    if (fabs(pfc.energy()) < energyEndcap_)
+	      continue;
+	  }
+	  if (eleRef->superCluster() == pfc.superClusterRef())
+	    continue;
+
+	  // Shift the RecoEcalCandidate direction vector according to the PF vertex
+	  //math::XYZPoint pfvtx = pfc.vertex();
+	  //math::XYZVector candDirectionWrtVtx(eleRef->superCluster()->x() - pfvtx.x(),
+	  //				      eleRef->superCluster()->y() - pfvtx.y(),
+	  //				      eleRef->superCluster()->z() - pfvtx.z());
+	  //
+	  //float dEta = fabs(candDirectionWrtVtx.Eta() - pfc.momentum().Eta());	  
+	  ////float dEta = fabs(eleRef->eta() - pfc.momentum().Eta());
+	  //if(dEta < etaStrip) continue;
+	  //float dR = deltaR(candDirectionWrtVtx.Eta(), candDirectionWrtVtx.Phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
+	  float dR = deltaR(eleRef->eta(), eleRef->phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
+	  dRVeto = 0;
+	  if(dR > drMax_ || dR < dRVeto) continue;
+	  std::cout << pfc.pt() << " " << dR << std::endl;
+	  sum += pfc.pt();
+	}
+      }
+      std::cout << "Sum: " << sum << " " << eleRef->pt() << std::endl;
+      eleMap.insert(eleRef, sum);
+    }   
+    
   }
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> isolMap(new reco::RecoEcalCandidateIsolationMap(isoMap));
-  iEvent.put(isolMap);
+  if(useSCRefs_){
+    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> mapForEvent(new reco::RecoEcalCandidateIsolationMap(recoEcalCandMap));
+    iEvent.put(mapForEvent);
+  }else{
+    std::auto_ptr<reco::ElectronIsolationMap> mapForEvent(new reco::ElectronIsolationMap(eleMap));
+    iEvent.put(mapForEvent);
+  }
 }
-
-//define this as a plug-in
-//DEFINE_FWK_MODULE(EgammaHLTPFPhotonIsolationProducer);
