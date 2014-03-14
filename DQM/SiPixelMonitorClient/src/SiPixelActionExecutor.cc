@@ -2480,52 +2480,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
       vector<string> meVec = bei->getMEs();
       for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
-	////////////////////////////////////////////
-        /*if(full_path.find("missing_")!=string::npos){ // If we have missing hits ME
-	  MonitorElement * me = bei->get(full_path);
-	  if (!me) continue;
-	  float missingHits = me->getEntries();
-	  //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"missingHits= "<<missingHits<<endl;
-	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
-	  me = bei->get(new_path);
-	  if (!me) continue;
-	  float validHits = me->getEntries();
-	  //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"validHits= "<<validHits<<endl;
-	  float hitEfficiency = -1.;
-	  if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
-	  //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"hitEfficiency= "<<hitEfficiency<<endl;
-	  int binx = 0; int biny = 0;
-	  if(currDir.find("Shell_m")!=string::npos){ binx = 1;}else{ binx = 2;}
-	  if(dname.find("01")!=string::npos){ biny = 1;}else if(dname.find("02")!=string::npos){ biny = 2;}
-	  else if(dname.find("03")!=string::npos){ biny = 3;}else if(dname.find("04")!=string::npos){ biny = 4;}
-	  else if(dname.find("05")!=string::npos){ biny = 5;}else if(dname.find("06")!=string::npos){ biny = 6;}
-	  else if(dname.find("07")!=string::npos){ biny = 7;}else if(dname.find("08")!=string::npos){ biny = 8;}
-	  else if(dname.find("09")!=string::npos){ biny = 9;}else if(dname.find("10")!=string::npos){ biny = 10;}
-	  else if(dname.find("11")!=string::npos){ biny = 11;}else if(dname.find("12")!=string::npos){ biny = 12;}
-	  else if(dname.find("13")!=string::npos){ biny = 13;}else if(dname.find("14")!=string::npos){ biny = 14;}
-	  else if(dname.find("15")!=string::npos){ biny = 15;}else if(dname.find("16")!=string::npos){ biny = 16;}
-	  else if(dname.find("17")!=string::npos){ biny = 17;}else if(dname.find("18")!=string::npos){ biny = 18;}
-	  else if(dname.find("19")!=string::npos){ biny = 19;}else if(dname.find("20")!=string::npos){ biny = 20;}
-	  else if(dname.find("21")!=string::npos){ biny = 21;}else if(dname.find("22")!=string::npos){ biny = 22;}
-	  if(currDir.find("Shell_mO")!=string::npos || currDir.find("Shell_pO")!=string::npos){
-	    if(currDir.find("Layer_1")!=string::npos){ biny = biny + 10;}
-	    else if(currDir.find("Layer_2")!=string::npos){ biny = biny + 16;}
-	    else if(currDir.find("Layer_3")!=string::npos){ biny = biny + 22;}
-	  }
 
-	  if(currDir.find("Layer_1")!=string::npos){
-	    HitEfficiency_L1 = bei->get("Pixel/Barrel/HitEfficiency_L1");
-	    if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(binx, biny,(float)hitEfficiency);
-	    //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"setting bin ("<<binx<<","<<biny<<") with "<<(float)hitEfficiency<<endl;
-	  }else if(currDir.find("Layer_2")!=string::npos){
-	    HitEfficiency_L2 = bei->get("Pixel/Barrel/HitEfficiency_L2");
-	    if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(binx, biny,(float)hitEfficiency);
-	  }else if(currDir.find("Layer_3")!=string::npos){
-	    HitEfficiency_L3 = bei->get("Pixel/Barrel/HitEfficiency_L3");
-	    if(HitEfficiency_L3) HitEfficiency_L3->setBinContent(binx, biny,(float)hitEfficiency);
-	  } 
-        }
-	*////////////////////////////////////////////////////////////
 	if(full_path.find("missingMod_")!=string::npos){ // If we have missing hits ME
 	  
 	  //Get the MEs that contain missing and valid hits
