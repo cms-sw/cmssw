@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 gedGsfElectrons = cms.EDProducer("PFIsolationFiller",
                                  previousGsfElectronsTag = cms.InputTag("gedGsfElectronsTmp"),
+                                 pfCandidatesTag = cms.InputTag("particleFlowTmp"),
                                  pfIsolationValues = cms.PSet(
                                        pfSumChargedHadronPt = cms.InputTag('gedElPFIsoValueCharged03'),
                                        pfSumPhotonEt = cms.InputTag('gedElPFIsoValueGamma03'),
