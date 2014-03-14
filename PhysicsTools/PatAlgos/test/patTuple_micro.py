@@ -27,36 +27,11 @@ process.source.fileNames = {
 
 ##'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/36598DF8-D098-E311-972E-02163E00E744.root'}
 #                                         ##
-process.maxEvents.input = -1
+process.maxEvents.input = 500
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-process.prunedGenParticles = cms.EDProducer("GenParticlePruner",
-    src = cms.InputTag("genParticles"),
-    select = cms.vstring(
-        "drop  *", # this is the default
-        "keep status == 3",  #keep event summary status3 (for pythia)
-        "++keep abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15", # keep leptons, with history
-        "++keep pdgId == 22 && status == 1 && pt > 10",                    # keep gamma above 10 GeV
-        "drop   status == 2",                                              # drop the shower part of the history
-        "keep++ abs(pdgId) == 15",                                         # but keep keep taus with decays
-        "++keep  4 <= abs(pdgId) <= 6 ",                                   # keep also heavy quarks
-        "++keep  (400 < abs(pdgId) < 600) || (4000 < abs(pdgId) < 6000)",  # and their hadrons 
-        "drop   status == 2 && abs(pdgId) == 22",                          # but remove again gluons in the inheritance chain
-    )
-)
-#### FIXME here we should change all mcMatchers to use these genParticles,
-#### and then turn OFF the embedding of the genParticle in the PAT Objects
-
-process.packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
-    inputCollection = cms.InputTag("particleFlow"),
-    inputCollectionFromPVLoose = cms.InputTag("pfNoPileUpJME"), 
-    inputCollectionFromPVTight = cms.InputTag("pfNoPileUp"),    
-)
-
-process.offlineSlimmedPrimaryVertices = cms.EDProducer("PATVertexSlimmer",
-    src = cms.InputTag("offlinePrimaryVertices"),
-)
+process.load("PhysicsTools.PatAlgos.slimming.slimming_cff")
 
 process.patMuons.isoDeposits = cms.PSet()
 process.patElectrons.isoDeposits = cms.PSet()
@@ -76,13 +51,15 @@ process.selectedPatMuons.cut = cms.string("pt > 3")
 process.selectedPatElectrons.cut = cms.string("pt > 5") 
 process.selectedPatTaus.cut = cms.string("pt > 20")
 
+process.slimmedJets.clearDaughters = True
+#process.slimmedElectrons.dropRecHits = True
+#process.slimmedElectrons.dropBasicClusters = True
+#process.slimmedElectrons.dropPFlowClusters = True
+#process.slimmedElectrons.dropPreshowerClusters = True
+
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
 switchOnTriggerStandAlone( process )
 process.patTrigger.packTriggerPathNames = cms.bool(True)
-process.selectedPatTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
-    src = cms.InputTag("patTrigger"),
-    cut = cms.string("!filterLabels.empty()")
-)
 
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
@@ -91,37 +68,6 @@ process.selectedPatTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
 process.out.fileName = 'patTuple_micro.root'
-process.out.outputCommands = [
-    'drop *',
-    'keep *_selectedPatPhotons*_*_*',
-    'keep *_selectedPatElectrons*_*_*',
-    'keep *_selectedPatMuons*_*_*',
-    'keep *_selectedPatTaus*_*_*',
-    'keep *_selectedPatJets*_*_*',
-    'keep *_patMETs*_*_*',
-    ## add extra METs
-
-    'drop *_*_caloTowers_*',
-    'drop *_*_pfCandidates_*',
-    'keep *_*_genJets_*',
-
-    'keep *_offlineSlimmedPrimaryVertices_*_*',
-    'keep *_packedPFCandidates_*_*',
-
-    #'keep double_*_rho_*', ## need to understand what are the rho's in 70X
-
-    'keep *_selectedPatTrigger_*_PAT',
-    'keep *_l1extraParticles_*_HLT',
-    'keep *_TriggerResults_*_HLT',
-
-    #'keep *_TriggerResults_*_PAT', # this will be needed for MET filters
-
-    'keep *_prunedGenParticles_*_*',
-    'keep LHEEventProduct_source_*_*',
-    'keep PileupSummaryInfos_*_*_*',
-    'keep GenRunInfoProduct_*_*_*',
-    'keep GenFilterInfo_*_*_*',
-
-]
+process.out.outputCommands = process.MicroEventContentMC.outputCommands
 process.out.dropMetaData = cms.untracked.string('ALL')
 

@@ -31,30 +31,19 @@ namespace pat {
 
     private:
       edm::InputTag src_;
-      
-      /// clear mElectronArea, mPassNumber, mPileupEnergy
-      bool clearElectronVars_;
-      /// reset daughters to an empty vector
-      bool clearDaughters_;
-      bool clearTrackRefs_;
-//       /// reduce GenElectron to a bare 4-vector
-//       bool slimGenElectron_;
-      /// drop the Calo or PF specific
-      bool dropSpecific_;
-//       /// drop the ElectronCorrFactors (but keep the electron corrected!)
-//       bool dropElectronCorrFactors_;
+
+      bool dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropRecHits_;
   };
 
 } // namespace
 
 pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     src_(iConfig.getParameter<edm::InputTag>("src")),
-    clearElectronVars_(iConfig.getParameter<bool>("clearElectronVars")),
-    clearDaughters_(iConfig.getParameter<bool>("clearDaughters")),
-    clearTrackRefs_(iConfig.getParameter<bool>("clearTrackRefs")),
-//     slimGenElectron_(iConfig.getParameter<bool>("slimGenElectron")),
-    dropSpecific_(iConfig.getParameter<bool>("dropSpecific"))
-//     dropElectronCorrFactors_(iConfig.getParameter<bool>("dropElectronCorrFactors"))
+    dropSuperClusters_(iConfig.getParameter<bool>("dropSuperCluster")),
+    dropBasicClusters_(iConfig.getParameter<bool>("dropBasicClusters")),
+    dropPFlowClusters_(iConfig.getParameter<bool>("dropPFlowClusters")),
+    dropPreshowerClusters_(iConfig.getParameter<bool>("dropPreshowerClusters")),
+    dropRecHits_(iConfig.getParameter<bool>("dropRecHits"))
 {
     produces<std::vector<pat::Electron> >();
 }
@@ -73,11 +62,13 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     for (View<pat::Electron>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Electron & electron = out->back();
-	electron.superCluster_.clear();
-	electron.basicClusters_.clear();
-	electron.pflowSuperCluster_.clear();
-	electron.pflowBasicClusters_.clear();
-	electron.recHits_=EcalRecHitCollection();
+        if (dropSuperClusters_) electron.superCluster_.clear();
+	if (dropBasicClusters_) electron.basicClusters_.clear();
+	if (dropSuperClusters_ || dropPFlowClusters_) electron.pflowSuperCluster_.clear();
+	if (dropBasicClusters_ || dropPFlowClusters_) electron.pflowBasicClusters_.clear();
+	if (dropPreshowerClusters_) electron.preshowerClusters_.clear();
+	if (dropPreshowerClusters_ || dropPFlowClusters_) electron.pflowPreshowerClusters_.clear();
+        if (dropRecHits_) electron.recHits_ = EcalRecHitCollection();
     }
 
     iEvent.put(out);
