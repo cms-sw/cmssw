@@ -402,7 +402,7 @@ lorentzVector MuScleFitUtils::applySmearing (const lorentzVector& muon)
   double phi = muon.Phi();
   double E = muon.E();
 
-  double y[7];
+  double y[7] = {};
   for (int i=0; i<SmearType+3; i++) {
     y[i] = x[i][goodmuon%10000];
   }
@@ -1487,7 +1487,7 @@ void MuScleFitUtils::minimizeLikelihood()
 
       // Maximum number of iterations
       arglis[0] = 100000;
-      // tolerance 
+      // tolerance
       arglis[1] = 0.1;
 
       // Run simplex first to get an initial estimate of the minimum
@@ -1495,7 +1495,7 @@ void MuScleFitUtils::minimizeLikelihood()
 	rmin.mnexcm( "SIMPLEX", arglis, 0, ierror );
       }
 
-      rmin.mnexcm( "MIGRAD", arglis, 2, ierror ); 
+      rmin.mnexcm( "MIGRAD", arglis, 2, ierror );
 
 
 
@@ -1745,7 +1745,7 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
 // 	std::cout << "Original pt2 = " << corrMu2.Pt() << std::endl;
         corrMu1 = MuScleFitUtils::applyScale(*recMu1, xval, -1);
         corrMu2 = MuScleFitUtils::applyScale(*recMu2, xval,  1);
-        
+
 //         if( (corrMu1.Pt() != corrMu1.Pt()) || (corrMu2.Pt() != corrMu2.Pt()) ) {
 //           std::cout << "Rescaled pt1 = " << corrMu1.Pt() << std::endl;
 //           std::cout << "Rescaled pt2 = " << corrMu2.Pt() << std::endl;

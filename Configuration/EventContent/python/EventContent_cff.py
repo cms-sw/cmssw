@@ -20,6 +20,9 @@ import FWCore.ParameterSet.Config as cms
 #  PREMIX
 #    special Digi collections for pre-mixing minbias events for pileup simulation
 #
+#  PREMIXRAW
+#    extension of GENRAW for pre-mixing minbias events for pileup simulation.  Raw2Digi step is done.
+#
 #  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG)
 #
 #  RAWSIMHLT (RAWSIM + HLTDEBUG)
@@ -405,6 +408,15 @@ MIXINGMODULEEventContent = cms.PSet(
     eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
     )
 
+# PREMIXRAW Data Tier definition
+#
+#
+PREMIXRAWEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+
 #
 #
 ## RAW repacked event content definition
@@ -520,6 +532,11 @@ GENRAWEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 GENRAWEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 GENRAWEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 GENRAWEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+
+PREMIXRAWEventContent.outputCommands.extend(GENRAWEventContent.outputCommands)
+PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoExtended_*_*_*')
+PREMIXRAWEventContent.outputCommands.append('drop CrossingFramePlaybackInfoExtended_mix_*_*')
+PREMIXRAWEventContent.outputCommands.append('drop PileupSummaryInfos_addPileupInfo_*_*')            
 
 REPACKRAWSIMEventContent.outputCommands.extend(REPACKRAWEventContent.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
