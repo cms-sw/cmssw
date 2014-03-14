@@ -350,16 +350,16 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
     auto alct = alctInChamber(id);
 //     bool hasGEMPadsL1(gem_digi_matcher_->padsInChamber(gemDetFromCSCDet(id,1)).size());
 //     bool hasGEMPadsL2(gem_digi_matcher_->padsInChamber(gemDetFromCSCDet(id,2)).size());
-    bool hasGEMCoPads(gem_digi_matcher_->coPadsInSuperChamber(gemDetFromCSCDet(id,1)).size());
+//    bool hasGEMCoPads(gem_digi_matcher_->coPadsInSuperChamber(gemDetFromCSCDet(id,1)).size());
     //    bool hasGEMPads(hasGEMPadsL1 or hasGEMPadsL2);
 
     // cases
     bool caseClctAlct(is_valid(clct) and is_valid(alct));
-    bool caseClctGem(hasGEMCoPads and is_valid(clct));
-    bool caseAlctGem(hasGEMCoPads and is_valid(alct));
+//     bool caseClctGem(hasGEMCoPads and is_valid(clct));
+//     bool caseAlctGem(hasGEMCoPads and is_valid(alct));
 
-    bool match(false);
-    if (match and (not caseClctAlct) and (not caseClctGem) and (not caseAlctGem)) continue;
+//     bool match(false);
+//     if (match and not (caseClctAlct or caseClctGem or caseAlctGem)) continue;
 
     int my_hs = digi_channel(clct);
     int my_wg = digi_wg(alct);
@@ -369,14 +369,14 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
     for (auto &lct: lcts_tmp)
     {
       if (verbose()) cout<<" corlct "<<lct;
-      //      if ( caseClctAlct and !(my_bx == digi_bx(lct) and my_hs == digi_channel(lct) and my_wg == digi_wg(lct)) ){
-      //        if (verbose()) cout<<"  BAD"<<endl;
-        //        continue;
-        //      }
-        //      else if ( caseAlctGem and !(my_bx == digi_bx(lct) and my_wg == digi_wg(lct)) ){
-      //        if (verbose()) cout<<"  BAD"<<endl;
-        //        continue;
-        ///      }
+      if ( caseClctAlct and !(my_bx == digi_bx(lct) and my_hs == digi_channel(lct) and my_wg == digi_wg(lct)) ){
+        if (verbose()) cout<<"  BAD"<<endl;
+        continue;
+      }
+//       else if ( caseAlctGem and !(my_bx == digi_bx(lct) and my_wg == digi_wg(lct)) ){
+//         if (verbose()) cout<<"  BAD"<<endl;
+//         continue;
+//       }
       if (verbose()) cout<<"  GOOD"<<endl;
 
       if (chamber_to_lct_.find(id) != chamber_to_lct_.end())
@@ -495,20 +495,8 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
     }
 
     // find a matching LCT
-
     auto clct = clctInChamber(id);
     auto alct = alctInChamber(id);
-    bool hasGEMPadsL1(gem_digi_matcher_->padsInChamber(gemDetFromCSCDet(id,1)).size());
-    bool hasGEMPadsL2(gem_digi_matcher_->padsInChamber(gemDetFromCSCDet(id,2)).size());
-    //    bool hasGEMCoPads(gem_digi_matcher_->padsInSuperChamber(gemDetFromCSCDet(id,1)).size());
-    bool hasGEM(hasGEMPadsL1 or hasGEMPadsL2);
-
-    // normal case
-    bool caseClctAlct(is_valid(clct) and is_valid(alct));
-    bool caseClctGem(hasGEM and is_valid(clct));
-    bool caseAlctGem(hasGEM and is_valid(alct));
-
-    if ((not caseClctAlct) and (not caseClctGem) and (not caseAlctGem)) continue;
 
     int my_hs = digi_channel(clct);
     int my_wg = digi_wg(alct);
