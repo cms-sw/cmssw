@@ -17,7 +17,6 @@
 <use   name="Geometry/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="MagneticField/Records"/>
-<use   name="RecoCaloTools/MetaCollections"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="RecoTracker/Record"/>
 <use   name="RecoTracker/TkDetLayers"/>

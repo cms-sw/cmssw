@@ -36,7 +36,7 @@ class TrackBuildingAnalyzer
     public:
         TrackBuildingAnalyzer(const edm::ParameterSet&);
         virtual ~TrackBuildingAnalyzer();
-        virtual void beginRun(DQMStore * dqmStore_);
+        virtual void initHisto(DQMStore::IBooker & ibooker);
         virtual void analyze
         (
             const edm::Event& iEvent, 
@@ -59,7 +59,7 @@ class TrackBuildingAnalyzer
     private:
 
         void fillHistos(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
-        void bookHistos(std::string sname, DQMStore * dqmStore_);
+        void bookHistos(std::string sname, DQMStore::IBooker & ibooker);
 
         // ----------member data ---------------------------
 

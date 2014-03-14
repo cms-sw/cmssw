@@ -257,25 +257,25 @@ void CaloTowersCreationAlgo::begin() {
 void CaloTowersCreationAlgo::process(const HBHERecHitCollection& hbhe) { 
   for(HBHERecHitCollection::const_iterator hbheItr = hbhe.begin();
       hbheItr != hbhe.end(); ++hbheItr)
-    assignHit(&(*hbheItr));
+    assignHitHcal(&(*hbheItr));
 }
 
 void CaloTowersCreationAlgo::process(const HORecHitCollection& ho) { 
   for(HORecHitCollection::const_iterator hoItr = ho.begin();
       hoItr != ho.end(); ++hoItr)
-    assignHit(&(*hoItr));
+    assignHitHcal(&(*hoItr));
 }  
 
 void CaloTowersCreationAlgo::process(const HFRecHitCollection& hf) { 
   for(HFRecHitCollection::const_iterator hfItr = hf.begin();
       hfItr != hf.end(); ++hfItr)  
-    assignHit(&(*hfItr));
+    assignHitHcal(&(*hfItr));
 }
 
 void CaloTowersCreationAlgo::process(const EcalRecHitCollection& ec) { 
   for(EcalRecHitCollection::const_iterator ecItr = ec.begin();
       ecItr != ec.end(); ++ecItr)  
-    assignHit(&(*ecItr));
+    assignHitEcal(&(*ecItr));
 }
 
 // this method should not be used any more as the towers in the changed format
@@ -414,16 +414,10 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
 }
 
 
-
-void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
+void CaloTowersCreationAlgo::assignHitHcal(const CaloRecHit * recHit) {
   DetId detId = recHit->detid();
 
-  unsigned int chStatusForCT;
-  bool ecalIsBad=false;
-  if (detId.det()==DetId::Hcal) 
-    chStatusForCT = hcalChanStatusForCaloTower(recHit);
-  else
-    std::tie(chStatusForCT,ecalIsBad) = ecalChanStatusForCaloTower(recHit);
+  unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
 
   // this is for skipping channls: mostly needed for the creation of
   // bad towers from hits i the bad channel collections.
@@ -434,7 +428,6 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
 
   double energy = recHit->energy();  // original RecHit energy is used to apply thresholds  
   double e = energy * weight;        // energies scaled by user weight: used in energy assignments
-        
         
   // SPECIAL handling of tower 28/depth 3 --> half into tower 28 and half into tower 29
   if (detId.det()==DetId::Hcal && 
@@ -506,216 +499,223 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
   }  // end of special case 
   
   else {
-
-    DetId::Detector det = detId.det();
+    HcalDetId hcalDetId(detId);
     
-    if (det == DetId::Ecal) {
-      
-      /////////////////////////////      unsigned int chStatusForCT = ecalChanStatusForCaloTower(recHit);
-      
-      // For ECAL we count all bad channels after the metatower is complete 
+    ///////////////////////      unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
 
-      // Include options for symmetric thresholds and cut on Et
-      // for ECAL RecHits
-
-      bool passEmThreshold = false;
-      
-      if (detId.subdetId() == EcalBarrel) {
-	if (theUseEtEBTresholdFlag) energy /= cosh( (theGeometry->getGeometry(detId)->getPosition()).eta() ) ;
-	if (theUseSymEBTresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
-	else  passEmThreshold = (energy >= threshold);
-
-      }
-      else if (detId.subdetId() == EcalEndcap) {
-	if (theUseEtEETresholdFlag) energy /= cosh( (theGeometry->getGeometry(detId)->getPosition()).eta() ) ;
-	if (theUseSymEETresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
-	else  passEmThreshold = (energy >= threshold);
-      }
+    if(hcalDetId.subdet() == HcalOuter) {
 
       CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
       if (towerDetId.null()) return;
       MetaTower & tower = find(towerDetId);
 
-
-      // count bad cells and avoid double counting with those from DB (Recovered are counted bad)
-
-      // somehow misses some
-      // if ( (chStatusForCT == CaloTowersCreationAlgo::BadChan) & (!ecalIsBad) ) ++tower.numBadEcalCells; 
-
-      // a bit slower...
-      if ( chStatusForCT == CaloTowersCreationAlgo::BadChan ) {
-	auto thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel(detId);
-	// check if the Ecal severity is ok to keep
-        auto sevit = std::find(theEcalSeveritiesToBeExcluded.begin(),
-			       theEcalSeveritiesToBeExcluded.end(),
-			       thisEcalSevLvl);
-	if (sevit==theEcalSeveritiesToBeExcluded.end()) ++tower.numBadEcalCells;  // notinDB
+      if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
+          if (theHOIsUsed) tower.numBadHcalCells += 1;
       }
       
-
-      //      if (chStatusForCT != CaloTowersCreationAlgo::BadChan && energy >= threshold) {
-      if (chStatusForCT != CaloTowersCreationAlgo::BadChan && passEmThreshold) {
-
-        tower.E_em += e;
-        tower.E += e;
-        
-        if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan)  {
-          tower.numRecEcalCells += 1;  
-        }
-        else if (chStatusForCT == CaloTowersCreationAlgo::ProblematicChan) {
-          tower.numProbEcalCells += 1;
-        }
-        
-        // change when full status info is available
-        // for now use only good channels
-        
-	// add e>0 check (new options allow e<0)
-        if (chStatusForCT == CaloTowersCreationAlgo::GoodChan && e>0 ) {
-          tower.emSumTimeTimesE += ( e * recHit->time() );
-          tower.emSumEForTime   += e;  // see above
-        }
-
-	std::pair<DetId,float> mc(detId,e);
-	tower.metaConstituents.push_back(mc);
-      }
-    
-    }  // end of ECAL
-    
-    // HCAL
-    else {
-      HcalDetId hcalDetId(detId);
+      else if (energy >= threshold) {
+        tower.E_outer += e; // store HO energy even if HO is not used
+        // add energy of the tower and/or flag if theHOIsUsed
+        if(theHOIsUsed) {
+          tower.E += e;
+          
+          if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan) {
+            tower.numRecHcalCells += 1;
+          }
+          else if (chStatusForCT == CaloTowersCreationAlgo::ProblematicChan) {
+            tower.numProbHcalCells += 1;
+          }
+        } // HO is used
       
-      ///////////////////////      unsigned int chStatusForCT = hcalChanStatusForCaloTower(recHit);
+        
+        // add HO to constituents even if it is not used: JetMET wants to keep these towers
+        std::pair<DetId,float> mc(detId,e);
+        tower.metaConstituents.push_back(mc);   
 
-      if(hcalDetId.subdet() == HcalOuter) {
- 
+      } // not a bad channel, energy above threshold
+    
+    }  // HO hit 
+    
+    // HF calculates EM fraction differently
+    else if(hcalDetId.subdet() == HcalForward) {
+
+      if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
+        CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+        if (towerDetId.null()) return;
+        MetaTower & tower = find(towerDetId);
+        tower.numBadHcalCells += 1;
+      }
+      
+      else if (energy >= threshold)  {
         CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
         if (towerDetId.null()) return;
         MetaTower & tower = find(towerDetId);
 
-        if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
-            if (theHOIsUsed) tower.numBadHcalCells += 1;
+        if (hcalDetId.depth() == 1) {
+          // long fiber, so E_EM = E(Long) - E(Short)
+          tower.E_em += e;
+        } 
+        else {
+          // short fiber, EHAD = 2 * E(Short)
+          tower.E_em -= e;
+          tower.E_had += 2. * e;
+        }
+        tower.E += e;
+        if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan) {
+          tower.numRecHcalCells += 1;
+        }
+        else if (chStatusForCT == CaloTowersCreationAlgo::ProblematicChan) {
+          tower.numProbHcalCells += 1;
         }
         
-        else if (energy >= threshold) {
-          tower.E_outer += e; // store HO energy even if HO is not used
-          // add energy of the tower and/or flag if theHOIsUsed
-          if(theHOIsUsed) {
-            tower.E += e;
-            
-            if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan) {
-	      tower.numRecHcalCells += 1;
-            }
-            else if (chStatusForCT == CaloTowersCreationAlgo::ProblematicChan) {
-              tower.numProbHcalCells += 1;
-            }
-          } // HO is used
-        
-	  
-	  // add HO to constituents even if it is not used: JetMET wants to keep these towers
-	  std::pair<DetId,float> mc(detId,e);
-	  tower.metaConstituents.push_back(mc);	  
-
-        } // not a bad channel, energy above threshold
-      
-      }  // HO hit 
-      
-      // HF calculates EM fraction differently
-      else if(hcalDetId.subdet() == HcalForward) {
-
-        if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
-          CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
-          if (towerDetId.null()) return;
-          MetaTower & tower = find(towerDetId);
-	  tower.numBadHcalCells += 1;
+        // put the timing in HCAL -> have to check timing errors when available
+        // for now use only good channels
+        if (chStatusForCT == CaloTowersCreationAlgo::GoodChan) {
+          tower.hadSumTimeTimesE += ( e * recHit->time() );
+          tower.hadSumEForTime   += e;
         }
-        
-        else if (energy >= threshold)  {
-          CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
-          if (towerDetId.null()) return;
-          MetaTower & tower = find(towerDetId);
 
-          if (hcalDetId.depth() == 1) {
-            // long fiber, so E_EM = E(Long) - E(Short)
-            tower.E_em += e;
-          } 
-          else {
-            // short fiber, EHAD = 2 * E(Short)
-            tower.E_em -= e;
-            tower.E_had += 2. * e;
-          }
-          tower.E += e;
-          if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan) {
-            tower.numRecHcalCells += 1;
-          }
-          else if (chStatusForCT == CaloTowersCreationAlgo::ProblematicChan) {
-            tower.numProbHcalCells += 1;
-          }
-          
-          // put the timing in HCAL -> have to check timing errors when available
-          // for now use only good channels
-          if (chStatusForCT == CaloTowersCreationAlgo::GoodChan) {
-            tower.hadSumTimeTimesE += ( e * recHit->time() );
-            tower.hadSumEForTime   += e;
-          }
+        std::pair<DetId,float> mc(detId,e);
+        tower.metaConstituents.push_back(mc);            
 
-	  std::pair<DetId,float> mc(detId,e);
-	  tower.metaConstituents.push_back(mc);	           
-
-        } // not a bad HF channel, energy above threshold
-      
-      } // HF hit
-      
-      else {
-        // HCAL situation normal in HB/HE
-        if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
-          CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
-          if (towerDetId.null()) return;
-          MetaTower & tower = find(towerDetId);
-	  tower.numBadHcalCells += 1;
-        }
-        else if (energy >= threshold) {
-          CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
-          if (towerDetId.null()) return;
-          MetaTower & tower = find(towerDetId);
-          tower.E_had += e;
-          tower.E += e;
-          if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan) {
-            tower.numRecHcalCells += 1;
-          }
-          else if (chStatusForCT == CaloTowersCreationAlgo::ProblematicChan) {
-            tower.numProbHcalCells += 1;
-          }
-          
-          // Timing information: need specific accessors
-          // for now use only good channels
-          if (chStatusForCT == CaloTowersCreationAlgo::GoodChan) {
-            tower.hadSumTimeTimesE += ( e * recHit->time() );
-            tower.hadSumEForTime   += e;
-          }
-          // store energy in highest depth for towers 18-27 (for electron,photon ID in endcap)
-	  // also, store energy in HE part of tower 16 (for JetMET cleanup)
-          HcalDetId hcalDetId(detId);
-          if (hcalDetId.subdet()==HcalEndcap) {
-            if ( (hcalDetId.depth()==2 && hcalDetId.ietaAbs()>=18 && hcalDetId.ietaAbs()<27) ||
-		 (hcalDetId.depth()==3 && hcalDetId.ietaAbs()==27) ||
-		 (hcalDetId.depth()==3 && hcalDetId.ietaAbs()==16) ) {
-              tower.E_outer += e;
-	    }
-          }
-
- 	  std::pair<DetId,float> mc(detId,e);
-	  tower.metaConstituents.push_back(mc);	  
-       
-        }   // not a "bad" channel, energy above threshold
-      
-      } // channel in HBHE (excluding twrs 28,29)
+      } // not a bad HF channel, energy above threshold
     
-    }
+    } // HF hit
+    
+    else {
+      // HCAL situation normal in HB/HE
+      if (chStatusForCT == CaloTowersCreationAlgo::BadChan) {
+        CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+        if (towerDetId.null()) return;
+        MetaTower & tower = find(towerDetId);
+        tower.numBadHcalCells += 1;
+      }
+      else if (energy >= threshold) {
+        CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+        if (towerDetId.null()) return;
+        MetaTower & tower = find(towerDetId);
+        tower.E_had += e;
+        tower.E += e;
+        if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan) {
+          tower.numRecHcalCells += 1;
+        }
+        else if (chStatusForCT == CaloTowersCreationAlgo::ProblematicChan) {
+          tower.numProbHcalCells += 1;
+        }
+        
+        // Timing information: need specific accessors
+        // for now use only good channels
+        if (chStatusForCT == CaloTowersCreationAlgo::GoodChan) {
+          tower.hadSumTimeTimesE += ( e * recHit->time() );
+          tower.hadSumEForTime   += e;
+        }
+        // store energy in highest depth for towers 18-27 (for electron,photon ID in endcap)
+        // also, store energy in HE part of tower 16 (for JetMET cleanup)
+        HcalDetId hcalDetId(detId);
+        if (hcalDetId.subdet()==HcalEndcap) {
+          if ( (hcalDetId.depth()==2 && hcalDetId.ietaAbs()>=18 && hcalDetId.ietaAbs()<27) ||
+               (hcalDetId.depth()==3 && hcalDetId.ietaAbs()==27) ||
+               (hcalDetId.depth()==3 && hcalDetId.ietaAbs()==16) ) {
+            tower.E_outer += e;
+          }
+        }
+
+        std::pair<DetId,float> mc(detId,e);
+        tower.metaConstituents.push_back(mc);   
+     
+      }   // not a "bad" channel, energy above threshold
+    
+    } // channel in HBHE (excluding twrs 28,29)
     
   }  // recHit normal case (not in HE towers 28,29)
 
-}  // end of assignHit method
+}  // end of assignHitHcal method
+
+void CaloTowersCreationAlgo::assignHitEcal(const EcalRecHit * recHit) {
+  DetId detId = recHit->detid();
+
+  unsigned int chStatusForCT;
+  bool ecalIsBad=false;
+  std::tie(chStatusForCT,ecalIsBad) = ecalChanStatusForCaloTower(recHit);
+
+  // this is for skipping channls: mostly needed for the creation of
+  // bad towers from hits i the bad channel collections.
+  if (chStatusForCT==CaloTowersCreationAlgo::IgnoredChan) return;
+
+  double threshold, weight;
+  getThresholdAndWeight(detId, threshold, weight);
+
+  double energy = recHit->energy();  // original RecHit energy is used to apply thresholds  
+  double e = energy * weight;        // energies scaled by user weight: used in energy assignments
+        
+  /////////////////////////////      unsigned int chStatusForCT = ecalChanStatusForCaloTower(recHit);
+  
+  // For ECAL we count all bad channels after the metatower is complete 
+
+  // Include options for symmetric thresholds and cut on Et
+  // for ECAL RecHits
+
+  bool passEmThreshold = false;
+  
+  if (detId.subdetId() == EcalBarrel) {
+    if (theUseEtEBTresholdFlag) energy /= cosh( (theGeometry->getGeometry(detId)->getPosition()).eta() ) ;
+    if (theUseSymEBTresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
+    else  passEmThreshold = (energy >= threshold);
+
+  }
+  else if (detId.subdetId() == EcalEndcap) {
+    if (theUseEtEETresholdFlag) energy /= cosh( (theGeometry->getGeometry(detId)->getPosition()).eta() ) ;
+    if (theUseSymEETresholdFlag) passEmThreshold = (fabs(energy) >= threshold);
+    else  passEmThreshold = (energy >= threshold);
+  }
+
+  CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+  if (towerDetId.null()) return;
+  MetaTower & tower = find(towerDetId);
+
+
+  // count bad cells and avoid double counting with those from DB (Recovered are counted bad)
+
+  // somehow misses some
+  // if ( (chStatusForCT == CaloTowersCreationAlgo::BadChan) & (!ecalIsBad) ) ++tower.numBadEcalCells; 
+
+  // a bit slower...
+  if ( chStatusForCT == CaloTowersCreationAlgo::BadChan ) {
+    auto thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel(detId);
+    // check if the Ecal severity is ok to keep
+    auto sevit = std::find(theEcalSeveritiesToBeExcluded.begin(),
+    		       theEcalSeveritiesToBeExcluded.end(),
+    		       thisEcalSevLvl);
+    if (sevit==theEcalSeveritiesToBeExcluded.end()) ++tower.numBadEcalCells;  // notinDB
+  }
+  
+
+  //      if (chStatusForCT != CaloTowersCreationAlgo::BadChan && energy >= threshold) {
+  if (chStatusForCT != CaloTowersCreationAlgo::BadChan && passEmThreshold) {
+
+    tower.E_em += e;
+    tower.E += e;
+    
+    if (chStatusForCT == CaloTowersCreationAlgo::RecoveredChan)  {
+      tower.numRecEcalCells += 1;  
+    }
+    else if (chStatusForCT == CaloTowersCreationAlgo::ProblematicChan) {
+      tower.numProbEcalCells += 1;
+    }
+    
+    // change when full status info is available
+    // for now use only good channels
+    
+    // add e>0 check (new options allow e<0)
+    if (chStatusForCT == CaloTowersCreationAlgo::GoodChan && e>0 ) {
+      tower.emSumTimeTimesE += ( e * recHit->time() );
+      tower.emSumEForTime   += e;  // see above
+    }
+
+    std::pair<DetId,float> mc(detId,e);
+    tower.metaConstituents.push_back(mc);
+  }
+}  // end of assignHitEcal method
 
 
 
@@ -1598,7 +1598,7 @@ unsigned int CaloTowersCreationAlgo::hcalChanStatusForCaloTower(const CaloRecHit
 
 
 
-std::tuple<unsigned int,bool>  CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit* hit) {
+std::tuple<unsigned int,bool>  CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const EcalRecHit* hit) {
 
   // const DetId id = hit->detid();
 
