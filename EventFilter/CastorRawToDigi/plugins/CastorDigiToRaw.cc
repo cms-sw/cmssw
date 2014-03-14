@@ -13,10 +13,8 @@
 using namespace std;
 
 CastorDigiToRaw::CastorDigiToRaw(edm::ParameterSet const& conf) :
-  castorTag_(conf.getUntrackedParameter("CASTOR",edm::InputTag())),
-  calibTag_(conf.getUntrackedParameter("CALIB",edm::InputTag())),
-  trigTag_(conf.getUntrackedParameter("TRIG",edm::InputTag())),
-  usingctdc_(conf.getUntrackedParameter<bool>("CastorCtdc",false))
+  castorTag_(conf.getParameter<edm::InputTag>("CASTOR")),
+  usingctdc_(conf.getParameter<bool>("CastorCtdc"))
 
 {
   tok_input_ = consumes<CastorDigiCollection>(castorTag_);

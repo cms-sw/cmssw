@@ -41,7 +41,6 @@ private:
   CastorDataFrameFilter filter_;
   std::vector<int> fedUnpackList_;
   int firstFED_;
-  // bool unpackCalib_;
   bool complainEmptyData_;
   bool usingctdc_;
   bool unpackTTP_;
