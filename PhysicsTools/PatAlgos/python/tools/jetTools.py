@@ -126,14 +126,12 @@ class AddJetCollection(ConfigToolBase):
         ## are ak, kt, sc, ic. This loop expects that the algo type is
         ## followed by a single integer corresponding to the opening
         ## angle parameter dR times 10 (examples ak5, kt4, kt6, ...)
-        if algo != '' : 
-            _algo=algo
+        _algo=algo
 	#jetSource=cms.InputTag("ak5PFJets")
-        else : 
-            for x in ["ak", "kt", "sc", "ic", "ca"]:
-                if jetSource.getModuleLabel().lower().find(x)>-1:
-                    _algo=jetSource.getModuleLabel()[jetSource.getModuleLabel().lower().find(x):jetSource.getModuleLabel().lower().find(x)+3]
-                    break
+        for x in ["ak", "kt", "sc", "ic"]:
+            if jetSource.getModuleLabel().lower().find(x)>-1:
+                _algo=jetSource.getModuleLabel()[jetSource.getModuleLabel().lower().find(x):jetSource.getModuleLabel().lower().find(x)+3]
+                break
 	#print _algo
         ## add new patJets to process (keep instance for later further modifications)
         from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets
@@ -173,9 +171,9 @@ class AddJetCollection(ConfigToolBase):
         if 'patJetGenJetMatch'+_labelName+postfix in knownModules :
             _newPatJetGenJetMatch=getattr(process, 'patJetGenJetMatch'+_labelName+postfix)
             _newPatJetGenJetMatch.src=jetSource
-            _newPatJetGenJetMatch.matched=_algo.lower()+'GenJetsNoNu'+postfix
+            _newPatJetGenJetMatch.matched=_algo.lower()+'GenJets'+postfix
         else :
-            setattr(process, 'patJetGenJetMatch'+_labelName+postfix, patJetGenJetMatch.clone(src=jetSource, matched=_algo+'GenJetsNoNu'))
+            setattr(process, 'patJetGenJetMatch'+_labelName+postfix, patJetGenJetMatch.clone(src=jetSource, matched=_algo+'GenJets'))
             knownModules.append('patJetGenJetMatch'+_labelName+postfix)
         ## add new patJetPartonAssociation to process
         from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import patJetPartonAssociation
