@@ -47,7 +47,8 @@
 // Constructors --
 //----------------
 
-DTTrig::DTTrig(const  edm::ParameterSet &params) :
+//DTTrig::DTTrig(const  edm::ParameterSet &params) :
+DTTrig::DTTrig(const  edm::ParameterSet &params,edm::ConsumesCollector && iC) :
  _inputexist(1) ,  _configid(0) , _geomid(0) {
 
   // Set configuration parameters
@@ -59,7 +60,7 @@ DTTrig::DTTrig(const  edm::ParameterSet &params) :
   }
 
   _digitag   = params.getParameter<edm::InputTag>("digiTag");
-
+  iC.consumes<DTDigiCollection>(_digitag);
 }
 
 

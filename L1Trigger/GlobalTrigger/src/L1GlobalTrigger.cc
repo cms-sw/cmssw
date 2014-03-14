@@ -204,11 +204,11 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet) :
     }
 
     // create new PSBs
-    m_gtPSB = new L1GlobalTriggerPSB();
+    m_gtPSB = new L1GlobalTriggerPSB(m_caloGctInputTag,m_technicalTriggersInputTags,consumesCollector());
     m_gtPSB->setVerbosity(m_verbosity);
 
     // create new GTL
-    m_gtGTL = new L1GlobalTriggerGTL();
+    m_gtGTL = new L1GlobalTriggerGTL(m_muGmtInputTag,consumesCollector());
     m_gtGTL->setVerbosity(m_verbosity);
 
     // create new FDL
@@ -260,6 +260,7 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet) :
     m_l1GtTmVetoAlgoCacheID = 0ULL;
     m_l1GtTmVetoTechCacheID = 0ULL;
 
+    consumes<L1MuGMTReadoutCollection>(m_muGmtInputTag);
 }
 
 // destructor
