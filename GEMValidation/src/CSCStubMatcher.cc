@@ -9,9 +9,10 @@ using namespace std;
 using namespace matching;
 
 
-CSCStubMatcher::CSCStubMatcher(SimHitMatcher& sh, CSCDigiMatcher& dg)
+CSCStubMatcher::CSCStubMatcher(SimHitMatcher& sh, CSCDigiMatcher& dg, GEMDigiMatcher& gem_dg)
 : DigiMatcher(sh)
 , digi_matcher_(&dg)
+, gem_digi_matcher_(&gem_dg)
 {
   auto cscCLCT_ = conf().getParameter<edm::ParameterSet>("cscCLCT");
   clctInput_ = cscCLCT_.getParameter<edm::InputTag>("input");
@@ -151,7 +152,7 @@ CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts)
     }
   }
 
-  if (verbose() && n_minLayers > 0)
+  if (verbose() and n_minLayers > 0)
   {
     if (chamber_to_clct_.size() == 0)
     {
@@ -238,7 +239,7 @@ CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts)
     }
   }
 
-  if (verbose() && n_minLayers > 0)
+  if (verbose() and n_minLayers > 0)
   {
     if (chamber_to_alct_.size() == 0)
     {
@@ -277,7 +278,7 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
   int n_minLayers = 0;
   for (auto id: cathode_and_anode_ids)
   {
-    if (digi_matcher_->nLayersWithStripInChamber(id) >= minNHitsChamber_ && digi_matcher_->nLayersWithWireInChamber(id) >= minNHitsChamber_) ++n_minLayers;
+    if (digi_matcher_->nLayersWithStripInChamber(id) >= minNHitsChamber_ and digi_matcher_->nLayersWithWireInChamber(id) >= minNHitsChamber_) ++n_minLayers;
     CSCDetId ch_id(id);
 
     auto lcts_in_det = lcts.get(ch_id);
@@ -306,7 +307,7 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
       // Add ghost LCTs when there are two in bx
       // and the two don't share half-strip or wiregroup
       // TODO: when GEMs would be used to resolve this, there might ned to be an option to turn this off!
-      if (bx_to_lcts[bx].size() == 2 && addGhostLCTs_)
+      if (bx_to_lcts[bx].size() == 2 and addGhostLCTs_)
       {
         auto lct11 = bx_to_lcts[bx][0];
         auto lct22 = bx_to_lcts[bx][1];
@@ -336,7 +337,7 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
     // assign the non necessarily matching LCTs
     chamber_to_lcts_[id] = lcts_tmp;
 
-    if (verbose() && !(n_lct == 1 || n_lct == 2 || n_lct == 4 ) )
+    if (verbose() and !(n_lct == 1 || n_lct == 2 || n_lct == 4 ) )
     {
       cout<<"WARNING!!! weird #LCTs="<<n_lct;
       for (auto &s: lcts_tmp) cout<<"  "<<s<<endl;
@@ -346,10 +347,19 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
     // find a matching LCT
 
     auto clct = clctInChamber(id);
-    if (!is_valid(clct)) continue;
-
     auto alct = alctInChamber(id);
-    if (!is_valid(alct)) continue;
+//     bool hasGEMPadsL1(gem_digi_matcher_->padsInChamber(gemDetFromCSCDet(id,1)).size());
+//     bool hasGEMPadsL2(gem_digi_matcher_->padsInChamber(gemDetFromCSCDet(id,2)).size());
+//    bool hasGEMCoPads(gem_digi_matcher_->coPadsInSuperChamber(gemDetFromCSCDet(id,1)).size());
+    //    bool hasGEMPads(hasGEMPadsL1 or hasGEMPadsL2);
+
+    // cases
+    bool caseClctAlct(is_valid(clct) and is_valid(alct));
+//     bool caseClctGem(hasGEMCoPads and is_valid(clct));
+//     bool caseAlctGem(hasGEMCoPads and is_valid(alct));
+
+//     bool match(false);
+//     if (match and not (caseClctAlct or caseClctGem or caseAlctGem)) continue;
 
     int my_hs = digi_channel(clct);
     int my_wg = digi_wg(alct);
@@ -359,22 +369,26 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
     for (auto &lct: lcts_tmp)
     {
       if (verbose()) cout<<" corlct "<<lct;
-      if ( !(my_bx == digi_bx(lct) && my_hs == digi_channel(lct) && my_wg == digi_wg(lct)) ){
+      if ( caseClctAlct and !(my_bx == digi_bx(lct) and my_hs == digi_channel(lct) and my_wg == digi_wg(lct)) ){
         if (verbose()) cout<<"  BAD"<<endl;
         continue;
       }
+//       else if ( caseAlctGem and !(my_bx == digi_bx(lct) and my_wg == digi_wg(lct)) ){
+//         if (verbose()) cout<<"  BAD"<<endl;
+//         continue;
+//       }
       if (verbose()) cout<<"  GOOD"<<endl;
 
       if (chamber_to_lct_.find(id) != chamber_to_lct_.end())
       {
-        //cout<<"ALARM!!! there already was matching LCT "<<chamber_to_lct_[id]<<endl;
-        //cout<<"   new digi: "<<lct<<endl;
+        cout<<"ALARM!!! there already was matching LCT "<<chamber_to_lct_[id]<<endl;
+        cout<<"   new digi: "<<lct<<endl;
       }
       chamber_to_lct_[id] = lct;
     }
   }
 
-  if (verbose() && n_minLayers > 0)
+  if (verbose() and n_minLayers > 0)
   {
     if (chamber_to_lct_.size() == 0)
     {
@@ -414,7 +428,7 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
   int n_minLayers = 0;
   for (auto id: cathode_and_anode_ids)
   {
-    if (digi_matcher_->nLayersWithStripInChamber(id) >= minNHitsChamber_ && digi_matcher_->nLayersWithWireInChamber(id) >= minNHitsChamber_) ++n_minLayers;
+    if (digi_matcher_->nLayersWithStripInChamber(id) >= minNHitsChamber_ and digi_matcher_->nLayersWithWireInChamber(id) >= minNHitsChamber_) ++n_minLayers;
     CSCDetId ch_id(id);
 
     auto mplcts_in_det = mplcts.get(ch_id);
@@ -443,7 +457,7 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
       // Add ghost mplcts when there are two in bx
       // and the two don't share half-strip or wiregroup
       // TODO: when GEMs would be used to resolve this, there might ned to be an option to turn this off!
-      if (bx_to_mplcts[bx].size() == 2 && addGhostMPLCTs_)
+      if (bx_to_mplcts[bx].size() == 2 and addGhostMPLCTs_)
       {
         auto lct11 = bx_to_mplcts[bx][0];
         auto lct22 = bx_to_mplcts[bx][1];
@@ -473,7 +487,7 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
     // assign the non necessarily matching Mplcts
     chamber_to_mplcts_[id] = mplcts_tmp;
 
-    if (verbose() && !(n_lct == 1 || n_lct == 2 || n_lct == 4 ) )
+    if (verbose() and !(n_lct == 1 || n_lct == 2 || n_lct == 4 ) )
     {
       cout<<"WARNING!!! weird #Mplcts="<<n_lct;
       for (auto &s: mplcts_tmp) cout<<"  "<<s<<endl;
@@ -481,7 +495,6 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
     }
 
     // find a matching LCT
-
     auto clct = clctInChamber(id);
     if (!is_valid(clct)) continue;
 
@@ -496,7 +509,7 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
     for (auto &lct: mplcts_tmp)
     {
       if (verbose()) cout<<" corlct "<<lct;
-      if ( !(my_bx == digi_bx(lct) && my_hs == digi_channel(lct) && my_wg == digi_wg(lct)) ){
+      if ( !(my_bx == digi_bx(lct) and my_hs == digi_channel(lct) and my_wg == digi_wg(lct)) ){
         if (verbose()) cout<<"  BAD"<<endl;
         continue;
       }
@@ -511,7 +524,7 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
     }
   }
 
-  if (verbose() && n_minLayers > 0)
+  if (verbose() and n_minLayers > 0)
   {
     if (chamber_to_lct_.size() == 0)
     {

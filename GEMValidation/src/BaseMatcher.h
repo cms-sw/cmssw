@@ -115,6 +115,10 @@ public:
   const ME0Geometry* getME0Geometry() const {return me0Geometry_;}
   const CSCGeometry* getCSCGeometry() const {return cscGeometry_;}
 
+  unsigned int gemDetFromCSCDet(unsigned int id,int layer);
+
+  std::pair<unsigned int, unsigned int> gemDetsFromCSCDet(unsigned int id);
+
  protected:
   
   const CSCGeometry* cscGeometry_;

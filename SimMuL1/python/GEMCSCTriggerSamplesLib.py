@@ -122,50 +122,13 @@ files['_gem_dphi_pat2_PU100'] = [
     '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_110K/',
     '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_128K/']
     
-## digi input files
-files['_pt2-50'] =       ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M/44fc94d06eea2c4b806abb23aafd8260/']
-files['_pt2-50_PU0'] =   ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU0/9e33cbc002806b332ab48cacc6a9f5e2/']
-files['_pt2-50_PU100'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU100/5b1cfdf8efbee9c68913c0719b4df889/']
-files['_pt2-50_PU140'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU140/cadd04af78260520bc45436035aa2787/']
+## new batch of samples on EOS
 
-## trigger files - these files use the gangedME1a TrackFinder instead of ungangedME1a TrackFinder
-files['_gem98_pt2-50_PU0_pt0_new'] =  ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt0/871a2070c5b60d6753827956fe591827/']
-files['_gem98_pt2-50_PU0_pt5_new'] =  ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt5/871a2070c5b60d6753827956fe591827/']
-files['_gem98_pt2-50_PU0_pt6_new'] =  ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt6/871a2070c5b60d6753827956fe591827/']
-files['_gem98_pt2-50_PU0_pt10_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt10/871a2070c5b60d6753827956fe591827/']
-files['_gem98_pt2-50_PU0_pt15_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt15/871a2070c5b60d6753827956fe591827/']
-files['_gem98_pt2-50_PU0_pt20_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt20/871a2070c5b60d6753827956fe591827/']
-files['_gem98_pt2-50_PU0_pt30_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt30/871a2070c5b60d6753827956fe591827/']
-files['_gem98_pt2-50_PU0_pt40_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt40/871a2070c5b60d6753827956fe591827/']
-
-files['_gem98_pt2-50_PU400_pt0_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_Pt0_v2/778c771068e2388f44bc7bc981a2bd26/']
-## the PU140 sample was produced on top of 308a75f2d7dfbc94edbc02b4614326e079266b6a
-files['_gem98_pt2-50_PU140_pt0_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_Pt0/2c2b78e2ec5d908d2c3bc3475ea38e05/']
-
-## high pile-up samples with lower pre-trigger and trigger requirements
-files['_pt2-50_PU140_dphi0_postCSCTFbug_preTrig33'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi0_postCSCTFbug_preTrig33/d0fd7fba403ee11c4905a6945d9f68d1/']
-files['_pt2-50_PU400_dphi0_postCSCTFbug_preTrig33'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi0_postCSCTFbug_preTrig33/0af81cb7cc9545f400bd587be0115228/']
-files['_pt2-50_PU400_dphi0_postCSCTFbug_preTrig23'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi0_postCSCTFbug_preTrig23/ebcefef58e488d2ad86f71b9405ee5c7/']
-
-## new batch of samples on EOS - 10/02/2014                                                                                                                                                                                                                                    
 ## produced on top of https://github.com/gem-sw/cmssw/tree/adb1cc3e0fad25bc0da2e4430e3e0965160a58dc
+## 6 partition geometry + post CSC TF pt bug + detailed GEM digi model
 eosfiles = {}
 
-eosfiles['_pt2-50_PU140_dphi0_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi0_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU140_dphi5_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi5_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU140_dphi6_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi6_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU140_dphi10_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi10_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU140_dphi15_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi15_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU140_dphi20_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi20_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU140_dphi30_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi30_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU140_dphi40_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi40_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-
-eosfiles['_pt2-50_PU400_dphi0_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi0_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU400_dphi5_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi5_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU400_dphi6_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi6_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU400_dphi10_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi10_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU400_dphi15_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi15_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU400_dphi20_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi20_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU400_dphi30_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi30_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-eosfiles['_pt2-50_PU400_dphi40_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'] = ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi40_preTrig33_noLowQClctWithoutGEMs_LCTfromALCTandGEM/231181c1e74b86bfa246ef40c348e35b/']
-
+## official samples for L1 trigger development
+eosfiles['_pt2-50_PU000_6part2019'] = ['/eos/uscms/store/user/jdimasva/SingleMuPt2-50Fwdv2_100K_DIGI_PU000/jdimasva/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_100K_DIGI_PU000/36687f2fa27757b21d07bf97e7678b19/']
+eosfiles['_pt2-50_PU140_6part2019'] = ['/eos/uscms/store/user/jdimasva/SingleMuPt2-50Fwdv2_100K_DIGI_PU140/jdimasva/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_100K_DIGI_PU140/7444237097ec40e1cd737724f1a85642/']
+eosfiles['_pt2-50_PU400_6part2019'] = ['/eos/uscms/store/user/aysen/SingleMuPt2-50Fwdv2_100K_DIGI_PU400/aysen/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_100K_DIGI_PU400/6bcb78929a3bd07607400097784c7b5b/']
