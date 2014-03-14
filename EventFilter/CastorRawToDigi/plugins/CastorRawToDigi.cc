@@ -14,21 +14,17 @@ using namespace std;
 
 CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
   dataTag_(conf.getParameter<edm::InputTag>("InputLabel")),
-  unpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCASTORFEDID),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
-  ctdcunpacker_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCASTORFEDID),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
-  filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),
-	  false,
-	  0, 0, 
-	  -1),
-  fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
-  firstFED_(conf.getUntrackedParameter<int>("CastorFirstFED",FEDNumbering::MINCASTORFEDID)),
-//  unpackCalib_(conf.getUntrackedParameter<bool>("UnpackCalib",false)),
+  unpacker_(conf.getParameter<int>("CastorFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
+  ctdcunpacker_(conf.getParameter<int>("CastorFirstFED"),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
+  filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),false,0,0,-1),
+  fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs",std::vector<int>())),
+  firstFED_(conf.getParameter<int>("CastorFirstFED")),
   complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false)),
-  usingctdc_(conf.getUntrackedParameter<bool>("CastorCtdc",false)),
-  unpackTTP_(conf.getUntrackedParameter<bool>("UnpackTTP",false)),
+  usingctdc_(conf.getParameter<bool>("CastorCtdc")),
+  unpackTTP_(conf.getParameter<bool>("UnpackTTP")),
   silent_(conf.getUntrackedParameter<bool>("silent",true)),
-  usenominalOrbitMessageTime_(conf.getUntrackedParameter<bool>("UseNominalOrbitMessageTime",true)),
-  expectedOrbitMessageTime_(conf.getUntrackedParameter<int>("ExpectedOrbitMessageTime",-1))
+  usenominalOrbitMessageTime_(conf.getParameter<bool>("UseNominalOrbitMessageTime")),
+  expectedOrbitMessageTime_(conf.getParameter<int>("ExpectedOrbitMessageTime"))
 
 {
   if (fedUnpackList_.empty()) {
@@ -49,8 +45,7 @@ CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
   if (unpackTTP_)
     produces<HcalTTPDigiCollection>();
 
-//  if (unpackCalib_)
-//    produces<HcalCalibDigiCollection>();
+  tok_input_ = consumes<FEDRawDataCollection>(dataTag_);
 
 }
 
@@ -62,7 +57,7 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 {
   // Step A: Get Inputs 
   edm::Handle<FEDRawDataCollection> rawraw;  
-  e.getByLabel(dataTag_,rawraw);
+  e.getByToken(tok_input_,rawraw);
   // get the mapping
   edm::ESHandle<CastorDbService> pSetup;
   es.get<CastorDbRecord>().get( pSetup );
@@ -79,7 +74,6 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   colls.castorCont=&castor;
   if (unpackTTP_) colls.ttp=&ttp;
   colls.tpCont=&htp;
-  //colls.calibCont=&hc;
  
   // Step C: unpack all requested FEDs
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
@@ -132,13 +126,6 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(castor_prod);
   e.put(htp_prod);
 
-  /// calib
-//  if (unpackCalib_) {
-//    std::auto_ptr<CastorCalibDigiCollection> hc_prod(new CastorCalibDigiCollection());
-//    hc_prod->swap_contents(hc);
-//    hc_prod->sort();
-//    e.put(hc_prod);
-//  }
   if (unpackTTP_) {
     std::auto_ptr<HcalTTPDigiCollection> prod(new HcalTTPDigiCollection());
     prod->swap_contents(ttp);
