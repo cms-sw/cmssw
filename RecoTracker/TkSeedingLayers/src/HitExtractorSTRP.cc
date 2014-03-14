@@ -18,6 +18,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
 
+#include<tuple>
+
 using namespace ctfseeding;
 using namespace std;
 using namespace edm;
@@ -53,28 +55,36 @@ bool HitExtractorSTRP::skipThis(OmniClusterRef const& clus,
 
 
 
-ProjectedSiStripRecHit2D * 
+std::pair<bool,ProjectedSiStripRecHit2D *> 
 HitExtractorSTRP::skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
 			   TkHitRef matched,
 			   edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const {
   const SiStripMatchedRecHit2D & hit = (SiStripMatchedRecHit2D const&)(matched);
 
+  ProjectedSiStripRecHit2D * replaceMe = nullptr;
   bool rejectSt   = skipThis(hit.stereoClusterRef(), stripClusterMask);
   bool rejectMono = skipThis(hit.monoClusterRef(),  stripClusterMask);
 
-  if (rejectSt&rejectMono){
-    //only skip if both hits are done
-    return nullptr;
+  if ((!rejectSt)&(!rejectMono)){
+    // keepit
+    return std::make_pair(false,replaceMe);
   }
 
+  if (rejectSt&rejectMono){
+    //only skip if both hits are done
+    return std::make_pair(true,replaceMe);
+  }
+
+  // replace with one
+
   auto cloner = ttrhBuilder.cloner();
-  auto replaceMe = cloner.project(hit, rejectSt, TrajectoryStateOnSurface());
+  replaceMe = cloner.project(hit, rejectSt, TrajectoryStateOnSurface());
   if (rejectSt)
     LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the mono hit got projected onto: "<<replaceMe->geographicalId().rawId()<<" key: "<<hit.monoClusterRef().key();
-  else if (rejectMono)
+  else 
     LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the stereo hit got projected onto: "<<replaceMe->geographicalId().rawId()<<" key: "<<hit.stereoClusterRef().key();
 
-  return replaceMe;
+  return std::make_pair(true,replaceMe);
 }
 
 
@@ -89,14 +99,16 @@ void HitExtractorSTRP::cleanedOfClusters( const TkTransientTrackingRecHitBuilder
   unsigned int projected=0;
   for (unsigned int iH=cleanFrom;iH<hits.size();++iH){
     if (matched) {
-      ProjectedSiStripRecHit2D * replaceMe = skipThis(ttrhBuilder, *hits[iH],stripClusterMask);
-      if (replaceMe) {
-	LogDebug("HitExtractorSTRP")<<"skipping a matched hit on :"<<hits[iH]->geographicalId().rawId();
-	skipped++;
+      bool replace; ProjectedSiStripRecHit2D * replaceMe; std::tie(replace,replaceMe) = skipThis(ttrhBuilder, *hits[iH],stripClusterMask);
+      if (replace) {
+	if (!replaceMe) {
+	  LogDebug("HitExtractorSTRP")<<"skipping a matched hit on :"<<hits[iH]->geographicalId().rawId();
+	  skipped++;
+	} else projected++;
+	hits[iH].reset(replaceMe);
+	if (replaceMe==nullptr) assert(hits[iH].empty());
+	else assert(hits[iH].isOwn());
       }
-      hits[iH].reset(replaceMe);
-      if (replaceMe==nullptr) hits[iH].empty();
-      else assert(hits[iH].isOwn());
     }
     else if (skipThis(hits[iH]->firstClusterRef(),stripClusterMask)){
       LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->geographicalId().rawId()<<" key: ";

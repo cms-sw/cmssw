@@ -138,14 +138,14 @@ void SeedFromConsecutiveHitsCreator::buildSeed(
     
     SeedingHitSet::ConstRecHitPointer   tth = hits[iHit]; 
     
-    SeedingHitSet::RecHitPointer newtth = refitHit( tth, state);
+    std::unique_ptr<BaseTrackerRecHit> newtth(refitHit( tth, state));
     
-    if (!checkHit(state,newtth)) return;
+    if (!checkHit(state,&*newtth)) return;
 
     updatedState =  updator.update(state, *newtth);
     if (!updatedState.isValid()) return;
     
-    seedHits.push_back(newtth);
+    seedHits.push_back(newtth.release());
 
   } 
 
