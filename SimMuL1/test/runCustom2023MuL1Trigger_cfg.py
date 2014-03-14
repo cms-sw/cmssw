@@ -9,8 +9,8 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2019_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -18,7 +18,6 @@ process.load('Configuration.StandardSequences.Digi_cff')
 process.load("Configuration.StandardSequences.L1Emulator_cff")
 process.load("Configuration.StandardSequences.L1Extra_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 ################### Take inputs from crab.cfg file ##############
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -55,7 +54,7 @@ if hasattr(sys, "argv") == True:
 
 ## global tag for 2019 upgrade studies
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
@@ -129,7 +128,6 @@ process.source = cms.Source("PoolSource",
 
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import *
-<<<<<<< Updated upstream
 from GEMCode.GEMValidation.InputFileHelpers import *
 process = useInputDir(process, eosfiles['_pt2-50_PU140_6part2019'], True)
 
