@@ -1,95 +1,94 @@
 #ifndef ClusterTask_H
 #define ClusterTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/Common/interface/View.h"
 
-class CaloTopology;
-class CaloSubdetectorGeometry;
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
-namespace ecaldqm {
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
+#include <bitset>
+
+namespace ecaldqm
+{
   class ClusterTask : public DQWorkerTask {
   public:
-    ClusterTask(const edm::ParameterSet &, const edm::ParameterSet&);
-    ~ClusterTask();
+    ClusterTask();
+    ~ClusterTask() {}
 
-    void bookMEs() override;
+    bool filterRunType(short const*) override;
 
-    bool filterRunType(const std::vector<short>&) override;
+    void addDependencies(DependencySet&) override;
 
-    void beginRun(const edm::Run &, const edm::EventSetup &) override;
-    void beginEvent(const edm::Event &, const edm::EventSetup &) override;
+    void beginEvent(edm::Event const&, edm::EventSetup const&) override;
+    void endEvent(edm::Event const&, edm::EventSetup const&) override;
 
-    void analyze(const void*, Collections) override;
+    bool analyze(void const*, Collections) override;
 
-    void runOnRecHits(const EcalRecHitCollection &, Collections);
-    void runOnBasicClusters(const reco::BasicClusterCollection &, Collections);
-    void runOnSuperClusters(const reco::SuperClusterCollection &, Collections);
+    void runOnRecHits(EcalRecHitCollection const&, Collections);
+    void runOnBasicClusters(edm::View<reco::CaloCluster> const&, Collections);
+    void runOnSuperClusters(reco::SuperClusterCollection const&, Collections);
 
-    enum MESets {
-      kBCEMap, // profile2d
-      kBCEMapProjEta, // profile
-      kBCEMapProjPhi, // profile
-      kBCOccupancy, // h2f
-      kBCOccupancyProjEta, // h1f
-      kBCOccupancyProjPhi, // h1f
-      kBCSizeMap, // profile2d
-      kBCSizeMapProjEta, // profile
-      kBCSizeMapProjPhi, // profile
-      kBCE, // h1f
-      kBCNum, // h1f for EB & EE
-      kBCSize, // h1f for EB & EE
-      kSCE, // h1f
-      kSCELow, // h1f
-      kSCSeedEnergy, // h1f
-      kSCClusterVsSeed, // h2f
-      kSCSeedOccupancy, // h2f
-      kSingleCrystalCluster, // h2f
-      kSCNum, // h1f
-      kSCNBCs, // h1f
-      kSCNcrystals, // h1f
-      kSCR9, // h1f
-      kPi0, // h1f
-      kJPsi, // h1f
-      kZ, // h1f
-      kHighMass, // h1f
-      nMESets
+    void setTokens(edm::ConsumesCollector&) override;
+
+    enum TriggerTypes {
+      kEcalTrigger,
+      kHcalTrigger,
+      kCSCTrigger,
+      kDTTrigger,
+      kRPCTrigger,
+      nTriggerTypes
     };
 
-    // needs to be declared in each derived class
-    static void setMEData(std::vector<MEData>&);
-
   private:
-    const CaloTopology *topology_;
-    const CaloSubdetectorGeometry* ebGeometry_;
-    const CaloSubdetectorGeometry* eeGeometry_;
-    const EcalRecHitCollection *ebHits_, *eeHits_;
-    int ievt_;
-    float lowEMax_;
-    int massCalcPrescale_;
+    void setParams(edm::ParameterSet const&) override;
+
+    EcalRecHitCollection const* ebHits_;
+    EcalRecHitCollection const* eeHits_;
+    //    int ievt_;
+    //    int massCalcPrescale_;
+    bool doExtra_;
+    float energyThreshold_;
+    float swissCrossMaxThreshold_;
+    std::vector<std::string> egTriggerAlgos_;
+    std::bitset<nTriggerTypes> triggered_;
+    unsigned trigTypeToME_[nTriggerTypes];
+
+    edm::InputTag L1GlobalTriggerReadoutRecordTag_;
+    edm::InputTag L1MuGMTReadoutCollectionTag_;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> L1GlobalTriggerReadoutRecordToken_;
+    edm::EDGetTokenT<L1MuGMTReadoutCollection> L1MuGMTReadoutCollectionToken_;
   };
 
-  inline void ClusterTask::analyze(const void* _p, Collections _collection){
+  inline bool ClusterTask::analyze(void const* _p, Collections _collection){
     switch(_collection){
     case kEBRecHit:
     case kEERecHit:
-      runOnRecHits(*static_cast<const EcalRecHitCollection*>(_p), _collection);
+      if(_p) runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
+      return true;
       break;
     case kEBBasicCluster:
     case kEEBasicCluster:
-      runOnBasicClusters(*static_cast<const reco::BasicClusterCollection*>(_p), _collection);
+      if(_p) runOnBasicClusters(*static_cast<edm::View<reco::CaloCluster> const*>(_p), _collection);
+      return true;
       break;
     case kEBSuperCluster:
     case kEESuperCluster:
-      runOnSuperClusters(*static_cast<const reco::SuperClusterCollection*>(_p), _collection);
+      if(_p) runOnSuperClusters(*static_cast<reco::SuperClusterCollection const*>(_p), _collection);
+      return true;
       break;
     default:
       break;
     }
+
+    return false;
   }
 
 }

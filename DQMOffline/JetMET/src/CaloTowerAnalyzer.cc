@@ -61,9 +61,9 @@ using namespace reco;
 CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 {
 
-  caloTowersLabel_            = iConfig.getParameter<edm::InputTag>("CaloTowersLabel");
-  HLTResultsLabel_            = iConfig.getParameter<edm::InputTag>("HLTResultsLabel");  
-  HBHENoiseFilterResultLabel_ = iConfig.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
+  caloTowersLabel_            = consumes<edm::View<reco::Candidate> > (iConfig.getParameter<edm::InputTag>("CaloTowersLabel"));
+  HLTResultsLabel_            = consumes<edm::TriggerResults> (iConfig.getParameter<edm::InputTag>("HLTResultsLabel"));
+  HBHENoiseFilterResultLabel_ = consumes<bool> (iConfig.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel"));
 
   if(iConfig.exists("HLTBitLabels"))
     HLTBitLabel_         = iConfig.getParameter<std::vector<edm::InputTag> >("HLTBitLabels");
@@ -188,7 +188,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
   // Get HLT Results
   edm::Handle<edm::TriggerResults> TheHLTResults;
-  iEvent.getByLabel( HLTResultsLabel_ , TheHLTResults);
+  iEvent.getByToken( HLTResultsLabel_ , TheHLTResults);
 
   bool EventPasses = true;
 
@@ -241,16 +241,17 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // ==========================================================
 
   edm::Handle<edm::View<Candidate> > towers;
-  iEvent.getByLabel(caloTowersLabel_, towers);
+  iEvent.getByToken(caloTowersLabel_, towers);
 
   if( (!towers.isValid())) {
-    edm::LogInfo("")<<"CaloTowers "<< caloTowersLabel_<<" not found!"<<std::endl;
+    //DD:fix print label
+    //edm::LogInfo("")<<"CaloTowers "<< caloTowersLabel_<<" not found!"<<std::endl;
     return;
   }
 
 
   edm::Handle<bool> HBHENoiseFilterResultHandle;
-  iEvent.getByLabel(HBHENoiseFilterResultLabel_, HBHENoiseFilterResultHandle);
+  iEvent.getByToken(HBHENoiseFilterResultLabel_, HBHENoiseFilterResultHandle);
   bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
   if (!HBHENoiseFilterResultHandle.isValid()) {
     LogDebug("") << "CaloTowerAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;

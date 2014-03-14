@@ -34,7 +34,7 @@ from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 process.triplets = cms.EDAnalyzer("HitTripletProducer",
   OrderedHitsFactoryPSet = cms.PSet(
     ComponentName = cms.string("StandardHitTripletGenerator"),
-    SeedingLayers = cms.string("PixelLayerTriplets"),
+    SeedingLayers = cms.InputTag("PixelLayerTriplets"),
     GeneratorPSet = cms.PSet( PixelTripletHLTGenerator )
 #    GeneratorPSet = cms.PSet( PixelTripletLargeTipGenerator )
   ),
@@ -49,4 +49,4 @@ process.triplets = cms.EDAnalyzer("HitTripletProducer",
 #process.triplets.RegionFactoryPSet.RegionPSet.originRadius = cms.double(0.001)
 #process.triplets.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(0.0001)
 
-process.p = cms.Path(pixeltrackerlocalreco+process.triplets)
+process.p = cms.Path(pixeltrackerlocalreco+process.PixelLayerTriplets+process.triplets)

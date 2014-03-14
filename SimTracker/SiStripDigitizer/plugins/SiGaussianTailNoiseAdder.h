@@ -12,25 +12,21 @@
 
 namespace CLHEP {
   class HepRandomEngine;
-  class RandGaussQ;
 }
 
 class SiGaussianTailNoiseAdder : public SiNoiseAdder{
  public:
-  SiGaussianTailNoiseAdder(float,CLHEP::HepRandomEngine&);
+  SiGaussianTailNoiseAdder(float);
   ~SiGaussianTailNoiseAdder();
-  void addNoise(std::vector<float>&, size_t&, size_t&, int, float) const;
+  void addNoise(std::vector<float>&, size_t&, size_t&, int, float, CLHEP::HepRandomEngine*) const;
   
-  void addNoiseVR(std::vector<float> &, std::vector<float> &) const;
+  void addNoiseVR(std::vector<float> &, std::vector<float> &, CLHEP::HepRandomEngine*) const;
   void addPedestals(std::vector<float> &, std::vector<float> &) const;
-  void addCMNoise(std::vector<float> &, float, std::vector<bool> &) const;
+  void addCMNoise(std::vector<float> &, float, std::vector<bool> &, CLHEP::HepRandomEngine*) const;
   void addBaselineShift(std::vector<float> &, std::vector<bool> &) const;
   
  private:
   const float threshold;
-  CLHEP::HepRandomEngine& rndEngine;
-  std::unique_ptr<CLHEP::RandGaussQ> gaussDistribution;
   std::unique_ptr<GaussianTailNoiseGenerator> genNoise;
 };
 #endif
- 

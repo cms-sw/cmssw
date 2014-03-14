@@ -1,7 +1,0 @@
-Block MASS   #
-#  PDG code   mass                 particle
-        17    1000.0  #  ~HIP36
-       -17    1000.0  #  ~HIPbar36
-Block       
-
-

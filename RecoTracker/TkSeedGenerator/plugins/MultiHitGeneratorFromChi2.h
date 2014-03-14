@@ -10,7 +10,6 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGenerator.h"
 #include "CombinedMultiHitGenerator.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
@@ -29,14 +28,17 @@ public:
 
   virtual ~MultiHitGeneratorFromChi2() { delete thePairGenerator; }
 
-  virtual void init( const HitPairGenerator & pairs,
-      const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
+  void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) override;
+
+  void initES(const edm::EventSetup& es) override; 
+
+  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
 
   virtual void hitSets( const TrackingRegion& region, OrderedMultiHits & trs, 
       const edm::Event & ev, const edm::EventSetup& es);
 
   const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
-  const std::vector<ctfseeding::SeedingLayer> & thirdLayers() const { return theLayers; }
 
 private:
 
@@ -44,16 +46,31 @@ private:
   std::pair<float,float> mergePhiRanges(
       const std::pair<float,float> &r1, const std::pair<float,float> &r2) const;
 
+  void refit2Hits(TransientTrackingRecHit::ConstRecHitPointer& hit0,
+		  TransientTrackingRecHit::ConstRecHitPointer& hit1,
+		  TrajectoryStateOnSurface& tsos0,
+		  TrajectoryStateOnSurface& tsos1,
+		  const TrackingRegion& region, float nomField, bool isDebug);
+  
+  void refit3Hits(TransientTrackingRecHit::ConstRecHitPointer& hit0,
+		  TransientTrackingRecHit::ConstRecHitPointer& hit1,
+		  TransientTrackingRecHit::ConstRecHitPointer& hit2,
+		  TrajectoryStateOnSurface& tsos0,
+		  TrajectoryStateOnSurface& tsos1,
+		  TrajectoryStateOnSurface& tsos2,
+		  float nomField, bool isDebug);
 
 private:
   HitPairGenerator * thePairGenerator;
-  std::vector<ctfseeding::SeedingLayer> theLayers;
+  std::vector<SeedingLayerSetsHits::SeedingLayer> theLayers;
   LayerCacheType * theLayerCache;
   const ClusterShapeHitFilter* filter;
 
   bool useFixedPreFiltering;
   float extraHitRZtolerance;
   float extraHitRPhitolerance;
+  float extraZKDBox;
+  float extraRKDBox;
   float extraPhiKDBox;
   float dphi;
   const MagneticField* bfield;
@@ -67,7 +84,8 @@ private:
   bool debug;
   std::string filterName_;
   std::vector<int> detIdsToDebug;
-  
+  bool useSimpleMF_;
+  std::string mfName_;  
 };
 #endif
 

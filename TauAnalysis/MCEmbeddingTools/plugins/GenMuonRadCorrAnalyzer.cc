@@ -142,8 +142,8 @@ void GenMuonRadCorrAnalyzer::analyze(const edm::Event& evt, const edm::EventSetu
   double muonMinusRad = 0.;
   int muonMinusRad_error = 0;
   if ( muonRadiationAlgo_ ) {
-    muonPlusRad = muonRadiationAlgo_->compFSR(genMuonPlusP4_beforeRad, +1, genMuonMinusP4_beforeRad, muonPlusRad_error).E();
-    muonMinusRad = muonRadiationAlgo_->compFSR(genMuonMinusP4_beforeRad, -1, genMuonPlusP4_beforeRad, muonMinusRad_error).E();
+    muonPlusRad = muonRadiationAlgo_->compFSR(evt.streamID(), genMuonPlusP4_beforeRad, +1, genMuonMinusP4_beforeRad, muonPlusRad_error).E();
+    muonMinusRad = muonRadiationAlgo_->compFSR(evt.streamID(), genMuonMinusP4_beforeRad, -1, genMuonPlusP4_beforeRad, muonMinusRad_error).E();
   } else {
     muonPlusRad = genMuonPlusP4_beforeRad.E() - genMuonPlusP4_afterRad.E();
     muonMinusRad = genMuonMinusP4_beforeRad.E() - genMuonMinusP4_afterRad.E();

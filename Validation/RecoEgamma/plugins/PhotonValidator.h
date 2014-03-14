@@ -104,6 +104,7 @@ class PhotonValidator : public edm::EDAnalyzer
   edm::EDGetTokenT<reco::PhotonCollection> photonCollectionToken_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
   std::string   valueMapPhoPFCandIso_ ;
+  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > particleBasedIso_token;
   edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
   edm::InputTag  bcBarrelCollection_;
   edm::InputTag  bcEndcapCollection_;
@@ -207,6 +208,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement*   h_SimConvOneMTracks_[5];
   MonitorElement*   h_SimConvTwoTracks_[5];
   MonitorElement*   h_SimConvTwoMTracks_[5];
+  MonitorElement*   h_SimConvMTotal_[5];
   MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0_[5];
   MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0005_[5];
   MonitorElement*   h_SimConvTwoMTracksAndVtxPGT01_[5];
@@ -215,11 +217,16 @@ class PhotonValidator : public edm::EDAnalyzer
   // Numerators for conversion fake rate
   MonitorElement*   h_RecoConvTwoMTracks_[5];
 
-
+  //// tmp TH1F
+  TH1F* th1f_SimConvMTotal_[5];
+ 
   //// test on OutIn Tracks
   MonitorElement* h_OIinnermostHitR_;
   MonitorElement* h_IOinnermostHitR_;
   MonitorElement* h_trkProv_[2];
+  MonitorElement* h_trkAlgo_;
+  MonitorElement* h_convAlgo_;
+  MonitorElement* h_convQuality_;
 
 
   MonitorElement* h_phoDEta_[2];
@@ -333,6 +340,8 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_phoEResRegr1_[3][3];
   MonitorElement* h_phoEResRegr2_[3][3];
 
+  // 
+  MonitorElement* h_phoPixSeedSize_[2];
 
   // Information from Particle Flow
   // Isolation
@@ -371,6 +380,8 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_r9VsNofTracks_[2][3];
   MonitorElement* h_EoverPTracks_[2][3];
   MonitorElement* h_PoverETracks_[2][3];
+
+  MonitorElement* h_EoverP_SL_[3];
 
   MonitorElement* h_mvaOut_[3];
   MonitorElement* h2_etaVsRsim_[3];
@@ -424,6 +435,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_convVtxYvsX_;
   MonitorElement* h_convVtxRvsZ_zoom_[2];
   MonitorElement* h_convVtxYvsX_zoom_[2];
+  MonitorElement* h_convSLVtxRvsZ_[3];
 
   MonitorElement* h_convVtxdX_;
   MonitorElement* h_convVtxdY_;
@@ -468,10 +480,13 @@ class PhotonValidator : public edm::EDAnalyzer
 
   //////////// info per track
   MonitorElement* p_nHitsVsEta_[2];
+  MonitorElement* p_nHitsVsEtaSL_[2];
   MonitorElement* nHitsVsEta_[2];
   MonitorElement* p_nHitsVsR_[2];
+  MonitorElement* p_nHitsVsRSL_[2];
   MonitorElement* nHitsVsR_[2];
   MonitorElement* h_tkChi2_[2];
+  MonitorElement* h_tkChi2SL_[2];
   MonitorElement* h_tkChi2Large_[2];
   MonitorElement* h2_Chi2VsEta_[3];
   MonitorElement* p_Chi2VsEta_[3];

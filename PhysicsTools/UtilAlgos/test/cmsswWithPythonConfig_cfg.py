@@ -4,7 +4,7 @@ process = cms.Process("Test")
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_7_0_0_pre11/RelValProdTTbar/GEN-SIM-RECO/START70_V4-v1/00000/0EA82C3C-646A-E311-9CB3-0025905A6070.root'
+        '/store/relval/CMSSW_7_1_0_pre1/RelValProdTTbar/GEN-SIM-RECO/START70_V5-v1/00000/14842A6B-2086-E311-B5CB-02163E00E8DA.root'
   )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )

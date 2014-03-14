@@ -32,9 +32,10 @@ DEFINE_FWK_MODULE(TTbar_GenJetAnalyzer);
 DEFINE_FWK_MODULE(TTbar_GenLepAnalyzer);
 
 #include "Validation/EventGenerator/interface/TTbar_Kinematics.h"
-
-#include "Validation/EventGenerator/interface/TTbar_Kinematics.h"
 DEFINE_FWK_MODULE(TTbar_Kinematics);
 
-#include "Validation/EventGenerator/interface/TTbar_P4Violation.h"
-DEFINE_FWK_MODULE(TTbar_P4Violation);
+#include "Validation/EventGenerator/interface/TTbarSpinCorrHepMCAnalyzer.h"
+DEFINE_FWK_MODULE(TTbarSpinCorrHepMCAnalyzer);
+
+#include "Validation/EventGenerator/interface/HiggsValidation.h"
+DEFINE_FWK_MODULE(HiggsValidation);

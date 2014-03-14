@@ -33,6 +33,7 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
@@ -51,6 +52,8 @@ class SiPixelFrameReverter;
 class PixelDataFormatter {
 
 public:
+
+  typedef edm::DetSetVector<PixelDigi> Collection;
 
   typedef std::map<int, FEDRawData> RawData;
   typedef std::vector<PixelDigi> DetDigis;
@@ -72,7 +75,7 @@ public:
   int nDigis() const { return theDigiCounter; }
   int nWords() const { return theWordCounter; }
 
-  void interpretRawData(bool& errorsInEvent, int fedId,  const FEDRawData & data, Digis & digis, Errors & errors);
+  void interpretRawData(bool& errorsInEvent, int fedId,  const FEDRawData & data, Collection & digis, Errors & errors);
 
   void formatRawData( unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis);
 

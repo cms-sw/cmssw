@@ -2,6 +2,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -12,7 +14,7 @@
 //
 // -- Constructor
 //
-JetMETDQMDCSFilter::JetMETDQMDCSFilter( const edm::ParameterSet & pset ) {
+JetMETDQMDCSFilter::JetMETDQMDCSFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC) {
    verbose_       = pset.getUntrackedParameter<bool>( "DebugOn", false );
    detectorTypes_ = pset.getUntrackedParameter<std::string>( "DetectorTypes", "ecal:hcal");
    filter_        = pset.getUntrackedParameter<bool>( "Filter", true );
@@ -23,6 +25,8 @@ JetMETDQMDCSFilter::JetMETDQMDCSFilter( const edm::ParameterSet & pset ) {
    passECAL = false, passES = false;
    passHBHE = false, passHF = false, passHO = false;
    passMuon = false;
+
+   scalarsToken = iC.consumes<DcsStatusCollection > (std::string("scalersRawToDigi"));
 }
 //
 // -- Destructor
@@ -39,7 +43,7 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
   if (!filter_) return detectorOn_;
 
   edm::Handle<DcsStatusCollection> dcsStatus;
-  evt.getByLabel("scalersRawToDigi", dcsStatus);
+  evt.getByToken(scalarsToken, dcsStatus);
 
   if (dcsStatus.isValid() && dcsStatus->size() != 0) {
 

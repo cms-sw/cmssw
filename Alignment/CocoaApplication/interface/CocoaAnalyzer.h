@@ -20,7 +20,7 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DetectorDescription/Core/interface/DDPosData.h" 
 
 class Event;
@@ -38,7 +38,7 @@ class DDSpecifics;
 class OpticalObject;
 
 
-class CocoaAnalyzer : public edm::EDAnalyzer
+class CocoaAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>
 {
  public:
   

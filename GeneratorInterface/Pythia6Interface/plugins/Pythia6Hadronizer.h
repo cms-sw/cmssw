@@ -7,6 +7,8 @@
 // Hadronizer concept.
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -27,6 +29,9 @@ namespace HepMC
 class GenEvent;
 }
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace gen
 {
@@ -63,6 +68,10 @@ class JetMatching;
   private:
      // methods
      //
+
+     virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+     virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+
      void flushTmpStorage();
      void fillTmpStorage();
      
@@ -111,7 +120,8 @@ class JetMatching;
      
      // tmp stuff, to deal with EvtGen corrupting pyjets
      // int NPartsBeforeDecays;
-                
+
+     static const std::vector<std::string> theSharedResources;
   };
 }
 

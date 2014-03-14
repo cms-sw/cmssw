@@ -1,4 +1,4 @@
-<use   name="DQM/EcalBarrelMonitorDbModule"/>
-<library   file="plugins.cc" name="DQMEcalBarrelMonitorDbModulePlugins">
+<use name="DQM/EcalBarrelMonitorDbModule"/>
+<library   file="*.cc" name="DQMEcalBarrelMonitorDbModulePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

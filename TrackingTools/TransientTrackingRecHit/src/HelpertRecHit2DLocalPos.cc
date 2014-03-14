@@ -3,6 +3,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
+
 void
 HelpertRecHit2DLocalPos::updateWithAPE(LocalError& le, const GeomDet& det) 
 {
@@ -14,6 +15,7 @@ HelpertRecHit2DLocalPos::updateWithAPE(LocalError& le, const GeomDet& det)
 		    );
 }
 
+/*
 AlgebraicSymMatrix HelpertRecHit2DLocalPos::parError( const LocalError& le,
 						      const GeomDet& det)
 {
@@ -30,6 +32,7 @@ AlgebraicSymMatrix HelpertRecHit2DLocalPos::parError( const LocalError& le,
   };
   return m;
 }
+
 
 void
 HelpertRecHit2DLocalPos::getKfComponents(KfComponentsHolder & holder,
@@ -58,3 +61,4 @@ HelpertRecHit2DLocalPos::getKfComponents(KfComponentsHolder & holder,
     m(0, 0) += lape.xx();
   }
 }
+*/

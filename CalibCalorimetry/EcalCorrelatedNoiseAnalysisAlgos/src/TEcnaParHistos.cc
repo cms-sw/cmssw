@@ -4,7 +4,6 @@
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParHistos.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
-using namespace std;
 
 //--------------------------------------
 //  TEcnaParHistos.cc
@@ -23,7 +22,7 @@ ClassImp(TEcnaParHistos)
   //if (fEcalNumbering != 0){delete  fEcalNumbering; fCdelete++;}
   //if (fEcal          != 0){delete  fEcal;          fCdelete++;}
   
-  //cout << "[Info Management] CLASS: TEcnaParHistos.     DESTROY OBJECT: this = " << this << endl;
+  //std::cout << "[Info Management] CLASS: TEcnaParHistos.     DESTROY OBJECT: this = " << this << std::endl;
 }
 
 //===================================================================
@@ -35,7 +34,7 @@ TEcnaParHistos::TEcnaParHistos()
 {
 // Constructor without argument
 
-  //cout << "[Info Management] CLASS: TEcnaParHistos.     CREATE OBJECT: this = " << this << endl;
+  //std::cout << "[Info Management] CLASS: TEcnaParHistos.     CREATE OBJECT: this = " << this << std::endl;
 
   Init();
 }
@@ -44,7 +43,7 @@ TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString& SubDe
 {
 // Constructor without argument
 
-  //cout << "[Info Management] CLASS: TEcnaParHistos.     CREATE OBJECT: this = " << this << endl;
+  //std::cout << "[Info Management] CLASS: TEcnaParHistos.     CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   Long_t i_this = (Long_t)this;
@@ -77,7 +76,7 @@ TEcnaParHistos::TEcnaParHistos(const TString& SubDet,
 {
 // Constructor with argument
 
-  //cout << "[Info Management] CLASS: TEcnaParHistos.     CREATE OBJECT: this = " << this << endl;
+  //std::cout << "[Info Management] CLASS: TEcnaParHistos.     CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   SetEcalSubDetector(SubDet.Data(), pEcal, pEcalNumbering);
@@ -1866,7 +1865,7 @@ Color_t TEcnaParHistos::SetColorsForNumbers(const TString& chtype_number)
 //===========================================================================
 
 TPaveText* TEcnaParHistos::SetPaveDee(const TString& chopt,   const Int_t&  DeeNumber,
-				     const TString& DeeType)
+				      const TString& DeeType)
 {
 // Dee pav. Called only once.
   
@@ -2238,10 +2237,10 @@ TString TEcnaParHistos::GetYVarHisto(const TString& HistoCode, const TString& Su
       if( HistoCode == "H_SCs_Date" ){YVarHisto = "Sigma Cor(s,s')";}
     }
 
-//  cout << endl << "*TEcnaParHistos::GetYVarHisto(...)> HistoType = " << HistoType
+//  std::cout << std::endl << "*TEcnaParHistos::GetYVarHisto(...)> HistoType = " << HistoType
 //       << ", HistoCode = " << HistoCode
 //       << ", StexNumber = " << StexNumber
-//       << ", YVarHisto = " << YVarHisto << endl;
+//       << ", YVarHisto = " << YVarHisto << std::endl;
 
   return YVarHisto;
 
@@ -2468,9 +2467,9 @@ TString TEcnaParHistos::BuildStandardDetectorCode(const TString& UserDetector)
 
    if( StandardDetectorCode == "?" )
     {
-      cout << "*TEcnaParHistos::BuildStandardDetectorCode(...)> UserDetector = " << UserDetector
+      std::cout << "*TEcnaParHistos::BuildStandardDetectorCode(...)> UserDetector = " << UserDetector
 	   << " : code not found."
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
 
       ListOfStandardCodes("DetectorCode");
     }
@@ -2537,9 +2536,9 @@ TString TEcnaParHistos::BuildStandardPlotOption(const TString& CallingMethod, co
   //...................................................
   if( StandardPlotOption == "?" )
     {
-      cout << "*TEcnaParHistos::BuildStandardPlotOption(...)> UserPlotOption = " << UserPlotOption
+      std::cout << "*TEcnaParHistos::BuildStandardPlotOption(...)> UserPlotOption = " << UserPlotOption
 	   << " : code not found."
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
 
       ListOfStandardCodes("PlotOption");
     }
@@ -2603,9 +2602,9 @@ TString TEcnaParHistos::BuildStandard1DHistoCodeX(const TString& CallingMethod, 
   //---------------------------------------------
   if( StandardHistoCode == "?" )
     {
-      cout << "*TEcnaParHistos::BuildStandard1DHistoCodeX(...)> UserHistoCode = " << UserHistoCode
+      std::cout << "*TEcnaParHistos::BuildStandard1DHistoCodeX(...)> UserHistoCode = " << UserHistoCode
 	   << " : code not found."
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
 
       ListOfStandardCodes("1DHistoCodeX");
     }
@@ -2647,9 +2646,9 @@ TString TEcnaParHistos::BuildStandard1DHistoCodeY(const TString& CallingMethod, 
   //---------------------------------------------
   if( StandardHistoCode == "?" )
     {
-      cout << "*TEcnaParHistos::BuildStandard1DHistoCodeY(...)> UserHistoCode = " << UserHistoCode
+      std::cout << "*TEcnaParHistos::BuildStandard1DHistoCodeY(...)> UserHistoCode = " << UserHistoCode
 	   << " : code not found."
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
 
       ListOfStandardCodes("1DHistoCodeY");
     }
@@ -2737,9 +2736,9 @@ TString TEcnaParHistos::BuildStandard1DHistoCodeXY(const TString& UserHistoCode)
   //---------------------------------------------
   if( StandardHistoCode == "?" )
     {
-      cout << "*TEcnaParHistos::BuildStandard1DHistoCodeXY(...)> UserHistoCode = " << UserHistoCode
+      std::cout << "*TEcnaParHistos::BuildStandard1DHistoCodeXY(...)> UserHistoCode = " << UserHistoCode
 	   << " : code not found."
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
 
       ListOfStandardCodes("1DHistoCodeXY");
     }
@@ -2770,9 +2769,9 @@ TString TEcnaParHistos::BuildStandardCovOrCorCode(const TString& CallingMethod, 
   //---------------------------------------------
   if( StandardHistoCode == "?" )
     {
-      cout << "*TEcnaParHistos::BuildStandardCovOrCorCode(...)> UserHistoCode = " << UserHistoCode
+      std::cout << "*TEcnaParHistos::BuildStandardCovOrCorCode(...)> UserHistoCode = " << UserHistoCode
 	   << " : code not found."
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
 
       ListOfStandardCodes("CovOrCorCode");
     }
@@ -2832,9 +2831,9 @@ TString TEcnaParHistos::BuildStandardBetweenWhatCode(const TString& CallingMetho
   //---------------------------------------------
   if( StandardHistoCode == "?" )
     {
-      cout << "*TEcnaParHistos::BuildStandardBetweenWhatCode(...)> UserHistoCode = " << UserHistoCode
+      std::cout << "*TEcnaParHistos::BuildStandardBetweenWhatCode(...)> UserHistoCode = " << UserHistoCode
 	   << " : code not found."
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
 
       ListOfStandardCodes("BetweenWhatCode");
     }
@@ -2849,92 +2848,92 @@ void TEcnaParHistos::ListOfStandardCodes(const TString& TypeOfCode)
 
   if(TypeOfCode == "DetectorCode")
     {
-      cout << "*--------------------------------------- Standard detector codes:" << endl;
-      cout << "    EB   (ECAL Barrel) " << endl;
-      cout << "    EE   (ECAL Endcap) " << endl;
-      cout << "    SM   (Barrel Super Module) " << endl;
-      cout << "    Dee  (Encap Dee) " << endl;
-      cout << " Other codes are available" << endl;
-      cout << " See source file: TEcnaParHistos::BuildStandardDetectorCode(...)." << endl;
-      cout << "*----------------------------------------------------------------" << endl;
+      std::cout << "*--------------------------------------- Standard detector codes:" << std::endl;
+      std::cout << "    EB   (ECAL Barrel) " << std::endl;
+      std::cout << "    EE   (ECAL Endcap) " << std::endl;
+      std::cout << "    SM   (Barrel Super Module) " << std::endl;
+      std::cout << "    Dee  (Encap Dee) " << std::endl;
+      std::cout << " Other codes are available" << std::endl;
+      std::cout << " See source file: TEcnaParHistos::BuildStandardDetectorCode(...)." << std::endl;
+      std::cout << "*----------------------------------------------------------------" << std::endl;
     }
 
   if(TypeOfCode == "PlotOption")
     {
-      cout << "*--------------------------------------- Standard plot options:" << endl;
-      cout << "    All ROOT DRAW options and: " << endl;
-      cout << "   (nothing) " << endl;
-      cout << "    SAME n   " << endl;
-      cout << "    ASCII    " << endl;
-      cout << " Other codes are available" << endl;
-      cout << " See source file: TEcnaParHistos::BuildStandardPlotOption(...)." << endl;
-      cout << "*--------------------------------------------------------------" << endl;
+      std::cout << "*--------------------------------------- Standard plot options:" << std::endl;
+      std::cout << "    All ROOT DRAW options and: " << std::endl;
+      std::cout << "   (nothing) " << std::endl;
+      std::cout << "    SAME n   " << std::endl;
+      std::cout << "    ASCII    " << std::endl;
+      std::cout << " Other codes are available" << std::endl;
+      std::cout << " See source file: TEcnaParHistos::BuildStandardPlotOption(...)." << std::endl;
+      std::cout << "*--------------------------------------------------------------" << std::endl;
     }
 
   if(TypeOfCode == "1DHistoCodeX")
     {
-      cout << "*---------------------- Standard 1D histo codes for X coordinate:" << endl;
-      cout << "    Tow  (SM tower) " << endl;
-      cout << "    SC   (Dee super crystal) " << endl;
-      cout << "    Xtal (crystal) " << endl;
-      cout << "    Smp  (Adc sample) " << endl;
-      cout << "    Evt  (event) " << endl;
-      cout << " Other codes are available" << endl;
-      cout << " See source file: TEcnaParHistos::BuildStandard1DHistoCodeX(...)." << endl;
-      cout << "*----------------------------------------------------------------" << endl;
+      std::cout << "*---------------------- Standard 1D histo codes for X coordinate:" << std::endl;
+      std::cout << "    Tow  (SM tower) " << std::endl;
+      std::cout << "    SC   (Dee super crystal) " << std::endl;
+      std::cout << "    Xtal (crystal) " << std::endl;
+      std::cout << "    Smp  (Adc sample) " << std::endl;
+      std::cout << "    Evt  (event) " << std::endl;
+      std::cout << " Other codes are available" << std::endl;
+      std::cout << " See source file: TEcnaParHistos::BuildStandard1DHistoCodeX(...)." << std::endl;
+      std::cout << "*----------------------------------------------------------------" << std::endl;
     }
 
   if(TypeOfCode == "1DHistoCodeY")
     {
-      cout << "*---------------------- Standard 1D histo codes for Y coordinate;" << endl;
-      cout << "    NOX  (number of crystals) " << endl;
-      cout << "    NOS  (number of samples) " << endl;
-      cout << "    NOR  (number of runs) " << endl;
-      cout << " Other codes are available" << endl;
-      cout << " See source file: TEcnaParHistos::BuildStandard1DHistoCodeY(...)." << endl;
-      cout << "*----------------------------------------------------------------" << endl;
+      std::cout << "*---------------------- Standard 1D histo codes for Y coordinate;" << std::endl;
+      std::cout << "    NOX  (number of crystals) " << std::endl;
+      std::cout << "    NOS  (number of samples) " << std::endl;
+      std::cout << "    NOR  (number of runs) " << std::endl;
+      std::cout << " Other codes are available" << std::endl;
+      std::cout << " See source file: TEcnaParHistos::BuildStandard1DHistoCodeY(...)." << std::endl;
+      std::cout << "*----------------------------------------------------------------" << std::endl;
     }
 
   if(TypeOfCode == "1DHistoCodeXY")
     {
-      cout << "*------------------ Standard 1D histo codes for X or Y coordinate;" << endl;
-      cout << "    NOE  (number of events) " << endl;
-      cout << "    Ped  (pedestal) " << endl;
-      cout << "    TNo  (total noise) " << endl;
-      cout << "    LFN  (low frequency noise) " << endl;
-      cout << "    HFN  (high frequency noise) " << endl;
-      cout << "    MCs  (mean correlation between samples) " << endl;
-      cout << "    SCs  (sigma of correlations between samples) " << endl;
-      cout << "    MSp  (sample mean) " << endl;
-      cout << "    SSp  (sample sigma) " << endl;
-      cout << "    Time (time, date) " << endl;
-      cout << "    Adc  (ADC sample value) " << endl;
-      cout << " Other codes are available" << endl;
-      cout << " See source file: TEcnaParHistos::BuildStandard1DHistoCodeXY(...)." << endl;
-      cout << "*-----------------------------------------------------------------" << endl;
+      std::cout << "*------------------ Standard 1D histo codes for X or Y coordinate;" << std::endl;
+      std::cout << "    NOE  (number of events) " << std::endl;
+      std::cout << "    Ped  (pedestal) " << std::endl;
+      std::cout << "    TNo  (total noise) " << std::endl;
+      std::cout << "    LFN  (low frequency noise) " << std::endl;
+      std::cout << "    HFN  (high frequency noise) " << std::endl;
+      std::cout << "    MCs  (mean correlation between samples) " << std::endl;
+      std::cout << "    SCs  (sigma of correlations between samples) " << std::endl;
+      std::cout << "    MSp  (sample mean) " << std::endl;
+      std::cout << "    SSp  (sample sigma) " << std::endl;
+      std::cout << "    Time (time, date) " << std::endl;
+      std::cout << "    Adc  (ADC sample value) " << std::endl;
+      std::cout << " Other codes are available" << std::endl;
+      std::cout << " See source file: TEcnaParHistos::BuildStandard1DHistoCodeXY(...)." << std::endl;
+      std::cout << "*-----------------------------------------------------------------" << std::endl;
     }
 
   if(TypeOfCode == "CovOrCorCode")
     {
-      cout << "*-------- Standard codes for matrix type (correlation or covariance);" << endl;
-      cout << "    Cor  (correlation) " << endl;
-      cout << "    cov  (covariance) " << endl;
-      cout << " Other codes are available" << endl;
-      cout << " See source file: TEcnaParHistos::BuildStandardCovOrCorCode(...)." << endl;
-      cout << "*--------------------------------------------------------------------" << endl;
+      std::cout << "*-------- Standard codes for matrix type (correlation or covariance);" << std::endl;
+      std::cout << "    Cor  (correlation) " << std::endl;
+      std::cout << "    cov  (covariance) " << std::endl;
+      std::cout << " Other codes are available" << std::endl;
+      std::cout << " See source file: TEcnaParHistos::BuildStandardCovOrCorCode(...)." << std::endl;
+      std::cout << "*--------------------------------------------------------------------" << std::endl;
     }
 
   if(TypeOfCode == "BetweenWhatCode")
     {
-      cout << "*-------- Standard codes for quantities in correlation or covariance;" << endl;
-      cout << "    Mss    (between samples) " << endl;
-      cout << "    MccLF  (low  frequency between channels) " << endl;
-      cout << "    MccHF  (high frequency between channels) " << endl;
-      cout << "    MttLF  (low  frequency between towers [if EB] or SC [if EE]) " << endl;
-      cout << "    MttLF  (high frequency between towers [if EB] or SC [if EE]) " << endl;
-      cout << " Other codes are available" << endl;
-      cout << " See source file: TEcnaParHistos::BuildStandardBetweenWhatCode(...)." << endl;
-      cout << "*--------------------------------------------------------------------" << endl;
+      std::cout << "*-------- Standard codes for quantities in correlation or covariance;" << std::endl;
+      std::cout << "    Mss    (between samples) " << std::endl;
+      std::cout << "    MccLF  (low  frequency between channels) " << std::endl;
+      std::cout << "    MccHF  (high frequency between channels) " << std::endl;
+      std::cout << "    MttLF  (low  frequency between towers [if EB] or SC [if EE]) " << std::endl;
+      std::cout << "    MttLF  (high frequency between towers [if EB] or SC [if EE]) " << std::endl;
+      std::cout << " Other codes are available" << std::endl;
+      std::cout << " See source file: TEcnaParHistos::BuildStandardBetweenWhatCode(...)." << std::endl;
+      std::cout << "*--------------------------------------------------------------------" << std::endl;
     }
 }
 
@@ -2955,8 +2954,8 @@ TString TEcnaParHistos::GetTechHistoCode(const TString& StandardHistoCode)
 
   if( TechHistoCode == "?" )
     {
-      cout << "*TEcnaParHistos::GetTechHistoCode(...)> StandardHistoCode = " << StandardHistoCode
-	   << " : code not found " << fTTBELL << endl;
+      std::cout << "*TEcnaParHistos::GetTechHistoCode(...)> StandardHistoCode = " << StandardHistoCode
+	   << " : code not found " << fTTBELL << std::endl;
     }
   return TechHistoCode;
 }
@@ -3012,8 +3011,8 @@ TString TEcnaParHistos::GetTechHistoCode(const TString& X_Quantity, const TStrin
 
   if( TechHistoCode == "?" )
     {
-      cout << "TEcnaParHistos::GetTechHistoCode(...)> HistoCode not found. X_Quantity = " << X_Quantity
-	   << ", Y_Quantity = "<< Y_Quantity << endl;
+      std::cout << "TEcnaParHistos::GetTechHistoCode(...)> HistoCode not found. X_Quantity = " << X_Quantity
+	   << ", Y_Quantity = "<< Y_Quantity << std::endl;
     }
   return TechHistoCode;
 }

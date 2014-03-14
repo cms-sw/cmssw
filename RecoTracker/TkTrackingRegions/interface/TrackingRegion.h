@@ -19,6 +19,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include <utility>
@@ -100,6 +101,11 @@ public:
         const edm::Event& ev, 
         const edm::EventSetup& es, 
         const ctfseeding::SeedingLayer* layer) const = 0; 
+
+    virtual Hits hits(
+        const edm::Event& ev,
+        const edm::EventSetup& es,
+        const SeedingLayerSetsHits::SeedingLayer& layer) const = 0;
 
   /// clone region with new vertex position
   TrackingRegion* restrictedRegion( const GlobalPoint &  originPos,

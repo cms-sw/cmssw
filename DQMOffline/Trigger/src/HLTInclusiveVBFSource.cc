@@ -56,19 +56,23 @@ HLTInclusiveVBFSource::HLTInclusiveVBFSource(const edm::ParameterSet& iConfig):
     dbe->setVerbose(0);
   }
   
-  dirname_             = iConfig.getUntrackedParameter("dirname",std::string("HLT/InclusiveVBF"));
-  processname_         = iConfig.getParameter<std::string>("processname");
-  triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
-  triggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+  dirname_              = iConfig.getUntrackedParameter("dirname",std::string("HLT/InclusiveVBF"));
+  processname_          = iConfig.getParameter<std::string>("processname");
+  triggerSummaryLabel_  = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
+  triggerResultsLabel_  = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+  triggerSummaryToken   = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
+  triggerResultsToken   = consumes <edm::TriggerResults>   (triggerResultsLabel_);
+  triggerSummaryFUToken = consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
+  triggerResultsFUToken = consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
+
   //path_                = iConfig.getUntrackedParameter<std::vector<std::string> >("paths");
   //l1path_              = iConfig.getUntrackedParameter<std::vector<std::string> >("l1paths"); 
-  
   debug_               = iConfig.getUntrackedParameter< bool >("debug", false);
   
-  caloJetsTag_         = iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel");
-  caloMETTag_          = iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel"); 
-  pfJetsTag_           = iConfig.getParameter<edm::InputTag>("PFJetCollectionLabel");
-  pfMetTag_            = iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel");
+  caloJetsToken  = consumes<reco::CaloJetCollection> (iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel"));
+  caloMetToken   = consumes<reco::CaloMETCollection> (iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel"));
+  pfJetsToken    = consumes<edm::View<reco::PFJet> > (iConfig.getParameter<edm::InputTag>("PFJetCollectionLabel"));
+  pfMetToken     = consumes<edm::View<reco::PFMET> > (iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel"));
   //jetID                = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"));
   
   minPtHigh_           = iConfig.getUntrackedParameter<double>("minPtHigh",40.);
@@ -110,10 +114,9 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //****************************************************
   //
   //---------- triggerResults ----------
-  iEvent.getByLabel(triggerResultsLabel_, triggerResults_);
+  iEvent.getByToken(triggerResultsToken, triggerResults_);
   if(!triggerResults_.isValid()) {
-    edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerResultsLabelFU,triggerResults_);
+    iEvent.getByToken(triggerResultsFUToken,triggerResults_);
     if(!triggerResults_.isValid()) {
       edm::LogInfo("FourVectorHLTOffline") << "TriggerResults not found, "
 	"skipping event";
@@ -134,10 +137,9 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }
   //
   //---------- triggerSummary ----------
-  iEvent.getByLabel(triggerSummaryLabel_,triggerObj_);
+  iEvent.getByToken(triggerSummaryToken,triggerObj_);
   if(!triggerObj_.isValid()) {
-    edm::InputTag triggerSummaryLabelFU(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerSummaryLabelFU,triggerObj_);
+    iEvent.getByToken(triggerSummaryFUToken,triggerObj_);
     if(!triggerObj_.isValid()) {
       edm::LogInfo("FourVectorHLTOffline") << "TriggerEvent not found, "
 	"skipping event";
@@ -152,11 +154,11 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //****************************************************
   //
   edm::Handle<edm::View<reco::PFMET> > metSrc;
-  bool ValidPFMET_ = iEvent.getByLabel(pfMetTag_ , metSrc);
+  bool ValidPFMET_ = iEvent.getByToken(pfMetToken, metSrc);
   if(!ValidPFMET_) return;
   
   edm::Handle<edm::View<reco::PFJet> > jetSrc;
-  bool ValidPFJet_ = iEvent.getByLabel(pfJetsTag_ , jetSrc);
+  bool ValidPFJet_ = iEvent.getByToken(pfJetsToken, jetSrc);
   if(!ValidPFJet_) return;
   
   if(!metSrc.isValid()) return;

@@ -300,6 +300,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     ActivityR9Token_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityR9_);
     ActivityR9IDToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityR9ID_);
     ActivityHoverEHToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(ActivityHoverEH_);
+    EcalRecHitEBToken_ = consumes<EcalRecHitCollection>(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
+    EcalRecHitEEToken_ = consumes<EcalRecHitCollection>(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
 
     CandIsoToken_ = consumes<reco::RecoEcalCandidateCollection>(CandIso_);
     CandNonIsoToken_ = consumes<reco::RecoEcalCandidateCollection>(CandNonIso_);
@@ -365,7 +367,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     std::cout << "\n Setting HltTree weight to " << treeWeight << " = " << xSection_ << "*" << filterEff_ << " (cross section * gen filter efficiency)\n" << std::endl;
     
     // Setup the different analysis
-    jet_analysis_.setup(conf, HltTree);
+    jet_analysis_.setup(conf, HltTree, consumesCollector());
     bjet_analysis_.setup(conf, HltTree);
     elm_analysis_.setup(conf, HltTree);
     muon_analysis_.setup(conf, HltTree);
@@ -533,9 +535,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::VertexCollection> recoVertexsOffline0;
 
     // new stuff for the egamma EleId
-    edm::InputTag ecalRechitEBTag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
-    edm::InputTag ecalRechitEETag (std::string("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
-    EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag, ecalRechitEETag);
+    EcalClusterLazyTools lazyTools( iEvent, iSetup, EcalRecHitEBToken_, EcalRecHitEEToken_ );
     
     edm::Handle<reco::HFEMClusterShapeAssociationCollection> electronHFClusterAssociation;  
     iEvent.getByToken(HFEMClusterShapeAssociationToken_,electronHFClusterAssociation);

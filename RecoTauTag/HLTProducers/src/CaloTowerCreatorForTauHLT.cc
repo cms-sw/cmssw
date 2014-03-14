@@ -2,15 +2,12 @@
 // original author: L.Lista INFN, modifyed by: F.Ratnikov UMd 
 // Author for regionality A. Nikitenko
 // Modified by S. Gennai
-#include <cmath>
+
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include <cmath>
@@ -23,14 +20,14 @@ using namespace l1extra ;
 CaloTowerCreatorForTauHLT::CaloTowerCreatorForTauHLT( const ParameterSet & p ) 
   :
   mVerbose (p.getUntrackedParameter<int> ("verbose", 0)),
-  mtowers (p.getParameter<InputTag> ("towers")),
   mCone (p.getParameter<double> ("UseTowersInCone")),
-  mTauTrigger (p.getParameter<InputTag> ("TauTrigger")),
-//  ml1seeds (p.getParameter<InputTag> ("l1seeds")),
   mEtThreshold (p.getParameter<double> ("minimumEt")),
   mEThreshold (p.getParameter<double> ("minimumE")),
   mTauId (p.getParameter<int> ("TauId"))
 {
+  mtowers_token = consumes<CaloTowerCollection>(p.getParameter<InputTag>("towers") );
+  mTauTrigger_token = consumes<L1JetParticleCollection>(p.getParameter<InputTag>("TauTrigger") );
+
   produces<CaloTowerCollection>();
 }
 
@@ -39,11 +36,12 @@ CaloTowerCreatorForTauHLT::~CaloTowerCreatorForTauHLT() {
 
 void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
   edm::Handle<CaloTowerCollection> caloTowers;
-  evt.getByLabel( mtowers, caloTowers );
+  evt.getByToken( mtowers_token, caloTowers );
 
   // imitate L1 seeds
   edm::Handle<L1JetParticleCollection> jetsgen;
-  evt.getByLabel(mTauTrigger, jetsgen);
+  evt.getByToken( mTauTrigger_token, jetsgen);
+
   std::auto_ptr<CaloTowerCollection> cands( new CaloTowerCollection );
   cands->reserve( caloTowers->size() );
   

@@ -3,6 +3,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include <cmath>
 #include <numeric>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ThreeThresholdAlgorithm::
 ThreeThresholdAlgorithm(float chan, float seed, float cluster, unsigned holes, unsigned bad, unsigned adj, std::string qL, 
@@ -18,8 +19,14 @@ template<class digiDetSet>
 inline
 void ThreeThresholdAlgorithm::
 clusterizeDetUnit_(const digiDetSet& digis, output_t::FastFiller& output) {
-  if( !isModuleUsable( digis.detId() )) return;
-  setDetId( digis.detId() );
+  if(isModuleBad(digis.detId())) return;
+  if (!setDetId( digis.detId() )) return;
+
+#ifdef EDM_ML_DEBUG
+  if(!isModuleUsable(digis.detId() )) 
+    LogWarning("ThreeThresholdAlgorithm") << " id " << digis.detId() << " not usable???" << std::endl;
+#endif
+
   
   typename digiDetSet::const_iterator  
     scan( digis.begin() ), 
@@ -41,24 +48,27 @@ inline
 bool ThreeThresholdAlgorithm::
 candidateEnded(const uint16_t& testStrip) const {
   uint16_t holes = testStrip - lastStrip - 1;
-  return ( !ADCs.empty() &&                    // a candidate exists, and
-	   holes > MaxSequentialHoles &&       // too many holes if not all are bad strips, and
+  return ( ( (!ADCs.empty())  &                    // a candidate exists, and
+	     (holes > MaxSequentialHoles )       // too many holes if not all are bad strips, and
+	     ) && 
 	   ( holes > MaxSequentialBad ||       // (too many bad strips anyway, or 
-	     !allBadBetween( lastStrip, testStrip ))); // not all holes are bad strips)
+	     !allBadBetween( lastStrip, testStrip ) // not all holes are bad strips)
+	     )
+	   );
 }
 
 inline 
 void ThreeThresholdAlgorithm::
-addToCandidate(const SiStripDigi& digi) { 
-  float Noise = noise( digi.strip() );
-  if( bad(digi.strip()) || digi.adc() < static_cast<uint16_t>( Noise * ChannelThreshold))
+addToCandidate(uint16_t strip, uint8_t adc) { 
+  float Noise = noise( strip );
+  if(  adc < static_cast<uint8_t>( Noise * ChannelThreshold) || bad(strip) )
     return;
 
-  if(candidateLacksSeed) candidateLacksSeed  =  digi.adc() < static_cast<uint16_t>( Noise * SeedThreshold);
-  if(ADCs.empty()) lastStrip = digi.strip() - 1; // begin candidate
-  while( ++lastStrip < digi.strip() ) ADCs.push_back(0); // pad holes
+  if(candidateLacksSeed) candidateLacksSeed  =  adc < static_cast<uint8_t>( Noise * SeedThreshold);
+  if(ADCs.empty()) lastStrip = strip - 1; // begin candidate
+  while( ++lastStrip < strip ) ADCs.push_back(0); // pad holes
 
-  ADCs.push_back( digi.adc() );
+  ADCs.push_back( adc );
   noiseSquared += Noise*Noise;
 }
 
@@ -80,19 +90,21 @@ bool ThreeThresholdAlgorithm::
 candidateAccepted() const {
   return ( !candidateLacksSeed &&
 	   noiseSquared * ClusterThresholdSquared
-	   <=  std::pow( std::accumulate(ADCs.begin(),ADCs.end(),float(0)), 2));
+	   <=  std::pow( float(std::accumulate(ADCs.begin(),ADCs.end(), int(0))), 2.f));
 }
 
 inline
 void ThreeThresholdAlgorithm::
 applyGains() {
   uint16_t strip = firstStrip();
-  for( std::vector<uint16_t>::iterator adc = ADCs.begin();  adc != ADCs.end();  adc++) {
-    if(*adc > 255) throw InvalidChargeException( SiStripDigi(strip,*adc) );
-    if(*adc > 253) continue; //saturated, do not scale
-    uint16_t charge = static_cast<uint16_t>( *adc/gain(strip++) + 0.5 ); //adding 0.5 turns truncation into rounding
-    *adc = ( charge > 1022 ? 255 : 
-           ( charge >  253 ? 254 : charge ));
+  for( auto &  adc :  ADCs) {
+#ifdef EDM_ML_DEBUG
+    if(adc > 255) throw InvalidChargeException( SiStripDigi(strip,adc) );
+#endif
+    // if(adc > 253) continue; //saturated, do not scale
+    auto charge = int( float(adc)/gain(strip++) + 0.5f ); //adding 0.5 turns truncation into rounding
+    if(adc < 254) adc = ( charge > 1022 ? 255 : 
+			  ( charge >  253 ? 254 : charge ));
   }
 }
 
@@ -113,17 +125,18 @@ void ThreeThresholdAlgorithm::clusterizeDetUnit(const edmNew::DetSet<SiStripDigi
 inline
 bool ThreeThresholdAlgorithm::
 stripByStripBegin(uint32_t id) {
-  if( !isModuleUsable( id )) return false;
-  setDetId( id );
+  if (!setDetId( id )) return false;
+#ifdef EDM_ML_DEBUG
+  assert(isModuleUsable( id ));
+#endif
   clearCandidate();
   return true;
 }
 
 inline
 void ThreeThresholdAlgorithm::
-stripByStripAdd(uint16_t strip, uint16_t adc, std::vector<SiStripCluster>& out) {
-  if(candidateEnded(strip))
-    endCandidate(out);
+stripByStripAdd(uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) {
+  if(candidateEnded(strip)) endCandidate(out);
   addToCandidate(SiStripDigi(strip,adc));
 }
 

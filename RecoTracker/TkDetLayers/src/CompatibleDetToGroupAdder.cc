@@ -38,7 +38,7 @@ bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
 }
 
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
-#include "TkGeomDetCompatibilityChecker.h"
+// #include "TkGeomDetCompatibilityChecker.h"
 
 bool CompatibleDetToGroupAdder::add( const GeomDet& det,
 				     const TrajectoryStateOnSurface& tsos, 

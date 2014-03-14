@@ -12,10 +12,6 @@ cond::Binary::Binary():
   m_data( new coral::Blob(0) ){
 }
 
-cond::Binary::Binary( const boost::shared_ptr<void>& objectPtr ):
-  m_object( objectPtr ){
-}
-
 cond::Binary::Binary( const void* data, size_t size  ):
   m_data( new coral::Blob( size ) ){
   ::memcpy( m_data->startingAddress(), data, size );
@@ -46,7 +42,7 @@ const coral::Blob& cond::Binary::get() const {
 void cond::Binary::copy( const std::string& source ){
   m_data.reset( new coral::Blob( source.size() ) );
   ::memcpy( m_data->startingAddress(), source.c_str(), source.size() );
-  m_object.reset();
+  m_object = ora::Object();
 }
 
 const void* cond::Binary::data() const {
@@ -63,10 +59,13 @@ size_t cond::Binary::size() const {
   return m_data->size();
 }
     
-boost::shared_ptr<void> cond::Binary::share() const {
+ora::Object cond::Binary::oraObject() const {
   return m_object;
 }
 
-
+void cond::Binary::fromOraObject( const ora::Object& object ){
+  m_object = object;
+  m_data.reset();
+}
 
 

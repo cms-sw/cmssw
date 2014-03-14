@@ -38,7 +38,7 @@ namespace {
     return a.first < b.first;
   } 
 
-  double getPFClusterEnergy(const PFClusterPtr& p) {
+  inline double getPFClusterEnergy(const PFClusterPtr& p) {
     return p->energy();
   }  
 

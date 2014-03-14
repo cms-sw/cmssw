@@ -33,7 +33,9 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 //
 #include <string>
 #include <stdlib.h>
@@ -61,7 +63,8 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
   ringOn( conf_.getUntrackedParameter<bool>("ringOn",false) ), 
   bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
   diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ),
-  bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",1000) )
+  bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",1000) ), 
+  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
 {
    //set Token(-s)
    srcToken_ = consumes<edm::DetSetVector<PixelDigi> >(conf_.getParameter<edm::InputTag>( "src" ));
@@ -85,7 +88,9 @@ void SiPixelDigiSource::beginJob(){
   ifstream infile(edm::FileInPath("DQM/SiPixelMonitorClient/test/detId.dat").fullPath().c_str(),ios::in);
   int nModsInFile=0;
   assert(!infile.fail());
-  while(!infile.eof()&&nModsInFile<1440) {
+  int nTOTmodules;
+  if (isUpgrade) { nTOTmodules=1856; } else { nTOTmodules=1440; }
+  while(!infile.eof()&&nModsInFile<nTOTmodules) {
     infile >> I_name[nModsInFile] >> I_detId[nModsInFile] >> I_fedId[nModsInFile] >> I_linkId1[nModsInFile] >> I_linkId2[nModsInFile];
     //cout<<nModsInFile<<" , "<<I_name[nModsInFile]<<" , "<<I_detId[nModsInFile]<<" , "<<I_fedId[nModsInFile]<<" , "<<I_linkId[nModsInFile]<<endl; ;
     nModsInFile++;
@@ -125,6 +130,8 @@ void SiPixelDigiSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetu
     nDP2P2M1 = 0;
     nDP2P2M2 = 0;
     nDP2P2M3 = 0;
+    nDP3P1M1 = 0;
+    nDP3P2M1 = 0;
     nDM1P1M1 = 0;
     nDM1P1M2 = 0;
     nDM1P1M3 = 0;
@@ -139,6 +146,8 @@ void SiPixelDigiSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetu
     nDM2P2M1 = 0;
     nDM2P2M2 = 0;
     nDM2P2M3 = 0;
+    nDM3P1M1 = 0;
+    nDM3P2M1 = 0;
     nL1M1 = 0;
     nL1M2 = 0;
     nL1M3 = 0;
@@ -151,7 +160,10 @@ void SiPixelDigiSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetu
     nL3M2 = 0;
     nL3M3 = 0;
     nL3M4 = 0;
-    
+    nL4M1 = 0;
+    nL4M2 = 0;
+    nL4M3 = 0;
+    nL4M4 = 0;
     
     // Build map
     buildStructure(iSetup);
@@ -240,7 +252,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 				ladOn, layOn, phiOn, 
 				bladeOn, diskOn, ringOn, 
 				twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk,
-				nDigisA, nDigisB);
+				nDigisA, nDigisB, isUpgrade);
     if(numberOfDigisMod>0){
       //if((*struct_iter).first == I_detId[39]) 
       //std::cout << "FED " << (*struct_iter).first << " NDigis all modules..." << numberOfDigisMod << std::endl;
@@ -249,11 +261,23 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
       bool barrel = DetId((*struct_iter).first).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
       bool endcap = DetId((*struct_iter).first).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
       //if((*struct_iter).first >= 302055684 && (*struct_iter).first <= 302197792 ){ // Barrel
+      int nBPiXmodules;
+      //int nFPixmodules;
+      int nTOTmodules;
+      if (isUpgrade) {
+        nBPiXmodules=1184;
+        //nFPixmodules=672;
+        nTOTmodules=1856;
+      } else {
+        nBPiXmodules=768;
+        //nFPixmodules=672;
+        nTOTmodules=1440;
+      }
       if(barrel){ // Barrel
         //cout<<"AAbpix: "<<numberOfDigisMod<<" + "<<nBPIXDigis<<" = ";
         nBPIXDigis = nBPIXDigis + numberOfDigisMod;
 	//cout<<nBPIXDigis<<endl;
-        for(int i=0; i!=768; ++i){
+        for(int i=0; i!=nBPiXmodules; ++i){
           //cout<<"\t\t\t bpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
 	    //if(I_fedId[i]>=32&&I_fedId[i]<=39) std::cout<<"Attention: a BPIX module matched to an FPIX FED!"<<std::endl;
@@ -265,12 +289,11 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    if(nDigisA>0 && I_linkId1[i]>0) nDigisPerChan[index1]=nDigisPerChan[index1]+nDigisA;
 	    if(nDigisB>0 && I_linkId2[i]>0) nDigisPerChan[index2]=nDigisPerChan[index2]+nDigisB;
 	    //if (index1==35 || index2==35) cout<<"BPIX 35: "<<I_detId[i]<<" : "<<I_fedId[i]<<"  "<<I_linkId1[i]<<" , "<<I_fedId[i]<<"  "<<I_linkId2[i]<<" , "<<nDigisA<<" , "<<nDigisB<<endl;
-	    i=767;
+            i=(nBPiXmodules-1);
 	  }
         }
       //}else if((*struct_iter).first >= 343999748 && (*struct_iter).first <= 352477708 ){ // Endcap
-      }else if(endcap){ // Endcap
-
+      }else if(endcap && !isUpgrade){ // Endcap
         //cout<<"AAfpix: "<<nFPIXDigis<<" = ";
         nFPIXDigis = nFPIXDigis + numberOfDigisMod;
 	//cout<<nFPIXDigis<<endl;
@@ -463,17 +486,269 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	//  if(disk==2){ 
 	//  std::cout<<"status: "<<iter<<","<<side<<","<<disk<<","<<blade<<","<<panel<<","<<numberOfDigisMod<<","<<numberOfDigis[iter]<<std::endl;       
         //}}
-	for(int i=768; i!=1440; i++){
+        for(int i=nBPiXmodules; i!=nTOTmodules; i++){ 
           //cout<<"\t\t\t fpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
 	    //if(I_fedId[i]<32||I_fedId[i]>39) std::cout<<"Attention: an FPIX module matched to a BPIX FED!"<<std::endl;
 	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigisMod;
 	    //cout<<"FPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<nDigisPerFed[I_fedId[i]]<< ", "<<numberOfDigisMod << endl;
-	    i=1439;
+            i=nTOTmodules-1;
 	  }
         }
 	//cout<<"NDigis Endcap: "<<nDM1P1M1/2.<<" "<<nDM1P2M1/6.<<" "<<nDM1P1M2/6.<<" "<<nDM1P2M2/8.<<" "<<nDM1P1M3/8.<<" "<<nDM1P2M3/10.<<" "<<nDM1P1M4/5.<<endl;
-      } //endif Barrel/Endcap
+      } //endif Barrel/(Endcap && !isUpgrade)
+      else if (endcap && isUpgrade) {
+        //cout<<"AAfpix: "<<nFPIXDigis<<" = ";
+        nFPIXDigis = nFPIXDigis + numberOfDigisMod;
+        //cout<<nFPIXDigis<<endl;
+        PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).halfCylinder();
+        int disk = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).diskName();
+        int blade = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).bladeName();
+        int panel = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).pannelName();
+        int module = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).plaquetteName();
+        
+        int iter=0; int i=0;
+        if(side==PixelEndcapNameUpgrade::mI){
+          if(disk==1){
+            i=0;
+            if(panel==1){ if(module==1) nDM1P1M1+=numberOfDigisMod; }
+            else if(panel==2){ if(module==1) nDM1P2M1+=numberOfDigisMod; }
+            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }            
+          }else if(disk==2){
+            i=22;
+            if(panel==1){ if(module==1) nDM2P1M1+=numberOfDigisMod; }
+            else if(panel==2){ if(module==1) nDM2P2M1+=numberOfDigisMod; }
+            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+          }else if(disk==3){
+            i=44;
+            if(panel==1){ if(module==1) nDM3P1M1+=numberOfDigisMod; }
+            else if(panel==2){ if(module==1) nDM3P2M1+=numberOfDigisMod; }
+            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+          }
+        }else if(side==PixelEndcapNameUpgrade::mO){
+          if(disk==1){
+            i=66;
+            if(panel==1){ if(module==1) nDM1P1M1+=numberOfDigisMod; }
+            else if(panel==2){ if(module==1) nDM1P2M1+=numberOfDigisMod; }
+            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+            if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+            if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
+            if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
+            if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
+            if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
+            if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+          }else if(disk==2){
+           i=100;
+           if(panel==1){ if(module==1) nDM2P1M1+=numberOfDigisMod; }
+           else if(panel==2){ if(module==1) nDM2P2M1+=numberOfDigisMod; }
+           if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+           if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+           if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+           if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+           if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+           if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+           if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+           if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+           if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+           if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+           if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+           if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+           if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
+           if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
+           if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
+           if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
+           if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+          }else if (disk==3){
+            i=134;
+            if(panel==1){ if(module==1) nDM3P1M1+=numberOfDigisMod; }
+            else if(panel==2){ if(module==1) nDM3P2M1+=numberOfDigisMod; }
+            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+            if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+            if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
+            if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
+            if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
+            if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
+            if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+          }
+        }else if(side==PixelEndcapNameUpgrade::pI){
+          if(disk==1){
+            i=168;
+            if(panel==1){ if(module==1) nDP1P1M1+=numberOfDigisMod; }
+            else if(panel==2){ if(module==1) nDP1P2M1+=numberOfDigisMod; }
+            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+          }else if(disk==2){
+            i=190;
+            if(panel==1){ if(module==1) nDP2P1M1+=numberOfDigisMod; }
+            else if(panel==2){ if(module==1) nDP2P2M1+=numberOfDigisMod; }
+            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+          }else if(disk==3){
+            i=212;
+            if(panel==1){ if(module==1) nDP3P1M1+=numberOfDigisMod; }
+            else if(panel==2){ if(module==1) nDP3P2M1+=numberOfDigisMod; }
+            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+          }
+        }else if(side==PixelEndcapNameUpgrade::pO){
+          if(disk==1){
+            i=234;
+            if(panel==1){ if(module==1) nDP1P1M1+=numberOfDigisMod; }
+            else if(panel==2){ if(module==1) nDP1P2M1+=numberOfDigisMod; }
+            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+            if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+            if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
+            if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
+            if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
+            if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
+            if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+          }else if(disk==2){
+            i=268;
+            if(panel==1){ if(module==1) nDP2P1M1+=numberOfDigisMod; }
+            else if(panel==2){ if(module==1) nDP2P2M1+=numberOfDigisMod; }
+            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+            if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+            if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
+            if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
+            if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
+            if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
+            if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+          }else if(disk==3){
+            i=302;
+            if(panel==1){ if(module==1) nDP3P1M1+=numberOfDigisMod; }
+            else if(panel==2){ if(module==1) nDP3P2M1+=numberOfDigisMod; }
+            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
+            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
+            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
+            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
+            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
+            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
+            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
+            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
+            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
+            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
+            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+            if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+            if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
+            if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
+            if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
+            if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
+            if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+          }
+        }
+        numberOfDigis[iter]=numberOfDigis[iter]+numberOfDigisMod;
+        //if(side==PixelEndcapNameUpgrade::pO||side==PixelEndcapNameUpgrade::pI){
+        //  if(disk==2){ 
+        //  std::cout<<"status: "<<iter<<","<<side<<","<<disk<<","<<blade<<","<<panel<<","<<numberOfDigisMod<<","<<numberOfDigis[iter]<<std::endl;       
+        //}}
+        for(int i=nBPiXmodules; i!=nTOTmodules; i++){
+          //cout<<"\t\t\t fpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
+          if((*struct_iter).first == I_detId[i]){
+	    //if(I_fedId[i]<32||I_fedId[i]>39) std::cout<<"Attention: an FPIX module matched to a BPIX FED!"<<std::endl;
+	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigisMod;
+	    //cout<<"FPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<nDigisPerFed[I_fedId[i]]<< ", "<<numberOfDigisMod << endl;
+            i=nTOTmodules-1;
+	  }
+        }
+	//cout<<"NDigis Endcap: "<<nDM1P1M1/2.<<" "<<nDM1P2M1/6.<<" "<<nDM1P1M2/6.<<" "<<nDM1P2M2/8.<<" "<<nDM1P1M3/8.<<" "<<nDM1P2M3/10.<<" "<<nDM1P1M4/5.<<endl;
+      }//endif(Endcap && isUpgrade)
       //cout<<"numberOfDigis: "<<numberOfDigisMod<<" , nBPIXDigis: "<<nBPIXDigis<<" , nFPIXDigis: "<<nFPIXDigis<<endl;
       // digi occupancy per individual FED channel:
     } // endif any digis in this module
@@ -527,6 +802,8 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 //  if(nLumiSecs%5==0){
   
   MonitorElement* meE; MonitorElement* meE1; MonitorElement* meE2; MonitorElement* meE3; MonitorElement* meE4; 
+  MonitorElement* meE5; MonitorElement* meE6;
+  if (!isUpgrade) {
   meE=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_Endcap");
   if(meE){ for(int j=0; j!=192; j++) if(numberOfDigis[j]>0) meE->Fill((float)numberOfDigis[j]);}
   meE1=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDm1");
@@ -537,6 +814,22 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(meE3){ for(int j=96; j!=168; j++) if((j<120||j>143)&&numberOfDigis[j]>0) meE3->Fill((float)numberOfDigis[j]);}
   meE4=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDp2");
   if(meE4){ for(int j=120; j!=192; j++) if((j<144||j>167)&&numberOfDigis[j]>0) meE4->Fill((float)numberOfDigis[j]);}
+  } else if (isUpgrade) {
+    meE=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_Endcap");
+    if(meE){ for(int j=0; j!=336; j++) if(numberOfDigis[j]>0) meE->Fill((float)numberOfDigis[j]);}
+    meE1=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDm1");
+    if(meE1){ for(int j=0; j!=100; j++) if((j<22||j>65)&&numberOfDigis[j]>0) meE1->Fill((float)numberOfDigis[j]);}
+    meE2=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDm2");
+    if(meE2){ for(int j=22; j!=134; j++) if((j<44||j>99)&&numberOfDigis[j]>0) meE2->Fill((float)numberOfDigis[j]);}
+    meE3=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDm3");
+    if(meE3){ for(int j=44; j!=168; j++) if((j<66||j>133)&&numberOfDigis[j]>0) meE3->Fill((float)numberOfDigis[j]);}
+    meE4=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDp1");
+    if(meE4){ for(int j=168; j!=268; j++) if((j<190||j>233)&&numberOfDigis[j]>0) meE4->Fill((float)numberOfDigis[j]);}
+    meE5=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDp2");
+    if(meE5){ for(int j=190; j!=302; j++) if((j<212||j>267)&&numberOfDigis[j]>0) meE5->Fill((float)numberOfDigis[j]);}
+    meE6=theDMBE->get("Pixel/Endcap/ALLMODS_ndigisCHAN_EndcapDp3");
+    if(meE6){ for(int j=212; j!=336; j++) if((j<234||j>301)&&numberOfDigis[j]>0) meE6->Fill((float)numberOfDigis[j]);}
+  }
   
   MonitorElement* me1; MonitorElement* me2; MonitorElement* me3; MonitorElement* me4; MonitorElement* me5;
   MonitorElement* me6; MonitorElement* me7; MonitorElement* me8; MonitorElement* me9; MonitorElement* me10; MonitorElement* me11;
@@ -700,7 +993,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
 
-      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+      }	else if((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
 	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
@@ -727,7 +1020,34 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 	if(isPIB && mask) continue;
 	
 	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
-      }
+      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
+	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
+	uint32_t id = detId();
+	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
+        
+        PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(id)).halfCylinder();
+        int disk   = PixelEndcapNameUpgrade(DetId(id)).diskName();
+        int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
+        int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
+        int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
+
+        char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
+        char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
+        char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+        char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+        char smodule[80];sprintf(smodule,"Module_%i",module);
+        std::string side_str = sside;
+	std::string disk_str = sdisk;
+	bool mask = side_str.find("HalfCylinder_1")!=string::npos||
+	            side_str.find("HalfCylinder_2")!=string::npos||
+		    side_str.find("HalfCylinder_4")!=string::npos||
+		    disk_str.find("Disk_2")!=string::npos;
+	// clutch to take all of FPIX, but no BPIX:
+	mask = false;
+	if(isPIB && mask) continue;
+	
+	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
+      }//end_elseif(isUpgrade)
 
     }
   }
@@ -769,8 +1089,8 @@ void SiPixelDigiSource::bookMEs(){
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
     /// Create folder tree and book histograms 
     if(modOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-	(*struct_iter).second->book( conf_,0,twoDimOn,hiRes, reducedSet, twoDimModOn);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,0,isUpgrade)){
+	(*struct_iter).second->book( conf_,0,twoDimOn,hiRes, reducedSet, twoDimModOn, isUpgrade);
       } else {
 
 	if(!isPIB) throw cms::Exception("LogicError")
@@ -778,45 +1098,45 @@ void SiPixelDigiSource::bookMEs(){
       }
     }
     if(ladOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)){
-	(*struct_iter).second->book( conf_,1,twoDimOn,hiRes, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)){
+	(*struct_iter).second->book( conf_,1,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
    
     }
     if(layOn || twoDimOnlyLayDisk){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)){
-	(*struct_iter).second->book( conf_,2,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2,isUpgrade)){
+	(*struct_iter).second->book( conf_,2,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
 
     if(phiOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)){
-	(*struct_iter).second->book( conf_,3,twoDimOn,hiRes, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3,isUpgrade)){
+	(*struct_iter).second->book( conf_,3,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
         LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)){
-	(*struct_iter).second->book( conf_,4,twoDimOn,hiRes, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)){
+	(*struct_iter).second->book( conf_,4,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn || twoDimOnlyLayDisk){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)){
-	(*struct_iter).second->book( conf_,5,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5,isUpgrade)){
+	(*struct_iter).second->book( conf_,5,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
       } else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)){
-	(*struct_iter).second->book( conf_,6,twoDimOn,hiRes, reducedSet);
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6,isUpgrade)){
+	(*struct_iter).second->book( conf_,6,twoDimOn,hiRes, reducedSet, isUpgrade);
       } else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
@@ -834,6 +1154,10 @@ void SiPixelDigiSource::bookMEs(){
   meNDigisCHANBarrelL2_->setAxisTitle("Number of digis per FED channel per event",1);
   meNDigisCHANBarrelL3_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelL3","Number of Digis L3",100,0.,1000.);
   meNDigisCHANBarrelL3_->setAxisTitle("Number of digis per FED channel per event",1);
+  if (isUpgrade) {
+    meNDigisCHANBarrelL4_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelL4","Number of Digis L4",100,0.,1000.);
+    meNDigisCHANBarrelL4_->setAxisTitle("Number of digis per FED channel per event",1);
+  }
   meNDigisCHANBarrelCh1_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh1","Number of Digis Ch1",100,0.,1000.);
   meNDigisCHANBarrelCh1_->setAxisTitle("Number of digis per FED channel per event",1);
   meNDigisCHANBarrelCh2_ = theDMBE->book1D("ALLMODS_ndigisCHAN_BarrelCh2","Number of Digis Ch2",100,0.,1000.);
@@ -915,10 +1239,18 @@ void SiPixelDigiSource::bookMEs(){
   meNDigisCHANEndcapDp1_->setAxisTitle("Number of digis per FED channel per event",1);
   meNDigisCHANEndcapDp2_ = theDMBE->book1D("ALLMODS_ndigisCHAN_EndcapDp2","Number of Digis Disk p2",100,0.,1000.);
   meNDigisCHANEndcapDp2_->setAxisTitle("Number of digis per FED channel per event",1);
+  if (isUpgrade) {
+    meNDigisCHANEndcapDp3_ = theDMBE->book1D("ALLMODS_ndigisCHAN_EndcapDp3","Number of Digis Disk p3",100,0.,1000.);
+    meNDigisCHANEndcapDp3_->setAxisTitle("Number of digis per FED channel per event",1);
+  }
   meNDigisCHANEndcapDm1_ = theDMBE->book1D("ALLMODS_ndigisCHAN_EndcapDm1","Number of Digis Disk m1",100,0.,1000.);
   meNDigisCHANEndcapDm1_->setAxisTitle("Number of digis per FED channel per event",1);
   meNDigisCHANEndcapDm2_ = theDMBE->book1D("ALLMODS_ndigisCHAN_EndcapDm2","Number of Digis Disk m2",100,0.,1000.);
   meNDigisCHANEndcapDm2_->setAxisTitle("Number of digis per FED channel per event",1);
+  if (isUpgrade) {
+    meNDigisCHANEndcapDm3_ = theDMBE->book1D("ALLMODS_ndigisCHAN_EndcapDm3","Number of Digis Disk m3",100,0.,1000.);
+    meNDigisCHANEndcapDm3_->setAxisTitle("Number of digis per FED channel per event",1);
+  }
   theDMBE->cd(currDir);
 }
 

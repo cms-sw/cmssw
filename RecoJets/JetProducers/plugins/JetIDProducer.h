@@ -49,14 +49,15 @@ class JetIDProducer : public edm::EDProducer {
       ~JetIDProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
-  edm::InputTag                 src_;         // input jet source
-  reco::helper::JetIDHelper     helper_;      // jet id helper algorithm
-  reco::helper::JetMuonHitsIDHelper muHelper_;    // jet id from muon rechits helper algorithm
+      edm::InputTag                 src_;         // input jet source
+      reco::helper::JetIDHelper     helper_;      // jet id helper algorithm
+      reco::helper::JetMuonHitsIDHelper muHelper_;    // jet id from muon rechits helper algorithm
+      
+      edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jet_token_;
+
 };
 
 

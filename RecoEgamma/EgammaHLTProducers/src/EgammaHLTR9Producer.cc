@@ -18,10 +18,8 @@ EgammaHLTR9Producer::EgammaHLTR9Producer(const edm::ParameterSet& config) : conf
 {
  // use configuration file to setup input/output collection names
   recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
-  ecalRechitEBTag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEB");
-  ecalRechitEETag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEE");
-  ecalRechitEBToken_ = consumes<EcalRecHitCollection>(ecalRechitEBTag_);
-  ecalRechitEEToken_ = consumes<EcalRecHitCollection>(ecalRechitEETag_);
+  ecalRechitEBToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEB"));
+  ecalRechitEEToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEE"));
 
   useSwissCross_   = conf_.getParameter< bool > ("useSwissCross");
 
@@ -51,7 +49,7 @@ void EgammaHLTR9Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
   iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
 
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, ecalRechitEBTag_, ecalRechitEETag_);
+  EcalClusterLazyTools lazyTools(iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_);
   
   reco::RecoEcalCandidateIsolationMap r9Map;
    

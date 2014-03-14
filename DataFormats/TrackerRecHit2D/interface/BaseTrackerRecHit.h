@@ -2,8 +2,14 @@
 #define BaseTrackerRecHit_H
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitGlobalState.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
+
+
+
+// #define VI_DEBUG
 
 class OmniClusterRef;
 
@@ -26,9 +32,18 @@ public:
 
   // no position (as in persistent)
   BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)) {}
+  BaseTrackerRecHit(DetId id, GeomDet const * idet, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id, idet, (unsigned int)(rt)) {}
 
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
-		     DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)), pos_(p), err_(e){}
+		     DetId id, GeomDet const * idet, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,idet, (unsigned int)(rt)), pos_(p), err_(e){
+    if unlikely(!hasPositionAndError()) return;
+    LocalError lape = det()->localAlignmentError();
+    if (lape.valid())
+      err_ = LocalError(err_.xx()+lape.xx(),
+			err_.xy()+lape.xy(),
+			err_.yy()+lape.yy()
+			);
+  }
 
   trackerHitRTTI::RTTI rtti() const { return trackerHitRTTI::rtti(*this);}
   bool isSingle() const { return trackerHitRTTI::isSingle(*this);}
@@ -43,14 +58,17 @@ public:
   // verify that hits can share clusters...
   inline bool sameDetModule(TrackingRecHit const & hit) const;
 
-  virtual LocalPoint localPosition() const  GCC11_FINAL;
-
-  virtual LocalError localPositionError() const  GCC11_FINAL;
-
   bool hasPositionAndError() const  GCC11_FINAL; 
+
+  virtual LocalPoint localPosition() const  GCC11_FINAL { check(); return pos_;}
+
+  virtual LocalError localPositionError() const  GCC11_FINAL { check(); return err_;}
+
  
-  const LocalPoint & localPositionFast()      const { return pos_; }
-  const LocalError & localPositionErrorFast() const { return err_; }
+  const LocalPoint & localPositionFast()      const { check(); return pos_; }
+  const LocalError & localPositionErrorFast() const { check(); return err_; }
+
+
 
   // to be specialized for 1D and 2D
   virtual void getKfComponents( KfComponentsHolder & holder ) const=0;
@@ -60,6 +78,36 @@ public:
   void getKfComponents2D( KfComponentsHolder & holder ) const;
 
 
+  // global coordinates
+  // Extension of the TrackingRecHit interface
+  virtual const Surface * surface() const GCC11_FINAL {return &(det()->surface());}
+
+
+  virtual GlobalPoint globalPosition() const GCC11_FINAL {
+      return surface()->toGlobal(localPosition());
+  }
+  
+  GlobalError globalPositionError() const GCC11_FINAL { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
+  float errorGlobalR() const GCC11_FINAL { return std::sqrt(globalPositionError().rerr(globalPosition()));}
+  float errorGlobalZ() const GCC11_FINAL { return std::sqrt(globalPositionError().czz()); }
+  float errorGlobalRPhi() const GCC11_FINAL { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+
+  // once cache removed will obsolete the above
+  TrackingRecHitGlobalState globalState() const {
+    GlobalError  
+      globalError = ErrorFrameTransformer::transform( localPositionError(), *surface() );
+    GlobalPoint gp = globalPosition();
+    float r = gp.perp();
+    float errorRPhi = r*std::sqrt(float(globalError.phierr(gp))); 
+    float errorR = std::sqrt(float(globalError.rerr(gp)));
+    float errorZ = std::sqrt(float(globalError.czz()));
+    return (TrackingRecHitGlobalState){
+      gp.basicVector(), r, gp.barePhi(),
+	errorR,errorZ,errorRPhi
+	};
+  }
+
+
 public:
 
   // obsolete (for what tracker is concerned...) interface
@@ -67,8 +115,18 @@ public:
   virtual AlgebraicSymMatrix parametersError() const;
   virtual AlgebraicMatrix projectionMatrix() const;
 
- private:
-  
+private:
+
+#ifdef VI_DEBUG
+  void check() const { assert(det());}
+#elif EDM_LM_DEBUG
+  void check() const;
+#else 
+  static void check(){}
+#endif
+
+private:
+
   LocalPoint pos_;
   LocalError err_;
 };

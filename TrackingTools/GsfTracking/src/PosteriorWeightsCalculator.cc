@@ -6,7 +6,7 @@
 
 #include <cfloat>
 
-std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingRecHit& recHit) const {
+std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& recHit) const {
         switch (recHit.dimension()) {
                 case 1: return weights<1>(recHit);
                 case 2: return weights<2>(recHit);
@@ -18,7 +18,7 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingR
 }
 
 template<unsigned int D>
-std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingRecHit& recHit) const {
+std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& recHit) const {
   typedef typename AlgebraicROOTObject<D,5>::Matrix MatD5;
   typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;
   typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;

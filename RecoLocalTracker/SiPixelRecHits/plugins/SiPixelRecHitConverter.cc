@@ -55,14 +55,6 @@ namespace cms
   }  
   
   //---------------------------------------------------------------------------
-  // Begin job: get magnetic field
-  //---------------------------------------------------------------------------
-  //void SiPixelRecHitConverter::beginJob() 
-  void SiPixelRecHitConverter::beginJob() 
-  {
-  }
-  
-  //---------------------------------------------------------------------------
   //! The "Event" entrypoint: gets called by framework for every event
   //---------------------------------------------------------------------------
   void SiPixelRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es)
@@ -138,7 +130,7 @@ namespace cms
 	edm::Ref< edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster = edmNew::makeRefTo( inputhandle, clustIt);
 	// Make a RecHit and add it to the DetSet
 	// old : recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
-	SiPixelRecHit hit( lp, le, detIdObject, cluster);
+	SiPixelRecHit hit( lp, le, detIdObject, genericDet, cluster);
 	// Copy the extra stuff;
 	hit.setRawQualityWord( cpe_->rawQualityWord() );
 	// 

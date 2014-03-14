@@ -5,5 +5,5 @@ rpcEfficiencyShiftHisto = cms.EDAnalyzer("RPCEfficiencyShiftHisto",
    GlobalFolder = cms.untracked.string('RPC/RPCEfficiency/'),
    SaveFile = cms.untracked.bool(False),
    NameFile = cms.untracked.string('/afs/cern.ch/user/c/calabria/scratch0/RPCEfficiency.root'),
-   NumberOfEndcapDisks = cms.untracked.int32(3)
+   NumberOfEndcapDisks = cms.untracked.int32(4)
 )

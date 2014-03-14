@@ -24,15 +24,14 @@ hiRegitMuTobTecStepClusters = RecoTracker.IterativeTracking.TobTecStep_cff.tobTe
 )
 
 # SEEDING LAYERS
-hiRegitMuTobTecStepSeedLayers =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayers.clone(
-    ComponentName    = cms.string('hiRegitMuTobTecStepSeedLayers'),
-     )
+hiRegitMuTobTecStepSeedLayers =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersPair.clone()
+hiRegitMuTobTecStepSeedLayers.layerList.append('TOB1+TOB2')
 hiRegitMuTobTecStepSeedLayers.TOB.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
 hiRegitMuTobTecStepSeedLayers.TEC.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
 
 
 # seeding
-hiRegitMuTobTecStepSeeds     = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeeds.clone()
+hiRegitMuTobTecStepSeeds     = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.clone()
 hiRegitMuTobTecStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
 hiRegitMuTobTecStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 2.0
@@ -97,6 +96,7 @@ hiRegitMuTobTecStepSelector               = RecoTracker.IterativeTracking.TobTec
 )
 
 hiRegitMuonTobTecStep = cms.Sequence(hiRegitMuTobTecStepClusters*
+                                     hiRegitMuTobTecStepSeedLayers*
                                      hiRegitMuTobTecStepSeeds*
                                      hiRegitMuTobTecStepTrackCandidates*
                                      hiRegitMuTobTecStepTracks*

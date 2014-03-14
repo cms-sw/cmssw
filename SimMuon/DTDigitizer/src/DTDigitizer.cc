@@ -11,6 +11,7 @@
 
 //Random generator
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Random/RandFlat.h>
 
@@ -110,8 +111,6 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
     throw cms::Exception("Configuration")
       << "RandomNumberGeneratorService for DTDigitizer missing in cfg file";
   }
-  theGaussianDistribution = new CLHEP::RandGaussQ(rng->getEngine()); 
-  theFlatDistribution = new CLHEP::RandFlat(rng->getEngine(), 0, 1); 
 
   // MultipleLinks=false ==> one-to-one correspondence between digis and SimHits 
   MultipleLinks = conf_.getParameter<bool>("MultipleLinks");
@@ -129,12 +128,14 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
 
 // Destructor
 DTDigitizer::~DTDigitizer(){
-  delete theGaussianDistribution;
-  delete theFlatDistribution;
 }
 
 // method called to produce the data
 void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
+
   if(debug)
     cout << "--- Run: " << iEvent.id().run()
 	 << " Event: " << iEvent.id().event() << endl;
@@ -204,7 +205,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 
 	const LocalVector BLoc=layer->surface().toLocal(magnField->inTesla(layer->surface().toGlobal(locPos)));
 
-	time = computeTime(layer, wireId, *hit, BLoc); 
+	time = computeTime(layer, wireId, *hit, BLoc, engine);
 
 	//************ 6 ***************
 	if (time.second) {
@@ -233,8 +234,9 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
 }
 
 pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &wireId, 
-					  const PSimHit *hit, const LocalVector &BLoc){ 
- 
+                                          const PSimHit *hit, const LocalVector &BLoc,
+                                          CLHEP::HepRandomEngine* engine){
+
   LocalPoint entryP = hit->entryPoint();
   LocalPoint exitP = hit->exitPoint();
   int partType = hit->particleType();
@@ -351,7 +353,7 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
     }
 
     if(IdealModel) return make_pair(fabs(x)/theConstVDrift,true);
-    else driftTime = driftTimeFromParametrization(x, theta, By, Bz);
+    else driftTime = driftTimeFromParametrization(x, theta, By, Bz, engine);
 
   }
 
@@ -372,7 +374,8 @@ pair<float,bool> DTDigitizer::computeTime(const DTLayer* layer, const DTWireId &
 
 //************ 5A ***************
 
-pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta, float By, float Bz) const {
+pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta, float By, float Bz,
+                                                           CLHEP::HepRandomEngine* engine) const {
 
   // Convert from CMSSW frame/units r.f. to parametrization ones.
   x *= 10.;  //cm -> mm 
@@ -427,7 +430,7 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   }
 
   // Double half-gaussian smearing
-  float time = asymGausSmear(DT.t_drift, DT.t_width_m, DT.t_width_p);
+  float time = asymGausSmear(DT.t_drift, DT.t_width_m, DT.t_width_p, engine);
 
   // Do not allow the smearing to lead to negative values
   time = max(time,0.f);
@@ -435,7 +438,7 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   // Apply a Gaussian smearing to account for electronic effects (cf. 2004 TB analysis)
   // The width of the Gaussian can be configured with the "Smearing" parameter
 
-  double u = theGaussianDistribution->fire(0.,smearing);
+  double u = CLHEP::RandGaussQ::shoot(engine, 0., smearing);
   time += u;
 
   if (debug) cout << "  drift time = " << time << endl;
@@ -443,16 +446,17 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   return pair<float,bool>(time,true); 
 }
 
-float DTDigitizer::asymGausSmear(double mean, double sigmaLeft, double sigmaRight) const {
+float DTDigitizer::asymGausSmear(double mean, double sigmaLeft, double sigmaRight,
+                                 CLHEP::HepRandomEngine* engine) const {
 
   double f = sigmaLeft/(sigmaLeft+sigmaRight);
   double t;
 
-  if (theFlatDistribution->fire() <= f) {
-    t = theGaussianDistribution->fire(mean,sigmaLeft);
+  if (CLHEP::RandFlat::shoot(engine) <= f) {
+    t = CLHEP::RandGaussQ::shoot(engine, mean, sigmaLeft);
     t = mean - fabs(t - mean);
   } else {
-    t = theGaussianDistribution->fire(mean,sigmaRight);
+    t = CLHEP::RandGaussQ::shoot(engine, mean, sigmaRight);
     t = mean + fabs(t - mean);
   }
   return static_cast<float>(t);

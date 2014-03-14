@@ -23,7 +23,7 @@
 //using namespace egHLT;
 
 TopElectronHLTOfflineSource::TopElectronHLTOfflineSource(const edm::ParameterSet& conf) :
-  beamSpot_(conf.getParameter<edm::InputTag>("beamSpot")) {
+  beamSpot_(consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"))) {
 
 	dbe_ = edm::Service<DQMStore>().operator->();
 	
@@ -44,10 +44,10 @@ TopElectronHLTOfflineSource::TopElectronHLTOfflineSource(const edm::ParameterSet
 	superTriggerNames_ = conf.getParameter<std::vector<std::string> >("superTriggerNames");
 	electronTriggerNames_ = conf.getParameter<std::vector<std::string> >("electronTriggerNames");
 	
-	triggerResultsLabel_ = conf.getParameter<edm::InputTag>("triggerResultsLabel");
-	triggerSummaryLabel_ = conf.getParameter<edm::InputTag>("triggerSummaryLabel");
-	electronLabel_ = conf.getParameter<edm::InputTag>("electronCollection");
-	primaryVertexLabel_ = conf.getParameter<edm::InputTag>("primaryVertexCollection");
+	triggerResultsLabel_ = consumes<edm::TriggerResults>(conf.getParameter<edm::InputTag>("triggerResultsLabel"));
+	triggerSummaryLabel_ = consumes<trigger::TriggerEvent>(conf.getParameter<edm::InputTag>("triggerSummaryLabel"));
+	electronLabel_ = consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollection"));
+	primaryVertexLabel_ = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("primaryVertexCollection"));
 	triggerJetFilterLabel_	= conf.getParameter<edm::InputTag>("triggerJetFilterLabel");
 	triggerElectronFilterLabel_ = conf.getParameter<edm::InputTag>("triggerElectronFilterLabel");
 
@@ -80,6 +80,8 @@ void TopElectronHLTOfflineSource::beginJob()
 			
 		}
 	}
+  for (size_t i = 0; i < electronIdNames_.size(); i++)
+    eleIdTokenCollection_.push_back(consumes<edm::ValueMap<float> >((edm::InputTag)electronIdNames_[i])); 
 	//std::cout <<"done"<<std::endl;
 }
 void TopElectronHLTOfflineSource::setupHistos(std::vector<EleMEs> topEleHists)
@@ -105,7 +107,7 @@ void TopElectronHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::E
         if(!dbe_) return;
 	// ---- Get Trigger Decisions for all triggers under investigation ----
 	edm::Handle<edm::TriggerResults> hltResults;
-	if(!iEvent.getByLabel(triggerResultsLabel_, hltResults) || !hltResults.product()) return; //bail if we didnt get trigger results
+	if(!iEvent.getByToken(triggerResultsLabel_, hltResults) || !hltResults.product()) return; //bail if we didnt get trigger results
       
 
 	
@@ -141,13 +143,13 @@ void TopElectronHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::E
 	}
 	
 	// get reconstructed electron collection
-	if(!iEvent.getByLabel(electronLabel_, eleHandle_) || !eleHandle_.product()) return;
+	if(!iEvent.getByToken(electronLabel_, eleHandle_) || !eleHandle_.product()) return;
 	
 	// Get Trigger Event, providing the information about trigger objects	
-	if(!iEvent.getByLabel(triggerSummaryLabel_, triggerEvent_) || !triggerEvent_.product()) return; 
+	if(!iEvent.getByToken(triggerSummaryLabel_, triggerEvent_) || !triggerEvent_.product()) return; 
 	
 	edm::Handle<reco::VertexCollection> vertexHandle;
-        if(!iEvent.getByLabel(primaryVertexLabel_, vertexHandle) || !vertexHandle.product()) return;
+        if(!iEvent.getByToken(primaryVertexLabel_, vertexHandle) || !vertexHandle.product()) return;
 
         reco::Vertex::Point vertexPoint(0., 0., 0.);
         if (vertexHandle.product()->size() != 0)
@@ -158,7 +160,7 @@ void TopElectronHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::E
 	else
 	{
 		edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-		if(!iEvent.getByLabel(beamSpot_, recoBeamSpotHandle) ||  !recoBeamSpotHandle.product()) return;
+		if(!iEvent.getByToken(beamSpot_, recoBeamSpotHandle) ||  !recoBeamSpotHandle.product()) return;
 
 		vertexPoint = recoBeamSpotHandle->position();
 	}
@@ -303,7 +305,7 @@ void TopElectronHLTOfflineSource::fill(EleMEs& eleMEs, const edm::Event& iEvent,
 		bool eId = true;
 
 		edm::Handle<edm::ValueMap<float> > eIdMapHandle;
-		iEvent.getByLabel(eleMEs.eleIdNames()[j], eIdMapHandle);
+    iEvent.getByToken(eleIdTokenCollection_[j], eIdMapHandle);
 		const edm::ValueMap<float>& eIdMap = *eIdMapHandle;
 		eId = eIdMap[edm::Ref<reco::GsfElectronCollection>(eleHandle_, eleIndex)];
 		

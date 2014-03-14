@@ -31,7 +31,6 @@ public:
   
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
-  void endJob() override;
 
 private:  
   // member data
@@ -97,10 +96,6 @@ void MuonFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   
   iEvent.put(goodMuons);
   
-}
-
-void MuonFromPVSelector::endJob()
-{
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

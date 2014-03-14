@@ -13,6 +13,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -58,11 +59,6 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps)
         "in the configuration file or remove the modules that require it.";
   }
 
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-
-  theDigitizer.setRandomEngine(engine);
-  theStripConditions->setRandomEngine(engine);
-
   std::string mix_ = ps.getParameter<std::string>("mixLabel");
   std::string collection_ = ps.getParameter<std::string>("InputCollection");
   cf_token = consumes<CrossingFrame<PSimHit> >( edm::InputTag(mix_, collection_) );
@@ -76,6 +72,9 @@ CSCDigiProducer::~CSCDigiProducer()
 
 
 void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
   e.getByToken(cf_token, cf);
@@ -117,7 +116,7 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
     // run the digitizer
     theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis,
-                          *pWireDigiSimLinks, *pStripDigiSimLinks);
+                          *pWireDigiSimLinks, *pStripDigiSimLinks, engine);
   }
 
 

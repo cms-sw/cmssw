@@ -19,6 +19,10 @@
 
 namespace cond {
 
+  // to be removed after the transition to new DB
+  typedef enum { UNKNOWN_DB=0, COND_DB, ORA_DB } BackendType;
+  static constexpr BackendType DEFAULT_DB = ORA_DB;
+
   typedef enum { 
     SYNCHRONIZATION_UNKNOWN = -1,
     OFFLINE=0, 

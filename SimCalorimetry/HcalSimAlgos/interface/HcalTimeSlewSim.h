@@ -10,23 +10,22 @@
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "CLHEP/Random/RandGaussQ.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class HcalTimeSlewSim
 {
 public:
   HcalTimeSlewSim(const CaloVSimParameterMap * parameterMap);
 
-  void delay(CaloSamples & samples) const;
-
-  void setRandomEngine(CLHEP::HepRandomEngine & engine);
+  void delay(CaloSamples & samples, CLHEP::HepRandomEngine*) const;
 
 private:
   double charge(const CaloSamples & samples) const;
 
   const CaloVSimParameterMap * theParameterMap;
-  CLHEP::RandGaussQ* theRandGaussQ;
 };
 
 #endif
-

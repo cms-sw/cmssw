@@ -596,13 +596,6 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 
  if(rechitOK_)
  {
- //---- get Castor tower collection
- /* 
- edm::ESHandle<reco::CastorTowerCollection> castorTowers; //fix this
- iEvent.getByLabel(inputLabelCastorTowers_,castorTowers); //fix this
-
- TowerJetMon_->processEventTowers(*castorTowers);
- */
  if (showTiming_){
       cpu_timer.stop();
       if (TowerJetMon_!=NULL) std::cout <<"TIMER:: TOWER JET MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;

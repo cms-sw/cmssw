@@ -95,7 +95,7 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c) {
   if (processDcsScalers) {
     edm::Handle<DcsStatusCollection> dcsStatus;
 #ifdef DQMLOCAL
-    if (e.getByLabel("scalersRawToDigi", dcsStatus)) {
+    if (e.getByToken(dcstoken, dcsStatus)) {
 #endif
 #ifdef DQMGLOBAL
     if (e.getByToken(dcstoken, dcsStatus) ) {

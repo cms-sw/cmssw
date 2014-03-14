@@ -60,10 +60,10 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 			it != _recLabels.end(); ++it)
 	{
 		const std::string objStr = EVTColContainer::getTypeString(it->first);
-		_genCut[it->first] = pset.getParameter<std::string>( std::string(objStr+"_genCut").c_str() );
-		_recCut[it->first] = pset.getParameter<std::string>( std::string(objStr+"_recCut").c_str() );
-		_cutMinPt[it->first] = pset.getParameter<double>( std::string(objStr+"_cutMinPt").c_str() );
-		_cutMaxEta[it->first] = pset.getParameter<double>( std::string(objStr+"_cutMaxEta").c_str() );
+		_genCut[it->first] = pset.getParameter<std::string>( objStr+"_genCut" );
+		_recCut[it->first] = pset.getParameter<std::string>( objStr+"_recCut" );
+		_cutMinPt[it->first] = pset.getParameter<double>( objStr+"_cutMinPt" );
+		_cutMaxEta[it->first] = pset.getParameter<double>( objStr+"_cutMaxEta" );
 	}
 
 	//--- Updating parameters if has to be modified for this particular specific analysis
@@ -72,33 +72,21 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 	{
 
 		const std::string objStr = EVTColContainer::getTypeString(it->first);
-		try
+		if(anpset.existsAs<std::string>( objStr+"_genCut", false)) 
 		{
-			_genCut[it->first] = anpset.getUntrackedParameter<std::string>( std::string(objStr+"_genCut").c_str() ); 
+			_genCut[it->first] = anpset.getUntrackedParameter<std::string>( objStr+"_genCut" ); 
 		}
-		catch(edm::Exception)
+		if(anpset.existsAs<std::string>( objStr+"_recCut", false))
 		{
+			_recCut[it->first] = anpset.getUntrackedParameter<std::string>( objStr+"_recCut" );
 		}
-		try
+		if(anpset.existsAs<double>( objStr+"_cutMinPt" , false) )
 		{
-			_recCut[it->first] = anpset.getUntrackedParameter<std::string>( std::string(objStr+"_recCut").c_str() );
+			_cutMinPt[it->first] = anpset.getUntrackedParameter<double>( objStr+"_cutMinPt" );
 		}
-		catch(edm::Exception)
+		if(anpset.existsAs<double>( objStr+"_cutMaxEta" ,false) )
 		{
-		}
-		try
-		{
-			_cutMinPt[it->first] = anpset.getUntrackedParameter<double>( std::string(objStr+"_cutMinPt").c_str() );
-		}
-		catch(edm::Exception)
-		{
-		}
-		try
-		{
-			_cutMaxEta[it->first] = anpset.getUntrackedParameter<double>( std::string(objStr+"_cutMaxEta").c_str() );
-		}
-		catch(edm::Exception)
-		{
+			_cutMaxEta[it->first] = anpset.getUntrackedParameter<double>( objStr+"_cutMaxEta" );
 		}
 	}
 	

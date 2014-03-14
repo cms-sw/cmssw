@@ -54,9 +54,7 @@ public:
 
 private:
 
-    virtual void beginJob();
-
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     /// block unpackers
 
@@ -71,9 +69,6 @@ private:
 
     /// dump FED raw data
     void dumpFedRawData(const unsigned char*, int, std::ostream&);
-
-    ///
-    virtual void endJob();
 
 private:
 

@@ -19,6 +19,10 @@
 
 #include "GeneratorInterface/ThePEGInterface/interface/ThePEGInterface.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class ThePEGHadronizer : public ThePEGInterface, public gen::BaseHadronizer {
     public:
 	ThePEGHadronizer(const edm::ParameterSet &params);
@@ -41,6 +45,9 @@ class ThePEGHadronizer : public ThePEGInterface, public gen::BaseHadronizer {
 	const char *classname() const { return "ThePEGHadronizer"; }
 
     private:
+
+        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { setPEGRandomEngine(v); }
+
 	unsigned int			eventsToPrint;
 
 	ThePEG::EventPtr		thepegEvent;

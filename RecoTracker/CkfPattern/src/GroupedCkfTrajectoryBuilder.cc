@@ -68,6 +68,7 @@ namespace {
     StatCount() { zero();}
     ~StatCount() { print();}
   };
+  StatCount statCount;
 
 #else
   struct StatCount {
@@ -76,9 +77,9 @@ namespace {
     void rebuilt(long long) {}
     void invalid() {}
   };
+  [[cms::thread_safe]] StatCount statCount;
 #endif
 
-  StatCount statCount;
 
 }
 

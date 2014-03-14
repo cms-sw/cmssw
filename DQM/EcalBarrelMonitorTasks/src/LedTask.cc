@@ -1,183 +1,243 @@
 #include "../interface/LedTask.h"
 
-#include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEEBGeom.h"
-#include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEEEGeom.h"
+#include "DQM/EcalCommon/interface/MESetMulti.h"
 
-#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace ecaldqm {
 
-  LedTask::LedTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "LedTask"),
-    ledWavelengths_(),
-    MGPAGainsPN_(),
-    pnAmp_()
+  LedTask::LedTask() :
+    DQWorkerTask(),
+    wlToME_(),
+    pnAmp_(),
+    emptyLS_(0),
+    emptyLSLimit_(0)
   {
-    using namespace std;
-
-    collectionMask_ = 
-      (0x1 << kEcalRawData) |
-      (0x1 << kEEDigi) |
-      (0x1 << kPnDiodeDigi) |
-      (0x1 << kEBUncalibRecHit) |
-      (0x1 << kEEUncalibRecHit);
-
-    edm::ParameterSet const& commonParams(_params.getUntrackedParameterSet("Common"));
-    MGPAGainsPN_ = commonParams.getUntrackedParameter<std::vector<int> >("MGPAGainsPN");
-
-    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
-    ledWavelengths_ = taskParams.getUntrackedParameter<std::vector<int> >("ledWavelengths");
-
-    for(std::vector<int>::iterator wlItr(ledWavelengths_.begin()); wlItr != ledWavelengths_.end(); ++wlItr)
-      if(*wlItr != 1 && *wlItr != 2) throw cms::Exception("InvalidConfiguration") << "Led Wavelength" << std::endl;
-
-    for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr)
-      if(*gainItr != 1 && *gainItr != 16) throw cms::Exception("InvalidConfiguration") << "PN diode gain" << std::endl;	
-
-    map<string, string> replacements;
-    stringstream ss;
-
-    for(vector<int>::iterator wlItr(ledWavelengths_.begin()); wlItr != ledWavelengths_.end(); ++wlItr){
-      ss.str("");
-      ss << *wlItr;
-      replacements["wl"] = ss.str();
-
-      unsigned offset(*wlItr - 1);
-
-      MEs_[kAmplitudeSummary + offset]->name(replacements);
-      MEs_[kAmplitude + offset]->name(replacements);
-      MEs_[kOccupancy + offset]->name(replacements);
-      MEs_[kShape + offset]->name(replacements);
-      MEs_[kTiming + offset]->name(replacements);
-      MEs_[kAOverP + offset]->name(replacements);
-
-      for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
-	ss.str("");
-	ss << *gainItr;
-	replacements["pngain"] = ss.str();
-
-	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
-
-	MEs_[kPNAmplitude + offset]->name(replacements);
-      }
-    }
-  }
-
-  LedTask::~LedTask()
-  {
+    std::fill_n(enable_, nEEDCC, false);
+    std::fill_n(wavelength_, nEEDCC, 0);
+    std::fill_n(rtHalf_, nEEDCC, 0);
   }
 
   void
-  LedTask::bookMEs()
+  LedTask::setParams(edm::ParameterSet const& _params)
   {
-    for(std::vector<int>::iterator wlItr(ledWavelengths_.begin()); wlItr != ledWavelengths_.end(); ++wlItr){
-      unsigned offset(*wlItr - 1);
+    emptyLSLimit_ = _params.getUntrackedParameter<int>("emptyLSLimit");
 
-      MEs_[kAmplitudeSummary + offset]->book();
-      MEs_[kAmplitude + offset]->book();
-      MEs_[kOccupancy + offset]->book();
-      MEs_[kTiming + offset]->book();
-      MEs_[kShape + offset]->book();
-      MEs_[kAOverP + offset]->book();
+    std::vector<int> ledWavelengths(_params.getUntrackedParameter<std::vector<int> >("ledWavelengths"));
 
-      for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
-	offset = (*wlItr - 1) * nPNGain + (*gainItr == 1 ? 0 : 1);
+    MESet::PathReplacements repl;
 
-	MEs_[kPNAmplitude + offset]->book();
-      }
+    MESetMulti& amplitude(static_cast<MESetMulti&>(MEs_.at("Amplitude")));
+    unsigned nWL(ledWavelengths.size());
+    for(unsigned iWL(0); iWL != nWL; ++iWL){
+      int wl(ledWavelengths[iWL]);
+      if(wl != 1 && wl != 2) throw cms::Exception("InvalidConfiguration") << "Led Wavelength";
+      repl["wl"] = std::to_string(wl);
+      wlToME_[wl] = amplitude.getIndex(repl);
     }
-
-    MEs_[kPNOccupancy]->book();
   }
 
   void
-  LedTask::beginRun(const edm::Run &, const edm::EventSetup &_es)
+  LedTask::addDependencies(DependencySet& _dependencies)
   {
-    for(int iDCC(0); iDCC < BinService::nDCC; iDCC++){
-      enable_[iDCC] = false;
-      wavelength_[iDCC] = -1;
-    }
-    pnAmp_.clear();
-  }
-
-  void
-  LedTask::endEvent(const edm::Event &, const edm::EventSetup &)
-  {
-    for(int iDCC(0); iDCC < BinService::nDCC; iDCC++){
-      enable_[iDCC] = false;
-      wavelength_[iDCC] = -1;
-    }
-    pnAmp_.clear();
+    _dependencies.push_back(Dependency(kEEDigi, kEcalRawData));
+    _dependencies.push_back(Dependency(kPnDiodeDigi, kEEDigi, kEcalRawData));
+    _dependencies.push_back(Dependency(kEELaserLedUncalibRecHit, kPnDiodeDigi, kEEDigi, kEcalRawData));
   }
 
   bool
-  LedTask::filterRunType(const std::vector<short>& _runType)
+  LedTask::filterRunType(short const* _runType)
   {
     bool enable(false);
 
-    for(int iDCC(0); iDCC < BinService::nDCC; iDCC++){
+    for(unsigned iDCC(0); iDCC != nDCC; iDCC++){
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - nEBDCC);
       if(_runType[iDCC] == EcalDCCHeaderBlock::LED_STD ||
 	 _runType[iDCC] == EcalDCCHeaderBlock::LED_GAP){
 	enable = true;
-	enable_[iDCC] = true;
+	enable_[index] = true;
       }
+      else
+        enable_[index] = false;
     }
 
     return enable;
   }
 
   void
-  LedTask::runOnRawData(const EcalRawDataCollection &_dcchs)
+  LedTask::beginRun(edm::Run const&, edm::EventSetup const&)
   {
-    for(EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr){
-      int iDCC(dcchItr->id() - 1);
+    emptyLS_ = 0;
+  }
 
-      if(!enable_[iDCC]) continue;
+  void
+  LedTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+  {
+    if(++emptyLS_ > emptyLSLimit_) emptyLS_ = -1;
+  }
 
-      wavelength_[iDCC] = dcchItr->getEventSettings().wavelength + 1;
+  void
+  LedTask::beginEvent(edm::Event const&, edm::EventSetup const&)
+  {
+    pnAmp_.clear();
+  }
 
-      if(std::find(ledWavelengths_.begin(), ledWavelengths_.end(), wavelength_[iDCC]) == ledWavelengths_.end()) enable_[iDCC] = false;
+  void
+  LedTask::runOnRawData(EcalRawDataCollection const& _rawData)
+  {
+    for(EcalRawDataCollection::const_iterator rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr){
+      unsigned iDCC(rItr->id() - 1);
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - nEBDCC);
+
+      if(!enable_[index]){
+        wavelength_[index] = -1;
+        rtHalf_[index] = -1;
+        continue;
+      }
+      if(rItr->getEventSettings().wavelength == 0)
+        wavelength_[index] = 1;
+      else if(rItr->getEventSettings().wavelength == 2)
+        wavelength_[index] = 2;
+      else
+        wavelength_[index] = -1;
+
+      if(wlToME_.find(wavelength_[index]) == wlToME_.end())
+        enable_[index] = false;
+
+      rtHalf_[index] = rItr->getRtHalf();
     }
   }
 
   void
-  LedTask::runOnDigis(const EcalDigiCollection &_digis)
+  LedTask::runOnDigis(EEDigiCollection const& _digis)
   {
-    for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
+    MESet& meOccupancy(MEs_.at("Occupancy"));
+    MESet& meShape(MEs_.at("Shape"));
+    MESet& meSignalRate(MEs_.at("SignalRate"));
+
+    int nReadouts[nEEDCC];
+    int maxpos[nEEDCC][10];
+    for(unsigned index(0); index < nEEDCC; ++index){
+      nReadouts[index] = 0;
+      for(int i(0); i < 10; i++) maxpos[index][i] = 0;
+    }
+
+    for(EEDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       const DetId& id(digiItr->id());
 
-      int iDCC(dccId(id) - 1);
+      unsigned iDCC(dccId(id) - 1);
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - nEBDCC);
 
-      if(!enable_[iDCC]) continue;
+      if(!enable_[index]) continue;
+      if(rtHalf(id) != rtHalf_[index]) continue;
 
-      unsigned offset(-1);
-      switch(wavelength_[iDCC]){
-      case 1: offset = 0; break;
-      case 3: offset = 1; break;
-      default: continue;
+      meOccupancy.fill(id);
+
+      ++nReadouts[index];
+
+      EcalDataFrame dataFrame(*digiItr);
+
+      int iMax(-1);
+      int max(0);
+      int min(4096);
+      for (int i(0); i < 10; i++) {
+        int adc(dataFrame.sample(i).adc());
+        if(adc > max){
+          max = adc;
+          iMax = i;
+        }
+        if(adc < min) min = adc;
+      }
+      if(iMax >= 0 && max - min > 3) // normal RMS of pedestal is ~2.5
+        maxpos[index][iMax] += 1;
+    }
+
+    // signal existence check
+    bool enable(false);
+    bool ledOnExpected(emptyLS_ >= 0);
+
+    unsigned iME(-1);
+
+    for(int index(0); index < nEEDCC; ++index){
+      if(nReadouts[index] == 0){
+        enable_[index] = false;
+        continue;
       }
 
-      MEs_[kOccupancy + offset]->fill(id);
+      int threshold(nReadouts[index] / 3);
+      if(ledOnExpected) enable_[index] = false;
+
+      for(int i(0); i < 10; i++){
+        if(maxpos[index][i] > threshold){
+          enable = true;
+          enable_[index] = true;
+          break;
+        }
+      }
+
+      if(iME != wlToME_[wavelength_[index]]){
+        iME = wlToME_[wavelength_[index]];
+        static_cast<MESetMulti&>(meSignalRate).use(iME);
+      }
+
+      meSignalRate.fill((index <= kEEmHigh ? index : index + nEBDCC) + 1, enable_[index] ? 1 : 0);
+    }
+
+    if(enable) emptyLS_ = 0;
+    else if(ledOnExpected) return;
+
+    iME = -1;
+
+    for(EEDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
+      const DetId& id(digiItr->id());
+
+      unsigned iDCC(dccId(id) - 1);
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - nEBDCC);
+
+      if(!enable_[index]) continue;
+      if(rtHalf(id) != rtHalf_[index]) continue;
+
+      if(iME != wlToME_[wavelength_[index]]){
+        iME = wlToME_[wavelength_[index]];
+        static_cast<MESetMulti&>(meShape).use(iME);
+      }
 
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame in the constructor
       EcalDataFrame dataFrame(*digiItr);
 
       for(int iSample(0); iSample < 10; iSample++)
-	MEs_[kShape + offset]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
+	meShape.fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
+
+      EcalPnDiodeDetId pnidA(pnForCrystal(id, 'a'));
+      EcalPnDiodeDetId pnidB(pnForCrystal(id, 'b'));
+      if(pnidA.null() || pnidB.null()) continue;
+      pnAmp_.insert(std::make_pair(pnidA.rawId(), 0.));
+      pnAmp_.insert(std::make_pair(pnidB.rawId(), 0.));
     }
   }
 
   void
-  LedTask::runOnPnDigis(const EcalPnDiodeDigiCollection &_digis)
+  LedTask::runOnPnDigis(EcalPnDiodeDigiCollection const& _digis)
   {
+    MESet& mePNAmplitude(MEs_.at("PNAmplitude"));
+
+    unsigned iME(-1);
+
     for(EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
+      if(digiItr->sample(0).gainId() != 0 && digiItr->sample(0).gainId() != 1) continue;
+
       const EcalPnDiodeDetId& id(digiItr->id());
 
-      int iDCC(dccId(id) - 1);
+      std::map<uint32_t, float>::iterator ampItr(pnAmp_.find(id.rawId()));
+      if(ampItr == pnAmp_.end()) continue;
 
-      if(!enable_[iDCC]) continue;
-
-      MEs_[kPNOccupancy]->fill(id);
+      unsigned iDCC(dccId(id) - 1);
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - nEBDCC);
 
       float pedestal(0.);
       for(int iSample(0); iSample < 4; iSample++)
@@ -186,110 +246,71 @@ namespace ecaldqm {
 
       float max(0.);
       for(int iSample(0); iSample < 50; iSample++){
-	EcalFEMSample sample(digiItr->sample(iSample));
-
 	float amp(digiItr->sample(iSample).adc() - pedestal);
-
 	if(amp > max) max = amp;
       }
 
-      int gain(digiItr->sample(0).gainId() == 0 ? 1 : 16);
-      max *= (16. / gain);
-
-      unsigned offset(-1);
-      switch(wavelength_[iDCC]){
-      case 1: offset = (gain == 1 ? 0 : 1); break;
-      case 3: offset = nPNGain + (gain == 1 ? 0 : 1); break;
-      default: continue;
+      if(iME != wlToME_[wavelength_[index]]){
+        iME = wlToME_[wavelength_[index]];
+        static_cast<MESetMulti&>(mePNAmplitude).use(iME);
       }
 
-      MEs_[kPNAmplitude + offset]->fill(id, max);
+      mePNAmplitude.fill(id, max);
 
-      if(pnAmp_.find(iDCC) == pnAmp_.end()) pnAmp_[iDCC].resize(10);
-      pnAmp_[iDCC][id.iPnId() - 1] = max;
+      ampItr->second = max;
     }
   }
 
   void
-  LedTask::runOnUncalibRecHits(const EcalUncalibratedRecHitCollection &_uhits)
+  LedTask::runOnUncalibRecHits(EcalUncalibratedRecHitCollection const& _uhits)
   {
     using namespace std;
+
+    MESet& meAmplitude(MEs_.at("Amplitude"));
+    MESet& meAmplitudeSummary(MEs_.at("AmplitudeSummary"));
+    MESet& meTiming(MEs_.at("Timing"));
+    MESet& meAOverP(MEs_.at("AOverP"));
+
+    unsigned iME(-1);
 
     for(EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr){
       EEDetId id(uhitItr->id());
 
-      int iDCC(dccId(id) - 1);
+      unsigned iDCC(dccId(id) - 1);
+      if(iDCC >= kEBmLow && iDCC <= kEBpHigh) continue;
+      unsigned index(iDCC <= kEEmHigh ? iDCC : iDCC - nEBDCC);
 
-      if(!enable_[iDCC]) continue;
+      if(!enable_[index]) continue;
+      if(rtHalf(id) != rtHalf_[index]) continue;
 
-      unsigned offset(-1);
-      switch(wavelength_[iDCC]){
-      case 1: offset = 0; break;
-      case 3: offset = 1; break;
-      default: continue;
+      if(iME != wlToME_[wavelength_[index]]){
+        iME = wlToME_[wavelength_[index]];
+        static_cast<MESetMulti&>(meAmplitude).use(iME);
+        static_cast<MESetMulti&>(meAmplitudeSummary).use(iME);
+        static_cast<MESetMulti&>(meTiming).use(iME);
+        static_cast<MESetMulti&>(meAOverP).use(iME);
       }
 
       float amp(max((double)uhitItr->amplitude(), 0.));
       float jitter(max((double)uhitItr->jitter() + 5.0, 0.));
 
-      MEs_[kAmplitudeSummary + offset]->fill(id, amp);
-      MEs_[kAmplitude + offset]->fill(id, amp);
-      MEs_[kTiming + offset]->fill(id, jitter);
-
-      if(pnAmp_.find(iDCC) == pnAmp_.end()) continue;
+      meAmplitude.fill(id, amp);
+      meAmplitudeSummary.fill(id, amp);
+      meTiming.fill(id, jitter);
 
       float aop(0.);
-      float pn0(0.), pn1(0.);
 
-      EcalScDetId scid(id.sc());
+      map<uint32_t, float>::iterator ampItrA(pnAmp_.find(pnForCrystal(id, 'a')));
+      map<uint32_t, float>::iterator ampItrB(pnAmp_.find(pnForCrystal(id, 'b')));
+      if(ampItrA == pnAmp_.end() && ampItrB == pnAmp_.end()) continue;
+      else if(ampItrB == pnAmp_.end()) aop = amp / ampItrA->second;
+      else if(ampItrA == pnAmp_.end()) aop = amp / ampItrB->second;
+      else aop = amp / (ampItrA->second + ampItrB->second) * 2.;
 
-      int dee(MEEEGeom::dee(scid.ix(), scid.iy(), scid.zside()));
-      int lmmod(MEEEGeom::lmmod(scid.ix(), scid.iy()));
-      pair<int, int> pnPair(MEEEGeom::pn(dee, lmmod));
-
-      int pnAFED(getEEPnDCC(dee, 0)), pnBFED(getEEPnDCC(dee, 1));
-
-      pn0 = pnAmp_[pnAFED][pnPair.first];
-      pn1 = pnAmp_[pnBFED][pnPair.second];
-
-      if(pn0 < 10 && pn1 > 10){
-	aop = amp / pn1;
-      }else if(pn0 > 10 && pn1 < 10){
-	aop = amp / pn0;
-      }else if(pn0 + pn1 > 1){
-	aop = amp / (0.5 * (pn0 + pn1));
-      }else{
-	aop = 1000.;
-      }
-
-      MEs_[kAOverP + offset]->fill(id, aop);
+      meAOverP.fill(id, aop);
     }
-  }
-
-  /*static*/
-  void
-  LedTask::setMEData(std::vector<MEData>& _data)
-  {
-    BinService::AxisSpecs axis;
-    axis.nbins = 10;
-    axis.low = 0.;
-    axis.high = 10.;
-
-    for(unsigned iWL(0); iWL < nWL; iWL++){
-      _data[kAmplitudeSummary + iWL] = MEData("AmplitudeSummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-      _data[kAmplitude + iWL] = MEData("Amplitude", BinService::kSM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-      _data[kOccupancy + iWL] = MEData("Occupancy", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-      _data[kShape + iWL] = MEData("Shape", BinService::kSM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, &axis);
-      _data[kTiming + iWL] = MEData("Timing", BinService::kSM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-      _data[kAOverP + iWL] = MEData("AOverP", BinService::kSM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-
-      for(unsigned iPNGain(0); iPNGain < nPNGain; iPNGain++){
-	unsigned offset(iWL * nPNGain + iPNGain);
-	_data[kPNAmplitude + offset] = MEData("PNAmplitude", BinService::kSMMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE);
-      }
-    }
-    _data[kPNOccupancy] = MEData("PNOccupancy", BinService::kEcalMEM2P, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
   }
 
   DEFINE_ECALDQM_WORKER(LedTask);
 }
+

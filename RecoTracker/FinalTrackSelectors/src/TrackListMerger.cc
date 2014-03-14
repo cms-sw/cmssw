@@ -76,6 +76,7 @@ inline volatile unsigned long long rdtsc() {
     StatCount() {}
     ~StatCount() { print();}
   };
+  StatCount statCount;
 
 #else
   struct StatCount {
@@ -90,9 +91,9 @@ inline volatile unsigned long long rdtsc() {
 
 
   };
+  [[cms::thread_safe]] StatCount statCount;
 #endif
 
-  StatCount statCount;
 
 }
 

@@ -49,9 +49,7 @@ class HcalHitSelection : public edm::EDProducer {
       ~HcalHitSelection();
 
    private:
-      virtual void beginJob() override ;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
   
   edm::InputTag hbheTag,hoTag,hfTag;
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
@@ -185,17 +183,6 @@ HcalHitSelection::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   skim(ho,ho_out,hoSeverityLevel);
   iEvent.put(ho_out,hoTag.label());
   
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HcalHitSelection::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HcalHitSelection::endJob() {
 }
 
 //define this as a plug-in

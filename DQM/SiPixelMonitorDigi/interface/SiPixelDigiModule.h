@@ -46,7 +46,7 @@ class SiPixelDigiModule {
   typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool hiRes=false, bool reducedSet=false, bool additInfo=false);
+  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool hiRes=false, bool reducedSet=false, bool additInfo=false, bool isUpgrade=false);
   /// Fill histograms
 //  int fill(const edm::DetSetVector<PixelDigi> & input, bool modon=true, 
 //						 bool ladon=false, bool layon=false, bool phion=false, 
@@ -57,7 +57,7 @@ class SiPixelDigiModule {
 						 const bool ladon, const bool layon, const bool phion, 
 						 const bool bladeon, const bool diskon, const bool ringon, 
 						 const bool twoD, const bool reducedSet, const bool twoDimModOn, const bool twoDimOnlyLayDisk,
-						 int &nDigisA, int &nDigisB);
+						 int &nDigisA, int &nDigisB, bool isUpgrade);
   
  private:
 

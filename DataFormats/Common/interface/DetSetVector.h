@@ -148,6 +148,9 @@ namespace edm {
     /// Return the number of contained DetSets
     size_type size() const;
 
+   // reserve...
+   void reserve(size_t s) { _sets.reserve(s);}
+
     // Do we need a short-hand method to return the number of T
     // instances? If so, do we optimize for size (calculate on the
     // fly) or speed (keep a current cache)?
@@ -262,7 +265,11 @@ namespace edm {
 
     // Insert the right thing, in the right place, and return a
     // reference to the newly inserted thing.
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+    return *(_sets.emplace(p.first, id));
+#else
     return *(_sets.insert(p.first, detset(id)));
+#endif
   }
 
   template <class T>
