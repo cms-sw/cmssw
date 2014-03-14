@@ -1493,7 +1493,7 @@ void MuScleFitUtils::minimizeLikelihood()
       // Maximum number of iterations
       arglis[0] = 100000;
       // tolerance 
-      arglis[1] = 0.0001;
+      arglis[1] = 0.1;
 
       // Run simplex first to get an initial estimate of the minimum
       if( startWithSimplex_ ) {
