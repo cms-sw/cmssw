@@ -26,6 +26,8 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -58,6 +60,7 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
     refitHits(cfg.getParameter<bool>("refitHits")),
     debug(cfg.getParameter<bool>("debug")),
     filterName_(cfg.getParameter<std::string>("ClusterShapeHitFilterName")),
+    builderName_(cfg.getParameter<std::string>("TTRHBuilder")),
     useSimpleMF_(false),
     mfName_("")
 {    
@@ -109,6 +112,10 @@ void MultiHitGeneratorFromChi2::initES(const edm::EventSetup& es)
   es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
   filter = filterHandle_.product();
 
+  edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
+  es.get<TransientRecHitRecord>().get(builderName_, builderH);
+  builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+  cloner = (*builder).cloner();
 }
 
 void MultiHitGeneratorFromChi2::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
@@ -196,8 +203,6 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 		   << " phi=" << hi->hit()->globalPosition().phi() 
 		   << " z=" << hi->hit()->globalPosition().z() 
 		   << " r=" << hi->hit()->globalPosition().perp() 
-		   << " trans: " << (hi->hit()->transientHits().size()>1 ? hi->hit()->transientHits()[0]->globalPosition() : GlobalPoint(0,0,0)) << " "
-		   << (hi->hit()->transientHits().size()>1 ? hi->hit()->transientHits()[1]->globalPosition() : GlobalPoint(0,0,0))
 		   << endl;
 	    }
 	    //use (phi,r) for endcaps rather than (phi,z)
@@ -231,9 +236,11 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     SeedingHitSet triplet;
     float minChi2 = std::numeric_limits<float>::max();
 
-    SeedingHitSet::ConstRecHitPointer hit0 = ip->inner();
-    SeedingHitSet::ConstRecHitPointer hit1 = ip->outer();
+    SeedingHitSet::ConstRecHitPointer oriHit0 = ip->inner();
+    SeedingHitSet::ConstRecHitPointer oriHit1 = ip->outer();
 
+    HitOwnPtr hit0(*oriHit0);
+    HitOwnPtr hit1(*oriHit1);
     GlobalPoint gp0 = hit0->globalPosition();
     GlobalPoint gp1 = hit1->globalPosition();
 
@@ -242,8 +249,6 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     if (debugPair) {
       cout << endl << endl
 	   << "found new pair with ids "<<debug_Id0<<" "<<debug_Id1<<" with pos: " << gp0 << " " << gp1 
-    	   << " trans0: " << ip->inner()->transientHits()[0]->globalPosition() << " " << ip->inner()->transientHits()[1]->globalPosition()
-    	   << " trans1: " << ip->outer()->transientHits()[0]->globalPosition() << " " << ip->outer()->transientHits()[1]->globalPosition()
     	   << endl;
     }
 
@@ -292,7 +297,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	  if (filter->isCompatible(*recHit, tsos1.localMomentum())==0) passFilterHit1 = false;
 	} else if (tid == typeid(ProjectedSiStripRecHit2D)) {
 	  const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit1->hit());
-	  if (filter->isCompatible(precHit->originalHit(), tsos1.localMomentum())==0) passFilterHit1 = false;
+	  if (filter->isCompatible(precHit->originalHit(), tsos1.localMomentum())==0) passFilterHit1 = false;  //FIXME
 	}
       }
       if (debugPair&&!passFilterHit1)  cout << "hit1 did not pass cluster shape filter" << endl;
@@ -430,7 +435,8 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 
 	const RecHitsSortedInPhi::HitIter KDdata = *ih;
 
-	SeedingHitSet::ConstRecHitPointer hit2 = KDdata->hit();
+	SeedingHitSet::ConstRecHitPointer oriHit2 = KDdata->hit();
+	HitOwnPtr hit2(*oriHit2);
 	if (refitHits) {//fixme
 
 	  //fitting all 3 hits takes too much time... do it quickly only for 3rd hit
@@ -438,7 +444,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	  initMomentum *= (1./initMomentum.perp()); //set pT=1
 	  GlobalTrajectoryParameters kine = GlobalTrajectoryParameters(hit2->globalPosition(), initMomentum, 1, &*bfield);
 	  TrajectoryStateOnSurface state(kine,*hit2->surface());
-	  hit2 = hit2->clone(state);
+	  hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*oriHit2,state)));
 
 	  //fixme add pixels
 	  bool passFilterHit2 = true;
@@ -513,9 +519,6 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	  std::cout << endl << "triplet candidate in debug id" << std::endl;
 	  cout << "hit in id="<<debug_Id2<<" (from KDTree) with pos: " << KDdata->hit()->globalPosition()
 	       << " refitted: " << hit2->globalPosition() 
-	       << " trans2: "
-	       << (hit2->transientHits().size()>1 ? hit2->transientHits()[0]->globalPosition() : GlobalPoint(0,0,0)) << " "
-	       << (hit2->transientHits().size()>1 ? hit2->transientHits()[1]->globalPosition() : GlobalPoint(0,0,0))
 	       << " chi2: " << chi2
 	       << endl;
 	  //cout << state << endl;
@@ -566,7 +569,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	}
 	if (debugPair) std::cout << "triplet made" << std::endl;
 	//result.push_back(SeedingHitSet(hit0, hit1, hit2)); 
-	tripletFromThisLayer = SeedingHitSet(hit0, hit1, hit2);
+	tripletFromThisLayer = SeedingHitSet(oriHit0, oriHit1, oriHit2);
 	chi2FromThisLayer = chi2;
 	foundTripletsFromPair++;
 	if (foundTripletsFromPair>=2) {
@@ -617,8 +620,8 @@ MultiHitGeneratorFromChi2::mergePhiRanges(const std::pair<float, float> &r1,
   return std::make_pair(min(r1.first, r2Min), max(r1.second, r2Max));
 }
 
-void MultiHitGeneratorFromChi2::refit2Hits(SeedingHitSet::ConstRecHitPointer& hit1,
-					   SeedingHitSet::ConstRecHitPointer& hit2,
+void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
+					   HitOwnPtr & hit2,
 					   TrajectoryStateOnSurface& state1,
 					   TrajectoryStateOnSurface& state2,
 					   const TrackingRegion& region, float nomField, bool isDebug) {
@@ -667,11 +670,11 @@ void MultiHitGeneratorFromChi2::refit2Hits(SeedingHitSet::ConstRecHitPointer& hi
 
   GlobalTrajectoryParameters kine1 = GlobalTrajectoryParameters(gp1, p1, q, &*bfield);
   state1 = TrajectoryStateOnSurface(kine1,*hit1->surface());
-  hit1 = hit1->clone(state1);
+  hit1.reset((SeedingHitSet::RecHitPointer)(cloner(*hit1,state1)));
 
   GlobalTrajectoryParameters kine2 = GlobalTrajectoryParameters(gp2, p2, q, &*bfield);
   state2 = TrajectoryStateOnSurface(kine2,*hit2->surface());
-  hit2 = hit2->clone(state2);
+  hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*hit2,state2)));
 
   if (isDebug) {
     cout << "charge=" << q << endl;
@@ -682,9 +685,10 @@ void MultiHitGeneratorFromChi2::refit2Hits(SeedingHitSet::ConstRecHitPointer& hi
 
 }
 
-void MultiHitGeneratorFromChi2::refit3Hits(SeedingHitSet::ConstRecHitPointer& hit0,
-					   SeedingHitSet::ConstRecHitPointer& hit1,
-					   SeedingHitSet::ConstRecHitPointer& hit2,
+/*
+void MultiHitGeneratorFromChi2::refit3Hits(HitOwnPtr & hit0,
+					   HitOwnPtr & hit1,
+					   HitOwnPtr & hit2,
 					   TrajectoryStateOnSurface& state0,
 					   TrajectoryStateOnSurface& state1,
 					   TrajectoryStateOnSurface& state2,
@@ -753,3 +757,4 @@ void MultiHitGeneratorFromChi2::refit3Hits(SeedingHitSet::ConstRecHitPointer& hi
   }
 
 }
+*/

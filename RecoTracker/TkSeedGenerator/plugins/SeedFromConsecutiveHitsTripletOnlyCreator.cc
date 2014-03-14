@@ -16,8 +16,10 @@ bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajector
   SeedingHitSet::ConstRecHitPointer tth1 = hits[0];
   SeedingHitSet::ConstRecHitPointer tth2 = hits[1];
   
-  if (hits.size()==3 && !(hits[2]->transientHits().size()==1 && (hits[2]->geographicalId().subdetId()==SiStripDetId::TID || 
-								 hits[2]->geographicalId().subdetId()==SiStripDetId::TEC ) ) ) {
+  auto mono = trackerHitRTTI::isSingleType(*hits[2]);
+  if (hits.size()==3 && !(mono && (hits[2]->geographicalId().subdetId()==SiStripDetId::TID || 
+						      hits[2]->geographicalId().subdetId()==SiStripDetId::TEC ) 
+			  ) ) {
     //if 3rd hit is mono and endcap pT is not well defined so take initial state from pair
     SeedingHitSet::ConstRecHitPointer tth3 = hits[2];
     FastHelix helix(tth3->globalPosition(), tth2->globalPosition(), tth1->globalPosition(), nomField, &*bfield, tth1->globalPosition());

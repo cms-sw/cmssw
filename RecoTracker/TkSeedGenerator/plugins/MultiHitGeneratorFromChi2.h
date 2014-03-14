@@ -14,6 +14,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
+
 
 #include <utility>
 #include <vector>
@@ -41,30 +46,33 @@ public:
   const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
 
 private:
+  using HitOwnPtr = mayown_ptr<BaseTrackerRecHit>;
 
   bool checkPhiInRange(float phi, float phi1, float phi2) const;
   std::pair<float,float> mergePhiRanges(
       const std::pair<float,float> &r1, const std::pair<float,float> &r2) const;
 
-  void refit2Hits(SeedingHitSet::ConstRecHitPointer& hit0,
-		  SeedingHitSet::ConstRecHitPointer& hit1,
+  void refit2Hits(HitOwnPtr & hit0,
+		  HitOwnPtr & hit1,
 		  TrajectoryStateOnSurface& tsos0,
 		  TrajectoryStateOnSurface& tsos1,
 		  const TrackingRegion& region, float nomField, bool isDebug);
-  
-  void refit3Hits(SeedingHitSet::ConstRecHitPointer& hit0,
-		  SeedingHitSet::ConstRecHitPointer& hit1,
-		  SeedingHitSet::ConstRecHitPointer& hit2,
+  /*
+  void refit3Hits(HitOwnPtr & hit0,
+		  HitOwnPtr & hit1,
+		  HitOwnPtr & hit2,
 		  TrajectoryStateOnSurface& tsos0,
 		  TrajectoryStateOnSurface& tsos1,
 		  TrajectoryStateOnSurface& tsos2,
 		  float nomField, bool isDebug);
-
+  */
 private:
   HitPairGenerator * thePairGenerator;
   std::vector<SeedingLayerSetsHits::SeedingLayer> theLayers;
   LayerCacheType * theLayerCache;
   const ClusterShapeHitFilter* filter;
+  TkTransientTrackingRecHitBuilder const * builder;
+  TkClonerImpl cloner;
 
   bool useFixedPreFiltering;
   float extraHitRZtolerance;
@@ -83,9 +91,15 @@ private:
   bool refitHits;
   bool debug;
   std::string filterName_;
-  std::vector<int> detIdsToDebug;
+  std::string builderName_;
+
   bool useSimpleMF_;
-  std::string mfName_;  
+  std::string mfName_;
+
+  std::vector<int> detIdsToDebug;
+
+
+
 };
 #endif
 
