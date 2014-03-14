@@ -109,6 +109,9 @@ void HWWAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   eventMaker    .SetVars(hww, iEvent, iSetup);
   vertexMaker   .SetVars(hww, iEvent, iSetup);
   trackMaker    .SetVars(hww, iEvent, iSetup);
+
+  if(hww.trks_trk_p4().size() < 2) return;
+
   electronMaker .SetVars(hww, iEvent, iSetup);
   muonMaker     .SetVars(hww, iEvent, iSetup);
   pfJetMaker    .SetVars(hww, iEvent, iSetup);
