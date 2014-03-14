@@ -38,6 +38,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
 
 #include <string>
 
@@ -78,21 +79,21 @@ namespace pat {
       edm::InputTag       tagL1GlobalTriggerObjectMaps_;  // configuration (optional with default)
       edm::EDGetTokenT< L1GlobalTriggerObjectMaps > l1GlobalTriggerObjectMapsToken_;
       edm::InputTag       tagL1ExtraMu_;                  // configuration (optional)
-//       edm::EDGetTokenT< l1extra::L1MuonParticleCollection > l1ExtraMuToken_;
+      edm::GetterOfProducts< l1extra::L1MuonParticleCollection > l1ExtraMuGetter_;
       edm::InputTag       tagL1ExtraNoIsoEG_;             // configuration (optional)
-//       edm::EDGetTokenT< l1extra::L1EmParticleCollection > l1ExtraNoIsoEGToken_;
+      edm::GetterOfProducts< l1extra::L1EmParticleCollection > l1ExtraNoIsoEGGetter_;
       edm::InputTag       tagL1ExtraIsoEG_;               // configuration (optional)
-//       edm::EDGetTokenT< l1extra::L1EmParticleCollection > l1ExtraIsoEGToken_;
+      edm::GetterOfProducts< l1extra::L1EmParticleCollection > l1ExtraIsoEGGetter_;
       edm::InputTag       tagL1ExtraCenJet_;              // configuration (optional)
-//       edm::EDGetTokenT< l1extra::L1JetParticleCollection > l1ExtraCenJetToken_;
+      edm::GetterOfProducts< l1extra::L1JetParticleCollection > l1ExtraCenJetGetter_;
       edm::InputTag       tagL1ExtraForJet_;              // configuration (optional)
-//       edm::EDGetTokenT< l1extra::L1JetParticleCollection > l1ExtraForJetToken_;
+      edm::GetterOfProducts< l1extra::L1JetParticleCollection > l1ExtraForJetGetter_;
       edm::InputTag       tagL1ExtraTauJet_;              // configuration (optional)
-//       edm::EDGetTokenT< l1extra::L1JetParticleCollection > l1ExtraTauJetToken_;
+      edm::GetterOfProducts< l1extra::L1JetParticleCollection > l1ExtraTauJetGetter_;
       edm::InputTag       tagL1ExtraETM_;                 // configuration (optional)
-//       edm::EDGetTokenT< l1extra::L1EtMissParticleCollection > l1ExtraETMToken_;
+      edm::GetterOfProducts< l1extra::L1EtMissParticleCollection > l1ExtraETMGetter_;
       edm::InputTag       tagL1ExtraHTM_;                 // configuration (optional)
-//       edm::EDGetTokenT< l1extra::L1EtMissParticleCollection > l1ExtraHTMToken_;
+      edm::GetterOfProducts< l1extra::L1EtMissParticleCollection > l1ExtraHTMGetter_;
       bool                autoProcessNameL1ExtraMu_;
       bool                autoProcessNameL1ExtraNoIsoEG_;
       bool                autoProcessNameL1ExtraIsoEG_;
@@ -107,14 +108,14 @@ namespace pat {
       HLTConfigProvider         hltConfig_;
       bool                      hltConfigInit_;
       edm::InputTag             tagTriggerResults_;     // configuration (optional with default)
-//       edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;
+      edm::GetterOfProducts< edm::TriggerResults > triggerResultsGetter_;
       edm::InputTag             tagTriggerEvent_;       // configuration (optional with default)
-//       edm::EDGetTokenT< trigger::TriggerEvent > triggerEventToken_;
+      edm::GetterOfProducts< trigger::TriggerEvent > triggerEventGetter_;
       std::string               hltPrescaleLabel_;      // configuration (optional)
       std::string               labelHltPrescaleTable_; // configuration (optional)
-//       edm::EDGetTokenT< trigger::HLTPrescaleTable > hltPrescaleTableRunToken_;
-//       edm::EDGetTokenT< trigger::HLTPrescaleTable > hltPrescaleTableLumiToken_;
-//       edm::EDGetTokenT< trigger::HLTPrescaleTable > hltPrescaleTableEventToken_;
+      edm::GetterOfProducts< trigger::HLTPrescaleTable > hltPrescaleTableRunGetter_;
+      edm::GetterOfProducts< trigger::HLTPrescaleTable > hltPrescaleTableLumiGetter_;
+      edm::GetterOfProducts< trigger::HLTPrescaleTable > hltPrescaleTableEventGetter_;
       trigger::HLTPrescaleTable hltPrescaleTableRun_;
       trigger::HLTPrescaleTable hltPrescaleTableLumi_;
       bool                       addPathModuleLabels_;  // configuration (optional with default)
