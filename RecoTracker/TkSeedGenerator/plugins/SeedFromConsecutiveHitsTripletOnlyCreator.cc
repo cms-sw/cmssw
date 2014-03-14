@@ -12,12 +12,12 @@
 bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajectoryParameters & kine,
 								 const SeedingHitSet & hits) const {
 
-
   SeedingHitSet::ConstRecHitPointer tth1 = hits[0];
   SeedingHitSet::ConstRecHitPointer tth2 = hits[1];
   
-  auto mono = trackerHitRTTI::isSingleType(*hits[2]);
-  if (hits.size()==3 && !(mono && (hits[2]->geographicalId().subdetId()==SiStripDetId::TID || 
+
+
+  if (hits.size()==3 && !( trackerHitRTTI::isSingleType(*hits[2]) && (hits[2]->geographicalId().subdetId()==SiStripDetId::TID || 
 						      hits[2]->geographicalId().subdetId()==SiStripDetId::TEC ) 
 			  ) ) {
     //if 3rd hit is mono and endcap pT is not well defined so take initial state from pair

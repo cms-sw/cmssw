@@ -163,7 +163,7 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
   
   const TrackingRecHit* hit = 0;
   for ( unsigned int iHit = 0; iHit < hits.size() && iHit<1; iHit++) {
-    hit = hits[iHit]->hit();
+    hit = hits[iHit];
     TrajectoryStateOnSurface state = (iHit==0) ? 
       propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
       : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
@@ -171,15 +171,15 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
     
     SeedingHitSet::ConstRecHitPointer tth = hits[iHit]; 
     
-    SeedingHitSet::RecHitPointer newtth =  refitHit( tth, state);
+    std::unique_ptr<BaseTrackerRecHit> newtth(refitHit( tth, state));
 
     
-    if (!checkHit(state,newtth,es)) return 0;
+    if (!checkHit(state,&*newtth,es)) return 0;
 
     updatedState =  updator.update(state, *newtth);
     if (!updatedState.isValid()) return 0;
     
-    seedHits.push_back(newtth->hit()->clone());
+    seedHits.push_back(newtth.release());
 #ifdef mydebug_seed
     uint32_t detid = hit->geographicalId().rawId();
     (*pss) << "\n[SeedForPhotonConversion1Leg] hit " << iHit;

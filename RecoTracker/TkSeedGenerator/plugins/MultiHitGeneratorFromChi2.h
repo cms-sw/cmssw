@@ -41,7 +41,7 @@ public:
                         std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
 
   virtual void hitSets( const TrackingRegion& region, OrderedMultiHits & trs, 
-      const edm::Event & ev, const edm::EventSetup& es);
+			const edm::Event & ev, const edm::EventSetup& es);
 
   const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
 

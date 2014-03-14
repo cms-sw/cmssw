@@ -255,7 +255,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     if (refitHits) {
 
       TrajectoryStateOnSurface tsos0, tsos1;
+      assert(!hit0.isOwn()); assert(!hit1.isOwn());
       refit2Hits(hit0,hit1,tsos0,tsos1,region,nomField,debugPair);
+      assert(hit0.isOwn()); assert(hit1.isOwn());
 
       //fixme add pixels
       bool passFilterHit0 = true;
@@ -275,7 +277,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	  if (filter->isCompatible(*recHit, tsos0.localMomentum())==0) passFilterHit0 = false;
 	} else if (tid == typeid(ProjectedSiStripRecHit2D)) {
 	  const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit0->hit());
-	  if (filter->isCompatible(precHit->originalHit(), tsos0.localMomentum())==0) passFilterHit0 = false;
+	  if (filter->isCompatible(precHit->originalHit(), tsos0.localMomentum())==0) passFilterHit0 = false;   //FIXME
 	}
       }
       if (debugPair&&!passFilterHit0)  cout << "hit0 did not pass cluster shape filter" << endl;

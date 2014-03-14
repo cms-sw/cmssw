@@ -697,7 +697,7 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::buildSeed(
 
   const TrackingRecHit* hit = 0;
   for ( unsigned int iHit = 0; iHit < hits.size() && iHit<2; iHit++) {
-    hit = hits[iHit]->hit();
+    hit = hits[iHit];
     TrajectoryStateOnSurface state = (iHit==0) ?
       propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
       : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
@@ -708,7 +708,7 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::buildSeed(
 
     updatedState =  updator.update(state, *newtth);
 
-    seedHits.push_back(newtth->hit()->clone());
+    seedHits.push_back(newtth);
 #ifdef mydebug_seed
     uint32_t detid = hit->geographicalId().rawId();
     (*pss) << "\n[SeedForPhotonConversionFromQuadruplets] hit " << iHit;
