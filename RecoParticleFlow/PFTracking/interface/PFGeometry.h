@@ -68,18 +68,6 @@ class PFGeometry {
   float outerZ(PFGeometry::Layers_t layer) const
     { return outerZ_[layer]; }
 
-  /// return cylinder used to propagate to barrel
-  //const Cylinder& barrelBound(PFGeometry::Surface_t iSurf) const
-    //{ return *(cylinder_[unsigned(iSurf)]); }
-
-  /// return disk used to propagate to negative endcap 
-  //const Plane& negativeEndcapDisk(PFGeometry::Surface_t iSurf) const
-    //{ return *(negativeDisk_[unsigned(iSurf)]); }
-
-  /// return disk used to propagate to positive endcap
-  //const Plane& positiveEndcapDisk(PFGeometry::Surface_t iSurf) const
-  //{ return *(positiveDisk_[unsigned(iSurf)]); }
-
   /// return tan(theta) of the cylinder corner
   float tanTh(PFGeometry::Surface_t iSurf) const
   { return tanTh_[unsigned(iSurf)]; }
@@ -89,10 +77,6 @@ class PFGeometry {
   std::vector< float > outerRadius_;
   std::vector< float > innerZ_;
   std::vector< float > outerZ_;
-
-  // std::vector< ReferenceCountingPointer<Cylinder> > cylinder_;
-  //  std::vector< ReferenceCountingPointer<Plane> > negativeDisk_;
-  //  std::vector< ReferenceCountingPointer<Plane> > positiveDisk_;
   std::vector< float > tanTh_;
 };
 
