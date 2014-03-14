@@ -176,7 +176,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
 
   // Create DCS Status
   bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
-  if (checkDCS) dcsStatus_ = new SiStripDCSStatus();
+  if (checkDCS) dcsStatus_ = new SiStripDCSStatus(consumesCollector());
   else dcsStatus_ = 0; 
 
   //initialize boolean for the data-presence check (needed for TotalNumberOfDigisFailure histogram)
