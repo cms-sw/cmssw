@@ -13,7 +13,7 @@ autoCond = {
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
     'hltonline'         :   'GR_H_V33::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'POSTLS170_V3::All',
+    'upgradePLS1'       :   'POSTLS170_V5::All',
     'upgradePLS150ns'   :   'POSTLS170_V4::All',
     'upgrade2017'       :   'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgrade2019'       :   'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal)
