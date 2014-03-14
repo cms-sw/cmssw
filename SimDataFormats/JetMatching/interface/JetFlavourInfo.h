@@ -24,12 +24,14 @@ class JetFlavourInfo
                    const GenParticleRefVector& bHadrons,
                    const GenParticleRefVector& cHadrons,
                    const GenParticleRefVector& partons,
+                   const GenParticleRefVector& leptons,
                    const int hadronFlavour,
                    const int partonFlavour
                   ) :
       m_bHadrons(bHadrons),
       m_cHadrons(cHadrons),
       m_partons(partons),
+      m_leptons(leptons),
       m_hadronFlavour(hadronFlavour),
       m_partonFlavour(partonFlavour) { }
 
@@ -39,6 +41,8 @@ class JetFlavourInfo
     const GenParticleRefVector & getcHadrons() const { return m_cHadrons; }
     /// Return a vector of GenParticleRef's to partons clustered inside the jet
     const GenParticleRefVector & getPartons() const { return m_partons; }
+    /// Return a vector of GenParticleRef's to leptons clustered inside the jet
+    const GenParticleRefVector & getLeptons() const { return m_leptons; }
     /// Return the hadron-based flavour
     const int getHadronFlavour() const { return m_hadronFlavour; }
     /// Return the parton-based flavour
@@ -48,6 +52,7 @@ class JetFlavourInfo
     GenParticleRefVector m_bHadrons;
     GenParticleRefVector m_cHadrons;
     GenParticleRefVector m_partons;
+    GenParticleRefVector m_leptons;
     int m_hadronFlavour;
     int m_partonFlavour;
 };
