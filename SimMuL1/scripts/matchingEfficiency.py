@@ -370,7 +370,7 @@ def cscMatchingEfficiencyToStripsAndWires(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.0)
+    base.SetMinimum(0.8)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -432,7 +432,7 @@ def cscMatchingEfficiencyToStripsAndWires_2(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.0)
+    base.SetMinimum(0.8)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -494,7 +494,7 @@ def cscMatchingEfficiencyToAlctClct(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.0)
+    base.SetMinimum(0.8)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -555,7 +555,7 @@ def cscMatchingEfficiencyToAlctClct_2(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.0)
+    base.SetMinimum(0.8)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -616,7 +616,7 @@ def cscMatchingEfficiencyToLct(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.0)
+    base.SetMinimum(0.80)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -678,7 +678,7 @@ def PadmatchingtoSimTrEfficiency(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.0)
+    base.SetMinimum(0.8)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -749,7 +749,7 @@ def PadDigimatchingtoSimTrEfficiency(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.0)
+    base.SetMinimum(0.8)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -821,7 +821,7 @@ def PadmatchingwithLCTstoSimTrEfficiency(filesDir, input_file, plotDir, ext):
     c = TCanvas("c","c",700,450)
     c.Clear()
     base  = TH1F("base",title,nBins,minBin,maxBin)
-    base.SetMinimum(0.0)
+    base.SetMinimum(0.8)
     base.SetMaximum(1.02)
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
@@ -949,9 +949,7 @@ if __name__ == "__main__":
     """
     input_dir = "files/"
     output_dir = "csc_gem_matching/"
-
-#    input_file = "gem-csc_stub_ana_pt20_PU100_moreStats.root"
-    input_file = "out_GEMCSC_Ana.root"
+    input_file = "gem-csc_stub_ana.root"
     ext = ".png"
     
     cscMatchingEfficiencyToStripsAndWires(input_dir, input_file, output_dir, ".png")

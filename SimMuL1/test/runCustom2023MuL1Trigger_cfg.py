@@ -9,8 +9,8 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2019_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -18,7 +18,6 @@ process.load('Configuration.StandardSequences.Digi_cff')
 process.load("Configuration.StandardSequences.L1Emulator_cff")
 process.load("Configuration.StandardSequences.L1Extra_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 ################### Take inputs from crab.cfg file ##############
 from FWCore.ParameterSet.VarParsing import VarParsing
@@ -55,18 +54,16 @@ if hasattr(sys, "argv") == True:
 
 ## global tag for 2019 upgrade studies
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
-# GEM digitizer
-process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
-# GEM-CSC trigger pad digi producer
-process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
 # customization of the process.pdigi sequence to add the GEM digitizer
+process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
+process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
 from SimMuon.GEMDigitizer.customizeGEMDigi import *
 #process = customize_digi_addGEM(process)  # run all detectors digi
 process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
@@ -97,7 +94,7 @@ tmb.clctToAlct = cms.untracked.bool(False)
 tmb.printAvailablePads = cms.untracked.bool(False)
 tmb.dropLowQualityCLCTsNoGEMs_ME1a = cms.untracked.bool(True)
 tmb.dropLowQualityCLCTsNoGEMs_ME1b = cms.untracked.bool(True)
-tmb.buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(True)
+tmb.buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(False)
 tmb.buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(True)
 tmb.doLCTGhostBustingWithGEMs = cms.untracked.bool(False)
 
@@ -126,6 +123,7 @@ process.source = cms.Source("PoolSource",
   duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
   inputCommands = cms.untracked.vstring('keep  *_*_*_*'),
   fileNames = cms.untracked.vstring('file:out_sim.root')
+#  fileNames = cms.untracked.vstring('/eos/store/user/SingleMuPt2-50Fwdv2_1M/jdimasva-SingleMuPt2-50Fwdv2_100K_DIGI_PU140-7444237097ec40e1cd737724f1a85642/USER')
 )
 
 ## input
