@@ -349,7 +349,7 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
 {
   ntupleTrackChamberDelta_ = cfg_.getParameter<bool>("ntupleTrackChamberDelta");
   ntupleTrackEff_ = cfg_.getParameter<bool>("ntupleTrackEff");
-  matchprint_ = cfg_.getParameter<bool>("matchprint");
+  matchprint_ = false; //cfg_.getParameter<bool>("matchprint");
 
   auto simTrack = cfg_.getParameter<edm::ParameterSet>("simTrack");
   simInputLabel_ = simTrack.getParameter<edm::InputTag>("input");
