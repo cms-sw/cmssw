@@ -2398,9 +2398,9 @@ void SiPixelActionExecutor::bookEfficiency(DQMStore * bei, bool isUpgrade){
   bei->setCurrentFolder("Pixel/Barrel");
   if (!isUpgrade) {
   if(Tier0Flag_){
-    HitEfficiency_L1 = bei->book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;z-side;Ladder",2,-1.,1.,20,-10.,10.);
-    HitEfficiency_L2 = bei->book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;z-side;Ladder",2,-1.,1.,32,-16.,16.);
-    HitEfficiency_L3 = bei->book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;z-side;Ladder",2,-1.,1.,44,-22.,22.);
+    HitEfficiency_L1 = bei->book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4,4,20,-10.,10.);
+    HitEfficiency_L2 = bei->book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4,4,32,-16.,16.);
+    HitEfficiency_L3 = bei->book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",8,-4,4,44,-22.,22.);
   }else{
     HitEfficiency_L1 = bei->book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4.,4.,20,-10.,10.);
     HitEfficiency_L2 = bei->book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4.,4.,32,-16.,16.);
@@ -2480,7 +2480,8 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
       vector<string> meVec = bei->getMEs();
       for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
-        if(full_path.find("missing_")!=string::npos){ // If we have missing hits ME
+	////////////////////////////////////////////
+        /*if(full_path.find("missing_")!=string::npos){ // If we have missing hits ME
 	  MonitorElement * me = bei->get(full_path);
 	  if (!me) continue;
 	  float missingHits = me->getEntries();
@@ -2511,6 +2512,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	    else if(currDir.find("Layer_2")!=string::npos){ biny = biny + 16;}
 	    else if(currDir.find("Layer_3")!=string::npos){ biny = biny + 22;}
 	  }
+
 	  if(currDir.find("Layer_1")!=string::npos){
 	    HitEfficiency_L1 = bei->get("Pixel/Barrel/HitEfficiency_L1");
 	    if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(binx, biny,(float)hitEfficiency);
@@ -2523,6 +2525,68 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	    if(HitEfficiency_L3) HitEfficiency_L3->setBinContent(binx, biny,(float)hitEfficiency);
 	  } 
         }
+	*////////////////////////////////////////////////////////////
+	if(full_path.find("missingMod_")!=string::npos){ // If we have missing hits ME
+	  
+	  //Get the MEs that contain missing and valid hits
+	  MonitorElement * missing = bei->get(full_path);
+	  if (!missing) continue;
+	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
+	  MonitorElement * valid = bei->get(new_path);
+	  if (!valid) continue;
+	  //int binx = 0; 
+	  int biny = 0;
+	  //get the ladder number
+	  
+	  if(dname.find("01")!=string::npos){ biny = 1;}else if(dname.find("02")!=string::npos){ biny = 2;}
+	  else if(dname.find("03")!=string::npos){ biny = 3;}else if(dname.find("04")!=string::npos){ biny = 4;}
+	  else if(dname.find("05")!=string::npos){ biny = 5;}else if(dname.find("06")!=string::npos){ biny = 6;}
+	  else if(dname.find("07")!=string::npos){ biny = 7;}else if(dname.find("08")!=string::npos){ biny = 8;}
+	  else if(dname.find("09")!=string::npos){ biny = 9;}else if(dname.find("10")!=string::npos){ biny = 10;}
+	  else if(dname.find("11")!=string::npos){ biny = 11;}else if(dname.find("12")!=string::npos){ biny = 12;}
+	  else if(dname.find("13")!=string::npos){ biny = 13;}else if(dname.find("14")!=string::npos){ biny = 14;}
+	  else if(dname.find("15")!=string::npos){ biny = 15;}else if(dname.find("16")!=string::npos){ biny = 16;}
+	  else if(dname.find("17")!=string::npos){ biny = 17;}else if(dname.find("18")!=string::npos){ biny = 18;}
+	  else if(dname.find("19")!=string::npos){ biny = 19;}else if(dname.find("20")!=string::npos){ biny = 20;}
+	  else if(dname.find("21")!=string::npos){ biny = 21;}else if(dname.find("22")!=string::npos){ biny = 22;}
+	  
+	  if(currDir.find("Shell_mO")!=string::npos || currDir.find("Shell_pO")!=string::npos){
+	    if(currDir.find("Layer_1")!=string::npos){ biny = biny + 10;}
+	    else if(currDir.find("Layer_2")!=string::npos){ biny = biny + 16;}
+	    
+	    else if(currDir.find("Layer_3")!=string::npos){ biny = biny + 22;}
+	    
+	  }
+	  
+	  
+	  
+	  int start=1;
+	  //define start depending on p or m
+	  
+	  if(currDir.find("Shell_m")!=string::npos){ start = 1;}else{ start = 5;}
+	  for(int i=start; i<start+5;i++){
+	    float hitEfficiency = -1.0;
+	    float missingHits=0;
+	    float validHits=0;
+	    missingHits=missing->getBinContent(i);
+	    validHits=valid->getBinContent(i);
+	    if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
+	    if(currDir.find("Layer_1")!=string::npos){
+	      HitEfficiency_L1 = bei->get("Pixel/Barrel/HitEfficiency_L1");
+	      if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(i, biny,(float)hitEfficiency);
+	    }
+	    else if(currDir.find("Layer_2")!=string::npos){
+	      HitEfficiency_L2 = bei->get("Pixel/Barrel/HitEfficiency_L2");
+	      if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(i, biny,(float)hitEfficiency);
+	    }
+	    else if(currDir.find("Layer_3")!=string::npos){
+	      HitEfficiency_L3 = bei->get("Pixel/Barrel/HitEfficiency_L3");
+	      if(HitEfficiency_L3) HitEfficiency_L3->setBinContent(i, biny,(float)hitEfficiency);
+	    }     
+	    
+	  }
+	  
+	}
       }
       }//endifNOTUpgradeInBPix
       else if (isUpgrade) {
