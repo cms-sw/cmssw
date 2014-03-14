@@ -119,7 +119,7 @@ process.l1extraParticles.ignoreHtMiss = cms.bool(False)
 
 ## add pile-up to the digi step
 from GEMCode.GEMValidation.InputFileHelpers import addPileUp
-#process = addPileUp(process, pu)
+process = addPileUp(process, pu)
 
 ## input commands
 process.source = cms.Source("PoolSource",
@@ -130,10 +130,8 @@ process.source = cms.Source("PoolSource",
 
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import *
-from GEMCode.GEMValidation.InputFileHelpers import useInputDir
-process = useInputDir(process, eosfiles['_pt2-50_PU140_dphi0_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM'], True)
-#process = useInputDir(process, files['_pt2-50_PU0'], False)
-#process = useInputDir(process, files['_gem98_pt40_pat2_PU0'], False)
+from GEMCode.GEMValidation.InputFileHelpers import *
+process = useInputDir(process, eosfiles['_pt2-50_PU140_6part2019'], True)
 
 
 physics = False
@@ -153,7 +151,7 @@ if not physics:
     
 ## output commands 
 theOutDir = ''
-theFileName = 'out_L1_PU140_dphi0_preTrig33_NoLQCLCTwithoutGEM_ALCTGEM_ME1b_overlap_10k.test.root'
+theFileName = 'out_L1.root'
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(theOutDir + theFileName),
     outputCommands = cms.untracked.vstring('keep  *_*_*_*')
@@ -188,19 +186,6 @@ if not physics:
         'drop *_randomEngineStateProducer_*_*'
         )
 
-## clones 
-process.simCscTriggerPrimitiveDigis_C3 = process.simCscTriggerPrimitiveDigis.clone()
-process.simCscTriggerPrimitiveDigis_C3.clctSLHC.clctNplanesHitPattern = 3
-
-process.simCscTriggerPrimitiveDigis_C3_NoLQClctsNoGEMs = process.simCscTriggerPrimitiveDigis_C3.clone()
-process.simCscTriggerPrimitiveDigis_C3.tmbSLHC.dropLowQualityCLCTsNoGEMs = cms.untracked.bool(True)
-
-process.simCscTriggerPrimitiveDigis_C3_NoLQClctsNoGEMs_LCTrecoveryME1b = process.simCscTriggerPrimitiveDigis_C3_NoLQClctsNoGEMs.clone()
-process.simCscTriggerPrimitiveDigis_C3.tmbSLHC.buildLCTfromALCTandGEMinME1b = cms.untracked.bool(True)
-
-process.simCscTriggerPrimitiveDigis_C3_NoLQClctsNoGEMs_LCTrecoveryOverlap = process.simCscTriggerPrimitiveDigis_C3_NoLQClctsNoGEMs_LCTrecoveryME1b.clone()
-process.simCscTriggerPrimitiveDigis_C3.tmbSLHC.buildLCTfromALCTandGEMinOverlap = cms.untracked.bool(True)
-
 ## custom sequences
 process.mul1 = cms.Sequence(
 #  process.pdigi *
@@ -219,20 +204,6 @@ process.muL1Short = cms.Sequence(
   process.L1Extra
 )
 
-'''
-## clones
-process.mul1_Step1 = cms.Sequence(
-#  process.pdigi *
-  process.SimL1MuTriggerPrimitives *
-  process.SimL1MuTrackFinders *
-  process.simRpcTriggerDigis *
-  process.simGmtDigis *
-  process.L1Extra
-)
-'''
-
-
-
 ## define path-steps
 shortRun = False
 if shortRun:
@@ -241,9 +212,6 @@ else:
     process.l1emu_step      = cms.Path(process.mul1)
 process.endjob_step     = cms.Path(process.endOfProcess)
 process.out_step        = cms.EndPath(process.output)
-
-
-
 
 ## Schedule definition
 process.schedule = cms.Schedule(
