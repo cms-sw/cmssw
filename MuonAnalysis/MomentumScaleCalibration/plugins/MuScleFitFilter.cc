@@ -39,8 +39,8 @@ class MuScleFitFilter : public edm::EDFilter {
   ~MuScleFitFilter();
 
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override {};
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() {};
 
   // Member data
   // -----------

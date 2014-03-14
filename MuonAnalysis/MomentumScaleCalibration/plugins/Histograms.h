@@ -5,7 +5,8 @@
  *  Collection of histograms for GLB muon analysis
  *
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
- */
+ * revised S. Casasso, E. Migliore - UniTo & INFN Torino 
+*/
 
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/Math/interface/LorentzVector.h"

@@ -22,7 +22,6 @@
 #include "TString.h"
 #include <sstream>
 
-using namespace std;
 
 // Linear function as in Functions.h.
 // Note that if the type1 background function in Functions.h changes this should be updated too.
@@ -70,7 +69,7 @@ protected:
 TH1F * subRangeHisto( const double * resMass, const double * resHalfWidth,
                       const int iRes, TH1F * histo, const TString & name )
 {
-  stringstream ss;
+  std::stringstream ss;
   ss << iRes;
 
   TH1F* newHisto = (TH1F*)histo->Clone(name+ss.str());
@@ -116,11 +115,11 @@ void BackgroundCheck()
   double ResHalfWidth[] = {20., 0.5, 0.5, 0.5, 0.2, 0.2};
   TString ResName[] = {"Z", "Upsilon3S", "Upsilon2S", "Upsilon1S", "Psi2S", "J/Psi"};
 
-  vector<int> ires;
-  vector<double> Bgrp1;
-  vector<double> a;
-  vector<double> leftWindowBorder;
-  vector<double> rightWindowBorder;
+  std::vector<int> ires;
+  std::vector<double> Bgrp1;
+  std::vector<double> a;
+  std::vector<double> leftWindowBorder;
+  std::vector<double> rightWindowBorder;
   int backgroundType = 0;
 
   // IMPORTANT: parameters to change
@@ -154,7 +153,7 @@ void BackgroundCheck()
   // -------------------------------
 
   // Create histograms for the background functions
-  vector<TH1F*> backgroundFunctionHisto;
+  std::vector<TH1F*> backgroundFunctionHisto;
   for( unsigned int i=0; i<ires.size(); ++i ) {
     backgroundFunctionHisto.push_back( buildHistogram(ResMass, ResHalfWidth, xBins, deltaX, xMin, xMax,
                                                       ires[i], Bgrp1[i], a[i], leftWindowBorder[i], rightWindowBorder[i],
@@ -218,8 +217,8 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
   int lowBin = int((lowWindowValue)*xBins/deltaX);
   int upBin = int((upWindowValue)*xBins/deltaX);
 
-  cout << "lowBin = " << lowBin << ", upBin = " << upBin << endl;
-  cout << "lowWindowValue = " << lowWindowValue << ", upWindowValue = " << upWindowValue << endl;
+  std::cout << "lowBin = " << lowBin << ", upBin = " << upBin << std::endl;
+  std::cout << "lowWindowValue = " << lowWindowValue << ", upWindowValue = " << upWindowValue << std::endl;
 
   double xWidth = deltaX/xBins;
 
@@ -231,11 +230,11 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
     // Exponential
     // -----------
     // backgroundFunction = new TF1("backgroundFunction", "[0]*([1]*exp(-[1]*x))", xMin, xMax );
-    stringstream ssUp;
-    stringstream ssDown;
+    std::stringstream ssUp;
+    std::stringstream ssDown;
     ssUp << upWindowValue;
     ssDown << lowWindowValue;
-    string functionString("[0]*(-[1]*exp(-[1]*x)/(exp(-[1]*("+ssUp.str()+")) - exp(-[1]*("+ssDown.str()+")) ))");
+    std::string functionString("[0]*(-[1]*exp(-[1]*x)/(exp(-[1]*("+ssUp.str()+")) - exp(-[1]*("+ssDown.str()+")) ))");
 
     backgroundFunction = new TF1("backgroundFunction", functionString.c_str(), xMin, xMax );
     backgroundFunction->SetParameter(0, 1);
@@ -247,8 +246,8 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
   }
   else if( backgroundType == 2 ) {
 
-    stringstream ssUp;
-    stringstream ssDown;
+    std::stringstream ssUp;
+    std::stringstream ssDown;
     ssUp << upWindowValue;
     ssDown << lowWindowValue;
 
@@ -283,9 +282,9 @@ TH1F * buildHistogram(const double * ResMass, const double * ResHalfWidth, const
   backgroundFunctionHisto->Scale(Bgrp1*totEvents);
   backgroundFunction->SetParameter(0, Bgrp1*totEvents);
 
-  cout << "Total events in the background window = " << totEvents << endl;
-  cout << "FunctionHisto integral = " << backgroundFunctionHisto->Integral(lowBin, upBin) << endl;
-  cout << "Function integral = " << backgroundFunction->Integral(lowWindowValue, upWindowValue) << endl;
+  std::cout << "Total events in the background window = " << totEvents << std::endl;
+  std::cout << "FunctionHisto integral = " << backgroundFunctionHisto->Integral(lowBin, upBin) << std::endl;
+  std::cout << "Function integral = " << backgroundFunction->Integral(lowWindowValue, upWindowValue) << std::endl;
 
   backgroundFunctionHisto->SetAxisRange(lowWindowValue, upWindowValue);
 
