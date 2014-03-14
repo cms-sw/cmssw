@@ -21,7 +21,6 @@ class ElectronHcalHelper ;
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -56,7 +55,7 @@ class ElectronSeedProducer : public edm::EDProducer
     void filterClusters
      ( const reco::BeamSpot & bs,
        const edm::Handle<reco::SuperClusterCollection> & superClusters,
-       /*HBHERecHitMetaCollection*mhbhe,*/ reco::SuperClusterRefVector &sclRefs,
+       reco::SuperClusterRefVector &sclRefs,
        std::vector<float> & hoe1s, std::vector<float> & hoe2s ) ;
     void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
 
@@ -85,7 +84,6 @@ class ElectronSeedProducer : public edm::EDProducer
     unsigned long long caloTopoCacheId_;
   //  EgammaHcalIsolation * hcalIso_ ;
   ////  CaloDualConeSelector * doubleConeSel_ ;
-  //  HBHERecHitMetaCollection * mhbhe_ ;
   //  double maxHOverE_ ;
      double maxHOverEBarrel_ ;
      double maxHOverEEndcaps_ ;
