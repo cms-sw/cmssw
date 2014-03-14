@@ -151,6 +151,12 @@ class JetFlavourClustering : public edm::EDProducer {
                         const edm::Handle<edm::View<reco::Jet> >& subjets,
                         std::vector<std::vector<int> >& matchedIndices);
 
+      void setFlavours(const reco::GenParticleRefVector& clusteredbHadrons,
+                       const reco::GenParticleRefVector& clusteredcHadrons,
+                       const reco::GenParticleRefVector& clusteredPartons,
+                       int&  hadronFlavour,
+                       int&  partonFlavour);
+
       // ----------member data ---------------------------
       const edm::InputTag jets_;        // Input jet collection
       const edm::InputTag groomedJets_; // Input groomed jet collection
@@ -344,16 +350,10 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      reco::GenParticleRefVector clusteredbHadrons;
      reco::GenParticleRefVector clusteredcHadrons;
      reco::GenParticleRefVector clusteredPartons;
-     reco::GenParticleRef flavourParton;
-     reco::GenParticleRef hardestParton;
-     reco::GenParticleRef hardestLightParton;
-     double maxPt = -99.;
-     double maxPtLight = -99.;
-     int hadronFlavour = 0; // default hadron flavour set to 0 (= undefined)
-     int partonFlavour = 0; // default parton flavour set to 0 (= undefined)
 
-     // get jet constituents
+     // get jet constituents (sorted by Pt)
      std::vector<fastjet::PseudoJet> constituents = fastjet::sorted_by_pt( inclusiveJets.at(reclusteredIndices.at(i)).constituents() );
+
      // loop over jet constituents and try to find "ghosts"
      for(std::vector<fastjet::PseudoJet>::const_iterator it = constituents.begin(); it != constituents.end(); ++it)
      {
@@ -367,50 +367,19 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          clusteredcHadrons.push_back(it->user_info<GhostInfo>().particleRef());
        // parton "ghost"
        else if( !it->user_info<GhostInfo>().isHadron() )
-       {
-         const reco::GenParticleRef & tempParton = it->user_info<GhostInfo>().particleRef();
-         clusteredPartons.push_back(tempParton);
-         // b flavour gets priority
-         if( flavourParton.isNull() && ( abs( tempParton->pdgId() ) == 4 )  ) flavourParton = tempParton;
-         if( abs( tempParton->pdgId() ) == 5 ) flavourParton = tempParton;
-         if( tempParton->pt() > maxPt )
-         {
-           maxPt = tempParton->pt();
-           hardestParton = tempParton;
-         }
-         if( CandMCTagUtils::isLightParton( *tempParton ) && tempParton->pt() > maxPtLight )
-         {
-           maxPtLight = tempParton->pt();
-           hardestLightParton = tempParton;
-         }
-       }
+         clusteredPartons.push_back(it->user_info<GhostInfo>().particleRef());
      }
-     // set hadron flavour
-     if( clusteredbHadrons.size()>0 )
-       hadronFlavour = 5;
-     else if( clusteredcHadrons.size()>0 && clusteredbHadrons.size()==0 )
-       hadronFlavour = 4;
-     // set parton flavour
-     if( flavourParton.isNull() )
-     {
-       if( hardestParton.isNonnull() ) partonFlavour = abs( hardestParton->pdgId() );
-     }
-     else
-       partonFlavour = abs( flavourParton->pdgId() );
 
-     // if enabled, check for conflicts between hadron- and parton-based flavours and give priority to the hadron-based flavour
-     if( hadronFlavourHasPriority_ )
-     {
-       if( hadronFlavour==0 && (partonFlavour==4 || partonFlavour==5) )
-         partonFlavour = ( hardestLightParton.isNonnull() ? abs( hardestLightParton->pdgId() ) : 0 );
-       else if( hadronFlavour!=0 && hadronFlavour!=partonFlavour )
-         partonFlavour = hadronFlavour;
-     }
+     int hadronFlavour = 0; // default hadron flavour set to 0 (= undefined)
+     int partonFlavour = 0; // default parton flavour set to 0 (= undefined)
+
+     // set hadron- and parton-based flavours
+     setFlavours(clusteredbHadrons, clusteredcHadrons, clusteredPartons, hadronFlavour, partonFlavour);
 
      // set the JetFlavourInfo for this jet
      (*jetFlavourInfos)[jets->refAt(i)] = reco::JetFlavourInfo(clusteredbHadrons,clusteredcHadrons,clusteredPartons,hadronFlavour,partonFlavour);
 
-     // determine subjet flavour
+     // if subjets are used, determine their flavour
      if( useSubjets_ )
      {
        if( subjetIndices.at(i).size()==0 ) continue; // continue if the original jet does not have subjets assigned
@@ -463,51 +432,11 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        // loop over subjets and determine their flavour
        for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
        {
-         reco::GenParticleRef subjetFlavourParton;
-         reco::GenParticleRef subjetHardestParton;
-         reco::GenParticleRef subjetHardestLightParton;
-         double subjetMaxPt = -99.;
-         double subjetMaxPtLight = -99.;
          int subjetHadronFlavour = 0; // default hadron flavour set to 0 (= undefined)
          int subjetPartonFlavour = 0; // default parton flavour set to 0 (= undefined)
 
-         for(reco::GenParticleRefVector::const_iterator it = assignedPartons.at(sj).begin(); it != assignedPartons.at(sj).end(); ++it)
-         {
-           // b flavour gets priority
-           if( subjetFlavourParton.isNull() && ( abs( (*it)->pdgId() ) == 4 )  ) subjetFlavourParton = (*it);
-           if( abs( (*it)->pdgId() ) == 5 ) subjetFlavourParton = (*it);
-           if( (*it)->pt() > subjetMaxPt )
-           {
-             subjetMaxPt = (*it)->pt();
-             subjetHardestParton = (*it);
-           }
-           if( CandMCTagUtils::isLightParton( *(*it) ) && (*it)->pt() > subjetMaxPtLight )
-           {
-             subjetMaxPtLight = (*it)->pt();
-             subjetHardestLightParton = (*it);
-           }
-         }
-         // set hadron flavour
-         if( assignedbHadrons.at(sj).size()>0 )
-           subjetHadronFlavour = 5;
-         else if( assignedcHadrons.at(sj).size()>0 && assignedbHadrons.at(sj).size()==0 )
-           subjetHadronFlavour = 4;
-         // set parton flavour
-         if( subjetFlavourParton.isNull() )
-         {
-           if( subjetHardestParton.isNonnull() ) subjetPartonFlavour = abs( subjetHardestParton->pdgId() );
-         }
-         else
-           subjetPartonFlavour = abs( subjetFlavourParton->pdgId() );
-
-         // if enabled, check for conflicts between hadron- and parton-based flavours and give priority to the hadron-based flavour
-         if( hadronFlavourHasPriority_ )
-         {
-           if( subjetHadronFlavour==0 && (subjetPartonFlavour==4 || subjetPartonFlavour==5) )
-             subjetPartonFlavour = ( subjetHardestLightParton.isNonnull() ? abs( subjetHardestLightParton->pdgId() ) : 0 );
-           else if( subjetHadronFlavour!=0 && subjetHadronFlavour!=subjetPartonFlavour )
-             subjetPartonFlavour = subjetHadronFlavour;
-         }
+         // set hadron- and parton-based flavours
+         setFlavours(assignedbHadrons.at(sj), assignedcHadrons.at(sj), assignedPartons.at(sj), subjetHadronFlavour, subjetPartonFlavour);
 
          // set the JetFlavourInfo for this subjet
          (*subjetFlavourInfos)[subjets->refAt(subjetIndices.at(i).at(sj))] = reco::JetFlavourInfo(assignedbHadrons.at(sj),assignedcHadrons.at(sj),assignedPartons.at(sj),subjetHadronFlavour,subjetPartonFlavour);
@@ -630,6 +559,66 @@ JetFlavourClustering::matchSubjets(const std::vector<int>& groomedIndices,
      }
      else
        matchedIndices.push_back(subjetIndices);
+   }
+}
+
+// ------------ method that sets hadron- and parton-based flavours ------------
+void
+JetFlavourClustering::setFlavours(const reco::GenParticleRefVector& clusteredbHadrons,
+                                  const reco::GenParticleRefVector& clusteredcHadrons,
+                                  const reco::GenParticleRefVector& clusteredPartons,
+                                  int&  hadronFlavour,
+                                  int&  partonFlavour)
+{
+   reco::GenParticleRef hardestParton;
+   reco::GenParticleRef hardestLightParton;
+   reco::GenParticleRef flavourParton;
+
+   // loop over clustered partons (already sorted by Pt)
+   for(reco::GenParticleRefVector::const_iterator it = clusteredPartons.begin(); it != clusteredPartons.end(); ++it)
+   {
+     // hardest parton
+     if( hardestParton.isNull() )
+       hardestParton = (*it);
+     // hardest light-flavour parton
+     if( hardestLightParton.isNull() )
+     {
+       if( CandMCTagUtils::isLightParton( *(*it) ) )
+         hardestLightParton = (*it);
+     }
+     // c flavour
+     if( flavourParton.isNull() && ( abs( (*it)->pdgId() ) == 4 ) )
+       flavourParton = (*it);
+     // b flavour gets priority
+     if( abs( (*it)->pdgId() ) == 5 )
+     {
+       if( flavourParton.isNull() )
+         flavourParton = (*it);
+       else if( abs( flavourParton->pdgId() ) != 5 )
+         flavourParton = (*it);
+     }
+   }
+
+   // set hadron-based flavour
+   if( clusteredbHadrons.size()>0 )
+     hadronFlavour = 5;
+   else if( clusteredcHadrons.size()>0 && clusteredbHadrons.size()==0 )
+     hadronFlavour = 4;
+   // set parton-based flavour
+   if( flavourParton.isNull() )
+   {
+     if( hardestParton.isNonnull() ) partonFlavour = hardestParton->pdgId();
+   }
+   else
+     partonFlavour = flavourParton->pdgId();
+
+   // if enabled, check for conflicts between hadron- and parton-based flavours and give priority to the hadron-based flavour
+   if( hadronFlavourHasPriority_ )
+   {
+     if( hadronFlavour==0 && (abs(partonFlavour)==4 || abs(partonFlavour)==5) )
+       partonFlavour = ( hardestLightParton.isNonnull() ? hardestLightParton->pdgId() : 0 );
+     else if( hadronFlavour!=0 && abs(partonFlavour)!=hadronFlavour )
+       partonFlavour = hadronFlavour;
    }
 }
 
