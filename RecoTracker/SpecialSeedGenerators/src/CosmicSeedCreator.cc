@@ -39,10 +39,10 @@ void CosmicSeedCreator::makeSeed(TrajectorySeedCollection & seedCollection,
 
   //hits
   //++++
-  TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
-  TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
+  SeedingHitSet::ConstRecHitPointer tth1 = hits[0];
+  SeedingHitSet::ConstRecHitPointer tth2 = hits[1];
 
-  TransientTrackingRecHit::ConstRecHitPointer usedHit;
+  SeedingHitSet::ConstRecHitPointer usedHit;
 
   //definition of position & momentum
   //++++++++++++++++++++++++++++++++++

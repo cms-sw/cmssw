@@ -6,18 +6,19 @@
 class SeedingHitSet {
 public:
 
-  using ConstRecHitPointer = BaseTrackerRecHit const *;
   using      RecHitPointer = BaseTrackerRecHit *;
+  using ConstRecHitPointer = BaseTrackerRecHit const *;
 
   static ConstRecHitPointer nullPtr() { return nullptr;}
 
-  SeedingHitSet() {}
+  SeedingHitSet() {theRecHits[0]=theRecHits[1]=theRecHits[2]=theRecHits[3]=nullptr;}
 
   SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two) 
   // : theRecHits{{one,two,ConstRecHitPointer()}}
   {
     theRecHits[0]=one;
     theRecHits[1]=two;
+    theRecHits[2]=theRecHits[3]=nullptr;
   }
   SeedingHitSet(ConstRecHitPointer  one, ConstRecHitPointer  two, 
 		ConstRecHitPointer three) 
@@ -26,6 +27,7 @@ public:
     theRecHits[0]=one;
     theRecHits[1]=two;
     theRecHits[2]=three;
+    theRecHits[3]=nullptr;
   }
   
   SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two, 
@@ -36,8 +38,6 @@ public:
     theRecHits[2]=three;
     theRecHits[3]=four;
   }
-  
-  ~SeedingHitSet(){}
   
 
   unsigned int size() const { return theRecHits[3] ? 4 : (theRecHits[2] ? 3 : ( theRecHits[1] ? 2 : 0 ) ); }

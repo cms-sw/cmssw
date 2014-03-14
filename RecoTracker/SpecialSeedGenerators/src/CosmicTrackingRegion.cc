@@ -24,32 +24,36 @@ using namespace std;
 using namespace ctfseeding; 
 
 
-TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
+TrackingRegion::ctfHits CosmicTrackingRegion::hits(const edm::Event& ev,
 						const edm::EventSetup& es,
 						const  ctfseeding::SeedingLayer* layer) const
 {
-  return hits_(ev, es, *layer);
+  TrackingRegion::ctfHits result;
+  hits_(ev, es, *layer, result, true);
+  return result;
 }
 
 TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
 						const edm::EventSetup& es,
 						const SeedingLayerSetsHits::SeedingLayer& layer) const
 {
-  return hits_(ev, es, layer);
+  TrackingRegion::Hits result;
+  hits_(ev, es, layer, result, false);
+  return result;
 }
 
-template <typename T>
-TrackingRegion::Hits CosmicTrackingRegion::hits_(const edm::Event& ev,
-						const edm::EventSetup& es,
-						const T& layer) const
+template <typename T, typename H>
+void CosmicTrackingRegion::hits_(
+				 const edm::Event& ev,
+				 const edm::EventSetup& es,
+				 const T& layer, H  & result,
+				 bool oldStyle) const
 {
 
   //get and name collections
   //++++++++++++++++++++++++
 
-  //tracking region
-  TrackingRegion::Hits result;
-
+ 
   //detector layer
   const DetLayer * detLayer = layer.detLayer();
   LogDebug("CosmicTrackingRegion") << "Looking at hits on subdet/layer " << layer.name();
@@ -124,24 +128,16 @@ TrackingRegion::Hits CosmicTrackingRegion::hits_(const edm::Event& ev,
 				   <<" but the last one is always an invalid hit, by construction.";
 
   //trajectory measurement
-  typedef vector<TrajectoryMeasurement>::const_iterator IM;
 
-  for (IM im = meas.begin(); im != meas.end(); im++) {//loop on measurement tracker
-    TrajectoryMeasurement::ConstRecHitPointer ptrHit = im->recHit();
+  // waiting for a migration at LayerMeasurements level and at seed builder level
+  for (auto const & im : meas) {
+    if(!im.recHit()->isValid()) continue;
+    auto ptrHit = (BaseTrackerRecHit *)(im.recHit()->hit()->clone());
+    if (!oldStyle) cache.emplace_back(ptrHit);
+    result.emplace_back(ptrHit);
+  }
 
-    if (ptrHit->isValid()) { 
-      LogDebug("CosmicTrackingRegion") << "Hit found in the region at position: "<<ptrHit->globalPosition();
-      result.push_back(  ptrHit );
-    }//end if isValid()
 
-    else LogDebug("CosmicTrackingRegion") << "No valid hit";
-  }//end loop on measurement tracker
-
-  
-  //result
-  //++++++
-
-  return result;
 }
 
 
