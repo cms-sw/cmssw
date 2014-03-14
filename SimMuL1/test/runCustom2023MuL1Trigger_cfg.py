@@ -2,7 +2,7 @@
 import os
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("MUTRIG")
+process = cms.Process("MUTRG")
 
 ## Standard sequence
 process.load('Configuration.StandardSequences.Services_cff')
@@ -144,7 +144,7 @@ if not physics:
         'drop *_simDttfDigis_*_*',
         'drop *_simCsctfDigis_*_*',
         'drop *_simGmtDigis_*_*',
-        'drop *_l1extraParticles_*_*',
+        'drop *_l1extraParticles_*_*'
         )
     
 ## output commands 
