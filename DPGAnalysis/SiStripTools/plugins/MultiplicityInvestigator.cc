@@ -43,6 +43,7 @@
 #include "DPGAnalysis/SiStripTools/interface/DigiVertexCorrHistogramMaker.h"
 #include "DPGAnalysis/SiStripTools/interface/DigiLumiCorrHistogramMaker.h"
 #include "DPGAnalysis/SiStripTools/interface/DigiPileupCorrHistogramMaker.h"
+#include "DPGAnalysis/SiStripTools/interface/DigiVtxPosCorrHistogramMaker.h"
 
 //
 // class decleration
@@ -66,10 +67,12 @@ private:
   const bool m_wantVtxCorrHist;
   const bool m_wantLumiCorrHist;
   const bool m_wantPileupCorrHist;
+  const bool m_wantVtxPosCorrHist;
   DigiInvestigatorHistogramMaker m_digiinvesthmevent;
   DigiVertexCorrHistogramMaker m_digivtxcorrhmevent;
   DigiLumiCorrHistogramMaker m_digilumicorrhmevent;
   DigiPileupCorrHistogramMaker m_digipileupcorrhmevent;
+  DigiVtxPosCorrHistogramMaker m_digivtxposcorrhmevent;
 
   edm::InputTag m_multiplicityMap;
   edm::InputTag m_vertexCollection;
@@ -93,21 +96,23 @@ MultiplicityInvestigator::MultiplicityInvestigator(const edm::ParameterSet& iCon
   m_wantVtxCorrHist(iConfig.getParameter<bool>("wantVtxCorrHist")),
   m_wantLumiCorrHist(iConfig.getParameter<bool>("wantLumiCorrHist")),
   m_wantPileupCorrHist(iConfig.getParameter<bool>("wantPileupCorrHist")),
-  m_digiinvesthmevent(iConfig),
-  m_digivtxcorrhmevent(iConfig.getParameter<edm::ParameterSet>("digiVtxCorrConfig")),
-  m_digilumicorrhmevent(iConfig.getParameter<edm::ParameterSet>("digiLumiCorrConfig")),
-  m_digipileupcorrhmevent(iConfig.getParameter<edm::ParameterSet>("digiPileupCorrConfig")),
+  m_wantVtxPosCorrHist(iConfig.getParameter<bool>("wantVtxPosCorrHist")),
+  m_digiinvesthmevent(m_wantInvestHist ? iConfig : DigiInvestigatorHistogramMaker()),
+  m_digivtxcorrhmevent(m_wantVtxCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiVtxCorrConfig") : DigiVertexCorrHistogramMaker()),
+  m_digilumicorrhmevent(m_wantLumiCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiLumiCorrConfig") : DigiLumiCorrHistogramMaker()),
+  m_digipileupcorrhmevent(m_wantPileupCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiPileupCorrConfig") : DigiPileupCorrHistogramMaker()),
+  m_digivtxposcorrhmevent(m_wantVtxPosCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiVtxPosCorrConfig") : DigiVtxPosCorrHistogramMaker()),
   m_multiplicityMap(iConfig.getParameter<edm::InputTag>("multiplicityMap")),
   m_vertexCollection(iConfig.getParameter<edm::InputTag>("vertexCollection"))
 {
    //now do what ever initialization is needed
 
 
-  if(m_wantInvestHist)  m_digiinvesthmevent.book("EventProcs");
-  if(m_wantVtxCorrHist) m_digivtxcorrhmevent.book("VtxCorr");
-  if(m_wantLumiCorrHist) m_digilumicorrhmevent.book("LumiCorr");
-  if(m_wantPileupCorrHist) m_digipileupcorrhmevent.book("PileupCorr");
-
+  if(m_wantInvestHist)  { m_digiinvesthmevent.book("EventProcs");}
+  if(m_wantVtxCorrHist) { m_digivtxcorrhmevent.book("VtxCorr");}
+  if(m_wantLumiCorrHist) { m_digilumicorrhmevent.book("LumiCorr");}
+  if(m_wantPileupCorrHist) { m_digipileupcorrhmevent.book("PileupCorr");}
+  if(m_wantVtxPosCorrHist) { m_digivtxposcorrhmevent.book("VtxPosCorr");}
 }
 
 
@@ -144,6 +149,7 @@ MultiplicityInvestigator::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   if(m_wantLumiCorrHist) m_digilumicorrhmevent.fill(iEvent,*mults);
   if(m_wantPileupCorrHist) m_digipileupcorrhmevent.fill(iEvent,*mults);
+  if(m_wantVtxPosCorrHist) m_digivtxposcorrhmevent.fill(iEvent,*mults);
 
 }
 

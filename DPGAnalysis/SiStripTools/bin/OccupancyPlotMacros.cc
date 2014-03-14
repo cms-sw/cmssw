@@ -1,4 +1,5 @@
 #include "TText.h"
+#include "TLatex.h"
 #include "TLine.h"
 #include "TGaxis.h"
 #include "TFile.h"
@@ -231,20 +232,20 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 	  double dr = 1.;
 	  // determine module size
 	  
-	  if(i > 100 && i < 200) { dz=3.33;dr=0.4;}
+	  if(i > 100 && i < 200) { dz=3.33;dr=0.4;}  // BPIX
 
-	  if(i > 200 && i < 1000 && ( i%10 == 1 || i%10 == 7)) { dz=0.8;dr=0.4;}
+	  if(i > 200 && i < 1000 && ( i%10 == 1 || i%10 == 7)) { dz=0.8;dr=0.4;}  // FPIX
 	  if(i > 200 && i < 1000 && !( i%10 == 1 || i%10 == 7)) { dz=0.8;dr=0.8;}
 
-	  if(i > 1000 && i < 2000) { dz=5.948;dr=0.4;}
+	  if(i > 1000 && i < 2000) { dz=5.948;dr=0.4;}  // TIB
 
-	  if(i > 3000 && i < 4000) { dz=9.440;dr=0.4;}
+	  if(i > 3000 && i < 4000) { dz=9.440;dr=0.4;}  // TOB
 
-	  if(i > 2000 && i < 3000  && (i%1000)/100 == 1) { dz=0.8;dr=5.647;} 
+	  if(i > 2000 && i < 3000  && (i%1000)/100 == 1) { dz=0.8;dr=5.647;} // TID
 	  if(i > 2000 && i < 3000  && (i%1000)/100 == 2) { dz=0.8;dr=4.512;} 
 	  if(i > 2000 && i < 3000  && (i%1000)/100 == 3) { dz=0.8;dr=5.637;} 
 
-	  if(i > 4000 && i < 6000  && (i%1000)/100 == 1) { dz=0.8;dr=4.362;} 
+	  if(i > 4000 && i < 6000  && (i%1000)/100 == 1) { dz=0.8;dr=4.362;} // TEC
 	  if(i > 4000 && i < 6000  && (i%1000)/100 == 2) { dz=0.8;dr=4.512;} 
 	  if(i > 4000 && i < 6000  && (i%1000)/100 == 3) { dz=0.8;dr=5.637;} 
 	  if(i > 4000 && i < 6000  && (i%1000)/100 == 4) { dz=0.8;dr=5.862;} 
@@ -279,6 +280,7 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
       // eta boundaries lines
       TList etalines;
       TList etalabels;
+      TList paperlabels;
       for(int i=0;i<8;++i) {
 	double eta = 3.0-i*0.2;
 	TLine* lin = new TLine(295,2*295/(exp(eta)-exp(-eta)),305,2*305/(exp(eta)-exp(-eta)));
@@ -312,12 +314,34 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 	label->SetTextAlign(22);
 	etalabels.Add(label);
       }
+      TLatex* etalab = new  TLatex(0,115,"#eta");
+      etalab->SetTextSize(.03);
+      etalab->SetTextAlign(22);
+      etalabels.Add(etalab);
 
+      // CMS label
+      TLatex *cmslab = new TLatex(0.15,0.965,"CMS");
+      cmslab->SetNDC();
+      cmslab->SetTextSize(0.04);
+      cmslab->SetTextAlign(31);
+      paperlabels.Add(cmslab);
+      TLatex *enelab = new TLatex(0.92,0.965,"#sqrt{s} = 7 TeV");
+      enelab->SetNDC();
+      enelab->SetTextSize(0.04);
+      enelab->SetTextAlign(31);
+      paperlabels.Add(enelab);
+      /*
+      TLatex *lumilab = new TLatex(0.6,0.965,Form("L = %.1f  fb^{-1}",19.7));
+      lumilab->SetNDC();
+      lumilab->SetTextSize(0.04);
+      lumilab->SetTextAlign(31);
+      paperlabels.Add(lumilab);
+      */
 
       TGaxis *raxis = new TGaxis(-310,0,-310,140,0,140,10,"S");
       TGaxis *zaxis = new TGaxis(-310,0,310,0,-310,310,10,"S");
       raxis->SetTickSize(.01);      zaxis->SetTickSize(.01);
-      raxis->SetTitle("R (cm)"); zaxis->SetTitle("Z (cm)");
+      raxis->SetTitle("r (cm)"); zaxis->SetTitle("z (cm)");
 
       TList palette;
       TList mpalette;
@@ -334,6 +358,7 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
       TGaxis *paxis = new TGaxis(330,0,330,140,min,max,510,"SLG+");
       paxis->SetTickSize(.02);
       paxis->SetLabelOffset(paxis->GetLabelOffset()*0.5);
+      paxis->SetTitle("channel occupancy");
       palette.Add(paxis);
 
       TGaxis *mpaxis = new TGaxis(330,0,330,140,mmin,mmax,510,"SLG+");
@@ -350,6 +375,7 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
       std::cout << modulesoccu.GetSize() << std::endl;
       etalines.Draw();
       etalabels.Draw();
+      paperlabels.Draw();
       palette.Draw();
       modulesoccu.Draw();
 
@@ -369,5 +395,35 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 
 
   }
+
+}
+
+float combinedOccupancy(TFile* ff, const char* module, const int lowerbin, const int upperbin) {
+
+  float cumoccu = -2.;
+  double cumerr = -2;
+
+  if(ff->cd(module)) {
+    
+    TProfile* aveoccu= (TProfile*)gDirectory->Get("aveoccu");
+    //    TProfile* avemult= (TProfile*)gDirectory->Get("avemult");
+    TH1F* nchannels = (TH1F*)gDirectory->Get("nchannels_real");
+
+    float sumoccu=0.;
+    float sumnchannels=0;
+    double sumerrsq=0;
+    
+    for(int i=lowerbin; i<upperbin+1; ++i) {
+      std::cout << "processing bin " << i << " " << aveoccu->GetBinContent(i) << "+/-" << aveoccu->GetBinError(i) <<  std::endl;
+      sumoccu += aveoccu->GetBinContent(i);
+      sumnchannels += nchannels->GetBinContent(i);
+      sumerrsq += aveoccu->GetBinError(i)*aveoccu->GetBinError(i);
+    }
+    cumoccu = sumnchannels!=0 ? sumoccu/sumnchannels : -1;
+    cumerr = sumnchannels!=0 ? sqrt(sumerrsq)/sumnchannels : -1;
+    std::cout << "Cumulative occupancy: " << sumoccu << " " << sumnchannels << " " << cumoccu << "+/-" << cumerr;
+  }
+
+  return cumoccu;
 
 }
