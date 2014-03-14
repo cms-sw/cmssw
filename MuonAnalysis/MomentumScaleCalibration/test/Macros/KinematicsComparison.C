@@ -3,7 +3,6 @@
 #include "THStack.h"
 #include <vector>
 
-using namespace std;
 
 /**
  * Base class used by Normalized and Merged. It sets up the canvas and the legend.
@@ -28,7 +27,7 @@ class BaseNormalized {
   TString title_;
   TCanvas * canvas_;  
   TLegend * legend_;
-  vector<TH1*> histoList_;
+  std::vector<TH1*> histoList_;
   static Color_t colors_[4];
 };
 
@@ -56,7 +55,7 @@ class Normalized : BaseNormalized {
 
     int colorIndex = 0;
     if( !(histoList_.empty()) ) {
-      vector<TH1*>::iterator histoIter = histoList_.begin();
+      std::vector<TH1*>::iterator histoIter = histoList_.begin();
       for( ; histoIter != histoList_.end(); ++histoIter, ++colorIndex ) {
         TH1 * histo = *histoIter;
         if(errors) histo->Sumw2();
@@ -113,7 +112,7 @@ class Merged : public BaseNormalized {
       mergedName+="_Merged";
       TH1 * histo_Merged = (TH1*)histoList_[0]->Clone(mergedName);
       histo_Merged->Reset();
-      vector<TH1*>::iterator histoIter = histoList_.begin();
+      std::vector<TH1*>::iterator histoIter = histoList_.begin();
       int scaleFactorIndex = 0;
       for( ; histoIter != histoList_.end(); ++histoIter, ++scaleFactorIndex ) {
         TH1 * histo = *histoIter;
@@ -130,14 +129,14 @@ class Merged : public BaseNormalized {
     }
   }
  protected:
-  vector<double> scaleFactor;
+  std::vector<double> scaleFactor;
 };
 
 /**
  * Small function used to draw J/Psi, Y and Z histograms, both superimposed and merged. Runs on ResolutionAnalyzer files.
  */
 void drawKinematics( TFile ** inputFileList, int * inputScaleList, const TString & name, const TString & title, const TString & xTitle = "", const TString & yTitle = "", const TString & yTitleMerged = "", const TString & legPreText = "" ) {
-  cout << "Drawing: " << name << endl;
+  std::cout << "Drawing: " << name << std::endl;
   HistoFinder finder;
 
   TH1F * histoPt_JPsi = (TH1F*)finder(name, inputFileList[0]);
