@@ -27,7 +27,7 @@ MicroEventContent = cms.PSet(
 
         'keep *_offlineBeamSpot_*_*',
         'keep *_offlineSlimmedPrimaryVertices_*_*',
-        'keep *_packedPFCandidates_*_*',
+        'keep patPackedCandidates_packedPFCandidates_*_*',
 
         #'keep double_*_rho_*', ## need to understand what are the rho's in 70X
         'keep *_selectedPatTrigger_*_PAT',

@@ -33,6 +33,18 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("PhysicsTools.PatAlgos.slimming.slimming_cff")
 
+process.muonMatch.matched = "prunedGenParticles"
+process.electronMatch.matched = "prunedGenParticles"
+process.photonMatch.matched = "prunedGenParticles"
+process.tauMatch.matched = "prunedGenParticles"
+process.patJetPartonMatch.matched = "prunedGenParticles"
+process.patJetGenJetMatch.matched = "slimmedGenJets"
+process.patMuons.embedGenMatch = False
+process.patElectrons.embedGenMatch = False
+process.patPhotons.embedGenMatch = False
+process.patTaus.embedGenMatch = False
+process.patJets.embedGenPartonMatch = False
+
 process.patMuons.isoDeposits = cms.PSet()
 process.patElectrons.isoDeposits = cms.PSet()
 process.patTaus.isoDeposits = cms.PSet()
