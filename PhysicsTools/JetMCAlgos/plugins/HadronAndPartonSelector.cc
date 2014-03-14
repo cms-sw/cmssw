@@ -6,7 +6,7 @@
 /**\class HadronAndPartonSelector HadronAndPartonSelector.cc PhysicsTools/JetMCAlgos/plugins/HadronAndPartonSelector.cc
  * \brief Selects hadrons and partons from a collection of GenParticles
  *
- * This producer selects hadrons and partons from a collection of GenParticles and stores vectors of EDM references
+ * This producer selects hadrons, partons, and leptons from a collection of GenParticles and stores vectors of EDM references
  * to these particles in the event. The following hadrons are selected:
  *
  * - b hadrons that do not have other b hadrons as daughters
@@ -17,12 +17,17 @@
  * hadrons the c hadron could fly away at a large angle and provide the c flavour to a random nearby jet. Hence, the choice
  * was made to exclude c hadrons that come from b-hadron decays.
  * 
- * The parton selection is generator-specific and is described in each of the parton selectors individually.
- * 
- * The producer attempts to automatically determine what generator was used to hadronize events in order to determine
- * what parton selection mode to use. It is also possible to enforce any of the supported parton selection modes.
+ * The parton selection is generator-specific and is described in each of the parton selectors individually. The producer
+ * attempts to automatically determine what generator was used to hadronize events in order to determine what parton
+ * selection mode to use. It is also possible to enforce any of the supported parton selection modes.
  *
  * The selected hadrons and partons are finally used by the JetFlavourClustering producer to determine the jet flavour.
+ * 
+ * The following leptons are selected:
+ * 
+ * - status==1 electrons and muons
+ * 
+ * - status==2 taus
  */
 //
 // Original Author:  Dinko Ferencek
@@ -50,6 +55,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
+#include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
 #include "PhysicsTools/JetMCAlgos/interface/BasePartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/Pythia6PartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/Pythia8PartonSelector.h"
@@ -109,6 +115,7 @@ HadronAndPartonSelector::HadronAndPartonSelector(const edm::ParameterSet& iConfi
    produces<reco::GenParticleRefVector>( "bHadrons" );
    produces<reco::GenParticleRefVector>( "cHadrons" );
    produces<reco::GenParticleRefVector>( "partons" );
+   produces<reco::GenParticleRefVector>( "leptons" );
 }
 
 
@@ -194,8 +201,9 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    std::auto_ptr<reco::GenParticleRefVector> bHadrons ( new reco::GenParticleRefVector );
    std::auto_ptr<reco::GenParticleRefVector> cHadrons ( new reco::GenParticleRefVector );
    std::auto_ptr<reco::GenParticleRefVector> partons  ( new reco::GenParticleRefVector );
+   std::auto_ptr<reco::GenParticleRefVector> leptons  ( new reco::GenParticleRefVector );
 
-   // loop over particles and select b and c hadrons
+   // loop over particles and select b and c hadrons and leptons
    for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
    {
      // if b hadron
@@ -228,6 +236,14 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
        cHadrons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
      }
+
+     // status==1 electrons and muons
+     if( ( reco::isElectron( *it ) || reco::isElectron( *it ) ) && it->status()==1 )
+       leptons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
+
+     // status==2 taus
+     if( reco::isTau( *it ) && it->status()==2 )
+       leptons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
    }
 
    // select partons
@@ -237,6 +253,7 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.put( bHadrons, "bHadrons" );
    iEvent.put( cHadrons, "cHadrons" );
    iEvent.put( partons,  "partons" );
+   iEvent.put( leptons,  "leptons" );
 }
 
 // ------------ method called once each job just before starting event loop  ------------

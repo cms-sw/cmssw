@@ -158,6 +158,23 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
                                                                                         << "), " << dist
                                                                                         << ", " << dist2 << std::endl;
     }
+    // ----------------------- Leptons -------------------------------
+    const reco::GenParticleRefVector & leptons = aInfo.getLeptons();
+    std::cout << "                      # of clustered leptons: " << leptons.size() << std::endl;
+    for(reco::GenParticleRefVector::const_iterator it = leptons.begin(); it != leptons.end(); ++it)
+    {
+      float dist = reco::deltaR( aJet->eta(), aJet->phi(), (*it)->eta(), (*it)->phi() );
+      float dist2 = reco::deltaR( aJet->rapidity(), aJet->phi(), (*it)->rapidity(), (*it)->phi() );
+      std::cout << "                        Lepton " << (it-leptons.begin())
+                << " PdgID, status, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
+                                                                                        << ", " << (*it)->status()
+                                                                                        << ", (" << (*it)->pt()
+                                                                                        << ","  << (*it)->eta()
+                                                                                        << ","  << (*it)->rapidity()
+                                                                                        << ","  << (*it)->phi()
+                                                                                        << "), " << dist
+                                                                                        << ", " << dist2 << std::endl;
+    }
 
     if( useSubjets_ )
     {
@@ -236,6 +253,23 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
             float dist = reco::deltaR( aSubjet->eta(), aSubjet->phi(), (*it)->eta(), (*it)->phi() );
             float dist2 = reco::deltaR( aSubjet->rapidity(), aSubjet->phi(), (*it)->rapidity(), (*it)->phi() );
             std::cout << "                             Parton " << (it-partons.begin())
+                      << " PdgID, status, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
+                                                                                              << ", " << (*it)->status()
+                                                                                              << ", (" << (*it)->pt()
+                                                                                              << ","  << (*it)->eta()
+                                                                                              << ","  << (*it)->rapidity()
+                                                                                              << ","  << (*it)->phi()
+                                                                                              << "), " << dist
+                                                                                              << ", " << dist2 << std::endl;
+          }
+          // ----------------------- Leptons -------------------------------
+          const reco::GenParticleRefVector & leptons = aInfo.getLeptons();
+          std::cout << "                           # of assigned leptons: " << leptons.size() << std::endl;
+          for(reco::GenParticleRefVector::const_iterator it = leptons.begin(); it != leptons.end(); ++it)
+          {
+            float dist = reco::deltaR( aSubjet->eta(), aSubjet->phi(), (*it)->eta(), (*it)->phi() );
+            float dist2 = reco::deltaR( aSubjet->rapidity(), aSubjet->phi(), (*it)->rapidity(), (*it)->phi() );
+            std::cout << "                             Lepton " << (it-leptons.begin())
                       << " PdgID, status, (pt,eta,rapidity,phi), dR(eta-phi), dR(rap-phi) = " << (*it)->pdgId()
                                                                                               << ", " << (*it)->status()
                                                                                               << ", (" << (*it)->pt()

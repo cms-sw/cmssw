@@ -59,6 +59,9 @@
  * possible inconsistencies between the fat jet and subjet flavours (such as a non-b fat jet having a b subjet and vice
  * versa) as well as the fact that reclustering the constituents of groomed fat jets will generally result in a jet
  * collection different from the input groomed fat jets.
+ * 
+ * In addition, "ghost" leptons can also be clustered inside jets but they are not used in any way to determine the jet
+ * flavor. This functionality is disabled by default.
  */
 //
 // Original Author:  Dinko Ferencek
@@ -104,23 +107,29 @@ typedef boost::shared_ptr<fastjet::JetDefinition>    JetDefPtr;
 //
 class GhostInfo : public fastjet::PseudoJet::UserInfoBase{
   public:
-    GhostInfo(
-               const bool & isHadron,
-               const bool & isbHadron,
-               const reco::GenParticleRef & particleRef
-              ) :
-      m_isHadron(isHadron),
-      m_isbHadron(isbHadron),
-      m_particleRef(particleRef) { }
+    GhostInfo(const bool & isHadron,
+              const bool & isbHadron,
+              const bool & isParton,
+              const bool & isLepton,
+              const reco::GenParticleRef & particleRef) :
+      m_particleRef(particleRef)
+    {
+      m_type = 0;
+      if( isHadron )  m_type |= ( 1 << 0 );
+      if( isbHadron ) m_type |= ( 1 << 1 );
+      if( isParton )  m_type |= ( 1 << 2 );
+      if( isLepton )  m_type |= ( 1 << 3 );
+    }
 
-    const bool isHadron() const { return m_isHadron; }
-    const bool isbHadron() const { return m_isbHadron; }
+    const bool isHadron()  const { return ( m_type & (1 << 0) ); }
+    const bool isbHadron() const { return ( m_type & (1 << 1) ); }
+    const bool isParton()  const { return ( m_type & (1 << 2) ); }
+    const bool isLepton()  const { return ( m_type & (1 << 3) ); }
     const reco::GenParticleRef & particleRef() const { return m_particleRef; }
 
   protected:
-    bool m_isHadron;
-    bool m_isbHadron;
-    reco::GenParticleRef m_particleRef;
+    const reco::GenParticleRef m_particleRef;
+    int m_type;
 };
 
 class JetFlavourClustering : public edm::EDProducer {
@@ -164,6 +173,7 @@ class JetFlavourClustering : public edm::EDProducer {
       const edm::InputTag bHadrons_;    // Input b hadron collection
       const edm::InputTag cHadrons_;    // Input c hadron collection
       const edm::InputTag partons_;     // Input parton collection
+      const edm::InputTag leptons_;     // Input lepton collection
 
       const std::string   jetAlgorithm_;
       const double        rParam_;
@@ -171,6 +181,7 @@ class JetFlavourClustering : public edm::EDProducer {
       const double        ghostRescaling_;
       const bool          hadronFlavourHasPriority_;
       const bool          useSubjets_;
+      const bool          useLeptons_;
 
       ClusterSequencePtr  fjClusterSeq_;
       JetDefPtr           fjJetDefinition_;
@@ -191,12 +202,14 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig) :
    bHadrons_(iConfig.getParameter<edm::InputTag>("bHadrons")),
    cHadrons_(iConfig.getParameter<edm::InputTag>("cHadrons")),
    partons_(iConfig.getParameter<edm::InputTag>("partons")),
+   leptons_(iConfig.exists("leptons") ? iConfig.getParameter<edm::InputTag>("leptons") : edm::InputTag() ),
    jetAlgorithm_(iConfig.getParameter<std::string>("jetAlgorithm")),
    rParam_(iConfig.getParameter<double>("rParam")),
    jetPtMin_(0.), // hardcoded to 0. since we simply want to recluster all input jets which already had some PtMin applied
    ghostRescaling_(iConfig.getParameter<double>("ghostRescaling")),
    hadronFlavourHasPriority_(iConfig.getParameter<bool>("hadronFlavourHasPriority")),
-   useSubjets_(iConfig.exists("groomedJets") && iConfig.exists("subjets"))
+   useSubjets_(iConfig.exists("groomedJets") && iConfig.exists("subjets")),
+   useLeptons_(iConfig.exists("leptons"))
 
 {
    // register your products
@@ -253,6 +266,10 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<reco::GenParticleRefVector> partons;
    iEvent.getByLabel(partons_, partons);
 
+   edm::Handle<reco::GenParticleRefVector> leptons;
+   if( useLeptons_ )
+     iEvent.getByLabel(leptons_, leptons);
+
    std::auto_ptr<reco::JetFlavourInfoMatchingCollection> jetFlavourInfos( new reco::JetFlavourInfoMatchingCollection(reco::JetRefBaseProd(jets)) );
    std::auto_ptr<reco::JetFlavourInfoMatchingCollection> subjetFlavourInfos;
    if( useSubjets_ )
@@ -281,7 +298,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
      fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
      p*=ghostRescaling_; // rescale hadron momentum
-     p.set_user_info(new GhostInfo(true, true, *it));
+     p.set_user_info(new GhostInfo(true, true, false, false, *it));
      fjInputs.push_back(p);
    }
    // insert "ghost" c hadrons in the vector of constituents
@@ -289,7 +306,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
      fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
      p*=ghostRescaling_; // rescale hadron momentum
-     p.set_user_info(new GhostInfo(true, false, *it));
+     p.set_user_info(new GhostInfo(true, false, false, false, *it));
      fjInputs.push_back(p);
    }
    // insert "ghost" partons in the vector of constituents
@@ -297,8 +314,19 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
      fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
      p*=ghostRescaling_; // rescale parton momentum
-     p.set_user_info(new GhostInfo(false, false, *it));
+     p.set_user_info(new GhostInfo(false, false, true, false, *it));
      fjInputs.push_back(p);
+   }
+   // if used, insert "ghost" leptons in the vector of constituents
+   if( useLeptons_ )
+   {
+     for(reco::GenParticleRefVector::const_iterator it = leptons->begin(); it != leptons->end(); ++it)
+     {
+       fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
+       p*=ghostRescaling_; // rescale lepton momentum
+       p.set_user_info(new GhostInfo(false, false, false, true, *it));
+       fjInputs.push_back(p);
+     }
    }
 
    // define jet clustering sequence
@@ -350,6 +378,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      reco::GenParticleRefVector clusteredbHadrons;
      reco::GenParticleRefVector clusteredcHadrons;
      reco::GenParticleRefVector clusteredPartons;
+     reco::GenParticleRefVector clusteredLeptons;
 
      // get jet constituents (sorted by Pt)
      std::vector<fastjet::PseudoJet> constituents = fastjet::sorted_by_pt( inclusiveJets.at(reclusteredIndices.at(i)).constituents() );
@@ -359,15 +388,22 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      {
        if( !it->has_user_info() ) continue; // skip if not a "ghost"
 
-       // b hadron "ghost"
-       if( it->user_info<GhostInfo>().isHadron() && it->user_info<GhostInfo>().isbHadron() )
-         clusteredbHadrons.push_back(it->user_info<GhostInfo>().particleRef());
-       // c hadron "ghost"
-       else if( it->user_info<GhostInfo>().isHadron() && !it->user_info<GhostInfo>().isbHadron() )
-         clusteredcHadrons.push_back(it->user_info<GhostInfo>().particleRef());
-       // parton "ghost"
-       else if( !it->user_info<GhostInfo>().isHadron() )
+       // "ghost" hadron
+       if( it->user_info<GhostInfo>().isHadron() )
+       {
+         // "ghost" b hadron
+         if( it->user_info<GhostInfo>().isbHadron() )
+           clusteredbHadrons.push_back(it->user_info<GhostInfo>().particleRef());
+         // "ghost" c hadron
+         else
+           clusteredcHadrons.push_back(it->user_info<GhostInfo>().particleRef());
+       }
+       // "ghost" parton
+       else if( it->user_info<GhostInfo>().isParton() )
          clusteredPartons.push_back(it->user_info<GhostInfo>().particleRef());
+       // "ghost" lepton
+       else if( it->user_info<GhostInfo>().isLepton() )
+         clusteredLeptons.push_back(it->user_info<GhostInfo>().particleRef());
      }
 
      int hadronFlavour = 0; // default hadron flavour set to 0 (= undefined)
@@ -377,7 +413,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      setFlavours(clusteredbHadrons, clusteredcHadrons, clusteredPartons, hadronFlavour, partonFlavour);
 
      // set the JetFlavourInfo for this jet
-     (*jetFlavourInfos)[jets->refAt(i)] = reco::JetFlavourInfo(clusteredbHadrons,clusteredcHadrons,clusteredPartons,hadronFlavour,partonFlavour);
+     (*jetFlavourInfos)[jets->refAt(i)] = reco::JetFlavourInfo(clusteredbHadrons, clusteredcHadrons, clusteredPartons, clusteredLeptons, hadronFlavour, partonFlavour);
 
      // if subjets are used, determine their flavour
      if( useSubjets_ )
@@ -388,6 +424,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        std::vector<reco::GenParticleRefVector> assignedbHadrons(subjetIndices.at(i).size(),reco::GenParticleRefVector());
        std::vector<reco::GenParticleRefVector> assignedcHadrons(subjetIndices.at(i).size(),reco::GenParticleRefVector());
        std::vector<reco::GenParticleRefVector> assignedPartons(subjetIndices.at(i).size(),reco::GenParticleRefVector());
+       std::vector<reco::GenParticleRefVector> assignedLeptons(subjetIndices.at(i).size(),reco::GenParticleRefVector());
 
        // loop over clustered b hadrons and assign them to different subjets based on smallest dR
        for(reco::GenParticleRefVector::const_iterator it = clusteredbHadrons.begin(); it != clusteredbHadrons.end(); ++it)
@@ -428,6 +465,22 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
          assignedPartons.at(closestSubjetIdx).push_back( *it );
        }
+       // if used, loop over clustered leptons and assign them to different subjets based on smallest dR
+       if( useLeptons_ )
+       {
+         for(reco::GenParticleRefVector::const_iterator it = clusteredLeptons.begin(); it != clusteredLeptons.end(); ++it)
+         {
+           std::vector<double> dRtoSubjets;
+
+           for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
+             dRtoSubjets.push_back( reco::deltaR( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(i).at(sj)).rapidity(), subjets->at(subjetIndices.at(i).at(sj)).phi() ) );
+
+           // find the closest subjet
+           int closestSubjetIdx = std::distance( dRtoSubjets.begin(), std::min_element(dRtoSubjets.begin(), dRtoSubjets.end()) );
+
+           assignedLeptons.at(closestSubjetIdx).push_back( *it );
+         }
+       }
 
        // loop over subjets and determine their flavour
        for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
@@ -439,7 +492,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          setFlavours(assignedbHadrons.at(sj), assignedcHadrons.at(sj), assignedPartons.at(sj), subjetHadronFlavour, subjetPartonFlavour);
 
          // set the JetFlavourInfo for this subjet
-         (*subjetFlavourInfos)[subjets->refAt(subjetIndices.at(i).at(sj))] = reco::JetFlavourInfo(assignedbHadrons.at(sj),assignedcHadrons.at(sj),assignedPartons.at(sj),subjetHadronFlavour,subjetPartonFlavour);
+         (*subjetFlavourInfos)[subjets->refAt(subjetIndices.at(i).at(sj))] = reco::JetFlavourInfo(assignedbHadrons.at(sj), assignedcHadrons.at(sj), assignedPartons.at(sj), assignedLeptons.at(sj), subjetHadronFlavour, subjetPartonFlavour);
        }
      }
    }
