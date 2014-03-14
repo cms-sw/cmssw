@@ -25,6 +25,7 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
   using namespace edm;
 
   hww.Load_trks_trk_p4();
+  hww.Load_trks_vertex_p4();
   hww.Load_trks_d0();
   hww.Load_trks_chi2();
   hww.Load_trks_ndof();
@@ -83,6 +84,7 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
     iTIndex++;
 
     hww.trks_trk_p4()       .push_back( LorentzVector( i->px(), i->py(), i->pz(), i->p() )       );
+    hww.trks_vertex_p4()    .push_back( LorentzVector(i->vx(),i->vy(), i->vz(), 0.)              );
     hww.trks_d0()           .push_back( i->d0()                                                  );
     hww.trks_chi2()         .push_back( i->chi2()                                                );
     hww.trks_ndof()         .push_back( i->ndof()                                                );
@@ -91,7 +93,7 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
     hww.trks_z0Err()        .push_back( i->dzError()                                             );
     hww.trks_etaErr()       .push_back( i->etaError()                                            );
     hww.trks_phiErr()       .push_back( i->phiError()                                            );
-    hww.trks_d0phiCov()     .push_back( -i->covariance(TrackBase::i_phi, TrackBase::i_dxy)	      ); 
+    hww.trks_d0phiCov()     .push_back( -i->covariance(TrackBase::i_phi, TrackBase::i_dxy)	     ); 
     hww.trks_charge()       .push_back( i->charge()                                              );
     hww.trks_qualityMask()  .push_back( i->qualityMask()                                         );
 
@@ -146,7 +148,10 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
         if(!valid_hit) continue;
         if(pixel_hit){
           const SiPixelRecHit *pixel_hit_cast = dynamic_cast<const SiPixelRecHit*>(&(**ihit));
-          assert(pixel_hit_cast != 0);
+          if (pixel_hit_cast == NULL){
+            LogInfo("OutputInfo") << " pixel_hit_cast is NULL, TrackMaker quitting";
+            return;
+          } 
           if(i_layer == 1){
             i_layer++;
 
@@ -156,10 +161,16 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
           const SiStripRecHit1D *strip_hit_cast = dynamic_cast<const SiStripRecHit1D*>(&(**ihit));
           const SiStripRecHit2D *strip2d_hit_cast = dynamic_cast<const SiStripRecHit2D*>(&(**ihit));
           ClusterRef cluster;
-          if(strip_hit_cast == NULL)
+          if(strip_hit_cast == NULL) {
+            if(strip2d_hit_cast == NULL) {
+              LogInfo("OutputInfo") << " strip2d_hit_cast is NULL, TrackMaker quitting";
+              return;
+            }
             cluster = strip2d_hit_cast->cluster();
-          else 
+          }
+          else { 
             cluster = strip_hit_cast->cluster();
+          }
           int cluster_size   = (int)cluster->amplitudes().size();
           int cluster_charge = 0;
           double   cluster_weight_size = 0.0;

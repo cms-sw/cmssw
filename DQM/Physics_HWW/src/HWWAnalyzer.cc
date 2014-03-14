@@ -18,6 +18,9 @@ HWWAnalyzer::HWWAnalyzer(const edm::ParameterSet& iConfig)
              mvaJetIdMaker      (iConfig, consumesCollector())
 {
 
+  doTest = iConfig.getParameter<bool>("doTest");
+  if(doTest) edm::LogInfo("OutputInfo") << "running with doTest==True";
+
   egammaMvaEleEstimator = 0;
   muonMVAEstimator = 0;
 
@@ -66,7 +69,7 @@ HWWAnalyzer::~HWWAnalyzer(){
 
 
 void HWWAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-  
+
   using namespace HWWFunctions;
 
   HWW hww;
@@ -77,6 +80,30 @@ void HWWAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   eventMonitor.monitor.count(EM, "total events", 1.0);
   eventMonitor.monitor.count(ME, "total events", 1.0);
 
+  //if doTest flag is true, all we do is access all the collections 
+  //without having to make it through the cutflow.
+  if(doTest){
+
+    eventMaker          .SetVars(hww, iEvent, iSetup);
+    vertexMaker         .SetVars(hww, iEvent, iSetup);
+    trackMaker          .SetVars(hww, iEvent, iSetup);
+    electronMaker       .SetVars(hww, iEvent, iSetup);
+    muonMaker           .SetVars(hww, iEvent, iSetup);
+    pfJetMaker          .SetVars(hww, iEvent, iSetup);
+    hypDilepMaker       .SetVars(hww, iEvent, iSetup);
+    pfCandidateMaker    .SetVars(hww, iEvent, iSetup);
+    pfElectronMaker     .SetVars(hww, iEvent, iSetup);
+    pfElToElAssMaker    .SetVars(hww, iEvent, iSetup);
+    gsfTrackMaker       .SetVars(hww, iEvent, iSetup);
+    recoConversionMaker .SetVars(hww, iEvent, iSetup);
+    rhoMaker            .SetVars(hww, iEvent, iSetup);
+    pfMETMaker          .SetVars(hww, iEvent, iSetup);
+    trkMETMaker         .SetVars(hww, iEvent, iSetup);
+    mvaJetIdMaker       .SetVars(hww, iEvent, iSetup);
+
+    return;
+
+  }
 
   //get variables
   eventMaker    .SetVars(hww, iEvent, iSetup);

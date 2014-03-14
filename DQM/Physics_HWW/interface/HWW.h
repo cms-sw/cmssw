@@ -22,6 +22,7 @@ class HWW{
 
   //tracks
   std::vector<LorentzVector>  trks_trk_p4_;
+  std::vector<LorentzVector>  trks_vertex_p4_;
   std::vector<float>          trks_chi2_;
   std::vector<float>          trks_ndof_;
   std::vector<float>          trks_d0_;
@@ -231,6 +232,7 @@ class HWW{
   bool vtxs_covMatrix_isLoaded;
 
   bool trks_trk_p4_isLoaded;
+  bool trks_vertex_p4_isLoaded;
   bool trks_chi2_isLoaded;
   bool trks_ndof_isLoaded;
   bool trks_d0_isLoaded;
@@ -444,6 +446,7 @@ public:
 
   //tracks
   std::vector<LorentzVector>  &trks_trk_p4();
+  std::vector<LorentzVector>  &trks_vertex_p4();
   std::vector<float>          &trks_chi2();
   std::vector<float>          &trks_ndof();
   std::vector<float>          &trks_d0();
@@ -649,6 +652,7 @@ public:
   void Load_vtxs_zError();
   void Load_vtxs_covMatrix();
   void Load_trks_trk_p4();
+  void Load_trks_vertex_p4();
   void Load_trks_chi2();
   void Load_trks_ndof();
   void Load_trks_d0();

@@ -40,6 +40,10 @@ std::vector<LorentzVector>  & HWW::trks_trk_p4(){
   if(!trks_trk_p4_isLoaded) edm::LogWarning("VariableNotSet") << "trks_trk_p4 not loaded!";
   return(trks_trk_p4_);
 }
+std::vector<LorentzVector>  & HWW::trks_vertex_p4(){
+  if(!trks_vertex_p4_isLoaded) edm::LogWarning("VariableNotSet") << "trks_vertex_p4 not loaded!";
+  return(trks_vertex_p4_);
+}
 std::vector<float>          & HWW::trks_chi2(){
   if(!trks_chi2_isLoaded) edm::LogWarning("VariableNotSet") << "trks_chi2 not loaded!";
   return(trks_chi2_);
@@ -820,6 +824,9 @@ void HWW::Load_vtxs_covMatrix(){
 void HWW::Load_trks_trk_p4(){
   trks_trk_p4_isLoaded = true;
 }
+void HWW::Load_trks_vertex_p4(){
+  trks_vertex_p4_isLoaded = true;
+}
 void HWW::Load_trks_chi2(){
   trks_chi2_isLoaded = true;
 }
@@ -1387,6 +1394,7 @@ HWW::HWW(){
 
   
   trks_trk_p4_.clear();
+  trks_vertex_p4_.clear();
   trks_chi2_.clear();
   trks_ndof_.clear();
   trks_d0_.clear();
@@ -1593,6 +1601,7 @@ HWW::HWW(){
   vtxs_covMatrix_isLoaded = false;
 
   trks_trk_p4_isLoaded = false;
+  trks_vertex_p4_isLoaded = false;
   trks_chi2_isLoaded = false;
   trks_ndof_isLoaded = false;
   trks_d0_isLoaded = false;

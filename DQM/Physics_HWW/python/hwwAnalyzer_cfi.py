@@ -3,6 +3,7 @@ from DQM.Physics_HWW.puJetIDAlgo_cff import *
 
 hwwAnalyzer = cms.EDAnalyzer(
     "HWWAnalyzer",
+    doTest                       = cms.bool(False), #True will just access all the collections, False will run the cutflow
     primaryVertexInputTag        = cms.InputTag("offlinePrimaryVertices"),
     trackInputTag                = cms.InputTag("generalTracks"),
     electronsInputTag            = cms.InputTag("gedGsfElectrons"),

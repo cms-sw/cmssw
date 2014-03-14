@@ -22,10 +22,11 @@ void TrkMETMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSe
   //track p4
   vector<LorentzVector> *trks_trk_p4 = new vector<LorentzVector>;
   *trks_trk_p4 = hww.trks_trk_p4();
+  if(trks_trk_p4->size()<2) return;
 
   //track vertex position
   vector<LorentzVector> *trks_vertex_p4 = new vector<LorentzVector>;
-  *trks_vertex_p4 = hww.trks_trk_p4();
+  *trks_vertex_p4 = hww.trks_vertex_p4();
 
   //vertex position
   vector<LorentzVector> *vertex_position = new vector<LorentzVector>;
@@ -50,10 +51,6 @@ void TrkMETMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSe
   //hyp lt p4
   vector<LorentzVector> *hyp_lt_p4 = new vector<LorentzVector>;
   *hyp_lt_p4 = hww.hyp_lt_p4();
-
-  //hyp jets p4
-  vector<vector<LorentzVector> > *hyp_jets_p4 = new vector<vector<LorentzVector> >;
-  *hyp_jets_p4 = hww.hyp_jets_p4();
 
 
   const unsigned int npfcands = pfcands_p4->size();

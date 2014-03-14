@@ -51,6 +51,8 @@ class HWWAnalyzer : public DQMEDAnalyzer {
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
    private:
+    
+      bool doTest;
 
       EGammaMvaEleEstimator* egammaMvaEleEstimator;
       MuonMVAEstimator* muonMVAEstimator;
