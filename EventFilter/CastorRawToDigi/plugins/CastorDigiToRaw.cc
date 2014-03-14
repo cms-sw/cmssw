@@ -13,12 +13,11 @@
 using namespace std;
 
 CastorDigiToRaw::CastorDigiToRaw(edm::ParameterSet const& conf) :
-  castorTag_(conf.getUntrackedParameter("CASTOR",edm::InputTag())),
-  calibTag_(conf.getUntrackedParameter("CALIB",edm::InputTag())),
-  trigTag_(conf.getUntrackedParameter("TRIG",edm::InputTag())),
-  usingctdc_(conf.getUntrackedParameter<bool>("CastorCtdc",false))
+  castorTag_(conf.getParameter<edm::InputTag>("CASTOR")),
+  usingctdc_(conf.getParameter<bool>("CastorCtdc"))
 
 {
+  tok_input_ = consumes<CastorDigiCollection>(castorTag_);
   produces<FEDRawDataCollection>();
 }
 
@@ -33,7 +32,7 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   // Step A: Get Inputs 
   edm::Handle<CastorDigiCollection> castor;
   if (!castorTag_.label().empty()) {
-    e.getByLabel(castorTag_,castor);
+    e.getByToken(tok_input_,castor);
     colls.castorCont=castor.product();	
   }
   // get the mapping
