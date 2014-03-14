@@ -35,6 +35,7 @@ private:
   CastorCtdcPacker ctdcpacker_;
   edm::InputTag castorTag_, calibTag_, trigTag_;
   bool usingctdc_;
+  edm::EDGetTokenT<CastorDigiCollection> tok_input_;
 
 };
 

@@ -19,6 +19,7 @@ CastorDigiToRaw::CastorDigiToRaw(edm::ParameterSet const& conf) :
   usingctdc_(conf.getUntrackedParameter<bool>("CastorCtdc",false))
 
 {
+  tok_input_ = consumes<CastorDigiCollection>(castorTag_);
   produces<FEDRawDataCollection>();
 }
 
@@ -33,7 +34,7 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
   // Step A: Get Inputs 
   edm::Handle<CastorDigiCollection> castor;
   if (!castorTag_.label().empty()) {
-    e.getByLabel(castorTag_,castor);
+    e.getByToken(tok_input_,castor);
     colls.castorCont=castor.product();	
   }
   // get the mapping
