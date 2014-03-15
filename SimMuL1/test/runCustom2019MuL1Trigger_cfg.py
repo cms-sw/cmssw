@@ -77,7 +77,7 @@ from SLHCUpgradeSimulations.Configuration.muonCustoms import digitizer_timing_pr
 process = digitizer_timing_pre3_median(process)
 
 ## upgrade CSC L1 customizations
-xofrom SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1Stubs 
+from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1Stubs 
 process = customise_csc_L1Stubs(process)
 
 ## GEM-CSC emulator
