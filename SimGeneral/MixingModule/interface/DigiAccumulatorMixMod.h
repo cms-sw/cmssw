@@ -77,20 +77,22 @@ class DigiAccumulatorMixMod {
     virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {}
 
 
-    void StorePileupInformation( std::vector<int> &numInteractionList,
+    virtual void StorePileupInformation( std::vector<int> &numInteractionList,
 				 std::vector<int> &bunchCrossingList,
-				 std::vector<float> &TrueInteractionList){
-      PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList);
-    }
+				 std::vector<float> &TrueInteractionList){ }
 
-    PileupMixingContent* getEventPileupInfo() { return PileupInfo_; }
+    virtual PileupMixingContent* getEventPileupInfo() { 
+      std::cout << " You must override the virtual functions in DigiAccumulatorMixMod in\n" << "order to access PileupInformation.  Returning empty object." << std::endl;
+
+      PileupMixingContent* dummyPileupObject = new PileupMixingContent();
+      
+      return dummyPileupObject;      
+    }
 
   private:
     DigiAccumulatorMixMod(DigiAccumulatorMixMod const&); // stop default
 
     DigiAccumulatorMixMod const& operator=(DigiAccumulatorMixMod const&); // stop default
-
-    PileupMixingContent* PileupInfo_;
 
     // ---------- member data --------------------------------
 };
