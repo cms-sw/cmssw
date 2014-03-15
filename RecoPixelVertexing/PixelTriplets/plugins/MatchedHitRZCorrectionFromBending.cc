@@ -34,7 +34,7 @@ MatchedHitRZCorrectionFromBending::
 double MatchedHitRZCorrectionFromBending::
     tibMatchedHitZFixup(const ThirdHitPredictionFromCircle &pred,
                         double curvature, double r,
-                        const TransientTrackingRecHit &hit,
+                        const TrackingRecHit &hit,
 			const TrackerTopology *tTopo)
 {
   // the factors for [ TIB1=0, TIB2=1 ] [ inner string=0, outer string=1 ]

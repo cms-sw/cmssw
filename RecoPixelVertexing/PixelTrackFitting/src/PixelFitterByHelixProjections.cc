@@ -133,7 +133,7 @@ reco::Track* PixelFitterByHelixProjections::run(
 
 
   for ( int i=0; i!=nhits; ++i) {
-    TransientTrackingRecHit::RecHitPointer recHit = theTTRecHitBuilder->build(hits[i]);
+    auto const & recHit = hits[i];
     points[i]  = GlobalPoint( recHit->globalPosition().x()-region.origin().x(), 
 			      recHit->globalPosition().y()-region.origin().y(),
 			      recHit->globalPosition().z()-region.origin().z() 

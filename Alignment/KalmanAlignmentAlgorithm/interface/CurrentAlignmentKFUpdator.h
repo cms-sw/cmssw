@@ -21,16 +21,16 @@ public:
   ~CurrentAlignmentKFUpdator( void ) {}
 
   template <unsigned int D>
-  TrajectoryStateOnSurface update( const TrajectoryStateOnSurface &, const TransientTrackingRecHit & ) const;
+  TrajectoryStateOnSurface update( const TrajectoryStateOnSurface &, const TrackingRecHit & ) const;
 
-  TrajectoryStateOnSurface update( const TrajectoryStateOnSurface &, const TransientTrackingRecHit & ) const;
+  TrajectoryStateOnSurface update( const TrajectoryStateOnSurface &, const TrackingRecHit & ) const;
 
   virtual CurrentAlignmentKFUpdator * clone( void ) const { return new CurrentAlignmentKFUpdator( *this ); }
 
 private:
 
   template <unsigned int D>
-  void includeCurrentAlignmentEstimate( const TransientTrackingRecHit & aRecHit,
+  void includeCurrentAlignmentEstimate( const TrackingRecHit & aRecHit,
 					const TrajectoryStateOnSurface & tsos,
 					typename AlgebraicROOTObject<D>::Vector & vecR,
 					typename AlgebraicROOTObject<D>::SymMatrix & matV ) const;

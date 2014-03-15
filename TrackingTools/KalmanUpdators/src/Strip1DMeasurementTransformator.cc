@@ -5,7 +5,7 @@
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 
 Strip1DMeasurementTransformator::Strip1DMeasurementTransformator(const TSOS& tsos,
-							 const TransientTrackingRecHit& hit) : 
+							 const   TrackingRecHit& hit) : 
   theRecHit(hit),
   theState(tsos),
   theTopology(0) {

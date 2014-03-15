@@ -33,6 +33,9 @@ class BaseTrackerRecHit : public TrackingRecHit {
 public:
   BaseTrackerRecHit() : qualWord_(0){}
 
+  // fake TTRH interface
+  BaseTrackerRecHit const * hit() const { return this;}  
+
   virtual ~BaseTrackerRecHit() {}
 
   // no position (as in persistent)
@@ -113,6 +116,8 @@ public:
 	};
   }
 
+  /// cluster probability, overloaded by pixel rechits.
+  virtual float clusterProbability() const { return 1.f; }
 
 public:
 
