@@ -184,7 +184,7 @@ def cscMatchingEfficiencyToAlctClct(plotter):
 
 
 #_______________________________________________________________________________
-def cscMatchingEfficiencyToAlctClct_2(filesDir, input_file, plotDir, ext):
+def cscMatchingEfficiencyToAlctClct_2(plotter):
 
     gStyle.SetTitleStyle(0);
     gStyle.SetTitleAlign(13); ##coord in top left
@@ -239,7 +239,7 @@ def cscMatchingEfficiencyToAlctClct_2(filesDir, input_file, plotDir, ext):
 
 
 #_______________________________________________________________________________
-def cscMatchingEfficiencyToLct(filesDir, input_file, plotDir, ext):
+def cscMatchingEfficiencyToLct(plotter):
 
     gStyle.SetTitleStyle(0);
     gStyle.SetTitleAlign(13); ##coord in top left
