@@ -27,7 +27,7 @@ process.source = cms.Source("PoolSource",
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import *
 from GEMCode.GEMValidation.InputFileHelpers import *
-process = useInputDir(process, files['_gem98_pt2-50_PU0_pt0_new'], False)
+#process = useInputDir(process, files['_gem98_pt2-50_PU0_pt0_new'], False)
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string("gem-csc_stub_ana.root")
@@ -38,10 +38,16 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 # the analyzer configuration
+def enum(*sequential, **named):
+  enums = dict(zip(sequential, range(len(sequential))), **named)
+  return type('Enum', (), enums)
+Stations = enum('ALL','ME11','ME1a','ME1b','ME12','ME13','ME21','ME22','ME31','ME32','ME41','ME42')
+
 from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
 process.GEMCSCAnalyzer = cms.EDAnalyzer("GEMCSCAnalyzer",
     verbose = cms.untracked.int32(0),
-    stationsToUse = cms.vint32(1,2,3,4),
+    stationsToUse = cms.vint32(Stations.ME11,Stations.ME1a,Stations.ME1b,
+                               Stations.ME21,Stations.ME31,Stations.ME41),
     simTrackMatching = SimTrackMatching
 )
 matching = process.GEMCSCAnalyzer.simTrackMatching
@@ -59,7 +65,7 @@ matching.tfCand.input = ""
 matching.gmtCand.input = ""
 matching.l1Extra.input = ""
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
