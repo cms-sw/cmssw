@@ -69,9 +69,8 @@ public:
 					   const FreeTrajectoryState & fts,
 					   const edm::EventSetup& es) const;
 
-  SeedingHitSet::RecHitPointer refitHit(
-							  const SeedingHitSet::ConstRecHitPointer &hit, 
-							  const TrajectoryStateOnSurface &state) const;
+  SeedingHitSet::RecHitPointer refitHit( SeedingHitSet::ConstRecHitPointer hit, 
+					 const TrajectoryStateOnSurface &state) const;
   
 protected:
   std::string thePropagatorLabel;

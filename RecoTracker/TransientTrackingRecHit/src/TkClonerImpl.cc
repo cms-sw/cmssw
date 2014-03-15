@@ -97,7 +97,9 @@ SiStripMatchedRecHit2D * TkClonerImpl::operator()(SiStripMatchedRecHit2D const &
 						 *gdet->stereoDet(),
 						 hit.stereoClusterRef());
     
-    return theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,true);
+    // return theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,true);
+    auto better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,false);
+    return better ? better : hit.clone();
 
 }
 

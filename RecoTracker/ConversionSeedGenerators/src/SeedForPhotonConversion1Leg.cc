@@ -198,7 +198,7 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
 }
 
 SeedingHitSet::RecHitPointer SeedForPhotonConversion1Leg::refitHit(
-      const SeedingHitSet::ConstRecHitPointer &hit, 
+      SeedingHitSet::ConstRecHitPointer hit, 
       const TrajectoryStateOnSurface &state) const
 {
   //const TransientTrackingRecHit* a= hit.get();
