@@ -71,6 +71,11 @@ options.register ('ShiftAndCrosstalkMon',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.bool,          # string, int, or float
                   "Monitor shift and crosstalk?")
+options.register ('APVPhaseOffsetsMon',
+                  False,
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.bool,          # string, int, or float
+                  "Monitor APV phase offsets?")
 options.register ('PedestalMon',
                   False,
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
@@ -190,6 +195,10 @@ if options.LatencyMon == True:
     process.p1 = cms.Path(process.reader)
 
 elif options.ShiftAndCrosstalkMon == True:
+    process.reader = cms.EDAnalyzer("SiStripConfObjectDummyPrinter")
+    process.p1 = cms.Path(process.reader)
+
+elif options.APVPhaseOffsetsMon == True:
     process.reader = cms.EDAnalyzer("SiStripConfObjectDummyPrinter")
     process.p1 = cms.Path(process.reader)
 

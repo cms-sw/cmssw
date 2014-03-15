@@ -20,23 +20,24 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/SortedCollection.h"
-#include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
 #include <string>
 #include <iostream>
 #include <map>
 
+template <typename T>
 struct CaloRecHitMixer_mixedRecHitInfoType
 {
   uint32_t rawDetId_;
   
   double energy1_;
   bool isRecHit1_;
-  const CaloRecHit* recHit1_;
+  const T* recHit1_;
   
   double energy2_;
   bool isRecHit2_;
-  const CaloRecHit* recHit2_;
+  const T* recHit2_;
   
   double energySum_;
   bool isRecHitSum_;
@@ -68,11 +69,11 @@ class CaloRecHitMixer : public edm::EDProducer
 
   typedef edm::SortedCollection<T> RecHitCollection;
 
-  typedef std::map<uint32_t, CaloRecHitMixer_mixedRecHitInfoType> detIdToMixedRecHitInfoMap;
+  typedef std::map<uint32_t, CaloRecHitMixer_mixedRecHitInfoType<T> > detIdToMixedRecHitInfoMap;
   detIdToMixedRecHitInfoMap mixedRecHitInfos_;
 
   void updateRecHitInfos(const RecHitCollection&, int);
-  T buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType&);
+  T buildRecHit(const CaloRecHitMixer_mixedRecHitInfoType<T>&);
 
   edm::InputTag srcEnergyDepositMapMuPlus_;
   edm::InputTag srcEnergyDepositMapMuMinus_;
@@ -293,7 +294,7 @@ void CaloRecHitMixer<T>::updateRecHitInfos(const RecHitCollection& recHitCollect
 
     bool isNewRecHit = (mixedRecHitInfos_.find(rawDetId) == mixedRecHitInfos_.end());
     if ( isNewRecHit ) {
-      CaloRecHitMixer_mixedRecHitInfoType mixedRecHitInfo;
+      CaloRecHitMixer_mixedRecHitInfoType<T> mixedRecHitInfo;
       mixedRecHitInfo.rawDetId_    = rawDetId;
       mixedRecHitInfo.energy1_     = 0.;
       mixedRecHitInfo.isRecHit1_   = false;
@@ -303,7 +304,7 @@ void CaloRecHitMixer<T>::updateRecHitInfos(const RecHitCollection& recHitCollect
       mixedRecHitInfo.recHit2_     = 0;
       mixedRecHitInfo.energySum_   = 0.;
       mixedRecHitInfo.isRecHitSum_ = false;
-      mixedRecHitInfos_.insert(std::pair<uint32_t, CaloRecHitMixer_mixedRecHitInfoType>(rawDetId, mixedRecHitInfo));
+      mixedRecHitInfos_.insert(std::pair<uint32_t, CaloRecHitMixer_mixedRecHitInfoType<T> >(rawDetId, mixedRecHitInfo));
     } 
     
     typename detIdToMixedRecHitInfoMap::iterator mixedRecHitInfo = mixedRecHitInfos_.find(rawDetId);

@@ -83,6 +83,7 @@ def OptionsFromItems(items):
                  "SIM":"GEN",
                  "reSIM":"SIM",
                  "DIGI":"SIM",
+                 "DIGIPREMIX":"SIM",
                  "reDIGI":"DIGI",
                  "L1REPACK":"RAW",
                  "HLT":"RAW",
@@ -203,6 +204,8 @@ def OptionsFromItems(items):
         if 'CFWRITER' in options.trimmedStep:
             options.isMC=True
         if 'DIGI' in options.trimmedStep:
+            options.isMC=True
+        if 'DIGI2RAW' in options.trimmedStep:
             options.isMC=True
         if (not (options.eventcontent == None)) and 'SIM' in options.eventcontent:
             options.isMC=True

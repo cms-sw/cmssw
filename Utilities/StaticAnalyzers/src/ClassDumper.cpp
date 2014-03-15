@@ -41,11 +41,11 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 		std::string buf;
 		llvm::raw_string_ostream os(buf);
 		SD->getNameForDiagnostic(os,Policy,1);
-		crname = crname+os.str()+"' ";
+		crname = crname+os.str()+"'";
 		writeLog(crname, tname);
 	} else {
 // Dump the class name
-		crname = crname+rname+"' ";
+		crname = crname+rname+"'";
 		writeLog(crname,tname);
 
 	}
@@ -65,8 +65,8 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 							std::string buf;
 							llvm::raw_string_ostream os(buf);
 							SD->getNameForDiagnostic(os,Policy,1);
-							std::string cfname ="member data class '"+os.str()+"' ";
-							writeLog(crname+cfname,tname);
+							std::string cfname ="member data class '"+os.str()+"'";
+							writeLog(crname+" "+cfname,tname);
 					// Recurse the template args
 							for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
 								if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type
@@ -75,12 +75,12 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 								std::string taname = TAD->getQualifiedNameAsString();
 								std::string sdname = SD->getQualifiedNameAsString();
 								std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
-								writeLog(crname+cfname,tname);
+								writeLog(crname+" "+cfname,tname);
 								}
 							}
 					} else {
 							std::string cfname ="member data class '"+fname+"' ";
-							writeLog(crname+cfname,tname);
+							writeLog(crname+" "+cfname,tname);
 					}
 				}
 			}
@@ -95,8 +95,8 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 			const clang::CXXRecordDecl * BRD = J->getType()->getAsCXXRecordDecl();
 			if (!BRD) continue;
 			std::string bname = BRD->getQualifiedNameAsString();
-			std::string cbname = "base class '"+bname+"' ";
-			writeLog(crname+cbname,tname);
+			std::string cbname = "base class '"+bname+"'";
+			writeLog(crname+" "+cbname,tname);
 		}
 
 
@@ -175,7 +175,7 @@ void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ent
 		if (ifilecontents.find(cbname) != std::string::npos ) {
 			std::string pname = "/tmp/classes.txt.inherits.unsorted";
 			std::string rname = RD->getQualifiedNameAsString();
-			std::string crname = "class '"+rname+"'\n";
+			std::string crname = "class '"+rname+"'";
 			writeLog(crname, pname);
 			ClassDumper dumper;
 			dumper.checkASTDecl( RD, mgr, BR, pname );

@@ -38,7 +38,6 @@ namespace DataFormats_EcalRecHit {
     EcalRecHitRef _ERHitRef;
     EcalRecHitRefs _ERHitRefs;
     EcalRecHitsRef _ERHitsRef;
-    edm::reftobase::Holder<CaloRecHit, EcalRecHitRef> rb8;
   };
 }
 

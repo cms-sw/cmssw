@@ -106,6 +106,7 @@ for tag in `cat $DBTAGCOLLECTION`; do
     MONITOR_THRESHOLD=False
     MONITOR_LATENCY=False
     MONITOR_SHIFTANDCROSSTALK=False
+    MONITOR_APVPHASEOFFSETS=False
     MONITOR_ALCARECOTRIGGERBITS=False
 
     LOGDESTINATION=cout
@@ -182,6 +183,12 @@ for tag in `cat $DBTAGCOLLECTION`; do
 	TAGSUBDIR=SiStripShiftAndCrosstalk
 	LOGDESTINATION=Reader
 	CONDLOGDEST=ShiftAndCrosstalkInfo
+    else if [ `echo $tag | grep "APVPhaseOffsets" | wc -w` -gt 0 ]; then
+	MONITOR_APVPHASEOFFSETS=True
+	RECORD=SiStripConfObjectRcd
+	TAGSUBDIR=SiStripAPVPhaseOffsets
+	LOGDESTINATION=Reader
+	CONDLOGDEST=APVPhaseOffsetsInfo
     else if [ `echo $tag | grep "AlCaRecoTriggerBits" | wc -w` -gt 0 ]; then
 	MONITOR_ALCARECOTRIGGERBITS=True
 	RECORD=AlCaRecoTriggerBitsRcd
@@ -191,6 +198,7 @@ for tag in `cat $DBTAGCOLLECTION`; do
 	RECORD=Unknown
 	TAGSUBDIR=Unknown
 
+    fi
     fi
     fi
     fi
@@ -411,6 +419,10 @@ EOF
 	    mkdir $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/ShiftAndCrosstalkLog
 	fi
 
+	if [ "$MONITOR_APVPHASEOFFSETS" = "True" ]; then
+	    mkdir $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/APVPhaseOffsetsLog
+	fi
+
 	if [ "$MONITOR_ALCARECOTRIGGERBITS" = "True" ]; then
 	    mkdir $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/AlCaRecoTriggerBitsLog
 	fi
@@ -482,6 +494,10 @@ EOF
 	    continue
 	fi
 
+	if [ "$MONITOR_APVPHASEOFFSETS" = "True" ] && [ -f $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/APVPhaseOffsetsLog/APVPhaseOffsetsInfo_Run${IOV_number}.txt ]; then # Skip IOVs already processed. Take only new ones.
+	    continue
+	fi
+
 	if [ "$MONITOR_ALCARECOTRIGGERBITS" = "True" ] && [ -f $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/AlCaRecoTriggerBitsLog/AlCaRecoTriggerBitsInfo_Run${IOV_number}.txt ]; then # Skip IOVs already processed. Take only new ones.
 	    continue
 	fi
@@ -491,7 +507,7 @@ EOF
 	NEWIOV=True
 
 	afstokenchecker.sh "Executing cmsRun. Stay tuned ..."
-	CMSRUNCOMMAND="cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/test/DBReader_conddbmonitoring_generic_cfg.py print logDestination=$LOGDESTINATION qualityLogDestination=$QUALITYLOGDEST cablingLogDestination=$CABLINGLOGDEST condLogDestination=$CONDLOGDEST outputRootFile=$ROOTFILE connectionString=frontier://$FRONTIER/$ACCOUNT recordName=$RECORD recordForQualityName=$RECORDFORQUALITY tagName=$tag runNumber=$IOV_number LatencyMon=$MONITOR_LATENCY ALCARecoTriggerBitsMon=$MONITOR_ALCARECOTRIGGERBITS ShiftAndCrosstalkMon=$MONITOR_SHIFTANDCROSSTALK PedestalMon=$MONITOR_PEDESTAL NoiseMon=$MONITOR_NOISE QualityMon=$MONITOR_QUALITY CablingMon=$MONITOR_CABLING GainMon=$MONITOR_GAIN LorentzAngleMon=$MONITOR_LA ThresholdMon=$MONITOR_THRESHOLD MonitorCumulative=$MONITORCUMULATIVE ActiveDetId=$USEACTIVEDETID"
+	CMSRUNCOMMAND="cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorSummary/test/DBReader_conddbmonitoring_generic_cfg.py print logDestination=$LOGDESTINATION qualityLogDestination=$QUALITYLOGDEST cablingLogDestination=$CABLINGLOGDEST condLogDestination=$CONDLOGDEST outputRootFile=$ROOTFILE connectionString=frontier://$FRONTIER/$ACCOUNT recordName=$RECORD recordForQualityName=$RECORDFORQUALITY tagName=$tag runNumber=$IOV_number LatencyMon=$MONITOR_LATENCY ALCARecoTriggerBitsMon=$MONITOR_ALCARECOTRIGGERBITS ShiftAndCrosstalkMon=$MONITOR_SHIFTANDCROSSTALK APVPhaseOffsetsMon=$MONITOR_APVPHASEOFFSETS PedestalMon=$MONITOR_PEDESTAL NoiseMon=$MONITOR_NOISE QualityMon=$MONITOR_QUALITY CablingMon=$MONITOR_CABLING GainMon=$MONITOR_GAIN LorentzAngleMon=$MONITOR_LA ThresholdMon=$MONITOR_THRESHOLD MonitorCumulative=$MONITORCUMULATIVE ActiveDetId=$USEACTIVEDETID"
 	$CMSRUNCOMMAND
 
 	afstokenchecker.sh "cmsRun finished. Now moving the files to the corresponding directories ..."
@@ -551,6 +567,13 @@ EOF
 #	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"PrintSummary")!=0) doprint=1;if(match($0,"PrintDebug")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > ShiftAndCrosstalkInfo_Run${IOV_number}.txt
 	    mv $CONDLOGDEST.log ShiftAndCrosstalkInfo_Run${IOV_number}.txt
 	    mv ShiftAndCrosstalkInfo_Run${IOV_number}.txt $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/ShiftAndCrosstalkLog/
+
+	fi
+
+	if [ "$MONITOR_APVPHASEOFFSETS" = "True" ]; then
+#	    cat $LOGDESTINATION.log | awk 'BEGIN{doprint=0}{if(match($0,"PrintSummary")!=0) doprint=1;if(match($0,"PrintDebug")!=0) doprint=1;if(match($0,"%MSG")!=0) {doprint=0;} if(doprint==1) print $0}' > APVPhaseOffsetsInfo_Run${IOV_number}.txt
+	    mv $CONDLOGDEST.log APVPhaseOffsetsInfo_Run${IOV_number}.txt
+	    mv APVPhaseOffsetsInfo_Run${IOV_number}.txt $STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$tag/APVPhaseOffsetsLog/
 
 	fi
 

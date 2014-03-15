@@ -42,7 +42,7 @@ namespace cond {
 	if( !m_objects[n] ){
 	  auto i = m_data.find( n );
 	  if( i != m_data.end() ){
-	    m_objects[n] = deserialize<T>( i->second.first, i->second.second, m_isOra );
+	    m_objects[n] = deserialize<T>( i->second.first, i->second.second.first, i->second.second.second, m_isOra );
 	    m_data.erase( n );
 	  } else {
 	    throwException( "Payload for index "+boost::lexical_cast<std::string>(n)+" has not been found.",
@@ -57,8 +57,8 @@ namespace cond {
     private:
       // the db session
       IOVProxy m_proxy;
-      // the key selection
-      mutable std::map<size_t,std::pair<std::string,cond::Binary> > m_data;
+      // the key selection: 
+      mutable std::map<size_t,std::pair<std::string,std::pair<cond::Binary,cond::Binary> > > m_data;
       mutable std::vector<boost::shared_ptr<void> > m_objects;
       bool m_isOra = false;
       
