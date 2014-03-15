@@ -62,7 +62,7 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
     refitHits(cfg.getParameter<bool>("refitHits")),
     debug(cfg.getParameter<bool>("debug")),
     filterName_(cfg.getParameter<std::string>("ClusterShapeHitFilterName")),
-    builderName_(cfg.getParameter<std::string>("TTRHBuilder")),
+    builderName_(cfg.existsAs<std::string>("TTRHBuilder") ? cfg.getParameter<std::string>("TTRHBuilder") : std::string("WithTrackAngle")),
     useSimpleMF_(false),
     mfName_("")
 {    

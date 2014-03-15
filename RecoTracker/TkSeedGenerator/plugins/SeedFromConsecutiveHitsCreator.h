@@ -26,7 +26,7 @@ public:
     , theBOFFMomentum                   (cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : 5.0)
     , theOriginTransverseErrorMultiplier(cfg.existsAs<double>("OriginTransverseErrorMultiplier") ? cfg.getParameter<double>("OriginTransverseErrorMultiplier") : 1.0)
     , theMinOneOverPtError              (cfg.existsAs<double>("MinOneOverPtError") ? cfg.getParameter<double>("MinOneOverPtError") : 1.0)
-    , TTRHBuilder                       (cfg.getParameter<std::string>("TTRHBuilder"))
+    , TTRHBuilder                       (cfg.existsAs<std::string>("TTRHBuilder") ? cfg.getParameter<std::string>("TTRHBuilder") : std::string("WithTrackAngle"))
   // 2014/02/11 mia:
   // we should get rid of the boolean parameter useSimpleMF,
   // and use only a string magneticField [instead of SimpleMagneticField]
