@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 SimTrackMatching = cms.PSet(
     # common
     useCSCChamberTypes = cms.untracked.vint32(0,1,2),
+    cscStations = cms.vstring('ALL','ME11','ME1a','ME1b',
+                              'ME12','ME13','ME21','ME22',
+                              'ME31','ME32','ME41','ME42')
     ntupleTrackChamberDelta = cms.bool(True),
     ntupleTrackEff = cms.bool(True),
     overrideminNHitsChamber = cms.bool(False),

@@ -325,7 +325,7 @@ private:
   bool ntupleTrackChamberDelta_;
   bool ntupleTrackEff_;
   bool matchprint_;
-  std::vector<string> stations_;
+  std::vector<string> cscStations_;
   std::set<int> stations_to_use_;
 
   TTree *tree_eff_[12]; // for up to 9 stations
@@ -348,6 +348,7 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
+  cscStations_ = cfg_.getParameter<string>("cscStations");
   ntupleTrackChamberDelta_ = cfg_.getParameter<bool>("ntupleTrackChamberDelta");
   ntupleTrackEff_ = cfg_.getParameter<bool>("ntupleTrackEff");
   matchprint_ = false; //cfg_.getParameter<bool>("matchprint");
@@ -385,29 +386,16 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
   auto gmtCand = cfg_.getParameter<edm::ParameterSet>("gmtCand");
   auto l1Extra = cfg_.getParameter<edm::ParameterSet>("l1Extra");
 
-  stations_.push_back("ALL");
-  stations_.push_back("ME11");
-  stations_.push_back("ME1a");
-  stations_.push_back("ME1b");
-  stations_.push_back("ME12");
-  stations_.push_back("ME13");
-  stations_.push_back("ME21");
-  stations_.push_back("ME22");
-  stations_.push_back("ME31");
-  stations_.push_back("ME32");
-  stations_.push_back("ME41");
-  stations_.push_back("ME42");
-
   if (ntupleTrackChamberDelta_) bookSimTracksDeltaTree();
   if (ntupleTrackEff_)
   {
     vector<int> stations = ps.getParameter<vector<int> >("stationsToUse");
-    
     copy(stations.begin(), stations.end(), inserter(stations_to_use_, stations_to_use_.end()) );
+
     for(auto s: stations_to_use_)
     {
       stringstream ss;
-      ss << "trk_eff_"<< stations_[s];
+      ss << "trk_eff_"<< cscStations_[s];
       tree_eff_[s] = etrk_[s].book(tree_eff_[s], ss.str());
     }
   }
@@ -438,7 +426,6 @@ bool GEMCSCAnalyzer::isSimTrackGood(const SimTrack &t)
 
 void GEMCSCAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
-  return;
   edm::Handle<edm::SimTrackContainer> sim_tracks;
   edm::Handle<edm::SimVertexContainer> sim_vertices;
 
