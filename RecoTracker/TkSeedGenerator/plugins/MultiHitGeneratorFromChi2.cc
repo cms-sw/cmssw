@@ -529,7 +529,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	bool debugTriplet = debugPair && hit2->rawId()==debug_Id2;
 	if (debugTriplet) {
 	  std::cout << endl << "triplet candidate in debug id" << std::endl;
-	  cout << "hit in id="<<debug_Id2<<" (from KDTree) with pos: " << KDdata->hit()->globalPosition()
+	  cout << "hit in id="<<hit2->rawId()<<" (from KDTree) with pos: " << KDdata->hit()->globalPosition()
 	       << " refitted: " << hit2->globalPosition() 
 	       << " chi2: " << chi2
 	       << endl;
@@ -594,7 +594,8 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	foundTripletsFromPair++;
 	if (foundTripletsFromPair>=2) {
 	  usePair=true;
-	  if (debugPair) std::cout << "using pair" << std::endl;
+	  if (debugPair) 
+           std::cout << "using pair" << std::endl;
 	  break;
 	}
       }//loop over hits in KDTree

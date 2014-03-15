@@ -20,6 +20,8 @@
 
 #include<tuple>
 
+#include<iostream>
+
 using namespace ctfseeding;
 using namespace std;
 using namespace edm;
@@ -60,7 +62,9 @@ HitExtractorSTRP::skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
 			   TkHitRef matched,
 			   edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const {
   const SiStripMatchedRecHit2D & hit = (SiStripMatchedRecHit2D const&)(matched);
-
+ 
+  assert(dynamic_cast<SiStripMatchedRecHit2D const*>(&matched));
+  
   ProjectedSiStripRecHit2D * replaceMe = nullptr;
   bool rejectSt   = skipThis(hit.stereoClusterRef(), stripClusterMask);
   bool rejectMono = skipThis(hit.monoClusterRef(),  stripClusterMask);
@@ -70,7 +74,7 @@ HitExtractorSTRP::skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
     return std::make_pair(false,replaceMe);
   }
 
-  if (rejectSt&rejectMono){
+  if (failProjection || (rejectSt&rejectMono) ){
     //only skip if both hits are done
     return std::make_pair(true,replaceMe);
   }
@@ -98,6 +102,7 @@ void HitExtractorSTRP::cleanedOfClusters( const TkTransientTrackingRecHitBuilder
   unsigned int skipped=0;
   unsigned int projected=0;
   for (unsigned int iH=cleanFrom;iH<hits.size();++iH){
+     assert(hits[iH]->isValid());
     if (matched) {
       bool replace; ProjectedSiStripRecHit2D * replaceMe; std::tie(replace,replaceMe) = skipThis(ttrhBuilder, *hits[iH],stripClusterMask);
       if (replace) {
@@ -116,6 +121,11 @@ void HitExtractorSTRP::cleanedOfClusters( const TkTransientTrackingRecHitBuilder
       hits[iH].reset();
     }
   }
+    //  remove empty elements...
+  auto last = std::remove_if(hits.begin()+cleanFrom,hits.end(),[]( HitPointer const & p) {return p.empty();});
+  hits.resize(last-hits.begin());
+
+  // std::cout << "HitExtractorSTRP " <<"skipped :"<<skipped<<" strip rechits because of clusters and projected: "<<projected << std::endl;
   LogDebug("HitExtractorSTRP")<<"skipped :"<<skipped<<" strip rechits because of clusters and projected: "<<projected;
 }
 
@@ -301,10 +311,14 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
 	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
       }
   }
+  /*  done in each skipCluster...
+  // std::cout << "HitExtractorSTRP before cleanup "<<" giving: "<<result.size()<< std::endl;
   //  remove empty elements...
   auto last = std::remove_if(result.begin(),result.end(),[]( HitPointer const & p) {return p.empty();});
   result.resize(last-result.begin());
+  */
   LogDebug("HitExtractorSTRP")<<" giving: "<<result.size()<<" out";
+  // std::cout << "HitExtractorSTRP "<<" giving: "<<result.size()<< std::endl;
   return result;
 }
 

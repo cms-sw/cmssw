@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include <iostream>
 using namespace ctfseeding;
 using namespace std;
 
@@ -51,11 +52,13 @@ HitExtractor::Hits HitExtractorPIX::hits(const TkTransientTrackingRecHitBuilder 
       }
     }
     LogDebug("HitExtractorPIX")<<"skipped :"<<skipped<<" pixel clusters";
+    // std::cout << "HitExtractorPIX " <<"skipped :"<<skipped<<" pixel clusters out of " << result.size() << std::endl;
     if (skipped>0) {
       auto last = std::remove_if(result.begin(),result.end(),[]( HitPointer const & p) {return p.empty();});
       result.resize(last-result.begin());
     }
   }
   LogDebug("HitExtractorPIX")<<"giving :"<<result.size()<<" rechits out";
+  // std::cout << "HitExtractorPIX "<<"giving :"<<result.size()<<" rechits out" << std::endl;
   return result;
 }

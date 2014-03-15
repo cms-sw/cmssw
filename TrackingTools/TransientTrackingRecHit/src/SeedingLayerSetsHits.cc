@@ -17,7 +17,7 @@ SeedingLayerSetsHits::SeedingLayerSetsHits(unsigned short nlayers,
   layerDets_(layerDets)
 {}
 SeedingLayerSetsHits::~SeedingLayerSetsHits() {
-   std::cout << "deleting eedingLayerSetsHits " << rechits_.size() << std::endl;
+//   std::cout << "deleting eedingLayerSetsHits " << rechits_.size() << std::endl;
 }
 
 
