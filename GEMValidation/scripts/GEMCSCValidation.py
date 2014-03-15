@@ -3,7 +3,7 @@ import sys
 from ROOT import *
 
 from cuts import *
-from drawPlots import *
+#from drawPlots import *
 from Helpers import *
 
 ## run quiet mode
@@ -15,7 +15,7 @@ ROOT.gROOT.SetBatch(1)
 
 
 #_______________________________________________________________________________
-def cscMatchingEfficiencyToStripsAndWires(plotter):
+def cscMatchingEfficiencyToStripsAndWires(plotter,st=1):
 
     gStyle.SetTitleStyle(0);
     gStyle.SetTitleAlign(13); ##coord in top left
@@ -40,7 +40,7 @@ def cscMatchingEfficiencyToStripsAndWires(plotter):
     yTitle = "Efficiency"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
     toPlot = "TMath::Abs(eta)"
-    h_bins = "(100,1.5,2.5)"
+    h_bins = "(100,%f,%f)"%(plotter.etaMin,plotter.etaMax)
     nBins = int(h_bins[1:-1].split(',')[0])
     minBin = float(h_bins[1:-1].split(',')[1])
     maxBin = float(h_bins[1:-1].split(',')[2])
@@ -53,10 +53,10 @@ def cscMatchingEfficiencyToStripsAndWires(plotter):
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
-    base.GetYaxis().SetRangeUser(yrange[0],yrange[1])
-
-    h1 = draw_geff(plotter.treeEffSt[0], title, h_bins, toPlot, ok_sh1, ok_w1, "same", kRed)
-    h2 = draw_geff(plotter.treeEffSt[0], title, h_bins, toPlot, ok_sh1, ok_st1, "same")
+    base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
+    print plotter.treeEffSt[st-1]
+    h1 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, ok_w1, "same", kRed)
+    h2 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, ok_st1, "same")
    
     leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC")
     leg.SetBorderSize(0)
@@ -68,11 +68,11 @@ def cscMatchingEfficiencyToStripsAndWires(plotter):
     
     drawEtaLabel(plotter.etaMin,plotter.etaMax,0.45,0.4,0.05)
 
-    c.Print("%scsc_digi_matching_efficiency%s"%(plotter.targetDir,plotter.ext))
+    c.Print("%scsc_digi_matching_efficiency_st%d%s"%(plotter.targetDir,st,plotter.ext))
 
 
 #_______________________________________________________________________________
-def cscMatchingEfficiencyToStripsAndWires_2(plotter):
+def cscMatchingEfficiencyToStripsAndWires_2(plotter,st=1):
 
     gStyle.SetTitleStyle(0)
     gStyle.SetTitleAlign(13) ##coord in top left
@@ -110,9 +110,10 @@ def cscMatchingEfficiencyToStripsAndWires_2(plotter):
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
+    base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
 
-    h1 = draw_geff(plotter.treeEffSt[0], title, h_bins, toPlot, ok_sh1, OR(ok_w1,ok_st1), "same", kRed)
-    h2 = draw_geff(plotter.treeEffSt[0], title, h_bins, toPlot, ok_sh1, AND(ok_w1,ok_st1), "same")
+    h1 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, OR(ok_w1,ok_st1), "same", kRed)
+    h2 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, AND(ok_w1,ok_st1), "same")
    
     leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
     leg.SetBorderSize(0)
@@ -124,11 +125,11 @@ def cscMatchingEfficiencyToStripsAndWires_2(plotter):
     
     drawEtaLabel(plotter.etaMin,plotter.etaMax,0.45,0.4,0.05)
 
-    c.Print("%scsc_combined_digi_matching_efficiency%s"%(plotter.targetDir,plotter.ext))
+    c.Print("%scsc_combined_digi_matching_efficiency_st%d%s"%(plotter.targetDir,st,plotter.ext))
 
 
 #_______________________________________________________________________________
-def cscMatchingEfficiencyToAlctClct(plotter):
+def cscMatchingEfficiencyToAlctClct(plotter,st=1):
 
     gStyle.SetTitleStyle(0);
     gStyle.SetTitleAlign(13); ##coord in top left
@@ -166,9 +167,10 @@ def cscMatchingEfficiencyToAlctClct(plotter):
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
+    base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
 
-    h1 = draw_geff(plotter.effSt[0], title, h_bins, toPlot, AND(ok_sh1,ok_w1), ok_alct1, "same", kRed)
-    h2 = draw_geff(plotter.effSt[0], title, h_bins, toPlot, AND(ok_sh1,ok_st1), ok_clct1, "same")
+    h1 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, AND(ok_sh1,ok_w1), ok_alct1, "same", kRed)
+    h2 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, AND(ok_sh1,ok_st1), ok_clct1, "same")
    
     leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
     leg.SetBorderSize(0)
@@ -184,7 +186,7 @@ def cscMatchingEfficiencyToAlctClct(plotter):
 
 
 #_______________________________________________________________________________
-def cscMatchingEfficiencyToAlctClct_2(plotter):
+def cscMatchingEfficiencyToAlctClct_2(plotter,st=1):
 
     gStyle.SetTitleStyle(0);
     gStyle.SetTitleAlign(13); ##coord in top left
@@ -222,8 +224,10 @@ def cscMatchingEfficiencyToAlctClct_2(plotter):
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
-    h1 = draw_geff(plotter.treeEffSt[1], title, h_bins, toPlot, ok_sh1, OR(ok_alct1,ok_clct1), "same", kRed)
-    h2 = draw_geff(plotter.treeEffSt[1], title, h_bins, toPlot, ok_sh1, AND(ok_alct1,ok_clct1), "same")
+    base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
+
+    h1 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, OR(ok_alct1,ok_clct1), "same", kRed)
+    h2 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, AND(ok_alct1,ok_clct1), "same")
    
     leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
     leg.SetBorderSize(0)
@@ -239,7 +243,7 @@ def cscMatchingEfficiencyToAlctClct_2(plotter):
 
 
 #_______________________________________________________________________________
-def cscMatchingEfficiencyToLct(plotter):
+def cscMatchingEfficiencyToLct(plotter,st=1):
 
     gStyle.SetTitleStyle(0);
     gStyle.SetTitleAlign(13); ##coord in top left
@@ -277,8 +281,10 @@ def cscMatchingEfficiencyToLct(plotter):
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
-    h1 = draw_geff(t, title, h_bins, toPlot, AND(ok_sh1, ok_alct1, ok_clct1), ok_lct1, "same", kRed)
-    h2 = draw_geff(t, title, h_bins, toPlot, ok_sh1, ok_lct1, "same", kBlue)
+    base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
+    
+    h1 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, AND(ok_sh1, ok_alct1, ok_clct1), ok_lct1, "same", kRed)
+    h2 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, ok_lct1, "same", kBlue)
 
     leg = TLegend(0.10,0.2,.75,0.35, "", "brNDC");
     leg.SetBorderSize(0)

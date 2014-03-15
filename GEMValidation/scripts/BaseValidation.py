@@ -12,6 +12,10 @@ sys.argv.append( '-b' )
 import ROOT 
 ROOT.gROOT.SetBatch(1)
 
+def enum(*sequential, **named):
+  enums = dict(zip(sequential, range(len(sequential))), **named)
+  return type('Enum', (), enums)
+
 class SimHitPlotter():
   def __init__(self):
     self.inputDir = "/afs/cern.ch/user/d/dildick/work/GEM/testForGeometry/CMSSW_6_2_0_SLHC7/src/"
@@ -63,18 +67,21 @@ class DigiPlotter():
 
 class GEMCSCStubPlotter():
   def __init__(self):
-    self.inputDir = "/nobackup/work/cscTriggerUpgradeGEMRPC/CMSSW_6_2_0_SLHC9/src/"
+    self.inputDir = "/uscms_data/d3/dildick/work/cscTriggerUpgradeGEMRPC/CMSSW_6_2_0_SLHC9/src/"
     self.inputFile = "gem-csc_stub_ana.root"
     self.targetDir = "gem_csc_matching/"
     self.ext = ".png"
     self.analyzer = "GEMCSCAnalyzer"
-    self.effSt = ["tree_eff_1","tree_eff_2","tree_eff_3","tree_eff_4"]
+    Stations = enum('ME11','ME12','ME13','ME21','ME22','ME31','ME32','ME41','ME42')
+    stationsToUse = [Stations.ME11,Stations.ME21,Stations.ME31,Stations.ME41]
     self.file = TFile.Open(self.inputDir + self.inputFile)
     self.dirAna = (self.file).Get(self.analyzer)
-    self.treeEffSt = [(self.dirAna).Get(self.effSt1),
-                      (self.dirAna).Get(self.effSt2),
-                      (self.dirAna).Get(self.effSt2),
-                      (self.dirAna).Get(self.effSt2)]
+    """
+    self.treeEffSt = [(self.dirAna).Get(self.effSt[0]),
+                      (self.dirAna).Get(self.effSt[1]),
+                      (self.dirAna).Get(self.effSt[2]),
+                      (self.dirAna).Get(self.effSt[3])]
+    """
     self.yMin = 0.8
     self.yMax = 1.02
     self.etaMin = 1.5
