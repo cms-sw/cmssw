@@ -314,7 +314,8 @@ private:
   void printout(SimTrackMatchManager& match, int trk_no);
 
   bool isSimTrackGood(const SimTrack &t);
-
+  int detIdToMEStation(int st, int ri);
+  
   edm::ParameterSet cfg_;
   edm::InputTag simInputLabel_;
   double simTrackMinPt_;
@@ -326,6 +327,7 @@ private:
   bool ntupleTrackEff_;
   bool matchprint_;
   std::vector<string> cscStations_;
+  std::vector<std::pair<int,int> > cscStationsCo_;
   std::set<int> stations_to_use_;
 
   TTree *tree_eff_[12]; // for up to 9 stations
@@ -348,7 +350,7 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
-  cscStations_ = cfg_.getParameter<string>("cscStations");
+  cscStations_ = cfg_.getParameter<std::vector<string> >("cscStations");
   ntupleTrackChamberDelta_ = cfg_.getParameter<bool>("ntupleTrackChamberDelta");
   ntupleTrackEff_ = cfg_.getParameter<bool>("ntupleTrackEff");
   matchprint_ = false; //cfg_.getParameter<bool>("matchprint");
@@ -399,6 +401,26 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
       tree_eff_[s] = etrk_[s].book(tree_eff_[s], ss.str());
     }
   }
+
+  cscStationsCo_.push_back(std::make_pair(-99,-99));
+  cscStationsCo_.push_back(std::make_pair(1,-99));
+  cscStationsCo_.push_back(std::make_pair(1,4));
+  cscStationsCo_.push_back(std::make_pair(1,1));
+  cscStationsCo_.push_back(std::make_pair(1,2));
+  cscStationsCo_.push_back(std::make_pair(1,3));
+  cscStationsCo_.push_back(std::make_pair(2,1));
+  cscStationsCo_.push_back(std::make_pair(2,2));
+  cscStationsCo_.push_back(std::make_pair(3,1));
+  cscStationsCo_.push_back(std::make_pair(3,2));
+  cscStationsCo_.push_back(std::make_pair(4,1));
+  cscStationsCo_.push_back(std::make_pair(4,2));
+}
+
+
+int GEMCSCAnalyzer::detIdToMEStation(int st, int ri)
+{
+  auto p(std::make_pair(st, ri));
+  return std::find(cscStationsCo_.begin(), cscStationsCo_.end(), p) - cscStationsCo_.begin();
 }
 
 
@@ -526,7 +548,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
-    int st = id.station();
+    int st = detIdToMEStation(id.station(),id.ring());
     if (stations_to_use_.count(st) == 0) continue;
 
     int nlayers = match_sh.nLayersWithHitsInSuperChamber(d);
@@ -541,12 +563,14 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     //cout<<"DBGCSC "<<id.endcap()<<" "<<id.chamber()<<" "<<gp.eta()<<" "<<mean_strip<<endl;
   }
 
+  return;
+
   // CSC strip digis
   csc_ch_ids = match_cd.chamberIdsStrip(0);
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
-    int st = id.station();
+    int st = detIdToMEStation(id.station(),id.ring());
     if (stations_to_use_.count(st) == 0) continue;
 
     int nlayers = match_cd.nLayersWithStripInChamber(d);
@@ -561,7 +585,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
-    int st = id.station();
+    int st = detIdToMEStation(id.station(),id.ring());
     if (stations_to_use_.count(st) == 0) continue;
 
     int nlayers = match_cd.nLayersWithWireInChamber(d);
@@ -576,8 +600,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
-    int st = id.station();
-    //cout<<"LCT st "<<st<<endl;
+    int st = detIdToMEStation(id.station(),id.ring());
     if (stations_to_use_.count(st) == 0) continue;
 
     bool odd = id.chamber() & 1;
@@ -594,8 +617,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
-    int st = id.station();
-    //cout<<"LCT st "<<st<<endl;
+    int st = detIdToMEStation(id.station(),id.ring());
     if (stations_to_use_.count(st) == 0) continue;
 
     bool odd = id.chamber() & 1;
@@ -624,8 +646,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: csc_ch_ids)
   {
     CSCDetId id(d);
-    int st = id.station();
-    cout<<"LCT st "<<st<<endl;
+    int st = detIdToMEStation(id.station(),id.ring());
     if (stations_to_use_.count(st) == 0) continue;
 
     bool odd = id.chamber() & 1;
@@ -677,7 +698,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: gem_superch_ids)
   {
     GEMDetId id(d);
-    int st = id.station();
+    int st = detIdToMEStation(id.station(),id.ring());
     if (stations_to_use_.count(st) == 0) continue;
 
     bool odd = id.chamber() & 1;
@@ -712,7 +733,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: gem_superch_ids)
   {
     GEMDetId id(d);
-    int st = id.station();
+    int st = detIdToMEStation(id.station(),id.ring());
     if (stations_to_use_.count(st) == 0) continue;
 
     bool odd = id.chamber() & 1;
@@ -782,7 +803,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   for(auto d: gem_superch_ids)
   {
     GEMDetId id(d);
-    int st = id.station();
+    int st = detIdToMEStation(id.station(),id.ring());
     if (stations_to_use_.count(st) == 0) continue;
 
     bool odd = id.chamber() & 1;
