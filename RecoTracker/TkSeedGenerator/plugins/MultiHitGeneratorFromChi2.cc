@@ -28,6 +28,8 @@
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
+#include "FWCore/Utilities/interface/isFinite.h"
+
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -233,7 +235,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 
     int foundTripletsFromPair = 0;
     bool usePair = false;
-    SeedingHitSet triplet;
+    cacheHitPointer bestH2;
     float minChi2 = std::numeric_limits<float>::max();
 
     SeedingHitSet::ConstRecHitPointer oriHit0 = ip->inner();
@@ -305,6 +307,10 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       if (debugPair&&!passFilterHit1)  cout << "hit1 did not pass cluster shape filter" << endl;
       if (!passFilterHit1) continue;
 
+    } else {
+      // not refit clone anyhow
+      hit0.reset((BaseTrackerRecHit *)hit0->clone());
+      hit1.reset((BaseTrackerRecHit *)hit1->clone());
     }
 
     //gc: create the RZ line for the pair
@@ -321,7 +327,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     }
 
     //gc: loop over all third layers compatible with the pair
-    for(int il = 0; il < size && !usePair; il++) {
+    for(int il = 0; (il < size) & (!usePair); il++) {
 
       if (debugPair) 
 	cout << "cosider layer: " << theLayers[il].name() << " for this pair. Location: " << theLayers[il].detLayer()->location() << endl;
@@ -333,7 +339,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	continue; // Don't bother if no hits
       }
 
-      SeedingHitSet tripletFromThisLayer;
+      cacheHitPointer bestL2;
       float chi2FromThisLayer = std::numeric_limits<float>::max();
 
       const DetLayer *layer = theLayers[il].detLayer();
@@ -438,14 +444,15 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	const RecHitsSortedInPhi::HitIter KDdata = *ih;
 
 	SeedingHitSet::ConstRecHitPointer oriHit2 = KDdata->hit();
-	HitOwnPtr hit2(*oriHit2);
+	cacheHitPointer hit2;
+
 	if (refitHits) {//fixme
 
 	  //fitting all 3 hits takes too much time... do it quickly only for 3rd hit
-	  GlobalVector initMomentum(hit2->globalPosition() - gp1);
+	  GlobalVector initMomentum(oriHit2->globalPosition() - gp1);
 	  initMomentum *= (1./initMomentum.perp()); //set pT=1
-	  GlobalTrajectoryParameters kine = GlobalTrajectoryParameters(hit2->globalPosition(), initMomentum, 1, &*bfield);
-	  TrajectoryStateOnSurface state(kine,*hit2->surface());
+	  GlobalTrajectoryParameters kine = GlobalTrajectoryParameters(oriHit2->globalPosition(), initMomentum, 1, &*bfield);
+	  TrajectoryStateOnSurface state(kine,*oriHit2->surface());
 	  hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*oriHit2,state)));
 
 	  //fixme add pixels
@@ -493,6 +500,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	  //   }
 	  // }
 
+	} else {
+	  // not refit clone anyhow
+	  hit2.reset((BaseTrackerRecHit*)oriHit2->clone());
 	}
 
 	//gc: add the chi2 cut
@@ -525,8 +535,8 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	       << endl;
 	  //cout << state << endl;
 	}
-
-	if (chi2 > maxChi2) continue; 
+	// should fix nan
+	if ( (chi2 > maxChi2) | edm::isNotFinite(chi2) ) continue; 
 
 	if (chi2VsPtCut) {
 
@@ -570,8 +580,16 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	  return;
 	}
 	if (debugPair) std::cout << "triplet made" << std::endl;
-	//result.push_back(SeedingHitSet(hit0, hit1, hit2)); 
-	tripletFromThisLayer = SeedingHitSet(oriHit0, oriHit1, oriHit2);
+	//result.push_back(SeedingHitSet(hit0, hit1, hit2));
+	/* no refit so keep only hit2
+	assert(tripletFromThisLayer.empty());
+	assert(hit0.isOwn()); assert(hit1.isOwn());assert(hit2.isOwn());
+	tripletFromThisLayer.emplace_back(std::move(hit0));
+	tripletFromThisLayer.emplace_back(std::move(hit1));
+	tripletFromThisLayer.emplace_back(std::move(hit2));
+	assert(hit0.isEmpty()); assert(hit1.isEmpty());assert(hit2.isEmpty());
+	*/
+	bestL2 = std::move(hit2);
 	chi2FromThisLayer = chi2;
 	foundTripletsFromPair++;
 	if (foundTripletsFromPair>=2) {
@@ -585,9 +603,15 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       else {
 	//if there is one triplet in more than one layer, try picking the one with best chi2
 	if (chi2FromThisLayer<minChi2) {
-	  triplet = tripletFromThisLayer;
+	  bestH2 = std::move(bestL2);
 	  minChi2 = chi2FromThisLayer;
 	}
+	/*
+	else {
+	  if (!bestH2 && foundTripletsFromPair>0)
+	    std::cout << "what?? " <<  minChi2 << ' '  << chi2FromThisLayer << std::endl;
+	}
+	*/
       }
 
     }//loop over layers
@@ -597,7 +621,16 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     //push back only (max) once per pair
     if (debugPair) std::cout << "Done seed #" << result.size() << std::endl;
     if (usePair) result.push_back(SeedingHitSet(ip->inner(), ip->outer())); 
-    else result.push_back(triplet); 
+    else { 
+      assert(1==foundTripletsFromPair);
+      assert(bestH2);
+      result.emplace_back(&*hit0,&*hit1,&*bestH2); 
+      assert(hit0.isOwn()); assert(hit1.isOwn());
+      cache.emplace_back(const_cast<BaseTrackerRecHit*>(hit0.release()));
+      cache.emplace_back(const_cast<BaseTrackerRecHit*>(hit1.release()));
+      cache.emplace_back(std::move(bestH2));
+      assert(hit0.empty()); assert(hit1.empty());assert(!bestH2);
+    }
 
   }//loop over pairs
   if (debug) {

@@ -16,5 +16,6 @@ const OrderedMultiHits & MultiHitGenerator::run(
 void MultiHitGenerator::clear() 
 {
   theHitSets.clear();
+  cache.clear();
 }
 
