@@ -14,6 +14,8 @@ ROOT.gROOT.SetBatch(1)
 
 def enum(*sequential, **named):
   enums = dict(zip(sequential, range(len(sequential))), **named)
+  reverse = dict((value, key) for key, value in enums.iteritems())
+  enums['reverse_mapping'] = reverse
   return type('Enum', (), enums)
 
 class SimHitPlotter():
@@ -79,13 +81,8 @@ class GEMCSCStubPlotter():
     self.file = TFile.Open(self.inputDir + self.inputFile)
     self.dirAna = (self.file).Get(self.analyzer)
     self.treeEffSt = []
-    """
     for x in self.stationsToUse:
-      t = self.effSt + self.stations(x)
-      temp = (self.dirAna).Get(t)
-      self.treeEffSt.extend("33") 
-      #      self.treeEffSt.extend()
-    """
+      self.treeEffSt.append(self.dirAna.Get(self.effSt + self.stations.reverse_mapping[x]))
     self.yMin = 0.8
     self.yMax = 1.02
     self.etaMin = 1.5

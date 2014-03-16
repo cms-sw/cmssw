@@ -54,9 +54,11 @@ def cscMatchingEfficiencyToStripsAndWires(plotter,st=1):
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
     base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
-    print plotter.treeEffSt[st-1]
-    h1 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, ok_w1, "same", kRed)
-    h2 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, ok_st1, "same")
+
+    index = plotter.stationsToUse.index(st)
+
+    h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, ok_w1, "same", kRed)
+    h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, ok_st1, "same")
    
     leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC")
     leg.SetBorderSize(0)
@@ -68,7 +70,7 @@ def cscMatchingEfficiencyToStripsAndWires(plotter,st=1):
     
     drawEtaLabel(plotter.etaMin,plotter.etaMax,0.45,0.4,0.05)
 
-    c.Print("%scsc_digi_matching_efficiency_st%d%s"%(plotter.targetDir,st,plotter.ext))
+    c.Print("%scsc_digi_matching_efficiency_%s%s"%(plotter.targetDir,plotter.stations.reverse_mapping[st],plotter.ext))
 
 
 #_______________________________________________________________________________
@@ -112,8 +114,10 @@ def cscMatchingEfficiencyToStripsAndWires_2(plotter,st=1):
     base.GetYaxis().SetLabelSize(0.05)
     base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
 
-    h1 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, OR(ok_w1,ok_st1), "same", kRed)
-    h2 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, AND(ok_w1,ok_st1), "same")
+    index = plotter.stationsToUse.index(st)
+
+    h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, OR(ok_w1,ok_st1), "same", kRed)
+    h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, AND(ok_w1,ok_st1), "same")
    
     leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
     leg.SetBorderSize(0)
@@ -125,7 +129,7 @@ def cscMatchingEfficiencyToStripsAndWires_2(plotter,st=1):
     
     drawEtaLabel(plotter.etaMin,plotter.etaMax,0.45,0.4,0.05)
 
-    c.Print("%scsc_combined_digi_matching_efficiency_st%d%s"%(plotter.targetDir,st,plotter.ext))
+    c.Print("%scsc_combined_digi_matching_efficiency_%s%s"%(plotter.targetDir,plotter.stations.reverse_mapping[st],plotter.ext))
 
 
 #_______________________________________________________________________________
@@ -169,8 +173,10 @@ def cscMatchingEfficiencyToAlctClct(plotter,st=1):
     base.GetYaxis().SetLabelSize(0.05)
     base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
 
-    h1 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, AND(ok_sh1,ok_w1), ok_alct1, "same", kRed)
-    h2 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, AND(ok_sh1,ok_st1), ok_clct1, "same")
+    index = plotter.stationsToUse.index(st)
+
+    h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1,ok_w1), ok_alct1, "same", kRed)
+    h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1,ok_st1), ok_clct1, "same")
    
     leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
     leg.SetBorderSize(0)
@@ -182,7 +188,7 @@ def cscMatchingEfficiencyToAlctClct(plotter,st=1):
     
     drawEtaLabel(plotter.etaMin,plotter.etaMax,0.45,0.4,0.05)
 
-    c.Print("%scsc_stub_matching_efficiency%s"%(plotter.targetDir,plotter.ext))
+    c.Print("%scsc_stub_matching_efficiency_%s%s"%(plotter.targetDir,plotter.stations.reverse_mapping[st],plotter.ext))
 
 
 #_______________________________________________________________________________
@@ -226,8 +232,10 @@ def cscMatchingEfficiencyToAlctClct_2(plotter,st=1):
     base.GetYaxis().SetLabelSize(0.05)
     base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
 
-    h1 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, OR(ok_alct1,ok_clct1), "same", kRed)
-    h2 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, AND(ok_alct1,ok_clct1), "same")
+    index = plotter.stationsToUse.index(st)
+
+    h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, OR(ok_alct1,ok_clct1), "same", kRed)
+    h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, AND(ok_alct1,ok_clct1), "same")
    
     leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
     leg.SetBorderSize(0)
@@ -239,7 +247,7 @@ def cscMatchingEfficiencyToAlctClct_2(plotter,st=1):
     
     drawEtaLabel(plotter.etaMin,plotter.etaMax,0.45,0.4,0.05)
 
-    c.Print("%scsc_combined_stub_matching_efficiency%s"%(plotter.targetDir,plotter.ext))
+    c.Print("%scsc_combined_stub_matching_efficiency_%s%s"%(plotter.targetDir,plotter.stations.reverse_mapping[st],plotter.ext))
 
 
 #_______________________________________________________________________________
@@ -283,8 +291,10 @@ def cscMatchingEfficiencyToLct(plotter,st=1):
     base.GetYaxis().SetLabelSize(0.05)
     base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
     
-    h1 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, AND(ok_sh1, ok_alct1, ok_clct1), ok_lct1, "same", kRed)
-    h2 = draw_geff(plotter.treeEffSt[st-1], title, h_bins, toPlot, ok_sh1, ok_lct1, "same", kBlue)
+    index = plotter.stationsToUse.index(st)
+
+    h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1, ok_alct1, ok_clct1), ok_lct1, "same", kRed)
+    h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, ok_lct1, "same", kBlue)
 
     leg = TLegend(0.10,0.2,.75,0.35, "", "brNDC");
     leg.SetBorderSize(0)
@@ -296,4 +306,4 @@ def cscMatchingEfficiencyToLct(plotter,st=1):
     
     drawEtaLabel(plotter.etaMin,plotter.etaMax,0.45,0.4,0.05)
 
-    c.Print("%scsc_lct_matching_efficiency%s"%(plotter.targetDir,plotter.ext))
+    c.Print("%scsc_lct_matching_efficiency_%s%s"%(plotter.targetDir,plotter.stations.reverse_mapping[st],plotter.ext))

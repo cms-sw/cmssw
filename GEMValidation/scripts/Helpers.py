@@ -11,10 +11,10 @@ ROOT.gROOT.SetBatch(1)
 
 #_______________________________________________________________________________
 def drawEtaLabel(minEta, maxEta, x=0.17, y=0.35, font_size=0.):
-    label = minEta + " < |#eta| < " + maxEta
+    label =  "%.2f < |#eta| < %.2f"%(minEta,maxEta)
     tex = TLatex(x, y,label)
     if font_size > 0.:
-      tex.SetFontSize(font_size)
+      tex.SetTextSize(font_size)
       tex.SetTextSize(0.05)
       tex.SetNDC()
       tex.Draw()
@@ -69,7 +69,7 @@ def draw_geff(t, title, h_bins, to_draw, den_cut, extra_num_cut,
     
     num = TH1F("num", "", nBins, minBin, maxBin) 
     den = TH1F("den", "", nBins, minBin, maxBin)
-    print t
+
     t.Draw(to_draw + ">>num", num_cut, "goff")
     t.Draw(to_draw + ">>den", den_cut, "goff")
 
