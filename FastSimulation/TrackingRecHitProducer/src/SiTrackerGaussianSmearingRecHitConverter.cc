@@ -693,6 +693,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
     ++simHitCounter;
     
     DetId det((*isim).detUnitId());
+    const GeomDetUnit & theDetUnit = *geometry->idToDetUnit(det);
     unsigned trackID = (*isim).trackId();
     uint32_t eeID = (*isim).eventId().rawId(); //get the rawId of the eeid for pileup treatment
 
@@ -777,7 +778,8 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
       }
       else{  if(subdet>2) position = Local3DPoint(position.x(),0.,0.);    }  // no matching, set y=0 on strips
 
-      // Inflate errors in case of geometry misalignment
+      /*
+      // Inflate errors in case of geometry misaligniment  (not needed anymore: done in constructor of BaseTrackerRecHit)
       const GeomDet* theMADet = misAlignedGeometry->idToDet(det);
       if ( theMADet->alignmentPositionError() != 0 ) { 
 	LocalError lape = 
@@ -787,7 +789,8 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
 			     error.xy()+lape.xy(),
 			     error.yy()+lape.yy() );
       }
-      
+      */
+
       float chargeADC = (*isim).energyLoss()/(GevPerElectron * ElectronsPerADC);
 
       //create cluster
@@ -812,7 +815,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
       
       // create rechit
       temporaryRecHits[trackID].push_back(
-					  new SiTrackerGSRecHit2D(position, error, det, 
+					  new SiTrackerGSRecHit2D(position, error, theDetUnit, 
 								  simHitCounter, trackID, 
 								  eeID, 
 								  ClusterRef(FastTrackerClusterRefProd, simHitCounter),
@@ -1386,7 +1389,7 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 	else{ //need to copy the original in a "matched" type rechit
 
 	  SiTrackerGSMatchedRecHit2D* rit_copy = new SiTrackerGSMatchedRecHit2D(rit->localPosition(), rit->localPositionError(),
-										rit->geographicalId(), 
+										*rit->det(), 
 										rit->simhitId(), rit->simtrackId(), rit->eeId(),
                                                                                 rit->cluster(),
                                                                                 rit->simMultX(), rit->simMultY()); 
@@ -1401,7 +1404,7 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
       else { //need to copy the original in a "matched" type rechit
 
 	SiTrackerGSMatchedRecHit2D* rit_copy = new SiTrackerGSMatchedRecHit2D(rit->localPosition(), rit->localPositionError(),
-									      rit->geographicalId(), 
+									      *rit->det(), 
 									      rit->simhitId(), rit->simtrackId(), rit->eeId(), 
                                                                               rit->cluster(),
 									      rit->simMultX(), rit->simMultY());	
