@@ -64,6 +64,7 @@ namespace evf{
       std::string getEoLSFilePathOnBU(const unsigned int ls) const;
       std::string getEoLSFilePathOnFU(const unsigned int ls) const;
       std::string getEoRFilePath() const;
+      std::string getEoRFilePathOnFU() const;
       std::string getPathForFU() const;
       void removeFile(unsigned int ls, unsigned int index);
       void removeFile(std::string );

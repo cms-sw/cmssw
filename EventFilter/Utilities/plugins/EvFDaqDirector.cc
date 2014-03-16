@@ -305,6 +305,12 @@ namespace evf {
     return bu_run_dir_ + "/" + fffnaming::eorFileName(run_);
   }
 
+
+  std::string EvFDaqDirector::getEoRFilePathOnFU() const {
+    return run_dir_ + "/" + fffnaming::eorFileName(run_);
+  }
+
+
   std::string EvFDaqDirector::getPathForFU() const {
     return sm_base_dir_;
   }
