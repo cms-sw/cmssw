@@ -6,6 +6,7 @@
 class SeedingHitSet {
 public:
 
+  using      RecHit        = BaseTrackerRecHit;
   using      RecHitPointer = BaseTrackerRecHit *;
   using ConstRecHitPointer = BaseTrackerRecHit const *;
 

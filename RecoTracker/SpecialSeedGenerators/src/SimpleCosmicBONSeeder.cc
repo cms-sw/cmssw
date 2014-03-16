@@ -544,9 +544,9 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
                     std::cout << "Processing triplet " << it << ", hit " << ih << ": propagated state = " << propagated;
             }
             SeedingHitSet::ConstRecHitPointer  tthp   = seedHits[ih];
-            SeedingHitSet::RecHitPointer              newtth = (SeedingHitSet::RecHitPointer)(cloner(*tthp,propagated));
-            hits.push_back(newtth);
+            auto newtth = static_cast<SeedingHitSet::RecHitPointer>(cloner(*tthp,propagated));
             updated = theUpdator->update(propagated, *newtth);
+            hits.push_back(newtth);
             if (!updated.isValid()) {
                 if (seedVerbosity_ > 1)
                     std::cout << "Processing triplet " << it << ", hit " << ih << ": failed update." << std::endl;
