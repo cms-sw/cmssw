@@ -552,12 +552,13 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     const int nlayers(match_sh.nLayersWithHitsInSuperChamber(d));
     if (nlayers < minNHitsChamberCSCSimHit_) continue;
 
-    if (id.chamber() & 1) etrk_[st].has_csc_sh |= 1;
+    const bool odd(id.chamber()%2==1);
+    if (odd) etrk_[st].has_csc_sh |= 1;
     else etrk_[st].has_csc_sh |= 2;
 
     // case ME11
     if (st==2 or st==3){
-      if (id.chamber() & 1) etrk_[1].has_csc_sh |= 1;
+      if (odd) etrk_[1].has_csc_sh |= 1;
       else etrk_[1].has_csc_sh |= 2;
     }  
   }
@@ -572,12 +573,13 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     const int nlayers(match_cd.nLayersWithStripInChamber(d));
     if (nlayers < minNHitsChamberCSCStripDigi_) continue;
 
-    if (id.chamber() & 1) etrk_[st].has_csc_strips |= 1;
+    const bool odd(id.chamber()%2==1);
+    if (odd) etrk_[st].has_csc_strips |= 1;
     else etrk_[st].has_csc_strips |= 2; 
     
     // case ME11
     if (st==2 or st==3){
-      if (id.chamber() & 1) etrk_[1].has_csc_strips |= 1;
+      if (odd) etrk_[1].has_csc_strips |= 1;
       else etrk_[1].has_csc_strips |= 2;
     }  
   }
@@ -592,12 +594,13 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     const int nlayers(match_cd.nLayersWithWireInChamber(d));
     if (nlayers < minNHitsChamberCSCWireDigi_) continue;
 
-    if (id.chamber() & 1) etrk_[st].has_csc_wires |= 1;
+    const bool odd(id.chamber()%2==1);
+    if (odd) etrk_[st].has_csc_wires |= 1;
     else etrk_[st].has_csc_wires |= 2;
 
     // case ME11
     if (st==2 or st==3){
-      if (id.chamber() & 1) etrk_[1].has_csc_wires |= 1;
+      if (odd) etrk_[1].has_csc_wires |= 1;
       else etrk_[1].has_csc_wires |= 2;
     }  
   }
@@ -609,7 +612,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    const bool odd(id.chamber()%1);
+    const bool odd(id.chamber()%2==1);
     auto clct = match_lct.clctInChamber(d);
 
     if (odd) etrk_[st].halfstrip_odd = digi_channel(clct);
@@ -635,7 +638,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    const bool odd(id.chamber()%1);
+    const bool odd(id.chamber()%2==1);
     auto alct = match_lct.alctInChamber(d);
 
     if (odd) etrk_[st].wiregroup_odd = digi_channel(alct);
@@ -678,7 +681,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    const bool odd(id.chamber()%1);
+    const bool odd(id.chamber()%2==1);
     if (odd) etrk_[st].has_lct |= 1;
     else etrk_[st].has_lct |= 2;
 
