@@ -516,7 +516,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
                                edm::Wrapper<FEDRawDataCollection>::getInterface());
 
   //FWCore API up to 7_1_0_pre2
-  //eventPrincipal.put(daqProvenanceHelper_.constbranchDescription_, edp,
+  //eventPrincipal.put(daqProvenanceHelper_.constBranchDescription_, edp,
   //                   daqProvenanceHelper_.dummyProvenance_);
   
   eventPrincipal.put(daqProvenanceHelper_.branchDescription(), edp,
