@@ -40,9 +40,15 @@ void SeedFromConsecutiveHitsCreator::init(const TrackingRegion & iregion,
   isBOFF = (0==nomField);
 
   edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-  es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
-  auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
-  cloner = (*builder).cloner();
+  try { // one sure we need to propagate the ocnfig to HLT
+    es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
+    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+    cloner = (*builder).cloner();
+  } catch(...) {
+    es.get<TransientRecHitRecord>().get("hltESPTTRHBWithTrackAngle", builderH);
+    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+    cloner = (*builder).cloner();
+ }
 
 }
 

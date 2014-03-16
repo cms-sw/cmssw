@@ -146,12 +146,19 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
   const Propagator*  propagator = &(*propagatorHandle);
   
    // get cloner (FIXME: add to config)
-  auto TTRHBuilder = "WithTrackAngle";
-  edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-  es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
-  auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
-  cloner = (*builder).cloner();
-
+  try { 
+    auto TTRHBuilder = "WithTrackAngle";
+    edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
+    es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
+    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+    cloner = (*builder).cloner();
+  } catch(...) {
+    auto TTRHBuilder = "hltESPTTRHBWithTrackAngle";
+    edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
+    es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
+    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+    cloner = (*builder).cloner();
+  }
 
   // get updator
   KFUpdator  updator;
