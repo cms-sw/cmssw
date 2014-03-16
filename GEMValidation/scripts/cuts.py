@@ -3,12 +3,20 @@ from ROOT import *
 #_______________________________________________________________________________
 def ANDtwo(cut1,cut2):
     """AND of two TCuts in PyROOT"""
+    if cut1.GetTitle() == "":
+        return cut2
+    if cut2.GetTitle() == "":
+        return cut1
     return TCut("(%s) && (%s)"%(cut1.GetTitle(),cut2.GetTitle()))
 
 
 #_______________________________________________________________________________
 def ORtwo(cut1,cut2):
     """OR of two TCuts in PyROOT"""
+    if cut1.GetTitle() == "":
+        return cut2
+    if cut2.GetTitle() == "":
+        return cut1
     return TCut("(%s) || (%s)"%(cut1.GetTitle(),cut2.GetTitle()))
 
 

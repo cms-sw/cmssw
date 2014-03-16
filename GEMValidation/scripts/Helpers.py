@@ -8,6 +8,15 @@ sys.argv.append( '-b' )
 import ROOT 
 ROOT.gROOT.SetBatch(1)
 
+#_______________________________________________________________________________
+def drawCscLabel(title, x=0.17, y=0.35, font_size=0.):
+    tex = TLatex(x, y,title)
+    if font_size > 0.:
+      tex.SetTextSize(font_size)
+      tex.SetTextSize(0.05)
+      tex.SetNDC()
+      tex.Draw()
+      return tex
 
 #_______________________________________________________________________________
 def drawEtaLabel(minEta, maxEta, x=0.17, y=0.35, font_size=0.):
@@ -59,7 +68,7 @@ def draw_geff(t, title, h_bins, to_draw, den_cut, extra_num_cut,
     debug = False
     if debug:
         print "Denominator cut", den_cut
-        print "Numerator cut", extra_num_cut
+        print "Numerator cut", num_cut
  
     ## PyROOT works a little different than ROOT when you are plotting 
     ## histograms directly from tree. Hence, this work-around

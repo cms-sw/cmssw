@@ -23,8 +23,10 @@ if __name__ == "__main__":
   for i in range(len(plotter.stationsToUse)):
     st = plotter.stationsToUse[i]
     print "Processing station ", plotter.stations.reverse_mapping[st]
-    cscMatchingEfficiencyToStripsAndWires(plotter,st)
-    cscMatchingEfficiencyToStripsAndWires_2(plotter,st)
-    cscMatchingEfficiencyToAlctClct(plotter,st)
-    cscMatchingEfficiencyToAlctClct_2(plotter,st)
-    cscMatchingEfficiencyToLct(plotter,st)
+    simTrackToCscSimHitMatching(plotter,st)
+    simTrackToCscStripsWiresMatching(plotter,st)
+    simTrackToCscStripsWiresMatching_2(plotter,st)
+    simTrackToCscAlctClctMatching(plotter,st)
+    simTrackToCscAlctClctMatching_2(plotter,st)
+    simTrackToCscLctMatching(plotter,st)
+#    simTrackToCscMpLctMatching(plotter,st)

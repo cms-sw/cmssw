@@ -505,7 +505,7 @@ void GEMCSCAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
     // match hits and digis to this SimTrack
     SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, ev, es);
 
-    //if (ntupleTrackChamberDelta_) analyzeTrackChamberDeltas(match, trk_no);
+    if (ntupleTrackChamberDelta_) analyzeTrackChamberDeltas(match, trk_no);
     if (ntupleTrackEff_) analyzeTrackEff(match, trk_no);
     // if (matchprint_) printout(match, trk_no);
     
@@ -529,13 +529,12 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   const GEMDigiMatcher& match_gd = match.gemDigis();
   const CSCDigiMatcher& match_cd = match.cscDigis();
   const CSCStubMatcher& match_lct = match.cscStubs();
-  //  const TrackMatcher& match_track = match.tracks();
+  //const TrackMatcher& match_track = match.tracks();
   const SimTrack &t = match_sh.trk();
    
   for (auto s: stations_to_use_)
   {
     etrk_[s].init();
-
     etrk_[s].pt = t.momentum().pt();
     etrk_[s].phi = t.momentum().phi();
     etrk_[s].eta = t.momentum().eta();
@@ -544,12 +543,14 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   }
 
   // SimHits
-  auto csc_ch_ids = match_sh.chamberIdsCSC(0);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_sh.chamberIdsCSC(0))
   {
     CSCDetId id(d);
+    std::cout << "id " << id << std::endl;
     const int st(detIdToMEStation(id.station(),id.ring()));
+    std::cout << "st " << st << std::endl;
     if (stations_to_use_.count(st) == 0) continue;
+    std::cout << "st " << st << std::endl;
 
     const int nlayers(match_sh.nLayersWithHitsInSuperChamber(d));
     if (nlayers < minNHitsChamberCSCSimHit_) continue;
@@ -559,8 +560,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   }
 
   // CSC strip digis
-  csc_ch_ids = match_cd.chamberIdsStrip(0);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_cd.chamberIdsStrip(0))
   {
     CSCDetId id(d);
     const int st(detIdToMEStation(id.station(),id.ring()));
@@ -574,8 +574,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   }
 
   // CSC wire digis
-  csc_ch_ids = match_cd.chamberIdsWire(0);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_cd.chamberIdsWire(0))
   {
     CSCDetId id(d);
     const int st(detIdToMEStation(id.station(),id.ring()));
@@ -589,15 +588,15 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   }
 
   // CSC CLCTs
-  csc_ch_ids = match_lct.chamberIdsCLCT(0);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_lct.chamberIdsCLCT(0))
   {
     CSCDetId id(d);
     const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
-
+    std::cout << " id " << id << std::endl;
     const bool odd(id.chamber()%1);
     auto clct = match_lct.clctInChamber(d);
+    std::cout << clct << std::endl;
     if (odd) etrk_[st].halfstrip_odd = digi_channel(clct);
     else etrk_[st].halfstrip_even = digi_channel(clct);
 
@@ -606,8 +605,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   }
 
   // CSC ALCTs
-  csc_ch_ids = match_lct.chamberIdsALCT(0);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_lct.chamberIdsALCT(0))
   {
     CSCDetId id(d);
     const int st(detIdToMEStation(id.station(),id.ring()));
@@ -622,13 +620,11 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     else etrk_[st].has_alct |= 2;
   }
 
-  return;
-
   // holders for track's LCTs
-  Digi lct_odd[5];
-  Digi lct_even[5];
-  GlobalPoint gp_lct_odd[5];
-  GlobalPoint gp_lct_even[5];
+  Digi lct_odd[12];
+  Digi lct_even[12];
+  GlobalPoint gp_lct_odd[12];
+  GlobalPoint gp_lct_even[12];
   for (auto s: stations_to_use_)
   {
     lct_odd[s] = make_digi();
@@ -636,8 +632,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   }
 
   // LCT stubs
-  csc_ch_ids = match_lct.chamberIdsLCT(0);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_lct.chamberIdsLCT(0))
   {
     CSCDetId id(d);
     const int st(detIdToMEStation(id.station(),id.ring()));
@@ -680,10 +675,8 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     }
   }
 
-  if (not (etrk_[1].has_lct&1 or etrk_[1].has_lct&2)) std::cout << "no lct in station 1 in this simtrack"<< std::endl;
   // GEM simhits in superchamber
-  auto gem_superch_ids = match_sh.superChamberIdsGEM();
-  for(auto d: gem_superch_ids)
+  for(auto d: match_sh.superChamberIdsGEM())
   {
     GEMDetId id(d);
     const int st(detIdToMEStation(id.station(),id.ring()));
@@ -712,12 +705,11 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   }
 
   // placeholders for best mtching pads
-  GlobalPoint best_pad_odd[5];
-  GlobalPoint best_pad_even[5];
+  GlobalPoint best_pad_odd[12];
+  GlobalPoint best_pad_even[12];
 
   // GEM digis and pads in superchambers
-  gem_superch_ids = match_gd.superChamberIds();
-  for(auto d: gem_superch_ids)
+  for(auto d: match_gd.superChamberIds())
   {
     GEMDetId id(d);
     const int st(detIdToMEStation(id.station(),id.ring()));
@@ -785,8 +777,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     }
   }
 
-  gem_superch_ids = match_gd.superChamberIdsWithCoPads();
-  for(auto d: gem_superch_ids)
+  for(auto d: match_gd.superChamberIdsWithCoPads())
   {
     GEMDetId id(d);
     const int st(detIdToMEStation(id.station(),id.ring()));
@@ -802,8 +793,6 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     else etrk_[st].Copad_even = digi_channel(copads.at(0));
   }
  
-  
-
   for (auto s: stations_to_use_)
   {
     tree_eff_[s]->Fill();
@@ -838,7 +827,7 @@ void GEMCSCAnalyzer::analyzeTrackChamberDeltas(SimTrackMatchManager& match, int 
           <<" | "<<gem_simhits.size()<<" "<<gem_simhits_gp.phi()<<endl;
     }
 
-    int nsch = match_sh.superChamberIdsGEM().size();
+    const int nsch(match_sh.superChamberIdsGEM().size());
     auto gem_sh_ids = match_sh.detIdsGEM();
     for(auto d: gem_sh_ids)
     {
@@ -865,7 +854,7 @@ void GEMCSCAnalyzer::analyzeTrackChamberDeltas(SimTrackMatchManager& match, int 
           <<" | "<<csc_simhits.size()<<" "<<csc_simhits_gp.phi()<<endl;
     }
 
-    int ncch = match_sh.chamberIdsCSC().size();
+    const int ncch(match_sh.chamberIdsCSC().size());
     auto csc_sh_ids = match_sh.detIdsCSC();
     for(auto d: csc_sh_ids)
     {
