@@ -158,8 +158,8 @@ bool FedRawDataInputSource::checkNextEvent()
     case evf::EvFDaqDirector::runEnded: {
 
       //maybe create EoL file in working directory before ending run
+      struct stat buf;
       if ( currentLumiSection_ > 0 ) {
-        struct stat buf;
         bool eolFound = (stat(daqDirector_->getEoLSFilePathOnBU(currentLumiSection_).c_str(), &buf) == 0);
         if (eolFound) {
           const std::string fuEoLS = daqDirector_->getEoLSFilePathOnFU(currentLumiSection_);
@@ -169,6 +169,12 @@ bool FedRawDataInputSource::checkNextEvent()
             close(eol_fd);
           }
         }
+      }
+      //also create EoR file in FU data directory
+      bool eorFound =  (stat(daqDirector_->getEoRFilePathOnFU().c_str(),&buf) == 0);
+      if (!eorFound) {
+        int eor_fd = open(daqDirector_->getEoRFilePathOnFU().c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+        close(eor_fd);
       }
       if (fms_) fms_->reportEventsThisLumiInSource(currentLumiSection_,eventsThisLumi_);
       eventsThisLumi_=0;
