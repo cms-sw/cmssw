@@ -21,28 +21,12 @@ if __name__ == "__main__":
   ## Style
   gStyle.SetStatStyle(0);
   plotter = GEMCSCStubPlotter()
-  """  
-  cscMatchingEfficiencyToStripsAndWires(plotter)
-  cscMatchingEfficiencyToStripsAndWires_2(plotter)
-  cscMatchingEfficiencyToAlctClct(plotter)
-  cscMatchingEfficiencyToAlctClct_2(plotter)
-  cscMatchingEfficiencyToLct(plotter)
-
-  cscMatchingEfficiencyToStripsAndWires(plotter,2)
-  cscMatchingEfficiencyToStripsAndWires_2(plotter,2)
-  cscMatchingEfficiencyToAlctClct(plotter,2)
-  cscMatchingEfficiencyToAlctClct_2(plotter,2)
-  cscMatchingEfficiencyToLct(plotter,2)
-
-  cscMatchingEfficiencyToStripsAndWires(plotter,3)
-  cscMatchingEfficiencyToStripsAndWires_2(plotter,3)
-  cscMatchingEfficiencyToAlctClct(plotter,3)
-  cscMatchingEfficiencyToAlctClct_2(plotter,3)
-  cscMatchingEfficiencyToLct(plotter,3)
-
-  cscMatchingEfficiencyToStripsAndWires(plotter,4)
-  cscMatchingEfficiencyToStripsAndWires_2(plotter,4)
-  cscMatchingEfficiencyToAlctClct(plotter,4)
-  cscMatchingEfficiencyToAlctClct_2(plotter,4)
-  cscMatchingEfficiencyToLct(plotter,4)
+#  print plotter.stations.size()
+  """
+  for st in plotter.stationsToUse:
+    cscMatchingEfficiencyToStripsAndWires(plotter,st)
+    cscMatchingEfficiencyToStripsAndWires_2(plotter,st)
+    cscMatchingEfficiencyToAlctClct(plotter,st)
+    cscMatchingEfficiencyToAlctClct_2(plotter,st)
+    cscMatchingEfficiencyToLct(plotter,st)
   """

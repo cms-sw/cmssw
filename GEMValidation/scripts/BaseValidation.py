@@ -72,13 +72,20 @@ class GEMCSCStubPlotter():
     self.targetDir = "gem_csc_matching/"
     self.ext = ".png"
     self.analyzer = "GEMCSCAnalyzer"
-    Stations = enum('ALL','ME11','ME1a','ME1b','ME12','ME13','ME21','ME22','ME31','ME32','ME41','ME42')
-    stationsToUse = [Stations.ME11,Stations.ME1a,Stations.ME1b,
-                     Stations.ME21,Stations.ME31,Stations.ME41]
+    self.effSt = "trk_eff_"
+    self.stations = enum('ALL','ME11','ME1a','ME1b','ME12','ME13','ME21','ME22','ME31','ME32','ME41','ME42')
+    self.stationsToUse = [self.stations.ME11,self.stations.ME1a,self.stations.ME1b,
+                          self.stations.ME21,self.stations.ME31,self.stations.ME41]
     self.file = TFile.Open(self.inputDir + self.inputFile)
     self.dirAna = (self.file).Get(self.analyzer)
     self.treeEffSt = []
-    theInputFiles.extend((self.dirAna).Get(self.effSt[x]) for x in stationsToUse)
+    """
+    for x in self.stationsToUse:
+      t = self.effSt + self.stations(x)
+      temp = (self.dirAna).Get(t)
+      self.treeEffSt.extend("33") 
+      #      self.treeEffSt.extend()
+    """
     self.yMin = 0.8
     self.yMax = 1.02
     self.etaMin = 1.5
