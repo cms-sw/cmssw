@@ -110,6 +110,13 @@ process.QJetsAdder.jetAlgo=cms.string(alg.upper())
 #Grooming valueMaps
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 
+process.hepTopTagPFJetsCHSLinks=cms.EDProducer("RecoJetDeltaRValueMapProducer",
+                                               src = inputCollection,
+                                               matched = cms.InputTag("hepTopTagPFJetsCHS"),
+                                               distMin = cms.double(0.8),
+                                               value = cms.string('mass')
+                                               )
+
 #---------------------------------------------------------------------------------------------------
 #use PAT to turn ValueMaps into userFloats
 
@@ -120,6 +127,7 @@ patJets.userData.userFloats.src = ['Njettiness:tau1','Njettiness:tau2','Njettine
                                    'pileupJetIdEvaluator:fullDiscriminant',
                                    'QGTagger:qgLikelihood',
                                    'QJetsAdder:QjetsVolatility',
+                                   'hepTopTagPFJetsCHSLinks',
                                    ]
 
 patJets.userData.userInts.src = ['pileupJetIdEvaluator:cutbasedId','pileupJetIdEvaluator:fullId']
@@ -141,6 +149,7 @@ process.out.outputCommands=['drop *',
                             'keep *_pileupJetId*_*_*',
                             'keep *_QGTagger_*_*',
                             'keep *_QJetsAdder_*_*',
+                            'keep *_hepTopTagPFJetsCHSLinks_*_*',
                             ]
 
 if inputCollection.value()=="ca8PFJetsCHS":

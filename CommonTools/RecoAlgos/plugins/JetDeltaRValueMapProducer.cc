@@ -84,6 +84,7 @@ public:
 	    found = true;	    
 	  }
 	}// end loop over matched jets
+	if (!found) values.push_back( -99999 );
       }// end loop over src jets
       
       filler.insert(h_jets1, values.begin(), values.end());
