@@ -632,6 +632,8 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       cache.emplace_back(std::move(bestH2));
       assert(hit0.empty()); assert(hit1.empty());assert(!bestH2);
     }
+    // std::cout << (usePair ? "pair " : "triplet ") << minChi2 <<' ' << cache.size() << std::endl;  
+
 
   }//loop over pairs
   if (debug) {
@@ -794,3 +796,4 @@ void MultiHitGeneratorFromChi2::refit3Hits(HitOwnPtr & hit0,
 
 }
 */
+

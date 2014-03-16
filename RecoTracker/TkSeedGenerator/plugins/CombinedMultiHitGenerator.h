@@ -6,21 +6,22 @@
  *  initialised from provided layers in the form of PixelLayerTriplets  
  */ 
 
-#include <vector>
-#include <memory>
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGenerator.h"
+#include "RecoTracker/TkSeedGenerator/interface/MultiHitGeneratorFromPairAndLayers.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
+#include<memory>
+
 class TrackingRegion;
 class SeedingLayerSetsHits;
-class MultiHitGeneratorFromPairAndLayers;
+// class MultiHitGeneratorFromPairAndLayers;
 
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
-class CombinedMultiHitGenerator : public MultiHitGenerator {
+class CombinedMultiHitGenerator final : public MultiHitGenerator {
 public:
   typedef LayerHitMapCache  LayerCacheType;
 
@@ -33,6 +34,10 @@ public:
   /// from base class
   virtual void hitSets( const TrackingRegion& reg, OrderedMultiHits & result,
       const edm::Event & ev,  const edm::EventSetup& es);
+
+   virtual void clear() override {
+      theGenerator->clear(); 
+   }
 
 private:
   edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;

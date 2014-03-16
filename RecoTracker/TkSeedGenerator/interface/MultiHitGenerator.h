@@ -33,7 +33,7 @@ public:
   virtual void hitSets( const TrackingRegion& reg, OrderedMultiHits & prs,
       const edm::Event & ev,  const edm::EventSetup& es) = 0;
 
-  virtual void clear() final;
+  virtual void clear();
 
 private:
   OrderedMultiHits theHitSets;
