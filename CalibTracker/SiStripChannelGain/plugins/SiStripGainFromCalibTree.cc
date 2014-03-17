@@ -84,9 +84,7 @@ using __gnu_cxx::hash;
 
 struct stAPVGain{
    unsigned int Index; 
-  //FIXME: removed for the moment since it needs to be computed from a histo that can be
-  // accessed only at the end of the run in the AlCaHarvesting step
-  //unsigned int Bin;
+   int          Bin;
    unsigned int DetId;
    unsigned int APVId;
    unsigned int SubDet;
@@ -123,6 +121,7 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       virtual void algoEndJob        () override;
       virtual void algoAnalyze       (const edm::Event &, const edm::EventSetup &) override;
 
+
               void algoAnalyzeTheTree();
               void algoComputeMPVandGain();
 
@@ -131,16 +130,15 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
               bool IsGoodLandauFit(double* FitResults); 
               void storeOnTree();
               void MakeCalibrationMap();
+              bool produceTagFilter();
 
 
 
       SiStripApvGain* getNewObject() override;
 
-
-  TFileService *tfs;
-  DQMStore* dbe;
-  bool harvestingMode;
-
+      TFileService *tfs;
+      DQMStore* dbe;
+      bool         harvestingMode;
       double       MinNrEntries;
       double       MaxMPVError;
       double       MaxChi2OverNDF;
@@ -183,6 +181,7 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       unsigned int ERun;
       unsigned int GOOD;
       unsigned int BAD;
+      unsigned int MASKED;
 
   
 
@@ -221,9 +220,9 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
    VInputFiles         = iConfig.getParameter<vector<string> >  ("InputFiles");
 
 
-   useCalibration      = iConfig.getUntrackedParameter<bool>("UseCalibration", false);
-   m_calibrationPath   = iConfig.getUntrackedParameter<string>("calibrationPath");
-   harvestingMode      = iConfig.getUntrackedParameter<bool>("harvestingMode", false);
+   useCalibration      = iConfig.getUntrackedParameter<bool>    ("UseCalibration"     , false);
+   m_calibrationPath   = iConfig.getUntrackedParameter<string>  ("calibrationPath");
+   harvestingMode      = iConfig.getUntrackedParameter<bool>    ("harvestingMode"     , false);
 
    dbe = edm::Service<DQMStore>().operator->();
    dbe->setVerbose(10);
@@ -233,20 +232,20 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
 //void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 {
   cout << "algoBeginRun start" << endl;
-  if(!harvestingMode) {
-    cout << "   booking start" << endl;
-    dbe->setCurrentFolder("AlCaReco/SiStripGains/");
-    Charge_Vs_Index           = dbe->book2D("Charge_Vs_Index"          , "Charge_Vs_Index"          , 72785, 0   , 72784,1000,0,2000);
-    Charge_Vs_Index_Absolute  = dbe->book2D("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 72785, 0   , 72784, 500,0,2000);
-    Charge_Vs_PathlengthTIB   = dbe->book2D("Charge_Vs_PathlengthTIB"  , "Charge_Vs_PathlengthTIB"  , 20   , 0.3 , 1.3  , 250,0,2000);
-    Charge_Vs_PathlengthTOB   = dbe->book2D("Charge_Vs_PathlengthTOB"  , "Charge_Vs_PathlengthTOB"  , 20   , 0.3 , 1.3  , 250,0,2000);
-    Charge_Vs_PathlengthTIDP  = dbe->book2D("Charge_Vs_PathlengthTIDP" , "Charge_Vs_PathlengthTIDP" , 20   , 0.3 , 1.3  , 250,0,2000);
-    Charge_Vs_PathlengthTIDM  = dbe->book2D("Charge_Vs_PathlengthTIDM" , "Charge_Vs_PathlengthTIDM" , 20   , 0.3 , 1.3  , 250,0,2000);
-    Charge_Vs_PathlengthTECP1 = dbe->book2D("Charge_Vs_PathlengthTECP1", "Charge_Vs_PathlengthTECP1", 20   , 0.3 , 1.3  , 250,0,2000);
-    Charge_Vs_PathlengthTECP2 = dbe->book2D("Charge_Vs_PathlengthTECP2", "Charge_Vs_PathlengthTECP2", 20   , 0.3 , 1.3  , 250,0,2000);
-    Charge_Vs_PathlengthTECM1 = dbe->book2D("Charge_Vs_PathlengthTECM1", "Charge_Vs_PathlengthTECM1", 20   , 0.3 , 1.3  , 250,0,2000);
-    Charge_Vs_PathlengthTECM2 = dbe->book2D("Charge_Vs_PathlengthTECM2", "Charge_Vs_PathlengthTECM2", 20   , 0.3 , 1.3  , 250,0,2000);
-  } 
+  if(!harvestingMode){
+     cout << "   booking start" << endl;
+     dbe->setCurrentFolder("AlCaReco/SiStripGains/");
+     Charge_Vs_Index           = dbe->book2D("Charge_Vs_Index"          , "Charge_Vs_Index"          , 72785, 0   , 72784,1000,0,2000);
+     Charge_Vs_Index_Absolute  = dbe->book2D("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 72785, 0   , 72784, 500,0,2000);
+     Charge_Vs_PathlengthTIB   = dbe->book2D("Charge_Vs_PathlengthTIB"  , "Charge_Vs_PathlengthTIB"  , 20   , 0.3 , 1.3  , 250,0,2000);
+     Charge_Vs_PathlengthTOB   = dbe->book2D("Charge_Vs_PathlengthTOB"  , "Charge_Vs_PathlengthTOB"  , 20   , 0.3 , 1.3  , 250,0,2000);
+     Charge_Vs_PathlengthTIDP  = dbe->book2D("Charge_Vs_PathlengthTIDP" , "Charge_Vs_PathlengthTIDP" , 20   , 0.3 , 1.3  , 250,0,2000);
+     Charge_Vs_PathlengthTIDM  = dbe->book2D("Charge_Vs_PathlengthTIDM" , "Charge_Vs_PathlengthTIDM" , 20   , 0.3 , 1.3  , 250,0,2000);
+     Charge_Vs_PathlengthTECP1 = dbe->book2D("Charge_Vs_PathlengthTECP1", "Charge_Vs_PathlengthTECP1", 20   , 0.3 , 1.3  , 250,0,2000);
+     Charge_Vs_PathlengthTECP2 = dbe->book2D("Charge_Vs_PathlengthTECP2", "Charge_Vs_PathlengthTECP2", 20   , 0.3 , 1.3  , 250,0,2000);
+     Charge_Vs_PathlengthTECM1 = dbe->book2D("Charge_Vs_PathlengthTECM1", "Charge_Vs_PathlengthTECM1", 20   , 0.3 , 1.3  , 250,0,2000);
+     Charge_Vs_PathlengthTECM2 = dbe->book2D("Charge_Vs_PathlengthTECM2", "Charge_Vs_PathlengthTECM2", 20   , 0.3 , 1.3  , 250,0,2000);
+   } 
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
    vector<GeomDet*> Det = tkGeom->dets();
@@ -255,15 +254,12 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
    iSetup.get<SiStripGainRcd>().get(gainHandle);
    if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
  
-//   size_t numberOfTag = gainHandle->getNumberOfTags();
    for(unsigned int i=0;i<gainHandle->getNumberOfTags();i++){
       printf("Reccord %i --> Rcd Name = %s    Label Name = %s\n",i,gainHandle->getRcdName(i).c_str(), gainHandle->getLabelName(i).c_str());
    }
  
-
    edm::ESHandle<SiStripQuality> SiStripQuality_;
    iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
-
 
    unsigned int Index=0;
    for(unsigned int i=0;i<Det.size();i++){
@@ -281,8 +277,7 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
           for(unsigned int j=0;j<NAPV;j++){
                 stAPVGain* APV = new stAPVGain;
                 APV->Index         = Index;
-		// FIXME: this needs to be removed since there is no access to the histograms in begiRun
-                // APV->Bin           = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index);
+                APV->Bin           = -1;
                 APV->DetId         = Detid.rawId();
                 APV->APVId         = j;
                 APV->SubDet        = SubDet;
@@ -318,7 +313,6 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
 
    MakeCalibrationMap();
 
-
    NEvent     = 0;
    NTrack     = 0;
    NCluster   = 0;
@@ -326,28 +320,23 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
    ERun       = 0;
    GOOD       = 0;
    BAD        = 0;
+   MASKED     = 0;
    
    cout << "algoBeginJob end" << endl;
 }
 
-
-//void
-//SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-//{   
-//}
-
 void 
 SiStripGainFromCalibTree::algoEndJob() {
-   printf("EndJob\n");
-   if(AlgoMode=="CalibTree")algoAnalyzeTheTree();
-   // FIXME: here put the switch to run the harvesting mode
-   
-   if(harvestingMode) {
+   if(AlgoMode == "PCL" && !harvestingMode)return;//nothing to do in that case
 
-     cout << "   retrieving from DQMStore" << endl;
+   if(AlgoMode=="CalibTree"){
+      // Loop on calibTrees to fill the 2D histograms
+      algoAnalyzeTheTree();
+   }else if(harvestingMode){
+     // Load the 2D histograms from the DQM objects
      // When running in AlCaHarvesting mode the histos are already booked and should be just retrieved from
      // DQMStore so that they can be used in the fit
-     // cout << "SIZE: " << dbe->getAllContents("").size() << endl;
+     cout << "   retrieving from DQMStore" << endl;
      Charge_Vs_Index           = dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index");
      Charge_Vs_Index_Absolute  = dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index_Absolute");
      Charge_Vs_PathlengthTIB   = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIB");
@@ -358,13 +347,13 @@ SiStripGainFromCalibTree::algoEndJob() {
      Charge_Vs_PathlengthTECP2 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECP2");
      Charge_Vs_PathlengthTECM1 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECM1");
      Charge_Vs_PathlengthTECM2 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECM2");
-
-     // these methods are run only in "AlCaHarvesting" mode once the full statistics out of the parallel jobs is
-     // harvested and available in the MEs
-     algoComputeMPVandGain();
-     //FIXME: for the moment the tree is disabled in PCL, among other reasons the fact that the TFileSevice is not available @ Tier0
-     if(AlgoMode != "PCL") storeOnTree();
    }
+
+   // Now that we have the full statistics we can extract the information of the 2D histograms
+   algoComputeMPVandGain();
+   
+   //FIXME: for the moment the tree is disabled in PCL, among other reasons the fact that the TFileSevice is not available @ Tier0
+   if(AlgoMode != "PCL") storeOnTree();
 }
 
 
@@ -405,7 +394,6 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 {
    for(unsigned int i=0;i<VInputFiles.size();i++){
       printf("Openning file %3i/%3i --> %s\n",i+1, (int)VInputFiles.size(), (char*)(VInputFiles[i].c_str())); fflush(stdout);
-//      TChain* tree = new TChain("gainCalibrationTree/tree");
       TChain* tree = new TChain("commonCalibrationTree/tree");
       tree->Add(VInputFiles[i].c_str());
 
@@ -451,7 +439,6 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
       printf("Looping on the Tree          :");
       int TreeStep = tree->GetEntries()/50;if(TreeStep<=1)TreeStep=1;
       for (unsigned int ientry = 0; ientry < tree->GetEntries(); ientry++) {
-//      for (unsigned int ientry = 0; ientry < tree->GetEntries() && ientry<50000; ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
          tree->GetEntry(ientry);
 
@@ -478,10 +465,7 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
             NCluster++;
 
             stAPVGain* APV = APVsColl[((*rawid)[i]<<3) | ((*firststrip)[i]/128)];
-
-//            printf("detId=%7i run=%7i event=%9i charge=%5i cs=%3i\n",(*rawid)[i],runnumber,eventnumber,(*charge)[i],(*nstrips)[i]);
-
-
+            //printf("detId=%7i run=%7i event=%9i charge=%5i cs=%3i\n",(*rawid)[i],runnumber,eventnumber,(*charge)[i],(*nstrips)[i]);
 
             //double trans = atan2((*localdiry)[i],(*localdirx)[i])*(180/3.14159265);
             //double alpha = acos ((*localdirx)[i] / sqrt( pow((*localdirx)[i],2) +  pow((*localdirz)[i],2) ) ) * (180/3.14159265);
@@ -561,8 +545,10 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
    int TreeStep = APVsColl.size()/50;
    for(__gnu_cxx::hash_map<unsigned int, stAPVGain*,  __gnu_cxx::hash<unsigned int>, isEqual >::iterator it = APVsColl.begin();it!=APVsColl.end();it++,I++){
    if(I%TreeStep==0){printf(".");fflush(stdout);}
-   //if(I>1000)break;
       stAPVGain* APV = it->second;
+      if(APV->Bin<0) APV->Bin = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index);
+
+      if(APV->isMasked){MASKED++; continue;}
 
       Proj = (TH1F*)(Charge_Vs_Index->getTH2F()->ProjectionY("",Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index),Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV->Index),"e"));
       if(!Proj)continue;
@@ -572,6 +558,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
          int SecondAPVId = APV->APVId;
          if(SecondAPVId%2==0){    SecondAPVId = SecondAPVId+1; }else{ SecondAPVId = SecondAPVId-1; }
 	 stAPVGain* APV2 = APVsColl[(APV->DetId<<3) | SecondAPVId];
+         if(APV2->Bin<0) APV2->Bin = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV2->Index);
          TH1F* Proj2 = (TH1F*)(Charge_Vs_Index->getTH2F()->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
          if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
       }else if(CalibrationLevel==2){
@@ -581,8 +568,8 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
             if(tmpit==APVsColl.end())continue;
             stAPVGain* APV2 = tmpit->second;
 	    if(APV2->DetId != APV->DetId || APV2->APVId == APV->APVId)continue;            
+            if(APV2->Bin<0) APV2->Bin = Charge_Vs_Index->getTH2F()->GetXaxis()->FindBin(APV2->Index);
             TH1F* Proj2 = (TH1F*)(Charge_Vs_Index->getTH2F()->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
-//            if(Proj2 && APV->DetId==369171124)printf("B) DetId %6i APVId %1i --> NEntries = %f\n",APV2->DetId, APV2->APVId, Proj2->GetEntries());
             if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
           }          
       }else{
@@ -598,7 +585,6 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
       APV->FitChi2     = FitResults[4];
       APV->NEntries    = Proj->GetEntries();
 
-//      if(APV->FitMPV>0){
       if(IsGoodLandauFit(FitResults)){
           APV->Gain = APV->FitMPV / MPVmean;
           GOOD++;
@@ -607,7 +593,6 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
           BAD++;
       }
       if(APV->Gain<=0)           APV->Gain  = 1;
-//      if(!FirstSetOfConstants)   APV->Gain *= APV->PreviousGain; //commented because already done at the level of the cluster computation
 
       //printf("%5i/%5i:  %6i - %1i  %5E Entries --> MPV = %f +- %f\n",I,APVsColl.size(),APV->DetId, APV->APVId, Proj->GetEntries(), FitResults[0], FitResults[1]);fflush(stdout);
       delete Proj;
@@ -716,10 +701,17 @@ void SiStripGainFromCalibTree::storeOnTree()
 
 }
 
-
+bool SiStripGainFromCalibTree::produceTagFilter(){
+   // The goal of this function is to check wether or not there is enough statistics to produce a meaningful tag for the DB or not 
+   if(Charge_Vs_Index->getTH2F()->Integral() < 2E8);return false;
+   if((1.0 * GOOD) / (GOOD+BAD) < 0.95); return false;
+   return true; 
+}
 
 SiStripApvGain* SiStripGainFromCalibTree::getNewObject() 
 {
+   if(!produceTagFilter())return NULL;
+
    SiStripApvGain* obj = new SiStripApvGain();
    std::vector<float>* theSiStripVector = NULL;
    unsigned int PreviousDetId = 0; 
@@ -752,7 +744,6 @@ SiStripGainFromCalibTree::~SiStripGainFromCalibTree()
 
 void SiStripGainFromCalibTree::MakeCalibrationMap(){
    if(!useCalibration)return;
-
   
    TChain* t1 = new TChain("SiStripCalib/APVGain");
    t1->Add(m_calibrationPath.c_str());
@@ -770,11 +761,7 @@ void SiStripGainFromCalibTree::MakeCalibrationMap(){
        stAPVGain* APV = APVsColl[(tree_DetId<<3) | (unsigned int)tree_APVId];
        APV->CalibGain = tree_Gain;
    }
-
 }
-
-
-
 
 void
 SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -864,7 +851,6 @@ SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::Event
                charge+=Ampls[a];
                if(Ampls[a] >=254)Saturation =true;
             }
-            double                   ChargeOverPath = (double)charge / Path ;
 
             if(FirstStrip==0                                  )Overlapping=true;
             if(FirstStrip==128                                )Overlapping=true;
