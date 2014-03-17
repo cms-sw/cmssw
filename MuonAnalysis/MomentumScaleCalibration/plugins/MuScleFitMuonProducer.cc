@@ -50,9 +50,9 @@ class MuScleFitMuonProducer : public edm::EDProducer {
       ~MuScleFitMuonProducer();
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void beginJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
       template<class T> std::auto_ptr<T> applyCorrection(const edm::Handle<T> & allMuons);
 
   edm::InputTag theMuonLabel_;

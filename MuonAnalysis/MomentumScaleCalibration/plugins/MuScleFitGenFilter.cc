@@ -36,8 +36,8 @@ class MuScleFitGenFilter : public edm::EDFilter {
   ~MuScleFitGenFilter();
 
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override {};
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() {};
 
   std::string genParticlesName_;
   unsigned int totalEvents_;
