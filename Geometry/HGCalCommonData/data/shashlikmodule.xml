@@ -3,8 +3,10 @@
 
 <ConstantsSection label="shashlikmodule.xml" eval="true">
   <Constant name="widthFront"       value="14.00*mm"/>
-  <Constant name="widthBack"        value="14.56*mm"/>
+  <!-- ccn: change for current pointing+tpaer scheme 14.56 -> 14.28 -->
+  <Constant name="widthBack"        value="14.28*mm"/>
   <Constant name="moduleThickness"  value="113.5*mm"/>
+  <Constant name="moduleTaperAngle" value="atan(0.5*([widthBack]-[widthFront])/[moduleThickness])"/>
 </ConstantsSection>
 
 <SolidSection label="shashlikmodule.xml">
@@ -49,6 +51,7 @@
   <Numeric name="WidthFront"        value="[widthFront]"/>
   <Numeric name="WidthBack"         value="[widthBack]"/>
   <Numeric name="ModuleThickness"   value="[moduleThickness]"/>
+  <Numeric name="ModuleTaperAngle"  value="[moduleTaperAngle]"/>
   <Numeric name="HoleRadius"        value="0.8*mm"/>
   <String name="FibreMaterial"      value="materials:Quartz"/>
   <String name="FibreName"          value="shashlikmodule:ShashlikFibre"/>
