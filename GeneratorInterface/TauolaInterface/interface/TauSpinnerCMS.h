@@ -31,6 +31,8 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "TauSpinner/SimpleParticle.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
 
 class TauSpinnerCMS : public edm::EDProducer
 {
@@ -39,13 +41,13 @@ class TauSpinnerCMS : public edm::EDProducer
   
   //
   explicit TauSpinnerCMS( const edm::ParameterSet& ) ;
-  virtual ~TauSpinnerCMS() {} // no need to delete ROOT stuff
-  // as it'll be deleted upon closing TFile
+  virtual ~TauSpinnerCMS() {}
   
   virtual void produce( edm::Event&, const edm::EventSetup&);
   virtual void beginJob() ;
   virtual void endRun( const edm::Run&, const edm::EventSetup& ) ;
   virtual void endJob() ;
+  static  double flat();  
   
  private:
   bool isReco_;
@@ -70,6 +72,7 @@ class TauSpinnerCMS : public edm::EDProducer
                         int parentpdgid);
   bool isFirst(const reco::GenParticle *Particle);
   double roundOff_;
+  static CLHEP::HepRandomEngine* fRandomEngine;
 
 }; 
 #endif

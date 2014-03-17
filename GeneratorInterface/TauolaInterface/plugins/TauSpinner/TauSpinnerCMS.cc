@@ -15,18 +15,7 @@
 using namespace edm;
 using namespace TauSpinner;
 
-CLHEP::HepRandomEngine* decayRandomEngine;
-/*extern "C" {
-  void ranmar_( float *rvec, int *lenv ){
-    for(int i = 0; i < *lenv; i++)
-      *rvec++ = decayRandomEngine->flat();
-    return;
-  }
-  
-   void rmarin_( int*, int*, int* ){
-    return;
-  }
-  }*/
+CLHEP::HepRandomEngine* TauSpinnerCMS::fRandomEngine= nullptr;
 
 bool TauSpinnerCMS::isTauSpinnerConfigure=false;
 
@@ -49,6 +38,10 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   produces<double>("TauSpinnerWThplus").setBranchAlias("TauSpinnerWThplus");
   produces<double>("TauSpinnerWThminus").setBranchAlias("TauSpinnerWThminus");
 
+}
+
+void TauSpinnerCMS::beginJob()
+{
   Service<RandomNumberGenerator> rng;
   if(!rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -56,13 +49,10 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
           "which appears to be absent.  Please add that service to your configuration\n"
       "or remove the modules that require it." << std::endl;
   }
-  decayRandomEngine = &rng->getEngine();
-  
-}
+  fRandomEngine = &rng->getEngine();
 
-void TauSpinnerCMS::beginJob()
-{
   if(!isTauolaConfigured_){
+    Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);
     Tauolapp::Tauola::initialize();
   }
   if(!isLHPDFConfigured_){
@@ -260,6 +250,16 @@ void TauSpinnerCMS::GetRecoDaughters(const reco::GenParticle *Particle,std::vect
     const reco::Candidate *dau=Particle->daughter(i);
     GetRecoDaughters(static_cast<const reco::GenParticle*>(dau),daughters,Particle->pdgId());
   }
+}
+
+double TauSpinnerCMS::flat(){
+  if ( !fRandomEngine ) {
+    throw cms::Exception("LogicError")
+      << "TauSpinnerCMS::flat: Attempt to generate random number when engine pointer is null\n"
+      << "This might mean that the code was modified to generate a random number outside the\n"
+      << "event and beginLuminosityBlock methods, which is not allowed.\n";
+  }
+  return fRandomEngine->flat();
 }
 
 DEFINE_FWK_MODULE(TauSpinnerCMS);
