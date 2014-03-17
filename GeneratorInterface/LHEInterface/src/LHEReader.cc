@@ -447,6 +447,7 @@ LHEReader::~LHEReader()
         if (!curDoc->parse()) {
           curDoc.reset();
           logFileAction("  Closed LHE file ", fileURLs[curIndex - 1]);
+          return boost::shared_ptr<LHEEvent>();
         }
         break;
         
