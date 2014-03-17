@@ -115,7 +115,9 @@
   <!-- ccn: Yana's -->
   <!-- <Numeric name="rMin"	      value="[rMinSHCal1]+0.5*([shashlikmodule:widthFront]+[shashlikmodule:widthBack])+4.*cm"/> -->
   <!-- <Numeric name="rMax"	      value="[rMaxSHCal1]-8.*cm"/> -->
-  <Numeric name="tiltAngle"   value="atan((2.5*([shashlikmodule:widthBack]-[shashlikmodule:widthFront]))/[shashlikmodule:moduleThickness]) "/> 
+  <Numeric name="tiltAngle"   value="atan((2.65*([shashlikmodule:widthBack]-[shashlikmodule:widthFront]))/[shashlikmodule:moduleThickness]) "/> 
+  <!-- <Numeric name="tiltAngle"   value="atan(0.5*(([shashliksupermodule:superModuleWidthBack]-[shashliksupermodule:superModuleWidthFront])/[shashliksupermodule:superModuleThickness])) "/> -->
+
   <!-- <Numeric name="tiltAngle"   value="atan((5.0*([shashlikmodule:widthBack]-[shashlikmodule:widthFront]))/[shashlikmodule:moduleThickness]) "/> -->
   <!-- <Numeric name="zoffset"     value="[zSHCal1]+0.5*[shashlikmodule:moduleThickness] + 3.5*cm"/> -->
   <!-- ccn: mine -->
