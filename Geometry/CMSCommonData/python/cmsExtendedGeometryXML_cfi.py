@@ -266,7 +266,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardSimData/data/CastorProdCuts.xml',
         'Geometry/ForwardSimData/data/zdcProdCuts.xml',
         'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
-        'Geometry/CMSCommonData/data/FieldParameters.xml',),
+        'Geometry/CMSCommonData/data/FieldParameters.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
 
