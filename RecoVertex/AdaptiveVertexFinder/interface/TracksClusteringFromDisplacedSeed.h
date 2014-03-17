@@ -48,7 +48,7 @@ class TracksClusteringFromDisplacedSeed {
         double 					min3DIPValue;
         double 					clusterMaxDistance;
         double 					clusterMaxSignificance;
-        double 					clusterScale;
+        double 					distanceRatio;
         double 					clusterMinAngleCosine;
 
 
