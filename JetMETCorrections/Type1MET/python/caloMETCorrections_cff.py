@@ -6,14 +6,14 @@ import JetMETCorrections.Configuration.JetCorrectionServices_cff
 #--------------------------------------------------------------------------------
 # produce Type 1 + 2 MET corrections for CaloJets
 caloJetMETcorr = cms.EDProducer("CaloJetMETcorrInputProducer",
-    src = cms.InputTag('ak5CaloJets'),
-    jetCorrLabel = cms.string("ak5CaloL2L3"), # NOTE: use "ak5CaloL2L3" for MC / "ak5CaloL2L3Residual" for Data
+    src = cms.InputTag('ak4CaloJets'),
+    jetCorrLabel = cms.string("ak4CaloL2L3"), # NOTE: use "ak4CaloL2L3" for MC / "ak4CaloL2L3Residual" for Data
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(20.0),
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     srcMET = cms.InputTag('corMetGlobalMuons')
-)                                         
+)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ caloJetMETcorr = cms.EDProducer("CaloJetMETcorrInputProducer",
 muonCaloMETcorr = cms.EDProducer("MuonMETcorrInputProducer",
     src = cms.InputTag('muons'),
     srcMuonCorrections = cms.InputTag('muonMETValueMapProducer', 'muCorrData')
-)                                 
+)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ caloType1CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
         cms.InputTag('caloJetMETcorr', 'type1')
     ),
     applyType2Corrections = cms.bool(False)
-)   
+)
 
 caloType1p2CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
     src = cms.InputTag('corMetGlobalMuons'),
@@ -50,9 +50,9 @@ caloType1p2CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
     type2CorrParameter = cms.PSet(
         A = cms.double(2.0),
         B = cms.double(1.3),
-        C = cms.double(0.1)                                             
+        C = cms.double(0.1)
     )
-)   
+)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------

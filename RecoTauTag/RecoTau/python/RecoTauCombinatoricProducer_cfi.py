@@ -74,7 +74,7 @@ _combinatoricTauConfig = cms.PSet(
     name = cms.string("combinatoric"),
     plugin = cms.string("RecoTauBuilderCombinatoricPlugin"),
     pfCandSrc = cms.InputTag("particleFlow"),
-    isolationConeSize = cms.double(0.5),
+    isolationConeSize = cms.double(0.4),
     qualityCuts = PFTauQualityCuts,
     decayModes = cms.VPSet(
         combinatoricDecayModeConfigs.config1prong0pi0,
@@ -87,10 +87,10 @@ _combinatoricTauConfig = cms.PSet(
 )
 
 combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
-    jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
-    chargedHadronSrc = cms.InputTag('ak5PFJetsRecoTauChargedHadrons'),                                
-    piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros"),
+    jetSrc = cms.InputTag("ak4PFJets"),
+    jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region"),
+    chargedHadronSrc = cms.InputTag('ak4PFJetsRecoTauChargedHadrons'),                                
+    piZeroSrc = cms.InputTag("ak4PFJetsRecoTauPiZeros"),
     buildNullTaus = cms.bool(True),
     # Make maximum size from which to collect isolation cone objects, w.r.t to
     # the axis of the signal cone objects
