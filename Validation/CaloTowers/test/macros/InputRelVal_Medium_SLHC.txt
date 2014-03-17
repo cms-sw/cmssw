@@ -56,8 +56,8 @@ HcalDigiTask_signal_amplitude_HO	1	HcalDigiTask_signal_amplitude_HO.gif    1	-10
 
 
 
-HcalDigiTask_number_of_amplitudes_above_10fC_HB	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB.gif	5	-10	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB
-HcalDigiTask_number_of_amplitudes_above_10fC_HE	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE.gif	5	-10	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE
+HcalDigiTask_number_of_amplitudes_above_10fC_HB	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB.gif	5	-10	1000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB
+HcalDigiTask_number_of_amplitudes_above_10fC_HE	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE.gif	5	-10	1200	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE
 HcalDigiTask_number_of_amplitudes_above_10fC_HF	1	HcalDigiTask_number_of_amplitudes_above_10fC_HF.gif	5	-10	500	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HF
 HcalDigiTask_number_of_amplitudes_above_10fC_HO	1	HcalDigiTask_number_of_amplitudes_above_10fC_HO.gif	1	-1	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HO
 
@@ -102,10 +102,10 @@ HcalDigiTask_ratio_amplitude_vs_simhits_HO	0	HcalDigiTask_ratio_amplitude_vs_sim
 
 
 
-HcalDigiTask_Ndigis_HB	1	HcalDigiTask_Ndigis_HB.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HB
-HcalDigiTask_Ndigis_HE	1	HcalDigiTask_Ndigis_HE.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HE
-HcalDigiTask_Ndigis_HF	1	HcalDigiTask_Ndigis_HF.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HF
-HcalDigiTask_Ndigis_HO	1	HcalDigiTask_Ndigis_HO.gif	5	0	600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HO
+HcalDigiTask_Ndigis_HB	1	HcalDigiTask_Ndigis_HB.gif	5	1000	2500	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HB
+HcalDigiTask_Ndigis_HE	1	HcalDigiTask_Ndigis_HE.gif	5	1000	2600	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HE
+HcalDigiTask_Ndigis_HF	1	HcalDigiTask_Ndigis_HF.gif	5	400	1000	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HF
+HcalDigiTask_Ndigis_HO	1	HcalDigiTask_Ndigis_HO.gif	5	2000	2500	0	-1	1D	Statrv	Chi2	Log	1	2	HcalDigiTask_Ndigis_HO
 
 
 
@@ -225,10 +225,10 @@ HcalDigiTask_signal_amplitude_vs_bin_all_depths_HO	1	HcalDigiTask_signal_amplitu
                     HcalRecHitTask_timing_vs_energy_HFS   0	notDrawn.gif    1       -1      -1      -1      -1      1D      Stat    Chi2    Log     2       1       notDrawn
                      HcalRecHitTask_timing_vs_energy_HO   1	            HO_Timing_vs_Energy.gif	1	0	30	0	-1	TM	NoStat	noChi2	noLog	53	42	      HO Timing vs. Energy
              HcalRecHitTask_timing_vs_energy_profile_HO
-                                                   N_HB   1	                           N_HB.gif	10	0	1200	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HB RecHits
-                                                   N_HE   1	                           N_HE.gif	10	0	500	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HE RecHits
-                                                   N_HF   1	                           N_HF.gif	10	0	600	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HF RecHits
-                                                   N_HO   1	                           N_HO.gif	10	0	600	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HO RecHits
+                                                   N_HB   1	                           N_HB.gif	10	500	2000	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HB RecHits
+                                                   N_HE   1	                           N_HE.gif	10	500	2000	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HE RecHits
+                                                   N_HF   1	                           N_HF.gif	10	400	1000	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HF RecHits
+                                                   N_HO   1	                           N_HO.gif	10	2000	2200	0	-1	1D	Statrv	Chi2	NoLog	2	1		Number of HO RecHits
                         HcalRecHitTask_severityLevel_HB   1                    severityLevel_HB.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HB
                         HcalRecHitTask_severityLevel_HE   1                    severityLevel_HE.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HE
                         HcalRecHitTask_severityLevel_HF   1                    severityLevel_HF.gif     1       0       25      0       -1      1D    noStat  noChi2    Log     2       1                 severityLevel HF
