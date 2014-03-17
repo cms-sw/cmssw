@@ -37,6 +37,7 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 #include <vector>
+#include <unordered_map>
 #include <limits>
 
 /** Class to match an ECAL cluster to the pixel hits.
@@ -50,6 +51,30 @@ class GeometricSearchTracker;
 class TrackerGeometry;
 class TrackerTopology;
 
+namespace std{
+  template<>
+    struct hash<std::pair<const GeomDet*,GlobalPoint> > {
+      std::size_t operator()(const std::pair<const GeomDet*,GlobalPoint>& g) const {
+	std::size_t hsh = 5381;
+	hsh = ((hsh << 5) + hsh) + (unsigned long)g.first;
+	hsh = ((hsh << 5) + hsh) + 10000*g.second.x();
+	hsh = ((hsh << 5) + hsh) + 10000*g.second.y();
+	hsh = ((hsh << 5) + hsh) + 10000*g.second.z();
+	return hsh;
+      }
+    };
+  template<>
+    struct equal_to<std::pair<const GeomDet*,GlobalPoint> > : public std::binary_function<std::pair<const GeomDet*,GlobalPoint>,std::pair<const GeomDet*,GlobalPoint>,bool> {
+      bool operator()(const std::pair<const GeomDet*,GlobalPoint>& a, 
+		      const std::pair<const GeomDet*,GlobalPoint>& b)  const {
+	return ( a.first == b.first &&
+		 a.second.x() == b.second.x() && 
+		 a.second.y() == b.second.y() && 
+		 a.second.z() == b.second.z() );
+      }
+    };
+}
+
 class RecHitWithDist
  {
   public :
@@ -57,6 +82,7 @@ class RecHitWithDist
     typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
     typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
     typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
+    
 
     RecHitWithDist( ConstRecHitPointer rh, float & dphi )
      : rh_(rh), dphi_(dphi)
@@ -145,6 +171,7 @@ class PixelHitMatcher
     typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
     typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
     typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
+    typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
 
     PixelHitMatcher
      ( float phi1min, float phi1max,
@@ -204,9 +231,9 @@ class PixelHitMatcher
 
     bool searchInTIDTEC_ ;
     bool useRecoVertex_ ;
-    std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_ ;
-    std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_ ;
-
+    std::unordered_map<const GeomDet*, TrajectoryStateOnSurface> mapTsos_fast_;
+    std::unordered_map<std::pair<const GeomDet*,GlobalPoint>, TrajectoryStateOnSurface> mapTsos2_fast_;    
+    std::vector<GlobalPoint> hit_gp_map_;    
 } ;
 
 #endif
