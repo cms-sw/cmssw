@@ -4,10 +4,10 @@ from RecoVertex.AdaptiveVertexFinder.inclusiveVertexFinder_cfi import *
 from RecoVertex.AdaptiveVertexFinder.vertexMerger_cfi import *
 from RecoVertex.AdaptiveVertexFinder.trackVertexArbitrator_cfi import *
 
-inclusiveMergedVertices = vertexMerger.clone()
-inclusiveMergedVertices.secondaryVertices = cms.InputTag("trackVertexArbitrator")
-inclusiveMergedVertices.maxFraction = 0.2
-inclusiveMergedVertices.minSignificance = 10.
+inclusiveVertices = vertexMerger.clone()
+inclusiveVertices.secondaryVertices = cms.InputTag("trackVertexArbitrator")
+inclusiveVertices.maxFraction = 0.2
+inclusiveVertices.minSignificance = 10.
 
-inclusiveVertexing = cms.Sequence(inclusiveVertexFinder*vertexMerger*trackVertexArbitrator*inclusiveMergedVertices)
+inclusiveVertexing = cms.Sequence(inclusiveVertexFinder*vertexMerger*trackVertexArbitrator*inclusiveVertices)
 
