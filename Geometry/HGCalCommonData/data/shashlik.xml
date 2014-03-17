@@ -16,17 +16,18 @@
   <Constant name="modRmax2"   value="145.*cm"/>
   <Constant name="zSHBack1"   value="[zSHCal2]- 30.*cm"/>
   <Constant name="zSHBack2"   value="[zSHCal2]"/>
+  <Constant name="zSHBack3"   value="[zSHBack1] + 6.*cm"/>
+  <Constant name="zSHBack4"   value="[zSHBack3] + 4.8*cm"/>
   <Constant name="backRmin1"  value="[etaMax:slope]*[zSHBack1]"/>
   <Constant name="backRmin2"  value="[etaMax:slope]*[zSHBack2]"/>
-  <Constant name="backRmin3"  value="[etaMax:slope]*([zSHBack1]+6.*cm)"/>
-  <Constant name="backRmax1"  value="168.*cm"/>
+  <Constant name="backRmax1"  value="165.*cm"/>
   <Constant name="backRmax2"  value="[rMaxSHCal2]"/>  
 </ConstantsSection>
 
 <SolidSection label="shashlik.xml">
   <Polycone name="SHCalEE" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zSHCal1]" rMin="([rMinSHCal1] - 1.5*cm)" rMax="([rMaxSHCal1] + 0.16*cm)"/>
-    <ZSection z="[zSHCal2]" rMin="([rMinSHCal2] - 1.5*cm)" rMax="([rMaxSHCal2] + 0.16*cm)"/>
+    <ZSection z="[zSHCal1]" rMin="[rMinSHCal1]" rMax="[rMaxSHCal1]"/>
+    <ZSection z="[zSHCal2]" rMin="[rMinSHCal2]" rMax="[rMaxSHCal2]"/>
   </Polycone>
   <Polycone name="SHCalMod" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="([zSHCal1]-[modZ])" rMin="[modRmin1]" rMax="[modRmax1]"/>
@@ -37,12 +38,12 @@
     <ZSection z="[zSHBack2]" rMin="[backRmin2]" rMax="[backRmax2]"/>
   </Polycone>
   <Polycone name="SHCalSS" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zSHBack1]" rMin="[backRmin1]" rMax="[backRmax1]"/>
-    <ZSection z="[zSHBack1]+ 6.*cm" rMin="[backRmin3]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack1]" rMin="[backRmin2]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack3]" rMin="[backRmin2]" rMax="[backRmax1]"/>
   </Polycone>
   <Polycone name="SHCalCables" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zSHBack1]+ 6.*cm" rMin="[backRmin1]" rMax="[backRmax1]"/>
-    <ZSection z="[zSHBack1]+ 6.*cm + 4.8*cm" rMin="[backRmax1]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack3]" rMin="[backRmin2]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack4]" rMin="[backRmax1]" rMax="[backRmax1]"/>
   </Polycone>
 </SolidSection>
 
