@@ -378,7 +378,7 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
   minNHitsChamberALCT_ = cscALCT.getParameter<int>("minNHitsChamber");
 
   auto cscLCT = cfg_.getParameter<edm::ParameterSet>("cscLCT");
- minNHitsChamberLCT_ = cscLCT.getParameter<int>("minNHitsChamber");
+  minNHitsChamberLCT_ = cscLCT.getParameter<int>("minNHitsChamber");
 
   auto cscMPLCT = cfg_.getParameter<edm::ParameterSet>("cscMPLCT");
   minNHitsChamberMPLCT_ = cscMPLCT.getParameter<int>("minNHitsChamber");
