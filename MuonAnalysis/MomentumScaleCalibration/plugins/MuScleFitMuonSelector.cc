@@ -1,6 +1,7 @@
 #include "MuScleFitMuonSelector.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Muon.h"
 
 const double MuScleFitMuonSelector::mMu2 = 0.011163612;
 const unsigned int MuScleFitMuonSelector::motherPdgIdArray[] = {23, 100553, 100553, 553, 100443, 443};
@@ -65,7 +66,7 @@ bool MuScleFitMuonSelector::selTrackerMuon(const pat::Muon* aMuon)
 // Note that at this level we save all the information. Events for which no suitable muon pair is found
 // are removed from the tree (together with the gen and sim information) at a later stage.
 // It would be better to remove them directly at this point.
-void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<reco::LeafCandidate> & muons,
+void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<MuScleFitMuon> & muons,
 					std::vector<GenMuonPair> & genPair,
 					std::vector<std::pair<lorentzVector,lorentzVector> > & simPair,
 					MuScleFitPlotter * plotter)
@@ -414,13 +415,15 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const reco::GenParticleColl
 	const reco::Candidate* status3Muon = &(*part);
 	const reco::Candidate* status1Muon = getStatus1Muon(status3Muon);
 	if(part->pdgId()==13) {
-	  muFromRes.mu1 = status1Muon->p4();
+	  if (status1Muon->p4().pt()!=0) muFromRes.mu1 = MuScleFitMuon(status1Muon->p4(),-1);
+	  else muFromRes.mu1 = MuScleFitMuon(status3Muon->p4(),-1);
 	  if( debug_>0 ) std::cout << "Found a genMuon - : " << muFromRes.mu1 << std::endl;
 	  // 	  muFromRes.first = (lorentzVector(status1Muon->p4().px(),status1Muon->p4().py(),
 	  // 					   status1Muon->p4().pz(),status1Muon->p4().e()));
 	}
 	else {
-	  muFromRes.mu2 = status1Muon->p4();
+	  if (status1Muon->p4().pt()!=0) muFromRes.mu2 = MuScleFitMuon(status1Muon->p4(),+1);
+	  else muFromRes.mu2 = MuScleFitMuon(status3Muon->p4(),+1);
 	  if( debug_>0 ) std::cout << "Found a genMuon + : " << muFromRes.mu2 << std::endl;
 	  // 	  muFromRes.second = (lorentzVector(status1Muon->p4().px(),status1Muon->p4().py(),
 	  // 					    status1Muon->p4().pz(),status1Muon->p4().e()));

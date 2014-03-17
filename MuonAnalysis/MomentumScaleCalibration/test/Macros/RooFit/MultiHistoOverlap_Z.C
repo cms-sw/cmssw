@@ -5,16 +5,11 @@
  #include "TNtuple.h"
  #include "TLegend.h"
  #include "TCanvas.h"
- #include <fstream>
- #include <string>
- #include <sstream> 
  #include "TCutG.h"
  #include "TFile.h"
  #include "TH2.h"
  #include "TPad.h"
 
-        
- using namespace std;
  using namespace ROOT::Math;
  
  //  gSystem->Load("libRooFit");

@@ -35,6 +35,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
@@ -69,20 +71,46 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() {};
   template<typename T>
-  std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks) {
-    std::vector<reco::LeafCandidate> muons;
+  std::vector<MuScleFitMuon> fillMuonCollection( const std::vector<T>& tracks )
+  {
+    std::vector<MuScleFitMuon> muons;
     typename std::vector<T>::const_iterator track;
-    for (track = tracks.begin(); track != tracks.end(); ++track){
-      // Where 0.011163612 is the squared muon mass.
-      reco::Particle::LorentzVector mu(track->px(),track->py(),track->pz(),
-				       sqrt(track->p()*track->p() + 0.011163612));
-      reco::LeafCandidate muon(track->charge(),mu);
-      // Store muon
-      // ----------
-      muons.push_back (muon);
+    for( track = tracks.begin(); track != tracks.end(); ++track ) {
+      reco::Particle::LorentzVector mu;
+      mu = reco::Particle::LorentzVector(track->px(),track->py(),track->pz(),
+					 sqrt(track->p()*track->p() + + 0.011163612));
+      
+      Double_t hitsTk(0), hitsMuon(0), ptError(0);
+      if ( const reco::Muon* myMu = dynamic_cast<const reco::Muon*>(&(*track))  ){
+	hitsTk =   myMu->innerTrack()->hitPattern().numberOfValidTrackerHits();
+	hitsMuon = myMu->innerTrack()->hitPattern().numberOfValidMuonHits();
+	ptError =  myMu->innerTrack()->ptError();
+      }
+      else if ( const pat::Muon* myMu = dynamic_cast<const pat::Muon*>(&(*track)) ) {
+	hitsTk =   myMu->innerTrack()->hitPattern().numberOfValidTrackerHits();
+	hitsMuon = myMu->innerTrack()->hitPattern().numberOfValidMuonHits();
+	ptError =  myMu->innerTrack()->ptError();
+      }
+      else if (const reco::Track* myMu = dynamic_cast<const reco::Track*>(&(*track))){
+	hitsTk =   myMu->hitPattern().numberOfValidTrackerHits();
+	hitsMuon = myMu->hitPattern().numberOfValidMuonHits();
+	ptError =  myMu->ptError();
+      }
+      
+      MuScleFitMuon muon(mu,track->charge(),ptError,hitsTk,hitsMuon);
+
+    if (debug_>0) {
+      std::cout<<"[TestCorrection::fillMuonCollection] after MuScleFitMuon initialization"<<std::endl;
+      std::cout<<"  muon = "<<muon<<std::endl;
+    }
+
+    muons.push_back(muon);
     }
     return muons;
   }
+
+
+
   lorentzVector correctMuon( const lorentzVector& muon );
 
   // ----------member data ---------------------------
@@ -190,7 +218,7 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // Take the reco-muons, depending on the type selected in the cfg
   // --------------------------------------------------------------
 
-  std::vector<reco::LeafCandidate> muons;
+  std::vector<MuScleFitMuon> muons;
 
   if (theMuonType_==1) { // GlobalMuons
     Handle<reco::MuonCollection> glbMuons;
@@ -210,10 +238,10 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // Find the two muons from the resonance, and set ResFound bool
   // ------------------------------------------------------------
-  std::pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> recMuFromBestRes = 
+  std::pair <MuScleFitMuon, MuScleFitMuon> recMuFromBestRes = 
     MuScleFitUtils::findBestRecoRes (muons);
   if (MuScleFitUtils::ResFound) {
-    MuScleFitUtils::SavedPair.push_back( std::make_pair (recMuFromBestRes.first, recMuFromBestRes.second) );
+    MuScleFitUtils::SavedPair.push_back( std::make_pair (recMuFromBestRes.first.p4(), recMuFromBestRes.second.p4()) );
   } else {
     MuScleFitUtils::SavedPair.push_back( std::make_pair (lorentzVector(0.,0.,0.,0.), lorentzVector(0.,0.,0.,0.)) );
   }
@@ -255,7 +283,7 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // Loop on the recMuons
-  std::vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
+  std::vector<MuScleFitMuon>::const_iterator recMuon = muons.begin();
   int muonCount = 0;
   for ( ; recMuon!=muons.end(); ++recMuon, ++muonCount ) {  
 
