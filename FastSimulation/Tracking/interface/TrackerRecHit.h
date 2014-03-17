@@ -109,7 +109,8 @@ public:
   bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets) const;
   bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond) const;
   bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const;
-  
+
+
   /// Check if a pair is on the proper combination of detectors
   bool makesAPairWith(const TrackerRecHit& anotherHit) const;
   bool makesAPairWith3rd(const TrackerRecHit& anotherHit) const;
@@ -143,7 +144,7 @@ public:
   }
   
   // The larger local error
-  double largerError() { 
+  double largerError() {
 
     // Check if it has been already computed
     if ( theLargerError != 0. ) return theLargerError;

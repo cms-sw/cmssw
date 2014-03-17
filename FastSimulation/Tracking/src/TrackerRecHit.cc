@@ -72,7 +72,6 @@ TrackerRecHit::init(const TrackerGeometry* theGeometry, const TrackerTopology *t
     theCylinderNumber = TrackerInteractionGeometry::PXD+theLayerNumber;
     forward = true;
   }
-  
 }
 
 bool
@@ -107,7 +106,6 @@ TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProd
   }
   return false;
 }
-
 
 bool
 //TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet) const { 
