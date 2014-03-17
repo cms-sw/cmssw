@@ -25,7 +25,7 @@ process.load("GeneratorInterface.TauolaInterface.TauSpinner_cfi")
 process.load("GeneratorInterface.TauolaInterface.TauSpinnerFilter_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(20000)
+        input = cms.untracked.int32(10000)
         )
 
 # Input source
