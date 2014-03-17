@@ -29,26 +29,26 @@ namespace qcuts {
 
 bool ptMin(const TrackBaseRef& track, double cut) 
 {
-  edm::LogInfo("TauQCuts") << "<ptMin>: Pt = " << track->pt() << ", cut = " << cut ;
+  LogDebug("TauQCuts") << "<ptMin>: Pt = " << track->pt() << ", cut = " << cut ;
   return (track->pt() > cut);
 }
 
 bool ptMin_cand(const PFCandidate& cand, double cut) 
 {
-  edm::LogInfo("TauQCuts") << "<ptMin_cand>: Pt = " << cand.pt() << ", cut = " << cut ;
+  LogDebug("TauQCuts") << "<ptMin_cand>: Pt = " << cand.pt() << ", cut = " << cut ;
   return (cand.pt() > cut);
 }
 
 bool etMin_cand(const PFCandidate& cand, double cut) 
 {
-  edm::LogInfo("TauQCuts") << "<etMin_cand>: Et = " << cand.et() << ", cut = " << cut ;
+  LogDebug("TauQCuts") << "<etMin_cand>: Et = " << cand.et() << ", cut = " << cut ;
   return (cand.et() > cut);
 }
 
 bool trkPixelHits(const TrackBaseRef& track, int cut) 
 {
   // For some reason, the number of hits is signed
-  edm::LogInfo("TauQCuts") << "<trkPixelHits>: #Pxl hits = " << track->hitPattern().numberOfValidPixelHits() << ", cut = " << cut ;
+  LogDebug("TauQCuts") << "<trkPixelHits>: #Pxl hits = " << track->hitPattern().numberOfValidPixelHits() << ", cut = " << cut ;
   return (track->hitPattern().numberOfValidPixelHits() >= cut);
 }
 
@@ -57,17 +57,17 @@ bool trkPixelHits_cand(const PFCandidate& cand, int cut)
   // For some reason, the number of hits is signed
   auto track = getTrackRef(cand);
   if ( track.isNonnull() ) {
-    edm::LogInfo("TauQCuts") << "<trkPixelHits_cand>: #Pxl hits = " << trkPixelHits(track, cut) << ", cut = " << cut ;
+    LogDebug("TauQCuts") << "<trkPixelHits_cand>: #Pxl hits = " << trkPixelHits(track, cut) << ", cut = " << cut ;
     return trkPixelHits(track, cut);
   } else {
-    edm::LogInfo("TauQCuts") << "<trkPixelHits_cand>: #Pxl hits = N/A, cut = " << cut ;
+    LogDebug("TauQCuts") << "<trkPixelHits_cand>: #Pxl hits = N/A, cut = " << cut ;
     return false;
   }
 }
 
 bool trkTrackerHits(const TrackBaseRef& track, int cut) 
 {
-  edm::LogInfo("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits() << ", cut = " << cut ;
+  LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits() << ", cut = " << cut ;
   return (track->hitPattern().numberOfValidHits() >= cut);
 }
 
@@ -75,10 +75,10 @@ bool trkTrackerHits_cand(const PFCandidate& cand, int cut)
 {
   auto track = getTrackRef(cand);
   if ( track.isNonnull() ) {
-    edm::LogInfo("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits() << ", cut = " << cut ;
+    LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits() << ", cut = " << cut ;
     return trkTrackerHits(track, cut);
   } else {
-    edm::LogInfo("TauQCuts") << "<trkTrackerHits>: #Trk hits = N/A, cut = " << cut ;
+    LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = N/A, cut = " << cut ;
     return false;
   }
 }
@@ -90,9 +90,9 @@ bool trkTransverseImpactParameter(const TrackBaseRef& track, const reco::VertexR
       "RecoTauQualityCuts is invalid. - trkTransverseImpactParameter";
     return false;
   }
-  edm::LogInfo("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() ;
-  edm::LogInfo("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y() << ", z = " << (*pv)->position().z() ;
-  edm::LogInfo("TauQCuts") << "--> dxy = " << std::fabs(track->dxy((*pv)->position())) << " (cut = " << cut << ")" ;
+  LogDebug("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() ;
+  LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y() << ", z = " << (*pv)->position().z() ;
+  LogDebug("TauQCuts") << "--> dxy = " << std::fabs(track->dxy((*pv)->position())) << " (cut = " << cut << ")" ;
   return (std::fabs(track->dxy((*pv)->position())) <= cut);
 }
 
@@ -102,7 +102,7 @@ bool trkTransverseImpactParameter_cand(const PFCandidate& cand, const reco::Vert
   if ( track.isNonnull() ) {
     return trkTransverseImpactParameter(track, pv, cut);
   } else {
-    edm::LogInfo("TauQCuts") << "<trkTransverseImpactParameter_cand>: dXY = N/A, cut = " << cut ;
+    LogDebug("TauQCuts") << "<trkTransverseImpactParameter_cand>: dXY = N/A, cut = " << cut ;
     return false;
   }
 }
@@ -114,9 +114,9 @@ bool trkLongitudinalImpactParameter(const TrackBaseRef& track, const reco::Verte
       "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
     return false;
   }
-  edm::LogInfo("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() ;
-  edm::LogInfo("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y() << ", z = " << (*pv)->position().z() ;
-  edm::LogInfo("TauQCuts") << "--> dz = " << std::fabs(track->dz((*pv)->position())) << " (cut = " << cut << ")" ;
+  LogDebug("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() ;
+  LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y() << ", z = " << (*pv)->position().z() ;
+  LogDebug("TauQCuts") << "--> dz = " << std::fabs(track->dz((*pv)->position())) << " (cut = " << cut << ")" ;
   return (std::fabs(track->dz((*pv)->position())) <= cut);
 }
 
@@ -126,7 +126,7 @@ bool trkLongitudinalImpactParameter_cand(const PFCandidate& cand, const reco::Ve
   if ( track.isNonnull() ) {
     return trkLongitudinalImpactParameter(track, pv, cut);
   } else {
-    edm::LogInfo("TauQCuts") << "<trkLongitudinalImpactParameter_cand>: dZ = N/A, cut = " << cut ;
+    LogDebug("TauQCuts") << "<trkLongitudinalImpactParameter_cand>: dZ = N/A, cut = " << cut ;
     return false;
   }
 }
@@ -156,9 +156,9 @@ bool minTrackVertexWeight(const TrackBaseRef& track, const reco::VertexRef* pv, 
       "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
     return false;
   }
-  edm::LogInfo("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() ;
-  edm::LogInfo("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y() << ", z = " << (*pv)->position().z() ;
-  edm::LogInfo("TauQCuts") << "--> trackWeight = " << (*pv)->trackWeight(track) << " (cut = " << cut << ")" ;
+  LogDebug("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() ;
+  LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y() << ", z = " << (*pv)->position().z() ;
+  LogDebug("TauQCuts") << "--> trackWeight = " << (*pv)->trackWeight(track) << " (cut = " << cut << ")" ;
   return ((*pv)->trackWeight(track) >= cut);
 }
 
@@ -168,14 +168,14 @@ bool minTrackVertexWeight_cand(const PFCandidate& cand, const reco::VertexRef* p
   if ( track.isNonnull() ) {
     return minTrackVertexWeight(track, pv, cut);
   } else {
-    edm::LogInfo("TauQCuts") << "<minTrackVertexWeight_cand>: weight = N/A, cut = " << cut ;
+    LogDebug("TauQCuts") << "<minTrackVertexWeight_cand>: weight = N/A, cut = " << cut ;
     return false;
   }
 }
 
 bool trkChi2(const TrackBaseRef& track, double cut) 
 {
-  edm::LogInfo("TauQCuts") << "<trkChi2>: chi^2 = " << track->normalizedChi2() << ", cut = " << cut ;
+  LogDebug("TauQCuts") << "<trkChi2>: chi^2 = " << track->normalizedChi2() << ", cut = " << cut ;
   return (track->normalizedChi2() <= cut);
 }
 
@@ -183,10 +183,10 @@ bool trkChi2_cand(const PFCandidate& cand, double cut)
 {
   auto track = getTrackRef(cand);
   if ( track.isNonnull() ) {
-    edm::LogInfo("TauQCuts") << "<trkChi2_cand>: chi^2 = " << track->normalizedChi2() << ", cut = " << cut ;
+    LogDebug("TauQCuts") << "<trkChi2_cand>: chi^2 = " << track->normalizedChi2() << ", cut = " << cut ;
     return trkChi2(track, cut);
   } else {
-    edm::LogInfo("TauQCuts") << "<trkChi2_cand>: chi^2 = N/A, cut = " << cut ;
+    LogDebug("TauQCuts") << "<trkChi2_cand>: chi^2 = N/A, cut = " << cut ;
     return false;
   }
 }

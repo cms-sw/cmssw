@@ -48,7 +48,7 @@ RecoTauConstructor::RecoTauConstructor(const PFJetRef& jet, const edm::Handle<PF
 }
 
 void RecoTauConstructor::addPFCand(Region region, ParticleType type, const PFCandidateRef& ref, bool skipAddToP4) {
-  edm::LogInfo("TauConstructorAddPFCand") << " region = " << region << ", type = " << type << ": Pt = " << ref->pt() << ", eta = " << ref->eta() << ", phi = " << ref->phi();
+  LogDebug("TauConstructorAddPFCand") << " region = " << region << ", type = " << type << ": Pt = " << ref->pt() << ", eta = " << ref->eta() << ", phi = " << ref->phi();
   if ( region == kSignal ) {
     // Keep track of the four vector of the signal vector products added so far.
     // If a photon add it if we are not using PiZeros to build the gammas
@@ -63,7 +63,7 @@ void RecoTauConstructor::addPFCand(Region region, ParticleType type, const PFCan
 }
 
 void RecoTauConstructor::addPFCand(Region region, ParticleType type, const PFCandidatePtr& ptr, bool skipAddToP4) {
-  edm::LogInfo("TauConstructorAddPFCand") << " region = " << region << ", type = " << type << ": Pt = " << ptr->pt() << ", eta = " << ptr->eta() << ", phi = " << ptr->phi();
+  LogDebug("TauConstructorAddPFCand") << " region = " << region << ", type = " << type << ": Pt = " << ptr->pt() << ", eta = " << ptr->eta() << ", phi = " << ptr->phi();
   if ( region == kSignal ) {
     // Keep track of the four vector of the signal vector products added so far.
     // If a photon add it if we are not using PiZeros to build the gammas
