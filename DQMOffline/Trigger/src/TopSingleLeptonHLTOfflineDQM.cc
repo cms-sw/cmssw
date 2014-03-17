@@ -18,6 +18,8 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include <cassert>
+
 /*Originally from DQM/Physics by R. Wolf and J. Andrea*/
 using namespace std;
 namespace HLTOfflineDQMTopSingleLepton {
@@ -514,6 +516,10 @@ namespace HLTOfflineDQMTopSingleLepton {
         unsigned int kElec=0;
         unsigned int kMuon=0;
         unsigned int kJet=0;
+        // FIXME: This assert is needed to avoid a segfault when moduleIndex is >= the size of moduleLabels.
+        // This does happen in relval 50102 for gcc4.9.0, and the problem needs to be fixed.
+        // The assert does not fire for gcc4.8.1. The difference is not understood.
+        assert(moduleIndex < moduleLabels.size());
         for (unsigned int k=0; k<=moduleIndex; ++k) {
           const string& moduleLabel(moduleLabels[k]);
           const string  moduleType(hltConfig.moduleType(moduleLabel));
