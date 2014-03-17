@@ -1,5 +1,5 @@
 /* \class ZMuMuEfficiency
- * 
+ *
  * author: Pasquale Noli
  * revised by Salvatore di Guida
  * revised for CSA08 by Davide Piccolo
@@ -10,7 +10,7 @@
 
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h" 
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -19,31 +19,46 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
+#include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "TH1.h"
 #include <vector>
+
 using namespace edm;
 using namespace std;
 using namespace reco;
+
+typedef ValueMap<float> IsolationCollection;
 
 class ZMuMuEfficiency : public edm::EDAnalyzer {
 public:
   ZMuMuEfficiency(const edm::ParameterSet& pset);
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
+  bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   virtual void endJob() override;
 
-  edm::InputTag zMuMu_, zMuMuMatchMap_; 
-  edm::InputTag zMuTrack_, zMuTrackMatchMap_; 
-  edm::InputTag zMuStandAlone_, zMuStandAloneMatchMap_;
-  edm::InputTag muons_, muonMatchMap_, muonIso_;
-  edm::InputTag tracks_, trackIso_;
-  edm::InputTag standAlone_, standAloneIso_;
-  edm::InputTag genParticles_;
+  EDGetTokenT<CandidateView> zMuMuToken_;
+  EDGetTokenT<GenParticleMatch> zMuMuMatchMapToken_;
+  EDGetTokenT<CandidateView> zMuTrackToken_;
+  EDGetTokenT<GenParticleMatch> zMuTrackMatchMapToken_;
+  EDGetTokenT<CandidateView> zMuStandAloneToken_;
+  EDGetTokenT<GenParticleMatch> zMuStandAloneMatchMapToken_;
+  EDGetTokenT<CandidateView> muonsToken_;
+  EDGetTokenT<GenParticleMatch> muonMatchMapToken_;
+  EDGetTokenT<IsolationCollection> muonIsoToken_;
+  EDGetTokenT<CandidateView> tracksToken_;
+  EDGetTokenT<IsolationCollection> trackIsoToken_;
+  EDGetTokenT<CandidateView> standAloneToken_;
+  EDGetTokenT<IsolationCollection> standAloneIsoToken_;
+  EDGetTokenT<GenParticleCollection> genParticlesToken_;
 
   double zMassMin_, zMassMax_, ptmin_, etamax_, isomax_;
   unsigned int nbinsPt_, nbinsEta_;
@@ -51,8 +66,8 @@ private:
   OverlapChecker overlap_;
 
   //histograms for measuring tracker efficiency
-  TH1D *h_etaStandAlone_, *h_etaMuonOverlappedToStandAlone_; 
-  TH1D *h_ptStandAlone_, *h_ptMuonOverlappedToStandAlone_; 
+  TH1D *h_etaStandAlone_, *h_etaMuonOverlappedToStandAlone_;
+  TH1D *h_ptStandAlone_, *h_ptMuonOverlappedToStandAlone_;
 
   //histograms for measuring standalone efficiency
   TH1D *h_etaTrack_, *h_etaMuonOverlappedToTrack_;
@@ -69,8 +84,8 @@ private:
   //histograms for invarian mass resolution
   TH1D *h_DELTA_ZMuMuMassReco_dimuonMassGen_, *h_DELTA_ZMuStaMassReco_dimuonMassGen_, *h_DELTA_ZMuTrackMassReco_dimuonMassGen_;
 
-  int numberOfEventsWithZMuMufound, numberOfEventsWithZMuStafound; 
-  int numberOfMatchedZMuSta_,numberOfMatchedSelectedZMuSta_; 
+  int numberOfEventsWithZMuMufound, numberOfEventsWithZMuStafound;
+  int numberOfMatchedZMuSta_,numberOfMatchedSelectedZMuSta_;
   int numberOfMatchedZMuMu_, numberOfMatchedSelectedZMuMu_;
   int numberOfOverlappedStandAlone_, numberOfOverlappedTracks_, numberOfMatchedZMuTrack_notOverlapped;
   int numberOfMatchedZMuTrack_exclusive ,numberOfMatchedSelectedZMuTrack_exclusive;
@@ -86,75 +101,65 @@ private:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Candidate/interface/Particle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/Candidate/interface/CandAssociation.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include <iostream>
 #include <iterator>
 #include <cmath>
-using namespace std;
-using namespace reco;
-using namespace edm;
 
 
-typedef edm::ValueMap<float> IsolationCollection;
+ZMuMuEfficiency::ZMuMuEfficiency(const ParameterSet& pset) :
+  zMuMuToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuMu"))),
+  zMuMuMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuMuMatchMap"))),
+  zMuTrackToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuTrack"))),
+  zMuTrackMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuTrackMatchMap"))),
+  zMuStandAloneToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuStandAlone"))),
+  zMuStandAloneMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuStandAloneMatchMap"))),
+  muonsToken_(consumes<CandidateView>(pset.getParameter<InputTag>("muons"))),
+  muonMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("muonMatchMap"))),
+  muonIsoToken_(mayConsume<IsolationCollection>(pset.getParameter<InputTag>("muonIso"))),
+  tracksToken_(consumes<CandidateView>(pset.getParameter<InputTag>("tracks"))),
+  trackIsoToken_(mayConsume<IsolationCollection>(pset.getParameter<InputTag>("trackIso"))),
+  standAloneToken_(consumes<CandidateView>(pset.getParameter<InputTag>("standAlone"))),
+  standAloneIsoToken_(mayConsume<IsolationCollection>(pset.getParameter<InputTag>("standAloneIso"))),
+  genParticlesToken_(consumes<GenParticleCollection>(pset.getParameter<InputTag>( "genParticles"))),
 
-ZMuMuEfficiency::ZMuMuEfficiency(const ParameterSet& pset) : 
-  zMuMu_(pset.getParameter<InputTag>("zMuMu")), 
-  zMuMuMatchMap_(pset.getParameter<InputTag>("zMuMuMatchMap")), 
-  zMuTrack_(pset.getParameter<InputTag>("zMuTrack")), 
-  zMuTrackMatchMap_(pset.getParameter<InputTag>("zMuTrackMatchMap")), 
-  zMuStandAlone_(pset.getParameter<InputTag>("zMuStandAlone")), 
-  zMuStandAloneMatchMap_(pset.getParameter<InputTag>("zMuStandAloneMatchMap")), 
-  muons_(pset.getParameter<InputTag>("muons")), 
-  muonMatchMap_(pset.getParameter<InputTag>("muonMatchMap")), 
-  muonIso_(pset.getParameter<InputTag>("muonIso")), 
-  tracks_(pset.getParameter<InputTag>("tracks")), 
-  trackIso_(pset.getParameter<InputTag>("trackIso")), 
-  standAlone_(pset.getParameter<InputTag>("standAlone")), 
-  standAloneIso_(pset.getParameter<InputTag>("standAloneIso")), 
-  genParticles_(pset.getParameter<InputTag>( "genParticles" ) ),
-
-  zMassMin_(pset.getUntrackedParameter<double>("zMassMin")), 
-  zMassMax_(pset.getUntrackedParameter<double>("zMassMax")), 
-  ptmin_(pset.getUntrackedParameter<double>("ptmin")), 
-  etamax_(pset.getUntrackedParameter<double>("etamax")),  
-  isomax_(pset.getUntrackedParameter<double>("isomax")), 
-  nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")), 
+  zMassMin_(pset.getUntrackedParameter<double>("zMassMin")),
+  zMassMax_(pset.getUntrackedParameter<double>("zMassMax")),
+  ptmin_(pset.getUntrackedParameter<double>("ptmin")),
+  etamax_(pset.getUntrackedParameter<double>("etamax")),
+  isomax_(pset.getUntrackedParameter<double>("isomax")),
+  nbinsPt_(pset.getUntrackedParameter<unsigned int>("nbinsPt")),
   nbinsEta_(pset.getUntrackedParameter<unsigned int>("nbinsEta")) {
   Service<TFileService> fs;
   TFileDirectory trackEffDir = fs->mkdir("TrackEfficiency");
 
   // tracker efficiency distributions
-  h_etaStandAlone_ = trackEffDir.make<TH1D>("StandAloneMuonEta", 
-					    "StandAlone #eta for Z -> #mu + standalone", 
+  h_etaStandAlone_ = trackEffDir.make<TH1D>("StandAloneMuonEta",
+					    "StandAlone #eta for Z -> #mu + standalone",
 					    nbinsEta_, -etamax_, etamax_);
-  h_etaMuonOverlappedToStandAlone_ = trackEffDir.make<TH1D>("MuonOverlappedToStandAloneEta", 
-							    "Global muon overlapped to standAlone #eta for Z -> #mu + sa", 
+  h_etaMuonOverlappedToStandAlone_ = trackEffDir.make<TH1D>("MuonOverlappedToStandAloneEta",
+							    "Global muon overlapped to standAlone #eta for Z -> #mu + sa",
 							    nbinsEta_, -etamax_, etamax_);
-  h_ptStandAlone_ = trackEffDir.make<TH1D>("StandAloneMuonPt", 
-					   "StandAlone p_{t} for Z -> #mu + standalone", 
+  h_ptStandAlone_ = trackEffDir.make<TH1D>("StandAloneMuonPt",
+					   "StandAlone p_{t} for Z -> #mu + standalone",
 					   nbinsPt_, ptmin_, 100);
-  h_ptMuonOverlappedToStandAlone_ = trackEffDir.make<TH1D>("MuonOverlappedToStandAlonePt", 
-							   "Global muon overlapped to standAlone p_{t} for Z -> #mu + sa", 
+  h_ptMuonOverlappedToStandAlone_ = trackEffDir.make<TH1D>("MuonOverlappedToStandAlonePt",
+							   "Global muon overlapped to standAlone p_{t} for Z -> #mu + sa",
 							   nbinsPt_, ptmin_, 100);
-  
-  
+
+
   // StandAlone efficiency distributions
   TFileDirectory standaloneEffDir = fs->mkdir("StandaloneEfficiency");
-  h_etaTrack_ = standaloneEffDir.make<TH1D>("TrackMuonEta", 
-					    "Track #eta for Z -> #mu + track", 
+  h_etaTrack_ = standaloneEffDir.make<TH1D>("TrackMuonEta",
+					    "Track #eta for Z -> #mu + track",
 					    nbinsEta_, -etamax_, etamax_);
-  h_etaMuonOverlappedToTrack_ = standaloneEffDir.make<TH1D>("MuonOverlappedToTrackEta", 
-							    "Global muon overlapped to track #eta for Z -> #mu + tk", 
+  h_etaMuonOverlappedToTrack_ = standaloneEffDir.make<TH1D>("MuonOverlappedToTrackEta",
+							    "Global muon overlapped to track #eta for Z -> #mu + tk",
 							    nbinsEta_, -etamax_, etamax_);
-  h_ptTrack_ = standaloneEffDir.make<TH1D>("TrackMuonPt", 
-					   "Track p_{t} for Z -> #mu + track", 
+  h_ptTrack_ = standaloneEffDir.make<TH1D>("TrackMuonPt",
+					   "Track p_{t} for Z -> #mu + track",
 					   nbinsPt_, ptmin_, 100);
-  h_ptMuonOverlappedToTrack_ = standaloneEffDir.make<TH1D>("MuonOverlappedToTrackPt", 
-							   "Global muon overlapped to track p_{t} for Z -> #mu + tk", 
+  h_ptMuonOverlappedToTrack_ = standaloneEffDir.make<TH1D>("MuonOverlappedToTrackPt",
+							   "Global muon overlapped to track p_{t} for Z -> #mu + tk",
 							   nbinsPt_, ptmin_, 100);
 
 
@@ -167,23 +172,23 @@ ZMuMuEfficiency::ZMuMuEfficiency(const ParameterSet& pset) :
 
   // generator level histograms
   TFileDirectory genParticleDir = fs->mkdir("genParticle");
-  h_nZMCfound_ = genParticleDir.make<TH1D>("NumberOfgeneratedZeta","n. of generated Z per event",4,-.5,3.5); 
-  h_ZetaGen_ = genParticleDir.make<TH1D>("generatedZeta","#eta of generated Z",100,-5.,5.); 
-  h_ZptGen_ = genParticleDir.make<TH1D>("generatedZpt","pt of generated Z",100,0.,200.); 
-  h_ZmassGen_ = genParticleDir.make<TH1D>("generatedZmass","mass of generated Z",100,0.,200.); 
-  h_muetaGen_ = genParticleDir.make<TH1D>("generatedMuonEta","#eta of generated muons from Z decay",100,-5.,5.); 
-  h_muptGen_ = genParticleDir.make<TH1D>("generatedMuonpt","pt of generated muons from Z decay",100,0.,200.); 
-  h_dimuonEtaGen_ = genParticleDir.make<TH1D>("generatedDimuonEta","#eta of generated dimuon",100,-5.,5.); 
-  h_dimuonPtGen_ = genParticleDir.make<TH1D>("generatedDimuonPt","pt of generated dimuon",100,0.,200.); 
-  h_dimuonMassGen_ = genParticleDir.make<TH1D>("generatedDimuonMass","mass of generated dimuon",100,0.,200.); 
-  h_ZetaGenPassed_ = genParticleDir.make<TH1D>("generatedZeta_passed","#eta of generated Z after cuts",100,-5.,5.); 
-  h_ZptGenPassed_ = genParticleDir.make<TH1D>("generatedZpt_passed","pt of generated Z after cuts",100,0.,200.); 
-  h_ZmassGenPassed_ = genParticleDir.make<TH1D>("generatedZmass_passed","mass of generated Z after cuts",100,0.,200.); 
-  h_muetaGenPassed_ = genParticleDir.make<TH1D>("generatedMuonEta_passed","#eta of generated muons from Z decay after cuts",100,-5.,5.); 
-  h_muptGenPassed_ = genParticleDir.make<TH1D>("generatedMuonpt_passed","pt of generated muons from Z decay after cuts",100,0.,200.); 
-  h_dimuonEtaGenPassed_ = genParticleDir.make<TH1D>("generatedDimuonEta_passed","#eta of generated dimuon after cuts",100,-5.,5.); 
-  h_dimuonPtGenPassed_ = genParticleDir.make<TH1D>("generatedDimuonPt_passed","pt of generated dimuon after cuts",100,0.,200.); 
-  h_dimuonMassGenPassed_ = genParticleDir.make<TH1D>("generatedDimuonMass_passed","mass of generated dimuon after cuts",100,0.,200.); 
+  h_nZMCfound_ = genParticleDir.make<TH1D>("NumberOfgeneratedZeta","n. of generated Z per event",4,-.5,3.5);
+  h_ZetaGen_ = genParticleDir.make<TH1D>("generatedZeta","#eta of generated Z",100,-5.,5.);
+  h_ZptGen_ = genParticleDir.make<TH1D>("generatedZpt","pt of generated Z",100,0.,200.);
+  h_ZmassGen_ = genParticleDir.make<TH1D>("generatedZmass","mass of generated Z",100,0.,200.);
+  h_muetaGen_ = genParticleDir.make<TH1D>("generatedMuonEta","#eta of generated muons from Z decay",100,-5.,5.);
+  h_muptGen_ = genParticleDir.make<TH1D>("generatedMuonpt","pt of generated muons from Z decay",100,0.,200.);
+  h_dimuonEtaGen_ = genParticleDir.make<TH1D>("generatedDimuonEta","#eta of generated dimuon",100,-5.,5.);
+  h_dimuonPtGen_ = genParticleDir.make<TH1D>("generatedDimuonPt","pt of generated dimuon",100,0.,200.);
+  h_dimuonMassGen_ = genParticleDir.make<TH1D>("generatedDimuonMass","mass of generated dimuon",100,0.,200.);
+  h_ZetaGenPassed_ = genParticleDir.make<TH1D>("generatedZeta_passed","#eta of generated Z after cuts",100,-5.,5.);
+  h_ZptGenPassed_ = genParticleDir.make<TH1D>("generatedZpt_passed","pt of generated Z after cuts",100,0.,200.);
+  h_ZmassGenPassed_ = genParticleDir.make<TH1D>("generatedZmass_passed","mass of generated Z after cuts",100,0.,200.);
+  h_muetaGenPassed_ = genParticleDir.make<TH1D>("generatedMuonEta_passed","#eta of generated muons from Z decay after cuts",100,-5.,5.);
+  h_muptGenPassed_ = genParticleDir.make<TH1D>("generatedMuonpt_passed","pt of generated muons from Z decay after cuts",100,0.,200.);
+  h_dimuonEtaGenPassed_ = genParticleDir.make<TH1D>("generatedDimuonEta_passed","#eta of generated dimuon after cuts",100,-5.,5.);
+  h_dimuonPtGenPassed_ = genParticleDir.make<TH1D>("generatedDimuonPt_passed","pt of generated dimuon after cuts",100,0.,200.);
+  h_dimuonMassGenPassed_ = genParticleDir.make<TH1D>("generatedDimuonMass_passed","mass of generated dimuon after cuts",100,0.,200.);
   // to insert isolation histograms  ..............
 
   numberOfEventsWithZMuMufound = 0;
@@ -216,32 +221,32 @@ ZMuMuEfficiency::ZMuMuEfficiency(const ParameterSet& pset) :
   totalNumberOfevents = 0;
   totalNumberOfZfound = 0;
   totalNumberOfZPassed = 0;
-  
+
 }
 
 void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
-  Handle<CandidateView> zMuMu;  
+  Handle<CandidateView> zMuMu;
   Handle<GenParticleMatch> zMuMuMatchMap; //Map of Z made by Mu global + Mu global
-  Handle<CandidateView> zMuTrack;  
+  Handle<CandidateView> zMuTrack;
   Handle<GenParticleMatch> zMuTrackMatchMap; //Map of Z made by Mu + Track
-  Handle<CandidateView> zMuStandAlone; 
+  Handle<CandidateView> zMuStandAlone;
   Handle<GenParticleMatch> zMuStandAloneMatchMap; //Map of Z made by Mu + StandAlone
   Handle<CandidateView> muons; //Collection of Muons
-  Handle<GenParticleMatch> muonMatchMap; 
-  Handle<IsolationCollection> muonIso; 
+  Handle<GenParticleMatch> muonMatchMap;
+  Handle<IsolationCollection> muonIso;
   Handle<CandidateView> tracks; //Collection of Tracks
-  Handle<IsolationCollection> trackIso; 
+  Handle<IsolationCollection> trackIso;
   Handle<CandidateView> standAlone; //Collection of StandAlone
-  Handle<IsolationCollection> standAloneIso; 
+  Handle<IsolationCollection> standAloneIso;
   Handle<GenParticleCollection> genParticles;  // Collection of Generatd Particles
-  
-  event.getByLabel(zMuMu_, zMuMu); 
-  event.getByLabel(zMuTrack_, zMuTrack); 
-  event.getByLabel(zMuStandAlone_, zMuStandAlone); 
-  event.getByLabel(muons_, muons); 
-  event.getByLabel(tracks_, tracks); 
-  event.getByLabel(standAlone_, standAlone); 
-  event.getByLabel(genParticles_, genParticles);
+
+  event.getByToken(zMuMuToken_, zMuMu);
+  event.getByToken(zMuTrackToken_, zMuTrack);
+  event.getByToken(zMuStandAloneToken_, zMuStandAlone);
+  event.getByToken(muonsToken_, muons);
+  event.getByToken(tracksToken_, tracks);
+  event.getByToken(standAloneToken_, standAlone);
+  event.getByToken(genParticlesToken_, genParticles);
 
   cout << "*********  zMuMu         size : " << zMuMu->size() << endl;
   cout << "*********  zMuStandAlone size : " << zMuStandAlone->size() << endl;
@@ -336,13 +341,13 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 	    h_muptGenPassed_->Fill(muminuspt);
 
 	    if (zMuMu->size() > 0 ) {
-	      n_zMuMufound_genZsele++; 
+	      n_zMuMufound_genZsele++;
 	    }
 	    else if (zMuStandAlone->size() > 0 ) {
 		n_zMuStafound_genZsele++;
 	    }
 	    else {
-	      n_zMuTrkfound_genZsele++;	      
+	      n_zMuTrkfound_genZsele++;
 	    }
 
 	  }
@@ -351,16 +356,16 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
       }
     }
   }
-  h_nZMCfound_->Fill(nZMCfound);                  // number of Z found in the event at generator level  
+  h_nZMCfound_->Fill(nZMCfound);                  // number of Z found in the event at generator level
 
   //TRACK efficiency (conto numero di eventi Zmumu global e ZmuSta (ricorda che sono due campioni esclusivi)
 
   if (zMuMu->size() > 0 ) {
     numberOfEventsWithZMuMufound++;
-    event.getByLabel(zMuMuMatchMap_, zMuMuMatchMap); 
-    event.getByLabel(muonIso_, muonIso); 
-    event.getByLabel(standAloneIso_, standAloneIso); 
-    event.getByLabel(muonMatchMap_, muonMatchMap); 
+    event.getByToken(zMuMuMatchMapToken_, zMuMuMatchMap);
+    event.getByToken(muonIsoToken_, muonIso);
+    event.getByToken(standAloneIsoToken_, standAloneIso);
+    event.getByToken(muonMatchMapToken_, muonMatchMap);
     for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
       CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
@@ -376,10 +381,10 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
       if (isMatched) ZMuMuMatchedfound = true;
 
       // Cuts
-      if((dau0->pt() > ptmin_) && (dau1->pt() > ptmin_) && 
-	 (fabs(dau0->eta()) < etamax_) && (fabs(dau1->eta()) < etamax_) && 
-	 (zMuMuCand.mass() > zMassMin_) && (zMuMuCand.mass() < zMassMax_) && 
-	 (isMatched)) { 
+      if((dau0->pt() > ptmin_) && (dau1->pt() > ptmin_) &&
+	 (fabs(dau0->eta()) < etamax_) && (fabs(dau1->eta()) < etamax_) &&
+	 (zMuMuCand.mass() > zMassMin_) && (zMuMuCand.mass() < zMassMax_) &&
+	 (isMatched)) {
 	//The Z daughters are already matched!
 	const double globalMuonIsolation0 = (*muonIso)[dau0];
 	const double globalMuonIsolation1 = (*muonIso)[dau1];
@@ -407,21 +412,21 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 	  h_DELTA_ZMuMuMassReco_dimuonMassGen_->Fill(zMuMuCand.mass()-dimuonMassGen);
 	  // check that the two muons are matched . .per ora è solo un mio controllo
 	  for(unsigned int j = 0; j < muons->size() ; ++j) {
-	    CandidateBaseRef muCandRef = muons->refAt(j); 
-	    GenParticleRef muonMatch = (*muonMatchMap)[muCandRef]; 
+	    CandidateBaseRef muCandRef = muons->refAt(j);
+	    GenParticleRef muonMatch = (*muonMatchMap)[muCandRef];
 	    //	    if (muonMatch.isNonnull()) cout << "mu match n. " << j << endl;
 	  }
 	}
       }
-    }     
+    }
   }
 
   if (zMuStandAlone->size() > 0) {
     numberOfEventsWithZMuStafound++;
-    event.getByLabel(zMuStandAloneMatchMap_, zMuStandAloneMatchMap); 
-    event.getByLabel(muonIso_, muonIso); 
-    event.getByLabel(standAloneIso_, standAloneIso); 
-    event.getByLabel(muonMatchMap_, muonMatchMap); 
+    event.getByToken(zMuStandAloneMatchMapToken_, zMuStandAloneMatchMap);
+    event.getByToken(muonIsoToken_, muonIso);
+    event.getByToken(standAloneIsoToken_, standAloneIso);
+    event.getByToken(muonMatchMapToken_, muonMatchMap);
     for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
       const Candidate & zMuStaCand = (*zMuStandAlone)[i]; //the candidate
       CandidateBaseRef zMuStaCandRef = zMuStandAlone->refAt(i);
@@ -434,11 +439,11 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
       }
       CandidateBaseRef dau0 = zMuStaCand.daughter(0)->masterClone();
       CandidateBaseRef dau1 = zMuStaCand.daughter(1)->masterClone();
-      
+
       // Cuts
-      if((dau0->pt() > ptmin_) && (dau1->pt() > ptmin_) && 
-	 (fabs(dau0->eta()) < etamax_) && (fabs(dau1->eta()) < etamax_) && 
-	 (zMuStaCand.mass() > zMassMin_) && (zMuStaCand.mass() < zMassMax_) && 
+      if((dau0->pt() > ptmin_) && (dau1->pt() > ptmin_) &&
+	 (fabs(dau0->eta()) < etamax_) && (fabs(dau1->eta()) < etamax_) &&
+	 (zMuStaCand.mass() > zMassMin_) && (zMuStaCand.mass() < zMassMax_) &&
 	 (isMatched)) {
 	CandidateBaseRef standAloneMuonCandRef_, globalMuonCandRef_;
 	if(dau0->isGlobalMuon()) {
@@ -452,7 +457,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 
 	const double globalMuonIsolation = (*muonIso)[globalMuonCandRef_];
 	const double standAloneMuonIsolation = (*standAloneIso)[standAloneMuonCandRef_];
-	
+
 	if((globalMuonIsolation < isomax_) && (standAloneMuonIsolation < isomax_)) {   // ZMuSta matched and selected
 	  //ZMuStaMatchedSelectedfound = true;
 	  numberOfMatchedSelectedZMuSta_++;
@@ -464,14 +469,14 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
       }
     }
   } //end loop on Candidate
-  
+
   //STANDALONE efficiency
 
   if (zMuTrack->size() > 0) {
-    event.getByLabel(zMuTrackMatchMap_, zMuTrackMatchMap); 
-    event.getByLabel(muonIso_, muonIso); 
-    event.getByLabel(trackIso_, trackIso); 
-    event.getByLabel(muonMatchMap_, muonMatchMap); 
+    event.getByToken(zMuTrackMatchMapToken_, zMuTrackMatchMap);
+    event.getByToken(muonIsoToken_, muonIso);
+    event.getByToken(trackIsoToken_, trackIso);
+    event.getByToken(muonMatchMapToken_, muonMatchMap);
     for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
       const Candidate & zMuTrkCand = (*zMuTrack)[i]; //the candidate
       CandidateBaseRef zMuTrkCandRef = zMuTrack->refAt(i);
@@ -482,7 +487,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
       }
       CandidateBaseRef dau0 = zMuTrkCand.daughter(0)->masterClone();
       CandidateBaseRef dau1 = zMuTrkCand.daughter(1)->masterClone();
- 
+
       if (isMatched) {
 	ZMuTrackMatchedfound++;
 	if (ZMuMuMatchedfound) numberOfMatchedZMuTrack_matchedZMuMu++;
@@ -490,10 +495,10 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 	if (!ZMuMuMatchedfound) numberOfMatchedZMuTrack_exclusive++;
       }
       // Cuts
-      if ((dau0->pt() > ptmin_) && (dau1->pt() > ptmin_) && 
-	  (fabs(dau0->eta()) < etamax_) && (fabs(dau1->eta())< etamax_) && 
-	  (zMuTrkCand.mass() > zMassMin_) && (zMuTrkCand.mass() < zMassMax_) && 
-	  (isMatched) && !ZMuMuMatchedfound && !ZMuStaMatchedfound ) {         
+      if ((dau0->pt() > ptmin_) && (dau1->pt() > ptmin_) &&
+	  (fabs(dau0->eta()) < etamax_) && (fabs(dau1->eta())< etamax_) &&
+	  (zMuTrkCand.mass() > zMassMin_) && (zMuTrkCand.mass() < zMassMax_) &&
+	  (isMatched) && !ZMuMuMatchedfound && !ZMuStaMatchedfound ) {
 
 	// dau0 is always the global muon, dau1 is the track for ZMuTrack collection
 	const double globalMuonIsolation = (*muonIso)[dau0];
@@ -508,7 +513,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 
       }
     }
-  } //end loop on Candidate  
+  } //end loop on Candidate
 
   if (!ZMuMuMatchedfound && !ZMuStaMatchedfound && ZMuTrackMatchedfound == 0) noMCmatching++;
   if (!ZMuMuMatchedfound && ZMuTrackMatchedfound == 1) ZMuTrack_exclusive_1match++;
@@ -518,7 +523,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
   if (ZMuMuMatchedfound && ZMuTrackMatchedfound == 1) ZMuTrack_ZMuMu_1match++;
   if (ZMuMuMatchedfound && ZMuTrackMatchedfound == 2) ZMuTrack_ZMuMu_2match++;
   if (ZMuMuMatchedfound && ZMuTrackMatchedfound > 2) ZMuTrack_ZMuMu_morematch++;
- 
+
 }
 
 bool ZMuMuEfficiency::check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
@@ -532,9 +537,9 @@ bool ZMuMuEfficiency::check_ifZmumu(const Candidate * dauGen0, const Candidate *
   if (partId0==13 || partId1==13 || partId2==13) muminusFound=true;
   if (partId0==-13 || partId1==-13 || partId2==-13) muplusFound=true;
   if (partId0==23 || partId1==23 || partId2==23) ZFound=true;
-  return muplusFound*muminusFound*ZFound;   
+  return muplusFound*muminusFound*ZFound;
 }
- 
+
 float ZMuMuEfficiency::getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
 {
   int partId0 = dauGen0->pdgId();
@@ -567,7 +572,7 @@ float ZMuMuEfficiency::getParticlePt(const int ipart, const Candidate * dauGen0,
   }
   return ptpart;
 }
- 
+
 float ZMuMuEfficiency::getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
 {
   int partId0 = dauGen0->pdgId();
@@ -666,7 +671,7 @@ Particle::LorentzVector ZMuMuEfficiency::getParticleP4(const int ipart, const Ca
   }
   return p4part;
 }
- 
+
 
 
 void ZMuMuEfficiency::endJob() {
@@ -692,32 +697,32 @@ void ZMuMuEfficiency::endJob() {
 
   cout << "----------------------------   Counter for MC truth efficiency calculation--------------------- " << endl;
 
-  cout << "number of events with ZMuMu found = " << numberOfEventsWithZMuMufound << endl; 
-  cout << "number of events with ZMuSta found = " << numberOfEventsWithZMuStafound << endl; 
+  cout << "number of events with ZMuMu found = " << numberOfEventsWithZMuMufound << endl;
+  cout << "number of events with ZMuSta found = " << numberOfEventsWithZMuStafound << endl;
   cout << "-------------------------------------------------------------------------------------- " << endl;
 
-  cout << "number of events without MC maching = " << noMCmatching << endl; 
-  cout << "number of ZMuTrack exclsive 1 match = " << ZMuTrack_exclusive_1match << endl; 
-  cout << "number of ZMuTrack exclsive more match = " << ZMuTrack_exclusive_morematch << endl; 
-  cout << "number of ZMuTrack selected exclusive 1 match = " << ZMuTrackselected_exclusive_1match << endl; 
-  cout << "number of ZMuTrack selected exclusive more match = " << ZMuTrackselected_exclusive_morematch << endl; 
-  cout << "number of ZMuTrack ZMuMu 1 match = " << ZMuTrack_ZMuMu_1match << endl; 
-  cout << "number of ZMuTrack ZMuMu 2 match = " << ZMuTrack_ZMuMu_2match << endl; 
-  cout << "number of ZMuTrack ZMuMu more match = " << ZMuTrack_ZMuMu_morematch << endl; 
-  cout << "numberOfMatchedZMuMu = " << numberOfMatchedZMuMu_ << endl; 
-  cout << "numberOfMatchedSelectdZMuMu = " << numberOfMatchedSelectedZMuMu_ << endl; 
-  cout << "numberOfMatchedZMuSta = " << numberOfMatchedZMuSta_ << endl; 
-  cout << "numberOfMatchedSelectedZMuSta = " << numberOfMatchedSelectedZMuSta_ << endl; 
-  cout << "numberOfMatchedZMuTrack_matchedZMuMu = " << numberOfMatchedZMuTrack_matchedZMuMu << endl; 
-  cout << "numberOfMatchedZMuTrack_matchedSelectedZMuMu = " << numberOfMatchedZMuTrack_matchedSelectedZMuMu << endl; 
-  cout << "numberOfMatchedZMuTrack exclusive = " << numberOfMatchedZMuTrack_exclusive << endl; 
-  cout << "numberOfMatchedSelectedZMuTrack exclusive = " << numberOfMatchedSelectedZMuTrack_exclusive << endl; 
+  cout << "number of events without MC maching = " << noMCmatching << endl;
+  cout << "number of ZMuTrack exclsive 1 match = " << ZMuTrack_exclusive_1match << endl;
+  cout << "number of ZMuTrack exclsive more match = " << ZMuTrack_exclusive_morematch << endl;
+  cout << "number of ZMuTrack selected exclusive 1 match = " << ZMuTrackselected_exclusive_1match << endl;
+  cout << "number of ZMuTrack selected exclusive more match = " << ZMuTrackselected_exclusive_morematch << endl;
+  cout << "number of ZMuTrack ZMuMu 1 match = " << ZMuTrack_ZMuMu_1match << endl;
+  cout << "number of ZMuTrack ZMuMu 2 match = " << ZMuTrack_ZMuMu_2match << endl;
+  cout << "number of ZMuTrack ZMuMu more match = " << ZMuTrack_ZMuMu_morematch << endl;
+  cout << "numberOfMatchedZMuMu = " << numberOfMatchedZMuMu_ << endl;
+  cout << "numberOfMatchedSelectdZMuMu = " << numberOfMatchedSelectedZMuMu_ << endl;
+  cout << "numberOfMatchedZMuSta = " << numberOfMatchedZMuSta_ << endl;
+  cout << "numberOfMatchedSelectedZMuSta = " << numberOfMatchedSelectedZMuSta_ << endl;
+  cout << "numberOfMatchedZMuTrack_matchedZMuMu = " << numberOfMatchedZMuTrack_matchedZMuMu << endl;
+  cout << "numberOfMatchedZMuTrack_matchedSelectedZMuMu = " << numberOfMatchedZMuTrack_matchedSelectedZMuMu << endl;
+  cout << "numberOfMatchedZMuTrack exclusive = " << numberOfMatchedZMuTrack_exclusive << endl;
+  cout << "numberOfMatchedSelectedZMuTrack exclusive = " << numberOfMatchedSelectedZMuTrack_exclusive << endl;
   cout << " ----------------------------- Efficiency --------------------------------- " << endl;
   cout << "Efficiency StandAlone = " << myStaEff << " +/- " << myErrStaEff << endl;
   cout << "Efficiency Track      = " << myTrackEff << " +/- " << myErrTrackEff << endl;
 }
-  
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(ZMuMuEfficiency);
-  
+
