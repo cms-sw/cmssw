@@ -33,9 +33,9 @@ trackingParticles.select = cms.PSet(
         pdgIdTP = cms.vint32(),
         signalOnlyTP = cms.bool(True),
         stableOnlyTP = cms.bool(True), # this is different from the standard setting for FullSim
-        minRapidityTP = cms.double(-2.6),
+        minRapidityTP = cms.double(-4.6),
         minHitTP = cms.int32(3),
         ptMinTP = cms.double(0.2),
-        maxRapidityTP = cms.double(2.6),
+        maxRapidityTP = cms.double(4.6),
         tipTP = cms.double(1000)
         )
