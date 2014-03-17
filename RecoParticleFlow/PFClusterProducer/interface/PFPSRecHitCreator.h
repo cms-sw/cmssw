@@ -49,8 +49,7 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 	geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
-      for (unsigned int i=0;i<recHitHandle->size();++i) {
-	const EcalRecHit& erh = (*recHitHandle)[i];
+      for( const auto& erh : *recHitHandle ) {      
 	ESDetId detid(erh.detid());
 	double energy = erh.energy();
 
@@ -67,10 +66,9 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 	  layer = PFLayer::PS2;
 	  break;
 	default:
-	  edm::LogError("PFRecHitProducerPS")
+	  throw cms::Exception("PFRecHitBadInput")
 	    <<"incorrect preshower plane !! plane number "
 	    <<detid.plane()<<std::endl;
-	  assert(0);
 	}
  
 
@@ -110,13 +108,12 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 	bool keep=true;
 
 	//Apply Q tests
-	for (unsigned int i=0;i<qualityTests_.size();++i) {
-	  if (!qualityTests_.at(i)->test(rh,erh,rcleaned)) {
-	    keep = false;
-	    
+	for( const auto& qtest : qualityTests_ ) {
+	  if (!qtest->test(rh,erh,rcleaned)) {
+	    keep = false;	    
 	  }
 	}
-	  
+	
 	if(keep) {
 	  out->push_back(rh);
 	}

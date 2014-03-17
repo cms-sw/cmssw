@@ -13,11 +13,13 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
 
   theL2CollectionLabel = cfg.getParameter<edm::InputTag>("MuonCollectionLabel");
 
+  edm::ConsumesCollector iC  = consumesCollector();
+
   //region builder
   edm::ParameterSet regionBuilderPSet = theConfig.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
   //ability to no define a region
   if (!regionBuilderPSet.empty()){
-    theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet);
+    theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet, iC);
   }
 
   //seed generator
@@ -26,7 +28,6 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
   edm::ParameterSet seedGenPSet = theConfig.getParameter<edm::ParameterSet>("TkSeedGenerator");
   std::string seedGenName = seedGenPSet.getParameter<std::string>("ComponentName");
 
-  edm::ConsumesCollector iC  = consumesCollector();
   theTkSeedGenerator = TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet,iC);  
   
   //seed cleaner

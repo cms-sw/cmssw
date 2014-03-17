@@ -50,7 +50,7 @@ namespace reco {
     typedef std::vector<std::pair<CaloClusterPtr::key_type,edm::Ptr<PFCluster> > > EEtoPSAssociation;
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
   
-    PFCluster() : CaloCluster(CaloCluster::particleFlow), layer_(PFLayer::NONE), color_(1) {}
+    PFCluster() : CaloCluster(CaloCluster::particleFlow), time_(-99.0), layer_(PFLayer::NONE), color_(1) {}
 
     /// constructor
     PFCluster(PFLayer::Layer layer, double energy,

@@ -44,12 +44,8 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 
       const Geometry *hcalGeo =dynamic_cast< const Geometry* > (gTmp);
 
-
-
-
       iEvent.getByToken(recHitToken_,recHitHandle);
-      for (unsigned int i=0;i<recHitHandle->size();++i) {
-	const Digi& erh = (*recHitHandle)[i];
+      for( const auto& erh : *recHitHandle ) {      
 	const HcalDetId& detid = (HcalDetId)erh.detid();
 	HcalSubdetector esd=(HcalSubdetector)detid.subdetId();
 	
@@ -102,8 +98,8 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	bool keep=true;
 
 	//Apply Q tests
-	for (unsigned int i=0;i<qualityTests_.size();++i) {
-	  if (!qualityTests_.at(i)->test(rh,erh,rcleaned)) {
+	for( const auto& qtest : qualityTests_ ) {
+	  if (!qtest->test(rh,erh,rcleaned)) {
 	    keep = false;
 	    
 	  }

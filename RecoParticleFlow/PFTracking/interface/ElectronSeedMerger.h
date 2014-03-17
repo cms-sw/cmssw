@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
 class ElectronSeedMerger : public edm::EDProducer {
    public:
@@ -22,9 +23,8 @@ class ElectronSeedMerger : public edm::EDProducer {
       edm::ParameterSet conf_;
 
       ///SEED COLLECTIONS
-      edm::InputTag ecalBasedSeeds_;
-      edm::InputTag tkBasedSeeds_;
-
+      edm::EDGetTokenT<reco::ElectronSeedCollection> ecalSeedToken_;
+      edm::EDGetTokenT<reco::ElectronSeedCollection> tkSeedToken_;
 
 };
 #endif
