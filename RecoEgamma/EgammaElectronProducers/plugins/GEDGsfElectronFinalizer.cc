@@ -17,7 +17,7 @@ using namespace reco;
 GEDGsfElectronFinalizer::GEDGsfElectronFinalizer( const edm::ParameterSet & cfg )
  {   
    previousGsfElectrons_ = consumes<reco::GsfElectronCollection>(cfg.getParameter<edm::InputTag>("previousGsfElectronsTag"));
-   pfCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("PFCandidatesTag"));
+   pfCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("pfCandidatesTag"));
    outputCollectionLabel_ = cfg.getParameter<std::string>("outputCollectionLabel");
    edm::ParameterSet pfIsoVals(cfg.getParameter<edm::ParameterSet> ("pfIsolationValues"));
    
@@ -88,7 +88,8 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
      newElectron.setPfIsolationVariables(isoVariables);
 
      // now set a status if not already done (in GEDGsfElectronProducer.cc)
-     if(newElectron.mvaOutput().status==0) {
+     std::cout << " previous status " << newElectron.mvaOutput().status << std::endl;
+     if(newElectron.mvaOutput().status<=0) { 
        std::map<reco::GsfTrackRef, const  reco::PFCandidate * >::const_iterator itcheck=gsfPFMap.find(newElectron.gsfTrack());
        reco::GsfElectron::MvaOutput myMvaOutput(newElectron.mvaOutput());
        if(itcheck!=gsfPFMap.end()) {
