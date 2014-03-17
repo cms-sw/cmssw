@@ -45,14 +45,14 @@ TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
 
   // the services
   theService = new MuonServiceProxy(serviceParameters);
-  
+  edm::ConsumesCollector iC  = consumesCollector();  
+
   // TrackRefitter parameters
   ParameterSet refitterParameters = parameterSet.getParameter<ParameterSet>("RefitterParameters");
-  theRefitter = new GlobalMuonRefitter(refitterParameters, theService);
+  theRefitter = new GlobalMuonRefitter(refitterParameters, theService, iC);
 
   // TrackLoader parameters
   ParameterSet trackLoaderParameters = parameterSet.getParameter<ParameterSet>("TrackLoaderParameters");
-  edm::ConsumesCollector iC  = consumesCollector();
   theTrackLoader = new MuonTrackLoader(trackLoaderParameters,iC,theService);
 
   theRefits = parameterSet.getParameter< std::vector<std::string> >("Refits");

@@ -33,13 +33,14 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-ChamberSegmentUtility::ChamberSegmentUtility(const edm::Event& Event, const edm::EventSetup& Setup)
-{
+ChamberSegmentUtility::ChamberSegmentUtility()
+{}
 
-  Setup.get<MuonGeometryRecord>().get(cscGeometry);
-  Event.getByLabel("cscSegments", CSCSegments);
-  Setup.get<MuonGeometryRecord>().get(dtGeom);
-  Event.getByLabel("dt4DSegments", all4DSegments);
+void ChamberSegmentUtility::initCSU(const edm::Handle<DTRecSegment4DCollection>& DTSegProd,
+				    const edm::Handle<CSCSegmentCollection>& CSCSegProd) {
+  
+  all4DSegments = DTSegProd;
+  CSCSegments   = CSCSegProd;
 
   unsigned int index = 0;
   for (  CSCSegmentCollection::id_iterator chamberId = CSCSegments->id_begin();
@@ -65,15 +66,12 @@ ChamberSegmentUtility::ChamberSegmentUtility(const edm::Event& Event, const edm:
 
     for (DTRecSegment4DCollection::const_iterator segment = range.first;
          segment!=range.second; ++segment){
-      
       if ((*chamberIdIt).station() == 1) dtsegMap[1].push_back(*segment);
       if ((*chamberIdIt).station() == 2) dtsegMap[2].push_back(*segment);
       if ((*chamberIdIt).station() == 3) dtsegMap[3].push_back(*segment);
       if ((*chamberIdIt).station() == 4) dtsegMap[4].push_back(*segment);
     }
   }
-
-
 }
 
 
