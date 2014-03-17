@@ -24,7 +24,7 @@
 
 #include "CondFormats/Serialization/interface/Archive.h"
 
-class TBufferFile;
+class RootStreamBuffer;
 
 namespace cond {
 
@@ -89,14 +89,13 @@ namespace cond {
 
   // call for the serialization. Setting packingOnly = TRUE the data will stay in the original memory layout 
   // ( no serialization in this case ). This option is used by the ORA backend - will be dropped after the changeover
-  template <typename T> Binary serialize( const T& payload, bool packingOnly = false ){
-
-    Binary ret;
+  template <typename T> std::pair<Binary,Binary> serialize( const T& payload, bool packingOnly = false ){
+    std::pair<Binary,Binary> ret;
     if( !packingOnly ){
       // save data to buffers
       std::ostringstream dataBuffer;
       std::ostringstream streamerInfoBuffer;
-      CondOutputArchive oa( dataBuffer, streamerInfoBuffer );
+      CondOutputArchive oa( dataBuffer );
       oa << payload;
       //TODO: avoid (2!!) copies
       ret.first.copy( dataBuffer.str() );
@@ -124,14 +123,13 @@ namespace cond {
 
       std::istream dataBuffer( &sdataBuf );
       std::istream streamerInfoBuffer( &sstreamerInfoBuf );
-      CondInputArchive ia( dataBuffer, streamerInfoBuffer );
+      CondInputArchive ia( dataBuffer );
       payload.reset( createPayload<T>(payloadType) );
       ia >> (*payload);
     } else {
       // ORA objects case: nothing to de-serialize, the object is already in memory in the final layout, ready to be casted
       payload = boost::static_pointer_cast<T>(payloadData.oraObject().makeShared());
     }
-
     return payload;
   }
 

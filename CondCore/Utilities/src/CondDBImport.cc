@@ -308,8 +308,6 @@ namespace cond {
       return payloadId;
     }
 
-    // --------------------------------------------------------------------------------
-
     std::pair<std::string,boost::shared_ptr<void> > fetch( const cond::Hash& payloadId, Session& session ){
       boost::shared_ptr<void> payloadPtr;
       cond::Binary data;
@@ -318,12 +316,9 @@ namespace cond {
       bool found = session.fetchPayloadData( payloadId, payloadTypeName, data, streamerInfo );
       if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
       //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
-      return fetchOne(payloadTypeName, data, payloadPtr);
+      return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr);
     }
-    
-    // --------------------------------------------------------------------------------
-    
-    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, boost::shared_ptr<void> payloadPtr ){
+    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, boost::shared_ptr<void> payloadPtr ){
 
       bool match = false;
     FETCH_PAYLOAD_CASE( std::string ) 
