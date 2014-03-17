@@ -1,0 +1,224 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ 
+<ConstantsSection label="bhm.xml" eval="true">
+  <Constant name="bhmZ"                value="20.625*m"/>
+  <Constant name="onehalfmm"           value="0.05*cm"/>
+  <Constant name="quartzLength"        value="10*cm"/>
+  <Constant name="quartzRadius"        value="2.55*cm"/>
+  <Constant name="pmtRadius"           value="2.55*cm"/>
+  <Constant name="windowThickness"     value="0.7*cm"/>
+  <Constant name="windowminThickness"  value="0.1*cm"/>
+  <Constant name="windowRadius"        value="2.5*cm"/>
+  <Constant name="cathodeRadius"       value="2.3*cm"/>
+  <Constant name="cathodeThickness"    value="0.1*cm"/>
+  <Constant name="cathodeminThickness" value="0.1045*cm"/>
+  <Constant name="cathodeSlope"        value="[cathodeRadius]/[windowThickness]"/>
+  <Constant name="cathodeR1"           value="[cathodeSlope]*[cathodeminThickness]"/>
+  <Constant name="cathodeR2"           value="[cathodeSlope]*([windowThickness]-[cathodeminThickness])"/>
+  <Constant name="stopper1Thickness"   value="0.1*cm"/>
+  <Constant name="stopper2Thickness"   value="0.1*cm"/>
+  <Constant name="shieldRadius"        value="2.6*cm"/>
+  <Constant name="shieldThickness"     value="1.0*cm"/>
+  <Constant name="shieldLength"        value="16.*cm"/>
+  <Constant name="diskRadius"          value="2.55*cm"/>
+  <Constant name="diskThickness"       value="0.6*cm"/>
+  <Constant name="quartzHalfL"         value="[quartzLength]/2"/>
+  <Constant name="shieldHalfL"         value="[shieldLength]/2"/>
+  <Constant name="airGap"              value="0.0*cm"/>
+  <Constant name="diskPos"             value="([airGap]+[quartzHalfL]+[diskThickness]/2)"/>
+  <Constant name="pmtPos"              value="([diskPos]+[diskThickness]/2)"/>
+  <Constant name="cathodePos"          value="([pmtPos]+[windowminThickness])"/>
+  <Constant name="stopper1Pos"         value="([cathodePos]+[cathodeminThickness])"/>
+  <Constant name="shieldBackPos"       value="([shieldHalfL]+[shieldThickness]/2)"/>
+  <Constant name="stopper2Pos"         value="(-[quartzHalfL]-[stopper2Thickness]/2)"/>
+  <Constant name="shieldFrontPos"      value="(-[shieldHalfL]-[shieldThickness]/2)"/>
+</ConstantsSection>
+ 
+<MaterialSection label="bhm.xml">
+  <CompositeMaterial name="BorosilicateGlass" density="2.23*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.377220">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.028191">
+    <rMaterial name="materials:Sodium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.003321">
+    <rMaterial name="materials:Potassium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.539562">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.011644">
+    <rMaterial name="materials:Aluminium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.040064">
+    <rMaterial name="materials:Boron"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Bialkali" density="4.28*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.133">
+    <rMaterial name="materials:Potassium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.452">
+    <rMaterial name="materials:Cesium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.415">
+    <rMaterial name="materials:Antimony"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="RTV" density="1.02*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.0811">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.3790">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.3241">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.2158">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+ </MaterialSection>
+ 
+<SolidSection label="bhm.xml">
+  <Tubs name="BHM" rMin="180.0*cm" rMax="188.0*cm" dz="9.0*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="BHMDriver" rMin="0.0*fm" rMax="4.0*cm" dz="9.0*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Polycone name="BHMStopper1" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="0.0*cm"    rMin="0.0*cm" rMax="0.0*cm"/>
+    <ZSection z="0.5955*cm" rMin="0.0*cm" rMax="1.9565*cm"/>
+    <ZSection z="0.5955*cm" rMin="0.0*cm" rMax="2.50*cm"/>
+    <ZSection z="0.7*cm"    rMin="0.0*cm" rMax="2.50*cm"/>
+  </Polycone>
+  <Tubs name="BHMTarget" rMin="0.0*fm" rMax="[quartzRadius]" dz="[quartzHalfL]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="BHMDisk" rMin="0.0*fm" rMax="[diskRadius]" dz="[diskThickness]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Polycone name="BHMWindow" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="0.0*cm"               rMin="0.0*cm" rMax="[windowRadius]"/>
+    <ZSection z="[windowminThickness]" rMin="0.0*cm" rMax="[windowRadius]"/>
+    <ZSection z="[windowThickness]+[windowminThickness]" rMin="[cathodeRadius]" rMax="2.5*cm"/>
+  </Polycone>
+  <Polycone name="BHMCathode" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="0.0*cm"                rMin="0.0*cm"      rMax="0.0*cm"/>
+    <ZSection z="[cathodeminThickness]" rMin="0.0*cm"      rMax="[cathodeR1]"/>
+    <ZSection z="[windowThickness]"     rMin="[cathodeR2]" rMax="[cathodeRadius]"/>
+  </Polycone>
+  <Tubs name="BHMStopper2" rMin="0.0*fm" rMax="[quartzRadius]" dz="[onehalfmm]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="BHMShielding" rMin="[shieldRadius]" rMax="[shieldRadius]+[shieldThickness]" dz="[shieldHalfL]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="BHMShieldingFace" rMin="0.0*fm" rMax="[shieldRadius]+[shieldThickness]" dz="[shieldThickness]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="bhm.xml">
+  <LogicalPart name="BHM" category="unspecified">
+    <rSolid name="BHM"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="BHMDriver" category="unspecified">
+    <rSolid name="BHMDriver"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+   <LogicalPart name="BHMStopper1" category="unspecified">
+    <rSolid name="BHMStopper1"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="BHMTarget" category="unspecified">
+    <rSolid name="BHMTarget"/>
+    <rMaterial name="materials:Quartz"/>
+  </LogicalPart>
+  <LogicalPart name="BHMDisk" category="unspecified">
+    <rSolid name="BHMDisk"/>
+    <rMaterial name="bhm:RTV"/>
+  </LogicalPart>
+  <LogicalPart name="BHMWindow" category="unspecified">
+    <rSolid name="BHMWindow"/>
+    <rMaterial name="materials:Quartz"/>
+  </LogicalPart>
+  <LogicalPart name="BHMCathode" category="unspecified">
+    <rSolid name="BHMCathode"/>
+    <rMaterial name="bhm:Bialkali"/>
+  </LogicalPart>
+  <LogicalPart name="BHMStopper2" category="unspecified">
+    <rSolid name="BHMStopper2"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="BHMShielding" category="unspecified">
+    <rSolid name="BHMShielding"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="BHMShieldingFace" category="unspecified">
+    <rSolid name="BHMShieldingFace"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="forward.xml">
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:OQUA"/>
+    <rChild name="bhm:BHM"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="[bhmZ]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bhm:BHMDriver"/>
+    <rChild name="bhm:BHMStopper1"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="[stopper1Pos]"/>
+  </PosPart>
+   <PosPart copyNumber="2">
+    <rParent name="bhm:BHMDriver"/>
+    <rChild name="bhm:BHMTarget"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+   <PosPart copyNumber="1">
+    <rParent name="bhm:BHMDriver"/>
+    <rChild name="bhm:BHMDisk"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="[diskPos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bhm:BHMDriver"/>
+    <rChild name="bhm:BHMWindow"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="[pmtPos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bhm:BHMDriver"/>
+    <rChild name="bhm:BHMCathode"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="[cathodePos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bhm:BHMDriver"/>
+    <rChild name="bhm:BHMStopper2"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="[stopper2Pos]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bhm:BHMDriver"/>
+    <rChild name="bhm:BHMShielding"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bhm:BHMDriver"/>
+    <rChild name="bhm:BHMShieldingFace"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="[shieldBackPos]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="bhm:BHMDriver"/>
+    <rChild name="bhm:BHMShieldingFace"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="[shieldFrontPos]"/>
+  </PosPart>
+  <Algorithm name="forward:DDBHMAngular">
+    <rParent name="bhm:BHM"/>
+    <String  name="ChildName"   value="bhm:BHMDriver"/>
+    <String  name="Rotation"    value="rotations:180D"/>
+    <Numeric name="number"      value="20"/>
+    <Numeric name="radius"      value="184*cm"/>
+    <Numeric name="deltaPhi"    value="180*deg/16"/>
+  </Algorithm>
+</PosPartSection>
+
+</DDDefinition>
