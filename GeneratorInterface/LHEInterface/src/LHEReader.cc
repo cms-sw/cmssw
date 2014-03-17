@@ -15,6 +15,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
@@ -53,7 +54,7 @@ class LHEReader::FileSource : public LHEReader::Source {
 			                            IOFlags::OpenRead);
 
 		if (!storage)
-			throw cms::Exception("FileOpenError")
+			throw edm::Exception(edm::errors::FileOpenError)
 				<< "Could not open LHE file \""
 				<< fileURL << "\" for reading"
 				<< std::endl;
