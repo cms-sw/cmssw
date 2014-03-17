@@ -38,7 +38,8 @@
 #include "CondFormats/DataRecord/interface/DTLVStatusRcd.h"
 #include "CondFormats/Common/interface/BaseKeyed.h"
 #include "CondCore/CondDB/interface/KeyListProxy.h"
-
+#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
+#include "CondFormats/DataRecord/interface/DTRecoUncertaintiesRcd.h"
 
 //
 #include "CondCore/CondDB/interface/Serialization.h"
@@ -69,6 +70,7 @@ REGISTER_PLUGIN(DTHVStatusRcd,DTHVStatus);
 REGISTER_PLUGIN(DTLVStatusRcd,DTLVStatus);
 REGISTER_PLUGIN(DTKeyedConfigContainerRcd, cond::BaseKeyed);
 REGISTER_KEYLIST_PLUGIN(DTKeyedConfigListRcd,cond::persistency::KeyList,DTKeyedConfigContainerRcd);
+REGISTER_PLUGIN(DTRecoUncertaintiesRcd, DTRecoUncertainties);
 
 
 

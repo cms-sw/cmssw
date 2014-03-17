@@ -12,6 +12,7 @@
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 
 class DTMtime;
+class DTRecoUncertainties;
 
 class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
  public:
@@ -81,6 +82,9 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
 
   //Map of meantimes
   const DTMtime *mTimeMap;
+
+  // Map of hit uncertainties
+  const DTRecoUncertainties *uncertMap;
  
   // Times below MinTime (ns) are considered as coming from previous BXs.
   const float minTime;
