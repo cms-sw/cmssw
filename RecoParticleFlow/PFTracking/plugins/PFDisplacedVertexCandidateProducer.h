@@ -10,6 +10,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexCandidateFinder.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 /**\class PFDisplacedVertexCandidateProducer 
 \brief Producer for DisplacedVertices 
@@ -34,11 +36,11 @@ class PFDisplacedVertexCandidateProducer : public edm::EDProducer {
  private:
 
   /// Reco Tracks used to spot the nuclear interactions
-  edm::InputTag   inputTagTracks_;
+  edm::EDGetTokenT<reco::TrackCollection>   inputTagTracks_;
  
   /// Input tag for main vertex to cut of dxy of secondary tracks
-  edm::InputTag   inputTagMainVertex_; 
-  edm::InputTag   inputTagBeamSpot_;
+  edm::EDGetTokenT<reco::VertexCollection>  inputTagMainVertex_; 
+  edm::EDGetTokenT<reco::BeamSpot>    inputTagBeamSpot_;
   
   /// verbose ?
   bool   verbose_;
