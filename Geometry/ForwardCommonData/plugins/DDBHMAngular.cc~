@@ -15,7 +15,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDBHMAngular::DDBHMAngular() {
-  LogDebug("BHMGeom") << "DDBHMAngular test: Creating an instance";
+  LogDebug("HCalGeom") << "DDBHMAngular test: Creating an instance";
 }
 
 DDBHMAngular::~DDBHMAngular() {}
@@ -29,13 +29,13 @@ void DDBHMAngular::initialize(const DDNumericArguments & nArgs,
   units  = int (nArgs["number"]);
   rr     = nArgs["radius"];
   dphi   = nArgs["deltaPhi"];
-  LogDebug("BHMGeom") << "DDBHMAngular debug: Parameters for positioning-- "
+  LogDebug("HCalGeom") << "DDBHMAngular debug: Parameters for positioning-- "
 		       << units << " copies at radius " << rr/CLHEP::cm 
 		       << " cm with delta(phi) " << dphi/CLHEP::deg;
 
   rotMat      = sArgs["Rotation"];
   childName   = sArgs["ChildName"]; 
-  LogDebug("BHMGeom") << "DDBHMAngular debug: Parent " << parent().name()
+  LogDebug("HCalGeom") << "DDBHMAngular debug: Parent " << parent().name()
 		       << "\tChild " << childName << "\tRotation matrix " 
 		       << rotMat;
 }
@@ -72,7 +72,7 @@ void DDBHMAngular::execute(DDCompactView& cpv) {
     DDTranslation tran(driverX, driverY, driverZ);
   
     cpv.position(child, parentName, jj+1, tran, rot);
-    LogDebug("BHMGeom") << "DDBHMAngular test: " << child << " number " <<jj+1
+    LogDebug("HCalGeom") << "DDBHMAngular test: " << child << " number " <<jj+1
 			 << " positioned in " << parentName << " at " << tran 
 			 << " with " << rot;
   }
