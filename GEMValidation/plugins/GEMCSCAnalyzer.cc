@@ -760,7 +760,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    const bool odd(id.chamber()%1);
+    const bool odd(id.chamber()%2==1);
     if (match_sh.hitsInSuperChamber(d).size() > 0)
     {
       if (odd) etrk_[st].has_gem_sh |= 1;
@@ -793,7 +793,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    const bool odd(id.chamber()%1);
+    const bool odd(id.chamber()%2==1);
     if (match_gd.nLayersWithDigisInSuperChamber(d) > 1)
     {
       if (odd) etrk_[st].has_gem_dg2 |= 1;
@@ -861,7 +861,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    const bool odd(id.chamber()%1);
+    const bool odd(id.chamber()%2==1);
     if (odd) etrk_[st].has_gem_copad |= 1;
     else     etrk_[st].has_gem_copad |= 2;
     
