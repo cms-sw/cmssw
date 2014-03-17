@@ -15,12 +15,16 @@ namespace edm {
   class ProductRegistry;
   class TypeID;
   struct LHEProvenanceHelper {
-    explicit LHEProvenanceHelper(TypeID const& eventProductType, TypeID const& runProductType);
+    explicit LHEProvenanceHelper(TypeID const& eventProductType,
+                                 TypeID const& runProductType,
+                                 ProductRegistry& productRegistry);
+    ParameterSet fillCommonProcessParameterSet();
     void lheAugment(lhef::LHERunInfo const* runInfo);
-    ProcessHistoryID lheInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry);
+    ProcessHistoryID lheInit(ProcessHistoryRegistry& processHistoryRegistry);
     BranchDescription const eventProductBranchDescription_;
     BranchDescription const runProductBranchDescription_;
     ProductProvenance eventProductProvenance_;
+    ParameterSet const commonProcessParameterSet_;
     ParameterSet processParameterSet_;
   };
 }
