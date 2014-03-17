@@ -35,6 +35,54 @@ l<?xml version="1.0"?>
   <Constant name="shieldFrontPos"      value="(-[shieldHalfL]-[shieldThickness]/2)"/>
 </ConstantsSection>
  
+<MaterialSection label="bhm.xml">
+  <CompositeMaterial name="BorosilicateGlass" density="2.23*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.377220">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.028191">
+    <rMaterial name="materials:Sodium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.003321">
+    <rMaterial name="materials:Potassium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.539562">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.011644">
+    <rMaterial name="materials:Aluminium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.040064">
+    <rMaterial name="materials:Boron"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Bialkali" density="4.28*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.133">
+    <rMaterial name="materials:Potassium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.452">
+    <rMaterial name="materials:Cesium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.415">
+    <rMaterial name="materials:Antimony"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="RTV" density="1.02*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.0811">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.3790">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.3241">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.2158">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+ </MaterialSection>
+ 
 <SolidSection label="bhm.xml">
   <Tubs name="BHM" rMin="180.0*cm" rMax="188.0*cm" dz="9.0*cm" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="BHMDriver" rMin="0.0*fm" rMax="4.0*cm" dz="9.0*cm" startPhi="0*deg" deltaPhi="360*deg"/>

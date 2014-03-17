@@ -237,8 +237,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/lumirotations.xml',
         'Geometry/ForwardCommonData/data/zdc.xml',
         'Geometry/ForwardCommonData/data/zdclumi.xml',
-        'Geometry/ForwardCommonData/data/cmszdc.xml',
-        'Geometry/ForwardCommonData/data/bhm.xml')+cms.vstring(
+        'Geometry/ForwardCommonData/data/cmszdc.xml')+cms.vstring(
         'Geometry/MuonCommonData/data/muonNumbering.xml',
         'Geometry/TrackerCommonData/data/trackerStructureTopology.xml',
         'Geometry/TrackerSimData/data/trackersens.xml',
@@ -266,7 +265,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardSimData/data/CastorProdCuts.xml',
         'Geometry/ForwardSimData/data/zdcProdCuts.xml',
         'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
-        'Geometry/CMSCommonData/data/FieldParameters.xml',),
+        'Geometry/CMSCommonData/data/FieldParameters.xml',
+        'Geometry/ForwardCommonData/data/bhm.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
 
