@@ -21,24 +21,22 @@
 
 // #include "boost/lexical_cast.hpp"
 
-using namespace std;
-
 /// Helper function getting the histogram from file.
 TProfile * getHistogram( const TString & fileName )
 {
   TFile * file = new TFile(fileName, "READ");
   if( file == 0 ) {
-    cout << "Wrong file: " << fileName << endl;
+    std::cout << "Wrong file: " << fileName << std::endl;
     exit(1);
   }
   TDirectory * dir = (TDirectory*) file->Get("hPtRecoVsPtGen");
   if( dir == 0 ) {
-    cout << "Wrong directory for file: " << fileName << endl;
+    std::cout << "Wrong directory for file: " << fileName << std::endl;
     exit(1);
   }
   TProfile * profile = (TProfile*) dir->Get("hPtRecoVsPtGenProf");
   if( profile == 0 ) {
-    cout << "Wrong histogram for file: " << fileName << endl;
+    std::cout << "Wrong histogram for file: " << fileName << std::endl;
     exit(1);
   }
   return profile;
@@ -113,10 +111,10 @@ void getParameters( const TF1 * func, TString & fit1, TString & fit2, TString & 
 {
 
 
-  stringstream a;
+  std::stringstream a;
 
   double error = func->GetParError(0);
-  a << setprecision(precision(error)) << fixed << func->GetParameter(0);
+  a << std::setprecision(precision(error)) << std::fixed << func->GetParameter(0);
   // fit1 += boost::lexical_cast<string>(1);
   fit1 += a.str() + "+-";
   a.str("");
@@ -126,16 +124,16 @@ void getParameters( const TF1 * func, TString & fit1, TString & fit2, TString & 
 
   error = func->GetParError(1);
 
-  a << setprecision(precision(error)) << fixed << func->GetParameter(1);
+  a << std::setprecision(precision(error)) << std::fixed << func->GetParameter(1);
   fit2 += a.str() + "+-";
   a.str("");
   a << func->GetParError(1);
   fit2 += a.str();
   a.str("");
-  a << setprecision(1) << fixed << func->GetChisquare();
+  a << std::setprecision(1) << std::fixed << func->GetChisquare();
   fit3 += a.str() + "/";
   a.str("");
-  a << setprecision(0) << fixed << func->GetNDF();
+  a << std::setprecision(0) << std::fixed << func->GetNDF();
   fit3 += a.str();
 }
 
@@ -151,7 +149,7 @@ void CompareRecoGenPt( const TString & fileNum1 = "0",
 
   int xBins = profile1->GetNbinsX();
   if( xBins != profile2->GetNbinsX() ) {
-    cout << "Wrong number of bins" << endl;
+    std::cout << "Wrong number of bins" << std::endl;
     exit(1);
   }
 

@@ -11,6 +11,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/GenMuonPair.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Muon.h"
 
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenEvent.h"
@@ -50,10 +51,11 @@ class MuScleFitMuonSelector
   const reco::Candidate* getStatus1Muon(const reco::Candidate* status3Muon);
   
   /// Main method used to select muons of type specified by muonType_ from the collection specified by muonLabel_ and PATmuons_
-  void selectMuons(const edm::Event & event, std::vector<reco::LeafCandidate> & muons,
+  void selectMuons(const edm::Event & event, std::vector<MuScleFitMuon> & muons,
 		   std::vector<GenMuonPair> & genPair,
 		   std::vector<std::pair<lorentzVector,lorentzVector> > & simPair,
 		   MuScleFitPlotter * plotter);
+
 
  protected:
   /// Apply the Onia cuts to select globalMuons
@@ -82,16 +84,40 @@ class MuScleFitMuonSelector
 
   /// Template function used to convert the muon collection to a vector of reco::LeafCandidate
   template<typename T>
-  std::vector<reco::LeafCandidate> fillMuonCollection( const std::vector<T>& tracks )
+  std::vector<MuScleFitMuon> fillMuonCollection( const std::vector<T>& tracks )
   {
-    std::vector<reco::LeafCandidate> muons;
+    std::vector<MuScleFitMuon> muons;
     typename std::vector<T>::const_iterator track;
     for( track = tracks.begin(); track != tracks.end(); ++track ) {
       reco::Particle::LorentzVector mu;
       mu = reco::Particle::LorentzVector(track->px(),track->py(),track->pz(),
 					 sqrt(track->p()*track->p() + mMu2));
-      reco::LeafCandidate muon(track->charge(),mu);
-      muons.push_back(muon);
+      
+      Double_t hitsTk(0), hitsMuon(0), ptError(0);
+      if ( const reco::Muon* myMu = dynamic_cast<const reco::Muon*>(&(*track))  ){
+	hitsTk =   myMu->innerTrack()->hitPattern().numberOfValidTrackerHits();
+	hitsMuon = myMu->innerTrack()->hitPattern().numberOfValidMuonHits();
+	ptError =  myMu->innerTrack()->ptError();
+      }
+      else if ( const pat::Muon* myMu = dynamic_cast<const pat::Muon*>(&(*track)) ) {
+	hitsTk =   myMu->innerTrack()->hitPattern().numberOfValidTrackerHits();
+	hitsMuon = myMu->innerTrack()->hitPattern().numberOfValidMuonHits();
+	ptError =  myMu->innerTrack()->ptError();
+      }
+      else if (const reco::Track* myMu = dynamic_cast<const reco::Track*>(&(*track))){
+	hitsTk =   myMu->hitPattern().numberOfValidTrackerHits();
+	hitsMuon = myMu->hitPattern().numberOfValidMuonHits();
+	ptError =  myMu->ptError();
+      }
+      
+      MuScleFitMuon muon(mu,track->charge(),ptError,hitsTk,hitsMuon);
+
+    if (debug_>0) {
+      std::cout<<"[MuScleFitMuonSelector::fillMuonCollection] after MuScleFitMuon initialization"<<std::endl;
+      std::cout<<"  muon = "<<muon<<std::endl;
+    }
+
+    muons.push_back(muon);
     }
     return muons;
   }

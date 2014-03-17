@@ -4,8 +4,6 @@
 #include "TFile.h"
 #include "TH1F.h"
 
-using namespace std;
-
 
 /**
  * This macro can be used to fit the background and signal peak of the Z. <br>
@@ -19,10 +17,10 @@ using namespace std;
 // par[1] = x
 Double_t integralPart(Double_t *x, Double_t *par)
 {
-  cout << "x[0] = " << x[0] << endl;
-  cout << "par[0] = " << par[0] << endl;
-  cout << "par[1] = " << par[1] << endl;
-  // cout << "value = " << exp(-(x[0]-par[1])*(x[0]-par[1])/(par[0]*par[0]))/(par[0]*par[0] + (par[1] - x[0])*(par[1] - x[0])) << endl;
+  std::cout << "x[0] = " << x[0] << std::endl;
+  std::cout << "par[0] = " << par[0] << std::endl;
+  std::cout << "par[1] = " << par[1] << std::endl;
+  // std::cout << "value = " << exp(-(x[0]-par[1])*(x[0]-par[1])/(par[0]*par[0]))/(par[0]*par[0] + (par[1] - x[0])*(par[1] - x[0])) << std::endl;
   return exp(-x[0]*x[0])/(par[0]*par[0] + (par[1] - x[0])*(par[1] - x[0]));
 }
 

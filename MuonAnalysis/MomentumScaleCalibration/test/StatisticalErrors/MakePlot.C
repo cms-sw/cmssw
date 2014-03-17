@@ -6,14 +6,13 @@
 #include <vector>
 #include <string>
 
-using namespace std;
 
 void MakePlot() {
   ifstream file("Values.txt");
-  string valueString;
-  vector<double> values;
+  std::string valueString;
+  std::vector<double> values;
   bool first=true;
-  string numPar;
+  std::string numPar;
 
   while( getline(file, valueString) ) {
     if(first) {
@@ -21,7 +20,7 @@ void MakePlot() {
       first=false;
     }
     else {
-      stringstream ss(valueString);
+      std::stringstream ss(valueString);
       double value;
       ss >> value;
       values.push_back(value);
@@ -71,7 +70,7 @@ void MakePlot() {
   return;
 }
 
-void makePlot(vector<double> vec, double& meanP, double& rmsP, double& sigmaP, string parNum) {
+void makePlot(std::vector<double> vec, double& meanP, double& rmsP, double& sigmaP, std::string parNum) {
   int cnt=vec.size();
   double minV=99999., maxV=-99999.;
 
@@ -102,7 +101,7 @@ void makePlot(vector<double> vec, double& meanP, double& rmsP, double& sigmaP, s
   if(cc) delete cc;
 }
 
-void skimValues(vector<double>& vec, double mean, double rms) {
+void skimValues(std::vector<double>& vec, double mean, double rms) {
   int dim=vec.size();
   for(int jj=0; jj<dim;) {
     double it=vec[jj];
