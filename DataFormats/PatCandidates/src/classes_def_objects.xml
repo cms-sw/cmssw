@@ -132,9 +132,17 @@
     <field name="p4c_" transient="true" />
     <field name="vertex_" transient="true" />
     <field name="unpacked_" transient="true" />
+    <field name="unpackedVtx_" transient="true" />
+    <field name="dxy_" transient="true" />
+    <field name="dz_" transient="true" />
+    <field name="dphi_" transient="true" />
   </class>
   <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpacked_">
     <![CDATA[unpacked_ = false;
+    ]]>
+  </ioread>
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpackedVtx_">
+    <![CDATA[unpackedVtx_ = false;
     ]]>
   </ioread>
 

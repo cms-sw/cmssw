@@ -6,6 +6,9 @@
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Math/interface/deltaPhi.h" 
 /* #include "DataFormats/Math/interface/PtEtaPhiMass.h" */
 
 namespace pat {
@@ -26,16 +29,16 @@ namespace pat {
 
     /// default constructor  
   PackedCandidate()
-    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), pdgId_(0), fromPV_(0), unpacked_(false) { }                                                             
+    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), fromPV_(0), unpacked_(false) { }                                                             
 
-  explicit PackedCandidate( const reco::Candidate & c, bool fromPV)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), pdgId_(c.pdgId()), fromPV_(fromPV), unpacked_(true) { pack(); }
+  explicit PackedCandidate( const reco::Candidate & c, const reco::VertexRef &pv, bool fromPV)
+    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), fromPV_(fromPV), pvRef_(pv), unpacked_(true) , unpackedVtx_(true){ packBoth(); }
 
-  explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx, int pdgId, bool fromPV)
-    : p4_(p4), p4c_(p4_), vertex_(vtx), pdgId_(pdgId), fromPV_(fromPV), unpacked_(true) { pack(); }
+  explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv, bool fromPV)
+    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), fromPV_(fromPV), pvRef_(pv), unpacked_(true), unpackedVtx_(true) { packBoth(); }
 
-  explicit PackedCandidate( const LorentzVector &p4, const Point &vtx, int pdgId, bool fromPV)
-    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), pdgId_(pdgId), fromPV_(fromPV), unpacked_(true) { pack(); }
+  explicit PackedCandidate( const LorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv, bool fromPV)
+    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), fromPV_(fromPV), pvRef_(pv), unpacked_(true), unpackedVtx_(true) { packBoth(); }
  
  
     
@@ -124,6 +127,14 @@ namespace pat {
     virtual float pt() const { if (!unpacked_) unpack(); return p4_.Pt();}
     /// momentum azimuthal angle                                                          
     virtual float phi() const { if (!unpacked_) unpack(); return p4_.Phi(); }
+    /// momentum azimuthal angle from the track (normally identical to phi())
+    virtual float phiAtVtx() const { 
+        maybeUnpackBoth(); 
+        float ret = p4_.Phi() + dphi_; 
+        while (ret >  float(M_PI)) ret -= 2*float(M_PI); 
+        while (ret < -float(M_PI)) ret += 2*float(M_PI); 
+        return ret; 
+    }
     /// momentum polar angle                                                              
     virtual double theta() const { if (!unpacked_) unpack(); return p4_.Theta(); }
     /// momentum pseudorapidity                                                           
@@ -133,9 +144,17 @@ namespace pat {
     /// rapidity                                                                          
     virtual double y() const { if (!unpacked_) unpack(); return p4_.Rapidity(); }
     /// set 4-momentum                                                                    
-    virtual void setP4( const LorentzVector & p4 ) { if (!unpacked_) unpack(); p4_ = PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()); pack(); }
+    virtual void setP4( const LorentzVector & p4 ) { 
+        maybeUnpackBoth(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
+        p4_ = PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M());
+        packBoth();
+    }
     /// set 4-momentum                                                                    
-    virtual void setP4( const PolarLorentzVector & p4 ) { if (!unpacked_) unpack(); p4_ = p4; pack(); }
+    virtual void setP4( const PolarLorentzVector & p4 ) { 
+        maybeUnpackBoth(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
+        p4_ = p4_; 
+        packBoth();
+    }
     /// set particle mass                                                                 
     virtual void setMass( double m ) {
       if (!unpacked_) unpack(); 
@@ -143,27 +162,39 @@ namespace pat {
       pack();
     }
     virtual void setPz( double pz ) {
-      if (!unpacked_) unpack(); 
+      maybeUnpackBoth(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
       p4c_ = LorentzVector(p4c_.Px(), p4c_.Py(), pz, p4c_.E());
       p4_  = PolarLorentzVector(p4c_.Pt(), p4c_.Eta(), p4c_.Phi(), p4c_.M());
-      pack();
+      packBoth();
     }
     /// vertex position
-    virtual const Point & vertex() const { if (!unpacked_) unpack(); return vertex_; }//{ if (fromPV_) return Point(0,0,0); else return Point(0,0,100); }
+    virtual const Point & vertex() const { maybeUnpackBoth(); return vertex_; }//{ if (fromPV_) return Point(0,0,0); else return Point(0,0,100); }
     /// x coordinate of vertex position                                                   
-    virtual double vx() const  { if (!unpacked_) unpack(); return vertex_.X(); }//{ return 0; }
+    virtual double vx() const  { maybeUnpackBoth(); return vertex_.X(); }//{ return 0; }
     /// y coordinate of vertex position                                                   
-    virtual double vy() const  { if (!unpacked_) unpack(); return vertex_.Y(); }//{ return 0; }
+    virtual double vy() const  { maybeUnpackBoth(); return vertex_.Y(); }//{ return 0; }
     /// z coordinate of vertex position                                                   
-    virtual double vz() const  { if (!unpacked_) unpack(); return vertex_.Z(); }//{ if (fromPV_) return 0; else return 100; }
+    virtual double vz() const  { maybeUnpackBoth(); return vertex_.Z(); }//{ if (fromPV_) return 0; else return 100; }
     /// set vertex                                                                        
-    virtual void setVertex( const Point & vertex ) { if (!unpacked_) unpack(); vertex_ = vertex; pack(); }
+    virtual void setVertex( const Point & vertex ) { maybeUnpackBoth(); vertex_ = vertex; packVtx(); }
 
     enum PVAssoc { NoPV=0, PVLoose=1, PVTight=2 } ;
-    virtual const PVAssoc fromPV() const { return PVAssoc(fromPV_); }
-    virtual void setFromPV( PVAssoc fromPV )   { fromPV_ = uint8_t(fromPV); }
+    const PVAssoc fromPV() const { return PVAssoc(fromPV_); }
+    void setFromPV( PVAssoc fromPV )   { fromPV_ = uint8_t(fromPV); }
 
-    /// PDG identifier                                                                    
+    /// set reference to the primary vertex                                                                        
+    void setVertexRef( const reco::VertexRef & vertexRef ) { maybeUnpackBoth(); pvRef_ = vertexRef; packVtx(); }
+    const reco::VertexRef vertexRef() const { return pvRef_; }
+
+    /// dxy with respect to the PV ref
+    virtual float dxy() const { maybeUnpackBoth(); return dxy_; }
+    /// dz with respect to the PV ref
+    virtual float dz()  const { maybeUnpackBoth(); return dz_; }
+    /// dxy with respect to another point
+    virtual float dxy(const Point &p) const ;
+    /// dz  with respect to another point
+    virtual float dz(const Point &p)  const ;
+
     /// PDG identifier                                                                    
     virtual int pdgId() const   { return pdgId_; }
     // set PDG identifier                                                                 
@@ -283,20 +314,30 @@ namespace pat {
 
   protected:
     uint16_t packedPt_, packedEta_, packedPhi_, packedM_;
-    uint16_t packedX_, packedY_, packedZ_;
-    void pack() ;
+    uint16_t packedDxy_, packedDz_, packedDPhi_;
+    void pack(bool unpackAfterwards=true) ;
     void unpack() const ;
+    void packVtx(bool unpackAfterwards=true) ;
+    void unpackVtx() const ;
+    void maybeUnpackBoth() const { if (!unpacked_) unpack(); if (!unpackedVtx_) unpackVtx(); }
+    void packBoth() { pack(false); packVtx(false); unpack(); unpackVtx(); } // do it this way, so that we don't loose precision on the angles before computing dxy,dz
  
     /// the four vector                                                 
     mutable PolarLorentzVector p4_;
     mutable LorentzVector p4c_;
     /// vertex position                                                                   
     mutable Point vertex_;
+    mutable float dxy_, dz_, dphi_;
     /// PDG identifier                                                                    
     int pdgId_;
     uint8_t fromPV_;
-    // are the vectors unpacked
+    /// Ref to primary vertex
+    edm::Ref<reco::VertexCollection> pvRef_;
+    // is the momentum p4 unpacked
     mutable bool unpacked_;
+    // are the dxy, dz and vertex unpacked
+    mutable bool unpackedVtx_;
+
 
     /// check overlap with another Candidate                                              
     virtual bool overlap( const reco::Candidate & ) const;
