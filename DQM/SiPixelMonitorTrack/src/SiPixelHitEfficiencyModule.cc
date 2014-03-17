@@ -181,7 +181,10 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     
     meValidYLad_ = dbe->book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
     meValidYLad_->setAxisTitle("# Valid hits in Y",1);
-    
+
+    meValidModLad_ = dbe->book1D("validMod_"+hisID,"# Valid hits on Module",20,1,21.);
+    meValidModLad_->setAxisTitle("# Valid hits on Module",1);    
+
     meValidAlphaLad_ = dbe->book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
     meValidAlphaLad_->setAxisTitle("# Valid hits in Alpha",1);
     
@@ -198,6 +201,9 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     meMissingYLad_ = dbe->book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
     meMissingYLad_->setAxisTitle("# Missing hits in Y",1);
     
+    meMissingModLad_ = dbe->book1D("missingMod_"+hisID,"# Missing hits on Module",20,1,21.);
+    meMissingModLad_->setAxisTitle("# Missing hits on Module",1);
+
     meMissingAlphaLad_ = dbe->book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
     meMissingAlphaLad_->setAxisTitle("# Missing hits in Alpha",1);
     
@@ -518,6 +524,8 @@ void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool
   float prediction_beta = atan2(localDir.z(), localDir.y());
   float prediction_x = ltp.position().x();
   float prediction_y = ltp.position().y();
+  //CS - this will probably break with isUpgrade
+  int imod = PXBDetId(DetId(id_)).module();
   
   if(isHitValid){
     if(modon){
@@ -531,6 +539,7 @@ void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool
       meValidLad_->Fill(0.5);
       meValidXLad_->Fill(prediction_x);
       meValidYLad_->Fill(prediction_y);
+      meValidModLad_->Fill(imod);
       meValidAlphaLad_->Fill(prediction_alpha);
       meValidBetaLad_->Fill(prediction_beta);
     }
@@ -582,6 +591,7 @@ void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool
       meMissingLad_->Fill(0.5);
       meMissingXLad_->Fill(prediction_x);
       meMissingYLad_->Fill(prediction_y);
+      meMissingModLad_->Fill(imod);
       meMissingAlphaLad_->Fill(prediction_alpha);
       meMissingBetaLad_->Fill(prediction_beta);
     }
