@@ -110,7 +110,7 @@ class TauValidation : public edm::EDAnalyzer
 	  *TauSpinEffectsHpm_X, *TauSpinEffectsHpm_UpsilonRho, *TauSpinEffectsHpm_UpsilonA1,*TauSpinEffectsHpm_eX,*TauSpinEffectsHpm_muX, 
 	  *TauSpinEffectsZ_MVis, *TauSpinEffectsZ_Zs, *TauSpinEffectsZ_Xf, *TauSpinEffectsZ_Xb, 
 	  *TauSpinEffectsZ_eX, *TauSpinEffectsZ_muX, *TauSpinEffectsZ_X, *TauSpinEffectsH_X,
-	  *TauSpinEffectsH_MVis, *TauSpinEffectsH_Zs, *TauSpinEffectsH_Xf, *TauSpinEffectsH_Xb,
+	  *TauSpinEffectsH_MVis, *TauSpinEffectsH_Zs, *TauSpinEffectsH_Xf, *TauSpinEffectsH_Xb, *TauSpinEffectstautau_polvxM,
 	  *TauSpinEffectsH_eX, *TauSpinEffectsH_muX, *TauSpinEffectsH_rhorhoAcoplanarityplus,  *TauSpinEffectsH_rhorhoAcoplanarityminus,
 	  *TauBremPhotonsN,*TauBremPhotonsPt,*TauBremPhotonsPtSum,*TauFSRPhotonsN,*TauFSRPhotonsPt,*TauFSRPhotonsPtSum,
 	  *TauSpinEffectsH_pipiAcoplanarity,*TauSpinEffectsH_pipiAcollinearity,*TauSpinEffectsH_pipiAcollinearityzoom, *DecayLength,
@@ -124,6 +124,7 @@ class TauValidation : public edm::EDAnalyzer
 	double zsmin,zsmax;
 
 	edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
+	std::vector<int> n_taupinu;
 };
 
 #endif
