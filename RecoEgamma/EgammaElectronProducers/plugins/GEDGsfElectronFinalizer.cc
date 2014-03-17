@@ -69,7 +69,8 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
    for(;it!=itend;++it) {
      // First check that the GsfTrack is non null
      if( it->gsfTrackRef().isNonnull()) {
-       gsfPFMap[it->gsfTrackRef()]=&(*it);
+       if(abs(it->pdgId())==11) // consider only the electrons 
+	 gsfPFMap[it->gsfTrackRef()]=&(*it);
      }
    }
 
@@ -88,7 +89,7 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
      newElectron.setPfIsolationVariables(isoVariables);
 
      // now set a status if not already done (in GEDGsfElectronProducer.cc)
-     std::cout << " previous status " << newElectron.mvaOutput().status << std::endl;
+     //     std::cout << " previous status " << newElectron.mvaOutput().status << std::endl;
      if(newElectron.mvaOutput().status<=0) { 
        std::map<reco::GsfTrackRef, const  reco::PFCandidate * >::const_iterator itcheck=gsfPFMap.find(newElectron.gsfTrack());
        reco::GsfElectron::MvaOutput myMvaOutput(newElectron.mvaOutput());
