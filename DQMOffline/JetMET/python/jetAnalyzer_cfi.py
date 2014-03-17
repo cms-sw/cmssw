@@ -107,7 +107,6 @@ jetDQMAnalyzerAk5JPTCleaned=jetDQMAnalyzerAk5CaloCleaned.clone(
         alwaysPass = cms.untracked.bool(False)
         )
 )
-#jetDQMAnalyzerAk5JPTCleaned.DCSFilterForJetMonitoring.DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon")
 
 jetDQMAnalyzerAk5PFUncleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
     CleaningParameters = cleaningParameters.clone(
@@ -127,7 +126,6 @@ jetDQMAnalyzerAk5PFUncleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
       alwaysPass = cms.untracked.bool(False)
     )
 )
-#jetDQMAnalyzerAk5PFUncleaned.DCSFilterForJetMonitoring.DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon")
 
 jetDQMAnalyzerAk5PFCleaned=jetDQMAnalyzerAk5PFUncleaned.clone(
     JetCleaningFlag   = cms.untracked.bool(True),
@@ -142,14 +140,15 @@ jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
     CleaningParameters = cleaningParameters.clone(
         bypassAllPVChecks  = cms.bool(False),
         vertexCollection = cms.InputTag( "hiSelectedVertex" ),
-    ),
+        ),
     JetType = cms.string('calo'),#pf, calo or jpt
     JetCorrections = cms.string(""),# no jet correction available yet?
     jetsrc = cms.InputTag("iterativeConePu5CaloJets"),
-    JetCleaningFlag            = cms.untracked.bool(True),    
+    JetCleaningFlag            = cms.untracked.bool(False),   
+    runcosmics                 = cms.untracked.bool(True),   
     DCSFilterForJetMonitoring = cms.PSet(
-      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
-      #DebugOn = cms.untracked.bool(True),
-      alwaysPass = cms.untracked.bool(False)
+        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+        #DebugOn = cms.untracked.bool(True),
+        alwaysPass = cms.untracked.bool(False)
     )
 )
