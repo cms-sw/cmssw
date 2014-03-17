@@ -74,7 +74,7 @@ duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3000)
+    input = cms.untracked.int32(10)
 )
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
