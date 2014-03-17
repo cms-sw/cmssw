@@ -13,15 +13,19 @@ CSCRecHitValidation::CSCRecHitValidation(const edm::ParameterSet & ps)
   theOutputFile( ps.getParameter<std::string>("outputFile") ),
   theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag")),
   theCSCGeometry(0),
-  the2DValidation(dbe_, ps.getParameter<edm::InputTag>("recHitLabel") ),
-  theSegmentValidation(dbe_, ps.getParameter<edm::InputTag>("segmentLabel") )
+  the2DValidation(0),
+  theSegmentValidation(0)
 {
+  the2DValidation = new CSCRecHit2DValidation(dbe_, ps.getParameter<edm::InputTag>("recHitLabel"), consumesCollector() );
+  theSegmentValidation = new CSCSegmentValidation(dbe_, ps.getParameter<edm::InputTag>("segmentLabel"), consumesCollector() );
 }
 
 
 CSCRecHitValidation::~CSCRecHitValidation()
 {
   if ( theOutputFile.size() != 0 && dbe_ ) dbe_->save(theOutputFile);
+  delete the2DValidation;
+  delete theSegmentValidation;
 }
 
 
@@ -39,12 +43,13 @@ void CSCRecHitValidation::analyze(const edm::Event&e, const edm::EventSetup& eve
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
   theCSCGeometry = &*hGeom;
 
-  the2DValidation.setGeometry(theCSCGeometry);
-  the2DValidation.setSimHitMap(&theSimHitMap);
-  theSegmentValidation.setGeometry(theCSCGeometry);
-  theSegmentValidation.setSimHitMap(&theSimHitMap);
+  the2DValidation->setGeometry(theCSCGeometry);
+  the2DValidation->setSimHitMap(&theSimHitMap);
 
-  the2DValidation.analyze(e, eventSetup);
-  theSegmentValidation.analyze(e, eventSetup);
+  theSegmentValidation->setGeometry(theCSCGeometry);
+  theSegmentValidation->setSimHitMap(&theSimHitMap);
+
+  the2DValidation->analyze(e, eventSetup);
+  theSegmentValidation->analyze(e, eventSetup);
 
 }

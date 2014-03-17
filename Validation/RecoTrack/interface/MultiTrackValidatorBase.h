@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h" 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
@@ -26,15 +27,22 @@
 
 #include <DQMServices/Core/interface/DQMStore.h>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
+
+class PileupSummaryInfo;
+namespace reco {
+class DeDxData;
+}
 
 class MultiTrackValidatorBase {
  public:
 
   /// Constructor
-  MultiTrackValidatorBase(const edm::ParameterSet& pset);
+  MultiTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector && iC, bool isSeed = false);
     
   /// Destructor
   virtual ~MultiTrackValidatorBase(){ }
@@ -47,21 +55,24 @@ class MultiTrackValidatorBase {
 
   // MTV-specific data members
   std::vector<std::string> associators;
-  edm::InputTag label_tp_effic;
-  edm::InputTag label_tp_fake;
-  edm::InputTag label_tv;
-  edm::InputTag label_pileupinfo;
+  edm::EDGetTokenT<TrackingParticleCollection> label_tp_effic;
+  edm::EDGetTokenT<TrackingParticleCollection> label_tp_fake;
+  edm::EDGetTokenT<TrackingVertexCollection> label_tv;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > label_pileupinfo;
+
   std::string sim;
   std::string parametersDefiner;
 
 
   std::vector<edm::InputTag> label;
-  edm::InputTag bsSrc;
+  std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > labelToken;
+  std::vector<edm::EDGetTokenT<edm::View<TrajectorySeed> > > labelTokenSeed;
+  edm::EDGetTokenT<reco::BeamSpot>  bsSrc;
 
   std::string out;
 
-  edm::InputTag m_dEdx1Tag;
-  edm::InputTag m_dEdx2Tag;
+  edm::EDGetTokenT<reco::DeDxData> m_dEdx1Tag;
+  edm::EDGetTokenT<reco::DeDxData> m_dEdx2Tag;
 
   edm::ESHandle<MagneticField> theMF;
   std::vector<const TrackAssociatorBase*> associator;
@@ -69,8 +80,6 @@ class MultiTrackValidatorBase {
 
   bool ignoremissingtkcollection_;
   bool skipHistoFit;
-
-
 
 };
 
