@@ -112,7 +112,6 @@ ProjectedSiStripRecHit2D * TkClonerImpl::operator()(ProjectedSiStripRecHit2D con
 
   // project...
   const GeomDet & det = *hit.det();
-  const GluedGeomDet & gdet = static_cast<const GluedGeomDet &> (det);
   const BoundPlane& gluedPlane = det.surface();
   const BoundPlane& hitPlane = gdu->surface();
   LocalVector tkDir = (tsos.isValid() ? tsos.localDirection() : 
