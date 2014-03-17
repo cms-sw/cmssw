@@ -16,9 +16,17 @@ from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
 addJetCollection(
     process,
+    labelName = 'AK5PFCHS',
+    jetSource = cms.InputTag('ak5PFJetsCHS'),
+    algo = 'ak5',
+    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
+    )
+
+addJetCollection(
+    process,
     labelName = 'CA8PFCHS',
     jetSource = cms.InputTag('ca8PFJetsCHS'),
-    algo='ca8',
+    algo = 'ca8',
     jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
     )
 
@@ -26,7 +34,7 @@ addJetCollection(
     process,
     labelName = 'AK8PFCHS',
     jetSource = cms.InputTag('ak8PFJetsCHS'),
-    algo='ak8',
+    algo = 'ak8',
     jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
     )
 
@@ -46,128 +54,117 @@ switchJetCollection(
 
 process.patJetGenJetMatchPatJetsCA8PFCHS.matched = cms.InputTag("ca8GenJetsNoNu")
 
+patJetsAK5 = process.patJetsAK5PFCHS
+patJetsCA8 = process.patJetsCA8PFCHS
+patJetsAK8 = process.patJetsAK8PFCHS
+
+process.out.outputCommands += ['keep *_ak5PFJetsCHS_*_*',
+                               'keep *_patJetsAK5PFCHS_*_*',
+                               'keep *_ca8PFJetsCHS_*_*',
+                               'keep *_patJetsCA8PFCHS_*_*',
+                               'keep *_ak8PFJetsCHS_*_*',
+                               'keep *_patJetsAK8PFCHS_*_*']
+
 ####################################################################################################
 #THE JET TOOLBOX
 
-#configure the jet toolbox
-
-inputCollection = cms.InputTag("ca8PFJetsCHS")
-#inputCollection = cms.InputTag('ak8PFJetsCHS')
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-if inputCollection.value().startswith("ca"):
-    alg='ca'
-elif inputCollection.value().startswith("ak"):
-    alg='ak'
-    
-if '5PFJets' in inputCollection.value():
-    distPar=0.5
-elif '8PFJets' in inputCollection.value():
-    distPar=0.8
-
-try: alg,distPar
-except:
-    "inputCollection not recognized"
-    exit(1)
-            
-#---------------------------------------------------------------------------------------------------
 #load the various tools
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#Njettiness
-
-process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
-process.Njettiness.src = inputCollection
-process.Njettiness.cone=cms.double(distPar)
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #pileupJetID
 
 process.load('RecoJets.JetProducers.pileupjetidproducer_cfi')
-process.pileupJetIdCalculator.jets = inputCollection
-process.pileupJetIdEvaluator.jets = inputCollection
+
+process.pileupJetIdCalculator.jets = cms.InputTag("ak5PFJetsCHS")
+process.pileupJetIdEvaluator.jets = cms.InputTag("ak5PFJetsCHS")
+process.pileupJetIdCalculator.rho = cms.InputTag("fixedGridRhoFastjetAll")
+process.pileupJetIdEvaluator.rho = cms.InputTag("fixedGridRhoFastjetAll")
+
+patJetsAK5.userData.userFloats.src += ['pileupJetIdEvaluator:fullDiscriminant']
+patJetsAK5.userData.userInts.src += ['pileupJetIdEvaluator:cutbasedId','pileupJetIdEvaluator:fullId']
+process.out.outputCommands += ['keep *_pileupJetIdEvaluator_*_*']
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #QGTagger
 
 process.load('RecoJets.JetProducers.QGTagger_cfi')
-process.QGTagger.srcJets = inputCollection
-process.QGTagger.useCHS  = cms.bool(True)
-process.QGTagger.jec     = cms.string('')
+
+process.QGTagger.srcJets = cms.InputTag("ak5PFJetsCHS")
+
+patJetsAK5.userData.userFloats.src += ['QGTagger:qgLikelihood']
+process.out.outputCommands += ['keep *_QGTagger_*_*']
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#Njettiness
+
+process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
+
+process.NjettinessCA8 = process.Njettiness.clone()
+process.NjettinessCA8.src = cms.InputTag("ca8PFJetsCHS")
+process.NjettinessCA8.cone = cms.double(0.8)
+
+patJetsCA8.userData.userFloats.src += ['NjettinessCA8:tau1','NjettinessCA8:tau2','NjettinessCA8:tau3']
+process.out.outputCommands += ['keep *_NjettinessCA8_*_*']
+
+process.NjettinessAK8 = process.NjettinessCA8.clone()
+process.NjettinessAK8.src = cms.InputTag("ak8PFJetsCHS")
+
+patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
+process.out.outputCommands += ['keep *_NjettinessAK8_*_*']
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #QJetsAdder
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",QJetsAdder = cms.PSet(initialSeed = cms.untracked.uint32(7)))
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+                                                   QJetsAdderCA8 = cms.PSet(initialSeed = cms.untracked.uint32(7)),
+                                                   QJetsAdderAK8 = cms.PSet(initialSeed = cms.untracked.uint32(31)))
 
 process.load('RecoJets.JetProducers.qjetsadder_cfi')
-process.QJetsAdder.src=inputCollection
-process.QJetsAdder.jetRad = cms.double(distPar)
-process.QJetsAdder.jetAlgo=cms.string(alg.upper())
 
+process.QJetsAdderCA8 = process.QJetsAdder.clone()
+process.QJetsAdderCA8.src = cms.InputTag("ca8PFJetsCHS")
+process.QJetsAdderCA8.jetRad = cms.double(0.8)
+process.QJetsAdderCA8.jetAlgo = cms.string('CA')
+
+patJetsCA8.userData.userFloats.src += ['QJetsAdderCA8:QjetsVolatility']
+process.out.outputCommands += ['keep *_QJetsAdderCA8_*_*']
+
+process.QJetsAdderAK8 = process.QJetsAdderCA8.clone()
+process.QJetsAdderAK8.src = cms.InputTag("ak8PFJetsCHS")
+process.QJetsAdderAK8.jetAlgo = cms.string('AK')
+
+patJetsAK8.userData.userFloats.src += ['QJetsAdderAK8:QjetsVolatility']
+process.out.outputCommands += ['keep *_QJetsAdderAK8_*_*']
+                                   
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Grooming valueMaps
+
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 
-process.hepTopTagPFJetsCHSLinks=cms.EDProducer("RecoJetDeltaRValueMapProducer",
-                                               src = inputCollection,
-                                               matched = cms.InputTag("hepTopTagPFJetsCHS"),
-                                               distMin = cms.double(0.8),
-                                               value = cms.string('mass')
-                                               )
+patJetsCA8.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks','ca8PFJetsCHSTrimmedLinks','ca8PFJetsCHSFilteredLinks']
+process.out.outputCommands += ['keep *_ca8PFJetsCHSPrunedLinks_*_*',
+                               'keep *_ca8PFJetsCHSTrimmedLinks_*_*',
+                               'keep *_ca8PFJetsCHSFilteredLinks_*_*']
 
-#---------------------------------------------------------------------------------------------------
-#use PAT to turn ValueMaps into userFloats
+patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedLinks','ak8PFJetsCHSTrimmedLinks','ak8PFJetsCHSFilteredLinks']
+process.out.outputCommands += ['keep *_ak8PFJetsCHSPrunedLinks_*_*',
+                               'keep *_ak8PFJetsCHSTrimmedLinks_*_*',
+                               'keep *_ak8PFJetsCHSFilteredLinks_*_*']
 
-if inputCollection.value()=="ca8PFJetsCHS": patJets=process.patJetsCA8PFCHS
-elif inputCollection.value()=="ak8PFJetsCHS": patJets=process.patJetsAK8PFCHS
+process.cmsTopTagPFJetsCHSLinksCA8 = process.ca8PFJetsCHSPrunedLinks.clone()
+process.cmsTopTagPFJetsCHSLinksCA8.src = cms.InputTag("ca8PFJetsCHS")
+process.cmsTopTagPFJetsCHSLinksCA8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
 
-patJets.userData.userFloats.src = ['Njettiness:tau1','Njettiness:tau2','Njettiness:tau3',
-                                   'pileupJetIdEvaluator:fullDiscriminant',
-                                   'QGTagger:qgLikelihood',
-                                   'QJetsAdder:QjetsVolatility',
-                                   'hepTopTagPFJetsCHSLinks',
-                                   ]
+patJetsCA8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksCA8']
+process.out.outputCommands += ['keep *_cmsTopTagPFJetsCHSLinksCA8_*_*']
 
-patJets.userData.userInts.src = ['pileupJetIdEvaluator:cutbasedId','pileupJetIdEvaluator:fullId']
+process.cmsTopTagPFJetsCHSLinksAK8 = process.cmsTopTagPFJetsCHSLinksCA8.clone()
+process.cmsTopTagPFJetsCHSLinksAK8.src = cms.InputTag("ak8PFJetsCHS")
+process.cmsTopTagPFJetsCHSLinksAK8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
 
-if alg=='ca': patJets.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks',
-                                                 'ca8PFJetsCHSTrimmedLinks',
-                                                 'ca8PFJetsCHSFilteredLinks',
-                                                 ]
+patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksAK8']
+process.out.outputCommands += ['keep *_cmsTopTagPFJetsCHSLinksAK8_*_*']
 
-elif alg=='ak': patJets.userData.userFloats.src += ['ak8PFJetsCHSPrunedLinks',
-                                                   'ak8PFJetsCHSTrimmedLinks',
-                                                   'ak8PFJetsCHSFilteredLinks',
-                                                   ]
-
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-process.out.outputCommands=['drop *',
-                            'keep *_Njettiness_*_*',
-                            'keep *_pileupJetId*_*_*',
-                            'keep *_QGTagger_*_*',
-                            'keep *_QJetsAdder_*_*',
-                            'keep *_hepTopTagPFJetsCHSLinks_*_*',
-                            ]
-
-if inputCollection.value()=="ca8PFJetsCHS":
-    process.out.outputCommands+=['keep *_ca8PFJetsCHS_*_*',
-                                 'keep *_patJetsCA8PFCHS_*_*',
-                                 'keep *_ca8PFJetsCHSPrunedLinks_*_*',
-                                 'keep *_ca8PFJetsCHSTrimmedLinks_*_*',
-                                 'keep *_ca8PFJetsCHSFilteredLinks_*_*',
-                                 ]
-
-elif inputCollection.value()=="ak8PFJetsCHS":
-    process.out.outputCommands+=['keep *_ak8PFJetsCHS_*_*',
-                                 'keep *_patJetsAK8PFCHS_*_*',
-                                 'keep *_ak8PFJetsCHSPrunedLinks_*_*',
-                                 'keep *_ak8PFJetsCHSTrimmedLinks_*_*',
-                                 'keep *_ak8PFJetsCHSFilteredLinks_*_*',
-                                 ]
-    
 ####################################################################################################
 
 ## ------------------------------------------------------
@@ -181,7 +178,7 @@ elif inputCollection.value()=="ak8PFJetsCHS":
 #process.source.fileNames = filesRelValProdTTbarAODSIM
 process.source.fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_0_0_pre11/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/POSTLS162_V4-v1/00000/1CCFFDA6-846A-E311-9E61-0025905964C2.root')
 #                                         ##
-process.maxEvents.input = 50
+process.maxEvents.input = 5
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
