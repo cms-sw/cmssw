@@ -31,6 +31,7 @@ DDShashlikEndcap::initialize(const DDNumericArguments & nArgs,
   m_rMin        = int( nArgs["rMin"] );
   m_rMax        = int( nArgs["rMax"] );
   m_zoffset     = nArgs["zoffset"];
+  m_zpointing   = nArgs["zpointing"];
   m_xyoffset    = nArgs["xyoffset"];
   m_n           = int( nArgs["n"] );
   m_startCopyNo = int( nArgs["startCopyNo"] );
@@ -56,8 +57,8 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
 {
   int copyNo = startCopyNo;
   double tiltAngle = m_tiltAngle;
-  double pointingAngle = 3.*CLHEP::deg;
-  double pointingLocation = m_zoffset + 2625.;
+  double pointingAngle = m_tiltAngle;
+  double pointingLocation = m_zoffset + m_zpointing;
   double xphi = xQuadrant*(tiltAngle+pointingAngle);
   double yphi = yQuadrant*(tiltAngle+pointingAngle);
   double theta  = 90.*CLHEP::deg;
