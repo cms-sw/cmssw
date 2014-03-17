@@ -4,8 +4,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALUncorrected_cfi i
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECAL_cfi import *
 
-particleFlowClusterECALSequence = cms.Sequence(
-    particleFlowRecHitECAL+
+particleFlowClusterECALSequence = cms.Sequence(    
     particleFlowClusterECALUncorrected +
     particleFlowClusterECAL
     )

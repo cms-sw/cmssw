@@ -18,13 +18,13 @@ namespace {
   std::vector<edm::ParameterSet> creators = iConfig.getParameter<std::vector<edm::ParameterSet> >("producers");
   for (unsigned int i=0;i<creators.size();++i) {
       std::string name = creators.at(i).getParameter<std::string>("name");
-      creators_.push_back(std::unique_ptr<PFRecHitCreatorBase>(PFRecHitFactory::get()->create(name,creators.at(i),iC)));
+      creators_.emplace_back(PFRecHitFactory::get()->create(name,creators.at(i),iC));
   }
 
 
   edm::ParameterSet navSet = iConfig.getParameter<edm::ParameterSet>("navigator");
 
-  navigator_ = std::unique_ptr<PFRecHitNavigatorBase>(PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"),navSet));
+  navigator_.reset(PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"),navSet));
     
 }
 
@@ -48,8 +48,8 @@ void
 
    navigator_->beginEvent(iSetup);
 
-   for (unsigned int i=0;i<creators_.size();++i) {
-     creators_.at(i)->importRecHits(out,cleaned,iEvent,iSetup);
+   for( const auto& creator : creators_ ) {
+     creator->importRecHits(out,cleaned,iEvent,iSetup);
    }
 
    std::sort(out->begin(),out->end(),sortByDetId);
@@ -58,8 +58,8 @@ void
    edm::RefProd<reco::PFRecHitCollection> refProd = 
      iEvent.getRefBeforePut<reco::PFRecHitCollection>();
 
-   for( unsigned int i=0;i<out->size();++i) {
-     navigator_->associateNeighbours(out->at(i),out,refProd);
+   for( auto& pfrechit : *out ) {
+     navigator_->associateNeighbours(pfrechit,out,refProd);
    }
 
    iEvent.put(out,"");

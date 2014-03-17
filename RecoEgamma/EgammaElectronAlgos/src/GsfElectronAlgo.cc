@@ -868,6 +868,8 @@ void GsfElectronAlgo::clonePreviousElectrons()
    }
  }
 
+
+// now deprecated
 void GsfElectronAlgo::addPflowInfo()
  {
   bool found ;
@@ -1362,16 +1364,24 @@ void GsfElectronAlgo::createElectron()
   if (electronData_->innMom.mag()>0.)
    { ele->setTrackFbrem((electronData_->innMom.mag()-electronData_->outMom.mag())/electronData_->innMom.mag()) ; }
 
+  // the supercluster is the refined one The seed is not necessarily the first cluster
+  // hence the use of the electronCluster
   SuperClusterRef sc = ele->superCluster() ;
   if (!(sc.isNull()))
    {
     CaloClusterPtr cl = ele->electronCluster() ;
     if (sc->clustersSize()>1)
-     { ele->setSuperClusterFbrem( ( sc->energy() - cl->energy() ) / sc->energy() ) ; }
+     { 
+       float pf_fbrem =( sc->energy() - cl->energy() ) / sc->energy();
+       ele->setSuperClusterFbrem( pf_fbrem ) ;
+       ele->setPfSuperClusterFbrem( pf_fbrem) ;
+     }
     else
-     { ele->setSuperClusterFbrem(0) ; }
+      { 
+	ele->setSuperClusterFbrem(0) ; 
+	ele->setPfSuperClusterFbrem(0);
+      }
    }
-
 
   //====================================================
   // classification and corrections
@@ -1379,7 +1389,7 @@ void GsfElectronAlgo::createElectron()
   // classification
   ElectronClassification theClassifier ;
   theClassifier.classify(*ele) ;
-
+  theClassifier.refineWithPflow(*ele) ;
   // ecal energy
   ElectronEnergyCorrector theEnCorrector(generalData_->crackCorrectionFunction) ;
   if (generalData_->strategyCfg.useEcalRegression) // new 
