@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-gedGsfElectrons = cms.EDProducer("PFIsolationFiller",
+gedGsfElectrons = cms.EDProducer("GEDGsfElectronFinalizer",
                                  previousGsfElectronsTag = cms.InputTag("gedGsfElectronsTmp"),
                                  pfCandidatesTag = cms.InputTag("particleFlowTmp"),
                                  pfIsolationValues = cms.PSet(
