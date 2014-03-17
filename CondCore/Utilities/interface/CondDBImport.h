@@ -9,10 +9,11 @@ namespace cond {
 
   namespace persistency {
 
-    cond::Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination, bool checkEqual = true );
+    cond::Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination );
 
     std::pair<std::string,boost::shared_ptr<void> > fetch( const cond::Hash& payloadId, Session& session );
-    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, boost::shared_ptr<void> payloadPtr );
+    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, boost::shared_ptr<void> payloadPtr );
+
   }
 
 }

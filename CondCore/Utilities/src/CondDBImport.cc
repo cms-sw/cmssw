@@ -6,11 +6,6 @@
     match = true; \
     const TYPENAME& obj = *static_cast<const TYPENAME*>( inputPtr ); \
     payloadId = destination.storePayload( obj, boost::posix_time::microsec_clock::universal_time() ); \
-    if ( checkEqual ) { \
-        auto newObj = destination.fetchPayload<TYPENAME>(payloadId); \
-        if ( false /*not cond::serialization::equal(obj, *newObj)*/ ) \
-            throwException("Original object and stored object differ.", "import"); \
-    } \
   } 
 
 #define IGNORE_FOR_IMPORT_CASE( TYPENAME ) \
@@ -47,7 +42,7 @@ namespace cond {
 
   namespace persistency {
 
-    cond::Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination, bool checkEqual ){
+    cond::Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination ){
       cond::Hash payloadId("");
       bool newInsert = false;
       bool match = false;
@@ -308,8 +303,6 @@ namespace cond {
       return payloadId;
     }
 
-    // --------------------------------------------------------------------------------
-
     std::pair<std::string,boost::shared_ptr<void> > fetch( const cond::Hash& payloadId, Session& session ){
       boost::shared_ptr<void> payloadPtr;
       cond::Binary data;
@@ -318,12 +311,9 @@ namespace cond {
       bool found = session.fetchPayloadData( payloadId, payloadTypeName, data, streamerInfo );
       if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
       //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
-      return fetchOne(payloadTypeName, data, payloadPtr);
+      return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr);
     }
-    
-    // --------------------------------------------------------------------------------
-    
-    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, boost::shared_ptr<void> payloadPtr ){
+    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, boost::shared_ptr<void> payloadPtr ){
 
       bool match = false;
     FETCH_PAYLOAD_CASE( std::string ) 

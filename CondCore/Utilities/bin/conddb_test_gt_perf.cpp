@@ -58,6 +58,8 @@ namespace cond {
     const Binary& getBuffer() const;
     size_t getBufferSize() const;
 
+    const Binary& getStreamerInfo() const;
+
     void setRecordInfo(const std::string &recName, const std::string &recLabel) { m_recName = recName; m_recLabel = recLabel; }
 
     const std::string recName () const { return m_recName;  }
@@ -75,6 +77,7 @@ namespace cond {
     boost::shared_ptr<pimpl> m_data;
   
     Binary m_buffer;
+    Binary m_streamerInfo;
 
     std::string m_recName;
     std::string m_recLabel;
@@ -181,7 +184,7 @@ bool cond::UntypedPayloadProxy::get( cond::Time_t targetTime, bool debug ){
     m_data->current = *iIov;
 
     std::string payloadType(""); 
-    loaded = m_session.fetchPayloadData( m_data->current.payloadId, payloadType, m_buffer );
+    loaded = m_session.fetchPayloadData( m_data->current.payloadId, payloadType, m_buffer, m_streamerInfo );
     m_session.transaction().commit();
     
     if( !loaded ){
@@ -212,6 +215,10 @@ size_t cond::UntypedPayloadProxy::getBufferSize() const {
 
 const cond::Binary& cond::UntypedPayloadProxy::getBuffer() const {
     return m_buffer;
+}
+
+const cond::Binary& cond::UntypedPayloadProxy::getStreamerInfo() const {
+    return m_streamerInfo;
 }
 
 // ================================================================================
@@ -405,8 +412,9 @@ public:
     boost::shared_ptr<void> payloadPtr;
     std::string payloadTypeName =  p->payloadType();
     const cond::Binary &buffer = p->getBuffer();
+    const cond::Binary &streamerInfo = p->getStreamerInfo();
   
-    auto result = new std::pair< std::string, boost::shared_ptr<void> > (cond::persistency::fetchOne( payloadTypeName, buffer, payloadPtr ));
+    auto result = new std::pair< std::string, boost::shared_ptr<void> > (cond::persistency::fetchOne( payloadTypeName, buffer, streamerInfo, payloadPtr ));
     payload = result->second;
 
     return;
@@ -586,7 +594,7 @@ int cond::TestGTPerf::execute(){
       tasksD.push_back(dw); 
     } else { // single tread only
        try {
-           std::pair<std::string, boost::shared_ptr<void> > result = fetchOne( payloadTypeName, p->getBuffer(), payloadPtr);
+           std::pair<std::string, boost::shared_ptr<void> > result = fetchOne( payloadTypeName, p->getBuffer(), p->getStreamerInfo(), payloadPtr);
            payloads.push_back(result.second);
        } catch ( const cond::Exception& e ){
            std::cout << "\nERROR (cond): " << e.what() << std::endl;
