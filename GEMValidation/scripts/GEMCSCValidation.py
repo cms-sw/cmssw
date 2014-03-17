@@ -112,7 +112,8 @@ def simTrackToCscStripsWiresMatching(plotter,st=1):
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
-    base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
+    base.GetXaxis().SetTitleSize(0.05)
+    base.GetYaxis().SetTitleSize(0.05)
 
     index = plotter.stationsToUse.index(st)
 
@@ -172,7 +173,8 @@ def simTrackToCscStripsWiresMatching_2(plotter,st=1):
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
-    base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
+    base.GetXaxis().SetTitleSize(0.05)
+    base.GetYaxis().SetTitleSize(0.05)
 
     index = plotter.stationsToUse.index(st)
 
@@ -232,7 +234,8 @@ def simTrackToCscAlctClctMatching(plotter,st=1):
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
-    base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
+    base.GetXaxis().SetTitleSize(0.05)
+    base.GetYaxis().SetTitleSize(0.05)
 
     index = plotter.stationsToUse.index(st)
 
@@ -292,7 +295,8 @@ def simTrackToCscAlctClctMatching_2(plotter,st=1):
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
-    base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
+    base.GetXaxis().SetTitleSize(0.05)
+    base.GetYaxis().SetTitleSize(0.05)
 
     index = plotter.stationsToUse.index(st)
 
@@ -352,7 +356,8 @@ def simTrackToCscLctMatching(plotter,st=1):
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
-    base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
+    base.GetXaxis().SetTitleSize(0.05)
+    base.GetYaxis().SetTitleSize(0.05)
     
     index = plotter.stationsToUse.index(st)
 
@@ -412,7 +417,8 @@ def simTrackToCscMpLctMatching(plotter,st=1):
     base.Draw("")
     base.GetXaxis().SetLabelSize(0.05)
     base.GetYaxis().SetLabelSize(0.05)
-    base.GetYaxis().SetRangeUser(plotter.yMin,plotter.yMax)
+    base.GetXaxis().SetTitleSize(0.05)
+    base.GetYaxis().SetTitleSize(0.05)
     
     index = plotter.stationsToUse.index(st)
 
