@@ -6,11 +6,6 @@
     match = true; \
     const TYPENAME& obj = *static_cast<const TYPENAME*>( inputPtr ); \
     payloadId = destination.storePayload( obj, boost::posix_time::microsec_clock::universal_time() ); \
-    if ( checkEqual ) { \
-        auto newObj = destination.fetchPayload<TYPENAME>(payloadId); \
-        if ( false /*not cond::serialization::equal(obj, *newObj)*/ ) \
-            throwException("Original object and stored object differ.", "import"); \
-    } \
   } 
 
 #define IGNORE_FOR_IMPORT_CASE( TYPENAME ) \
@@ -47,7 +42,7 @@ namespace cond {
 
   namespace persistency {
 
-    cond::Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination, bool checkEqual ){
+    cond::Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination ){
       cond::Hash payloadId("");
       bool newInsert = false;
       bool match = false;
