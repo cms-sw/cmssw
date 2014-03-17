@@ -4,6 +4,8 @@
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 
@@ -119,16 +121,29 @@ EMShower::EMShower(const RandomEngine* engine,
     double z1=0.;
     double z2=0.;
     double aa=0.;
+    double TT=0.;
 
-    // Protect against too large fluctuations (a < 1) for small energies
-    while ( aa <= 1. ) {
+    int nIter = 0;
+    // Protect against unphysical values (a < 1, T too large or too close to 0) for small energies of few dozen of MeV
+    while ( (aa <= 1.0 || TT >= 1e10 || TT < 1e-10) && nIter < 100) {
       z1 = random->gaussShoot(0.,1.);
       z2 = random->gaussShoot(0.,1.);
       aa = std::exp(theMeanLnAlpha + theSigmaLnAlpha * (z1*rhop-z2*rhom));
+      TT = std::exp(theMeanLnT + theSigmaLnT * (z1*rhop+z2*rhom));
+      nIter++;
+    }
+    if (nIter == 10){
+      aa = std::exp(theMeanLnAlpha);	    
+      TT = std::exp(theMeanLnT);
+      edm::LogWarning("EMShower")  <<  "A particle with a small energy: " << E[i] << " induce too strong longitudinal fluctuations hard to control ignore them and take the mean value = " << aa << " TT = " << TT << std::endl;
+      if (aa < 1.) {
+	edm::LogWarning("EMShower") << "We had to force longitudinal fluctuation parameter to be 1.01 to avoid to abort the simulation. A particle with a small energy: " << E[i] << std::endl;
+	aa = 1.01;
+      }
     }
 
     a.push_back(aa);
-    T.push_back(std::exp(theMeanLnT + theSigmaLnT * (z1*rhop+z2*rhom)));
+    T.push_back(TT);
     b.push_back((a[i]-1.)/T[i]);
     maximumOfShower.push_back((a[i]-1.)/b[i]);
     globalMaximum += maximumOfShower[i]*E[i];
@@ -535,17 +550,20 @@ EMShower::compute() {
 	dE *= 1. + z0*theECAL->lightCollectionUniformity();
 
 	// Expected spot number
-	nS = ( theNumberOfSpots[i] * gam(bSpot[i]*tt,aSpot[i]) 
+	if (bSpot[i] > 0) nS = ( theNumberOfSpots[i] * gam(bSpot[i]*tt,aSpot[i]) 
 	                           * bSpot[i] * dt 
 		                   / tgamma(aSpot[i]) );
+	else nS = theNumberOfSpots[i];
 	
       // Preshower : Expected number of mips + fluctuation
       }
       else if ( hcal ) {
 
-	nS = ( theNumberOfSpots[i] * gam(bSpot[i]*tt,aSpot[i]) 
+	if (bSpot[i] > 0) nS = ( theNumberOfSpots[i] * gam(bSpot[i]*tt,aSpot[i]) 
 	       * bSpot[i] * dt 
 	       / tgamma(aSpot[i]))* theHCAL->spotFraction();
+	else nS = theNumberOfSpots[i];
+
 	double nSo = nS ;
 	nS = random->poissonShoot(nS);
 	// 'Quick and dirty' fix (but this line should be better removed):
@@ -710,13 +728,19 @@ EMShower::compute() {
 		       if(detailedShowerTail) 
 			 {
 			   //			   std::cout << "About to call addHitDepth " << std::endl;
-			   double depth;
+			   int maxShootsLongitudinal = 1e5;
+			   if (bFixedLength_) maxShootsLongitudinal = 5;
+			   int counter = 0;
+			   double depth;			   
 			   do
 			     {
 			       depth=myGammaGenerator->shoot();
+			       counter++;
 			     }
-			   while(depth>t);
-			   theGrid->addHitDepth(ri,phi,depth);
+			   while(depth>t || counter < maxShootsLongitudinal);
+			   
+			   if (counter == maxShootsLongitudinal) depth = t + dt/2;
+			   else theGrid->addHitDepth(ri,phi,depth);
 			   //			   std::cout << " Done " << std::endl;
 			 }
 		       else
