@@ -18,16 +18,28 @@ def drawCscLabel(title, x=0.17, y=0.35, font_size=0.):
       tex.Draw()
       return tex
 
+
 #_______________________________________________________________________________
 def drawEtaLabel(minEta, maxEta, x=0.17, y=0.35, font_size=0.):
-    label =  "%.2f < |#eta| < %.2f"%(minEta,maxEta)
-    tex = TLatex(x, y,label)
+    tex = TLatex(x, y,"%.2f < |#eta| < %.2f"%(minEta,maxEta))
     if font_size > 0.:
       tex.SetTextSize(font_size)
       tex.SetTextSize(0.05)
       tex.SetNDC()
       tex.Draw()
       return tex
+
+
+#_______________________________________________________________________________
+def drawPuLabel(pu, x=0.17, y=0.35, font_size=0.):
+    tex = TLatex(x, y,"<PU> = %d"%(pu))
+    if font_size > 0.:
+      tex.SetTextSize(font_size)
+      tex.SetTextSize(0.05)
+      tex.SetNDC()
+      tex.Draw()
+      return tex
+  
 
 #_______________________________________________________________________________
 def draw_eff(t,title, h_name, h_bins, to_draw, denom_cut, extra_num_cut, 
