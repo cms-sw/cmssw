@@ -136,6 +136,9 @@
     <field name="dxy_" transient="true" />
     <field name="dz_" transient="true" />
     <field name="dphi_" transient="true" />
+    <field name="dxydxy_" transient="true" />
+    <field name="dzdz_" transient="true" />
+    <field name="dxydz_" transient="true" />
   </class>
   <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpacked_">
     <![CDATA[unpacked_ = false;

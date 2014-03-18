@@ -29,16 +29,16 @@ namespace pat {
 
     /// default constructor  
   PackedCandidate()
-    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), fromPV_(0), unpacked_(false) { }                                                             
+    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), fromPV_(0), unpacked_(false),dxydxy_(0),dzdz_(0),dxydz_(0) { }                                                             
 
   explicit PackedCandidate( const reco::Candidate & c, const reco::VertexRef &pv, bool fromPV)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), fromPV_(fromPV), pvRef_(pv), unpacked_(true) , unpackedVtx_(true){ packBoth(); }
+    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), fromPV_(fromPV), pvRef_(pv), unpacked_(true) , unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0){ packBoth(); }
 
   explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv, bool fromPV)
-    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), fromPV_(fromPV), pvRef_(pv), unpacked_(true), unpackedVtx_(true) { packBoth(); }
+    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), fromPV_(fromPV), pvRef_(pv), unpacked_(true), unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0) { packBoth(); }
 
   explicit PackedCandidate( const LorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv, bool fromPV)
-    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), fromPV_(fromPV), pvRef_(pv), unpacked_(true), unpackedVtx_(true) { packBoth(); }
+    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), fromPV_(fromPV), pvRef_(pv), unpacked_(true), unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0) { packBoth(); }
  
  
     
@@ -167,6 +167,14 @@ namespace pat {
       p4_  = PolarLorentzVector(p4c_.Pt(), p4c_.Eta(), p4c_.Phi(), p4c_.M());
       packBoth();
     }
+    /// set impact parameters covariance
+    virtual void setIPCovariance( const reco::Track & tk ) {
+      dxydxy_=tk.covariance(3,3);
+      dxydz_=tk.covariance(3,4);
+      dzdz_=tk.covariance(4,4);
+      packBoth();
+    }	 
+	
     /// vertex position
     virtual const Point & vertex() const { maybeUnpackBoth(); return vertex_; }//{ if (fromPV_) return Point(0,0,0); else return Point(0,0,100); }
     /// x coordinate of vertex position                                                   
@@ -194,6 +202,9 @@ namespace pat {
     virtual float dxy(const Point &p) const ;
     /// dz  with respect to another point
     virtual float dz(const Point &p)  const ;
+
+    /// Return a pseudo track made with candidate kinematics, parameterized error for eta,phi,pt and full IP covariance	
+    virtual reco::Track pseudoTrack() const;
 
     /// PDG identifier                                                                    
     virtual int pdgId() const   { return pdgId_; }
@@ -315,6 +326,7 @@ namespace pat {
   protected:
     uint16_t packedPt_, packedEta_, packedPhi_, packedM_;
     uint16_t packedDxy_, packedDz_, packedDPhi_;
+    uint16_t packedCovarianceDxyDxy_,packedCovarianceDxyDz_,packedCovarianceDzDz_;
     void pack(bool unpackAfterwards=true) ;
     void unpack() const ;
     void packVtx(bool unpackAfterwards=true) ;
@@ -337,6 +349,8 @@ namespace pat {
     mutable bool unpacked_;
     // are the dxy, dz and vertex unpacked
     mutable bool unpackedVtx_;
+    /// IP covariance	
+    mutable float dxydxy_, dzdz_, dxydz_;
 
 
     /// check overlap with another Candidate                                              

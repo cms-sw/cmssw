@@ -17,6 +17,11 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
+//FIXME: debugging stuff to be removed
+#include "TrackingTools/IPTools/interface/IPTools.h" 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
 namespace pat {
     class PATPackedCandidateProducer : public edm::EDProducer {
         public:
@@ -124,6 +129,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
                 }*/
                 vtx = cand.gsfTrackRef()->referencePoint();
                 phiAtVtx = cand.gsfTrackRef()->phi();
+	        
                 //dxyBefore = cand.gsfTrackRef()->dxy(PVpos);
                 //dzBefore = cand.gsfTrackRef()->dz(PVpos);
             } else if (cand.trackRef().isNonnull()) {
@@ -140,6 +146,27 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
                 //dzBefore = calcDz(vtx,PVpos,cand);
             }
             outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV, fromPV[ic]));
+	    if(cand.trackRef().isNonnull())
+	    {
+		outPtrP->back().setIPCovariance(*cand.trackRef());
+
+///// DEBUG
+		if(cand.pt() > 0.8 && fabs(cand.trackRef()->dz()-PV->position().z()) < 0.3){
+		reco::Track tr = outPtrP->back().pseudoTrack();
+		std::cout << tr.covariance() << std::endl;
+		std::cout << cand.trackRef()->covariance() << std::endl;
+		edm::ESHandle<TransientTrackBuilder> builder;
+		iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);		
+
+		reco::TransientTrack newTT = builder->build(tr);
+		reco::TransientTrack oldTT = builder->build(*cand.trackRef());
+		Measurement1D ip3Dnew = (IPTools::absoluteImpactParameter3D(newTT,*PV)).second;
+		Measurement1D ip3Dold = (IPTools::absoluteImpactParameter3D(oldTT,*PV)).second;
+
+		std::cout << ip3Dnew.value() << " / " << ip3Dnew.error() << " = " << ip3Dnew.significance() << " vs " << ip3Dold.value() << " / " << ip3Dold.error() << " = " << ip3Dold.significance() << std::endl;
+		}
+//// ENDDEBUG
+	    }	
             /*if (flags) {
             const pat::PackedCandidate &pc = outPtrP->back();
             //float dxyAfter = pc.dz(); // .dxy(); //calcDxy(pc.vx()-PVpos.X(),pc.vy()-PVpos.Y(),pc.phi());

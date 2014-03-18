@@ -20,9 +20,22 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
     // float xRec = - dxy_ * s + dl * c, yRec = dxy_ * c + dl * s;
     float pzpt = p4_.Pz()/p4_.Pt();
     dz_ = vertex_.Z() - pv.Z() - (dxPV*c + dyPV*s) * pzpt;
-    packedDxy_ = MiniFloatConverter::float32to16(dxy_);
-    packedDz_   = pvRef_.isNonnull() ? MiniFloatConverter::float32to16(dz_) : int16_t(dz_/40.f*std::numeric_limits<int16_t>::max());
+    packedDxy_ = MiniFloatConverter::float32to16(dxy_*100);
+    packedDz_   = pvRef_.isNonnull() ? MiniFloatConverter::float32to16(dz_*100) : int16_t(dz_/40.f*std::numeric_limits<int16_t>::max());
     packedDPhi_ =  int16_t(dphi_/3.2f*std::numeric_limits<int16_t>::max());
+/*    dxydxy_ =;
+    dxydz_ =;
+    dzdz_ =;
+ */
+    if(p4_.Pt() > 0.8) { // fixme: tune the threshold for covariance storage
+	    packedCovarianceDxyDxy_ = MiniFloatConverter::float32to16(dxydxy_*10000.);
+	    packedCovarianceDxyDz_ = MiniFloatConverter::float32to16(dxydz_*10000.);
+	    packedCovarianceDzDz_ = MiniFloatConverter::float32to16(dzdz_*10000.);
+    }	else    {
+	    packedCovarianceDxyDxy_=0; 
+	    packedCovarianceDxyDz_ =0;
+	    packedCovarianceDzDz_ =0; 
+    }	
     if (unpackAfterwards) unpackVtx();
 }
 
@@ -36,13 +49,17 @@ void pat::PackedCandidate::unpack() const {
 }
 void pat::PackedCandidate::unpackVtx() const {
     dphi_ = int16_t(packedDPhi_)*3.2f/std::numeric_limits<int16_t>::max(),
-    dxy_ = MiniFloatConverter::float16to32(packedDxy_);
-    dz_   = pvRef_.isNonnull() ? MiniFloatConverter::float16to32(packedDz_) : int16_t(packedDz_)*40.f/std::numeric_limits<int16_t>::max();
+    dxy_ = MiniFloatConverter::float16to32(packedDxy_)/100.;
+    dz_   = pvRef_.isNonnull() ? MiniFloatConverter::float16to32(packedDz_)/100. : int16_t(packedDz_)*40.f/std::numeric_limits<int16_t>::max();
     Point pv = pvRef_.isNonnull() ? pvRef_->position() : Point();
     float phi = p4_.Phi()+dphi_, s = std::sin(phi), c = std::cos(phi);
     vertex_ = Point(pv.X() - dxy_ * s,
                     pv.Y() + dxy_ * c,
                     pv.Z() + dz_ ); // for our choice of using the PCA to the PV, by definition the remaining term -(dx*cos(phi) + dy*sin(phi))*(pz/pt) is zero
+    dxydxy_ = MiniFloatConverter::float16to32(packedCovarianceDxyDxy_)/10000.;
+    dxydz_ =MiniFloatConverter::float16to32(packedCovarianceDxyDz_)/10000.;
+    dzdz_ =MiniFloatConverter::float16to32(packedCovarianceDzDz_)/10000.;
+
     unpackedVtx_ = true;
 }
 
@@ -56,6 +73,20 @@ float pat::PackedCandidate::dxy(const Point &p) const {
 float pat::PackedCandidate::dz(const Point &p) const {
     maybeUnpackBoth();
     return (vertex_.Z()-p.X())  - ((vertex_.X()-p.X()) * std::cos(float(p4_.Phi())) + (vertex_.Y()-p.Y()) * std::sin(float(p4_.Phi()))) * p4_.Pz()/p4_.Pt();
+}
+
+reco::Track pat::PackedCandidate::pseudoTrack() const {
+    maybeUnpackBoth();
+    reco::TrackBase::CovarianceMatrix m;
+    float pterr=0.02+((pt()<40.)?pt():40.)/5*0.01;
+    m(0,0)=pterr*pterr*pt()*pt(); //TODO: better params?
+    m(1,1)=0.0001; //TODO: tune 
+    m(2,2)=0.0001; //TODO: tune
+    m(3,3)=dxydxy_;
+    m(3,4)=dxydz_;
+    m(4,3)=dxydz_;
+    m(4,4)=dzdz_;
+    return reco::Track(0,0,vertex_,reco::TrackBase::Vector(p4().x(),p4().y(),p4().z()),charge(),m); //TODO: correct phi?
 }
 
 //// Everything below is just trivial implementations of reco::Candidate methods

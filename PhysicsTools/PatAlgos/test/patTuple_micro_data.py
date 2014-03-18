@@ -60,6 +60,8 @@ process.patTrigger.packTriggerPathNames = cms.bool(True)
 process.out.fileName = 'patTuple_micro_singlemu.root'
 process.out.outputCommands = process.MicroEventContent.outputCommands
 process.out.dropMetaData = cms.untracked.string('ALL')
+process.out.fastCloning= cms.untracked.bool(False)
+process.out.overrideInputFileSplitLevels = cms.untracked.bool(True)
 
 from PhysicsTools.PatAlgos.tools.coreTools import runOnData
 runOnData( process )

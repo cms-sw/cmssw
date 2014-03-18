@@ -27,7 +27,7 @@ process.source.fileNames = {
 
 ##'/store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/36598DF8-D098-E311-972E-02163E00E744.root'}
 #                                         ##
-process.maxEvents.input = 500
+process.maxEvents.input = -1
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
@@ -82,4 +82,6 @@ process.patTrigger.packTriggerPathNames = cms.bool(True)
 process.out.fileName = 'patTuple_micro.root'
 process.out.outputCommands = process.MicroEventContentMC.outputCommands
 process.out.dropMetaData = cms.untracked.string('ALL')
+process.out.fastCloning= cms.untracked.bool(False)
+process.out.overrideInputFileSplitLevels = cms.untracked.bool(True)
 

@@ -6,6 +6,7 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
         "drop  *", # this is the default
         "keep status == 3",  #keep event summary status3 (for pythia)
         "++keep abs(pdgId) == 11 || abs(pdgId) == 13 || abs(pdgId) == 15", # keep leptons, with history
+        "keep abs(pdgId) == 12 || abs(pdgId) == 14 || abs(pdgId) == 16", # keep neutrinos
         "++keep pdgId == 22 && status == 1 && pt > 10",                    # keep gamma above 10 GeV
         "drop   status == 2",                                              # drop the shower part of the history
         "keep++ abs(pdgId) == 15",                                         # but keep keep taus with decays
