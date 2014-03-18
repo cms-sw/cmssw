@@ -424,7 +424,7 @@ template<class Type1> const bool L1uGtConditionEvaluation::checkRangeDeltaPhi(co
 									      const Type1& lowerR, const Type1& upperR )  const {
 
   int deltaPhi = abs(obj1Phi-obj2Phi);
-  if( deltaPhi>71 ) deltaPhi = 143 - deltaPhi;
+  if( deltaPhi>71 ) deltaPhi = 143 - deltaPhi + 1; // Add +1 if the calculation is over 0
 
   int diff1 = upperR - lowerR;
   int diff2 = deltaPhi - lowerR;

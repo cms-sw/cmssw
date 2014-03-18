@@ -271,28 +271,30 @@ void
 l1t::L1TCaloTowerProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
 
-  //  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();  
+   unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();  
   
-//   if (id != paramsCacheId_) {
+  if (id != paramsCacheId_) {
 
-//     paramsCacheId_ = id;
+    paramsCacheId_ = id;
 
-//     edm::ESHandle<CaloParams> paramsHandle;
-//     iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
+    edm::ESHandle<CaloParams> paramsHandle;
+    iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
 
-//     // replace our local copy of the parameters with a new one using placement new
-//     params_->~CaloParams();
-//     params_ = new (params_) CaloParams(*paramsHandle.product());
+    LogDebug("L1TDebug") << "CaloParams : " << *paramsHandle.product() << std::endl;
+
+    // replace our local copy of the parameters with a new one using placement new
+    params_->~CaloParams();
+    params_ = new (params_) CaloParams(*paramsHandle.product());
     
-//     if (! params_){
-//       edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;            
-//     }
+    if (! params_){
+      edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;            
+    }
 
-//     LogDebug("L1TDebug") << "CaloParams : " << *params_ << std::endl;
+    LogDebug("L1TDebug") << "CaloParams : " << *params_ << std::endl;
 
-//     //    LogDebug("L1TDebug") << "ET(E) LSB : " << params_->towerLsbE() << "ET(H) LSB : " << params_->towerLsbH() << std::endl;
+    //    LogDebug("L1TDebug") << "ET(E) LSB : " << params_->towerLsbE() << "ET(H) LSB : " << params_->towerLsbH() << std::endl;
 
-//   }
+  }
 
 }
 

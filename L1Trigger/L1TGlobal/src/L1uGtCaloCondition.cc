@@ -222,9 +222,6 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
         index[i] = i;
     }
 
-    int jumpIndex = 1;
-    int jump = factorial(numberObjects - nObjInCond);
-
     int totalLoops = 0;
     int passLoops = 0;
 
@@ -241,173 +238,236 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
     // clear the m_combinationsInCond vector
     combinationsInCond().clear();
 
-    do {
 
-        if (--jumpIndex)
-            continue;
 
-        jumpIndex = jump;
-        totalLoops++;
+    ////// NEW Method
+    if( nObjInCond==1 ){
 
-        // clear the indices in the combination
-        objectsInComb.clear();
+      // clear the indices in the combination
+      objectsInComb.clear();
 
-        bool tmpResult = true;
+      for( int i=0; i<numberObjects; i++ ){
 
-	bool passCondition = false;
-        // check if there is a permutation that matches object-parameter requirements
-        for (int i = 0; i < nObjInCond; i++) {
-	  passCondition = checkObjectParameter(i, *(candVec->at(useBx,index[i]) ));
-	  tmpResult &= passCondition;
-	  if( passCondition ) 
-	    LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, CONGRATS!! This calo obj passed the condition." << std::endl;
-	  else 
-	    LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, FAIL!! This calo obj failed the condition." << std::endl;
-	  objectsInComb.push_back(index[i]);
-        }
+	totalLoops++;
+	bool passCondition = checkObjectParameter(0, *(candVec->at(useBx,i)));
+	if( passCondition ){
+	  objectsInComb.push_back(i);
+	  condResult = true;
+	  passLoops++;
+	  combinationsInCond().push_back(objectsInComb);
+	}
+      }
+    }
+    else if( nObjInCond==2 ){
 
-        // if permutation does not match particle conditions
-        // skip spatial correlations
-        if (!tmpResult) {
+      // clear the indices in the combination
+      objectsInComb.clear();
 
-            continue;
+      for( int i=0; i<numberObjects; i++ ){
+	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
+	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
 
-        }
+	if( !( passCondition0i || passCondition1i ) ) continue;
 
-        if (m_gtCaloTemplate->wsc()) {
+	for( int j=0; j<numberObjects; j++ ){
+	  if( i==j ) continue;
+	  totalLoops++;
 
-            // wsc requirements have always nObjInCond = 2
-            // one can use directly index[0] and index[1] to compute
-            // eta and phi differences
-            const int ObjInWscComb = 2;
-            if (nObjInCond != ObjInWscComb) {
+	  bool passCondition0j = checkObjectParameter(0, *(candVec->at(useBx,j)));
+	  bool passCondition1j = checkObjectParameter(1, *(candVec->at(useBx,j)));
+
+	  bool pass = ( 
+		       (passCondition0i && passCondition1j) ||
+		       (passCondition0j && passCondition1i)
+		       );
+
+	  if( pass ){
+
+	    if (m_gtCaloTemplate->wsc()) {
+
+	      // wsc requirements have always nObjInCond = 2
+	      // one can use directly 0] and 1] to compute
+	      // eta and phi differences
+	      const int ObjInWscComb = 2;
+	      if (nObjInCond != ObjInWscComb) {
 
                 if (m_verbosity) {
-                    edm::LogError("L1GlobalTrigger")
-                        << "\n  Error: "
-                        << "number of particles in condition with spatial correlation = "
-                        << nObjInCond << "\n  it must be = " << ObjInWscComb
-                        << std::endl;
+		  edm::LogError("L1GlobalTrigger")
+		    << "\n  Error: "
+		    << "number of particles in condition with spatial correlation = "
+		    << nObjInCond << "\n  it must be = " << ObjInWscComb
+		    << std::endl;
                 }
 
                 continue;
-            }
+	      }
 
-            L1uGtCaloTemplate::CorrelationParameter corrPar =
+	      L1uGtCaloTemplate::CorrelationParameter corrPar =
                 *(m_gtCaloTemplate->correlationParameter());
 
-            //unsigned int candDeltaEta;
-            //unsigned int candDeltaPhi;
+	      // check delta eta
+	      if( !checkRangeDeltaEta( (candVec->at(useBx,i))->hwEta(), (candVec->at(useBx,j))->hwEta(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper) ){
+		LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRangeDeltaEta" << std::endl;
+		continue;
+	      }
 
-            // check candDeltaEta
+	      // check delta phi
+	      if( !checkRangeDeltaPhi( (candVec->at(useBx,i))->hwPhi(), (candVec->at(useBx,j))->hwPhi(), 
+				       corrPar.deltaPhiRangeLower, corrPar.deltaPhiRangeUpper) ){
+		LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRangeDeltaPhi" << std::endl;
+		continue;
+	      }
 
-            // get eta index and the sign bit of the eta index (MSB is the sign)
-            //   signedEta[i] is the signed eta index of candVec[index[i]]
-            int signedEta[ObjInWscComb];
-            int signBit[ObjInWscComb] = { 0, 0 };
-
-            int scaleEta = 1 << (m_ifCaloEtaNumberBits - 1);
-// 	    LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, m_ifCaloEtaNumberBits = " << m_ifCaloEtaNumberBits
-// 				   << ", scaleEta = " << scaleEta << std::endl;
-
-            for (int i = 0; i < ObjInWscComb; ++i) {
-                signBit[i] = ((candVec->at(useBx,index[i]))->hwEta() & scaleEta)
-                    >>(m_ifCaloEtaNumberBits - 1);
-		//// DMP: For now, do not scale eta
-                //signedEta[i] = ((candVec->at(useBx,index[i]))->hwEta() )%scaleEta;
-                signedEta[i] = ( (candVec->at(useBx,index[i]))->hwEta() );
-
-                if (signBit[i] == 1) {
-                    signedEta[i] = (-1)*signedEta[i];
-                }
-
-            }
-
-//             // compute candDeltaEta - add 1 if signs are different (due to +0/-0 indices)
-//             candDeltaEta = static_cast<int> (std::abs(signedEta[1] - signedEta[0]))
-//                 + static_cast<int> (signBit[1]^signBit[0]);
+	    } // end wsc check
 
 
-	    // check delta eta
-	    if( !checkRangeDeltaEta( signedEta[0], signedEta[1], corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper) ){
-	      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRangeDeltaEta" << std::endl;
-	      continue;
+
+	    objectsInComb.push_back(i);
+	    objectsInComb.push_back(j);
+	    condResult = true;
+	    passLoops++;
+	    combinationsInCond().push_back(objectsInComb);
+	  }
+	}
+      }
+    }
+    else if( nObjInCond==3 ){
+
+      // clear the indices in the combination
+      objectsInComb.clear();
+
+      for( int i=0; i<numberObjects; i++ ){
+	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
+	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
+	bool passCondition2i = checkObjectParameter(2, *(candVec->at(useBx,i)));
+
+	if( !( passCondition0i || passCondition1i || passCondition2i ) ) continue;
+
+	for( int j=0; j<numberObjects; j++ ){
+	  if( i==j ) continue;
+
+	  bool passCondition0j = checkObjectParameter(0, *(candVec->at(useBx,j)));
+	  bool passCondition1j = checkObjectParameter(1, *(candVec->at(useBx,j)));
+	  bool passCondition2j = checkObjectParameter(2, *(candVec->at(useBx,j)));
+
+	  if( !( passCondition0j || passCondition1j || passCondition2j ) ) continue;
+
+	  for( int k=0; k<numberObjects; k++ ){
+	    if( k==i || k==j ) continue;
+	    totalLoops++;
+
+	    bool passCondition0k = checkObjectParameter(0, *(candVec->at(useBx,k)));
+	    bool passCondition1k = checkObjectParameter(1, *(candVec->at(useBx,k)));
+	    bool passCondition2k = checkObjectParameter(2, *(candVec->at(useBx,k)));
+
+	    bool pass = ( 
+			 (passCondition0i && passCondition1j && passCondition2k) ||
+			 (passCondition0i && passCondition1k && passCondition2j) ||
+			 (passCondition0j && passCondition1k && passCondition2i) ||
+			 (passCondition0j && passCondition1i && passCondition2k) ||
+			 (passCondition0k && passCondition1i && passCondition2j) ||
+			 (passCondition0k && passCondition1j && passCondition2i)
+			 );
+	    if( pass ){
+	      condResult = true;
+	      passLoops++;
+	      objectsInComb.push_back(i);
+	      objectsInComb.push_back(j);
+	      objectsInComb.push_back(k);
+ 	      combinationsInCond().push_back(objectsInComb);
 	    }
+	  }// end loop on k
+	}// end loop on j
+      }// end loop on i
+    } // end if condition has 3 objects
+    else if( nObjInCond==4 ){
 
-//             if ( !checkBit(corrPar.deltaEtaRange, candDeltaEta) ) {
-//                 continue;
-//             }
+      // clear the indices in the combination
+      objectsInComb.clear();
 
-            // check candDeltaPhi
+      for( int i=0; i<numberObjects; i++ ){
+	bool passCondition0i = checkObjectParameter(0, *(candVec->at(useBx,i)));
+	bool passCondition1i = checkObjectParameter(1, *(candVec->at(useBx,i)));
+	bool passCondition2i = checkObjectParameter(2, *(candVec->at(useBx,i)));
+	bool passCondition3i = checkObjectParameter(3, *(candVec->at(useBx,i)));
 
-	      /*
-            // calculate absolute value of candDeltaPhi
-            if ((candVec->at(useBx,index[0]))->hwPhi()> (candVec->at(useBx,index[1]))->hwPhi()) {
-                candDeltaPhi = (candVec->at(useBx,index[0]))->hwPhi() - (candVec->at(useBx,index[1]))->hwPhi();
-            }
-            else {
-                candDeltaPhi = (candVec->at(useBx,index[1]))->hwPhi() - (candVec->at(useBx,index[0]))->hwPhi();
-            }
+	if( !( passCondition0i || passCondition1i || passCondition2i || passCondition3i ) ) continue;
 
-            // check if candDeltaPhi > 180 (via delta_phi_maxbits)
-            // delta_phi contains bits for 0..180 (0 and 180 included)
-            // protect also against infinite loop...
+	for( int j=0; j<numberObjects; j++ ){
+	  if( j==i ) continue;
 
-            int nMaxLoop = 10;
-            int iLoop = 0;
+	  bool passCondition0j = checkObjectParameter(0, *(candVec->at(useBx,j)));
+	  bool passCondition1j = checkObjectParameter(1, *(candVec->at(useBx,j)));
+	  bool passCondition2j = checkObjectParameter(2, *(candVec->at(useBx,j)));
+	  bool passCondition3j = checkObjectParameter(3, *(candVec->at(useBx,j)));
 
-            while (candDeltaPhi >= m_corrParDeltaPhiNrBins) {
+	  if( !( passCondition0j || passCondition1j || passCondition2j || passCondition3j ) ) continue;
 
-                unsigned int candDeltaPhiInitial = candDeltaPhi;
+	  for( int k=0; k<numberObjects; k++ ){
+	    if( k==i || k==j ) continue;
 
-                // candDeltaPhi > 180 ==> take 360 - candDeltaPhi
-                candDeltaPhi = (m_corrParDeltaPhiNrBins - 1) * 2 - candDeltaPhi;
-                if (m_verbosity) {
-                    LogTrace("L1GlobalTrigger")
-                            << "    Initial candDeltaPhi = "
-                            << candDeltaPhiInitial
-                            << " > m_corrParDeltaPhiNrBins = "
-                            << m_corrParDeltaPhiNrBins
-                            << "  ==> candDeltaPhi rescaled to: "
-                            << candDeltaPhi << " [ loop index " << iLoop
-                            << "; breaks after " << nMaxLoop << " loops ]\n"
-                            << std::endl;
-                }
+	    bool passCondition0k = checkObjectParameter(0, *(candVec->at(useBx,k)));
+	    bool passCondition1k = checkObjectParameter(1, *(candVec->at(useBx,k)));
+	    bool passCondition2k = checkObjectParameter(2, *(candVec->at(useBx,k)));
+	    bool passCondition3k = checkObjectParameter(3, *(candVec->at(useBx,k)));
 
-                iLoop++;
-                if (iLoop > nMaxLoop) {
-                    return false;
-                }
-            }
-	      */
+	    if( !( passCondition0k || passCondition1k || passCondition2k || passCondition3k ) ) continue;
+	    
+	    for( int m=0; m<numberObjects; m++ ){
+	      if( m==i || m==j || m==k ) continue;
+	      totalLoops++;
 
-	    // check delta phi
-	    if( !checkRangeDeltaPhi( (candVec->at(useBx,index[0]))->hwPhi(), (candVec->at(useBx,index[1]))->hwPhi(), 
-				     corrPar.deltaPhiRangeLower, corrPar.deltaPhiRangeUpper) ){
-	      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRangeDeltaPhi" << std::endl;
-	      continue;
-	    }
+	      bool passCondition0m = checkObjectParameter(0, *(candVec->at(useBx,m)));
+	      bool passCondition1m = checkObjectParameter(1, *(candVec->at(useBx,m)));
+	      bool passCondition2m = checkObjectParameter(2, *(candVec->at(useBx,m)));
+	      bool passCondition3m = checkObjectParameter(3, *(candVec->at(useBx,m)));
 
-//             if (!checkBit(corrPar.deltaPhiRange, candDeltaPhi)) {
-//                 continue;
-//             }
+	      bool pass = ( 
+			   (passCondition0i && passCondition1j && passCondition2k && passCondition3m) ||
+			   (passCondition0i && passCondition1j && passCondition2m && passCondition3k) ||
+			   (passCondition0i && passCondition1k && passCondition2j && passCondition3m) ||
+			   (passCondition0i && passCondition1k && passCondition2m && passCondition3j) ||
+			   (passCondition0i && passCondition1m && passCondition2j && passCondition3k) ||
+			   (passCondition0i && passCondition1m && passCondition2k && passCondition3j) ||
+			   (passCondition0j && passCondition1i && passCondition2k && passCondition3m) ||
+			   (passCondition0j && passCondition1i && passCondition2m && passCondition3k) ||
+			   (passCondition0j && passCondition1k && passCondition2i && passCondition3m) ||
+			   (passCondition0j && passCondition1k && passCondition2m && passCondition3i) ||
+			   (passCondition0j && passCondition1m && passCondition2i && passCondition3k) ||
+			   (passCondition0j && passCondition1m && passCondition2k && passCondition3i) ||
+			   (passCondition0k && passCondition1i && passCondition2j && passCondition3m) ||
+			   (passCondition0k && passCondition1i && passCondition2m && passCondition3j) ||
+			   (passCondition0k && passCondition1j && passCondition2i && passCondition3m) ||
+			   (passCondition0k && passCondition1j && passCondition2m && passCondition3i) ||
+			   (passCondition0k && passCondition1m && passCondition2i && passCondition3j) ||
+			   (passCondition0k && passCondition1m && passCondition2j && passCondition3i) ||
+			   (passCondition0m && passCondition1i && passCondition2j && passCondition3k) ||
+			   (passCondition0m && passCondition1i && passCondition2k && passCondition3j) ||
+			   (passCondition0m && passCondition1j && passCondition2i && passCondition3k) ||
+			   (passCondition0m && passCondition1j && passCondition2k && passCondition3i) ||
+			   (passCondition0m && passCondition1k && passCondition2i && passCondition3j) ||
+			   (passCondition0m && passCondition1k && passCondition2j && passCondition3i)
+			   );
+	      if( pass ){
+		objectsInComb.push_back(i);
+		objectsInComb.push_back(j);
+		objectsInComb.push_back(k);
+		objectsInComb.push_back(m);
+		condResult = true;
+		passLoops++;
+		combinationsInCond().push_back(objectsInComb);
+	      }
+	    }// end loop on m
+	  }// end loop on k
+	}// end loop on j
+      }// end loop on i
+    } // end if condition has 4 objects
 
-        } // end wsc check
 
-        // if we get here all checks were successful for this combination
-        // set the general result for evaluateCondition to "true"
-
-        condResult = true;
-        passLoops++;
-        combinationsInCond().push_back(objectsInComb);
-
-        //    } while ( std::next_permutation(index, index + nObj) );
-    } while (std::next_permutation(index.begin(), index.end()) );
-
-    //LogTrace("L1GlobalTrigger")
-    //    << "\n  L1uGtCaloCondition: total number of permutations found:          " << totalLoops
-    //    << "\n  L1uGtCaloCondition: number of permutations passing requirements: " << passLoops
-    //    << "\n" << std::endl;
+    LogTrace("L1GlobalTrigger")
+       << "\n  L1uGtCaloCondition: total number of permutations found:          " << totalLoops
+       << "\n  L1uGtCaloCondition: number of permutations passing requirements: " << passLoops
+       << "\n" << std::endl;
 
     return condResult;
 

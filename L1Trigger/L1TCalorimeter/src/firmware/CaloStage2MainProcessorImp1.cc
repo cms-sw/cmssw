@@ -65,7 +65,7 @@ void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1
   
   //  m_towerAlgo->processEvent( towers, towers );
   m_egClusterAlgo->processEvent( towers, egClusters );
-  m_egAlgo->processEvent( egClusters,towers, egammas );
+  m_egAlgo->processEvent( egClusters, towers, egammas );
   m_egClusterAlgo->processEvent( towers, tauClusters );
   m_tauAlgo->processEvent( tauClusters, taus );
   m_jetAlgo->processEvent( towers, jets );

@@ -193,7 +193,7 @@ process.simL1uGtDigis = cms.EDProducer("l1t::L1uGtProducer",
     AlternativeNrBxBoardDaq = cms.uint32(0),
     #WritePsbL1GtDaqRecord = cms.bool(True),
     BstLengthBytes = cms.int32(-1),
-    Verbosity = cms.untracked.int32(1)
+    Verbosity = cms.untracked.int32(0)
 )
 
 process.dumpGTRecord = cms.EDAnalyzer("l1t::L1uGtRecordDump",
