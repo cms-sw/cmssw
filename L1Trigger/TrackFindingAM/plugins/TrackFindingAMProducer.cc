@@ -39,6 +39,8 @@
 
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
 #include <boost/shared_ptr.hpp>
 #include <memory>
 #include <string>
@@ -97,9 +99,23 @@ TrackFindingAMProducer::TrackFindingAMProducer( const edm::ParameterSet& iConfig
   std::cout << nBKName << std::endl;
 
   std::ifstream ifs(nBKName.c_str());
-  boost::archive::text_iarchive ia(ifs);
 
-  ia >> m_st;
+  //boost::archive::text_iarchive ia(ifs);
+  boost::iostreams::filtering_stream<boost::iostreams::input> f;
+  f.push(boost::iostreams::gzip_decompressor());
+  try { 
+    f.push(ifs);
+    boost::archive::text_iarchive ia(f);
+    ia >> m_st;
+  }
+  catch (boost::iostreams::gzip_error& e) {
+    if(e.error()==4){//file is not compressed->read it without decompression
+      std::ifstream new_ifs(nBKName.c_str());
+      boost::archive::text_iarchive ia(new_ifs);
+      ia >> m_st;
+    }
+  }  
+
   m_pf = new PatternFinder( m_st.getSuperStripSize(), nThresh, &m_st, "", "" );
 
   produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTPatternOutputTag );
