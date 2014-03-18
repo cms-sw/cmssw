@@ -68,7 +68,6 @@ public:
  inline const DTLocalTriggerSectorCollectorSubHeaderWord& getSCPrivSubHeader() const { return theSCPrivateSubHeader;}
 
  inline void clean() {
-   std::cout << "DTROS25Data::clean(): Cleaning DTROS25Data.\n";
    theROSHeader = 0; 
    theROSTrailer = 0;
    theROSErrors.clear(); 

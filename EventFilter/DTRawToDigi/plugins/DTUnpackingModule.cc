@@ -42,11 +42,6 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0),
 
   ParameterSet unpackerParameters = ps.getParameter<ParameterSet>("readOutParameters");
   
-  std::cout << "Constructing DTUnpackingModule.\n";
-  std::cout << "dataType: " << dataType << std::endl;
-  std::cout << "unpackerParameters: " << unpackerParameters << std::endl;
-  
-
   if (dataType == "DDU") {
     unpacker = new DTDDUUnpacker(unpackerParameters);
   } 
@@ -81,7 +76,6 @@ DTUnpackingModule::~DTUnpackingModule(){
 
 
 void DTUnpackingModule::produce(Event & e, const EventSetup& context){
-  std::cout << "DTUnpackingModule::produce(): processing event " << e.id().event() << std::endl;
 
   Handle<FEDRawDataCollection> rawdata;
   e.getByLabel(inputLabel, rawdata);
@@ -114,11 +108,9 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   }
   
   for (int id=FEDIDmin; id<=FEDIDMax; ++id){ 
-//     std::cout << "DTUnpackingModule: processing FEDID " << id << std::endl;
     const FEDRawData& feddata = rawdata->FEDData(id);
     
     if (feddata.size()){
-//       std::cout << "DTUnpackingModule: FED has data, calling the unpacker\n";
       // Unpack the data
       unpacker->interpretRawData(reinterpret_cast<const unsigned int*>(feddata.data()), 
  				 feddata.size(), id, mapping, detectorProduct, triggerProduct);

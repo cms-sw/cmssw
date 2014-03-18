@@ -60,8 +60,6 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
 
   string processingMode = ps.getUntrackedParameter<string>("processingMode","Online");
   
-  std::cout << "processingMode = " << processingMode << std::endl;
-
   // processing mode flag to select plots to be produced and basedirs CB vedi se farlo meglio...
   if (processingMode == "Online") {
     mode = 0;
@@ -541,10 +539,6 @@ void DTDataIntegrityTask::bookHistosROS25(DTROChainCoding code) {
 
 
 void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
-  std::cout << "DTDataIntegrityTask::processROS25(...): entering method\n";
-//   std::cout << "DTDataIntegrityTask::processROS25(...): data = " << data << std::endl;
-  std::cout << "DTDataIntegrityTask::processROS25(...): ddu = " << ddu << std::endl;
-  std::cout << "DTDataIntegrityTask::processROS25(...): ros = " << ros << std::endl;
   
   neventsROS25++; // FIXME: implement a counter which makes sense
 
@@ -855,9 +849,6 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
   // Read SC data
   if (mode <= 1 && getSCInfo) {
-    // SC Data
-    std::cout << "data.getSCPrivHeader().NumberOf16bitWords() = " << data.getSCPrivHeader().NumberOf16bitWords() << std::endl;
-    std::cout << "data.getSCTrailer().wordCount() = " << data.getSCTrailer().wordCount() << std::endl;
     // NumberOf16bitWords counts the # of words + 1 subheader
     // the SC includes the SC "private header" and the ROS header and trailer (= NumberOf16bitWords +3)
     rosHistos["SCSizeVsROSSize"][code.getSCID()]->Fill(ros,data.getSCPrivHeader().NumberOf16bitWords()+3-data.getSCTrailer().wordCount());
@@ -1090,14 +1081,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   //   if(fedEvtLenght > 16000) fedEvtLenght = 16000; // overflow bin
   dduHistos["EventLenght"][code.getDDUID()]->Fill(fedEvtLenght);
 
-  std::cout << "DTDataIntegrityTask::processFED(): mode = " << mode << std::endl;
-  std::cout << "DTDataIntegrityTask::processFED(): code.getDDUID() = " << code.getDDUID() << std::endl;
-  std::cout << "DTDataIntegrityTask::processFED(): fedEvtLenght = " << fedEvtLenght << std::endl;
-  
-  
-  
   if(mode > 1) return;
-  std::cout << "DTDataIntegrityTask::processFED(): sono qui 1\n";
 
   dduTimeHistos["FEDAvgEvLenghtvsLumi"][code.getDDUID()]->accumulateValueTimeSlot(fedEvtLenght);
 
@@ -1316,8 +1300,6 @@ void DTDataIntegrityTask::beginJob() {
 
 void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
-  std::cout << "DTDataIntegrityTask::analyze(): start method\n"; 
-
   nevents++;
   nEventMonitor->Fill(nevents);
   
@@ -1360,16 +1342,12 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
   DTDDUData dduData;
   std::vector<DTROS25Data> ros25Data;
   
-  std::cout << "size of ddu product:" << dduProduct->size() << std::endl;
-  std::cout << "size of ros25 product:" << ros25Product->size() << std::endl;
-  
 //   for (int id=FEDIDmin; id<=FEDIDMax; ++id){ 
   for(unsigned int i=0; i<dduProduct->size(); ++i)
   {
     dduData = dduProduct->at(i);
     ros25Data = ros25Product->at(i);
     int id = FEDIDmin+i;
-    std::cout << "id = " << id << std::endl;
     processFED(dduData, ros25Data, id);
     for(unsigned int j=0; j < ros25Data.size(); ++j) {
       int rosid = j+1;

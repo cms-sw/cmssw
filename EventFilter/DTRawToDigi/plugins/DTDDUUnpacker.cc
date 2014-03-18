@@ -59,7 +59,6 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 				     std::auto_ptr<DTLocalTriggerCollection>& triggerProduct,
 				     uint16_t rosList) {
 
-//   std::cout << "DTDDUUnpacker: inside interpretRawData\n";
   
   // Definitions
   const int wordSize_32 = 4;
