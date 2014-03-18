@@ -84,7 +84,7 @@ HLTScalers::HLTScalers(const edm::ParameterSet &ps):
   folderName_(ps.getUntrackedParameter<std::string>("dqmFolder", "HLT/HLTScalers_EvF")),
   processname_(ps.getParameter<std::string>("processname")),
   pairPDPaths_(),
-  trigResultsSource_(ps.getParameter<edm::InputTag>("triggerResults")),
+  trigResultsSource_(consumes<TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
   dbe_(0),
   scalersN_(0),
   scalersException_(0),
@@ -145,10 +145,13 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
                                    // it just tells you how the merging is doing.
 
   edm::Handle<TriggerResults> hltResults;
-  bool b = e.getByLabel(trigResultsSource_, hltResults);
+  bool b = e.getByToken(trigResultsSource_, hltResults);
   if ( !b ) {
+    Labels l;
+    labelsForToken(trigResultsSource_, l);
+
     edm::LogInfo("HLTScalers") << "getByLabel for TriggerResults failed"
-                               << " with label " << trigResultsSource_;
+                               << " with label " << l.module;
     return;
   }
   

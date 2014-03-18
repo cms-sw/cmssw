@@ -29,10 +29,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
-#include "DataFormats/HcalRecHit/interface/HFRecHit.h"
-#include "DataFormats/HcalRecHit/interface/HORecHit.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 #include <memory>
 #include <vector>
@@ -51,9 +47,9 @@ HCALRecHitAnalyzer::HCALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 {
 
   // Retrieve Information from the Configuration File
-  hBHERecHitsLabel_  = iConfig.getParameter<edm::InputTag>("HBHERecHitsLabel");
-  hORecHitsLabel_    = iConfig.getParameter<edm::InputTag>("HORecHitsLabel");
-  hFRecHitsLabel_    = iConfig.getParameter<edm::InputTag>("HFRecHitsLabel");
+  hBHERecHitsLabel_  = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("HBHERecHitsLabel"));
+  hORecHitsLabel_    = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("HORecHitsLabel"));
+  hFRecHitsLabel_    = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("HFRecHitsLabel"));
 
   debug_             = iConfig.getParameter<bool>("Debug");
   finebinning_ = iConfig.getUntrackedParameter<bool>("FineBinning");
@@ -476,7 +472,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   const HFRecHitCollection *HFRecHits;
 
   edm::Handle<HBHERecHitCollection> HBHERecHitsHandle;
-  iEvent.getByLabel(hBHERecHitsLabel_,HBHERecHitsHandle);
+  iEvent.getByToken(hBHERecHitsLabel_,HBHERecHitsHandle);
   if (!HBHERecHitsHandle.isValid()) {
     edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting Task "
 			       << "HCALRecHitAnalyzer::analyze!\n"; return;
@@ -484,7 +480,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     HBHERecHits = HBHERecHitsHandle.product();
   }
   edm::Handle<HORecHitCollection> HORecHitsHandle;
-  iEvent.getByLabel(hORecHitsLabel_,HORecHitsHandle);
+  iEvent.getByToken(hORecHitsLabel_,HORecHitsHandle);
   if (!HORecHitsHandle.isValid()) {
     edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting Task "
 			       << "HCALRecHitAnalyzer::analyze!\n"; return;
@@ -492,7 +488,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     HORecHits = HORecHitsHandle.product();
   }
   edm::Handle<HFRecHitCollection> HFRecHitsHandle;
-  iEvent.getByLabel(hFRecHitsLabel_,HFRecHitsHandle);
+  iEvent.getByToken(hFRecHitsLabel_,HFRecHitsHandle);
   if (!HFRecHitsHandle.isValid()) {
     edm::LogInfo("OutputInfo") << "Failed to retrieve an Event Handle, Aborting Task "
 			       << "HCALRecHitAnalyzer::analyze!\n"; return;
