@@ -33,6 +33,8 @@ namespace l1t {
     
     void sort(std::vector<Jet> & jets);
 
+    bool jetIsZero(l1t::Jet jet);
+
   private:
 
     CaloParams* const params_;

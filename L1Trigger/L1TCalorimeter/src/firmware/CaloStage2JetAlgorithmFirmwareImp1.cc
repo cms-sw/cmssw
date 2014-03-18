@@ -14,6 +14,7 @@
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
+#include <vector>
 
 l1t::CaloStage2JetAlgorithmFirmwareImp1::CaloStage2JetAlgorithmFirmwareImp1(CaloParams* params) :
   params_(params)
@@ -68,26 +69,33 @@ void l1t::CaloStage2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Calo
     if (ieta==0) continue;
     for ( int iphi = 0 ; iphi != 72 ; ++iphi ) {
       
-      int iet(0);
-      
+      int iEt(0);
+      int seedEt = CaloTools::calHwEtSum(ieta, iphi, towers,
+					 0, 0, 0, 0, CaloTools::CALO);
+      bool isMax(true);
+
       // loop over towers in this jet
-      for( int deta = 0; deta != 8; ++deta ) {
-	for( int dphi = 0; dphi != 8; ++dphi ) {
+      for( int deta = -4; deta != 4; ++deta ) {
+	for( int dphi = -4; dphi != 4; ++dphi ) {
 	  
 	  // check jet mask and sum tower et
 	  // re-use calo tools sum method, but for single tower
-	  if( mask[deta][dphi] )
-	    iet += CaloTools::calHwEtSum(ieta, iphi, towers,
-					   0, 0, 0, 0, CaloTools::CALO);
-	  
+	  if( mask[deta+4][dphi+4] ) {
+	    int towEt = CaloTools::calHwEtSum(ieta+deta, iphi+dphi, towers,
+					 0, 0, 0, 0, CaloTools::CALO);
+	    iEt+=towEt;
+	    isMax=(seedEt>towEt);
+	  }
 	}
       }
 
       // add the jet to the list
-      math::XYZTLorentzVector p4;
-      l1t::Jet jet( p4, iet, ieta, iphi, 0);
-      jets.push_back( jet );
-      
+      if (iEt>0 && iEt>10 && isMax) {
+	math::XYZTLorentzVector p4;
+	l1t::Jet jet( p4, iEt, ieta, iphi, 0);
+	jets.push_back( jet );
+      }
+
     }
   }
   
@@ -97,7 +105,7 @@ void l1t::CaloStage2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Calo
 
 void l1t::CaloStage2JetAlgorithmFirmwareImp1::filter(std::vector<l1t::Jet> & jets) {
 
-  // do nothing for now!
+  //  jets.erase(std::remove_if(jets.begin(), jets.end(), jetIsZero) );
 
 }
 
@@ -107,4 +115,7 @@ void l1t::CaloStage2JetAlgorithmFirmwareImp1::sort(std::vector<l1t::Jet> & jets)
   // do nothing for now!
 
 }
+
+  // remove jets with zero et
+bool l1t::CaloStage2JetAlgorithmFirmwareImp1::jetIsZero(l1t::Jet jet) { return jet.hwPt()==0; }
 
