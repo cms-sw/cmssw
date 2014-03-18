@@ -174,12 +174,20 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  
     GEMDetId detId_first(mypair.first);
     GEMDetId detId_second(mypair.second);
+
  
     // assignment of local even and odd chambers (there is always an even and an odd chamber)
     bool firstIsOdd = detId_first.chamber() & 1;
 
     GEMDetId detId_even_L1(firstIsOdd ? detId_second : detId_first);
     GEMDetId detId_odd_L1(firstIsOdd ? detId_first : detId_second);
+
+    std::cout<<"detId_even : "<<detId_even_L1<<std::endl;
+    if ( theGEMGeometry->idToDetUnit( detId_even_L1) == nullptr && detId_odd_L1.roll() == 1 ) { 
+      GEMDetId pre = detId_even_L1;
+      detId_even_L1 = GEMDetId( pre.region(), pre.ring(), pre.station(), pre.layer(), pre.chamber(), 2);
+    }
+    std::cout<<"detId_even : "<<detId_even_L1<<std::endl;
 
     auto even_partition = theGEMGeometry->idToDetUnit(detId_even_L1)->surface();
     auto odd_partition = theGEMGeometry->idToDetUnit(detId_odd_L1)->surface();
@@ -197,8 +205,8 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     // track chamber local y is the same as track partition local y
     // corrected for partition's local y WRT chamber
-    track_.gem_ly_even = lp_track_even_partition.y() + (gp_even_partition.perp() - radiusCenter_);
-    track_.gem_ly_odd = lp_track_odd_partition.y() + (gp_odd_partition.perp() - radiusCenter_);
+    track_.gem_ly_even = lp_track_even_partition.y() + (gp_even_partition.perp() - radiusCenter_even_);
+    track_.gem_ly_odd = lp_track_odd_partition.y() + (gp_odd_partition.perp() - radiusCenter_odd_);
 
     GEMDetId id_ch_even_L1(detId_even_L1.region(), detId_even_L1.ring(), detId_even_L1.station(), 1, detId_even_L1.chamber(), 0);
     GEMDetId id_ch_odd_L1(detId_odd_L1.region(), detId_odd_L1.ring(), detId_odd_L1.station(), 1, detId_odd_L1.chamber(), 0);
