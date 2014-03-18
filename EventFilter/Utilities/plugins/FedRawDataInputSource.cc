@@ -694,6 +694,7 @@ void FedRawDataInputSource::readSupervisor()
       std::unique_lock<std::mutex> lkw(mWakeup_);
       //sleep until woken up by condition or a timeout
       if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout) {
+        counter++;
         if (!(counter%10)) edm::LogInfo("FedRawDataInputSource") << " No free chunks or threads...";
       }
       if (quit_threads_) {stop=true;break;}

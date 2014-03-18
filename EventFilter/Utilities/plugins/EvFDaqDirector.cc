@@ -169,7 +169,7 @@ namespace evf {
 	tryInitializeFuLockFile();
 	fflush(fu_rw_lock_stream);
 	close(fu_readwritelock_fd_);
-	createOutputDirectory(); // this should act not on the bu base dir but on the output disk
+	//createOutputDirectory(); // this should act not on the bu base dir but on the output disk
       }
     else
       {
