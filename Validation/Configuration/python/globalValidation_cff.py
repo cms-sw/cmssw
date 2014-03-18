@@ -45,7 +45,6 @@ globalPrevalidation = cms.Sequence(
   * tracksValidationSelectors
   * photonPrevalidationSequence
   * produceDenoms
-  * prebTagSequence
 )
 
 # filter/producer "pre-" sequence for validation_preprod
