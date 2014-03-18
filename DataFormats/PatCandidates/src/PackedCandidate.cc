@@ -23,11 +23,7 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
     packedDxy_ = MiniFloatConverter::float32to16(dxy_*100);
     packedDz_   = pvRef_.isNonnull() ? MiniFloatConverter::float32to16(dz_*100) : int16_t(dz_/40.f*std::numeric_limits<int16_t>::max());
     packedDPhi_ =  int16_t(dphi_/3.2f*std::numeric_limits<int16_t>::max());
-/*    dxydxy_ =;
-    dxydz_ =;
-    dzdz_ =;
- */
-    if(p4_.Pt() > 0.8) { // fixme: tune the threshold for covariance storage
+    if(p4_.Pt() > 0.8) { // TODO: perhaps better to cut on the producer side?
 	    packedCovarianceDxyDxy_ = MiniFloatConverter::float32to16(dxydxy_*10000.);
 	    packedCovarianceDxyDz_ = MiniFloatConverter::float32to16(dxydz_*10000.);
 	    packedCovarianceDzDz_ = MiniFloatConverter::float32to16(dzdz_*10000.);
@@ -78,15 +74,16 @@ float pat::PackedCandidate::dz(const Point &p) const {
 reco::Track pat::PackedCandidate::pseudoTrack() const {
     maybeUnpackBoth();
     reco::TrackBase::CovarianceMatrix m;
-    float pterr=0.02+((pt()<40.)?pt():40.)/5*0.01;
-    m(0,0)=pterr*pterr*pt()*pt(); //TODO: better params?
+    float pterr=0.02+((pt()<40.)?pt():40.)/5*0.01; // TODO: better parameterization
+    m(0,0)=pterr*pterr*pt()*pt();
     m(1,1)=0.0001; //TODO: tune 
     m(2,2)=0.0001; //TODO: tune
     m(3,3)=dxydxy_;
     m(3,4)=dxydz_;
     m(4,3)=dxydz_;
     m(4,4)=dzdz_;
-    return reco::Track(0,0,vertex_,reco::TrackBase::Vector(p4().x(),p4().y(),p4().z()),charge(),m); //TODO: correct phi?
+    math::RhoEtaPhiVector p3(p4_.pt(),p4_.eta(),phiAtVtx());
+    return reco::Track(0,0,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m); //TODO: correct phi?
 }
 
 //// Everything below is just trivial implementations of reco::Candidate methods

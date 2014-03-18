@@ -153,8 +153,6 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 ///// DEBUG
 		if(cand.pt() > 0.8 && fabs(cand.trackRef()->dz()-PV->position().z()) < 0.3){
 		reco::Track tr = outPtrP->back().pseudoTrack();
-		std::cout << tr.covariance() << std::endl;
-		std::cout << cand.trackRef()->covariance() << std::endl;
 		edm::ESHandle<TransientTrackBuilder> builder;
 		iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);		
 
@@ -163,7 +161,13 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 		Measurement1D ip3Dnew = (IPTools::absoluteImpactParameter3D(newTT,*PV)).second;
 		Measurement1D ip3Dold = (IPTools::absoluteImpactParameter3D(oldTT,*PV)).second;
 
-		std::cout << ip3Dnew.value() << " / " << ip3Dnew.error() << " = " << ip3Dnew.significance() << " vs " << ip3Dold.value() << " / " << ip3Dold.error() << " = " << ip3Dold.significance() << std::endl;
+		if( 		  ( fabs(ip3Dnew.significance()-ip3Dold.significance())/ip3Dold.significance() > 0.02 && ip3Dold.significance() < 10 )
+		||  ( fabs(ip3Dnew.significance()-ip3Dold.significance())/ip3Dold.significance() > 0.10 && ip3Dold.significance() > 10 )
+		) {
+		std::cout <<" NEW vs OLD  : " <<  ip3Dnew.value() << " / " << ip3Dnew.error() << " = " << ip3Dnew.significance() << " vs " << ip3Dold.value() << " / " << ip3Dold.error() << " = " << ip3Dold.significance() << std::endl;
+		std::cout << "new covariance" <<  std::endl << tr.covariance() << std::endl;
+		std::cout <<  "old covariance" <<  std::endl  << cand.trackRef()->covariance() << std::endl;
+		}
 		}
 //// ENDDEBUG
 	    }	
