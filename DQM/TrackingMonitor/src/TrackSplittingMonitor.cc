@@ -173,13 +173,11 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
   iSetup.get<MuonGeometryRecord>().get(rpcGeometry);
   
   edm::Handle<std::vector<reco::Track> > splitTracks;
-  //  iEvent.getByLabel(splitTracks_, splitTracks);
   iEvent.getByToken(splitTracksToken_, splitTracks);
   if (!splitTracks.isValid()) return;
 
   edm::Handle<std::vector<reco::Muon> > splitMuons;
   if (plotMuons_){
-    //    iEvent.getByLabel(splitMuons_, splitMuons);
     iEvent.getByToken(splitMuonsToken_, splitMuons);
   }
   

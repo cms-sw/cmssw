@@ -164,13 +164,11 @@ void dEdxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    if ( doDeDxPlots_ || doAllPlots_ ){
       edm::Handle<reco::TrackCollection> trackCollectionHandle;
-      //      iEvent.getByLabel(TrackName,trackCollectionHandle);
       iEvent.getByToken(trackToken_, trackCollectionHandle );
       if(!trackCollectionHandle.isValid())return;
 
       for(unsigned int i=0;i<dEdxInputList_.size();i++){
          edm::Handle<reco::DeDxDataValueMap> dEdxObjectHandle;
-	 //         iEvent.getByLabel(AlgoNames[i],dEdxObjectHandle);
 	 iEvent.getByToken(dEdxTokenList_[i], dEdxObjectHandle );
          if(!dEdxObjectHandle.isValid())continue;
          const edm::ValueMap<reco::DeDxData> dEdxColl = *dEdxObjectHandle.product();
