@@ -17,14 +17,18 @@ public:
   enum { /** Sudetector type. Here it is ECAL Shashlik  */
     Subdet=EcalShashlik
   };
+
+  enum Configuration { /** hardcoded geometries. Here it is ECAL Shashlik  */
+    BlackBox = 0,  // solid block 42x42 supermodules
+    NoTaperEcalEta4 = 1,
+    NoTaperEcalEta3 = 2,
+    TaperEcalEta4 = 3,
+    TaperEcalEta3 = 4,
+    LAST
+  };
   
-  /** Constructor of a null id
-   */
   EKDetId() {}
   
-  /** Constructor from a raw value
-      @param rawid det ID number 
-  */
   EKDetId(uint32_t rawid) : DetId(rawid) {}
   
   /** Constructor from crystal ix,iy,fib,ro,iz (iz=+1/-1) (mode = XYMODE)
@@ -41,101 +45,47 @@ public:
    * @param iz iz/zside index: -1 for EK-, +1 for EK+
    * @param mode pass XYMODE if i j refer to ix, iy, SCMODULEMODE if thery refer to ism, imod
    */
-  // fast  
   EKDetId(int module_ix, int module_iy, int fiber, int ro, int iz); 
-  // slow
+
   EKDetId(int i, int j, int fiber, int ro, int iz, int mode);
   
-  /** Constructor from a generic cell id
-   * @param id source detid
-   */
   EKDetId(const DetId& id) : DetId(id){}
   
-  /** Assignment operator
-   * @param id source det id
-   */ 
   EKDetId& operator=(const DetId& id) {id_ = id.rawId(); return *this;}
   
-  /** Set fiber number and RO type
-   * @param fib number
-   * @param ro  readout type
-   */
   void setFiber(int fib, int ro);
   
-  /** Gets the subdetector
-   * @return subdetectot ID, that is EcalEndcap
-   */
   static EcalSubdetector subdet() { return EcalShashlik;}
   
-  /** Gets the z-side of the module (1/-1)
-   * @return -1 for EK-, +1 for EK+
-   */
   int zside() const { return (id_&0x200000)?(1):(-1); }
   
-  /** Gets the module x-index.
-   * @see EKDetId(int, int, int, int, int) for x-index definition
-   * @return x-index
-   */
   int ix() const { return (id_>>8)&0xFF; }
   
-  /** Get the module y-index
-   * @see EKDetId(int, int, int, int, int) for y-index definition.
-   * @return y-index
-   */
   int iy() const { return id_&0xFF; }
   
-  /** Get the fiber-index
-   * @see EKDetId(int, int, int, int, int) for fiber-index definition.
-   * @return fiber-index
-   */
   int fiber() const { return (id_>>16)&0x7; }
   
-  /** Get the readout-index
-   * @see EKDetId(int, int, int, int, int) for readout-index definition.
-   * @return readout-index
-   */
   int readout() const { return (id_>>19)&0x3; }
+
+
+  static int ism(int ix, int iy);
+
+  static int imod(int ix, int iy);
   
-  /** Gets the SuperModule number within the endcap. This number runs from 1 to 936.
-   *
-   * BEWARE: This number is not consistent with indices used in constructor:  see details below.
-   *
-   * Numbering in quadrant 1 of EK+ is the following
-   * \verbatim 
-   *  13 27
-   *  12 26 40 54 70 87 104
-   *  11 25 39 53 69 86 103 120 136
-   *  10 24 38 52 68 85 102 119 135 151 166
-   *  09 23 37 51 67 84 101 118 134 150 165 180
-   *  08 22 36 50 66 83 100 117 133 149 164 179 193
-   *  07 21 35 49 65 82  99 116 132 148 163 178 192 205
-   *  06 20 34 48 64 81  98 115 131 147 162 177 191 204
-   *  05 19 33 47 63 80  97 114 130 146 161 176 190 203 215
-   *  04 18 32 46 62 79  96 113 129 145 160 175 189 202 214 225
-   *  03 17 31 45 61 78  95 112 128 144 159 174 188 201 213 224
-   *  02 16 30 44 60 77  94 111 127 143 158 173 187 200 212 223 232
-   *  01 15 29 43 59 76  93 110 126 142 157 172 186 199 211 222 231
-   *     14 28 42 58 75  92 109 125 141 156 171 185 198 210 221 230
-   *           41 57 74  91 108 124 140 155 170 184 197 209 220 229
-   *              56 73  90 107 123 139 154 169 183 196 208 219 228
-   *              55 72  89 106 122 138 153 168 182 195 207 218 227 234
-   *                 71  88 105 121 137 152 167 181 194 206 217 226 233
-   *  
-   * \endverbatim
-   *
-   * Quadrant 2 indices are deduced by a symmetry about y-axis and by adding an offset
-   * of 234.<br>
-   * Quadrant 3 and 4 indices are deduced from quadrant 1 and 2 by a symmetry
-   * about x-axis and adding an offset. Quadrant N starts with index 1 + (N-1)*234.
-   *
-   * <p>EK- indices are deduced from EK+ by a symmetry about (x,y)-plane (mirrored view). <b>It is
-   * inconsistent with indices used in constructor EKDetId(int, int,int) in
-   * SCMODULEMODE</b>. Indices of constructor uses a symmetry along y-axis: in principal it
-   * considers the ism as a local index. The discrepancy is most probably due to a bug in the
-   * implementation of this ism() method.
+
+
+  /** Gets the SuperModule number
    */
   int ism() const;
-  
+
+  /** Gets supermodule index from supermodule ismCol:ismRow location
+   * ismCol, ismRow = 0, 1, 2, ... for quadrant 1 of EK+
+   * ismCol = ..., -2, -1  ismRow = 0, 1, 2, ... for quadrant 2 of EK+
+   * and so on
+   * assumes |ismCol|, |ismRow| < MAX_SM_SIZE (see .cc)
+   */
+  static int smIndex (int ismCol, int ismRow); 
+
   /** Gets module number inside SuperModule.
    * Module numbering withing a supermodule in each quadrant:
    * \verbatim
@@ -219,7 +169,7 @@ public:
    * @param i hashed/dense index
    * @return true if the index is valid, false otherwise
    */
-  static bool validHashIndex( int i ) { return ( i < kSizeForDenseIndexing ) ; }
+  static bool validHashIndex( int i );
   
   /** Checks validity of a module (SM,Module,fiber,RO,z) index.
    * @param SM supermodule index
@@ -230,28 +180,10 @@ public:
    * @see EKDetId(int, int, int, int, int, int) for index definition
    * @return true if valid, false otherwise
    */
-  static bool validDetId(int iSM, int iMD, int fib, int ro, int iz);
-  
-  /** Checks validity of a module (module_ix,module_iy,fiber,RO,z) index.
-   * @param module_ix module x-index
-   * @param module_iy module y-index
-   * @param fiber fiber index
-   * @param RO readout type
-   * @param iz module z-index
-   * @see EKDetId(int, int, int, int, int, int) for index definition
-   * @return true if valid, false otherwise
-   */
-  bool slowValidDetId(int module_ix, int module_iy, int fib, int ro, int iz) const;
-    
-  static bool isNextToBoundary(EKDetId id);
-  
-  static bool isNextToDBoundary(EKDetId id);
-  
-  static bool isNextToRingBoundary(EKDetId id);
   
   /** returns a new EKDetId offset by nrStepsX and nrStepsY (can be negative),
    * returns EKDetId(0) if invalid */
-  EKDetId offsetBy(int nrStepsX, int nrStepsY) const;
+  EKDetId offsetBy(int nrStepsX, int nrStepsY, Configuration conf = BlackBox) const;
   
   /** returns a new EKDetId swapped (same iX, iY) to the other endcap, 
    * returns EKDetId(0) if invalid (shouldnt happen) */
@@ -260,7 +192,7 @@ public:
   /** following are static member functions of the above two functions
    *  which take and return a DetId, returns DetId(0) if invalid 
    */
-  static DetId offsetBy( const DetId startId, int nrStepsX, int nrStepsY );
+  static DetId offsetBy( const DetId startId, int nrStepsX, int nrStepsY, Configuration conf = BlackBox);
   static DetId switchZSide( const DetId startId );
 
   /** Returns the distance along x-axis in module units between two EKDetId
@@ -277,55 +209,6 @@ public:
    */
   static int distanceY(const EKDetId& a,const EKDetId& b); 
   
-  /** Lower bound of supermodule index as defined in ism()
-   */
-  static const int ISM_MIN=1;
-
-  /** Upper bound of supermodule index defined in ism()
-   */
-  static const int ISM_MAX=936;
-  
-  /** Lower bound of module index within a supermodule
-   */
-  static const int IMOD_MIN=1;
-  
-  /** Upper bound of module index within a supermodule
-   */
-  static const int IMOD_MAX=25;
-  
-  /** Lower bound of EK module x-index
-   */
-  static const int IX_MIN=1;
-  
-  /** Upper bound of EK module y-index
-   */
-  static const int IX_MAX=180;
-  
-  /** Lower bound of EK module y-index
-   */
-  static const int IY_MIN=1;
-  
-  /** Upper bound of EK module y-index
-   */
-  static const int IY_MAX=180;
-  
-  /** Maximum possibility of Fiber number (0:FIB_MAX-1)
-   */
-  static const int FIB_MAX=6;
-  
-  /** Maximum possibility of Read-Out type (0:RO_MAX-1)
-   */
-  static const int RO_MAX=3;
-  
-  enum {
-    /** Number of modules per Dee
-     */
-    kEKhalf = 421200 ,
-    /** Number of dense module indices, that is number of
-     * modules per endcap.
-     */
-    kSizeForDenseIndexing = 2*kEKhalf
-  };
   
   /*@{*/
   /** function modes for EKDetId(int, int, int, int) constructor
@@ -334,25 +217,29 @@ public:
   static const int SCMODULEMODE = 1;
   /*@}*/
   
-  /** Gives supermodule index from endcap *supermodule* x and y indexes.
-   * @see ism() for the index definition
-   * @param ismCol supermodule column number: supemodule x-index for EK+
-   * @param ismRow: supemodule y-index
-   * @return supercystal index
-   */
-  static int ism(int ismCol, int ismRow);   // output is 1-936
-  static int imod(int jx, int jy);
+  static bool validSM (int ix, int iy, Configuration conf = BlackBox);
   
-private:
+  static bool validDetId(int iSM, int iMD, int fib, int ro, int iz, Configuration conf = BlackBox);
   
-  static const int nCols = 18;
-  static const int nMods = 5; /* Number of modules per row in SM */
-  static const int nRows = (nCols*nMods);
-  static const int QuadColLimits[nCols+1];
-  static const int iYoffset[nCols+1];
+  static bool slowValidDetId(int module_ix, int module_iy, int fib, int ro, int iz, Configuration conf = BlackBox);
+    
+  static bool isNextToBoundary(EKDetId id, Configuration conf = BlackBox);
   
+  static bool isNextToDBoundary(EKDetId id);
+  
+  static bool isNextToRingBoundary(EKDetId id, Configuration conf = BlackBox);
+
+  static int smXLocation(int iSM);
+  static int smYLocation(int iSM);
   int ix(int iSM, int iMod) const;
   int iy(int iSM, int iMod) const;
+private:
+
+
+
+
+  
+
 };
 
 
