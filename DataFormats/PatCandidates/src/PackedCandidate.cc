@@ -74,10 +74,9 @@ float pat::PackedCandidate::dz(const Point &p) const {
 reco::Track pat::PackedCandidate::pseudoTrack() const {
     maybeUnpackBoth();
     reco::TrackBase::CovarianceMatrix m;
-    float pterr=0.02+((pt()<40.)?pt():40.)/5*0.01; // TODO: better parameterization
-    m(0,0)=pterr*pterr*pt()*pt();
-    m(1,1)=0.0001; //TODO: tune 
-    m(2,2)=0.0001; //TODO: tune
+    m(0,0)=0.5e-4/pt()/pt(); //TODO: tune
+    m(1,1)=6e-6; //TODO: tune 
+    m(2,2)=4e-5; //TODO: tune
     m(3,3)=dxydxy_;
     m(3,4)=dxydz_;
     m(4,3)=dxydz_;
