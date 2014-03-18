@@ -1,7 +1,14 @@
 #include "CondCore/PluginSystem/interface/registration_macros.h"
 
+#include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
+#include "CondFormats/DataRecord/interface/QGLikelihoodRcd.h"
+
 #include "CondFormats/JetMETObjects/interface/FFTJetCorrectorParameters.h"
 #include "CondFormats/DataRecord/interface/FFTJetCorrectorParametersRcdTypes.h"
+
+
+
+REGISTER_PLUGIN(QGLikelihoodRcd, QGLikelihoodObject);
 
 REGISTER_PLUGIN(FFTBasicJetCorrectorParametersRcd, FFTJetCorrectorParameters);
 REGISTER_PLUGIN(FFTGenJetCorrectorParametersRcd, FFTJetCorrectorParameters);
