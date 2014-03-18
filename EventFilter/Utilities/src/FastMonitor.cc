@@ -8,6 +8,7 @@
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 #include "EventFilter/Utilities/interface/JsonSerializable.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
 #include <iostream>
@@ -247,8 +248,8 @@ JsonMonitorable* FastMonitor::getMergedIntJForLumi(std::string const& name,unsig
 bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi)
 {
 
-  std::cout << "SNAP updates: " <<  recentSnaps_ << " (by timer: " << recentSnapsTimer_ 
-    << ") in lumisection " << lumi << std::endl;
+  edm::LogInfo("FastMonitor") << "SNAP updates: " <<  recentSnaps_ << " (by timer: " << recentSnapsTimer_ 
+                              << ") in lumisection ";
 
   recentSnaps_ = recentSnapsTimer_ = 0;
 

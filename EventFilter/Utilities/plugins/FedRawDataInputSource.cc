@@ -637,7 +637,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
   catch (std::runtime_error e)
   {
     // Another process grabbed the file and NFS did not register this
-     edm::LogError("FedRawDataInputSource") << " - grabNextFile runtime Exception: " << e.what() << std::endl;
+     edm::LogError("FedRawDataInputSource") << " - grabNextFile runtime Exception: " << e.what();
   }
 
   catch( boost::bad_lexical_cast const& ) {
@@ -647,8 +647,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
   catch (std::exception e)
   {
     // BU run directory disappeared?
-    edm::LogError("FedRawDataInputSource") << " - grabNextFileSOME OTHER EXCEPTION OCCURED!!!! ->" << e.what()
-                                           << std::endl;
+    edm::LogError("FedRawDataInputSource") << " - grabNextFileSOME OTHER EXCEPTION OCCURED!!!! ->" << e.what();
   }
 
   return -1;
@@ -733,7 +732,7 @@ void FedRawDataInputSource::readSupervisor()
       if (status == evf::EvFDaqDirector::noFile) {
 	dbgcount++;
 	if (!(dbgcount%10))
-	  edm::LogInfo("FedRawDataInputSource") << "No file for me... sleep and try again..." << std::endl;
+	  edm::LogInfo("FedRawDataInputSource") << "No file for me... sleep and try again...";
 	usleep(100000);
       }
     }

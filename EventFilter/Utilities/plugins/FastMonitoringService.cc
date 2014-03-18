@@ -11,11 +11,10 @@
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-
 
 constexpr double throughputFactor() {return (1000000)/double(1024*1024);}
 
@@ -37,7 +36,7 @@ namespace evf{
     //,rootDirectory_(iPS.getUntrackedParameter<std::string>("rootDirectory", "/data"))
     ,microstateDefPath_(iPS.getUntrackedParameter<std::string>("microstateDefPath", "/tmp/def.jsd"))
     ,fastMicrostateDefPath_(iPS.getUntrackedParameter<std::string>("fastMicrostateDefPath", microstateDefPath_))
-    ,outputDefPath_(iPS.getUntrackedParameter<std::string>("outputDefPath", "/tmp/def.jsd"))
+    ,outputDefPath_(iPS.getUntrackedParameter<std::string>("outputDefPath", ""))//obsolete
     ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "states"))
     ,slowName_(iPS.getUntrackedParameter<std::string>("slowName", "lumi"))
     ,totalEventsProcessed_(0)
@@ -84,7 +83,7 @@ namespace evf{
     if ( boost::filesystem::is_directory(workingDirectory_))
     	foundMonDir=true;
     if (!foundMonDir) {
-    	std::cout << "<MON> DIR NOT FOUND!" << std::endl;
+        edm::LogWarning("FastMonitoringService") << "<MON> DIR NOT FOUND!";
         boost::filesystem::create_directories(workingDirectory_);
     }
 
@@ -99,11 +98,9 @@ namespace evf{
     moduleLegFile << "microstatelegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
     moduleLegendFile_  = (workingDirectory_/moduleLegFile.str()).string();
 
-    
     std::ostringstream pathLegFile;
     pathLegFile << "pathlegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
     pathLegendFile_  = (workingDirectory_/pathLegFile.str()).string();
-
 
     /*
      * initialize the fast monitor with:
@@ -111,13 +108,9 @@ namespace evf{
      * path to definition
      *
      */
-    std::cout
-			<< "FastMonitoringService: initializing FastMonitor with microstate def path: "
-			<< microstateDefPath_ << " " << FastMonitoringThread::MCOUNT << " "
-			//<< encPath_.current_ + 1 << " " << encModule_.current_ + 1
-			<< std::endl;
-
-   //#endif
+    edm::LogInfo("FastMonitoringService") << "FastMonitoringService: initializing FastMonitor with microstate def path: "
+			                  << microstateDefPath_ << " " << FastMonitoringThread::MCOUNT << " ";
+			                  //<< encPath_.current_ + 1 << " " << encModule_.current_ + 1
    //#if TBB_IMPLEMENT_CPP0X
    ////std::cout << "TBB thread id:" <<  tbb::thread::id() << std::endl;
    //threadIDAvailable_=true;
@@ -130,7 +123,6 @@ namespace evf{
   }
 
 
-
   std::string FastMonitoringService::makePathLegenda(){
     //taken from first stream
     std::ostringstream ost;
@@ -141,21 +133,14 @@ namespace evf{
     return ost.str();
   }
 
-  std::string FastMonitoringService::makeModuleLegenda(){
-    
+
+  std::string FastMonitoringService::makeModuleLegenda()
+  {  
     std::ostringstream ost;
-    for(int i = 0;
-	i < encModule_.current_;
-	i++)
-      {
-	//	std::cout << "for i = " << i << std::endl;
-	ost<<i<<"="<<((const edm::ModuleDescription *)(encModule_.decode(i)))->moduleLabel()<<" ";
-      }
+    for(int i = 0; i < encModule_.current_; i++)
+      ost<<i<<"="<<((const edm::ModuleDescription *)(encModule_.decode(i)))->moduleLabel()<<" ";
     return ost.str();
   }
-
-
-
 
 
   void FastMonitoringService::preallocate(edm::service::SystemBounds const & bounds)
@@ -185,10 +170,8 @@ namespace evf{
        collectedPathList_.push_back(new std::atomic<bool>(0));
 
     }
-    //#if TBB_IMPLEMENT_CPP0X
     //for (unsigned int i=0;i<nThreads_;i++)
     //  threadMicrostate_.push_back(&reservedMicroStateNames[mInvalid]);
-    //#endif
 
     //initial size until we detect number of bins
     fmt_.m_data.macrostateBins_=FastMonitoringThread::MCOUNT;
@@ -212,12 +195,12 @@ namespace evf{
     macrostate_ = FastMonitoringThread::sError;
   }
 
-
-
   //new output module name is stream
   void FastMonitoringService::preModuleBeginJob(const edm::ModuleDescription& desc)
   {
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
     //std::cout << " Pre module Begin Job module: " << desc.moduleName() << std::endl;
+
     //build a map of modules keyed by their module description address
     //here we need to treat output modules in a special way so they can be easily singled out
     if(desc.moduleName() == "Stream" || desc.moduleName() == "ShmStreamConsumer" ||
@@ -229,10 +212,7 @@ namespace evf{
 
   void FastMonitoringService::postBeginJob()
   {
-    //std::cout << "module legenda***************" << std::endl;
     std::string && moduleLegStr = makeModuleLegenda();
-    //will not print this as it is large and saved to a file
-    //std::cout << moduleLegStr << std::endl;
     FileIO::writeStringToFile(moduleLegendFile_, moduleLegStr);
 
     macrostate_ = FastMonitoringThread::sJobReady;
@@ -255,7 +235,7 @@ namespace evf{
 
   void FastMonitoringService::preGlobalBeginLumi(edm::GlobalContext const& gc)
   {
-	  std::cout << "FastMonitoringService: Pre-begin LUMI: " << gc.luminosityBlockID().luminosityBlock() << std::endl;
+          edm::LogInfo("FastMonitoringService") << gc.luminosityBlockID().luminosityBlock();
 
 	  timeval lumiStartTime;
 	  gettimeofday(&lumiStartTime, 0);
@@ -281,7 +261,8 @@ namespace evf{
   void FastMonitoringService::preGlobalEndLumi(edm::GlobalContext const& gc)
   {
 	  unsigned int lumi = gc.luminosityBlockID().luminosityBlock();
-	  std::cout << "FastMonitoringService: LUMI: " << lumi << " ended! Writing JSON information..." << std::endl;
+          edm::LogInfo("FastMonitoringService") << "FastMonitoringService: LUMI: "
+                                                << lumi << " ended! Writing JSON information...";
 	  timeval lumiStopTime;
 	  gettimeofday(&lumiStopTime, 0);
 
@@ -315,23 +296,21 @@ namespace evf{
 	  {
 	    auto itr = sourceEventsReport_.find(lumi);
 	    if (itr==sourceEventsReport_.end()) {
-              std::cout << "ERROR: SOURCE did not send update for lumi block " << lumi << std::endl;
+              edm::LogError("FastMonitoringService") << "SOURCE did not send update for lumi block " << lumi;
 	    }
 	    else {
 	      if (itr->second!=processedEventsPerLumi_[lumi]) {
-		std::cout << " ERROR: MISMATCH with SOURCE update for lumi block" << lumi 
-                          << ", events(processed):" << processedEventsPerLumi_[lumi]
-                          << " events(source):" << itr->second << std::endl;
+		edm::LogError("FastMonitoringService") << " ERROR: MISMATCH with SOURCE update for lumi block" << lumi 
+                                                       << ", events(processed):" << processedEventsPerLumi_[lumi]
+                                                       << " events(source):" << itr->second;
 		assert(0);
 	      }
 	      sourceEventsReport_.erase(itr);
 	    }
 	  }
-
-	  std::cout
-			<< ">>> >>> FastMonitoringService: processed event count for this lumi = "
-			<< lumiProcessedJptr->value() << " time = " << usecondsForLumi/1000000
-			<< " size = " << accuSize << " thr = " << throughput << std::endl;
+	  edm::LogInfo("FastMonitoringService")	<< ">>> >>> FastMonitoringService: processed event count for this lumi = "
+			                        << lumiProcessedJptr->value() << " time = " << usecondsForLumi/1000000
+			                        << " size = " << accuSize << " thr = " << throughput;
 	  delete lumiProcessedJptr;
 
 	  //full global and stream merge&output for this lumi
@@ -343,7 +322,8 @@ namespace evf{
 
   void FastMonitoringService::postGlobalEndLumi(edm::GlobalContext const& gc)
   {
-    std::cout << "FastMonitoringService: Post-global-end LUMI: " << gc.luminosityBlockID().luminosityBlock() << std::endl;
+    edm::LogInfo("FastMonitoringService") << "FastMonitoringService: Post-global-end LUMI: "
+                                          << gc.luminosityBlockID().luminosityBlock();
     //mark closed lumis (still keep map entries until next one)
     lastGlobalLumisClosed_.push(gc.luminosityBlockID().luminosityBlock());
   }
@@ -359,9 +339,7 @@ namespace evf{
 
     ministate_[sid]=&nopath_;
     microstate_[sid]=&reservedMicroStateNames[mInvalid];
-    //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()]=&reservedMicroStateNames[mInvalid];
-    //#endif
   }
 
   void FastMonitoringService::preStreamEndLumi(edm::StreamContext const& sc)
@@ -377,9 +355,7 @@ namespace evf{
     //reset this in case stream does not get notified of next lumi (we keep processed events only)
     ministate_[sid]=&nopath_;
     microstate_[sid]=&reservedMicroStateNames[mInvalid];
-    //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()]=&reservedMicroStateNames[mInvalid];
-    //#endif
   }
 
 
@@ -404,9 +380,7 @@ namespace evf{
 	collectedPathList_[sc.streamID()]->store(true,std::memory_order_seq_cst);
 	fmt_.m_data.ministateBins_=encPath_[sc.streamID()].vecsize();
 	if (!pathLegendWritten_) {
-	  std::cout << "path legenda*****************" << std::endl;
 	  std::string pathLegendStr =  makePathLegenda();
-	  std::cout << pathLegendStr  << std::endl;
 	  FileIO::writeStringToFile(pathLegendFile_, pathLegendStr);
 	  pathLegendWritten_=true;
 	}
@@ -422,15 +396,10 @@ namespace evf{
   {
   }
 
-  //shoudl be synchronized before
   void FastMonitoringService::postEvent(edm::StreamContext const& sc)
   {
     microstate_[sc.streamID()] = &reservedMicroStateNames[mFwkOvh];
-
-    //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mFwkOvh];
-    //#endif
-
 
     ministate_[sc.streamID()] = &nopath_;
     #if ATOMIC_LEVEL>=2
@@ -454,35 +423,25 @@ namespace evf{
   void FastMonitoringService::preSourceEvent(edm::StreamID sid)
   {
     microstate_[sid.value()] = &reservedMicroStateNames[mIdle];
-    //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mIdle];
-    //#endif
   }
 
   void FastMonitoringService::postSourceEvent(edm::StreamID sid)
   {
     microstate_[sid.value()] = &reservedMicroStateNames[mFwkOvh];
-    //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mFwkOvh];
-    //#endif
-
   }
 
   void FastMonitoringService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
   {
     microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
-    //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()] = (void*)(mcc.moduleDescription());
-    //#endif
   }
 
   void FastMonitoringService::postModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
   {
     microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
-
-    //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()] = (void*)(mcc.moduleDescription());
-    //#endif
 
     //maybe this should be:
     //microstate_[sc.streamID().value()] = &reservedMicroStateNames[mFwkOvh];
@@ -496,22 +455,18 @@ namespace evf{
   {
     for (unsigned int i=0;i<nStreams_;i++)
       microstate_[i] = &reservedMicroStateNames[m];
-    //#if TBB_IMPLEMENT_CPP0X
     //for (unsigned int i=0;i<nThreads_;i++)
     //  threadMicrostate_[i] = &reservedMicroStateNames[m];
-    //#endif
   }
 
-  //this is for another service that is thread safe or rarely blocks other streams
+  //this is for services that are multithreading-enabled or rarely blocks other streams
   void FastMonitoringService::setMicroState(edm::StreamID sid, MicroStateService::Microstate m)
   {
     microstate_[sid] = &reservedMicroStateNames[m];
-    //#if TBB_IMPLEMENT_CPP0X
     //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[m];
-    //#endif
   }
 
-  //from source - needs changes to source to track per-lumi file processing
+  //from source
   void FastMonitoringService::accumulateFileSize(unsigned int lumi, unsigned long fileSize) {
         std::lock_guard<std::mutex> lock(fmt_.monlock_);
 
@@ -524,7 +479,6 @@ namespace evf{
 	  filesProcessedDuringLumi_[lumi]++;
   }
 
-  //should be measured by the source and provided when found
   void FastMonitoringService::startedLookingForFile() {
 	  gettimeofday(&fileLookStart_, 0);
 	  /*
@@ -569,8 +523,7 @@ namespace evf{
       return proc;
     }
     else {
-      std::cout << "ERROR: output module wants deleted info " << std::endl;
-      assert(0);
+      throw cms::Exception("FastMonitoringService") << "ERROR: output module wants deleted info ";
       return 0;
     }
   }
@@ -600,10 +553,8 @@ namespace evf{
       fmt_.m_data.ministateEncoded_[i] = encPath_[i].encode(ministate_[i]);
       fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstate_[i]);
     }
-    //#if TBB_IMPLEMENT_CPP0X
     //for (unsigned int i=0;i<nThreads_;i++)
     //  fmt_.m_data.threadMicrostateEncoded_[i] = encModule_.encode(threadMicrostate_[i]);
-    //#endif
     
     if (isGlobalEOL)
     {//only update global variables

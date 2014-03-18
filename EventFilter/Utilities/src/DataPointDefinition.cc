@@ -9,6 +9,7 @@
 #include "EventFilter/Utilities/interface/JsonMonitorable.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace jsoncollector;
 
@@ -34,7 +35,7 @@ bool DataPointDefinition::getDataPointDefinitionFor(std::string& defFilePath, Da
   bool readOK = FileIO::readStringFromFile(defFilePath, dpdString);
   // data point definition is missing!
   if (!readOK) {
-    std::cout << "Cannot read from JSON definition path: " << defFilePath << std::endl;
+    edm::LogWarning("DataPointDefinition") << "Cannot read from JSON definition path: " << defFilePath;
     return false;
   }
   if (!defaultGroup) dpd->setDefaultGroup(LEGEND);

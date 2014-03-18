@@ -69,7 +69,6 @@ namespace evf {
     std::string events_base_filename_;
     std::string baseDir_;
     std::string smpath_;
-    std::string jsonDefPath_;
     boost::filesystem::path openDatFilePath_;
     IntJ processed_;
     mutable IntJ accepted_;
@@ -100,7 +99,6 @@ namespace evf {
     initializeStreams();
     
     fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
-    jsonDefPath_ = fms_->getOutputDefPath();
     
     processed_.setName("Processed");
     accepted_.setName("Accepted");

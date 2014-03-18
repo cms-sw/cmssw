@@ -207,7 +207,6 @@ namespace evf {
     }
     nThreads_=bounds.maxNumberOfStreams();
     nStreams_=bounds.maxNumberOfThreads();
-    std::cout << "CURRENTCONFIG t:" << nThreads_ << " s:" << nStreams_ << std::endl;
   }
 
   void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
@@ -321,8 +320,8 @@ namespace evf {
   void EvFDaqDirector::removeFile(std::string filename) {
     int retval = remove(filename.c_str());
     if (retval != 0)
-      std::cout << "Could not remove used file " << filename << " error "
-		<< strerror(errno) << "\n";
+      edm::LogError("EvFDaqDirector") << "Could not remove used file " << filename << " error "
+		                      << strerror(errno);
   }
 
   void EvFDaqDirector::removeFile(unsigned int ls, unsigned int index) {
@@ -388,7 +387,7 @@ namespace evf {
 	    fflush(fu_rw_lock_stream); //this should not be needed ???
 	  } else
 	      edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error "
-	      << strerror(errno);
+	                                      << strerror(errno);
 	  // write new data
 	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
 	  if (check == 0) {
@@ -408,20 +407,20 @@ namespace evf {
 	    fileStatus = newFile;
 
 	    if (testModeNoBuilderUnit_)
-	      edm::LogInfo("EvFDaqDirector")<< "Written to file: " << readLs << ":"
-			<< readIndex + 1 << " --> " << readLs + 2
-			<< ":" << readIndex + 1;
+	      edm::LogInfo("EvFDaqDirector") << "Written to file: " << readLs << ":"
+			                     << readIndex + 1 << " --> " << readLs + 2
+			                     << ":" << readIndex + 1;
 	    else
-	      edm::LogInfo("EvFDaqDirector")<< "Written to file: " << readLs << ":"
-			<< readIndex + 1;
+	      edm::LogInfo("EvFDaqDirector") << "Written to file: " << readLs << ":"
+			                     << readIndex + 1;
 
 	  } else
 	      edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error "
-	      << strerror(errno) << std::endl;
+	                                      << strerror(errno);
 	}
       } else
 	edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for reading failed with error "
-					<< strerror(errno) << std::endl;
+					<< strerror(errno);
     } else
       edm::LogError("EvFDaqDirector") << "fu read/write lock stream is invalid " << strerror(errno);
 
@@ -443,7 +442,7 @@ namespace evf {
 
     if ( fileStatus == noFile ) {
       struct stat buf;
-      std::cout << " looking for EoR file: " << getEoRFilePath().c_str() << std::endl;
+      edm::LogInfo("EvFDaqDirector") << " looking for EoR file: " << getEoRFilePath().c_str();
       if ( stat(getEoRFilePath().c_str(), &buf) == 0 )
         fileStatus = runEnded;
     }
@@ -471,7 +470,7 @@ namespace evf {
       retval = -1;
     }
     fcntl(bu_readlock_fd_, F_SETLKW, &bu_r_fulk);
-    std::cout << "readbulock returning " << retval << std::endl;
+     edm::LogInfo("EvFDaqDirector") << "readbulock returning " << retval;
     return retval;
   }
 
@@ -486,7 +485,7 @@ namespace evf {
       close(bu_readlock_fd_);
       close(bu_writelock_fd_);
     }
-    std::cout << "stat of lockfile returned " << retval << std::endl;
+    edm::LogInfo("EvFDaqDirector") << "stat of lockfile returned " << retval;
     return retval;
   }
 
@@ -499,7 +498,7 @@ namespace evf {
       close(fu_readwritelock_fd_);
       close(fu_readwritelock_fd_); // why the second close ?
     }
-    std::cout << "stat of lockfile returned " << retval << std::endl;
+    edm::LogInfo("EvFDaqDirector") << "stat of lockfile returned " << retval;
     return retval;
   }
 
@@ -514,12 +513,10 @@ namespace evf {
 		double(totsize) / double(lsusec), lsusec);
 	fflush(bu_w_monitor_stream);
       } else
-	std::cout
-	  << "seek on bu write monitor for updating failed with error "
-	  << strerror(errno) << std::endl;
+	edm::LogError("EvFDaqDirector") << "seek on bu write monitor for updating failed with error "
+	                                << strerror(errno);
     } else
-      std::cout << "bu write monitor stream is invalid " << strerror(errno)
-		<< std::endl;
+      edm::LogError("EvFDaqDirector") << "bu write monitor stream is invalid " << strerror(errno);
 
   }
   void EvFDaqDirector::writeDiskAndThrottleStat(double fraction, int highWater,
@@ -530,13 +527,10 @@ namespace evf {
 	fprintf(bu_t_monitor_stream, "%f %d %d", fraction, highWater,
 		lowWater);
       else
-	std::cout
-	  << "seek on disk write monitor for updating failed with error "
-	  << strerror(errno) << std::endl;
+	edm::LogError("EvFDaqDirector") << "seek on disk write monitor for updating failed with error "
+	                                << strerror(errno);
     } else
-      std::cout << "disk write monitor stream is invalid " << strerror(errno)
-		<< std::endl;
-
+      edm::LogError("EvFDaqDirector") << "disk write monitor stream is invalid " << strerror(errno);
   }
 
   bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize) {
@@ -674,43 +668,5 @@ namespace evf {
   void EvFDaqDirector::unlockInitLock() {
     pthread_mutex_unlock(&init_lock_);
   }
-
-/*
-  std::string EvFDaqDirector::inputFileNameStem(const unsigned int ls, const unsigned int index) const {
-    std::stringstream ss;
-    ss << run_string_
-       << "_ls" << std::setfill('0') << std::setw(4) << ls
-       << "_index" << std::setfill('0') << std::setw(6) << index;
-    return ss.str();
-  }
-
-  std::string EvFDaqDirector::outputFileNameStem(const unsigned int ls, std::string const& stream) const {
-    std::stringstream ss;
-    ss << run_string_
-       << "_ls" << std::setfill('0') << std::setw(4) << ls
-       << "_" << stream
-       << "_pid" << std::setfill('0') << std::setw(5) << getpid();
-    return ss.str();
-  }
-
-  std::string EvFDaqDirector::mergedFileNameStem(const unsigned int ls, std::string const& stream) const {
-    std::stringstream ss;
-    ss << run_string_
-       << "_ls" << std::setfill('0') << std::setw(4) << ls
-       << "_" << stream
-       << "_" << hostname_;
-    return ss.str();
-  }
-
-
-    std::string EvFDaqDirector::initFileName(std::string const& stream) const {
-    std::stringstream ss;
-    ss << run_string_
-       << "_" << stream
-       << "_pid" << std::setfill('0') << std::setw(5) << getpid()
-       << ".ini";
-    return ss.str();
-  }
-*/
 
 }

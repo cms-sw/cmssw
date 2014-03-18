@@ -103,7 +103,6 @@ namespace evf{
       };
     public:
 
-
       // the names of the states - some of them are never reached in an online app
       static const std::string macroStateNames[FastMonitoringThread::MCOUNT];
       // Reserved names for microstates
@@ -145,7 +144,6 @@ namespace evf{
       void startedLookingForFile();
       void stoppedLookingForFile(unsigned int lumi);
       unsigned int getEventsProcessedForLumi(unsigned int lumi);
-      std::string getOutputDefPath() const { return outputDefPath_; }
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
 
     private:
@@ -161,8 +159,8 @@ namespace evf{
         monInit_.exchange(true,std::memory_order_acquire);
 	while (!fmt_.m_stoprequest) {
 	  std::cout << "Current states: Ms=" << fmt_.m_data.fastMacrostateJ_.value()
-	   << " ms=" << encPath_[0].encode(ministate_[0])
-	      << " us=" << encModule_.encode(microstate_[0]) << std::endl;
+	            << " ms=" << encPath_[0].encode(ministate_[0])
+	            << " us=" << encModule_.encode(microstate_[0]) << std::endl;
 
 	  {
             std::lock_guard<std::mutex> lock(fmt_.monlock_);
@@ -203,7 +201,6 @@ namespace evf{
 
       //variables measuring source statistics (global)
       //unordered_map is not used because of very few elements stored concurrently
-      //std::map<unsigned int, double> throughput_;
       std::map<unsigned int, double> avgLeadTime_;
       std::map<unsigned int, unsigned int> filesProcessedDuringLumi_;
       //helpers for source statistics:
