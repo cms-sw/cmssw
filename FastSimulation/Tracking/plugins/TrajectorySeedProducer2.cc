@@ -246,12 +246,6 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 		output[ialgo] = new TrajectorySeedCollection();
 	}
 
-	std::vector<TrajectorySeedCollection*> output_new(seedingAlgo.size());
-	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
-	{
-		output_new[ialgo] = new TrajectorySeedCollection();
-	}
-
 	// Beam spot
 	edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
 	e.getByLabel(theBeamSpot,recoBeamSpotHandle);
@@ -304,12 +298,6 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	    if (!isVertexCollection ) continue;
 	    vertices[ialgo] = &(*aHandle);
 	}
-
-	//for comparison
-	std::vector<std::vector<int>> seedHit_new;
-	seedHit_new.resize(theSimTracks->size());
-	std::vector<std::vector<int>> seedHit_old;
-	seedHit_old.resize(theSimTracks->size());
 
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
@@ -410,12 +398,6 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				if (!initialTSOS.isValid())
 				{
 					break; //continues with the next seeding algorithm
-				}
-
-				
-				for (unsigned int i=0;i<seedHitNumbers.size();++i)
-				{
-					seedHit_new[currentSimTrackId].push_back(seedHitNumbers[i]);
 				}
 				
 				const AlgebraicSymMatrix55& m = initialTSOS.localError().matrix();
