@@ -2,6 +2,11 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 
+#Instructions:
+#     before running this script make sure that you have access to /fff/BU0/ramdisk and /fff/data
+#     these parameters can also be changed in startFU.py and startBU.py scripts
+#user = os.environ['USER']
+
 options = VarParsing.VarParsing ('analysis')
 
 options.register ('runNumber',
