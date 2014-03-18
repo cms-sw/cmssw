@@ -113,10 +113,14 @@ def migrate_gt(args):
     run_command(command, os.path.join(args.output, args.gt))
 
 
-def migrate_gts(args):
+def make_gt_connection(args):
     logging.info('Fetching global tag list...')
     password = subprocess.check_output('''cat %s | grep -F 'CMS_COND_31X_GLOBALTAG' -2 | tail -1 | cut -d'"' -f4''' % os.path.join(args.authpath, 'readOnlyProd.xml'), shell=True).strip()
-    connection = cx_Oracle.connect('CMS_COND_GENERAL_R', password, 'cms_orcon_adg')
+    return cx_Oracle.connect('CMS_COND_GENERAL_R', password, 'cms_orcon_adg')
+
+
+def fetch_gts(connection):
+    logging.info('Fetching global tag list...')
     cursor = connection.cursor()
     cursor.execute('''
         select substr(table_name, length('tagtree_table_') + 1) gt
@@ -127,6 +131,11 @@ def migrate_gts(args):
     ''')
     gts = zip(*cursor.fetchall())[0]
     logging.info('Fetching global tag list... Done: %s global tags found.', len(gts))
+    return gts
+
+
+def migrate_gts(args):
+    gts = fetch_gts(make_gt_connection(args))
 
     def _make_args(args, gt):
         newargs = argparse.Namespace(**vars(args))
@@ -134,6 +143,37 @@ def migrate_gts(args):
         return newargs
 
     multiprocessing.Pool(args.jobs).map(migrate_gt, [_make_args(args, gt) for gt in gts])
+
+
+def tags_in_gts(args):
+    # Dynamic SQL is used due to the schema
+    # This is OK since we trust the input,
+    # which is the GT database's tables.
+
+    connection = make_gt_connection(args)
+    gts = fetch_gts(connection)
+    account_tags = {}
+
+    for i, gt in enumerate(gts):
+        logging.info('[%s/%s] Reading %s ...', i+1, len(gts), gt)
+        cursor = connection.cursor()
+        cursor.execute('''
+            select "pfn", "tagname"
+            from CMS_COND_31X_GLOBALTAG.TAGINVENTORY_TABLE
+            where "tagid" in (
+                select "tagid"
+                from CMS_COND_31X_GLOBALTAG.TAGTREE_TABLE_%s
+            )
+        ''' % gt)
+
+        for account, tag in cursor:
+            account_tags.setdefault(account, set([])).add(tag)
+
+    for account in sorted(account_tags):
+        print account
+        for tag in sorted(account_tags[account]):
+            print '   ', tag
+        print
 
 
 def check_and_run(args):
@@ -195,6 +235,10 @@ def main():
     parser_gts.add_argument('authpath', help='Authentication path.')
     parser_gts.add_argument('--jobs', '-j', type=int, default=4, help='Number of jobs.')
     parser_gts.set_defaults(func=migrate_gts)
+
+    parser_tags_in_gts = parser_subparsers.add_parser('tags_in_gts', description='Dumps the set of tags (including account name) which are in each global tag.')
+    parser_tags_in_gts.add_argument('authpath', help='Authentication path.')
+    parser_tags_in_gts.set_defaults(func=tags_in_gts)
 
     args = parser.parse_args()
 
