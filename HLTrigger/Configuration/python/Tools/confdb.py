@@ -1012,8 +1012,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltEcalRegionalJetsRecHit" )
       self.options['modules'].append( "-hltEcalRegionalMuonsRecHit" )
       self.options['modules'].append( "-hltEcalRegionalEgammaRecHit" )
-      self.options['modules'].append( "-hltEcalRecHitAll" )
-      self.options['modules'].append( "-hltESRecHitAll" )
       # === hltPF
       self.options['modules'].append( "-hltPFJetCkfTrackCandidates" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
