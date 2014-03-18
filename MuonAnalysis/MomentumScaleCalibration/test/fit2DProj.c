@@ -69,7 +69,7 @@ void fit2DProj(TString name, TString path, int minEntries, int rebin, int fitTyp
     sprintf(str,"%i",i);
     TString iS(str);
     nameY = name + "_"+ iS;
-    cout << "nameY  " << nameY << endl;
+    std::cout << "nameY  " << nameY << std::endl;
     histoY = histo->ProjectionY(nameY, i, i);
     //histoY->Rebin(2);
     char title[80];
@@ -90,7 +90,7 @@ void fit2DProj(TString name, TString path, int minEntries, int rebin, int fitTyp
       else if(fitType == 3)
 	fit = linLorentzianFit(histoY);
       else {
-	cout<<"Wrong fit type: 1=gaussian, 2=lorentzian, 3=lorentzian+linear."<<endl;
+	std::cout<<"Wrong fit type: 1=gaussian, 2=lorentzian, 3=lorentzian+linear."<<std::endl;
 	abort();
       }
 
