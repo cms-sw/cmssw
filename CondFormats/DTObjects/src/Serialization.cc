@@ -247,6 +247,14 @@ void DTReadOutMapping::serialize(Archive & ar, const unsigned int)
 COND_SERIALIZATION_INSTANTIATE(DTReadOutMapping);
 
 template <class Archive>
+void DTRecoUncertainties::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(payload);
+    ar & BOOST_SERIALIZATION_NVP(theVersion);
+}
+COND_SERIALIZATION_INSTANTIATE(DTRecoUncertainties);
+
+template <class Archive>
 void DTStatusFlag::serialize(Archive & ar, const unsigned int)
 {
     ar & BOOST_SERIALIZATION_NVP(dataVersion);
