@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_0/HLT/V20 (CMSSW_7_1_0_pre4_HLT5)
+# /dev/CMSSW_7_1_0/HLT/V21 (CMSSW_7_1_0_pre4_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/HLT/V20')
+  tableName = cms.string('/dev/CMSSW_7_1_0/HLT/V21')
 )
 
 process.streams = cms.PSet( 
@@ -54458,12 +54458,12 @@ process.hltMuTkMuMuonsUpcOnia = cms.EDProducer( "MuonIdProducer",
         trajectoryUncertaintyTolerance = cms.double( -1.0 ),
         usePreshower = cms.bool( False ),
         DTRecSegment4DCollectionLabel = cms.InputTag( "hltDt4DSegments" ),
-        EERecHitCollectionLabel = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
+        EERecHitCollectionLabel = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
         dRHcalPreselection = cms.double( 1.0 ),
         useMuon = cms.bool( False ),
         useCalo = cms.bool( True ),
         accountForTrajectoryChangeCalo = cms.bool( False ),
-        EBRecHitCollectionLabel = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
+        EBRecHitCollectionLabel = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
         dRMuonPreselection = cms.double( 0.2 ),
         truthMatch = cms.bool( False ),
         HBHERecHitCollectionLabel = cms.InputTag( "hltHbhereco" ),
