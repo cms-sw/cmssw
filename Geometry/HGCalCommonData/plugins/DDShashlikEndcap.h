@@ -30,6 +30,7 @@ private:
   double        m_rMin;         // Inner radius
   double        m_rMax;         // Outer radius
   double        m_zoffset;      // Offset in z
+  double        m_zpointing;    // Pointing to z
   double        m_xyoffset;     // Offset in x or y
   int           m_n;            // Mumber of copies
   int           m_startCopyNo;  // Start copy Number
