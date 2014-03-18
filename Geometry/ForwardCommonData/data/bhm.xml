@@ -104,6 +104,7 @@
   </LogicalPart>
 </LogicalPartSection>
 
+
 <PosPartSection label="bhm.xml">
   <PosPart copyNumber="1">
     <rParent name="forwardshield:OQUA"/>
@@ -163,7 +164,7 @@
     <rRotation name="rotations:000D"/>
     <Translation x="0*fm" y="0*fm" z="[shieldFrontPos]"/>
   </PosPart>
-  <Algorithm name="forward:DDBHMAngular">
+  <Algorithm name="bhmalgo:DDBHMAngular">
     <rParent name="bhm:BHM"/>
     <String  name="ChildName"   value="bhm:BHMDriver"/>
     <String  name="Rotation"    value="rotations:180D"/>
@@ -172,5 +173,4 @@
     <Numeric name="deltaPhi"    value="180*deg/16"/>
   </Algorithm>
 </PosPartSection>
-
 </DDDefinition>
