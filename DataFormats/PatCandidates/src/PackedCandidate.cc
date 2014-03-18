@@ -76,7 +76,7 @@ reco::Track pat::PackedCandidate::pseudoTrack() const {
     reco::TrackBase::CovarianceMatrix m;
     m(0,0)=0.5e-4/pt()/pt(); //TODO: tune
     m(1,1)=6e-6; //TODO: tune 
-    m(2,2)=4e-5; //TODO: tune
+    m(2,2)=1.5e-5/pt()/pt(); //TODO: tune
     m(3,3)=dxydxy_;
     m(3,4)=dxydz_;
     m(4,3)=dxydz_;
