@@ -55,7 +55,6 @@ class AMOutputMerger : public edm::EDProducer
   double                        mMagneticField;
   const StackedTrackerGeometry  *theStackedTracker;
   edm::InputTag                 TTClustersInputTag;
-  std::string                   TTClusOutputTag;
   edm::InputTag                 TTStubsInputTag;
   std::string                   TTStubOutputTag;
   std::vector< edm::InputTag >  TTPatternsInputTags;
@@ -80,12 +79,10 @@ AMOutputMerger::AMOutputMerger( const edm::ParameterSet& iConfig )
   TTStubsInputTag     = iConfig.getParameter< edm::InputTag >( "TTInputStubs" );
   TTPatternsInputTags = iConfig.getParameter< std::vector< edm::InputTag > >( "TTInputPatterns" );
 
-  TTClusOutputTag     = iConfig.getParameter< std::string >( "TTFiltClustersName" );
   TTStubOutputTag     = iConfig.getParameter< std::string >( "TTFiltStubsName" );
   TTPatternOutputTag  = iConfig.getParameter< std::string >( "TTPatternsName" );
 
   produces< std::vector< TTTrack< Ref_PixelDigi_ > > >( TTPatternOutputTag );
-  produces<  edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > >( TTClusOutputTag );
   produces<  edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > >( TTStubOutputTag );
 }
 
@@ -123,13 +120,10 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
   edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > TTClusterHandle;
   iEvent.getByLabel( TTClustersInputTag, TTClusterHandle );
 
-  // The container for filtered patterns / stubs / clusters
+  // The container for filtered patterns / stubs 
 
   std::auto_ptr< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTracksForOutput( new std::vector< TTTrack< Ref_PixelDigi_ > > );
-  std::auto_ptr< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > TTClustsForOutput( new edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > );
   std::auto_ptr< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubsForOutput( new edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > );
-  std::auto_ptr< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubsForOutputAccepted( new edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > );
-
 
   std::vector< edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > > TTPatternHandle;
 
@@ -193,7 +187,7 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
       }
     }
   }
-  
+
   // Get the OrphanHandle of the accepted patterns
   
   edm::OrphanHandle< std::vector< TTTrack< Ref_PixelDigi_ > > > TTPatternAcceptedHandle = iEvent.put( TTTracksForOutput, TTPatternOutputTag );
@@ -222,7 +216,6 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
 
       std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, TTStub< Ref_PixelDigi_  > > > trackStubs = tempTrackPtr->getStubRefs();
 
-
       // Loop over stubs contained in the pattern to recover the info
 
       for(unsigned int i=0;i<trackStubs.size();i++)
@@ -241,11 +234,8 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
     }
   }
 
-  //  std::cout << stored_IDs.size() << " / " << stub_n << std::endl;
-
-
   //
-  // Last step, we recreate the stubs and clusters containers from there
+  // Last step, we recreate the filtered stub container from there
   // 
   //
 
@@ -282,16 +272,8 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
          TTClusterHandle->find( id1 ) == TTClusterHandle->end() )
       continue;
 
-    /// Get the DetSets of the Clusters
-    // edmNew::DetSet< TTCluster< T > > innerClusters = (*TTClusterHandle)[ id0 ];
-    // edmNew::DetSet< TTCluster< T > > outerClusters = (*TTClusterHandle)[ id1 ];
-
-    /// Create the vectors of objects to be passed to the FastFillers
-    std::vector< TTCluster< Ref_PixelDigi_ > > *tempInner = new std::vector< TTCluster< Ref_PixelDigi_ > >();
-    std::vector< TTCluster< Ref_PixelDigi_ > > *tempOuter = new std::vector< TTCluster< Ref_PixelDigi_ > >();
+    /// Create the vector of stubs to be passed to the FastFiller
     std::vector< TTStub< Ref_PixelDigi_ > > *tempOutput = new std::vector< TTStub< Ref_PixelDigi_ > >();
-    tempInner->clear();
-    tempOuter->clear();
     tempOutput->clear();
 
     for ( stubIter = inputIter->begin(); stubIter != inputIter->end(); ++stubIter )
@@ -306,45 +288,10 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
       tempTTStub.addClusterRef(stubIter->getClusterRef(1));
       tempTTStub.setTriggerDisplacement( stubIter->getTriggerDisplacement() );
       tempTTStub.setTriggerOffset( stubIter->getTriggerOffset() );
-
       tempOutput->push_back( tempTTStub );
-
-      //Get the clusters 
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > 
-      	clus_i = stubIter->getClusterRef(0);
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > 
-      	clus_o = stubIter->getClusterRef(1);
-
-      TTCluster< Ref_PixelDigi_ > tempTTInnerClus(clus_i->getHits(),clus_i->getDetId(),clus_i->getStackMember(),true);
-      TTCluster< Ref_PixelDigi_ > tempTTOuterClus(clus_o->getHits(),clus_o->getDetId(),clus_o->getStackMember(),true);
-
-      tempInner->push_back( tempTTInnerClus );
-      tempOuter->push_back( tempTTOuterClus );
     }
 
-
-    /// Create the FastFillers
-    if ( tempInner->size() > 0 )
-    {
-      typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::FastFiller innerOutputFiller( *TTClustsForOutput, id0 );
-      for ( unsigned int m = 0; m < tempInner->size(); m++ )
-      {
-        innerOutputFiller.push_back( tempInner->at(m) );
-      }
-      if ( innerOutputFiller.empty() )
-        innerOutputFiller.abort();
-    }
-
-    if ( tempOuter->size() > 0 )
-    {
-      typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::FastFiller outerOutputFiller( *TTClustsForOutput, id1 );
-      for ( unsigned int m = 0; m < tempOuter->size(); m++ )
-      {
-        outerOutputFiller.push_back( tempOuter->at(m) );
-      }
-      if ( outerOutputFiller.empty() )
-        outerOutputFiller.abort();
-    }
+    /// Create the FastFiller
 
     if ( tempOutput->size() > 0 )
     {
@@ -357,121 +304,9 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
         tempOutputFiller.abort();
     }
   }
-  
-  /// Get also the OrphanHandle of the accepted clusters
-  edm::OrphanHandle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > TTClusterAcceptedHandle = iEvent.put( TTClustsForOutput, TTClusOutputTag );
 
-  // Do a second loop in order to link Cluster and Stub collections
-
-  /// Now, correctly reset the output
-
-  for ( inputIter = TTStubsForOutput->begin();
-        inputIter != TTStubsForOutput->end();
-        ++inputIter )
-  {
-    /// Get the DetId and prepare the FastFiller
-    DetId thisStackedDetId = inputIter->id();
-    edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::FastFiller acceptedOutputFiller( *TTStubsForOutputAccepted, thisStackedDetId );
-    
-    /// Get its DetUnit
-    const StackedTrackerDetUnit* thisUnit = theStackedTracker->idToStack( thisStackedDetId );
-    DetId id0 = thisUnit->stackMember(0);
-    DetId id1 = thisUnit->stackMember(1);
-
-    /// Check that everything is ok in the maps
-    /// Redundant up to (*)
-    if ( theStackedTracker->findPairedDetector( id0 ) != id1 ||
-         theStackedTracker->findPairedDetector( id1 ) != id0 )
-    {
-      std::cerr << "A L E R T! error in detector association within Pt module (detector-to-detector)" << std::endl;
-      continue;
-    }
-
-    if ( theStackedTracker->findStackFromDetector( id0 ) != thisStackedDetId ||
-         theStackedTracker->findStackFromDetector( id1 ) != thisStackedDetId )
-    {
-      std::cerr << "A L E R T! error in detector association within Pt module (detector-to-module)" << std::endl;
-      continue;
-    }
-
-    /// Go on only if both detectors have clusters
-    if ( TTClusterAcceptedHandle->find( id0 ) == TTClusterAcceptedHandle->end() ||
-         TTClusterAcceptedHandle->find( id1 ) == TTClusterAcceptedHandle->end() )
-      continue;
-    
-
-    /// 
-    
-    /// Get the DetSets of the clusters
-    edmNew::DetSet< TTCluster< Ref_PixelDigi_ > > innerClusters = (*TTClusterAcceptedHandle)[ id0 ];
-    edmNew::DetSet< TTCluster< Ref_PixelDigi_ > > outerClusters = (*TTClusterAcceptedHandle)[ id1 ];
-
-    /// Get the DetSet of the stubs
-    edmNew::DetSet< TTStub< Ref_PixelDigi_ > > theseStubs = (*TTStubsForOutput)[ thisStackedDetId ];
-
-    /// Prepare the new DetSet to replace the current one
-    /// Loop over the stubs
-    edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::iterator clusterIter;
-    edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::iterator stubIter;  
-
-    for ( stubIter = theseStubs.begin();
-          stubIter != theseStubs.end();
-          ++stubIter )
-    {
-      /// Create a temporary stub
-      TTStub< Ref_PixelDigi_ > tempTTStub( stubIter->getDetId() );
-
-      /// Compare the clusters stored in the stub with the ones of this module
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > innerClusterToBeReplaced = stubIter->getClusterRef(0);
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > outerClusterToBeReplaced = stubIter->getClusterRef(1);
-
-      bool innerOK = false;
-      bool outerOK = false;
-      
-      for ( clusterIter = innerClusters.begin();
-            clusterIter != innerClusters.end() && !innerOK;
-            ++clusterIter )
-      {
-	
-        if ( clusterIter->getHits() == innerClusterToBeReplaced->getHits() )
-        {
-          tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterAcceptedHandle, clusterIter ) );
-          innerOK = true;
-        }
-       
-      }
-
-      for ( clusterIter = outerClusters.begin();
-            clusterIter != outerClusters.end() && !outerOK;
-            ++clusterIter )
-      {
-	
-        if ( clusterIter->getHits() == outerClusterToBeReplaced->getHits() )
-        {
-          tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterAcceptedHandle, clusterIter ) );
-          outerOK = true;
-        }
-      }
-      
-      /// If no compatible clusters were found, skip to the next one
-      if ( !innerOK || !outerOK )
-        continue;
-
-      tempTTStub.setTriggerDisplacement( stubIter->getTriggerDisplacement() );
-      tempTTStub.setTriggerOffset( stubIter->getTriggerOffset() );
-
-      acceptedOutputFiller.push_back( tempTTStub );
-
-    } /// End of loop over stubs of this module
-
-    if ( acceptedOutputFiller.empty() )
-      acceptedOutputFiller.abort();
-  
-  } /// End of loop over stub DetSetVector
-  
   /// Put in the event content
-  iEvent.put( TTStubsForOutputAccepted, TTStubOutputTag);
-  
+  iEvent.put( TTStubsForOutput, TTStubOutputTag);  
 }
 
 

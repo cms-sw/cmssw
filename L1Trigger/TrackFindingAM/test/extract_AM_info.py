@@ -54,6 +54,7 @@ process.maxEvents = cms.untracked.PSet(
 # The file you want to extract
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:AM_output.root'),
+                            #fileNames = cms.untracked.vstring('file:AMFIT_output.root'),
                             duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )
 
@@ -62,10 +63,17 @@ process.load("Extractors.RecoExtractor.MIB_extractor_cff")
 
 # Tune some options (see MIB_extractor_cfi.py for details)
 
-process.MIBextraction.doPixel          = True
+#process.MIBextraction.doPixel          = True
 process.MIBextraction.doMatch          = True
 process.MIBextraction.doMC             = True
+
 process.MIBextraction.doSTUB           = True
+# You can choose to extract the info from filtered stubs only
+#process.MIBextraction.STUB_container   = cms.string( "MergePROutput" )
+#process.MIBextraction.STUB_name        = cms.string( "StubInPattern" )
+process.MIBextraction.CLUS_container   = cms.string( "TTStubsFromPixelDigis")
+process.MIBextraction.CLUS_name        = cms.string( "ClusterAccepted" )
+
 process.MIBextraction.doL1TRK          = True
 process.MIBextraction.L1pattern_tag    = cms.InputTag( "MergePROutput", "AML1Patterns")
 
