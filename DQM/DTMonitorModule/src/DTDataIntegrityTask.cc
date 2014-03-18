@@ -9,8 +9,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "EventFilter/DTRawToDigi/interface/DTControlData.h"
-#include "EventFilter/DTRawToDigi/interface/DTDDUWords.h"
+#include "DataFormats/DTDigi/interface/DTControlData.h"
+#include "DataFormats/DTDigi/interface/DTDDUWords.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h>

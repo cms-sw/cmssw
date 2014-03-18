@@ -1,5 +1,5 @@
-#ifndef DTRawToDigi_DTControlData_h
-#define DTRawToDigi_DTControlData_h
+#ifndef DTDigi_DTControlData_h
+#define DTDigi_DTControlData_h
 
 /** \class DTROS25Data
  *  The collection containing DT ROS25 status data.
