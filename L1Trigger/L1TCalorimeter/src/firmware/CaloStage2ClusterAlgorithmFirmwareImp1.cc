@@ -60,7 +60,8 @@ void l1t::CaloStage2ClusterAlgorithmFirmwareImp1::clustering(const std::vector<l
       clusters.back().setClusterFlag(CaloCluster::PASS_THRES_SEED);
       clusters.back().setHwSeedPt(hwEt);
       // H/E of the cluster is H/E of the seed
-      int hOverE = (towers[towerNr].hwEtHad()<<7)/towers[towerNr].hwEtEm();
+      int hOverE = (towers[towerNr].hwEtEm()>0 ? (towers[towerNr].hwEtHad()<<7)/towers[towerNr].hwEtEm() : 127);
+      if(hOverE>127) hOverE = 127; // bound H/E at 1-? In the future it will be useful to replace with H/(E+H) (or add an other variable), for taus.
       clusters.back().setHOverE(hOverE);
     }
   }
@@ -251,23 +252,25 @@ void l1t::CaloStage2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1t:
       int iPhiM  = caloNav.offsetIPhi(iPhi, -1);
       int iPhiM2 = caloNav.offsetIPhi(iPhi, -2);
       const l1t::CaloCluster& clusterNNWW = l1t::CaloTools::getCluster(clusters, iEtaM2, iPhiM2);
-      const l1t::CaloCluster& clusterNNW  = l1t::CaloTools::getCluster(clusters, iEtaM2, iPhiM );
-      const l1t::CaloCluster& clusterNN   = l1t::CaloTools::getCluster(clusters, iEtaM2, iPhi  );
-      const l1t::CaloCluster& clusterNNE  = l1t::CaloTools::getCluster(clusters, iEtaM2, iPhiP );
-      const l1t::CaloCluster& clusterNNEE = l1t::CaloTools::getCluster(clusters, iEtaM2, iPhiP2);
-      const l1t::CaloCluster& clusterNEE  = l1t::CaloTools::getCluster(clusters, iEtaM , iPhiP2);
-      const l1t::CaloCluster& clusterEE   = l1t::CaloTools::getCluster(clusters, iEta  , iPhiP2);
-      const l1t::CaloCluster& clusterSEE  = l1t::CaloTools::getCluster(clusters, iEtaP , iPhiP2);
+      const l1t::CaloCluster& clusterNNW  = l1t::CaloTools::getCluster(clusters, iEtaM , iPhiM2);
+      const l1t::CaloCluster& clusterNN   = l1t::CaloTools::getCluster(clusters, iEta  , iPhiM2);
+      const l1t::CaloCluster& clusterNNE  = l1t::CaloTools::getCluster(clusters, iEtaP , iPhiM2);
+      const l1t::CaloCluster& clusterNNEE = l1t::CaloTools::getCluster(clusters, iEtaP2, iPhiM2);
+      const l1t::CaloCluster& clusterNEE  = l1t::CaloTools::getCluster(clusters, iEtaP2, iPhiM);
+      const l1t::CaloCluster& clusterEE   = l1t::CaloTools::getCluster(clusters, iEtaP2, iPhi);
+      const l1t::CaloCluster& clusterSEE  = l1t::CaloTools::getCluster(clusters, iEtaP2, iPhiP);
       const l1t::CaloCluster& clusterSSEE = l1t::CaloTools::getCluster(clusters, iEtaP2, iPhiP2);
-      const l1t::CaloCluster& clusterSSE  = l1t::CaloTools::getCluster(clusters, iEtaP2, iPhiP );
-      const l1t::CaloCluster& clusterSS   = l1t::CaloTools::getCluster(clusters, iEtaP2, iPhi  );
-      const l1t::CaloCluster& clusterSSW  = l1t::CaloTools::getCluster(clusters, iEtaP2, iPhiM );
-      const l1t::CaloCluster& clusterSSWW = l1t::CaloTools::getCluster(clusters, iEtaP2, iPhiM2);
-      const l1t::CaloCluster& clusterSWW  = l1t::CaloTools::getCluster(clusters, iEtaP , iPhiM2);
-      const l1t::CaloCluster& clusterWW   = l1t::CaloTools::getCluster(clusters, iEta  , iPhiM2);
-      const l1t::CaloCluster& clusterNWW  = l1t::CaloTools::getCluster(clusters, iEtaM , iPhiP2);
-      bool filterNNWW = (clusterNNWW.isValid() && clusterNNWW.hwPt()>cluster.hwPt());
-      bool filterNNW  = (clusterNNW .isValid() && clusterNNW .hwPt()>cluster.hwPt());
+      const l1t::CaloCluster& clusterSSE  = l1t::CaloTools::getCluster(clusters, iEtaP , iPhiP2);
+      const l1t::CaloCluster& clusterSS   = l1t::CaloTools::getCluster(clusters, iEta  , iPhiP2);
+      const l1t::CaloCluster& clusterSSW  = l1t::CaloTools::getCluster(clusters, iEtaM , iPhiP2);
+      const l1t::CaloCluster& clusterSSWW = l1t::CaloTools::getCluster(clusters, iEtaM2, iPhiP2);
+      const l1t::CaloCluster& clusterSWW  = l1t::CaloTools::getCluster(clusters, iEtaM2, iPhiP);
+      const l1t::CaloCluster& clusterWW   = l1t::CaloTools::getCluster(clusters, iEtaM2, iPhi);
+      const l1t::CaloCluster& clusterNWW  = l1t::CaloTools::getCluster(clusters, iEtaM2, iPhi);
+
+
+      bool filterNNWW = (clusterNNWW.isValid() && clusterNNWW.hwPt()>=cluster.hwPt());
+      bool filterNNW  = (clusterNNW .isValid() && clusterNNW .hwPt()>=cluster.hwPt());
       bool filterNN   = (clusterNN  .isValid() && clusterNN  .hwPt()>cluster.hwPt());
       bool filterNNE  = (clusterNNE .isValid() && clusterNNE .hwPt()>cluster.hwPt());
       bool filterNNEE = (clusterNNEE.isValid() && clusterNNEE.hwPt()>cluster.hwPt());
@@ -276,12 +279,70 @@ void l1t::CaloStage2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1t:
       bool filterSEE  = (clusterSEE .isValid() && clusterSEE .hwPt()>cluster.hwPt());
       bool filterSSEE = (clusterSSEE.isValid() && clusterSSEE.hwPt()>cluster.hwPt());
       bool filterSSE  = (clusterSSE .isValid() && clusterSSE .hwPt()>cluster.hwPt());
-      bool filterSS   = (clusterSS  .isValid() && clusterSS  .hwPt()>cluster.hwPt());
-      bool filterSSW  = (clusterSSW .isValid() && clusterSSW .hwPt()>cluster.hwPt());
-      bool filterSSWW = (clusterSSWW.isValid() && clusterSSWW.hwPt()>cluster.hwPt());
-      bool filterSWW  = (clusterSWW .isValid() && clusterSWW .hwPt()>cluster.hwPt());
-      bool filterWW   = (clusterWW  .isValid() && clusterWW  .hwPt()>cluster.hwPt());
-      bool filterNWW  = (clusterNWW .isValid() && clusterNWW .hwPt()>cluster.hwPt());
+      bool filterSS   = (clusterSS  .isValid() && clusterSS  .hwPt()>=cluster.hwPt());
+      bool filterSSW  = (clusterSSW .isValid() && clusterSSW .hwPt()>=cluster.hwPt());
+      bool filterSSWW = (clusterSSWW.isValid() && clusterSSWW.hwPt()>=cluster.hwPt());
+      bool filterSWW  = (clusterSWW .isValid() && clusterSWW .hwPt()>=cluster.hwPt());
+      bool filterWW   = (clusterWW  .isValid() && clusterWW  .hwPt()>=cluster.hwPt());
+      bool filterNWW  = (clusterNWW .isValid() && clusterNWW .hwPt()>=cluster.hwPt());
+      if(iEta<-1)
+      {
+        filterNNWW = (clusterNNWW.isValid() && clusterNNWW.hwPt()>cluster.hwPt());
+        filterNNW  = (clusterNNW .isValid() && clusterNNW .hwPt()>cluster.hwPt());
+        filterNN   = (clusterNN  .isValid() && clusterNN  .hwPt()>=cluster.hwPt());
+        filterNNE  = (clusterNNE .isValid() && clusterNNE .hwPt()>=cluster.hwPt());
+        filterNNEE = (clusterNNEE.isValid() && clusterNNEE.hwPt()>=cluster.hwPt());
+        filterNEE  = (clusterNEE .isValid() && clusterNEE .hwPt()>=cluster.hwPt());
+        filterEE   = (clusterEE  .isValid() && clusterEE  .hwPt()>=cluster.hwPt());
+        filterSEE  = (clusterSEE .isValid() && clusterSEE .hwPt()>=cluster.hwPt());
+        filterSSEE = (clusterSSEE.isValid() && clusterSSEE.hwPt()>=cluster.hwPt());
+        filterSSE  = (clusterSSE .isValid() && clusterSSE .hwPt()>=cluster.hwPt());
+        filterSS   = (clusterSS  .isValid() && clusterSS  .hwPt()>cluster.hwPt());
+        filterSSW  = (clusterSSW .isValid() && clusterSSW .hwPt()>cluster.hwPt());
+        filterSSWW = (clusterSSWW.isValid() && clusterSSWW.hwPt()>cluster.hwPt());
+        filterSWW  = (clusterSWW .isValid() && clusterSWW .hwPt()>cluster.hwPt());
+        filterWW   = (clusterWW  .isValid() && clusterWW  .hwPt()>cluster.hwPt());
+        filterNWW  = (clusterNWW .isValid() && clusterNWW .hwPt()>cluster.hwPt());
+      }
+      else if(iEta==1)
+      {
+        filterNNWW = (clusterNNWW.isValid() && clusterNNWW.hwPt()>cluster.hwPt());
+        filterNNW  = (clusterNNW .isValid() && clusterNNW .hwPt()>cluster.hwPt());
+        filterNN   = (clusterNN  .isValid() && clusterNN  .hwPt()>cluster.hwPt());
+        filterNNE  = (clusterNNE .isValid() && clusterNNE .hwPt()>cluster.hwPt());
+        filterNNEE = (clusterNNEE.isValid() && clusterNNEE.hwPt()>cluster.hwPt());
+        filterNEE  = (clusterNEE .isValid() && clusterNEE .hwPt()>cluster.hwPt());
+        filterEE   = (clusterEE  .isValid() && clusterEE  .hwPt()>cluster.hwPt());
+        filterSEE  = (clusterSEE .isValid() && clusterSEE .hwPt()>cluster.hwPt());
+        filterSSEE = (clusterSSEE.isValid() && clusterSSEE.hwPt()>cluster.hwPt());
+        filterSSE  = (clusterSSE .isValid() && clusterSSE .hwPt()>cluster.hwPt());
+        filterSS   = (clusterSS  .isValid() && clusterSS  .hwPt()>=cluster.hwPt());
+        filterSSW  = (clusterSSW .isValid() && clusterSSW .hwPt()>cluster.hwPt());
+        filterSSWW = (clusterSSWW.isValid() && clusterSSWW.hwPt()>cluster.hwPt());
+        filterSWW  = (clusterSWW .isValid() && clusterSWW .hwPt()>cluster.hwPt());
+        filterWW   = (clusterWW  .isValid() && clusterWW  .hwPt()>cluster.hwPt());
+        filterNWW  = (clusterNWW .isValid() && clusterNWW .hwPt()>cluster.hwPt());
+      }
+      else if(iEta==-1)
+      {
+        filterNNWW = (clusterNNWW.isValid() && clusterNNWW.hwPt()>cluster.hwPt());
+        filterNNW  = (clusterNNW .isValid() && clusterNNW .hwPt()>cluster.hwPt());
+        filterNN   = (clusterNN  .isValid() && clusterNN  .hwPt()>=cluster.hwPt());
+        filterNNE  = (clusterNNE .isValid() && clusterNNE .hwPt()>cluster.hwPt());
+        filterNNEE = (clusterNNEE.isValid() && clusterNNEE.hwPt()>cluster.hwPt());
+        filterNEE  = (clusterNEE .isValid() && clusterNEE .hwPt()>cluster.hwPt());
+        filterEE   = (clusterEE  .isValid() && clusterEE  .hwPt()>cluster.hwPt());
+        filterSEE  = (clusterSEE .isValid() && clusterSEE .hwPt()>cluster.hwPt());
+        filterSSEE = (clusterSSEE.isValid() && clusterSSEE.hwPt()>cluster.hwPt());
+        filterSSE  = (clusterSSE .isValid() && clusterSSE .hwPt()>cluster.hwPt());
+        filterSS   = (clusterSS  .isValid() && clusterSS  .hwPt()>cluster.hwPt());
+        filterSSW  = (clusterSSW .isValid() && clusterSSW .hwPt()>cluster.hwPt());
+        filterSSWW = (clusterSSWW.isValid() && clusterSSWW.hwPt()>cluster.hwPt());
+        filterSWW  = (clusterSWW .isValid() && clusterSWW .hwPt()>cluster.hwPt());
+        filterWW   = (clusterWW  .isValid() && clusterWW  .hwPt()>cluster.hwPt());
+        filterNWW  = (clusterNWW .isValid() && clusterNWW .hwPt()>cluster.hwPt());
+      }
+
       if(filterNNWW || filterNNW || filterNN || filterWW || filterNWW) cluster.setClusterFlag(CaloCluster::TRIM_NW, true);
       if(filterNNW || filterNN || filterNNE)                           cluster.setClusterFlag(CaloCluster::TRIM_N , true);
       if(filterNN || filterNNE || filterNNEE || filterNEE || filterEE) cluster.setClusterFlag(CaloCluster::TRIM_NE, true);
@@ -407,23 +468,25 @@ void l1t::CaloStage2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l1t
       }
 
       // Extend the cluster
+      const l1t::CaloCluster& clusterNN   = l1t::CaloTools::getCluster(clusters, iEta , iPhiM2);
       const l1t::CaloCluster& clusterNNW  = l1t::CaloTools::getCluster(clusters, iEtaM, iPhiM2);
       const l1t::CaloCluster& clusterNNNW = l1t::CaloTools::getCluster(clusters, iEtaM, iPhiM3);
       const l1t::CaloCluster& clusterNNN  = l1t::CaloTools::getCluster(clusters, iEta , iPhiM3);
       const l1t::CaloCluster& clusterNNNE = l1t::CaloTools::getCluster(clusters, iEtaP, iPhiM3);
       const l1t::CaloCluster& clusterNNE  = l1t::CaloTools::getCluster(clusters, iEtaP, iPhiM2);
+      const l1t::CaloCluster& clusterSS   = l1t::CaloTools::getCluster(clusters, iEta , iPhiP2);
       const l1t::CaloCluster& clusterSSW  = l1t::CaloTools::getCluster(clusters, iEtaM, iPhiP2);
       const l1t::CaloCluster& clusterSSSW = l1t::CaloTools::getCluster(clusters, iEtaM, iPhiP3);
       const l1t::CaloCluster& clusterSSS  = l1t::CaloTools::getCluster(clusters, iEta , iPhiP3);
       const l1t::CaloCluster& clusterSSSE = l1t::CaloTools::getCluster(clusters, iEtaP, iPhiP3);
       const l1t::CaloCluster& clusterSSE  = l1t::CaloTools::getCluster(clusters, iEtaP, iPhiP2);
       if(towerEtN>=m_clusterThreshold && towerEtNN>=m_clusterThreshold && 
-          !(clusterNNW.isValid() || clusterNNNW.isValid() || clusterNNN.isValid() || clusterNNNE.isValid() || clusterNNE.isValid())
+          !(clusterNN.isValid() || clusterNNW.isValid() || clusterNNNW.isValid() || clusterNNN.isValid() || clusterNNNE.isValid() || clusterNNE.isValid())
           ){
         cluster.setClusterFlag(CaloCluster::EXT_UP, true);
       }
       if(towerEtS>=m_clusterThreshold && towerEtSS>=m_clusterThreshold && 
-          !(clusterSSW.isValid() || clusterSSSW.isValid() || clusterSSS.isValid() || clusterSSSE.isValid() || clusterSSE.isValid())
+          !(clusterSS.isValid() || clusterSSW.isValid() || clusterSSSW.isValid() || clusterSSS.isValid() || clusterSSSE.isValid() || clusterSSE.isValid())
           ){
         cluster.setClusterFlag(CaloCluster::EXT_DOWN, true);
       }
@@ -443,3 +506,4 @@ void l1t::CaloStage2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l1t
     }
   }
 }
+
