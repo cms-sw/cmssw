@@ -80,7 +80,7 @@ int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTowe
       const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
       if(etMode&ECAL) hwEtSum+=tower.hwEtEm();
       if(etMode&HCAL) hwEtSum+=tower.hwEtHad();
-      if(etMode&CALO) hwEtSum+=tower.hwPt();
+      if(etMode&CALO) hwEtSum+=tower.hwEtEm()+tower.hwEtHad();
     }
   }
   return hwEtSum;

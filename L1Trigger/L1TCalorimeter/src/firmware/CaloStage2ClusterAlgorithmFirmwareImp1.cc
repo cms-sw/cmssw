@@ -45,7 +45,6 @@ void l1t::CaloStage2ClusterAlgorithmFirmwareImp1::clustering(const std::vector<l
   // navigator
   l1t::CaloStage2Nav caloNav;
 
-
   // Build clusters passing seed threshold
   for(size_t towerNr=0;towerNr<towers.size();towerNr++){
     int iEta = towers[towerNr].hwEta();
@@ -61,7 +60,8 @@ void l1t::CaloStage2ClusterAlgorithmFirmwareImp1::clustering(const std::vector<l
       clusters.back().setClusterFlag(CaloCluster::PASS_THRES_SEED);
       clusters.back().setHwSeedPt(hwEt);
       // H/E of the cluster is H/E of the seed
-      int hOverE = (towers[towerNr].hwEtHad()<<7)/towers[towerNr].hwEtEm();
+      int hOverE = (towers[towerNr].hwEtEm()>0 ? (towers[towerNr].hwEtHad()<<7)/towers[towerNr].hwEtEm() : 127);
+      if(hOverE>127) hOverE = 127; // bound H/E at 1-? In the future it will be useful to replace with H/(E+H) (or add an other variable), for taus.
       clusters.back().setHOverE(hOverE);
     }
   }
