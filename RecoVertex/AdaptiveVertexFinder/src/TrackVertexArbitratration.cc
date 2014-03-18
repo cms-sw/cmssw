@@ -10,18 +10,24 @@ TrackVertexArbitration::TrackVertexArbitration(const edm::ParameterSet &params) 
 	dRCut                     (params.getParameter<double>("dRCut")),
 	distCut                   (params.getParameter<double>("distCut")),
 	sigCut                    (params.getParameter<double>("sigCut")),
-	dLenFraction              (params.getParameter<double>("dLenFraction"))
+	dLenFraction              (params.getParameter<double>("dLenFraction")),
+	fitterSigmacut            (params.getParameter<double>("fitterSigmacut")),
+	fitterTini                (params.getParameter<double>("fitterTini")),
+	fitterRatio               (params.getParameter<double>("fitterRatio")),
+	trackMinLayers            (params.getParameter<int32_t>("trackMinLayers")),
+	trackMinPt                (params.getParameter<double>("trackMinPt")),
+	trackMinPixels            (params.getParameter<int32_t>("trackMinPixels"))
 {
 	
 }
 
 bool TrackVertexArbitration::trackFilterArbitrator(const reco::TrackRef &track) const
 {
-        if (track->hitPattern().trackerLayersWithMeasurement() < 4)
+        if (track->hitPattern().trackerLayersWithMeasurement() < trackMinLayers)
                 return false;
-        if (track->pt() < 0.4 )
+        if (track->pt() < trackMinPt)
                 return false;
-        if (track->hitPattern().numberOfValidPixelHits() < 1)
+        if (track->hitPattern().numberOfValidPixelHits() < trackMinPixels)
                 return false;
 
         return true;
@@ -40,15 +46,10 @@ reco::VertexCollection  TrackVertexArbitration::trackVertexArbitrator(
 {
 	using namespace reco;
 
-	     //std::cout << "PV: " << pv.position() << std::endl;
+	//std::cout << "PV: " << pv.position() << std::endl;
         VertexDistance3D dist;
-
-  double sigmacut = 3.0;
-  double Tini     = 256.;
-  double ratio    = 0.25;
-
-  AdaptiveVertexFitter theAdaptiveFitter(
-                                            GeometricAnnealing(sigmacut, Tini, ratio),
+  	AdaptiveVertexFitter theAdaptiveFitter(
+                                            GeometricAnnealing(fitterSigmacut, fitterTini, fitterRatio),
                                             DefaultLinearizationPointFinder(),
                                             KalmanVertexUpdator<5>(),
                                             KalmanVertexTrackCompatibilityEstimator<5>(),
@@ -57,8 +58,7 @@ reco::VertexCollection  TrackVertexArbitration::trackVertexArbitrator(
 
 
 	reco::VertexCollection recoVertices;
-
-       VertexDistance3D vdist;
+        VertexDistance3D vdist;
 
 for(std::vector<reco::Vertex>::const_iterator sv = secondaryVertices.begin();
 	    sv != secondaryVertices.end(); ++sv) {
