@@ -105,6 +105,7 @@ MuonGEMDigis::endJob()
 void 
 MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
+  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
   iSetup.get<MuonGeometryRecord>().get(gem_geo_);
   try{
     gem_geometry_ = &*gem_geo_;
@@ -114,8 +115,6 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     edm::LogError("MuonGEMDigis") << "+++ Error : GEM geometry is unavailable. +++\n";
     return;
   }
-
-  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
 
   if ( hasGEMGeometry_ ) {
 

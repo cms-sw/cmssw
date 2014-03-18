@@ -99,7 +99,6 @@ MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     edm::LogError("MuonGEMHits") << "+++ Error : GEM geometry is unavailable. +++\n";
     return;
   }
-
   dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
   
   if( hasGEMGeometry_ ) {
