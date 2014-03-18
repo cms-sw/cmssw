@@ -80,7 +80,7 @@
   </LogicalPart>
   <LogicalPart name="BHMDisk" category="unspecified">
     <rSolid name="BHMDisk"/>
-    <rMaterial name="bhm:RTV"/>
+    <rMaterial name="materials:RTV"/>
   </LogicalPart>
   <LogicalPart name="BHMWindow" category="unspecified">
     <rSolid name="BHMWindow"/>
@@ -88,7 +88,7 @@
   </LogicalPart>
   <LogicalPart name="BHMCathode" category="unspecified">
     <rSolid name="BHMCathode"/>
-    <rMaterial name="bhm:Bialkali"/>
+    <rMaterial name="materials:Bialkali"/>
   </LogicalPart>
   <LogicalPart name="BHMStopper2" category="unspecified">
     <rSolid name="BHMStopper2"/>
@@ -103,7 +103,6 @@
     <rMaterial name="materials:Aluminium"/>
   </LogicalPart>
 </LogicalPartSection>
-
 
 <PosPartSection label="bhm.xml">
   <PosPart copyNumber="1">
@@ -173,4 +172,5 @@
     <Numeric name="deltaPhi"    value="180*deg/16"/>
   </Algorithm>
 </PosPartSection>
+
 </DDDefinition>
