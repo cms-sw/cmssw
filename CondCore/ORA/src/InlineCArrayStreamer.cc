@@ -32,7 +32,7 @@ bool ora::InlineCArrayStreamerBase::buildDataElement(DataElement& dataElement,
                     "InlineCArrayStreamerBase::buildDataElement" );
   }
   // Loop over the elements of the array.
-  for ( unsigned int i=0;i<m_objectType.arrayLength();i++){
+  for ( size_t i=0;i<m_objectType.maximumIndex(0U);++i){
 
     // Form the element name
     std::string arrayElementLabel = MappingRules::variableNameForArrayIndex( m_mapping.variableName(),i);

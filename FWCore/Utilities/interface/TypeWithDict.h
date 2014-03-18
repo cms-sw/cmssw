@@ -92,6 +92,8 @@ public:
   std::string templateName() const;
   size_t size() const;
   size_t arrayLength() const;
+  size_t arrayDimension() const;
+  size_t maximumIndex(size_t dim) const;
   size_t dataMemberSize() const;
   size_t functionMemberSize() const;
   MemberWithDict dataMemberByName(std::string const&) const;

@@ -443,6 +443,22 @@ namespace edm {
   }
 
   size_t
+  TypeWithDict::arrayDimension() const {
+    if (type_ == nullptr) {
+      return 0;
+    }
+    return gInterpreter->Type_ArrayDim(type_);
+  }
+
+  size_t
+  TypeWithDict::maximumIndex(size_t dim) const {
+    if (type_ == nullptr) {
+      return 0;
+    }
+    return gInterpreter->Type_MaxIndex(type_, dim);
+  }
+
+  size_t
   TypeWithDict::dataMemberSize() const {
     if (class_ != nullptr) {
       return class_->GetListOfDataMembers()->GetSize();
