@@ -29,7 +29,6 @@ FastMonitor::FastMonitor(std::string const& defPath, bool strictChecking, bool u
   dpd_ = new DataPointDefinition();
   DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_);
 
-
 }
 
 
@@ -160,7 +159,7 @@ void FastMonitor::commit(std::vector<unsigned int> *streamLumisPtr)
       }
       if (notFoundVar)
       {
-        //try to find it in slow variables
+        //try to find variable among slow variables
 
         bool notFoundVarSlow=true;
         for (unsigned int j=0;j<regDpCount_;j++) {

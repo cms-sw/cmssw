@@ -160,15 +160,14 @@ namespace evf{
 
   void FastMonitoringService::preallocate(edm::service::SystemBounds const & bounds)
   {
-    //we can begin monitoring at this step
 
     nStreams_=bounds.maxNumberOfStreams();
     nThreads_=bounds.maxNumberOfThreads();
 
-    //use same approach even if no multithreading
+    //this should already be >=1
     if (nStreams_==0) nStreams_=1;
     if (nThreads_==0) nThreads_=1;
-    //TODO: what if nThreads_<nStreams?
+
     macrostate_=FastMonitoringThread::sInit;
 
     for (unsigned int i=0;i<nStreams_;i++) {
@@ -196,7 +195,7 @@ namespace evf{
     fmt_.m_data.ministateBins_=0;
     fmt_.m_data.microstateBins_ = 0; 
  
-    lastGlobalLumi_=0;//this means no fast path before begingGlobalLumi (for now), 
+    lastGlobalLumi_=0; 
     isGlobalLumiTransition_=true;
     lumiFromSource_=0;
 
@@ -230,10 +229,10 @@ namespace evf{
 
   void FastMonitoringService::postBeginJob()
   {
-    std::cout << "module legenda***************" << std::endl;
+    //std::cout << "module legenda***************" << std::endl;
     std::string && moduleLegStr = makeModuleLegenda();
     //will not print this as it is large and saved to a file
-    std::cout << moduleLegStr << std::endl;
+    //std::cout << moduleLegStr << std::endl;
     FileIO::writeStringToFile(moduleLegendFile_, moduleLegStr);
 
     macrostate_ = FastMonitoringThread::sJobReady;
@@ -369,10 +368,10 @@ namespace evf{
   {
     unsigned int sid = sc.streamID().value();
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
-#if ATOMIC_LEVEL>=2
+    #if ATOMIC_LEVEL>=2
     //spinlock to make sure we are not still updating event counter somewhere
     while (streamCounterUpdating_[sid]->load(std::memory_order_acquire)) {}
-#endif
+    #endif
     //update processed count to be complete at this time
     doStreamEOLSnapshot(false,sc.eventID().luminosityBlock(),sid);
     //reset this in case stream does not get notified of next lumi (we keep processed events only)
@@ -434,24 +433,22 @@ namespace evf{
 
 
     ministate_[sc.streamID()] = &nopath_;
-    //fmt_.monlock_.lock();
-#if ATOMIC_LEVEL>=2
+    #if ATOMIC_LEVEL>=2
     //use atomic flag to make sure end of lumi sees this
     streamCounterUpdating_[sc.streamID()]->store(true,std::memory_order_release);
     fmt_.m_data.processed_[sc.streamID()]->fetch_add(1,std::memory_order_release);
     streamCounterUpdating_[sc.streamID()]->store(false,std::memory_order_release);
-#elif ATOMIC_LEVEL==1
+    #elif ATOMIC_LEVEL==1
     //writes are atomic, we assume writes propagate to memory before stream EOL snap
     fmt_.m_data.processed_[sc.streamID()]->fetch_add(1,std::memory_order_relaxed);
-#elif ATOMIC_LEVEL==0
+    #elif ATOMIC_LEVEL==0
     (*(fmt_.m_data.processed_[sc.streamID()]))++;
-#endif
+    #endif
     eventCountForPathInit_[sc.streamID()]++;
 
     //fast path counter (events accumulated in a run)
     totalEventsProcessed_.fetch_add(1,std::memory_order_relaxed);
     fmt_.m_data.fastPathProcessedJ_ = totalEventsProcessed_.load(std::memory_order_relaxed); 
-    //fmt_.monlock_.unlock();
   }
 
   void FastMonitoringService::preSourceEvent(edm::StreamID sid)

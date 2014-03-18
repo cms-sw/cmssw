@@ -18,9 +18,7 @@
 
 using namespace jsoncollector;
 
-//template class HistoJ<int>;
 template class HistoJ<unsigned int>;
-//template class HistoJ<std::atomic<unsigned int>>;
 template class HistoJ<double>;
 
 const std::string DataPoint::SOURCE = "source";
@@ -132,8 +130,6 @@ void DataPoint::snap(unsigned int lumi)
         unsigned int streamLumi_=streamLumisPtr_->at(i);//get currently processed stream lumi
         unsigned int monVal;
 
-//#if ATOMIC_LEVEL>0 //strictest version
-//        if (isAtomic_) monVal = (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(i)->load(std::memory_order_acquire);
 #if ATOMIC_LEVEL>0
         if (isAtomic_) monVal = (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(i)->load(std::memory_order_relaxed);
 #else 
@@ -142,10 +138,10 @@ void DataPoint::snap(unsigned int lumi)
 	else monVal = (static_cast<std::vector<unsigned int>*>(tracked_))->at(i);
 
 	auto itr =  streamDataMaps_[i].find(streamLumi_);
-	if (itr==streamDataMaps_[i].end()) //insert
+	if (itr==streamDataMaps_[i].end())
 	{
 	  if (opType_==OPHISTO) {
-            if (*nBinsPtr_) {//only if bins >0
+            if (*nBinsPtr_) {
               HistoJ<unsigned int> *nh = new HistoJ<unsigned int>(1,MAXUPDATES);
               nh->update(monVal);
               streamDataMaps_[i][streamLumi_] = nh;
@@ -159,7 +155,7 @@ void DataPoint::snap(unsigned int lumi)
         }
         else { 
           if (opType_==OPHISTO) {
-            if (*nBinsPtr_) {//only if bins >0
+            if (*nBinsPtr_) {
               (static_cast<HistoJ<unsigned int> *>(itr->second.get()))->update(monVal);
             }
           }
@@ -212,8 +208,6 @@ void DataPoint::snapStreamAtomic(unsigned int streamID, unsigned int lumi)
   if (monType_==TYPEUINT)
   {
     unsigned int monVal;
-    //#if ATOMIC_LEVEL>0 //strictest version
-    //      if (isAtomic_) monVal = ((std::vector<AtomicMonUInt*>*)tracked_)->at(streamID)->load(std::memory_order_acquire);
 #if ATOMIC_LEVEL>0
     if (isAtomic_) monVal = (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(streamID)->load(std::memory_order_relaxed);
 #else 
@@ -359,7 +353,7 @@ void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool init
           auto &hvec = monObj->value();
           for (unsigned int i=0;i<hvec.size();i++) {
             unsigned int thisbin=(unsigned int) hvec[i];
-            if (thisbin<*nBinsPtr_ /*&& thisbin>=0*/) {
+            if (thisbin<*nBinsPtr_) {
               buf_[thisbin]++;
             }
           }
@@ -384,7 +378,6 @@ void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool init
 }
 
 //wipe out data that will no longer be used
-//should use iterator to erase
 void DataPoint::discardCollected(unsigned int lumi)
 {
   for (unsigned int i=0;i<streamDataMaps_.size();i++)

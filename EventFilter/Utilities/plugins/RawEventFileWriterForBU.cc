@@ -171,7 +171,8 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
     ss << destinationDir_ << "/" << oldFileName.substr(oldFileName.rfind("/") + 1, oldFileName.size() - oldFileName.rfind("/") - 5) << ".jsn";
     std::string path = ss.str();
 
-    perFileMon_->outputFullJSON(path, ls);//TODO probably should discard old lumi count
+    perFileMon_->outputFullJSON(path, ls);
+    perFileMon_->discardCollected(ls);
     //now that the json file is there, move the raw file
     int fretval = rename(oldFileName.c_str(),(destinationDir_+oldFileName.substr(oldFileName.rfind("/"))).c_str());
     // if (debug_)

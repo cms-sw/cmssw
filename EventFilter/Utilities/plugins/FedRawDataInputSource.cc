@@ -272,21 +272,8 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       edm::LogInfo("FedRawDataInputSource") << "No rawdata files at this time";
       //sleep until wakeup (only in single-buffer mode) or timeout
       std::unique_lock<std::mutex> lkw(mWakeup_);
-      if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) != std::cv_status::timeout) {
-        //DEBUGGING part:
-        if (!fileQueue_.try_pop(currentFile_)) {
-          assert(0);
-          std::cout << " main thread woken up but data not yet coherent!" << std::endl;
-          //might also spinlock...
-          usleep(1000);
-          if (!fileQueue_.try_pop(currentFile_)) {
-            std::cout << " main thread sleep didn't help!" << std::endl;
-            return evf::EvFDaqDirector::noFile;
-          }
-        }
-      }
-      //return evf::EvFDaqDirector::noFile;
-      else return evf::EvFDaqDirector::noFile;//debugging only
+      if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout)
+        return evf::EvFDaqDirector::noFile;
     }
     status = currentFile_->status_;
     if ( status == evf::EvFDaqDirector::runEnded)
@@ -323,7 +310,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
   //file is empty
   if (!currentFile_->fileSize_) {
-    //empty file: try to open new lumi
+    //try to open new lumi
     assert(currentFile_->nChunks_==0);
     if (getLSFromFilename_)
       if (currentFile_->lumi_ > currentLumiSection_) {
@@ -331,9 +318,8 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 	eventsThisLumi_=0;
         maybeOpenNewLumiSection(currentFile_->lumi_);
       }
-    //can be immediately deleted
+    //immediately delete empty file
     deleteFile(currentFile_->fileName_);
-    //filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,currentFile_));
     delete currentFile_;
     currentFile_=nullptr;
     return evf::EvFDaqDirector::noFile;
@@ -357,11 +343,11 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       cvWakeup_.notify_one();
     }
     bufferInputRead_=0;
-    if (!daqDirector_->isSingleStreamThread())//TODO: test difference between non-set, 1 stream/ 0 threads and 1/1
+    if (!daqDirector_->isSingleStreamThread())
       //put the file in pending delete list;
       filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,currentFile_));
     else {
-      //in single-thread jobs, events are already processed
+      //in single-thread and stream jobs, events are already processed
       deleteFile(currentFile_->fileName_);
       delete currentFile_;
     }
@@ -499,7 +485,6 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
   return evf::EvFDaqDirector::sameFile;
 }
 
-//TODO: check if something is deleted twice (single-buffer mode!)
 void FedRawDataInputSource::deleteFile(std::string const& fileName)
 {
   const boost::filesystem::path filePath(fileName);
@@ -525,7 +510,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   edm::WrapperOwningHolder edp(new edm::Wrapper<FEDRawDataCollection>(rawData),
                                edm::Wrapper<FEDRawDataCollection>::getInterface());
 
-  //FWCore API up to 7_1_0_pre2
+  //FWCore/Sources DaqProvenanceHelper before 7_1_0_pre3
   //eventPrincipal.put(daqProvenanceHelper_.constBranchDescription_, edp,
   //                   daqProvenanceHelper_.dummyProvenance_);
   
@@ -588,7 +573,6 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FED
   return tstamp;
 }
 
-//TODO:use fffnaming
 int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath)
 {
   std::string data;
@@ -596,6 +580,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
     // assemble json destination path
     boost::filesystem::path jsonDestPath(fuOutputDir_);
 
+    //should be ported to use fffnaming
     std::ostringstream fileNameWithPID;
     fileNameWithPID << jsonSourcePath.stem().string() << "_pid"
                     << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
@@ -710,20 +695,7 @@ void FedRawDataInputSource::readSupervisor()
       std::unique_lock<std::mutex> lkw(mWakeup_);
       //sleep until woken up by condition or a timeout
       if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout) {
-        counter++;
-        if (!(counter%10)) edm::LogInfo("FedRawDataInputSource") << " No free chunks or threads..." << std::endl;
-      }
-      else { //DEBUGGING part
-        //update might not arrive immediately
-        if ((workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty()) {
-          assert(0);
-          std::cout << " supervisor thread woken up but data not yet coherent!" << std::endl;
-          usleep(1000);
-          if ((workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty())
-            std::cout << " main thread sleep didn't help!" << std::endl;
-          else break;
-        }
-        else break;
+        if (!(counter%10)) edm::LogInfo("FedRawDataInputSource") << " No free chunks or threads...";
       }
       if (quit_threads_) {stop=true;break;}
     }
@@ -757,7 +729,7 @@ void FedRawDataInputSource::readSupervisor()
 	fileQueue_.push(new InputFile(evf::EvFDaqDirector::newLumi, currentLumiSection));
       }
 
-      int dbgcount =0;
+      int dbgcount=0;
       if (status == evf::EvFDaqDirector::noFile) {
 	dbgcount++;
 	if (!(dbgcount%10))
@@ -872,7 +844,6 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     if (init) {
       std::unique_lock<std::mutex> lk(startupLock_);
       init = false;
-      //lk.unlock();
       startupCv_.notify_one();
     }
     cvReader_[tid]->wait(lk);
@@ -882,12 +853,8 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     InputFile * file;
     InputChunk * chunk;
 
-    //leaving this here for now
-    int count = 1;//DEBUG
-    while (count && ! (file = workerJob_[tid].first)) {count--;}
-    while (count && ! (chunk = workerJob_[tid].second)) {count--;}
-    while (count && chunk->readComplete_) {count--;}
-    assert(count>0);
+    file = workerJob_[tid].first;
+    chunk = workerJob_[tid].second;
 
     int fileDescriptor = open(file->fileName_.c_str(), O_RDONLY);
     off_t pos = lseek(fileDescriptor,chunk->offset_,SEEK_SET);
@@ -911,7 +878,6 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
       if ( last > 0 )
 	bufferLeft+=last;
       if (last < eventChunkBlock_) {
-	//debug check
 	assert(chunk->usedSize_==i*eventChunkBlock_+last);
 	break;
       }
@@ -1034,8 +1000,6 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
       edm::LogInfo("FedRawDataInputSource") << "Closing input file " << file->fileName_;
       close(fileDescriptor_);
       fileDescriptor_=-1;
-      //will be deleted after no streams are processing events from this file
-      //filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,new InputFile(file->fileName_)));
     }
   }
 }

@@ -21,7 +21,7 @@
 //synchronization level between streams/threads for atomic updates
 //#define ATOMIC_LEVEL 2 //assume postEvent and postLumi are not synchronized (each invocation can run in different thread)
 //#define ATOMIC_LEVEL 1 //assume postEvent can run in different threads but endLumi still sees all memory writes properly
-#define ATOMIC_LEVEL 0 //assume a stream always runs in same thread and no atomics/synchronization needed in that context
+#define ATOMIC_LEVEL 0 //assume data is synchronized
 
 namespace jsoncollector {
 
@@ -75,7 +75,6 @@ public:
 	void trackVectorUInt(std::string const& name, std::vector<unsigned int> *monvec, bool NAifZeroUpdates);
 
 	//set to track a vector of atomic variables with guaranteed collection
-//	void trackVectorUIntAtomic(std::string const& name, std::vector<std::atomic<unsigned int>*> *monvec, bool NAifZeroUpdates);
 	void trackVectorUIntAtomic(std::string const& name, std::vector<AtomicMonUInt*> *monvec, bool NAifZeroUpdates);
 
 	//variable not found by the service, but want to output something to JSON
@@ -115,10 +114,6 @@ public:
 
 	std::string const& getName() {return name_;}
 
-/*
-	unsigned int getUpdates() {return updates_;}
-
-*/
 	// JSON field names
 	static const std::string SOURCE;
 	static const std::string DEFINITION;
