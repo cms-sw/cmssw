@@ -18,9 +18,12 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 //FIXME: debugging stuff to be removed
+#define DEBUGIP 1
+#if DEBUGIP
 #include "TrackingTools/IPTools/interface/IPTools.h" 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#endif
 
 namespace pat {
     class PATPackedCandidateProducer : public edm::EDProducer {
@@ -151,6 +154,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 		outPtrP->back().setIPCovariance(*cand.trackRef());
 
 ///// DEBUG
+#if DEBUGIP
 		if(cand.pt() > 0.8 && fabs(cand.trackRef()->dz()-PV->position().z()) < 0.3){
 		reco::Track tr = outPtrP->back().pseudoTrack();
 		edm::ESHandle<TransientTrackBuilder> builder;
@@ -164,11 +168,13 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 		if( 		  ( fabs(ip3Dnew.significance()-ip3Dold.significance())/ip3Dold.significance() > 0.02 && ip3Dold.significance() < 10 )
 		||  ( fabs(ip3Dnew.significance()-ip3Dold.significance())/ip3Dold.significance() > 0.10 && ip3Dold.significance() > 10 )
 		) {
-		std::cout <<" NEW vs OLD  : " <<  ip3Dnew.value() << " / " << ip3Dnew.error() << " = " << ip3Dnew.significance() << " vs " << ip3Dold.value() << " / " << ip3Dold.error() << " = " << ip3Dold.significance() << std::endl;
+		std::cout <<" NEW vs OLD  : " <<  ip3Dnew.value() << " / " << ip3Dnew.error() << " = " << ip3Dnew.significance() << " vs " << ip3Dold.value() << " / " << ip3Dold.error() << " = " << ip3Dold.significance() <<  " " << cand.pt() <<  std::endl;
+
 		std::cout << "new covariance" <<  std::endl << tr.covariance() << std::endl;
 		std::cout <<  "old covariance" <<  std::endl  << cand.trackRef()->covariance() << std::endl;
 		}
 		}
+#endif
 //// ENDDEBUG
 	    }	
             /*if (flags) {
