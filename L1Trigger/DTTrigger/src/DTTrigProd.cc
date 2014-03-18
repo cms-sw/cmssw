@@ -72,7 +72,7 @@ void DTTrigProd::beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSet
 
   my_CCBValid = dtConfig->CCBConfigValidity();
 
-  if (!my_trig) {
+//  if (!my_trig) {
     //my_trig = new DTTrig(my_params);
     my_trig->createTUs(iEventSetup);
     if (my_debug)
@@ -82,7 +82,7 @@ void DTTrigProd::beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSet
       cout << "Dumping luts...." << endl;
       my_trig->dumpLuts(my_lut_btic, dtConfig.product());
     }	
-  }
+//  }
 
 
   

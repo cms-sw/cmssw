@@ -145,7 +145,6 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::auto_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
   
   if ( m_useRPCSimLink == 0 ) {
-    std::cout<<"in m_rpcDigiLabel"<<std::endl;
     iEvent.getByLabel(m_rpcDigiLabel, pIn);
     if ( ! pIn.isValid() ) {
       edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 

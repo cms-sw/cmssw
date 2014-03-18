@@ -68,6 +68,7 @@ L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps,edm::ConsumesC
 
   _cache.reserve(4*17);
   _cache0.reserve(144*17);
+
   iC.consumes<L1MuDTChambPhContainer>(L1MuDTTFConfig::getDTDigiInputTag());
 }
 
