@@ -26,3 +26,4 @@
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
+#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"

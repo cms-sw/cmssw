@@ -29,6 +29,7 @@ int main()
     testSerialization<DTRangeT0Id>();
     testSerialization<DTReadOutGeometryLink>();
     testSerialization<DTReadOutMapping>();
+    testSerialization<DTRecoUncertainties>();
     testSerialization<DTStatusFlag>();
     testSerialization<DTStatusFlagData>();
     testSerialization<DTStatusFlagId>();
