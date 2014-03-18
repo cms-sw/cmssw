@@ -70,7 +70,7 @@ void GEMTrackMatch::setGeometry(const GEMGeometry* geom)
 
   radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
   chamberHeight_ = gp_top.perp() - gp_bottom.perp();
-
+  buildLUT();
 }  
 
 

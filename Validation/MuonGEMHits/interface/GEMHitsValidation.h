@@ -15,7 +15,7 @@ public:
                          const edm::InputTag & inputTag);
   ~GEMHitsValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
-  void bookHisto();
+  void bookHisto(const GEMGeometry*);
  private:
 
   MonitorElement* gem_sh_xy[2][3][2][3];

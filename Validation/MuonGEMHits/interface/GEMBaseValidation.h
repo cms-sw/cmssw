@@ -17,7 +17,7 @@ public:
                          const edm::InputTag & inputTag);
   virtual ~GEMBaseValidation();
   void setGeometry(const GEMGeometry* geom);
-  virtual void bookHisto() = 0 ;
+  virtual void bookHisto(const GEMGeometry* geom) = 0 ;
   virtual void analyze(const edm::Event& e, const edm::EventSetup&) = 0 ;
  protected:
 

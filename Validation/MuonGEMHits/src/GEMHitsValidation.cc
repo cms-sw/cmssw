@@ -8,7 +8,8 @@ GEMHitsValidation::GEMHitsValidation(DQMStore* dbe, const edm::InputTag & inputT
 :  GEMBaseValidation(dbe, inputTag)
 {}
 
-void GEMHitsValidation::bookHisto() {
+void GEMHitsValidation::bookHisto(const GEMGeometry* gem_geo) {
+  theGEMGeometry = gem_geo;
   LogDebug("MuonGEMHitsValidation")<<"Info : Loading Geometry information\n";
   dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
 
