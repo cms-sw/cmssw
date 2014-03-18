@@ -10,7 +10,7 @@ simpleDRfilter = cms.EDFilter('simpleDRfilter',
   taggingMode   = cms.bool(False),
 
 # It's written in general that one can put pf, calo and tracking jets
-  jetInputTag = cms.InputTag('ak5PFJets'),
+  jetInputTag = cms.InputTag('ak4PFJets'),
 # The pt and eta cuts applied, for instance, pt>30 && |eta|<9999
   jetSelCuts = cms.vdouble(30, 9999), # pt, eta
 

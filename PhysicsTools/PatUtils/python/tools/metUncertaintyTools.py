@@ -255,8 +255,8 @@ class RunMEtUncertainties(ConfigToolBase):
             jetCorrInputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/Summer12_V2_DATA_AK5PF_UncertaintySources.txt'),
             jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
             addResidualJES = cms.bool(True),
-            jetCorrLabelUpToL3 = cms.string("ak5PFL1FastL2L3"),
-            jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),
+            jetCorrLabelUpToL3 = cms.string("ak4PFL1FastL2L3"),
+            jetCorrLabelUpToL3Res = cms.string("ak4PFL1FastL2L3Residual"),
             shiftBy = cms.double(+1.*varyByNsigmas)
         )
         jetCollectionEnUpForRawMEt = \
@@ -901,7 +901,7 @@ class RunMEtUncertainties(ConfigToolBase):
         if not hasattr(process, "pfMEtMVA"):
             process.load("JetMETCorrections.METPUSubtraction.mvaPFMET_cff")
 
-        lastUncorrectedJetCollectionForPFMEtByMVA = 'ak5PFJets'
+        lastUncorrectedJetCollectionForPFMEtByMVA = 'ak4PFJets'
         lastCorrectedJetCollectionForPFMEtByMVA = 'calibratedAK5PFJetsForPFMEtMVA'
         if postfix != "":
             configtools.cloneProcessingSnippet(process, process.pfMEtMVAsequence, postfix)
@@ -911,10 +911,10 @@ class RunMEtUncertainties(ConfigToolBase):
             process.load("RecoJets.Configuration.GenJetParticles_cff")
             metUncertaintySequence += process.genParticlesForJetsNoNu
             process.load("RecoJets.Configuration.RecoGenJets_cff")
-            metUncertaintySequence += process.ak5GenJetsNoNu
+            metUncertaintySequence += process.ak4GenJetsNoNu
             setattr(process, "smearedUncorrectedJetsForPFMEtByMVA"+postfix, cms.EDProducer("SmearedPFJetProducer",
-                src = cms.InputTag('ak5PFJets'),
-                jetCorrLabel = cms.string("ak5PFL1FastL2L3"),
+                src = cms.InputTag('ak4PFJets'),
+                jetCorrLabel = cms.string("ak4PFL1FastL2L3"),
                 dRmaxGenJetMatch = cms.string('TMath::Min(0.5, 0.1 + 0.3*TMath::Exp(-0.05*(genJetPt - 10.)))'),
                 sigmaMaxGenJetMatch = cms.double(5.),
                 inputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root'),
@@ -922,7 +922,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 jetResolutions = jetResolutions.METSignificance_params,
                 skipRawJetPtThreshold = cms.double(10.), # GeV
                 skipCorrJetPtThreshold = cms.double(1.e-2),
-                srcGenJets = cms.InputTag('ak5GenJetsNoNu')
+                srcGenJets = cms.InputTag('ak4GenJetsNoNu')
             ))
             metUncertaintySequence += getattr(process, "smearedUncorrectedJetsForPFMEtByMVA"+postfix)
             getattr(process, "calibratedAK5PFJetsForPFMEtMVA"+postfix).src = cms.InputTag('smearedUncorrectedJetsForPFMEtByMVA'+postfix)
@@ -982,8 +982,8 @@ class RunMEtUncertainties(ConfigToolBase):
                 jetCorrInputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/Summer12_V2_DATA_AK5PF_UncertaintySources.txt'),
                 jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
                 addResidualJES = cms.bool(True),
-                jetCorrLabelUpToL3 = cms.string("ak5PFL1FastL2L3"),
-                jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),
+                jetCorrLabelUpToL3 = cms.string("ak4PFL1FastL2L3"),
+                jetCorrLabelUpToL3Res = cms.string("ak4PFL1FastL2L3Residual"),
                 shiftBy = cms.double(+1.*varyByNsigmas)
             ))
             metUncertaintySequence += getattr(process, "uncorrectedJetsEnUpForPFMEtByMVA"+postfix)
@@ -1117,7 +1117,7 @@ class RunMEtUncertainties(ConfigToolBase):
         if not hasattr(process, "noPileUpPFMEt"):
             process.load("JetMETCorrections.METPUSubtraction.noPileUpPFMET_cff")
 
-        lastUncorrectedJetCollectionForNoPileUpPFMEt = 'ak5PFJets'
+        lastUncorrectedJetCollectionForNoPileUpPFMEt = 'ak4PFJets'
         lastCorrectedJetCollectionForNoPileUpPFMEt = 'calibratedAK5PFJetsForNoPileUpPFMEt'
         if postfix != "":
             configtools.cloneProcessingSnippet(process, process.noPileUpPFMEtSequence, postfix)
@@ -1128,10 +1128,10 @@ class RunMEtUncertainties(ConfigToolBase):
             process.load("RecoJets.Configuration.GenJetParticles_cff")
             metUncertaintySequence += process.genParticlesForJetsNoNu
             process.load("RecoJets.Configuration.RecoGenJets_cff")
-            metUncertaintySequence += process.ak5GenJetsNoNu
+            metUncertaintySequence += process.ak4GenJetsNoNu
             setattr(process, "smearedUncorrectedJetsForNoPileUpPFMEt"+postfix, cms.EDProducer("SmearedPFJetProducer",
-                src = cms.InputTag('ak5PFJets'),
-                jetCorrLabel = cms.string("ak5PFL1FastL2L3"),
+                src = cms.InputTag('ak4PFJets'),
+                jetCorrLabel = cms.string("ak4PFL1FastL2L3"),
                 dRmaxGenJetMatch = cms.string('TMath::Min(0.5, 0.1 + 0.3*TMath::Exp(-0.05*(genJetPt - 10.)))'),
                 sigmaMaxGenJetMatch = cms.double(5.),
                 inputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root'),
@@ -1139,7 +1139,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 jetResolutions = jetResolutions.METSignificance_params,
                 skipRawJetPtThreshold = cms.double(10.), # GeV
                 skipCorrJetPtThreshold = cms.double(1.e-2),
-                srcGenJets = cms.InputTag('ak5GenJetsNoNu'),
+                srcGenJets = cms.InputTag('ak4GenJetsNoNu'),
                 ##verbosity = cms.int32(1)
             ))
             metUncertaintySequence += getattr(process, "smearedUncorrectedJetsForNoPileUpPFMEt"+postfix)
@@ -1219,8 +1219,8 @@ class RunMEtUncertainties(ConfigToolBase):
                 jetCorrInputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/Summer12_V2_DATA_AK5PF_UncertaintySources.txt'),
                 jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
                 addResidualJES = cms.bool(False),
-                jetCorrLabelUpToL3 = cms.string("ak5PFL1FastL2L3"),
-                jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),
+                jetCorrLabelUpToL3 = cms.string("ak4PFL1FastL2L3"),
+                jetCorrLabelUpToL3Res = cms.string("ak4PFL1FastL2L3Residual"),
                 shiftBy = cms.double(+1.*varyByNsigmas),
                 ##verbosity = cms.int32(1)
             ))

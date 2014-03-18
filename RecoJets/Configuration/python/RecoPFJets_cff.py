@@ -27,10 +27,11 @@ kt6PFJets.doRhoFastjet = True
 kt6PFJets.doAreaFastjet = True
 #use active areas and not Voronoi tessellation for the moment
 kt6PFJets.voronoiRfact = 0.9
+ak4PFJets.doAreaFastjet = True
 ak5PFJets.doAreaFastjet = True
 ak5PFJetsTrimmed.doAreaFastjet = True
 ak7PFJets.doAreaFastjet = True
-
+ak8PFJets.doAreaFastjet = True
 
 
 kt6PFJetsCentralChargedPileUp = kt6PFJets.clone(
@@ -160,7 +161,7 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            fixedGridRhoFastjetAll+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
-                           ak5PFJets+ak8PFJets+
+                           ak4PFJets+ak5PFJets+ak8PFJets+
                            pfNoPileUpJMESequence+
                            ak5PFJetsCHS+
                            ak4PFJetsCHS+                           

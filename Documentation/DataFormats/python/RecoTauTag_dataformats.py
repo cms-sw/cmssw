@@ -1,11 +1,11 @@
 '''
-    Created on Jun 26, 2013 
+    Created on Jun 26, 2013
     @author:  Mantas Stankevicius
     @contact: mantas.stankevicius@cern.ch
     http://cmsdoxy.web.cern.ch/cmsdoxy/dataformats/
-    
-    @responsible: 
-    
+
+    @responsible:
+
 '''
 
 json = {
@@ -68,7 +68,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5PFJetsRecoTauPiZeros",
+      "instance": "ak4PFJetsRecoTauPiZeros",
       "container": "*",
       "desc": "No documentation"
      },
@@ -123,7 +123,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5PFJetsRecoTauPiZeros",
+      "instance": "ak4PFJetsRecoTauPiZeros",
       "container": "*",
       "desc": "No documentation"
      },
@@ -153,7 +153,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5PFJetsRecoTauPiZeros",
+      "instance": "ak4PFJetsRecoTauPiZeros",
       "container": "*",
       "desc": "No documentation"
      },
