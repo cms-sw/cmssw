@@ -17,11 +17,11 @@ namespace l1t {
 
    class TauUnpackerFactory : UnpackerFactory {
       public:
-         virtual bool hasUnpackerFor(const FirmwareVersion& fw) {
+         virtual bool hasUnpackerFor(const FirmwareVersion& fw, const int fedid) {
             return true;
          };
 
-         virtual std::pair<BlockId, BaseUnpacker*> create(const FirmwareVersion& fw) {
+         virtual std::pair<BlockId, BaseUnpacker*> create(const FirmwareVersion& fw, const int fedid) {
             return std::pair<BlockId, BaseUnpacker*>(0x1, new TauUnpacker());
          };
    };

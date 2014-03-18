@@ -14,13 +14,13 @@ namespace l1t {
    }
 
    std::unordered_map<BlockId, BaseUnpacker*>
-   UnpackerFactory::createUnpackers(const FirmwareVersion &fw)
+   UnpackerFactory::createUnpackers(const FirmwareVersion &fw, const int fedid)
    {
       std::cout << factories_.size() << std::endl;
       std::unordered_map<BlockId, BaseUnpacker*> res;
       for (const auto& f: factories_) {
-         if (f->hasUnpackerFor(fw))
-            res.insert(f->create(fw));
+         if (f->hasUnpackerFor(fw, fedid))
+            res.insert(f->create(fw, fedid));
       }
       return res;
    }

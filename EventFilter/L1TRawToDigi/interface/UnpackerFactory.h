@@ -13,11 +13,11 @@ namespace l1t {
 
    class UnpackerFactory {
       public:
-         static Unpackers createUnpackers(const FirmwareVersion&);
+         static Unpackers createUnpackers(const FirmwareVersion&, const int fedid);
 
       private:
-         virtual bool hasUnpackerFor(const FirmwareVersion&) = 0;
-         virtual std::pair<BlockId, BaseUnpacker*> create(const FirmwareVersion&) = 0;
+         virtual bool hasUnpackerFor(const FirmwareVersion&, const int fedid) = 0;
+         virtual std::pair<BlockId, BaseUnpacker*> create(const FirmwareVersion&, const int fedid) = 0;
 
          static std::vector<UnpackerFactory*> createFactories();
          static std::vector<UnpackerFactory*> factories_;

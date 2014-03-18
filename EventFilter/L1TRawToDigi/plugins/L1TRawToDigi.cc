@@ -83,7 +83,7 @@ namespace l1t {
       fw.setFirmwareVersion(fw_id);
 
       UnpackerCollections coll(event);
-      Unpackers unpackers = UnpackerFactory::createUnpackers(fw);
+      Unpackers unpackers = UnpackerFactory::createUnpackers(fw, fedId_);
       for (auto& up: unpackers)
          up.second->setCollections(coll);
 
