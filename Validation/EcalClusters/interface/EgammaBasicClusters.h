@@ -21,6 +21,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+
 class EgammaBasicClusters : public edm::EDAnalyzer
 {
 	public:
@@ -38,8 +41,8 @@ class EgammaBasicClusters : public edm::EDAnalyzer
 	bool verboseDBE_;
 	DQMStore* dbe_;
 
-      	edm::InputTag barrelBasicClusterCollection_;
-      	edm::InputTag endcapBasicClusterCollection_;
+      	edm::EDGetTokenT<reco::BasicClusterCollection> barrelBasicClusterCollection_;
+      	edm::EDGetTokenT<reco::BasicClusterCollection> endcapBasicClusterCollection_;
  
       	MonitorElement* hist_EB_BC_Size_;
       	MonitorElement* hist_EE_BC_Size_;

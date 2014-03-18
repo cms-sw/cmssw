@@ -270,10 +270,8 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
    
 
   edm::Handle<reco::TrackCollection> tkTracks;
-  //  iEvent.getByLabel(theTKTracksLabel_, tkTracks);
   iEvent.getByToken(theTKTracksToken_, tkTracks);
   edm::Handle<reco::TrackCollection> staTracks;
-  //  iEvent.getByLabel(theSTATracksLabel_, staTracks);
   iEvent.getByToken(theSTATracksToken_, staTracks);
   edm::ESHandle<NavigationSchool> nav;
   iSetup.get<NavigationSchoolRecord>().get("CosmicNavigationSchool", nav); 
