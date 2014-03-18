@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-// #include "EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h"
 #include "EventFilter/DTRawToDigi/interface/DTControlData.h"
 #include "EventFilter/DTRawToDigi/interface/DTDDUWords.h"
 #include "DQMServices/Core/interface/DQMStore.h"

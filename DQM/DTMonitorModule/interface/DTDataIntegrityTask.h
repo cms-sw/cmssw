@@ -10,7 +10,6 @@
  *
  */
 
-// #include "EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h"
 #include "EventFilter/DTRawToDigi/interface/DTROChainCoding.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -37,7 +36,6 @@ class DTDDUData;
 class DTTimeEvolutionHisto;
 
 
-// class DTDataIntegrityTask : public DTDataMonitorInterface {
 class DTDataIntegrityTask : public edm::EDAnalyzer {
 
 public:

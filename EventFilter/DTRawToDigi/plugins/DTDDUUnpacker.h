@@ -13,7 +13,6 @@
 #include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
 
 // class DTROS25Unpacker;
-// class DTDataMonitorInterface;
 
 class DTDDUUnpacker : public DTUnpacker {
 
@@ -57,7 +56,6 @@ class DTDDUUnpacker : public DTUnpacker {
 
   DTDDUData controlData;
   
-//   DTDataMonitorInterface * dataMonitor;
 };
 
 #endif

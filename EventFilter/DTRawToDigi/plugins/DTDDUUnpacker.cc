@@ -10,7 +10,6 @@
 #include <DataFormats/DTDigi/interface/DTDDUWords.h>
 #include <DataFormats/DTDigi/interface/DTControlData.h>
 
-// #include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <EventFilter/DTRawToDigi/plugins/DTDDUUnpacker.h>
@@ -32,17 +31,6 @@ DTDDUUnpacker::DTDDUUnpacker(const edm::ParameterSet& ps) : dduPSet(ps) {
   localDAQ = dduPSet.getUntrackedParameter<bool>("localDAQ",false);
 //   performDataIntegrityMonitor = dduPSet.getUntrackedParameter<bool>("performDataIntegrityMonitor",false);
   debug = dduPSet.getUntrackedParameter<bool>("debug",false);
-
-//   // enable DQM if Service is available
-//   if(performDataIntegrityMonitor) {
-//     if (edm::Service<DTDataMonitorInterface>().isAvailable()) {
-//       dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
-//     } else {
-//       LogWarning("DTRawToDigi|DTDDUUnpacker") << 
-// 	"[DTDDUUnpacker] WARNING! Data Integrity Monitoring requested but no DTDataMonitorInterface Service available" << endl;
-//       performDataIntegrityMonitor = false;
-//     }
-//   }
 
 }
 

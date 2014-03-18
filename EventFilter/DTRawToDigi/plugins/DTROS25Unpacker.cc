@@ -10,7 +10,6 @@
 #include <DataFormats/DTDigi/interface/DTControlData.h>
 #include <EventFilter/DTRawToDigi/interface/DTROChainCoding.h>
 
-#include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -40,17 +39,6 @@ DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps) {
   writeSC = ps.getUntrackedParameter<bool>("writeSC",false);
   performDataIntegrityMonitor = ps.getUntrackedParameter<bool>("performDataIntegrityMonitor",false);
   debug = ps.getUntrackedParameter<bool>("debug",false);
-
-//   // enable DQM if Service is available
-//   if(performDataIntegrityMonitor) {
-//     if (edm::Service<DTDataMonitorInterface>().isAvailable()) {
-//       dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
-//     } else {
-//       LogWarning("DTRawToDigi|DTROS25Unpacker") << 
-// 	"[DTROS25Unpacker] WARNING! Data Integrity Monitoring requested but no DTDataMonitorInterface Service available" << endl;
-//       performDataIntegrityMonitor = false;
-//     }
-//   }
 
 }
 
