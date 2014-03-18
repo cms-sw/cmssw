@@ -331,7 +331,10 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 	eventsThisLumi_=0;
         maybeOpenNewLumiSection(currentFile_->lumi_);
       }
-    filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,currentFile_));
+    //can be immediately deleted
+    deleteFile(currentFile_->fileName_);
+    //filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,currentFile_));
+    delete currentFile_;
     currentFile_=nullptr;
     return evf::EvFDaqDirector::noFile;
   }
@@ -354,8 +357,14 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       cvWakeup_.notify_one();
     }
     bufferInputRead_=0;
-    //put the file in pending delete list;
-    filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,currentFile_));
+    if (!daqDirector_->isSingleStreamThread())//TODO: test difference between non-set, 1 stream/ 0 threads and 1/1
+      //put the file in pending delete list;
+      filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,currentFile_));
+    else {
+      //in single-thread jobs, events are already processed
+      deleteFile(currentFile_->fileName_);
+      delete currentFile_;
+    }
     currentFile_=nullptr;
     return evf::EvFDaqDirector::noFile;
   }
@@ -490,6 +499,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
   return evf::EvFDaqDirector::sameFile;
 }
 
+//TODO: check if something is deleted twice (single-buffer mode!)
 void FedRawDataInputSource::deleteFile(std::string const& fileName)
 {
   const boost::filesystem::path filePath(fileName);
@@ -525,7 +535,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   eventsThisLumi_++;
 
   //this old file check runs no more often than every 10 events
-  if (!(++eventsThisRun_%(checkEvery_))) {
+  if (!((currentFile_->nProcessed_-1)%(checkEvery_))) {
     //delete files that are not in processing
     auto it = filesToDelete_.begin();
     while (it!=filesToDelete_.end()) {
@@ -1025,7 +1035,7 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
       close(fileDescriptor_);
       fileDescriptor_=-1;
       //will be deleted after no streams are processing events from this file
-      filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,new InputFile(file->fileName_)));
+      //filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,new InputFile(file->fileName_)));
     }
   }
 }

@@ -89,6 +89,7 @@ namespace evf{
       void setFMS(evf::FastMonitoringService* fms) {fms_=fms;}
       void updateFileIndex(int const& fileIndex) {currentFileIndex_=fileIndex;}
       std::vector<int>* getStreamFileTracker() {return &streamFileTracker_;}
+      bool isSingleStreamThread() {return nStreams_==1 && nThreads_==1;}
 
 
     private:
@@ -155,6 +156,9 @@ namespace evf{
       int currentFileIndex_ = -1;
 
       pthread_mutex_t init_lock_ = PTHREAD_MUTEX_INITIALIZER;
+
+      unsigned int nStreams_=0;
+      unsigned int nThreads_=0;
 
   };
 }

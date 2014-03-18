@@ -205,6 +205,9 @@ namespace evf {
     for (unsigned int i=0;i<bounds.maxNumberOfStreams();i++){
       streamFileTracker_.push_back(-1);
     }
+    nThreads_=bounds.maxNumberOfStreams();
+    nStreams_=bounds.maxNumberOfThreads();
+    std::cout << "CURRENTCONFIG t:" << nThreads_ << " s:" << nStreams_ << std::endl;
   }
 
   void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
