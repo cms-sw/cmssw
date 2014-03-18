@@ -15,7 +15,6 @@
 #define Stage1Layer2EGammaAlgorithm_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DataFormats/L1TCalorimeter/interface/CaloStage1Cluster.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
@@ -30,7 +29,7 @@ namespace l1t {
 
   class Stage1Layer2EGammaAlgorithm {
   public:
-    virtual void processEvent(const std::vector<l1t::CaloStage1Cluster> & clusters,
+    virtual void processEvent(const std::vector<l1t::CaloEmCand> & clusters,
 			      const std::vector<l1t::CaloRegion> & regions,
 			      std::vector<l1t::EGamma> & egammas,
 			      std::list<L1GObject> & rlxEGList,

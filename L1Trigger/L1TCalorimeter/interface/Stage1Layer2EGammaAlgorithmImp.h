@@ -26,7 +26,7 @@ namespace l1t {
   public:
     Stage1Layer2EGammaAlgorithmImpPP(/*const CaloParams & dbPars*/);
     virtual ~Stage1Layer2EGammaAlgorithmImpPP();
-    virtual void processEvent(const std::vector<l1t::CaloStage1Cluster> & clusters,
+    virtual void processEvent(const std::vector<l1t::CaloEmCand> & clusters,
 			      const std::vector<l1t::CaloRegion> & regions,
 			      std::vector<l1t::EGamma> & egammas,
 			      std::list<L1GObject> & rlxEGList,

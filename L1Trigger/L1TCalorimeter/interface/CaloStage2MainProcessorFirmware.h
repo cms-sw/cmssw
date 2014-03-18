@@ -14,6 +14,7 @@
 #define CaloStage2MainProcessorFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2MainProcessor.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage2TowerAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2ClusterAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2EGammaAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2TauAlgorithm.h"
@@ -50,6 +51,7 @@ namespace l1t {
     FirmwareVersion const & m_fwv;
     CaloParams* m_params;
 
+    CaloStage2TowerAlgorithm* m_towerAlgo;
     CaloStage2ClusterAlgorithm* m_egClusterAlgo;
     CaloStage2EGammaAlgorithm* m_egAlgo;
     CaloStage2ClusterAlgorithm* m_tauClusterAlgo;

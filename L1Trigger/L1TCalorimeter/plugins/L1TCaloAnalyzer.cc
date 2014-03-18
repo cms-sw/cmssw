@@ -108,11 +108,12 @@ L1TCaloAnalyzer::L1TCaloAnalyzer(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
 
   // register what you consume and keep token for later access:
-  m_towerToken = consumes<l1t::CaloTowerBxCollection>(iConfig.getParameter<edm::InputTag>("towerToken"));
-  m_egToken    = consumes<l1t::EGammaBxCollection>   (iConfig.getParameter<edm::InputTag>("egToken"));
-  m_tauToken   = consumes<l1t::TauBxCollection>      (iConfig.getParameter<edm::InputTag>("tauToken"));
-  m_jetToken   = consumes<l1t::JetBxCollection>      (iConfig.getParameter<edm::InputTag>("jetToken"));
-  m_sumToken   = consumes<l1t::EtSumBxCollection>    (iConfig.getParameter<edm::InputTag>("etSumToken"));
+  m_towerToken   = consumes<l1t::CaloTowerBxCollection>  (iConfig.getParameter<edm::InputTag>("towerToken"));
+  m_clusterToken = consumes<l1t::CaloClusterBxCollection>(iConfig.getParameter<edm::InputTag>("clusterToken"));
+  m_egToken      = consumes<l1t::EGammaBxCollection>     (iConfig.getParameter<edm::InputTag>("egToken"));
+  m_tauToken     = consumes<l1t::TauBxCollection>        (iConfig.getParameter<edm::InputTag>("tauToken"));
+  m_jetToken     = consumes<l1t::JetBxCollection>        (iConfig.getParameter<edm::InputTag>("jetToken"));
+  m_sumToken     = consumes<l1t::EtSumBxCollection>      (iConfig.getParameter<edm::InputTag>("etSumToken"));
 
   types_.push_back( Tower );
   types_.push_back( Cluster );

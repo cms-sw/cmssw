@@ -7,6 +7,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2MainProcessorFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage2TowerAlgorithmFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2ClusterAlgorithmFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2EGammaAlgorithmFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2TauAlgorithmFirmware.h"
@@ -24,9 +25,12 @@ l1t::CaloStage2MainProcessorFirmwareImp1::CaloStage2MainProcessorFirmwareImp1(co
   m_params(params)
 {
 
-  m_egClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params, CaloStage2ClusterAlgorithmFirmwareImp1::ClusterInput::E);
+  m_towerAlgo = new CaloStage2TowerAlgorithmFirmwareImp1(m_params);
+  m_egClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params,
+							       CaloStage2ClusterAlgorithmFirmwareImp1::ClusterInput::E);
   m_egAlgo = new CaloStage2EGammaAlgorithmFirmwareImp1(m_params);
-  m_tauClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params, CaloStage2ClusterAlgorithmFirmwareImp1::ClusterInput::EH);
+  m_tauClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params, 
+								CaloStage2ClusterAlgorithmFirmwareImp1::ClusterInput::EH);
   m_tauAlgo = new CaloStage2TauAlgorithmFirmwareImp1(m_params);
   m_jetAlgo = new CaloStage2JetAlgorithmFirmwareImp1(m_params);
   m_sumAlgo = new CaloStage2EtSumAlgorithmFirmwareImp1(m_params);
@@ -53,11 +57,13 @@ void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1
 							    std::vector<l1t::Jet> & jets,
 							    std::vector<l1t::EtSum> & etsums) {
 
+  std::vector<l1t::CaloTower> inTowers;
   std::vector<l1t::CaloCluster> egClusters;
   std::vector<l1t::CaloCluster> tauClusters;
   std::vector<l1t::EtSum> towersums;
   std::vector<l1t::EtSum> jetsums;
   
+  //  m_towerAlgo->processEvent( towers, towers );
   m_egClusterAlgo->processEvent( towers, egClusters );
   m_egAlgo->processEvent( egClusters,towers, egammas );
   m_egClusterAlgo->processEvent( towers, tauClusters );

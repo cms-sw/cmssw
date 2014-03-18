@@ -69,8 +69,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        MaxPt = cms.double(10.01),
-        MinPt = cms.double(9.99),
+        MaxPt = cms.double(20.01),
+        MinPt = cms.double(19.99),
         PartID = cms.vint32(11),
         MaxEta = cms.double(2.5),
         MaxPhi = cms.double(3.14159265359),

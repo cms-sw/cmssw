@@ -9,58 +9,71 @@
 ///
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EGammaAlgorithmImp.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 
-void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloStage1Cluster> & clusters, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma> & egammas, std::list<L1GObject> & rlxEGList, std::list<L1GObject> & isoEGList) {
+void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & clusters, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma> & egammas, std::list<L1GObject> & rlxEGList, std::list<L1GObject> & isoEGList) {
 
   egtSeed = 0;
   puLevel = 0.0;
   rlxEGList.clear();
   isoEGList.clear();
 
+  for(CaloEmCandBxCollection::const_iterator egCand = clusters.begin();
+	  egCand != clusters.end(); egCand++) {
 
-  for(std::vector<l1t::EGamma>::const_iterator egtCand =
-	egammas.begin();
-      egtCand != egammas.end(); egtCand++){
-    double et = egtCand->et();
-    if(et > egtSeed) {
-      for(CaloRegionBxCollection::const_iterator region = regions.begin();
-	  region != regions.end(); region++) {
-	if(egtCand->phi() == region->phi() &&
-	   egtCand->eta() == region->eta())
-	  {
-            double regionEt = region->et();
-            // Debugging
-            if (false && egtCand->et() > regionEt) {
-              std::cout << "Mismatch!" << std::endl;
-              std::cout << "egPhi = " << egtCand->phi() << std::endl;
-              std::cout << "egEta = " << egtCand->eta() << std::endl;
-              std::cout << "egEt = " << egtCand->et()   << std::endl;
-              std::cout << "regionEt = " << regionEt    << std::endl;
-              std::cout << "ratio = " << et/regionEt    << std::endl;
-            }
+     double eg_et = egCand->hwPt();
+     int eg_eta = egCand->hwEta();
+     int eg_phi = egCand->hwPhi();
+     if(eg_et < egtSeed) continue;
 
 
-	    rlxEGList.push_back(L1GObject(et, egtCand->eta(),
-					  egtCand->phi(), "EG"));
-	    rlxEGList.back().associatedRegionEt_ = regionEt;
+     /// -----  Compute isolation sum --------------------  
+     double isolation = 0.0;
+     for(CaloRegionBxCollection::const_iterator region = regions.begin();
+         region != regions.end(); region++) {
+
+        int regionPhi = region->hwPhi();
+        int regionEta = region->hwEta();
+        unsigned int deltaPhi = eg_phi - regionPhi;        
+
+        if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1) 
+           deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
+
+        unsigned int deltaEta = std::abs(eg_eta - regionEta);
+        if ((deltaPhi + deltaEta) > 0 && deltaPhi < 2 && deltaEta < 2) 
+           isolation += region->hwPt(); //regionPhysicalEt(*region);
+     }
+
+     isolation -=  puLevel;   // Core isolation (could go less than zero)
+     rlxEGList.push_back(L1GObject(eg_et, eg_eta, eg_phi, "EG"));
+     rlxEGList.back().associatedRegionEt_ = isolation;
 
 
+     double relativeIsolation = isolation / eg_et;
+     if(relativeIsolation < relativeIsolationCut) {
+        // Relative isolation makes it to IsoEG
+        isoEGList.push_back(L1GObject(eg_et, eg_eta, eg_phi, "IsoEG"));
+     }
 
-	    double isolation = regionEt - puLevel - et;   // Core isolation (could go less than zero)
-	    double relativeIsolation = isolation / et;
+     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *egLorentz =
+        new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-
-	    if(relativeIsolation < relativeIsolationCut) {
-	      // Relative isolation makes it to IsoEG
-	      isoEGList.push_back(L1GObject(et, egtCand->eta(),
-					    egtCand->phi(), "IsoEG"));
-	    }
-	    break;
-	  }
-      }
-    }
+      l1t::EGamma theEG(*egLorentz, eg_et, eg_eta, eg_phi);
+      egammas.push_back(theEG);
   }
+
+
+   //the EG candidates should be sorted, highest pT first.
+   // do not truncate the EG list, GT converter handles that
+   auto comp = [&](l1t::EGamma i, l1t::EGamma j)-> bool {
+        return (i.hwPt() < j.hwPt() ); 
+    };
+
+   std::sort(egammas.begin(), egammas.end(), comp);
+   std::reverse(egammas.begin(), egammas.end());
+
   rlxEGList.sort();
   isoEGList.sort();
   rlxEGList.reverse();
