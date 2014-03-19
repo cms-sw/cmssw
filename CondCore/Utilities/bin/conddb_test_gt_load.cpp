@@ -19,8 +19,6 @@ namespace cond {
 
     void load( const std::string& tag );
 
-    void reload();
-
     void reset();
 
     TimeType timeType() const;
@@ -52,9 +50,7 @@ namespace cond {
 }
 
 cond::UntypedPayloadProxy::UntypedPayloadProxy( Session& session ):
-  m_session( session ),
-  m_iov( session.iovProxy() ),
-  m_data(){
+  m_session( session ){
   m_data.reset( new pimpl );
   m_data->current.clear();
 }
@@ -74,12 +70,9 @@ cond::UntypedPayloadProxy& cond::UntypedPayloadProxy::operator=( const cond::Unt
 
 void cond::UntypedPayloadProxy::load( const std::string& tag ){
   m_data->current.clear();
-  m_iov.load( tag );
-}
-
-void cond::UntypedPayloadProxy::reload(){
-  m_data->current.clear();
-  m_iov.reload();
+  m_session.transaction().start();
+  m_iov = m_session.readIov( tag );
+  m_session.transaction().commit();
 }
 
 void cond::UntypedPayloadProxy::reset(){
@@ -105,6 +98,8 @@ bool cond::UntypedPayloadProxy::get( cond::Time_t targetTime, bool debug ){
 
     // a new payload is required!
     if( debug )std::cout <<" Searching tag "<<m_iov.tag()<<" for a valid payload for time="<<targetTime<<std::endl;
+    m_session.transaction().start();
+
     auto iIov = m_iov.find( targetTime );
     if(iIov == m_iov.end() ) cond::throwException(std::string("Tag ")+m_iov.tag()+": No iov available for the target time:"+boost::lexical_cast<std::string>(targetTime),"UntypedPayloadProxy::get");
     m_data->current = *iIov;
@@ -112,11 +107,16 @@ bool cond::UntypedPayloadProxy::get( cond::Time_t targetTime, bool debug ){
 
     std::string payloadType("");
     Binary data; 
-    loaded = m_session.fetchPayloadData( m_data->current.payloadId, payloadType, data );
+    Binary streamerInfo; 
+    loaded = m_session.fetchPayloadData( m_data->current.payloadId, payloadType, data, streamerInfo );
+    m_session.transaction().commit();
     if( !loaded ){
       std::cout <<"ERROR: payload with id "<<m_data->current.payloadId<<" could not be loaded."<<std::endl;
     }else {
-      if( debug ) std::cout <<"Loaded payload of type \""<< payloadType <<"\" ("<<data.size()<<" bytes)"<<std::endl;  
+      std::stringstream sz;
+      if( data.oraObject().address()==0 ) sz << data.size();
+      else sz <<"?";
+      if( debug ) std::cout <<"Loaded payload of type \""<< payloadType <<"\" ("<<sz.str()<<" bytes)"<<std::endl;  
     }
   } else {
     event <<"Target time "<<targetTime<<" is within range for payloads available in cache: ["<<m_data->current.since<<" - "<<m_data->current.till<<"]";
@@ -173,21 +173,31 @@ int cond::TestGTLoad::execute(){
 
   ConnectionPool connPool;
   if( hasDebug() ) connPool.setMessageVerbosity( coral::Debug );
+  connPool.configure();
   Session session = connPool.createSession( connect );
   session.transaction().start();
   
   std::cout <<"Loading Global Tag "<<gtag<<std::endl;
   GTProxy gt = session.readGlobalTag( gtag );
 
+  session.transaction().commit();
+
   std::cout <<"Loading "<<gt.size()<<" tags..."<<std::endl;
   std::vector<UntypedPayloadProxy> proxies;
   std::map<std::string,size_t> requests;
   for( auto t: gt ){
-    UntypedPayloadProxy p( session );
+    std::pair<std::string,std::string> tagParams = parseTag( t.tagName() );
+    std::string tagConnStr = connect;
+    Session tagSession = session; 
+    if( !tagParams.second.empty() ) {
+      tagConnStr = tagParams.second;
+      tagSession = connPool.createSession( tagConnStr );
+    }
+    UntypedPayloadProxy p( tagSession );
     try{
-      p.load( t.tagName() );
+      p.load( tagParams.first );
       proxies.push_back( p );
-      requests.insert( std::make_pair( t.tagName(), 0 ) );
+      requests.insert( std::make_pair( tagParams.first, 0 ) );
     } catch ( const cond::Exception& e ){
       std::cout <<"ERROR: "<<e.what()<<std::endl;
     }
@@ -204,26 +214,26 @@ int cond::TestGTLoad::execute(){
       bool loaded = false;
       time::TimeType ttype = p.timeType();
       auto r = requests.find( p.tag() );
-      try{
-	if( ttype==runnumber ){
-	  p.get( run, hasDebug() );	
-	  r->second++;
-	} else if( ttype==lumiid ){
-	  p.get( lumi, hasDebug() );
-	  r->second++;
-	} else if( ttype==timestamp){
-	  p.get( ts, hasDebug() );
-	  r->second++;
-	} else {
-	  std::cout <<"WARNING: iov request on tag "<<p.tag()<<" (timeType="<<time::timeTypeName(p.timeType())<<") has been skipped."<<std::endl;
+      if( r != requests.end() ){
+	try{
+	  if( ttype==runnumber ){
+	    p.get( run, hasDebug() );	
+	    r->second++;
+	  } else if( ttype==lumiid ){
+	    p.get( lumi, hasDebug() );
+	    r->second++;
+	  } else if( ttype==timestamp){
+	    p.get( ts, hasDebug() );
+	    r->second++;
+	  } else {
+	    std::cout <<"WARNING: iov request on tag "<<p.tag()<<" (timeType="<<time::timeTypeName(p.timeType())<<") has been skipped."<<std::endl;
+	  }
+	} catch ( const cond::Exception& e ){
+	  std::cout <<"ERROR:"<<e.what()<<std::endl;
 	}
-      } catch ( const cond::Exception& e ){
-	std::cout <<"ERROR:"<<e.what()<<std::endl;
       }
     }
   }
-
-  session.transaction().commit();
 
   std::cout <<std::endl;
   std::cout <<"*** End of job."<<std::endl;
@@ -231,10 +241,12 @@ int cond::TestGTLoad::execute(){
   std::cout<<std::endl;
   for( auto p: proxies ){
     auto r = requests.find( p.tag() );
-    std::cout <<"*** Tag: "<<p.tag()<<" Requests processed:"<<r->second<<" Queries:"<<p.numberOfQueries()<<std::endl;
-    if( verbose ){
-      const std::vector<std::string>& hist = p.history();
-      for( auto e: p.history() ) std::cout <<"    "<<e<<std::endl;
+    if( r != requests.end() ){
+      std::cout <<"*** Tag: "<<p.tag()<<" Requests processed:"<<r->second<<" Queries:"<<p.numberOfQueries()<<std::endl;
+      if( verbose ){
+	const std::vector<std::string>& hist = p.history();
+	for( auto e: p.history() ) std::cout <<"    "<<e<<std::endl;
+      }
     }
   }
 

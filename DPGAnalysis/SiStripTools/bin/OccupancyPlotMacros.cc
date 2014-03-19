@@ -280,6 +280,7 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
       // eta boundaries lines
       TList etalines;
       TList etalabels;
+      TList paperlabels;
       for(int i=0;i<8;++i) {
 	double eta = 3.0-i*0.2;
 	TLine* lin = new TLine(295,2*295/(exp(eta)-exp(-eta)),305,2*305/(exp(eta)-exp(-eta)));
@@ -318,6 +319,25 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
       etalab->SetTextAlign(22);
       etalabels.Add(etalab);
 
+      // CMS label
+      TLatex *cmslab = new TLatex(0.15,0.965,"CMS");
+      cmslab->SetNDC();
+      cmslab->SetTextSize(0.04);
+      cmslab->SetTextAlign(31);
+      paperlabels.Add(cmslab);
+      TLatex *enelab = new TLatex(0.92,0.965,"#sqrt{s} = 7 TeV");
+      enelab->SetNDC();
+      enelab->SetTextSize(0.04);
+      enelab->SetTextAlign(31);
+      paperlabels.Add(enelab);
+      /*
+      TLatex *lumilab = new TLatex(0.6,0.965,Form("L = %.1f  fb^{-1}",19.7));
+      lumilab->SetNDC();
+      lumilab->SetTextSize(0.04);
+      lumilab->SetTextAlign(31);
+      paperlabels.Add(lumilab);
+      */
+
       TGaxis *raxis = new TGaxis(-310,0,-310,140,0,140,10,"S");
       TGaxis *zaxis = new TGaxis(-310,0,310,0,-310,310,10,"S");
       raxis->SetTickSize(.01);      zaxis->SetTickSize(.01);
@@ -355,6 +375,7 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
       std::cout << modulesoccu.GetSize() << std::endl;
       etalines.Draw();
       etalabels.Draw();
+      paperlabels.Draw();
       palette.Draw();
       modulesoccu.Draw();
 
@@ -374,5 +395,35 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 
 
   }
+
+}
+
+float combinedOccupancy(TFile* ff, const char* module, const int lowerbin, const int upperbin) {
+
+  float cumoccu = -2.;
+  double cumerr = -2;
+
+  if(ff->cd(module)) {
+    
+    TProfile* aveoccu= (TProfile*)gDirectory->Get("aveoccu");
+    //    TProfile* avemult= (TProfile*)gDirectory->Get("avemult");
+    TH1F* nchannels = (TH1F*)gDirectory->Get("nchannels_real");
+
+    float sumoccu=0.;
+    float sumnchannels=0;
+    double sumerrsq=0;
+    
+    for(int i=lowerbin; i<upperbin+1; ++i) {
+      std::cout << "processing bin " << i << " " << aveoccu->GetBinContent(i) << "+/-" << aveoccu->GetBinError(i) <<  std::endl;
+      sumoccu += aveoccu->GetBinContent(i);
+      sumnchannels += nchannels->GetBinContent(i);
+      sumerrsq += aveoccu->GetBinError(i)*aveoccu->GetBinError(i);
+    }
+    cumoccu = sumnchannels!=0 ? sumoccu/sumnchannels : -1;
+    cumerr = sumnchannels!=0 ? sqrt(sumerrsq)/sumnchannels : -1;
+    std::cout << "Cumulative occupancy: " << sumoccu << " " << sumnchannels << " " << cumoccu << "+/-" << cumerr;
+  }
+
+  return cumoccu;
 
 }

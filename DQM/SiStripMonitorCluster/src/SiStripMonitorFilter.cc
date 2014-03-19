@@ -34,11 +34,6 @@ void SiStripMonitorFilter::beginJob(){
 
 void SiStripMonitorFilter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // get from event
-  /*
-  std::string FilterProducer = conf_.getParameter<std::string>("FilterProducer");
-  edm::Handle<int> filter_decision; iEvent.getByLabel(FilterProducer, "", filter_decision); // filter decision
-  */
   edm::Handle<int> filter_decision; iEvent.getByToken(filerDecisionToken_,filter_decision); // filter decision
 
   // trigger decision

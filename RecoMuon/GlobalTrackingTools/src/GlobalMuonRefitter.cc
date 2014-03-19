@@ -50,7 +50,6 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
@@ -67,7 +66,8 @@ using namespace edm;
 //----------------
 
 GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
-				       const MuonServiceProxy* service) : 
+				       const MuonServiceProxy* service,
+				       edm::ConsumesCollector& iC) : 
   theCosmicFlag(par.getParameter<bool>("PropDirForCosmics")),
   theDTRecHitLabel(par.getParameter<InputTag>("DTRecSegmentLabel")),
   theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
@@ -113,10 +113,12 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   }
   else
     theRescaleErrorFactor = 1000.;
-  
 
   theCacheId_TRH = 0;
-
+  theDTRecHitToken=iC.consumes<DTRecHitCollection>(theDTRecHitLabel);
+  theCSCRecHitToken=iC.consumes<CSCRecHit2DCollection>(theCSCRecHitLabel);
+  CSCSegmentsToken = iC.consumes<CSCSegmentCollection>(InputTag("cscSegments"));
+  all4DSegmentsToken=iC.consumes<DTRecSegment4DCollection>(InputTag("dt4DSegments"));
 }
 
 //--------------
@@ -133,8 +135,10 @@ GlobalMuonRefitter::~GlobalMuonRefitter() {
 void GlobalMuonRefitter::setEvent(const edm::Event& event) {
 
   theEvent = &event;
-  event.getByLabel(theDTRecHitLabel, theDTRecHits);
-  event.getByLabel(theCSCRecHitLabel, theCSCRecHits);
+  event.getByToken(theDTRecHitToken, theDTRecHits);
+  event.getByToken(theCSCRecHitToken, theCSCRecHits);   
+  event.getByToken(CSCSegmentsToken, CSCSegments);
+  event.getByToken(all4DSegmentsToken, all4DSegments);
 }
 
 
@@ -240,8 +244,8 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 	
       DynamicTruncation dytRefit(*theEvent,*theService);
       dytRefit.setThr(theDYTthrs.at(0),theDYTthrs.at(1),theDYTthrs.at(2));                                
+      dytRefit.setProd(all4DSegments, CSCSegments);
       DYTRecHits = dytRefit.filter(globalTraj.front());
-      //vector<double> est = dytRefit.getEstimators();
       if ((DYTRecHits.size() > 1) && (DYTRecHits.front()->globalPosition().mag() > DYTRecHits.back()->globalPosition().mag()))
         stable_sort(DYTRecHits.begin(),DYTRecHits.end(),RecHitLessByDet(alongMomentum));
       outputTraj = transform(globalTrack, track, DYTRecHits);

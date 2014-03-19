@@ -23,8 +23,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("PoolSource",
     fileNames =  cms.untracked.vstring(
 #    '/store/user/kotlinski/mu100/simhits/simHits.root',
-    'file:simHits.root'
-#    'file:/scratch/kotlinski/sim/mu/pt100/mu100_10k_1.root'
+#    'file:simHits.root'
+    'file:/afs/cern.ch/work/d/dkotlins/public//MC/mu/pt100/simhits/simHits1.root'
     )
 )
 
@@ -50,9 +50,9 @@ process.analysis =  cms.EDAnalyzer("PixelSimHitsTest",
 	src = cms.string("g4SimHits"),
 #	list = cms.string("TrackerHitsPixelBarrelLowTof"),
 #	list = cms.string("TrackerHitsPixelBarrelHighTof"),
-#	list = cms.string("TrackerHitsPixelEndcapLowTof"),
-	list = cms.string("TrackerHitsPixelEndcapHighTof"),
-        Verbosity = cms.untracked.bool(True),
+	list = cms.string("TrackerHitsPixelEndcapLowTof"),
+#	list = cms.string("TrackerHitsPixelEndcapHighTof"),
+        Verbosity = cms.untracked.bool(False),
 #        mode = cms.untracked.string("bpix"),
         mode = cms.untracked.string("fpix"),
 )

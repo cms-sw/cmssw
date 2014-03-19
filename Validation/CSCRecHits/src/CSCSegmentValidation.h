@@ -3,6 +3,8 @@
 
 #include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -10,7 +12,7 @@
 class CSCSegmentValidation : public CSCBaseValidation
 {
 public:
-  CSCSegmentValidation(DQMStore* dbe, const edm::InputTag & inputTag);
+  CSCSegmentValidation(DQMStore* dbe, const edm::InputTag & inputTag, edm::ConsumesCollector && iC);
 
   virtual ~CSCSegmentValidation() {}
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
@@ -21,6 +23,8 @@ public:
 
   bool hasSegment(int chamberId) const;
   static int whatChamberType(int detId);
+
+  edm::EDGetTokenT<CSCSegmentCollection> segments_Token_;
 
   // map to count how many layers are hit.  First index is chamber detId, second is layers
   // that have hits

@@ -55,7 +55,8 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   connection.setParameters( connectionPset );
   connection.configure();
   std::string connectionString = iConfig.getParameter<std::string>("connect");
-  BackendType backType = (BackendType) iConfig.getUntrackedParameter<int>("dbFormat", DEFAULT_DB);
+  BackendType backType = (BackendType) iConfig.getUntrackedParameter<int>("dbFormat", DEFAULT_DB );
+  if( backType == UNKNOWN_DB )  backType = DEFAULT_DB;
   m_session = connection.createSession( connectionString, true, backType ); 
   
   //if( iConfig.exists("logconnect") ){

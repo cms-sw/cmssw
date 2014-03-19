@@ -66,8 +66,8 @@ void ReadRecHitAlgorithm::run(const SiStripMatchedRecHit2DCollection* input)
 
           auto m = iter->monoHit();
           auto s = iter->stereoHit();
-	  ProjectedSiStripRecHit2D projrechit(m.localPosition() ,m.localPositionError() , rechit.geographicalId(), det, &m );
-	  ProjectedSiStripRecHit2D projsrechit(s.localPosition() ,s.localPositionError() , rechit.geographicalId(), det, &s );
+	  ProjectedSiStripRecHit2D projrechit(m.localPosition() ,m.localPositionError() , *det, m );
+	  ProjectedSiStripRecHit2D projsrechit(s.localPosition() ,s.localPositionError() , *det, s );
 	  
 	  edm::LogVerbatim("ReadRecHit")<<"Checking shareinput\nALL:";
 	  

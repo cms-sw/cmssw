@@ -1,180 +1,205 @@
 #include "../interface/TimingClient.h"
 
-#include "DQM/EcalBarrelMonitorTasks/interface/TimingTask.h"
-
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+
+#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <cmath>
 
-namespace ecaldqm {
-
-  TimingClient::TimingClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "TimingClient"),
-    expectedMean_(0.),
-    meanThreshold_(0.),
-    rmsThreshold_(0.),
+namespace ecaldqm
+{
+  TimingClient::TimingClient() :
+    DQWorkerClient(),
+    toleranceMean_(0.),
+    toleranceMeanFwd_(0.),
+    toleranceRMS_(0.),
+    toleranceRMSFwd_(0.),
     minChannelEntries_(0),
+    minChannelEntriesFwd_(0),
     minTowerEntries_(0),
+    minTowerEntriesFwd_(0),
     tailPopulThreshold_(0.)
   {
-    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
-    expectedMean_ = taskParams.getUntrackedParameter<double>("expectedMean");
-    meanThreshold_ = taskParams.getUntrackedParameter<double>("meanThreshold");
-    rmsThreshold_ = taskParams.getUntrackedParameter<double>("rmsThreshold");
-    minChannelEntries_ = taskParams.getUntrackedParameter<int>("minChannelEntries");
-    minTowerEntries_ = taskParams.getUntrackedParameter<int>("minTowerEntries");
-    tailPopulThreshold_ = taskParams.getUntrackedParameter<double>("tailPopulThreshold");
-
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
-    source_(sTimeAllMap, "TimingTask", TimingTask::kTimeAllMap, sources);
-    source_(sTimeMap, "TimingTask", TimingTask::kTimeMap, sources);
+    qualitySummaries_.insert("Quality");
+    qualitySummaries_.insert("QualitySummary");
   }
 
   void
-  TimingClient::bookMEs()
+  TimingClient::setParams(edm::ParameterSet const& _params)
   {
-    DQWorker::bookMEs();
-
-    MEs_[kQuality]->resetAll(-1.);
-    MEs_[kRMS]->resetAll(-1.);
-    MEs_[kQualitySummary]->resetAll(-1.);
+    toleranceMean_ = _params.getUntrackedParameter<double>("toleranceMean");
+    toleranceMeanFwd_ = _params.getUntrackedParameter<double>("toleranceMeanFwd");
+    toleranceRMS_ = _params.getUntrackedParameter<double>("toleranceRMS");
+    toleranceRMSFwd_ = _params.getUntrackedParameter<double>("toleranceRMSFwd");
+    minChannelEntries_ = _params.getUntrackedParameter<int>("minChannelEntries");
+    minChannelEntriesFwd_ = _params.getUntrackedParameter<int>("minChannelEntriesFwd");
+    minTowerEntries_ = _params.getUntrackedParameter<int>("minTowerEntries");
+    minTowerEntriesFwd_ = _params.getUntrackedParameter<int>("minChannelEntriesFwd");
+    tailPopulThreshold_ = _params.getUntrackedParameter<double>("tailPopulThreshold");
   }
 
   void
-  TimingClient::producePlots()
+  TimingClient::producePlots(ProcessType)
   {
-    using namespace std;
+    MESet& meQuality(MEs_.at("Quality"));
+    MESet& meMeanSM(MEs_.at("MeanSM"));
+    MESet& meMeanAll(MEs_.at("MeanAll"));
+    MESet& meFwdBkwdDiff(MEs_.at("FwdBkwdDiff"));
+    MESet& meFwdvBkwd(MEs_.at("FwdvBkwd"));
+    MESet& meRMSMap(MEs_.at("RMSMap"));
+    MESet& meRMSAll(MEs_.at("RMSAll"));
+    MESet& meProjEta(MEs_.at("ProjEta"));
+    MESet& meProjPhi(MEs_.at("ProjPhi"));
+    MESet& meQualitySummary(MEs_.at("QualitySummary"));
 
-    MEs_[kMeanSM]->reset();
-    MEs_[kMeanAll]->reset();
-    MEs_[kRMS]->reset(-1.);
-    MEs_[kRMSAll]->reset();
-    MEs_[kProjEta]->reset();
-    MEs_[kProjPhi]->reset();
-    MEs_[kFwdBkwdDiff]->reset();
-    MEs_[kFwdvBkwd]->reset();
+    MESet const& sTimeAllMap(sources_.at("TimeAllMap"));
+    MESet const& sTimeMap(sources_.at("TimeMap"));
 
     uint32_t mask(1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING);
 
-    for(unsigned dccid(1); dccid <= 54; dccid++){
+    MESet::iterator qEnd(meQuality.end());
 
-      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
-	vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
+    MESet::iterator rItr(meRMSMap);
+    MESet::const_iterator tItr(sTimeMap);
 
-	if(ids.size() == 0) continue;
+    for(MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
-	// tower entries != sum(channel entries) because of the difference in timing cut at the source
-	float summaryEntries(0.);
-	if(dccid <= 9 || dccid >= 46){
-	  vector<EcalScDetId> scids(getElectronicsMap()->getEcalScDetId(dccid, tower));
-	  for(vector<EcalScDetId>::iterator scItr(scids.begin()); scItr != scids.end(); ++scItr)
-	    summaryEntries += sources_[sTimeAllMap]->getBinEntries(*scItr);
-	}
-	else
-	  summaryEntries = sources_[sTimeAllMap]->getBinEntries(ids[0]);
+      tItr = qItr;
+      rItr = qItr;
 
-	float towerEntries(0.);
-	float towerMean(0.);
-	float towerMean2(0.);
+      DetId id(qItr->getId());
 
-	for(vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
-	  float entries(sources_[sTimeMap]->getBinEntries(*idItr));
-	  float mean(sources_[sTimeMap]->getBinContent(*idItr));
-	  float rms(sources_[sTimeMap]->getBinError(*idItr) * sqrt(entries));
+      int minChannelEntries(minChannelEntries_);
+      float meanThresh(toleranceMean_);
+      float rmsThresh(toleranceRMS_);
 
-	  towerEntries += entries;
-	  towerMean += mean;
-	  towerMean2 += mean * mean;
-
-	  if(entries < minChannelEntries_){
-	    fillQuality_(kQuality, *idItr, mask, 2.);
-	    continue;
-	  }
-
-	  MEs_[kMeanSM]->fill(*idItr, mean);
-	  MEs_[kMeanAll]->fill(*idItr, mean);
-	  MEs_[kProjEta]->fill(*idItr, mean);
-	  MEs_[kProjPhi]->fill(*idItr, mean);
-	  MEs_[kRMS]->fill(*idItr, rms);
-	  MEs_[kRMSAll]->fill(*idItr, rms);
-
-	  if(dccid <= 27){
-	    DetId posId(0);
-	    if(idItr->subdetId() == EcalEndcap){
-	      posId = EEDetId::switchZSide(*idItr);
-	    }
-	    else{
-	      posId = EBDetId::switchZSide(*idItr);
-	    }
-	    float posTime(sources_[sTimeMap]->getBinContent(posId));
-	    MEs_[kFwdBkwdDiff]->fill(*idItr, posTime - mean);
-	    MEs_[kFwdvBkwd]->fill(*idItr, mean, posTime);
-	  }
-
-	  float quality(abs(mean - expectedMean_) > meanThreshold_ || rms > rmsThreshold_ ? 0. : 1.);
-	  fillQuality_(kQuality, *idItr, mask, quality);
-	}
-
-	float quality(1.);
-	if(towerEntries > minTowerEntries_){
-	  if(summaryEntries < towerEntries * (1. - tailPopulThreshold_)) // large timing deviation
-	    quality = 0.;
-
-	  towerMean /= ids.size();
-	  towerMean2 /= ids.size();
-
-	  float towerRMS(0.);
-	  float variance(towerMean2 - towerMean * towerMean);
-	  if(variance > 0.) towerRMS = sqrt(variance);
-
-	  if(abs(towerMean - expectedMean_) > meanThreshold_ || towerRMS > rmsThreshold_)
-	    quality = 0.;
-	}
-	else
-	  quality = 2.;
-
-	if(dccid <= 9 || dccid >= 46){
-	  vector<EcalScDetId> scs(getElectronicsMap()->getEcalScDetId(dccid, tower));
-	  for(vector<EcalScDetId>::iterator scItr(scs.begin()); scItr != scs.end(); ++scItr)
-	    fillQuality_(kQualitySummary, *scItr, mask, quality);
-	}
-	else
-	  fillQuality_(kQualitySummary, ids[0], mask, quality);
+      if(isForward(id)){
+        minChannelEntries = minChannelEntriesFwd_;
+        meanThresh = toleranceMeanFwd_;
+        rmsThresh = toleranceRMSFwd_;
       }
+
+      bool doMask(meQuality.maskMatches(id, mask, statusManager_));
+
+      float entries(tItr->getBinEntries());
+
+      if(entries < minChannelEntries){
+        qItr->setBinContent(doMask ? kMUnknown : kUnknown);
+        rItr->setBinContent(-1.);
+        continue;
+      }
+
+      float mean(tItr->getBinContent());
+      float rms(tItr->getBinError() * sqrt(entries));
+
+      meMeanSM.fill(id, mean);
+      meMeanAll.fill(id, mean);
+      meProjEta.fill(id, mean);
+      meProjPhi.fill(id, mean);
+      meRMSAll.fill(id, rms);
+      rItr->setBinContent(rms);
+
+      bool negative(false);
+      float posTime(0.);
+
+      if(id.subdetId() == EcalBarrel){
+        EBDetId ebid(id);
+        if(ebid.zside() < 0){
+          negative = true;
+          EBDetId posId(EBDetId::switchZSide(ebid));
+          posTime = sTimeMap.getBinContent(posId);
+        }
+      }
+      else{
+        EEDetId eeid(id);
+        if(eeid.zside() < 0){
+          negative = true;
+          EEDetId posId(EEDetId::switchZSide(eeid));
+          posTime = sTimeMap.getBinContent(posId);
+        }
+      }
+      if(negative){
+        meFwdBkwdDiff.fill(id, posTime - mean);
+        meFwdvBkwd.fill(id, mean, posTime);
+      }
+
+      if(abs(mean) > meanThresh || rms > rmsThresh)
+        qItr->setBinContent(doMask ? kMBad : kBad);
+      else
+        qItr->setBinContent(doMask ? kMGood : kGood);
     }
-  }
 
-  /*static*/
-  void
-  TimingClient::setMEData(std::vector<MEData>& _data)
-  {
-    BinService::AxisSpecs axis;
+    MESet::iterator qsEnd(meQualitySummary.end());
 
-    _data[kQuality] = MEData("Quality", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+    for(MESet::iterator qsItr(meQualitySummary.beginChannel()); qsItr != qsEnd; qsItr.toNextChannel()){
 
-    axis.nbins = 100;
-    axis.low = -25.;
-    axis.high = 25.;
-    _data[kMeanSM] = MEData("MeanSM", BinService::kSM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-    _data[kMeanAll] = MEData("MeanAll", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
+      DetId tId(qsItr->getId());
 
-    axis.nbins = 50;
-    _data[kFwdvBkwd] = MEData("FwdvBkwd", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH2F, &axis, &axis);
+      std::vector<DetId> ids;
 
-    axis.low = -5.;
-    axis.high = 5.;
-    _data[kFwdBkwdDiff] = MEData("FwdBkwdDiff", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
+      if(tId.subdetId() == EcalTriggerTower)
+        ids = getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(tId));
+      else
+        ids = scConstituents(EcalScDetId(tId));
 
-    _data[kRMS] = MEData("RMS", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+      int minTowerEntries(minTowerEntries_);
+      float meanThresh(toleranceMean_);
+      float rmsThresh(toleranceRMS_);
 
-    axis.nbins = 100;
-    axis.low = 0.;
-    axis.high = 10.;
-    _data[kRMSAll] = MEData("RMSAll", BinService::kEcal2P, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
-    _data[kProjEta] = MEData("Projection", BinService::kEcal3P, BinService::kProjEta, MonitorElement::DQM_KIND_TPROFILE);
-    _data[kProjPhi] = MEData("Projection", BinService::kEcal3P, BinService::kProjPhi, MonitorElement::DQM_KIND_TPROFILE);
-    _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+      if(isForward(tId)){
+        minTowerEntries = minTowerEntriesFwd_;
+          meanThresh = toleranceMeanFwd_;
+          rmsThresh = toleranceRMSFwd_;
+      }
+
+      // tower entries != sum(channel entries) because of the difference in timing cut at the source
+      float summaryEntries(sTimeAllMap.getBinEntries(tId));
+
+      float towerEntries(0.);
+      float towerMean(0.);
+      float towerMean2(0.);
+
+      bool doMask(false);
+
+      for(std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
+        DetId& id(*idItr);
+
+        doMask |= meQuality.maskMatches(id, mask, statusManager_);
+
+        MESet::const_iterator tmItr(sTimeMap, id);
+
+        float entries(tmItr->getBinEntries());
+        if(entries < 0.) continue;
+        towerEntries += entries;
+        float mean(tmItr->getBinContent());
+        towerMean += mean * entries;
+        float rms(tmItr->getBinError() * sqrt(entries));
+        towerMean2 += (rms * rms + mean * mean) * entries;
+      }
+
+      double quality(doMask ? kMUnknown : kUnknown);
+      if(towerEntries / ids.size() > minTowerEntries / 25.){
+        if(summaryEntries < towerEntries * (1. - tailPopulThreshold_)) // large timing deviation
+          quality = doMask ? kMBad : kBad;
+        else{
+	  towerMean /= towerEntries;
+	  towerMean2 /= towerEntries;
+
+	  float towerRMS(sqrt(towerMean2 - towerMean * towerMean));
+
+	  if(abs(towerMean) > meanThresh || towerRMS > rmsThresh)
+	    quality = doMask ? kMBad : kBad;
+          else
+            quality = doMask ? kMGood : kGood;
+        }
+      }
+
+      qsItr->setBinContent(quality);
+    }
   }
 
   DEFINE_ECALDQM_WORKER(TimingClient);
 }
+

@@ -1,7 +1,6 @@
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
 #include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -40,7 +39,7 @@ using namespace edm;
 
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 
-MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset){
+MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset,consumesCollector()){
   //theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
 
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
@@ -49,11 +48,13 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
   histoProducerAlgo_->setDQMStore(dbe_);
 
   dirName_ = pset.getParameter<std::string>("dirName");
-  associatormap = pset.getParameter< edm::InputTag >("associatormap");
+  assMapInput = pset.getParameter< edm::InputTag >("associatormap");
+  associatormapStR = mayConsume<reco::SimToRecoCollection>(assMapInput);
+  associatormapRtS = mayConsume<reco::RecoToSimCollection>(assMapInput);
   UseAssociators = pset.getParameter< bool >("UseAssociators");
 
-  m_dEdx1Tag = pset.getParameter< edm::InputTag >("dEdx1Tag");
-  m_dEdx2Tag = pset.getParameter< edm::InputTag >("dEdx2Tag");
+  m_dEdx1Tag = mayConsume<reco::DeDxData>(pset.getParameter< edm::InputTag >("dEdx1Tag"));
+  m_dEdx2Tag = mayConsume<reco::DeDxData>(pset.getParameter< edm::InputTag >("dEdx2Tag"));
 
   tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
 					pset.getParameter<double>("minRapidityTP"),
@@ -78,11 +79,11 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
   useGsf = pset.getParameter<bool>("useGsf");
   runStandalone = pset.getParameter<bool>("runStandalone");
 
-  _simHitTpMapTag = pset.getParameter<edm::InputTag>("simHitTpMapTag");
+  _simHitTpMapTag = mayConsume<SimHitTPAssociationProducer::SimHitTPAssociationList>(pset.getParameter<edm::InputTag>("simHitTpMapTag"));
 
   if (!UseAssociators) {
     associators.clear();
-    associators.push_back(associatormap.label());
+    associators.push_back(assMapInput.label());
   }
 
 }
@@ -155,17 +156,17 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
-  event.getByLabel(label_tp_effic,TPCollectionHeff);
+  event.getByToken(label_tp_effic,TPCollectionHeff);
   const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
-  event.getByLabel(label_tp_fake,TPCollectionHfake);
+  event.getByToken(label_tp_fake,TPCollectionHfake);
   const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
 
   if(parametersDefiner=="CosmicParametersDefinerForTP") {
     edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
     //warning: make sure the TP collection used in the map is the same used in the MTV!
-    event.getByLabel(_simHitTpMapTag,simHitsTPAssoc);
+    event.getByToken(_simHitTpMapTag,simHitsTPAssoc);
     parametersDefinerTP->initEvent(simHitsTPAssoc);
     cosmictpSelector.initEvent(simHitsTPAssoc);
   }
@@ -176,11 +177,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   //<< "TP Collection for fake rate studies has size = 0! Skipping Event." ; return;}
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  event.getByLabel(bsSrc,recoBeamSpotHandle);
+  event.getByToken(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;
 
   edm::Handle< vector<PileupSummaryInfo> > puinfoH;
-  event.getByLabel(label_pileupinfo,puinfoH);
+  event.getByToken(label_pileupinfo,puinfoH);
   PileupSummaryInfo puinfo;
 
   for (unsigned int puinfo_ite=0;puinfo_ite<(*puinfoH).size();++puinfo_ite){
@@ -191,7 +192,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   }
 
   edm::Handle<TrackingVertexCollection> tvH;
-  event.getByLabel(label_tv,tvH);
+  event.getByToken(label_tv,tvH);
   TrackingVertexCollection tv = *tvH;
 
   int w=0; //counter counting the number of sets of histograms
@@ -201,7 +202,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //get collections from the event
       //
       edm::Handle<View<Track> >  trackCollection;
-      if(!event.getByLabel(label[www], trackCollection)&&ignoremissingtkcollection_)continue;
+      if(!event.getByToken(labelToken[www], trackCollection)&&ignoremissingtkcollection_)continue;
       //if (trackCollection->size()==0)
       //edm::LogInfo("TrackValidator") << "TrackCollection size = 0!" ;
       //continue;
@@ -230,16 +231,16 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					   << label[www].process()<<":"
 					   << label[www].label()<<":"
 					   << label[www].instance()<<" with "
-					   << associatormap.process()<<":"
-					   << associatormap.label()<<":"
-					   << associatormap.instance()<<"\n";
+					   << assMapInput.process()<<":"
+					   << assMapInput.label()<<":"
+					   << assMapInput.instance()<<"\n";
 
 	Handle<reco::SimToRecoCollection > simtorecoCollectionH;
-	event.getByLabel(associatormap,simtorecoCollectionH);
+	event.getByToken(associatormapStR,simtorecoCollectionH);
 	simRecColl= *(simtorecoCollectionH.product());
 
 	Handle<reco::RecoToSimCollection > recotosimCollectionH;
-	event.getByLabel(associatormap,recotosimCollectionH);
+	event.getByToken(associatormapRtS,recotosimCollectionH);
 	recSimColl= *(recotosimCollectionH.product());
       }
 
@@ -376,9 +377,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //std::cout << "PIPPO: label is " << label[www] << std::endl;
       if (label[www].label()=="generalTracks") {
 	try {
-	  event.getByLabel(m_dEdx1Tag, dEdx1Handle);
+	  event.getByToken(m_dEdx1Tag, dEdx1Handle);
 	  const edm::ValueMap<reco::DeDxData> dEdx1 = *dEdx1Handle.product();
-	  event.getByLabel(m_dEdx2Tag, dEdx2Handle);
+	  event.getByToken(m_dEdx2Tag, dEdx2Handle);
 	  const edm::ValueMap<reco::DeDxData> dEdx2 = *dEdx2Handle.product();
 	  v_dEdx.push_back(dEdx1);
 	  v_dEdx.push_back(dEdx2);

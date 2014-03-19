@@ -6,6 +6,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
 
 class PFTrackTransformer;
 class PFConversionProducer : public edm::EDProducer {
@@ -26,8 +29,8 @@ private:
   
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_; 
-  edm::InputTag pfConversionContainer_;
-  edm::InputTag pfTrackContainer_;
-  edm::InputTag vtx_h;
+  edm::EDGetTokenT<reco::ConversionCollection> pfConversionContainer_;
+  edm::EDGetTokenT<reco::VertexCollection> vtx_h;
+  
 };
 #endif

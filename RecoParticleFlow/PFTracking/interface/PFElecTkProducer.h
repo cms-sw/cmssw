@@ -1,5 +1,8 @@
 #ifndef PFElecTkProducer_H
 #define PFElecTkProducer_H
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -15,6 +18,12 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
 
 class PFTrackTransformer;
 class GsfTrack;
@@ -96,13 +105,13 @@ class PFElecTkProducer : public edm::EDProducer {
       reco::GsfPFRecTrack pftrack_;
       reco::GsfPFRecTrack secpftrack_;
       edm::ParameterSet conf_;
-      edm::InputTag gsfTrackLabel_;
-      edm::InputTag pfTrackLabel_;
-      edm::InputTag primVtxLabel_;
-      edm::InputTag pfEcalClusters_;
-      edm::InputTag pfNuclear_;
-      edm::InputTag pfConv_;
-      edm::InputTag pfV0_;
+      edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackLabel_;
+      edm::EDGetTokenT<reco::PFRecTrackCollection> pfTrackLabel_;
+      edm::EDGetTokenT<reco::VertexCollection> primVtxLabel_;
+      edm::EDGetTokenT<reco::PFClusterCollection> pfEcalClusters_;
+      edm::EDGetTokenT<reco::PFDisplacedTrackerVertexCollection>  pfNuclear_;
+      edm::EDGetTokenT<reco::PFConversionCollection> pfConv_;
+      edm::EDGetTokenT<reco::PFV0Collection>  pfV0_;
       bool useNuclear_;
       bool useConversions_;
       bool useV0_;

@@ -15,7 +15,7 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 namespace edm {
-  LHEProvenanceHelper::LHEProvenanceHelper(TypeID const& eventProductType, TypeID const& runProductType)
+  LHEProvenanceHelper::LHEProvenanceHelper(TypeID const& eventProductType, TypeID const& runProductType, ProductRegistry& productRegistry)
         : eventProductBranchDescription_(BranchDescription(
                                                   InEvent
                                                   , "source"
@@ -41,10 +41,20 @@ namespace edm {
                                                   , TypeWithDict(runProductType.typeInfo())
                                                   , false))
         , eventProductProvenance_(eventProductBranchDescription_.branchID())
+        , commonProcessParameterSet_(fillCommonProcessParameterSet())
         , processParameterSet_() {
     
-    // Now we create a process parameter set for the "LHC" process.
+    // Add the products to the product registry  
+    productRegistry.copyProduct(eventProductBranchDescription_);
+    productRegistry.copyProduct(runProductBranchDescription_);
+  }
+
+  ParameterSet
+  LHEProvenanceHelper::fillCommonProcessParameterSet() {
+    // We create a process parameter set for the "LHC" process.
+    // This function only fills parameters whose values are independent of the LHE input files.
     // We don't currently use the untracked parameters, However, we make them available, just in case.
+    ParameterSet pset;
     std::string const& moduleLabel = eventProductBranchDescription_.moduleLabel();
     std::string const& processName = eventProductBranchDescription_.processName();
     std::string const& moduleName = eventProductBranchDescription_.moduleName();
@@ -54,30 +64,32 @@ namespace edm {
     vstring modlbl;
     modlbl.reserve(1);
     modlbl.push_back(moduleLabel);
-    processParameterSet_.addParameter("@all_sources", modlbl);
+    pset.addParameter("@all_sources", modlbl);
 
     ParameterSet triggerPaths;
     triggerPaths.addParameter<vstring>("@trigger_paths", empty);
-    processParameterSet_.addParameter<ParameterSet>("@trigger_paths", triggerPaths);
+    pset.addParameter<ParameterSet>("@trigger_paths", triggerPaths);
 
     ParameterSet pseudoInput;
     pseudoInput.addParameter<std::string>("@module_edm_type", "Source");
     pseudoInput.addParameter<std::string>("@module_label", moduleLabel);
     pseudoInput.addParameter<std::string>("@module_type", moduleName);
-    processParameterSet_.addParameter<ParameterSet>(moduleLabel, pseudoInput);
+    pset.addParameter<ParameterSet>(moduleLabel, pseudoInput);
 
-    processParameterSet_.addParameter<vstring>("@all_esmodules", empty);
-    processParameterSet_.addParameter<vstring>("@all_esprefers", empty);
-    processParameterSet_.addParameter<vstring>("@all_essources", empty);
-    processParameterSet_.addParameter<vstring>("@all_loopers", empty);
-    processParameterSet_.addParameter<vstring>("@all_modules", empty);
-    processParameterSet_.addParameter<vstring>("@end_paths", empty);
-    processParameterSet_.addParameter<vstring>("@paths", empty);
-    processParameterSet_.addParameter<std::string>("@process_name", processName);
+    pset.addParameter<vstring>("@all_esmodules", empty);
+    pset.addParameter<vstring>("@all_esprefers", empty);
+    pset.addParameter<vstring>("@all_essources", empty);
+    pset.addParameter<vstring>("@all_loopers", empty);
+    pset.addParameter<vstring>("@all_modules", empty);
+    pset.addParameter<vstring>("@end_paths", empty);
+    pset.addParameter<vstring>("@paths", empty);
+    pset.addParameter<std::string>("@process_name", processName);
+    return pset;
   }
 
   void
   LHEProvenanceHelper::lheAugment(lhef::LHERunInfo const* runInfo) {
+    processParameterSet_ = commonProcessParameterSet_;
     if(runInfo == nullptr) return;
     typedef std::vector<std::string> vstring;
     auto const& heprup = *runInfo->getHEPRUP();
@@ -99,14 +111,10 @@ namespace edm {
   }
 
   ProcessHistoryID
-  LHEProvenanceHelper::lheInit(ProductRegistry& productRegistry, ProcessHistoryRegistry& processHistoryRegistry) {
+  LHEProvenanceHelper::lheInit(ProcessHistoryRegistry& processHistoryRegistry) {
     // Now we register the process parameter set.
     processParameterSet_.registerIt();
     //std::cerr << processParameterSet_.dump() << std::endl;
-    // Now we need to set all the metadata
-    // Add the products to the product registry  
-    productRegistry.copyProduct(eventProductBranchDescription_);
-    productRegistry.copyProduct(runProductBranchDescription_);
 
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;

@@ -108,11 +108,9 @@ private:
   TH1F *hdetr, *hdetz, *hdetphi1, *hdetphi2, *hdetphi3;
   TH1F *hglobr1,*hglobr2,*hglobr3,*hglobz1, *hglobz2, *hglobz3;
   TH1F *hcolsB,  *hrowsB,  *hcolsF,  *hrowsF;
-  TH1F *hglox1;
 
   TH2F *htest, *htest2, *htest3, *htest4, *htest5;
-
-  TProfile *hp1, *hp2, *hp3, *hp4, *hp5;
+  //TProfile *hp1, *hp2, *hp3, *hp4, *hp5;
 
 #ifdef CHECK_GEOM
   float modulePositionZ[3][44][8];
@@ -172,12 +170,12 @@ void PixelSimHitsTest::beginJob() {
     hpixid = fs->make<TH1F>( "hpixid", "Pix det id", 10, 0., 10.);
     hpixsubid = fs->make<TH1F>( "hpixsubid", "Pix Barrel id", 10, 0., 10.);
     hlayerid = fs->make<TH1F>( "hlayerid", "Pix layer id", 10, 0., 10.);
-    hladder1id = fs->make<TH1F>( "hladder1id", "Ladder L1 id", 100, -0.5, 49.5);
-    hladder2id = fs->make<TH1F>( "hladder2id", "Ladder L2 id", 100, -0.5, 49.5);
-    hladder3id = fs->make<TH1F>( "hladder3id", "Ladder L3 id", 100, -0.5, 49.5);
-    hz1id = fs->make<TH1F>( "hz1id", "Z-index id L1", 10, 0., 10.);
-    hz2id = fs->make<TH1F>( "hz2id", "Z-index id L2", 10, 0., 10.);
-    hz3id = fs->make<TH1F>( "hz3id", "Z-index id L3", 10, 0., 10.);
+    hladder1id = fs->make<TH1F>( "hladder1id", "Ladder L1 id", 102, -25.5, 25.5);
+    hladder2id = fs->make<TH1F>( "hladder2id", "Ladder L2 id", 102, -25.5, 25.5);
+    hladder3id = fs->make<TH1F>( "hladder3id", "Ladder L3 id", 102, -25.5, 25.5);
+    hz1id = fs->make<TH1F>( "hz1id", "Z-index id L1", 10, -5., 5.);
+    hz2id = fs->make<TH1F>( "hz2id", "Z-index id L2", 10, -5., 5.);
+    hz3id = fs->make<TH1F>( "hz3id", "Z-index id L3", 10, -5., 5.);
     
     hthick1 = fs->make<TH1F>( "hthick1", "Det 1 Thinckess", 400, 0.,0.04);
     hthick2 = fs->make<TH1F>( "hthick2", "Det 2 Thinckess", 400, 0.,0.04);
@@ -221,9 +219,9 @@ void PixelSimHitsTest::beginJob() {
     heloss2mu = fs->make<TH1F>( "heloss2mu", "Eloss mu l2", 100, 0., max_charge);
     heloss3mu = fs->make<TH1F>( "heloss3mu", "Eloss mu l3", 100, 0., max_charge);
 
-    htheta1 = fs->make<TH1F>( "htheta1", "Theta det1",350,0.0,3.5);
-    htheta2 = fs->make<TH1F>( "htheta2", "Theta det2",350,0.0,3.5);
-    htheta3 = fs->make<TH1F>( "htheta3", "Theta det3",350,0.0,3.5);
+    htheta1 = fs->make<TH1F>( "htheta1", "Theta l1",350,0.0,3.5);
+    htheta2 = fs->make<TH1F>( "htheta2", "Theta l2",350,0.0,3.5);
+    htheta3 = fs->make<TH1F>( "htheta3", "Theta l3",350,0.0,3.5);
     hphi1 = fs->make<TH1F>("hphi1","phi l1",1400,-3.5,3.5);
     hphi2 = fs->make<TH1F>("hphi2","phi l2",1400,-3.5,3.5);
     hphi3 = fs->make<TH1F>("hphi3","phi l3",1400,-3.5,3.5);
@@ -251,18 +249,15 @@ void PixelSimHitsTest::beginJob() {
     hglobr3 = fs->make<TH1F>("hglobr3","global r3",150,0.,15.);
     hglobz3 = fs->make<TH1F>("hglobz3","global z3",540,-27.,27.);
 
-    hglox1 = fs->make<TH1F>("hglox1","global x in l1",200,-1.,1.);
-
-    htest  = fs->make<TH2F>("htest"," ",108,-27.,27.,35,-3.5,3.5);
-    htest2 = fs->make<TH2F>("htest2"," ",108,-27.,27.,60,0.,600.);  
+    // layer 1 only 
+    htest  = fs->make<TH2F>("htest"," ",108,-27.,27.,35,-3.5,3.5);  // global z versus local y
+    htest2 = fs->make<TH2F>("htest2"," ",108,-27.,27.,60,0.,600.);  // global z versus eloss
     htest3 = fs->make<TH2F>("htest3"," ",240,-12.,12.,240,-12.,12.);  // x-y plane
     //htest4 = fs->make<TH2F>("htest4"," ",80,-4.,4.,100,-5.,5.);
 
-    hp1 = fs->make<TProfile>("hp1"," ",50,0.,50.);    // default option
-    hp2 = fs->make<TProfile>("hp2"," ",50,0.,50.," "); // option set to " "
+    //hp1 = fs->make<TProfile>("hp1"," ",50,0.,50.);    // default option
+    //hp2 = fs->make<TProfile>("hp2"," ",50,0.,50.," "); // option set to " "
     //hp3 = fs->make<TProfile>("hp3"," ",50,0.,50.,-100.,100.); //
-    //hp4 = fs->make<TProfile>("hp4"," ",50,0.,50.);
-    // hp5 = fs->make<TProfile>("hp5"," ",50,0.,50.);
 
 #ifdef CHECK_GEOM
     // To get the module position
@@ -360,8 +355,6 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
      int cols = theGeomDet->specificTopology().ncolumns();
      int rows = theGeomDet->specificTopology().nrows();
 
-     hcolsB->Fill(float(cols));
-     hrowsB->Fill(float(rows));
      if(DEBUG) cout<<"det z/r "<<detZ<<"/"<<detR<<" thick/len/wid "<<detThick<<" "
 		   <<detLength<<" "<<detWidth<<" cols/rows "<<cols<<" "<<rows
 		   <<endl;
@@ -397,6 +390,9 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 	 //cout<<" col/row, pitch "<<cols<<" "<<rows<<" "
 	 //<<pitchX<<" "<<pitchY<<endl;
        }
+
+       hcolsF->Fill(float(cols));
+       hrowsF->Fill(float(rows));
        
      } else if(mode_ == "bpix") { // Barrel 
 
@@ -433,14 +429,17 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 	 //  <<pitchX<<" "<<pitchY<<endl;
        }      
 
+       hcolsB->Fill(float(cols));
+       hrowsB->Fill(float(rows));
+
      } // end fb-bar
 
 
 #ifdef CHECK_GEOM
      // To get the module position
-     modulePositionR[layer-1][ladder-1][zindex-1] = detR;
-     modulePositionZ[layer-1][ladder-1][zindex-1] = detZ;
-     modulePositionPhi[layer-1][ladder-1][zindex-1] = detPhi;
+     modulePositionR[layer-1][ladderC-1][zindex-1] = detR;
+     modulePositionZ[layer-1][ladderC-1][zindex-1] = detZ;
+     modulePositionPhi[layer-1][ladderC-1][zindex-1] = detPhi;
 #endif
 
      // SimHit information 
@@ -469,14 +468,14 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
      float ypos = (y+y2)/2.;
      float zpos = (z+z2)/2.;
 
+     if(pt>0.1) {goodHits++;}
      if(PRINT) {
-       if(pt>0.1) {cout<<" simhit: id "<<pid<<" "<<tid<<" proc "<<procType<<" tof "<<tof<<" de "
-		       <<eloss<<" pt "<<pt<<" entry "<<x<<"/"<<y<<"/"<<z<<" lenz "<<dz<<" "
-		       <<moduleDirectionUp<<endl; goodHits++;}
-       else if(pid==11) cout<<" delta: id "<<pid<<" "<<tid<<" proc "<<procType<<" tof "<<tof<<" de "
-		      <<eloss<<" pt "<<pt<<" entry "<<x<<"/"<<y<<"/"<<z<<" lenz "<<dz<<endl;
-       else cout<<" low pt (sec?): id "<<pid<<" "<<tid<<" proc "<<procType<<" tof "<<tof<<" de "
-		      <<eloss<<" pt "<<pt<<" entry "<<x<<"/"<<y<<"/"<<z<<" lenz "<<dz<<endl;
+       if(pt>0.1)       cout<<" simhit: ";
+       else if(pid==11) cout<<" delta: ";
+       else             cout<<" low pt (sec?): ";
+       cout<<" id "<<pid<<" "<<tid<<" proc "<<procType<<" tof "<<tof<<" de "
+	   <<eloss<<" pt "<<pt<<" entry "<<x<<"/"<<y<<"/"<<z<<" lenz "<<dz<<" "
+	   <<moduleDirectionUp<<endl;
      }
      if(DEBUG) cout<<"  center pos "<<xpos<<" "<<ypos<<" "<<zpos;
      
@@ -548,7 +547,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 	 if(abs(pid)==11) heloss1e->Fill(eloss);
 	 else heloss1mu->Fill(eloss);	 
 	 hladder1id->Fill(float(ladder));
-	 hz1id->Fill(float(zindex));
+	 hz1id->Fill(float(module));
 	 hthick1->Fill(dz);
 	 hlength1->Fill(y);
 	 hwidth1->Fill(x);
@@ -559,7 +558,6 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 	 // 	 hwidth1h->Fill(x);
 	 // 	 if(pid==13 && p>1.) {  // select primary muons with mom above 1.
 	 // 	   hphi1h->Fill(phi);
-	 // 	   hglox1->Fill(gloX);
 	 // 	   hglobr1h->Fill(gloR);
 	 // 	 }
 	 //        } else {
@@ -576,10 +574,8 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 	 
 	 //if(pid!=11 && moduleDirectionUp)  hladder1idUp->Fill(float(ladder));
 	 
-	 //if(ladder==6) htest4->Fill(xpos,gloX);
-	 
-	 hp1->Fill(float(ladder),detR,1);
-	 hp2->Fill(float(ladder),detPhi);
+	 //hp1->Fill(float(ladder),detR,1);
+	 //hp2->Fill(float(ladder),detPhi);
 	 hdetphi1->Fill(detPhi);
 	 
        } else if(layer==2) {
@@ -590,7 +586,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 	 if(abs(pid)==11) heloss2e->Fill(eloss);
 	 else heloss2mu->Fill(eloss);	 
 	 hladder2id->Fill(float(ladder));
-	 hz2id->Fill(float(zindex));
+	 hz2id->Fill(float(module));
 	 hthick2->Fill(dz);
 	 hlength2->Fill(y);
 	 hwidth2->Fill(x);
@@ -619,7 +615,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 	 else heloss3mu->Fill(eloss);	 
 	 
 	 hladder3id->Fill(float(ladder));
-	 hz3id->Fill(float(zindex));
+	 hz3id->Fill(float(module));
 	 hthick3->Fill(dz);
 	 hlength3->Fill(y);
 	 hwidth3->Fill(x); 

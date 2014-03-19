@@ -7,6 +7,9 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
+#include "TkCloner.h"
+
+
 class SiStripRecHit1D GCC11_FINAL : public TrackerSingleRecHit { 
 public:
 
@@ -19,8 +22,8 @@ public:
 
   template<typename CluRef>
   SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
-		   const DetId& id, GeomDet const * idet,
-		   CluRef const&  clus) : TrackerSingleRecHit(p,e,id,idet,clus){}
+		   GeomDet const & idet,
+		   CluRef const&  clus) : TrackerSingleRecHit(p,e,idet,clus){}
 
  
   /// method to facilitate the convesion from 2D to 1D hits
@@ -35,6 +38,14 @@ public:
 
   virtual int dimension() const {return 1;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const {getKfComponents1D(holder);}
+
+  virtual bool canImproveWithTrack() const {return true;}
+private:
+  // double dispatch
+  virtual SiStripRecHit1D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner(*this,tsos);
+  }
+ 
 
  
 };

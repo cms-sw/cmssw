@@ -2,8 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 siStripCertificationInfo = cms.EDAnalyzer("SiStripCertificationInfo")
 from DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff import *
-from DQM.EcalEndcapMonitorTasks.EEDataCertificationTask_cfi import *
-from DQM.EcalBarrelMonitorTasks.EBDataCertificationTask_cfi import *
+from DQM.EcalBarrelMonitorClient.EcalCertification_cfi import *
 from DQM.HcalMonitorClient.HcalDataCertification_cfi import *
 from DQM.DTMonitorClient.dtDQMOfflineCertification_cff import *
 from DQM.RPCMonitorClient.RPCDataCertification_cfi import *
@@ -17,8 +16,7 @@ from DQMOffline.Trigger.DQMOffline_Trigger_Cert_cff import *
 
 crt_dqmoffline = cms.Sequence( siStripCertificationInfo *
                                sipixelCertification *
-                               ecalEndcapDataCertificationTask *
-                               ecalBarrelDataCertificationTask *
+                               ecalCertification *
                                hcalDataCertification *
                                dtCertificationSummary *
                                rpcDataCertification *

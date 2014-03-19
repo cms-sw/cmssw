@@ -2,7 +2,7 @@
 //
 // Package:    PFCand_AssoMap
 // Class:      PFCand_AssoMap
-// 
+//
 /**\class PFCand_AssoMap PFCand_AssoMap.cc CommonTools/RecoUtils/plugins/PFCand_AssoMap.cc
 
   Description: Produces a map with association between pf candidates and their particular most probable vertex with a quality of this association
@@ -30,14 +30,14 @@
 //
 // constructors and destructor
 //
-PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig):PFCand_AssoMapAlgos(iConfig)
+PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig):PFCand_AssoMapAlgos(iConfig, consumesCollector())
 {
 
    //now do what ever other initialization is needed
 
   	input_AssociationType_ = iConfig.getParameter<edm::InputTag>("AssociationType");
 
-  	input_PFCandidates_ = iConfig.getParameter<edm::InputTag>("PFCandidateCollection");
+  	token_PFCandidates_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCandidateCollection"));
 
    //register your products
 
@@ -56,7 +56,7 @@ PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig):PFCand_AssoMapA
 	    }
 	  }
 	}
-  
+
 }
 
 
@@ -77,11 +77,11 @@ PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace std;
   using namespace reco;
-  
+
 	//get the input pfCandidateCollection
   	Handle<PFCandidateCollection> pfCandH;
-  	iEvent.getByLabel(input_PFCandidates_,pfCandH);
-	
+  	iEvent.getByToken(token_PFCandidates_,pfCandH);
+
 	string asstype = input_AssociationType_.label();
 
 	PFCand_AssoMapAlgos::GetInputCollections(iEvent,iSetup);
@@ -90,10 +90,10 @@ PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	  auto_ptr<PFCandToVertexAssMap> PFCand2Vertex = CreatePFCandToVertexMap(pfCandH, iSetup);
   	  iEvent.put( SortPFCandAssociationMap( &(*PFCand2Vertex) ) );
 	}
- 
+
 	if ( ( asstype == "VertexToPFCands" ) || ( asstype == "Both" ) ) {
   	  auto_ptr<VertexToPFCandAssMap> Vertex2PFCand = CreateVertexToPFCandMap(pfCandH, iSetup);
-  	  iEvent.put( Vertex2PFCand );  
+  	  iEvent.put( Vertex2PFCand );
 	}
 
 }

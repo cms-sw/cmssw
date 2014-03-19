@@ -68,7 +68,7 @@ private:
 			);
       hasNewHits_ = true; 
     }
-    void addProjected(const TransientTrackingRecHit& hit,
+    void addProjected(const TrackingRecHit& hit,
 		      const GlobalVector & gdir) ;
     SiStripRecHitMatcher::Collector & collector() { return collector_; }
     bool hasNewMatchedHits() const { return hasNewHits_;  }
@@ -100,7 +100,7 @@ private:
 				    const MeasurementEstimator& est,
 				    TempMeasurements & target) ;
     void add(SiStripMatchedRecHit2D const& hit) ;
-    void addProjected(const TransientTrackingRecHit& hit,
+    void addProjected(const TrackingRecHit& hit,
 		      const GlobalVector & gdir) ;
     
     SiStripRecHitMatcher::Collector & collector() { return collector_; }
@@ -120,21 +120,32 @@ private:
     bool hasNewHits_;
   };
   
+
   
   RecHitContainer 
-  projectOnGluedDet( const RecHitContainer& hits,
+  projectOnGluedDet( const std::vector<SiStripRecHit2D>& hits,
 		     const TrajectoryStateOnSurface& ts) const dso_internal;
+  template<typename HitCollector>
+  void
+  projectOnGluedDet( HitCollector & collector,
+                     const std::vector<SiStripRecHit2D>& hits,
+                     const GlobalVector & gdir ) const  dso_internal;
 
+
+  RecHitContainer 
+    projectOnGluedDet( const RecHitContainer& hits,
+		       const TrajectoryStateOnSurface& ts) const dso_internal;
   template<typename HitCollector>
   void
   projectOnGluedDet( HitCollector & collector,
                      const RecHitContainer& hits,
                      const GlobalVector & gdir ) const  dso_internal;
 
+
   void checkProjection(const TrajectoryStateOnSurface& ts, 
 		       const RecHitContainer& monoHits, 
 		       const RecHitContainer& stereoHits) const;
-  void checkHitProjection(const TransientTrackingRecHit& hit,
+  void checkHitProjection(const TrackingRecHit& hit,
 			  const TrajectoryStateOnSurface& ts, 
 			  const GeomDet& det) const dso_internal;
 

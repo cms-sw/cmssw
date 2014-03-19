@@ -45,10 +45,7 @@ public:
   ~V0Producer();
 
 private:
-  //virtual void beginJob() ;
-  virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::ParameterSet theParams;
   V0Fitter * theVees;      

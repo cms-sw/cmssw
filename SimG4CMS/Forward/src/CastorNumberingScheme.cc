@@ -12,7 +12,8 @@
 
 #define debug
 
-CastorNumberingScheme::CastorNumberingScheme(): lvCAST(0),lvCAES(0),lvCEDS(0),
+CastorNumberingScheme::CastorNumberingScheme(): lvCASTFar(0),lvCASTNear(0),
+                                                lvCAST(0),lvCAES(0),lvCEDS(0),
 						lvCAHS(0),lvCHDS(0),lvCAER(0),
 						lvCEDR(0),lvCAHR(0),lvCHDR(0),
 						lvC3EF(0),lvC3HF(0),lvC4EF(0),
@@ -21,6 +22,8 @@ CastorNumberingScheme::CastorNumberingScheme(): lvCAST(0),lvCAES(0),lvCEDS(0),
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<lvp>::const_iterator lvcite;
   for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+    if (strcmp(((*lvcite)->GetName()).c_str(),"CASTFar") == 0) lvCASTFar = (*lvcite);
+    if (strcmp(((*lvcite)->GetName()).c_str(),"CASTNear") == 0) lvCASTNear = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"CAST") == 0) lvCAST = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"CAES") == 0) lvCAES = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"CEDS") == 0) lvCEDS = (*lvcite);
@@ -37,6 +40,7 @@ CastorNumberingScheme::CastorNumberingScheme(): lvCAST(0),lvCAES(0),lvCEDS(0),
   }
 #ifdef debug
   LogDebug("ForwardSim") << "CastorNumberingScheme:: LogicalVolume pointers\n"
+                         << lvCASTFar << " for CASTFar; " << lvCASTNear << " for CASTNear; "
 			 << lvCAST << " for CAST; " << lvCAES << " for CAES; "
 			 << lvCEDS << " for CEDS; " << lvCAHS << " for CAHS; "
 			 << lvCHDS << " for CHDS; " << lvCAER << " for CAER; "
@@ -45,6 +49,24 @@ CastorNumberingScheme::CastorNumberingScheme(): lvCAST(0),lvCAES(0),lvCEDS(0),
 			 << lvC3HF << " for C3HF; " << lvC4EF << " for C4EF; "
 			 << lvC4HF << " for C4HF.";
 #endif
+
+  //array that matches separated-halves geometry to original sector numbering
+  copyNoToSector[1 ] = 12;
+  copyNoToSector[2 ] = 11;
+  copyNoToSector[3 ] = 10;
+  copyNoToSector[4 ] =  9;
+  copyNoToSector[5 ] =  8;
+  copyNoToSector[6 ] =  7;
+  copyNoToSector[7 ] =  6;
+  copyNoToSector[8 ] =  5;
+  copyNoToSector[9 ] =  4;
+  copyNoToSector[10] =  3;
+  copyNoToSector[11] =  2;
+  copyNoToSector[12] =  1;
+  copyNoToSector[13] = 16;
+  copyNoToSector[14] = 15;
+  copyNoToSector[15] = 14;
+  copyNoToSector[16] = 13;
 }
 
 CastorNumberingScheme::~CastorNumberingScheme() {
@@ -70,51 +92,80 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
     int sector  = 0;
     int module = 0;
 
+    bool farSide = false;
+
+    //   /*
     //    HcalCastorDetId::Section section;
-     for (int ich=0; ich  <  level; ich++) {
-       if(lvs[ich] == lvCAST) {
-     // Z index +Z = 1 ; -Z = 2
-     zside   = copyno[ich];
-       } else if(lvs[ich] == lvCAES || lvs[ich] == lvCEDS) {
-     // sector number for dead material 1 - 8
-     //section = HcalCastorDetId::EM;
-     if (copyno[ich]<5) {sector = 5-copyno[ich] ;
-          }else{sector = 13-copyno[ich] ;}  
-       } else if(lvs[ich] == lvCAHS || lvs[ich] == lvCHDS) {
-     // sector number for dead material 1 - 8
-     if (copyno[ich]<5) {sector = 5-copyno[ich] ;
-          }else{sector = 13-copyno[ich] ;}
-      //section = HcalCastorDetId::HAD;
-       } else if(lvs[ich] == lvCAER || lvs[ich] == lvCEDR) {
-     // zmodule number 1-2 for EM section (2 copies)
-     module = copyno[ich];
-       } else if(lvs[ich] == lvCAHR || lvs[ich] == lvCHDR) {
-     //zmodule number 3-14 for HAD section (12 copies)
-     module = copyno[ich] + 2;
-       } else if(lvs[ich] == lvC3EF || lvs[ich] == lvC3HF) {
-     // sector number for sensitive material 1 - 16
-     sector = sector*2  ;
-       } else if(lvs[ich] == lvC4EF || lvs[ich] == lvC4HF) {
-     // sector number for sensitive material 1 - 16
-     sector = sector*2 -1;
-       }
-   
-    
-    
+    for (int ich=0; ich  <  level; ich++) {
+      if(lvs[ich] == lvCAST) {
+        // Z index +Z = 1 ; -Z = 2
+        zside   = copyno[ich];
+        if (copyno[ich] == 2) {
+          farSide = true;
+        }
+      }     // copyno 2 = Far : 3 = Near
+      
+      // fist do the numbering for the nearSide : sectors 1-8
+      if(lvs[ich] == lvCAES || lvs[ich] == lvCEDS) {
+        // sector number for dead material 1 - 8
+        //section = HcalCastorDetId::EM;
+        //if (copyno[ich]<5)
+        sector = copyno[ich];  // copy  1-4
+        //	 }else{sector = 13-copyno[ich] ;}
+      } else if(lvs[ich] == lvCAHS || lvs[ich] == lvCHDS) {
+        // sector number for dead material 1 - 8
+        //     if (copyno[ich]<5)
+        sector = copyno[ich];
+        //	 }else{sector = 13-copyno[ich] ;}
+        //section = HcalCastorDetId::HAD;
+      } else if(lvs[ich] == lvCAER || lvs[ich] == lvCEDR) {
+        // zmodule number 1-2 for EM section (2 copies)
+        module = copyno[ich];
+      } else if(lvs[ich] == lvCAHR || lvs[ich] == lvCHDR) {
+        //zmodule number 3-14 for HAD section (12 copies)
+        module = copyno[ich] + 2;
+      } else if(lvs[ich] == lvC3EF || lvs[ich] == lvC3HF) {
+        // sector number for sensitive material 1 - 16
+        sector = sector*2-1;
+        if (farSide)
+          sector += 8;
+        if (1 > sector || sector > 16)
+          {
 #ifdef debug
-      LogDebug("ForwardSim") << "CastorNumberingScheme  " << "ich = " << ich  
-			     << "copyno" << copyno[ich] << "name = " 
+            LogDebug("ForwardSim") << "--------- Wrong channel mapping";
+#endif
+            continue;
+          }
+        sector = copyNoToSector[sector];
+      } else if(lvs[ich] == lvC4EF || lvs[ich] == lvC4HF) {
+        // sector number for sensitive material 1 - 16
+        sector = sector*2;
+        if (farSide)
+          sector += 8;
+        if (1 > sector || sector > 16)
+          {
+#ifdef debug
+            LogDebug("ForwardSim") << "--------- Wrong channel mapping";
+#endif
+            continue;
+          }
+        sector = copyNoToSector[sector];
+      }
+      
+#ifdef debug
+      LogDebug("ForwardSim") << "CastorNumberingScheme :: " << "ich = " << ich
+			     << " copyno " << copyno[ich] << " name = "
 			     << lvs[ich]->GetName();
 #endif
     }
-    // use for Castor number 9 
-    // 
+    // use for Castor number 9
+    //
     // Z index +Z = 1 ; -Z = 2
     // sector number 1 - 16
     // zmodule number  1 - 18
 
 
-    //    int det = 9; 
+    //    int det = 9;
     //    intindex = packIndex (det, zside, sector, zmodule);
 
     //intindex = packIndex (section, zside, sector, module);
@@ -130,24 +181,24 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
 
 #ifdef debug
     LogDebug("ForwardSim") << "CastorNumberingScheme :" <<" zside "
-			   << zside << " sector " << sector << " module " 
-			   << module << " UnitID 0x" << std::hex << intindex 
+			   << zside << " sector " << sector << " module "
+			   << module << " UnitID 0x" << std::hex << intindex
 			   << std::dec;
 #endif
   }
   return index;
-  
+
 }
 
 //uint32_t CastorNumberingScheme::packIndex(int section, int z, int sector,  int module ) {
 
 uint32_t CastorNumberingScheme::packIndex(int z, int sector, int module) {
   /*
-  uint32_t idx=(section&31)<<28;     //bits 28-31   (21-27 are free for now)
-  idx+=((z-1)&1)<<20;                //bits  20  (1...2)
-  idx+=(sector&15)<<6;               //bits  6-9 (1...16)
-  idx+=(module&63);                 //bits  0-5 (1...18)
-  return idx;
+    uint32_t idx=(section&31)<<28;     //bits 28-31   (21-27 are free for now)
+    idx+=((z-1)&1)<<20;                //bits  20  (1...2)
+    idx+=(sector&15)<<6;               //bits  6-9 (1...16)
+    idx+=(module&63);                 //bits  0-5 (1...18)
+    return idx;
   */
 
   uint32_t idx=((z-1)&1)<<8;       //bit 8
@@ -161,21 +212,21 @@ uint32_t CastorNumberingScheme::packIndex(int z, int sector, int module) {
 
 void CastorNumberingScheme::unpackIndex(const uint32_t& idx, int& z, int& sector, int& module) {
   /*
-  section = (idx>>28)&31;
-  z   = (idx>>20)&1;
-  z  += 1;
-  sector = (idx>>6)&15;
-  module= (idx&63);
+    section = (idx>>28)&31;
+    z   = (idx>>20)&1;
+    z  += 1;
+    sector = (idx>>6)&15;
+    module= (idx&63);
   */
   z   = (idx>>8)&1;
   z  += 1;
   sector = (idx>>4)&15;
   module= (idx&15);
 }
-  
+
 void CastorNumberingScheme::detectorLevel(const G4Step* aStep, int& level,
 					  int* copyno, lvp* lvs) const {
- 
+
   //Get name and copy numbers
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   level = 0;

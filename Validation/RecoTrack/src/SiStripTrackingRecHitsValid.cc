@@ -497,11 +497,9 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
   // Mangano's
 
   edm::Handle < std::vector<Trajectory> > trajCollectionHandle;
-  // e.getByLabel(trajectoryInput_, trajCollectionHandle);
   e.getByToken(trajectoryInputToken_, trajCollectionHandle);
 
   edm::LogVerbatim("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size();
-  //cout<<"trajColl->size() = "<<trajCollectionHandle->size()<<endl;
 
   for (vector < Trajectory >::const_iterator it = trajCollectionHandle->begin(); it != trajCollectionHandle->end(); it++) {
 

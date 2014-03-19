@@ -15,18 +15,18 @@ class LikelihoodSpecies {
 
   // modifiers
   void setName(const char* name);
-  void addPdf(LikelihoodPdf* pdf);
+  void addPdf(const LikelihoodPdf* pdf);
   void setPrior(float prior);
   void setSplitFraction(std::pair<std::string,float> splitfrac);
 
   // methods
-  std::vector<LikelihoodPdf*> getListOfPdfs();
-  const char* getName();
-  float getPrior();
-  std::map<std::string,float> getSplitFractions();
+  std::vector<const LikelihoodPdf*> const& getListOfPdfs() const;
+  const char* getName() const;
+  float getPrior() const;
+  std::map<std::string,float> const& getSplitFractions() const;
 
  private:
-  std::vector<LikelihoodPdf*> _pdfList;
+  std::vector<const LikelihoodPdf*> _pdfList;
   std::string _name;
   float _prior;
   std::map<std::string,float> _splitFractions;

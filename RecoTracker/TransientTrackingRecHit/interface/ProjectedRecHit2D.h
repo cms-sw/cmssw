@@ -37,9 +37,18 @@ public:
     return RecHitPointer( new ProjectedRecHit2D( pos, err, det, originaldet, originalHit));
   }
 
+  static RecHitPointer build( const LocalPoint& pos, const LocalError& err, 
+			      const GeomDet* det, const GeomDet* originaldet,
+			      const TrackingRecHit& originalHit, const StripClusterParameterEstimator* cpe ) {
+    return RecHitPointer( new ProjectedRecHit2D( pos, err, det, originaldet, originalHit, cpe));
+  }
+
+
   RecHitPointer clone( const TrajectoryStateOnSurface& ts) const;
 
-  const SiStripRecHit2D& originalHit() const { return static_cast<const ProjectedSiStripRecHit2D*>( hit() )->originalHit();}
+  SiStripRecHit2D originalHit() const { return static_cast<const ProjectedSiStripRecHit2D*>( hit() )->originalHit();}
+  ProjectedSiStripRecHit2D const & specificHit() const { return *static_cast<const ProjectedSiStripRecHit2D*>( hit() );}
+
 
   virtual ConstRecHitContainer 	transientHits () const;
 
@@ -50,6 +59,11 @@ private:
   ProjectedRecHit2D( const LocalPoint& pos, const LocalError& err,
 		     const GeomDet* det, const GeomDet* originaldet, 
 		     const TransientTrackingRecHit& originalHit);
+
+  ProjectedRecHit2D( const LocalPoint& pos, const LocalError& err,
+		     const GeomDet* det, const GeomDet* originaldet, 
+		     const TrackingRecHit& originalHit, const StripClusterParameterEstimator* cpe);
+
 
   ProjectedRecHit2D( const GeomDet * geom, const GeomDet* originaldet,
 		     const ProjectedSiStripRecHit2D* rh,

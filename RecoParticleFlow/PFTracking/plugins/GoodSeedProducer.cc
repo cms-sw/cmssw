@@ -46,15 +46,18 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   
   //now do what ever initialization is needed
  
-  tracksContainers_ = 
-    iConfig.getParameter< vector < InputTag > >("TkColList");
+  std::vector<edm::InputTag> tags =   iConfig.getParameter< vector < InputTag > >("TkColList");
+  for(unsigned int i=0;i<tags.size();++i) {
+    trajContainers_.push_back(consumes<vector<Trajectory> >(tags[i]));
+    tracksContainers_.push_back(consumes<reco::TrackCollection>(tags[i]));
+  }
   
   minPt_=iConfig.getParameter<double>("MinPt");
   maxPt_=iConfig.getParameter<double>("MaxPt");
   maxEta_=iConfig.getParameter<double>("MaxEta");
 
 
-  //ISOLATION REQUEST AS DONE IN THE TAU GROUP
+  //ISOLATION REQUEST AS DONE IN THE TAU GROUP(Michalis: Do we still need this crazy stuff??)
   applyIsolation_ =iConfig.getParameter<bool>("ApplyIsolation");
   HcalIsolWindow_                       =iConfig.getParameter<double>("HcalWindow");
   EcalStripSumE_minClusEnergy_ = iConfig.getParameter<double>("EcalStripSumE_minClusEnergy");
@@ -65,14 +68,11 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
    maxHoverP_= iConfig.getParameter<double>("HOverPLead_maxValue");
  
   //
-  pfCLusTagECLabel_=
-    iConfig.getParameter<InputTag>("PFEcalClusterLabel");
+   pfCLusTagECLabel_=consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFEcalClusterLabel"));
 
-  pfCLusTagHCLabel_=
-   iConfig.getParameter<InputTag>("PFHcalClusterLabel");  
+   pfCLusTagHCLabel_=consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFHcalClusterLabel"));  
 
-  pfCLusTagPSLabel_=
-    iConfig.getParameter<InputTag>("PFPSClusterLabel");
+   pfCLusTagPSLabel_=consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFPSClusterLabel"));
   
   preidgsf_ = iConfig.getParameter<string>("PreGsfLabel");
   preidckf_ = iConfig.getParameter<string>("PreCkfLabel");
@@ -177,7 +177,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //Handle input collections
   //ECAL clusters	      
   Handle<PFClusterCollection> theECPfClustCollection;
-  iEvent.getByLabel(pfCLusTagECLabel_,theECPfClustCollection);
+  iEvent.getByToken(pfCLusTagECLabel_,theECPfClustCollection);
   
   vector<PFCluster> basClus;
   vector<PFCluster>::const_iterator iklus;
@@ -189,11 +189,11 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   //HCAL clusters
   Handle<PFClusterCollection> theHCPfClustCollection;
-  iEvent.getByLabel(pfCLusTagHCLabel_,theHCPfClustCollection);
+  iEvent.getByToken(pfCLusTagHCLabel_,theHCPfClustCollection);
   
   //PS clusters
   Handle<PFClusterCollection> thePSPfClustCollection;
-  iEvent.getByLabel(pfCLusTagPSLabel_,thePSPfClustCollection);
+  iEvent.getByToken(pfCLusTagPSLabel_,thePSPfClustCollection);
   
   ps1Clus.clear();
   ps2Clus.clear();
@@ -212,12 +212,12 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     
     //Track collection
     Handle<TrackCollection> tkRefCollection;
-    iEvent.getByLabel(tracksContainers_[istr], tkRefCollection);
+    iEvent.getByToken(tracksContainers_[istr], tkRefCollection);
     const TrackCollection&  Tk=*(tkRefCollection.product());
     
     //Trajectory collection
     Handle<vector<Trajectory> > tjCollection;
-    iEvent.getByLabel(tracksContainers_[istr], tjCollection);
+    iEvent.getByToken(trajContainers_[istr], tjCollection);
     vector<Trajectory> Tj=*(tjCollection.product());
     
     
@@ -486,7 +486,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       if(tracksContainers_.size()==1)
 	{
 	  Handle<TrackCollection> tkRefCollection ;
-	  iEvent.getByLabel(tracksContainers_[0],tkRefCollection);
+	  iEvent.getByToken(tracksContainers_[0],tkRefCollection);
 	  fillPreIdRefValueMap(tkRefCollection,preIdRefProd,mapFiller);
 	  mapFiller.fill();
 	  iEvent.put(preIdMap_p,preidname_);

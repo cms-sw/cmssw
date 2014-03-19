@@ -83,24 +83,10 @@ void SiStripBaselineValidator::beginJob()
 
 void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
-  /* edm::Handle<reco::TrackCollection> tracks;
-   e.getByLabel("hiSelectedTracks", tracks);
-
-   int ntracks =0;
-   for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); track++) {
-   ntracks++;
-    
-   }
-*/
-
-
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > moduleRawDigi;
-  //  e.getByLabel(srcProcessedRawDigi_,moduleRawDigi);
   e.getByToken( moduleRawDigiToken_, moduleRawDigi );
   edm::DetSetVector<SiStripRawDigi>::const_iterator itRawDigis = moduleRawDigi->begin();
  
-  //  uint32_t Nmodule = moduleRawDigi->size();     
-
    int NumResAPVs=0;
    for (; itRawDigis != moduleRawDigi->end(); ++itRawDigis) {   ///loop over modules
      

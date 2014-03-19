@@ -472,21 +472,21 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
       GluedGeomDet * gdet=(GluedGeomDet *)tkgeom->idToDet(phit->geographicalId());
 
       GlobalVector gtrkdirup=gdet->toGlobal(updatedtsos.localMomentum());
-      const SiStripRecHit2D&  originalhit=phit->originalHit();
+      const SiStripRecHit2D  originalhit=phit->originalHit();
       const GeomDetUnit * det;
       if(!StripSubdetector(originalhit.geographicalId().rawId()).stereo()){
 	//mono side
 	LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found  MONO"<< std::endl;
 	det=gdet->monoDet();
 	statedirection=det->toLocal(gtrkdirup);
-	if(statedirection.mag() != 0) RecHitInfo<SiStripRecHit2D>(&(phit->originalHit()),statedirection,trackref,es);
+	if(statedirection.mag() != 0) RecHitInfo<SiStripRecHit2D>(&(originalhit),statedirection,trackref,es);
       }
       else{
 	LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found STEREO"<< std::endl;
 	//stereo side
 	det=gdet->stereoDet();
 	statedirection=det->toLocal(gtrkdirup);
-	if(statedirection.mag() != 0) RecHitInfo<SiStripRecHit2D>(&(phit->originalHit()),statedirection,trackref,es);
+	if(statedirection.mag() != 0) RecHitInfo<SiStripRecHit2D>(&(originalhit),statedirection,trackref,es);
       }
     }else if (hit2D){
       statedirection=updatedtsos.localMomentum();
@@ -508,7 +508,6 @@ void SiStripMonitorTrack::trackStudy(const edm::Event& ev, const edm::EventSetup
 
   // trajectory input
   edm::Handle<TrajTrackAssociationCollection> TItkAssociatorCollection;
-  //  ev.getByLabel(TrackProducer_, TrackLabel_, TItkAssociatorCollection);
   ev.getByToken(trackTrajToken_, TItkAssociatorCollection);
   if( TItkAssociatorCollection.isValid()){
     trackStudyFromTrajectory(TItkAssociatorCollection,es);
@@ -517,7 +516,6 @@ void SiStripMonitorTrack::trackStudy(const edm::Event& ev, const edm::EventSetup
 
     // track input
     edm::Handle<reco::TrackCollection > trackCollectionHandle;
-    //  ev.getByLabel(TrackProducer_, TrackLabel_, trackCollectionHandle);//takes the track collection
     ev.getByToken(trackToken_, trackCollectionHandle);//takes the track collection
     if (!trackCollectionHandle.isValid()){
       edm::LogError("SiStripMonitorTrack")<<"also Track Collection is not valid !! " << TrackLabel_<<std::endl;
@@ -616,7 +614,6 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > siStripClusterHandle;
-  //  ev.getByLabel( Cluster_src_, siStripClusterHandle);
   ev.getByToken( clusterToken_, siStripClusterHandle);
   if (!siStripClusterHandle.isValid()){
     edm::LogError("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;

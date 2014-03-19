@@ -1,215 +1,104 @@
 #include "DQM/EcalCommon/interface/MESetEcal.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
+#include "DQM/EcalCommon/interface/MESetUtils.h"
 
 #include <limits>
+#include <sstream>
 
 namespace ecaldqm
 {
-
-  MESetEcal::MESetEcal(std::string const& _fullpath, MEData const& _data, int _logicalDimensions, bool _readOnly/* = false*/) :
-    MESet(_fullpath, _data, _readOnly),
+  MESetEcal::MESetEcal(std::string const& _fullPath, binning::ObjectType _otype, binning::BinningType _btype, MonitorElement::Kind _kind, unsigned _logicalDimensions, binning::AxisSpecs const* _xaxis/* = 0*/, binning::AxisSpecs const* _yaxis/* = 0*/, binning::AxisSpecs const* _zaxis/* = 0*/) :
+    MESet(_fullPath, _otype, _btype, _kind),
     logicalDimensions_(_logicalDimensions),
-    cacheId_(0),
-    cache_(std::make_pair(-1, std::vector<int>(0)))
+    xaxis_(_xaxis ? new binning::AxisSpecs(*_xaxis) : 0),
+    yaxis_(_yaxis ? new binning::AxisSpecs(*_yaxis) : 0),
+    zaxis_(_zaxis ? new binning::AxisSpecs(*_zaxis) : 0)
   {
-    if(data_->btype == BinService::kUser && ((logicalDimensions_ > 0 && !data_->xaxis) || (logicalDimensions_ > 1 && !data_->yaxis)))
-      throw cms::Exception("InvalidCall") << "Need axis specifications" << std::endl;
+    if(btype_ == binning::kUser && ((logicalDimensions_ > 0 && !xaxis_) || (logicalDimensions_ > 1 && !yaxis_)))
+      throw_("Need axis specifications");
+  }
+
+  MESetEcal::MESetEcal(MESetEcal const& _orig) :
+    MESet(_orig),
+    logicalDimensions_(_orig.logicalDimensions_),
+    xaxis_(_orig.xaxis_ ? new binning::AxisSpecs(*_orig.xaxis_) : 0),
+    yaxis_(_orig.yaxis_ ? new binning::AxisSpecs(*_orig.yaxis_) : 0),
+    zaxis_(_orig.zaxis_ ? new binning::AxisSpecs(*_orig.zaxis_) : 0)
+  {
   }
 
   MESetEcal::~MESetEcal()
   {
+    delete xaxis_;
+    delete yaxis_;
+    delete zaxis_;
+  }
+
+  MESet&
+  MESetEcal::operator=(MESet const& _rhs)
+  {
+    delete xaxis_;
+    delete yaxis_;
+    delete zaxis_;
+    xaxis_ = 0;
+    yaxis_ = 0;
+    zaxis_ = 0;
+
+    MESetEcal const* pRhs(dynamic_cast<MESetEcal const*>(&_rhs));
+    if(pRhs){
+      logicalDimensions_ = pRhs->logicalDimensions_;
+      if(pRhs->xaxis_) xaxis_ = new binning::AxisSpecs(*pRhs->xaxis_);
+      if(pRhs->yaxis_) yaxis_ = new binning::AxisSpecs(*pRhs->yaxis_);
+      if(pRhs->zaxis_) zaxis_ = new binning::AxisSpecs(*pRhs->zaxis_);
+    }
+    return MESet::operator=(_rhs);
+  }
+
+  MESet*
+  MESetEcal::clone(std::string const& _path/* = ""*/) const
+  {
+    std::string path(path_);
+    if(_path != "") path_ = _path;
+    MESet* copy(new MESetEcal(*this));
+    path_ = path;
+    return copy;
   }
 
   void
-  MESetEcal::book()
+  MESetEcal::book(DQMStore& _dqmStore)
   {
-    using namespace std;
+    doBook_(_dqmStore);
+  }
 
-    clear();
-
-    dqmStore_->setCurrentFolder(dir_);
-
-    if(data_->btype == BinService::kReport && name_ == "")
-      name_ = dir_.substr(0, dir_.find_first_of('/'));
-
-    std::vector<std::string> meNames(generateNames());
-
-    for(unsigned iME(0); iME < meNames.size(); iME++){
-      unsigned iObj(iME);
-
-      BinService::ObjectType actualObject(binService_->objectFromOffset(data_->otype, iObj));
-
-      BinService::AxisSpecs xaxis, yaxis, zaxis;
-
-      if(logicalDimensions_ > 0){
-	if(data_->xaxis){
-	  xaxis = *data_->xaxis;
-	}
-	else{ // uses preset
-	  bool isMap(logicalDimensions_ > 1);
-	  vector<BinService::AxisSpecs> presetAxes(binService_->getBinning(actualObject, data_->btype, isMap, iObj));
-	  if(presetAxes.size() != logicalDimensions_)
-	    throw cms::Exception("InvalidCall") << "Dimensionality mismatch " << data_->otype << " " << data_->btype << " " << iObj << std::endl;
-
-	  xaxis = presetAxes[0];
-	  if(isMap) yaxis = presetAxes[1];
-	}
-
-	if(data_->yaxis){
-	  yaxis = *data_->yaxis;
-	}
-	if(logicalDimensions_ == 1 && yaxis.high - yaxis.low < 0.0001){
-	  yaxis.low = -numeric_limits<double>::max();
-	  yaxis.high = numeric_limits<double>::max();
-	}
-
-	if(data_->zaxis){
-	  zaxis = *data_->zaxis;
-	}
-	if(logicalDimensions_ > 1 && zaxis.high - zaxis.low < 0.0001){
-	  zaxis.low = -numeric_limits<double>::max();
-	  zaxis.high = numeric_limits<double>::max();
-	}
-      }
-
-      MonitorElement* me(0);
-
-      switch(data_->kind) {
-      case MonitorElement::DQM_KIND_REAL :
-	me = dqmStore_->bookFloat(meNames[iME]);
-
-	break;
-
-      case MonitorElement::DQM_KIND_TH1F :
-	if(xaxis.edges){
-	  float* edges(new float[xaxis.nbins + 1]);
-	  for(int i(0); i < xaxis.nbins + 1; i++)
-	    edges[i] = xaxis.edges[i];
-	  me = dqmStore_->book1D(meNames[iME], meNames[iME], xaxis.nbins, edges);
-	  delete [] edges;
-	}
-	else
-	  me = dqmStore_->book1D(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high);
-
-	break;
-
-      case MonitorElement::DQM_KIND_TPROFILE :
-	if(xaxis.edges) {
-	  me = dqmStore_->bookProfile(meNames[iME], meNames[iME], xaxis.nbins, xaxis.edges, yaxis.low, yaxis.high, "");
-	}
-	else
-	  me = dqmStore_->bookProfile(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high, yaxis.low, yaxis.high, "");
-
-	break;
-
-      case MonitorElement::DQM_KIND_TH2F :
-	if(xaxis.edges || yaxis.edges) {
-	  BinService::AxisSpecs* specs[] = {&xaxis, &yaxis};
-	  float* edges[] = {new float[xaxis.nbins + 1], new float[yaxis.nbins + 1]};
-	  for(int iSpec(0); iSpec < 2; iSpec++){
-	    if(specs[iSpec]->edges){
-	      for(int i(0); i < specs[iSpec]->nbins + 1; i++)
-		edges[iSpec][i] = specs[iSpec]->edges[i];
-	    }
-	    else{
-	      int nbins(specs[iSpec]->nbins);
-	      double low(specs[iSpec]->low), high(specs[iSpec]->high);
-	      for(int i(0); i < nbins + 1; i++)
-		edges[iSpec][i] = low + (high - low) / nbins * i;
-	    }
-	  }
-	  me = dqmStore_->book2D(meNames[iME], meNames[iME], xaxis.nbins, edges[0], yaxis.nbins, edges[1]);
-	  for(int iSpec(0); iSpec < 2; iSpec++)
-	    delete [] edges[iSpec];
-	}
-	else
-	  me = dqmStore_->book2D(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high);
-
-	break;
-
-      case MonitorElement::DQM_KIND_TPROFILE2D :
-	if(zaxis.edges) {
-	  zaxis.low = zaxis.edges[0];
-	  zaxis.high = zaxis.edges[zaxis.nbins];
-	}
-	if(xaxis.edges || yaxis.edges)
-	  throw cms::Exception("InvalidCall") << "Variable bin size for 2D profile not implemented" << std::endl;
-	me = dqmStore_->bookProfile2D(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high, zaxis.low, zaxis.high, "");
-
-	break;
-
-      default :
-	break;
-      }
-
-      if(!me)
-	throw cms::Exception("InvalidCall") << "ME could not be booked" << std::endl;
-
-      if(logicalDimensions_ > 0){
-	me->setAxisTitle(xaxis.title, 1);
-	me->setAxisTitle(yaxis.title, 2);
-	// For plot tagging in RenderPlugin; default values are 1 for both
-	me->getTH1()->SetMarkerStyle(actualObject + 2);
-	me->getTH1()->SetMarkerStyle(data_->btype + 2);
-      }
-
-      if(logicalDimensions_ == 1 && data_->btype == BinService::kDCC){
-	if(actualObject == BinService::kEB){
-	  for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
-	    me->setBinLabel(iBin, binService_->channelName(iBin + kEBmLow));
-	}
-	else if(actualObject == BinService::kEE){
-	  for(int iBin(1); iBin <= me->getNbinsX() / 2; iBin++){
-	    unsigned dccid((iBin + 2) % 9 + 1);
-	    me->setBinLabel(iBin, binService_->channelName(dccid));
-	  }
-	  for(int iBin(1); iBin <= me->getNbinsX() / 2; iBin++){
-	    unsigned dccid((iBin + 2) % 9 + 46);
-	    me->setBinLabel(iBin + me->getNbinsX() / 2, binService_->channelName(dccid));
-	  }
-	}
-	else if(actualObject == BinService::kEEm){
-	  for(int iBin(1); iBin <= me->getNbinsX(); iBin++){
-	    unsigned dccid((iBin + 2) % 9 + 1);
-	    me->setBinLabel(iBin, binService_->channelName(dccid));
-	  }
-	}
-	else if(actualObject == BinService::kEEp){
-	  for(int iBin(1); iBin <= me->getNbinsX(); iBin++){
-	    unsigned dccid((iBin + 2) % 9 + 46);
-	    me->setBinLabel(iBin, binService_->channelName(dccid));
-	  }
-	}
-      }
-      
-      mes_.push_back(me);
-    }
-
-    // To avoid the ambiguity between "content == 0 because the mean is 0" and "content == 0 because the entry is 0"
-    // RenderPlugin must be configured accordingly
-    if(data_->kind == MonitorElement::DQM_KIND_TPROFILE2D)
-      resetAll(std::numeric_limits<double>::max(), 0., -1.);
-
-    active_ = true;
+  void
+  MESetEcal::book(DQMStore::IBooker& _ibooker)
+  {
+    doBook_(_ibooker);
   }
 
   bool
-  MESetEcal::retrieve() const
+  MESetEcal::retrieve(DQMStore const& _store, std::string* _failedPath/* = 0*/) const
   {
     clear();
 
-    std::vector<std::string> meNames(generateNames());
-    if(meNames.size() == 0) return false;
+    std::vector<std::string> mePaths(generatePaths());
+    if(mePaths.size() == 0){
+      if(_failedPath) _failedPath->clear();
+      return false;
+    }
 
-    for(unsigned iME(0); iME < meNames.size(); iME++){
-      MonitorElement* me(dqmStore_->get(dir_ + "/" + meNames[iME]));
+    for(unsigned iME(0); iME < mePaths.size(); iME++){
+      std::string& path(mePaths[iME]);
+      if(path.find('%') != std::string::npos)
+        throw_("retrieve() called with incompletely formed path [" + path + "]");
+
+      MonitorElement* me(_store.get(path));
       if(me) mes_.push_back(me);
       else{
-	clear();
-	return false;
+        clear();
+        if(_failedPath) *_failedPath = path;
+        return false;
       }
     }
 
@@ -220,278 +109,578 @@ namespace ecaldqm
   void
   MESetEcal::fill(DetId const& _id, double _x/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
-    unsigned offset(binService_->findOffset(data_->otype, _id));
-    if(offset >= mes_.size() || !mes_[offset])
-      throw cms::Exception("InvalidCall") << "ME array index overflow" << std::endl;
+    if(!active_) return;
 
-    MESet::fill_(offset, _x, _wy, _w);
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    fill_(iME, _x, _wy, _w);
   }
 
   void
-  MESetEcal::fill(unsigned _dcctccid, double _x/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
+  MESetEcal::fill(EcalElectronicsId const& _id, double _x/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
-    unsigned offset(binService_->findOffset(data_->otype, data_->btype, _dcctccid));
+    if(!active_) return;
 
-    if(offset >= mes_.size() || !mes_[offset])
-      throw cms::Exception("InvalidCall") << "ME array index overflow" << offset << std::endl;
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
 
-    MESet::fill_(offset, _x, _wy, _w);
+    fill_(iME, _x, _wy, _w);
+  }
+
+  void
+  MESetEcal::fill(int _dcctccid, double _x/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
+  {
+    if(!active_) return;
+
+    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    checkME_(iME);
+
+    fill_(iME, _x, _wy, _w);
   }
 
   void
   MESetEcal::fill(double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
-    if(mes_.size() != 1)
-      throw cms::Exception("InvalidCall") << "MESet type incompatible" << std::endl;
+    if(!active_) return;
 
-    MESet::fill_(0, _x, _wy, _w);
+    if(mes_.size() != 1) return;
+
+    fill_(0, _x, _wy, _w);
   }
 
   void
-  MESetEcal::setBinContent(DetId const& _id, double _content, double _err/* = 0.*/)
+  MESetEcal::setBinContent(DetId const& _id, int _bin, double _content)
   {
-    find_(_id);
+    if(!active_) return;
 
-    std::vector<int>& bins(cache_.second);
-    for(std::vector<int>::iterator binItr(bins.begin()); binItr != bins.end(); ++binItr)
-      setBinContent_(cache_.first, *binItr, _content, _err);
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    mes_[iME]->setBinContent(_bin, _content);
   }
 
   void
-  MESetEcal::setBinContent(unsigned _dcctccid, double _content, double _err/* = 0.*/)
+  MESetEcal::setBinContent(EcalElectronicsId const& _id, int _bin, double _content)
   {
-    find_(_dcctccid);
+    if(!active_) return;
 
-    std::vector<int>& bins(cache_.second);
-    for(std::vector<int>::iterator binItr(bins.begin()); binItr != bins.end(); ++binItr)
-      setBinContent_(cache_.first, *binItr, _content, _err);
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    mes_[iME]->setBinContent(_bin, _content);
   }
 
   void
-  MESetEcal::setBinEntries(DetId const& _id, double _entries)
+  MESetEcal::setBinContent(int _dcctccid, int _bin, double _content)
   {
-    find_(_id);
+    if(!active_) return;
 
-    std::vector<int>& bins(cache_.second);
-    for(std::vector<int>::iterator binItr(bins.begin()); binItr != bins.end(); ++binItr)
-      setBinEntries_(cache_.first, *binItr, _entries);
+    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    checkME_(iME);
+
+    mes_[iME]->setBinContent(_bin, _content);
   }
 
   void
-  MESetEcal::setBinEntries(unsigned _dcctccid, double _entries)
+  MESetEcal::setBinError(DetId const& _id, int _bin, double _error)
   {
-    find_(_dcctccid);
+    if(!active_) return;
 
-    std::vector<int>& bins(cache_.second);
-    for(std::vector<int>::iterator binItr(bins.begin()); binItr != bins.end(); ++binItr)
-      setBinEntries_(cache_.first, *binItr, _entries);
-  }
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
 
-  double
-  MESetEcal::getBinContent(DetId const& _id, int) const
-  {
-    find_(_id);
-
-    if(cache_.second.size() == 0) return 0.;
-
-    return getBinContent_(cache_.first, cache_.second[0]);
-  }
-
-  double
-  MESetEcal::getBinContent(unsigned _dcctccid, int) const
-  {
-    find_(_dcctccid);
-
-    if(cache_.second.size() == 0) return 0.;
-
-    return getBinContent_(cache_.first, cache_.second[0]);
-  }
-
-  double
-  MESetEcal::getBinError(DetId const& _id, int) const
-  {
-    find_(_id);
-
-    if(cache_.second.size() == 0) return 0.;
-
-    return getBinError_(cache_.first, cache_.second[0]);
-  }
-
-  double
-  MESetEcal::getBinError(unsigned _dcctccid, int) const
-  {
-    find_(_dcctccid);
-
-    if(cache_.second.size() == 0) return 0.;
-    
-    return getBinError_(cache_.first, cache_.second[0]);
-  }
-
-  double
-  MESetEcal::getBinEntries(DetId const& _id, int) const
-  {
-    find_(_id);
-
-    if(cache_.second.size() == 0) return 0.;
-
-    return getBinEntries_(cache_.first, cache_.second[0]);
-  }
-
-  double
-  MESetEcal::getBinEntries(unsigned _dcctccid, int) const
-  {
-    find_(_dcctccid);
-
-    if(cache_.second.size() == 0) return 0.;
-    
-    return getBinEntries_(cache_.first, cache_.second[0]);
+    mes_[iME]->setBinError(_bin, _error);
   }
 
   void
-  MESetEcal::reset(double _content/* = 0.*/, double _err/* = 0.*/, double _entries/* = 0.*/)
+  MESetEcal::setBinError(EcalElectronicsId const& _id, int _bin, double _error)
   {
-    using namespace std;
+    if(!active_) return;
 
-    if(data_->btype >= unsigned(BinService::nPresetBinnings)){
-      MESet::reset(_content, _err, _entries);
-      return;
-    }
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
 
-    unsigned nME(1);
-    switch(data_->otype){
-    case BinService::kSM:
-      nME = BinService::nDCC;
-      break;
-    case BinService::kSMMEM:
-      nME = BinService::nDCCMEM;
-      break;
-    case BinService::kEcal2P:
-      nME = 2;
-      break;
-    case BinService::kEcal3P:
-      nME = 3;
-      break;
-    case BinService::kEcalMEM2P:
-      nME = 2;
-      break;
-    default:
-      break;
-    }
+    mes_[iME]->setBinError(_bin, _error);
+  }
 
-    for(unsigned iME(0); iME < nME; iME++) {
-      unsigned iObj(iME);
+  void
+  MESetEcal::setBinError(int _dcctccid, int _bin, double _error)
+  {
+    if(!active_) return;
 
-      BinService::ObjectType okey(binService_->objectFromOffset(data_->otype, iObj));
-      BinService::BinningType bkey(data_->btype);
-      if(okey == BinService::nObjType)
-	throw cms::Exception("InvalidCall") << "Undefined object & bin type";
+    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    checkME_(iME);
 
-      std::vector<int> const* binMap(binService_->getBinMap(okey, bkey));
-      if(!binMap)
-	throw cms::Exception("InvalidCall") << "Cannot retrieve bin map";
+    mes_[iME]->setBinError(_bin, _error);
+  }
 
-      for(std::vector<int>::const_iterator binItr(binMap->begin()); binItr != binMap->end(); ++binItr){
-	int bin(*binItr - binService_->smOffsetBins(okey, bkey, iObj));
-	setBinContent_(iME, bin, _content, _err);
-	setBinEntries_(iME, bin, 0.);
-      }
-    }
+  void
+  MESetEcal::setBinEntries(DetId const& _id, int _bin, double _entries)
+  {
+    if(!active_) return;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return;
+
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    mes_[iME]->setBinEntries(_bin, _entries);
+  }
+
+  void
+  MESetEcal::setBinEntries(EcalElectronicsId const& _id, int _bin, double _entries)
+  {
+    if(!active_) return;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return;
+
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    mes_[iME]->setBinEntries(_bin, _entries);
+  }
+
+  void
+  MESetEcal::setBinEntries(int _dcctccid, int _bin, double _entries)
+  {
+    if(!active_) return;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return;
+
+    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    checkME_(iME);
+
+    mes_[iME]->setBinEntries(_bin, _entries);
+  }
+
+  double
+  MESetEcal::getBinContent(DetId const& _id, int _bin) const
+  {
+    if(!active_) return 0.;
+
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getBinContent(_bin);
+  }
+
+  double
+  MESetEcal::getBinContent(EcalElectronicsId const& _id, int _bin) const
+  {
+    if(!active_) return 0.;
+
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getBinContent(_bin);
+  }
+
+  double
+  MESetEcal::getBinContent(int _dcctccid, int _bin) const
+  {
+    if(!active_) return 0.;
+
+    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    checkME_(iME);
+
+    return mes_[iME]->getBinContent(_bin);
+  }
+
+  double
+  MESetEcal::getBinError(DetId const& _id, int _bin) const
+  {
+    if(!active_) return 0.;
+
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getBinError(_bin);
+  }
+
+  double
+  MESetEcal::getBinError(EcalElectronicsId const& _id, int _bin) const
+  {
+    if(!active_) return 0.;
+
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getBinError(_bin);
+  }
+
+  double
+  MESetEcal::getBinError(int _dcctccid, int _bin) const
+  {
+    if(!active_) return 0.;
+
+    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    checkME_(iME);
+
+    return mes_[iME]->getBinError(_bin);
+  }
+
+  double
+  MESetEcal::getBinEntries(DetId const& _id, int _bin) const
+  {
+    if(!active_) return 0.;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
+
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getBinEntries(_bin);
+  }
+
+  double
+  MESetEcal::getBinEntries(EcalElectronicsId const& _id, int _bin) const
+  {
+    if(!active_) return 0.;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
+
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getBinEntries(_bin);
+  }
+
+  double
+  MESetEcal::getBinEntries(int _dcctccid, int _bin) const
+  {
+    if(!active_) return 0.;
+    if(kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D) return 0.;
+
+    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    checkME_(iME);
+
+    return mes_[iME]->getBinEntries(_bin);
+  }
+
+  int
+  MESetEcal::findBin(DetId const& _id, double _x, double _y/* = 0.*/) const
+  {
+    if(!active_) return -1;
+
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getTH1()->FindBin(_x, _y);
+  }
+
+  int
+  MESetEcal::findBin(EcalElectronicsId const& _id, double _x, double _y/* = 0.*/) const
+  {
+    if(!active_) return -1;
+
+    unsigned iME(binning::findPlotIndex(otype_, _id));
+    checkME_(iME);
+
+    return mes_[iME]->getTH1()->FindBin(_x, _y);
+  }
+
+  int
+  MESetEcal::findBin(int _dcctccid, double _x, double _y/* = 0.*/) const
+  {
+    if(!active_) return -1;
+
+    unsigned iME(binning::findPlotIndex(otype_, _dcctccid, btype_));
+    checkME_(iME);
+
+    return mes_[iME]->getTH1()->FindBin(_x, _y);
+  }
+
+  bool
+  MESetEcal::isVariableBinning() const
+  {
+    return (xaxis_ && xaxis_->edges) || (yaxis_ && yaxis_->edges) || (zaxis_ && zaxis_->edges);
   }
 
   std::vector<std::string>
-  MESetEcal::generateNames() const
+  MESetEcal::generatePaths() const
   {
     using namespace std;
 
-    unsigned nME(1);
-    switch(data_->otype){
-    case BinService::kSM:
-      nME = BinService::nDCC;
-      break;
-    case BinService::kSMMEM:
-      nME = BinService::nDCCMEM;
-      break;
-    case BinService::kEcal2P:
-      nME = 2;
-      break;
-    case BinService::kEcal3P:
-      nME = 3;
-      break;
-    case BinService::kEcalMEM2P:
-      nME = 2;
-      break;
-    default:
-      break;
-    }
+    vector<string> paths(0);
 
-    std::vector<std::string> names(0);
+    unsigned nME(binning::getNObjects(otype_));
 
     for(unsigned iME(0); iME < nME; iME++) {
+      binning::ObjectType obj(binning::getObject(otype_, iME));
 
-      unsigned iObj(iME);
+      string path(path_);
+      map<string, string> replacements;
 
-      BinService::ObjectType actualObject(binService_->objectFromOffset(data_->otype, iObj));
-
-      string name(name_);
-      string spacer(" ");
-
-      if(data_->btype == BinService::kProjEta) name += " eta";
-      else if(data_->btype == BinService::kProjPhi) name += " phi";
-      else if(data_->btype == BinService::kReport) spacer = "_";
-
-      switch(actualObject){
-      case BinService::kEB:
-      case BinService::kEBMEM:
-	name += spacer + "EB"; break;
-      case BinService::kEE:
-      case BinService::kEEMEM:
-	name += spacer + "EE"; break;
-      case BinService::kEEm:
-	name += spacer + "EE-"; break;
-      case BinService::kEEp:
-	name += spacer + "EE+"; break;
-      case BinService::kSM:
-	name += spacer + binService_->channelName(iObj + 1); break;
-      case BinService::kSMMEM:
-	//dccId(unsigned) skips DCCs without MEM
-	iObj = dccId(iME) - 1;
-	name += spacer + binService_->channelName(iObj + 1); break;
+      switch(obj){
+      case binning::kEB:
+      case binning::kEBMEM:
+        replacements["subdet"] = "EcalBarrel";
+        replacements["prefix"] = "EB";
+        replacements["suffix"] = "";
+        replacements["subdetshort"] = "EB";
+        replacements["subdetshortsig"] = "EB";
+        replacements["supercrystal"] = "trigger tower";
+        break;
+      case binning::kEE:
+      case binning::kEEMEM:
+        replacements["subdet"] = "EcalEndcap";
+        replacements["prefix"] = "EE";
+        replacements["subdetshort"] = "EE";
+        replacements["subdetshortsig"] = "EE";
+        replacements["supercrystal"] = "super crystal";
+        break;
+      case binning::kEEm:
+        replacements["subdet"] = "EcalEndcap";
+        replacements["prefix"] = "EE";
+        replacements["suffix"] = " EE -";
+        replacements["subdetshort"] = "EE";
+        replacements["subdetshortsig"] = "EEM";
+        replacements["supercrystal"] = "super crystal";
+        break;
+      case binning::kEEp:
+        replacements["subdet"] = "EcalEndcap";
+        replacements["prefix"] = "EE";
+        replacements["suffix"] = " EE +";
+        replacements["subdetshort"] = "EE";
+        replacements["subdetshortsig"] = "EEP";
+        replacements["supercrystal"] = "super crystal";
+        break;
+      case binning::kSM:
+        if(iME <= kEEmHigh || iME >= kEEpLow){
+          replacements["subdet"] = "EcalEndcap";
+          replacements["prefix"] = "EE";
+          replacements["supercrystal"] = "super crystal";
+        }
+        else{
+          replacements["subdet"] = "EcalBarrel";
+          replacements["prefix"] = "EB";
+          replacements["supercrystal"] = "trigger tower";
+        }
+        replacements["sm"] = binning::channelName(iME + 1);
+        break;
+      case binning::kEBSM:
+        replacements["subdet"] = "EcalBarrel";
+        replacements["prefix"] = "EB";
+        replacements["sm"] = binning::channelName(iME + kEBmLow + 1);
+        replacements["supercrystal"] = "trigger tower";
+        break;
+      case binning::kEESM:
+        replacements["subdet"] = "EcalEndcap";
+        replacements["prefix"] = "EE";
+        replacements["sm"] = binning::channelName(iME <= kEEmHigh ? iME + 1 : iME + 37);
+        replacements["supercrystal"] = "super crystal";
+        break;
+      case binning::kSMMEM:
+        {
+          unsigned iDCC(memDCCId(iME) - 1);
+          //dccId(unsigned) skips DCCs without MEM
+          if(iDCC <= kEEmHigh || iDCC >= kEEpLow){
+            replacements["subdet"] = "EcalEndcap";
+            replacements["prefix"] = "EE";
+          }
+          else{
+            replacements["subdet"] = "EcalBarrel";
+            replacements["prefix"] = "EB";
+          }
+          replacements["sm"] = binning::channelName(iDCC + 1);
+        }
+        break;
+      case binning::kEBSMMEM:
+        {
+          unsigned iDCC(memDCCId(iME + 4) - 1);
+          replacements["subdet"] = "EcalBarrel";
+          replacements["prefix"] = "EB";
+          replacements["sm"] = binning::channelName(iDCC + 1);
+        }
+        break;
+      case binning::kEESMMEM:
+        {
+          unsigned iDCC(memDCCId(iME < 4 ? iME : iME + 36) - 1);
+          replacements["subdet"] = "EcalEndcap";
+          replacements["prefix"] = "EE";
+          replacements["sm"] = binning::channelName(iDCC + 1);
+        }
       default:
-	break;
+        break;
       }
 
-      names.push_back(name);
+      paths.push_back(formPath(replacements));
     }
 
-    return names;
+    return paths;
   }
 
+  template<class Bookable>
   void
-  MESetEcal::find_(uint32_t _id) const
+  MESetEcal::doBook_(Bookable& _booker)
   {
-    if(_id == cacheId_) return;
+    using namespace std;
 
-    DetId id(_id);
-    if(id.det() == DetId::Ecal)
-      cache_ = binService_->findBins(data_->otype, data_->btype, id);
-    else
-      cache_ = binService_->findBins(data_->otype, data_->btype, unsigned(_id));
+    clear();
 
-    if(cache_.first >= mes_.size() || !mes_[cache_.first])
-      throw cms::Exception("InvalidCall") << "ME array index overflow" << std::endl;
+    vector<string> mePaths(generatePaths());
 
-    // some TTs are apparently empty..!
-//     if(cache_.second.size() == 0)
-//       throw cms::Exception("InvalidCall") << "No bins to get content from" << std::endl;
+    for(unsigned iME(0); iME < mePaths.size(); iME++){
+      string& path(mePaths[iME]);
+      if(path.find('%') != string::npos)
+        throw_("book() called with incompletely formed path [" + path + "]");
 
-    cacheId_ = _id;
+      binning::ObjectType actualObject(binning::getObject(otype_, iME));
+
+      binning::AxisSpecs xaxis, yaxis, zaxis;
+
+      bool isHistogram(logicalDimensions_ > 0);
+      bool isMap(logicalDimensions_ > 1);
+
+      if(isHistogram){
+
+        if(xaxis_) xaxis = *xaxis_;
+        if(yaxis_) yaxis = *yaxis_;
+        if(zaxis_) zaxis = *zaxis_;
+        
+        if(xaxis.nbins == 0){ // uses preset
+          binning::AxisSpecs xdef(binning::getBinning(actualObject, btype_, isMap, 1, iME));
+          if(xaxis.labels || xaxis.title != ""){ // PSet specifies title / label only
+            std::string* labels(xaxis.labels);
+            std::string title(xaxis.title);
+            xaxis = xdef;
+            delete [] xaxis.labels;
+            xaxis.labels = labels;
+            xaxis.title = title;
+          }
+          else
+            xaxis = xdef;
+        }
+
+        if(isMap && yaxis.nbins == 0){
+          binning::AxisSpecs ydef(binning::getBinning(actualObject, btype_, isMap, 2, iME));
+          if(yaxis.labels || yaxis.title != ""){ // PSet specifies title / label only
+            std::string* labels(yaxis.labels);
+            std::string title(yaxis.title);
+            yaxis = ydef;
+            delete [] yaxis.labels;
+            yaxis.labels = labels;
+            yaxis.title = title;
+          }
+          else
+            yaxis = ydef;
+        }
+
+        if(yaxis.high - yaxis.low < 1.e-10){
+          yaxis.low = -numeric_limits<double>::max();
+          yaxis.high = numeric_limits<double>::max();
+        }
+
+        if(zaxis.high - zaxis.low < 1.e-10){
+          zaxis.low = -numeric_limits<double>::max();
+          zaxis.high = numeric_limits<double>::max();
+        }
+      }
+
+      size_t slashPos(path.find_last_of('/'));
+      string name(path.substr(slashPos + 1));
+      _booker.cd();
+      _booker.setCurrentFolder(path.substr(0, slashPos));
+
+      MonitorElement* me(0);
+
+      switch(kind_) {
+      case MonitorElement::DQM_KIND_REAL :
+        me = _booker.bookFloat(name);
+
+        break;
+
+      case MonitorElement::DQM_KIND_TH1F :
+        if(xaxis.edges){
+          float* edges(new float[xaxis.nbins + 1]);
+          for(int i(0); i < xaxis.nbins + 1; i++)
+            edges[i] = xaxis.edges[i];
+          me = _booker.book1D(name, name, xaxis.nbins, edges);
+          delete [] edges;
+        }
+        else
+          me = _booker.book1D(name, name, xaxis.nbins, xaxis.low, xaxis.high);
+
+        break;
+
+      case MonitorElement::DQM_KIND_TPROFILE :
+        if(xaxis.edges) {
+          me = _booker.bookProfile(name, name, xaxis.nbins, xaxis.edges, yaxis.low, yaxis.high, "");
+        }
+        else
+          me = _booker.bookProfile(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.low, yaxis.high, "");
+
+        break;
+
+      case MonitorElement::DQM_KIND_TH2F :
+        if(xaxis.edges || yaxis.edges) {
+          binning::AxisSpecs* specs[] = {&xaxis, &yaxis};
+          float* edges[] = {new float[xaxis.nbins + 1], new float[yaxis.nbins + 1]};
+          for(int iSpec(0); iSpec < 2; iSpec++){
+            if(specs[iSpec]->edges){
+              for(int i(0); i < specs[iSpec]->nbins + 1; i++)
+                edges[iSpec][i] = specs[iSpec]->edges[i];
+            }
+            else{
+              int nbins(specs[iSpec]->nbins);
+              double low(specs[iSpec]->low), high(specs[iSpec]->high);
+              for(int i(0); i < nbins + 1; i++)
+                edges[iSpec][i] = low + (high - low) / nbins * i;
+            }
+          }
+          me = _booker.book2D(name, name, xaxis.nbins, edges[0], yaxis.nbins, edges[1]);
+          for(int iSpec(0); iSpec < 2; iSpec++)
+            delete [] edges[iSpec];
+        }
+        else
+          me = _booker.book2D(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high);
+
+        break;
+
+      case MonitorElement::DQM_KIND_TPROFILE2D :
+        if(zaxis.edges) {
+          zaxis.low = zaxis.edges[0];
+          zaxis.high = zaxis.edges[zaxis.nbins];
+        }
+        if(xaxis.edges || yaxis.edges)
+          throw_("Variable bin size for 2D profile not implemented");
+        me = _booker.bookProfile2D(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high, zaxis.low, zaxis.high, "");
+
+        break;
+
+      default :
+        break;
+      }
+
+      if(!me)
+        throw_("ME could not be booked");
+
+      if(isHistogram){
+        me->setAxisTitle(xaxis.title, 1);
+        me->setAxisTitle(yaxis.title, 2);
+        if(isMap) me->setAxisTitle(zaxis.title, 3);
+
+        if(xaxis.labels){
+          for(int iBin(1); iBin <= xaxis.nbins; ++iBin)
+            me->setBinLabel(iBin, xaxis.labels[iBin - 1], 1);
+        }
+        if(yaxis.labels){
+          for(int iBin(1); iBin <= yaxis.nbins; ++iBin)
+            me->setBinLabel(iBin, yaxis.labels[iBin - 1], 2);
+        }
+        if(zaxis.labels){
+          for(int iBin(1); iBin <= zaxis.nbins; ++iBin)
+            me->setBinLabel(iBin, zaxis.labels[iBin - 1], 3);
+        }
+
+        // For plot tagging in RenderPlugin; default values are 1 for both
+        // bits 19 - 23 are free in TH1::fBits
+        // can only pack object + logical dimensions into 5 bits (4 bits for object, 1 bit for dim (1 -> dim >= 2))
+        me->getTH1()->SetBit(uint32_t(actualObject + 1) << 20);
+        if(isMap) me->getTH1()->SetBit(0x1 << 19);
+      }
+
+      if(lumiFlag_) me->setLumiFlag();
+
+      mes_.push_back(me);
+    }
+
+    active_ = true;
   }
-
-  void
-  MESetEcal::fill_(double _w)
-  {
-    for(unsigned iBin(0); iBin < cache_.second.size(); iBin++)
-      MESet::fill_(cache_.first, cache_.second[iBin], _w);
-  }
-
 }

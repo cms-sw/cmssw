@@ -1086,16 +1086,5 @@ L1ExtraParticlesProd::gctLorentzVector( const double& et,
 					0. ) ;
 }     
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-L1ExtraParticlesProd::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-L1ExtraParticlesProd::endJob() {
-}
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1ExtraParticlesProd);

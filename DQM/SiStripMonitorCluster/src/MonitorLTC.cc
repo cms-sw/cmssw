@@ -50,7 +50,6 @@ void MonitorLTC::beginJob(){
 
 void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //  edm::Handle<LTCDigiCollection> ltcdigis; iEvent.getByLabel(ltcDigiCollectionTag_, ltcdigis);
   edm::Handle<LTCDigiCollection> ltcdigis; iEvent.getByToken(ltcDigiCollectionTagToken_, ltcdigis);
 //  unsigned int ltc_run;
 //  unsigned int ltc_event;

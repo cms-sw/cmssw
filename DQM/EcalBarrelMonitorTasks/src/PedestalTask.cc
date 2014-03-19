@@ -1,126 +1,81 @@
 #include "../interface/PedestalTask.h"
 
-#include <algorithm>
+#include <iomanip>
 
-#include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 
-#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "DQM/EcalCommon/interface/MESetMulti.h"
 
-namespace ecaldqm {
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-  PedestalTask::PedestalTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
-    DQWorkerTask(_params, _paths, "PedestalTask"),
-    MGPAGains_(),
-    MGPAGainsPN_()
+namespace ecaldqm
+{
+  PedestalTask::PedestalTask() :
+    DQWorkerTask(),
+    gainToME_(),
+    pnGainToME_()
   {
-    using namespace std;
-
-    collectionMask_ = 
-      (0x1 << kEBDigi) |
-      (0x1 << kEEDigi) |
-      (0x1 << kPnDiodeDigi);
-
-    edm::ParameterSet const& commonParams(_params.getUntrackedParameterSet("Common"));
-    MGPAGains_ = commonParams.getUntrackedParameter<std::vector<int> >("MGPAGains");
-    MGPAGainsPN_ = commonParams.getUntrackedParameter<std::vector<int> >("MGPAGainsPN");
-
-    for(std::vector<int>::iterator gainItr(MGPAGains_.begin()); gainItr != MGPAGains_.end(); ++gainItr)
-      if(*gainItr != 1 && *gainItr != 6 && *gainItr != 12) throw cms::Exception("InvalidConfiguration") << "MGPA gain" << std::endl;
-
-    for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr)
-      if(*gainItr != 1 && *gainItr != 16) throw cms::Exception("InvalidConfiguration") << "PN diode gain" << std::endl;	
-
-    map<string, string> replacements;
-    stringstream ss;
-
-    for(vector<int>::iterator gainItr(MGPAGains_.begin()); gainItr != MGPAGains_.end(); ++gainItr){
-      ss.str("");
-      ss << *gainItr;
-      replacements["gain"] = ss.str();
-
-      unsigned offset(0);
-      switch(*gainItr){
-      case 1: offset = 0; break;
-      case 6: offset = 1; break;
-      case 12: offset = 2; break;
-      default: break;
-      }
-
-      MEs_[kOccupancy + offset]->name(replacements);
-      MEs_[kPedestal + offset]->name(replacements);
-    }
-
-    for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
-      ss.str("");
-      ss << *gainItr;
-      replacements["pngain"] = ss.str();
-
-      unsigned offset(0);
-      switch(*gainItr){
-      case 1: offset = 0; break;
-      case 16: offset = 1; break;
-      default: break;
-      }
-
-      MEs_[kPNOccupancy + offset]->name(replacements);
-      MEs_[kPNPedestal + offset]->name(replacements);
-    }
-  }
-
-  PedestalTask::~PedestalTask()
-  {
+    std::fill_n(enable_, nDCC, false);
   }
 
   void
-  PedestalTask::bookMEs()
+  PedestalTask::setParams(edm::ParameterSet const& _params)
   {
-    for(std::vector<int>::iterator gainItr(MGPAGains_.begin()); gainItr != MGPAGains_.end(); ++gainItr){
-      unsigned offset(0);
-      switch(*gainItr){
-      case 1: offset = 0; break;
-      case 6: offset = 1; break;
-      case 12: offset = 2; break;
-      default: break;
-      }
+    std::vector<int> MGPAGains(_params.getUntrackedParameter<std::vector<int> >("MGPAGains"));
+    std::vector<int> MGPAGainsPN(_params.getUntrackedParameter<std::vector<int> >("MGPAGainsPN"));
 
-      MEs_[kOccupancy + offset]->book();
-      MEs_[kPedestal + offset]->book();
+    MESet::PathReplacements repl;
+
+    MESetMulti& pedestal(static_cast<MESetMulti&>(MEs_.at("Pedestal")));
+    unsigned nG(MGPAGains.size());
+    for(unsigned iG(0); iG != nG; ++iG){
+      int gain(MGPAGains[iG]);
+      if(gain != 1 && gain != 6 && gain != 12) throw cms::Exception("InvalidConfiguration") << "MGPA gain";
+      repl["gain"] = std::to_string(gain);
+      gainToME_[gain] = pedestal.getIndex(repl);
     }
-    for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
-      unsigned offset(0);
-      switch(*gainItr){
-      case 1: offset = 0; break;
-      case 16: offset = 1; break;
-      default: break;
-      }
 
-      MEs_[kPNOccupancy + offset]->book();
-      MEs_[kPNPedestal + offset]->book();
+    repl.clear();
+
+    MESetMulti& pnPedestal(static_cast<MESetMulti&>(MEs_.at("PNPedestal")));
+    unsigned nGPN(MGPAGainsPN.size());
+    for(unsigned iG(0); iG != nGPN; ++iG){
+      int gain(MGPAGainsPN[iG]);
+      if(gain != 1 && gain != 16) throw cms::Exception("InvalidConfiguration") << "PN MGPA gain";
+      repl["pngain"] = std::to_string(gain);
+      pnGainToME_[gain] = pnPedestal.getIndex(repl);
     }
   }
 
   bool
-  PedestalTask::filterRunType(const std::vector<short>& _runType)
+  PedestalTask::filterRunType(short const* _runType)
   {
     bool enable(false);
 
-    for(int iFED(0); iFED < 54; iFED++){
+    for(int iFED(0); iFED < nDCC; iFED++){
       if(_runType[iFED] == EcalDCCHeaderBlock::PEDESTAL_STD ||
 	 _runType[iFED] == EcalDCCHeaderBlock::PEDESTAL_GAP){
 	enable = true;
 	enable_[iFED] = true;
       }
+      else
+        enable_[iFED] = false;
     }
 
     return enable;
   }
 
+  template<typename DigiCollection>
   void
-  PedestalTask::runOnDigis(const EcalDigiCollection &_digis)
+  PedestalTask::runOnDigis(DigiCollection const& _digis)
   {
-    for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
+    MESet& mePedestal(MEs_.at("Pedestal"));
+    MESet& meOccupancy(MEs_.at("Occupancy"));
+
+    unsigned iME(-1);
+
+    for(typename DigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       DetId id(digiItr->id());
 
       int iDCC(dccId(id) - 1);
@@ -130,31 +85,35 @@ namespace ecaldqm {
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame in the constructor
       EcalDataFrame dataFrame(*digiItr);
 
-      unsigned offset(0);
       int gain(0);
       switch(dataFrame.sample(0).gainId()){
-      case 1: offset = 2; gain = 12; break;
-      case 2: offset = 1; gain = 6; break;
-      case 3: offset = 0; gain = 1; break;
+      case 1: gain = 12; break;
+      case 2: gain = 6; break;
+      case 3: gain = 1; break;
       default: continue;
       }
 
-      if(std::find(MGPAGains_.begin(), MGPAGains_.end(), gain) == MGPAGains_.end()) continue;
+      if(gainToME_.find(gain) == gainToME_.end()) continue;
 
-      MEs_[kOccupancy + offset]->fill(id);
+      if(iME != gainToME_[gain]){
+        iME = gainToME_[gain];
+        static_cast<MESetMulti&>(mePedestal).use(iME);
+      }
 
-      float mean(0.);
-      for(int iSample(0); iSample < 10; iSample++)
-	mean += dataFrame.sample(iSample).adc();
-      mean /= 10.;
+      meOccupancy.fill(id);
 
-      MEs_[kPedestal + offset]->fill(id, mean);
+      for(int iSample(0); iSample < EcalDataFrame::MAXSAMPLES; iSample++)
+	mePedestal.fill(id, double(dataFrame.sample(iSample).adc()));
     }
   }
 
   void
-  PedestalTask::runOnPnDigis(const EcalPnDiodeDigiCollection &_digis)
+  PedestalTask::runOnPnDigis(EcalPnDiodeDigiCollection const& _digis)
   {
+    MESet& mePNPedestal(MEs_.at("PNPedestal"));
+
+    unsigned iME(-1);
+
     for(EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       EcalPnDiodeDetId id(digiItr->id());
 
@@ -162,38 +121,22 @@ namespace ecaldqm {
 
       if(!enable_[iDCC]) continue;
 
-      unsigned offset(0);
       int gain(0);
       switch(digiItr->sample(0).gainId()){
-      case 0: offset = 0; gain = 1; break;
-      case 1: offset = 1; gain = 16; break;
+      case 0: gain = 1; break;
+      case 1: gain = 16; break;
       default: continue;
       }
 
-      if(std::find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), gain) == MGPAGainsPN_.end()) continue;
+      if(pnGainToME_.find(gain) == pnGainToME_.end()) continue;
 
-      MEs_[kPNOccupancy + offset]->fill(id);
+      if(iME != pnGainToME_[gain]){
+        iME = pnGainToME_[gain];
+        static_cast<MESetMulti&>(mePNPedestal).use(iME);
+      }
 
-      float mean(0.);
       for(int iSample(0); iSample < 50; iSample++)
-	mean += digiItr->sample(iSample).adc();
-      mean /= 50.;
-
-      MEs_[kPNPedestal + offset]->fill(id, mean);
-    }
-  }
-
-  /*static*/
-  void
-  PedestalTask::setMEData(std::vector<MEData>& _data)
-  {
-    for(unsigned iGain(0); iGain < nGain; iGain++){
-      _data[kOccupancy + iGain] = MEData("Occupancy", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
-      _data[kPedestal + iGain] = MEData("Pedestal", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
-    }
-    for(unsigned iPNGain(0); iPNGain < nPNGain; iPNGain++){
-      _data[kPNOccupancy + iPNGain] = MEData("PNOccupancy", BinService::kEcalMEM2P, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
-      _data[kPNPedestal + iPNGain] = MEData("PNPedestal", BinService::kSMMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE);
+        mePNPedestal.fill(id, double(digiItr->sample(iSample).adc()));
     }
   }
 
