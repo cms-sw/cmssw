@@ -14,10 +14,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <string>
 
-class SUSYDQMAnalyzer: public edm::EDAnalyzer {
+//class SUSYDQMAnalyzer: public edm::EDAnalyzer {
+class SUSYDQMAnalyzer: public DQMEDAnalyzer {
  public:
   explicit SUSYDQMAnalyzer(const edm::ParameterSet&);
   ~SUSYDQMAnalyzer();
@@ -26,7 +28,7 @@ class SUSYDQMAnalyzer: public edm::EDAnalyzer {
   edm::ParameterSet iConfig;
 
   virtual void beginJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event& , const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
 

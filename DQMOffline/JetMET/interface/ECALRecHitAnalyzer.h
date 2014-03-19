@@ -47,6 +47,7 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <memory>
 #include <vector>
@@ -78,7 +79,7 @@ class CaloSubdetectorGeometry;
 // class declaration
 //
 
-class ECALRecHitAnalyzer : public edm::EDAnalyzer {
+class ECALRecHitAnalyzer : public DQMEDAnalyzer {
 public:
 
   ECALRecHitAnalyzer(const edm::ParameterSet&);
@@ -86,13 +87,13 @@ public:
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   //  virtual void beginJob(void) ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
+  virtual void dqmbeginRun(const edm::Run&, const edm::EventSetup&) ;
   virtual void endJob() ;
 
   void WriteECALRecHits(const edm::Event&, const edm::EventSetup&);
   void FillGeometry(const edm::EventSetup&);
-  void BookHistos();
- 
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
  private:
   // DAQ Tools
   DQMStore* dbe_;

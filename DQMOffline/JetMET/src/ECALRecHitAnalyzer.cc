@@ -15,8 +15,8 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
   EERecHitsLabel_  = consumes<EERecHitCollection> (iConfig.getParameter<edm::InputTag>("EERecHitsLabel"));
   FolderName_      = iConfig.getUntrackedParameter<std::string>("FolderName");
   debug_           = iConfig.getParameter<bool>("Debug");
-
-
+  //  EBRecHitsLabel_= consumes<EcalRecHitCollection>(edm::InputTag(EBRecHitsLabel_));
+  //  EERecHitsLabel_= consumes<EcalRecHitCollection>(edm::InputTag(EERecHitsLabel_));
 }
 
 void ECALRecHitAnalyzer::endJob() {
@@ -24,44 +24,41 @@ void ECALRecHitAnalyzer::endJob() {
 } 
 
 //void ECALRecHitAnalyzer::beginJob(void){
-void ECALRecHitAnalyzer::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
+void ECALRecHitAnalyzer::dqmbeginRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
   CurrentEvent = -1;
-  // Book the Histograms
   // Fill the geometry histograms
-  BookHistos();
   FillGeometry(iSetup);
 }
 
-void ECALRecHitAnalyzer::BookHistos()
+void ECALRecHitAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					edm::Run const & iRun,
+					edm::EventSetup const & )
 {
   // get ahold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
-  
-  if (dbe_) {
-    
-    // Book Geometry Histograms
-    dbe_->setCurrentFolder(FolderName_+"/geometry");
+  //  dbe_ = edm::Service<DQMStore>().operator->();
+     // Book Geometry Histograms
+    ibooker.setCurrentFolder(FolderName_+"/geometry");
     
 
     // ECAL barrel
-    hEB_ieta_iphi_etaMap = dbe_->book2D("hEB_ieta_iphi_etaMap","", 171, -85, 86, 360, 1, 361);
-    hEB_ieta_iphi_phiMap = dbe_->book2D("hEB_ieta_iphi_phiMap","", 171, -85, 86, 360, 1, 361);
-    hEB_ieta_detaMap = dbe_->book1D("hEB_ieta_detaMap","", 171, -85, 86);
-    hEB_ieta_dphiMap = dbe_->book1D("hEB_ieta_dphiMap","", 171, -85, 86);
+    hEB_ieta_iphi_etaMap = ibooker.book2D("hEB_ieta_iphi_etaMap","", 171, -85, 86, 360, 1, 361);
+    hEB_ieta_iphi_phiMap = ibooker.book2D("hEB_ieta_iphi_phiMap","", 171, -85, 86, 360, 1, 361);
+    hEB_ieta_detaMap = ibooker.book1D("hEB_ieta_detaMap","", 171, -85, 86);
+    hEB_ieta_dphiMap = ibooker.book1D("hEB_ieta_dphiMap","", 171, -85, 86);
     // ECAL +endcap
-    hEEpZ_ix_iy_irMap = dbe_->book2D("hEEpZ_ix_iy_irMap","", 100,1,101, 100,1,101);
-    hEEpZ_ix_iy_xMap = dbe_->book2D("hEEpZ_ix_iy_xMap","", 100,1,101, 100,1,101);
-    hEEpZ_ix_iy_yMap = dbe_->book2D("hEEpZ_ix_iy_yMap","", 100,1,101, 100,1,101);
-    hEEpZ_ix_iy_zMap = dbe_->book2D("hEEpZ_ix_iy_zMap","", 100,1,101, 100,1,101);
-    hEEpZ_ix_iy_dxMap = dbe_->book2D("hEEpZ_ix_iy_dxMap","", 100,1,101, 100,1,101);  
-    hEEpZ_ix_iy_dyMap = dbe_->book2D("hEEpZ_ix_iy_dyMap","", 100,1,101, 100,1,101);
+    hEEpZ_ix_iy_irMap = ibooker.book2D("hEEpZ_ix_iy_irMap","", 100,1,101, 100,1,101);
+    hEEpZ_ix_iy_xMap = ibooker.book2D("hEEpZ_ix_iy_xMap","", 100,1,101, 100,1,101);
+    hEEpZ_ix_iy_yMap = ibooker.book2D("hEEpZ_ix_iy_yMap","", 100,1,101, 100,1,101);
+    hEEpZ_ix_iy_zMap = ibooker.book2D("hEEpZ_ix_iy_zMap","", 100,1,101, 100,1,101);
+    hEEpZ_ix_iy_dxMap = ibooker.book2D("hEEpZ_ix_iy_dxMap","", 100,1,101, 100,1,101);  
+    hEEpZ_ix_iy_dyMap = ibooker.book2D("hEEpZ_ix_iy_dyMap","", 100,1,101, 100,1,101);
     // ECAL -endcap
-    hEEmZ_ix_iy_irMap = dbe_->book2D("hEEmZ_ix_iy_irMap","", 100,1,101, 100,1,101);
-    hEEmZ_ix_iy_xMap = dbe_->book2D("hEEmZ_ix_iy_xMap","", 100,1,101, 100,1,101);
-    hEEmZ_ix_iy_yMap = dbe_->book2D("hEEmZ_ix_iy_yMap","", 100,1,101, 100,1,101);
-    hEEmZ_ix_iy_zMap = dbe_->book2D("hEEmZ_ix_iy_zMap","", 100,1,101, 100,1,101);
-    hEEmZ_ix_iy_dxMap = dbe_->book2D("hEEmZ_ix_iy_dxMap","", 100,1,101, 100,1,101);  
-    hEEmZ_ix_iy_dyMap = dbe_->book2D("hEEmZ_ix_iy_dyMap","", 100,1,101, 100,1,101);
+    hEEmZ_ix_iy_irMap = ibooker.book2D("hEEmZ_ix_iy_irMap","", 100,1,101, 100,1,101);
+    hEEmZ_ix_iy_xMap = ibooker.book2D("hEEmZ_ix_iy_xMap","", 100,1,101, 100,1,101);
+    hEEmZ_ix_iy_yMap = ibooker.book2D("hEEmZ_ix_iy_yMap","", 100,1,101, 100,1,101);
+    hEEmZ_ix_iy_zMap = ibooker.book2D("hEEmZ_ix_iy_zMap","", 100,1,101, 100,1,101);
+    hEEmZ_ix_iy_dxMap = ibooker.book2D("hEEmZ_ix_iy_dxMap","", 100,1,101, 100,1,101);  
+    hEEmZ_ix_iy_dyMap = ibooker.book2D("hEEmZ_ix_iy_dyMap","", 100,1,101, 100,1,101);
 
     // Initialize bins for geometry to -999 because z = 0 is a valid entry 
     for (int i=1; i<=100; i++)
@@ -94,23 +91,23 @@ void ECALRecHitAnalyzer::BookHistos()
       }
 
     // Book Data Histograms
-    dbe_->setCurrentFolder(FolderName_);
+    ibooker.setCurrentFolder(FolderName_);
 
-    hECAL_Nevents          = dbe_->book1D("hECAL_Nevents","",1,0,1); 
+    hECAL_Nevents          = ibooker.book1D("hECAL_Nevents","",1,0,1); 
   
 
     // Energy Histograms by logical index
-    hEEpZ_energy_ix_iy = dbe_->book2D("hEEpZ_energy_ix_iy","", 100,1,101, 100,1,101);
-    hEEmZ_energy_ix_iy = dbe_->book2D("hEEmZ_energy_ix_iy","", 100,1,101, 100,1,101);
-    hEB_energy_ieta_iphi = dbe_->book2D("hEB_energy_ieta_iphi","", 171, -85, 86, 360, 1, 361);   
+    hEEpZ_energy_ix_iy = ibooker.book2D("hEEpZ_energy_ix_iy","", 100,1,101, 100,1,101);
+    hEEmZ_energy_ix_iy = ibooker.book2D("hEEmZ_energy_ix_iy","", 100,1,101, 100,1,101);
+    hEB_energy_ieta_iphi = ibooker.book2D("hEB_energy_ieta_iphi","", 171, -85, 86, 360, 1, 361);   
 
-    hEEpZ_Minenergy_ix_iy = dbe_->book2D("hEEpZ_Minenergy_ix_iy","", 100,1,101, 100,1,101);
-    hEEmZ_Minenergy_ix_iy = dbe_->book2D("hEEmZ_Minenergy_ix_iy","", 100,1,101, 100,1,101);
-    hEB_Minenergy_ieta_iphi = dbe_->book2D("hEB_Minenergy_ieta_iphi","", 171, -85, 86, 360, 1, 361);   
+    hEEpZ_Minenergy_ix_iy = ibooker.book2D("hEEpZ_Minenergy_ix_iy","", 100,1,101, 100,1,101);
+    hEEmZ_Minenergy_ix_iy = ibooker.book2D("hEEmZ_Minenergy_ix_iy","", 100,1,101, 100,1,101);
+    hEB_Minenergy_ieta_iphi = ibooker.book2D("hEB_Minenergy_ieta_iphi","", 171, -85, 86, 360, 1, 361);   
 
-    hEEpZ_Maxenergy_ix_iy = dbe_->book2D("hEEpZ_Maxenergy_ix_iy","", 100,1,101, 100,1,101);
-    hEEmZ_Maxenergy_ix_iy = dbe_->book2D("hEEmZ_Maxenergy_ix_iy","", 100,1,101, 100,1,101);
-    hEB_Maxenergy_ieta_iphi = dbe_->book2D("hEB_Maxenergy_ieta_iphi","", 171, -85, 86, 360, 1, 361);   
+    hEEpZ_Maxenergy_ix_iy = ibooker.book2D("hEEpZ_Maxenergy_ix_iy","", 100,1,101, 100,1,101);
+    hEEmZ_Maxenergy_ix_iy = ibooker.book2D("hEEmZ_Maxenergy_ix_iy","", 100,1,101, 100,1,101);
+    hEB_Maxenergy_ieta_iphi = ibooker.book2D("hEB_Maxenergy_ieta_iphi","", 171, -85, 86, 360, 1, 361);   
 
     // need to initialize those
     for (int i=1; i<=171; i++)
@@ -130,92 +127,88 @@ void ECALRecHitAnalyzer::BookHistos()
   
 
     // Occupancy Histograms by logical index
-    hEEpZ_Occ_ix_iy = dbe_->book2D("hEEpZ_Occ_ix_iy","", 100,1,101, 100,1,101);  
-    hEEmZ_Occ_ix_iy = dbe_->book2D("hEEmZ_Occ_ix_iy","", 100,1,101, 100,1,101);  
-    hEB_Occ_ieta_iphi = dbe_->book2D("hEB_Occ_ieta_iphi","",171, -85, 86, 360, 1, 361);   
+    hEEpZ_Occ_ix_iy = ibooker.book2D("hEEpZ_Occ_ix_iy","", 100,1,101, 100,1,101);  
+    hEEmZ_Occ_ix_iy = ibooker.book2D("hEEmZ_Occ_ix_iy","", 100,1,101, 100,1,101);  
+    hEB_Occ_ieta_iphi = ibooker.book2D("hEB_Occ_ieta_iphi","",171, -85, 86, 360, 1, 361);   
 
     // Integrated Histograms
     if(finebinning_)
       {
-	hEEpZ_energyvsir = dbe_->book2D("hEEpZ_energyvsir","", 100,1,101, 20110,-10,201);
-	hEEmZ_energyvsir = dbe_->book2D("hEEmZ_energyvsir","", 100,1,101, 20110,-10,201);
-	hEB_energyvsieta = dbe_->book2D("hEB_energyvsieta","", 171, -85, 86, 20110, -10, 201);   
+	hEEpZ_energyvsir = ibooker.book2D("hEEpZ_energyvsir","", 100,1,101, 20110,-10,201);
+	hEEmZ_energyvsir = ibooker.book2D("hEEmZ_energyvsir","", 100,1,101, 20110,-10,201);
+	hEB_energyvsieta = ibooker.book2D("hEB_energyvsieta","", 171, -85, 86, 20110, -10, 201);   
       
-	hEEpZ_Maxenergyvsir = dbe_->book2D("hEEpZ_Maxenergyvsir","", 100,1,101, 20110,-10,201);
-	hEEmZ_Maxenergyvsir = dbe_->book2D("hEEmZ_Maxenergyvsir","", 100,1,101, 20110,-10,201);
-	hEB_Maxenergyvsieta = dbe_->book2D("hEB_Maxenergyvsieta","", 171, -85, 86, 20110, -10, 201);   
+	hEEpZ_Maxenergyvsir = ibooker.book2D("hEEpZ_Maxenergyvsir","", 100,1,101, 20110,-10,201);
+	hEEmZ_Maxenergyvsir = ibooker.book2D("hEEmZ_Maxenergyvsir","", 100,1,101, 20110,-10,201);
+	hEB_Maxenergyvsieta = ibooker.book2D("hEB_Maxenergyvsieta","", 171, -85, 86, 20110, -10, 201);   
       
-	hEEpZ_Minenergyvsir = dbe_->book2D("hEEpZ_Minenergyvsir","", 100,1,101, 20110,-10,201);
-	hEEmZ_Minenergyvsir = dbe_->book2D("hEEmZ_Minenergyvsir","", 100,1,101, 20110,-10,201);
-	hEB_Minenergyvsieta = dbe_->book2D("hEB_Minenergyvsieta","", 171, -85, 86, 20110, -10, 201);   
+	hEEpZ_Minenergyvsir = ibooker.book2D("hEEpZ_Minenergyvsir","", 100,1,101, 20110,-10,201);
+	hEEmZ_Minenergyvsir = ibooker.book2D("hEEmZ_Minenergyvsir","", 100,1,101, 20110,-10,201);
+	hEB_Minenergyvsieta = ibooker.book2D("hEB_Minenergyvsieta","", 171, -85, 86, 20110, -10, 201);   
       
-	hEEpZ_SETvsir = dbe_->book2D("hEEpZ_SETvsir","", 50,1,51, 20010,0,201);
-	hEEmZ_SETvsir = dbe_->book2D("hEEmZ_SETvsir","", 50,1,51, 20010,0,201);
-	hEB_SETvsieta = dbe_->book2D("hEB_SETvsieta","", 171, -85, 86, 20010, 0, 201);   
+	hEEpZ_SETvsir = ibooker.book2D("hEEpZ_SETvsir","", 50,1,51, 20010,0,201);
+	hEEmZ_SETvsir = ibooker.book2D("hEEmZ_SETvsir","", 50,1,51, 20010,0,201);
+	hEB_SETvsieta = ibooker.book2D("hEB_SETvsieta","", 171, -85, 86, 20010, 0, 201);   
       
-	hEEpZ_METvsir = dbe_->book2D("hEEpZ_METvsir","", 50,1,51, 20010,0,201);
-	hEEmZ_METvsir = dbe_->book2D("hEEmZ_METvsir","", 50,1,51, 20010,0,201);
-	hEB_METvsieta = dbe_->book2D("hEB_METvsieta","", 171, -85, 86, 20010, 0, 201);   
+	hEEpZ_METvsir = ibooker.book2D("hEEpZ_METvsir","", 50,1,51, 20010,0,201);
+	hEEmZ_METvsir = ibooker.book2D("hEEmZ_METvsir","", 50,1,51, 20010,0,201);
+	hEB_METvsieta = ibooker.book2D("hEB_METvsieta","", 171, -85, 86, 20010, 0, 201);   
       
-	hEEpZ_METPhivsir = dbe_->book2D("hEEpZ_METPhivsir","", 50,1,51, 80,-4,4);
-	hEEmZ_METPhivsir = dbe_->book2D("hEEmZ_METPhivsir","", 50,1,51, 80,-4,4);
-	hEB_METPhivsieta = dbe_->book2D("hEB_METPhivsieta","", 171, -85, 86, 80,-4,4);   
+	hEEpZ_METPhivsir = ibooker.book2D("hEEpZ_METPhivsir","", 50,1,51, 80,-4,4);
+	hEEmZ_METPhivsir = ibooker.book2D("hEEmZ_METPhivsir","", 50,1,51, 80,-4,4);
+	hEB_METPhivsieta = ibooker.book2D("hEB_METPhivsieta","", 171, -85, 86, 80,-4,4);   
       
-	hEEpZ_MExvsir = dbe_->book2D("hEEpZ_MExvsir","", 50,1,51, 10010,-50,51);
-	hEEmZ_MExvsir = dbe_->book2D("hEEmZ_MExvsir","", 50,1,51, 10010,-50,51);
-	hEB_MExvsieta = dbe_->book2D("hEB_MExvsieta","", 171, -85, 86, 10010,-50,51);   
+	hEEpZ_MExvsir = ibooker.book2D("hEEpZ_MExvsir","", 50,1,51, 10010,-50,51);
+	hEEmZ_MExvsir = ibooker.book2D("hEEmZ_MExvsir","", 50,1,51, 10010,-50,51);
+	hEB_MExvsieta = ibooker.book2D("hEB_MExvsieta","", 171, -85, 86, 10010,-50,51);   
       
-	hEEpZ_MEyvsir = dbe_->book2D("hEEpZ_MEyvsir","", 50,1,51, 10010,-50,51);
-	hEEmZ_MEyvsir = dbe_->book2D("hEEmZ_MEyvsir","", 50,1,51, 10010,-50,51);
-	hEB_MEyvsieta = dbe_->book2D("hEB_MEyvsieta","", 171, -85, 86, 10010,-50,51);   
+	hEEpZ_MEyvsir = ibooker.book2D("hEEpZ_MEyvsir","", 50,1,51, 10010,-50,51);
+	hEEmZ_MEyvsir = ibooker.book2D("hEEmZ_MEyvsir","", 50,1,51, 10010,-50,51);
+	hEB_MEyvsieta = ibooker.book2D("hEB_MEyvsieta","", 171, -85, 86, 10010,-50,51);   
       
-	hEEpZ_Occvsir = dbe_->book2D("hEEpZ_Occvsir","", 50,1,51, 1000,0,1000);
-	hEEmZ_Occvsir = dbe_->book2D("hEEmZ_Occvsir","", 50,1,51, 1000,0,1000);
-	hEB_Occvsieta = dbe_->book2D("hEB_Occvsieta","", 171, -85, 86, 400,0,400);   
+	hEEpZ_Occvsir = ibooker.book2D("hEEpZ_Occvsir","", 50,1,51, 1000,0,1000);
+	hEEmZ_Occvsir = ibooker.book2D("hEEmZ_Occvsir","", 50,1,51, 1000,0,1000);
+	hEB_Occvsieta = ibooker.book2D("hEB_Occvsieta","", 171, -85, 86, 400,0,400);   
       }
     else 
       {
-	hEEpZ_energyvsir = dbe_->book2D("hEEpZ_energyvsir","", 100,1,101, 510,-10,100);
-	hEEmZ_energyvsir = dbe_->book2D("hEEmZ_energyvsir","", 100,1,101, 510,-10,100);
-	hEB_energyvsieta = dbe_->book2D("hEB_energyvsieta","", 171, -85, 86, 510, -10, 100);
+	hEEpZ_energyvsir = ibooker.book2D("hEEpZ_energyvsir","", 100,1,101, 510,-10,100);
+	hEEmZ_energyvsir = ibooker.book2D("hEEmZ_energyvsir","", 100,1,101, 510,-10,100);
+	hEB_energyvsieta = ibooker.book2D("hEB_energyvsieta","", 171, -85, 86, 510, -10, 100);
       
-	hEEpZ_Maxenergyvsir = dbe_->book2D("hEEpZ_Maxenergyvsir","", 100,1,101, 510,-10,100);
-	hEEmZ_Maxenergyvsir = dbe_->book2D("hEEmZ_Maxenergyvsir","", 100,1,101, 510,-10,100);
-	hEB_Maxenergyvsieta = dbe_->book2D("hEB_Maxenergyvsieta","", 171, -85, 86, 510, -10, 100);
+	hEEpZ_Maxenergyvsir = ibooker.book2D("hEEpZ_Maxenergyvsir","", 100,1,101, 510,-10,100);
+	hEEmZ_Maxenergyvsir = ibooker.book2D("hEEmZ_Maxenergyvsir","", 100,1,101, 510,-10,100);
+	hEB_Maxenergyvsieta = ibooker.book2D("hEB_Maxenergyvsieta","", 171, -85, 86, 510, -10, 100);
 
-	hEEpZ_Minenergyvsir = dbe_->book2D("hEEpZ_Minenergyvsir","", 100,1,101, 510,-10,100);
-	hEEmZ_Minenergyvsir = dbe_->book2D("hEEmZ_Minenergyvsir","", 100,1,101, 510,-10,100);
-	hEB_Minenergyvsieta = dbe_->book2D("hEB_Minenergyvsieta","", 171, -85, 86, 510, -10, 100);
+	hEEpZ_Minenergyvsir = ibooker.book2D("hEEpZ_Minenergyvsir","", 100,1,101, 510,-10,100);
+	hEEmZ_Minenergyvsir = ibooker.book2D("hEEmZ_Minenergyvsir","", 100,1,101, 510,-10,100);
+	hEB_Minenergyvsieta = ibooker.book2D("hEB_Minenergyvsieta","", 171, -85, 86, 510, -10, 100);
 
-	hEEpZ_SETvsir = dbe_->book2D("hEEpZ_SETvsir","", 50,1,51, 510,0,100);
-	hEEmZ_SETvsir = dbe_->book2D("hEEmZ_SETvsir","", 50,1,51, 510,0,100);
-	hEB_SETvsieta = dbe_->book2D("hEB_SETvsieta","", 171, -85, 86, 510, 0, 100);
+	hEEpZ_SETvsir = ibooker.book2D("hEEpZ_SETvsir","", 50,1,51, 510,0,100);
+	hEEmZ_SETvsir = ibooker.book2D("hEEmZ_SETvsir","", 50,1,51, 510,0,100);
+	hEB_SETvsieta = ibooker.book2D("hEB_SETvsieta","", 171, -85, 86, 510, 0, 100);
 
-	hEEpZ_METvsir = dbe_->book2D("hEEpZ_METvsir","", 50,1,51, 510,0,100);
-	hEEmZ_METvsir = dbe_->book2D("hEEmZ_METvsir","", 50,1,51, 510,0,100);
-	hEB_METvsieta = dbe_->book2D("hEB_METvsieta","", 171, -85, 86, 510, 0, 100);
+	hEEpZ_METvsir = ibooker.book2D("hEEpZ_METvsir","", 50,1,51, 510,0,100);
+	hEEmZ_METvsir = ibooker.book2D("hEEmZ_METvsir","", 50,1,51, 510,0,100);
+	hEB_METvsieta = ibooker.book2D("hEB_METvsieta","", 171, -85, 86, 510, 0, 100);
 
-	hEEpZ_METPhivsir = dbe_->book2D("hEEpZ_METPhivsir","", 50,1,51, 80,-4,4);
-	hEEmZ_METPhivsir = dbe_->book2D("hEEmZ_METPhivsir","", 50,1,51, 80,-4,4);
-	hEB_METPhivsieta = dbe_->book2D("hEB_METPhivsieta","", 171, -85, 86, 80,-4,4);
+	hEEpZ_METPhivsir = ibooker.book2D("hEEpZ_METPhivsir","", 50,1,51, 80,-4,4);
+	hEEmZ_METPhivsir = ibooker.book2D("hEEmZ_METPhivsir","", 50,1,51, 80,-4,4);
+	hEB_METPhivsieta = ibooker.book2D("hEB_METPhivsieta","", 171, -85, 86, 80,-4,4);
 
-	hEEpZ_MExvsir = dbe_->book2D("hEEpZ_MExvsir","", 50,1,51, 510,-50,51);
-	hEEmZ_MExvsir = dbe_->book2D("hEEmZ_MExvsir","", 50,1,51, 510,-50,51);
-	hEB_MExvsieta = dbe_->book2D("hEB_MExvsieta","", 171, -85, 86, 510,-50,51);
+	hEEpZ_MExvsir = ibooker.book2D("hEEpZ_MExvsir","", 50,1,51, 510,-50,51);
+	hEEmZ_MExvsir = ibooker.book2D("hEEmZ_MExvsir","", 50,1,51, 510,-50,51);
+	hEB_MExvsieta = ibooker.book2D("hEB_MExvsieta","", 171, -85, 86, 510,-50,51);
 
-	hEEpZ_MEyvsir = dbe_->book2D("hEEpZ_MEyvsir","", 50,1,51, 510,-50,51);
-	hEEmZ_MEyvsir = dbe_->book2D("hEEmZ_MEyvsir","", 50,1,51, 510,-50,51);
-	hEB_MEyvsieta = dbe_->book2D("hEB_MEyvsieta","", 171, -85, 86, 510,-50,51);
+	hEEpZ_MEyvsir = ibooker.book2D("hEEpZ_MEyvsir","", 50,1,51, 510,-50,51);
+	hEEmZ_MEyvsir = ibooker.book2D("hEEmZ_MEyvsir","", 50,1,51, 510,-50,51);
+	hEB_MEyvsieta = ibooker.book2D("hEB_MEyvsieta","", 171, -85, 86, 510,-50,51);
 
-	hEEpZ_Occvsir = dbe_->book2D("hEEpZ_Occvsir","", 50,1,51, 1000,0,1000);
-	hEEmZ_Occvsir = dbe_->book2D("hEEmZ_Occvsir","", 50,1,51, 1000,0,1000);
-	hEB_Occvsieta = dbe_->book2D("hEB_Occvsieta","", 171, -85, 86, 400,0,400);
+	hEEpZ_Occvsir = ibooker.book2D("hEEpZ_Occvsir","", 50,1,51, 1000,0,1000);
+	hEEmZ_Occvsir = ibooker.book2D("hEEmZ_Occvsir","", 50,1,51, 1000,0,1000);
+	hEB_Occvsieta = ibooker.book2D("hEB_Occvsieta","", 171, -85, 86, 400,0,400);
 
       }
-
-
-
-  }
 }
 
 void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)

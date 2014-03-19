@@ -96,48 +96,48 @@ void SUSYDQMAnalyzer::beginJob(void){
 
 }
 
-void SUSYDQMAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-  if( dqm ) {
-    //===========================================================  
-    // book HT histos.
-
+void SUSYDQMAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+				     edm::Run const & iRun,
+				     edm::EventSetup const & ) {
+  //  if( dqm ) {
+    //===========================================================                                                                                 
+    // book HT histos.                                                                                                                           
     std::string dir=SUSYFolder;
-    dir+="HT";
-    dqm->setCurrentFolder(dir);
-    hCaloHT = dqm->book1D("Calo_HT", "", 500, 0., 2000);
-    hPFHT   = dqm->book1D("PF_HT"  , "", 500, 0., 2000);
-    hJPTHT  = dqm->book1D("JPT_HT" , "", 500, 0., 2000);
-
-    //===========================================================  
-    // book MET histos.
+    dir+="HT"; 
+    ibooker.setCurrentFolder(dir);
+    hCaloHT = ibooker.book1D("Calo_HT", "", 500, 0., 2000);
+    hPFHT   = ibooker.book1D("PF_HT"  , "", 500, 0., 2000);
+    hJPTHT  = ibooker.book1D("JPT_HT" , "", 500, 0., 2000);
+    //===========================================================                                                                                 
+    // book MET histos.                                                                                                                           
 
     dir=SUSYFolder;
     dir+="MET";
-    dqm->setCurrentFolder(dir);
-    hCaloMET = dqm->book1D("Calo_MET", "", 500, 0., 1000);
-    hPFMET   = dqm->book1D("PF_MET"  , "", 500, 0., 1000);
-    hTCMET   = dqm->book1D("TC_MET"  , "", 500, 0., 1000);
+    ibooker.setCurrentFolder(dir);
+    hCaloMET = ibooker.book1D("Calo_MET", "", 500, 0., 1000);
+    hPFMET   = ibooker.book1D("PF_MET"  , "", 500, 0., 1000);
+    hTCMET   = ibooker.book1D("TC_MET"  , "", 500, 0., 1000);
 
-    //===========================================================  
-    // book MHT histos.
+    //===========================================================                                                                                 
+    // book MHT histos.                                                                                                                           
 
     dir=SUSYFolder;
-    dir+="MHT"; 
-    dqm->setCurrentFolder(dir);
-    hCaloMHT = dqm->book1D("Calo_MHT", "", 500, 0., 1000);
-    hPFMHT   = dqm->book1D("PF_MHT"  , "", 500, 0., 1000);
-    hJPTMHT  = dqm->book1D("JPT_MHT" , "", 500, 0., 1000);
-   
-    //===========================================================  
-    // book alpha_T histos.
+    dir+="MHT";
+    ibooker.setCurrentFolder(dir);
+    hCaloMHT = ibooker.book1D("Calo_MHT", "", 500, 0., 1000);
+    hPFMHT   = ibooker.book1D("PF_MHT"  , "", 500, 0., 1000);
+    hJPTMHT  = ibooker.book1D("JPT_MHT" , "", 500, 0., 1000);
+
+    //===========================================================                                                                                 
+    // book alpha_T histos.                                                                                                                       
 
     dir=SUSYFolder;
     dir+="Alpha_T";
-    dqm->setCurrentFolder(dir);
-    hCaloAlpha_T = dqm->book1D("Calo_AlphaT", "", 100, 0., 1.);
-    hJPTAlpha_T  = dqm->book1D("PF_AlphaT"  , "", 100, 0., 1.);
-    hPFAlpha_T   = dqm->book1D("JPT_AlphaT"  , "", 100, 0., 1.);
-  }
+    ibooker.setCurrentFolder(dir);
+    hCaloAlpha_T = ibooker.book1D("Calo_AlphaT", "", 100, 0., 1.);
+    hJPTAlpha_T  = ibooker.book1D("PF_AlphaT"  , "", 100, 0., 1.);
+    hPFAlpha_T   = ibooker.book1D("JPT_AlphaT"  , "", 100, 0., 1.);
+    //  }
 }
 
 void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)

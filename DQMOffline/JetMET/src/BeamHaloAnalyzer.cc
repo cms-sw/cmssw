@@ -79,154 +79,155 @@ BeamHaloAnalyzer::BeamHaloAnalyzer( const edm::ParameterSet& iConfig)
 
 void BeamHaloAnalyzer::beginJob(void){}
 
-void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
   
-  dqm = edm::Service<DQMStore>().operator->();
-  if( dqm ) {
+void BeamHaloAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					edm::Run const & iRun,
+					edm::EventSetup const & )
+  {
   
     // EcalHaloData
-    dqm->setCurrentFolder(FolderName+"/EcalHaloData");
+    ibooker.setCurrentFolder(FolderName+"/EcalHaloData");
     if(StandardDQM)
       {
-	hEcalHaloData_PhiWedgeMultiplicity = dqm->book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
-	hEcalHaloData_PhiWedgeConstituents = dqm->book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
-	//	hEcalHaloData_PhiWedgeiPhi         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
-	hEcalHaloData_PhiWedgeZDirectionConfidence = dqm->book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
-	hEcalHaloData_SuperClusterShowerShapes  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 30, 0, 3.2, 25,0.0, 2.0);
-	hEcalHaloData_SuperClusterEnergy = dqm->book1D("EcalHaloData_SuperClusterEnergy","",50,-0.5,99.5); 
-	hEcalHaloData_SuperClusterNHits = dqm->book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
+	hEcalHaloData_PhiWedgeMultiplicity = ibooker.book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
+	hEcalHaloData_PhiWedgeConstituents = ibooker.book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
+	//	hEcalHaloData_PhiWedgeiPhi         = ibooker.book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
+	hEcalHaloData_PhiWedgeZDirectionConfidence = ibooker.book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
+	hEcalHaloData_SuperClusterShowerShapes  = ibooker.book2D("EcalHaloData_SuperClusterShowerShapes","", 30, 0, 3.2, 25,0.0, 2.0);
+	hEcalHaloData_SuperClusterEnergy = ibooker.book1D("EcalHaloData_SuperClusterEnergy","",50,-0.5,99.5); 
+	hEcalHaloData_SuperClusterNHits = ibooker.book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
       }
     else
       {
-	hEcalHaloData_PhiWedgeMultiplicity = dqm->book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
-	hEcalHaloData_PhiWedgeEnergy       = dqm->book1D("EcalHaloData_PhiWedgeEnergy","", 50,-0.5,199.5);
-	hEcalHaloData_PhiWedgeConstituents = dqm->book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
-	hEcalHaloData_PhiWedgeMinTime      = dqm->book1D("EcalHaloData_PhiWedgeMinTime","", 100, -225.0, 225.0);
-	hEcalHaloData_PhiWedgeMaxTime      = dqm->book1D("EcalHaloData_PhiWedgeMaxTime","", 100, -225.0, 225.0);
-	hEcalHaloData_PhiWedgeiPhi         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
-	hEcalHaloData_PhiWedgePlusZDirectionConfidence = dqm->book1D("EcalHaloData_PlusZDirectionConfidence","",  50, 0., 1.0);
-	hEcalHaloData_PhiWedgeZDirectionConfidence = dqm->book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
-	hEcalHaloData_PhiWedgeMinVsMaxTime = dqm->book2D("EcalHaloData_PhiWedgeMinVsMaxTime","", 50,-100.0, 100.0, 50, -100.0, 100.0);
-	hEcalHaloData_SuperClusterShowerShapes  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 30, 0, 3.2, 25,0.0, 2.0);
-	hEcalHaloData_SuperClusterEnergy = dqm->book1D("EcalHaloData_SuperClusterEnergy","",100,-0.5,99.5); 
-	hEcalHaloData_SuperClusterNHits = dqm->book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
-	hEcalHaloData_SuperClusterPhiVsEta = dqm->book2D("EcalHaloData_SuperClusterPhiVsEta","",60, -3.0, 3.0, 60, -3.2, 3.2);  
+	hEcalHaloData_PhiWedgeMultiplicity = ibooker.book1D("EcalHaloData_PhiWedgeMultiplicity","",20, -0.5, 19.5);
+	hEcalHaloData_PhiWedgeEnergy       = ibooker.book1D("EcalHaloData_PhiWedgeEnergy","", 50,-0.5,199.5);
+	hEcalHaloData_PhiWedgeConstituents = ibooker.book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
+	hEcalHaloData_PhiWedgeMinTime      = ibooker.book1D("EcalHaloData_PhiWedgeMinTime","", 100, -225.0, 225.0);
+	hEcalHaloData_PhiWedgeMaxTime      = ibooker.book1D("EcalHaloData_PhiWedgeMaxTime","", 100, -225.0, 225.0);
+	hEcalHaloData_PhiWedgeiPhi         = ibooker.book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
+	hEcalHaloData_PhiWedgePlusZDirectionConfidence = ibooker.book1D("EcalHaloData_PlusZDirectionConfidence","",  50, 0., 1.0);
+	hEcalHaloData_PhiWedgeZDirectionConfidence = ibooker.book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
+	hEcalHaloData_PhiWedgeMinVsMaxTime = ibooker.book2D("EcalHaloData_PhiWedgeMinVsMaxTime","", 50,-100.0, 100.0, 50, -100.0, 100.0);
+	hEcalHaloData_SuperClusterShowerShapes  = ibooker.book2D("EcalHaloData_SuperClusterShowerShapes","", 30, 0, 3.2, 25,0.0, 2.0);
+	hEcalHaloData_SuperClusterEnergy = ibooker.book1D("EcalHaloData_SuperClusterEnergy","",100,-0.5,99.5); 
+	hEcalHaloData_SuperClusterNHits = ibooker.book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
+	hEcalHaloData_SuperClusterPhiVsEta = ibooker.book2D("EcalHaloData_SuperClusterPhiVsEta","",60, -3.0, 3.0, 60, -3.2, 3.2);  
       }
 
     // HcalHaloData
-    dqm->setCurrentFolder(FolderName+"/HcalHaloData");    
+    ibooker.setCurrentFolder(FolderName+"/HcalHaloData");    
     if( StandardDQM )
       { 
-	hHcalHaloData_PhiWedgeMultiplicity = dqm->book1D("HcalHaloData_PhiWedgeMultiplicity","", 20, -0.5, 19.5);
-	hHcalHaloData_PhiWedgeConstituents = dqm->book1D("HcalHaloData_PhiWedgeConstituents","", 20,-0.5, 19.5);
-	//hHcalHaloData_PhiWedgeiPhi         = dqm->book1D("HcalHaloData_PhiWedgeiPhi","", 72, 0.5,72.5);
-	hHcalHaloData_PhiWedgeZDirectionConfidence = dqm->book1D("HcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
+	hHcalHaloData_PhiWedgeMultiplicity = ibooker.book1D("HcalHaloData_PhiWedgeMultiplicity","", 20, -0.5, 19.5);
+	hHcalHaloData_PhiWedgeConstituents = ibooker.book1D("HcalHaloData_PhiWedgeConstituents","", 20,-0.5, 19.5);
+	//hHcalHaloData_PhiWedgeiPhi         = ibooker.book1D("HcalHaloData_PhiWedgeiPhi","", 72, 0.5,72.5);
+	hHcalHaloData_PhiWedgeZDirectionConfidence = ibooker.book1D("HcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
       }
     else
       {
-	hHcalHaloData_PhiWedgeMultiplicity = dqm->book1D("HcalHaloData_PhiWedgeMultiplicity","", 20, -0.5, 19.5);
-	hHcalHaloData_PhiWedgeEnergy       = dqm->book1D("HcalHaloData_PhiWedgeEnergy", "", 50,-0.5,199.5);
-	hHcalHaloData_PhiWedgeConstituents = dqm->book1D("HcalHaloData_PhiWedgeConstituents","", 20,-0.5, 19.5);
-	hHcalHaloData_PhiWedgeiPhi         = dqm->book1D("HcalHaloData_PhiWedgeiPhi","", 72, 0.5,72.5);
-	hHcalHaloData_PhiWedgeMinTime      = dqm->book1D("HcalHaloData_PhiWedgeMinTime", "", 50, -100.0, 100.0);
-	hHcalHaloData_PhiWedgeMaxTime      = dqm->book1D("HcalHaloData_PhiWedgeMaxTime", "", 50, -100.0, 100.0);
-	hHcalHaloData_PhiWedgePlusZDirectionConfidence = dqm->book1D("HcalHaloData_PlusZDirectionConfidence","",  50, 0., 1.0);
-	hHcalHaloData_PhiWedgeZDirectionConfidence = dqm->book1D("HcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
-	hHcalHaloData_PhiWedgeMinVsMaxTime = dqm->book2D("HcalHaloData_PhiWedgeMinVsMaxTime","" , 50,-100.0, 100.0, 50, -100.0, 100.0);
+	hHcalHaloData_PhiWedgeMultiplicity = ibooker.book1D("HcalHaloData_PhiWedgeMultiplicity","", 20, -0.5, 19.5);
+	hHcalHaloData_PhiWedgeEnergy       = ibooker.book1D("HcalHaloData_PhiWedgeEnergy", "", 50,-0.5,199.5);
+	hHcalHaloData_PhiWedgeConstituents = ibooker.book1D("HcalHaloData_PhiWedgeConstituents","", 20,-0.5, 19.5);
+	hHcalHaloData_PhiWedgeiPhi         = ibooker.book1D("HcalHaloData_PhiWedgeiPhi","", 72, 0.5,72.5);
+	hHcalHaloData_PhiWedgeMinTime      = ibooker.book1D("HcalHaloData_PhiWedgeMinTime", "", 50, -100.0, 100.0);
+	hHcalHaloData_PhiWedgeMaxTime      = ibooker.book1D("HcalHaloData_PhiWedgeMaxTime", "", 50, -100.0, 100.0);
+	hHcalHaloData_PhiWedgePlusZDirectionConfidence = ibooker.book1D("HcalHaloData_PlusZDirectionConfidence","",  50, 0., 1.0);
+	hHcalHaloData_PhiWedgeZDirectionConfidence = ibooker.book1D("HcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
+	hHcalHaloData_PhiWedgeMinVsMaxTime = ibooker.book2D("HcalHaloData_PhiWedgeMinVsMaxTime","" , 50,-100.0, 100.0, 50, -100.0, 100.0);
       }
 
     // CSCHaloData
-    dqm->setCurrentFolder(FolderName+"/CSCHaloData");
+    ibooker.setCurrentFolder(FolderName+"/CSCHaloData");
     if( StandardDQM ) 
       {
-	hCSCHaloData_TrackMultiplicity  = dqm->book1D("CSCHaloData_TrackMultiplicity", "", 15, -0.5, 14.5);
-	hCSCHaloData_TrackMultiplicityMEPlus  = dqm->book1D("CSCHaloData_TrackMultiplicityMEPlus", "", 15, -0.5, 14.5);
-	hCSCHaloData_TrackMultiplicityMEMinus  = dqm->book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
-	hCSCHaloData_InnerMostTrackHitR  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 70, 99.5, 799.5);
-	hCSCHaloData_InnerMostTrackHitPhi  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
-	hCSCHaloData_L1HaloTriggersMEPlus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
-	hCSCHaloData_L1HaloTriggersMEMinus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
-	hCSCHaloData_L1HaloTriggers  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
-	hCSCHaloData_HLHaloTriggers  = dqm->book1D("CSCHaloData_HLHaloTriggers", "", 2, -0.5, 1.5);
-	hCSCHaloData_NOutOfTimeTriggersvsL1HaloExists  = dqm->book2D("CSCHaloData_NOutOfTimeTriggersvsL1HaloExists", "", 20, -0.5, 19.5, 2, -0.5, 1.5);
-	hCSCHaloData_NOutOfTimeTriggersMEPlus  = dqm->book1D("CSCHaloData_NOutOfTimeTriggersMEPlus", "", 20, -0.5, 19.5);
-	hCSCHaloData_NOutOfTimeTriggersMEMinus  = dqm->book1D("CSCHaloData_NOutOfTimeTriggersMEMinus", "", 20, -0.5, 19.5);
-	hCSCHaloData_NOutOfTimeTriggers  = dqm->book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
-	hCSCHaloData_NOutOfTimeHits  = dqm->book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
-	hCSCHaloData_NTracksSmalldT  = dqm->book1D("CSCHaloData_NTracksSmalldT", "", 15, -0.5, 14.5);
-	hCSCHaloData_NTracksSmallBeta  = dqm->book1D("CSCHaloData_NTracksSmallBeta", "", 15, -0.5, 14.5);
-	hCSCHaloData_NTracksSmallBetaAndSmalldT  = dqm->book1D("CSCHaloData_NTracksSmallBetaAndSmalldT", "", 15, -0.5, 14.5);
-	hCSCHaloData_NTracksSmalldTvsNHaloTracks = dqm->book2D("CSCHaloData_NTracksSmalldTvsNHaloTracks","",15, -0.5, 14.5,15, -0.5, 14.5);
-	hCSCHaloData_SegmentdT = dqm->book1D("CSCHaloData_SegmentdT","",100,-100,100);
-	hCSCHaloData_FreeInverseBeta = dqm->book1D("CSCHaloData_FreeInverseBeta","",80,-4,4);
-	hCSCHaloData_FreeInverseBetaVsSegmentdT = dqm->book2D("CSCHaloData_FreeInverseBetaVsSegmentdT","",100,-100,100,80,-4,4);
+	hCSCHaloData_TrackMultiplicity  = ibooker.book1D("CSCHaloData_TrackMultiplicity", "", 15, -0.5, 14.5);
+	hCSCHaloData_TrackMultiplicityMEPlus  = ibooker.book1D("CSCHaloData_TrackMultiplicityMEPlus", "", 15, -0.5, 14.5);
+	hCSCHaloData_TrackMultiplicityMEMinus  = ibooker.book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
+	hCSCHaloData_InnerMostTrackHitR  = ibooker.book1D("CSCHaloData_InnerMostTrackHitR", "", 70, 99.5, 799.5);
+	hCSCHaloData_InnerMostTrackHitPhi  = ibooker.book1D("CSCHaloData_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
+	hCSCHaloData_L1HaloTriggersMEPlus  = ibooker.book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
+	hCSCHaloData_L1HaloTriggersMEMinus  = ibooker.book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
+	hCSCHaloData_L1HaloTriggers  = ibooker.book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
+	hCSCHaloData_HLHaloTriggers  = ibooker.book1D("CSCHaloData_HLHaloTriggers", "", 2, -0.5, 1.5);
+	hCSCHaloData_NOutOfTimeTriggersvsL1HaloExists  = ibooker.book2D("CSCHaloData_NOutOfTimeTriggersvsL1HaloExists", "", 20, -0.5, 19.5, 2, -0.5, 1.5);
+	hCSCHaloData_NOutOfTimeTriggersMEPlus  = ibooker.book1D("CSCHaloData_NOutOfTimeTriggersMEPlus", "", 20, -0.5, 19.5);
+	hCSCHaloData_NOutOfTimeTriggersMEMinus  = ibooker.book1D("CSCHaloData_NOutOfTimeTriggersMEMinus", "", 20, -0.5, 19.5);
+	hCSCHaloData_NOutOfTimeTriggers  = ibooker.book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
+	hCSCHaloData_NOutOfTimeHits  = ibooker.book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
+	hCSCHaloData_NTracksSmalldT  = ibooker.book1D("CSCHaloData_NTracksSmalldT", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmallBeta  = ibooker.book1D("CSCHaloData_NTracksSmallBeta", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmallBetaAndSmalldT  = ibooker.book1D("CSCHaloData_NTracksSmallBetaAndSmalldT", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmalldTvsNHaloTracks = ibooker.book2D("CSCHaloData_NTracksSmalldTvsNHaloTracks","",15, -0.5, 14.5,15, -0.5, 14.5);
+	hCSCHaloData_SegmentdT = ibooker.book1D("CSCHaloData_SegmentdT","",100,-100,100);
+	hCSCHaloData_FreeInverseBeta = ibooker.book1D("CSCHaloData_FreeInverseBeta","",80,-4,4);
+	hCSCHaloData_FreeInverseBetaVsSegmentdT = ibooker.book2D("CSCHaloData_FreeInverseBetaVsSegmentdT","",100,-100,100,80,-4,4);
 	// MLR
-	hCSCHaloData_NFlatHaloSegments = dqm->book1D("CSCHaloData_NFlatHaloSegments","",20,0,20);
-	hCSCHaloData_SegmentsInBothEndcaps = dqm->book1D("CSCHaloData_SegmentsInBothEndcaps","",2,0,2);
-	hCSCHaloData_NFlatSegmentsInBothEndcaps = dqm->book1D("CSCHaloData_NFlatSegmentsInBothEndcaps","",20,0,20);
+	hCSCHaloData_NFlatHaloSegments = ibooker.book1D("CSCHaloData_NFlatHaloSegments","",20,0,20);
+	hCSCHaloData_SegmentsInBothEndcaps = ibooker.book1D("CSCHaloData_SegmentsInBothEndcaps","",2,0,2);
+	hCSCHaloData_NFlatSegmentsInBothEndcaps = ibooker.book1D("CSCHaloData_NFlatSegmentsInBothEndcaps","",20,0,20);
 	// End MLR
       }
     else 
       {
-	hCSCHaloData_TrackMultiplicity  = dqm->book1D("CSCHaloData_TrackMultiplicity", "", 15, -0.5, 14.5);
-	hCSCHaloData_TrackMultiplicityMEPlus  = dqm->book1D("CSCHaloData_TrackMultiplicityMEPlus", "", 15, -0.5, 14.5);
-	hCSCHaloData_TrackMultiplicityMEMinus  = dqm->book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
-	hCSCHaloData_InnerMostTrackHitXY  = dqm->book2D("CSCHaloData_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
-	hCSCHaloData_InnerMostTrackHitR  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 400, -0.5, 799.5);
-	hCSCHaloData_InnerMostTrackHitRPlusZ = dqm->book2D("CSCHaloData_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
-	hCSCHaloData_InnerMostTrackHitRMinusZ = dqm->book2D("CSCHaloData_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
-	hCSCHaloData_InnerMostTrackHitiPhi  = dqm->book1D("CSCHaloData_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
-	hCSCHaloData_InnerMostTrackHitPhi  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
-	hCSCHaloData_L1HaloTriggersMEPlus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
-	hCSCHaloData_L1HaloTriggersMEMinus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
-	hCSCHaloData_L1HaloTriggers  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
-	hCSCHaloData_HLHaloTriggers  = dqm->book1D("CSCHaloData_HLHaloTriggers", "", 2, -0.5, 1.5);
-	hCSCHaloData_NOutOfTimeTriggersvsL1HaloExists  = dqm->book2D("CSCHaloData_NOutOfTimeTriggersvsL1HaloExists", "", 20, -0.5, 19.5, 2, -0.5, 1.5);
-	hCSCHaloData_NOutOfTimeTriggers  = dqm->book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
-	hCSCHaloData_NOutOfTimeHits  = dqm->book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
-	hCSCHaloData_NTracksSmalldT  = dqm->book1D("CSCHaloData_NTracksSmalldT", "", 15, -0.5, 14.5);
-	hCSCHaloData_NTracksSmallBeta  = dqm->book1D("CSCHaloData_NTracksSmallBeta", "", 15, -0.5, 14.5);
-	hCSCHaloData_NTracksSmallBetaAndSmalldT  = dqm->book1D("CSCHaloData_NTracksSmallBetaAndSmalldT", "", 15, -0.5, 14.5);
-	hCSCHaloData_NTracksSmalldTvsNHaloTracks = dqm->book2D("CSCHaloData_NTracksSmalldTvsNHaloTracks","",15, -0.5, 14.5,15, -0.5, 14.5);
-	hCSCHaloData_SegmentdT = dqm->book1D("CSCHaloData_SegmentdT","",100,-100,100);
-	hCSCHaloData_FreeInverseBeta = dqm->book1D("CSCHaloData_FreeInverseBeta","",80,-4,4);
-	hCSCHaloData_FreeInverseBetaVsSegmentdT = dqm->book2D("CSCHaloData_FreeInverseBetaVsSegmentdT","",100,-100,100,80,-4,4);
+	hCSCHaloData_TrackMultiplicity  = ibooker.book1D("CSCHaloData_TrackMultiplicity", "", 15, -0.5, 14.5);
+	hCSCHaloData_TrackMultiplicityMEPlus  = ibooker.book1D("CSCHaloData_TrackMultiplicityMEPlus", "", 15, -0.5, 14.5);
+	hCSCHaloData_TrackMultiplicityMEMinus  = ibooker.book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
+	hCSCHaloData_InnerMostTrackHitXY  = ibooker.book2D("CSCHaloData_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
+	hCSCHaloData_InnerMostTrackHitR  = ibooker.book1D("CSCHaloData_InnerMostTrackHitR", "", 400, -0.5, 799.5);
+	hCSCHaloData_InnerMostTrackHitRPlusZ = ibooker.book2D("CSCHaloData_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
+	hCSCHaloData_InnerMostTrackHitRMinusZ = ibooker.book2D("CSCHaloData_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
+	hCSCHaloData_InnerMostTrackHitiPhi  = ibooker.book1D("CSCHaloData_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
+	hCSCHaloData_InnerMostTrackHitPhi  = ibooker.book1D("CSCHaloData_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
+	hCSCHaloData_L1HaloTriggersMEPlus  = ibooker.book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
+	hCSCHaloData_L1HaloTriggersMEMinus  = ibooker.book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
+	hCSCHaloData_L1HaloTriggers  = ibooker.book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
+	hCSCHaloData_HLHaloTriggers  = ibooker.book1D("CSCHaloData_HLHaloTriggers", "", 2, -0.5, 1.5);
+	hCSCHaloData_NOutOfTimeTriggersvsL1HaloExists  = ibooker.book2D("CSCHaloData_NOutOfTimeTriggersvsL1HaloExists", "", 20, -0.5, 19.5, 2, -0.5, 1.5);
+	hCSCHaloData_NOutOfTimeTriggers  = ibooker.book1D("CSCHaloData_NOutOfTimeTriggers", "", 20, -0.5, 19.5);
+	hCSCHaloData_NOutOfTimeHits  = ibooker.book1D("CSCHaloData_NOutOfTimeHits", "", 60, -0.5, 59.5);
+	hCSCHaloData_NTracksSmalldT  = ibooker.book1D("CSCHaloData_NTracksSmalldT", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmallBeta  = ibooker.book1D("CSCHaloData_NTracksSmallBeta", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmallBetaAndSmalldT  = ibooker.book1D("CSCHaloData_NTracksSmallBetaAndSmalldT", "", 15, -0.5, 14.5);
+	hCSCHaloData_NTracksSmalldTvsNHaloTracks = ibooker.book2D("CSCHaloData_NTracksSmalldTvsNHaloTracks","",15, -0.5, 14.5,15, -0.5, 14.5);
+	hCSCHaloData_SegmentdT = ibooker.book1D("CSCHaloData_SegmentdT","",100,-100,100);
+	hCSCHaloData_FreeInverseBeta = ibooker.book1D("CSCHaloData_FreeInverseBeta","",80,-4,4);
+	hCSCHaloData_FreeInverseBetaVsSegmentdT = ibooker.book2D("CSCHaloData_FreeInverseBetaVsSegmentdT","",100,-100,100,80,-4,4);
 	// MLR
-	hCSCHaloData_NFlatHaloSegments = dqm->book1D("CSCHaloData_NFlatHaloSegments","",20,0,20);
-	hCSCHaloData_SegmentsInBothEndcaps = dqm->book1D("CSCHaloData_SegmentsInBothEndcaps","",2,0,2);
-	hCSCHaloData_NFlatSegmentsInBothEndcaps = dqm->book1D("CSCHaloData_NFlatSegmentsInBothEndcaps","",20,0,20);
+	hCSCHaloData_NFlatHaloSegments = ibooker.book1D("CSCHaloData_NFlatHaloSegments","",20,0,20);
+	hCSCHaloData_SegmentsInBothEndcaps = ibooker.book1D("CSCHaloData_SegmentsInBothEndcaps","",2,0,2);
+	hCSCHaloData_NFlatSegmentsInBothEndcaps = ibooker.book1D("CSCHaloData_NFlatSegmentsInBothEndcaps","",20,0,20);
 	// End MLR
       }
 
     // GlobalHaloData
-    dqm->setCurrentFolder(FolderName+"/GlobalHaloData");
+    ibooker.setCurrentFolder(FolderName+"/GlobalHaloData");
     if(!StandardDQM)
       {
-	hGlobalHaloData_MExCorrection  = dqm->book1D("GlobalHaloData_MExCorrection", "" , 200, -200., 200.);
-	hGlobalHaloData_MEyCorrection  = dqm->book1D("GlobalHaloData_MEyCorrection", "" , 200, -200., 200.);
-	hGlobalHaloData_SumEtCorrection = dqm->book1D("GlobalHaloData_SumEtCorrection", "" , 200, -0.5, 399.5);
-	hGlobalHaloData_HaloCorrectedMET = dqm->book1D("GlobalHaloData_HaloCorrectedMET", "" , 500, -0.5, 1999.5);
-	hGlobalHaloData_RawMETMinusHaloCorrectedMET = dqm->book1D("GlobalHaloData_RawMETMinusHaloCorrectedMET","" , 250, -500., 500.);
-	hGlobalHaloData_RawMETOverSumEt  = dqm->book1D("GlobalHaloData_RawMETOverSumEt","" , 100, 0.0, 1.0);
-	hGlobalHaloData_MatchedHcalPhiWedgeMultiplicity = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMultiplicity","", 15, -0.5, 14.5);    
-	hGlobalHaloData_MatchedHcalPhiWedgeEnergy       = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeEnergy", "", 50,-0.5,199.5);
-	hGlobalHaloData_MatchedHcalPhiWedgeConstituents = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeConstituents","", 20,-0.5, 19.5);
-	hGlobalHaloData_MatchedHcalPhiWedgeiPhi         = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeiPhi","", 1, 0.5,72.5);
-	hGlobalHaloData_MatchedHcalPhiWedgeMinTime      = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
-	hGlobalHaloData_MatchedHcalPhiWedgeMaxTime      = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
-	hGlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence = dqm->book1D("GlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence","",  120, -1.2, 1.2);
-	hGlobalHaloData_MatchedEcalPhiWedgeMultiplicity = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMultiplicity","", 15, -0.5, 14.5);
-	hGlobalHaloData_MatchedEcalPhiWedgeEnergy       = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeEnergy", "", 50,-0.5,199.5);
-	hGlobalHaloData_MatchedEcalPhiWedgeConstituents = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeConstituents","", 20,-0.5, 19.5);
-	hGlobalHaloData_MatchedEcalPhiWedgeiPhi         = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeiPhi","", 360, 0.5,360.5);
-	hGlobalHaloData_MatchedEcalPhiWedgeMinTime      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
-	hGlobalHaloData_MatchedEcalPhiWedgeMaxTime      = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
-	hGlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence = dqm->book1D("GlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence","",  120, 1.2, 1.2);
+	hGlobalHaloData_MExCorrection  = ibooker.book1D("GlobalHaloData_MExCorrection", "" , 200, -200., 200.);
+	hGlobalHaloData_MEyCorrection  = ibooker.book1D("GlobalHaloData_MEyCorrection", "" , 200, -200., 200.);
+	hGlobalHaloData_SumEtCorrection = ibooker.book1D("GlobalHaloData_SumEtCorrection", "" , 200, -0.5, 399.5);
+	hGlobalHaloData_HaloCorrectedMET = ibooker.book1D("GlobalHaloData_HaloCorrectedMET", "" , 500, -0.5, 1999.5);
+	hGlobalHaloData_RawMETMinusHaloCorrectedMET = ibooker.book1D("GlobalHaloData_RawMETMinusHaloCorrectedMET","" , 250, -500., 500.);
+	hGlobalHaloData_RawMETOverSumEt  = ibooker.book1D("GlobalHaloData_RawMETOverSumEt","" , 100, 0.0, 1.0);
+	hGlobalHaloData_MatchedHcalPhiWedgeMultiplicity = ibooker.book1D("GlobalHaloData_MatchedHcalPhiWedgeMultiplicity","", 15, -0.5, 14.5);    
+	hGlobalHaloData_MatchedHcalPhiWedgeEnergy       = ibooker.book1D("GlobalHaloData_MatchedHcalPhiWedgeEnergy", "", 50,-0.5,199.5);
+	hGlobalHaloData_MatchedHcalPhiWedgeConstituents = ibooker.book1D("GlobalHaloData_MatchedHcalPhiWedgeConstituents","", 20,-0.5, 19.5);
+	hGlobalHaloData_MatchedHcalPhiWedgeiPhi         = ibooker.book1D("GlobalHaloData_MatchedHcalPhiWedgeiPhi","", 1, 0.5,72.5);
+	hGlobalHaloData_MatchedHcalPhiWedgeMinTime      = ibooker.book1D("GlobalHaloData_MatchedHcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
+	hGlobalHaloData_MatchedHcalPhiWedgeMaxTime      = ibooker.book1D("GlobalHaloData_MatchedHcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
+	hGlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence = ibooker.book1D("GlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence","",  120, -1.2, 1.2);
+	hGlobalHaloData_MatchedEcalPhiWedgeMultiplicity = ibooker.book1D("GlobalHaloData_MatchedEcalPhiWedgeMultiplicity","", 15, -0.5, 14.5);
+	hGlobalHaloData_MatchedEcalPhiWedgeEnergy       = ibooker.book1D("GlobalHaloData_MatchedEcalPhiWedgeEnergy", "", 50,-0.5,199.5);
+	hGlobalHaloData_MatchedEcalPhiWedgeConstituents = ibooker.book1D("GlobalHaloData_MatchedEcalPhiWedgeConstituents","", 20,-0.5, 19.5);
+	hGlobalHaloData_MatchedEcalPhiWedgeiPhi         = ibooker.book1D("GlobalHaloData_MatchedEcalPhiWedgeiPhi","", 360, 0.5,360.5);
+	hGlobalHaloData_MatchedEcalPhiWedgeMinTime      = ibooker.book1D("GlobalHaloData_MatchedEcalPhiWedgeMinTime", "", 50, -100.0, 100.0);
+	hGlobalHaloData_MatchedEcalPhiWedgeMaxTime      = ibooker.book1D("GlobalHaloData_MatchedEcalPhiWedgeMaxTime", "", 50, -100.0, 100.0);
+	hGlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence = ibooker.book1D("GlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence","",  120, 1.2, 1.2);
       }
     // BeamHaloSummary 
-    dqm->setCurrentFolder(FolderName+"/BeamHaloSummary");
+    ibooker.setCurrentFolder(FolderName+"/BeamHaloSummary");
 
-    hBeamHaloSummary_Id = dqm->book1D("BeamHaloSumamry_Id", "", 11, 0.5,11.5);
+    hBeamHaloSummary_Id = ibooker.book1D("BeamHaloSumamry_Id", "", 11, 0.5,11.5);
     hBeamHaloSummary_Id ->setBinLabel(1,"CSC Loose");
     hBeamHaloSummary_Id ->setBinLabel(2,"CSC Tight");
     hBeamHaloSummary_Id ->setBinLabel(3,"Ecal Loose");
@@ -240,7 +241,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     hBeamHaloSummary_Id ->setBinLabel(11,"Nothing");
     if(!StandardDQM)
       {
-	hBeamHaloSummary_BXN = dqm->book2D("BeamHaloSummary_BXN", "",11, 0.5, 11.5, 4000, -0.5,3999.5);
+	hBeamHaloSummary_BXN = ibooker.book2D("BeamHaloSummary_BXN", "",11, 0.5, 11.5, 4000, -0.5,3999.5);
 	hBeamHaloSummary_BXN ->setBinLabel(1,"CSC Loose");
 	hBeamHaloSummary_BXN ->setBinLabel(2,"CSC Tight");
 	hBeamHaloSummary_BXN ->setBinLabel(3,"Ecal Loose");
@@ -254,14 +255,14 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hBeamHaloSummary_BXN ->setBinLabel(11,"Nothing");
       }
     // Extra
-    dqm->setCurrentFolder(FolderName+"/ExtraHaloData");
+    ibooker.setCurrentFolder(FolderName+"/ExtraHaloData");
     if(StandardDQM)
       {
-	hExtra_CSCTrackInnerOuterDPhi = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","", 30, 0, 3.2);
-	hExtra_CSCTrackInnerOuterDEta = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, 3.0 );
-	hExtra_CSCTrackChi2Ndof  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 25, 0, 10);
-	hExtra_CSCTrackNHits     = dqm->book1D("Extra_CSCTrackNHits","", 75,0, 75);
-	hExtra_CSCActivityWithMET= dqm->book2D("Extra_CSCActivityWithMET", "", 4, 0.5, 4.5, 4, 0.5, 4.5);
+	hExtra_CSCTrackInnerOuterDPhi = ibooker.book1D("Extra_CSCTrackInnerOuterDPhi","", 30, 0, 3.2);
+	hExtra_CSCTrackInnerOuterDEta = ibooker.book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, 3.0 );
+	hExtra_CSCTrackChi2Ndof  = ibooker.book1D("Extra_CSCTrackChi2Ndof","", 25, 0, 10);
+	hExtra_CSCTrackNHits     = ibooker.book1D("Extra_CSCTrackNHits","", 75,0, 75);
+	hExtra_CSCActivityWithMET= ibooker.book2D("Extra_CSCActivityWithMET", "", 4, 0.5, 4.5, 4, 0.5, 4.5);
 	hExtra_CSCActivityWithMET->setBinLabel(1,"Track",1);
 	hExtra_CSCActivityWithMET->setBinLabel(1,"Track",2);
 	hExtra_CSCActivityWithMET->setBinLabel(2, "Segments",1);
@@ -270,12 +271,12 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hExtra_CSCActivityWithMET->setBinLabel(3, "RecHits", 2);
 	hExtra_CSCActivityWithMET->setBinLabel(4, "Nothing", 1);
 	hExtra_CSCActivityWithMET->setBinLabel(4, "Nothing", 2);
-	hExtra_InnerMostTrackHitR  = dqm->book1D("Extra_InnerMostTrackHitR", "", 70, 99.5, 799.5);
-	hExtra_InnerMostTrackHitPhi  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
+	hExtra_InnerMostTrackHitR  = ibooker.book1D("Extra_InnerMostTrackHitR", "", 70, 99.5, 799.5);
+	hExtra_InnerMostTrackHitPhi  = ibooker.book1D("Extra_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
       }
     else 
       {
-	hExtra_CSCActivityWithMET= dqm->book2D("Extra_CSCActivityWithMET", "", 4, 0.5, 4.5, 4, 0.5, 4.5);
+	hExtra_CSCActivityWithMET= ibooker.book2D("Extra_CSCActivityWithMET", "", 4, 0.5, 4.5, 4, 0.5, 4.5);
 	hExtra_CSCActivityWithMET->setBinLabel(1,"Track",1);
 	hExtra_CSCActivityWithMET->setBinLabel(1,"Track",2);
 	hExtra_CSCActivityWithMET->setBinLabel(2, "Segments",1);
@@ -284,23 +285,22 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hExtra_CSCActivityWithMET->setBinLabel(3, "RecHits", 2);
 	hExtra_CSCActivityWithMET->setBinLabel(4, "Nothing", 1);
 	hExtra_CSCActivityWithMET->setBinLabel(4, "Nothing", 2);
-	hExtra_HcalToF  = dqm->book2D("Extra_HcalToF","" , 83,-41.5,41.5 , 1000, -125., 125.); 
-	hExtra_HcalToF_HaloId  = dqm->book2D("Extra_HcalToF_HaloId","", 83,-41.5,41.5 , 1000, -125., 125.); 
-	hExtra_EcalToF  = dqm->book2D("Extra_EcalToF","",  171,-85.5,85.5 , 2000, -225., 225.); 
-	hExtra_EcalToF_HaloId  = dqm->book2D("Extra_EcalToF_HaloId","",  171,-85.5,85.5 , 2000, -225., 225.); 
-	hExtra_CSCTrackInnerOuterDPhi = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","", 30, 0, 3.2);
-	hExtra_CSCTrackInnerOuterDEta = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 30, 0, 3.2);
-	hExtra_CSCTrackChi2Ndof  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 100, 0, 10);
-	hExtra_CSCTrackNHits     = dqm->book1D("Extra_CSCTrackNHits","", 75,0, 75);
-	hExtra_InnerMostTrackHitXY  = dqm->book2D("Extra_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
-	hExtra_InnerMostTrackHitR  = dqm->book1D("Extra_InnerMostTrackHitR", "", 400, -0.5, 799.5);
-	hExtra_InnerMostTrackHitRPlusZ = dqm->book2D("Extra_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
-	hExtra_InnerMostTrackHitRMinusZ = dqm->book2D("Extra_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
-	hExtra_InnerMostTrackHitiPhi  = dqm->book1D("Extra_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
-	hExtra_InnerMostTrackHitPhi  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
-	hExtra_BXN = dqm->book1D("Extra_BXN", "BXN Occupancy", 4000, 0.5, 4000.5);
+	hExtra_HcalToF  = ibooker.book2D("Extra_HcalToF","" , 83,-41.5,41.5 , 1000, -125., 125.); 
+	hExtra_HcalToF_HaloId  = ibooker.book2D("Extra_HcalToF_HaloId","", 83,-41.5,41.5 , 1000, -125., 125.); 
+	hExtra_EcalToF  = ibooker.book2D("Extra_EcalToF","",  171,-85.5,85.5 , 2000, -225., 225.); 
+	hExtra_EcalToF_HaloId  = ibooker.book2D("Extra_EcalToF_HaloId","",  171,-85.5,85.5 , 2000, -225., 225.); 
+	hExtra_CSCTrackInnerOuterDPhi = ibooker.book1D("Extra_CSCTrackInnerOuterDPhi","", 30, 0, 3.2);
+	hExtra_CSCTrackInnerOuterDEta = ibooker.book1D("Extra_CSCTrackInnerOuterDEta","", 30, 0, 3.2);
+	hExtra_CSCTrackChi2Ndof  = ibooker.book1D("Extra_CSCTrackChi2Ndof","", 100, 0, 10);
+	hExtra_CSCTrackNHits     = ibooker.book1D("Extra_CSCTrackNHits","", 75,0, 75);
+	hExtra_InnerMostTrackHitXY  = ibooker.book2D("Extra_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
+	hExtra_InnerMostTrackHitR  = ibooker.book1D("Extra_InnerMostTrackHitR", "", 400, -0.5, 799.5);
+	hExtra_InnerMostTrackHitRPlusZ = ibooker.book2D("Extra_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
+	hExtra_InnerMostTrackHitRMinusZ = ibooker.book2D("Extra_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
+	hExtra_InnerMostTrackHitiPhi  = ibooker.book1D("Extra_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
+	hExtra_InnerMostTrackHitPhi  = ibooker.book1D("Extra_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
+	hExtra_BXN = ibooker.book1D("Extra_BXN", "BXN Occupancy", 4000, 0.5, 4000.5);
       }
-  }
 }
 
 void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
