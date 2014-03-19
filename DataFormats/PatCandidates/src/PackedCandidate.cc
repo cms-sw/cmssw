@@ -52,19 +52,11 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
     packedDxy_ = MiniFloatConverter::float32to16(dxy_*100);
     packedDz_   = pvRef_.isNonnull() ? MiniFloatConverter::float32to16(dz_*100) : int16_t(dz_/40.f*std::numeric_limits<int16_t>::max());
     packedDPhi_ =  int16_t(dphi_/3.2f*std::numeric_limits<int16_t>::max());
-    if(p4_.Pt() > 0.8) { // TODO: perhaps better to cut on the producer side?
-	    packedCovarianceDxyDxy_ = MiniFloatConverter::float32to16(dxydxy_*10000.);
-	    packedCovarianceDxyDz_ = MiniFloatConverter::float32to16(dxydz_*10000.);
-	    packedCovarianceDzDz_ = MiniFloatConverter::float32to16(dzdz_*10000.);
-	    packedCovarianceDphiDxy_ = MiniFloatConverter::float32to16(dphidxy_*10000.);
-	    packedCovarianceDlambdaDz_ = MiniFloatConverter::float32to16(dlambdadz_*10000.);
-    }	else    {
-	    packedCovarianceDxyDxy_=0; 
-	    packedCovarianceDxyDz_ =0;
-	    packedCovarianceDzDz_ =0; 
-  	    packedCovarianceDphiDxy_ = 0;
-	    packedCovarianceDlambdaDz_ =0;
-    }	
+    packedCovarianceDxyDxy_ = MiniFloatConverter::float32to16(dxydxy_*10000.);
+    packedCovarianceDxyDz_ = MiniFloatConverter::float32to16(dxydz_*10000.);
+    packedCovarianceDzDz_ = MiniFloatConverter::float32to16(dzdz_*10000.);
+    packedCovarianceDphiDxy_ = MiniFloatConverter::float32to16(dphidxy_*10000.);
+    packedCovarianceDlambdaDz_ = MiniFloatConverter::float32to16(dlambdadz_*10000.);
     if (unpackAfterwards) unpackVtx();
 }
 

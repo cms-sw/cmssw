@@ -54,7 +54,7 @@ namespace pat {
             edm::EDGetTokenT<reco::PFCandidateFwdPtrVector>  CandsFromPVLoose_;
             edm::EDGetTokenT<reco::PFCandidateFwdPtrVector>  CandsFromPVTight_;
             edm::EDGetTokenT<reco::VertexCollection>         PVs_;
-
+            double minPtForTrackProperties_;
             // for debugging
             float calcDxy(float dx, float dy, float phi) {
                 return - dx * std::sin(phi) + dy * std::cos(phi);
@@ -69,7 +69,8 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   Cands_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("inputCollection"))),
   CandsFromPVLoose_(consumes<reco::PFCandidateFwdPtrVector>(iConfig.getParameter<edm::InputTag>("inputCollectionFromPVLoose"))),
   CandsFromPVTight_(consumes<reco::PFCandidateFwdPtrVector>(iConfig.getParameter<edm::InputTag>("inputCollectionFromPVTight"))),
-  PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices")))
+  PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
+  minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
 {
   produces< std::vector<pat::PackedCandidate> > ();
   produces< edm::Association<pat::PackedCandidateCollection> > ();
@@ -165,13 +166,13 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
                 //dzBefore = calcDz(vtx,PVpos,cand);
             }
             outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV, fromPV[ic]));
-	    if(cand.trackRef().isNonnull())
+	    if(cand.trackRef().isNonnull() && cand.pt() > minPtForTrackProperties_)
 	    {
 		outPtrP->back().setTrackProperties(*cand.trackRef());
 
 ///// DEBUG
 #if DEBUGIP
-		if(cand.pt() > 0.801 && fabs(cand.trackRef()->dz()-PV->position().z()) < 0.3 && cand.trackRef()->numberOfValidHits() > 7 ){
+		if( fabs(cand.trackRef()->dz()-PV->position().z()) < 0.3 && cand.trackRef()->numberOfValidHits() > 7 ){
 		reco::Track tr = outPtrP->back().pseudoTrack();
 		edm::ESHandle<TransientTrackBuilder> builder;
 		iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);		
