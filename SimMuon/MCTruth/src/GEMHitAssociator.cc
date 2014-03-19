@@ -64,7 +64,7 @@ std::vector<GEMHitAssociator::SimHitIdpr> GEMHitAssociator::associateRecHit(cons
 
   if(useGEMs_){
 	
-	  std::cout<<"gemboo "<<useGEMs_<<std::endl;
+	  //std::cout<<"gemboo "<<useGEMs_<<std::endl;
 
 	  const TrackingRecHit * hitp = &hit;
 	  const GEMRecHit * gemrechit = dynamic_cast<const GEMRecHit *>(hitp);

@@ -596,7 +596,7 @@ namespace edm {
     skipBadFiles_ = false;
     if(fileIter_ == fileIterEnd_ || !rootFile_) {
       if(fileIterEnd_ == fileIterBegin_) {
-        throw Exception(errors::Configuration) << "RootInputFileSequence::readOneSequential(): no input files specified.\n";
+        throw Exception(errors::Configuration) << "RootInputFileSequence::readOneSequential(): no input files specified for secondary input source.\n";
       }
       fileIter_ = fileIterBegin_;
       initFile(false);
@@ -619,7 +619,7 @@ namespace edm {
   EventPrincipal*
   RootInputFileSequence::readOneSequentialWithID(EventPrincipal& cache, LuminosityBlockID const& id) {
     if(fileIterEnd_ == fileIterBegin_) {
-      throw Exception(errors::Configuration) << "RootInputFileSequence::readOneSequentialWithID(): no input files specified.\n";
+      throw Exception(errors::Configuration) << "RootInputFileSequence::readOneSequentialWithID(): no input files specified for secondary input source.\n";
     }
     skipBadFiles_ = false;
     if(fileIter_ == fileIterEnd_ || !rootFile_ ||
@@ -643,13 +643,15 @@ namespace edm {
 
   EventPrincipal*
   RootInputFileSequence::readOneSpecified(EventPrincipal& cache, EventID const& id) {
+    if(fileIterEnd_ == fileIterBegin_) {
+      throw Exception(errors::Configuration) << "RootInputFileSequence::readOneSpecified(): no input files specified for secondary input source.\n";
+    }
     skipBadFiles_ = false;
     bool found = skipToItem(id.run(), id.luminosityBlock(), id.event());
     if(!found) {
-      throw Exception(errors::NotFound) <<
-         "RootInputFileSequence::readOneSpecified(): Secondary Input file " <<
-         fileIter_->fileName() <<
-         " does not contain specified event:\n" << id << "\n";
+       throw Exception(errors::NotFound) <<
+         "RootInputFileSequence::readOneSpecified(): Secondary Input files" <<
+         " do not contain specified event:\n" << id << "\n";
     }
     EventPrincipal* ep = rootFile_->readCurrentEvent(cache);
     assert(ep != 0);
@@ -659,7 +661,7 @@ namespace edm {
   EventPrincipal*
   RootInputFileSequence::readOneRandom(EventPrincipal& cache) {
     if(fileIterEnd_ == fileIterBegin_) {
-      throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandom(): no input files specified.\n";
+      throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandom(): no input files specified for secondary input source.\n";
     }
     if(!flatDistribution_) {
       Service<RandomNumberGenerator> rng;
@@ -699,7 +701,7 @@ namespace edm {
   EventPrincipal*
   RootInputFileSequence::readOneRandomWithID(EventPrincipal& cache, LuminosityBlockID const& id) {
     if(fileIterEnd_ == fileIterBegin_) {
-      throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandomWithID(): no input files specified.\n";
+      throw Exception(errors::Configuration) << "RootInputFileSequence::readOneRandomWithID(): no input files specified for secondary input source.\n";
     }
     if(!flatDistribution_) {
       Service<RandomNumberGenerator> rng;

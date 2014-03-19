@@ -27,7 +27,7 @@ public:
   void bookHisto() ; 
  private:
 
-  MonitorElement* theStrip_xy[2][2];
+  MonitorElement* theStrip_xy[2][3][2];
   MonitorElement* theStrip_phistrip[2][3][2];
   MonitorElement* theStrip[2][3][2];
   MonitorElement* theStrip_bx[2][2];

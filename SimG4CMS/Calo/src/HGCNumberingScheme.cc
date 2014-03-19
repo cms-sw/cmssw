@@ -14,7 +14,7 @@
 
 HGCNumberingScheme::HGCNumberingScheme(std::vector<double> gp) :
   CaloNumberingScheme(0), gpar(gp) {
-  edm::LogInfo("HGCSim") << "Creating HGCNumberingScheme";
+  edm::LogInfo("HGCSim") << "Creating HGCNumberingScheme with cellSize=" << gpar[HGCCellSize];
 }
 
 HGCNumberingScheme::~HGCNumberingScheme() {
@@ -22,7 +22,7 @@ HGCNumberingScheme::~HGCNumberingScheme() {
 }
 
 //
-uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, int &module, int &iz, G4ThreeVector &pos, float &dz, float &bl1, float &tl1, float &h1)
+uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, int &sector, int &iz, G4ThreeVector &pos, float &dz, float &bl1, float &tl1, float &h1)
 {
   
   //check which phi sub-sector this hit belongs to
@@ -42,8 +42,8 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, i
   
   //build the index
   uint32_t index = (subdet == ForwardSubdetector::HGCEE ? 
-		    HGCEEDetId(subdet,iz,layer,module,phiSector,icell).rawId() : 
-		    HGCHEDetId(subdet,iz,layer,module,phiSector,icell).rawId() );
+		    HGCEEDetId(subdet,iz,layer,sector,phiSector,icell).rawId() : 
+		    HGCHEDetId(subdet,iz,layer,sector,phiSector,icell).rawId() );
 
   return index;
 }

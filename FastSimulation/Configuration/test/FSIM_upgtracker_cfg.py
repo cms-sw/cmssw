@@ -1,15 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-GEOM="phase1"
+#GEOM="phase1"
 #GEOM="phase2BE"
 #GEOM="phase1forward"
 #GEOM="phase2BEforward"
+GEOM="phase2TkBE5DPixel10D"
 
 process = cms.Process("PROD")
 
 # Number of events to be generated
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(20)
+    input = cms.untracked.int32(500)
 )
 
 # Include DQMStore, needed by the famosSimHits
@@ -31,8 +32,8 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
 #process.generator.PGunParameters.MinPt=2.0
 #process.generator.PGunParameters.MaxPt=2.0
-#process.generator.PGunParameters.MinEta=-1.8
-#process.generator.PGunParameters.MaxEta=-1.0
+process.generator.PGunParameters.MinEta=-4.5
+process.generator.PGunParameters.MaxEta=4.5
 # process.generator.PGunParameters.MinPhi=1.
 # process.generator.PGunParameters.MaxPhi=1.
 
@@ -120,7 +121,22 @@ elif GEOM=="phase2BEforward":
 # keep NI so to allow thickness to be properly treated in the interaction geometry
     process.famosSimHits.MaterialEffects.NuclearInteraction = cms.bool(True)
     process.KFFittingSmootherWithOutlierRejection.EstimateCut = cms.double(50.0)
-
+elif GEOM=="phase2TkBE5DPixel10D":
+    process.load('FastSimulation.Configuration.GeometriesPhase2TkBE5DPixel10D_cff')
+    from Configuration.AlCa.autoCond import autoCond
+    process.GlobalTag.globaltag = cms.string('DES17_62_V7::All')
+    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_BarrelEndcap5DPixel10D_cff')
+    process.trackerNumberingSLHCGeometry.layerNumberPXB = cms.uint32(20)
+    process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
+    process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
+    process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2)
+    process.trackerTopologyConstants.pxb_layerMask = cms.uint32(15)
+    process.trackerTopologyConstants.pxb_ladderMask = cms.uint32(255)
+    process.trackerTopologyConstants.pxb_moduleMask = cms.uint32(1023)
+    process.trackerTopologyConstants.pxf_diskStartBit = cms.uint32(18)
+    process.trackerTopologyConstants.pxf_bladeStartBit = cms.uint32(12)
+    process.trackerTopologyConstants.pxf_panelStartBit = cms.uint32(10)
+    process.trackerTopologyConstants.pxf_moduleMask = cms.uint32(255)
 else:
     print "GEOM is undefined or ill-defined, stopping here"
     sys.exit(1)
@@ -199,7 +215,6 @@ process.validation_test = cms.EndPath(process.trackingTruthValid+process.tracksV
 process.trackValidator.outputFile='trackvalidation.root'
 process.trackValidator.associators = cms.vstring('TrackAssociatorByChi2','TrackAssociatorByHitsRecoDenom')
 
-
 #process.outpath = cms.EndPath(process.o1*process.display*process.DQMoutput)
 # If we keep the trackvalidation.root file we don't need the dqm output
 #process.outpath = cms.EndPath(process.o1*process.display)
@@ -214,22 +229,4 @@ process.outpath = cms.EndPath(process.o1)
 # Make the job crash in case of missing product
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
 
-#process.schedule = cms.Schedule( process.simulation,process.prevalidation_step,process.validation_step,process.endjob_step,process.outpath )
 process.schedule = cms.Schedule( process.simulation,process.prevalidation_step,process.validation_step,process.endjob_step)
-#process.schedule = cms.Schedule( process.simulation, process.outpath)
-
-
-# customisation of the process.
-
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-
-#call to customisation function cust_phase2_BE imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-#process = cust_phase2_BE(process)
-
-#call to customisation function noCrossing imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-#process = noCrossing(process)
-
-
-
-# End of customisation functions
-

@@ -26,21 +26,21 @@ public:
   /// get the absolute value of the cell #'s in x and y
   int cell() const { return id_&0xFFFF; }
 
-  /// get the module #
-  int module() const { return (id_>>16)&0x1F; }
+  /// get the sector #
+  int sector() const { return (id_>>16)&0x7F; }
 
   /// get the degree subsector
-  int subsector() const { return ( (id_>>21)&0x1 ? 1 : -1); }
+  int subsector() const { return ( (id_>>23)&0x1 ? 1 : -1); }
 
   /// get the layer #
-  int layer() const { return (id_>>22)&0x1F; }
+  int layer() const { return (id_>>24)&0x7F; }
 
   /// get the z-side of the cell (1/-1)
-  int zside() const { return ((id_>>27) & 0x1 ? 1 : -1); }
+  int zside() const { return ((id_>>31) & 0x1 ? 1 : -1); }
 
-  /// consistency check
-  bool isEE() const { return ((id_>>28) & 0x1); }
-  bool isForward() const {  return (((id_>>29)& 0x7)==Forward); }
+  /// consistency check : no bits left => no overhead
+  bool isEE() const { return true; }
+  bool isForward() const {  return true; }
   
   static const HGCEEDetId Undefined;
 

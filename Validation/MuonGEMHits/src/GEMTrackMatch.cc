@@ -33,7 +33,7 @@ bool GEMTrackMatch::isSimTrackGood(const SimTrack &t)
 void GEMTrackMatch::buildLUT()
 {
   const int maxChamberId_ = theGEMGeometry->regions()[0]->stations()[0]->superChambers().size();
-  std::cout<<"max chamber "<<maxChamberId_<<std::endl;
+  edm::LogInfo("GEMTrackMatch")<<"max chamber "<<maxChamberId_<<"\n";
   std::vector<int> pos_ids;
   pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId_,1).rawId());
 

@@ -39,6 +39,12 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*MeV;
 
+  //this is defined in the hgcsens.xml
+  G4String myName(this->nameOfSD());
+  myFwdSubdet_=ForwardSubdetector::ForwardEmpty;
+  if(myName.find("HitsEE")!=std::string::npos) myFwdSubdet_=ForwardSubdetector::HGCEE;
+  else if(myName.find("HitsHE")!=std::string::npos) myFwdSubdet_=ForwardSubdetector::HGCHE;
+
 #ifdef DebugLog
   LogDebug("HGCSim") << "**************************************************" 
                       << "\n"
@@ -64,7 +70,9 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
   DDsvalues_type sv0(fv0.mergedSpecifics());
 
   gpar    = getDDDArray("GeomParHGC",sv0);
-  numberingScheme = new HGCNumberingScheme(gpar);
+  std::vector<double>numberingPar(1,gpar[0]);
+  if(myFwdSubdet_==ForwardSubdetector::HGCHE) numberingPar[0]=gpar[1];
+  numberingScheme = new HGCNumberingScheme(numberingPar);
 }
 
 HGCSD::~HGCSD() { 

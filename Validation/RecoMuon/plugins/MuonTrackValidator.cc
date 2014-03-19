@@ -149,6 +149,7 @@ void MuonTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       h_DThits_eta.push_back( dbe_->bookProfile("DThits_eta","mean # DT hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_CSChits_eta.push_back( dbe_->bookProfile("CSChits_eta","mean # CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_RPChits_eta.push_back( dbe_->bookProfile("RPChits_eta","mean # RPC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+      h_GEMhits_eta.push_back( dbe_->bookProfile("GEMhits_eta","mean # GEM hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_hits_eta.push_back( dbe_->bookProfile("hits_eta","mean #hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nhits_vs_phi.push_back( dbe_->book2D("nhits_vs_phi","#hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit) );
       h_hits_phi.push_back( dbe_->bookProfile("hits_phi","mean #hits vs #phi",nintPhi,minPhi,maxPhi, nintHit,minHit,maxHit) );
@@ -786,7 +787,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  nDThits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonDTHits());
 	  nCSChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonCSCHits());
 	  nRPChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonRPCHits());
-          //std::cout<<track->eta()<<" "<<track->hitPattern().numberOfValidMuonGEMHits()<<std::endl;
+	  //	  std::cout<<track->eta()<<" "<<track->hitPattern().numberOfValidMuonGEMHits()<<std::endl;
 	  if(useGEMs_) nGEMhits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonGEMHits());
 
 	  nlosthits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfLostHits());
@@ -854,8 +855,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
   } //END of for (unsigned int ww=0;ww<associators.size();ww++){
 }
 
-void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
-
+void MuonTrackValidator::endRun(Run const&, EventSetup const&) 
+{
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
@@ -866,7 +867,7 @@ void MuonTrackValidator::endRun(Run const&, EventSetup const&) {
       doProfileX(nDThits_vs_eta[w],h_DThits_eta[w]);    
       doProfileX(nCSChits_vs_eta[w],h_CSChits_eta[w]);    
       doProfileX(nRPChits_vs_eta[w],h_RPChits_eta[w]);    
-      doProfileX(nGEMhits_vs_eta[w],h_GEMhits_eta[w]);    
+      if (useGEMs_) doProfileX(nGEMhits_vs_eta[w],h_GEMhits_eta[w]);    
 
       doProfileX(nlosthits_vs_eta[w],h_losthits_eta[w]);    
       //vs phi
