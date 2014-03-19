@@ -53,7 +53,7 @@ class DTRecSegment2DProducer : public edm::stream::EDProducer<> {
   DTRecSegment2DBaseAlgo* theAlgo;
 
   //static std::string theAlgoName;
-  edm::InputTag theRecHits1DLabel;
+  edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
 };
 #endif // DTRecHit_DTRecSegment2DProducer_h
 

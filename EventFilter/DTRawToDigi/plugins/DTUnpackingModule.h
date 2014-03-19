@@ -9,6 +9,7 @@
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include "FWCore/Utilities/interface/InputTag.h"
+#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 

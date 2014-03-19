@@ -38,9 +38,9 @@ private:
   // Switch on verbosity
   bool debug;
 
-  edm::InputTag theRecHits1DLabel;
+  edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
   //static std::string theAlgoName;
-  edm::InputTag theRecHits2DLabel;
+  edm::EDGetTokenT<DTRecSegment2DCollection> recHits2DToken_;
   // The 4D-segments reconstruction algorithm
   DTRecSegment4DBaseAlgo* the4DAlgo;
 };
