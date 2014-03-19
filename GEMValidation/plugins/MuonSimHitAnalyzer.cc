@@ -304,7 +304,7 @@ void MuonSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   iEvent.getByLabel(rpcSimHitInput_, RPCHits);
   if(hasRPCGeometry_ and RPCHits->size()) analyzeRPC(iEvent);
-
+  
   iEvent.getByLabel(simTrackInput_, simVertices);
   iEvent.getByLabel(simTrackInput_, simTracks);
   if(hasGEMGeometry_ and GEMHits->size()) analyzeTracks(iEvent,iSetup);
@@ -551,7 +551,6 @@ void MuonSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
   for (edm::PSimHitContainer::const_iterator itHit = CSCHits->begin(); itHit != CSCHits->end(); ++itHit)
   {
     const CSCDetId id(itHit->detUnitId());
-    if (id.station() != 1) continue; // here we care only about station 1
     
     csc_sh.eventNumber = iEvent.id().event();
     csc_sh.detUnitId = itHit->detUnitId();
