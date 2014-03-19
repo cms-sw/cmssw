@@ -15,18 +15,23 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 
 #include <string>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class CaloTowerAnalyzer: public edm::EDAnalyzer {
+class CaloTowerAnalyzer: public DQMEDAnalyzer {
 public:
 
   explicit CaloTowerAnalyzer(const edm::ParameterSet&);
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run& ,const edm::EventSetup&);
+  virtual void dqmbeginRun(const edm::Run& ,const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   //virtual void beginJob();
   virtual void endJob();
 
