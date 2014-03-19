@@ -35,7 +35,6 @@ options.register ('ptdphi',
                   "ptdphi: 0 GeV/c default")
 
 import sys
-print sys.argv
 
 if len(sys.argv) > 0:
     last = sys.argv.pop()
@@ -56,22 +55,17 @@ if hasattr(sys, "argv") == True:
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-#process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-
-# customization of the process.pdigi sequence to add the GEM digitizer
-process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
-process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
-from SimMuon.GEMDigitizer.customizeGEMDigi import *
-#process = customize_digi_addGEM(process)  # run all detectors digi
-process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
-#process = customize_digi_addGEM_gem_only(process)  # only GEM digi
 
 ## GEM geometry customization
 from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
 process = custom_GE11_6partitions_v1(process)
+
+## GEM digitizer
+from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
+process = customize_digi_addGEM_muon_only(process)
 
 ## upgrade CSC geometry 
 from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry
@@ -90,6 +84,8 @@ from SLHCUpgradeSimulations.Configuration.gemCustoms import customise_L1Emulator
 process = customise_L1EmulatorGEM(process, ptdphi)
 process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
 tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
+
+"""
 tmb.clctToAlct = cms.untracked.bool(False)
 tmb.printAvailablePads = cms.untracked.bool(False)
 tmb.dropLowQualityCLCTsNoGEMs_ME1a = cms.untracked.bool(True)
@@ -97,6 +93,7 @@ tmb.dropLowQualityCLCTsNoGEMs_ME1b = cms.untracked.bool(True)
 tmb.buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(False)
 tmb.buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(True)
 tmb.doLCTGhostBustingWithGEMs = cms.untracked.bool(False)
+"""
 
 ## RPC-CSC emulator
 from SLHCUpgradeSimulations.Configuration.rpcCustoms import customise_L1Emulator as customise_L1EmulatorRPC
@@ -122,14 +119,13 @@ process = addPileUp(process, pu)
 process.source = cms.Source("PoolSource",
   duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
   inputCommands = cms.untracked.vstring('keep  *_*_*_*'),
-  fileNames = cms.untracked.vstring('file:out_sim.root')
-#  fileNames = cms.untracked.vstring('/eos/store/user/SingleMuPt2-50Fwdv2_1M/jdimasva-SingleMuPt2-50Fwdv2_100K_DIGI_PU140-7444237097ec40e1cd737724f1a85642/USER')
+  fileNames = cms.untracked.vstring('file:out_digi.root')
 )
 
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import *
 from GEMCode.GEMValidation.InputFileHelpers import *
-process = useInputDir(process, eosfiles['_pt2-50_PU140_6part2019'], True)
+#process = useInputDir(process, eosfiles['_pt2-50_PU140_6part2019'], True)
 
 
 physics = False
