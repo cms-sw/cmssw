@@ -26,7 +26,7 @@ l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(const Calo
     cosPhi.push_back(cos(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
   }
 
-  // std::cout << "LA jetScale: " << jetScale  << "\temScale: " << emScale  << std::endl;
+  // std::cout << "jetScale: " << jetScale  << "\temScale: " << emScale  << std::endl;
 }
 
 
@@ -37,7 +37,6 @@ l1t::Stage1Layer2EtSumAlgorithmImpPP::~Stage1Layer2EtSumAlgorithmImpPP() {
 
 double l1t::Stage1Layer2EtSumAlgorithmImpPP::regionPhysicalEt(const l1t::CaloRegion& cand) const {
 
-  //fstd::cout << "LA regionPhysicalEt: " << cand.hwPt() << "\t" << jetScale << std::endl;
   return jetScale*cand.hwPt();
 }
 
@@ -94,15 +93,10 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   l1t::EtSum etTot (*etLorentz,EtSum::EtSumType::kTotalEt,sumET/jetScale,0,0,0);
   l1t::EtSum htTot (*etLorentz,EtSum::EtSumType::kTotalHt,sumHT/jetScale ,0,0,0);
 
-  //etsums->push_back(etMiss);
-  //etsums->push_back(htMiss);
-  //etsums->push_back(etTot);
+  etsums->push_back(etMiss);
+  etsums->push_back(htMiss);
+  etsums->push_back(etTot);
   etsums->push_back(htTot);
-
-  // etMiss.setType(EtSum::EtSumType::kMissingEt);
-  // htMiss.setType(EtSum::EtSumType::kMissingHt);
-  // etTot.setType(EtSum::EtSumType::kTotalEt);
-  // htTot.setType(EtSum::EtSumType::kTotalHt);
 
 }
 
