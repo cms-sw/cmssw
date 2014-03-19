@@ -31,7 +31,7 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
   if (m_fwv.firmwareVersion() == 1)
   { //HI algo
     //m_egAlgo = new Stage1Layer2EGammaAlgorithmImpHI();
-    //m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpHI();
+    m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP(m_db);
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpHI(/*m_db*/); //fwv =1 => HI algo
     m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/);
   }
