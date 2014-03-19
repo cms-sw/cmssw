@@ -184,11 +184,11 @@ void QGLikelihoodDBWriter::beginJob()
       category.QGIndex = qgBin;
       category.VarIndex = varIndex;
       QGLikelihoodObject::Histogram histogram (th1hist->GetNbinsX(), 
-					       th1hist->GetXaxis()->GetBinLowEdge(0), 
-					       th1hist->GetXaxis()->GetBinUpEdge( th1hist->GetNbinsX() - 1)
+					       th1hist->GetXaxis()->GetBinLowEdge(1), 
+					       th1hist->GetXaxis()->GetBinUpEdge( th1hist->GetNbinsX() )
 					       );
       for ( int ibin = 0; ibin < th1hist->GetNbinsX(); ++ibin ) {
-	histogram.setBinContent( ibin, th1hist->GetBinContent( ibin-1 ) ); // ROOT TH1 indexing off-by-one
+	histogram.setBinContent( ibin, th1hist->GetBinContent( ibin+1 ) ); // ROOT TH1 indexing off-by-one
       }
 
       QGLikelihoodObject::Entry entry;
