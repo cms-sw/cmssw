@@ -57,7 +57,7 @@ public:
     LazyGetter();
     virtual ~LazyGetter();
 
-    virtual void fill(const ClusterRef& cluster, const PixelGeomDetUnit *pixDet, SiPixelClusterShapeCache& cache) const = 0;
+    virtual void fill(const ClusterRef& cluster, const PixelGeomDetUnit *pixDet, const SiPixelClusterShapeCache& cache) const = 0;
   };
 
   SiPixelClusterShapeCache() {};
@@ -93,12 +93,17 @@ public:
     std::copy(data.size.begin(), data.size.end(), std::back_inserter(sizeData_));
   }
 
+  bool isFilled(const ClusterRef& cluster) const {
+    checkRef(cluster);
+    return data_[cluster.index()].filled;
+  }
+
   SiPixelClusterShapeData get(const ClusterRef& cluster, const PixelGeomDetUnit *pixDet) const {
     checkRef(cluster);
     Field f = data_[cluster.index()];
     if(!f.filled) {
       assert(getter_);
-      getter_->fill(cluster, pixDet, *(const_cast<SiPixelClusterShapeCache *>(this)));
+      getter_->fill(cluster, pixDet, *this);
       f = data_[cluster.index()];
     }
 
