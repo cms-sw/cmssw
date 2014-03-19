@@ -66,13 +66,13 @@ QGLikelihoodDBReader::~QGLikelihoodDBReader()
 
 void QGLikelihoodDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::cout << "Getting QGL objects from DB" << std::endl;
+  edm::LogInfo   ("UserOutput") <<  "Getting QGL objects from DB" << std::endl;
   edm::ESHandle<QGLikelihoodObject> QGLParamsColl;
-  std::cout <<"Inspecting QGLikelihood payload with label: "<< mPayloadName <<std::endl;
+  edm::LogInfo   ("UserOutput") << "Inspecting QGLikelihood payload with label: "<< mPayloadName <<std::endl;
   QGLikelihoodRcd const & rcdhandle = iSetup.get<QGLikelihoodRcd>();
   rcdhandle.get(mPayloadName,QGLParamsColl);
   std::vector<QGLikelihoodObject::Entry> const & data = QGLParamsColl->data;
-  std::cout << "There are " << data.size() << " objects in this payload" << std::endl;
+  edm::LogInfo   ("UserOutput") <<  "There are " << data.size() << " objects in this payload" << std::endl;
   for ( auto ibegin = data.begin(),
 	  iend = data.end(), idata = ibegin; idata != iend; ++idata ) {    
     int varIndex = idata->category.VarIndex;
@@ -84,7 +84,7 @@ void QGLikelihoodDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
     // Print out for debugging
     char buff[1000];
     sprintf( buff, "var=%1d, eta=%1d, qg=%1d, ptMin=%8.2f, ptMax=%8.2f, rhoVal=%6.2f", varIndex, etaBin, qgBin, ptMin, ptMax, rhoVal );
-    std::cout << buff << std::endl;
+    edm::LogVerbatim   ("UserOutput") << buff << std::endl;
     
   }
 }

@@ -2,6 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("myprocess")
 #process.load("CondCore.DBCommon.CondDBCommon_cfi")
+
+process.MessageLogger = cms.Service("MessageLogger",
+            destinations = cms.untracked.vstring(
+                    'cout'
+            ),
+            cout = cms.untracked.PSet(
+                    threshold = cms.untracked.string( 'INFO' )
+            ),
+)
+
 process.load('Configuration.StandardSequences.Services_cff')
 
 process.load("JetMETCorrections.Modules.qglESProducer_cfi")

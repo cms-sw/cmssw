@@ -70,7 +70,7 @@ void QGLikelihoodDBWriter::beginJob()
   // subdirectories. Need to traverse through them and add the histograms. 
   TList * keys = f->GetListOfKeys();
   if ( !keys ) {
-    std::cout << "No keys." << std::endl;
+    edm::LogError  ("NoKeys") << "There are no keys in the input file." << std::endl;
     return;
   }
 
@@ -125,7 +125,7 @@ void QGLikelihoodDBWriter::beginJob()
 	ptFirstPos += varName3.size();
       }
       else {
-	std::cout << "Cannot find the variable name, bummer." << std::endl;
+	edm::LogError  ("NoName") << "Cannot find the variable name " << std::endl;
 	return;
       }
 
@@ -150,7 +150,8 @@ void QGLikelihoodDBWriter::beginJob()
 	qgBin = 1;
 	ptFirstPos += etaName1.size() + gluonName.size();
       } else {
-	std::cout << "Cannot find eta, qg and pt bins, bummer." << std::endl;
+	edm::LogError  ("NoBins") << "Cannot find eta, qg and pt bins." << std::endl;
+	return;
       }
 
       // Access the pt information
@@ -165,10 +166,10 @@ void QGLikelihoodDBWriter::beginJob()
       srhoVal >> rhoVal;
        
 
-      // Print out for debugging
+      // Print out for debugging      
       char buff[1000];
       sprintf( buff, "%50s : var=%1d, eta=%1d, qg=%1d, ptMin=%8.2f, ptMax=%8.2f, rhoVal=%6.2f", histname.c_str(), varIndex, etaBin, qgBin, ptMin, ptMax, rhoVal );
-      std::cout << buff << std::endl;
+      edm::LogVerbatim   ("HistName") << buff << std::endl;
 
       // Create the new QGLikelihoodCategory and add to the list. 
       TObject * objhist = keyhist->ReadObj();
@@ -203,20 +204,19 @@ void QGLikelihoodDBWriter::beginJob()
    
   
 
-  
-  std::cout << "Opening PoolDBOutputService" << std::endl;
+  edm::LogInfo   ("UserOutput") << "Opening PoolDBOutputService" << std::endl;
 
   // now write it into the DB
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) 
     {
-      std::cout << "Setting up payload with " << payload->data.size() <<  " entries and tag " << payloadTag << std::endl;
+      edm::LogInfo   ("UserOutput") <<  "Setting up payload with " << payload->data.size() <<  " entries and tag " << payloadTag << std::endl;
       if (s->isNewTagRequest(payloadTag)) 
 	s->createNewIOV<QGLikelihoodObject>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
       else 
 	s->appendSinceTime<QGLikelihoodObject>(payload, 111, payloadTag);
     }
-  std::cout << "Wrote in CondDB QGLikelihood payload label: " << payloadTag << std::endl;
+  edm::LogInfo   ("UserOutput") <<  "Wrote in CondDB QGLikelihood payload label: " << payloadTag << std::endl;
 }
 
 
