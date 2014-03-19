@@ -26,7 +26,6 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 //#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -610,10 +609,6 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
 
-
-  EcalRecHitMetaCollection RecHitsEE(*rechitsCollectionEE_);
-  EcalRecHitMetaCollection RecHitsEB(*rechitsCollectionEB_);
-
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
 
@@ -623,7 +618,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
                                  etMin,
                                  eMin,
                                  geoHandle,
-                                 &RecHitsEB,
+                                 *rechitsCollectionEB_,
                                  sevLevel,
                                  DetId::Ecal);
 
@@ -639,7 +634,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
                                  etMin,
                                  eMin,
                                  geoHandle,
-                                 &RecHitsEE,
+                                 *rechitsCollectionEE_,
                                  sevLevel,
                                  DetId::Ecal);
   

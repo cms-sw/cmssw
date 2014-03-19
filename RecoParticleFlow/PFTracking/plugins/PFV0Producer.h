@@ -6,6 +6,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 
 class PFTrackTransformer;
@@ -27,7 +29,7 @@ private:
 
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_; 
-  std::vector < edm::InputTag > V0list_;
+  std::vector < edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> > V0list_;
 
 };
 #endif

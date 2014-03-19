@@ -154,17 +154,19 @@ namespace cond {
     }
 
     cond::Hash Session::storePayloadData( const std::string& payloadObjectType, 
-					  const cond::Binary& payloadData, 
+					  const std::pair<Binary,Binary>& payloadAndStreamerInfoData,
 					  const boost::posix_time::ptime& creationTime ){
       m_session->openIovDb( SessionImpl::CREATE );
-      return m_session->iovSchema().payloadTable().insertIfNew( payloadObjectType, payloadData, creationTime );
+      return m_session->iovSchema().payloadTable().insertIfNew( payloadObjectType, payloadAndStreamerInfoData.first, 
+								payloadAndStreamerInfoData.second, creationTime );
     }
     
     bool Session::fetchPayloadData( const cond::Hash& payloadHash,
 				    std::string& payloadType, 
-				    cond::Binary& payloadData ){
+				    cond::Binary& payloadData,
+				    cond::Binary& streamerInfoData ){
       m_session->openIovDb();
-      return m_session->iovSchema().payloadTable().select( payloadHash, payloadType, payloadData );
+      return m_session->iovSchema().payloadTable().select( payloadHash, payloadType, payloadData, streamerInfoData );
     }
 
     bool Session::isOraSession(){

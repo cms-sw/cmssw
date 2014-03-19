@@ -144,6 +144,12 @@ private:
    */
   bool useCondDb_;
 
+
+  /**  Special switch to turn off SR entirely using special DB entries 
+   */
+
+  bool useFullReadout_;
+
   /** Used when settings_ is imported from configuration file. Just used
    * for memory management. Used settings_ to access to the object
    */

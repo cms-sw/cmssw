@@ -1,11 +1,13 @@
 <lcgdict>
 <selection>
 
-  <class name="reco::PFCluster" ClassVersion="11">
+  <class name="reco::PFCluster" ClassVersion="12">
+   <version ClassVersion="12" checksum="1218979136"/>
    <version ClassVersion="11" checksum="1793013291"/>
    <version ClassVersion="10" checksum="1793013291"/>
     <field name="posrep_" transient="true"/>
     <field name="color_" transient="true"/>
+    <field name="layer_" transient="true"/> 
   </class>
   <class name="std::vector<reco::PFCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
@@ -34,17 +36,33 @@
    <version ClassVersion="10" checksum="3428152128"/>
   </class>
 
-  <class name="reco::PFRecHit" ClassVersion="10">
+
+  <class name="reco::PFRecHit" ClassVersion="15">
    <version ClassVersion="10" checksum="1807687081"/>
-    <field name="posrep_" transient="true"/>
+   <!-- just point old neighbours at nothing if we are reading them for some reason -->
+   <ioread sourceClass = "reco::PFRecHit" version="[1-10]" targetClass="reco::PFRecHit" source="std::vector<unsigned> neighbours4_; std::vector<unsigned> neighbours8_;" target="">
+     <![CDATA[]]>
+   </ioread>
+   <version ClassVersion="11" checksum="3727193351"/>
+   <version ClassVersion="12" checksum="207373238"/>
+   <version ClassVersion="13" checksum="2553278843"/>
+   <version ClassVersion="14" checksum="3941705446"/>
+   <version ClassVersion="15" checksum="730472518"/>
+    <field name="positionrep_" transient="true"/>
     <!-- <field name="seedState_" transient="true"/> -->
-    <field name="nNeighbours_" transient="true"/>
+    <!-- <field name="nNeighbours_" transient="true"/> -->
     <field name="nCorners_" transient="true"/>
     <field name="cornersrep_" transient="true"/>
   </class>
+
+
   <class name="std::vector<reco::PFRecHit>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecHit> >"/>
   <class name="edm::Ref< std::vector<reco::PFRecHit>, reco::PFRecHit, edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecHit>,reco::PFRecHit>  >"/>
+
+  <class name="edm::RefVector<std::vector<reco::PFRecHit>,reco::PFRecHit,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecHit>,reco::PFRecHit> >"/>
+
+  
 
   <class name="reco::PFTrack" ClassVersion="10">
    <version ClassVersion="10" checksum="496926148"/>

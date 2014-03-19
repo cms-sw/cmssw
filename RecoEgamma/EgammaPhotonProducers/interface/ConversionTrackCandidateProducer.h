@@ -16,7 +16,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
@@ -27,7 +26,6 @@
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
@@ -114,7 +112,7 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 			const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 			const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
 			edm::Handle<EcalRecHitCollection> ecalRecHitHandle, 
-			CaloRecHitMetaCollectionV* metaEcalRecHits,
+			const EcalRecHitCollection& ecalRecHits,
 			const EcalSeverityLevelAlgo* sevLev,
 			//edm::ESHandle<EcalChannelStatus>  chStatus,
 			const edm::Handle<CaloTowerCollection> & hcalTowersHandle,

@@ -1,7 +1,6 @@
 #include <memory>
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedTrackerVertexProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -14,11 +13,11 @@ PFDisplacedTrackerVertexProducer::PFDisplacedTrackerVertexProducer(const Paramet
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFDisplacedTrackerVertexCollection>();
 
-  pfDisplacedVertexContainer_ = 
-    iConfig.getParameter< InputTag >("displacedTrackerVertexColl");
+  pfDisplacedVertexContainer_ = consumes<reco::PFDisplacedVertexCollection>(									    iConfig.getParameter< InputTag >("displacedTrackerVertexColl"));
 
-  pfTrackContainer_ =
-    iConfig.getParameter< InputTag >("trackColl");
+
+  pfTrackContainer_ =consumes<reco::TrackCollection>(
+    iConfig.getParameter< InputTag >("trackColl"));
 
 }
 
@@ -42,11 +41,11 @@ PFDisplacedTrackerVertexProducer::produce(Event& iEvent, const EventSetup& iSetu
 
     
   Handle<reco::PFDisplacedVertexCollection> nuclCollH;
-  iEvent.getByLabel(pfDisplacedVertexContainer_, nuclCollH);
+  iEvent.getByToken(pfDisplacedVertexContainer_, nuclCollH);
   const reco::PFDisplacedVertexCollection& nuclColl = *(nuclCollH.product());
 
   Handle<reco::TrackCollection> trackColl;
-  iEvent.getByLabel(pfTrackContainer_, trackColl);
+  iEvent.getByToken(pfTrackContainer_, trackColl);
 
   int idx = 0;
 
