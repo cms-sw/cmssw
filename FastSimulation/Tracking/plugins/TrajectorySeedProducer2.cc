@@ -87,7 +87,7 @@ TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, co
 }
 
 bool
-TrajectorySeedProducer2::passTrackerRecHitQualityCuts(std::vector<TrackerRecHit>& trackerRecHits, std::vector<unsigned int> previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId)
+TrajectorySeedProducer2::passTrackerRecHitQualityCuts(std::vector<unsigned int> previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId)
 {
 	//TODO: it seems that currently only a PV compatibility check for the first 2 hits is really important
 
@@ -143,7 +143,6 @@ int TrajectorySeedProducer2::iterateHits(
 		SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
 		SiTrackerGSMatchedRecHit2DCollection::range range,
 		std::vector<std::vector<unsigned int>> hitNumbers,
-		std::vector<TrackerRecHit>& trackerRecHits,
 		unsigned int trackingAlgorithmId,
 		std::vector<unsigned int>& seedHitNumbers
 	)
@@ -171,11 +170,11 @@ int TrajectorySeedProducer2::iterateHits(
 		if (nextHitOnSameLayer)
 		{
 			//branch here to process an alternative seeding hypothesis using the next hit which will be skip by the main loop
+
 			int result=TrajectorySeedProducer2::iterateHits(
 					itRecHit+1,
 					range,
 					hitNumbers,
-					trackerRecHits,
 					trackingAlgorithmId,
 					seedHitNumbers
 				);
@@ -183,6 +182,7 @@ int TrajectorySeedProducer2::iterateHits(
 			{
 				return result;
 			}
+
 		}
 
 		//skip this hit if it was already processed in previous iteration
@@ -196,7 +196,7 @@ int TrajectorySeedProducer2::iterateHits(
 				//-> faster rejection of invalid hits if there is no seed possible at all for a given simtrack
 				if (theLayersInSets[ilayerset][currentlayer].subDet==currentTrackerHit.subDetId() && theLayersInSets[ilayerset][currentlayer].idLayer==currentTrackerHit.layerNumber())
 				{
-					if (this->passTrackerRecHitQualityCuts(trackerRecHits, hitNumbers[ilayerset], currentTrackerHit, trackingAlgorithmId))
+					if (this->passTrackerRecHitQualityCuts(hitNumbers[ilayerset], currentTrackerHit, trackingAlgorithmId))
 					{
 						hitNumbers[ilayerset].push_back(itRecHit-range.first);
 
@@ -334,16 +334,13 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			std::vector<std::vector<TrackerRecHit>> seedHitCandiates;
 			seedHitCandiates.resize(theLayersInSets.size());
 
-			//Just for debugging
-			std::vector<std::vector<std::string>> layerNames;
-			layerNames.resize(theLayersInSets.size());
-
 
 			unsigned int numberOfNonEqualHits=0;
 
 			//store the converted objects
-			std::vector<TrackerRecHit> trackerRecHits;
+			//std::vector<TrackerRecHit> trackerRecHits;
 
+			trackerRecHits.clear();
 			for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second; ++itRecHit)
 			{
 				const SiTrackerGSMatchedRecHit2D& vec = *itRecHit;
@@ -361,7 +358,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
 
 			std::vector<unsigned int> seedHitNumbers;
-			int seedLayerSetIndex = iterateHits(recHitRange.first,recHitRange,hitNumbers,trackerRecHits, ialgo,seedHitNumbers);
+			int seedLayerSetIndex = iterateHits(recHitRange.first,recHitRange,hitNumbers, ialgo,seedHitNumbers);
 
 
 			if (seedLayerSetIndex>=0)
@@ -415,9 +412,6 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),localErrors, recHits.front().geographicalId().rawId(), surfaceSide);
 				output[ialgo]->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
 			}
-
-
-
 		} //end loop over seeding algorithms
 	} //end loop over simtracks
 

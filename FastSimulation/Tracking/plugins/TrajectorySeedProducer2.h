@@ -26,6 +26,8 @@ namespace edm {
 
 class TrajectorySeedProducer2 : public TrajectorySeedProducer
 {
+private:
+	std::vector<TrackerRecHit> trackerRecHits;
  public:
   
   explicit TrajectorySeedProducer2(const edm::ParameterSet& conf);
@@ -49,7 +51,7 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
     \param trackingAlgorithmId id of the seeding algorithm iteration (e.g. "initial step", etc.).
     \return true if a hit fulfills the requirements.
     */
-  virtual bool passTrackerRecHitQualityCuts(std::vector<TrackerRecHit>& trackerRecHits, std::vector<unsigned int> previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId);
+  virtual bool passTrackerRecHitQualityCuts(std::vector<unsigned int> previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId);
 
     //! method iterates over TrackerRectHits and check if those are on the requested seeding layers. Method will call itself if a track produced two hits on the same layer.
     /*!
@@ -65,7 +67,6 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
 	SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
 	SiTrackerGSMatchedRecHit2DCollection::range range,
 	std::vector<std::vector<unsigned int>> hitNumbers,
-	std::vector<TrackerRecHit>& trackerRecHits,
 	unsigned int trackingAlgorithmId,
 	std::vector<unsigned int>& seedHitNumbers
   );
