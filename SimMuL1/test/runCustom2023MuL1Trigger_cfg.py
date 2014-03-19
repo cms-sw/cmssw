@@ -71,10 +71,6 @@ process = customize_digi_addGEM_muon_only(process)
 from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry
 process = unganged_me1a_geometry(process)
 
-## GEM digitizer
-from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
-process = customize_digi_addGEM_muon_only(process)
-
 ## upgrade CSC digitizer
 from SLHCUpgradeSimulations.Configuration.muonCustoms import digitizer_timing_pre3_median
 process = digitizer_timing_pre3_median(process)
