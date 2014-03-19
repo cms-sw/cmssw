@@ -52,10 +52,10 @@ class QGLikelihoodESProducer : public edm::ESProducer { //, public  edm::EventSe
 
       ReturnType produce(const QGLikelihoodRcd&);
 
-      // /// set validity interval
-      // void setIntervalFor( const edm::eventsetup::EventSetupRecordKey &,
-      // 			   const edm::IOVSyncValue &,
-      // 			   edm::ValidityInterval & );
+      /// set validity interval
+      void setIntervalFor( const edm::eventsetup::EventSetupRecordKey &,
+      			   const edm::IOVSyncValue &,
+      			   edm::ValidityInterval & );
    private:
       // ----------member data ---------------------------
       std::string mAlgo;

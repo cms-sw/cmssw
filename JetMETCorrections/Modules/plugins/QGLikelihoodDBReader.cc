@@ -70,14 +70,11 @@ void QGLikelihoodDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::ESHandle<QGLikelihoodObject> QGLParamsColl;
   std::cout <<"Inspecting QGLikelihood payload with label: "<< mPayloadName <<std::endl;
   QGLikelihoodRcd const & rcdhandle = iSetup.get<QGLikelihoodRcd>();
-  std::cout << "Got the record handle, now getting the payload" << std::endl;
   rcdhandle.get(mPayloadName,QGLParamsColl);
-  std::cout << "Got payload from the DB" << std::endl;
   std::vector<QGLikelihoodObject::Entry> const & data = QGLParamsColl->data;
   std::cout << "There are " << data.size() << " objects in this payload" << std::endl;
   for ( auto ibegin = data.begin(),
 	  iend = data.end(), idata = ibegin; idata != iend; ++idata ) {    
-    std::cout << "Looping..." << std::endl;
     int varIndex = idata->category.VarIndex;
     int qgBin = idata->category.QGIndex;
     int etaBin = idata->category.EtaBin;
