@@ -29,7 +29,7 @@ const std::string DataPointDefinition::TYPE = "type";
 
 
 //static member implementation
-bool DataPointDefinition::getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition* dpd, std::string *defaultGroup)
+bool DataPointDefinition::getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition* dpd, const std::string *defaultGroup)
 {
   std::string dpdString;
   bool readOK = FileIO::readStringFromFile(defFilePath, dpdString);

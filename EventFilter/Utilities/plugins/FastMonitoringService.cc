@@ -296,7 +296,8 @@ namespace evf{
 	  {
 	    auto itr = sourceEventsReport_.find(lumi);
 	    if (itr==sourceEventsReport_.end()) {
-              edm::LogError("FastMonitoringService") << "SOURCE did not send update for lumi block " << lumi;
+              edm::LogError("FastMonitoringService") << " ERROR: SOURCE did not send update for lumi block " << lumi;
+              assert(0);
 	    }
 	    else {
 	      if (itr->second!=processedEventsPerLumi_[lumi]) {

@@ -20,12 +20,12 @@ class FastMonitor {
 
 public:
 
-  FastMonitor(std::string const& defPath, bool strictChecking, bool useSource=true, bool useDefinition=true);
+  FastMonitor(std::string const& defPath, std::string const defGroup, bool strictChecking, bool useSource=true, bool useDefinition=true);
   FastMonitor(DataPointDefinition * dpd, bool strictChecking, bool useSource=true, bool useDefinition=true);
 
   virtual ~FastMonitor();
 
-  void addFastPathDefinition(std::string const& defPathFast, bool strict);
+  void addFastPathDefinition(std::string const& defPathFast, std::string const defGroupFast, bool strict);
 
   void setDefPath(std::string const& dpath) {defPath_=dpath;}
 

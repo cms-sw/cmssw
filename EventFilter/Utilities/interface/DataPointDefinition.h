@@ -48,7 +48,7 @@ public:
   /**
    * Loads a DataPointDefinition from a specified reference
    */
-  static bool getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition* dpd, std::string *defaultGroup=nullptr);
+  static bool getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition* dpd, const std::string *defaultGroup=nullptr);
 
   void setDefaultGroup(std::string const& group) {defaultGroup_=group;}
 

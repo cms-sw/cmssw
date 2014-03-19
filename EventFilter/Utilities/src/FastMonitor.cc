@@ -19,7 +19,7 @@
 
 using namespace jsoncollector;
 
-FastMonitor::FastMonitor(std::string const& defPath, bool strictChecking, bool useSource, bool useDefinition) :
+FastMonitor::FastMonitor(std::string const& defPath, std::string const defGroup, bool strictChecking, bool useSource, bool useDefinition) :
 	defPath_(defPath),strictChecking_(strictChecking),useSource_(useSource),useDefinition_(useDefinition),nStreams_(1),deleteDef_(true)
 {
   //get host and PID info
@@ -28,7 +28,7 @@ FastMonitor::FastMonitor(std::string const& defPath, bool strictChecking, bool u
 
   //load definition file
   dpd_ = new DataPointDefinition();
-  DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_);
+  DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_,&defGroup);
 
 }
 
@@ -48,12 +48,12 @@ FastMonitor::~FastMonitor()
   if (deleteDefFast_) delete dpdFast_;
 }
 
-void FastMonitor::addFastPathDefinition(std::string const& defPathFast, bool strict)
+void FastMonitor::addFastPathDefinition(std::string const& defPathFast, std::string const defGroupFast, bool strict)
 {
   haveFastPath_=true;
   defPathFast_=defPathFast;
   dpdFast_ = new DataPointDefinition();
-  DataPointDefinition::getDataPointDefinitionFor(defPathFast_, dpdFast_);
+  DataPointDefinition::getDataPointDefinitionFor(defPathFast_, dpdFast_,&defGroupFast);
   fastPathStrictChecking_=strict;
   deleteDefFast_=true;
 }

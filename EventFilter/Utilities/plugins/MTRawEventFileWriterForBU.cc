@@ -80,8 +80,8 @@ MTRawEventFileWriterForBU::MTRawEventFileWriterForBU(edm::ParameterSet const& ps
 	perLumiEventCount_ = 0;
 	// set names of the variables to be matched with JSON Definition
 	perLumiEventCount_.setName("NEvents");
-
-      	lumiMon_.reset(new FastMonitor("$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd",false));
+        std::string defGroup = "data";
+      	lumiMon_.reset(new FastMonitor("$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd",defGroup,false));
         lumiMon_->registerGlobalMonitorable(&perLumiEventCount_,false,nullptr);
         lumiMon_->commit(nullptr);
 
@@ -258,8 +258,9 @@ void MTRawEventFileWriterForBU::dispatchThreads(std::string fileBase, unsigned i
     perFileCounters_.push_back(currentVal);
 
     // create per-file FastMonitor instances using a path to a JSON Definition file
+    std::string defGroup = "data";
     std::unique_ptr<FastMonitor> thisMon;
-    thisMon.reset(new FastMonitor("$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd",false);
+    thisMon.reset(new FastMonitor("$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd",defGroup,false);
     thisMon->registerGlobalMonitorable(&perFileCounters_[i],false,nullptr);
     thisMon->commit(nullptr);
     perFileMonitors_.push_back(std::move(thisMon));

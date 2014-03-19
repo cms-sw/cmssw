@@ -76,7 +76,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
 					edm::Timestamp::invalidTimestamp()));
 
   dpd_ = new DataPointDefinition();
-  DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_);
+  std::string defLabel = "data";
+  DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_,&defLabel);
 
   //make sure that chunk size is N * block size
   assert(eventChunkSize_>=eventChunkBlock_);
@@ -416,7 +417,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
   {
     //wait for the current chunk to become added to the vector
     while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
-      usleep(100000);
+      usleep(10000);
       if (setExceptionState_) threadError(); 
     }
 
@@ -697,6 +698,9 @@ void FedRawDataInputSource::readSupervisor()
         counter++;
         if (!(counter%10)) edm::LogInfo("FedRawDataInputSource") << " No free chunks or threads...";
       }
+      else {
+        assert(!(workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty());
+      }
       if (quit_threads_) {stop=true;break;}
     }
 
@@ -852,6 +856,8 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
 
     InputFile * file;
     InputChunk * chunk;
+
+    assert(workerJob_[tid].first!=nullptr && workerJob_[tid].second!=nullptr);
 
     file = workerJob_[tid].first;
     chunk = workerJob_[tid].second;

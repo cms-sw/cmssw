@@ -45,7 +45,8 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps): l
   perLumiEventCount_.setName("NEvents");
 
   // create a FastMonitor using monitorable parameters and a path to a JSON Definition file
-  lumiMon_ = new FastMonitor(jsonDefLocation_,false);
+  std::string defGroup = "data";
+  lumiMon_ = new FastMonitor(jsonDefLocation_,defGroup,false);
   lumiMon_->registerGlobalMonitorable(&perLumiEventCount_,false,nullptr);
   lumiMon_->commit(nullptr);
 
@@ -53,7 +54,7 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps): l
   perFileEventCount_.value() = 0;
   perFileEventCount_.setName("NEvents");
   // create a FastMonitor using monitorable parameters and a path to a JSON Definition file
-  perFileMon_ = new FastMonitor(jsonDefLocation_,false);
+  perFileMon_ = new FastMonitor(jsonDefLocation_,defGroup,false);
   perFileMon_->registerGlobalMonitorable(&perFileEventCount_,false,nullptr);
   perFileMon_->commit(nullptr);
   instance = this;
