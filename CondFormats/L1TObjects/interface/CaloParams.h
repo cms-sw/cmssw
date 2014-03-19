@@ -45,7 +45,25 @@ namespace l1t {
     // print parameters to stream:
     void print(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream& o, const CaloParams & p) { p.print(o); return o; }
+
+    /* CCLA */
+
+    void setRegionETCutForHT(unsigned etcut) { regionETCutForHT_ = etcut; }
+    void setRegionETCutForMET(unsigned etcut) { regionETCutForMET_ = etcut; }
+    void setMinGctEtaForSums(int eta) { minGctEtaForSums_ = eta; }
+    void setMaxGctEtaForSums(int eta) { maxGctEtaForSums_ = eta; }
+
+    void setEmScale(double scale) { emScale_ = scale; }
+    void setJetScale(double scale) { jetScale_ = scale; }
+
+    unsigned int regionETCutForHT() const { return regionETCutForHT_; }
+    unsigned int regionETCutForMET() const { return regionETCutForMET_; }
+    int minGctEtaForSums() const { return minGctEtaForSums_; }
+    int maxGctEtaForSums() const { return maxGctEtaForSums_; }
     
+    double emScale() const { return emScale_; }
+    double jetScale() const { return jetScale_; }
+
   private:
 
     /* Firmware */
@@ -91,8 +109,15 @@ namespace l1t {
     double etSumEtaMax_[10];       // maximum eta of input object
     double etSumEtThreshold_[10];  // threshold on input object
 
-    
 
+    /* CCLA */
+    unsigned regionETCutForHT_;
+    unsigned regionETCutForMET_;
+    int minGctEtaForSums_;
+    int maxGctEtaForSums_;
+
+    double emScale_;
+    double jetScale_;
   };
 
 }// namespace
