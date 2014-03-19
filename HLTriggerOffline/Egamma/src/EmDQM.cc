@@ -11,10 +11,6 @@ using namespace ROOT::Math::VectorUtil ;
 ////////////////////////////////////////////////////////////////////////////////
 EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_) 
 {
-
-  dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(0);
-
   // are we running in automatic configuration mode with the HLTConfigProvider
   // or with a per path python config file
   autoConfMode_ = pset.getUntrackedParameter<bool>("autoConfMode", false);
@@ -72,7 +68,7 @@ EmDQM::beginJob()
 }
 
 void 
-EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
+EmDQM::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
 {
    bool changed(true);
    if (hltConfig_.init(iRun, iSetup, triggerObject_.process(), changed)) {
@@ -298,191 +294,13 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
 
       hltCollectionLabelsFoundPerPath.reserve(paramSets.size());
       hltCollectionLabelsMissedPerPath.reserve(paramSets.size());
+
       ////////////////////////////////////////////////////////////
       // loop over all the trigger path parameter sets
       ////////////////////////////////////////////////////////////
       for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt) {
-         SetVarsFromPSet(psetIt);
          hltCollectionLabelsFoundPerPath.push_back(hltCollectionLabelsFound);
          hltCollectionLabelsMissedPerPath.push_back(hltCollectionLabelsMissed);
-
-         // if init returns TRUE, initialisation has succeeded!
-      
-         //edm::Service<TFileService> fs;
-         dbe->setCurrentFolder(dirname_);
-       
-         ////////////////////////////////////////////////////////////
-         //  Set up Histogram of Effiency vs Step.                 //
-         //   theHLTCollectionLabels is a vector of InputTags      //
-         //    from the configuration file.                        //
-         ////////////////////////////////////////////////////////////
-         // Et & eta distributions
-         std::vector<MonitorElement*> etahist;
-         std::vector<MonitorElement*> phihist;
-         std::vector<MonitorElement*> ethist;
-         std::vector<MonitorElement*> etahistmatch;
-         std::vector<MonitorElement*> phihistmatch;
-         std::vector<MonitorElement*> ethistmatch;
-         std::vector<MonitorElement*> histEtOfHltObjMatchToGen;
-         std::vector<MonitorElement*> histEtaOfHltObjMatchToGen;
-         std::vector<MonitorElement*> histPhiOfHltObjMatchToGen;
-         // Plots of efficiency per step
-         MonitorElement* total;
-         MonitorElement* totalmatch;
-         //generator histograms
-         MonitorElement* etgen;
-         MonitorElement* etagen;
-         MonitorElement* phigen;
-      
-         std::string histName="total_eff";
-         std::string histTitle = "total events passing";
-         if (!mcMatchedOnly_) {
-            // This plot will have bins equal to 2+(number of
-            //        HLTCollectionLabels in the config file)
-            total = dbe->book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
-            total->setBinLabel(numOfHLTCollectionLabels+1,"Total");
-            total->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
-            for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){total->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
-         }
-       
-         histName="total_eff_MC_matched";
-         histTitle="total events passing (mc matched)";
-         totalmatch = dbe->book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
-         totalmatch->setBinLabel(numOfHLTCollectionLabels+1,"Total");
-         totalmatch->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
-         for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){totalmatch->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
-       
-         MonitorElement* tmphisto;
-         //MonitorElement* tmpiso;
-       
-         ////////////////////////////////////////////////////////////
-         // Set up generator-level histograms                      //
-         ////////////////////////////////////////////////////////////
-         std::string pdgIdString;
-         switch(pdgGen) {
-         case 11:
-           pdgIdString="Electron";break;
-         case 22:
-           pdgIdString="Photon";break;
-         default:
-           pdgIdString="Particle";
-         }
-       
-         histName = "gen_et";
-         histTitle= "E_{T} of " + pdgIdString + "s" ;
-         etgen =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
-         histName = "gen_eta";
-         histTitle= "#eta of "+ pdgIdString +"s " ;
-         etagen = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
-         histName = "gen_phi";
-         histTitle= "#phi of "+ pdgIdString +"s " ;
-         if (!noPhiPlots_) phigen = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
-       
-         ////////////////////////////////////////////////////////////
-         //  Set up histograms of HLT objects                      //
-         ////////////////////////////////////////////////////////////
-         // Determine what strings to use for histogram titles
-         std::vector<std::string> HltHistTitle;
-         if ( theHLTCollectionHumanNames.size() == numOfHLTCollectionLabels && useHumanReadableHistTitles_ ) {
-           HltHistTitle = theHLTCollectionHumanNames;
-         } else {
-           for (unsigned int i =0; i < numOfHLTCollectionLabels; i++) {
-             HltHistTitle.push_back(theHLTCollectionLabels[i].label());
-           }
-         }
-        
-         for(unsigned int i = 0; i< numOfHLTCollectionLabels ; i++){
-           if (!mcMatchedOnly_) {
-              // Et distribution of HLT objects passing filter i
-              histName = theHLTCollectionLabels[i].label()+"et_all";
-              histTitle = HltHistTitle[i]+" Et (ALL)";
-              tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
-              ethist.push_back(tmphisto);
-              
-              // Eta distribution of HLT objects passing filter i
-              histName = theHLTCollectionLabels[i].label()+"eta_all";
-              histTitle = HltHistTitle[i]+" #eta (ALL)";
-              tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
-              etahist.push_back(tmphisto);          
-
-              if (!noPhiPlots_) {
-                // Phi distribution of HLT objects passing filter i
-                histName = theHLTCollectionLabels[i].label()+"phi_all";
-                histTitle = HltHistTitle[i]+" #phi (ALL)";
-                tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
-                phihist.push_back(tmphisto);
-              }
-       
-        
-              // Et distribution of HLT object that is closest delta-R match to sorted gen particle(s)
-              histName  = theHLTCollectionLabels[i].label()+"et";
-              histTitle = HltHistTitle[i]+" Et";
-              tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
-              histEtOfHltObjMatchToGen.push_back(tmphisto);
-       
-              // eta distribution of HLT object that is closest delta-R match to sorted gen particle(s)
-              histName  = theHLTCollectionLabels[i].label()+"eta";
-              histTitle = HltHistTitle[i]+" eta";
-              tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
-              histEtaOfHltObjMatchToGen.push_back(tmphisto);
-       
-              if (!noPhiPlots_) {
-                // phi distribution of HLT object that is closest delta-R match to sorted gen particle(s)
-                histName  = theHLTCollectionLabels[i].label()+"phi";
-                histTitle = HltHistTitle[i]+" phi";
-                tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
-                histPhiOfHltObjMatchToGen.push_back(tmphisto);
-              }
-          }
-       
-           // Et distribution of gen object matching HLT object passing filter i
-           histName = theHLTCollectionLabels[i].label()+"et_MC_matched";
-           histTitle = HltHistTitle[i]+" Et (MC matched)";
-           tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
-           ethistmatch.push_back(tmphisto);
-           
-           // Eta distribution of gen object matching HLT object passing filter i
-           histName = theHLTCollectionLabels[i].label()+"eta_MC_matched";
-           histTitle = HltHistTitle[i]+" #eta (MC matched)";
-           tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
-           etahistmatch.push_back(tmphisto);
-       
-           if (!noPhiPlots_) {
-             // Phi distribution of gen object matching HLT object passing filter i
-             histName = theHLTCollectionLabels[i].label()+"phi_MC_matched";
-             histTitle = HltHistTitle[i]+" #phi (MC matched)";
-             tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
-             phihistmatch.push_back(tmphisto);
-           }
-         }
-
-         // Et & eta distributions
-         etahists.push_back(etahist);
-         phihists.push_back(phihist);
-         ethists.push_back(ethist);
-         etahistmatchs.push_back(etahistmatch);
-         phihistmatchs.push_back(phihistmatch);
-         ethistmatchs.push_back(ethistmatch);
-         histEtOfHltObjMatchToGens.push_back(histEtOfHltObjMatchToGen);
-         histEtaOfHltObjMatchToGens.push_back(histEtaOfHltObjMatchToGen);
-         histPhiOfHltObjMatchToGens.push_back(histPhiOfHltObjMatchToGen);
-         // commented out because uses data not included in HTLDEBUG and uses
-         // Isolation distributions
-         //etahistisos.push_back(etahistiso);
-         //phihistisos.push_back(phihistiso);
-         //ethistisos.push_back(ethistiso);
-         //etahistisomatchs.push_back(etahistisomatch);
-         //phihistisomatchs.push_back(phihistisomatch);
-         //ethistisomatchs.push_back(ethistisomatch);
-         //histEtIsoOfHltObjMatchToGens.push_back(histEtIsoOfHltObjMatchToGen); 
-         //histEtaIsoOfHltObjMatchToGens.push_back(histEtaIsoOfHltObjMatchToGen);
-         //histPhiIsoOfHltObjMatchToGens.push_back(histPhiIsoOfHltObjMatchToGen);
-
-         totals.push_back(total);
-         totalmatchs.push_back(totalmatch);
-         etgens.push_back(etgen);
-         etagens.push_back(etagen);
-         phigens.push_back(phigen);
       }
 
       if (changed) {
@@ -495,6 +313,196 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
       if (verbosity_ >= OUTPUT_ERRORS)
          edm::LogError("EmDQM") << " HLT config extraction failure with process name '" << triggerObject_.process() << "'.";
       // In this case, all access methods will return empty values!
+   }
+}
+
+void 
+EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::EventSetup const &iSetup)
+{
+   ////////////////////////////////////////////////////////////
+   // loop over all the trigger path parameter sets
+   ////////////////////////////////////////////////////////////
+   for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt) {
+      SetVarsFromPSet(psetIt);
+
+      iBooker.setCurrentFolder(dirname_);
+    
+      ////////////////////////////////////////////////////////////
+      //  Set up Histogram of Effiency vs Step.                 //
+      //   theHLTCollectionLabels is a vector of InputTags      //
+      //    from the configuration file.                        //
+      ////////////////////////////////////////////////////////////
+      // Et & eta distributions
+      std::vector<MonitorElement*> etahist;
+      std::vector<MonitorElement*> phihist;
+      std::vector<MonitorElement*> ethist;
+      std::vector<MonitorElement*> etahistmatch;
+      std::vector<MonitorElement*> phihistmatch;
+      std::vector<MonitorElement*> ethistmatch;
+      std::vector<MonitorElement*> histEtOfHltObjMatchToGen;
+      std::vector<MonitorElement*> histEtaOfHltObjMatchToGen;
+      std::vector<MonitorElement*> histPhiOfHltObjMatchToGen;
+      // Plots of efficiency per step
+      MonitorElement* total;
+      MonitorElement* totalmatch;
+      //generator histograms
+      MonitorElement* etgen;
+      MonitorElement* etagen;
+      MonitorElement* phigen;
+   
+      std::string histName="total_eff";
+      std::string histTitle = "total events passing";
+      if (!mcMatchedOnly_) {
+         // This plot will have bins equal to 2+(number of
+         //        HLTCollectionLabels in the config file)
+         total = iBooker.book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
+         total->setBinLabel(numOfHLTCollectionLabels+1,"Total");
+         total->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
+         for (unsigned int u=0; u<numOfHLTCollectionLabels; u++) {
+            total->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());
+         }
+      }
+    
+      histName="total_eff_MC_matched";
+      histTitle="total events passing (mc matched)";
+      totalmatch = iBooker.book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
+      totalmatch->setBinLabel(numOfHLTCollectionLabels+1,"Total");
+      totalmatch->setBinLabel(numOfHLTCollectionLabels+2,"Gen");
+      for (unsigned int u=0; u<numOfHLTCollectionLabels; u++) {
+         totalmatch->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());
+      }
+    
+      MonitorElement* tmphisto;
+      //MonitorElement* tmpiso;
+    
+      ////////////////////////////////////////////////////////////
+      // Set up generator-level histograms                      //
+      ////////////////////////////////////////////////////////////
+      std::string pdgIdString;
+      switch(pdgGen) {
+      case 11:
+        pdgIdString="Electron";break;
+      case 22:
+        pdgIdString="Photon";break;
+      default:
+        pdgIdString="Particle";
+      }
+    
+      histName = "gen_et";
+      histTitle= "E_{T} of " + pdgIdString + "s" ;
+      etgen =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
+      histName = "gen_eta";
+      histTitle= "#eta of "+ pdgIdString +"s " ;
+      etagen = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
+      histName = "gen_phi";
+      histTitle= "#phi of "+ pdgIdString +"s " ;
+      if (!noPhiPlots_) phigen = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
+    
+      ////////////////////////////////////////////////////////////
+      //  Set up histograms of HLT objects                      //
+      ////////////////////////////////////////////////////////////
+      // Determine what strings to use for histogram titles
+      std::vector<std::string> HltHistTitle;
+      if ( theHLTCollectionHumanNames.size() == numOfHLTCollectionLabels && useHumanReadableHistTitles_ ) {
+        HltHistTitle = theHLTCollectionHumanNames;
+      } else {
+        for (unsigned int i =0; i < numOfHLTCollectionLabels; i++) {
+          HltHistTitle.push_back(theHLTCollectionLabels[i].label());
+        }
+      }
+     
+      for(unsigned int i = 0; i< numOfHLTCollectionLabels ; i++){
+        if (!mcMatchedOnly_) {
+           // Et distribution of HLT objects passing filter i
+           histName = theHLTCollectionLabels[i].label()+"et_all";
+           histTitle = HltHistTitle[i]+" Et (ALL)";
+           tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
+           ethist.push_back(tmphisto);
+           
+           // Eta distribution of HLT objects passing filter i
+           histName = theHLTCollectionLabels[i].label()+"eta_all";
+           histTitle = HltHistTitle[i]+" #eta (ALL)";
+           tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
+           etahist.push_back(tmphisto);          
+
+           if (!noPhiPlots_) {
+             // Phi distribution of HLT objects passing filter i
+             histName = theHLTCollectionLabels[i].label()+"phi_all";
+             histTitle = HltHistTitle[i]+" #phi (ALL)";
+             tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
+             phihist.push_back(tmphisto);
+           }
+    
+     
+           // Et distribution of HLT object that is closest delta-R match to sorted gen particle(s)
+           histName  = theHLTCollectionLabels[i].label()+"et";
+           histTitle = HltHistTitle[i]+" Et";
+           tmphisto  = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
+           histEtOfHltObjMatchToGen.push_back(tmphisto);
+    
+           // eta distribution of HLT object that is closest delta-R match to sorted gen particle(s)
+           histName  = theHLTCollectionLabels[i].label()+"eta";
+           histTitle = HltHistTitle[i]+" eta";
+           tmphisto  = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
+           histEtaOfHltObjMatchToGen.push_back(tmphisto);
+    
+           if (!noPhiPlots_) {
+             // phi distribution of HLT object that is closest delta-R match to sorted gen particle(s)
+             histName  = theHLTCollectionLabels[i].label()+"phi";
+             histTitle = HltHistTitle[i]+" phi";
+             tmphisto  = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
+             histPhiOfHltObjMatchToGen.push_back(tmphisto);
+           }
+       }
+    
+        // Et distribution of gen object matching HLT object passing filter i
+        histName = theHLTCollectionLabels[i].label()+"et_MC_matched";
+        histTitle = HltHistTitle[i]+" Et (MC matched)";
+        tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
+        ethistmatch.push_back(tmphisto);
+        
+        // Eta distribution of gen object matching HLT object passing filter i
+        histName = theHLTCollectionLabels[i].label()+"eta_MC_matched";
+        histTitle = HltHistTitle[i]+" #eta (MC matched)";
+        tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
+        etahistmatch.push_back(tmphisto);
+    
+        if (!noPhiPlots_) {
+          // Phi distribution of gen object matching HLT object passing filter i
+          histName = theHLTCollectionLabels[i].label()+"phi_MC_matched";
+          histTitle = HltHistTitle[i]+" #phi (MC matched)";
+          tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
+          phihistmatch.push_back(tmphisto);
+        }
+      }
+
+      // Et & eta distributions
+      etahists.push_back(etahist);
+      phihists.push_back(phihist);
+      ethists.push_back(ethist);
+      etahistmatchs.push_back(etahistmatch);
+      phihistmatchs.push_back(phihistmatch);
+      ethistmatchs.push_back(ethistmatch);
+      histEtOfHltObjMatchToGens.push_back(histEtOfHltObjMatchToGen);
+      histEtaOfHltObjMatchToGens.push_back(histEtaOfHltObjMatchToGen);
+      histPhiOfHltObjMatchToGens.push_back(histPhiOfHltObjMatchToGen);
+      // commented out because uses data not included in HTLDEBUG and uses
+      // Isolation distributions
+      //etahistisos.push_back(etahistiso);
+      //phihistisos.push_back(phihistiso);
+      //ethistisos.push_back(ethistiso);
+      //etahistisomatchs.push_back(etahistisomatch);
+      //phihistisomatchs.push_back(phihistisomatch);
+      //ethistisomatchs.push_back(ethistisomatch);
+      //histEtIsoOfHltObjMatchToGens.push_back(histEtIsoOfHltObjMatchToGen); 
+      //histEtaIsoOfHltObjMatchToGens.push_back(histEtaIsoOfHltObjMatchToGen);
+      //histPhiIsoOfHltObjMatchToGens.push_back(histPhiIsoOfHltObjMatchToGen);
+
+      totals.push_back(total);
+      totalmatchs.push_back(totalmatch);
+      etgens.push_back(etgen);
+      etagens.push_back(etagen);
+      phigens.push_back(phigen);
    }
 }
 
@@ -1427,7 +1435,6 @@ EmDQM::makePSetForElectronGenericFilter(const std::string& moduleName)
 void EmDQM::SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator psetIt) 
 {
   dirname_="HLT/HLTEgammaValidation/"+psetIt->getParameter<std::string>("@module_label");
-  dbe->setCurrentFolder(dirname_);
  
   pathIndex = psetIt->getUntrackedParameter<unsigned int>("pathIndex", 0);
   // parameters for generator study
