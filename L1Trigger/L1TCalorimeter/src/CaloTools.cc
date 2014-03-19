@@ -75,7 +75,7 @@ int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTowe
     for(int phiNr=localPhiMin;phiNr<=localPhiMax;phiNr++){
       
       int towerIEta = l1t::CaloStage2Nav::offsetIEta(iEta,etaNr);
-      int towerIPhi = l1t::CaloStage2Nav::offsetIEta(iPhi,phiNr);
+      int towerIPhi = l1t::CaloStage2Nav::offsetIPhi(iPhi,phiNr);
       
       const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
       if(etMode&ECAL) hwEtSum+=tower.hwEtEm();
