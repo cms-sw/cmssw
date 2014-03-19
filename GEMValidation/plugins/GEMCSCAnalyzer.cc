@@ -314,7 +314,8 @@ private:
   void printout(SimTrackMatchManager& match, int trk_no);
 
   bool isSimTrackGood(const SimTrack &t);
-
+  int detIdToMEStation(int st, int ri);
+  
   edm::ParameterSet cfg_;
   edm::InputTag simInputLabel_;
   double simTrackMinPt_;
@@ -325,12 +326,14 @@ private:
   bool ntupleTrackChamberDelta_;
   bool ntupleTrackEff_;
   bool matchprint_;
+  std::vector<string> cscStations_;
+  std::vector<std::pair<int,int> > cscStationsCo_;
   std::set<int> stations_to_use_;
 
-  TTree *tree_eff_[5]; // for up to 4 stations
+  TTree *tree_eff_[12]; // for up to 9 stations
   TTree *tree_delta_;
   
-  MyTrackEff  etrk_[5];
+  MyTrackEff  etrk_[12];
   MyTrackChamberDelta dtrk_;
 
   int minNHitsChamberCSCSimHit_;
@@ -347,6 +350,7 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
+  cscStations_ = cfg_.getParameter<std::vector<string> >("cscStations");
   ntupleTrackChamberDelta_ = cfg_.getParameter<bool>("ntupleTrackChamberDelta");
   ntupleTrackEff_ = cfg_.getParameter<bool>("ntupleTrackEff");
   matchprint_ = false; //cfg_.getParameter<bool>("matchprint");
@@ -389,13 +393,34 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
   {
     vector<int> stations = ps.getParameter<vector<int> >("stationsToUse");
     copy(stations.begin(), stations.end(), inserter(stations_to_use_, stations_to_use_.end()) );
+
     for(auto s: stations_to_use_)
     {
       stringstream ss;
-      ss << "trk_eff_st"<< s;
+      ss << "trk_eff_"<< cscStations_[s];
       tree_eff_[s] = etrk_[s].book(tree_eff_[s], ss.str());
     }
   }
+
+  cscStationsCo_.push_back(std::make_pair(-99,-99));
+  cscStationsCo_.push_back(std::make_pair(1,-99));
+  cscStationsCo_.push_back(std::make_pair(1,4));
+  cscStationsCo_.push_back(std::make_pair(1,1));
+  cscStationsCo_.push_back(std::make_pair(1,2));
+  cscStationsCo_.push_back(std::make_pair(1,3));
+  cscStationsCo_.push_back(std::make_pair(2,1));
+  cscStationsCo_.push_back(std::make_pair(2,2));
+  cscStationsCo_.push_back(std::make_pair(3,1));
+  cscStationsCo_.push_back(std::make_pair(3,2));
+  cscStationsCo_.push_back(std::make_pair(4,1));
+  cscStationsCo_.push_back(std::make_pair(4,2));
+}
+
+
+int GEMCSCAnalyzer::detIdToMEStation(int st, int ri)
+{
+  auto p(std::make_pair(st, ri));
+  return std::find(cscStationsCo_.begin(), cscStationsCo_.end(), p) - cscStationsCo_.begin();
 }
 
 
@@ -482,15 +507,17 @@ void GEMCSCAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
     if (ntupleTrackChamberDelta_) analyzeTrackChamberDeltas(match, trk_no);
     if (ntupleTrackEff_) analyzeTrackEff(match, trk_no);
-   // if (matchprint_) printout(match, trk_no);
+    // if (matchprint_) printout(match, trk_no);
     
-    bool has_csc_sh_odd(etrk_[1].has_csc_sh&1) ; bool has_csc_sh_even(etrk_[1].has_csc_sh&2);
-    bool has_alct_odd(etrk_[1].has_alct&1); bool has_alct_even(etrk_[1].has_alct&2) ;
-   // if (has_csc_sh_odd || has_csc_sh_even)  std::cout <<"st1 has_csc_sh " << std::endl;
-   // if (has_alct_odd || has_alct_even)   std::cout <<"  st1 has_alct " << std::endl;
-  bool Debug((has_csc_sh_odd and !has_alct_odd) || (has_csc_sh_even and !has_alct_even));
-  if (matchprint_ and Debug ) printout(match, trk_no);
-    trk_no++;
+    /*    
+          bool has_csc_sh_odd(etrk_[1].has_csc_sh&1) ; bool has_csc_sh_even(etrk_[1].has_csc_sh&2);
+          bool has_alct_odd(etrk_[1].has_alct&1); bool has_alct_even(etrk_[1].has_alct&2) ;
+          // if (has_csc_sh_odd || has_csc_sh_even)  std::cout <<"st1 has_csc_sh " << std::endl;
+          // if (has_alct_odd || has_alct_even)   std::cout <<"  st1 has_alct " << std::endl;
+          bool Debug((has_csc_sh_odd and !has_alct_odd) || (has_csc_sh_even and !has_alct_even));
+          if (matchprint_ and Debug ) printout(match, trk_no);
+          trk_no++;
+    */
   }
 }
 
@@ -502,15 +529,12 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   const GEMDigiMatcher& match_gd = match.gemDigis();
   const CSCDigiMatcher& match_cd = match.cscDigis();
   const CSCStubMatcher& match_lct = match.cscStubs();
-  //  const TrackMatcher& match_track = match.tracks();
+  //const TrackMatcher& match_track = match.tracks();
   const SimTrack &t = match_sh.trk();
    
-  if ( abs(t.momentum().eta()) < 2.3 and abs(t.momentum().eta()) >2.2 )  std::cout << "passing through eta selection " << std::endl;
- 
   for (auto s: stations_to_use_)
   {
     etrk_[s].init();
-
     etrk_[s].pt = t.momentum().pt();
     etrk_[s].phi = t.momentum().phi();
     etrk_[s].eta = t.momentum().eta();
@@ -519,126 +543,157 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   }
 
   // SimHits
-  auto csc_ch_ids = match_sh.chamberIdsCSC(0);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_sh.chamberIdsCSC(0))
   {
     CSCDetId id(d);
-    int st = id.station();
+    const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    int nlayers = match_sh.nLayersWithHitsInSuperChamber(d);
+    const int nlayers(match_sh.nLayersWithHitsInSuperChamber(d));
     if (nlayers < minNHitsChamberCSCSimHit_) continue;
 
-    if (id.chamber() & 1) etrk_[st].has_csc_sh |= 1;
+    const bool odd(id.chamber()%2==1);
+    if (odd) etrk_[st].has_csc_sh |= 1;
     else etrk_[st].has_csc_sh |= 2;
 
-    //const auto& hits = match_sh.hitsInChamber(d);
-    //auto gp = match_sh.simHitsMeanPosition(hits);
-    //float mean_strip = match_sh.simHitsMeanStrip(hits);
-    //cout<<"DBGCSC "<<id.endcap()<<" "<<id.chamber()<<" "<<gp.eta()<<" "<<mean_strip<<endl;
+    // case ME11
+    if (st==2 or st==3){
+      if (odd) etrk_[1].has_csc_sh |= 1;
+      else etrk_[1].has_csc_sh |= 2;
+    }  
   }
 
   // CSC strip digis
-  csc_ch_ids = match_cd.chamberIdsStrip(0);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_cd.chamberIdsStrip(0))
   {
     CSCDetId id(d);
-    int st = id.station();
+    const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    int nlayers = match_cd.nLayersWithStripInChamber(d);
+    const int nlayers(match_cd.nLayersWithStripInChamber(d));
     if (nlayers < minNHitsChamberCSCStripDigi_) continue;
 
-    if (id.chamber() & 1) etrk_[st].has_csc_strips |= 1;
-    else etrk_[st].has_csc_strips |= 2;
+    const bool odd(id.chamber()%2==1);
+    if (odd) etrk_[st].has_csc_strips |= 1;
+    else etrk_[st].has_csc_strips |= 2; 
+    
+    // case ME11
+    if (st==2 or st==3){
+      if (odd) etrk_[1].has_csc_strips |= 1;
+      else etrk_[1].has_csc_strips |= 2;
+    }  
   }
 
   // CSC wire digis
-  csc_ch_ids = match_cd.chamberIdsWire(0.);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_cd.chamberIdsWire(0))
   {
     CSCDetId id(d);
-    int st = id.station();
+    const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    int nlayers = match_cd.nLayersWithWireInChamber(d);
+    const int nlayers(match_cd.nLayersWithWireInChamber(d));
     if (nlayers < minNHitsChamberCSCWireDigi_) continue;
 
-    if (id.chamber() & 1) etrk_[st].has_csc_wires |= 1;
+    const bool odd(id.chamber()%2==1);
+    if (odd) etrk_[st].has_csc_wires |= 1;
     else etrk_[st].has_csc_wires |= 2;
+
+    // case ME11
+    if (st==2 or st==3){
+      if (odd) etrk_[1].has_csc_wires |= 1;
+      else etrk_[1].has_csc_wires |= 2;
+    }  
   }
 
   // CSC CLCTs
-  csc_ch_ids = match_lct.chamberIdsCLCT(0);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_lct.chamberIdsCLCT(0))
   {
     CSCDetId id(d);
-    int st = id.station();
-    //cout<<"LCT st "<<st<<endl;
+    const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    bool odd = id.chamber() & 1;
+    const bool odd(id.chamber()%2==1);
     auto clct = match_lct.clctInChamber(d);
+
     if (odd) etrk_[st].halfstrip_odd = digi_channel(clct);
     else etrk_[st].halfstrip_even = digi_channel(clct);
 
     if (odd) etrk_[st].has_clct |= 1;
     else etrk_[st].has_clct |= 2;
+
+    // case ME11
+    if (st==2 or st==3){
+      if (odd) etrk_[1].halfstrip_odd = digi_channel(clct);
+      else etrk_[1].halfstrip_even = digi_channel(clct);
+      
+      if (odd) etrk_[1].has_clct |= 1;
+      else etrk_[1].has_clct |= 2;
+    }  
   }
 
   // CSC ALCTs
-  csc_ch_ids = match_lct.chamberIdsALCT(0.);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_lct.chamberIdsALCT(0))
   {
     CSCDetId id(d);
-    int st = id.station();
-    //cout<<"LCT st "<<st<<endl;
+    const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    bool odd = id.chamber() & 1;
-
+    const bool odd(id.chamber()%2==1);
     auto alct = match_lct.alctInChamber(d);
+
     if (odd) etrk_[st].wiregroup_odd = digi_channel(alct);
     else etrk_[st].wiregroup_even = digi_channel(alct);
 
     if (odd) etrk_[st].has_alct |= 1;
     else etrk_[st].has_alct |= 2;
+
+    // case ME11
+    if (st==2 or st==3){
+      if (odd) etrk_[1].wiregroup_odd = digi_channel(alct);
+      else etrk_[1].wiregroup_even = digi_channel(alct);
+      
+      if (odd) etrk_[1].has_alct |= 1;
+      else etrk_[1].has_alct |= 2;      
+    }
   }
 
   // holders for track's LCTs
-  Digi lct_odd[5];
-  Digi lct_even[5];
-  GlobalPoint gp_lct_odd[5];
-  GlobalPoint gp_lct_even[5];
+  Digi lct_odd[12];
+  Digi lct_even[12];
+  GlobalPoint gp_lct_odd[12];
+  GlobalPoint gp_lct_even[12];
   for (auto s: stations_to_use_)
   {
     lct_odd[s] = make_digi();
     lct_even[s] = make_digi();
+
+    // case ME11
+    if (s==2 or s==3){
+      lct_odd[1] = make_digi();
+      lct_even[1] = make_digi();
+    }
   }
 
   // LCT stubs
-  csc_ch_ids = match_lct.chamberIdsLCT(0);
-  for(auto d: csc_ch_ids)
+  for(auto d: match_lct.chamberIdsLCT(0))
   {
     CSCDetId id(d);
-    int st = id.station();
-    cout<<"LCT st "<<st<<endl;
+    const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    bool odd = id.chamber() & 1;
-
+    const bool odd(id.chamber()%2==1);
     if (odd) etrk_[st].has_lct |= 1;
     else etrk_[st].has_lct |= 2;
 
+    // case ME11
+    if (st==2 or st==3){
+      if (odd) etrk_[1].has_lct |= 1;
+      else etrk_[1].has_lct |= 2;
+    }
+    
     auto lct = match_lct.lctInChamber(d);
-
-    int bend = LCT_BEND_PATTERN[digi_pattern(lct)];
+    const int bend(LCT_BEND_PATTERN[digi_pattern(lct)]);
     auto gp = match_lct.digiPosition(lct);
-    //cout<<"DBGCSC "<<id.endcap()<<" "<<id.chamber()<<" "<<gp.eta()<<endl;
-    //if(std::abs(gp.phi())<0.0001)
-    //{
-    //  cout<<"werdgp "<<gp.phi()<<" "<<gp.eta()<<endl;
-    //}
 
     if (odd)
     {
@@ -666,19 +721,46 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
       etrk_[st].chamber_even |= 2;
       etrk_[st].quality_even = digi_quality(lct);
     }
+
+    // case ME11
+    if (st==2 or st==3){
+      if (odd)
+      {
+        lct_odd[1] = lct;
+        gp_lct_odd[1] = gp;
+        etrk_[1].bend_lct_odd = bend;
+        etrk_[1].phi_lct_odd = gp.phi();
+        etrk_[1].eta_lct_odd = gp.eta();
+        etrk_[1].dphi_lct_odd = digi_dphi(lct);
+        etrk_[1].bx_lct_odd = digi_bx(lct);
+        etrk_[1].hs_lct_odd = digi_channel(lct);
+        etrk_[1].chamber_odd |= 2;
+        etrk_[1].quality_odd = digi_quality(lct);
+      }
+      else
+      {
+        lct_even[1] = lct;
+        gp_lct_even[1] = gp;
+        etrk_[1].bend_lct_even = bend;
+        etrk_[1].phi_lct_even = gp.phi();
+        etrk_[1].eta_lct_even = gp.eta();
+        etrk_[1].dphi_lct_even = digi_dphi(lct);
+        etrk_[1].bx_lct_even = digi_bx(lct);
+        etrk_[1].hs_lct_even = digi_channel(lct);
+        etrk_[1].chamber_even |= 2;
+        etrk_[1].quality_even = digi_quality(lct);
+      }
+    }
   }
 
-  if (not (etrk_[1].has_lct&1 or etrk_[1].has_lct&2)) std::cout << "no lct in station 1 in this simtrack"<< std::endl;
   // GEM simhits in superchamber
-  auto gem_superch_ids = match_sh.superChamberIdsGEM();
-  for(auto d: gem_superch_ids)
+  for(auto d: match_sh.superChamberIdsGEM())
   {
     GEMDetId id(d);
-    int st = id.station();
+    const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    bool odd = id.chamber() & 1;
-
+    const bool odd(id.chamber()%2==1);
     if (match_sh.hitsInSuperChamber(d).size() > 0)
     {
       if (odd) etrk_[st].has_gem_sh |= 1;
@@ -688,7 +770,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
       if (odd) etrk_[st].eta_gemsh_odd = sh_gp.eta();
       else     etrk_[st].eta_gemsh_even = sh_gp.eta();
 
-      float mean_strip = match_sh.simHitsMeanStrip(match_sh.hitsInSuperChamber(d));
+      const float mean_strip(match_sh.simHitsMeanStrip(match_sh.hitsInSuperChamber(d)));
       if (odd) etrk_[st].strip_gemsh_odd = mean_strip;
       else     etrk_[st].strip_gemsh_even = mean_strip;
     }
@@ -701,19 +783,17 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   }
 
   // placeholders for best mtching pads
-  GlobalPoint best_pad_odd[5];
-  GlobalPoint best_pad_even[5];
+  GlobalPoint best_pad_odd[12];
+  GlobalPoint best_pad_even[12];
 
   // GEM digis and pads in superchambers
-  gem_superch_ids = match_gd.superChamberIds();
-  for(auto d: gem_superch_ids)
+  for(auto d: match_gd.superChamberIds())
   {
     GEMDetId id(d);
-    int st = id.station();
+    const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    bool odd = id.chamber() & 1;
-
+    const bool odd(id.chamber()%2==1);
     if (match_gd.nLayersWithDigisInSuperChamber(d) > 1)
     {
       if (odd) etrk_[st].has_gem_dg2 |= 1;
@@ -721,7 +801,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     }
 
     auto digis = match_gd.digisInSuperChamber(d);
-    int median_strip = match_gd.median(digis);
+    const int median_strip(match_gd.median(digis));
     if (odd && digis.size() > 0)
     {
       etrk_[st].has_gem_dg |= 1;
@@ -775,14 +855,13 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     }
   }
 
-  gem_superch_ids = match_gd.superChamberIdsWithCoPads();
-  for(auto d: gem_superch_ids)
+  for(auto d: match_gd.superChamberIdsWithCoPads())
   {
     GEMDetId id(d);
-    int st = id.station();
+    const int st(detIdToMEStation(id.station(),id.ring()));
     if (stations_to_use_.count(st) == 0) continue;
 
-    bool odd = id.chamber() & 1;
+    const bool odd(id.chamber()%2==1);
     if (odd) etrk_[st].has_gem_copad |= 1;
     else     etrk_[st].has_gem_copad |= 2;
     
@@ -792,8 +871,6 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     else etrk_[st].Copad_even = digi_channel(copads.at(0));
   }
  
-  
-
   for (auto s: stations_to_use_)
   {
     tree_eff_[s]->Fill();
@@ -828,7 +905,7 @@ void GEMCSCAnalyzer::analyzeTrackChamberDeltas(SimTrackMatchManager& match, int 
           <<" | "<<gem_simhits.size()<<" "<<gem_simhits_gp.phi()<<endl;
     }
 
-    int nsch = match_sh.superChamberIdsGEM().size();
+    const int nsch(match_sh.superChamberIdsGEM().size());
     auto gem_sh_ids = match_sh.detIdsGEM();
     for(auto d: gem_sh_ids)
     {
@@ -855,7 +932,7 @@ void GEMCSCAnalyzer::analyzeTrackChamberDeltas(SimTrackMatchManager& match, int 
           <<" | "<<csc_simhits.size()<<" "<<csc_simhits_gp.phi()<<endl;
     }
 
-    int ncch = match_sh.chamberIdsCSC().size();
+    const int ncch(match_sh.chamberIdsCSC().size());
     auto csc_sh_ids = match_sh.detIdsCSC();
     for(auto d: csc_sh_ids)
     {

@@ -19,6 +19,8 @@
 
 class CSCGeometry;
 class GEMGeometry;
+class ME0Geometry;
+class RPCGeometry;
 
 class SimHitMatcher : public BaseMatcher
 {
