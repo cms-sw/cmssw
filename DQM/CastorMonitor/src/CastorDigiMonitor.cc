@@ -206,7 +206,8 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, co
      int dv = digi.sample(i).dv();
      int er = digi.sample(i).er();
      int err = (capid != capid1) | er<<1 | (!dv)<<2; // =0
-     if(err !=0) h2digierr->Fill(sector,module);
+//     if(err !=0) 
+     if ( m_dbe !=NULL ) h2digierr->Fill(sector,module,err);
 //     if(err != 0 && fVerbosity>0)
 //     std::cout<<"event/idigi=" <<ievt_<<"/" <<i<< " cap_cap1_dv_er: " <<
 //	capid <<"="<< capid1 <<" "<< dv <<" "<< er<<" "<< err << std::endl;
@@ -237,9 +238,12 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, co
 //==================================================================//
 void CastorDigiMonitor::done()
   {
-  long int hdigierrEntr = h2digierr->getEntries();
-  if(fVerbosity>0) std::cout << "CastorDigiMonitor: capId,er,dv summary (entries="
-	<<hdigierrEntr<<"):"<<std::endl;
+
+//  long int hdigierrEntr; = h2digierr->getEntries();
+//   if ( m_dbe !=NULL ) hdigierrEntr = h2digierr->getEntries();
+//if(fVerbosity>0) 
+//   std::cout << "CastorDigiMonitor: capId,er,dv summary (entries="
+//	<<hdigierrEntr<<"):"<<std::endl;
   return;
   }
 

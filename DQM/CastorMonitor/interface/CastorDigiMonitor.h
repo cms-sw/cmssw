@@ -52,6 +52,7 @@ private:
   MonitorElement* PEDESTAL_REFS;
   MonitorElement* WIDTH_REFS;
 
+
   MonitorElement* h2digierr;
 
   struct{
