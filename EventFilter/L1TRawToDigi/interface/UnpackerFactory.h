@@ -1,6 +1,7 @@
 #ifndef UnpackerFactory_h
 #define UnpackerFactory_h
 
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -9,15 +10,21 @@
 
 namespace l1t {
    typedef uint32_t BlockId;
-   typedef std::unordered_map<BlockId, l1t::BaseUnpacker*> Unpackers;
+   typedef std::pair<BlockId, std::shared_ptr<l1t::BaseUnpacker>> UnpackerItem;
+   typedef std::unordered_map<BlockId, std::shared_ptr<l1t::BaseUnpacker>> UnpackerMap;
+
+   inline uint32_t pop(const unsigned char* ptr, unsigned& idx) {
+      uint32_t res = ptr[idx + 0] | (ptr[idx + 1] << 8) | (ptr[idx + 2] << 16) | (ptr[idx + 3] << 24);
+      idx += 4;
+      return res;
+   };
 
    class UnpackerFactory {
       public:
-         static Unpackers createUnpackers(const FirmwareVersion&, const int fedid);
+         static UnpackerMap createUnpackers(const FirmwareVersion&, const int fedid);
 
       private:
-         virtual bool hasUnpackerFor(const FirmwareVersion&, const int fedid) = 0;
-         virtual std::pair<BlockId, BaseUnpacker*> create(const FirmwareVersion&, const int fedid) = 0;
+         virtual std::vector<UnpackerItem> create(const FirmwareVersion&, const int fedid) = 0;
 
          static std::vector<UnpackerFactory*> createFactories();
          static std::vector<UnpackerFactory*> factories_;

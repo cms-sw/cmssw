@@ -13,14 +13,19 @@ namespace l1t {
       return res;
    }
 
-   std::unordered_map<BlockId, BaseUnpacker*>
+   UnpackerMap
    UnpackerFactory::createUnpackers(const FirmwareVersion &fw, const int fedid)
    {
-      std::cout << factories_.size() << std::endl;
-      std::unordered_map<BlockId, BaseUnpacker*> res;
+      UnpackerMap res;
       for (const auto& f: factories_) {
-         if (f->hasUnpackerFor(fw, fedid))
-            res.insert(f->create(fw, fedid));
+         for (auto& i: f->create(fw, fedid)) {
+            if (res.find(i.first) == res.end()) {
+               res.insert(i);
+            } else {
+               // FIXME make proper edm error message
+               throw;
+            }
+         }
       }
       return res;
    }

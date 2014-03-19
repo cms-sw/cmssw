@@ -17,11 +17,7 @@ namespace l1t {
          JetBxCollection* res;
    };
 
-   bool JetUnpackerFactory::hasUnpackerFor(const FirmwareVersion& fw, const int fedid) {
-      return true;
-   };
-
-   std::pair<BlockId, BaseUnpacker*> JetUnpackerFactory::create(const FirmwareVersion& fw, const int fedid) {
-      return std::pair<BlockId, BaseUnpacker*>(0xF, new JetUnpacker());
+   std::vector<UnpackerItem> JetUnpackerFactory::create(const FirmwareVersion& fw, const int fedid) {
+      return {std::make_pair(0xF, std::shared_ptr<BaseUnpacker>(new JetUnpacker()))};
    };
 }
