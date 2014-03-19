@@ -74,17 +74,17 @@ namespace l1t {
     // ----------member data ---------------------------
     
     int verbosity_;
+
+    int bxFirst_, bxLast_; // bx range to process
     
+    int ietaMin_, ietaMax_, iphiMin_, iphiMax_;
+        
     std::vector<edm::EDGetToken> ecalToken_;  // this is a crazy way to store multi-BX info
     std::vector<edm::EDGetToken> hcalToken_;  // should be replaced with a BXVector< > or similar
     
     // parameters
     unsigned long long paramsCacheId_;
     CaloParams* params_;
-    
-    int bxFirst_, bxLast_; // bx range to process
-    
-    int ietaMin_, ietaMax_, iphiMin_, iphiMax_;
     
   }; 
   
@@ -93,16 +93,16 @@ namespace l1t {
 
 l1t::L1TCaloTowerProducer::L1TCaloTowerProducer(const edm::ParameterSet& ps) :
   verbosity_(ps.getParameter<int>("verbosity")),
-  ecalToken_(bxLast_+1-bxFirst_),
-  hcalToken_(bxLast_+1-bxFirst_),
-  paramsCacheId_(0),
-  params_(0),
-  bxFirst_(0),
-  bxLast_(0),
+  bxFirst_(ps.getParameter<int>("bxFirst")),
+  bxLast_(ps.getParameter<int>("bxLast")),
   ietaMin_(-32),
   ietaMax_(32),
   iphiMin_(1),
-  iphiMax_(72)
+  iphiMax_(72),
+  ecalToken_(bxLast_+1-bxFirst_),
+  hcalToken_(bxLast_+1-bxFirst_),
+  paramsCacheId_(0),
+  params_(0)
 {
 
   // register what you produce
@@ -113,6 +113,8 @@ l1t::L1TCaloTowerProducer::L1TCaloTowerProducer(const edm::ParameterSet& ps) :
     ecalToken_[ibx] = consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("ecalToken"));
     hcalToken_[ibx] = consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalToken"));
   }
+
+  //  LogDebug("L1TDebug") << "Got here" << std::endl;
 
   params_ = new CaloParams;
 
@@ -148,7 +150,7 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
   //  const L1CaloHcalScale* h = hcalScale.product();
 
-  LogDebug("L1TDebug") << "First BX=" << bxFirst_ << ", last BX=" << bxLast_ << std::endl;
+  LogDebug("L1TDebug") << "First BX=" << bxFirst_ << ", last BX=" << bxLast_ << ", LSB(E)=" << params_->towerLsbE() << ", LSB(H)=" << params_->towerLsbH() << std::endl;
 
   // loop over crossings
   for (int bx = bxFirst_; bx < bxLast_+1; ++bx) {
@@ -271,30 +273,30 @@ void
 l1t::L1TCaloTowerProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
 
-   unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();  
+  //   unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();  
   
-  if (id != paramsCacheId_) {
+  // if (id != paramsCacheId_) {
 
-    paramsCacheId_ = id;
+  //   paramsCacheId_ = id;
 
-    edm::ESHandle<CaloParams> paramsHandle;
-    iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
+  //   edm::ESHandle<CaloParams> paramsHandle;
+  //   iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
 
-    LogDebug("L1TDebug") << "CaloParams : " << *paramsHandle.product() << std::endl;
+  //   LogDebug("L1TDebug") << "CaloParams : " << *paramsHandle.product() << std::endl;
 
-    // replace our local copy of the parameters with a new one using placement new
-    params_->~CaloParams();
-    params_ = new (params_) CaloParams(*paramsHandle.product());
+  //   // replace our local copy of the parameters with a new one using placement new
+  //   params_->~CaloParams();
+  //   params_ = new (params_) CaloParams(*paramsHandle.product());
     
-    if (! params_){
-      edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;            
-    }
+  //   if (! params_){
+  //     edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;            
+  //   }
 
-    LogDebug("L1TDebug") << "CaloParams : " << *params_ << std::endl;
+  //   LogDebug("L1TDebug") << "CaloParams : " << *params_ << std::endl;
 
-    //    LogDebug("L1TDebug") << "ET(E) LSB : " << params_->towerLsbE() << "ET(H) LSB : " << params_->towerLsbH() << std::endl;
+  //   //    LogDebug("L1TDebug") << "ET(E) LSB : " << params_->towerLsbE() << "ET(H) LSB : " << params_->towerLsbH() << std::endl;
 
-  }
+  // }
 
 }
 
