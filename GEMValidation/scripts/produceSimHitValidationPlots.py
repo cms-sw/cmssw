@@ -35,12 +35,12 @@ if __name__ == "__main__":
   me0SimTrackToSimHitMatchingLY(plotter) 
   me0SimTrackToSimHitMatchingEta(plotter) 
   me0SimTrackToSimHitMatchingPhi(plotter)
-  
   for i in range(len(plotter.sel)):
 
     gemSimHitOccupancyXY(plotter,i)
     gemSimHitOccupancyRZ(plotter,i)
     gemSimHitTOF(plotter,i)
+    cscSimHitOccupancyXY(plotter,i)
     #   gemSimhitMomentum(plotter,i) 
     #   GEMSimValidation.SimhitMomentum(plotter,i)
 
