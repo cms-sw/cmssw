@@ -69,7 +69,6 @@ class DTTrig {
   public:
   
     //! Constructors
-    //DTTrig(const edm::ParameterSet &params);
     DTTrig(const edm::ParameterSet &params, edm::ConsumesCollector && ix);
 
     //! Destructor

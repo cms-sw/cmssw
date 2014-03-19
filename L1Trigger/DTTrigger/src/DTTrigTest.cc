@@ -201,7 +201,6 @@ void DTTrigTest::beginRun(const edm::Run& iRun, const edm::EventSetup& iEventSet
 
   if (!my_trig) {
     my_trig = new DTTrig(my_params, consumesCollector());
-    //my_trig = new DTTrig(my_params);
     my_trig->createTUs(iEventSetup);
     if (my_debug)
       cout << "[DTTrigTest] TU's Created" << endl;

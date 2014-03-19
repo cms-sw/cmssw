@@ -47,7 +47,6 @@
 // Constructors --
 //----------------
 
-//DTTrig::DTTrig(const  edm::ParameterSet &params) :
 DTTrig::DTTrig(const  edm::ParameterSet &params,edm::ConsumesCollector && iC) :
  _inputexist(1) ,  _configid(0) , _geomid(0) {
 
