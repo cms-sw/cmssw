@@ -345,7 +345,7 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
     }
 
     // find a matching LCT
-    const GEMDetId gemDetId(GEMDetId(ch_id.zendcap(),ch_id.ring(),ch_id.station(),1,ch_id.chamber(),0));
+    const GEMDetId gemDetId(GEMDetId(ch_id.zendcap(),1,ch_id.station(),1,ch_id.chamber(),0));
 
     auto clct(clctInChamber(id));
     auto alct(alctInChamber(id));
