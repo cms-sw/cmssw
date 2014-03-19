@@ -23,6 +23,22 @@
 #include "TrackingTools/IPTools/interface/IPTools.h" 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "CLHEP/Vector/ThreeVector.h"
+#include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Matrix/Vector.h"
+#include <string>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
 #endif
 
 namespace pat {
@@ -151,11 +167,11 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
             outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV, fromPV[ic]));
 	    if(cand.trackRef().isNonnull())
 	    {
-		outPtrP->back().setIPCovariance(*cand.trackRef());
+		outPtrP->back().setTrackProperties(*cand.trackRef());
 
 ///// DEBUG
 #if DEBUGIP
-		if(cand.pt() > 0.8 && fabs(cand.trackRef()->dz()-PV->position().z()) < 0.3){
+		if(cand.pt() > 0.801 && fabs(cand.trackRef()->dz()-PV->position().z()) < 0.3 && cand.trackRef()->numberOfValidHits() > 7 ){
 		reco::Track tr = outPtrP->back().pseudoTrack();
 		edm::ESHandle<TransientTrackBuilder> builder;
 		iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);		
@@ -164,15 +180,50 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 		reco::TransientTrack oldTT = builder->build(*cand.trackRef());
 		Measurement1D ip3Dnew = (IPTools::absoluteImpactParameter3D(newTT,*PV)).second;
 		Measurement1D ip3Dold = (IPTools::absoluteImpactParameter3D(oldTT,*PV)).second;
-
+		if(tr.hitPattern().numberOfValidHits() != cand.trackRef()->hitPattern().numberOfValidHits() || tr.hitPattern().numberOfValidPixelHits() != cand.trackRef()->hitPattern().numberOfValidPixelHits() )
+		{
+			std::cout << tr.hitPattern().numberOfValidHits() << " "<<  cand.trackRef()->hitPattern().numberOfValidHits() << " " << tr.hitPattern().numberOfValidPixelHits() << " " << cand.trackRef()->hitPattern().numberOfValidPixelHits()<< std::endl;
+		}
 		if( 		  ( fabs(ip3Dnew.significance()-ip3Dold.significance())/ip3Dold.significance() > 0.02 && ip3Dold.significance() < 10 )
 		||  ( fabs(ip3Dnew.significance()-ip3Dold.significance())/ip3Dold.significance() > 0.10 && ip3Dold.significance() > 10 )
 		) {
-		std::cout <<" NEW vs OLD  : " <<  ip3Dnew.value() << " / " << ip3Dnew.error() << " = " << ip3Dnew.significance() << " vs " << ip3Dold.value() << " / " << ip3Dold.error() << " = " << ip3Dold.significance() <<  " " << cand.pt() <<  std::endl;
+		std::cout <<" NEW vs OLD  : " <<  ip3Dnew.value() << " / " << ip3Dnew.error() << " = " << ip3Dnew.significance() << " vs " << ip3Dold.value() << " / " << ip3Dold.error() << " = " << ip3Dold.significance() <<  " pt: " << cand.pt() <<  " eta: " << cand.eta() << " pdg: " << cand.pdgId() <<   std::endl;
 
 		std::cout << "new covariance" <<  std::endl << tr.covariance() << std::endl;
 		std::cout <<  "old covariance" <<  std::endl  << cand.trackRef()->covariance() << std::endl;
+		const reco::Vertex & vertex = *PV;
+
+		{
+		using namespace reco;
+		std::cout<< "new math" << std::endl;
+		const reco::TransientTrack & transientTrack = newTT;
+		AnalyticalImpactPointExtrapolator extrapolator(transientTrack.field());
+		TrajectoryStateOnSurface tsos = extrapolator.extrapolate(transientTrack.impactPointState(), RecoVertex::convertPos(vertex.position()));
+	
+	        GlobalPoint refPoint          = tsos.globalPosition();
+  //      	GlobalError refPointErr       = tsos.cartesianError().position();
+	        GlobalPoint vertexPosition    = RecoVertex::convertPos(vertex.position());
+		std::cout << GlobalVector(refPoint-vertexPosition).eta() << std::endl;
+  //      	GlobalError vertexPositionErr = RecoVertex::convertError(vertex.error());
+		std::cout << tsos  << std::endl;
 		}
+
+                {
+		using namespace reco;
+                std::cout<< "old math" << std::endl;
+                const reco::TransientTrack & transientTrack = oldTT;
+                AnalyticalImpactPointExtrapolator extrapolator(transientTrack.field());
+		TrajectoryStateOnSurface tsos = extrapolator.extrapolate(transientTrack.impactPointState(), RecoVertex::convertPos(vertex.position()));
+		std::cout << tsos  << std::endl;
+//                GlobalPoint refPoint          = tsos.globalPosition();
+  ///              GlobalError refPointErr       = tsos.cartesianError().position();
+     //           GlobalPoint vertexPosition    = RecoVertex::convertPos(vertex.position());
+       //         GlobalError vertexPositionErr = RecoVertex::convertError(vertex.error());
+//                std::cout << refPoint << std::endl << refPointErr << std::endl;
+                }
+
+
+		} else {std::cout << " OK " << std::endl;}
 		}
 #endif
 //// ENDDEBUG

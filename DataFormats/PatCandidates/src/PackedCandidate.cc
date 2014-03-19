@@ -1,6 +1,35 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/libminifloat.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+template <typename T> int sign(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
+class FakeTrackingRecHit : public TrackingRecHit
+{
+public:
+  FakeTrackingRecHit(int detid): TrackingRecHit(detid,0){}
+  virtual TrackingRecHit * clone() const {return 0;}
+  virtual AlgebraicVector parameters() const {return AlgebraicVector();}
+
+  virtual AlgebraicSymMatrix parametersError() const {return AlgebraicSymMatrix();}
+
+  virtual AlgebraicMatrix projectionMatrix() const {return AlgebraicMatrix();}
+
+
+  virtual int dimension() const {return 0;}
+
+  virtual std::vector<const TrackingRecHit*> recHits() const {return std::vector<const TrackingRecHit*>() ; }
+
+  virtual std::vector<TrackingRecHit*> recHits() {return std::vector<TrackingRecHit*>();}
+
+  virtual LocalPoint localPosition() const { return LocalPoint();}
+
+  virtual LocalError localPositionError() const {return LocalError();}
+
+
+ 
+};
 
 void pat::PackedCandidate::pack(bool unpackAfterwards) {
     packedPt_  =  MiniFloatConverter::float32to16(p4_.Pt());
@@ -27,10 +56,14 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
 	    packedCovarianceDxyDxy_ = MiniFloatConverter::float32to16(dxydxy_*10000.);
 	    packedCovarianceDxyDz_ = MiniFloatConverter::float32to16(dxydz_*10000.);
 	    packedCovarianceDzDz_ = MiniFloatConverter::float32to16(dzdz_*10000.);
+	    packedCovarianceDphiDxy_ = MiniFloatConverter::float32to16(dphidxy_*10000.);
+	    packedCovarianceDlambdaDz_ = MiniFloatConverter::float32to16(dlambdadz_*10000.);
     }	else    {
 	    packedCovarianceDxyDxy_=0; 
 	    packedCovarianceDxyDz_ =0;
 	    packedCovarianceDzDz_ =0; 
+  	    packedCovarianceDphiDxy_ = 0;
+	    packedCovarianceDlambdaDz_ =0;
     }	
     if (unpackAfterwards) unpackVtx();
 }
@@ -55,6 +88,8 @@ void pat::PackedCandidate::unpackVtx() const {
     dxydxy_ = MiniFloatConverter::float16to32(packedCovarianceDxyDxy_)/10000.;
     dxydz_ =MiniFloatConverter::float16to32(packedCovarianceDxyDz_)/10000.;
     dzdz_ =MiniFloatConverter::float16to32(packedCovarianceDzDz_)/10000.;
+    dphidxy_ = MiniFloatConverter::float16to32(packedCovarianceDphiDxy_)/10000.;
+    dlambdadz_ =MiniFloatConverter::float16to32(packedCovarianceDlambdaDz_)/10000.;
 
     unpackedVtx_ = true;
 }
@@ -63,8 +98,8 @@ pat::PackedCandidate::~PackedCandidate() { }
 
 
 float pat::PackedCandidate::dxy(const Point &p) const {
-    maybeUnpackBoth();
-    return -(vertex_.X()-p.X()) * std::sin(float(p4_.Phi())) + (vertex_.Y()-p.Y()) * std::cos(float(p4_.Phi()));
+	maybeUnpackBoth();
+	return -(vertex_.X()-p.X()) * std::sin(float(p4_.Phi())) + (vertex_.Y()-p.Y()) * std::cos(float(p4_.Phi()));
 }
 float pat::PackedCandidate::dz(const Point &p) const {
     maybeUnpackBoth();
@@ -77,12 +112,27 @@ reco::Track pat::PackedCandidate::pseudoTrack() const {
     m(0,0)=0.5e-4/pt()/pt(); //TODO: tune
     m(1,1)=6e-6; //TODO: tune 
     m(2,2)=1.5e-5/pt()/pt(); //TODO: tune
+    m(2,3)=dphidxy_;
+    m(3,2)=dphidxy_;
+    m(4,1)=dlambdadz_;
+    m(1,4)=dlambdadz_;
     m(3,3)=dxydxy_;
     m(3,4)=dxydz_;
     m(4,3)=dxydz_;
     m(4,4)=dzdz_;
     math::RhoEtaPhiVector p3(p4_.pt(),p4_.eta(),phiAtVtx());
-    return reco::Track(0,0,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m); //TODO: correct phi?
+    int ndof = numberOfHits_+numberOfPixelHits_-5;
+    reco::HitPattern hp;
+    unsigned int i=0;
+    for(i=0;i<numberOfPixelHits_;i++) {
+	   hp.set(FakeTrackingRecHit(302057232),i ); // a random pixel id
+     }
+    for(;i<numberOfHits_;i++) {
+	   hp.set(FakeTrackingRecHit(369171304),i); // a random TIB L4 id
+     }
+    reco::Track tk(ndof,normalizedChi2_*ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m); //TODO: correct phi?
+    tk.setHitPattern(hp);
+    return tk;
 }
 
 //// Everything below is just trivial implementations of reco::Candidate methods
