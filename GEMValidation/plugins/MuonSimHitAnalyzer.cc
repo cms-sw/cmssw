@@ -82,7 +82,7 @@ struct MyRPCSimHit
   Int_t eventNumber;
   Int_t detUnitId, particleType;
   Float_t x, y, energyLoss, pabs, timeOfFlight;
-  Int_t region, ring, station, sector, layer, subsector, roll;
+  Int_t region, ring, station, sector, layer, subsector, roll, chamber;
   Float_t globalR, globalEta, globalPhi, globalX, globalY, globalZ;
   Int_t strip;
 };
@@ -360,6 +360,7 @@ void MuonSimHitAnalyzer::bookRPCSimHitsTree()
   rpc_sh_tree_->Branch("layer", &rpc_sh.layer);
   rpc_sh_tree_->Branch("subsector", &rpc_sh.subsector);
   rpc_sh_tree_->Branch("roll", &rpc_sh.roll);
+  rpc_sh_tree_->Branch("chamber", &rpc_sh.chamber);
   rpc_sh_tree_->Branch("globalR", &rpc_sh.globalR);
   rpc_sh_tree_->Branch("globalEta", &rpc_sh.globalEta);
   rpc_sh_tree_->Branch("globalPhi", &rpc_sh.globalPhi);
@@ -555,7 +556,8 @@ void MuonSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
   for (edm::PSimHitContainer::const_iterator itHit = CSCHits->begin(); itHit != CSCHits->end(); ++itHit)
   {
     const CSCDetId id(itHit->detUnitId());
-    
+//     if ((id.station() == 3 or id.station() == 4) and (id.ring()==1) and id.layer()==1)
+// 	std::cout << " csc id" << id << std::endl;
     csc_sh.eventNumber = iEvent.id().event();
     csc_sh.detUnitId = itHit->detUnitId();
     csc_sh.particleType = itHit->particleType();
@@ -599,11 +601,14 @@ void MuonSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
 
 void MuonSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
 {
+  int nSubsectors[4][3] ={{6,3,3},{-1,2,2},{3,2,2},{3,2,2}};
+
   for (edm::PSimHitContainer::const_iterator itHit = RPCHits->begin(); itHit != RPCHits->end(); ++itHit)
   {
     const RPCDetId id(itHit->detUnitId());
     if (id.region() == 0) continue; // we don't care about barrel RPCs
-
+//     if ((id.station() == 3 or id.station() == 4) and (id.ring()==1))
+//       std::cout << " rpc id" << id << std::endl;
     rpc_sh.eventNumber = iEvent.id().event();
     rpc_sh.detUnitId = itHit->detUnitId();
     rpc_sh.particleType = itHit->particleType();
@@ -620,6 +625,9 @@ void MuonSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
     rpc_sh.layer = id.layer();
     rpc_sh.subsector = id.subsector();
     rpc_sh.roll = id.roll();
+    rpc_sh.chamber = (id.sector()-1)*nSubsectors[id.station()-1][id.ring()-1] + id.subsector();
+//     if ((id.station() == 3 or id.station() == 4) and (id.ring()==1))
+//       std::cout << " rpc ch" << rpc_sh.chamber << std::endl;
     
     const LocalPoint hitLP(itHit->localPosition());
     const GlobalPoint hitGP(rpc_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
