@@ -28,7 +28,6 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
 						       std::vector<Jet> * jets,
 						       std::vector<EtSum> * etsums){
 
-  std::cout << "Stage1Layer2MainProcessorFirmwareImp1: " << m_db->regionETCutForHT() << std::endl;
   if (m_fwv.firmwareVersion() == 1)
   { //HI algo
     //m_egAlgo = new Stage1Layer2EGammaAlgorithmImpHI();
