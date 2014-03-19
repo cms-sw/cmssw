@@ -345,22 +345,28 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
     }
 
     // find a matching LCT
-    auto clct = clctInChamber(id);
-    auto alct = alctInChamber(id);
-    const bool caseAlctClct(is_valid(clct) and is_valid(alct));
-    if (not (caseAlctClct)) continue;
+    const GEMDetId gemDetId(GEMDetId(ch_id.zendcap(),ch_id.ring(),ch_id.station(),1,ch_id.chamber(),0));
+
+    auto clct(clctInChamber(id));
+    auto alct(alctInChamber(id));
+    auto pads(gem_digi_matcher_->coPadsInSuperChamber(gemDetId));
+    auto hasPad(pads.size()!=0);
+
+    const bool caseAlctClct(is_valid(alct) and is_valid(clct));
+    const bool caseAlctGem(is_valid(alct) and hasPad and !is_valid(clct));
+    //    const bool caseClctGem(is_valid(clct) and hasPad);
+
+    const CSCChamber* cscChamber(cscGeometry_->chamber(CSCDetId(id)));
+    const CSCLayer* cscKeyLayer(cscChamber->layer(3));
+    const CSCLayerGeometry* cscKeyLayerGeometry(cscKeyLayer->geometry());
+    const int nStrips(cscKeyLayerGeometry->numberOfStrips());
+    const float averageZ((cscKeyLayer->centerOfStrip(0)).z());
+    auto GpME(propagateToZ(averageZ));
+    auto lpME(cscKeyLayer->toLocal(GpME));
 
     const int my_hs(digi_channel(clct));
     const int my_wg(digi_wg(alct));
     const int my_bx(digi_bx(alct));
-
-    auto cscChamber(cscGeometry_->chamber(CSCDetId(id)));
-    auto cscKeyLayer(cscChamber->layer(3));
-    auto cscKeyLayerGeometry(cscKeyLayer->geometry());
-    const int nStrips(cscKeyLayerGeometry->numberOfStrips());
-    const auto averageZ((cscKeyLayer->centerOfStrip(0)).z());
-    auto GpME(propagateToZ(averageZ));
-    auto lpME(cscKeyLayer->toLocal(GpME));
     // remember that trigger strips are wrapped-around
     const int my_hs_gem((nStrips-cscKeyLayerGeometry->nearestStrip(lpME))*2);
 
@@ -368,7 +374,11 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
     for (auto &lct: lcts_tmp)
     {
       if (verbose()) cout<<" corlct "<<lct;
-      if (!(my_bx == digi_bx(lct) and my_hs == digi_channel(lct) and my_wg == digi_wg(lct) ) ){
+      if (caseAlctClct and !(my_bx == digi_bx(lct) and my_hs == digi_channel(lct) and my_wg == digi_wg(lct) ) ){
+        if (verbose()) cout<<"  BAD"<<endl;
+        continue;
+      }
+      if (caseAlctGem and !(my_bx == digi_bx(lct) and std::abs(my_hs_gem - digi_channel(lct))<3 and my_wg == digi_wg(lct) ) ){
         if (verbose()) cout<<"  BAD"<<endl;
         continue;
       }
