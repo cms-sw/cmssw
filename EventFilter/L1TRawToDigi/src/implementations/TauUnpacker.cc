@@ -4,7 +4,7 @@
 namespace l1t {
    class TauUnpacker : public BaseUnpacker {
       public:
-         virtual bool unpack(const unsigned char *data, const unsigned size) {
+         virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) {
             return true;
          };
 

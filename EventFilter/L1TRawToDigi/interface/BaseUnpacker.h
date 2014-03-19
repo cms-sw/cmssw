@@ -7,7 +7,7 @@ namespace l1t {
    class BaseUnpacker {
       public:
          // Returns successful read
-         virtual bool unpack(const unsigned char *data, const unsigned size) = 0;
+         virtual bool unpack(const unsigned char *data, const unsigned blockid, const unsigned size) = 0;
          // Obtain the collection(s) to unpack into
          virtual void setCollections(UnpackerCollections& coll) = 0;
    };

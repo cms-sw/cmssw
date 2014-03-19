@@ -103,7 +103,7 @@ namespace l1t {
          auto unpacker = unpackers.find(block_id);
          if (unpacker == unpackers.end()) {
             // TODO Handle error
-         } else if (!unpacker->second->unpack(data + idx, block_size)) {
+         } else if (!unpacker->second->unpack(data + idx, block_id, block_size)) {
             // TODO Handle error
          }
 
