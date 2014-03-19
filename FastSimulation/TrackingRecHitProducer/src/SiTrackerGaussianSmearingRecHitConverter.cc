@@ -778,18 +778,19 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
       }
       else{  if(subdet>2) position = Local3DPoint(position.x(),0.,0.);    }  // no matching, set y=0 on strips
 
-      /*
-      // Inflate errors in case of geometry misaligniment  (not needed anymore: done in constructor of BaseTrackerRecHit)
+      
+      // Inflate errors in case of geometry misaligniment  
+      // (still needed! what done in constructor of BaseTrackerRecHit is not effective ad geometry is not missaligned)
       const GeomDet* theMADet = misAlignedGeometry->idToDet(det);
       if ( theMADet->alignmentPositionError() != 0 ) { 
 	LocalError lape = 
 	  ErrorFrameTransformer().transform ( theMADet->alignmentPositionError()->globalError(),
 					      theMADet->surface() );
+        // std::cout << "ori lape " << det.rawId() << ' ' <<  lape << " det lape " << theDetUnit.localAlignmentError() << std::endl;
 	error = LocalError ( error.xx()+lape.xx(),
 			     error.xy()+lape.xy(),
 			     error.yy()+lape.yy() );
       }
-      */
 
       float chargeADC = (*isim).energyLoss()/(GevPerElectron * ElectronsPerADC);
 
