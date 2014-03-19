@@ -10,10 +10,10 @@
 //
 //
 
-#ifndef CaloStage2MainProcessorFirmware_H
-#define CaloStage2MainProcessorFirmware_H
+#ifndef Stage2MainProcessorFirmware_H
+#define Stage2MainProcessorFirmware_H
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2MainProcessor.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2MainProcessor.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2TowerDecompressAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2ClusterAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2EGammaAlgorithm.h"
@@ -29,11 +29,11 @@
 namespace l1t {
 
   // first iteration
-  class CaloStage2MainProcessorFirmwareImp1 : public CaloStage2MainProcessor {
+  class Stage2MainProcessorFirmwareImp1 : public Stage2MainProcessor {
   public:
-    CaloStage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv, CaloParams* params);
+    Stage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv, CaloParams* params);
 
-    virtual ~CaloStage2MainProcessorFirmwareImp1();
+    virtual ~Stage2MainProcessorFirmwareImp1();
 
     virtual void processEvent(const std::vector<l1t::CaloTower> &,
 			      std::vector<l1t::CaloCluster> & clusters,
@@ -44,7 +44,7 @@ namespace l1t {
 
     void print(std::ostream&) const;
 
-    friend std::ostream& operator<<(std::ostream& o, const CaloStage2MainProcessorFirmwareImp1 & p) { p.print(o); return o; }
+    friend std::ostream& operator<<(std::ostream& o, const Stage2MainProcessorFirmwareImp1 & p) { p.print(o); return o; }
 
   private:
     

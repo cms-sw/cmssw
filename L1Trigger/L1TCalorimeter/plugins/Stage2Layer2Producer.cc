@@ -33,8 +33,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2FirmwareFactory.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2MainProcessor.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2FirmwareFactory.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2MainProcessor.h"
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
@@ -51,10 +51,10 @@
 
 namespace l1t {
   
-  class L1TCaloStage2Producer : public edm::EDProducer { 
+  class Stage2Layer2Producer : public edm::EDProducer { 
   public:
-    explicit L1TCaloStage2Producer(const edm::ParameterSet& ps);
-    ~L1TCaloStage2Producer();
+    explicit Stage2Layer2Producer(const edm::ParameterSet& ps);
+    ~Stage2Layer2Producer();
     
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
       ;
@@ -80,14 +80,14 @@ namespace l1t {
     CaloParams* m_params;
 
     // the processor
-    l1t::CaloStage2FirmwareFactory m_factory;
-    boost::shared_ptr<CaloStage2MainProcessor> m_processor;
+    l1t::Stage2Layer2FirmwareFactory m_factory;
+    boost::shared_ptr<Stage2MainProcessor> m_processor;
      
   }; 
   
 }
 
-l1t::L1TCaloStage2Producer::L1TCaloStage2Producer(const edm::ParameterSet& ps) {
+l1t::Stage2Layer2Producer::Stage2Layer2Producer(const edm::ParameterSet& ps) {
 
   // register what you produce
   produces<l1t::CaloClusterBxCollection> ();
@@ -107,7 +107,7 @@ l1t::L1TCaloStage2Producer::L1TCaloStage2Producer(const edm::ParameterSet& ps) {
  
 }
 
-l1t::L1TCaloStage2Producer::~L1TCaloStage2Producer() {
+l1t::Stage2Layer2Producer::~Stage2Layer2Producer() {
   
   delete m_params;
 
@@ -115,11 +115,11 @@ l1t::L1TCaloStage2Producer::~L1TCaloStage2Producer() {
 
 // ------------ method called to produce the data  ------------
 void
-l1t::L1TCaloStage2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+l1t::Stage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
-  LogDebug("l1t|stage 2") << "L1TCaloStage2Producer::produce function called..." << std::endl;
+  LogDebug("l1t|stage 2") << "Stage2Layer2Producer::produce function called..." << std::endl;
   
   
   //inputs
@@ -180,18 +180,18 @@ l1t::L1TCaloStage2Producer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-l1t::L1TCaloStage2Producer::beginJob()
+l1t::Stage2Layer2Producer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-l1t::L1TCaloStage2Producer::endJob() {
+l1t::Stage2Layer2Producer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 void
-l1t::L1TCaloStage2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+l1t::Stage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
 
   // update parameters and algorithms at run start, if they have changed
@@ -244,14 +244,14 @@ l1t::L1TCaloStage2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const
 
 // ------------ method called when ending the processing of a run  ------------
 void
-l1t::L1TCaloStage2Producer::endRun(edm::Run const&, edm::EventSetup const&)
+l1t::Stage2Layer2Producer::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
-l1t::L1TCaloStage2Producer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
+l1t::Stage2Layer2Producer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
 t&)
 {
 }
@@ -260,7 +260,7 @@ t&)
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
-l1t::L1TCaloStage2Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
+l1t::Stage2Layer2Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
 )
 {
 }
@@ -268,7 +268,7 @@ l1t::L1TCaloStage2Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm:
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-l1t::L1TCaloStage2Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+l1t::Stage2Layer2Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -277,4 +277,4 @@ l1t::L1TCaloStage2Producer::fillDescriptions(edm::ConfigurationDescriptions& des
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::L1TCaloStage2Producer);
+DEFINE_FWK_MODULE(l1t::Stage2Layer2Producer);

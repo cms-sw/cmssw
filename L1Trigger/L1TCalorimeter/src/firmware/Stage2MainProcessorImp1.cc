@@ -6,7 +6,7 @@
 /// Description: first iteration of stage 2 processing
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2MainProcessorFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2MainProcessorFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2TowerDecompressAlgorithmFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2ClusterAlgorithmFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2EGammaAlgorithmFirmware.h"
@@ -20,7 +20,7 @@
 
 using namespace std;
 
-l1t::CaloStage2MainProcessorFirmwareImp1::CaloStage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv, CaloParams* params) :
+l1t::Stage2MainProcessorFirmwareImp1::Stage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv, CaloParams* params) :
   m_fwv(fwv),
   m_params(params)
 {
@@ -38,7 +38,7 @@ l1t::CaloStage2MainProcessorFirmwareImp1::CaloStage2MainProcessorFirmwareImp1(co
   
 }
 
-l1t::CaloStage2MainProcessorFirmwareImp1::~CaloStage2MainProcessorFirmwareImp1()
+l1t::Stage2MainProcessorFirmwareImp1::~Stage2MainProcessorFirmwareImp1()
 { 
 
 };
@@ -50,12 +50,12 @@ l1t::CaloStage2MainProcessorFirmwareImp1::~CaloStage2MainProcessorFirmwareImp1()
 
 
 //need to switch to BXVector
-void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & towers,
-							    std::vector<l1t::CaloCluster> & clusters,
-							    std::vector<l1t::EGamma> & egammas,
-							    std::vector<l1t::Tau> & taus,
-							    std::vector<l1t::Jet> & jets,
-							    std::vector<l1t::EtSum> & etsums) {
+void l1t::Stage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & towers,
+							std::vector<l1t::CaloCluster> & clusters,
+							std::vector<l1t::EGamma> & egammas,
+							std::vector<l1t::Tau> & taus,
+							std::vector<l1t::Jet> & jets,
+							std::vector<l1t::EtSum> & etsums) {
 
   std::vector<l1t::CaloTower> intTowers; // internal towers (decompressed)
   std::vector<l1t::CaloCluster> egClusters;
@@ -80,7 +80,7 @@ void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1
 }
 
 
-void l1t::CaloStage2MainProcessorFirmwareImp1::print(std::ostream& out) const {
+void l1t::Stage2MainProcessorFirmwareImp1::print(std::ostream& out) const {
 
   out << "Calo Stage 2 Main Processor" << std::endl;
   out << "  Tower algo       : " << (m_towerAlgo?1:0) << std::endl;

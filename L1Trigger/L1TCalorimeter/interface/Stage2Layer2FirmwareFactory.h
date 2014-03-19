@@ -8,12 +8,12 @@
 ///
 
 
-#ifndef CALOSTAGE2FIRMWAREFACTORY_H
-#define CALOSTAGE2FIRMWAREFACTORY_H
+#ifndef Stage2Layer2FirmwareFactory_h
+#define Stage2Layer2FirmwareFactory_h
 
 #include <boost/shared_ptr.hpp>
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2MainProcessor.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2MainProcessor.h"
 
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
@@ -23,9 +23,9 @@
 
 namespace l1t {
 
-  class CaloStage2FirmwareFactory {
+  class Stage2Layer2FirmwareFactory {
   public:
-    typedef boost::shared_ptr<CaloStage2MainProcessor> ReturnType;
+    typedef boost::shared_ptr<Stage2MainProcessor> ReturnType;
 
     ReturnType create(const FirmwareVersion & fwv, CaloParams* params);
 

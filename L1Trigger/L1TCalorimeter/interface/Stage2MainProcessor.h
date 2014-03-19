@@ -1,5 +1,5 @@
 ///
-/// \class l1t::CaloStage2MainProcessor
+/// \class l1t::Stage2MainProcessor
 ///
 /// Description: interface for the main processor
 ///
@@ -10,8 +10,8 @@
 
 //
 
-#ifndef CaloStage2MainProcessor_h
-#define CaloStage2MainProcessor_h
+#ifndef Stage2MainProcessor_h
+#define Stage2MainProcessor_h
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
@@ -25,7 +25,7 @@
 
 namespace l1t {
     
-  class CaloStage2MainProcessor { 
+  class Stage2MainProcessor { 
   public:
     virtual void processEvent(const std::vector<l1t::CaloTower> &,
 			      std::vector<l1t::CaloCluster> & clusters,
@@ -34,7 +34,7 @@ namespace l1t {
 			      std::vector<l1t::Jet> & jets,
 			      std::vector<l1t::EtSum> & etsums) = 0;    
 
-    virtual ~CaloStage2MainProcessor(){};
+    virtual ~Stage2MainProcessor(){};
 
   }; 
   
