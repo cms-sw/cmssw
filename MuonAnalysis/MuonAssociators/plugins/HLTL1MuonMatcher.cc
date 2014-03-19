@@ -3,8 +3,8 @@
 
 /**
   \class    pat::L1MuonMatcher L1MuonMatcher.h "MuonAnalysis/MuonAssociators/interface/L1MuonMatcher.h"
-  \brief    Matcher of reconstructed objects to L1 Muons 
-            
+  \brief    Matcher of reconstructed objects to L1 Muons
+
   \author   Giovanni Petrucciani
   \version  $Id: HLTL1MuonMatcher.cc,v 1.3 2010/07/12 20:56:11 gpetrucc Exp $
 */
@@ -53,8 +53,9 @@ namespace pat {
 
       L1MuonMatcherAlgo matcher_;
 
-      /// Labels for input collections
-      edm::InputTag reco_, l1_;
+      /// Tokens for input collections
+      edm::EDGetTokenT<edm::View<reco::Candidate> > recoToken_;
+      edm::EDGetTokenT<PATPrimitiveCollection> l1Token_;
 
       /// Select HLT objects.
       /// First template argument is dummy and useless,
@@ -69,7 +70,7 @@ namespace pat {
 
       /// Store extra information in a ValueMap
       template<typename Hand, typename T>
-      void storeExtraInfo(edm::Event &iEvent, 
+      void storeExtraInfo(edm::Event &iEvent,
                      const Hand & handle,
                      const std::vector<T> & values,
                      const std::string    & label) const ;
@@ -82,8 +83,8 @@ namespace pat {
 
 pat::HLTL1MuonMatcher::HLTL1MuonMatcher(const edm::ParameterSet & iConfig) :
     matcher_(iConfig),
-    reco_(iConfig.getParameter<edm::InputTag>("src")),
-    l1_(iConfig.getParameter<edm::InputTag>("matched")),
+    recoToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
+    l1Token_(consumes<PATPrimitiveCollection>(iConfig.getParameter<edm::InputTag>("matched"))),
     selector_(iConfig),
     resolveAmbiguities_(iConfig.getParameter<bool>("resolveAmbiguities")),
     labelProp_(iConfig.getParameter<std::string>("setPropLabel")),
@@ -98,7 +99,7 @@ pat::HLTL1MuonMatcher::HLTL1MuonMatcher(const edm::ParameterSet & iConfig) :
     }
 }
 
-void 
+void
 pat::HLTL1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
     using namespace std;
@@ -106,8 +107,8 @@ pat::HLTL1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     Handle<View<reco::Candidate> > reco;
     Handle<PATPrimitiveCollection> l1s;
 
-    iEvent.getByLabel(reco_, reco);
-    iEvent.getByLabel(l1_, l1s);
+    iEvent.getByToken(recoToken_, reco);
+    iEvent.getByToken(l1Token_, l1s);
 
     auto_ptr<PATPrimitiveCollection> propOut(new PATPrimitiveCollection());
     vector<int>   propMatches(reco->size(), -1);
@@ -167,7 +168,7 @@ pat::HLTL1MuonMatcher::storeExtraInfo(edm::Event &iEvent,
 }
 
 
-void 
+void
 pat::HLTL1MuonMatcher::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup) {
     matcher_.init(iSetup);
 }
