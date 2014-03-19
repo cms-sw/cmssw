@@ -149,7 +149,7 @@ namespace {
     0b000000000000000111111  // 21
   };
 
-  const int* EK_CONFIG [] = {blackBox, noTaperEcalEta4, noTaperEcalEta3, taperEcalEta4, taperEcalEta3, 0};
+  const int* const EK_CONFIG [] = {blackBox, noTaperEcalEta4, noTaperEcalEta3, taperEcalEta4, taperEcalEta3, 0};
 }
 
 bool EKDetId::validHashIndex( int i ) { return ( i < MAX_HASH_INDEX) ; }
