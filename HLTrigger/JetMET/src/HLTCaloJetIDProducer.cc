@@ -46,8 +46,8 @@ void HLTCaloJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions & des
     descNested.add<edm::InputTag>("hbheRecHitsColl", edm::InputTag("hltHbhereco"));
     descNested.add<edm::InputTag>("hoRecHitsColl", edm::InputTag("hltHoreco"));
     descNested.add<edm::InputTag>("hfRecHitsColl", edm::InputTag("hltHfreco"));
-    descNested.add<edm::InputTag>("ebRecHitsColl", edm::InputTag("hltEcalRecHitAll","EcalRecHitsEB"));
-    descNested.add<edm::InputTag>("eeRecHitsColl", edm::InputTag("hltEcalRecHitAll","EcalRecHitsEE"));
+    descNested.add<edm::InputTag>("ebRecHitsColl", edm::InputTag("hltEcalRecHit","EcalRecHitsEB"));
+    descNested.add<edm::InputTag>("eeRecHitsColl", edm::InputTag("hltEcalRecHit","EcalRecHitsEE"));
     desc.add<edm::ParameterSetDescription>("JetIDParams", descNested);
 
     descriptions.add("hltCaloJetIDProducer", desc);
