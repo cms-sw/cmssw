@@ -1,4 +1,4 @@
-import sys
+import sys,os
 
 from ROOT import *
 
@@ -6,10 +6,7 @@ from cuts import *
 from drawPlots import *
 
 ## run quiet mode
-import sys
 sys.argv.append( '-b' )
-
-import ROOT 
 ROOT.gROOT.SetBatch(1)
 
 def enum(*sequential, **named):
@@ -20,7 +17,7 @@ def enum(*sequential, **named):
 
 class SimHitPlotter():
   def __init__(self):
-    self.inputDir = "/afs/cern.ch/user/d/dildick/work/GEM/testForGeometry/CMSSW_6_2_0_SLHC7/src/"
+    self.inputDir = os.getenv("CMSSW_BASE") + "/src/"
     self.inputFile = "gem_sh_ana.root"
     self.targetDir = "testDirectory/"
     self.ext = ".png"
@@ -45,7 +42,7 @@ class SimHitPlotter():
     
 class DigiPlotter():
   def __init__(self):
-    self.inputDir = "/afs/cern.ch/user/d/dildick/work/GEM/testForGeometry/CMSSW_6_2_0_SLHC7/src/"
+    self.inputDir = os.getenv("CMSSW_BASE") + "/src/"
     self.inputFile = "gem_digi_ana.root"
     self.targetDir = "testDirectory/"
     self.ext = ".png"
@@ -69,7 +66,7 @@ class DigiPlotter():
 
 class GEMCSCStubPlotter():
   def __init__(self):
-    self.inputDir = "/uscms_data/d3/dildick/work/cscTriggerUpgradeGEMRPC/CMSSW_6_2_0_SLHC9/src/"
+    self.inputDir = os.getenv("CMSSW_BASE") + "/src/"
     self.inputFile = "gem-csc_stub_ana.root"
     self.targetDir = "gem_csc_matching/"
     self.ext = ".png"

@@ -13,38 +13,22 @@ from CSCSimHitValidation import *
 from gemChamberNumbering import *
 
 ## run quiet mode
-import sys
 sys.argv.append( '-b' )
-
-import ROOT 
 ROOT.gROOT.SetBatch(1)
 
 #_______________________________________________________________________________
-if __name__ == "__main__":
-
-  ## Style
-  gStyle.SetStatStyle(0);
-
-  plotter = SimHitPlotter()
-  simTrackProperties(plotter)
-  gemSimTrackToSimHitMatchingLX(plotter) 
-  gemSimTrackToSimHitMatchingLY(plotter) 
-  gemSimTrackToSimHitMatchingEta(plotter) 
-  gemSimTrackToSimHitMatchingPhi(plotter)
-  me0SimTrackToSimHitMatchingLX(plotter) 
-  me0SimTrackToSimHitMatchingLY(plotter) 
-  me0SimTrackToSimHitMatchingEta(plotter) 
-  me0SimTrackToSimHitMatchingPhi(plotter)
-  
+def produceOccupanyPlots(plotter):
   for i in range(len(plotter.sel)):
 
     gemSimHitOccupancyXY(plotter,i)
     gemSimHitOccupancyRZ(plotter,i)
     gemSimHitTOF(plotter,i)
+    cscSimHitOccupancyXY(plotter,i)
+    rpcSimHitOccupancyXY(plotter,i)
     #   gemSimhitMomentum(plotter,i) 
     #   GEMSimValidation.SimhitMomentum(plotter,i)
 
-    """      
+    """
     rpcSimHitOccupancyXY(plotter,i)
     rpcSimHitOccupancyRZ(plotter,i)
     rpcSimHitTOF(plotter,i)
@@ -57,5 +41,30 @@ if __name__ == "__main__":
     me0SimHitOccupancyRZ(plotter,i)
     me0SimHitTOF(plotter,i)
     """
-    
+
+
+#_______________________________________________________________________________
+def produceMatchingPlots(plotter):
+  gemSimTrackToSimHitMatchingLX(plotter) 
+  gemSimTrackToSimHitMatchingLY(plotter) 
+  gemSimTrackToSimHitMatchingEta(plotter) 
+  gemSimTrackToSimHitMatchingPhi(plotter)
+  me0SimTrackToSimHitMatchingLX(plotter) 
+  me0SimTrackToSimHitMatchingLY(plotter) 
+  me0SimTrackToSimHitMatchingEta(plotter) 
+  me0SimTrackToSimHitMatchingPhi(plotter)
+  
+
+#_______________________________________________________________________________
+if __name__ == "__main__":
+
+  ## Style
+  gStyle.SetStatStyle(0);
+
+  plotter = SimHitPlotter()
+  """
+  simTrackProperties(plotter)
   gemChamberNumbering(plotter)
+  produceMatchingPlots(plotter)
+  """
+  produceOccupanyPlots(plotter)

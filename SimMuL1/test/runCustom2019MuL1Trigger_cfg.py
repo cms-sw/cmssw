@@ -35,7 +35,6 @@ options.register ('ptdphi',
                   "ptdphi: 0 GeV/c default")
 
 import sys
-print sys.argv
 
 if len(sys.argv) > 0:
     last = sys.argv.pop()
@@ -56,7 +55,7 @@ if hasattr(sys, "argv") == True:
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
@@ -64,13 +63,13 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
 process = custom_GE11_6partitions_v1(process)
 
-## upgrade CSC geometry 
-from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry
-process = unganged_me1a_geometry(process)
-
 ## GEM digitizer
 from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
 process = customize_digi_addGEM_muon_only(process)
+
+## upgrade CSC geometry 
+from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry
+process = unganged_me1a_geometry(process)
 
 ## upgrade CSC digitizer
 from SLHCUpgradeSimulations.Configuration.muonCustoms import digitizer_timing_pre3_median

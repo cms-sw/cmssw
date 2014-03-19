@@ -72,6 +72,12 @@ ec1 = TCut("endcap==1")
 even = TCut("chamber%2==0")
 odd  = TCut("chamber%2==1")
 
+rpc_sector_even = TCut("sector%2==0")
+rpc_sector_odd  = TCut("sector%2==1")
+
+rpc_subsector_even = TCut("subsector%2==0")
+rpc_subsector_odd  = TCut("subsector%2==1")
+
 l1 = TCut("layer==1")
 l2 = TCut("layer==2")
 l3 = TCut("layer==3")
