@@ -79,6 +79,11 @@ namespace reco {
       }
       return 0;
     }
+#else
+   ///returns the weight with which a Track has contributed to the vertex-fit.
+    float trackWeight ( const TrackBaseRef & r ) const;
+    ///returns the weight with which a Track has contributed to the vertex-fit.
+    float trackWeight ( const TrackRef & r ) const; 
 #endif
     /// first iterator over tracks
     trackRef_iterator tracks_begin() const;
