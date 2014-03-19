@@ -1,5 +1,16 @@
 import FWCore.ParameterSet.Config as cms 
-process = cms.Process('qgldb') 
+process = cms.Process('qgldb')
+
+process.MessageLogger = cms.Service("MessageLogger",
+            destinations = cms.untracked.vstring(
+                    'cout'
+            ),
+            cout = cms.untracked.PSet(
+                    threshold = cms.untracked.string( 'INFO' )
+            ),
+)
+
+
 process.load('CondCore.DBCommon.CondDBCommon_cfi') 
 process.CondDBCommon.connect = 'sqlite_file:QGL_V1.db' 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1)) 
