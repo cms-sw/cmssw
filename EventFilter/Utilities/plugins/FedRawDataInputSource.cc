@@ -612,7 +612,17 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
       boost::filesystem::copy(jsonSourcePath,jsonDestPath);
     else {
       //boost::filesystem::rename(jsonSourcePath,jsonDestPath);
-      boost::filesystem::copy(jsonSourcePath,jsonDestPath);
+      try {
+        boost::filesystem::copy(jsonSourcePath,jsonDestPath);
+      }
+      catch (const boost::filesystem::filesystem_error& ex)
+      {
+        // Input dir gone?
+        edm::LogError("FedRawDataInputSource") << " - grabNextFile BOOST FILESYSTEM ERROR CAUGHT: " << ex.what()
+                                               << " Maybe the file is not yet visible by FU. Trying again in one second";
+        sleep(1);
+        boost::filesystem::copy(jsonSourcePath,jsonDestPath);
+      }
       boost::filesystem::remove(jsonSourcePath);
     }
 
@@ -650,7 +660,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
     // Input dir gone?
     edm::LogError("FedRawDataInputSource") << " - grabNextFile BOOST FILESYSTEM ERROR CAUGHT: " << ex.what()
                   << " - Maybe the BU run dir disappeared? Ending process with code 0...";
-    _exit(0);
+    _exit(-1);
   }
   catch (std::runtime_error e)
   {
