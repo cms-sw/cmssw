@@ -1,6 +1,7 @@
 #include "DQM/CastorMonitor/interface/CastorDigiMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //****************************************************//
 //********** CastorDigiMonitor: ******************//
@@ -236,12 +237,20 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis, co
 //======================= done =====================================//
 //==================================================================//
 void CastorDigiMonitor::done()
-  {
-  long int hdigierrEntr = h2digierr->getEntries();
-  if(fVerbosity>0) std::cout << "CastorDigiMonitor: capId,er,dv summary (entries="
-	<<hdigierrEntr<<"):"<<std::endl;
+{
+  if(m_dbe!=NULL && h2digierr!=NULL)
+    {
+      if(fVerbosity>0) 
+	{
+	  long int hdigierrEntr = h2digierr->getEntries();
+	  std::cout << "CastorDigiMonitor: capId,er,dv summary (entries=" << hdigierrEntr << "):" << std::endl;
+	}
+    }
+  else
+    edm::LogWarning("CastorDigiMonitor") << "DQMStore or histogram not available";
+  
   return;
-  }
+}
 
 
 //==================================================================//
