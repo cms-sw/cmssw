@@ -126,10 +126,6 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
     startupCv_.wait(lk);
   }
 
-  //this thread opens new files and dispatches reading to worker readers
-  threadInit_.store(false,std::memory_order_release);
-  readSupervisorThread_.reset(new std::thread(&FedRawDataInputSource::readSupervisor,this));
-
   runAuxiliary()->setProcessHistoryID(processHistoryID_);
 }
 
@@ -141,8 +137,20 @@ FedRawDataInputSource::~FedRawDataInputSource()
   for (auto it = filesToDelete_.begin();it!=filesToDelete_.end();it++) {
     deleteFile(it->second->fileName_);
     delete it->second;
-  } 
-  readSupervisorThread_->join();
+  }
+  if (startedSupervisorThread_) {
+    readSupervisorThread_->join();
+  }
+  else {
+    //join aux threads in case the supervisor thread was not started
+    for (unsigned int i=0;i<workerThreads_.size();i++) {
+      std::unique_lock<std::mutex> lk(mReader_);
+      thread_quit_signal[i]=true;
+      cvReader_[i]->notify_one();
+      workerThreads_[i]->join();
+      delete workerThreads_[i];
+    }
+  }
   for (unsigned int i=0;i<numConcurrentReads_;i++) delete cvReader_[i];
   /*
   for (unsigned int i=0;i<numConcurrentReads_+1;i++) {
@@ -155,6 +163,15 @@ FedRawDataInputSource::~FedRawDataInputSource()
 
 bool FedRawDataInputSource::checkNextEvent()
 {
+  if (!startedSupervisorThread_)
+  {
+    //this thread opens new files and dispatches reading to worker readers
+    //threadInit_.store(false,std::memory_order_release);
+    std::unique_lock<std::mutex> lk(startupLock_);
+    readSupervisorThread_.reset(new std::thread(&FedRawDataInputSource::readSupervisor,this));
+    startedSupervisorThread_=true;
+    startupCv_.wait(lk);
+  }
   switch (nextEvent() ) {
     case evf::EvFDaqDirector::runEnded: {
 
@@ -273,7 +290,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       edm::LogInfo("FedRawDataInputSource") << "No rawdata files at this time";
       //sleep until wakeup (only in single-buffer mode) or timeout
       std::unique_lock<std::mutex> lkw(mWakeup_);
-      if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout)
+      if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout || !currentFile_)
         return evf::EvFDaqDirector::noFile;
     }
     status = currentFile_->status_;
@@ -684,8 +701,13 @@ void FedRawDataInputSource::readSupervisor()
 {
   bool stop=false;
   unsigned int currentLumiSection = 0;
-  threadInit_.exchange(true,std::memory_order_acquire);
-	
+  //threadInit_.exchange(true,std::memory_order_acquire);
+
+  {	
+    std::unique_lock<std::mutex> lk(startupLock_);
+    startupCv_.notify_one();
+  }
+
   while (!stop) {
 
     //wait for at least one free thread and chunk

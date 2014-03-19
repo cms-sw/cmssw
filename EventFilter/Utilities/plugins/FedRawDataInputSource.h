@@ -178,6 +178,7 @@ private:
   InputFile *currentFile_ = nullptr;
   bool chunkIsFree_=false;
 
+  bool startedSupervisorThread_ = false;
   std::unique_ptr<std::thread> readSupervisorThread_;
   std::vector<std::thread*> workerThreads_;
 
