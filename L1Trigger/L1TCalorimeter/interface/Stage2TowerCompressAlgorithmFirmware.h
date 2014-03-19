@@ -10,19 +10,19 @@
 //
 //
 
-#ifndef CaloStage2TowerAlgorithmFirmware_H
-#define CaloStage2TowerAlgorithmFirmware_H
+#ifndef Stage2TowerCompressAlgorithmFirmware_H
+#define Stage2TowerCompressAlgorithmFirmware_H
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2TowerAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2TowerCompressAlgorithm.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 namespace l1t {
 
   // Imp1 is for v1 and v2
-  class CaloStage2TowerAlgorithmFirmwareImp1 : public CaloStage2TowerAlgorithm {
+  class Stage2TowerCompressAlgorithmFirmwareImp1 : public Stage2TowerCompressAlgorithm {
   public:
-    CaloStage2TowerAlgorithmFirmwareImp1(CaloParams* params);
-    virtual ~CaloStage2TowerAlgorithmFirmwareImp1();
+    Stage2TowerCompressAlgorithmFirmwareImp1(CaloParams* params);
+    virtual ~Stage2TowerCompressAlgorithmFirmwareImp1();
     virtual void processEvent(const std::vector<l1t::CaloTower> & inTowers,
 			      std::vector<l1t::CaloTower> & outTowers);
   private:

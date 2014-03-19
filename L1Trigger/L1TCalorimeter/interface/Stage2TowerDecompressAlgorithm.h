@@ -1,5 +1,5 @@
 ///step03
-/// \class l1t::CaloStage2TowerAlgorithm
+/// \class l1t::Stage2TowerDecompressAlgorithm
 ///
 /// Description: convert input quantities to ECAL + HCAL towers
 ///
@@ -10,20 +10,20 @@
 
 //
 
-#ifndef CaloStage2TowerAlgorithm_h
-#define CaloStage2TowerAlgorithm_h
+#ifndef Stage2TowerDecompressAlgorithm_h
+#define Stage2TowerDecompressAlgorithm_h
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
 
 namespace l1t {
     
-  class CaloStage2TowerAlgorithm { 
+  class Stage2TowerDecompressAlgorithm { 
   public:
     virtual void processEvent(const std::vector<l1t::CaloTower> & inTowers,
 			      std::vector<l1t::CaloTower> & outTowers) = 0;    
 
-    virtual ~CaloStage2TowerAlgorithm(){};
+    virtual ~Stage2TowerDecompressAlgorithm(){};
   }; 
   
 } 
