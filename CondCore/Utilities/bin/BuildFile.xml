@@ -53,3 +53,6 @@
 <bin   file="conddb_migrate_gt.cpp" name="conddb_migrate_gt">
   <use   name="CondCore/CondDB"/>
 </bin>
+<bin   file="conddb_validate.cpp" name="conddb_validate">
+  <use   name="CondCore/CondDB"/>
+</bin>

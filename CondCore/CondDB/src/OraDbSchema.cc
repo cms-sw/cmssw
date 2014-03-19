@@ -93,7 +93,9 @@ namespace cond {
 			      cond::SynchronizationType, cond::Time_t endOfValidity, const std::string& description, 
 			      cond::Time_t, const boost::posix_time::ptime& ){
       std::string tok = m_cache.editor().create( timeType, endOfValidity );
-      m_cache.editor().stamp( description );
+      if( !m_cache.validationMode() ){
+	m_cache.editor().stamp( description );
+      }
       m_cache.addTag( name, tok );
     }
       
@@ -104,12 +106,16 @@ namespace cond {
       if( tok.empty() ) throwException( "Tag \""+name+"\" has not been found in the database.","OraTagTable::update");
       m_cache.editor().load( tok );
       m_cache.editor().updateClosure( endOfValidity );
-      m_cache.editor().stamp( description );
+      if( !m_cache.validationMode() ) m_cache.editor().stamp( description );
     }
       
     void OraTagTable::updateValidity( const std::string&, cond::Time_t, 
 				      const boost::posix_time::ptime& ){
       // can't be done in this case...
+    }
+
+    void OraTagTable::setValidationMode(){
+      m_cache.setValidationMode();
     }
 
     OraPayloadTable::OraPayloadTable( DbSession& session ):
