@@ -7,7 +7,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2MainProcessorFirmware.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2TowerAlgorithmFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2TowerDecompressAlgorithmFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2ClusterAlgorithmFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2EGammaAlgorithmFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2TauAlgorithmFirmware.h"
@@ -25,7 +25,7 @@ l1t::CaloStage2MainProcessorFirmwareImp1::CaloStage2MainProcessorFirmwareImp1(co
   m_params(params)
 {
 
-  m_towerAlgo = new CaloStage2TowerAlgorithmFirmwareImp1(m_params);
+  m_towerAlgo = new Stage2TowerDecompressAlgorithmFirmwareImp1(m_params);
   m_egClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params,
 							       CaloStage2ClusterAlgorithmFirmwareImp1::ClusterInput::E);
   m_egAlgo = new CaloStage2EGammaAlgorithmFirmwareImp1(m_params);
@@ -57,19 +57,19 @@ void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1
 							    std::vector<l1t::Jet> & jets,
 							    std::vector<l1t::EtSum> & etsums) {
 
-  std::vector<l1t::CaloTower> inTowers;
+  std::vector<l1t::CaloTower> intTowers; // internal towers (decompressed)
   std::vector<l1t::CaloCluster> egClusters;
   std::vector<l1t::CaloCluster> tauClusters;
   std::vector<l1t::EtSum> towersums;
   std::vector<l1t::EtSum> jetsums;
   
-  //  m_towerAlgo->processEvent( towers, towers );
-  m_egClusterAlgo->processEvent( towers, egClusters );
-  m_egAlgo->processEvent( egClusters, towers, egammas );
-  m_egClusterAlgo->processEvent( towers, tauClusters );
+  m_towerAlgo->processEvent( towers, intTowers );
+  m_egClusterAlgo->processEvent( intTowers, egClusters );
+  m_egAlgo->processEvent( egClusters, intTowers, egammas );
+  m_egClusterAlgo->processEvent( intTowers, tauClusters );
   m_tauAlgo->processEvent( tauClusters, taus );
-  m_jetAlgo->processEvent( towers, jets );
-  m_sumAlgo->processEvent( towers, towersums );
+  m_jetAlgo->processEvent( intTowers, jets );
+  m_sumAlgo->processEvent( intTowers, towersums );
   m_jetSumAlgo->processEvent( jets, jetsums );  
 
   clusters.insert( clusters.end(), egClusters.begin(), egClusters.end() );
@@ -83,7 +83,7 @@ void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1
 void l1t::CaloStage2MainProcessorFirmwareImp1::print(std::ostream& out) const {
 
   out << "Calo Stage 2 Main Processor" << std::endl;
-
+  out << "  Tower algo       : " << (m_towerAlgo?1:0) << std::endl;
   out << "  EG cluster algo  : " << (m_egClusterAlgo?1:0) << std::endl;
   out << "  EG ID algo       : " << (m_egAlgo?1:0) << std::endl;
   out << "  Tau cluster algo : " << (m_tauClusterAlgo?1:0) << std::endl;
