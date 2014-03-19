@@ -171,7 +171,7 @@ foreach l (`lcg-ls $INDIR_GRID | cut -d/ -f15`)
 		    chmod 755 fpr_job_${OUTS1}.sh
 
 		    if (${6} == "BATCH") then	
-			bsub -q 8nh -e /dev/null -o /tmp/${LOGNAME}_out.txt fpr_job_${OUTS1}.sh			
+			bsub -q 2nd -e /dev/null -o /tmp/${LOGNAME}_out.txt fpr_job_${OUTS1}.sh			
 		    endif
 		endif
 	    endif

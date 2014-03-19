@@ -330,11 +330,13 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
 			 tracks[tt]->getCurve()*sin(tracks[tt]->getPhi0()),
 			 pz);
 
+	//	std::cout << tracks[tt]->getZ0() << " / " << POCA.z() << std::endl;
+
 	tempTrack.setSector( sec_it->first );
 	tempTrack.setWedge( -1 );
 	tempTrack.setMomentum( mom );
 	tempTrack.setPOCA( POCA );
-
+	//	std::cout << tracks[tt]->getZ0() << " / " << POCA.z() << " / " << tempTrack.getPOCA().z() << std::endl;
 	TTTracksForOutput->push_back( tempTrack );
 
 	delete tracks[tt];
@@ -351,7 +353,9 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
     delete(fitter);
     
   }
-  
+
+
+
   /// Put in the event content
   iEvent.put( TTTracksForOutput, TTTrackOutputTag);
 }
