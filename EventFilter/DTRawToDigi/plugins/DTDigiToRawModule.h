@@ -25,7 +25,7 @@ private:
   
   int dduID;
   bool debug;
-  edm::EDGetTokenT<DTDigiCollection> digicoll;
+  edm::EDGetTokenT<DTDigiCollection> digiCollToken_;
   
   bool useStandardFEDid_;
   int minFEDid_;

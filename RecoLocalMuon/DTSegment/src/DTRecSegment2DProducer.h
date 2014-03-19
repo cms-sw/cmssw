@@ -12,7 +12,7 @@
 
 /* Base Class Headers */
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
 namespace edm {
   class ParameterSet;
@@ -53,7 +53,7 @@ class DTRecSegment2DProducer : public edm::EDProducer {
   DTRecSegment2DBaseAlgo* theAlgo;
 
   //static std::string theAlgoName;
-  edm::InputTag theRecHits1DLabel;
+  edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
 };
 #endif // DTRecHit_DTRecSegment2DProducer_h
 

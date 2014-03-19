@@ -54,7 +54,7 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0) 
 					     << dataType << " is unknown";
   }
 
-  inputLabel = consumes<FEDRawDataCollection>(ps.getParameter<InputTag>("inputLabel")); // default was: source
+  rawDataToken_ = consumes<FEDRawDataCollection>(ps.getParameter<InputTag>("inputLabel")); // default was: source
   useStandardFEDid_ = ps.getParameter<bool>("useStandardFEDid"); // default was: true
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid",770); // default: 770
   maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid",779); // default 779
@@ -74,7 +74,7 @@ DTUnpackingModule::~DTUnpackingModule(){
 void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
   Handle<FEDRawDataCollection> rawdata;
-  e.getByToken(inputLabel, rawdata);
+  e.getByToken(rawDataToken_, rawdata);
 
   if(!rawdata.isValid()){
     LogError("DTUnpackingModule::produce") << " unable to get raw data from the event" << endl;
