@@ -502,7 +502,6 @@ PFProducer::produce(Event& iEvent,
   LogDebug("PFProducer")<<"START event: "
 			<<iEvent.id().event()
 			<<" in run "<<iEvent.id().run()<<endl;
-  
 
   // Get The vertices from the event
   // and assign dynamic vertex parameters
@@ -707,6 +706,13 @@ PFProducer::produce(Event& iEvent,
   }
 
 
+  for ( auto ipf = pOutputCandidateCollection->begin(),
+	  ipfbegin = ipf, ipfend = pOutputCandidateCollection->end();
+	ipf != ipfend; ++ipf ) {
+    unsigned int index = ipf - ipfbegin;
+    ipf->set_pfIndex( static_cast<int>(index) );
+  }
+
 
   // Write in the event
   iEvent.put(pOutputCandidateCollection);
@@ -726,7 +732,6 @@ PFProducer::produce(Event& iEvent,
       auto_ptr< reco::PFCandidateCollection >  
 	pOutputElectronCandidateCollection( pfAlgo_->transferElectronCandidates() ); 
       iEvent.put(pOutputElectronCandidateCollection,electronOutputCol_);
-
     }
 }
 

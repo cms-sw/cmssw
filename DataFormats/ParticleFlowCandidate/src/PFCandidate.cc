@@ -30,6 +30,7 @@ const float PFCandidate::bigMva_ = -999.;
 
 PFCandidate::PFCandidate() : 
   elementsInBlocks_(nullptr),
+  pfIndex_(-1),
   ecalERatio_(1.),
   hcalERatio_(1.),
   hoERatio_(1.),
@@ -61,15 +62,18 @@ PFCandidate::PFCandidate( const PFCandidatePtr& sourcePtr ):
   PFCandidate(*sourcePtr)
 {
   sourcePtr_ = sourcePtr;
+  pfIndex_ = sourcePtr->pfIndex_;
 }
 
 
 PFCandidate::PFCandidate( Charge charge, 
 			  const LorentzVector & p4, 
-			  ParticleType partId ) : 
+			  ParticleType partId,
+			  int pfIndex ) : 
   
   CompositeCandidate(charge, p4),
   elementsInBlocks_(nullptr),
+  pfIndex_(pfIndex), 
   ecalERatio_(1.),
   hcalERatio_(1.),
   hoERatio_(1.),
@@ -127,6 +131,7 @@ PFCandidate::PFCandidate( PFCandidate const& iOther) :
   blocksStorage_(iOther.blocksStorage_),
   elementsStorage_(iOther.elementsStorage_),
   sourcePtr_(iOther.sourcePtr_),
+  pfIndex_(iOther.pfIndex_),
   muonTrackType_(iOther.muonTrackType_),
   ecalERatio_(iOther.ecalERatio_),
   hcalERatio_(iOther.hcalERatio_),
@@ -168,6 +173,7 @@ PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
   blocksStorage_=iOther.blocksStorage_;
   elementsStorage_=iOther.elementsStorage_;
   sourcePtr_=iOther.sourcePtr_;
+  pfIndex_=iOther.pfIndex_;
   muonTrackType_=iOther.muonTrackType_;
   ecalERatio_=iOther.ecalERatio_;
   hcalERatio_=iOther.hcalERatio_;
@@ -255,6 +261,15 @@ void PFCandidate::setParticleType( ParticleType type ) {
 
 
 bool PFCandidate::overlap(const reco::Candidate & other) const {
+
+    // New method to compute overlaps : if the global pf index matches, that
+    // is used for the matching. 
+    reco::PFCandidate const * otherAsPF = dynamic_cast<reco::PFCandidate const *> (&other);
+    if ( otherAsPF != 0 && pfIndex_ >= 0 && otherAsPF->pfIndex_ >= 0 && pfIndex_ == otherAsPF->pfIndex_ ) {
+      return true;
+    }
+
+    // Otherwise, fall back to the old source ptr magic.
     CandidatePtr myPtr = sourceCandidatePtr(0);
     if (myPtr.isNull()) return false;
     for (size_t i = 0, n = other.numberOfSourceCandidatePtrs(); i < n; ++i) {
@@ -301,7 +316,7 @@ ostream& reco::operator<<(ostream& out,
   
   if(!out) return out;
   
-  out<<"\tPFCandidate type: "<<c.particleId();
+  out<<"\tPFCandidate type: "<<c.particleId() << ", index " << c.pfIndex();
   out<<setiosflags(ios::right);
   out<<setiosflags(ios::fixed);
   out<<setprecision(3);
