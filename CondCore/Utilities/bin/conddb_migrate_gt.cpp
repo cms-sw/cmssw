@@ -73,7 +73,7 @@ namespace cond {
   using namespace persistency;
 }
 
-cond::MigrateGTUtilities::MigrateGTUtilities():Utilities("conddb_test_gt_import"){
+cond::MigrateGTUtilities::MigrateGTUtilities():Utilities("conddb_migrate_gt"){
   addConnectOption("sourceConnect","s","source connection string(required)");
   addConnectOption("destConnect","d","destionation connection string(required)");
   addAuthenticationOptions();
