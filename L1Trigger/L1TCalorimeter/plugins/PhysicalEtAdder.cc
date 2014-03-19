@@ -137,7 +137,6 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const double pt = itEtSum->hwPt() * emScale->linearLsb();
       const double eta = getPhysicalEta(itEtSum->hwEta());
       const double phi = getPhysicalPhi(itEtSum->hwPhi());
-      // const l1t::EtSum::EtSumType sumType = l1t::EtSum::kMissingEt; //FIXME
       const l1t::EtSum::EtSumType sumType = itEtSum->getType();
       std::cout << "SumType: " << sumType << std::endl;
       math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
