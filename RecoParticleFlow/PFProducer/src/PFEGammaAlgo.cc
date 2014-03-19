@@ -1725,7 +1725,7 @@ linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject& RO) {
   auto ronotconv = std::partition(BeginROskfs,EndROskfs,isConvKf); 
   size_t convkfs_end = std::distance(BeginROskfs,ronotconv);  
   for( size_t idx = 0; idx < convkfs_end; ++idx ) { 
-    const PFKFFlaggedElement& ro_skf = RO.secondaryKFs[idx];
+    const PFKFFlaggedElement ro_skf = RO.secondaryKFs[idx];
     NotCloserToOther<reco::PFBlockElement::TRACK,
                      reco::PFBlockElement::TRACK,
                      true>
