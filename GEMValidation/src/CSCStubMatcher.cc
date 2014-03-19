@@ -346,20 +346,29 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
 
     // find a matching LCT
     auto clct = clctInChamber(id);
-    if (!is_valid(clct)) continue;
-
     auto alct = alctInChamber(id);
-    if (!is_valid(alct)) continue;
+    const bool caseAlctClct(is_valid(clct) and is_valid(alct));
+    if (not (caseAlctClct)) continue;
 
-    int my_hs = digi_channel(clct);
-    int my_wg = digi_wg(alct);
-    int my_bx = digi_bx(alct);
+    const int my_hs(digi_channel(clct));
+    const int my_wg(digi_wg(alct));
+    const int my_bx(digi_bx(alct));
+
+    auto cscChamber(cscGeometry_->chamber(CSCDetId(id)));
+    auto cscKeyLayer(cscChamber->layer(3));
+    auto cscKeyLayerGeometry(cscKeyLayer->geometry());
+    const int nStrips(cscKeyLayerGeometry->numberOfStrips());
+    const auto averageZ((cscKeyLayer->centerOfStrip(0)).z());
+    auto GpME(propagateToZ(averageZ));
+    auto lpME(cscKeyLayer->toLocal(GpME));
+    // remember that trigger strips are wrapped-around
+    const int my_hs_gem((nStrips-cscKeyLayerGeometry->nearestStrip(lpME))*2);
 
     if (verbose()) cout<<"will match hs"<<my_hs<<" wg"<<my_wg<<" bx"<<my_bx<<" to #lct "<<n_lct<<endl;
     for (auto &lct: lcts_tmp)
     {
       if (verbose()) cout<<" corlct "<<lct;
-      if (!(my_bx == digi_bx(lct) and my_hs == digi_channel(lct) and my_wg == digi_wg(lct)) ){
+      if (!(my_bx == digi_bx(lct) and my_hs == digi_channel(lct) and my_wg == digi_wg(lct) ) ){
         if (verbose()) cout<<"  BAD"<<endl;
         continue;
       }

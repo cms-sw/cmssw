@@ -51,10 +51,19 @@ inline bool is_me0(unsigned int detId) {
 }
 
 static const float AVERAGE_GEM_Z(568.6); // [cm]
+
 static const float AVERAGE_GE11_ODD_Z(568.6); // [cm]
 static const float AVERAGE_GE11_EVEN_Z(568.6); // [cm]
+
 static const float AVERAGE_GE21_LONG_Z(568.6); // [cm]
 static const float AVERAGE_GE21_SHORT_Z(568.6); // [cm]
+
+static const float AVERAGE_ME11_EVEN_Z(585); // [cm]
+static const float AVERAGE_ME11_ODD_Z(615); // [cm]
+
+static const float AVERAGE_ME21_EVEN_Z(820); // [cm]
+static const float AVERAGE_ME21_ODD_Z(835); // [cm]
+
 static const float AVERAGE_ME0_Z(568.6); // [cm]
 
 class BaseMatcher
