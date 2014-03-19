@@ -27,7 +27,7 @@ namespace edm
   DataMixingSiPixelWorker::DataMixingSiPixelWorker() { } 
 
   // Constructor 
-  DataMixingSiPixelWorker::DataMixingSiPixelWorker(const edm::ParameterSet& ps) : 
+  DataMixingSiPixelWorker::DataMixingSiPixelWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
 							    label_(ps.getParameter<std::string>("Label"))
 
   {                                                         
@@ -40,6 +40,10 @@ namespace edm
     pixeldigi_collectionSig_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionSig");
     pixeldigi_collectionPile_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionPile");
     PixelDigiCollectionDM_  = ps.getParameter<std::string>("PixelDigiCollectionDM");
+
+    PixelDigiToken_ = iC.consumes<edm::DetSetVector<PixelDigi> >(pixeldigi_collectionSig_);
+    PixelDigiPToken_ = iC.consumes<edm::DetSetVector<PixelDigi> >(pixeldigi_collectionPile_);
+
 
     // clear local storage for this event                                                                     
     SiHitStorage_.clear();
@@ -60,7 +64,7 @@ namespace edm
 
     Handle< edm::DetSetVector<PixelDigi> >  input;
 
-    if( e.getByLabel(pixeldigi_collectionSig_,input) ) {
+    if( e.getByToken(PixelDigiToken_,input) ) {
 
       //loop on all detsets (detectorIDs) inside the input collection
       edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();
