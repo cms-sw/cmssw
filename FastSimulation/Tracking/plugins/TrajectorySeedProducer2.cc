@@ -331,8 +331,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
 			//TODO: store the created valid hits here - later create them from the numbers above as needed
 			// -> saves the unnecessary creation of the objects
-			std::vector<std::vector<TrackerRecHit>> seedHitCandiates;
-			seedHitCandiates.resize(theLayersInSets.size());
+
 
 
 			unsigned int numberOfNonEqualHits=0;
