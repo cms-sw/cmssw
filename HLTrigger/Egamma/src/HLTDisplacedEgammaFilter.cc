@@ -59,8 +59,8 @@ HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
    desc.add<edm::InputTag>("inputTag",edm::InputTag("hltEGRegionalL1SingleEG22"));
    desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
    desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-   desc.add<edm::InputTag>("RecHitsEB",edm::InputTag("hltEcalRecHitAll", "EcalRecHitsEB"));
-   desc.add<edm::InputTag>("RecHitsEE",edm::InputTag("hltEcalRecHitAll", "EcalRecHitsEE"));
+   desc.add<edm::InputTag>("RecHitsEB",edm::InputTag("hltEcalRecHit", "EcalRecHitsEB"));
+   desc.add<edm::InputTag>("RecHitsEE",edm::InputTag("hltEcalRecHit", "EcalRecHitsEE"));
    desc.add<edm::InputTag>("inputTrack",edm::InputTag("hltL1SeededEgammaRegionalCTFFinalFitWithMaterial"));
    desc.add<bool>("relaxed",false);
    desc.add<int>("ncandcut",1);
