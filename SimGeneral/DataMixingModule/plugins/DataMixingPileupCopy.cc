@@ -27,7 +27,7 @@ namespace edm
   DataMixingPileupCopy::DataMixingPileupCopy() { } 
 
   // Constructor 
-  DataMixingPileupCopy::DataMixingPileupCopy(const edm::ParameterSet& ps) : 
+  DataMixingPileupCopy::DataMixingPileupCopy(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
 							    label_(ps.getParameter<std::string>("Label"))
 
   {                                                         
@@ -37,6 +37,8 @@ namespace edm
     PileupInfoInputTag_ = ps.getParameter<edm::InputTag>("PileupInfoInputTag");
     CFPlaybackInputTag_ = ps.getParameter<edm::InputTag>("CFPlaybackInputTag");
 
+    iC.consumes<std::vector<PileupSummaryInfo>>(PileupInfoInputTag_);
+    iC.consumes<CrossingFramePlaybackInfoExtended>(CFPlaybackInputTag_);
   }
 	       
   // Virtual destructor needed.
