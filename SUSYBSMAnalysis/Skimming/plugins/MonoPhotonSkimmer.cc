@@ -2,7 +2,7 @@
 //
 // Package:    MonoPhotonSkimmer
 // Class:      MonoPhotonSkimmer
-// 
+//
 /**\class MonoPhotonSkimmer MonoPhotonSkimmer.cc MonoPhotonSkimmer/MonoPhotonSkimmer/src/MonoPhotonSkimmer.cc
 
  Description: [one line class summary]
@@ -48,28 +48,28 @@ class MonoPhotonSkimmer : public edm::EDFilter {
       virtual void beginJob() override ;
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
-      
+
       // ----------member data ---------------------------
-      edm::InputTag _phoTag;
+      edm::EDGetTokenT<reco::PhotonCollection> _phoToken;
       bool _selectEE;         //Do you want to select EE photons?
       //True enables this.
-      
+
       double _ecalisoOffsetEB; //Photon Preselection has linearized cuts.
       double _ecalisoSlopeEB;  //slope * photonpt + offset is the isolation
       //threshold.  This is ECAL EB.
-      
+
       double _hcalisoOffsetEB; //Linearized cut on HCAL towers, EB.
       double _hcalisoSlopeEB;
-      
+
       double _hadoveremEB;     //Flat selection cut on HadOverEM.
-      
+
       double _minPhoEtEB;      //Minimum Photon ET threshold, EB.
-      
+
       double _trackisoOffsetEB;//Linearized cut on track isolation EB
       double _trackisoSlopeEB;
- 
+
       double _etawidthEB;        //eta width for EB
-       
+
       double _ecalisoOffsetEE; //As above, but separately set for EE.
       double _ecalisoSlopeEE;
       double _hcalisoOffsetEE;
@@ -78,7 +78,7 @@ class MonoPhotonSkimmer : public edm::EDFilter {
       double _minPhoEtEE;
       double _trackisoOffsetEE;
       double _trackisoSlopeEE;
-      double _etawidthEE;       
+      double _etawidthEE;
 };
 
 //
@@ -95,9 +95,9 @@ class MonoPhotonSkimmer : public edm::EDFilter {
 MonoPhotonSkimmer::MonoPhotonSkimmer(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-  _phoTag = iConfig.getParameter<edm::InputTag>("phoTag");
+  _phoToken = consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("phoTag"));
    _selectEE = iConfig.getParameter<bool>("selectEE");
- 
+
   _ecalisoOffsetEB = iConfig.getParameter<double>("ecalisoOffsetEB");
   _ecalisoSlopeEB = iConfig.getParameter<double>("ecalisoSlopeEB");
 
@@ -111,7 +111,7 @@ MonoPhotonSkimmer::MonoPhotonSkimmer(const edm::ParameterSet& iConfig)
   _trackisoOffsetEB= iConfig.getParameter<double>("trackIsoOffsetEB");
   _trackisoSlopeEB= iConfig.getParameter<double>("trackIsoSlopeEB");
   _etawidthEB=iConfig.getParameter<double>("etaWidthEB");
-                          
+
   _ecalisoOffsetEE = iConfig.getParameter<double>("ecalisoOffsetEE");
   _ecalisoSlopeEE = iConfig.getParameter<double>("ecalisoSlopeEE");
 
@@ -132,7 +132,7 @@ MonoPhotonSkimmer::MonoPhotonSkimmer(const edm::ParameterSet& iConfig)
 
 MonoPhotonSkimmer::~MonoPhotonSkimmer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -147,17 +147,17 @@ MonoPhotonSkimmer::~MonoPhotonSkimmer()
 bool
 MonoPhotonSkimmer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
- Handle<reco::PhotonCollection> photonColl;
-  iEvent.getByLabel(_phoTag, photonColl);
-  const reco::PhotonCollection *photons = photonColl.product();  
+  using namespace edm;
+  Handle<reco::PhotonCollection> photonColl;
+  iEvent.getByToken(_phoToken, photonColl);
+  const reco::PhotonCollection *photons = photonColl.product();
   //Iterate over photon collection.
 //  std::vector<reco::Photon> PreselPhotons;
   int PreselPhotons=0;
   reco::PhotonCollection::const_iterator pho;
-  for (pho = (*photons).begin(); pho!= (*photons).end(); pho++){  
+  for (pho = (*photons).begin(); pho!= (*photons).end(); pho++){
     if (!pho->isEB() && !_selectEE) continue;
-    
+
     double ecalisocut = 0;
     double hcalisocut = 0;
     double hadoverem  = 0;
@@ -180,7 +180,7 @@ MonoPhotonSkimmer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       trackiso   = _trackisoOffsetEE + _trackisoSlopeEE * pho->pt();
       etawidth   = _etawidthEE;
    }
-    
+
     if (pho->ecalRecHitSumEtConeDR04() < ecalisocut
         && pho->hcalTowerSumEtConeDR04() < hcalisocut
         && pho->hadronicOverEm() < hadoverem
@@ -188,20 +188,20 @@ MonoPhotonSkimmer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         && pho->trkSumPtHollowConeDR04()<trackiso
         && pho->sigmaIetaIeta() <etawidth
        ) PreselPhotons++;
-   
-  }//Loop over Photons 
+
+  }//Loop over Photons
   if (PreselPhotons > 0 ) return true;
   return false;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 MonoPhotonSkimmer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 MonoPhotonSkimmer::endJob() {
 }
 

@@ -2,8 +2,8 @@
 //
 // Package:    ReduceHcalRecHitCollectionProducer
 // Class:      ReduceHcalRecHitCollectionProducer
-// 
-/*\class ReduceHcalRecHitCollectionProducer ReduceHcalRecHitCollectionProducer.cc 
+//
+/*\class ReduceHcalRecHitCollectionProducer ReduceHcalRecHitCollectionProducer.cc
 
  Description: [one line class summary]
 
@@ -68,9 +68,9 @@ class ReduceHcalRecHitCollectionProducer : public edm::EDProducer {
       ~ReduceHcalRecHitCollectionProducer();
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
    private:
-      edm::InputTag recHitsLabel_;
+      edm::EDGetTokenT<HBHERecHitCollection> recHitsToken_;
       std::string reducedHitsCollection_;
-      edm::InputTag inputCollection_;
+      edm::EDGetTokenT<reco::TrackCollection> inputCollectionToken_;
       TrackDetectorAssociator trackAssociator_;
       TrackAssociatorParameters parameters_;
       double  ptcut_;
@@ -91,27 +91,28 @@ class ReduceHcalRecHitCollectionProducer : public edm::EDProducer {
 //
 ReduceHcalRecHitCollectionProducer::ReduceHcalRecHitCollectionProducer(const edm::ParameterSet& iConfig)
 {
-  recHitsLabel_ = iConfig.getParameter< edm::InputTag > ("recHitsLabel");
+  recHitsToken_ = consumes<HBHERecHitCollection>(iConfig.getParameter< edm::InputTag > ("recHitsLabel"));
 
   reducedHitsCollection_ = iConfig.getParameter<std::string>("reducedHitsCollection");
-  
+
    //register your products
   produces< HBHERecHitCollection > (reducedHitsCollection_) ;
 
-    inputCollection_ = iConfig.getParameter< edm::InputTag >("inputCollection");    ptcut_= iConfig.getParameter< double >("TrackPt");
+    inputCollectionToken_ = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag >("inputCollection"));
+    ptcut_= iConfig.getParameter< double >("TrackPt");
 
     produces< DetIdCollection >() ;
    // TrackAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
    parameters_.loadParameters( parameters );
    trackAssociator_.useDefaultPropagator();
- 
+
 }
 
 
 ReduceHcalRecHitCollectionProducer::~ReduceHcalRecHitCollectionProducer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -133,30 +134,30 @@ ReduceHcalRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::Event
    using reco::TrackCollection;
 
    Handle<HBHERecHitCollection> recHitsHandle;
-   iEvent.getByLabel(recHitsLabel_,recHitsHandle);
-   if( !recHitsHandle.isValid() ) 
+   iEvent.getByToken(recHitsToken_,recHitsHandle);
+   if( !recHitsHandle.isValid() )
      {
        edm::LogError("ReduceHcalRecHitCollectionProducer") << "RecHit collection not found";
        return;
      }
-   
+
    //Create empty output collections
    std::auto_ptr< HBHERecHitCollection > miniRecHitCollection (new HBHERecHitCollection) ;
-    
-//loop through tracks. 
+
+//loop through tracks.
    Handle<TrackCollection> tkTracks;
-   iEvent.getByLabel(inputCollection_,tkTracks);
+   iEvent.getByToken(inputCollectionToken_,tkTracks);
    std::auto_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
    for(TrackCollection::const_iterator itTrack = tkTracks->begin();
-       itTrack != tkTracks->end();                      
+       itTrack != tkTracks->end();
        ++itTrack) {
         if(itTrack->pt()>ptcut_){
-  
+
            TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
-  
+
           if(info.crossedHcalIds.size()>0){
              //loop through hits in the cone
-             for(std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin(); 
+             for(std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin();
                  hit != info.hcalRecHits.end(); ++hit)
              {
                 DetId hitid=(*hit)->id();
@@ -164,7 +165,7 @@ ReduceHcalRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::Event
                 if ( (iRecHit != recHitsHandle->end()) && (miniRecHitCollection->find(hitid) == miniRecHitCollection->end()) )
                    miniRecHitCollection->push_back(*iRecHit);
              }
-             
+
 
           }
         }

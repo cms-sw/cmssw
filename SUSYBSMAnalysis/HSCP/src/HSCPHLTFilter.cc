@@ -33,10 +33,10 @@ class HSCPHLTFilter : public edm::EDFilter {
       virtual void endJob() override ;
       bool isDuplicate(unsigned int Run, unsigned int Event);
 
-  bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut, int NObjectAboveThreshold, bool averageThreshold);
+      bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut, int NObjectAboveThreshold, bool averageThreshold);
 
       std::string TriggerProcess;
-
+      edm::EDGetTokenT< trigger::TriggerEvent > trEvToken;
       std::map<std::string, bool > DuplicateMap;
 
       unsigned int CountEvent;
@@ -55,12 +55,13 @@ HSCPHLTFilter::HSCPHLTFilter(const edm::ParameterSet& iConfig)
    RemoveDuplicates      = iConfig.getParameter<bool>                ("RemoveDuplicates");
 
    TriggerProcess        = iConfig.getParameter<std::string>         ("TriggerProcess");
+   trEvToken = consumes< trigger::TriggerEvent >( edm::InputTag( "hltTriggerSummaryAOD" ) );
    MuonTrigger1Mask       = iConfig.getParameter<int>                 ("MuonTrigger1Mask");
    PFMetTriggerMask        = iConfig.getParameter<int>                 ("PFMetTriggerMask");
 
    CountEvent = 0;
    MaxPrint = 10000;
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 HSCPHLTFilter::~HSCPHLTFilter(){
@@ -102,7 +103,7 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    edm::Handle< trigger::TriggerEvent > trEvHandle;
-   iEvent.getByLabel("hltTriggerSummaryAOD", trEvHandle);
+   iEvent.getByToken(trEvToken, trEvHandle);
    trigger::TriggerEvent trEv = *trEvHandle;
 
    CountEvent++;
@@ -203,9 +204,9 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                               }else{
                                  if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v3")){
                                     if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v3"))){PFMetTrigger = true;}
-                                 }else{ 
+                                 }else{
                                     if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v2")){
-                                       if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v2"))){PFMetTrigger = true;}  
+                                       if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v2"))){PFMetTrigger = true;}
                                     }else{
                                        if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v1")){
                                           if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v1"))){PFMetTrigger = true;}
@@ -218,7 +219,7 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                       }
                                    }
                                 }
-                             }  
+                             }
                           }
                        }
                     }
