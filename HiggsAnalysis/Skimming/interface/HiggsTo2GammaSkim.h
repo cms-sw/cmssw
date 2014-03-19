@@ -5,7 +5,7 @@
  *
  *
  * Filter to select 2 photon events based on the
- * 1 or 2 photon HLT trigger, 
+ * 1 or 2 photon HLT trigger,
  *
  * \author Kati Lassila-Perini - Helsinki Institute of Physics
  *
@@ -22,9 +22,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include <DataFormats/EgammaCandidates/interface/PhotonFwd.h>
 
 class HiggsTo2GammaSkim : public edm::EDFilter {
-  
+
  public:
   // Constructor
   explicit HiggsTo2GammaSkim(const edm::ParameterSet&);
@@ -46,8 +47,7 @@ class HiggsTo2GammaSkim : public edm::EDFilter {
   int nPhotonMin;
 
   // Reco samples
-  edm::InputTag thePhotonLabel;
-  // std::string thePhotonLabel;
+  edm::EDGetTokenT<reco::PhotonCollection> thePhotonToken;
 };
 
 #endif

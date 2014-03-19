@@ -3,8 +3,8 @@
 
 /** \class HeavyChHiggsToTauNuSkim
  *
- *  
- *  Filter to select events passing 
+ *
+ *  Filter to select events passing
  *  L1 single tau
  *  HLT tau+MET
  *  3 offline jets
@@ -24,6 +24,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include <math.h>
 
@@ -37,15 +39,15 @@ class HeavyChHiggsToTauNuSkim : public edm::EDFilter {
 
    private:
 	double deltaPhi(double phi1, double phi2){
-	    const double PI = 3.1415926535;	
+	    const double PI = 3.1415926535;
 	    // in ORCA phi = [0,2pi], in TLorentzVector phi = [-pi,pi].
 	    // With the conversion below deltaPhi works ok despite the
 	    // 2*pi difference in phi definitions.
 	    if(phi1 < 0) phi1 += 2*PI;
 	    if(phi2 < 0) phi2 += 2*PI;
-	
+
 	    double dphi = fabs(phi1-phi2);
-	
+
 	    if(dphi > PI) dphi = 2*PI - dphi;
 	    return dphi;
 	}
@@ -58,8 +60,8 @@ class HeavyChHiggsToTauNuSkim : public edm::EDFilter {
 
 	bool 		debug;
 
-        edm::InputTag   hltTauLabel;
-	edm::InputTag	jetLabel;
+        edm::EDGetTokenT<reco::IsolatedTauTagInfoCollection>   hltTauToken;
+	edm::EDGetTokenT<reco::CaloJetCollection>	jetToken;
         int 		minNumberOfjets;
         double 		jetEtMin;
         double 		jetEtaMin;
@@ -71,4 +73,4 @@ class HeavyChHiggsToTauNuSkim : public edm::EDFilter {
 #endif
 
 
-   
+
