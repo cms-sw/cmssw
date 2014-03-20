@@ -71,3 +71,13 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.p = cms.Path(process.GEMCSCAnalyzer)
 
+## messages
+print
+print 'Input files:'
+print '----------------------------------------'
+print process.source.fileNames
+print
+print 'Output file:'
+print '----------------------------------------'
+print process.TFileService.fileName
+print
