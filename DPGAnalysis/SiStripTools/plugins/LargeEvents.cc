@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      LargeEvents
-// 
+//
 /**\class LargeEvents LargeEvents.cc DPGAnalysis/SiStripTools/LargeEvents.cc
 
  Description: templated EDFilter to select events with large number of SiStripDigi or SiStripCluster
@@ -60,10 +60,10 @@ class LargeEvents : public edm::EDFilter {
       virtual void beginJob() override ;
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
-      
+
       // ----------member data ---------------------------
 
-  edm::InputTag _collection;
+  edm::EDGetTokenT<T> _collectionToken;
   int _absthr;
   int _modthr;
   bool _useQuality;
@@ -86,7 +86,7 @@ class LargeEvents : public edm::EDFilter {
 //
 template <class T>
 LargeEvents<T>::LargeEvents(const edm::ParameterSet& iConfig):
-  _collection(iConfig.getParameter<edm::InputTag>("collectionName")),
+  _collectionToken(consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))),
   _absthr(iConfig.getUntrackedParameter<int>("absoluteThreshold")),
   _modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
   _useQuality(iConfig.getUntrackedParameter<bool>("useQuality",false)),
@@ -100,7 +100,7 @@ LargeEvents<T>::LargeEvents(const edm::ParameterSet& iConfig):
 template <class T>
 LargeEvents<T>::~LargeEvents()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -126,7 +126,7 @@ LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    Handle<T> digis;
-   iEvent.getByLabel(_collection,digis);
+   iEvent.getByToken(_collectionToken,digis);
 
 
    int ndigitot = 0;
@@ -149,14 +149,14 @@ LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 template <class T>
-void 
+void
 LargeEvents<T>::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 template <class T>
-void 
+void
 LargeEvents<T>::endJob() {
 }
 
