@@ -55,7 +55,7 @@ void TIBcompare(TDirectory* rdir, TDirectory* sdir, const char* varname, const c
     myPV->PVCompute(refplotsTIB[i], newplotsTIB[i], te);
   }
 
-  sprintf(histoname, "%sTIBCompare.pdf", historoot);  Strip->Print(histoname);
+  sprintf(histoname, "%sTIBCompare.eps", historoot);  Strip->Print(histoname);
   sprintf(histoname, "%sTIBCompare.gif", historoot);  Strip->Print(histoname);
 
 }  // ------------------------------------------------------------------------
@@ -94,7 +94,7 @@ void TOBcompare(TDirectory* rdir, TDirectory* sdir, const char* varname, const c
     myPV->PVCompute(refplotsTOB[i], newplotsTOB[i], te);
   }
 
-  sprintf(histoname, "%sTOBCompare.pdf", historoot);  Strip->Print(histoname);
+  sprintf(histoname, "%sTOBCompare.eps", historoot);  Strip->Print(histoname);
   sprintf(histoname, "%sTOBCompare.gif", historoot);  Strip->Print(histoname);
 
 }  // ------------------------------------------------------------------------
@@ -133,7 +133,7 @@ void TIDcompare(TDirectory* rdir, TDirectory* sdir, const char* varname, const c
     myPV->PVCompute(refplotsTID[i], newplotsTID[i], te);
   }
 
-  sprintf(histoname, "%sTIDCompare.pdf", historoot);  Strip->Print(histoname);
+  sprintf(histoname, "%sTIDCompare.eps", historoot);  Strip->Print(histoname);
   sprintf(histoname, "%sTIDCompare.gif", historoot);  Strip->Print(histoname);
 
 }  // ------------------------------------------------------------------------
@@ -173,12 +173,12 @@ void TECcompare(TDirectory* rdir, TDirectory* sdir, const char* varname, const c
     myPV->PVCompute(refplotsTEC[i], newplotsTEC[i], te);
   }
 
-  sprintf(histoname, "%sTECCompare.pdf", historoot);  Strip->Print(histoname);
+  sprintf(histoname, "%sTECCompare.eps", historoot);  Strip->Print(histoname);
   sprintf(histoname, "%sTECCompare.gif", historoot);  Strip->Print(histoname);
 
 }  // ------------------------------------------------------------------------
 
-void SiStripTrackingRecHitsCompare()
+void SiStripTrackingRecHitsCompare(char* originalNameR="DQM_V0001_R000000001__CMSSW_3_1_5__RelVal__Validation.root", char* originalNameS="DQM_V0001_R000000001__CMSSW_3_1_5__RelVal__Validation.root")
 {
   //color 2 = red  = sfile = new file
   //color 4 = blue = rfile = reference file
@@ -186,8 +186,8 @@ void SiStripTrackingRecHitsCompare()
 
  gROOT ->Reset();
 
- char*  rfilename = "ref/sistriprechitshisto.root";
- char*  sfilename = "sistriprechitshisto.root";
+ char*  rfilename = "../striptrackingrechitshisto.root";
+ char*  sfilename = "striptrackingrechitshisto.root";
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 
@@ -198,8 +198,14 @@ void SiStripTrackingRecHitsCompare()
  TFile * sfile = new TFile(sfilename);
  TDirectory * rdir=gDirectory; 
  TDirectory * sdir=gDirectory; 
-   
-
+    
+ char pathR[500];
+ sprintf(pathR,"DQMData/Run 1/%s/DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip",originalNameR);
+ cout << "pathR = " << pathR << endl;
+ char pathS[500];
+ sprintf(pathS,"DQMData/Run 1/%s/DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip",originalNameS);
+ cout << "pathS = " << pathS << endl;
+  
  bool rgood=true;
  if(rfile->cd("DQMData/Run 1/RecoTrackV"))rfile->cd("DQMData/Run 1/RecoTrackV/Run summary/TrackingRecHits/Strip");
  else if (rfile->cd("DQMData/TrackerRecHitsV/TrackerRecHits/Strip")) rfile->cd("DQMData/TrackerRecHitsV/TrackerRecHits/Strip");
@@ -283,7 +289,7 @@ void SiStripTrackingRecHitsCompare()
    myPV->PVCompute(matchedtib[i] , newmatchedtib[i] , te );
  }
  
- Strip->Print("MatchedTIBCompare.pdf");
+ Strip->Print("MatchedTIBCompare.eps");
  Strip->Print("MatchedTIBCompare.gif");
 
  //======================================================================================================
@@ -344,7 +350,7 @@ void SiStripTrackingRecHitsCompare()
    myPV->PVCompute(matchedtob[i] , newmatchedtob[i] , te );
  }
  
- Strip->Print("MatchedTOBCompare.pdf");
+ Strip->Print("MatchedTOBCompare.eps");
  Strip->Print("MatchedTOBCompare.gif");
 
  //=============================================================== 
@@ -405,7 +411,7 @@ void SiStripTrackingRecHitsCompare()
    myPV->PVCompute(matchedtid[i] , newmatchedtid[i] , te );
  }
  
- Strip->Print("MatchedTIDCompare.pdf");
+ Strip->Print("MatchedTIDCompare.eps");
  Strip->Print("MatchedTIDCompare.gif");
 
  //======================================================================================================
@@ -480,7 +486,7 @@ void SiStripTrackingRecHitsCompare()
    myPV->PVCompute(matchedtec[i] , newmatchedtec[i] , te );
  }
  
- Strip->Print("MatchedTECCompare.pdf");
+ Strip->Print("MatchedTECCompare.eps");
  Strip->Print("MatchedTECCompare.gif");
 
 }
