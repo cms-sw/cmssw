@@ -839,7 +839,7 @@ TrajectoryManager::initializeLayerMap()
   }
 
   const float rTolerance = 1.5;
-  const float zTolerance = 3.;
+  const float zTolerance = 1.5;
 
   LogDebug("FastTracking")<< "Dump of TrackerInteractionGeometry cylinders:";
   for( std::list<TrackerLayer>::const_iterator i=_theGeometry->cylinderBegin();
