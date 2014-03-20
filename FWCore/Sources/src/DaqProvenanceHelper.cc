@@ -24,7 +24,7 @@ namespace edm {
                                                   , "FEDRawDataCollection"
                                                   , "FEDRawDataCollection"
                                                   , ""
-                                                  , "DaqSource"
+                                                  , "FedRawDataInputSource"
                                                   , ParameterSetID()
                                                   , TypeWithDict(rawDataType.typeInfo())
                                                   , false))

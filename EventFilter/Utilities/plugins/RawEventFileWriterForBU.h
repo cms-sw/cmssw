@@ -6,9 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/DataPointMonitor.h"
-#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
 
 #include <fstream>
 #include <stdio.h>
@@ -40,23 +38,27 @@ class RawEventFileWriterForBU
   void initialize(std::string const& destinationDir, std::string const& name, int ls);
   void endOfLS(int ls);
   bool sharedMode() const {return false;}
+  void makeRunPrefix(std::string const& destinationDir);
 
   void handler(int s);
   static void staticHandler(int s) { instance->handler(s); }
 
  private:
 
+  int run_ = -1;
+  std::string runPrefix_;
+
   IntJ perLumiEventCount_;
-  DataPointMonitor* lumiMon_;
+  FastMonitor* lumiMon_;
   IntJ perFileEventCount_;
-  DataPointMonitor* perFileMon_;
+  FastMonitor* perFileMon_;
 
   std::auto_ptr<std::ofstream> ost_;
   int outfd_;
   std::string fileName_;
   std::string destinationDir_;
 
-  string jsonDefLocation_;
+  std::string jsonDefLocation_;
   int microSleep_;
 
   uint32 adlera_;
