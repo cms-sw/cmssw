@@ -1,16 +1,34 @@
 {
-   "legend" : [
+   "data" : [
       {
          "name" : "Processed",
-         "operation" : "sum"
+         "operation" : "sum",
+         "type" : "integer"
       },
       {
-      	 "name" : "Accepted",
-         "operation" : "sum"
+         "name" : "Accepted",
+         "operation" : "sum",
+         "type" : "integer"
       },
       {
-      	 "name" : "Filelist",
-         "operation" : "cat"
+         "name" : "ErrorEvents",
+         "operation" : "sum",
+         "type" : "integer"
+      },
+      {
+         "name" : "ReturnCodeMask",
+         "operation" : "binaryOr",
+         "type" : "integer"
+      },
+      {
+         "name" : "Filelist",
+         "operation" : "merge",
+         "type" : "string"
+      },
+      {
+         "name" : "InputFiles",
+         "operation" : "cat",
+         "type" : "string"
       }
    ]
 }
