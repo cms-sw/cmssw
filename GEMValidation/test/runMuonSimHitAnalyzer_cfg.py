@@ -52,13 +52,18 @@ process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring("file:out_sim.root")                            
 )
 
+## input
+from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import *
+from GEMCode.GEMValidation.InputFileHelpers import *
+process = useInputDir(process, ['/eos/uscms/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_50k_test5DegBugfix_2/SingleMuPt2-50Fwdv2_50k_test5DegBugfix_2/3e47eaf3967164550497ab5804eb1831/'], True)
+
 process.TFileService = cms.Service("TFileService",
-  fileName = cms.string("gem_sh_ana.root")
+  fileName = cms.string("gem_sh_ana_2.root")
 )
 
 process.p = cms.Path(process.MuonSimHitAnalyzer)
 
-## messages                                                                                                                                                   
+## messages
 print
 print 'Input files:'
 print '----------------------------------------'
