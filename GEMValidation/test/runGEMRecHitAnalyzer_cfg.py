@@ -51,3 +51,14 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.p = cms.Path(process.GEMRecHitAnalyzer)
+
+## messages                                                                                                                                                   
+print
+print 'Input files:'
+print '----------------------------------------'
+print process.source.fileNames
+print
+print 'Output file:'
+print '----------------------------------------'
+print process.TFileService.fileName
+print
