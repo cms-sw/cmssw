@@ -4,6 +4,8 @@
 
 TracksClusteringFromDisplacedSeed::TracksClusteringFromDisplacedSeed(const edm::ParameterSet &params) :
 //	maxNTracks(params.getParameter<unsigned int>("maxNTracks")),
+	max3DIPSignificance(params.getParameter<double>("seedMax3DIPSignificance")),
+	max3DIPValue(params.getParameter<double>("seedMax3DIPValue")),
 	min3DIPSignificance(params.getParameter<double>("seedMin3DIPSignificance")),
 	min3DIPValue(params.getParameter<double>("seedMin3DIPValue")),
 	clusterMaxDistance(params.getParameter<double>("clusterMaxDistance")),
@@ -92,7 +94,7 @@ std::vector<TracksClusteringFromDisplacedSeed::Cluster> TracksClusteringFromDisp
 	std::vector<TransientTrack> seeds;
 	for(std::vector<TransientTrack>::const_iterator it = selectedTracks.begin(); it != selectedTracks.end(); it++){
                 std::pair<bool,Measurement1D> ip = IPTools::absoluteImpactParameter3D(*it,pv);
-                if(ip.first && ip.second.value() >= min3DIPValue && ip.second.significance() >= min3DIPSignificance)
+                if(ip.first && ip.second.value() >= min3DIPValue && ip.second.significance() >= min3DIPSignificance && ip.second.value() <= max3DIPValue && ip.second.significance() <= max3DIPSignificance)
                   { 
 #ifdef VTXDEBUG
                     std::cout << "new seed " <<  it-selectedTracks.begin() << " ref " << it->trackBaseRef().key()  << " " << ip.second.value() << " " << ip.second.significance() << " " << it->track().hitPattern().trackerLayersWithMeasurement() << " " << it->track().pt() << " " << it->track().eta() << std::endl;
