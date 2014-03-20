@@ -176,6 +176,19 @@ def rpcSimHitOccupancyXY(plotter,i):
            plotter.pre[i] + " SimHit occupancy: region-1,station3,ring1;globalX [cm];globalY [cm]",
            "h_", "(100,-700,700,100,-700,700)", "globalX:globalY", AND(st3,rm1,ri1,plotter.sel[i],odd), "COLZ")
 
+  draw_occ(plotter.targetDir, "sh_rpc_xy_rp1_st4_ri1_even" + plotter.suff[i], plotter.ext, plotter.treeRPCSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1,station4,ring1;globalX [cm];globalY [cm]",
+           "h_", "(100,-700,700,100,-700,700)", "globalX:globalY", AND(st4,rp1,ri1,plotter.sel[i],even), "COLZ")
+  draw_occ(plotter.targetDir, "sh_rpc_xy_rp1_st4_ri1_odd" + plotter.suff[i], plotter.ext, plotter.treeRPCSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1,station4,ring1;globalX [cm];globalY [cm]",
+           "h_", "(100,-700,700,100,-700,700)", "globalX:globalY", AND(st4,rp1,ri1,plotter.sel[i],odd), "COLZ")
+  draw_occ(plotter.targetDir, "sh_rpc_xy_rm1_st4_ri1_even" + plotter.suff[i], plotter.ext, plotter.treeRPCSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1,station4,ring1;globalX [cm];globalY [cm]",
+           "h_", "(100,-700,700,100,-700,700)", "globalX:globalY", AND(st4,rm1,ri1,plotter.sel[i],even), "COLZ")
+  draw_occ(plotter.targetDir, "sh_rpc_xy_rm1_st4_ri1_odd" + plotter.suff[i], plotter.ext, plotter.treeRPCSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1,station4,ring1;globalX [cm];globalY [cm]",
+           "h_", "(100,-700,700,100,-700,700)", "globalX:globalY", AND(st4,rm1,ri1,plotter.sel[i],odd), "COLZ")
+
   
 #_______________________________________________________________________________
 def rpcSimHitOccupancyRZ():
