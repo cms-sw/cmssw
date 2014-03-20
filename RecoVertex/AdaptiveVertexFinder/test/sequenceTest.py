@@ -44,7 +44,8 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 # Other statements
-process.GlobalTag.globaltag = 'POSTLS162_V1::All'
+process.GlobalTag.globaltag = 'POSTLS161_V15::All'
+#process.GlobalTag.globaltag = 'POSTLS162_V5::All'
 #process.GlobalTag.globaltag = 'START53_V26::All'
 
 
