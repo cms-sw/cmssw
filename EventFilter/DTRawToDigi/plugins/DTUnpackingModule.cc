@@ -15,7 +15,6 @@
 #include <EventFilter/DTRawToDigi/plugins/DTUnpackingModule.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/DTDigi/interface/DTLocalTriggerCollection.h>
 
@@ -55,7 +54,7 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0) 
 					     << dataType << " is unknown";
   }
 
-  inputLabel = ps.getParameter<InputTag>("inputLabel"); // default was: source
+  inputLabel = consumes<FEDRawDataCollection>(ps.getParameter<InputTag>("inputLabel")); // default was: source
   useStandardFEDid_ = ps.getParameter<bool>("useStandardFEDid"); // default was: true
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid",770); // default: 770
   maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid",779); // default 779
@@ -75,7 +74,7 @@ DTUnpackingModule::~DTUnpackingModule(){
 void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
   Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel(inputLabel, rawdata);
+  e.getByToken(inputLabel, rawdata);
 
   if(!rawdata.isValid()){
     LogError("DTUnpackingModule::produce") << " unable to get raw data from the event" << endl;
