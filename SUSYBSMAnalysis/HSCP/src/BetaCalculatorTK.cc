@@ -5,20 +5,20 @@ using namespace reco;
 using namespace susybsm;
 
 
-BetaCalculatorTK::BetaCalculatorTK(const edm::ParameterSet& iConfig){
+BetaCalculatorTK::BetaCalculatorTK(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC){
 /*
-  m_dedxEstimator1Tag     = iConfig.getParameter<edm::InputTag>("dedxEstimator1");
-  m_dedxEstimator2Tag     = iConfig.getParameter<edm::InputTag>("dedxEstimator2");
-  m_dedxEstimator3Tag     = iConfig.getParameter<edm::InputTag>("dedxEstimator3");
-  m_dedxEstimator4Tag     = iConfig.getParameter<edm::InputTag>("dedxEstimator4");
-  m_dedxEstimator5Tag     = iConfig.getParameter<edm::InputTag>("dedxEstimator5");
-  m_dedxEstimator6Tag     = iConfig.getParameter<edm::InputTag>("dedxEstimator6");
-  m_dedxDiscriminator1Tag = iConfig.getParameter<edm::InputTag>("dedxDiscriminator1");
-  m_dedxDiscriminator2Tag = iConfig.getParameter<edm::InputTag>("dedxDiscriminator2");
-  m_dedxDiscriminator3Tag = iConfig.getParameter<edm::InputTag>("dedxDiscriminator3");
-  m_dedxDiscriminator4Tag = iConfig.getParameter<edm::InputTag>("dedxDiscriminator4");
-  m_dedxDiscriminator5Tag = iConfig.getParameter<edm::InputTag>("dedxDiscriminator5");
-  m_dedxDiscriminator6Tag = iConfig.getParameter<edm::InputTag>("dedxDiscriminator6");
+  m_dedxEstimator1Token     = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxEstimator1"));
+  m_dedxEstimator2Token     = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxEstimator2"));
+  m_dedxEstimator3Token     = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxEstimator3"));
+  m_dedxEstimator4Token     = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxEstimator4"));
+  m_dedxEstimator5Token     = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxEstimator5"));
+  m_dedxEstimator6Token     = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxEstimator6"));
+  m_dedxDiscriminator1Token = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxDiscriminator1"));
+  m_dedxDiscriminator2Token = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxDiscriminator2"));
+  m_dedxDiscriminator3Token = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxDiscriminator3"));
+  m_dedxDiscriminator4Token = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxDiscriminator4"));
+  m_dedxDiscriminator5Token = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxDiscriminator5"));
+  m_dedxDiscriminator6Token = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxDiscriminator6"));
 */
 }
 
@@ -31,51 +31,51 @@ void BetaCalculatorTK::addInfoToCandidate(HSCParticle& candidate, edm::Event& iE
    if(!candidate.hasTrackRef())return;
 
    edm::Handle<DeDxDataValueMap> Estimator1H;
-   iEvent.getByLabel(m_dedxEstimator1Tag,Estimator1H);
+   iEvent.getByToken(m_dedxEstimator1Token,Estimator1H);
    const ValueMap<DeDxData> Estimator1 = *Estimator1H.product();
 
    edm::Handle<DeDxDataValueMap> Estimator2H;
-   iEvent.getByLabel(m_dedxEstimator2Tag,Estimator2H);
+   iEvent.getByToken(m_dedxEstimator2Token,Estimator2H);
    const ValueMap<DeDxData> Estimator2 = *Estimator2H.product();
 
    edm::Handle<DeDxDataValueMap> Estimator3H;
-   iEvent.getByLabel(m_dedxEstimator3Tag,Estimator3H);
+   iEvent.getByToken(m_dedxEstimator3Token,Estimator3H);
    const ValueMap<DeDxData> Estimator3 = *Estimator3H.product();
 
    edm::Handle<DeDxDataValueMap> Estimator4H;
-   iEvent.getByLabel(m_dedxEstimator4Tag,Estimator4H);
+   iEvent.getByToken(m_dedxEstimator4Token,Estimator4H);
    const ValueMap<DeDxData> Estimator4 = *Estimator4H.product();
 
    edm::Handle<DeDxDataValueMap> Estimator5H;
-   iEvent.getByLabel(m_dedxEstimator5Tag,Estimator5H);
+   iEvent.getByToken(m_dedxEstimator5Token,Estimator5H);
    const ValueMap<DeDxData> Estimator5 = *Estimator5H.product();
 
    edm::Handle<DeDxDataValueMap> Estimator6H;
-   iEvent.getByLabel(m_dedxEstimator6Tag,Estimator6H);
+   iEvent.getByToken(m_dedxEstimator6Token,Estimator6H);
    const ValueMap<DeDxData> Estimator6 = *Estimator6H.product();
 
    edm::Handle<DeDxDataValueMap> Discriminator1H;
-   iEvent.getByLabel(m_dedxDiscriminator1Tag,Discriminator1H);
+   iEvent.getByToken(m_dedxDiscriminator1Token,Discriminator1H);
    const ValueMap<DeDxData> Discriminator1 = *Discriminator1H.product();
 
    edm::Handle<DeDxDataValueMap> Discriminator2H;
-   iEvent.getByLabel(m_dedxDiscriminator2Tag,Discriminator2H);
+   iEvent.getByToken(m_dedxDiscriminator2Token,Discriminator2H);
    const ValueMap<DeDxData> Discriminator2 = *Discriminator2H.product();
 
    edm::Handle<DeDxDataValueMap> Discriminator3H;
-   iEvent.getByLabel(m_dedxDiscriminator3Tag,Discriminator3H);
+   iEvent.getByToken(m_dedxDiscriminator3Token,Discriminator3H);
    const ValueMap<DeDxData> Discriminator3 = *Discriminator3H.product();
 
    edm::Handle<DeDxDataValueMap> Discriminator4H;
-   iEvent.getByLabel(m_dedxDiscriminator4Tag,Discriminator4H);
+   iEvent.getByToken(m_dedxDiscriminator4Token,Discriminator4H);
    const ValueMap<DeDxData> Discriminator4 = *Discriminator4H.product();
 
    edm::Handle<DeDxDataValueMap> Discriminator5H;
-   iEvent.getByLabel(m_dedxDiscriminator5Tag,Discriminator5H);
+   iEvent.getByToken(m_dedxDiscriminator5Token,Discriminator5H);
    const ValueMap<DeDxData> Discriminator5 = *Discriminator5H.product();
 
    edm::Handle<DeDxDataValueMap> Discriminator6H;
-   iEvent.getByLabel(m_dedxDiscriminator6Tag,Discriminator6H);
+   iEvent.getByToken(m_dedxDiscriminator6Token,Discriminator6H);
    const ValueMap<DeDxData> Discriminator6 = *Discriminator6H.product();
 
    reco::TrackRef track = candidate.trackRef();

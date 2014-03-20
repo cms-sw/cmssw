@@ -38,7 +38,7 @@ QuadrupletSeedMerger
 // Helper functions
 namespace {
   bool areHitsOnLayers(const SeedMergerPixelLayer& layer1, const SeedMergerPixelLayer& layer2,
-                       const std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits,
+                       const std::pair<SeedingHitSet::ConstRecHitPointer,SeedingHitSet::ConstRecHitPointer>& hits,
                        const TrackerTopology *tTopo) {
     DetId firstHitId = hits.first->geographicalId();
     DetId secondHitId = hits.second->geographicalId();
@@ -48,7 +48,7 @@ namespace {
              layer2.isContainsDetector(firstHitId, tTopo)));
   }
 
-  bool areHitsEqual(const TransientTrackingRecHit& hit1, const TransientTrackingRecHit& hit2) {
+  bool areHitsEqual(const TrackingRecHit & hit1, const TrackingRecHit & hit2) {
     constexpr double epsilon = 0.00001;
     if(hit1.geographicalId() != hit2.geographicalId())
       return false;
@@ -160,8 +160,8 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
   // as specified in python/quadrupletseedmerging_cff.py
 
   std::vector<bool> usedTriplets(nInputTriplets,false);
-  std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer> sharedHits;
-  std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer> nonSharedHits;
+  std::pair<SeedingHitSet::ConstRecHitPointer,SeedingHitSet::ConstRecHitPointer> sharedHits;
+  std::pair<SeedingHitSet::ConstRecHitPointer,SeedingHitSet::ConstRecHitPointer> nonSharedHits;
 
   // k-d tree, indices are (th)eta, phi
   // build the tree
@@ -433,15 +433,15 @@ const TrajectorySeedCollection QuadrupletSeedMerger::mergeTriplets( const Trajec
   for( TrajectorySeedCollection::const_iterator aTrajectorySeed = seedCollection.begin();
        aTrajectorySeed < seedCollection.end(); ++aTrajectorySeed ) {
 
-    std::vector<TransientTrackingRecHit::RecHitPointer> recHitPointers;
+    std::vector<SeedingHitSet::ConstRecHitPointer> recHitPointers;
 
     // loop RecHits
     const TrajectorySeed::range theHitsRange = aTrajectorySeed->recHits();
     for( edm::OwnVector<TrackingRecHit>::const_iterator aHit = theHitsRange.first;
 	 aHit < theHitsRange.second; ++aHit ) {
       
-      // this is a collection of: ReferenceCountingPointer< TransientTrackingRecHit> 
-      recHitPointers.push_back( theTTRHBuilder_->build( &(*aHit) ) );
+      // this is a collection of: ReferenceCountingPointer< SeedingHitSet> 
+      recHitPointers.push_back( (SeedingHitSet::ConstRecHitPointer)(&*aHit ) );
 
     }
     
@@ -503,16 +503,6 @@ std::pair<double,double> QuadrupletSeedMerger::calculatePhiEta( SeedingHitSet co
   
 }
 
-
-
-///
-///
-///
-void QuadrupletSeedMerger::printHit( const TransientTrackingRecHit::ConstRecHitPointer& aRecHitPointer ) const {
-
-  printHit( aRecHitPointer->hit() );
-
-}
 
 
 
@@ -727,13 +717,13 @@ bool SeedMergerPixelLayer::isContainsDetector( const DetId& detId, const Tracker
 }
 
 
-void QuadrupletSeedMerger::mySort(std::array<TransientTrackingRecHit::ConstRecHitPointer, 4>& unsortedHits) {
+void QuadrupletSeedMerger::mySort(std::array<SeedingHitSet::ConstRecHitPointer, 4>& unsortedHits) {
   float radiiSq[4];
   for ( unsigned int iR=0; iR<4; iR++){
     GlobalPoint p1 = unsortedHits[iR]->globalPosition();
     radiiSq[iR]=( p1.x()*p1.x()+p1.y()*p1.y()); // no need to take the sqrt
   }
-  TransientTrackingRecHit::ConstRecHitPointer tempRHP;
+  SeedingHitSet::ConstRecHitPointer tempRHP;
   float tempFloat=0.;
   for ( unsigned int iR1=0; iR1<3; iR1++) {
     for ( unsigned int iR2=iR1+1; iR2<4; iR2++) {

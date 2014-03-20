@@ -2,8 +2,8 @@
 //
 // Package:    HighPtTrackEcalDetIdProducer
 // Class:      HighPtTrackEcalDetIdProducer
-// 
-/*\class HighPtTrackEcalDetIdProducer HighPtTrackEcalDetIdProducer.cc 
+//
+/*\class HighPtTrackEcalDetIdProducer HighPtTrackEcalDetIdProducer.cc
 
  Description: [one line class summary]
 
@@ -62,7 +62,7 @@ class HighPtTrackEcalDetIdProducer : public edm::EDProducer {
       void produce(edm::Event&, const edm::EventSetup&) override;
    private:
 
-      edm::InputTag inputCollection_;
+      edm::EDGetTokenT<reco::TrackCollection> inputCollectionToken_;
       const CaloTopology* caloTopology_;
       TrackDetectorAssociator trackAssociator_;
       TrackAssociatorParameters parameters_;
@@ -84,20 +84,21 @@ class HighPtTrackEcalDetIdProducer : public edm::EDProducer {
 //
 HighPtTrackEcalDetIdProducer::HighPtTrackEcalDetIdProducer(const edm::ParameterSet& iConfig)
 {
-   inputCollection_ = iConfig.getParameter< edm::InputTag >("inputCollection");    ptcut_= iConfig.getParameter< double >("TrackPt");
+   inputCollectionToken_ = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag >("inputCollection"));
+   ptcut_= iConfig.getParameter< double >("TrackPt");
 
     produces< DetIdCollection >() ;
    // TrackAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
    parameters_.loadParameters( parameters );
    trackAssociator_.useDefaultPropagator();
-  
+
 }
 
 
 HighPtTrackEcalDetIdProducer::~HighPtTrackEcalDetIdProducer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -109,11 +110,11 @@ HighPtTrackEcalDetIdProducer::~HighPtTrackEcalDetIdProducer()
 //
 
 void
-HighPtTrackEcalDetIdProducer::beginRun(const edm::Run & run, const edm::EventSetup & iSetup)  
+HighPtTrackEcalDetIdProducer::beginRun(const edm::Run & run, const edm::EventSetup & iSetup)
 {
    edm::ESHandle<CaloTopology> theCaloTopology;
    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-   caloTopology_ = &(*theCaloTopology); 
+   caloTopology_ = &(*theCaloTopology);
 }
 
 // ------------ method called to produce the data  ------------
@@ -124,10 +125,10 @@ HighPtTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup&
    using reco::TrackCollection;
 //   if(!iSetup) continue;
    Handle<TrackCollection> tkTracks;
-   iEvent.getByLabel(inputCollection_,tkTracks);
+   iEvent.getByToken(inputCollectionToken_,tkTracks);
    std::auto_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
    for(TrackCollection::const_iterator itTrack = tkTracks->begin();
-       itTrack != tkTracks->end();                      
+       itTrack != tkTracks->end();
        ++itTrack) {
         if(itTrack->pt()>ptcut_){
            TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
@@ -137,11 +138,11 @@ HighPtTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup&
               DetId centerId = info.crossedEcalIds.front();
 
               const CaloSubdetectorTopology* topology = caloTopology_->getSubdetectorTopology(DetId::Ecal,centerId.subdetId());
-              const std::vector<DetId>& ids = topology->getWindow(centerId, 5, 5); 
+              const std::vector<DetId>& ids = topology->getWindow(centerId, 5, 5);
               for ( std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id )
-                 if(std::find(interestingDetIdCollection->begin(), interestingDetIdCollection->end(), *id) 
-                    == interestingDetIdCollection->end()) 
-                    interestingDetIdCollection->push_back(*id);            
+                 if(std::find(interestingDetIdCollection->begin(), interestingDetIdCollection->end(), *id)
+                    == interestingDetIdCollection->end())
+                    interestingDetIdCollection->push_back(*id);
            }
         }
 

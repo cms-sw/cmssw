@@ -16,6 +16,7 @@ MultiHitGeneratorFromChi2 = cms.PSet(
     #refit&filter hits
     refitHits = cms.bool(True),
     ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     #chi2 cuts
     maxChi2 = cms.double(5.0),
     chi2VsPtCut = cms.bool(True),

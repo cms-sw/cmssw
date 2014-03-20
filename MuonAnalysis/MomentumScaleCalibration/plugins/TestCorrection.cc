@@ -5,7 +5,7 @@
 //
 // Package:    TestCorrection
 // Class:      TestCorrection
-// 
+//
 /**\class TestCorrection TestCorrection.cc MuonAnalysis/MomentumScaleCalibration/plugins/TestCorrection.cc
 
  Description: <one line class summary>
@@ -78,7 +78,7 @@ private:
       reco::Particle::LorentzVector mu;
       mu = reco::Particle::LorentzVector(track->px(),track->py(),track->pz(),
 					 sqrt(track->p()*track->p() + + 0.011163612));
-      
+
       Double_t hitsTk(0), hitsMuon(0), ptError(0);
       if ( const reco::Muon* myMu = dynamic_cast<const reco::Muon*>(&(*track))  ){
 	hitsTk =   myMu->innerTrack()->hitPattern().numberOfValidTrackerHits();
@@ -95,7 +95,7 @@ private:
 	hitsMuon = myMu->hitPattern().numberOfValidMuonHits();
 	ptError =  myMu->ptError();
       }
-      
+
       MuScleFitMuon muon(mu,track->charge(),ptError,hitsTk,hitsMuon);
 
     if (debug_>0) {
@@ -126,6 +126,11 @@ private:
   std::auto_ptr<MomentumScaleCorrector> corrector_;
   std::auto_ptr<ResolutionFunction> resolution_;
   std::auto_ptr<BackgroundFunction> background_;
+
+  edm::EDGetTokenT<reco::MuonCollection> glbMuonsToken_;
+  edm::EDGetTokenT<reco::TrackCollection> saMuonsToken_;
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+
 };
 
 #endif // TESTCORRECTION_HH
@@ -141,7 +146,10 @@ private:
 // constructors and destructor
 //
 TestCorrection::TestCorrection(const edm::ParameterSet& iConfig) :
-  MuScleFitBase( iConfig )
+  MuScleFitBase( iConfig ),
+  glbMuonsToken_(mayConsume<reco::MuonCollection>(theMuonLabel_)),
+  saMuonsToken_(mayConsume<reco::TrackCollection>(theMuonLabel_)),
+  tracksToken_(mayConsume<reco::TrackCollection>(theMuonLabel_))
 {
   //now do what ever initialization is needed
   TFile * outputFile = new TFile(theRootFileName_.c_str(), "RECREATE");
@@ -221,23 +229,23 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   if (theMuonType_==1) { // GlobalMuons
     Handle<reco::MuonCollection> glbMuons;
-    iEvent.getByLabel (theMuonLabel_, glbMuons);
+    iEvent.getByToken (glbMuonsToken_, glbMuons);
     muons = fillMuonCollection(*glbMuons);
   }
   else if (theMuonType_==2) { // StandaloneMuons
     Handle<reco::TrackCollection> saMuons;
-    iEvent.getByLabel (theMuonLabel_, saMuons);
+    iEvent.getByToken (saMuonsToken_, saMuons);
     muons = fillMuonCollection(*saMuons);
   }
   else if (theMuonType_==3) { // Tracker tracks
     Handle<reco::TrackCollection> tracks;
-    iEvent.getByLabel (theMuonLabel_, tracks);
+    iEvent.getByToken (tracksToken_, tracks);
     muons = fillMuonCollection(*tracks);
   }
 
   // Find the two muons from the resonance, and set ResFound bool
   // ------------------------------------------------------------
-  std::pair <MuScleFitMuon, MuScleFitMuon> recMuFromBestRes = 
+  std::pair <MuScleFitMuon, MuScleFitMuon> recMuFromBestRes =
     MuScleFitUtils::findBestRecoRes (muons);
   if (MuScleFitUtils::ResFound) {
     MuScleFitUtils::SavedPair.push_back( std::make_pair (recMuFromBestRes.first.p4(), recMuFromBestRes.second.p4()) );
@@ -271,7 +279,7 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       mapHisto_["hRecBestMu_Acc"]->Fill(recMu2);
     }
     mapHisto_["hDeltaRecBestMu"]->Fill(recMu1, recMu2);
-    
+
     mapHisto_["hRecBestRes"]->Fill(bestRecRes);
     if ((std::abs(recMu1.eta())<2.5) && (recMu1.pt()>2.5) && (std::abs(recMu2.eta())<2.5) &&  (recMu2.pt()>2.5)){
       mapHisto_["hRecBestRes_Acc"]->Fill(bestRecRes);
@@ -284,7 +292,7 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // Loop on the recMuons
   std::vector<MuScleFitMuon>::const_iterator recMuon = muons.begin();
   int muonCount = 0;
-  for ( ; recMuon!=muons.end(); ++recMuon, ++muonCount ) {  
+  for ( ; recMuon!=muons.end(); ++recMuon, ++muonCount ) {
 
     // Fill the histogram with uncorrected pt values
     uncorrectedPt_->Fill(recMuon->pt());

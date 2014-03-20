@@ -152,6 +152,8 @@ private:
     Bool_t                      dataMagneticFieldSetUp_                     ;
 
     edm::InputTag               dcsTag_                                     ;
+    edm::EDGetTokenT<DcsStatusCollection>               dcsToken_                                     ;
+    edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
 
     Double_t                    BarrelMaxEta_                               ;
     Double_t                    EndCapMaxEta_                               ;
@@ -159,7 +161,8 @@ private:
 
     std::string                 hltpath_                                    ;
     edm::InputTag               triggerCollectionTag_                       ;
-    edm::InputTag               triggerEventTag_                            ;
+    edm::EDGetTokenT<edm::TriggerResults>               triggerCollectionToken_                       ;
+    edm::EDGetTokenT<trigger::TriggerEvent>               triggerEventToken_                            ;
     edm::InputTag               hltpathFilter_                              ;
     Bool_t                      useHLTObjectETCut_                          ;
 
@@ -175,15 +178,16 @@ private:
     Double_t                    electronMatched2HLT_DR_                     ;
 
     edm::InputTag               electronCollectionTag_                      ;
+    edm::EDGetTokenT<pat::ElectronCollection>               electronCollectionToken_                      ;
 
-    edm::InputTag               metCollectionTag_                           ;
-    edm::InputTag               pfMetCollectionTag_                         ;
-    edm::InputTag               tcMetCollectionTag_                         ;
+    edm::EDGetTokenT<pat::METCollection>               metCollectionToken_                           ;
+    edm::EDGetTokenT<pat::METCollection>               pfMetCollectionToken_                         ;
+    edm::EDGetTokenT<pat::METCollection>               tcMetCollectionToken_                         ;
 
-    edm::InputTag               PrimaryVerticesCollection_                  ;
+    edm::EDGetTokenT< std::vector<reco::Vertex> >               PrimaryVerticesCollectionToken_                  ;
 
-    edm::InputTag               ebRecHits_                                  ;
-//     edm::InputTag               eeRecHits_                                  ;
+    edm::EDGetTokenT<EcalRecHitCollection>               ebRecHitsToken_                                  ;
+    edm::EDGetTokenT<EcalRecHitCollection>               eeRecHitsToken_                                  ;
 
     Bool_t                      useSpikeRejection_                          ;
 
@@ -271,7 +275,9 @@ ZeeCandidateFilter::ZeeCandidateFilter(const edm::ParameterSet& iConfig)
 
     if ( dataMagneticFieldSetUp_ ) {
         dcsTag_ = iConfig.getUntrackedParameter<edm::InputTag>("dcsTag");
+        dcsToken_ = mayConsume<DcsStatusCollection>(dcsTag_);
     }
+    tracksToken_ = mayConsume<reco::TrackCollection>(edm::InputTag("generalTracks"));
     //--------------------------------------------------------------------------------------------------------------------
 
 
@@ -293,7 +299,8 @@ ZeeCandidateFilter::ZeeCandidateFilter(const edm::ParameterSet& iConfig)
     //
     hltpath_              = iConfig.getUntrackedParameter<std::string>("hltpath");
     triggerCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("triggerCollectionTag");
-    triggerEventTag_      = iConfig.getUntrackedParameter<edm::InputTag>("triggerEventTag");
+    triggerCollectionToken_ = consumes<edm::TriggerResults>(triggerCollectionTag_);
+    triggerEventToken_      = consumes<trigger::TriggerEvent>(iConfig.getUntrackedParameter<edm::InputTag>("triggerEventTag"));
     hltpathFilter_        = iConfig.getUntrackedParameter<edm::InputTag>("hltpathFilter");
     useHLTObjectETCut_    = iConfig.getUntrackedParameter<Bool_t>("useHLTObjectETCut", false);
 
@@ -329,15 +336,16 @@ ZeeCandidateFilter::ZeeCandidateFilter(const edm::ParameterSet& iConfig)
     //  --------------------------------
     //
     electronCollectionTag_  = iConfig.getUntrackedParameter<edm::InputTag>("electronCollectionTag");
+    electronCollectionToken_ = consumes<pat::ElectronCollection>(electronCollectionTag_);
 
-    metCollectionTag_   = iConfig.getUntrackedParameter<edm::InputTag>("metCollectionTag");
-    pfMetCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("pfMetCollectionTag");
-    tcMetCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("tcMetCollectionTag");
+    metCollectionToken_   = consumes<pat::METCollection>(iConfig.getUntrackedParameter<edm::InputTag>("metCollectionTag"));
+    pfMetCollectionToken_ = consumes<pat::METCollection>(iConfig.getUntrackedParameter<edm::InputTag>("pfMetCollectionTag"));
+    tcMetCollectionToken_ = consumes<pat::METCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tcMetCollectionTag"));
 
-    PrimaryVerticesCollection_ = iConfig.getUntrackedParameter<edm::InputTag>("PrimaryVerticesCollection");
+    PrimaryVerticesCollectionToken_ = consumes< std::vector<reco::Vertex> >(iConfig.getUntrackedParameter<edm::InputTag>("PrimaryVerticesCollection"));
 
-    ebRecHits_ = iConfig.getUntrackedParameter<edm::InputTag>("ebRecHits");
-//     eeRecHits_ = iConfig.getUntrackedParameter<edm::InputTag>("eeRecHits");
+    ebRecHitsToken_ = mayConsume<EcalRecHitCollection>(iConfig.getUntrackedParameter<edm::InputTag>("ebRecHits"));
+    eeRecHitsToken_ = mayConsume<EcalRecHitCollection>(iConfig.getUntrackedParameter<edm::InputTag>("eeRecHits"));
     //--------------------------------------------------------------------------------------------------------------------
 
 
@@ -480,16 +488,16 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
 
     std::cout << "FILTER-MSG: Begin Processing ... "
-              << "Run = "   << iEvent.run() << " " 
-              << "Lumi = "  << (Int_t) iEvent.luminosityBlock() << " " 
-              << "Event = " << iEvent.eventAuxiliary().event() << " " 
+              << "Run = "   << iEvent.run() << " "
+              << "Lumi = "  << (Int_t) iEvent.luminosityBlock() << " "
+              << "Event = " << iEvent.eventAuxiliary().event() << " "
               << std::endl;
 
 
     /***    TRIGGER REQUIREMENT - Event should pass the trigger, otherwise no zee candidate     ***/
 
     edm::Handle<edm::TriggerResults> HLTResults;
-    iEvent.getByLabel(triggerCollectionTag_, HLTResults);
+    iEvent.getByToken(triggerCollectionToken_, HLTResults);
 
     Int_t passTrigger = 0;
 
@@ -500,18 +508,18 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
         UInt_t trigger_size     = HLTResults->size();
         UInt_t trigger_position = triggerNames.triggerIndex(hltpath_);
         UInt_t trigger_position_extra;
-        
+
         if ( trigger_position < trigger_size ) {
             passTrigger = (Int_t)HLTResults->accept(trigger_position);
         }
-            
+
         //  Tested TriggerPath firing results printout
         std::cout << "SK_HLT_INFO"
-                  << " | " << "trigger_size = "         << trigger_size 
-                  << " | " << "hltpath_ = "             << hltpath_ 
-                  << " | " << "trigger_position = "     << trigger_position 
+                  << " | " << "trigger_size = "         << trigger_size
+                  << " | " << "hltpath_ = "             << hltpath_
+                  << " | " << "trigger_position = "     << trigger_position
                   << " | " << "passTrigger = "          << passTrigger
-        << std::endl;        
+        << std::endl;
 
         if ( useExtraTrigger_ && passTrigger==0 ) {
             for (Int_t itrig=0; itrig < (Int_t)vHltpathExtra_.size(); ++itrig ) {
@@ -520,21 +528,21 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
                 if ( trigger_position_extra < trigger_size ) {
                     passTrigger = (Int_t)HLTResults->accept(trigger_position_extra);
                 }
-                
+
                 //  Tested TriggerPath firing results printout
                 std::cout << "SK_HLT_INFO"
-                          << " | " << "vHltpathExtra_[" << itrig << "] = "      << vHltpathExtra_[itrig] 
-                          << " | " << "trigger_position_extra = "               << trigger_position_extra 
+                          << " | " << "vHltpathExtra_[" << itrig << "] = "      << vHltpathExtra_[itrig]
+                          << " | " << "trigger_position_extra = "               << trigger_position_extra
                           << " | " << "passTrigger = "                          << passTrigger
                           << " | " << "vHltpathExtra_.size() = "                << vHltpathExtra_.size()
                 << std::endl;
 
                 if ( passTrigger > 0 ) { break ; }
-                
+
             }   //  for Loop
-            
+
         }   // if ( useExtraTrigger_ && passTrigger==0 )
-        
+
     }
     else {  std::cout << "TriggerResults are missing from this event.." << std::endl;
         if ( useTriggerInfo_ ) {
@@ -545,10 +553,10 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     if ( passTrigger == 0 && useTriggerInfo_ ) {    std::cout << "No HLT Path is firing in this event" << std::endl;
         return false; // RETURN if event fails the trigger
     }
-    
+
 
     edm::Handle<trigger::TriggerEvent> pHLT;
-    iEvent.getByLabel(triggerEventTag_, pHLT);
+    iEvent.getByToken(triggerEventToken_, pHLT);
 
     const Int_t nF(pHLT->sizeFilters());
     const Int_t filterInd = pHLT->filterIndex(hltpathFilter_);
@@ -587,7 +595,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     //  Electron Collection
     edm::Handle<pat::ElectronCollection> patElectron;
-    iEvent.getByLabel(electronCollectionTag_, patElectron);
+    iEvent.getByToken(electronCollectionToken_, patElectron);
 
     if ( ! patElectron.isValid() ) {    std::cout << "No electrons found in this event with tag " << electronCollectionTag_  << std::endl;
         return false; // RETURN if no elecs in the event
@@ -597,13 +605,13 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
 //     // MET Collection                                            ->  relocated block bellow
 //     edm::Handle<pat::METCollection> patMET;
-//     iEvent.getByLabel(metCollectionTag_,   patMET);
+//     iEvent.getByToken(metCollectionToken_,   patMET);
 //
 //     edm::Handle<pat::METCollection> patpfMET;
-//     iEvent.getByLabel(pfMetCollectionTag_, patpfMET);
+//     iEvent.getByToken(pfMetCollectionToken_, patpfMET);
 //
 //     edm::Handle<pat::METCollection> pattcMET;
-//     iEvent.getByLabel(tcMetCollectionTag_, pattcMET);
+//     iEvent.getByToken(tcMetCollectionToken_, pattcMET);
 
     //
     // Note: best to do Duplicate removal here, since the current
@@ -693,13 +701,13 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
         edm::Handle<EcalRecHitCollection> recHits;
 
 //         if ( maxETelec1.isEB() ) {
-//             iEvent.getByLabel(ebRecHits_, recHits);
+//             iEvent.getByToken(ebRecHitsToken_, recHits);
 //         }
 //         else {
-//             iEvent.getByLabel(eeRecHits_, recHits);
+//             iEvent.getByToken(eeRecHitsToken_, recHits);
 //         }
 
-        iEvent.getByLabel(ebRecHits_, recHits);
+        iEvent.getByToken(ebRecHitsToken_, recHits);
 
         const EcalRecHitCollection *myRecHits = recHits.product();
         const DetId seedId = maxETelec1.superCluster()->seed()->seed();
@@ -718,13 +726,13 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
         edm::Handle<EcalRecHitCollection> recHits;
 
 //         if ( maxETelec2.isEB())  {
-//             iEvent.getByLabel(ebRecHits_, recHits);
+//             iEvent.getByToken(ebRecHitsToken_, recHits);
 //         }
 //         else    {
-//             iEvent.getByLabel(eeRecHits_, recHits);
+//             iEvent.getByToken(eeRecHitsToken_, recHits);
 //         }
 
-        iEvent.getByLabel(ebRecHits_, recHits);
+        iEvent.getByToken(ebRecHitsToken_, recHits);
 
         const EcalRecHitCollection *myRecHits = recHits.product();
         const DetId seedId = maxETelec2.superCluster()->seed()->seed();
@@ -740,7 +748,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     // add the primary vtx information in the electron:
     edm::Handle< std::vector<reco::Vertex> > pVtx;
-    iEvent.getByLabel(PrimaryVerticesCollection_, pVtx);
+    iEvent.getByToken(PrimaryVerticesCollectionToken_, pVtx);
 
     const std::vector<reco::Vertex> Vtx = *(pVtx.product());
 
@@ -787,7 +795,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 //     maxETelec1.addUserFloat("ele_tip_pv", Float_t(ele_tip_pv1));
 //
 //     edm::Handle< std::vector<reco::Vertex> > pVtx2;
-//     iEvent.getByLabel(PrimaryVerticesCollection_, pVtx2);
+//     iEvent.getByToken(PrimaryVerticesCollectionToken_, pVtx2);
 //
 //     const std::vector<reco::Vertex> Vtx2 = *(pVtx2.product());
 //
@@ -903,7 +911,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
         if ( dataMagneticFieldSetUp_ ) {
 
             edm::Handle<DcsStatusCollection> dcsHandle;
-            iEvent.getByLabel(dcsTag_, dcsHandle);
+            iEvent.getByToken(dcsToken_, dcsHandle);
             // scale factor = 3.801/18166.0 which are
             // average values taken over a stable two
             // week period
@@ -922,7 +930,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
         edm::Handle<reco::TrackCollection> ctfTracks;
 
-        if ( iEvent.getByLabel("generalTracks", ctfTracks) ) {
+        if ( iEvent.getByToken(tracksToken_, ctfTracks) ) {
 
             ConversionFinder convFinder;
             ConversionInfo convInfo = convFinder.getConversionInfo(maxETelec1, ctfTracks, bfield);
@@ -972,7 +980,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
         if ( dataMagneticFieldSetUp_ ) {
 
             edm::Handle<DcsStatusCollection> dcsHandle;
-            iEvent.getByLabel(dcsTag_, dcsHandle);
+            iEvent.getByToken(dcsToken_, dcsHandle);
 
             // scale factor = 3.801/18166.0 which are
             // average values taken over a stable two
@@ -993,7 +1001,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
         edm::Handle<reco::TrackCollection> ctfTracks;
 
-        if ( iEvent.getByLabel("generalTracks", ctfTracks) ) {
+        if ( iEvent.getByToken(tracksToken_, ctfTracks) ) {
 
             ConversionFinder convFinder;
             ConversionInfo convInfo = convFinder.getConversionInfo(maxETelec2, ctfTracks, bfield);
@@ -1227,13 +1235,13 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
     // MET Collection
     edm::Handle<pat::METCollection> patMET;
-    iEvent.getByLabel(metCollectionTag_,   patMET);
+    iEvent.getByToken(metCollectionToken_,   patMET);
 
     edm::Handle<pat::METCollection> patpfMET;
-    iEvent.getByLabel(pfMetCollectionTag_, patpfMET);
+    iEvent.getByToken(pfMetCollectionToken_, patpfMET);
 
     edm::Handle<pat::METCollection> pattcMET;
-    iEvent.getByLabel(tcMetCollectionTag_, pattcMET);
+    iEvent.getByToken(tcMetCollectionToken_, pattcMET);
 
     const pat::METCollection *pMet = patMET.product();
     const pat::METCollection::const_iterator met = pMet->begin();
@@ -1285,9 +1293,9 @@ Bool_t ZeeCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     delete [] sorted;
     delete [] et;
 
-    std::cout << "Run = "   << iEvent.run() << " " 
-              << "Lumi = "  << (Int_t)iEvent.luminosityBlock() << " " 
-              << "Event = " << iEvent.eventAuxiliary().event() << " " 
+    std::cout << "Run = "   << iEvent.run() << " "
+              << "Lumi = "  << (Int_t)iEvent.luminosityBlock() << " "
+              << "Event = " << iEvent.eventAuxiliary().event() << " "
               << "FILTER-MSG: Event Accepted for Z Candidate"
               << std::endl;
 
