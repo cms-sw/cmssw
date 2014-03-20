@@ -45,6 +45,12 @@
 TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
     TrajectorySeedProducer(conf)
 {  
+	for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
+	{
+		rootLayerNode.fill(theLayersInSets[ilayerset]);
+	}
+	std::cout<<rootLayerNode.str()<<std::endl;
+
 } 
 
 bool
@@ -194,6 +200,10 @@ int TrajectorySeedProducer2::iterateHits(
 
 				//speed things up by testing if the current hit is already further outside than the current layer
 				//-> faster rejection of invalid hits if there is no seed possible at all for a given simtrack
+
+				//evil subDet is LayerSpec::ENUM
+				//subDetId is DetId.subdetid()
+				//layernumber is TrackerTopology::<>layerid(DetId)
 				if (theLayersInSets[ilayerset][currentlayer].subDet==currentTrackerHit.subDetId() && theLayersInSets[ilayerset][currentlayer].idLayer==currentTrackerHit.layerNumber())
 				{
 					if (this->passTrackerRecHitQualityCuts(hitNumbers[ilayerset], currentTrackerHit, trackingAlgorithmId))

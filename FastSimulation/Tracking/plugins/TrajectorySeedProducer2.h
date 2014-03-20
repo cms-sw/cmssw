@@ -16,7 +16,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include <vector>
-#include <string>
+#include <sstream>
 
 namespace edm { 
   class ParameterSet;
@@ -28,6 +28,117 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
 {
 private:
 	std::vector<TrackerRecHit> trackerRecHits;
+
+	class LayerNode
+	{
+		private:
+			const LayerSpec* _layer;
+			int _hitNumber;
+			bool _active;
+			std::vector<LayerNode*> _children;
+			const LayerNode* _parent;
+		public:
+			LayerNode():
+				_layer(0),
+				_hitNumber(-1),
+				_active(true),
+				_parent(0)
+			{
+			}
+
+			LayerNode(const LayerSpec* layer, const LayerNode* parent):
+				_layer(layer),
+				_hitNumber(-1),
+				_active(true),
+				_parent(parent)
+			{
+			}
+
+			LayerNode* addChild(LayerSpec* layer)
+			{
+				for (unsigned int ichild = 0; ichild<_children.size(); ++ichild)
+				{
+					if ((*layer)==(*_children[ichild]->getLayer()))
+					{
+						return _children[ichild];
+					}
+				}
+				LayerNode* layerNode = new LayerNode(layer,this);
+				_children.push_back(layerNode);
+				return layerNode;
+			}
+
+			const LayerSpec* getLayer() const
+			{
+				return _layer;
+			}
+
+			bool isActive() const
+			{
+				return _active;
+			}
+
+			void setHitNumber(int ihit)
+			{
+				_hitNumber=ihit;
+			}
+
+			int getHitNumber() const
+			{
+				return _hitNumber;
+			}
+
+			const LayerNode* getParent() const
+			{
+				return _parent;
+			}
+
+			void fill(std::vector<LayerSpec>& layerSpecList)
+			{
+				LayerNode* currentNode = this;
+				for (unsigned int i = 0; i < layerSpecList.size() && currentNode!=0; ++i)
+				{
+					currentNode=currentNode->addChild(&layerSpecList[i]);
+				}
+			}
+
+			void reset()
+			{
+				_hitNumber=-1;
+				_active=true;
+				for (unsigned int ilayer = 0; ilayer< _children.size(); ++ilayer)
+				{
+					_children[ilayer]->reset();
+				}
+			}
+
+			std::string str(unsigned int offset=0) const
+			{
+				std::stringstream ss;
+				for (unsigned int i=0; i<offset;++i)
+				{
+					ss<<"  ";
+				}
+				if (_layer!=0)
+				{
+					ss<< _layer->name;
+					ss<<_layer->idLayer;
+				}
+				else
+				{
+					ss<<"0";
+				}
+				ss<<"\n";
+				for (unsigned int ichild = 0; ichild<_children.size(); ++ichild)
+				{
+					ss<<_children[ichild]->str(offset+1);
+				}
+				return ss.str();
+			}
+	};
+
+	LayerNode rootLayerNode;
+
  public:
   
   explicit TrajectorySeedProducer2(const edm::ParameterSet& conf);
