@@ -65,7 +65,7 @@ namespace edm
 
     edm::EDGetTokenT<CrossingFrame<SimTrack>> SimTrackToken_;
     edm::EDGetTokenT<CrossingFrame<SimVertex>> SimVertexToken_;
-    edm::EDGetTokenT<CrossingFrame<edm:HepMCProduct>> HepMCToken_;
+    edm::EDGetTokenT<CrossingFrame<HepMCProduct>> HepMCToken_;
 
   };
 }//edm
