@@ -34,6 +34,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
 
 class SimpleCosmicBONSeeder : public edm::EDProducer
 {
@@ -74,6 +76,7 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   edm::ESHandle<MagneticField>                  magfield;
   edm::ESHandle<TrackerGeometry>                tracker;
   edm::ESHandle<TransientTrackingRecHitBuilder> TTTRHBuilder;
+  TkClonerImpl cloner; // FIXME
   KFUpdator               *theUpdator;
   PropagatorWithMaterial  *thePropagatorAl;
   PropagatorWithMaterial  *thePropagatorOp;
@@ -92,7 +95,7 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   std::vector<int32_t> maxHitsPerModule_;
   bool checkCharge(const TrackingRecHit *hit) const ;
   bool checkCharge(const SiStripRecHit2D &hit, int subdetid) const ;
-  void checkNoisyModules(const std::vector<TransientTrackingRecHit::RecHitPointer> &hits, std::vector<bool> &oks) const ;
+  void checkNoisyModules(const std::vector<SeedingHitSet::ConstRecHitPointer> &hits, std::vector<bool> &oks) const ;
 
   //***top-bottom
   bool positiveYOnly;

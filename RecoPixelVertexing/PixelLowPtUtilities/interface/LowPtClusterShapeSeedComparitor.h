@@ -19,7 +19,7 @@ class LowPtClusterShapeSeedComparitor : public SeedComparitor
   virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const ;
   virtual bool compatible(const TrajectorySeed &seed) const { return true; }
   virtual bool compatible(const TrajectoryStateOnSurface &,  
-                          const TransientTrackingRecHit::ConstRecHitPointer &hit) const { return true; }
+                          SeedingHitSet::ConstRecHitPointer hit) const { return true; }
   virtual bool compatible(const SeedingHitSet  &hits, 
                           const GlobalTrajectoryParameters &helixStateAtVertex,
                           const FastHelix                  &helix,

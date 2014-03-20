@@ -38,7 +38,7 @@ public:
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   virtual void endJob() override;
-  InputTag src_muons;
+  EDGetTokenT<CandidateView> srcToken;
   double dRVeto;
   double dRTrk, dREcal, dRHcal;
   double ptThreshold, etEcalThreshold, etHcalThreshold;
@@ -83,7 +83,7 @@ ZMuMuIsolationAnalyzer::MuTag ZMuMuIsolationAnalyzer::muTag(const T& mu) const {
     //cout<<"no mother "<<endl;
   }
   int pdgId1 = moth1->pdgId();
-  if(abs(pdgId1)!=13){ 
+  if(abs(pdgId1)!=13){
     return muFromOther;
     //cout<<"mother is not a muon"<<endl;
   }
@@ -126,7 +126,7 @@ void ZMuMuIsolationAnalyzer::histo(const TH1F* hist, const char* cx, const char*
 }
 
 ZMuMuIsolationAnalyzer::ZMuMuIsolationAnalyzer(const ParameterSet& pset):
-  src_muons(pset.getParameter<InputTag>("src")),
+  srcToken(consumes<CandidateView>(pset.getParameter<InputTag>("src"))),
   dRVeto(pset.getUntrackedParameter<double>("veto")),
   dRTrk(pset.getUntrackedParameter<double>("deltaRTrk")),
   dREcal(pset.getUntrackedParameter<double>("deltaREcal")),
@@ -165,14 +165,14 @@ ZMuMuIsolationAnalyzer::ZMuMuIsolationAnalyzer(const ParameterSet& pset):
   IsoW = fs->make<TH1F>("WIso",str5.str().c_str(),100,0.,20.);
   IsoOther = fs->make<TH1F>("otherIso",str6.str().c_str(),100,0.,20.);
 
- 
+
   Z_eta = fs->make<TH1F>("Z_eta","#eta distribution for muons coming from Z",40,-eta,eta);
   W_eta = fs->make<TH1F>("W_eta","#eta distribution for muons coming from W",40,-eta,eta);
   Other_eta = fs->make<TH1F>("Other_eta","#eta distribution for muons coming from other",40,-eta,eta);
   Z_eta_postSelection = fs->make<TH1F>("Z_eta_postSelection","#eta distribution for muons coming from Z after iso selection",40,-eta,eta);
   W_eta_postSelection = fs->make<TH1F>("W_eta_postSelection","#eta distribution for muons coming from W after iso selection",40,-eta,eta);
   Other_eta_postSelection = fs->make<TH1F>("Other_eta_postSelection","#eta distribution for muons coming from other after iso selection",40,-eta,eta);
-  
+
   Z_pt = fs->make<TH1F>("Z_pt","p_{T} distribution for muons coming from Z",40,pt,150.);
   W_pt = fs->make<TH1F>("W_pt","p_{T} distribution for muons coming from W",40,pt,150.);
   Other_pt = fs->make<TH1F>("Other_pt","p_{T} distribution for muons coming from other",40,pt,150.);
@@ -191,7 +191,7 @@ ZMuMuIsolationAnalyzer::ZMuMuIsolationAnalyzer(const ParameterSet& pset):
 
 void ZMuMuIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   Handle<CandidateView> dimuons;
-  event.getByLabel(src_muons,dimuons);
+  event.getByToken(srcToken,dimuons);
 
   for(unsigned int i=0; i < dimuons->size(); ++ i ) {
     const Candidate & zmm = (* dimuons)[i];
@@ -207,7 +207,7 @@ void ZMuMuIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSe
     const pat::IsoDeposit * muHcalIso =mu0.isoDeposit(pat::HcalIso);
     const pat::IsoDeposit * tkHcalIso =mu1.isoDeposit(pat::HcalIso);
 
-   
+
     if(mu0.pt() > pt && mu1.pt() > pt && abs(mu0.eta()) < eta && abs(mu1.eta()) < eta){
 
       Direction muDir = Direction(mu0.eta(),mu0.phi());
@@ -220,25 +220,25 @@ void ZMuMuIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSe
       reco::IsoDeposit::AbsVetos vetos_tk;
       vetos_tk.push_back(new ConeVeto( tkDir, dRVeto ));
       vetos_tk.push_back(new ThresholdVeto( ptThreshold ));
-      
+
       reco::IsoDeposit::AbsVetos vetos_mu_ecal;
       vetos_mu_ecal.push_back(new ConeVeto( muDir, 0. ));
       vetos_mu_ecal.push_back(new ThresholdVeto( etEcalThreshold ));
-      
+
       reco::IsoDeposit::AbsVetos vetos_tk_ecal;
       vetos_tk_ecal.push_back(new ConeVeto( tkDir, 0. ));
       vetos_tk_ecal.push_back(new ThresholdVeto( etEcalThreshold ));
-      
+
       reco::IsoDeposit::AbsVetos vetos_mu_hcal;
       vetos_mu_hcal.push_back(new ConeVeto( muDir, 0. ));
       vetos_mu_hcal.push_back(new ThresholdVeto( etHcalThreshold ));
-      
+
       reco::IsoDeposit::AbsVetos vetos_tk_hcal;
       vetos_tk_hcal.push_back(new ConeVeto( tkDir, 0. ));
       vetos_tk_hcal.push_back(new ThresholdVeto( etHcalThreshold ));
       MuTag tag_mu = muTag(mu0);
       MuTag tag_track = muTag(mu1);
-     
+
       double  Tk_isovalue = TMath::Max(muTrackIso->sumWithin(dRTrk,vetos_mu),tkTrackIso->sumWithin(dRTrk, vetos_tk));
       double  Ecal_isovalue = TMath::Max(muEcalIso->sumWithin(dREcal,vetos_mu_ecal),tkEcalIso->sumWithin(dREcal, vetos_tk_ecal));
       double  Hcal_isovalue = TMath::Max(muHcalIso->sumWithin(dRHcal,vetos_mu_hcal),tkHcalIso->sumWithin(dRHcal, vetos_tk_hcal));
@@ -279,7 +279,7 @@ void ZMuMuIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSe
 	Deposits(tkEcalIso,dREcal,EcalEt);
 	Deposits(tkHcalIso,dRHcal,HcalEt);
       }
-      if(tag_mu==muFromW || tag_track==muFromW){ 
+      if(tag_mu==muFromW || tag_track==muFromW){
 	h_IsoW_tk->Fill(Tk_isovalue);
 	h_IsoW_ecal->Fill(Ecal_isovalue);
 	h_IsoW_hcal->Fill(Hcal_isovalue);
@@ -334,7 +334,7 @@ void ZMuMuIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSe
 	Deposits(tkHcalIso,dRHcal,HcalEt);
       }
     }
-  }    
+  }
 
   histo(h_IsoZ_tk,"#Sigma p_{T}","Events");
   histo(h_IsoW_tk,"#Sigma p_{T}","Events");
@@ -351,7 +351,7 @@ void ZMuMuIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSe
   histo(HcalEtZ,"E_{T}","");
   histo(EcalEtZ,"E_{T}","");
 }
-  
+
 void ZMuMuIsolationAnalyzer::endJob() {
 }
 

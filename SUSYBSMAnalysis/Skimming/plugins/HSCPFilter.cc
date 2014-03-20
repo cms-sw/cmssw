@@ -2,7 +2,7 @@
 //
 // Package:    HSCPFilter
 // Class:      HSCPFilter
-// 
+//
 /**\class HSCPFilter HSCPFilter.cc HSCPFilter/HSCPFilter/src/HSCPFilter.cc
 
  Description: [one line class summary]
@@ -58,10 +58,16 @@ class HSCPFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
       bool filterFlag;
-      edm::InputTag input_muon_collection, input_track_collection,input_dedx_collection;
+#ifdef THIS_IS_AN_EVENT_EXAMPLE
+      edm::EDGetTokenT<ExampleData> pInToken;
+#endif
+      edm::EDGetTokenT<reco::VertexCollection> recoVertexToken;
+      edm::EDGetTokenT<reco::MuonCollection> input_muon_collectionToken;
+      edm::EDGetTokenT<reco::TrackCollection> input_track_collectionToken;
+      edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > input_dedx_collectionToken;
       int ndedxHits;
       double dedxMin, dedxMaxLeft, trkPtMin,SAMuPtMin,etaMin,etaMax,chi2nMax,dxyMax,dzMax;
-      
+
       // ----------member data ---------------------------
 };
 
@@ -79,9 +85,13 @@ class HSCPFilter : public edm::EDFilter {
 HSCPFilter::HSCPFilter(const edm::ParameterSet& iConfig)
 {
      filterFlag = iConfig.getParameter< bool >("filter");
-     input_muon_collection = iConfig.getParameter< edm::InputTag >("inputMuonCollection");    
-     input_track_collection = iConfig.getParameter< edm::InputTag >("inputTrackCollection");    
-input_dedx_collection =  iConfig.getParameter< edm::InputTag >("inputDedxCollection");
+#ifdef THIS_IS_AN_EVENT_EXAMPLE
+     pInToken = consumes<ExampleData>(iConfig.getParameter< edm::InputTag >("example"));
+#endif
+     recoVertexToken = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+     input_muon_collectionToken = consumes<reco::MuonCollection>(iConfig.getParameter< edm::InputTag >("inputMuonCollection"));
+     input_track_collectionToken = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag >("inputTrackCollection"));
+     input_dedx_collectionToken =  consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter< edm::InputTag >("inputDedxCollection"));
      dedxMin = iConfig.getParameter< double >("dedxMin");
      dedxMaxLeft = iConfig.getParameter< double >("dedxMaxLeft");
      trkPtMin = iConfig.getParameter< double >("trkPtMin");
@@ -97,7 +107,7 @@ input_dedx_collection =  iConfig.getParameter< edm::InputTag >("inputDedxCollect
 
 HSCPFilter::~HSCPFilter()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -115,7 +125,7 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
+   iEvent.getByToken(pInToken,pIn);
 #endif
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
@@ -123,11 +133,10 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<SetupRecord>().get(pSetup);
 #endif
 
-   using namespace edm;
    using namespace reco;
 
-  edm::Handle<reco::VertexCollection> recoVertexHandle;
-   iEvent.getByLabel("offlinePrimaryVertices", recoVertexHandle);
+   edm::Handle<reco::VertexCollection> recoVertexHandle;
+   iEvent.getByToken(recoVertexToken, recoVertexHandle);
    reco::VertexCollection recoVertex = *recoVertexHandle;
 
    if(!filterFlag) return true;
@@ -137,7 +146,7 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using reco::MuonCollection;
 
    Handle<MuonCollection> muTracks;
-   iEvent.getByLabel(input_muon_collection,muTracks);
+   iEvent.getByToken(input_muon_collectionToken,muTracks);
    const reco::MuonCollection muonC = *(muTracks.product());
    for(unsigned int i=0; i<muonC.size(); i++){
       reco::MuonRef muon  = reco::MuonRef( muTracks, i );
@@ -155,18 +164,18 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    using reco::TrackCollection;
    Handle<TrackCollection> tkTracks;
-   iEvent.getByLabel(input_track_collection,tkTracks);
+   iEvent.getByToken(input_track_collectionToken,tkTracks);
    const reco::TrackCollection tkTC = *(tkTracks.product());
 
    Handle<ValueMap<DeDxData> >          dEdxTrackHandle;
-   iEvent.getByLabel(input_dedx_collection, dEdxTrackHandle);
+   iEvent.getByToken(input_dedx_collectionToken, dEdxTrackHandle);
    const ValueMap<DeDxData> dEdxTrack = *dEdxTrackHandle.product();
 
    for(size_t i=0; i<tkTracks->size(); i++){
 
       reco::TrackRef trkRef = reco::TrackRef(tkTracks, i);
-      
-      
+
+
       if(trkRef->pt()>trkPtMin && trkRef->eta()<etaMax && trkRef->eta()>etaMin && trkRef->normalizedChi2()<chi2nMax){
 
            double dz  = trkRef->dz (recoVertex[0].position());
@@ -182,12 +191,12 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                  closestvertex=i;
               }
            }
-           
+
            dz  = trkRef->dz (recoVertex[closestvertex].position());
            dxy = trkRef->dxy(recoVertex[closestvertex].position());
-           
+
            if(fabs(dz)<dzMax && fabs(dxy)<dxyMax ){
-              
+
              double dedx = dEdxTrack[trkRef].dEdx();
               int dedxnhits  = dEdxTrack[trkRef].numberOfMeasurements();
               if((dedx >dedxMin || dedx<dedxMaxLeft) && dedxnhits > ndedxHits) return true;
@@ -199,13 +208,13 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 HSCPFilter::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 HSCPFilter::endJob() {
 }
 

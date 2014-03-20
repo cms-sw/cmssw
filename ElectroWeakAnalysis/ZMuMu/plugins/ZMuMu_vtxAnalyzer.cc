@@ -1,15 +1,15 @@
 /* \class ZMuMu_vtxAnalyzer
- * 
+ *
  * author: Davide Piccolo
  *
  * ZMuMu Vtx analyzer:
- * check muon vtx distributions, 
+ * check muon vtx distributions,
  *
  */
 
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h" 
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -22,38 +22,48 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/PatCandidates/interface/Muon.h" 
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
-
+#include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TH3.h"
 #include <vector>
-using namespace edm;
+
 using namespace std;
 using namespace reco;
+using namespace edm;
+
+typedef edm::ValueMap<float> IsolationCollection;
 
 class ZMuMu_vtxAnalyzer : public edm::EDAnalyzer {
 public:
   ZMuMu_vtxAnalyzer(const edm::ParameterSet& pset);
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
+  bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   virtual void endJob() override;
 
-  edm::InputTag zMuMu_, zMuMuMatchMap_; 
-  edm::InputTag zMuStandAlone_, zMuStandAloneMatchMap_;
-  edm::InputTag zMuTrack_, zMuTrackMatchMap_; 
-  edm::InputTag muons_, muonMatchMap_, muonIso_;
-  edm::InputTag tracks_, trackIso_;
-  edm::InputTag genParticles_, primaryVertices_;
+  EDGetTokenT<CandidateView> zMuMuToken_;
+  EDGetTokenT<GenParticleMatch> zMuMuMatchMapToken_;
+  EDGetTokenT<CandidateView> zMuStandAloneToken_;
+  EDGetTokenT<GenParticleMatch> zMuStandAloneMatchMapToken_;
+  EDGetTokenT<CandidateView> zMuTrackToken_;
+  EDGetTokenT<GenParticleMatch> zMuTrackMatchMapToken_;
+  EDGetTokenT<CandidateView> muonsToken_;
+  EDGetTokenT<CandidateView> tracksToken_;
+  EDGetTokenT<GenParticleCollection> genParticlesToken_;
+  EDGetTokenT<VertexCollection> primaryVerticesToken_;
 
   bool bothMuons_;
 
@@ -95,41 +105,31 @@ private:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Candidate/interface/Particle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/Candidate/interface/CandAssociation.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include <iostream>
 #include <iterator>
 #include <cmath>
-using namespace std;
-using namespace reco;
-using namespace edm;
 
-typedef edm::ValueMap<float> IsolationCollection;
+ZMuMu_vtxAnalyzer::ZMuMu_vtxAnalyzer(const ParameterSet& pset) :
+  zMuMuToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuMu"))),
+  zMuMuMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuMuMatchMap"))),
+  zMuStandAloneToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuStandAlone"))),
+  zMuStandAloneMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuStandAloneMatchMap"))),
+  zMuTrackToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuTrack"))),
+  zMuTrackMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuTrackMatchMap"))),
+  muonsToken_(consumes<CandidateView>(pset.getParameter<InputTag>("muons"))),
+  tracksToken_(consumes<CandidateView>(pset.getParameter<InputTag>("tracks"))),
+  genParticlesToken_(consumes<GenParticleCollection>(pset.getParameter<InputTag>("genParticles"))),
+  primaryVerticesToken_(consumes<VertexCollection>(pset.getParameter<InputTag>("primaryVertices"))),
 
-ZMuMu_vtxAnalyzer::ZMuMu_vtxAnalyzer(const ParameterSet& pset) : 
-  zMuMu_(pset.getParameter<InputTag>("zMuMu")), 
-  zMuMuMatchMap_(pset.getParameter<InputTag>("zMuMuMatchMap")), 
-  zMuStandAlone_(pset.getParameter<InputTag>("zMuStandAlone")), 
-  zMuStandAloneMatchMap_(pset.getParameter<InputTag>("zMuStandAloneMatchMap")), 
-  zMuTrack_(pset.getParameter<InputTag>("zMuTrack")), 
-  zMuTrackMatchMap_(pset.getParameter<InputTag>("zMuTrackMatchMap")), 
-  muons_(pset.getParameter<InputTag>("muons")), 
-  tracks_(pset.getParameter<InputTag>("tracks")), 
-  genParticles_(pset.getParameter<InputTag>( "genParticles" ) ),
-  primaryVertices_(pset.getParameter<InputTag>( "primaryVertices" ) ),
+  bothMuons_(pset.getParameter<bool>("bothMuons")),
 
-  bothMuons_(pset.getParameter<bool>("bothMuons")), 
-
-  etamax_(pset.getUntrackedParameter<double>("etamax")),  
-  ptmin_(pset.getUntrackedParameter<double>("ptmin")), 
-  massMin_(pset.getUntrackedParameter<double>("zMassMin")), 
-  massMax_(pset.getUntrackedParameter<double>("zMassMax")), 
-  isoMax_(pset.getUntrackedParameter<double>("isomax")) { 
+  etamax_(pset.getUntrackedParameter<double>("etamax")),
+  ptmin_(pset.getUntrackedParameter<double>("ptmin")),
+  massMin_(pset.getUntrackedParameter<double>("zMassMin")),
+  massMax_(pset.getUntrackedParameter<double>("zMassMax")),
+  isoMax_(pset.getUntrackedParameter<double>("isomax")) {
   Service<TFileService> fs;
 
   // general histograms
@@ -179,43 +179,43 @@ ZMuMu_vtxAnalyzer::ZMuMu_vtxAnalyzer(const ParameterSet& pset) :
 }
 
 void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
-  Handle<CandidateView> zMuMu;  
-  Handle<GenParticleMatch> zMuMuMatchMap; //Map of Z made by Mu global + Mu global 
-  Handle<CandidateView> zMuStandAlone;  
+  Handle<CandidateView> zMuMu;
+  Handle<GenParticleMatch> zMuMuMatchMap; //Map of Z made by Mu global + Mu global
+  Handle<CandidateView> zMuStandAlone;
   Handle<GenParticleMatch> zMuStandAloneMatchMap; //Map of Z made by Mu + StandAlone
-  Handle<CandidateView> zMuTrack;  
+  Handle<CandidateView> zMuTrack;
   Handle<GenParticleMatch> zMuTrackMatchMap; //Map of Z made by Mu + Track
   Handle<CandidateView> muons; //Collection of Muons
   Handle<CandidateView> tracks; //Collection of Tracks
 
   Handle<GenParticleCollection> genParticles;  // Collection of Generatd Particles
   Handle<reco::VertexCollection> primaryVertices;  // Collection of primary Vertices
-  
-  event.getByLabel(zMuMu_, zMuMu); 
-  event.getByLabel(zMuStandAlone_, zMuStandAlone); 
-  event.getByLabel(zMuTrack_, zMuTrack); 
-  event.getByLabel(genParticles_, genParticles);
-  event.getByLabel(primaryVertices_, primaryVertices);
-  event.getByLabel(muons_, muons); 
-  event.getByLabel(tracks_, tracks); 
 
-  /*  
+  event.getByToken(zMuMuToken_, zMuMu);
+  event.getByToken(zMuStandAloneToken_, zMuStandAlone);
+  event.getByToken(zMuTrackToken_, zMuTrack);
+  event.getByToken(genParticlesToken_, genParticles);
+  event.getByToken(primaryVerticesToken_, primaryVertices);
+  event.getByToken(muonsToken_, muons);
+  event.getByToken(tracksToken_, tracks);
+
+  /*
   cout << "*********  zMuMu         size : " << zMuMu->size() << endl;
   cout << "*********  zMuStandAlone size : " << zMuStandAlone->size() << endl;
   cout << "*********  zMuTrack      size : " << zMuTrack->size() << endl;
-  cout << "*********  muons         size : " << muons->size() << endl; 	    
+  cout << "*********  muons         size : " << muons->size() << endl;
   cout << "*********  tracks        size : " << tracks->size() << endl;
   cout << "*********  vertices      size : " << primaryVertices->size() << endl;
   */
 
   //      std::cout<<"Run-> "<<event.id().run()<<std::endl;
-  //      std::cout<<"Event-> "<<event.id().event()<<std::endl; 
+  //      std::cout<<"Event-> "<<event.id().event()<<std::endl;
 
   bool zMuMu_found = false;
 
   // loop on ZMuMu
   if (zMuMu->size() > 0 ) {
-    event.getByLabel(zMuMuMatchMap_, zMuMuMatchMap); 
+    event.getByToken(zMuMuMatchMapToken_, zMuMuMatchMap);
     for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
       CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
@@ -231,12 +231,12 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
       h_muon_vz->Fill(muonDau0.vz());
       h_muon_vz->Fill(muonDau1.vz());
       h_dimuon_vz->Fill((muonDau0.vz()+muonDau1.vz())/2.);
- 
+
       TrackRef mu0TrkRef = muonDau0.track();
       float d0signed_mu0 = (*mu0TrkRef).dxy();
       float d0signed_mu0_respectToPV= (*mu0TrkRef).dxy( primaryVertices->begin()->position() );
       float vz_mu0_respectToPV= (*mu0TrkRef).dz( primaryVertices->begin()->position() );
-      
+
       TrackRef mu1TrkRef = muonDau1.track();
       float d0signed_mu1 = (*mu1TrkRef).dxy();
       float d0signed_mu1_respectToPV= (*mu1TrkRef).dxy( primaryVertices->begin()->position() );
@@ -256,9 +256,9 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
       double mass = zMuMuCand.mass();
 
       // HLT match
-      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
 	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
-      const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
+      const pat::TriggerObjectStandAloneCollection mu1HLTMatches =
 	muonDau1.triggerObjectMatchesByPath( "HLT_Mu9" );
 
       bool trig0found = false;
@@ -290,7 +290,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
 	  h_zmumuNotIsoSele_muonNotIso_d0signed_respectToPV->Fill(d0signed_mu0_respectToPV);
 	  h_zmumuNotIsoSele_muonIso_d0signed_respectToPV->Fill(d0signed_mu1_respectToPV);
 	  h_zmumuNotIsoSele_muonNotIso_vz_respectToPV->Fill(vz_mu0_respectToPV);
-	  h_zmumuNotIsoSele_muonIso_vz_respectToPV->Fill(vz_mu1_respectToPV);	  
+	  h_zmumuNotIsoSele_muonIso_vz_respectToPV->Fill(vz_mu1_respectToPV);
 	}
 	if (trkiso0<isoMax_ && trkiso1>=isoMax_) {  // zmumu just muon0 isolated
 	  h_zmumuNotIsoSele_muonNotIso_vz->Fill(muonDau1.vz());
@@ -301,7 +301,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
 	  h_zmumuNotIsoSele_muonNotIso_d0signed_respectToPV->Fill(d0signed_mu1_respectToPV);
 	  h_zmumuNotIsoSele_muonIso_d0signed_respectToPV->Fill(d0signed_mu0_respectToPV);
 	  h_zmumuNotIsoSele_muonNotIso_vz_respectToPV->Fill(vz_mu1_respectToPV);
-	  h_zmumuNotIsoSele_muonIso_vz_respectToPV->Fill(vz_mu0_respectToPV);	  
+	  h_zmumuNotIsoSele_muonIso_vz_respectToPV->Fill(vz_mu0_respectToPV);
 	}
       }
     }  // end loop on ZMuMu cand
@@ -310,7 +310,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
   // loop on ZMuSta
   bool zMuSta_found = false;
   if (!zMuMu_found && zMuStandAlone->size() > 0 ) {
-    event.getByLabel(zMuStandAloneMatchMap_, zMuStandAloneMatchMap); 
+    event.getByToken(zMuStandAloneMatchMapToken_, zMuStandAloneMatchMap);
     for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
       const Candidate & zMuStandAloneCand = (*zMuStandAlone)[i]; //the candidate
       CandidateBaseRef zMuStandAloneCandRef = zMuStandAlone->refAt(i);
@@ -324,12 +324,12 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
       double trkiso1 = muonDau1.trackIso();
 
       // vertex
- 
+
       TrackRef mu0TrkRef = muonDau0.track();
       float d0signed_mu0 = (*mu0TrkRef).dxy();
       float d0signed_mu0_respectToPV= (*mu0TrkRef).dxy( primaryVertices->begin()->position() );
       float vz_mu0_respectToPV= (*mu0TrkRef).dz( primaryVertices->begin()->position() );
-      
+
       TrackRef mu1TrkRef = muonDau1.track();
       float d0signed_mu1 = (*mu1TrkRef).dxy();
       float d0signed_mu1_respectToPV= (*mu1TrkRef).dxy( primaryVertices->begin()->position() );
@@ -341,10 +341,10 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
       double eta1 = zMuStandAloneCand.daughter(1)->eta();
       double mass = zMuStandAloneCand.mass();
 
-      // HLT match 
-      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+      // HLT match
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
 	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
-      const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
+      const pat::TriggerObjectStandAloneCollection mu1HLTMatches =
 	muonDau1.triggerObjectMatchesByPath( "HLT_Mu9" );
 
       bool trig0found = false;
@@ -371,14 +371,14 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
 	h_zmustaSele_muon_vz_respectToPV->Fill(vz_mu0_respectToPV,1.);             // muon vz respect PV
 	h_zmustaSele_sta_vz_respectToPV->Fill(vz_mu1_respectToPV,1.);	          // sta vz respect PV
       }
-      
+
     }  // end loop on ZMuStandAlone cand
   }    // end if ZMuStandAlone size > 0
 
 
   // loop on ZMuTrack
   if (!zMuMu_found && !zMuSta_found && zMuTrack->size() > 0 ) {
-    event.getByLabel(zMuTrackMatchMap_, zMuTrackMatchMap); 
+    event.getByToken(zMuTrackMatchMapToken_, zMuTrackMatchMap);
     for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
       const Candidate & zMuTrackCand = (*zMuTrack)[i]; //the candidate
       CandidateBaseRef zMuTrackCandRef = zMuTrack->refAt(i);
@@ -390,18 +390,18 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
       double trkiso1 = trackDau1.trackIso();
 
       // vertex
- 
+
       TrackRef mu0TrkRef = muonDau0.track();
       float d0signed_mu0 = (*mu0TrkRef).dxy();
       float d0signed_mu0_respectToPV= (*mu0TrkRef).dxy( primaryVertices->begin()->position() );
       float vz_mu0_respectToPV= (*mu0TrkRef).dz( primaryVertices->begin()->position() );
-      
+
       TrackRef mu1TrkRef = trackDau1.track();
       float d0signed_mu1 = (*mu1TrkRef).dxy();
       float d0signed_mu1_respectToPV= (*mu1TrkRef).dxy( primaryVertices->begin()->position() );
       float vz_mu1_respectToPV= (*mu1TrkRef).dz( primaryVertices->begin()->position() );
 
-      // cynematical parameters 
+      // cynematical parameters
 
       double pt0 = zMuTrackCand.daughter(0)->pt();
       double pt1 = zMuTrackCand.daughter(1)->pt();
@@ -410,7 +410,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
       double mass = zMuTrackCand.mass();
 
       // HLT match (check just dau0 the global)
-       const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+       const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
 	muonDau0.triggerObjectMatchesByPath( "HLT_Mu9" );
 
       bool trig0found = false;
@@ -428,7 +428,7 @@ void ZMuMu_vtxAnalyzer::analyze(const Event& event, const EventSetup& setup) {
 	h_zmutrackSele_muon_vz_respectToPV->Fill(vz_mu0_respectToPV,1.);             // muon vz respect PV
 	h_zmutrackSele_track_vz_respectToPV->Fill(vz_mu1_respectToPV,1.);	          // track vz respect PV
       }
-      
+
     }  // end loop on ZMuTrack cand
   }    // end if ZMuTrack size > 0
 
@@ -445,9 +445,9 @@ bool ZMuMu_vtxAnalyzer::check_ifZmumu(const Candidate * dauGen0, const Candidate
   if (partId0==13 || partId1==13 || partId2==13) muminusFound=true;
   if (partId0==-13 || partId1==-13 || partId2==-13) muplusFound=true;
   if (partId0==23 || partId1==23 || partId2==23) ZFound=true;
-  return muplusFound*muminusFound*ZFound;   
+  return muplusFound*muminusFound*ZFound;
 }
- 
+
 float ZMuMu_vtxAnalyzer::getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
 {
   int partId0 = dauGen0->pdgId();
@@ -480,7 +480,7 @@ float ZMuMu_vtxAnalyzer::getParticlePt(const int ipart, const Candidate * dauGen
   }
   return ptpart;
 }
- 
+
 float ZMuMu_vtxAnalyzer::getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
 {
   int partId0 = dauGen0->pdgId();
@@ -579,14 +579,14 @@ Particle::LorentzVector ZMuMu_vtxAnalyzer::getParticleP4(const int ipart, const 
   }
   return p4part;
 }
- 
+
 
 
 void ZMuMu_vtxAnalyzer::endJob() {
-  
+
 }
-  
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(ZMuMu_vtxAnalyzer);
-  
+

@@ -56,6 +56,9 @@ class MuScleFitFilter : public edm::EDFilter {
   // Collections labels
   // ------------------
   edm::InputTag theMuonLabel;
+  edm::EDGetTokenT<reco::MuonCollection> theGlbMuonsToken;
+  edm::EDGetTokenT<reco::TrackCollection> theSaMuonsToken;
+  edm::EDGetTokenT<reco::TrackCollection> theTracksToken;
 
 };
 
@@ -68,15 +71,18 @@ const double Mmu2 = 0.011163612;    // Squared muon mass
 MuScleFitFilter::MuScleFitFilter(const edm::ParameterSet& iConfig)
 {
   debug = iConfig.getUntrackedParameter<bool>("debug",false);
-  
+
   if (debug)
     std::cout << "Constructor" << std::endl;
 
   // Parameters
   // ----------
   //ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
-  //theService = new MuonServiceProxy(serviceParameters);  
+  //theService = new MuonServiceProxy(serviceParameters);
   theMuonLabel = iConfig.getParameter<edm::InputTag>("MuonLabel");
+  theGlbMuonsToken = mayConsume<reco::MuonCollection>(theMuonLabel);
+  theSaMuonsToken = mayConsume<reco::TrackCollection>(theMuonLabel);
+  theTracksToken = mayConsume<reco::TrackCollection>(theMuonLabel);
   theMuonType = iConfig.getParameter<int>("muonType");
 
   Mmin = iConfig.getUntrackedParameter<std::vector<double> >("Mmin");
@@ -106,7 +112,7 @@ MuScleFitFilter::~MuScleFitFilter() {
 // Member functions
 // ----------------
 
-// Method called for each event 
+// Method called for each event
 // ----------------------------
 bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
 
@@ -126,33 +132,33 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
     // -------------
     edm::Handle<reco::MuonCollection> glbMuons;
     if (debug) std::cout << "Handle defined" << std::endl;
-    event.getByLabel(theMuonLabel, glbMuons);
+    event.getByToken(theGlbMuonsToken, glbMuons);
     if (debug)
       std::cout << "Global muons: " << glbMuons->size() << std::endl;
 
-    // Store the muon 
+    // Store the muon
     // --------------
     reco::MuonCollection::const_iterator glbMuon;
-    for (glbMuon=glbMuons->begin(); glbMuon!=glbMuons->end(); ++glbMuon) {   
+    for (glbMuon=glbMuons->begin(); glbMuon!=glbMuons->end(); ++glbMuon) {
       muons->push_back(*glbMuon);
-      if (debug) {    
+      if (debug) {
 	std::cout << "  Reconstructed muon: pT = " << glbMuon->p4().Pt()
 	     << "  Eta = " << glbMuon->p4().Eta() << std::endl;
-      } 
+      }
     }
   } else if (theMuonType==2) { // StandaloneMuons
 
     // Standalone muons:
     // -----------------
     edm::Handle<reco::TrackCollection> saMuons;
-    event.getByLabel(theMuonLabel, saMuons);
+    event.getByToken(theSaMuonsToken, saMuons);
     if (debug)
       std::cout << "Standalone muons: " << saMuons->size() << std::endl;
 
-    // Store the muon   
+    // Store the muon
     // --------------
     reco::TrackCollection::const_iterator saMuon;
-    for (saMuon=saMuons->begin(); saMuon!=saMuons->end(); ++saMuon) {  
+    for (saMuon=saMuons->begin(); saMuon!=saMuons->end(); ++saMuon) {
       reco::Muon muon;
       double energy = sqrt(saMuon->p()*saMuon->p()+Mmu2);
       math::XYZTLorentzVector p4(saMuon->px(), saMuon->py(), saMuon->pz(), energy);
@@ -165,19 +171,19 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
     // Tracks:
     // -------
     edm::Handle<reco::TrackCollection> tracks;
-    event.getByLabel(theMuonLabel, tracks);
+    event.getByToken(theTracksToken, tracks);
     if (debug)
       std::cout << "Tracker tracks: " << tracks->size() << std::endl;
 
     // Store the muon
     // -------------
     reco::TrackCollection::const_iterator track;
-    for (track=tracks->begin(); track!=tracks->end(); ++track) {  
+    for (track=tracks->begin(); track!=tracks->end(); ++track) {
       reco::Muon muon;
       double energy = sqrt(track->p()*track->p()+Mmu2);
       math::XYZTLorentzVector p4(track->px(), track->py(), track->pz(), energy);
       muon.setP4(p4);
-      muon.setCharge(track->charge());      
+      muon.setCharge(track->charge());
       muons->push_back(muon);
     }
   } else {
@@ -189,13 +195,13 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
   // ---------------------------------------------
   reco::MuonCollection::const_iterator muon1;
   reco::MuonCollection::const_iterator muon2;
-  
+
   bool resfound = false;
 
   // Require at least N muons of the selected type.
   if( muons->size() >= minimumMuonsNumber ) {
 
-    for (muon1=muons->begin(); muon1!=muons->end(); ++muon1) {  
+    for (muon1=muons->begin(); muon1!=muons->end(); ++muon1) {
 
       if (debug) {
         std::cout << "  Reconstructed muon: pT = " << muon1->p4().Pt()
@@ -204,8 +210,8 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
 
       // Recombine all the possible Z from reconstructed muons
       // -----------------------------------------------------
-      if (muons->size()>1) { 
-        for (muon2 = muon1+1; muon2!=muons->end(); ++muon2) {  
+      if (muons->size()>1) {
+        for (muon2 = muon1+1; muon2!=muons->end(); ++muon2) {
           if ( ((*muon1).charge()*(*muon2).charge())<0 ) { // This also gets rid of muon1==muon2
             //	  reco::Particle::LorentzVector Z (muonCorr1 + muonCorr2);
             reco::Particle::LorentzVector Z (muon1->p4()+muon2->p4());
@@ -232,14 +238,14 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
           }
         }
       } else if (debug) {
-        std::cout << "Not enough reconstructed muons to make a resonance" << std::endl; 
+        std::cout << "Not enough reconstructed muons to make a resonance" << std::endl;
       }
     }
   }
   else if (debug) {
     std::cout << "Skipping event because muons = " << muons->size() << " < " << "minimumMuonsNumber("<<minimumMuonsNumber<<")" << std::endl;
   }
-  
+
   // Store the event if it has a dimuon pair with mass within defined boundaries
   // ---------------------------------------------------------------------------
   bool write = false;

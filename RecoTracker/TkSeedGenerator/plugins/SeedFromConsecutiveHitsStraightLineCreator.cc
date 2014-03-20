@@ -6,8 +6,8 @@
 bool SeedFromConsecutiveHitsStraightLineCreator::initialKinematic(GlobalTrajectoryParameters & kine,
 								  const SeedingHitSet & hits) const {
 
-  const TransientTrackingRecHit::ConstRecHitPointer& tth1 = hits[0];
-  const TransientTrackingRecHit::ConstRecHitPointer& tth2 = hits[1];
+  const SeedingHitSet::ConstRecHitPointer& tth1 = hits[0];
+  const SeedingHitSet::ConstRecHitPointer& tth2 = hits[1];
 
   const GlobalPoint& vertexPos = region->origin();
 

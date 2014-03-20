@@ -17,6 +17,7 @@
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 //ClusterShapeIncludes
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
@@ -86,10 +87,10 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::trajectorySeed(
 
   //
   // Let's build the 4 hits
-  TransientTrackingRecHit::ConstRecHitPointer ptth1 = phits[0];
-  TransientTrackingRecHit::ConstRecHitPointer ptth2 = phits[1];
-  TransientTrackingRecHit::ConstRecHitPointer mtth1 = mhits[0];
-  TransientTrackingRecHit::ConstRecHitPointer mtth2 = mhits[1];
+  SeedingHitSet::ConstRecHitPointer ptth1 = phits[0];
+  SeedingHitSet::ConstRecHitPointer ptth2 = phits[1];
+  SeedingHitSet::ConstRecHitPointer mtth1 = mhits[0];
+  SeedingHitSet::ConstRecHitPointer mtth2 = mhits[1];
 
   GlobalPoint vHit[4];
   vHit[0]=ptth2->globalPosition();
@@ -444,10 +445,10 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 		  GlobalTrajectoryParameters pkine;
 		  GlobalTrajectoryParameters mkine;
 
-		  TransientTrackingRecHit::ConstRecHitPointer ptth1 = phits[0];
-		  TransientTrackingRecHit::ConstRecHitPointer ptth2 = phits[1];
-		  TransientTrackingRecHit::ConstRecHitPointer mtth1 = mhits[0];
-		  TransientTrackingRecHit::ConstRecHitPointer mtth2 = mhits[1];
+		  // SeedingHitSet::ConstRecHitPointer ptth1 = phits[0];  // (never used???)
+		  SeedingHitSet::ConstRecHitPointer ptth2 = phits[1];
+		  SeedingHitSet::ConstRecHitPointer mtth1 = mhits[0];
+		  SeedingHitSet::ConstRecHitPointer mtth2 = mhits[1];
 
 		  GlobalPoint vertexPos(candVtx.x(),candVtx.y(),candVtx.z());
 
@@ -589,8 +590,8 @@ GlobalTrajectoryParameters SeedForPhotonConversionFromQuadruplets::initialKinema
 {
   GlobalTrajectoryParameters kine;
 
-  TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
-  TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
+  SeedingHitSet::ConstRecHitPointer tth1 = hits[0];
+  SeedingHitSet::ConstRecHitPointer tth2 = hits[1];
 
   edm::ESHandle<MagneticField> bfield;
   es.get<IdealMagneticFieldRecord>().get(bfield);
@@ -696,18 +697,18 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::buildSeed(
 
   const TrackingRecHit* hit = 0;
   for ( unsigned int iHit = 0; iHit < hits.size() && iHit<2; iHit++) {
-    hit = hits[iHit]->hit();
+    hit = hits[iHit];
     TrajectoryStateOnSurface state = (iHit==0) ?
       propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
       : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
 
-    TransientTrackingRecHit::ConstRecHitPointer tth = hits[iHit];
+    SeedingHitSet::ConstRecHitPointer tth = hits[iHit];
 
-    TransientTrackingRecHit::RecHitPointer newtth =  refitHit( tth, state);
+    SeedingHitSet::RecHitPointer newtth =  refitHit( tth, state);
 
     updatedState =  updator.update(state, *newtth);
 
-    seedHits.push_back(newtth->hit()->clone());
+    seedHits.push_back(newtth);
 #ifdef mydebug_seed
     uint32_t detid = hit->geographicalId().rawId();
     (*pss) << "\n[SeedForPhotonConversionFromQuadruplets] hit " << iHit;
@@ -747,6 +748,13 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(
   es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
   const Propagator*  propagator = &(*propagatorHandle);
 
+   // get cloner (FIXME: add to config)
+  auto TTRHBuilder = "WithTrackAngle"; 
+  edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
+  es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
+  auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+  cloner = (*builder).cloner(); 
+
   // get updator
   KFUpdator  updator;
 
@@ -764,9 +772,9 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(
     if (!state.isValid()) {
     	return false;}
 
-    TransientTrackingRecHit::ConstRecHitPointer tth = hits[iHit];
+    SeedingHitSet::ConstRecHitPointer tth = hits[iHit];
 
-    TransientTrackingRecHit::RecHitPointer newtth =  refitHit( tth, state);
+    SeedingHitSet::RecHitPointer newtth =  refitHit( tth, state);
 
 
     if (!checkHit(state,newtth,es)){
@@ -887,8 +895,8 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(
 
 
 
-TransientTrackingRecHit::RecHitPointer SeedForPhotonConversionFromQuadruplets::refitHit(
-      const TransientTrackingRecHit::ConstRecHitPointer &hit,
+SeedingHitSet::RecHitPointer SeedForPhotonConversionFromQuadruplets::refitHit(
+      SeedingHitSet::ConstRecHitPointer hit,
       const TrajectoryStateOnSurface &state) const
 {
   //const TransientTrackingRecHit* a= hit.get();
@@ -898,7 +906,7 @@ TransientTrackingRecHit::RecHitPointer SeedForPhotonConversionFromQuadruplets::r
 
   //const TSiStripRecHit2DLocalPos* b = dynamic_cast<const TSiStripRecHit2DLocalPos*>(a);
   //return const_cast<TSiStripRecHit2DLocalPos*>(b);
-  return hit->clone(state);
+  return (SeedingHitSet::RecHitPointer)(cloner(*hit,state));
 }
 
 //
@@ -975,7 +983,7 @@ bubbleReverseSortVsPhi(GlobalPoint arr[], int n, GlobalPoint vtx) {
 
 
 double SeedForPhotonConversionFromQuadruplets::
-simpleGetSlope(const TransientTrackingRecHit::ConstRecHitPointer &ohit, const TransientTrackingRecHit::ConstRecHitPointer &nohit, const TransientTrackingRecHit::ConstRecHitPointer &ihit, const TransientTrackingRecHit::ConstRecHitPointer &nihit, const TrackingRegion & region, double & cotTheta, double & z0){
+simpleGetSlope(const SeedingHitSet::ConstRecHitPointer &ohit, const SeedingHitSet::ConstRecHitPointer &nohit, const SeedingHitSet::ConstRecHitPointer &ihit, const SeedingHitSet::ConstRecHitPointer &nihit, const TrackingRegion & region, double & cotTheta, double & z0){
 
   double x[5], y[5], e2y[5];
 
@@ -1018,7 +1026,7 @@ double SeedForPhotonConversionFromQuadruplets::verySimpleFit(int size, double* a
   return 0;
 }
 
-double SeedForPhotonConversionFromQuadruplets::getSqrEffectiveErrorOnZ(const TransientTrackingRecHit::ConstRecHitPointer &hit, const TrackingRegion & region){
+double SeedForPhotonConversionFromQuadruplets::getSqrEffectiveErrorOnZ(const SeedingHitSet::ConstRecHitPointer &hit, const TrackingRegion & region){
 
   //
   //Fit-wise the effective error on Z is the sum in quadrature of the error on Z
