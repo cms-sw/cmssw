@@ -476,12 +476,12 @@ class RunBTagging(ConfigToolBase):
         if ivfFiltTILabel in getattr( process, 'btagging'+label+postfix ).moduleNames():
             if not hasattr( process, 'inclusiveVertexing' ):
                 process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
-            if not hasattr( process, 'inclusiveVerticesFiltered' ):
+            if not hasattr( process, 'inclusiveSecondaryVerticesFiltered' ):
                 process.load( 'RecoBTag.SecondaryVertex.secondaryVertex_cff' )
             if not hasattr( process, 'bToCharmDecayVertexMerged' ):
                 process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )
-            if hasattr( process, 'inclusiveVertexing' ) and hasattr( process, 'inclusiveVerticesFiltered' ) and hasattr( process, 'bToCharmDecayVertexMerged' ):
-                getattr( process, 'btagging'+label+postfix ).replace( getattr( process, ivfFiltTILabel ), ( process.inclusiveVertexing * process.inclusiveVerticesFiltered * process.bToCharmDecayVertexMerged * getattr( process, ivfFiltTILabel ) ) )
+            if hasattr( process, 'inclusiveVertexing' ) and hasattr( process, 'inclusiveSecondaryVerticesFiltered' ) and hasattr( process, 'bToCharmDecayVertexMerged' ):
+                getattr( process, 'btagging'+label+postfix ).replace( getattr( process, ivfFiltTILabel ), ( process.inclusiveVertexing * process.inclusiveSecondaryVerticesFiltered * process.bToCharmDecayVertexMerged * getattr( process, ivfFiltTILabel ) ) )
 
         if hasattr(process, "addAction"):
             process.enableRecording()
