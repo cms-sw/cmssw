@@ -1,16 +1,16 @@
 /*#include "ElectroWeakAnalysis/ZEE/interface/AnalysisErsatz.h"
 AnalysisErsatz::AnalysisErsatz(const edm::ParameterSet& ps)
 {
-	MCTruthCollection_  = ps.getParameter<edm::InputTag>("MCTruthCollection");
-	ElectronCollection_ = ps.getParameter<edm::InputTag>("ElectronCollection");
-	GenMEtCollection_  = ps.getParameter<edm::InputTag>("GenMEtCollection");
-	//T1MEtCollection_  = ps.getParameter<edm::InputTag>("T1MEtCollection");
-	PfMEtCollection_  = ps.getParameter<edm::InputTag>("PfMEtCollection");
-	TcMEtCollection_  = ps.getParameter<edm::InputTag>("TcMEtCollection");
-	CaloMEtCollection_  = ps.getParameter<edm::InputTag>("CaloMEtCollection");
-        TriggerEvent_ = ps.getParameter<edm::InputTag>("TriggerEvent");
+	MCTruthCollection_  = consumes<reco::GenParticleCollection>(ps.getParameter<edm::InputTag>("MCTruthCollection"));
+	ElectronCollection_ = consumes<reco::GsfElectronCollection>(ps.getParameter<edm::InputTag>("ElectronCollection"));
+	GenMEtCollection_  = consumes<reco::GenMETCollection>(ps.getParameter<edm::InputTag>("GenMEtCollection"));
+	//T1MEtCollection_  = consumes<reco::METCollection>(ps.getParameter<edm::InputTag>("T1MEtCollection"));
+	PfMEtCollection_  = consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("PfMEtCollection"));
+	TcMEtCollection_  = consumes<reco::METCollection>(ps.getParameter<edm::InputTag>("TcMEtCollection"));
+	CaloMEtCollection_  = consumes<reco::CaloMETCollection>(ps.getParameter<edm::InputTag>("CaloMEtCollection"));
+        TriggerEvent_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("TriggerEvent"));
         TriggerPath_ = ps.getParameter<edm::InputTag>("TriggerPath");
-        TriggerResults_ = ps.getParameter<edm::InputTag>("TriggerResults");
+        TriggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
         TriggerName_ = ps.getParameter<std::string>("TriggerName");
 	ErsatzEvent_ = ps.getParameter<bool>("ErsatzEvent");
         double CElecPtMin = ps.getParameter<double>("CElecPtMin");
@@ -154,7 +154,7 @@ void AnalysisErsatz::beginJob()
 	t_->Branch("HltObj_eta_", HltObj_eta_,"HltObj_eta_[4]/D");
 	t_->Branch("genMEt", &genMEt_,"genMEt/D");
 	t_->Branch("genUESumEt", &genUESumEt_, "genUESumEt_/D");
-	
+
 }
 // ------------ method called to for each event  ------------
 void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
@@ -173,7 +173,7 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	McNu_pt_ = -99.; McNu_eta_ = -99.; McNu_phi_ = -99.;
 	McNu_vx_= -99.; McNu_vy_= -99.; McNu_vz_ = -99.;
 	McLeptons_dPhi_ = -99.; McLeptons_dEta_ = -99.; McLeptons_dR_ = -99.;
-	RndmMcElec_pt_ = -99.; RndmMcElec_eta_ = -99.; RndmMcElec_phi_ = -99.; 
+	RndmMcElec_pt_ = -99.; RndmMcElec_eta_ = -99.; RndmMcElec_phi_ = -99.;
 	RndmMcElec_Rescaled_pt_ = -99.; RndmMcElec_Rescaled_eta_ = -99.; RndmMcElec_Rescaled_phi_ = -99.;
 	RndmMcElecTRIG_pt_ = -99.; RndmMcElecTRIG_eta_ = -99.; RndmMcElecRECO_pt_ = -99.; RndmMcElecRECO_eta_ = -99.;
 	OthrMcElec_pt_ = -99.; OthrMcElec_eta_ = -99.; OthrMcElec_phi_ = -99.;
@@ -195,80 +195,26 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 		genMt_[i] = -99.;
 	}
 	edm::Handle<reco::GenParticleCollection> pGenPart;
-	try
-	{
-		evt.getByLabel(MCTruthCollection_, pGenPart);
-	}catch(cms::Exception& ex)
-	{
-		edm::LogError("")<<"Error! Can't get collection with label "<< MCTruthCollection_.label();
-	}
+		evt.getByToken(MCTruthCollection_, pGenPart);
         edm::Handle<reco::GsfElectronCollection> pElectrons;
-        try
-        {
-                evt.getByLabel(ElectronCollection_, pElectrons);
-        }catch(cms::Exception &ex)
-        {
-                edm::LogError("analyze") <<"Can't get collection with label "<< ElectronCollection_.label();
-        }
+                evt.getByToken(ElectronCollection_, pElectrons);
         edm::Handle<reco::CaloMETCollection> pCaloMEt;
-        try
-        {
-                evt.getByLabel(CaloMEtCollection_, pCaloMEt);
-        }catch(cms::Exception &ex)
-        {
-                edm::LogError("analyze")<<"Can't get collection with label "<< CaloMEtCollection_.label();
-        }
+                evt.getByToken(CaloMEtCollection_, pCaloMEt);
 	//edm::Handle<reco::METCollection> pT1MEt;
-	//try
-	//{
-	//	evt.getByLabel(T1MEtCollection_, pT1MEt);
-	//}catch(cms::Exception &ex)
-	//{
-	//	edm::LogError("analyze")<<"Can't get collection with label "<< T1MEtCollection_.label();
-	//}
+	//	evt.getByToken(T1MEtCollection_, pT1MEt);
 	edm::Handle<reco::PFMETCollection> pPfMEt;
-	try
-	{
-		evt.getByLabel(PfMEtCollection_, pPfMEt);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze")<<"Can't get collection with label "<< PfMEtCollection_.label();
-	}
+		evt.getByToken(PfMEtCollection_, pPfMEt);
 	edm::Handle<reco::METCollection> pTcMEt;
-	try
-	{
-		evt.getByLabel(TcMEtCollection_, pTcMEt);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze")<<"Can't get collection with label "<< TcMEtCollection_.label();
-	}
+		evt.getByToken(TcMEtCollection_, pTcMEt);
 	edm::Handle<reco::GenMETCollection> pGenMEt;
-	try
-	{
-		evt.getByLabel(GenMEtCollection_, pGenMEt);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze")<<"Can't get collection with label "<< GenMEtCollection_.label();
-	}
+		evt.getByToken(GenMEtCollection_, pGenMEt);
         edm::Handle<edm::TriggerResults> pTriggerResults;
-        try
-        {
-                evt.getByLabel(TriggerResults_, pTriggerResults);
-        }catch(cms::Exception &ex)
-        {
-                edm::LogError("analyze")<<"Cant get collection with label "<< TriggerResults_.label();
-        }
+                evt.getByToken(TriggerResults_, pTriggerResults);
         const edm::TriggerResults* HltRes = pTriggerResults.product();
        	edm::Handle<trigger::TriggerEvent> pHLT;
         if(HltRes->accept(34) !=0)
 	{
-	        try
-        	{
-                	evt.getByLabel(TriggerEvent_, pHLT);
-	        }catch(cms::Exception &ex)
-        	{
-                	edm::LogError("analyze")<<"Can't get collection with label "<< TriggerEvent_.label();
-	        }
+                	evt.getByToken(TriggerEvent_, pHLT);
 	}
 	edm::LogDebug_("analyse","", 143)<<"Have obtained collections."<<std::endl;
 	int m = 0; int n = 0; int k = 0;
@@ -280,7 +226,7 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	edm::Service<edm::RandomNumberGenerator> rng;
 	math::XYZTLorentzVector RndmMcElec_alt, OthrMcElec_alt, Zboson;
 	CLHEP::RandFlat flatDistribution(rng->getEngine(), 0, 2);
-	double RandomNum = flatDistribution.fire(); 
+	double RandomNum = flatDistribution.fire();
 	RndmInt_ = int(RandomNum);
 //	std::cout<<"Random Number = "<< RandomNum <<"\t int = "<< int(RandomNum)<<std::endl;
 	for(reco::GenParticleCollection::const_iterator McP = McCand->begin(); McP != McCand->end(); ++McP)
@@ -306,7 +252,7 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //			Leptons.push_back(McP);
 			if(!BosonAnalysed)
 			{
-				Boson_pt_ = mum->pt();	
+				Boson_pt_ = mum->pt();
 				Boson_y_ = mum->y();
 				Boson_phi_ = mum->phi();
 				Boson_m_ = mum->mass();
@@ -316,12 +262,12 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 			}
 			McElec3_pt_[k] = McP->pt();
 			McElec3_eta_[k] = McP->eta();
-			if(k == int(RandomNum)) 
+			if(k == int(RandomNum))
 			{
 				RndmMcElec_alt = McP->p4();
 			}else OthrMcElec_alt = McP->p4();
 			++k;
-		}	
+		}
 	  	if(abs(McP->pdgId())==12 && abs(mum->pdgId()) == 24)
 		{
 			Leptons.push_back(McP);
@@ -343,23 +289,23 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 			edm::LogDebug_("","",344)<<"Pushed electron back into Leptons. Leptons.size() = "<< Leptons.size();
 			McElec1_pt_[m] = McP->pt();
 			McElec1_eta_[m] = McP->eta();
-			if(m == int(RandomNum)) 
+			if(m == int(RandomNum))
 			{
 				RndmMcElec = McP->p4();
 				RndmMcElec_pt_ = McElec1_pt_[m];
 				RndmMcElec_eta_ = McElec1_eta_[m];
 				RndmMcElec_phi_ = McP->phi();
-			}				
+			}
 			else{
 				OthrMcElec = McP->p4();
 				OthrMcElec_pt_ = McElec1_pt_[m];
 				OthrMcElec_eta_ = McElec1_eta_[m];
 				OthrMcElec_phi_ = McP->phi();
-			}	
+			}
 
 			elecEt += McP->pt();
 			++m;
-		}	
+		}
 	}
 	edm::LogDebug_("", "", 362)<<"Size of Leptons = "<< Leptons.size();
 	McLeptons_dPhi_ = reco::deltaPhi(Leptons[0]->phi(), Leptons[1]->phi());
@@ -370,7 +316,7 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	math::XYZTLorentzVector Wboson;
 	if(McNu_pt_ < -98.)
 	{
-        	edm::LogDebug_("", "", 303)<<"Z pt = "<< Zboson.Pt() << "Z boson mass = " << Zboson.M();   
+        	edm::LogDebug_("", "", 303)<<"Z pt = "<< Zboson.Pt() << "Z boson mass = " << Zboson.M();
 	        edm::LogDebug_("","", 307)<<"Z boson in lab frame = ("<<Zboson.Px()<<", "<<Zboson.Py()<<", "
 					<<Zboson.Pz()<<", "<<Zboson.E()<<")";
 
@@ -388,7 +334,7 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 					<<RndmMcElec_alt.Pz()<<", "<<RndmMcElec_alt.E()<<")";
 	        edm::LogDebug_("","", 307)<<"OthrElec in Z rest frame = ("<<OthrMcElec_alt.Px()<<", "<<OthrMcElec_alt.Py()<<", "
 					<<OthrMcElec_alt.Pz()<<", "<<OthrMcElec_alt.E()<<")";
-		RndmMcElec_alt *= mW_/mZ_; 
+		RndmMcElec_alt *= mW_/mZ_;
         	OthrMcElec_alt *= mW_/mZ_;
 
 		double E_W = Wboson.E();
@@ -418,7 +364,7 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 		OthrMcElec_Rescaled_pt_ = OthrMcElec_pt_;
 	}
 	//TriggerNames_.init(*HltRes);
-	
+
 	edm::LogDebug_("","", 420)<<"HltRes->accept() = "<< HltRes->accept(34);
         if(HltRes->accept(34) ==0) edm::LogError("")<<"Event did not pass HLT path 34, assumed to be "<< TriggerName_ <<"!";
 	unsigned int fId = 999;
@@ -434,7 +380,7 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
         		const trigger::TriggerObject& HltObj = HltObjColl[ring[k]];
                         if(reco::deltaR(RndmMcElec, HltObj) < 0.1) RndmTrig_ = 1;
                         if(reco::deltaR(OthrMcElec, HltObj) < 0.1) OthrTrig_ = 1;
-			if(k < 4) 
+			if(k < 4)
 			{
 				HltObj_pt_[k] = HltObj.pt();
 				HltObj_eta_[k] = HltObj.eta();
@@ -454,7 +400,7 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	const reco::GenMETCollection* genMEtCollection = pGenMEt.product();
 	reco::GenMETCollection::const_iterator genMEt = genMEtCollection->begin();
 	genMEt_ = genMEt->pt();
-	genUESumEt_ = genMEt->sumEt() - elecEt;	
+	genUESumEt_ = genMEt->sumEt() - elecEt;
 //	std::cout<<"genMEt->sumEt() - elecEt = "<< genMEt->sumEt()<<" - "<< elecEt <<" = "<< genUESumEt_;
 
         const reco::CaloMETCollection* caloMEtCollection = pCaloMEt.product();
@@ -463,14 +409,14 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	edm::LogDebug_("","",462)<<"caloMEt_ = "<< caloMEt_;
 	caloMEtPhi_ = met->phi();
 	caloSumEt_ = met->sumEt();
-	
+
         //const reco::METCollection* t1MEtCollection = pT1MEt.product();
         //reco::METCollection::const_iterator t1met = t1MEtCollection->begin();
         //t1MEt_ = t1met->pt();
 	//edm::LogDebug_("","",462)<<"t1MEt_ = "<< t1MEt_;
 	//t1MEtPhi_ = t1met->phi();
 	//t1SumEt_ = t1met->sumEt();
-	
+
         const reco::PFMETCollection* pfMEtCollection = pPfMEt.product();
         reco::PFMETCollection::const_iterator pfmet = pfMEtCollection->begin();
         pfMEt_ = pfmet->pt();
@@ -484,7 +430,7 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	edm::LogDebug_("","",462)<<"tcMEt_ = "<< tcMEt_;
 	tcMEtPhi_ = tcmet->phi();
 	tcSumEt_ = tcmet->sumEt();
-	
+
 	if(fabs(McNu_ECALeta_) < 2.5)
 	{
 		caloMEtECAL25_ = met->pt();
@@ -496,13 +442,13 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 		caloMEtPhiECAL30_ = met->phi();
 	}
 	if(nuInEta25)
-	{	
+	{
 		genMEt25_ = genMEt->pt();
-		caloMEt25_ = met->pt();	
+		caloMEt25_ = met->pt();
 		caloMEtPhi25_ = met->phi();
 	}
 	if(nuInEta30){
-		caloMEt30_ = met->pt();	
+		caloMEt30_ = met->pt();
 		caloMEtPhi30_ = met->phi();
 	}
 
@@ -543,7 +489,7 @@ void AnalysisErsatz::analyze(const edm::Event& evt, const edm::EventSetup& es)
 				elec_phi_[m] = elec->phi();
                         	elec_trckIso_[m] = elec->isolationVariables03().tkSumPt;
                         	elec_ecalIso_[m] = elec->isolationVariables04().ecalRecHitSumEt;
-                        	elec_hcalIso_[m] = elec->isolationVariables04().hcalDepth1TowerSumEt 
+                        	elec_hcalIso_[m] = elec->isolationVariables04().hcalDepth1TowerSumEt
 						+ elec->isolationVariables04().hcalDepth2TowerSumEt;
 				elec_sIhIh_[m] = elec->scSigmaIEtaIEta();
 				elec_dPhiIn_[m] = elec->deltaPhiSuperClusterTrackAtVtx();
