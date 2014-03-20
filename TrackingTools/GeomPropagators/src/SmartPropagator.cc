@@ -54,16 +54,15 @@ SmartPropagator::SmartPropagator(const Propagator& aTkProp, const Propagator& aG
 
 
 SmartPropagator::SmartPropagator(const SmartPropagator& aProp) :
-  Propagator(aProp.propagationDirection()), theTkProp(0), theGenProp(0) { 
+  Propagator(aProp.propagationDirection()), theTkProp(0), theGenProp(0), theField(aProp.theField), theTkVolume(aProp.theTkVolume) { 
     if (aProp.theTkProp)
       theTkProp=aProp.getTkPropagator()->clone();
     if (aProp.theGenProp)
-      theTkProp=aProp.getGenPropagator()->clone();
+      theGenProp=aProp.getGenPropagator()->clone();
 
     //SL since it's a copy constructor, then the TkVolume has been already
     //initialized
     // initTkVolume(epsilon);
-
   }
 
 /* Destructor */ 
@@ -103,7 +102,6 @@ TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& f
 
 TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
                                                     const Plane& plane) {
-
   if (insideTkVol(fts) && insideTkVol(plane)) {
     return getTkPropagator()->propagate(fts, plane);
   } else {

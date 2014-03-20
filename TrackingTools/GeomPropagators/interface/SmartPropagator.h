@@ -53,7 +53,7 @@ class SmartPropagator GCC11_FINAL : public Propagator {
 
     ///Virtual constructor (using copy c'tor)
     virtual SmartPropagator* clone() const {
-      return new SmartPropagator(getTkPropagator(),getGenPropagator(),magneticField());
+      return new SmartPropagator(*this);
     }
 
     ///setting the direction fo both components
