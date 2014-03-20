@@ -90,7 +90,7 @@ namespace {
           iOriginal->GetZaxis()->GetXmax() == iToAdd->GetZaxis()->GetXmax()) {
 	bool goMerge = true;
 	for(int xx=1; xx<iOriginal->GetNbinsX(); ++xx) {
-	  if((std::string)(iOriginal->GetXaxis()->GetBinLabel(xx)) != (std::string)(iToAdd->GetXaxis()->GetBinLabel(xx))) {
+	  if( 0 != strcmp(iOriginal->GetXaxis()->GetBinLabel(xx), iToAdd->GetXaxis()->GetBinLabel(xx)) ) {
 	    goMerge = false;
 	    edm::LogError("MergeFailure")<<"Found histograms with different Xaxis labels '"<<iOriginal->GetName()<<"' not merged.";
 	    break;
@@ -98,7 +98,7 @@ namespace {
 	}
 	if(goMerge == true)
 	  for(int yy=1; yy<iOriginal->GetNbinsY(); ++yy) {
-	    if((std::string)(iOriginal->GetYaxis()->GetBinLabel(yy)) != (std::string)(iToAdd->GetYaxis()->GetBinLabel(yy))) {
+	    if( 0 != strcmp(iOriginal->GetYaxis()->GetBinLabel(yy), iToAdd->GetYaxis()->GetBinLabel(yy)) ) {
 	      goMerge = false;
 	      edm::LogError("MergeFailure")<<"Found histograms with different Yaxis labels '"<<iOriginal->GetName()<<"' not merged.";
 	      break;
@@ -106,7 +106,7 @@ namespace {
 	  }
 	if(goMerge == true)
 	  for(int zz=1; zz<iOriginal->GetNbinsZ(); ++zz) {
-	    if((std::string)(iOriginal->GetZaxis()->GetBinLabel(zz)) != (std::string)(iToAdd->GetZaxis()->GetBinLabel(zz))) {
+	    if( 0 != strcmp(iOriginal->GetZaxis()->GetBinLabel(zz), iToAdd->GetZaxis()->GetBinLabel(zz)) ) {
 	      goMerge = false;
 	      edm::LogError("MergeFailure")<<"Found histograms with different Yaxis labels '"<<iOriginal->GetName()<<"' not merged.";
 	      break;
