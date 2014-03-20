@@ -2,7 +2,7 @@
 //
 // Package:    HSCParticleProducer
 // Class:      HSCParticleProducer
-// 
+//
 /**\class HSCParticleProducer HSCParticleProducer.cc SUSYBSMAnalysis/HSCParticleProducer/src/HSCParticleProducer.cc
 
  Description: Producer for HSCP candidates, merging tracker dt information and rpc information
@@ -31,9 +31,9 @@ HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
    Filter_        = iConfig.getParameter<bool>          ("filter");
 
   // the input collections
-  m_trackTag      = iConfig.getParameter<edm::InputTag>("tracks");
-  m_muonsTag      = iConfig.getParameter<edm::InputTag>("muons");
-  m_trackIsoTag   = iConfig.getParameter<edm::InputTag>("tracksIsolation");
+  m_trackToken      = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+  m_muonsToken      = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"));
+  m_trackIsoToken   = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracksIsolation"));
 
   useBetaFromTk   = iConfig.getParameter<bool>    ("useBetaFromTk"  );
   useBetaFromMuon = iConfig.getParameter<bool>    ("useBetaFromMuon");
@@ -48,10 +48,10 @@ HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
   minDR           = iConfig.getParameter<double>  ("minDR");        // 0.1
   maxInvPtDiff    = iConfig.getParameter<double>  ("maxInvPtDiff"); // 0.005
 
-  if(useBetaFromTk  )beta_calculator_TK   = new BetaCalculatorTK  (iConfig);
-  if(useBetaFromMuon)beta_calculator_MUON = new BetaCalculatorMUON(iConfig);
-  if(useBetaFromRpc )beta_calculator_RPC  = new BetaCalculatorRPC (iConfig);
-  if(useBetaFromEcal)beta_calculator_ECAL = new BetaCalculatorECAL(iConfig);
+  if(useBetaFromTk  )beta_calculator_TK   = new BetaCalculatorTK  (iConfig, consumesCollector());
+  if(useBetaFromMuon)beta_calculator_MUON = new BetaCalculatorMUON(iConfig, consumesCollector());
+  if(useBetaFromRpc )beta_calculator_RPC  = new BetaCalculatorRPC (iConfig, consumesCollector());
+  if(useBetaFromEcal)beta_calculator_ECAL = new BetaCalculatorECAL(iConfig, consumesCollector());
 
   // Load all the selections
   std::vector<edm::ParameterSet> SelectionParameters = iConfig.getParameter<std::vector<edm::ParameterSet> >("SelectionParameters");
@@ -85,19 +85,19 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // information from the muons
   edm::Handle<reco::MuonCollection> muonCollectionHandle;
-  iEvent.getByLabel(m_muonsTag,muonCollectionHandle);
+  iEvent.getByToken(m_muonsToken,muonCollectionHandle);
 
   // information from the tracks
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
-  iEvent.getByLabel(m_trackTag,trackCollectionHandle);
+  iEvent.getByToken(m_trackToken,trackCollectionHandle);
 
   // information from the tracks iso
   edm::Handle<reco::TrackCollection> trackIsoCollectionHandle;
-  iEvent.getByLabel(m_trackIsoTag,trackIsoCollectionHandle);
+  iEvent.getByToken(m_trackIsoToken,trackIsoCollectionHandle);
 
 
   // creates the output collection
-  susybsm::HSCParticleCollection* hscp = new susybsm::HSCParticleCollection; 
+  susybsm::HSCParticleCollection* hscp = new susybsm::HSCParticleCollection;
   std::auto_ptr<susybsm::HSCParticleCollection> result(hscp);
 
   susybsm::HSCPCaloInfoCollection* caloInfoColl = new susybsm::HSCPCaloInfoCollection;
@@ -119,7 +119,7 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
          float dR = deltaR(track->momentum(), Isotrack->momentum());
          if(dR <= minDR && dR < dRMin){ dRMin=dR; found = t;}
       }
-      if(found>=0)hscpcandidate->setTrackIso(reco::TrackRef( trackIsoCollectionHandle, found ));  
+      if(found>=0)hscpcandidate->setTrackIso(reco::TrackRef( trackIsoCollectionHandle, found ));
   }
 
   // compute the TRACKER contribution
@@ -179,9 +179,9 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
   // output result
-  
 
-  edm::OrphanHandle<susybsm::HSCParticleCollection> putHandle = iEvent.put(result); 
+
+  edm::OrphanHandle<susybsm::HSCParticleCollection> putHandle = iEvent.put(result);
 //  if(useBetaFromEcal){
 //      edm::RefProd<susybsm::HSCParticleCollection> hscpCollectionHandle = iEvent.getRefBeforePut<susybsm::HSCParticleCollection>();
 //    filler.insert(putHandle, CaloInfoColl.begin(), CaloInfoColl.end());
@@ -193,12 +193,12 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 HSCParticleProducer::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 HSCParticleProducer::endJob() {
 }
 
@@ -228,7 +228,7 @@ std::vector<HSCParticle> HSCParticleProducer::getHSCPSeedCollection(edm::Handle<
          reco::TrackRef track  = tracks[t];
          if( fabs( (1.0/innertrack->pt())-(1.0/track->pt())) > maxInvPtDiff) continue;
          float dR = deltaR(innertrack->momentum(), track->momentum());
-         if(dR <= minDR && dR < dRMin){ dRMin=dR; found = t;}           
+         if(dR <= minDR && dR < dRMin){ dRMin=dR; found = t;}
       }
 
       HSCParticle candidate;

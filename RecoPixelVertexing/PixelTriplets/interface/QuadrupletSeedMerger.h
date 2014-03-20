@@ -88,14 +88,13 @@ class QuadrupletSeedMerger {
   const TrajectorySeedCollection mergeTriplets( const TrajectorySeedCollection&, const TrackingRegion&, const edm::EventSetup&, const edm::ParameterSet& );
   std::pair<double,double> calculatePhiEta( SeedingHitSet const& ) const;
   void printHit( const TrackingRecHit* ) const;
-  void printHit( const  TransientTrackingRecHit::ConstRecHitPointer& ) const;
   void printNtuplet( const SeedingHitSet& ) const;
   void setMergeTriplets( bool );
   void setAddRemainingTriplets( bool );
   void setTTRHBuilderLabel( std::string );
 
  private:
-  typedef std::array<TransientTrackingRecHit::ConstRecHitPointer, 4> QuadrupletHits;
+  typedef std::array<SeedingHitSet::ConstRecHitPointer, 4> QuadrupletHits;
   void mySort(QuadrupletHits& unsortedHits);
 
   bool isValidQuadruplet(const QuadrupletHits& quadruplet, const std::vector<SeedMergerPixelLayer>& layers, const TrackerTopology *tTopo) const;

@@ -3,8 +3,8 @@
 
 /** \class EgammaProbeSelector
  *
- *  
- *  Filter to select events passing 
+ *
+ *  Filter to select events passing
  *  offline jets and superclusters
  *
  *
@@ -23,7 +23,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 
-
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include <math.h>
 
@@ -38,14 +39,14 @@ class EgammaProbeSelector : public edm::EDFilter {
    private:
 	bool 		debug;
 
-	edm::InputTag	jetLabel;
+	edm::EDGetTokenT<reco::CaloJetCollection> jetToken;
         int 		minNumberOfjets;
         double 		jetEtMin;
         double 		jetEtaMin;
         double 		jetEtaMax;
 
-	edm::InputTag	scLabel;
-        edm::InputTag        scEELabel;
+	edm::EDGetTokenT<reco::SuperClusterCollection> scToken;
+        edm::EDGetTokenT<reco::SuperClusterCollection> scEEToken;
         int 		minNumberOfSuperClusters;
         double 		scEtMin;
         double 		scEtaMin;
@@ -56,4 +57,4 @@ class EgammaProbeSelector : public edm::EDFilter {
 #endif
 
 
-   
+

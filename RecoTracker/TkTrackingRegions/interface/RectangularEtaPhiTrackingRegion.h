@@ -13,6 +13,13 @@
 //#include "CommonDet/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
+
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
+
+
+
 class OuterHitPhiPrediction;
 class OuterEstimator;
 class BarrelDetLayer;
@@ -20,6 +27,21 @@ class ForwardDetLayer;
 
 class RectangularEtaPhiTrackingRegion GCC11_FINAL : public TrackingRegion {
 public:
+
+  RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion const & rh) :
+    TrackingRegion(rh),
+    theEtaRange(rh.theEtaRange),
+    theLambdaRange(rh.theLambdaRange),
+    thePhiMargin(rh.thePhiMargin),
+    theMeanLambda(rh.theMeanLambda),
+    theMeasurementTrackerUsage(rh.theMeasurementTrackerUsage),
+    thePrecise(rh.thePrecise),
+    theUseEtaPhi(rh.theUseEtaPhi),
+    theMeasurementTrackerName(rh.theMeasurementTrackerName) {}
+  
+  RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion const &)=delete;
+  RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion &&)=default;
+  RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion &&)=default;
 
   typedef TkTrackingRegionsMargin<float> Margin;
 
@@ -113,7 +135,7 @@ public:
   /// is precise error calculation switched on 
   bool  isPrecise() const { return thePrecise; }
 
-  virtual TrackingRegion::Hits hits(
+  virtual TrackingRegion::ctfHits hits(
       const edm::Event& ev,  
       const edm::EventSetup& es, 
       const ctfseeding::SeedingLayer* layer) const;
@@ -138,12 +160,12 @@ public:
   virtual std::string print() const;
 
 private:
-  template <typename T, typename F>
-  TrackingRegion::Hits hits_(
+  template <typename T, typename H, typename F>
+  void hits_(
       const edm::Event& ev,
       const edm::EventSetup& es,
-      const T& layer,
-      F hitGetter) const;
+      const T& layer, H  & result,
+      F hitGetter, bool oldStyle) const;
 
   HitRZCompatibility* checkRZOld(
       const DetLayer* layer, 
@@ -168,6 +190,20 @@ private:
   bool thePrecise;
   bool theUseEtaPhi;
   std::string theMeasurementTrackerName;
+
+
+
+  using cacheHitPointer = mayown_ptr<BaseTrackerRecHit>;
+  using cacheHits=std::vector<cacheHitPointer>;
+
+  
+
+  /*  wait... think! 
+   *  done? questions?  think again, look where this region is constructed
+   *  still question? study tracker code for the next couple of weeks, then we may discuss.  
+   */
+  mutable cacheHits cache;
+
 };
 
 #endif

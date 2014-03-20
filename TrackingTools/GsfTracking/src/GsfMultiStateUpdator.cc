@@ -11,7 +11,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSurface& tsos,
-						      const TransientTrackingRecHit& aRecHit) const {
+						      const TrackingRecHit& aRecHit) const {
   
   std::vector<TrajectoryStateOnSurface> predictedComponents = tsos.components();
   if (predictedComponents.empty()) {
