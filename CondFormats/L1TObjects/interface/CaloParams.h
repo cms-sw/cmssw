@@ -16,6 +16,8 @@
 
 #include <iostream>
 
+#include <cmath>
+
 namespace l1t {
   
   class CaloParams {
@@ -26,21 +28,39 @@ namespace l1t {
 
     ~CaloParams() {}
 
-    // getters
-/*     FirmwareVersion firmwarePP() const { return vFirmwarePP_; } */
-/*     FirmwareVersion firmwareMP() const { return vFirmwareMP_; } */
+    //// getters ////
+    
+    // towers
     double towerLsbH() const { return towerLsbH_; }
     double towerLsbE() const { return towerLsbE_; }
+    double towerLsbSum() const { return towerLsbSum_; }
     int towerNBitsH() const { return towerNBitsH_; }
     int towerNBitsE() const { return towerNBitsE_; }
-    
-    // setters
-/*     void setFirmwarePP(FirmwareVersion v) { vFirmwarePP_ = v; } */
-/*     void setFirmwareMP(FirmwareVersion v) { vFirmwareMP_ = v; } */
+    int towerNBitsSum() const { return towerNBitsSum_; }
+    int towerNBitsRatio() const { return towerNBitsRatio_; }
+    int towerMaskE() const { return towerMaskE_; }
+    int towerMaskH() const { return towerMaskH_; }
+    int towerMaskSum() const { return towerMaskSum_; }
+    int towerMaskRatio() const { return towerMaskRatio_; }
+    bool doTowerCompression() const { return doTowerCompression_; }
+
+    // jets
+    double jetSeedThreshold() const { return jetSeedThreshold_; }
+
+    //// setters ////
+
+    // towers
     void setTowerLsbH(double lsb) { towerLsbH_ = lsb; }
     void setTowerLsbE(double lsb) { towerLsbE_ = lsb; }
-    void setTowerNBitsH(int n) { towerNBitsH_ = n; }
-    void setTowerNBitsE(int n) { towerNBitsE_ = n; }
+    void setTowerLsbSum(double lsb) { towerLsbSum_ = lsb; }
+    void setTowerNBitsH(int n) { towerNBitsH_ = n; towerMaskH_ = std::pow(2,n)-1; }
+    void setTowerNBitsE(int n) { towerNBitsE_ = n; towerMaskE_ = std::pow(2,n)-1; }
+    void setTowerNBitsSum(int n) { towerNBitsSum_ = n; towerMaskSum_ = std::pow(2,n)-1; }
+    void setTowerNBitsRatio(int n) { towerNBitsRatio_ = n; towerMaskRatio_ = std::pow(2,n)-1; }
+    void setTowerCompression(bool doit) { doTowerCompression_ = doit; }
+
+    // jets
+    void setJetSeedThreshold(double thresh) { jetSeedThreshold_ = thresh; }
 
     // print parameters to stream:
     void print(std::ostream&) const;
@@ -66,18 +86,20 @@ namespace l1t {
 
   private:
 
-    /* Firmware */
-/*     l1t::FirmwareVersion vFirmwarePP_; */
-/*     l1t::FirmwareVersion vFirmwareMP_; */
-
-    /* Inputs */
+    /* Towers */
     double towerLsbH_;
     double towerLsbE_;
+    double towerLsbSum_;
     int towerNBitsH_;
     int towerNBitsE_;
+    int towerNBitsSum_;
+    int towerNBitsRatio_;
+    int towerMaskH_;
+    int towerMaskE_;
+    int towerMaskSum_;
+    int towerMaskRatio_;
+    bool doTowerCompression_;
 
-    /* 	- tower masks ? */
-    
     /* EG/tau clustering */
     double egSeedThreshold_;
     double egNeighbourThreshold_;

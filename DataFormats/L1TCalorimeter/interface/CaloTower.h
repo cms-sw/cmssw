@@ -9,11 +9,13 @@ namespace l1t {
   
   class CaloTower;
   typedef BXVector<CaloTower> CaloTowerBxCollection;
-
+  
   class CaloTower : public L1Candidate {
     
   public:
-    CaloTower():etEm_(0.),etHad_(0.),hwEtEm_(0),hwEtHad_(0){}
+    
+  CaloTower(): etEm_(0.),etHad_(0.),hwEtEm_(0),hwEtHad_(0),hwEtRatio_(0) {}
+    
     CaloTower( const LorentzVector& p4,
 	       double etEm=0.,
 	       double etHad=0.,
@@ -23,21 +25,23 @@ namespace l1t {
 	       int qual=0,
 	       int hwEtEm=0,
 	       int hwEtHad=0,
-	       int hwFGEm=0);
+	       int hwEtRatio=0);
     
     ~CaloTower();
 
     void setEtEm( double et );
     void setEtHad( double et );
+
     void setHwEtEm( int et );
-    void setHwFGEm( int fg );
     void setHwEtHad( int et );
+    void setHwEtRatio( int ratio );
 
     double etEm()const;
     double etHad()const;
+
     int hwEtEm()const;
     int hwEtHad()const;
-    int hwFGEm() const;
+    int hwEtRatio()const;
 
   private:
     
@@ -46,10 +50,8 @@ namespace l1t {
     double etHad_;
     
     int hwEtEm_;
-    int hwFGEm_;
-
     int hwEtHad_;
-    
+    int hwEtRatio_;
     
   };
   

@@ -28,6 +28,49 @@ void l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::processEvent(const std::ve
 								   std::vector<l1t::CaloTower> & outTowers) {
 
 
-  outTowers = inTowers;
+  if (!params_->doTowerCompression()) {
+    outTowers = inTowers;
+    return;
+  }
+
+  for ( auto tow = inTowers.begin();
+	tow != inTowers.end();
+	++tow ) {
+
+    int sum   = tow->hwPt();
+    //    int ratio = tow->hwEtRatio();
+    int qual  = tow->hwQual();
+
+    int em    = 0;
+    int had   = 0;
+
+    if ((qual&0x1) != 0 && (qual&0x2) == 0) // E==0
+      had = sum;
+    
+    if ((qual&0x1) != 0 && (qual&0x2) != 0) // H==0
+      em = sum;
+    
+    if ((qual&0x1) == 0 && (qual&0x2) == 0) { // H > E , so ratio==log(H/E)
+      em  = 1;
+      had = 2;
+    }
+    
+    if ((qual&0x1) == 0 && (qual&0x2) != 0) { // E >= H , so ratio==log(E/H)
+      em  = 3;
+      had = 4;
+    }
+    
+    em  &= params_->towerMaskE();
+    had &= params_->towerMaskH();
+
+    l1t::CaloTower newTow;
+    newTow.setHwEta( tow->hwEta() );
+    newTow.setHwPhi( tow->hwPhi() );
+    newTow.setHwEtEm( em );
+    newTow.setHwEtHad( had );
+    
+    outTowers.push_back(newTow);
+
+  }
 
 }
