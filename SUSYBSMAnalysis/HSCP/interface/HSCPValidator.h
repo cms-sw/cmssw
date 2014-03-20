@@ -2,7 +2,7 @@
 //
 // Package:    HSCP
 // Class:      HSCPValidator
-// 
+//
 /**\class HSCPValidator HSCPValidator.cc HSCPValidation/HSCPValidator/src/HSCPValidator.cc
 
  Description: [one line class summary]
@@ -28,6 +28,10 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 
 //
@@ -63,7 +67,13 @@ class HSCPValidator : public edm::EDAnalyzer {
       bool doRecoPlots_;
 
       // GEN section
-      edm::InputTag label_;
+//       edm::InputTag label_;
+      edm::EDGetTokenT<edm::HepMCProduct> token_;
+      edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
+      edm::EDGetTokenT<trigger::TriggerEvent> trEvToken_;
+      edm::EDGetTokenT<reco::TrackCollection> tkTracksToken_;
+      edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > dEdxTrackToken_;
+      edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken_;
       std::vector<int> particleIds_;
       int particleStatus_;
       std::map<int,int> particleIdsFoundMap_;
@@ -89,14 +99,13 @@ class HSCPValidator : public edm::EDAnalyzer {
       TH1F* simTrackParticleBetaHist_;
 
       // SIM-DIGI section
-      edm::InputTag ebSimHitTag_;
-      edm::InputTag eeSimHitTag_;
-      edm::InputTag simTrackTag_;
-      edm::InputTag EBDigiCollection_;
-      edm::InputTag EEDigiCollection_;
-      edm::InputTag RPCRecHitTag_;
+      edm::EDGetTokenT<edm::PCaloHitContainer> ebSimHitToken_;
+      edm::EDGetTokenT<edm::PCaloHitContainer> eeSimHitToken_;
+      edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
+      edm::EDGetTokenT<EBDigiCollection> EBDigiCollectionToken_;
+      edm::EDGetTokenT<EEDigiCollection> EEDigiCollectionToken_;
       edm::ESHandle <RPCGeometry> rpcGeo;
-      // ECAL      
+      // ECAL
       TH1F* simHitsEcalEnergyHistEB_;
       TH1F* simHitsEcalTimeHistEB_;
       TH1F* simHitsEcalNumHistEB_;
@@ -121,11 +130,11 @@ class HSCPValidator : public edm::EDAnalyzer {
       // RPC
       TH1F* residualsRPCRecHitSimDigis_;
       TH1F* efficiencyRPCRecHitSimDigis_;
-      TH1F* cluSizeDistribution_; 
-      TH1F* rpcTimeOfFlightBarrel_[6];       
-      TH1F* rpcBXBarrel_[6];       
-      TH1F* rpcTimeOfFlightEndCap_[3];       
-      TH1F* rpcBXEndCap_[3];      
+      TH1F* cluSizeDistribution_;
+      TH1F* rpcTimeOfFlightBarrel_[6];
+      TH1F* rpcBXBarrel_[6];
+      TH1F* rpcTimeOfFlightEndCap_[3];
+      TH1F* rpcBXEndCap_[3];
       //HLT
       TH1F* hltmet;
       TH1F* hltjet;
