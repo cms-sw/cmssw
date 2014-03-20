@@ -20,9 +20,9 @@ from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderTagInfos_cfi import 
 from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexBJetTags_cfi import *
 #from RecoBTag.SecondaryVertex.combinedIVFES_cfi import * #not yet using dedicated training, share CSV ones
 from RecoBTag.SecondaryVertex.bVertexFilter_cfi import *
-inclusiveVerticesFiltered = bVertexFilter.clone()
-inclusiveVerticesFiltered.vertexFilter.multiplicityMin = 2
-inclusiveVerticesFiltered.secondaryVertices = cms.InputTag("inclusiveVertices")
+inclusiveSecondaryVerticesFiltered = bVertexFilter.clone()
+inclusiveSecondaryVerticesFiltered.vertexFilter.multiplicityMin = 2
+inclusiveSecondaryVerticesFiltered.secondaryVertices = cms.InputTag("inclusiveSecondaryVertices")
 
 from RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi import *
 from RecoBTag.SecondaryVertex.simpleInclusiveSecondaryVertexBJetTags_cfi import *
