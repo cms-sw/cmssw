@@ -143,6 +143,86 @@ def gemSimHitOccupancyXY(plotter,i):
            plotter.pre[i] + " SimHit occupancy: region1, station3, layer2, Even;globalX [cm];globalY [cm]",
            "h_", "(100,-260,260,100,-260,260)", "globalX:globalY", AND(rp1,st3,l2,plotter.sel[i],even), "COLZ")
 
+    ## per endcap, station and odd/even
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st1_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station1, Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-260,260,100,-260,260)", "globalX:globalY", AND(rm1,st1,plotter.sel[i],odd), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st1_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station1, Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-260,260,100,-260,260)", "globalX:globalY", AND(rm1,st1,plotter.sel[i],odd), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st1_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station1 , Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-260,260,100,-260,260)", "globalX:globalY", AND(rp1,st1,plotter.sel[i],odd), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st1_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station1, Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-260,260,100,-260,260)", "globalX:globalY", AND(rp1,st1,plotter.sel[i],odd), "COLZ")
+  
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st1_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station1, Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-260,260,100,-260,260)", "globalX:globalY", AND(rm1,st1,plotter.sel[i],even), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st1_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station1, Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-260,260,100,-260,260)", "globalX:globalY", AND(rm1,st1,plotter.sel[i],even), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st1_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station1 , Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-260,260,100,-260,260)", "globalX:globalY", AND(rp1,st1,plotter.sel[i],even), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st1_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station1, Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-260,260,100,-260,260)", "globalX:globalY", AND(rp1,st1,plotter.sel[i],even), "COLZ")
+  
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st2_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station2, Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rm1,st2,plotter.sel[i],odd), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st2_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station2, Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rm1,st2,plotter.sel[i],odd), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st2_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station2 , Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rp1,st2,plotter.sel[i],odd), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st2_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station2, Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rp1,st2,plotter.sel[i],odd), "COLZ")
+  
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st2_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station2, Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rm1,st2,plotter.sel[i],even), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st2_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station2, Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rm1,st2,plotter.sel[i],even), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st2_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station2 , Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rp1,st2,plotter.sel[i],even), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st2_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station2, Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rp1,st2,plotter.sel[i],even), "COLZ")
+  
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st3_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station3, Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rm1,st3,plotter.sel[i],odd), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st3_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station3, Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rm1,st3,plotter.sel[i],odd), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st3_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station3 , Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rp1,st3,plotter.sel[i],odd), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st3_odd" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station3, Odd;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rp1,st3,plotter.sel[i],odd), "COLZ")
+  
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st3_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station3, Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rm1,st3,plotter.sel[i],even), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rm1_st3_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region-1, station3, Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rm1,st3,plotter.sel[i],even), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st3_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station3 , Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rp1,st3,plotter.sel[i],even), "COLZ")
+  draw_occ(plotter.targetDir, "sh_gem_xy_rp1_st3_even" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits,
+           plotter.pre[i] + " SimHit occupancy: region1, station3, Even;globalX [cm];globalY [cm]",
+           "h_", "(100,-300,300,100,-300,300)", "globalX:globalY", AND(rp1,st3,plotter.sel[i],even), "COLZ")
+
+
 #_______________________________________________________________________________
 def gemSimHitOccupancyRZ(plotter,i):
   draw_occ(plotter.targetDir, "sh_gem_zr_rm1" + plotter.suff[i], plotter.ext, plotter.treeGEMSimHits, plotter.pre[i] + " SimHit occupancy: region-1;globalZ [cm];globalR [cm]",
