@@ -118,11 +118,10 @@ l1t::L1TCaloTowerProducer::L1TCaloTowerProducer(const edm::ParameterSet& ps) :
 
   params_ = new CaloParams;
 
-  params_->setTowerLsbH(0.5);
-  params_->setTowerLsbE(0.5);
-  params_->setTowerNBitsH(8);
-  params_->setTowerNBitsE(8);
-
+  // params_->setTowerLsbH(0.5);
+  // params_->setTowerLsbE(0.5);
+  // params_->setTowerNBitsH(8);
+  // params_->setTowerNBitsE(8);
 
 }
 
@@ -175,7 +174,7 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       int iphi = ecalItr->id().iphi();
 
       int ietIn = ecalItr->compressedEt();
-      int ifg = ecalItr->fineGrain();
+      //int ifg = ecalItr->fineGrain();
 
       // decompress
       double et = ecalScale->et( ietIn, abs(ieta), (ieta>0) );
@@ -187,7 +186,6 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       int itow = CaloTools::caloTowerHash(ieta, iphi);
       towers.at(itow).setHwEtEm(ietOut);// & ietOutMask);
-      towers.at(itow).setHwFGEm(ifg);
 
     }
 
@@ -273,30 +271,26 @@ void
 l1t::L1TCaloTowerProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
 
-  //   unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();  
+  unsigned long long id = iSetup.get<L1TCaloParamsRcd>().cacheIdentifier();  
   
-  // if (id != paramsCacheId_) {
+  if (id != paramsCacheId_) {
 
-  //   paramsCacheId_ = id;
+    paramsCacheId_ = id;
 
-  //   edm::ESHandle<CaloParams> paramsHandle;
-  //   iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
+    edm::ESHandle<CaloParams> paramsHandle;
+    iSetup.get<L1TCaloParamsRcd>().get(paramsHandle);
 
-  //   LogDebug("L1TDebug") << "CaloParams : " << *paramsHandle.product() << std::endl;
-
-  //   // replace our local copy of the parameters with a new one using placement new
-  //   params_->~CaloParams();
-  //   params_ = new (params_) CaloParams(*paramsHandle.product());
+    // replace our local copy of the parameters with a new one using placement new
+    params_->~CaloParams();
+    params_ = new (params_) CaloParams(*paramsHandle.product());
     
-  //   if (! params_){
-  //     edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;            
-  //   }
+    LogDebug("L1TDebug") << *params_ << std::endl;
 
-  //   LogDebug("L1TDebug") << "CaloParams : " << *params_ << std::endl;
+    if (! params_){
+      edm::LogError("l1t|caloStage2") << "Could not retrieve params from Event Setup" << std::endl;            
+    }
 
-  //   //    LogDebug("L1TDebug") << "ET(E) LSB : " << params_->towerLsbE() << "ET(H) LSB : " << params_->towerLsbH() << std::endl;
-
-  // }
+  }
 
 }
 

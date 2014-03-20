@@ -70,8 +70,9 @@ void l1t::CaloStage2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Calo
     for ( int iphi = 0 ; iphi != 72 ; ++iphi ) {
       
       int iEt(0);
-      int seedEt = CaloTools::calHwEtSum(ieta, iphi, towers,
-					 0, 0, 0, 0, CaloTools::CALO);
+      const CaloTower& tow = CaloTools::getTower(towers, ieta, iphi); 
+      int seedEt = tow.hwEtEm();
+      seedEt += tow.hwEtHad();
       bool isMax(true);
 
       // loop over towers in this jet
@@ -81,8 +82,8 @@ void l1t::CaloStage2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Calo
 	  // check jet mask and sum tower et
 	  // re-use calo tools sum method, but for single tower
 	  if( mask[deta+4][dphi+4] ) {
-	    int towEt = CaloTools::calHwEtSum(ieta+deta, iphi+dphi, towers,
-					 0, 0, 0, 0, CaloTools::CALO);
+	    const CaloTower& tow = CaloTools::getTower(towers, ieta+deta, iphi+dphi); 
+	    int towEt = tow.hwEtEm() + tow.hwEtHad();
 	    iEt+=towEt;
 	    isMax=(seedEt>towEt);
 	  }
@@ -90,7 +91,7 @@ void l1t::CaloStage2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Calo
       }
 
       // add the jet to the list
-      if (iEt>0 && iEt>10 && isMax) {
+      if (iEt>params_->jetSeedThreshold() && isMax) {
 	math::XYZTLorentzVector p4;
 	l1t::Jet jet( p4, iEt, ieta, iphi, 0);
 	jets.push_back( jet );
@@ -99,7 +100,6 @@ void l1t::CaloStage2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Calo
     }
   }
   
-    
 }
 
 
