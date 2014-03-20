@@ -16,7 +16,8 @@
 //
 // For FAMOS
 //
-#include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"  
+// #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/GSTransientTrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"                         
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"                         
 
@@ -77,12 +78,12 @@ TkTransientTrackingRecHitBuilder::build (const TrackingRecHit * p) const
   else if (tp == typeid(SiTrackerGSRecHit2D))
     {
       const SiTrackerGSRecHit2D* gh = reinterpret_cast<const SiTrackerGSRecHit2D*>(p);
-      return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
+      return ( GSTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
     }
   else if (tp == typeid(SiTrackerGSMatchedRecHit2D))
     {
       const SiTrackerGSMatchedRecHit2D* gh = reinterpret_cast<const SiTrackerGSMatchedRecHit2D*>(p);
-      return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
+      return ( GSTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
     } 
   return oldbuild(p);
 }
@@ -110,10 +111,10 @@ TkTransientTrackingRecHitBuilder::oldbuild (const TrackingRecHit * p) const
 				    ph,stripCPE,
 				    theComputeCoarseLocalPosition);
   } else if ( const SiTrackerGSRecHit2D* gh = dynamic_cast<const SiTrackerGSRecHit2D*>(p)) {
-    return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
+    return ( GSTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
 
   } else if ( const SiTrackerGSMatchedRecHit2D* gh = dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(p)) {
-    return ( GenericTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
+    return ( GSTransientTrackingRecHit::build(tGeometry_->idToDet(p->geographicalId()), gh )); 
   } 
   
   throw cms::Exception("LogicError") << "TrackingRecHit* cannot be casted to a known concrete type. hit type is: "<< className(*p);

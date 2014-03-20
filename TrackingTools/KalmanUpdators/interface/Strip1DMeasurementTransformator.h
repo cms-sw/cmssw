@@ -25,7 +25,7 @@ private:
 
 public:
 
-  Strip1DMeasurementTransformator(const TSOS& aTsos, const TransientTrackingRecHit& aHit);
+  Strip1DMeasurementTransformator(const TSOS& aTsos, const TrackingRecHit& aHit);
   
   ~Strip1DMeasurementTransformator() {}
 
@@ -37,7 +37,7 @@ public:
   double projectedTrajectoryError() const;
   AM15 projectionMatrix() const;
 
-  const TransientTrackingRecHit& hit() const {return theRecHit;}
+  const TrackingRecHit& hit() const {return theRecHit;}
   const TSOS& state() const {return theState;}
   /// return ideal topology, as if the sensor were flat
   const StripTopology* idealTopology() const {return theIdealTopology;}
@@ -46,7 +46,7 @@ public:
 
 private:
 
-  const TransientTrackingRecHit& theRecHit;
+  const TrackingRecHit& theRecHit;
   TSOS theState;
   const StripTopology *theTopology, *theIdealTopology;
 

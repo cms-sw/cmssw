@@ -103,7 +103,7 @@ SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::match(const SiTrackerGSRecHit2D *m
   if(det.subdetId() > 2) {
     SiTrackerGSRecHit2D *adjustedMonoRH = new SiTrackerGSRecHit2D(LocalPoint(monoRH->localPosition().x(),0,0),
 								  monoRH->localPositionError(),
-								  monoRH->geographicalId(),
+								  *monoRH->det(),
 								  monoRH->simhitId(),
 								  monoRH->simtrackId(),
 								  monoRH->eeId(),
@@ -114,7 +114,7 @@ SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::match(const SiTrackerGSRecHit2D *m
     
     SiTrackerGSRecHit2D *adjustedStereoRH = new SiTrackerGSRecHit2D(LocalPoint(stereoRH->localPosition().x(),0,0),
 								    stereoRH->localPositionError(),
-								    stereoRH->geographicalId(),
+								    *stereoRH->det(),
 								    stereoRH->simhitId(),
 								    stereoRH->simtrackId(),
 								    stereoRH->eeId(),
@@ -123,7 +123,7 @@ SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::match(const SiTrackerGSRecHit2D *m
 								    stereoRH->simMultY()
 								    );
     
-    SiTrackerGSMatchedRecHit2D *rV= new SiTrackerGSMatchedRecHit2D(position, error,gluedDet->geographicalId(), monoRH->simhitId(), 
+    SiTrackerGSMatchedRecHit2D *rV= new SiTrackerGSMatchedRecHit2D(position, error, *gluedDet, monoRH->simhitId(), 
 								   monoRH->simtrackId(), monoRH->eeId(), monoRH->cluster(), 
 								   monoRH->simMultX(), monoRH->simMultY(), 
 								   true, adjustedMonoRH, adjustedStereoRH);
@@ -197,13 +197,14 @@ SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecH
   if(monoDet->geographicalId()==gluedStereoDet->geographicalId()) isStereo = 1;
   //Added by DAO to make sure y positions are zero and correct Mono or stereo Det is filled.
   
+  auto otherDet = isMono ? gluedDet->stereoDet() : gluedDet->monoDet();
   //Good for debugging.
   //std::cout << "The monoDet = " << monoDet->geographicalId() << ". The gluedMonoDet = " << gluedMonoDet->geographicalId() << ". The gluedStereoDet = " << gluedStereoDet->geographicalId()
   //    << ". isMono = " << isMono << ". isStereo = " << isStereo <<"." << std::endl;
 
   SiTrackerGSRecHit2D *adjustedRH = new SiTrackerGSRecHit2D(LocalPoint(monoRH->localPosition().x(),0,0),
 							    monoRH->localPositionError(),
-							    monoRH->geographicalId(),
+							    *monoRH->det(),
 							    monoRH->simhitId(),
 							    monoRH->simtrackId(),
 							    monoRH->eeId(),
@@ -213,10 +214,10 @@ SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecH
 							    );
   
   //DAO: Not quite sure what to do about the cluster ref, so I will fill it with the monoRH for now...
-  SiTrackerGSRecHit2D *otherRH = new SiTrackerGSRecHit2D(LocalPoint(-10000,-10000,-10000), LocalError(0,0,0),DetId(000000000), 0,0,0,monoRH->cluster(),0,0);
+  SiTrackerGSRecHit2D *otherRH = new SiTrackerGSRecHit2D(LocalPoint(-10000,-10000,-10000), LocalError(0,0,0),*otherDet, 0,0,0,monoRH->cluster(),0,0);
   if ((isMono && isStereo)||(!isMono&&!isStereo)) throw cms::Exception("GSRecHitMatcher") << "Something wrong with DetIds.";
   else if (isMono) {
-    SiTrackerGSMatchedRecHit2D *rV= new SiTrackerGSMatchedRecHit2D(projectedHitPos, rotatedError, gluedDet->geographicalId(), 
+    SiTrackerGSMatchedRecHit2D *rV= new SiTrackerGSMatchedRecHit2D(projectedHitPos, rotatedError, *gluedDet, 
 								   monoRH->simhitId(),  monoRH->simtrackId(), monoRH->eeId(), monoRH->cluster(),
 								   monoRH->simMultX(), monoRH->simMultY(), false, adjustedRH, otherRH);
     delete adjustedRH;
@@ -225,7 +226,7 @@ SiTrackerGSMatchedRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecH
   }
   
   else{
-    SiTrackerGSMatchedRecHit2D *rV=new SiTrackerGSMatchedRecHit2D(projectedHitPos, rotatedError, gluedDet->geographicalId(), 
+    SiTrackerGSMatchedRecHit2D *rV=new SiTrackerGSMatchedRecHit2D(projectedHitPos, rotatedError, *gluedDet, 
 								 monoRH->simhitId(),  monoRH->simtrackId(), monoRH->eeId(), monoRH->cluster(),
 								 monoRH->simMultX(), monoRH->simMultY(), false, otherRH, adjustedRH);
     delete adjustedRH;

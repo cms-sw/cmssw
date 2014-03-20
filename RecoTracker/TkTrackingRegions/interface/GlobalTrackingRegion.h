@@ -33,7 +33,7 @@ public:
       Range( -1/ptMin, 1/ptMin), originRadius, originHalfLength),
       thePrecise(precise) { }
 
-  virtual TrackingRegion::Hits hits(
+  virtual TrackingRegion::ctfHits hits(
       const edm::Event& ev,  
       const edm::EventSetup& es, 
       const ctfseeding::SeedingLayer* layer) const;

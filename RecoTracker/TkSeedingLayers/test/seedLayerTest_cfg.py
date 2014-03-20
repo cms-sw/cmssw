@@ -1,7 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("TripletTest")
-
-import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TKSEEDING")
 
@@ -42,35 +39,31 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
-    destinations = cms.untracked.vstring('cout'),
-    cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO'))
+process.testSeedingLayers = cms.EDAnalyzer("TestSeedingLayers",
 )
 
-from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
-from RecoPixelVertexing.PixelTriplets.PixelTripletLargeTipGenerator_cfi import *
-from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cfi import *
-from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 
-process.triplets = cms.EDAnalyzer("HitTripletProducer",
-  OrderedHitsFactoryPSet = cms.PSet(
-    ComponentName = cms.string("StandardHitTripletGenerator"),
-    SeedingLayers = cms.InputTag("PixelLayerTriplets"),
-    GeneratorPSet = cms.PSet( PixelTripletHLTGenerator )
-#    GeneratorPSet = cms.PSet( PixelTripletLargeTipGenerator )
-  ),
-    RegionFactoryPSet = cms.PSet(
-        RegionPSetBlock,
-        ComponentName = cms.string('GlobalRegionProducer')
-  )
-
+process.clustToHits = cms.Sequence(
+    process.siPixelRecHits*process.siStripMatchedRecHits
 )
 
-#process.triplets.OrderedHitsFactoryPSet.GeneratorPSet.useFixedPreFiltering = cms.bool(True)
-#process.triplets.RegionFactoryPSet.RegionPSet.ptMin = cms.double(1000.00)
-#process.triplets.RegionFactoryPSet.RegionPSet.originRadius = cms.double(0.001)
-#process.triplets.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(0.0001)
+process.tracking = cms.Sequence(
+     process.MixedLayerTriplets*process.MixedLayerPairs
+#    process.MeasurementTrackerEvent* # unclear where to put this
+#    process.trackingGlobalReco
+)
 
-process.p = cms.Path(process.siPixelRecHits+process.PixelLayerTriplets+process.triplets)
+
+# paths
+process.trk = cms.Path(
+      process.clustToHits *
+      process.tracking *
+      process.testSeedingLayers
+)
+
+
+process.schedule = cms.Schedule(
+      process.trk
+)
+
+process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
