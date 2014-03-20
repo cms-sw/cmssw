@@ -13,7 +13,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 process.load("Validation.TrackerRecHits.SiStripRecHitsValid_cfi")
 process.stripRecHitsValid.OutputMEsInRootFile = cms.bool(True)
-process.stripRecHitsValid.outputFile="sistriprechitshisto.root"
+# process.stripRecHitsValid.outputFile="sistriprechitshisto.root"
 process.stripRecHitsValid.TH1Resolxrphi.xmax=cms.double(0.00002)
 process.stripRecHitsValid.TH1ResolxStereo.xmax=cms.double(0.01)
 process.stripRecHitsValid.TH1ResolxMatched.xmax=cms.double(0.01)
