@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-
+print "jason"
 # The services
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
@@ -36,7 +36,8 @@ L2Muons = cms.EDProducer("L2MuonProducer",
             EnableDTMeasurement = cms.bool(True),
             RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
             Propagator = cms.string('SteppingHelixPropagatorL2Any'),
-            EnableCSCMeasurement = cms.bool(True)
+            EnableCSCMeasurement = cms.bool(True),
+            EnableGEMMeasurement = cms.bool(True)
         ),
         # a precise propagation direction can be choosen accordingly with the 
         # above seed position
@@ -64,7 +65,9 @@ L2Muons = cms.EDProducer("L2MuonProducer",
             EnableDTMeasurement = cms.bool(True),
             RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
             Propagator = cms.string('SteppingHelixPropagatorL2Any'),
-            EnableCSCMeasurement = cms.bool(True)
+            EnableCSCMeasurement = cms.bool(True),
+            EnableGEMMeasurement = cms.bool(True)
+    
         ),
     )
 )
