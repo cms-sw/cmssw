@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      EventTimeDistribution
-// 
+//
 /**\class EventTimeDistribution EventTimeDistribution.cc DPGAnalysis/SiStripTools/plugins/EventTimeDistribution.cc
 
  Description: <one line class summary>
@@ -66,8 +66,9 @@ class EventTimeDistribution : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-  const edm::InputTag _historyProduct;
+  edm::EDGetTokenT<EventWithHistory> _historyProductToken;
   const edm::InputTag _apvphasecoll;
+  edm::EDGetTokenT<APVCyclePhaseCollection> _apvphasecollToken;
   const std::string _phasepart;
   const bool _wantdbxvsbxincycle;
   const bool _wantdbxvsbx;
@@ -78,7 +79,7 @@ class EventTimeDistribution : public edm::EDAnalyzer {
   const unsigned int m_LSfrac;
   const bool m_ewhdepthHisto;
 
-  
+
 
   RunHistogramManager _rhm;
 
@@ -108,8 +109,9 @@ class EventTimeDistribution : public edm::EDAnalyzer {
 // constructors and destructor
 //
 EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
-  _historyProduct(iConfig.getParameter<edm::InputTag>("historyProduct")),
+  _historyProductToken(consumes<EventWithHistory>(iConfig.getParameter<edm::InputTag>("historyProduct"))),
   _apvphasecoll(iConfig.getParameter<edm::InputTag>("apvPhaseCollection")),
+  _apvphasecollToken(consumes<APVCyclePhaseCollection>(_apvphasecoll)),
   _phasepart(iConfig.getUntrackedParameter<std::string>("phasePartition","None")),
   _wantdbxvsbxincycle(iConfig.getUntrackedParameter<bool>("wantDBXvsBXincycle",false)),
   _wantdbxvsbx(iConfig.getUntrackedParameter<bool>("wantDBXvsBX",false)),
@@ -157,7 +159,7 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
 
 EventTimeDistribution::~EventTimeDistribution()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -177,10 +179,10 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    _nevents++;
 
    edm::Handle<EventWithHistory> he;
-   iEvent.getByLabel(_historyProduct,he);
+   iEvent.getByToken(_historyProductToken,he);
 
    // improve the matchin between default and actual partitions
-   
+
    (*_dbx)->Fill(he->deltaBX());
    std::vector<std::pair<unsigned int,unsigned int> >::const_iterator indices=m_dbxindices.begin();
    for(std::vector<TH1F**>::const_iterator dbxhist=m_dbxhistos.begin();dbxhist!=m_dbxhistos.end();++dbxhist,++indices) {
@@ -193,11 +195,11 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    if(m_ewhdepth && *m_ewhdepth) (*m_ewhdepth)->Fill(he->depth());
 
    edm::Handle<APVCyclePhaseCollection> apvphase;
-   iEvent.getByLabel(_apvphasecoll,apvphase);
+   iEvent.getByToken(_apvphasecollToken,apvphase);
 
    long long tbx = he->absoluteBX();
    if(apvphase.isValid() && !apvphase.failedToGet()) {
-     const int thephase = apvphase->getPhase(_phasepart); 
+     const int thephase = apvphase->getPhase(_phasepart);
      if(thephase!=APVCyclePhaseCollection::invalid &&
 	thephase!=APVCyclePhaseCollection::multiphase &&
 	thephase!=APVCyclePhaseCollection::nopartition) {
@@ -215,7 +217,7 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    }
 }
 
-void 
+void
 EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 {
 
@@ -236,13 +238,13 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 
   if(*_orbit) {
     (*_orbit)->SetBit(TH1::kCanRebin);
-    (*_orbit)->GetXaxis()->SetTitle("time [Orb#]"); 
+    (*_orbit)->GetXaxis()->SetTitle("time [Orb#]");
   }
 
   LogDebug("StdPlotsDone") << "all labels in std plots set";
 
   if(_dbxvsbxincycle && *_dbxvsbxincycle) {
-    (*_dbxvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_dbxvsbxincycle)->GetYaxis()->SetTitle("#DeltaBX"); 
+    (*_dbxvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_dbxvsbxincycle)->GetYaxis()->SetTitle("#DeltaBX");
   }
 
   if(_dbxvsbx && *_dbxvsbx) { (*_dbxvsbx)->GetXaxis()->SetTitle("BX"); (*_dbxvsbx)->GetYaxis()->SetTitle("#DeltaBX"); }
@@ -253,7 +255,7 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 
   if(_orbitvsbxincycle && *_orbitvsbxincycle) {
     (*_orbitvsbxincycle)->SetBit(TH1::kCanRebin);
-    (*_orbitvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_orbitvsbxincycle)->GetYaxis()->SetTitle("time [Orb#]"); 
+    (*_orbitvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_orbitvsbxincycle)->GetYaxis()->SetTitle("time [Orb#]");
   }
 
   if(m_ewhdepth && *m_ewhdepth) {
@@ -262,21 +264,21 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 
 }
 
-void 
+void
 EventTimeDistribution::endRun(const edm::Run& iRun, const edm::EventSetup&)
 {
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 EventTimeDistribution::beginJob()
 {
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 EventTimeDistribution::endJob() {
 
   edm::LogInfo("EndOfJob") << _nevents << " analyzed events";
