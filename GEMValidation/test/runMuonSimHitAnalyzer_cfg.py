@@ -29,20 +29,10 @@ from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
 process.MuonSimHitAnalyzer = cms.EDAnalyzer("MuonSimHitAnalyzer",
     simTrackMatching = SimTrackMatching
 )
-process.MuonSimHitAnalyzer.simTrackMatching.gemStripDigi.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.gemPadDigi.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.gemCoPadDigi.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.cscStripDigi.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.cscWireDigi.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.cscCLCT.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.cscALCT.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.cscLCT.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.cscMPLCT.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.gemRecHit.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.tfTrack.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.tfCand.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.gmtCand.input = ""
-process.MuonSimHitAnalyzer.simTrackMatching.l1Extra.input = ""
+
+## only simhits
+from GEMCode.GEMValidation.simTrackMatching_cfi import useOnlySimHitCollections
+process.MuonSimHitAnalyzer = useOnlySimHitCollections(process.MuonSimHitAnalyzer)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
