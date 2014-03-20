@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      APVCyclePhaseMonitor
-// 
+//
 /**\class APVCyclePhaseMonitor APVCyclePhaseMonitor.cc DPGAnalysis/SiStripTools/plugins/APVCyclePhaseMonitor.cc
 
  Description: <one line class summary>
@@ -64,6 +64,7 @@ class APVCyclePhaseMonitor : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 
   const edm::InputTag _apvphasecollection;
+  edm::EDGetTokenT<APVCyclePhaseCollection> _apvphasecollectionToken;
   std::vector<std::string> _selectedparts;
   std::vector<std::string> _selectedvectorparts;
   const unsigned int m_maxLS;
@@ -92,6 +93,7 @@ class APVCyclePhaseMonitor : public edm::EDAnalyzer {
 //
 APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig):
   _apvphasecollection(iConfig.getParameter<edm::InputTag>("apvCyclePhaseCollection")),
+  _apvphasecollectionToken(consumes<APVCyclePhaseCollection>(_apvphasecollection)),
   _selectedparts(iConfig.getUntrackedParameter<std::vector<std::string> >("selectedPartitions",std::vector<std::string>())),
   _selectedvectorparts(iConfig.getUntrackedParameter<std::vector<std::string> >("selectedVectorPartitions",std::vector<std::string>())),
   m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",125)),
@@ -107,11 +109,11 @@ APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig):
   for(std::vector<std::string>::const_iterator part=_selectedparts.begin();part!=_selectedparts.end();++part) {
 
     char hname[300];
-    
+
     sprintf(hname,"selected_phase_%s",part->c_str());
     edm::LogInfo("SelectedTH1FBeingBooked") << "TH1F " << hname << " being booked" ;
     _hselectedphases[*part] = m_rhm.makeTH1F(hname,hname,70,-0.5,69.5);
-    
+
     sprintf(hname,"selected_phasevsorbit_%s",part->c_str());
     edm::LogInfo("SelectedTProfileBeingBooked") << "TProfile " << hname << " being booked" ;
     _hselectedphasevsorbit[*part] = m_rhm.makeTProfile(hname,hname,m_LSfrac*m_maxLS,0,m_maxLS*262144);
@@ -121,15 +123,15 @@ APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig):
       part!=_selectedvectorparts.end();++part) {
 
     char hname[300];
-    
+
     sprintf(hname,"selected_phase_vector_%s",part->c_str());
     edm::LogInfo("SelectedVectTH1FBeingBooked") << "TH1F " << hname << " being booked" ;
     _hselectedphasesvector[*part] = m_rhm.makeTH1F(hname,hname,70,-0.5,69.5);
-    
+
     sprintf(hname,"selected_phase_size_%s",part->c_str());
     edm::LogInfo("SelectedVectSizeTH1FBeingBooked") << "TH1F " << hname << " being booked" ;
     _hselectedphasessize[*part] = m_rhm.makeTH1F(hname,hname,10,-0.5,9.5);
-    
+
     sprintf(hname,"selected_phasevectorvsorbit_%s",part->c_str());
     edm::LogInfo("SelectedVectTProfileBeingBooked") << "TProfile " << hname << " being booked" ;
     _hselectedphasevectorvsorbit[*part] = m_rhm.makeTProfile(hname,hname,m_LSfrac*m_maxLS,0,m_maxLS*262144);
@@ -141,7 +143,7 @@ APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig):
 
 APVCyclePhaseMonitor::~APVCyclePhaseMonitor()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -161,10 +163,10 @@ APVCyclePhaseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    _nevents++;
 
    edm::Handle<APVCyclePhaseCollection> apvphases;
-   iEvent.getByLabel(_apvphasecollection,apvphases);
+   iEvent.getByToken(_apvphasecollectionToken,apvphases);
 
    // improve the matchin between default and actual partitions
-   
+
    edm::Service<TFileService> tfserv;
 
    for(std::map<std::string,int>::const_iterator phase = apvphases->get().begin(); phase != apvphases->get().end(); ++phase) {
@@ -186,14 +188,14 @@ APVCyclePhaseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        _hphasevsorbit[phase->first] = subrun.make<TProfile>(hname,hname,m_LSfrac*m_maxLS,0,m_maxLS*262144);
        _hphasevsorbit[phase->first]->SetBit(TH1::kCanRebin);
        _hphasevsorbit[phase->first]->GetXaxis()->SetTitle("time [orbit#]"); _hphasevsorbit[phase->first]->GetYaxis()->SetTitle("Phase");
-       
+
      }
      _hphases[phase->first]->Fill(phase->second);
      _hphasevsorbit[phase->first]->Fill(iEvent.orbitNumber(),phase->second);
    }
 
    // selected partitions
-   
+
    for(std::vector<std::string>::const_iterator part=_selectedparts.begin();part!=_selectedparts.end();++part) {
      if(_hselectedphases.find(*part)!=_hselectedphases.end() && _hselectedphases[*part] && *_hselectedphases[*part]) {
        (*_hselectedphases[*part])->Fill(apvphases->getPhase(*part));
@@ -216,7 +218,7 @@ APVCyclePhaseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        if(_hselectedphasesvector.find(*part)!=_hselectedphasesvector.end() && _hselectedphasesvector[*part] && *_hselectedphasesvector[*part]) {
 	 (*_hselectedphasesvector[*part])->Fill(*phase);
        }
-       if(_hselectedphasevectorvsorbit.find(*part)!=_hselectedphasevectorvsorbit.end() && 
+       if(_hselectedphasevectorvsorbit.find(*part)!=_hselectedphasevectorvsorbit.end() &&
 	  _hselectedphasevectorvsorbit[*part] && *_hselectedphasevectorvsorbit[*part]) {
 	 (*_hselectedphasevectorvsorbit[*part])->Fill(iEvent.orbitNumber(),*phase);
        }
@@ -225,15 +227,15 @@ APVCyclePhaseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    }
 }
 
-void 
+void
 APVCyclePhaseMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 {
-  
+
   _hphases.clear();
   _hphasevsorbit.clear();
 
   m_rhm.beginRun(iRun);
-  
+
   for(std::map<std::string,TH1F**>::const_iterator hist=_hselectedphases.begin();hist!=_hselectedphases.end();++hist) {
     if(*(hist->second)) {
       (*(hist->second))->GetXaxis()->SetTitle("BX mod 70"); (*(hist->second))->GetYaxis()->SetTitle("Events");
@@ -242,7 +244,7 @@ APVCyclePhaseMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup&)
   for(std::map<std::string,TProfile**>::const_iterator prof=_hselectedphasevsorbit.begin();prof!=_hselectedphasevsorbit.end();++prof) {
     if(*(prof->second)) {
       (*(prof->second))->SetBit(TH1::kCanRebin);
-      (*(prof->second))->GetXaxis()->SetTitle("time [orbit#]"); 
+      (*(prof->second))->GetXaxis()->SetTitle("time [orbit#]");
       (*(prof->second))->GetYaxis()->SetTitle("Phase");
     }
   }
@@ -259,28 +261,28 @@ APVCyclePhaseMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup&)
   for(std::map<std::string,TProfile**>::const_iterator prof=_hselectedphasevectorvsorbit.begin();prof!=_hselectedphasevectorvsorbit.end();++prof) {
     if(*(prof->second)) {
       (*(prof->second))->SetBit(TH1::kCanRebin);
-      (*(prof->second))->GetXaxis()->SetTitle("time [orbit#]"); 
+      (*(prof->second))->GetXaxis()->SetTitle("time [orbit#]");
       (*(prof->second))->GetYaxis()->SetTitle("Phase");
     }
   }
 
 }
 
-void 
+void
 APVCyclePhaseMonitor::endRun(const edm::Run& iRun, const edm::EventSetup&)
 {
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 APVCyclePhaseMonitor::beginJob()
 {
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 APVCyclePhaseMonitor::endJob() {
 
   edm::LogInfo("EndOfJob") << _nevents << " analyzed events";
