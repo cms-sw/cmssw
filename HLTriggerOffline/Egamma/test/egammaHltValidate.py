@@ -365,7 +365,7 @@ parser.add_option("--data",
                   dest="isData",
                   default = False,
                   action = "store_true",
-                  help="run on real data file (works only together with EmDQMFeeder at the moment)",
+                  help="run on real data file",
                   )
 
 (options, ARGV) = parser.parse_args()
@@ -577,13 +577,13 @@ if options.num_events != None:
     print >> fout,"#----------------------------------------"
 
 #----------------------------------------
-# run on real data with EmDQMFeeder
-if options.isData and absoluteInputConfigFile.find("testEmDQMFeeder_cfg.py") != -1:
+# run on real data
+if options.isData and absoluteInputConfigFile.find("testEmDQM_cfg.py") != -1:
     print >> fout
     print >> fout,"#----------------------------------------"
     print >> fout,"# Running on real data sample"
     print >> fout,"#----------------------------------------"
-    print >> fout,"process.dqmFeeder.isData = cms.bool(True)" 
+    print >> fout,"process.emdqm.isData = cms.bool(True)" 
     print >> fout,"#----------------------------------------"
 
 #----------------------------------------
