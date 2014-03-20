@@ -29,6 +29,10 @@ DDShashlikSupermodule::initialize(const DDNumericArguments & nArgs,
   m_startAngle  = nArgs["startAngle"];
   m_stepAngle   = nArgs["stepAngle"];
   m_invert      = int( nArgs["invert"] );
+  m_SupermoduleWidthFront = nArgs["SupermoduleWidthFront"];
+  m_SupermoduleWidthBack = nArgs["SupermoduleWidthBack"];
+  m_SupermoduleThickness = nArgs["SupermoduleThickness"];
+  m_SupermoduleConcaveDepth = nArgs["SupermoduleConcaveDepth"];
   m_rPos        = nArgs["rPosition"];
   m_zoffset     = nArgs["zoffset"];
   m_n           = int( nArgs["n"] );
@@ -89,11 +93,20 @@ DDShashlikSupermodule::execute( DDCompactView& cpv )
 
 
 
-    //edm::LogInfo("HGCalGeom") << "*****************";
-    //edm::LogInfo("HGCalGeom") << "*****************";
-    //edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: m_startAngle = " << m_startAngle/CLHEP::deg << " deg, m_stepAngle = " << m_stepAngle/CLHEP::deg << " deg, m_zoffset = " << m_zoffset; 
-    //edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: c2c d= "<< dc2c << " = (" << offsetXc2c << "," << offsetYc2c << "," << offsetZc2c << ")"; 
-    //edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: c2secondc d= "<< dc2secondc << " = (" << offsetXc2secondc << "," << offsetYc2secondc << "," << offsetZc2secondc << ")"; 
+    edm::LogInfo("HGCalGeom") << "*****************";
+    edm::LogInfo("HGCalGeom") << "*****************";
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: ";
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: m_SupermoduleWidthFront|Back = " << m_SupermoduleWidthFront << "|" << m_SupermoduleWidthBack;
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: m_SuperModuleConcaveDepth = " << m_SupermoduleConcaveDepth  << ", Thickness=" << m_SupermoduleThickness;
+
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: m_startAngle = " << m_startAngle/CLHEP::deg << " deg, m_stepAngle = " << m_stepAngle/CLHEP::deg << " deg, m_zoffset = " << m_zoffset; 
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: c2c d= "<< dc2c << " = (" << offsetXc2c << "," << offsetYc2c << "," << offsetZc2c << ")"; 
+    edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: c2secondc d= "<< dc2secondc << " = (" << offsetXc2secondc << "," << offsetYc2secondc << "," << offsetZc2secondc << ")"; 
+
+    std::cout << "DDShashlikSuperModule::execute: " << std::endl;
+    std::cout << "DDShashlikSuperModule::execute: m_SupermoduleWidthFront|Back = " << m_SupermoduleWidthFront << "|" << m_SupermoduleWidthBack << std::endl;
+    std::cout << "DDShashlikSuperModule::execute: m_SuperModuleConcaveDepth = " << m_SupermoduleConcaveDepth  << ", Thickness=" << m_SupermoduleThickness << std::endl;
+
 
     for( int iy = 0; iy < 5; ++iy )
     {
@@ -156,31 +169,62 @@ DDShashlikSupermodule::execute( DDCompactView& cpv )
 	//			  << offsetY << ","
 	//			  << offsetZ1+offsetZ2 << ")" << " (copyNo & 5)=" << (copyNo & 5);
 
+
 			  
+        // these are hard-coded for now
+        //
+        //
+        if (ix == 0) {
+          offsetX  = -1.0 * offsetXc2secondc;
+          offsetZ1 = -1.0 * offsetZc2secondc;
+        }
+        else if (ix == 1){
+          offsetZ1 = -1.0*offsetZc2c;
+          offsetX  = -1.0*offsetXc2c; 
+        }else if (ix == 2){
+          offsetZ1 = 0.0;
+          offsetX  = 0.0; 
+        }else if (ix == 3){
+          offsetZ1 = -1.0*offsetZc2c;
+          offsetX  = offsetXc2c; 
+        }else if (ix == 4){
+          offsetZ1 = -1.0*offsetZc2secondc;
+          offsetX  = offsetXc2secondc; 
+        }
+        
+        if (iy == 0) {
+          offsetY  = -1.0 * offsetYc2secondc;
+          offsetZ2 = -1.0 * offsetZc2secondc;
+        }
+        else if (iy == 1){
+          offsetZ2 = -1.0*offsetZc2c;
+          offsetY = -1.0*offsetYc2c;
+        }
+        else if (iy == 2){
+          offsetZ2 = 0.0;
+          offsetY = 0.0;
+        }
+        else if (iy == 3){
+          offsetZ2 = -1.0*offsetZc2c;
+          offsetY = offsetYc2c;
+        }
+        else if (iy == 4){
+          offsetZ2 = -1.0*offsetZc2secondc;
+          offsetY = offsetYc2secondc;
+        }
+                          
 	DDTranslation tran1( offsetX, 0.0, offsetZ1 );
  	DDTranslation tran2( 0.0, offsetY, offsetZ2 );
     
 	DDName parentName = parent().name(); 
-	cpv.position( DDName( m_childName ), parentName, copyNo, (tran1+tran2), rotation );
+	int absCopyNo = ix*5+iy+1;
+	cpv.position( DDName( m_childName ), parentName, absCopyNo, (tran1+tran2), rotation );
+//     std::cout << "DDShashlikSupermodule::execute-> "
+//               << offsetX<<':'<<offsetY<<"->"<<absCopyNo
+//               <<std::endl;
 
 
 
-	// these are hard-coded for now
-	//
-	//
-	if((copyNo % 5) == 1){
-	  offsetZ1 = -1.0*offsetZc2c;
-	  offsetX  = -1.0*offsetXc2c; 
-	}else if((copyNo % 5) == 2){
-	  offsetZ1 = 0.0;
-	  offsetX  = 0.0; 
-	}else if((copyNo % 5) == 3){
-	  offsetZ1 = -1.0*offsetZc2c;
-	  offsetX  = offsetXc2c; 
-	}else if((copyNo % 5) == 4){
-	  offsetZ1 = -1.0*offsetZc2secondc;
-	  offsetX  = offsetXc2secondc; 
-	}
 
 	xphi += m_stepAngle;
 	copyNo += m_incrCopyNo;
@@ -192,26 +236,6 @@ DDShashlikSupermodule::execute( DDCompactView& cpv )
  
       offsetZ1 = -1.0*offsetZc2secondc;
       offsetX  = -1.0*offsetXc2secondc; 
-
-      // these are hard-coded for now
-      //
-      //
-      if(copyNo == 6){
-	offsetZ2 = -1.0*offsetZc2c;
-	offsetY = -1.0*offsetYc2c;
-      }
-      if(copyNo == 11){
-	offsetZ2 = 0.0;
-	offsetY = 0.0;
-      }
-      if(copyNo == 16){
-	offsetZ2 = -1.0*offsetZc2c;
- 	offsetY = offsetYc2c;
-      }
-      if(copyNo == 21){
-	offsetZ2 = -1.0*offsetZc2secondc;
- 	offsetY = offsetYc2secondc;
-      }
 
     }
 

@@ -5,6 +5,7 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
@@ -13,6 +14,7 @@
 
 typedef edm::EDCollection<EBDetId> EBDetIdCollection;
 typedef edm::EDCollection<EEDetId> EEDetIdCollection;
+typedef edm::EDCollection<EKDetId> EKDetIdCollection;
 typedef edm::EDCollection<EcalElectronicsId> EcalElectronicsIdCollection;
 typedef edm::EDCollection<EcalTriggerElectronicsId> EcalTriggerElectronicsIdCollection;
 typedef edm::EDCollection<EcalTrigTowerDetId> EcalTrigTowerDetIdCollection;

@@ -27,6 +27,10 @@ private:
   int           m_invert;       // Inverted or forward
   double        m_rPos;         // Radial position of center
   double        m_zoffset;      // Offset in z
+  double        m_SupermoduleWidthFront;
+  double        m_SupermoduleWidthBack;
+  double        m_SupermoduleThickness;
+  double        m_SupermoduleConcaveDepth;
   int           m_n;            // Mumber of copies
   int           m_startCopyNo;  // Start copy Number
   int           m_incrCopyNo;   // Increment copy Number
