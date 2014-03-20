@@ -36,21 +36,24 @@ private:
 			int _hitNumber;
 			bool _active;
 			std::vector<LayerNode*> _children;
-			const LayerNode* _parent;
+			LayerNode* _parent;
+			LayerNode* _nextsibling;
 		public:
 			LayerNode():
 				_layer(0),
 				_hitNumber(-1),
 				_active(true),
-				_parent(0)
+				_parent(0),
+				_nextsibling(0)
 			{
 			}
 
-			LayerNode(const LayerSpec* layer, const LayerNode* parent):
+			LayerNode(const LayerSpec* layer, LayerNode* parent):
 				_layer(layer),
 				_hitNumber(-1),
 				_active(true),
-				_parent(parent)
+				_parent(parent),
+				_nextsibling(0)
 			{
 			}
 
@@ -64,8 +67,17 @@ private:
 					}
 				}
 				LayerNode* layerNode = new LayerNode(layer,this);
+				if (_children.size()>0)
+				{
+					_children.back()->setSibling(layerNode);
+				}
 				_children.push_back(layerNode);
 				return layerNode;
+			}
+
+			void setSibling(LayerNode* layerNode)
+			{
+				_nextsibling=layerNode;
 			}
 
 			const LayerSpec* getLayer() const
@@ -88,7 +100,7 @@ private:
 				return _hitNumber;
 			}
 
-			const LayerNode* getParent() const
+			LayerNode* getParent()
 			{
 				return _parent;
 			}
@@ -112,6 +124,24 @@ private:
 				}
 			}
 
+			LayerNode* getFirstChild()
+			{
+				if (_children.size()>0)
+				{
+					return _children[0];
+				}
+				return 0;
+			}
+
+			LayerNode* nextSibling()
+			{
+				if (_nextsibling!=0)
+				{
+					return _nextsibling;
+				}
+				return 0;
+			}
+
 			std::string str(unsigned int offset=0) const
 			{
 				std::stringstream ss;
@@ -123,6 +153,7 @@ private:
 				{
 					ss<< _layer->name;
 					ss<<_layer->idLayer;
+					ss<<" ("<<_hitNumber<<")";
 				}
 				else
 				{
@@ -137,7 +168,7 @@ private:
 			}
 	};
 
-	LayerNode rootLayerNode;
+	LayerNode _rootLayerNode;
 
  public:
   
@@ -178,6 +209,7 @@ private:
 	SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
 	SiTrackerGSMatchedRecHit2DCollection::range range,
 	std::vector<std::vector<unsigned int>> hitNumbers,
+	LayerNode rootLayerNode,
 	unsigned int trackingAlgorithmId,
 	std::vector<unsigned int>& seedHitNumbers
   );

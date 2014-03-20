@@ -47,9 +47,10 @@ TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
 {  
 	for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
 	{
-		rootLayerNode.fill(theLayersInSets[ilayerset]);
+		_rootLayerNode.fill(theLayersInSets[ilayerset]);
 	}
-	std::cout<<rootLayerNode.str()<<std::endl;
+	std::cout<<_rootLayerNode.str()<<std::endl;
+	std::cout<<_rootLayerNode.getFirstChild()->getParent()<<std::endl;
 
 } 
 
@@ -149,6 +150,7 @@ int TrajectorySeedProducer2::iterateHits(
 		SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
 		SiTrackerGSMatchedRecHit2DCollection::range range,
 		std::vector<std::vector<unsigned int>> hitNumbers,
+		LayerNode rootLayerNode,
 		unsigned int trackingAlgorithmId,
 		std::vector<unsigned int>& seedHitNumbers
 	)
@@ -176,24 +178,93 @@ int TrajectorySeedProducer2::iterateHits(
 		if (nextHitOnSameLayer)
 		{
 			//branch here to process an alternative seeding hypothesis using the next hit which will be skip by the main loop
-
+			/*
 			int result=TrajectorySeedProducer2::iterateHits(
 					itRecHit+1,
 					range,
 					hitNumbers,
+					rootLayerNode,
 					trackingAlgorithmId,
 					seedHitNumbers
 				);
 			if (result>=0)
 			{
 				return result;
-			}
+			}*/
 
 		}
 
 		//skip this hit if it was already processed in previous iteration
 		if (!thisHitOnSameLayer)
 		{
+			std::cout<<std::endl;
+			std::cout<<rootLayerNode.str()<<std::endl;
+			LayerNode* activeNode = rootLayerNode.getFirstChild();
+			while (activeNode!=0)
+			{
+				std::cout<<"visiting: "<<activeNode->getLayer()->name<<activeNode->getLayer()->idLayer<<": "<<activeNode<<std::endl;
+				if (activeNode->getHitNumber()<0)
+				{
+					if (activeNode->getLayer()->subDet==currentTrackerHit.subDetId() && activeNode->getLayer()->idLayer==currentTrackerHit.layerNumber())
+					{
+						/*
+						if (this->passTrackerRecHitQualityCuts(hitNumbers[ilayerset], currentTrackerHit, trackingAlgorithmId))
+						{
+
+						}
+						*/
+						activeNode->setHitNumber(itRecHit-range.first);
+						std::cout<<" -> match"<<std::endl;
+						if (activeNode->getFirstChild()==0)
+						{
+							//node has no more children -> seed!
+							std::cout<<"seed!"<<std::endl;
+							//std::cout<<rootLayerNode.str()<<std::endl;
+							break;
+						}
+						//per definition only a sibling to the parent can have the same layer again
+						activeNode=activeNode->getParent()->nextSibling();
+						std::cout<<"   process parent's sibling: " <<activeNode<<std::endl;
+					}
+					else
+					{
+						//the activeNode does not fit to the current hit
+						//test if there are siblings or continue with the parents siblings
+
+						if (activeNode->nextSibling()==0)
+						{
+							activeNode=activeNode->getParent()->nextSibling();
+							std::cout<<"   process parent's sibling: "<<activeNode<<std::endl;
+						}
+						else
+						{
+							activeNode=activeNode->nextSibling();
+							std::cout<<"   next sibling:"<<activeNode<<std::endl;
+						}
+					}
+				}
+
+				else
+				{
+					//this node has already a hit assigned
+					//check now either its children or continue with the parent's sibling
+
+					std::cout<<"   skip active node: hit="<<activeNode->getHitNumber()<<std::endl;
+
+					if (activeNode->getFirstChild()==0)
+					{
+						activeNode=activeNode->getParent()->nextSibling();
+						std::cout<<"   process parent's sibling: "<<activeNode<<std::endl;
+					}
+					else
+					{
+						activeNode=activeNode->getFirstChild();
+						std::cout<<"   go into children: "<<activeNode<<std::endl;
+					}
+				}
+			}
+			std::cout<<"---------------"<<std::endl;
+
 			for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
 			{
 				unsigned int currentlayer = hitNumbers[ilayerset].size();
@@ -204,6 +275,7 @@ int TrajectorySeedProducer2::iterateHits(
 				//evil subDet is LayerSpec::ENUM
 				//subDetId is DetId.subdetid()
 				//layernumber is TrackerTopology::<>layerid(DetId)
+
 				if (theLayersInSets[ilayerset][currentlayer].subDet==currentTrackerHit.subDetId() && theLayersInSets[ilayerset][currentlayer].idLayer==currentTrackerHit.layerNumber())
 				{
 					if (this->passTrackerRecHitQualityCuts(hitNumbers[ilayerset], currentTrackerHit, trackingAlgorithmId))
@@ -312,7 +384,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
 		const unsigned int currentSimTrackId = *itSimTrackId;
-		//if (currentSimTrackId!=628) continue;
+		if (currentSimTrackId>10) continue;
 		//std::cout<<"processing simtrack with id: "<<currentSimTrackId<<std::endl;
 		const SimTrack& theSimTrack = (*theSimTracks)[currentSimTrackId];
 
@@ -367,7 +439,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
 
 			std::vector<unsigned int> seedHitNumbers;
-			int seedLayerSetIndex = iterateHits(recHitRange.first,recHitRange,hitNumbers, ialgo,seedHitNumbers);
+
+			int seedLayerSetIndex = iterateHits(recHitRange.first,recHitRange,hitNumbers, _rootLayerNode, ialgo,seedHitNumbers);
 
 
 			if (seedLayerSetIndex>=0)
