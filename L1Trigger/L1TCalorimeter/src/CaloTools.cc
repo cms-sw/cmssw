@@ -31,41 +31,39 @@ const l1t::CaloCluster& l1t::CaloTools::getCluster(const std::vector<l1t::CaloCl
 //HF then runs after that so -32,1 = 28*72*2
 size_t l1t::CaloTools::caloTowerHash(int iEta,int iPhi)
 {
-  //these constants will be either moved to be class members or read in from a database once a decision on this has been made
-  const int kHBHEEnd=28;
-  const int kHFBegin=29;
-  const int kHFEnd=32;
-  const int kHFNrPhi=72/4;
-  const int kHBHENrPhi=72;
-  const int kNrTowers = ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
-  const int kNrHBHETowers = kHBHEEnd*kHBHENrPhi;
-  
-  const int absIEta = abs(iEta);
 
-  if(absIEta>kHFEnd) return kNrTowers;
-  else if(absIEta<=kHBHEEnd){ //HBHE
-    return (iEta+kHBHEEnd)*kHBHENrPhi+iPhi-1;
-  }else{ //HF
-    int iEtaIndex = iEta+kHFEnd; //iEta=-32 is 0
-    if(iEta>0) iEta-=kHBHEEnd*2; //but iEta=29 is 5
-    return iEtaIndex*kHFNrPhi+iPhi-1 + kNrHBHETowers;
+  if(!isValidIEtaIPhi(iEta,iPhi)) return caloTowerHashMax();
+  else{
+    const int absIEta = abs(iEta);
+    if(absIEta>kHFEnd) return kNrTowers;
+    else if(absIEta<=kHBHEEnd){ //HBHE
+      int iEtaNoZero=iEta;
+      if(iEta>0) iEtaNoZero--;
+      return (iEtaNoZero+kHBHEEnd)*kHBHENrPhi+iPhi-1;
+    }else{ //HF
+      int iEtaIndex = iEta+kHFEnd; //iEta=-32 is 0
+      if(iEta>0) iEtaIndex= iEta-kHBHEEnd+(kHFEnd-kHBHEEnd)-1; //but iEta=29 is 4
+      return iEtaIndex*kHFNrPhi+iPhi/kHFPhiSeg + kNrHBHETowers;
+    }
   }
 }
 
 
 size_t l1t::CaloTools::caloTowerHashMax()
 {
-  // OK, yes this is dirty and should be fixed in next iteration
-  const int kHBHEEnd=28;
-  const int kHFBegin=29;
-  const int kHFEnd=32;
-  const int kHFNrPhi=72/4;
-  const int kHBHENrPhi=72;
-
-  return ((kHFEnd-kHFBegin+1)*kHFNrPhi + kHBHEEnd*kHBHENrPhi )*2;
- 
+  return kNrTowers;
 }
 
+
+bool l1t::CaloTools::isValidIEtaIPhi(int iEta,int iPhi)
+{
+  size_t absIEta = abs(iEta);
+  if(iPhi<=0 || iPhi>kHBHENrPhi) return false;
+  if(absIEta==0 || absIEta>kHFEnd) return false;
+  if(absIEta>kHBHEEnd && iPhi%kHFPhiSeg!=1) return false;
+  return true;
+
+}
 
 int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTower>& towers,
 			      int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,SubDet etMode)

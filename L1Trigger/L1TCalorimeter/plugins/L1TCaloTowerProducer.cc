@@ -219,9 +219,9 @@ l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     // now calculate remaining tower quantities
     for (int ieta=ietaMin_; ieta<ietaMax_+1; ieta++) {
 
-      if (ieta==0) continue;
-
       for (int iphi=iphiMin_; iphi<iphiMax_+1; iphi++) {
+
+	if(!CaloTools::isValidIEtaIPhi(ieta,iphi)) continue;
 
 	int itow = CaloTools::caloTowerHash(ieta, iphi);
 
