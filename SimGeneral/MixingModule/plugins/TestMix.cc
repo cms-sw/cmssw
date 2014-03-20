@@ -47,7 +47,7 @@ TestMix::TestMix(const edm::ParameterSet& iConfig):
 
   edm::InputTag tag = edm::InputTag("mix","g4SimHits");
   
-  SimTrackerToken_ = consumes<CrossingFrame<SimTrack>>(tag);
+  SimTrackToken_ = consumes<CrossingFrame<SimTrack>>(tag);
   SimVertexToken_ = consumes<CrossingFrame<SimVertex>>(tag);
 
   tag = edm::InputTag("mix","g4SimHitsTrackerHitsTECHighTof");
@@ -69,7 +69,7 @@ TestMix::TestMix(const edm::ParameterSet& iConfig):
   TrackerToken4_ = consumes<CrossingFrame<PSimHit>>(tag);
 
   tag = edm::InputTag("mix","generator");
-  HepMCToken_ = consumes<CrossingFrame<edm::HepMCProduct>>(tag);
+  HepMCToken_ = consumes<CrossingFrame<HepMCProduct>>(tag);
 
 }
 
@@ -102,7 +102,7 @@ TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // test access to SimTracks directly in CrossingFrame
 
   edm::Handle<CrossingFrame<SimTrack> > cf_simtrack;
-  bool gotTracks = iEvent.getByToken(SimTrackerToken_,cf_simtrack);
+  bool gotTracks = iEvent.getByToken(SimTrackToken_,cf_simtrack);
   if (!gotTracks)  std::cout<<" Could not read SimTracks!!!!"<<std::endl;
 
   // not pointer compatible!!!!

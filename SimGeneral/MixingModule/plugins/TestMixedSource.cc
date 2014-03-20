@@ -95,18 +95,6 @@ TestMixedSource::TestMixedSource(const edm::ParameterSet& iConfig)
   tag = edm::InputTag("mix","g4SimHitsMuonCSCHits");
   MuonToken_ = consumes<CrossingFrame<PSimHit>>(tag);
 
-  tag = edm::InputTag("mix",track_containers_[0]);
-  TrackerToken1_ = consumes<CrossingFrame<PSimHit>>(tag);
-
-  tag = edm::InputTag("mix",track_containers_[1]);
-  TrackerToken2_ = consumes<CrossingFrame<PSimHit>>(tag);
-
-  tag = edm::InputTag("mix",track_containers2_[0]);
-  TrackerToken3_ = consumes<CrossingFrame<PSimHit>>(tag);
-
-  tag = edm::InputTag("mix",track_containers2_[1]);
-  TrackerToken4_ = consumes<CrossingFrame<PSimHit>>(tag);
-
   tag = edm::InputTag("mix","generator");
   HepMCToken_ = consumes<CrossingFrame<edm::HepMCProduct>>(tag);
 
