@@ -11,7 +11,7 @@ inclusiveVertexFinder  = cms.EDProducer("InclusiveVertexFinder",
 
        clusterizer = cms.PSet(
            seedMax3DIPSignificance = cms.double(9999.),
-					 seedMax3DIPValue = cms.double(5),
+           seedMax3DIPValue = cms.double(9999.),
            seedMin3DIPSignificance = cms.double(1.2),
            seedMin3DIPValue = cms.double(0.005),
            clusterMaxDistance = cms.double(0.05), #500um
