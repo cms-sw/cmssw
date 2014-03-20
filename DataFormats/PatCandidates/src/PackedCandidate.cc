@@ -1,9 +1,6 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/libminifloat.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-template <typename T> int sign(T val) {
-    return (T(0) < val) - (val < T(0));
-}
 
 class FakeTrackingRecHit : public TrackingRecHit
 {
@@ -31,6 +28,25 @@ public:
  
 };
 
+int8_t pack8log(double x,double lmin, double lmax)
+{
+ float l =log(fabs(x));
+ float centered = (l-lmin)/(lmax-lmin)*128;
+ int8_t  r=centered;
+ if(centered >= 127) return r=127;
+ if(centered < 0) return r=0;
+ if(x<0) r=-r;
+ return r;
+}
+
+double unpack8log(int8_t i,double lmin, double lmax)
+{
+ float l=lmin+abs(i)/128.*(lmax-lmin);
+ float val=exp(l);
+ if(i<0) return -val; else return val;
+}
+
+
 void pat::PackedCandidate::pack(bool unpackAfterwards) {
     packedPt_  =  MiniFloatConverter::float32to16(p4_.Pt());
     packedEta_ =  int16_t(p4_.Eta()/6.0f*std::numeric_limits<int16_t>::max());
@@ -55,8 +71,11 @@ void pat::PackedCandidate::packVtx(bool unpackAfterwards) {
     packedCovarianceDxyDxy_ = MiniFloatConverter::float32to16(dxydxy_*10000.);
     packedCovarianceDxyDz_ = MiniFloatConverter::float32to16(dxydz_*10000.);
     packedCovarianceDzDz_ = MiniFloatConverter::float32to16(dzdz_*10000.);
-    packedCovarianceDphiDxy_ = MiniFloatConverter::float32to16(dphidxy_*10000.);
-    packedCovarianceDlambdaDz_ = MiniFloatConverter::float32to16(dlambdadz_*10000.);
+//    packedCovarianceDxyDxy_ = pack8log(dxydxy_,-15,-1); // MiniFloatConverter::float32to16(dxydxy_*10000.);
+//    packedCovarianceDxyDz_ = pack8log(dxydz_,-20,-1); //MiniFloatConverter::float32to16(dxydz_*10000.);
+//  packedCovarianceDzDz_ = pack8log(dzdz_,-13,-1); //MiniFloatConverter::float32to16(dzdz_*10000.);
+    packedCovarianceDphiDxy_ = pack8log(dphidxy_,-17,-4); // MiniFloatConverter::float32to16(dphidxy_*10000.);
+    packedCovarianceDlambdaDz_ = pack8log(dlambdadz_,-17,-4); // MiniFloatConverter::float32to16(dlambdadz_*10000.);
     if (unpackAfterwards) unpackVtx();
 }
 
@@ -77,12 +96,19 @@ void pat::PackedCandidate::unpackVtx() const {
     vertex_ = Point(pv.X() - dxy_ * s,
                     pv.Y() + dxy_ * c,
                     pv.Z() + dz_ ); // for our choice of using the PCA to the PV, by definition the remaining term -(dx*cos(phi) + dy*sin(phi))*(pz/pt) is zero
-    dxydxy_ = MiniFloatConverter::float16to32(packedCovarianceDxyDxy_)/10000.;
+//  dxydxy_ = unpack8log(packedCovarianceDxyDxy_,-15,-1);
+//  dxydz_ = unpack8log(packedCovarianceDxyDz_,-20,-1);
+//  dzdz_ = unpack8log(packedCovarianceDzDz_,-13,-1);
+    dphidxy_ = unpack8log(packedCovarianceDphiDxy_,-17,-4);
+    dlambdadz_ = unpack8log(packedCovarianceDlambdaDz_,-17,-4);
+
+
+  dxydxy_ = MiniFloatConverter::float16to32(packedCovarianceDxyDxy_)/10000.;
     dxydz_ =MiniFloatConverter::float16to32(packedCovarianceDxyDz_)/10000.;
     dzdz_ =MiniFloatConverter::float16to32(packedCovarianceDzDz_)/10000.;
-    dphidxy_ = MiniFloatConverter::float16to32(packedCovarianceDphiDxy_)/10000.;
+/*  dphidxy_ = MiniFloatConverter::float16to32(packedCovarianceDphiDxy_)/10000.;
     dlambdadz_ =MiniFloatConverter::float16to32(packedCovarianceDlambdaDz_)/10000.;
-
+*/
     unpackedVtx_ = true;
 }
 
@@ -113,16 +139,19 @@ reco::Track pat::PackedCandidate::pseudoTrack() const {
     m(4,3)=dxydz_;
     m(4,4)=dzdz_;
     math::RhoEtaPhiVector p3(p4_.pt(),p4_.eta(),phiAtVtx());
+    int numberOfHits_= (packedHits_>>3) ;
+    int numberOfPixelHits_= packedHits_ & 0x7 ;
+
     int ndof = numberOfHits_+numberOfPixelHits_-5;
     reco::HitPattern hp;
-    unsigned int i=0;
+    int i=0;
     for(i=0;i<numberOfPixelHits_;i++) {
 	   hp.set(FakeTrackingRecHit(302057232),i ); // a random pixel id
      }
     for(;i<numberOfHits_;i++) {
 	   hp.set(FakeTrackingRecHit(369171304),i); // a random TIB L4 id
      }
-    reco::Track tk(ndof,normalizedChi2_*ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m); //TODO: correct phi?
+    reco::Track tk(normalizedChi2_*ndof,ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::highPurity);
     tk.setHitPattern(hp);
     return tk;
 }

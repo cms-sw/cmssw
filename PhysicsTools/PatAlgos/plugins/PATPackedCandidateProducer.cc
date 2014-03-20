@@ -166,6 +166,9 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
                 //dzBefore = calcDz(vtx,PVpos,cand);
             }
             outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV, fromPV[ic]));
+	    if(cand.trackRef().isNonnull()){
+		if(PV->trackWeight(cand.trackRef()) > 0.5)  outPtrP->back().setFromPV(pat::PackedCandidate::PVUsedInFit);
+	    }	
 	    if(cand.trackRef().isNonnull() && cand.pt() > minPtForTrackProperties_)
 	    {
 		outPtrP->back().setTrackProperties(*cand.trackRef());
