@@ -358,7 +358,7 @@ bool StandAloneMuonFilter::update(const DetLayer * layer,
 
 void StandAloneMuonFilter::createDefaultTrajectory(const Trajectory & oldTraj, Trajectory & defTraj) {
 
-  Trajectory::DataContainer oldMeas = oldTraj.measurements();
+  Trajectory::DataContainer const & oldMeas = oldTraj.measurements();
   defTraj.reserve(oldMeas.size());
 
   for (Trajectory::DataContainer::const_iterator itm = oldMeas.begin(); itm != oldMeas.end(); itm++) {
@@ -368,7 +368,7 @@ void StandAloneMuonFilter::createDefaultTrajectory(const Trajectory & oldTraj, T
       MuonTransientTrackingRecHit::MuonRecHitPointer invRhPtr = MuonTransientTrackingRecHit::specificBuild( (*itm).recHit()->det(), (*itm).recHit()->hit() );
       invRhPtr->invalidateHit();
       TrajectoryMeasurement invRhMeas( (*itm).forwardPredictedState(), (*itm).updatedState(), invRhPtr.get(), (*itm).estimate(), (*itm).layer() );
-      defTraj.push( invRhMeas, (*itm).estimate() );	  
+      defTraj.push( std::move(invRhMeas), (*itm).estimate() );	  
     }
 
   } // end for

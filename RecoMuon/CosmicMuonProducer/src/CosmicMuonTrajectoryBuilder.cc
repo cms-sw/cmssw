@@ -693,13 +693,13 @@ void CosmicMuonTrajectoryBuilder::reverseTrajectory(Trajectory& traj) const {
   ? oppositeToMomentum : alongMomentum;
   Trajectory newTraj(traj.seed(), newDir);
   
- const std::vector<TrajectoryMeasurement>& meas = traj.measurements();
+  std::vector<TrajectoryMeasurement> & meas = traj.measurements();
 
   for (std::vector<TrajectoryMeasurement>::const_reverse_iterator itm = meas.rbegin();
        itm != meas.rend(); ++itm ) {
-    newTraj.push(*itm);
+    newTraj.push(std::move(*itm));
   }
-  traj = newTraj;
+  traj = std::move(newTraj);
 
 }
 
