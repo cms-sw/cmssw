@@ -203,6 +203,11 @@ void TauolappInterface::init( const edm::EventSetup& es )
 
    Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
 
+#ifdef UseTauola114
+   Tauolapp::Tauola::setNewCurrents(fPSet->getUntrackedParameter<int>("setNewCurrents",0));
+   std::cout << "Using Tauola 1.1.4 " << std::endl;
+#endif
+
    // override decay modes if needs be
    //
    // we have to do it AFTER init because otherwises branching ratios are NOT filled in
