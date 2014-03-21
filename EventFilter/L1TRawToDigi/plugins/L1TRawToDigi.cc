@@ -24,12 +24,6 @@ namespace l1t {
    // member functions
    //
 
-   inline uint32_t pop(const unsigned char* ptr, unsigned& idx) {
-      uint32_t res = ptr[idx + 0] | (ptr[idx + 1] << 8) | (ptr[idx + 2] << 16) | (ptr[idx + 3] << 24);
-      idx += 4;
-      return res;
-   }
-
    // ------------ method called to produce the data  ------------
    void
    L1TRawToDigi::produce(edm::Event& event, const edm::EventSetup& setup)
