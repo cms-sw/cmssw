@@ -181,16 +181,27 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	}
       }
     }
+    //looping over EtSum elments with a specific BX
+    for (l1t::EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
+	itEtSum != EtSum->end(itBX); ++itEtSum){
+
+      if (EtSum::EtSumType::kMissingEt == itEtSum->getType()){
+	L1GctEtMiss Cand(itEtSum->hwPt(), itEtSum->hwPhi(), 0, itBX);
+	etMissResult->push_back(Cand);
+      }else if (EtSum::EtSumType::kMissingHt == itEtSum->getType()){
+	L1GctHtMiss Cand(itEtSum->hwPt(), itEtSum->hwPhi(), 0, itBX);
+	htMissResult->push_back(Cand);
+      }else if (EtSum::EtSumType::kTotalEt == itEtSum->getType()){
+	L1GctEtTotal Cand(itEtSum->hwPt(), 0, itBX);
+	etTotResult->push_back(Cand);
+      }else if (EtSum::EtSumType::kTotalHt == itEtSum->getType()){
+	L1GctEtHad Cand(itEtSum->hwPt(), 0, itBX);
+	etHadResult->push_back(Cand);
+      }else {
+	LogError("l1t|stage 1 Converter") <<" Unknown EtSumType --- EtSum collection will not be saved...\n ";
+      }
+    }
   }
-
-
-
-  // //Looping over EtSum BXVector
-  // for(int itBX=firstBxEtSum; itBX!=lastBxEtSum+1; ++itBX){
-  //   L1TEtSumCollection::const_iterator itEtSum = EtSum->begin(itBX);
-  // }
-
-
 
 
 
