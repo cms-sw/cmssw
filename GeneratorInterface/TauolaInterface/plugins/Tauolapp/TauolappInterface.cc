@@ -4,9 +4,17 @@
 
 #include "GeneratorInterface/TauolaInterface/interface/TauolappInterface.h"
 
+#ifndef UseTauola114
 #include "Tauola.h"
 #include "TauolaHepMCEvent.h"
 #include "Log.h"
+#endif
+#ifdef UseTauola114
+#include "Tauola/Tauola.h"
+#include "Tauola/TauolaHepMCEvent.h"
+#include "Tauola/Log.h"
+using namespace Tauolapp;
+#endif
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
