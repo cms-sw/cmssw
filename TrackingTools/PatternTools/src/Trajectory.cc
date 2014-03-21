@@ -36,9 +36,24 @@ void Trajectory::push( const TrajectoryMeasurement& tm) {
   push( tm, tm.estimate());
 }
 
-void Trajectory::push( const TrajectoryMeasurement& tm, double chi2Increment)
-{
-  theData.push_back(tm);
+
+void Trajectory::push(TrajectoryMeasurement && tm) {
+  push( tm, tm.estimate());
+}
+
+
+
+void Trajectory::push(const TrajectoryMeasurement & tm, double chi2Increment) {
+  theData.push_back(tm); pushAux(chi2Increment);
+}
+
+void Trajectory::push(TrajectoryMeasurement && tm, double chi2Increment) {
+  theData.push_back(tm);  pushAux(chi2Increment);
+}
+
+
+void Trajectory::pushAux(double chi2Increment) {
+ const TrajectoryMeasurement& tm = theData.back();
   if ( tm.recHit()->isValid()) {
     theChiSquared += chi2Increment;
     theNumberOfFoundHits++;
@@ -56,13 +71,14 @@ void Trajectory::push( const TrajectoryMeasurement& tm, double chi2Increment)
   // determine direction from the radii of the first two measurements
 
   if ( !theDirectionValidity && theData.size() >= 2) {
-    if (theData[0].updatedState().globalPosition().perp() <
-	theData.back().updatedState().globalPosition().perp())
+    if (theData[0].updatedState().globalPosition().perp2() <
+	theData.back().updatedState().globalPosition().perp2())
       theDirection = alongMomentum;
     else theDirection = oppositeToMomentum;
     theDirectionValidity = true;
   }
 }
+
 
 Trajectory::RecHitContainer Trajectory::recHits(bool splitting) const {
   RecHitContainer hits;
