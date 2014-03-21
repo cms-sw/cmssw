@@ -5,10 +5,13 @@
 #include <vector>
 #include <memory>
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
+
 
 class DetLayer;
 class TransientTrackingRecHitBuilder;
+class TkTransientTrackingRecHitBuilder;
 
 namespace edm { class Event; class EventSetup; }
 namespace ctfseeding {class HitExtractor; }
@@ -19,7 +22,10 @@ class SeedingLayer {
 public:
   enum Side { Barrel = 0, NegEndcap =1,  PosEndcap = 2 }; 
 public:
-  typedef  std::vector<TransientTrackingRecHit::ConstRecHitPointer> Hits;
+  using TkHit = BaseTrackerRecHit;
+  using TkHitRef = BaseTrackerRecHit const &;
+  using HitPointer = mayown_ptr<BaseTrackerRecHit>;
+  using Hits=std::vector<HitPointer>;
   
   SeedingLayer(){}
 
@@ -38,7 +44,7 @@ public:
 
   const DetLayer*  detLayer() const;
   
-  const TransientTrackingRecHitBuilder * hitBuilder() const;
+  const TkTransientTrackingRecHitBuilder * hitBuilder() const;
 
 private:
   class SeedingLayerImpl;

@@ -3,18 +3,6 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h" 
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
-#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFV0.h"
-
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -32,69 +20,53 @@ using namespace std;
 using namespace edm;
 
 PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
-  
 
   // use configuration file to setup input/output collection names
-  inputTagRecTracks_ 
-    = iConfig.getParameter<InputTag>("RecTracks");
+  inputTagRecTracks_ =consumes<reco::PFRecTrackCollection>(iConfig.getParameter<InputTag>("RecTracks"));
 
-  inputTagGsfRecTracks_ 
-    = iConfig.getParameter<InputTag>("GsfRecTracks");
 
-    inputTagConvBremGsfRecTracks_ 
-    = iConfig.getParameter<InputTag>("ConvBremGsfRecTracks");
+  inputTagGsfRecTracks_ =consumes<reco::GsfPFRecTrackCollection>(iConfig.getParameter<InputTag>("GsfRecTracks"));
 
-  inputTagRecMuons_ 
-    = iConfig.getParameter<InputTag>("RecMuons");
+  inputTagConvBremGsfRecTracks_ =consumes<reco::GsfPFRecTrackCollection>(iConfig.getParameter<InputTag>("ConvBremGsfRecTracks"));
 
-  inputTagPFNuclear_ 
-    = iConfig.getParameter<InputTag>("PFNuclear");
+  inputTagRecMuons_ =consumes<reco::MuonCollection>(iConfig.getParameter<InputTag>("RecMuons"));
 
-  inputTagPFConversions_ 
-    = iConfig.getParameter<InputTag>("PFConversions");
+  inputTagPFNuclear_ =consumes<reco::PFDisplacedTrackerVertexCollection>(iConfig.getParameter<InputTag>("PFNuclear"));
 
-  inputTagPFV0_ 
-    = iConfig.getParameter<InputTag>("PFV0");
+  inputTagPFConversions_ =consumes<reco::PFConversionCollection>(iConfig.getParameter<InputTag>("PFConversions"));
 
-  inputTagPFClustersECAL_ 
-    = iConfig.getParameter<InputTag>("PFClustersECAL");
+  inputTagPFV0_ =consumes<reco::PFV0Collection>(iConfig.getParameter<InputTag>("PFV0"));
 
-  inputTagPFClustersHCAL_ 
-    = iConfig.getParameter<InputTag>("PFClustersHCAL");
+  inputTagPFClustersECAL_ =consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFClustersECAL"));
 
-  inputTagPFClustersHO_ 
-    = iConfig.getParameter<InputTag>("PFClustersHO");
+  inputTagPFClustersHCAL_ =consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFClustersHCAL"));
 
-  inputTagPFClustersHFEM_ 
-    = iConfig.getParameter<InputTag>("PFClustersHFEM");
+  inputTagPFClustersHO_ =consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFClustersHO"));
 
-  inputTagPFClustersHFHAD_ 
-    = iConfig.getParameter<InputTag>("PFClustersHFHAD");
+  inputTagPFClustersHFEM_ =consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFClustersHFEM"));
 
-  inputTagPFClustersPS_ 
-    = iConfig.getParameter<InputTag>("PFClustersPS");
+  inputTagPFClustersHFHAD_ =consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFClustersHFHAD"));
+
+  inputTagPFClustersPS_ =consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFClustersPS"));
 
   useEGPhotons_ = iConfig.getParameter<bool>("useEGPhotons");
   
   if(useEGPhotons_) {
-    inputTagEGPhotons_
-      = iConfig.getParameter<InputTag>("EGPhotons");         
+    inputTagEGPhotons_=consumes<reco::PhotonCollection>(iConfig.getParameter<InputTag>("EGPhotons"));         
   }
   
   useSuperClusters_ = iConfig.existsAs<bool>("useSuperClusters") ? iConfig.getParameter<bool>("useSuperClusters") : false;
   
   if (useSuperClusters_) {
-    inputTagSCBarrel_
-      = iConfig.getParameter<InputTag>("SCBarrel");      
-    inputTagSCEndcap_
-      = iConfig.getParameter<InputTag>("SCEndcap");     
+    inputTagSCBarrel_=consumes<reco::SuperClusterCollection>(iConfig.getParameter<InputTag>("SCBarrel"));      
+    inputTagSCEndcap_=consumes<reco::SuperClusterCollection>(iConfig.getParameter<InputTag>("SCEndcap"));     
   }
   
   //default value = false (for compatibility with old HLT configs)
   superClusterMatchByRef_ = iConfig.existsAs<bool>("SuperClusterMatchByRef") ? iConfig.getParameter<bool>("SuperClusterMatchByRef") : false;
   
   if (superClusterMatchByRef_) {
-    inputTagPFClusterAssociationEBEE_ = iConfig.getParameter<InputTag>("PFClusterAssociationEBEE");
+    inputTagPFClusterAssociationEBEE_ =consumes<edm::ValueMap<reco::CaloClusterPtr> >(iConfig.getParameter<InputTag>("PFClusterAssociationEBEE"));
   }
   
   verbose_ = 
@@ -197,89 +169,47 @@ void
 PFBlockProducer::produce(Event& iEvent, 
 			 const EventSetup& iSetup) {
   
-  LogDebug("PFBlockProducer")<<"START event: "<<iEvent.id().event()
-			     <<" in run "<<iEvent.id().run()<<endl;
-  
-  
   // get rectracks
   
   Handle< reco::PFRecTrackCollection > recTracks;
   
   // LogDebug("PFBlockProducer")<<"get reco tracks"<<endl;
-  bool found = iEvent.getByLabel(inputTagRecTracks_, recTracks);
-    
-  if(!found )
-    LogError("PFBlockProducer")<<" cannot get rectracks: "
-			       <<inputTagRecTracks_<<endl;
-
-
+   iEvent.getByToken(inputTagRecTracks_, recTracks);
+ 
 
   // get GsfTracks 
   Handle< reco::GsfPFRecTrackCollection > GsfrecTracks;
 
-  if(!usePFatHLT_) {
-    found = iEvent.getByLabel(inputTagGsfRecTracks_,GsfrecTracks);
-
-    if(!found )
-      LogError("PFBlockProducer")<<" cannot get Gsfrectracks: "
-				 << inputTagGsfRecTracks_ <<endl;
-  }
+  if(!usePFatHLT_) 
+    iEvent.getByToken(inputTagGsfRecTracks_,GsfrecTracks);
 
   // get ConvBremGsfTracks 
   Handle< reco::GsfPFRecTrackCollection > convBremGsfrecTracks;
 
-  if(useConvBremGsfTracks_) {
-    found = iEvent.getByLabel(inputTagConvBremGsfRecTracks_,convBremGsfrecTracks);
+  if(useConvBremGsfTracks_) 
+    iEvent.getByToken(inputTagConvBremGsfRecTracks_,convBremGsfrecTracks);
 
-    if(!found )
-      LogError("PFBlockProducer")<<" cannot get ConvBremGsfrectracks: "
-				 << inputTagConvBremGsfRecTracks_ <<endl;
-  }
 
   // get recmuons
   Handle< reco::MuonCollection > recMuons;
 
-  // LogDebug("PFBlockProducer")<<"get reco muons"<<endl;
-  //if(!usePFatHLT_) {
-  found = iEvent.getByLabel(inputTagRecMuons_, recMuons);
-  
-    //if(!found )
-    //  LogError("PFBlockProducer")<<" cannot get recmuons: "
-    //			 <<inputTagRecMuons_<<endl;
-
-  // get PFNuclearInteractions
-  //}
-  //---------- Gouzevitch
-  //  Handle< reco::PFNuclearInteractionCollection > pfNuclears; 
+  iEvent.getByToken(inputTagRecMuons_, recMuons);
   Handle< reco::PFDisplacedTrackerVertexCollection > pfNuclears; 
 
   if( useNuclear_ ) {
-
-    found = iEvent.getByLabel(inputTagPFNuclear_, pfNuclears);
-    if(!found )
-      LogError("PFBlockProducer")<<" cannot get PFNuclearInteractions : "
-                               <<inputTagPFNuclear_<<endl;
+    iEvent.getByToken(inputTagPFNuclear_, pfNuclears);
   }
  
   // get conversions
   Handle< reco::PFConversionCollection > pfConversions;
   if( useConversions_ ) {
-    found = iEvent.getByLabel(inputTagPFConversions_, pfConversions);
-    
-    if(!found )
-      LogError("PFBlockProducer")<<" cannot get PFConversions : "
-				 <<inputTagPFConversions_<<endl;
+    iEvent.getByToken(inputTagPFConversions_, pfConversions);
   }
-  
 
   // get V0s
   Handle< reco::PFV0Collection > pfV0;
   if( useV0_ ) {
-    found = iEvent.getByLabel(inputTagPFV0_, pfV0);
-    
-    if(!found )
-      LogError("PFBlockProducer")<<" cannot get PFV0 : "
-				 <<inputTagPFV0_<<endl;
+    iEvent.getByToken(inputTagPFV0_, pfV0);
   }
 
 
@@ -288,93 +218,52 @@ PFBlockProducer::produce(Event& iEvent,
   
   
   Handle< reco::PFClusterCollection > clustersECAL;
-  found = iEvent.getByLabel(inputTagPFClustersECAL_, 
+  iEvent.getByToken(inputTagPFClustersECAL_, 
 			    clustersECAL);      
-  if(!found )
-    LogError("PFBlockProducer")<<" cannot get ECAL clusters: "
-			       <<inputTagPFClustersECAL_<<endl;
     
-  
   Handle< reco::PFClusterCollection > clustersHCAL;
-  found = iEvent.getByLabel(inputTagPFClustersHCAL_, 
+  iEvent.getByToken(inputTagPFClustersHCAL_, 
 			    clustersHCAL);      
-  if(!found )
-    LogError("PFBlockProducer")<<" cannot get HCAL clusters: "
-			       <<inputTagPFClustersHCAL_<<endl;
-    
+      
   Handle< reco::PFClusterCollection > clustersHO;
   if (useHO_) {
-    found = iEvent.getByLabel(inputTagPFClustersHO_, 
+    iEvent.getByToken(inputTagPFClustersHO_, 
 			      clustersHO);      
-    if(!found )
-      LogError("PFBlockProducer")<<" cannot get HO clusters: "
-				 <<inputTagPFClustersHO_<<endl;
   }
 
   Handle< reco::PFClusterCollection > clustersHFEM;
-  found = iEvent.getByLabel(inputTagPFClustersHFEM_, 
+  iEvent.getByToken(inputTagPFClustersHFEM_, 
 			    clustersHFEM);      
-  if(!found )
-    LogError("PFBlockProducer")<<" cannot get HFEM clusters: "
-			       <<inputTagPFClustersHFEM_<<endl;
-    
+      
   Handle< reco::PFClusterCollection > clustersHFHAD;
-  found = iEvent.getByLabel(inputTagPFClustersHFHAD_, 
+  iEvent.getByToken(inputTagPFClustersHFHAD_, 
 			    clustersHFHAD);      
-  if(!found )
-    LogError("PFBlockProducer")<<" cannot get HFHAD clusters: "
-			       <<inputTagPFClustersHFHAD_<<endl;
-    
 
   Handle< reco::PFClusterCollection > clustersPS;
-  found = iEvent.getByLabel(inputTagPFClustersPS_, 
+  iEvent.getByToken(inputTagPFClustersPS_, 
 			    clustersPS);      
-  if(!found )
-    LogError("PFBlockProducer")<<" cannot get PS clusters: "
-			       <<inputTagPFClustersPS_<<endl;
-
-  // dummy. Not used in the full framework 
+   // dummy. Not used in the full framework 
   Handle< reco::PFRecTrackCollection > nuclearRecTracks;
-
   
   Handle< reco::PhotonCollection >  egPhotons;
-  found = iEvent.getByLabel(inputTagEGPhotons_,
+  if (useEGPhotons_)
+    iEvent.getByToken(inputTagEGPhotons_,
 			    egPhotons);
-
-  if(!found && useEGPhotons_ )
-    LogError("PFBlockProducer")<<" cannot get photons" 
-			       << inputTagEGPhotons_ << endl;
-			       
+  			       
   Handle< reco::SuperClusterCollection >  sceb;
   Handle< reco::SuperClusterCollection >  scee;
   
   if (useSuperClusters_) {
-    found = iEvent.getByLabel(inputTagSCBarrel_,
+    iEvent.getByToken(inputTagSCBarrel_,
 			      sceb);
-
-    if(!found)
-      LogError("PFBlockProducer")<<" cannot get sceb" 
-				<< inputTagSCBarrel_ << endl;
-	  
-				
-    
-    found = iEvent.getByLabel(inputTagSCEndcap_,
+    iEvent.getByToken(inputTagSCEndcap_,
 			      scee);
-
-    if(!found)
-      LogError("PFBlockProducer")<<" cannot get scee" 
-				<< inputTagSCEndcap_ << endl;				       
-								
   }
   
   Handle<edm::ValueMap<reco::CaloClusterPtr> > pfclusterassoc;
   if (superClusterMatchByRef_) {
-    found = iEvent.getByLabel(inputTagPFClusterAssociationEBEE_,
+    iEvent.getByToken(inputTagPFClusterAssociationEBEE_,
                               pfclusterassoc);
-
-    if(!found)
-      LogError("PFBlockProducer")<<" cannot get PFCluster Association" 
-                                << inputTagPFClusterAssociationEBEE_ << endl;
   }
 
   if( usePFatHLT_  ) {
@@ -419,7 +308,5 @@ PFBlockProducer::produce(Event& iEvent,
     pOutputBlockCollection( pfBlockAlgo_.transferBlocks() ); 
   
   iEvent.put(pOutputBlockCollection);
-
-  LogDebug("PFBlockProducer")<<"STOP event: "<<iEvent.id().event()
-			     <<" in run "<<iEvent.id().run()<<endl;
+    
 }

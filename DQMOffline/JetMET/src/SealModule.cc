@@ -1,7 +1,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DQMOffline/JetMET/interface/JetMETAnalyzer.h"
+#include "DQMOffline/JetMET/interface/JetAnalyzer.h"
+#include "DQMOffline/JetMET/interface/METAnalyzer.h"
 #include "DQMOffline/JetMET/interface/CaloTowerAnalyzer.h"
 #include "DQMOffline/JetMET/interface/ECALRecHitAnalyzer.h"
 #include "DQMOffline/JetMET/interface/HCALRecHitAnalyzer.h"
@@ -11,7 +11,8 @@
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 #include "DQMOffline/JetMET/interface/SUSYDQMAnalyzer.h"
 
-DEFINE_FWK_MODULE(JetMETAnalyzer);
+DEFINE_FWK_MODULE(JetAnalyzer);
+DEFINE_FWK_MODULE(METAnalyzer);
 DEFINE_FWK_MODULE(CaloTowerAnalyzer);
 DEFINE_FWK_MODULE(HCALRecHitAnalyzer);
 DEFINE_FWK_MODULE(ECALRecHitAnalyzer);

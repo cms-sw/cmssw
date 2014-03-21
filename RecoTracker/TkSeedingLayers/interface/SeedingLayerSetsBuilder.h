@@ -38,7 +38,7 @@ public:
   unsigned short numberOfLayers() const { return theLayers.size(); }
   const std::vector<std::string>& layerNames() const { return theLayerNames; }
   const std::vector<const DetLayer *>& layerDets() const { return theLayerDets; }
-  std::pair<std::vector<unsigned int>, ctfseeding::SeedingLayer::Hits> hits(const edm::Event& ev, const edm::EventSetup& es) const;
+  void hits(const edm::Event& ev, const edm::EventSetup& es, std::vector<unsigned int> & indices, ctfseeding::SeedingLayer::Hits & hits) const;
 
 private:
   std::vector<std::vector<std::string> > layerNamesInSets(

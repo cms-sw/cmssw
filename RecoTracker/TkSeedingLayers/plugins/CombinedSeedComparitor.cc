@@ -13,7 +13,7 @@ class CombinedSeedComparitor : public SeedComparitor {
         virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const override ;
         virtual bool compatible(const TrajectorySeed &seed) const override ;
         virtual bool compatible(const TrajectoryStateOnSurface &,  
-                const TransientTrackingRecHit::ConstRecHitPointer &hit) const override ;
+                SeedingHitSet::ConstRecHitPointer hit) const override ;
         virtual bool compatible(const SeedingHitSet  &hits, 
                 const GlobalTrajectoryParameters &helixStateAtVertex,
                 const FastHelix                  &helix,
@@ -79,7 +79,7 @@ CombinedSeedComparitor::compatible(const TrajectorySeed &seed) const
 
 bool
 CombinedSeedComparitor::compatible(const TrajectoryStateOnSurface &tsos,
-                const TransientTrackingRecHit::ConstRecHitPointer &hit) const
+				   SeedingHitSet::ConstRecHitPointer hit) const
 {
     typedef boost::ptr_vector<SeedComparitor>::const_iterator ITC;
     for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {

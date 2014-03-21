@@ -43,7 +43,7 @@
 #include <iostream>
 
 FastElectronSeedProducer::FastElectronSeedProducer(const edm::ParameterSet& iConfig)
- : matcher_(0), caloGeomCacheId_(0), hcalIso_(0), /*doubleConeSel_(0),*/ mhbhe_(0)
+ : matcher_(0), caloGeomCacheId_(0), hcalIso_(0) /*, doubleConeSel_(0) */
  {
   edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration");
   SCEtCut_=pset.getParameter<double>("SCEtCut");
@@ -76,7 +76,6 @@ FastElectronSeedProducer::~FastElectronSeedProducer()
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   delete matcher_ ;
-  delete mhbhe_ ;
   //delete doubleConeSel_ ;
   delete hcalIso_ ;
  }
@@ -136,11 +135,7 @@ FastElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 
   // get Hcal Rechit collection
   edm::Handle<HBHERecHitCollection> hbhe ;
-  delete mhbhe_ ;
-  if (e.getByLabel(hcalRecHits_,hbhe))
-   { mhbhe_=  new HBHERecHitMetaCollection(*hbhe) ; }
-  else
-   { mhbhe_ = 0 ; }
+  e.getByLabel(hcalRecHits_,hbhe);
 
   // define cone for H/E
 //  delete doubleConeSel_;
@@ -148,7 +143,7 @@ FastElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 
   // HCAL iso deposits
   delete hcalIso_ ;
-  hcalIso_ = new EgammaHcalIsolation(hOverEConeSize_,0.,hOverEHBMinE_,hOverEHFMinE_,0.,0.,caloGeom_,mhbhe_) ;
+  hcalIso_ = new EgammaHcalIsolation(hOverEConeSize_,0.,hOverEHBMinE_,hOverEHFMinE_,0.,0.,caloGeom_, *hbhe) ;
 
   // Get the two supercluster collections
   for (unsigned int i=0; i<2; i++) {
@@ -172,7 +167,6 @@ FastElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 void
 FastElectronSeedProducer::filterClusters
  ( const edm::Handle<reco::SuperClusterCollection> & superClusters,
-   //HBHERecHitMetaCollection * mhbhe,
    reco::SuperClusterRefVector & sclRefs )
  {
   // filter the superclusters

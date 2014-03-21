@@ -30,7 +30,7 @@ hltvalidation = cms.Sequence(
     +egammaValidationSequence
     +topHLTriggerOfflineDQM
     +topHLTriggerValidation
-    +HLTFourVector
+    #+HLTFourVector
     +heavyFlavorValidationSequence
     +HLTJetMETValSeq
     +HLTSusyExoValSeq
@@ -52,7 +52,7 @@ hltvalidation_fastsim = cms.Sequence(
     +egammaValidationSequenceFS
     +topHLTriggerOfflineDQM
     +topHLTriggerValidation
-    +HLTFourVector
+    #+HLTFourVector
     +heavyFlavorValidationSequence
     +HLTJetMETValSeq
     #+HLTAlCaVal_FastSim
@@ -62,7 +62,7 @@ hltvalidation_fastsim = cms.Sequence(
 
 hltvalidation_preprod = cms.Sequence(
   HLTTauVal
-  +HLTFourVector
+  #+HLTFourVector
   +heavyFlavorValidationSequence
   +HLTSusyExoValSeq
  #+HiggsValidationSequence
@@ -70,14 +70,14 @@ hltvalidation_preprod = cms.Sequence(
 
 hltvalidation_preprod_fastsim = cms.Sequence(
  HLTTauVal
- +HLTFourVector
+ #+HLTFourVector
  +heavyFlavorValidationSequence
  +HLTSusyExoValSeq_FastSim
 #+HiggsValidationSequence
 )
 
 hltvalidation_prod = cms.Sequence(
-  HLTFourVector
+  #HLTFourVector
   )
 
 trigdqm_forValidation = cms.Sequence(

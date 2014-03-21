@@ -35,8 +35,8 @@ public:
     fitXslices.fitter()->initSigma( sigma, sigmaMin, sigmaMax );
     fitXslices.fitter()->initSigma2( sigma2, sigma2Min, sigma2Max );
 
-    fitXslices.fitter()->initAlpha(1.6, 0., 10.);
-    fitXslices.fitter()->initN(2, 0., 10.);
+    fitXslices.fitter()->initAlpha(1.5, 0.05, 10.);
+    fitXslices.fitter()->initN(1, 0.01, 100.);
     fitXslices.fitter()->initFGCB(0.4, 0., 1.);
 
     std::cout << "Fit slices: initialization complete" << std::endl;
@@ -67,7 +67,7 @@ public:
       // inputFile->GetObject(histoName, histoPt);
       outputFile->mkdir(dirName);
       outputFile->cd(dirName);
-      fitXslices(histoPt2, xMin, xMax, signalType, backgroundType);
+      fitXslices(histoPt2, xMin, xMax, signalType, backgroundType, rebinZ);
     } 
    
  }

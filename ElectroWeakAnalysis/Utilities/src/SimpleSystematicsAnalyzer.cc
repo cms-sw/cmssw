@@ -1,6 +1,7 @@
 ////////// Header section /////////////////////////////////////////////
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 class SimpleSystematicsAnalyzer: public edm::EDFilter {
 public:
@@ -12,6 +13,8 @@ public:
 private:
       std::string selectorPath_;
       std::vector<edm::InputTag> weightTags_;
+      std::vector<edm::EDGetTokenT<double> > weightTokens_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       unsigned int originalEvents_;
       std::vector<double> weightedEvents_;
       unsigned int selectedEvents_;
@@ -28,12 +31,15 @@ private:
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "FWCore/Utilities/interface/transform.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
 SimpleSystematicsAnalyzer::SimpleSystematicsAnalyzer(const edm::ParameterSet& pset) :
   selectorPath_(pset.getUntrackedParameter<std::string> ("SelectorPath","")),
-  weightTags_(pset.getUntrackedParameter<std::vector<edm::InputTag> > ("WeightTags")) { 
+  weightTags_(pset.getUntrackedParameter<std::vector<edm::InputTag> > ("WeightTags")),
+  weightTokens_(edm::vector_transform(weightTags_, [this](edm::InputTag const & tag){return consumes<double>(tag);})),
+  triggerResultsToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -67,20 +73,20 @@ void SimpleSystematicsAnalyzer::endJob(){
       edm::LogVerbatim("SimpleSystematicsAnalysis") << "Total number of analyzed data: " << originalEvents_ << " [events]";
       double originalAcceptance = double(selectedEvents_)/originalEvents_;
       edm::LogVerbatim("SimpleSystematicsAnalysis") << "Total number of selected data: " << selectedEvents_ << " [events], corresponding to acceptance: [" << originalAcceptance*100 << " +- " << 100*sqrt( originalAcceptance*(1.-originalAcceptance)/originalEvents_) << "] %";
-      
+
       for (unsigned int i=0; i<weightTags_.size(); ++i) {
             edm::LogVerbatim("SimpleSystematicsAnalysis") << "Results for Weight Tag: " << weightTags_[i].encode() << " ---->";
 
             double acc_central = 0.;
             double acc2_central = 0.;
             if (weightedEvents_[i]>0) {
-                  acc_central = weightedSelectedEvents_[i]/weightedEvents_[i]; 
-                  acc2_central = weighted2SelectedEvents_[i]/weightedEvents_[i]; 
+                  acc_central = weightedSelectedEvents_[i]/weightedEvents_[i];
+                  acc2_central = weighted2SelectedEvents_[i]/weightedEvents_[i];
             }
             double waverage = weightedEvents_[i]/originalEvents_;
             edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tTotal Events after reweighting: " << weightedEvents_[i] << " [events]";
             edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tEvents selected after reweighting: " << weightedSelectedEvents_[i] << " [events]";
-            edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tAcceptance after reweighting: [" << acc_central*100 << " +- " << 
+            edm::LogVerbatim("SimpleSystematicsAnalysis") << "\tAcceptance after reweighting: [" << acc_central*100 << " +- " <<
             100*sqrt((acc2_central/waverage-acc_central*acc_central)/originalEvents_)
             << "] %";
             double xi = acc_central-originalAcceptance;
@@ -99,7 +105,7 @@ bool SimpleSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
 
       bool selectedEvent = false;
       edm::Handle<edm::TriggerResults> triggerResults;
-      if (!ev.getByLabel(edm::InputTag("TriggerResults"), triggerResults)) {
+      if (!ev.getByToken(triggerResultsToken_, triggerResults)) {
             edm::LogError("SimpleSystematicsAnalysis") << ">>> TRIGGER collection does not exist !!!";
             return false;
       }
@@ -116,7 +122,7 @@ bool SimpleSystematicsAnalyzer::filter(edm::Event & ev, const edm::EventSetup&){
 
       for (unsigned int i=0; i<weightTags_.size(); ++i) {
             edm::Handle<double> weightHandle;
-            ev.getByLabel(weightTags_[i], weightHandle);
+            ev.getByToken(weightTokens_[i], weightHandle);
             weightedEvents_[i] += (*weightHandle);
             if (selectedEvent) {
                   weightedSelectedEvents_[i] += (*weightHandle);

@@ -869,7 +869,12 @@
         <rMaterial name="tobmaterial:TOB_DOH" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="TIB_RailBottom" density="0.71*g/cm3" method="mixture by weight" symbol=" ">
+    <CompositeMaterial name="TIB_RailTop" density="1.97*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="1.">
+        <rMaterial name="trackermaterial:T_CarbonFibreStr" />
+      </MaterialFraction>
+    </CompositeMaterial>
+    <CompositeMaterial name="TIB_RailBottom" density="0.83*g/cm3" method="mixture by weight" symbol=" ">
       <MaterialFraction fraction="0.95">
         <rMaterial name="trackermaterial:T_CarbonFibreStr" />
       </MaterialFraction>

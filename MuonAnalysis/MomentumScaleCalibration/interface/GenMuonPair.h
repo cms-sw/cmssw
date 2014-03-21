@@ -4,6 +4,7 @@
 #include <TObject.h>
 #include "DataFormats/Candidate/interface/Particle.h"
 // #include "MuonAnalysis/MomentumScaleCalibration/interface/BaseMuonPair.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Muon.h"
 
 typedef reco::Particle::LorentzVector lorentzVector;
 
@@ -19,22 +20,26 @@ class GenMuonPair : public TObject
 {
 public:
   GenMuonPair() :
-    mu1(lorentzVector(0,0,0,0)),
-    mu2(lorentzVector(0,0,0,0)),
-    motherId(0)
+    mu1(lorentzVector(0,0,0,0),-1),
+    mu2(lorentzVector(0,0,0,0),1),
+    motherId(0)//,
+    //    statusMu(-1),
   {}
 
-  GenMuonPair(const lorentzVector & inputMu1, const lorentzVector & inputMu2,
-	      const int inputMotherId) :
-    mu1(inputMu1),
-    mu2(inputMu2)
+  GenMuonPair(const MuScleFitMuon & initMu1, const MuScleFitMuon & initMu2,
+	      const int initMotherId) :
+    //	      const int initMotherId, const int initStatusMu) :
+    mu1(initMu1),
+    mu2(initMu2),
+    motherId(initMotherId)//,
+    //    statusMu(initStatusMu)
     // ,
-    // motherId(inputMotherId)
+    // motherId(initMotherId)
   {
     // Put this in the initialization list and root will not compile...
     // Probably some conflict with the other MuonPair class that also contains integers or
     // something even weirder...
-    motherId = inputMotherId;
+/*     motherId = initMotherId; */
   }
 
   /// Used to copy the content of another GenMuonPair
@@ -43,14 +48,16 @@ public:
     mu1 = copyPair.mu1;
     mu2 = copyPair.mu2;
     motherId = copyPair.motherId;
+    //    statusMu = copyPair.statusMu;
   }
 
-  lorentzVector mu1;
-  lorentzVector mu2;
+  MuScleFitMuon mu1;
+  MuScleFitMuon mu2;
   Int_t motherId;
+  //  Int_t statusMu;
 
-  ClassDef(GenMuonPair, 1)
-};
+  ClassDef(GenMuonPair, 3)
+    };
 ClassImp(GenMuonPair)
-
+  
 #endif

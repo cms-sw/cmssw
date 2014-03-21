@@ -15,7 +15,6 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -89,8 +88,6 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
     // take EcalRecHits
     Handle<EcalRecHitCollection> recHitsH;
     iEvent.getByLabel(recHitsLabel_,recHitsH);
-    std::auto_ptr<CaloRecHitMetaCollectionV> recHits_(0); 
-    recHits_ = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(*recHitsH));
 
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);    
@@ -100,11 +97,11 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
     iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
     const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
 
-    CaloDualConeSelector *doubleConeSel_ = 0;
+    CaloDualConeSelector<EcalRecHit> *doubleConeSel_ = 0;
     if(recHitsLabel_.instance() == "EcalRecHitsEB")
-        doubleConeSel_= new CaloDualConeSelector(innerRadius_,outerRadius_, &*pG, DetId::Ecal, EcalBarrel);
+        doubleConeSel_= new CaloDualConeSelector<EcalRecHit>(innerRadius_,outerRadius_, &*pG, DetId::Ecal, EcalBarrel);
     else if(recHitsLabel_.instance() == "EcalRecHitsEE")
-        doubleConeSel_= new CaloDualConeSelector(innerRadius_,outerRadius_, &*pG, DetId::Ecal, EcalEndcap);
+        doubleConeSel_= new CaloDualConeSelector<EcalRecHit>(innerRadius_,outerRadius_, &*pG, DetId::Ecal, EcalEndcap);
 
     //Create empty output collections
     std::auto_ptr< DetIdCollection > detIdCollection (new DetIdCollection() ) ;
@@ -116,61 +113,59 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
             if(emObj->et() < etCandCut_) continue;
             
             GlobalPoint pclu (emObj->caloPosition().x(),emObj->caloPosition().y(),emObj->caloPosition().z());
-            std::auto_ptr<CaloRecHitMetaCollectionV> chosen = doubleConeSel_->select(pclu,*recHits_);
+            doubleConeSel_->selectCallback(pclu, *recHitsH, [&](const EcalRecHit& recHitRef) {
+                const EcalRecHit* recIt = &recHitRef;
 
-            CaloRecHitMetaCollectionV::const_iterator recIt;
-            for (recIt = chosen->begin(); recIt!= chosen->end () ; ++recIt) { // Select RecHits 
-
-                if ( (recIt->energy()) < energyCut_) continue;  //dont fill if below E noise value
+                if ( (recIt->energy()) < energyCut_) return;  //dont fill if below E noise value
 
                 double et = recIt->energy() *
                             caloGeom->getPosition(recIt->detid()).perp() /
                             caloGeom->getPosition(recIt->detid()).mag();
                 
-                if ( et < etCut_) continue;  //dont fill if below ET noise value
+                if ( et < etCut_) return;  //dont fill if below ET noise value
 
-		bool isBarrel = false;
-		if (fabs(caloGeom->getPosition(recIt->detid()).eta() < 1.479)) 
-		  isBarrel = true;
+                bool isBarrel = false;
+                if (fabs(caloGeom->getPosition(recIt->detid()).eta() < 1.479)) 
+                  isBarrel = true;
 
-		int severityFlag = sevLevel->severityLevel(recIt->detid(), *recHitsH);
-		std::vector<int>::const_iterator sit;
-		if (isBarrel) {
-		  sit = std::find(severitiesexclEB_.begin(), severitiesexclEB_.end(), severityFlag);
-		  if (sit!= severitiesexclEB_.end())
-		    continue;
-		} else {
-		  sit = std::find(severitiesexclEE_.begin(), severitiesexclEE_.end(), severityFlag);
-		  if (sit!= severitiesexclEE_.end())
-		    continue;
-		}
+                int severityFlag = sevLevel->severityLevel(recIt->detid(), *recHitsH);
+                std::vector<int>::const_iterator sit;
+                if (isBarrel) {
+                  sit = std::find(severitiesexclEB_.begin(), severitiesexclEB_.end(), severityFlag);
+                  if (sit!= severitiesexclEB_.end())
+                    return;
+                } else {
+                  sit = std::find(severitiesexclEE_.begin(), severitiesexclEE_.end(), severityFlag);
+                  if (sit!= severitiesexclEE_.end())
+                    return;
+                }
 
-		std::vector<int>::const_iterator vit;
-		if (isBarrel) {
-		  // new rechit flag checks
-		  //vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
-		  //if (vit != flagsexclEB_.end())
-		  //  continue;
-		  if (!((EcalRecHit*)(&*recIt))->checkFlag(EcalRecHit::kGood)) {
-		    if (((EcalRecHit*)(&*recIt))->checkFlags(flagsexclEB_)) {                
-		      continue;
-		    }
-		  }
-		} else {
-		  // new rechit flag checks
-		  //vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
-		  //if (vit != flagsexclEE_.end())
-		  //  continue;
-		  if (!((EcalRecHit*)(&*recIt))->checkFlag(EcalRecHit::kGood)) {
-		    if (((EcalRecHit*)(&*recIt))->checkFlags(flagsexclEE_)) {                
-		      continue;
-		    }
-		  }
-		}
+                std::vector<int>::const_iterator vit;
+                if (isBarrel) {
+                  // new rechit flag checks
+                  //vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
+                  //if (vit != flagsexclEB_.end())
+                  //  continue;
+                  if (!((EcalRecHit*)(&*recIt))->checkFlag(EcalRecHit::kGood)) {
+                    if (((EcalRecHit*)(&*recIt))->checkFlags(flagsexclEB_)) {                
+                      return;
+                    }
+                  }
+                } else {
+                  // new rechit flag checks
+                  //vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
+                  //if (vit != flagsexclEE_.end())
+                  //  continue;
+                  if (!((EcalRecHit*)(&*recIt))->checkFlag(EcalRecHit::kGood)) {
+                    if (((EcalRecHit*)(&*recIt))->checkFlags(flagsexclEE_)) {                
+                      return;
+                    }
+                  }
+                }
 
                 if(std::find(detIdCollection->begin(),detIdCollection->end(),recIt->detid()) == detIdCollection->end()) 
                     detIdCollection->push_back(recIt->detid());
-            } //end rechits
+            }); //end rechits
 
         } //end candidates
 

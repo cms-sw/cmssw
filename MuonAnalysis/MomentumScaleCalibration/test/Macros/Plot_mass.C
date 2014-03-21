@@ -8,7 +8,6 @@
 
 #include <iostream>
 
-using namespace std;
 
 /// Helper class containing the histograms
 class histos
@@ -47,9 +46,9 @@ int getXbins(const TH1 * h, const double & xMin, const double & xMax)
   double binWidth = xAxis->GetBinWidth(1);
   int xMinBin = int((xMin - xAxisMin)/binWidth) + 1;
   int xMaxBin = int((xMax - xAxisMin)/binWidth) + 1;
-  // cout << "xMinBin = " << xMinBin << endl;
-  // cout << "xMaxBin = " << xMaxBin << endl;
-  // cout << "binWidth = " << binWidth << endl;
+  // std::cout << "xMinBin = " << xMinBin << std::endl;
+  // std::cout << "xMaxBin = " << xMaxBin << std::endl;
+  // std::cout << "binWidth = " << binWidth << std::endl;
   return( xMaxBin - xMinBin );
 }
 
@@ -70,15 +69,15 @@ void drawMasses(const double ResMass, const double ResHalfWidth, histos & h, con
   int massProbXbins = getXbins( massProb, (ResMass - ResHalfWidth), (ResMass + ResHalfWidth) );
 
   if( massProbXbins > massXbins && massXbins != 0 ) {
-    cout << "massProbXbins("<<massProbXbins<<") > " << "massXbins("<<massXbins<<")" << endl;
-    cout << "massProb = " << massProb << endl;
-    cout << "mass = " << mass << endl;
+    std::cout << "massProbXbins("<<massProbXbins<<") > " << "massXbins("<<massXbins<<")" << std::endl;
+    std::cout << "massProb = " << massProb << std::endl;
+    std::cout << "mass = " << mass << std::endl;
     massProb->Rebin(massProbXbins/massXbins);
   }
   else if( massXbins > massProbXbins && massProbXbins != 0 ) {
-    cout << "massXbins("<<massXbins<<") > " << "massProbXbins("<<massProbXbins<<")" << endl;
-    cout << "massProb = " << massProb << endl;
-    cout << "mass = " << mass << endl;
+    std::cout << "massXbins("<<massXbins<<") > " << "massProbXbins("<<massProbXbins<<")" << std::endl;
+    std::cout << "massProb = " << massProb << std::endl;
+    std::cout << "mass = " << mass << std::endl;
     mass->Rebin(massXbins/massProbXbins);
   }
 
@@ -94,10 +93,10 @@ void drawMasses(const double ResMass, const double ResHalfWidth, histos & h, con
   massProb->SetLineColor(kBlue);
   massProb->Scale(normFactor);
   if( ires == 3 ) {
-    cout << "massProbIntegralWidth = " << massProb->Integral("width") << endl;
-    cout << "massIntegralWidth = " << mass->Integral("width") << endl;
-    cout << "massProbIntegral = " << massProb->Integral() << endl;
-    cout << "massIntegral = " << mass->Integral() << endl;
+    std::cout << "massProbIntegralWidth = " << massProb->Integral("width") << std::endl;
+    std::cout << "massIntegralWidth = " << mass->Integral("width") << std::endl;
+    std::cout << "massProbIntegral = " << massProb->Integral() << std::endl;
+    std::cout << "massIntegral = " << mass->Integral() << std::endl;
   }
 
   mass->SetMarkerColor(kRed);

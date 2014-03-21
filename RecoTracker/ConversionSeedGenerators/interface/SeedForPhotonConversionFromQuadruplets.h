@@ -9,6 +9,10 @@
 
 #include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
 #include "RecoTracker/ConversionSeedGenerators/interface/Quad.h"
+
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
+
 class FreeTrajectoryState;
 
 class SeedForPhotonConversionFromQuadruplets {
@@ -37,9 +41,9 @@ public:
 						 edm::ParameterSet& QuadCutPSet);
 
   
-  double simpleGetSlope(const TransientTrackingRecHit::ConstRecHitPointer &ohit, const TransientTrackingRecHit::ConstRecHitPointer &nohit, const TransientTrackingRecHit::ConstRecHitPointer &ihit, const TransientTrackingRecHit::ConstRecHitPointer &nihit, const TrackingRegion & region, double & cotTheta, double & z0);
+  double simpleGetSlope(const SeedingHitSet::ConstRecHitPointer &ohit, const SeedingHitSet::ConstRecHitPointer &nohit, const SeedingHitSet::ConstRecHitPointer &ihit, const SeedingHitSet::ConstRecHitPointer &nihit, const TrackingRegion & region, double & cotTheta, double & z0);
   double verySimpleFit(int size, double* ax, double* ay, double* e2y, double& p0, double& e2p0, double& p1);
-  double getSqrEffectiveErrorOnZ(const TransientTrackingRecHit::ConstRecHitPointer &hit, const TrackingRegion & region);
+  double getSqrEffectiveErrorOnZ(const SeedingHitSet::ConstRecHitPointer &hit, const TrackingRegion & region);
 
   //
   // Some utility methods added by sguazz
@@ -59,7 +63,7 @@ public:
 
   bool checkHit(
 			const TrajectoryStateOnSurface &,
-			const TransientTrackingRecHit::ConstRecHitPointer &hit,
+			const SeedingHitSet::ConstRecHitPointer &hit,
 			const edm::EventSetup& es) const { return true; }
 
   GlobalTrajectoryParameters initialKinematic(
@@ -90,8 +94,8 @@ public:
       const TrackingRegion & region,
       double dzcut) const;
   
-  TransientTrackingRecHit::RecHitPointer refitHit(
-							  const TransientTrackingRecHit::ConstRecHitPointer &hit, 
+  SeedingHitSet::RecHitPointer refitHit(
+							  SeedingHitSet::ConstRecHitPointer hit, 
 							  const TrajectoryStateOnSurface &state) const;
 
   bool similarQuadExist(Quad & thisQuad, std::vector<Quad>& quadV);
@@ -103,6 +107,9 @@ protected:
   std::string thePropagatorLabel;
   double theBOFFMomentum;
   double  kPI_;
+
+  // FIXME (well the whole class needs to be fixed!)
+  mutable TkClonerImpl cloner;
 
   std::stringstream * pss;
   PrintRecoObjects po;

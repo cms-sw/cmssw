@@ -90,29 +90,30 @@ float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHi
     if ( id == DetId(0) ) {
         return 0;
     } else {
-        EcalRecHitCollection::const_iterator it = recHits->find( id );
-        if ( it != recHits->end() ) {
-	  // avoid anomalous channels (recoFlag based)
-	  uint32_t rhFlag = (*it).recoFlag();
-	  std::vector<int>::const_iterator vit = std::find( flagsexcl.begin(), flagsexcl.end(), rhFlag );
-	  //if your flag was found to be one which is excluded, zero out
-	  //this energy.
-	  if ( vit != flagsexcl.end() ) return 0;
-	    
-	  int severityFlag =  sevLv->severityLevel( it->id(), *recHits);
-	  std::vector<int>::const_iterator sit = std::find(severitiesexcl.begin(), severitiesexcl.end(), severityFlag);
-	  //if you were flagged by some condition (kWeird etc.)
-	  //zero out this energy.
-	  if (sit!= severitiesexcl.end())
-	    return 0; 
-	  //If we make it here, you're a found, clean hit.
-	  return (*it).energy();
-        } else {
-	  //throw cms::Exception("EcalRecHitNotFound") << "The recHit corresponding to the DetId" << id.rawId() << " not found in the EcalRecHitCollection";
-	  // the recHit is not in the collection (hopefully zero suppressed)
-	  return 0;
-        }
+      EcalRecHitCollection::const_iterator it = recHits->find( id );
+
+      if ( it != recHits->end() ) {
+        // avoid anomalous channels (recoFlag based)
+        // if your flag was found to be one which is excluded, zero out
+        // this energy.
+        if (it->checkFlags(flagsexcl))
+          return 0;
+          
+        int severityFlag =  sevLv->severityLevel( it->id(), *recHits);
+        std::vector<int>::const_iterator sit = std::find(severitiesexcl.begin(), severitiesexcl.end(), severityFlag);
+        //if you were flagged by some condition (kWeird etc.)
+        //zero out this energy.
+        if (sit!= severitiesexcl.end())
+          return 0; 
+        //If we make it here, you're a found, clean hit.
+        return (*it).energy();
+      } else {
+        //throw cms::Exception("EcalRecHitNotFound") << "The recHit corresponding to the DetId" << id.rawId() << " not found in the EcalRecHitCollection";
+        // the recHit is not in the collection (hopefully zero suppressed)
+        return 0;
+      }
     }
+
     return 0;
 }
 

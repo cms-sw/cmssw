@@ -24,7 +24,6 @@
 <use   name="RecoVertex/KinematicFit"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="RecoCaloTools/Selectors"/>
-<use   name="RecoCaloTools/MetaCollections"/>
 <use   name="RecoTracker/ConversionSeedGenerators"/>
 
 <use   name="clhep"/>

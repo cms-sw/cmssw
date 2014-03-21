@@ -23,6 +23,8 @@ Monitoring source to measure the track efficiency
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "RecoMuon/GlobalTrackingTools/interface/DirectTrackerNavigation.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
@@ -37,7 +39,7 @@ namespace reco{class TransientTrack;}
 
 class DQMStore;
 
-class TrackEfficiencyMonitor : public edm::EDAnalyzer {
+class TrackEfficiencyMonitor : public DQMEDAnalyzer {
    public:
       typedef reco::Track Track;
       typedef reco::TrackCollection TrackCollection;
@@ -46,7 +48,9 @@ class TrackEfficiencyMonitor : public edm::EDAnalyzer {
       virtual void beginJob(void);
       virtual void endJob(void);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      
+
+      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
       enum SemiCylinder{Up,Down};
       std::pair<TrajectoryStateOnSurface, const DetLayer*>  findNextLayer( TrajectoryStateOnSurface startTSOS, const std::vector< const DetLayer*>& trackCompatibleLayers , bool isUpMuon   );
       SemiCylinder checkSemiCylinder(const Track&);

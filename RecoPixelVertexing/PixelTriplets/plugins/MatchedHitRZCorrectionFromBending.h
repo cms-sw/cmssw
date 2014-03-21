@@ -2,7 +2,7 @@
 #define MatchedHitRZCorrectionFromBending_H
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 class ThirdHitPredictionFromCircle;
 class DetLayer;
@@ -15,7 +15,7 @@ class MatchedHitRZCorrectionFromBending {
     MatchedHitRZCorrectionFromBending(const DetLayer *layer, const TrackerTopology *tTopo);
 
     inline void operator()(const ThirdHitPredictionFromCircle &pred,
-                           double curvature, const TransientTrackingRecHit &hit,
+                           double curvature, const TrackingRecHit &hit,
                            double &r, double &z, const TrackerTopology *tTopo) const
     {
       if (!rFixup && !zFixup) return;
@@ -26,12 +26,12 @@ class MatchedHitRZCorrectionFromBending {
   private:
     typedef double (*FixupFn)(const ThirdHitPredictionFromCircle &pred,
                               double curvature, double rOrZ,
-                              const TransientTrackingRecHit &hit,
+                              const TrackingRecHit &hit,
 			      const TrackerTopology *tTopo);
 
     static double tibMatchedHitZFixup(const ThirdHitPredictionFromCircle &pred,
                                       double curvature, double rOrZ,
-                                      const TransientTrackingRecHit &hit, 
+                                      const TrackingRecHit &hit, 
 				      const TrackerTopology *tTopo);
 
     FixupFn rFixup, zFixup;

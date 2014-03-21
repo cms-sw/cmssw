@@ -56,13 +56,7 @@ void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // get from event
   std::string HLTProducer = conf_.getParameter<std::string>("HLTProducer");
-  /*
-  edm::Handle<int> filter_decision; iEvent.getByLabel(HLTProducer, "", filter_decision); // filter decision
-  edm::Handle<uint> sum_of_clustch; iEvent.getByLabel(HLTProducer, "", sum_of_clustch); // sum of cluster charges
-  // first element of pair: layer: TIB1, ...., TEC; second element: nr of clusters above threshold
-  edm::Handle<std::map<uint,std::vector<SiStripCluster> > > clusters_in_subcomponents;
-  if(HLTProducer=="ClusterMTCCFilter") iEvent.getByLabel(HLTProducer, "", clusters_in_subcomponents);
-  */
+
   edm::Handle<int> filter_decision; iEvent.getByToken(filerDecisionToken_,filter_decision); // filter decision
   edm::Handle<uint> sum_of_clustch; iEvent.getByToken(sumOfClusterToken_, sum_of_clustch); // sum of cluster charges
   // first element of pair: layer: TIB1, ...., TEC; second element: nr of clusters above threshold
