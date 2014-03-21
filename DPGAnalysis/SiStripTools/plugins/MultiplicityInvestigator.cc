@@ -97,11 +97,11 @@ MultiplicityInvestigator::MultiplicityInvestigator(const edm::ParameterSet& iCon
   m_wantLumiCorrHist(iConfig.getParameter<bool>("wantLumiCorrHist")),
   m_wantPileupCorrHist(iConfig.getParameter<bool>("wantPileupCorrHist")),
   m_wantVtxPosCorrHist(iConfig.getParameter<bool>("wantVtxPosCorrHist")),
-  m_digiinvesthmevent(m_wantInvestHist ? iConfig : DigiInvestigatorHistogramMaker()),
+  m_digiinvesthmevent(m_wantInvestHist ? DigiInvestigatorHistogramMaker(iConfig, consumesCollector()) : DigiInvestigatorHistogramMaker(consumesCollector())),
   m_digivtxcorrhmevent(m_wantVtxCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiVtxCorrConfig") : DigiVertexCorrHistogramMaker()),
-  m_digilumicorrhmevent(m_wantLumiCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiLumiCorrConfig") : DigiLumiCorrHistogramMaker()),
-  m_digipileupcorrhmevent(m_wantPileupCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiPileupCorrConfig") : DigiPileupCorrHistogramMaker()),
-  m_digivtxposcorrhmevent(m_wantVtxPosCorrHist ? iConfig.getParameter<edm::ParameterSet>("digiVtxPosCorrConfig") : DigiVtxPosCorrHistogramMaker()),
+  m_digilumicorrhmevent(m_wantLumiCorrHist ? DigiLumiCorrHistogramMaker(iConfig.getParameter<edm::ParameterSet>("digiLumiCorrConfig"), consumesCollector()) : DigiLumiCorrHistogramMaker(consumesCollector())),
+  m_digipileupcorrhmevent(m_wantPileupCorrHist ? DigiPileupCorrHistogramMaker(iConfig.getParameter<edm::ParameterSet>("digiPileupCorrConfig"), consumesCollector()) : DigiPileupCorrHistogramMaker(consumesCollector())),
+  m_digivtxposcorrhmevent(m_wantVtxPosCorrHist ? DigiVtxPosCorrHistogramMaker(iConfig.getParameter<edm::ParameterSet>("digiVtxPosCorrConfig"), consumesCollector()) : DigiVtxPosCorrHistogramMaker(consumesCollector())),
   m_multiplicityMapToken(consumes<std::map<unsigned int, int> >(iConfig.getParameter<edm::InputTag>("multiplicityMap"))),
   m_vertexCollectionToken(mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection")))
 {
@@ -109,8 +109,8 @@ MultiplicityInvestigator::MultiplicityInvestigator(const edm::ParameterSet& iCon
 
 
   if(m_wantInvestHist)  { m_digiinvesthmevent.book("EventProcs");}
-  if(m_wantVtxCorrHist) { m_digivtxcorrhmevent.book("VtxCorr");}
-  if(m_wantLumiCorrHist) { m_digilumicorrhmevent.book("LumiCorr");}
+  if(m_wantVtxCorrHist) { m_digivtxcorrhmevent.book("VtxCorr", consumesCollector());}
+  if(m_wantLumiCorrHist) { m_digilumicorrhmevent.book("LumiCorr", consumesCollector());}
   if(m_wantPileupCorrHist) { m_digipileupcorrhmevent.book("PileupCorr");}
   if(m_wantVtxPosCorrHist) { m_digivtxposcorrhmevent.book("VtxPosCorr");}
 }
