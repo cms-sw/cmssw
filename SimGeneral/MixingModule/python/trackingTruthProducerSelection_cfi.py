@@ -4,7 +4,7 @@ from SimGeneral.MixingModule.trackingTruthProducer_cfi import trackingParticles
 trackingParticles.select = cms.PSet(
     lipTP = cms.double(1000),
     chargedOnlyTP = cms.bool(True),
-    stableOnlyTP = cms.bool(True),
+    stableOnlyTP = cms.bool(False),
     pdgIdTP = cms.vint32(),
     signalOnlyTP = cms.bool(True),
     minRapidityTP = cms.double(-5.0),
