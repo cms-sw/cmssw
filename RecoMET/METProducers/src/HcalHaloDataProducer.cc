@@ -1,4 +1,5 @@
 #include "RecoMET/METProducers/interface/HcalHaloDataProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 /*
   [class]:  HcalHaloDataProducer
@@ -23,6 +24,9 @@ HcalHaloDataProducer::HcalHaloDataProducer(const edm::ParameterSet& iConfig)
   SumHcalEnergyThreshold = (float) iConfig.getParameter<double>("SumHcalEnergyThresholdParam");
   NHitsHcalThreshold =  iConfig.getParameter<int>("NHitsHcalThresholdParam");
 
+  hbherechit_token_ = consumes<HBHERecHitCollection>(IT_HBHERecHit);
+  hfrechit_token_ = consumes<HFRecHitCollection>(IT_HFRecHit);
+
   produces<HcalHaloData>();
 }
 
@@ -34,11 +38,13 @@ void HcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   //Get HB/HE RecHits
   edm::Handle<HBHERecHitCollection> TheHBHERecHits;
-  iEvent.getByLabel(IT_HBHERecHit, TheHBHERecHits);
+  //  iEvent.getByLabel(IT_HBHERecHit, TheHBHERecHits);
+  iEvent.getByToken(hbherechit_token_, TheHBHERecHits);
 
   //Get HF RecHits
   edm::Handle<HFRecHitCollection> TheHFRecHits;
-  iEvent.getByLabel(IT_HFRecHit, TheHFRecHits);
+  //  iEvent.getByLabel(IT_HFRecHit, TheHFRecHits);
+  iEvent.getByToken(hfrechit_token_, TheHFRecHits);
 
   // Run the HcalHaloAlgo to reconstruct the HcalHaloData object
   HcalHaloAlgo HcalAlgo;

@@ -1,3 +1,5 @@
+#include "RecoMET/METProducers/interface/HcalNoiseInfoProducer.h"
+
 //
 // HcalNoiseInfoProducer.cc
 //
@@ -7,13 +9,8 @@
 //
 //
 
-#include "RecoMET/METProducers/interface/HcalNoiseInfoProducer.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -116,6 +113,12 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
      5297.,5609.5,5984.5,6359.5,6734.5,7172.,7672.,8172.,8734.5,9359.5,9984.5};
   for(int i = 0; i < 128; i++)
      adc2fC[i] = adc2fCTemp[i];
+
+  hbhedigi_token_      = consumes<HBHEDigiCollection>(edm::InputTag(digiCollName_));
+  hcalcalibdigi_token_ = consumes<HcalCalibDigiCollection>(edm::InputTag("hcalDigis"));
+  hbherechit_token_    = consumes<HBHERecHitCollection>(edm::InputTag(recHitCollName_));
+  calotower_token_     = consumes<CaloTowerCollection>(edm::InputTag(caloTowerCollName_));
+  track_token_         = consumes<reco::TrackCollection>(edm::InputTag(trackCollName_));
 
   // we produce a vector of HcalNoiseRBXs
   produces<HcalNoiseRBXCollection>();
@@ -322,7 +325,9 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // get the digis
   edm::Handle<HBHEDigiCollection> handle;
-  iEvent.getByLabel(digiCollName_, handle);
+  //  iEvent.getByLabel(digiCollName_, handle);
+  iEvent.getByToken(hbhedigi_token_, handle);
+
   if(!handle.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HBHEDigiCollection named " << digiCollName_ << "\n.";
     return;
@@ -393,7 +398,8 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // get the calibration digis
   edm::Handle<HcalCalibDigiCollection> hCalib;
-  iEvent.getByLabel("hcalDigis", hCalib);
+  //  iEvent.getByLabel("hcalDigis", hCalib);
+  iEvent.getByToken(hcalcalibdigi_token_, hCalib);
 
   // get total charge in calibration channels
   if(hCalib.isValid() == true)
@@ -503,7 +509,9 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
 
   // get the rechits
   edm::Handle<HBHERecHitCollection> handle;
-  iEvent.getByLabel(recHitCollName_, handle);
+  //  iEvent.getByLabel(recHitCollName_, handle);
+  iEvent.getByToken(hbherechit_token_, handle);
+
   if(!handle.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
       << " could not find HBHERecHitCollection named " << recHitCollName_ << "\n.";
@@ -644,7 +652,9 @@ HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent, const edm::EventSetup& i
 {
   // get the calotowers
   edm::Handle<CaloTowerCollection> handle;
-  iEvent.getByLabel(caloTowerCollName_, handle);
+  //  iEvent.getByLabel(caloTowerCollName_, handle);
+  iEvent.getByToken(calotower_token_, handle);
+
   if(!handle.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
       << " could not find CaloTowerCollection named " << caloTowerCollName_ << "\n.";
@@ -684,7 +694,8 @@ void
 HcalNoiseInfoProducer::filltracks(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseSummary& summary) const
 {
   edm::Handle<reco::TrackCollection> handle;
-  iEvent.getByLabel(trackCollName_, handle);
+  //  iEvent.getByLabel(trackCollName_, handle);
+  iEvent.getByToken(track_token_, handle);
 
   // don't throw exception, just return quietly
   if(!handle.isValid()) {
