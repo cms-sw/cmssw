@@ -11,6 +11,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/EgammaReco/interface/PreshowerClusterShape.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
 #include "RecoEcal/EgammaClusterAlgos/interface/EndcapPiZeroDiscriminatorAlgo.h"
 
 #include "TH1.h"
@@ -36,24 +40,24 @@ class PiZeroDiscriminatorProducer : public edm::EDProducer {
   int nEvt_;         // internal counter of events
 
   //clustering parameters:
-  std::string preshClusterShapeCollectionX_;  // secondary name to be given to collection of cluster produced in this module
-  std::string preshClusterShapeCollectionY_;
-  std::string preshClusterShapeProducer_;
+  edm::EDGetTokenT<reco::PreshowerClusterShapeCollection> pPreshowerShapeClustersXToken_;
+  edm::EDGetTokenT<reco::PreshowerClusterShapeCollection> pPreshowerShapeClustersYToken_;
 
-  std::string photonCorrCollectionProducer_;
-  std::string correctedPhotonCollection_;
+  edm::EDGetTokenT<reco::PhotonCollection> correctedPhotonToken_;
   std::string PhotonPi0DiscriminatorAssociationMap_;
 
   edm::InputTag barrelRecHitCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollectionToken_;
   edm::InputTag endcapRecHitCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitCollectionToken_;
 
-  int EScorr_; 
+  int EScorr_;
 
-  int preshNst_;  
-  
+  int preshNst_;
+
   double preshStripECut_;
-  
-  double w0_; 
+
+  double w0_;
 
   EndcapPiZeroDiscriminatorAlgo * presh_pi0_algo; // algorithm doing the real work
   enum DebugLevel_pi0 { pDEBUG = 0, pINFO = 1, pERROR = 2 };

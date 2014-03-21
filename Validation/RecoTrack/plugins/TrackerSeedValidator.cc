@@ -34,7 +34,7 @@ using namespace edm;
 
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 
-TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset){
+TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset, consumesCollector(),true){
   //theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
 
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
@@ -126,22 +126,22 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
   setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
-  event.getByLabel(label_tp_effic,TPCollectionHeff);
+  event.getByToken(label_tp_effic,TPCollectionHeff);
   const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
-  event.getByLabel(label_tp_fake,TPCollectionHfake);
+  event.getByToken(label_tp_fake,TPCollectionHfake);
   const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
 
   if (tPCeff.size()==0) {edm::LogInfo("TrackValidator") << "TP Collection for efficiency studies has size = 0! Skipping Event." ; return;}
   if (tPCfake.size()==0) {edm::LogInfo("TrackValidator") << "TP Collection for fake rate studies has size = 0! Skipping Event." ; return;}
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  event.getByLabel(bsSrc,recoBeamSpotHandle);
+  event.getByToken(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;
 
   edm::Handle< vector<PileupSummaryInfo> > puinfoH;
-  event.getByLabel(label_pileupinfo,puinfoH);
+  event.getByToken(label_pileupinfo,puinfoH);
   PileupSummaryInfo puinfo;
 
   for (unsigned int puinfo_ite=0;puinfo_ite<(*puinfoH).size();++puinfo_ite){
@@ -152,7 +152,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
   }
 
   edm::Handle<TrackingVertexCollection> tvH;
-  event.getByLabel(label_tv,tvH);
+  event.getByToken(label_tv,tvH);
   TrackingVertexCollection tv = *tvH;
 
   int w=0;
@@ -167,7 +167,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
       //get collections from the event
       //
       edm::Handle<edm::View<TrajectorySeed> > seedCollection;
-      event.getByLabel(label[www], seedCollection);
+      event.getByToken(labelTokenSeed[www], seedCollection);
       if (seedCollection->size()==0) {
 	edm::LogInfo("TrackValidator") << "SeedCollection size = 0!" ;
 	continue;

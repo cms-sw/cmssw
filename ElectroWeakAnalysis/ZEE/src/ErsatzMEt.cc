@@ -3,21 +3,21 @@
 
 ErsatzMEt::ErsatzMEt(const edm::ParameterSet& ps)
 {
-	MCTruthCollection_  = ps.getParameter<edm::InputTag>("MCTruthCollection");
-	ElectronCollection_ = ps.getParameter<edm::InputTag>("ElectronCollection");
-	HybridScCollection_ = ps.getParameter<edm::InputTag>("HybridScCollection");
-	M5x5ScCollection_ = ps.getParameter<edm::InputTag>("M5x5ScCollection");
-	GenMEtCollection_  = ps.getParameter<edm::InputTag>("GenMEtCollection");
-	CaloMEtCollection_ = ps.getParameter<edm::InputTag>("CaloMEtCollection");
-	//T1MEtCollection_ = ps.getParameter<edm::InputTag>("T1MEtCollection");
-	PfMEtCollection_ = ps.getParameter<edm::InputTag>("PfMEtCollection");
-	TcMEtCollection_ = ps.getParameter<edm::InputTag>("TcMEtCollection");
-	TriggerEvent_ = ps.getParameter<edm::InputTag>("TriggerEvent");
+	MCTruthCollection_  = consumes<reco::GenParticleCollection>(ps.getParameter<edm::InputTag>("MCTruthCollection"));
+	ElectronCollection_ = consumes<reco::GsfElectronCollection>(ps.getParameter<edm::InputTag>("ElectronCollection"));
+	HybridScCollection_ = consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("HybridScCollection"));
+	M5x5ScCollection_ = consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("M5x5ScCollection"));
+	GenMEtCollection_  = consumes<reco::GenMETCollection>(ps.getParameter<edm::InputTag>("GenMEtCollection"));
+	CaloMEtCollection_ = consumes<reco::CaloMETCollection>(ps.getParameter<edm::InputTag>("CaloMEtCollection"));
+	//T1MEtCollection_ = consumes<reco::METCollection>(ps.getParameter<edm::InputTag>("T1MEtCollection"));
+	PfMEtCollection_ = consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("PfMEtCollection"));
+	TcMEtCollection_ = consumes<reco::METCollection>(ps.getParameter<edm::InputTag>("TcMEtCollection"));
+	TriggerEvent_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("TriggerEvent"));
 	TriggerPath_ = ps.getParameter<edm::InputTag>("TriggerPath");
-	TriggerResults_ = ps.getParameter<edm::InputTag>("TriggerResults");
+	TriggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
 	TriggerName_ = ps.getParameter<std::string>("TriggerName");
 	HLTPathCheck_ = ps.getParameter<bool>("HLTPathCheck");
-	
+
 	Zevent_ = ps.getParameter<bool>("Zevent");
 	mW_ = ps.getParameter<double>("mW");
         mZ_ = ps.getParameter<double>("mZ");
@@ -26,20 +26,20 @@ ErsatzMEt::ErsatzMEt(const edm::ParameterSet& ps)
 	BarrelEtaMax_ = ps.getParameter<double>("BarrelEtaMax");
 	EndCapEtaMin_ = ps.getParameter<double>("EndCapEtaMin");
 	EndCapEtaMax_ = ps.getParameter<double>("EndCapEtaMax");
-	
+
 	hyb_fCorrPSet_ = ps.getParameter<edm::ParameterSet>("hyb_fCorrPSet");
 	m5x5_fCorrPSet_ = ps.getParameter<edm::ParameterSet>("m5x5_fCorrPSet");
 
  	double CElecPtMin = ps.getParameter<double>("CElecPtMin");
-	double CEB_siEiE = ps.getParameter<double>("CEB_sigmaIEtaIEta"); 
-	double CEB_dPhiIn = ps.getParameter<double>("CEB_deltaPhiIn"); 
-	double CEB_dEtaIn = ps.getParameter<double>("CEB_deltaEtaIn"); 
+	double CEB_siEiE = ps.getParameter<double>("CEB_sigmaIEtaIEta");
+	double CEB_dPhiIn = ps.getParameter<double>("CEB_deltaPhiIn");
+	double CEB_dEtaIn = ps.getParameter<double>("CEB_deltaEtaIn");
 	double CEB_EcalIso = ps.getParameter<double>("CEB_EcalIso");
 	double CEB_HcalIso = ps.getParameter<double>("CEB_HcalIso");
 	double CEB_TrckIso = ps.getParameter<double>("CEB_TrckIso");
-	double CEE_siEiE = ps.getParameter<double>("CEE_sigmaIEtaIEta"); 
-	double CEE_dPhiIn = ps.getParameter<double>("CEE_deltaPhiIn"); 
-	double CEE_dEtaIn = ps.getParameter<double>("CEE_deltaEtaIn"); 
+	double CEE_siEiE = ps.getParameter<double>("CEE_sigmaIEtaIEta");
+	double CEE_dPhiIn = ps.getParameter<double>("CEE_deltaPhiIn");
+	double CEE_dEtaIn = ps.getParameter<double>("CEE_deltaEtaIn");
 	double CEE_EcalIso = ps.getParameter<double>("CEE_EcalIso");
 	double CEE_HcalIso = ps.getParameter<double>("CEE_HcalIso");
 	double CEE_TrckIso = ps.getParameter<double>("CEE_TrckIso");
@@ -58,7 +58,7 @@ ErsatzMEt::ErsatzMEt(const edm::ParameterSet& ps)
 	CutVector_[EE_TrckIso_] = CEE_TrckIso;
 	CutVector_[EE_EcalIso_] = CEE_EcalIso;
 	CutVector_[EE_HcalIso_] = CEE_HcalIso;
-	
+
 	for(std::vector<double>::const_iterator it = CutVector_.begin(); it != CutVector_.end(); ++it)
 	{
 		edm::LogDebug_("","",101)<<"CutVector_ = "<< *it;
@@ -75,12 +75,12 @@ void ErsatzMEt::beginJob()
 	edm::Service<TFileService> fs;
 
 	t_ = fs->make<TTree>("ErsatzMEt", "Data on ErsatzMEt");
-	
+
 	edm::LogDebug_("","", 75)<<"Creating Ersatz MEt branches.";
-	
+
 	t_->Branch("nTags", &nTags_, "nTags/I");
 	t_->Branch("nProbes", &nProbes_, "nProbes/I");
-	
+
 	t_->Branch("ErsatzV1CaloMEt", ErsatzV1CaloMEt_, "ErsatzV1CaloMEt[4]/D");
 	t_->Branch("ErsatzV1CaloMt", ErsatzV1CaloMt_, "ErsatzV1CaloMt[4]/D");
 	t_->Branch("ErsatzV1CaloMEtPhi", ErsatzV1CaloMEtPhi_, "ErsatzV1CaloMEtPhi[4]/D");
@@ -133,7 +133,7 @@ void ErsatzMEt::beginJob()
 	t_->Branch("tag_rescPt", tag_rescPt_, "tag_rescPt[4]/D");
 	t_->Branch("tag_rescEta", tag_rescEta_, "tag_rescEta[4]/D");
 	t_->Branch("tag_rescPhi", tag_rescPhi_, "tag_rescPhi[4]/D");
-	
+
 	edm::LogDebug_("","", 103)<<"Creating ersatz neutrino branches.";
 	t_->Branch("probe_q", probe_q_,"probe_q[4]/I");
 	t_->Branch("probe_pt", probe_pt_,"probe_pt[4]/D");
@@ -166,7 +166,7 @@ void ErsatzMEt::beginJob()
 	t_->Branch("Z_rescEta", Z_rescEta_, "Z_rescEta[4]/D");
 	t_->Branch("Z_rescY", Z_rescY_, "Z_rescY[4]/D");
 	t_->Branch("Z_rescPhi", Z_rescPhi_, "Z_rescPhi[4]/D");
-	t_->Branch("Z_probe_dPhi",Z_probe_dPhi_,"Z_probe_dPhi[4]/D"); 
+	t_->Branch("Z_probe_dPhi",Z_probe_dPhi_,"Z_probe_dPhi[4]/D");
 
 	t_->Branch("probe_sc_pt",probe_sc_pt_, "probe_sc_pt[4]/D");
 	t_->Branch("probe_sc_eta",probe_sc_eta_, "probe_sc_eta[4]/D");
@@ -226,7 +226,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	CaloMEt_ = -99.; CaloMEtphi_ = -99.;
 	T1MEt_ = -99.; T1MEtphi_ = -99.;
 	PfMEt_ = -99.; PfMEtphi_ = -99.;
-	TcMEt_ = -99.; TcMEtphi_ = -99.;	
+	TcMEt_ = -99.; TcMEtphi_ = -99.;
 	if(Zevent_)
 	{
 		McZ_m_ = -99.; McZ_pt_ = -99.; McZ_y_ = -99.; McZ_eta_ = -99.; McZ_phi_ = -99.;
@@ -251,22 +251,22 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 		probe_sIhIh_[i] = -99.; probe_dPhiIn_[i] = -99.; probe_dEtaIn_[i] = -99.;
 		probe_e5x5_[i] = -99.; probe_e2x5Max_[i] = -99.; probe_e1x5Max_[i] = -99.;
 		probe_hoe_[i] = -99.; probe_eop_[i] = -99.; probe_pin_[i] = -99.; probe_pout_[i] = -99.;
-		
+
 		Z_pt_[i] = -99.; Z_y_[i] = -99.; Z_eta_[i] = -99.; Z_phi_[i] = -99.; Z_m_[i] = -99.;
 		Z_rescPt_[i] = -99.; Z_rescY_[i] = -99.; Z_rescEta_[i] = -99.; Z_rescPhi_[i] = -99.; Z_rescM_[i] = -99.; Z_probe_dPhi_[i] = -99.;
-		
+
 		ErsatzV1_Mesc_[i] = -99.; ErsatzV1_rescMesc_[i] = -99.;
 		ErsatzV2_Mesc_[i] = -99.; ErsatzV2_rescMesc_[i] = -99.;
 		ErsatzV3_Mesc_[i] = -99.; ErsatzV3_rescMesc_[i] = -99.;
 		ErsatzV4_Mesc_[i] = -99.; ErsatzV4_rescMesc_[i] = -99.;
-		ErsatzV1CaloMEt_[i] = -99.; ErsatzV1CaloMt_[i] = -99.; ErsatzV1CaloMEtPhi_[i] = -99.; 
-		ErsatzV2CaloMEt_[i] = -99.; ErsatzV2CaloMt_[i] = -99.; ErsatzV2CaloMEtPhi_[i] = -99.; 
-		ErsatzV3CaloMEt_[i] = -99.; ErsatzV3CaloMt_[i] = -99.; ErsatzV3CaloMEtPhi_[i] = -99.; 
-		ErsatzV4CaloMEt_[i] = -99.; ErsatzV4CaloMt_[i] = -99.; ErsatzV4CaloMEtPhi_[i] = -99.; 
-		ErsatzV1T1MEt_[i] = -99.; ErsatzV1T1Mt_[i] = -99.; ErsatzV1T1MEtPhi_[i] = -99.; 
-		ErsatzV1PfMEt_[i] = -99.; ErsatzV1PfMt_[i] = -99.; ErsatzV1PfMEtPhi_[i] = -99.; 
-		ErsatzV1TcMEt_[i] = -99.; ErsatzV1TcMt_[i] = -99.; ErsatzV1TcMEtPhi_[i] = -99.; 
-		
+		ErsatzV1CaloMEt_[i] = -99.; ErsatzV1CaloMt_[i] = -99.; ErsatzV1CaloMEtPhi_[i] = -99.;
+		ErsatzV2CaloMEt_[i] = -99.; ErsatzV2CaloMt_[i] = -99.; ErsatzV2CaloMEtPhi_[i] = -99.;
+		ErsatzV3CaloMEt_[i] = -99.; ErsatzV3CaloMt_[i] = -99.; ErsatzV3CaloMEtPhi_[i] = -99.;
+		ErsatzV4CaloMEt_[i] = -99.; ErsatzV4CaloMt_[i] = -99.; ErsatzV4CaloMEtPhi_[i] = -99.;
+		ErsatzV1T1MEt_[i] = -99.; ErsatzV1T1Mt_[i] = -99.; ErsatzV1T1MEtPhi_[i] = -99.;
+		ErsatzV1PfMEt_[i] = -99.; ErsatzV1PfMt_[i] = -99.; ErsatzV1PfMEtPhi_[i] = -99.;
+		ErsatzV1TcMEt_[i] = -99.; ErsatzV1TcMt_[i] = -99.; ErsatzV1TcMEtPhi_[i] = -99.;
+
 		probe_sc_pt_[i] = -99.; probe_sc_eta_[i] = -99.; probe_sc_phi_[i] = -99.;
 		probe_sc_E_[i] = -99.; probe_sc_rawE_[i] = -99.;
 		probe_scV2_E_[i] = -99.;
@@ -283,96 +283,30 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 		}
 
 		edm::LogDebug_("","",180)<<"Initialisation of array index "<< i <<" completed.";
-	}	
+	}
 	//Get Collections
 	edm::Handle<reco::GenParticleCollection> pGenPart;
-	try
-	{
-		evt.getByLabel(MCTruthCollection_, pGenPart);
-	}catch(cms::Exception &ex)
-	{	
-		edm::LogError("analyze") <<"Can't get collection with label "<< MCTruthCollection_.label();
-	} 
+		evt.getByToken(MCTruthCollection_, pGenPart);
 	edm::Handle<reco::GsfElectronCollection> pElectrons;
-	try
-	{
-		evt.getByLabel(ElectronCollection_, pElectrons);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze") <<"Can't get collection with label "<< ElectronCollection_.label();
-	}
+		evt.getByToken(ElectronCollection_, pElectrons);
 	edm::Handle<reco::SuperClusterCollection> pHybrid;
-	try
-	{
-		evt.getByLabel(HybridScCollection_, pHybrid);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze") <<"Can't get collection with label "<< HybridScCollection_.label();
-	}
+		evt.getByToken(HybridScCollection_, pHybrid);
 	edm::Handle<reco::SuperClusterCollection> pM5x5;
-	try
-	{
-		evt.getByLabel(M5x5ScCollection_, pM5x5);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze") <<"Can't get collection with label "<< M5x5ScCollection_.label();
-	}
+		evt.getByToken(M5x5ScCollection_, pM5x5);
 	edm::Handle<reco::CaloMETCollection> pCaloMEt;
-	try
-	{
-		evt.getByLabel(CaloMEtCollection_, pCaloMEt);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze")<<"Can't get collection with label "<< CaloMEtCollection_.label();
-	}
+		evt.getByToken(CaloMEtCollection_, pCaloMEt);
 	edm::Handle<reco::METCollection> pT1MEt;
-//	try
-//	{
-//		evt.getByLabel(T1MEtCollection_, pT1MEt);
-//	}catch(cms::Exception &ex)
-//	{
-//		edm::LogError("analyze")<<"Can't get collection with label "<< T1MEtCollection_.label();
-//	}
+//		evt.getByToken(T1MEtCollection_, pT1MEt);
 	edm::Handle<reco::PFMETCollection> pPfMEt;
-	try
-	{
-		evt.getByLabel(PfMEtCollection_, pPfMEt);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze")<<"Can't get collection with label "<< PfMEtCollection_.label();
-	}
+		evt.getByToken(PfMEtCollection_, pPfMEt);
 	edm::Handle<reco::METCollection> pTcMEt;
-	try
-	{
-		evt.getByLabel(TcMEtCollection_, pTcMEt);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze")<<"Can't get collection with label "<< TcMEtCollection_.label();
-	}
+		evt.getByToken(TcMEtCollection_, pTcMEt);
 	edm::Handle<reco::GenMETCollection> pGenMEt;
-	try
-	{
-		evt.getByLabel(GenMEtCollection_, pGenMEt);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze")<<"Can't get collection with label "<< GenMEtCollection_.label();
-	}
+		evt.getByToken(GenMEtCollection_, pGenMEt);
 	edm::Handle<edm::TriggerResults> pTriggerResults;
-	try
-	{
-		evt.getByLabel(TriggerResults_, pTriggerResults);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze")<<"Cant get collection with label "<< TriggerResults_.label();
-	}
+		evt.getByToken(TriggerResults_, pTriggerResults);
 	edm::Handle<trigger::TriggerEvent> pHLT;
-	try
-	{
-		evt.getByLabel(TriggerEvent_, pHLT);
-	}catch(cms::Exception &ex)
-	{
-		edm::LogError("analyze")<<"Can't get collection with label "<< TriggerEvent_.label();
-	}
+		evt.getByToken(TriggerEvent_, pHLT);
 
 	std::vector<math::XYZTLorentzVector>McElecs,McElecsFinalState;
 	std::vector<math::XYZTLorentzVector> McElecsResc;
@@ -380,7 +314,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	{
 		edm::LogDebug_("","",289)<<"Analysing MC properties.";
 		const reco::GenParticleCollection *McCand = pGenPart.product();
-		math::XYZTLorentzVector Zboson, RescZboson, McElec1, McElec2; 
+		math::XYZTLorentzVector Zboson, RescZboson, McElec1, McElec2;
 		for(reco::GenParticleCollection::const_iterator McP = McCand->begin(); McP != McCand->end(); ++McP)
 		{
 			const reco::Candidate* mum = McP->mother();
@@ -388,7 +322,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 			{
 				McElecs.push_back(McP->p4());
 				if(abs(mum->pdgId() == 23)) Zboson = mum->p4();
-				
+
 				std::cout <<"Found electron, ID = "<< McP->pdgId() <<"\t status = "<< McP->status()<<std::endl;
 				if(McP->status() != 1)
 				{
@@ -399,12 +333,12 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 						int n = McPD->numberOfDaughters();
 						std::cout<< McPD->pdgId() << " : status = "<<McPD->status()
 							<<"\tNumber of Daughters = "<< n <<std::endl;
-						for(int j = 0; j < n; ++ j) 
+						for(int j = 0; j < n; ++ j)
 						{
 							const reco::Candidate *d = McPD->daughter( j );
 							std::cout <<"Daughter "<< j <<"\t id = "<< d->pdgId() << std::endl;
 							if(abs(d->pdgId()) == 11)
-							{ 
+							{
 								McPD = d;
 								break;
 							}
@@ -418,16 +352,16 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 		McZ_m_ = Zboson.M(); McZ_pt_ = Zboson.Pt(); McZ_phi_ = Zboson.Phi(); McZ_eta_ = Zboson.Eta(); McZ_y_ = Zboson.Rapidity();
 		McElec_nZmum_ =McElecs.size();
 		McElec_nFinal_ =McElecsFinalState.size();
-		edm::LogDebug_("","",309)<<"MC electrons with Z mother = "<< McElec_nZmum_ 
+		edm::LogDebug_("","",309)<<"MC electrons with Z mother = "<< McElec_nZmum_
 						<<"\tFinal state MC electrons = "<< McElec_nFinal_;
-		
+
 		McElecsResc.resize(2);
 //		RescZboson.SetCoordinates(Zboson.Px(), Zboson.Py(), Zboson.Pz(), sqrt(Zboson.P2()+(mW_*mW_*Zboson.M2())/(mZ_*mZ_)));
 		RescZboson.SetCoordinates(Zboson.Px()*mW_/mZ_, Zboson.Py()*mW_/mZ_, Zboson.Pz()*mW_/mZ_, Zboson.E()*mW_/mZ_);
 		McZ_rescM_ = RescZboson.M(); McZ_rescPt_ = RescZboson.Pt(); McZ_rescEta_ = RescZboson.Eta(); McZ_rescPhi_ = RescZboson.Phi();
 		McZ_rescY_ = RescZboson.Rapidity();
 		ROOT::Math::Boost CoMBoost(Zboson.BoostToCM());
-		
+
 		math::XYZTLorentzVector RescMcElec0 = CoMBoost(McElecsFinalState[0]);
 		math::XYZTLorentzVector RescMcElec1 = CoMBoost(McElecsFinalState[1]);
 		RescMcElec0 *= mW_/mZ_;
@@ -440,7 +374,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //		RndmMcElec_Rescaled_pt_ = RescMcElec0.Pt();
 //		RndmMcElec_Rescaled_eta_ = RescMcElec0.Eta();
 //		RndmMcElec_Rescaled_phi_ = RescMcElec0.Phi();
-	
+
 		RescMcElec1 = BackToLab(RescMcElec1);
 //		OthrMcElec_Rescaled_pt_ = RescMcElec1.Pt();
 //		OthrMcElec_Rescaled_eta_ = RescMcElec1.Eta();
@@ -450,7 +384,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 		math::XYZTLorentzVector sum = RescMcElec1+RescMcElec0;
 		edm::LogDebug_("","", 307)<<"McElecsResc[0] + McElecsResc[1] = ("<<sum.Px()<<", "<<sum.Py()<<", "
 						<<sum.Pz()<<", "<<sum.E()<<")";
-	}	
+	}
 
 	const edm::TriggerResults* HltRes = pTriggerResults.product();
 	const edm::TriggerNames & triggerNames = evt.triggerNames(*HltRes);
@@ -480,13 +414,13 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	{
 	//Match MC electrons to the selected electrons and store some of their properties in the tree.
 	//The properties of the other MC electron (i.e. that not selected) are also stored.
-		for(std::vector<reco::GsfElectronRef>::const_iterator elec = SelectedElectrons.begin(); 
+		for(std::vector<reco::GsfElectronRef>::const_iterator elec = SelectedElectrons.begin();
 								elec != SelectedElectrons.end(); ++elec)
 		{
 			for(int m = 0; m < 2; ++m)
 			{
 				double dRLimit = 99.;
-				double dR = reco::deltaR(McElecs[m], *(*elec)); 
+				double dR = reco::deltaR(McElecs[m], *(*elec));
 				if(dR < dRLimit)
 				{
 					dRLimit = dR;
@@ -494,14 +428,14 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 					McElec_eta_[iComb_] = McElecs[m].eta();
 					McElec_rescPt_[iComb_] = McElecsResc[m].pt();
 					McElec_rescEta_[iComb_] = McElecsResc[m].eta();
-				} 
+				}
 			}
 		}
 	}
 
 	std::map<reco::GsfElectronRef, reco::GsfElectronRef> TagProbePairs;
 	TagProbePairs = probeFinder(SelectedElectrons, pElectrons);
-	nProbes_ = TagProbePairs.size();	
+	nProbes_ = TagProbePairs.size();
 	edm::LogDebug_("", "ErsatzMEt", 209)<<"Number of tag-probe pairs = "<< TagProbePairs.size();
 
 	if(!TagProbePairs.empty())
@@ -515,17 +449,17 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
         	//const reco::MET t1met = *(t1MEtCollection->begin());
 		//T1MEt_ = t1met.pt();
 		//T1MEtphi_ = t1met.phi();
-		
+
 		const reco::PFMETCollection* pfMEtCollection = pPfMEt.product();
         	const reco::MET pfmet = *(pfMEtCollection->begin());
 		PfMEt_ = pfmet.pt();
 		PfMEtphi_ = pfmet.phi();
-		
+
 		const reco::METCollection* tcMEtCollection = pTcMEt.product();
         	const reco::MET tcmet = *(tcMEtCollection->begin());
 		TcMEt_ = tcmet.pt();
 		TcMEtphi_ = tcmet.phi();
-		
+
 		reco::MET ersatzMEt;
 
 		for(std::map<reco::GsfElectronRef, reco::GsfElectronRef>::const_iterator it = TagProbePairs.begin();
@@ -537,65 +471,65 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 			tag_pt_[iComb_] = it->first->pt();
 			tag_eta_[iComb_] = it->first->eta();
 			tag_phi_[iComb_] = it->first->phi();
-			edm::LogDebug_("","ErsatzMEt", 364)<<"tag pt = "<< tag_pt_[iComb_] 
+			edm::LogDebug_("","ErsatzMEt", 364)<<"tag pt = "<< tag_pt_[iComb_]
 					<<"\teta = "<< tag_eta_[iComb_]<<"\tphi = "<< tag_phi_[iComb_];
                         tag_trckIso_[iComb_] = it->first->isolationVariables03().tkSumPt;
                         tag_ecalIso_[iComb_] = it->first->isolationVariables04().ecalRecHitSumEt;
-                        tag_hcalIso_[iComb_] = it->first->isolationVariables04().hcalDepth1TowerSumEt 
+                        tag_hcalIso_[iComb_] = it->first->isolationVariables04().hcalDepth1TowerSumEt
 						+ it->first->isolationVariables04().hcalDepth2TowerSumEt;
-			edm::LogDebug_("","ErsatzMEt", 370)<<"tag trackiso = "<< tag_trckIso_[iComb_] 
+			edm::LogDebug_("","ErsatzMEt", 370)<<"tag trackiso = "<< tag_trckIso_[iComb_]
 					<<"\tecaliso = "<< tag_ecalIso_[iComb_]<<"\thcaliso = "<< tag_hcalIso_[iComb_];
 			tag_sIhIh_[iComb_] = it->first->scSigmaIEtaIEta();
 			tag_dPhiIn_[iComb_] = it->first->deltaPhiSuperClusterTrackAtVtx();
 			tag_dEtaIn_[iComb_] = it->first->deltaEtaSuperClusterTrackAtVtx();
-			edm::LogDebug_("","ErsatzMEt", 245)<<"tag sIhIh = "<< tag_sIhIh_[iComb_] 
+			edm::LogDebug_("","ErsatzMEt", 245)<<"tag sIhIh = "<< tag_sIhIh_[iComb_]
 					<<"\tdPhiIn = "<< tag_dPhiIn_[iComb_]<<"\tdEtaIn = "<< tag_dEtaIn_[iComb_];
 			tag_e5x5_[iComb_] = it->first->scE5x5();
 			tag_e2x5Max_[iComb_] = it->first->scE2x5Max();
 			tag_e2x5Max_[iComb_] = it->first->scE1x5();
-			edm::LogDebug_("","ErsatzMEt", 245)<<"tag e5x5 = "<< tag_e5x5_[iComb_] 
+			edm::LogDebug_("","ErsatzMEt", 245)<<"tag e5x5 = "<< tag_e5x5_[iComb_]
 					<<"\te2x5Max = "<< tag_e2x5Max_[iComb_]<<"\te1x5Max = "<< tag_e1x5Max_[iComb_];
 			tag_hoe_[iComb_] = it->first->hadronicOverEm();
 			tag_eop_[iComb_] = it->first->eSuperClusterOverP();
 			tag_pin_[iComb_] = it->first->trackMomentumAtVtx().R();
 			tag_pout_[iComb_] = it->first->trackMomentumOut().R();
-			edm::LogDebug_("","ErsatzMEt", 245)<<"tag hoe = "<<tag_hoe_[iComb_]<<"\tpoe = "<<tag_eop_[iComb_] 
+			edm::LogDebug_("","ErsatzMEt", 245)<<"tag hoe = "<<tag_hoe_[iComb_]<<"\tpoe = "<<tag_eop_[iComb_]
 					<<"\tpin = "<< tag_pin_[iComb_]<<"\tpout = "<< tag_pout_[iComb_];
 			probe_q_[iComb_] = it->first->charge();
 			edm::LogDebug_("","",360)<<"probe charge = "<< probe_q_[iComb_];
 			probe_pt_[iComb_] = it->second->pt();
 			probe_eta_[iComb_] = it->second->eta();
 			probe_phi_[iComb_] = it->second->phi();
-			edm::LogDebug_("","ErsatzMEt", 245)<<"probe pt = "<< probe_pt_[iComb_] 
+			edm::LogDebug_("","ErsatzMEt", 245)<<"probe pt = "<< probe_pt_[iComb_]
 					<<"\teta = "<< probe_eta_[iComb_]<<"\tphi = "<< probe_phi_[iComb_];
                         probe_trckIso_[iComb_] = it->second->isolationVariables03().tkSumPt;
                         probe_ecalIso_[iComb_] = it->second->isolationVariables04().ecalRecHitSumEt;
-                        probe_hcalIso_[iComb_] = it->second->isolationVariables04().hcalDepth1TowerSumEt 
+                        probe_hcalIso_[iComb_] = it->second->isolationVariables04().hcalDepth1TowerSumEt
 						+ it->second->isolationVariables04().hcalDepth2TowerSumEt;
-			edm::LogDebug_("","ErsatzMEt", 245)<<"probe trackiso = "<< probe_trckIso_[iComb_] 
+			edm::LogDebug_("","ErsatzMEt", 245)<<"probe trackiso = "<< probe_trckIso_[iComb_]
 					<<"\tecaliso = "<< probe_ecalIso_[iComb_]<<"\thcaliso = "<< probe_phi_[iComb_];
 			probe_sIhIh_[iComb_] = it->second->scSigmaIEtaIEta();
 			probe_dPhiIn_[iComb_] = it->second->deltaPhiSuperClusterTrackAtVtx();
 			probe_dEtaIn_[iComb_] = it->second->deltaEtaSuperClusterTrackAtVtx();
-			edm::LogDebug_("","ErsatzMEt", 245)<<"probe sIhIh = "<< probe_sIhIh_[iComb_] 
+			edm::LogDebug_("","ErsatzMEt", 245)<<"probe sIhIh = "<< probe_sIhIh_[iComb_]
 					<<"\tdPhiIn = "<< probe_dPhiIn_[iComb_]<<"\tdEtaIn = "<< probe_dEtaIn_[iComb_];
 			probe_e5x5_[iComb_] = it->second->scE5x5();
 			probe_e2x5Max_[iComb_] = it->second->scE2x5Max();
 			probe_e2x5Max_[iComb_] = it->second->scE1x5();
-			edm::LogDebug_("","ErsatzMEt", 245)<<"probe e5x5 = "<< probe_e5x5_[iComb_] 
+			edm::LogDebug_("","ErsatzMEt", 245)<<"probe e5x5 = "<< probe_e5x5_[iComb_]
 					<<"\te2x5Max = "<< probe_e2x5Max_[iComb_]<<"\te1x5Max = "<< probe_e1x5Max_[iComb_];
 			probe_hoe_[iComb_] = it->second->hadronicOverEm();
 			probe_eop_[iComb_] = it->second->eSuperClusterOverP();
 			probe_pin_[iComb_] = it->second->trackMomentumAtVtx().R();
 			probe_pout_[iComb_] = it->second->trackMomentumOut().R();
-			edm::LogDebug_("","ErsatzMEt", 245)<<"probe hoe = "<<probe_hoe_[iComb_]<<"\tpoe = "<<probe_eop_[iComb_] 
+			edm::LogDebug_("","ErsatzMEt", 245)<<"probe hoe = "<<probe_hoe_[iComb_]<<"\tpoe = "<<probe_eop_[iComb_]
 					<<"\tpin = "<< probe_pin_[iComb_]<<"\tpout = "<< probe_pout_[iComb_];
-			
+
 			double dRLimit = 0.2;
 			for(unsigned int mcEId = 0; mcEId < McElecs.size(); ++mcEId)
 			{
-//				double dR = reco::deltaR((*(*mcEl)), probeVec); 
-				double dR = reco::deltaR(McElecs[mcEId], it->second->p4()); 
+//				double dR = reco::deltaR((*(*mcEl)), probeVec);
+				double dR = reco::deltaR(McElecs[mcEId], it->second->p4());
 				if(dR < dRLimit)
 				{
 					dRLimit = dR;
@@ -609,13 +543,13 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 					McElecProbe_dPhi_[iComb_] = reco::deltaPhi(McElecs[mcEId].phi(), McElecs[(mcEId+1)%2].phi());
 					McElecProbe_dEta_[iComb_] = fabs(McElecs[mcEId].eta() - McElecs[(mcEId+1)%2].eta());
 					McElecProbe_dR_[iComb_] = reco::deltaR(McElecs[mcEId], McElecs[(mcEId+1)%2]);
-				} 
+				}
 			}
 
 			// Uncorrected supercluster V1
 			reco::SuperCluster scV1 = *(it->second->superCluster());
 			math::XYZTLorentzVector	probe_scV1_detVec = DetectorVector(scV1);
-			probe_sc_pt_[iComb_] = probe_scV1_detVec.pt(); 
+			probe_sc_pt_[iComb_] = probe_scV1_detVec.pt();
 			probe_sc_eta_[iComb_] = scV1.eta();
 			probe_sc_phi_[iComb_] = scV1.phi();
 			probe_sc_nClus_[iComb_] = scV1.clustersSize();
@@ -637,7 +571,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 
 			// fEta corrected supercluster V2
 			reco::SuperCluster scV2;
-			if(fabs(probe_sc_eta_[iComb_]) < 1.479) 
+			if(fabs(probe_sc_eta_[iComb_]) < 1.479)
 			{
 				scV2 = fEtaScCorr(scV1);
 			}else{
@@ -647,28 +581,28 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 			ersatzMEt = ersatzFabrik(it->first, scV2, calomet, 2);
 			ErsatzV2CaloMEt_[iComb_] = ersatzMEt.pt();
 			ErsatzV2CaloMEtPhi_[iComb_] = ersatzMEt.phi();
-		
+
 			// fBrem corrected supercluster V3
-			reco::SuperCluster scV3;	
-			if(fabs(probe_sc_eta_[iComb_]) < 1.479) 
+			reco::SuperCluster scV3;
+			if(fabs(probe_sc_eta_[iComb_]) < 1.479)
 			{
 				scV3 = fBremScCorr(scV1, hyb_fCorrPSet_);
 			}else{
 				scV3 = fBremScCorr(scV1, m5x5_fCorrPSet_);
-			}	
+			}
 			probe_scV3_E_[iComb_] = scV3.energy();
 			ersatzMEt = ersatzFabrik(it->first, scV3, calomet, 3);
 			ErsatzV3CaloMEt_[iComb_] = ersatzMEt.pt();
 			ErsatzV3CaloMEtPhi_[iComb_] = ersatzMEt.phi();
-			
+
 			// Fully corrected supercluster V4
 			reco::SuperCluster scV4;
-			if(fabs(probe_sc_eta_[iComb_]) < 1.479) 
+			if(fabs(probe_sc_eta_[iComb_]) < 1.479)
 			{
 				scV4 = fBremScCorr(scV1, hyb_fCorrPSet_);
 			}else{
 				scV4 = fBremScCorr(scV1, m5x5_fCorrPSet_);
-			}	
+			}
 			probe_scV4_E_[iComb_] = scV4.energy();
 			ersatzMEt = ersatzFabrik(it->first, scV4, calomet, 4);
 			ErsatzV4CaloMEt_[iComb_] = ersatzMEt.pt();
@@ -705,18 +639,18 @@ std::map<reco::GsfElectronRef, reco::GsfElectronRef> ErsatzMEt::probeFinder(cons
 					{
 						TagProbePair = std::make_pair(tag, probe);
 						++nProbesPerTag;
-					}		
+					}
 				}
 			}
 			++index;
 		}
 		//nGsfElectrons_ = index;
 		if(nProbesPerTag == 1) TagProbes.insert(TagProbePair);
-	}	
+	}
 	return TagProbes;
 }
 
-reco::MET ErsatzMEt::ersatzFabrik(const reco::GsfElectronRef& elec, 
+reco::MET ErsatzMEt::ersatzFabrik(const reco::GsfElectronRef& elec,
 					const reco::SuperCluster& sc,
 					const reco::MET& met,
 					const int corr)
@@ -730,7 +664,7 @@ reco::MET ErsatzMEt::ersatzFabrik(const reco::GsfElectronRef& elec,
 	ele = PhysicsVectorRaw(met.vertex(), elecSc);
 	boost_ele = ele;
 
-	//Should use reco vertex for best Z->ee measurement. 
+	//Should use reco vertex for best Z->ee measurement.
         edm::LogDebug_("ersatzFabrikV1", "", 569)<<"elec  = ("<< elec->p4().Px() << ", "<< elec->p4().Py()<< ", "<< elec->p4().Pz() << ", "<< elec->p4().E()<<")";
 	math::XYZTLorentzVector Zboson = boost_nu + elec->p4();
         edm::LogDebug_("ersatzFabrikV1", "", 569)<<"Z pt = "<< Zboson.Pt() << "Z boson mass = " << Zboson.M();
@@ -771,9 +705,9 @@ reco::MET ErsatzMEt::ersatzFabrik(const reco::GsfElectronRef& elec,
 	ele.SetXYZT(ele.X(), ele.Y(), 0., ele.T());
 	boost_ele.SetXYZT(boost_ele.X(), boost_ele.Y(), 0., boost_ele.T());
 	metVec = met.p4() + nu + ele - boost_ele;
-	
-	reco::MET ersatzMEt(metVec, met.vertex()); 	
-	if (corr == 1)	
+
+	reco::MET ersatzMEt(metVec, met.vertex());
+	if (corr == 1)
 	{
 		//Z_caloV1_m_[iComb_] = Zboson.M();
 		//Z_caloV1_pt_[iComb_] = Zboson.Pt();
@@ -797,7 +731,7 @@ reco::MET ErsatzMEt::ersatzFabrik(const reco::GsfElectronRef& elec,
 		ErsatzV1CaloMt_[iComb_] = sqrt(2.*boost_ele.Pt()*ersatzMEt.pt()*
 						(1-cos(reco::deltaPhi(boost_ele.Phi(), ersatzMEt.phi()))));
 	}
-	if (corr == 2) 	
+	if (corr == 2)
 	{
 		//Z_caloV2_m_[iComb_] = Zboson.M();
 		//Z_caloV2_pt_[iComb_] = Zboson.Pt();
@@ -821,7 +755,7 @@ reco::MET ErsatzMEt::ersatzFabrik(const reco::GsfElectronRef& elec,
 		ErsatzV2CaloMt_[iComb_] = sqrt(2.*boost_ele.Pt()*ersatzMEt.pt()*
 						(1-cos(reco::deltaPhi(boost_ele.Phi(), ersatzMEt.phi()))));
 	}
-	if (corr == 3) 	
+	if (corr == 3)
 	{
 		//Z_caloV3_m_[iComb_] = Zboson.M();
 		//Z_caloV3_pt_[iComb_] = Zboson.Pt();
@@ -845,7 +779,7 @@ reco::MET ErsatzMEt::ersatzFabrik(const reco::GsfElectronRef& elec,
 		ErsatzV3CaloMt_[iComb_] = sqrt(2.*boost_ele.Pt()*ersatzMEt.pt()*
 						(1-cos(reco::deltaPhi(boost_ele.Phi(), ersatzMEt.phi()))));
 	}
-	if (corr == 4) 	
+	if (corr == 4)
 	{
 		//Z_caloV4_m_[iComb_] = Zboson.M();
 		//Z_caloV4_pt_[iComb_] = Zboson.Pt();
@@ -872,7 +806,7 @@ reco::MET ErsatzMEt::ersatzFabrik(const reco::GsfElectronRef& elec,
 	return ersatzMEt;
 }
 
-reco::MET ErsatzMEt::ersatzFabrik(const reco::GsfElectronRef& tag, 
+reco::MET ErsatzMEt::ersatzFabrik(const reco::GsfElectronRef& tag,
 					const reco::GsfElectronRef& probe,
 					const reco::MET& met)
 {
@@ -921,7 +855,7 @@ reco::MET ErsatzMEt::ersatzFabrik(const reco::GsfElectronRef& tag,
 	nu.SetXYZT(nu.X(), nu.Y(), 0., nu.T());
 	boost_elec.SetXYZT(boost_elec.X(), boost_elec.Y(), 0., boost_elec.T());
 	metVec = met.p4() + nu + elec - boost_elec;
-	reco::MET ersatzMEt(metVec, met.vertex()); 	
+	reco::MET ersatzMEt(metVec, met.vertex());
 	return ersatzMEt;
 }
 

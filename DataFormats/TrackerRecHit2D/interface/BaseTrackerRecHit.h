@@ -15,7 +15,7 @@ class OmniClusterRef;
 
 namespace trackerHitRTTI {
   // tracking hit can be : single (si1D, si2D, pix), projected, matched or multi
-  enum RTTI { undef=0, single=1, projStereo=2, projMono=3, match=4, multi=5};
+  enum RTTI { undef=0, single=1, projStereo=2, projMono=3, match=4, multi=5, gs=6};
   inline RTTI rtti(TrackingRecHit const & hit)  { return RTTI(hit.getRTTI());}
   inline bool isUndef(TrackingRecHit const & hit) { return rtti(hit)==undef;}
   inline bool isSingle(TrackingRecHit const & hit)  { return rtti(hit)==single;}
@@ -24,6 +24,7 @@ namespace trackerHitRTTI {
   inline bool isProjected(TrackingRecHit const & hit)  { return (rtti(hit)==projMono) | (rtti(hit)==projStereo);}
   inline bool isMatched(TrackingRecHit const & hit)  { return rtti(hit)==match;}
   inline bool isMulti(TrackingRecHit const & hit)  { return rtti(hit)==multi;}
+  inline bool isGS(TrackingRecHit const & hit)  { return rtti(hit)==gs;}
   inline bool isSingleType(TrackingRecHit const & hit)  { return (rtti(hit)>0) & (rtti(hit)<4) ;}
 
   inline unsigned int  projId(TrackingRecHit const & hit) { return hit.rawId()+int(rtti(hit))-1;}
@@ -32,6 +33,9 @@ namespace trackerHitRTTI {
 class BaseTrackerRecHit : public TrackingRecHit { 
 public:
   BaseTrackerRecHit() : qualWord_(0){}
+
+  // fake TTRH interface
+  BaseTrackerRecHit const * hit() const { return this;}  
 
   virtual ~BaseTrackerRecHit() {}
 
@@ -113,6 +117,8 @@ public:
 	};
   }
 
+  /// cluster probability, overloaded by pixel rechits.
+  virtual float clusterProbability() const { return 1.f; }
 
 public:
 

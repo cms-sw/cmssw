@@ -20,12 +20,11 @@ static loadFWLite lfw;
 
 void proof_thing_sel()
 {
-  if (gSystem->Getenv("tmpdir")) {
-    gEnv->SetValue("Proof.Sandbox", "$tmpdir/proof");
-  }
-
   if (gSystem->Getenv("TMPDIR")) {
-    gEnv->SetValue("ProofLite.SockPathDir", "$TMPDIR/proof");
+    std::string t = gSystem->Getenv("TMPDIR");
+    t += "/proof";
+    gEnv->SetValue("Proof.Sandbox", t.c_str());
+    gEnv->SetValue("ProofLite.SockPathDir", t.c_str());
   }
 
   //Setup the proof server

@@ -4,7 +4,7 @@
 //
 // Package:    ErsatzMEt
 // Class:      ErsatzMEt
-// 
+//
 /**\class ErsatzMEt ErsatzMEt.cc ElectroWeakAnalysis/ErsatzMEt/src/ErsatzMEt.cc
 
  Description: <one line class summary>
@@ -22,7 +22,7 @@
 // system include files
 #include <memory>
 
-//Framework 
+//Framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -41,7 +41,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 //ECAL
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h" 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
 //Geometry
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
@@ -102,38 +102,44 @@ class ErsatzMEt : public edm::EDAnalyzer {
 //							const edm::Handle<reco::SuperClusterCollection>&);
 	std::map<reco::GsfElectronRef, reco::GsfElectronRef> probeFinder(const std::vector<reco::GsfElectronRef>&,
 							const edm::Handle<reco::GsfElectronCollection>);
-	reco::MET ersatzFabrik(const reco::GsfElectronRef&, const reco::SuperCluster&, 
-					const reco::MET&, const int); 
+	reco::MET ersatzFabrik(const reco::GsfElectronRef&, const reco::SuperCluster&,
+					const reco::MET&, const int);
 	reco::MET ersatzFabrik(const reco::GsfElectronRef&, const reco::GsfElectronRef&,
 					const reco::MET&);
 	bool isInBarrel(double);
 	bool isInEndCap(double);
 	bool isInFiducial(double);
-					
+
       	virtual void endJob();
 
       	// ----------member data ---------------------------
-	edm::InputTag MCTruthCollection_;
-	edm::InputTag ElectronCollection_, HybridScCollection_, M5x5ScCollection_;
-	edm::InputTag eIdRobust_, eIdRobustTight_;
-	edm::InputTag GenMEtCollection_, CaloMEtCollection_, T1MEtCollection_, PfMEtCollection_, TcMEtCollection_;
-	edm::InputTag CaloTowerCollection_;
-	edm::InputTag TriggerEvent_, TriggerResults_, TriggerPath_;
+	edm::EDGetTokenT<reco::GenParticleCollection> MCTruthCollection_;
+	edm::EDGetTokenT<reco::GsfElectronCollection> ElectronCollection_;
+	edm::EDGetTokenT<reco::SuperClusterCollection> HybridScCollection_;
+	edm::EDGetTokenT<reco::SuperClusterCollection> M5x5ScCollection_;
+	edm::EDGetTokenT<reco::GenMETCollection> GenMEtCollection_;
+	edm::EDGetTokenT<reco::CaloMETCollection> CaloMEtCollection_;
+	edm::EDGetTokenT<reco::METCollection> T1MEtCollection_;
+	edm::EDGetTokenT<reco::PFMETCollection> PfMEtCollection_;
+	edm::EDGetTokenT<reco::METCollection> TcMEtCollection_;
+	edm::EDGetTokenT<trigger::TriggerEvent> TriggerEvent_;
+	edm::EDGetTokenT<edm::TriggerResults> TriggerResults_;
+	edm::InputTag TriggerPath_;
 	std::string TriggerName_, ProcessName_;
 	edm::ParameterSet hyb_fCorrPSet_, m5x5_fCorrPSet_;
 	double mW_, mZ_, mTPmin_, mTPmax_;
 	double BarrelEtaMax_, EndCapEtaMin_, EndCapEtaMax_;
-	
+
 	enum cut_index_t { EtCut_, EB_sIhIh_, EB_dEtaIn_, EB_dPhiIn_, EB_TrckIso_, EB_EcalIso_, EB_HcalIso_,
 				EE_sIhIh_, EE_dEtaIn_, EE_dPhiIn_, EE_TrckIso_, EE_EcalIso_, EE_HcalIso_};
 
 	std::vector<double> CutVector_;
-		
+
 	int etaWidth_, phiWidth_;
 	bool Zevent_, HLTPathCheck_;
 //	std::vector<double> EtaWeights_;
 	HLTConfigProvider hltConfig_;
-	
+
 	edm::ESHandle<CaloGeometry> geoHandle_;
 	edm::ESHandle<CaloTopology> pTopology_;
 	//Output variables
@@ -157,7 +163,7 @@ class ErsatzMEt : public edm::EDAnalyzer {
 	double tag_trckIso_[nEntries_arr_], tag_ecalIso_[nEntries_arr_], tag_hcalIso_[nEntries_arr_];
 	double tag_e2x5Max_[nEntries_arr_], tag_e1x5Max_[nEntries_arr_], tag_e5x5_[nEntries_arr_];
 	double tag_hoe_[nEntries_arr_], tag_eop_[nEntries_arr_], tag_pin_[nEntries_arr_], tag_pout_[nEntries_arr_];
-	int probe_q_[nEntries_arr_];	
+	int probe_q_[nEntries_arr_];
 	double probe_pt_[nEntries_arr_], probe_eta_[nEntries_arr_], probe_phi_[nEntries_arr_];
 	double probe_rescPt_[nEntries_arr_], probe_rescEta_[nEntries_arr_], probe_rescPhi_[nEntries_arr_];
 	double probe_sIhIh_[nEntries_arr_], probe_dPhiIn_[nEntries_arr_], probe_dEtaIn_[nEntries_arr_];
@@ -180,13 +186,13 @@ class ErsatzMEt : public edm::EDAnalyzer {
 	double ErsatzV4_Mesc_[nEntries_arr_], ErsatzV4_rescMesc_[nEntries_arr_];
 
 	double McElec_pt_[nEntries_arr_], McElec_eta_[nEntries_arr_], McElec_phi_[nEntries_arr_];
-	double McElec_rescPt_[nEntries_arr_], McElec_rescEta_[nEntries_arr_], McElec_rescPhi_[nEntries_arr_]; 
-	double McProbe_pt_[nEntries_arr_], McProbe_eta_[nEntries_arr_], McProbe_phi_[nEntries_arr_]; 
-	double McProbe_rescPt_[nEntries_arr_], McProbe_rescEta_[nEntries_arr_], McProbe_rescPhi_[nEntries_arr_]; 
+	double McElec_rescPt_[nEntries_arr_], McElec_rescEta_[nEntries_arr_], McElec_rescPhi_[nEntries_arr_];
+	double McProbe_pt_[nEntries_arr_], McProbe_eta_[nEntries_arr_], McProbe_phi_[nEntries_arr_];
+	double McProbe_rescPt_[nEntries_arr_], McProbe_rescEta_[nEntries_arr_], McProbe_rescPhi_[nEntries_arr_];
 	double McElecProbe_dPhi_[nEntries_arr_], McElecProbe_dEta_[nEntries_arr_], McElecProbe_dR_[nEntries_arr_];
 
 	double probe_d_MCE_SCE_[nEntries_arr_];
-	double probe_sc_pt_[nEntries_arr_], probe_sc_eta_[nEntries_arr_], probe_sc_phi_[nEntries_arr_]; 
+	double probe_sc_pt_[nEntries_arr_], probe_sc_eta_[nEntries_arr_], probe_sc_phi_[nEntries_arr_];
 	double probe_sc_E_[nEntries_arr_], probe_sc_rawE_[nEntries_arr_], probe_sc_nClus_[nEntries_arr_];
 	double probe_scV2_E_[nEntries_arr_];
 	double probe_scV3_E_[nEntries_arr_];

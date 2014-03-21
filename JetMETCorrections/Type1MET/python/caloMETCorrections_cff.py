@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # load jet energy correction parameters
-import JetMETCorrections.Configuration.JetCorrectionServices_cff
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 
 #--------------------------------------------------------------------------------
 # produce Type 1 + 2 MET corrections for CaloJets

@@ -104,11 +104,11 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     GlobalPoint outer = tracker->idToDet((*(HitTriplets[it].outer())).geographicalId())->surface().
       toGlobal((*(HitTriplets[it].outer())).localPosition());   
 
-    // TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[is].outer())
+    // SeedingHitSet::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[is].outer())
 
-    TransientTrackingRecHit::ConstRecHitPointer outrhit= TTTRHBuilder->build(HitTriplets[it].outer()->hit());
+    SeedingHitSet::ConstRecHitPointer outrhit= HitTriplets[it].outer();
     //***top-bottom
-    TransientTrackingRecHit::ConstRecHitPointer innrhit = TTTRHBuilder->build(HitTriplets[it].inner()->hit());
+    SeedingHitSet::ConstRecHitPointer innrhit = HitTriplets[it].inner();
     if (positiveYOnly && (outrhit->globalPosition().y()<0 || innrhit->globalPosition().y()<0
 			  || outrhit->globalPosition().y() < innrhit->globalPosition().y()
 			  ) ) continue;
@@ -188,9 +188,9 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     
     LogDebug("CosmicSeedFinder") <<"inner point of the seed "<<inner <<" outer point of the seed "<<outer; 
     //RC const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[is].outer().RecHit());  
-    TransientTrackingRecHit::ConstRecHitPointer outrhit = TTTRHBuilder->build(HitPairs[is].outer()->hit());
+    SeedingHitSet::ConstRecHitPointer outrhit = HitPairs[is].outer();
     //***top-bottom
-    TransientTrackingRecHit::ConstRecHitPointer innrhit = TTTRHBuilder->build(HitPairs[is].inner()->hit());
+    SeedingHitSet::ConstRecHitPointer innrhit = HitPairs[is].inner();
     if (positiveYOnly && (outrhit->globalPosition().y()<0 || innrhit->globalPosition().y()<0
 			  || outrhit->globalPosition().y() < innrhit->globalPosition().y()
 			  ) ) continue;

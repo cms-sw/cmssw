@@ -12,7 +12,7 @@ class SimpleClusterProbabilitySeedComparitor : public SeedComparitor {
         virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const override { return true; }
         virtual bool compatible(const TrajectorySeed &seed) const override { return true; }
         virtual bool compatible(const TrajectoryStateOnSurface &,
-                const TransientTrackingRecHit::ConstRecHitPointer &hit) const override ;
+                SeedingHitSet::ConstRecHitPointer hit) const override ;
         virtual bool compatible(const SeedingHitSet  &hits, 
                 const GlobalTrajectoryParameters &helixStateAtVertex,
                 const FastHelix                  &helix,
@@ -38,7 +38,7 @@ SimpleClusterProbabilitySeedComparitor::~SimpleClusterProbabilitySeedComparitor(
 
 bool
 SimpleClusterProbabilitySeedComparitor::compatible(const TrajectoryStateOnSurface &tsos,
-                const TransientTrackingRecHit::ConstRecHitPointer &hit) const
+						   SeedingHitSet::ConstRecHitPointer hit) const
 {
     return (probCut_ < -15.) || (log10(hit->clusterProbability()) > probCut_);
 }

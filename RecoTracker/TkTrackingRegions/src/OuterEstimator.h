@@ -35,7 +35,7 @@ public:
       const TrajectoryStateOnSurface& ts, 
       const TrackingRecHit& hit)  
     const {
-       return theHitCompatibility(&hit) ? std::make_pair(true,1.) : std::make_pair(false,0.) ;
+       return theHitCompatibility(hit) ? std::make_pair(true,1.) : std::make_pair(false,0.) ;
   }
 
   virtual bool estimate(

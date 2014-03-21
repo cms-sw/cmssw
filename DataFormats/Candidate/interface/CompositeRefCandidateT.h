@@ -78,6 +78,7 @@ namespace reco {
     /// set mother product ID
     void resetMothers( const edm::ProductID & id ) { mom = mothers( id ); }
 
+    CMS_CLASS_VERSION(10)
 
   private:
     /// const iterator implementation
