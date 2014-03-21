@@ -224,7 +224,7 @@ GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const & starting
   work.reserve(result.size());
   for (TrajectoryContainer::iterator traj=result.begin();
        traj!=result.end(); ++traj) {
-    if(traj->isValid()) work.push_back(TempTrajectory(*traj));
+    if(traj->isValid()) work.push_back(TempTrajectory(std::move(*traj)));
   }
 
   rebuildSeedingRegion(seed,startingTraj,work);

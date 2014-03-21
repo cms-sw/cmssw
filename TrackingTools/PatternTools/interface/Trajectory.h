@@ -107,15 +107,10 @@ public:
 
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
- Trajectory(Trajectory const & rh) :
-   theSeed(rh.theSeed), seedRef_(rh.seedRef_),
-    theData(rh.theData),
-    theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad),
-    theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid),
-     theDPhiCache(rh.theDPhiCache),theNLoops(rh.theNLoops) 
-  {}
-
+ 
+  Trajectory(Trajectory const & rh) = default;
+ 
+  Trajectory & operator=(Trajectory const & rh) = default;
 
   Trajectory(Trajectory && rh) : 
     theSeed(std::move(rh.theSeed)), seedRef_(std::move(rh.seedRef_)),
@@ -145,25 +140,11 @@ public:
 
   }
 
- Trajectory & operator=(Trajectory const & rh) {
-    theData = rh.theData;
-    theChiSquared=rh.theChiSquared;
-    theChiSquaredBad=rh.theChiSquaredBad;
-    theValid=rh.theValid;
-    theDPhiCache=rh.theDPhiCache; 
-    theNLoops=rh.theNLoops;  
-    theNumberOfFoundHits=rh.theNumberOfFoundHits;
-    theNumberOfLostHits=rh.theNumberOfLostHits;
-    theDirection=rh.theDirection;
-    theDirectionValidity=rh.theDirectionValidity;
-    theSeed = rh.theSeed;
-    seedRef_ = rh.seedRef_;
-
-    return *this;
-
-  }
-
-
+#else
+//  private:
+//  Trajectory(Trajectory const & rh){}	
+//  Trajectory & operator=(Trajectory const & rh){ return *this;}
+//  public:
 #endif
 
   /** Reserves space in the vector to avoid lots of allocations when 
