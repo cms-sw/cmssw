@@ -24,10 +24,6 @@
 	<use name="CommonTools/UtilAlgos"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
-<library name="GeneratorInterfacePythia8Hadronisation" file="Pythia8Hadronisation.cc">
-	<use name="pythia8"/>
-	<flags EDM_PLUGIN="1"/>
-</library>
 <library name="GeneratorInterfaceLHECOMWeightProducer" file="LHECOMWeightProducer.cc">
         <use name="FWCore/Framework"/>
         <use name="SimDataFormats/GeneratorProducts"/>
