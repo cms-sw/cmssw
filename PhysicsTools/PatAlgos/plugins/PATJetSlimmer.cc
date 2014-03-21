@@ -15,6 +15,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 #define protected public
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -52,7 +54,6 @@ pat::PATJetSlimmer::PATJetSlimmer(const edm::ParameterSet & iConfig) :
     clearJetVars_(iConfig.getParameter<bool>("clearJetVars")),
     clearDaughters_(iConfig.getParameter<bool>("clearDaughters")),
     clearTrackRefs_(iConfig.getParameter<bool>("clearTrackRefs")),
-//     slimGenJet_(iConfig.getParameter<bool>("slimGenJet")),
     dropSpecific_(iConfig.getParameter<bool>("dropSpecific"))
 //     dropJetCorrFactors_(iConfig.getParameter<bool>("dropJetCorrFactors"))
 {
@@ -66,7 +67,9 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 
     Handle<View<pat::Jet> >      src;
     iEvent.getByLabel(src_, src);
-
+    Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc;
+    iEvent.getByLabel("packedPFCandidates",pf2pc);
+	
     auto_ptr<vector<pat::Jet> >  out(new vector<pat::Jet>());
     out->reserve(src->size());
 
@@ -87,7 +90,18 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
             jet.clearDaughters();
             jet.pfCandidatesFwdPtr_.clear();
             jet.caloTowersFwdPtr_.clear();
-        }
+        } else {  //rekey
+	    //copy old 
+	    reco::CompositePtrCandidate::daughters old = jet.daughterPtrVector();
+            jet.clearDaughters();
+	    
+	    for(unsigned int  i=0;i<old.size();i++)
+	    {
+		jet.addDaughter(refToPtr((*pf2pc)[old[i]]));
+	    }
+		
+
+	}	
 //         if (slimGenJet_) {
 //             const reco::GenJet * genjet = it->genJet();
 //             if (genjet) {
