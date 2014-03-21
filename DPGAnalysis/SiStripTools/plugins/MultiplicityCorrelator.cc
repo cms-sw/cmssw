@@ -98,7 +98,7 @@ MultiplicityCorrelator::MultiplicityCorrelator(const edm::ParameterSet& iConfig)
     m_xSelections.push_back(ps->getParameter<unsigned int>("xDetSelection"));
     m_ySelections.push_back(ps->getParameter<unsigned int>("yDetSelection"));
 
-    m_mchms.push_back(new MultiplicityCorrelatorHistogramMaker(*ps));
+    m_mchms.push_back(new MultiplicityCorrelatorHistogramMaker(*ps, consumesCollector()));
 
   }
 

@@ -98,6 +98,7 @@ APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig):
   _selectedvectorparts(iConfig.getUntrackedParameter<std::vector<std::string> >("selectedVectorPartitions",std::vector<std::string>())),
   m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",125)),
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",16)),
+  m_rhm(consumesCollector()),
   _hphases(),_hselectedphases(),_hselectedphasesvector(),_hselectedphasessize(),
   _hphasevsorbit(),_hselectedphasevsorbit(),_hselectedphasevectorvsorbit(),
   _nevents(0)

@@ -2,6 +2,7 @@
 #define Validation_RecoVertex_BeamSpotHistogramMaker_H
 
 #include <string>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 
@@ -20,9 +21,9 @@ class TFileDirectory;
 class BeamSpotHistogramMaker {
 
  public:
-  BeamSpotHistogramMaker();
-  BeamSpotHistogramMaker(const edm::ParameterSet& iConfig);
- 
+  BeamSpotHistogramMaker(edm::ConsumesCollector&& iC);
+  BeamSpotHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
+
   ~BeamSpotHistogramMaker();
 
   void book(const std::string dirname="");

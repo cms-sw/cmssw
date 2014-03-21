@@ -3,7 +3,10 @@
 
 #include <string>
 #include <vector>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
+#include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
 
 namespace edm {
   class ParameterSet;
@@ -15,9 +18,9 @@ class EventWithHistoryFilter {
 
  public:
   EventWithHistoryFilter();
-  EventWithHistoryFilter(const edm::ParameterSet& iConfig);
+  EventWithHistoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
 
-  void set(const edm::ParameterSet& iConfig);
+  void set(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
   const bool selected(const EventWithHistory& he, const edm::EventSetup& iSetup) const;
   const bool selected(const EventWithHistory& he, const edm::Event& iEvent, const edm::EventSetup& iSetup) const;
   const bool selected(const edm::Event& event, const edm::EventSetup& iSetup) const;
@@ -35,9 +38,11 @@ class EventWithHistoryFilter {
   const bool isInRange(const long long bx, const std::vector<int>& range, const bool extra) const;
   void printConfig() const;
 
-  edm::InputTag m_historyProduct;
+  edm::InputTag m_history;
+  edm::EDGetTokenT<EventWithHistory> m_historyToken;
   std::string m_partition;
-  std::string m_APVPhaseLabel;
+  std::string m_APVPhase;
+  edm::EDGetTokenT<APVCyclePhaseCollection> m_APVPhaseToken;
   std::vector<int> m_apvmodes;
   std::vector<int> m_dbxrange;
   std::vector<int> m_dbxrangelat;

@@ -148,7 +148,7 @@ APVShotsAnalyzer::APVShotsAnalyzer(const edm::ParameterSet& iConfig):
   _zs(iConfig.getUntrackedParameter<bool>("zeroSuppressed",true)),
   _suffix(iConfig.getParameter<std::string>("mapSuffix")),
   _nevents(0),
-  _rhm(),
+  _rhm(consumesCollector()),
   _useCabling(iConfig.getUntrackedParameter<bool>("useCabling",true)),
   _cacheIdDet(0),
   _detCabling(0)
