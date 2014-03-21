@@ -69,6 +69,16 @@ void
 MuonGEMHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
+  hasGEMGeometry_ = false;
+  try{
+    iSetup.get<MuonGeometryRecord>().get(gem_geom);
+    gem_geometry_ = &*gem_geom;
+    hasGEMGeometry_ = true;
+  } 
+  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+      edm::LogError("MuonGEMHits") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+      return;
+  }
   if ( hasGEMGeometry_ ) {
     theGEMHitsValidation->setGeometry(gem_geometry_);
     theGEMHitsValidation->analyze(iEvent,iSetup );  
