@@ -35,10 +35,10 @@ void GEMTrackMatch::buildLUT()
   const int maxChamberId_ = theGEMGeometry->regions()[0]->stations()[0]->superChambers().size();
   edm::LogInfo("GEMTrackMatch")<<"max chamber "<<maxChamberId_<<"\n";
   std::vector<int> pos_ids;
-  pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId_,1).rawId());
+  pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId_,2).rawId());
 
   std::vector<int> neg_ids;
-  neg_ids.push_back(GEMDetId(-1,1,1,1,maxChamberId_,1).rawId());
+  neg_ids.push_back(GEMDetId(-1,1,1,1,maxChamberId_,2).rawId());
 
   // VK: I would really suggest getting phis from GEMGeometry
   
@@ -46,8 +46,8 @@ void GEMTrackMatch::buildLUT()
   phis.push_back(0.);
   for(int i=1; i<maxChamberId_+1; ++i)
   {
-    pos_ids.push_back(GEMDetId(1,1,1,1,i,1).rawId());
-    neg_ids.push_back(GEMDetId(-1,1,1,1,i,1).rawId());
+    pos_ids.push_back(GEMDetId(1,1,1,1,i,2).rawId());
+    neg_ids.push_back(GEMDetId(-1,1,1,1,i,2).rawId());
     phis.push_back(i*10.);
   }
   positiveLUT_ = std::make_pair(phis,pos_ids);
