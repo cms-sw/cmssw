@@ -54,10 +54,7 @@ public:
   float minPt_;
   float minEta_;
   float maxEta_;
-  float radiusCenter_odd_, chamberHeight_odd_;
-  float radiusCenter_even_, chamberHeight_even_;
-
-
+  float radiusCenter_, chamberHeight_;
 };
 
 #endif

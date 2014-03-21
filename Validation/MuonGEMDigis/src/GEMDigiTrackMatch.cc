@@ -282,17 +282,6 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
     GEMDetId detId_even_L1(firstIsOdd ? detId_second : detId_first);
     GEMDetId detId_odd_L1(firstIsOdd ? detId_first : detId_second);
 
-    edm::LogInfo("GEMDigiTrackMatch")<<"(digi) detId_even : "<<detId_even_L1<<"\n";
-    if ( theGEMGeometry->idToDetUnit( detId_even_L1) == nullptr && detId_even_L1.roll() == 1 ) { 
-      GEMDetId pre = detId_even_L1;
-      detId_even_L1 = GEMDetId( pre.region(), pre.ring(), pre.station(), pre.layer(), pre.chamber(), 2);
-    }
-    if ( theGEMGeometry->idToDetUnit( detId_odd_L1) == nullptr && detId_odd_L1.roll() == 1 ) { 
-      GEMDetId pre = detId_odd_L1;
-      detId_odd_L1 = GEMDetId( pre.region(), pre.ring(), pre.station(), pre.layer(), pre.chamber(), 2);
-    }
-    edm::LogInfo("GEMDigiTrackMatch")<<"(digi) detId_even : "<<detId_even_L1<<"\n";
-
     auto even_partition = theGEMGeometry->idToDetUnit(detId_even_L1)->surface();
     auto odd_partition = theGEMGeometry->idToDetUnit(detId_odd_L1)->surface();
 
@@ -309,8 +298,8 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     // track chamber local y is the same as track partition local y
     // corrected for partition's local y WRT chamber
-    track_.gem_ly_even = lp_track_even_partition.y() + (gp_even_partition.perp() - radiusCenter_even_);
-    track_.gem_ly_odd = lp_track_odd_partition.y() + (gp_odd_partition.perp() - radiusCenter_odd_);
+    track_.gem_ly_even = lp_track_even_partition.y() + (gp_even_partition.perp() - radiusCenter_);
+    track_.gem_ly_odd = lp_track_odd_partition.y() + (gp_odd_partition.perp() - radiusCenter_);
 
     GEMDetId id_ch_even_L1(detId_even_L1.region(), detId_even_L1.ring(), detId_even_L1.station(), 1, detId_even_L1.chamber(), 0);
     GEMDetId id_ch_odd_L1(detId_odd_L1.region(), detId_odd_L1.ring(), detId_odd_L1.station(), 1, detId_odd_L1.chamber(), 0);
@@ -345,27 +334,35 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
     dg_ly_even->Fill( track_.gem_ly_even);
     dg_ly_odd->Fill( track_.gem_ly_odd);
     
-    if ( track_.has_gem_dg_l1 > 0 ) {
+    if ( track_.has_gem_dg_l1 /2 >= 1 ) {
       dg_lx_even_l1->Fill ( track_.gem_lx_even);
       dg_ly_even_l1->Fill ( track_.gem_ly_even);
+    }
+    if ( track_.has_gem_dg_l1 %2 == 1 ) { 
       dg_lx_odd_l1->Fill ( track_.gem_lx_odd);
       dg_ly_odd_l1->Fill ( track_.gem_ly_odd);
     }
-    if ( track_.has_gem_dg_l2 > 0 ) { 
+    if ( track_.has_gem_dg_l2 /2  >=1 ) { 
       dg_lx_even_l2->Fill ( track_.gem_lx_even);
       dg_ly_even_l2->Fill ( track_.gem_ly_even);
+    }
+    if ( track_.has_gem_dg_l2 %2 == 1 ) {
       dg_lx_odd_l2->Fill ( track_.gem_lx_odd);
       dg_ly_odd_l2->Fill ( track_.gem_ly_odd);
     }
-    if ( track_.has_gem_dg_l1 > 0 || track_.has_gem_dg_l2 > 0 ) {
+    if ( track_.has_gem_dg_l1 /2 >=1  || track_.has_gem_dg_l2 /2 >=1 ) {
       dg_lx_even_l1or2->Fill ( track_.gem_lx_even);
       dg_ly_even_l1or2->Fill ( track_.gem_ly_even);
+    }
+    if ( track_.has_gem_dg_l1 %2 ==1  || track_.has_gem_dg_l2 %2 ==1 ) {
       dg_lx_odd_l1or2->Fill ( track_.gem_lx_odd);
       dg_ly_odd_l1or2->Fill ( track_.gem_ly_odd);
     }
-    if ( track_.has_gem_dg_l1 > 0 && track_.has_gem_dg_l2 > 0 ) {
+    if ( track_.has_gem_dg_l1 /2 >=1 && track_.has_gem_dg_l2 /2 >=1 ) {
       dg_lx_even_l1and2->Fill ( track_.gem_lx_even);
       dg_ly_even_l1and2->Fill ( track_.gem_ly_even);
+    }
+    if ( track_.has_gem_dg_l1 %2 ==1 && track_.has_gem_dg_l2 %2 ==1 ) {
       dg_lx_odd_l1and2->Fill ( track_.gem_lx_odd);
       dg_ly_odd_l1and2->Fill ( track_.gem_ly_odd);
     }
