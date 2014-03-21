@@ -155,12 +155,16 @@ public:
    *  The Chi2 of the trajectory is incremented by the value
    *  of tm.estimate() . 
    */
-  void push( const TrajectoryMeasurement& tm);
-
-  /** same as the one-argument push, but the trajectory Chi2 is incremented 
+  void push(const TrajectoryMeasurement& tm);
+  /** same as the one-argument push, but the trajectory Chi2 is incremented
    *  by chi2Increment. Useful e.g. in trajectory smoothing.
    */
-  void push( const TrajectoryMeasurement& tm, double chi2Increment);
+  void push(const TrajectoryMeasurement & tm, double chi2Increment);
+
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  void push(TrajectoryMeasurement&& tm);
+  void push(TrajectoryMeasurement&& tm, double chi2Increment);
+#endif
 
   /** Remove the last measurement from the trajectory.
    */
@@ -194,6 +198,8 @@ public:
   /** Return all measurements in a container.
    */
   DataContainer const & measurements() const { return theData;}
+  DataContainer & measurements() { return theData;}
+
   /// obsolete name, use measurements() instead.
   DataContainer const & data() const { return measurements();}
 
@@ -316,6 +322,9 @@ public:
    void incrementLoops() {theNLoops++;}
 
 private:
+
+  void pushAux(double chi2Increment);
+
 
   boost::shared_ptr<const TrajectorySeed>    theSeed;
   edm::RefToBase<TrajectorySeed> seedRef_;
