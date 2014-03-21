@@ -9,12 +9,11 @@
 
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-
 
 class RxCalculator
 {

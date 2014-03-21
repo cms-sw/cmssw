@@ -46,9 +46,11 @@ int cond::MigrateUtilities::execute(){
 
   std::string newTag("");
   std::string tag("");
+  bool verify = false;
   if( hasOptionValue("tag")) {
     tag = getOptionValue<std::string>("tag");
     if( hasOptionValue("newTag")) newTag = getOptionValue<std::string>("newTag");
+    if( hasOptionValue("verify")) verify = true;
   }
   bool debug = hasDebug();
   std::string destConnect = getOptionValue<std::string>("destConnect" );
@@ -163,6 +165,22 @@ int cond::MigrateUtilities::execute(){
       session.transaction().commit();
       std::cout <<"    Tag \""<<t<<"\" imported. Payloads:"<<pids.size()<<" IOVs:"<<niovs<<std::endl;
       nt++;
+      if( verify ){
+	session.transaction().start();
+	persistency::IOVProxy p = session.readIov( destTag, true );
+	persistency::Session verifySession = connPool.createSession( "sqlite:"+destTag+".db", true );
+	verifySession.transaction().start( false );
+	persistency::IOVEditor verifyEditor = verifySession.createIov( p.payloadObjectType(), destTag, p.timeType(), p.synchronizationType() );
+	for( auto iov : p ){
+	  std::pair<std::string,boost::shared_ptr<void> > readBackPayload = fetch( iov.payloadId, session );
+	  cond::Hash ph = import( readBackPayload.first, readBackPayload.second.get(), verifySession );
+	  verifyEditor.insert( iov.since, ph );
+	}
+	verifyEditor.setDescription( "Copy of "+destTag+" tag");
+	verifyEditor.flush();
+	verifySession.transaction().commit();
+	session.transaction().commit();
+      }
     } catch ( const std::exception& e ){
       std::cout <<"    ERROR:"<<e.what()<<std::endl;
       std::cout <<"    Tag "<<t<<" will be skipped."<<std::endl;

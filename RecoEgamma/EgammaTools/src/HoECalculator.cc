@@ -3,7 +3,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollection.h"
 
 HoECalculator::HoECalculator () :
                theCaloGeom_(0)
@@ -24,6 +23,7 @@ double HoECalculator::operator() ( const reco::SuperCluster* clus , const edm::E
   return getHoE(GlobalPoint(clus->x(),clus->y(),clus->z()), clus->energy(), e,c);
 }
 
+/*
 double HoECalculator::operator() ( const reco::SuperCluster* clus, 
 				   HBHERecHitMetaCollection *mhbhe, int ialgo) {
   double HoE=0.;
@@ -43,11 +43,12 @@ double HoECalculator::operator() ( const reco::SuperCluster* clus,
   return HoE;   
 }
 
-
 double HoECalculator::operator() ( const reco::BasicCluster* clus, 
 			     HBHERecHitMetaCollection *mhbhe) {
   return getHoE(GlobalPoint(clus->x(),clus->y(),clus->z()), clus->energy(), mhbhe);
 }
+
+*/
 
 double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Event& e , const edm::EventSetup& c )
 {
@@ -57,7 +58,7 @@ double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Even
   //product the geometry
   theCaloGeom_.product() ;
 
-  //Create a CaloRecHitMetaCollection
+  //Create a HBHERecHitCollection
   edm::Handle< HBHERecHitCollection > hbhe ;
   e.getByLabel("hbhereco","",hbhe);
   const HBHERecHitCollection* hithbhe_ = hbhe.product();
@@ -69,11 +70,10 @@ double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Even
   DetId hcalDetId ;
   hcalDetId = geometry_p->getClosestCell(pclu) ;
   double hcalEnergy = 0 ;
-  CaloRecHitMetaCollection f;
-  f.add(hithbhe_);
-  CaloRecHitMetaCollection::const_iterator iterRecHit ; 
-  iterRecHit = f.find(hcalDetId) ;
-  if (iterRecHit!=f.end()) {
+
+  HBHERecHitCollection::const_iterator iterRecHit ; 
+  iterRecHit = hithbhe_->find(hcalDetId) ;
+  if (iterRecHit!=hithbhe_->end()) {
     hcalEnergy = iterRecHit->energy() ;
     HoE = hcalEnergy/ecalEnergy ;
   }
@@ -81,6 +81,7 @@ double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Even
   return HoE ;
 }
 
+/*
 double HoECalculator::getHoE(GlobalPoint pos, float energy,
 			     HBHERecHitMetaCollection *mhbhe) {
   
@@ -96,5 +97,5 @@ double HoECalculator::getHoE(GlobalPoint pos, float energy,
     }
   }
   return HoE ;
-
 }
+*/

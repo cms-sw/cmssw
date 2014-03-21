@@ -40,6 +40,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
+#include "RecoMuon/GlobalTrackingTools/interface/ChamberSegmentUtility.h"
 
 
 class DynamicTruncation {
@@ -52,6 +53,11 @@ class DynamicTruncation {
   DynamicTruncation(const edm::Event&, const MuonServiceProxy&);
 
   ~DynamicTruncation();
+
+  void setProd(const edm::Handle<DTRecSegment4DCollection>& DTSegProd, 
+	       const edm::Handle<CSCSegmentCollection>& CSCSegProd) {
+    getSegs->initCSU(DTSegProd, CSCSegProd);
+  }
 
   // Just one thr for DT and one for CSC
   void setThr(int, int, int);
@@ -92,7 +98,7 @@ class DynamicTruncation {
   const edm::EventSetup* theSetup;
   std::vector<double> estimators;
   TrajectoryStateOnSurface currentState;
-  
+  ChamberSegmentUtility* getSegs;
   std::map<DTChamberId, GlobalError> dtApeMap;
   std::map<CSCDetId, GlobalError> cscApeMap; 
 };

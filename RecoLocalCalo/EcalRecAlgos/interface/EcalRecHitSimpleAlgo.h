@@ -47,7 +47,7 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
     EcalRecHit rh( uncalibRH.id(), energy, time );
     rh.setChi2( uncalibRH.chi2() );
     rh.setOutOfTimeEnergy( uncalibRH.outOfTimeEnergy() * adcToGeVConstant_ * intercalibConstant );
-    rh.setOutOfTimeChi2( uncalibRH.outOfTimeChi2() );
+    /* rh.setOutOfTimeChi2( uncalibRH.outOfTimeChi2() ); */
     rh.setTimeError(uncalibRH.jitterErrorBits());
 
     // Now fill flags
