@@ -120,7 +120,7 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
   _magicOffset(iConfig.getUntrackedParameter<int>("magicOffset",8)),
   m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",250)),
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",16)),
-  m_rhm(),
+  m_rhm(consumesCollector()),
   _hsize(0),_hlresync(0),_hlOC0(0),_hlTE(0),_hlstart(0),_hlEC0(0),_hlHR(0),_hdlec0lresync(0),_hdlresynclHR(0),
   m_badruns(),
   _lastResync(-1),_lastHardReset(-1),_lastStart(-1),

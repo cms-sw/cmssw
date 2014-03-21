@@ -122,7 +122,7 @@ OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig):
   m_multiplicityMapTokens(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("multiplicityMaps"), [this](edm::InputTag const & tag){return consumes<std::map<unsigned int, int> >(tag);})),
   m_occupancyMapTokens(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("occupancyMaps"), [this](edm::InputTag const & tag){return consumes<std::map<unsigned int, int> >(tag);})),
   m_fp(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt"))),
-  m_rhm(), m_wantedsubdets()
+  m_rhm(consumesCollector()), m_wantedsubdets()
 {
    //now do what ever initialization is needed
 

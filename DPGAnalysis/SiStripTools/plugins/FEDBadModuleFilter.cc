@@ -93,7 +93,7 @@ FEDBadModuleFilter::FEDBadModuleFilter(const edm::ParameterSet& iConfig):
   m_printlist(iConfig.getUntrackedParameter<bool>("printList",false)),
   m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",100)),
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",4)),
-  m_rhm()
+  m_rhm(consumesCollector())
 
 {
    //now do what ever initialization is needed

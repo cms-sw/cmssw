@@ -115,7 +115,7 @@ private:
 // constructors and destructor
 //
 MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterSet& iConfig):
-  _digibxcorrhmevent(iConfig),
+  _digibxcorrhmevent(iConfig, consumesCollector()),
   _evfilter(),
   _hecollection(iConfig.getParameter<edm::InputTag>("historyProduct")),
   _hecollectionToken(consumes<EventWithHistory>(_hecollection)),
@@ -149,7 +149,7 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
     filterConfig.addUntrackedParameter<std::vector<int> >("dbxTripletRange",dbxtrpltrange);
   }
 
-  _evfilter.set(filterConfig);
+  _evfilter.set(filterConfig, consumesCollector());
 
   //
 
