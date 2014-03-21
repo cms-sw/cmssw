@@ -42,11 +42,18 @@ class TrajectorySeedProducer : public edm::EDProducer
   // 0 = barrel, -1 = neg. endcap, +1 = pos. endcap
   enum Side { BARREL=0, NEG_ENDCAP=-1, POS_ENDCAP=1};
   
-  struct LayerSpec {
+  class LayerSpec
+  {
+  public:
     std::string name;
     SubDet subDet;
     Side side;
     unsigned int idLayer;
+
+    bool operator==(const LayerSpec& layer)
+	{
+    	return (subDet==layer.subDet) && (side==layer.side) && (idLayer==layer.idLayer);
+	}
   };
 
 
