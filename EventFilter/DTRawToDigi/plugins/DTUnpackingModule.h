@@ -38,6 +38,7 @@ class DTUnpackingModule: public edm::EDProducer {
   int minFEDid_;
   int maxFEDid_;
   bool dqmOnly;
+  bool saveDQMCollections;
   std::string dataType;
 };
 

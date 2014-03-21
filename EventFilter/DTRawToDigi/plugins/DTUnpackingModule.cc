@@ -61,13 +61,16 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0),
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid",770); // default: 770
   maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid",779); // default 779
   dqmOnly = ps.getParameter<bool>("dqmOnly"); // default: false
-
+  saveDQMCollections = ps.getParameter<bool>("saveDQMCollections"); // default: true
+  
   if(!dqmOnly) {
     produces<DTDigiCollection>();
     produces<DTLocalTriggerCollection>();
   }
-  produces<std::vector<DTDDUData> >();
-  produces<std::vector<std::vector<DTROS25Data> > >();
+  if(saveDQMCollections) {
+    produces<std::vector<DTDDUData> >();
+    produces<std::vector<std::vector<DTROS25Data> > >();
+  }
 }
 
 DTUnpackingModule::~DTUnpackingModule(){
@@ -114,12 +117,14 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
       // Unpack the data
       unpacker->interpretRawData(reinterpret_cast<const unsigned int*>(feddata.data()), 
  				 feddata.size(), id, mapping, detectorProduct, triggerProduct);
-      if(dataType == "DDU") {
-        dduProduct->push_back(dynamic_cast<DTDDUUnpacker*>(unpacker)->getDDUControlData());
-        ros25Product->push_back(dynamic_cast<DTDDUUnpacker*>(unpacker)->getROSsControlData());
-      }
-      else if(dataType == "ROS25") {
-        ros25Product->push_back(dynamic_cast<DTROS25Unpacker*>(unpacker)->getROSsControlData());
+      if(saveDQMCollections) {
+        if(dataType == "DDU") {
+          dduProduct->push_back(dynamic_cast<DTDDUUnpacker*>(unpacker)->getDDUControlData());
+          ros25Product->push_back(dynamic_cast<DTDDUUnpacker*>(unpacker)->getROSsControlData());
+        }
+        else if(dataType == "ROS25") {
+          ros25Product->push_back(dynamic_cast<DTROS25Unpacker*>(unpacker)->getROSsControlData());
+        }
       }
     }
   }
@@ -128,6 +133,8 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   if(!dqmOnly) {
     e.put(detectorProduct);
     e.put(triggerProduct);
+  }
+  if(saveDQMCollections) {
     e.put(dduProduct);
     e.put(ros25Product);
   }

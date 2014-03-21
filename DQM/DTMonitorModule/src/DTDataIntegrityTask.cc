@@ -1342,15 +1342,17 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
   std::vector<DTROS25Data> ros25Data;
   
 //   for (int id=FEDIDmin; id<=FEDIDMax; ++id){ 
-  for(unsigned int i=0; i<dduProduct->size(); ++i)
-  {
-    dduData = dduProduct->at(i);
-    ros25Data = ros25Product->at(i);
-    int id = FEDIDmin+i;
-    processFED(dduData, ros25Data, id);
-    for(unsigned int j=0; j < ros25Data.size(); ++j) {
-      int rosid = j+1;
-      processROS25(ros25Data[j],id,rosid);
+  if(dduProduct.isValid() && ros25Product.isValid()) {
+    for(unsigned int i=0; i<dduProduct->size(); ++i)
+    {
+      dduData = dduProduct->at(i);
+      ros25Data = ros25Product->at(i);
+      int id = FEDIDmin+i;
+      processFED(dduData, ros25Data, id);
+      for(unsigned int j=0; j < ros25Data.size(); ++j) {
+        int rosid = j+1;
+        processROS25(ros25Data[j],id,rosid);
+      }
     }
   }
 }
