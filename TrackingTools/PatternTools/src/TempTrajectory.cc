@@ -3,22 +3,23 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 
-TempTrajectory::TempTrajectory( const Trajectory& traj):
+TempTrajectory::TempTrajectory(Trajectory && traj):
   theChiSquared(0),
   theNumberOfFoundHits(0), theNumberOfLostHits(0),
   theDirection(traj.direction()), theDirectionValidity(true),
   theValid(traj.isValid()),
   theNLoops(traj.nLoops()),
   theDPhiCache(traj.dPhiCacheForLoopersReconstruction()) {
-  
+
   Trajectory::DataContainer::const_iterator begin=traj.measurements().begin();
   Trajectory::DataContainer::const_iterator end=traj.measurements().end();
-  
+
   for(Trajectory::DataContainer::const_iterator it=begin; it!=end; ++it){
-    push(*it);
+    push(std::move(*it));
   }
 
 }
+
 
 
 void TempTrajectory::pop() { 

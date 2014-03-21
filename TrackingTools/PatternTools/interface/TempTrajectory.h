@@ -72,8 +72,6 @@ public:
 
   
   
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-  
   TempTrajectory(TempTrajectory const & rh) : 
     theData(rh.theData),
     theChiSquared(rh.theChiSquared), 
@@ -127,17 +125,14 @@ public:
   }
 
 
-#endif
-
-
-
   /// construct TempTrajectory from standard Trajectory
-  explicit TempTrajectory( const Trajectory& traj);
+  explicit TempTrajectory(Trajectory && traj);
+
 
   /// destruct a TempTrajectory 
   ~TempTrajectory() {}
 
-    /** Add a new measurement to a Trajectory.
+  /** Add a new measurement to a Trajectory.
    *  The Chi2 of the trajectory is incremented by the value
    *  of tm.estimate() . 
    */
