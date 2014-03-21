@@ -26,26 +26,6 @@ namespace edm {
       return;
     }
     
-    //Force construction of all StreamerInfos in the file since update the list is not thread-safe
-    std::unique_ptr<TList> streamers{ file_->GetStreamerInfoList() };
-    TIter it(streamers.get());
-    TStreamerInfo* item =nullptr;
-    while( nullptr != (item = dynamic_cast<TStreamerInfo*>(it.Next())) ) {
-      TClass* cls = item->GetClass();
-      if(nullptr == cls) {
-        cls=TClass::GetClass(item->GetName());
-      }
-      assert(cls);
-      auto checksum =item->GetCheckSum();
-      if(checksum != 0) {
-        auto* vinfo = cls->FindStreamerInfo(checksum);
-        assert(vinfo);
-        cls->GetStreamerInfo( vinfo->GetClassVersion() );
-      } else {
-        cls->GetStreamerInfo( item->GetClassVersion() );
-      }
-    }
-      
     logFileAction("  Successfully opened file ", fileName);
   }
 
