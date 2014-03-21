@@ -51,10 +51,10 @@ namespace l1t{
     std::pair<int,int> offsetFromCurrPos(int iEtaOffset,int iPhiOffset)const;
 
     std::pair<int,int> move(int iEtaOffset,int iPhiOffset);
-    std::pair<int,int> north(){return move(1,0);}
-    std::pair<int,int> south(){return move(-1,0);}
-    std::pair<int,int> east(){return move(0,1);}
-    std::pair<int,int> west(){return move(0,-1);}
+    std::pair<int,int> north(){return move(0,1);}
+    std::pair<int,int> south(){return move(0,-1);}
+    std::pair<int,int> east(){return move(1,0);}
+    std::pair<int,int> west(){return move(-1,0);}
 
     std::pair<int,int> currPos()const{return currPos_;}
     int currIEta()const{return currPos().first;}
