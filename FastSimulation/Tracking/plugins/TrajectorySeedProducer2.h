@@ -219,13 +219,11 @@ private:
 
 	LayerNode _rootLayerNode;
 	int _maxGlobalIndex;
-	static unsigned int oldCalls;
-	static unsigned int newCalls;
  public:
 
 	virtual ~TrajectorySeedProducer2()
 	{
-		std::cout<<"oldcalls: "<<oldCalls<<", newcalls: "<<newCalls<<std::endl;
+		//std::cout<<"oldcalls: "<<oldCalls<<", newcalls: "<<newCalls<<std::endl;
 	}
   
   explicit TrajectorySeedProducer2(const edm::ParameterSet& conf);
@@ -249,24 +247,11 @@ private:
     \param trackingAlgorithmId id of the seeding algorithm iteration (e.g. "initial step", etc.).
     \return true if a hit fulfills the requirements.
     */
-  virtual bool passTrackerRecHitQualityCuts(std::vector<unsigned int> previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId);
-
-    //! method iterates over TrackerRectHits and check if those are on the requested seeding layers. Method will call itself if a track produced two hits on the same layer.
-    /*!
-    \param start starting position of an iterator over the hit range associated to a SimHit.
-    \param range the hit range associated to a SimHit.
-    \param hitNumbers list of indexes of hits which are on the seeding layers per seeding layer set.
-    \param trackerRecHits list of TrackerRectHits to which the indexes in \e hitNumbers correspond to.
-    \param trackingAlgorithmId id of the seeding algorithm iteration (e.g. "initial step", etc.).
-    \param seedHitNumbers if a valid seed was found this list is used to store the hit indexes.
-    \return the index of the layer set which produced a valid seed (same indexing used in \e hitNumbers). -1 is returned if no valid seed was found.
-    */
 
   bool passTrackerRecHitQualityCuts(LayerNode& lastnodeofseed, std::vector<int> globalHitNumbers, unsigned int trackingAlgorithmId);
   virtual int iterateHits(
 	SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
 	SiTrackerGSMatchedRecHit2DCollection::range range,
-	std::vector<std::vector<unsigned int>> hitNumbers,
 	std::vector<int> globalHitNumbers,
 	unsigned int trackingAlgorithmId,
 	std::vector<unsigned int>& seedHitNumbers

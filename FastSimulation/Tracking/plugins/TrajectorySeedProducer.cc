@@ -114,7 +114,6 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
     for(std::vector<std::string>::const_iterator it=layerList.begin(); it < layerList.end(); ++it) {
       std::vector<LayerSpec> tempResult;
       std::string line = *it;
-      std::cout<<seedingAlgo[0]<<": "<<line<<std::endl;
       std::string::size_type pos=0;
       while (pos != std::string::npos) {
         pos=line.find("+");
