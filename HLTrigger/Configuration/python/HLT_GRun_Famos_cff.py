@@ -3858,6 +3858,8 @@ hltL2OfflineMuonSeeds = cms.EDProducer( "MuonSeedGenerator",
     CSC_13 = cms.vdouble( 0.901, -1.302, 0.533, 0.045, 0.005, 0.0 ),
     CSC_14 = cms.vdouble( 0.606, -0.181, -0.002, 0.111, -0.003, 0.0 ),
     OL_2222_0_scale = cms.vdouble( -7.667231, 0.0 ),
+    EnableGEMMeasurement = cms.bool( False ),
+    GEMRecSegmentLabel = cms.InputTag("gemRecHits"),
     EnableCSCMeasurement = cms.bool( True ),
     CSC_12 = cms.vdouble( -0.161, 0.254, -0.047, 0.042, -0.007, 0.0 )
 )
@@ -3913,6 +3915,8 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
         EnableDTMeasurement = cms.bool( True ),
         RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
         Propagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
+        EnableGEMMeasurement = cms.bool( False ),
+        GEMRecSegmentLabel = cms.InputTag("gemRecHits"),
         EnableCSCMeasurement = cms.bool( True )
       ),
       NavigationType = cms.string( "Standard" ),
@@ -3945,6 +3949,8 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
         EnableDTMeasurement = cms.bool( True ),
         RPCRecSegmentLabel = cms.InputTag( "hltRpcRecHits" ),
         Propagator = cms.string( "hltESPFastSteppingHelixPropagatorAny" ),
+        EnableGEMMeasurement = cms.bool( False ),
+        GEMRecSegmentLabel = cms.InputTag("gemRecHits"),
         EnableCSCMeasurement = cms.bool( True )
       ),
       DoSeedRefit = cms.bool( False )
