@@ -69,7 +69,7 @@ def customise_DQM(process):
 def customise_Validation(process):
     process.load('Validation.Configuration.gemSimValid_cff')
     process.genvalid_all += process.gemSimValid
-
+    #process.
     process.load('Validation.RecoMuon.MuonTrackValidator_cfi')
     process.load('SimMuon.MCTruth.MuonAssociatorByHits_cfi')
     process.muonAssociatorByHitsCommonParameters.useGEMs = cms.bool(True)

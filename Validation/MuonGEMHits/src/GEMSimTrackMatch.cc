@@ -182,12 +182,16 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     GEMDetId detId_even_L1(firstIsOdd ? detId_second : detId_first);
     GEMDetId detId_odd_L1(firstIsOdd ? detId_first : detId_second);
 
-    std::cout<<"detId_even : "<<detId_even_L1<<std::endl;
-    if ( theGEMGeometry->idToDetUnit( detId_even_L1) == nullptr && detId_odd_L1.roll() == 1 ) { 
+    edm::LogInfo("MuonGEMHit")<<"Before detId_even : "<<detId_even_L1<<"\n";
+    if ( theGEMGeometry->idToDetUnit( detId_even_L1) == nullptr && detId_even_L1.roll() == 1 ) { 
       GEMDetId pre = detId_even_L1;
       detId_even_L1 = GEMDetId( pre.region(), pre.ring(), pre.station(), pre.layer(), pre.chamber(), 2);
     }
-    std::cout<<"detId_even : "<<detId_even_L1<<std::endl;
+    if ( theGEMGeometry->idToDetUnit( detId_odd_L1) == nullptr && detId_odd_L1.roll() == 1 ) { 
+      GEMDetId pre = detId_odd_L1;
+      detId_odd_L1 = GEMDetId( pre.region(), pre.ring(), pre.station(), pre.layer(), pre.chamber(), 2);
+    }
+    edm::LogInfo("MuonGEMHit")<<"After detId_even : "<<detId_even_L1<<"\n";
 
     auto even_partition = theGEMGeometry->idToDetUnit(detId_even_L1)->surface();
     auto odd_partition = theGEMGeometry->idToDetUnit(detId_odd_L1)->surface();
