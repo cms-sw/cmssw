@@ -1,4 +1,5 @@
 #include "RecoMET/METProducers/interface/BeamHaloSummaryProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 /*
   [class]:  BeamHaloSummaryProducer
@@ -46,6 +47,11 @@ BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfi
   T_HcalPhiWedgeToF = (float)iConfig.getParameter<double>("t_HcalPhiWedgeToF");
   T_HcalPhiWedgeConfidence = (float)iConfig.getParameter<double>("t_HcalPhiWedgeConfidence");
 
+  cschalodata_token_ = consumes<CSCHaloData>(IT_CSCHaloData);
+  ecalhalodata_token_ = consumes<EcalHaloData>(IT_EcalHaloData);
+  hcalhalodata_token_ = consumes<HcalHaloData>(IT_HcalHaloData);
+  globalhalodata_token_ = consumes<GlobalHaloData>(IT_GlobalHaloData);
+
   produces<BeamHaloSummary>();
 }
 
@@ -56,7 +62,8 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   // CSC Specific Halo Data
   Handle<CSCHaloData> TheCSCHaloData;
-  iEvent.getByLabel(IT_CSCHaloData, TheCSCHaloData);
+  //  iEvent.getByLabel(IT_CSCHaloData, TheCSCHaloData);
+  iEvent.getByToken(cschalodata_token_, TheCSCHaloData);
 
   const CSCHaloData CSCData = (*TheCSCHaloData.product() );
 
@@ -90,8 +97,9 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   //Ecal Specific Halo Data
   Handle<EcalHaloData> TheEcalHaloData;
-  iEvent.getByLabel(IT_EcalHaloData, TheEcalHaloData);
-  
+  //  iEvent.getByLabel(IT_EcalHaloData, TheEcalHaloData);
+  iEvent.getByToken(ecalhalodata_token_, TheEcalHaloData);
+
   const EcalHaloData EcalData = (*TheEcalHaloData.product() );
   
   bool EcalLooseId = false, EcalTightId = false;
@@ -162,7 +170,9 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   // Hcal Specific Halo Data
   Handle<HcalHaloData> TheHcalHaloData;
-  iEvent.getByLabel(IT_HcalHaloData, TheHcalHaloData);
+  //  iEvent.getByLabel(IT_HcalHaloData, TheHcalHaloData);
+  iEvent.getByToken(hcalhalodata_token_, TheHcalHaloData);
+
   const HcalHaloData HcalData = (*TheHcalHaloData.product() );
   const std::vector<PhiWedge> HcalWedges = HcalData.GetPhiWedges();
   bool HcalLooseId = false, HcalTightId = false;
@@ -202,7 +212,9 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   // Global Halo Data
   Handle<GlobalHaloData> TheGlobalHaloData;
-  iEvent.getByLabel(IT_GlobalHaloData, TheGlobalHaloData);
+  //  iEvent.getByLabel(IT_GlobalHaloData, TheGlobalHaloData);
+  iEvent.getByToken(globalhalodata_token_, TheGlobalHaloData);
+
   bool GlobalLooseId = false;
   bool GlobalTightId = false;
   const GlobalHaloData GlobalData = (*TheGlobalHaloData.product() );
