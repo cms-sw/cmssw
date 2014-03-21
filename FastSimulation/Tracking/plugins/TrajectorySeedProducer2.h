@@ -33,7 +33,8 @@ private:
 	{
 		private:
 			const LayerSpec* _layer;
-			int _hitNumber;
+			int _globalIndex;
+			unsigned int _depth;
 			bool _active;
 			std::vector<LayerNode*> _children;
 			LayerNode* _parent;
@@ -41,7 +42,8 @@ private:
 		public:
 			LayerNode():
 				_layer(0),
-				_hitNumber(-1),
+				_globalIndex(-1),
+				_depth(0),
 				_active(true),
 				_parent(0),
 				_nextsibling(0)
@@ -50,11 +52,67 @@ private:
 
 			LayerNode(const LayerSpec* layer, LayerNode* parent):
 				_layer(layer),
-				_hitNumber(-1),
+				_globalIndex(-1),
+				_depth(0),
 				_active(true),
 				_parent(parent),
 				_nextsibling(0)
 			{
+				LayerNode* parentNode = this;
+				while(parentNode->getLayer()!=0)
+				{
+					++_depth;
+					parentNode=parentNode->getParent();
+				}
+			}
+
+			int setupGlobalIndexing()
+			{
+				int index=0;
+				LayerNode* currentNode = this->getFirstChild();
+				while (currentNode!=0)
+				{
+					currentNode->_globalIndex=index;
+					++index;
+					currentNode=currentNode->next();
+				}
+				return index;
+			}
+
+			int getGlobalIndex()
+			{
+				return _globalIndex;
+			}
+
+			LayerNode* next()
+			{
+				if (this->getFirstChild()!=0)
+				{
+					return this->getFirstChild();
+				}
+				else
+				{
+					if (this->nextSibling()!=0)
+					{
+						return this->nextSibling();
+					}
+					else
+					{
+						LayerNode* parent = this->getParent();
+						while (parent!=0)
+						{
+							if (parent->nextSibling()!=0)
+							{
+								return parent->nextSibling();
+							}
+							else
+							{
+								parent=parent->getParent();
+							}
+						}
+						return 0;
+					}
+				}
 			}
 
 			LayerNode* addChild(LayerSpec* layer)
@@ -75,6 +133,11 @@ private:
 				return layerNode;
 			}
 
+			unsigned int getDepth() const
+			{
+				return _depth;
+			}
+
 			void setSibling(LayerNode* layerNode)
 			{
 				_nextsibling=layerNode;
@@ -90,19 +153,14 @@ private:
 				return _active;
 			}
 
-			void setHitNumber(int ihit)
+			LayerNode* getParent(unsigned int up=1)
 			{
-				_hitNumber=ihit;
-			}
-
-			int getHitNumber() const
-			{
-				return _hitNumber;
-			}
-
-			LayerNode* getParent()
-			{
-				return _parent;
+				LayerNode* node = this;
+				for (unsigned int i = 0; i<up;++i)
+				{
+					node=node->_parent;
+				}
+				return node;
 			}
 
 			void fill(std::vector<LayerSpec>& layerSpecList)
@@ -111,16 +169,6 @@ private:
 				for (unsigned int i = 0; i < layerSpecList.size() && currentNode!=0; ++i)
 				{
 					currentNode=currentNode->addChild(&layerSpecList[i]);
-				}
-			}
-
-			void reset()
-			{
-				_hitNumber=-1;
-				_active=true;
-				for (unsigned int ilayer = 0; ilayer< _children.size(); ++ilayer)
-				{
-					_children[ilayer]->reset();
 				}
 			}
 
@@ -147,13 +195,14 @@ private:
 				std::stringstream ss;
 				for (unsigned int i=0; i<offset;++i)
 				{
-					ss<<"  ";
+					ss<<"   ";
 				}
 				if (_layer!=0)
 				{
+					ss<<"["<<_globalIndex<<"] ";
 					ss<< _layer->name;
 					ss<<_layer->idLayer;
-					ss<<" ("<<_hitNumber<<")";
+
 				}
 				else
 				{
@@ -169,8 +218,15 @@ private:
 	};
 
 	LayerNode _rootLayerNode;
-
+	int _maxGlobalIndex;
+	static unsigned int oldCalls;
+	static unsigned int newCalls;
  public:
+
+	virtual ~TrajectorySeedProducer2()
+	{
+		std::cout<<"oldcalls: "<<oldCalls<<", newcalls: "<<newCalls<<std::endl;
+	}
   
   explicit TrajectorySeedProducer2(const edm::ParameterSet& conf);
   
@@ -205,11 +261,13 @@ private:
     \param seedHitNumbers if a valid seed was found this list is used to store the hit indexes.
     \return the index of the layer set which produced a valid seed (same indexing used in \e hitNumbers). -1 is returned if no valid seed was found.
     */
+
+  bool passTrackerRecHitQualityCuts(LayerNode& lastnodeofseed, std::vector<int> globalHitNumbers, unsigned int trackingAlgorithmId);
   virtual int iterateHits(
 	SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
 	SiTrackerGSMatchedRecHit2DCollection::range range,
 	std::vector<std::vector<unsigned int>> hitNumbers,
-	LayerNode rootLayerNode,
+	std::vector<int> globalHitNumbers,
 	unsigned int trackingAlgorithmId,
 	std::vector<unsigned int>& seedHitNumbers
   );
