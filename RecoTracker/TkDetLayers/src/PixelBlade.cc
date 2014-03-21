@@ -91,11 +91,12 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     addClosest( tsos, prop, est, crossings.other(), nextResult);
     if(nextResult.empty())    return;
     
-    DetGroupElement nextGel( nextResult.front().front());  
-    int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
+    //DetGroupElement nextGel( nextResult.front().front());  
+    //int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
 
     DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result,
-					    crossings.closestIndex(), crossingSide);   
+					    0,0);//already correctly sorted
+                                            //crossings.closestIndex(), crossingSide);   
   }
   else {
     DetGroupElement closestGel( closestResult.front().front());
@@ -108,9 +109,10 @@ PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     searchNeighbors( tsos, prop, est, crossings.other(), window,
 		     nextResult, true);
     
-    int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
+    //int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
     DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result,
-					    crossings.closestIndex(), crossingSide);
+					    0,0);//already correctly sorted
+                                            //crossings.closestIndex(), crossingSide);
   }
 }
 

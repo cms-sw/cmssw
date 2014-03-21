@@ -23,20 +23,15 @@ pixelPairStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
                             'BPix2+BPix4', 'BPix3+BPix4',
                             'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
                             'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
+                            'BPix1+FPix2_pos', 'BPix1+FPix2_neg',
                             'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
                             'FPix2_pos+FPix3_pos', 'FPix2_neg+FPix3_neg'
-#ale
                             'FPix3_pos+FPix4_pos', 'FPix3_neg+FPix4_neg',
                             'FPix4_pos+FPix5_pos', 'FPix4_neg+FPix5_neg',
                             'FPix5_pos+FPix6_pos', 'FPix5_neg+FPix6_neg',
                             'FPix6_pos+FPix7_pos', 'FPix6_neg+FPix7_neg',
                             'FPix7_pos+FPix8_pos', 'FPix7_neg+FPix8_neg',
-                            'FPix7_pos+FPix9_pos', 'FPix7_neg+FPix9_neg',
-                            'FPix7_pos+FPix10_pos', 'FPix7_neg+FPix10_neg',
-                            'FPix8_pos+FPix9_pos', 'FPix8_neg+FPix9_neg',
-                            'FPix8_pos+FPix10_pos', 'FPix7_neg+FPix10_neg',
-                            'FPix9_pos+FPix10_pos', 'FPix9_neg+FPix10_neg'
-                            ),
+                            'FPix7_pos+FPix9_pos', 'FPix7_neg+FPix9_neg'),
     BPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),
@@ -58,7 +53,7 @@ pixelPairStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
 pixelPairStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
-pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.5
+pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.3
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.015
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.fixedError = 0.03
 pixelPairStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.string('pixelPairStepSeedLayers')
@@ -99,7 +94,8 @@ pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     MeasurementTrackerName = '',
     trajectoryFilterName = 'pixelPairStepTrajectoryFilter',
     clustersToSkip = cms.InputTag('pixelPairStepClusters'),
-    maxCand = 3,
+    minNrOfHitsForRebuild = 1,
+    maxCand = 4,
     estimator = cms.string('pixelPairStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
     maxPtForLooperReconstruction = cms.double(0.7) 
@@ -144,10 +140,10 @@ pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             minNumberLayers = 3,
             maxNumberLostLayers = 2,
             minNumber3DLayers = 3,
-            d0_par1 = ( 0.3, 4.0 ),
-            dz_par1 = ( 0.35, 4.0 ),
-            d0_par2 = ( 0.35, 4.0 ),
-            dz_par2 = ( 0.35, 4.0 )
+            d0_par1 = ( 0.35, 4.0 ),
+            dz_par1 = ( 0.4, 4.0 ),
+            d0_par2 = ( 0.4, 4.0 ),
+            dz_par2 = ( 0.4, 4.0 )
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'pixelPairStepTight',
@@ -157,23 +153,23 @@ pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             minNumberLayers = 4,
             maxNumberLostLayers = 2,
             minNumber3DLayers = 3,
-            d0_par1 = ( 0.2, 4.0 ),
-            dz_par1 = ( 0.25, 4.0 ),
-            d0_par2 = ( 0.25, 4.0 ),
-            dz_par2 = ( 0.25, 4.0 )
+            d0_par1 = ( 0.3, 4.0 ),
+            dz_par1 = ( 0.35, 4.0 ),
+            d0_par2 = ( 0.35, 4.0 ),
+            dz_par2 = ( 0.35, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'pixelPairStep',
             preFilterName = 'pixelPairStepTight',
-            chi2n_par = 0.25,
+            chi2n_par = 0.4,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 5,
-            maxNumberLostLayers = 1,
+            maxNumberLostLayers = 2,
             minNumber3DLayers = 4,
-            d0_par1 = ( 0.15, 4.0 ),
-            dz_par1 = ( 0.2, 4.0 ),
-            d0_par2 = ( 0.2, 4.0 ),
-            dz_par2 = ( 0.2, 4.0 )
+            d0_par1 = ( 0.25, 4.0 ),
+            dz_par1 = ( 0.3, 4.0 ),
+            d0_par2 = ( 0.3, 4.0 ),
+            dz_par2 = ( 0.3, 4.0 )
             ),
         ) #end of vpset
     ) #end of clone
