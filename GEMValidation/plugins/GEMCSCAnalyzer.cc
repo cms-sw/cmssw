@@ -753,6 +753,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     }
   }
 
+   //for GEMs in station1, it will be also filled in ME11
   // GEM simhits in superchamber
   for(auto d: match_sh.superChamberIdsGEM())
   {
@@ -780,6 +781,28 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
       if (odd) etrk_[st].has_gem_sh2 |= 1;
       else     etrk_[st].has_gem_sh2 |= 2;
     }
+    //ME11 Case
+    if (st==2 or st==3)
+    {
+      if (odd) etrk_[1].has_gem_sh |= 1;
+      else     etrk_[1].has_gem_sh |= 2;
+
+      auto sh_gp = match_sh.simHitsMeanPosition(match_sh.hitsInSuperChamber(d));
+      if (odd) etrk_[1].eta_gemsh_odd = sh_gp.eta();
+      else     etrk_[1].eta_gemsh_even = sh_gp.eta();
+
+      const float mean_strip(match_sh.simHitsMeanStrip(match_sh.hitsInSuperChamber(d)));
+      if (odd) etrk_[1].strip_gemsh_odd = mean_strip;
+      else     etrk_[1].strip_gemsh_even = mean_strip;
+
+    if (match_sh.nLayersWithHitsInSuperChamber(d) > 1)
+    {
+      if (odd) etrk_[1].has_gem_sh2 |= 1;
+      else etrk_[1].has_gem_sh2 |= 2;
+
+    }
+  }//end of ME11 case
+
   }
 
   // placeholders for best mtching pads
@@ -855,6 +878,77 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     }
   }
 
+//ME11Case
+  for(auto d: match_gd.superChamberIds())
+  {
+    GEMDetId id(d);
+    const int st_ME(detIdToMEStation(id.station(),id.ring()));
+    if (stations_to_use_.count(st_ME) == 0) continue;
+    if (st_ME!=2 and st_ME!=3) continue;
+
+    const int st = 1; //case for ME11
+    const bool odd(id.chamber()%2==1);
+    if (match_gd.nLayersWithDigisInSuperChamber(d) > 1)
+    {
+      if (odd) etrk_[st].has_gem_dg2 |= 1;
+      else     etrk_[st].has_gem_dg2 |= 2;
+    }
+
+    auto digis = match_gd.digisInSuperChamber(d);
+    const int median_strip(match_gd.median(digis));
+    if (odd && digis.size() > 0)
+    {
+      etrk_[st].has_gem_dg |= 1;
+      etrk_[st].strip_gemdg_odd = median_strip;
+    }
+    else if (digis.size() > 0)
+    {
+      etrk_[st].has_gem_dg |= 2;
+      etrk_[st].strip_gemdg_even = median_strip;
+    }
+
+    if (match_gd.nLayersWithPadsInSuperChamber(d) > 1)
+    {
+      if (odd) etrk_[st].has_gem_pad2 |= 1;
+      else     etrk_[st].has_gem_pad2 |= 2;
+    }
+
+    auto pads = match_gd.padsInSuperChamber(d);
+    if(pads.size() == 0) continue;
+    if (odd)
+    {
+      etrk_[st].has_gem_pad |= 1;
+      etrk_[st].chamber_odd |= 1;
+      etrk_[st].pad_odd = digi_channel(pads.at(0));
+      if (is_valid(lct_odd[st]))
+      {
+        auto gem_dg_and_gp = match_gd.digiInGEMClosestToCSC(pads, gp_lct_odd[st]);
+        best_pad_odd[st] = gem_dg_and_gp.second;
+        etrk_[st].bx_pad_odd = digi_bx(gem_dg_and_gp.first);
+        etrk_[st].phi_pad_odd = best_pad_odd[st].phi();
+        etrk_[st].eta_pad_odd = best_pad_odd[st].eta();
+        etrk_[st].dphi_pad_odd = deltaPhi(etrk_[st].phi_lct_odd, etrk_[st].phi_pad_odd);
+        etrk_[st].deta_pad_odd = etrk_[st].eta_lct_odd - etrk_[st].eta_pad_odd;
+      }
+    }
+    else
+    {
+      etrk_[st].has_gem_pad |= 2;
+      etrk_[st].chamber_even |= 1;
+      etrk_[st].pad_even = digi_channel(pads.at(0));
+      if (is_valid(lct_even[st]))
+      {
+        auto gem_dg_and_gp = match_gd.digiInGEMClosestToCSC(pads, gp_lct_even[st]);
+        best_pad_even[st] = gem_dg_and_gp.second;
+        etrk_[st].bx_pad_even = digi_bx(gem_dg_and_gp.first);
+        etrk_[st].phi_pad_even = best_pad_even[st].phi();
+        etrk_[st].eta_pad_even = best_pad_even[st].eta();
+        etrk_[st].dphi_pad_even = deltaPhi(etrk_[st].phi_lct_even, etrk_[st].phi_pad_even);
+        etrk_[st].deta_pad_even = etrk_[st].eta_lct_even - etrk_[st].eta_pad_even;
+      }
+    }
+   }
+
   for(auto d: match_gd.superChamberIdsWithCoPads())
   {
     GEMDetId id(d);
@@ -869,6 +963,17 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     if (copads.size() == 0) continue;
     if (odd) etrk_[st].Copad_odd = digi_channel(copads.at(0));
     else etrk_[st].Copad_even = digi_channel(copads.at(0));
+
+    if (st==2 or st==3)
+    {
+    if (odd) etrk_[1].has_gem_copad |= 1;
+    else     etrk_[1].has_gem_copad |= 2;
+    
+    auto copads = match_gd.coPadsInSuperChamber(d);
+    if (copads.size() == 0) continue;
+    if (odd) etrk_[1].Copad_odd = digi_channel(copads.at(0));
+    else etrk_[1].Copad_even = digi_channel(copads.at(0));
+    }
   }
  
   for (auto s: stations_to_use_)
