@@ -5,6 +5,7 @@
 /// Collects concrete algorithm implmentations.
 ///
 /// \author: R. Alex Barbieri MIT
+///          Kalanand Mishra, Fermilab
 ///
 
 //
@@ -28,15 +29,12 @@ namespace l1t {
     virtual ~Stage1Layer2EGammaAlgorithmImpPP();
     virtual void processEvent(const std::vector<l1t::CaloEmCand> & clusters,
 			      const std::vector<l1t::CaloRegion> & regions,
-			      std::vector<l1t::EGamma> & egammas,
-			      std::list<L1GObject> & rlxEGList,
-			      std::list<L1GObject> & isoEGList);
+			      std::vector<l1t::EGamma> & egammas);
 
     unsigned int egtSeed;
 
     double puLevel;
     double relativeIsolationCut;
-    double relativeJetIsolationCut;
 
   };
 }

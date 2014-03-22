@@ -13,12 +13,11 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 
-void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & clusters, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma> & egammas, std::list<L1GObject> & rlxEGList, std::list<L1GObject> & isoEGList) {
+void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & clusters, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma> & egammas) {
 
   egtSeed = 0;
   puLevel = 0.0;
-  rlxEGList.clear();
-  isoEGList.clear();
+  relativeIsolationCut = 0.2;
 
   for(CaloEmCandBxCollection::const_iterator egCand = clusters.begin();
 	  egCand != clusters.end(); egCand++) {
@@ -47,20 +46,16 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
      }
 
      isolation -=  puLevel;   // Core isolation (could go less than zero)
-     rlxEGList.push_back(L1GObject(eg_et, eg_eta, eg_phi, "EG"));
-     rlxEGList.back().associatedRegionEt_ = isolation;
 
-
-     double relativeIsolation = isolation / eg_et;
-     if(relativeIsolation < relativeIsolationCut) {
-        // Relative isolation makes it to IsoEG
-        isoEGList.push_back(L1GObject(eg_et, eg_eta, eg_phi, "IsoEG"));
-     }
-
+ 
      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *egLorentz =
         new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-      l1t::EGamma theEG(*egLorentz, eg_et, eg_eta, eg_phi);
+     int quality = 0;
+     int isoFlag = 0;
+     if(isolation / eg_et < relativeIsolationCut) isoFlag  = 1;
+
+     l1t::EGamma theEG(*egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
       egammas.push_back(theEG);
   }
 
@@ -73,9 +68,4 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
    std::sort(egammas.begin(), egammas.end(), comp);
    std::reverse(egammas.begin(), egammas.end());
-
-  rlxEGList.sort();
-  isoEGList.sort();
-  rlxEGList.reverse();
-  isoEGList.reverse();
 }
