@@ -24,6 +24,8 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:out_L1.root')
 )
 
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import *
 from GEMCode.GEMValidation.InputFileHelpers import *
