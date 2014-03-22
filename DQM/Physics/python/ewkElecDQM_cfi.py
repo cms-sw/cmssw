@@ -5,7 +5,7 @@ ewkElecDQM = cms.EDAnalyzer("EwkElecDQM",
       # Input collections ->
       TrigTag = cms.untracked.InputTag("TriggerResults::HLT"),
 #      MuonTag = cms.untracked.InputTag("muons"),
-      ElecTag = cms.untracked.InputTag("gsfElectrons"),
+      ElecTag = cms.untracked.InputTag("gedGsfElectrons"),
       METTag = cms.untracked.InputTag("pfMet"),
       METIncludesMuons = cms.untracked.bool(False),
       JetTag = cms.untracked.InputTag("ak5PFJets"),

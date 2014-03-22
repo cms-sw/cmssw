@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -20,13 +21,12 @@
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 
 SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     const edm::ParameterSet& cfg) 
-  : theConfig(cfg), theGenerator(0), theRegionProducer(0),
-    theClusterCheck(cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet")),
+  : theConfig(cfg), theRegionProducer(0),
+    theClusterCheck(cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet"),consumesCollector()),
     theMerger_(0)
 {
   theSilentOnClusterCheck = cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false);
@@ -34,13 +34,13 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   moduleName = cfg.getParameter<std::string>("@module_label");
 
   // seed merger & its settings
+  edm::ConsumesCollector iC = consumesCollector();
   if ( cfg.exists("SeedMergerPSet")) {
     edm::ParameterSet mergerPSet = theConfig.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
-    theMerger_=new QuadrupletSeedMerger();
+    theMerger_=new QuadrupletSeedMerger(mergerPSet.getParameter<edm::ParameterSet>( "layerList" ), iC);
     theMerger_->setTTRHBuilderLabel( mergerPSet.getParameter<std::string>( "ttrhBuilderLabel" ) );
     theMerger_->setMergeTriplets( mergerPSet.getParameter<bool>( "mergeTriplets" ) );
     theMerger_->setAddRemainingTriplets( mergerPSet.getParameter<bool>( "addRemainingTriplets" ) );
-    theMerger_->setLayerListName( mergerPSet.getParameter<std::string>( "layerListName" ) );
   }
 
   edm::ParameterSet regfactoryPSet = 
@@ -48,40 +48,40 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
   theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
 
-  produces<TrajectorySeedCollection>();
-}
-
-SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
-{
-  delete theRegionProducer;
-}
-
-void SeedGeneratorFromRegionHitsEDProducer::endRun(edm::Run const&run, const edm::EventSetup& es) {
-  delete theGenerator;
-}
-
-void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run const&run, const edm::EventSetup& es)
-{
-  edm::ParameterSet hitsfactoryPSet = 
+  edm::ParameterSet hitsfactoryPSet =
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
-  OrderedHitsGenerator*  hitsGenerator = 
-      OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
+  OrderedHitsGenerator*  hitsGenerator =
+    OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
 
   edm::ParameterSet comparitorPSet =
       theConfig.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
-  SeedComparitor * aComparitor = (comparitorName == "none") ? 
-      0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet);   
+  SeedComparitor * aComparitor = (comparitorName == "none") ?
+      0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet);
 
   edm::ParameterSet creatorPSet =
       theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
   std::string creatorName = creatorPSet.getParameter<std::string>("ComponentName");
   SeedCreator * aCreator = SeedCreatorFactory::get()->create( creatorName, creatorPSet);
 
-  theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, aComparitor, aCreator); 
+  theGenerator.reset(new SeedGeneratorFromRegionHits(hitsGenerator, aComparitor, aCreator));
+
+  produces<TrajectorySeedCollection>();
 }
 
+SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
+{
+  delete theRegionProducer; theRegionProducer = nullptr;
+}
+
+void SeedGeneratorFromRegionHitsEDProducer::endRun(edm::Run const&run, const edm::EventSetup& es) {
+}
+
+void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run const&run, const edm::EventSetup& es)
+{
+}
+ 
 void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   std::auto_ptr<TrajectorySeedCollection> triplets(new TrajectorySeedCollection());
@@ -119,7 +119,7 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
       }
     }
   }
- 
+
   // clear memory
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
 

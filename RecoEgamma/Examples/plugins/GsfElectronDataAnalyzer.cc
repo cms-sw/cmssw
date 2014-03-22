@@ -1154,7 +1154,7 @@ GsfElectronDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	// supercluster related distributions
 	reco::SuperClusterRef sclRef = gsfIter->superCluster();
-	if (!gsfIter->ecalDrivenSeed()&&gsfIter->trackerDrivenSeed()) sclRef = gsfIter->pflowSuperCluster();
+	if (!gsfIter->ecalDrivenSeed()&&gsfIter->trackerDrivenSeed()) sclRef = gsfIter->parentSuperCluster();
         histSclEn_->Fill(sclRef->energy());
         double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
         double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());

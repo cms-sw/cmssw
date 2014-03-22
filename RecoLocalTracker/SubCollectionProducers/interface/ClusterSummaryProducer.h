@@ -70,16 +70,17 @@ class ClusterSummaryProducer : public edm::EDProducer {
       ~ClusterSummaryProducer(){};
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void beginJob() override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
       void decodeInput(std::vector<std::string> &, std::string );
       
       // ----------member data ---------------------------
       
-      edm::InputTag stripClustersLabel;
-      edm::InputTag pixelClustersLabel;
+      edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
+      edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
       std::string stripModules;
+
       std::vector<std::string> v_stripModuleTypes;
       std::string pixelModules;
       std::vector<std::string> v_pixelModuleTypes;

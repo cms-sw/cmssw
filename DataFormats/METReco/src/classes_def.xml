@@ -1,7 +1,8 @@
 <lcgdict>
 
-  <class name="CommonMETData" ClassVersion="10">
+  <class name="CommonMETData" ClassVersion="11">
    <version ClassVersion="10" checksum="2091468611"/>
+   <version ClassVersion="11" checksum="2315500095"/>
   </class>
   <class name="edm::Wrapper<CommonMETData>"/> 
   <class name="std::vector<CommonMETData>"/> 

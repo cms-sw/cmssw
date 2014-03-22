@@ -3,8 +3,8 @@
 /** \class TrackMultiSelector
  *
  * selects a subset of a track collection, copying extra information on demand
- * 
- * \author Giovanni Petrucciani 
+ *
+ * \author Giovanni Petrucciani
  *
  *
  *
@@ -45,7 +45,7 @@ namespace reco { namespace modules {
                 template<typename T> std::pair<T,T> p2p(const edm::ParameterSet & cfg, const std::string name);
             };
         public:
-            /// constructor 
+            /// constructor
             explicit TrackMultiSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
             virtual ~TrackMultiSelector() ;
@@ -61,8 +61,12 @@ namespace reco { namespace modules {
 				  const std::vector<Point> &points, const Block &cut);
             /// source collection label
             edm::InputTag src_;
-            edm::InputTag vertices_;
-            edm::InputTag beamspot_;
+            edm::EDGetTokenT<reco::VertexCollection> vertices_;
+            edm::EDGetTokenT<reco::BeamSpot> beamspot_;
+	    edm::EDGetTokenT<reco::TrackCollection> tokenTracks;
+	    edm::EDGetTokenT<std::vector<Trajectory> > tokenTraj;
+	    edm::EDGetTokenT<TrajTrackAssociationCollection> tokenTrajTrack;
+
             double        beamspotDZsigmas_, beamspotD0_;
             /// copy only the tracks, not extras and rechits (for AOD)
             bool copyExtras_;
@@ -71,7 +75,7 @@ namespace reco { namespace modules {
             /// split selections in more sets
             bool splitOutputs_;
             /// filter psets
-            std::vector<Block> blocks_; 
+            std::vector<Block> blocks_;
             /// vertex cuts
             int32_t vtxNumber_;
             size_t  vtxTracks_;

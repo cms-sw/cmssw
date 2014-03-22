@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patPhotons = cms.EDProducer("PATPhotonProducer",
     # input collection
-    photonSource = cms.InputTag("photons"),
+    photonSource = cms.InputTag("gedPhotons"),
                                  
     # user data to add
     userData = cms.PSet(
@@ -41,9 +41,9 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
     # photon ID
     addPhotonID = cms.bool(True),
     photonIDSources = cms.PSet(
-             PhotonCutBasedIDLoose = cms.InputTag('PhotonIDProd',
+             PhotonCutBasedIDLoose = cms.InputTag('PhotonIDProdGED',
                                                   'PhotonCutBasedIDLoose'),
-             PhotonCutBasedIDTight = cms.InputTag('PhotonIDProd',
+             PhotonCutBasedIDTight = cms.InputTag('PhotonIDProdGED',
                                                   'PhotonCutBasedIDTight')
            ),
     # mc matching

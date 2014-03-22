@@ -25,6 +25,8 @@ class RandomEngineGlue : public RandomGenerator {
 	RandomEngineGlue();
 	virtual ~RandomEngineGlue();
 
+	void setRandomEngine(CLHEP::HepRandomEngine* v) { randomEngine = v; }
+
 	void flush();
 
 	static void Init();
@@ -33,6 +35,9 @@ class RandomEngineGlue : public RandomGenerator {
 	    public:
 		RandomEngineGlue *getInstance() const { return instance; }
 
+                CLHEP::HepRandomEngine* getRandomEngine() const { return randomEngine; }
+                void setRandomEngine(CLHEP::HepRandomEngine* v) { randomEngine = v; }
+
 	    private:
 		friend class RandomEngineGlue;
 		friend class ThePEG::Proxy<Proxy>;
@@ -40,6 +45,16 @@ class RandomEngineGlue : public RandomGenerator {
 		inline Proxy(ProxyID id) : Base(id), instance(0) {}
 
 		RandomEngineGlue *instance;
+
+                // I do not like putting this here, but I could not
+                // think of an alternative without modifying the
+                // external code in ThePEG. The problem is the
+                // function ThePEG::Repository::makeRun both
+                // sets the pointer in the proxy and uses the
+                // engine. There is no opportunity to set the
+                // engine pointer before it is used without passing
+                // it in through the proxy.
+                CLHEP::HepRandomEngine  *randomEngine;
 	};
 
     protected:

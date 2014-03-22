@@ -42,6 +42,7 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 
 class TrackerTopology;
+namespace edm { class ConsumesCollector; }
 
 ///
 /// helper class for extracting info
@@ -78,7 +79,7 @@ class QuadrupletSeedMerger {
 
  public:
 
-  QuadrupletSeedMerger( );
+  explicit QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
   ~QuadrupletSeedMerger();
 
   void update(const edm::EventSetup& );
@@ -87,25 +88,23 @@ class QuadrupletSeedMerger {
   const TrajectorySeedCollection mergeTriplets( const TrajectorySeedCollection&, const TrackingRegion&, const edm::EventSetup&, const edm::ParameterSet& );
   std::pair<double,double> calculatePhiEta( SeedingHitSet const& ) const;
   void printHit( const TrackingRecHit* ) const;
-  void printHit( const  TransientTrackingRecHit::ConstRecHitPointer& ) const;
   void printNtuplet( const SeedingHitSet& ) const;
-  void setLayerListName( std::string );
   void setMergeTriplets( bool );
   void setAddRemainingTriplets( bool );
   void setTTRHBuilderLabel( std::string );
 
  private:
-  typedef std::array<TransientTrackingRecHit::ConstRecHitPointer, 4> QuadrupletHits;
+  typedef std::array<SeedingHitSet::ConstRecHitPointer, 4> QuadrupletHits;
   void mySort(QuadrupletHits& unsortedHits);
 
   bool isValidQuadruplet(const QuadrupletHits& quadruplet, const std::vector<SeedMergerPixelLayer>& layers, const TrackerTopology *tTopo) const;
 
     // bool isValidQuadruplet( const SeedingHitSet&, const std::vector<SeedMergerPixelLayer>& ) const;
 
+  SeedingLayerSetsBuilder theLayerBuilder_;
   ctfseeding::SeedingLayerSets theLayerSets_;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry_;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder_;
-  std::string layerListName_;
   bool isMergeTriplets_;
   bool isAddRemainingTriplets_;
   std::string theTTRHBuilderLabel_;

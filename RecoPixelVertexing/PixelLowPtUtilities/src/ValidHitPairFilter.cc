@@ -49,8 +49,16 @@ float spin(float ph)
 
 /*****************************************************************************/
 ValidHitPairFilter::ValidHitPairFilter
-  (const edm::ParameterSet& ps, const edm::EventSetup& es)
+  (const edm::ParameterSet& ps, edm::ConsumesCollector& iC)
 {
+}
+
+/*****************************************************************************/
+ValidHitPairFilter::~ValidHitPairFilter()
+{
+}
+/*****************************************************************************/
+void ValidHitPairFilter::update(const edm::Event& ev, const edm::EventSetup& es) {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
   es.get<IdealGeometryRecord>().get(tTopo);
@@ -129,10 +137,6 @@ ValidHitPairFilter::ValidHitPairFilter
   }
 }
 
-/*****************************************************************************/
-ValidHitPairFilter::~ValidHitPairFilter()
-{
-}
 /*****************************************************************************/
 int ValidHitPairFilter::getLayer(const TrackingRecHit & recHit, const TrackerTopology *tTopo) const
 {

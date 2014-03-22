@@ -17,11 +17,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-//#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "RecoMuon/MuonIdentification/plugins/MuonLinksProducerForHLT.h"
 
 //#include <algorithm>
@@ -34,6 +29,10 @@ MuonLinksProducerForHLT::MuonLinksProducerForHLT(const edm::ParameterSet& iConfi
    ptMin = iConfig.getParameter<double>("ptMin");
    pMin = iConfig.getParameter<double>("pMin");
    shareHitFraction = iConfig.getParameter<double>("shareHitFraction");
+
+   linkToken_ = consumes<reco::MuonTrackLinksCollection>(theLinkCollectionInInput);
+   trackToken_ = consumes<reco::TrackCollection>(theInclusiveTrackCollectionInInput);
+   
 }
 
 MuonLinksProducerForHLT::~MuonLinksProducerForHLT()
@@ -45,10 +44,10 @@ void MuonLinksProducerForHLT::produce(edm::Event& iEvent, const edm::EventSetup&
    std::auto_ptr<reco::MuonTrackLinksCollection> output(new reco::MuonTrackLinksCollection());
 
    edm::Handle<reco::MuonTrackLinksCollection> links; 
-   iEvent.getByLabel(theLinkCollectionInInput, links);
+   iEvent.getByToken(linkToken_, links);
 
    edm::Handle<reco::TrackCollection> incTracks; 
-   iEvent.getByLabel(theInclusiveTrackCollectionInInput, incTracks);
+   iEvent.getByToken(trackToken_, incTracks);
 
    for(reco::MuonTrackLinksCollection::const_iterator link = links->begin(); 
        link != links->end(); ++link){

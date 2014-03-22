@@ -18,6 +18,9 @@ namespace edm {
   Ptr<typename C::value_type> refToPtr(
     Ref<C, typename C::value_type, refhelper::FindUsingAdvance<C, typename C::value_type> > const& ref) {
     typedef typename C::value_type T;
+    if (ref.isNull()) {
+      return Ptr<T>();
+    }
     if (ref.isTransient()) {
       return Ptr<T>(ref.product(), ref.key());
     } else if (not ref.hasProductCache()) {

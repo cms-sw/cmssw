@@ -1,7 +1,7 @@
 #ifndef DQMOFFLINE_L1TRIGGER_L1TEFFICIENCYMUON_OFFLINE_H
 #define DQMOFFLINE_L1TRIGGER_L1TEFFICIENCYMUON_OFFLINE_H
 
-/*
+/**
  * \file L1TEfficiencyMuons.h
  *
  * \author J. Pela, C. Battilana

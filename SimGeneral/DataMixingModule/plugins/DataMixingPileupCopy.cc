@@ -27,7 +27,7 @@ namespace edm
   DataMixingPileupCopy::DataMixingPileupCopy() { } 
 
   // Constructor 
-  DataMixingPileupCopy::DataMixingPileupCopy(const edm::ParameterSet& ps) : 
+  DataMixingPileupCopy::DataMixingPileupCopy(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
 							    label_(ps.getParameter<std::string>("Label"))
 
   {                                                         
@@ -37,6 +37,8 @@ namespace edm
     PileupInfoInputTag_ = ps.getParameter<edm::InputTag>("PileupInfoInputTag");
     CFPlaybackInputTag_ = ps.getParameter<edm::InputTag>("CFPlaybackInputTag");
 
+    iC.consumes<std::vector<PileupSummaryInfo>>(PileupInfoInputTag_);
+    iC.consumes<CrossingFramePlaybackInfoExtended>(CFPlaybackInputTag_);
   }
 	       
   // Virtual destructor needed.
@@ -69,9 +71,13 @@ namespace edm
     boost::shared_ptr<Wrapper<CrossingFramePlaybackInfoExtended>  const> PlaybackPTR =
       getProductByTag<CrossingFramePlaybackInfoExtended>(*ep,CFPlaybackInputTag_, mcc);
 
+    FoundPlayback_ = false;
+
     if(PlaybackPTR ) {
 
       CrossingFramePlaybackStorage_ = *(PlaybackPTR->product()) ;
+
+      FoundPlayback_ = true;
 
     }
 
@@ -89,17 +95,22 @@ namespace edm
 
     }
 
-    std::vector<std::vector<edm::EventID> > IdVect; 
+    if(FoundPlayback_ ) {
 
-    CrossingFramePlaybackStorage_.getEventStartInfo(IdVect, 0);
+      std::vector<std::vector<edm::EventID> > IdVect; 
 
-    std::auto_ptr< CrossingFramePlaybackInfoExtended  > CFPlaybackInfo( new CrossingFramePlaybackInfoExtended(0, IdVect.size(), 1 ));
+      CrossingFramePlaybackStorage_.getEventStartInfo(IdVect, 0);
 
-    CFPlaybackInfo->setEventStartInfo(IdVect, 0);
+      std::auto_ptr< CrossingFramePlaybackInfoExtended  > CFPlaybackInfo( new CrossingFramePlaybackInfoExtended(0, IdVect.size(), 1 ));
 
+      CFPlaybackInfo->setEventStartInfo(IdVect, 0);
+
+      e.put(CFPlaybackInfo);
+
+    }
 
     e.put(PSIVector);
-    e.put(CFPlaybackInfo);
+
 
     // clear local storage after this event
     PileupSummaryStorage_.clear();

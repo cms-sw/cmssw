@@ -3,6 +3,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MomentumScaleCorrector.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/ResolutionFunction.h"
 
@@ -19,8 +23,8 @@ class MuonWithPFIsoProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
 
-      edm::InputTag muonTag_;
-      edm::InputTag pfTag_;
+      edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+      edm::EDGetTokenT<edm::View<reco::PFCandidate> > pfToken_;
 
       bool usePfMuonsOnly_;
 
@@ -31,12 +35,9 @@ class MuonWithPFIsoProducer : public edm::EDProducer {
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 
@@ -47,10 +48,10 @@ MuonWithPFIsoProducer::MuonWithPFIsoProducer(const edm::ParameterSet& pset) {
       produces<std::vector<reco::Muon> >();
 
   // Muon collection
-      muonTag_ = pset.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"));
+      muonToken_ = consumes<edm::View<reco::Muon> >(pset.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons")));
 
   // PF candidate collection
-      pfTag_ = pset.getUntrackedParameter<edm::InputTag> ("PFTag", edm::InputTag("particleFlow"));
+      pfToken_ = consumes<edm::View<reco::PFCandidate> >(pset.getUntrackedParameter<edm::InputTag> ("PFTag", edm::InputTag("particleFlow")));
 
   // Use only PF muons to get exact consistency with PfMET
       usePfMuonsOnly_ = pset.getUntrackedParameter<bool> ("UsePfMuonsOnly", false);
@@ -60,7 +61,7 @@ MuonWithPFIsoProducer::MuonWithPFIsoProducer(const edm::ParameterSet& pset) {
       gammaIsoVeto_ = pset.getUntrackedParameter<double> ("GammaIsoVeto", 0.07);
       neutralHadronIsoVeto_ = pset.getUntrackedParameter<double> ("NeutralHadronIsoVeto", 0.1);
 
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 MuonWithPFIsoProducer::~MuonWithPFIsoProducer(){
@@ -82,7 +83,7 @@ void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
 
       // Get Muon collection
       edm::Handle<edm::View<reco::Muon> > muonCollection;
-      if (!ev.getByLabel(muonTag_, muonCollection)) {
+      if (!ev.getByToken(muonToken_, muonCollection)) {
             edm::LogError("") << ">>> Muon collection does not exist !!!";
             ev.put(newmuons);
             return;
@@ -90,15 +91,15 @@ void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
 
       // Get PFCandidate collection
       edm::Handle<edm::View<reco::PFCandidate> > pfCollection;
-      if (!ev.getByLabel(pfTag_, pfCollection)) {
+      if (!ev.getByToken(pfToken_, pfCollection)) {
             edm::LogError("") << ">>> PFCandidate collection does not exist !!!";
             ev.put(newmuons);
             return;
       }
 
-      // Loop over Pf candidates to find muons and collect deposits in veto, 
+      // Loop over Pf candidates to find muons and collect deposits in veto,
       // dR<0.3 and dR<0.5 cones. Interpret "track" as charged particles (e,mu,
-      // chraged hadrons). Interpret "em" as photons and also as electromagnetic 
+      // chraged hadrons). Interpret "em" as photons and also as electromagnetic
       // energy in HF. Interpret "had" as neutral hadrons and also as hadronic
       // energy in HF. Apply weights if requested at input level.
       // HO energies are not filled. Ditto for jet energies around the muon.
@@ -127,7 +128,7 @@ void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
                         thisIsTheMuon = true;
                         muonFound = true;
                   }
-                         
+
                   // Get dR. Nothing to add if dR>0.5
                   double deltaR = Geom::deltaR(mu->momentum(),pf->momentum());
                   if (deltaR>0.5) continue;
@@ -148,7 +149,7 @@ void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
                               }
                         }
                   // Fill "em" components
-                  } else if (   pf->particleId()==reco::PFCandidate::gamma 
+                  } else if (   pf->particleId()==reco::PFCandidate::gamma
                              || pf->particleId()==reco::PFCandidate::egamma_HF) {
                         if (deltaR<gammaIsoVeto_) {
                               iso05.emVetoEt += pf->pt();
@@ -175,7 +176,7 @@ void MuonWithPFIsoProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
 
             // Set this isolation information in the new muon
             newmu->setIsolation(iso03,iso05);
-            
+
             // Add new muon to output collection
             newmuons->push_back(*newmu);
 

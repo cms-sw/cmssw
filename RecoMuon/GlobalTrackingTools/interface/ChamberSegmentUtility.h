@@ -28,13 +28,16 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 
 class ChamberSegmentUtility {
 
  public:
 
-  ChamberSegmentUtility(const edm::Event&, const edm::EventSetup&);
+  ChamberSegmentUtility();
+
+  void initCSU(const edm::Handle<DTRecSegment4DCollection>&, const edm::Handle<CSCSegmentCollection>&);
 
   // Get the 4D segments in a CSC chamber
   std::vector<CSCSegment> getCSCSegmentsInChamber(CSCDetId);
@@ -61,6 +64,9 @@ class ChamberSegmentUtility {
   edm::Handle<CSCSegmentCollection> CSCSegments;
   edm::ESHandle<DTGeometry> dtGeom;
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
+
+  //  edm::EDGetTokenT<CSCSegmentCollection> CSCSegmentsToken;
+  //  edm::EDGetTokenT<DTRecSegment4DCollection> all4DSegmentsToken;
 
   std::vector<DTRecSegment4D> dtseg;
   std::vector<CSCSegment> cscseg;

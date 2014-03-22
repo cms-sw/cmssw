@@ -102,7 +102,6 @@ namespace sistrip {
 
     static bool lFirstEvent = true;
     edm::Handle<uint32_t> lRun;
-    //    aEvt.getByLabel( runTag_, lRun ); 
     aEvt.getByToken( runToken_, lRun ); 
 
     const bool isUpdated = updateRun(*lRun);

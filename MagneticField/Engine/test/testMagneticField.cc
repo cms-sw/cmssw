@@ -485,16 +485,16 @@ const MagVolume6Faces* testMagneticField::findMasterVolume(int volume, int secto
 
   if (vbffield==0) return 0;
 
-  const vector<MagVolume6Faces*>& bvol = vbffield->barrelVolumes();
-  for (vector<MagVolume6Faces*>::const_iterator i=bvol.begin();
+  const vector<MagVolume6Faces const*>& bvol = vbffield->barrelVolumes();
+  for (vector<MagVolume6Faces const*>::const_iterator i=bvol.begin();
        i!=bvol.end(); i++) {
     if ((*i)->copyno == sector && (*i)->volumeNo==volume) {
       return (*i);
     }
   }
   
-  const vector<MagVolume6Faces*>& evol = vbffield->endcapVolumes();
-  for (vector<MagVolume6Faces*>::const_iterator i=evol.begin();
+  const vector<MagVolume6Faces const*>& evol = vbffield->endcapVolumes();
+  for (vector<MagVolume6Faces const*>::const_iterator i=evol.begin();
        i!=evol.end(); i++) {
     if ((*i)->copyno == sector && (*i)->volumeNo==volume) {
       return (*i);

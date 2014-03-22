@@ -116,14 +116,14 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 //    iSetup.get<SetupRecord>().get(pSetup);
 // #endif
 //from Josh:
-  TFile *infile = new TFile("/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_0_0_pre4/src/RecoEgamma/EgammaTools/test/GBR_Clustering_PFMustache_results.root","READ");
+  TFile *infile = new TFile("eleEnergyRegWeights_WithSubClusters_VApr15.root","READ");
 
   printf("load forest\n");
 
 
-  GBRForest *gbreb = (GBRForest*)infile->Get("EBCorrection");
-  //GBRForest *gbrebvar = (GBRForest*)infile->Get("EBUncertainty");
-  GBRForest *gbree = (GBRForest*)infile->Get("EECorrection");
+  GBRForest *p4comb = (GBRForest*)infile->Get("CombinationWeight");
+  //GBRForest *gbbrebvar = (GBRForest*)infile->Get("EBUncertainty");
+  //GBRForest *gbree = (GBRForest*)infile->Get("EECorrection");
   //GBRForest *gbreevar = (GBRForest*)infile->Get("EEUncertainty");
 
 
@@ -147,12 +147,12 @@ GBRWrapperMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
        
- poolDbService->writeOne( gbreb, poolDbService->beginOfTime(),
-                                                "pfecalsc_EBCorrection"  );
+ poolDbService->writeOne( p4comb, poolDbService->beginOfTime(),
+                                                "gedelectron_p4combination"  );
  //poolDbService->writeOne( gbrebvar, poolDbService->beginOfTime(),
  //"wgbrph_EBUncertainty"  );
- poolDbService->writeOne( gbree, poolDbService->beginOfTime(),
-			  "pfecalsc_EECorrection"  );
+ //poolDbService->writeOne( gbree, poolDbService->beginOfTime(),
+ //"pfecalsc_EECorrection"  );
  //poolDbService->writeOne( gbreevar, poolDbService->beginOfTime(),
  //		  "wgbrph_EEUncertainty"  );
     

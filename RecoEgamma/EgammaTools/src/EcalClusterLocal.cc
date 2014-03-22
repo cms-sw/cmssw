@@ -82,7 +82,7 @@ void EcalClusterLocal::localCoordsEB( const reco::CaloCluster &bclus, const Calo
   double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
   double PhiWidth = (TMath::Pi()/180.);
   phicry = (TVector2::Phi_mpi_pi(Phi-PhiCentr))/PhiWidth;
-    //Some flips to take into account ECAL barrel symmetries:
+  //Some flips to take into account ECAL barrel symmetries:
   if (ieta<0) phicry *= -1.;  
   
   double ThetaCentr = -center_pos.theta()+0.5*TMath::Pi();
@@ -170,5 +170,3 @@ void EcalClusterLocal::localCoordsEE( const reco::CaloCluster &bclus, const Calo
   return;
 
 }
-
-

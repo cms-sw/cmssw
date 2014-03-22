@@ -2,26 +2,28 @@
 #define Validation_RecoVertex_VertexHistogramMaker_H
 
 #include <string>
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
-
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class Run;
-}
 
 class TH1F;
 class TH2F;
 class TProfile;
 class TFileDirectory;
 
+namespace edm {
+  class ConsumesCollector;
+}
+
+class LumiDetails;
+
 class VertexHistogramMaker {
 
  public:
   VertexHistogramMaker();
-  VertexHistogramMaker(const edm::ParameterSet& iConfig);
+  VertexHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
  
   ~VertexHistogramMaker();
 
@@ -44,6 +46,7 @@ class VertexHistogramMaker {
   const bool m_runHisto2D;
   const bool m_bsConstrained;
   const edm::ParameterSet m_histoParameters;
+  edm::EDGetTokenT<LumiDetails> m_lumiDetailsToken;
 
   RunHistogramManager m_rhm;
   RunHistogramManager m_fhm;

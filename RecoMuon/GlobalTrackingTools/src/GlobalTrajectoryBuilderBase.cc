@@ -85,7 +85,8 @@ using namespace edm;
 // Constructors --
 //----------------
 GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet& par,
-                                                         const MuonServiceProxy* service) : 
+                                                         const MuonServiceProxy* service,
+							 edm::ConsumesCollector& iC) : 
   theTrackMatcher(0),theLayerMeasurements(0),theTrackTransformer(0),theRegionBuilder(0), theService(service),theGlbRefitter(0) {
 
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalTrajectoryBuilderBase");
@@ -101,11 +102,11 @@ GlobalTrajectoryBuilderBase::GlobalTrajectoryBuilderBase(const edm::ParameterSet
 
   ParameterSet regionBuilderPSet = par.getParameter<ParameterSet>("MuonTrackingRegionBuilder");
 
-  theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService);
+  theRegionBuilder = new MuonTrackingRegionBuilder(regionBuilderPSet,theService,iC);
 
   // TrackRefitter parameters
   ParameterSet refitterParameters = par.getParameter<ParameterSet>("GlbRefitterParameters");
-  theGlbRefitter = new GlobalMuonRefitter(refitterParameters, theService);
+  theGlbRefitter = new GlobalMuonRefitter(refitterParameters, theService, iC);
 
   theMuonHitsOption = refitterParameters.getParameter<int>("MuonHitsOption");
 
@@ -503,13 +504,14 @@ void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all,
             //// to get a RecHitPointer to SiStripRecHit2D, the only  method that works is
             //// RecHitPointer MuonTransientTrackingRecHit::build(const GeomDet*,const TrackingRecHit*)
             SiStripRecHit2D* st = new SiStripRecHit2D(pos,error,
-                                                      (*lone_tec)->geographicalId().rawId(),
+                                                      *Tstrip->detUnit(),
                                                       strip->cluster());
             *lone_tec = mtt_rechit->build((*lone_tec)->det(),st);
           }
           else {
+            
             SiStripRecHit2D* st = new SiStripRecHit2D(pos,error,
-                                                      (*lone_tec)->geographicalId().rawId(),
+                                                      *Tstrip->detUnit(),
                                                       strip->cluster_regional());
             *lone_tec = mtt_rechit->build((*lone_tec)->det(),st);
           }

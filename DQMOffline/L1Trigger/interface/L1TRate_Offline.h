@@ -1,13 +1,6 @@
 #ifndef DQMOFFLINE_L1TRIGGER_L1TRATE_OFFLINE_H
 #define DQMOFFLINE_L1TRIGGER_L1TRATE_OFFLINE_H
 
-/*
- * \file L1TRate_Offline.h
- *
- * \author J. Pela
- *
-*/
-
 // system include files
 #include <memory>
 #include <unistd.h>
@@ -73,7 +66,7 @@ protected:
   virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
 
 // Private methods
-private:
+//private:
 
   //    bool getXSexFitsOMDS  (const edm::ParameterSet& ps);
   bool getXSexFitsPython(const edm::ParameterSet& ps);
@@ -96,6 +89,7 @@ private:
   const std::vector< std::vector<int> >* m_listsPrescaleFactors; // Collection os all sets of prescales
 
   // Maps
+  std::map<int,double>                    m_lsDeadTime;             // Map of dead time for each LS
   std::map<int,int>                       m_lsPrescaleIndex;        // Map of precale index for each LS
   std::map<int,double>                    m_lsLuminosity;           // Map of luminosity recorded for each LS
   std::map<int,std::map<TString,double> > m_lsRates;                // Map of rates (by bit) recorded for each LS
@@ -105,19 +99,28 @@ private:
   std::map<std::string,std::string>       m_selectedTriggers;       // Map of what trigger to monitor for each category
   std::map<TString,MonitorElement*>       m_xSecObservedToExpected; // Monitor Elements for Observed to Expected Algo XSec 
   std::map<TString,MonitorElement*>       m_xSecVsInstLumi;         // Monitor Elements for Algo XSec vs Instant Luminosity
+  
+  std::map<TString,MonitorElement*>       m_xSecObservedVsDelivLumi;      
+  std::map<TString,MonitorElement*>       m_xSecObservedVsRecorLumi;      
 
-  std::map<TString,MonitorElement*>       m_CountsVsLS;         // Monitor Elements for 
-  std::map<TString,MonitorElement*>       m_InstLumiVsLS;         // Monitor Elements for 
-  std::map<TString,MonitorElement*>       m_PrescIndexVsLS;         // Monitor Elements for 
+
+  std::map<TString,MonitorElement*>       m_CountsVsLS;         // Monitor Elements for counts
+  std::map<TString,MonitorElement*>       m_InstLumiVsLS;         // Monitor Elements for Instant Lumi
+  std::map<TString,MonitorElement*>       m_PrescIndexVsLS;         // Monitor Elements for Prescale Index
+  //  std::map<TString,MonitorElement*>       m_DeadTimeVsLS;         // Monitor Elements (Check Purpose)
+
+  std::map<TString,MonitorElement*>       m_xSecObservedVsLS;      
+  std::map<TString,MonitorElement*>       m_DelivLumiVsLS;      
+  std::map<TString,MonitorElement*>       m_RecorLumiVsLS;      
 
   std::map<TString,TF1*>                  m_templateFunctions;      // For each trigger template f(InstLumi)=XSec
 
   std::map<int,std::map<TString,double> > m_lsCounts;                // Map of counts (by bit) recorded for each LS
 
   // Input tags
-  edm::EDGetTokenT<LumiScalersCollection> m_scalersSource_LSCollection;            // Where to get L1 Scalers
+  edm::EDGetTokenT<LumiScalersCollection>          m_scalersSource_LSCollection;   // Where to get L1 Scalers
   edm::EDGetTokenT<Level1TriggerScalersCollection> m_scalersSource_L1TSCollection; // Where to get L1 Scalers
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputTag;            // Where to get L1 GT Data DAQ
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>   m_l1GtDataDaqInputTag;          // Where to get L1 GT Data DAQ
 
   // ParameterSet
   edm::ParameterSet m_parameters;

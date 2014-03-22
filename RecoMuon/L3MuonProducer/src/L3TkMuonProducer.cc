@@ -29,9 +29,22 @@ L3TkMuonProducer::L3TkMuonProducer(const ParameterSet& parameterSet){
 
   // StandAlone Collection Label
   theL3CollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
+  trackToken_ = consumes<reco::TrackCollection>(theL3CollectionLabel); 
   produces<TrackCollection>();
   produces<TrackExtraCollection>();
   produces<TrackingRecHitCollection>();
+
+
+
+  callWhenNewProductsRegistered( [this](const edm::BranchDescription& iBD) {
+				   edm::TypeID id(typeid(L3MuonTrajectorySeedCollection));
+				   if(iBD.unwrappedTypeID() == id) {
+				     this->mayConsume<L3MuonTrajectorySeedCollection>(edm::InputTag{iBD.moduleLabel(), iBD.productInstanceName(),iBD.processName()} );
+				   }
+				 });
+
+
+
 }
   
 /// destructor
@@ -99,7 +112,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup){
   // Take the L3 container
   LogDebug(metname)<<" Taking the L3/GLB muons: "<<theL3CollectionLabel.label();
   Handle<TrackCollection> tracks; 
-  event.getByLabel(theL3CollectionLabel,tracks);
+  event.getByToken(trackToken_,tracks);
 
   //make the LX->L3s pools
   LXtoL3sMap LXtoL3s;

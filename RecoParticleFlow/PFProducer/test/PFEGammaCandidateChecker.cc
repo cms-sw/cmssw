@@ -42,7 +42,7 @@ namespace {
     }
     bool operator()( const reco::PFCandidate& c ) const {
       return ( mysc.isNonnull() && c.egammaExtraRef().isNonnull() && 
-	       ( c.egammaExtraRef()->superClusterBoxRef()->seed() == 
+	       ( c.egammaExtraRef()->superClusterPFECALRef()->seed() == 
 		 mysc->seed() ) );
     }
   };

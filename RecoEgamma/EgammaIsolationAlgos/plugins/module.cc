@@ -24,7 +24,9 @@ DEFINE_EDM_PLUGIN(IsoDepositExtractorFactory, egammaisolation::EgammaRecHitExtra
 //#include "EgammaDetIdCollectionProducer.h"
 #include "GamIsoDetIdCollectionProducer.h"
 #include "EleIsoDetIdCollectionProducer.h"
+#include "ParticleBasedIsoProducer.h"
 
+DEFINE_FWK_MODULE(ParticleBasedIsoProducer);
 DEFINE_FWK_MODULE(EgammaElectronTkIsolationProducer);
 DEFINE_FWK_MODULE(EgammaElectronTkNumIsolationProducer);
 DEFINE_FWK_MODULE(EgammaPhotonTkIsolationProducer);

@@ -296,7 +296,7 @@ JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   iDesc.add<bool>("useNPV", true);
   iDesc.add<edm::InputTag>("primaryVertices", edm::InputTag("offlinePrimaryVertices"));
   iDesc.add<bool>("useRho", true);
-  iDesc.add<edm::InputTag>("rho", edm::InputTag("kt6PFJets", "rho"));
+  iDesc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllCalo"));
   iDesc.add<std::string>("extraJPTOffset", "L1Offset");
 
   std::vector<std::string> levels;

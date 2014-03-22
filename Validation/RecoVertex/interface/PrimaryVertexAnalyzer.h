@@ -25,36 +25,30 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//generator level
+// generator level
+#include "HepMC/SimpleVector.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
- 
-// vertex stuff
-#include <DataFormats/VertexReco/interface/VertexFwd.h>
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
-// simulated vertices,..., add <use name=SimDataFormats/Vertex> and <../Track>
-#include <SimDataFormats/Vertex/interface/SimVertex.h>
-#include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
-#include <SimDataFormats/Track/interface/SimTrack.h>
-#include <SimDataFormats/Track/interface/SimTrackContainer.h>
+// reco track
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+// reco vertex
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+// simulated track
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
+// simulated vertex
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-// Root
-#include <TH1.h>
-#include <TFile.h>
-#include <TDirectory.h>
-
-
+// ROOT forward declarations
+class TDirectory;
+class TFile;
+class TH1;
 
 // class declaration
 class PrimaryVertexAnalyzer : public edm::EDAnalyzer {
@@ -93,27 +87,27 @@ private:
   bool isFinalstateParticle(const HepMC::GenParticle * p);
   bool isCharged(const HepMC::GenParticle * p);
  
-  void printRecVtxs(const edm::Handle<reco::VertexCollection> recVtxs);
-  void printSimVtxs(const edm::Handle<edm::SimVertexContainer> simVtxs);
-  void printSimTrks(const edm::Handle<edm::SimTrackContainer> simVtrks);
-  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> evtMC, std::string suffix);
-  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> evt, 
-					  const edm::Handle<edm::SimVertexContainer> simVtxs, 
-					  const edm::Handle<edm::SimTrackContainer> simTrks);
+  void printRecVtxs(const edm::Handle<reco::VertexCollection> & recVtxs);
+  void printSimVtxs(const edm::Handle<edm::SimVertexContainer> & simVtxs);
+  void printSimTrks(const edm::Handle<edm::SimTrackContainer> & simVtrks);
+  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> & evtMC, const std::string & suffix = "");
+  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> & evt, 
+					  const edm::Handle<edm::SimVertexContainer> & simVtxs, 
+					  const edm::Handle<edm::SimTrackContainer> & simTrks);
   // ----------member data ---------------------------
-  std::string recoTrackProducer_;
-  std::string outputFile_;       // output file
-  std::vector<std::string> vtxSample_;        // which vertices to analyze
-  std::vector<std::string> suffixSample_;
-  TFile*  rootFile_;             
   bool verbose_;
-  edm::InputTag simG4_;
   double simUnit_;     
   edm::ESHandle < ParticleDataTable > pdt;
-     
-
-	std::map<std::string, TH1*> h;
-	std::map<std::string, TDirectory*> hdir;
+  edm::EDGetTokenT< reco::TrackCollection > recoTrackCollectionToken_;
+  edm::EDGetTokenT< edm::SimVertexContainer > edmSimVertexContainerToken_;
+  edm::EDGetTokenT< edm::SimTrackContainer > edmSimTrackContainerToken_;
+  edm::EDGetTokenT< edm::HepMCProduct > edmHepMCProductToken_;
+  std::vector< edm::EDGetTokenT< reco::VertexCollection > > recoVertexCollectionTokens_;
+  std::string outputFile_;       // output file
+  std::vector<std::string> suffixSample_; // which vertices to analyze
+  TFile*  rootFile_;
+  std::map<std::string, TH1*> h;
+  std::map<std::string, TDirectory*> hdir;
 	
 };
 

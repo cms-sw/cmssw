@@ -8,7 +8,7 @@
 #include "DataFormats/Math/interface/ProjectMatrix.h"
 
 TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
-				           const TransientTrackingRecHit& aRecHit) const {
+				           const TrackingRecHit& aRecHit) const {
     switch (aRecHit.dimension()) {
         case 1: return update<1>(tsos,aRecHit);
         case 2: return update<2>(tsos,aRecHit);
@@ -18,15 +18,14 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
     }
     throw cms::Exception("Rec hit of invalid dimension (not 1,2,3,4,5)") <<
          "The value was " << aRecHit.dimension() << 
-        ", type is " << typeid(aRecHit).name() << 
-        ", persistent rechit type " << (aRecHit.hit() ? typeid(*aRecHit.hit()).name() : "NULL") << "\n";
+        ", type is " << typeid(aRecHit).name() << "\n";
 }
 
 #define NEW
 #ifdef NEW
 template <unsigned int D>
 TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
-				           const TransientTrackingRecHit& aRecHit) const {
+				           const TrackingRecHit& aRecHit) const {
 
   typedef typename AlgebraicROOTObject<D,5>::Matrix MatD5;
   typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;

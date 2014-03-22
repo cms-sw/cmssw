@@ -49,6 +49,8 @@ static char const* const kJobModeOpt="mode";
 static char const* const kMultiThreadMessageLoggerOpt = "multithreadML,t";
 static char const* const kNumberOfThreadsCommandOpt = "numThreads,n";
 static char const* const kNumberOfThreadsOpt = "numThreads";
+static char const* const kSizeOfStackForThreadCommandOpt = "sizeOfStackForThreadsInKB,s";
+static char const* const kSizeOfStackForThreadOpt = "sizeOfStackForThreadsInKB";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kStrictOpt = "strict";
@@ -91,6 +93,7 @@ namespace {
   };
   
   void setNThreads(unsigned int iNThreads,
+		   unsigned int iStackSize,
                    std::unique_ptr<tbb::task_scheduler_init>& oPtr) {
     //The TBB documentation doesn't explicitly say this, but when the task_scheduler_init's
     // destructor is run it does a 'wait all' for all tasks to finish and then shuts down all the threads.
@@ -99,12 +102,15 @@ namespace {
     // get tbb to actually switch the number of threads. If we do not, tbb stays at 1 threads
     edm::LogInfo("ThreadSetup") <<"setting # threads "<<iNThreads;
 
+    //stack size is given in KB but passed in as bytes
+    iStackSize *= 1024;
+
     oPtr.reset();
     if(0==iNThreads) {
       //Allow TBB to decide how many threads. This is normally the number of CPUs in the machine.
-      oPtr = std::unique_ptr<tbb::task_scheduler_init>{new tbb::task_scheduler_init{}};
+      oPtr = std::unique_ptr<tbb::task_scheduler_init>{new tbb::task_scheduler_init{tbb::task_scheduler_init::automatic,iStackSize}};
     } else {
-      oPtr = std::unique_ptr<tbb::task_scheduler_init>{new tbb::task_scheduler_init{static_cast<int>(iNThreads)}};
+      oPtr = std::unique_ptr<tbb::task_scheduler_init>{new tbb::task_scheduler_init{static_cast<int>(iNThreads),iStackSize}};
     }
   }
 }
@@ -124,7 +130,7 @@ int main(int argc, char* argv[]) {
   EventProcessorWithSentry proc;
 
   try {
-    try {
+    returnCode = edm::convertException::wrap([&]()->int {
 
       // NOTE: MacOs X has a lower rlimit for opened file descriptor than Linux (256
       // in Snow Leopard vs 512 in SLC5). This is a problem for some of the workflows
@@ -184,8 +190,10 @@ int main(int argc, char* argv[]) {
                 "enable job report files (if any) specified in configuration file")
         (kJobModeCommandOpt, boost::program_options::value<std::string>(),
                 "Job Mode for MessageLogger defaults - default mode is grid")
-      (kNumberOfThreadsCommandOpt,boost::program_options::value<unsigned int>(),
+	(kNumberOfThreadsCommandOpt,boost::program_options::value<unsigned int>(),
                 "Number of threads to use in job (0 is use all CPUs)")
+	(kSizeOfStackForThreadCommandOpt,boost::program_options::value<unsigned int>(),
+   	        "Size of stack in KB to use for extra threads (0 is use system default size)")
         (kMultiThreadMessageLoggerOpt,
                 "MessageLogger handles multiple threads - default is single-thread")
         (kStrictOpt, "strict parsing");
@@ -227,7 +235,11 @@ int main(int argc, char* argv[]) {
       if(vm.count(kNumberOfThreadsOpt)) {
         setNThreadsOnCommandLine=true;
         unsigned int nThreads = vm[kNumberOfThreadsOpt].as<unsigned int>();
-        setNThreads(nThreads,tsiPtr);
+        unsigned int stackSize=0;
+        if(vm.count(kSizeOfStackForThreadOpt)) {
+	  stackSize=vm[kSizeOfStackForThreadOpt].as<unsigned int>();
+	}
+        setNThreads(nThreads,stackSize,tsiPtr);
       }
 
       if (!vm.count(kParameterSetOpt)) {
@@ -283,7 +295,11 @@ int main(int argc, char* argv[]) {
             auto const& ops = pset->getUntrackedParameterSet("options");
             if(ops.existsAs<unsigned int>("numberOfThreads",false)) {
               unsigned int nThreads = ops.getUntrackedParameter<unsigned int>("numberOfThreads");
-              setNThreads(nThreads,tsiPtr);
+	      unsigned int stackSize=0;
+	      if(ops.existsAs<unsigned int>("sizeOfStackForThreadsInKB",0)) {
+		stackSize = ops.getUntrackedParameter<unsigned int>("sizeOfStackForThreadsInKB");
+	      }
+              setNThreads(nThreads,stackSize,tsiPtr);
             }
           }
         }
@@ -342,26 +358,8 @@ int main(int argc, char* argv[]) {
 
       context = "Calling endJob";
       proc->endJob();
-    }
-    catch (cms::Exception& e) {
-      throw;
-    }
-    // The functions in the following catch blocks throw an edm::Exception
-    catch(std::bad_alloc& bda) {
-      edm::convertException::badAllocToEDM();
-    }
-    catch (std::exception& e) {
-      edm::convertException::stdToEDM(e);
-    }
-    catch(std::string& s) {
-      edm::convertException::stringToEDM(s);
-    }
-    catch(char const* c) {
-      edm::convertException::charPtrToEDM(c);
-    }
-    catch (...) {
-      edm::convertException::unknownToEDM();
-    }
+      return returnCode;
+    });
   }
   // All exceptions which are not handled before propagating
   // into main will get caught here.

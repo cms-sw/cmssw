@@ -10,7 +10,6 @@ std::ostream & operator<<(std::ostream & os, const CSCStripData & data) {
   os << "CSCStripData " << std::endl
      << "------------ " << std::endl
      << "no. of time bins = " << data.ntbins_ << std::endl
-     << "strip = " << data.istrip_ 
      << ", phmax = " << data.phmax_ 
      << ", tmax = " << data.tmax_ << std::endl
      << "phraw: " << std::endl;
@@ -20,5 +19,3 @@ std::ostream & operator<<(std::ostream & os, const CSCStripData & data) {
   return os;     
 }
 
-// Define space for static 
-const int CSCStripData::ntbins_;

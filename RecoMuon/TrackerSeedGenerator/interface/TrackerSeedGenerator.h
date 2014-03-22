@@ -14,7 +14,7 @@ class TrackingRegion;
 class MuonServiceProxy;
 class TrackerTopology;
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {class ParameterSet; class Event; class EventSetup; class ConsumesCollector;}
 
 class TrackerSeedGenerator {
 

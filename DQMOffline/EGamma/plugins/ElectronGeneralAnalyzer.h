@@ -16,6 +16,10 @@ class MagneticField ;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+
 class ElectronGeneralAnalyzer : public ElectronDqmAnalyzerBase
  {
   public:
@@ -33,15 +37,15 @@ class ElectronGeneralAnalyzer : public ElectronDqmAnalyzerBase
     //=========================================
 
     // collection input tags
-    edm::InputTag electronCollection_;
-    edm::InputTag matchingObjectCollection_;
-    edm::InputTag gsftrackCollection_;
-    edm::InputTag trackCollection_;
-    edm::InputTag vertexCollection_;
-    edm::InputTag beamSpotTag_;
+    edm::EDGetTokenT<reco::GsfElectronCollection> electronCollection_;
+    edm::EDGetTokenT<reco::SuperClusterCollection> matchingObjectCollection_;
+    edm::EDGetTokenT<reco::GsfTrackCollection> gsftrackCollection_;
+    edm::EDGetTokenT<reco::TrackCollection> trackCollection_;
+    edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 
     // for trigger
-    edm::InputTag triggerResults_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
     //std::vector<std::string > HLTPathsByName_;
 //
 //    //=========================================

@@ -57,13 +57,12 @@ int main() try {
   crc = crc32(crc, crcbuf, outputModuleLabel.length());
 
   uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
-  std::string host_name = "mytestnode.cms";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
                       Version((const uint8*)psetid),(const char*)reltag,
 		      processName.c_str(),outputModuleLabel.c_str(), crc,
                       hlt_names,hlt_names,l1_names,
-                      adler32_chksum, host_name.c_str());
+                      adler32_chksum);
 
 
   init.setDataLength(sizeof(test_value));
@@ -79,7 +78,6 @@ int main() try {
   view.l1TriggerNames(l12);
 
   uint32 adler32_2 = view.adler32_chksum();
-  std::string host_name2 = view.hostName();
 
 
   InitMsgBuilder init2(&buf2[0],buf2.size(),
@@ -88,8 +86,7 @@ int main() try {
                        view.releaseTag().c_str(),
                        processName.c_str(),outputModuleLabel.c_str(), crc,
                        hlt2,hlt2,l12,
-                       adler32_2,
-                       host_name2.c_str());
+                       adler32_2);
 
   init2.setDataLength(view.descLength());
   std::copy(view.descData(),view.descData()+view.size(),
@@ -115,7 +112,7 @@ int main() try {
   l1bit[3]=false;  l1bit[7]=false;  l1bit[11]=true;  l1bit[15]=true;
 
   adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
-  //host_name = "mytestnode.cms";
+  std::string host_name = "mytestnode.cms";
 
   EventMsgBuilder emb(&buf[0],buf.size(),45,2020,2,0xdeadbeef,3,
                       l1bit,hltbits,hltsize, adler32_chksum, host_name.c_str());
@@ -134,7 +131,7 @@ int main() try {
   eview.l1TriggerBits(l1_out);
   eview.hltTriggerBits(hlt_out);
   adler32_2 = eview.adler32_chksum();
-  host_name2 = eview.hostName();
+  std::string host_name2 = eview.hostName();
 
   EventMsgBuilder emb2(&buf2[0],buf.size(),
                        eview.run(),

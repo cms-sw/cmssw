@@ -8,7 +8,7 @@ template <class T> T sqr( T t) {return t*t;}
 
 #include <iostream>
 
-PixelTrackFilterByKinematics::PixelTrackFilterByKinematics( const edm::ParameterSet& cfg, const edm::EventSetup &es)
+PixelTrackFilterByKinematics::PixelTrackFilterByKinematics( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
   : thePtMin( cfg.getParameter<double>("ptMin") ),
     theNSigmaInvPtTolerance( cfg.getParameter<double>("nSigmaInvPtTolerance")),
     theTIPMax( cfg.getParameter<double>("tipMax") ),
@@ -32,6 +32,8 @@ PixelTrackFilterByKinematics::PixelTrackFilterByKinematics(double ptmin, double 
 
 PixelTrackFilterByKinematics::~PixelTrackFilterByKinematics()
 { }
+
+void PixelTrackFilterByKinematics::update(const edm::Event&, const edm::EventSetup&) {}
 
 bool PixelTrackFilterByKinematics::operator()(const reco::Track* track, const PixelTrackFilter::Hits & hits) const
 { return (*this)(track); }

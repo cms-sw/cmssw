@@ -24,14 +24,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-// Input and output collection
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 using namespace edm;
 using namespace std;
@@ -48,6 +40,10 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
 
   // L2 Muon Collection Label
   theL2CollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
+  l2MuonToken_ = consumes<reco::TrackCollection>(theL2CollectionLabel);
+  l2MuonTrajToken_ = consumes<std::vector<Trajectory> >(theL2CollectionLabel.label());
+  l2AssoMapToken_ = consumes<TrajTrackAssociationCollection>(theL2CollectionLabel.label());
+  updatedL2AssoMapToken_ = consumes<reco::TrackToTrackMap>(theL2CollectionLabel.label());
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
@@ -57,10 +53,11 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   
   // the services
   theService = new MuonServiceProxy(serviceParameters);
+  ConsumesCollector iC = consumesCollector();
   
   // instantiate the concrete trajectory builder in the Track Finder
-  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,theService);
-  L3MuonTrajectoryBuilder* l3mtb = new L3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
+  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,iC,theService);
+  L3MuonTrajectoryBuilder* l3mtb = new L3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService,iC);
   theTrackFinder = new MuonTrackFinder(l3mtb, mtl);
 
   theL2SeededTkLabel = trackLoaderParameters.getUntrackedParameter<std::string>("MuonSeededTracksInstance",std::string());
@@ -110,20 +107,23 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   // Take the L2 muon container(s)
   LogTrace(metname)<<"Taking the L2 Muons "<<theL2CollectionLabel<<endl;
 
+
   Handle<reco::TrackCollection> L2Muons;
-  event.getByLabel(theL2CollectionLabel,L2Muons);
+  event.getByToken(l2MuonToken_,L2Muons);
 
   Handle<vector<Trajectory> > L2MuonsTraj;
   vector<MuonTrajectoryBuilder::TrackCand> L2TrackCands;
 
 
-  event.getByLabel(theL2CollectionLabel.label(), L2MuonsTraj);      
-  
+  event.getByToken(l2MuonTrajToken_, L2MuonsTraj);      
+
   edm::Handle<TrajTrackAssociationCollection> L2AssoMap;
-  event.getByLabel(theL2CollectionLabel.label(),L2AssoMap);
-  
+  event.getByToken(l2AssoMapToken_,L2AssoMap);
+
   edm::Handle<reco::TrackToTrackMap> updatedL2AssoMap;
-  event.getByLabel(theL2CollectionLabel.label(),updatedL2AssoMap);
+  event.getByToken(updatedL2AssoMapToken_,updatedL2AssoMap);
+
+
       
   for(TrajTrackAssociationCollection::const_iterator it = L2AssoMap->begin(); it != L2AssoMap->end(); ++it){	
     const Ref<vector<Trajectory> > traj = it->key;

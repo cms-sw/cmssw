@@ -36,7 +36,6 @@ RandomNumberGeneratorService dump
     restoreFileName_ = 
 *** TestRandomNumberServiceAnalyzer constructor 81
 *** TestRandomNumberServiceAnalyzer beginJob 81
-HepJamesRandom
 *** TestRandomNumberServiceAnalyzer beginRun 81
 *** TestRandomNumberServiceAnalyzer beginLuminosityBlock 81
 *** TestRandomNumberServiceAnalyzer analyze 81

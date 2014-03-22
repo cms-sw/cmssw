@@ -20,25 +20,36 @@ class MuonShowerInformationProducer : public edm::EDProducer {
 public:
   MuonShowerInformationProducer(const edm::ParameterSet& iConfig) :
     inputMuonCollection_(iConfig.getParameter<edm::InputTag>("muonCollection")),
-    inputTrackCollection_(iConfig.getParameter<edm::InputTag>("trackCollection")),
-    showerFiller_(iConfig.getParameter<edm::ParameterSet>("ShowerInformationFillerParameters"))
+    inputTrackCollection_(iConfig.getParameter<edm::InputTag>("trackCollection"))
   {
+    edm::ConsumesCollector iC = consumesCollector();
+    showerFiller_ =  new MuonShowerInformationFiller(iConfig.getParameter<edm::ParameterSet>("ShowerInformationFillerParameters"),iC);
+
+    muonToken_ = consumes<reco::MuonCollection>(inputMuonCollection_);
+ 
     produces<edm::ValueMap<reco::MuonShower> >().setBranchAlias("muonShowerInformation");
   }
-  virtual ~MuonShowerInformationProducer() {}
+   virtual ~MuonShowerInformationProducer() {
+    if( showerFiller_)
+      delete showerFiller_;
+  }
 
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag inputMuonCollection_;
   edm::InputTag inputTrackCollection_;
-  MuonShowerInformationFiller showerFiller_;
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+
+
+
+  MuonShowerInformationFiller *showerFiller_;
 };
 
 void
 MuonShowerInformationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<reco::MuonCollection> muons;
-  iEvent.getByLabel(inputMuonCollection_, muons);
+  iEvent.getByToken(muonToken_, muons);
 
   // reserve some space for output
   std::vector<reco::MuonShower> showerInfoValues;
@@ -48,7 +59,7 @@ MuonShowerInformationProducer::produce(edm::Event& iEvent, const edm::EventSetup
       muon != muons->end(); ++muon)
     {
      // if (!muon->isGlobalMuon() && !muon->isStandAloneMuon()) continue;
-      showerInfoValues.push_back(showerFiller_.fillShowerInformation(*muon,iEvent,iSetup));
+      showerInfoValues.push_back(showerFiller_->fillShowerInformation(*muon,iEvent,iSetup));
     }
 
   // create and fill value map

@@ -1,9 +1,7 @@
 #include "RecoLocalTracker/SubCollectionProducers/interface/ClusterSummaryProducer.h"
 
 ClusterSummaryProducer::ClusterSummaryProducer(const edm::ParameterSet& iConfig)
-  : stripClustersLabel(iConfig.getParameter<edm::InputTag>("stripClusters")),
-    pixelClustersLabel(iConfig.getParameter<edm::InputTag>("pixelClusters")),
-    stripModules(iConfig.getParameter<std::string>("stripModule")),
+  : stripModules(iConfig.getParameter<std::string>("stripModule")),
     pixelModules(iConfig.getParameter<std::string>("pixelModule")),
     stripVariables(iConfig.getParameter<std::string>("stripVariables")),
     pixelVariables(iConfig.getParameter<std::string>("pixelVariables")),
@@ -12,6 +10,9 @@ ClusterSummaryProducer::ClusterSummaryProducer(const edm::ParameterSet& iConfig)
     verbose(iConfig.getParameter<bool>("verbose"))
 {
  
+  pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelClusters"));
+  stripClusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("stripClusters"));
+
   //register your products
   produces<ClusterSummary>().setBranchAlias("SummaryCollection");
   
@@ -37,7 +38,7 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    //===================++++++++++++========================
    if (doStrips){
      edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
-     iEvent.getByLabel(stripClustersLabel, stripClusters);
+     iEvent.getByToken(stripClusters_, stripClusters);
 
      ModuleSelectionVect.clear();
      for ( std::vector<std::string>::iterator it=v_stripModuleTypes.begin() ; it < v_stripModuleTypes.end(); it++ ){
@@ -96,7 +97,7 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    //===================++++++++++++========================
    if (doPixels){
      edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
-     iEvent.getByLabel(pixelClustersLabel, pixelClusters);
+     iEvent.getByToken(pixelClusters_, pixelClusters);
 
      ModuleSelectionVectPixels.clear();
      for ( std::vector<std::string>::iterator it=v_pixelModuleTypes.begin() ; it < v_pixelModuleTypes.end(); it++ ){

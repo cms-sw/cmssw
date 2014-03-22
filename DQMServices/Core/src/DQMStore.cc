@@ -271,57 +271,6 @@ void DQMStore::IBooker::tag(MonitorElement *me, unsigned int tag) {
   owner_->tag(me, tag);
 }
 
-MonitorElement * DQMStore::IBooker::bookString(const char *name,
-                                               const char *value) {
-  return owner_->bookString(name, value);
-}
-
-MonitorElement * DQMStore::IBooker::bookString(const std::string &name,
-                                               const std::string &value) {
-  return owner_->bookString(name, value);
-}
-
-MonitorElement * DQMStore::IBooker::bookInt(const char *name){
-  return owner_->bookInt(name);
-}
-
-MonitorElement * DQMStore::IBooker::bookInt(const std::string &name){
-  return owner_->bookInt(name);
-}
-
-MonitorElement * DQMStore::IBooker::bookFloat(const char *name){
-  return owner_->bookFloat(name);
-}
-
-MonitorElement * DQMStore::IBooker::bookFloat(const std::string &name){
-  return owner_->bookFloat(name);
-}
-
-
-MonitorElement * DQMStore::IBooker::book1D(const std::string &name,
-                                           const std::string &title,
-                                           int nchX, double lowX, double highX) {
-  return owner_->book1D(name, title, nchX, lowX, highX);
-}
-
-MonitorElement * DQMStore::IBooker::book2D(const std::string &name,
-                                           const std::string &title,
-                                           int nchX, double lowX, double highX,
-                                           int nchY, double lowY, double highY) {
-  return owner_->book2D(name, title,
-                        nchX, lowX, highX,
-                        nchY, lowY, highY);
-}
-
-MonitorElement * DQMStore::IBooker::bookProfile(const std::string &name,
-                                                const std::string &title,
-                                                int nchX, double lowX, double highX,
-                                                int nchY, double lowY, double highY) {
-  return owner_->bookProfile(name, title,
-                             nchX, lowX, highX,
-                             nchY, lowY, highY);
-}
-
 /** Function to transfer the local copies of histograms from each
     stream into the global ROOT Object. Since this involves de-facto a
     booking action in the case in which the global object is not yet
@@ -350,15 +299,14 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
         || i->data_.streamId != streamId
         || i->data_.moduleId != moduleId)
       break;
-    MonitorElement global_me(*i);
 
     // Handle Run-based histograms only.
-
-    if (global_me.getLumiFlag()) {
+    if (i->getLumiFlag()) {
       ++i;
       continue;
     }
 
+    MonitorElement global_me(*i);
     global_me.globalize();
     std::set<MonitorElement>::const_iterator me = data_.find(global_me);
     if (me != data_.end()) {
@@ -403,15 +351,14 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
         || i->data_.streamId != streamId
         || i->data_.moduleId != moduleId)
       break;
-    MonitorElement global_me(*i);
 
     // Handle LS-based histograms only.
-
-    if (!global_me.getLumiFlag()) {
+    if (not i->getLumiFlag()) {
       ++i;
       continue;
     }
 
+    MonitorElement global_me(*i);
     global_me.globalize();
     global_me.setLumi(lumi);
     std::set<MonitorElement>::const_iterator me = data_.find(global_me);
@@ -460,7 +407,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
     ar.watchPostSourceRun(this,&DQMStore::forceReset);
   }
-  std::cout << __LINE__ << " DQMStore::DQMStore " << std::endl;
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)

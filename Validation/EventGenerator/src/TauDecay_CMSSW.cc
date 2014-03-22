@@ -46,9 +46,14 @@ void TauDecay_CMSSW::Analyze(HepMC::GenParticle *Particle,unsigned int midx, boo
     return;
   }
   HepMC::GenVertex::particle_iterator des;
-  for(des = Particle->end_vertex()->particles_begin(HepMC::children);
-      des!= Particle->end_vertex()->particles_end(HepMC::children) && Particle->end_vertex()-> particles_out_size()>0;++des ) {
-    Analyze((*des),midx,dores,dopi0);
+  if(Particle->end_vertex()){
+    for(des = Particle->end_vertex()->particles_begin(HepMC::children);
+	des!= Particle->end_vertex()->particles_end(HepMC::children) && Particle->end_vertex()-> particles_out_size()>0;++des ) {
+      Analyze((*des),midx,dores,dopi0);
+    }
+  }
+  else {
+    std::cout << "Unstable particle that is undecayed in Tau decay tree. PDG ID: " << pdgid << std::endl;
   }
 }
 

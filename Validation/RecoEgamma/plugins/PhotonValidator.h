@@ -13,6 +13,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -22,7 +23,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-
 //#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 //
 //DQM services
@@ -98,22 +98,26 @@ class PhotonValidator : public edm::EDAnalyzer
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
 
+
   std::string photonCollectionProducer_;
   std::string photonCollection_;
   edm::EDGetTokenT<reco::PhotonCollection> photonCollectionToken_;
-
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
+  std::string   valueMapPhoPFCandIso_ ;
+  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > particleBasedIso_token;
   edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
   edm::InputTag  bcBarrelCollection_;
   edm::InputTag  bcEndcapCollection_;
 
+
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
-
   edm::EDGetTokenT<TrackingParticleCollection> token_tp_;
 
+ 
 
-  std::string conversionOITrackProducer_;
-  std::string conversionIOTrackProducer_;
+  edm::InputTag conversionOITrackProducer_;
+  edm::InputTag conversionIOTrackProducer_;
 
   edm::EDGetTokenT<edm::View<reco::Track> > conversionOITrackPr_Token_;
   edm::EDGetTokenT<edm::View<reco::Track> > conversionIOTrackPr_Token_;
@@ -204,6 +208,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement*   h_SimConvOneMTracks_[5];
   MonitorElement*   h_SimConvTwoTracks_[5];
   MonitorElement*   h_SimConvTwoMTracks_[5];
+  MonitorElement*   h_SimConvMTotal_[5];
   MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0_[5];
   MonitorElement*   h_SimConvTwoMTracksAndVtxPGT0005_[5];
   MonitorElement*   h_SimConvTwoMTracksAndVtxPGT01_[5];
@@ -212,11 +217,16 @@ class PhotonValidator : public edm::EDAnalyzer
   // Numerators for conversion fake rate
   MonitorElement*   h_RecoConvTwoMTracks_[5];
 
-
+  //// tmp TH1F
+  TH1F* th1f_SimConvMTotal_[5];
+ 
   //// test on OutIn Tracks
   MonitorElement* h_OIinnermostHitR_;
   MonitorElement* h_IOinnermostHitR_;
   MonitorElement* h_trkProv_[2];
+  MonitorElement* h_trkAlgo_;
+  MonitorElement* h_convAlgo_;
+  MonitorElement* h_convQuality_;
 
 
   MonitorElement* h_phoDEta_[2];
@@ -230,7 +240,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_scPhiWidth_[2];
   MonitorElement* h_scEtaPhi_[2];
 
-  MonitorElement* h_dSCpfSC_[2][3];
+
   MonitorElement* h_scE_[2][3];
   MonitorElement* h_scEt_[2][3];
 
@@ -330,6 +340,8 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_phoEResRegr1_[3][3];
   MonitorElement* h_phoEResRegr2_[3][3];
 
+  // 
+  MonitorElement* h_phoPixSeedSize_[2];
 
   // Information from Particle Flow
   // Isolation
@@ -340,6 +352,19 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_nCluOutsideMustache_[3];
   MonitorElement* h_etOutsideMustache_[3];
   MonitorElement* h_pfMva_[3];
+  //// particle based isolation from ValueMap
+  MonitorElement* h_dRPhoPFcand_ChHad_Cleaned_[3];
+  MonitorElement* h_dRPhoPFcand_NeuHad_Cleaned_[3];
+  MonitorElement* h_dRPhoPFcand_Pho_Cleaned_[3];
+  MonitorElement* h_dRPhoPFcand_ChHad_unCleaned_[3];
+  MonitorElement* h_dRPhoPFcand_NeuHad_unCleaned_[3];
+  MonitorElement* h_dRPhoPFcand_Pho_unCleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_ChHad_Cleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_NeuHad_Cleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_Pho_Cleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_ChHad_unCleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_NeuHad_unCleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_Pho_unCleaned_[3];
 
 
   /// info per conversion
@@ -355,6 +380,8 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_r9VsNofTracks_[2][3];
   MonitorElement* h_EoverPTracks_[2][3];
   MonitorElement* h_PoverETracks_[2][3];
+
+  MonitorElement* h_EoverP_SL_[3];
 
   MonitorElement* h_mvaOut_[3];
   MonitorElement* h2_etaVsRsim_[3];
@@ -408,6 +435,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_convVtxYvsX_;
   MonitorElement* h_convVtxRvsZ_zoom_[2];
   MonitorElement* h_convVtxYvsX_zoom_[2];
+  MonitorElement* h_convSLVtxRvsZ_[3];
 
   MonitorElement* h_convVtxdX_;
   MonitorElement* h_convVtxdY_;
@@ -452,10 +480,13 @@ class PhotonValidator : public edm::EDAnalyzer
 
   //////////// info per track
   MonitorElement* p_nHitsVsEta_[2];
+  MonitorElement* p_nHitsVsEtaSL_[2];
   MonitorElement* nHitsVsEta_[2];
   MonitorElement* p_nHitsVsR_[2];
+  MonitorElement* p_nHitsVsRSL_[2];
   MonitorElement* nHitsVsR_[2];
   MonitorElement* h_tkChi2_[2];
+  MonitorElement* h_tkChi2SL_[2];
   MonitorElement* h_tkChi2Large_[2];
   MonitorElement* h2_Chi2VsEta_[3];
   MonitorElement* p_Chi2VsEta_[3];
@@ -566,9 +597,9 @@ class PhotonValidator : public edm::EDAnalyzer
 class  sortPhotons
 {
   public:
-    bool operator () (const reco::Photon & lhs, const reco::Photon & rhs)
+    bool operator () (const reco::PhotonRef& lhs, const reco::PhotonRef & rhs)
     {
-        return lhs.et() > rhs.et();
+        return lhs->et() > rhs->et();
     }
 };
 

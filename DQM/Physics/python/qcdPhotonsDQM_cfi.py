@@ -7,7 +7,7 @@ qcdPhotonsDQM = cms.EDAnalyzer("QcdPhotonsDQM",
                 plotTheseTriggersToo      = cms.vstring("HLT_Photon20","HLT_Photon25","HLT_Photon30","HLT_Photon50","HLT_DoublePhoton"),
                 # Collections
                 trigTag                   = cms.untracked.InputTag("TriggerResults::HLT"),
-                photonCollection          = cms.InputTag("photons"),
+                photonCollection          = cms.InputTag("gedPhotons"),
                 jetCollection             = cms.InputTag("ak5PFJets"),
                 vertexCollection          = cms.InputTag("offlinePrimaryVertices"),
                 # Cuts on the reco objects

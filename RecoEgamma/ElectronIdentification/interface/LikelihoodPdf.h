@@ -25,19 +25,19 @@ class LikelihoodPdf {
   void split(const std::map<std::string,float>& splitFractions, bool splitPdf = false);
 
   //! get Value of pdf at point x for class catName
-  float getVal(float x, std::string catName="NOSPLIT", bool normalized = true);
+  float getVal(float x, std::string const& catName="NOSPLIT", bool normalized = true) const;
 
   //! get PDF name
-  std::string getName() { return _name; }
+  std::string const& getName() const { return _name; }
 
   //! get PDF species
-  std::string getSpecies() { return _species; }
+  std::string const& getSpecies() const { return _species; }
 
 
 
  private:
 
-  float normalization(const PhysicsTools::Calibration::HistogramF *thePdf);
+  float normalization(const PhysicsTools::Calibration::HistogramF *thePdf) const;
   
   std::string _name;
   std::string _species;

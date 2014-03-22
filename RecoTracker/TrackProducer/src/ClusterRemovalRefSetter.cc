@@ -10,6 +10,13 @@ ClusterRemovalRefSetter::ClusterRemovalRefSetter(const edm::Event &iEvent, const
     //std::cout << "Rekeying STRIP ProdID " << cri_->stripNewRefProd().id() << " => " << cri_->stripRefProd().id() << std::endl;
 }
 
+ClusterRemovalRefSetter::ClusterRemovalRefSetter(const edm::Event &iEvent,
+	const edm::EDGetTokenT<reco::ClusterRemovalInfo>& token) {
+    edm::Handle<reco::ClusterRemovalInfo> hCRI;
+    iEvent.getByToken(token, hCRI);
+    cri_ = &*hCRI; 
+}
+
 void ClusterRemovalRefSetter::reKey(TrackingRecHit *hit) const {
     if (!hit->isValid()) return;
     DetId detid = hit->geographicalId(); 

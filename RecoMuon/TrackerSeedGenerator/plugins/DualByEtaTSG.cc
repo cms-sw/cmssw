@@ -1,7 +1,7 @@
 #include "RecoMuon/TrackerSeedGenerator/plugins/DualByEtaTSG.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DualByEtaTSG::DualByEtaTSG(const edm::ParameterSet &pset) : SeparatingTSG(pset){
+DualByEtaTSG::DualByEtaTSG(const edm::ParameterSet &pset,edm::ConsumesCollector& IC) : SeparatingTSG(pset,IC){
   theCategory ="DualByEtaTSG";
   theEtaSeparation = pset.getParameter<double>("etaSeparation");
   if (nTSGs()!=2)

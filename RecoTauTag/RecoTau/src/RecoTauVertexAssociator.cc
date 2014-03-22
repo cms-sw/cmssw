@@ -26,7 +26,7 @@ namespace reco { namespace tau {
     LogDebug("VxTrkAssocInfo") << " No tracks at this jet! Returning empty reference.";
     return reco::TrackBaseRef();
   }
-  if(vxTrkFiltering) tracks = qcuts_.filterRefs(allTracks);
+  if(vxTrkFiltering) tracks = qcuts_.filterCandRefs(allTracks);
   else{ 
     tracks = allTracks;
     LogDebug("VxTrkAssocInfo") << " No quality cuts applied. All tracks passing.";

@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -19,26 +20,14 @@ using namespace std;
 using namespace edm;
 
 /*****************************************************************************/
-HIProtoTrackFilter::HIProtoTrackFilter (const edm::ParameterSet& ps, const edm::EventSetup& es) :
+HIProtoTrackFilter::HIProtoTrackFilter (const edm::ParameterSet& ps, edm::ConsumesCollector& iC) :
 theTIPMax( ps.getParameter<double>("tipMax") ),
 theChi2Max( ps.getParameter<double>("chi2") ),
 thePtMin( ps.getParameter<double>("ptMin") ),
 doVariablePtMin( ps.getParameter<bool>("doVariablePtMin") ),
 theBeamSpotTag( ps.getParameter<InputTag>("beamSpot")),
-theSiPixelRecHits( ps.getParameter<InputTag>("siPixelRecHits")),
-theBeamSpot(0),
-theVariablePtMin(0)
-{ 
-}
-
-/*****************************************************************************/
-HIProtoTrackFilter::HIProtoTrackFilter (const edm::ParameterSet& ps) :
-theTIPMax( ps.getParameter<double>("tipMax") ),
-theChi2Max( ps.getParameter<double>("chi2") ),
-thePtMin( ps.getParameter<double>("ptMin") ),
-doVariablePtMin( ps.getParameter<bool>("doVariablePtMin") ),
-theBeamSpotTag( ps.getParameter<InputTag>("beamSpot")),
-theSiPixelRecHits( ps.getParameter<InputTag>("siPixelRecHits")),
+theBeamSpotToken( iC.consumes<reco::BeamSpot>(theBeamSpotTag)),
+theSiPixelRecHitsToken( iC.consumes<SiPixelRecHitCollection>(ps.getParameter<InputTag>("siPixelRecHits"))),
 theBeamSpot(0),
 theVariablePtMin(0)
 { 
@@ -73,12 +62,12 @@ bool HIProtoTrackFilter::operator() (const reco::Track* track,const PixelTrackFi
 }
 
 /*****************************************************************************/
-void HIProtoTrackFilter::update(edm::Event& ev)
+void HIProtoTrackFilter::update(const edm::Event& ev, const edm::EventSetup& es)
 {
   
   // Get the beam spot
   edm::Handle<reco::BeamSpot> bsHandle;
-  ev.getByLabel( theBeamSpotTag, bsHandle);
+  ev.getByToken( theBeamSpotToken, bsHandle);
   theBeamSpot = bsHandle.product();
   
   if(theBeamSpot) {
@@ -92,7 +81,7 @@ void HIProtoTrackFilter::update(edm::Event& ev)
 
   // Estimate multiplicity
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  ev.getByLabel(theSiPixelRecHits, recHitColl);
+  ev.getByToken(theSiPixelRecHitsToken, recHitColl);
   
   vector<const TrackingRecHit*> theChosenHits; 	 
   TrackerLayerIdAccessor acc; 	 

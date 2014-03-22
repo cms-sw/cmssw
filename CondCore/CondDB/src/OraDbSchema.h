@@ -42,7 +42,7 @@ namespace cond {
       }
 
       bool select( const std::string& name );
-      bool select( const std::string& name, cond::TimeType& timeType, std::string& objectType, 
+      bool select( const std::string& name, cond::TimeType& timeType, std::string& objectType, cond::SynchronizationType& synchronizationType,
 		   cond::Time_t& endOfValidity, std::string& description, cond::Time_t& lastValidatedTime );
       bool getMetadata( const std::string& name, std::string& description, 
 			boost::posix_time::ptime& insertionTime, boost::posix_time::ptime& modificationTime );
@@ -66,9 +66,10 @@ namespace cond {
       }
       void create(){
       }
-      bool select( const cond::Hash& payloadHash, std::string& objectType, cond::Binary& payloadData );
+      bool select( const cond::Hash& payloadHash, std::string& objectType, cond::Binary& payloadData, cond::Binary& streamerInfoData );
+      bool getType( const cond::Hash& payloadHash, std::string& objectType );
       cond::Hash insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 
-	       		      const boost::posix_time::ptime& insertionTime );
+			      const cond::Binary& streamerInfoData, const boost::posix_time::ptime& insertionTime );
     private:
       cond::DbSession m_session;
     };
@@ -85,12 +86,15 @@ namespace cond {
       size_t selectGroups( const std::string& tag, std::vector<cond::Time_t>& groups );
       size_t selectSnapshotGroups( const std::string& tag, const boost::posix_time::ptime& snapshotTime, 
 				   std::vector<cond::Time_t>& groups );
-      size_t selectLastByGroup( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup , 
-				std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
+      size_t selectLatestByGroup( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup , 
+				  std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
       size_t selectSnapshotByGroup( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup, 
 				    const boost::posix_time::ptime& snapshotTime, 
 				    std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
-      size_t selectLast( const std::string& tag, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
+      size_t selectLatest( const std::string& tag, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
+      bool getLastIov( const std::string& tag, cond::Time_t& since, cond::Hash& hash );
+      bool getSize( const std::string& tag, size_t& size );
+      bool getSnapshotSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size );
       void insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, 
 		      const boost::posix_time::ptime& insertTime );
       void insertMany( const std::string& tag, 
@@ -143,6 +147,8 @@ namespace cond {
 	return true;
       }
       bool select( const std::string& gtName, std::vector<std::tuple<std::string,std::string,std::string> >& tags );
+      bool select( const std::string& gtName, const std::string& preFix, const std::string& postFix,
+		   std::vector<std::tuple<std::string,std::string,std::string> >& tags );
       void insert( const std::string& gtName, const std::vector<std::tuple<std::string,std::string,std::string> >& tags );
     private:
       cond::DbSession m_session;

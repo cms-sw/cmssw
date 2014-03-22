@@ -22,15 +22,23 @@ pfTrackElec = cms.EDProducer("PFElecTkProducer",
     PFEcalClusters  = cms.InputTag("particleFlowClusterECAL"),                 
     PrimaryVertexLabel = cms.InputTag("offlinePrimaryVertices"),                         
     useConvBremFinder  = cms.bool(True),
-    pf_convBremFinderID_mvaCut =  cms.double(0.2),
-    pf_convBremFinderID_mvaWeightFile = cms.string('RecoParticleFlow/PFTracking/data/MVAnalysis_BDT.weights_convBremFinder_19Apr_IntToFloat.txt'),   
     PFNuclear = cms.InputTag("pfDisplacedTrackerVertex"),
     PFConversions = cms.InputTag("pfConversions"),
     PFV0 = cms.InputTag("pfV0"),
     useNuclear = cms.bool(False),
     useV0 = cms.bool(False), 
     useConversions = cms.bool(False),
-    debugGsfCleaning = cms.bool(False)                     
+    debugGsfCleaning = cms.bool(False),
+    AbsEtaBarrelEndcapsSeparation = cms.double(1.479),
+    PtLowHighSeparation = cms.double(20),                         
+    pf_convBremFinderID_mvaCutBarrelLowPt =  cms.double(0.6),
+    pf_convBremFinderID_mvaCutBarrelHighPt =  cms.double(0.97),
+    pf_convBremFinderID_mvaCutEndcapsLowPt =  cms.double(0.9),
+    pf_convBremFinderID_mvaCutEndcapsHighPt =  cms.double(0.995),
+    pf_convBremFinderID_mvaWeightFileBarrelLowPt = cms.string('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetlt20absetalt1_479_BDT.weights.xml'),
+    pf_convBremFinderID_mvaWeightFileBarrelHighPt = cms.string('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetgt20absetalt1_479_BDT.weights.xml'),
+    pf_convBremFinderID_mvaWeightFileEndcapsLowPt = cms.string('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetlt20absetagt1_479_BDT.weights.xml'),
+    pf_convBremFinderID_mvaWeightFileEndcapsHighPt = cms.string('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetgt20absetagt1_479_BDT.weights.xml')
 )
 
 

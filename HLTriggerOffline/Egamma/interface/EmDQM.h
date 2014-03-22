@@ -92,6 +92,8 @@ private:
   HistoFiller<reco::RecoEcalCandidateCollection>* histoFillerPho;
   HistoFiller<l1extra::L1EmParticleCollection>* histoFillerL1Iso;
 
+  // run in automatic configuration generation mode
+  bool autoConfMode_;
   // parameter set from config file
   const edm::ParameterSet& pset;
   // global parameters
@@ -199,17 +201,6 @@ private:
   std::vector<std::vector<MonitorElement*> > histEtOfHltObjMatchToGens;
   std::vector<std::vector<MonitorElement*> > histEtaOfHltObjMatchToGens;
   std::vector<std::vector<MonitorElement*> > histPhiOfHltObjMatchToGens;
-  // commented out because uses data not included in HTLDEBUG and uses getByLabel
-  // Isolation distributions
-  //std::vector<std::vector<MonitorElement*> > etahistisos;
-  //std::vector<std::vector<MonitorElement*> > phihistisos;
-  //std::vector<std::vector<MonitorElement*> > ethistisos;
-  //std::vector<std::vector<MonitorElement*> > etahistisomatchs;
-  //std::vector<std::vector<MonitorElement*> > phihistisomatchs;
-  //std::vector<std::vector<MonitorElement*> > ethistisomatchs;
-  //std::vector<std::vector<MonitorElement*> > histEtIsoOfHltObjMatchToGens; 
-  //std::vector<std::vector<MonitorElement*> > histEtaIsoOfHltObjMatchToGens;
-  //std::vector<std::vector<MonitorElement*> > histPhiIsoOfHltObjMatchToGens;
   // Plots of efficiency per step
   std::vector<MonitorElement*> totals;
   std::vector<MonitorElement*> totalmatchs;
@@ -229,6 +220,7 @@ private:
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidZee_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidGammaJet_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidDiGamma_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_manualConf_token;
 
   // static variables
   //

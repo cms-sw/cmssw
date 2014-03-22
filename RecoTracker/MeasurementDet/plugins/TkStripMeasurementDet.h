@@ -21,7 +21,76 @@
 
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
+#include<tuple>
+
 class TransientTrackingRecHit;
+
+
+class TkStripMeasurementDet;
+
+struct TkStripRecHitIter {
+  using detset = edmNew::DetSet<SiStripCluster>;
+  using new_const_iterator =  detset::const_iterator;
+  
+
+  TkStripRecHitIter(){}
+  TkStripRecHitIter(const TkStripMeasurementDet & imdet,
+		    const TrajectoryStateOnSurface & itsos,
+		    const MeasurementTrackerEvent & idata) : mdet(&imdet),tsos(&itsos),data(&idata){}
+  
+  TkStripRecHitIter(unsigned int ci, unsigned int ce, 
+		    const TkStripMeasurementDet & imdet,
+		    const TrajectoryStateOnSurface & itsos,
+		    const MeasurementTrackerEvent & idata) 
+    : mdet(&imdet),tsos(&itsos),data(&idata), clusterIreg(ci), clusterEreg(ce), regional(true){}
+  
+  
+  TkStripRecHitIter(new_const_iterator ci, new_const_iterator ce, 
+		    const TkStripMeasurementDet & imdet,
+		    const TrajectoryStateOnSurface & itsos,
+		    const MeasurementTrackerEvent & idata) 
+    : mdet(&imdet),tsos(&itsos),data(&idata), clusterI(ci), clusterE(ce), regional(false){}
+  
+  
+  const TkStripMeasurementDet * mdet = 0;
+  const TrajectoryStateOnSurface * tsos=0;
+  const MeasurementTrackerEvent * data=0;
+  
+  unsigned int clusterIreg=0; // regional;
+  unsigned int clusterEreg=0; // regional;
+  
+  new_const_iterator clusterI;
+  new_const_iterator clusterE;
+  bool regional=true;
+  
+  inline SiStripRecHit2D buildHit() const;
+  inline void advance();
+  
+public:
+  
+  bool empty() const { return regional ? ( clusterIreg==clusterEreg) : (clusterI==clusterE); }
+  
+  bool operator==(TkStripRecHitIter const & rh) {
+    return regional ? ( clusterIreg==rh.clusterIreg) : (clusterI==rh.clusterI);
+  }
+  bool operator!=(TkStripRecHitIter const & rh) {
+    return regional ? ( clusterIreg!=rh.clusterIreg) : (clusterI!=rh.clusterI);
+  }
+  bool operator<(TkStripRecHitIter const & rh) {
+    return regional ? ( clusterIreg<rh.clusterIreg) : (clusterI<rh.clusterI);
+  }
+  
+  TkStripRecHitIter & operator++() {
+    advance();
+    return *this;
+  }
+  
+  SiStripRecHit2D operator*() const {
+    return buildHit();
+  } 
+  
+};
+
 
 class TkStripMeasurementDet GCC11_FINAL : public MeasurementDet {
 public:
@@ -44,9 +113,9 @@ public:
 
   void setIndex(int i) { index_=i;}
   
-  void update( StMeasurementDetSet & theDets, const detset &detSet ) const { 
-    theDets.update(index(),detSet);
-  }
+  // void update( StMeasurementDetSet & theDets, const detset &detSet ) const { 
+  //  theDets.update(index(),detSet);
+  // }
   void update( StMeasurementDetSet & theDets, std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end ) const { 
     theDets.update(index(), begin, end);
   }
@@ -65,7 +134,7 @@ public:
   
   const detset & theSet(const StMeasurementDetSet & theDets) const {return theDets.detSet(index());}
   const detset & detSet(const StMeasurementDetSet & theDets) const {return theDets.detSet(index());}
-  detset & detSet(StMeasurementDetSet & theDets) const { return theDets.detSet(index());}
+  // detset & detSet(StMeasurementDetSet & theDets) const { return theDets.detSet(index());}
   unsigned int beginClusterI(const StMeasurementDetSet & theDets) const {return theDets.beginClusterI(index());}
   unsigned int endClusterI(const StMeasurementDetSet & theDets) const {return theDets.endClusterI(index());}
   
@@ -79,9 +148,17 @@ public:
   bool hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {return false;}
   
   
+  std::tuple<TkStripRecHitIter,TkStripRecHitIter> hitRange(const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
+  void advance(TkStripRecHitIter & hi ) const;
+  SiStripRecHit2D hit(TkStripRecHitIter const & hi ) const;
   
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
+
+
+  bool empty(const MeasurementTrackerEvent & data) const;
+
   void simpleRecHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data, std::vector<SiStripRecHit2D> &result) const ;
+  bool simpleRecHits( const TrajectoryStateOnSurface& ts, const MeasurementEstimator& est, const MeasurementTrackerEvent & data, std::vector<SiStripRecHit2D> &result) const ;
   
   virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
 			RecHitContainer & result, std::vector<float> & diffs) const;
@@ -133,6 +210,28 @@ public:
     }
     return isCompatible;
   }
+
+
+  template<class ClusterRefT>
+  bool filteredRecHits( const ClusterRefT& cluster, const TrajectoryStateOnSurface& ltp,  const MeasurementEstimator& est, const std::vector<bool> & skipClusters,
+			std::vector<SiStripRecHit2D> & result) const {
+    if (isMasked(*cluster)) return true;
+    const GeomDetUnit& gdu( specificGeomDet());
+    if (!accept(cluster, skipClusters)) return true;
+    VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
+    bool isCompatible(false);
+    for(auto vl : vlv) {
+      auto && recHit  = SiStripRecHit2D( vl.first, vl.second, gdu, cluster);
+      std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
+      LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
+      if ( diffEst.first ) {
+	result.push_back(std::move(recHit));
+	isCompatible = true;
+      }
+    }
+    return isCompatible;
+  }
+
 
 
   
@@ -190,9 +289,12 @@ private:
     const GeomDetUnit& gdu( specificGeomDet());
     VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-      res.push_back(SiStripRecHit2D( it->first, it->second, rawId(), cluster));
+      res.push_back(SiStripRecHit2D( it->first, it->second, gdu, cluster));
     }
   }
+
+
+
  
   
   
@@ -200,8 +302,10 @@ private:
 public:
   inline bool accept(SiStripClusterRef const & r, const std::vector<bool> & skipClusters) const {
     if(skipClusters.empty()) return true;
-    if (r.key()>=skipClusters.size()){
-      edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters.size()<<" no skipping done";
+   if (r.key()>=skipClusters.size()){
+      LogDebug("TkStripMeasurementDet")<<r.key()<<" is larger than: "<<skipClusters.size()
+				       <<"\n This must be a new cluster, and therefore should not be skiped most likely.";
+      // edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters.size()<<" no skipping done"; // protect for on demand???
       return true;
     }
     return (not (skipClusters[r.key()]));
@@ -217,5 +321,17 @@ public:
   }
 
 };
+
+
+inline
+SiStripRecHit2D TkStripRecHitIter::buildHit() const {
+  return mdet->hit(*this);
+}
+inline
+void TkStripRecHitIter::advance() {
+  mdet->advance(*this);
+}
+
+
 
 #endif

@@ -106,7 +106,8 @@ expertSettings.add_option("--beamspot",
 
 expertSettings.add_option("--customise",
                           help="Specify the file where the code to modify the process object is stored.",
-                          default="",
+                          default=[],
+                          action="append",
                           dest="customisation_file")
 expertSettings.add_option("--customise_commands",
                           help="Specify a string of commands",
@@ -250,10 +251,15 @@ expertSettings.add_option("--particle_table",
                           default=defaultOptions.particleTable,
                           dest="particleTable")
 
-expertSettings.add_option("--dbsquery",
-                          help="Allow to define the source.fileNames from the dbs search command",
+expertSettings.add_option("--dasquery",
+                          help="Allow to define the source.fileNames from the das search command",
                           default='',
-                          dest="dbsquery")
+                          dest="dasquery")
+
+expertSettings.add_option("--dbsquery",
+                          help="Deprecated. Please use dasquery option. Functions for backward compatibility",
+                          default='',
+                          dest="dasquery")
 
 expertSettings.add_option("--lazy_download",
                   help="Enable lazy downloading of input files",

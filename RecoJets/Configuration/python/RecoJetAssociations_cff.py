@@ -11,5 +11,5 @@ from RecoJets.JetAssociationProducers.sisCone5JTA_cff import *
 from RecoJets.JetAssociationProducers.kt4JTA_cff import *
 from RecoJets.JetAssociationProducers.ak5JTA_cff import *
 from RecoJets.JetAssociationProducers.ak7JTA_cff import *
-recoJetAssociations = cms.Sequence(ic5JetTracksAssociatorAtVertex+iterativeCone5JTA+kt4JTA+ak5JTA)
+recoJetAssociations = cms.Sequence(ic5JetTracksAssociatorAtVertex+iterativeCone5JTA+ak5JTA)
 recoJetAssociationsExplicit = cms.Sequence(ak5JTAExplicit)

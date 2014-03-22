@@ -11,7 +11,7 @@ class TrackingRegion;
 class TSGSmart : public TrackerSeedGenerator {
 
 public:
-  TSGSmart(const edm::ParameterSet &pset);
+  TSGSmart(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
 
   virtual ~TSGSmart();
 

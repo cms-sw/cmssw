@@ -1,7 +1,7 @@
 #ifndef DQMOFFLINE_L1TRIGGER_L1TMENUHELPER_H
 #define DQMOFFLINE_L1TRIGGER_L1TMENUHELPER_H
 
-/*
+/**
  * \file L1TMenuHelper.h
  *
  * \author J. Pela

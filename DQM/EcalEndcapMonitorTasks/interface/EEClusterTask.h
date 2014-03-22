@@ -14,8 +14,10 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+
+#include "DataFormats/Common/interface/View.h"
 
 class MonitorElement;
 class DQMStore;
@@ -69,7 +71,7 @@ bool enableCleanup_;
 bool mergeRuns_;
 
 edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
-edm::EDGetTokenT<reco::BasicClusterCollection> BasicClusterCollection_;
+ edm::EDGetTokenT<edm::View<reco::CaloCluster> > BasicClusterCollection_;
 edm::EDGetTokenT<reco::SuperClusterCollection> SuperClusterCollection_;
 edm::EDGetTokenT<EcalRecHitCollection> EcalRecHitCollection_;
 

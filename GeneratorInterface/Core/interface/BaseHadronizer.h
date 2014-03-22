@@ -11,6 +11,8 @@
 #define gen_BaseHadronizer_h
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -29,6 +31,10 @@
 // foward declarations
 namespace edm {
   class Event;
+}
+
+namespace CLHEP {
+  class HepRandomEngine;
 }
 
 namespace gen {
@@ -57,6 +63,10 @@ namespace gen {
     edm::Event &getEDMEvent() const { return *edmEvent_; }
     virtual bool select(HepMC::GenEvent*) const { return true;}
 
+    void setRandomEngine(CLHEP::HepRandomEngine* v) { doSetRandomEngine(v); }
+
+    std::vector<std::string> const& sharedResources() const { return doSharedResources(); }
+
   protected:
     GenRunInfoProduct& runInfo() { return genRunInfo_; }
     std::auto_ptr<HepMC::GenEvent>& event() { return genEvent_; }
@@ -66,6 +76,11 @@ namespace gen {
     lhef::LHERunInfo *lheRunInfo() { return lheRunInfo_.get(); }
 
   private:
+
+    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) { }
+
+    virtual std::vector<std::string> const& doSharedResources() const { return theSharedResources; }
+
     GenRunInfoProduct                   genRunInfo_;
     std::auto_ptr<HepMC::GenEvent>      genEvent_;
     std::auto_ptr<GenEventInfoProduct>  genEventInfo_;
@@ -74,6 +89,8 @@ namespace gen {
     std::auto_ptr<lhef::LHEEvent>       lheEvent_;
 
     edm::Event                          *edmEvent_;
+
+    static const std::vector<std::string> theSharedResources;
   };
 
 } // namespace gen

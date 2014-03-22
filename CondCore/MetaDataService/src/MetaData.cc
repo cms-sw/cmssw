@@ -37,7 +37,6 @@ cond::MetaData::addMapping(const std::string& name,
                            const std::string& iovtoken, 
                            cond::TimeType ){
   try{
-    if(!m_userSession.storage().exists()) return false;
     ora::OId oid;
     oid.fromString( iovtoken );
     m_userSession.storage().setObjectName( name, oid );
@@ -53,7 +52,6 @@ const std::string
 cond::MetaData::getToken( const std::string& name ) const{
   bool ok=false;
   std::string iovtoken("");
-  if(!m_userSession.storage().exists()) return iovtoken;
   try{
     ora::OId oid;
     ok = m_userSession.storage().getItemId( name, oid );
@@ -69,7 +67,6 @@ cond::MetaData::getToken( const std::string& name ) const{
 
 bool cond::MetaData::hasTag( const std::string& name ) const{
   bool result=false;
-  if(!m_userSession.storage().exists()) return result;
   try{
     ora::OId oid;
     result = m_userSession.storage().getItemId( name, oid );

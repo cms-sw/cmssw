@@ -283,17 +283,38 @@ HitRZConstraint
 			 );
 }
 
-TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
+TrackingRegion::ctfHits RectangularEtaPhiTrackingRegion::hits(
       const edm::Event& ev,
       const edm::EventSetup& es,
       const  SeedingLayer* layer) const
 {
+  std::cout << "RectangularEtaPhiTrackingRegion old style hits" << std::endl;
+  TrackingRegion::ctfHits result;
+  hits_(ev, es, *layer, result, [&](const SeedingLayer& l) -> TrackingRegion::ctfHits { return l.hits(ev, es);}, true );
+  return result;
+}
+
+TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
+      const edm::Event& ev,
+      const edm::EventSetup& es,
+      const SeedingLayerSetsHits::SeedingLayer& layer) const {
+  TrackingRegion::Hits result;
+  hits_(ev, es, layer, result, [](const SeedingLayerSetsHits::SeedingLayer& l) -> TrackingRegion::Hits { return l.hits();},false);
+  return result;
+}
+
+template <typename T, typename H, typename F>
+void RectangularEtaPhiTrackingRegion::hits_(
+      const edm::Event& ev,
+      const edm::EventSetup& es,
+      const T& layer, H & result,
+      F hitGetter, bool oldStyle) const
+{
 
 
   //ESTIMATOR
-  TrackingRegion::Hits result;
 
-  const DetLayer * detLayer = layer->detLayer();
+  const DetLayer * detLayer = layer.detLayer();
   OuterEstimator * est = 0;
 
   bool measurementMethod = false;
@@ -351,12 +372,16 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
     
     vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, *findDetAndHits);
     result.reserve(meas.size());
+
+    // waiting for a migration at LayerMeasurements level and at seed builder level
     for (auto const & im : meas) {
-    auto ptrHit = im.recHit();
-    if (ptrHit->isValid())  result.push_back( std::move(ptrHit) );
+      if(!im.recHit()->isValid()) continue;
+      auto ptrHit = (BaseTrackerRecHit *)(im.recHit()->hit()->clone());
+      if (!oldStyle) cache.emplace_back(ptrHit);
+      result.emplace_back(ptrHit);
     }
   
-    // LogDebug("RectangularEtaPhiTrackingRegion")<<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector();
+    LogDebug("RectangularEtaPhiTrackingRegion")<<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector();
     // std::cout << "RectangularEtaPhiTrackingRegion" <<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector() << std::endl;
   
   } else {
@@ -370,20 +395,20 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
       const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*detLayer);
       est = estimator(&fl,es);
     }
-    if (!est) return result;
+    if (!est) return;
     
-    TrackingRegion::Hits layerHits = layer->hits(ev,es);
+    auto layerHits = hitGetter(layer);
     result.reserve(layerHits.size());
-    for (auto const & ih : layerHits) {
-      if ( est->hitCompatibility()(ih.get()) ) {
-	result.push_back( std::move(ih) );
+    for (auto && ih : layerHits) {
+      if ( est->hitCompatibility()(*ih) ) {
+	result.emplace_back( std::move(ih) );
       }
     }
   }
   
   // std::cout << "RectangularEtaPhiTrackingRegion hits "  << result.size() << std::endl;
   delete est;
-  return result;
+  
 }
 
 std::string RectangularEtaPhiTrackingRegion::print() const {

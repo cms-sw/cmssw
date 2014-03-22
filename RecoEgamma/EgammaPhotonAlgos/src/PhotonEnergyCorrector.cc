@@ -10,8 +10,7 @@
 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 
-PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) {
-
+PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, edm::ConsumesCollector && iC) {
 
   minR9Barrel_        = config.getParameter<double>("minR9Barrel");
   minR9Endcap_        = config.getParameter<double>("minR9Endcap");
@@ -19,6 +18,9 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) 
 
   barrelEcalHits_   = config.getParameter<edm::InputTag>("barrelEcalHits");
   endcapEcalHits_   = config.getParameter<edm::InputTag>("endcapEcalHits");
+  barrelEcalHitsToken_   = iC.consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("barrelEcalHits"));
+  endcapEcalHitsToken_   = iC.consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("endcapEcalHits"));
+
   //  candidateP4type_ = config.getParameter<std::string>("candidateP4type") ;
 
 
@@ -47,7 +49,11 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config ) 
   //ingredient for photon uncertainty
   photonUncertaintyCalculator_ = new EnergyUncertaintyPhotonSpecific(config);
  
-
+  if( config.existsAs<edm::ParameterSet>("regressionConfig") ) {
+    const edm::ParameterSet regr_conf = 
+      config.getParameterSet("regressionConfig");
+    gedRegression_.reset(new PFSCRegressionCalc(regr_conf));
+  }
 
   // ingredient for energy regression
   weightsfromDB_= config.getParameter<bool>("regressionWeightsFromDB");
@@ -86,6 +92,9 @@ void PhotonEnergyCorrector::init (  const edm::EventSetup& theEventSetup ) {
  
   photonUncertaintyCalculator_->init(theEventSetup);
 
+  if( gedRegression_ ) 
+    gedRegression_->update(theEventSetup);
+
 
 }
 
@@ -105,11 +114,7 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
     minR9=minR9Endcap_;
   }
 
- 
-
-  EcalClusterLazyTools lazyTools(evt, iSetup, barrelEcalHits_,endcapEcalHits_);  
-
-
+  EcalClusterLazyTools lazyTools(evt, iSetup, barrelEcalHitsToken_,endcapEcalHitsToken_);  
 
   ////////////// Here default Ecal corrections based on electrons  ////////////////////////
   if ( thePhoton.r9() > minR9 ) {
@@ -153,7 +158,7 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
 
   //////////  Energy  Regression ////////////////////// 
   //
-  if ( weightsfromDB_  || ( !weightsfromDB_ && !(w_file_ == "none") ) ) {
+  if ( ( weightsfromDB_ && !gedRegression_)  || ( !weightsfromDB_ && !(w_file_ == "none") ) ) {
     std::pair<double,double> cor = regressionCorrector_->CorrectedEnergyWithError(thePhoton, vtxcol, lazyTools, iSetup);
     phoRegr1Energy = cor.first;
     phoRegr1EnergyError = cor.second;
@@ -161,7 +166,14 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
     thePhoton.setCorrectedEnergy( reco::Photon::regression1, phoRegr1Energy, phoRegr1EnergyError,  false);
   } 
 
-
+  if( gedRegression_ ) {
+    gedRegression_->varCalc()->setEvent(evt);
+    std::pair<float,float> cor = gedRegression_->getCorrectionWithErrors(*(thePhoton.superCluster()));
+    phoRegr1Energy = cor.first*thePhoton.superCluster()->correctedEnergy();
+    phoRegr1EnergyError = cor.second*thePhoton.superCluster()->correctedEnergy();
+    // store the value in the Photon.h
+    thePhoton.setCorrectedEnergy( reco::Photon::regression1, phoRegr1Energy, phoRegr1EnergyError,  false);
+  }
 
   /*
   std::cout << " ------------------------- " << std::endl;

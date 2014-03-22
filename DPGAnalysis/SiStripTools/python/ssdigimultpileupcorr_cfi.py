@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 ssdigimultpileupcorr = cms.EDAnalyzer('MultiplicityInvestigator',
-                                    vertexCollection = cms.InputTag(""),
-                                    wantInvestHist = cms.bool(False),
-                                    wantVtxCorrHist = cms.bool(False),
-                                    wantLumiCorrHist = cms.bool(False),
-                                    wantPileupCorrHist = cms.bool(True),
-                                    digiVtxCorrConfig = cms.PSet(),
-                                    digiLumiCorrConfig = cms.PSet(lumiProducer=cms.InputTag("")),
-                                    digiPileupCorrConfig = cms.PSet(
+                                      vertexCollection = cms.InputTag(""),
+                                      wantInvestHist = cms.bool(False),
+                                      wantVtxCorrHist = cms.bool(False),
+                                      wantLumiCorrHist = cms.bool(False),
+                                      wantPileupCorrHist = cms.bool(True),
+                                      wantVtxPosCorrHist = cms.bool(False),
+                                      digiPileupCorrConfig = cms.PSet(
     pileupSummaryCollection = cms.InputTag("addPileupInfo"),
     useVisibleVertices = cms.bool(False),
     wantedSubDets = cms.untracked.VPSet(    

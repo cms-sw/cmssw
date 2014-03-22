@@ -17,7 +17,7 @@ WSkimSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter )
 # you should not need to uncomment those, because I've already
 # produced them in the ALCARECO step
 #trackerDrivenOnlyElectrons = cms.EDFilter("GsfElectronRefSelector",
-#                                          src = cms.InputTag( 'gsfElectrons' ),
+#                                          src = cms.InputTag( 'gedGsfElectrons' ),
 #                                          cut = cms.string( "(ecalDrivenSeed==0)" )
 #                                          )
 

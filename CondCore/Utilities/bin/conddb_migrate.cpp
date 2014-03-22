@@ -5,6 +5,7 @@
 #include "CondCore/DBCommon/interface/Auth.h"
 
 #include "CondCore/CondDB/interface/ConnectionPool.h"
+#include "CondCore/CondDB/interface/Utils.h"
 #include "CondCore/CondDB/interface/IOVEditor.h"
 #include "CondCore/CondDB/interface/IOVProxy.h"
 
@@ -37,7 +38,7 @@ cond::MigrateUtilities::MigrateUtilities():Utilities("conddb_import_tag"){
   addAuthenticationOptions();
   addOption<std::string>("tag","t","migrate only the tag (optional)");
   addOption<std::string>("newTag","n","name for the destination tag (optional)");
-
+  addOption<bool>("verify","v","write an sqlite db with the tag content in the ORA format (optional, only for single tag mode)");
   ROOT::Cintex::Cintex::Enable();
 }
 
@@ -48,15 +49,17 @@ int cond::MigrateUtilities::execute(){
 
   std::string newTag("");
   std::string tag("");
+  bool verify = false;
   if( hasOptionValue("tag")) {
     tag = getOptionValue<std::string>("tag");
     if( hasOptionValue("newTag")) newTag = getOptionValue<std::string>("newTag");
+    if( hasOptionValue("verify")) verify = true;
   }
   bool debug = hasDebug();
   std::string destConnect = getOptionValue<std::string>("destConnect" );
 
   std::string sourceConnect = getOptionValue<std::string>("sourceConnect");
-  std::tuple<std::string,std::string,std::string> connPars = parseConnectionString( sourceConnect );
+  std::tuple<std::string,std::string,std::string> connPars = persistency::parseConnectionString( sourceConnect );
   if( std::get<0>( connPars ) == "frontier" ) throwException("Cannot migrate data from FronTier cache.","MigrateUtilities::execute");
 
   std::cout <<"# Connecting to source database on "<<sourceConnect<<std::endl;
@@ -78,7 +81,7 @@ int cond::MigrateUtilities::execute(){
 
   persistency::ConnectionPool connPool;
   std::cout <<"# Opening session on destination database..."<<std::endl;
-  persistency::Session session = connPool.createSession( destConnect, true );
+  persistency::Session session = connPool.createSession( destConnect, true, COND_DB );
     
   session.transaction().start( false );
   if( !session.existsDatabase() ) session.createDatabase();
@@ -96,7 +99,7 @@ int cond::MigrateUtilities::execute(){
     std::string destTag("");
     if( session.checkMigrationLog( sourceConnect, t, destTag ) ){
       std::cout <<"    Tag already migrated." << std::endl;
-      session.transaction().commit();
+      session.transaction().rollback();
       continue;
     }
     destTag = t;
@@ -109,14 +112,16 @@ int cond::MigrateUtilities::execute(){
       }
     }
     if( session.existsIov( destTag ) ){
-      session.transaction().commit();
+      session.transaction().rollback();
       throwException("Tag \""+destTag+"\" already exists.","MigrateUtilities::execute");
     }
 
     std::cout <<"    Resolving source tag oid..."<<std::endl;
     std::string iovTok = metadata.getToken(t); 
-    if(iovTok.empty())
+    if(iovTok.empty()){
+      session.transaction().rollback();
       throw std::runtime_error(std::string("tag ")+t+std::string(" not found") );
+    }
     std::map<std::string,Hash> tokenToHash;
     size_t niovs = 0;
     std::set<Hash> pids;
@@ -125,7 +130,14 @@ int cond::MigrateUtilities::execute(){
     try{
       cond::IOVProxy sourceIov(sourcedb, iovTok);
       int tt = (int) sourceIov.timetype();
-      std::string payloadType = *(sourceIov.payloadClasses().begin());
+      if( sourceIov.size() == 0 ) {
+	std::cout <<"    No iov found. Skipping tag."<<std::endl;
+	session.transaction().rollback();
+	continue;
+      }
+      std::string tk = sourceIov.begin()->token();
+      std::string payloadType = sourcedb.classNameForItem( tk );
+      
       std::cout <<"    Importing tag. Size:"<<sourceIov.size()<<" timeType:"<<cond::timeTypeNames(tt)<<" payloadObjectType=\""<<payloadType<<"\""<<std::endl;
       editor = session.createIov( payloadType, destTag, (cond::TimeType)tt );
       editor.setDescription( "Tag "+t+" migrated from "+sourceConnect  );
@@ -156,10 +168,26 @@ int cond::MigrateUtilities::execute(){
       session.transaction().commit();
       std::cout <<"    Tag \""<<t<<"\" imported. Payloads:"<<pids.size()<<" IOVs:"<<niovs<<std::endl;
       nt++;
+      if( verify ){
+	session.transaction().start();
+	persistency::IOVProxy p = session.readIov( destTag, true );
+	persistency::Session verifySession = connPool.createSession( "sqlite:"+destTag+".db", true );
+	verifySession.transaction().start( false );
+	persistency::IOVEditor verifyEditor = verifySession.createIov( p.payloadObjectType(), destTag, p.timeType(), p.synchronizationType() );
+	for( auto iov : p ){
+	  std::pair<std::string,boost::shared_ptr<void> > readBackPayload = fetch( iov.payloadId, session );
+	  cond::Hash ph = import( readBackPayload.first, readBackPayload.second.get(), verifySession );
+	  verifyEditor.insert( iov.since, ph );
+	}
+	verifyEditor.setDescription( "Copy of "+destTag+" tag");
+	verifyEditor.flush();
+	verifySession.transaction().commit();
+	session.transaction().commit();
+      }
     } catch ( const std::exception& e ){
       std::cout <<"    ERROR:"<<e.what()<<std::endl;
       std::cout <<"    Tag "<<t<<" will be skipped."<<std::endl;
-      session.transaction().commit();
+      session.transaction().rollback();
       continue;
     }
   }

@@ -18,7 +18,7 @@ HEDarkening::HEDarkening() {
   //fits from laser data for L1 and L7
   //L0,Lm1 = L1, L2-L6 interpolated, L8-L17 extrapolated
   //from Vladimir Epshteyn
-  float _lumiscale[maxEta][maxLay] = {
+  float _lumiscale[nEtaBins][nScintLayers] = {
       {1194.9, 1194.9, 1194.9, 1651.5, 2282.7, 3155.2, 4361.0, 6027.8, 8331.5, 11515.7, 15916.8, 22000.0, 30408.2, 42029.8, 58093.1, 80295.6, 110983.5, 153400.1, 212027.7},
       {952.8, 952.8, 952.8, 1293.9, 1757.1, 2386.1, 3240.3, 4400.3, 5975.4, 8114.5, 11019.3, 14963.9, 20320.6, 27594.9, 37473.2, 50887.7, 69104.3, 93841.9, 127435.0},
       {759.8, 759.8, 759.8, 1013.8, 1352.5, 1804.5, 2407.6, 3212.2, 4285.7, 5717.9, 7628.7, 10178.1, 13579.5, 18117.6, 24172.3, 32250.4, 43028.0, 57407.4, 76592.2},
@@ -39,8 +39,8 @@ HEDarkening::HEDarkening() {
   //flux_factor: to account for increased flux at 14 TeV vs 7-8 TeV (approximate)
   //*divide* lumiscale params by this since increased flux -> faster darkening
   double flux_factor = 1.2;
-  for(int j = 0; j < maxEta; j++){
-    for(int i = 0; i < maxLay; i++){
+  for(unsigned int j = 0; j < nEtaBins; j++){
+    for(unsigned int i = 0; i < nScintLayers; i++){
 	  lumiscale[j][i] = _lumiscale[j][i]/flux_factor;
 	}
   } 
@@ -57,13 +57,13 @@ float HEDarkening::degradation(float intlumi, int ieta, int lay) {
   ieta -= ieta_shift;
   
   //if outside eta range, no darkening
-  if(ieta < 0 || ieta >= maxEta) return 1.;
+  if(ieta < 0 || ieta >= (int)nEtaBins) return 1.;
   
   //shift layer index by 1 to act as array index
   lay += 1;
   
   //if outside layer range, no darkening
-  if(lay < 0 || lay >= maxLay) return 1.;
+  if(lay < 0 || lay >= (int)nScintLayers) return 1.;
 
   //return darkening factor
   return (exp(-intlumi/lumiscale[ieta][lay]));

@@ -30,7 +30,7 @@ void CmsTrackerWheelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 }
 
 void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
-  GeometricDet::GeometricDetContainer comp = det->components();
+  GeometricDet::ConstGeometricDetContainer& comp = det->components();
        
   if(comp.size()){
     if(comp.front()->type()==GeometricDet::petal){
@@ -40,9 +40,9 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       compbw.clear();
       for(uint32_t i=0; i<comp.size();i++){
 	if(fabs(comp[i]->translation().z())<fabs(det->translation().z())){
-	  compfw.push_back(comp[i]);
+	  compfw.push_back(det->component(i));
 	}else{
-	  compbw.push_back(comp[i]);      
+	  compbw.push_back(det->component(i));      
 	}
       }    
       
@@ -75,11 +75,8 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       // TID
       // Disk Number: 2 bits [1,2,3]
       for(uint32_t i=0; i<comp.size(); i++){
-	comp[i]->setGeographicalID(DetId(i+1));
+	det->component(i)->setGeographicalID(DetId(i+1));
       }
-      
-      det->clearComponents();
-      det->addComponents(comp);
     }
   }else{
     edm::LogError("CmsTrackerWheelBuilder")<<"Where are the Petals or Rings?";

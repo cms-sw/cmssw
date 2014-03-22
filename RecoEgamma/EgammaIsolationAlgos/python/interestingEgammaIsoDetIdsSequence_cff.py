@@ -5,24 +5,44 @@ from RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff import *
 
 
 import RecoEgamma.EgammaIsolationAlgos.interestingEleIsoDetIdModule_cff
-interestingEleIsoDetIdEB = RecoEgamma.EgammaIsolationAlgos.interestingEleIsoDetIdModule_cff.interestingEleIsoDetId.clone()
-interestingEleIsoDetIdEB.recHitsLabel = 'ecalRecHit:EcalRecHitsEB'
-interestingEleIsoDetIdEB.emObjectLabel = 'gsfElectrons'
-interestingEleIsoDetIdEB.etCandCut = 0.0
-interestingEleIsoDetIdEB.energyCut = 0.095
-interestingEleIsoDetIdEB.etCut = 0.0
-interestingEleIsoDetIdEB.outerRadius = 0.6
-interestingEleIsoDetIdEB.innerRadius = 0.0
+interestingGedEleIsoDetIdEB = RecoEgamma.EgammaIsolationAlgos.interestingEleIsoDetIdModule_cff.interestingEleIsoDetId.clone()
+interestingGedEleIsoDetIdEB.recHitsLabel = 'ecalRecHit:EcalRecHitsEB'
+interestingGedEleIsoDetIdEB.emObjectLabel = 'gedGsfElectrons'
+interestingGedEleIsoDetIdEB.etCandCut = 0.0
+interestingGedEleIsoDetIdEB.energyCut = 0.095
+interestingGedEleIsoDetIdEB.etCut = 0.0
+interestingGedEleIsoDetIdEB.outerRadius = 0.6
+interestingGedEleIsoDetIdEB.innerRadius = 0.0
 
 import RecoEgamma.EgammaIsolationAlgos.interestingEleIsoDetIdModule_cff
-interestingEleIsoDetIdEE = RecoEgamma.EgammaIsolationAlgos.interestingEleIsoDetIdModule_cff.interestingEleIsoDetId.clone()
-interestingEleIsoDetIdEE.recHitsLabel = 'ecalRecHit:EcalRecHitsEE'
-interestingEleIsoDetIdEE.emObjectLabel = 'gsfElectrons'
-interestingEleIsoDetIdEE.etCandCut = 0.0
-interestingEleIsoDetIdEE.energyCut = 0.0
-interestingEleIsoDetIdEE.etCut = 0.110
-interestingEleIsoDetIdEE.outerRadius = 0.6
-interestingEleIsoDetIdEE.innerRadius = 0.0
+interestingGedEleIsoDetIdEE = RecoEgamma.EgammaIsolationAlgos.interestingEleIsoDetIdModule_cff.interestingEleIsoDetId.clone()
+interestingGedEleIsoDetIdEE.recHitsLabel = 'ecalRecHit:EcalRecHitsEE'
+interestingGedEleIsoDetIdEE.emObjectLabel = 'gedGsfElectrons'
+interestingGedEleIsoDetIdEE.etCandCut = 0.0
+interestingGedEleIsoDetIdEE.energyCut = 0.0
+interestingGedEleIsoDetIdEE.etCut = 0.110
+interestingGedEleIsoDetIdEE.outerRadius = 0.6
+interestingGedEleIsoDetIdEE.innerRadius = 0.0
+
+import RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff
+interestingGedGamIsoDetIdEB = RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff.interestingGamIsoDetId.clone()
+interestingGedGamIsoDetIdEB.recHitsLabel = 'ecalRecHit:EcalRecHitsEB'
+interestingGedGamIsoDetIdEB.emObjectLabel = 'gedPhotons'
+interestingGedGamIsoDetIdEB.etCandCut = 0.0
+interestingGedGamIsoDetIdEB.energyCut = 0.095
+interestingGedGamIsoDetIdEB.etCut = 0.0
+interestingGedGamIsoDetIdEB.outerRadius = 0.6
+interestingGedGamIsoDetIdEB.innerRadius = 0.0
+
+import RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff
+interestingGedGamIsoDetIdEE = RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff.interestingGamIsoDetId.clone()
+interestingGedGamIsoDetIdEE.recHitsLabel = 'ecalRecHit:EcalRecHitsEE'
+interestingGedGamIsoDetIdEE.emObjectLabel = 'gedPhotons'
+interestingGedGamIsoDetIdEE.etCandCut = 0.0
+interestingGedGamIsoDetIdEE.energyCut = 0.0
+interestingGedGamIsoDetIdEE.etCut = 0.110
+interestingGedGamIsoDetIdEE.outerRadius = 0.6
+interestingGedGamIsoDetIdEE.innerRadius = 0.0
 
 import RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff
 interestingGamIsoDetIdEB = RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff.interestingGamIsoDetId.clone()
@@ -45,8 +65,10 @@ interestingGamIsoDetIdEE.outerRadius = 0.6
 interestingGamIsoDetIdEE.innerRadius = 0.0
 
 interestingEgammaIsoDetIds = cms.Sequence(
-    interestingEleIsoDetIdEB *
-    interestingEleIsoDetIdEE * 
+    interestingGedEleIsoDetIdEB *
+    interestingGedEleIsoDetIdEE * 
+    interestingGedGamIsoDetIdEB * 
+    interestingGedGamIsoDetIdEE *   
     interestingGamIsoDetIdEB * 
     interestingGamIsoDetIdEE
 )

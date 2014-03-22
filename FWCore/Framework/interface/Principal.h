@@ -57,7 +57,7 @@ namespace edm {
     typedef std::vector<boost::shared_ptr<ProductHolderBase> > ProductHolderCollection;
     typedef boost::filter_iterator<FilledProductPtr, ProductHolderCollection::const_iterator> const_iterator;
     typedef ProcessHistory::const_iterator ProcessNameConstIterator;
-    typedef ProductHolderBase const* ConstProductPtr;
+    typedef ProductHolderBase const* ConstProductHolderPtr;
     typedef std::vector<BasicHandle> BasicHandleVec;
     typedef ProductHolderCollection::size_type size_type;
 
@@ -172,29 +172,25 @@ namespace edm {
 
     DelayedReader* reader() const {return reader_;}
 
-    ConstProductPtr getProductHolder(BranchID const& oid,
-                                     bool resolveProd,
-                                     bool fillOnDemand,
-                                     ModuleCallingContext const* mcc) const;
+    ConstProductHolderPtr getProductHolder(BranchID const& oid) const;
 
     ProductData const* findProductByTag(TypeID const& typeID, InputTag const& tag, ModuleCallingContext const* mcc) const;
 
-    // Make my DelayedReader get the EDProduct for a ProductHolder or
-    // trigger unscheduled execution if required.  The ProductHolder is
-    // a cache, and so can be modified through the const reference.
+    // Make my DelayedReader get the EDProduct for a ProductHolder.
+    // The ProductHolder is a cache, and so can be modified through the const
+    // reference.
     // We do not change the *number* of products through this call, and so
     // *this is const.
-    void resolveProduct(ProductHolderBase const& phb, bool fillOnDemand, ModuleCallingContext const* mcc) const {resolveProduct_(phb, fillOnDemand,mcc);}
+    void readFromSource(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {
+      readFromSource_(phb, mcc);
+    }
 
     virtual bool unscheduledFill(std::string const& moduleLabel,
                                  ModuleCallingContext const* mcc) const = 0;
 
     std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
 
-    ConstProductPtr getProductByIndex(ProductHolderIndex const& oid,
-                                      bool resolveProd,
-                                      bool fillOnDemand,
-                                      ModuleCallingContext const* mcc) const;
+    ConstProductHolderPtr getProductHolderByIndex(ProductHolderIndex const& oid) const;
 
     bool isComplete() const {return isComplete_();}
 
@@ -237,9 +233,7 @@ namespace edm {
                                           EDConsumerBase const* consumer,
                                           ModuleCallingContext const* mcc) const;
 
-    // defaults to no-op unless overridden in derived class.
-    virtual void resolveProduct_(ProductHolderBase const&, bool /*fillOnDemand*/,
-                                 ModuleCallingContext const*) const {}
+    virtual void readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {}
 
     virtual bool isComplete_() const {return true;}
 

@@ -9,6 +9,9 @@
 #include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/Common/interface/Ref.h"
 
+#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
+
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/typelookup.h"
@@ -52,6 +55,21 @@ void SiStripRecHitConverterAlgorithm::
 run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output) 
 { run(input, output, LocalVector(0.,0.,0.)); }
 
+
+/*
+namespace {
+  float sigmaPitch(LocalPoint const& pos, LocalError err, 
+		   GeomDetUnit const & stripdet) {
+    const StripTopology& topol=(const StripTopology&)stripdet.topology();
+    
+    HelpertRecHit2DLocalPos::updateWithAPE(err,stripdet);
+    MeasurementError error=topol.measurementError(pos,err);
+    auto pitch=topol.localPitch(pos);
+    return error.uu()*pitch*pitch;
+  }
+}
+*/
+
 void SiStripRecHitConverterAlgorithm::
 run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle, products& output, LocalVector trackdirection)
 {
@@ -76,7 +94,7 @@ run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle, products& ou
       if(isMasked(*cluster,bad128StripBlocks)) continue;
 
       StripClusterParameterEstimator::LocalValues parameters = 	parameterestimator->localParameters(*cluster,du);
-      collector.push_back(SiStripRecHit2D( parameters.first, parameters.second, id, edmNew::makeRefTo(inputhandle,cluster) ));
+      collector.push_back(SiStripRecHit2D( parameters.first, parameters.second, du, edmNew::makeRefTo(inputhandle,cluster) ));
     }
 
     if (collector.empty()) collector.abort();
@@ -115,9 +133,9 @@ run(edm::Handle<edm::RefGetter<SiStripCluster> >  refGetterhandle,
 	}
       }
       if( !goodDet || isMasked(*icluster, bad128StripBlocks)) continue;
-
-      StripClusterParameterEstimator::LocalValues parameters = parameterestimator->localParameters(*icluster,*(tracker->idToDetUnit(detId)));
-      collector->push_back(SiStripRecHit2D( parameters.first, parameters.second, detId, makeRefToLazyGetter(lazyGetterhandle,i) ));      
+      GeomDetUnit const & du = *(tracker->idToDetUnit(detId));
+      StripClusterParameterEstimator::LocalValues parameters = parameterestimator->localParameters(*icluster,du);
+     collector->push_back(SiStripRecHit2D( parameters.first, parameters.second, du,  makeRefToLazyGetter(lazyGetterhandle,i) ));      
     }
     if(collector->empty()) collector->abort();
   }

@@ -45,13 +45,13 @@ class CastorJetIDProducer : public edm::EDProducer {
       ~CastorJetIDProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
-  edm::InputTag                 src_;         // input jet source
-  reco::helper::CastorJetIDHelper     helper_;      // castor jet id helper algorithm
+      edm::InputTag                 src_;          // input jet source
+      reco::helper::CastorJetIDHelper     helper_; // castor jet id helper algorithm
+
+      edm::EDGetTokenT<edm::View<reco::BasicJet> > input_jet_token_;
 };
 
 

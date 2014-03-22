@@ -28,9 +28,11 @@ EgammaHLTHcalIsolationProducersRegional::EgammaHLTHcalIsolationProducersRegional
  // use configuration file to setup input/output collection names
   recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   hbheRecHitProducer_        = consumes<HBHERecHitCollection>(config.getParameter<edm::InputTag>("hbheRecHitProducer"));
-  rhoProducer_               = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"))
-;
+
   doRhoCorrection_           = config.getParameter<bool>("doRhoCorrection");
+  if (doRhoCorrection_)
+    rhoProducer_               = consumes<double>(config.getParameter<edm::InputTag>("rhoProducer"));
+
   rhoMax_                    = config.getParameter<double>("rhoMax"); 
   rhoScale_                  = config.getParameter<double>("rhoScale"); 
   
@@ -58,7 +60,7 @@ void EgammaHLTHcalIsolationProducersRegional::fillDescriptions(edm::Configuratio
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
   desc.add<edm::InputTag>(("hbheRecHitProducer"), edm::InputTag("hltHbhereco"));
-  desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag("hltKT6CaloJets","rho"));
+  desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag("fixedGridRhoFastjetAllCalo"));
   desc.add<bool>(("doRhoCorrection"), false);
   desc.add<double>(("rhoMax"), 9.9999999E7); 
   desc.add<double>(("rhoScale"), 1.0); 

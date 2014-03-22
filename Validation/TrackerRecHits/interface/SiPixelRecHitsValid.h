@@ -7,44 +7,20 @@
  * Created: 6/7/06
  */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//DWM histogram services
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-//Simhit stuff
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
-
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include <string>
-#include "DQMServices/Core/interface/MonitorElement.h"
 
+class DQMStore;
+class DetId;
+class MonitorElement;
+class PSimHit;
+class PixelGeomDetUnit;
+class SiPixelRecHit;
 class TrackerTopology;
 
 class SiPixelRecHitsValid : public edm::EDAnalyzer {
@@ -60,18 +36,16 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 
 	virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 	void beginJob();
+        void beginRun( const edm::Run& r, const edm::EventSetup& c );
 	void endJob();
 
    private:
-	DQMStore* dbe_;
-	std::string outputFile_;
-
-	edm::ParameterSet conf_;
-
 	void fillBarrel(const SiPixelRecHit &,const PSimHit &, DetId, const PixelGeomDetUnit *,	
 			 const TrackerTopology *tTopo);
 	void fillForward(const SiPixelRecHit &, const PSimHit &, DetId, const PixelGeomDetUnit *,
 			 const TrackerTopology *tTopo);
+
+	std::string outputFile_;
 
 	//Clusters BPIX
 	MonitorElement* clustYSizeModule[8];
@@ -134,7 +108,10 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 	MonitorElement* recHitYPullDisk1Plaquettes[7];
 	MonitorElement* recHitYPullDisk2Plaquettes[7];
 
-        edm::InputTag src_;
+        DQMStore* dbe_;
+
+        edm::ParameterSet conf_;
+        edm::EDGetTokenT<SiPixelRecHitCollection> siPixelRecHitCollectionToken_;
 };
 
 #endif

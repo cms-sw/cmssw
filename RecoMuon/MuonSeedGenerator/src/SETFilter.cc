@@ -29,7 +29,7 @@
 struct sorter {
   //bigger first!
   bool operator() (TransientTrackingRecHit::ConstRecHitPointer hit_1,
-                   TransientTrackingRecHit::ConstRecHitPointer hit_2){
+                   TransientTrackingRecHit::ConstRecHitPointer hit_2) const {
     if(hit_1->det()->subDetector() != GeomDetEnumerators::CSC ||
        hit_2->det()->subDetector() != GeomDetEnumerators::CSC){
       // this is a piculiar "fix" for CSCs
@@ -39,7 +39,7 @@ struct sorter {
       return (fabs(hit_1->globalPosition().z())>fabs(hit_2->globalPosition().z()));
     }
   }
-} sortRadius;// bigger first
+} const sortRadius;// bigger first
 
 
 

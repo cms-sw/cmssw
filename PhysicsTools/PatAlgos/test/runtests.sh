@@ -11,10 +11,6 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_PF2PAT_cfg.py || die 'Failure using patTuple_P
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_PATandPF2PAT_cfg.py || die 'Failure using patTuple_PATandPF2PAT_cfg.py' $?
 
-# cmsRun ${LOCAL_TEST_DIR}/patTuple_PF2PATGsfElectrons_cfg.py || die 'Failure using patTuple_PATandPF2PAT_cfg.py' $?
-
-# cmsRun ${LOCAL_TEST_DIR}/patTuple_pfIso_cfg.py || die 'Failure using patTuple_pfIso_cfg.py' $?
-
 cmsRun ${LOCAL_TEST_DIR}/patTuple_addDecayInFlight_cfg.py || die 'Failure using patTuple_addDecayInFlight_cfg.py' $?
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_addBTagging_cfg.py || die 'Failure using patTuple_addBTagging_cfg.py' $?
@@ -29,7 +25,7 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_addVertexInfo_cfg.py || die 'Failure using pat
 
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_caloTaus_cfg.py || die 'Failure using patTuple_caloTaus_cfg.py' $?
 
-# cmsRun ${LOCAL_TEST_DIR}/patTuple_fastsim_cfg.py || die 'Failure using patTuple_fastsim_cfg.py' $? # currently no FastSim RelVals defined
+# cmsRun ${LOCAL_TEST_DIR}/patTuple_fastsim_cfg.py || die 'Failure using patTuple_fastsim_cfg.py' $? # Input RelVals currently not reachable (from CERN)
 
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_topSelection_cfg.py || die 'Failure using patTuple_topSelection_cfg.py' $?
 

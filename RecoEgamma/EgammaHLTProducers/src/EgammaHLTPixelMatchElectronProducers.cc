@@ -44,11 +44,15 @@ using namespace reco;
  
 EgammaHLTPixelMatchElectronProducers::EgammaHLTPixelMatchElectronProducers(const edm::ParameterSet& iConfig) : conf_(iConfig) {
 
-  //register your products
-  produces<ElectronCollection>();
+  consumes<TrackCollection>(conf_.getParameter<edm::InputTag>("TrackProducer"));
+  consumes<GsfTrackCollection>(conf_.getParameter<edm::InputTag>("GsfTrackProducer"));
+  consumes<BeamSpot>(conf_.getParameter<edm::InputTag>("BSProducer"));
 
   //create algo
-  algo_ = new EgammaHLTPixelMatchElectronAlgo(conf_);
+  algo_ = new EgammaHLTPixelMatchElectronAlgo(conf_, consumesCollector());
+
+  //register your products
+  produces<ElectronCollection>();
 }
 
 

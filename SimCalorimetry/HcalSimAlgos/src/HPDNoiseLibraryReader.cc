@@ -14,6 +14,10 @@
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseLibraryReader.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGaussQ.h"
 
 using namespace edm;
 using namespace std;
@@ -22,10 +26,7 @@ HPDNoiseLibraryReader::HPDNoiseLibraryReader(const edm::ParameterSet & iConfig)
 :theDischargeNoiseRate(0),
 theIonFeedbackFirstPeakRate(0),
 theIonFeedbackSecondPeakRate(0),
-theNoisyPhi(0),
-theRandFlat(0),
-theRandGaussQ(0) {
-    setRandomEngine();
+theNoisyPhi(0) {
 
     ParameterSet pSet = iConfig.getParameter < edm::ParameterSet > ("HPDNoiseLibrary");
     FileInPath filepath = pSet.getParameter < edm::FileInPath > ("FileName");
@@ -42,46 +43,6 @@ theRandGaussQ(0) {
 }
 
 HPDNoiseLibraryReader::~HPDNoiseLibraryReader() {
-    if (theRandFlat)
-        delete theRandFlat;
-
-    if (theRandGaussQ)
-        delete theRandGaussQ;
-}
-
-void HPDNoiseLibraryReader::initializeServices() {
-    if (not edmplugin::PluginManager::isAvailable()) {
-        edmplugin::PluginManager::configure(edmplugin::standard::config());
-    }
-
-    std::string config =
-      "process CorrNoise = {"
-      "service = RandomNumberGeneratorService" "{" "untracked uint32 sourceSeed = 123456789" "}" "}";
-
-    // create the services
-    edm::ServiceToken tempToken = edm::ServiceRegistry::createServicesFromConfig(config);
-
-    // make the services available
-    edm::ServiceRegistry::Operate operate(tempToken);
-}
-void HPDNoiseLibraryReader::setRandomEngine() {
-    edm::Service < edm::RandomNumberGenerator > rng;
-    if (!rng.isAvailable()) {
-        throw cms::Exception("Configuration") << "HcalHPDNoiseLibrary requires the RandomNumberGeneratorService\n"
-          "which is not present in the configuration file.  You must add the service\n"
-          "in the configuration file or remove the modules that require it.";
-    }
-    setRandomEngine(rng->getEngine());
-}
-void HPDNoiseLibraryReader::setRandomEngine(CLHEP::HepRandomEngine & engine) {
-    if (theRandGaussQ)
-        delete theRandGaussQ;
-
-    if (theRandFlat)
-        delete theRandFlat;
-
-    theRandGaussQ = new CLHEP::RandGaussQ(engine);
-    theRandFlat = new CLHEP::RandFlat(engine);
 }
 
 void HPDNoiseLibraryReader::fillRates() {
@@ -97,7 +58,7 @@ void HPDNoiseLibraryReader::fillRates() {
     }
 }
 
-HPDNoiseData *HPDNoiseLibraryReader::getNoiseData(int iphi) {
+HPDNoiseData *HPDNoiseLibraryReader::getNoiseData(int iphi, CLHEP::HepRandomEngine* engine) {
 
 
     HPDNoiseData *data = 0; //data->size() is checked wherever actually used  
@@ -125,7 +86,7 @@ HPDNoiseData *HPDNoiseLibraryReader::getNoiseData(int iphi) {
     HPDNoiseReader::Handle hpdObj = theReader->getHandle(name);
     if (theReader->valid(hpdObj)) {
         // randomly select one entry from library for this HPD
-        unsigned long entry = theRandFlat->fireInt(theReader->totalEntries(hpdObj));
+        unsigned long entry = CLHEP::RandFlat::shootInt(engine, theReader->totalEntries(hpdObj));
 
         theReader->getEntry(hpdObj, entry, &data);
     } else {
@@ -135,12 +96,12 @@ HPDNoiseData *HPDNoiseLibraryReader::getNoiseData(int iphi) {
 }
 
 
-void HPDNoiseLibraryReader::getNoisyPhis() {
+void HPDNoiseLibraryReader::getNoisyPhis(CLHEP::HepRandomEngine* engine) {
 
     clearPhi();
     double rndm[144];
 
-    theRandFlat->shootArray(144, rndm);
+    CLHEP::RandFlat::shootArray(engine, 144, rndm);
 
     for (int i = 0; i < 144; ++i) {
         if (rndm[i] < theDischargeNoiseRate[i]) {
@@ -149,12 +110,12 @@ void HPDNoiseLibraryReader::getNoisyPhis() {
     }
 }
 
-void HPDNoiseLibraryReader::getBiasedNoisyPhis() {
+void HPDNoiseLibraryReader::getBiasedNoisyPhis(CLHEP::HepRandomEngine* engine) {
 
     clearPhi();
     double rndm[144];
 
-    theRandFlat->shootArray(144, rndm);
+    CLHEP::RandFlat::shootArray(engine, 144, rndm);
     for (int i = 0; i < 144; ++i) {
         if (rndm[i] < theDischargeNoiseRate[i]) {
             theNoisyPhi.push_back(i + 1);
@@ -162,24 +123,24 @@ void HPDNoiseLibraryReader::getBiasedNoisyPhis() {
     }
     // make sure one HPD is always noisy
     if (theNoisyPhi.size() == 0) {
-        int iPhi = (theRandFlat->fireInt(144)) + 1; // integer from interval [0-144[ + 1
+        int iPhi = (CLHEP::RandFlat::shootInt(engine, 144)) + 1; // integer from interval [0-144[ + 1
 
         theNoisyPhi.push_back(iPhi);
     }
 }
 
-vector <pair<HcalDetId, const float *> >HPDNoiseLibraryReader::getNoisyHcalDetIds() {
+vector <pair<HcalDetId, const float *> >HPDNoiseLibraryReader::getNoisyHcalDetIds(CLHEP::HepRandomEngine* engine) {
 
     vector <pair< HcalDetId, const float *> >result;
 
     // decide which phi are noisy by using noise rates 
     // and random numbers (to be called for each event)
-    getNoisyPhis();
+    getNoisyPhis(engine);
     for (int i = 0; i < int (theNoisyPhi.size()); ++i) {
         int iphi = theNoisyPhi[i];
         HPDNoiseData *data;
 
-        data = getNoiseData(iphi);
+        data = getNoiseData(iphi, engine);
         for (unsigned int i = 0; i < data->size(); ++i) {
 
             result.emplace_back(data->getDataFrame(i).id(), data->getDataFrame(i).getFrame());
@@ -188,17 +149,17 @@ vector <pair<HcalDetId, const float *> >HPDNoiseLibraryReader::getNoisyHcalDetId
     return result;
 }
 
-vector <pair<HcalDetId, const float *> >HPDNoiseLibraryReader::getNoisyHcalDetIds(int timeSliceId) 
+vector <pair<HcalDetId, const float *> >HPDNoiseLibraryReader::getNoisyHcalDetIds(int timeSliceId, CLHEP::HepRandomEngine* engine)
 {
     vector <pair< HcalDetId, const float *> >result;
     // decide which phi are noisy by using noise rates 
     // and random numbers (to be called for each event)
-    getNoisyPhis();
+    getNoisyPhis(engine);
     for (int i = 0; i < int (theNoisyPhi.size()); ++i) {
         int iphi = theNoisyPhi[i];
         HPDNoiseData *data;
 
-        data = getNoiseData(iphi);
+        data = getNoiseData(iphi, engine);
         for (unsigned int i = 0; i < data->size(); ++i) {
 	    float* data_ = const_cast<float*>(data->getDataFrame(i).getFrame());
 	    shuffleData(timeSliceId, data_);
@@ -209,19 +170,19 @@ vector <pair<HcalDetId, const float *> >HPDNoiseLibraryReader::getNoisyHcalDetId
     return result;
 
 }
-vector < pair < HcalDetId, const float *> >HPDNoiseLibraryReader::getBiasedNoisyHcalDetIds(int timeSliceId) {
+vector < pair < HcalDetId, const float *> >HPDNoiseLibraryReader::getBiasedNoisyHcalDetIds(int timeSliceId, CLHEP::HepRandomEngine* engine) {
 
     vector < pair < HcalDetId, const float *> >result;
 
     // decide which phi are noisy by using noise rates 
     // and random numbers (to be called for each event)
     // at least one Phi is always noisy.
-    getBiasedNoisyPhis();
+    getBiasedNoisyPhis(engine);
     for (int i = 0; i < int (theNoisyPhi.size()); ++i) {
         int iphi = theNoisyPhi[i];
         HPDNoiseData *data;
 
-        data = getNoiseData(iphi);
+        data = getNoiseData(iphi, engine);
         for (unsigned int i = 0; i < data->size(); ++i) {
 	    float* data_ = const_cast<float*>(data->getDataFrame(i).getFrame());
 	    shuffleData(timeSliceId, data_);
@@ -232,19 +193,19 @@ vector < pair < HcalDetId, const float *> >HPDNoiseLibraryReader::getBiasedNoisy
     return result;
 }
 
-vector < pair < HcalDetId, const float *> >HPDNoiseLibraryReader::getBiasedNoisyHcalDetIds() {
+vector < pair < HcalDetId, const float *> >HPDNoiseLibraryReader::getBiasedNoisyHcalDetIds(CLHEP::HepRandomEngine* engine) {
 
     vector < pair < HcalDetId, const float *> >result;
 
     // decide which phi are noisy by using noise rates 
     // and random numbers (to be called for each event)
     // at least one Phi is always noisy.
-    getBiasedNoisyPhis();
+    getBiasedNoisyPhis(engine);
     for (int i = 0; i < int (theNoisyPhi.size()); ++i) {
         int iphi = theNoisyPhi[i];
         HPDNoiseData *data;
 
-        data = getNoiseData(iphi);
+        data = getNoiseData(iphi, engine);
         for (unsigned int i = 0; i < data->size(); ++i) {
             result.emplace_back(data->getDataFrame(i).id(), data->getDataFrame(i).getFrame());
         }
@@ -252,7 +213,7 @@ vector < pair < HcalDetId, const float *> >HPDNoiseLibraryReader::getBiasedNoisy
     return result;
 }
 
-double HPDNoiseLibraryReader::getIonFeedbackNoise(HcalDetId id, double energy, double bias) {
+double HPDNoiseLibraryReader::getIonFeedbackNoise(HcalDetId id, double energy, double bias, CLHEP::HepRandomEngine* engine) {
 
     // constants for simulation/parameterization
     double pe2Charge = 0.333333;    // fC/p.e.
@@ -299,21 +260,21 @@ double HPDNoiseLibraryReader::getIonFeedbackNoise(HcalDetId id, double energy, d
         double b = 0.;
 
         for (int j = 0; j < npe; ++j) {
-            double probability = theRandFlat->shoot();
+            double probability = CLHEP::RandFlat::shoot(engine);
 
             if (probability < rateInTail) { // total tail
                 if (probability < rateInSecondTail) {   // second tail
-                    Rannor(a, b);
+                    Rannor(a, b, engine);
                     noise += b * p8 + p7;
                 } else {
-                    Rannor(a, b);
+                    Rannor(a, b, engine);
                     noise += b * p5 + p4;
                 }
             }
         }
         // add pedestal 
         if (noise > 0.)
-            noise += theRandGaussQ->fire(0, 2 * PedSigma);
+            noise += CLHEP::RandGaussQ::shoot(engine, 0, 2 * PedSigma);
     }
     return (noise * GeVperfC);  // returns noise in GeV.
 
@@ -369,14 +330,14 @@ void HPDNoiseLibraryReader::shuffleData(int timeSliceId, float* &data)
 }
 
 //I couldn't find Rannor in CLHEP/Random. For now, use it from ROOT (copy/paste) by little modification.
-void HPDNoiseLibraryReader::Rannor(double &a, double &b) {
+void HPDNoiseLibraryReader::Rannor(double &a, double &b, CLHEP::HepRandomEngine* engine) {
     double r,
       x,
       y,
       z;
 
-    y = theRandFlat->shoot();
-    z = theRandFlat->shoot();
+    y = CLHEP::RandFlat::shoot(engine);
+    z = CLHEP::RandFlat::shoot(engine);
     x = z * 6.28318530717958623;
     r = TMath::Sqrt(-2 * TMath::Log(y));
     a = r * TMath::Sin(x);

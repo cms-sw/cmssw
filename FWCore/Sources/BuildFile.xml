@@ -6,6 +6,7 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Utilities"/>
 <use   name="boost"/>
+<use   name="tbb"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -10,7 +10,7 @@ dqmElectronGeneralAnalysis = cms.EDAnalyzer("ElectronGeneralAnalyzer",
     InputFolderName = cms.string("Egamma/Electrons/General"),
     OutputFolderName = cms.string("Egamma/Electrons/General"),
     
-    ElectronCollection = cms.InputTag("gsfElectrons"),
+    ElectronCollection = cms.InputTag("gedGsfElectrons"),
     MatchingObjectCollection = cms.InputTag("mergedSuperClusters"),
     TrackCollection = cms.InputTag("generalTracks"),
     GsfTrackCollection = cms.InputTag("electronGsfTracks"),

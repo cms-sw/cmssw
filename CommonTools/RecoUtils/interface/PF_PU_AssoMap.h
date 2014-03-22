@@ -5,7 +5,7 @@
 //
 // Package:    PF_PU_AssoMap
 // Class:      PF_PU_AssoMap
-// 
+//
 /**\class PF_PU_AssoMap PF_PU_AssoMap.cc CommonTools/RecoUtils/plugins/PF_PU_AssoMap.cc
 
  Description: Produces a map with association between tracks and their particular most probable vertex with a quality of this association
@@ -52,7 +52,7 @@ class PF_PU_AssoMap : public edm::EDProducer, public PF_PU_AssoMapAlgos {
 
       edm::InputTag input_AssociationType_;
 
-      edm::InputTag input_TrackCollection_;
+      edm::EDGetTokenT<reco::TrackCollection> token_TrackCollection_;
 };
 
 

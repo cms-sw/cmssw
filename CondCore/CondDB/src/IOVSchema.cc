@@ -61,12 +61,13 @@ namespace cond {
     bool TAG::Table::select( const std::string& name, 
 			     cond::TimeType& timeType, 
 			     std::string& objectType, 
+			     cond::SynchronizationType& synchronizationType,
 			     cond::Time_t& endOfValidity,
 			     std::string& description, 
 			     cond::Time_t&  lastValidatedTime ){
-      Query< TIME_TYPE, OBJECT_TYPE, END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME > q( m_schema );
+      Query< TIME_TYPE, OBJECT_TYPE, SYNCHRONIZATION, END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME > q( m_schema );
       q.addCondition<NAME>( name );
-      for ( auto row : q ) std::tie( timeType, objectType, endOfValidity, description, lastValidatedTime ) = row;
+      for ( auto row : q ) std::tie( timeType, objectType, synchronizationType, endOfValidity, description, lastValidatedTime ) = row;
       
       return q.retrievedRows();
     }
@@ -156,8 +157,8 @@ namespace cond {
       return q.retrievedRows();
     }
     
-    size_t IOV::Table::selectLastByGroup( const std::string& tag, cond::Time_t lowerSinceGroup, cond::Time_t upperSinceGroup , 
-					  std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    size_t IOV::Table::selectLatestByGroup( const std::string& tag, cond::Time_t lowerSinceGroup, cond::Time_t upperSinceGroup , 
+					    std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
       Query< SINCE, PAYLOAD_HASH > q( m_schema );
       q.addCondition<TAG_NAME>( tag );
       if( lowerSinceGroup > 0 ) q.addCondition<SINCE>( lowerSinceGroup, ">=" );
@@ -192,8 +193,8 @@ namespace cond {
       return iovs.size()-initialSize;
     }
     
-    size_t IOV::Table::selectLast( const std::string& tag, 
-			    std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
+    size_t IOV::Table::selectLatest( const std::string& tag, 
+				     std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ){
       Query< SINCE, PAYLOAD_HASH > q( m_schema );
       q.addCondition<TAG_NAME>( tag );
       q.addOrderClause<SINCE>();
@@ -206,7 +207,41 @@ namespace cond {
       }
       return iovs.size()-initialSize;
     }
+
+    bool IOV::Table::getLastIov( const std::string& tag, cond::Time_t& since, cond::Hash& hash ){
+      Query< SINCE, PAYLOAD_HASH > q( m_schema );
+      q.addCondition<TAG_NAME>( tag );
+      q.addOrderClause<SINCE>( false );
+      q.addOrderClause<INSERTION_TIME>( false );
+      for ( auto row : q ) {
+	since = std::get<0>(row);
+	hash = std::get<1>(row);
+	return true;
+      }
+      return false;
+    }
+
+    bool IOV::Table::getSize( const std::string& tag, size_t& size ){
+      Query< SEQUENCE_SIZE > q( m_schema );
+      q.addCondition<TAG_NAME>( tag );
+      for ( auto row : q ) {
+	size = std::get<0>(row);
+	return true;
+      }
+      return false;
+    }
     
+    bool IOV::Table::getSnapshotSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size ){
+      Query< SEQUENCE_SIZE > q( m_schema );
+      q.addCondition<TAG_NAME>( tag );
+      q.addCondition<INSERTION_TIME>( snapshotTime,"<=" );
+      for ( auto row : q ) {
+	size = std::get<0>(row);
+	return true;
+      }
+      return false;
+    }
+
     void IOV::Table::insertOne( const std::string& tag, 
 				cond::Time_t since, 
 				cond::Hash payloadHash, 
@@ -248,40 +283,49 @@ namespace cond {
       for ( auto row : q ) {}
       
       return q.retrievedRows();
-    
     }
 
+    bool PAYLOAD::Table::getType( const cond::Hash& payloadHash, std::string& objectType ){
+      Query< OBJECT_TYPE > q( m_schema );
+      q.addCondition<HASH>( payloadHash );
+      for ( auto row : q ) {
+	objectType = std::get<0>(row);
+      }
+      
+      return q.retrievedRows(); 
+    }
 
     bool PAYLOAD::Table::select( const cond::Hash& payloadHash, 
 				 std::string& objectType, 
-				 cond::Binary& payloadData ){
-      Query< DATA, OBJECT_TYPE > q( m_schema );
+				 cond::Binary& payloadData,
+				 cond::Binary& streamerInfoData ){
+      Query< DATA, STREAMER_INFO, OBJECT_TYPE > q( m_schema );
       q.addCondition<HASH>( payloadHash );
       for ( auto row : q ) {
-	std::tie( payloadData, objectType ) = row;
+	std::tie( payloadData, streamerInfoData, objectType ) = row;
       }
       return q.retrievedRows();
     }
     
     bool PAYLOAD::Table::insert( const cond::Hash& payloadHash, 
     				 const std::string& objectType,
-    				 const cond::Binary& payloadData, 				      
+    				 const cond::Binary& payloadData, 
+				 const cond::Binary& streamerInfoData,				      
     				 const boost::posix_time::ptime& insertionTime ){
-      cond::Binary dummy;
-      std::string streamerType("ROOT5");
-      dummy.copy( streamerType );
       std::string version("dummy");
-      RowBuffer< HASH, OBJECT_TYPE, DATA, STREAMER_INFO, VERSION, INSERTION_TIME > dataToInsert( std::tie( payloadHash, objectType, payloadData, dummy, version, insertionTime ) ); 
+      RowBuffer< HASH, OBJECT_TYPE, DATA, STREAMER_INFO, VERSION, INSERTION_TIME > dataToInsert( std::tie( payloadHash, objectType, payloadData, streamerInfoData, version, insertionTime ) ); 
       bool failOnDuplicate = false;
       return insertInTable( m_schema, tname, dataToInsert.get(), failOnDuplicate );
     }
 
-    cond::Hash PAYLOAD::Table::insertIfNew( const std::string& payloadObjectType, const cond::Binary& payloadData, 
+    cond::Hash PAYLOAD::Table::insertIfNew( const std::string& payloadObjectType, 
+					    const cond::Binary& payloadData, 
+					    const cond::Binary& streamerInfoData,
 					    const boost::posix_time::ptime& insertionTime ){
       cond::Hash payloadHash = makeHash( payloadObjectType, payloadData );
       // the check on the hash existance is only required to avoid the error message printing in SQLite! once this is removed, this check is useless... 
       if( !select( payloadHash ) ){
-	insert( payloadHash, payloadObjectType, payloadData, insertionTime );
+	insert( payloadHash, payloadObjectType, payloadData, streamerInfoData, insertionTime );
       }
       return payloadHash;
     }

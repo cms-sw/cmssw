@@ -1,7 +1,7 @@
-/*
+/**
  * \file L1TEfficiencyJets_Offline.cc
  *
- * \author J. Pela, P. Musella
+ * \author J. Pela
  *
  */
 

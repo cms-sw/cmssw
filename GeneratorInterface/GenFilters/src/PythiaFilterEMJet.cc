@@ -11,7 +11,7 @@ using namespace std;
 
 namespace{
 
-  double deltaR2(double eta0, double phi0, double eta, double phi){
+  inline double deltaR2(double eta0, double phi0, double eta, double phi){
     double dphi=phi-phi0;
     if(dphi>M_PI) dphi-=2*M_PI;
     else if(dphi<=-M_PI) dphi+=2*M_PI;

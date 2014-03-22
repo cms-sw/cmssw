@@ -15,6 +15,19 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h" 
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0.h"
+
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+
 
 /**\class PFBlockProducer 
 \brief Producer for particle flow blocks
@@ -44,22 +57,23 @@ class PFBlockProducer : public edm::EDProducer {
 
   
 
-  edm::InputTag   inputTagRecTracks_;
-  edm::InputTag   inputTagGsfRecTracks_;
-  edm::InputTag   inputTagConvBremGsfRecTracks_;
-  edm::InputTag   inputTagRecMuons_;
-  edm::InputTag   inputTagPFNuclear_;
-  edm::InputTag   inputTagPFClustersECAL_;
-  edm::InputTag   inputTagPFClustersHCAL_;
-  edm::InputTag   inputTagPFClustersHO_;
-  edm::InputTag   inputTagPFClustersHFEM_;
-  edm::InputTag   inputTagPFClustersHFHAD_;
-  edm::InputTag   inputTagPFClustersPS_;
-  edm::InputTag   inputTagPFConversions_;
-  edm::InputTag   inputTagPFV0_;
-  edm::InputTag   inputTagEGPhotons_;
-  edm::InputTag   inputTagSCBarrel_;
-  edm::InputTag   inputTagSCEndcap_;  
+  edm::EDGetTokenT<reco::PFRecTrackCollection>  inputTagRecTracks_;
+  edm::EDGetTokenT<reco::GsfPFRecTrackCollection>  inputTagGsfRecTracks_;
+  edm::EDGetTokenT<reco::GsfPFRecTrackCollection>  inputTagConvBremGsfRecTracks_;
+  edm::EDGetTokenT<reco::MuonCollection>  inputTagRecMuons_;
+  edm::EDGetTokenT<reco::PFDisplacedTrackerVertexCollection> inputTagPFNuclear_;
+  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersECAL_;
+  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersHCAL_;
+  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersHO_;
+  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersHFEM_;
+  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersHFHAD_;
+  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersPS_;
+  edm::EDGetTokenT<reco::PFConversionCollection> inputTagPFConversions_;
+  edm::EDGetTokenT<reco::PFV0Collection>   inputTagPFV0_;
+  edm::EDGetTokenT<reco::PhotonCollection>  inputTagEGPhotons_;
+  edm::EDGetTokenT<reco::SuperClusterCollection>  inputTagSCBarrel_;
+  edm::EDGetTokenT<reco::SuperClusterCollection>  inputTagSCEndcap_;
+  edm::EDGetTokenT<edm::ValueMap<reco::CaloClusterPtr> > inputTagPFClusterAssociationEBEE_;
   
   // Link track and HCAL clusters to HO clusters ?
   bool useHO_;
@@ -75,6 +89,9 @@ class PFBlockProducer : public edm::EDProducer {
   
   /// use SuperClusters ? 
   bool useSuperClusters_;  
+  
+  //match superclusters by ref
+  bool superClusterMatchByRef_;
   
   /// switch on/off Conversions
   bool  useConversions_;  

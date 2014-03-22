@@ -25,7 +25,7 @@ def enablePileUpCorrectionInPAT( process, postfix, sequence ):
 
     jetCorrFactors = getattr(process,"patJetCorrFactors"+postfix)
     # using non-pileup-charged-hadron-substracted kt6PFJets consistently with JetMET recommendation
-    jetCorrFactors.rho = cms.InputTag("kt6PFJets", "rho")
+    jetCorrFactors.rho = cms.InputTag("fixedGridRhoFastjetAll")
 
 
 def enablePileUpCorrection( process, postfix, sequence='patPF2PATSequence'):

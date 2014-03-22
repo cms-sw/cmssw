@@ -74,8 +74,10 @@
 	<class name="edm::RefVector&lt;edm::HepMCProduct,HepMC::GenParticle,edm::refhelper::FindTrait&lt;edm::HepMCProduct,HepMC::GenParticle&gt;::Find&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*&gt;"/>
 	<class name="std::pair&lt;const int,HepMC::GenVertex*&gt;"/>
+	<class name="std::pair&lt;int,HepMC::GenVertex*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::pair&lt;const int,HepMC::GenParticle*&gt;"/>
+	<class name="std::pair&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*,std::greater&lt;int&gt; &gt;"/>
 
 	<!-- Classes shared between different kinds of products -->
@@ -133,9 +135,10 @@
 	<class name="LHERunInfoProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="2098560362"/>
  </class>
-	<class name="LHEEventProduct" ClassVersion="11">
+	<class name="LHEEventProduct" ClassVersion="12">
   <version ClassVersion="10" checksum="1026978494"/>
   <version ClassVersion="11" checksum="619154414"/>
+  <version ClassVersion="12" checksum="259352862"/>
  </class>
  <class name="gen::WeightsInfo" ClassVersion="10">
   <version ClassVersion="10" checksum="2663143460"/>

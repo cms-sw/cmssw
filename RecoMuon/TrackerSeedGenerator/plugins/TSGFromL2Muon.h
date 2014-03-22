@@ -3,6 +3,27 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
+#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <vector>
+
+
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedCleaner.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
 
@@ -33,6 +54,10 @@ private:
   MuonTrackingRegionBuilder* theRegionBuilder;
   TrackerSeedGenerator* theTkSeedGenerator;
   TrackerSeedCleaner* theSeedCleaner;
+
+
+  edm::EDGetTokenT<reco::TrackCollection> l2muonToken;
+
 
 };
 #endif

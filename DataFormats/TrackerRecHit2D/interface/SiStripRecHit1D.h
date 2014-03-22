@@ -7,29 +7,25 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
+#include "TkCloner.h"
+
+
 class SiStripRecHit1D GCC11_FINAL : public TrackerSingleRecHit { 
 public:
 
  
-  SiStripRecHit1D(): sigmaPitch_(-1.){}
+  SiStripRecHit1D(){}
   
   
   typedef OmniClusterRef::ClusterStripRef         ClusterRef;
   typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
-
+  template<typename CluRef>
   SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
-		   const DetId& id, 
-		   OmniClusterRef const&  clus) : TrackerSingleRecHit(p,e,id,clus), sigmaPitch_(-1.){}
+		   GeomDet const & idet,
+		   CluRef const&  clus) : TrackerSingleRecHit(p,e,idet,clus){}
 
-  SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
-		   const DetId& id, 
-		   ClusterRef const&  clus) : TrackerSingleRecHit(p,e,id,clus), sigmaPitch_(-1.){}
-
-  SiStripRecHit1D( const LocalPoint& p, const LocalError& e,
-		   const DetId& id, 
-		   ClusterRegionalRef const& clus) : TrackerSingleRecHit(p,e,id,clus), sigmaPitch_(-1.){}
-  
+ 
   /// method to facilitate the convesion from 2D to 1D hits
   SiStripRecHit1D(const SiStripRecHit2D*);
 
@@ -43,14 +39,15 @@ public:
   virtual int dimension() const {return 1;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const {getKfComponents1D(holder);}
 
- 
-  double sigmaPitch() const { return sigmaPitch_;}
-  void setSigmaPitch(double sigmap) const { sigmaPitch_=sigmap;}
-
+  virtual bool canImproveWithTrack() const {return true;}
 private:
+  // double dispatch
+  virtual SiStripRecHit1D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner(*this,tsos);
+  }
  
- /// cache for the matcher....
-  mutable double sigmaPitch_;  // transient.... 
+
+ 
 };
 
 #endif

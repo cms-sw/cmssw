@@ -8,25 +8,20 @@
 
 #include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
 
-#include "RecoJets/JetProducers/interface/JetSpecific.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/BasicJetCollection.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/BasicJetCollection.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -38,6 +33,7 @@
 #include "fastjet/tools/Filter.hh"
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/tools/MassDropTagger.hh"
+#include "RecoJets/JetAlgorithms/interface/CMSBoostedTauSeedingAlgorithm.h"
 
 #include <iostream>
 #include <memory>
@@ -61,6 +57,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     useFiltering_(false),
     useTrimming_(false),
     usePruning_(false),
+    useCMSBoostedTauSeedingAlgorithm_(false),
     muCut_(-1.0),
     yCut_(-1.0),
     rFilt_(-1.0),
@@ -101,11 +98,13 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
   if ( iConfig.exists("useFiltering") ||
        iConfig.exists("useTrimming") ||
        iConfig.exists("usePruning") ||
-       iConfig.exists("useMassDropTagger") ) {
+       iConfig.exists("useMassDropTagger") ||
+       iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ) {
     useMassDropTagger_=false;
     useFiltering_=false;
     useTrimming_=false;
     usePruning_=false;
+    useCMSBoostedTauSeedingAlgorithm_=false;
     rFilt_=-1.0;
     nFilt_=-1;
     trimPtFracMin_=-1.0;
@@ -113,8 +112,15 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     RcutFactor_=-1.0;
     muCut_=-1.0;
     yCut_=-1.0;
+    subjetPtMin_ = -1.0;
+    muMin_ = -1.0;
+    muMax_ = -1.0;
+    yMin_ = -1.0;
+    yMax_ = -1.0;
+    dRMin_ = -1.0;
+    dRMax_ = -1.0;
+    maxDepth_ = -1;
     useExplicitGhosts_ = true;
-
 
     if ( iConfig.exists("useMassDropTagger") ) {
       useMassDropTagger_ = true;
@@ -141,7 +147,21 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
       nFilt_ = iConfig.getParameter<int>("nFilt");
     }
 
+    if ( iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ) {
+      useCMSBoostedTauSeedingAlgorithm_ = iConfig.getParameter<bool>("useCMSBoostedTauSeedingAlgorithm");
+      subjetPtMin_ = iConfig.getParameter<double>("subjetPtMin");
+      muMin_ = iConfig.getParameter<double>("muMin");
+      muMax_ = iConfig.getParameter<double>("muMax");
+      yMin_ = iConfig.getParameter<double>("yMin");
+      yMax_ = iConfig.getParameter<double>("yMax");
+      dRMin_ = iConfig.getParameter<double>("dRMin");
+      dRMax_ = iConfig.getParameter<double>("dRMax");
+      maxDepth_ = iConfig.getParameter<int>("maxDepth");
+    }
+
   }
+
+  input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(src_);
 
 }
 
@@ -178,8 +198,9 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
 {
 
     // read in the track candidates
-    edm::Handle<edm::View<reco::RecoChargedRefCandidate> > inputsHandle;
-    iEvent.getByLabel(src_, inputsHandle);
+  edm::Handle<edm::View<reco::RecoChargedRefCandidate> > inputsHandle;
+    iEvent.getByToken(input_chrefcand_token_, inputsHandle);
+
     // make collection with pointers so we can play around with it
     std::vector<edm::Ptr<reco::RecoChargedRefCandidate> > allInputs;
     std::vector<edm::Ptr<reco::Candidate> > origInputs;
@@ -190,7 +211,7 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
 
     // read in the PV collection
     edm::Handle<reco::VertexCollection> pvCollection;
-    iEvent.getByLabel(srcPVs_, pvCollection);
+    iEvent.getByToken(input_vertex_token_, pvCollection);
     // define the overall output jet container
     std::auto_ptr<std::vector<reco::TrackJet> > jets(new std::vector<reco::TrackJet>() );
 
@@ -328,14 +349,14 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceVoronoiArea( fjInputs_, *fjJetDefinition_ , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
   }
 
-  if ( !useTrimming_ && !useFiltering_ && !usePruning_ ) {
+  if ( !(useMassDropTagger_ || useCMSBoostedTauSeedingAlgorithm_ || useTrimming_ || useFiltering_ || usePruning_) ) {
     fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
-  }
-  else {
+  } else {
     fjJets_.clear();
     std::vector<fastjet::PseudoJet> tempJets = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
 
     fastjet::MassDropTagger md_tagger( muCut_, yCut_ );
+    fastjet::contrib::CMSBoostedTauSeedingAlgorithm tau_tagger( subjetPtMin_, muMin_, muMax_, yMin_, yMax_, dRMin_, dRMax_, maxDepth_, verbosity_ );
     fastjet::Filter trimmer( fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, rFilt_), fastjet::SelectorPtFractionMin(trimPtFracMin_)));
     fastjet::Filter filter( fastjet::Filter(fastjet::JetDefinition(fastjet::cambridge_algorithm, rFilt_), fastjet::SelectorNHardest(nFilt_)));
     fastjet::Pruner pruner(fastjet::cambridge_algorithm, zCut_, RcutFactor_);
@@ -344,6 +365,9 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 
     if ( useMassDropTagger_ ) {
       transformers.push_back(&md_tagger);
+    }
+    if ( useCMSBoostedTauSeedingAlgorithm_ ) {
+      transformers.push_back(&tau_tagger);
     }
     if ( useTrimming_ ) {
       transformers.push_back(&trimmer);
@@ -355,8 +379,6 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       transformers.push_back(&pruner);
     }
 
-
-
     for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
 	    ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet ) {
 
@@ -366,13 +388,13 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 	      itransfEnd = transformers.end(); itransf != itransfEnd; ++itransf ) {
 	if ( transformedJet != 0 ) {
 	  transformedJet = (**itransf)(transformedJet);
-	}
-	else {
+	} else {
 	  passed=false;
 	}
       }
-      if ( passed ) 
+      if ( passed ) {
 	fjJets_.push_back( transformedJet );
+      }
     }
   }
 

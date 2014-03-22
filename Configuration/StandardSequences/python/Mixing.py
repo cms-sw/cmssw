@@ -95,6 +95,7 @@ addMixingScenario("E8TeV_2012_25nsRunning_TrainBackOOTPU",{'file': 'SimGeneral.M
 addMixingScenario("E8TeV_2012_25nsRunning_TrainFrontOOTPU",{'file': 'SimGeneral.MixingModule.mix_E8TeV_2012_25nsRunning_TrainFrontOOTPU_cfi'})
 addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime0",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_FixedInTime0_cfi'})
 addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime30",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_FixedInTime30_cfi'})
+addMixingScenario("CSA14_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix_CSA14_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 ##fastsim section
@@ -107,7 +108,7 @@ addMixingScenario("FS_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpPr
 addMixingScenario("FS_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_2012_Summer_inTimeOnly_cff'})
 addMixingScenario("FS_mix_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Startup_inTimeOnly_cff'})
 addMixingScenario("FS_mix_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Summer_inTimeOnly_cff'})
-
+addMixingScenario("FS_CSA14_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_CSA14_inTimeOnly_cff'})
 
 #scenarios for L1 tdr work
 addMixingScenario("AVE_10_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 10})

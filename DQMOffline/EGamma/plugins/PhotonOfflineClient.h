@@ -94,6 +94,7 @@ class PhotonOfflineClient : public edm::EDAnalyzer
 
  private:
 
+  std::string analyzerName_;
   MonitorElement* p_efficiencyVsEtaLoose_;
   MonitorElement* p_efficiencyVsEtLoose_;
   MonitorElement* p_efficiencyVsEtaTight_;

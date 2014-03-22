@@ -14,7 +14,7 @@ dqmElectronAnalysis = cms.EDAnalyzer("ElectronAnalyzer",
     OutputFolderName = cms.string("Egamma/Electrons"),
     
     Selection = cms.int32(1), # 0=All elec, 1=Etcut, 2=Iso, 3=eId
-    ElectronCollection = cms.InputTag("gsfElectrons"),
+    ElectronCollection = cms.InputTag("gedGsfElectrons"),
     MatchingObjectCollection = cms.InputTag("mergedSuperClusters"),
     TrackCollection = cms.InputTag("generalTracks"),
     GsfTrackCollection = cms.InputTag("electronGsfTracks"),

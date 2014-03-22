@@ -26,14 +26,9 @@
  
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
-{
-  theCategory = "Muon|RecoMuon|TSGFromPropagation";
-  theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
-  theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
-}
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC): TSGFromPropagation(iConfig, iC, nullptr) {}
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC, const MuonServiceProxy* service) : theTkLayerMeasurements (), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
   theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");

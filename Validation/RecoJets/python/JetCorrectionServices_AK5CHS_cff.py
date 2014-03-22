@@ -12,7 +12,7 @@ ak5PFchsL1Fastjet = cms.ESProducer(
     'L1FastjetCorrectionESProducer',
     level       = cms.string('L1FastJet'),
     algorithm   = cms.string('AK5PFchs'),
-    srcRho      = cms.InputTag('kt6PFJets','rho')
+    srcRho      = cms.InputTag('fixedGridRhoFastjetAll')
     )
 ak5PFchsL2Relative = ak5CaloL2Relative = cms.ESProducer(
     'LXXXCorrectionESProducer',

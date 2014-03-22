@@ -14,6 +14,7 @@ def customise(process):
       wantSummary = cms.untracked.bool(True) 
     )
 
+    #using the DQMROOT means that the fevt output will be empty
     process.FEVTDEBUGHLToutput.outputCommands.append('drop *')
     process.FEVTDEBUGHLToutput.outputCommands.append('keep *_MEtoEDMConverter_*_*')
 

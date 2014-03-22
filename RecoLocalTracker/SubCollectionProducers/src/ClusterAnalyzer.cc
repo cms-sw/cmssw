@@ -59,7 +59,7 @@ class ClusterAnalyzer : public edm::EDAnalyzer {
    
       // ----------member data ---------------------------
 
-      edm::InputTag _class;
+      edm::EDGetTokenT<ClusterSummary> token;
 
       std::map<int, std::string> enumModules_;
       std::map< std::string, TH1D* > histos1D_;
@@ -94,7 +94,7 @@ class ClusterAnalyzer : public edm::EDAnalyzer {
 ClusterAnalyzer::ClusterAnalyzer(const edm::ParameterSet& iConfig)
 {
   
-  _class    = iConfig.getParameter<edm::InputTag>("clusterSum");
+  token = consumes<ClusterSummary>(iConfig.getParameter<edm::InputTag>("clusterSum"));
 
   _firstPass = true;
   _verbose = true;    //set to true to see the event by event summary info
@@ -111,7 +111,7 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    
    Handle< ClusterSummary  > class_;
-   iEvent.getByLabel( _class, class_);
+   iEvent.getByToken( token, class_);
       
    if (_firstPass){
    

@@ -128,6 +128,8 @@ class PFAlgo {
 			   double ph_MinEt,
 			   double ph_combIso,
 			   double ph_HoE,
+			   double ph_sietaieta_eb,
+			   double ph_sietaieta_ee,
 			   const edm::ParameterSet& ph_protectionsForJetMET);
 
   

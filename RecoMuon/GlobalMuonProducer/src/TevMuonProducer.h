@@ -17,6 +17,17 @@
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+// Input and output collection
+
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class MuonTrackFinder;
@@ -39,6 +50,10 @@ class TevMuonProducer : public edm::EDProducer {
     
   /// STA Label
   edm::InputTag theGLBCollectionLabel;
+  edm::EDGetTokenT<reco::TrackCollection> glbMuonsToken;
+  edm::EDGetTokenT<std::vector<Trajectory> > glbMuonsTrajToken;
+  
+
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy* theService;

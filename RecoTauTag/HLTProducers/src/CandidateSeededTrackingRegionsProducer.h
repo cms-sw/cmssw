@@ -136,7 +136,7 @@ public:
     else if (m_mode == VERTICES_FIXED || m_mode == VERTICES_SIGMA)
     {
       edm::Handle< reco::VertexCollection > vertices;
-      e.getByToken( token_input, vertices );
+      e.getByToken( token_vertex, vertices );
       int n_vert = 0;
       for (reco::VertexCollection::const_iterator v = vertices->begin(); v != vertices->end() && n_vert < m_maxNVertices; ++v)
       {

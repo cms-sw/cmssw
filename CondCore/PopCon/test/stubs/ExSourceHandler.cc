@@ -47,10 +47,10 @@ void popcon::ExPedestalSource::getNewObjects() {
     << tagInfo().lastInterval.first << " token "   
     << tagInfo().lastPayloadToken << std::endl;
 
-  edm::LogInfo ("ExPedestalsSource")
-    << " ------ last entry info regarding the payload (if existing): " <<logDBEntry().usertext 
-    << "; last record with the correct tag (if existing) has been written in the db: " 
-    <<logDBEntry().destinationDB<< std::endl; 
+  //edm::LogInfo ("ExPedestalsSource")
+  //  << " ------ last entry info regarding the payload (if existing): " <<logDBEntry().usertext 
+  //  << "; last record with the correct tag (if existing) has been written in the db: " 
+  //  <<logDBEntry().destinationDB<< std::endl; 
   
   if (tagInfo().size>0) {
     Ref payload = lastPayload();

@@ -1,12 +1,4 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="CondFormats/Calibration"/>
-<use   name="CondCore/DBCommon"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="FWCore/Framework"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="RelationalAccess"/>
-<bin   name="CondDataProxy_t" file="CondDataProxy_t.cpp">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondCore/ESSources"/>
-</bin>

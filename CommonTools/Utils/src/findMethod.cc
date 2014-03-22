@@ -88,6 +88,7 @@ namespace reco {
     type = edm::TypeWithDict(type, 0L); // strip const, volatile, c++ ref, ..
 
     pair<edm::FunctionWithDict, bool> mem; mem.second = false;
+    int                               err_fatal = 0;
 
     // suitable members and number of integer->real casts required to get them
     vector<pair<int,edm::FunctionWithDict> > oks;
@@ -103,13 +104,20 @@ namespace reco {
         } else {
            oError = -1*casts;
            //is this a show stopper error?
-           if(fatalErrorCondition(oError)) {
-              return mem;
+           if(fatalErrorCondition(oError) && err_fatal == 0) {
+              err_fatal = oError;
            }
         }
       }
     }
     //std::cout << "At base scope (type " << (type.name()) << ") found " << oks.size() << " methods." << std::endl; 
+
+    if (oks.empty() && err_fatal)
+    {
+       oError = err_fatal;
+       return mem;
+    }
+
     // found at least one method
     if (!oks.empty()) {
         if (oks.size() > 1) {

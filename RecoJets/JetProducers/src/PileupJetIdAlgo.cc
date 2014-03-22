@@ -6,6 +6,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CommonTools/Utils/interface/TMVAZipReader.h"
+
 #include "TMatrixDSym.h"
 #include "TMatrixDSymEigen.h"
 
@@ -202,7 +204,7 @@ void PileupJetIdAlgo::bookReader()
 		}
 		reader_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
 	}
-	reader_->BookMVA(tmvaMethod_.c_str(), tmvaWeights_.c_str());
+	reco::details::loadTMVAWeights(reader_,  tmvaMethod_.c_str(), tmvaWeights_.c_str() ); 
 }
 
 // ------------------------------------------------------------------------------------------

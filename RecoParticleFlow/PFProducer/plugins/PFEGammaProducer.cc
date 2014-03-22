@@ -43,7 +43,10 @@ namespace {
 }
 
 PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig):
-  primaryVertex_(reco::Vertex()) {
+  primaryVertex_(reco::Vertex()),
+  ebeeClustersCollection_("EBEEClusters"),
+  esClustersCollection_("ESClusters") {
+    
   PFEGammaAlgo::PFEGConfigInfo algo_config;
 
   inputTagBlocks_ 
@@ -98,6 +101,9 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig):
   produces<reco::PFCandidateCollection>();
   produces<reco::PFCandidateEGammaExtraCollection>();  
   produces<reco::SuperClusterCollection>();
+  produces<reco::CaloClusterCollection>(ebeeClustersCollection_);
+  produces<reco::CaloClusterCollection>(esClustersCollection_);  
+  produces<reco::ConversionCollection>();
   
   //PFElectrons Configuration
   algo_config.mvaEleCut
@@ -403,30 +409,87 @@ PFEGammaProducer::produce(edm::Event& iEvent,
 
   edm::RefProd<reco::PFCandidateEGammaExtraCollection> egXtraProd = 
     iEvent.getRefBeforePut<reco::PFCandidateEGammaExtraCollection>();
-  
-  size_t non_zero_sc_idx = 0; 
-  
+    
   //set the correct references to refined SC and EG extra using the refprods
   for (unsigned int i=0; i < egCandidates_->size(); ++i) {
     reco::PFCandidate &cand = egCandidates_->at(i);
     reco::PFCandidateEGammaExtra &xtra = egExtra_->at(i);
-    reco::SuperCluster& rsc = sClusters_->at(non_zero_sc_idx);
     
     reco::PFCandidateEGammaExtraRef extraref(egXtraProd,i);
-    reco::SuperClusterRef refinedSCRef;
-    // only set refined SC refs where the is valid!
-    if( rsc.energy() != 0.0 ) {      
-      refinedSCRef = reco::SuperClusterRef(sClusterProd,non_zero_sc_idx++);
-    } else {
-      sClusters_->erase(sClusters_->begin() + non_zero_sc_idx);
-    }
+    reco::SuperClusterRef refinedSCRef(sClusterProd,i);
+
     xtra.setSuperClusterRef(refinedSCRef); 
     cand.setSuperClusterRef(refinedSCRef);
     cand.setPFEGammaExtraRef(extraref);    
   }
+  
+  //build collections of output CaloClusters from the used PFClusters
+  std::auto_ptr<reco::CaloClusterCollection> caloClustersEBEE(new reco::CaloClusterCollection);
+  std::auto_ptr<reco::CaloClusterCollection> caloClustersES(new reco::CaloClusterCollection);
+  
+  std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapEBEE; //maps of pfclusters to caloclusters 
+  std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapES;  
+  
+  for( const auto& sc : *sClusters_ ) {
+    for (reco::CaloCluster_iterator pfclus = sc.clustersBegin(); pfclus!=sc.clustersEnd(); ++pfclus) {
+      if (!pfClusterMapEBEE.count(*pfclus)) {
+        reco::CaloCluster caloclus(**pfclus);
+        caloClustersEBEE->push_back(caloclus);
+        pfClusterMapEBEE[*pfclus] = caloClustersEBEE->size() - 1;
+      }
+      else {
+        throw cms::Exception("PFEgammaProducer::produce")
+            << "Found an EB/EE pfcluster matched to more than one supercluster!" 
+            << std::dec << std::endl;
+      }
+    }
+    for (reco::CaloCluster_iterator pfclus = sc.preshowerClustersBegin(); pfclus!=sc.preshowerClustersEnd(); ++pfclus) {
+      if (!pfClusterMapES.count(*pfclus)) {
+        reco::CaloCluster caloclus(**pfclus);
+        caloClustersES->push_back(caloclus);
+        pfClusterMapES[*pfclus] = caloClustersES->size() - 1;
+      }
+      else {
+        throw cms::Exception("PFEgammaProducer::produce")
+            << "Found an ES pfcluster matched to more than one supercluster!" 
+            << std::dec << std::endl;
+      }
+    }
+  }
+  
+  //put calocluster output collections in event and get orphan handles to create ptrs
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEBEE = iEvent.put(caloClustersEBEE,ebeeClustersCollection_);
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleES = iEvent.put(caloClustersES,esClustersCollection_);
+  
+  //relink superclusters to output caloclusters
+  for( auto& sc : *sClusters_ ) {
+    edm::Ptr<reco::CaloCluster> seedptr(caloClusHandleEBEE,pfClusterMapEBEE[sc.seed()]);
+    sc.setSeed(seedptr);
+    
+    reco::CaloClusterPtrVector clusters;
+    for (reco::CaloCluster_iterator pfclus = sc.clustersBegin(); pfclus!=sc.clustersEnd(); ++pfclus) {
+      edm::Ptr<reco::CaloCluster> clusptr(caloClusHandleEBEE,pfClusterMapEBEE[*pfclus]);
+      clusters.push_back(clusptr);
+    }
+    sc.setClusters(clusters);
+    
+    reco::CaloClusterPtrVector psclusters;
+    for (reco::CaloCluster_iterator pfclus = sc.preshowerClustersBegin(); pfclus!=sc.preshowerClustersEnd(); ++pfclus) {
+      edm::Ptr<reco::CaloCluster> clusptr(caloClusHandleES,pfClusterMapES[*pfclus]);
+      psclusters.push_back(clusptr);
+    }
+    sc.setPreshowerClusters(psclusters);  
+  }
+  
+  //create and fill references to single leg conversions
+  edm::RefProd<reco::ConversionCollection> convProd = iEvent.getRefBeforePut<reco::ConversionCollection>();
+  singleLegConv_.reset(new reco::ConversionCollection);  
+  createSingleLegConversions(*egExtra_, *singleLegConv_, convProd);
+  
   // release our demonspawn into the wild to cause havoc
   iEvent.put(sClusters_);
   iEvent.put(egExtra_);  
+  iEvent.put(singleLegConv_);
   iEvent.put(egCandidates_); 
 }
 
@@ -511,3 +574,61 @@ PFEGammaProducer::setPFVertexParameters(bool useVertex,
   pfeg_->setPhotonPrimaryVtx(primaryVertex_ );
   
 }
+
+void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras, reco::ConversionCollection &oneLegConversions, const edm::RefProd<reco::ConversionCollection> &convProd) {
+ 
+  math::Error<3>::type error;
+  for (auto &extra : extras){
+    for (const auto &tkrefmva : extra.singleLegConvTrackRefMva()) {
+      const reco::Track &trk = *tkrefmva.first;
+            
+      const reco::Vertex convVtx(trk.innerPosition(), error);
+      std::vector<reco::TrackRef> OneLegConvVector;
+      OneLegConvVector.push_back(tkrefmva.first);
+      std::vector< float > OneLegMvaVector;
+      OneLegMvaVector.push_back(tkrefmva.second);
+      std::vector<reco::CaloClusterPtr> dummymatchingBC;
+      reco::CaloClusterPtrVector scPtrVec;
+      scPtrVec.push_back(edm::refToPtr(extra.superClusterRef()));
+
+      std::vector<math::XYZPointF>trackPositionAtEcalVec;
+      std::vector<math::XYZPointF>innPointVec;
+      std::vector<math::XYZVectorF>trackPinVec;
+      std::vector<math::XYZVectorF>trackPoutVec;
+      math::XYZPointF trackPositionAtEcal(trk.outerPosition().X(), trk.outerPosition().Y(), trk.outerPosition().Z());
+      trackPositionAtEcalVec.push_back(trackPositionAtEcal);
+      
+      math::XYZPointF innPoint(trk.innerPosition().X(), trk.innerPosition().Y(), trk.innerPosition().Z());
+      innPointVec.push_back(innPoint);
+
+      math::XYZVectorF trackPin(trk.innerMomentum().X(), trk.innerMomentum().Y(), trk.innerMomentum().Z());
+      trackPinVec.push_back(trackPin);
+
+      math::XYZVectorF trackPout(trk.outerMomentum().X(), trk.outerMomentum().Y(), trk.outerMomentum().Z());
+      trackPoutVec.push_back( trackPout );
+      
+      float DCA = trk.d0() ;
+      float mvaval = tkrefmva.second;
+      reco::Conversion singleLegConvCandidate(scPtrVec, 
+                                          OneLegConvVector,
+                                          trackPositionAtEcalVec,
+                                          convVtx,
+                                          dummymatchingBC,
+                                          DCA,
+                                          innPointVec,
+                                          trackPinVec,
+                                          trackPoutVec,
+                                          mvaval,                         
+                                          reco::Conversion::pflow);
+      singleLegConvCandidate.setOneLegMVA(OneLegMvaVector); 
+      oneLegConversions.push_back(singleLegConvCandidate);
+            
+      reco::ConversionRef convref(convProd,oneLegConversions.size()-1);
+      extra.addSingleLegConversionRef(convref);
+    
+    }
+
+  } 
+  
+}
+

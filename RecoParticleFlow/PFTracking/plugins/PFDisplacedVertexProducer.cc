@@ -28,14 +28,12 @@ PFDisplacedVertexProducer::PFDisplacedVertexProducer(const edm::ParameterSet& iC
   
   // --- Setup input collection names --- //
 
-  inputTagVertexCandidates_ 
-    = iConfig.getParameter<InputTag>("vertexCandidatesLabel");
+  inputTagVertexCandidates_= consumes<reco::PFDisplacedVertexCandidateCollection>(iConfig.getParameter<InputTag>("vertexCandidatesLabel"));
 
-  inputTagMainVertex_ 
-    = iConfig.getParameter<InputTag>("mainVertexLabel");
+  inputTagMainVertex_ = consumes<reco::VertexCollection>(iConfig.getParameter<InputTag>("mainVertexLabel"));
 
-  inputTagBeamSpot_ 
-    = iConfig.getParameter<InputTag>("offlineBeamSpotLabel");
+
+  inputTagBeamSpot_ =consumes<reco::BeamSpot> (iConfig.getParameter<InputTag>("offlineBeamSpotLabel"));
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose");
@@ -123,13 +121,13 @@ PFDisplacedVertexProducer::produce(Event& iEvent,
   iSetup.get<TrackerDigiGeometryRecord>().get(tkerGeomHandle);
 
   Handle<reco::PFDisplacedVertexCandidateCollection> vertexCandidates;
-  iEvent.getByLabel(inputTagVertexCandidates_, vertexCandidates);
+  iEvent.getByToken(inputTagVertexCandidates_, vertexCandidates);
 
   Handle< reco::VertexCollection > mainVertexHandle;
-  iEvent.getByLabel(inputTagMainVertex_, mainVertexHandle);
+  iEvent.getByToken(inputTagMainVertex_, mainVertexHandle);
 
   Handle< reco::BeamSpot > beamSpotHandle;
-  iEvent.getByLabel(inputTagBeamSpot_, beamSpotHandle);
+  iEvent.getByToken(inputTagBeamSpot_, beamSpotHandle);
 
   // Fill useful event information for the Finder
   pfDisplacedVertexFinder_.setEdmParameters(theMagField, globTkGeomHandle, tkerGeomHandle); 

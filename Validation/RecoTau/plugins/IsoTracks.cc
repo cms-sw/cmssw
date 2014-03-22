@@ -27,7 +27,6 @@ public:
   
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
-  void endJob() override;
 
 private:  
   // member data
@@ -94,10 +93,6 @@ void IsoTracks::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 	}
   }
   iEvent.put(IsoTracks);
-}
-
-void IsoTracks::endJob()
-{
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

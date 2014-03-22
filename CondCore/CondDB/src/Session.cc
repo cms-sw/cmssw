@@ -40,9 +40,9 @@ namespace cond {
       m_transaction( *m_session ){
     }
     
-    Session::Session( boost::shared_ptr<coral::ISessionProxy>& session ):
-      m_session( new SessionImpl( session ) ),
-      m_transaction( *m_session ){
+    Session::Session( const std::shared_ptr<SessionImpl>& sessionImpl ):
+      m_session( sessionImpl ),
+      m_transaction( *m_session ){      
     }
 
     Session::Session( const Session& rhs ):
@@ -96,12 +96,25 @@ namespace cond {
       return proxy;
     }
 
-    IOVEditor Session::createIov( const std::string& payloadType, const std::string& tag, cond::TimeType timeType, cond::SynchronizationType synchronizationType ){
+    IOVEditor Session::createIov( const std::string& payloadType, const std::string& tag, cond::TimeType timeType, 
+				  cond::SynchronizationType synchronizationType ){
       m_session->openIovDb( SessionImpl::CREATE );
       if( m_session->iovSchema().tagTable().select( tag ) ) 
 	throwException( "The specified tag \""+tag+"\" already exist in the database.","Session::createIov");
       IOVEditor editor( m_session, tag, timeType, payloadType, synchronizationType );
       return editor;
+    }
+
+    IOVEditor Session::createIovForPayload( const Hash& payloadHash, const std::string& tag, cond::TimeType timeType,
+					    cond::SynchronizationType synchronizationType ){
+      m_session->openIovDb( SessionImpl::CREATE );
+      if( m_session->iovSchema().tagTable().select( tag ) ) 
+	throwException( "The specified tag \""+tag+"\" already exist in the database.","Session::createIovForPayload");
+      std::string payloadType("");
+      if( !m_session->iovSchema().payloadTable().getType( payloadHash, payloadType ) )
+	throwException( "The specified payloadId \""+payloadHash+"\" does not exist in the database.","Session::createIovForPayload");
+      IOVEditor editor( m_session, tag, timeType, payloadType, synchronizationType );
+      return editor;      
     }
     
     IOVEditor Session::editIov( const std::string& tag ){
@@ -133,18 +146,27 @@ namespace cond {
       return proxy;
     }
     
+    GTProxy Session::readGlobalTag( const std::string& name, const std::string& preFix, const std::string& postFix  ){
+      m_session->openGTDb();
+      GTProxy proxy( m_session );
+      proxy.load( name, preFix, postFix );
+      return proxy;
+    }
+
     cond::Hash Session::storePayloadData( const std::string& payloadObjectType, 
-					  const cond::Binary& payloadData, 
+					  const std::pair<Binary,Binary>& payloadAndStreamerInfoData,
 					  const boost::posix_time::ptime& creationTime ){
       m_session->openIovDb( SessionImpl::CREATE );
-      return m_session->iovSchema().payloadTable().insertIfNew( payloadObjectType, payloadData, creationTime );
+      return m_session->iovSchema().payloadTable().insertIfNew( payloadObjectType, payloadAndStreamerInfoData.first, 
+								payloadAndStreamerInfoData.second, creationTime );
     }
     
     bool Session::fetchPayloadData( const cond::Hash& payloadHash,
 				    std::string& payloadType, 
-				    cond::Binary& payloadData ){
+				    cond::Binary& payloadData,
+				    cond::Binary& streamerInfoData ){
       m_session->openIovDb();
-      return m_session->iovSchema().payloadTable().select( payloadHash, payloadType, payloadData );
+      return m_session->iovSchema().payloadTable().select( payloadHash, payloadType, payloadData, streamerInfoData );
     }
 
     bool Session::isOraSession(){
@@ -160,7 +182,45 @@ namespace cond {
     void Session::addToMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, const std::string& destTag ){
       if(! m_session->iovSchema().tagMigrationTable().exists() ) m_session->iovSchema().tagMigrationTable().create();
       m_session->iovSchema().tagMigrationTable().insert( sourceAccount, sourceTag, destTag, 
-						       boost::posix_time::microsec_clock::universal_time() );
+							 boost::posix_time::microsec_clock::universal_time() );
+    }
+
+    std::string Session::connectionString(){
+      return m_session->connectionString;
+    }
+
+    coral::ISessionProxy& Session::coralSession(){
+      if( !m_session->coralSession.get() ) throwException( "The session is not active.","Session::coralSession");
+      return *m_session->coralSession; 
+    }
+
+    coral::ISchema& Session::nominalSchema(){
+      return coralSession().nominalSchema();
+    }
+
+    TransactionScope::TransactionScope( Transaction& transaction ):
+      m_transaction(transaction),m_status(true){
+      m_status = !m_transaction.isActive();
+    }
+
+    TransactionScope::~TransactionScope(){
+      if(!m_status && m_transaction.isActive() ) {
+	m_transaction.rollback();
+      }
+    }
+
+    void TransactionScope::start( bool readOnly ){
+      m_transaction.start( readOnly );
+      m_status = false;
+    }
+
+    void TransactionScope::commit(){
+      m_transaction.commit();
+      m_status = true;
+    }
+    
+    void TransactionScope::close(){
+      m_status = true;
     }
     
   }

@@ -123,6 +123,7 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
   m_Sorter = new L1MuGMTSorter(*this);   // barrel
 
   if(!m_db) m_db = new L1MuGMTDebugBlock(m_config->getBxMin(),m_config->getBxMax());
+  usesResource("L1MuGlobalMuonTrigger");
 }
 
 //--------------

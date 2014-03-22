@@ -1,0 +1,8 @@
+<use   name="root"/>
+<use   name="DQMServices/ClientConfig"/>
+<use   name="DQMServices/Core"/>
+<use   name="DataFormats/RecoCandidate"/>
+<export>
+  <lib name="1"/>
+</export>
+

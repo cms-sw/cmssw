@@ -1,21 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-#process.CondDBCommon.connect = 'oracle://devdb10/cms_xiezhen_dev'
-process.CondDBCommon.connect = 'sqlite_file:blob.db'
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/user/x/xiezhen'
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = 'sqlite_file:blob.db'
 
 process.source = cms.Source("EmptyIOVSource",
     lastValue = cms.uint64(1),
-    timetype = cms.string('runnumber'),
+    timetype = cms.string('Run'),
     firstValue = cms.uint64(1),
     interval = cms.uint64(1)
 )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon,
-    timetype = cms.untracked.string('runnumber'),
+    process.CondDB,
+    timetype = cms.untracked.string('Run'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('mySiStripNoisesRcd'),
         tag = cms.string('noise_tag')

@@ -1,5 +1,4 @@
-
-/*
+/**
  * \file L1TMenuHelper.cc
  *
  * \author J. Pela, P. Musella

@@ -13,10 +13,12 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class DualByL2TSG : public SeparatingTSG{
  public:
-  DualByL2TSG(const edm::ParameterSet &pset);
+  DualByL2TSG(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
+  
 
   /// decide the TSG depending on the existence of a L3 track seeded from the L2. Return value is 0 or 1.
   unsigned int selectTSG(const TrackCand&, const TrackingRegion&);
@@ -25,6 +27,7 @@ class DualByL2TSG : public SeparatingTSG{
   std::string theCategory;
   edm::InputTag theL3CollectionLabelA;
   edm::Handle<reco::TrackCollection> l3muonH;
+  edm::EDGetTokenT<reco::TrackCollection> l3muonToken;
 };
 
 #endif

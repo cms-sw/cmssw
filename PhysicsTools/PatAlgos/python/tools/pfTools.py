@@ -11,22 +11,6 @@ from copy import deepcopy
 def warningIsolation():
     print "WARNING: particle based isolation must be studied"
 
-from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFMuonIso
-
-def useGsfElectrons(process, postfix, dR = "04"):
-    print "using Gsf Electrons in PF2PAT"
-    print "WARNING: this will destory the feature of top projection which solves the ambiguity between leptons and jets because"
-    print "WARNING: there will be overlap between non-PF electrons and jets even though top projection is ON!"
-    print "********************* "
-    module = applyPostfix(process,"patElectrons",postfix)
-    module.useParticleFlow = False
-    print "Building particle-based isolation for GsfElectrons in PF2PAT(PFBRECO)"
-    print "********************* "
-    adaptPFIsoElectrons( process, module, postfix+"PFIso", dR )
-    getattr(process,'patDefaultSequence'+postfix).replace( getattr(process,"patElectrons"+postfix),
-                                                   setupPFElectronIso(process, 'gsfElectrons', "PFIso", postfix, runPF2PAT=True) +
-                                                   getattr(process,"patElectrons"+postfix) )
-
 def adaptPFIsoElectrons(process,module, postfix = "PFIso", dR = "04"):
     #FIXME: adaptPFElectrons can use this function.
     module.isoDeposits = cms.PSet(
@@ -67,19 +51,6 @@ def adaptPFIsoMuons(process,module, postfix = "PFIso", dR = "04"):
         pfNeutralHadrons = cms.InputTag("muPFIsoValueNeutral" + dR + postfix),
         pfPhotons = cms.InputTag("muPFIsoValueGamma" + dR + postfix)
         )
-
-def usePFIso(process, postfix = "PFIso"):
-    print "Building particle-based isolation "
-    print "***************** "
-    process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons', postfix)
-    process.muIsoSequence = setupPFMuonIso(process, 'muons', postfix)
-    adaptPFIsoMuons( process, applyPostfix(process,"patMuons",""), postfix)
-    adaptPFIsoElectrons( process, applyPostfix(process,"patElectrons",""), postfix)
-    getattr(process,'patDefaultSequence').replace( getattr(process,"patCandidates"),
-                                                   process.pfParticleSelectionSequence +
-                                                   process.eleIsoSequence +
-                                                   process.muIsoSequence +
-                                                   getattr(process,"patCandidates") )
 
 def adaptPFMuons(process,module,postfix="" ):
     print "Adapting PF Muons "
@@ -300,7 +271,7 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
         reconfigurePF2PATTaus(process, tauType, postfix=postfix)
     else:
         reconfigurePF2PATTaus(process, tauType,
-                              ["DiscriminationByLooseCombinedIsolationDBSumPtCorr"],
+                              ["DiscriminationByDecayModeFinding"],
                               ["DiscriminationByDecayModeFinding"],
                               postfix=postfix)
     # new default use unselected taus (selected only for jet cleaning)

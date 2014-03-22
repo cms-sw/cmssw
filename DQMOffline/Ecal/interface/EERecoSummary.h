@@ -16,13 +16,15 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/Common/interface/View.h"
+
 // DQM includes
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 // Less than operator for sorting EcalRecHits according to energy.
 class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool>
@@ -87,7 +89,7 @@ class EERecoSummary : public edm::EDAnalyzer {
 	 // ----------member data ---------------------------
 	 edm::EDGetTokenT<EcalRecHitCollection> recHitCollection_EE_;
          edm::EDGetTokenT<EcalRecHitCollection> redRecHitCollection_EE_;
-	 edm::EDGetTokenT<reco::BasicClusterCollection> basicClusterCollection_EE_;
+	 edm::EDGetTokenT<edm::View<reco::CaloCluster> > basicClusterCollection_EE_;
 	 edm::EDGetTokenT<reco::SuperClusterCollection> superClusterCollection_EE_;
 
 	 double ethrEE_;

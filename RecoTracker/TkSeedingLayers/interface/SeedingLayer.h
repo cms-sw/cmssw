@@ -3,12 +3,15 @@
 
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
+
 
 class DetLayer;
 class TransientTrackingRecHitBuilder;
+class TkTransientTrackingRecHitBuilder;
 
 namespace edm { class Event; class EventSetup; }
 namespace ctfseeding {class HitExtractor; }
@@ -19,15 +22,17 @@ class SeedingLayer {
 public:
   enum Side { Barrel = 0, NegEndcap =1,  PosEndcap = 2 }; 
 public:
-  typedef  std::vector<TransientTrackingRecHit::ConstRecHitPointer> Hits;
+  using TkHit = BaseTrackerRecHit;
+  using TkHitRef = BaseTrackerRecHit const &;
+  using HitPointer = mayown_ptr<BaseTrackerRecHit>;
+  using Hits=std::vector<HitPointer>;
   
   SeedingLayer(){}
 
   SeedingLayer( const std::string & name, int seqNum,
                 const DetLayer* layer,
                 const TransientTrackingRecHitBuilder * hitBuilder,
-                const HitExtractor * hitExtractor,  
-                bool usePredefinedErrors = false, float hitErrorRZ = 0., float hitErrorRPhi=0.);
+                const HitExtractor * hitExtractor);
 
   std::string name() const;
   int seqNum() const;
@@ -39,15 +44,11 @@ public:
 
   const DetLayer*  detLayer() const;
   
-  const TransientTrackingRecHitBuilder * hitBuilder() const;
+  const TkTransientTrackingRecHitBuilder * hitBuilder() const;
 
-  bool hasPredefinedHitErrors() const;
-  float predefinedHitErrorRZ() const;
-  float predefinedHitErrorRPhi() const;
- 
 private:
   class SeedingLayerImpl;
-  boost::shared_ptr<SeedingLayerImpl> theImpl;
+  std::shared_ptr<SeedingLayerImpl> theImpl;
 };
 
 }

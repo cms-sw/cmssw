@@ -66,7 +66,7 @@
 
     private:
        edm::ParameterSet conf_;
-       edm::InputTag src_;
+       edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError> > src_;
        bool saveFile;
        bool isPIB;
        bool slowDown;
@@ -74,6 +74,7 @@
        bool modOn;
        bool ladOn;
        bool bladeOn;
+       bool isUpgrade;
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;

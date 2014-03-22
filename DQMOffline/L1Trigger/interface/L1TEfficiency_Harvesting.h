@@ -1,7 +1,7 @@
 #ifndef DQMOFFLINE_L1TRIGGER_L1TEFFICIENCYHARVESTING_H
 #define DQMOFFLINE_L1TRIGGER_L1TEFFICIENCYHARVESTING_H
 
-/*
+/**
  * \file L1TEfficiencyHarvesting.h
  *
  * \author J. Pela, C. Battilana

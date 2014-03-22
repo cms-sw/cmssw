@@ -10,7 +10,7 @@
 #include <iostream>
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -24,6 +24,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 //#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -33,15 +34,14 @@
 
 #include "Validation/EventGenerator/interface/WeightManager.h"
 
-class HiggsValidation : public edm::EDAnalyzer {
+class HiggsValidation : public DQMEDAnalyzer {
  public:
   explicit HiggsValidation(const edm::ParameterSet&);
   virtual ~HiggsValidation();
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+
+  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+  virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
   
  private:
   WeightManager wmanager_;
@@ -66,7 +66,7 @@ class HiggsValidation : public edm::EDAnalyzer {
 	if((channels[i].first == abs(pid1) && channels[i].second == abs(pid2)) || 
 	   (channels[i].first == abs(pid2) && channels[i].second == abs(pid1))) return i+1;
       }
-      return channels.size()+1;
+      return undetermined();//channels.size()+1;
     }
 
     size_t size(){return channels.size() + 2;}
@@ -165,9 +165,6 @@ class HiggsValidation : public edm::EDAnalyzer {
   /// PDT table
   edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
   
-  ///ME's "container"
-  DQMStore *dbe;
-
   MonitorElement *nEvt;
   MonitorElement *HiggsDecayChannels;
   

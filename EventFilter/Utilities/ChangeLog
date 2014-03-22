@@ -1,3 +1,8 @@
+2014-02-26 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* Multithreaded implementation of monitoring and monitoring rework
+	* N-buffering of input data by separate threads
+
 2013-08-29 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* commit first compiling F3 branch to git

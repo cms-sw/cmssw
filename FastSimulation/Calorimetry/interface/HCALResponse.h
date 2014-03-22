@@ -52,8 +52,9 @@ private:
   double interMU(double e, int ie, int ieta, RandomEngineAndDistribution const*);
   
   //random shooting functions w/ protection from negative energies
-  double gaussShootNoNegative(double e, double sigma, RandomEngineAndDistribution const*);
-  double cballShootNoNegative(double mu, double sigma, double aL, double nL, double aR, double nR, RandomEngineAndDistribution const*);
+  double gaussShootNoNegative(double e, double sigma,RandomEngineAndDistribution const*);
+  double cballShootNoNegative(double mu, double sigma, double aL, double nL, double aR, double nR,RandomEngineAndDistribution const*);
+  double PoissonShootNoNegative(double e, double sigma,RandomEngineAndDistribution const*);
 
   //find subdet
   int getDet(int ieta);
@@ -75,7 +76,7 @@ private:
 
   //max values
   int maxMUe, maxMUeta, maxMUbin, maxEMe, maxEMeta;
-  int maxHDe[3];
+  int maxHDe[4];
   // eta step for eta index calc
   double etaStep;
   // eta index for different regions
@@ -105,6 +106,7 @@ private:
   // indices: responseMU[energy][eta][bin]
   vec3 responseMU; 
   vec3 mipfraction;
+  vec3 PoissonParameters;
 
   // crystal ball generator
   DoubleCrystalBallGenerator cball;

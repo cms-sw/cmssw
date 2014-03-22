@@ -5,9 +5,8 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 //class PixelTrackFilter;
-namespace edm {class ParameterSet; class EventSetup; }
+namespace edm {class ParameterSet; class EventSetup; class ConsumesCollector;}
 
-typedef edmplugin::PluginFactory<PixelTrackFilter *(const edm::ParameterSet & )> PixelTrackFilterFactory;
-typedef edmplugin::PluginFactory<PixelTrackFilter *(const edm::ParameterSet &,const edm::EventSetup&  )> PixelTrackFilterWithESFactory;
+typedef edmplugin::PluginFactory<PixelTrackFilter *(const edm::ParameterSet &, edm::ConsumesCollector&)> PixelTrackFilterFactory;
  
 #endif

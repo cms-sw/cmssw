@@ -37,6 +37,8 @@
 
 #include "DataFormats/MuonReco/interface/MuonShower.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 namespace reco {class TransientTrack; class MuonShower;}
 
@@ -64,10 +66,10 @@ class MuonShowerInformationFiller {
 
     ///constructors
     MuonShowerInformationFiller() {};
-    MuonShowerInformationFiller(const edm::ParameterSet&);
+    MuonShowerInformationFiller(const edm::ParameterSet&,edm::ConsumesCollector&);
 
     ///destructor
-    ~MuonShowerInformationFiller();
+    virtual ~MuonShowerInformationFiller();
    
     /// fill muon shower variables  
     reco::MuonShower fillShowerInformation( const reco::Muon& muon, const edm::Event&, const edm::EventSetup&);
@@ -188,10 +190,19 @@ class MuonShowerInformationFiller {
     edm::InputTag theCSCRecHitLabel;
     edm::InputTag theCSCSegmentsLabel;
     edm::InputTag theDT4DRecSegmentLabel;
+
     edm::Handle<DTRecHitCollection> theDTRecHits;
     edm::Handle<CSCRecHit2DCollection> theCSCRecHits;
     edm::Handle<CSCSegmentCollection> theCSCSegments;
     edm::Handle<DTRecSegment4DCollection> theDT4DRecSegments;
+
+    edm::EDGetTokenT<DTRecHitCollection> theDTRecHitToken;
+    edm::EDGetTokenT<CSCRecHit2DCollection> theCSCRecHitToken;
+    edm::EDGetTokenT<CSCSegmentCollection> theCSCSegmentsToken;
+    edm::EDGetTokenT<DTRecSegment4DCollection> theDT4DRecSegmentToken;
+
+
+
 
     // geometry
     edm::ESHandle<GeometricSearchTracker> theTracker;

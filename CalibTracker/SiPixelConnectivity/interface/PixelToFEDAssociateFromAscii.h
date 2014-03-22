@@ -24,17 +24,17 @@ public:
   PixelToFEDAssociateFromAscii(const std::string & fileName);
 
   /// FED id for module
-  virtual int operator()(const PixelModuleName &) const;
+  virtual int operator()(const PixelModuleName &) const override;
 
   /// version
-  virtual std::string version() const;
+  virtual std::string version() const override;
 
 
   /// FED id to which barrel modul (identified by name) should be assigned 
-  virtual int operator()(const PixelBarrelName &) const;
+  int operator()(const PixelBarrelName &) const;
 
   /// FED id to which endcape modul (identified by name) should be assigned 
-  virtual int operator()(const PixelEndcapName &) const;
+  int operator()(const PixelEndcapName &) const;
 
 private:
   /// initialisatin (read file)
@@ -53,8 +53,8 @@ private:
 
   typedef std::vector< std::pair< int, std::vector<Bdu> > > BarrelConnections;
   typedef std::vector< std::pair< int, std::vector<Edu> > > EndcapConnections;
-  static BarrelConnections theBarrel;
-  static EndcapConnections theEndcap;
+  BarrelConnections theBarrel;
+  EndcapConnections theEndcap;
 
 private:
 
@@ -62,7 +62,7 @@ private:
 
   /// initialisation (read input file)
   void send (std::pair< int, std::vector<Bdu> > & , 
-      std::pair< int, std::vector<Edu> > & ) const;
+      std::pair< int, std::vector<Edu> > & ) ;
   Bdu getBdu( std::string ) const;
   Edu getEdu( std::string ) const;
   Range readRange( const std::string &) const;

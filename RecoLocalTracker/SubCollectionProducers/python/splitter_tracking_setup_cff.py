@@ -39,9 +39,7 @@ MeasurementTrackerEvent.stripClusterProducer = cms.string('splitClusters')
 
 from RecoTracker.IterativeTracking.InitialStep_cff import *
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
-    ComponentName = 'initialStepSeedLayers'
-    )
+initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 
 initialStepSeedLayers.BPix.HitProducer = 'mySiPixelRecHits'
 initialStepSeedLayers.FPix.HitProducer = 'mySiPixelRecHits'

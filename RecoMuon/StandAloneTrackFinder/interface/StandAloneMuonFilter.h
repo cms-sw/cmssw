@@ -14,6 +14,7 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class Propagator;
 class DetLayer;
@@ -29,7 +30,7 @@ class StandAloneMuonFilter {
 
  public:
     /// Constructor
-  StandAloneMuonFilter(const edm::ParameterSet& par, const MuonServiceProxy* service);
+  StandAloneMuonFilter(const edm::ParameterSet& par, const MuonServiceProxy* service,edm::ConsumesCollector& iC);
 
   /// Destructor
   virtual ~StandAloneMuonFilter();

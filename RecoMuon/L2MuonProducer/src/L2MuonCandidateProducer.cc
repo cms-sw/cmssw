@@ -26,8 +26,6 @@
 #include "RecoMuon/L2MuonProducer/src/L2MuonCandidateProducer.h"
 
 // Input and output collections
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
@@ -43,7 +41,7 @@ L2MuonCandidateProducer::L2MuonCandidateProducer(const ParameterSet& parameterSe
 
   // StandAlone Collection Label
   theSACollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
-
+  tracksToken = consumes<reco::TrackCollection>(theSACollectionLabel);
   produces<RecoChargedCandidateCollection>();
 }
   
@@ -60,7 +58,7 @@ void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   // Take the SA container
   LogTrace(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel;
   Handle<TrackCollection> tracks; 
-  event.getByLabel(theSACollectionLabel,tracks);
+  event.getByToken(tracksToken,tracks);
 
   // Create a RecoChargedCandidate collection
   LogTrace(metname)<<" Creating the RecoChargedCandidate collection";

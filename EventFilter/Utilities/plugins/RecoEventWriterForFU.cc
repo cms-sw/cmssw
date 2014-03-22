@@ -3,10 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace evf {
-  RecoEventWriterForFU::RecoEventWriterForFU(edm::ParameterSet const& ps) :
-    stream_writer_preamble_(0),
-    stream_writer_events_(0)
-  {
+  RecoEventWriterForFU::RecoEventWriterForFU(edm::ParameterSet const& ps) {
   }
 
   RecoEventWriterForFU::~RecoEventWriterForFU() {
@@ -19,16 +16,11 @@ namespace evf {
   }
 
   void RecoEventWriterForFU::doOutputHeader(InitMsgView const& init_message) {
-    //Write the Init Message to Streamer file
-    stream_writer_preamble_->write(init_message);
-  }
-
-  void RecoEventWriterForFU::doOutputHeaderFragment(RecoEventWriterForFUHeaderParams const& hdrParams) {
-    //Write the Init Message to Streamer file
-    stream_writer_preamble_->writeInitFragment(hdrParams.fragmentIndex,
-					       hdrParams.fragmentCount,
-					       hdrParams.dataPtr,
-					       hdrParams.dataSize);
+    //Write the Init Message to init file and close it
+    if ( stream_writer_preamble_.get() ) {
+      stream_writer_preamble_->write(init_message);
+      stream_writer_preamble_.reset();
+    }
   }
 
   void RecoEventWriterForFU::doOutputEvent(EventMsgView const& msg) {
@@ -41,23 +33,21 @@ namespace evf {
     doOutputEvent(eview);
   }
 
-  void RecoEventWriterForFU::doOutputEventFragment(RecoEventWriterForFUEventParams const& evtParams) {
-    //Write the Event Message to Streamer file
-    stream_writer_events_->writeEventFragment(evtParams.fragmentIndex,
-					      evtParams.fragmentCount,
-					      evtParams.dataPtr,
-					      evtParams.dataSize);
-  }
-
   void RecoEventWriterForFU::fillDescription(edm::ParameterSetDescription& desc) {
     desc.setComment("Writes events into a streamer output file.");
     desc.addUntracked<std::string>("fileName", "teststreamfile.dat")->setComment("Name of output file.");
   }
-  void RecoEventWriterForFU::setOutputFiles(std::string &init, std::string &eof){
+
+  void RecoEventWriterForFU::setInitMessageFile(std::string const& init){
     stream_writer_preamble_.reset(new StreamerOutputFile(init));
-    //    stream_writer_events_.reset(new StreamerOutputFile(events));
   }
-  void RecoEventWriterForFU::setOutputFile(std::string &events){
+
+  void RecoEventWriterForFU::setOutputFile(std::string const& events){
     stream_writer_events_.reset(new StreamerOutputFile(events));
   }
+
+  void RecoEventWriterForFU::closeOutputFile(){
+    stream_writer_events_.reset();
+  }
+
 } //namespace edm

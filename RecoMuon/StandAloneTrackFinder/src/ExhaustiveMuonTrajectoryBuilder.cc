@@ -5,8 +5,9 @@
 
 
 ExhaustiveMuonTrajectoryBuilder::ExhaustiveMuonTrajectoryBuilder(const edm::ParameterSet & pset, 
-                                                         const MuonServiceProxy* proxy)
-: theTrajBuilder(pset, proxy),
+								 const MuonServiceProxy* proxy,
+								 edm::ConsumesCollector & iC)
+  : theTrajBuilder(pset, proxy,iC),
   theSeeder(),
   theService(proxy)
 {

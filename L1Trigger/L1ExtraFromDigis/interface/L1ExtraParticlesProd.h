@@ -44,9 +44,7 @@ class L1ExtraParticlesProd : public edm::EDProducer {
       ~L1ExtraParticlesProd();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
       //      math::XYZTLorentzVector gctLorentzVector( const double& et,
       math::PtEtaPhiMLorentzVector gctLorentzVector( const double& et,
@@ -71,7 +69,7 @@ class L1ExtraParticlesProd : public edm::EDProducer {
       edm::InputTag hfRingEtSumsSource_ ;
       edm::InputTag hfRingBitCountsSource_ ;
 
-      static double muonMassGeV_ ;
+      static const double muonMassGeV_ ;
 
       bool centralBxOnly_ ;
 

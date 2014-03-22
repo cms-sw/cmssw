@@ -15,6 +15,9 @@
 namespace reco {class Track;}
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
 class GlobalMuonToMuonProducer : public edm::EDProducer {
@@ -48,6 +51,7 @@ private:
 private:
 
   edm::InputTag theLinksCollectionLabel;
+  edm::EDGetTokenT<reco::MuonTrackLinksCollection> trackLinkToken_;
 };
 #endif
 

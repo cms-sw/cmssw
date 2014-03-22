@@ -293,6 +293,21 @@ TestEDConsumerBase::testRegularType()
     //nothing to get since not here
     CPPUNIT_ASSERT(0 == indices.size());
   }
+
+  {
+    //Use an empty tag
+    std::vector<edm::InputTag> vTags={ {} };
+    IntsConsumer intConsumer{vTags};
+    intConsumer.updateLookup(edm::InEvent,helper);
+    
+    CPPUNIT_ASSERT(intConsumer.m_tokens[0].index()==0);
+    CPPUNIT_ASSERT(edm::ProductHolderIndexInvalid == intConsumer.indexFrom(intConsumer.m_tokens[0],edm::InEvent,typeID_vint).productHolderIndex());
+    
+    std::vector<edm::ProductHolderIndexAndSkipBit> indices;
+    intConsumer.itemsToGet(edm::InEvent,indices);
+    //nothing to get since not here
+    CPPUNIT_ASSERT(0 == indices.size());
+  }
 }
 
 void
@@ -497,7 +512,7 @@ TestEDConsumerBase::testMay()
   const auto vint_blank_no_proc = helper.index(edm::PRODUCT_TYPE, typeID_vint, "label", "instance",0);
   {
     std::vector<edm::InputTag> vTags={ {"label","instance","process"}, {"labelC","instanceC","processC"} };
-    std::vector<edm::InputTag> vMayTags={};
+    std::vector<edm::InputTag> vMayTags;
     IntsMayConsumer consumer{vTags,vMayTags};
     consumer.updateLookup(edm::InEvent,helper);
     
@@ -523,7 +538,7 @@ TestEDConsumerBase::testMay()
   }
 
   {
-    std::vector<edm::InputTag> vTags={};
+    std::vector<edm::InputTag> vTags;
     std::vector<edm::InputTag> vMayTags={ {"label","instance","process"}, {"labelC","instanceC","processC"} };
     IntsMayConsumer consumer{vTags,vMayTags};
     consumer.updateLookup(edm::InEvent,helper);
@@ -573,7 +588,7 @@ TestEDConsumerBase::testMay()
     CPPUNIT_ASSERT(indicesMay.end() != std::find(indicesMay.begin(),indicesMay.end(), edm::ProductHolderIndexAndSkipBit(vint_c, false)));
   }
   {
-    std::vector<edm::InputTag> vTags={};
+    std::vector<edm::InputTag> vTags;
     std::vector<edm::InputTag> vMayTags={ {"label","instance",""}, {"labelC","instanceC","@skipCurrentProcess"} };
     IntsMayConsumer consumer{vTags,vMayTags};
     consumer.updateLookup(edm::InEvent,helper);

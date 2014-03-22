@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
 caloMetT1 = cms.EDProducer(
-    "CorrectedCaloMETProducer2",
+    "AddCorrectionsToCaloMET",
     src = cms.InputTag('corMetGlobalMuons'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrCaloMetType1', 'type1')
@@ -11,7 +11,7 @@ caloMetT1 = cms.EDProducer(
 
 ##____________________________________________________________________________||
 caloMetT1T2 = cms.EDProducer(
-    "CorrectedCaloMETProducer2",
+    "AddCorrectionsToCaloMET",
     src = cms.InputTag('corMetGlobalMuons'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrCaloMetType1', 'type1'),
@@ -21,7 +21,7 @@ caloMetT1T2 = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0rt = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0RecoTrack'),
@@ -30,7 +30,7 @@ pfMetT0rt = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0rtT1 = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0RecoTrack'),
@@ -40,7 +40,7 @@ pfMetT0rtT1 = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0rtT1T2 = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0RecoTrackForType2'),
@@ -51,7 +51,7 @@ pfMetT0rtT1T2 = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0rtT2 = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0RecoTrackForType2'),
@@ -61,7 +61,7 @@ pfMetT0rtT2 = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0pc = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0PfCand'),
@@ -70,7 +70,7 @@ pfMetT0pc = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0pcT1 = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0PfCand'),
@@ -80,7 +80,7 @@ pfMetT0pcT1 = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT1 = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType1', 'type1')
@@ -89,7 +89,7 @@ pfMetT1 = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT1T2 = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType1', 'type1'),
@@ -99,7 +99,7 @@ pfMetT1T2 = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0rtTxy = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0RecoTrack'),
@@ -109,7 +109,7 @@ pfMetT0rtTxy = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0rtT1Txy = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0RecoTrack'),
@@ -120,7 +120,7 @@ pfMetT0rtT1Txy = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0rtT1T2Txy = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0RecoTrackForType2'),
@@ -132,7 +132,7 @@ pfMetT0rtT1T2Txy = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0rtT2Txy = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0RecoTrackForType2'),
@@ -143,7 +143,7 @@ pfMetT0rtT2Txy = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0pcTxy = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0PfCand'),
@@ -153,7 +153,7 @@ pfMetT0pcTxy = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT0pcT1Txy = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType0PfCand'),
@@ -164,7 +164,7 @@ pfMetT0pcT1Txy = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT1Txy = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType1', 'type1'),
@@ -174,7 +174,7 @@ pfMetT1Txy = cms.EDProducer(
 
 ##____________________________________________________________________________||
 pfMetT1T2Txy = cms.EDProducer(
-    "CorrectedPFMETProducer2",
+    "AddCorrectionsToPFMET",
     src = cms.InputTag('pfMet'),
     srcCorrections = cms.VInputTag(
         cms.InputTag('corrPfMetType1', 'type1'),

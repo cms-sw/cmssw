@@ -12,9 +12,8 @@
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 #include <vector>
 
-namespace CLHEP
-{
-   class HepRandom;
+namespace CLHEP {
+  class HepRandomEngine;
 }
 
 class BeamProfileVtxGenerator : public BaseEvtVtxGenerator
@@ -25,7 +24,7 @@ public:
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector * newVertex();
-  virtual HepMC::FourVector* newVertex() ;
+  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
 
   virtual TMatrixD* GetInvLorentzBoost() {
 	  return 0;
@@ -68,7 +67,6 @@ private:
   bool        fType,   ffile;
   int         nBinx,   nBiny;
   std::vector<double> fdistn;
-  CLHEP::HepRandom*   fRandom;
   double fTimeOffset;
 };
 

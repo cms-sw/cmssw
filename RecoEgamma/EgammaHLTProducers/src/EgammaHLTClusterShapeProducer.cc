@@ -20,8 +20,9 @@ EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::Paramete
   // use configuration file to setup input/output collection names
   recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   
-  ecalRechitEBTag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEB");
-  ecalRechitEETag_ = conf_.getParameter< edm::InputTag > ("ecalRechitEE");
+  ecalRechitEBToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEB"));
+  ecalRechitEEToken_ = consumes<EcalRecHitCollection>(conf_.getParameter< edm::InputTag > ("ecalRechitEE"));
+
   EtaOrIeta_ = conf_.getParameter< bool > ("isIeta");
 
   //register your products
@@ -47,7 +48,7 @@ void EgammaHLTClusterShapeProducer::produce(edm::Event& iEvent, const edm::Event
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
   iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
 
-  EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBTag_, ecalRechitEETag_ );
+  EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
   
   reco::RecoEcalCandidateIsolationMap clshMap;
    

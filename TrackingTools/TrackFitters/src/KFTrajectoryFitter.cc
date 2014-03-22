@@ -3,14 +3,22 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
+
+#ifdef EDM_ML_DEBUG
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "FWCore/Utilities/interface/isFinite.h"
-
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#endif
 
 const DetLayerGeometry KFTrajectoryFitter::dummyGeometry;
 
@@ -98,19 +106,17 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       
       if(hitId.det() == DetId::Tracker) {
 	if (hitId.subdetId() == StripSubdetector::TIB )  
-	  LogTrace("TrackFitters") << " I am TIB " << tTopo->tibLayer(hitId);
+	  LogTrace("TrackFitters") << " I am TIB " << TIBDetId(hitId).layer();
 	else if (hitId.subdetId() == StripSubdetector::TOB ) 
-	  LogTrace("TrackFitters") << " I am TOB " << tTopo->tobLayer(hitId);
+	  LogTrace("TrackFitters") << " I am TOB " << TOBDetId(hitId).layer();
 	else if (hitId.subdetId() == StripSubdetector::TEC ) 
-	  LogTrace("TrackFitters") << " I am TEC " << tTopo->tecWheel(hitId);
+	  LogTrace("TrackFitters") << " I am TEC " << TECDetId(hitId).wheel();
 	else if (hitId.subdetId() == StripSubdetector::TID ) 
-	  LogTrace("TrackFitters") << " I am TID " << tTopo->tidWheel(hitId);
-	else if (hitId.subdetId() == StripSubdetector::TID ) 
-	  LogTrace("TrackFitters") << " I am TID " << tTopo->tidWheel(hitId);
+	  LogTrace("TrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
 	else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel ) 
-	  LogTrace("TrackFitters") << " I am PixBar " << tTopo->pxbLayer(hitId);
+	  LogTrace("TrackFitters") << " I am PixBar " << PXBDetId(hitId).layer();
 	else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
-	  LogTrace("TrackFitters") << " I am PixFwd " << tTopo->pxfDisk(hitId);
+	  LogTrace("TrackFitters") << " I am PixFwd " << PXFDetId(hitId).disk();
 	else 
 	  LogTrace("TrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
       }

@@ -57,12 +57,37 @@ namespace cond {
       cond::DbSession m_session;
     };
 
-    SessionImpl::SessionImpl():
-      coralSession(){
+    BackendType checkBackendType( boost::shared_ptr<coral::ISessionProxy>& coralSession, 
+				  const std::string& connectionString ){
+      BackendType ret = UNKNOWN_DB;
+      cond::DbSession oraSession;
+      oraSession.open( coralSession, connectionString ); 
+      oraSession.transaction().start( true );
+      std::unique_ptr<IIOVSchema> iovSchemaHandle( new OraIOVSchema( oraSession ) );
+      std::unique_ptr<IGTSchema> gtSchemaHandle( new OraGTSchema( oraSession ) );  		       
+      if( !iovSchemaHandle->exists() && !gtSchemaHandle->exists() ){
+	iovSchemaHandle.reset( new IOVSchema( coralSession->nominalSchema() ) );
+	if( iovSchemaHandle->exists() ){
+	  ret = COND_DB;
+	}
+      } else {
+	ret = ORA_DB;
+      }
+      oraSession.transaction().commit();
+      return ret;      
     }
 
-    SessionImpl::SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session ):
-      coralSession( session ){
+    SessionImpl::SessionImpl():
+      coralSession(),
+      theBackendType( UNKNOWN_DB ){
+    }
+
+    SessionImpl::SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session, 
+			      const std::string& connectionStr,
+			      BackendType backType ):
+      coralSession( session ),
+      connectionString( connectionStr ),
+      theBackendType( backType ){
     }
 
     SessionImpl::~SessionImpl(){
@@ -85,27 +110,21 @@ namespace cond {
 
     void SessionImpl::startTransaction( bool readOnly ){
       if( !transaction.get() ){ 
-	transaction.reset( new CondDBTransaction( coralSession ) );
-	coralSession->transaction().start( readOnly );
-	iovSchemaHandle.reset( new IOVSchema( coralSession->nominalSchema() ) );
-	gtSchemaHandle.reset( new GTSchema( coralSession->nominalSchema() ) );  		       
-	std::unique_ptr<IIOVSchema> iovSchema( new IOVSchema( coralSession->nominalSchema() ) );
-	std::unique_ptr<IGTSchema> gtSchema( new GTSchema( coralSession->nominalSchema() ) );
-	if( !iovSchemaHandle->exists() ){
-	  cond::DbConnection oraConnection;
-	  cond::DbSession oraSession =  oraConnection.createSession();
+	if ( theBackendType == ORA_DB ) {
+	  cond::DbSession oraSession;
 	  oraSession.open( coralSession, connectionString ); 
-	  std::unique_ptr<IIOVSchema> oraIovSchema( new OraIOVSchema( oraSession ) );
-	  std::unique_ptr<IGTSchema> oraGtSchema( new OraGTSchema( oraSession ) );
 	  oraSession.transaction().start( readOnly );
-	  // try if it is an old iov or GT schema
-	  if( oraIovSchema->exists() ||  oraGtSchema->exists() ){
-	    iovSchemaHandle = std::move(oraIovSchema);
-	    gtSchemaHandle = std::move(oraGtSchema);
-	    transaction.reset( new OraTransaction( oraSession ) );
-	  } 
+	  iovSchemaHandle.reset( new OraIOVSchema( oraSession ) );
+	  gtSchemaHandle.reset( new OraGTSchema( oraSession ) );  		       
+	  transaction.reset( new OraTransaction( oraSession ) );
+	} else if ( theBackendType == COND_DB ){
+	  coralSession->transaction().start( readOnly );
+	  iovSchemaHandle.reset( new IOVSchema( coralSession->nominalSchema() ) );
+	  gtSchemaHandle.reset( new GTSchema( coralSession->nominalSchema() ) );
+	  transaction.reset( new CondDBTransaction( coralSession ) );
+	} else {
+	  throwException( "No valid database found.", "SessionImpl::startTransaction" );
 	}
-        
       } else {
 	if(!readOnly ) throwException( "An update transaction is already active.",
 				       "SessionImpl::startTransaction" );
@@ -134,8 +153,9 @@ namespace cond {
       }
     }
     
-    bool SessionImpl::isTransactionActive() const {
+    bool SessionImpl::isTransactionActive( bool deep ) const {
       if( !transaction ) return false;
+      if( !deep ) return true;
       return transaction->isActive();
     }
 

@@ -28,12 +28,13 @@ namespace evf{
 	, throttled_(false)
 	, sleep_( pset.getUntrackedParameter<unsigned int>("sleepmSecs",1000))
       {
-	reg.watchPreBeginRun(this,&EvFBuildingThrottle::preBeginRun);  
-	reg.watchPostEndRun(this,&EvFBuildingThrottle::postEndRun);  
-	reg.watchPreBeginLumi(this,&EvFBuildingThrottle::preBeginLumi);
+	reg.watchPreGlobalBeginRun(this,&EvFBuildingThrottle::preBeginRun);  
+	reg.watchPostGlobalEndRun(this,&EvFBuildingThrottle::postEndRun);  
+	reg.watchPreGlobalBeginLumi(this,&EvFBuildingThrottle::preBeginLumi);
       }
       ~EvFBuildingThrottle(){}
-      void preBeginRun(edm::RunID const& id, edm::Timestamp const& ts){
+//      void preBeginRun(edm::RunID const& id, edm::Timestamp const& ts){
+      void preBeginRun(edm::GlobalContext const& gc){
 	//obtain directory to stat on
 	switch(whatToThrottleOn_){
 	case mInvalid:
@@ -56,14 +57,13 @@ namespace evf{
 	}
 	start();
       }
-      void postBeginRun(edm::RunID const& id, edm::Timestamp const& ts){
-
+      void postBeginRun(edm::GlobalContext const& gc){
       }
 
-      void postEndRun(edm::Run const& run, edm::EventSetup const& es){
+      void postEndRun(edm::GlobalContext const& gc){
 	stop();
       }
-      void preBeginLumi(edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime){
+      void preBeginLumi(edm::GlobalContext const& gc){
 	lock_.lock();
 	lock_.unlock();
       }

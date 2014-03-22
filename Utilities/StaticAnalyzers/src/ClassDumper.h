@@ -23,7 +23,13 @@ class ClassDumper : public clang::ento::Checker<clang::ento::check::ASTDecl<clan
 
 public:
   void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR, std::string &tname ) const ;
+                    clang::ento::BugReporter &BR, std::string tname ) const ;
+
+  void checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
+                    clang::ento::BugReporter &BR) const {
+	std::string pname = "/tmp/classes.txt.dumperall.unsorted";
+	checkASTDecl(RD,mgr,BR,pname);
+}
 
 private:
   CmsException m_exception;

@@ -7,7 +7,7 @@ options.register('runNumber',
                  VarParsing.VarParsing.varType.int,
                  "Run number; default gives latest IOV")
 options.register('globalTag',
-                 'IDEAL', #default value
+                 'GR_P_V32', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "GlobalTag")

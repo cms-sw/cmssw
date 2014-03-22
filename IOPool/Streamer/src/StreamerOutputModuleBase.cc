@@ -23,7 +23,7 @@
 namespace {
   //A utility function that packs bits from source into bytes, with
   // packInOneByte as the numeber of bytes that are packed from source to dest.
-  void printBits(unsigned char c) {
+  inline void printBits(unsigned char c) {
     for (int i = 7; i >= 0; --i) {
       int bit = ((c >> i) & 1);
       std::cout << " " << bit;
@@ -184,7 +184,7 @@ namespace edm {
                            getReleaseVersion().c_str() , processName.c_str(),
                            moduleLabel.c_str(), outputModuleId_,
                            hltTriggerNames, hltTriggerSelections_, l1_names,
-                           (uint32)serializeDataBuffer_.adler32_chksum(), host_name_));
+                           (uint32)serializeDataBuffer_.adler32_chksum()));
 
     // copy data into the destination message
     unsigned char* src = serializeDataBuffer_.bufferPointer();

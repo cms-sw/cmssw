@@ -315,7 +315,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   iEvent.getByToken(theBarrelRecHitToken_, EBReducedRecHits);
   Handle<EcalRecHitCollection> EEReducedRecHits;
   iEvent.getByToken(theEndcapRecHitToken_, EEReducedRecHits);
-  EcalClusterLazyTools lazyTool(iEvent, iSetup, theBarrelRecHitTag_, theEndcapRecHitTag_);
+  EcalClusterLazyTools lazyTool(iEvent, iSetup, theBarrelRecHitToken_, theEndcapRecHitToken_);
 
 
   // Find the highest et "decent" photon

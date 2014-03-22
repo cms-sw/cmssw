@@ -6,7 +6,7 @@
 <PFN>file:test_2_a_1_RAW2DIGI_RECO_DQM.root</PFN>
 <Catalog></Catalog>
 <ModuleLabel>source</ModuleLabel>
-<GUID>7234AFDF-0C51-E311-9BF0-003048F179A2</GUID>
+<GUID>F61E9D75-7078-E311-9D54-003048F179A2</GUID>
 <Branches>
 </Branches>
 <InputType>primaryFiles</InputType>
@@ -40,12 +40,12 @@
   <Castor_be  Value="133748" />
   <Castor_fbe  Value="0.808917" />
   <Castor_h  Value="1714" />
-  <DQM_Kb_h  Value="4.72003" />
-  <DQM_MB  Value="0.253517" />
-  <DQM_b  Value="41934" />
-  <DQM_b_h  Value="762.436" />
-  <DQM_be  Value="40671" />
-  <DQM_fbe  Value="0.969881" />
+  <DQM_Kb_h  Value="4.72067" />
+  <DQM_MB  Value="0.253551" />
+  <DQM_b  Value="41943" />
+  <DQM_b_h  Value="762.6" />
+  <DQM_be  Value="40734" />
+  <DQM_fbe  Value="0.971175" />
   <DQM_h  Value="55" />
   <DT_Kb_h  Value="0.480793" />
   <DT_MB  Value="0.787392" />
@@ -59,15 +59,15 @@
   <EcalBarrel_MB  Value="5.17856" />
   <EcalBarrel_b  Value="1148120" />
   <EcalBarrel_b_h  Value="862.6" />
-  <EcalBarrel_be  Value="68154" />
-  <EcalBarrel_fbe  Value="0.0593614" />
+  <EcalBarrel_be  Value="68054" />
+  <EcalBarrel_fbe  Value="0.0592743" />
   <EcalBarrel_h  Value="1331" />
   <EcalEndcap_Kb_h  Value="8.69115" />
   <EcalEndcap_MB  Value="6.78147" />
   <EcalEndcap_b  Value="1544692" />
   <EcalEndcap_b_h  Value="1933.28" />
-  <EcalEndcap_be  Value="52833" />
-  <EcalEndcap_fbe  Value="0.0342029" />
+  <EcalEndcap_be  Value="52145" />
+  <EcalEndcap_fbe  Value="0.0337575" />
   <EcalEndcap_h  Value="799" />
   <EcalPreshower_Kb_h  Value="6.28343" />
   <EcalPreshower_MB  Value="0.484756" />
@@ -109,7 +109,7 @@
   <Hcal_MB  Value="8.24942" />
   <Hcal_b  Value="1918048" />
   <Hcal_b_h  Value="2424.84" />
-  <Hcal_be  Value="416014" />
+  <Hcal_be  Value="416013" />
   <Hcal_fbe  Value="0.216894" />
   <Hcal_h  Value="791" />
   <Info_Kb_h  Value="15.2669" />
@@ -119,41 +119,41 @@
   <Info_be  Value="500" />
   <Info_fbe  Value="0.0426439" />
   <Info_h  Value="3" />
-  <JetMET_Kb_h  Value="0.558643" />
-  <JetMET_MB  Value="0.9869" />
-  <JetMET_b  Value="234360" />
-  <JetMET_b_h  Value="129.552" />
-  <JetMET_be  Value="158538" />
-  <JetMET_fbe  Value="0.676472" />
+  <JetMET_Kb_h  Value="0.558605" />
+  <JetMET_MB  Value="0.986832" />
+  <JetMET_b  Value="234342" />
+  <JetMET_b_h  Value="129.542" />
+  <JetMET_be  Value="158502" />
+  <JetMET_fbe  Value="0.67637" />
   <JetMET_h  Value="1809" />
-  <MessageLogger_Kb_h  Value="0.360026" />
-  <MessageLogger_MB  Value="0.00210953" />
-  <MessageLogger_b  Value="553" />
-  <MessageLogger_b_h  Value="92.1667" />
-  <MessageLogger_be  Value="535" />
-  <MessageLogger_fbe  Value="0.96745" />
+  <MessageLogger_Kb_h  Value="0.360677" />
+  <MessageLogger_MB  Value="0.00211334" />
+  <MessageLogger_b  Value="554" />
+  <MessageLogger_b_h  Value="92.3333" />
+  <MessageLogger_be  Value="549" />
+  <MessageLogger_fbe  Value="0.990975" />
   <MessageLogger_h  Value="6" />
-  <Muons_Kb_h  Value="3.93877" />
-  <Muons_MB  Value="3.5195" />
-  <Muons_b  Value="919729" />
-  <Muons_b_h  Value="1005.17" />
-  <Muons_be  Value="105209" />
-  <Muons_fbe  Value="0.114391" />
-  <Muons_h  Value="915" />
-  <Physics_Kb_h  Value="0.72528" />
-  <Physics_MB  Value="0.288979" />
-  <Physics_b  Value="75754" />
-  <Physics_b_h  Value="185.672" />
-  <Physics_be  Value="46632" />
-  <Physics_fbe  Value="0.615571" />
-  <Physics_h  Value="408" />
-  <Pixel_Kb_h  Value="0.378585" />
-  <Pixel_MB  Value="2.1935" />
-  <Pixel_b  Value="575013" />
-  <Pixel_b_h  Value="96.9177" />
-  <Pixel_be  Value="370864" />
-  <Pixel_fbe  Value="0.644966" />
-  <Pixel_h  Value="5933" />
+  <Muons_Kb_h  Value="4.02059" />
+  <Muons_MB  Value="3.52194" />
+  <Muons_b  Value="919300" />
+  <Muons_b_h  Value="1024.86" />
+  <Muons_be  Value="104699" />
+  <Muons_fbe  Value="0.11389" />
+  <Muons_h  Value="897" />
+  <Physics_Kb_h  Value="1.06657" />
+  <Physics_MB  Value="1.20093" />
+  <Physics_b  Value="314816" />
+  <Physics_b_h  Value="273.041" />
+  <Physics_be  Value="247784" />
+  <Physics_fbe  Value="0.787076" />
+  <Physics_h  Value="1153" />
+  <Pixel_Kb_h  Value="0.351926" />
+  <Pixel_MB  Value="2.27721" />
+  <Pixel_b  Value="596957" />
+  <Pixel_b_h  Value="90.0931" />
+  <Pixel_be  Value="389048" />
+  <Pixel_fbe  Value="0.651719" />
+  <Pixel_h  Value="6626" />
   <RPC_Kb_h  Value="0.232385" />
   <RPC_MB  Value="3.28789" />
   <RPC_b  Value="861901" />
@@ -172,17 +172,17 @@
   <SiStrip_MB  Value="3.01144" />
   <SiStrip_b  Value="517626" />
   <SiStrip_b_h  Value="518.144" />
-  <SiStrip_be  Value="134511" />
-  <SiStrip_fbe  Value="0.259861" />
+  <SiStrip_be  Value="134805" />
+  <SiStrip_fbe  Value="0.260429" />
   <SiStrip_h  Value="999" />
   <Source  Value="DQMServices/Components" />
-  <Tracking_Kb_h  Value="0.832394" />
-  <Tracking_MB  Value="0.113804" />
-  <Tracking_b  Value="29433" />
-  <Tracking_b_h  Value="210.236" />
-  <Tracking_be  Value="7872" />
-  <Tracking_fbe  Value="0.267455" />
-  <Tracking_h  Value="140" />
+  <Tracking_Kb_h  Value="0.845186" />
+  <Tracking_MB  Value="0.112251" />
+  <Tracking_b  Value="28910" />
+  <Tracking_b_h  Value="212.574" />
+  <Tracking_be  Value="7328" />
+  <Tracking_fbe  Value="0.253476" />
+  <Tracking_h  Value="136" />
   <Type  Value="RunProduct" />
   <pathNameMatch  Value="*" />
 </AnalysisFile>
@@ -243,8 +243,8 @@
   <SiStrip_MB  Value="2.28882e-05" />
   <SiStrip_b  Value="6" />
   <SiStrip_b_h  Value="6" />
-  <SiStrip_be  Value="5" />
-  <SiStrip_fbe  Value="0.833333" />
+  <SiStrip_be  Value="1" />
+  <SiStrip_fbe  Value="0.166667" />
   <SiStrip_h  Value="1" />
   <Source  Value="DQMServices/Components" />
   <Type  Value="LumiProduct" />
@@ -257,7 +257,7 @@
 <PFN>file:test_2_a_2_RAW2DIGI_RECO_DQM.root</PFN>
 <Catalog></Catalog>
 <ModuleLabel>source</ModuleLabel>
-<GUID>143592A4-0D51-E311-B1D3-003048F179A2</GUID>
+<GUID>8A7A7B0B-7178-E311-8B88-003048F179A2</GUID>
 <Branches>
 </Branches>
 <InputType>primaryFiles</InputType>
@@ -280,49 +280,49 @@
     <Metric Name="Parameter-untracked-string-cacheHint" Value="auto-detect"/>
     <Metric Name="Parameter-untracked-string-readHint" Value="auto-detect"/>
     <Metric Name="ROOT-tfile-read-totalMegabytes" Value="0.1624"/>
-    <Metric Name="ROOT-tfile-write-totalMegabytes" Value="28.507"/>
-    <Metric Name="Timing-file-close-maxMsecs" Value="0.036864"/>
-    <Metric Name="Timing-file-close-minMsecs" Value="0.004096"/>
+    <Metric Name="ROOT-tfile-write-totalMegabytes" Value="29.0786"/>
+    <Metric Name="Timing-file-close-maxMsecs" Value="0.033792"/>
+    <Metric Name="Timing-file-close-minMsecs" Value="0.005888"/>
     <Metric Name="Timing-file-close-numOperations" Value="3"/>
     <Metric Name="Timing-file-close-numSuccessfulOperations" Value="3"/>
     <Metric Name="Timing-file-close-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-close-totalMsecs" Value="0.047104"/>
+    <Metric Name="Timing-file-close-totalMsecs" Value="0.046592"/>
     <Metric Name="Timing-file-construct-maxMsecs" Value="0.001024"/>
     <Metric Name="Timing-file-construct-minMsecs" Value="0"/>
     <Metric Name="Timing-file-construct-numOperations" Value="3"/>
     <Metric Name="Timing-file-construct-numSuccessfulOperations" Value="3"/>
     <Metric Name="Timing-file-construct-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-construct-totalMsecs" Value="0.002048"/>
-    <Metric Name="Timing-file-destruct-maxMsecs" Value="0.034816"/>
-    <Metric Name="Timing-file-destruct-minMsecs" Value="0.002816"/>
+    <Metric Name="Timing-file-construct-totalMsecs" Value="0.001024"/>
+    <Metric Name="Timing-file-destruct-maxMsecs" Value="0.039168"/>
+    <Metric Name="Timing-file-destruct-minMsecs" Value="0.002048"/>
     <Metric Name="Timing-file-destruct-numOperations" Value="3"/>
     <Metric Name="Timing-file-destruct-numSuccessfulOperations" Value="3"/>
     <Metric Name="Timing-file-destruct-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-destruct-totalMsecs" Value="0.040704"/>
-    <Metric Name="Timing-file-open-maxMsecs" Value="0.118016"/>
-    <Metric Name="Timing-file-open-minMsecs" Value="0.015104"/>
+    <Metric Name="Timing-file-destruct-totalMsecs" Value="0.044288"/>
+    <Metric Name="Timing-file-open-maxMsecs" Value="0.13696"/>
+    <Metric Name="Timing-file-open-minMsecs" Value="0.015872"/>
     <Metric Name="Timing-file-open-numOperations" Value="3"/>
     <Metric Name="Timing-file-open-numSuccessfulOperations" Value="3"/>
     <Metric Name="Timing-file-open-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-open-totalMsecs" Value="0.149248"/>
+    <Metric Name="Timing-file-open-totalMsecs" Value="0.169728"/>
     <Metric Name="Timing-file-position-maxMsecs" Value="0.009984"/>
     <Metric Name="Timing-file-position-minMsecs" Value="0"/>
-    <Metric Name="Timing-file-position-numOperations" Value="1460"/>
-    <Metric Name="Timing-file-position-numSuccessfulOperations" Value="1460"/>
+    <Metric Name="Timing-file-position-numOperations" Value="1456"/>
+    <Metric Name="Timing-file-position-numSuccessfulOperations" Value="1456"/>
     <Metric Name="Timing-file-position-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-position-totalMsecs" Value="1.51526"/>
-    <Metric Name="Timing-file-prefetch-maxMsecs" Value="0.009984"/>
+    <Metric Name="Timing-file-position-totalMsecs" Value="1.40595"/>
+    <Metric Name="Timing-file-prefetch-maxMsecs" Value="0.015104"/>
     <Metric Name="Timing-file-prefetch-minMsecs" Value="0"/>
     <Metric Name="Timing-file-prefetch-numOperations" Value="3110"/>
     <Metric Name="Timing-file-prefetch-numSuccessfulOperations" Value="3110"/>
-    <Metric Name="Timing-file-prefetch-totalMegabytes" Value="15.813"/>
-    <Metric Name="Timing-file-prefetch-totalMsecs" Value="2.54259"/>
-    <Metric Name="Timing-file-read-maxMsecs" Value="1.20294"/>
+    <Metric Name="Timing-file-prefetch-totalMegabytes" Value="15.8574"/>
+    <Metric Name="Timing-file-prefetch-totalMsecs" Value="2.59046"/>
+    <Metric Name="Timing-file-read-maxMsecs" Value="0.880896"/>
     <Metric Name="Timing-file-read-minMsecs" Value="0.000768"/>
-    <Metric Name="Timing-file-read-numOperations" Value="910"/>
-    <Metric Name="Timing-file-read-numSuccessfulOperations" Value="910"/>
-    <Metric Name="Timing-file-read-totalMegabytes" Value="8.99059"/>
-    <Metric Name="Timing-file-read-totalMsecs" Value="5.44077"/>
+    <Metric Name="Timing-file-read-numOperations" Value="908"/>
+    <Metric Name="Timing-file-read-numSuccessfulOperations" Value="908"/>
+    <Metric Name="Timing-file-read-totalMegabytes" Value="9.08305"/>
+    <Metric Name="Timing-file-read-totalMsecs" Value="5.44256"/>
     <Metric Name="Timing-file-readv-maxMsecs" Value="0"/>
     <Metric Name="Timing-file-readv-minMsecs" Value="0"/>
     <Metric Name="Timing-file-readv-numOperations" Value="0"/>
@@ -347,54 +347,54 @@
     <Metric Name="Timing-file-writev-numSuccessfulOperations" Value="0"/>
     <Metric Name="Timing-file-writev-totalMegabytes" Value="0"/>
     <Metric Name="Timing-file-writev-totalMsecs" Value="0"/>
-    <Metric Name="Timing-tstoragefile-close-maxMsecs" Value="0.086016"/>
-    <Metric Name="Timing-tstoragefile-close-minMsecs" Value="0.014848"/>
+    <Metric Name="Timing-tstoragefile-close-maxMsecs" Value="0.08704"/>
+    <Metric Name="Timing-tstoragefile-close-minMsecs" Value="0.015872"/>
     <Metric Name="Timing-tstoragefile-close-numOperations" Value="3"/>
     <Metric Name="Timing-tstoragefile-close-numSuccessfulOperations" Value="3"/>
     <Metric Name="Timing-tstoragefile-close-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-tstoragefile-close-totalMsecs" Value="0.118784"/>
-    <Metric Name="Timing-tstoragefile-construct-maxMsecs" Value="266.081"/>
-    <Metric Name="Timing-tstoragefile-construct-minMsecs" Value="0.635904"/>
+    <Metric Name="Timing-tstoragefile-close-totalMsecs" Value="0.120064"/>
+    <Metric Name="Timing-tstoragefile-construct-maxMsecs" Value="244.788"/>
+    <Metric Name="Timing-tstoragefile-construct-minMsecs" Value="0.656128"/>
     <Metric Name="Timing-tstoragefile-construct-numOperations" Value="3"/>
     <Metric Name="Timing-tstoragefile-construct-numSuccessfulOperations" Value="3"/>
     <Metric Name="Timing-tstoragefile-construct-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-tstoragefile-construct-totalMsecs" Value="268.868"/>
-    <Metric Name="Timing-tstoragefile-read-maxMsecs" Value="1.21011"/>
+    <Metric Name="Timing-tstoragefile-construct-totalMsecs" Value="247.545"/>
+    <Metric Name="Timing-tstoragefile-read-maxMsecs" Value="0.886016"/>
     <Metric Name="Timing-tstoragefile-read-minMsecs" Value="0.001792"/>
-    <Metric Name="Timing-tstoragefile-read-numOperations" Value="910"/>
-    <Metric Name="Timing-tstoragefile-read-numSuccessfulOperations" Value="910"/>
-    <Metric Name="Timing-tstoragefile-read-totalMegabytes" Value="8.99059"/>
-    <Metric Name="Timing-tstoragefile-read-totalMsecs" Value="7.64518"/>
-    <Metric Name="Timing-tstoragefile-readActual-maxMsecs" Value="1.20602"/>
+    <Metric Name="Timing-tstoragefile-read-numOperations" Value="908"/>
+    <Metric Name="Timing-tstoragefile-read-numSuccessfulOperations" Value="908"/>
+    <Metric Name="Timing-tstoragefile-read-totalMegabytes" Value="9.08305"/>
+    <Metric Name="Timing-tstoragefile-read-totalMsecs" Value="7.53331"/>
+    <Metric Name="Timing-tstoragefile-readActual-maxMsecs" Value="0.882944"/>
     <Metric Name="Timing-tstoragefile-readActual-minMsecs" Value="0.001792"/>
-    <Metric Name="Timing-tstoragefile-readActual-numOperations" Value="910"/>
-    <Metric Name="Timing-tstoragefile-readActual-numSuccessfulOperations" Value="910"/>
-    <Metric Name="Timing-tstoragefile-readActual-totalMegabytes" Value="8.99059"/>
-    <Metric Name="Timing-tstoragefile-readActual-totalMsecs" Value="6.2208"/>
-    <Metric Name="Timing-tstoragefile-readAsync-maxMsecs" Value="0.019968"/>
+    <Metric Name="Timing-tstoragefile-readActual-numOperations" Value="908"/>
+    <Metric Name="Timing-tstoragefile-readActual-numSuccessfulOperations" Value="908"/>
+    <Metric Name="Timing-tstoragefile-readActual-totalMegabytes" Value="9.08305"/>
+    <Metric Name="Timing-tstoragefile-readActual-totalMsecs" Value="6.144"/>
+    <Metric Name="Timing-tstoragefile-readAsync-maxMsecs" Value="0.027136"/>
     <Metric Name="Timing-tstoragefile-readAsync-minMsecs" Value="0.000768"/>
     <Metric Name="Timing-tstoragefile-readAsync-numOperations" Value="3110"/>
     <Metric Name="Timing-tstoragefile-readAsync-numSuccessfulOperations" Value="3110"/>
-    <Metric Name="Timing-tstoragefile-readAsync-totalMegabytes" Value="3.7271"/>
-    <Metric Name="Timing-tstoragefile-readAsync-totalMsecs" Value="4.95053"/>
-    <Metric Name="Timing-tstoragefile-readPrefetchToCache-maxMsecs" Value="0.002048"/>
+    <Metric Name="Timing-tstoragefile-readAsync-totalMegabytes" Value="3.77146"/>
+    <Metric Name="Timing-tstoragefile-readAsync-totalMsecs" Value="4.91776"/>
+    <Metric Name="Timing-tstoragefile-readPrefetchToCache-maxMsecs" Value="0.001024"/>
     <Metric Name="Timing-tstoragefile-readPrefetchToCache-minMsecs" Value="0"/>
-    <Metric Name="Timing-tstoragefile-readPrefetchToCache-numOperations" Value="232"/>
-    <Metric Name="Timing-tstoragefile-readPrefetchToCache-numSuccessfulOperations" Value="228"/>
-    <Metric Name="Timing-tstoragefile-readPrefetchToCache-totalMegabytes" Value="3.73329"/>
-    <Metric Name="Timing-tstoragefile-readPrefetchToCache-totalMsecs" Value="0.132864"/>
+    <Metric Name="Timing-tstoragefile-readPrefetchToCache-numOperations" Value="230"/>
+    <Metric Name="Timing-tstoragefile-readPrefetchToCache-numSuccessfulOperations" Value="226"/>
+    <Metric Name="Timing-tstoragefile-readPrefetchToCache-totalMegabytes" Value="3.77764"/>
+    <Metric Name="Timing-tstoragefile-readPrefetchToCache-totalMsecs" Value="0.1344"/>
     <Metric Name="Timing-tstoragefile-seek-maxMsecs" Value="0.009984"/>
     <Metric Name="Timing-tstoragefile-seek-minMsecs" Value="0.000768"/>
-    <Metric Name="Timing-tstoragefile-seek-numOperations" Value="1140"/>
-    <Metric Name="Timing-tstoragefile-seek-numSuccessfulOperations" Value="1140"/>
+    <Metric Name="Timing-tstoragefile-seek-numOperations" Value="1136"/>
+    <Metric Name="Timing-tstoragefile-seek-numSuccessfulOperations" Value="1136"/>
     <Metric Name="Timing-tstoragefile-seek-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-tstoragefile-seek-totalMsecs" Value="2.52314"/>
+    <Metric Name="Timing-tstoragefile-seek-totalMsecs" Value="2.4233"/>
     <Metric Name="Timing-tstoragefile-stat-maxMsecs" Value="0.006912"/>
     <Metric Name="Timing-tstoragefile-stat-minMsecs" Value="0.00384"/>
     <Metric Name="Timing-tstoragefile-stat-numOperations" Value="77"/>
     <Metric Name="Timing-tstoragefile-stat-numSuccessfulOperations" Value="77"/>
     <Metric Name="Timing-tstoragefile-stat-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-tstoragefile-stat-totalMsecs" Value="0.364288"/>
+    <Metric Name="Timing-tstoragefile-stat-totalMsecs" Value="0.367872"/>
   </PerformanceSummary>
 </PerformanceReport>
 </FrameworkJobReport>

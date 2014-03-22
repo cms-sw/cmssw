@@ -1,42 +1,46 @@
 #ifndef PresampleTask_H
 #define PresampleTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 
-namespace ecaldqm {
-
+namespace ecaldqm
+{
   class PresampleTask : public DQWorkerTask {
   public:
-    PresampleTask(const edm::ParameterSet &, const edm::ParameterSet&);
-    ~PresampleTask();
+    PresampleTask();
+    ~PresampleTask() {}
 
-    bool filterRunType(const std::vector<short>&) override;
+    bool filterRunType(short const*) override;
 
-    void analyze(const void*, Collections) override;
+    bool analyze(void const*, Collections) override;
 
-    void runOnDigis(const EcalDigiCollection &);
+    template<typename DigiCollection> void runOnDigis(DigiCollection const&);
 
-    enum MESets {
-      kPedestal, // profile2d
-      nMESets
-    };
+  private:
+    void setParams(edm::ParameterSet const&) override;
 
-    static void setMEData(std::vector<MEData>&);
+    int pulseMaxPosition_;
+    int nSamples_;
   };
 
-  inline void PresampleTask::analyze(const void* _p, Collections _collection){
+  inline bool PresampleTask::analyze(void const* _p, Collections _collection){
     switch(_collection){
     case kEBDigi:
+      if(_p) runOnDigis(*static_cast<EBDigiCollection const*>(_p));
+      return true;
     case kEEDigi:
-      runOnDigis(*static_cast<const EcalDigiCollection*>(_p));
+      if(_p) runOnDigis(*static_cast<EEDigiCollection const*>(_p));
+      return true;
       break;
     default:
       break;
     }
-  }
 
+    return false;
+  }
 }
 
 #endif

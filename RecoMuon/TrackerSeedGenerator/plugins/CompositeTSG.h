@@ -12,6 +12,7 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class TrackingRegion;
 class MuonServiceProxy;
@@ -23,7 +24,7 @@ public:
   typedef std::vector<TrajectorySeed> BTSeedCollection;  
   typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
 
-  CompositeTSG(const edm::ParameterSet &pset);
+  CompositeTSG(const edm::ParameterSet &pset,edm::ConsumesCollector& IC);
   virtual ~CompositeTSG();
 
   /// initialized the TSGs

@@ -15,19 +15,24 @@
 //          Created:  May 14, 2005
 //
 //
+
+//____________________________________________________________________________||
 #ifndef METAlgo_h
 #define METAlgo_h
 
+//____________________________________________________________________________||
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 
+//____________________________________________________________________________||
 class METAlgo 
 {
 public:
   METAlgo() {}
   virtual ~METAlgo() {}
-  virtual CommonMETData run(edm::Handle<edm::View<reco::Candidate> > candidates, double globalThreshold = 0.0);
-  virtual void run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMETData *met, double globalThreshold = 0.0);
+  CommonMETData run(const edm::View<reco::Candidate>& candidates, double globalThreshold = 0.0);
+
 };
 
+//____________________________________________________________________________||
 #endif // METAlgo_h

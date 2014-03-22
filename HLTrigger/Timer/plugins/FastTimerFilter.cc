@@ -47,6 +47,7 @@ FastTimerFilter::filter(edm::StreamID sid, edm::Event & event, edm::EventSetup c
   if (not edm::Service<FastTimerService>().isAvailable())
     return false;
 
+  /* FIXME re-enable
   FastTimerService const & fts = * edm::Service<FastTimerService>();
   if (m_time_limit_allpaths > 0. and fts.queryPathsTime(sid)   > m_time_limit_allpaths)
     return true;
@@ -54,6 +55,7 @@ FastTimerFilter::filter(edm::StreamID sid, edm::Event & event, edm::EventSetup c
     return true;
   if (m_time_limit_path     > 0. and fts.currentPathTime(sid)  > m_time_limit_path)
     return true;
+  */
 
   return false;
 }

@@ -450,8 +450,8 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    eg_EEcalEtrue_5->Fill(ErecoEtrue);
 	  }
 
-	  if( (theGsfEle[j].pflowSuperCluster()).isNonnull()) {
-	    float SCPF = (theGsfEle[j]).pflowSuperCluster()->rawEnergy();
+	  if( (theGsfEle[j].parentSuperCluster()).isNonnull()) {
+	    float SCPF = (theGsfEle[j]).parentSuperCluster()->rawEnergy();
 	    float EpfEtrue = SCPF/Emc;
 	    if (fabs(etamc) < 0.5) {
 	      pf_EEcalEtrue_1->Fill(EpfEtrue);
@@ -474,21 +474,21 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    pf_e1x5_all->Fill(pfshapes.e1x5);
 	    pf_sihih_all->Fill(pfshapes.sigmaIetaIeta);
 	    pf_r9_all->Fill(pfshapes.r9);
-	    pf_scshh_all->Fill((theGsfEle[j]).pflowSuperCluster()->etaWidth());
-	    pf_scsff_all->Fill((theGsfEle[j]).pflowSuperCluster()->phiWidth());
+	    pf_scshh_all->Fill((theGsfEle[j]).parentSuperCluster()->etaWidth());
+	    pf_scsff_all->Fill((theGsfEle[j]).parentSuperCluster()->phiWidth());
 	    if( std::abs(etareco) < 1.479 ) {
 	      pf_e1x5_eb->Fill(pfshapes.e1x5);
 	      pf_sihih_eb->Fill(pfshapes.sigmaIetaIeta);
 	      pf_r9_eb->Fill(pfshapes.r9);
-	      pf_scshh_eb->Fill((theGsfEle[j]).pflowSuperCluster()->etaWidth());
-	      pf_scsff_eb->Fill((theGsfEle[j]).pflowSuperCluster()->phiWidth());
+	      pf_scshh_eb->Fill((theGsfEle[j]).parentSuperCluster()->etaWidth());
+	      pf_scsff_eb->Fill((theGsfEle[j]).parentSuperCluster()->phiWidth());
 	    }
 	    if( std::abs(etareco) >= 1.479 ) {
 	      pf_e1x5_ee->Fill(pfshapes.e1x5);
 	      pf_sihih_ee->Fill(pfshapes.sigmaIetaIeta);
 	      pf_r9_ee->Fill(pfshapes.r9);
-	      pf_scshh_ee->Fill((theGsfEle[j]).pflowSuperCluster()->etaWidth());
-	      pf_scsff_ee->Fill((theGsfEle[j]).pflowSuperCluster()->phiWidth());
+	      pf_scshh_ee->Fill((theGsfEle[j]).parentSuperCluster()->etaWidth());
+	      pf_scsff_ee->Fill((theGsfEle[j]).parentSuperCluster()->phiWidth());
 	    }
 	    
 	  }

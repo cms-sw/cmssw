@@ -485,6 +485,10 @@ if 'GlobalTag' in %(dict)s:
     %(process)sGlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
     for pset in process.GlobalTag.toGet.value():
         pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
+#   Fix for multi-run processing:
+    %(process)sGlobalTag.RefreshEachRun = cms.untracked.bool( False )
+    %(process)sGlobalTag.ReconnectEachRun = cms.untracked.bool( False )
+#
 """
     self.data += text
 
@@ -1064,6 +1068,13 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPixelHitsVertex" )
       self.options['modules'].append( "-hltFastPixelTracks")
       self.options['modules'].append( "-hltFastPixelTracksRecover")
+
+      self.options['modules'].append( "-hltPixelLayerPairs" )
+      self.options['modules'].append( "-hltPixelLayerTriplets" )
+      self.options['modules'].append( "-hltPixelLayerTripletsReg" )
+      self.options['modules'].append( "-hltPixelLayerTripletsHITHB" )
+      self.options['modules'].append( "-hltPixelLayerTripletsHITHE" )
+      self.options['modules'].append( "-hltMixedLayerPairs" )
       
       self.options['modules'].append( "-hltFastPrimaryVertexbbPhi")
       self.options['modules'].append( "-hltPixelTracksFastPVbbPhi")

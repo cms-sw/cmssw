@@ -1,7 +1,29 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 
-budeflocation = os.path.expandvars("$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd")
+#Instructions:
+#     before running this script make sure that you have access to /fff/BU0/ramdisk and /fff/data
+#     these parameters can also be changed in startFU.py and startBU.py scripts
+#user = os.environ['USER']
+
+options = VarParsing.VarParsing ('analysis')
+
+options.register ('runNumber',
+                  100, # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "Run Number")
+
+options.register ('buBaseDir',
+                  '/fff/BU0/ramdisk/', # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "BU base directory")
+
+options.parseArguments()
+
+cmsswbase = os.path.expandvars("$CMSSW_BASE/")
 
 process = cms.Process("FAKEBU")
 process.maxEvents = cms.untracked.PSet(
@@ -26,20 +48,21 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     )
 
 process.source = cms.Source("EmptySource",
-     firstRun= cms.untracked.uint32(100),
+     firstRun= cms.untracked.uint32(options.runNumber),
      numberEventsInLuminosityBlock = cms.untracked.uint32(200),
      numberEventsInRun       = cms.untracked.uint32(0)    
 )
 
 process.EvFDaqDirector = cms.Service("EvFDaqDirector",
-    runNumber = cms.untracked.uint32(100),
-    baseDir = cms.untracked.string("/dev/shm"),
-    buBaseDir = cms.untracked.string("/dev/shm"),
-    smBaseDir  = cms.untracked.string("/data/hdd"),
+    runNumber = cms.untracked.uint32(options.runNumber),
+    baseDir = cms.untracked.string(options.buBaseDir),
+    buBaseDir = cms.untracked.string(options.buBaseDir),
     directorIsBu = cms.untracked.bool(True),
-    copyRunDir = cms.untracked.bool(False),	
-    slaveResources = cms.untracked.vstring('localhost'),
-    slavePathToData = cms.untracked.string("/data/hdd"))
+    copyRunDir = cms.untracked.bool(False))
+    #obsolete:
+    #smBaseDir  = cms.untracked.string("/fff/data/sm"),
+    #slaveResources = cms.untracked.vstring('localhost'),
+    #slavePathToData = cms.untracked.string("/fff/data/slave"))
 
 process.EvFBuildingThrottle = cms.Service("EvFBuildingThrottle",
     highWaterMark = cms.untracked.double(0.80),
@@ -60,8 +83,8 @@ process.out = cms.OutputModule("RawStreamFileWriterForBU",
     ProductLabel = cms.untracked.string("s"),
     numWriters = cms.untracked.uint32(1),
     eventBufferSize = cms.untracked.uint32(100),
-    numEventsPerFile= cms.untracked.uint32(50),
-    jsonDefLocation = cms.untracked.string(budeflocation),
+    numEventsPerFile= cms.untracked.uint32(20),
+    jsonDefLocation = cms.untracked.string(cmsswbase+"/src/EventFilter/Utilities/plugins/budef.jsd"),
     #lumiSubdirectoriesMode=cms.untracked.bool(False),
     debug = cms.untracked.bool(True))
 

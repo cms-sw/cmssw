@@ -1,10 +1,10 @@
 #include "GeneratorInterface/ExhumeInterface/interface/ExhumeHadronizer.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "GeneratorInterface/Core/interface/FortranCallback.h"
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
+#include "GeneratorInterface/Core/interface/FortranInstance.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 
 #include "HepPID/ParticleIDTranslations.hh"
@@ -70,17 +70,21 @@ inline bool call_pygive(const std::string &line)
    pygive(line.c_str(), line.length());
 
    return (pydat1.mstu[26] == numWarn)&&(pydat1.mstu[22] == numErr);
-} 
- 
+}
+
+const std::vector<std::string> ExhumeHadronizer::theSharedResources = { edm::SharedResourceNames::kPythia6,
+                                                                        gen::FortranInstance::kFortranInstance };
+
 ExhumeHadronizer::ExhumeHadronizer(edm::ParameterSet const& pset)
    : BaseHadronizer(pset),
      pythia6Service_(new Pythia6Service(pset)),
-     randomEngine_(&getEngineReference()),
+     randomEngine_(nullptr),
      comEnergy_(pset.getParameter<double>("comEnergy")),
      myPSet_(pset),
      hepMCVerbosity_(pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
      maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint", 0)),
-     pythiaListVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity", 0))
+     pythiaListVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity", 0)),
+     exhumeEvent_(nullptr)
 { 
 
    convertToPDG_ = false;
@@ -97,6 +101,15 @@ ExhumeHadronizer::~ExhumeHadronizer(){
    delete pythia6Service_;
    delete exhumeEvent_;
    delete exhumeProcess_;
+}
+
+void ExhumeHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v)
+{
+   pythia6Service_->setRandomEngine(v);
+   randomEngine_ = v;
+   if(exhumeEvent_) {
+     exhumeEvent_->SetRandomEngine(v);
+   }
 }
 
 void ExhumeHadronizer::finalizeEvent()
@@ -229,8 +242,7 @@ bool ExhumeHadronizer::initializeForInternalPartons()
    }
     
    pypars.msti[0] = sigID;
-   //exhumeEvent_ = new Exhume::Event(*exhumeProcess_,&getEngineReference());
-   exhumeEvent_ = new Exhume::Event(*exhumeProcess_,randomEngine_);
+   exhumeEvent_ = new Exhume::Event(*exhumeProcess_, randomEngine_);
 
    double massRangeLow = processPSet.getParameter<double>("MassRangeLow");
    double massRangeHigh = processPSet.getParameter<double>("MassRangeHigh");

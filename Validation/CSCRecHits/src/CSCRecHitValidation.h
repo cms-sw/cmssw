@@ -32,8 +32,8 @@ public:
   PSimHitMap theSimHitMap;
   const CSCGeometry * theCSCGeometry;
 
-  CSCRecHit2DValidation the2DValidation;
-  CSCSegmentValidation theSegmentValidation;
+  CSCRecHit2DValidation * the2DValidation;
+  CSCSegmentValidation * theSegmentValidation;
 };
 
 #endif

@@ -22,13 +22,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
@@ -40,8 +36,6 @@
 #include "RecoMuon/MuonIdentification/interface/MuonCosmicsId.h"
 
 #include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 #include "TMath.h"
@@ -50,7 +44,7 @@
 using namespace edm;
 using namespace std;
 
-MuonCosmicCompatibilityFiller::MuonCosmicCompatibilityFiller(const edm::ParameterSet& iConfig):
+MuonCosmicCompatibilityFiller::MuonCosmicCompatibilityFiller(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
   inputMuonCollections_(iConfig.getParameter<std::vector<edm::InputTag> >("InputMuonCollections")),
   inputTrackCollections_(iConfig.getParameter<std::vector<edm::InputTag> >("InputTrackCollections")),
   inputCosmicMuonCollection_(iConfig.getParameter<edm::InputTag>("InputCosmicMuonCollection")),
@@ -99,6 +93,18 @@ MuonCosmicCompatibilityFiller::MuonCosmicCompatibilityFiller(const edm::Paramete
   maxvertZ_ = iConfig.getParameter<double>("maxvertZ");
   maxvertRho_ = iConfig.getParameter<double>("maxvertRho");
 //  nTrackThreshold_ = iConfig.getParameter<unsigned int>("nTrackThreshold");
+
+  for(unsigned int i=0;i<inputMuonCollections_.size();++i)
+    muonTokens_.push_back(iC.consumes<reco::MuonCollection>(inputMuonCollections_.at(i)));
+  for(unsigned int i=0;i<inputTrackCollections_.size();++i)
+    trackTokens_.push_back(iC.consumes<reco::TrackCollection>(inputTrackCollections_.at(i)));
+
+  cosmicToken_ = iC.consumes<reco::MuonCollection>(inputCosmicMuonCollection_);
+  vertexToken_ = iC.consumes<reco::VertexCollection>(inputVertexCollection_);
+
+    
+
+
 }
 
 MuonCosmicCompatibilityFiller::~MuonCosmicCompatibilityFiller() {
@@ -175,7 +181,7 @@ MuonCosmicCompatibilityFiller::muonTiming(const edm::Event& iEvent, const reco::
 
               //loop over muons in that event and find if there are any in the opposite hemi 
               edm::Handle<reco::MuonCollection> muonHandle;
-              iEvent.getByLabel(inputMuonCollections_[1], muonHandle);
+              iEvent.getByToken(muonTokens_[1], muonHandle);
 
               if( !muonHandle.failedToGet() ) {
                   for ( reco::MuonCollection::const_iterator iMuon = muonHandle->begin(); iMuon !=  muonHandle->end(); ++iMuon ) {
@@ -225,9 +231,9 @@ MuonCosmicCompatibilityFiller::backToBack2LegCosmic(const edm::Event& iEvent, co
   else if ( muon.isTrackerMuon() )       track = muon.track();
   else if ( muon.isStandAloneMuon() )    return false;
 
-  for (unsigned int iColl = 0; iColl<inputTrackCollections_.size(); ++iColl){
+  for (unsigned int iColl = 0; iColl<trackTokens_.size(); ++iColl){
     edm::Handle<reco::TrackCollection> trackHandle;
-    iEvent.getByLabel(inputTrackCollections_[iColl],trackHandle);
+    iEvent.getByToken(trackTokens_[iColl],trackHandle);
     if (muonid::findOppositeTrack(trackHandle, *track, angleThreshold_, deltaPt_).isNonnull()) { 
       result++;
      }
@@ -245,7 +251,7 @@ MuonCosmicCompatibilityFiller::nMuons(const edm::Event& iEvent) const {
     unsigned int nGlb = 0;
 
     edm::Handle<reco::MuonCollection> muonHandle;
-    iEvent.getByLabel(inputMuonCollections_[1], muonHandle);
+    iEvent.getByToken(muonTokens_[1], muonHandle);
 
     if( !muonHandle.failedToGet() ) {
       for ( reco::MuonCollection::const_iterator iMuon = muonHandle->begin(); iMuon !=  muonHandle->end(); ++iMuon ) {
@@ -276,7 +282,7 @@ MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent, const
   
   // reco muons for cosmics
   edm::Handle<reco::MuonCollection> muonHandle;
-  iEvent.getByLabel(inputCosmicMuonCollection_, muonHandle);
+  iEvent.getByToken(cosmicToken_, muonHandle);
   
   // Global Tracking Geometry
   ESHandle<GlobalTrackingGeometry> trackingGeometry;
@@ -287,7 +293,7 @@ MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent, const
   RefVtx.SetXYZ(0, 0, 0);
   
   edm::Handle<reco::VertexCollection> pvHandle;
-  iEvent.getByLabel(inputVertexCollection_,pvHandle);
+  iEvent.getByToken(vertexToken_,pvHandle);
   const reco::VertexCollection & vertices = *pvHandle.product();
   for(reco::VertexCollection::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it) {
       RefVtx = it->position();
@@ -409,7 +415,7 @@ MuonCosmicCompatibilityFiller::pvMatches(const edm::Event& iEvent, const reco::M
   RefVtx.SetXYZ(0, 0, 0);
 
   edm::Handle<reco::VertexCollection> pvHandle;
-  iEvent.getByLabel(inputVertexCollection_,pvHandle);
+  iEvent.getByToken(vertexToken_,pvHandle);
   const reco::VertexCollection & vertices = *pvHandle.product();
   for(reco::VertexCollection::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it){
     RefVtx = it->position();
@@ -443,11 +449,11 @@ MuonCosmicCompatibilityFiller::pvMatches(const edm::Event& iEvent, const reco::M
    if (result == 0 && multipleMu) {
       // consider all reco muons in an event
       edm::Handle<reco::MuonCollection> muonHandle;
-      iEvent.getByLabel(inputMuonCollections_[1], muonHandle);
+      iEvent.getByToken(muonTokens_[1], muonHandle);
 
       //cosmic event should have zero good vertices
       edm::Handle<reco::VertexCollection> pvHandle;
-      iEvent.getByLabel(inputVertexCollection_,pvHandle);
+      iEvent.getByToken(vertexToken_,pvHandle);
       const reco::VertexCollection & vertices = *pvHandle.product();
 
       //find the "other" one
@@ -581,12 +587,12 @@ MuonCosmicCompatibilityFiller::eventActivity(const edm::Event& iEvent, const rec
 
   //check track activity
   edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel(inputTrackCollections_[0],tracks);
+  iEvent.getByToken(trackTokens_[0],tracks);
   if (!tracks.failedToGet() && tracks->size() < 3) return 0; 
 
   //cosmic event should have zero good vertices
   edm::Handle<reco::VertexCollection> pvHandle;
-  if (!iEvent.getByLabel(inputVertexCollection_,pvHandle)) {return 0;} else {
+  if (!iEvent.getByToken(vertexToken_,pvHandle)) {return 0;} else {
       const reco::VertexCollection & vertices = *pvHandle.product();
       //check if vertex collection is empty
       if (vertices.begin() == vertices.end()) return 0;

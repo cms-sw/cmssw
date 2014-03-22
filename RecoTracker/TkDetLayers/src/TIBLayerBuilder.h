@@ -16,7 +16,7 @@ class TIBLayerBuilder {
  public:
   TIBLayerBuilder(){};
   TIBLayer* build(const GeometricDet* aTIBLayer,
-		  const TrackerGeometry* theGeomDetGeometry);
+		  const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
 
   void constructRings(std::vector<const GeometricDet*>& theGeometricRods,
 		      std::vector<std::vector<const GeometricDet*> >& innerGeometricDetRings,

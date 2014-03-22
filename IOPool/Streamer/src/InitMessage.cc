@@ -86,10 +86,14 @@ InitMsgView::InitMsgView(void* buf) :
 
   if (protocolVersion() > 7) {
     adler32_chksum_ = convert32(pos);
-    host_name_start_ = pos + sizeof(uint32);
-    host_name_len_ = *host_name_start_;
-    host_name_start_ += sizeof(uint8);
-    pos = host_name_start_ + host_name_len_;
+    pos += sizeof(uint32);
+
+    if (protocolVersion() <= 9) {
+      host_name_start_ = pos;
+      host_name_len_ = *host_name_start_;
+      host_name_start_ += sizeof(uint8);
+      pos = host_name_start_ + host_name_len_;
+    }
   }
 
   desc_start_ = pos;
@@ -185,12 +189,16 @@ uint32 InitMsgView::initHeaderSize() const
 
 std::string InitMsgView::hostName() const
 {
-   //return std::string(reinterpret_cast<char *>(host_name_start_),host_name_len_);
-   std::string host_name(reinterpret_cast<char *>(host_name_start_),host_name_len_);
-   size_t found = host_name.find('\0');
-   if(found != std::string::npos) {
-     return std::string(host_name, 0, found);
-   } else {
-     return host_name;
-   }
+  if (host_name_start_) {
+    std::string host_name(reinterpret_cast<char *>(host_name_start_),host_name_len_);
+    size_t found = host_name.find('\0');
+    if(found != std::string::npos) {
+      return std::string(host_name, 0, found);
+    } else {
+      return host_name;
+    }
+  }
+  else {
+    return "n/a";
+  }
 }

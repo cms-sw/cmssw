@@ -5,8 +5,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -32,12 +30,12 @@ ElectronAnalyzer::ElectronAnalyzer( const edm::ParameterSet & conf )
  {
   // general, collections
   Selection_ = conf.getParameter<int>("Selection");
-  electronCollection_ = conf.getParameter<edm::InputTag>("ElectronCollection");
-  matchingObjectCollection_ = conf.getParameter<edm::InputTag>("MatchingObjectCollection");
-  trackCollection_ = conf.getParameter<edm::InputTag>("TrackCollection");
-  vertexCollection_ = conf.getParameter<edm::InputTag>("VertexCollection");
-  gsftrackCollection_ = conf.getParameter<edm::InputTag>("GsfTrackCollection");
-  beamSpotTag_ = conf.getParameter<edm::InputTag>("BeamSpot");
+  electronCollection_ = consumes<GsfElectronCollection>(conf.getParameter<edm::InputTag>("ElectronCollection"));
+  matchingObjectCollection_ = consumes<SuperClusterCollection>(conf.getParameter<edm::InputTag>("MatchingObjectCollection"));
+  trackCollection_ = consumes<TrackCollection>(conf.getParameter<edm::InputTag>("TrackCollection"));
+  vertexCollection_ = consumes<VertexCollection>(conf.getParameter<edm::InputTag>("VertexCollection"));
+  gsftrackCollection_ = consumes<GsfTrackCollection>(conf.getParameter<edm::InputTag>("GsfTrackCollection"));
+  beamSpotTag_ = consumes<BeamSpot>(conf.getParameter<edm::InputTag>("BeamSpot"));
   readAOD_ = conf.getParameter<bool>("ReadAOD");
 
   // matching
@@ -282,10 +280,12 @@ void ElectronAnalyzer::book()
 
   // matching object
   std::string matchingObjectType ;
-  if (std::string::npos!=matchingObjectCollection_.label().find("SuperCluster",0))
-   { matchingObjectType = "SC" ; }
+  Labels l;
+  labelsForToken(matchingObjectCollection_,l);
+  if (std::string::npos != std::string(l.module).find("SuperCluster",0))
+    { matchingObjectType = "SC" ; }
   if (matchingObjectType=="")
-   { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }
+    { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }
   else
    { edm::LogInfo("ElectronMcFakeValidator::beginJob")<<"Matching object type: "<<matchingObjectType ; }
 //  std::string htitle = "# "+matchingObjectType+"s", xtitle = "N_{"+matchingObjectType+"}" ;
@@ -317,30 +317,19 @@ void ElectronAnalyzer::book()
 void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup & iSetup )
 {
   nEvents_++ ;
-//  if (!trigger(iEvent)) return ;
-//  nAfterTrigger_++ ;
 
-//  edm::Handle<SuperClusterCollection> barrelSCs ;
-//  iEvent.getByLabel("correctedHybridSuperClusters",barrelSCs) ;
-//  edm::Handle<SuperClusterCollection> endcapsSCs ;
-//  iEvent.getByLabel("correctedMulti5x5SuperClustersWithPreshower",endcapsSCs) ;
-//  std::cout<<"[ElectronMcSignalValidator::analyze]"
-//    <<"Event "<<iEvent.id()
-//    <<" has "<<barrelSCs.product()->size()<<" barrel superclusters"
-//    <<" and "<<endcapsSCs.product()->size()<<" endcaps superclusters" ;
-//
   edm::Handle<GsfElectronCollection> gsfElectrons ;
-  iEvent.getByLabel(electronCollection_,gsfElectrons) ;
+  iEvent.getByToken(electronCollection_,gsfElectrons) ;
   edm::Handle<reco::SuperClusterCollection> recoClusters ;
-  iEvent.getByLabel(matchingObjectCollection_,recoClusters) ;
+  iEvent.getByToken(matchingObjectCollection_,recoClusters) ;
   edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel(trackCollection_,tracks);
+  iEvent.getByToken(trackCollection_,tracks);
   edm::Handle<reco::GsfTrackCollection> gsfTracks;
-  iEvent.getByLabel(gsftrackCollection_,gsfTracks);
+  iEvent.getByToken(gsftrackCollection_,gsfTracks);
   edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByLabel(vertexCollection_,vertices);
+  iEvent.getByToken(vertexCollection_,vertices);
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle ;
-  iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle) ;
+  iEvent.getByToken(beamSpotTag_,recoBeamSpotHandle) ;
   const BeamSpot bs = *recoBeamSpotHandle ;
 
   int ievt = iEvent.id().event();
@@ -387,7 +376,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     reco::SuperClusterRef sclRef = gsfIter->superCluster() ;
     // ALREADY DONE IN GSF ELECTRON CORE
     //    if (!gsfIter->ecalDrivenSeed()&&gsfIter->trackerDrivenSeed())
-    //      sclRef = gsfIter->pflowSuperCluster() ;
+    //      sclRef = gsfIter->parentSuperCluster() ;
 //    h1_sclEn->Fill(sclRef->energy());
 //    h1_sclEta->Fill(sclRef->eta());
 //    h1_sclPhi->Fill(sclRef->phi());
@@ -614,81 +603,6 @@ float ElectronAnalyzer::computeInvMass
   float invMass = sqrt(mee2) ;
   return invMass ;
  }
-
-//bool ElectronAnalyzer::trigger( const edm::Event & e )
-// {
-//  // retreive TriggerResults from the event
-//  edm::Handle<edm::TriggerResults> triggerResults ;
-//  e.getByLabel(triggerResults_,triggerResults) ;
-//
-//  bool accept = false ;
-//
-//  if (triggerResults.isValid())
-//   {
-//    //std::cout << "TriggerResults found, number of HLT paths: " << triggerResults->size() << std::endl;
-//    // get trigger names
-//    const edm::TriggerNames & triggerNames_ = e.triggerNames(*triggerResults);
-////    if (nEvents_==1)
-////     {
-////      for (unsigned int i=0; i<triggerNames_.size(); i++)
-////       { std::cout << "trigger path= " << triggerNames_.triggerName(i) << std::endl; }
-////     }
-//
-//    unsigned int n = HLTPathsByName_.size() ;
-//    for (unsigned int i=0; i!=n; i++)
-//     {
-//      HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]) ;
-//     }
-//
-//    // empty input vectors (n==0) means any trigger paths
-//    if (n==0)
-//     {
-//      n=triggerResults->size() ;
-//      HLTPathsByName_.resize(n) ;
-//      HLTPathsByIndex_.resize(n) ;
-//      for ( unsigned int i=0 ; i!=n ; i++)
-//       {
-//        HLTPathsByName_[i]=triggerNames_.triggerName(i) ;
-//        HLTPathsByIndex_[i]=i ;
-//       }
-//     }
-//
-////    if (nEvents_==1)
-////     {
-////      if (n>0)
-////       {
-////        std::cout << "HLT trigger paths requested: index, name and valididty:" << std::endl;
-////        for (unsigned int i=0; i!=n; i++)
-////         {
-////          bool validity = HLTPathsByIndex_[i]<triggerResults->size();
-////          std::cout
-////            << " " << HLTPathsByIndex_[i]
-////            << " " << HLTPathsByName_[i]
-////            << " " << validity << std::endl;
-////         }
-////       }
-////     }
-//
-//    // count number of requested HLT paths which have fired
-//    unsigned int fired=0 ;
-//    for ( unsigned int i=0 ; i!=n ; i++ )
-//     {
-//      if (HLTPathsByIndex_[i]<triggerResults->size())
-//       {
-//        if (triggerResults->accept(HLTPathsByIndex_[i]))
-//         {
-//          fired++ ;
-//          h1_triggers->Fill(float(HLTPathsByIndex_[i]));
-//          //std::cout << "Fired HLT path= " << HLTPathsByName_[i] << std::endl ;
-//          accept = true ;
-//         }
-//       }
-//     }
-//
-//   }
-//
-//  return accept ;
-// }
 
 bool ElectronAnalyzer::selected( const reco::GsfElectronCollection::const_iterator & gsfIter , double vertexTIP )
  {

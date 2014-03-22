@@ -8,26 +8,24 @@
 
 namespace cond {
 
-  using KeyList = cond::ora_wrapper::KeyList;
-
-  namespace db {
-    template<> class PayloadProxy<cond::KeyList> : public PayloadProxy<std::vector<cond::Time_t> > {
+  namespace persistency {
+    template<> class PayloadProxy<cond::persistency::KeyList> : public PayloadProxy<std::vector<cond::Time_t> > {
     public:
       typedef std::vector<cond::Time_t> DataT;
       typedef PayloadProxy<DataT> super;
 
     
-      PayloadProxy( Session& session, const char * source=0 ) :
-	super( session ),
-	m_keyList( session ) {
+      explicit PayloadProxy( const char * source=0 ) :
+	super( source ),
+	m_keyList() {
 	if( source ) m_name = source;
       }
 
       virtual ~PayloadProxy(){}
 
       // dereference (does not load)
-      const cond::KeyList & operator()() const {
-	return me; 
+      const KeyList & operator()() const {
+	return m_keyList; 
       }
         
       virtual void invalidateCache() {
@@ -35,22 +33,23 @@ namespace cond {
       }
 
       virtual void loadMore(CondGetter const & getter){
-      	me.init(getter.getTag(m_name));
+      	m_keyList.init(getter.get(m_name));
       }
 
 
     protected:
-      virtual bool loadPayload() {
-	bool ok = super::loadPayload();
-	me.load(super::operator()());
-	return ok;
+      virtual void loadPayload() {
+	super::loadPayload();
+	m_keyList.load(super::operator()());
       }
 
-  private:
+    private:
+      
+      std::string m_name;
+      KeyList m_keyList;
 
-    std::string m_name;
-    KeyList m_keyList;
+    };
+  }
 
-  };
 }
 #endif

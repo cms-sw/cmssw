@@ -106,7 +106,7 @@ private:
   std::string folderName_; // dqm folder name
   std::string processname_;
   std::vector <std::pair<std::string, std::vector<std::string> > > pairPDPaths_;
-  edm::InputTag trigResultsSource_;
+  edm::EDGetTokenT<edm::TriggerResults> trigResultsSource_;
 
   DQMStore * dbe_;
   MonitorElement *scalersPD_;

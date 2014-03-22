@@ -5,6 +5,7 @@
 namespace edm {class ParameterSet;}
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 //class TrackerSeedGeneratorFactory
 //   : public seal::PluginFactory< TrackerSeedGenerator * (const edm::ParameterSet&) > {
@@ -14,6 +15,6 @@ namespace edm {class ParameterSet;}
 //  static TrackerSeedGeneratorFactory * get();
 //};
 
-typedef edmplugin::PluginFactory< TrackerSeedGenerator* (const edm::ParameterSet&) > TrackerSeedGeneratorFactory;
+typedef edmplugin::PluginFactory< TrackerSeedGenerator* (const edm::ParameterSet&,edm::ConsumesCollector& iC) > TrackerSeedGeneratorFactory;
 #endif
 

@@ -20,6 +20,7 @@
 #include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
@@ -74,7 +75,10 @@ namespace DataFormats_EgammaCandidates {
     edm::reftobase::BaseVectorHolder<reco::Photon> *bvhp_p;
     edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > > > valMap_wr;
     edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >  valMap;
-
+    //    std::pair<reco::PFCandidateRef,bool> value_pfiso;
+    // std::vector<std::pair<reco::PFCandidateRef,bool> > values_pfiso;
+    //edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > >  valueMap_iso; 
+    //edm::Wrapper<edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > > > valueMap_iso_wr;
 
     reco::Photon::FiducialFlags pff ;
     reco::Photon::ShowerShape pss ;

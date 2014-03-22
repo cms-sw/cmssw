@@ -12,10 +12,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <string>
 
-class SUSYDQMAnalyzer: public edm::EDAnalyzer {
+//class SUSYDQMAnalyzer: public edm::EDAnalyzer {
+class SUSYDQMAnalyzer: public DQMEDAnalyzer {
  public:
   explicit SUSYDQMAnalyzer(const edm::ParameterSet&);
   ~SUSYDQMAnalyzer();
@@ -24,17 +28,17 @@ class SUSYDQMAnalyzer: public edm::EDAnalyzer {
   edm::ParameterSet iConfig;
 
   virtual void beginJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event& , const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
-  edm::InputTag theCaloMETCollectionLabel;
-  edm::InputTag thePFMETCollectionLabel;
-  edm::InputTag theTCMETCollectionLabel;
+  edm::EDGetTokenT<reco::PFMETCollection> thePFMETCollectionToken;
+  edm::EDGetTokenT<std::vector<reco::PFJet> > thePFJetCollectionToken;
+  edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollectionToken;
 
-  edm::InputTag theCaloJetCollectionLabel;
-  edm::InputTag thePFJetCollectionLabel;
-  edm::InputTag theJPTJetCollectionLabel;
+  edm::EDGetTokenT<reco::CaloMETCollection> theCaloMETCollectionToken;
+  edm::EDGetTokenT<reco::JPTJetCollection> theJPTJetCollectionToken;
+  edm::EDGetTokenT<reco::METCollection> theTCMETCollectionToken;
 
   double _ptThreshold;
   double _maxNJets;

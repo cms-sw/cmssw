@@ -4,19 +4,26 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include <string>
+#include <vector>
+
 namespace HepMC
 {
 class GenEvent;
 }
 
+namespace CLHEP {
+   class HepRandomEngine;
+}
+
 namespace gen {
 
-class TauolaInterface;
-class EvtGenInterface;
-class PhotosInterface;
+  class EvtGenInterfaceBase;
+  class TauolaInterfaceBase;
+  class PhotosInterfaceBase;
 
-   class ExternalDecayDriver 
-   {
+
+   class ExternalDecayDriver{
       public:
          
 	 // ctor & dtor
@@ -31,16 +38,20 @@ class PhotosInterface;
 	 HepMC::GenEvent* decay( HepMC::GenEvent* );
 	 
 	 void statistics() const;
-      
+
+         void setRandomEngine(CLHEP::HepRandomEngine*);
+         std::vector<std::string> const& sharedResources() const { return exSharedResources; }
+
       private:
       	 
 	 bool                     fIsInitialized;
-	 TauolaInterface*         fTauolaInterface;
-	 EvtGenInterface*         fEvtGenInterface;
-	 PhotosInterface*         fPhotosInterface;
+	 TauolaInterfaceBase*     fTauolaInterface;
+	 EvtGenInterfaceBase*     fEvtGenInterface;
+	 PhotosInterfaceBase*     fPhotosInterface;
 	 std::vector<int>         fPDGs;
 	 std::vector<std::string> fSpecialSettings;
-         
+
+         std::vector<std::string> exSharedResources;
    };
 
 }

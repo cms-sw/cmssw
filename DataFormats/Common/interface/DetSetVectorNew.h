@@ -36,11 +36,18 @@ namespace edmNew {
       bool filling;
       boost::any getter;
 
+
+      void swap(DetSetVectorTrans& rh) {
+	std::swap(filling,rh.filling);
+	std::swap(getter,rh.getter);
+      }
+
       typedef unsigned int size_type; // for persistency
       typedef unsigned int id_type;
 
       struct Item {
 	Item(id_type i=0, int io=-1, size_type is=0) : id(i), offset(io), size(is){}
+	bool isValid() const { return offset>=0;}
 	id_type id;
 	int offset;
 	size_type size;
@@ -49,6 +56,7 @@ namespace edmNew {
       };
 
     };
+
     void errorFilling();
     void errorIdExists(det_id_type iid);
     void throw_range(det_id_type iid);
@@ -93,16 +101,17 @@ namespace edmNew {
     
     struct IterHelp {
       typedef DetSet result_type;
-      IterHelp() : v(0){}
-      IterHelp(DetSetVector<T> const & iv) : v(&iv){}
+      IterHelp() : v(0),update(true){}
+      IterHelp(DetSetVector<T> const & iv, bool iup) : v(&iv), update(iup){}
       
-       result_type & operator()(Item const& item) const {
-	detset.set(*v,item);
+      result_type & operator()(Item const& item) const {
+	detset.set(*v,item,update);
 	return detset;
       } 
     private:
       DetSetVector<T> const * v;
       mutable result_type detset;
+      bool update;
     };
     
     typedef boost::transform_iterator<IterHelp,const_IdIter> const_iterator;
@@ -167,7 +176,6 @@ namespace edmNew {
         v.m_data.push_back(std::move(d));
         item.size++;
       }
-
 #endif
 
       data_type & back() { return v.m_data.back();}
@@ -199,7 +207,11 @@ namespace edmNew {
       // delete content if T is pointer...
     }
     
+
+    bool onDemand() const { return !getter.empty();}
+
     void swap(DetSetVector & rh) {
+      DetSetVectorTrans::swap(rh);
       std::swap(m_subdetId,rh.m_subdetId);
       std::swap(m_ids,rh.m_ids);
       std::swap(m_data,rh.m_data);
@@ -225,13 +237,13 @@ namespace edmNew {
       Item & item = addItem(iid,isize);
       m_data.resize(m_data.size()+isize);
       std::copy(idata,idata+isize,m_data.begin()+item.offset);
-     return DetSet(*this,item);
+      return DetSet(*this,item,false);
     }
     //make space for it
     DetSet insert(id_type iid, size_type isize) {
       Item & item = addItem(iid,isize);
       m_data.resize(m_data.size()+isize);
-      return DetSet(*this,item);
+      return DetSet(*this,item,false);
     }
 
     // to be used with a FastFiller
@@ -289,15 +301,15 @@ namespace edmNew {
     DetSet operator[](id_type i) const {
       const_IdIter p = findItem(i);
       if (p==m_ids.end()) dstvdetails::throw_range(i);
-      return DetSet(*this,*p);
+      return DetSet(*this,*p,true);
     }
     
     // slow interface
-    const_iterator find(id_type i) const {
+    const_iterator find(id_type i, bool update=true) const {
       const_IdIter p = findItem(i);
       return (p==m_ids.end()) ? end() :
 	boost::make_transform_iterator(p,
-				       IterHelp(*this));
+				       IterHelp(*this,update));
     }
 
     // slow interface
@@ -307,24 +319,24 @@ namespace edmNew {
       return (p.first!=p.second) ? p.first : m_ids.end();
     }
     
-    const_iterator begin() const {
+    const_iterator begin(bool update=true) const {
       return  boost::make_transform_iterator(m_ids.begin(),
-					     IterHelp(*this));
+					     IterHelp(*this,update));
     }
 
-    const_iterator end() const {
+    const_iterator end(bool update=true) const {
       return  boost::make_transform_iterator(m_ids.end(),
-					     IterHelp(*this));
+					     IterHelp(*this,update));
     }
     
 
     // return an iterator range (implemented here to avoid dereference of detset)
     template<typename CMP>
-    Range equal_range(id_type i, CMP cmp) const {
+    Range equal_range(id_type i, CMP cmp, bool update=true) const {
       std::pair<const_IdIter,const_IdIter> p =
 	std::equal_range(m_ids.begin(),m_ids.end(),i,cmp);
-      return  Range(boost::make_transform_iterator(p.first,IterHelp(*this)),
-		    boost::make_transform_iterator(p.second,IterHelp(*this))
+      return  Range(boost::make_transform_iterator(p.first,IterHelp(*this,update)),
+		    boost::make_transform_iterator(p.second,IterHelp(*this,update))
 		    );
     }
     
@@ -359,7 +371,7 @@ namespace edmNew {
 
     //------------------------------
 
-    // IdContainer const & ids() const { return m_ids;}
+    IdContainer const & ids() const { return m_ids;}
     DataContainer const & data() const { return  m_data;}
 
 
@@ -396,7 +408,7 @@ namespace edmNew {
     
 
   template<typename T>
-  inline DetSetVector<T>::DetSetVector(boost::shared_ptr<dslv::LazyGetter<T> > iGetter, 
+  inline DetSetVector<T>::DetSetVector(boost::shared_ptr<Getter> iGetter, 
 				       const std::vector<det_id_type>& iDets,
 				       int isubdet):  
     m_subdetId(isubdet) {
@@ -416,28 +428,26 @@ namespace edmNew {
   template<typename T>
   inline void DetSetVector<T>::updateImpl(Item & item)  {
     // no getter or already updated
-    if (getter.empty() || item.offset!=-1) return;
+    if (getter.empty()) assert(item.offset>=0);
+    if (item.offset!=-1 || getter.empty() ) return;
     item.offset = int(m_data.size());
-    FastFiller ff(*this,item);
+    FastFiller ff(*this,item,true);
     (*boost::any_cast<boost::shared_ptr<Getter> >(&getter))->fill(ff);
   }
 
 
-  template<typename T>
-  inline DetSet<T>::DetSet(DetSetVector<T> const & icont,
-			   typename DetSetVector<T>::Item const & item ) :
-    m_id(0), m_data(0), m_size(0){
-    icont.update(item);
-    set(icont,item);
-  }
-  
+ 
   
   template<typename T>
   inline void DetSet<T>::set(DetSetVector<T> const & icont,
-			     typename Container::Item const & item) {
-    icont.update(item);
+			     typename Container::Item const & item, bool update) {
+    if (update) {
+      icont.update(item);
+      assert(item.offset>=0);
+    }
     m_id=item.id; 
-    m_data=&icont.data()[item.offset]; 
+    m_data=&icont.data();
+    m_offset = item.offset; 
     m_size=item.size;
   }
   

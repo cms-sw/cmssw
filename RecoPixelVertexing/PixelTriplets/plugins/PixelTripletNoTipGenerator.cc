@@ -20,7 +20,6 @@ typedef PixelRecoRange<float> Range;
 template<class T> T sqr(T t) { return t * t;}
 
 using namespace std;
-using namespace ctfseeding;
 
 PixelTripletNoTipGenerator:: PixelTripletNoTipGenerator(const edm::ParameterSet& cfg)
     : thePairGenerator(0),
@@ -33,12 +32,16 @@ PixelTripletNoTipGenerator:: PixelTripletNoTipGenerator(const edm::ParameterSet&
 { }
 
 void PixelTripletNoTipGenerator::init( const HitPairGenerator & pairs,
-      const std::vector<SeedingLayer> & layers,
       LayerCacheType* layerCache)
 {
   thePairGenerator = pairs.clone();
-  theLayers = layers;
   theLayerCache = layerCache;
+}
+
+void PixelTripletNoTipGenerator::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                                                  std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) {
+  thePairGenerator->setSeedingLayers(pairLayers);
+  theLayers = thirdLayers;
 }
 
 void PixelTripletNoTipGenerator::hitTriplets(
@@ -70,7 +73,7 @@ void PixelTripletNoTipGenerator::hitTriplets(
 
   const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size];
   for (int il=0; il <=size-1; il++) {
-     thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
+     thirdHitMap[il] = &(*theLayerCache)(theLayers[il], region, ev, es);
   }
 
   const HitPairGeneratorFromLayerPair * pairGen = dynamic_cast<const HitPairGeneratorFromLayerPair *>(thePairGenerator);

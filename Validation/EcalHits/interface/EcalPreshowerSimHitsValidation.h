@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -63,6 +63,10 @@ private:
  std::string g4InfoLabel; 
  std::string EEHitsCollection;
  std::string ESHitsCollection;
+
+ edm::EDGetTokenT<edm::HepMCProduct> HepMCToken;
+ edm::EDGetTokenT<edm::PCaloHitContainer> EEHitsToken;
+ edm::EDGetTokenT<edm::PCaloHitContainer> ESHitsToken;
  
  bool verbose_;
  

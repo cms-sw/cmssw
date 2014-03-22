@@ -4,7 +4,7 @@
 		<Constant name="Rmin" value="0*fm"/>
 		<Constant name="Zmin" value="0*fm"/>
 		<Constant name="HallZ" value="27.0*m"/>
-		<Constant name="HallR" value="13.0*m"/>
+		<Constant name="HallR" value="14.3*m"/>
 		<Constant name="CMSR1" value="8.30*m"/>
 		<Constant name="CMSR2" value="1.00*m"/>
 		<Constant name="CMSZ1" value="450.0*m"/>

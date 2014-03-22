@@ -69,6 +69,7 @@ double L1FastjetCorrector::correction(const reco::Jet& fJet,
   double result(1.0);
   mCorrector->setJetEta(fJet.eta());
   mCorrector->setJetPt(fJet.pt());
+  mCorrector->setJetE(fJet.energy());
   mCorrector->setJetA(fJet.jetArea());
   mCorrector->setRho(*rho);
   result = mCorrector->getCorrection();  

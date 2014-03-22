@@ -15,6 +15,10 @@ class DetId;
 
 #include<vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 /* \class EEDigitizerTraits
  * \brief Converts CaloDataFrame in CaloTimeSample and vice versa.
  *
@@ -56,7 +60,8 @@ class EcalCoder
  
 
       /// from EcalSamples to EcalDataFrame
-      virtual void analogToDigital( const EcalSamples& clf , 
+      virtual void analogToDigital( CLHEP::HepRandomEngine*,
+                                    const EcalSamples& clf ,
 				    EcalDataFrame&     df    ) const;
  
    private:
@@ -66,7 +71,8 @@ class EcalCoder
 
       /// produce the pulse-shape
       void encode( const EcalSamples& ecalSamples , 
-		   EcalDataFrame&     df            ) const ;
+		   EcalDataFrame&     df,
+                   CLHEP::HepRandomEngine* ) const ;
 
 //      double decode( const EcalMGPASample& sample , 
 //		     const DetId&          detId    ) const ;

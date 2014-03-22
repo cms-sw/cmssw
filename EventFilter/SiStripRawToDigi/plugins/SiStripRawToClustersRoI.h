@@ -84,12 +84,12 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   bool bjets_;
 
   /** reco module labels to define regions of interest */
-  edm::InputTag siStripLazyGetter_;
-  edm::InputTag electronBarrelL2_;
-  edm::InputTag electronEndcapL2_;
-  edm::InputTag muonL2_;
-  edm::InputTag taujetL2_;
-  edm::InputTag bjetL2_;
+  edm::EDGetTokenT<edm::LazyGetter<SiStripCluster> > siStripLazyGetter_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> electronBarrelL2_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> electronEndcapL2_;
+  edm::EDGetTokenT<reco::TrackCollection> muonL2_;
+  edm::EDGetTokenT<reco::CaloJetCollection> taujetL2_;
+  edm::EDGetTokenT<reco::CaloJetCollection> bjetL2_;
 
   /** deta/dphi to define regions of interest around physics objects */
   double electrondeta_;

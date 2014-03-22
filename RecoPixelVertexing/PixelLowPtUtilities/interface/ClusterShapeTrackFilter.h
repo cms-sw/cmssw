@@ -25,8 +25,9 @@ class ClusterShapeTrackFilter : public PixelTrackFilter
 {
  public:
   ClusterShapeTrackFilter(const edm::ParameterSet& ps,
-                          const edm::EventSetup& es);
+                          edm::ConsumesCollector& iC);
   virtual ~ClusterShapeTrackFilter();
+  void update(const edm::Event& ev, const edm::EventSetup& es) override;
   virtual bool operator()
     (const reco::Track*, const std::vector<const TrackingRecHit *> &hits, 
      const TrackerTopology *tTopo) const;

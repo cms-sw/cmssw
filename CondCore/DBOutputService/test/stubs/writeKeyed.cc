@@ -40,6 +40,7 @@ writeKeyed::endJob() {
   edm::Service<cond::service::PoolDBOutputService> outdb;
 
 
+  std::map<cond::Time_t, cond::BaseKeyed*> keys;
   // populated with the keyed payloads (configurations)
   for ( size_t i=0; i<dict.size(); ++i)
     for (size_t j=0;j<7; ++j) {
@@ -51,9 +52,15 @@ writeKeyed::endJob() {
 			   bk = new condex::ConfF(dict[i]+nums[j],i+0.1*j),      
 			   dict[i]+nums[j]);
       std::cout << k.m_skey << " " << k.m_key << std::endl;
-      outdb->writeOne(k.m_obj,k.m_key,confcont);
+      
+      keys.insert( std::make_pair( k.m_key, k.m_obj ) );
+      //outdb->writeOne(k.m_obj,k.m_key,confcont);
     }
 
+  std::cout <<"# uploading keys..."<<std::endl;
+  for( auto k : keys )outdb->writeOne( k.second, k.first,confcont ); 
+
+  std::cout <<"# uploading master payloads..."<<std::endl;
   // populate the master payload
   int run=10;
   for (size_t j=0;j<7; ++j) {

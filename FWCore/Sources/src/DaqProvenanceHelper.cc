@@ -24,7 +24,7 @@ namespace edm {
                                                   , "FEDRawDataCollection"
                                                   , "FEDRawDataCollection"
                                                   , ""
-                                                  , "DaqSource"
+                                                  , "FedRawDataInputSource"
                                                   , ParameterSetID()
                                                   , TypeWithDict(rawDataType.typeInfo())
                                                   , false))
@@ -100,6 +100,7 @@ namespace edm {
 
   void
   DaqProvenanceHelper::fixMetaData(std::vector<ProcessConfiguration>& pcv, std::vector<ProcessHistory>& phv) {
+    phv.push_back(ProcessHistory()); // For new processHistory, containing only processConfiguration_
     std::vector<ProcessConfiguration> newPCs;
     for(auto const& pc : pcv) {
        if(pc.processName() == oldProcessName_) {
@@ -114,7 +115,7 @@ namespace edm {
     // update existing process histories
     for(auto& ph : phv) {
       for(auto const& newPC : newPCs) {
-        if(matchProcesses(newPC, ph)) {
+        if(ph.empty() || matchProcesses(newPC, ph)) {
           ProcessHistoryID oldPHID = ph.id();
           ph.push_front(newPC);
           ProcessHistoryID newPHID = ph.id();
@@ -192,4 +193,9 @@ namespace edm {
   DaqProvenanceHelper::mapBranchID(BranchID const& branchID) const {
     return(branchID == oldBranchID_ ? newBranchID_ : branchID);
   }
+
+  void DaqProvenanceHelper::setOldParentageIDToNew(ParentageID const& iOld, ParentageID const& iNew) {
+    parentageIDMap_.insert(std::make_pair(iOld, iNew));
+  }
+
 }

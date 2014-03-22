@@ -29,7 +29,7 @@
 #include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-
+#include "DataFormats/Common/interface/RefVectorHolder.h"
 
 namespace DataFormats_ParticleFlowCandidate {
   struct dictionary {
@@ -46,6 +46,10 @@ namespace DataFormats_ParticleFlowCandidate {
     edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > bla333;
     edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >  bla334;
     std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > bla335;
+    edm::Wrapper<edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > > valueMap_iso_wr;
+    edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >  valueMap_iso; 
+    edm::reftobase::RefVectorHolder<reco::PFCandidateRefVector > bla3351;
+
     edm::Wrapper<edm::ValueMap<edm::Ptr<reco::PFCandidate> > > bla336;
     edm::ValueMap<edm::Ptr<std::vector<reco::PFCandidate> > >  bla337;
     std::vector<edm::Ptr<std::vector<reco::PFCandidate> > > bla338;

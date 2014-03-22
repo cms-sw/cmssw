@@ -171,7 +171,7 @@ void markCandsInStrip(std::vector<bool>& candFlags, const std::set<size_t>& cand
 }
 
 namespace {
-  const reco::TrackBaseRef getTrack(const PFCandidate& cand) 
+  inline const reco::TrackBaseRef getTrack(const PFCandidate& cand)
   {
     if      ( cand.trackRef().isNonnull()    ) return reco::TrackBaseRef(cand.trackRef());
     else if ( cand.gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(cand.gsfTrackRef());
@@ -185,7 +185,7 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
 
   // Get the candidates passing our quality cuts
   qcuts_->setPV(vertexAssociator_.associatedVertex(jet));
-  PFCandPtrs candsVector = qcuts_->filterRefs(pfCandidates(jet, inputPdgIds_));
+  PFCandPtrs candsVector = qcuts_->filterCandRefs(pfCandidates(jet, inputPdgIds_));
 
   // Convert to stl::list to allow fast deletions
   PFCandPtrs seedCands;

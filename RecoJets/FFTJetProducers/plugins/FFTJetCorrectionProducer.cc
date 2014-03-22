@@ -96,6 +96,7 @@ public:
     ~FFTJetCorrectionProducer();
 
 private:
+
     virtual void beginJob() override ;
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override ;
@@ -136,6 +137,9 @@ private:
 
     // Event counter
     unsigned long eventCount;
+ 
+    // tokens for data access
+    edm::EDGetTokenT<std::vector<reco::FFTAnyJet<reco::Jet> > > input_jets_token_;  
 };
 
 
@@ -171,8 +175,6 @@ void FFTJetCorrectionProducer::applyCorrections(edm::Event& iEvent,
                                                 const edm::EventSetup& iSetup)
 {
     using reco::FFTJet;
-
-    // Various useful typedefs
     typedef reco::FFTAnyJet<Jet> MyJet;
     typedef std::vector<MyJet> MyCollection;
     typedef typename FFTJetCorrectorSequenceTypemap<MyJet>::loader Loader;
@@ -222,7 +224,7 @@ void FFTJetCorrectionProducer::applyCorrections(edm::Event& iEvent,
 
     // Load the jet collection
     edm::Handle<MyCollection> jets;
-    iEvent.getByLabel(inputLabel, jets);
+    iEvent.getByToken(input_jets_token_, jets);
 
     // Create the output collection
     const unsigned nJets = jets->size();
@@ -374,6 +376,8 @@ FFTJetCorrectionProducer::FFTJetCorrectionProducer(const edm::ParameterSet& ps)
 
     if (writeUncertainties)
         produces<std::vector<float> >(outputLabel).setBranchAlias(alias);
+
+    input_jets_token_ = consumes<std::vector<reco::FFTAnyJet<reco::Jet> > >(inputLabel);
 }
 
 

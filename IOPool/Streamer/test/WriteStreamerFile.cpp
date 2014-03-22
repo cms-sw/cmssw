@@ -63,14 +63,13 @@ int main() try {
   crc = crc32(crc, crcbuf, outputModuleLabel.length());
 
   uint32 adler32_chksum = (uint32)cms::Adler32((char*)&test_value[0], sizeof(test_value));
-  std::string host_name = "mytestnode.cms";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
                       Version((const uint8*)psetid),
                       (const char*)reltag, processName.c_str(),
                       outputModuleLabel.c_str(), crc,
                       hlt_names,hlt_names,l1_names,
-                      adler32_chksum, host_name.c_str());
+                      adler32_chksum);
 
   init.setDataLength(sizeof(test_value));
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
@@ -102,7 +101,7 @@ int main() try {
   //Lets Build 10 Events and then Write them into Streamer file.
 
   adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
-  //host_name = "mytestnode.cms";
+  std::string host_name = "mytestnode.cms";
 
   for (uint32 eventId = 2000; eventId != 2000+NO_OF_EVENTS; ++eventId) {
     EventMsgBuilder emb(&buf2[0],buf2.size(),45,eventId,2,0xdeadbeef,3,

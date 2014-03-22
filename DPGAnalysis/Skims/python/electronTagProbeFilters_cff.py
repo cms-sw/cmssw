@@ -28,7 +28,7 @@ allElectronTracks = cms.EDProducer("TrackViewCandidateProducer",
 
 # Make the input candidate collections
 electronTagCands = cms.EDFilter("GsfElectronRefSelector",
-                        src = cms.InputTag("gsfElectrons"),
+                        src = cms.InputTag("gedGsfElectrons"),
                         cut = cms.string('pt > 1.0 && abs(eta) < 2.1'),
                         filter = cms.bool(True)
                         )

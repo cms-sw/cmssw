@@ -1,13 +1,19 @@
 
 #include "GeneratorInterface/Pythia6Interface/interface/PtYDistributor.h"
-//#include "FWCore/ParameterSet/interface/FileInPath.h"
+
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TFile.h"
 #include "TGraph.h"
 
+#include "CLHEP/Random/RandGeneral.h"
+
+#include <iostream>
+#include <string>
+
 using namespace gen;
 
-PtYDistributor::PtYDistributor(const edm::FileInPath& fip, CLHEP::HepRandomEngine& fRandomEngine, 
+PtYDistributor::PtYDistributor(const edm::FileInPath& fip,
                                double ptmax = 100, double ptmin = 0, 
 			       double ymax = 10, double ymin = -10, 
 			       int ptbins = 1000, int ybins = 50) 
@@ -52,31 +58,31 @@ PtYDistributor::PtYDistributor(const edm::FileInPath& fip, CLHEP::HepRandomEngin
       aProbFunc2[ip] = ypt;
    }
 
-  fYGenerator = new CLHEP::RandGeneral(fRandomEngine,aProbFunc1,ybins_);
-  fPtGenerator = new CLHEP::RandGeneral(fRandomEngine,aProbFunc2,ptbins_);
+  fYGenerator = new CLHEP::RandGeneral(nullptr,aProbFunc1,ybins_);
+  fPtGenerator = new CLHEP::RandGeneral(nullptr,aProbFunc2,ptbins_);
 
   f.Close();
   
 } // from file
 
 double
-PtYDistributor::fireY(){
-   return fireY(ymin_,ymax_);
+PtYDistributor::fireY(CLHEP::HepRandomEngine* engine){
+  return fireY(ymin_,ymax_, engine);
 }
 
 double
-PtYDistributor::firePt(){
-   return firePt(ptmin_,ptmax_);
+PtYDistributor::firePt(CLHEP::HepRandomEngine* engine){
+  return firePt(ptmin_,ptmax_, engine);
 }
 
 double
-PtYDistributor::fireY(double ymin, double ymax){
+PtYDistributor::fireY(double ymin, double ymax, CLHEP::HepRandomEngine* engine){
 
    double y = -999;
 
    if(fYGenerator){
       while(y < ymin || y > ymax)
-	 y = ymin_+(ymax_-ymin_)*fYGenerator->fire();
+	 y = ymin_+(ymax_-ymin_)*fYGenerator->shoot(engine);
    }else{
       throw edm::Exception(edm::errors::NullPointerError,"PtYDistributor")
 	 <<"Random y requested but Random Number Generator for y not Initialized!";
@@ -85,13 +91,13 @@ PtYDistributor::fireY(double ymin, double ymax){
 }
 
 double 
-PtYDistributor::firePt(double ptmin, double ptmax){
+PtYDistributor::firePt(double ptmin, double ptmax, CLHEP::HepRandomEngine* engine){
 
    double pt = -999;
 
    if(fPtGenerator){
       while(pt < ptmin || pt > ptmax)
-         pt = ptmin_+(ptmax_-ptmin_)*fPtGenerator->fire();
+         pt = ptmin_+(ptmax_-ptmin_)*fPtGenerator->shoot(engine);
    }else{
       throw edm::Exception(edm::errors::NullPointerError,"PtYDistributor")
          <<"Random pt requested but Random Number Generator for pt not Initialized!";

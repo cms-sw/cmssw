@@ -1,4 +1,4 @@
-<use   name="CondCore/DBCommon"/>
+<use   name="CondCore/CondDB"/>
 <use   name="CondFormats/Common"/>
 <use   name="CoralBase"/>
 <use   name="DataFormats/Provenance"/>

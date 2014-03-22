@@ -1,10 +1,22 @@
 #include "Validation/TrackerHits/interface/TrackerHitAnalyzer.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 // tracker info
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -15,10 +27,7 @@
 #include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 //#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -26,35 +35,33 @@
 #include <CLHEP/Vector/LorentzVector.h>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+#include <map>
+#include <memory>
+#include <stdlib.h>
+#include <vector>
 
-#include <iostream>
-#include "DQMServices/Core/interface/DQMStore.h"
-using namespace edm;
-using namespace std;
+TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps)
+  : verbose_( ps.getUntrackedParameter<bool>( "Verbosity",false ) )
+  , edmPSimHitContainer_pxlBrlLow_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "PxlBrlLowSrc" ) ) )
+  , edmPSimHitContainer_pxlBrlHigh_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "PxlBrlHighSrc" ) ) )
+  , edmPSimHitContainer_pxlFwdLow_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "PxlFwdLowSrc" ) ) )
+  , edmPSimHitContainer_pxlFwdHigh_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "PxlFwdHighSrc" ) ) )
+  , edmPSimHitContainer_siTIBLow_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "SiTIBLowSrc" ) ) )
+  , edmPSimHitContainer_siTIBHigh_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "SiTIBHighSrc" ) ) )
+  , edmPSimHitContainer_siTOBLow_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "SiTOBLowSrc" ) ) )
+  , edmPSimHitContainer_siTOBHigh_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "SiTOBHighSrc" ) ) )
+  , edmPSimHitContainer_siTIDLow_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "SiTIDLowSrc" ) ) )
+  , edmPSimHitContainer_siTIDHigh_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "SiTIDHighSrc" ) ) )
+  , edmPSimHitContainer_siTECLow_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "SiTECLowSrc" ) ) )
+  , edmPSimHitContainer_siTECHigh_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "SiTECHighSrc" ) ) )
+  , edmSimTrackContainerToken_( consumes<edm::SimTrackContainer>( ps.getParameter<edm::InputTag>( "G4TrkSrc" ) ) )
+  , fDBE( NULL )
+  , fOutputFile( ps.getUntrackedParameter<std::string>( "outputFile", "TrackerHitHisto.root" ) ) {
+}
 
-TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps) :
-   G4TrkSrc_(ps.getParameter<edm::InputTag>("G4TrkSrc")) {
-
-   fDBE = Service<DQMStore>().operator->();
-   fOutputFile = ps.getUntrackedParameter<string>("outputFile", "TrackerHitHisto.root");
-   verbose_ = ps.getUntrackedParameter<bool>("Verbosity",false);
-   //get Labels to use to extract information
-   PxlBrlLowSrc_ = ps.getParameter<edm::InputTag>("PxlBrlLowSrc");
-   PxlBrlHighSrc_ = ps.getParameter<edm::InputTag>("PxlBrlHighSrc");
-   PxlFwdLowSrc_ = ps.getParameter<edm::InputTag>("PxlFwdLowSrc");
-   PxlFwdHighSrc_ = ps.getParameter<edm::InputTag>("PxlFwdHighSrc");
-   
-   SiTIBLowSrc_ = ps.getParameter<edm::InputTag>("SiTIBLowSrc");
-   SiTIBHighSrc_ = ps.getParameter<edm::InputTag>("SiTIBHighSrc");
-   SiTOBLowSrc_ = ps.getParameter<edm::InputTag>("SiTOBLowSrc");
-   SiTOBHighSrc_ = ps.getParameter<edm::InputTag>("SiTOBHighSrc");
-   SiTIDLowSrc_ = ps.getParameter<edm::InputTag>("SiTIDLowSrc");
-   SiTIDHighSrc_ = ps.getParameter<edm::InputTag>("SiTIDHighSrc");
-   SiTECLowSrc_ = ps.getParameter<edm::InputTag>("SiTECLowSrc");
-   SiTECHighSrc_ = ps.getParameter<edm::InputTag>("SiTECHighSrc");
-
-
+void TrackerHitAnalyzer::beginRun( edm::Run const&, edm::EventSetup const& ) {
 ////// booking histograms
+  fDBE = edm::Service<DQMStore>().operator->();
    	
   Char_t  hname1[50], htitle1[80];
   Char_t  hname2[50], htitle2[80];
@@ -341,7 +348,7 @@ void TrackerHitAnalyzer::endJob()
 void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
 
-   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
+  edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
    
   // iterator to access containers
   edm::PSimHitContainer::const_iterator itHit;
@@ -350,7 +357,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   ////////////////////////////////
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlBrlLowContainer;
-  e.getByLabel(PxlBrlLowSrc_,PxlBrlLowContainer);
+  e.getByToken( edmPSimHitContainer_pxlBrlLow_Token_, PxlBrlLowContainer );
   if (!PxlBrlLowContainer.isValid()) {
     edm::LogError("TrackerHitAnalyzer::analyze")
       << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
@@ -358,7 +365,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   }  
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlBrlHighContainer;
-  e.getByLabel(PxlBrlHighSrc_,PxlBrlHighContainer);
+  e.getByToken( edmPSimHitContainer_pxlBrlHigh_Token_, PxlBrlHighContainer );
   if (!PxlBrlHighContainer.isValid()) {
     edm::LogError("TrackerHitAnalyzer::analyze")
       << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
@@ -369,7 +376,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   ////////////////////////////////
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlFwdLowContainer;
-  e.getByLabel(PxlFwdLowSrc_,PxlFwdLowContainer);
+  e.getByToken( edmPSimHitContainer_pxlFwdLow_Token_, PxlFwdLowContainer );
   if (!PxlFwdLowContainer.isValid()) {
     edm::LogError("TrackerHitAnalyzer::analyze")
       << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
@@ -377,7 +384,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   }
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
-  e.getByLabel(PxlFwdHighSrc_,PxlFwdHighContainer);
+  e.getByToken( edmPSimHitContainer_pxlFwdHigh_Token_, PxlFwdHighContainer );
   if (!PxlFwdHighContainer.isValid()) {
     edm::LogError("TrackerHitAnalyzer::analyze")
       << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
@@ -389,18 +396,16 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   //////////////////////////////////
   // extract TIB low container
   edm::Handle<edm::PSimHitContainer> SiTIBLowContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTIBLowTof",SiTIBLowContainer);
-  e.getByLabel(SiTIBLowSrc_,SiTIBLowContainer);
+  e.getByToken( edmPSimHitContainer_siTIBLow_Token_, SiTIBLowContainer );
   if (!SiTIBLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::analyze")
       << "Unable to find TrackerHitsTIBLowTof in event!";
     return;
   }
   //////////////////////////////////
-  // extract TIB low container
+  // extract TIB high container
   edm::Handle<edm::PSimHitContainer> SiTIBHighContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTIBHighTof",SiTIBHighContainer);
-  e.getByLabel(SiTIBHighSrc_,SiTIBHighContainer);
+  e.getByToken( edmPSimHitContainer_siTIBHigh_Token_, SiTIBHighContainer );
   if (!SiTIBHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::analyze")
       << "Unable to find TrackerHitsTIBHighTof in event!";
@@ -411,18 +416,16 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   //////////////////////////////////
   // extract TOB low container
   edm::Handle<edm::PSimHitContainer> SiTOBLowContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTOBLowTof",SiTOBLowContainer);
-  e.getByLabel(SiTOBLowSrc_,SiTOBLowContainer);
+  e.getByToken( edmPSimHitContainer_siTOBLow_Token_, SiTOBLowContainer );
   if (!SiTOBLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::analyze")
       << "Unable to find TrackerHitsTOBLowTof in event!";
     return;
   }
   //////////////////////////////////
-  // extract TOB low container
+  // extract TOB high container
   edm::Handle<edm::PSimHitContainer> SiTOBHighContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTOBHighTof",SiTOBHighContainer);
-  e.getByLabel(SiTOBHighSrc_,SiTOBHighContainer);
+  e.getByToken( edmPSimHitContainer_siTOBHigh_Token_, SiTOBHighContainer );
   if (!SiTOBHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::analyze")
       << "Unable to find TrackerHitsTOBHighTof in event!";
@@ -434,18 +437,16 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   //////////////////////////////////
   // extract TID low container
   edm::Handle<edm::PSimHitContainer> SiTIDLowContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTIDLowTof",SiTIDLowContainer);
-  e.getByLabel(SiTIDLowSrc_,SiTIDLowContainer);
+  e.getByToken( edmPSimHitContainer_siTIDLow_Token_, SiTIDLowContainer );
   if (!SiTIDLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::analyze")
       << "Unable to find TrackerHitsTIDLowTof in event!";
     return;
   }
   //////////////////////////////////
-  // extract TID low container
+  // extract TID high container
   edm::Handle<edm::PSimHitContainer> SiTIDHighContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTIDHighTof",SiTIDHighContainer);
-  e.getByLabel(SiTIDHighSrc_,SiTIDHighContainer);
+  e.getByToken( edmPSimHitContainer_siTIDHigh_Token_, SiTIDHighContainer );
   if (!SiTIDHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::analyze")
       << "Unable to find TrackerHitsTIDHighTof in event!";
@@ -456,18 +457,16 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   //////////////////////////////////
   // extract TEC low container
   edm::Handle<edm::PSimHitContainer> SiTECLowContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTECLowTof",SiTECLowContainer);
-  e.getByLabel(SiTECLowSrc_,SiTECLowContainer);
+  e.getByToken( edmPSimHitContainer_siTECLow_Token_, SiTECLowContainer );
   if (!SiTECLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::analyze")
       << "Unable to find TrackerHitsTECLowTof in event!";
     return;
   }
   //////////////////////////////////
-  // extract TEC low container
-  edm ::Handle<edm::PSimHitContainer> SiTECHighContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTECHighTof",SiTECHighContainer);
-  e.getByLabel(SiTECHighSrc_,SiTECHighContainer);
+  // extract TEC high container
+  edm::Handle<edm::PSimHitContainer> SiTECHighContainer;
+  e.getByToken( edmPSimHitContainer_siTECHigh_Token_, SiTECHighContainer );
   if (!SiTECHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::analyze")
       << "Unable to find TrackerHitsTECHighTof in event!";
@@ -479,7 +478,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   ///////////////////////////
   
   edm::Handle<edm::SimTrackContainer> G4TrkContainer;
-  e.getByLabel(G4TrkSrc_, G4TrkContainer);
+  e.getByToken( edmSimTrackContainerToken_, G4TrkContainer );
   if (!G4TrkContainer.isValid()) {
     edm::LogError("TrackerHitAnalyzer::analyze")
       << "Unable to find SimTrack in event!";
@@ -498,7 +497,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   for (itTrk = G4TrkContainer->begin(); itTrk != G4TrkContainer->end(); 
        ++itTrk) {
 
-//    cout << "itTrk = "<< itTrk << endl;
+//    std::cout << "itTrk = "<< itTrk << std::endl;
     double eta =0, p =0;
     const CLHEP::HepLorentzVector& G4Trk = CLHEP::HepLorentzVector(itTrk->momentum().x(),
                                                      itTrk->momentum().y(),
@@ -526,10 +525,10 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
           if (eta>-2.0 && eta<=-1.5) ir = 9;
           if (eta>-2.5 && eta<=-2.0) ir = 10;
           if (eta<=-2.5) ir = 11;
-//          LogInfo("EventInfo") << " eta = " << eta << " ir = " << ir;
-//	  cout << " " <<endl;
-//          cout << "eta " << eta << " ir = " << ir << endl;                  
-//	  cout << " " <<endl;
+//          edm::LogInfo("EventInfo") << " eta = " << eta << " ir = " << ir;
+//	  std::cout << " " << std::endl;
+//          std::cout << "eta " << eta << " ir = " << ir << std::endl;                  
+//	  std::cout << " " << std::endl;
       }
   }	  
   ///////////////////////////////

@@ -57,7 +57,7 @@ void printTrackerMap(const std::string filename, const std::string title, const 
   if(withpixel=="Only") {themap.addPixel(false); themap.onlyPixel(true); ratio=16./9.;}
   if(withpixel=="False") {themap.addPixel(false); themap.onlyPixel(false); ratio=8./15.;}
 
-  ifstream input(filename);
+  std::ifstream input(filename);
 
   unsigned int detid;
   float val;

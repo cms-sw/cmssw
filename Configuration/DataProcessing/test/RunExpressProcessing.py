@@ -26,13 +26,14 @@ class RunExpressProcessing:
         self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
+        self.alcaRecos = None
 
     def __call__(self):
         if self.scenario == None:
             msg = "No --scenario specified"
             raise RuntimeError, msg
         if self.globalTag == None:
-            msg = "No --globaltag specified"
+            msg = "No --global-tag specified"
             raise RuntimeError, msg
         if self.inputLFN == None:
             msg = "No --lfn specified"
@@ -67,15 +68,26 @@ class RunExpressProcessing:
             print "Configuring to Write out Dqm..."
 
         try:
+            kwds = {}
+
             if self.noOutput:
                 # get config without any output
-                process = scenario.expressProcessing(globalTag = self.globalTag, writeTiers = [])
+                kwds['writeTiers'] = []
+
             elif len(dataTiers) > 0:
                 # get config with specified output
-                process = scenario.expressProcessing(globalTag = self.globalTag, writeTiers = dataTiers)
-            else:
-                # use default output data tiers
-                process = scenario.expressProcessing(self.globalTag)
+                kwds['writeTiers'] = dataTiers
+
+            # if none of the above use default output data tiers
+
+
+            if not self.alcaRecos is None:
+                # if skims specified from command line than overwrite the defaults
+                kwds['skims'] = self.alcaRecos
+
+
+            process = scenario.expressProcessing(self.globalTag, **kwds)
+
         except NotImplementedError, ex:
             print "This scenario does not support Express Processing:\n"
             return
@@ -100,7 +112,7 @@ class RunExpressProcessing:
 
 if __name__ == '__main__':
     valid = ["scenario=", "raw", "reco", "fevt", "alca", "dqm", "no-output",
-             "global-tag=", "lfn="]
+             "global-tag=", "lfn=", 'alcaRecos=']
     usage = \
 """
 RunExpressProcessing.py <options>
@@ -115,7 +127,7 @@ Where options are:
  --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
-
+ --alcaRecos=commasepratedlist
 
 Example:
 python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm
@@ -150,5 +162,7 @@ python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG::ALL --
             expressinator.globalTag = arg
         if opt == "--lfn" :
             expressinator.inputLFN = arg
+        if opt == "--alcaRecos":
+            expressinator.alcaRecos = [ x for x in arg.split('+') if len(x) > 0 ]
 
     expressinator()

@@ -53,15 +53,9 @@ namespace edm {
                                    bool disablePrint = false) {
 
     try {
-      try {
+      return convertException::wrap([iFunc]() {
         return iFunc();
-      }
-      catch (cms::Exception& e) { throw; }
-      catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch (std::string& s) { convertException::stringToEDM(s); }
-      catch (char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
+      });
     }
     catch(cms::Exception& ex) {
       addContextAndPrintException(context, ex, disablePrint);

@@ -3,7 +3,7 @@
 //
 // PFPhotonIsolationCalculator
 //
-// Class for calculating PFIsolation for Photons. Electrons need to be updated in the same way as photons. 
+// Class for calculating PFIsolation for Photons.
 //This class takes
 // PF Particle collection and the reconstructed vertex collection as input.
 //
@@ -16,21 +16,11 @@
 #ifndef PFPhotonIsolationCalculator_H
 #define PFPhotonIsolationCalculator_H
 
-#ifndef STANDALONE
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#endif
-#include <TROOT.h>
-#include "TMVA/Factory.h"
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
-#include "TH1.h"
-#include "TH2.h"
 
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -41,14 +31,10 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco;
 
 
 class PFPhotonIsolationCalculator{
@@ -63,13 +49,6 @@ class PFPhotonIsolationCalculator{
 
  public:
 
-  //void initialize( int iParticleType);
-  //  void initializeElectronIsolation( Bool_t bApplyVeto);
-  // void initializePhotonIsolation( Bool_t bApplyVeto);
-  //void initializeElectronIsolationInRings( Bool_t bApplyVeto, int iNumberOfRings, float fRingSize );
-  // void initializePhotonIsolationInRings( Bool_t bApplyVeto, int iNumberOfRings, float fRingSize );
-  
-  //Bool_t isInitialized() const { return fisInitialized_; }
   
 
   void calculate(const reco::Photon*, 
@@ -98,10 +77,10 @@ class PFPhotonIsolationCalculator{
  float getIsolationCharged(){ fIsolationCharged_ = fIsolationInRingsCharged_[0]; return fIsolationCharged_; };
  float getIsolationChargedAll(){ return fIsolationChargedAll_; };
  
- vector<float > getIsolationInRingsPhoton(){ return fIsolationInRingsPhoton_; };
- vector<float > getIsolationInRingsNeutral(){ return fIsolationInRingsNeutral_; };
- vector<float > getIsolationInRingsCharged(){ return fIsolationInRingsCharged_; };
- vector<float > getIsolationInRingsChargedAll(){ return fIsolationInRingsChargedAll_; };
+ std::vector<float > getIsolationInRingsPhoton(){ return fIsolationInRingsPhoton_; };
+ std::vector<float > getIsolationInRingsNeutral(){ return fIsolationInRingsNeutral_; };
+ std::vector<float > getIsolationInRingsCharged(){ return fIsolationInRingsCharged_; };
+ std::vector<float > getIsolationInRingsChargedAll(){ return fIsolationInRingsChargedAll_; };
 
 
   //Veto implementation
@@ -117,25 +96,14 @@ class PFPhotonIsolationCalculator{
  
 
 
-  VertexRef chargedHadronVertex(edm::Handle< reco::VertexCollection > verticies, const reco::PFCandidate& pfcand );
+  reco::VertexRef chargedHadronVertex(edm::Handle< reco::VertexCollection > verticies, const reco::PFCandidate& pfcand );
 
   int matchPFObject(const reco::Photon* photon, const reco::PFCandidateCollection* pfParticlesColl );
   int matchPFObject(const reco::GsfElectron* photon, const reco::PFCandidateCollection* pfParticlesColl );
 
-  float fGetIsolation(const reco::PFCandidate * pfCandidate,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
-  vector<float > fGetIsolationInRings(const reco::PFCandidate * pfCandidate,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
-  
-   float fGetIsolation(const reco::Photon* photon, const  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle ,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
-   vector<float > fGetIsolationInRings(const reco::Photon* photon,  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle, reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
-
-   float fGetIsolation(const reco::Photon* photon ,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
-   vector<float > fGetIsolationInRings(const reco::Photon* photon,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
-
-   float fGetIsolation(const reco::GsfElectron* electron,const reco::PFCandidateCollection* pfParticlesColl,const reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
-   vector<float > fGetIsolationInRings(const reco::GsfElectron* electron,const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
-
-
- 
+  float fGetIsolation(const reco::Photon* photon, const  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle ,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
+  std::vector<float > fGetIsolationInRings(const reco::Photon* photon,  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle, reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
+    
 
   int iParticleType_;
 
@@ -146,11 +114,11 @@ class PFPhotonIsolationCalculator{
   float fIsolationCharged_;
   float fIsolationChargedAll_;
   
-  vector<float > fIsolationInRings_;
-  vector<float > fIsolationInRingsPhoton_;
-  vector<float > fIsolationInRingsNeutral_;
-  vector<float > fIsolationInRingsCharged_;
-  vector<float > fIsolationInRingsChargedAll_;
+  std::vector<float > fIsolationInRings_;
+  std::vector<float > fIsolationInRingsPhoton_;
+  std::vector<float > fIsolationInRingsNeutral_;
+  std::vector<float > fIsolationInRingsCharged_;
+  std::vector<float > fIsolationInRingsChargedAll_;
 
   Bool_t bCheckClosestZVertex_;
   float  fConeSize_;
@@ -210,7 +178,7 @@ class PFPhotonIsolationCalculator{
   float fVy_;
   float fVz_;
   
-  SuperClusterRef refSC;
+  reco::SuperClusterRef refSC;
   bool pivotInBarrel;
 
      

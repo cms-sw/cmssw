@@ -15,12 +15,15 @@ EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_)
   dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(0);
 
+  // are we running in automatic configuration mode with the HLTConfigProvider
+  // or with a per path python config file
+  autoConfMode_ = pset.getUntrackedParameter<bool>("autoConfMode", false);
+
   // set global parameters
   triggerObject_ = pset_.getParameter<edm::InputTag>("triggerobject");
   verbosity_ = pset_.getUntrackedParameter<unsigned int>("verbosity",0);
   genEtaAcc_ = pset.getParameter<double>("genEtaAcc");
   genEtAcc_ = pset.getParameter<double>("genEtAcc");
-  isData_ = pset.getParameter<bool>("isData");
   ptMax_ = pset.getUntrackedParameter<double>("PtMax",1000.);
   ptMin_ = pset.getUntrackedParameter<double>("PtMin",0.);
   etaMax_ = pset.getUntrackedParameter<double>("EtaMax", 2.7);
@@ -32,6 +35,13 @@ EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_)
   noPhiPlots_ = pset.getUntrackedParameter<bool>("noPhiPlots", true);
   noIsolationPlots_ = pset.getUntrackedParameter<bool>("noIsolationPlots", true);
 
+  if (!autoConfMode_) {
+    paramSets.push_back(pset);
+    isData_ = false;
+  } else {
+    isData_ = pset.getParameter<bool>("isData");
+  }
+
   histoFillerEle      = new HistoFiller<reco::ElectronCollection>(this);
   histoFillerPho      = new HistoFiller<reco::RecoEcalCandidateCollection>(this);
   histoFillerClu      = new HistoFiller<reco::RecoEcalCandidateCollection>(this);
@@ -42,10 +52,14 @@ EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_)
   genParticles_token = consumes<edm::View<reco::Candidate> >(edm::InputTag("genParticles", "", "SIM"));
   triggerObject_token = consumes<trigger::TriggerEventWithRefs>(triggerObject_);
   hltResults_token = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", triggerObject_.process()));
-  gencutColl_fidWenu_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialWenu"));
-  gencutColl_fidZee_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialZee"));
-  gencutColl_fidGammaJet_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialGammaJet"));
-  gencutColl_fidDiGamma_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialDiGamma"));
+  if (autoConfMode_) {
+    gencutColl_fidWenu_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialWenu"));
+    gencutColl_fidZee_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialZee"));
+    gencutColl_fidGammaJet_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialGammaJet"));
+    gencutColl_fidDiGamma_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialDiGamma"));
+  } else {
+    gencutColl_manualConf_token = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("cutcollection"));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,220 +79,222 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
 
       // if init returns TRUE, initialisation has succeeded!
 
-      if (verbosity_ >= OUTPUT_ALL) {
-         // Output general information on the menu
-         edm::LogPrint("EmDQM") << "inited=" << hltConfig_.inited();
-         edm::LogPrint("EmDQM") << "changed=" << hltConfig_.changed();
-         edm::LogPrint("EmDQM") << "processName=" << hltConfig_.processName();
-         edm::LogPrint("EmDQM") << "tableName=" << hltConfig_.tableName();
-         edm::LogPrint("EmDQM") << "size=" << hltConfig_.size();
+      if (autoConfMode_) {
+        if (verbosity_ >= OUTPUT_ALL) {
+           // Output general information on the menu
+           edm::LogPrint("EmDQM") << "inited=" << hltConfig_.inited();
+           edm::LogPrint("EmDQM") << "changed=" << hltConfig_.changed();
+           edm::LogPrint("EmDQM") << "processName=" << hltConfig_.processName();
+           edm::LogPrint("EmDQM") << "tableName=" << hltConfig_.tableName();
+           edm::LogPrint("EmDQM") << "size=" << hltConfig_.size();
+        }
+
+        // All electron and photon paths
+        std::vector<std::vector<std::string> > egammaPaths = findEgammaPaths();
+        //std::cout << "Found " << egammaPaths[TYPE_SINGLE_ELE].size() << " single electron paths" << std::endl;
+        //std::cout << "Found " << egammaPaths[TYPE_DOUBLE_ELE].size() << " double electron paths" << std::endl;
+        //std::cout << "Found " << egammaPaths[TYPE_TRIPLE_ELE].size() << " triple electron paths" << std::endl;
+        //std::cout << "Found " << egammaPaths[TYPE_SINGLE_PHOTON].size() << " single photon paths" << std::endl;
+        //std::cout << "Found " << egammaPaths[TYPE_DOUBLE_PHOTON].size() << " double photon paths" << std::endl;
+
+        std::vector<std::string> filterModules;
+
+        for (unsigned int j=0; j < egammaPaths.size() ; j++) {
+
+           for (unsigned int i=0; i < egammaPaths.at(j).size() ; i++) {
+              // get pathname of this trigger 
+              const std::string pathName = egammaPaths.at(j).at(i);
+              if (verbosity_ >= OUTPUT_ALL)
+                 edm::LogPrint("EmDQM") << "Path: " << pathName;
+
+              // get filters of the current path
+              filterModules = getFilterModules(pathName);
+
+              //--------------------	   
+              edm::ParameterSet paramSet;
+
+              paramSet.addUntrackedParameter("pathIndex", hltConfig_.triggerIndex(pathName));
+              paramSet.addParameter("@module_label", hltConfig_.removeVersion(pathName) + "_DQM");
+              //paramSet.addParameter("@module_label", pathName + "_DQM");
+
+              // plotting parameters (untracked because they don't affect the physics)
+              double genEtMin = getPrimaryEtCut(pathName);
+              if (genEtMin >= 0) {
+                 paramSet.addUntrackedParameter("genEtMin", genEtMin);
+              } else {
+                 if (verbosity_ >= OUTPUT_WARNINGS)
+                    edm::LogWarning("EmDQM") << "Pathname: '" << pathName << "':  Unable to determine a minimum Et. Will not include this path in the validation.";
+                 continue;
+              }
+
+              // set the x axis of the et plots to some reasonable value based
+              // on the primary et cut determined from the path name
+              double ptMax = ptMax_;
+              double ptMin = ptMin_;
+              if (ptMax < (1.2*genEtMin)) {
+                 paramSet.addUntrackedParameter<double>("PtMax", (10*ceil(0.12 * genEtMin)));
+                 paramSet.addUntrackedParameter<double>("PtMin", (10*ceil(0.12 * genEtMin) - ptMax + ptMin));
+              }
+              else {
+                 paramSet.addUntrackedParameter<double>("PtMax", ptMax);
+                 paramSet.addUntrackedParameter<double>("PtMin", ptMin);
+              }
+
+              //preselction cuts 
+              switch (j) {
+                 case TYPE_SINGLE_ELE:
+                    paramSet.addParameter<unsigned>("reqNum", 1);
+                    paramSet.addParameter<int>("pdgGen", 11);
+                    paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialWenu"));
+                    paramSet.addParameter<int>("cutnum", 1);
+                    break;
+                 case TYPE_DOUBLE_ELE:
+                    paramSet.addParameter<unsigned>("reqNum", 2);
+                    paramSet.addParameter<int>("pdgGen", 11);
+                    paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialZee"));
+                    paramSet.addParameter<int>("cutnum", 2);
+                    break;
+                 case TYPE_TRIPLE_ELE:
+                    paramSet.addParameter<unsigned>("reqNum", 3);
+                    paramSet.addParameter<int>("pdgGen", 11);
+                    paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialZee"));
+                    paramSet.addParameter<int>("cutnum", 3);
+                    break;
+                 case TYPE_SINGLE_PHOTON:
+                    paramSet.addParameter<unsigned>("reqNum", 1);
+                    paramSet.addParameter<int>("pdgGen", 22);
+                    paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialGammaJet"));
+                    paramSet.addParameter<int>("cutnum", 1);
+                    break;
+                 case TYPE_DOUBLE_PHOTON:
+                    paramSet.addParameter<unsigned>("reqNum", 2);
+                    paramSet.addParameter<int>("pdgGen", 22);
+                    paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialDiGamma"));
+                    paramSet.addParameter<int>("cutnum", 2);
+              }
+              //--------------------
+
+              // TODO: extend this
+              if (isData_) paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("gsfElectrons"));
+
+              std::vector<edm::ParameterSet> filterVPSet;
+              edm::ParameterSet filterPSet;
+              std::string moduleLabel;
+
+              // loop over filtermodules of current trigger path
+              for (std::vector<std::string>::iterator filter = filterModules.begin(); filter != filterModules.end(); ++filter) {
+                 std::string moduleType = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_type");
+                 moduleLabel = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_label");
+
+                 // first check if it is a filter we are not interrested in
+                 if (moduleType == "Pythia6GeneratorFilter" ||
+                     moduleType == "HLTTriggerTypeFilter" ||
+                     moduleType == "HLTLevel1Activity" ||
+                     moduleType == "HLTPrescaler" ||
+                     moduleType == "HLTBool")
+                    continue;
+
+                 // now check for the known filter types
+                 if (moduleType == "HLTLevel1GTSeed") {
+                    filterPSet = makePSetForL1SeedFilter(moduleLabel);
+                 }
+                 else if (moduleType == "HLTEgammaL1MatchFilterRegional") {
+                    filterPSet = makePSetForL1SeedToSuperClusterMatchFilter(moduleLabel);
+                 }
+                 else if (moduleType == "HLTEgammaEtFilter") {
+                    filterPSet = makePSetForEtFilter(moduleLabel);
+                 }
+                 else if (moduleType == "HLTElectronOneOEMinusOneOPFilterRegional") {
+                    filterPSet = makePSetForOneOEMinusOneOPFilter(moduleLabel);
+                 }
+                 else if (moduleType == "HLTElectronPixelMatchFilter") {
+                    filterPSet = makePSetForPixelMatchFilter(moduleLabel);
+                 }
+                 else if (moduleType == "HLTEgammaGenericFilter") {
+                    filterPSet = makePSetForEgammaGenericFilter(moduleLabel);
+                 }
+                 else if (moduleType == "HLTEgammaGenericQuadraticFilter") {
+                    filterPSet = makePSetForEgammaGenericQuadraticFilter(moduleLabel);
+                 }
+                 else if (moduleType == "HLTElectronGenericFilter") {
+                    filterPSet = makePSetForElectronGenericFilter(moduleLabel);
+                 }
+                 else if (moduleType == "HLTEgammaDoubleEtDeltaPhiFilter") {
+                    filterPSet = makePSetForEgammaDoubleEtDeltaPhiFilter(moduleLabel);
+                 }
+                 else if (moduleType == "HLTGlobalSumsMET"
+                          || moduleType == "HLTMhtHtFilter"
+                          || moduleType == "HLTJetTag"
+                          || moduleType == "HLT1CaloJet"
+                          || moduleType == "HLT1CaloBJet"
+                          || moduleType == "HLT1Tau"
+                          || moduleType == "PFTauSelector"
+                          || moduleType == "EtMinCaloJetSelector"
+                          || moduleType == "LargestEtCaloJetSelector"
+                          || moduleType == "HLTEgammaTriggerFilterObjectWrapper"  // 'fake' filter
+                          || moduleType == "HLTEgammaDoubleLegCombFilter" // filter does not put anything in TriggerEventWithRefs
+                          //|| moduleType == "HLT2ElectronTau"
+                          || moduleType == "HLTPMMassFilter"
+                          || moduleType == "HLTHcalTowerFilter"
+                          //|| moduleType == "HLT1Photon"
+                         )
+                    continue;
+                 else {
+                    if (verbosity_ >= OUTPUT_WARNINGS)
+                       edm::LogWarning("EmDQM")  << "No parameter set for filter '" << moduleLabel << "' with filter type '" << moduleType << "' added. Module will not be analyzed.";
+                    continue;
+                 }
+
+                 // something went wrong when the parameter set is empty. 
+                 if (!filterPSet.empty()) {
+                    if (!hltConfig_.modulePSet(moduleLabel).exists("saveTags")) {
+                       // make sure that 'theHLTOutputTypes' before an unseeded filter in a photon path is set to trigger::TriggerPhoton
+                       // this is coupled to the parameter 'saveTag = true'
+                       if (moduleLabel.find("Unseeded") != std::string::npos && (j == TYPE_DOUBLE_PHOTON || j == TYPE_SINGLE_PHOTON)) {
+                          filterVPSet.back().addParameter<int>("theHLTOutputTypes", trigger::TriggerPhoton);
+                       }
+                    }
+                    // if ncandcut is -1 (when parsing for the number of particles in the name of the L1seed filter fails),
+                    // fall back to setting ncandcut to the number of particles needed for the given path.
+                    if (filterPSet.getParameter<int>("ncandcut") < 0) filterPSet.addParameter<int>("ncandcut", paramSet.getParameter<int>("cutnum"));
+                    else if (filterPSet.getParameter<int>("ncandcut") > paramSet.getParameter<int>("cutnum")) {
+                      paramSet.addParameter<int>("cutnum", filterPSet.getParameter<int>("ncandcut"));
+                      paramSet.addParameter<unsigned>("reqNum", (unsigned)filterPSet.getParameter<int>("ncandcut"));
+                    }
+
+                    filterVPSet.push_back(filterPSet);
+                 }
+                 else
+                    break;
+
+              } // end loop over filter modules of current trigger path
+
+              // do not include this path when an empty filterPSet is detected.
+              if (!filterPSet.empty()) {
+                 std::string lastModuleName = filterPSet.getParameter<edm::InputTag>("HLTCollectionLabels").label();
+                 if (!hltConfig_.modulePSet(lastModuleName).exists("saveTags")) {
+                    // make sure that 'theHLTOutputTypes' of the last filter of a photon path is set to trigger::TriggerPhoton
+                    // this is coupled to the parameter 'saveTag = true'
+                    if ((j == TYPE_SINGLE_PHOTON || j == TYPE_DOUBLE_PHOTON) && pathName.rfind("Ele") == std::string::npos) {
+                       filterVPSet.back().addParameter<int>("theHLTOutputTypes", trigger::TriggerPhoton);
+                    }
+                 }
+                 paramSet.addParameter<std::vector<edm::ParameterSet> >("filters", filterVPSet);
+              }
+              else {
+                 if (verbosity_ >= OUTPUT_ALL)
+                    edm::LogPrint("EmDQM") << "Will not include this path in the validation due to errors while generating the parameter set.";
+                 continue;
+              }
+
+              // dump generated parameter set
+              //std::cout << paramSet.dump() << std::endl;
+
+              paramSets.push_back(paramSet);
+           } // loop over all paths of this analysis type
+
+        } // loop over analysis types (single ele etc.)
       }
-
-      // All electron and photon paths
-      std::vector<std::vector<std::string> > egammaPaths = findEgammaPaths();
-      //std::cout << "Found " << egammaPaths[TYPE_SINGLE_ELE].size() << " single electron paths" << std::endl;
-      //std::cout << "Found " << egammaPaths[TYPE_DOUBLE_ELE].size() << " double electron paths" << std::endl;
-      //std::cout << "Found " << egammaPaths[TYPE_TRIPLE_ELE].size() << " triple electron paths" << std::endl;
-      //std::cout << "Found " << egammaPaths[TYPE_SINGLE_PHOTON].size() << " single photon paths" << std::endl;
-      //std::cout << "Found " << egammaPaths[TYPE_DOUBLE_PHOTON].size() << " double photon paths" << std::endl;
-
-      std::vector<std::string> filterModules;
-
-      for (unsigned int j=0; j < egammaPaths.size() ; j++) {
-
-         for (unsigned int i=0; i < egammaPaths.at(j).size() ; i++) {
-            // get pathname of this trigger 
-	    const std::string pathName = egammaPaths.at(j).at(i);
-            if (verbosity_ >= OUTPUT_ALL)
-               edm::LogPrint("EmDQM") << "Path: " << pathName;
-
-            // get filters of the current path
-            filterModules = getFilterModules(pathName);
-
-            //--------------------	   
-	    edm::ParameterSet paramSet;
-
-	    paramSet.addUntrackedParameter("pathIndex", hltConfig_.triggerIndex(pathName));
-	    paramSet.addParameter("@module_label", hltConfig_.removeVersion(pathName) + "_DQM");
-	    //paramSet.addParameter("@module_label", pathName + "_DQM");
-
-	    // plotting parameters (untracked because they don't affect the physics)
-            double genEtMin = getPrimaryEtCut(pathName);
-            if (genEtMin >= 0) {
-               paramSet.addUntrackedParameter("genEtMin", genEtMin);
-            } else {
-               if (verbosity_ >= OUTPUT_WARNINGS)
-                  edm::LogWarning("EmDQM") << "Pathname: '" << pathName << "':  Unable to determine a minimum Et. Will not include this path in the validation.";
-               continue;
-            }
-
-            // set the x axis of the et plots to some reasonable value based
-            // on the primary et cut determined from the path name
-            double ptMax = ptMax_;
-            double ptMin = ptMin_;
-            if (ptMax < (1.2*genEtMin)) {
-               paramSet.addUntrackedParameter<double>("PtMax", (10*ceil(0.12 * genEtMin)));
-               paramSet.addUntrackedParameter<double>("PtMin", (10*ceil(0.12 * genEtMin) - ptMax + ptMin));
-            }
-	    else {
-               paramSet.addUntrackedParameter<double>("PtMax", ptMax);
-               paramSet.addUntrackedParameter<double>("PtMin", ptMin);
-            }
-
-	    //preselction cuts 
-            switch (j) {
-               case TYPE_SINGLE_ELE:
- 	          paramSet.addParameter<unsigned>("reqNum", 1);
-	          paramSet.addParameter<int>("pdgGen", 11);
-	          paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialWenu"));
-                  paramSet.addParameter<int>("cutnum", 1);
-                  break;
-               case TYPE_DOUBLE_ELE:
- 	          paramSet.addParameter<unsigned>("reqNum", 2);
-	          paramSet.addParameter<int>("pdgGen", 11);
-                  paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialZee"));
-	          paramSet.addParameter<int>("cutnum", 2);
-                  break;
-               case TYPE_TRIPLE_ELE:
- 	          paramSet.addParameter<unsigned>("reqNum", 3);
-	          paramSet.addParameter<int>("pdgGen", 11);
-                  paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialZee"));
-	          paramSet.addParameter<int>("cutnum", 3);
-                  break;
-               case TYPE_SINGLE_PHOTON:
- 	          paramSet.addParameter<unsigned>("reqNum", 1);
-	          paramSet.addParameter<int>("pdgGen", 22);
-                  paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialGammaJet"));
-	          paramSet.addParameter<int>("cutnum", 1);
-                  break;
-               case TYPE_DOUBLE_PHOTON:
- 	          paramSet.addParameter<unsigned>("reqNum", 2);
-	          paramSet.addParameter<int>("pdgGen", 22);
-                  paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("fiducialDiGamma"));
-	          paramSet.addParameter<int>("cutnum", 2);
-            }
-	    //--------------------
-
-            // TODO: extend this
-            if (isData_) paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("gsfElectrons"));
-
-            std::vector<edm::ParameterSet> filterVPSet;
-            edm::ParameterSet filterPSet;
-            std::string moduleLabel;
-
-            // loop over filtermodules of current trigger path
-            for (std::vector<std::string>::iterator filter = filterModules.begin(); filter != filterModules.end(); ++filter) {
-               std::string moduleType = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_type");
-               moduleLabel = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_label");
-
-               // first check if it is a filter we are not interrested in
-               if (moduleType == "Pythia6GeneratorFilter" ||
-                   moduleType == "HLTTriggerTypeFilter" ||
-                   moduleType == "HLTLevel1Activity" ||
-                   moduleType == "HLTPrescaler" ||
-                   moduleType == "HLTBool")
-                  continue;
-
-               // now check for the known filter types
-               if (moduleType == "HLTLevel1GTSeed") {
-                  filterPSet = makePSetForL1SeedFilter(moduleLabel);
-               }
-               else if (moduleType == "HLTEgammaL1MatchFilterRegional") {
-                  filterPSet = makePSetForL1SeedToSuperClusterMatchFilter(moduleLabel);
-               }
-               else if (moduleType == "HLTEgammaEtFilter") {
-                  filterPSet = makePSetForEtFilter(moduleLabel);
-               }
-               else if (moduleType == "HLTElectronOneOEMinusOneOPFilterRegional") {
-                  filterPSet = makePSetForOneOEMinusOneOPFilter(moduleLabel);
-               }
-               else if (moduleType == "HLTElectronPixelMatchFilter") {
-                  filterPSet = makePSetForPixelMatchFilter(moduleLabel);
-               }
-               else if (moduleType == "HLTEgammaGenericFilter") {
-                  filterPSet = makePSetForEgammaGenericFilter(moduleLabel);
-               }
-               else if (moduleType == "HLTEgammaGenericQuadraticFilter") {
-                  filterPSet = makePSetForEgammaGenericQuadraticFilter(moduleLabel);
-               }
-               else if (moduleType == "HLTElectronGenericFilter") {
-                  filterPSet = makePSetForElectronGenericFilter(moduleLabel);
-               }
-               else if (moduleType == "HLTEgammaDoubleEtDeltaPhiFilter") {
-                  filterPSet = makePSetForEgammaDoubleEtDeltaPhiFilter(moduleLabel);
-               }
-               else if (moduleType == "HLTGlobalSumsMET"
-                        || moduleType == "HLTMhtHtFilter"
-                        || moduleType == "HLTJetTag"
-                        || moduleType == "HLT1CaloJet"
-                        || moduleType == "HLT1CaloBJet"
-                        || moduleType == "HLT1Tau"
-                        || moduleType == "PFTauSelector"
-                        || moduleType == "EtMinCaloJetSelector"
-                        || moduleType == "LargestEtCaloJetSelector"
-                        || moduleType == "HLTEgammaTriggerFilterObjectWrapper"  // 'fake' filter
-                        || moduleType == "HLTEgammaDoubleLegCombFilter" // filter does not put anything in TriggerEventWithRefs
-                        //|| moduleType == "HLT2ElectronTau"
-                        || moduleType == "HLTPMMassFilter"
-                        || moduleType == "HLTHcalTowerFilter"
-                        //|| moduleType == "HLT1Photon"
-                       )
-                  continue;
-               else {
-                  if (verbosity_ >= OUTPUT_WARNINGS)
-                     edm::LogWarning("EmDQM")  << "No parameter set for filter '" << moduleLabel << "' with filter type '" << moduleType << "' added. Module will not be analyzed.";
-                  continue;
-               }
-
-               // something went wrong when the parameter set is empty. 
-               if (!filterPSet.empty()) {
-                  if (!hltConfig_.modulePSet(moduleLabel).exists("saveTags")) {
-                     // make sure that 'theHLTOutputTypes' before an unseeded filter in a photon path is set to trigger::TriggerPhoton
-                     // this is coupled to the parameter 'saveTag = true'
-                     if (moduleLabel.find("Unseeded") != std::string::npos && (j == TYPE_DOUBLE_PHOTON || j == TYPE_SINGLE_PHOTON)) {
-                        filterVPSet.back().addParameter<int>("theHLTOutputTypes", trigger::TriggerPhoton);
-                     }
-                  }
-                  // if ncandcut is -1 (when parsing for the number of particles in the name of the L1seed filter fails),
-                  // fall back to setting ncandcut to the number of particles needed for the given path.
-                  if (filterPSet.getParameter<int>("ncandcut") < 0) filterPSet.addParameter<int>("ncandcut", paramSet.getParameter<int>("cutnum"));
-                  else if (filterPSet.getParameter<int>("ncandcut") > paramSet.getParameter<int>("cutnum")) {
-                    paramSet.addParameter<int>("cutnum", filterPSet.getParameter<int>("ncandcut"));
-                    paramSet.addParameter<unsigned>("reqNum", (unsigned)filterPSet.getParameter<int>("ncandcut"));
-                  }
-
-                  filterVPSet.push_back(filterPSet);
-               }
-               else
-                  break;
-
-            } // end loop over filter modules of current trigger path
-
-            // do not include this path when an empty filterPSet is detected.
-            if (!filterPSet.empty()) {
-               std::string lastModuleName = filterPSet.getParameter<edm::InputTag>("HLTCollectionLabels").label();
-               if (!hltConfig_.modulePSet(lastModuleName).exists("saveTags")) {
-                  // make sure that 'theHLTOutputTypes' of the last filter of a photon path is set to trigger::TriggerPhoton
-                  // this is coupled to the parameter 'saveTag = true'
-                  if ((j == TYPE_SINGLE_PHOTON || j == TYPE_DOUBLE_PHOTON) && pathName.rfind("Ele") == std::string::npos) {
-                     filterVPSet.back().addParameter<int>("theHLTOutputTypes", trigger::TriggerPhoton);
-                  }
-               }
-               paramSet.addParameter<std::vector<edm::ParameterSet> >("filters", filterVPSet);
-            }
-            else {
-               if (verbosity_ >= OUTPUT_ALL)
-                  edm::LogPrint("EmDQM") << "Will not include this path in the validation due to errors while generating the parameter set.";
-               continue;
-            }
-
-            // dump generated parameter set
-            //std::cout << paramSet.dump() << std::endl;
-
-	    paramSets.push_back(paramSet);
-         } // loop over all paths of this analysis type
-
-      } // loop over analysis types (single ele etc.)
 
       hltCollectionLabelsFoundPerPath.reserve(paramSets.size());
       hltCollectionLabelsMissedPerPath.reserve(paramSets.size());
@@ -310,17 +326,6 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
          std::vector<MonitorElement*> histEtOfHltObjMatchToGen;
          std::vector<MonitorElement*> histEtaOfHltObjMatchToGen;
          std::vector<MonitorElement*> histPhiOfHltObjMatchToGen;
-         // commented out because uses data not included in HTLDEBUG and uses getByLabel
-         // Isolation distributions
-         //std::vector<MonitorElement*> etahistiso;
-         //std::vector<MonitorElement*> phihistiso;
-         //std::vector<MonitorElement*> ethistiso;
-         //std::vector<MonitorElement*> etahistisomatch;
-         //std::vector<MonitorElement*> phihistisomatch;
-         //std::vector<MonitorElement*> ethistisomatch;
-         //std::vector<MonitorElement*> histEtIsoOfHltObjMatchToGen; 
-         //std::vector<MonitorElement*> histEtaIsoOfHltObjMatchToGen;
-         //std::vector<MonitorElement*> histPhiIsoOfHltObjMatchToGen;
          // Plots of efficiency per step
          MonitorElement* total;
          MonitorElement* totalmatch;
@@ -449,84 +454,6 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
              tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
              phihistmatch.push_back(tmphisto);
            }
-       
-       
-           // commented out because uses data not included in HTLDEBUG and uses getByLabel
-           //if (!plotiso[i]) {
-           //  tmpiso = NULL;
-           //  if (!mcMatchedOnly_) {
-           //     etahistiso.push_back(tmpiso);
-           //     phihistiso.push_back(tmpiso);
-           //     ethistiso.push_back(tmpiso);
-           //     histEtaIsoOfHltObjMatchToGen.push_back(tmpiso);
-           //     histPhiIsoOfHltObjMatchToGen.push_back(tmpiso);
-           //     histEtIsoOfHltObjMatchToGen.push_back(tmpiso);
-           //  }
-           //  etahistisomatch.push_back(tmpiso);
-           //  phihistisomatch.push_back(tmpiso);
-           //  ethistisomatch.push_back(tmpiso);
-           //} else {
-           //  if (!mcMatchedOnly_) {
-           //     // 2D plot: Isolation values vs eta for all objects
-           //     histName  = theHLTCollectionLabels[i].label()+"eta_isolation_all";
-           //     histTitle = HltHistTitle[i]+" isolation vs #eta (all)";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     etahistiso.push_back(tmpiso);
-       
-           //     // 2D plot: Isolation values vs phi for all objects
-           //     histName  = theHLTCollectionLabels[i].label()+"phi_isolation_all";
-           //     histTitle = HltHistTitle[i]+" isolation vs #phi (all)";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     phihistiso.push_back(tmpiso);
-       
-           //     // 2D plot: Isolation values vs et for all objects
-           //     histName  = theHLTCollectionLabels[i].label()+"et_isolation_all";
-           //     histTitle = HltHistTitle[i]+" isolation vs Et (all)";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     ethistiso.push_back(tmpiso);
-        
-           //     // 2D plot: Isolation values vs eta for HLT object that 
-           //     // is closest delta-R match to sorted gen particle(s)
-           //     histName  = theHLTCollectionLabels[i].label()+"eta_isolation";
-           //     histTitle = HltHistTitle[i]+" isolation vs #eta";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     histEtaIsoOfHltObjMatchToGen.push_back(tmpiso);
-       
-           //     // 2D plot: Isolation values vs phi for HLT object that
-           //     // is closest delta-R match to sorted gen particle(s)
-           //     histName  = theHLTCollectionLabels[i].label()+"phi_isolation";
-           //     histTitle = HltHistTitle[i]+" isolation vs #phi";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     histPhiIsoOfHltObjMatchToGen.push_back(tmpiso);
-       
-           //     // 2D plot: Isolation values vs et for HLT object that 
-           //     // is closest delta-R match to sorted gen particle(s)
-           //     histName  = theHLTCollectionLabels[i].label()+"et_isolation";
-           //     histTitle = HltHistTitle[i]+" isolation vs Et";
-           //     tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //     histEtIsoOfHltObjMatchToGen.push_back(tmpiso);
-           //  }
-       
-           //  // 2D plot: Isolation values vs eta for matched objects
-           //  histName  = theHLTCollectionLabels[i].label()+"eta_isolation_MC_matched";
-           //  histTitle = HltHistTitle[i]+" isolation vs #eta (mc matched)";
-           //  tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //  etahistisomatch.push_back(tmpiso);
-       
-           //  // 2D plot: Isolation values vs phi for matched objects
-           //  histName  = theHLTCollectionLabels[i].label()+"phi_isolation_MC_matched";
-           //  histTitle = HltHistTitle[i]+" isolation vs #phi (mc matched)";
-           //  tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //  phihistisomatch.push_back(tmpiso);
-       
-       
-           //  // 2D plot: Isolation values vs et for matched objects
-           //  histName  = theHLTCollectionLabels[i].label()+"et_isolation_MC_matched";
-           //  histTitle = HltHistTitle[i]+" isolation vs Et (mc matched)";
-           //  tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax,nbins_,plotBounds[i].first,plotBounds[i].second);
-           //  ethistisomatch.push_back(tmpiso);
-       
-           //} // END of HLT histograms
          }
 
          // Et & eta distributions
@@ -539,7 +466,7 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
          histEtOfHltObjMatchToGens.push_back(histEtOfHltObjMatchToGen);
          histEtaOfHltObjMatchToGens.push_back(histEtaOfHltObjMatchToGen);
          histPhiOfHltObjMatchToGens.push_back(histPhiOfHltObjMatchToGen);
-         // commented out because uses data not included in HTLDEBUG and uses getByLabel
+         // commented out because uses data not included in HTLDEBUG and uses
          // Isolation distributions
          //etahistisos.push_back(etahistiso);
          //phihistisos.push_back(phihistiso);
@@ -642,18 +569,22 @@ bool EmDQM::checkRecoParticlesRequirement(const edm::Event & event)
 
   edm::Handle< edm::View<reco::Candidate> > referenceParticles;
   // get the right data according to the trigger path currently looked at
-  switch(reqNum) {
-     case 1:
-        if (pdgGen == 11) event.getByToken(gencutColl_fidWenu_token, referenceParticles);
-        else event.getByToken(gencutColl_fidGammaJet_token, referenceParticles);
-        break;
-     case 2:
-        if (pdgGen == 11) event.getByToken(gencutColl_fidZee_token, referenceParticles);
-        else event.getByToken(gencutColl_fidDiGamma_token, referenceParticles);
-        break;
-     case 3:
-        event.getByToken(gencutColl_fidZee_token, referenceParticles);
-        break;
+  if (autoConfMode_) {
+    switch(reqNum) {
+       case 1:
+          if (pdgGen == 11) event.getByToken(gencutColl_fidWenu_token, referenceParticles);
+          else event.getByToken(gencutColl_fidGammaJet_token, referenceParticles);
+          break;
+       case 2:
+          if (pdgGen == 11) event.getByToken(gencutColl_fidZee_token, referenceParticles);
+          else event.getByToken(gencutColl_fidDiGamma_token, referenceParticles);
+          break;
+       case 3:
+          event.getByToken(gencutColl_fidZee_token, referenceParticles);
+          break;
+    }
+  } else {
+    event.getByToken(gencutColl_manualConf_token, referenceParticles);
   }
   if(!referenceParticles.isValid()) {
      if (verbosity_ >= OUTPUT_WARNINGS)
@@ -708,18 +639,22 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     ////////////////////////////////////////////////////////////
     // get the right data according to the trigger path currently looked at
     edm::Handle< edm::View<reco::Candidate> > cutCounter;
-    switch(reqNum) {
-       case 1:
-          if (pdgGen == 11) event.getByToken(gencutColl_fidWenu_token, cutCounter);
-          else event.getByToken(gencutColl_fidGammaJet_token, cutCounter);
-          break;
-       case 2:
-          if (pdgGen == 11) event.getByToken(gencutColl_fidZee_token, cutCounter);
-          else event.getByToken(gencutColl_fidDiGamma_token, cutCounter);
-          break;
-       case 3:
-          event.getByToken(gencutColl_fidZee_token, cutCounter);
-          break;
+    if (autoConfMode_) {
+      switch(reqNum) {
+         case 1:
+            if (pdgGen == 11) event.getByToken(gencutColl_fidWenu_token, cutCounter);
+            else event.getByToken(gencutColl_fidGammaJet_token, cutCounter);
+            break;
+         case 2:
+            if (pdgGen == 11) event.getByToken(gencutColl_fidZee_token, cutCounter);
+            else event.getByToken(gencutColl_fidDiGamma_token, cutCounter);
+            break;
+         case 3:
+            event.getByToken(gencutColl_fidZee_token, cutCounter);
+            break;
+      }
+    } else {
+      event.getByToken(gencutColl_manualConf_token, cutCounter);
     }
     if (cutCounter->size() < (unsigned int)gencut_) {
       //edm::LogWarning("EmDQM") << "Less than "<< gencut_ <<" gen particles with pdgId=" << pdgGen;
@@ -921,24 +856,6 @@ template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerE
         dqm->histEtaOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->eta() );
         if (!dqm->noPhiPlots_) dqm->histPhiOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->phi() );
         
-        // commented out because uses data not included in HTLDEBUG and uses getByLabel
-        //// Also store isolation info
-        //if (n+1 < dqm->numOfHLTCollectionLabels){ // can't plot beyond last
-        //  if (dqm->plotiso[n+1] ){  // only plot if requested in config
-        //    for (unsigned int j =  0 ; j < dqm->isoNames[n+1].size() ;j++  ){
-        //      edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-        //      iEvent.getByLabel(dqm->isoNames[n+1].at(j),depMap);
-        //      if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
-        //        typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closestEcalCandIndex]);
-        //        if (mapi!=depMap->end()) {  // found candidate in isolation map! 
-        //          dqm->histEtaIsoOfHltObjMatchToGens.at(vPos).at(n+1)->Fill( recoecalcands[closestEcalCandIndex]->eta(),mapi->val);
-        //          dqm->histPhiIsoOfHltObjMatchToGens.at(vPos).at(n+1)->Fill( recoecalcands[closestEcalCandIndex]->phi(),mapi->val);
-        //          dqm->histEtIsoOfHltObjMatchToGens.at(vPos).at(n+1) ->Fill( recoecalcands[closestEcalCandIndex]->et(), mapi->val);
-        //        }
-        //      }
-        //    }
-        //  }
-        //}
       } // END of if closestEcalCandIndex >= 0
     }
 
@@ -970,27 +887,6 @@ template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerE
       dqm->etahists.at(vPos).at(n)->Fill(recoecalcands[i]->eta() );
       if (!dqm->noPhiPlots_) dqm->phihists.at(vPos).at(n)->Fill(recoecalcands[i]->phi() );
 
-      // commented out because uses data not included in HTLDEBUG and uses getByLabel
-      ////////////////////////////////////////////////////////////
-      //  Plot isolation variables (show the not-yet-cut        //
-      //  isolation, i.e. associated to next filter)            //
-      ////////////////////////////////////////////////////////////
-      //if ( n+1 < dqm->numOfHLTCollectionLabels ) { // can't plot beyond last
-      //  if (dqm->plotiso[n+1]) {
-      //    for (unsigned int j =  0 ; j < dqm->isoNames[n+1].size() ;j++  ){
-      //      edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-      //      iEvent.getByLabel(dqm->isoNames[n+1].at(j),depMap);
-      //      if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
-      //        typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[i]);
-      //        if (mapi!=depMap->end()){  // found candidate in isolation map! 
-      //          dqm->etahistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->eta(),mapi->val);
-      //          dqm->phihistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->phi(),mapi->val);
-      //          dqm->ethistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->et(),mapi->val);
-      //        }
-      //      }
-      //    }
-      //  }
-      //} // END of if n+1 < then the number of hlt collections
     }
   }
 
@@ -1029,28 +925,6 @@ template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerE
       dqm->etahistmatchs.at(vPos).at(n)->Fill( sortedGen[i].eta() );
       if (!dqm->noPhiPlots_) dqm->phihistmatchs.at(vPos).at(n)->Fill( sortedGen[i].phi() );
     }
-    // commented out because uses data not included in HTLDEBUG and uses getByLabel
-    ////////////////////////////////////////////////////////////
-    //  Plot isolation variables (show the not-yet-cut        //
-    //  isolation, i.e. associated to next filter)            //
-    ////////////////////////////////////////////////////////////
-    //if (n+1 < dqm->numOfHLTCollectionLabels){ // can't plot beyond last
-    //  if (dqm->plotiso[n+1] ){  // only plot if requested in config
-    //    for (unsigned int j =  0 ; j < dqm->isoNames[n+1].size() ;j++  ){
-    //      edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-    //      iEvent.getByLabel(dqm->isoNames[n+1].at(j),depMap);
-    //      if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
-    //        typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closest]);
-    //        if (mapi!=depMap->end()){  // found candidate in isolation map!
-    //          // Only make efficiency plot using photons with some min Et
-    //          dqm->etahistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].eta(),mapi->val);
-    //          dqm->phihistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].phi(),mapi->val);
-    //          dqm->ethistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].et(),mapi->val);
-    //        }
-    //      }
-    //    }
-    //  }
-    //} // END of if n+1 < then the number of hlt collections
   }
   // fill total mc matched efficiency
 

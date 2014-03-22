@@ -84,7 +84,8 @@ class PFBlockAlgo {
 		      int nuclearInteractionsPurity,
 		      bool useEGPhotons,
 		      std::vector<double> & photonSelectionCuts,
-		      bool useSuperClusters
+		      bool useSuperClusters,
+                      bool superClusterMatchByRef
 		      );
   
   // Glowinski & Gouzevitch
@@ -111,7 +112,8 @@ class PFBlockAlgo {
 		   const T<reco::PFClusterCollection>&  psh,
 		   const T<reco::PhotonCollection>&  egphh,
 		   const T<reco::SuperClusterCollection>&  sceb,
-		   const T<reco::SuperClusterCollection>&  scee,		   
+		   const T<reco::SuperClusterCollection>&  scee,
+                   const T<edm::ValueMap<reco::CaloClusterPtr> >& pfclusterassoc,
 		   const Mask& trackMask = dummyMask_,
 		   const Mask& gsftrackMask = dummyMask_,
 		   const Mask& ecalMask = dummyMask_,
@@ -148,8 +150,9 @@ class PFBlockAlgo {
     T<reco::PhotonCollection> phh;
     T<reco::SuperClusterCollection> scebh;
     T<reco::SuperClusterCollection> sceeh;    
+    T<edm::ValueMap<reco::CaloClusterPtr> > pfclusterassoc;
     setInput<T>( trackh, gsftrackh, convbremgsftrackh, muonh, nuclearh, nucleartrackh, convh, v0, 
-		 ecalh, hcalh, hoh, hfemh, hfhadh, psh, phh, scebh, sceeh,
+		 ecalh, hcalh, hoh, hfemh, hfhadh, psh, phh, scebh, sceeh, pfclusterassoc,
 		 trackMask, ecalMask, hcalMask, hoMask, psMask); 
   }
   
@@ -337,6 +340,13 @@ class PFBlockAlgo {
   /// Flag to turn off the import of SuperCluster collections
   bool useSuperClusters_;
 
+  //flag to control whether superclusters are matched to ecal pfclusters by reference instead of det id overlap
+  //(more robust, but requires that the SuperClusters were produced from PFClusters together with the 
+  //appropriate ValueMap
+  bool superClusterMatchByRef_;
+  
+  const edm::ValueMap<reco::CaloClusterPtr> *pfclusterassoc_;
+  
   // This parameters defines the level of purity of
   // nuclear interactions choosen.
   // Level 1 is only high Purity sample labeled as isNucl.
@@ -398,6 +408,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		      const T<reco::PhotonCollection>& egphh,
 		      const T<reco::SuperClusterCollection>&  sceb,
 		      const T<reco::SuperClusterCollection>&  scee,		      
+                      const T<edm::ValueMap<reco::CaloClusterPtr> >& pfclusterassoc,
                       const Mask& trackMask,
 		      const Mask& gsftrackMask,
                       const Mask& ecalMask,
@@ -441,6 +452,10 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
   }
   */
 
+  if (superClusterMatchByRef_) {
+    pfclusterassoc_ = pfclusterassoc.product();
+  }
+  
   /// -------------- GSF Primary tracks and brems ---------------------
   std::vector<reco::PFRecTrackRef> convBremPFRecTracks;
   convBremPFRecTracks.clear();
@@ -474,6 +489,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 		reco::PFBlockElementSuperCluster * sce =
 		  new reco::PFBlockElementSuperCluster(scRef);
 		sce->setFromGsfElectron(true);
+                sce->setFromPFSuperCluster(superClusterMatchByRef_);
 		elements_.push_back(sce);
 	      }
 	    else // it is already present, update the PFBE
@@ -570,6 +586,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	  reco::PFBlockElementSuperCluster * sce =
 	    new reco::PFBlockElementSuperCluster((*egphh)[isc].superCluster());
 	  fillFromPhoton(egphh,isc,sce);
+          sce->setFromPFSuperCluster(superClusterMatchByRef_);
 	  elements_.push_back(sce);
 	}
       else
@@ -621,6 +638,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	  superClusters_.push_back(scRef);
 	  reco::PFBlockElementSuperCluster * sce =
 	    new reco::PFBlockElementSuperCluster(scRef);
+          sce->setFromPFSuperCluster(superClusterMatchByRef_);
 	  //fillFromPhoton(egphh,isc,sce);
 	  //sce->setFromPhoton(true);
 	  elements_.push_back(sce);
@@ -1029,7 +1047,13 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       if (!bNoSuperclus_) {
 
 	// Now mapping with Superclusters
-	int scindex= ClusterClusterMapping::checkOverlap(*ref,superClusters_);
+	int scindex = -1;
+	if (superClusterMatchByRef_) {
+          scindex = ClusterClusterMapping::checkOverlap(ref,superClusters_,*pfclusterassoc_);
+        }
+	else {
+          scindex= ClusterClusterMapping::checkOverlap(*ref,superClusters_);
+        }
 
 	if(scindex>=0) 	{
 	  pfcSCVec_[ref.key()]=scindex;

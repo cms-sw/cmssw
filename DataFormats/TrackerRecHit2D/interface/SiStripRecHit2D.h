@@ -2,12 +2,13 @@
 #define SiStripRecHit2D_H
 
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
+#include "TkCloner.h"
 
 
 class SiStripRecHit2D GCC11_FINAL : public TrackerSingleRecHit {
 public:
 
-  SiStripRecHit2D(): sigmaPitch_(-1.){}
+  SiStripRecHit2D() {}
 
   ~SiStripRecHit2D() {} 
 
@@ -17,28 +18,14 @@ public:
   // no position (as in persistent)
   SiStripRecHit2D(const DetId& id,
 		  OmniClusterRef const& clus) : 
-    TrackerSingleRecHit(id, clus),
-    sigmaPitch_(-1.) {}
+    TrackerSingleRecHit(id, clus){}
 
-
+  template<typename CluRef>
   SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
-		   const DetId& id,
-		   OmniClusterRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
-    sigmaPitch_(-1.) {}
+		   GeomDet const & idet,
+		   CluRef const& clus) : 
+    TrackerSingleRecHit(pos,err, idet, clus) {}
  
-  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
-		   const DetId& id,
-		   ClusterRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
-    sigmaPitch_(-1.) {}
-
-
-  SiStripRecHit2D(const LocalPoint& pos, const LocalError& err,
-		  const DetId& id,
-		  ClusterRegionalRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, clus),
-    sigmaPitch_(-1.) {}
 				
   ClusterRef cluster()  const { return cluster_strip() ; }
   void setClusterRef(ClusterRef const & ref)  {setClusterStripRef(ref);}
@@ -48,16 +35,15 @@ public:
   virtual int dimension() const {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
 
+  virtual bool canImproveWithTrack() const {return true;}
+private:
+  // double dispatch
+  virtual SiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner(*this,tsos);
+  }
  
-  double sigmaPitch() const { return sigmaPitch_;}
-  void setSigmaPitch(double sigmap) const { sigmaPitch_=sigmap;}
-
   
 private:
-
-  /// cache for the matcher....
-  mutable double sigmaPitch_;  // transient....
-
  
 };
 

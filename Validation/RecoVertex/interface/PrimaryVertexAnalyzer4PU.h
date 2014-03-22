@@ -18,61 +18,50 @@
 #include <memory>
 #include <string>
 #include <vector>
- 
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
-//generator level
+// generator level
+#include "HepMC/SimpleVector.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
-
-// vertex stuff
-/////#include <DataFormats/VertexReco/interface/Vertex.h>
-#include <DataFormats/VertexReco/interface/VertexFwd.h>
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-
-// simulated vertices,..., add <use name=SimDataFormats/Vertex> and <../Track>
-#include <SimDataFormats/Vertex/interface/SimVertex.h>
-#include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
-#include <SimDataFormats/Track/interface/SimTrack.h>
-#include <SimDataFormats/Track/interface/SimTrackContainer.h>
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-//#include "DataFormats/Math/interface/LorentzVector.h"
-#include <SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h>
-#include <SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h>
-#include <SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h>
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
-//Track et al
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
+// math
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+
+// reco track
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+// reco vertex
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+// simulated track
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+
+// simulated vertex
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
+// pile-up
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+
+// tracking
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
-// Root
-#include <TH1.h>
-#include <TFile.h>
-
+// vertexing
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 
+// ROOT
+#include <TH1.h>
 
-
+// ROOT forward declarations
+class TFile;
 
 // class declaration
 class PrimaryVertexAnalyzer4PU : public edm::EDAnalyzer {
@@ -178,7 +167,7 @@ private:
 		   std::vector<SimEvent>& simEvt,
 		   const bool selectedOnly=true);
 
-  int* supf(std::vector<SimPart>& simtrks, const reco::TrackCollection & trks);
+  std::vector<int> supf(std::vector<SimPart>& simtrks, const reco::TrackCollection & trks);
   static bool match(const ParameterVector  &a, const ParameterVector &b);
   std::vector<SimPart> getSimTrkParameters( edm::Handle<edm::SimTrackContainer> & simTrks,
 					    edm::Handle<edm::SimVertexContainer> & simVtcs,
@@ -323,25 +312,17 @@ private:
 
 
   // ----------member data ---------------------------
-  std::string recoTrackProducer_;
-  std::string outputFile_;       // output file
-  std::vector<std::string> vtxSample_;        // make this a a vector to keep cfg compatibility with PrimaryVertexAnalyzer
-  double fBfield_;
-  TFile*  rootFile_;             
   bool verbose_;
   bool doMatching_;
   bool printXBS_;
-  edm::InputTag simG4_;
-  double simUnit_;     
-  double zmatch_;
-  edm::ESHandle < ParticleDataTable > pdt_;
-  math::XYZPoint myBeamSpot;
+  bool dumpThisEvent_;
+  bool dumpPUcandidates_;
+  bool DEBUG_;
+
   // local counters
   int eventcounter_;
   int dumpcounter_;
   int ndump_;
-  bool dumpThisEvent_;
-  bool dumpPUcandidates_;
 
   // from the event setup
   int run_;
@@ -350,8 +331,26 @@ private:
   int bunchCrossing_;
   int orbitNumber_;
 
-  bool DEBUG_;
-  
+  double fBfield_;
+  double simUnit_;     
+  double zmatch_;
+  double wxy2_;
+
+  math::XYZPoint myBeamSpot;
+  reco::RecoToSimCollection r2s_;
+  TrackFilterForPVFinding theTrackFilter;
+  reco::BeamSpot vertexBeamSpot_;
+
+  edm::ESHandle< ParticleDataTable > pdt_;
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle_;
+  edm::ESHandle<TransientTrackBuilder> theB_;
+
+  TFile* rootFile_;             
+  TrackAssociatorBase * associatorByHits_;
+
+  std::string recoTrackProducer_;
+  std::string outputFile_;       // output file
+  std::vector<std::string> vtxSample_;        // make this a a vector to keep cfg compatibility with PrimaryVertexAnalyzer
 
   std::map<std::string, TH1*> hBS;
   std::map<std::string, TH1*> hnoBS;
@@ -360,15 +359,17 @@ private:
   std::map<std::string, TH1*> hMVF;
   std::map<std::string, TH1*> hsimPV;
 
-  TrackAssociatorBase * associatorByHits_;
-  reco::RecoToSimCollection r2s_;
   std::map<double, TrackingParticleRef> z2tp_;
-
-  TrackFilterForPVFinding theTrackFilter;
-  reco::BeamSpot vertexBeamSpot_;
-  double wxy2_;
-  edm::Handle<reco::BeamSpot> recoBeamSpotHandle_;
-  edm::ESHandle<TransientTrackBuilder> theB_;
-  edm::InputTag beamSpot_;
+  
+  edm::EDGetTokenT< std::vector<PileupSummaryInfo> > vecPileupSummaryInfoToken_;
+  edm::EDGetTokenT<reco::VertexCollection> recoVertexCollectionToken_, recoVertexCollection_BS_Token_, recoVertexCollection_DA_Token_;
+  edm::EDGetTokenT<reco::TrackCollection> recoTrackCollectionToken_;
+  edm::EDGetTokenT<reco::BeamSpot> recoBeamSpotToken_;
+  edm::EDGetTokenT< edm::View<reco::Track> > edmView_recoTrack_Token_;
+  edm::EDGetTokenT<edm::SimVertexContainer> edmSimVertexContainerToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> edmSimTrackContainerToken_;
+  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
+  edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
+  edm::EDGetTokenT<edm::HepMCProduct> edmHepMCProductToken_;
 };
 

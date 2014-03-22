@@ -7,6 +7,7 @@ L2Muons = cms.EDProducer("L2MuonProducer",
     MuonTrackLoaderForSTA,
     MuonServiceProxy,
     InputObjects = cms.InputTag("L2MuonSeeds"),
+    MuonTrajectoryBuilder = cms.string("StandAloneMuonTrajectoryBuilder"), 
     DoSeedRefit = cms.bool(False),
     SeedTransformerParameters = cms.PSet( 
         Fitter = cms.string("hltESPKFFittingSmootherForL2Muon"),

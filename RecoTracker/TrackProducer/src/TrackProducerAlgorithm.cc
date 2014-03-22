@@ -55,6 +55,7 @@ namespace {
     StatCount() {}
     ~StatCount() { print();}
   };
+  StatCount statCount;
 
 #else
   struct StatCount {
@@ -63,9 +64,9 @@ namespace {
     void gsf(){}
     void algo(int){}
   };
+  [[cms::thread_safe]] StatCount statCount;
 #endif
 
-  StatCount statCount;
 
 }
 

@@ -88,13 +88,13 @@ void EventProcessor::processEvent(const char* data, const int32_t dataSize, cons
 
   if (config->getBINCHECKER_OUTPUT())
     {
-      binChecker.output1().show();
-      binChecker.output2().show();
+      // binChecker.output1().show();
+      // binChecker.output2().show();
     }
   else
     {
-      binChecker.output1().hide();
-      binChecker.output2().hide();
+      // binChecker.output1().hide();
+      // binChecker.output2().hide();
     }
 
   binChecker.setMask(config->getBINCHECK_MASK());
@@ -168,17 +168,6 @@ void EventProcessor::processEvent(const char* data, const int32_t dataSize, cons
   bool fGlobal_DCC_DDU_L1A_mismatch_with_CSC_data = false;
   MonitorObject* mo = 0;
 
-  /*
-  // BEWARE! NOT YET UPDATED FOR consumes INTERFACE 29.11.2013 BUT THIS SECTION WAS NOT ACTIVE
-  const edm::InputTag formatStatusCollectionTag("MuonCSCDCCFormatStatusDigi");
-  bool processFormatStatusDigi = true;
-  edm::Handle<CSCDCCFormatStatusDigiCollection> formatStatusColl;
-  if (!e.getByLabel(formatStatusCollectionTag, formatStatusColl)) {
-    LOG_WARN << "No product: " << formatStatusCollectionTag << " in stream";
-    processFormatStatusDigi = false;
-  }
-  */
-
   // run through the DCC's
   for (int id = FEDNumbering::MINCSCFEDID; id <= FEDNumbering::MAXCSCFEDID; ++id)
     {
@@ -220,13 +209,13 @@ void EventProcessor::processEvent(const char* data, const int32_t dataSize, cons
 
           if (config->getBINCHECKER_OUTPUT())
             {
-              binChecker.output1().show();
-              binChecker.output2().show();
+              // binChecker.output1().show();
+              // binChecker.output2().show();
             }
           else
             {
-              binChecker.output1().hide();
-              binChecker.output2().hide();
+              // binChecker.output1().hide();
+              // binChecker.output2().hide();
             }
 
           binChecker.setMask(config->getBINCHECK_MASK());

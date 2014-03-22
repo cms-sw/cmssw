@@ -68,7 +68,6 @@ void GenSpecificAlgo::fillCommonMETData(CommonMETData *met, edm::Handle<edm::Vie
   met->mez   = -sum_ez;
   met->met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
   met->sumet = sum_et;
-  met->phi   = atan2( -sum_ey, -sum_ex );
 }
 
 //____________________________________________________________________________||

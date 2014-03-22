@@ -35,7 +35,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "RecoJets/JetProducers/interface/JetMatchingTools.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 class MonitorElement;
 
@@ -224,7 +223,6 @@ class JetTester : public edm::EDAnalyzer {
   double          mRecoJetPtThreshold;
   double          mMatchGenPtThreshold;
   double          mGenEnergyFractionThreshold;
-  double          mReverseEnergyFractionThreshold;
   double          mRThreshold;
   bool            isCaloJet;
   bool            isJPTJet;

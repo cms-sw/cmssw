@@ -201,7 +201,7 @@ namespace edm {
       duplicateChecker_(duplicateChecker),
       provenanceAdaptor_(),
       provenanceReaderMaker_(),
-      eventProductProvenanceRetriever_(),
+      eventProductProvenanceRetrievers_(),
       parentageIDLookup_(),
       daqProvenanceHelper_() {
 
@@ -380,7 +380,7 @@ namespace edm {
         it->second.init();
         daqProvenanceHelper_.reset(new DaqProvenanceHelper(it->second.unwrappedTypeID()));
         // Create the new branch description
-        BranchDescription const& newBD = daqProvenanceHelper_->constBranchDescription_;
+        BranchDescription const& newBD = daqProvenanceHelper_->branchDescription();
         // Save info from the old and new branch descriptions
         daqProvenanceHelper_->saveInfo(it->second, newBD);
         // Map the new branch name to the old branch name.
@@ -525,7 +525,7 @@ namespace edm {
         daqProvenanceHelper_->fixMetaData(parents.parentsForUpdate());
         ParentageID newID = parents.id();
         if(newID != oldID) {
-          daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
+          daqProvenanceHelper_->setOldParentageIDToNew(oldID,newID);
         }
       }
       // For thread safety, don't update global registries when a secondary source opens a file.
@@ -561,7 +561,7 @@ namespace edm {
         daqProvenanceHelper_->fixMetaData(parents.parentsForUpdate());
         ParentageID newID = parents.id();
         if(newID != oldID) {
-          daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
+          daqProvenanceHelper_->setOldParentageIDToNew(oldID,newID);
         }
       }
       // For thread safety, don't update global registries when a secondary source opens a file.
@@ -1384,7 +1384,7 @@ namespace edm {
 
     // If this next assert shows up in performance profiling or significantly affects memory, then these three lines should be deleted.
     // The IndexIntoFile should guarantee that it never fails.
-    ProcessHistoryID idToCheck = (daqProvenanceHelper_ && fileFormatVersion().useReducedProcessHistoryID() ? *daqProvenanceHelper_->oldProcessHistoryID_ : eventAux().processHistoryID());
+    ProcessHistoryID idToCheck = (daqProvenanceHelper_ && fileFormatVersion().useReducedProcessHistoryID() ? *daqProvenanceHelper_->oldProcessHistoryID() : eventAux().processHistoryID());
     ProcessHistoryID const& reducedPHID = processHistoryRegistry_->reducedProcessHistoryID(idToCheck);
     assert(reducedPHID == indexIntoFile_.processHistoryID(indexIntoFileIter_.processHistoryIDIndex()));
 
@@ -1412,7 +1412,7 @@ namespace edm {
                                  *processHistoryRegistry_,
                                  std::move(eventSelectionIDs_),
                                  std::move(branchListIndexes_),
-                                 *(makeProductProvenanceRetriever()),
+                                 *(makeProductProvenanceRetriever(principal.streamID().value())),
                                  eventTree_.rootDelayedReader());
 
     // report event read from file
@@ -1741,12 +1741,15 @@ namespace edm {
   }
 
   boost::shared_ptr<ProductProvenanceRetriever>
-  RootFile::makeProductProvenanceRetriever() {
-    if(!eventProductProvenanceRetriever_) {
-      eventProductProvenanceRetriever_.reset(new ProductProvenanceRetriever(provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get())));
+  RootFile::makeProductProvenanceRetriever(unsigned int iStreamID) {
+    if(eventProductProvenanceRetrievers_.size()<=iStreamID) {
+      eventProductProvenanceRetrievers_.resize(iStreamID+1);
     }
-    eventProductProvenanceRetriever_->reset();
-    return eventProductProvenanceRetriever_;
+    if(!eventProductProvenanceRetrievers_[iStreamID]) {
+      eventProductProvenanceRetrievers_[iStreamID].reset(new ProductProvenanceRetriever(provenanceReaderMaker_->makeReader(eventTree_, daqProvenanceHelper_.get())));
+    }
+    eventProductProvenanceRetrievers_[iStreamID]->reset();
+    return eventProductProvenanceRetrievers_[iStreamID];
   }
 
   class ReducedProvenanceReader : public ProvenanceReaderBase {

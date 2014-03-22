@@ -261,7 +261,6 @@ void SiStripAnalyser::endJob(){
 //
 void SiStripAnalyser::checkTrackerFEDs(edm::Event const& e) {
   edm::Handle<FEDRawDataCollection> rawDataHandle;
-  //  e.getByLabel(rawDataTag_, rawDataHandle);
   e.getByToken( rawDataToken_, rawDataHandle );
   if ( !rawDataHandle.isValid() ) return;
   

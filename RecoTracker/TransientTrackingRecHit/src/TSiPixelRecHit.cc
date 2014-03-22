@@ -12,7 +12,7 @@ TSiPixelRecHit::RecHitPointer TSiPixelRecHit::clone (const TrajectoryStateOnSurf
     const SiPixelCluster& clust = *specificHit()->cluster();  
     PixelClusterParameterEstimator::LocalValues lv = 
       theCPE->localParameters( clust, *detUnit(), ts);
-    return TSiPixelRecHit::build( lv.first, lv.second, det(), specificHit()->cluster(), theCPE);
+    return TSiPixelRecHit::build( lv.first, lv.second, theCPE->rawQualityWord(), det(), specificHit()->cluster(), theCPE);
   }
 }
 
@@ -35,31 +35,9 @@ TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh,
     if (gdu){
       PixelClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
       LogDebug("TSiPixelRecHit")<<"calculating coarse position/error.";
-      theHitData = SiPixelRecHit(lval.first, lval.second,geom->geographicalId(),rh->cluster());
+      theHitData = SiPixelRecHit(lval.first, lval.second, theCPE->rawQualityWord(), *geom, rh->cluster());
     }else{
       edm::LogError("TSiPixelRecHit") << " geomdet does not cast into geomdet unit. cannot create pixel local parameters.";
     }
   }
-
-  // Additionally, fill the SiPixeRecHitQuality from the PixelCPE.
-  theHitData.setRawQualityWord( cpe->rawQualityWord() );
-  theClusterProbComputationFlag = cpe->clusterProbComputationFlag(); 
-
 }
-
-
-
-// Another private constructor.  It creates the TrackingRecHit internally, 
-// avoiding redundent cloning.
-TSiPixelRecHit::TSiPixelRecHit( const LocalPoint& pos, const LocalError& err,
-				const GeomDet* det, 
-				clusterRef const & clust,
-				const PixelClusterParameterEstimator* cpe) :
-  TValidTrackingRecHit(det), theCPE(cpe),
-  theHitData( pos, err, det->geographicalId(), clust)
-{
-  // Additionally, fill the SiPixeRecHitQuality from the PixelCPE.
-  theHitData.setRawQualityWord( cpe->rawQualityWord() );
-  theClusterProbComputationFlag = cpe->clusterProbComputationFlag(); 
-}
-

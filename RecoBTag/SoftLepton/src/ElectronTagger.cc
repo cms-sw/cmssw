@@ -17,13 +17,15 @@ float ElectronTagger::discriminator(const TagInfoHelper & tagInfo) const {
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties & properties = info.properties(i);
     if (m_selector(properties)) {
-			TRandom3 *r = new TRandom3(0);
+			int theSeed=1+round(10000.0*fabs(properties.deltaR));
+			TRandom3 *r = new TRandom3(theSeed);
 			float rndm = r->Uniform(0,1);
 			//for negative tagger, flip 50% of the negative signs to positive value
 			float sip3d = (m_selector.isNegative() && rndm<0.5) ? -properties.sip3d : properties.sip3d;
 			float tag = theNet.Value(0, properties.ptRel, sip3d,properties.deltaR ,properties.ratioRel);
-      if (tag > bestTag)
-        bestTag = tag;
+      			if (tag > bestTag)
+        		bestTag = tag;
+			delete r;
     }
   }
   return bestTag;

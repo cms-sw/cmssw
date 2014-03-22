@@ -63,8 +63,8 @@ private:
       // ----------member data ---------------------------
 
   BSvsPVHistogramMaker _bspvhm;
-  edm::InputTag _pvcollection;
-  edm::InputTag _bscollection;
+  edm::EDGetTokenT<reco::VertexCollection> _recoVertexCollectionToken;
+  edm::EDGetTokenT<reco::BeamSpot> _recoBeamSpotToken;
   bool _firstOnly;
 
 };
@@ -80,11 +80,11 @@ private:
 //
 // constructors and destructor
 //
-BSvsPVAnalyzer::BSvsPVAnalyzer(const edm::ParameterSet& iConfig):
-  _bspvhm(iConfig.getParameter<edm::ParameterSet>("bspvHistogramMakerPSet")),
-  _pvcollection(iConfig.getParameter<edm::InputTag>("pvCollection")),
-  _bscollection(iConfig.getParameter<edm::InputTag>("bsCollection")),
-  _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false))
+BSvsPVAnalyzer::BSvsPVAnalyzer(const edm::ParameterSet& iConfig)
+  : _bspvhm(iConfig.getParameter<edm::ParameterSet>("bspvHistogramMakerPSet"))
+  , _recoVertexCollectionToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvCollection")))
+  , _recoBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsCollection")))
+  , _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false))
 {
    //now do what ever initialization is needed
 
@@ -112,17 +112,16 @@ BSvsPVAnalyzer::~BSvsPVAnalyzer()
 void
 BSvsPVAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
   
   // get BS
 
-  Handle<reco::BeamSpot> bs;
-  iEvent.getByLabel(_bscollection,bs);
+  edm::Handle<reco::BeamSpot> bs;
+  iEvent.getByToken(_recoBeamSpotToken,bs);
 
   // get PV
 
-  Handle<reco::VertexCollection> pvcoll;
-  iEvent.getByLabel(_pvcollection,pvcoll);
+  edm::Handle<reco::VertexCollection> pvcoll;
+  iEvent.getByToken(_recoVertexCollectionToken,pvcoll);
 
   if(_firstOnly) {
     reco::VertexCollection firstpv;

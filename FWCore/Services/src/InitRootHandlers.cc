@@ -116,7 +116,9 @@ namespace {
           (el_location.find("TDecompChol::Solve") != std::string::npos) ||
           (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
           (el_location.find("TUnixSystem::SetDisplay") != std::string::npos) ||
-          (el_location.find("TGClient::GetFontByName") != std::string::npos)) {
+          (el_location.find("TGClient::GetFontByName") != std::string::npos) ||
+          (el_message.find("nbins is <=0 - set to nbins = 1") != std::string::npos) ||
+          (el_message.find("nbinsy is <=0 - set to nbinsy = 1") != std::string::npos)) {
         el_severity = SeverityLevel::kInfo;
       }
 
@@ -188,6 +190,10 @@ namespace {
       }
       ::abort();
     }
+    
+    void sig_abort(int sig, siginfo_t*, void*) {
+      ::abort();
+    }
   }
 }  // end of unnamed namespace
 
@@ -218,8 +224,17 @@ namespace edm {
         gSystem->ResetSignal(kSigSegmentationViolation);
         gSystem->ResetSignal(kSigIllegalInstruction);
         installCustomHandler(SIGBUS,sig_dostack_then_abort);
+        sigBusHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
+          installCustomHandler(SIGBUS,sig_abort);
+        });
         installCustomHandler(SIGSEGV,sig_dostack_then_abort);
+        sigSegvHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
+          installCustomHandler(SIGSEGV,sig_abort);
+        });
         installCustomHandler(SIGILL,sig_dostack_then_abort);
+        sigIllHandler_ = std::shared_ptr<const void>(nullptr,[](void*) {
+          installCustomHandler(SIGILL,sig_abort);
+        });
       }
 
       if(resetErrHandler_) {
@@ -249,6 +264,11 @@ namespace edm {
       if (!TypeWithDict(typeid(std::vector<std::vector<unsigned int> >)).hasDictionary()) {
          edmplugin::PluginCapabilities::get()->load(dictionaryPlugInPrefix() + "std::vector<std::vector<unsigned int> >");
       }
+
+      int debugLevel = pset.getUntrackedParameter<int>("DebugLevel");
+      if(debugLevel >0) {
+	gDebug = debugLevel;
+      }
     }
 
     InitRootHandlers::~InitRootHandlers () {
@@ -273,6 +293,8 @@ namespace edm {
           ->setComment("If True, enables automatic loading of data dictionaries.");
       desc.addUntracked<bool>("AbortOnSignal",true)
       ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");
+      desc.addUntracked<int>("DebugLevel",0)
+ 	  ->setComment("Sets ROOT's gDebug value.");
       descriptions.add("InitRootHandlers", desc);
     }
 

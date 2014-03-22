@@ -56,7 +56,7 @@ namespace reco {
     /// Ref to SuperCluster
     reco::SuperClusterRef superCluster() const;
     /// Ref to PFlow SuperCluster
-    reco::SuperClusterRef pfSuperCluster() const {return this->photonCore()->pfSuperCluster();}
+    reco::SuperClusterRef parentSuperCluster() const {return this->photonCore()->parentSuperCluster();}
     /// vector of references to  Conversion's
     reco::ConversionRefVector conversions() const {return this->photonCore()->conversions() ;}  
     enum ConversionProvenance {egamma=0, 
@@ -148,8 +148,8 @@ namespace reco {
       float hcalDepth2OverEcalBc;
       std::vector<CaloTowerDetId> hcalTowersBehindClusters;
       ShowerShape()
-	: sigmaEtaEta(std::numeric_limits<float>::infinity()),
-	   sigmaIetaIeta(std::numeric_limits<float>::infinity()),
+	: sigmaEtaEta(std::numeric_limits<float>::max()),
+	   sigmaIetaIeta(std::numeric_limits<float>::max()),
 	   e1x5(0), 
 	   e2x5(0), 
 	   e3x3(0), 

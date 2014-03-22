@@ -1,6 +1,7 @@
 #ifndef Utilities_StaticAnalyzers_FunctionDumper_h
 #define Utilities_StaticAnalyzers_FunctionDumper_h
 #include <clang/AST/DeclCXX.h>
+#include <clang/AST/ExprCXX.h>
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclTemplate.h>
 #include <clang/AST/StmtVisitor.h>

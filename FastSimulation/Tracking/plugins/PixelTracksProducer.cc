@@ -50,9 +50,10 @@ PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) :
   std::string fitterName = fitterPSet.getParameter<std::string>("ComponentName");
   theFitter = PixelFitterFactory::get()->create( fitterName, fitterPSet);
   
+  edm::ConsumesCollector iC = consumesCollector();
   const edm::ParameterSet& filterPSet = conf.getParameter<edm::ParameterSet>("FilterPSet");
   std::string filterName = filterPSet.getParameter<std::string>("ComponentName");
-  theFilter = PixelTrackFilterFactory::get()->create( filterName, filterPSet);
+  theFilter = PixelTrackFilterFactory::get()->create( filterName, filterPSet, iC);
   
   // The name of the seed producer
   seedProducer = conf.getParameter<edm::InputTag>("SeedProducer");

@@ -105,31 +105,31 @@ namespace reco {
     reco::SuperClusterRef superClusterRef() const {return scRef_ ; }
 
     /// return a reference to the corresponding box supercluster
-    reco::SuperClusterRef superClusterBoxRef() const {return scBoxRef_ ; }    
+    reco::SuperClusterRef superClusterPFECALRef() const {return scPFECALRef_ ; }    
     
     /// set reference to the corresponding supercluster
     void setSuperClusterRef(reco::SuperClusterRef sc) { scRef_ = sc; }
 
     /// set reference to the corresponding supercluster
-    void setSuperClusterBoxRef(reco::SuperClusterRef sc) { scBoxRef_ = sc; }   
+    void setSuperClusterPFECALRef(reco::SuperClusterRef sc) { scPFECALRef_ = sc; }   
     
     /// add Single Leg Conversion TrackRef 
-    void addSingleLegConvTrackRef(const reco::TrackRef& trackref);
+    void addSingleLegConvTrackRefMva(const std::pair<reco::TrackRef, float> &trackrefmva);
 
     /// return vector of Single Leg Conversion TrackRef from 
-    const std::vector<reco::TrackRef>& singleLegConvTrackRef() const {return assoSingleLegRefTrack_;}
-
-    /// add Single Leg Conversion mva
-    void addSingleLegConvMva(const float& mvasingleleg);
-
-    /// return Single Leg Conversion mva
-    const std::vector<float>& singleLegConvMva() const {return assoSingleLegMva_;}
+    const std::vector<std::pair<reco::TrackRef, float > > &singleLegConvTrackRefMva() const {return assoSingleLeg_;}
 
     /// add Conversions from PF
     void addConversionRef(const reco::ConversionRef& convref);
 
     /// return Conversions from PF
     reco::ConversionRefVector conversionRef() const {return assoConversionsRef_;}     
+    
+    /// add Conversions from PF
+    void addSingleLegConversionRef(const reco::ConversionRef& convref);
+
+    /// return Conversions from PF
+    reco::ConversionRefVector singleLegConversionRef() const {return singleLegConversions_;}
     
     /// set LateBrem
     void setLateBrem(float val); 
@@ -201,20 +201,20 @@ namespace reco {
     /// Ref to (refined) supercluster
     reco::SuperClusterRef scRef_;
 
-    /// Ref to box supercluster
-    reco::SuperClusterRef scBoxRef_;    
+    /// Ref to PF-ECAL only supercluster
+    reco::SuperClusterRef scPFECALRef_;    
     
-    ///  vector of TrackRef from Single Leg conversions
-    std::vector<reco::TrackRef> assoSingleLegRefTrack_;
+    ///  vector of TrackRef from Single Leg conversions and associated mva value                                                                                                                                                                                                                      
+    std::vector<std::pair<reco::TrackRef, float> > assoSingleLeg_;
     
     // information for track matching
     ElementsInBlocks assoNonConvExtraTracks_;    
 
-    ///  vector of Mvas from Single Leg conversions
-    std::vector<float> assoSingleLegMva_;
-
     /// vector of ConversionRef from PF
     reco::ConversionRefVector assoConversionsRef_;    
+    
+    //associated single leg conversions
+    reco::ConversionRefVector singleLegConversions_;
     
     /// energy of individual clusters (corrected). 
     /// The first cluster is the seed

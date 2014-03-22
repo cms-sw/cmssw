@@ -22,23 +22,25 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "TMath.h"
 
 using namespace edm;
 using namespace std;
 
 SETMuonSeedProducer::SETMuonSeedProducer(const ParameterSet& parameterSet)
-: thePatternRecognition(parameterSet),
-  theSeedFinder(parameterSet),
+: theSeedFinder(parameterSet),
   theBeamSpotTag(parameterSet.getParameter<edm::InputTag>("beamSpotTag"))
 {
+  
+  edm::ConsumesCollector iC =  consumesCollector();
+  thePatternRecognition = new SETPatternRecognition(parameterSet,iC);
+  
   const string metname = "Muon|RecoMuon|SETMuonSeedSeed";  
   //std::cout<<" The SET SEED producer started."<<std::endl;
 
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
   theService        = new MuonServiceProxy(serviceParameters);
-  thePatternRecognition.setServiceProxy(theService);
+  thePatternRecognition->setServiceProxy(theService);
   theSeedFinder.setServiceProxy(theService);
   // Parameter set for the Builder
   ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("SETTrajBuilderParameters");
@@ -56,6 +58,8 @@ SETMuonSeedProducer::SETMuonSeedProducer(const ParameterSet& parameterSet)
 
   //----
 
+
+  beamspotToken = consumes<reco::BeamSpot>(theBeamSpotTag);
   produces<TrajectorySeedCollection>();
 
 } 
@@ -67,6 +71,8 @@ SETMuonSeedProducer::~SETMuonSeedProducer(){
   
   if(theFilter) delete theFilter;
    if (theService) delete theService;
+   if(thePatternRecognition) delete  thePatternRecognition;
+
 }
 
 void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup){
@@ -86,7 +92,7 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
 
   reco::BeamSpot beamSpot;
   edm::Handle<reco::BeamSpot> beamSpotHandle;
-  event.getByLabel(theBeamSpotTag, beamSpotHandle);
+  event.getByToken(beamspotToken, beamSpotHandle);
   if ( beamSpotHandle.isValid() )
   {
     beamSpot = *beamSpotHandle;
@@ -106,7 +112,7 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
   std::vector <SeedCandidate> seedCandidates_AllChosen;
   std::vector< MuonRecHitContainer > MuonRecHitContainer_clusters;
   //---- this is "clustering"; later a trajectory can not use hits from different clusters
-  thePatternRecognition.produce(event, eventSetup, MuonRecHitContainer_clusters);
+  thePatternRecognition->produce(event, eventSetup, MuonRecHitContainer_clusters);
 
   //std::cout<<"We have formed "<<MuonRecHitContainer_clusters.size()<<" clusters"<<std::endl;
   //---- for each cluster,

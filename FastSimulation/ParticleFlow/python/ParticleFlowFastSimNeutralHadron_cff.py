@@ -14,6 +14,7 @@ from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 from FastSimulation.ParticleFlow.FSparticleFlow_cfi import *
 # The following is replaced by the MVA-based 
 #from RecoParticleFlow.PFProducer.pfGsfElectronCiCSelector_cff import *
+from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cff import *
 from RecoParticleFlow.PFProducer.pfGsfElectronMVASelector_cff import *
 from RecoParticleFlow.PFProducer.pfLinker_cff import *
 from RecoParticleFlow.PFProducer.particleFlowEGamma_cff import *
@@ -44,6 +45,11 @@ particleFlowClusterHFHAD.thresh_Clean_Endcap = cms.double(1E5)
 #particleFlow.usePFConversions = cms.bool(True)
 #particleFlow.usePFDecays = cms.bool(True)
 
+### With the new mixing scheme, the label of the Trajectory collection for the primary event is different:
+from FastSimulation.Configuration.CommonInputs_cff import *
+if(CaloMode==3 and MixingMode=='DigiRecoMixing'):
+    trackerDrivenElectronSeeds.TkColList = cms.VInputTag(cms.InputTag("generalTracksBeforeMixing"))
+
 
 famosParticleFlowSequence = cms.Sequence(
     caloTowersRec+
@@ -56,12 +62,10 @@ famosParticleFlowSequence = cms.Sequence(
     particleFlowTmp+
     particleFlowTmpPtrs+
     particleFlowEGammaFinal+
-    FSparticleFlow+
-    pfElectronTranslatorSequence+
-    pfPhotonTranslatorSequence
+    FSparticleFlow
 )
 
-particleFlowLinks = cms.Sequence(particleFlow+particleFlowPtrs)
+particleFlowLinks = cms.Sequence(particleFlow+particleFlowPtrs + particleBasedIsolationSequence)
 
 # PF Reco Jets and MET
 

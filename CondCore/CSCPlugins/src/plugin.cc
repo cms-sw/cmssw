@@ -44,6 +44,8 @@
 #include "CondFormats/CSCObjects/interface/CSCBadWires.h"
 #include "CondFormats/DataRecord/interface/CSCBadWiresRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCReadoutMapping.h"
+#include "CondFormats/CSCObjects/interface/CSCReadoutMappingForSliceTest.h"
+#include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
 #include "CondFormats/DataRecord/interface/CSCReadoutMappingRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
 #include "CondFormats/DataRecord/interface/CSCL1TPParametersRcd.h"
@@ -53,6 +55,23 @@
 #include "CondFormats/DataRecord/interface/CSCDCSDataRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCDBGasGainCorrection.h"
 #include "CondFormats/DataRecord/interface/CSCDBGasGainCorrectionRcd.h"
+
+//
+#include "CondCore/CondDB/interface/Serialization.h"
+
+namespace cond {
+  template <> CSCReadoutMapping* createPayload<CSCReadoutMapping>( const std::string& payloadTypeName ){
+    if( payloadTypeName == "CSCReadoutMappingFromFile" ) return new CSCReadoutMappingFromFile;
+    throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
+		   "createPayload" );
+  }
+  template <> CSCReadoutMappingForSliceTest* createPayload<CSCReadoutMappingForSliceTest>( const std::string& payloadTypeName ){
+    if( payloadTypeName == "CSCReadoutMappingFromFile" ) return new CSCReadoutMappingFromFile;
+    throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
+		   "createPayload" );
+  }
+
+}
 
 
 REGISTER_PLUGIN(CSCPedestalsRcd,CSCPedestals);

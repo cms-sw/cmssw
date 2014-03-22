@@ -6,6 +6,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+void MuonIdTruthInfo::registerConsumes(edm::ConsumesCollector& iC) {
+  iC.mayConsume<edm::SimTrackContainer>(edm::InputTag("g4SimHits",""));
+  iC.mayConsume<edm::PSimHitContainer>(edm::InputTag("g4SimHits","MuonDTHits"));
+  iC.mayConsume<edm::PSimHitContainer>(edm::InputTag("g4SimHits","MuonCSCHits"));
+
+}
+
+
 
 void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent, 
 				     const edm::EventSetup& iSetup,
@@ -97,6 +107,8 @@ void MuonIdTruthInfo::checkSimHitForBestMatch(reco::MuonSegmentMatch& segmentMat
 					      const DetId& chamberId,
 					      const edm::ESHandle<GlobalTrackingGeometry>& geometry)
 {
+  printf("DONT FORGET TO CALL REGISTERCONSUMES()\n");
+
    // find the hit position projection at the reference surface of the chamber:
    // first get entry and exit point of the hit in the global coordinates, then
    // get local coordinates of these points wrt the chamber and then find the

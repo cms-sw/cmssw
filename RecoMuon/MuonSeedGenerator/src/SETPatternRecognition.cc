@@ -9,17 +9,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"            
-#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"             
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"                
 #include "TMath.h"
 
 
 using namespace edm;
 using namespace std;
 
-SETPatternRecognition::SETPatternRecognition(const ParameterSet& parameterSet)
+SETPatternRecognition::SETPatternRecognition(const ParameterSet& parameterSet, edm::ConsumesCollector& iC)
 : MuonSeedVPatternRecognition(parameterSet.getParameter<ParameterSet>("SETTrajBuilderParameters").getParameter<ParameterSet>("FilterParameters"))
 {
   const string metname = "Muon|RecoMuon|SETPatternRecognition";  
@@ -36,6 +32,9 @@ SETPatternRecognition::SETPatternRecognition(const ParameterSet& parameterSet)
   outsideChamberErrorScale = filterPSet.getParameter<double>("OutsideChamberErrorScale");
   minLocalSegmentAngle = filterPSet.getParameter<double>("MinLocalSegmentAngle");
   //----
+  dtToken  = iC.consumes<DTRecSegment4DCollection>(DTRecSegmentLabel);
+  cscToken = iC.consumes<CSCSegmentCollection>(CSCRecSegmentLabel);
+  rpcToken = iC.consumes<RPCRecHitCollection> (RPCRecSegmentLabel);
 
 } 
 
@@ -56,7 +55,7 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   // ********************************************;
 
   edm::Handle<DTRecSegment4DCollection> dtRecHits;
-  event.getByLabel(DTRecSegmentLabel, dtRecHits);
+  event.getByToken(dtToken, dtRecHits);
   std::vector<DTChamberId> chambers_DT;
   std::vector<DTChamberId>::const_iterator chIt_DT;
   for (DTRecSegment4DCollection::const_iterator rechit = dtRecHits->begin(); rechit!=dtRecHits->end();++rechit) {
@@ -98,7 +97,7 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   // ********************************************;
 
   edm::Handle<CSCSegmentCollection> cscSegments;
-  event.getByLabel(CSCRecSegmentLabel, cscSegments);
+  event.getByToken(cscToken, cscSegments);
   std::vector<CSCDetId> chambers_CSC;
   std::vector<CSCDetId>::const_iterator chIt_CSC;
   for(CSCSegmentCollection::const_iterator rechit=cscSegments->begin(); rechit != cscSegments->end(); ++rechit) {
@@ -129,7 +128,7 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   // ********************************************;
 
   edm::Handle<RPCRecHitCollection> rpcRecHits;
-  event.getByLabel(RPCRecSegmentLabel, rpcRecHits);
+  event.getByToken(rpcToken, rpcRecHits);
   if(useRPCs){
     for(RPCRecHitCollection::const_iterator rechit=rpcRecHits->begin(); rechit != rpcRecHits->end(); ++rechit) {
       // RPCs are special

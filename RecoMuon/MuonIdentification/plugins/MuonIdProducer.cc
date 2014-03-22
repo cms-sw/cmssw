@@ -24,8 +24,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
@@ -38,9 +36,6 @@
 
 #include <boost/regex.hpp>
 #include "RecoMuon/MuonIdentification/plugins/MuonIdProducer.h"
-#include "RecoMuon/MuonIdentification/interface/MuonIdTruthInfo.h"
-#include "RecoMuon/MuonIdentification/interface/MuonArbitrationMethods.h"
-#include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -52,12 +47,8 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
-// RPC-Muon stuffs
-#include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include "DataFormats/MuonReco/interface/MuonRPCHitMatch.h"
+#include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
-#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
@@ -102,7 +93,8 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 
    // Load parameters for the TimingFiller
    edm::ParameterSet timingParameters = iConfig.getParameter<edm::ParameterSet>("TimingFillerParameters");
-   theTimingFiller_ = new MuonTimingFiller(timingParameters);
+   theTimingFiller_ = new MuonTimingFiller(timingParameters,consumesCollector());
+   
 
    if (fillCaloCompatibility_){
       // Load MuonCaloCompatibility parameters
@@ -114,15 +106,15 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
       // Load MuIsoExtractor parameters
       edm::ParameterSet caloExtractorPSet = iConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
       std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorCalo_ = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet, consumesCollector());
+      muIsoExtractorCalo_ = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet,consumesCollector());
 
       edm::ParameterSet trackExtractorPSet = iConfig.getParameter<edm::ParameterSet>("TrackExtractorPSet");
       std::string trackExtractorName = trackExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorTrack_ = IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet, consumesCollector());
+      muIsoExtractorTrack_ = IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet,consumesCollector());
 
       edm::ParameterSet jetExtractorPSet = iConfig.getParameter<edm::ParameterSet>("JetExtractorPSet");
       std::string jetExtractorName = jetExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorJet_ = IsoDepositExtractorFactory::get()->create( jetExtractorName, jetExtractorPSet, consumesCollector());
+      muIsoExtractorJet_ = IsoDepositExtractorFactory::get()->create( jetExtractorName, jetExtractorPSet,consumesCollector());
    }
    if (fillIsolation_ && writeIsoDeposits_){
      trackDepositName_ = iConfig.getParameter<std::string>("trackDepositName");
@@ -160,7 +152,51 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 
    //create mesh holder
    meshAlgo_ = new MuonMesh(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
+
+
+   edm::InputTag rpcHitTag("rpcRecHits");
+   rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
+   glbQualToken_ = consumes<edm::ValueMap<reco::MuonQuality> >(globalTrackQualityInputTag_);
+   
+
+   //Consumes... UGH
+   for ( unsigned int i = 0; i < inputCollectionLabels_.size(); ++i ) {
+      if ( inputCollectionTypes_[i] == "inner tracks" ) {
+	innerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+      if ( inputCollectionTypes_[i] == "outer tracks" ) {
+	outerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+      if ( inputCollectionTypes_[i] == "links" ) {
+	linkCollectionToken_ = consumes<reco::MuonTrackLinksCollection>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+      if ( inputCollectionTypes_[i] == "muons" ) {
+	muonCollectionToken_ = consumes<reco::MuonCollection>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev firstHit" ) {
+	tpfmsCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev picky" ) {
+	pickyCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev dyt" ) {
+	dytCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+	 continue;
+      }
+      throw cms::Exception("FatalError") << "Unknown input collection type: " << inputCollectionTypes_[i];
+   }
+
+
 }
+
 
 
 MuonIdProducer::~MuonIdProducer()
@@ -198,52 +234,52 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // timers.pop_and_push("MuonIdProducer::produce::init::getInputCollections");
    for ( unsigned int i = 0; i < inputCollectionLabels_.size(); ++i ) {
       if ( inputCollectionTypes_[i] == "inner tracks" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], innerTrackCollectionHandle_);
-	 if (! innerTrackCollectionHandle_.isValid())
+	 iEvent.getByToken(innerTrackCollectionToken_, innerTrackCollectionHandle_);
+	 if (! innerTrackCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input inner tracks: " << innerTrackCollectionHandle_->size();
 	 continue;
       }
       if ( inputCollectionTypes_[i] == "outer tracks" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], outerTrackCollectionHandle_);
-	 if (! outerTrackCollectionHandle_.isValid())
+	 iEvent.getByToken(outerTrackCollectionToken_, outerTrackCollectionHandle_);
+	 if (! outerTrackCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input outer tracks: " << outerTrackCollectionHandle_->size();
 	 continue;
       }
       if ( inputCollectionTypes_[i] == "links" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], linkCollectionHandle_);
-	 if (! linkCollectionHandle_.isValid())
+	 iEvent.getByToken(linkCollectionToken_, linkCollectionHandle_);
+	 if (! linkCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input link collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input links: " << linkCollectionHandle_->size();
 	 continue;
       }
       if ( inputCollectionTypes_[i] == "muons" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], muonCollectionHandle_);
-	 if (! muonCollectionHandle_.isValid())
+	 iEvent.getByToken(muonCollectionToken_, muonCollectionHandle_);
+	 if (! muonCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input muons: " << muonCollectionHandle_->size();
 	 continue;
       }
       if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev firstHit" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], tpfmsCollectionHandle_);
-	 if (! tpfmsCollectionHandle_.isValid())
+	 iEvent.getByToken(tpfmsCollectionToken_, tpfmsCollectionHandle_);
+	 if (! tpfmsCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input muons: " << tpfmsCollectionHandle_->size();
 	 continue;
       }
 
       if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev picky" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], pickyCollectionHandle_);
-	 if (! pickyCollectionHandle_.isValid())
+	 iEvent.getByToken(pickyCollectionToken_, pickyCollectionHandle_);
+	 if (! pickyCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input muons: " << pickyCollectionHandle_->size();
 	 continue;
       }
 
       if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev dyt" ) {
-	 iEvent.getByLabel(inputCollectionLabels_[i], dytCollectionHandle_);
-	 if (! dytCollectionHandle_.isValid())
+	 iEvent.getByToken(dytCollectionToken_, dytCollectionHandle_);
+	 if (! dytCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input muons: " << dytCollectionHandle_->size();
 	 continue;
@@ -835,7 +871,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() ) return;
 
   edm::Handle<RPCRecHitCollection> rpcRecHits;
-  iEvent.getByLabel(edm::InputTag("rpcRecHits"), rpcRecHits);
+  iEvent.getByToken(rpcHitToken_, rpcRecHits);
 
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
@@ -1243,7 +1279,7 @@ double MuonIdProducer::phiOfMuonIneteractionRegion( const reco::Muon& muon ) con
 void MuonIdProducer::fillGlbQuality(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon)
 {
   edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualH;
-  iEvent.getByLabel(globalTrackQualityInputTag_, glbQualH);
+  iEvent.getByToken(glbQualToken_, glbQualH);
 
   if(aMuon.isGlobalMuon() && glbQualH.isValid() && !glbQualH.failedToGet()) {
     aMuon.setCombinedQuality((*glbQualH)[aMuon.combinedMuon()]);

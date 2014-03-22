@@ -5,7 +5,7 @@ from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 # producer for photonCore collection
 #
 photonCore = cms.EDProducer("PhotonCoreProducer",
-    conversionProducer = cms.InputTag("conversions"),
+    conversionProducer = cms.InputTag(""),
    # conversionCollection = cms.string(''),
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
     scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),

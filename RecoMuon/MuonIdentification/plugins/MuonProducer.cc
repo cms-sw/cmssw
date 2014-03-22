@@ -8,24 +8,6 @@
 
 #include "RecoMuon/MuonIsolation/interface/MuPFIsoHelper.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
-#include "DataFormats/MuonReco/interface/MuonShower.h"
-#include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
-#include "DataFormats/MuonReco/interface/MuonToMuonMap.h"
-
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 
 #include <boost/foreach.hpp>
 #define foreach BOOST_FOREACH
@@ -53,8 +35,10 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
 
   
   theMuonsCollectionLabel = pSet.getParameter<edm::InputTag>("InputMuons");
+  theMuonsCollectionToken_ = consumes<reco::MuonCollection>(theMuonsCollectionLabel);
+
   thePFCandLabel = pSet.getParameter<edm::InputTag>("PFCandidates");
-  
+  thePFCandToken_ = consumes<reco::PFCandidateCollection>(thePFCandLabel);
   
   // Variables to switch on-off the differnt parts
   fillSelectors_              = pSet.getParameter<bool>("FillSelectorMaps");
@@ -68,6 +52,11 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
   produces<reco::MuonCollection>();
 
   if(fillTimingInfo_){
+
+    timeMapCmbToken_= consumes<reco::MuonTimeExtraMap>(edm::InputTag(theMuonsCollectionLabel.label(),"combined")) ;
+    timeMapDTToken_ = consumes<reco::MuonTimeExtraMap>(edm::InputTag(theMuonsCollectionLabel.label(),"dt")) ;
+    timeMapCSCToken_= consumes<reco::MuonTimeExtraMap>(edm::InputTag(theMuonsCollectionLabel.label(),"csc")) ;
+
     produces<reco::MuonTimeExtraMap>("combined");
     produces<reco::MuonTimeExtraMap>("dt");
     produces<reco::MuonTimeExtraMap>("csc");
@@ -75,31 +64,48 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
   
   if (fillDetectorBasedIsolation_){
     theTrackDepositName = pSet.getParameter<edm::InputTag>("TrackIsoDeposits");
+    theTrackDepositToken_ = consumes<reco::IsoDepositMap>(theTrackDepositName);
     produces<reco::IsoDepositMap>(labelOrInstance(theTrackDepositName));
+
     theJetDepositName = pSet.getParameter<edm::InputTag>("JetIsoDeposits");
+    theJetDepositToken_ = consumes<reco::IsoDepositMap>(theJetDepositName);
     produces<reco::IsoDepositMap>(labelOrInstance(theJetDepositName));
+
     theEcalDepositName = pSet.getParameter<edm::InputTag>("EcalIsoDeposits");
+    theEcalDepositToken_ = consumes<reco::IsoDepositMap>(theEcalDepositName);
     produces<reco::IsoDepositMap>(theEcalDepositName.instance());
+
     theHcalDepositName = pSet.getParameter<edm::InputTag>("HcalIsoDeposits");
+    theHcalDepositToken_ = consumes<reco::IsoDepositMap>(theHcalDepositName);
     produces<reco::IsoDepositMap>(theHcalDepositName.instance());
+
     theHoDepositName = pSet.getParameter<edm::InputTag>("HoIsoDeposits");
+    theHoDepositToken_ = consumes<reco::IsoDepositMap>(theHoDepositName);
+
     produces<reco::IsoDepositMap>(theHoDepositName.instance());
   }
   
   if(fillSelectors_){
     theSelectorMapNames = pSet.getParameter<InputTags>("SelectorMaps");
     
-    for(InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag)
+    for(InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag) {
+      theSelectorMapTokens_.push_back(consumes<edm::ValueMap<bool> >(*tag));
       produces<edm::ValueMap<bool> >(labelOrInstance(*tag));
-  }
+    }
   
+  }
+
   if(fillShoweringInfo_){
     theShowerMapName = pSet.getParameter<edm::InputTag>("ShowerInfoMap");
+    theShowerMapToken_ = consumes<reco::MuonShowerMap>(theShowerMapName);
     produces<edm::ValueMap<reco::MuonShower> >(labelOrInstance(theShowerMapName));
   }
   
   if(fillCosmicsIdMap_){
     theCosmicCompMapName = pSet.getParameter<edm::InputTag>("CosmicIdMap");
+    theCosmicIdMapToken_ = consumes<edm::ValueMap<unsigned int> >(theCosmicCompMapName);
+    theCosmicCompMapToken_ = consumes<edm::ValueMap<reco::MuonCosmicCompatibility> >(theCosmicCompMapName);
+
     produces<edm::ValueMap<reco::MuonCosmicCompatibility> >(labelOrInstance(theCosmicCompMapName));
     produces<edm::ValueMap<unsigned int> >(labelOrInstance(theCosmicCompMapName));
   }
@@ -129,7 +135,8 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
     //Fill the label,pet map and initialize MuPFIsoHelper
     for( std::vector<std::string>::const_iterator label = isolationLabels.begin();label != isolationLabels.end();++label)
       psetMap[*label] =pfIsoPSet.getParameter<edm::ParameterSet >(*label); 
-    thePFIsoHelper = new MuPFIsoHelper(psetMap);
+
+    thePFIsoHelper = new MuPFIsoHelper(psetMap,consumesCollector());
 
     //Now loop on the mass read for each PSet the parameters and save them to the mapNames for later
 
@@ -142,7 +149,19 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
       isoMap["photon"]                       = map->second.getParameter<edm::InputTag>("photon");
       isoMap["photonHighThreshold"]          = map->second.getParameter<edm::InputTag>("photonHighThreshold");
       isoMap["pu"]                           = map->second.getParameter<edm::InputTag>("pu");
+
+      std::map<std::string,edm::EDGetTokenT<edm::ValueMap<double> > > isoMapToken;
+      isoMapToken["chargedParticle"]             = consumes<edm::ValueMap<double> >(isoMap["chargedParticle"]); 
+      isoMapToken["chargedHadron"]               = consumes<edm::ValueMap<double> >(isoMap["chargedHadron"]);  
+      isoMapToken["neutralHadron"]               = consumes<edm::ValueMap<double> >(isoMap["neutralHadron"]);  
+      isoMapToken["neutralHadronHighThreshold"]  = consumes<edm::ValueMap<double> >(isoMap["neutralHadronHighThreshold"]);  
+      isoMapToken["photon"]                      = consumes<edm::ValueMap<double> >(isoMap["photon"]);  
+      isoMapToken["photonHighThreshold"]         = consumes<edm::ValueMap<double> >(isoMap["photonHighThreshold"]);  
+      isoMapToken["pu"]                          = consumes<edm::ValueMap<double> >(isoMap["pu"]);  
+      
+
       pfIsoMapNames.push_back(isoMap);
+      pfIsoMapTokens_.push_back(isoMapToken);
     }
 
 
@@ -171,11 +190,11 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    reco::MuonRefProd outputMuonsRefProd = event.getRefBeforePut<reco::MuonCollection>();
 
    edm::Handle<reco::MuonCollection> inputMuons; 
-   event.getByLabel(theMuonsCollectionLabel, inputMuons);
+   event.getByToken(theMuonsCollectionToken_, inputMuons);
    edm::OrphanHandle<reco::MuonCollection> inputMuonsOH(inputMuons.product(), inputMuons.id());
    
    edm::Handle<reco::PFCandidateCollection> pfCandidates; 
-   event.getByLabel(thePFCandLabel, pfCandidates);
+   event.getByToken(thePFCandToken_, pfCandidates);
 
 
    // fetch collections for PFIso
@@ -194,9 +213,9 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    std::vector<reco::MuonTimeExtra> combinedTimeColl(nMuons);
 
    if(fillTimingInfo_){
-     event.getByLabel(theMuonsCollectionLabel.label(),"combined",timeMapCmb);
-     event.getByLabel(theMuonsCollectionLabel.label(),"dt",timeMapDT);
-     event.getByLabel(theMuonsCollectionLabel.label(),"csc",timeMapCSC);
+     event.getByToken(timeMapCmbToken_,timeMapCmb);
+     event.getByToken(timeMapDTToken_,timeMapDT);
+     event.getByToken(timeMapCSCToken_,timeMapCSC);
    }
 
    std::vector<reco::IsoDeposit> trackDepColl(nMuons);
@@ -214,11 +233,11 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
 
    if(fillDetectorBasedIsolation_){
-     event.getByLabel(theTrackDepositName,trackIsoDepMap);
-     event.getByLabel(theEcalDepositName,ecalIsoDepMap);
-     event.getByLabel(theHcalDepositName,hcalIsoDepMap);
-     event.getByLabel(theHoDepositName,hoIsoDepMap);
-     event.getByLabel(theJetDepositName,jetIsoDepMap);
+     event.getByToken(theTrackDepositToken_,trackIsoDepMap);
+     event.getByToken(theEcalDepositToken_,ecalIsoDepMap);
+     event.getByToken(theHcalDepositToken_,hcalIsoDepMap);
+     event.getByToken(theHoDepositToken_,hoIsoDepMap);
+     event.getByToken(theJetDepositToken_,jetIsoDepMap);
    }
 
    
@@ -232,7 +251,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 	std::map<std::string,edm::Handle<edm::ValueMap<double> > > maps;
 	for(std::map<std::string,edm::InputTag>::const_iterator map = pfIsoMapNames.at(j).begin(); map != pfIsoMapNames.at(j).end(); ++map) {
 	  edm::Handle<edm::ValueMap<double> > handleTmp;
-	  event.getByLabel(map->second,handleTmp);
+	  event.getByToken(pfIsoMapTokens_.at(j)[map->first],handleTmp);
 	  maps[map->first]=handleTmp;
 	  mapVals[map->first].resize(nMuons);
 	}
@@ -249,22 +268,22 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    if(fillSelectors_){
      unsigned int s=0;
      for(InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag, ++s){
-       event.getByLabel(*tag,selectorMaps[s]);
+       event.getByToken(theSelectorMapTokens_.at(s),selectorMaps[s]);
        selectorMapResults[s].resize(nMuons);
      }
    }
 
    edm::Handle<reco::MuonShowerMap> showerInfoMap;
-   if(fillShoweringInfo_) event.getByLabel(theShowerMapName,showerInfoMap);
+   if(fillShoweringInfo_) event.getByToken(theShowerMapToken_,showerInfoMap);
 
    std::vector<reco::MuonShower> showerInfoColl(nMuons);
 
    edm::Handle<edm::ValueMap<unsigned int> > cosmicIdMap;
-   if(fillCosmicsIdMap_) event.getByLabel(theCosmicCompMapName,cosmicIdMap);
+   if(fillCosmicsIdMap_) event.getByToken(theCosmicIdMapToken_,cosmicIdMap);
    std::vector<unsigned int> cosmicIdColl(fillCosmicsIdMap_ ? nMuons : 0);
    
    edm::Handle<edm::ValueMap<reco::MuonCosmicCompatibility> > cosmicCompMap;
-   if(fillCosmicsIdMap_) event.getByLabel(theCosmicCompMapName,cosmicCompMap);
+   if(fillCosmicsIdMap_) event.getByToken(theCosmicCompMapToken_,cosmicCompMap);
    std::vector<reco::MuonCosmicCompatibility> cosmicCompColl(fillCosmicsIdMap_ ? nMuons : 0);
 
 

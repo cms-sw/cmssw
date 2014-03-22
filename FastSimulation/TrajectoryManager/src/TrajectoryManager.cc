@@ -27,6 +27,7 @@
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 //#include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
@@ -261,7 +262,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
       // The particle may have decayed on its way... in which the daughters
       // have to be added to the event record
       if ( PP.hasDecayed() || (!mySimEvent->track(fsimi).nDaughters() && PP.PDGcTau()<1E-3 ) ) { 
-	updateWithDaughters(PP,fsimi);
+	updateWithDaughters(PP, fsimi, random);
 	break;
       }
 
@@ -354,7 +355,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
 
 	  // Check if the particle has decayed on the way to ECAL
 	  if ( PP.hasDecayed() )
-	    updateWithDaughters(PP,fsimi);
+	    updateWithDaughters(PP, fsimi, random);
 
 	}
       }
@@ -364,7 +365,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
     // Propagate all particles without a end vertex to the Preshower, 
     // theECAL and the HCAL.
     if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex()) )
-      propagateToCalorimeters(PP,fsimi);
+      propagateToCalorimeters(PP, fsimi, random);
 
   }
 
@@ -374,7 +375,7 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
 }
 
 void 
-TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi) {
+TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi, RandomEngineAndDistribution const* random) {
 
   FSimTrack& myTrack = mySimEvent->track(fsimi);
 
@@ -385,7 +386,7 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi) {
   // Propagate to Preshower Layer 1 
   PP.propagateToPreshowerLayer1(false);
   if ( PP.hasDecayed() ) {
-    updateWithDaughters(PP,fsimi);
+    updateWithDaughters(PP, fsimi, random);
     return;
   }
   if ( myTrack.notYetToEndVertex(PP.vertex()) && PP.getSuccess() > 0 )
@@ -394,7 +395,7 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi) {
   // Propagate to Preshower Layer 2 
   PP.propagateToPreshowerLayer2(false);
   if ( PP.hasDecayed() ) { 
-    updateWithDaughters(PP,fsimi);
+    updateWithDaughters(PP, fsimi, random);
     return;
   }
   if ( myTrack.notYetToEndVertex(PP.vertex()) && PP.getSuccess() > 0 )
@@ -403,7 +404,7 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi) {
   // Propagate to Ecal Endcap
   PP.propagateToEcalEntrance(false);
   if ( PP.hasDecayed() ) { 
-    updateWithDaughters(PP,fsimi);
+    updateWithDaughters(PP, fsimi, random);
     return;
   }
   if ( myTrack.notYetToEndVertex(PP.vertex()) )
@@ -412,7 +413,7 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi) {
   // Propagate to HCAL entrance
   PP.propagateToHcalEntrance(false);
   if ( PP.hasDecayed() ) { 
-    updateWithDaughters(PP,fsimi);
+    updateWithDaughters(PP,fsimi, random);
     return;
   }
   if ( myTrack.notYetToEndVertex(PP.vertex()) )
@@ -421,7 +422,7 @@ TrajectoryManager::propagateToCalorimeters(ParticlePropagator& PP, int fsimi) {
   // Propagate to VFCAL entrance
   PP.propagateToVFcalEntrance(false);
   if ( PP.hasDecayed() ) { 
-    updateWithDaughters(PP,fsimi);
+    updateWithDaughters(PP,fsimi, random);
     return;
   }
   if ( myTrack.notYetToEndVertex(PP.vertex()) )
@@ -459,7 +460,7 @@ TrajectoryManager::propagateToLayer(ParticlePropagator& PP, unsigned layer) {
 }
 
 void
-TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
+TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi, RandomEngineAndDistribution const* random) {
 
   // The particle was already decayed in the GenEvent, but still the particle was 
   // allowed to propagate (for magnetic field bending, for material effects, etc...)
@@ -491,10 +492,11 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
 
     // Decays are not activated : do nothing
     if ( !myDecayEngine ) return;
-    
+
     // Invoke PYDECY (Pythia6) or Pythia8 to decay the particle and get the daughters
-    const DaughterParticleList& daughters = (decayer == "pythia6") ? myDecayEngine->particleDaughtersPy6(PP) : myDecayEngine->particleDaughtersPy8(PP);
-    
+    const DaughterParticleList& daughters = (decayer == "pythia6") ? myDecayEngine->particleDaughtersPy6(PP, &random->theEngine()) :
+                                                                     myDecayEngine->particleDaughtersPy8(PP, &random->theEngine());
+
     // Update the FSimEvent with an end vertex and with the daughters
     if ( daughters.size() ) { 
       double distMin = 1E99;

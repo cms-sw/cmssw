@@ -8,16 +8,12 @@ TTbarAnalyzeSpinCorr = cms.EDAnalyzer("TTbarSpinCorrHepMCAnalyzer",
 from GeneratorInterface.LHEInterface.lheCOMWeightProducer import *
 lheCOMWeightProducer.NewECMS = cms.double(8000)
 
-## produce TtGenEvt
-from TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff import *
-decaySubset.fillMode = "kME"
-decaySubset.addRadiation = False
 
 ## get lorentzvectors
 analyzeTopKinematics = cms.EDAnalyzer('TTbar_Kinematics',
                                       SaveTree = cms.untracked.bool(False),
-                                      genEventInfoProductTag = cms.InputTag("generator"),
-                                      genEvt = cms.InputTag("genEvt")
+                                      hepmcCollection = cms.InputTag("generator",""),
+                                      genEventInfoProductTag = cms.InputTag("generator")
                                       )
 
 ## analyze genjets

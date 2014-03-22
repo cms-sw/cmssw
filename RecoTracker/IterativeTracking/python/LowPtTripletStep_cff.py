@@ -3,22 +3,21 @@ import FWCore.ParameterSet.Config as cms
 # NEW CLUSTERS (remove previously used clusters)
 lowPtTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     clusterLessSolution= cms.bool(True),
-    trajectories = cms.InputTag("initialStepTracks"),
-    overrideTrkQuals = cms.InputTag('initialStepSelector','initialStep'),
+    oldClusterRemovalInfo = cms.InputTag("detachedTripletStepClusters"),
+    trajectories = cms.InputTag("detachedTripletStepTracks"),
+    overrideTrkQuals = cms.InputTag('detachedTripletStep'),
     TrackQuality = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
-        maxChi2 = cms.double(9.0)
+        maxChi2 = cms.double(9.0),
     )
 )
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-lowPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
-    ComponentName = 'lowPtTripletStepSeedLayers'
-    )
+lowPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 lowPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('lowPtTripletStepClusters')
 lowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('lowPtTripletStepClusters')
 
@@ -134,6 +133,7 @@ lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
 
 # Final sequence
 LowPtTripletStep = cms.Sequence(lowPtTripletStepClusters*
+                                lowPtTripletStepSeedLayers*
                                 lowPtTripletStepSeeds*
                                 lowPtTripletStepTrackCandidates*
                                 lowPtTripletStepTracks*

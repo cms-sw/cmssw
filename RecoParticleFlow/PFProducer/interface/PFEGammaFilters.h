@@ -20,6 +20,8 @@ class PFEGammaFilters {
   PFEGammaFilters(float ph_Et,
 		  float ph_combIso,
 		  float ph_loose_hoe,
+		  float ph_sietaieta_eb,
+		  float ph_sietaieta_ee,
 		  const edm::ParameterSet& ph_protectionsForJetMET,
 		  float ele_iso_pt,
 		  float ele_iso_mva_eb,
@@ -58,6 +60,8 @@ class PFEGammaFilters {
   float ph_Et_;
   float ph_combIso_;
   float ph_loose_hoe_;
+  float ph_sietaieta_eb_;
+  float ph_sietaieta_ee_;
   //std::vector<double> ph_protectionsForJetMET_; //replacement below
   float pho_sumPtTrackIso, pho_sumPtTrackIsoSlope;
 

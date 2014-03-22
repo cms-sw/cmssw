@@ -21,6 +21,9 @@ namespace cond {
 
   namespace persistency {
 
+    // required in the "bridge" mode, to be removed with the ORA based code after the transition
+    std::pair<std::string,std::string> parseTag( const std::string& tag );
+
     class SessionImpl;
     class GTProxyData;
 
@@ -66,9 +69,12 @@ namespace cond {
       //
       GTProxy& operator=( const GTProxy& rhs );
       
-      // loads in memory the gtag information and the tags
-      void load( const std::string& gtName );
+      // loads in memory the gtag information and the tags. to be resurrected after the changeover.
+      //void load( const std::string& gtName );
       
+      // overloading for pre- and post-fix. Used in the ORA implementation
+      void load( const std::string& gtName, const std::string& preFix="", const std::string& postFix="" );
+
       // reset the data in memory and execute again the queries for the current tag 
       void reload();
       
@@ -91,7 +97,7 @@ namespace cond {
       int size() const;
       
     private:
-      void checkSession( const std::string& ctx );
+      void checkTransaction( const std::string& ctx );
       
     private:
       std::shared_ptr<GTProxyData> m_data;

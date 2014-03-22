@@ -247,53 +247,6 @@ std::string RPCPhiEff::fromCones(const edm::Event & iEvent){
 
   return "";
 }
-/*
-  std::stringstream ss;
-
-  edm::Handle < RPCDigiCollection > rpcDigis;
-  iEvent.getByLabel("muonRPCDigis", rpcDigis);
-
-  L1RpcLogConesVec conesVec = m_theLinksystem.getCones(rpcDigis);
-
-  L1RpcLogConesVec bestCones;
-
-  //   bool wasRef = false;
-  int maxfpCount = 0;
-
-
-  for (L1RpcLogConesVec::const_iterator it = conesVec.begin();
-  it != conesVec.end(); ++it) {
-  int currentFpCount = it->getFiredPlanesCnt();
-
-  if (currentFpCount > maxfpCount) {      // the cone pointed by it is better
-  bestCones.clear();
-  bestCones.push_back(*it);
-  maxfpCount = currentFpCount;
-  }
-
-  }                           // end of conesVec loop
-
-
-  //int planePat = 0;
-  //int one = 1;
-  //int planeCnt = 0;
-
-  if (bestCones.begin() != bestCones.end()) {
-
-  L1RpcLogConesVec::const_iterator bc = bestCones.begin();
-  for (int i = 0; i < 6; ++i) {
-
-  if (bc->getHitsCnt(i)!=0) {
-  //planePat = planePat | (one << i);
-  //planeCnt++;
-  ss << " " << i+1;
-  }
-  }
-  }
-
-  return ss.str();
-  }
-*/
 
 // ------------ Check hw planes fired using rpc digis
 std::string RPCPhiEff::fromRaw(const edm::Event & iEvent){

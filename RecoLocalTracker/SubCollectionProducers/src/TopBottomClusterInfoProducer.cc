@@ -36,8 +36,10 @@ public:
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   
 private:
-  edm::InputTag stripClustersOld_, pixelClustersOld_;
-  edm::InputTag stripClustersNew_, pixelClustersNew_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersOld_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersNew_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersOld_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersNew_;
 };
 
 
@@ -45,13 +47,13 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-TopBottomClusterInfoProducer::TopBottomClusterInfoProducer(const ParameterSet& iConfig):
-    stripClustersOld_(iConfig.getParameter<InputTag>("stripClustersOld")),
-    pixelClustersOld_(iConfig.getParameter<InputTag>("pixelClustersOld")),
-    stripClustersNew_(iConfig.getParameter<InputTag>("stripClustersNew")),
-    pixelClustersNew_(iConfig.getParameter<InputTag>("pixelClustersNew"))
+TopBottomClusterInfoProducer::TopBottomClusterInfoProducer(const ParameterSet& iConfig)
 {
-    produces< ClusterRemovalInfo >();
+  pixelClustersOld_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("stripClustersOld"));
+  stripClustersOld_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("pixelClustersOld"));
+  pixelClustersNew_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("stripClustersNew"));
+  stripClustersNew_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("pixelClustersNew"));
+  produces< ClusterRemovalInfo >();
 }
 
 
@@ -64,14 +66,14 @@ TopBottomClusterInfoProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
 
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClustersOld;
-    iEvent.getByLabel(pixelClustersOld_, pixelClustersOld);
+    iEvent.getByToken(pixelClustersOld_, pixelClustersOld);
     Handle<edmNew::DetSetVector<SiStripCluster> > stripClustersOld;
-    iEvent.getByLabel(stripClustersOld_, stripClustersOld);
+    iEvent.getByToken(stripClustersOld_, stripClustersOld);
 
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClustersNew;
-    iEvent.getByLabel(pixelClustersNew_, pixelClustersNew);
+    iEvent.getByToken(pixelClustersNew_, pixelClustersNew);
     Handle<edmNew::DetSetVector<SiStripCluster> > stripClustersNew;
-    iEvent.getByLabel(stripClustersNew_, stripClustersNew);
+    iEvent.getByToken(stripClustersNew_, stripClustersNew);
 
     auto_ptr<ClusterRemovalInfo> cri(new ClusterRemovalInfo(pixelClustersOld, stripClustersOld));
     ClusterRemovalInfo::Indices& pixelInd = cri->pixelIndices();

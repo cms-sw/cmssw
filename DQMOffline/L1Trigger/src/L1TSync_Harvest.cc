@@ -437,7 +437,6 @@ void L1TSync_Harvest::analyze(const Event & iEvent, const EventSetup & eventSetu
 ///    
 ///    // Retriving information from GT
 ///    edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
-///    iEvent.getByLabel(m_l1GtEvmSource, gtEvmReadoutRecord);
 ///
 ///    // Determining beam mode and fill number
 ///    if(gtEvmReadoutRecord.isValid()){
@@ -468,7 +467,6 @@ void L1TSync_Harvest::analyze(const Event & iEvent, const EventSetup & eventSetu
 ///
 ///    // Getting Final Decision Logic (FDL) Data from GT
 ///    edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecordData;
-///    iEvent.getByLabel(m_l1GtDataDaqInputTag, gtReadoutRecordData);
 ///
 ///    if(gtReadoutRecordData.isValid()){
 ///

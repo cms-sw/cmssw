@@ -49,6 +49,9 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 			<< "Les Houches file contained invalid"
 			   " event header." << std::endl;
 
+	// store the original value of XWGTUP for the user
+	originalXWGTUP_ = hepeup.XWGTUP;
+
 	int idwtup = runInfo->getHEPRUP()->IDWTUP;
 	if (idwtup >= 0 && hepeup.XWGTUP < 0) {
 		edm::LogWarning("Generator|LHEInterface")
@@ -101,15 +104,6 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	    } else
 	      continue;
 	  }
-	  size_t found = line.find("amcatnlo");
-	  double NEVT = 1.0;
-	  if ( found != std::string::npos) {
-	    std::string avalue = line.substr(found+1,line.size());
-	    found = avalue.find("_");
-	    avalue = avalue.substr(found+1,avalue.size());
-	    NEVT = atof(avalue.c_str());
-	  }
-	  hepeup.XWGTUP = hepeup.XWGTUP*NEVT; 
 	  comments.push_back(line + "\n");
 	}
 	

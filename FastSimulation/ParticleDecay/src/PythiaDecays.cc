@@ -8,8 +8,10 @@
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/ParticleDecay/interface/PythiaDecays.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6jets.h"
-#include "FastSimulation/ParticleDecay/interface/RandomP8.h"
 
+#include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
+
+#include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 
 // Needed for Pythia6 
 #define PYTHIA6PYDECY pythia6pydecy_
@@ -31,9 +33,9 @@ PythiaDecays::PythiaDecays(std::string program)
     pythia.reset(new Pythia8::Pythia);
     decayer.reset(new Pythia8::Pythia);
 
-    RandomP8* RP8 = new RandomP8();
-    pythia->setRndmEnginePtr(RP8);
-    decayer->setRndmEnginePtr(RP8);
+    p8RndmEngine.reset(new gen::P8RndmEngine);
+    pythia->setRndmEnginePtr(p8RndmEngine.get());
+    decayer->setRndmEnginePtr(p8RndmEngine.get());
   } else {
     std::cout << "WARNING: you are requesting an option which is not available in PythiaDecays::PythiaDecays " << std::endl;
   }
@@ -48,8 +50,9 @@ PythiaDecays::~PythiaDecays() {
 }
 
 const DaughterParticleList&
-PythiaDecays::particleDaughtersPy8(ParticlePropagator& particle)
+PythiaDecays::particleDaughtersPy8(ParticlePropagator& particle, CLHEP::HepRandomEngine* engine)
 {
+  edm::RandomEngineSentry<gen::P8RndmEngine> sentry(p8RndmEngine.get(), engine);
 
   theList.clear();
 
@@ -105,8 +108,10 @@ PythiaDecays::particleDaughtersPy8(ParticlePropagator& particle)
 }
 
 const DaughterParticleList&
-PythiaDecays::particleDaughtersPy6(ParticlePropagator& particle)
+PythiaDecays::particleDaughtersPy6(ParticlePropagator& particle, CLHEP::HepRandomEngine* engine)
 {
+  edm::RandomEngineSentry<gen::Pythia6Service> sentry(pyservice, engine);
+
   gen::Pythia6Service::InstanceWrapper guard(pyservice); // grab Py6 context
 
   //  Pythia6jets pyjets;

@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
@@ -21,8 +22,6 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 #include <cassert>
@@ -30,7 +29,7 @@ using namespace edm;
 using namespace reco;
 
 template <class T> T sqr( T t) {return t*t;}
-typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
+typedef SeedingHitSet::ConstRecHitPointer Hit;
 
 struct HitLessByRadius { bool operator() (const Hit& h1, const Hit & h2) { return h1->globalPosition().perp2() < h2->globalPosition().perp2(); } };
 
@@ -52,8 +51,8 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
 
 {
   produces<TrajectorySeedCollection>();
-  theInputCollectionTag       = cfg.getParameter<InputTag>("InputCollection");
-  theInputVertexCollectionTag = cfg.getParameter<InputTag>("InputVertexCollection");
+  theInputCollectionTag       = consumes<reco::TrackCollection>(cfg.getParameter<InputTag>("InputCollection"));
+  theInputVertexCollectionTag = consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("InputVertexCollection"));
   originHalfLength            = cfg.getParameter<double>("originHalfLength");
   originRadius                = cfg.getParameter<double>("originRadius");
   useProtoTrackKinematics     = cfg.getParameter<bool>("useProtoTrackKinematics");
@@ -67,12 +66,12 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
 {
   std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
   Handle<reco::TrackCollection> trks;
-  ev.getByLabel(theInputCollectionTag, trks);
+  ev.getByToken(theInputCollectionTag, trks);
 
   const TrackCollection &protos = *(trks.product());
   
   edm::Handle<reco::VertexCollection> vertices;
-  bool foundVertices = ev.getByLabel(theInputVertexCollectionTag, vertices);
+  bool foundVertices = ev.getByToken(theInputVertexCollectionTag, vertices);
   //const reco::VertexCollection & vertices = *(h_vertices.product());
 
   ///
@@ -119,7 +118,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
       std::vector<Hit> hits;
       for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
         TrackingRecHitRef refHit = proto.recHit(iHit);
-        if(refHit->isValid()) hits.push_back(ttrhbESH->build(  &(*refHit) ));
+        if(refHit->isValid()) hits.push_back((Hit)&(*refHit));
       }
       sort(hits.begin(), hits.end(), HitLessByRadius());
       assert(hits.size()<4);

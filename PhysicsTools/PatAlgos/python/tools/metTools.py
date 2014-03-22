@@ -1,12 +1,12 @@
 from FWCore.GuiBrowsers.ConfigToolBase import *
 
-class AddMETCollection(ConfigToolBase):    
+class AddMETCollection(ConfigToolBase):
     """
     Tool to add alternative MET collection(s) to your PAT Tuple
     """
-    _label='addMETCollection'    
+    _label='addMETCollection'
     _defaultParameters=dicttypes.SortedKeysDict()
-    
+
     def __init__(self):
         """
         Initialize elements of the class. Note that the tool needs to be derived from ConfigToolBase
@@ -21,13 +21,13 @@ class AddMETCollection(ConfigToolBase):
         self._parameters=copy.deepcopy(self._defaultParameters)
         ## add comments
         self._comment = "Add alternative MET collections as PAT object to your PAT Tuple"
-        
+
     def getDefaultParameters(self):
         """
         Return default parameters of the class
         """
         return self._defaultParameters
-        
+
     def __call__(self,process,labelName=None,metSource=None):
         """
         Function call wrapper. This will check the parameters and call the actual implementation that
@@ -37,9 +37,9 @@ class AddMETCollection(ConfigToolBase):
             labelName=self._defaultParameters['labelName'].value
         self.setParameter('labelName', labelName)
         if metSource is None:
-            metSource=self._defaultParameters['metSource'].value             
+            metSource=self._defaultParameters['metSource'].value
         self.setParameter('metSource', metSource)
-        self.apply(process) 
+        self.apply(process)
 
     def toolCode(self, process):
         """
@@ -52,8 +52,8 @@ class AddMETCollection(ConfigToolBase):
         from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
         ## add module to the process
         setattr(process, labelName, patMETs.clone(metSource = metSource, addMuonCorrections=False))
-        ## add module to output 
+        ## add module to output
         if hasattr(process, "out"):
             process.out.outputCommands+=["keep *_{LABEL_NAME}_*_*".format(LABEL_NAME=labelName)]
-       
+
 addMETCollection=AddMETCollection()

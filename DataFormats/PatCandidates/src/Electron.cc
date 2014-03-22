@@ -155,11 +155,11 @@ reco::SuperClusterRef Electron::superCluster() const {
 }
 
 /// override the reco::GsfElectron::pflowSuperCluster method, to access the internal storage of the supercluster
-reco::SuperClusterRef Electron::pflowSuperCluster() const {
+reco::SuperClusterRef Electron::parentSuperCluster() const {
   if (embeddedPflowSuperCluster_) {
     return reco::SuperClusterRef(&pflowSuperCluster_, 0);
   } else {
-    return reco::GsfElectron::pflowSuperCluster();
+    return reco::GsfElectron::parentSuperCluster();
   }
 }
 
@@ -217,8 +217,8 @@ void Electron::embedSuperCluster() {
 /// Stores the electron's SuperCluster (reco::SuperClusterRef) internally
 void Electron::embedPflowSuperCluster() {
   pflowSuperCluster_.clear();
-  if (reco::GsfElectron::pflowSuperCluster().isNonnull()) {
-      pflowSuperCluster_.push_back(*reco::GsfElectron::pflowSuperCluster());
+  if (reco::GsfElectron::parentSuperCluster().isNonnull()) {
+      pflowSuperCluster_.push_back(*reco::GsfElectron::parentSuperCluster());
       embeddedPflowSuperCluster_ = true;
   }
 }
@@ -259,9 +259,9 @@ void Electron::embedPreshowerClusters() {
 /// Stores the electron's PflowBasicCluster (reco::CaloCluster) internally
 void Electron::embedPflowBasicClusters() {
   pflowBasicClusters_.clear();
-  if (reco::GsfElectron::pflowSuperCluster().isNonnull()){
-    reco::CaloCluster_iterator itscl = reco::GsfElectron::pflowSuperCluster()->clustersBegin();
-    reco::CaloCluster_iterator itsclE = reco::GsfElectron::pflowSuperCluster()->clustersEnd();
+  if (reco::GsfElectron::parentSuperCluster().isNonnull()){
+    reco::CaloCluster_iterator itscl = reco::GsfElectron::parentSuperCluster()->clustersBegin();
+    reco::CaloCluster_iterator itsclE = reco::GsfElectron::parentSuperCluster()->clustersEnd();
     for(;itscl!=itsclE;++itscl){
       pflowBasicClusters_.push_back( **itscl ) ;
     }
@@ -271,9 +271,9 @@ void Electron::embedPflowBasicClusters() {
 /// Stores the electron's PflowPreshowerCluster (reco::CaloCluster) internally
 void Electron::embedPflowPreshowerClusters() {
   pflowPreshowerClusters_.clear();
-  if (reco::GsfElectron::pflowSuperCluster().isNonnull()){
-    reco::CaloCluster_iterator itscl = reco::GsfElectron::pflowSuperCluster()->preshowerClustersBegin();
-    reco::CaloCluster_iterator itsclE = reco::GsfElectron::pflowSuperCluster()->preshowerClustersEnd();
+  if (reco::GsfElectron::parentSuperCluster().isNonnull()){
+    reco::CaloCluster_iterator itscl = reco::GsfElectron::parentSuperCluster()->preshowerClustersBegin();
+    reco::CaloCluster_iterator itsclE = reco::GsfElectron::parentSuperCluster()->preshowerClustersEnd();
     for(;itscl!=itsclE;++itscl){
       pflowPreshowerClusters_.push_back( **itscl ) ;
     }
