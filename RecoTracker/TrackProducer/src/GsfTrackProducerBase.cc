@@ -57,8 +57,6 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
       iTjRef++;
     }
 
-    // const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits(useSplitting);  // NO: the return type in Trajectory is by VALUE
-    TrajectoryFitter::RecHitContainer transHits = theTraj->recHits(useSplitting);
     reco::GsfTrack * theTrack = (*i).second.first;
     PropagationDirection seedDir = (*i).second.second;  
     
@@ -123,6 +121,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 
 
     size_t ih = 0;
+    TrajectoryFitter::RecHitContainer transHits; theTraj->recHitsV(transHits,useSplitting);
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
     if (theTraj->direction() == alongMomentum) {
