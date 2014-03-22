@@ -99,7 +99,11 @@ namespace edm {
       typedef CallGlobalLuminosityBlockSummary<T> MyGlobalLuminosityBlockSummary;
       
       void setupStreamModules() override final {
-        this->createStreamModules([this] () -> EDAnalyzerBase* {return impl::makeStreamModule<T>(*m_pset,m_global.get());});
+        this->createStreamModules([this] () -> EDAnalyzerBase* {
+          auto tmp = impl::makeStreamModule<T>(*m_pset,m_global.get());
+          MyGlobal::set(tmp,m_global.get());
+          return tmp;
+        });
         m_pset= nullptr;
       }
 
@@ -107,7 +111,6 @@ namespace edm {
         MyGlobal::endJob(m_global.get());
       }
       void setupRun(EDAnalyzerBase* iProd, RunIndex iIndex) override final {
-        MyGlobal::set(iProd,m_global.get());
         MyGlobalRun::set(iProd, m_runs[iIndex].get());
       }
       void streamEndRunSummary(EDAnalyzerBase* iProd,

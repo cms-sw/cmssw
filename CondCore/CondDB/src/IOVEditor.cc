@@ -68,7 +68,8 @@ namespace cond {
     void IOVEditor::load( const std::string& tag ){
       checkTransaction( "IOVEditor::load" );
       // loads the current header data in memory
-      if( !m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, m_data->endOfValidity, m_data->description, m_data->lastValidatedTime ) ){
+      if( !m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, m_data->synchronizationType, 
+						     m_data->endOfValidity, m_data->description, m_data->lastValidatedTime ) ){
 	cond::throwException( "Tag \""+tag+"\" has not been found in the database.","IOVEditor::load");
       }
       m_data->tag = tag;

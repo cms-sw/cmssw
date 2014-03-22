@@ -2,7 +2,7 @@
 //
 // Package:    PFCand_NoPU_WithAM
 // Class:      PFCand_NoPU_WithAM
-// 
+//
 /**\class PF_PU_AssoMap PFCand_NoPU_WithAM.cc CommonTools/RecoUtils/plugins/PFCand_NoPU_WithAM.cc
 
  Description: Produces a collection of PFCandidates associated to the first vertex based on the association map
@@ -33,7 +33,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
-   
+
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -47,9 +47,10 @@ PFCand_NoPU_WithAM::PFCand_NoPU_WithAM(const edm::ParameterSet& iConfig)
 
   	input_AssociationType_ = iConfig.getParameter<InputTag>("AssociationType");
 
-  	input_VertexPFCandAssociationMap_ = iConfig.getParameter<InputTag>("VertexPFCandAssociationMap");
+  	token_PFCandToVertexAssMap_ = mayConsume<PFCandToVertexAssMap>(iConfig.getParameter<InputTag>("VertexPFCandAssociationMap"));
+  	token_VertexToPFCandAssMap_ = mayConsume<VertexToPFCandAssMap>(iConfig.getParameter<InputTag>("VertexPFCandAssociationMap"));
 
-  	input_VertexCollection_ = iConfig.getParameter<InputTag>("VertexCollection");
+  	token_VertexCollection_ = mayConsume<VertexCollection>(iConfig.getParameter<InputTag>("VertexCollection"));
 
   	input_MinQuality_ = iConfig.getParameter<int>("MinQuality");
 
@@ -70,13 +71,13 @@ PFCand_NoPU_WithAM::PFCand_NoPU_WithAM(const edm::ParameterSet& iConfig)
 	    }
 	  }
 	}
-  
+
 }
 
 
 PFCand_NoPU_WithAM::~PFCand_NoPU_WithAM()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -96,21 +97,21 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	bool p2vassmap = false;
 	bool v2passmap = false;
-  
+
 	//get the input vertex<->pf-candidate association map
   	Handle<PFCandToVertexAssMap> p2vAM;
   	Handle<VertexToPFCandAssMap> v2pAM;
-	
+
 	string asstype = input_AssociationType_.label();
 
 	if ( ( asstype == "PFCandsToVertex" ) || ( asstype == "Both" ) ) {
-          if ( iEvent.getByLabel(input_VertexPFCandAssociationMap_, p2vAM ) ) {
+          if ( iEvent.getByToken(token_PFCandToVertexAssMap_, p2vAM ) ) {
 	    p2vassmap = true;
 	  }
 	}
 
 	if ( ( asstype == "VertexToPFCands" ) || ( asstype == "Both" ) ) {
-          if ( iEvent.getByLabel(input_VertexPFCandAssociationMap_, v2pAM ) ) {
+          if ( iEvent.getByToken(token_VertexToPFCandAssMap_, v2pAM ) ) {
 	    v2passmap = true;
 	  }
 	}
@@ -128,8 +129,8 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    negativeQuality = -2;
 	  } else{
 	    negativeQuality = -3;
-	  } 
-	} 
+	  }
+	}
 
 	if ( p2vassmap ){
 
@@ -137,11 +138,11 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  //get the candidates associated to the first vertex and store them in a pf-candidate collection
 	  for (unsigned int pfccoll_ite = 0; pfccoll_ite < pfccoll.size(); pfccoll_ite++){
-     
+
             PFCandidateRef pfcand = pfccoll[pfccoll_ite].first;
 	    int quality = pfccoll[pfccoll_ite].second;
 
-	    if ( (quality>=input_MinQuality_) || ( (quality<0) && (quality>=negativeQuality) ) ) { 
+	    if ( (quality>=input_MinQuality_) || ( (quality<0) && (quality>=negativeQuality) ) ) {
 	      p2v_firstvertex->push_back(*pfcand);
 
 	    }
@@ -150,13 +151,13 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
           iEvent.put( p2v_firstvertex, "P2V" );
 
-	} 
+	}
 
 	if ( v2passmap ) {
- 
+
 	  //get the input vertex collection
   	  Handle<VertexCollection> input_vtxcollH;
-  	  iEvent.getByLabel(input_VertexCollection_,input_vtxcollH);
+  	  iEvent.getByToken(token_VertexCollection_,input_vtxcollH);
 
 	  VertexRef firstVertexRef(input_vtxcollH,0);
 
@@ -165,7 +166,7 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           for(v2p_ite=v2pAM->begin(); v2p_ite!=v2pAM->end(); v2p_ite++){
 
    	    PFCandidateRef pfcand = v2p_ite->key;
-    
+
     	    for(unsigned v_ite = 0; v_ite<(v2p_ite->val).size(); v_ite++){
 
      	      VertexRef vtxref = (v2p_ite->val)[v_ite].first;

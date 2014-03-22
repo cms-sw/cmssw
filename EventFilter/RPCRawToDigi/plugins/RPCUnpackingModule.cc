@@ -68,7 +68,7 @@ void RPCUnpackingModule::beginRun(const edm::Run &run, const edm::EventSetup& es
 
 void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
 {
-  static bool debug = edm::MessageDrop::instance()->debugEnabled;
+  bool debug = edm::MessageDrop::instance()->debugEnabled;
   eventCounter_++; 
   if (debug) LogDebug ("RPCUnpacker::produce") <<"Beginning To Unpack Event: "<<eventCounter_;
  

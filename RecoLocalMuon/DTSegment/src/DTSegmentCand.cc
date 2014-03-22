@@ -58,7 +58,7 @@ bool DTSegmentCand::operator<(const DTSegmentCand& seg){
   return (nHits()<seg.nHits());
 }
 
-void DTSegmentCand::add(DTHitPairForFit* hit, DTEnums::DTCellSide code) {
+void DTSegmentCand::add(std::shared_ptr<DTHitPairForFit> hit, DTEnums::DTCellSide code) {
   theHits.insert(AssPoint(hit,code));
 }
 
@@ -107,6 +107,7 @@ DTSegmentCand::conflictingHitPairs(const DTSegmentCand& seg) const{
 
 bool DTSegmentCand::good() const
 {
+  // std::cout << NDOF() << "  " << chi2()/NDOF() << "   " << nHits() << std::endl;
   if(NDOF() == 0) return false;
   if(chi2()/NDOF() > chi2max || nHits() < nHitsMin) return false;
 
@@ -117,17 +118,21 @@ bool DTSegmentCand::good() const
 
 bool DTSegmentCand::hitsShareLayer() const
 {
-  std::vector<int> layerN;
+  int layerN[20];
+  int i=0;
+  
+  // we don't expect so many 1D hits, if such a segment arrives just drop it
+  if (theHits.size()>20) return false;
 
   for(DTSegmentCand::AssPointCont::iterator assHit=theHits.begin();
       assHit!=theHits.end(); ++assHit) {
-    layerN.push_back((*assHit).first->id().layerId().layer());
-
-    //std::cout << (*assHit).first->id().layerId().layer() << std::endl;
+    layerN[i]=(*assHit).first->id().layerId().layer()+10*(*assHit).first->id().superlayerId().superlayer();
+    i++;
+//    std::cout << (*assHit).first->id().layerId().layer()+10*(*assHit).first->id().superlayerId().superlayer()) << std::endl;
   }
 
-  for(int i=0;i<(int)layerN.size();i++){
-    for(int j=i+1;j<(int)layerN.size();j++){
+  for(int i=0;i<(int)theHits.size();i++){
+    for(int j=0;j<i;j++){
       if(layerN[i] == layerN[j]) return true;
     }
   }
@@ -220,7 +225,7 @@ bool DTSegmentCand::AssPointLessZ::operator()(const AssPoint& pt1,
 
 std::ostream& operator<<(std::ostream& out, const DTSegmentCand& seg) {
   out <<  " pos: " << seg.position() << " dir: " << seg.direction() 
-      << " chi2/nHits: " << seg.chi2() << "/" << seg.DTSegmentCand::nHits() << "/" << seg.nHits();
+      << " chi2/nHits: " << seg.chi2() << "/" << seg.DTSegmentCand::nHits();
   return out;
 }
 

@@ -41,7 +41,6 @@
 
 #include <iostream>
 
-
 class RectangularPixelTopology;
 class MagneticField;
 class PixelCPEBase : public PixelClusterParameterEstimator 
@@ -52,12 +51,16 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     Param() : bz(-9e10f) {}
     float bz; // local Bz
     LocalVector drift;
+    float widthLAFraction; // Width-LA to Offset-LA
   };
 
 public:
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
-	       const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
-	       const SiPixelTemplateDBObject * templateDBobject = 0);
+	       const SiPixelLorentzAngle * lorentzAngle = 0, 
+	       const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
+	       const SiPixelTemplateDBObject * templateDBobject = 0,
+	       const SiPixelLorentzAngle * lorentzAngleWidth = 0
+	       );
   
 
  //--------------------------------------------------------------------------
@@ -74,6 +77,7 @@ public:
 				      const GeomDetUnit    & det ) const 
     {
       nRecHitsTotal_++ ;
+      //std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
       setTheDet( det, cl );
       computeAnglesFromDetPosition(cl);
       
@@ -81,6 +85,8 @@ public:
       LocalPoint lp = localPosition( cl);
       LocalError le = localError( cl);        
       
+      //std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
+
       return std::make_pair( lp, le );
     }
   
@@ -92,12 +98,17 @@ public:
 			       const LocalTrajectoryParameters & ltp) const 
   {
     nRecHitsTotal_++ ;
+
+    //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
+
     setTheDet( det, cl );
     computeAnglesFromTrajectory(cl, ltp);
     
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
     LocalPoint lp = localPosition( cl); 
     LocalError le = localError( cl);        
+
+    //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
     
     return std::make_pair( lp, le );
   } 
@@ -133,14 +144,6 @@ public:
   inline bool  spansTwoRocks() const { return spansTwoROCs_ ;  }
   inline bool  hasFilledProb() const { return hasFilledProb_ ; }
   
-  //--- Flag to control how SiPixelRecHits compute clusterProbability().
-  //--- Note this is set via the configuration file, and it's simply passed
-  //--- to each TSiPixelRecHit.
-  inline unsigned int clusterProbComputationFlag() const 
-    { 
-      return clusterProbComputationFlag_ ; 
-    }
-  
   
   //-----------------------------------------------------------------------------
   //! A convenience method to fill a whole SiPixelRecHitQuality word in one shot.
@@ -164,7 +167,6 @@ public:
   mutable const PixelGeomDetUnit * theDet;
   
   // gavril : replace RectangularPixelTopology with PixelTopology
-  //mutable const RectangularPixelTopology * theTopol;
   mutable const PixelTopology * theTopol;
   mutable const RectangularPixelTopology * theRecTopol;
 
@@ -172,18 +174,13 @@ public:
 
   mutable GeomDetType::SubDetector thePart;
   mutable  Local3DPoint theOrigin;
-  //mutable EtaCorrection theEtaFunc;
   mutable float theThickness;
   mutable float thePitchX;
   mutable float thePitchY;
-  //mutable float theOffsetX;
-  //mutable float theOffsetY;
   mutable float theNumOfRow;
   mutable float theNumOfCol;
   mutable float theDetZ;
   mutable float theDetR;
-  mutable float theLShiftX;
-  mutable float theLShiftY;
   mutable float theSign;
 
   //--- Cluster-level quantities (may need more)
@@ -212,34 +209,30 @@ public:
   mutable bool  spansTwoROCs_ ;
   mutable bool  hasFilledProb_ ;
 
-  //--- A flag that could be used to change the behavior of
-  //--- clusterProbability() in TSiPixelRecHit (the *transient* one).  
-  //--- The problem is that the transient hits are made after the CPE runs
-  //--- and they don't get the access to the PSet, so we pass it via the
-  //--- CPE itself...
-  //
-  unsigned int clusterProbComputationFlag_ ;
 
   //---------------------------
-
-  // [Petar, 2/23/07]
-  // Since the sign of the Lorentz shift appears to
-  // be computed *incorrectly* (i.e. there's a bug) we add new variables
-  // so that we can study the effect of the bug.
   mutable LocalVector driftDirection_;  // drift direction cached // &&&
-  mutable float lorentzShiftX_;   // a FULL shift, not 1/2 like theLShiftX!
-  mutable float lorentzShiftY_;   // a FULL shift, not 1/2 like theLShiftY!
   mutable float lorentzShiftInCmX_;   // a FULL shift, in cm
   mutable float lorentzShiftInCmY_;   // a FULL shift, in cm
 
+  // Added new members
+  float lAOffset_; // la used to calculate the offset from configuration (for testing) 
+  float lAWidthBPix_;  // la used to calculate the cluster width from conf.  
+  float lAWidthFPix_;  // la used to calculate the cluster width from conf.
+  mutable float lAWidth_;  // la used to calculate the cluster width from conf.
+  bool useLAAlignmentOffsets_; // lorentz angle offsets detrmined by alignment
+  bool useLAOffsetFromConfig_; // lorentz angle used to calculate the offset
+  bool useLAWidthFromConfig_; // lorentz angle used to calculate the cluster width
+  bool useLAWidthFromDB_;     // lorentz angle used to calculate the cluster width
+  mutable float widthLAFraction_; // ratio of with-LA to offset-LA 
 
   //--- Global quantities
-//   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
   int     theVerboseLevel;                    // algorithm's verbosity
 
   mutable const MagneticField * magfield_;          // magnetic field
   
   mutable const SiPixelLorentzAngle * lorentzAngle_;
+  mutable const SiPixelLorentzAngle * lorentzAngleWidth_;  // for the charge width (generic)
   
   mutable const SiPixelCPEGenericErrorParm * genErrorParm_;
   
@@ -249,7 +242,6 @@ public:
   
   // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
   // with track angles to handle surface deformations (bows/kinks)
-  //mutable Topology::LocalTrackPred* loc_trk_pred;
   mutable Topology::LocalTrackPred loc_trk_pred_;
 
   mutable LocalTrajectoryParameters loc_traj_param_;
@@ -260,16 +252,14 @@ public:
 private:
   void computeAnglesFromDetPosition(const SiPixelCluster & cl ) const;
   
-
   void computeAnglesFromTrajectory (const SiPixelCluster & cl, 
 				    const LocalTrajectoryParameters & ltp) const;
 
 protected:
   void  setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const ;
 
-  LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
-  LocalVector driftDirection       ( LocalVector bfield ) const ; //wrong sign
-  LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
+  LocalVector driftDirection       ( GlobalVector bfield ) const ; 
+  LocalVector driftDirection       ( LocalVector bfield ) const ; 
   void computeLorentzShifts() const ;
 
   bool isFlipped() const;              // is the det flipped or not?
@@ -278,16 +268,7 @@ protected:
   //  Cluster-level services.
   //---------------------------------------------------------------------------
    
- 
-
-  //--- The Lorentz shift correction
-  float lorentzShiftX() const;
-  float lorentzShiftY() const;
- 
-  
   LocalVector const & getDrift() const {return  driftDirection_ ;}
- 
-
  
   Param const & param() const;
  

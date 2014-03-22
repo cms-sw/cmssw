@@ -1,6 +1,6 @@
 /** \class HeavyChHiggsToTauNuSkim
  *
- *  
+ *
  *  This class is an EDFilter for heavy H+->taunu events
  *
  *  \author Sami Lehti  -  HIP Helsinki
@@ -9,12 +9,10 @@
 
 #include "HiggsAnalysis/Skimming/interface/HeavyChHiggsToTauNuSkim.h"
 
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 //#include "DataFormats/BTauReco/interface/JetTagFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include <iostream>
 
@@ -30,8 +28,8 @@ HeavyChHiggsToTauNuSkim::HeavyChHiggsToTauNuSkim(const edm::ParameterSet& iConfi
 	// Local Debug flag
 	debug           = iConfig.getParameter<bool>("DebugHeavyChHiggsToTauNuSkim");
 
-	hltTauLabel	= iConfig.getParameter<InputTag>("HLTTauCollection");
-	jetLabel        = iConfig.getParameter<InputTag>("JetTagCollection");
+	hltTauToken	= consumes<IsolatedTauTagInfoCollection>(iConfig.getParameter<InputTag>("HLTTauCollection"));
+	jetToken        = consumes<CaloJetCollection>(iConfig.getParameter<InputTag>("JetTagCollection"));
 	minNumberOfjets = iConfig.getParameter<int>("minNumberOfJets");
 	jetEtMin        = iConfig.getParameter<double>("jetEtMin");
 	jetEtaMin       = iConfig.getParameter<double>("jetEtaMin");
@@ -45,7 +43,7 @@ HeavyChHiggsToTauNuSkim::HeavyChHiggsToTauNuSkim(const edm::ParameterSet& iConfi
 
 
 HeavyChHiggsToTauNuSkim::~HeavyChHiggsToTauNuSkim(){
-  edm::LogVerbatim("HeavyChHiggsToTauNuSkim") 
+  edm::LogVerbatim("HeavyChHiggsToTauNuSkim")
   << " Number_events_read " << nEvents
   << " Number_events_kept " << nSelectedEvents
   << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
@@ -58,7 +56,7 @@ bool HeavyChHiggsToTauNuSkim::filter(edm::Event& iEvent, const edm::EventSetup& 
   nEvents++;
 
   Handle<IsolatedTauTagInfoCollection> tauTagL3Handle;
-  iEvent.getByLabel(hltTauLabel, tauTagL3Handle);
+  iEvent.getByToken(hltTauToken, tauTagL3Handle);
 
   if ( !tauTagL3Handle.isValid() ) return false;
 
@@ -77,18 +75,18 @@ bool HeavyChHiggsToTauNuSkim::filter(edm::Event& iEvent, const edm::EventSetup& 
       }
     }
   }
-	
+
   if (maxEt == 0) return false;
 
   // jets
-	
-  Handle<CaloJetCollection> jetHandle;	
-  iEvent.getByLabel(jetLabel,jetHandle);
-  
+
+  Handle<CaloJetCollection> jetHandle;
+  iEvent.getByToken(jetToken,jetHandle);
+
   if ( !jetHandle.isValid() ) return false;
-	
+
   bool accepted = false;
-	
+
   if (jetHandle.isValid() ) {
     int nJets = 0;
     const reco::CaloJetCollection & jets = *(jetHandle.product());
@@ -98,13 +96,13 @@ bool HeavyChHiggsToTauNuSkim::filter(edm::Event& iEvent, const edm::EventSetup& 
           iJet->eta() > jetEtaMin &&
 	  iJet->eta() < jetEtaMax ) {
         double DR = deltaR(theTau.eta(),iJet->eta(),theTau.phi(),iJet->phi());
-        if (DR > minDRFromTau) nJets++;		
+        if (DR > minDRFromTau) nJets++;
       }
     }
     if (nJets >= minNumberOfjets) {
       accepted = true;
       nSelectedEvents++;
-    }	
+    }
   }
   return accepted;
 }

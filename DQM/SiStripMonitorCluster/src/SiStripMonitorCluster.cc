@@ -473,12 +473,10 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
   // get collection of DetSetVector of clusters from Event
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > cluster_detsetvektor;
-  //  iEvent.getByLabel(clusterProducerStrip_, cluster_detsetvektor);
   iEvent.getByToken(clusterProducerStripToken_, cluster_detsetvektor);
 
   //get pixel clusters
   edm::Handle< edmNew::DetSetVector<SiPixelCluster> > cluster_detsetvektor_pix;
-  //  iEvent.getByLabel(clusterProducerPix_, cluster_detsetvektor_pix);
   iEvent.getByToken(clusterProducerPixToken_, cluster_detsetvektor_pix);
 
   if (!cluster_detsetvektor.isValid()) return;
@@ -661,12 +659,10 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
   //  EventHistory
   edm::Handle<EventWithHistory> event_history;
-  //  iEvent.getByLabel(historyProducer_,event_history);
   iEvent.getByToken(historyProducerToken_,event_history);
 
   // Phase of APV
   edm::Handle<APVCyclePhaseCollection> apv_phase_collection;
-  //  iEvent.getByLabel(apvPhaseProducer_,apv_phase_collection);
   iEvent.getByToken(apvPhaseProducerToken_,apv_phase_collection);
 
   if (event_history.isValid()

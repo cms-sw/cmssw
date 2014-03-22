@@ -3,6 +3,7 @@
   <class name="TrackingRecHit" ClassVersion="11">
    <version ClassVersion="11" checksum="1162527707"/>
    <version ClassVersion="10" checksum="1481465852"/>
+   <field name="m_det" transient="true" />
   </class>
   <class name="RecHit1D" ClassVersion="10">
    <version ClassVersion="10" checksum="2579934268"/>

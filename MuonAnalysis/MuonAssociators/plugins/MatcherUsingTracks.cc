@@ -3,8 +3,8 @@
 
 /**
   \class    pat::MatcherUsingTracks MatcherUsingTracks.h "MuonAnalysis/MuonAssociators/interface/MatcherUsingTracks.h"
-  \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
-            
+  \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them
+
   \author   Giovanni Petrucciani
   \version  $Id: MatcherUsingTracks.cc,v 1.5 2010/07/12 20:56:11 gpetrucc Exp $
 */
@@ -37,7 +37,8 @@ namespace pat {
 
     private:
       /// Labels for input collections
-      edm::InputTag src_, matched_;
+      edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
+      edm::EDGetTokenT<edm::View<reco::Candidate> > matchedToken_;
 
       /// The real workhorse
       MatcherUsingTracksAlgorithm algo_;
@@ -48,24 +49,24 @@ namespace pat {
 
       /// Store extra information in a ValueMap
       template<typename T>
-      void storeValueMap(edm::Event &iEvent, 
+      void storeValueMap(edm::Event &iEvent,
                      const edm::Handle<edm::View<reco::Candidate> > & handle,
                      const std::vector<T> & values,
                      const std::string    & label) const ;
 
   };
-  
+
 } // namespace
 
 pat::MatcherUsingTracks::MatcherUsingTracks(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")),
-    matched_(iConfig.getParameter<edm::InputTag>("matched")),
+    srcToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
+    matchedToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("matched"))),
     algo_(iConfig),
     dontFailOnMissingInput_(iConfig.existsAs<bool>("dontFailOnMissingInput") ? iConfig.getParameter<bool>("dontFailOnMissingInput") : false),
     writeExtraPATOutput_(iConfig.existsAs<bool>("writeExtraPATOutput") ? iConfig.getParameter<bool>("writeExtraPATOutput") : false)
 {
     // this is the basic output (edm::Association is not generic)
-    produces<edm::ValueMap<reco::CandidatePtr> >(); 
+    produces<edm::ValueMap<reco::CandidatePtr> >();
     if (writeExtraPATOutput_) {
         // this is the crazy stuff to get the same with UserData
         produces<edm::OwnVector<pat::UserData> >();
@@ -86,7 +87,7 @@ pat::MatcherUsingTracks::MatcherUsingTracks(const edm::ParameterSet & iConfig) :
     }
 }
 
-void 
+void
 pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
     using namespace std;
@@ -95,8 +96,8 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
 
     Handle<View<reco::Candidate> > src, matched;
 
-    iEvent.getByLabel(src_, src);
-    iEvent.getByLabel(matched_, matched);
+    iEvent.getByToken(srcToken_, src);
+    iEvent.getByToken(matchedToken_, matched);
 
     // declare loop variables and some intermediate stuff
     View<reco::Candidate>::const_iterator itsrc, edsrc;
@@ -115,7 +116,7 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
     if (!(matched.failedToGet() && dontFailOnMissingInput_)) {
         // loop on the source collection, and request for the match
         for (itsrc = src->begin(), edsrc = src->end(), isrc = 0; itsrc != edsrc; ++itsrc, ++isrc) {
-            match[isrc] = algo_.match(*itsrc, *matched, deltaRs[isrc], deltaEtas[isrc], deltaPhis[isrc], deltaLocalPos[isrc], deltaPtRel[isrc], chi2[isrc]); 
+            match[isrc] = algo_.match(*itsrc, *matched, deltaRs[isrc], deltaEtas[isrc], deltaPhis[isrc], deltaLocalPos[isrc], deltaPtRel[isrc], chi2[isrc]);
         }
     }
 
@@ -133,7 +134,7 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
         for (isrc = 0; isrc < nsrc; ++isrc) {
             if (match[isrc] != -1) {
                 outUDVect->push_back(pat::UserData::make(ptrs[isrc]));
-                idxUD[isrc] = outUDVect->size() - 1; 
+                idxUD[isrc] = outUDVect->size() - 1;
             }
         }
         edm::OrphanHandle<edm::OwnVector<pat::UserData> > doneUDVect = iEvent.put(outUDVect);

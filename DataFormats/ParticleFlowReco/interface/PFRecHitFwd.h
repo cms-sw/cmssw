@@ -22,6 +22,9 @@ namespace reco {
 
   /// iterator over a vector of references to PFRecHit objects
   typedef PFRecHitRefVector::iterator basicRecHit_iterator;
+
+  /// ref to base vector for dealing with views
+  typedef edm::RefToBaseVector<reco::PFRecHit> PFRecHitBaseRefVector;
 }
 
 #endif

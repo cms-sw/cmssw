@@ -26,28 +26,41 @@ namespace cond {
       return ret;
     }
 
-    inline std::tuple<std::string,std::string,std::string> parseConnectionString( const std::string& connectionString ){
-      size_t ptr = 0;
+  }
+
+  namespace persistency {
+
+    inline std::string getConnectionProtocol( const std::string& connectionString ){
       size_t techEnd = connectionString.find( ':' );
-      if( techEnd == std::string::npos ) throwException( "Connection string "+connectionString+" is invalid format.",
-							 "parseConnectionString" );
-      std::string technology = connectionString.substr(ptr,techEnd);
-      std::string service("");
-      ptr = techEnd+1;
-      if( technology != "sqlite_file" && technology != "sqlite" ){
+      if( techEnd == std::string::npos ) throwException( "Could not resolve the connection protocol on "+connectionString+".",
+							 "getConnectionProtocol" );
+      std::string technology = connectionString.substr(0,techEnd);
+      return technology;
+    }
+    
+    inline std::tuple<std::string,std::string,std::string> parseConnectionString( const std::string& connectionString ){
+      std::string protocol = getConnectionProtocol( connectionString );
+      std::string serviceName("");
+      std::string databaseName("");
+      if( protocol == "sqlite" || protocol == "sqlite_file" || protocol == "sqlite_fip" ){
+	databaseName = connectionString.substr( protocol.size()+1 ); 
+      } else if ( protocol == "oracle" || protocol == "frontier" ){
+	size_t ptr = protocol.size()+1;
 	if( connectionString.substr( ptr,2 )!="//" ) throwException( "Connection string "+connectionString+
 								     " is invalid format for technology \""+
-								     technology+"\".","parseConnectionString" );
+								     protocol+"\".","parseConnectionString" );
 	ptr += 2;
 	size_t serviceEnd = connectionString.find( '/', ptr );
 	if( serviceEnd == std::string::npos ) throwException( "Connection string "+connectionString+" is invalid.",
 							      "parseConnectionString" );
-	service = connectionString.substr( ptr, serviceEnd-ptr );
+	serviceName = connectionString.substr( ptr, serviceEnd-ptr );
 	ptr = serviceEnd+1;
-      }
-      std::string schema = connectionString.substr( ptr );
-      return std::make_tuple( technology, service, schema );
+	databaseName = connectionString.substr( ptr );
+      } else throwException( "Technology "+protocol+" is not known.","parseConnectionString" );
+	
+      return std::make_tuple( protocol, serviceName, databaseName );
     }
+    
   }
 
 }

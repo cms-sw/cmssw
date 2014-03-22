@@ -29,6 +29,7 @@ RegionPSetWithVerticesBlock = cms.PSet(
         VertexCollection = cms.InputTag("pixelVertices"),
         ptMin = cms.double(0.9),
         useFoundVertices = cms.bool(True),
+        useFakeVertices = cms.bool(False),
         nSigmaZ = cms.double(4.0)
     )
 )

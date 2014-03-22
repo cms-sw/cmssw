@@ -1,82 +1,79 @@
 #include "../interface/RawDataClient.h"
 
-#include "DQM/EcalBarrelMonitorTasks/interface/RawDataTask.h"
-
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/FEFlags.h"
+
+#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <cmath>
 
 namespace ecaldqm {
 
-  RawDataClient::RawDataClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
-    DQWorkerClient(_params, _paths, "RawDataClient"),
-    synchErrorThreshold_(0)
+  RawDataClient::RawDataClient() :
+    DQWorkerClient(),
+    synchErrThresholdFactor_(0.)
   {
-    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
-    synchErrorThreshold_ = taskParams.getUntrackedParameter<int>("synchErrorThreshold");
-
-    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
-    source_(sL1ADCC, "RawDataTask", RawDataTask::kL1ADCC, sources);
-    source_(sFEStatus, "RawDataTask", RawDataTask::kFEStatus, sources);
+    qualitySummaries_.insert("QualitySummary");
   }
 
   void
-  RawDataClient::bookMEs()
+  RawDataClient::setParams(edm::ParameterSet const& _params)
   {
-    DQWorker::bookMEs();
-
-    MEs_[kQualitySummary]->resetAll(-1.);
+    synchErrThresholdFactor_ = _params.getUntrackedParameter<double>("synchErrThresholdFactor");
   }
 
   void
-  RawDataClient::producePlots()
+  RawDataClient::producePlots(ProcessType)
   {
+    MESet& meQualitySummary(MEs_.at("QualitySummary"));
+    MESet& meErrorsSummary(MEs_.at("ErrorsSummary"));
+
+    MESet const& sEntries(sources_.at("Entries"));
+    MESet const& sL1ADCC(sources_.at("L1ADCC"));
+    MESet const& sFEStatus(sources_.at("FEStatus"));
+
     uint32_t mask(1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR);
 
-    for(unsigned dccid(1); dccid <= 54; dccid++){
+    std::vector<int> dccStatus(nDCC, 1);
 
-      float l1aDesync(sources_[sL1ADCC]->getBinContent(dccid));
-
-      float dccStatus(l1aDesync > synchErrorThreshold_ ? 0. : 1.);
-
-      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
-	std::vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
-
-	if(ids.size() == 0) continue;
-
-	float towerStatus(dccStatus);
-
-	if(towerStatus > 0.){ // if the DCC is good, look into individual FEs
-	  float towerEntries(0.);
-	  for(unsigned iS(0); iS < nFEFlags; iS++){
-	    float entries(sources_[sFEStatus]->getBinContent(ids[0], iS + 1));
-	    towerEntries += entries;
-	    if(entries > 0. &&
-	       iS != Enabled && iS != Disabled && iS != Suppressed &&
-	       iS != FIFOFull && iS != FIFOFullL1ADesync && iS != ForcedZS)
-	      towerStatus = 0.;
-	  }
-
-	  if(towerEntries < 1.) towerStatus = 2.;
-	}
-
-	if(dccid <= 9 || dccid >= 46){
-	  std::vector<EcalScDetId> scs(getElectronicsMap()->getEcalScDetId(dccid, tower));
-	  for(std::vector<EcalScDetId>::iterator scItr(scs.begin()); scItr != scs.end(); ++scItr)
-	    fillQuality_(kQualitySummary, *scItr, mask, towerStatus);
-	}
-	else
-	  fillQuality_(kQualitySummary, ids[0], mask, towerStatus);
-      }
+    for(unsigned iDCC(0); iDCC < nDCC; ++iDCC){
+      double entries(sEntries.getBinContent(iDCC + 1));
+      if(entries > 1. && sL1ADCC.getBinContent(iDCC + 1) > synchErrThresholdFactor_ * std::log(entries) / std::log(10.))
+        dccStatus[iDCC] = 0;
     }
-  }
 
-  /*static*/
-  void
-  RawDataClient::setMEData(std::vector<MEData>& _data)
-  {
-    _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+    MESet::iterator meEnd(meQualitySummary.end());
+    for(MESet::iterator meItr(meQualitySummary.beginChannel()); meItr != meEnd; meItr.toNextChannel()){
+
+      DetId id(meItr->getId());
+
+      bool doMask(meQualitySummary.maskMatches(id, mask, statusManager_));
+
+      int dccid(dccId(id));
+
+      if(dccStatus[dccid - 1] == 0){
+        meItr->setBinContent(doMask ? kMUnknown : kUnknown);
+        continue;
+      }
+
+      int towerStatus(doMask ? kMGood : kGood);
+      float towerEntries(0.);
+      for(unsigned iS(0); iS < nFEFlags; iS++){
+        float entries(sFEStatus.getBinContent(id, iS + 1));
+        towerEntries += entries;
+        if(entries > 0. &&
+           iS != Enabled && iS != Disabled && iS != Suppressed &&
+           iS != FIFOFull && iS != FIFOFullL1ADesync && iS != ForcedZS)
+          towerStatus = doMask ? kMBad : kBad;
+      }
+
+      if(towerEntries < 1.) towerStatus = doMask ? kMUnknown : kUnknown;
+
+      meItr->setBinContent(towerStatus);
+      if(towerStatus == kBad) meErrorsSummary.fill(dccid);
+    }
   }
 
   DEFINE_ECALDQM_WORKER(RawDataClient);

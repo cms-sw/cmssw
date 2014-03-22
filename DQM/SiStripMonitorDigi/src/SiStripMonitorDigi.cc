@@ -571,14 +571,6 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   float iOrbitSec      = iEvent.orbitNumber()/NORBITS_PER_SECOND;
 
   digi_detset_handles.clear();
-  /*
-  for(std::vector<edm::InputTag>::iterator itDigiProducerList = digiProducerList.begin();
-     itDigiProducerList != digiProducerList.end(); ++itDigiProducerList ) {
-
-    edm::Handle< edm::DetSetVector<SiStripDigi> > digi_handle;
-
-    iEvent.getByLabel((*itDigiProducerList),digi_handle);
-  */
   std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > >::const_iterator iToken = digiProducerTokenList.begin();
   for(std::vector<edm::InputTag>::const_iterator iter = digiProducerList.begin(), iEnd = digiProducerList.end();
       iter != iEnd; ++iter, ++iToken) {
@@ -746,7 +738,6 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     //check Stable beams bit
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvm_handle;
-    //    iEvent.getByLabel("gtEvmDigis", gtEvm_handle);
     iEvent.getByToken( gtEvmToken_, gtEvm_handle );
     L1GlobalTriggerEvmReadoutRecord const* gtevm = gtEvm_handle.product();
     
@@ -832,12 +823,10 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   // get EventHistory 
 
   edm::Handle<EventWithHistory> event_history;
-  //  iEvent.getByLabel(historyProducer_,event_history);  
   iEvent.getByToken(historyProducerToken_,event_history);  
 
   // get Phase of APV
   edm::Handle<APVCyclePhaseCollection> apv_phase_collection;
-  //  iEvent.getByLabel(apvPhaseProducer_,apv_phase_collection);
   iEvent.getByToken(apvPhaseProducerToken_,apv_phase_collection);
 
   if (event_history.isValid() 

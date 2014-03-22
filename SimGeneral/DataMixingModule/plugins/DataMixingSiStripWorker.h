@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -41,7 +42,7 @@ namespace edm
       DataMixingSiStripWorker();
 
      /** standard constructor*/
-      explicit DataMixingSiStripWorker(const edm::ParameterSet& ps);
+      explicit DataMixingSiStripWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC);
 
       /**Default destructor*/
       virtual ~DataMixingSiStripWorker();
@@ -58,6 +59,10 @@ namespace edm
       edm::InputTag SistripLabelSig_ ;        // name given to collection of SiStrip digis
       edm::InputTag SiStripPileInputTag_ ;    // InputTag for pileup strips
       std::string SiStripDigiCollectionDM_  ; // secondary name to be given to new SiStrip digis
+
+      edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > SiStripDigiToken_ ;  // Token to retrieve information            
+      edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > SiStripDigiPToken_ ;  // Token to retrieve information           
+
 
       // 
 

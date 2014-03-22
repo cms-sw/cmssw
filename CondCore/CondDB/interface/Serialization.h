@@ -22,7 +22,7 @@
 // temporarely
 #include <boost/shared_ptr.hpp>
 
-class TBufferFile;
+class RootStreamBuffer;
 
 namespace cond {
 
@@ -40,7 +40,7 @@ namespace cond {
   // output
   class RootOutputArchive {
   public:
-    explicit RootOutputArchive( std::ostream& destination );
+    RootOutputArchive( std::ostream& dataDest, std::ostream& streamerInfoDest );
 
     template <typename T>
     RootOutputArchive& operator<<( const T& instance );
@@ -49,7 +49,8 @@ namespace cond {
     void write( const std::type_info& sourceType, const void* sourceInstance);
   private:
     // here is where the write function will write on...
-    std::ostream& m_buffer;
+    std::ostream& m_dataBuffer;
+    std::ostream& m_streamerInfoBuffer;
   };
 
   template <typename T> inline RootOutputArchive& RootOutputArchive::operator<<( const T& instance ){
@@ -60,7 +61,7 @@ namespace cond {
   // input
   class RootInputArchive {
   public:
-    explicit RootInputArchive( std::istream& source );
+    RootInputArchive( std::istream& binaryData, std::istream& binaryStreamerInfo );
 
     virtual ~RootInputArchive();
 
@@ -71,8 +72,9 @@ namespace cond {
     void read( const std::type_info& destinationType, void* destinationInstance);
   private:
     // copy of the input stream. is referenced by the TBufferFile.
-    std::string m_buffer;
-    TBufferFile* m_streamer = nullptr;
+    std::string m_dataBuffer;
+    std::string m_streamerInfoBuffer;
+    RootStreamBuffer* m_streamer = nullptr;
   };
 
   template <typename T> inline RootInputArchive& RootInputArchive::operator>>( T& instance ){
@@ -85,36 +87,46 @@ namespace cond {
 
   // call for the serialization. Setting packingOnly = TRUE the data will stay in the original memory layout 
   // ( no serialization in this case ). This option is used by the ORA backend - will be dropped after the changeover
-  template <typename T> Binary serialize( const T& payload, bool packingOnly = false ){
-    Binary ret;
+  template <typename T> std::pair<Binary,Binary> serialize( const T& payload, bool packingOnly = false ){
+    std::pair<Binary,Binary> ret;
     if( !packingOnly ){
-      // save data to buffer
-      std::ostringstream buffer;
-      CondOutputArchive oa( buffer );
+      // save data to buffers
+      std::ostringstream dataBuffer;
+      std::ostringstream streamerInfoBuffer;
+      CondOutputArchive oa( dataBuffer, streamerInfoBuffer );
       oa << payload;
       //TODO: avoid (2!!) copies
-      ret.copy( buffer.str() );
+      ret.first.copy( dataBuffer.str() );
+      ret.second.copy( streamerInfoBuffer.str() );
     } else {
-      ret = Binary( payload );
+      // ORA objects case: nothing to serialize, the object is kept in memory in the original layout - the bare pointer is exchanged
+      ret.first = Binary( payload );
     }
     return ret;
   }
 
   // generates an instance of T from the binary serialized data. With unpackingOnly = true the memory is already storing the object in the final 
   // format. Only a cast is required in this case - Used by the ORA backed, will be dropped in the future.
-  template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, const Binary& payloadData, bool unpackingOnly = false){
+  template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, 
+							  const Binary& payloadData, 
+							  const Binary& streamerInfoData, 
+							  bool unpackingOnly = false){
     // for the moment we fail if types don't match... later we will check for base types...
     boost::shared_ptr<T> payload;
     if( !unpackingOnly ){
-      std::stringbuf sbuf;
-      sbuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
+      std::stringbuf sdataBuf;
+      sdataBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
+      std::stringbuf sstreamerInfoBuf;
+      sstreamerInfoBuf.pubsetbuf( static_cast<char*>(const_cast<void*>(streamerInfoData.data())), streamerInfoData.size() );
 
-      std::istream buffer( &sbuf );
-      CondInputArchive ia(buffer);
+      std::istream dataBuffer( &sdataBuf );
+      std::istream streamerInfoBuffer( &sstreamerInfoBuf );
+      CondInputArchive ia( dataBuffer, streamerInfoBuffer );
       payload.reset( createPayload<T>(payloadType) );
       ia >> (*payload);
     } else {
-      payload = boost::static_pointer_cast<T>(payloadData.share());
+      // ORA objects case: nothing to de-serialize, the object is already in memory in the final layout, ready to be casted
+      payload = boost::static_pointer_cast<T>(payloadData.oraObject().makeShared());
     }
     return payload;
   }

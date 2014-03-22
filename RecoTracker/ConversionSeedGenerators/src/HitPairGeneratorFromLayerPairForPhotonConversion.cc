@@ -50,7 +50,9 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
 								const edm::Event& event, const edm::EventSetup& es)
 {
 
+#ifdef mydebug_Seed
   ss->str("");
+#endif
 
   typedef OrderedHitPair::InnerRecHit InnerHit;
   typedef OrderedHitPair::OuterRecHit OuterHit;

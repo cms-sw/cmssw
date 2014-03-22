@@ -40,11 +40,11 @@ class matchOneToOne : public edm::EDAnalyzer {
 
   private:
 
-    InputTag source_;
-    InputTag matched_;
-    InputTag matchedjetsOne1_;   
-    InputTag matchedjetsOne2_;
-    string   fOutputFileName_;            
+    EDGetTokenT<CandidateCollection> sourceToken_;
+    EDGetTokenT<CandidateCollection> matchedToken_;
+    EDGetTokenT<CandViewMatchMap> matchedjetsOne1Token_;
+    EDGetTokenT<CandViewMatchMap> matchedjetsOne2Token_;
+    string   fOutputFileName_;
 
     Handle<CandidateCollection> source;
     Handle<CandidateCollection> matched;
@@ -58,16 +58,16 @@ class matchOneToOne : public edm::EDAnalyzer {
 
 matchOneToOne::matchOneToOne(const edm::ParameterSet& iConfig)
 {
-  source_          = iConfig.getParameter<InputTag> ("src");
-  matched_         = iConfig.getParameter<InputTag> ("matched");
-  matchedjetsOne1_ = iConfig.getParameter<InputTag> ("matchMapOne1");
-  matchedjetsOne2_ = iConfig.getParameter<InputTag> ("matchMapOne2");
+  sourceToken_          = consumes<CandidateCollection>(iConfig.getParameter<InputTag> ("src"));
+  matchedToken_         = consumes<CandidateCollection>(iConfig.getParameter<InputTag> ("matched"));
+  matchedjetsOne1Token_ = consumes<CandViewMatchMap>(iConfig.getParameter<InputTag> ("matchMapOne1"));
+  matchedjetsOne2Token_ = consumes<CandViewMatchMap>(iConfig.getParameter<InputTag> ("matchMapOne2"));
   fOutputFileName_ = iConfig.getUntrackedParameter<string>("HistOutFile",std::string("testMatch.root"));
 }
 
 void matchOneToOne::beginJob()
 {
- 
+
    hOutputFile   = new TFile( fOutputFileName_.c_str(), "RECREATE" ) ;
    hDR           = new TH1F( "hDR","",1000,0.,10.);
    hTotalLenght  = new TH1D( "hTotalLenght", "Total Lenght", 1000,  0., 5. );
@@ -75,26 +75,25 @@ void matchOneToOne::beginJob()
 }
 
 void matchOneToOne::endJob()
-{      
+{
    hOutputFile->Write() ;
-   hOutputFile->Close() ;  
+   hOutputFile->Close() ;
    return ;
 }
 
 void matchOneToOne::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   cout << "[matchOneToOne] analysing event " << iEvent.id() << endl;
-  
+
   try {
-    iEvent.getByLabel (source_,source);
-    iEvent.getByLabel (matched_,matched);
-    iEvent.getByLabel (matchedjetsOne1_ , matchedjetsOne1 );
-    iEvent.getByLabel (matchedjetsOne2_ , matchedjetsOne2 );
-   } catch(std::exception& ce) {
+    iEvent.getByToken (sourceToken_,source);
+    iEvent.getByToken (matchedToken_,matched);
+    iEvent.getByToken (matchedjetsOne1Token_ , matchedjetsOne1 );
+    iEvent.getByToken (matchedjetsOne2Token_ , matchedjetsOne2 );   } catch(std::exception& ce) {
     cerr << "[matchOneToOne] caught std::exception " << ce.what() << endl;
     return;
   }
-  
+
   //
   // Printout for OneToOne matcher
   //
@@ -115,14 +114,14 @@ void matchOneToOne::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       printf("[matchOneToOne src2mtc] (pt,eta,phi) source = %6.2f %5.2f %5.2f matched = %6.2f %5.2f %5.2f dR=%5.3f\n",
 	     sourceRef->et(),
 	     sourceRef->eta(),
-	     sourceRef->phi(), 
-	     matchRef->et(), 
+	     sourceRef->phi(),
+	     matchRef->et(),
 	     matchRef->eta(),
-	     matchRef->phi(), 
+	     matchRef->phi(),
 	     dR);
 
       hDR->Fill(dR);
-      
+
   }
 
   cout << "-----------------" << endl;
@@ -130,7 +129,7 @@ void matchOneToOne::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   for( CandViewMatchMap::const_iterator f  = matchedjetsOne2->begin();
                                         f != matchedjetsOne2->end();
                                         f++) {
-  
+
       const Candidate *sourceRef = &*(f->key);
       const Candidate *matchRef  = &*(f->val);
       dR= DeltaR( sourceRef->p4() , matchRef->p4() );

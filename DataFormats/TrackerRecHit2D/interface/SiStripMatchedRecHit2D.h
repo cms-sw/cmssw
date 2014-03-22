@@ -3,6 +3,8 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
+#include "TkCloner.h"
+
 class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
  public:
   typedef BaseTrackerRecHit Base;
@@ -10,9 +12,9 @@ class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
   SiStripMatchedRecHit2D(){}
   ~SiStripMatchedRecHit2D(){}
 
-  SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, const DetId& id , 
+  SiStripMatchedRecHit2D( const LocalPoint& pos, const LocalError& err, GeomDet const & idet,
 			  const SiStripRecHit2D* rMono,const SiStripRecHit2D* rStereo):
-    BaseTrackerRecHit(pos, err, id, trackerHitRTTI::match), clusterMono_(rMono->omniClusterRef()), clusterStereo_(rStereo->omniClusterRef()){}
+    BaseTrackerRecHit(pos, err, idet, trackerHitRTTI::match), clusterMono_(rMono->omniClusterRef()), clusterStereo_(rStereo->omniClusterRef()){}
 
   // by value, as they will not exists anymore...
   SiStripRecHit2D  stereoHit() const { return SiStripRecHit2D(stereoId(),stereoClusterRef()) ;}
@@ -53,6 +55,14 @@ class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
   virtual std::vector<const TrackingRecHit*> recHits() const; 
 
   virtual std::vector<TrackingRecHit*> recHits(); 
+
+  virtual bool canImproveWithTrack() const {return true;}
+private:
+  // double dispatch
+  virtual SiStripMatchedRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner(*this,tsos);
+  }
+ 
     
  private:
    OmniClusterRef clusterMono_, clusterStereo_;

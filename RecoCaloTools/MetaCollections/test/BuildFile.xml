@@ -1,6 +1,0 @@
-<use   name="DataFormats/HcalRecHit"/>
-<use   name="RecoCaloTools/MetaCollections"/>
-<bin   name="CaloRecHitMetaCollectionFast_t" file="CaloRecHitMetaCollectionFast_t.cc">
-</bin>
-<bin   name="CaloRecHitMetaCollection_t" file="CaloRecHitMetaCollection_t.cc">
-</bin>

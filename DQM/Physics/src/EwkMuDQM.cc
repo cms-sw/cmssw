@@ -485,24 +485,6 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       nmuons_->Fill(muonCollectionSize);
 
-      ////PF Photon Collection
-      //Handle<View<Photon> > pfPhotonCollection;
-      ////Handle<View<pfPhot> > pfPhotonCollection;
-      //if(!ev.getByLabel(pfPhoTag_,pfPhotonCollection)){
-      ////LogError("")
-      //return;
-      //}
-      //unsigned int npfgam=0;
-      //
-      //for (unsigned int i=0; i<pfPhotonCollection->size(); i++){
-      //	const Photon &ph = pfPhotonCollection->at(i);
-      //	double photonPt = ph.pt();
-      //	if (photonPt> ptThrForPhoton_) npfgam++;
-      //  pfphPt_->Fill(photonPt);
-      //	}
-      //npfph_->Fill(npfgam);
-      //LogTrace("") << " >>> N PF photons " << npfgam << std::endl;
-
       // Start counting
       nall++;
 

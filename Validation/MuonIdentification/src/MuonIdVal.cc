@@ -29,10 +29,6 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& iConfig)
    inputMuonCosmicCompatibilityValueMapToken_ = consumes<edm::ValueMap<reco::MuonCosmicCompatibility> >(inputMuonCosmicCompatibilityValueMap_);
    inputMuonShowerInformationValueMapToken_ = consumes<edm::ValueMap<reco::MuonShower> >(inputMuonShowerInformationValueMap_);
 
-   //   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "combined", combinedMuonTimeExtraValueMapH_);
-   //   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "csc", cscMuonTimeExtraValueMapH_);
-   //   iEvent.getByLabel(inputMuonTimeExtraValueMap_.label(), "dt", dtMuonTimeExtraValueMapH_);
-
    dbe_ = 0;
    dbe_ = edm::Service<DQMStore>().operator->();
 }

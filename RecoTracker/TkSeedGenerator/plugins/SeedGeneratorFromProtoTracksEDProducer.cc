@@ -29,7 +29,7 @@ using namespace edm;
 using namespace reco;
 
 template <class T> T sqr( T t) {return t*t;}
-typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
+typedef SeedingHitSet::ConstRecHitPointer Hit;
 
 struct HitLessByRadius { bool operator() (const Hit& h1, const Hit & h2) { return h1->globalPosition().perp2() < h2->globalPosition().perp2(); } };
 
@@ -118,7 +118,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
       std::vector<Hit> hits;
       for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
         TrackingRecHitRef refHit = proto.recHit(iHit);
-        if(refHit->isValid()) hits.push_back(ttrhbESH->build(  &(*refHit) ));
+        if(refHit->isValid()) hits.push_back((Hit)&(*refHit));
       }
       sort(hits.begin(), hits.end(), HitLessByRadius());
       assert(hits.size()<4);

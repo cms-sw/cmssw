@@ -26,7 +26,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 
 using namespace edm;
 using namespace std;
@@ -34,7 +33,7 @@ using namespace std;
 EFilter::EFilter(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
 
-  inputTagParticles_ = iConfig.getParameter<InputTag>("particles");
+  inputTagParticles_ = consumes<std::vector<reco::PFSimParticle> >(iConfig.getParameter<InputTag>("particles"));
 
   minE_ = iConfig.getUntrackedParameter<double>("minE",-1);
   maxE_ = iConfig.getUntrackedParameter<double>("maxE",999999);
@@ -64,15 +63,7 @@ EFilter::filter(edm::Event& iEvent,
 
 
   Handle<std::vector<reco::PFSimParticle> > particles;
-  bool found = iEvent.getByLabel(inputTagParticles_, particles);
-  //    cout<<"n particles = "<<particles->size()<<endl;
-  
-  if (! found) {
-    LogError("PFSimParticle")<<"cannot find particles: "
-			     <<inputTagParticles_<<endl;
-    return false;
-  }
-  
+  iEvent.getByToken(inputTagParticles_, particles);
 
   if( !particles->empty() ) {
     // take first trajectory point of first particle (the mother)

@@ -21,8 +21,6 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaReco/interface/PreshowerClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
 
 // to compute on-the-fly cluster shapes
@@ -43,22 +41,22 @@ using namespace edm;
 PiZeroDiscriminatorProducer::PiZeroDiscriminatorProducer(const ParameterSet& ps) {
   // use configuration file to setup input/output collection names
 
-  preshClusterShapeCollectionX_ = ps.getParameter<std::string>("preshClusterShapeCollectionX");
-  preshClusterShapeCollectionY_ = ps.getParameter<std::string>("preshClusterShapeCollectionY");
-  preshClusterShapeProducer_   = ps.getParameter<std::string>("preshClusterShapeProducer");
+  pPreshowerShapeClustersXToken_ = consumes<PreshowerClusterShapeCollection>(edm::InputTag(ps.getParameter<std::string>("preshClusterShapeProducer"), ps.getParameter<std::string>("preshClusterShapeCollectionX")));
+  pPreshowerShapeClustersYToken_ = consumes<PreshowerClusterShapeCollection>(edm::InputTag(ps.getParameter<std::string>("preshClusterShapeProducer"), ps.getParameter<std::string>("preshClusterShapeCollectionY")));
 
-  photonCorrCollectionProducer_ = ps.getParameter<string>("corrPhoProducer");
-  correctedPhotonCollection_ = ps.getParameter<string>("correctedPhotonCollection");
+  correctedPhotonToken_ = consumes<PhotonCollection>(edm::InputTag(ps.getParameter<string>("corrPhoProducer"), ps.getParameter<string>("correctedPhotonCollection")));
 
   barrelRecHitCollection_ = ps.getParameter<edm::InputTag>("barrelRecHitCollection");
+  barrelRecHitCollectionToken_ = consumes<EcalRecHitCollection>(barrelRecHitCollection_);
   endcapRecHitCollection_ = ps.getParameter<edm::InputTag>("endcapRecHitCollection");
+  endcapRecHitCollectionToken_ = consumes<EcalRecHitCollection>(endcapRecHitCollection_);
 
   EScorr_ = ps.getParameter<int>("EScorr");
 
   preshNst_ = ps.getParameter<int>("preshPi0Nstrip");
- 
+
   preshStripECut_ = ps.getParameter<double>("preshStripEnergyCut");
- 
+
   w0_ = ps.getParameter<double>("w0");
 
   PhotonPi0DiscriminatorAssociationMap_ = ps.getParameter<string>("Pi0Association");
@@ -70,12 +68,12 @@ PiZeroDiscriminatorProducer::PiZeroDiscriminatorProducer(const ParameterSet& ps)
   else                               debugL_pi0 = pERROR;
 
   string tmpPath = ps.getUntrackedParameter<string>("pathToWeightFiles","RecoEcal/EgammaClusterProducers/data/");
-  
-  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut_, preshNst_, tmpPath.c_str()); 
+
+  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut_, preshNst_, tmpPath.c_str());
 
   produces< PhotonPi0DiscriminatorAssociationMap >(PhotonPi0DiscriminatorAssociationMap_);
 
- 
+
   nEvt_ = 0;
 
 }
@@ -96,26 +94,26 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 
   // Get ES clusters in X plane
   Handle<reco::PreshowerClusterShapeCollection> pPreshowerShapeClustersX;
-  evt.getByLabel(preshClusterShapeProducer_, preshClusterShapeCollectionX_, pPreshowerShapeClustersX);
+  evt.getByToken(pPreshowerShapeClustersXToken_, pPreshowerShapeClustersX);
   const reco::PreshowerClusterShapeCollection *clustersX = pPreshowerShapeClustersX.product();
   if ( debugL_pi0 <= pDEBUG ) {
     cout << "\n PiZeroDiscriminatorProducer: pPreshowerShapeClustersX->size() = " << clustersX->size() << endl;
-  } 
+  }
   // Get ES clusters in Y plane
   Handle<reco::PreshowerClusterShapeCollection> pPreshowerShapeClustersY;
-  evt.getByLabel(preshClusterShapeProducer_, preshClusterShapeCollectionY_, pPreshowerShapeClustersY);
+  evt.getByToken(pPreshowerShapeClustersYToken_, pPreshowerShapeClustersY);
   const reco::PreshowerClusterShapeCollection *clustersY = pPreshowerShapeClustersY.product();
-  if ( debugL_pi0 <= pDEBUG ) { 
+  if ( debugL_pi0 <= pDEBUG ) {
     cout << "\n PiZeroDiscriminatorProducer: pPreshowerShapeClustersY->size() = " << clustersY->size() << endl;
   }
   auto_ptr<PhotonPi0DiscriminatorAssociationMap> Pi0Assocs_p(new PhotonPi0DiscriminatorAssociationMap);
 
   Handle< EcalRecHitCollection > pEBRecHits;
-  evt.getByLabel( barrelRecHitCollection_, pEBRecHits );
+  evt.getByToken( barrelRecHitCollectionToken_, pEBRecHits );
   const EcalRecHitCollection *ebRecHits = pEBRecHits.product();
 
   Handle< EcalRecHitCollection > pEERecHits;
-  evt.getByLabel( endcapRecHitCollection_, pEERecHits );
+  evt.getByToken( endcapRecHitCollectionToken_, pEERecHits );
   const EcalRecHitCollection *eeRecHits = pEERecHits.product();
 
   ESHandle<CaloGeometry> pGeometry;
@@ -127,8 +125,8 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
   const CaloTopology *topology = pTopology.product();
 
   //make cycle over Photon Collection
-  Handle<PhotonCollection> correctedPhotonHandle; 
-  evt.getByLabel(photonCorrCollectionProducer_, correctedPhotonCollection_ , correctedPhotonHandle);
+  Handle<PhotonCollection> correctedPhotonHandle;
+  evt.getByToken(correctedPhotonToken_, correctedPhotonHandle);
   const PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
   if ( debugL_pi0 <= pDEBUG ) {
     cout << " PiZeroDiscriminatorProducer: Photon Collection size : " << corrPhoCollection.size() << endl;
@@ -136,33 +134,33 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 
   for( PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
 
-      float Phot_En   = iPho->energy();  
+      float Phot_En   = iPho->energy();
       float Phot_Et   = Phot_En*sin(2*atan(exp(-iPho->eta())));
       float Phot_eta  = iPho->eta();
       float Phot_phi  = iPho->phi();
       float Phot_R9   = iPho->r9();
-      
+
       if ( debugL_pi0 <= pDEBUG ) {
-         cout << " PiZeroDiscriminatorProducer: Photon index : " << iPho - corrPhoCollection.begin() 
+         cout << " PiZeroDiscriminatorProducer: Photon index : " << iPho - corrPhoCollection.begin()
                            << " with Energy = " <<  Phot_En
 			   << " Et = " << Phot_Et
                            << " ETA = " << Phot_eta
-       		           << " PHI = " << Phot_phi 
+       		           << " PHI = " << Phot_phi
 			   << " R9 = " << Phot_R9 << endl;
       }
       SuperClusterRef it_super = iPho->superCluster();
 
-      float SC_En   = it_super->energy();  
+      float SC_En   = it_super->energy();
       float SC_Et   = SC_En*sin(2*atan(exp(-it_super->eta())));
       float SC_eta  = it_super->eta();
       float SC_phi  = it_super->phi();
 
       if ( debugL_pi0 <= pDEBUG ) {
         cout << " PiZeroDiscriminatorProducer: superE = " << SC_En
-	          << " superEt = " << SC_Et 
+	          << " superEt = " << SC_Et
                   << " superETA = " << SC_eta
        		  << " superPHI = " << SC_phi << endl;
-      }			   
+      }
 
       //  New way to get ClusterShape info
       // Find the entry in the map corresponding to the seed BasicCluster of the SuperCluster
@@ -186,48 +184,48 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
           double SC_seed_Shape_E5x5 = EcalClusterTools::e5x5( *seed, eeRecHits, topology );
 
           if ( debugL_pi0 <= pDEBUG ) {
-            cout << "PiZeroDiscriminatorProducer: ( SeedBC_energy, E1, E3x3, E5x5) = " 
+            cout << "PiZeroDiscriminatorProducer: ( SeedBC_energy, E1, E3x3, E5x5) = "
 	         <<  SC_seed_energy << " "
                  <<  SC_seed_Shape_E1 <<  " "
                  <<  SC_seed_Shape_E3x3 <<  " "
                  <<  SC_seed_Shape_E5x5 << endl;
           }
-	             
+
 // Get the Preshower 2-planes energy vectors associated with the given SC
           vector<float> vout_stripE1;
 	  vector<float> vout_stripE2;
           for(reco::PreshowerClusterShapeCollection::const_iterator esClus = clustersX->begin();
                                                        esClus !=clustersX->end(); esClus++) {
              SuperClusterRef sc_ref = esClus->superCluster();
-             float dR = sqrt((SC_eta-sc_ref->eta())*(SC_eta-sc_ref->eta()) + 
+             float dR = sqrt((SC_eta-sc_ref->eta())*(SC_eta-sc_ref->eta()) +
 	                     (SC_phi-sc_ref->phi())*(SC_phi-sc_ref->phi()));
              if(dR < 0.01 ) {
 
 	       vout_stripE1 = esClus->getStripEnergies();
-	       
+
              }
           }
 	  for(reco::PreshowerClusterShapeCollection::const_iterator esClus = clustersY->begin();
                                                        esClus !=clustersY->end(); esClus++) {
             SuperClusterRef sc_ref = esClus->superCluster();
-	    float dR = sqrt((SC_eta-sc_ref->eta())*(SC_eta-sc_ref->eta()) + 
+	    float dR = sqrt((SC_eta-sc_ref->eta())*(SC_eta-sc_ref->eta()) +
 	                     (SC_phi-sc_ref->phi())*(SC_phi-sc_ref->phi()));
              if(dR < 0.01 ) {
-	     
+
                vout_stripE2 = esClus->getStripEnergies();
-	       
-	    }  
+
+	    }
           }
 
           if(vout_stripE1.size() == 0 || vout_stripE2.size() == 0 ) {
-            if ( debugL_pi0 <= pDEBUG ) 
+            if ( debugL_pi0 <= pDEBUG )
 	            cout  << " PiZeroDiscriminatorProducer: Attention!!!!!  Not Valid ES NN input Variables Return NNout = -1" << endl;
 	    Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput);
             continue;
 	  }
 
           if ( debugL_pi0 <= pDEBUG ) {
-            cout  << "PiZeroDiscriminatorProducer : vout_stripE1.size = " << vout_stripE1.size() 
+            cout  << "PiZeroDiscriminatorProducer : vout_stripE1.size = " << vout_stripE1.size()
 	          << " vout_stripE2.size = " << vout_stripE2.size() << endl;
             cout  << "PiZeroDiscriminatorProducer : ES_input_vector = " ;
             for(int k1=0;k1<11;k1++) {
@@ -238,12 +236,12 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
             }
             cout  << endl;
           }
-	  
+
           bool valid_NNinput = presh_pi0_algo->calculateNNInputVariables(vout_stripE1, vout_stripE2,
                                                  SC_seed_Shape_E1, SC_seed_Shape_E3x3, SC_seed_Shape_E5x5, EScorr_);
 
           if(!valid_NNinput) {
-            if ( debugL_pi0 <= pDEBUG ) 
+            if ( debugL_pi0 <= pDEBUG )
 	           cout  << " PiZeroDiscriminatorProducer: Attention!!!!!  Not Valid ES NN input Variables Return NNout = -1" << endl;
 	    Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput);
 	    continue;
@@ -257,7 +255,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
               cout  << nn_input_var[k1] << " " ;
             }
             cout  << SC_Et << " " << SC_eta << " " << SC_phi << " " << Phot_R9  << endl;
-	  }  
+	  }
 
           nnoutput = presh_pi0_algo->GetNNOutput(SC_Et);
 
@@ -270,13 +268,13 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 		    << " contains: " << it_super->clustersSize() << " BCs "
 		    << " has NNout = " <<  nnoutput << endl;
          }
-	 
- 	 Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput); 
-	 
+
+ 	 Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput);
+
       } else if((fabs(SC_eta) <= 1.4442) || (fabs(SC_eta) < 1.65 && fabs(SC_eta) >= 1.566) || fabs(SC_eta) >= 2.5) {
 
          const CaloClusterPtr seed = it_super->seed();
-	  
+
          double SC_seed_Shape_E1 = EcalClusterTools::eMax( *seed, ebRecHits );
          double SC_seed_Shape_E3x3 = EcalClusterTools::e3x3( *seed, ebRecHits, topology );
          double SC_seed_Shape_E5x5 = EcalClusterTools::e5x5( *seed, ebRecHits, topology );
@@ -315,32 +313,32 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 	   }
 
          }
-	 	   
+
          double SC_seed_Shape_xcog = EcalClusterTools::eRight( *seed, ebRecHits, topology ) - EcalClusterTools::e2x5Left( *seed, ebRecHits, topology );
          double SC_seed_Shape_ycog = EcalClusterTools::e2x5Top( *seed, ebRecHits, topology ) - EcalClusterTools::e2x5Bottom( *seed, ebRecHits, topology );
 
 
          if ( debugL_pi0 <= pDEBUG ) {
-            cout << "PiZeroDiscriminatorProduce: lazyTool  (E1,E3x3,E5x5,E2,cEE,cEP,cPP,E2x2,E3x2_E3x2r,Xcog,Ycog,E2x5Bottom,E2x5Top,Et,Eta,PhiR9) = ( " 
+            cout << "PiZeroDiscriminatorProduce: lazyTool  (E1,E3x3,E5x5,E2,cEE,cEP,cPP,E2x2,E3x2_E3x2r,Xcog,Ycog,E2x5Bottom,E2x5Top,Et,Eta,PhiR9) = ( "
 	         <<   SC_seed_Shape_E1 << " "
                  <<   SC_seed_Shape_E3x3 << " "
-                 <<   SC_seed_Shape_E5x5 << " " 
-                 <<   SC_seed_Shape_E2 << " " 
+                 <<   SC_seed_Shape_E5x5 << " "
+                 <<   SC_seed_Shape_E2 << " "
                  <<   SC_seed_Shape_cEE <<  " "
-                 <<   SC_seed_Shape_cEP << " " 	    
-                 <<   SC_seed_Shape_cPP << " " 
+                 <<   SC_seed_Shape_cEP << " "
+                 <<   SC_seed_Shape_cPP << " "
                  <<   SC_seed_Shape_E2x2 <<  " "
-                 <<   SC_seed_Shape_E3x2 << " " 
-                 <<   SC_seed_Shape_E3x2r << " " 
+                 <<   SC_seed_Shape_E3x2 << " "
+                 <<   SC_seed_Shape_E3x2r << " "
                  <<   SC_seed_Shape_xcog <<  " "
                  <<   SC_seed_Shape_ycog << " "
 		 <<   EcalClusterTools::e2x5Bottom( *seed, ebRecHits, topology ) << " "
 		 <<   EcalClusterTools::e2x5Top( *seed, ebRecHits, topology ) << " "
 		 <<   SC_Et << " "
 		 <<   SC_eta << " "
-		 <<   SC_phi << " "		   
+		 <<   SC_phi << " "
 	         <<   Phot_R9 << " )" << endl;
-         }    
+         }
 
          float SC_et = it_super->energy()*sin(2*atan(exp(-it_super->eta())));
 
@@ -359,11 +357,11 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
              cout  << nn_input_var[k3] << " " ;
            }
            cout  << SC_Et << " " << SC_eta << " " << SC_phi << " " << Phot_R9 << endl;
-  
+
          }
-	   
+
          nnoutput = presh_pi0_algo->GetBarrelNNOutput(SC_et);
-         
+
 
          if ( debugL_pi0 <= pDEBUG ) {
            cout << "PiZeroDiscriminatorProducer : Event : " <<  evt.id()
@@ -375,11 +373,11 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 		    << " has NNout = " <<  nnoutput
 	            << endl;
          }
-	 
+
  	 Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput);
       } else { Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), -1.);}
   } // end of cycle over Photons
-  
+
   evt.put(Pi0Assocs_p,PhotonPi0DiscriminatorAssociationMap_);
   if ( debugL_pi0 <= pDEBUG ) cout << "PiZeroDiscriminatorProducer: PhotonPi0DiscriminatorAssociationMap added to the event" << endl;
 

@@ -770,19 +770,17 @@ void MuonIsolationDQM::FillHistos(int numPV){
 #ifdef DEBUG
   cout << "FillHistos( "<< numPV <<" )"<< endl;
 #endif  
-  int overFlowBin;
-  double overFlow = 0;
   
   //----------Fill 1D histograms---------------
   for(int var=0; var<NUM_VARS; var++){  
     h_1D[var]->Fill(theData[var]);
     //    cd_plots[var]->Fill(theData[var]);//right now, this is a regular PDF (just like h_1D)
-    if (theData[var] > param[var][2]) {
-      // fill the overflow bin
-      overFlowBin = (int) param[var][0] + 1;
-      overFlow = GetTH1FromMonitorElement(h_1D[var])->GetBinContent(overFlowBin);
-      GetTH1FromMonitorElement(h_1D[var])->SetBinContent(overFlowBin, overFlow + 1);
-    }
+//OFBin   if (theData[var] > param[var][2]) {
+//OFBin     // fill the overflow bin
+//OFBin     overFlowBin = (int) param[var][0] + 1;
+//OFBin     overFlow = GetTH1FromMonitorElement(h_1D[var])->GetBinContent(overFlowBin);
+//OFBin     GetTH1FromMonitorElement(h_1D[var])->SetBinContent(overFlowBin, overFlow + 1);
+//OFBin   }
   }//Finish 1D
   
   for (int var=0; var<NUM_VARS_2D; var++){

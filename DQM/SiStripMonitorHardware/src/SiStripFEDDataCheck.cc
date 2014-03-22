@@ -156,7 +156,6 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
-  //  const bool gotData = iEvent.getByLabel(rawDataTag_,rawDataCollectionHandle);
   const bool gotData = iEvent.getByToken(rawDataToken_,rawDataCollectionHandle);
   if (!gotData) {
     //module is required to silently do nothing when data is not present

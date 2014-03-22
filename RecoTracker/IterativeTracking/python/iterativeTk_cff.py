@@ -7,8 +7,9 @@ from RecoTracker.IterativeTracking.PixelPairStep_cff import *
 from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
 
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
-from RecoTracker.IterativeTracking.TobTecStep_cff import *
 #from RecoTracker.IterativeTracking.PixelLessTripletStep_cff import *
+
+from RecoTracker.IterativeTracking.TobTecStep_cff import *
 #from RecoTracker.IterativeTracking.TobTecHybridStep_cff import *
 
 from RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi import *

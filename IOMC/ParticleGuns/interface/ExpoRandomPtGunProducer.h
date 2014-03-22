@@ -8,7 +8,7 @@
  ***************************************/
 
 #include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
-#include "CLHEP/Random/RandExponential.h"
+
 namespace edm
 {
   
@@ -30,8 +30,6 @@ namespace edm
     double            fMinPt   ;
     double            fMaxPt   ;
     double            fMeanPt ;
-    CLHEP::RandExponential * fRandomExpoGenerator;
-
   };
 } 
 

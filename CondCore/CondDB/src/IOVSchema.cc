@@ -61,12 +61,13 @@ namespace cond {
     bool TAG::Table::select( const std::string& name, 
 			     cond::TimeType& timeType, 
 			     std::string& objectType, 
+			     cond::SynchronizationType& synchronizationType,
 			     cond::Time_t& endOfValidity,
 			     std::string& description, 
 			     cond::Time_t&  lastValidatedTime ){
-      Query< TIME_TYPE, OBJECT_TYPE, END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME > q( m_schema );
+      Query< TIME_TYPE, OBJECT_TYPE, SYNCHRONIZATION, END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME > q( m_schema );
       q.addCondition<NAME>( name );
-      for ( auto row : q ) std::tie( timeType, objectType, endOfValidity, description, lastValidatedTime ) = row;
+      for ( auto row : q ) std::tie( timeType, objectType, synchronizationType, endOfValidity, description, lastValidatedTime ) = row;
       
       return q.retrievedRows();
     }
@@ -296,34 +297,35 @@ namespace cond {
 
     bool PAYLOAD::Table::select( const cond::Hash& payloadHash, 
 				 std::string& objectType, 
-				 cond::Binary& payloadData ){
-      Query< DATA, OBJECT_TYPE > q( m_schema );
+				 cond::Binary& payloadData,
+				 cond::Binary& streamerInfoData ){
+      Query< DATA, STREAMER_INFO, OBJECT_TYPE > q( m_schema );
       q.addCondition<HASH>( payloadHash );
       for ( auto row : q ) {
-	std::tie( payloadData, objectType ) = row;
+	std::tie( payloadData, streamerInfoData, objectType ) = row;
       }
       return q.retrievedRows();
     }
     
     bool PAYLOAD::Table::insert( const cond::Hash& payloadHash, 
     				 const std::string& objectType,
-    				 const cond::Binary& payloadData, 				      
+    				 const cond::Binary& payloadData, 
+				 const cond::Binary& streamerInfoData,				      
     				 const boost::posix_time::ptime& insertionTime ){
-      cond::Binary dummy;
-      std::string streamerType("ROOT5");
-      dummy.copy( streamerType );
       std::string version("dummy");
-      RowBuffer< HASH, OBJECT_TYPE, DATA, STREAMER_INFO, VERSION, INSERTION_TIME > dataToInsert( std::tie( payloadHash, objectType, payloadData, dummy, version, insertionTime ) ); 
+      RowBuffer< HASH, OBJECT_TYPE, DATA, STREAMER_INFO, VERSION, INSERTION_TIME > dataToInsert( std::tie( payloadHash, objectType, payloadData, streamerInfoData, version, insertionTime ) ); 
       bool failOnDuplicate = false;
       return insertInTable( m_schema, tname, dataToInsert.get(), failOnDuplicate );
     }
 
-    cond::Hash PAYLOAD::Table::insertIfNew( const std::string& payloadObjectType, const cond::Binary& payloadData, 
+    cond::Hash PAYLOAD::Table::insertIfNew( const std::string& payloadObjectType, 
+					    const cond::Binary& payloadData, 
+					    const cond::Binary& streamerInfoData,
 					    const boost::posix_time::ptime& insertionTime ){
       cond::Hash payloadHash = makeHash( payloadObjectType, payloadData );
       // the check on the hash existance is only required to avoid the error message printing in SQLite! once this is removed, this check is useless... 
       if( !select( payloadHash ) ){
-	insert( payloadHash, payloadObjectType, payloadData, insertionTime );
+	insert( payloadHash, payloadObjectType, payloadData, streamerInfoData, insertionTime );
       }
       return payloadHash;
     }

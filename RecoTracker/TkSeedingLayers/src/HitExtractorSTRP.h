@@ -19,7 +19,7 @@ namespace edm {
 
 namespace ctfseeding {
 
-class HitExtractorSTRP : public HitExtractor {
+class HitExtractorSTRP final : public HitExtractor {
 
 public:
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
@@ -27,7 +27,7 @@ public:
   HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer);
   virtual ~HitExtractorSTRP(){}
 
-  virtual HitExtractor::Hits hits( const TransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup& ) const;
+  virtual HitExtractor::Hits hits( const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup& ) const override;
   virtual HitExtractorSTRP * clone() const { return new HitExtractorSTRP(*this); }
 
   void useMatchedHits( const edm::InputTag & m, edm::ConsumesCollector& iC) { hasMatchedHits = true; theMatchedHits = iC.consumes<SiStripMatchedRecHit2DCollection>(m); }
@@ -36,17 +36,14 @@ public:
   void useRingSelector(int minRing, int maxRing);
   void useSimpleRphiHitsCleaner(bool use) {hasSimpleRphiHitsCleaner = use;}
 
-  void cleanedOfClusters( const TransientTrackingRecHitBuilder& ttrhBuilder, const edm::Event& ev, HitExtractor::Hits & hits, bool matched, unsigned int cleanFrom=0) const;
+  void cleanedOfClusters( const TkTransientTrackingRecHitBuilder& ttrhBuilder, const edm::Event& ev, HitExtractor::Hits & hits, bool matched, unsigned int cleanFrom=0) const;
 
-  bool skipThis(const TransientTrackingRecHitBuilder& ttrhBuilder, TransientTrackingRecHit::ConstRecHitPointer & ptr,edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask,
-		TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
+  std::pair<bool,ProjectedSiStripRecHit2D *>
+    skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder, TkHitRef matched,
+	     edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
 
   bool skipThis(OmniClusterRef const& clus, edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
 
-  void project(const TransientTrackingRecHitBuilder& ttrhBuilder,
-               TransientTrackingRecHit::ConstRecHitPointer & ptr,
-	       const SiStripRecHit2D * hit,
-	       TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const;
   void setNoProjection() const {failProjection=true;};
   void setMinAbsZ(double minZToSet) {minAbsZ=minZToSet;}
 

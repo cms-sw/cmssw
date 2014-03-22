@@ -1,34 +1,21 @@
 #ifndef RawDataClient_H
 #define RawDataClient_H
 
-#include "DQM/EcalCommon/interface/DQWorkerClient.h"
+#include "DQWorkerClient.h"
 
 namespace ecaldqm {
 
   class RawDataClient : public DQWorkerClient {
   public:
-    RawDataClient(const edm::ParameterSet &, const edm::ParameterSet &);
+    RawDataClient();
     ~RawDataClient() {}
 
-    void bookMEs() override;
-
-    void producePlots() override;
-
-    enum MESets {
-      kQualitySummary,
-      nMESets
-    };
-
-    static void setMEData(std::vector<MEData>&);
-
-    enum Sources {
-      sL1ADCC,
-      sFEStatus,
-      nSources
-    };
+    void producePlots(ProcessType) override;
 
   private:
-    int synchErrorThreshold_;
+    void setParams(edm::ParameterSet const&) override;
+
+    float synchErrThresholdFactor_;
   };
 
 }

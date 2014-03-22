@@ -69,7 +69,8 @@ namespace cond {
     }
       
     bool OraTagTable::select( const std::string& name, cond::TimeType& timeType, std::string& objectType, 
-			      cond::Time_t& endOfValidity, std::string& description, cond::Time_t& lastValidatedTime ){
+			      cond::SynchronizationType&, cond::Time_t& endOfValidity, 
+			      std::string& description, cond::Time_t& lastValidatedTime ){
       if(!m_cache.load( name )) return false;
       timeType = m_cache.iovSequence().timetype();
       if( m_cache.iovSequence().payloadClasses().size()==0 ) throwException( "No payload type information found.","OraTagTable::select");
@@ -115,10 +116,14 @@ namespace cond {
       m_session( session ){
     }
 
-    bool OraPayloadTable::select( const cond::Hash& payloadHash, std::string& objectType, cond::Binary& payloadData ){
+    bool OraPayloadTable::select( const cond::Hash& payloadHash, 
+				  std::string& objectType, 
+				  cond::Binary& payloadData, 
+				  cond::Binary& //streamerInfoData
+				){
       ora::Object obj = m_session.getObject( payloadHash );
       objectType = obj.typeName();
-      payloadData = cond::Binary( obj.makeShared() );
+      payloadData.fromOraObject(obj );
       return true;
     }
 
@@ -127,10 +132,11 @@ namespace cond {
       return true;
     }
       
-    cond::Hash OraPayloadTable::insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 
+    cond::Hash OraPayloadTable::insertIfNew( const std::string& objectType, 
+					     const cond::Binary& payloadData, 
+					     const cond::Binary&, //streamerInfoData
 					     const boost::posix_time::ptime& ){
-      void* ptr = payloadData.share().get();
-      ora::Object obj( ptr, objectType );
+      ora::Object obj = payloadData.oraObject();
       std::string tok = m_session.storeObject( obj, objectType );
       m_session.flush();
       return tok;

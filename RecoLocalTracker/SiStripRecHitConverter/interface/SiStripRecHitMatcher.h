@@ -13,6 +13,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
+
+
 class GluedGeomDet;
 
 #include <cfloat>
@@ -40,6 +43,16 @@ public:
 
   bool preFilter() const { return preFilter_;}  
 
+
+  inline   
+  static float sigmaPitch(LocalPoint const& pos, LocalError const & err, 
+		   const StripTopology& topol) {
+    MeasurementError error = topol.measurementError(pos,err);
+    auto pitch=topol.localPitch(pos);
+    return error.uu()*pitch*pitch;
+  }
+
+
   // optimized matching iteration (the algo is the same, just recoded)
   template<typename MonoIterator, typename StereoIterator,  typename CollectorHelper>
   void doubleMatch(MonoIterator monoRHiter, MonoIterator monoRHend,
@@ -52,7 +65,7 @@ public:
   SiStripMatchedRecHit2D * match(const SiStripRecHit2D *monoRH, 
 				 const SiStripRecHit2D *stereoRH,
 				 const GluedGeomDet* gluedDet,
-				 LocalVector trackdirection) const;
+				 LocalVector trackdirection, bool force=false) const;
 
   
 // this is the one used by the RecHitConverter
@@ -79,6 +92,15 @@ public:
   StripPosition project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,LocalVector trackdirection) const;
   
   
+  // needed by the obsolete version still in use on some architectures
+  void
+  match( const SiStripRecHit2D *monoRH,
+	 SimpleHitIterator begin, SimpleHitIterator end,
+	 edm::OwnVector<SiStripMatchedRecHit2D> & collector, 
+	 const GluedGeomDet* gluedDet,
+	 LocalVector trackdirection) const;
+
+
 
   void
   match( const SiStripRecHit2D *monoRH,
@@ -168,7 +190,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     
     const SiStripRecHit2D & secondHit = CollectorHelper::stereoHit(seconditer);
     
-    float sigmap22 =secondHit.sigmaPitch();
+    float sigmap22 = sigmaPitch(secondHit.localPosition(),secondHit.localPositionError(),partnertopol);
     // assert (sigmap22>=0);
     
     auto STEREOpointX=partnertopol.measurementPosition( secondHit.localPositionFast()).x();
@@ -269,8 +291,8 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     double s1 = -m01;
     double l1 = 1./(c1*c1+s1*s1);
     
-    // FIXME: here for test...
-    float sigmap12 = monoRH.sigmaPitch();
+    float sigmap12 = sigmaPitch(monoRH.localPosition(), monoRH.localPositionError(),topol);
+    // float sigmap12 = monoRH.sigmaPitch();
     // assert(sigmap12>=0); 
 
     //float code
@@ -314,8 +336,8 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
 	//Change NSigmaInside in the configuration file to accept more hits
 	//...and add it to the Rechit collection 
 	
-	collectorHelper.collector()(SiStripMatchedRecHit2D(LocalPoint(position), error,gluedDet->geographicalId() ,
-							   &monoRH,si.secondHit));
+	collectorHelper.collector()(SiStripMatchedRecHit2D(LocalPoint(position), error,
+							   *gluedDet,&monoRH,si.secondHit));
       }
       
     } // loop on cache info

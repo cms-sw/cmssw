@@ -49,9 +49,9 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
 
   if(!seedfromoverlaps){
     for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
-      TkHitPairsCachedHit oh= builder->build(*ohh);
+       auto oh= (BaseTrackerRecHit const *)(&*ohh);
       for(mhh=theMiddleLayer->recHits().begin();mhh!=theMiddleLayer->recHits().end();mhh++){
-	TkHitPairsCachedHit mh=  builder->build(*mhh);
+	auto mh=  (BaseTrackerRecHit const *)(&*mhh);
 	float z_diff =mh->globalPosition().z()-oh->globalPosition().z();
 	float midy=mh->globalPosition().y();
 	float outy=oh->globalPosition().y();
@@ -61,7 +61,7 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
 	if((std::abs(z_diff)<30) && (outy*midy>0) &&(dxdy<2))	  
 	  {
 	    for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
-	      TkHitPairsCachedHit ih= builder->build(*ihh);
+	      auto ih= (BaseTrackerRecHit const *)(&*ihh);
 	      float z_diff =mh->globalPosition().z()-ih->globalPosition().z();
 	      float inny=ih->globalPosition().y();
 	      float innx=ih->globalPosition().x();
@@ -76,9 +76,9 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
     }
   } else {
     for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
-      TkHitPairsCachedHit oh= builder->build(*ohh);
+      auto oh= (BaseTrackerRecHit const *)(&*ohh);
       for(mhh=theMiddleLayer->recHits().begin();mhh!=theMiddleLayer->recHits().end();mhh++){
-	TkHitPairsCachedHit mh= builder->build(*mhh);
+	auto mh= (BaseTrackerRecHit const *)(&*mhh);
  	float z_diff =mh->globalPosition().z()-oh->globalPosition().z();
 	float midy=mh->globalPosition().y();
 	float outy=oh->globalPosition().y();
@@ -88,7 +88,7 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
 	float DeltaR=oh->globalPosition().perp()-mh->globalPosition().perp();
 	if((std::abs(z_diff)<18) && (std::abs(oh->globalPosition().phi()-mh->globalPosition().phi())<0.05) &&(DeltaR<0)&&(dxdy<2)){
 	  for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
-	    TkHitPairsCachedHit ih= builder->build(*ihh);
+	    auto ih= (BaseTrackerRecHit const *)(&*ihh);
 	    float z_diff =mh->globalPosition().z()-ih->globalPosition().z();
 	    float inny=ih->globalPosition().y();
 	    float innx=ih->globalPosition().x();

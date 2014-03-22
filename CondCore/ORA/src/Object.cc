@@ -9,14 +9,19 @@ ora::Object::Object():
   m_type(){
 }
 
+ora::Object::Object( const void* ptr, const std::type_info& typeInfo ):
+  m_ptr( const_cast<void*>(ptr) ){
+  m_type = ClassUtils::lookupDictionary( typeInfo, true );
+}
+
 ora::Object::Object( const void* ptr, const Reflex::Type& type ):
   m_ptr( const_cast<void*>(ptr) ),
-  m_type( type ){
+  m_type( type ){  
 }
 
 ora::Object::Object( const void* ptr, const std::string& typeName ):
-  m_ptr( const_cast<void*>(ptr) ),
-  m_type(Reflex::Type::ByName( typeName )){
+  m_ptr( const_cast<void*>(ptr) ){
+  m_type = ClassUtils::lookupDictionary( typeName, true );
 }
 
 ora::Object::Object( const Object& rhs):
@@ -65,8 +70,12 @@ void* ora::Object::cast( const std::type_info& typeInfo ) const{
   return ClassUtils::upCast( m_type, m_ptr, castType );
 }
 
-boost::shared_ptr<void> ora::Object::makeShared() const {
-  return boost::shared_ptr<void>( m_ptr, RflxDeleter( m_type ) );
+boost::shared_ptr<void> ora::Object::makeShared( ) const {
+  boost::shared_ptr<void> ret;
+  if( m_ptr ) {
+    ret = boost::shared_ptr<void>( m_ptr, RflxDeleter( m_type ) );
+  }
+  return ret;
 }
 
 void ora::Object::destruct() {

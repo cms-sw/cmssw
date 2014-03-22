@@ -19,7 +19,9 @@
 /**\class PFClusterAnalyzer 
 \brief test analyzer for PFClusters
 */
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "TH1F.h"
 
 
 
@@ -50,6 +52,13 @@ class PFClusterComparator : public edm::EDAnalyzer {
   edm::InputTag   inputTagPFClusters_;
   edm::InputTag   inputTagPFClustersCompare_;
   
+  edm::Service<TFileService> fs_;
+  TH1F *log10E_old, *log10E_new, *deltaEnergy;
+  TH1F *posX_old, *posX_new, *deltaX;
+  TH1F *posY_old, *posY_new, *deltaY;
+  TH1F *posZ_old, *posZ_new, *deltaZ;
+  
+
   /// verbose ?
   bool   verbose_;
 

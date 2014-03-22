@@ -37,6 +37,22 @@ namespace {
 }
 
 
+// needed by the obsolete version still in use on some architectures
+void
+SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
+			     SimpleHitIterator begin, SimpleHitIterator end,
+			     edm::OwnVector<SiStripMatchedRecHit2D> & collector, 
+			     const GluedGeomDet* gluedDet,
+			     LocalVector trackdirection) const {
+
+  std::vector<SiStripMatchedRecHit2D*> result;
+  result.reserve(end-begin);
+  match(monoRH,begin,end,result,gluedDet,trackdirection);
+  for (std::vector<SiStripMatchedRecHit2D*>::iterator p=result.begin(); p!=result.end();
+       p++) collector.push_back(*p);
+}
+
+
 void
 SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 			     SimpleHitIterator begin, SimpleHitIterator end,
@@ -132,7 +148,8 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   double l1 = 1./(c1*c1+s1*s1);
 
  
-  auto sigmap12 = monoRH->sigmaPitch();
+  float sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
+  // auto sigmap12 = monoRH->sigmaPitch();
   // assert(sigmap12>=0);
 
 
@@ -201,8 +218,8 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
     double s2 = -m11;
     double l2 = 1./(c2*c2+s2*s2);
 
-
-    auto sigmap22 = (*seconditer)->sigmaPitch();
+   float sigmap22 = sigmaPitch((*seconditer)->localPosition(),(*seconditer)->localPositionError(),partnertopol);
+   // auto sigmap22 = (*seconditer)->sigmaPitch();
     // assert(sigmap22>=0);
 
     double diff=(c1*s2-c2*s1);
@@ -217,7 +234,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
       //...and add it to the Rechit collection 
 
       const SiStripRecHit2D* secondHit = *seconditer;
-      collector(SiStripMatchedRecHit2D(position, error,gluedDet->geographicalId() ,
+      collector(SiStripMatchedRecHit2D(position, error,*gluedDet,
 				       monoRH,secondHit));
     }
   }
@@ -252,7 +269,7 @@ SiStripMatchedRecHit2D *
 SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH, 
 			    const SiStripRecHit2D *stereoRH,
 			    const GluedGeomDet* gluedDet,
-			    LocalVector trackdirection) const {
+			    LocalVector trackdirection, bool force) const {
   // stripdet = mono
   // partnerstripdet = stereo
   const GeomDetUnit* stripdet = gluedDet->monoDet();
@@ -293,8 +310,9 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   double s1 = -m01;
   double l1 = 1./(c1*c1+s1*s1);
 
- 
-  auto sigmap12 = monoRH->sigmaPitch();
+
+  float sigmap12 = sigmaPitch(monoRH->localPosition(), monoRH->localPositionError(),topol);
+  // auto sigmap12 = monoRH->sigmaPitch();
   // assert(sigmap12>=0);
 
 
@@ -329,7 +347,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   Local2DPoint position(solution(0),solution(1));
   
 
-  if (!((gluedDet->surface()).bounds().inside(position,10.f*scale_))) return nullptr;                                                       
+  if ((!force) &&  (!((gluedDet->surface()).bounds().inside(position,10.f*scale_))) ) return nullptr;                                                       
   
 
   double c2 = -m10;
@@ -337,8 +355,8 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   double l2 = 1./(c2*c2+s2*s2);
   
   
-
-  auto sigmap22 = stereoRH->sigmaPitch();
+  float sigmap22 = sigmaPitch(stereoRH->localPosition(),stereoRH->localPositionError(),partnertopol);
+  // auto sigmap22 = stereoRH->sigmaPitch();
   // assert (sigmap22>0);
 
   double diff=(c1*s2-c2*s1);
@@ -351,8 +369,8 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
 
   //if it is inside the gluedet bonds
   //Change NSigmaInside in the configuration file to accept more hits
-  if((gluedDet->surface()).bounds().inside(position,error,scale_)) 
-    return new SiStripMatchedRecHit2D(LocalPoint(position), error,gluedDet->geographicalId(), monoRH,stereoRH);
+  if(force || (gluedDet->surface()).bounds().inside(position,error,scale_)) 
+    return new SiStripMatchedRecHit2D(LocalPoint(position), error, *gluedDet, monoRH,stereoRH);
   return nullptr;
 }
 

@@ -16,12 +16,12 @@
 
 using namespace susybsm;
 
-BetaCalculatorECAL::BetaCalculatorECAL(const edm::ParameterSet& iConfig) :
-  EBRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EBRecHitCollection")),
-  EERecHitCollection_ (iConfig.getParameter<edm::InputTag>("EERecHitCollection"))
+BetaCalculatorECAL::BetaCalculatorECAL(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) :
+  EBRecHitCollectionToken_(iC.consumes<EBRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitCollection"))),
+  EERecHitCollectionToken_(iC.consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection")))
 {
    edm::ParameterSet trkParameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-   parameters_.loadParameters( trkParameters ); 
+   parameters_.loadParameters( trkParameters );
    trackAssociator_.useDefaultPropagator();
 
 }
@@ -44,10 +44,10 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
    const CaloTopology* theCaloTopology = pCaloTopology.product();
    // EcalRecHits
    edm::Handle<EBRecHitCollection> ebRecHits;
-   iEvent.getByLabel(EBRecHitCollection_,ebRecHits);
+   iEvent.getByToken(EBRecHitCollectionToken_,ebRecHits);
    edm::Handle<EERecHitCollection> eeRecHits;
-   iEvent.getByLabel(EERecHitCollection_,eeRecHits);
-   
+   iEvent.getByToken(EERecHitCollectionToken_,eeRecHits);
+
    // select the track
    reco::Track track;
    if(candidate.hasTrackRef())
@@ -63,14 +63,14 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
    }
 
    // use the track associator to propagate to the calo
-   TrackDetMatchInfo info = trackAssociator_.associate( iEvent, iSetup, 
+   TrackDetMatchInfo info = trackAssociator_.associate( iEvent, iSetup,
                                                         trackAssociator_.getFreeTrajectoryState(iSetup, track),
                                                         parameters_ );
 
    // do a custom propagation through Ecal
    std::map<int,GlobalPoint> trackExitPositionMap; // rawId to exit position (subtracting cry center)
    std::map<int,float> trackCrossedXtalCurvedMap; // rawId to trackLength
-   
+
    FreeTrajectoryState tkInnerState = trajectoryStateTransform::innerFreeState(track, &*bField_);
    // Build set of points in Ecal (necklace) using the propagator
    std::vector<SteppingHelixStateInfo> neckLace;
@@ -181,7 +181,7 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
        // SIC debug
        //std::cout << "BetaCalcEcal: CrossedRecHits: " << crossedRecHits.size()
        //  << " ecalTime: " << result.ecalTime << " timeError: " << result.ecalTimeError
-       //  << " ecalCrossedEnergy: " << result.ecalCrossedEnergy << " ecalBeta: " << result.ecalBeta 
+       //  << " ecalCrossedEnergy: " << result.ecalCrossedEnergy << " ecalBeta: " << result.ecalBeta
        //  << " ecalBetaError: " << result.ecalBetaError <<  " ecalDeDx (MeV/cm): " << 1000*result.ecalDeDx << std::endl;
      }
    }
@@ -196,13 +196,13 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
      result.hcal5by5dir = info.nXnEnergy(TrackDetMatchInfo::HcalRecHits, 2);
    }
 
-   if(setCalo) 
+   if(setCalo)
      caloInfo = result;
 }
 
 std::vector<SteppingHelixStateInfo> BetaCalculatorECAL::calcEcalDeposit(const FreeTrajectoryState* tkInnerState,
             const DetIdAssociator& associator)
-{   
+{
    // Set some parameters
    double minR = associator.volume().minR () ;
    double minZ = associator.volume().minZ () ;
@@ -214,7 +214,7 @@ std::vector<SteppingHelixStateInfo> BetaCalculatorECAL::calcEcalDeposit(const Fr
 
    // Define Propagator
    SteppingHelixPropagator* prop = new SteppingHelixPropagator (&*bField_, alongMomentum);
-   prop -> setMaterialMode(false); 
+   prop -> setMaterialMode(false);
    prop -> applyRadX0Correction(true);
 
    return propagateThoughFromIP(trackOrigin,prop,associator.volume(), 500,0.1,minR,minZ,maxR,maxZ);

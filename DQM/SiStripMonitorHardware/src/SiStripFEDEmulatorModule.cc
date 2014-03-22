@@ -149,11 +149,9 @@ namespace sistrip {
     edm::Handle<edm::DetSetVector<SiStripRawDigi> > lDigisHandle;
     try { //to get the digis from the event
       if (!byModule_) {
-	//	iEvent.getByLabel(spyReorderedDigisTag_, lDigisHandle);
 	iEvent.getByToken(spyReorderedDigisToken_, lDigisHandle);
       }
       else { //digis supplied by module
-	//	iEvent.getByLabel(spyVirginRawDigisTag_, lDigisHandle);
 	iEvent.getByToken(spyVirginRawDigisToken_, lDigisHandle);
       }//end of by module check
     } catch (const cms::Exception& e) {

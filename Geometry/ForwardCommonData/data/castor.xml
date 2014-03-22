@@ -4,16 +4,34 @@
         <!--  -->
         <!-- main CASTOR volume  -->
         <!--  -->
-        <Polyhedra name="CAST" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+        <Constant name="castLength" value="1583.3*mm" />
+        <Constant name="CASTFarTiltAngle" value="0*deg" />
+        <Constant name="CASTNearTiltAngle" value="0*deg" />
+        <Rotation name="CASTFarTilt"  thetaX="90*deg+[CASTFarTiltAngle]" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg+[CASTFarTiltAngle]" phiZ="0*deg" />
+        <Rotation name="CASTNearTilt" thetaX="90*deg+[CASTNearTiltAngle]" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg+[CASTNearTiltAngle]" phiZ="0*deg" />
+
+        <Polyhedra name="CASTFar" numSide="4" startPhi="-90.0*deg" deltaPhi="180.0*deg" >
+            <ZSection rMin="39.00*mm"   rMax="40.00*mm"    z="0.0*mm" />
+            <ZSection rMin="39.00*mm"   rMax="303.20*mm"   z="263.2*mm" />
+            <ZSection rMin="39.00*mm"   rMax="303.20*mm"   z="1320.1*mm" />
+            <ZSection rMin="303.20*mm"  rMax="303.20*mm"   z="[castLength]" />
+        </Polyhedra>
+        <Polyhedra name="CASTNear" numSide="4" startPhi="90.0*deg" deltaPhi="180.0*deg" >
+            <ZSection rMin="39.00*mm"   rMax="40.00*mm"    z="0.0*mm" />
+            <ZSection rMin="39.00*mm"   rMax="303.20*mm"   z="263.2*mm" />
+            <ZSection rMin="39.00*mm"   rMax="303.20*mm"   z="1320.1*mm" />
+            <ZSection rMin="303.20*mm"  rMax="303.20*mm"   z="[castLength]" />
+        </Polyhedra>
+        <Polyhedra name="CAST" numSide="4" startPhi="0.0*deg" deltaPhi="180.0*deg">
             <ZSection rMin="39.00*mm" rMax="40.00*mm" z="0.0*mm"/>
             <ZSection rMin="39.00*mm" rMax="303.20*mm" z="263.2*mm"/>
             <ZSection rMin="39.00*mm" rMax="303.20*mm" z="1320.1*mm"/>
-            <ZSection rMin="303.20*mm" rMax="303.20*mm" z="1583.3*mm"/>
+            <ZSection rMin="303.20*mm" rMax="303.20*mm" z="[castLength]"/>
         </Polyhedra>
         <!--  -->
         <!--  -->
         <!-- 5mm Aluminium, separating EM + H sections -->
-        <Polyhedra name="CAAI" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+        <Polyhedra name="CAAI" numSide="4" startPhi="0.0*deg" deltaPhi="180.0*deg">
             <ZSection rMin="40.00*mm" rMax="40.00*mm" z="0.0*mm"/>
             <ZSection rMin="40.00*mm" rMax="45.00*mm" z="5.0*mm"/>
             <ZSection rMin="139.50*mm" rMax="144.50*mm" z="104.5*mm"/>
@@ -22,7 +40,7 @@
         <!--  -->
         <!-- START OF ELECTROMAGNETIC CALO  -->
         <!--  CASC - StainlessSteel -->
-        <Polyhedra name="CAEC" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+        <Polyhedra name="CAEC" numSide="4" startPhi="0.0*deg" deltaPhi="180.0*deg">
             <ZSection rMin="39.00*mm" rMax="40.00*mm" z="0.0*mm"/>
             <ZSection rMin="39.00*mm" rMax="141.00*mm" z="102.0*mm"/>
             <ZSection rMin="41.50*mm" rMax="144.50*mm" z="104.5*mm"/>
@@ -92,7 +110,7 @@
         <!-- tree with HADRONIC calorimeter  1 copy 8x14x7x(10.5) -->
         <!--  -->
         <!--  -->
-        <Polyhedra name="CAHC" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+        <Polyhedra name="CAHC" numSide="4" startPhi="0.0*deg" deltaPhi="180.0*deg">
             <ZSection rMin="39.00*mm" rMax="40.00*mm" z="0.0*mm"/>
             <ZSection rMin="39.00*mm" rMax="178.40*mm" z="138.4*mm"/>
             <ZSection rMin="39.00*mm" rMax="178.40*mm" z="1211.0*mm"/>
@@ -160,7 +178,7 @@
         <!--  -->
         <!-- tree with EM dead material  1 copy 8x2  -->
         <!--  -->
-        <Polyhedra name="CEDC" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+        <Polyhedra name="CEDC" numSide="4" startPhi="0.0*deg" deltaPhi="180.0*deg">
             <ZSection rMin="144.50*mm" rMax="144.50*mm" z="104.5*mm"/>
             <ZSection rMin="144.50*mm" rMax="247.50*mm" z="207.5*mm"/>
             <ZSection rMin="200.20*mm" rMax="303.20*mm" z="263.2*mm"/>
@@ -207,7 +225,7 @@
         <!--  -->
         <!-- tree with Hadronic dead material  1 copy 8x12 -->
         <!--  -->
-        <Polyhedra name="CHDC" numSide="8" startPhi="0.0*deg" deltaPhi="360.0*deg">
+        <Polyhedra name="CHDC" numSide="4" startPhi="0.0*deg" deltaPhi="180.0*deg">
             <ZSection rMin="178.40*mm" rMax="178.40*mm" z="241.4*mm"/>
             <ZSection rMin="178.40*mm" rMax="303.20*mm" z="366.2*mm"/>
             <ZSection rMin="178.40*mm" rMax="303.20*mm" z="1453.4*mm"/>
@@ -257,6 +275,14 @@
         <!--  -->
         <LogicalPart name="CAST" category="unspecified">
             <rSolid name="CAST"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CASTFar" category="unspecified">
+            <rSolid name="CASTFar"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="CASTNear" category="unspecified">
+            <rSolid name="CASTNear"/>
             <rMaterial name="materials:Air"/>
         </LogicalPart>
         <!-- -->
@@ -399,11 +425,35 @@
         <!--  -->
         <!-- main CASTOR volume inside polycone "forward:Castor" -->
         <!--  -->
-        <PosPart copyNumber="2">
+        <PosPart copyNumber="1">
             <rParent name="forward:CastorB"/>
+            <rChild name="castor:CASTFar"/>
+            <rRotation name="castor:CASTFarTilt"/>
+            <!-- please multiply x by -1 since CASTOR on eta minus side is mirrored-->
+            <!-- the tilt is defined so that the face position center face position does not change-->
+            <Translation x="0.0*cm - [castor:castLength]*sin([castor:CASTFarTiltAngle])" y="0.0*cm" z="0*mm + [castor:castLength]*(1-cos([castor:CASTFarTiltAngle]))"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="forward:CastorB"/>
+            <rChild name="castor:CASTNear"/>
+            <rRotation name="castor:CASTNearTilt"/>
+            <!-- please multiply x by -1 since CASTOR on eta minus side is mirrored-->
+            <!-- the tilt is defined so that the face position center face position does not change-->
+            <Translation x="0.0*cm - [castor:castLength]*sin([castor:CASTNearTiltAngle])" y="0.0*cm" z="0*mm + [castor:castLength]*(1-cos([castor:CASTNearTiltAngle]))"/>
+        </PosPart>
+
+        <PosPart copyNumber="2">
+            <rParent name="castor:CASTNear"/>
             <rChild name="castor:CAST"/>
-            <rRotation name="rotations:000D"/>
-            <Translation x="0.0*cm" y="0.0*cm" z="-0.1*mm"/>
+            <rRotation name="rotations:R090"/>
+            <Translation x="0.0*cm" y="0.0*cm" z="-0.1*mm" />
+        </PosPart>
+
+        <PosPart copyNumber="3">
+            <rParent name="castor:CASTFar"/>
+            <rChild name="castor:CAST"/>
+            <rRotation name="rotations:R270"/>
+            <Translation x="0.0*cm" y="0.0*cm" z="-0.1*mm" />
         </PosPart>
         <!--  -->
         <!-- Aluminium volume between EM & HAD sections : 1 copy  -->
@@ -430,7 +480,7 @@
         </PosPart>
         <!--  -->
         <!--  -->
-        <!-- one EM-sector 8 copies -->
+        <!-- one EM-sector 4 copies in each half-->
         <!--  -->
         <PosPart copyNumber="1">
             <rParent name="castor:CAEC"/>
@@ -452,28 +502,8 @@
             <rChild name="castor:CAES"/>
             <rRotation name="rotations:R135"/>
         </PosPart>
-        <PosPart copyNumber="5">
-            <rParent name="castor:CAEC"/>
-            <rChild name="castor:CAES"/>
-            <rRotation name="rotations:R180"/>
-        </PosPart>
-        <PosPart copyNumber="6">
-            <rParent name="castor:CAEC"/>
-            <rChild name="castor:CAES"/>
-            <rRotation name="rotations:R225"/>
-        </PosPart>
-        <PosPart copyNumber="7">
-            <rParent name="castor:CAEC"/>
-            <rChild name="castor:CAES"/>
-            <rRotation name="rotations:R270"/>
-        </PosPart>
-        <PosPart copyNumber="8">
-            <rParent name="castor:CAEC"/>
-            <rChild name="castor:CAES"/>
-            <rRotation name="rotations:R315"/>
-        </PosPart>
         <!--  -->
-        <!-- HADRONIC part sector :  8 copies -->
+        <!-- HADRONIC part sector :  4 copies in each half-->
         <!--  -->
         <PosPart copyNumber="1">
             <rParent name="castor:CAHC"/>
@@ -494,26 +524,6 @@
             <rParent name="castor:CAHC"/>
             <rChild name="castor:CAHS"/>
             <rRotation name="rotations:R135"/>
-        </PosPart>
-        <PosPart copyNumber="5">
-            <rParent name="castor:CAHC"/>
-            <rChild name="castor:CAHS"/>
-            <rRotation name="rotations:R180"/>
-        </PosPart>
-        <PosPart copyNumber="6">
-            <rParent name="castor:CAHC"/>
-            <rChild name="castor:CAHS"/>
-            <rRotation name="rotations:R225"/>
-        </PosPart>
-        <PosPart copyNumber="7">
-            <rParent name="castor:CAHC"/>
-            <rChild name="castor:CAHS"/>
-            <rRotation name="rotations:R270"/>
-        </PosPart>
-        <PosPart copyNumber="8">
-            <rParent name="castor:CAHC"/>
-            <rChild name="castor:CAHS"/>
-            <rRotation name="rotations:R315"/>
         </PosPart>
         <!--  -->
         <!--  -->
@@ -768,26 +778,6 @@
             <rChild name="castor:CEDS"/>
             <rRotation name="rotations:R135"/>
         </PosPart>
-        <PosPart copyNumber="5">
-            <rParent name="castor:CEDC"/>
-            <rChild name="castor:CEDS"/>
-            <rRotation name="rotations:R180"/>
-        </PosPart>
-        <PosPart copyNumber="6">
-            <rParent name="castor:CEDC"/>
-            <rChild name="castor:CEDS"/>
-            <rRotation name="rotations:R225"/>
-        </PosPart>
-        <PosPart copyNumber="7">
-            <rParent name="castor:CEDC"/>
-            <rChild name="castor:CEDS"/>
-            <rRotation name="rotations:R270"/>
-        </PosPart>
-        <PosPart copyNumber="8">
-            <rParent name="castor:CEDC"/>
-            <rChild name="castor:CEDS"/>
-            <rRotation name="rotations:R315"/>
-        </PosPart>
         <PosPart copyNumber="1">
             <rParent name="castor:CEDS"/>
             <rChild name="castor:CEDR"/>
@@ -825,26 +815,6 @@
             <rParent name="castor:CHDC"/>
             <rChild name="castor:CHDS"/>
             <rRotation name="rotations:R135"/>
-        </PosPart>
-        <PosPart copyNumber="5">
-            <rParent name="castor:CHDC"/>
-            <rChild name="castor:CHDS"/>
-            <rRotation name="rotations:R180"/>
-        </PosPart>
-        <PosPart copyNumber="6">
-            <rParent name="castor:CHDC"/>
-            <rChild name="castor:CHDS"/>
-            <rRotation name="rotations:R225"/>
-        </PosPart>
-        <PosPart copyNumber="7">
-            <rParent name="castor:CHDC"/>
-            <rChild name="castor:CHDS"/>
-            <rRotation name="rotations:R270"/>
-        </PosPart>
-        <PosPart copyNumber="8">
-            <rParent name="castor:CHDC"/>
-            <rChild name="castor:CHDS"/>
-            <rRotation name="rotations:R315"/>
         </PosPart>
         <PosPart copyNumber="1">
             <rParent name="castor:CHDS"/>

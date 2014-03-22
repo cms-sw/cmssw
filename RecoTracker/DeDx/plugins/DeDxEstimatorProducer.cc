@@ -123,12 +123,6 @@ void  DeDxEstimatorProducer::beginRun(edm::Run const& run, const edm::EventSetup
    MakeCalibrationMap();
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void  DeDxEstimatorProducer::endJob(){
-   MODsColl.clear();
-}
-
-
 
 
 void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -184,14 +178,13 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	   if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(matchedHit->  monoHit()))->amplitudes()))) hits.push_back(mono);
         }else if(const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit)) {
            if(!useStrip) continue;
-           const SiStripRecHit2D* singleHit=&(projectedHit->originalHit());
            DeDxTools::RawHits mono;
 
            mono.trajectoryMeasurement = &(*it);
            mono.angleCosine = cosine;
-           mono.charge = getCharge(DeDxTools::GetCluster(singleHit),mono.NSaturating,singleHit->geographicalId());
-           mono.detId= singleHit->geographicalId();
-	   if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(singleHit))->amplitudes()))) continue;
+           mono.charge = getCharge(DeDxTools::GetCluster(projectedHit->originalHit()),mono.NSaturating,projectedHit->originalId());
+           mono.detId= projectedHit->originalId();
+	   if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(projectedHit->originalHit()))->amplitudes()))) continue;
            hits.push_back(mono);
         }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
            if(!useStrip) continue;

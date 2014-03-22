@@ -31,6 +31,8 @@ namespace reco {
     /// reference 
     reference ref() const { return ref_; }
 
+    CMS_CLASS_VERSION(10)
+
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;

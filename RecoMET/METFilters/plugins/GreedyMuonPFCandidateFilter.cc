@@ -26,15 +26,15 @@ class GreedyMuonPFCandidateFilter : public edm::EDFilter {
 public:
   explicit GreedyMuonPFCandidateFilter(const edm::ParameterSet&);
   ~GreedyMuonPFCandidateFilter();
-  
+
 private:
   virtual void beginJob() override ;
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-  
-  const edm::InputTag  inputTagPFCandidates_; 
+
+  const edm::EDGetTokenT<reco::PFCandidateCollection>  tokenPFCandidates_;
       // ----------member data ---------------------------
-  
+
   const double eOverPMax_;
 
   const bool debug_;
@@ -55,7 +55,7 @@ private:
 //
 GreedyMuonPFCandidateFilter::GreedyMuonPFCandidateFilter(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
-  : inputTagPFCandidates_ (iConfig.getParameter<edm::InputTag>("PFCandidates") )
+  : tokenPFCandidates_ (consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("PFCandidates") ) )
   , eOverPMax_ (iConfig.getParameter<double>("eOverPMax") )
   , debug_ ( iConfig.getParameter<bool>("debug") )
   , taggingMode_ (iConfig.getParameter<bool>("taggingMode") )
@@ -67,7 +67,7 @@ GreedyMuonPFCandidateFilter::GreedyMuonPFCandidateFilter(const edm::ParameterSet
 
 GreedyMuonPFCandidateFilter::~GreedyMuonPFCandidateFilter()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -82,37 +82,37 @@ GreedyMuonPFCandidateFilter::~GreedyMuonPFCandidateFilter()
 bool
 GreedyMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace std;  
+  using namespace std;
   using namespace edm;
 
   Handle<reco::PFCandidateCollection> pfCandidates;
-  iEvent.getByLabel(inputTagPFCandidates_,pfCandidates);
-  
+  iEvent.getByToken(tokenPFCandidates_,pfCandidates);
+
   bool foundMuon = false;
 
-  auto_ptr< reco::PFCandidateCollection > 
-    pOutputCandidateCollection( new reco::PFCandidateCollection ); 
+  auto_ptr< reco::PFCandidateCollection >
+    pOutputCandidateCollection( new reco::PFCandidateCollection );
 
   for( unsigned i=0; i<pfCandidates->size(); i++ ) {
-     
+
     const reco::PFCandidate & cand = (*pfCandidates)[i];
 
-//    if( cand.particleId() != 3 ) // not a muon 
-    if( cand.particleId() != reco::PFCandidate::mu ) // not a muon 
-      continue; 
-    
+//    if( cand.particleId() != 3 ) // not a muon
+    if( cand.particleId() != reco::PFCandidate::mu ) // not a muon
+      continue;
+
     if(!PFMuonAlgo::isIsolatedMuon( cand.muonRef() ) ) // muon is not isolated
-      continue; 
+      continue;
 
     double totalCaloEnergy = cand.rawEcalEnergy() +  cand.rawHcalEnergy();
-    double eOverP = totalCaloEnergy/cand.p(); 
-    
+    double eOverP = totalCaloEnergy/cand.p();
+
     if( eOverP < eOverPMax_ )
-      continue; 
+      continue;
 
     foundMuon = true;
 
-    pOutputCandidateCollection->push_back( cand ); 
+    pOutputCandidateCollection->push_back( cand );
 
     if( debug_ ) {
       cout<<cand<<" HCAL E="<<endl;
@@ -121,8 +121,8 @@ GreedyMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
       cout<<"\t"<<"E/p "<<eOverP<<endl;
     }
   }
-  
-  iEvent.put( pOutputCandidateCollection, "muons" ); 
+
+  iEvent.put( pOutputCandidateCollection, "muons" );
 
   bool pass = !foundMuon;
 
@@ -133,13 +133,13 @@ GreedyMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 GreedyMuonPFCandidateFilter::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 GreedyMuonPFCandidateFilter::endJob() {
 }
 

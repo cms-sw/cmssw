@@ -28,53 +28,56 @@ using namespace isodeposit;
 
 class ZMuMuUserDataOneTrack : public edm::EDProducer {
 public:
-  ZMuMuUserDataOneTrack( const edm::ParameterSet & );   
+  ZMuMuUserDataOneTrack( const edm::ParameterSet & );
   typedef math::XYZVector Vector;
 private:
   void produce( edm::Event &, const edm::EventSetup & ) override;
-  
-  InputTag src_,beamSpot_, primaryVertices_, zGenParticlesMatch_;
-  double alpha_, beta_; 
-  string hltPath_; 
+
+  EDGetTokenT<std::vector<reco::CompositeCandidate> > srcToken_;
+  EDGetTokenT<BeamSpot> beamSpotToken_;
+  EDGetTokenT<VertexCollection> primaryVerticesToken_;
+  EDGetTokenT<GenParticleMatch> zGenParticlesMatchToken_;
+  double alpha_, beta_;
+  string hltPath_;
   int counter;
-  
+
 
 };
 
 
 
 ZMuMuUserDataOneTrack::ZMuMuUserDataOneTrack( const ParameterSet & cfg ):
-  src_( cfg.getParameter<InputTag>( "src" ) ),
-  beamSpot_(cfg.getParameter<InputTag>( "beamSpot" ) ),
-  primaryVertices_(cfg.getParameter<InputTag>( "primaryVertices" ) ),
-  zGenParticlesMatch_(cfg.getParameter<InputTag>( "zGenParticlesMatch" ) ),
+  srcToken_(consumes<std::vector<reco::CompositeCandidate> > ( cfg.getParameter<InputTag>( "src" ) ) ),
+  beamSpotToken_(consumes<BeamSpot> (cfg.getParameter<InputTag>( "beamSpot" ) ) ),
+  primaryVerticesToken_(consumes<VertexCollection> (cfg.getParameter<InputTag>( "primaryVertices" ) ) ),
+  zGenParticlesMatchToken_(consumes<GenParticleMatch> (cfg.getParameter<InputTag>( "zGenParticlesMatch" ) ) ),
   alpha_(cfg.getParameter<double>("alpha") ),
-  beta_(cfg.getParameter<double>("beta") ), 
+  beta_(cfg.getParameter<double>("beta") ),
   hltPath_(cfg.getParameter<std::string >("hltPath") ){
   produces<vector<pat::CompositeCandidate> >();
 }
 
 void ZMuMuUserDataOneTrack::produce( Event & evt, const EventSetup & ) {
   Handle<std::vector<reco::CompositeCandidate> > dimuons;
-  evt.getByLabel(src_,dimuons);
+  evt.getByToken(srcToken_,dimuons);
 
   Handle<BeamSpot> beamSpotHandle;
-  if (!evt.getByLabel(beamSpot_, beamSpotHandle)) {
+  if (!evt.getByToken(beamSpotToken_, beamSpotHandle)) {
     std::cout << ">>> No beam spot found !!!"<<std::endl;
   }
-  
+
   Handle<VertexCollection> primaryVertices;  // Collection of primary Vertices
-  if (!evt.getByLabel(primaryVertices_, primaryVertices)){
+  if (!evt.getByToken(primaryVerticesToken_, primaryVertices)){
     std::cout << ">>> No primary vertices  found !!!"<<std::endl;
   }
-  
+
   bool isMCMatchTrue=false;
-  
+
   Handle<GenParticleMatch> zGenParticlesMatch;
-  if(evt.getByLabel( zGenParticlesMatch_, zGenParticlesMatch )){
+  if(evt.getByToken( zGenParticlesMatchToken_, zGenParticlesMatch )){
     isMCMatchTrue=true;
   }
-  
+
   //cout<<"isMCMatchTrue"<<isMCMatchTrue <<endl;
   auto_ptr<vector<pat::CompositeCandidate> > dimuonColl( new vector<pat::CompositeCandidate> () );
 
@@ -84,7 +87,7 @@ void ZMuMuUserDataOneTrack::produce( Event & evt, const EventSetup & ) {
     //CandidateBaseRef zRef = dimuons ->refAt(i);
     edm::Ref<std::vector<reco::CompositeCandidate> > zRef(dimuons, i);
     pat::CompositeCandidate dimuon(z);
-    
+
     float trueMass,truePt,trueEta,truePhi,trueY;
     if (isMCMatchTrue){
       GenParticleRef trueZRef  = (*zGenParticlesMatch)[zRef];
@@ -97,25 +100,25 @@ void ZMuMuUserDataOneTrack::produce( Event & evt, const EventSetup & ) {
 	truePhi  = z.phi();
 	trueY    = z.rapidity();
       } else {
-	trueMass = -100; 
+	trueMass = -100;
 	truePt   = -100;
 	trueEta  = -100;
 	truePhi  = -100;
-	trueY    = -100;  
+	trueY    = -100;
       }
-      
+
       dimuon.addUserFloat("TrueMass",trueMass);
       dimuon.addUserFloat("TruePt",truePt);
       dimuon.addUserFloat("TrueEta",trueEta);
       dimuon.addUserFloat("TruePhi",truePhi);
       dimuon.addUserFloat("TrueY",trueY);
-      
+
     }
 
     dimuonColl->push_back(dimuon);
-  
+
   }
-  
+
   evt.put( dimuonColl);
 }
 

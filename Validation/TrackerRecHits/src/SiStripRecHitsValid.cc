@@ -202,9 +202,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
   edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
   edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
-  // e.getByLabel(matchedRecHits_, rechitsmatched);
-  // e.getByLabel(rphiRecHits_, rechitsrphi);
-  // e.getByLabel(stereoRecHits_, rechitsstereo);
   e.getByToken(matchedRecHitsToken_, rechitsmatched);
   e.getByToken(rphiRecHitsToken_, rechitsrphi);
   e.getByToken(stereoRecHitsToken_, rechitsstereo);

@@ -25,7 +25,6 @@
 <use   name="RecoTracker/TrackProducer"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="RecoCaloTools/Selectors"/>
-<use   name="RecoCaloTools/MetaCollections"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>

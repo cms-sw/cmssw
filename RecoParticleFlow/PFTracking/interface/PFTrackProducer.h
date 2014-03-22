@@ -7,6 +7,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+
 /// \brief Abstract
 /*!
 \author Daniele Benedetti
@@ -35,10 +41,10 @@ private:
   
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_; 
-  std::vector<edm::InputTag> tracksContainers_;
-  edm::InputTag gsfTrackLabel_;  
-  edm::InputTag muonColl_;
-  edm::InputTag vtx_h;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection> > tracksContainers_;
+  edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackLabel_;  
+  edm::EDGetTokenT<reco::MuonCollection> muonColl_;
+  edm::EDGetTokenT<reco::VertexCollection> vtx_h;
   ///TRACK QUALITY
   bool useQuality_;
   reco::TrackBase::TrackQuality trackQuality_;

@@ -203,8 +203,8 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
 	//Change NSigmaInside in the configuration file to accept more hits
 	//...and add it to the Rechit collection 
 	
-	collectorHelper.collector()(SiStripMatchedRecHit2D(LocalPoint(position), error,gluedDet->geographicalId() ,
-							   &monoRH,si.secondHit));
+	collectorHelper.collector()(SiStripMatchedRecHit2D(LocalPoint(position), error,
+							   *gluedDet,&monoRH,si.secondHit));
       }
       
     } // loop on cache info
