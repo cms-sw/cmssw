@@ -58,7 +58,7 @@ def simTrackToCscSimHitMatching(plotter,st=1):
 
     index = plotter.stationsToUse.index(st)
 
-    h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, nocut, OR(ok_sh1,ok_sh2), "same")
+    h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, nocut, ok_sh1, "same")
 
     leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC")
     leg.SetBorderSize(0)
@@ -242,15 +242,19 @@ def simTrackToCscAlctClctMatching(plotter,st=1):
 
     index = plotter.stationsToUse.index(st)
 
-    h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1,ok_w1), ok_alct1, "same", kRed)
-    h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1,ok_st1), ok_clct1, "same")
+    h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, ok_alct1, "same", kRed)
+    h11 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1,ok_w1), ok_alct1, "same", kOrange+1)
+    h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, ok_clct1, "same",kBlue)
+    h21 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1,ok_st1), ok_clct1, "same",kGreen+1)
    
-    leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
+    leg = TLegend(0.45,0.2,.75,0.5, "", "brNDC");
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetTextSize(0.06)
     leg.AddEntry(h1, "ALCT","l")
+    leg.AddEntry(h11, "ALCT provided wires","l")
     leg.AddEntry(h2, "CLCT","l")
+    leg.AddEntry(h21, "CLCT provided strips","l")
     leg.Draw("same");
     
     csc = drawCscLabel(plotter.stations.reverse_mapping[st], 0.87,0.87,0.05)
@@ -305,14 +309,18 @@ def simTrackToCscAlctClctMatching_2(plotter,st=1):
     index = plotter.stationsToUse.index(st)
 
     h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, OR(ok_alct1,ok_clct1), "same", kRed)
-    h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, AND(ok_alct1,ok_clct1), "same")
+    h11 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1,ok_st1,ok_w1), OR(ok_alct1,ok_clct1), "same", kOrange)
+    h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, AND(ok_alct1,ok_clct1), "same",kBlue)
+    h21 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1,ok_st1,ok_w1), AND(ok_alct1,ok_clct1), "same",kGreen+1)
    
-    leg = TLegend(0.45,0.2,.75,0.35, "", "brNDC");
+    leg = TLegend(0.45,0.2,.75,0.5, "", "brNDC");
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetTextSize(0.06)
     leg.AddEntry(h1, "ALCT OR CLCT","l")
+    leg.AddEntry(h11, "ALCT OR CLCT provided wires and strips","l")
     leg.AddEntry(h2, "ALCT AND CLCT","l")
+    leg.AddEntry(h21, "ALCT AND CLCT provided wires and strips","l")
     leg.Draw("same");
     
     csc = drawCscLabel(plotter.stations.reverse_mapping[st], 0.87,0.87,0.05)
@@ -366,15 +374,23 @@ def simTrackToCscLctMatching(plotter,st=1):
     
     index = plotter.stationsToUse.index(st)
 
-    h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1, ok_alct1, ok_clct1), ok_lct1, "same", kRed)
-    h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, ok_lct1, "same", kBlue)
+    if plotter.matchAlctGem:        
+        h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1, ok_alct1,OR(ok_clct1,ok_pad1)), ok_lct1, "same", kRed)
+        h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, ok_lct1, "same", kBlue)
+    else:
+        h1 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, AND(ok_sh1, ok_alct1,ok_clct1), ok_lct1, "same", kRed)
+        h2 = draw_geff(plotter.treeEffSt[index], title, h_bins, toPlot, ok_sh1, ok_lct1, "same", kBlue)
 
     leg = TLegend(0.10,0.2,.75,0.35, "", "brNDC");
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetTextSize(0.04)
-    leg.AddEntry(h1, "LCT matched to ALCT and CLCT","l")
-    leg.AddEntry(h2, "LCT","l")
+    if plotter.matchAlctGem:
+        leg.AddEntry(h1, "LCT matched to ALCT and (CLCT or GEM)","l")
+        leg.AddEntry(h2, "LCT","l")
+    else:
+        leg.AddEntry(h1, "LCT matched to ALCT and CLCT","l")
+        leg.AddEntry(h2, "LCT","l")
     leg.Draw("same");
     
     csc = drawCscLabel(plotter.stations.reverse_mapping[st], 0.87,0.87,0.05)
