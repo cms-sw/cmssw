@@ -35,6 +35,7 @@ CSCStubMatcher::CSCStubMatcher(SimHitMatcher& sh, CSCDigiMatcher& dg, GEMDigiMat
   verboseLCT_ = cscLCT_.getParameter<int>("verbose");
   minNHitsChamberLCT_ = cscLCT_.getParameter<int>("minNHitsChamber");
   addGhostLCTs_ = cscLCT_.getParameter<bool>("addGhosts");
+  matchAlctGem_ = cscLCT_.getParameter<bool>("matchAlctGem");
 
   auto cscMPLCT_ = conf().getParameter<edm::ParameterSet>("cscMPLCT");
   mplctInput_ = cscMPLCT_.getParameter<edm::InputTag>("input");
@@ -378,7 +379,7 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
         if (verbose()) cout<<"  BAD"<<endl;
         continue;
       }
-      if (caseAlctGem and !(my_bx == digi_bx(lct) and std::abs(my_hs_gem - digi_channel(lct))<3 and my_wg == digi_wg(lct) ) ){
+      if (matchAlctGem_ and caseAlctGem and !(my_bx == digi_bx(lct) and std::abs(my_hs_gem - digi_channel(lct))<3 and my_wg == digi_wg(lct) ) ){
         if (verbose()) cout<<"  BAD"<<endl;
         continue;
       }

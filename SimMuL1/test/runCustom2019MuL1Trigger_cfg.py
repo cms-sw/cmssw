@@ -55,7 +55,7 @@ if hasattr(sys, "argv") == True:
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000) )
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
@@ -82,15 +82,9 @@ process = customise_csc_L1Stubs(process)
 ## GEM-CSC emulator
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise_L1Emulator as customise_L1EmulatorGEM
 process = customise_L1EmulatorGEM(process, ptdphi)
-process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
 tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-tmb.clctToAlct = cms.untracked.bool(False)
-tmb.printAvailablePads = cms.untracked.bool(False)
-tmb.dropLowQualityCLCTsNoGEMs_ME1a = cms.untracked.bool(True)
-tmb.dropLowQualityCLCTsNoGEMs_ME1b = cms.untracked.bool(True)
-tmb.buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(False)
-tmb.buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(True)
-tmb.doLCTGhostBustingWithGEMs = cms.untracked.bool(False)
+tmb.me11ILT.runME11ILT = cms.untracked.bool(False)
+tmb.me11ILT.printAvailablePads = cms.untracked.bool(False)
 
 ## RPC-CSC emulator
 from SLHCUpgradeSimulations.Configuration.rpcCustoms import customise_L1Emulator as customise_L1EmulatorRPC
@@ -122,7 +116,7 @@ process.source = cms.Source("PoolSource",
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import *
 from GEMCode.GEMValidation.InputFileHelpers import *
-process = useInputDir(process, eosfiles['_pt2-50_PU140_6part2019'], True)
+process = useInputDir(process, eosfiles['_pt2-50_PU000_6part2019'], True)
 
 
 physics = False
@@ -142,7 +136,7 @@ if not physics:
     
 ## output commands 
 theOutDir = ''
-theFileName = 'out_L1.root'
+theFileName = 'out_L1_PU000_CSC.root'
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(theOutDir + theFileName),
     outputCommands = cms.untracked.vstring('keep  *_*_*_*')
@@ -189,7 +183,7 @@ process.mul1 = cms.Sequence(
 
 process.muL1Short = cms.Sequence(
 #  process.pdigi *
-  process.simCscTriggerPrimitiveDigis * 
+  process.simCscTriggerPrimitiveDigis *
   process.SimL1MuTrackFinders *
   process.simGmtDigis *
   process.L1Extra
