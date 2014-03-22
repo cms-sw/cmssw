@@ -16,9 +16,11 @@ namespace gs {
 gs::AbsArchive& operator<<(gs::AbsArchive& ar, const gs::AbsRecord& record);
 
 namespace gs {
+    //
     // If you need to retrieve the items, use the interface provided
     // by the "Reference" class. Public interface of this class only
-    // allows to examine the item metadata.
+    // allows to examine the item metadata and to copy items as BLOBs.
+    // 
     class AbsArchive
     {
     public:
@@ -63,13 +65,32 @@ namespace gs {
                                 const SearchSpecifier& categoryPattern,
                                 std::vector<unsigned long long>* found) const=0;
 
-        // Fetch metadata for the item with given id
+        // Fetch metadata for the item with given id. NULL pointer is
+        // returned if there is no item in the archive with the given id
+        // (and there is an automatic cast from CPP11_shared_ptr to bool).
         virtual CPP11_shared_ptr<const CatalogEntry> 
         catalogEntry(unsigned long long id) = 0;
 
         // Dump everything to storage (if the archive is open for writing
         // and if this makes sense for the archive)
         virtual void flush() = 0;
+
+        // Copy an item from this archive to a destination archive.
+        // This archive and destination archive must be distinct.
+        // Note that, while it is always possible to copy an item
+        // with correct id, a standalone operation like this is
+        // not necessarily going to make sense because the item
+        // could be just a part of some distributed object.
+        //
+        // If "newName" and/or "newCategory" arguments are left at their
+        // default value of 0, the existing name and/or category are used.
+        //
+        // This method returns the id of the copy in the destination
+        // archive.
+        unsigned long long copyItem(unsigned long long id,
+                                    AbsArchive* destination,
+                                    const char* newName = 0,
+                                    const char* newCategory = 0);
 
         // The id and the length of the last item written
         // (the results make sense only for the archives
@@ -105,7 +126,18 @@ namespace gs {
         // Position the input stream for reading the item with given id.
         // The reading must follow immediately, any other operaction on
         // the archive can invalidate the result.
-        virtual std::istream& inputStream(unsigned long long id) = 0;
+        //
+        // The "sz" argument could be NULL in which case it should be
+        // ignored. If it is not NULL, the *sz value on completion
+        // should be set as follows:
+        //
+        // *sz = -1  -- if the uncompressed object size in the stream
+        //              is the same as in the catalog
+        // *sz >= 0  -- *sz is the object size after decompression
+        //              (usually not the same as in the catalog)
+        //
+        virtual std::istream& inputStream(unsigned long long id,
+                                          long long* sz) = 0;
 
         // Get the stream for writing the next object
         virtual std::ostream& outputStream() = 0;

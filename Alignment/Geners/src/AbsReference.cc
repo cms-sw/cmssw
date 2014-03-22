@@ -17,7 +17,7 @@ namespace gs {
     std::istream& AbsReference::positionInputStream(
         const unsigned long long id) const
     {
-        return archive_.inputStream(id);
+        return archive_.inputStream(id, 0);
     }
 
     void AbsReference::initialize() const
