@@ -105,7 +105,11 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
-  theDYTthrs = par.getParameter< std::vector<int> >("DYTthrs");
+  theDYTthrs     = par.getParameter< std::vector<int> >("DYTthrs");
+  theDYTselector = par.existsAs<int>("DYTselector")?par.getParameter<int>("DYTselector"):1;
+  theDYTupdator = par.existsAs<bool>("DYTupdator")?par.getParameter<bool>("DYTupdator"):false;
+  theDYTuseAPE = par.existsAs<bool>("DYTuseAPE")?par.getParameter<bool>("DYTuseAPE"):false;
+  dytInfo        = new reco::DYTInfo();
 
   if (par.existsAs<double>("RescaleErrorFactor")) {
     theRescaleErrorFactor = par.getParameter<double>("RescaleErrorFactor");
@@ -240,12 +244,16 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     }     
 
     if (theMuonHitsOption == 4 ) {
-      // here we use the single thr per subdetector (better performance can be obtained using thr as function of eta)
-	
+      //
+      // DYT 2.0 
+      //
       DynamicTruncation dytRefit(*theEvent,*theService);
-      dytRefit.setThr(theDYTthrs.at(0),theDYTthrs.at(1),theDYTthrs.at(2));                                
-      dytRefit.setProd(all4DSegments, CSCSegments);
+      dytRefit.setSelector(theDYTselector);
+      dytRefit.setThr(theDYTthrs);
+      dytRefit.setUpdateState(theDYTupdator);
+      dytRefit.setUseAPE(theDYTuseAPE);
       DYTRecHits = dytRefit.filter(globalTraj.front());
+      dytInfo->CopyFrom(dytRefit.getDYTInfo());
       if ((DYTRecHits.size() > 1) && (DYTRecHits.front()->globalPosition().mag() > DYTRecHits.back()->globalPosition().mag()))
         stable_sort(DYTRecHits.begin(),DYTRecHits.end(),RecHitLessByDet(alongMomentum));
       outputTraj = transform(globalTrack, track, DYTRecHits);
