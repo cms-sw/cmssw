@@ -87,20 +87,6 @@ void TempTrajectory::join( TempTrajectory& segment) {
 }
 
 
-/*
-Trajectory::RecHitContainer Trajectory::recHits() const {
-  RecHitContainer hits;
-  hits.reserve(theData.size());
-
-  for (Trajectory::DataContainer::const_iterator itm
-	 = theData.begin(); itm != theData.end(); itm++) {
-    hits.push_back((*itm).recHit());
-  }
-  return hits;
-}
-
-*/
-
 PropagationDirection TempTrajectory::direction() const {
   if (theDirectionValidity) return PropagationDirection(theDirection);
   else throw cms::Exception("TrackingTools/PatternTools","Trajectory::direction() requested but not set");

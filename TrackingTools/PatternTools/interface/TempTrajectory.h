@@ -214,26 +214,19 @@ public:
   /** Return all measurements in a container.
    */
   const DataContainer & measurements() const { return theData; }
-  /// obsolete name, use measurements() instead.
-  //DataContainer data() const { return measurements();}
 
-  /** Return all RecHits in a container.
-   */
-  //ConstRecHitContainer recHits() const;
 
   /** Number of valid RecHits used to determine the trajectory.
    *  Can be less than the number of measurements in data() since
    *  detector layers crossed without using RecHits from them are also 
    *  stored as measurements.
    */
-
   int foundHits() const { return theNumberOfFoundHits;}
 
   /** Number of detector layers crossed without valid RecHits.
    *  Used mainly as a criteria for abandoning a trajectory candidate
    *  during trajectory building.
    */
-
   int lostHits() const { return theNumberOfLostHits;}
   
   /// True if trajectory has no measurements.

@@ -80,15 +80,8 @@ void Trajectory::pushAux(double chi2Increment) {
 }
 
 
-Trajectory::RecHitContainer Trajectory::recHits(bool splitting) const {
-  RecHitContainer hits;
-  recHitsV(hits,splitting);
-  return hits;
-}
-
-
 int Trajectory::ndof(bool bon) const {
-  const Trajectory::RecHitContainer transRecHits = recHits();
+  Trajectory::RecHitContainer && transRecHits = recHits();
   
   int dof = 0;
   int dofBad = 0;
