@@ -387,8 +387,8 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
 
       if (chamber_to_lct_.find(id) != chamber_to_lct_.end())
       {
-        cout<<"ALARM!!! there already was matching LCT "<<chamber_to_lct_[id]<<endl;
-        cout<<"   new digi: "<<lct<<endl;
+        //cout<<"ALARM!!! there already was matching LCT "<<chamber_to_lct_[id]<<endl;
+        //cout<<"   new digi: "<<lct<<endl;
       }
       chamber_to_lct_[id] = lct;
     }
