@@ -4,11 +4,11 @@
 #include <memory>
 #include <stdint.h>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/GenParticle.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 
-#include <Pythia.h>
-#include <HepMCInterface.h>
+#include "Pythia8/Pythia.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 
 #include "GeneratorInterface/Pythia8Interface/plugins/RandomP8.h"
 
@@ -86,7 +86,7 @@ class Pythia8Hadronizer : public BaseHadronizer {
     std::auto_ptr<Pythia>   pythia;
     std::auto_ptr<Pythia>   decayer;
     Event*                  pythiaEvent;
-    HepMC::I_Pythia8        toHepMC;
+    HepMC::Pythia8ToHepMC   toHepMC;
 
     enum { PP, PPbar, ElectronPositron };
     int  fInitialState ; // pp, ppbar, or e-e+
@@ -105,8 +105,6 @@ class Pythia8Hadronizer : public BaseHadronizer {
     // Emission Veto Hooks
     //
     EmissionVetoHook* fEmissionVetoHook;
-    bool EV_CheckHard;
-
     EmissionVetoHook1* fEmissionVetoHook1;
     int  EV1_nFinal;
     bool EV1_vetoOn;
@@ -134,9 +132,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fEmissionVetoHook(0),fEmissionVetoHook1(0)
 {
 
-#ifdef PYTHIA8175
-  setenv("PYTHIA8DATA", getenv("PYTHIA8175DATA"), true);
-#endif
+  //#ifdef PYTHIA8175
+  //setenv("PYTHIA8DATA", getenv("PYTHIA8175DATA"), true);
+  //#endif
 
   randomEngine = &getEngineReference();
 
@@ -225,21 +223,22 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 
   // Emission veto
   //
+  if(params.exists("EV_CheckHard"))
+    throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+      <<" Parameter EV_CheckHard is no more used\n";
+  if(params.exists("EV1_CheckHard"))
+    throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+      <<" Parameter EV1_CheckHard does not exist\n";
+  //
   if ( params.exists("emissionVeto") )
   {   
-    EV_CheckHard = false;
-    int nversion = (int)(1000.*(pythia->settings.parm("Pythia:versionNumber") - 8.));
-    if(nversion > 153) {EV_CheckHard = true;}
-    if(params.exists("EV_CheckHard")) EV_CheckHard = params.getParameter<bool>("EV_CheckHard");
-    fEmissionVetoHook = new EmissionVetoHook(0, EV_CheckHard);
+    //int nversion = (int)(1000.*(pythia->settings.parm("Pythia:versionNumber") - 8.));
+    fEmissionVetoHook = new EmissionVetoHook(0);
     pythia->setUserHooksPtr( fEmissionVetoHook );
   }
 
   if ( params.exists("emissionVeto1") )
   {
-    if(params.exists("EV_CheckHard"))
-      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-        <<" Parameter EV_CheckHard is not valid for EmissionVeto1\n";
     EV1_nFinal = -1;
     if(params.exists("EV1_nFinal")) EV1_nFinal = params.getParameter<int>("EV1_nFinal");
     EV1_vetoOn = true;
@@ -544,9 +543,9 @@ bool Pythia8Hadronizer::residualDecay()
       daughter->suggest_barcode( NewBarcode );
       DecVtx->add_particle_out( daughter );
 	    	    
-      for ( ipart=nentries+1; ipart<nentries1; ipart++ )
+      for ( int ipart1=nentries+1; ipart<nentries1; ipart++ )
       {
-        py8daughter = decayer->event[ipart];
+        py8daughter = decayer->event[ipart1];
         HepMC::FourVector pmomN( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );	    
         HepMC::GenParticle* daughterN =
                         new HepMC::GenParticle( pmomN, py8daughter.id(), 1 );
@@ -643,20 +642,8 @@ void Pythia8Hadronizer::finalizeEvent()
   }
 }
 
-#ifdef PYTHIA8175
-
-typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8175GeneratorFilter;
-DEFINE_FWK_MODULE(Pythia8175GeneratorFilter);
-
-typedef edm::HadronizerFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8175HadronizerFilter;
-DEFINE_FWK_MODULE(Pythia8175HadronizerFilter);
-
-#else
-
 typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8GeneratorFilter;
 DEFINE_FWK_MODULE(Pythia8GeneratorFilter);
 
 typedef edm::HadronizerFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8HadronizerFilter;
 DEFINE_FWK_MODULE(Pythia8HadronizerFilter);
-
-#endif
