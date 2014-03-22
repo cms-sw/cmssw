@@ -15,7 +15,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.),
     PythiaParameters = cms.PSet(
-        pythia8_example05 = cms.vstring('SoftQCD:minBias = on',
+        pythia8_example05 = cms.vstring('SoftQCD:nonDiffractive = on',
                                         'SoftQCD:singleDiffractive = on',
                                         'SoftQCD:doubleDiffractive = on',
                                         'Tune:pp 2'),
