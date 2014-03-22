@@ -80,7 +80,8 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PCaloHitContainer>("EcalHitsES");
     produces<edm::PCaloHitContainer>("HcalHits");
     produces<edm::PCaloHitContainer>("HGCHitsEE");
-    produces<edm::PCaloHitContainer>("HGCHitsHE");
+    produces<edm::PCaloHitContainer>("HGCHitsHEfront");
+    produces<edm::PCaloHitContainer>("HGCHitsHEback");
     produces<edm::PCaloHitContainer>("CFCHits");
     produces<edm::PCaloHitContainer>("EcalHitsEK");
     produces<edm::PCaloHitContainer>("CaloHitsTk");
