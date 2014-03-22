@@ -441,16 +441,26 @@ namespace gs {
     }
 
 
-    std::istream& BinaryArchiveBase::inputStream(const unsigned long long id)
+    std::istream& BinaryArchiveBase::inputStream(const unsigned long long id,
+                                                 long long *sz)
     {
         unsigned long long length = 0;
         unsigned compressionCode = 0;
         std::istream& is = plainInputStream(id, &compressionCode, &length);
         if (cStream_->compressionMode() == CStringStream::NOT_COMPRESSED)
+        {
+            if (sz)
+                *sz = -1LL;
             return is;
+        }
         else
         {
             cStream_->readCompressed(is, compressionCode, length);
+            if (sz)
+            {
+                std::streamoff off = cStream_->tellp();
+                *sz = off;
+            }
             return *cStream_;
         }
     }
