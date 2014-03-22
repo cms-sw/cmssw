@@ -115,6 +115,8 @@ class Pythia8Hadronizer : public BaseHadronizer {
     int  EV1_pTdefMode;
     bool EV1_MPIvetoOn;   
 
+    std::string slhafile_;
+
 };
 
 
@@ -195,8 +197,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if( params.exists( "SLHAFileForPythia8" ) ) {
     std::string slhafilenameshort = params.getParameter<string>("SLHAFileForPythia8");
     edm::FileInPath f1( slhafilenameshort );
-    std::string slhafilename = f1.fullPath();
-    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafilename;
+    slhafile_ = f1.fullPath();
+    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafile_;
     pythia->readString(pythiacommandslha);
     for ( ParameterCollector::const_iterator line = parameters.begin();
           line != parameters.end(); ++line ) {
@@ -205,7 +207,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
         << "using Pythia8 card SLHA:file and Pythia8Interface card SLHAFileForPythia8"
         << std::endl;
      }
-  } 
+  }
 
   // Reweight user hook
   //
@@ -361,7 +363,36 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
     lhaUP.reset(new LHAupLesHouches());
     lhaUP->loadRunInfo(lheRunInfo());
+
+    //pythia 8 doesn't currently support reading SLHA table from lhe header in memory
+    //so dump it to a temp file and set the appropriate pythia parameters to read it
+    std::vector<std::string> slha = lheRunInfo()->findHeader("slha");
+    const char *fname = std::tmpnam(NULL);
+    //read slha header from lhe only if header is present AND no slha header was specified
+    //for manual loading.
+    bool doslha = !slha.empty() && slhafile_.empty();
+
+    if (doslha) {
+      std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
+      std::string block;
+      for(std::vector<std::string>::const_iterator iter = slha.begin();
+        iter != slha.end(); ++iter) {
+              file << *iter;
+      }
+      file.close();
+
+      std::string lhareadcmd = "SLHA:readFrom = 2";
+      std::string lhafilecmd = std::string("SLHA:file = ") + std::string(fname);
+
+      pythia->readString(lhareadcmd);
+      pythia->readString(lhafilecmd);
+    }
+
     pythia->init(lhaUP.get());
+
+    if (doslha) {
+      std::remove( fname );
+    }
 
   }
 
