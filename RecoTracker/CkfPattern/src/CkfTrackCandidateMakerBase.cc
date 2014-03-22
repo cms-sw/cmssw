@@ -35,6 +35,8 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+
 #include<algorithm>
 #include<functional>
 
