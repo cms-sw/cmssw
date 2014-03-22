@@ -42,8 +42,6 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
       iTjRef++;
     }
 
-    // const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits(useSplitting);  // NO: the return type in Trajectory is by VALUE
-    TrajectoryFitter::RecHitContainer transHits = theTraj->recHits(useSplitting);
 
     reco::Track * theTrack = (*i).second.first;
     
@@ -117,6 +115,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
     size_t ih = 0;
+    TrajectoryFitter::RecHitContainer transHits; theTraj->recHitsV(transHits, useSplitting);
     if (theTraj->direction() == alongMomentum) {
       for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
 	   j != transHits.end(); j ++ ) {

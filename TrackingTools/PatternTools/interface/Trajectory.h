@@ -205,7 +205,11 @@ public:
 
   /** Return all RecHits in a container.
    */
-  ConstRecHitContainer recHits(bool splitting=false) const;
+  ConstRecHitContainer recHits() const {
+    ConstRecHitContainer hits;
+    recHitsV(hits,false);
+    return hits;
+  }
 
   void recHitsV(ConstRecHitContainer & cont,bool splitting = false) const;
 
