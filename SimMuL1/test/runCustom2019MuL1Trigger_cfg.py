@@ -136,7 +136,7 @@ if not physics:
     
 ## output commands 
 theOutDir = ''
-theFileName = 'out_L1_PU000_CSC.root'
+theFileName = 'out_L1.root'
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(theOutDir + theFileName),
     outputCommands = cms.untracked.vstring('keep  *_*_*_*')
