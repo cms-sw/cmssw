@@ -7,6 +7,7 @@
 // root includes 
 #include "TStreamerInfo.h"
 #include "TClass.h"
+#include "TBufferFile.h"
 
 namespace cond {
 
