@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_0/PIon/V16 (CMSSW_7_1_0_pre4_HLT5)
+# /dev/CMSSW_7_1_0/PIon/V17 (CMSSW_7_1_0_pre4_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/PIon/V16')
+  tableName = cms.string('/dev/CMSSW_7_1_0/PIon/V17')
 )
 
 process.streams = cms.PSet( 
@@ -3033,7 +3033,8 @@ process.MessageLogger = cms.Service( "MessageLogger",
       suppressInfo = cms.untracked.vstring(  ),
       suppressWarning = cms.untracked.vstring(  ),
       suppressDebug = cms.untracked.vstring(  ),
-      suppressError = cms.untracked.vstring(  )
+      suppressError = cms.untracked.vstring(  ),
+      ERROR = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) )
     ),
     cerr_stats = cms.untracked.PSet( 
       threshold = cms.untracked.string( "WARNING" ),

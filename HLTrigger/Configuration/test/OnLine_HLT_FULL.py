@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_0/HLT/V21 (CMSSW_7_1_0_pre4_HLT5)
+# /dev/CMSSW_7_1_0/HLT/V23 (CMSSW_7_1_0_pre4_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/HLT/V21')
+  tableName = cms.string('/dev/CMSSW_7_1_0/HLT/V23')
 )
 
 process.streams = cms.PSet( 
@@ -5045,7 +5045,8 @@ process.MessageLogger = cms.Service( "MessageLogger",
       suppressInfo = cms.untracked.vstring(  ),
       suppressWarning = cms.untracked.vstring(  ),
       suppressDebug = cms.untracked.vstring(  ),
-      suppressError = cms.untracked.vstring(  )
+      suppressError = cms.untracked.vstring(  ),
+      ERROR = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) )
     ),
     cerr_stats = cms.untracked.PSet( 
       threshold = cms.untracked.string( "WARNING" ),
@@ -68013,7 +68014,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPixelTracks_*_*',
       'keep *_hltPixelVertices3DbbPhi_*_*',
       'keep *_hltPixelVertices_*_*',
-      'keep *_hltSiPixelCluster_*_*',
+      'keep *_hltSiPixelClusters_*_*',
+      'keep *_hltSiStripClusters_*_*',
       'keep *_hltSiStripRawToClustersFacility_*_*',
       'keep *_hltTriggerSummaryAOD_*_*',
       'keep *_hltTriggerSummaryRAW_*_*',

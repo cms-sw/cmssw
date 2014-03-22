@@ -3,7 +3,7 @@
 # ConfDB configurations to use
 TABLES="2013 2013"
 # HLT_8E33v2="/online/collisions/2012/8e33/v2.4/HLT"
-HLT_2013="/online/collisions/2012/8e33/v3.1/HLT"
+HLT_2013="/online/collisions/2012/8e33/v3.2/HLT"
 
 # print extra messages ?
 VERBOSE=false
