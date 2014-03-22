@@ -80,6 +80,8 @@ ShashlikSD::ShashlikSD(G4String name, const DDCompactView & cpv,
 			  << " correct for attenuation " << useAtt << " using "
 			  << attL;
 
+  sdc = new ShashlikDDDConstants(cpv);
+
   //Length of fiber for each layer
   std::string attribute = "ReadOutName";
   DDSpecificsFilter filter;
@@ -208,6 +210,7 @@ uint32_t ShashlikSD::setDetUnitId(G4Step *aStep) {
   int module = touch->GetReplicaNumber(1);
   int ism    = touch->GetReplicaNumber(2);
   int iz     = ((aStep->GetPreStepPoint()->GetPosition()).z() > 0) ? 1 : -1;
+  std::pair<int,int> ixy = sdc->getXY(ism,module);
 #ifdef DebugLog
   int theSize = touch->GetHistoryDepth()+1;
   std::cout << "ShaslikSD:: ISM|Module|IZ " << ism << ":" << module << ":"
@@ -217,7 +220,7 @@ uint32_t ShashlikSD::setDetUnitId(G4Step *aStep) {
 	      << "(" << touch->GetReplicaNumber(ii) << ")";
   std::cout << std::endl;
 #endif
-  return EKDetId(ism,module,0,0,iz,EKDetId::SCMODULEMODE).rawId();
+  return EKDetId(ixy.first,ixy.second,0,0,iz).rawId();
 }
 
 G4double ShashlikSD::fiberWt(G4int k, G4ThreeVector localPoint) {
