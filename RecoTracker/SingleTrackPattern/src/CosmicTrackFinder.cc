@@ -114,7 +114,7 @@ namespace cms
 	hitBuilder = crackTrajectoryBuilder_.hitBuilder();
       }
       assert(hitBuilder);
-      Traj2TrackHits t2t(hitBuilder);
+      Traj2TrackHits t2t(hitBuilder,true);
 
       edm::LogVerbatim("CosmicTrackFinder") << " Numbers of Temp Trajectories " << trajoutput.size();
       edm::LogVerbatim("CosmicTrackFinder") << "========== END Info ==========";
@@ -140,11 +140,13 @@ namespace cms
         LogDebug("CosmicTrackFinder")<<"Reconstruction " <<  (seedplus ? "along" : "opposite to") << " momentum";
 
 	/*
-	// === the convention is to save always final tracks with hits sorted *along* momentum	
+	// === the convention is to save always final tracks with hits sorted *along* momentum
+        // --- this is NOT what was necessaraly happening before and not consistent with what done in standard CKF (this is a candidate not a track) 	
 	*/
          edm::OwnVector<TrackingRecHit> recHits;
          if(theTraj.direction() == alongMomentum) std::cout << "cosmic: along momentum... " << std::endl;
          t2t(theTraj,recHits,useHitsSplitting_);
+         recHits.reverse();  // according to original code
 
         /*
 	Trajectory::RecHitContainer thits;

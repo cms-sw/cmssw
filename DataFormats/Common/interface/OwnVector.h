@@ -140,6 +140,7 @@ namespace edm {
     void clear();
     iterator erase(iterator pos);
     iterator erase(iterator first, iterator last);
+    void reverse() { std::reverse(data_.begin(),data_.end());}
     template<typename S>
     void sort(S s);
     void sort();

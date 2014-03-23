@@ -20,8 +20,6 @@ AlgebraicMatrix InvalidTrackingRecHit::projectionMatrix() const {
   return AlgebraicMatrix();
 }
 
-int InvalidTrackingRecHit::dimension() const { throwError(); return 0;}
-
 LocalPoint InvalidTrackingRecHit::localPosition() const { 
   throwError();
   return LocalPoint();
