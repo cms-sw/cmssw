@@ -213,7 +213,7 @@ const std::map< int, std::vector<double> >& RPCSimSetUp::getClsMap()
 
 
 //const std::map<int, std::vector<double> >& RPCSimSetUp::getClsMap(uint32_t id)
-const std::vector<double>& RPCSimSetUp::getCls(uint32_t id)
+const std::vector<double>& RPCSimSetUp::getCls(uint32_t id) //legacy member function
 {
 
   map<uint32_t,std::vector<double> >::iterator iter = _mapDetClsMapLegacy.find(id);
