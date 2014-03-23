@@ -241,6 +241,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	  && isThisVolume(aTrack->GetTouchable(),muon)) {
 	flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
       }
+      if (saveFirstSecondary) { flag = isItFromPrimary(*mother, flag); }
 
       // Russian roulette
       if(2112 == pdg || 22 == pdg || 2212 == pdg) {
@@ -476,8 +477,8 @@ int StackingAction::isItPrimaryDecayProductOrConversion(const G4Track * aTrack,
       flag = 1;
     } else if (aTrack->GetCreatorProcess()->GetProcessSubType()==fGammaConversion) {
       flag = 2;
-    } else {
-      flag = 3;
+      //} else {
+      // flag = 3;
     } 
   }   
   return flag;
@@ -508,6 +509,17 @@ bool StackingAction::rrApplicable(const G4Track * aTrack,
 	    << " flag: " << flag << " genID= " << genID 
 	    << " p(GeV)= " << genp/GeV << std::endl; 
     */
+  return flag;
+}
+
+int StackingAction::isItFromPrimary(const G4Track & mother, int flagIn) const {
+
+  int flag = flagIn;
+  if (flag != 1) {
+    TrackInformationExtractor extractor;
+    const TrackInformation & motherInfo(extractor(mother));
+    if (motherInfo.isPrimary()) { flag = 3; }
+  }
   return flag;
 }
 
