@@ -31,6 +31,9 @@ StackingAction::StackingAction(EventAction* e, const edm::ParameterSet & p)
   maxTrackTimes  = p.getParameter<std::vector<double> >("MaxTrackTimes");
   for(unsigned int i=0; i<maxTrackTimes.size(); ++i) { maxTrackTimes[i] *= ns; }
   maxTimeNames   = p.getParameter<std::vector<std::string> >("MaxTimeNames");
+  savePDandCinAll = 
+    p.getUntrackedParameter<bool>("SaveAllPrimaryDecayProductsAndConversions",
+				  true);
   savePDandCinTracker = 
     p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInTracker",
 				  false);
@@ -92,14 +95,15 @@ StackingAction::StackingAction(EventAction* e, const edm::ParameterSet & p)
      pRusRoWorld < 1.0) { pRRactive = true; }
 
   if ( p.exists("TestKillingOptions") ) {
-
-    killInCalo = (p.getParameter<edm::ParameterSet>("TestKillingOptions")).getParameter<bool>("KillInCalo");
-    killInCaloEfH = (p.getParameter<edm::ParameterSet>("TestKillingOptions")).getParameter<bool>("KillInCaloEfH");
+    killInCalo = 
+      (p.getParameter<edm::ParameterSet>("TestKillingOptions")).getParameter<bool>("KillInCalo");
+    killInCaloEfH = 
+      (p.getParameter<edm::ParameterSet>("TestKillingOptions")).getParameter<bool>("KillInCaloEfH");
     edm::LogWarning("SimG4CoreApplication") 
       << " *** Activating special test killing options in StackingAction \n"
-                                            << " *** Kill secondaries in Calorimetetrs volume = " << killInCalo << "\n"
-                                            << " *** Kill electromagnetic secondaries from hadrons in Calorimeters volume = " << killInCaloEfH;
-
+      << " *** Kill secondaries in Calorimetetrs volume = " << killInCalo << "\n"
+      << " *** Kill electromagnetic secondaries from hadrons in Calorimeters volume = " 
+      << killInCaloEfH;
   }
 
   edm::LogInfo("SimG4CoreApplication") << "StackingAction initiated with"
@@ -230,17 +234,16 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
     if(classification != fKill) {
       const G4Track * mother = CurrentG4Track::track();
       int flag = 0;
-      if (savePDandCinTracker && isThisVolume(aTrack->GetTouchable(),tracker)) {
+      if(savePDandCinAll) {
 	flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
+      } else {
+	if ((savePDandCinTracker && isThisVolume(aTrack->GetTouchable(),tracker)) ||
+	    (savePDandCinCalo    && isThisVolume(aTrack->GetTouchable(),calo)) ||
+	    (savePDandCinMuon    && isThisVolume(aTrack->GetTouchable(),muon))) {
+	  flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
+	}
       }
-      if (savePDandCinCalo && 0 == flag 
-	  && isThisVolume(aTrack->GetTouchable(),calo)) {
-	flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
-      }
-      if (savePDandCinMuon && 0 == flag 
-	  && isThisVolume(aTrack->GetTouchable(),muon)) {
-	flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
-      }
+      if (saveFirstSecondary) { flag = isItFromPrimary(*mother, flag); }
 
       // Russian roulette
       if(2112 == pdg || 22 == pdg || 2212 == pdg) {
@@ -476,8 +479,8 @@ int StackingAction::isItPrimaryDecayProductOrConversion(const G4Track * aTrack,
       flag = 1;
     } else if (aTrack->GetCreatorProcess()->GetProcessSubType()==fGammaConversion) {
       flag = 2;
-    } else {
-      flag = 3;
+      //    } else {
+      // flag = 3;
     } 
   }   
   return flag;
@@ -508,6 +511,17 @@ bool StackingAction::rrApplicable(const G4Track * aTrack,
 	    << " flag: " << flag << " genID= " << genID 
 	    << " p(GeV)= " << genp/GeV << std::endl; 
     */
+  return flag;
+}
+
+int StackingAction::isItFromPrimary(const G4Track & mother, int flagIn) const {
+
+  int flag = flagIn;
+  if (flag != 1) {
+    TrackInformationExtractor extractor;
+    const TrackInformation & motherInfo(extractor(mother));
+    if (motherInfo.isPrimary()) { flag = 3; }
+  }
   return flag;
 }
 
