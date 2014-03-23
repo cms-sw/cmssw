@@ -154,9 +154,9 @@ namespace
 double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau)
 {
   if ( verbosity_ ) {
-    std::cout << "<PFRecoTauDiscriminationAgainstMuonMVA::discriminate>:" << std::endl;
-    std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
-    std::cout << " mvaMin = " << mvaMin_ << std::endl;
+    edm::LogPrint("PFTauAgainstMuonMVA") << "<PFRecoTauDiscriminationAgainstMuonMVA::discriminate>:" ;
+    edm::LogPrint("PFTauAgainstMuonMVA") << " moduleLabel = " << moduleLabel_ ;
+    edm::LogPrint("PFTauAgainstMuonMVA") << " mvaMin = " << mvaMin_ ;
   }
   
   // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
@@ -217,21 +217,21 @@ double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau)
 
   double mvaValue = mvaReader_->GetClassifier(mvaInput_);
   if ( verbosity_ ) {
-    std::cout << "mvaValue = " << mvaValue << std::endl;
+    edm::LogPrint("PFTauAgainstMuonMVA") << "mvaValue = " << mvaValue ;
   }
 
   double retVal = -1.;
   if ( returnMVA_ ) {
     retVal = mvaValue;
     if ( verbosity_ ) {
-      std::cout << "--> retVal = " << retVal << std::endl;
+      edm::LogPrint("PFTauAgainstMuonMVA") << "--> retVal = " << retVal ;
     }
   } else {
     retVal = ( mvaValue > mvaMin_ ) ? 1. : 0.;
     if ( verbosity_ ) {
-      std::cout << "--> retVal = " << retVal << ": discriminator = ";
-      if ( retVal > 0.5 ) std::cout << "PASSED." << std::endl;
-      else std::cout << "FAILED." << std::endl;
+      edm::LogPrint("PFTauAgainstMuonMVA") << "--> retVal = " << retVal << ": discriminator = ";
+      if ( retVal > 0.5 ) edm::LogPrint("PFTauAgainstMuonMVA") << "PASSED." ;
+      else edm::LogPrint("PFTauAgainstMuonMVA") << "FAILED." ;
     }
   }
   return retVal;
