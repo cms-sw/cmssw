@@ -248,6 +248,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       // DYT 2.0 
       //
       DynamicTruncation dytRefit(*theEvent,*theService);
+      dytRefit.setProd(all4DSegments, CSCSegments);
       dytRefit.setSelector(theDYTselector);
       dytRefit.setThr(theDYTthrs);
       dytRefit.setUpdateState(theDYTupdator);
