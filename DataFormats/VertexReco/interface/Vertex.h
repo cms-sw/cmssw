@@ -67,10 +67,24 @@ namespace reco {
     /// add the original a Track(reference) and the smoothed Track
     void add( const TrackBaseRef & r, const Track & refTrack, float w=1.0 );
     void removeTracks();
+
+#ifndef CMS_NOCXX11
     ///returns the weight with which a Track has contributed to the vertex-fit.
+    template<typename TREF> 
+    float trackWeight ( const TREF & r ) const {
+      int i=0;
+      for(auto const & t : tracks_) {
+        if ( (r.id()==t.id()) & (t.key()==r.key()) ) return weights_[i]/255.f;
+        ++i;
+      }
+      return 0;
+    }
+#else
+   ///returns the weight with which a Track has contributed to the vertex-fit.
     float trackWeight ( const TrackBaseRef & r ) const;
     ///returns the weight with which a Track has contributed to the vertex-fit.
-    float trackWeight ( const TrackRef & r ) const;
+    float trackWeight ( const TrackRef & r ) const; 
+#endif
     /// first iterator over tracks
     trackRef_iterator tracks_begin() const;
     /// last iterator over tracks
