@@ -18,12 +18,13 @@
 class Traj2TrackHits {
 private:
   const StripClusterParameterEstimator * theCPE;
-  
+  bool keepOrder;
 
 public:
 
-  explicit Traj2TrackHits(const TransientTrackingRecHitBuilder* builder) :
-    theCPE(static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->stripClusterParameterEstimator()){}
+  explicit Traj2TrackHits(const TransientTrackingRecHitBuilder* builder,bool ikeepOrder) :
+    theCPE(static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->stripClusterParameterEstimator()),
+    keepOrder(ikeepOrder){}
 
   void operator()(Trajectory const & traj, TrackingRecHitCollection & hits, bool splitting) const {
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
@@ -31,12 +32,12 @@ public:
     auto const & meas = traj.measurements();
     hits.reserve(meas.size());
     if(!splitting){
-      if (along) copy(meas.begin(),meas.end(),hits);
+      if (keepOrder | along) copy(meas.begin(),meas.end(),hits);
       else copy(meas.rbegin(),meas.rend(),hits);
       return;
     }
-    if (along) split(meas.begin(),meas.end(),hits);
-    else split(meas.rbegin(),meas.rend(),hits);
+    if (keepOrder | along) split(meas.begin(),meas.end(),hits, along);
+    else split(meas.rbegin(),meas.rend(),hits,along);
   }
 
 private:
@@ -46,23 +47,36 @@ private:
   }
 
   template<typename HI>
-  void split(HI itm, HI e, TrackingRecHitCollection & hits) const { 
+  void split(HI itm, HI e, TrackingRecHitCollection & hits, bool along) const { 
     for(;itm!=e;++itm) {
       auto const & hit = *(*itm).recHit()->hit();
-      if(trackerHitRTTI::isUndef(hit)) {
+      if(trackerHitRTTI::isUndef(hit) | ( hit.dimension()!=2) ) {
 	hits.push_back(hit.clone());
 	continue;
       }
       auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
       auto const & clus = thit.firstClusterRef();
       if (clus.isPixel()) hits.push_back(hit.clone());
-      else if (thit.isMatched()) split(*itm,static_cast<SiStripMatchedRecHit2D const&>(thit),hits);
-      else  {// either single-strip or projected
-	auto detU = thit.isProjected() ? static_cast<ProjectedSiStripRecHit2D const&>(thit).originalDet() : thit.detUnit();
+      else if (thit.isMatched()) {
+	auto zdir = itm->updatedState().localDirection().z();
+	if (keepOrder & (!along)) zdir = -zdir;
+	split(*itm,static_cast<SiStripMatchedRecHit2D const&>(thit),hits,zdir);
+      }else  if (thit.isProjected()) {
+	auto detU = static_cast<ProjectedSiStripRecHit2D const&>(thit).originalDet();
 	hits.push_back(build(*detU, clus));
-      }
-
+      } else hits.push_back(clone(thit));
     }
+  }
+
+  TrackingRecHit * clone(BaseTrackerRecHit const & hit2D ) const {
+    auto const & detU = *hit2D.detUnit();
+    //Use 2D SiStripRecHit in endcap
+    bool endcap = detU.type().isEndcap();
+    if (endcap) return hit2D.clone();
+    return new SiStripRecHit1D(hit2D.localPosition(),
+			       LocalError(hit2D.localPositionError().xx(),0.f,std::numeric_limits<float>::max()),
+			       *hit2D.det(), hit2D.firstClusterRef());
+
   }
 
 
@@ -76,7 +90,7 @@ private:
   }
 
   void split(TrajectoryMeasurement const & itm, 
-	     SiStripMatchedRecHit2D const& mhit, TrackingRecHitCollection & hits) const {
+	     SiStripMatchedRecHit2D const& mhit, TrackingRecHitCollection & hits, float zdir) const {
     const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (mhit.det());
         
     auto hitM = build (*gdet->monoDet(),
@@ -86,11 +100,11 @@ private:
 
     // we should find a faster way
     LocalPoint firstLocalPos = 
-      itm.updatedState().surface().toLocal(hitM->globalPosition());	
+      itm.updatedState().surface().toLocal(gdet->monoDet()->position());	
     LocalPoint secondLocalPos = 
-      itm.updatedState().surface().toLocal(hitS->globalPosition());
+      itm.updatedState().surface().toLocal(gdet->stereoDet()->position());
     LocalVector Delta = secondLocalPos - firstLocalPos;
-    float scalar  = Delta.z() * (itm.updatedState().localDirection().z());
+    float scalar  = Delta.z() * zdir;
     // hit along the direction
     if(scalar<0) {
       hits.push_back(hitS);
