@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 using namespace reco;
 using namespace edm;
@@ -32,6 +33,8 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
   psBaseName(pSet.getParameter<std::string>( "psBaseName" )),
   epsBaseName(pSet.getParameter<std::string>( "epsBaseName" )),
   inputFile(pSet.getParameter<std::string>( "inputfile" )),
+  JECsource(pSet.getParameter<std::string>( "JECsource" )),
+  doJEC(pSet.getParameter<bool>( "doJEC" )),
   update(pSet.getParameter<bool>( "update" )),
   allHisto(pSet.getParameter<bool>( "allHistograms" )),
   finalize(pSet.getParameter< bool >("finalizePlots")),
@@ -295,6 +298,14 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
   edm::Handle<reco::SoftLeptonTagInfoCollection> infoHandle;
   iEvent.getByToken(slInfoToken, infoHandle);
 
+  //Get JEC
+  const JetCorrector* corrector = 0;
+  if(doJEC) {
+    //corrector = JetCorrector::getJetCorrector ("ak5PFL2L3",iSetup);   //Get the jet corrector from the event setup
+    corrector = JetCorrector::getJetCorrector (JECsource,iSetup);   //Get the jet corrector from the event setup
+  }
+  //
+
 // Look first at the jetTags
 
   for (unsigned int iJetLabel = 0; iJetLabel != jetTagInputTags.size(); ++iJetLabel) {
@@ -316,12 +327,21 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
     for (JetTagCollection::const_iterator tagI = tagColl.begin();
 	 tagI != tagColl.end(); ++tagI) {
       
-      if (!jetSelector(*(tagI->first), -1, infoHandle)) continue;
+      //JEC
+      reco::Jet correctedJet = *(tagI->first);     
+      double jec = 1.0;
+      if(doJEC && corrector) {
+	jec = corrector->correction(*(tagI->first),iEvent,iSetup);
+	std::cout<<jec<<std::endl;
+      }
+      //
+
+      if (!jetSelector(*(tagI->first), -1, infoHandle, jec)) continue;
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-	bool inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*tagI->first);
+	bool inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*tagI->first, jec);
 	// Fill histograms if in desired pt/rapidity bin.
 	if (inBin)
-	  binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(*tagI, -1);
+	  binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(*tagI, jec, -1);
       }
     }
     for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
@@ -342,11 +362,20 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
 
     int plotterSize = binTagCorrelationPlotters[iJetLabel].size();
     for (JetTagCollection::const_iterator tagI = tagColl1.begin(); tagI != tagColl1.end(); ++tagI) {
-      if (!jetSelector(*(tagI->first), -1, infoHandle))
+      //JEC
+      reco::Jet correctedJet = *(tagI->first);     
+      double jec = 1.0;
+      if(doJEC && corrector) {
+	jec = corrector->correction(*(tagI->first),iEvent,iSetup);
+	std::cout<<jec<<std::endl;
+      }
+      //
+
+      if (!jetSelector(*(tagI->first), -1, infoHandle, jec))
         continue;
 
       for(int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-        bool inBin = binTagCorrelationPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*(tagI->first));
+        bool inBin = binTagCorrelationPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*(tagI->first), jec);
 
         if(inBin)
         {
@@ -421,14 +450,23 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
         baseTagInfos[iTagInfo] = &baseTagInfo;
       }
 
-      if (!jetSelector(*jetRef, -1, infoHandle))
+      //JEC
+      reco::Jet correctedJet = *(jetRef);     
+      double jec = 1.0;
+      if(doJEC && corrector) {
+	jec = corrector->correction(*(jetRef),iEvent,iSetup);
+	std::cout<<jec<<std::endl;
+      }
+      //
+
+      if (!jetSelector(*jetRef, -1, infoHandle, jec))
         continue;
 
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-	bool inBin = binTagInfoPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*jetRef);
+	bool inBin = binTagInfoPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*jetRef, jec);
 	// Fill histograms if in desired pt/rapidity bin.
 	if (inBin)
-	  binTagInfoPlotters[iJetLabel][iPlotter]->analyzeTag(baseTagInfos, -1);
+	  binTagInfoPlotters[iJetLabel][iPlotter]->analyzeTag(baseTagInfos, jec, -1);
       }
     }
   }

@@ -222,7 +222,8 @@ void JetTagPlotter::analyzeTag(const float& w)
     }
 }
 
-void JetTagPlotter::analyzeTag(const reco::Jet & jet,
+void JetTagPlotter::analyzeTag(const reco::Jet & jet, 
+			       const double & jec,
 			       const float& discriminator,
                                const int& jetFlavour)  
 {
@@ -243,13 +244,14 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (edm::isNotFinite(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 );
   else dDiscriminator->fill(jetFlavour, discriminator );
-  dJetRecMomentum->fill(jetFlavour, jet.p() );
-  dJetRecPt->fill(jetFlavour, jet.pt() );
+  dJetRecMomentum->fill(jetFlavour, jet.p()*jec );
+  dJetRecPt->fill(jetFlavour, jet.pt()*jec );
   dJetRecPseudoRapidity->fill(jetFlavour, jet.eta() );
   dJetRecPhi->fill(jetFlavour, jet.phi());
 }
 
-void JetTagPlotter::analyzeTag(const reco::Jet & jet,
+void JetTagPlotter::analyzeTag(const reco::Jet & jet, 
+			       const double & jec,
 			       const float& discriminator,
                                const int& jetFlavour,
 			       const float& w)  
@@ -271,15 +273,16 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (edm::isNotFinite(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
   else dDiscriminator->fill(jetFlavour, discriminator , w );
-  dJetRecMomentum->fill(jetFlavour, jet.p() , w);
-  dJetRecPt->fill(jetFlavour, jet.pt() , w);
+  dJetRecMomentum->fill(jetFlavour, jet.p()*jec , w);
+  dJetRecPt->fill(jetFlavour, jet.pt()*jec , w);
   dJetRecPseudoRapidity->fill(jetFlavour, jet.eta() , w );
   dJetRecPhi->fill(jetFlavour, jet.phi() , w );
 }
 
 
-void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
-	const int & jetFlavour)
+void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag, 
+			       const double & jec,
+			       const int & jetFlavour)
 {
   if (mcPlots_) {
   dJetFlav->fill(jetFlavour, jetFlavour);
@@ -298,13 +301,14 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (edm::isNotFinite(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 );
   else dDiscriminator->fill(jetFlavour, jetTag.second);
-  dJetRecMomentum->fill(jetFlavour, jetTag.first->p() );
-  dJetRecPt->fill(jetFlavour, jetTag.first->pt() );
+  dJetRecMomentum->fill(jetFlavour, jetTag.first->p()*jec );
+  dJetRecPt->fill(jetFlavour, jetTag.first->pt()*jec );
   dJetRecPseudoRapidity->fill(jetFlavour, jetTag.first->eta() );
   dJetRecPhi->fill(jetFlavour, jetTag.first->phi());
 }
 
-void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
+void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag, 
+			       const double & jec,
 			       const int & jetFlavour,
 			       const float& w)
 {
@@ -325,8 +329,8 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (edm::isNotFinite(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
   else dDiscriminator->fill(jetFlavour, jetTag.second , w );
-  dJetRecMomentum->fill(jetFlavour, jetTag.first->p() , w );
-  dJetRecPt->fill(jetFlavour, jetTag.first->pt() , w );
+  dJetRecMomentum->fill(jetFlavour, jetTag.first->p()*jec , w );
+  dJetRecPt->fill(jetFlavour, jetTag.first->pt()*jec , w );
   dJetRecPseudoRapidity->fill(jetFlavour, jetTag.first->eta() , w );
   dJetRecPhi->fill(jetFlavour, jetTag.first->phi() , w );
 }

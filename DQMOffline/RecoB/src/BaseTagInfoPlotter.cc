@@ -9,36 +9,36 @@
 using namespace std;
 using namespace reco;
 
-void BaseTagInfoPlotter::analyzeTag(const BaseTagInfo * tagInfo, const int & jetFlavour)
+void BaseTagInfoPlotter::analyzeTag(const BaseTagInfo * tagInfo, const double & jec, const int & jetFlavour)
 {
   throw cms::Exception("MissingVirtualMethod")
   	<< "No analyzeTag method overloaded from BaseTagInfoPlotter." << endl;
 }
 
-void BaseTagInfoPlotter::analyzeTag(const BaseTagInfo * tagInfo, const int & jetFlavour, const float & w)
+void BaseTagInfoPlotter::analyzeTag(const BaseTagInfo * tagInfo, const double & jec, const int & jetFlavour, const float & w)
 {
   throw cms::Exception("MissingVirtualMethod")
   	<< "No analyzeTag method overloaded from BaseTagInfoPlotter." << endl;
 }
 
-void BaseTagInfoPlotter::analyzeTag(const vector<const BaseTagInfo *> &tagInfos, const int & jetFlavour, const float & w)
+void BaseTagInfoPlotter::analyzeTag(const vector<const BaseTagInfo *> &tagInfos, const double & jec, const int & jetFlavour, const float & w)
 {
 
   if (tagInfos.size() != 1)
     throw cms::Exception("MismatchedTagInfos")
     	<< tagInfos.size() << " BaseTagInfos passed, but only one expected." << endl;
 
-  analyzeTag(tagInfos.front(), jetFlavour, w);
+  analyzeTag(tagInfos.front(), jec, jetFlavour, w);
 
 }
 
-void BaseTagInfoPlotter::analyzeTag(const vector<const BaseTagInfo *> &tagInfos, const int & jetFlavour)
+void BaseTagInfoPlotter::analyzeTag(const vector<const BaseTagInfo *> &tagInfos, const double & jec, const int & jetFlavour)
 {
   if (tagInfos.size() != 1)
     throw cms::Exception("MismatchedTagInfos")
       << tagInfos.size() << " BaseTagInfos passed, but only one expected." << endl;
   
-  analyzeTag(tagInfos.front(), jetFlavour);
+  analyzeTag(tagInfos.front(), jec, jetFlavour);
 }
 
 void BaseTagInfoPlotter::setEventSetup(const edm::EventSetup & setup)

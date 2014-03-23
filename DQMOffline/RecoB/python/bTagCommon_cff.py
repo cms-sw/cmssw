@@ -49,7 +49,9 @@ bTagCommonBlock = cms.PSet(
     ptRecJetMax = cms.double(40000.0),
     ptPartonMax = cms.double(99999.0),
     producePs = cms.bool(False),
-    inputfile = cms.string('')
+    inputfile = cms.string(''),
+    doJEC = cms.bool(False),
+    JECsource = cms.string("ak5PFL2L3")
 )
 
 

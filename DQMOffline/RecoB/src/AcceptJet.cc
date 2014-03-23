@@ -12,7 +12,7 @@ AcceptJet::AcceptJet(const double& etaMin_, const double& etaMax_, const double&
   pRecJetMax(pMax_), ratioMin(ratioMin_), ratioMax(ratioMax_) {}
 
 
-bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos) const
+bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos, const double jec) const
 {
 
   // temporary fudge to correct for double loop error
@@ -27,11 +27,11 @@ bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const
 //   if ( jetFlavour.underlyingParton4Vec().Pt() < ptPartonMin  ||
 //        jetFlavour.underlyingParton4Vec().Pt() > ptPartonMax  ) accept = false;
 
-  if ( jet.pt() < ptRecJetMin ||
-       jet.pt() > ptRecJetMax ) return false;
+  if ( jet.pt()*jec < ptRecJetMin ||
+       jet.pt()*jec > ptRecJetMax ) return false;
 
-  if ( jet.p() < pRecJetMin ||
-       jet.p() > pRecJetMax ) return false;
+  if ( jet.p()*jec < pRecJetMin ||
+       jet.p()*jec > pRecJetMax ) return false;
 
   if ( !infos.isValid() ) {
     edm::LogWarning("infos not valid") << "A valid SoftLeptonTagInfoCollection was not found!"
@@ -39,8 +39,8 @@ bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const
   }
   else {
     double pToEratio = ratio( jet, infos );
-    if ( pToEratio < ratioMin ||
-         pToEratio > ratioMax ) return false;
+    if ( pToEratio/jec < ratioMin ||
+         pToEratio/jec > ratioMax ) return false;
   }
 
   return true;

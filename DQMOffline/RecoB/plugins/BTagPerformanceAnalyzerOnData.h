@@ -64,6 +64,8 @@ class BTagPerformanceAnalyzerOnData : public edm::EDAnalyzer {
   std::vector<double> etaRanges, ptRanges;
   bool produceEps, producePs;
   std::string psBaseName, epsBaseName, inputFile;
+  std::string JECsource;
+  bool doJEC;
   bool update, allHisto;
   bool finalize;
   bool finalizeOnly;

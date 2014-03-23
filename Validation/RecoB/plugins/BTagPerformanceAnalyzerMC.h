@@ -84,6 +84,8 @@ typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCom
   std::vector<double> etaRanges, ptRanges;
   bool produceEps, producePs;
   std::string psBaseName, epsBaseName, inputFile;
+  std::string JECsource;
+  bool doJEC;
   bool update, allHisto;
   bool finalize;
   bool finalizeOnly;

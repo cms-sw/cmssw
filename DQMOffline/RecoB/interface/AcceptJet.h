@@ -17,7 +17,7 @@ class AcceptJet {
   AcceptJet(const double& etaMin_, const double& etaMax_, const double& ptMin_, const double& ptMax_,
             const double& pMin_, const double& pMax_, const double& ratioMin_, const double& ratioMax_);
   /// Returns true if jet and associated parton satisfy kinematic cuts.
-  bool operator() (const reco::Jet & jet, const int & jetFlavour, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos) const;
+  bool operator() (const reco::Jet & jet, const int & jetFlavour, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos, const double jec) const;
 
   /// Set cut parameters
   void setEtaMin            ( double d ) { etaMin            = d ; } 

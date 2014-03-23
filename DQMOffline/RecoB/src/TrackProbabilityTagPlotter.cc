@@ -74,6 +74,7 @@ TrackProbabilityTagPlotter::~TrackProbabilityTagPlotter ()
 
 
 void TrackProbabilityTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
+					     const double & jec, 
 					     const int & jetFlavour,
 					     const float & w)
 {
@@ -96,7 +97,7 @@ void TrackProbabilityTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagIn
     tkcntHistosSig3D[4]->fill(jetFlavour, tagInfo->probability(n,0),w);
 }
 
-void TrackProbabilityTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
+void TrackProbabilityTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, 
 					     const int & jetFlavour)
 {
   analyzeTag(baseTagInfo,jetFlavour,1.);
