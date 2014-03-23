@@ -60,7 +60,7 @@ from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 # hpsPFTauDiscriminationByTightMuonRejection3.dRmuonMatch = cms.double(0.3)
 # hpsPFTauDiscriminationByTightMuonRejection3.dRmuonMatchLimitedToJetArea = cms.bool(True)
 
-produceAndDiscriminateBoostedHPSPFTaus = cms.Sequence(
+boostedTauPreSequence = cms.Sequence(
     pfPileUpForBoostedTaus*
     pfNoPileUpForBoostedTaus*
     ca8PFJetsCHSprunedForBoostedTaus*

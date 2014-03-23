@@ -29,15 +29,15 @@ clonePFTau(process,postfix)
 from PhysicsTools.PatAlgos.tools.tauTools import *
 
 switchToPFTauHPS(process)
-AddBoostedPATTaus(process,postfix) #add boosted taus to pat sequence
+AddBoostedPATTaus(process,isPFBRECO=False,postfix=postfix,PFBRECOpostfix="",runOnMC=True) #add boosted taus to pat sequence
 
 ## let it run
 process.p = cms.Path(
-    process.produceAndDiscriminateBoostedHPSPFTaus+
-    process.PFTau+
-    getattr(process,"PFTau"+postfix)* # run boosted tau producer
-    process.patDefaultSequence*
-    getattr(process,"makePatTaus"+postfix) # make boosted pat taus
+    process.boostedTauPreSequence
+ +  process.PFTau
+ *  getattr(process,"PFTau"+postfix) # run boosted tau producer
+ *  process.patDefaultSequence
+ *  getattr(process,"makePatTaus"+postfix) # make boosted pat taus
     )
 
 ## ------------------------------------------------------

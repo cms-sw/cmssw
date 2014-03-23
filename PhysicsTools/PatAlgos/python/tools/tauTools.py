@@ -608,7 +608,7 @@ class AddTauCollection(ConfigToolBase):
 
 addTauCollection=AddTauCollection()
 
-def AddBoostedPATTaus(process,postfix="Boost"):
+def AddBoostedPATTaus(process,isPFBRECO=False,postfix="Boost",PFBRECOpostfix="PFlow",runOnMC=True):
     if hasattr(process,"PFTau"+postfix):
         print "Boosted tau sequence in path -> will be used by PAT "
         pfTauLabelOld="hpsPFTauProducer"
@@ -618,28 +618,53 @@ def AddBoostedPATTaus(process,postfix="Boost"):
             print "pat Taus producer in path. It will be cloned to produce also boosted taus."
             cloneProcessingSnippet(process, process.makePatTaus, postfix)
             print "Replacing default producer by "+pfTauLabelNew
-            getattr(process, "tauMatch" + patTauLabel+ postfix).src = pfTauLabelNew
-            getattr(process, "tauGenJetMatch" + patTauLabel+ postfix).src = pfTauLabelNew
-            getattr(process, "tauIsoDepositPFCandidates" + patTauLabel+ postfix).src = pfTauLabelNew
-            getattr(process, "tauIsoDepositPFCandidates" + patTauLabel+ postfix).ExtractorPSet.tauSource = pfTauLabelNew
-            getattr(process, "tauIsoDepositPFChargedHadrons" + patTauLabel+ postfix).src = pfTauLabelNew
-            getattr(process, "tauIsoDepositPFChargedHadrons" + patTauLabel+ postfix).ExtractorPSet.tauSource = pfTauLabelNew
-            getattr(process, "tauIsoDepositPFNeutralHadrons" + patTauLabel+ postfix).src = pfTauLabelNew
-            getattr(process, "tauIsoDepositPFNeutralHadrons" + patTauLabel+ postfix).ExtractorPSet.tauSource = pfTauLabelNew
-            getattr(process, "tauIsoDepositPFGammas" + patTauLabel+ postfix).src = pfTauLabelNew
-            getattr(process, "tauIsoDepositPFGammas" + patTauLabel+ postfix).ExtractorPSet.tauSource = pfTauLabelNew
-            getattr(process, "tauIsoDepositPFCandidates" + patTauLabel+ postfix).src = pfTauLabelNew
-            getattr(process, "patTaus" + patTauLabel + postfix).tauSource = pfTauLabelNew
-            getattr(process, "patTaus" + patTauLabel + postfix).tauIDSources = _buildIDSourcePSet('hpsPFTau', hpsTauIDSources, postfix)
-            getattr(process, "patTaus" + patTauLabel + postfix).tauTransverseImpactParameterSource = "hpsPFTauTransverseImpactParameters"+postfix
-             ## adapt cleanPatTaus
-            if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
-                getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
-                                 'pt > 15 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byHPSloose") > 0.5' \
-                                 + ' & tauID("againstMuonTight") > 0.5 & tauID("againstElectronLoose") > 0.5'
-
         else:
             print "standard pat taus are not produced. The default configuration of patTaus will be used to produce boosted patTaus."
+            process.load("PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff")
+            cloneProcessingSnippet(process, process.makePatTaus, postfix)
+            print "Replacing default producer by "+pfTauLabelNew
+
+        if runOnMC:
+            getattr(process, "tauMatch" + patTauLabel+ postfix).src = pfTauLabelNew
+            getattr(process, "tauGenJetMatch" + patTauLabel+ postfix).src = pfTauLabelNew
+        else:
+            getattr(process,"makePatTaus"+postfix).remove(getattr(process,"tauMatch" + patTauLabel+ postfix))
+            getattr(process,"makePatTaus"+postfix).remove(getattr(process,"tauGenJetMatch" + patTauLabel+ postfix))
+            getattr(process,"makePatTaus"+postfix).remove(getattr(process,"tauGenJets" + patTauLabel+ postfix))
+            getattr(process,"makePatTaus"+postfix).remove(getattr(process,"tauGenJetsSelectorAllHadrons" + patTauLabel+ postfix))
+            getattr(process,"patTaus"+postfix).genJetMatch=""
+            getattr(process,"patTaus"+postfix).genParticleMatch=""
+            getattr(process,"patTaus"+postfix).addGenJetMatch=False
+            getattr(process,"patTaus"+postfix).embedGenJetMatch=False
+            getattr(process,"patTaus"+postfix).addGenMatch=False
+            getattr(process,"patTaus"+postfix).embedGenMatch=False
+        getattr(process, "tauIsoDepositPFCandidates" + patTauLabel+ postfix).src = pfTauLabelNew
+        getattr(process, "tauIsoDepositPFCandidates" + patTauLabel+ postfix).ExtractorPSet.tauSource = pfTauLabelNew
+        getattr(process, "tauIsoDepositPFChargedHadrons" + patTauLabel+ postfix).src = pfTauLabelNew
+        getattr(process, "tauIsoDepositPFChargedHadrons" + patTauLabel+ postfix).ExtractorPSet.tauSource = pfTauLabelNew
+        getattr(process, "tauIsoDepositPFNeutralHadrons" + patTauLabel+ postfix).src = pfTauLabelNew
+        getattr(process, "tauIsoDepositPFNeutralHadrons" + patTauLabel+ postfix).ExtractorPSet.tauSource = pfTauLabelNew
+        getattr(process, "tauIsoDepositPFGammas" + patTauLabel+ postfix).src = pfTauLabelNew
+        getattr(process, "tauIsoDepositPFGammas" + patTauLabel+ postfix).ExtractorPSet.tauSource = pfTauLabelNew
+        getattr(process, "tauIsoDepositPFCandidates" + patTauLabel+ postfix).src = pfTauLabelNew
+        getattr(process, "patTaus" + patTauLabel + postfix).tauSource = pfTauLabelNew
+        getattr(process, "patTaus" + patTauLabel + postfix).tauIDSources = _buildIDSourcePSet('hpsPFTau', hpsTauIDSources, postfix)
+        getattr(process, "patTaus" + patTauLabel + postfix).tauTransverseImpactParameterSource = "hpsPFTauTransverseImpactParameters"+postfix
+        if isPFBRECO:
+            getattr(process,"makePatTaus"+postfix).remove(getattr(process,"patPFCandidateIsoDepositSelection"+postfix))
+            getattr(process, "tauIsoDepositPFChargedHadrons" + patTauLabel+ postfix).ExtractorPSet.candidateSource = "pfAllChargedHadrons"+PFBRECOpostfix
+            getattr(process, "tauIsoDepositPFNeutralHadrons" + patTauLabel+ postfix).ExtractorPSet.candidateSource = "pfAllNeutralHadrons"+PFBRECOpostfix
+            getattr(process, "tauIsoDepositPFGammas" + patTauLabel+ postfix).ExtractorPSet.candidateSource = "pfAllPhotons"+PFBRECOpostfix
+            getattr(process, "hpsSelectionDiscriminator" + patTauLabel + postfix).PFTauProducer = "combinatoricRecoTaus"+postfix
+            getattr(process, "hpsPFTauProducerSansRefs" + patTauLabel + postfix).src = "combinatoricRecoTaus"+postfix
+        ## adapt cleanPatTaus
+
+        if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
+            getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
+                             'pt > 15 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byHPSloose") > 0.5' \
+                             + ' & tauID("againstMuonTight") > 0.5 & tauID("againstElectronLoose") > 0.5'
+
+
     else:
         
         print "Boosted tau sequence not in path. Please include it."
