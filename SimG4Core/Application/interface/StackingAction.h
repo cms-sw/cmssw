@@ -29,6 +29,7 @@ private:
   void   initPointer();
   bool   isThisVolume(const G4VTouchable*, std::vector<G4LogicalVolume*>&) const;
   int    isItPrimaryDecayProductOrConversion(const G4Track*, const G4Track &) const;
+  int    isItFromPrimary(const G4Track &, int) const;
   bool   rrApplicable(const G4Track*, const G4Track&) const;
   bool   isItLongLived(const G4Track*) const;
 
@@ -36,6 +37,7 @@ private:
   EventAction                   *eventAction_;
   bool                          savePDandCinTracker, savePDandCinCalo;
   bool                          savePDandCinMuon, saveFirstSecondary;
+  bool                          savePDandCinAll;
   bool                          killInCalo, killInCaloEfH;
   bool                          killHeavy, trackNeutrino, killDeltaRay;
   double                        kmaxIon, kmaxNeutron, kmaxProton;
