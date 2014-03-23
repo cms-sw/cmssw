@@ -40,6 +40,7 @@ namespace npstat {
     {
     public:
         inline VisitCounter() : counter_(0UL) {}
+        inline virtual ~VisitCounter() {}
 
         inline void clear() {counter_ = 0UL;}
         inline void process(const Input&) {++counter_;}
