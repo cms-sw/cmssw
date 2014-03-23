@@ -6,8 +6,8 @@
     <PartSelector path="//HGCal"/>
     <Parameter name="Volume"     value="HGC" eval="false"/>
     <!-- cell size for sim hits-->
-    <Parameter name="GeomParHGC" value="9*mm"/>
-    <Parameter name="GeomParHGC" value="9*mm"/>
+    <Parameter name="GeomParHGC" value="5*mm"/>
+    <Parameter name="GeomParHGC" value="10*mm"/>
   </SpecPar>
 </SpecParSection>
 </DDDefinition>
