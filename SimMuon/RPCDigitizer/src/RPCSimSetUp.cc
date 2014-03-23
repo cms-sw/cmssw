@@ -117,6 +117,18 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
     ++clsCounter;
   }
 
+  // the same loop (but till 100) to allow old format to be used
+  for(itCls = vClusterSize.begin(); itCls != vClusterSize.end(); ++itCls){
+    clsVect.push_back(((double)(itCls->clusterSize)));
+    if((!(clsCounter%100)) && (clsCounter!=0)){
+      detId=itCls->dpid;
+      _mapDetClsMapLegacy[detId]=clsVect;
+      clsVect.clear();
+      clsCounter=0;
+    }
+    ++clsCounter;
+  }
+
   unsigned int n = 0; 
   uint32_t temp = 0; 
   std::vector<float> veff, vvnoise;
@@ -204,8 +216,8 @@ const std::map< int, std::vector<double> >& RPCSimSetUp::getClsMap()
 const std::vector<double>& RPCSimSetUp::getCls(uint32_t id)
 {
 
-  map<uint32_t,std::vector<double> >::iterator iter = _mapDetClsMap.find(id);
-  if(iter == _mapDetClsMap.end()){
+  map<uint32_t,std::vector<double> >::iterator iter = _mapDetClsMapLegacy.find(id);
+  if(iter == _mapDetClsMapLegacy.end()){
     throw cms::Exception("DataCorrupt") 
       << "Exception comming from RPCSimSetUp - no cluster size information for DetId\t"<<id<< std::endl;
   }
