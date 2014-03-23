@@ -56,6 +56,7 @@ public:
   std::map<RPCDetId, float> _bxmap;
   std::map< int, std::vector<double> > _clsMap;
   std::map<uint32_t, std::vector<double> > _mapDetClsMap;
+  std::map<uint32_t, std::vector<double> > _mapDetClsMapLegacy; // allowing old formad to by used by old digitizers
   std::vector<double>  _DetClsAsymmetric;
   std::vector<double> _DetAsymmetryForCls;
 private:
