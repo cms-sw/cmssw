@@ -15,6 +15,7 @@
 #include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
 
 #include "CalibTracker/SiPixelLorentzAngle/test/SiPixelLorentzAngleReader.h"
+#include "CalibTracker/SiPixelLorentzAngle/interface/SiPixelLorentzAngleDB.h"
 
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryBuilder.h"
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryReader.h"
@@ -50,6 +51,7 @@ DEFINE_FWK_MODULE(SiPixelCondObjOfflineBuilder);
 DEFINE_FWK_MODULE(SiPixelCondObjOfflineReader);
 DEFINE_FWK_MODULE(SiPixelCondObjAllPayloadsReader);
 DEFINE_FWK_MODULE(SiPixelLorentzAngleReader);
+DEFINE_FWK_MODULE(SiPixelLorentzAngleDB);
 DEFINE_FWK_MODULE(SiPixelPerformanceSummaryBuilder);
 DEFINE_FWK_MODULE(SiPixelPerformanceSummaryReader);
 DEFINE_FWK_MODULE(SiPixelBadModuleByHandBuilder);
