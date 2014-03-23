@@ -38,7 +38,6 @@ ChamberSegmentUtility::ChamberSegmentUtility()
 
 void ChamberSegmentUtility::initCSU(const edm::Handle<DTRecSegment4DCollection>& DTSegProd,
 				    const edm::Handle<CSCSegmentCollection>& CSCSegProd) {
-  
   all4DSegments = DTSegProd;
   CSCSegments   = CSCSegProd;
 
