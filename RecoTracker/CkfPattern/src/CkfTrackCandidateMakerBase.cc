@@ -374,22 +374,28 @@ namespace cms{
       if (theTrackCandidateOutput){
 	// Step F: Convert to TrackCandidates
        output->reserve(unsmoothedResult.size());
+       Traj2TrackHits t2t(theTrajectoryBuilder->hitBuilder());
        for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	    it != unsmoothedResult.end(); ++it) {
 	
-	 Trajectory::RecHitContainer thits;
+	 //Trajectory::RecHitContainer thits;
 	 //it->recHitsV(thits);
-	 LogDebug("CkfPattern") << "retrieving "<<(useSplitting?"splitted":"un-splitted")<<" hits from trajectory";
-	 it->recHitsV(thits,useSplitting);
+	 //LogDebug("CkfPattern") << "retrieving "<<(useSplitting?"splitted":"un-splitted")<<" hits from trajectory";
+	 //it->recHitsV(thits,useSplitting);
+
 	 OwnVector<TrackingRecHit> recHits;
+         if(it->direction() != alongMomentum) std::cout << "not along momentum... " << std::endl;
+         t2t(*it,recHits,useSplitting);
+
+         /*
 	 recHits.reserve(thits.size());
 	 LogDebug("CkfPattern") << "cloning hits into new collection.";
 	 for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin();
 	      hitIt != thits.end(); ++hitIt) {
 	   recHits.push_back( (**hitIt).hit()->clone());
 	 }
-
-         viTotHits+=thits.size();        
+         */
+         viTotHits+=recHits.size();        
 
 	 LogDebug("CkfPattern") << "getting initial state.";
 	 const bool doBackFit = !doSeedingRegionRebuilding && !reverseTrajectories;
@@ -397,18 +403,18 @@ namespace cms{
 	   theInitialState->innerState( *it , doBackFit);
 
 	 // temporary protection againt invalid initial states
-	 if (! initState.first.isValid() || initState.second == 0 || edm::isNotFinite(initState.first.globalPosition().x())) {
+	 if ( !initState.first.isValid() || initState.second == nullptr || edm::isNotFinite(initState.first.globalPosition().x())) {
 	   //cout << "invalid innerState, will not make TrackCandidate" << endl;
 	   continue;
 	 }
 	 
 	 PTrajectoryStateOnDet state;
-	 if(useSplitting && (initState.second != thits.front()->det()) && thits.front()->det() ){	 
+	 if(useSplitting && (initState.second != recHits.front().det()) && recHits.front().det() ){	 
 	   LogDebug("CkfPattern") << "propagating to hit front in case of splitting.";
-	   TrajectoryStateOnSurface propagated = thePropagator->propagate(initState.first,thits.front()->det()->surface());
+	   TrajectoryStateOnSurface propagated = thePropagator->propagate(initState.first,recHits.front().det()->surface());
 	   if (!propagated.isValid()) continue;
 	   state = trajectoryStateTransform::persistentState(propagated,
-								      thits.front()->det()->geographicalId().rawId());
+								      recHits.front().rawId());
 	 }
 	 else state = trajectoryStateTransform::persistentState( initState.first,
 									initState.second->geographicalId().rawId());

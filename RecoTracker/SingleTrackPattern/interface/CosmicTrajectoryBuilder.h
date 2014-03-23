@@ -94,6 +94,10 @@ class CosmicTrajectoryBuilder
 
     void init(const edm::EventSetup& es,bool);
     Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
+
+    const TransientTrackingRecHitBuilder * hitBuilder() const {return RHBuilder;}
+
+
  private:
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
  
@@ -115,7 +119,6 @@ class CosmicTrajectoryBuilder
     bool qualityFilter(const Trajectory& traj);
 
 
- 
  private:
    edm::ESHandle<MagneticField> magfield;
    edm::ESHandle<TrackerGeometry> tracker;
