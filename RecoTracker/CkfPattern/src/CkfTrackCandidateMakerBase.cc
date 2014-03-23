@@ -374,7 +374,8 @@ namespace cms{
       if (theTrackCandidateOutput){
 	// Step F: Convert to TrackCandidates
        output->reserve(unsmoothedResult.size());
-       Traj2TrackHits t2t(theTrajectoryBuilder->hitBuilder());
+       Traj2TrackHits t2t(theTrajectoryBuilder->hitBuilder(),true);
+
        for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	    it != unsmoothedResult.end(); ++it) {
 	
@@ -383,7 +384,7 @@ namespace cms{
 	 //LogDebug("CkfPattern") << "retrieving "<<(useSplitting?"splitted":"un-splitted")<<" hits from trajectory";
 	 //it->recHitsV(thits,useSplitting);
 
-	 OwnVector<TrackingRecHit> recHits;
+	 edm::OwnVector<TrackingRecHit> recHits;
          if(it->direction() != alongMomentum) std::cout << "not along momentum... " << std::endl;
          t2t(*it,recHits,useSplitting);
 

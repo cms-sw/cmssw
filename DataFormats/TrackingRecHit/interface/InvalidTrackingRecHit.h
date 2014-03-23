@@ -23,7 +23,7 @@ public:
 
   virtual AlgebraicMatrix projectionMatrix() const;
 
-  virtual int dimension() const;
+  virtual int dimension() const { return 0;}
 
   virtual LocalPoint localPosition() const;
 

@@ -215,8 +215,6 @@ public:
     return hits;
   }
 
-  void recHitsV(ConstRecHitContainer & cont,bool splitting = false) const;
-
   /** Just valid hits..
    *
    */

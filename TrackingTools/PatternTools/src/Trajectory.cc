@@ -4,11 +4,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
-
 
 #include <algorithm>
 
@@ -111,88 +106,6 @@ int Trajectory::ndof(bool bon) const {
   }
 }
 
-
-
-void Trajectory::recHitsV(ConstRecHitContainer & hits,bool splitting) const {
-  hits.reserve(theData.size());
-  if(!splitting){  
-    for (Trajectory::DataContainer::const_iterator itm
-	   = theData.begin(); itm != theData.end(); itm++){    
-      hits.push_back((*itm).recHit());
-    }
-  }else{    
-    for (Trajectory::DataContainer::const_iterator itm
-	   = theData.begin(); itm != theData.end(); itm++){    
-
-      // ====== WARNING: this is a temporary solution =========
-      //        all this part of code should be implemented internally 
-      //        in the TrackingRecHit classes. The concrete types of rechit 
-      //        should be transparent to the Trajectory class
-
-      if( typeid(*(itm->recHit()->hit())) == typeid(SiStripMatchedRecHit2D)){
-      	LocalPoint firstLocalPos = 
-	  itm->updatedState().surface().toLocal(itm->recHit()->transientHits()[0]->globalPosition());
-	
-	LocalPoint secondLocalPos = 
-	  itm->updatedState().surface().toLocal(itm->recHit()->transientHits()[1]->globalPosition());
-	
-	LocalVector Delta = secondLocalPos - firstLocalPos;
-	float scalar  = Delta.z() * (itm->updatedState().localDirection().z());
-	
-
-	TransientTrackingRecHit::ConstRecHitPointer hitA, hitB;
-
-	// Get 2D strip Hits from a matched Hit.
- 	//hitA = itm->recHit()->transientHits()[0];
- 	//hitB = itm->recHit()->transientHits()[1];
-
-	// Get 2D strip Hits from a matched Hit. Then get the 1D hit from the 2D hit
-	if(!itm->recHit()->transientHits()[0]->detUnit()->type().isEndcap()){
-	  hitA = itm->recHit()->transientHits()[0]->transientHits()[0];
-	  hitB = itm->recHit()->transientHits()[1]->transientHits()[0];
-	}else{ //don't use 1D hit in the endcap yet
-	  hitA = itm->recHit()->transientHits()[0];
-	  hitB = itm->recHit()->transientHits()[1];
-	}
-
-	if( (scalar>=0 && direction()==alongMomentum) ||
-	    (scalar<0 && direction()==oppositeToMomentum)){
-	  hits.push_back(hitA);
-	  hits.push_back(hitB);
-	}else if( (scalar>=0 && direction()== oppositeToMomentum) ||
-		  (scalar<0 && direction()== alongMomentum)){
-	  hits.push_back(hitB);
-	  hits.push_back(hitA);
-	}else {
-	  //throw cms::Exception("Error in Trajectory::recHitsV(). Direction is not defined");	
-          edm::LogError("Trajectory_recHitsV_UndefinedTrackDirection") 
-            << "Error in Trajectory::recHitsV: scalar = " << scalar 
-	    << ", direction = " << (direction()==alongMomentum ? "along " : (direction()==oppositeToMomentum ? "opposite " : "undefined ")) 
-	    << theDirection <<"\n";
-          hits.push_back(hitA);
-          hits.push_back(hitB);
-        }         
-      }else if(typeid(*(itm->recHit()->hit())) == typeid(ProjectedSiStripRecHit2D)){
-	//hits.push_back(itm->recHit()->transientHits()[0]);	//Use 2D SiStripRecHit
-	if(!itm->recHit()->transientHits()[0]->detUnit()->type().isEndcap()){
-	  hits.push_back(itm->recHit()->transientHits()[0]->transientHits()[0]);	//Use 1D SiStripRecHit
-	}else{
-	  hits.push_back(itm->recHit()->transientHits()[0]);	//Use 2D SiStripRecHit
-	}
-	// ===================================================================================	
-      }else if(typeid(*(itm->recHit()->hit())) == typeid(SiStripRecHit2D)){
-	//hits.push_back(itm->recHit());  //Use 2D SiStripRecHit
-	if(!itm->recHit()->detUnit()->type().isEndcap()){
-	  hits.push_back(itm->recHit()->transientHits()[0]); //Use 1D SiStripRecHit
-	}else{
-	  hits.push_back(itm->recHit());  //Use 2D SiStripRecHit
-	}
-      }else{
-	hits.push_back(itm->recHit());
-      }
-    }//end loop on measurements
-  }
-}
 
 void Trajectory::validRecHits(ConstRecHitContainer & hits) const {
   hits.reserve(foundHits());
