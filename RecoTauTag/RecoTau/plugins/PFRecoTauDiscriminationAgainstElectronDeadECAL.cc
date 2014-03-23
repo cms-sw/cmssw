@@ -56,23 +56,23 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
   double discriminate(const PFTauRef& pfTau) override
   {
     if ( verbosity_ ) {
-      std::cout << "<PFRecoTauDiscriminationAgainstElectronDeadECAL::discriminate>:" << std::endl;
-      std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
-      std::cout << "#badTowers = " << badTowers_.size() << std::endl;
-      std::cout << "tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi() << std::endl;
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << "<PFRecoTauDiscriminationAgainstElectronDeadECAL::discriminate>:" ;
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << " moduleLabel = " << moduleLabel_ ;
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << "#badTowers = " << badTowers_.size() ;
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << "tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi() ;
     }
     double discriminator = 1.;
     for ( std::vector<towerInfo>::const_iterator badTower = badTowers_.begin();
 	  badTower != badTowers_.end(); ++badTower ) {
       if ( deltaR(badTower->eta_, badTower->phi_, pfTau->eta(), pfTau->phi()) < dR_ ) {
 	if ( verbosity_ ) {
-	  std::cout << " matches badTower: eta = " << badTower->eta_ << ", phi = " << badTower->phi_ << std::endl;
+	  edm::LogPrint("PFTauAgainstEleDeadECAL") << " matches badTower: eta = " << badTower->eta_ << ", phi = " << badTower->phi_ ;
 	}
 	discriminator = 0.;
       }
     }
     if ( verbosity_ ) {
-      std::cout << "--> discriminator = " << discriminator << std::endl;
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << "--> discriminator = " << discriminator ;
     }
     return discriminator;
   }
