@@ -54,20 +54,23 @@ process.GEMCSCAnalyzer = cms.EDAnalyzer("GEMCSCAnalyzer",
 )
 matching = process.GEMCSCAnalyzer.simTrackMatching
 matching.simTrack.minPt = 1.5
-matching.cscSimHit.minNHitsChamber = 3
-matching.cscStripDigi.minNHitsChamber = 3
-matching.cscWireDigi.minNHitsChamber = 3
-matching.cscCLCT.minNHitsChamber = 3
-matching.cscALCT.minNHitsChamber = 3
-matching.cscLCT.minNHitsChamber = 3
-matching.cscMPLCT.minNHitsChamber = 3
 matching.gemRecHit.input = ""
 matching.tfTrack.input = ""
 matching.tfCand.input = ""
 matching.gmtCand.input = ""
 matching.l1Extra.input = ""
+doGem = True
+if doGem:
+  matching.cscSimHit.minNHitsChamber = 3
+  matching.cscStripDigi.minNHitsChamber = 3
+  matching.cscWireDigi.minNHitsChamber = 3
+  matching.cscCLCT.minNHitsChamber = 3
+  matching.cscALCT.minNHitsChamber = 3
+  matching.cscLCT.minNHitsChamber = 3
+  matching.cscLCT.matchAlctGem = True
+  matching.cscMPLCT.minNHitsChamber = 3
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
