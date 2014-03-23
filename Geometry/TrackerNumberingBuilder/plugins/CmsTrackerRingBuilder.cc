@@ -16,7 +16,7 @@ void CmsTrackerRingBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, 
 }
 
 void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
-  GeometricDet::GeometricDetContainer & comp = det->components();
+  GeometricDet::ConstGeometricDetContainer & comp = det->components();
   fv.firstChild(); 
   GeometricDet::GeometricDetContainer compfw;
   GeometricDet::GeometricDetContainer compbw;
@@ -54,7 +54,7 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     }
 
     for(uint32_t i=0; i<comp.size();i++)
-      comp[i]->setGeographicalID(i+1);
+      det->component(i)->setGeographicalID(i+1);
 
   } else {
     // TID
@@ -63,9 +63,9 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     //
     for(uint32_t i=0; i<comp.size();i++){
       if(fabs(comp[i]->translation().z())<fabs(det->translation().z())){      
-	compfw.push_back(comp[i]);
+	compfw.push_back(det->component(i));
       } else {
-	compbw.push_back(comp[i]);
+	compbw.push_back(det->component(i));
       }
     }
     

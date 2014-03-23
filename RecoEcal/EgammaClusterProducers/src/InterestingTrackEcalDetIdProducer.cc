@@ -52,9 +52,7 @@ class InterestingTrackEcalDetIdProducer : public edm::EDProducer {
       ~InterestingTrackEcalDetIdProducer();
 
    private:
-      virtual void beginJob() override ;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
       void beginRun(edm::Run const&, const edm::EventSetup&) override;
 
       
@@ -160,17 +158,6 @@ void InterestingTrackEcalDetIdProducer::beginRun(edm::Run const& run, const edm:
   edm::ESHandle<CaloTopology> theCaloTopology;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
   caloTopology_ = &(*theCaloTopology); 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-InterestingTrackEcalDetIdProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-InterestingTrackEcalDetIdProducer::endJob() {
 }
 
 //define this as a plug-in

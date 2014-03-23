@@ -134,7 +134,7 @@ DTMeantimerPatternReco4D::reconstruct(){
     cout << "Reconstructing Phi segments"<<endl;
   }
 
-  vector<DTHitPairForFit*> pairPhiOwned;
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhiOwned;
   vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates(pairPhiOwned);
 
   if (debug) cout << "There are " << resultPhi.size() << " Phi cand" << endl;
@@ -163,7 +163,7 @@ DTMeantimerPatternReco4D::reconstruct(){
   }
 
   // Now I want to build the concrete DTRecSegment4D.
-  if(debug) cout<<"Building the concrete DTRecSegment4D"<<endl;
+  if(debug) cout << "Building the concrete DTRecSegment4D" << endl;
   if (resultPhi.size()) {
     for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
@@ -248,15 +248,13 @@ DTMeantimerPatternReco4D::reconstruct(){
   // finally delete the candidates!
   for (vector<DTSegmentCand*>::iterator phi=resultPhi.begin();
        phi!=resultPhi.end(); ++phi) delete *phi;
-  for (vector<DTHitPairForFit*>::iterator phiPair = pairPhiOwned.begin();
-       phiPair!=pairPhiOwned.end(); ++phiPair) delete *phiPair;
 
   return result;
 }
 
 
 
-vector<DTSegmentCand*> DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates(vector<DTHitPairForFit*> &pairPhiOwned){
+vector<DTSegmentCand*> DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates(vector<std::shared_ptr<DTHitPairForFit>> &pairPhiOwned){
 
   DTSuperLayerId slId;
 
@@ -273,9 +271,9 @@ vector<DTSegmentCand*> DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates
 
   const DTSuperLayer *sl = theDTGeometry->superLayer(slId);
 
-  vector<DTHitPairForFit*> pairPhi1 = the2DAlgo->initHits(sl,theHitsFromPhi1);
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhi1 = the2DAlgo->initHits(sl,theHitsFromPhi1);
   // same sl!! Since the fit will be in the sl phi 1!
-  vector<DTHitPairForFit*> pairPhi2 = the2DAlgo->initHits(sl,theHitsFromPhi2);
+  vector<std::shared_ptr<DTHitPairForFit>> pairPhi2 = the2DAlgo->initHits(sl,theHitsFromPhi2);
   // copy the pairPhi2 in the pairPhi1 vector 
   copy(pairPhi2.begin(),pairPhi2.end(),back_inserter(pairPhi1));
 

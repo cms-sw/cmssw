@@ -18,9 +18,9 @@ DQMCertMuon = cms.Sequence(dtDAQInfo * rpcDaqInfo * cscDaqInfo *
                            dtDCSByLumiSummary * rpcDCSSummary * cscDcsInfo *
                            dtCertificationSummary * rpcDataCertification * cscCertificationInfo)
 
-DQMCertEcal = cms.Sequence(ecalBarrelDaqInfoTask * ecalEndcapDaqInfoTask * ecalPreshowerDaqInfoTask *
-                           ecalBarrelDcsInfoTask * ecalEndcapDcsInfoTask * ecalPreshowerDcsInfoTask *
-                           ecalEndcapDataCertificationTask * ecalBarrelDataCertificationTask * ecalPreshowerDataCertificationTask)
+DQMCertEcal = cms.Sequence(ecalDaqInfoTask * ecalPreshowerDaqInfoTask *
+                           ecalDcsInfoTask * ecalPreshowerDcsInfoTask *
+                           ecalCertification * ecalPreshowerDataCertificationTask)
 
 DQMCertHcal = cms.Sequence(hcalDAQInfo *
                            hcalDCSInfo *

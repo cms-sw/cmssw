@@ -1,7 +1,9 @@
 #ifndef LedTask_H
 #define LedTask_H
 
-#include "DQM/EcalCommon/interface/DQWorkerTask.h"
+#include "DQWorkerTask.h"
+
+#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -11,69 +13,61 @@ namespace ecaldqm {
 
   class LedTask : public DQWorkerTask {
   public:
-    LedTask(const edm::ParameterSet &, const edm::ParameterSet &);
-    ~LedTask();
+    LedTask();
+    ~LedTask() {}
 
-    bool filterRunType(const std::vector<short>&) override;
+    void addDependencies(DependencySet&) override;
 
-    void bookMEs() override;
+    bool filterRunType(short const*) override;
 
-    void beginRun(const edm::Run &, const edm::EventSetup &) override;
-    void endEvent(const edm::Event &, const edm::EventSetup &) override;
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    void beginEvent(edm::Event const&, edm::EventSetup const&) override;
 
-    void analyze(const void*, Collections) override;
+    bool analyze(void const*, Collections) override;
 
-    void runOnRawData(const EcalRawDataCollection&);
-    void runOnDigis(const EcalDigiCollection&);
-    void runOnPnDigis(const EcalPnDiodeDigiCollection&);
-    void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&);
-
-    enum Constants {
-      nWL = 2,
-      nPNGain = 2
-    };
-
-    enum MESets {
-      kAmplitudeSummary, // profile2d
-      kAmplitude = kAmplitudeSummary + nWL, // profile2d
-      kOccupancy = kAmplitude + nWL,
-      kShape = kOccupancy + nWL,
-      kTiming = kShape + nWL, // profile2d
-      kAOverP = kTiming + nWL, // profile2d
-      kPNAmplitude = kAOverP + nWL, // profile2d
-      kPNOccupancy = kPNAmplitude + nWL * nPNGain, // profile2d
-      nMESets
-    };
-
-    static void setMEData(std::vector<MEData>&);
+    void runOnRawData(EcalRawDataCollection const&);
+    void runOnDigis(EEDigiCollection const&);
+    void runOnPnDigis(EcalPnDiodeDigiCollection const&);
+    void runOnUncalibRecHits(EcalUncalibratedRecHitCollection const&);
 
   private:
-    std::vector<int> ledWavelengths_;
-    std::vector<int> MGPAGainsPN_;
+    void setParams(edm::ParameterSet const&);
 
-    bool enable_[BinService::nDCC];
-    int wavelength_[BinService::nDCC];
-    std::map<int, std::vector<float> > pnAmp_;
+    std::map<int, unsigned> wlToME_;
+
+    bool enable_[nEEDCC];
+    unsigned wavelength_[nEEDCC];
+    unsigned rtHalf_[nEEDCC];
+    std::map<unsigned, float> pnAmp_;
+
+    int emptyLS_;
+    int emptyLSLimit_;
   };
 
-  inline void LedTask::analyze(const void* _p, Collections _collection){
+  inline bool LedTask::analyze(void const* _p, Collections _collection){
     switch(_collection){
     case kEcalRawData:
-      runOnRawData(*static_cast<const EcalRawDataCollection*>(_p));
+      if(_p) runOnRawData(*static_cast<EcalRawDataCollection const*>(_p));
+      return true;
       break;
     case kEEDigi:
-      runOnDigis(*static_cast<const EcalDigiCollection*>(_p));
+      if(_p) runOnDigis(*static_cast<EEDigiCollection const*>(_p));
+      return true;
       break;
     case kPnDiodeDigi:
-      runOnPnDigis(*static_cast<const EcalPnDiodeDigiCollection*>(_p));
+      if(_p) runOnPnDigis(*static_cast<EcalPnDiodeDigiCollection const*>(_p));
+      return true;
       break;
-    case kEBUncalibRecHit:
-    case kEEUncalibRecHit:
-      runOnUncalibRecHits(*static_cast<const EcalUncalibratedRecHitCollection*>(_p));
+    case kEELaserLedUncalibRecHit:
+      if(_p) runOnUncalibRecHits(*static_cast<EcalUncalibratedRecHitCollection const*>(_p));
+      return true;
       break;
     default:
       break;
     }
+
+    return false;
   }
 
 }

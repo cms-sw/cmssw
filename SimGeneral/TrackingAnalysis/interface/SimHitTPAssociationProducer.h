@@ -24,9 +24,7 @@ public:
   static bool simHitTPAssociationListGreater(SimHitTPPair i,SimHitTPPair j) { return (i.first.key()>j.first.key()); }
 
 private:
-  virtual void beginJob() {}
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::vector<edm::InputTag> _simHitSrc;
   edm::InputTag _trackingParticleSrc;

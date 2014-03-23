@@ -11,10 +11,10 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-// #include "FWCore/Utilities/interface/Exception.h"
-
-// #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandFlat.h"
 
 using namespace edm;
 using namespace std;
@@ -54,6 +54,8 @@ MultiParticleInConeGunProducer::~MultiParticleInConeGunProducer()
 
 void MultiParticleInConeGunProducer::produce(Event &e, const EventSetup& es) 
 {
+   edm::Service<edm::RandomNumberGenerator> rng;
+   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
    if ( fVerbosity > 0 )
    {
@@ -81,9 +83,9 @@ void MultiParticleInConeGunProducer::produce(Event &e, const EventSetup& es)
    for (unsigned int ip=0; ip<fPartIDs.size(); ++ip)
    {
 
-       double pt     = fRandomGenerator->fire(fMinPt, fMaxPt) ;
-       double eta    = fRandomGenerator->fire(fMinEta, fMaxEta) ;
-       double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
+       double pt     = CLHEP::RandFlat::shoot(engine, fMinPt, fMaxPt) ;
+       double eta    = CLHEP::RandFlat::shoot(engine, fMinEta, fMaxEta) ;
+       double phi    = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi) ;
        int PartID = fPartIDs[ip] ;
        const HepPDT::ParticleData* 
           PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
@@ -110,15 +112,15 @@ void MultiParticleInConeGunProducer::produce(Event &e, const EventSetup& es)
 	 unsigned int nTry=0;
 	 while(true){
 	   //shoot flat Deltar
-	   double dR = fRandomGenerator->fire(fMinDeltaR, fMaxDeltaR);
+	   double dR = CLHEP::RandFlat::shoot(engine, fMinDeltaR, fMaxDeltaR);
 	   //shoot flat eta/phi mixing
-	   double alpha = fRandomGenerator->fire(-3.14159265358979323846, 3.14159265358979323846);
+	   double alpha = CLHEP::RandFlat::shoot(engine, -3.14159265358979323846, 3.14159265358979323846);
 	   double dEta = dR*cos(alpha);
 	   double dPhi = dR*sin(alpha);
 	   
 	   /*
 	   //shoot Energy of associated particle	 
-	   double energyIc = fRandomGenerator->fire(fMinEInCone, fMaxEInCone);
+	   double energyIc = CLHEP::RandFlat::shoot(engine, fMinEInCone, fMaxEInCone);
 	   if (mom2Ic>0){ momIC = sqrt(mom2Ic);}
 	   */
 	   //	 get kinematics
@@ -157,7 +159,7 @@ void MultiParticleInConeGunProducer::produce(Event &e, const EventSetup& es)
 	     PDataIc = fPDGTable->particle(HepPDT::ParticleID(abs(PartIDIc)));
 	   
 	   //shoot momentum ratio
-	   double momR = fRandomGenerator->fire(fMinMomRatio, fMaxMomRatio);
+	   double momR = CLHEP::RandFlat::shoot(engine, fMinMomRatio, fMaxMomRatio);
 	   double massIc= PDataIc->mass().value() ;
 	   double momIc = momR * mom;
 	   double energyIc = sqrt(momIc*momIc + massIc*massIc);
