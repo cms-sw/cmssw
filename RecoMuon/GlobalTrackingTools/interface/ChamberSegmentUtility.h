@@ -64,10 +64,6 @@ class ChamberSegmentUtility {
   edm::Handle<CSCSegmentCollection> CSCSegments;
   edm::ESHandle<DTGeometry> dtGeom;
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
-
-  //  edm::EDGetTokenT<CSCSegmentCollection> CSCSegmentsToken;
-  //  edm::EDGetTokenT<DTRecSegment4DCollection> all4DSegmentsToken;
-
   std::vector<DTRecSegment4D> dtseg;
   std::vector<CSCSegment> cscseg;
   std::map<int, std::vector<DTRecSegment4D> > dtsegMap;
