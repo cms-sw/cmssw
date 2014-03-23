@@ -27,6 +27,8 @@ namespace npstat {
     public:
         inline explicit CoordinateSelector(const unsigned i) : index_(i) {}
 
+        inline virtual ~CoordinateSelector() {}
+
         inline double operator()(const double* point, const unsigned dim) const
         {
             if (dim <= index_)

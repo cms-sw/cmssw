@@ -22,6 +22,11 @@ namespace npstat {
         bw_ = (max_ - min_)/nBins_;
     }
 
+    HistoAxis HistoAxis::rebin(const unsigned nbins) const
+    {
+        return HistoAxis(nbins, min_, max_, label_.c_str());
+    }
+
     bool HistoAxis::isClose(const HistoAxis& r, const double tol) const
     {
         return closeWithinTolerance(min_, r.min_, tol) &&

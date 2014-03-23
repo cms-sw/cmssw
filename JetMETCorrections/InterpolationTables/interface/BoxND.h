@@ -171,6 +171,7 @@ bool operator!=(const npstat::BoxND<Numeric>& l, const npstat::BoxND<Numeric>& r
 #include "JetMETCorrections/InterpolationTables/interface/NpstatException.h"
 
 #include "Alignment/Geners/interface/GenericIO.hh"
+#include "Alignment/Geners/interface/IOIsUnsigned.hh"
 
 namespace npstat {
     template <typename Numeric>
@@ -493,7 +494,9 @@ namespace npstat {
     BoxND<Numeric> BoxND<Numeric>::allSpace(const unsigned long ndim)
     {
         const Numeric maxval = std::numeric_limits<Numeric>::max();
-        Interval<Numeric> i(-maxval, maxval);
+        Interval<Numeric> i(static_cast<Numeric>(0), maxval);
+        if (!gs::IOIsUnsigned<Numeric>::value)
+            i.setMin(-maxval);
         return BoxND<Numeric>(ndim, i);
     }
 
