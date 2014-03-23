@@ -103,7 +103,7 @@ DigiMatcher::digiPosition(const Digi& digi) const
 
     if (! layer_geo->inside(intersect))
     {
-      cout<<"digiPosition LCT: intersect not inside! hs"<<strip<<" wg"<<wg<<" "<<gp<<endl;
+      //cout<<"digiPosition LCT: intersect not inside! hs"<<strip<<" wg"<<wg<<" "<<gp<<endl;
     }
   }
   return gp;
