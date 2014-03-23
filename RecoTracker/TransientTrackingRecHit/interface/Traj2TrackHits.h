@@ -26,6 +26,7 @@ public:
     theCPE(static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->stripClusterParameterEstimator()){}
 
   void operator()(Trajectory const & traj, TrackingRecHitCollection & hits, bool splitting) const {
+    // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     bool along = traj.direction() == alongMomentum;
     auto const & meas = traj.measurements();
     hits.reserve(meas.size());
@@ -34,8 +35,8 @@ public:
       else copy(meas.rbegin(),meas.rend(),hits);
       return;
     }
-    if (along) split(meas.begin(),meas.end(),hits,along);
-    else split(meas.rbegin(),meas.rend(),hits,along);
+    if (along) split(meas.begin(),meas.end(),hits);
+    else split(meas.rbegin(),meas.rend(),hits);
   }
 
 private:
@@ -45,7 +46,7 @@ private:
   }
 
   template<typename HI>
-  void split(HI itm, HI e, TrackingRecHitCollection & hits, bool along) const { 
+  void split(HI itm, HI e, TrackingRecHitCollection & hits) const { 
     for(;itm!=e;++itm) {
       auto const & hit = *(*itm).recHit()->hit();
       if(trackerHitRTTI::isUndef(hit)) {
@@ -55,7 +56,7 @@ private:
       auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
       auto const & clus = thit.firstClusterRef();
       if (clus.isPixel()) hits.push_back(hit.clone());
-      else if (thit.isMatched()) split(*itm,static_cast<SiStripMatchedRecHit2D const&>(thit),hits,along);
+      else if (thit.isMatched()) split(*itm,static_cast<SiStripMatchedRecHit2D const&>(thit),hits);
       else  {// either single-strip or projected
 	auto detU = thit.isProjected() ? static_cast<ProjectedSiStripRecHit2D const&>(thit).originalDet() : thit.detUnit();
 	hits.push_back(build(*detU, clus));
@@ -75,7 +76,7 @@ private:
   }
 
   void split(TrajectoryMeasurement const & itm, 
-	     SiStripMatchedRecHit2D const& mhit, TrackingRecHitCollection & hits, bool along) const {
+	     SiStripMatchedRecHit2D const& mhit, TrackingRecHitCollection & hits) const {
     const GluedGeomDet *gdet = static_cast<const GluedGeomDet *> (mhit.det());
         
     auto hitM = build (*gdet->monoDet(),
@@ -90,9 +91,8 @@ private:
       itm.updatedState().surface().toLocal(hitS->globalPosition());
     LocalVector Delta = secondLocalPos - firstLocalPos;
     float scalar  = Delta.z() * (itm.updatedState().localDirection().z());
-    if( ( (scalar>=0) & (!along) ) ||
-	(  (scalar<0) & along    )
-	) {
+    // hit along the direction
+    if(scalar<0) {
       hits.push_back(hitS);
       hits.push_back(hitM);
     } else {
