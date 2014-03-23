@@ -1382,9 +1382,21 @@ class ConfigBuilder(object):
 	    return
 
     def prepare_DATAMIX(self, sequence = None):
-	    """ Enrich the schedule with the digitisation step"""
 	    self.loadAndRemember(self.DATAMIXDefaultCFF)
 	    self.scheduleSequence('pdatamix','datamixing_step')
+	    if self._options.premixed_input:
+		    theFiles=''
+		    if not "DATAMIX" in self.stepMap.keys():
+			    print '** --premixed_input only makes sense in the presence of the DATAMIX step, which is not in your sequence; ignoring the value of --premixed_input'
+		    elif self._options.premixed_input.startswith('dbs:') or self._options.premixed_input.startswith('das:'):
+			    theFiles=filesFromDASQuery('file dataset = %s'%(self._options.premixed_input[4:],))[0]
+		    elif self._options.premixed_input.startswith("filelist:"):
+			    theFiles= (filesFromList(self._options.premixed_input[9:]))[0]
+		    else:
+			    theFiles=self._options.premixed_input.split(',')
+		    #print theFiles
+		    self.executeAndRemember( "process.mixData.input.fileNames = cms.untracked.vstring(%s)"%(  theFiles ) )
+
 	    return
 
     def prepare_DIGI2RAW(self, sequence = None):
