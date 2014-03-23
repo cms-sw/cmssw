@@ -1,5 +1,6 @@
-import os
-import shlex, subprocess
+#import os
+import shlex, shutil, getpass
+#import subprocess
 
 import FWCore.ParameterSet.Config as cms
 
@@ -34,20 +35,24 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-try:
-    user = os.environ["USER"]
-except KeyError:
-    user = subprocess.call('whoami')
-    # user = commands.getoutput('whoami')
+#to get the user running the process
+user = getpass.getuser()
+
+#try:
+#    user = os.environ["USER"]
+#except KeyError:
+#    user = subprocess.call('whoami')
+#    # user = commands.getoutput('whoami')
  
 #file = "/tmp/" + user + "/prova.db"
 file = "prova.db"
 sqlfile = "sqlite_file:" + file
 print '\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile)
 
+#standard python libraries instead of spawn processes
+shutil.move("prova.db", "prova_old.db")
 #subprocess.call(["/bin/cp", "prova.db", file])
-subprocess.call(["/bin/mv", "prova.db", "prova_old.db"])
-
+#subprocess.call(["/bin/mv", "prova.db", "prova_old.db"])
 
 ##### DATABASE CONNNECTION AND INPUT TAGS ######
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
