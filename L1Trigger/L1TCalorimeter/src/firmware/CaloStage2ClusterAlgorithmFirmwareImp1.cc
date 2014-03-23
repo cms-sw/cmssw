@@ -269,6 +269,7 @@ void l1t::CaloStage2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1t:
       const l1t::CaloCluster& clusterNWW  = l1t::CaloTools::getCluster(clusters, iEtaM2, iPhi);
 
 
+      // if iEta>1
       bool filterNNWW = (clusterNNWW.isValid() && clusterNNWW.hwPt()>=cluster.hwPt());
       bool filterNNW  = (clusterNNW .isValid() && clusterNNW .hwPt()>=cluster.hwPt());
       bool filterNN   = (clusterNN  .isValid() && clusterNN  .hwPt()>cluster.hwPt());
@@ -317,7 +318,7 @@ void l1t::CaloStage2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1t:
         filterSSEE = (clusterSSEE.isValid() && clusterSSEE.hwPt()>cluster.hwPt());
         filterSSE  = (clusterSSE .isValid() && clusterSSE .hwPt()>cluster.hwPt());
         filterSS   = (clusterSS  .isValid() && clusterSS  .hwPt()>=cluster.hwPt());
-        filterSSW  = (clusterSSW .isValid() && clusterSSW .hwPt()>cluster.hwPt());
+        filterSSW  = (clusterSSW .isValid() && clusterSSW .hwPt()>=cluster.hwPt());
         filterSSWW = (clusterSSWW.isValid() && clusterSSWW.hwPt()>cluster.hwPt());
         filterSWW  = (clusterSWW .isValid() && clusterSWW .hwPt()>cluster.hwPt());
         filterWW   = (clusterWW  .isValid() && clusterWW  .hwPt()>cluster.hwPt());
@@ -327,15 +328,15 @@ void l1t::CaloStage2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1t:
       {
         filterNNWW = (clusterNNWW.isValid() && clusterNNWW.hwPt()>cluster.hwPt());
         filterNNW  = (clusterNNW .isValid() && clusterNNW .hwPt()>cluster.hwPt());
-        filterNN   = (clusterNN  .isValid() && clusterNN  .hwPt()>=cluster.hwPt());
+        filterNN   = (clusterNN  .isValid() && clusterNN  .hwPt()>cluster.hwPt());
         filterNNE  = (clusterNNE .isValid() && clusterNNE .hwPt()>cluster.hwPt());
         filterNNEE = (clusterNNEE.isValid() && clusterNNEE.hwPt()>cluster.hwPt());
         filterNEE  = (clusterNEE .isValid() && clusterNEE .hwPt()>cluster.hwPt());
         filterEE   = (clusterEE  .isValid() && clusterEE  .hwPt()>cluster.hwPt());
         filterSEE  = (clusterSEE .isValid() && clusterSEE .hwPt()>cluster.hwPt());
         filterSSEE = (clusterSSEE.isValid() && clusterSSEE.hwPt()>cluster.hwPt());
-        filterSSE  = (clusterSSE .isValid() && clusterSSE .hwPt()>cluster.hwPt());
-        filterSS   = (clusterSS  .isValid() && clusterSS  .hwPt()>cluster.hwPt());
+        filterSSE  = (clusterSSE .isValid() && clusterSSE .hwPt()>=cluster.hwPt());
+        filterSS   = (clusterSS  .isValid() && clusterSS  .hwPt()>=cluster.hwPt());
         filterSSW  = (clusterSSW .isValid() && clusterSSW .hwPt()>cluster.hwPt());
         filterSSWW = (clusterSSWW.isValid() && clusterSSWW.hwPt()>cluster.hwPt());
         filterSWW  = (clusterSWW .isValid() && clusterSWW .hwPt()>cluster.hwPt());
