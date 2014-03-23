@@ -11,8 +11,8 @@ process.load("SimTracker.TrackerMaterialAnalysis.single10GeVNeutrino_cfi")
 process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
 # detector simulation (Geant4-based) with tracking material accounting 
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+process.load("Configuration.StandardSequences.GeometryExtended_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialProducer_cff")
 
 # message logger
