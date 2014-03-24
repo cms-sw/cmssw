@@ -6,8 +6,8 @@
 // Needed for Pythia8
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenParticle.h> 
-#include <Pythia.h>
-#include <HepMCInterface.h>
+#include "Pythia8/Pythia.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
