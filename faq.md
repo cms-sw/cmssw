@@ -276,7 +276,9 @@ Yes, please have a look at the [CMSSW git tutorial pages](tutorial.html).
 The old CVS repository is available *READ-ONLY* by setting:
 
     export CVSROOT=":ext:<cern-user-account>@lxplus5.cern.ch:/afs/cern.ch/user/c/cvscmssw/public/CMSSW"
+    export CVS_RSH=ssh
     # setenv CVSROOT ":ext:<cern-user-account>@lxplus5.cern.ch:/afs/cern.ch/user/c/cvscmssw/public/CMSSW"
+    # setenv CVS_RSH ssh
 
 where of course `<cern-user-account>` needs to be substituted with your CERN
 account login. Notice that starting on the 15th of October this will be the
