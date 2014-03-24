@@ -15,9 +15,12 @@ recoExoticaValidationHT = cms.EDProducer("PFMETProducer",
                                          jets = cms.InputTag("ak5PFJetsCHS") # for significance calculation
                                          )
 
+ExoticaValidationProdSeq = cms.Sequence(
+    recoExoticaValidationHT
+    )
+
 ExoticaValidationSequence = cms.Sequence(
     recoExoticaValidationHT + 
-    hltExoticaValidator
     )
 
 #HLTExoticaVal_FastSim = cms.Sequence(
