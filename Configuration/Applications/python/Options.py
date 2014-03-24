@@ -194,11 +194,6 @@ expertSettings.add_option("--datamix",
                   default=defaultOptions.datamix,
                   dest="datamix")
 
-expertSettings.add_option("--premixed_input",
-                          help="define the pre-mixed files to mix with",
-                          default=None,
-                          dest="premixed_input")
-
 expertSettings.add_option("--gflash",
                   help="Run the FULL SIM using the GFlash parameterization.",
                   action="store_true",
