@@ -85,10 +85,10 @@ pat::PATPackedCandidateProducer::~PATPackedCandidateProducer() {}
 
 void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-
+#ifdef CRAZYSORT 
     edm::Handle<edm::View<pat::Jet> >      jets;
     iEvent.getByLabel("selectedPatJets", jets);
-
+#endif
 
 
     edm::Handle<reco::PFCandidateCollection> cands;
