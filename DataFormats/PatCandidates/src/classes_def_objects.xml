@@ -16,7 +16,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="22">
+  <class name="pat::Electron"  ClassVersion="23">
+   <version ClassVersion="23" checksum="434577157"/>
    <version ClassVersion="22" checksum="4113394532"/>
    <version ClassVersion="21" checksum="366535823"/>
    <version ClassVersion="20" checksum="4220542719"/>
@@ -91,7 +92,8 @@
    <version ClassVersion="10" checksum="2692173055"/>
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
-  <class name="pat::Photon"  ClassVersion="10">
+  <class name="pat::Photon"  ClassVersion="11">
+   <version ClassVersion="11" checksum="3277818926"/>
    <version ClassVersion="10" checksum="865744757"/>
   </class>
   <class name="pat::Jet"  ClassVersion="11">

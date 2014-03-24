@@ -20,6 +20,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
+#define CRAZYSORT 1
 //FIXME: debugging stuff to be removed
 #define DEBUGIP 1
 #if DEBUGIP
@@ -131,7 +132,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 
     std::auto_ptr< std::vector<pat::PackedCandidate> > outPtrP( new std::vector<pat::PackedCandidate> );
     std::vector<int> mapping(cands->size());
-
+#ifdef CRAZYSORT
     std::vector<int> jetOrder;
     std::vector<int> jetOrderReverse;
     for(unsigned int i=0;i<cands->size();i++) jetOrderReverse.push_back(-1);
@@ -171,10 +172,15 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         }
 
    }
+#endif //CRAZYSORT
 
 
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
+#ifdef CRAZYSORT
         const reco::PFCandidate &cand=(*cands)[jetOrder[ic]];
+#else
+        const reco::PFCandidate &cand=(*cands)[ic];
+#endif
         float phiAtVtx = cand.phi();
         /*bool flags = false;
         if (cand.flag(reco::PFCandidate::T_TO_DISP)   || 
@@ -321,10 +327,13 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     std::auto_ptr<edm::Association<reco::PFCandidateCollection   > > pc2pf(new edm::Association<reco::PFCandidateCollection   >(cands));
     edm::Association<pat::PackedCandidateCollection>::Filler pf2pcFiller(*pf2pc);
     edm::Association<reco::PFCandidateCollection   >::Filler pc2pfFiller(*pc2pf);
+#ifdef CRAZYSORT
     pf2pcFiller.insert(cands, jetOrderReverse.begin(), jetOrderReverse.end());
     pc2pfFiller.insert(oh   , jetOrder.begin(), jetOrder.end());
-//    pf2pcFiller.insert(cands, mapping.begin(), mapping.end());
-//    pc2pfFiller.insert(oh   , mapping.begin(), mapping.end());
+#else
+    pf2pcFiller.insert(cands, mapping.begin(), mapping.end());
+    pc2pfFiller.insert(oh   , mapping.begin(), mapping.end());
+#endif
     pf2pcFiller.fill();
     pc2pfFiller.fill();
     iEvent.put(pf2pc);
