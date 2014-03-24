@@ -156,7 +156,7 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
   for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
 
      edm::OwnVector<TrackingRecHit> recHits;
-     if(it->direction() != alongMomentum) std::cout << "InOutConv not along momentum... " << std::endl;
+     if(it->direction() != alongMomentum) LogDebug("InOutConversionTrackFinder") << "InOutConv not along momentum... " << std::endl;
 
      t2t(*it,recHits,useSplitHits_);
     
@@ -177,7 +177,7 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
     // temporary protection againt invalid initial states
     if ( (!initState.first.isValid()) | (initState.second == nullptr)) {
-      std::cout << "invalid innerState, will not make TrackCandidate" << std::endl;
+      LogDebug("InOutConversionTrackFinder") << "invalid innerState, will not make TrackCandidate" << std::endl;
       continue;
     }
     

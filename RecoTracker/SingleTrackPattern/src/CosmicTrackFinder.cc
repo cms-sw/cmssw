@@ -136,7 +136,7 @@ namespace cms
 	const Trajectory  theTraj = *(*tmpTraj.begin());
 	bool seedplus=(theTraj.seed().direction()==alongMomentum);
 
-        std::cout << "CosmicTrackFinder " <<"Reconstruction " <<  (seedplus ? "along" : "opposite to") << " momentum" << std::endl;
+        // std::cout << "CosmicTrackFinder " <<"Reconstruction " <<  (seedplus ? "along" : "opposite to") << " momentum" << std::endl;
         LogDebug("CosmicTrackFinder")<<"Reconstruction " <<  (seedplus ? "along" : "opposite to") << " momentum";
 
 	/*
