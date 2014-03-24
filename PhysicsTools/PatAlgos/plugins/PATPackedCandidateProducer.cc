@@ -20,9 +20,9 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-#define CRAZYSORT 1
+//#define CRAZYSORT 
 //FIXME: debugging stuff to be removed
-#define DEBUGIP 1
+#define DEBUGIP 0
 #if DEBUGIP
 #include "TrackingTools/IPTools/interface/IPTools.h" 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
