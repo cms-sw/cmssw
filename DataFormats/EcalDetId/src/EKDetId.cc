@@ -3,11 +3,205 @@
     
 #include <iostream>
 #include <algorithm>
+
+namespace {
+  /** Maximum possibility of Fiber number (0:FIB_MAX-1)
+   */
+  static const int FIB_MAX=6;
+  
+  /** Maximum possibility of Read-Out type (0:RO_MAX-1)
+   */
+  static const int RO_MAX=3;
+
+  const int MAX_SM_SIZE = 21;
+
+  const int MAX_MODULES_ROW = 2*MAX_SM_SIZE*5;
+
+  const int MAX_MODULES = MAX_MODULES_ROW * MAX_MODULES_ROW;
+
+  const int MAX_HASH_INDEX = RO_MAX*FIB_MAX*MAX_MODULES*2;
+
+  const int MODULE_OFFSET = MAX_SM_SIZE * 5;
+
+  const int blackBox[MAX_SM_SIZE] = {
+    //109876543210987654321
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111,
+    0b111111111111111111111
+  };
+
+
+  const int noTaperEcalEta4[MAX_SM_SIZE] = {
+    //109876543210987654321
+    0b111111111111111111100, // 1
+    0b111111111111111111100, // 2
+    0b111111111111111111111, // 3
+    0b111111111111111111111, // 4
+    0b111111111111111111111, // 5
+    0b111111111111111111111, // 6
+    0b011111111111111111111, // 7
+    0b011111111111111111111, // 8
+    0b011111111111111111111, // 9
+    0b001111111111111111111, // 10
+    0b001111111111111111111, // 11
+    0b000111111111111111111, // 12
+    0b000011111111111111111, // 13
+    0b000011111111111111111, // 14
+    0b000001111111111111111, // 15
+    0b000000111111111111111, // 16
+    0b000000011111111111111, // 17
+    0b000000000111111111111, // 18
+    0b000000000011111111111, // 19
+    0b000000000000111111111, // 20
+    0b000000000000000111111  // 21
+  };
    
-const int EKDetId::QuadColLimits[EKDetId::nCols+1] = { 0,13,27,40,54,70,87,104,120,136,151,166,180,193,205,215,225,232,234 };
+  const int taperEcalEta3[MAX_SM_SIZE] = {
+    //109876543210987654321
+    0b011111111111111100000, // 1
+    0b011111111111111100000, // 2
+    0b011111111111111100000, // 3
+    0b011111111111111110000, // 4
+    0b011111111111111111000, // 5
+    0b001111111111111111111, // 6
+    0b001111111111111111111, // 7
+    0b001111111111111111111, // 8
+    0b000111111111111111111, // 9
+    0b000011111111111111111, // 10
+    0b000011111111111111111, // 11
+    0b000011111111111111111, // 12
+    0b000001111111111111111, // 13
+    0b000000111111111111111, // 14
+    0b000000011111111111111, // 15
+    0b000000001111111111111, // 16
+    0b000000000111111111111, // 17
+    0b000000000001111111111, // 18
+    0b000000000000011111111, // 19
+    0b000000000000000011111, // 20
+    0b000000000000000000000  // 21
+  };
+   
+  const int taperEcalEta4[MAX_SM_SIZE] = {
+    //109876543210987654321
+    0b011111111111111111000, // 1
+    0b011111111111111111100, // 2
+    0b011111111111111111110, // 3
+    0b011111111111111111111, // 4
+    0b011111111111111111111, // 5
+    0b001111111111111111111, // 6
+    0b001111111111111111111, // 7
+    0b001111111111111111111, // 8
+    0b000111111111111111111, // 9
+    0b000011111111111111111, // 10
+    0b000011111111111111111, // 11
+    0b000011111111111111111, // 12
+    0b000001111111111111111, // 13
+    0b000000111111111111111, // 14
+    0b000000011111111111111, // 15
+    0b000000001111111111111, // 16
+    0b000000000111111111111, // 17
+    0b000000000001111111111, // 18
+    0b000000000000011111111, // 19
+    0b000000000000000011111, // 20
+    0b000000000000000000000  // 21
+  };
+   
+  const int noTaperEcalEta3[MAX_SM_SIZE] = {
+    //109876543210987654321
+    0b111111111111111100000, // 1
+    0b111111111111111100000, // 2
+    0b111111111111111110000, // 3
+    0b111111111111111110000, // 4
+    0b111111111111111111100, // 5
+    0b111111111111111111111, // 6
+    0b011111111111111111111, // 7
+    0b011111111111111111111, // 8
+    0b011111111111111111111, // 9
+    0b001111111111111111111, // 10
+    0b001111111111111111111, // 11
+    0b000111111111111111111, // 12
+    0b000011111111111111111, // 13
+    0b000011111111111111111, // 14
+    0b000001111111111111111, // 15
+    0b000000111111111111111, // 16
+    0b000000011111111111111, // 17
+    0b000000000111111111111, // 18
+    0b000000000011111111111, // 19
+    0b000000000000111111111, // 20
+    0b000000000000000111111  // 21
+  };
 
-const int EKDetId::iYoffset[EKDetId::nCols+1]      = { 0, 5, 4, 4, 3, 1, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 };
+  const int* const EK_CONFIG [] = {blackBox, noTaperEcalEta4, noTaperEcalEta3, taperEcalEta4, taperEcalEta3, 0};
+}
 
+bool EKDetId::validHashIndex( int i ) { return ( i < MAX_HASH_INDEX) ; }
+
+int EKDetId::smIndex (int ismCol, int ismRow) {
+  if (ismCol == 0 || ismCol > MAX_SM_SIZE || ismCol < -MAX_SM_SIZE || ismRow == 0 || ismRow > MAX_SM_SIZE || ismRow < -MAX_SM_SIZE) {
+    throw cms::Exception("InvalidDetId") << "EKDetId::smIndex() called with wrong arguments ismCol:ismRow " << ismCol << ':' << ismRow;
+  }
+  if (ismCol > 0) --ismCol;
+  if (ismRow > 0) --ismRow;
+  int result = (ismCol+MAX_SM_SIZE)*2*MAX_SM_SIZE + (ismRow+MAX_SM_SIZE);
+  return result;
+}
+
+int EKDetId::smXLocation (int iSM) {
+  if (iSM >= MAX_MODULES || iSM < 0) {
+    throw cms::Exception("InvalidDetId") << "EKDetId::smXLocation() called with wrong arguments SM " << iSM;
+  }
+  return iSM / (2*MAX_SM_SIZE)-MAX_SM_SIZE;
+}
+
+int EKDetId::smYLocation (int iSM) {
+  if (iSM >= MAX_MODULES || iSM < 0) {
+    throw cms::Exception("InvalidDetId") << "EKDetId::smYLocation() called with wrong arguments SM " << iSM;
+  }
+  return iSM % (2*MAX_SM_SIZE)-MAX_SM_SIZE;
+}
+
+int EKDetId::ix(int iSM, int iMod) const {
+  /*
+   *  ix() return individual module x-coordinate
+   *
+   *  Input     : iSM, iMod - SuperModule and module ids
+   */
+  int smCol = smXLocation (iSM);
+  int modCol = (iMod-1) / 5;
+  return smCol*5+modCol+MODULE_OFFSET;
+}
+
+int EKDetId::iy(int iSM, int iMod) const {
+  /*
+   *  iy() return individual module y-coordinate
+   *
+   *  Input     : iSM, iMod - SuperModule and module ids
+   */
+  int smRow = smYLocation (iSM);
+  int modRow = (iMod-1) % 5;
+  return smRow*5+modRow+MODULE_OFFSET;
+}
+
+
+   
 EKDetId::EKDetId(int module_ix, int module_iy, int fiber, int ro, 
 		 int iz) : DetId( Ecal, EcalShashlik) {
   id_ |= (module_iy&0xff) | ((module_ix&0xff)<<8) |
@@ -24,7 +218,6 @@ EKDetId::EKDetId(int index1, int index2, int fiber, int ro, int iz,
    } else if (mode == SCMODULEMODE) {
     int supermodule = index1;
     int module      = index2;
-    //      std::cout << "iz " << iz << " SM " << index1 << " module " << index2  << std::endl;
     module_ix = ix(supermodule, module);
     module_iy = iy(supermodule, module);
   } else {
@@ -46,76 +239,90 @@ void EKDetId::setFiber(int fib, int ro) {
   id_ = (idc) | ((fib&0x7)<<16) | ((ro&0x3)<<19);
 }
 
-int EKDetId::ism() const { 
-  return ism((1 + (ix() - 1)/nMods), (1 + (iy() - 1)/nMods)); 
-}
+ int EKDetId::ism() const {
+   int ismCol = (ix() - MODULE_OFFSET) / 5;
+   int ismRow = (iy() - MODULE_OFFSET) / 5;
+   return smIndex (ismCol, ismRow);
+ }
+
+int EKDetId::ism(int ix, int iy) {
+   int ismCol = (ix - MODULE_OFFSET) / 5;
+   int ismRow = (iy - MODULE_OFFSET) / 5;
+   return smIndex (ismCol, ismRow);
+ }
 
 int EKDetId::imod() const {
   return imod(ix(), iy());
 }
 
 int EKDetId::iquadrant() const {
-  if (ix()>nRows) {
-    if (iy()>nRows) return 1;
+  if (ix() >= MODULE_OFFSET) {
+    if (iy() >= MODULE_OFFSET) return 1;
     else            return 4;
   } else {
-    if (iy()>nRows) return 2;
+    if (iy()>=MODULE_OFFSET) return 2;
     else            return 3;
   }
 }
 
 int EKDetId::hashedIndex() const {
-  int iSM  = ism();
-  int iMod = imod();
-  int iFib = fiber();
-  int iRO  = readout();
-  return ((positiveZ() ? kEKhalf : 0) +
-	  ((((iSM-1)*IMOD_MAX+iMod-1)*FIB_MAX+iFib)*RO_MAX+iRO));
+  return (((((positiveZ() ? 1 : 0)*MAX_MODULES_ROW + ix())*MAX_MODULES_ROW + iy())*FIB_MAX + fiber())*RO_MAX + readout());
 }
   
 EKDetId EKDetId::unhashIndex(int hi) {
 
-  if (validHashIndex(hi)) {
-    const int iz (hi<kEKhalf ? -1 : 1);
-    const uint32_t di (hi%kEKhalf);
-    const uint32_t ro (di%RO_MAX);
-    const uint32_t fib (((di-ro)/RO_MAX)%FIB_MAX);
-    const uint32_t iMD (((((di-ro)/RO_MAX)-fib)/FIB_MAX)%IMOD_MAX+1);
-    const uint32_t iSM (((((di-ro)/RO_MAX)-fib)/FIB_MAX-iMD+1)/IMOD_MAX+1);
-    return EKDetId(iSM, iMD, fib, ro, iz, SCMODULEMODE);
-  } else {
-    return EKDetId() ;
-  }
-}
-  
-bool EKDetId::validDetId(int iSM, int iMD, int fib, int ro, int iz) {
-
-  return (iSM >= ISM_MIN && iSM <= ISM_MAX && iMD >= IMOD_MIN &&
-	  iMD <= IMOD_MAX && fib >= 0 && fib < FIB_MAX &&
-	  ro >= 0 && ro < RO_MAX && abs(iz) == 1);
-}
-  
-bool EKDetId::slowValidDetId(int jx, int jy, int fib, int ro, int iz) const {
-  int iSM = ism((1 + (jx - 1)/nMods), (1 + (jy - 1)/nMods));
-  int iMD = imod(jx,jy);
-  return validDetId(iSM, iMD, fib, ro, iz);
+  if (!validHashIndex(hi)) return EKDetId();
+  int iRo = hi % RO_MAX;
+  hi = (hi-iRo)/RO_MAX;
+  int iFib = hi % FIB_MAX;
+  hi = (hi-iFib) / FIB_MAX;
+  int iy = hi % MAX_MODULES_ROW;
+  hi = (hi-iy) / MAX_MODULES_ROW;
+  int ix = hi % MAX_MODULES_ROW;
+  hi = (hi-ix) / MAX_MODULES_ROW;
+  int iz = hi ? 1 : -1;
+  return EKDetId(ix, iy, iFib, iRo, iz);
 }
 
-bool EKDetId::isNextToBoundary(EKDetId id) {
-  return isNextToDBoundary(id)  || isNextToRingBoundary(id) ;
+bool EKDetId::validSM (int ix, int iy, Configuration conf) {
+  if (int (conf) >= int (Configuration::LAST)) return false; 
+  int smCol = ix / 5 - MAX_SM_SIZE;
+  int smRow = iy / 5 - MAX_SM_SIZE;
+  if (smCol < 0) smCol = -smCol-1; //reverse negative
+  if (smRow < 0) smRow = -smRow-1;
+  if (smCol >= MAX_SM_SIZE || smRow >= MAX_SM_SIZE) return false;
+  return (EK_CONFIG [conf] [smRow] & (1<<smCol));
+}
+  
+bool EKDetId::validDetId(int iSM, int iMD, int fib, int ro, int iz, Configuration conf) {
+  int smCol = iSM % (2*MAX_SM_SIZE) - MAX_SM_SIZE;
+  int smRow = iSM / (2*MAX_SM_SIZE) - MAX_SM_SIZE;
+  if (smCol < 0) smCol = -smCol-1; //reverse negative
+  if (smRow < 0) smRow = -smRow-1;
+  if (smCol >= MAX_SM_SIZE || smRow >= MAX_SM_SIZE) return false;
+  if (!EK_CONFIG [conf] [smRow] & (1<<smCol)) return false;
+  return (iMD > 0) && (iMD <= 25) && (fib >= 0) && (fib < FIB_MAX) && (ro >= 0) && (ro < RO_MAX) && (abs(iz) == 1);
+}
+  
+bool EKDetId::slowValidDetId(int ix, int iy, int fib, int ro, int iz, Configuration conf) {
+  if (!validSM (ix, iy, conf)) return false; 
+  return (fib >= 0) && (fib < FIB_MAX) && (ro >= 0) && (ro < RO_MAX) && (abs(iz) == 1);
+}
+
+bool EKDetId::isNextToBoundary(EKDetId id, Configuration conf) {
+  return isNextToDBoundary(id)  || isNextToRingBoundary(id, conf) ;
 }
 
 bool EKDetId::isNextToDBoundary(EKDetId id) {
   // hardcoded values for D boundary
-  return id.ix() == nRows || id.ix() == nRows+1 ;
+  return id.ix() == MODULE_OFFSET || id.ix() == MODULE_OFFSET-1;
 }
 
-bool EKDetId::isNextToRingBoundary(EKDetId id) {
+bool EKDetId::isNextToRingBoundary(EKDetId id, Configuration conf) {
   for (int i = -1; i <= 1; ++i) {
     for (int j = -1; j <= 1; ++j) {
-      const int iSM(ism(id.ix()+i, id.iy()+j));
-      const int iMD(imod(id.ix()+i, id.iy()+j));
-      if ( !validDetId(iSM, iMD, id.fiber(), id.readout(), id.zside())) {
+      if (i == 0 && j == 0) continue;
+      if (!slowValidDetId(id.ix()+i, id.iy()+j, id.fiber(), id.readout(), id.zside(), conf)) {
 	return true;
       }
     }
@@ -123,11 +330,11 @@ bool EKDetId::isNextToRingBoundary(EKDetId id) {
   return false;
 }
 
-EKDetId EKDetId::offsetBy(int nrStepsX, int nrStepsY ) const {
+EKDetId EKDetId::offsetBy(int nrStepsX, int nrStepsY, Configuration conf ) const {
   int newX = ix() + nrStepsX;
   int newY = iy() + nrStepsY;
 
-  if (slowValidDetId(newX, newY, fiber(), readout(), zside())) {
+  if (slowValidDetId(newX, newY, fiber(), readout(), zside(), conf)) {
     return EKDetId(newX, newY, fiber(), readout(), zside());
   } else {
     return EKDetId(0);
@@ -135,18 +342,14 @@ EKDetId EKDetId::offsetBy(int nrStepsX, int nrStepsY ) const {
 }
 
 EKDetId EKDetId::switchZSide() const {
-  int newZSide = -1 * zside();
-  if(slowValidDetId(ix(), iy(), fiber(), readout(), newZSide)) {
-    return EKDetId( ix(), iy(), fiber(), readout(), newZSide);
-  } else {
-    return EKDetId(0);
-  }
+  // assume symmetric detector
+  return EKDetId( ix(), iy(), fiber(), readout(), -1 * zside());
 }
 
-DetId EKDetId::offsetBy(const DetId startId, int nrStepsX, int nrStepsY ) {
+DetId EKDetId::offsetBy(const DetId startId, int nrStepsX, int nrStepsY, Configuration conf) {
   if (startId.det() == DetId::Ecal && startId.subdetId() == EcalShashlik) {
     EKDetId eeStartId(startId);
-    return eeStartId.offsetBy(nrStepsX, nrStepsY).rawId();
+    return eeStartId.offsetBy(nrStepsX, nrStepsY, conf).rawId();
   } else {
     return DetId(0);
   }
@@ -169,136 +372,15 @@ int EKDetId::distanceY(const EKDetId& a,const EKDetId& b) {
   return abs(a.iy() - b.iy()); 
 }
 
-int EKDetId::ism(int ismCol, int ismRow) {
-
-  if (0  < ismCol && 2*nCols >= ismCol &&  0  < ismRow && 2*nCols >= ismRow) {
-    const int iquad ((nCols<ismCol && nCols<ismRow ? 1 :
-		      (nCols>=ismCol && nCols<ismRow ? 2 :
-		       (nCols>=ismCol && nCols>=ismRow ? 3 : 4))));
-    
-    const int iCol = (1 == iquad || 4 == iquad ? ismCol - nCols : nCols+1 - ismCol);
-    const int iRow = (1 == iquad || 2 == iquad ? ismRow - nCols : nCols+1 - ismRow ) ;
-
-    static int nSMinQuadrant = ISM_MAX/4;
-    const int yOff (iYoffset[iCol]);
-    const int qOff (nSMinQuadrant*(iquad - 1));
-
-    const int ismOne (QuadColLimits[iCol-1] + iRow - yOff);
-    return (yOff                >= iRow   ? -1 : 
-	    (QuadColLimits[iCol] <  ismOne ? -2 : ismOne + qOff)) ;
-  } else {
-    return -3 ; // bad inputs
-  }
-}  
-
 int EKDetId::imod(int jx, int jy) {
   /*
    *  Return module number from (x,y) coordinates.
    *
    *  Input     : ix, iy - (x,y) position of module
    */
-  const int iquad ((jx>nRows) ? ((jy>nRows) ? 1 : 4) : ((jy>nRows) ? 2 : 3));
-  const int imodCol(((iquad == 1 || iquad == 4)) ? (jx-nRows-1)%nMods : 
-		    (jx-1)%nMods);
-  const int imodRow(((iquad == 1 || iquad == 2)) ? (jy-nRows-1)%nMods :
-		    (jy-1)%nMods);
-  return (5*imodCol + imodRow + 1);
+  return (5*(jx%5) + (jy%5) + 1);
 }  
 
-int EKDetId::ix(int iSM, int iMod) const {
-  /*
-   *  ix() return individual module x-coordinate
-   *
-   *  Input     : iSM, iMod - SuperModule and module ids
-   */
-  
-   int nSMinQuadrant = QuadColLimits[nCols];
-   if (iSM > 4*nSMinQuadrant || iSM < 1) {
-     throw cms::Exception("InvalidDetId") << "EKDetId::ix() called with wrong arguments SM/Module " << iSM << ":" << iMod;
-   }
-  
-   //  Map SC number into (x>0,y>0) quadrant.
-   int iSMmap, iqx,iq;
-   if (iSM > 3*nSMinQuadrant) {
-     iSMmap = iSM - 3*nSMinQuadrant;
-     iqx    = 1;
-     iq     = 4;
-   } else if (iSM > 2*nSMinQuadrant) {
-     iSMmap = iSM - 2*nSMinQuadrant;
-     iqx    =-1;
-     iq     = 3;
-   } else if (iSM > nSMinQuadrant) {
-     iSMmap = iSM - nSMinQuadrant;
-     iqx    =-1;
-      iq    = 2;
-   } else {
-     iSMmap = iSM;
-     iqx    = 1;
-     iq     = 1;
-   }
-
-   // Decide which column the SC is in
-   int iCol = 0 ;
-   while (iSMmap > QuadColLimits[iCol++]) ;
-   iCol-- ;
-
-   int ixMod = IX_MAX/2;
-   if (iq == 1 || iq == 4) { 
-     ixMod += iqx*(5*(iCol-1)) + (int)(iMod+4)/5;
-   } else {
-     ixMod += iqx*(5*iCol) + (int)(iMod+4)/5;
-   } 
-   // returning a value from 1 to 180  
-   return ixMod;
-}
-
-int EKDetId::iy(int iSM, int iMod) const {
-  /*
-   *  iy() return individual module y-coordinate
-   *
-   *  Input     : iSM, iMod - Supermodule and module ids
-   */
-
-   int nSMinQuadrant = QuadColLimits[nCols];
-   if (iSM > 4*nSMinQuadrant || iSM < 1) {
-     throw cms::Exception("InvalidDetId") << "EKDetId::iy() called with wrong arguments SM/Module " << iSM << ":" << iMod;
-   }
-
-   //  Map SC number into (x>0,y>0) quadrant
-   int iSMmap, iqy, iq;
-   if (iSM > 3*nSMinQuadrant) {
-     iSMmap = iSM - 3*nSMinQuadrant;
-     iqy    =-1;
-     iq     = 4;
-   } else if (iSM > 2*nSMinQuadrant) {
-     iSMmap = iSM - 2*nSMinQuadrant;
-     iqy    =-1;
-     iq     = 3;
-   } else if (iSM > nSMinQuadrant) {
-     iSMmap = iSM - nSMinQuadrant;
-     iqy    = 1;
-     iq     = 2;
-   } else {
-     iSMmap = iSM;
-     iqy    = 1;
-     iq     = 1;
-   }
-
-   // Decide which column the SM is in
-   int iCol = 0;
-   while (iSMmap > QuadColLimits[iCol++]) ;
-   iCol--;
-
-   int iSMy  = iSMmap - QuadColLimits[iCol-1] + iYoffset[iCol];
-  
-   int iyMod = IY_MAX/2;
-   if (iq == 3 || iq == 4) {
-     iyMod += iqy*(5*iSMy) + (iMod-1)%5 + 1;
-   } else {
-     iyMod += iqy*(5*(iSMy-1)) + (iMod-1)%5 + 1;
-   }
-   return iyMod;
-}
 
 #include <ostream>
 std::ostream& operator<<(std::ostream& s,const EKDetId& id) {

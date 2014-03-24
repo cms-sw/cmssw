@@ -10,6 +10,7 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "Geometry/HGCalCommonData/plugins/DDShashlikNoTaperEndcap.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -64,17 +65,20 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
   double phiZ = 3*theta; 
   double offsetZ = m_zoffset;
   double offsetXY = m_xyoffset;
-  int row(0), column(0);
 
   // ccn: these need to change for no-taper option
   //double offsetX = offsetZ * tan( xphi );
   //double offsetY = offsetZ * tan( yphi );
-  double offsetX = xQuadrant*0.5*offsetXY;
-  double offsetY = yQuadrant*0.5*offsetXY;
+  double offsetX0 = xQuadrant*0.5*offsetXY;
+  double offsetY0 = yQuadrant*0.5*offsetXY;
   
+  int column = 0;
+  double offsetX = offsetX0;
   while( abs(offsetX) < m_rMax)
   {
     column++;
+    int row = 0;
+    double offsetY = offsetY0;
     while( abs(offsetY) < m_rMax)
     {
       row++;
@@ -105,7 +109,15 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
 	DDTranslation tran( offsetX, offsetY, offsetZ );
 	
 	DDName parentName = parent().name(); 
-	cpv.position( DDName( m_childName ), parentName, copyNo, tran, rotation );
+       int absCopyNo = EKDetId::smIndex (xQuadrant>0?column:-column, yQuadrant>0?row:-row);
+       cpv.position( DDName( m_childName ), parentName, absCopyNo, tran, rotation );
+//      EKDetId id (absCopyNo, 13, 0, 0, 1, EKDetId::SCMODULEMODE);
+//      std::cout << "quadrant " << xQuadrant<<':'<<yQuadrant<<" offset: "<<offsetX<<':'<<offsetY
+//                <<" copy# " << absCopyNo
+//                << " column:row " << column<<':'<<row
+//                << " X:Y location "<<EKDetId::smXLocation(absCopyNo)<<':'<<EKDetId::smYLocation(absCopyNo)
+//                << " ix:iy " << id.ix() << ':' << id.iy()
+//                <<std::endl;
 
 	copyNo += m_incrCopyNo;
       }
@@ -128,7 +140,6 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
 
   }
   
-  // std::cout << row << " rows and " << column << " columns in quadrant " << xQuadrant << ":" << yQuadrant << std::endl;
   return copyNo;
 }
 

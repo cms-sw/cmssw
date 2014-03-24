@@ -1,5 +1,6 @@
 <library   file="*.cc" name="GeometryHGCalCommonDataPlugin">
  <use   name="DetectorDescription/Parser"/>
  <use   name="FWCore/PluginManager"/>
+ <use   name="DataFormats/EcalDetId"/>
  <flags   EDM_PLUGIN="1"/>
 </library>

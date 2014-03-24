@@ -38,7 +38,7 @@ void DDShashlikModule::initialize(const DDNumericArguments & nArgs,
   widthFront     = nArgs["WidthFront"];
   widthBack      = nArgs["WidthBack"];
   moduleThick    = nArgs["ModuleThickness"];
-  moduleTaperAngle = nArgs["ModuleTaperAngle"];
+  //  moduleTaperAngle = nArgs["ModuleTaperAngle"];
   holeR          = nArgs["HoleRadius"];
   fibreMat       = sArgs["FibreMaterial"];
   fibreName      = sArgs["FibreName"];
@@ -51,7 +51,7 @@ void DDShashlikModule::initialize(const DDNumericArguments & nArgs,
 			    << " thickness " << activeThick <<"|"<< absorbThick
 			    << " width " << widthFront << "|" << widthBack 
 			    << " module size " << moduleThick 
-			    << " module taper angle " << moduleTaperAngle/CLHEP::deg << "deg  "
+    //<< " module taper angle " << moduleTaperAngle/CLHEP::deg << "deg  "
 			    << holeX.size() << " holes of radius " << holeR 
 			    << " for fibres "<<fibreName <<" with "<< fibreMat
 			    << " Calibration fibre " << calibFibreName 
