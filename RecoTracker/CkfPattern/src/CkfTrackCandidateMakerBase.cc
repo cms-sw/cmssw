@@ -294,7 +294,7 @@ namespace cms{
 
 	if ( maxSeedsBeforeCleaning_ >0 && rawResult.size() > maxSeedsBeforeCleaning_+lastCleanResult) {
           theTrajectoryCleaner->clean(rawResult);
-          rawResult.erase(std::remove_if(rawResult.begin(),rawResult.end(),
+          rawResult.erase(std::remove_if(rawResult.begin()+lastCleanResult,rawResult.end(),
 					 std::not1(std::mem_fun_ref(&Trajectory::isValid))),
 			  rawResult.end());
           lastCleanResult=rawResult.size();
@@ -325,9 +325,7 @@ namespace cms{
       
       // If requested, reverse the trajectories creating a new 1-hit seed on the last measurement of the track
       if (reverseTrajectories) {
-        vector<Trajectory> reversed; 
-        reversed.reserve(unsmoothedResult.size());
-        for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
+        for (auto it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
           // reverse the trajectory only if it has valid hit on the last measurement (should happen)
           if (it->lastMeasurement().updatedState().isValid() && 
               it->lastMeasurement().recHit().get() != 0     &&
@@ -338,36 +336,29 @@ namespace cms{
             if (direction == alongMomentum)           direction = oppositeToMomentum;
             else if (direction == oppositeToMomentum) direction = alongMomentum;
             // 2) make a seed
-            TrajectoryStateOnSurface initState = it->lastMeasurement().updatedState();
-            DetId                    initDetId = it->lastMeasurement().recHit()->geographicalId();
-            PTrajectoryStateOnDet state = trajectoryStateTransform::persistentState( initState, initDetId.rawId());
+            TrajectoryStateOnSurface const & initState = it->lastMeasurement().updatedState();
+            auto                    initId = it->lastMeasurement().recHitR().rawId();
+            PTrajectoryStateOnDet && state = trajectoryStateTransform::persistentState( initState, initId);
             TrajectorySeed::recHitContainer hits; 
-            hits.push_back(*it->lastMeasurement().recHit()->hit());
-            boost::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(state, hits, direction));
+            hits.push_back(it->lastMeasurement().recHit()->hit()->clone());
+            boost::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(state, std::move(hits), direction));
             // 3) make a trajectory
             Trajectory trajectory(seed, direction);
 	    trajectory.setNLoops(it->nLoops());
             trajectory.setSeedRef(it->seedRef());
             // 4) push states in reversed order
-            const Trajectory::DataContainer &meas = it->measurements();
-            for (Trajectory::DataContainer::const_reverse_iterator itmeas = meas.rbegin(), endmeas = meas.rend(); itmeas != endmeas; ++itmeas) {
-              trajectory.push(*itmeas);
-            } 
-            reversed.push_back(trajectory);
+            Trajectory::DataContainer &meas = it->measurements();
+            for (auto itmeas = meas.rbegin(), endmeas = meas.rend(); itmeas != endmeas; ++itmeas) {
+              trajectory.push(std::move(*itmeas));
+            }
+            // replace
+            (*it)= std::move(trajectory); 
           } else {
             edm::LogWarning("CkfPattern_InvalidLastMeasurement") << "Last measurement of the trajectory is invalid, cannot reverse it";
-            reversed.push_back(*it);
           }     
         }
-        unsmoothedResult.swap(reversed);
       }
 
-      //      for (vector<Trajectory>::const_iterator itraw = rawResult.begin();
-      //	   itraw != rawResult.end(); itraw++) {
-      //if((*itraw).isValid()) unsmoothedResult.push_back( *itraw);
-      //}
-
-      //analyseCleanedTrajectories(unsmoothedResult);
    
       int viTotHits=0;   
    
@@ -388,8 +379,7 @@ namespace cms{
 
 	 LogDebug("CkfPattern") << "getting initial state.";
 	 const bool doBackFit = (!doSeedingRegionRebuilding) & (!reverseTrajectories);
-	 std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
-	   theInitialState->innerState( *it , doBackFit);
+	 std::pair<TrajectoryStateOnSurface, const GeomDet*> && initState = theInitialState->innerState( *it , doBackFit);
 
 	 // temporary protection againt invalid initial states
 	 if ( !initState.first.isValid() || initState.second == nullptr || edm::isNotFinite(initState.first.globalPosition().x())) {
@@ -400,13 +390,13 @@ namespace cms{
 	 PTrajectoryStateOnDet state;
 	 if(useSplitting && (initState.second != recHits.front().det()) && recHits.front().det() ){	 
 	   LogDebug("CkfPattern") << "propagating to hit front in case of splitting.";
-	   TrajectoryStateOnSurface propagated = thePropagator->propagate(initState.first,recHits.front().det()->surface());
+	   TrajectoryStateOnSurface && propagated = thePropagator->propagate(initState.first,recHits.front().det()->surface());
 	   if (!propagated.isValid()) continue;
 	   state = trajectoryStateTransform::persistentState(propagated,
 								      recHits.front().rawId());
 	 }
 	 else state = trajectoryStateTransform::persistentState( initState.first,
-									initState.second->geographicalId().rawId());
+							         initState.second->geographicalId().rawId());
 	 LogDebug("CkfPattern") << "pushing a TrackCandidate.";
 	 output->emplace_back(recHits,it->seed(),state,it->seedRef(),it->nLoops());
        }
