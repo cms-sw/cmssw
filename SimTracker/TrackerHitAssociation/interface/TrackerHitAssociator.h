@@ -99,7 +99,6 @@ class TrackerHitAssociator {
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
   //vector with the trackIds
   std::vector<SimHitIdpr> simtrackid; 
-  bool StripHits;
   
   bool doPixel_, doStrip_, doTrackAssoc_;
   
