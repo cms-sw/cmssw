@@ -32,7 +32,7 @@ namespace cond {
   };
 }
 
-cond::MigrateUtilities::MigrateUtilities():Utilities("conddb_import_tag"){
+cond::MigrateUtilities::MigrateUtilities():Utilities("conddb_migrate"){
   addConnectOption("sourceConnect","s","source connection string(required)");
   addConnectOption("destConnect","d","destionation connection string(required)");
   addAuthenticationOptions();
