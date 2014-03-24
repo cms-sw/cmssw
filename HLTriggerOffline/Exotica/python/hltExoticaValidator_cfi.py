@@ -29,10 +29,10 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
     # appears in Run summary/Exotica/ANALYSIS_NAME
     analysis       = cms.vstring("HighPtDimuon",
                                  "HighPtDielectron",
-                                 "EleMu",
-                                 "PureMET",
-                                 "Monojet",
-                                 "HT"),
+                                 "EleMu"),
+#                                 "PureMET",
+#                                 "Monojet",
+#                                 "HT"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),

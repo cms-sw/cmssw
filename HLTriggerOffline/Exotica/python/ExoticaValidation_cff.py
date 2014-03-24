@@ -20,7 +20,7 @@ ExoticaValidationProdSeq = cms.Sequence(
     )
 
 ExoticaValidationSequence = cms.Sequence(
-    recoExoticaValidationHT + 
+    hltExoticaValidator
     )
 
 #HLTExoticaVal_FastSim = cms.Sequence(
