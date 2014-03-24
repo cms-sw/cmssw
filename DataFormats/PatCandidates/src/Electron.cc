@@ -456,7 +456,7 @@ edm::RefVector<pat::PackedCandidateCollection> Electron::associatedPackedPFCandi
 
 void Electron::setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) {
     if (packedPFCandidates_.isNonnull()) {
-        if (refvector.id() != packedPFCandidates_.id()) {
+        if (refvector.id().isValid() && refvector.id() != packedPFCandidates_.id()) {
             throw cms::Exception("Unsupported", "setAssociatedPackedPFCandidates pointing to a collection other than the one from setPackedPFCandidateCollection");
         }
     } else {
