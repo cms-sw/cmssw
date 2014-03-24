@@ -7,5 +7,8 @@ slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
    dropPFlowClusters = cms.bool(False),
    dropPreshowerClusters = cms.bool(False),
    dropRecHits = cms.bool(False),
+   linkToPackedPFCandidates = cms.bool(True),
+   recoToPFMap = cms.InputTag("particleBasedIsolation","gedGsfElectrons"),
+   packedPFCandidates = cms.InputTag("packedPFCandidates"), 
 )
 
