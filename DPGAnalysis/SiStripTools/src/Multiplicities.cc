@@ -1,16 +1,14 @@
 #include "DPGAnalysis/SiStripTools/interface/Multiplicities.h"
-#include "DataFormats/TrackerCommon/interface/ClusterSummary.h"
 
 ClusterSummarySingleMultiplicity::ClusterSummarySingleMultiplicity():
-  m_collection(),m_subdetenum(0),m_subdetvar(), m_clustsummvar(), m_mult(0) { }
+  m_subdetenum(0),m_subdetvar(), m_clustsummvar(), m_mult(0) { }
 
 ClusterSummarySingleMultiplicity::ClusterSummarySingleMultiplicity(const edm::ParameterSet& iConfig):
-  m_collection(iConfig.getParameter<edm::InputTag>("clusterSummaryCollection")),
   m_subdetenum(iConfig.getParameter<int>("subDetEnum")),
   m_subdetvar(iConfig.getParameter<std::string>("subDetVariable")),
   m_clustsummvar(),
   m_mult(0)
-{ 
+{
 
   m_clustsummvar.push_back("cHits");
   m_clustsummvar.push_back("cSize");
@@ -21,12 +19,9 @@ ClusterSummarySingleMultiplicity::ClusterSummarySingleMultiplicity(const edm::Pa
 
 }
 
-void ClusterSummarySingleMultiplicity::getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ClusterSummarySingleMultiplicity::getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::Handle<ClusterSummary>& clustsumm) {
 
   m_mult = 0;
-
-  edm::Handle<ClusterSummary> clustsumm;
-  iEvent.getByLabel(m_collection,clustsumm);
 
   clustsumm->SetUserContent(m_clustsummvar);
 
