@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # NEW CLUSTERS (remove previously used clusters)
 lowPtTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     clusterLessSolution= cms.bool(True),
+    oldClusterRemovalInfo = cms.InputTag("lowPtQuadStepClusters"),
     trajectories = cms.InputTag("lowPtQuadStepTracks"),
     overrideTrkQuals = cms.InputTag('lowPtQuadStepSelector','lowPtQuadStep'),
     TrackQuality = cms.string('highPurity'),
@@ -24,27 +25,16 @@ lowPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.
                             'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
                             'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg',
                             'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg',
+                            'BPix1+BPix2+FPix2_pos', 'BPix1+BPix2+FPix2_neg',
                             'FPix1_pos+FPix2_pos+FPix3_pos', 'FPix1_neg+FPix2_neg+FPix3_neg',
-#ale
-                            'BPix1+FPix1_pos+FPix3_pos',
-                            'BPix1+FPix1_neg+FPix3_neg',
-                            'BPix1+FPix2_pos+FPix3_pos',
-                            'BPix1+FPix2_neg+FPix3_neg',
-                            'BPix1+FPix3_pos+FPix4_pos',
-                            'BPix1+FPix3_neg+FPix4_neg',
-                            'FPix3_pos+FPix4_pos+FPix5_pos',
-                            'FPix3_neg+FPix4_neg+FPix5_neg',
-                            'FPix4_pos+FPix5_pos+FPix6_pos',
-                            'FPix4_neg+FPix5_neg+FPix6_neg',
-                            'FPix5_pos+FPix6_pos+FPix7_pos',
-                            'FPix5_neg+FPix6_neg+FPix7_neg',
-                            'FPix6_pos+FPix7_pos+FPix9_pos',
-                            'FPix6_neg+FPix7_neg+FPix9_neg',
-                            'FPix6_pos+FPix7_pos+FPix10_pos',
-                            'FPix6_neg+FPix7_neg+FPix10_neg',
-                            'FPix7_pos+FPix9_pos+FPix10_pos',
-                            'FPix7_neg+FPix9_neg+FPix10_neg'
-                            )
+                            'BPix1+FPix2_pos+FPix3_pos', 'BPix1+FPix2_neg+FPix3_neg',
+                            'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg',
+                            'FPix2_pos+FPix3_pos+FPix4_pos', 'FPix2_neg+FPix3_neg+FPix4_neg',
+                            'FPix3_pos+FPix4_pos+FPix5_pos', 'FPix3_neg+FPix4_neg+FPix5_neg',
+                            'FPix4_pos+FPix5_pos+FPix6_pos', 'FPix4_neg+FPix5_neg+FPix6_neg',
+                            'FPix5_pos+FPix6_pos+FPix7_pos', 'FPix5_neg+FPix6_neg+FPix7_neg',
+                            'FPix6_pos+FPix7_pos+FPix8_pos', 'FPix6_neg+FPix7_neg+FPix8_neg',
+                            'FPix6_pos+FPix7_pos+FPix9_pos', 'FPix6_neg+FPix7_neg+FPix9_neg')
     )
 lowPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('lowPtTripletStepClusters')
 lowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('lowPtTripletStepClusters')
@@ -57,7 +47,7 @@ lowPtTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.
     ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
     RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
     ptMin = 0.45,
-    originRadius = 0.015,
+    originRadius = 0.02,
     nSigmaZ = 4.0
     )
     )
@@ -102,7 +92,8 @@ lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     MeasurementTrackerName = '',
     trajectoryFilterName = 'lowPtTripletStepTrajectoryFilter',
     clustersToSkip = cms.InputTag('lowPtTripletStepClusters'),
-    maxCand = 4,
+    minNrOfHitsForRebuild = 1,
+    maxCand = 5,
     estimator = cms.string('lowPtTripletStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
