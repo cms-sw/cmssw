@@ -240,6 +240,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/cmszdc.xml')+cms.vstring(
         'Geometry/ForwardCommonData/data/pltbcm.xml',
         'Geometry/ForwardCommonData/data/bcm1f.xml',
+        'Geometry/ForwardSimData/data/bcm1fsens.xml',
         'Geometry/ForwardCommonData/data/plt.xml',
         'Geometry/MuonCommonData/data/muonNumbering.xml',
         'Geometry/TrackerCommonData/data/trackerStructureTopology.xml',
