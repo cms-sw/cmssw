@@ -1,20 +1,20 @@
 autoCond = { 
     # GlobalTag for MC production with perfectly aligned and calibrated detector
-    'mc'                :   'MC_71_V1::All',
+    'mc'                :   'PRE_MC_71_V2::All',
     # GlobalTag for MC production with realistic alignment and calibrations
-    'startup'           :   'START71_V1::All',
+    'startup'           :   'PRE_STA71_V2::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
-    'starthi'           :   'STARTHI71_V1::All',
+    'starthi'           :   'PRE_SHI71_V3::All',
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
-    'startpa'           :   'STARTHI71_V2::All',
+    'startpa'           :   'PRE_SHI71_V4::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
-    'com10'             :   'GR_R_71_V1::All',
+    'com10'             :   'PRE_R_71_V2::All',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
-    'hltonline'         :   'GR_H_V34::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    'hltonline'         :   'GR_H_V36::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'POSTLS171_V1::All',
-    'upgradePLS150ns'   :   'POSTLS171_V2::All',
+    'upgradePLS1'       :   'PRE_LS171_V3::All',
+    'upgradePLS150ns'   :   'PRE_LS171_V4::All',
     'upgrade2017'       :   'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgrade2019'       :   'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgradePLS3'       :   'POSTLS262_V1::All' # placeholder (GT not meant for standard RelVal)
