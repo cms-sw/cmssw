@@ -1,4 +1,8 @@
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersLazyUnpacker.h"
+#include "SiStripRawToClustersLazyUnpacker.h"
+
+
+#include "SiStripRawToDigiUnpacker.h"
+
 #include <sstream>
 #include <iostream>
 
@@ -12,7 +16,6 @@ namespace sistrip {
     clusterizer_(&clustalgo),
     rawAlgos_(&rpAlgos),
     buffers_(),
-    rawToDigi_(0,0,0,0,0,0,0,0),
     dump_(dump),
     doAPVEmulatorCheck_(true)
   {
@@ -42,7 +45,7 @@ namespace sistrip {
     for (;idet!=element.end();idet++) {
     
       // If det id is null or invalid continue.
-      if ( !(idet->first) || (idet->first == sistrip::invalid32_) || !clusterizer_->stripByStripBegin(idet->first)) { continue; }
+      if ( ( (!(idet->first)) | (idet->first == sistrip::invalid32_)) || !clusterizer_->stripByStripBegin(idet->first)) { continue; }
     
       // Loop over apv-pairs of det
       std::vector<FedChannelConnection>::const_iterator iconn = idet->second.begin();
@@ -87,7 +90,7 @@ namespace sistrip {
 	  // construct FEDBuffer
 	  try {
             buffers_[fedId] = buffer = new sistrip::FEDBuffer(rawData.data(),rawData.size());
-            if (!buffer->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
+            if (!buffer->doChecks(false)) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
           }
 	  catch (const cms::Exception& e) { 
             if (edm::isDebugEnabled()) {
@@ -102,7 +105,7 @@ namespace sistrip {
 	  // dump of FEDRawData to stdout
 	  if ( dump_ ) {
 	    std::stringstream ss;
-	    rawToDigi_.dumpRawData( fedId, rawData, ss );
+	    RawToDigiUnpacker::dumpRawData( fedId, rawData, ss );
 	    LogTrace(mlRawToDigi_) 
 	      << ss.str();
 	  }
@@ -131,10 +134,13 @@ namespace sistrip {
 	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));
 	    
 	    // unpack
+	    clusterizer_->addFed(unpacker,ipair,record);
+	    /*
 	    while (unpacker.hasData()) {
 	      clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
 	      unpacker++;
 	    }
+            */
           } catch (const cms::Exception& e) {
             if (edm::isDebugEnabled()) {
               std::ostringstream ss;
@@ -152,10 +158,13 @@ namespace sistrip {
             sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
 
             // unpack
+	    clusterizer_->addFed(unpacker,ipair,record);
+	    /*
             while (unpacker.hasData()) {
               clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
               unpacker++;
             }
+	    */
           } catch (const cms::Exception& e) {
             if (edm::isDebugEnabled()) {
               std::ostringstream ss;
