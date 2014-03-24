@@ -31,6 +31,7 @@ DDShashlikEndcap::initialize(const DDNumericArguments & nArgs,
   m_rMin        = int( nArgs["rMin"] );
   m_rMax        = int( nArgs["rMax"] );
   m_zoffset     = nArgs["zoffset"];
+  m_zpointing   = nArgs["zpointing"];
   m_xyoffset    = nArgs["xyoffset"];
   m_n           = int( nArgs["n"] );
   m_startCopyNo = int( nArgs["startCopyNo"] );
@@ -56,21 +57,42 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
 {
   int copyNo = startCopyNo;
   double tiltAngle = m_tiltAngle;
-  double xphi = xQuadrant*tiltAngle;
-  double yphi = yQuadrant*tiltAngle;
+  double pointingAngle = m_tiltAngle;
+  double pointingLocation = m_zoffset + m_zpointing;
+  double xphi = xQuadrant*(tiltAngle+pointingAngle);
+  double yphi = yQuadrant*(tiltAngle+pointingAngle);
   double theta  = 90.*CLHEP::deg;
   double phiX = 0.0;
   double phiY = theta;
   double phiZ = 3*theta; 
   double offsetZ = m_zoffset;
-  double offsetX = offsetZ * tan( xphi );
-  double offsetY = offsetZ * tan( yphi );
+  double offsetMultiplier = 1.00;
+  //double offsetX = offsetMultiplier * offsetZ * tan( xphi - xQuadrant*pointingAngle);
+  //double offsetY = offsetMultiplier * offsetZ * tan( yphi - yQuadrant*pointingAngle);
+  double offsetX = offsetMultiplier * pointingLocation * tan( xphi - xQuadrant*pointingAngle );
+  double offsetY = offsetMultiplier * pointingLocation * tan( yphi - yQuadrant*pointingAngle );
+
   int row(0), column(0);
-  while( abs(offsetX) < m_rMax ) {
+
+  std::cout << " Initially, tiltAngle = " << tiltAngle 
+	    << " pointingAngle=" << pointingAngle << " pointingLocation=" << pointingLocation 
+	    << " copyNo = " << copyNo << ": offsetX,Y = " 
+	    << offsetX << "," << offsetY 
+	    << " rMin, rMax=" 
+	    << m_rMin << "," << m_rMax << std::endl;
+
+  while( abs(offsetX) < m_rMax) {
     column++;
-    while( abs(offsetY) < m_rMax ) {
+    if (abs(offsetY) < m_rMax) 
       row++;
+    while( abs(offsetY) < m_rMax) {
+
       double limit = sqrt( offsetX*offsetX + offsetY*offsetY );
+      std::cout << " copyNo = " << copyNo << " (" << column << "," << row << "): offsetX,Y = " 
+		<< offsetX << "," << offsetY << " limit=" << limit
+		<< " rMin, rMax=" 
+		<< m_rMin << "," << m_rMax << std::endl;
+
       
       // Make sure we do not add supermodules in rMin area
       if( limit > m_rMin && limit < m_rMax )
@@ -89,6 +111,8 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
 						  * ( *DDcreateRotationMatrix( theta + xphi, phiX, 90.*CLHEP::deg, 90.*CLHEP::deg, xphi, 0.0 ))));
 	}
       
+	std::cout << "Shashlik SM " << copyNo << ": xphi=" << xphi << " yphi=" << yphi << " offsets = (" << offsetX << ", " << offsetY << ", " << offsetZ << ")" << std::endl; 
+
 	DDTranslation tran( offsetX, offsetY, offsetZ );
 	
 	DDName parentName = parent().name(); 
@@ -96,14 +120,23 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
 	copyNo += m_incrCopyNo;
       }
       yphi += yQuadrant*2.*tiltAngle;
-      offsetY = offsetZ * tan( yphi );
+      //offsetY = offsetMultiplier * offsetZ * tan( yphi - yQuadrant*pointingAngle );
+      offsetY = offsetMultiplier * pointingLocation * tan( yphi - yQuadrant*pointingAngle );
+
     }
     xphi +=  xQuadrant*2.*tiltAngle;
-    yphi  =  yQuadrant*tiltAngle;
-    offsetX = offsetZ * tan( xphi );
-    offsetY = offsetZ * tan( yphi );
+    yphi  =  yQuadrant*(tiltAngle + pointingAngle);
+    //offsetX = offsetMultiplier * offsetZ * tan( xphi - xQuadrant*pointingAngle);
+    //offsetY = offsetMultiplier * offsetZ * tan( yphi - yQuadrant*pointingAngle);
+    offsetX = offsetMultiplier * pointingLocation * tan( xphi - xQuadrant*pointingAngle);
+    offsetY = offsetMultiplier * pointingLocation * tan( yphi - yQuadrant*pointingAngle);
+
+
+
+
   }
   std::cout << row << " rows and " << column << " columns in quadrant " << xQuadrant << ":" << yQuadrant << std::endl;
   return copyNo;
 }
+
 
