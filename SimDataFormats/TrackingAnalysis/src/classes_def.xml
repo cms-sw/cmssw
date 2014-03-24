@@ -21,6 +21,8 @@
   <class pattern="edm::Ref<std::vector<TrackingParticle>,*>" />
   <class pattern="edm::RefVector<std::vector<TrackingParticle>,*>" />
   <class name="edm::RefProd<std::vector<TrackingParticle> >" />
+  <class name="TrackingParticleRef" />
+  <class name="TrackingParticleRefVector" />
 
   <class pattern="edm::Ref< std::vector<HepMC::GenVertex>,*>" />
   <class pattern="edm::RefVector< std::vector<HepMC::GenVertex>,*>" />
