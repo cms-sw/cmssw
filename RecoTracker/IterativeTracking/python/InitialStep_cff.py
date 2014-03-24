@@ -114,11 +114,13 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
         ),
     detachedTripletStepSelector.trackSelectors[4].clone(
         name = 'initialStepV2',
-        preFilterName=cms.string('')
+        preFilterName=cms.string(''),
+        keepAllTracks = cms.bool(False)
         ),
     detachedTripletStepSelector.trackSelectors[5].clone(
         name = 'initialStepV3',
-        preFilterName=cms.string('')
+        preFilterName=cms.string(''),
+        keepAllTracks = cms.bool(False)
         )
     ) #end of vpset
 )#end of clone

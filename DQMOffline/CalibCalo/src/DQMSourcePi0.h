@@ -239,12 +239,12 @@ private:
 
 
   /// object to monitor
-  edm::InputTag productMonitoredEBpi0_;
-  edm::InputTag productMonitoredEBeta_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEBpi0_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEBeta_;
 
  /// object to monitor
-  edm::InputTag productMonitoredEEpi0_;
-  edm::InputTag productMonitoredEEeta_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEEpi0_;
+  edm::EDGetTokenT<EcalRecHitCollection> productMonitoredEEeta_;
 
       int gammaCandEtaSize_;
       int gammaCandPhiSize_;

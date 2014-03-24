@@ -30,7 +30,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -63,7 +62,7 @@ using namespace edm;
 // constructors and destructor
 //
 DQMHOAlCaRecoStream::DQMHOAlCaRecoStream(const edm::ParameterSet& iConfig) :
-  hoCalibVariableCollectionTag(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag")) {
+  hoCalibVariableCollectionTag(consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"))) {
 
   //now do what ever initialization is needed
   
@@ -103,7 +102,7 @@ DQMHOAlCaRecoStream::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<HOCalibVariableCollection>HOCalib;
   bool isCosMu = true;
   
-  iEvent.getByLabel(hoCalibVariableCollectionTag, HOCalib); 
+  iEvent.getByToken(hoCalibVariableCollectionTag, HOCalib); 
 
   if(!HOCalib.isValid()){
     LogDebug("") << "DQMHOAlCaRecoStream:: Error! can't get HOCalib product!" << std::endl;

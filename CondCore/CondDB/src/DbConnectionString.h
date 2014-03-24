@@ -8,9 +8,9 @@ namespace cond {
 
   namespace persistency {
 
-    std::string getRealConnectionString( const std::string& initialConnection );
+    std::pair<std::string,std::string> getRealConnectionString( const std::string& initialConnection );
 
-    std::string getRealConnectionString( const std::string& initialConnection, const std::string& transId );
+    std::pair<std::string,std::string> getRealConnectionString( const std::string& initialConnection, const std::string& transId );
 
   }
 

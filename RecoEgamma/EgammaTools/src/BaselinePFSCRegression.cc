@@ -24,7 +24,7 @@ void BaselinePFSCRegression::set(const reco::SuperCluster& sc,
 				 std::vector<float>& vars     ) const {
   vars.clear();
   vars.resize(33);
-  const double rawEnergy = sc.rawEnergy(), calibEnergy = sc.energy();
+  const double rawEnergy = sc.rawEnergy(), calibEnergy = sc.correctedEnergy();
   const edm::Ptr<reco::CaloCluster> &seed = sc.seed();
   const size_t nVtx = vertices->size();
   float maxDR=999., maxDRDPhi=999., maxDRDEta=999., maxDRRawEnergy=0.;
@@ -49,11 +49,7 @@ void BaselinePFSCRegression::set(const reco::SuperCluster& sc,
       subClusDPhi[iclus] = this_dphi;
     }
   }
-  float scPreshowerSum = 0.0;
-  for( auto psclus = sc.preshowerClustersBegin(); 
-       psclus != sc.preshowerClustersEnd(); ++psclus ) {
-    scPreshowerSum += (*psclus)->energy();
-  }
+  float scPreshowerSum = sc.preshowerEnergy();
   switch( seed->hitsAndFractions().at(0).first.subdetId() ) {
   case EcalBarrel:
     {

@@ -19,12 +19,6 @@
 
 // work on collections
 
-
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -56,11 +50,11 @@ eventCounter_(0)
   folderName_ = iConfig.getUntrackedParameter<string>("FolderName","ALCAStreamHcalDiJets");
 
 
-  jets_= iConfig.getParameter<edm::InputTag>("jetsInput");
-  ec_= iConfig.getParameter<edm::InputTag>("ecInput");
-  hbhe_= iConfig.getParameter<edm::InputTag>("hbheInput");
-  ho_= iConfig.getParameter<edm::InputTag>("hoInput");
-  hf_= iConfig.getParameter<edm::InputTag>("hfInput");
+  jets_= consumes<CaloJetCollection>(iConfig.getParameter<edm::InputTag>("jetsInput"));
+  ec_= consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecInput"));
+  hbhe_= consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
+  ho_= consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
+  hf_= consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
   
   saveToFile_= iConfig.getUntrackedParameter<bool>("SaveToFile",false);
   fileName_=  iConfig.getUntrackedParameter<string>("FileName","MonitorAlCaHcalDiJets.root");
@@ -149,7 +143,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
    Float_t etVetoJet; 
 
    edm::Handle<CaloJetCollection> jets;
-   iEvent.getByLabel(jets_,jets);
+   iEvent.getByToken(jets_,jets);
    
   if(!jets.isValid()){
     LogDebug("") << "DQMHcalDiJetsAlCaReco: Error! can't getjet product!" << std::endl;
@@ -186,7 +180,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
 
 
       Handle<EcalRecHitCollection> ec;
-      iEvent.getByLabel(ec_,ec);
+      iEvent.getByToken(ec_,ec);
       
   if(!ec.isValid()){
     LogDebug("") << "DQMHcalDiJetsAlCaReco: Error! can't get ec product!" << std::endl;
@@ -204,7 +198,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
 
 
       Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByLabel(hbhe_, hbhe);
+      iEvent.getByToken(hbhe_, hbhe);
 
   if(!hbhe.isValid()){
     LogDebug("") << "DQMHcalDiJetsAlCaReco: Error! can't get hbhe product!" << std::endl;
@@ -220,7 +214,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
 
    
       Handle<HORecHitCollection> ho;
-      iEvent.getByLabel(ho_, ho);
+      iEvent.getByToken(ho_, ho);
 
   if(!ho.isValid()){
     LogDebug("") << "DQMHcalDiJetsAlCaReco: Error! can't get ho product!" << std::endl;
@@ -239,7 +233,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
 
 
       Handle<HFRecHitCollection> hf;
-      iEvent.getByLabel(hf_, hf);
+      iEvent.getByToken(hf_, hf);
 
   if(!hf.isValid()){
     LogDebug("") << "DQMHcalDiJetsAlCaReco: Error! can't get hf product!" << std::endl;

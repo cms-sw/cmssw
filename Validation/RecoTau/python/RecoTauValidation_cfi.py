@@ -141,7 +141,7 @@ proc.RunHPSValidation.discriminators = cms.VPSet(
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVAElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+#   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVAElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
 )
 
 proc.TauValNumeratorAndDenominator = cms.Sequence(

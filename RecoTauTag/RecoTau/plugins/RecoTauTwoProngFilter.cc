@@ -15,20 +15,18 @@
 
 namespace reco { namespace tau {
 
-namespace {
-// Delete an element from a ref vector
-void deleteFrom(const PFCandidateRef ref, PFCandidateRefVector* collection) {
-  PFCandidateRefVector::iterator todelete = collection->end();
-  for (PFCandidateRefVector::iterator cand = collection->begin();
-       cand != collection->end(); ++cand) {
-    if (*cand == ref) {
-      todelete = cand;
-      break;
+namespace 
+{
+  // Delete an element from a ptr vector
+  std::vector<PFCandidatePtr> deleteFrom(const PFCandidatePtr& ptr, const std::vector<PFCandidatePtr>& collection) 
+  {
+    std::vector<PFCandidatePtr> output;
+    for ( std::vector<PFCandidatePtr>::const_iterator cand = collection.begin();
+	  cand != collection.end(); ++cand ) {
+      if ( (*cand) != ptr) output.push_back(*cand);
     }
+    return output;
   }
-  if (todelete != collection->end())
-    collection->erase(todelete);
-}
 }
 
 class RecoTauTwoProngFilter : public RecoTauModifierPlugin {
@@ -46,7 +44,7 @@ class RecoTauTwoProngFilter : public RecoTauModifierPlugin {
 
 void RecoTauTwoProngFilter::operator()(PFTau& tau) const {
   if (tau.signalPFChargedHadrCands().size() == 2) {
-    const PFCandidateRefVector &signalCharged = tau.signalPFChargedHadrCands();
+    const std::vector<PFCandidatePtr>& signalCharged = tau.signalPFChargedHadrCands();
     size_t indexOfHighestPt =
         (signalCharged[0]->pt() > signalCharged[1]->pt()) ? 0 : 1;
     size_t indexOfLowerPt   = ( indexOfHighestPt ) ? 0 : 1;
@@ -54,19 +52,18 @@ void RecoTauTwoProngFilter::operator()(PFTau& tau) const {
         signalCharged[indexOfHighestPt]->pt();
 
     if (ratio < minPtFractionForSecondProng_) {
-      PFCandidateRef keep = signalCharged[indexOfHighestPt];
-      PFCandidateRef filter = signalCharged[indexOfLowerPt];
+      PFCandidatePtr keep = signalCharged[indexOfHighestPt];
+      PFCandidatePtr filter = signalCharged[indexOfLowerPt];
       // Make our new signal charged candidate collection
-      PFCandidateRefVector newSignalCharged;
+      std::vector<PFCandidatePtr> newSignalCharged;
       newSignalCharged.push_back(keep);
-      PFCandidateRefVector newSignal = tau.signalPFCands();
-      deleteFrom(filter, &newSignal);
+      std::vector<PFCandidatePtr> newSignal = deleteFrom(filter, tau.signalPFCands());
 
       // Copy our filtered cand to isolation
-      PFCandidateRefVector newIsolationCharged =
+      std::vector<PFCandidatePtr> newIsolationCharged =
           tau.isolationPFChargedHadrCands();
       newIsolationCharged.push_back(filter);
-      PFCandidateRefVector newIsolation = tau.isolationPFCands();
+      std::vector<PFCandidatePtr> newIsolation = tau.isolationPFCands();
       newIsolation.push_back(filter);
 
       // Update tau members

@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_0_0/HIon/V36 (CMSSW_7_0_0_pre11_HLT4)
+# /dev/CMSSW_7_0_0/HIon/V37 (CMSSW_7_0_0_pre12)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_0_0/HIon/V36')
+  tableName = cms.string('/dev/CMSSW_7_0_0/HIon/V37')
 )
 
 streams = cms.PSet( 
@@ -4216,6 +4216,7 @@ hltL2MuonSeeds = cms.EDProducer( "L2MuonSeedGenerator",
     L1MinPt = cms.double( 0.0 ),
     L1MinQuality = cms.uint32( 1 ),
     GMTReadoutCollection = cms.InputTag( "hltGtDigis" ),
+    UseUnassociatedL1 = cms.bool( True ),
     UseOfflineSeed = cms.untracked.bool( True ),
     Propagator = cms.string( "SteppingHelixPropagatorAny" )
 )
@@ -4304,7 +4305,8 @@ hltL2Muons = cms.EDProducer( "L2MuonProducer",
         BeamSpotPositionErrors = cms.vdouble( 0.1, 0.1, 5.3 )
       ),
       VertexConstraint = cms.bool( True )
-    )
+    ),
+    MuonTrajectoryBuilder = cms.string( "StandAloneMuonTrajectoryBuilder" )
 )
 hltL2MuonCandidates = cms.EDProducer( "L2MuonCandidateProducer",
     InputObjects = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )

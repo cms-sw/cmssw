@@ -65,7 +65,7 @@ reco::IsoDeposit PFTauExtractor::depositFromObject(const edm::Event& evt, const 
 //--- check that the candidate is not associated to one of the tau decay products
 //    within the signal cone of the PFTau
 	bool isSignalCone = false;
-	for ( reco::PFCandidateRefVector::const_iterator tauSignalConeConstituent = pfTau_matched->signalPFCands().begin();
+	for ( std::vector<reco::PFCandidatePtr>::const_iterator tauSignalConeConstituent = pfTau_matched->signalPFCands().begin();
 	      tauSignalConeConstituent != pfTau_matched->signalPFCands().end(); ++tauSignalConeConstituent ) {
 	  double dR = deltaR(candidate->momentum(), (*tauSignalConeConstituent)->momentum());
 	  if ( dR <= dRvetoPFTauSignalConeConstituents_ ) isSignalCone = true;

@@ -27,16 +27,18 @@
 template<typename T>
 HLTExclDiJetFilter<T>::HLTExclDiJetFilter(const edm::ParameterSet& iConfig) :
   HLTFilter(iConfig),
-  inputJetTag_ (iConfig.template getParameter< edm::InputTag > ("inputJetTag")),
+  inputJetTag_ (iConfig.template getParameter<edm::InputTag> ("inputJetTag")),
+  caloTowerTag_(iConfig.template getParameter<edm::InputTag> ("caloTowerTag")),
   minPtJet_    (iConfig.template getParameter<double> ("minPtJet")),
   minHFe_      (iConfig.template getParameter<double> ("minHFe")),
   HF_OR_       (iConfig.template getParameter<bool> ("HF_OR")),
-  triggerType_    (iConfig.template getParameter<int> ("triggerType"))
+  triggerType_ (iConfig.template getParameter<int> ("triggerType"))
 {
   m_theJetToken = consumes<std::vector<T>>(inputJetTag_);
-  m_theCaloTowerCollectionToken = consumes<CaloTowerCollection>(edm::InputTag("hltTowerMakerForAll"));
+  m_theCaloTowerCollectionToken = consumes<CaloTowerCollection>(caloTowerTag_);
   LogDebug("") << "HLTExclDiJetFilter: Input/minPtJet/minHFe/HF_OR/triggerType : "
 	       << inputJetTag_.encode() << " "
+	       << caloTowerTag_.encode() << " "
 	       << minPtJet_ << " "
 	       << minHFe_ << " "
 	       << HF_OR_ << " "
@@ -52,6 +54,7 @@ HLTExclDiJetFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descript
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
+  desc.add<edm::InputTag>("caloTowerTag",edm::InputTag("hltTowerMakerForAll"));
   desc.add<double>("minPtJet",30.0);
   desc.add<double>("minHFe",50.0);
   desc.add<bool>("HF_OR",false);

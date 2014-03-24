@@ -1,5 +1,6 @@
 #ifndef RecoTauTag_RecoTau_RecoTauCleaningTools_h
 #define RecoTauTag_RecoTau_RecoTauCleaningTools_h
+
 #include <algorithm>
 #include <functional>
 
@@ -58,5 +59,7 @@ class SortByDescendingPt {
       return a.pt() > b.pt();
     }
 };
-}}  // end reco::tau::
+
+}}  // end reco::tau namespace
+
 #endif

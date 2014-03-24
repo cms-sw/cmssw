@@ -16,7 +16,7 @@ singleTopDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gedGsfElectrons"),
+      elecs = cms.InputTag("particleFlow"),
       jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -36,7 +36,7 @@ singleTopDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet( src = cms.InputTag("eidRobustLoose"), pattern = cms.int32(1) ),
+      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                                                            
       select = cms.string("pt>15 & abs(eta)<2.5 & abs(gsfTrack.d0)<1 & abs(gsfTrack.dz)<20"),
@@ -101,10 +101,10 @@ singleTopDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
 #      select = cms.vstring(['HLT_Mu11', 'HLT_Ele15_LW_L1R', 'HLT_QuadJet30'])
 #    ),
     ## [optional] : when omitted no preselection is applied
-    vertex = cms.PSet(
-      src    = cms.InputTag("offlinePrimaryVertices"),
-      select = cms.string('abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake')
-    )                                        
+#    vertex = cms.PSet(
+#      src    = cms.InputTag("offlinePrimaryVertices"),
+#      select = cms.string('abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake')
+#    )                                        
   ),  
   ## ------------------------------------------------------    
   ## SELECTION
@@ -144,7 +144,6 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
     muons = cms.InputTag("particleFlow"),
-#    muons = cms.InputTag("muons"),
     elecs_gsf = cms.InputTag("gedGsfElectrons"),
     elecs = cms.InputTag("particleFlow"),
     jets  = cms.InputTag("ak5PFJetsCHS"),
@@ -241,10 +240,10 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
 #      select = cms.vstring(['HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v1'])
 #    ),
     ## [optional] : when omitted no preselection is applied
-    vertex = cms.PSet(
-      src    = cms.InputTag("offlinePrimaryVertices"),
-      select = cms.string('!isFake && ndof >= 4 && abs(z)<24. && position.Rho <= 2.0')
-    )
+#    vertex = cms.PSet(
+#      src    = cms.InputTag("offlinePrimaryVertices"),
+#      select = cms.string('!isFake && ndof >= 4 && abs(z)<24. && position.Rho <= 2.0')
+#    )
   ),
   ## ------------------------------------------------------
   ## SELECTION
@@ -258,7 +257,7 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
    cms.PSet(
       label  = cms.string("presel"),
       src    = cms.InputTag("offlinePrimaryVertices"),
-#      select = cms.string('!isFake && ndof >= 4 && abs(z)<24. && position.Rho <= 2.0 '),
+      select = cms.string('!isFake && ndof >= 4 && abs(z)<24. && position.Rho <= 2.0 '),
      
    ),
    cms.PSet(
@@ -399,10 +398,10 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
 #     select = cms.vstring(['HLT_Ele15_SW_CaloEleId_L1R'])
 #    ),
     ## [optional] : when omitted no preselection is applied
-    vertex = cms.PSet(
-      src    = cms.InputTag("offlinePrimaryVertices"),
-      select = cms.string('!isFake && ndof >= 4 && abs(z)<24. && position.Rho <= 2.0')
-    )
+#    vertex = cms.PSet(
+#      src    = cms.InputTag("offlinePrimaryVertices"),
+#      select = cms.string('!isFake && ndof >= 4 && abs(z)<24. && position.Rho <= 2.0')
+#    )
   ),
   ## ------------------------------------------------------
   ## SELECTION
@@ -416,7 +415,7 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
    cms.PSet(
       label  = cms.string("presel"),
       src    = cms.InputTag("offlinePrimaryVertices"),
-#      select = cms.string('!isFake && ndof >= 4 && abs(z)<24. && position.Rho <= 2.0'),
+      select = cms.string('!isFake && ndof >= 4 && abs(z)<24. && position.Rho <= 2.0'),
    ),
    cms.PSet(
       label = cms.string("elecs/pf:step0"),

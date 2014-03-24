@@ -293,6 +293,21 @@ TestEDConsumerBase::testRegularType()
     //nothing to get since not here
     CPPUNIT_ASSERT(0 == indices.size());
   }
+
+  {
+    //Use an empty tag
+    std::vector<edm::InputTag> vTags={ {} };
+    IntsConsumer intConsumer{vTags};
+    intConsumer.updateLookup(edm::InEvent,helper);
+    
+    CPPUNIT_ASSERT(intConsumer.m_tokens[0].index()==0);
+    CPPUNIT_ASSERT(edm::ProductHolderIndexInvalid == intConsumer.indexFrom(intConsumer.m_tokens[0],edm::InEvent,typeID_vint).productHolderIndex());
+    
+    std::vector<edm::ProductHolderIndexAndSkipBit> indices;
+    intConsumer.itemsToGet(edm::InEvent,indices);
+    //nothing to get since not here
+    CPPUNIT_ASSERT(0 == indices.size());
+  }
 }
 
 void

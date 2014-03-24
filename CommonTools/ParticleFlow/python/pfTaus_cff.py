@@ -34,15 +34,23 @@ pfJetsLegacyHPSPiZeros = ak5PFJetsLegacyHPSPiZeros.clone()
 pfJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
 
 pfTauPFJets08Region = recoTauAK5PFJets08Region.clone()
+pfTauPFJetsRecoTauChargedHadrons = ak5PFJetsRecoTauChargedHadrons.clone()
 pfTauPFJets08Region.src = cms.InputTag("ak5PFJets")
 pfTauPFJets08Region.pfSrc = cms.InputTag("particleFlow")
-pfJetsLegacyHPSPiZeros.jetRegionSrc = 'pfTauPFJets08Region'
+pfTauPFJetsRecoTauChargedHadrons.jetRegionSrc = 'pfTauPFJets08Region'
+
+pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
+pfTauTagInfoProducer.PFCandidateProducer = ak5PFJets.src
+pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 # Clone tau producer
 pfTausProducer = hpsPFTauProducer.clone()
 pfTausCombiner = combinatoricRecoTaus.clone()
 pfTausCombiner.jetSrc= cms.InputTag("ak5PFJets")
 pfTausCombiner.piZeroSrc= "pfJetsLegacyHPSPiZeros"
+pfTausCombiner.jetRegionSrc='pfTauPFJets08Region'
+pfTausCombiner.chargedHadronSrc='pfTauPFJetsRecoTauChargedHadrons'
+pfTausCombiner.modifiers[3].pfTauTagInfoSrc=cms.InputTag("pfTauTagInfoProducer")
 pfTausSelectionDiscriminator = hpsSelectionDiscriminator.clone()
 pfTausSelectionDiscriminator.PFTauProducer = cms.InputTag("pfTausCombiner")
 pfTausProducerSansRefs = hpsPFTauProducerSansRefs.clone()
@@ -93,6 +101,7 @@ pfTausDiscriminationByIsolation.Prediscriminants=pfTausrequireDecayMode.clone()
 # Sequence to reproduce taus and compute our cloned discriminants
 pfTausBaseSequence = cms.Sequence(
    pfJetsLegacyHPSPiZeros +
+   pfTauPFJetsRecoTauChargedHadrons +
    pfTausCombiner +
    pfTausSelectionDiscriminator +
    pfTausProducerSansRefs +
@@ -130,20 +139,18 @@ pfTausPreSequence = cms.Sequence(
 pfTaus = pfTauSelector.clone()
 pfTaus.src = cms.InputTag("pfTausProducer")
 pfTaus.discriminators = cms.VPSet(
-    cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByDecayModeFinding"),selectionCut=cms.double(0.5) ),
-    cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByIsolation"),selectionCut=cms.double(0.5) )
-    )
-
+        cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByDecayModeFinding"),selectionCut=cms.double(0.5) ),
+            )
 
 pfTausPtrs = cms.EDProducer("PFTauFwdPtrProducer",
-                            src=cms.InputTag("pfTaus")
-                            )
+                             src=cms.InputTag("pfTaus")
+                                                        )
 
 pfTauSequence = cms.Sequence(
     pfTausPreSequence +
-    pfTausBaseSequence + 
+    pfTausBaseSequence +
     pfTaus +
-    pfTausPtrs 
-    )
+    pfTausPtrs
+ )
 
 

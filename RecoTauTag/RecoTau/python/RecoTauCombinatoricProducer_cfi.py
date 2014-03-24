@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
-from RecoTauTag.RecoTau.RecoTauEnergyRecoveryPlugin2_cfi import pfTauEnergyRecoveryPlugin2
+from RecoTauTag.RecoTau.PFRecoTauEnergyAlgorithmPlugin_cfi import pfTauEnergyAlgorithmPlugin
 
 '''
 
@@ -47,19 +47,26 @@ combinatoricDecayModeConfigs = cms.PSet(
         maxTracks = cms.uint32(6),
         maxPiZeros = cms.uint32(5),
     ),
+    config2prong0pi0 = cms.PSet(
+        # Three prong no pizero mode (one of the tracks failed to get reconstructed)
+        nCharged = cms.uint32(2),
+        nPiZeros = cms.uint32(0),
+        maxTracks = cms.uint32(6),
+        maxPiZeros = cms.uint32(0),
+    ),
+    config2prong1pi0 = cms.PSet(
+        # Three prong one pizero mode (one of the tracks failed to get reconstructed)
+        nCharged = cms.uint32(2),
+        nPiZeros = cms.uint32(1),
+        maxTracks = cms.uint32(6),
+        maxPiZeros = cms.uint32(3),
+    ),
     config3prong0pi0 = cms.PSet(
         # Three prong no pizero mode
         nCharged = cms.uint32(3),
         nPiZeros = cms.uint32(0),
         maxTracks = cms.uint32(6),
         maxPiZeros = cms.uint32(0),
-    ),
-    config3prong1pi0 = cms.PSet(
-        # Three prong one pizero mode
-        nCharged = cms.uint32(3),
-        nPiZeros = cms.uint32(1),
-        maxTracks = cms.uint32(6),
-        maxPiZeros = cms.uint32(3),
     )
 )
 
@@ -67,28 +74,28 @@ _combinatoricTauConfig = cms.PSet(
     name = cms.string("combinatoric"),
     plugin = cms.string("RecoTauBuilderCombinatoricPlugin"),
     pfCandSrc = cms.InputTag("particleFlow"),
-    usePFLeptons = cms.bool(True),
     isolationConeSize = cms.double(0.5),
     qualityCuts = PFTauQualityCuts,
     decayModes = cms.VPSet(
         combinatoricDecayModeConfigs.config1prong0pi0,
         combinatoricDecayModeConfigs.config1prong1pi0,
         combinatoricDecayModeConfigs.config1prong2pi0,
-        combinatoricDecayModeConfigs.config3prong0pi0,
-        #combinatoricDecayModeConfigs.config3prong1pi0,
+        combinatoricDecayModeConfigs.config2prong0pi0,
+        combinatoricDecayModeConfigs.config2prong1pi0,
+        combinatoricDecayModeConfigs.config3prong0pi0
     )
 )
 
-combinatoricRecoTaus = cms.EDProducer(
-    "RecoTauProducer",
+combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
     jetSrc = cms.InputTag("ak5PFJets"),
     jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
+    chargedHadronSrc = cms.InputTag('ak5PFJetsRecoTauChargedHadrons'),                                
     piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros"),
     buildNullTaus = cms.bool(True),
     # Make maximum size from which to collect isolation cone objects, w.r.t to
     # the axis of the signal cone objects
     builders = cms.VPSet(
-        _combinatoricTauConfig,
+        _combinatoricTauConfig
     ),
     modifiers = cms.VPSet(
         cms.PSet(
@@ -110,11 +117,14 @@ combinatoricRecoTaus = cms.EDProducer(
             maximumForElectrionPreIDOutput       = cms.double(-0.1),
             DataType = cms.string("AOD"),
         ),
-        # Tau energy recovery algorithm
+        # Tau energy reconstruction
+        # (to avoid double-counting of energy carried by neutral PFCandidates
+        #  in case PFRecoTauChargedHadrons are built from reco::Tracks)                                          
         cms.PSet(
-            pfTauEnergyRecoveryPlugin2,
-            name = cms.string("tau_en_recovery"),
-            plugin = cms.string("RecoTauEnergyRecoveryPlugin2")
+            pfTauEnergyAlgorithmPlugin,
+            name = cms.string("tau_en_reconstruction"),
+            plugin = cms.string("PFRecoTauEnergyAlgorithmPlugin"),
+            verbosity = cms.int32(0)                                              
         )
-    ),
+    )
 )

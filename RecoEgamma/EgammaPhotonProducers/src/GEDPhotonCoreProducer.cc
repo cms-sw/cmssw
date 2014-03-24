@@ -184,7 +184,7 @@ void GEDPhotonCoreProducer::createSingleLegConversions(reco::CaloClusterPtr sc, 
 
   math::Error<3>::type error;
   for (unsigned int itk=0; itk<conv.size(); itk++){
-    const reco::Vertex  * convVtx = new reco::Vertex(conv[itk]->innerPosition(), error);
+    const reco::Vertex convVtx(conv[itk]->innerPosition(), error);
     std::vector<reco::TrackRef> OneLegConvVector;
     OneLegConvVector.push_back(conv[itk]);
     std::vector< float > OneLegMvaVector;
@@ -214,7 +214,7 @@ void GEDPhotonCoreProducer::createSingleLegConversions(reco::CaloClusterPtr sc, 
     reco::Conversion singleLegConvCandidate(scPtrVec, 
 					OneLegConvVector,
 					trackPositionAtEcalVec,
-					*convVtx,
+					convVtx,
 					dummymatchingBC,
 					DCA,
 					innPointVec,

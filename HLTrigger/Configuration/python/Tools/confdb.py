@@ -485,6 +485,10 @@ if 'GlobalTag' in %(dict)s:
     %(process)sGlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
     for pset in process.GlobalTag.toGet.value():
         pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
+#   Fix for multi-run processing:
+    %(process)sGlobalTag.RefreshEachRun = cms.untracked.bool( False )
+    %(process)sGlobalTag.ReconnectEachRun = cms.untracked.bool( False )
+#
 """
     self.data += text
 

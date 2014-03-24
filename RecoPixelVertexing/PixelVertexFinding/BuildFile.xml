@@ -1,18 +1,19 @@
-<flags   EDM_PLUGIN="1"/>
-<use   name="DataFormats/VertexReco"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="Geometry/Records"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="DataFormats/GeometryCommonDetAlgo"/>
-<use   name="CommonTools/Clustering1D"/>
-<use   name="DataFormats/TrackReco"/>
-<use   name="RecoPixelVertexing/PixelTriplets"/>
-<use   name="RecoPixelVertexing/PixelTrackFitting"/>
+<flags EDM_PLUGIN="1"/>
+<use name="DataFormats/VertexReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="CommonTools/Clustering1D"/>
+<use name="DataFormats/TrackReco"/>
+<use name="RecoPixelVertexing/PixelTriplets"/>
+<use name="RecoPixelVertexing/PixelTrackFitting"/>
 
 <use name="DataFormats/SiPixelCluster"/>
 <use name="DataFormats/JetReco"/>
 <use name="RecoLocalTracker/Records"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use name="DataFormats/TrackerRecHit2D"/>
+

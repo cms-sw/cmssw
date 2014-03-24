@@ -19,7 +19,11 @@ class LHEEventProduct {
 	typedef std::vector<std::string>::size_type size_type;
 
 	LHEEventProduct() {}
-	LHEEventProduct(const lhef::HEPEUP &hepeup) : hepeup_(hepeup) {}
+        LHEEventProduct(const lhef::HEPEUP &hepeup) : 
+	  hepeup_(hepeup), originalXWGTUP_(0) {}
+	LHEEventProduct(const lhef::HEPEUP &hepeup,
+			const double originalXWGTUP) : 
+	  hepeup_(hepeup), originalXWGTUP_(originalXWGTUP) {}
 	~LHEEventProduct() {}
 
 	void setPDF(const PDF &pdf) { pdf_.reset(new PDF(pdf)); }
@@ -28,6 +32,7 @@ class LHEEventProduct {
 	}
 	void addComment(const std::string &line) { comments_.push_back(line); }
 
+	double originalXWGTUP() const { return originalXWGTUP_; }
 	const std::vector<WGT>& weights() const { return weights_; }
 
 	const lhef::HEPEUP &hepeup() const { return hepeup_; }
@@ -86,6 +91,7 @@ class LHEEventProduct {
 	std::vector<std::string>	comments_;
 	std::auto_ptr<PDF>		pdf_;
 	std::vector<WGT>                weights_;
+	double                          originalXWGTUP_;
 };
 
 #endif // GeneratorEvent_LHEInterface_LHEEventProduct_h

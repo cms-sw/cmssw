@@ -14,4 +14,6 @@
 <use   name="RecoMET/METAlgorithms"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="RecoJets/JetProducers"/>
+<use   name="TrackingTools/IPTools"/>
+<use   name="TrackingTools/TransientTrack"/>
 <flags   EDM_PLUGIN="1"/>

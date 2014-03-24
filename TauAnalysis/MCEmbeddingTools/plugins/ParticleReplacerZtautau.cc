@@ -3,9 +3,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -39,6 +36,8 @@ const double breitWignerWidthW = 2.141;
 const double nomMassZ          = 91.1876;
 const double breitWignerWidthZ = 2.4952;
 
+CLHEP::HepRandomEngine* ParticleReplacerZtautau::decayRandomEngine = nullptr;
+
 bool ParticleReplacerZtautau::tauola_isInitialized_ = false;
 
 typedef std::vector<reco::Particle> ParticleCollection;
@@ -47,12 +46,14 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
   : ParticleReplacerBase(cfg),
     generatorMode_(cfg.getParameter<std::string>("generatorMode")),
     beamEnergy_(cfg.getParameter<double>("beamEnergy")),
-    tauola_(gen::TauolaInterface::getInstance()),
     applyMuonRadiationCorrection_(false),
     muonRadiationAlgo_(0),
     pythia_(cfg)
 {
-  tauola_->setPSet(cfg.getParameter<edm::ParameterSet>("TauolaOptions"));
+  tauola_ = (gen::TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp113a",cfg.getParameter<edm::ParameterSet>("TauolaOptions")));
+  // settings?
+  // usesResource(edm::SharedResourceNames::kTauola);
+  // you must call tauola_->setRandomEngine(decayRandomEngine); every event to properly pass the random number with the multi-threading will add below by Rnd-gen 
   maxNumberOfAttempts_ = ( cfg.exists("maxNumberOfAttempts") ) ?
     cfg.getParameter<int>("maxNumberOfAttempts") : 10000;
 
@@ -155,6 +156,7 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
 
   // this is a global variable defined in GeneratorInterface/ExternalDecays/src/ExternalDecayDriver.cc
   decayRandomEngine = &rng->getEngine();
+  tauola_->setRandomEngine(decayRandomEngine);  // you must call tauola_->setRandomEngine(decayRandomEngine); every event to properly pass the random number with the multi-threading
 
   std::string applyMuonRadiationCorrection_string = cfg.getParameter<std::string>("applyMuonRadiationCorrection");
   if ( applyMuonRadiationCorrection_string != "" ) {

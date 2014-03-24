@@ -23,13 +23,22 @@
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
+#include "DataFormats/TauReco/interface/PFRecoTauChargedHadronFwd.h"
+#include "DataFormats/TauReco/interface/PFJetChargedHadronAssociation.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
+#include "DataFormats/TauReco/interface/PFTau3ProngSummaryFwd.h"
+#include "DataFormats/TauReco/interface/PFTau3ProngSummaryAssociation.h"
 
 #include <vector>
 #include <map>
+#include "TLorentzVector.h"
+
 
 namespace DataFormats_TauReco {
   struct dictionary2 {
-
     std::vector<reco::PFTau>                                    pft_v;
     edm::Wrapper<std::vector<reco::PFTau> >                     pft_w;
     edm::Ref<std::vector<reco::PFTau> >                         pft_r;
@@ -67,6 +76,14 @@ namespace DataFormats_TauReco {
     edm::RefVector<std::vector<reco::RecoTauPiZero> >                          recoTauPiZero_rv;
     edm::reftobase::Holder<reco::CompositePtrCandidate, reco::RecoTauPiZeroRef>    recoTauPiZero_rb;
 
+    std::vector<reco::PFRecoTauChargedHadron>                                           pfrecoTauChH_v;
+    edm::Wrapper<std::vector<reco::PFRecoTauChargedHadron> >                            pfrecoTauChH_w;
+    edm::Ref<std::vector<reco::PFRecoTauChargedHadron> >                                pfrecoTauChH_r;
+    edm::RefProd<std::vector<reco::PFRecoTauChargedHadron> >                            pfrecoTauChH_rp;
+    edm::RefVector<std::vector<reco::PFRecoTauChargedHadron> >                          pfrecoTauChH_rv;
+    edm::reftobase::Holder<reco::CompositePtrCandidate, reco::PFRecoTauChargedHadronRef>        pfrecoTauChH_rb;
+
+
     reco::CaloTauDiscriminatorByIsolationBase                   calotdi_b;
     reco::CaloTauDiscriminatorByIsolation                       calotdi_o;
     reco::CaloTauDiscriminatorByIsolationRef                    calotdi_r;
@@ -82,3 +99,6 @@ namespace DataFormats_TauReco {
     edm::Wrapper<reco::CaloTauDiscriminator>         calodi_w;
   };
 }
+
+
+

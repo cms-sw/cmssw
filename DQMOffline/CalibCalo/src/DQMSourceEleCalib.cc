@@ -20,10 +20,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 // work on collections
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
@@ -44,12 +42,12 @@ eventCounter_(0)
 {
   dbe_ = Service<DQMStore>().operator->();
   folderName_ = ps.getUntrackedParameter<string>("FolderName","ALCAStreamEcalSingleEle");
-  productMonitoredEB_= ps.getParameter<edm::InputTag>("AlCaStreamEBTag");
-  productMonitoredEE_= ps.getParameter<edm::InputTag>("AlCaStreamEETag");
+  productMonitoredEB_= consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("AlCaStreamEBTag"));
+  productMonitoredEE_= consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("AlCaStreamEETag"));
 
   saveToFile_=ps.getUntrackedParameter<bool>("SaveToFile",false);
   fileName_=  ps.getUntrackedParameter<string>("FileName","MonitorAlCaEcalSingleEle.root");
-  productMonitoredElectrons_ = ps.getParameter<InputTag>("electronCollection");
+  productMonitoredElectrons_ = consumes<reco::GsfElectronCollection>(ps.getParameter<InputTag>("electronCollection"));
   prescaleFactor_ = ps.getUntrackedParameter<unsigned int>("prescaleFactor",1);
 
 }
@@ -105,14 +103,14 @@ void DQMSourceEleCalib::analyze(const Event& iEvent,
   edm::Handle<EcalRecHitCollection> rhEB;
   edm::Handle<EcalRecHitCollection> rhEE;
  
-  iEvent.getByLabel(productMonitoredEB_, rhEB); 
-  iEvent.getByLabel(productMonitoredEE_, rhEE);
+  iEvent.getByToken(productMonitoredEB_, rhEB);
+  iEvent.getByToken(productMonitoredEE_, rhEE);
 
   EcalRecHitCollection::const_iterator itb;
 
   //reads the electrons
   edm::Handle<reco::GsfElectronCollection> pElectrons ;
-  iEvent.getByLabel (productMonitoredElectrons_, pElectrons) ;
+  iEvent.getByToken (productMonitoredElectrons_, pElectrons) ;
   
   if (pElectrons.isValid()){
     ElectronsNumber_->Fill(pElectrons->size()+0.1);
