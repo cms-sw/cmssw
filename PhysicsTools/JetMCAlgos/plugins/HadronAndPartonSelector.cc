@@ -11,11 +11,7 @@
  *
  * - b hadrons that do not have other b hadrons as daughters
  * 
- * - c hadrons that do not have other c hadrons as daughters or a b hadron as mother
- *
- * In most cases a jet containing a b hadron will also contain a c hadron from the b-hadron decay. However, for low-Pt b
- * hadrons the c hadron could fly away at a large angle and provide the c flavour to a random nearby jet. Hence, the choice
- * was made to exclude c hadrons that come from b-hadron decays.
+ * - c hadrons that do not have other c hadrons as daughters
  * 
  * The parton selection is generator-specific and is described in each of the parton selectors individually. The producer
  * attempts to automatically determine what generator was used to hadronize events in order to determine what parton
@@ -54,7 +50,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
-#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 #include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
 #include "PhysicsTools/JetMCAlgos/interface/BasePartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/Pythia6PartonSelector.h"
@@ -223,9 +218,6 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      // if c hadron
      if( CandMCTagUtils::hasCharm( *it ) )
      {
-       // check if any of the mothers is a b hadron
-       if( JetMCTagUtils::decayFromBHadron( *it ) ) continue; // skip c hadrons that have a b hadron as mother
-
        // check if any of the daughters is also a c hadron
        bool hascHadronDaughter = false;
        for(size_t i=0; i < it->numberOfDaughters(); ++i)
