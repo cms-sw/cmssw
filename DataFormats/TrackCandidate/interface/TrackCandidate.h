@@ -27,9 +27,8 @@ public:
   typedef std::pair<const_iterator,const_iterator> range;
   
  TrackCandidate(): rh_(),  seed_(), state_(), seedRef_(), nLoops_(0) {}
-  virtual ~TrackCandidate(){}
 
-  TrackCandidate(RecHitContainer & rh) :
+  explicit TrackCandidate(RecHitContainer & rh) :
   rh_(),  seed_(), state_(), seedRef_(), nLoops_(0) {rh_.swap(rh);}
   
   TrackCandidate(RecHitContainer & rh,
@@ -47,8 +46,6 @@ public:
     rh_(), seed_(s), state_(st), seedRef_(seedRef),nLoops_(nLoops) {rh_.swap(rh);}
 
 
-
-  
   PTrajectoryStateOnDet const & trajectoryStateOnDet() const { return state_;}
   
   range recHits() const {return std::make_pair(rh_.begin(), rh_.end());}
