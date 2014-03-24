@@ -7,16 +7,17 @@ from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
+from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi      import *
+from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi      import *
+from PhysicsTools.PatAlgos.slimming.slimmedTaus_cfi      import *
 
 MicroEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'drop *',
-        'keep *_selectedPatPhotons*_*_*',
-        #'keep *_selectedPatElectrons*_*_*',
+        'keep *_slimmedPhotons*_*_*',
         'keep *_slimmedElectrons_*_*',
-        'keep *_selectedPatMuons*_*_*',
-        'keep *_selectedPatTaus*_*_*',
-        #'keep *_selectedPatJets*_*_*',
+        'keep *_slimmedMuons*_*_*',
+        'keep *_slimmedTaus*_*_*',
         'keep *_slimmedJets_*_*',
         'keep *_patMETs*_*_*',
         ## add extra METs
