@@ -157,6 +157,7 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
      edm::OwnVector<TrackingRecHit> recHits;
      if(it->direction() != alongMomentum) std::cout << "InOutConv not along momentum... " << std::endl;
+
      t2t(*it,recHits,useSplitHits_);
     
      assert(recHits.size()==(*it).measurements().size());
@@ -172,12 +173,10 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
     */
     
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
-    
-    assert(initState.second == recHits.front().det());
- 
+
 
     // temporary protection againt invalid initial states
-    if (! initState.first.isValid() || initState.second == 0) {
+    if ( (!initState.first.isValid()) | (initState.second == nullptr)) {
       std::cout << "invalid innerState, will not make TrackCandidate" << std::endl;
       continue;
     }
@@ -198,11 +197,10 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
     LogDebug("InOutConversionTrackFinder") <<   " InOutConversionTrackFinder::track  PTrajectoryStateOnDet* state position  " 
      << state.parameters().position() << " momentum " << state.parameters().momentum() << " charge " <<   state.parameters().charge () << "\n";
     
-    result.push_back(*it);  
-    
+    result.push_back(*it);
     output_p.push_back(TrackCandidate(recHits, it->seed(),state ) );
   }
-  
+  // assert(result.size()==output_p.size());
   LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track Returning " << result.size() << " valid In Out Trajectories " << "\n";
   return  result;
 }
