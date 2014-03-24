@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -56,7 +57,20 @@ TrackProducerBase<T>::getFromES(const edm::EventSetup& setup,
   //get magnetic field
   //
   LogDebug("TrackProducer") << "get magnetic field" << "\n";
-  setup.get<IdealMagneticFieldRecord>().get(theMF);  
+  // 2014/02/11 mia:
+  // we should get rid of the boolean parameter useSimpleMF,
+  // and use only a string magneticField [instead of SimpleMagneticField]
+  // or better an edm::ESInputTag (at the moment HLT does not handle ESInputTag)
+  bool useSimpleMF = false;
+  if (conf_.exists("useSimpleMF")) useSimpleMF = conf_.getParameter<bool>("useSimpleMF");
+  std::string mfName = "";			
+  if (useSimpleMF){
+     mfName = conf_.getParameter<std::string>("SimpleMagneticField"); 
+  }
+  setup.get<IdealMagneticFieldRecord>().get(mfName, theMF);  
+  //  edm::ESInputTag mfESInputTag(mfName);
+  //  setup.get<IdealMagneticFieldRecord>().get(mfESInputTag, theMF);  
+
   //
   // get the fitter from the ES
   //

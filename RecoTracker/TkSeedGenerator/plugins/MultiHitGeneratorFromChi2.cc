@@ -3,6 +3,7 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitRZPrediction.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -47,18 +48,20 @@ namespace {
 }
 
 MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg)
-  : thePairGenerator(0),
-    theLayerCache(0),
-    useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),
-    extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
-    extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
-    extraPhiKDBox(cfg.getParameter<double>("extraPhiKDBox")),
-    fnSigmaRZ(cfg.getParameter<double>("fnSigmaRZ")),
-    chi2VsPtCut(cfg.getParameter<bool>("chi2VsPtCut")),
-    maxChi2(cfg.getParameter<double>("maxChi2")),
-    refitHits(cfg.getParameter<bool>("refitHits")),
-    debug(cfg.getParameter<bool>("debug")),
-    filterName_(cfg.getParameter<std::string>("ClusterShapeHitFilterName"))
+  : thePairGenerator(0)
+  , theLayerCache(0)
+  , useFixedPreFiltering (cfg.getParameter<bool>  ("useFixedPreFiltering")          )
+  , extraHitRZtolerance  (cfg.getParameter<double>("extraHitRZtolerance")           )
+  , extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")         )
+  , extraPhiKDBox        (cfg.getParameter<double>("extraPhiKDBox")                 )
+  , fnSigmaRZ            (cfg.getParameter<double>("fnSigmaRZ")                     )
+  , chi2VsPtCut          (cfg.getParameter<bool>  ("chi2VsPtCut")                   )
+  , maxChi2              (cfg.getParameter<double>("maxChi2")                       )
+  , refitHits            (cfg.getParameter<bool>  ("refitHits")                     )
+  , debug                (cfg.getParameter<bool>  ("debug")                         )
+  , filterName_          (cfg.getParameter<std::string>("ClusterShapeHitFilterName"))
+  , useSimpleMF_         (false)
+  , mfName_              ("")
 {    
   theMaxElement=cfg.getParameter<unsigned int>("maxElement");
   if (useFixedPreFiltering)
@@ -74,6 +77,14 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
     detIdsToDebug.push_back(0);
     detIdsToDebug.push_back(0);
     detIdsToDebug.push_back(0);
+  }
+  // 2014/02/11 mia:
+  // we should get rid of the boolean parameter useSimpleMF,
+  // and use only a string magneticField [instead of SimpleMagneticField]
+  // or better an edm::ESInputTag (at the moment HLT does not handle ESInputTag)
+  if (cfg.exists("SimpleMagneticField")) {
+    useSimpleMF_ = true;
+    mfName_ = cfg.getParameter<std::string>("SimpleMagneticField");
   }
   bfield = 0;
   nomField = -1.;
@@ -114,7 +125,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   es.get<TrackerDigiGeometryRecord>().get(tracker);
   if (nomField<0 && bfield == 0) {
     edm::ESHandle<MagneticField> bfield_h;
-    es.get<IdealMagneticFieldRecord>().get(bfield_h);
+    es.get<IdealMagneticFieldRecord>().get(mfName_, bfield_h);  
+    //    edm::ESInputTag mfESInputTag(mfName_);
+    //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag, bfield_h);  
     bfield = bfield_h.product();
     nomField = bfield->nominalValue();
   }

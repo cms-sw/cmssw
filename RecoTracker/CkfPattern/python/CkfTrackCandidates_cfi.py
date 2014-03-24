@@ -18,11 +18,15 @@ ckfTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
     maxSeedsBeforeCleaning = cms.uint32(5000),
 # SeedProducer:SeedLabel descoped to src
     src = cms.InputTag('globalMixedSeeds'),                                  
+    SimpleMagneticField = cms.string(''),                                    
+#    SimpleMagneticField = cms.string('ParabolicMf'), # parabolic magnetic field
     NavigationSchool = cms.string('SimpleNavigationSchool'),
     TrajectoryBuilder = cms.string('GroupedCkfTrajectoryBuilder'),
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),
         propagatorOppositeTISE = cms.string('PropagatorWithMaterialOpposite'),
+#        propagatorAlongTISE = cms.string('PropagatorWithMaterialParabolicMf'),  # parabolic magnetic field
+#        propagatorOppositeTISE = cms.string('PropagatorWithMaterialParabolicMfOpposite'), # parabolic magnetic field
         numberMeasurementsForFit = cms.int32(4)
     ),
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
