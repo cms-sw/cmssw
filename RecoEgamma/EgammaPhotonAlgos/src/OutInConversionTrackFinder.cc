@@ -213,10 +213,10 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
   // Convert to TrackCandidates and fill in the output_p
   Traj2TrackHits t2t(theCkfTrajectoryBuilder_->hitBuilder(),true);
-  for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
+  for (std::vector<Trajectory>::const_iterator it =  result.begin(); it != result.end(); it++) {
 
     edm::OwnVector<TrackingRecHit> recHits;
-    if(it->direction() != alongMomentum) std::cout << "OutInConv not along momentum... " << (useSplitHits_ ? "splitHIts" : "") << std::endl;
+    if(it->direction() == alongMomentum) std::cout << "OutInConv along momentum... " << std::endl;
     t2t(*it,recHits,useSplitHits_);
 
     assert(recHits.size()==(*it).measurements().size());
@@ -244,9 +244,9 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 								   initState.second->geographicalId().rawId());
 
     LogDebug("OutInConversionTrackFinder")<< "OutInConversionTrackFinder  Number of hits for the track candidate " << recHits.size() << " TSOS charge " << initState.first.charge() << "\n";  
+
     output_p.push_back(TrackCandidate(recHits, it->seed(),state ) );
-  }  
-  
+  }    
   
   //  std::cout << "  Returning " << result.size() << "Out In Trajectories  " << "\n";      
   
