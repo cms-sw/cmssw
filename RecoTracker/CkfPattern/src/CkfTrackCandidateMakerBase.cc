@@ -215,8 +215,8 @@ namespace cms{
     if ((*collseed).size()>0){
 
       unsigned int lastCleanResult=0;
-       vector<Trajectory> rawResult;
-       rawResult.reserve(collseed->size() * 4);
+      vector<Trajectory> rawResult;
+      rawResult.reserve(collseed->size() * 4);
 
       if (theSeedCleaner) theSeedCleaner->init( &rawResult );
       
@@ -280,10 +280,10 @@ namespace cms{
 	  if( it->isValid() ) {
 	    it->setSeedRef(collseed->refAt(j));
 	    // Store trajectory
-	    rawResult.push_back(*it);
+	    rawResult.push_back(std::move(*it));
   	    // Tell seed cleaner which hits this trajectory used.
             //TO BE FIXED: this cut should be configurable via cfi file
-            if (theSeedCleaner && it->foundHits()>3) theSeedCleaner->add( & (*it) );
+            if (theSeedCleaner && rawResult.back().foundHits()>3) theSeedCleaner->add( &rawResult.back() );
             //if (theSeedCleaner ) theSeedCleaner->add( & (*it) );
 	  }
 	}
@@ -379,27 +379,15 @@ namespace cms{
        for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	    it != unsmoothedResult.end(); ++it) {
 	
-	 //Trajectory::RecHitContainer thits;
-	 //it->recHitsV(thits);
-	 //LogDebug("CkfPattern") << "retrieving "<<(useSplitting?"splitted":"un-splitted")<<" hits from trajectory";
-	 //it->recHitsV(thits,useSplitting);
-
+	 LogDebug("CkfPattern") << "copying "<<(useSplitting?"splitted":"un-splitted")<<" hits from trajectory";
 	 edm::OwnVector<TrackingRecHit> recHits;
-         if(it->direction() != alongMomentum) std::cout << "not along momentum... " << std::endl;
+         if(it->direction() != alongMomentum) LogDebug("CkfPattern") << "not along momentum... " << std::endl;
          t2t(*it,recHits,useSplitting);
 
-         /*
-	 recHits.reserve(thits.size());
-	 LogDebug("CkfPattern") << "cloning hits into new collection.";
-	 for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin();
-	      hitIt != thits.end(); ++hitIt) {
-	   recHits.push_back( (**hitIt).hit()->clone());
-	 }
-         */
          viTotHits+=recHits.size();        
 
 	 LogDebug("CkfPattern") << "getting initial state.";
-	 const bool doBackFit = !doSeedingRegionRebuilding && !reverseTrajectories;
+	 const bool doBackFit = (!doSeedingRegionRebuilding) & (!reverseTrajectories);
 	 std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
 	   theInitialState->innerState( *it , doBackFit);
 
@@ -420,7 +408,7 @@ namespace cms{
 	 else state = trajectoryStateTransform::persistentState( initState.first,
 									initState.second->geographicalId().rawId());
 	 LogDebug("CkfPattern") << "pushing a TrackCandidate.";
-	 output->push_back(TrackCandidate(recHits,it->seed(),state,it->seedRef(),it->nLoops() ) );
+	 output->emplace_back(recHits,it->seed(),state,it->seedRef(),it->nLoops());
        }
       }//output trackcandidates
 
