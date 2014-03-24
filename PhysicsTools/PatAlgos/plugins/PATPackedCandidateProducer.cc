@@ -1,13 +1,16 @@
 #include <string>
 
+
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -81,6 +84,12 @@ pat::PATPackedCandidateProducer::~PATPackedCandidateProducer() {}
 
 void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+
+    edm::Handle<edm::View<pat::Jet> >      jets;
+    iEvent.getByLabel("selectedPatJets", jets);
+
+
+
     edm::Handle<reco::PFCandidateCollection> cands;
     iEvent.getByToken( Cands_, cands );
     std::vector<reco::Candidate>::const_iterator cand;
@@ -123,8 +132,49 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     std::auto_ptr< std::vector<pat::PackedCandidate> > outPtrP( new std::vector<pat::PackedCandidate> );
     std::vector<int> mapping(cands->size());
 
+    std::vector<int> jetOrder;
+    std::vector<int> jetOrderReverse;
+    for(unsigned int i=0;i<cands->size();i++) jetOrderReverse.push_back(-1);
+    for (edm::View<pat::Jet>::const_iterator it = jets->begin(), ed = jets->end(); it != ed; ++it) {
+      const  pat::Jet & jet = *it;
+      const  reco::CompositePtrCandidate::daughters & dau=jet.daughterPtrVector();
+      for(unsigned int  i=0;i<dau.size();i++)
+	{
+           if((*cands)[dau[i].key()].trackRef().isNonnull() && (*cands)[dau[i].key()].pt() > minPtForTrackProperties_){
+	   jetOrder.push_back(dau[i].key());
+	   jetOrderReverse[jetOrder.back()]=jetOrder.size()-1;
+	   }
+	}
+      for(unsigned int  i=0;i<dau.size();i++)
+        {
+           if(!((*cands)[dau[i].key()].trackRef().isNonnull() && (*cands)[dau[i].key()].pt() > minPtForTrackProperties_)){
+           jetOrder.push_back(dau[i].key());
+           jetOrderReverse[jetOrder.back()]=jetOrder.size()-1;
+           }
+        }
+
+    }
+   for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
+	if(jetOrderReverse[ic]==-1 && (*cands)[ic].trackRef().isNonnull() && (*cands)[ic].pt() > minPtForTrackProperties_)
+        {
+           jetOrder.push_back(ic);
+           jetOrderReverse[jetOrder.back()]=jetOrder.size()-1;
+        }
+
+   }
+  //all what's left
+   for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
+        if(jetOrderReverse[ic]==-1)
+        {
+           jetOrder.push_back(ic);
+           jetOrderReverse[jetOrder.back()]=jetOrder.size()-1;
+        }
+
+   }
+
+
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
-        const reco::PFCandidate &cand=(*cands)[ic];
+        const reco::PFCandidate &cand=(*cands)[jetOrder[ic]];
         float phiAtVtx = cand.phi();
         /*bool flags = false;
         if (cand.flag(reco::PFCandidate::T_TO_DISP)   || 
@@ -263,6 +313,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         mapping[ic] = ic; // trivial at the moment!
     }
 
+
     edm::OrphanHandle<pat::PackedCandidateCollection> oh = iEvent.put( outPtrP );
 
     // now build the two maps
@@ -270,8 +321,10 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     std::auto_ptr<edm::Association<reco::PFCandidateCollection   > > pc2pf(new edm::Association<reco::PFCandidateCollection   >(cands));
     edm::Association<pat::PackedCandidateCollection>::Filler pf2pcFiller(*pf2pc);
     edm::Association<reco::PFCandidateCollection   >::Filler pc2pfFiller(*pc2pf);
-    pf2pcFiller.insert(cands, mapping.begin(), mapping.end());
-    pc2pfFiller.insert(oh   , mapping.begin(), mapping.end());
+    pf2pcFiller.insert(cands, jetOrderReverse.begin(), jetOrderReverse.end());
+    pc2pfFiller.insert(oh   , jetOrder.begin(), jetOrder.end());
+//    pf2pcFiller.insert(cands, mapping.begin(), mapping.end());
+//    pc2pfFiller.insert(oh   , mapping.begin(), mapping.end());
     pf2pcFiller.fill();
     pc2pfFiller.fill();
     iEvent.put(pf2pc);

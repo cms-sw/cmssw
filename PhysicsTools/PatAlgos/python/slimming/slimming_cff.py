@@ -35,6 +35,10 @@ MicroEventContent = cms.PSet(
         'keep *_TriggerResults_*_HLT',
 
         #'keep *_TriggerResults_*_PAT', # this will be needed for MET filters
+	#add met uncertainties
+#        "keep *_patType1CorrectedPFMet*_*_*",
+#        "keep *_patType1p2CorrectedPFMet*_*_*",
+
     )
 )
 MicroEventContentMC = cms.PSet(

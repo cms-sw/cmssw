@@ -10,7 +10,7 @@
   \version  $Id: PATJetSlimmer.cc,v 1.1 2011/03/24 18:45:45 mwlebour Exp $
 */
 
-
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -73,7 +73,7 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     auto_ptr<vector<pat::Jet> >  out(new vector<pat::Jet>());
     out->reserve(src->size());
 
-    for (View<pat::Jet>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
+    for (edm::View<pat::Jet>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Jet & jet = out->back();
 
@@ -94,10 +94,15 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	    //copy old 
 	    reco::CompositePtrCandidate::daughters old = jet.daughterPtrVector();
             jet.clearDaughters();
-	    
+	    std::map<unsigned int,reco::CandidatePtr> ptrs;	    
 	    for(unsigned int  i=0;i<old.size();i++)
 	    {
-		jet.addDaughter(refToPtr((*pf2pc)[old[i]]));
+	//	jet.addDaughter(refToPtr((*pf2pc)[old[i]]));
+		ptrs[((*pf2pc)[old[i]]).key()]=refToPtr((*pf2pc)[old[i]]);
+	    }
+	    for(std::map<unsigned int,reco::CandidatePtr>::iterator itp=ptrs.begin();itp!=ptrs.end();itp++) //iterate on sorted items
+	    {
+		jet.addDaughter(itp->second);
 	    }
 		
 
