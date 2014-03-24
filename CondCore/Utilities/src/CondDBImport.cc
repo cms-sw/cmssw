@@ -18,7 +18,7 @@
 
 #define FETCH_PAYLOAD_CASE( TYPENAME ) \
   if( payloadTypeName == #TYPENAME ){ \
-    auto payload = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo );	\
+    auto payload = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo, isOra ); \
     payloadPtr = payload; \
     match = true; \
   }
@@ -316,6 +316,7 @@ namespace cond {
     std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, boost::shared_ptr<void> payloadPtr ){
 
       bool match = false;
+      bool isOra = session.isOraSession();
     FETCH_PAYLOAD_CASE( std::string ) 
     FETCH_PAYLOAD_CASE( std::vector<unsigned long long> )
     FETCH_PAYLOAD_CASE( AlCaRecoTriggerBits )
