@@ -124,7 +124,6 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   std::vector<PSimHit> result; 
   //initialize vectors!
   simtrackid.clear();
-  StripHits = false;
   
   //get the Detector type of the rechit
   DetId detid=  thit.geographicalId();
@@ -154,7 +153,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 // 	    	  cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
 // 	    	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
 	    result.push_back(ihit);
-	    continue;
+	    break;
 	  }
 	}
       }
@@ -183,7 +182,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	      //	  cout << "GluedDet Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
 	      //	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
 	      result.push_back(ihit);
-	      continue;
+	      break;
 	    }
 	  }
 	}
@@ -297,7 +296,6 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
 							const uint32_t& detID,
 							std::vector<SimHitIdpr>& simtrackid){
   //  std::cout <<"ASSOCIATE SIMPLE RECHIT" << std::endl;	    
-  StripHits =true;	  
   
   //to store temporary charge information
   std::vector<SimHitIdpr> cache_simtrackid; 
@@ -362,10 +360,6 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
 
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit)
 {
-
-  StripHits = true;
-
-
   vector<SimHitIdpr> matched_mono;
   vector<SimHitIdpr> matched_st;
   matched_mono.clear();
@@ -403,9 +397,6 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiSt
 
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateProjectedRecHit(const ProjectedSiStripRecHit2D * projectedrechit)
 {
-  StripHits = true;
-
-
   //projectedRecHit is a "matched" rechit with only one component
 
   vector<SimHitIdpr> matched_mono;
@@ -420,8 +411,6 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateProjectedRecHit(const Pr
 //std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit)
 void  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit, std::vector<SimHitIdpr> & simtrackid)
 {
-  StripHits = false;
-
   //
   // Pixel associator
   //
@@ -481,7 +470,6 @@ void  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrech
 
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const SiTrackerGSRecHit2D * gsrechit)
 {
-  StripHits = false;
   //GSRecHit is the FastSimulation RecHit that contains the TrackId already
 
   vector<SimHitIdpr> simtrackid;
@@ -519,7 +507,6 @@ std::vector<SimHitIdpr> TrackerHitAssociator::associateMultiRecHitId(const SiTra
 
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit)
 {
-  StripHits = false;
   //GSRecHit is the FastSimulation RecHit that contains the TrackId already
   
   vector<SimHitIdpr> simtrackid;
