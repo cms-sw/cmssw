@@ -1384,6 +1384,7 @@ class ConfigBuilder(object):
 	    return
 
     def prepare_DATAMIX(self, sequence = None):
+	    """ Enrich the schedule with the digitisation step"""
 	    self.loadAndRemember(self.DATAMIXDefaultCFF)
 	    self.scheduleSequence('pdatamix','datamixing_step')
 	    if self._options.pileup_input:
