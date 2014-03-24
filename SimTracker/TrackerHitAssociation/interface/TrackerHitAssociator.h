@@ -80,12 +80,8 @@ class TrackerHitAssociator {
   std::vector<PSimHit>    associateMultiRecHit(const SiTrackerMultiRecHit * multirechit);
   std::vector<SimHitIdpr> associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit);
   
-  std::vector<PSimHit> theStripHits;
   typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
-  typedef simhit_map::iterator simhit_map_iterator;
   simhit_map SimHitMap;
-  simhit_map SimHitSubdetMap;
-  std::vector<PSimHit> thePixelHits;
  
  private:
   const edm::Event& myEvent_;
