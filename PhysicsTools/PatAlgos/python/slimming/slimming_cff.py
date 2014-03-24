@@ -7,9 +7,10 @@ from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedGenJets_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
-from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi      import *
-from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi      import *
+from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi     import *
+from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedTaus_cfi      import *
+from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff   import *
 
 MicroEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
@@ -30,12 +31,15 @@ MicroEventContent = cms.PSet(
         'keep *_offlineSlimmedPrimaryVertices_*_*',
         'keep patPackedCandidates_packedPFCandidates_*_*',
 
-        #'keep double_*_rho_*', ## need to understand what are the rho's in 70X
+        'keep double_fixedGridRho*__*', 
+        'keep double_ak5*_rho_*', 
+        'keep doubles_ak5*_rhos_*', 
+
         'keep *_selectedPatTrigger_*_PAT',
         'keep *_l1extraParticles_*_HLT',
         'keep *_TriggerResults_*_HLT',
 
-        #'keep *_TriggerResults_*_PAT', # this will be needed for MET filters
+        'keep *_TriggerResults_*_PAT', # for MET filters
     )
 )
 MicroEventContentMC = cms.PSet(
