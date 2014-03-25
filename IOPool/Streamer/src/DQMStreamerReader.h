@@ -45,6 +45,7 @@ namespace edm {
     virtual bool checkNextLS();
     virtual void openNewFile(std::string filename);
     std::string getDataFile(int lumi);
+    virtual bool isEndOfRun();
     //
     unsigned int runNumber_;
     std::string dqmInputDir_;
@@ -56,7 +57,7 @@ namespace edm {
     typedef unsigned int lumisection_t;
     static const std::size_t run_min_length = 6;
     static const std::size_t lumisection_min_length = 4;
-    static std::string make_path(run_t run, lumisection_t lumisection);
+    std::string make_path(lumisection_t lumisection);
     static std::string to_padded_string(int n, std::size_t min_length);
 
     struct DQMJSON
@@ -66,18 +67,20 @@ namespace edm {
       std::string definition;
       std::string source;
       
-      void load(run_t run, lumisection_t lumisection)
+      void load(const std::string & filename)
       {
         boost::property_tree::ptree pt;
-        read_json(make_path(run, lumisection), pt);
+        read_json(filename, pt);
 	
         // We rely on n_events to be the first item on the array...
-        n_events = pt.get_child("data").front().second.get_value<std::size_t>();
+        n_events = std::next(pt.get_child("data").begin(),1)->second.get_value<std::size_t>();
         datafilename = std::next(pt.get_child("data").begin(),2)->second.get_value<std::string>();
         definition = pt.get<std::string>("definition");
         source = pt.get<std::string>("source");
       }
     };
+
+    DQMJSON loadJSON(int lumi);
 
     std::string  streamerName_;
     std::unique_ptr<StreamerInputFile> streamReader_;

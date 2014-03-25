@@ -63,9 +63,15 @@ namespace edm {
     }
   }
 
-  std::string DQMStreamerReader::getDataFile(int lumi){
+  DQMStreamerReader::DQMJSON DQMStreamerReader::loadJSON(int lumi)
+  {
     DQMJSON dqmjson;
-    dqmjson.load(runNumber_, lumi);
+    dqmjson.load(make_path(lumi));
+    return dqmjson;
+  }
+
+  std::string DQMStreamerReader::getDataFile(int lumi){
+    DQMJSON dqmjson = loadJSON(lumi);
     std::string datafile = dqmjson.datafilename;
     std::string newfilename;
     newfilename = dqmInputDir_ 
@@ -75,19 +81,28 @@ namespace edm {
     return newfilename;
   }
 
+  bool DQMStreamerReader::isEndOfRun()
+  {
+    std::string endOfRunFileName_;
+    endOfRunFileName_ = dqmInputDir_
+                  + "/run" + to_padded_string(runNumber_, run_min_length)
+                  + "/run" + to_padded_string(runNumber_, run_min_length)
+                  + "_EOR.jsn";
+    return boost::filesystem::exists(endOfRunFileName_);
+  }
+
   bool DQMStreamerReader::checkNewData(int lumi){ 
-    if ( !boost::filesystem::exists(make_path(runNumber_, lumi))){
-      std::cout << "Json file " << make_path(runNumber_, lumi) << " not found!" << std::endl;
+    if ( !boost::filesystem::exists(make_path(lumi))){
+      std::cout << "Json file " << make_path(lumi) << " not found!" << std::endl;
       return false;
     }
-    DQMJSON dqmjson;
-    dqmjson.load(runNumber_, lumi);
+    DQMJSON dqmjson = loadJSON(lumi);
     totalEventPerLs_ = dqmjson.n_events;
     if (totalEventPerLs_ > 0){
-      std::cout << " CheckNewData: JSON file " << make_path(runNumber_, lumi) << " has " << totalEventPerLs_ << " events" << std::endl; 
+      std::cout << " CheckNewData: JSON file " << make_path(lumi) << " has " << totalEventPerLs_ << " events" << std::endl; 
       return true;
     }else{
-      std::cout << " WARNING: CheckNewData: JSON file " << make_path(runNumber_, lumi) << " has no events" << std::endl; 
+      std::cout << " WARNING: CheckNewData: JSON file " << make_path(lumi) << " has no events" << std::endl; 
       return false;
     }
     return false;
@@ -103,16 +118,15 @@ namespace edm {
     return std::string(min_length - ret.length(), '0') + ret;
   }
 
-  std::string DQMStreamerReader::make_path(run_t run, lumisection_t lumisection)
+  std::string DQMStreamerReader::make_path(lumisection_t lumisection)
   {
-    std::stringstream jsonFileName_;
-    jsonFileName_ << "/afs/cern.ch/user/b/borrell/public/OnlineDQM"
-      //  jsonFileName_ << dqmInputDir_
-		  <<"/run" << to_padded_string(run, run_min_length)
-		  <<"/run" << to_padded_string(run, run_min_length)
-		  << "_ls" << to_padded_string(lumisection, lumisection_min_length)
-		  << ".jsn";
-    return jsonFileName_.str();
+    std::string jsonFileName_;
+    jsonFileName_ = dqmInputDir_ 
+      + "/run" + to_padded_string(runNumber_, run_min_length)
+      + "/run" + to_padded_string(runNumber_, run_min_length)
+      + "_ls" + to_padded_string(lumisection, lumisection_min_length)
+      + ".jsn"; 
+    return jsonFileName_;
  }
 
   bool DQMStreamerReader::checkNextEvent() {
@@ -120,11 +134,6 @@ namespace edm {
       std::cout << "***** checkNextEvent: at least one processed event: check if new LS exist" << std::endl;     
       if ( checkNextLS() ){
 	std::cout << "***** checkNextEvent: at least one event has been processed from current LS and a new LS has been found " << std::endl;
-	// define the new file
-	closeFile_();
-	currentLumiSection_ +=1;
-	streamerName_ = getDataFile(currentLumiSection_); 
-	openNewFile(streamerName_);
       }
     }else{
       std::cout << "****** checkNextEvent: no event processed in LS "  << currentLumiSection_ << std::endl;
@@ -132,16 +141,28 @@ namespace edm {
 
     EventMsgView const* eview = getNextEvent();
 
+    if (eview == nullptr) {
+      // no more events in this lumi, wait
+      std::cout << "NO MORE EVENTS -- wait" << std::endl;  
+
+      while(!checkNextLS()){
+	if (isEndOfRun()){
+	  std::cout << "Run " << runNumber_ << " is finished" << std::endl;
+	  return 0;
+	}else{
+	  std::cout << "No event available ... wait for next LS"<< std::endl;
+	  usleep(100000);
+	}
+      }
+    }
+ 
     if (newHeader()) {
       // A new file has been opened and we must compare Headers here !!
       //Get header/init from reader
       InitMsgView const* header = getHeader();
       deserializeAndMergeWithRegistry(*header, true);
     }
-    if (eview == nullptr) {
-      return  false;
-    }
-    deserializeEvent(*eview);
+   deserializeEvent(*eview);
     return true;
   }
 
@@ -150,6 +171,10 @@ namespace edm {
     int nextLS = currentLumiSection_ + 1; 
     if (checkNewData(nextLS) ){
       std::cout << "New LS found: LS # " << nextLS  << std::endl;
+      closeFile_();
+      currentLumiSection_ +=1;
+      streamerName_ = getDataFile(currentLumiSection_); 
+      openNewFile(streamerName_);
       return true;
     }else{
       std::cout << "No new LS found: processing current LS " << currentLumiSection_ << std::endl;
@@ -211,8 +236,6 @@ namespace edm {
       ->setComment("Directory where DQM files will appear");
     desc.addUntracked<unsigned int>("skipEvents", 0U)
         ->setComment("Skip the first 'skipEvents' events that otherwise would have been processed.");
-    //    desc.addUntracked<std::string>("overrideCatalog", std::string());
-    //This next parameter is read in the base class, but its default value depends on the derived class, so it is set here.
     desc.addUntracked<bool>("inputFileTransitionsEachEvent", false);
     StreamerInputSource::fillDescription(desc);
     EventSkipperByID::fillDescription(desc);
