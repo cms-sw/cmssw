@@ -52,36 +52,42 @@
 // -------------------------------------------------------------------
 
 #include "SimG4Core/MagneticField/interface/G4MonopoleEquation.hh"
-#include "globals.hh"
+#include "G4PhysicalConstants.hh"
+#include "G4SystemOfUnits.hh"
+
 #include <iomanip>
 
 G4MonopoleEquation::G4MonopoleEquation(G4ElectroMagneticField *emField )
       : G4EquationOfMotion( emField ) {
 }
 
+G4MonopoleEquation::~G4MonopoleEquation()
+{}
+
 void  
-G4MonopoleEquation::SetChargeMomentumMass(G4double particleMagneticCharge, // e+ units
-                                          G4double particleElectricCharge,
+G4MonopoleEquation::SetChargeMomentumMass(G4ChargeState particleCharges,
+                                          G4double,
                                           G4double particleMass)
 {
-  //   fElCharge = particleElectricCharge;
-   fElCharge =eplus* particleElectricCharge*c_light;
+  G4double particleMagneticCharge= particleCharges.MagneticCharge(); 
+  G4double particleElectricCharge= particleCharges.GetCharge(); 
+
+  fElCharge  = eplus* particleElectricCharge*c_light;
    
-   
-   fMagCharge =  eplus*particleMagneticCharge*c_light ;
+  fMagCharge = eplus*particleMagneticCharge*c_light ;
 
 //    G4cout << " G4MonopoleEquation: ElectricCharge=" << particleElectricCharge
 // 	  << "; MagneticCharge=" << particleMagneticCharge
 // 	  << G4endl;
 
    
-   fMassCof = particleMass*particleMass ; 
+  fMassCof = particleMass*particleMass ; 
 }
 
 void
 G4MonopoleEquation::EvaluateRhsGivenB(const G4double y[],
-			                const G4double Field[],
-				              G4double dydx[] ) const
+				      const G4double Field[],
+				      G4double dydx[] ) const
 {
   
    // Components of y:
