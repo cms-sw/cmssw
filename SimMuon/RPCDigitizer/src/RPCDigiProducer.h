@@ -40,6 +40,10 @@ private:
   //Name of Collection used for create the XF 
   std::string mix_;
   std::string collection_for_XF;
+
+  //Token for accessing data
+  edm::EDGetTokenT<CrossingFrame<PSimHit>> crossingFrameToken;
+
 };
 
 #endif
