@@ -167,6 +167,16 @@ METAnalyzer::~METAnalyzer() {
 //  delete muonEventFlag_;
 }
 
+void METAnalyzer::beginRun(edm::Run const &run, edm::EventSetup const &es)
+{
+  dqmBeginRun(run, es);
+  dbe_->bookTransaction([this, &run, &es](DQMStore::IBooker &b){
+        this->bookHistograms(b, run, es);                
+      }, 
+      run.run(),
+      0,
+      run.moduleCallingContext()->moduleDescription()->id()); 
+}
 
 void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 				     edm::Run const & iRun,

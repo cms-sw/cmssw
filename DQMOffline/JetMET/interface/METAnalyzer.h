@@ -75,7 +75,7 @@
 
 
 
-class METAnalyzer : public DQMEDAnalyzer{
+class METAnalyzer : public edm::EDAnalyzer{
  public:
 
   /// Constructor
@@ -87,9 +87,12 @@ class METAnalyzer : public DQMEDAnalyzer{
   /// Finish up a job
   void endJob();
 
+  // This is a temporary fix to make sure we do not have a non thread safe
+  // analyzer using the thread aware DQM Analyzer base class.
+  void beginRun(edm::Run const &run, edm::EventSetup const &es) override;
 /// Inizialize parameters for histo binning
 //  void beginJob(void);
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
   // Book MonitorElements
   //void bookMESet(std::string);
