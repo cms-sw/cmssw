@@ -112,6 +112,8 @@ workflows[5.7] = ['H130GGgluonfusion', ['H130GGgluonfusionFS','HARVESTFS']]
 
 ### fastsim_13 TeV ###
 workflows[135.1] = ['TTbar_13', ['TTbarFS_13','HARVESTUP15FS']]
+workflows[135.2] = ['SingleMuPt10', ['SingleMuPt10FS_UP15','HARVESTUP15FS']]
+workflows[135.3] = ['SingleMuPt100', ['SingleMuPt100FS_UP15','HARVESTUP15FS']]
 workflows[135.4] = ['ZEE_13', ['ZEEFS_13','HARVESTUP15FS']]
 workflows[135.5] = ['ZTT_13',['ZTTFS_13','HARVESTUP15FS']]
 
