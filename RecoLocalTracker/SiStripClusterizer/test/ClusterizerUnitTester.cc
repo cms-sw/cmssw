@@ -77,7 +77,7 @@ constructClusters(const VPSet& clusterset, output_t& clusters) {
     uint16_t firststrip =  c->getParameter<unsigned>("FirstStrip");
     std::vector<unsigned> amplitudes =  c->getParameter<std::vector<unsigned> >("Amplitudes");
     std::vector<uint16_t> a16(amplitudes.begin(),amplitudes.end());
-    clustersFF.push_back(SiStripCluster(detId, firststrip, a16.begin(),a16.end()));
+    clustersFF.push_back(SiStripCluster(firststrip, a16.begin(),a16.end()));
   }
   if(clustersFF.empty()) clustersFF.abort();
 }
