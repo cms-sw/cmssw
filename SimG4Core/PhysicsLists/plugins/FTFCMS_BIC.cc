@@ -12,7 +12,7 @@
 #include "G4HadronicProcessStore.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsFTF_BIC.hh"
+#include "G4HadronPhysicsFTF_BIC.hh"
 
 FTFCMS_BIC::FTFCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map, 
 		       const HepPDT::ParticleDataTable * table_,
@@ -48,7 +48,7 @@ FTFCMS_BIC::FTFCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics( new HadronPhysicsFTF_BIC(ver));
+    RegisterPhysics( new G4HadronPhysicsFTF_BIC(ver));
 
     // Stopping Physics
     RegisterPhysics( new G4StoppingPhysics(ver));
