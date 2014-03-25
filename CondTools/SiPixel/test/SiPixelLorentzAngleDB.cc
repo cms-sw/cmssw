@@ -2,10 +2,8 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "SiPixelLorentzAngleDB.h"
+#include "CondTools/SiPixel/test/SiPixelLorentzAngleDB.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
@@ -177,4 +175,3 @@ void SiPixelLorentzAngleDB::endJob(){
 }
 
 
-DEFINE_FWK_MODULE(SiPixelLorentzAngleDB);

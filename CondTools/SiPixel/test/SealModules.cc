@@ -7,11 +7,15 @@
 #include "CondTools/SiPixel/test/SiPixelCondObjOfflineBuilder.h"
 #include "CondTools/SiPixel/test/SiPixelCondObjOfflineReader.h"
 #include "CondTools/SiPixel/test/SiPixelCondObjAllPayloadsReader.h"
-#include "CondTools/SiPixel/test/SiPixelBadModuleByHandBuilder.h"
-#include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
 
 #include "CondTools/SiPixel/test/SiPixelGainCalibrationReadDQMFile.h"
 #include "CondTools/SiPixel/test/SiPixelGainCalibrationRejectNoisyAndDead.h"
+
+#include "CondTools/SiPixel/test/SiPixelBadModuleByHandBuilder.h"
+#include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
+
+#include "CondTools/SiPixel/test/SiPixelLorentzAngleReader.h"
+#include "CondTools/SiPixel/test/SiPixelLorentzAngleDB.h"
 
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryBuilder.h"
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryReader.h"
@@ -19,6 +23,7 @@
 #include "CondTools/SiPixel/test/SiPixelCPEGenericErrorParmReader.h"
 #include "CondTools/SiPixel/test/SiPixelCPEGenericErrorParmUploader.h"
 #include "CondTools/SiPixel/test/SiPixelFakeCPEGenericErrorParmSourceReader.h"
+
 #include "CondTools/SiPixel/test/SiPixelTemplateDBObjectReader.h"
 #include "CondTools/SiPixel/test/SiPixelTemplateDBObjectUploader.h"
 #include "CondTools/SiPixel/test/SiPixelFakeTemplateDBSourceReader.h"
@@ -45,6 +50,8 @@ DEFINE_FWK_MODULE(SiPixelCondObjForHLTReader);
 DEFINE_FWK_MODULE(SiPixelCondObjOfflineBuilder);
 DEFINE_FWK_MODULE(SiPixelCondObjOfflineReader);
 DEFINE_FWK_MODULE(SiPixelCondObjAllPayloadsReader);
+DEFINE_FWK_MODULE(SiPixelLorentzAngleReader);
+DEFINE_FWK_MODULE(SiPixelLorentzAngleDB);
 DEFINE_FWK_MODULE(SiPixelPerformanceSummaryBuilder);
 DEFINE_FWK_MODULE(SiPixelPerformanceSummaryReader);
 DEFINE_FWK_MODULE(SiPixelBadModuleByHandBuilder);
