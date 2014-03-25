@@ -73,6 +73,9 @@
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include <map>
+#include <string>
+
 
 
 class METAnalyzer : public DQMEDAnalyzer{
@@ -105,8 +108,8 @@ class METAnalyzer : public DQMEDAnalyzer{
   void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
-  void fillMESet(const edm::Event&, std::string, const reco::MET&, const reco::PFMET&, const reco::CaloMET&);
-  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const reco::PFMET&, const reco::CaloMET& ,bool);
+  void fillMESet(const edm::Event&, std::string, const reco::MET&, const reco::PFMET&, const reco::CaloMET&,std::map<std::string,MonitorElement*>&);
+  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const reco::PFMET&, const reco::CaloMET& ,std::map<std::string,MonitorElement*>&,bool);
   void makeRatePlot(std::string, double);
 
 //  bool selectHighPtJetEvent(const edm::Event&);
@@ -117,9 +120,9 @@ class METAnalyzer : public DQMEDAnalyzer{
  private:
 
  // Book MonitorElements
-  void bookMESet(std::string,DQMStore::IBooker &);
+  void bookMESet(std::string,DQMStore::IBooker &,std::map<std::string,MonitorElement*>&);
 // Book MonitorElements
-  void bookMonitorElement(std::string,DQMStore::IBooker &, bool );
+  void bookMonitorElement(std::string,DQMStore::IBooker &, std::map<std::string,MonitorElement*>&,bool );
 
   // ----------member data ---------------------------
   edm::ParameterSet parameters;
@@ -399,6 +402,8 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meHFHadronEt_profile;
   MonitorElement* meHFEMEtFraction_profile;
   MonitorElement* meHFEMEt_profile;
+
+  std::map< std::string,MonitorElement* >map_dijet_MEs;
 
   bool isCaloMet_;
   bool isTCMet_;
