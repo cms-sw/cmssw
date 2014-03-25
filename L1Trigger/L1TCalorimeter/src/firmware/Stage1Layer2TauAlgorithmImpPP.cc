@@ -11,7 +11,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2TauAlgorithmImp.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
-
+#include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 
 void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, 
 						      const std::vector<l1t::CaloRegion> & regions, 
@@ -20,9 +20,13 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
   tauSeed = 0;
   relativeIsolationCut = 0.2;
 
+  std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
+  RegionCorrection(regions, EMCands, subRegions);
 
-  for(CaloRegionBxCollection::const_iterator region = regions.begin();
-      region != regions.end(); region++) {
+
+
+  for(CaloRegionBxCollection::const_iterator region = subRegions->begin();
+      region != subRegions->end(); region++) {
 
     int regionEt = region->hwPt(); 
     if(regionEt < tauSeed) continue;
@@ -30,7 +34,7 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     double isolation;
     int associatedSecondRegionEt = 
       AssociatedSecondRegionEt(region->hwEta(), region->hwPhi(),
-			       regions, isolation);
+			       *subRegions, isolation);
     
     int tauEt=regionEt;
     if(associatedSecondRegionEt>tauSeed) tauEt +=associatedSecondRegionEt;

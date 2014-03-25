@@ -11,12 +11,17 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EGammaAlgorithmImp.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
+#include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 
 
 void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma> & egammas) {
 
   egtSeed = 0;
   relativeIsolationCut = 0.2;
+
+  std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
+  RegionCorrection(regions, EMCands, subRegions);
+
 
   for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();
 	  egCand != EMCands.end(); egCand++) {
@@ -32,7 +37,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
      int quality = 0;
      int isoFlag = 0;
-     double isolation = Isolation(eg_eta, eg_phi, regions);
+     double isolation = Isolation(eg_eta, eg_phi, *subRegions);
      if( (isolation / eg_et -1.0) < relativeIsolationCut) isoFlag  = 1;
 
 
