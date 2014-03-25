@@ -311,12 +311,12 @@ namespace cond {
       bool found = session.fetchPayloadData( payloadId, payloadTypeName, data, streamerInfo );
       if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
       //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
-      return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr);
+      bool isOra = session.isOraSession();
+      return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr, isOra);
     }
-    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, boost::shared_ptr<void> payloadPtr ){
+    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, boost::shared_ptr<void> payloadPtr, bool isOra ){
 
       bool match = false;
-      bool isOra = session.isOraSession();
     FETCH_PAYLOAD_CASE( std::string ) 
     FETCH_PAYLOAD_CASE( std::vector<unsigned long long> )
     FETCH_PAYLOAD_CASE( AlCaRecoTriggerBits )

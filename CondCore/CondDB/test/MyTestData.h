@@ -67,6 +67,8 @@ private:
   int a;
   float b;
   std::string s;
+  int   d[2][2];
+  float f[2][2];
 
   COND_SERIALIZABLE;
 };
