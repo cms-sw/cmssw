@@ -71,7 +71,7 @@ bool EmissionVetoHook::doVetoMPIStep(int, const Pythia8::Event &e) {
 // emission and veto as necessary
 bool EmissionVetoHook::doVetoISREmission(int, const Pythia8::Event &e, int iSys) {
   // Must be radiation from the hard system
-  if ( CheckHard && iSys != 0) return false;
+  if (iSys != 0) return false;
 
   if(last < 0) fatalEmissionVeto(string("Variable last is not filled"));
 
@@ -99,7 +99,7 @@ bool EmissionVetoHook::doVetoISREmission(int, const Pythia8::Event &e, int iSys)
 
 bool EmissionVetoHook::doVetoFSREmission(int, const Pythia8::Event &e, int iSys, bool) {
   // Must be radiation from the hard system
-  if ( CheckHard && iSys != 0) return false;
+  if (iSys != 0) return false;
 
   // FSR - shower emission will have status 51 and not be t/tbar
   int i;

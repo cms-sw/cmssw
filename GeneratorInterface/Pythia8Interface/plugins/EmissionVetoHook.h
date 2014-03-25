@@ -1,12 +1,12 @@
-#include <Pythia.h>
+#include "Pythia8/Pythia.h"
 
 class EmissionVetoHook : public Pythia8::UserHooks {
 
 public:
 
   // Constructor and destructor.
-  EmissionVetoHook(int argVerbosity, bool argCheckHard) : last(-1), nISRveto(0), nFSRveto(0),
-    Verbosity(argVerbosity), CheckHard(argCheckHard), firstNoRad(true) { }
+  EmissionVetoHook(int argVerbosity) : last(-1), nISRveto(0), nFSRveto(0),
+    Verbosity(argVerbosity), firstNoRad(true) { }
  ~EmissionVetoHook() {
     cout << "Number of ISR vetoed = " << nISRveto << endl;
     cout << "Number of FSR vetoed = " << nFSRveto << endl;
@@ -39,5 +39,5 @@ private:
       
   double pTveto, pTpowheg, pTshower;
   int    last, nISRveto, nFSRveto, Verbosity;
-  bool   CheckHard, noRad, firstNoRad;
+  bool   noRad, firstNoRad;
 };
