@@ -42,6 +42,8 @@ public:
   const std::map< int, std::vector<double> >& getClsMap();
   //  const std::map<int, std::vector<double> >& getClsMap(uint32_t id);
   const std::vector<double>& getCls(uint32_t id);
+ const std::vector<double> & getAsymmetricClsDistribution(uint32_t id, uint32_t slice);
+ const std::vector<double> & getAsymmetryForCls(uint32_t id, uint32_t slice, uint32_t cls);
   /// sets geometry
   void setGeometry(const RPCGeometry * geom) {theGeometry = geom;}
 
@@ -54,7 +56,9 @@ public:
   std::map<RPCDetId, float> _bxmap;
   std::map< int, std::vector<double> > _clsMap;
   std::map<uint32_t, std::vector<double> > _mapDetClsMap;
-
+  std::map<uint32_t, std::vector<double> > _mapDetClsMapLegacy; //allowing old formad to by used by old digitizers
+  std::vector<double>  _DetClsAsymmetric;
+  std::vector<double> _DetAsymmetryForCls;
 private:
 };
 
