@@ -72,4 +72,4 @@ process.out.overrideInputFileSplitLevels = cms.untracked.bool(True)
 
 from PhysicsTools.PatAlgos.tools.coreTools import runOnData
 runOnData( process )
-
+process.GlobalTag.globaltag = "GR_R_70_V1::All"
