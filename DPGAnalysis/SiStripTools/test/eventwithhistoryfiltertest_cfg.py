@@ -77,7 +77,7 @@ process.source.fileNames = cms.untracked.vstring(options.inputFiles)
 
 process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
 
-process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi")
+process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
 
 process.load("DPGAnalysis.SiStripTools.filters.Potential_TIBTEC_HugeEvents_AlCaReco_cfi")
 

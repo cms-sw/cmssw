@@ -121,11 +121,16 @@ mixedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryF
 
 # Propagator taking into account momentum uncertainty in multiple scattering calculation.
 import TrackingTools.MaterialEffects.MaterialPropagatorParabolicMf_cff
-mixedTripletStepPropagator = TrackingTools.MaterialEffects.MaterialPropagatorParabolicMf_cff.MaterialPropagatorParabolicMF.clone(
+import TrackingTools.MaterialEffects.MaterialPropagator_cfi
+mixedTripletStepPropagator = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone(
+#mixedTripletStepPropagator = TrackingTools.MaterialEffects.MaterialPropagatorParabolicMf_cff.MaterialPropagatorParabolicMF.clone(
     ComponentName = 'mixedTripletStepPropagator',
     ptMin = 0.1
     )
-mixedTripletStepPropagatorOpposite = TrackingTools.MaterialEffects.MaterialPropagatorParabolicMf_cff.OppositeMaterialPropagatorParabolicMF.clone(
+
+import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
+mixedTripletStepPropagatorOpposite = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone(
+#mixedTripletStepPropagatorOpposite = TrackingTools.MaterialEffects.MaterialPropagatorParabolicMf_cff.OppositeMaterialPropagatorParabolicMF.clone(
     ComponentName = 'mixedTripletStepPropagatorOpposite',
     ptMin = 0.1
     )
