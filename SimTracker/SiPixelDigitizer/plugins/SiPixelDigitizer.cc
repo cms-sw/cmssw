@@ -214,7 +214,26 @@ namespace cms
 
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
+//////
+   const PileupMixingContent* puInfo = getEventPileupInfo();
+    
+    if(puInfo) {  
+      std::cout << "puinfo is valid, getting stuff..." << std::endl;
+      const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
+      const std::vector<int> numInteractionList =  puInfo->getMix_Ninteractions();
+      const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();      
 
+      for(int i : bunchCrossing) {
+ 	std::cout << "bunchcrossing: " << i << std::endl;
+      }
+      for(int i :  numInteractionList) {
+ 	std::cout << "number of interactions: " << i << std::endl;
+      }
+      for(int i : TrueInteractionList) {
+ 	std::cout << "true number of interactions: " << i << std::endl;
+      }
+    }
+/////
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       DetId idet=DetId((*iu)->geographicalId().rawId());
       unsigned int isub=idet.subdetId();
