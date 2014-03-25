@@ -79,20 +79,14 @@ beamhaloTrackerSeeds = cms.EDProducer("CtfSpecialSeedGenerator",
             maxTheta = cms.double(0.1),
             PropagationDirection = cms.string('alongMomentum'),
             NavigationDirection = cms.string('outsideIn'),
-            LayerPSet = cms.PSet(
-                layerInfo,
-                layerList = layerList
-            )
+            LayerSrc = cms.InputTag("beamhaloTrackerSeedingLayers")
         ), 
         cms.PSet(
             ComponentName = cms.string('BeamHaloPairGenerator'),
             maxTheta = cms.double(0.1),
             PropagationDirection = cms.string('oppositeToMomentum'),
             NavigationDirection = cms.string('outsideIn'),
-            LayerPSet = cms.PSet(
-                layerInfo,
-                layerList = layerList
-            )
+            LayerSrc = cms.InputTag("beamhaloTrackerSeedingLayers")
         )),
     UseScintillatorsConstraint = cms.bool(False),
     TTRHBuilder = cms.string('WithTrackAngle'),
