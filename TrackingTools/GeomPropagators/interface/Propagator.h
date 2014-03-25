@@ -31,9 +31,9 @@ namespace reco{class BeamSpot;}
  *  In both directions extrapolation errors and multiple scattering errors
  *  increase. Propagation "oppositeToMomentum" is convenient for
  *  fitting a track "backwards", sterting from the last measurement.
- *  
+ *
  *  The propagator interface promises to take you to "any surface"
- *  but you should check the concrete propagator you are using for 
+ *  but you should check the concrete propagator you are using for
  *  additional limitations.
  */
 
@@ -44,25 +44,25 @@ public:
     theDir(dir) {}
   virtual ~Propagator();
 
-  /** Propagate from a free state (e.g. position and momentum in 
+  /** Propagate from a free state (e.g. position and momentum in
    *  in global cartesian coordinates) to a surface.
    */
 
   /** Only use the generic method if the surface type (plane or cylinder)
    *  is not known at the calling point.
    */
-  virtual TrajectoryStateOnSurface 
+  virtual TrajectoryStateOnSurface
   propagate (const FreeTrajectoryState&, const Surface&) const;
 
-  virtual TrajectoryStateOnSurface 
+  virtual TrajectoryStateOnSurface
   propagate (const FreeTrajectoryState&, const Plane&) const = 0;
 
-  virtual TrajectoryStateOnSurface 
+  virtual TrajectoryStateOnSurface
   propagate (const FreeTrajectoryState&, const Cylinder&) const = 0;
 
   /** The following three methods are equivalent to the corresponding
    *  methods above,
-   *  but if the starting state is a TrajectoryStateOnSurface, it's better 
+   *  but if the starting state is a TrajectoryStateOnSurface, it's better
    *  to use it as such rather than use just the FreeTrajectoryState
    *  part. It may help some concrete propagators.
    */
@@ -70,21 +70,21 @@ public:
   /** Only use the generic method if the surface type (plane or cylinder)
    *  is not known at the calling point.
    */
-  virtual TrajectoryStateOnSurface 
+  virtual TrajectoryStateOnSurface
   propagate (const TrajectoryStateOnSurface&, const Surface&) const;
 
-  virtual TrajectoryStateOnSurface 
+  virtual TrajectoryStateOnSurface
   propagate (const TrajectoryStateOnSurface&, const Plane&) const;
 
-  virtual TrajectoryStateOnSurface 
+  virtual TrajectoryStateOnSurface
   propagate (const TrajectoryStateOnSurface&, const Cylinder&) const;
-  
-  virtual FreeTrajectoryState 
-  propagate(const FreeTrajectoryState&, 
+
+  virtual FreeTrajectoryState
+  propagate(const FreeTrajectoryState&,
 	    const reco::BeamSpot&) const;
 
   /** The methods propagateWithPath() are identical to the corresponding
-   *  methods propagate() in what concerns the resulting 
+   *  methods propagate() in what concerns the resulting
    *  TrajectoryStateOnSurface, but they provide in addition the
    *  exact path length along the trajectory.
    */
@@ -92,18 +92,18 @@ public:
   /** Only use the generic method if the surface type (plane or cylinder)
    *  is not known at the calling point.
    */
-  virtual std::pair< TrajectoryStateOnSurface, double> 
+  virtual std::pair< TrajectoryStateOnSurface, double>
   propagateWithPath (const FreeTrajectoryState&, const Surface&) const;
 
-  virtual std::pair< TrajectoryStateOnSurface, double> 
+  virtual std::pair< TrajectoryStateOnSurface, double>
   propagateWithPath (const FreeTrajectoryState&, const Plane&) const = 0;
 
-  virtual std::pair< TrajectoryStateOnSurface, double> 
+  virtual std::pair< TrajectoryStateOnSurface, double>
   propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const=0;
 
   /** The following three methods are equivalent to the corresponding
    *  methods above,
-   *  but if the starting state is a TrajectoryStateOnSurface, it's better 
+   *  but if the starting state is a TrajectoryStateOnSurface, it's better
    *  to use it as such rather than use just the FreeTrajectoryState
    *  part. It may help some concrete propagators.
    */
@@ -111,21 +111,21 @@ public:
   /** Only use the generic method if the surface type (plane or cylinder)
    *  is not known at the calling point.
    */
-  virtual std::pair< TrajectoryStateOnSurface, double> 
+  virtual std::pair< TrajectoryStateOnSurface, double>
   propagateWithPath (const TrajectoryStateOnSurface&, const Surface&) const;
 
-  virtual std::pair< TrajectoryStateOnSurface, double> 
+  virtual std::pair< TrajectoryStateOnSurface, double>
   propagateWithPath (const TrajectoryStateOnSurface&, const Plane&) const;
 
-  virtual std::pair< TrajectoryStateOnSurface, double> 
+  virtual std::pair< TrajectoryStateOnSurface, double>
   propagateWithPath (const TrajectoryStateOnSurface&, const Cylinder&) const;
 
-  virtual std::pair<FreeTrajectoryState, double> 
-    propagateWithPath(const FreeTrajectoryState&, 
+  virtual std::pair<FreeTrajectoryState, double>
+    propagateWithPath(const FreeTrajectoryState&,
                       const GlobalPoint&, const GlobalPoint&) const;
 
   /** The propagation direction can now be set for every propagator.
-   *  There is no more distinction between unidirectional and bidirectional 
+   *  There is no more distinction between unidirectional and bidirectional
    *  at class level. The value "anyDiriction" for PropagationDirection
    *  provides the functionality of the ex-BidirectionalPropagator.
    *  The values "alongMomentum" and "oppositeToMomentum" provide the
@@ -139,19 +139,19 @@ public:
    *  If you need to know the actual direction used for a given propagation
    *  in case "propagationDirection() == anyDirection",
    *  you should use propagateWithPath. A positive sign of
-   *  path lengt means "alongMomentum", an egeative sign means 
+   *  path lengt means "alongMomentum", an egeative sign means
    *  "oppositeToMomentum".
    */
   virtual PropagationDirection propagationDirection() const GCC11_FINAL {
     return theDir;
   }
 
-  /** Set the maximal change of direction (integrated along the path) 
+  /** Set the maximal change of direction (integrated along the path)
    *  for any single propagation.
    *  If reaching of the destination surface requires change of direction that exceeds
    *  this value the Propagator returns an invalid state.
-   *  For example, a track may reach a forward plane after many spirals, 
-   *  which may be undesirable for a track reconstructor. Setting this value 
+   *  For example, a track may reach a forward plane after many spirals,
+   *  which may be undesirable for a track reconstructor. Setting this value
    *  to pi will force the propagation to fail.
    *  The default value is "no limit". The method returnd true if the concrete propagator
    *  respects the limit, false otherwise.
@@ -172,7 +172,7 @@ private:
   Propagator const & prop;
   PropagationDirection oldDir;
 public:
-  SetPropagationDirection(Propagator const & iprop, PropagationDirection dir) : 
+  SetPropagationDirection(Propagator const & iprop, PropagationDirection dir) :
     prop(iprop),
     oldDir(iprop.propagationDirection()) {
     prop.setPropagationDirection(dir);
