@@ -66,22 +66,6 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
 	SimHitMap[(*isim).detUnitId()].push_back((*isim));
     }
   }
-
-//   for(uint32_t i = 0; i< trackerContainers.size();i++){
-//     e.getByLabel("mix",trackerContainers[i],cf_simhit);
-//     cf_simhitvec.push_back(cf_simhit.product());
-//   }
-  
-//   std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
-
-//  //Loop on PSimHit
-//   SimHitMap.clear();
-//   SimHitSubdetMap.clear();
-  
-//   MixCollection<PSimHit>::iterator isim;
-//   for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
-//     SimHitMap[(*isim).detUnitId()].push_back((*isim));
-//   }
   
   if(doStrip_) e.getByLabel("simSiStripDigis", stripdigisimlink);
   if(doPixel_) e.getByLabel("simSiPixelDigis", pixeldigisimlink);
@@ -127,27 +111,6 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
 	  SimHitMap[(*isim).detUnitId()].push_back((*isim));
       }
     }
-
-//     //    edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
-//     //    std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
-//     for(uint32_t i = 0; i< trackerContainers.size();i++){
-//       e.getByLabel("mix",trackerContainers[i],cf_simhit);
-//       cf_simhitvec.push_back(cf_simhit.product());
-//     }
-
-// //      std::cout << "SIMHITVEC SIZE = " <<  cf_simhitvec.size() << std::endl;
-    
-//     std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
-    
-//     //Loop on PSimHit
-//     SimHitMap.clear();
-//     SimHitSubdetMap.clear();
-    
-//     MixCollection<PSimHit>::iterator isim;
-//     for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
-//       SimHitMap[(*isim).detUnitId()].push_back((*isim));
-//     }
-    
   }
 
   if(doStrip_) e.getByLabel("simSiStripDigis", stripdigisimlink);
