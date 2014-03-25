@@ -29,20 +29,17 @@ namespace l1t {
 
   class Stage1Layer2EGammaAlgorithm {
   public:
-    virtual void processEvent(const std::vector<l1t::CaloEmCand> & clusters,
+    virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::CaloRegion> & regions,
-			      std::vector<l1t::EGamma> & egammas,
-			      std::list<L1GObject> & rlxEGList,
-			      std::list<L1GObject> & isoEGList) = 0;
+			      std::vector<l1t::EGamma> & egammas) = 0;
 
     virtual ~Stage1Layer2EGammaAlgorithm(){};
 
-
+  private:
+    double Isolation(int ieta, int iphi,
+		     const std::vector<l1t::CaloRegion> & regions)  const;
     unsigned int egtSeed;
-
-    double puLevel;
     double relativeIsolationCut;
-    double relativeJetIsolationCut;
   };
 
 }

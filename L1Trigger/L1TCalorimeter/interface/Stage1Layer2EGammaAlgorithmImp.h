@@ -27,13 +27,13 @@ namespace l1t {
   public:
     Stage1Layer2EGammaAlgorithmImpPP(/*const CaloParams & dbPars*/);
     virtual ~Stage1Layer2EGammaAlgorithmImpPP();
-    virtual void processEvent(const std::vector<l1t::CaloEmCand> & clusters,
+    virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::CaloRegion> & regions,
 			      std::vector<l1t::EGamma> & egammas);
-
-    unsigned int egtSeed;
-
-    double puLevel;
+  private:
+    double Isolation(int ieta, int iphi,
+		     const std::vector<l1t::CaloRegion> & regions)  const;
+    int egtSeed;
     double relativeIsolationCut;
 
   };

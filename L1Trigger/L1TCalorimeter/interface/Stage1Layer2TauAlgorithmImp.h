@@ -25,21 +25,18 @@ namespace l1t {
   public:
     Stage1Layer2TauAlgorithmImpPP(/*const CaloParams & dbPars*/);
     virtual ~Stage1Layer2TauAlgorithmImpPP();
-    virtual void processEvent(//const std::vector<l1t::CaloStage1> & clusters,                                                                                                     
-                              const std::vector<l1t::CaloEmCand> & clusters,
+    virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
                               const std::vector<l1t::CaloRegion> & regions,
                               std::vector<l1t::Tau> * taus);
 
   private: 
 
-    void findAnnulusInfo(int ieta, int iphi,
-			 const std::vector<l1t::CaloRegion> & regions,
-			 double* associatedSecondRegionEt,
-			 double* associatedThirdRegionEt) const;
+    int AssociatedSecondRegionEt(int ieta, int iphi,
+				 const std::vector<l1t::CaloRegion> & regions,
+				 double& isolation) const;
 
-    unsigned int tauSeed;
-
-    /*   double regionLSB_; */
+    int tauSeed;
+    double relativeIsolationCut;
   };
 }
 #endif
