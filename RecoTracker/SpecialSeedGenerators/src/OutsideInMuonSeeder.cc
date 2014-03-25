@@ -4,8 +4,8 @@
 
 /**
   \class    pat::OutsideInMuonSeeder MuonReSeeder.h "MuonAnalysis/MuonAssociators/interface/MuonReSeeder.h"
-  \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them 
-            
+  \brief    Matcher of reconstructed objects to other reconstructed objects using the tracks inside them
+
   \author   Giovanni Petrucciani
 */
 
@@ -68,11 +68,11 @@ class OutsideInMuonSeeder : public edm::EDProducer {
       double errorRescaling_;
 
       std::string trackerPropagatorName_;
-      std::string muonPropagatorName_; 
+      std::string muonPropagatorName_;
       edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerTag_;
-      std::string measurementTrackerName_; 
-      std::string estimatorName_; 
-      std::string updatorName_; 
+      std::string measurementTrackerName_;
+      std::string estimatorName_;
+      std::string updatorName_;
 
       double minEtaForTEC_, maxEtaForTOB_;
 
@@ -85,7 +85,7 @@ class OutsideInMuonSeeder : public edm::EDProducer {
 
       /// Dump deug information
       bool debug_;
-    
+
       /// Surface used to make a TSOS at the PCA to the beamline
       Plane::PlanePointer dummyPlane_;
 
@@ -110,11 +110,11 @@ OutsideInMuonSeeder::OutsideInMuonSeeder(const edm::ParameterSet & iConfig) :
     debug_(iConfig.getUntrackedParameter<bool>("debug",false)),
     dummyPlane_(Plane::build(Plane::PositionType(), Plane::RotationType()))
 {
-    produces<std::vector<TrajectorySeed> >(); 
+    produces<std::vector<TrajectorySeed> >();
     updatorName_ = "KFUpdator";
 }
 
-void 
+void
 OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
     using namespace std;
@@ -123,8 +123,8 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     iSetup.get<TrackingComponentsRecord>().get(trackerPropagatorName_, trackerPropagator_);
     iSetup.get<TrackingComponentsRecord>().get(muonPropagatorName_, muonPropagator_);
     iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
-    iSetup.get<TrackingComponentsRecord>().get(estimatorName_,estimator_);  
-    iSetup.get<TrackingComponentsRecord>().get(updatorName_,updator_);  
+    iSetup.get<TrackingComponentsRecord>().get(estimatorName_,estimator_);
+    iSetup.get<TrackingComponentsRecord>().get(updatorName_,updator_);
 
     Handle<MeasurementTrackerEvent> measurementTracker;
     iEvent.getByToken(measurementTrackerTag_, measurementTracker);
@@ -132,7 +132,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     Handle<View<reco::Muon> > src;
     iEvent.getByToken(src_, src);
 
-    
+
     auto_ptr<vector<TrajectorySeed> > out(new vector<TrajectorySeed>());
 
     for (View<reco::Muon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
@@ -146,7 +146,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         int sizeBefore = out->size();
         if (debug_) std::cout << "\n\n\nSeeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << std::endl;
         const reco::Track &tk = *mu.outerTrack();
-        
+
         TrajectoryStateOnSurface state;
         if (fromVertex_) {
             FreeTrajectoryState fstate = trajectoryStateTransform::initialFreeState(tk, magfield_.product());
@@ -186,7 +186,7 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             }
         }
         if (debug_) std::cout << "Outcome of seeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << ": found " << (out->size() - sizeBefore) << " seeds."<< std::endl;
-        
+
     }
 
     iEvent.put(out);
@@ -197,11 +197,11 @@ OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer, const TrajectorySt
     TrajectoryStateOnSurface onLayer(state);
     onLayer.rescaleError(errorRescaling_);
     std::vector< GeometricSearchDet::DetWithState > dets;
-    layer.compatibleDetsV(onLayer, *muonPropagator_, *estimator_, dets); 
+    layer.compatibleDetsV(onLayer, *muonPropagator_, *estimator_, dets);
 
     if (debug_) {
-        std::cout << "Query on layer around x = " << onLayer.globalPosition() << 
-            " with local pos error " << sqrt(onLayer.localError().positionError().xx()) << " ,  " << sqrt(onLayer.localError().positionError().yy()) << " ,  " << 
+        std::cout << "Query on layer around x = " << onLayer.globalPosition() <<
+            " with local pos error " << sqrt(onLayer.localError().positionError().xx()) << " ,  " << sqrt(onLayer.localError().positionError().yy()) << " ,  " <<
             " returned " << dets.size() << " compatible detectors" << std::endl;
     }
 
@@ -221,16 +221,16 @@ OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer, const TrajectorySt
     for (std::vector<TrajectoryMeasurement>::const_iterator it2 = meas.begin(), ed2 = meas.end(); it2 != ed2; ++it2) {
         if (debug_) {
             std::cout << "  inspecting Hit with chi2 = " << it2->estimate() << std::endl;
-            std::cout << "        track state     " << it2->forwardPredictedState().globalPosition() << std::endl; 
-            std::cout << "        rechit position " << it2->recHit()->globalPosition() << std::endl; 
+            std::cout << "        track state     " << it2->forwardPredictedState().globalPosition() << std::endl;
+            std::cout << "        rechit position " << it2->recHit()->globalPosition() << std::endl;
         }
         TrajectoryStateOnSurface updated = updator_->update(it2->forwardPredictedState(), *it2->recHit());
         if (updated.isValid()) {
-            if (debug_) std::cout << "          --> updated state: x = " << updated.globalPosition() << ", p = " << updated.globalMomentum() << std::endl; 
+            if (debug_) std::cout << "          --> updated state: x = " << updated.globalPosition() << ", p = " << updated.globalMomentum() << std::endl;
             edm::OwnVector<TrackingRecHit> seedHits;
             seedHits.push_back(*it2->recHit()->hit());
             PTrajectoryStateOnDet const & pstate = trajectoryStateTransform::persistentState(updated, it2->recHit()->geographicalId().rawId());
-            TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum); 
+            TrajectorySeed seed(pstate, std::move(seedHits), oppositeToMomentum);
             out.push_back(seed);
             found++; if (found == hitsToTry_) break;
         }
@@ -244,7 +244,7 @@ OutsideInMuonSeeder::doDebug(const reco::Track &tk) const {
     muonPropagator_->setPropagationDirection(alongMomentum);
     for (unsigned int i = 0; i < tk.recHitsSize(); ++i) {
         const TrackingRecHit *hit = &*tk.recHit(i);
-        const GeomDet *det = geometry_->idToDet(hit->geographicalId()); 
+        const GeomDet *det = geometry_->idToDet(hit->geographicalId());
         if (det == 0) continue;
         if (i != 0) tsos = muonPropagator_->propagate(tsos, det->surface());
         if (!tsos.isValid()) continue;
