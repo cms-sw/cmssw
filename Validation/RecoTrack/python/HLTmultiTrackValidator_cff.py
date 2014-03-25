@@ -61,12 +61,6 @@ hltDedxTruncated40.trajectoryTrackAssociation = cms.InputTag("hltIter4Merged")
 
 #hltMultiTrackValidator.dEdx2Tag = cms.InputTag("hltDedxTruncated40")
 
-selectedTracks = []
-selectedTracks.extend( ['hltIter4Merged'] )
-selectedTracks.extend( ['hltPixelTracks'] )
-trackLabel = {}
-associatorByHit = {}
-
 hltQuickTrackAssociatorByHits = cms.ESProducer("QuickTrackAssociatorByHitsESProducer",
     Quality_SimToReco = cms.double(0.5),
     cluster2TPSrc = cms.InputTag("hltTPClusterProducer"),
@@ -87,11 +81,6 @@ hltTrackingParticleRecoTrackAsssociation = cms.EDProducer("TrackAssociatorEDProd
     label_tp = cms.InputTag("mix","MergedTrackTruth"),
     ignoremissingtrackcollection = cms.untracked.bool(False)
 )
-
-for tracks in selectedTracks :
-    label = 'hltTrackingParticleRecoTrackAsssociation' + str(tracks)
-    locals()[label] = hltTrackingParticleRecoTrackAsssociation.clone()
-    locals()[label].label_tr   = cms.InputTag(tracks)
 
 hltMultiTrackValidator.associatormap = cms.InputTag("hltTrackingParticleRecoTrackAsssociation")
 
@@ -119,19 +108,7 @@ hltTrackAssociatorByHitsRecoDenom = cms.ESProducer("QuickTrackAssociatorByHitsES
     SimToRecoDenominator = cms.string('reco'),
     cluster2TPSrc = cms.InputTag("hltTPClusterProducer")
 )
-for tracks in selectedTracks :
-    label = 'hltTrackAssociatorByHitsRecoDenom' + str(tracks)
-    locals()[label] = hltTrackAssociatorByHitsRecoDenom.clone()
-    locals()[label].ComponentName = cms.string(label)
-    locals()[label].cluster2TPSrc = cms.InputTag("hltTPClusterProducer")
-
-associators = cms.vstring('hltTrackAssociatorByHitsRecoDenomhltPixelTracks',
-                          'hltTrackAssociatorByHitsRecoDenomhltIter4Merged')
-for tracks in selectedTracks :
-    label = 'hltTrackAssociatorByHitsRecoDenom' + str(tracks)    
-#    associators =+ label
-    
-hltMultiTrackValidator.associators = associators
+hltMultiTrackValidator.associators = cms.vstring('hltTrackAssociatorByHitsRecoDenom')
 
 from Validation.RecoTrack.cutsTPEffic_cfi import *
 from Validation.RecoTrack.cutsTPFake_cfi import *
