@@ -135,11 +135,6 @@ public:
   /// is precise error calculation switched on 
   bool  isPrecise() const { return thePrecise; }
 
-  virtual TrackingRegion::ctfHits hits(
-      const edm::Event& ev,  
-      const edm::EventSetup& es, 
-      const ctfseeding::SeedingLayer* layer) const;
-
   virtual TrackingRegion::Hits hits(
       const edm::Event& ev,
       const edm::EventSetup& es,
@@ -160,13 +155,6 @@ public:
   virtual std::string print() const;
 
 private:
-  template <typename T, typename H, typename F>
-  void hits_(
-      const edm::Event& ev,
-      const edm::EventSetup& es,
-      const T& layer, H  & result,
-      F hitGetter, bool oldStyle) const;
-
   HitRZCompatibility* checkRZOld(
       const DetLayer* layer, 
       const TrackingRecHit*  outerHit,
