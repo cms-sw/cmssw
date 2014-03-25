@@ -300,8 +300,9 @@ void DynamicTruncation::testDTstation(TrajectoryStateOnSurface &startingState, v
   if (segments.size() == 0) return;
   for (unsigned int iSeg = 0; iSeg < segments.size(); iSeg++) {
     DTChamberId chamber(segments[iSeg].chamberId());
-    tsosdt = propagator->propagate(startingState, theG->idToDet(chamber)->surface());
-    if (!tsosdt.isValid()) continue;
+    try {tsosdt = propagator->propagate(startingState, theG->idToDet(chamber)->surface());
+      if (!tsosdt.isValid()) continue;}
+    catch(...) {continue;}
     LocalError apeLoc;
     if (useAPE) apeLoc = ErrorFrameTransformer().transform(dtApeMap.find(chamber)->second, theG->idToDet(chamber)->surface());
     StateSegmentMatcher estim(tsosdt, segments[iSeg], apeLoc);
@@ -320,8 +321,9 @@ void DynamicTruncation::testCSCstation(TrajectoryStateOnSurface &startingState, 
   if (segments.size() == 0) return;
   for (unsigned int iSeg = 0; iSeg < segments.size(); iSeg++) {
     CSCDetId chamber(segments[iSeg].cscDetId());
-    tsoscsc = propagator->propagate(startingState, theG->idToDet(chamber)->surface());
-    if (!tsoscsc.isValid()) continue;
+    try {tsoscsc = propagator->propagate(startingState, theG->idToDet(chamber)->surface());
+      if (!tsoscsc.isValid()) continue;}
+    catch(...) {continue;}
     LocalError apeLoc;
     if (useAPE) apeLoc = ErrorFrameTransformer().transform(cscApeMap.find(chamber)->second, theG->idToDet(chamber)->surface());
     StateSegmentMatcher estim(tsoscsc, segments[iSeg], apeLoc);
