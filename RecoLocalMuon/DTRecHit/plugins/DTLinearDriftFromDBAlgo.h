@@ -101,7 +101,7 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
 
   // Assign hit uncertainties based on new uncertainties DB 
   // If false, the value taken from vdrift DB is used instead.
-  const bool useUncertDB;
+  bool useUncertDB;
 
   // Switch on/off the verbosity
   const bool debug;
