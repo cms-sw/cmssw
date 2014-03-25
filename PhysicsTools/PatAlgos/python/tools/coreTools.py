@@ -120,7 +120,7 @@ class RemoveMCMatching(ConfigToolBase):
                 print "removing MC dependencies for jets"
                 jetPostfixes = []
                 for mod in process.producerNames().split():
-                    if mod.startswith('patJets'):
+                    if mod.startswith('patJets') and getattr(process,mod).type_() == "PATJetProducer":
                         jetPostfixes.append(getattr(process, mod).label_().replace("patJets",""))
                 for pfix in jetPostfixes:
                     ## remove mc extra configs for jets
