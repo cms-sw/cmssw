@@ -101,7 +101,8 @@ namespace edmNew {
     
     struct IterHelp {
       typedef DetSet result_type;
-      IterHelp() : v(0),update(true){}
+      //      IterHelp() : v(0),update(true){}
+      IterHelp() : v(0),update(false){}
       IterHelp(DetSetVector<T> const & iv, bool iup) : v(&iv), update(iup){}
       
       result_type & operator()(Item const& item) const {
@@ -305,7 +306,8 @@ namespace edmNew {
     }
     
     // slow interface
-    const_iterator find(id_type i, bool update=true) const {
+    //    const_iterator find(id_type i, bool update=true) const {
+    const_iterator find(id_type i, bool update=false) const {
       const_IdIter p = findItem(i);
       return (p==m_ids.end()) ? end() :
 	boost::make_transform_iterator(p,
@@ -319,12 +321,14 @@ namespace edmNew {
       return (p.first!=p.second) ? p.first : m_ids.end();
     }
     
-    const_iterator begin(bool update=true) const {
+    //    const_iterator begin(bool update=true) const {
+    const_iterator begin(bool update=false) const {
       return  boost::make_transform_iterator(m_ids.begin(),
 					     IterHelp(*this,update));
     }
 
-    const_iterator end(bool update=true) const {
+    //    const_iterator end(bool update=true) const {
+    const_iterator end(bool update=false) const {
       return  boost::make_transform_iterator(m_ids.end(),
 					     IterHelp(*this,update));
     }
@@ -332,7 +336,8 @@ namespace edmNew {
 
     // return an iterator range (implemented here to avoid dereference of detset)
     template<typename CMP>
-    Range equal_range(id_type i, CMP cmp, bool update=true) const {
+      //    Range equal_range(id_type i, CMP cmp, bool update=true) const {
+    Range equal_range(id_type i, CMP cmp, bool update=false) const {
       std::pair<const_IdIter,const_IdIter> p =
 	std::equal_range(m_ids.begin(),m_ids.end(),i,cmp);
       return  Range(boost::make_transform_iterator(p.first,IterHelp(*this,update)),
