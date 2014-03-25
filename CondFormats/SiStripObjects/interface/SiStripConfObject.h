@@ -38,6 +38,7 @@ class SiStripConfObject
     return false;
   }
 
+
   /// Updating the value stored as 'name' with 'inputValue'. 
   /// False if parameter 'name' does not exist (and nothing is done then - use put(..) instead!),
   /// otherwise true.
@@ -73,6 +74,7 @@ class SiStripConfObject
     return returnValue;
   }
 
+
   bool isParameter( const std::string & name ) const
   {
     return( parameters.find(name) != parameters.end() );
@@ -87,5 +89,19 @@ class SiStripConfObject
 
   parMap parameters;
 };
+
+template <>
+bool SiStripConfObject::put<std::vector<int> >( const std::string & name, const std::vector<int> & inputValue );
+template <>
+bool SiStripConfObject::update<std::vector<int> >( const std::string & name, const std::vector<int> & inputValue );
+template <>
+std::vector<int> SiStripConfObject::get<std::vector<int> >( const std::string & name ) const;
+template <>
+bool SiStripConfObject::put<std::vector<std::string> >( const std::string & name, const std::vector<std::string> & inputValue );
+template <>
+bool SiStripConfObject::update<std::vector<std::string> >( const std::string & name, const std::vector<std::string> & inputValue );
+template <>
+std::vector<std::string> SiStripConfObject::get<std::vector<std::string> >( const std::string & name ) const;
+
 
 #endif
