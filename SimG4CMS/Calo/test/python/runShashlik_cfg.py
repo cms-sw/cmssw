@@ -8,6 +8,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("SimG4CMS.Calo.HFPMTHitAnalyzer_cfi")
+process.load("Geometry.HGCalCommonData.shashlikNumberingInitialization_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
