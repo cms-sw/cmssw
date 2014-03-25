@@ -12,7 +12,7 @@
 #include "G4HadronicProcessStore.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsFTFP_BERT_HP.hh"
+#include "G4HadronPhysicsFTFP_BERT_HP.hh"
 
 FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
@@ -48,7 +48,7 @@ FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
     RegisterPhysics( new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(  new HadronPhysicsFTFP_BERT_HP(ver));
+    RegisterPhysics(  new G4HadronPhysicsFTFP_BERT_HP(ver));
 
     // Stopping Physics
     RegisterPhysics( new G4StoppingPhysics(ver));

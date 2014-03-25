@@ -59,9 +59,9 @@ G4MiscLHEPBuilder_WP::~G4MiscLHEPBuilder_WP()
 
 void G4MiscLHEPBuilder_WP::Build()
 {
-  G4ProcessManager * aProcMan = 0;
+  //G4ProcessManager * aProcMan = 0;
   wasActivated = true;
-  
+  /*  
   // anti-Proton
   aProcMan = G4AntiProton::AntiProton()->GetProcessManager();
   theLEAntiProtonModel = new G4LEAntiProtonInelastic();
@@ -190,6 +190,7 @@ void G4MiscLHEPBuilder_WP::Build()
   theAntiOmegaMinusInelastic.RegisterMe(theLEAntiOmegaMinusModel);
   theAntiOmegaMinusInelastic.RegisterMe(theHEAntiOmegaMinusModel);
   aProcMan->AddDiscreteProcess(&theAntiOmegaMinusInelastic);
+  */
 }
 
 // 2002 by J.P. Wellisch

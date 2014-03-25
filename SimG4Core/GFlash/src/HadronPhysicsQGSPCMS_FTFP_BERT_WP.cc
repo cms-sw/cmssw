@@ -13,6 +13,8 @@
 #include "G4BaryonConstructor.hh"
 #include "G4ShortLivedConstructor.hh"
 
+#include "G4SystemOfUnits.hh"
+
 HadronPhysicsQGSPCMS_FTFP_BERT_WP::HadronPhysicsQGSPCMS_FTFP_BERT_WP(const G4String& name, G4bool quasiElastic)
                     :  G4VPhysicsConstructor(name) , QuasiElastic(quasiElastic)
 {
@@ -42,23 +44,23 @@ void HadronPhysicsQGSPCMS_FTFP_BERT_WP::CreateModels()
 	 << " and to " << quasiElasFTF << " (must be false) for FTF" << G4endl;
 
   theNeutrons=new G4NeutronBuilder;
-  theNeutrons->RegisterMe(theQGSPNeutron=new G4QGSPNeutronBuilder(quasiElasQGS, ProjectileDiffraction));
+  theNeutrons->RegisterMe(theQGSPNeutron=new G4QGSPNeutronBuilder(quasiElasQGS));
   theQGSPNeutron->SetMinEnergy(minQGSP);   
   theNeutrons->RegisterMe(theFTFPNeutron=new CMSFTFPNeutronBuilder(quasiElasFTF));
   theFTFPNeutron->SetMinEnergy(minFTFP);   // was (9.5*GeV);
   theFTFPNeutron->SetMaxEnergy(maxFTFP);   // was (25*GeV);  
   // Exclude LEP only from Inelastic 
   //  -- Register it for other processes: Capture, Elastic
-  theNeutrons->RegisterMe(theLEPNeutron=new G4LEPNeutronBuilder);
-  theLEPNeutron->SetMinInelasticEnergy(0.0*GeV);
-  theLEPNeutron->SetMaxInelasticEnergy(0.0*GeV);
+  //theNeutrons->RegisterMe(theLEPNeutron=new G4LEPNeutronBuilder);
+  //theLEPNeutron->SetMinInelasticEnergy(0.0*GeV);
+  // theLEPNeutron->SetMaxInelasticEnergy(0.0*GeV);
 
   theNeutrons->RegisterMe(theBertiniNeutron=new G4BertiniNeutronBuilder);
   theBertiniNeutron->SetMinEnergy(0.0*GeV);
   theBertiniNeutron->SetMaxEnergy(maxBERT);         // was (9.9*GeV);
 
   thePro=new G4ProtonBuilder_WP;
-  thePro->RegisterMe(theQGSPPro=new G4QGSPProtonBuilder(quasiElasQGS, ProjectileDiffraction));
+  thePro->RegisterMe(theQGSPPro=new G4QGSPProtonBuilder(quasiElasQGS));
   theQGSPPro->SetMinEnergy(minQGSP);   
   thePro->RegisterMe(theFTFPPro=new CMSFTFPProtonBuilder(quasiElasFTF));
   theFTFPPro->SetMinEnergy(minFTFP);   // was (9.5*GeV);

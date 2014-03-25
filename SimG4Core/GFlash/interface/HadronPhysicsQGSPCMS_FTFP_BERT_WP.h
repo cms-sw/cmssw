@@ -5,7 +5,7 @@
 #include "G4ios.hh"
 
 #include "G4VPhysicsConstructor.hh"
-#include "G4MiscLHEPBuilder.hh"
+//#include "G4MiscLHEPBuilder.hh"
 
 #include "G4PiKBuilder.hh"
 #include "SimG4Core/PhysicsLists/interface/CMSFTFPPiKBuilder.hh"
@@ -21,7 +21,7 @@
 #include "SimG4Core/PhysicsLists/interface/CMSFTFPNeutronBuilder.hh"
 #include "G4QGSPNeutronBuilder.hh"
 #include "G4BertiniNeutronBuilder.hh"
-#include "G4LEPNeutronBuilder.hh"
+//#include "G4LEPNeutronBuilder.hh"
 
 class G4PiKBuilder_WP;
 class G4ProtonBuilder_WP;
@@ -46,7 +46,7 @@ class HadronPhysicsQGSPCMS_FTFP_BERT_WP : public G4VPhysicsConstructor
     CMSFTFPNeutronBuilder * theFTFPNeutron;
     G4QGSPNeutronBuilder * theQGSPNeutron;
     G4BertiniNeutronBuilder * theBertiniNeutron;
-    G4LEPNeutronBuilder * theLEPNeutron;
+    //G4LEPNeutronBuilder * theLEPNeutron;
     
     G4PiKBuilder_WP * thePiK;
     CMSFTFPPiKBuilder * theFTFPPiK;
