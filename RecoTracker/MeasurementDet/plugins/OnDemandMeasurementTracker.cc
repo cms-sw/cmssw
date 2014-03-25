@@ -186,7 +186,7 @@ std::string OnDemandMeasurementTracker::dumpCluster(const std::vector<SiStripClu
   std::vector<SiStripCluster> ::const_iterator it = begin;
   unsigned int i=0;
   for (;it!=end;++it){
-    ss<<tab<<i++<<") center: "<<it->barycenter()<<",id: "<<it->geographicalId()<<" with: "<<it->amplitudes().size()<<" strips\n"<<tab<<tab<<"{";
+    ss<<tab<<i++<<") center: "<<it->barycenter()<<" with: "<<it->amplitudes().size()<<" strips\n"<<tab<<tab<<"{";
     for (unsigned int is=0;is!=it->amplitudes().size();++is){
       ss<<it->amplitudes()[is]<<" ";
     }ss<<"}\n";

@@ -38,7 +38,6 @@ class SiStripRecHitConverterAlgorithm
   void initialize(const edm::EventSetup&);  
   void run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output);
   void run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output, LocalVector trackdirection);
-  void run(edm::Handle<edm::RefGetter<SiStripCluster> >, edm::Handle<edm::LazyGetter<SiStripCluster> >, products&);
   
  private:
   

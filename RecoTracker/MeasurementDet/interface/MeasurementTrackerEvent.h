@@ -4,7 +4,7 @@
 #include <vector>
 class StMeasurementDetSet;
 class PxMeasurementDetSet;
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
 #include "DataFormats/Common/interface/LazyGetter.h"

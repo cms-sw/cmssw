@@ -118,7 +118,7 @@ void SiStripClusterValidator::validate(const edmNew::DetSetVector<SiStripCluster
     edmNew::DetSet<SiStripCluster>::const_iterator iCluster2 = iDetSet2->begin();
     edmNew::DetSet<SiStripCluster>::const_iterator jCluster2 = iDetSet2->end();
     for ( ; iCluster2 != jCluster2; ++iCluster2 ) { 
-      if ( iCluster1->geographicalId() == iCluster2->geographicalId() &&
+      if (
 	   iCluster1->amplitudes() == iCluster2->amplitudes() &&
 	   iCluster1->firstStrip() == iCluster2->firstStrip() ) iCluster1++;
     }
@@ -185,7 +185,7 @@ void SiStripClusterValidator::validate(const edm::DetSetVector<SiStripCluster>& 
     edm::DetSet<SiStripCluster>::const_iterator iCluster2 = iDetSet2->begin();
     edm::DetSet<SiStripCluster>::const_iterator jCluster2 = iDetSet2->end();
     for ( ; iCluster2 != jCluster2; ++iCluster2 ) { 
-      if ( iCluster1->geographicalId() == iCluster2->geographicalId() &&
+      if (
 	   iCluster1->amplitudes() == iCluster2->amplitudes() &&
 	   iCluster1->firstStrip() == iCluster2->firstStrip() ) iCluster1++;
     }

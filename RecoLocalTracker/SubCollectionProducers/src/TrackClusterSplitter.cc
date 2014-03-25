@@ -734,7 +734,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 		      //cout << "thisAmpl = " << (int)thisAmpl << endl;
 		    }
 		  
-		  newCluster.push_back( SiStripCluster( detId, 
+		  newCluster.push_back( SiStripCluster( 
 							firstStrip[i],
 							trackAmp[i].begin(), 
 							trackAmp[i].end() ) );
@@ -1166,7 +1166,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 			  if ( SiStripDigiIterBegin1 != SiStripDigiIterEnd1 )
 			    {    
 			      // gavril : Raw id ?
-			      SiStripCluster cl1( detId.rawId(), SiStripDigiRange1 );
+			      SiStripCluster cl1( SiStripDigiRange1 );
 
 			      cl1.setSplitClusterError( stripTemplSigmaX_ );
 
@@ -1183,7 +1183,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 			  if ( SiStripDigiIterBegin2 != SiStripDigiIterEnd2 )
 			    {
 			      // gavril : Raw id ?
-			      SiStripCluster cl2( detId.rawId(), SiStripDigiRange2 );
+			      SiStripCluster cl2( SiStripDigiRange2 );
 			      cl2.setSplitClusterError( stripTemplSigmaX_ );
 			      output.push_back( cl2 ); 
 		

@@ -102,46 +102,6 @@ run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle, products& ou
   match(output,trackdirection);
 }
 
-void SiStripRecHitConverterAlgorithm::
-run(edm::Handle<edm::RefGetter<SiStripCluster> >  refGetterhandle, 
-    edm::Handle<edm::LazyGetter<SiStripCluster> >  lazyGetterhandle, 
-    products& output)
-{
-  bool bad128StripBlocks[6];
-  bool goodDet=true;
-  DetId lastId(0);
-  std::auto_ptr<Collector> collector(new Collector(*output.stereo, lastId));
-  
-  edm::RefGetter<SiStripCluster>::const_iterator iregion = refGetterhandle->begin();
-  for(;iregion!=refGetterhandle->end();++iregion) {
-    const edm::RegionIndex<SiStripCluster>& region = *iregion;
-    const uint32_t start = region.start();
-    const uint32_t finish = region.finish();
-    for (uint32_t i = start; i < finish; i++) {
-      edm::RegionIndex<SiStripCluster>::const_iterator icluster = region.begin()+(i-start);
-      
-      DetId detId(icluster->geographicalId());
-      if(detId != lastId) {
-	if(collector->empty()) collector->abort();
-	lastId = detId;
-	goodDet = useModule(detId);
-	if(goodDet) {
-	  fillBad128StripBlocks(detId, bad128StripBlocks);
-	  collector = StripSubdetector(detId).stereo()  
-	    ? std::auto_ptr<Collector>(new Collector(*output.stereo, detId)) 
-	    : std::auto_ptr<Collector>(new Collector(*output.rphi,   detId));
-	}
-      }
-      if( !goodDet || isMasked(*icluster, bad128StripBlocks)) continue;
-      GeomDetUnit const & du = *(tracker->idToDetUnit(detId));
-      StripClusterParameterEstimator::LocalValues parameters = parameterestimator->localParameters(*icluster,du);
-     collector->push_back(SiStripRecHit2D( parameters.first, parameters.second, du,  makeRefToLazyGetter(lazyGetterhandle,i) ));      
-    }
-    if(collector->empty()) collector->abort();
-  }
-  match(output,LocalVector(0.,0.,0.));
-}
-
 
 namespace {
 
