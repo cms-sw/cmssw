@@ -160,7 +160,8 @@ process.muons.TrackerKinkFinderParameters.TrackerRecHitBuilder = cms.string('Wit
 # The SeedMergerPSet should be added to the following file for Phase 1
 # RecoTracker/SpecialSeedGenerators/python/CombinatorialSeedGeneratorForCosmicsRegionalReconstruction_cfi.py
 # but pixel layers are not used here for cosmic TODO: need Maria and Jan to do appropriate thing here
-from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadrupletsprocess.regionalCosmicTrackerSeeds.SeedMergerPSet = cms.PSet(
+from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
+process.regionalCosmicTrackerSeeds.SeedMergerPSet = cms.PSet(
 	mergeTriplets = cms.bool(False),
 	ttrhBuilderLabel = cms.string( "PixelTTRHBuilderWithoutAngle" ),
 	addRemainingTriplets = cms.bool(False),
