@@ -239,7 +239,11 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 			if (header->tag() == "" ||
 			    header->tag().find("Alpgen") == 0 ||
 			    header->tag() == "MGGridCard" ||
-			    header->tag() == "MGGenerationInfo") {
+			    header->tag() == "MGGenerationInfo" ||
+			    header->tag() == "MGRunCard" ||
+			    header->tag() == "mgruncard" ||
+			    header->tag() == "MadSpin" ||
+			    header->tag() == "madspin") {
 				addHeader(*header);	
 				headers.insert(*header);
 			} else
