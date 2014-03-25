@@ -4,7 +4,7 @@ import copy
 from RecoLocalTracker.SubCollectionProducers.ClusterSelectorTopBottom_cfi import *
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsP5_cff import combinatorialcosmicseedfinderP5, combinatorialcosmicseedingtripletsP5, combinatorialcosmicseedingpairsTOBP5, combinatorialcosmicseedingpairsTECposP5, combinatorialcosmicseedingpairsTECnegP5
-from RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi import simpleCosmicBONSeeds
+from RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cff import simpleCosmicBONSeeds, simpleCosmicBONSeedingLayers
 from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cff import globalCombinedSeeds
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cff import MeasurementTracker
 from RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff import GroupedCkfTrajectoryBuilderP5
@@ -75,21 +75,23 @@ combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[3].LayerSrc = "combin
 combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[4].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Top"
 combinatorialcosmicseedfinderP5Top.OrderedHitsFactoryPSets[5].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Top"
 combinatorialcosmicseedfinderP5Top.MaxNumberOfCosmicClusters = 150
+simpleCosmicBONSeedingLayersTop = copy.deepcopy(simpleCosmicBONSeedingLayers)
+simpleCosmicBONSeedingLayersTop.TIB1.matchedRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
+simpleCosmicBONSeedingLayersTop.TIB2.matchedRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
+simpleCosmicBONSeedingLayersTop.TIB3.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
+simpleCosmicBONSeedingLayersTop.TOB1.matchedRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
+simpleCosmicBONSeedingLayersTop.TOB2.matchedRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
+simpleCosmicBONSeedingLayersTop.TOB3.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
+simpleCosmicBONSeedingLayersTop.TOB4.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
+simpleCosmicBONSeedingLayersTop.TOB5.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
+simpleCosmicBONSeedingLayersTop.TOB6.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
+simpleCosmicBONSeedingLayersTop.TEC.matchedRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
+simpleCosmicBONSeedingLayersTop.TEC.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
 simpleCosmicBONSeedsTop = copy.deepcopy(simpleCosmicBONSeeds)
 simpleCosmicBONSeedsTop.PositiveYOnly = True
 simpleCosmicBONSeedsTop.NegativeYOnly = False
 simpleCosmicBONSeedsTop.ClusterCheckPSet.ClusterCollectionLabel = cms.InputTag("siStripClustersTop")
-simpleCosmicBONSeedsTop.TripletsPSet.TIB1.matchedRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
-simpleCosmicBONSeedsTop.TripletsPSet.TIB2.matchedRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
-simpleCosmicBONSeedsTop.TripletsPSet.TIB3.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
-simpleCosmicBONSeedsTop.TripletsPSet.TOB1.matchedRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
-simpleCosmicBONSeedsTop.TripletsPSet.TOB2.matchedRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
-simpleCosmicBONSeedsTop.TripletsPSet.TOB3.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
-simpleCosmicBONSeedsTop.TripletsPSet.TOB4.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
-simpleCosmicBONSeedsTop.TripletsPSet.TOB5.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
-simpleCosmicBONSeedsTop.TripletsPSet.TOB6.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
-simpleCosmicBONSeedsTop.TripletsPSet.TEC.matchedRecHits = cms.InputTag("siStripMatchedRecHitsTop","matchedRecHit")
-simpleCosmicBONSeedsTop.TripletsPSet.TEC.rphiRecHits = cms.InputTag("siStripMatchedRecHitsTop","rphiRecHit")
+simpleCosmicBONSeedsTop.TripletsSrc = "simpleCosmicBONSeedingLayersTop"
 simpleCosmicBONSeedsTop.ClusterCheckPSet.MaxNumberOfCosmicClusters = 150
 combinedP5SeedsForCTFTop = globalCombinedSeeds.clone(
 seedCollections = cms.VInputTag(cms.InputTag('combinatorialcosmicseedfinderP5Top'),cms.InputTag('simpleCosmicBONSeedsTop'))
@@ -114,7 +116,7 @@ ctfWithMaterialTracksP5Top.Fitter = 'FittingSmootherRKP5'
 ctfWithMaterialTracksP5Top.clusterRemovalInfo = "topBottomClusterInfoProducerTop"
 ctftracksP5Top = cms.Sequence(combinatorialcosmicseedingtripletsP5Top*combinatorialcosmicseedingpairsTOBP5Top*
                               combinatorialcosmicseedingpairsTECposP5Top*combinatorialcosmicseedingpairsTECnegP5Top*
-                              combinatorialcosmicseedfinderP5Top*simpleCosmicBONSeedsTop*
+                              combinatorialcosmicseedfinderP5Top*simpleCosmicBONSeedingLayersTop*simpleCosmicBONSeedsTop*
                                        combinedP5SeedsForCTFTop*ckfTrackCandidatesP5Top*
                                        ctfWithMaterialTracksP5Top)
 
@@ -167,21 +169,23 @@ combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[3].LayerSrc = "com
 combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[4].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Bottom"
 combinatorialcosmicseedfinderP5Bottom.OrderedHitsFactoryPSets[5].LayerSrc = "combinatorialcosmicseedingpairsTECnegP5Bottom"
 combinatorialcosmicseedfinderP5Bottom.MaxNumberOfCosmicClusters = 150
+simpleCosmicBONSeedingLayersBottom = copy.deepcopy(simpleCosmicBONSeedingLayers)
+simpleCosmicBONSeedingLayersBottom.TIB1.matchedRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
+simpleCosmicBONSeedingLayersBottom.TIB2.matchedRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
+simpleCosmicBONSeedingLayersBottom.TIB3.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
+simpleCosmicBONSeedingLayersBottom.TOB1.matchedRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
+simpleCosmicBONSeedingLayersBottom.TOB2.matchedRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
+simpleCosmicBONSeedingLayersBottom.TOB3.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
+simpleCosmicBONSeedingLayersBottom.TOB4.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
+simpleCosmicBONSeedingLayersBottom.TOB5.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
+simpleCosmicBONSeedingLayersBottom.TOB6.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
+simpleCosmicBONSeedingLayersBottom.TEC.matchedRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
+simpleCosmicBONSeedingLayersBottom.TEC.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
 simpleCosmicBONSeedsBottom = copy.deepcopy(simpleCosmicBONSeeds)
 simpleCosmicBONSeedsBottom.PositiveYOnly = False
 simpleCosmicBONSeedsBottom.NegativeYOnly = True
 simpleCosmicBONSeedsBottom.ClusterCheckPSet.ClusterCollectionLabel = cms.InputTag("siStripClustersBottom")
-simpleCosmicBONSeedsBottom.TripletsPSet.TIB1.matchedRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
-simpleCosmicBONSeedsBottom.TripletsPSet.TIB2.matchedRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
-simpleCosmicBONSeedsBottom.TripletsPSet.TIB3.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
-simpleCosmicBONSeedsBottom.TripletsPSet.TOB1.matchedRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
-simpleCosmicBONSeedsBottom.TripletsPSet.TOB2.matchedRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
-simpleCosmicBONSeedsBottom.TripletsPSet.TOB3.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
-simpleCosmicBONSeedsBottom.TripletsPSet.TOB4.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
-simpleCosmicBONSeedsBottom.TripletsPSet.TOB5.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
-simpleCosmicBONSeedsBottom.TripletsPSet.TOB6.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
-simpleCosmicBONSeedsBottom.TripletsPSet.TEC.matchedRecHits = cms.InputTag("siStripMatchedRecHitsBottom","matchedRecHit")
-simpleCosmicBONSeedsBottom.TripletsPSet.TEC.rphiRecHits = cms.InputTag("siStripMatchedRecHitsBottom","rphiRecHit")
+simpleCosmicBONSeedsBottom.TripletsSrc = "simpleCosmicBONSeedingLayersBottom"
 simpleCosmicBONSeedsBottom.ClusterCheckPSet.MaxNumberOfCosmicClusters = 150
 combinedP5SeedsForCTFBottom = globalCombinedSeeds.clone(
 seedCollections = cms.VInputTag(cms.InputTag('combinatorialcosmicseedfinderP5Bottom'),cms.InputTag('simpleCosmicBONSeedsBottom'))
@@ -206,7 +210,7 @@ ctfWithMaterialTracksP5Bottom.Fitter = 'FittingSmootherRKP5'
 ctfWithMaterialTracksP5Bottom.clusterRemovalInfo = "topBottomClusterInfoProducerBottom"
 ctftracksP5Bottom = cms.Sequence(combinatorialcosmicseedingtripletsP5Bottom*combinatorialcosmicseedingpairsTOBP5Bottom*
                                  combinatorialcosmicseedingpairsTECposP5Bottom*combinatorialcosmicseedingpairsTECnegP5Bottom*
-                                 combinatorialcosmicseedfinderP5Bottom*simpleCosmicBONSeedsBottom*
+                                 combinatorialcosmicseedfinderP5Bottom*simpleCosmicBONSeedingLayersBottom*simpleCosmicBONSeedsBottom*
                                        combinedP5SeedsForCTFBottom*ckfTrackCandidatesP5Bottom*
                                        ctfWithMaterialTracksP5Bottom)
 
