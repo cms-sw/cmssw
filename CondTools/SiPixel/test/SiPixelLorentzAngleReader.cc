@@ -3,7 +3,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "CalibTracker/SiPixelLorentzAngle/test/SiPixelLorentzAngleReader.h"
+#include "CondTools/SiPixel/test/SiPixelLorentzAngleReader.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

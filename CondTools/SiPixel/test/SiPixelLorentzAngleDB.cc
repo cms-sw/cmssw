@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CalibTracker/SiPixelLorentzAngle/interface/SiPixelLorentzAngleDB.h"
+#include "CondTools/SiPixel/test/SiPixelLorentzAngleDB.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
