@@ -74,16 +74,17 @@ process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
 # APV Phase Producer
 #nwe one
 process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts_cfi")
-APVPhases = cms.EDProducer("APVCyclePhaseProducerFromL1TS",
-                            defaultPartitionNames = cms.vstring("TI",
-                            "TO",
-                            "TP",
-                            "TM"
-                            ),
-                            defaultPhases = cms.vint32(60,60,60,60),
-                            magicOffset = cms.untracked.int32(258),
-                            l1TSCollection = cms.InputTag("scalersRawToDigi"),
-                            )
+from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi import *
+#APVPhases = cms.EDProducer("APVCyclePhaseProducerFromL1TS",
+#                            defaultPartitionNames = cms.vstring("TI",
+#                            "TO",
+#                            "TP",
+#                            "TM"
+#                            ),
+#                            defaultPhases = cms.vint32(60,60,60,60),
+#                            magicOffset = cms.untracked.int32(258),
+#                            l1TSCollection = cms.InputTag("scalersRawToDigi"),
+#                            )
 
 #--------------------------
 # SiStrip MonitorCluster
