@@ -45,18 +45,17 @@ void TestCaloSelectors::analyze(const edm::Event& evt, const edm::EventSetup& c)
   CaloConeSelector<HBHERecHit> sel(0.3, pG.product(), DetId::Hcal);
   CaloDualConeSelector<HBHERecHit> sel2(0.3, 0.5, pG.product(), DetId::Hcal);
   
-  std::auto_ptr<HBHERecHitCollection> chosen = sel.select(pMax, mhbhe);
-  std::auto_ptr<HBHERecHitCollection> chosen2 = sel2.select(pMax, mhbhe);
+  std::cout << "Center at " << pMax.eta() << "," << pMax.phi() << " (ET=" << maxEt << ")" << std::endl;
 
-  std::cout << "Center at " << pMax.eta() << "," << pMax.phi() << " (ET=" << maxEt << ") I had " << mhbhe.size() << " and I kept " << chosen->size() << std::endl;
-  
-  for (HBHERecHitCollection::const_iterator i=chosen->begin(); i!=chosen->end(); i++) {
-    std::cout << HcalDetId(i->detid()) << " : " << (*i) << std::endl;
-  }
+  sel.selectCallback(pMax, mhbhe, [&](const HBHERecHit& i) {
+    std::cout << HcalDetId(i.detid()) << " : " << i << std::endl;
+  });
+
   std::cout << "Dual cone\n";
-  for (HBHERecHitCollection::const_iterator i=chosen2->begin(); i!=chosen2->end(); i++) {
-    std::cout << HcalDetId(i->detid()) << " : " << (*i) << std::endl;
-  }
+
+  sel2.selectCallback(pMax, mhbhe, [&](const HBHERecHit& i) {
+    std::cout << HcalDetId(i.detid()) << " : " << i << std::endl;
+  });
 
   std::cout << std::endl;
 }
