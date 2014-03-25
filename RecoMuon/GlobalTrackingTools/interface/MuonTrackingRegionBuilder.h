@@ -15,6 +15,9 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class MuonServiceProxy;
 class RectangularEtaPhiTrackingRegion;
@@ -30,9 +33,10 @@ class MuonTrackingRegionBuilder {
   public:
  
     /// constructor
-    MuonTrackingRegionBuilder(const edm::ParameterSet&);
+    MuonTrackingRegionBuilder(const edm::ParameterSet&, edm::ConsumesCollector&);
     MuonTrackingRegionBuilder(const edm::ParameterSet&par,
-			      const MuonServiceProxy*service){ build(par);init(service);}
+			      const MuonServiceProxy*service,
+			      edm::ConsumesCollector& iC){ build(par, iC);init(service);}
     void init(const MuonServiceProxy*);
   
     /// destructor
@@ -48,7 +52,7 @@ class MuonTrackingRegionBuilder {
     virtual void setEvent(const edm::Event&);
 
   private:
-    void build(const edm::ParameterSet&);
+    void build(const edm::ParameterSet&, edm::ConsumesCollector&);
 
     edm::InputTag theBeamSpotTag;   // beam spot
     edm::InputTag theVertexCollTag; // vertex collection
@@ -76,5 +80,7 @@ class MuonTrackingRegionBuilder {
 
     double theOnDemand;
     std::string theMeasurementTrackerName;
+    edm::EDGetTokenT<reco::BeamSpot> bsHandleToken;
+    edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken;
 };
 #endif

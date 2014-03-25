@@ -33,7 +33,8 @@
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
-# <use   name="TrackPropagation/SteppingHelixPropagator"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="CondFormats/RecoMuonObjects"/>
 <use   name="Utilities/General"/>
 <use   name="Utilities/Timing"/>
 <use   name="CondFormats/Alignment"/>

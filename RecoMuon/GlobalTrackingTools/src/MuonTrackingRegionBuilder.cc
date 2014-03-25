@@ -26,8 +26,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -38,11 +36,11 @@ using namespace std;
 //
 
 void MuonTrackingRegionBuilder::init(const MuonServiceProxy* service) { theService= service;}
-MuonTrackingRegionBuilder::MuonTrackingRegionBuilder(const edm::ParameterSet& par)
+MuonTrackingRegionBuilder::MuonTrackingRegionBuilder(const edm::ParameterSet& par, edm::ConsumesCollector& iC)
 {
-  build(par);
+  build(par, iC);
 }
-void MuonTrackingRegionBuilder::build(const edm::ParameterSet& par){
+void MuonTrackingRegionBuilder::build(const edm::ParameterSet& par, edm::ConsumesCollector& iC){
   // vertex Collection and Beam Spot
   theBeamSpotTag = par.getParameter<edm::InputTag>("beamSpot");
   theVertexCollTag = par.getParameter<edm::InputTag>("vertexCollection");
@@ -72,9 +70,11 @@ void MuonTrackingRegionBuilder::build(const edm::ParameterSet& par){
   theDeltaR = par.getParameter<double>("DeltaR");
 
   // perigee reference point
-
   theOnDemand = par.getParameter<double>("OnDemand");
   theMeasurementTrackerName = par.getParameter<std::string>("MeasurementTrackerName");
+
+  bsHandleToken=iC.consumes<reco::BeamSpot>(theBeamSpotTag);
+  vertexCollectionToken=iC.consumes<reco::VertexCollection>(theVertexCollTag);
 }
 
 
@@ -128,7 +128,7 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
 
   // retrieve beam spot information
   edm::Handle<reco::BeamSpot> bsHandle;
-  bool bsHandleFlag = theEvent->getByLabel(theBeamSpotTag, bsHandle);
+  bool bsHandleFlag = theEvent->getByToken(bsHandleToken, bsHandle);
   // check the validity, otherwise vertexing
   // inizialization of BS
 
@@ -138,7 +138,7 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
   } else {
     // get originZPos from list of reconstructed vertices (first or all)
     edm::Handle<reco::VertexCollection> vertexCollection;
-    bool vtxHandleFlag = theEvent->getByLabel(theVertexCollTag,vertexCollection);
+    bool vtxHandleFlag = theEvent->getByToken(vertexCollectionToken, vertexCollection);
     // check if there exists at least one reconstructed vertex
     if ( vtxHandleFlag && !vertexCollection->empty() ) {
       // use the first vertex in the collection and assume it is the primary event vertex 
