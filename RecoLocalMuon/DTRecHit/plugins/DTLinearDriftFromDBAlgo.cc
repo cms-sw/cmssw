@@ -28,14 +28,19 @@ DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config) :
   doVdriftCorr(config.getParameter<bool>("doVdriftCorr")),
   // Option to force going back to digi time at Step 2 
   stepTwoFromDigi(config.getParameter<bool>("stepTwoFromDigi")),
-  // Assign hit uncertainties based on new uncertainties DB
-  useUncertDB(config.getParameter<bool>("useUncertDB")),
+  useUncertDB(false),
   // Set verbose output
   debug(config.getUntrackedParameter<bool>("debug"))
 {
-    if(debug)
-      cout<<"[DTLinearDriftFromDBAlgo] Constructor called"<<endl;
+  if(debug)
+    cout<<"[DTLinearDriftFromDBAlgo] Constructor called"<<endl;
+
+  // Check for compatibility with older configurations
+  if (config.existsAs<bool>("useUncertDB")) {
+    // Assign hit uncertainties based on new uncertainties DB
+    useUncertDB= config.getParameter<bool>("useUncertDB");
   }
+}
 
 
 
