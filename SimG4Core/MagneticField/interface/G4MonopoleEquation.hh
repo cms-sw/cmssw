@@ -47,31 +47,31 @@
 
 #include "G4EquationOfMotion.hh"
 #include "G4ElectroMagneticField.hh"
+#include "globals.hh"
 
 class G4MonopoleEquation : public G4EquationOfMotion
 {
-  public:  // with description
+public:  
 
   G4MonopoleEquation(G4ElectroMagneticField *emField );
-      // : G4EquationOfMotion( emField ) {;}
 
-    ~G4MonopoleEquation() {;} 
+  virtual ~G4MonopoleEquation(); 
 
-    void  SetChargeMomentumMass(G4double particleMagneticCharge,
-                                G4double particleElectricCharge,
-                                G4double mass);
+  virtual void SetChargeMomentumMass(G4ChargeState particleCharges,
+				     G4double particleElectricCharge,
+				     G4double mass);
                                  
-    void EvaluateRhsGivenB(const G4double y[],
-                           const G4double Field[],
-                                 G4double dydx[] ) const;
-      // Given the value of the electromagnetic field, this function 
-      // calculates the value of the derivative dydx.
+  virtual void EvaluateRhsGivenB(const G4double y[],
+				 const G4double Field[],
+				 G4double dydx[] ) const;
+  // Given the value of the electromagnetic field, this function 
+  // calculates the value of the derivative dydx.
 
-  private:
+private:
 
-    G4double        fMagCharge ;
-    G4double        fElCharge;
-    G4double        fMassCof;
+  G4double        fMagCharge ;
+  G4double        fElCharge;
+  G4double        fMassCof;
 };
 
 #endif
