@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="bcm1fsens.xml" eval="true">
+  <SpecPar name="bcm1f">
+   <PartSelector path="//BCM1FSensor"/>
+   <Parameter name="SensitiveDetector" value="BCM1FSensitiveDetector" eval="false"/>
+   <Parameter name="ReadOutName" value="BCM1FHits" eval="false"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>
