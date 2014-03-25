@@ -103,17 +103,17 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackF
 
   TrajectoryMeasurement const & firstMeas = fitres.lastMeasurement();
 
-  /*
+  // magnetic field can be different!
   TSOS firstState(firstMeas.updatedState().localParameters(),
 		  firstMeas.updatedState().localError(),
   		  firstMeas.updatedState().surface(),
   		  thePropagatorAlong->magneticField());
-  */
+  
  
-  TSOS & firstState = const_cast<TSOS&>(firstMeas.updatedState());
+  // TSOS & firstState = const_cast<TSOS&>(firstMeas.updatedState());
 
-
-  assert(thePropagatorAlong->magneticField()==firstState.magneticField());
+  // this fails in case of zero field? (for sure for beamhalo reconstruction)
+  // assert(thePropagatorAlong->magneticField()==firstState.magneticField());
 
   firstState.rescaleError(100.);
 
