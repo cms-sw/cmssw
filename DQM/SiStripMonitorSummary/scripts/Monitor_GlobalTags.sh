@@ -49,9 +49,18 @@ for globaltag in `cat $GLOBALTAGCOLLECTION`; do
     afstokenchecker.sh "Processing Global Tag $globaltag";
 
     if [ -d "$STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag" ]; then
-#	afstokenchecker.sh "Directory $STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag exists already";
-# already known GT will not be reprocessed. The directory has to be deleted to reprocess a GT
-	continue
+# already known GT: check if the directory is empty otherwise skip it
+	NOTONLYNOISERATIOS=false
+	for file in `ls $STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag/`; do
+	    if [ $file != "NoiseRatios" ] && [ $file != "RunInfo" ]; then
+		NOTONLYNOISERATIOS=true
+		continue
+	    fi
+	done
+	if [ "$NOTONLYNOISERATIOS" == "true" ]; then
+	    continue
+	fi
+	afstokenchecker.sh "Directory $STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag contains only NoiseRatios: to be processed";
     else
 	afstokenchecker.sh "Creating directory $STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag";
 	mkdir $STORAGEPATH/$DB/$GLOBALTAGDIR/$globaltag;
@@ -69,7 +78,8 @@ for globaltag in `cat $GLOBALTAGCOLLECTION`; do
 	TAG=`echo $tagstring | awk '{print $1}' | sed -e "s@tag:@@g"`
 	RECORD=`echo $tagstring | awk '{print $2}' | sed -e "s@record:@@g"`
 	OBJECT=`echo $tagstring | awk '{print $3}' | sed -e "s@object:@@g"`
-	ACCOUNT=`echo $tagstring | awk '{print $4}' | sed -e "s@pfn:frontier://$FRONTIER/@@g"`
+#	ACCOUNT=`echo $tagstring | awk '{print $4}' | sed -e "s@pfn:frontier://$FRONTIER/@@g"`
+	ACCOUNT=`echo $tagstring | awk '{print $4}' | awk 'BEGIN {FS = "/" } ; { print $NF }'`
 	TAGSUBDIR="Unknown"
 
     if      [ `echo $TAG | grep "Noise" | wc -w` -gt 0 ]; then
@@ -120,7 +130,8 @@ for globaltag in `cat $GLOBALTAGCOLLECTION`; do
 
 	# Creation of links between the DB-Tag and the respective Global Tags
 	if [ ! -d "$STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$TAG" ]; then
-	    afstokenchecker.sh "tag $TAG is unknown: skipped";
+	    afstokenchecker.sh "Tag $TAG is unknown: skipped";
+	    echo "$tagstring";
 	    continue
 	fi
 	if [ ! -d "$STORAGEPATH/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$TAG/RelatedGlobalTags" ]; then
@@ -135,8 +146,8 @@ for globaltag in `cat $GLOBALTAGCOLLECTION`; do
 	    RECORDANDOBJECTNAME="Record name: $RECORD Object Name: $OBJECT"
 	    echo $RECORDANDOBJECTNAME 
 	    
-	    rm -f $tag; 
-	    cat >> $tag << EOF
+	    rm -f $TAG; 
+	    cat >> $TAG << EOF
 <html>
 <body>
 <a href="https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$TAG">https://test-stripdbmonitor.web.cern.ch/test-stripdbmonitor/CondDBMonitoring/$DB/$ACCOUNT/$DBTAGDIR/$TAGSUBDIR/$TAG</a>
