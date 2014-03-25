@@ -14,8 +14,8 @@
 #include "CondTools/SiPixel/test/SiPixelBadModuleByHandBuilder.h"
 #include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
 
-#include "CalibTracker/SiPixelLorentzAngle/test/SiPixelLorentzAngleReader.h"
-#include "CalibTracker/SiPixelLorentzAngle/interface/SiPixelLorentzAngleDB.h"
+#include "CondTools/SiPixel/test/SiPixelLorentzAngleReader.h"
+#include "CondTools/SiPixel/test/SiPixelLorentzAngleDB.h"
 
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryBuilder.h"
 #include "CondTools/SiPixel/test/SiPixelPerformanceSummaryReader.h"
