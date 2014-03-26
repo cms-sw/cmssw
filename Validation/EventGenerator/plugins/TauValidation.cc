@@ -24,6 +24,7 @@ TauValidation::TauValidation(const edm::ParameterSet& iPSet):
   ,zsbins(20)
   ,zsmin(-0.5)
   ,zsmax(0.5)
+  ,n_taupinu(200,0)
 {    
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
@@ -122,6 +123,11 @@ void TauValidation::beginJob()
 
      TauSpinEffectsH_rhorhoAcoplanarityminus = dbe->book1D("TauSpinEffectsH_rhorhoAcoplanarityminus","#phi^{*-} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}<0)", 32 ,0,2*TMath::Pi());     TauSpinEffectsH_rhorhoAcoplanarityminus->setAxisTitle("#phi^{*-} (Acoplanarity)");
      TauSpinEffectsH_rhorhoAcoplanarityplus = dbe->book1D("TauSpinEffectsH_rhorhoAcoplanarityplus","#phi^{*+} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}>0)", 32 ,0,2*TMath::Pi());     TauSpinEffectsH_rhorhoAcoplanarityplus->setAxisTitle("#phi^{*+} (Acoplanarity)");
+
+
+
+     TauSpinEffectstautau_polvxM = dbe->book1D("TauSpinEffectsZ_polvxM","#tau Polarization ", 40,0,200);  TauSpinEffectstautau_polvxM->setAxisTitle("Mass (GeV)");
+
 
     TauFSRPhotonsN=dbe->book1D("TauFSRPhotonsN","FSR Photons radiating from/with tau (Gauge Boson)", 5 ,-0.5,4.5);
     TauFSRPhotonsN->setAxisTitle("N FSR Photons radiating from/with tau");
@@ -584,6 +590,28 @@ void TauValidation::rtau(const HepMC::GenParticle* tau,int mother, int decay, do
 	if(tauDecayChannel(*des) == pi){
 	  if(abs(boson->pdg_id())==PdtPdgMini::Z0) TauSpinEffectsZ_X->Fill(LVpi.P()/LVtau.E(),weight);
 	  if(abs(boson->pdg_id())==PdtPdgMini::Higgs0) TauSpinEffectsH_X->Fill(LVpi.P()/LVtau.E(),weight);
+	  if(tautau.M()>2.0){
+	    // for both z and h compute tau polarization
+	    TH1* histo = TauSpinEffectstautau_polvxM->getTH1();
+	    int n=histo->FindBin(tautau.M());
+	    double mean=histo->GetBinContent(n);
+	    double err=histo->GetBinError(n);
+	    double x=(6.0*(LVpi.P()/LVtau.E()-0.5));
+	    double M2=err*err*(n_taupinu[n]-1)*n_taupinu[n];
+	    //use Knuth algorithm: Donald E. Knuth (1998). The Art of Computer Programming, 
+	    //volume 2: Seminumerical Algorithms, 3rd edn., p. 232. Boston: Addison-Wesley. 
+	    n_taupinu[n]+=1.0;
+	    double d=x-mean; 
+	    mean+=d/n_taupinu[n];
+	    //std::cout << n << M2 << " " << d << " " << (x-mean) << std::endl;
+	    M2+=d*(x-mean);
+	    if(n_taupinu[n]>1){err=sqrt((M2/(n_taupinu[n]-1))/n_taupinu[n]);}
+	    else{ err=sqrt(M2);}
+	    //save values
+	    //std::cout << n << " " << tautau.M() << " " << mean << "+/-" << err << std::endl; 
+	    histo->SetBinContent(n,mean);
+	    histo->SetBinError(n,err);
+	  }
 	}
 	if(charge<0){x1=LVpi.P()/LVtau.E(); taum=LVtau;}
 	else{ x2=LVpi.P()/LVtau.E();}
