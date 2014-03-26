@@ -1007,8 +1007,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      double  DR = sqrt(deta_trk*deta_trk+
 				dphi_trk*dphi_trk);
 	      
-	      reco::HitPattern kfHitPattern = trkref->hitPattern();
-	      int NValPixelHit = kfHitPattern.numberOfValidPixelHits();
+	      int NValPixelHit = trkref->hitPattern().numberOfValidPixelHits();
 	      
 	      if(DR < coneTrackIsoForEgammaSC_ && NValPixelHit >=3) {
 		sumNTracksInTheCone++;

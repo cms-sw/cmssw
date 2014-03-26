@@ -33,8 +33,8 @@ bool isBetter( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
 bool isInnerMost::operator()
  ( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
  {
-  reco::HitPattern gsfHitPattern1 = e1->gsfTrack()->hitPattern() ;
-  reco::HitPattern gsfHitPattern2 = e2->gsfTrack()->hitPattern() ;
+  const reco::HitPattern &gsfHitPattern1 = e1->gsfTrack()->hitPattern() ;
+  const reco::HitPattern &gsfHitPattern2 = e2->gsfTrack()->hitPattern() ;
 
   // retreive first valid hit
   int gsfHitCounter1 = 0 ;

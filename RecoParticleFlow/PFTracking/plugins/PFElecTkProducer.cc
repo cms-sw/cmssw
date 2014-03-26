@@ -1089,8 +1089,8 @@ bool PFElecTkProducer::isInnerMost(const reco::GsfTrackRef& nGsfTrack,
   // copied by the class RecoEgamma/EgammaElectronAlgos/src/EgAmbiguityTools.cc
   // obsolete but the code is kept: now using lost hits method
 
-  reco::HitPattern gsfHitPattern1 = nGsfTrack->hitPattern();
-  reco::HitPattern gsfHitPattern2 = iGsfTrack->hitPattern();
+  const reco::HitPattern& gsfHitPattern1 = nGsfTrack->hitPattern();
+  const reco::HitPattern& gsfHitPattern2 = iGsfTrack->hitPattern();
   
   // retrieve first valid hit
   int gsfHitCounter1 = 0 ;

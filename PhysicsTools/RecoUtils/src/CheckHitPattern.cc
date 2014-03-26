@@ -165,7 +165,7 @@ CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup,
   for (int i = 0; i < ip.numberOfHits(); i++) {
     uint32_t hit = ip.getHitPattern(i);
     //    if (ip.trackerHitFilter(hit)) {
-    if (ip.trackerHitFilter(hit) && ip.type_1_HitFilter(hit)) {
+    if (ip.trackerHitFilter(hit) && ip.missingHitFilter(hit)) {
       uint32_t subDet = ip.getSubStructure(hit);
       uint32_t layer = ip.getLayer(hit);
       DetInfo detInfo(subDet, layer);

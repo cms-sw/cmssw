@@ -53,7 +53,7 @@ FWTrackResidualDetailView::~FWTrackResidualDetailView ()
 void
 FWTrackResidualDetailView::prepareData(const FWModelId &id, const reco::Track* track)
 {
-   HitPattern hitpat = track->hitPattern();
+   const HitPattern &hitpat = track->hitPattern();
    TrackResiduals residuals = track->residuals();
 
    const FWGeometry *geom = id.item()->getGeom();
@@ -62,11 +62,12 @@ FWTrackResidualDetailView::prepareData(const FWModelId &id, const reco::Track* t
    for (int i = 0; i < m_nhits; ++i) {
       //   	printf("there are %d hits in the pattern, %d in the vector, this is %u\n",
       //   	       m_nhits, track->recHitsEnd() - track->recHitsBegin(), (*(track->recHitsBegin() + i))->geographicalId().rawId());
-      hittype[i] = 0x3 & hitpat.getHitPattern(i);
-      stereo[i] = 0x1 & hitpat.getHitPattern(i) >> 2;
-      subsubstruct[i] = 0xf & hitpat.getHitPattern(i) >> 3;
-      substruct[i] = 0x7 & hitpat.getHitPattern(i) >> 7;
-      m_detector[i] = 0x01 & hitpat.getHitPattern(i) >> 10;
+      uint32_t pattern = hitpat.getHitPattern(i);
+      hittype[i] = HitPattern::getHitType(pattern);
+      stereo[i] = HitPattern::getSide(pattern);
+      subsubstruct[i] = HitPattern::getSubSubStructure(pattern);
+      substruct[i] = HitPattern::getSubStructure(pattern);
+      m_detector[i] = HitPattern::getSubDetector(pattern);
       if ((*(track->recHitsBegin() + i))->isValid()) {
          res[0][i] = getSignedResidual(geom,
                                        (*(track->recHitsBegin() + i))->geographicalId().rawId(),

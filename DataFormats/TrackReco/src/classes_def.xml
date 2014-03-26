@@ -1,17 +1,69 @@
 <lcgdict>
-  <class name="reco::HitPattern" ClassVersion="11">
-   <version ClassVersion="11" checksum="1621684703"/>
+  <class name="reco::HitPattern" ClassVersion="12">
+      <version ClassVersion="12" checksum="2952108525"/>
+      <field name="trackHitsCache" transient="true"/>
+      <field name="expectedInnerHitsCache" transient="true"/>
+      <field name="expectedOuterHitsCache" transient="true"/>
+      <field name="trackHitsCacheDirty" transient="true"/>
+      <field name="expectedInnerHitsCacheDirty" transient="true"/>
+      <field name="expectedOuterHitsCacheDirty" transient="true"/>
+
+      <version ClassVersion="11" checksum="1621684703"/>
   </class>
-  <class name="reco::TrackResiduals" ClassVersion="10">
-   <version ClassVersion="10" checksum="2022291691"/>
-  </class>
-  <class name="reco::TrackBase" ClassVersion="12">
+
+  <ioread sourceClass="reco::HitPattern" version="[12-]" targetClass="reco::HitPattern" source="" target="trackHitsCache">
+    <![CDATA[
+      trackHitsCache = nullptr;
+    ]]>
+  </ioread>
+
+  <ioread sourceClass="reco::HitPattern" version="[12-]" targetClass="reco::HitPattern" source="" target="expectedInnerHitsCache">
+    <![CDATA[
+      expectedInnerHitsCache = nullptr;
+    ]]>
+  </ioread>
+
+  <ioread sourceClass="reco::HitPattern" version="[12-]" targetClass="reco::HitPattern" source="" target="expectedOuterHitsCache">
+    <![CDATA[
+      expectedOuterHitsCache = nullptr;
+    ]]>
+  </ioread>
+
+  <ioread sourceClass="reco::HitPattern" version="[12-]" targetClass="reco::HitPattern" source="" target="trackHitsCacheDirty">
+    <![CDATA[
+      trackHitsCacheDirty = true;
+    ]]>
+  </ioread>
+
+  <ioread sourceClass="reco::HitPattern" version="[12-]" targetClass="reco::HitPattern" source="" target="expectedInnerHitsCacheDirty">
+    <![CDATA[
+      expectedInnerHitsCacheDirty = true;
+    ]]>
+  </ioread>
+  
+  <ioread sourceClass="reco::HitPattern" version="[12-]" targetClass="reco::HitPattern" source="" target="expectedOuterHitsCacheDirty">
+    <![CDATA[
+      expectedOuterHitsCacheDirty = true;
+    ]]>
+  </ioread>
+
+  <class name="reco::TrackBase" ClassVersion="13">
+
+   <version ClassVersion="13" checksum="1244921154"/>
+    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+    <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+   
    <version ClassVersion="12" checksum="2704717983"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+
    <version ClassVersion="10" checksum="3019978065"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+  </class>
+
+  <class name="reco::TrackResiduals" ClassVersion="10">
+   <version ClassVersion="10" checksum="2022291691"/>
   </class>
   <class name="reco::TrackExtraBase" ClassVersion="10">
    <version ClassVersion="10" checksum="3548207838"/>
@@ -30,7 +82,8 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="11">
+  <class name="reco::Track" ClassVersion="12">
+   <version ClassVersion="12" checksum="1190637787"/>
    <version ClassVersion="11" checksum="1190637787"/>
    <version ClassVersion="10" checksum="1190637787"/>
   </class>
