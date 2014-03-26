@@ -90,7 +90,7 @@ public:
     return theGeometricalPropagator->setMaxDirectionChange(phiMax);
   }
   /// Propagation direction
-  virtual void setPropagationDirection (PropagationDirection dir) const;
+  virtual void setPropagationDirection (PropagationDirection dir);
 
   enum MaterialLocation {atSource, atDestination, fromDirection};
   /** Choice of location for including material effects:

@@ -114,7 +114,7 @@ public:
     return thePropagator->setMaxDirectionChange(phiMax);
   }
 
- virtual void setPropagationDirection (PropagationDirection dir) const;
+ virtual void setPropagationDirection (PropagationDirection dir);
 
   /// access to single state propagator
   inline const Propagator& propagator () const

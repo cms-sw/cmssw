@@ -51,7 +51,8 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   if unlikely(aSeed.direction() == anyDirection)
     throw cms::Exception("KFTrajectoryFitter","TrajectorySeed::direction() requested but not set");
 
-  SetPropagationDirection setDir(*thePropagator,aSeed.direction());
+  std::unique_ptr<Propagator> p_cloned = SetPropagationDirection(*thePropagator,
+                                                                 aSeed.direction());
 
 #ifdef EDM_ML_DEBUG
   LogDebug("TrackFitters")
@@ -68,7 +69,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   LogTrace("TrackFitters") << " INITIAL STATE "<< firstPredTsos;
 #endif
 
-  Trajectory ret(aSeed, thePropagator->propagationDirection());
+  Trajectory ret(aSeed, p_cloned->propagationDirection());
   Trajectory & myTraj = ret;
   myTraj.reserve(hits.size());
 
@@ -140,7 +141,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 #endif
 
     if ( hitcounter != 1) //no propagation needed for the first hit
-      predTsos = thePropagator->propagate( currTsos, *(hit.surface()) );
+      predTsos = p_cloned->propagate( currTsos, *(hit.surface()) );
 
 
     if unlikely(!predTsos.isValid()) {
