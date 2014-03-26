@@ -72,6 +72,15 @@ class TestMixedSource : public edm::EDAnalyzer {
       TH1I * histHepMCProduct_bunch_;
       TFile *histFile_;
        
+    edm::EDGetTokenT<CrossingFrame<PSimHit>> TrackerToken0_;
+    edm::EDGetTokenT<CrossingFrame<PSimHit>> MuonToken_;
+
+    edm::EDGetTokenT<CrossingFrame<PCaloHit>> CaloToken1_;
+
+    edm::EDGetTokenT<CrossingFrame<SimTrack>> SimTrackToken_;
+    edm::EDGetTokenT<CrossingFrame<SimVertex>> SimVertexToken_;
+    edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct>> HepMCToken_;
+
 
 };
 }//edm
