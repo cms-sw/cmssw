@@ -6,6 +6,8 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCategoryData.h"
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
+#include "RecoBTag/BTagTools/interface/TrackSelector.h"
+
 
   /**  filter to define the belonging of a track to a TrackClass
    */ 
@@ -13,7 +15,7 @@ class TrackClassFilter
 {
  public:
 
- TrackClassFilter() {}
+  TrackClassFilter(const reco::TrackSelector &selector): trackSelector(selector) {}
 
  class Input
  {
@@ -32,6 +34,7 @@ class TrackClassFilter
 
  bool operator()(const first_argument_type & , const second_argument_type &) const;
 
+ const reco::TrackSelector &trackSelector;
 //  void dump() const;
 
 };
