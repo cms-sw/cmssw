@@ -12,7 +12,7 @@ process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(3000))
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:patTuple_micro_test.root'
+        'file:patTuple_micro.root'
 )
 )
 
@@ -35,6 +35,7 @@ process.GlobalTag.globaltag = 'POSTLS162_V1::All'
 
 process.unpackTV = cms.EDProducer('PATTrackAndVertexUnpacker',
  slimmedVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+ additionalTracks= cms.InputTag("lostTracks"),
  packedCandidates = cms.InputTag("packedPFCandidates")
 )
 

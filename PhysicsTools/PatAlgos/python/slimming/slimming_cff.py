@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.slimming.packedPFCandidates_cfi import *
+from PhysicsTools.PatAlgos.slimming.lostTracks_cfi import *
 from PhysicsTools.PatAlgos.slimming.offlineSlimmedPrimaryVertices_cfi import *
 from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import *
 from PhysicsTools.PatAlgos.slimming.selectedPatTrigger_cfi import *
@@ -19,7 +20,7 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedElectrons_*_*',
         'keep *_slimmedMuons*_*_*',
         'keep *_slimmedTaus*_*_*',
-        'keep *_slimmedJets_*_*',
+        'keep *_slimmedJets*_*_*',
         'keep *_patMETs*_*_*',
         ## add extra METs
 
@@ -39,6 +40,7 @@ MicroEventContent = cms.PSet(
         'keep *_l1extraParticles_*_HLT',
         'keep *_TriggerResults_*_HLT',
         'keep *_TriggerResults_*_PAT', # for MET filters
+	'keep *_lostTracks_*_PAT',
     )
 )
 MicroEventContentMC = cms.PSet(

@@ -20,7 +20,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-//#define CRAZYSORT 
+#define CRAZYSORT 
 //FIXME: debugging stuff to be removed
 #define DEBUGIP 0
 #if DEBUGIP
@@ -58,6 +58,7 @@ namespace pat {
             edm::EDGetTokenT<reco::PFCandidateFwdPtrVector>  CandsFromPVLoose_;
             edm::EDGetTokenT<reco::PFCandidateFwdPtrVector>  CandsFromPVTight_;
             edm::EDGetTokenT<reco::VertexCollection>         PVs_;
+            edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
             double minPtForTrackProperties_;
             // for debugging
             float calcDxy(float dx, float dy, float phi) {
@@ -74,6 +75,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   CandsFromPVLoose_(consumes<reco::PFCandidateFwdPtrVector>(iConfig.getParameter<edm::InputTag>("inputCollectionFromPVLoose"))),
   CandsFromPVTight_(consumes<reco::PFCandidateFwdPtrVector>(iConfig.getParameter<edm::InputTag>("inputCollectionFromPVTight"))),
   PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
+  PVOrigs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("originalVertices"))),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
 {
   produces< std::vector<pat::PackedCandidate> > ();
@@ -120,7 +122,9 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         }
     }
 
-
+    edm::Handle<reco::VertexCollection> PVOrigs;
+    iEvent.getByToken( PVOrigs_, PVOrigs );
+    const reco::Vertex & PVOrig = (*PVOrigs)[0];
     edm::Handle<reco::VertexCollection> PVs;
     iEvent.getByToken( PVs_, PVs );
     reco::VertexRef PV(PVs.id());
@@ -223,7 +227,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
             }
             outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV, fromPV[ic]));
 	    if(cand.trackRef().isNonnull()){
-		if(PV->trackWeight(cand.trackRef()) > 0.5)  outPtrP->back().setFromPV(pat::PackedCandidate::PVUsedInFit);
+		if(PVOrig.trackWeight(cand.trackRef()) > 0.5)  outPtrP->back().setFromPV(pat::PackedCandidate::PVUsedInFit);
 	    }	
 	    if(cand.trackRef().isNonnull() && cand.pt() > minPtForTrackProperties_)
 	    {
