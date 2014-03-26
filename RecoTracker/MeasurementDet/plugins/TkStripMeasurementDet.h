@@ -100,10 +100,6 @@ public:
 
   void setIndex(int i) { index_=i;}
   
-  void update( StMeasurementDetSet & theDets, std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end ) const { 
-    theDets.update(index(), begin, end);
-  }
-  
   void setEmpty(StMeasurementDetSet & theDets) const { theDets.setEmpty(index()); }
   
   bool  isEmpty(const StMeasurementDetSet & theDets) const {return theDets.empty(index());}
@@ -117,11 +113,6 @@ public:
   const detset & theSet(const StMeasurementDetSet & theDets) const {return theDets.detSet(index());}
   const detset & detSet(const StMeasurementDetSet & theDets) const {return theDets.detSet(index());}
 
-  unsigned int beginClusterI(const StMeasurementDetSet & theDets) const {return theDets.beginClusterI(index());}
-  unsigned int endClusterI(const StMeasurementDetSet & theDets) const {return theDets.endClusterI(index());}
-  
-  int  size(const StMeasurementDetSet & theDets) const {return endClusterI(theDets) - beginClusterI(theDets) ; }
-  
   
   /** \brief Is this module active in reconstruction? It must be both 'setActiveThisEvent' and 'setActive'. */
   bool isActive(const MeasurementTrackerEvent & data) const { return data.stripData().isActive(index()); }

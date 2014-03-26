@@ -79,7 +79,6 @@ namespace cms{
         skipClusters_ = true;
         maskPixels_ = iC.consumes<PixelClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
         maskStrips_ = iC.consumes<StripClusterMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
-        maskStripsLazy_ = iC.consumes<StripClusterLazyMask>(conf.getParameter<edm::InputTag>("clustersToSkip"));
       }
 
     std::string cleaner = conf_.getParameter<std::string>("RedundantSeedCleaner");
@@ -177,19 +176,13 @@ namespace cms{
     if (skipClusters_) {
         edm::Handle<PixelClusterMask> pixelMask;
         e.getByToken(maskPixels_, pixelMask);
-        if (data->isStripRegional()) {
-            edm::Handle<StripClusterLazyMask> stripMask;
-            e.getByToken(maskStripsLazy_, stripMask);
-            dataWithMasks.reset(new MeasurementTrackerEvent(*data, *stripMask, *pixelMask));
-        } else {
             edm::Handle<StripClusterMask> stripMask;
             e.getByToken(maskStrips_, stripMask);
             dataWithMasks.reset(new MeasurementTrackerEvent(*data, *stripMask, *pixelMask));
-        }
-        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with masks, " << (!data->isStripRegional() ? "offline": "onDemand") << std::endl;
+        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created with masks, " << std::endl;
         trajectoryBuilder.reset(theTrajectoryBuilder->clone(&*dataWithMasks));
     } else {
-        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created without masks, " << (!data->isStripRegional() ? "offline": "onDemand") << std::endl;
+        //std::cout << "Trajectory builder " << conf_.getParameter<std::string>("@module_label") << " created without masks, " << std::endl;
         trajectoryBuilder.reset(theTrajectoryBuilder->clone(&*data));
     }
     
