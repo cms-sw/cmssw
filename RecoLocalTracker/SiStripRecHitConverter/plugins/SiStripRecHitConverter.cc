@@ -22,6 +22,7 @@ produce(edm::Event& e, const edm::EventSetup& es)
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
   
   SiStripRecHitConverterAlgorithm::products output;
+  e.getByToken(clusterProducer, clusters);
   recHitConverterAlgorithm.initialize(es);
   recHitConverterAlgorithm.run(clusters, output);
   
