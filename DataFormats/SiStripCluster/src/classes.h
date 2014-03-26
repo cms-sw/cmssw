@@ -2,13 +2,17 @@
 #define SISTRIPCLUSTER_CLASSES_H
 
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
+
+#include "DataFormats/Common/interface/LazyGetter.h"
 namespace DataFormats_SiStripCluster {
   struct dictionary2 {
+
+    edmNew::DetSetVector<SiStripCluster> dsvn;
+
     edm::Wrapper< SiStripCluster > dummy0;
     edm::Wrapper< std::vector<SiStripCluster>  > dummy1;
 
@@ -16,8 +20,17 @@ namespace DataFormats_SiStripCluster {
     edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > dummy_cm1;
     edm::Wrapper<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > dummy_w_cm1;
 
+    std::vector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> > dummy_v;
     edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> > dumm_dtvr;
     edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> > > dumm_dtvr_w;
+
+    edm::LazyGetter<SiStripCluster> lg1;
+    edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  reflg1;
+    edm::ContainerMask<edm::LazyGetter<SiStripCluster> > cmlg;
+    edm::Wrapper<edm::ContainerMask<edm::LazyGetter<SiStripCluster> > > wcmlg;
+    std::vector<edm::Ref<edm::LazyGetter<SiStripCluster>,SiStripCluster,edm::FindValue<SiStripCluster> > > dsvr_v1;
+    edmNew::DetSetVector<edm::Ref<edm::LazyGetter<SiStripCluster>,SiStripCluster,edm::FindValue<SiStripCluster> > > dsvr_1;
+    edm::Wrapper<edmNew::DetSetVector<edm::Ref<edm::LazyGetter<SiStripCluster>,SiStripCluster,edm::FindValue<SiStripCluster> > > > dsvr_w2;
 
     edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster, edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector > refNew;
   };
