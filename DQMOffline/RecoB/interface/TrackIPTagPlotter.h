@@ -7,6 +7,7 @@
 #include "DQMOffline/RecoB/interface/FlavourHistorgrams2D.h"
 // #include "RecoBTag/MCTools/interface/JetFlavour.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoBTag/BTagTools/interface/TrackSelector.h"
 
 
 class TrackIPTagPlotter : public BaseTagInfoPlotter {
@@ -39,6 +40,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   unsigned int mcPlots_;
   bool willFinalize_;
   bool makeQualityPlots_;
+  reco::TrackSelector trackSelector;
 
   TrackIPHistograms<double> * tkcntHistosSig3D[5];
   TrackIPHistograms<double> * tkcntHistosSig2D[5];
