@@ -1,6 +1,8 @@
 
 /**
- * This is a Herwig++-specific parton selector that selects all status==2 partons.
+ * This is a Herwig++-specific parton selector that selects all status==2 partons. This is likely a temporary choice since
+ * Herwig++ status codes in CMSSW currently break the HepMC convention. Once the status codes are fixed, the selector will
+ * be updated.
  */
 
 #include "PhysicsTools/JetMCAlgos/interface/HerwigppPartonSelector.h"
