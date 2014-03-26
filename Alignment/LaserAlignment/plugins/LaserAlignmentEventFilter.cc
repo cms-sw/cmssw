@@ -6,7 +6,6 @@
 #include <FWCore/Framework/interface/EventSetupRecordKey.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
@@ -25,6 +24,9 @@ LaserAlignmentEventFilter::LaserAlignmentEventFilter( const edm::ParameterSet& i
   cabling(0),
   cacheId_(0)
 {
+
+  FED_collection_token = consumes<FEDRawDataCollection>(FED_collection);
+
   // Read in Filter Lists
   std::vector<int> FED_IDs = iConfig.getParameter<std::vector<int> >("FED_IDs");
   set_las_fed_ids(FED_IDs);
@@ -71,7 +73,7 @@ bool LaserAlignmentEventFilter::filter( edm::Event& iEvent, const edm::EventSetu
 
   // Retrieve FED raw data (by label, which is "source" by default)
   edm::Handle<FEDRawDataCollection> buffers;
-  iEvent.getByLabel( FED_collection, buffers ); 
+  iEvent.getByToken( FED_collection_token, buffers ); 
 
 
   std::vector<uint16_t>::const_iterator ifed = las_fed_ids.begin();
