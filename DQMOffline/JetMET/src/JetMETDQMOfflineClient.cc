@@ -57,7 +57,7 @@ void JetMETDQMOfflineClient::bookHistograms(DQMStore::IBooker & ibooker,
 
 void JetMETDQMOfflineClient::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
-  runClient_();
+  //runClient_();
 }
 
 //dummy analysis function
@@ -71,7 +71,7 @@ void JetMETDQMOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumi
 
 void JetMETDQMOfflineClient::runClient_()
 {
-  
+  /* -> calculates right now a histogram out of the JID pass fraction with binomial errors, but histogram is later on never used
   if(!dbe_) return; //we dont have the DQMStore so we cant do anything
 
   LogDebug("JetMETDQMOfflineClient") << "runClient" << std::endl;
@@ -112,5 +112,6 @@ void JetMETDQMOfflineClient::runClient_()
     }   // cii-loop
     
   } // i-loop 
+  */
 }
 
