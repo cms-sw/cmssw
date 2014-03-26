@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "RecoBTag/BTagTools/interface/TrackSelector.h"
 
 class HistogramProbabilityEstimator;
 
@@ -41,6 +42,7 @@ class TrackIPProducer : public edm::EDProducer {
     bool  m_directionWithTracks;
     bool  m_directionWithGhostTrack;
     bool  m_useTrackQuality;
+    reco::TrackSelector                   trackSelector;
 };
 #endif
 
