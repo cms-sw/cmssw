@@ -13,6 +13,8 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+//#define DebugLog
+
 DDShashlikEndcap::DDShashlikEndcap() {
   edm::LogInfo("HGCalGeom") << "DDShashlikEndcap test: Creating an instance";
 }
@@ -72,31 +74,34 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
   double offsetX = offsetMultiplier * pointingLocation * tan( xphi - xQuadrant*pointingAngle );
   double offsetY = offsetMultiplier * pointingLocation * tan( yphi - yQuadrant*pointingAngle );
 
-  int row(0), column(0);
-
+#ifdef DebugLog
   std::cout << " Initially, tiltAngle = " << tiltAngle 
-	    << " pointingAngle=" << pointingAngle << " pointingLocation=" << pointingLocation 
-	    << " copyNo = " << copyNo << ": offsetX,Y = " 
-	    << offsetX << "," << offsetY 
-	    << " rMin, rMax=" 
+	    << " pointingAngle=" << pointingAngle << " pointingLocation=" 
+	    << pointingLocation << " copyNo = " << copyNo << ": offsetX,Y = " 
+	    << offsetX << "," << offsetY << " rMin, rMax = " 
 	    << m_rMin << "," << m_rMax << std::endl;
-
+  int column(0), rowmax(0);
+#endif
   while( abs(offsetX) < m_rMax) {
+#ifdef DebugLog
     column++;
-    if (abs(offsetY) < m_rMax) 
-      row++;
+    int row(0);
+#endif
     while( abs(offsetY) < m_rMax) {
-
+#ifdef DebugLog
+      row++;
+#endif
       double limit = sqrt( offsetX*offsetX + offsetY*offsetY );
-      std::cout << " copyNo = " << copyNo << " (" << column << "," << row << "): offsetX,Y = " 
-		<< offsetX << "," << offsetY << " limit=" << limit
-		<< " rMin, rMax=" 
-		<< m_rMin << "," << m_rMax << std::endl;
-
       
       // Make sure we do not add supermodules in rMin area
       if( limit > m_rMin && limit < m_rMax )
       {
+#ifdef DebugLog
+	std::cout << " copyNo = " << copyNo << " (" << column << "," << row 
+		  << "): offsetX,Y = " 	<< offsetX << "," << offsetY 
+		  << " limit=" << limit << " rMin, rMax = " 
+		  << m_rMin << "," << m_rMax << std::endl;
+#endif
 	DDRotation rotation;
 	std::string rotstr( "NULL" );
 
@@ -111,9 +116,9 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
 						  * ( *DDcreateRotationMatrix( theta + xphi, phiX, 90.*CLHEP::deg, 90.*CLHEP::deg, xphi, 0.0 ))));
 	}
       
-	std::cout << "Shashlik SM " << copyNo << ": xphi=" << xphi << " yphi=" << yphi << " offsets = (" << offsetX << ", " << offsetY << ", " << offsetZ << ")" << std::endl; 
-
 	DDTranslation tran( offsetX, offsetY, offsetZ );
+	edm::LogInfo("HGCalGeom") << "Module " << copyNo << ": location = "
+				  << tran << " Rotation " << rotation;
 	
 	DDName parentName = parent().name(); 
 	cpv.position( DDName( m_childName ), parentName, copyNo, tran, rotation );
@@ -124,6 +129,9 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
       offsetY = offsetMultiplier * pointingLocation * tan( yphi - yQuadrant*pointingAngle );
 
     }
+#ifdef DebugLog
+    if (row > rowmax) rowmax = row;
+#endif
     xphi +=  xQuadrant*2.*tiltAngle;
     yphi  =  yQuadrant*(tiltAngle + pointingAngle);
     //offsetX = offsetMultiplier * offsetZ * tan( xphi - xQuadrant*pointingAngle);
@@ -131,11 +139,11 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
     offsetX = offsetMultiplier * pointingLocation * tan( xphi - xQuadrant*pointingAngle);
     offsetY = offsetMultiplier * pointingLocation * tan( yphi - yQuadrant*pointingAngle);
 
-
-
-
   }
-  std::cout << row << " rows and " << column << " columns in quadrant " << xQuadrant << ":" << yQuadrant << std::endl;
+#ifdef DebugLog
+  std::cout << rowmax << " rows and " << column << " columns in quadrant " 
+	    << xQuadrant << ":" << yQuadrant << std::endl;
+#endif
   return copyNo;
 }
 

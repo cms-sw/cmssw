@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SpecParSection label="shashlikNumbering.xml" eval="true">
+  <SpecPar name="hcal">
+    <PartSelector path="//SHCalEE"/>
+    <Parameter name="OnlyForShashlikNumbering" value="SHCal" eval="false"/>
+    <Parameter name="firstRow" value="6"/>
+    <Parameter name="firstRow" value="6"/>
+    <Parameter name="firstRow" value="6"/>
+    <Parameter name="firstRow" value="5"/>
+    <Parameter name="firstRow" value="4"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="lastRow"  value="20"/>
+    <Parameter name="lastRow"  value="20"/>
+    <Parameter name="lastRow"  value="20"/>
+    <Parameter name="lastRow"  value="20"/>
+    <Parameter name="lastRow"  value="20"/>
+    <Parameter name="lastRow"  value="19"/>
+    <Parameter name="lastRow"  value="19"/>
+    <Parameter name="lastRow"  value="19"/>
+    <Parameter name="lastRow"  value="18"/>
+    <Parameter name="lastRow"  value="18"/>
+    <Parameter name="lastRow"  value="17"/>
+    <Parameter name="lastRow"  value="17"/>
+    <Parameter name="lastRow"  value="16"/>
+    <Parameter name="lastRow"  value="15"/>
+    <Parameter name="lastRow"  value="14"/>
+    <Parameter name="lastRow"  value="13"/>
+    <Parameter name="lastRow"  value="12"/>
+    <Parameter name="lastRow"  value="10"/>
+    <Parameter name="lastRow"  value="8"/>
+    <Parameter name="lastRow"  value="5"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>

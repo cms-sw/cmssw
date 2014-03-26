@@ -15,12 +15,13 @@
   <Constant name="modRmin2"   value="[etaMax:slope]*[zSHCal1]"/>
   <Constant name="modRmax1"   value="135.*cm"/>
   <Constant name="modRmax2"   value="145.*cm"/>
-  <Constant name="zSHBack1"   value="[zSHCal2]- 30.*cm"/>
+  <Constant name="thickBack"  value="30.*cm"/>
+  <Constant name="zSHBack1"   value="[zSHCal2]-[thickBack]"/>
   <Constant name="zSHBack2"   value="[zSHCal2]"/>
   <Constant name="backRmin1"  value="[etaMax:slope]*[zSHBack1]"/>
   <Constant name="backRmin2"  value="[etaMax:slope]*[zSHBack2]"/>
   <Constant name="backRmin3"  value="[etaMax:slope]*([zSHBack1]+6.*cm)"/>
-  <Constant name="backRmax1"  value="168.*cm"/>
+  <Constant name="backRmax1"  value="165.*cm"/>
   <Constant name="backRmax2"  value="[rMaxSHCal2]"/>  
 </ConstantsSection>
 
