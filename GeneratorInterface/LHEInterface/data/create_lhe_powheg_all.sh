@@ -189,12 +189,8 @@ EOF
         rm -rf *.f
         cd ..
         tar chvzf ${tarball}.tar.gz ${process}
-        cp -p ${tarball}.tar.gz /afs/cern.ch/cms/generators/www/${tarballRepo}/.
-	echo "I am here 1"
-	ls  /afs/cern.ch/cms/generators/www/${tarballRepo}/
-	echo "I am here 2"
+	cp -p ${tarball}.tar.gz ${WORKDIR}/.
         cd ${process}
-	echo "I am here 3"
     fi
 
 else if [ "$precompile" == "true" ];
