@@ -709,8 +709,7 @@ PFProducer::produce(Event& iEvent,
   for ( auto ipf = pOutputCandidateCollection->begin(),
 	  ipfbegin = ipf, ipfend = pOutputCandidateCollection->end();
 	ipf != ipfend; ++ipf ) {
-    unsigned int index = ipf - ipfbegin;
-    ipf->set_pfIndex( static_cast<int>(index) );
+    ipf->set_pfIndex( std::distance(ipfbegin,ipf) );
   }
 
 
