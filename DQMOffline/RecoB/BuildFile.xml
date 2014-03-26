@@ -7,6 +7,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="CondFormats/DataRecord"/>
 <use name="RecoBTau/JetTagComputer"/>
+<use name="RecoBTag/BTagTools"/>
 <use name="rootcore"/>
 <use name="DQMServices/Core"/>
 <use name="rootgpad"/>
