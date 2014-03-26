@@ -7,6 +7,7 @@
 
 #include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
+#include "RecoBTag/BTagTools/interface/TrackSelector.h"
 
 // #include "RecoBTag/XMLCalibration/interface/AlgorithmCalibration.h"
 
@@ -21,8 +22,8 @@ class HistogramProbabilityEstimator {
 
 
   HistogramProbabilityEstimator( const  TrackProbabilityCalibration  * calib3D,
-                                const TrackProbabilityCalibration * calib2D) 
-   :   m_calibration3D(calib3D),m_calibration2D(calib2D)
+				 const TrackProbabilityCalibration * calib2D, const reco::TrackSelector& selector) 
+    :   m_calibration3D(calib3D),m_calibration2D(calib2D), trackSelector(selector)
     {}
 
 /*   HistogramProbabilityEstimator( AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>  * calib3D,
@@ -44,6 +45,7 @@ class HistogramProbabilityEstimator {
  private:
   const TrackProbabilityCalibration * m_calibration3D;
  const TrackProbabilityCalibration * m_calibration2D;
+ const reco::TrackSelector &trackSelector;
    
 };
 
