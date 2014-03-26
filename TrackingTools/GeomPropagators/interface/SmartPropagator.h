@@ -57,11 +57,11 @@ class SmartPropagator GCC11_FINAL : public Propagator {
     }
 
     ///setting the direction fo both components
-    void setPropagationDirection (PropagationDirection dir) const
+    void setPropagationDirection (PropagationDirection dir)
     {
       Propagator::setPropagationDirection (dir);
-      getTkPropagator()->setPropagationDirection(dir);
-      getGenPropagator()->setPropagationDirection(dir);
+      theTkProp->setPropagationDirection(dir);
+      theGenProp->setPropagationDirection(dir);
     }
 
 
