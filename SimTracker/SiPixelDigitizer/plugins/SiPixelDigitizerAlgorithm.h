@@ -12,6 +12,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimTracker/Common/interface/SimHitInfoForLinks.h"
 #include "DataFormats/Math/interface/approx_exp.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 
 // forward declarations
 
@@ -61,7 +62,8 @@ class SiPixelDigitizerAlgorithm  {
                 std::vector<PixelDigi>& digis,
                 std::vector<PixelDigiSimLink>& simlinks,
 		const TrackerTopology *tTopo,
-                CLHEP::HepRandomEngine*);
+                CLHEP::HepRandomEngine*,
+		PileupMixingContent* puInfo);
 
  private:
   
@@ -229,13 +231,19 @@ class SiPixelDigitizerAlgorithm  {
    */
    struct PixelEfficiencies {
      PixelEfficiencies(const edm::ParameterSet& conf, bool AddPixelInefficiency, int NumberOfBarrelLayers, int NumberOfEndcapDisks);
-     float thePixelEfficiency[20];     // Single pixel effciency
-     float thePixelColEfficiency[20];  // Column effciency
+     float thePixelEfficiency[20];     // Single pixel efficiency
+     float thePixelColEfficiency[20];  // Column efficiency
      float thePixelChipEfficiency[20]; // ROC efficiency
+     std::vector<double> theLadderEfficiency_BPix[20]; // Ladder efficiency
+     std::vector<double> theModuleEfficiency_BPix[20]; // Module efficiency
+     std::vector<double> thePUEfficiency_BPix[20]; // Instlumi dependent efficiency
      unsigned int FPixIndex;         // The Efficiency index for FPix Disks
    };
 
  private:
+   // Needed by dynamic inefficiency 
+   // 0-3 BPix, 4-5 FPix
+   double _pu_scale[20];
 
     // Internal typedefs
     typedef std::map<int, Amplitude, std::less<int> > signal_map_type;  // from Digi.Skel.
