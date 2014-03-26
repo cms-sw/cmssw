@@ -109,7 +109,6 @@ public:
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
  
   Trajectory(Trajectory const & rh) = default;
- 
   Trajectory & operator=(Trajectory const & rh) = default;
 
   Trajectory(Trajectory && rh) : 
