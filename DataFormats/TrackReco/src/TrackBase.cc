@@ -6,45 +6,14 @@
 using namespace reco;
 
 //  Access the hit pattern, indicating in which Tracker layers the track has hits.
-const HitPattern & TrackBase::hitPattern() const
+const HitPattern & TrackBase::getHitPattern() const
 {
-    return hitPattern_.getTrackHits();
-}
-
-// Access the hit pattern counting (in the Tracker) the number
-// of expected crossed layers  before the first trajectory's hit
-const HitPattern & TrackBase::trackerExpectedHitsInner() const
-{
-    return hitPattern_.getExpectedInnerHits();
-}
-
-// Access the hit pattern counting (in the Tracker) the number
-// of expected crossed layers  after the last trajectory's hit
-const HitPattern & TrackBase::trackerExpectedHitsOuter() const
-{
-    return hitPattern_.getExpectedOuterHits();
+    return hitPattern_;
 }
 
 bool TrackBase::appendHitPattern(const TrackingRecHit &hit)
 {
     return hitPattern_.appendHit(hit);
-}
-
-bool TrackBase::setHitPattern(const TrackingRecHit &hit, size_t i)
-{
-    return appendHitPattern(hit);
-}
-
-//TODO remove i from here
-bool TrackBase::setTrackerExpectedHitsInner(const TrackingRecHit &hit, size_t i)
-{
-    return appendHitPattern(hit);
-}
-
-//TODO remove i from here
-bool TrackBase::setTrackerExpectedHitsOuter(const TrackingRecHit &hit, size_t i)
-{
-    return appendHitPattern(hit);
 }
 
 // To be kept in synch with the enumerator definitions in TrackBase.h file

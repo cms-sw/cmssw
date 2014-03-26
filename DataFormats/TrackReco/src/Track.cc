@@ -17,11 +17,11 @@ Track::~Track()
 
 double Track::residualX (int position) const
 {
-    return extra_->residuals().residualX(position, hitPattern());
+    return extra_->residuals().residualX(position, getHitPattern());
 }
 
 double Track::residualY (int position) const
 {
-    return extra_->residuals().residualY(position, hitPattern());
+    return extra_->residuals().residualY(position, getHitPattern());
 }
 

@@ -48,12 +48,6 @@
  *
  */
 
-//TODO recode so it uses data members directly instead of methods
-//TODO recode so it uses data members directly instead of methods
-//TODO recode so it uses data members directly instead of methods
-//TODO recode so it uses data members directly instead of methods
-//TODO recode so it uses data members directly instead of methods
-
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -163,7 +157,7 @@ public:
     // Lambda angle
     double lambda() const;
 
-    // dxy parameter. (This is the transverse impact parameter w.r.t. to 
+    // dxy parameter. (This is the transverse impact parameter w.r.t. to
     // (0,0,0) ONLY if refPoint is close to (0,0,0): see parametrization
     // definition above for details). See also function dxy(myBeamSpot).
     double dxy() const;
@@ -176,7 +170,7 @@ public:
     // above for details)
     double dsz() const;
 
-    // dz parameter (= dsz/cos(lambda)). 
+    // dz parameter (= dsz/cos(lambda)).
     // This is the track z0 w.r.t (0,0,0) only if the refPoint is close to
     // (0,0,0). See also function dz(myBeamSpot)
     double dz() const;
@@ -297,15 +291,7 @@ public:
     static index covIndex(index i, index j);
 
     // Access the hit pattern, indicating in which Tracker layers the track has hits.
-    const HitPattern &hitPattern() const;
-
-    // Access the hit pattern counting (in the Tracker) the number of
-    // expected crossed layers  before the first trajectory's hit
-    const HitPattern &trackerExpectedHitsInner() const;
-
-    // Access the hit pattern counting (in the Tracker) the number of
-    // expected crossed layers  after the last trajectory's hit
-    const HitPattern &trackerExpectedHitsOuter() const;
+    const HitPattern &getHitPattern() const;
 
     // number of valid hits found
     unsigned short numberOfValidHits() const;
@@ -323,17 +309,7 @@ public:
     template<typename I>
     bool setHitPattern(const I &begin, const I &end);
 
-    // set hit pattern for specified hit
-    //TODO remove i
-    bool setHitPattern(const TrackingRecHit &hit, size_t i);
-
     bool appendHitPattern(const TrackingRecHit &hit);
-
-    //TODO remove i
-    bool setTrackerExpectedHitsInner(const TrackingRecHit &hit, size_t i);
-
-    //TODO remove i
-    bool setTrackerExpectedHitsOuter(const TrackingRecHit &hit, size_t i);
 
     //Track algorithm
     void setAlgorithm(const TrackAlgorithm a, bool set = true);
@@ -396,16 +372,18 @@ private:
     // number of loops made during the building of the trajectory of a looper particle
     //I use signed char because I don't expect more than 128 loops and
     //I could use a negative value for a special purpose
-    signed char nLoops_; 
+    signed char nLoops_;
 };
 
 template<typename I>
-bool TrackBase::setHitPattern(const I &begin, const I &end) {
+bool TrackBase::setHitPattern(const I &begin, const I &end)
+{
     return hitPattern_.appendHits(begin, end);
 }
 
 template<typename C>
-bool TrackBase::setHitPattern(const C &c) {
+bool TrackBase::setHitPattern(const C &c)
+{
     return setHitPattern(c.begin(), c.end());
 }
 
@@ -827,11 +805,11 @@ inline double TrackBase::validFraction() const
     int lost  = hitPattern_.numberOfLostTrackerHits(HitPattern::TRACK_HITS);
     int lostIn = hitPattern_.numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS);
     int lostOut = hitPattern_.numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS);
-    
-    if (lost + lostIn + lostOut != hitPattern_.numberOfLostTrackerHits(HitPattern::ALL_HITS)){
+
+    if (lost + lostIn + lostOut != hitPattern_.numberOfLostTrackerHits(HitPattern::ALL_HITS)) {
         std::cout << "ERROR" << std::endl;
     }
-    
+
     if ((valid + lost + lostIn + lostOut) == 0) {
         return -1;
     }

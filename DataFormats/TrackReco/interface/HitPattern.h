@@ -227,22 +227,14 @@ public:
     bool appendHit(const TrackingRecHit &hit);
 
     // get the pattern of the position-th hit
-    uint16_t getHitPattern(int position) const;
     uint16_t getHitPattern(HitCategory category, int position) const;
 
-    const HitPattern &getTrackHits() const;
-    const HitPattern &getExpectedInnerHits() const;
-    const HitPattern &getExpectedOuterHits() const;
 
-    HitPattern getHitsByCategory(HitCategory category) const;
-
-    // empties data structure.
     void clear();
 
     // print the pattern of the position-th hit
     void printHitPattern(int position, std::ostream &stream) const;
     void print(HitCategory category, std::ostream &stream = std::cout) const;
-    void print(std::ostream &stream = std::cout) const;
 
     bool hasValidHitInFirstPixelBarrel(HitCategory category) const; // has valid hit in PXB layer 1
     bool hasValidHitInFirstPixelEndcap(HitCategory category) const; // has valid hit in PXF layer 1
@@ -374,136 +366,6 @@ public:
     int numberOfDTStationsWithRZView(HitCategory category) const;
     int numberOfDTStationsWithBothViews(HitCategory category) const;
 
-    bool hasValidHitInFirstPixelBarrel() const; // has valid hit in PXB layer 1
-    bool hasValidHitInFirstPixelEndcap() const; // has valid hit in PXF layer 1
-
-    int numberOfHits() const;                 // not-null
-    int numberOfTrackerHits() const;          // not-null, tracker
-    int numberOfMuonHits() const;             // not-null, muon
-    int numberOfValidHits() const;            // not-null, valid
-    int numberOfValidTrackerHits() const;     // not-null, valid, tracker
-    int numberOfValidMuonHits() const;        // not-null, valid, muon
-    int numberOfValidPixelHits() const;       // not-null, valid, pixel
-    int numberOfValidPixelBarrelHits() const; // not-null, valid, pixel PXB
-    int numberOfValidPixelEndcapHits() const; // not-null, valid, pixel PXF
-    int numberOfValidStripHits() const;       // not-null, valid, strip
-    int numberOfValidStripTIBHits() const;    // not-null, valid, strip TIB
-    int numberOfValidStripTIDHits() const;    // not-null, valid, strip TID
-    int numberOfValidStripTOBHits() const;    // not-null, valid, strip TOB
-    int numberOfValidStripTECHits() const;    // not-null, valid, strip TEC
-    int numberOfValidMuonDTHits() const;      // not-null, valid, muon DT
-    int numberOfValidMuonCSCHits() const;     // not-null, valid, muon CSC
-    int numberOfValidMuonRPCHits() const;     // not-null, valid, muon RPC
-    int numberOfLostHits() const;             // not-null, not valid
-    int numberOfLostTrackerHits() const;      // not-null, not valid, tracker
-    int numberOfLostMuonHits() const;         // not-null, not valid, muon
-    int numberOfLostPixelHits() const;        // not-null, not valid, pixel
-    int numberOfLostPixelBarrelHits() const;  // not-null, not valid, pixel PXB
-    int numberOfLostPixelEndcapHits() const;  // not-null, not valid, pixel PXF
-    int numberOfLostStripHits() const;        // not-null, not valid, strip
-    int numberOfLostStripTIBHits() const;     // not-null, not valid, strip TIB
-    int numberOfLostStripTIDHits() const;     // not-null, not valid, strip TID
-    int numberOfLostStripTOBHits() const;     // not-null, not valid, strip TOB
-    int numberOfLostStripTECHits() const;     // not-null, not valid, strip TEC
-    int numberOfLostMuonDTHits() const;       // not-null, not valid, muon DT
-    int numberOfLostMuonCSCHits() const;      // not-null, not valid, muon CSC
-    int numberOfLostMuonRPCHits() const;      // not-null, not valid, muon RPC
-    int numberOfBadHits() const;              // not-null, bad (only used in Muon Ch.)
-    int numberOfBadMuonHits() const;          // not-null, bad, muon
-    int numberOfBadMuonDTHits() const;        // not-null, bad, muon DT
-    int numberOfBadMuonCSCHits() const;       // not-null, bad, muon CSC
-    int numberOfBadMuonRPCHits() const;       // not-null, bad, muon RPC
-    int numberOfInactiveHits() const;         // not-null, inactive
-    int numberOfInactiveTrackerHits() const;  // not-null, inactive, tracker
-    int numberOfExpectedInnerHits() const;
-    int numberOfExpectedOuterHits() const;
-
-    // count strip layers that have non-null, valid mono and stereo hits
-    int numberOfValidStripLayersWithMonoAndStereo(uint16_t stripdet, uint16_t layer) const;
-    int numberOfValidStripLayersWithMonoAndStereo() const;
-    int numberOfValidTOBLayersWithMonoAndStereo(uint32_t layer = 0) const;
-    int numberOfValidTIBLayersWithMonoAndStereo(uint32_t layer = 0) const;
-    int numberOfValidTIDLayersWithMonoAndStereo(uint32_t layer = 0) const;
-    int numberOfValidTECLayersWithMonoAndStereo(uint32_t layer = 0) const;
-
-    uint32_t getTrackerLayerCase(uint16_t substr, uint16_t layer) const;
-    uint16_t getTrackerMonoStereo(uint16_t substr, uint16_t layer) const;
-
-    int trackerLayersWithMeasurement() const;        // case 0: tracker
-    int pixelLayersWithMeasurement() const;          // case 0: pixel
-    int stripLayersWithMeasurement() const;          // case 0: strip
-    int pixelBarrelLayersWithMeasurement() const;    // case 0: pixel PXB
-    int pixelEndcapLayersWithMeasurement() const;    // case 0: pixel PXF
-    int stripTIBLayersWithMeasurement() const;       // case 0: strip TIB
-    int stripTIDLayersWithMeasurement() const;       // case 0: strip TID
-    int stripTOBLayersWithMeasurement() const;       // case 0: strip TOB
-    int stripTECLayersWithMeasurement() const;       // case 0: strip TEC
-
-    int trackerLayersWithoutMeasurement() const;     // case 1: tracker
-    int pixelLayersWithoutMeasurement() const;       // case 1: pixel
-    int stripLayersWithoutMeasurement() const;       // case 1: strip
-    int pixelBarrelLayersWithoutMeasurement() const; // case 1: pixel PXB
-    int pixelEndcapLayersWithoutMeasurement() const; // case 1: pixel PXF
-    int stripTIBLayersWithoutMeasurement() const;    // case 1: strip TIB
-    int stripTIDLayersWithoutMeasurement() const;    // case 1: strip TID
-    int stripTOBLayersWithoutMeasurement() const;    // case 1: strip TOB
-    int stripTECLayersWithoutMeasurement() const;    // case 1: strip TEC
-
-    int trackerLayersTotallyOffOrBad() const;        // case 2: tracker
-    int pixelLayersTotallyOffOrBad() const;          // case 2: pixel
-    int stripLayersTotallyOffOrBad() const;          // case 2: strip
-    int pixelBarrelLayersTotallyOffOrBad() const;    // case 2: pixel PXB
-    int pixelEndcapLayersTotallyOffOrBad() const;    // case 2: pixel PXF
-    int stripTIBLayersTotallyOffOrBad() const;       // case 2: strip TIB
-    int stripTIDLayersTotallyOffOrBad() const;       // case 2: strip TID
-    int stripTOBLayersTotallyOffOrBad() const;       // case 2: strip TOB
-    int stripTECLayersTotallyOffOrBad() const;       // case 2: strip TEC
-
-    int trackerLayersNull() const;                   // case NULL_RETURN: tracker
-    int pixelLayersNull() const;                     // case NULL_RETURN: pixel
-    int stripLayersNull() const;                     // case NULL_RETURN: strip
-    int pixelBarrelLayersNull() const;               // case NULL_RETURN: pixel PXB
-    int pixelEndcapLayersNull() const;               // case NULL_RETURN: pixel PXF
-    int stripTIBLayersNull() const;                  // case NULL_RETURN: strip TIB
-    int stripTIDLayersNull() const;                  // case NULL_RETURN: strip TID
-    int stripTOBLayersNull() const;                  // case NULL_RETURN: strip TOB
-    int stripTECLayersNull() const;                  // case NULL_RETURN: strip TEC
-
-    /// subdet = 0(all), 1(DT), 2(CSC), 3(RPC); hitType=-1(all), 0=valid, 3=bad
-    int muonStations(int subdet, int hitType) const ;
-
-    int muonStationsWithValidHits() const;
-    int muonStationsWithBadHits() const;
-    int muonStationsWithAnyHits() const;
-
-    int dtStationsWithValidHits() const;
-    int dtStationsWithBadHits() const;
-    int dtStationsWithAnyHits() const;
-
-    int cscStationsWithValidHits() const;
-    int cscStationsWithBadHits() const;
-    int cscStationsWithAnyHits() const;
-
-    int rpcStationsWithValidHits() const;
-    int rpcStationsWithBadHits() const;
-    int rpcStationsWithAnyHits() const;
-
-    /// hitType=-1(all), 0=valid, 3=bad; 0 = no stations at all
-    int innermostMuonStationWithHits(int hitType) const;
-    int innermostMuonStationWithValidHits() const;
-    int innermostMuonStationWithBadHits() const;
-    int innermostMuonStationWithAnyHits() const;
-
-    /// hitType=-1(all), 0=valid, 3=bad; 0 = no stations at all
-    int outermostMuonStationWithHits(int hitType) const;
-    int outermostMuonStationWithValidHits() const;
-    int outermostMuonStationWithBadHits() const;
-    int outermostMuonStationWithAnyHits() const;
-
-    int numberOfDTStationsWithRPhiView() const;
-    int numberOfDTStationsWithRZView() const;
-    int numberOfDTStationsWithBothViews() const;
-
 private:
     // 3 bits for hit type
     const static unsigned short HitTypeOffset = 0;
@@ -560,16 +422,6 @@ private:
     uint8_t endInner;
     uint8_t beginOuter;
     uint8_t endOuter;
-
-    mutable HitPattern *trackHitsCache;
-    mutable HitPattern *expectedInnerHitsCache;
-    mutable HitPattern *expectedOuterHitsCache;
-
-    mutable bool trackHitsCacheDirty;
-    mutable bool expectedInnerHitsCacheDirty;
-    mutable bool expectedOuterHitsCacheDirty;
-
-    HitCategory defaultCategory;
 };
 
 template<typename I>
@@ -1188,3 +1040,4 @@ inline int HitPattern::outermostMuonStationWithAnyHits(HitCategory category) con
 } // namespace reco
 
 #endif
+

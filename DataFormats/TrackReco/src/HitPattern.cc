@@ -21,14 +21,7 @@ HitPattern::HitPattern() :
     beginInner(0),
     endInner(0),
     beginOuter(0),
-    endOuter(0),
-    trackHitsCache(nullptr),
-    expectedInnerHitsCache(nullptr),
-    expectedOuterHitsCache(nullptr),
-    trackHitsCacheDirty(true),
-    expectedInnerHitsCacheDirty(false),
-    expectedOuterHitsCacheDirty(true),
-    defaultCategory(ALL_HITS)
+    endOuter(0)
 {
     memset(hitPattern, HitPattern::EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::MaxHits);
 }
@@ -40,23 +33,14 @@ HitPattern::HitPattern(const HitPattern &other) :
     beginInner(other.beginInner),
     endInner(other.endInner),
     beginOuter(other.beginOuter),
-    endOuter(other.endOuter),
-    trackHitsCache(nullptr),
-    expectedInnerHitsCache(nullptr),
-    expectedOuterHitsCache(nullptr),
-    trackHitsCacheDirty(true),
-    expectedInnerHitsCacheDirty(true),
-    expectedOuterHitsCacheDirty(true),
-    defaultCategory(other.defaultCategory)
+    endOuter(other.endOuter)
 {
     memcpy(this->hitPattern, other.hitPattern, sizeof(uint16_t) * HitPattern::MaxHits);
 }
 
 HitPattern::~HitPattern()
 {
-    delete this->trackHitsCache;
-    delete this->expectedOuterHitsCache;
-    delete this->expectedInnerHitsCache;
+    ;
 }
 
 HitPattern & HitPattern::operator=(const HitPattern &other)
@@ -75,20 +59,6 @@ HitPattern & HitPattern::operator=(const HitPattern &other)
 
     this->beginOuter = other.beginOuter;
     this->endOuter = other.endOuter;
-    
-    this->defaultCategory = other.defaultCategory;
-
-    delete this->trackHitsCache;
-    delete this->expectedInnerHitsCache;
-    delete this->expectedOuterHitsCache;
-
-    this->trackHitsCache = nullptr;
-    this->expectedInnerHitsCache = nullptr;
-    this->expectedOuterHitsCache = nullptr;
-
-    this->trackHitsCacheDirty = true;
-    this->expectedInnerHitsCacheDirty = true;
-    this->expectedOuterHitsCacheDirty = true;
 
     memcpy(this->hitPattern, other.hitPattern, sizeof(uint16_t) * HitPattern::MaxHits);
 
@@ -105,99 +75,12 @@ void HitPattern::clear(void)
     this->beginOuter = 0;
     this->endOuter = 0;
 
-    delete this->trackHitsCache;
-    delete this->expectedOuterHitsCache;
-    delete this->expectedInnerHitsCache;
-
-    this->trackHitsCache = nullptr;
-    this->expectedInnerHitsCache = nullptr;
-    this->expectedOuterHitsCache = nullptr;
-
-    this->trackHitsCacheDirty = true;
-    this->expectedInnerHitsCacheDirty = true;
-    this->expectedOuterHitsCacheDirty = true;
-
-    this->defaultCategory = ALL_HITS;
-
     memset(this->hitPattern, EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::MaxHits);
 }
-
-const HitPattern & HitPattern::getTrackHits() const
-{
-    if (defaultCategory == HitCategory::TRACK_HITS){
-        return *this;
-    }
-
-    if (trackHitsCache == nullptr) {
-        trackHitsCache = new HitPattern();
-    }
-
-    if (trackHitsCacheDirty) {
-        trackHitsCacheDirty = false;
-        *trackHitsCache = getHitsByCategory(HitCategory::TRACK_HITS);
-    }
-
-    return *trackHitsCache;
-}
-
-const HitPattern & HitPattern::getExpectedInnerHits() const
-{
-    if (defaultCategory == HitCategory::MISSING_INNER_HITS){
-        return *this;
-    }
-
-    if (expectedInnerHitsCache == nullptr) {
-        expectedInnerHitsCache = new HitPattern();
-    }
-
-    if (expectedInnerHitsCacheDirty) {
-        expectedInnerHitsCacheDirty = false;
-        *expectedInnerHitsCache = getHitsByCategory(HitCategory::MISSING_INNER_HITS);
-    }
-
-    return *expectedInnerHitsCache;
-}
-
-const HitPattern & HitPattern::getExpectedOuterHits() const
-{
-    if (defaultCategory == HitCategory::MISSING_OUTER_HITS){
-        return *this;
-    }
-
-    if (expectedOuterHitsCache == nullptr) {
-        expectedOuterHitsCache = new HitPattern();
-    }
-
-    if (expectedOuterHitsCacheDirty) {
-        expectedOuterHitsCacheDirty = false;
-        *expectedOuterHitsCache = getHitsByCategory(HitCategory::MISSING_OUTER_HITS);
-    }
-
-    return *expectedOuterHitsCache;
-}
-
+/*
 HitPattern HitPattern::getHitsByCategory(HitCategory category) const
 {
     HitPattern hits;
-/*
-void HitPattern::updateCache(HitCategory category) const
-{
-    HitPattern *hits;
-    switch(category){
-        case TRACK_HITS:
-            hits = trackHitsCache;
-        break;
-        case MISSING_INNER_HITS:
-            hits = expectedInnerHitsCache;
-        break;
-        case MISSING_OUTER_HITS:
-            hits = expectedOuterHitsCache;
-        break;
-        default:
-            return;
-    }
-*/
-    hits.defaultCategory = category;
 
     std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
 
@@ -229,7 +112,7 @@ void HitPattern::updateCache(HitCategory category) const
 
     return hits;
 }
-
+*/
 std::pair<uint8_t, uint8_t> HitPattern::getCategoryIndexRange(HitCategory category) const
 {
     switch (category) {
@@ -365,8 +248,7 @@ uint16_t HitPattern::encode(const TrackingRecHit &hit)
             layer = ((CSCDetId(id.rawId()).station() - 1) << 2)
                     + (CSCDetId(id.rawId()).ring() - 1);
             break;
-        case MuonSubdetId::RPC: 
-        {
+        case MuonSubdetId::RPC: {
             RPCDetId rpcid(id.rawId());
             layer = ((rpcid.station() - 1) << 2) + abs(rpcid.region());
             if (rpcid.station() <= 2) {
@@ -449,10 +331,6 @@ uint16_t HitPattern::getHitPattern(HitCategory category, int position) const
     return ((position + range.first) < range.second) ? hitPattern[position + range.first] : HitPattern::EMPTY_PATTERN;
 }
 
-uint16_t HitPattern::getHitPattern(int position) const
-{
-    return getHitPattern(defaultCategory, position);
-}
 
 uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
 {
@@ -472,11 +350,6 @@ bool HitPattern::hasValidHitInFirstPixelBarrel(HitCategory category) const
     return false;
 }
 
-bool HitPattern::hasValidHitInFirstPixelBarrel() const
-{
-    return hasValidHitInFirstPixelBarrel(defaultCategory);
-}
-
 bool HitPattern::hasValidHitInFirstPixelEndcap(HitCategory category) const
 {
     std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
@@ -488,11 +361,6 @@ bool HitPattern::hasValidHitInFirstPixelEndcap(HitCategory category) const
         }
     }
     return false;
-}
-
-bool HitPattern::hasValidHitInFirstPixelEndcap() const
-{
-    return hasValidHitInFirstPixelEndcap(defaultCategory);
 }
 
 int HitPattern::numberOfHits(HitCategory category) const
@@ -569,19 +437,9 @@ int HitPattern::numberOfValidTIDLayersWithMonoAndStereo(HitCategory category, ui
     return numberOfValidStripLayersWithMonoAndStereo(category, StripSubdetector::TID, layer);
 }
 
-int HitPattern::numberOfValidTIDLayersWithMonoAndStereo(uint32_t layer) const
-{
-    return numberOfValidTIDLayersWithMonoAndStereo(defaultCategory, layer);
-}
-
 int HitPattern::numberOfValidTECLayersWithMonoAndStereo(HitCategory category, uint32_t layer) const
 {
     return numberOfValidStripLayersWithMonoAndStereo(category, StripSubdetector::TEC, layer);
-}
-
-int HitPattern::numberOfValidTECLayersWithMonoAndStereo(uint32_t layer) const
-{
-    return numberOfValidTECLayersWithMonoAndStereo(defaultCategory, layer);
 }
 
 uint32_t HitPattern::getTrackerLayerCase(HitCategory category, uint16_t substr, uint16_t layer) const
@@ -608,7 +466,7 @@ uint32_t HitPattern::getTrackerLayerCase(HitCategory category, uint16_t substr, 
                 // treats BADS and MISSING as the same type
                 layerCase = (hitType == HIT_TYPE::BAD ||
                              hitType == HIT_TYPE::MISSING_INNER ||
-                             hitType == HIT_TYPE::MISSING_OUTER) 
+                             hitType == HIT_TYPE::MISSING_OUTER)
                             ? HIT_TYPE::MISSING : hitType;
                 if (layerCase == HIT_TYPE::VALID) {
                     break;
@@ -662,8 +520,8 @@ int HitPattern::pixelBarrelLayersWithMeasurement(HitCategory category) const
     int count = 0;
     uint16_t NPixBarrel = 4;
     for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
-        if (getTrackerLayerCase(category, 
-            PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::VALID) {
+        if (getTrackerLayerCase(category,
+                                PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::VALID) {
             count++;
         }
     }
@@ -845,7 +703,7 @@ int HitPattern::stripTOBLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 6; layer++) {
-    
+
         if (getTrackerLayerCase(category, StripSubdetector::TOB, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
@@ -961,12 +819,6 @@ void HitPattern::printHitPattern(int position, std::ostream &stream) const
     }
     stream << "\thit type " << getHitType(pattern);
     stream << std::endl;
-}
-
-
-void HitPattern::print(std::ostream &stream) const
-{
-    return print(defaultCategory, stream);
 }
 
 void HitPattern::print(HitCategory category, std::ostream &stream) const
@@ -1133,7 +985,6 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
     hitPattern[hitCount] = pattern;
     hitCount++;
     endTrackHits++;
-    trackHitsCacheDirty = true;
     std::cout << std::endl << "HITS TOTALES " << (int)hitCount << std::endl;
     return true;
 }
@@ -1155,7 +1006,6 @@ bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
     hitPattern[hitCount] = pattern;
     hitCount++;
     endInner++;
-    expectedInnerHitsCacheDirty = true;
     std::cout << std::endl << "HITS TOTALES " << (int)hitCount << std::endl;
     return true;
 }
@@ -1174,537 +1024,7 @@ bool HitPattern::insertExpectedOuterHit(const uint16_t pattern)
     hitPattern[hitCount] = pattern;
     hitCount++;
     endOuter++;
-    expectedOuterHitsCacheDirty = true;
     std::cout << std::endl << "HITS TOTALES " << (int)hitCount << std::endl;
     return true;
 }
 
-int HitPattern::numberOfHits() const
-{
-    return numberOfHits(defaultCategory);
-}
-
-int HitPattern::numberOfTrackerHits() const
-{
-    return countHits(defaultCategory, trackerHitFilter);
-}
-
-int HitPattern::numberOfMuonHits() const
-{
-    return countHits(defaultCategory, muonHitFilter);
-}
-
-int HitPattern::numberOfValidHits() const
-{
-    return numberOfValidHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidTrackerHits() const
-{
-    return numberOfValidTrackerHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidMuonHits() const
-{
-    return numberOfValidMuonHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidPixelHits() const
-{
-    return numberOfValidPixelHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidPixelBarrelHits() const
-{
-    return numberOfValidPixelBarrelHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidPixelEndcapHits() const
-{
-    return numberOfValidPixelEndcapHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidStripHits() const
-{
-    return numberOfValidStripHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidStripTIBHits() const
-{
-    return numberOfValidStripTIBHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidStripTIDHits() const
-{
-    return numberOfValidStripTIDHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidStripTOBHits() const
-{
-    return numberOfValidStripTOBHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidStripTECHits() const
-{
-    return numberOfValidStripTECHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidMuonDTHits() const
-{
-    return numberOfValidMuonDTHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidMuonCSCHits() const
-{
-    return numberOfValidMuonCSCHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidMuonRPCHits() const
-{
-    return numberOfValidMuonRPCHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostHits() const
-{
-    return numberOfLostHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostTrackerHits() const
-{
-    return numberOfLostTrackerHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostMuonHits() const
-{
-    return numberOfLostMuonHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostPixelHits() const
-{
-    return numberOfLostPixelHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostPixelBarrelHits() const
-{
-    return numberOfLostPixelBarrelHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostPixelEndcapHits() const
-{
-    return numberOfLostPixelEndcapHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostStripHits() const
-{
-    return numberOfLostStripHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostStripTIBHits() const
-{
-    return numberOfLostStripTIBHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostStripTIDHits() const
-{
-    return numberOfLostStripTIDHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostStripTOBHits() const
-{
-    return numberOfLostStripTOBHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostStripTECHits() const
-{
-    return numberOfLostStripTECHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostMuonDTHits() const
-{
-    return numberOfLostMuonDTHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostMuonCSCHits() const
-{
-    return numberOfLostMuonCSCHits(defaultCategory);
-}
-
-int HitPattern::numberOfLostMuonRPCHits() const
-{
-    return numberOfLostMuonRPCHits(defaultCategory);
-}
-
-int HitPattern::numberOfBadHits() const
-{
-    return numberOfBadHits(defaultCategory);
-}
-
-int HitPattern::numberOfBadMuonHits() const
-{
-    return numberOfBadMuonHits(defaultCategory);
-}
-
-int HitPattern::numberOfBadMuonDTHits() const
-{
-    return numberOfBadMuonDTHits(defaultCategory);
-}
-
-int HitPattern::numberOfBadMuonCSCHits() const
-{
-    return numberOfBadMuonCSCHits(defaultCategory);
-}
-
-int HitPattern::numberOfBadMuonRPCHits() const
-{
-    return numberOfBadMuonRPCHits(defaultCategory);
-}
-
-int HitPattern::numberOfInactiveHits() const
-{
-    return numberOfInactiveHits(defaultCategory);
-}
-
-int HitPattern::numberOfInactiveTrackerHits() const
-{
-    return numberOfInactiveTrackerHits(defaultCategory);
-}
-
-int HitPattern::numberOfExpectedInnerHits() const
-{
-    return numberOfExpectedInnerHits(defaultCategory);
-}
-
-int HitPattern::numberOfExpectedOuterHits() const
-{
-    return numberOfExpectedOuterHits(defaultCategory);
-}
-
-int HitPattern::numberOfValidStripLayersWithMonoAndStereo(uint16_t stripdet, uint16_t layer) const
-{
-    return numberOfValidStripLayersWithMonoAndStereo(defaultCategory, stripdet, layer);
-}
-
-int HitPattern::numberOfValidStripLayersWithMonoAndStereo() const
-{
-    return numberOfValidStripLayersWithMonoAndStereo(defaultCategory);
-}
-
-int HitPattern::numberOfValidTOBLayersWithMonoAndStereo(uint32_t layer) const
-{
-    return numberOfValidTOBLayersWithMonoAndStereo(defaultCategory, layer);
-}
-
-int HitPattern::numberOfValidTIBLayersWithMonoAndStereo(uint32_t layer) const
-{
-    return numberOfValidTIBLayersWithMonoAndStereo(defaultCategory, layer);
-}
-
-uint32_t HitPattern::getTrackerLayerCase(uint16_t substr, uint16_t layer) const
-{
-    return getTrackerLayerCase(defaultCategory, substr, layer);
-}
-
-uint16_t HitPattern::getTrackerMonoStereo(uint16_t substr, uint16_t layer) const
-{
-    return getTrackerMonoStereo(defaultCategory, substr, layer);
-}
-
-int HitPattern::trackerLayersWithMeasurement() const
-{
-    return trackerLayersWithMeasurement(defaultCategory);
-}
-
-int HitPattern::pixelLayersWithMeasurement() const
-{
-    return pixelLayersWithMeasurement(defaultCategory);
-}
-
-int HitPattern::stripLayersWithMeasurement() const
-{
-    return stripLayersWithMeasurement(defaultCategory);
-}
-
-int HitPattern::pixelBarrelLayersWithMeasurement() const
-{
-    return pixelBarrelLayersWithMeasurement(defaultCategory);
-}
-
-int HitPattern::pixelEndcapLayersWithMeasurement() const
-{
-    return pixelEndcapLayersWithMeasurement(defaultCategory);
-}
-
-int HitPattern::stripTIBLayersWithMeasurement() const
-{
-    return stripTIBLayersWithMeasurement(defaultCategory);
-}
-
-int HitPattern::stripTIDLayersWithMeasurement() const
-{
-    return stripTIDLayersWithMeasurement(defaultCategory);
-}
-
-int HitPattern::stripTOBLayersWithMeasurement() const
-{
-    return stripTOBLayersWithMeasurement(defaultCategory);
-}
-
-int HitPattern::stripTECLayersWithMeasurement() const
-{
-    return stripTECLayersWithMeasurement(defaultCategory);
-}
-
-int HitPattern::trackerLayersWithoutMeasurement() const
-{
-    return trackerLayersWithoutMeasurement(defaultCategory);
-}
-
-int HitPattern::pixelLayersWithoutMeasurement() const
-{
-    return pixelLayersWithoutMeasurement(defaultCategory);
-}
-
-int HitPattern::stripLayersWithoutMeasurement() const
-{
-    return stripLayersWithoutMeasurement(defaultCategory);
-}
-
-int HitPattern::pixelBarrelLayersWithoutMeasurement() const
-{
-    return pixelBarrelLayersWithoutMeasurement(defaultCategory);
-}
-
-int HitPattern::pixelEndcapLayersWithoutMeasurement() const
-{
-    return pixelEndcapLayersWithoutMeasurement(defaultCategory);
-}
-
-int HitPattern::stripTIBLayersWithoutMeasurement() const
-{
-    return stripTIBLayersWithoutMeasurement(defaultCategory);
-}
-
-int HitPattern::stripTIDLayersWithoutMeasurement() const
-{
-    return stripTIDLayersWithoutMeasurement(defaultCategory);
-}
-
-int HitPattern::stripTOBLayersWithoutMeasurement() const
-{
-    return stripTOBLayersWithoutMeasurement(defaultCategory);
-}
-
-int HitPattern::stripTECLayersWithoutMeasurement() const
-{
-    return stripTECLayersWithoutMeasurement(defaultCategory);
-}
-
-int HitPattern::trackerLayersTotallyOffOrBad() const
-{
-    return trackerLayersTotallyOffOrBad(defaultCategory);
-}
-
-int HitPattern::pixelLayersTotallyOffOrBad() const
-{
-    return pixelLayersTotallyOffOrBad(defaultCategory);
-}
-
-int HitPattern::stripLayersTotallyOffOrBad() const
-{
-    return stripLayersTotallyOffOrBad(defaultCategory);
-}
-
-int HitPattern::pixelBarrelLayersTotallyOffOrBad() const
-{
-    return pixelBarrelLayersTotallyOffOrBad(defaultCategory);
-}
-
-int HitPattern::pixelEndcapLayersTotallyOffOrBad() const
-{
-    return pixelEndcapLayersTotallyOffOrBad(defaultCategory);
-}
-
-int HitPattern::stripTIBLayersTotallyOffOrBad() const
-{
-    return stripTIBLayersTotallyOffOrBad(defaultCategory);
-}
-
-int HitPattern::stripTIDLayersTotallyOffOrBad() const
-{
-    return stripTIDLayersTotallyOffOrBad(defaultCategory);
-}
-
-int HitPattern::stripTOBLayersTotallyOffOrBad() const
-{
-    return stripTOBLayersTotallyOffOrBad(defaultCategory);
-}
-
-int HitPattern::stripTECLayersTotallyOffOrBad() const
-{
-    return stripTECLayersTotallyOffOrBad(defaultCategory);
-}
-
-int HitPattern::trackerLayersNull() const
-{
-    return trackerLayersNull(defaultCategory);
-}
-
-int HitPattern::pixelLayersNull() const
-{
-    return pixelLayersNull(defaultCategory);
-}
-
-int HitPattern::stripLayersNull() const
-{
-    return stripLayersNull(defaultCategory);
-}
-
-int HitPattern::pixelBarrelLayersNull() const
-{
-    return pixelBarrelLayersNull(defaultCategory);
-}
-
-int HitPattern::pixelEndcapLayersNull() const
-{
-    return pixelEndcapLayersNull(defaultCategory);
-}
-
-int HitPattern::stripTIBLayersNull() const
-{
-    return stripTIBLayersNull(defaultCategory);
-}
-
-int HitPattern::stripTIDLayersNull() const
-{
-    return stripTIDLayersNull(defaultCategory);
-}
-
-int HitPattern::stripTOBLayersNull() const
-{
-    return stripTOBLayersNull(defaultCategory);
-}
-
-int HitPattern::stripTECLayersNull() const
-{
-    return stripTECLayersNull(defaultCategory);
-}
-
-int HitPattern::muonStations(int subdet, int hitType) const
-{
-    return muonStations(defaultCategory, subdet);
-}
-
-int HitPattern::muonStationsWithValidHits() const
-{
-    return muonStationsWithValidHits(defaultCategory);
-}
-
-int HitPattern::muonStationsWithBadHits() const
-{
-    return muonStationsWithBadHits(defaultCategory);
-}
-
-int HitPattern::muonStationsWithAnyHits() const
-{
-    return muonStationsWithAnyHits(defaultCategory);
-}
-
-int HitPattern::dtStationsWithValidHits() const
-{
-    return dtStationsWithValidHits(defaultCategory);
-}
-
-int HitPattern::dtStationsWithBadHits() const
-{
-    return dtStationsWithBadHits(defaultCategory);
-}
-
-int HitPattern::dtStationsWithAnyHits() const
-{
-    return dtStationsWithAnyHits(defaultCategory);
-}
-
-int HitPattern::cscStationsWithValidHits() const
-{
-    return cscStationsWithValidHits(defaultCategory);
-}
-
-int HitPattern::cscStationsWithBadHits() const
-{
-    return cscStationsWithBadHits(defaultCategory);
-}
-
-int HitPattern::cscStationsWithAnyHits() const
-{
-    return cscStationsWithAnyHits(defaultCategory);
-}
-
-int HitPattern::rpcStationsWithValidHits() const
-{
-    return rpcStationsWithValidHits(defaultCategory);
-}
-
-int HitPattern::rpcStationsWithBadHits() const
-{
-    return rpcStationsWithBadHits(defaultCategory);
-}
-
-int HitPattern::rpcStationsWithAnyHits() const
-{
-    return rpcStationsWithAnyHits(defaultCategory);
-}
-
-int HitPattern::innermostMuonStationWithHits(int hitType) const
-{
-    return innermostMuonStationWithHits(defaultCategory, hitType);
-}
-
-int HitPattern::innermostMuonStationWithValidHits() const
-{
-    return innermostMuonStationWithValidHits(defaultCategory);
-}
-
-int HitPattern::innermostMuonStationWithBadHits() const
-{
-    return innermostMuonStationWithBadHits(defaultCategory);
-}
-
-int HitPattern::innermostMuonStationWithAnyHits() const
-{
-    return innermostMuonStationWithAnyHits(defaultCategory);
-}
-
-int HitPattern::outermostMuonStationWithHits(int hitType) const
-{
-    return outermostMuonStationWithHits(hitType);
-}
-
-int HitPattern::outermostMuonStationWithValidHits() const
-{
-    return outermostMuonStationWithValidHits(defaultCategory);
-}
-
-int HitPattern::outermostMuonStationWithBadHits() const
-{
-    return outermostMuonStationWithBadHits(defaultCategory);
-}
-
-int HitPattern::outermostMuonStationWithAnyHits() const
-{
-    return outermostMuonStationWithAnyHits(defaultCategory);
-}
-
-int HitPattern::numberOfDTStationsWithRPhiView() const
-{
-    return numberOfDTStationsWithRPhiView(defaultCategory);
-}
-
-int HitPattern::numberOfDTStationsWithRZView() const
-{
-    return numberOfDTStationsWithRZView(defaultCategory);
-}
-
-int HitPattern::numberOfDTStationsWithBothViews() const
-{
-    return numberOfDTStationsWithBothViews(defaultCategory);
-}

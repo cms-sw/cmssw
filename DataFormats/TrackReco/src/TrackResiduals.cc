@@ -64,14 +64,14 @@ double TrackResiduals::residualY (int i) const
 static int index_to_hitpattern (int i_hitpattern, const HitPattern &h)
 {
     int i_residuals = 0;
-    assert(i_hitpattern < h.numberOfHits());
-    if (!h.validHitFilter(h.getHitPattern(i_hitpattern))) {
+    assert(i_hitpattern < h.numberOfHits(HitPattern::TRACK_HITS));
+    if (!h.validHitFilter(h.getHitPattern(HitPattern::TRACK_HITS, i_hitpattern))) {
         // asking for residual of invalid hit...
         return -999;
     }
 
     for (int i = 0; i <= i_hitpattern; i++) {
-        if (h.validHitFilter(h.getHitPattern(i))) {
+        if (h.validHitFilter(h.getHitPattern(HitPattern::TRACK_HITS, i))) {
             i_residuals++;
         }
     }
@@ -190,8 +190,8 @@ void TrackResiduals::print (std::ostream &stream) const
 void TrackResiduals::print (const HitPattern &h, std::ostream &stream) const
 {
     stream << "TrackResiduals" << std::endl;
-    for (int i = 0; i < h.numberOfHits(); i++) {
-        stream << (h.validHitFilter(h.getHitPattern(i)) ? "valid hit:   " : "invalid hit: ")
+    for (int i = 0; i < h.numberOfHits(HitPattern::TRACK_HITS); i++) {
+        stream << (h.validHitFilter(h.getHitPattern(HitPattern::TRACK_HITS, i)) ? "valid hit:   " : "invalid hit: ")
                << "( " << residualX(i, h) << " , " << residualY(i, h) << " )"
                << std::endl;
     }
