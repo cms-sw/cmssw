@@ -6,6 +6,8 @@ vertexTrackSelectionBlock = cms.PSet(
 	trackSelection = cms.PSet(
                 variableJTAPars,
 		totalHitsMin = cms.uint32(8),
+                maxPixelBarrelLayer = cms.uint32(4),
+                maxPixelEndcapLayer = cms.uint32(3),
 		jetDeltaRMax = cms.double(0.3),
 		qualityClass = cms.string('highPurity'),
 		pixelHitsMin = cms.uint32(2),
