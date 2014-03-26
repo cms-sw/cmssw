@@ -231,7 +231,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 			  if (topol != 0)
 			    {
 			      // get the cluster position in local coordinates (cm) 
-			      LocalPoint clustlp = topol->localPosition (hit1D->cluster_regional ()->barycenter ());
+			      LocalPoint clustlp = topol->localPosition (hit1D->cluster()->barycenter ());
 			      GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
 			      //NORMALIZE HISTO IF ASKED
 			      float etaWeight = 1.;
@@ -267,7 +267,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 			  if (topol != 0)
 			    {
 			      // get the cluster position in local coordinates (cm) 
-			      LocalPoint clustlp = topol->localPosition (hit2D->cluster_regional ()->barycenter ());
+			      LocalPoint clustlp = topol->localPosition (hit2D->cluster()->barycenter ());
 			      GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
 	  		      
 			      //NORMALIZE HISTO IF ASKED
@@ -380,7 +380,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 			  if (topol != 0)
 			    {
 			      // get the cluster position in local coordinates (cm) 
-			      LocalPoint clustlp = topol->localPosition (hitProj2D->originalHit ().cluster_regional ()->barycenter ());
+			      LocalPoint clustlp = topol->localPosition (hitProj2D->cluster()->barycenter ());
 			      GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
 			      //NORMALIZE HISTO IF ASKED
 			      float etaWeight = 1.;

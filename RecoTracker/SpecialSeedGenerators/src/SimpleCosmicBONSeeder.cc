@@ -331,7 +331,7 @@ bool SimpleCosmicBONSeeder::checkCharge(const TrackingRecHit *hit) const {
 
 // to be fixed to use OmniCluster
 bool SimpleCosmicBONSeeder::checkCharge(const SiStripRecHit2D &hit, int subdetid) const {
-    const SiStripCluster *clust = (hit.cluster().isNonnull() ?  hit.cluster().get() : hit.cluster_regional().get());
+    const SiStripCluster *clust = hit.cluster().get();
     int charge = std::accumulate(clust->amplitudes().begin(), clust->amplitudes().end(), int(0));
     if (tripletsVerbosity_ > 1) {
         std::cerr << "Hit on " << subdetid << ", charge = " << charge << ", threshold = " << chargeThresholds_[subdetid] 

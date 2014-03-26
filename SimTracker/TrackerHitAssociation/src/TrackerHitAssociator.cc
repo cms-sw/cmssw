@@ -395,15 +395,7 @@ void TrackerHitAssociator::associateHitId(const TrackingRecHit & thit, std::vect
 
 void TrackerHitAssociator::associateSimpleRecHit(const SiStripRecHit2D * simplerechit, std::vector<SimHitIdpr>& simtrackid)
 {
-  const SiStripCluster* clust = 0; 
-  if(simplerechit->cluster().isNonnull())
-    {
-      clust=&(*simplerechit->cluster());
-    }
-  else if(simplerechit->cluster_regional().isNonnull())
-    {
-      clust=&(*simplerechit->cluster_regional());
-    } 
+  const SiStripCluster* clust=&(*simplerechit->cluster());
   
   associateSimpleRecHitCluster(clust,simplerechit->geographicalId(),simtrackid);
 }
@@ -412,15 +404,7 @@ void TrackerHitAssociator::associateSimpleRecHit(const SiStripRecHit2D * simpler
 //This function could be templated to avoid to repeat the same code twice??
 void TrackerHitAssociator::associateSiStripRecHit1D(const SiStripRecHit1D * simplerechit, std::vector<SimHitIdpr>& simtrackid)
 {
-  const SiStripCluster* clust = 0; 
-  if(simplerechit->cluster().isNonnull())
-    {
-      clust=&(*simplerechit->cluster());
-    }
-  else if(simplerechit->cluster_regional().isNonnull())
-    {
-      clust=&(*simplerechit->cluster_regional());
-    } 
+  const SiStripCluster* clust=&(*simplerechit->cluster());
   associateSimpleRecHitCluster(clust,simplerechit->geographicalId(),simtrackid);
 }
 
