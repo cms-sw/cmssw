@@ -89,6 +89,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -378,6 +379,15 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
                      thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix2");
                      thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix3");
                      if (NumberOfBarrelLayers>=4){thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix4");}
+		     if (conf.exists("theLadderEfficiency_BPix1")) theLadderEfficiency_BPix[0] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix1");
+		     if (conf.exists("theLadderEfficiency_BPix2")) theLadderEfficiency_BPix[1] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix2");
+		     if (conf.exists("theLadderEfficiency_BPix3")) theLadderEfficiency_BPix[2] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix3");
+		     if (conf.exists("theModuleEfficiency_BPix1")) theModuleEfficiency_BPix[0] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix1");
+		     if (conf.exists("theModuleEfficiency_BPix2")) theModuleEfficiency_BPix[1] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix2");
+		     if (conf.exists("theModuleEfficiency_BPix3")) theModuleEfficiency_BPix[2] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix3");
+		     if (conf.exists("thePUEfficiency_BPix1")) thePUEfficiency_BPix[0] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1");
+		     if (conf.exists("thePUEfficiency_BPix2")) thePUEfficiency_BPix[1] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2");
+		     if (conf.exists("thePUEfficiency_BPix3")) thePUEfficiency_BPix[2] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3");		    
 		     // The next is needed for Phase2 Tracker studies
 		     if (NumberOfBarrelLayers>=5){
 			if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
@@ -468,10 +478,59 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
 //============================================================================
 void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
                                          std::vector<PixelDigi>& digis,
-                                         std::vector<PixelDigiSimLink>& simlinks, const TrackerTopology *tTopo,
-                                         CLHEP::HepRandomEngine* engine) {
+                                         std::vector<PixelDigiSimLink>& simlinks, 
+					 const TrackerTopology* tTopo,
+                                         CLHEP::HepRandomEngine* engine,
+					 PileupMixingContent* puInfo) {
+  //Instlumi scalefactor calculating for dynamic inefficiency
 
-   // Pixel Efficiency moved from the constructor to this method because
+  if (puInfo &&  
+      (pixelEfficiencies_.theModuleEfficiency_BPix[0].size()>0 || 
+       pixelEfficiencies_.theModuleEfficiency_BPix[1].size()>0 ||
+       pixelEfficiencies_.theModuleEfficiency_BPix[2].size()>0)) {
+    
+    std::cout << "puinfo is valid in digialgo, getting stuff..." << std::endl;
+    const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
+    const std::vector<int> numInteractionList = puInfo->getMix_Ninteractions();
+    const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();      
+
+    for(int i : bunchCrossing) {
+      std::cout << "bunchcrossing: " << i << std::endl;
+    }
+    for(int i :  numInteractionList) {
+      std::cout << "number of interactions: " << i << std::endl;
+    }
+    for(int i : TrueInteractionList) {
+      std::cout << "true number of interactions: " << i << std::endl;
+    }
+
+    int pui = 0, p = 0;
+    std::vector<int>::const_iterator pu;
+    std::vector<int>::const_iterator pu0 = bunchCrossing.end();
+
+    for (pu=bunchCrossing.begin(); pu!=bunchCrossing.end(); ++pu) {
+      if (*pu==0) {
+	pu0 = pu;
+	p = pui;
+      }
+      pui++;
+    }
+    
+    if (pu0!=bunchCrossing.end()) {
+      std::cout <<  TrueInteractionList.at(p) <<  " "<< bunchCrossing.at(p) << std::endl ;
+      double instlumi = TrueInteractionList.at(p)*221.95;
+      double instlumi_pow=1.;
+      for (size_t i=0; i<3; i++) {
+	if (pixelEfficiencies_.thePUEfficiency_BPix[i].empty()) continue;
+	for  (size_t j=0; j<pixelEfficiencies_.thePUEfficiency_BPix[i].size(); j++){
+	  _pu_scale[i]+=instlumi_pow*pixelEfficiencies_.thePUEfficiency_BPix[i][j];
+	  instlumi_pow*=instlumi;
+	}
+      }
+    }
+  }
+  
+  // Pixel Efficiency moved from the constructor to this method because
    // the information of the det are not available in the constructor
    // Effciency parameters. 0 - no inefficiency, 1-low lumi, 10-high lumi
 
@@ -1283,8 +1342,56 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     //std::cout <<"Using BPix columnEfficiency = "<<columnEfficiency<< " for layer = "<<layerIndex <<"\n";
     // This should never happen, but only check if it is not an upgrade geometry
     if (NumberOfBarrelLayers==3){
-       if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
-       if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
+      if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
+      if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
+    }
+    if ((layerIndex==1) && (eff.theLadderEfficiency_BPix[0].size()==20)) {
+      int ladder=tTopo->pxbLadder(detID);
+      std::cout<<"BPix1 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[0][ladder-1]<<std::endl;
+      columnEfficiency*=eff.theLadderEfficiency_BPix[0][ladder-1];
+    }
+    if ((layerIndex==2) && (eff.theLadderEfficiency_BPix[1].size()==32)) {
+      int ladder=tTopo->pxbLadder(detID);
+      std::cout<<"BPix2 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[1][ladder-1]<<std::endl;
+      columnEfficiency*=eff.theLadderEfficiency_BPix[1][ladder-1];
+    }
+    if ((layerIndex==3) && (eff.theLadderEfficiency_BPix[2].size()==44)) {
+      int ladder=tTopo->pxbLadder(detID);
+      std::cout<<"BPix3 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[2][ladder-1]<<std::endl;
+      columnEfficiency*=eff.theLadderEfficiency_BPix[2][ladder-1];
+    }
+    if ((layerIndex==1) && (eff.theModuleEfficiency_BPix[0].size()==4)) {
+      int module=tTopo->pxbModule(detID);
+      if (module<=4) module=5-module;
+      else module-=4;
+      std::cout<<"BPix1 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[0][module-1]<<std::endl;
+      columnEfficiency*=eff.theModuleEfficiency_BPix[0][module-1];
+    }
+    if ((layerIndex==2) && (eff.theModuleEfficiency_BPix[1].size()==4)) {
+      int module=tTopo->pxbModule(detID);
+      if (module<=4) module=5-module;
+      else module-=4;
+      std::cout<<"BPix2 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[1][module-1]<<std::endl;
+      columnEfficiency*=eff.theModuleEfficiency_BPix[1][module-1];
+    }
+    if ((layerIndex==3) && (eff.theModuleEfficiency_BPix[2].size()==4)) {
+      int module=tTopo->pxbModule(detID);
+      if (module<=4) module=5-module;
+      else module-=4;
+      std::cout<<"BPix3 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[2][module-1]<<std::endl;
+      columnEfficiency*=eff.theModuleEfficiency_BPix[2][module-1];
+    }
+    if ((layerIndex==1) && (_pu_scale[0]>0.)) {
+      columnEfficiency*=_pu_scale[0];
+      std::cout<<"bpix1 puscale  "<< _pu_scale[0] <<std::endl;
+    }
+    if ((layerIndex==2) && (_pu_scale[1]>0.)) {
+      columnEfficiency*=_pu_scale[1];
+      std::cout<<"bpix2 puscale  "<< _pu_scale[1] <<std::endl;
+    }
+    if ((layerIndex==3) && (_pu_scale[2]>0.)) {
+      columnEfficiency*=_pu_scale[2];
+      std::cout<<"bpix3 puscale  "<< _pu_scale[2] <<std::endl;
     }
   } else {                // forward disks
     unsigned int diskIndex=tTopo->pxfDisk(detID)+eff.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix

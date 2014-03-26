@@ -215,13 +215,13 @@ namespace cms
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
 //////
-   const PileupMixingContent* puInfo = getEventPileupInfo();
+    PileupInfo_ = getEventPileupInfo();
     
-    if(puInfo) {  
+    if(PileupInfo_) {  
       std::cout << "puinfo is valid, getting stuff..." << std::endl;
-      const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
-      const std::vector<int> numInteractionList =  puInfo->getMix_Ninteractions();
-      const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();      
+      const std::vector<int> bunchCrossing = PileupInfo_->getMix_bunchCrossing();
+      const std::vector<int> numInteractionList =  PileupInfo_->getMix_Ninteractions();
+      const std::vector<float> TrueInteractionList = PileupInfo_->getMix_TrueInteractions();      
 
       for(int i : bunchCrossing) {
  	std::cout << "bunchcrossing: " << i << std::endl;
@@ -250,7 +250,8 @@ namespace cms
                                  collector.data,
                                  linkcollector.data,
 				 tTopo,
-                                 engine);
+                                 engine,
+				 PileupInfo_);
         if(collector.data.size() > 0) {
           theDigiVector.push_back(std::move(collector));
         }
