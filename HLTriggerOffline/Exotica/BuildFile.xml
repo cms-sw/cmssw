@@ -1,0 +1,17 @@
+<use   name="root"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Utilities"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="CommonTools/Utils"/>
+<use   name="DQMServices/Core"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/METReco"/>
+<use   name="DataFormats/TauReco"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="hepmc"/>
+<flags   EDM_PLUGIN="1"/>
