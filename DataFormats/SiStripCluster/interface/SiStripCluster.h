@@ -1,12 +1,11 @@
 #ifndef DATAFORMATS_SISTRIPCLUSTER_H
 #define DATAFORMATS_SISTRIPCLUSTER_H
 
-//#include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include <vector>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class SiStripCluster  /*: public edm::DoNotSortUponInsertion*/ {
+class SiStripCluster  {
 public:
 
   typedef std::vector<SiStripDigi>::const_iterator   SiStripDigiIter;
@@ -18,12 +17,12 @@ public:
   
   SiStripCluster() : error_x( -99999.9 ) {}
 
-  SiStripCluster(const SiStripDigiRange& range);
+  explicit SiStripCluster(const SiStripDigiRange& range);
 
   template<typename Iter>
   SiStripCluster(const uint16_t& firstStrip, 
 		 Iter begin, Iter end ):
-	 firstStrip_(firstStrip), amplitudes_(begin,end),
+	 amplitudes_(begin,end), firstStrip_(firstStrip), 
   // ggiurgiu@fnal.gov, 01/05/12
   // Initialize the split cluster errors to un-physical values.
   // The CPE will check these errors and if they are not un-physical,
@@ -59,9 +58,9 @@ public:
 
 private:
 
-  uint16_t                firstStrip_;
-
   std::vector<uint8_t>   amplitudes_;
+
+  uint16_t                firstStrip_;
 
   // ggiurgiu@fnal.gov, 01/05/12
   // Add cluster errors to be used by rechits from split clusters. 

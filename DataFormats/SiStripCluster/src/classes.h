@@ -7,7 +7,6 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
 
-#include "DataFormats/Common/interface/LazyGetter.h"
 namespace DataFormats_SiStripCluster {
   struct dictionary2 {
 
@@ -24,13 +23,6 @@ namespace DataFormats_SiStripCluster {
     edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> > dumm_dtvr;
     edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> > > dumm_dtvr_w;
 
-    edm::LazyGetter<SiStripCluster> lg1;
-    edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  reflg1;
-    edm::ContainerMask<edm::LazyGetter<SiStripCluster> > cmlg;
-    edm::Wrapper<edm::ContainerMask<edm::LazyGetter<SiStripCluster> > > wcmlg;
-    std::vector<edm::Ref<edm::LazyGetter<SiStripCluster>,SiStripCluster,edm::FindValue<SiStripCluster> > > dsvr_v1;
-    edmNew::DetSetVector<edm::Ref<edm::LazyGetter<SiStripCluster>,SiStripCluster,edm::FindValue<SiStripCluster> > > dsvr_1;
-    edm::Wrapper<edmNew::DetSetVector<edm::Ref<edm::LazyGetter<SiStripCluster>,SiStripCluster,edm::FindValue<SiStripCluster> > > > dsvr_w2;
 
     edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster, edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector > refNew;
   };
