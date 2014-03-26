@@ -63,7 +63,22 @@ process.selectedPatMuons.cut = cms.string("pt > 3")
 process.selectedPatElectrons.cut = cms.string("pt > 5") 
 process.selectedPatTaus.cut = cms.string("pt > 20")
 
-process.slimmedJets.clearDaughters = True
+process.slimmedJets.clearDaughters = False
+
+from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+
+addJetCollection(process, labelName = 'CA8', jetSource = cms.InputTag('ca8PFJetsCHS') )
+process.selectedPatJetsCA8.cut = cms.string("pt > 30")
+
+process.slimmedJetsCA8 = cms.EDProducer("PATJetSlimmer",
+   src = cms.InputTag("selectedPatJetsCA8"),
+   clearJetVars = cms.bool(True),
+   clearDaughters = cms.bool(False),
+   clearTrackRefs = cms.bool(True),
+   dropSpecific = cms.bool(False),
+)
+process.patJetGenJetMatchPatJetsCA8.matched =  'slimmedGenJets'
+process.slimmedJetsCA8.clearDaughters = False
 #process.slimmedElectrons.dropRecHits = True
 #process.slimmedElectrons.dropBasicClusters = True
 #process.slimmedElectrons.dropPFlowClusters = True
