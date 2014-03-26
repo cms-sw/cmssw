@@ -53,7 +53,7 @@ void QGLikelihoodDBWriter::beginJob()
   QGLikelihoodObject *payload = new QGLikelihoodObject();
   payload->data.clear();
 
-  TFile * f = TFile::Open(edm::FileInPath(inputRootFile.c_str()));
+  TFile * f = TFile::Open(edm::FileInPath(inputRootFile.c_str()).fullPath().c_str());
   
   // For easy keeping, here are the various strings in the histogram name. 
   std::string varName0 = "nPFCand_QC_ptCutJet0";
