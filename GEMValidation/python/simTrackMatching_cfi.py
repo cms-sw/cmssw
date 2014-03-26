@@ -118,6 +118,7 @@ SimTrackMatching = cms.PSet(
         maxBX = cms.int32(7),
         minNHitsChamber = cms.int32(4),
         addGhosts = cms.bool(True),
+        matchAlctGem = cms.bool(False),
     ),
     cscMPLCT = cms.PSet(
         verbose = cms.int32(0),
