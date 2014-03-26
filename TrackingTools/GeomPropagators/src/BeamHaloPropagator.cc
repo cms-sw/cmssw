@@ -31,23 +31,24 @@
 
 
 /* Constructor */
-void BeamHaloPropagator::directionCheck(PropagationDirection dir)const {
+void BeamHaloPropagator::directionCheck(PropagationDirection dir) {
 
   //consistency check for direction
-  if (getEndCapTkPropagator()->propagationDirection()!=dir && getEndCapTkPropagator()->propagationDirection()!=anyDirection){
+  if (getEndCapTkPropagator()->propagationDirection() != dir &&
+      getEndCapTkPropagator()->propagationDirection() != anyDirection) {
     edm::LogError("BeamHaloPropagator")<<"composite propagator set with inconsistent direction components\n"
 				  <<"EndCap propagator is: "<<getEndCapTkPropagator()->propagationDirection()
 				  <<"\n to be set on: "<<dir;
-    getEndCapTkPropagator()->setPropagationDirection(dir);
+    theEndCapTkProp->setPropagationDirection(dir);
   }
 
-  if (getCrossTkPropagator()->propagationDirection()!=dir && getCrossTkPropagator()->propagationDirection()!=anyDirection){
+  if (getCrossTkPropagator()->propagationDirection() != dir &&
+      getCrossTkPropagator()->propagationDirection() != anyDirection) {
     edm::LogError("BeamHaloPropagator")<<"composite propagator set with inconsistent direction components\n"
 				  <<"Cross propagator is: "<<getCrossTkPropagator()->propagationDirection()
 				  <<"\n to be set on: "<<dir;
-    getCrossTkPropagator()->setPropagationDirection(dir);
+    theCrossTkProp->setPropagationDirection(dir);
   }
-
 }
 
 BeamHaloPropagator::BeamHaloPropagator(const Propagator* aEndCapTkProp, const Propagator* aCrossTkProp, const MagneticField* field,

@@ -47,11 +47,11 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
     }
 
 
-    void setPropagationDirection (PropagationDirection dir) const
+    void setPropagationDirection (PropagationDirection dir)
     {
       Propagator::setPropagationDirection(dir);
-      getEndCapTkPropagator()->setPropagationDirection(dir);
-      getCrossTkPropagator()->setPropagationDirection(dir);
+      theEndCapTkProp->setPropagationDirection(dir);
+      theCrossTkProp->setPropagationDirection(dir);
     }
 
 
@@ -124,7 +124,7 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
     virtual const MagneticField* magneticField() const {return theField;}
 
   private:
-    void directionCheck(PropagationDirection dir)const;
+    void directionCheck(PropagationDirection dir);
 
     Propagator* theEndCapTkProp;
     Propagator* theCrossTkProp;
