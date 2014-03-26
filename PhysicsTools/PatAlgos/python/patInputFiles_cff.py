@@ -2,15 +2,15 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 
 filesRelValProdTTbarAODSIM = cms.untracked.vstring(
-    #pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0_pre8'
+    #pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0_pre5' # event content in 620pre8 broken
                         #, relVal        = 'RelValProdTTbar'
-                        #, globalTag     = 'PRE_ST62_V8'
+                        #, globalTag     = 'PRE_ST61_V1'
                         #, dataTier      = 'AODSIM'
                         #, maxVersions   = 1
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_6_2_0_pre8/RelValProdTTbar/AODSIM/PRE_ST62_V8-v1/00000/AC6C769D-4AE0-E211-AFD0-5404A63886AC.root'
+        '/store/relval/CMSSW_6_2_0_pre5/RelValProdTTbar/AODSIM/PRE_ST61_V1-v1/00000/3C9BFDAA-79A4-E211-BC9F-C86000151B96.root'
     )
 filesRelValProdTTbarGENSIMRECO = cms.untracked.vstring(
     #pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0_pre5' # event content in 620pre8 broken
