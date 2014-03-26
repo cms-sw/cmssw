@@ -39,7 +39,8 @@ process.patMuons.embedDytMuon   = False   # no, use best track
 process.selectedPatJets.cut = cms.string("pt > 10")
 process.selectedPatMuons.cut = cms.string("pt > 3") 
 process.selectedPatElectrons.cut = cms.string("pt > 5") 
-process.selectedPatTaus.cut = cms.string("pt > 20")
+process.selectedPatTaus.cut = cms.string("pt > 20 && tauID('decayModeFinding')> 0.5")
+process.selectedPatPhotons.cut = cms.string("pt > 9")
 
 process.slimmedJets.clearDaughters = False
 #process.slimmedElectrons.dropRecHits = True
