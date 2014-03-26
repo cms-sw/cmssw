@@ -42,7 +42,7 @@ math::PtEtaPhiMLorentzVector CaloTower::hadP4(double vtxZ) const {
   // note: for now we use the same position for HO as for the other detectors
 
   double hcalTot;
-  if (abs(ieta())<16) hcalTot = (energy() - emE_);
+  if (abs(ieta())<=lastHORing_) hcalTot = (energy() - emE_);
   else hcalTot = hadE_;
 
   if (hcalTot>0) {
@@ -78,7 +78,7 @@ math::PtEtaPhiMLorentzVector CaloTower::hadP4(Point v) const {
   // note: for now we use the same position for HO as for the other detectors
 
   double hcalTot;
-  if (abs(ieta())<16) hcalTot = (energy() - emE_);
+  if (abs(ieta())<lastHORing_) hcalTot = (energy() - emE_);
   else hcalTot = hadE_;
 
   if (hcalTot>0) {
@@ -104,7 +104,7 @@ math::PtEtaPhiMLorentzVector CaloTower::emP4(Point v) const {
 
 math::PtEtaPhiMLorentzVector CaloTower::p4(double vtxZ) const {
 
-  if (abs(ieta())<=29) {
+  if (abs(ieta())<=lastHERing_) {
     return (emP4(vtxZ)+hadP4(vtxZ));
   }
   // em and had energy in HF are defined in a special way
@@ -117,7 +117,7 @@ math::PtEtaPhiMLorentzVector CaloTower::p4(double vtxZ) const {
 
 math::PtEtaPhiMLorentzVector CaloTower::p4(Point v) const {
 
-  if (abs(ieta())<=29) {
+  if (abs(ieta())<=lastHERing_) {
     return emP4(v)+hadP4(v);
   }
   // em and had energy in HF are defined in a special way
@@ -131,7 +131,7 @@ math::PtEtaPhiMLorentzVector CaloTower::p4(Point v) const {
 
 math::PtEtaPhiMLorentzVector CaloTower::p4_HO(Point v) const {
 
-  if (ietaAbs()>15 || outerE_<0) return   math::PtEtaPhiMLorentzVector(0,0,0,0);
+  if (ietaAbs()>lastHORing_ || outerE_<0) return   math::PtEtaPhiMLorentzVector(0,0,0,0);
   
   GlobalPoint p(v.x(), v.y(), v.z());
   math::XYZVector dir = math::XYZVector(hadPosition_ - p);
@@ -145,7 +145,7 @@ math::PtEtaPhiMLorentzVector CaloTower::p4_HO(double vtxZ) const {
 
 math::PtEtaPhiMLorentzVector CaloTower::p4_HO() const {
 
-  if (ietaAbs()>15 || outerE_<0) return   math::PtEtaPhiMLorentzVector(0.0,0.0,0.0,0.0);
+  if (ietaAbs()>lastHORing_ || outerE_<0) return   math::PtEtaPhiMLorentzVector(0.0,0.0,0.0,0.0);
   return math::PtEtaPhiMLorentzVector(outerE_ * sin(hadPosition_.theta()), hadPosition_.eta(), hadPosition_.phi(), 0.0);  
 }
 
@@ -156,7 +156,7 @@ void CaloTower::addConstituents( const std::vector<DetId>& ids ) {
 }
 
 int CaloTower::numCrystals() const {
-  if (id_.ietaAbs()>29) return 0;
+  if (id_.ietaAbs()>lastHERing_) return 0;
   
   int nC = 0;
   std::vector<DetId>::const_iterator it = constituents_.begin();
@@ -196,19 +196,19 @@ void CaloTower::setCaloTowerStatus(unsigned int numBadHcalChan,unsigned int numB
 // needed by JetMET cleanup in AOD.
 
 double CaloTower::energyInHB() const  { 
-  if (id_.ietaAbs()<16) return hadE_;
-  else if (id_.ietaAbs()==16) return hadE_-outerE_;
+  if (id_.ietaAbs()<lastHBRing_) return hadE_;
+  else if (id_.ietaAbs()==lastHBRing_) return hadE_-outerE_;
   else return 0.0;
 }
 
 double CaloTower::energyInHE() const { 
-  if (id_.ietaAbs()>16 && id_.ietaAbs()<30) return hadE_;
-  else if (id_.ietaAbs()==16) return outerE_;
+  if (id_.ietaAbs()>firstHERing_ && id_.ietaAbs()<=lastHERing_) return hadE_;
+  else if (id_.ietaAbs()==firstHERing_) return outerE_;
   else return 0.0;
 }
  
 double CaloTower::energyInHF() const {
-  if (id_.ietaAbs()>29) return energy();
+  if (id_.ietaAbs()>=firstHFRing_) return energy();
   else return 0.0;
 }
 
@@ -218,7 +218,7 @@ double CaloTower::energyInHF() const {
 // when HO was not used 
 
 double CaloTower::energyInHO() const {
-  if (id_.ietaAbs()>15) return 0.0;
+  if (id_.ietaAbs()>lastHORing_) return 0.0;
   else return (energy() - hadE_ -emE_);
 }
 

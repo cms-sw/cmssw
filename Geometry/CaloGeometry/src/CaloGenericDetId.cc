@@ -9,14 +9,18 @@ CaloGenericDetId::CaloGenericDetId( DetId::Detector iDet ,
   if (det() == DetId::Hcal) { 
     std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
     throw cms::Exception("No support");
-  } else {
+  } 
+  else if(isCaloTower()) {
+    std::cerr << "No support for CaloTower in CaloGenericDetId" << std::endl;
+    throw cms::Exception("No support");
+  }
+  else {
 
    id_ = ( isEB() ? EBDetId::detIdFromDenseIndex( iDin ).rawId() :
 	   ( isEE() ? EEDetId::detIdFromDenseIndex( iDin ).rawId() :
 	     ( isES() ? ESDetId::detIdFromDenseIndex( iDin ).rawId() :
 		 ( isZDC() ? HcalZDCDetId::detIdFromDenseIndex( iDin ).rawId() :
-		   ( isCastor() ? HcalCastorDetId::detIdFromDenseIndex( iDin ).rawId() :
-		     ( isCaloTower() ? CaloTowerDetId::detIdFromDenseIndex( iDin ).rawId() : 0 ) ) ) ) ) ); 
+		   ( isCastor() ? HcalCastorDetId::detIdFromDenseIndex( iDin ).rawId() : 0 ) ) ) ) ); 
   }
 }
 
@@ -26,14 +30,17 @@ CaloGenericDetId::denseIndex() const
   if (det() == DetId::Hcal) { 
     std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
     throw cms::Exception("No support");
-  } 
+  }
+  else if(isCaloTower()) {
+    std::cerr << "No support for CaloTower in CaloGenericDetId" << std::endl;
+    throw cms::Exception("No support");
+  }
 
    return ( isEB() ? EBDetId( rawId() ).denseIndex() :
 	    ( isEE() ? EEDetId( rawId() ).denseIndex() :
 	      ( isES() ? ESDetId( rawId() ).denseIndex() :
 		  ( isZDC() ? HcalZDCDetId( rawId() ).denseIndex() :
-		    ( isCastor() ? HcalCastorDetId( rawId() ).denseIndex() :
-		      ( isCaloTower() ? CaloTowerDetId( rawId() ).denseIndex() : ~0 ) ) ) ) ) ) ;
+		    ( isCastor() ? HcalCastorDetId( rawId() ).denseIndex() : ~0 ) ) ) ) ) ;
 }
 
 uint32_t 
@@ -42,14 +49,17 @@ CaloGenericDetId::sizeForDenseIndexing() const
   if (det() == DetId::Hcal) { 
     std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
     throw cms::Exception("No support");
-  } 
+  }
+  else if(isCaloTower()) {
+    std::cerr << "No support for CaloTower in CaloGenericDetId" << std::endl;
+    throw cms::Exception("No support");
+  }
 
    return ( isEB() ? EBDetId::kSizeForDenseIndexing :
 	   ( isEE() ? EEDetId::kSizeForDenseIndexing :
 	     ( isES() ? ESDetId::kSizeForDenseIndexing :
 		 ( isZDC() ? HcalZDCDetId::kSizeForDenseIndexing :
-		   ( isCastor() ? HcalCastorDetId::kSizeForDenseIndexing :
-		     ( isCaloTower() ? CaloTowerDetId::kSizeForDenseIndexing : 0 ) ) ) ) ) ) ; 
+		   ( isCastor() ? HcalCastorDetId::kSizeForDenseIndexing : 0 ) ) ) ) ) ; 
 }
 
 bool 
@@ -112,9 +122,8 @@ CaloGenericDetId::validDetId() const
 		  {
 		     if( isCaloTower() )
 		     {
-			const CaloTowerDetId ctid ( rawId() ) ;
-			returnValue = CaloTowerDetId::validDetId( ctid.ieta(),
-								  ctid.iphi() ) ;
+                std::cerr << "No support for CaloTower in CaloGenericDetId" << std::endl;
+                throw cms::Exception("No support");
 		     }
 		  }
 	       }
@@ -130,12 +139,15 @@ std::ostream& operator<<(std::ostream& s, const CaloGenericDetId& id)
   if (id.det() == DetId::Hcal) { 
     std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
     throw cms::Exception("No support");
-  } 
+  }
+  else if(id.isCaloTower()) {
+    std::cerr << "No support for CaloTower in CaloGenericDetId" << std::endl;
+    throw cms::Exception("No support");
+  }
 
    return ( id.isEB() ? s<<EBDetId( id ) :
 	    ( id.isEE() ? s<<EEDetId( id ) :
 	      ( id.isES() ? s<<ESDetId( id ) :
-		( id.isCaloTower() ? s<<CaloTowerDetId( id ) :
 		    ( id.isZDC() ? s<<HcalZDCDetId( id ) :
-		      s<<"UnknownId="<<std::hex<<id.rawId()<<std::dec ) ) ) ) ) ;
+		      s<<"UnknownId="<<std::hex<<id.rawId()<<std::dec ) ) ) ) ;
 }

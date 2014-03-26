@@ -52,6 +52,15 @@ public:
   void addConstituents( const std::vector<DetId>& ids );
   void setEcalTime(int t) { ecalTime_ = t; };
   void setHcalTime(int t) { hcalTime_ = t; };
+  void setHcalLimits(int firstHB, int lastHB,
+                     int firstHE, int lastHE,
+                     int firstHF, int lastHF,
+                     int firstHO, int lastHO) {
+    firstHBRing_ = firstHB; lastHBRing_ = lastHB;
+    firstHERing_ = firstHE; lastHERing_ = lastHE;
+    firstHFRing_ = firstHF; lastHFRing_ = lastHF;
+    firstHORing_ = firstHO; lastHORing_ = lastHO;
+  }
 
   // set CaloTower status based on the number of
   // bad/recovered/problematic cells in ECAL and HCAL
@@ -78,12 +87,12 @@ public:
   // energy in HO ("outerEnergy")is not included in "hadEnergy"
   double emEnergy() const { return emE_ ; }
   double hadEnergy() const { return hadE_ ; }
-  double outerEnergy() const { return (id_.ietaAbs()<16)? outerE_ : 0.0; }
+  double outerEnergy() const { return (id_.ietaAbs()<=lastHORing_)? outerE_ : 0.0; }
 
   // transverse energies wrt to vtx (0,0,0)
   double emEt() const { return emE_ * sin( theta() ); }
   double hadEt() const { return hadE_ * sin( theta() ); }
-  double outerEt() const { return (id_.ietaAbs()<16)? outerE_ * sin( theta() ) : 0.0; }
+  double outerEt() const { return (id_.ietaAbs()<=lastHORing_)? outerE_ * sin( theta() ) : 0.0; }
 
 
   // preserve the inherited default accessors where applicable
@@ -102,7 +111,7 @@ public:
 
   double emEt(double vtxZ)  const { return  emE_ * sin(p4(vtxZ).theta()); }
   double hadEt(double vtxZ) const { return  hadE_ * sin(p4(vtxZ).theta()); }
-  double outerEt(double vtxZ) const { return (id_.ietaAbs()<16)? outerE_ * sin(p4(vtxZ).theta()) : 0.0; }
+  double outerEt(double vtxZ) const { return (id_.ietaAbs()<=lastHORing_)? outerE_ * sin(p4(vtxZ).theta()) : 0.0; }
 
   // recalculated wrt vertex provided as 3D point
 
@@ -112,7 +121,7 @@ public:
 
   double emEt(Point v)  const { return  emE_ * sin(p4(v).theta()); }
   double hadEt(Point v) const { return  hadE_ * sin(p4(v).theta()); }
-  double outerEt(Point v) const { return (id_.ietaAbs()<16)? outerE_ * sin(p4(v).theta()) : 0.0; }
+  double outerEt(Point v) const { return (id_.ietaAbs()<=lastHORing_)? outerE_ * sin(p4(v).theta()) : 0.0; }
 
   double hottestCellE() const { return hottestCellE_; }
 
@@ -133,8 +142,8 @@ public:
   int hadLv11() const { return hadLvl1_; }
 
   // energy contained in depths>1 in the HE for 18<|iEta|<29
-  double hadEnergyHeOuterLayer() const { return (id_.ietaAbs()<18 || id_.ietaAbs()>29)? 0 : outerE_; }
-  double hadEnergyHeInnerLayer() const { return (id_.ietaAbs()<18 || id_.ietaAbs()>29)? 0 : hadE_ - outerE_; }
+  double hadEnergyHeOuterLayer() const { return (id_.ietaAbs()<=firstHERing_ || id_.ietaAbs()>lastHERing_)? 0 : outerE_; }
+  double hadEnergyHeInnerLayer() const { return (id_.ietaAbs()<=firstHERing_ || id_.ietaAbs()>lastHERing_)? 0 : hadE_ - outerE_; }
 
   // energy in the tower by HCAL subdetector
   // This is trivial except for tower 16
@@ -183,6 +192,12 @@ private:
    GlobalPoint emPosition_;
    GlobalPoint hadPosition_;
 
+  //hcal limits in CT continuous ieta (from CaloTowerTopology)
+  int firstHBRing_, lastHBRing_;
+  int firstHERing_, lastHERing_;
+  int firstHFRing_, lastHFRing_;
+  int firstHORing_, lastHORing_;
+   
    // time
    int ecalTime_;
    int hcalTime_;

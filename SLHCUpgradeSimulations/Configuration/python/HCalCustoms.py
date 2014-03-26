@@ -93,6 +93,13 @@ def customise_HcalPhase2(process):
         process.mix.digitizers.hcal.he.samplingFactors = newFactors
         process.mix.digitizers.hcal.he.photoelectronsToAnalog = cms.vdouble([10.]*len(newFactors))
 
+    if hasattr(process,'reconstruction_step'):
+        process.towerMaker.HcalPhase = cms.int32(2)
+        process.towerMakerPF.HcalPhase = cms.int32(2)
+        process.towerMakerWithHO.HcalPhase = cms.int32(2)
+
+    process.CaloTowerConstituentsMapBuilder.MapFile = cms.untracked.string("")
+
     return process
 
 def customise_Sim(process):
@@ -141,6 +148,9 @@ def customise_Reco(process):
     process.towerMakerPF.hbheInput = cms.InputTag("hbheUpgradeReco") 
     process.towerMakerWithHO.hfInput = cms.InputTag("hfUpgradeReco")
     process.towerMakerWithHO.hbheInput = cms.InputTag("hbheUpgradeReco") 
+    process.towerMaker.HcalPhase = cms.int32(1)
+    process.towerMakerPF.HcalPhase = cms.int32(1)
+    process.towerMakerWithHO.HcalPhase = cms.int32(1)
     process.particleFlowRecHitHCAL.hcalRecHitsHBHE = cms.InputTag("hbheUpgradeReco")
     process.particleFlowRecHitHCAL.hcalRecHitsHF = cms.InputTag("hfUpgradeReco")
     process.ak5JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")

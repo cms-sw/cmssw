@@ -5,7 +5,7 @@
 <use   name="Geometry/HcalCommonData"/>
 <use   name="CoralBase"/>
 
-<bin   file="testCaloTowerTopology.cpp"> </bin>
 <flags   EDM_PLUGIN="1"/>
 <library   file="HcalTopologyTester.cc" name="testGeometryHcalTopology"> </library>
 <library   file="ShashlikTopologyTester.cc" name="testGeometryShashlikTopology"> </library>
+<library   file="CaloTowerTopologyTester.cc" name="testGeometryCaloTowerTopology"> </library>
