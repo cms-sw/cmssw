@@ -102,11 +102,16 @@
    <version ClassVersion="11" checksum="4153489469"/>
    <version ClassVersion="10" checksum="3393361159"/>
   </class>
-  <class name="pat::MET"  ClassVersion="10">
+  <class name="pat::MET"  ClassVersion="11">
+   <version ClassVersion="11" checksum="1829185007"/>
    <version ClassVersion="10" checksum="1136648776"/>
     <field name="uncorInfo_" transient="true"/>
     <field name="nCorrections_" transient="true"/>
   </class>
+  <class name="pat::MET::PackedMETUncertainty" ClassVersion="10">
+    <version ClassVersion="10" checksum="1984780659"/>
+  </class>
+  <class name="std::vector<pat::MET::PackedMETUncertainty>" />
   <class name="pat::MHT"  ClassVersion="10">
    <version ClassVersion="10" checksum="2696169357"/>
   </class>
@@ -129,7 +134,8 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate">
+  <class name="pat::PackedCandidate" ClassVersion="10">
+    <version ClassVersion="10" checksum="572957881"/>
     <field name="p4_" transient="true" />
     <field name="p4c_" transient="true" />
     <field name="vertex_" transient="true" />

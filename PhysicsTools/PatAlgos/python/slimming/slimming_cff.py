@@ -11,6 +11,7 @@ from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi     import *
 from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedTaus_cfi      import *
+from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi      import *
 from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff   import *
 
 MicroEventContent = cms.PSet(
@@ -21,7 +22,7 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedMuons*_*_*',
         'keep *_slimmedTaus*_*_*',
         'keep *_slimmedJets*_*_*',
-        'keep *_patMETs*_*_*',
+        'keep *_slimmedMETs*_*_*',
         ## add extra METs
 
         'drop *_*_caloTowers_*',

@@ -41,7 +41,7 @@ process.selectedPatMuons.cut = cms.string("pt > 3")
 process.selectedPatElectrons.cut = cms.string("pt > 5") 
 process.selectedPatTaus.cut = cms.string("pt > 20")
 
-process.slimmedJets.clearDaughters = True
+process.slimmedJets.clearDaughters = False
 #process.slimmedElectrons.dropRecHits = True
 #process.slimmedElectrons.dropBasicClusters = True
 #process.slimmedElectrons.dropPFlowClusters = True
@@ -55,6 +55,13 @@ process.patTrigger.packTriggerPathNames = cms.bool(True)
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
 #                                         ##
 
+# apply type I/type I + II PFMEt corrections to pat::MET object
+# and estimate systematic uncertainties on MET
+from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
+addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK5PF', jetSource = cms.InputTag('ak5PFJets'), jetCorrections = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'], ''), btagDiscriminators = ['combinedSecondaryVertexBJetTags' ] )
+runMEtUncertainties(process,jetCollection="selectedPatJetsAK5PFForMetUnc", outputModule=None)
+
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
 process.out.fileName = 'patTuple_micro_singlemu.root'
@@ -65,4 +72,4 @@ process.out.overrideInputFileSplitLevels = cms.untracked.bool(True)
 
 from PhysicsTools.PatAlgos.tools.coreTools import runOnData
 runOnData( process )
-
+process.GlobalTag.globaltag = "GR_R_70_V1::All"
