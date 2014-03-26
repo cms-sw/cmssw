@@ -22,6 +22,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 
 // Define typedefs for convenience
@@ -201,6 +202,13 @@ namespace pat {
       /// pipe operator (introduced to use pat::Photon with PFTopProjectors)
       friend std::ostream& reco::operator<<(std::ostream& out, const pat::Photon& obj);
 
+      /// References to PFCandidates (e.g. to recompute isolation)
+      void setPackedPFCandidateCollection(const edm::RefProd<pat::PackedCandidateCollection> & refprod) ; 
+      /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
+      edm::RefVector<pat::PackedCandidateCollection> associatedPackedPFCandidates() const ;
+      /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
+      void setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) ;
+
     protected:
 
       // ---- for content embedding ----
@@ -213,6 +221,9 @@ namespace pat {
       IsoDepositPairs    isoDeposits_;
       std::vector<float> isolations_;
 
+      // ---- link to PackedPFCandidates
+      edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
+      std::vector<uint16_t> associatedPackedFCandidateIndices_;
   };
 
 

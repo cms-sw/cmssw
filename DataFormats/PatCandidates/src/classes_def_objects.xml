@@ -16,7 +16,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="22">
+  <class name="pat::Electron"  ClassVersion="23">
+   <version ClassVersion="23" checksum="434577157"/>
    <version ClassVersion="22" checksum="4113394532"/>
    <version ClassVersion="21" checksum="366535823"/>
    <version ClassVersion="20" checksum="4220542719"/>
@@ -91,7 +92,8 @@
    <version ClassVersion="10" checksum="2692173055"/>
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
-  <class name="pat::Photon"  ClassVersion="10">
+  <class name="pat::Photon"  ClassVersion="11">
+   <version ClassVersion="11" checksum="3277818926"/>
    <version ClassVersion="10" checksum="865744757"/>
   </class>
   <class name="pat::Jet"  ClassVersion="11">
@@ -127,6 +129,30 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
+  <class name="pat::PackedCandidate">
+    <field name="p4_" transient="true" />
+    <field name="p4c_" transient="true" />
+    <field name="vertex_" transient="true" />
+    <field name="unpacked_" transient="true" />
+    <field name="unpackedVtx_" transient="true" />
+    <field name="dxy_" transient="true" />
+    <field name="dz_" transient="true" />
+    <field name="dphi_" transient="true" />
+    <field name="dxydxy_" transient="true" />
+    <field name="dzdz_" transient="true" />
+    <field name="dxydz_" transient="true" />
+    <field name="dlambdadz_" transient="true" />
+    <field name="dphidxy_" transient="true" />
+  </class>
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpacked_">
+    <![CDATA[unpacked_ = false;
+    ]]>
+  </ioread>
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpackedVtx_">
+    <![CDATA[unpackedVtx_ = false;
+    ]]>
+  </ioread>
+
   <!-- PAT Object Ptrs  -->
   <class name="edm::Ptr<pat::Electron>" />
   <class name="edm::Ptr<pat::Muon>" />
@@ -149,6 +175,7 @@
   <class name="std::vector<pat::GenericParticle>" />
   <class name="std::vector<pat::Hemisphere>" />
   <class name="std::vector<pat::Conversion>" />
+  <class name="std::vector<pat::PackedCandidate>"/>
 
   <!-- PAT Object Collection Iterators -->
   <class name="std::vector<pat::Electron>::const_iterator" />
@@ -164,6 +191,7 @@
   <class name="std::vector<pat::GenericParticle>::const_iterator" />
   <class name="std::vector<pat::Hemisphere>::const_iterator" />
   <class name="std::vector<pat::Conversion>::const_iterator" />
+  <class name="std::vector<pat::PackedCandidate>::const_iterator" />
 
   <!-- PAT Object Collection Wrappers -->
   <class name="edm::Wrapper<std::vector<pat::Electron> >" />
@@ -179,6 +207,7 @@
   <class name="edm::Wrapper<std::vector<pat::GenericParticle> >" />
   <class name="edm::Wrapper<std::vector<pat::Hemisphere> >" />
   <class name="edm::Wrapper<std::vector<pat::Conversion> >" />
+  <class name="edm::Wrapper<std::vector<pat::PackedCandidate> >"/>
 
   <!-- PAT Object References -->
   <class name="pat::ElectronRef" />
@@ -194,6 +223,7 @@
   <class name="pat::GenericParticleRef" />
   <class name="pat::HemisphereRef" />
   <class name="pat::ConversionRef" />
+  <class name="pat::PackedCandidateRef" />
 
   <!-- PAT Object Ref Vectors -->
   <class name="pat::ElectronRefVector" />
@@ -208,6 +238,7 @@
   <class name="pat::GenericParticleRefVector" />
   <class name="pat::HemisphereRefVector" />
   <class name="pat::ConversionRefVector" />
+  <class name="pat::PackedCandidateRefVector" />
 
   <!-- PAT Object Ref Vector Wrappers -->
   <class name="edm::Wrapper<pat::ElectronRefVector>" />
@@ -253,6 +284,13 @@
  <!-- RefToBaseVector<Candidate> from PATObjetcs  -->
   <class name="edm::reftobase::RefVectorHolder<pat::CompositeCandidateRefVector>" />
   <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::CompositeCandidateRefVector>" />
+
+  <class name="edm::RefProd<pat::PackedCandidateCollection>" />
+  <class name="edm::Association<pat::PackedCandidateCollection>" />
+  <class name="edm::Wrapper<edm::Association<pat::PackedCandidateCollection> >" />
+  <class name="edm::RefProd<reco::PFCandidateCollection>" />
+  <class name="edm::Association<reco::PFCandidateCollection>" />
+  <class name="edm::Wrapper<edm::Association<reco::PFCandidateCollection> >" />
 
   </selection>
  <exclusion>
