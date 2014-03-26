@@ -20,7 +20,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-#define CRAZYSORT 
+//#define CRAZYSORT 
 //FIXME: debugging stuff to be removed
 #define DEBUGIP 0
 #if DEBUGIP
