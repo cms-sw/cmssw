@@ -1,8 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoBTag.BTagTools.defaultTrackSelector_cfi import *
+
 # TrackIP tag info configuration
 bTagTrackIPAnalysisBlock = cms.PSet(
     parameters = cms.PSet(
+        defaultTrackSelectionBlock,
         QualityPlots = cms.bool(False),
         endEffPur = cms.double(1.005),
         nBinEffPur = cms.int32(200),
