@@ -2,8 +2,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "FastSimulation/CaloRecHitsProducer/interface/CaloRecHitCopy.h"
 
@@ -30,6 +28,7 @@ CaloRecHitCopy::CaloRecHitCopy(edm::ParameterSet const & p)
     case 1: 
       {
 	//Preshower
+	theESRecHitCollectionToken = consumes<ESRecHitCollection>(theInputRecHitCollections[input]);
 	if ( !theOutputRecHitInstances[input] ) 
 	  produces<ESRecHitCollection>();
 	else
@@ -40,6 +39,7 @@ CaloRecHitCopy::CaloRecHitCopy(edm::ParameterSet const & p)
     case 2:
       { 
 	//Ecal Barrel 
+	theEBRecHitCollectionToken = consumes<EBRecHitCollection>(theInputRecHitCollections[input]);
 	if ( !theOutputRecHitInstances[input] ) 
 	  produces<EBRecHitCollection>();
 	else
@@ -50,6 +50,7 @@ CaloRecHitCopy::CaloRecHitCopy(edm::ParameterSet const & p)
     case 3:
       { 
 	//EcalEndcap
+	theEERecHitCollectionToken = consumes<EERecHitCollection>(theInputRecHitCollections[input]);
 	if ( !theOutputRecHitInstances[input] ) 
 	  produces<EERecHitCollection>();
 	else
@@ -60,6 +61,7 @@ CaloRecHitCopy::CaloRecHitCopy(edm::ParameterSet const & p)
     case 4:
       { 
 	//HCAL
+	theHBHERecHitCollectionToken = consumes<HBHERecHitCollection>(theInputRecHitCollections[input]);
 	if ( !theOutputRecHitInstances[input] ) 
 	  produces<HBHERecHitCollection>();
 	else
@@ -70,6 +72,7 @@ CaloRecHitCopy::CaloRecHitCopy(edm::ParameterSet const & p)
     case 5:
       { 
 	//HO
+	theHORecHitCollectionToken = consumes<HORecHitCollection>(theInputRecHitCollections[input]);
 	if ( !theOutputRecHitInstances[input] ) 
 	  produces<HORecHitCollection>();
 	else
@@ -80,6 +83,7 @@ CaloRecHitCopy::CaloRecHitCopy(edm::ParameterSet const & p)
     case 6:
       { 
 	//HF
+	theHFRecHitCollectionToken = consumes<HFRecHitCollection>(theInputRecHitCollections[input]);
 	if ( !theOutputRecHitInstances[input] ) 
 	  produces<HFRecHitCollection>();
 	else
@@ -114,7 +118,7 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	//Preshower
 	std::auto_ptr< ESRecHitCollection > copiedESRecHitCollection( new ESRecHitCollection );
 	edm::Handle<ESRecHitCollection> ESRecHits;
-	iEvent.getByLabel(theInputRecHitCollections[input],ESRecHits);
+	iEvent.getByToken(theESRecHitCollectionToken,ESRecHits);
 	ESRecHitCollection::const_iterator itES = ESRecHits->begin();
 	ESRecHitCollection::const_iterator lastES = ESRecHits->end();
 	// saves a bit of CPU
@@ -135,7 +139,7 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	//Ecal Barrel 
 	std::auto_ptr< EBRecHitCollection > copiedEBRecHitCollection( new EBRecHitCollection );
 	edm::Handle<EBRecHitCollection> EBRecHits;
-	iEvent.getByLabel(theInputRecHitCollections[input],EBRecHits);
+	iEvent.getByToken(theEBRecHitCollectionToken,EBRecHits);
 	EBRecHitCollection::const_iterator itEB = EBRecHits->begin();
 	EBRecHitCollection::const_iterator lastEB = EBRecHits->end();
 	//saves a bit of CPU
@@ -157,7 +161,7 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	//EcalEndcap
 	std::auto_ptr< EERecHitCollection > copiedEERecHitCollection( new EERecHitCollection );
 	edm::Handle<EERecHitCollection> EERecHits;
-	iEvent.getByLabel(theInputRecHitCollections[input],EERecHits);
+	iEvent.getByToken(theEERecHitCollectionToken,EERecHits);
 	EERecHitCollection::const_iterator itEE = EERecHits->begin();
 	EERecHitCollection::const_iterator lastEE = EERecHits->end();
 	//saves a bit of CPU
@@ -179,7 +183,7 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	//HCAL
 	std::auto_ptr< HBHERecHitCollection > copiedHBHERecHitCollection( new HBHERecHitCollection );
 	edm::Handle<HBHERecHitCollection> HBHERecHits;
-	iEvent.getByLabel(theInputRecHitCollections[input],HBHERecHits);
+	iEvent.getByToken(theHBHERecHitCollectionToken,HBHERecHits);
 	HBHERecHitCollection::const_iterator itHBHE = HBHERecHits->begin();
 	HBHERecHitCollection::const_iterator lastHBHE = HBHERecHits->end();
 	//saves a bit of CPU
@@ -201,7 +205,7 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	//HO
 	std::auto_ptr< HORecHitCollection > copiedHORecHitCollection( new HORecHitCollection );
 	edm::Handle<HORecHitCollection> HORecHits;
-	iEvent.getByLabel(theInputRecHitCollections[input],HORecHits);
+	iEvent.getByToken(theHORecHitCollectionToken,HORecHits);
 	HORecHitCollection::const_iterator itHO = HORecHits->begin();
 	HORecHitCollection::const_iterator lastHO = HORecHits->end();
 	//saves a bit of CPU
@@ -223,7 +227,7 @@ CaloRecHitCopy::produce(edm::Event & iEvent, const edm::EventSetup & es)
 	//HF
 	std::auto_ptr< HFRecHitCollection > copiedHFRecHitCollection( new HFRecHitCollection );
 	edm::Handle<HFRecHitCollection> HFRecHits;
-	iEvent.getByLabel(theInputRecHitCollections[input],HFRecHits);
+	iEvent.getByToken(theHFRecHitCollectionToken,HFRecHits);
 	HFRecHitCollection::const_iterator itHF = HFRecHits->begin();
 	HFRecHitCollection::const_iterator lastHF = HFRecHits->end();
 	//saves a bit of CPU
