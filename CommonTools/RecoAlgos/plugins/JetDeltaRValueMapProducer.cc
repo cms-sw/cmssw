@@ -68,15 +68,27 @@ public:
       std::vector<float> values; values.reserve( h_jets1->size() );
 
       // Now set the Ptrs with the orphan handles.
+      std::vector<float> v_jets2_eta, v_jets2_phi;
+      float jet1_eta, jet1_phi;
       for ( typename edm::View<T>::const_iterator ibegin = h_jets1->begin(),
 	      iend = h_jets1->end(), ijet = ibegin;
 	    ijet != iend; ++ijet ) {
 	bool found = false;
+	
+	jet1_eta=ijet->eta();
+	jet1_phi=ijet->phi();
+	
 	for ( typename edm::View<T>::const_iterator jbegin = h_jets2->begin(),
 		jend = h_jets2->end(), jjet = jbegin;
-	      jjet != jend && !found; ++jjet ) {
+	      jjet != jend &&  (!found || ijet==ibegin); ++jjet ) {
 
-	  if ( reco::deltaR( *ijet, *jjet) < distMin_ ) {
+	  if(ijet==ibegin){
+	    v_jets2_eta.push_back(jjet->eta());
+	    v_jets2_phi.push_back(jjet->phi());
+	  }
+
+	  int index=jjet - jbegin;
+	  if ( reco::deltaR2(jet1_eta,jet1_phi,v_jets2_eta.at(index),v_jets2_phi.at(index)) < distMin_*distMin_ ) {
 	    // Check the selection
 	    float value = evaluation_(*jjet);
 	    // Fill to the vector
