@@ -28,7 +28,8 @@
   <class name="edm::RefProd<std::vector<reco::CaloTauTagInfo> >"/>
   <class name="edm::RefVector<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo> >"/>
 
-  <class name="reco::PFTauTagInfo" ClassVersion="10">
+  <class name="reco::PFTauTagInfo" ClassVersion="11">
+   <version ClassVersion="11" checksum="2849126593"/>
    <version ClassVersion="10" checksum="2791906466"/>
   </class>
   <class name="std::vector<reco::PFTauTagInfo>"/>
@@ -36,6 +37,49 @@
   <class name="edm::Ref<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo> >"/>
   <class name="edm::RefProd<std::vector<reco::PFTauTagInfo> >"/>
   <class name="edm::RefVector<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo> >"/>
+
+<!-- Adding ioread rules for backwards compatibility -->
+
+<ioread sourceClass="reco::PFTauTagInfo" version="[-10]"
+source="reco::PFCandidateRefVector PFChargedHadrCands_;"
+ targetClass="reco::PFTauTagInfo"
+target="PFChargedHadrCands_"
+include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[
+   PFChargedHadrCands_.reserve(onfile.PFChargedHadrCands_.size());
+for(auto const& ref : onfile.PFChargedHadrCands_) { 
+   PFChargedHadrCands_.push_back(edm::refToPtr(ref));
+}
+]]>
+</ioread>
+
+<ioread sourceClass="reco::PFTauTagInfo" version="[-10]"
+source="reco::PFCandidateRefVector PFNeutrHadrCands_;"
+ targetClass="reco::PFTauTagInfo"
+target="PFNeutrHadrCands_"
+include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[
+   PFNeutrHadrCands_.reserve(onfile.PFNeutrHadrCands_.size());
+for(auto const& ref : onfile.PFNeutrHadrCands_) { 
+   PFNeutrHadrCands_.push_back(edm::refToPtr(ref));
+}
+]]>
+</ioread>
+
+<ioread sourceClass="reco::PFTauTagInfo" version="[-10]"
+source="reco::PFCandidateRefVector PFGammaCands_;"
+ targetClass="reco::PFTauTagInfo"
+target="PFGammaCands_"
+include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[
+   PFGammaCands_.reserve(onfile.PFGammaCands_.size());
+for(auto const& ref : onfile.PFGammaCands_) { 
+   PFGammaCands_.push_back(edm::refToPtr(ref));
+}
+]]>
+</ioread>
+
+
   
   <class name="reco::BaseTau" ClassVersion="10">
    <version ClassVersion="10" checksum="3887454152"/>

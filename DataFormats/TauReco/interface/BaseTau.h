@@ -25,7 +25,7 @@ namespace reco {
 
     // rec. jet Lorentz-vector combining (Tracks and neutral ECAL Island BasicClusters) or (charged hadr. PFCandidates and gamma PFCandidates)
     math::XYZTLorentzVector alternatLorentzVect()const;
-    void setalternatLorentzVect(math::XYZTLorentzVector);
+    void setalternatLorentzVect(const math::XYZTLorentzVector&);
     
     // leading Track
     virtual reco::TrackRef leadTrack() const;

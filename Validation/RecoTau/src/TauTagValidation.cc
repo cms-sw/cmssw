@@ -535,9 +535,9 @@ void TauTagValidation::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, e
 void TauTagValidation::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup) {
 }
 
-double TauTagValidation::getSumPt(const reco::PFCandidateRefVector & 	candidates) {
+double TauTagValidation::getSumPt(const std::vector<edm::Ptr<reco::PFCandidate> > & candidates ){
   double sumPt = 0.;
-  for (reco::PFCandidateRefVector::const_iterator candidate = candidates.begin(); candidate!=candidates.end(); ++candidate) {
+  for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator candidate = candidates.begin(); candidate!=candidates.end(); ++candidate) {
     sumPt += (*candidate)->pt();
   }
 

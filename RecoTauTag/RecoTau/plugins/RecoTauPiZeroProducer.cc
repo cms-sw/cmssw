@@ -9,7 +9,6 @@
  * via the input list of RecoTauPiZeroQualityPlugins, which form a
  * lexicograpical ranking.
  *
- * $Id $
  */
 
 #include <boost/ptr_container/ptr_vector.hpp>
