@@ -115,7 +115,6 @@ private:
   // globals
   const SiStripRecHitMatcher*       theMatcher;
   const StripClusterParameterEstimator* theCPE;
-  bool  regional_;
   
   bool maskBad128StripBlocks_;
   BadStripCuts badStripCuts_[4];
