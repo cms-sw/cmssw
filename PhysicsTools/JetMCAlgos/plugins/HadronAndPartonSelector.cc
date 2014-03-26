@@ -13,9 +13,14 @@
  * 
  * - c hadrons that do not have other c hadrons as daughters
  * 
- * The parton selection is generator-specific and is described in each of the parton selectors individually. The producer
- * attempts to automatically determine what generator was used to hadronize events in order to determine what parton
- * selection mode to use. It is also possible to enforce any of the supported parton selection modes.
+ * Older Fortran Monte Carlo generators (Pythia6 and Herwig6) follow the HEPEVT [1] particle status code convention while
+ * newer C++ Monte Carlo generators (Pythia8, Herwig++, and Sherpa) follow the HepMC [2] particle status code convention.
+ * However, both conventions give considerable freedom in defining the status codes of intermediate particle states. Hence,
+ * the parton selection is generator-dependent and is described in each of the parton selectors separately.
+ * 
+ * Using the provenance information of the GenEventInfoProduct, the producer attempts to automatically determine what generator
+ * was used to hadronize events and based on that information decides what parton selection mode to use. It is also possible
+ * to enforce any of the supported parton selection modes.
  *
  * The selected hadrons and partons are finally used by the JetFlavourClustering producer to determine the jet flavour.
  * 
@@ -24,6 +29,10 @@
  * - status==1 electrons and muons
  * 
  * - status==2 taus
+ * 
+ * 
+ * [1] http://cepa.fnal.gov/psm/stdhep/
+ * [2] http://lcgapp.cern.ch/project/simu/HepMC/
  */
 //
 // Original Author:  Dinko Ferencek
