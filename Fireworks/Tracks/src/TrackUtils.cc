@@ -363,18 +363,7 @@ const SiStripCluster* extractClusterFromTrackingRecHit( const TrackingRecHit* re
    {     
       fwLog( fwlog::kDebug ) << "hit 2D ";
       
-      if( hit2D->cluster().isNonnull())
-      {
 	 cluster = hit2D->cluster().get();
-      }
-      else if( hit2D->cluster_regional().isNonnull())
-      {
-	 cluster = hit2D->cluster_regional().get();
-      }
-      else
-      {
-	 fwLog( fwlog::kDebug ) << "no cluster found!\n";
-      }
    }
    if( cluster == 0 )
    {
@@ -382,18 +371,7 @@ const SiStripCluster* extractClusterFromTrackingRecHit( const TrackingRecHit* re
      {
         fwLog( fwlog::kDebug ) << "hit 1D ";
 
-	if( hit1D->cluster().isNonnull())
-	{
 	   cluster = hit1D->cluster().get();
-	}
-	else if( hit1D->cluster_regional().isNonnull())
-	{
-	   cluster = hit1D->cluster_regional().get();
-	}
-	else
-	{
-	   fwLog( fwlog::kDebug ) << "no cluster found!\n";
-	}
      }
    }
    return cluster;

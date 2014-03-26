@@ -17,10 +17,9 @@ namespace {
       ref.isValid() << " " <<
       ref.isPixel() << " " <<
       ref.isStrip()  << " " <<
-      ref.isRegional() << " " <<
+//      ref.isRegional() << " " <<
       ref.cluster_strip().isNull() << " " <<
-      ref.cluster_pixel().isNull() << " " <<
-      ref.cluster_regional().isNull()  << " " << std::endl;
+      ref.cluster_pixel().isNull()  << " " << std::endl;
   }
   
   void verify(TrackingRecHit const * thit) {

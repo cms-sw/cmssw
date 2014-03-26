@@ -5,41 +5,35 @@
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/Common/interface/RefGetter.h"
 
 class OmniClusterRef {
 
   static const unsigned int kInvalid = 0x80000000; // bit 31 on
   static const unsigned int kIsStrip = 0x20000000; // bit 29 on
-  static const unsigned int kIsRegional = 0x60000000; // bit 30 and 29 on
+  static const unsigned int kIsRegional = 0x60000000; // bit 30 and 29 on  (will become fastsim???)
 
 public:
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>,SiPixelCluster > ClusterPixelRef;
   typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterStripRef;
-  typedef edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >  ClusterRegionalRef;
   
   OmniClusterRef() : me(edm::RefCore(),kInvalid) {}
   explicit OmniClusterRef(ClusterPixelRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() : kInvalid) ){}
   explicit OmniClusterRef(ClusterStripRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() | kIsStrip : kInvalid) ){}
-  explicit OmniClusterRef(ClusterRegionalRef const & ref) : me(ref.refCore(), (ref.isNonnull() ? ref.key() | kIsRegional : kInvalid)){}
   
   ClusterPixelRef cluster_pixel()  const { 
     return (isPixel() && isValid()) ?  ClusterPixelRef(me.toRefCore(),index()) : ClusterPixelRef();
   }
 
   ClusterStripRef cluster_strip()  const { 
-    return isNonRegionalStrip() ? ClusterStripRef(me.toRefCore(),index()) : ClusterStripRef();
+    return isStrip() ? ClusterStripRef(me.toRefCore(),index()) : ClusterStripRef();
   }
   
-  ClusterRegionalRef cluster_regional()  const { 
-    return isRegional() ?  ClusterRegionalRef(me.toRefCore(),index()) : ClusterRegionalRef();
+  SiPixelCluster const & pixelCluster() const {
+    return *ClusterPixelRef(me.toRefCore(),index());
   }
-  
-
   SiStripCluster const & stripCluster() const {
-    return isRegional() ?  *ClusterRegionalRef(me.toRefCore(),index()) :  *ClusterStripRef(me.toRefCore(),index());
+    return *ClusterStripRef(me.toRefCore(),index());
   }
   
   bool operator==(OmniClusterRef const & lh) const { 
@@ -64,8 +58,8 @@ public:
   bool isValid() const { return !(rawIndex() & kInvalid); }
   bool isPixel() const { return !isStrip(); } //NOTE: non-valid will also show up as a pixel
   bool isStrip() const { return rawIndex() & kIsStrip; }
-  bool isRegional() const { return (rawIndex() & kIsRegional)==kIsRegional; }
-  bool isNonRegionalStrip() const {return (rawIndex() & kIsRegional)==kIsStrip;}
+  // bool isRegional() const { return (rawIndex() & kIsRegional)==kIsRegional; }
+  // bool isNonRegionalStrip() const {return (rawIndex() & kIsRegional)==kIsStrip;}
 
   edm::RefCoreWithIndex me;
  
