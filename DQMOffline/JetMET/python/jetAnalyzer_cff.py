@@ -5,7 +5,7 @@ from DQMOffline.JetMET.jetAnalyzer_cfi import *
 
 
 jetDQMAnalyzerSequence = cms.Sequence(jetDQMAnalyzerAk5CaloUncleaned*jetDQMAnalyzerAk5CaloCleaned
-                                   *jetDQMAnalyzerAk5JPTCleaned
+#                                   *jetDQMAnalyzerAk5JPTCleaned
                                    *jetDQMAnalyzerAk5PFUncleaned*jetDQMAnalyzerAk5PFCleaned
                                    )
 

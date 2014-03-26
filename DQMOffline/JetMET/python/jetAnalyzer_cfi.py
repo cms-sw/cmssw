@@ -13,8 +13,8 @@ newAk7CaloL2L3 = ak7CaloL2L3.clone()
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5PFL1FastL2L3,ak5PFL1Fastjet,ak5PFL2Relative,ak5PFL3Absolute
 newAk5PFL1FastL2L3 = ak5PFL1FastL2L3.clone()
 
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5JPTL1FastL2L3,ak5JPTL1Fastjet,ak5JPTL2Relative,ak5JPTL3Absolute
-newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
+#from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5JPTL1FastL2L3,ak5JPTL1Fastjet,ak5JPTL2Relative,ak5JPTL3Absolute
+#newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
 
 jetDQMAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     OutputMEsInRootFile = cms.bool(False),
@@ -22,6 +22,7 @@ jetDQMAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     JetType = cms.string('calo'),#pf, calo or jpt
     JetCorrections = cms.string("newAk5CaloL2L3"),
     jetsrc = cms.InputTag("ak5CaloJets"),
+    filljetHighLevel =cms.bool(True),
     #
     #
     #
@@ -85,6 +86,7 @@ jetDQMAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
 
 jetDQMAnalyzerAk5CaloCleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
     JetCleaningFlag   = cms.untracked.bool(True),
+    filljetHighLevel  = cms.bool(False),
     CleaningParameters = cleaningParameters.clone(
         bypassAllPVChecks = cms.bool(False),
     ),
@@ -96,17 +98,18 @@ jetDQMAnalyzerAk5CaloCleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
 )
 
 
-jetDQMAnalyzerAk5JPTCleaned=jetDQMAnalyzerAk5CaloCleaned.clone(
-    JetType = cms.string('jpt'),#pf, calo or jpt
-    JetCorrections = cms.string("newAk5JPTL1FastL2L3"),
-    jetsrc = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
-    JetCleaningFlag   = cms.untracked.bool(True),
-    DCSFilterForJetMonitoring = cms.PSet(
-        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
-        #DebugOn = cms.untracked.bool(True),
-        alwaysPass = cms.untracked.bool(False)
-        )
-)
+#jetDQMAnalyzerAk5JPTCleaned=jetDQMAnalyzerAk5CaloCleaned.clone(
+#    JetType = cms.string('jpt'),#pf, calo or jpt
+#    JetCorrections = cms.string("newAk5JPTL1FastL2L3"),
+#    jetsrc = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
+#    JetCleaningFlag   = cms.untracked.bool(True),
+#    filljetHighLevel  = cms.bool(False),
+#    DCSFilterForJetMonitoring = cms.PSet(
+#        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+#        #DebugOn = cms.untracked.bool(True),
+#        alwaysPass = cms.untracked.bool(False)
+#        )
+#)
 
 jetDQMAnalyzerAk5PFUncleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
     CleaningParameters = cleaningParameters.clone(
@@ -120,6 +123,7 @@ jetDQMAnalyzerAk5PFUncleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
     JetType = cms.string('pf'),#pf, calo or jpt
     JetCorrections = cms.string("newAk5PFL1FastL2L3"),
     jetsrc = cms.InputTag("ak5PFJets"),
+    filljetHighLevel  = cms.bool(False),
     DCSFilterForJetMonitoring = cms.PSet(
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
       #DebugOn = cms.untracked.bool(True),
@@ -129,6 +133,7 @@ jetDQMAnalyzerAk5PFUncleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
 
 jetDQMAnalyzerAk5PFCleaned=jetDQMAnalyzerAk5PFUncleaned.clone(
     JetCleaningFlag   = cms.untracked.bool(True),
+    filljetHighLevel  = cms.bool(False),
     jetAnalysis=jetDQMParameters.clone(
         ptThreshold = cms.double(20.),
         asymmetryThirdJetCut = cms.double(30),
@@ -144,7 +149,7 @@ jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk5CaloUncleaned.clone(
     JetType = cms.string('calo'),#pf, calo or jpt
     JetCorrections = cms.string(""),# no jet correction available yet?
     jetsrc = cms.InputTag("iterativeConePu5CaloJets"),
-    JetCleaningFlag            = cms.untracked.bool(False),   
+    JetCleaningFlag            = cms.untracked.bool(False),  
     runcosmics                 = cms.untracked.bool(True),   
     DCSFilterForJetMonitoring = cms.PSet(
         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),

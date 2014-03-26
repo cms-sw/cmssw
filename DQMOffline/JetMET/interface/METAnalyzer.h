@@ -406,8 +406,10 @@ class METAnalyzer : public DQMEDAnalyzer{
   std::map< std::string,MonitorElement* >map_dijet_MEs;
 
   bool isCaloMet_;
-  bool isTCMet_;
+  //bool isTCMet_;
   bool isPFMet_;
+
+  bool fill_met_high_level_histo;
 
 };
 #endif

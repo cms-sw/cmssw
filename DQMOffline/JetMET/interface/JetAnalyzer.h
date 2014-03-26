@@ -56,6 +56,8 @@
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include <map>
+#include <string>
 
 namespace jetAnalysis {
   class TrackPropagatorToCalo;
@@ -606,9 +608,13 @@ class JetAnalyzer : public DQMEDAnalyzer {
   JetMETDQMDCSFilter * DCSFilterForJetMonitoring_;
   JetMETDQMDCSFilter * DCSFilterForDCSMonitoring_;
 
+  std::map< std::string,MonitorElement* >map_of_MEs;
+
   bool isCaloJet_;
-  bool isJPTJet_;
+  //bool isJPTJet_;
   bool isPFJet_;
+
+  bool fill_jet_high_level_histo;
 
 };
 #endif  
