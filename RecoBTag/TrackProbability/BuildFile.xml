@@ -1,3 +1,4 @@
+<use   name="RecoBTag/BTagTools"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="xerces-c"/>
