@@ -89,8 +89,13 @@ class OutsideInMuonSeeder : public edm::EDProducer {
       /// Surface used to make a TSOS at the PCA to the beamline
       Plane::PlanePointer dummyPlane_;
 
-      int doLayer(const GeometricSearchDet &layer, const TrajectoryStateOnSurface &state, std::vector<TrajectorySeed> &out, const MeasurementTrackerEvent &mte) const ;
-      void doDebug(const reco::Track &tk) const;
+      int doLayer(const GeometricSearchDet &layer,
+                  const TrajectoryStateOnSurface &state,
+                  std::vector<TrajectorySeed> &out,
+                  const Propagator &muon_propagator,
+                  const Propagator &tracker_propagator,
+                  const MeasurementTrackerEvent &mte) const ;
+  void doDebug(const reco::Track &tk) const;
 
 };
 
@@ -140,8 +145,12 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         if (mu.outerTrack().isNull() || !selector_(mu)) continue;
         if (debug_ && mu.innerTrack().isNonnull()) doDebug(*mu.innerTrack());
 
-        muonPropagator_->setPropagationDirection(fromVertex_ ? alongMomentum : oppositeToMomentum);
-        trackerPropagator_->setPropagationDirection(alongMomentum);
+        // Better clone here and not directly into doLayer to avoid
+        // useless clone/destroy operations to set, in the end, the
+        // very same direction every single time.
+        std::unique_ptr<Propagator> pmuon_cloned = SetPropagationDirection(*muonPropagator_,
+                                                                           fromVertex_ ? alongMomentum : oppositeToMomentum);
+        std::unique_ptr<Propagator> ptracker_cloned = SetPropagationDirection(*trackerPropagator_, alongMomentum);
 
         int sizeBefore = out->size();
         if (debug_) std::cout << "\n\n\nSeeding for muon of pt " << mu.pt() << ", eta " << mu.eta() << ", phi " << mu.phi() << std::endl;
@@ -160,7 +169,10 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             int iLayer = 6, found = 0;
             for (std::vector<BarrelDetLayer *>::const_reverse_iterator it = tob.rbegin(), ed = tob.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying TOB " << iLayer << " ====" << std::endl;
-                if (doLayer(**it, state, *out, *measurementTracker)) {
+                if (doLayer(**it, state, *out,
+                            *(pmuon_cloned.get()),
+                            *(ptracker_cloned.get()),
+                            *measurementTracker)) {
                     if (++found == layersToTry_) break;
                 }
             }
@@ -170,7 +182,10 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             std::vector< ForwardDetLayer * > const & tec = measurementTracker->geometricSearchTracker()->posTecLayers();
             for (std::vector<ForwardDetLayer *>::const_reverse_iterator it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying TEC " << +iLayer << " ====" << std::endl;
-                if (doLayer(**it, state, *out, *measurementTracker)) {
+                if (doLayer(**it, state, *out,
+                            *(pmuon_cloned.get()),
+                            *(ptracker_cloned.get()),
+                            *measurementTracker)) {
                     if (++found == layersToTry_) break;
                 }
             }
@@ -180,7 +195,10 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             std::vector< ForwardDetLayer * > const & tec = measurementTracker->geometricSearchTracker()->negTecLayers();
             for (std::vector<ForwardDetLayer *>::const_reverse_iterator it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying TEC " << -iLayer << " ====" << std::endl;
-                if (doLayer(**it, state, *out, *measurementTracker)) {
+                if (doLayer(**it, state, *out,
+                            *(pmuon_cloned.get()),
+                            *(ptracker_cloned.get()),
+                            *measurementTracker)) {
                     if (++found == layersToTry_) break;
                 }
             }
@@ -193,11 +211,16 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 }
 
 int
-OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer, const TrajectoryStateOnSurface &state, std::vector<TrajectorySeed> &out, const MeasurementTrackerEvent &measurementTracker) const {
+OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer,
+                             const TrajectoryStateOnSurface &state,
+                             std::vector<TrajectorySeed> &out,
+                             const Propagator & muon_propagator,
+                             const Propagator & tracker_propagator,
+                             const MeasurementTrackerEvent &measurementTracker) const {
     TrajectoryStateOnSurface onLayer(state);
     onLayer.rescaleError(errorRescaling_);
     std::vector< GeometricSearchDet::DetWithState > dets;
-    layer.compatibleDetsV(onLayer, *muonPropagator_, *estimator_, dets);
+    layer.compatibleDetsV(onLayer, muon_propagator, *estimator_, dets);
 
     if (debug_) {
         std::cout << "Query on layer around x = " << onLayer.globalPosition() <<
@@ -210,7 +233,7 @@ OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer, const TrajectorySt
         MeasurementDetWithData det = measurementTracker.idToDet(it->first->geographicalId());
         if (det.isNull()) { std::cerr << "BOGUS detid " << it->first->geographicalId().rawId() << std::endl; continue; }
         if (!it->second.isValid()) continue;
-        std::vector < TrajectoryMeasurement > mymeas = det.fastMeasurements(it->second, state, *trackerPropagator_, *estimator_);
+        std::vector < TrajectoryMeasurement > mymeas = det.fastMeasurements(it->second, state, tracker_propagator, *estimator_);
         if (debug_) std::cout << "Query on detector " << it->first->geographicalId().rawId() << " returned " << mymeas.size() << " measurements." << std::endl;
         for (std::vector<TrajectoryMeasurement>::const_iterator it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2; ++it2) {
             if (it2->recHit()->isValid()) meas.push_back(*it2);
@@ -241,12 +264,12 @@ OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer, const TrajectorySt
 void
 OutsideInMuonSeeder::doDebug(const reco::Track &tk) const {
     TrajectoryStateOnSurface tsos = trajectoryStateTransform::innerStateOnSurface(tk, *geometry_, &*magfield_);
-    muonPropagator_->setPropagationDirection(alongMomentum);
+    std::unique_ptr<Propagator> pmuon_cloned = SetPropagationDirection(*muonPropagator_, alongMomentum);
     for (unsigned int i = 0; i < tk.recHitsSize(); ++i) {
         const TrackingRecHit *hit = &*tk.recHit(i);
         const GeomDet *det = geometry_->idToDet(hit->geographicalId());
         if (det == 0) continue;
-        if (i != 0) tsos = muonPropagator_->propagate(tsos, det->surface());
+        if (i != 0) tsos = pmuon_cloned->propagate(tsos, det->surface());
         if (!tsos.isValid()) continue;
         std::cout << "  state " << i << " at x = " << tsos.globalPosition() << ", p = " << tsos.globalMomentum() << std::endl;
         if (hit->isValid()) {

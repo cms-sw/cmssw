@@ -4,6 +4,7 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include <utility>
+#include <memory>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
@@ -131,7 +132,7 @@ public:
    *  The values "alongMomentum" and "oppositeToMomentum" provide the
    *  functionality of the ex-UnidirectionalPropagator.
    */
-  virtual void setPropagationDirection(PropagationDirection dir) const {
+  virtual void setPropagationDirection(PropagationDirection dir) {
     theDir = dir;
   }
 
@@ -164,23 +165,15 @@ public:
 
 private:
 
-  mutable PropagationDirection theDir;
+  PropagationDirection theDir;
 };
 
-class SetPropagationDirection {
-private:
-  Propagator const & prop;
-  PropagationDirection oldDir;
-public:
-  SetPropagationDirection(Propagator const & iprop, PropagationDirection dir) :
-    prop(iprop),
-    oldDir(iprop.propagationDirection()) {
-    prop.setPropagationDirection(dir);
-  }
-  ~SetPropagationDirection() {
-    prop.setPropagationDirection(oldDir);
-  }
-};
-
+// Put here declaration of helper function, so that it is
+// automatically included in all proper places w/o having to add an
+// additional include file. Keep implementation separate, to avoid
+// multiple definition of the same symbol in all cc inlcuding this
+// file.
+std::unique_ptr<Propagator> SetPropagationDirection (Propagator const & iprop,
+                                                     PropagationDirection dir);
 
 #endif // CommonDet_Propagator_H

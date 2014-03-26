@@ -109,7 +109,7 @@ PropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& tsos,
   return newTsosWP;
 }
 
-void PropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) const {
+void PropagatorWithMaterial::setPropagationDirection (PropagationDirection dir) {
   theGeometricalPropagator->setPropagationDirection(dir);
   Propagator::setPropagationDirection(dir);
 }

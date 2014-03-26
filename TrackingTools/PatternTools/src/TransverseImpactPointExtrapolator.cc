@@ -48,8 +48,8 @@ TransverseImpactPointExtrapolator::extrapolate (const FreeTrajectoryState& fts,
   //
   // set propagator for bidirectional propagation
   //
-  SetPropagationDirection setter(p,anyDirection);
-  return doExtrapolation(fts,vtx,p);
+   std::unique_ptr<Propagator> p_cloned = SetPropagationDirection(p, anyDirection);
+   return doExtrapolation(fts, vtx, *(p_cloned.get()));
 }
 
 TrajectoryStateOnSurface
@@ -61,8 +61,8 @@ TransverseImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface t
   //
   // set propagator for bidirectional propagation
   //
-  SetPropagationDirection setter(p,anyDirection);
-  return doExtrapolation(tsos,vtx,p);
+  std::unique_ptr<Propagator> p_cloned = SetPropagationDirection(p, anyDirection);
+  return doExtrapolation(tsos, vtx, *(p_cloned.get()));
 }
 
 TrajectoryStateOnSurface
