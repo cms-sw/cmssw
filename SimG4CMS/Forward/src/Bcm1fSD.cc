@@ -28,6 +28,7 @@
 #include <vector>
 #include <iostream>
 
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 Bcm1fSD::Bcm1fSD(std::string name, 
 					   const DDCompactView & cpv,
