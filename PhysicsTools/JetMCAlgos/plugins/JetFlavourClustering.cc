@@ -62,6 +62,10 @@
  * 
  * In addition, "ghost" leptons can also be clustered inside jets but they are not used in any way to determine the jet
  * flavor. This functionality is disabled by default.
+ * 
+ * For more details, please refer to
+ * https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagMCTools
+ * 
  */
 //
 // Original Author:  Dinko Ferencek
