@@ -16,8 +16,9 @@
 #include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
 #include "TrajectoryToResiduals.h"
 
-void print(HitPattern track_hitPattern);
-
+//TODO jaldeaar REMOVE PRINTS
+void print(reco::HitPattern track_hitPattern);
+#include <iostream>
 void KfTrackProducerBase::putInEvt(edm::Event& evt,
 				   const Propagator* prop,
 				   const MeasurementTracker* measTk,
@@ -143,11 +144,11 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
       }
     }
     // ----
-    cout << "########################### hitPattern ###########################" << endl;
+    std::cout << "########################### hitPattern ###########################" << std::endl;
     print(track.hitPattern());
-    cout << "########################### trackerExpectedHitsInner ###########################" << endl;
+    std::cout << "########################### trackerExpectedHitsInner ###########################" << std::endl;
     print(track.trackerExpectedHitsInner());
-    cout << "########################### trackerExpectedHitsOuter ###########################" << endl;
+    std::cout << "########################### trackerExpectedHitsOuter ###########################" << std::endl;
     print(track.trackerExpectedHitsOuter());
     tx.setResiduals(trajectoryToResiduals(*theTraj));
 
@@ -195,8 +196,9 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     evt.put( trajTrackMap );
   }
 }
-void print(HitPattern track_hitPattern)
+void print(reco::HitPattern track_hitPattern)
 {
+    using namespace std;
     cout << "numberOfHits ";
     cout << track_hitPattern.numberOfHits();
     cout << endl;

@@ -296,13 +296,13 @@ bool HitPattern::insert(const TrackingRecHit &hit)
         }
         return insertTrackHit(pattern);
         break;
-    case TrackingRecHit::MISSING_INNER:
+    case TrackingRecHit::missing_inner:
         if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
             return false;
         }
         return insertExpectedInnerHit(pattern);
         break;
-    case TrackingRecHit::MISSING_OUTER:
+    case TrackingRecHit::missing_outer:
         if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
             return false;
         }
