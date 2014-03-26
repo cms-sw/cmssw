@@ -377,8 +377,7 @@ for ilabel in ['PatJetsCA8CMSTopTag',
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-#process.source.fileNames = ['/store/relval/CMSSW_7_0_0/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/POSTLS170_V3-v1/00000/56210C05-B596-E311-B433-002618943832.root']
-process.source.fileNames = ['file:/uscms_data/d2/rappocc/analysis/Common/CMSSW_7_0_0/src/25.0_TTbar+TTbar+DIGI+RECO+HARVEST+ALCATT/step3.root']
+process.source.fileNames = ['/store/relval/CMSSW_7_0_0/RelValRSKKGluon_m3000GeV_13/GEN-SIM-RECO/POSTLS170_V3-v2/00000/061F3CA6-1099-E311-8562-02163E00EA9E.root']
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##
@@ -402,6 +401,18 @@ process.out.outputCommands += [
     'drop recoPFCandidates_*_pfCandidates_*',
     'keep *_particleFlow__*',
     'keep *_prunedGenParticles_*_*',
+    'keep patTriggerObjects_patTrigger_*_*',
+    'keep patTriggerFilters_patTrigger_*_*',
+    'keep patTriggerPaths_patTrigger_*_*',
+    'keep patTriggerEvent_patTriggerEvent_*_*',
+    'keep *_cleanPatPhotonsTriggerMatch*_*_*',
+    'keep *_cleanPatElectronsTriggerMatch*_*_*',
+    'keep *_cleanPatMuonsTriggerMatch*_*_*',
+    'keep *_cleanPatTausTriggerMatch*_*_*',
+    'keep *_cleanPatJetsTriggerMatch*_*_*',
+    'keep *_patMETsTriggerMatch*_*_*',
+    'keep *_TriggerResults_*_*',
+    'keep *_hltTriggerSummaryAOD_*_*',    
    ]
 #                                         ##
 process.out.fileName = 'patTuple_tlbsm_train_' + options.tlbsmTag + '.root'
