@@ -86,14 +86,14 @@ process.out.outputCommands += ['keep *_pileupJetIdEvaluator_*_*']
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #QGTagger
-
+"""
 process.load('RecoJets.JetProducers.QGTagger_cfi')
 
 process.QGTagger.srcJets = cms.InputTag("ak5PFJetsCHS")
 
 patJetsAK5.userData.userFloats.src += ['QGTagger:qgLikelihood']
 process.out.outputCommands += ['keep *_QGTagger_*_*']
-
+"""
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Njettiness
 
