@@ -56,6 +56,6 @@ void ConversionTrackFinder::setEventSetup(const edm::EventSetup& es )   {
   theInitialState_->setEventSetup( es );
 }
 
-void ConversionTrackFinder::setTrajectoryBuilder(const TrajectoryBuilder & builder)   {
+void ConversionTrackFinder::setTrajectoryBuilder(const BaseCkfTrajectoryBuilder & builder)   {
   theCkfTrajectoryBuilder_ = & builder;
 }

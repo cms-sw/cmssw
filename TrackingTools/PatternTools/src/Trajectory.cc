@@ -4,11 +4,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
-
 
 #include <algorithm>
 
@@ -36,9 +31,24 @@ void Trajectory::push( const TrajectoryMeasurement& tm) {
   push( tm, tm.estimate());
 }
 
-void Trajectory::push( const TrajectoryMeasurement& tm, double chi2Increment)
-{
-  theData.push_back(tm);
+
+void Trajectory::push(TrajectoryMeasurement && tm) {
+  push( tm, tm.estimate());
+}
+
+
+
+void Trajectory::push(const TrajectoryMeasurement & tm, double chi2Increment) {
+  theData.push_back(tm); pushAux(chi2Increment);
+}
+
+void Trajectory::push(TrajectoryMeasurement && tm, double chi2Increment) {
+  theData.push_back(tm);  pushAux(chi2Increment);
+}
+
+
+void Trajectory::pushAux(double chi2Increment) {
+ const TrajectoryMeasurement& tm = theData.back();
   if ( tm.recHit()->isValid()) {
     theChiSquared += chi2Increment;
     theNumberOfFoundHits++;
@@ -56,23 +66,17 @@ void Trajectory::push( const TrajectoryMeasurement& tm, double chi2Increment)
   // determine direction from the radii of the first two measurements
 
   if ( !theDirectionValidity && theData.size() >= 2) {
-    if (theData[0].updatedState().globalPosition().perp() <
-	theData.back().updatedState().globalPosition().perp())
+    if (theData[0].updatedState().globalPosition().perp2() <
+	theData.back().updatedState().globalPosition().perp2())
       theDirection = alongMomentum;
     else theDirection = oppositeToMomentum;
     theDirectionValidity = true;
   }
 }
 
-Trajectory::RecHitContainer Trajectory::recHits(bool splitting) const {
-  RecHitContainer hits;
-  recHitsV(hits,splitting);
-  return hits;
-}
-
 
 int Trajectory::ndof(bool bon) const {
-  const Trajectory::RecHitContainer transRecHits = recHits();
+  Trajectory::RecHitContainer && transRecHits = recHits();
   
   int dof = 0;
   int dofBad = 0;
@@ -102,88 +106,6 @@ int Trajectory::ndof(bool bon) const {
   }
 }
 
-
-
-void Trajectory::recHitsV(ConstRecHitContainer & hits,bool splitting) const {
-  hits.reserve(theData.size());
-  if(!splitting){  
-    for (Trajectory::DataContainer::const_iterator itm
-	   = theData.begin(); itm != theData.end(); itm++){    
-      hits.push_back((*itm).recHit());
-    }
-  }else{    
-    for (Trajectory::DataContainer::const_iterator itm
-	   = theData.begin(); itm != theData.end(); itm++){    
-
-      // ====== WARNING: this is a temporary solution =========
-      //        all this part of code should be implemented internally 
-      //        in the TrackingRecHit classes. The concrete types of rechit 
-      //        should be transparent to the Trajectory class
-
-      if( typeid(*(itm->recHit()->hit())) == typeid(SiStripMatchedRecHit2D)){
-      	LocalPoint firstLocalPos = 
-	  itm->updatedState().surface().toLocal(itm->recHit()->transientHits()[0]->globalPosition());
-	
-	LocalPoint secondLocalPos = 
-	  itm->updatedState().surface().toLocal(itm->recHit()->transientHits()[1]->globalPosition());
-	
-	LocalVector Delta = secondLocalPos - firstLocalPos;
-	float scalar  = Delta.z() * (itm->updatedState().localDirection().z());
-	
-
-	TransientTrackingRecHit::ConstRecHitPointer hitA, hitB;
-
-	// Get 2D strip Hits from a matched Hit.
- 	//hitA = itm->recHit()->transientHits()[0];
- 	//hitB = itm->recHit()->transientHits()[1];
-
-	// Get 2D strip Hits from a matched Hit. Then get the 1D hit from the 2D hit
-	if(!itm->recHit()->transientHits()[0]->detUnit()->type().isEndcap()){
-	  hitA = itm->recHit()->transientHits()[0]->transientHits()[0];
-	  hitB = itm->recHit()->transientHits()[1]->transientHits()[0];
-	}else{ //don't use 1D hit in the endcap yet
-	  hitA = itm->recHit()->transientHits()[0];
-	  hitB = itm->recHit()->transientHits()[1];
-	}
-
-	if( (scalar>=0 && direction()==alongMomentum) ||
-	    (scalar<0 && direction()==oppositeToMomentum)){
-	  hits.push_back(hitA);
-	  hits.push_back(hitB);
-	}else if( (scalar>=0 && direction()== oppositeToMomentum) ||
-		  (scalar<0 && direction()== alongMomentum)){
-	  hits.push_back(hitB);
-	  hits.push_back(hitA);
-	}else {
-	  //throw cms::Exception("Error in Trajectory::recHitsV(). Direction is not defined");	
-          edm::LogError("Trajectory_recHitsV_UndefinedTrackDirection") 
-            << "Error in Trajectory::recHitsV: scalar = " << scalar 
-	    << ", direction = " << (direction()==alongMomentum ? "along " : (direction()==oppositeToMomentum ? "opposite " : "undefined ")) 
-	    << theDirection <<"\n";
-          hits.push_back(hitA);
-          hits.push_back(hitB);
-        }         
-      }else if(typeid(*(itm->recHit()->hit())) == typeid(ProjectedSiStripRecHit2D)){
-	//hits.push_back(itm->recHit()->transientHits()[0]);	//Use 2D SiStripRecHit
-	if(!itm->recHit()->transientHits()[0]->detUnit()->type().isEndcap()){
-	  hits.push_back(itm->recHit()->transientHits()[0]->transientHits()[0]);	//Use 1D SiStripRecHit
-	}else{
-	  hits.push_back(itm->recHit()->transientHits()[0]);	//Use 2D SiStripRecHit
-	}
-	// ===================================================================================	
-      }else if(typeid(*(itm->recHit()->hit())) == typeid(SiStripRecHit2D)){
-	//hits.push_back(itm->recHit());  //Use 2D SiStripRecHit
-	if(!itm->recHit()->detUnit()->type().isEndcap()){
-	  hits.push_back(itm->recHit()->transientHits()[0]); //Use 1D SiStripRecHit
-	}else{
-	  hits.push_back(itm->recHit());  //Use 2D SiStripRecHit
-	}
-      }else{
-	hits.push_back(itm->recHit());
-      }
-    }//end loop on measurements
-  }
-}
 
 void Trajectory::validRecHits(ConstRecHitContainer & hits) const {
   hits.reserve(foundHits());
