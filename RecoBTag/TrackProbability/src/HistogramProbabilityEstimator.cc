@@ -2,6 +2,7 @@
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
 #include "RecoBTag/TrackProbability/interface/TrackClassFilter.h"
 #include "CondFormats/BTauObjects/interface/CalibratedHistogram.h"
+#include "RecoBTag/BTagTools/interface/TrackSelector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
@@ -26,7 +27,7 @@ pair<bool,double> HistogramProbabilityEstimator::probability(bool quality, int i
       else if(ipType==1) {it=m_calibration2D->data.begin(); it_end=m_calibration2D->data.end(); }
       else return pair<bool,double>(probabilityHistogram ,trackProbability);
 
-      found = std::find_if(it,it_end,bind1st(TrackClassFilter(),input));
+      found = std::find_if(it,it_end,bind1st(TrackClassFilter(trackSelector),input));
       if(found!=it_end) probabilityHistogram = &found->histogram;
      if(!probabilityHistogram)
        {
