@@ -8,7 +8,7 @@ autoCond = {
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
     'startpa'           :   'STARTHI70_V10::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
-    'com10'             :   'GR_R_70_V1::All',
+    'com10'             :   'GR_R_70_V2::All',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
     'hltonline'         :   'GR_H_V35::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
