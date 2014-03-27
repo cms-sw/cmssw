@@ -158,7 +158,7 @@ CompositeTECPetal::~CompositeTECPetal(){
 
   
 pair<bool, TrajectoryStateOnSurface>
-CompositeTECPetal::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
+CompositeTECPetal::compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
 		  const MeasurementEstimator&) const{
   edm::LogError("TkDetLayers") << "temporary dummy implementation of CompositeTECPetal::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
@@ -167,7 +167,7 @@ CompositeTECPetal::compatible( const TrajectoryStateOnSurface& ts, const Propaga
 
 void
 CompositeTECPetal::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-					   const Propagator& prop,
+					   Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const {
 
@@ -264,7 +264,7 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
 }
 
 bool CompositeTECPetal::addClosest( const TrajectoryStateOnSurface& tsos,
-				    const Propagator& prop,
+				    Propagator& prop,
 				    const MeasurementEstimator& est,
 				    const SubLayerCrossing& crossing,
 				    vector<DetGroup>& result) const
@@ -288,7 +288,7 @@ bool CompositeTECPetal::addClosest( const TrajectoryStateOnSurface& tsos,
 
 void 
 CompositeTECPetal::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-				    const Propagator& prop,
+				    Propagator& prop,
 				    const MeasurementEstimator& est,
 				    const SubLayerCrossing& crossing,
 				    float window, 

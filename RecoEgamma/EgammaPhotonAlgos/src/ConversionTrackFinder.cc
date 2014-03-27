@@ -19,7 +19,7 @@ ConversionTrackFinder::ConversionTrackFinder(const edm::EventSetup& es,
   theInitialState_(0),
   theTrackerGeom_(0),
   theUpdator_(0),
-  thePropagator_(0) 
+  thePropagator_() 
 {
   //  std::cout << " ConversionTrackFinder base CTOR " << std::endl;
 
@@ -50,8 +50,12 @@ void ConversionTrackFinder::setEventSetup(const edm::EventSetup& es )   {
   es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
   theTrackerGeom_= trackerHandle.product();
 
-  es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",
-					thePropagator_);
+  if(thePropagatorWatcher_.check(es)) {
+    edm::ESHandle<Propagator> propHandle;
+    es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",
+					   propHandle);
+    thePropagator_.reset(propHandle->clone());
+  }
 
   theInitialState_->setEventSetup( es );
 }

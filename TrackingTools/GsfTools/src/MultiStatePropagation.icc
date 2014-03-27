@@ -6,7 +6,7 @@
 template <class T> 
 std::pair<TrajectoryStateOnSurface,double>
 MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-					     const T& surface) const {
+					     const T& surface) {
   // weighted path length
   double sWeight(0.);
   double sWeightPath(0.);

@@ -41,11 +41,13 @@ KFTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord & iRecord){
   edm::ESHandle<DetLayerGeometry> geo;
 
   iRecord.getRecord<TrackingComponentsRecord>().get(pname, prop);
+  //We need our own copy
+  propagator_.reset(prop->clone());
   iRecord.getRecord<TrackingComponentsRecord>().get(uname, upd);
   iRecord.getRecord<TrackingComponentsRecord>().get(ename, est);
   iRecord.getRecord<RecoGeometryRecord>().get(gname,geo);
 
-  _fitter  = boost::shared_ptr<TrajectoryFitter>(new KFTrajectoryFitter(prop.product(),
+  _fitter  = boost::shared_ptr<TrajectoryFitter>(new KFTrajectoryFitter(propagator_.get(),
 									upd.product(),
 									est.product(),
 									minHits,

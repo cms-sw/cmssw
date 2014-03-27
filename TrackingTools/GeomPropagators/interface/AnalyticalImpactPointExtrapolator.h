@@ -53,7 +53,7 @@ private:
 			   GlobalPoint& x, GlobalVector& p, double& s) const;
 
 private:
-  DeepCopyPointerByClone<Propagator> thePropagator;
+  mutable DeepCopyPointerByClone<Propagator> thePropagator;
   const MagneticField* theField;
 };
 

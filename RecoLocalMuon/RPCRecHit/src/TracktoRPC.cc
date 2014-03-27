@@ -162,7 +162,11 @@ TracktoRPC::TracktoRPC(edm::Handle<reco::TrackCollection> alltracks, const edm::
  edm::ESHandle<DTGeometry> dtGeo;
  edm::ESHandle<CSCGeometry> cscGeo;
  
- iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",thePropagator); 
+ if(thePropagatorWatcher.check(iSetup)) {
+   edm::ESHandle<Propagator> propHandle;
+   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",propHandle); 
+   thePropagator.reset( propHandle->clone());
+ }
  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
  iSetup.get<MuonGeometryRecord>().get(dtGeo);
  iSetup.get<MuonGeometryRecord>().get(cscGeo);

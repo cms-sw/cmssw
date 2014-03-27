@@ -53,7 +53,7 @@ class GeometricSearchDet {
    *  a std::pair< false, propagatedState> is returned.
    */
   virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
+  compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
 	      const MeasurementEstimator&) const=0;
 
   /** Returns all Dets compatible with a trajectory state 
@@ -65,11 +65,11 @@ class GeometricSearchDet {
    */
   virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
+		  Propagator& prop, 
 		  const MeasurementEstimator& est) const;
   virtual void
   compatibleDetsV( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
+		   Propagator& prop, 
 		   const MeasurementEstimator& est,
 		   std::vector<DetWithState>& result) const; //=0;
 
@@ -94,12 +94,12 @@ class GeometricSearchDet {
    */
   virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
+			 Propagator& prop,
 			 const MeasurementEstimator& est) const;
 
   virtual void
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
+			 Propagator& prop,
 			 const MeasurementEstimator& est,
 			  std::vector<DetGroup> & result) const; // = 0;
 

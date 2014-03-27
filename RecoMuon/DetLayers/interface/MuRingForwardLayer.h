@@ -27,24 +27,24 @@ class MuRingForwardLayer : public RingedForwardLayer {
 
   // GeometricSearchDet interface
 
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const override;
 
   virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
+		  Propagator& prop, 
+		  const MeasurementEstimator& est) const override;
   
   virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
+			 Propagator& prop,
+			 const MeasurementEstimator& est) const override;
 
 
 
   // DetLayer interface
-  virtual SubDetector subDetector() const;
+  virtual SubDetector subDetector() const override;
 
 
   // Extension of the interface

@@ -11,6 +11,7 @@
   \author   Giovanni Petrucciani
 */
 
+#include <memory>
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
@@ -28,6 +29,7 @@ struct DetLayer; // #include "TrackingTools/DetLayers/interface/DetLayer.h" // f
 class PropagateToMuon {
     public:
         explicit PropagateToMuon(const edm::ParameterSet & iConfig) ;
+	PropagateToMuon( const PropagateToMuon& );
         ~PropagateToMuon() ;
 
         /// Call this method at the beginning of each run, to initialize geometry, magnetic field and propagators
@@ -56,7 +58,7 @@ class PropagateToMuon {
 
         // needed services for track propagation
         edm::ESHandle<MagneticField> magfield_;
-        edm::ESHandle<Propagator> propagator_, propagatorAny_, propagatorOpposite_;
+	std::unique_ptr<Propagator> propagator_, propagatorAny_, propagatorOpposite_;
         edm::ESHandle<MuonDetLayerGeometry> muonGeometry_;
         // simplified geometry for track propagation
         const  BoundCylinder *barrelCylinder_;

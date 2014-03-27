@@ -32,7 +32,7 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 
 std::vector<SteppingHelixStateInfo> 
-propagateThoughFromIP(const SteppingHelixStateInfo& state,const Propagator* prop,
+propagateThoughFromIP(const SteppingHelixStateInfo& state, Propagator* prop,
 		      const FiducialVolume& volume,int nsteps,
 		      float step, float minR, float minZ, float maxR, float maxZ);
 
@@ -47,7 +47,7 @@ class CachedTrajectory {
 private:
   friend class TrackDetectorAssociator;
   friend std::vector<SteppingHelixStateInfo> 
-  propagateThoughFromIP(const SteppingHelixStateInfo& state,const Propagator* ptr,
+  propagateThoughFromIP(const SteppingHelixStateInfo& state,Propagator* ptr,
 			const FiducialVolume& volume,int nsteps,
 			float step, float minR, float minZ, float maxR, float maxZ);
 
@@ -71,7 +71,7 @@ private:
   /// delta = final - original
   std::pair<float,float> trajectoryDelta( TrajectorType ) dso_internal;
   
-  void setPropagator(const Propagator* ptr) dso_internal { propagator_ = ptr; }
+  void setPropagator(Propagator* ptr) dso_internal { propagator_ = ptr; }
   void setStateAtIP(const SteppingHelixStateInfo& state) dso_internal { stateAtIP_ = state; }
   
   /// get a set of points representing the trajectory between two cylinders
@@ -145,7 +145,7 @@ protected:
   
   bool fullTrajectoryFilled_;
   
-  const Propagator* propagator_;
+  Propagator* propagator_;
   
   float maxRho_;
   float maxZ_;

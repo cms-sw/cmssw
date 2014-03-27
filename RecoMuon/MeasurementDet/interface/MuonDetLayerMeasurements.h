@@ -64,7 +64,7 @@ class MuonDetLayerMeasurements {
   MeasurementContainer
     measurements( const DetLayer* layer,
 		  const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop,
+		  Propagator& prop,
 		  const MeasurementEstimator& est,
 		  const edm::Event& iEvent);
 
@@ -73,7 +73,7 @@ class MuonDetLayerMeasurements {
     fastMeasurements( const DetLayer* layer,
 		      const TrajectoryStateOnSurface& theStateOnDet,
 		      const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop,
+		      Propagator& prop,
 		      const MeasurementEstimator& est,
 		      const edm::Event& iEvent);
 
@@ -81,7 +81,7 @@ class MuonDetLayerMeasurements {
   MeasurementContainer
     measurements( const DetLayer* layer,
 		  const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop,
+		  Propagator& prop,
 		  const MeasurementEstimator& est);
 
   /// faster version in case the TrajectoryState on the surface of the GeomDet is already available
@@ -89,20 +89,20 @@ class MuonDetLayerMeasurements {
     fastMeasurements( const DetLayer* layer,
 		      const TrajectoryStateOnSurface& theStateOnDet,
 		      const TrajectoryStateOnSurface& startingState,
-		      const Propagator& prop,
+		      Propagator& prop,
 		      const MeasurementEstimator& est);
 
   std::vector<TrajectoryMeasurementGroup>
     groupedMeasurements( const DetLayer* layer,
                   const TrajectoryStateOnSurface& startingState,
-                  const Propagator& prop,
+                  Propagator& prop,
                   const MeasurementEstimator& est,
                   const edm::Event& iEvent);
 
   std::vector<TrajectoryMeasurementGroup>
     groupedMeasurements( const DetLayer* layer,
                   const TrajectoryStateOnSurface& startingState,
-                  const Propagator& prop,
+                  Propagator& prop,
                   const MeasurementEstimator& est);
  
   void setEvent(const edm::Event &);  

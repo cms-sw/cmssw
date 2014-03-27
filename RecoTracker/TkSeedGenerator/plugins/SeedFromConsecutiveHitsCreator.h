@@ -95,7 +95,7 @@ protected:
   const TrackingRegion * region = nullptr;
   const SeedComparitor *filter = nullptr;
   edm::ESHandle<TrackerGeometry> tracker;
-  edm::ESHandle<Propagator>  propagatorHandle;
+  std::unique_ptr<Propagator>  propagator;
   edm::ESHandle<MagneticField> bfield;
   float nomField;
   bool isBOFF = false;

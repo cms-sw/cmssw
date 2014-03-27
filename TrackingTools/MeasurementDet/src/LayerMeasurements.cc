@@ -90,7 +90,7 @@ namespace {
 vector<TrajectoryMeasurement>
 LayerMeasurements::measurements( const DetLayer& layer, 
 				 const TrajectoryStateOnSurface& startingState,
-				 const Propagator& prop, 
+				 Propagator& prop, 
 				 const MeasurementEstimator& est) const {
 
   typedef DetLayer::DetWithState   DetWithState;
@@ -118,7 +118,7 @@ LayerMeasurements::measurements( const DetLayer& layer,
 vector<TrajectoryMeasurementGroup>
 LayerMeasurements::groupedMeasurements( const DetLayer& layer, 
 					const TrajectoryStateOnSurface& startingState,
-					const Propagator& prop, 
+					Propagator& prop, 
 					const MeasurementEstimator& est) const {
   vector<TrajectoryMeasurementGroup> result;
   

@@ -106,7 +106,7 @@ class MuonErrorMatrixAnalyzer : public edm::EDAnalyzer {
 
   /// propagator used to go to the cylinder surface, ALONG momentum
   std::string thePropagatorName;
-  edm::ESHandle<Propagator> thePropagator;
+  std::unique_ptr<Propagator> thePropagator;
 
   /// put the free trajectory state to the TSCPBuilderNoMaterial or the cylinder surface
   FreeTrajectoryState refLocusState(const FreeTrajectoryState &fts);

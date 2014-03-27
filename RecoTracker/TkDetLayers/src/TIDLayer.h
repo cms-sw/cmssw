@@ -19,17 +19,17 @@ class TIDLayer GCC11_FINAL : public RingedForwardLayer {
   
   // GeometricSearchDet interface
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
+  virtual const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
+			       Propagator& prop,
 			       const MeasurementEstimator& est,
 			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::TID;}
+  virtual SubDetector subDetector() const override {return GeomDetEnumerators::TID;}
 
 
  private:
@@ -37,7 +37,7 @@ class TIDLayer GCC11_FINAL : public RingedForwardLayer {
   BoundDisk* computeDisk( const std::vector<const TIDRing*>& rings) const  __attribute__ ((cold));
 
   std::array<int,3> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
-						   const Propagator& prop ) const;
+						   Propagator& prop ) const;
 
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,
   //	     const MeasurementEstimator& est) const;

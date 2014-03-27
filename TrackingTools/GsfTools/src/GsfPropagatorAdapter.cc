@@ -11,21 +11,21 @@ GsfPropagatorAdapter::GsfPropagatorAdapter (const Propagator& aPropagator) :
 
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorAdapter::propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-					 const Plane& plane) const {
+					 const Plane& plane) {
   MultiStatePropagation<Plane> multiPropagator(*thePropagator);
   return multiPropagator.propagateWithPath(tsos,plane);
 }
 
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorAdapter::propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-					 const Cylinder& cylinder) const {
+					 const Cylinder& cylinder) {
   MultiStatePropagation<Cylinder> multiPropagator(*thePropagator);
   return multiPropagator.propagateWithPath(tsos,cylinder);
 }
 
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorAdapter::propagateWithPath (const FreeTrajectoryState& fts, 
-					 const Plane& plane) const {
+					 const Plane& plane) {
   /// use counter in MessageLogger?
   static std::atomic<int> nWarn{0};
   if ( nWarn++<5 )
@@ -35,7 +35,7 @@ GsfPropagatorAdapter::propagateWithPath (const FreeTrajectoryState& fts,
 
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorAdapter::propagateWithPath (const FreeTrajectoryState& fts, 
-					 const Cylinder& cylinder) const {
+					 const Cylinder& cylinder) {
   /// use counter in MessageLogger?
   static std::atomic<int> nWarn{0};
   if ( nWarn++<5 )
@@ -43,7 +43,7 @@ GsfPropagatorAdapter::propagateWithPath (const FreeTrajectoryState& fts,
   return thePropagator->propagateWithPath(fts,cylinder);
 }
 
-void GsfPropagatorAdapter::setPropagationDirection (PropagationDirection dir) const {
+void GsfPropagatorAdapter::setPropagationDirection (PropagationDirection dir) {
   thePropagator->setPropagationDirection(dir);
   Propagator::setPropagationDirection(dir);
 }

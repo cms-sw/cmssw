@@ -47,7 +47,7 @@ public:
   /// constructor from layer and helper objects
   TrajectorySegmentBuilder (const LayerMeasurements*  theInputLayerMeasurements,
 			    const DetLayer& layer,
-			    const Propagator& propagator,
+			    Propagator& propagator,
 			    const TrajectoryStateUpdator& updator,
 			    const MeasurementEstimator& estimator,
 			    bool lockHits, bool bestHitOnly) :
@@ -107,11 +107,11 @@ private:
 private:
   const LayerMeasurements*      theLayerMeasurements;
   const DetLayer&               theLayer;
-  const Propagator&             theFullPropagator;
+  Propagator&                   theFullPropagator;
   const TrajectoryStateUpdator& theUpdator;
   const MeasurementEstimator&   theEstimator;
 //   AnalyticalPropagator theGeomPropagator;
-  const Propagator&             theGeomPropagator;
+  Propagator&                   theGeomPropagator;
 
   bool theLockHits;
   bool theBestHitOnly;

@@ -28,6 +28,7 @@
 #include "TrackingTools/TrackRefitter/interface/RefitDirection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -43,6 +44,7 @@ class TrajectorySmoother;
 class Propagator;
 class TransientTrackingRecHitBuilder;
 class Trajectory;
+class TrackingComponentsRecord;
 
 class TrackTransformerForCosmicMuons: public TrackTransformerBase{
 
@@ -85,10 +87,10 @@ public:
   
  private:
 
-  edm::ESHandle<Propagator> thePropagatorIO;
-  edm::ESHandle<Propagator> thePropagatorOI;
+  std::unique_ptr<Propagator> thePropagatorIO;
+  std::unique_ptr<Propagator> thePropagatorOI;
 
-  edm::ESHandle<Propagator> propagator(bool, int, float) const;
+  Propagator* propagator(bool, int, float) const;
 
   unsigned long long theCacheId_TC;
   unsigned long long theCacheId_GTG;

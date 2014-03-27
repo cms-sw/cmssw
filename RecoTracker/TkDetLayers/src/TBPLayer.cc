@@ -124,7 +124,7 @@ float TBPLayer::computeWindowSize( const GeomDet* det,
 
 
 void TBPLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-				const Propagator& prop,
+				Propagator& prop,
 				const MeasurementEstimator& est,
 				const SubLayerCrossing& crossing,
 				float window, 

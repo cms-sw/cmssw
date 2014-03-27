@@ -62,7 +62,7 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
-  edm::ESHandle<Propagator> thePropagator;
+  Propagator* thePropagator;
   edm::ESHandle<MeasurementTracker>  theMeasTk;
   //  getFromES(setup,theG,theMF,theFitter,thePropagator);
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
@@ -83,7 +83,7 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
       LogDebug("GsfTrackRefitter") << "run the algorithm" << "\n";
       try {
 	theAlgo.runWithTrack(theG.product(), theMF.product(), *theTCollection, 
-			     theFitter.product(), thePropagator.product(),  
+			     theFitter.product(), thePropagator,  
 			     theBuilder.product(), bs, algoResults);
       }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
       break;
@@ -100,14 +100,14 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
       LogDebug("TrackRefitter") << "run the algorithm" << "\n";
       try {
       theAlgo.runWithVertex(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
-			    theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);      
+			    theFitter.product(), thePropagator, theBuilder.product(), bs, algoResults);      
       }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
     }
     //default... there cannot be any other possibility due to the check in the ctor
   }
   
   //put everything in th event
-  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(),
+  putInEvt(theEvent, thePropagator, theMeasTk.product(),
 	   outputRHColl, outputTColl, outputTEColl, outputGsfTEColl, outputTrajectoryColl, algoResults, bs);
   LogDebug("GsfTrackRefitter") << "end" << "\n";
 }

@@ -36,7 +36,7 @@ private:
 
 public: 
 
-  StartingLayerFinder(const Propagator* aPropagator, const MeasurementTracker*  tracker ) :
+  StartingLayerFinder(Propagator* aPropagator, const MeasurementTracker*  tracker ) :
 
     thePropagator(aPropagator),
     theMeasurementTracker(tracker),
@@ -57,12 +57,13 @@ public:
   const std::vector<ForwardDetLayer*> firstPosPixelFwdLayer() const;
 
   const Propagator* propagator() const {return thePropagator;}
+  Propagator* propagator() {return thePropagator;}
 
 
 
 private:
 
-  const Propagator* thePropagator;
+  Propagator* thePropagator;
   const MeasurementTracker*     theMeasurementTracker;
   mutable bool thePixelLayersValid;
   mutable BarrelDetLayer* theFirstPixelBarrelLayer;

@@ -47,7 +47,7 @@ public:
   // Operations
 
   /// Convert a reco::Track into Trajectory
-  virtual std::vector<Trajectory> transform(const reco::Track&) const;
+  virtual std::vector<Trajectory> transform(const reco::Track&) const override;
 
   /// Convert a reco::TrackRef into Trajectory
   std::vector<Trajectory> transform(const reco::TrackRef&) const;
@@ -79,8 +79,8 @@ public:
  private:
 
   std::string thePropagatorName;
-  edm::ESHandle<Propagator> propagator() const {return thePropagator;}
-  edm::ESHandle<Propagator> thePropagator;
+  Propagator* propagator() const {return thePropagator.get();}
+  std::unique_ptr<Propagator> thePropagator;
   
   unsigned long long theCacheId_TC;
   unsigned long long theCacheId_GTG;

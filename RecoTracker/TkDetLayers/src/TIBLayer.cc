@@ -138,7 +138,7 @@ std::tuple<bool,int,int>  TIBLayer::computeIndexes(GlobalPoint gInnerPoint, Glob
 }
 
 void TIBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-				const Propagator& prop,
+				Propagator& prop,
 				const MeasurementEstimator& est,
 				const SubLayerCrossing& crossing,
 				float window, 

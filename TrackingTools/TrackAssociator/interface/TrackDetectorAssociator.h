@@ -103,7 +103,7 @@ class TrackDetectorAssociator {
      {return cachedTrajectory_;}
 
    /// use a user configured propagator
-   void setPropagator( const Propagator* );
+   void setPropagator( Propagator* );
    
    /// use the default propagator
    void useDefaultPropagator();
@@ -182,7 +182,7 @@ class TrackDetectorAssociator {
 	return math::XYZVector(vec.x(),vec.y(),vec.z());
      }
    
-   const Propagator* ivProp_;
+   Propagator* ivProp_;
    Propagator* defProp_;
    CachedTrajectory cachedTrajectory_;
    bool useDefaultPropagator_;

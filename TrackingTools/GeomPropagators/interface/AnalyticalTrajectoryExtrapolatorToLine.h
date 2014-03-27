@@ -55,7 +55,7 @@ private:
 			   GlobalPoint& x, GlobalVector& p, double& s) const dso_internal;
 
 private:
-  DeepCopyPointerByClone<Propagator> thePropagator;
+  mutable DeepCopyPointerByClone<Propagator> thePropagator;
 };
 
 #endif

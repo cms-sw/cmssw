@@ -70,11 +70,15 @@ void SeedTransformer::setServices(const EventSetup& iSetup) {
   iSetup.get<IdealMagneticFieldRecord>().get(theMagneticField);
   iSetup.get<TrajectoryFitter::Record>().get(theFitterName,theFitter);
   iSetup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
-  iSetup.get<TrackingComponentsRecord>().get(thePropagatorName,thePropagator);
+  if (thePropagatorWatcher.check(iSetup)) {
+    edm::ESHandle<Propagator> propagator;
+    iSetup.get<TrackingComponentsRecord>().get(thePropagatorName,propagator);
+    thePropagator.reset( propagator->clone());
+  }
 
 }
 
-vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) const {
+vector<Trajectory> SeedTransformer::seedTransform(const TrajectorySeed& aSeed) {
 
   const string metname = "Reco|TrackingTools|SeedTransformer";
 

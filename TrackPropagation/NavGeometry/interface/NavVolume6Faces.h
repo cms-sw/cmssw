@@ -23,20 +23,20 @@ public:
     /// Give a sorted list of possible surfaces to propagate to
     virtual Container nextSurface( const NavVolume::LocalPoint& pos, 
 				   const NavVolume::LocalVector& mom,
-				   double charge, PropagationDirection propDir=alongMomentum) const;
+				   double charge, PropagationDirection propDir=alongMomentum) const override;
 
     /// Same, giving lowest priority to the surface we are on now (=NotThisSurface)
     virtual Container nextSurface( const NavVolume::LocalPoint& pos, 
 				   const NavVolume::LocalVector& mom,
 				   double charge, PropagationDirection propDir,
-				   ConstReferenceCountingPointer<Surface> NotThisSurfaceP) const;
+				   ConstReferenceCountingPointer<Surface> NotThisSurfaceP) const override;
 
     /// Cross this volume and point at the next
     virtual VolumeCrossReturnType crossToNextVolume( const TrajectoryStateOnSurface& currentState,
-						     const Propagator& prop) const;
+						     Propagator& prop) const override;
 
     /// Access to volume faces
-    virtual const std::vector<VolumeSide>& faces() const { return theFaces; }
+    virtual const std::vector<VolumeSide>& faces() const override { return theFaces; }
 
     /// Access to Iron/Air information:
     bool isIron() const { return isThisIron; }

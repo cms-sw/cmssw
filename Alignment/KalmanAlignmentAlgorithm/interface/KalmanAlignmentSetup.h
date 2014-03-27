@@ -47,8 +47,8 @@ public:
   inline const TrajectoryFitter* fitter( void ) const { return theFitter; }
   inline const TrajectoryFitter* externalFitter( void ) const { return theExternalFitter; }
 
-  inline const Propagator* propagator( void ) const { return thePropagator; }
-  inline const Propagator* externalPropagator( void ) const { return theExternalPropagator; }
+  inline Propagator* propagator( void ) const { return thePropagator; }
+  inline Propagator* externalPropagator( void ) const { return theExternalPropagator; }
 
   inline const std::vector< SubDetId >& getTrackingSubDetIds( void ) const { return theTrackingSubDetIds; }
   inline const std::vector< SubDetId >& getExternalTrackingSubDetIds( void ) const { return theExternalTrackingSubDetIds; }

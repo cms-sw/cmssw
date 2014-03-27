@@ -54,7 +54,7 @@ Geant4ePropagator::~Geant4ePropagator() {
 
 TrajectoryStateOnSurface 
 Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
-			      const Plane& pDest) const {
+			      const Plane& pDest) {
 
   if(theG4eManager->PrintG4ErrorState() == "G4ErrorState_PreInit")
     theG4eManager->InitGeant4e();
@@ -269,7 +269,7 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 //Require method with input TrajectoryStateOnSurface to be used in track fitting
 //Don't need extra info about starting surface; use regular propagation method
 TrajectoryStateOnSurface
-Geant4ePropagator::propagate (const TrajectoryStateOnSurface& tsos, const Plane& plane) const {
+Geant4ePropagator::propagate (const TrajectoryStateOnSurface& tsos, const Plane& plane) {
   const FreeTrajectoryState ftsStart = *tsos.freeState();
   return propagate(ftsStart,plane);
 }
@@ -280,7 +280,7 @@ Geant4ePropagator::propagate (const TrajectoryStateOnSurface& tsos, const Plane&
  */
 TrajectoryStateOnSurface 
 Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
-			      const Cylinder& cDest) const {
+			      const Cylinder& cDest) {
 
   if(theG4eManager->PrintG4ErrorState() == "G4ErrorState_PreInit")
     theG4eManager->InitGeant4e();
@@ -455,7 +455,7 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 //Require method with input TrajectoryStateOnSurface to be used in track fitting
 //Don't need extra info about starting surface; use regular propagation method
 TrajectoryStateOnSurface
-Geant4ePropagator::propagate (const TrajectoryStateOnSurface& tsos, const Cylinder& cyl) const {
+Geant4ePropagator::propagate (const TrajectoryStateOnSurface& tsos, const Cylinder& cyl) {
   const FreeTrajectoryState ftsStart = *tsos.freeState();
   return propagate(ftsStart,cyl);
 }
@@ -473,7 +473,7 @@ Geant4ePropagator::propagate (const TrajectoryStateOnSurface& tsos, const Cylind
 
 std::pair< TrajectoryStateOnSurface, double> 
 Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart, 
-				      const Plane& pDest) const {
+				      const Plane& pDest) {
 
   theSteppingAction->reset();
 
@@ -485,7 +485,7 @@ Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart,
 
 std::pair< TrajectoryStateOnSurface, double> 
 Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart,
-				      const Cylinder& cDest) const {
+				      const Cylinder& cDest) {
   theSteppingAction->reset();
 
   //Finally build the pair<...> that needs to be returned where the second
@@ -496,7 +496,7 @@ Geant4ePropagator::propagateWithPath (const FreeTrajectoryState& ftsStart,
 
 std::pair< TrajectoryStateOnSurface, double> 
 Geant4ePropagator::propagateWithPath (const TrajectoryStateOnSurface& tsosStart, 
-				      const Plane& pDest) const {
+				      const Plane& pDest) {
 
   theSteppingAction->reset();
 
@@ -508,7 +508,7 @@ Geant4ePropagator::propagateWithPath (const TrajectoryStateOnSurface& tsosStart,
 
 std::pair< TrajectoryStateOnSurface, double> 
 Geant4ePropagator::propagateWithPath (const TrajectoryStateOnSurface& tsosStart,
-				      const Cylinder& cDest) const {
+				      const Cylinder& cDest) {
   theSteppingAction->reset();
 
   //Finally build the pair<...> that needs to be returned where the second

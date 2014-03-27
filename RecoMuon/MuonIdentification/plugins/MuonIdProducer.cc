@@ -225,9 +225,12 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    // timers.push("MuonIdProducer::produce::init::getPropagator");
-   edm::ESHandle<Propagator> propagator;
-   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
-   trackAssociator_.setPropagator(propagator.product());
+   if(propagatorWatcher_.check(iSetup)) {
+     edm::ESHandle<Propagator> propagator;
+     iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
+     propagator_.reset( propagator->clone());
+     trackAssociator_.setPropagator(propagator_.get());
+   }
 
    if (fillTrackerKink_) trackerKinkFinder_->init(iSetup);
 

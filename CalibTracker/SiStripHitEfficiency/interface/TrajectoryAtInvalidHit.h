@@ -24,7 +24,7 @@ public:
   TrajectoryAtInvalidHit( const TrajectoryMeasurement&, 
 			const TrackerTopology * tTopo, 
 			const TrackerGeometry * tracker, 
-			const Propagator& propagator,
+			Propagator& propagator,
 			const unsigned int mono = 0);
 
   double localX() const;

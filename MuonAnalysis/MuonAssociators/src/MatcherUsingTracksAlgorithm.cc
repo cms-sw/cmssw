@@ -226,7 +226,9 @@ MatcherUsingTracksAlgorithm::match(const reco::Candidate &c1, const edm::View<re
 void 
 MatcherUsingTracksAlgorithm::init(const edm::EventSetup & iSetup) {
     iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
-    iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator_);
+    edm::ESHandle<Propagator> propHandle;
+    iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propHandle);
+    propagator_.reset( propHandle->clone());
     iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
 }
 

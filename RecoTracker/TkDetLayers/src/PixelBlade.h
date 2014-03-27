@@ -28,14 +28,14 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDet {
   virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
 
   std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
+    compatible( const TrajectoryStateOnSurface&, Propagator&, 
 	      const MeasurementEstimator&) const  __attribute__ ((cold));
   
   virtual void 
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			  const Propagator& prop,
+			  Propagator& prop,
 			  const MeasurementEstimator& est,
-			  std::vector<DetGroup> & result) const __attribute__ ((hot));
+			  std::vector<DetGroup> & result) const override __attribute__ ((hot));
   
   //Extension of the interface
   virtual const BoundDiskSector& specificSurface() const {return *theDiskSector;}
@@ -47,7 +47,7 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDet {
 				      PropagationDirection propDir) const __attribute__ ((hot));
   
   bool addClosest( const TrajectoryStateOnSurface& tsos,
-		   const Propagator& prop,
+		   Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
 		   std::vector<DetGroup>& result) const __attribute__ ((hot));
@@ -58,7 +58,7 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDet {
 
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
-			const Propagator& prop,
+			Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 

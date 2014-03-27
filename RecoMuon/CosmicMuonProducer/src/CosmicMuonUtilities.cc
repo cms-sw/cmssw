@@ -165,7 +165,7 @@ bool CosmicMuonUtilities::isTraversing(const Trajectory& t) const {
 //
 TrajectoryStateOnSurface CosmicMuonUtilities::stepPropagate(const TrajectoryStateOnSurface& tsos,
                                                             const ConstRecHitPointer& hit,
-                                                            const Propagator& prop ) const {
+                                                            Propagator& prop ) const {
 
   const std::string metname = "Muon|RecoMuon|CosmicMuonUtilities";
 

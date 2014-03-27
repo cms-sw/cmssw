@@ -74,7 +74,7 @@ void SETFilter::reset(){
 }
 
 
-const Propagator* SETFilter::propagator() const {
+Propagator* SETFilter::propagator() const {
   return &*theService->propagator(thePropagatorName);
 }
 

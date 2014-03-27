@@ -84,7 +84,7 @@ TOBRod::components() const{
 }
   
 pair<bool, TrajectoryStateOnSurface>
-TOBRod::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
+TOBRod::compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
 		    const MeasurementEstimator&) const{
   edm::LogError("TkDetLayers") << "temporary dummy implementation of TOBRod::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
@@ -96,7 +96,7 @@ TOBRod::compatible( const TrajectoryStateOnSurface& ts, const Propagator&,
 
 void
 TOBRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
+			       Propagator& prop,
 			       const MeasurementEstimator& est,
 			       std::vector<DetGroup> & result) const{
   
@@ -175,7 +175,7 @@ TOBRod::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
 bool 
 TOBRod::addClosest( const TrajectoryStateOnSurface& tsos,
-		    const Propagator& prop,
+		    Propagator& prop,
 		    const MeasurementEstimator& est,
 		    const SubLayerCrossing& crossing,
 		    vector<DetGroup>& result) const
@@ -226,7 +226,7 @@ namespace {
 }
 
 void TOBRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-			      const Propagator& prop,
+			      Propagator& prop,
 			      const MeasurementEstimator& est,
 			      const SubLayerCrossing& crossing,
 			      float window, 

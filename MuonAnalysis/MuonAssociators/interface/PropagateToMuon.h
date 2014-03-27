@@ -72,7 +72,7 @@ class PropagateToMuon {
 
         // needed services for track propagation
         edm::ESHandle<MagneticField> magfield_;
-        edm::ESHandle<Propagator> propagator_, propagatorAny_, propagatorOpposite_;
+	std::unique_ptr<Propagator> propagator_, propagatorAny_, propagatorOpposite_;
         edm::ESHandle<MuonDetLayerGeometry> muonGeometry_;
         // simplified geometry for track propagation
         const  BoundCylinder *barrelCylinder_;

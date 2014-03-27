@@ -27,7 +27,7 @@ private:
 
 public:
 
-  LayerCollector(const Propagator* aPropagator,
+  LayerCollector(Propagator* aPropagator,
 		 const StartingLayerFinder* aFinder,
 		 float dr, 
 		 float dz) : 
@@ -43,13 +43,14 @@ public:
   std::vector<const ForwardDetLayer*> forwardLayers(const FTS& aFts) const;
 
   const Propagator* propagator() const {return thePropagator;}
+  Propagator* propagator() {return thePropagator;}
   const StartingLayerFinder* finder() const {return theStartingLayerFinder;}
   float deltaR() const {return theDeltaR;}
   float deltaZ() const {return theDeltaZ;}
   
 private:
 
-  const Propagator* thePropagator;
+  mutable Propagator* thePropagator;
   const StartingLayerFinder* theStartingLayerFinder;
   float theDeltaR;
   float theDeltaZ;

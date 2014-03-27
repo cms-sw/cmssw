@@ -110,7 +110,7 @@ TrackDetectorAssociator::~TrackDetectorAssociator()
    if (defProp_) delete defProp_;
 }
 
-void TrackDetectorAssociator::setPropagator( const Propagator* ptr)
+void TrackDetectorAssociator::setPropagator( Propagator* ptr)
 {
    ivProp_ = ptr;
    cachedTrajectory_.setPropagator(ivProp_);

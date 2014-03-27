@@ -11,6 +11,7 @@
 
 // Base class header
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include <vector>
 
 namespace edm {
@@ -25,6 +26,7 @@ class MagneticField;
 class TrajectoryFitter;
 class TransientTrackingRecHitBuilder;
 class Propagator;
+class TrackingComponentsRecord;
 
 class SeedTransformer {
 public:
@@ -39,7 +41,7 @@ public:
   void setServices(const edm::EventSetup&);
 
   /// Performs the fit
-  std::vector<Trajectory> seedTransform(const TrajectorySeed&) const;
+  std::vector<Trajectory> seedTransform(const TrajectorySeed&);
   TrajectoryStateOnSurface seedTransientState(const TrajectorySeed&) const;
 
 protected:
@@ -49,7 +51,8 @@ private:
   edm::ESHandle<MagneticField> theMagneticField;
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
-  edm::ESHandle<Propagator> thePropagator;
+  edm::ESWatcher<TrackingComponentsRecord> thePropagatorWatcher;
+  std::unique_ptr<Propagator> thePropagator;
 
   std::string theFitterName;
   std::string theMuonRecHitBuilderName;

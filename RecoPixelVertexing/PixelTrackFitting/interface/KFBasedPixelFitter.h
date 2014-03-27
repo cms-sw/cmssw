@@ -1,9 +1,12 @@
 #ifndef KFBasedPixelFitter_H
 #define KFBasedPixelFitter_H
 
+#include <vector>
+#include <memory>
+
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include <vector>
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 
@@ -16,7 +19,8 @@ class TrackerGeometry;
 class MagneticField;
 class TrackingRegion;
 class TrackingRecHit;
-
+class TrackingComponentsRecord;
+class Propagator;
 
 class KFBasedPixelFitter : public PixelFitter {
 public:
@@ -62,7 +66,10 @@ private:
   bool theUseBeamSpot; 
   edm::InputTag theBeamSpot;
   std::string theTTRHBuilderName;
-  
+  mutable edm::ESWatcher<TrackingComponentsRecord> thePropagatorWatcher;
+  std::unique_ptr<Propagator> thePropagator;
+  mutable edm::ESWatcher<TrackingComponentsRecord> thePropagatorOppositeWatcher;
+  std::unique_ptr<Propagator> thePropagatorOpposite;
 
 };
 #endif

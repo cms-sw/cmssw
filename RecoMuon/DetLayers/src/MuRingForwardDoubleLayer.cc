@@ -85,7 +85,7 @@ bool MuRingForwardDoubleLayer::isInsideOut(const TrajectoryStateOnSurface& tsos)
   
 
 std::pair<bool, TrajectoryStateOnSurface>
-MuRingForwardDoubleLayer::compatible(const TrajectoryStateOnSurface& startingState, const Propagator& prop,
+MuRingForwardDoubleLayer::compatible(const TrajectoryStateOnSurface& startingState, Propagator& prop,
                                      const MeasurementEstimator& est) const
 {
   // mostly copied from ForwardDetLayer, except propagates to closest surface,
@@ -131,7 +131,7 @@ MuRingForwardDoubleLayer::compatible(const TrajectoryStateOnSurface& startingSta
 
 vector<GeometricSearchDet::DetWithState> 
 MuRingForwardDoubleLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
-				   const Propagator& prop, 
+				   Propagator& prop, 
 				   const MeasurementEstimator& est) const {
   vector<DetWithState> result;
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
@@ -166,7 +166,7 @@ MuRingForwardDoubleLayer::compatibleDets(const TrajectoryStateOnSurface& startin
 
 vector<DetGroup>
 MuRingForwardDoubleLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-                                           const Propagator& prop,
+                                           Propagator& prop,
                                            const MeasurementEstimator& est) const {
 
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";

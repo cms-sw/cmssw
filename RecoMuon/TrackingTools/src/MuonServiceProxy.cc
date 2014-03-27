@@ -49,7 +49,7 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   
   for(vector<string>::iterator propagatorName = propagatorNames.begin();
       propagatorName != propagatorNames.end(); ++propagatorName)
-    thePropagators[ *propagatorName ] = ESHandle<Propagator>(0);
+    thePropagators[ *propagatorName ].reset();
 
   theCacheId_GTG = 0;
   theCacheId_MG = 0;  
@@ -118,8 +118,11 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     theChangeInTrackingComponentsRecord = true;
     theCacheId_P = newCacheId_P;
     for(propagators::iterator prop = thePropagators.begin(); prop != thePropagators.end();
-	++prop)
-      setup.get<TrackingComponentsRecord>().get( prop->first , prop->second );
+	++prop) {
+      edm::ESHandle<Propagator> propHandle;
+      setup.get<TrackingComponentsRecord>().get( prop->first , propHandle );
+      prop->second.reset(propHandle->clone());
+    }
   }
   else
     theChangeInTrackingComponentsRecord = false;
@@ -127,14 +130,14 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
 }
 
 // get the propagator
-ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) const{
+std::shared_ptr<Propagator> MuonServiceProxy::propagator(std::string propagatorName) const{
   
   propagators::const_iterator prop = thePropagators.find(propagatorName);
   
   if (prop == thePropagators.end()){
     LogError("Muon|RecoMuon|MuonServiceProxy") 
       << "MuonServiceProxy: propagator with name: "<< propagatorName <<" not found! Please load it in the MuonServiceProxy.cff"; 
-    return ESHandle<Propagator>(0);
+    return std::shared_ptr<Propagator>{};
   }
   
   return prop->second;

@@ -27,13 +27,13 @@ public:
   std::vector<TrajectoryMeasurement>
   measurements( const DetLayer& layer, 
 		const TrajectoryStateOnSurface& startingState,
-		const Propagator& prop, 
+		Propagator& prop, 
 		const MeasurementEstimator& est) const;
 
   std::vector<TrajectoryMeasurementGroup>
   groupedMeasurements( const DetLayer& layer, 
 		       const TrajectoryStateOnSurface& startingState,
-		       const Propagator& prop, 
+		       Propagator& prop, 
 		       const MeasurementEstimator& est) const;
 
 

@@ -282,7 +282,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       // Propagate with material effects (dE/dx average only)
       SteppingHelixStateInfo shsStart(*(propagatedState.freeTrajectoryState()));
       const SteppingHelixStateInfo& shsDest = 
-	((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart,navLayers[ilayer]->surface());
+	dynamic_cast<SteppingHelixPropagator*>(propagatorWithMaterial)->propagate(shsStart,navLayers[ilayer]->surface());
       std::pair<TrajectoryStateOnSurface,double> next(shsDest.getStateOnSurface(navLayers[ilayer]->surface()),
 						      shsDest.path());
       // No need to continue if there is no valid propagation available.

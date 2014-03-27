@@ -39,7 +39,9 @@ void TestSmoothHits::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
  
   iSetup.get<TrackerDigiGeometryRecord>().get(theG);
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
+  edm::ESHandle<Propagator> propHandle;
+  iSetup.get<TrackingComponentsRecord>().get(propagatorName,propHandle);
+  thePropagator.reset(propHandle->clone());
   iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
   iSetup.get<TrajectoryFitter::Record>().get(fname, fit);
   iSetup.get<TrajectoryFitter::Record>().get(sname, smooth);

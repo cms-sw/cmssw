@@ -6,6 +6,7 @@
  *
  *  \author cerati
  */
+#include <memory>
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -21,6 +22,7 @@ class  KFTrajectoryFitterESProducer: public edm::ESProducer{
   boost::shared_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord &);
  private:
   boost::shared_ptr<TrajectoryFitter> _fitter;
+  std::unique_ptr<Propagator> propagator_;
   edm::ParameterSet pset_;
 };
 

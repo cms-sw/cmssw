@@ -1,10 +1,10 @@
-#ifndef  TRACKTORPC_H
-#define  TRACKTORPC_H
+#ifndef  RecoLocalMuon_RPCRecHit_TracktoRPC_h
+#define  RecoLocalMuon_RPCRecHit_TracktoRPC_h
 
+#include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -57,6 +57,7 @@
 using reco::MuonCollection;
 using reco::TrackCollection;
 typedef std::vector<Trajectory> Trajectories;
+class TrackingComponentsRecord;
 
 class TracktoRPC {
 public:
@@ -74,7 +75,8 @@ private:
   double MaxD;
 
  TrackTransformerBase *theTrackTransformer;
- edm::ESHandle<Propagator> thePropagator;
+ edm::ESWatcher<TrackingComponentsRecord> thePropagatorWatcher;
+ std::unique_ptr<Propagator> thePropagator;
 };
 
 class DTStationIndex2{

@@ -11,20 +11,20 @@ public:
     Propagator(dir), theVolume( &vol) {}
 
   virtual TrajectoryStateOnSurface 
-  propagate (const FreeTrajectoryState&, const Plane&) const;
+  propagate (const FreeTrajectoryState&, const Plane&) override;
 
   virtual TrajectoryStateOnSurface 
-  propagate (const FreeTrajectoryState&, const Cylinder&) const;
+  propagate (const FreeTrajectoryState&, const Cylinder&) override;
 
   virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Plane&) const;
+  propagateWithPath (const FreeTrajectoryState&, const Plane&) override;
 
   virtual std::pair< TrajectoryStateOnSurface, double> 
-  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const;
+  propagateWithPath (const FreeTrajectoryState&, const Cylinder&) override;
 
-  virtual Propagator * clone() const;
+  virtual Propagator * clone() const override;
 
-  virtual const MagneticField* magneticField() const {return theVolume;}
+  virtual const MagneticField* magneticField() const override {return theVolume;}
 
 private:
 

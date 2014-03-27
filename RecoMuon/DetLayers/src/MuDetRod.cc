@@ -43,7 +43,7 @@ MuDetRod::components() const {
 }
 
 pair<bool, TrajectoryStateOnSurface>
-MuDetRod::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop, 
+MuDetRod::compatible(const TrajectoryStateOnSurface& ts, Propagator& prop, 
                      const MeasurementEstimator& est) const {
   
   TrajectoryStateOnSurface ms = prop.propagate(ts,specificSurface());
@@ -54,7 +54,7 @@ MuDetRod::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop,
 
 vector<GeometricSearchDet::DetWithState> 
 MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
-                          const Propagator& prop, 
+                          Propagator& prop, 
                           const MeasurementEstimator& est) const {
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuDetRod";
   
@@ -141,7 +141,7 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
 
 vector<DetGroup> 
 MuDetRod::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-                                 const Propagator& prop,
+                                 Propagator& prop,
                                  const MeasurementEstimator& est) const {
   // FIXME should return only 1 group 
   cout << "dummy implementation of MuDetRod::groupedCompatibleDets()" << endl;

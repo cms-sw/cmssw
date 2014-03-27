@@ -308,7 +308,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
 void 
 GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory const& startingTraj, 
 						       const TrajectoryFilter* regionalCondition,
-						       const Propagator* propagator, 
+						       Propagator* propagator, 
                                                        bool inOut,
 						       TempTrajectoryContainer& result) const
 {
@@ -427,7 +427,7 @@ std::string whatIsTheStateToUse(TrajectoryStateOnSurface &initial, TrajectorySta
 bool 
 GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj, 
 					      const TrajectoryFilter* regionalCondition, 
-					      const Propagator* propagator,
+					      Propagator* propagator,
                                               bool inOut,
 					      TempTrajectoryContainer& newCand, 
 					      TempTrajectoryContainer& result) const

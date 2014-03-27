@@ -91,7 +91,7 @@ void MuonTrajectoryUpdator::makeFirstTime(){
 pair<bool,TrajectoryStateOnSurface> 
 MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 			      Trajectory& trajectory,
-			      const Propagator *propagator){
+			      Propagator *propagator){
   
   const std::string metname = "Muon|RecoMuon|MuonTrajectoryUpdator";
 
@@ -211,7 +211,7 @@ TrajectoryStateOnSurface
 MuonTrajectoryUpdator::propagateState(const TrajectoryStateOnSurface& state,
 				      const TrajectoryMeasurement* measurement, 
 				      const TransientTrackingRecHit::ConstRecHitPointer  & current,
-				      const Propagator *propagator) const{
+				      Propagator *propagator) const{
 
   const TransientTrackingRecHit::ConstRecHitPointer mother = measurement->recHit();
 

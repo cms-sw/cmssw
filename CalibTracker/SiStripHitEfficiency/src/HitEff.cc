@@ -201,7 +201,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 
   edm::ESHandle<Propagator> prop;
   es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",prop);
-  const Propagator* thePropagator = prop.product();
+  std::unique_ptr<Propagator> thePropagator{prop->clone()};
 
   events++;
   

@@ -11,8 +11,8 @@
 SeedFromGenericPairOrTriplet::SeedFromGenericPairOrTriplet(const MagneticField* mf,
                                                            const TrackerGeometry* geom,
 							   const TransientTrackingRecHitBuilder* builder,
-							   const Propagator* propagatorAlong,
-							   const Propagator* propagatorOpposite,
+							   Propagator* propagatorAlong,
+							   Propagator* propagatorOpposite,
 							   const std::vector<int>& charges,
 							   bool momFromPSet,
 							   double errorRescaling):theMagfield(mf), theTracker(geom), theBuilder(builder), thePropagatorAlong(propagatorAlong), thePropagatorOpposite(propagatorOpposite), theSetMomentum(momFromPSet), theCharges(charges), theErrorRescaling(errorRescaling){}
@@ -211,7 +211,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const GlobalVector& mome
 							//const TrackingRecHit* firsthit,
 							std::vector<const BaseTrackerRecHit*>& trHits,
 							const PropagationDirection& dir) const {
-	const Propagator* propagator = thePropagatorAlong;
+	Propagator* propagator = thePropagatorAlong;
 	if (dir == oppositeToMomentum) propagator = thePropagatorOpposite;
 
 	//debug

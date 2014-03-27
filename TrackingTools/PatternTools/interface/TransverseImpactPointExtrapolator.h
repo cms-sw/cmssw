@@ -44,21 +44,21 @@ public:
   /// extrapolation with user-supplied propagator
   TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState& fts,
 				       const GlobalPoint& vtx,
-				       const Propagator& u) const;
+				       Propagator& u) const;
   /// as above, but from TrajectoryStateOnSurface
   TrajectoryStateOnSurface extrapolate(const TrajectoryStateOnSurface tsos,
 				       const GlobalPoint& vtx,
-				       const Propagator& u) const;
+				       Propagator& u) const;
 
 private:
   /// extrapolation of (multi) TSOS with (internal or user-supplied) propagator
   TrajectoryStateOnSurface doExtrapolation (const TrajectoryStateOnSurface tsos, 
 					    const GlobalPoint& vtx, 
-					    const Propagator& u) const;
+					    Propagator& u) const;
   /// extrapolation of (single) FTS with (internal or user-supplied) propagator
   TrajectoryStateOnSurface doExtrapolation (const FreeTrajectoryState& fts, 
 					    const GlobalPoint& vtx, 
-					    const Propagator& u) const;
+					    Propagator& u) const;
   /// computation of the TIP surface
   ReferenceCountingPointer<Plane> tipSurface (const GlobalPoint& position,
 						   const GlobalVector& momentum,
@@ -66,7 +66,7 @@ private:
 						   const GlobalPoint& vtx) const;
 
 private:
-  DeepCopyPointerByClone<Propagator> thePropagator;
+  mutable DeepCopyPointerByClone<Propagator> thePropagator;
 };
 
 #endif

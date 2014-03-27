@@ -31,8 +31,8 @@ public:
   virtual const BoundSurface&  surface() const GCC11_FINAL { return *theDisk;}
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface&, const Propagator&, 
-	      const MeasurementEstimator&) const;
+  compatible( const TrajectoryStateOnSurface&, Propagator&, 
+	      const MeasurementEstimator&) const override;
 
   // DetLayer interface
   virtual Location location() const  GCC11_FINAL {return GeomDetEnumerators::endcap;}

@@ -71,7 +71,7 @@ PixelForwardLayer::~PixelForwardLayer(){
 
 void
 PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-					  const Propagator& prop,
+					   Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const {
   std::vector<DetGroup> closestResult;
@@ -129,7 +129,7 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 
 void 
 PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-				    const Propagator& prop,
+				    Propagator& prop,
 				    const MeasurementEstimator& est,
 				    const SubTurbineCrossings& crossings,
 				    float window, 

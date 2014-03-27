@@ -72,7 +72,7 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
 
 pair<bool, TrajectoryStateOnSurface>
 BarrelDetLayer::compatible( const TrajectoryStateOnSurface& ts, 
-			    const Propagator& prop, 
+			    Propagator& prop, 
 			    const MeasurementEstimator&) const
 {
   if unlikely(theCylinder == 0)  edm::LogError("DetLayers") 

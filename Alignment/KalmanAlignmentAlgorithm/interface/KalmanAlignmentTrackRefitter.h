@@ -65,7 +65,7 @@ private:
   TrajTrackPairCollection refitSingleTracklet( const TrackingGeometry* geometry,
 					       const MagneticField* magneticField,
 					       const TrajectoryFitter* fitter,
-					       const Propagator* propagator,
+					       Propagator* propagator,
 					       const TransientTrackingRecHitBuilder* recHitBuilder,
 					       const reco::TransientTrack& originalTrack,
 					       RecHitContainer& recHits,

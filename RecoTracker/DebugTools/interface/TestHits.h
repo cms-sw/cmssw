@@ -71,7 +71,7 @@ private:
 
   edm::ESHandle<TrackerGeometry> theG;
   edm::ESHandle<MagneticField> theMF;
-  edm::ESHandle<Propagator> thePropagator;
+  std::unique_ptr<Propagator> thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   edm::ESHandle<TrajectoryFitter> fit;
   edm::Handle<TrackCandidateCollection> theTCCollection;

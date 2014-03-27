@@ -1504,7 +1504,7 @@ void CSCEfficiency::chooseDirection(CLHEP::Hep3Vector & innerPosition, CLHEP::He
   }
 }
 //
-const Propagator* CSCEfficiency::propagator(std::string propagatorName) const {
+Propagator* CSCEfficiency::propagator(std::string propagatorName) const {
   return &*theService->propagator(propagatorName);
 }
   

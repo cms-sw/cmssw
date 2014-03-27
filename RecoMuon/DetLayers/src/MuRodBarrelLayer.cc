@@ -76,7 +76,7 @@ MuRodBarrelLayer::~MuRodBarrelLayer() {
 
 vector<GeometricSearchDet::DetWithState> 
 MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
-				 const Propagator& prop, 
+				 Propagator& prop, 
 				 const MeasurementEstimator& est) const {
 
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRodBarrelLayer";
@@ -184,7 +184,7 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
 
 vector<DetGroup> 
 MuRodBarrelLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-					 const Propagator& prop,
+					 Propagator& prop,
 					 const MeasurementEstimator& est) const {
   // FIXME should return only 1 group 
   cout << "dummy implementation of MuRodBarrelLayer::groupedCompatibleDets()" << endl;

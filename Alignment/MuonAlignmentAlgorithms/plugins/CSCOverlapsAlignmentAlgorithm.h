@@ -147,7 +147,8 @@ private:
 
   TrackTransformer *m_trackTransformer;
   std::string m_propagatorName;
-  const Propagator *m_propagatorPointer;
+  unsigned long long m_propagatorCacheId;
+  std::unique_ptr<Propagator> m_propagatorPointer;
 
   TH1F *m_histP10;
   TH1F *m_histP100;

@@ -85,6 +85,8 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
   std::vector<std::unique_ptr<OrderedHitsGenerator> > theGenerators;
   std::vector<PropagationDirection> thePropDirs;
   std::vector<NavigationDirection>  theNavDirs; 
+  std::unique_ptr<Propagator> thePropagatorAlong;
+  std::unique_ptr<Propagator> thePropagatorOpposite;
   TrackingRegionProducer* theRegionProducer;	
   //TrajectoryStateTransform theTransformer;
   SeedFromGenericPairOrTriplet* theSeedBuilder; 

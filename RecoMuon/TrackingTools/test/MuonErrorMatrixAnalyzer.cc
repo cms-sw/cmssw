@@ -152,7 +152,9 @@ void
 
   if (theRadius!=0){
     //get a propagator
-    iSetup.get<TrackingComponentsRecord>().get(thePropagatorName, thePropagator);
+    edm::ESHandle<Propagator> propHandle;
+    iSetup.get<TrackingComponentsRecord>().get(thePropagatorName, propHandle);
+    thePropagator.reset( propHandle->clone());
   }
 
   //get the mag field

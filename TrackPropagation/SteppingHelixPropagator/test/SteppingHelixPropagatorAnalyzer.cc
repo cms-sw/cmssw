@@ -370,8 +370,8 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	FreeTrajectoryState ftsDest;
 	GlobalPoint pDest1(10., 10., 0.);
 	GlobalPoint pDest2(10., 10., 10.);
-	const SteppingHelixPropagator* shPropAnyCPtr = 
-	  dynamic_cast<const SteppingHelixPropagator*>(&*shPropAny);
+	std::unique_ptr<SteppingHelixPropagator> shPropAnyCPtr{
+	  dynamic_cast<SteppingHelixPropagator*>(shPropAny->clone())};
 
 	ftsDest = shPropAnyCPtr->propagate(ftsStart, pDest1);
 	std::cout<<"----------------------------------------------"<<std::endl;
@@ -414,8 +414,8 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	}
 	
 	if (radX0CorrectionMode_ ){
-	  const SteppingHelixPropagator* shPropCPtr = 
-	    dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
+	  std::unique_ptr<SteppingHelixPropagator> shPropCPtr {
+	    dynamic_cast<SteppingHelixPropagator*>(shProp->clone())};
 	  siDest = shPropCPtr->propagate(siStart, *igHit->surf);
 	  if (siDest.isValid()){
 	    siStart = siDest;
@@ -429,7 +429,8 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	    pStatus = 1;
 	  }
 	} else {
-	  tSOSDest = shProp->propagate(ftsStart, *igHit->surf);
+ 	  std::unique_ptr<Propagator> p( shProp->clone());
+	  tSOSDest = p->propagate(ftsStart, *igHit->surf);
 	  if (tSOSDest.isValid()){
 	    ftsStart = *tSOSDest.freeState();
 	    getFromFTS(ftsStart, p3F, r3F, charge, covF);

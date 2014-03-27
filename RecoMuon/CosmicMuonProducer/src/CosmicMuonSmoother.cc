@@ -188,7 +188,7 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
       LogTrace(category_)<<"step-propagating from "<<currTsos.globalPosition() <<" to position: "<<(*ihit)->globalPosition();
       predTsos = theUtilities->stepPropagate(currTsos, (*ihit), *propagatorAlong());
     }
-    if ( !predTsos.isValid() && (fabs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) && (theService->propagator("StraightLinePropagator").isValid() ) ) {
+    if ( !predTsos.isValid() && (fabs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) && (theService->propagator("StraightLinePropagator").get() ) ) {
       LogTrace(category_)<<"straight-line propagating from "<<currTsos.globalPosition() <<" to position: "<<(*ihit)->globalPosition();
       predTsos = theService->propagator("StraightLinePropagator")->propagate(currTsos, (**ihit).det()->surface());
     }

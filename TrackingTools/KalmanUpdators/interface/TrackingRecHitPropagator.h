@@ -25,7 +25,7 @@ class TrackingRecHitPropagator {
 
 	template <class ResultingHit> TransientTrackingRecHit::RecHitPointer project(const TransientTrackingRecHit::ConstRecHitPointer hit,
                          							     const GeomDet& det,
-                         					                     const TrajectoryStateOnSurface ts) const{
+                         					                     const TrajectoryStateOnSurface ts) {
 	//1) propagate the best possible track parameters to the surface of the hit you want to "move" using a AnalyticalPropagator ;
 	//2) create LocalTrajectoryParameters with the local x,y of the hit and direction + momentum from the propagated track parameters;
 	//3) create a LocalTrajectoryError matrix which is 0 except for the local x,y submatrix, which is filled with the hit errors;
@@ -66,7 +66,7 @@ class TrackingRecHitPropagator {
 	}
 	
 	private:
-	const AnalyticalPropagator* thePropagator;
+	AnalyticalPropagator* thePropagator;
 };
 
 #endif

@@ -77,7 +77,7 @@ class CosmicMuonValidator : public edm::EDAnalyzer {
 
       TrajectoryStateOnSurface updatedState(const TrajectoryStateOnSurface&, const PSimHit&) const;
 
-      edm::ESHandle<Propagator> propagator() const;
+      Propagator* propagator() const;
 
       edm::InputTag trackLabel_;
       edm::InputTag simTrackLabel_;
@@ -804,7 +804,7 @@ TrajectoryStateOnSurface CosmicMuonValidator::updatedState(const TrajectoryState
     return result;
 }
 
-edm::ESHandle<Propagator> CosmicMuonValidator::propagator() const {
-   return theService->propagator("SteppingHelixPropagatorAny");
+Propagator* CosmicMuonValidator::propagator() const {
+   return theService->propagator("SteppingHelixPropagatorAny").get();
 }
 

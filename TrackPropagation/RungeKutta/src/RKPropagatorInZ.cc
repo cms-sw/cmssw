@@ -10,7 +10,7 @@
 #include "RKOneCashKarpStep.h"
 
 TrajectoryStateOnSurface 
-RKPropagatorInZ::propagate (const FreeTrajectoryState& ts, const Plane& plane) const
+RKPropagatorInZ::propagate (const FreeTrajectoryState& ts, const Plane& plane)
 {
   //typedef RK4PreciseSolver<double,5>           Solver;
   //typedef RKAdaptiveSolver<double,RKOne4OrderStep, 5>   Solver;
@@ -59,19 +59,19 @@ RKPropagatorInZ::propagate (const FreeTrajectoryState& ts, const Plane& plane) c
 }
 
 TrajectoryStateOnSurface 
-RKPropagatorInZ::propagate (const FreeTrajectoryState&, const Cylinder&) const
+RKPropagatorInZ::propagate (const FreeTrajectoryState&, const Cylinder&)
 {
     return TrajectoryStateOnSurface();
 }
 
 std::pair< TrajectoryStateOnSurface, double> 
-RKPropagatorInZ::propagateWithPath (const FreeTrajectoryState&, const Plane&) const
+RKPropagatorInZ::propagateWithPath (const FreeTrajectoryState&, const Plane&)
 {
     return std::pair< TrajectoryStateOnSurface, double>();
 }
 
 std::pair< TrajectoryStateOnSurface, double> 
-RKPropagatorInZ::propagateWithPath (const FreeTrajectoryState&, const Cylinder&) const
+RKPropagatorInZ::propagateWithPath (const FreeTrajectoryState&, const Cylinder&)
 {
     return std::pair< TrajectoryStateOnSurface, double>();
 }

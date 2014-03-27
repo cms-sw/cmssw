@@ -110,7 +110,7 @@ StandAloneMuonFilter::~StandAloneMuonFilter(){
   delete theBestMeasurementFinder;
 }
 
-const Propagator* StandAloneMuonFilter::propagator() const { 
+Propagator* StandAloneMuonFilter::propagator() const { 
   return &*theService->propagator(thePropagatorName); 
 }
 

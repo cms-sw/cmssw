@@ -69,7 +69,7 @@ class MuonSimHitProducer : public edm::EDProducer {
       const DTGeometry*     dtGeom;
       const CSCGeometry*    cscGeom;
       const RPCGeometry*    rpcGeom;
-      const Propagator*     propagatorWithMaterial;
+            Propagator*     propagatorWithMaterial;
             Propagator* propagatorWithoutMaterial;
 
       MaterialEffects* theMaterialEffects;

@@ -50,7 +50,7 @@ public:
 
   void configure(CSCOverlapsAlignmentAlgorithm *parent);
   void setZplane(const CSCGeometry *cscGeometry);
-  void setPropagator(const Propagator *propagator);
+  void setPropagator(Propagator *propagator);
   bool addTrack(const std::vector<TrajectoryMeasurement> &measurements, const reco::TransientTrack &track, const TrackTransformer *trackTransformer);
 
   void write(std::ofstream &output);
@@ -70,7 +70,7 @@ protected:
 
   double m_Zplane, m_iZ, m_jZ, m_iZ1, m_iZ6, m_jZ1, m_jZ6, m_averageRadius;
   const CSCGeometry *m_cscGeometry;
-  const Propagator *m_propagator;
+  Propagator *m_propagator;
   Plane::PlanePointer m_Zsurface;
 
   TH1F *m_slopeResiduals;

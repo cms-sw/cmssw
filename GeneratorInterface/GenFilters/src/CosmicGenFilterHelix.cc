@@ -85,7 +85,7 @@ bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSe
   iEvent.getByLabel(theSrc, hepMCEvt);
   const HepMC::GenEvent *mCEvt = hepMCEvt->GetEvent();
   const MagneticField *bField = this->getMagneticField(iSetup); // should be fast (?)
-  const Propagator *propagator = this->getPropagator(iSetup);
+  Propagator *propagator = this->getPropagator(iSetup);
 
   ++theNumTotal;
   bool result = false;
@@ -116,7 +116,7 @@ bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSe
 bool CosmicGenFilterHelix::propagateToCutCylinder(const GlobalPoint &vertStart,
 						  const GlobalVector &momStart,
 						  int charge, const MagneticField *field,
-                                                  const Propagator *propagator)
+                                                  Propagator *propagator)
 {
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPath;
 
@@ -331,18 +331,21 @@ const MagneticField* CosmicGenFilterHelix::getMagneticField(const edm::EventSetu
 }
 
 //_________________________________________________________________________________________________
-const Propagator* CosmicGenFilterHelix::getPropagator(const edm::EventSetup &setup) const
+Propagator* CosmicGenFilterHelix::getPropagator(const edm::EventSetup &setup) 
 {
-  edm::ESHandle<Propagator> propHandle;
-  setup.get<TrackingComponentsRecord>().get(thePropagatorName, propHandle);
+  if(thePropagatorWatcher.check(setup)) {
+    edm::ESHandle<Propagator> propHandle;
+    setup.get<TrackingComponentsRecord>().get(thePropagatorName, propHandle);
 
-  const Propagator *prop = propHandle.product();
-  if (!dynamic_cast<const SteppingHelixPropagator*>(prop)) {
-    edm::LogWarning("BadConfig") << "@SUB=CosmicGenFilterHelix::getPropagator"
-                                 << "Not a SteppingHelixPropagator!";
-
+    thePropagator.reset( propHandle->clone());
+    
+    if (!dynamic_cast<const SteppingHelixPropagator*>(thePropagator.get())) {
+      edm::LogWarning("BadConfig") << "@SUB=CosmicGenFilterHelix::getPropagator"
+				   << "Not a SteppingHelixPropagator!";
+      
+    }
   }
-  return prop;
+  return thePropagator.get();
 }
 
 //_________________________________________________________________________________________________

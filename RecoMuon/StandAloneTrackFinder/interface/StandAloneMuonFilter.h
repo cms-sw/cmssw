@@ -97,7 +97,7 @@ class StandAloneMuonFilter {
   MeasurementEstimator *estimator() const {return theEstimator;}
   
   /// access at the propagator
-  const Propagator *propagator() const;
+  Propagator *propagator() const;
   
   /// access at the muon updator
   MuonTrajectoryUpdator *updator() const {return theMuonUpdator;}

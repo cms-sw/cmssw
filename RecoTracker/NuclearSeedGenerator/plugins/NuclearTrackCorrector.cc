@@ -82,8 +82,12 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::string fitterName = conf_.getParameter<std::string>("Fitter");   
   iSetup.get<TrajectoryFitter::Record>().get(fitterName,theFitter);
 
-  std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
+  if(thePropagatorWatcher.check(iSetup)) {
+    std::string propagatorName = conf_.getParameter<std::string>("Propagator");   
+    edm::ESHandle<Propagator> propHandle;
+    iSetup.get<TrackingComponentsRecord>().get(propagatorName,propHandle);
+    thePropagator.reset(propHandle->clone());
+  }
 
   iSetup.get<TrackerDigiGeometryRecord>().get(theG);
 
@@ -268,7 +272,7 @@ bool NuclearTrackCorrector::getTrackFromTrajectory(const Trajectory& newTraj , c
 );
 
            reco::BeamSpot bs;
-           return theAlgo->buildTrack(theFitter.product(), thePropagator.product(), algoResults, hits, theInitialStateForRefitting ,it->seed(), ndof, bs, theT->seedRef());
+           return theAlgo->buildTrack(theFitter.product(), thePropagator.get(), algoResults, hits, theInitialStateForRefitting ,it->seed(), ndof, bs, theT->seedRef());
          }
 
 	return false;

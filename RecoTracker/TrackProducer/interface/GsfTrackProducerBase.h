@@ -33,7 +33,7 @@ public:
 
   /// Put produced collections in the event
   virtual void putInEvt(edm::Event&,
-			const Propagator* prop,
+			Propagator* prop,
 			const MeasurementTracker* measTk,
 			std::auto_ptr<TrackingRecHitCollection>&,
 			std::auto_ptr<reco::GsfTrackCollection>&,
@@ -47,7 +47,7 @@ public:
 protected:
   void fillStates (TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const;
   void fillMode (reco::GsfTrack& track, const TrajectoryStateOnSurface innertsos,
-		 const Propagator& gsfProp,
+		 Propagator& gsfProp,
 		 const TransverseImpactPointExtrapolator& tipExtrapolator,
 		 TrajectoryStateClosestToBeamLineBuilder& tscblBuilder,
 		 const reco::BeamSpot& bs) const;

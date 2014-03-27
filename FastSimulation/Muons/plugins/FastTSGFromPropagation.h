@@ -80,7 +80,7 @@ private:
 
   const Chi2MeasurementEstimator* estimator() const { return theEstimator; }
 
-  edm::ESHandle<Propagator> propagator() const {return theService->propagator(thePropagatorName); }
+  Propagator* propagator() const {return theService->propagator(thePropagatorName).get(); }
 
   /// create a hitless seed from a trajectory state
   TrajectorySeed createSeed(const TrajectoryStateOnSurface&, const DetId&) const;

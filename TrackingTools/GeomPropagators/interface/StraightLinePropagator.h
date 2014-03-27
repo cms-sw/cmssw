@@ -30,37 +30,37 @@ public:
   ~StraightLinePropagator() {}
 
   virtual TSOS propagate(const FreeTrajectoryState& fts,
-			 const Surface& surface) const {
+			 const Surface& surface) override {
     return Propagator::propagate(fts, surface);
   }
   
   virtual TSOS propagate(const FreeTrajectoryState& fts, 
-			 const Plane& plane) const {
+			 const Plane& plane) override {
     return propagateWithPath(fts,plane).first;
   }
 
   virtual TSOS propagate(const FreeTrajectoryState& fts, 
-			 const Cylinder& cylinder) const {
+			 const Cylinder& cylinder) override {
     return propagateWithPath(fts,cylinder).first;
   }
   
   std::pair<TSOS,double> propagateWithPath(const FreeTrajectoryState& fts, 
-				      const Surface& surface) const {
+				      const Surface& surface) override {
     return Propagator::propagateWithPath(fts,surface);
   }
 
   std::pair<TSOS,double> propagateWithPath(const FreeTrajectoryState& fts, 
-				      const Plane& surface) const;
+				      const Plane& surface) override;
 
   std::pair<TSOS,double> propagateWithPath(const FreeTrajectoryState& fts, 
-				      const Cylinder& surface) const;
+				      const Cylinder& surface) override;
 
   virtual StraightLinePropagator * clone() const {
     return new StraightLinePropagator(*this);
   }
 
  
-  virtual const MagneticField* magneticField() const {return theField;}
+  virtual const MagneticField* magneticField() const override {return theField;}
 
 private:
 

@@ -26,7 +26,7 @@ vector<const DetLayer*> LayerCollector::allLayers(const FTS& aFts) const {
     for(vector<const DetLayer*>::iterator ilay = nextLayers.begin(); ilay != nextLayers.end(); ilay++) {
 
       
-      TSOS pTsos = propagator()->propagate(myFts, (**ilay).surface());
+      TSOS pTsos = const_cast<LayerCollector*>(this)->propagator()->propagate(myFts, (**ilay).surface());
 
 
       if(pTsos.isValid()) {

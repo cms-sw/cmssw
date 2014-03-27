@@ -64,7 +64,7 @@ PixelBlade::components() const{
 }
 
 pair<bool, TrajectoryStateOnSurface>
-PixelBlade::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
+PixelBlade::compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
 			const MeasurementEstimator&) const{
   edm::LogError("TkDetLayers") << "temporary dummy implementation of PixelBlade::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
@@ -74,7 +74,7 @@ PixelBlade::compatible( const TrajectoryStateOnSurface& ts, const Propagator&,
 
 void
 PixelBlade::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-					  const Propagator& prop,
+					  Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const{
  SubLayerCrossings  crossings; 
@@ -157,7 +157,7 @@ PixelBlade::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
 bool 
 PixelBlade::addClosest( const TrajectoryStateOnSurface& tsos,
-			const Propagator& prop,
+			Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			vector<DetGroup>& result) const
@@ -181,7 +181,7 @@ float PixelBlade::computeWindowSize( const GeomDet* det,
 
 
 void PixelBlade::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-				  const Propagator& prop,
+				  Propagator& prop,
 				  const MeasurementEstimator& est,
 				  const SubLayerCrossing& crossing,
 				  float window, 

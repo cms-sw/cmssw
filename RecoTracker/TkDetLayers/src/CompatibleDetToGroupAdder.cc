@@ -8,7 +8,7 @@ using namespace std;
 
 bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
 				     const TrajectoryStateOnSurface& tsos, 
-				     const Propagator& prop,
+				     Propagator& prop,
 				     const MeasurementEstimator& est,
 				     vector<DetGroup>& result) {
   if (det.hasGroups()) {
@@ -42,7 +42,7 @@ bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
 
 bool CompatibleDetToGroupAdder::add( const GeomDet& det,
 				     const TrajectoryStateOnSurface& tsos, 
-				     const Propagator& prop,
+				     Propagator& prop,
 				     const MeasurementEstimator& est,
 				     vector<DetGroup>& result) {
   //TkGeomDetCompatibilityChecker theCompatibilityChecker;

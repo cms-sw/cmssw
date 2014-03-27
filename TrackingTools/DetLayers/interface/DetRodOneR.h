@@ -25,7 +25,7 @@ class DetRodOneR : public DetRod {
 
   virtual ~DetRodOneR();
 
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
 
 
 
@@ -34,7 +34,7 @@ protected:
   
   bool add( int idet, std::vector<DetWithState>& result,
 	    const TrajectoryStateOnSurface& startingState,
-	    const Propagator& prop, 
+	    Propagator& prop, 
 	    const MeasurementEstimator& est) const;
 
   std::vector<const GeomDet*>     theDets;

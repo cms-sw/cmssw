@@ -42,7 +42,7 @@ PixelRod::components() const{
  
  
 pair<bool, TrajectoryStateOnSurface>
-PixelRod::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
+PixelRod::compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
 		      const MeasurementEstimator&) const{
   edm::LogError("TkDetLayers") << "temporary dummy implementation of PixelRod::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
@@ -50,7 +50,7 @@ PixelRod::compatible( const TrajectoryStateOnSurface& ts, const Propagator&,
 
 void
 PixelRod::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
-			  const Propagator& prop, 
+			  Propagator& prop, 
 			  const MeasurementEstimator& est,
 			  std::vector<DetWithState> & result ) const
 {  
@@ -100,7 +100,7 @@ PixelRod::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 
 void
 PixelRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface&,
-				 const Propagator&,
+				 Propagator&,
 				 const MeasurementEstimator&,
 				 std::vector<DetGroup> &) const
 {

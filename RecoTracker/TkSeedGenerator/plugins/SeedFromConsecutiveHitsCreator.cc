@@ -31,7 +31,9 @@ void SeedFromConsecutiveHitsCreator::init(const TrackingRegion & iregion,
   // get tracker
   es.get<TrackerDigiGeometryRecord>().get(tracker);
   // get propagator
+  edm::ESHandle<Propagator> propagatorHandle;
   es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
+  propagator.reset(propagatorHandle->clone());
   // mag field
   es.get<IdealMagneticFieldRecord>().get(mfName_, bfield);  
   //  edm::ESInputTag mfESInputTag(mfName_);
@@ -124,8 +126,6 @@ void SeedFromConsecutiveHitsCreator::buildSeed(
     const SeedingHitSet & hits,
     const FreeTrajectoryState & fts) const
 {
-  const Propagator*  propagator = &(*propagatorHandle);
-  
   // get updator
   KFUpdator  updator;
   

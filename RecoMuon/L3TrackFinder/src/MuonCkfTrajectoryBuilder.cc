@@ -24,7 +24,7 @@ MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet&     
 						   const MeasurementTracker*             measurementTracker,
 						   const TrajectoryFilter*               filter): 
   CkfTrajectoryBuilder(conf,updator,propagatorAlong,propagatorOpposite,estimator,RecHitBuilder,filter),
-  theProximityPropagator(propagatorProximity)
+  theProximityPropagator(propagatorProximity->clone())
 {
   //and something specific to me ?
   theUseSeedLayer = conf.getParameter<bool>("useSeedLayer");
@@ -36,6 +36,15 @@ MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet&     
   else theEtaPhiEstimator = (Chi2MeasurementEstimatorBase*)0;
 
 
+}
+
+MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(MuonCkfTrajectoryBuilder const& iOther):
+  CkfTrajectoryBuilder(iOther),
+  theUseSeedLayer(iOther.theUseSeedLayer),
+  theRescaleErrorIfFail(iOther.theRescaleErrorIfFail),
+  theProximityPropagator(iOther.theProximityPropagator->clone()),
+  theEtaPhiEstimator(iOther.theEtaPhiEstimator)
+{
 }
 
 MuonCkfTrajectoryBuilder::~MuonCkfTrajectoryBuilder()
@@ -88,7 +97,7 @@ void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,
 						  const std::vector<const DetLayer*>& nl,
 						  const TrajectoryStateOnSurface & currentState,
 						  std::vector<TM>& result,int& invalidHits,
-						  const Propagator * prop) const{
+						  Propagator * prop) const{
   for (std::vector<const DetLayer*>::const_iterator il = nl.begin();
        il != nl.end(); il++) {
 
@@ -169,7 +178,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
 	  //get the measurements on the layer first
 	  LogDebug("CkfPattern")<<"using the layer of the seed first.";
           nl.push_back(l);
-          collectMeasurement(l,nl,currentState,result,invalidHits,theProximityPropagator);
+          collectMeasurement(l,nl,currentState,result,invalidHits,theProximityPropagator.get());
         }
 	
         //if fails: try to rescale locally the state to find measurements
@@ -180,7 +189,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
 	    TrajectoryStateOnSurface rescaledCurrentState = currentState;
 	    rescaledCurrentState.rescaleError(theRescaleErrorIfFail);
 	    invalidHits=0;
-	    collectMeasurement(l,nl,rescaledCurrentState,result,invalidHits,theProximityPropagator);
+	    collectMeasurement(l,nl,rescaledCurrentState,result,invalidHits,theProximityPropagator.get());
           }
       }
 

@@ -46,7 +46,7 @@ public:
 
 
 
-  const Propagator* propagator() const {return thePropagator;}
+  Propagator* propagator() const {return thePropagator;}
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
   const MultiTrajectoryStateMerger* merger() const {return theMerger;}
@@ -57,7 +57,7 @@ public:
   }
 
 private:
-  const Propagator* thePropagator;
+  Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
   const MultiTrajectoryStateMerger* theMerger;

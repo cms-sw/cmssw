@@ -46,23 +46,23 @@ public:
 
   /// propagation to plane
   TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
-                                     const Plane& plane) const {
+                                     const Plane& plane) override {
     return propagateWithPath(fts,plane).first;
   }
   /// propagation to plane with path length  
   std::pair<TrajectoryStateOnSurface,double> 
   propagateWithPath(const FreeTrajectoryState& fts, 
-		    const Plane& plane) const; 
+		    const Plane& plane) override; 
   
   /// propagation to cylinder
   TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
-                                     const Cylinder& cylinder) const {
+                                     const Cylinder& cylinder) override {
     return propagateWithPath(fts,cylinder).first;
   }
   /// propagation to cylinder with path length
   std::pair<TrajectoryStateOnSurface,double> 
   propagateWithPath(const FreeTrajectoryState& fts, 
-		    const Cylinder& cylinder) const;
+		    const Cylinder& cylinder) override;
   /** limitation of change in transverse direction
    *  (to avoid loops).
    */
@@ -72,9 +72,9 @@ public:
   }
   
 #ifndef CMS_NO_RELAXED_RETURN_TYPE
-  virtual AnalyticalPropagator * clone() const 
+  virtual AnalyticalPropagator * clone() const override
 #else
-    virtual Propagator * clone() const
+    virtual Propagator * clone() const override
 #endif
   {
     return new AnalyticalPropagator(*this);

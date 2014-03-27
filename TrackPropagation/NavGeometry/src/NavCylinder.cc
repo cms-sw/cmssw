@@ -5,14 +5,14 @@
 #include "TrackingTools/GeomPropagators/interface/StraightLineCylinderCrossing.h"
 
 TrajectoryStateOnSurface 
-NavCylinder::propagate( const Propagator& prop, 
+NavCylinder::propagate( Propagator& prop, 
 		     const TrajectoryStateOnSurface& startingState) const
 {
     return prop.propagate( startingState, *theSurfaceP); 
 }
 
 std::pair<TrajectoryStateOnSurface,double>
-NavCylinder::propagateWithPath( const Propagator& prop, 
+NavCylinder::propagateWithPath( Propagator& prop, 
 		     const TrajectoryStateOnSurface& startingState) const
 {
     return prop.propagateWithPath( startingState, *theSurfaceP); 

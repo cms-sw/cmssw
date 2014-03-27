@@ -79,32 +79,32 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
 }
 
 TrajectoryStateOnSurface 
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest) const {
+SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest) {
   return propagateWithPath(ftsStart, pDest).first;
 }
 
 TrajectoryStateOnSurface 
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const
+SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest)
 {
   return propagateWithPath(ftsStart, cDest).first;
 }
 
 FreeTrajectoryState
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const
+SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest)
 {
   return propagateWithPath(ftsStart, pDest).first;
 }
 
 FreeTrajectoryState
 SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, 
-				   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const
+				   const GlobalPoint& pDest1, const GlobalPoint& pDest2)
 {
   return propagateWithPath(ftsStart, pDest1, pDest2).first;
 }
 
 FreeTrajectoryState
 SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, 
-				   const reco::BeamSpot& beamSpot) const
+				   const reco::BeamSpot& beamSpot)
 {
   return propagateWithPath(ftsStart, beamSpot).first;
 }
@@ -112,7 +112,7 @@ SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart,
 
 std::pair<TrajectoryStateOnSurface, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
-					   const Plane& pDest) const {
+					   const Plane& pDest) {
 
   setIState(SteppingHelixStateInfo(ftsStart));
 
@@ -123,7 +123,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 
 std::pair<TrajectoryStateOnSurface, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
-					   const Cylinder& cDest) const {
+					   const Cylinder& cDest) {
 
   setIState(SteppingHelixStateInfo(ftsStart));
 
@@ -135,7 +135,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 
 std::pair<FreeTrajectoryState, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
-					   const GlobalPoint& pDest) const {
+					   const GlobalPoint& pDest) {
   setIState(SteppingHelixStateInfo(ftsStart));
 
   const StateInfo& svCurrent = propagate(svBuf_[0], pDest);
@@ -148,7 +148,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 
 std::pair<FreeTrajectoryState, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
-					   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const {
+					   const GlobalPoint& pDest1, const GlobalPoint& pDest2) {
 
   if ((pDest1-pDest2).mag() < 1e-10){
     if (sendLogWarning_){
@@ -170,7 +170,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 
 std::pair<FreeTrajectoryState, double>  
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,  
-                                           const reco::BeamSpot& beamSpot) const {
+                                           const reco::BeamSpot& beamSpot) {
   GlobalPoint pDest1(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
   GlobalPoint pDest2(pDest1.x() + beamSpot.dxdz()*1e3, 
 		     pDest1.y() + beamSpot.dydz()*1e3,
@@ -180,7 +180,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 
 const SteppingHelixStateInfo&
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
-				   const Surface& sDest) const {
+				   const Surface& sDest) {
   
   if (! sStart.isValid()){
     if (sendLogWarning_){
@@ -202,7 +202,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
 
 const SteppingHelixStateInfo&
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
-				   const Plane& pDest) const {
+				   const Plane& pDest) {
   
   if (! sStart.isValid()){
     if (sendLogWarning_){
@@ -232,7 +232,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
 
 const SteppingHelixStateInfo&
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
-				   const Cylinder& cDest) const {
+				   const Cylinder& cDest) {
   
   if (! sStart.isValid()){
     if (sendLogWarning_){
@@ -260,7 +260,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
 
 const SteppingHelixStateInfo&
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
-				   const GlobalPoint& pDest) const {
+				   const GlobalPoint& pDest) {
   
   if (! sStart.isValid()){
     if (sendLogWarning_){
@@ -281,7 +281,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
 
 const SteppingHelixStateInfo&
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
-				   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const {
+				   const GlobalPoint& pDest1, const GlobalPoint& pDest2) {
   
   if ((pDest1-pDest2).mag() < 1e-10 || !sStart.isValid()){
     if (sendLogWarning_){
@@ -304,7 +304,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   return svBuf_[cIndex_(nPoints_-1)];
 }
 
-void SteppingHelixPropagator::setIState(const SteppingHelixStateInfo& sStart) const {
+void SteppingHelixPropagator::setIState(const SteppingHelixStateInfo& sStart) {
   nPoints_ = 0;
   svBuf_[cIndex_(nPoints_)] = sStart; //do this anyways to have a fresh start
   if (sStart.isComplete ) {
@@ -320,7 +320,7 @@ void SteppingHelixPropagator::setIState(const SteppingHelixStateInfo& sStart) co
 
 SteppingHelixPropagator::Result 
 SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type, 
-				   const double pars[6], double epsilon)  const{
+				   const double pars[6], double epsilon)  {
 
   static const std::string metname = "SteppingHelixPropagator";
   StateInfo* svCurrent = &svBuf_[cIndex_(nPoints_-1)];

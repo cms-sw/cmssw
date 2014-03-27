@@ -10,7 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-SeedFromNuclearInteraction::SeedFromNuclearInteraction(const Propagator* prop, const TrackerGeometry* geom, const edm::ParameterSet& iConfig):
+SeedFromNuclearInteraction::SeedFromNuclearInteraction(Propagator* prop, const TrackerGeometry* geom, const edm::ParameterSet& iConfig):
     ptMin(iConfig.getParameter<double>("ptMin")),
     thePropagator(prop), theTrackerGeom(geom)
     {

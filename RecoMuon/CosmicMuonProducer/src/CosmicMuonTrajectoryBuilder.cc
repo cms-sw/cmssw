@@ -223,7 +223,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed) {
  
      measL = findBestMeasurements(*rnxtlayer, lastTsos, propagator(), (updator()->estimator()));
 
-     if ( measL.empty() &&  (fabs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) && (theService->propagator("StraightLinePropagator").isValid() ) )  {
+     if ( measL.empty() &&  (fabs(theService->magneticField()->inTesla(GlobalPoint(0,0,0)).z()) < 0.01) && (theService->propagator("StraightLinePropagator").get() != nullptr ) )  {
        LogTrace(category_) << "try straight line propagator ";
        measL = findBestMeasurements(*rnxtlayer, lastTsos, &*theService->propagator("StraightLinePropagator"), (updator()->estimator()));
      }
@@ -851,7 +851,7 @@ void CosmicMuonTrajectoryBuilder::getDirectionByTime(Trajectory& traj) const {
 std::vector<TrajectoryMeasurement>
 CosmicMuonTrajectoryBuilder::findBestMeasurements(const DetLayer* layer,
                                                   const TrajectoryStateOnSurface& tsos, 
-                                                  const Propagator* propagator, 
+                                                  Propagator* propagator, 
                                                   const MeasurementEstimator* estimator) {
 
   std::vector<TrajectoryMeasurement> result;

@@ -55,9 +55,9 @@ public:
 				             const TrajectoryStateOnSurface& firstPredTsos) const;
 
 
-  const Propagator* propagatorAlong() const {return &*theService->propagator(thePropagatorAlongName);}
+  Propagator* propagatorAlong() const {return &*theService->propagator(thePropagatorAlongName);}
 
-  const Propagator* propagatorOpposite() const {return &*theService->propagator(thePropagatorOppositeName);}
+  Propagator* propagatorOpposite() const {return &*theService->propagator(thePropagatorOppositeName);}
 
   KFUpdator* updator() const {return theUpdator;}
 

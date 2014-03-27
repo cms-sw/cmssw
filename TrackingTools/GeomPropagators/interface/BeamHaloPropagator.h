@@ -47,7 +47,7 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
     }
 
 
-    void setPropagationDirection (PropagationDirection dir) const
+    void setPropagationDirection (PropagationDirection dir) override
     {
       Propagator::setPropagationDirection(dir);
       getEndCapTkPropagator()->setPropagationDirection(dir);
@@ -58,58 +58,58 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
 
     /* Operations as propagator*/ 
     TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
-                                       const Surface& surface) const;
+                                       const Surface& surface) override;
 
     TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos, 
-                                       const Surface& surface) const {
+                                       const Surface& surface) override {
       return Propagator::propagate(tsos,surface);
     }
 
     TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
-                                       const Plane& plane) const;
+                                       const Plane& plane) override ;
 
     TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
-                                       const Plane& plane) const {
+                                       const Plane& plane) override {
       return Propagator::propagate(tsos, plane);
     }
 
     TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
-                                       const Cylinder& cylinder) const;
+                                       const Cylinder& cylinder) override ;
 
     TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos, 
-                                       const Cylinder& cylinder) const {
+                                       const Cylinder& cylinder) override {
       return Propagator::propagate(tsos, cylinder);
     }
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const FreeTrajectoryState& fts, 
-                        const Surface& surface) const {
+                        const Surface& surface) override {
         return Propagator::propagateWithPath(fts,surface);
       }
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const TrajectoryStateOnSurface& tsos, 
-                        const Surface& surface) const {
+                        const Surface& surface) override {
         return Propagator::propagateWithPath(tsos,surface);
       }
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const FreeTrajectoryState& fts, 
-                        const Plane& plane) const;
+                        const Plane& plane) override;
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const TrajectoryStateOnSurface& tsos, 
-                        const Plane& plane) const {
+                        const Plane& plane) override {
         return Propagator::propagateWithPath(tsos, plane);
       }
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const FreeTrajectoryState& fts, 
-                        const Cylinder& cylinder) const;
+                        const Cylinder& cylinder) override;
 
     std::pair<TrajectoryStateOnSurface,double> 
       propagateWithPath(const TrajectoryStateOnSurface& tsos, 
-                        const Cylinder& cylinder) const {
+                        const Cylinder& cylinder) override {
         return Propagator::propagateWithPath(tsos, cylinder);
       }
 
@@ -118,13 +118,15 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
 
     ///return the propagator used in endcaps
     const Propagator* getEndCapTkPropagator() const ;
+    Propagator* getEndCapTkPropagator();
     ///return the propagator used to cross the tracker
     const Propagator* getCrossTkPropagator() const ;
+    Propagator* getCrossTkPropagator();
     ///return the magneticField
     virtual const MagneticField* magneticField() const {return theField;}
 
   private:
-    void directionCheck(PropagationDirection dir)const;
+    void directionCheck(PropagationDirection dir) ;
 
     Propagator* theEndCapTkProp;
     Propagator* theCrossTkProp;

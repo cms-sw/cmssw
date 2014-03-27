@@ -299,10 +299,11 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       const Surface * surface=&g->surface();
       
       TrajectoryStateOnSurface seedState(trajectoryStateTransform::transientState(ptod,surface,theMagField));
-      
-      edm::ESHandle<Propagator> propagator;
-      es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",propagator);
-      
+      if(thePropagatorWatcher.check(es)) {
+	edm::ESHandle<Propagator> propagator;
+	es.get<TrackingComponentsRecord>().get("AnyDirectionAnalyticalPropagator",propagator);
+	theAnyDirectPropagator.reset(propagator->clone());
+      }
       //moved out of the loop 
       //      const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids(); 
       //      edm::Handle<edm::SimTrackContainer> theSTC;
@@ -336,7 +337,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 						  theMagField);
 	FreeTrajectoryState simtrack_trackerstate(glb_parameters);
 	
-	TrajectoryStateOnSurface simtrack_comparestate = propagator->propagate(simtrack_trackerstate,*surface);
+	TrajectoryStateOnSurface simtrack_comparestate = theAnyDirectPropagator->propagate(simtrack_trackerstate,*surface);
 
 	  
 	if (!simtrack_comparestate.isValid()){

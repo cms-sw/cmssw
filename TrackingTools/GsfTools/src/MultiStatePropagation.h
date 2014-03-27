@@ -17,7 +17,7 @@ class MultiStatePropagation {
 public:
   /** Constructor with explicit propagator
    */
-  MultiStatePropagation(const Propagator& aPropagator) :
+  MultiStatePropagation(Propagator& aPropagator) :
     thePropagator(aPropagator) {}
 
   ~MultiStatePropagation() {};
@@ -26,7 +26,7 @@ public:
    */
   std::pair<TrajectoryStateOnSurface,double> 
   propagateWithPath (const TrajectoryStateOnSurface& tsos, 
-		     const T& surface) const;
+		     const T& surface) ;
 
 private:
   /// creation of new state with different weight
@@ -35,7 +35,7 @@ private:
 
 private:
   // Single state propagator
-  const Propagator& thePropagator;
+  Propagator& thePropagator;
 
   typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;
   typedef std::vector<TrajectoryStateOnSurface> MultiTSOS;

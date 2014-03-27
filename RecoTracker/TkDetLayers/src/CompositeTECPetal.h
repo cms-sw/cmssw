@@ -34,19 +34,19 @@ class CompositeTECPetal GCC11_FINAL : public GeometricSearchDet {
 
   
   // GeometricSearchDet interface  
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold)) {return theComps;}
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
-    compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		const MeasurementEstimator&) const __attribute__((cold));
+    compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
+		const MeasurementEstimator&) const override  __attribute__((cold));
   
   virtual void
     groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
-			    const Propagator& prop,
+			    Propagator& prop,
 			    const MeasurementEstimator& est,
-			    std::vector<DetGroup> & result) const __attribute__ ((hot));
+			    std::vector<DetGroup> & result) const override __attribute__ ((hot));
   
   
  private:
@@ -61,13 +61,13 @@ class CompositeTECPetal GCC11_FINAL : public GeometricSearchDet {
   
   
   bool addClosest( const TrajectoryStateOnSurface& tsos,
-		   const Propagator& prop,
+		   Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
 		   std::vector<DetGroup>& result) const __attribute__ ((hot)) dso_internal;
   
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
-			const Propagator& prop,
+			Propagator& prop,
 			const MeasurementEstimator& est,
 			const SubLayerCrossing& crossing,
 			float window, 

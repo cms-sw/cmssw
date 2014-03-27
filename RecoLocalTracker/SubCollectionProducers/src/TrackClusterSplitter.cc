@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -60,6 +61,8 @@
 #include <iostream>
 using namespace std;
 
+class TrackingComponentsRecord;
+
 class TrackClusterSplitter : public edm::EDProducer 
 {
 
@@ -104,7 +107,8 @@ private:
   // gavril : what is this for ?
   std::string propagatorName_;
   edm::ESHandle<MagneticField>          magfield_;
-  edm::ESHandle<Propagator>             propagator_;
+  edm::ESWatcher<TrackingComponentsRecord> propagatorWatcher_;
+  std::unique_ptr<Propagator>           propagator_;
   edm::ESHandle<GlobalTrackingGeometry> geometry_;
   
   // This is needed if we want to to sim/truth pixel splitting
@@ -232,7 +236,12 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 #define foreach BOOST_FOREACH
 
 TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
-  useTrajectories_(iConfig.getParameter<bool>("useTrajectories"))
+  useTrajectories_(iConfig.getParameter<bool>("useTrajectories")),
+  propagatorWatcher_([this](TrackingComponentsRecord const& iRecord) {
+      edm::ESHandle<Propagator> propHandle;
+      iRecord.get( "AnalyticalPropagator", propHandle);
+      propagator_.reset(propHandle->clone());
+    })
 {
   if (useTrajectories_) {
     trajTrackAssociations_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssociations"));
@@ -338,7 +347,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if ( !useTrajectories_ ) 
     {
       iSetup.get<IdealMagneticFieldRecord>().get( magfield_ );
-      iSetup.get<TrackingComponentsRecord>().get( "AnalyticalPropagator", propagator_ );
+      propagatorWatcher_.check(iSetup);
     }
  
   Handle<edmNew::DetSetVector<SiPixelCluster> > inputPixelClusters;

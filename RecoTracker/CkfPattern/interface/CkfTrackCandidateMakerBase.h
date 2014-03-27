@@ -1,8 +1,10 @@
 #ifndef CkfTrackCandidateMakerBase_h
 #define CkfTrackCandidateMakerBase_h
 
+#include <memory>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -28,6 +30,8 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 class TransientInitialStateEstimator;
+class Propagator;
+class TrackingComponentsRecord;
 
 namespace cms
 {
@@ -65,6 +69,9 @@ namespace cms
     
     edm::ESHandle<MagneticField>                theMagField;
     edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
+
+    edm::ESWatcher<TrackingComponentsRecord>  thePropagatorWatcher;
+    std::unique_ptr<Propagator>               thePropagator;
 
     std::string theNavigationSchoolName;
     const NavigationSchool*       theNavigationSchool;

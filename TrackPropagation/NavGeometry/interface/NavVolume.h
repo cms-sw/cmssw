@@ -39,7 +39,7 @@ public:
 				 ConstReferenceCountingPointer<Surface> NotThisSurfaceP) const = 0;
   
   virtual VolumeCrossReturnType crossToNextVolume( const TrajectoryStateOnSurface& currentState, 
-						   const Propagator& prop) const = 0;
+						   Propagator& prop) const = 0;
 
   virtual bool isIron() const = 0;
 

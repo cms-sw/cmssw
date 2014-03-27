@@ -44,7 +44,7 @@ navigationSchoolName(iConfig.getParameter<std::string>("NavigationSchool"))
    es.get<NavigationSchoolRecord>().get(navigationSchoolName, nav);
    theNavigationSchool  = nav.product();
 
-   thePropagator = prop.product();
+   thePropagator.reset(prop->clone());
    theEstimator = est.product();
    theMeasurementTracker = measurementTrackerHandle.product();
    theGeomSearchTracker = theGeomSearchTrackerHandle.product();
@@ -56,7 +56,7 @@ navigationSchoolName(iConfig.getParameter<std::string>("NavigationSchool"))
 
    nuclTester = new NuclearTester(maxHits, theEstimator, theTrackerGeom.product() );
 
-   currentSeed = new SeedFromNuclearInteraction(thePropagator, theTrackerGeom.product(), iConfig) ;
+   currentSeed = new SeedFromNuclearInteraction(thePropagator.get(), theTrackerGeom.product(), iConfig) ;
 
    thePrimaryHelix = new TangentHelix();
 }

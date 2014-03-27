@@ -90,7 +90,7 @@ CompositeTECWedge::components() const{
 
   
 pair<bool, TrajectoryStateOnSurface>
-CompositeTECWedge::compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
+CompositeTECWedge::compatible( const TrajectoryStateOnSurface& ts, Propagator&, 
 			       const MeasurementEstimator&) const{
   edm::LogError("TkDetLayers") << "temporary dummy implementation of CompositeTECWedge::compatible()!!" ;
   return pair<bool,TrajectoryStateOnSurface>();
@@ -99,7 +99,7 @@ CompositeTECWedge::compatible( const TrajectoryStateOnSurface& ts, const Propaga
 
 void
 CompositeTECWedge::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-					  const Propagator& prop,
+					  Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const{
 
@@ -202,7 +202,7 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
 
 bool CompositeTECWedge::addClosest( const TrajectoryStateOnSurface& tsos,
-				    const Propagator& prop,
+				    Propagator& prop,
 				    const MeasurementEstimator& est,
 				    const SubLayerCrossing& crossing,
 				    vector<DetGroup>& result) const
@@ -221,7 +221,7 @@ bool CompositeTECWedge::addClosest( const TrajectoryStateOnSurface& tsos,
 
 
 void CompositeTECWedge::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-					 const Propagator& prop,
+					 Propagator& prop,
 					 const MeasurementEstimator& est,
 					 const SubLayerCrossing& crossing,
 					 float window, 

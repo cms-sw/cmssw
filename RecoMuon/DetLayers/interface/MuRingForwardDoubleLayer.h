@@ -29,30 +29,30 @@ class MuRingForwardDoubleLayer : public RingedForwardLayer {
 
   // GeometricSearchDet interface
 
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComponents;}
+  virtual const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComponents;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComponents;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const override {return theComponents;}
 
   bool isInsideOut(const TrajectoryStateOnSurface&tsos) const;
 
   // tries closest layer first
   virtual std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface&, const Propagator&,
-              const MeasurementEstimator&) const;
+  compatible( const TrajectoryStateOnSurface&, Propagator&,
+              const MeasurementEstimator&) const override;
 
   virtual std::vector<DetWithState> 
   compatibleDets( const TrajectoryStateOnSurface& startingState,
-		  const Propagator& prop, 
-		  const MeasurementEstimator& est) const;
+		  Propagator& prop, 
+		  const MeasurementEstimator& est) const override;
   
   virtual std::vector<DetGroup> 
   groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
-			 const Propagator& prop,
-			 const MeasurementEstimator& est) const;
+			 Propagator& prop,
+			 const MeasurementEstimator& est) const override;
 
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return theBackLayer.subDetector();}
+  virtual SubDetector subDetector() const override {return theBackLayer.subDetector();}
 
 
   // Extension of the interface

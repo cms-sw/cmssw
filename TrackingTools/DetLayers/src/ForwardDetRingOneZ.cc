@@ -38,7 +38,7 @@ void ForwardDetRingOneZ::initialize()
 
 bool ForwardDetRingOneZ::add(int idet, vector<DetWithState>& result,
 			     const TrajectoryStateOnSurface& tsos,
-			     const Propagator& prop, 
+			     Propagator& prop, 
 			     const MeasurementEstimator& est) const {
   pair<bool,TrajectoryStateOnSurface> compat =
     theCompatibilityChecker.isCompatible(theDets[idet],tsos, prop, est);

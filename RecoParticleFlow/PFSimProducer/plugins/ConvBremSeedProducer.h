@@ -76,7 +76,7 @@ class ConvBremSeedProducer : public edm::EDProducer {
   const TrackerGeometry*                      tracker_;
   const MagneticField*                        magfield_;
   const MagneticFieldMap*                     fieldMap_;
-  const PropagatorWithMaterial*               propagator_;
+  PropagatorWithMaterial*                     propagator_;
   const KFUpdator*                            kfUpdator_;
   const TransientTrackingRecHitBuilder*       hitBuilder_;
   const TrajectoryStateTransform*             transformer_;

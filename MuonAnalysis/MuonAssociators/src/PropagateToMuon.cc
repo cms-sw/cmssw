@@ -44,9 +44,21 @@ PropagateToMuon::~PropagateToMuon() {}
 void
 PropagateToMuon::init(const edm::EventSetup & iSetup) {
     iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
-    iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong",    propagator_);
-    iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorOpposite", propagatorOpposite_);
-    iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",      propagatorAny_);
+    {
+      edm::ESHandle<Propagator> propHandle;
+      iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong",    propHandle);
+      propagator_.reset( propHandle->clone());
+    }
+    {
+      edm::ESHandle<Propagator> propHandle;
+      iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorOpposite", propHandle);
+      propagatorOpposite_.reset(propHandle->clone());
+    }
+    {
+      edm::ESHandle<Propagator> propHandle;
+      iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",      propHandle);
+      propagatorAny_.reset(propHandle->clone());
+    }
     iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry_);
 
     // Get the barrel cylinder
@@ -136,8 +148,8 @@ PropagateToMuon::extrapolate(const FreeTrajectoryState &start) const {
     if (start.momentum().mag() == 0) return final;
     double eta = start.momentum().eta();
 
-    const Propagator * propagatorBarrel  = &*propagator_;
-    const Propagator * propagatorEndcaps = &*propagator_;
+    Propagator * propagatorBarrel  = &*propagator_;
+    Propagator * propagatorEndcaps = &*propagator_;
     if (whichState_ != AtVertex) { 
         if (start.position().perp()    > barrelCylinder_->radius())         propagatorBarrel  = &*propagatorOpposite_;
         if (fabs(start.position().z()) > endcapDiskPos_[useMB2_?2:1]->position().z()) propagatorEndcaps = &*propagatorOpposite_;

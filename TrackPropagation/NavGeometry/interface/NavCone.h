@@ -28,10 +28,10 @@ public:
     }
 
     virtual TrajectoryStateOnSurface 
-    propagate( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const;
+    propagate( Propagator& prop, const TrajectoryStateOnSurface& startingState) const;
 
     virtual NavSurface::TSOSwithPath 
-    propagateWithPath( const Propagator& prop, const TrajectoryStateOnSurface& startingState) const;
+    propagateWithPath( Propagator& prop, const TrajectoryStateOnSurface& startingState) const;
 
     virtual const Bounds* bounds( const NavVolume* vol) { return theImpl.bounds(vol);}
 

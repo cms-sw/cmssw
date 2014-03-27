@@ -87,7 +87,17 @@ KFBasedPixelFitter::KFBasedPixelFitter( const edm::ParameterSet& cfg)
     thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
     thePropagatorOppositeLabel(cfg.getParameter<std::string>("propagatorOpposite")),
     theUseBeamSpot(cfg.getParameter<bool>("useBeamSpotConstraint")),
-    theTTRHBuilderName(cfg.getParameter<std::string>("TTRHBuilder")) 
+    theTTRHBuilderName(cfg.getParameter<std::string>("TTRHBuilder")),
+    thePropagatorWatcher([this](TrackingComponentsRecord const& iRecord) {
+	edm::ESHandle<Propagator>  propagator;
+	iRecord.get(thePropagatorLabel, propagator);
+	thePropagator.reset(propagator->clone());
+      }),
+    thePropagatorOppositeWatcher([this](TrackingComponentsRecord const& iRecord) {
+	edm::ESHandle<Propagator>  propagator;
+	iRecord.get(thePropagatorOppositeLabel, propagator);
+	thePropagatorOpposite.reset(propagator->clone());
+      })
 { 
   if (theUseBeamSpot) theBeamSpot = cfg.getParameter<edm::InputTag>("beamSpotConstraint");
 }
@@ -161,8 +171,7 @@ reco::Track* KFBasedPixelFitter::run(
   FreeTrajectoryState fts(initialKine, initialError);
 
   // get propagator
-  edm::ESHandle<Propagator>  propagator;
-  es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagator);
+  thePropagatorWatcher.check(es);
 
   // get updator
   KFUpdator  updator;
@@ -173,9 +182,9 @@ reco::Track* KFBasedPixelFitter::run(
   const TrackingRecHit* hit = 0;
   for ( unsigned int iHit = 0; iHit < hits.size(); iHit++) {
     hit = hits[iHit];
-    if (iHit==0) outerState = propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface());
+    if (iHit==0) outerState = thePropagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface());
     outerDetId = hit->geographicalId();
-    TrajectoryStateOnSurface state = propagator->propagate(outerState, tracker->idToDet(outerDetId)->surface());
+    TrajectoryStateOnSurface state = thePropagator->propagate(outerState, tracker->idToDet(outerDetId)->surface());
     if (!state.isValid()) return 0;
 //    TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
     TransientTrackingRecHit::RecHitPointer recHit =  ttrhb->build(hit);
@@ -186,15 +195,14 @@ reco::Track* KFBasedPixelFitter::run(
 
 
   // get propagator
-  edm::ESHandle<Propagator>  opropagator;
-  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeLabel, opropagator);
+  thePropagatorOppositeWatcher.check(es);
   TrajectoryStateOnSurface innerState = outerState;
   DetId innerDetId = 0;
   innerState.rescaleError(100000.);
   for ( int iHit = 2; iHit >= 0; --iHit) {
     hit = hits[iHit];
     innerDetId = hit->geographicalId();
-    TrajectoryStateOnSurface state = opropagator->propagate(innerState, tracker->idToDet(innerDetId)->surface());
+    TrajectoryStateOnSurface state = thePropagatorOpposite->propagate(innerState, tracker->idToDet(innerDetId)->surface());
     if (!state.isValid()) return 0;
 //  TransientTrackingRecHit::RecHitPointer recHit = (ttrhb->build(hit))->clone(state);
     TransientTrackingRecHit::RecHitPointer recHit = ttrhb->build(hit);

@@ -26,7 +26,7 @@ using namespace SurfaceSideDefinition;
 
 std::pair<TrajectoryStateOnSurface,double>
 AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
-					const Plane& plane) const
+					const Plane& plane)
 {
   // check curvature
   float rho = fts.transverseCurvature();
@@ -69,7 +69,7 @@ AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts,
 
 std::pair<TrajectoryStateOnSurface,double>
 AnalyticalPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
-					const Cylinder& cylinder) const
+					const Cylinder& cylinder)
 {
   // check curvature
   auto rho = fts.transverseCurvature();

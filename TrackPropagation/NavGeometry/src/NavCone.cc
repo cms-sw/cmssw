@@ -4,14 +4,14 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
 TrajectoryStateOnSurface 
-NavCone::propagate( const Propagator& prop, 
+NavCone::propagate( Propagator& prop, 
 		    const TrajectoryStateOnSurface& startingState) const
 {
     return prop.propagate( startingState, *theSurfaceP); 
 }
 
 std::pair<TrajectoryStateOnSurface,double>
-NavCone::propagateWithPath( const Propagator& prop, 
+NavCone::propagateWithPath( Propagator& prop, 
 		    const TrajectoryStateOnSurface& startingState) const
 {
     return prop.propagateWithPath( startingState, *theSurfaceP); 
