@@ -25,7 +25,6 @@
 #include <typeinfo>
 
 #include <cxxabi.h>
-#include <iostream>
 
 namespace edm {
 
@@ -35,16 +34,23 @@ namespace edm {
     //       kIsReference if needed since a typeid() expression
     //       ignores those properties, so we must store them
     //       separately.
-    TType* type = gInterpreter->Type_Factory(name);
-    if (!gInterpreter->Type_IsValid(type)) {
-      // This can happen if no dictionary has been loaded for the class or enum.
-      // If this is a class, trigger the loading of the dictionary.
-      TClass* theClass = TClass::GetClass(name.c_str());
-      if(theClass == nullptr || theClass->GetTypeInfo() == nullptr) {
-        return TypeWithDict();
-      }
+
+    // Yes, I know this is not thread safe
+    typedef std::map<std::string, TypeWithDict> TypeMap;
+    static TypeMap typeMap;
+    TypeMap::const_iterator it = typeMap.find(name);
+    if(it != typeMap.end()) {
+      return TypeWithDict(it->second, property);
+    }
+    TClass* theClass = TClass::GetClass(name.c_str());
+    if(theClass != nullptr && theClass->GetTypeInfo() != nullptr) {
       return TypeWithDict(theClass, property);
     }
+    TType* type = gInterpreter->Type_Factory(name);
+    if (!gInterpreter->Type_IsValid(type)) {
+      return TypeWithDict();
+    }
+    typeMap.insert(std::make_pair(name, TypeWithDict(type, 0L)));
     return TypeWithDict(type, property);
   }
 
@@ -543,20 +549,10 @@ namespace edm {
 
   TypeWithDict
   TypeWithDict::finalType() const {
-    TypeWithDict ret;
     if (type_ == nullptr) {
-      return ret;
+      return TypeWithDict();
     }
-    TType* ty = gInterpreter->Type_FinalType(type_);
-    if (ty == nullptr) {
-      return ret;
-    }
-    std::type_info const* ti = gInterpreter->Type_TypeInfo(ty);
-    if (ti == nullptr) {
-      return ret;
-    }
-    ret = TypeWithDict(*ti);
-    return ret;
+    return TypeWithDict(*ti_);
   }
 
   TypeWithDict
