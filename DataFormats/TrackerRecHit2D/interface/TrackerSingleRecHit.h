@@ -65,7 +65,7 @@ public:
     return cluster_.stripCluster();
   }  
 
-  SiPixelCluster const & pixelluster() const {
+  SiPixelCluster const & pixelCluster() const {
     return cluster_.pixelCluster();
   }
 
