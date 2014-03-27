@@ -620,7 +620,7 @@ void MuonSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
     rpc_sh.subsector = id.subsector();
     rpc_sh.roll = id.roll();
     const int nSubSectors(id.station()>1 and id.ring()==1 ? 3 : 6);
-    rpc_sh.chamber = (id.sector()-1)*nSubsectors + id.subsector();
+    rpc_sh.chamber = (id.sector()-1)*nSubSectors + id.subsector();
     
     const LocalPoint hitLP(itHit->localPosition());
     const GlobalPoint hitGP(rpc_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
