@@ -17,7 +17,7 @@
 #include "TrajectoryToResiduals.h"
 
 //TODO jaldeaar REMOVE PRINTS
-void print(reco::HitPattern track_hitPattern);
+void print(reco::HitPattern track_hitPattern, reco::HitPattern::HitCategory category);
 #include <iostream>
 void KfTrackProducerBase::putInEvt(edm::Event& evt,
 				   const Propagator* prop,
@@ -121,35 +121,35 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
     std::cout << "Setting first hit pattern for track with pt=" << track.pt() << " and algo=" << track.algo() << std::endl;
-    size_t ih = 0;
     if (theTraj->direction() == alongMomentum) {
-      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
-	   j != transHits.end(); j ++ ) {
-	if ((**j).hit()!=0){
-	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, ih ++ );
-	  selHits->push_back( hit );
-	  tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
-	}
-      }
+        for(TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
+                j != transHits.end(); j++) {
+            if ((**j).hit() != 0){
+                TrackingRecHit *hit = (**j).hit()->clone();
+                track.appendHitPattern(*hit);
+                selHits->push_back(hit);
+                tx.add(TrackingRecHitRef(rHits, hidx++));
+            }
+        }
     }else{
-      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.end()-1;
-	   j != transHits.begin()-1; --j ) {
-	if ((**j).hit()!=0){
-	  TrackingRecHit * hit = (**j).hit()->clone();
-	  track.setHitPattern( * hit, ih ++ );
-	  selHits->push_back( hit );
-	tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
-	}
-      }
+        for(TrajectoryFitter::RecHitContainer::const_iterator j = transHits.end() - 1;
+                j != transHits.begin() - 1; --j) {
+            if ((**j).hit() != 0){
+                TrackingRecHit * hit = (**j).hit()->clone();
+                track.appendHitPattern(*hit);
+                selHits->push_back(hit);
+                tx.add(TrackingRecHitRef(rHits, hidx++));
+            }
+        }
     }
-    // ----
+
     std::cout << "########################### hitPattern ###########################" << std::endl;
-    print(track.hitPattern());
+    print(track.getHitPattern(), reco::HitPattern::TRACK_HITS);
     std::cout << "########################### trackerExpectedHitsInner ###########################" << std::endl;
-    print(track.trackerExpectedHitsInner());
+    print(track.getHitPattern(), reco::HitPattern::MISSING_INNER_HITS);
     std::cout << "########################### trackerExpectedHitsOuter ###########################" << std::endl;
-    print(track.trackerExpectedHitsOuter());
+    print(track.getHitPattern(), reco::HitPattern::MISSING_OUTER_HITS);
+
     tx.setResiduals(trajectoryToResiduals(*theTraj));
 
     delete theTrack;
@@ -196,130 +196,131 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     evt.put( trajTrackMap );
   }
 }
-void print(reco::HitPattern track_hitPattern)
+void print(reco::HitPattern track_hitPattern, reco::HitPattern::HitCategory category)
 {
     using namespace std;
     cout << "numberOfHits ";
-    cout << track_hitPattern.numberOfHits();
+    cout << track_hitPattern.numberOfHits(category);
     cout << endl;
 
     cout << "numberOfValidHits ";
-    cout << track_hitPattern.numberOfValidHits() << ' ';
-    cout << track_hitPattern.numberOfValidTrackerHits() << ' ';
-    cout << track_hitPattern.numberOfValidMuonHits() << ' ';
-    cout << track_hitPattern.numberOfValidPixelHits() << ' ';
-    cout << track_hitPattern.numberOfValidPixelBarrelHits() << ' ';
-    cout << track_hitPattern.numberOfValidPixelEndcapHits() << ' ';
-    cout << track_hitPattern.numberOfValidStripHits() << ' ';
-    cout << track_hitPattern.numberOfValidStripTIBHits() << ' ';
-    cout << track_hitPattern.numberOfValidStripTIDHits() << ' ';
-    cout << track_hitPattern.numberOfValidStripTOBHits() << ' ';
-    cout << track_hitPattern.numberOfValidStripTECHits() << ' ';
-    cout << track_hitPattern.numberOfValidMuonDTHits() << ' ';
-    cout << track_hitPattern.numberOfValidMuonCSCHits() << ' ';
-    cout << track_hitPattern.numberOfValidMuonRPCHits() << ' ';
+    cout << track_hitPattern.numberOfValidHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidTrackerHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidMuonHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidPixelHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidPixelBarrelHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidPixelEndcapHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidStripHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidStripTIBHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidStripTIDHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidStripTOBHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidStripTECHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidMuonDTHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidMuonCSCHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidMuonRPCHits(category) << ' ';
     cout << endl;
 
     cout << "numberOfLostHits ";
-    cout << track_hitPattern.numberOfLostHits() << ' ';
-    cout << track_hitPattern.numberOfLostTrackerHits() << ' ';
-    cout << track_hitPattern.numberOfLostMuonHits() << ' ';
-    cout << track_hitPattern.numberOfLostPixelHits() << ' ';
-    cout << track_hitPattern.numberOfLostPixelBarrelHits() << ' ';
-    cout << track_hitPattern.numberOfLostPixelEndcapHits() << ' ';
-    cout << track_hitPattern.numberOfLostStripHits() << ' ';
-    cout << track_hitPattern.numberOfLostStripTIBHits() << ' ';
-    cout << track_hitPattern.numberOfLostStripTIDHits() << ' ';
-    cout << track_hitPattern.numberOfLostStripTOBHits() << ' ';
-    cout << track_hitPattern.numberOfLostStripTECHits() << ' ';
-    cout << track_hitPattern.numberOfLostMuonDTHits() << ' ';
-    cout << track_hitPattern.numberOfLostMuonCSCHits() << ' ';
-    cout << track_hitPattern.numberOfLostMuonRPCHits() << ' ';
+    cout << track_hitPattern.numberOfLostHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostTrackerHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostMuonHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostPixelHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostPixelBarrelHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostPixelEndcapHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostStripHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostStripTIBHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostStripTIDHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostStripTOBHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostStripTECHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostMuonDTHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostMuonCSCHits(category) << ' ';
+    cout << track_hitPattern.numberOfLostMuonRPCHits(category) << ' ';
     cout << endl;
 
     cout << "numberOfBadHits ";
-    cout << track_hitPattern.numberOfBadHits() << ' ';
-    cout << track_hitPattern.numberOfBadMuonHits() << ' ';
-    cout << track_hitPattern.numberOfBadMuonDTHits() << ' ';
-    cout << track_hitPattern.numberOfBadMuonCSCHits() << ' ';
-    cout << track_hitPattern.numberOfBadMuonRPCHits() << ' ';
-    cout << track_hitPattern.numberOfInactiveHits() << ' ';
-    cout << track_hitPattern.numberOfInactiveTrackerHits() << ' ';
-    cout << track_hitPattern.numberOfValidStripLayersWithMonoAndStereo();
+    cout << track_hitPattern.numberOfBadHits(category) << ' ';
+    cout << track_hitPattern.numberOfBadMuonHits(category) << ' ';
+    cout << track_hitPattern.numberOfBadMuonDTHits(category) << ' ';
+    cout << track_hitPattern.numberOfBadMuonCSCHits(category) << ' ';
+    cout << track_hitPattern.numberOfBadMuonRPCHits(category) << ' ';
+    cout << track_hitPattern.numberOfInactiveHits(category) << ' ';
+    cout << track_hitPattern.numberOfInactiveTrackerHits(category) << ' ';
+    cout << track_hitPattern.numberOfValidStripLayersWithMonoAndStereo(category);
     cout << endl;
 
     cout << "layersWithMeasurements ";
-    cout << track_hitPattern.trackerLayersWithMeasurement() << ' ';
-    cout << track_hitPattern.pixelLayersWithMeasurement() << ' ';
-    cout << track_hitPattern.stripLayersWithMeasurement() << ' ';
-    cout << track_hitPattern.pixelBarrelLayersWithMeasurement() << ' ';
-    cout << track_hitPattern.pixelEndcapLayersWithMeasurement() << ' ';
-    cout << track_hitPattern.stripTIBLayersWithMeasurement() << ' ';
-    cout << track_hitPattern.stripTIDLayersWithMeasurement() << ' ';
-    cout << track_hitPattern.stripTOBLayersWithMeasurement() << ' ';
-    cout << track_hitPattern.stripTECLayersWithMeasurement() << ' ';
+    cout << track_hitPattern.trackerLayersWithMeasurement(category) << ' ';
+    cout << track_hitPattern.pixelLayersWithMeasurement(category) << ' ';
+    cout << track_hitPattern.stripLayersWithMeasurement(category) << ' ';
+    cout << track_hitPattern.pixelBarrelLayersWithMeasurement(category) << ' ';
+    cout << track_hitPattern.pixelEndcapLayersWithMeasurement(category) << ' ';
+    cout << track_hitPattern.stripTIBLayersWithMeasurement(category) << ' ';
+    cout << track_hitPattern.stripTIDLayersWithMeasurement(category) << ' ';
+    cout << track_hitPattern.stripTOBLayersWithMeasurement(category) << ' ';
+    cout << track_hitPattern.stripTECLayersWithMeasurement(category) << ' ';
     cout << endl;
 
     cout << "WithoutMeasurements ";
-    cout << track_hitPattern.trackerLayersWithoutMeasurement() << ' ';
-    cout << track_hitPattern.pixelLayersWithoutMeasurement() << ' ';
-    cout << track_hitPattern.stripLayersWithoutMeasurement() << ' ';
-    cout << track_hitPattern.pixelBarrelLayersWithoutMeasurement() << ' ';
-    cout << track_hitPattern.pixelEndcapLayersWithoutMeasurement() << ' ';
-    cout << track_hitPattern.stripTIBLayersWithoutMeasurement() << ' ';
-    cout << track_hitPattern.stripTIDLayersWithoutMeasurement() << ' ';
-    cout << track_hitPattern.stripTOBLayersWithoutMeasurement() << ' ';
-    cout << track_hitPattern.stripTECLayersWithoutMeasurement() << ' ';
+    cout << track_hitPattern.trackerLayersWithoutMeasurement(category) << ' ';
+    cout << track_hitPattern.pixelLayersWithoutMeasurement(category) << ' ';
+    cout << track_hitPattern.stripLayersWithoutMeasurement(category) << ' ';
+    cout << track_hitPattern.pixelBarrelLayersWithoutMeasurement(category) << ' ';
+    cout << track_hitPattern.pixelEndcapLayersWithoutMeasurement(category) << ' ';
+    cout << track_hitPattern.stripTIBLayersWithoutMeasurement(category) << ' ';
+    cout << track_hitPattern.stripTIDLayersWithoutMeasurement(category) << ' ';
+    cout << track_hitPattern.stripTOBLayersWithoutMeasurement(category) << ' ';
+    cout << track_hitPattern.stripTECLayersWithoutMeasurement(category) << ' ';
     cout << endl;
 
     cout << "LayersTotallyOffOrBad ";
-    cout << track_hitPattern.trackerLayersTotallyOffOrBad() << ' ';
-    cout << track_hitPattern.pixelLayersTotallyOffOrBad() << ' ';
-    cout << track_hitPattern.stripLayersTotallyOffOrBad() << ' ';
-    cout << track_hitPattern.pixelBarrelLayersTotallyOffOrBad() << ' ';
-    cout << track_hitPattern.pixelEndcapLayersTotallyOffOrBad() << ' ';
-    cout << track_hitPattern.stripTIBLayersTotallyOffOrBad() << ' ';
-    cout << track_hitPattern.stripTIDLayersTotallyOffOrBad() << ' ';
-    cout << track_hitPattern.stripTOBLayersTotallyOffOrBad() << ' ';
-    cout << track_hitPattern.stripTECLayersTotallyOffOrBad() << ' ';
+    cout << track_hitPattern.trackerLayersTotallyOffOrBad(category) << ' ';
+    cout << track_hitPattern.pixelLayersTotallyOffOrBad(category) << ' ';
+    cout << track_hitPattern.stripLayersTotallyOffOrBad(category) << ' ';
+    cout << track_hitPattern.pixelBarrelLayersTotallyOffOrBad(category) << ' ';
+    cout << track_hitPattern.pixelEndcapLayersTotallyOffOrBad(category) << ' ';
+    cout << track_hitPattern.stripTIBLayersTotallyOffOrBad(category) << ' ';
+    cout << track_hitPattern.stripTIDLayersTotallyOffOrBad(category) << ' ';
+    cout << track_hitPattern.stripTOBLayersTotallyOffOrBad(category) << ' ';
+    cout << track_hitPattern.stripTECLayersTotallyOffOrBad(category) << ' ';
     cout << endl;
 
     cout << "LayersNull ";
-    cout << track_hitPattern.trackerLayersNull() << ' ';
-    cout << track_hitPattern.pixelLayersNull() << ' ';
-    cout << track_hitPattern.stripLayersNull() << ' ';
-    cout << track_hitPattern.pixelBarrelLayersNull() << ' ';
-    cout << track_hitPattern.pixelEndcapLayersNull() << ' ';
-    cout << track_hitPattern.stripTIBLayersNull() << ' ';
-    cout << track_hitPattern.stripTIDLayersNull() << ' ';
-    cout << track_hitPattern.stripTOBLayersNull() << ' ';
-    cout << track_hitPattern.stripTECLayersNull() << ' ';
+    cout << track_hitPattern.trackerLayersNull(category) << ' ';
+    cout << track_hitPattern.pixelLayersNull(category) << ' ';
+    cout << track_hitPattern.stripLayersNull(category) << ' ';
+    cout << track_hitPattern.pixelBarrelLayersNull(category) << ' ';
+    cout << track_hitPattern.pixelEndcapLayersNull(category) << ' ';
+    cout << track_hitPattern.stripTIBLayersNull(category) << ' ';
+    cout << track_hitPattern.stripTIDLayersNull(category) << ' ';
+    cout << track_hitPattern.stripTOBLayersNull(category) << ' ';
+    cout << track_hitPattern.stripTECLayersNull(category) << ' ';
     cout << endl;
 
     //muon stations missing
     cout << "muon stuff ";
-    cout << track_hitPattern.muonStationsWithValidHits() << ' ';
-    cout << track_hitPattern.muonStationsWithBadHits() << ' ';
-    cout << track_hitPattern.muonStationsWithAnyHits() << ' ';
-    cout << track_hitPattern.dtStationsWithValidHits() << ' ';
-    cout << track_hitPattern.dtStationsWithBadHits() << ' ';
-    cout << track_hitPattern.dtStationsWithAnyHits() << ' ';
-    cout << track_hitPattern.cscStationsWithValidHits() << ' ';
-    cout << track_hitPattern.cscStationsWithBadHits() << ' ';
-    cout << track_hitPattern.cscStationsWithAnyHits() << ' ';
-    cout << track_hitPattern.rpcStationsWithValidHits() << ' ';
-    cout << track_hitPattern.rpcStationsWithBadHits() << ' ';
-    cout << track_hitPattern.rpcStationsWithAnyHits() << ' ';
+    cout << track_hitPattern.muonStationsWithValidHits(category) << ' ';
+    cout << track_hitPattern.muonStationsWithBadHits(category) << ' ';
+    cout << track_hitPattern.muonStationsWithAnyHits(category) << ' ';
+    cout << track_hitPattern.dtStationsWithValidHits(category) << ' ';
+    cout << track_hitPattern.dtStationsWithBadHits(category) << ' ';
+    cout << track_hitPattern.dtStationsWithAnyHits(category) << ' ';
+    cout << track_hitPattern.cscStationsWithValidHits(category) << ' ';
+    cout << track_hitPattern.cscStationsWithBadHits(category) << ' ';
+    cout << track_hitPattern.cscStationsWithAnyHits(category) << ' ';
+    cout << track_hitPattern.rpcStationsWithValidHits(category) << ' ';
+    cout << track_hitPattern.rpcStationsWithBadHits(category) << ' ';
+    cout << track_hitPattern.rpcStationsWithAnyHits(category) << ' ';
     //missing  track_hitPattern.innermostMuonStationWithHits(int hitType)
-    cout << track_hitPattern.innermostMuonStationWithValidHits() << ' ';
-    cout << track_hitPattern.innermostMuonStationWithBadHits() << ' ';
-    cout << track_hitPattern.innermostMuonStationWithAnyHits() << ' ';
+    cout << track_hitPattern.innermostMuonStationWithValidHits(category) << ' ';
+    cout << track_hitPattern.innermostMuonStationWithBadHits(category) << ' ';
+    cout << track_hitPattern.innermostMuonStationWithAnyHits(category) << ' ';
     //missing cout << track_hitPattern.outermostMuonStationWithHits(int hitType)
-    cout << track_hitPattern.outermostMuonStationWithValidHits() << ' ';
-    cout << track_hitPattern.outermostMuonStationWithBadHits() << ' ';
-    cout << track_hitPattern.outermostMuonStationWithAnyHits() << ' ';
-    cout << track_hitPattern.numberOfDTStationsWithRPhiView() << ' ';
-    cout << track_hitPattern.numberOfDTStationsWithRZView() << ' ';
-    cout << track_hitPattern.numberOfDTStationsWithBothViews() << ' ';
+    cout << track_hitPattern.outermostMuonStationWithValidHits(category) << ' ';
+    cout << track_hitPattern.outermostMuonStationWithBadHits(category) << ' ';
+    cout << track_hitPattern.outermostMuonStationWithAnyHits(category) << ' ';
+    cout << track_hitPattern.numberOfDTStationsWithRPhiView(category) << ' ';
+    cout << track_hitPattern.numberOfDTStationsWithRZView(category) << ' ';
+    cout << track_hitPattern.numberOfDTStationsWithBothViews(category) << ' ';
     cout << endl;
 }
+
