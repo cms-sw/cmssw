@@ -32,6 +32,7 @@
   std::cout << "L1Ntuple library loading ..." <<std::endl;
   gROOT->ProcessLine(".L L1Ntuple.C+");
   gROOT->ProcessLine(".L L1GtNtuple.C+");
+  gROOT->ProcessLine(".L L1AlgoFactory.h+");
 
   std::cout << "---- initialization done ----"<<std::endl;
 }
