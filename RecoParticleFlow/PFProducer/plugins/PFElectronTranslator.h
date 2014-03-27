@@ -131,4 +131,7 @@ class PFElectronTranslator : public edm::EDProducer
   bool emptyIsOk_;
 
 };
+
+DEFINE_FWK_MODULE(PFElectronTranslator);
+
 #endif

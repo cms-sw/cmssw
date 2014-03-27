@@ -111,4 +111,7 @@ class PFProducer : public edm::EDProducer {
 
 };
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFProducer);
+
 #endif

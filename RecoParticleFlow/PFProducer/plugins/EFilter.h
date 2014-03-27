@@ -1,7 +1,7 @@
 #ifndef RecoParticleFlow_PFProducer_EFilter_h_
 #define RecoParticleFlow_PFProducer_EFilter_h_
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 
 // #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,7 +27,7 @@
 
 class FSimEvent;
 
-class EFilter : public edm::EDFilter {
+class EFilter : public edm::stream::EDFilter<> {
  public:
   explicit EFilter(const edm::ParameterSet&);
   ~EFilter();
@@ -48,5 +48,8 @@ class EFilter : public edm::EDFilter {
   double minEt_;
   double maxEt_;
 };
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EFilter);
 
 #endif
