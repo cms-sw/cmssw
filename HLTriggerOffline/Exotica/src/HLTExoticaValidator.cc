@@ -5,10 +5,9 @@
 //
 
 //
-// Jordi Duarte Campderros (based on the Jason Slaunwhite
-// and Jeff Klukas coded from the HLTriggerOffline/Muon package
-//
-//
+// Thiago Tomei, based on the HLTriggerOffline/Higgs package.
+// Jordi Duarte Campderros (based on the code from Jason Slaunwhite
+// and Jeff Klukas from the HLTriggerOffline/Muon package).
 //
 
 // system include files
@@ -86,10 +85,10 @@ void HLTExoticaValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
 {
     LogDebug("ExoticaValidation") << "In HLTExoticaValidator::analyze()";
 
-    static int eventNumber = 0;
-    eventNumber++;
-    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::analyze,  "
-                                  << "Event: " << eventNumber;
+    //static int eventNumber = 0;
+    //eventNumber++;
+    //LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::analyze,  "
+    //                              << "Event: " << eventNumber;
 
     // Initialize the event collections
     this->_collections->reset();
