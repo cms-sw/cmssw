@@ -94,34 +94,34 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
             minNumber3DLayers = 3,
             d0_par1 = ( 0.8, 4.0 ),
             dz_par1 = ( 0.9, 4.0 ),
-            d0_par2 = ( 0.5, 4.0 ),
-            dz_par2 = ( 0.7, 4.0 )
+            d0_par2 = ( 0.6, 4.0 ),
+            dz_par2 = ( 0.8, 4.0 )
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'initialStepTight',
             preFilterName = 'initialStepLoose',
-            chi2n_par = 1.2,
+            chi2n_par = 1.4,
             res_par = ( 0.003, 0.002 ),
             minNumberLayers = 3,
             maxNumberLostLayers = 2,
             minNumber3DLayers = 3,
             d0_par1 = ( 0.7, 4.0 ),
             dz_par1 = ( 0.8, 4.0 ),
-            d0_par2 = ( 0.4, 4.0 ),
-            dz_par2 = ( 0.6, 4.0 )
+            d0_par2 = ( 0.5, 4.0 ),
+            dz_par2 = ( 0.7, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'initialStep',
             preFilterName = 'initialStepTight',
-            chi2n_par = 0.9,
+            chi2n_par = 1.0,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
             maxNumberLostLayers = 2,
             minNumber3DLayers = 3,
             d0_par1 = ( 0.6, 4.0 ),
             dz_par1 = ( 0.7, 4.0 ),
-            d0_par2 = ( 0.35, 4.0 ),
-            dz_par2 = ( 0.45, 4.0 )
+            d0_par2 = ( 0.45, 4.0 ),
+            dz_par2 = ( 0.55, 4.0 )
             ),
         ) #end of vpset
     ) #end of clone
