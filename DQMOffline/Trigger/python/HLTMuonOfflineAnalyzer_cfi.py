@@ -48,8 +48,9 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
     inputTags = cms.PSet(
         recoMuon       = cms.InputTag("muons"),
         beamSpot       = cms.InputTag("offlineBeamSpot"),
+        offlinePVs     = cms.InputTag("offlinePrimaryVertices"),
         triggerSummary = cms.InputTag("hltTriggerSummaryAOD"),
-        triggerResults = cms.InputTag("TriggerResults"),
+        triggerResults = cms.InputTag("TriggerResults")
     ),
 
     ## Both 1D and 2D plots use the binnings defined here
