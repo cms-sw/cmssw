@@ -6,7 +6,7 @@ RecoVertexFEVT = cms.PSet(
         'keep  *_offlinePrimaryVerticesFromCosmicTracks_*_*',
         'keep  *_nuclearInteractionMaker_*_*',
         'keep *_generalV0Candidates_*_*',
-	'keep *_inclusiveVertices_*_*')
+	'keep *_inclusiveSecondaryVertices_*_*')
 )
 #RECO content
 RecoVertexRECO = cms.PSet(
@@ -15,7 +15,7 @@ RecoVertexRECO = cms.PSet(
         'keep  *_offlinePrimaryVerticesFromCosmicTracks_*_*',
         'keep  *_nuclearInteractionMaker_*_*',
         'keep *_generalV0Candidates_*_*',
-	'keep *_inclusiveVertices_*_*')
+	'keep *_inclusiveSecondaryVertices_*_*')
 )
 #AOD content
 RecoVertexAOD = cms.PSet(
@@ -24,6 +24,6 @@ RecoVertexAOD = cms.PSet(
         'keep  *_offlinePrimaryVerticesFromCosmicTracks_*_*',
         'keep  *_nuclearInteractionMaker_*_*',
         'keep *_generalV0Candidates_*_*',                                           
-	'keep *_inclusiveVertices_*_*')
+	'keep *_inclusiveSecondaryVertices_*_*')
 )
 
