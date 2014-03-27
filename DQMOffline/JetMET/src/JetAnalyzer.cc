@@ -2251,7 +2251,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  double pt_probe;
 	  double pt_barrel;
 	  int jet1, jet2;
-	  int randJet = rand() % 2;
+	  //int randJet = rand() % 2;
+	  int randJet =iEvent.id().event()%2;
 	  if (fabs(recoJets[1].eta() < 1.4)) {
 	    if (randJet) {
 	      jet1 = 0;
