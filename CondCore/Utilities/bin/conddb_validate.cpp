@@ -20,7 +20,6 @@
 
 // for the xml dump
 #include "TFile.h"
-#include "Cintex/Cintex.h"
 #include <sstream>
 #include <stdio.h>
 
@@ -115,7 +114,6 @@ cond::ValidateUtilities::ValidateUtilities():Utilities("conddb_validate"){
   addAuthenticationOptions();
   addOption<std::string>("tag","t","migrate only the tag (optional)");
   addOption<std::string>("dir","d","tmp folder to dump the temporary files for the comparison (optional)");
-  ROOT::Cintex::Cintex::Enable();
 }
 
 cond::ValidateUtilities::~ValidateUtilities(){
