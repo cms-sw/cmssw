@@ -28,6 +28,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
 
     gedElectronMode = cms.bool(True),
     PreSelectMVA = cms.double(-0.1),	
+    MaxElePtForOnlyMVA = cms.double(50.0),                                
     
     # steering
     useGsfPfRecTracks = cms.bool(True),
@@ -143,10 +144,10 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     crackCorrectionFunction = cms.string("EcalClusterCrackCorrection"),
 
    # regression. The labels are needed in all cases
-   ecalRefinedRegressionWeightLabels = cms.vstring('gedelectron_EBCorrection_offline',
-                                                   'gedelectron_EECorrection_offline',
-                                                   'gedelectron_EBUncertainty_offline',
-                                                   'gedelectron_EEUncertainty_offline'),
+   ecalRefinedRegressionWeightLabels = cms.vstring('gedelectron_EBCorrection_offline_v1',
+                                                   'gedelectron_EECorrection_offline_v1',
+                                                   'gedelectron_EBUncertainty_offline_v1',
+                                                   'gedelectron_EEUncertainty_offline_v1'),
    combinationRegressionWeightLabels = cms.vstring('gedelectron_p4combination_offline'),
    
    ecalWeightsFromDB = cms.bool(True),
@@ -159,7 +160,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
    # Iso Values 
    useIsolationValues = cms.bool(False),
  SoftElecMVAFilesString = cms.vstring(
-    "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_9Dec2013.weights.xml"
+    "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_27Jan2014.weights.xml"
                                 ),
 )
 

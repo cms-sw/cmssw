@@ -41,6 +41,15 @@
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 
+namespace {
+  inline double ptFast( const double energy, 
+			const math::XYZPoint& position,
+			const math::XYZPoint& origin ) {
+    const auto v = position - origin;
+    return energy*std::sqrt(v.perp2()/v.mag2());
+  }
+}
+
 GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) : 
 
   conf_(config)
@@ -438,6 +447,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   for(unsigned int lSC=0; lSC < photonCoreHandle->size(); lSC++) {
 
     reco::PhotonCoreRef coreRef(reco::PhotonCoreRef(photonCoreHandle, lSC));
+    reco::SuperClusterRef parentSCRef = coreRef->parentSuperCluster();
     reco::SuperClusterRef scRef=coreRef->superCluster();
 
   
@@ -461,9 +471,12 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
 
     
+    
+
     // SC energy preselection
-    if (scRef->energy()/cosh(scRef->eta()) <= preselCutValues[0] ) continue;
-    // calculate HoE
+    if (parentSCRef.isNonnull() &&
+	ptFast(parentSCRef->energy(),parentSCRef->position(),math::XYZPoint(0,0,0)) <= preselCutValues[0] ) continue;
+    // calculate HoE    
 
     const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
     EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,0.,1,hcalTowersColl) ;  
@@ -613,6 +626,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
   for(unsigned int lSC=0; lSC < photonHandle->size(); lSC++) {
     reco::PhotonRef phoRef(reco::PhotonRef(photonHandle, lSC));
+    reco::SuperClusterRef parentSCRef = phoRef->parentSuperCluster();
     reco::SuperClusterRef scRef=phoRef->superCluster();
     int subdet = scRef->seed()->hitsAndFractions()[0].first.subdetId();
     if (subdet==EcalBarrel) { 
@@ -626,7 +640,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
   
     // SC energy preselection
-    if (scRef->energy()/cosh(scRef->eta()) <= preselCutValues[0] ) continue;
+    if (parentSCRef.isNonnull() &&
+	ptFast(parentSCRef->energy(),parentSCRef->position(),math::XYZPoint(0,0,0)) <= preselCutValues[0] ) continue;
     reco::Photon newCandidate(*phoRef);
     iSC++;    
   

@@ -19,24 +19,17 @@ mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # SEEDING LAYERS
-mixedTripletStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('mixedTripletStepSeedLayersA'),
+mixedTripletStepSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix1+BPix2+BPix3', 
         'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
         'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg', 
         'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg'),
     BPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRZ = cms.double(0.006),
-        hitErrorRPhi = cms.double(0.0027),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
     ),
     FPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0051),
-        hitErrorRZ = cms.double(0.0036),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
@@ -73,13 +66,9 @@ mixedTripletStepSeedsA.SeedComparitorPSet = cms.PSet(
     )
 
 # SEEDING LAYERS
-mixedTripletStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('mixedTripletStepSeedLayersB'),
+mixedTripletStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix2+BPix3+TIB1'),
     BPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0027),
-        hitErrorRZ = cms.double(0.006),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
@@ -131,13 +120,17 @@ mixedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryF
     )
 
 # Propagator taking into account momentum uncertainty in multiple scattering calculation.
+import TrackingTools.MaterialEffects.MaterialPropagatorParabolicMf_cff
 import TrackingTools.MaterialEffects.MaterialPropagator_cfi
 mixedTripletStepPropagator = TrackingTools.MaterialEffects.MaterialPropagator_cfi.MaterialPropagator.clone(
+#mixedTripletStepPropagator = TrackingTools.MaterialEffects.MaterialPropagatorParabolicMf_cff.MaterialPropagatorParabolicMF.clone(
     ComponentName = 'mixedTripletStepPropagator',
     ptMin = 0.1
     )
+
 import TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi
 mixedTripletStepPropagatorOpposite = TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi.OppositeMaterialPropagator.clone(
+#mixedTripletStepPropagatorOpposite = TrackingTools.MaterialEffects.MaterialPropagatorParabolicMf_cff.OppositeMaterialPropagatorParabolicMF.clone(
     ComponentName = 'mixedTripletStepPropagatorOpposite',
     ptMin = 0.1
     )
@@ -300,7 +293,9 @@ mixedTripletStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackList
 
 
 MixedTripletStep = cms.Sequence(mixedTripletStepClusters*
+                                mixedTripletStepSeedLayersA*
                                 mixedTripletStepSeedsA*
+                                mixedTripletStepSeedLayersB*
                                 mixedTripletStepSeedsB*
                                 mixedTripletStepSeeds*
                                 mixedTripletStepTrackCandidates*

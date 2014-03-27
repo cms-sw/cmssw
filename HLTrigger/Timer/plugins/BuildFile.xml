@@ -3,7 +3,12 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/ServiceRegistry"/>
+  <use   name="DataFormats/Luminosity"/>
   <use   name="DataFormats/Provenance"/>
+  <use   name="DataFormats/Scalers"/>
+  <use   name="DataFormats/VertexReco"/>
+  <use   name="SimDataFormats/PileupSummaryInfo"/>
   <use   name="DQMServices/Core"/>
+  <use   name="RecoLuminosity/LumiProducer"/>
   <flags EDM_PLUGIN="1"/>
 </library>

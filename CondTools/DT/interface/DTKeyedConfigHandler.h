@@ -20,12 +20,14 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include <string>
 
 namespace cond {
-  class KeyList;
+  namespace persistency {
+    class KeyList;
+  }
 }
 
 //---------------
@@ -55,7 +57,7 @@ class DTKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
   void getNewObjects();
   std::string id() const;
 
-  static void setList( cond::KeyList* list );
+  static void setList( cond::persistency::KeyList* list );
 
  private:
 
@@ -71,13 +73,13 @@ class DTKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
   std::string brickContainer;
   DTCCBConfig* ccbConfig;
   
-  cond::DbConnection connection;
-  cond::DbSession isession;
+  cond::persistency::ConnectionPool connection;
+  cond::persistency::Session isession;
   void chkConfigList();
   static bool sameConfigList( const std::vector<DTConfigKey>& cfgl,
                               const std::vector<DTConfigKey>& cfgr );
 
-  static cond::KeyList* keyList;
+  static cond::persistency::KeyList* keyList;
 
 };
 

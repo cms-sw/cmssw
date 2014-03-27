@@ -21,8 +21,8 @@ void RegressionHelper::applyEcalRegression(reco::GsfElectron & ele,
 					   const edm::Handle<EcalRecHitCollection>& rechitsEE) const {
   double cor, err;
   getEcalRegression(*ele.superCluster(), vertices, rechitsEB, rechitsEE, cor, err);
-  ele.setCorrectedEcalEnergy(cor * ele.superCluster()->energy());
-  ele.setCorrectedEcalEnergyError( err * ele.superCluster()->energy());	
+  ele.setCorrectedEcalEnergy(cor * ele.superCluster()->correctedEnergy());
+  ele.setCorrectedEcalEnergyError( err * ele.superCluster()->correctedEnergy());	
 
 }
 
@@ -148,7 +148,7 @@ void RegressionHelper::getEcalRegression(const reco::SuperCluster & sc,
   rInputs.resize(33);
   
   const double rawEnergy = sc.rawEnergy();
-  const double calibEnergy = sc.energy();
+  const double calibEnergy = sc.correctedEnergy();
   const edm::Ptr<reco::CaloCluster> seed(sc.seed());
   const size_t nVtx = vertices->size();
   float maxDR=999., maxDRDPhi=999., maxDRDEta=999., maxDRRawEnergy=0.;
@@ -173,12 +173,7 @@ void RegressionHelper::getEcalRegression(const reco::SuperCluster & sc,
       subClusDPhi[iclus] = this_dphi;
     }
   }
-  float scPreshowerSum = 0.0;
-  for( auto psclus = sc.preshowerClustersBegin();
-       psclus != sc.preshowerClustersEnd(); ++psclus ) {
-    scPreshowerSum += (*psclus)->energy();
-  }
-
+  float scPreshowerSum = sc.preshowerEnergy();
   if ( seed->hitsAndFractions()[0].first.subdetId()==EcalBarrel ) {
     const float eMax = EcalClusterTools::eMax( *seed, &*rechitsEB );
     const float e2nd = EcalClusterTools::e2nd( *seed, &*rechitsEB );

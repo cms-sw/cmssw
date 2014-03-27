@@ -163,6 +163,10 @@ namespace edm
       produces< HFDigiCollection >();
       produces< ZDCDigiCollection >();
 
+      produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
+      produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
+
+
       if(MergeHcalDigisProd_) {
         edm::ConsumesCollector iC(consumesCollector());
 	HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, iC);
@@ -408,12 +412,14 @@ namespace edm
 
 
   
-  void DataMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& ES, edm::ModuleCallingContext const* mcc)
+  void DataMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& ES)
   {
     std::vector<edm::EventID> recordEventID;
     std::vector<int> PileupList;
     PileupList.clear();
     TrueNumInteractions_.clear();
+
+    ModuleCallingContext const* mcc = e.moduleCallingContext();
 
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       for (unsigned int isource=0;isource<maxNbSources_;++isource) {

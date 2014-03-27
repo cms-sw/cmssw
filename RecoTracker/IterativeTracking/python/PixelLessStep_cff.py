@@ -29,8 +29,7 @@ pixelLessStepSeedClusters = pixelLessStepClusters.clone(
 )
 
 # SEEDING LAYERS
-pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('pixelLessStepSeedLayers'),
+pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('TIB1+TIB2',
         'TID1_pos+TID2_pos','TID2_pos+TID3_pos',
         'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos','TEC4_pos+TEC5_pos',
@@ -185,45 +184,36 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             ),
         mixedTripletStepSelector.trackSelectors[4].clone(
             name = 'pixelLessStepVtx',
-            preFilterName=cms.string('')
+            preFilterName=cms.string(''),
+            keepAllTracks = cms.bool(False)
             ),
         mixedTripletStepSelector.trackSelectors[5].clone(
             name = 'pixelLessStepTrk',
-            preFilterName=cms.string('')
+            preFilterName=cms.string(''),
+            keepAllTracks = cms.bool(False)
             )
         ) #end of vpset
     ) #end of clone
 
 # need to merge the three sets
-pixelLessStep = cms.EDProducer("TrackListMerger",
-    ShareFrac = cms.double(0.19),
-    writeOnlyTrkQuals = cms.bool(True),
-    MinPT = cms.double(0.05),
-    allowFirstHitShare = cms.bool(True),
-    copyExtras = cms.untracked.bool(False),
-    Epsilon = cms.double(-0.001),
-    shareFrac = cms.double(0.11),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("pixelLessStepSelector","pixelLessStep"),
-                                       cms.InputTag("pixelLessStepSelector","pixelLessStepVtx"),
-                                       cms.InputTag("pixelLessStepSelector","pixelLessStepTrk")),
-    indivShareFrac = cms.vdouble(0.11, 0.11, 0.11),
-    MaxNormalizedChisq = cms.double(1000.0),
-    hasSelector = cms.vint32(1, 1, 1),
-    FoundHitBonus = cms.double(5.0),
-    setsToMerge = cms.VPSet(cms.PSet(
-        pQual = cms.bool(True),
-        tLists = cms.vint32(0, 1, 2)
-    )),
-    MinFound = cms.int32(3),
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+pixelLessStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = cms.VInputTag(cms.InputTag("pixelLessStepTracks"),
                                    cms.InputTag("pixelLessStepTracks"),
                                    cms.InputTag("pixelLessStepTracks")),
-    LostHitPenalty = cms.double(20.0),
-    newQuality = cms.string('confirmed')
-)
+    hasSelector=cms.vint32(1,1,1),
+    shareFrac=cms.double(0.11),
+    indivShareFrac=cms.vdouble(0.11,0.11,0.11),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("pixelLessStepSelector","pixelLessStep"),
+                                       cms.InputTag("pixelLessStepSelector","pixelLessStepVtx"),
+                                       cms.InputTag("pixelLessStepSelector","pixelLessStepTrk")),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2), pQual=cms.bool(True) )),
+    writeOnlyTrkQuals=cms.bool(True)
+)                        
 
 PixelLessStep = cms.Sequence(pixelLessStepClusters*
                              pixelLessStepSeedClusters*
+                             pixelLessStepSeedLayers*
                              pixelLessStepSeeds*
                              pixelLessStepTrackCandidates*
                              pixelLessStepTracks*

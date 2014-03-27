@@ -6,8 +6,8 @@ allConversions = cms.EDProducer('ConversionProducer',
     src = cms.InputTag("gsfGeneralInOutOutInConversionTrackMerger"),
     convertedPhotonCollection = cms.string(''), ## or empty
 
-    bcEndcapCollection = cms.InputTag('particleFlowClusterECAL'),
-    bcBarrelCollection = cms.InputTag('particleFlowClusterECAL'),
+    bcEndcapCollection = cms.InputTag('particleFlowSuperClusterECAL:particleFlowBasicClusterECALEndcap'),
+    bcBarrelCollection = cms.InputTag('particleFlowSuperClusterECAL:particleFlowBasicClusterECALBarrel'),
     scBarrelProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel'),
     scEndcapProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower'),
 

@@ -8,13 +8,7 @@
 <bin   file="testqueryPContainer.cc" name="testqueryPContainer">
   <lib   name="testPayloadDict"/>
 </bin>
-<bin   file="testIOVEditor.cc" name="testIOVEditor">
-  <lib   name="testPayloadDict"/>
-</bin>
 <bin   file="testIOVDelete.cc" name="testIOVDelete">
-  <lib   name="testPayloadDict"/>
-</bin>
-<bin   file="testIOVIterator.cc" name="testIOVIterator">
   <lib   name="testPayloadDict"/>
 </bin>
 <bin   file="testIOVCopy.cc" name="testIOVCopy">

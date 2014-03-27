@@ -66,7 +66,7 @@ namespace cond {
     }
     
     void IOVEditor::load( const std::string& tag ){
-      checkSession( "IOVEditor::load" );
+      checkTransaction( "IOVEditor::load" );
       // loads the current header data in memory
       if( !m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, m_data->endOfValidity, m_data->description, m_data->lastValidatedTime ) ){
 	cond::throwException( "Tag \""+tag+"\" has not been found in the database.","IOVEditor::load");
@@ -140,7 +140,7 @@ namespace cond {
     
     bool IOVEditor::flush( const boost::posix_time::ptime& operationTime ){
       bool ret = false;
-      checkSession( "IOVEditor::flush" );
+      checkTransaction( "IOVEditor::flush" );
       if( m_data->change ){
 	if( m_data->description.empty() ) throwException( "A non-empty description string is mandatory.","IOVEditor::flush" );
 	if( !m_data->exists ){
@@ -170,8 +170,9 @@ namespace cond {
       return flush( boost::posix_time::microsec_clock::universal_time() );
     }
     
-    void IOVEditor::checkSession( const std::string& ctx ){
+    void IOVEditor::checkTransaction( const std::string& ctx ){
       if( !m_session.get() ) throwException("The session is not active.",ctx );
+      if( !m_session->isTransactionActive( false ) ) throwException("The transaction is not active.",ctx );
     }
     
   }

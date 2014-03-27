@@ -18,7 +18,7 @@ void LHEEventProduct::const_iterator::next()
 		   << std::uppercase
 		   << "    " << hepeup.NUP
 		   << "  " << hepeup.IDPRUP
-		   << "  " << hepeup.XWGTUP
+		   << "  " << event->originalXWGTUP()
 		   << "  " << hepeup.SCALUP
 		   << "  " << hepeup.AQEDUP
 		   << "  " << hepeup.AQCDUP << std::endl;

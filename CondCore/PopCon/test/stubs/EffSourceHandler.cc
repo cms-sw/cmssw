@@ -1,4 +1,5 @@
 #include "EffSourceHandler.h"
+#include "CondFormats/Calibration/interface/EfficiencyPayloads.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,9 +36,9 @@ void popcon::ExEffSource::getNewObjects() {
 			      << ", last object valid since " 
 			      << tagInfo().lastInterval.first << " token "   
 			      << tagInfo().lastPayloadToken << std::endl;
-  
-  edm::LogInfo ("ExEffsSource")<< " ------ last entry info regarding the payload (if existing): " <<logDBEntry().usertext<< 
-    "; last record with the correct tag (if existing) has been written in the db: " <<logDBEntry().destinationDB<< std::endl; 
+  //
+  //edm::LogInfo ("ExEffsSource")<< " ------ last entry info regarding the payload (if existing): " <<logDBEntry().usertext<< 
+  //  "; last record with the correct tag (if existing) has been written in the db: " <<logDBEntry().destinationDB<< std::endl; 
 
   if (tagInfo().size>0) {
     Ref payload = lastPayload();

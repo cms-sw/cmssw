@@ -35,7 +35,7 @@ process = cms.Process("KT4L2L3")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.source = cms.Source(
     'PoolSource',
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_3_0/RelValTTbar/GEN-SIM-RECO/MC_31X_V9-v1/0008/CEAAC1F4-0BB7-DE11-93D7-000423D99AA2.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_0_0_pre11/RelValProdTTbar/GEN-SIM-RECO/START70_V4-v1/00000/0EA82C3C-646A-E311-9CB3-0025905A6070.root')
     )
 
 
@@ -54,7 +54,7 @@ process.TFileService=cms.Service("TFileService",fileName=cms.string('histos.root
 #! JET CORRECTION
 #!
 from JetMETCorrections.Configuration.JetCorrectionEra_cff import *
-JetCorrectionEra.era = 'Summer09_7TeV'
+JetCorrectionEra.era = 'Summer09_7TeV' # FIXME for input
 process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
 
 # correct kt4CaloJets

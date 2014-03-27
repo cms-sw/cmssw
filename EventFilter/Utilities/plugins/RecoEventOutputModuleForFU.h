@@ -172,6 +172,7 @@ namespace evf {
   template<typename Consumer>
   void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*){
     std::cout << "RecoEventOutputModuleForFU : end lumi " << std::endl;
+    c_->closeOutputFile();
     processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock());
     if(processed_.value()!=0){
       int b;

@@ -121,6 +121,11 @@ namespace cond {
       payloadData = cond::Binary( obj.makeShared() );
       return true;
     }
+
+    bool OraPayloadTable::getType( const cond::Hash& payloadHash, std::string& objectType ){
+      objectType = m_session.classNameForItem( payloadHash );
+      return true;
+    }
       
     cond::Hash OraPayloadTable::insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 
 					     const boost::posix_time::ptime& ){
@@ -137,17 +142,12 @@ namespace cond {
 
     size_t OraIOVTable::selectGroups( const std::string& tag, std::vector<cond::Time_t>& groups ){
       if(!m_cache.load( tag )) return 0;
-      cond::Time_t current = 0;
-      size_t ret = 0;
-      for( auto iov : m_cache.iovSequence() ){
-	cond::Time_t group = (iov.since()/cond::time::SINCE_GROUP_SIZE)*cond::time::SINCE_GROUP_SIZE;
-	if( ret==0 || group != current ){
-	  current = group;
-	  groups.push_back( group );
-	  ret++;
-	}
+      if( m_cache.iovSequence().size()>0 ){
+	groups.push_back( m_cache.iovSequence().firstSince() );
+	groups.push_back( m_cache.iovSequence().lastTill() );
+	return true;
       }
-      return ret;
+      return false; 
     }
       
     size_t OraIOVTable::selectSnapshotGroups( const std::string& tag, const boost::posix_time::ptime&, 
@@ -156,8 +156,8 @@ namespace cond {
       return selectGroups( tag, groups );
     }
       
-    size_t OraIOVTable::selectLastByGroup( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup , 
-					   std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs){
+    size_t OraIOVTable::selectLatestByGroup( const std::string& tag, cond::Time_t lowerGroup, cond::Time_t upperGroup , 
+					     std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs){
       if(!m_cache.load( tag )) return 0;
       cond::IOVRange range = m_cache.iovSequence().range( lowerGroup, upperGroup );
       size_t ret = 0;
@@ -172,10 +172,10 @@ namespace cond {
 					       const boost::posix_time::ptime&, 
 					       std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs){
       // no (easy) way to do it...
-      return selectLastByGroup( tag, lowerGroup, upperGroup, iovs );
+      return selectLatestByGroup( tag, lowerGroup, upperGroup, iovs );
     }
     
-    size_t OraIOVTable::selectLast( const std::string& tag, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs){
+    size_t OraIOVTable::selectLatest( const std::string& tag, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs){
       // avoid this! copying the entire iov sequence...
       if(!m_cache.load( tag )) return 0;
       size_t ret = 0;
@@ -186,6 +186,24 @@ namespace cond {
       return ret;      
     }
 
+    bool OraIOVTable::getLastIov( const std::string& tag, cond::Time_t& since, cond::Hash& hash ){
+      if(!m_cache.load( tag ) || m_cache.iovSequence().size()==0 ) return false;
+      cond::IOVElementProxy last = *(--m_cache.iovSequence().end());
+      since = last.since();
+      hash = last.token();
+      return true;
+    }
+
+    bool OraIOVTable::getSize( const std::string& tag, size_t& size ){
+      if(!m_cache.load( tag )) return false;
+      size = m_cache.iovSequence().size();
+      return true;
+    }
+      
+    bool OraIOVTable::getSnapshotSize( const std::string& tag, const boost::posix_time::ptime&, size_t& size ){
+      // no (easy) way to do it...
+      return getSize( tag,size );
+    }
       
     void OraIOVTable::insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, 
 				 const boost::posix_time::ptime& ){
@@ -277,14 +295,20 @@ namespace cond {
     }
       
     bool OraGTMapTable::select( const std::string& gtName, std::vector<std::tuple<std::string,std::string,std::string> >& tags ){
+      return select( gtName, "", "", tags );
+    }
+
+    bool OraGTMapTable::select( const std::string& gtName, const std::string& preFix, const std::string& postFix,
+				std::vector<std::tuple<std::string,std::string,std::string> >& tags ){
       std::set<cond::TagMetadata> tmp;
-      cond::TagCollectionRetriever gtRetriever( m_session, "", "" );
-      if(!gtRetriever.selectTagCollection( gtName+"::All", tmp ) ) return false;
+      cond::TagCollectionRetriever gtRetriever( m_session, preFix, postFix );
+      if(!gtRetriever.selectTagCollection( gtName, tmp ) ) return false;
       if( tmp.size() ) tags.resize( tmp.size() );
       size_t i = 0;
       for( const auto& m : tmp ){
-	std::string tagFullName = m.tag+"@"+m.pfn;
+	std::string tagFullName = m.tag+"@["+m.pfn+"]";
 	tags[ i ] = std::make_tuple( m.recordname, m.labelname, tagFullName );
+	i++;
       }
       return true;
     }

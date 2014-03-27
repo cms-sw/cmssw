@@ -74,7 +74,8 @@ RecoEcalAOD = cms.PSet(
 	# Preshower clusters
         'keep recoPreshowerClusters_multi5x5SuperClustersWithPreshower_*_*', 
         'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*',
-        # Particle Flow superclusters
-        'keep *_particleFlowSuperClusterECAL_*_*'
+        # Particle Flow superclusters (only SuperCluster and CaloCluster outputs, not association map from PFClusters)
+        'keep recoSuperClusters_particleFlowSuperClusterECAL_*_*',
+        'keep recoCaloClusters_particleFlowSuperClusterECAL_*_*'
         )
 )

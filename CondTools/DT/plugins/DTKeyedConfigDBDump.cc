@@ -17,7 +17,7 @@
 //-------------------------------
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
-#include "CondCore/IOVService/interface/KeyList.h"
+#include "CondCore/CondDB/interface/KeyList.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -61,20 +61,20 @@ void DTKeyedConfigDBDump::analyze( const edm::Event& e,
     //record not found
     std::cout <<"Record \"DTKeyedConfigListRcd "<<"\" does not exist "<<std::endl;
   }
-  edm::ESHandle<cond::KeyList> klh;
+  edm::ESHandle<cond::persistency::KeyList> klh;
   std::cout<<"got eshandle"<<std::endl;
   c.get<DTKeyedConfigListRcd>().get(klh);
   std::cout<<"got context"<<std::endl;
-  cond::KeyList const &  kl= *klh.product();
-  cond::KeyList* kp = const_cast<cond::KeyList*>( &kl );
+  cond::persistency::KeyList const &  kl= *klh.product();
+  cond::persistency::KeyList* kp = const_cast<cond::persistency::KeyList*>( &kl );
   std::vector<unsigned long long> nkeys;
   nkeys.push_back( 999999999 );
   std::cout << "now load" << std::endl;
   kp->load( nkeys );
   std::cout << "now get" << std::endl;
-  const DTKeyedConfig* pkc = kp->get<DTKeyedConfig>(0);
+  boost::shared_ptr<DTKeyedConfig> pkc = kp->get<DTKeyedConfig>(0);
   std::cout << "now check" << std::endl;
-  if ( pkc != 0 ) std::cout << pkc->getId() << " "
+  if ( pkc.get() ) std::cout << pkc->getId() << " "
                             << *( pkc->dataBegin() ) << std::endl;
   else            std::cout << "not found" << std::endl;
   std::cout << std::endl;

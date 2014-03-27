@@ -1,5 +1,4 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include "RecoTauTag/TauTagTools/interface/PFTauQualityCutWrapper.h"
 
 /* class PFRecoTauDiscriminationByTauPolarization
  * created : May 26 2010,

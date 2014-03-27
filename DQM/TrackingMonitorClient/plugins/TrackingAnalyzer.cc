@@ -49,7 +49,7 @@ TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps) {
   tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
 
   std::string localPath = std::string("DQM/TrackingMonitorClient/test/loader.html");
-  ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), std::ios::in);
+  std::ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), std::ios::in);
   char buf[BUF_SIZE];
   
   if (!fin) {

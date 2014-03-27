@@ -1,8 +1,14 @@
 <lcgdict>
 
-  <class name="reco::PhotonCore" ClassVersion="10">
+  <class name="reco::PhotonCore" ClassVersion="11">
    <version ClassVersion="10" checksum="1420264349"/>
+   <version ClassVersion="11" checksum="3079004489"/>
   </class>
+  <ioread sourceClass="reco::PhotonCore" version="[1-10]" targetClass="reco::PhotonCore" source="reco::SuperClusterRef pfSuperCluster_;" target="parentSuperCluster_">
+    <![CDATA[parentSuperCluster_ = onfile.pfSuperCluster_;]]>
+  </ioread>
+
+
   <class name="reco::Photon" ClassVersion="13">
    <version ClassVersion="13" checksum="2963666409"/>
   </class>
@@ -83,8 +89,6 @@
   <class name="edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > >"/> 
   <class name="edm::Wrapper<edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > > >"/>
    -->
-  <class name="edm::Wrapper<edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > >"/>
-  <class name="edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/>
 
 
   <class name="std::vector<reco::Electron>"/>
@@ -107,9 +111,14 @@
 
 
 
-  <class name="reco::GsfElectronCore" ClassVersion="10">
+  <class name="reco::GsfElectronCore" ClassVersion="11">
    <version ClassVersion="10" checksum="2226610106"/>
+   <version ClassVersion="11" checksum="2637403054"/>
   </class>
+  <ioread sourceClass="reco::GsfElectronCore" version="[1-10]" targetClass="reco::GsfElectronCore" source="reco::SuperClusterRef pflowSuperCluster_;" target="parentSuperCluster_">
+    <![CDATA[parentSuperCluster_ = onfile.pflowSuperCluster_;]]>
+  </ioread>  
+
   <class name="std::vector<reco::GsfElectronCore>"/>  
   <class name="edm::reftobase::BaseHolder<reco::GsfElectronCore>"/>
   <class name="edm::RefToBase<reco::GsfElectronCore>"/>

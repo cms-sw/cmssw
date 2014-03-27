@@ -11,9 +11,9 @@ ckfTracksFromConversions = cms.Sequence(conversionTrackCandidates*ckfOutInTracks
 
 mustacheConversionTrackCandidates = conversionTrackCandidates.clone()
 mustacheConversionTrackCandidates.scHybridBarrelProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
-mustacheConversionTrackCandidates.bcBarrelCollection = cms.InputTag('particleFlowClusterECAL')
+mustacheConversionTrackCandidates.bcBarrelCollection = cms.InputTag('particleFlowSuperClusterECAL:particleFlowBasicClusterECALBarrel')
 mustacheConversionTrackCandidates.scIslandEndcapProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
-mustacheConversionTrackCandidates.bcEndcapCollection = cms.InputTag('particleFlowClusterECAL')
+mustacheConversionTrackCandidates.bcEndcapCollection = cms.InputTag('particleFlowSuperClusterECAL:particleFlowBasicClusterECALEndcap')
 
 ckfOutInTracksFromMustacheConversions = ckfOutInTracksFromConversions.clone()
 ckfOutInTracksFromMustacheConversions.src = cms.InputTag('mustacheConversionTrackCandidates','outInTracksFromConversions')

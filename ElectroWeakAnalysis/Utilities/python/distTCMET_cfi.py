@@ -6,13 +6,8 @@ import FWCore.ParameterSet.Config as cms
 #
 # Form Track Corrected MET
 
-disttcMet = cms.EDProducer("METProducer",
-    src = cms.InputTag("towerMaker"), #This parameter does not get used for TCMET
-    METType = cms.string('TCMET'),
+disttcMet = cms.EDProducer("TCMETProducer",
     alias = cms.string('TCMET'),
-    noHF = cms.bool(False),
-    globalThreshold = cms.double(0.0),
-    InputType = cms.string('CaloMET:Electron:Muon:Track'),  #This parameter does not get used for TCMET
     electronInputTag  = cms.InputTag("gsfElectrons"),
     muonInputTag      = cms.InputTag("distortedMuons"),
     trackInputTag     = cms.InputTag("generalTracks"),

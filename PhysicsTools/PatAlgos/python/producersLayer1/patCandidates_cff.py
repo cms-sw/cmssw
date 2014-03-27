@@ -30,3 +30,4 @@ patCandidates = cms.Sequence(
     makePatMETs      +
     patCandidateSummary
 )
+

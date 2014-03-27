@@ -1045,17 +1045,17 @@ void PhotonValidator::bookHistograms(void) {
     h_SumPtOverPhoPt_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons Hadrons:  Endcap",etBin,etMin,2.);
 
     histname = "dRPhoPFcand_ChHad_Cleaned";
-    h_dRPhoPFcand_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons : All Ecal",etBin,etMin,0.5);
-    h_dRPhoPFcand_ChHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.5);
-    h_dRPhoPFcand_ChHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.5);
+    h_dRPhoPFcand_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
     histname = "dRPhoPFcand_NeuHad_Cleaned";
-    h_dRPhoPFcand_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons : All Ecal",etBin,etMin,0.5);
-    h_dRPhoPFcand_NeuHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.5);
-    h_dRPhoPFcand_NeuHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.5);
+    h_dRPhoPFcand_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
     histname = "dRPhoPFcand_Pho_Cleaned";
-    h_dRPhoPFcand_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons : All Ecal",etBin,etMin,0.5);
-    h_dRPhoPFcand_Pho_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons :  Barrel",etBin,etMin,0.5);
-    h_dRPhoPFcand_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons :  Endcap",etBin,etMin,0.5);
+    h_dRPhoPFcand_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons :  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons :  Endcap",etBin,etMin,0.7);
  
    //
     histname = "SumPtOverPhoPt_ChHad_unCleaned";
@@ -1071,17 +1071,17 @@ void PhotonValidator::bookHistograms(void) {
     h_SumPtOverPhoPt_Pho_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons:  Barrel",etBin,etMin,2.);
     h_SumPtOverPhoPt_Pho_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons:  Endcap",etBin,etMin,2.);
     histname = "dRPhoPFcand_ChHad_unCleaned";
-    h_dRPhoPFcand_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons :  All Ecal",etBin,etMin,0.5);
-    h_dRPhoPFcand_ChHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.5);
-    h_dRPhoPFcand_ChHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.5);
+    h_dRPhoPFcand_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons :  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
     histname = "dRPhoPFcand_NeuHad_unCleaned";
-    h_dRPhoPFcand_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons :  All Ecal",etBin,etMin,0.5);
-    h_dRPhoPFcand_NeuHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.5);
-    h_dRPhoPFcand_NeuHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.5);
+    h_dRPhoPFcand_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons :  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
     histname = "dRPhoPFcand_Pho_unCleaned";
-    h_dRPhoPFcand_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons:  All Ecal",etBin,etMin,0.5);
-    h_dRPhoPFcand_Pho_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons:  Barrel",etBin,etMin,0.5);
-    h_dRPhoPFcand_Pho_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons:  Endcap",etBin,etMin,0.5);
+    h_dRPhoPFcand_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons:  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons:  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons:  Endcap",etBin,etMin,0.7);
 
 
 
@@ -1620,10 +1620,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       reco::PhotonRef photonRef (reco::PhotonRef( photonHandle,lCand));
       //std::cout << "  photon SC energy " << photonRef->superCluster()->energy() << " " <<  phoToParticleBasedIsoMap[photonRef].size() <<  std::endl;
       for( std::vector<reco::PFCandidateRef>::const_iterator i = phoToParticleBasedIsoMap[photonRef].begin(); i != phoToParticleBasedIsoMap[photonRef].end(); ++i ) {
-	if ( (*i).isNonnull() ) {
-	  // float dR= deltaR(photonRef->eta(),  photonRef->phi(), (*i)->eta(),  (*i)->phi() );
-	  //std::cout << " Debugging  Candidate dR " << dR << " type " << (*i)->particleId() << " pt " << (*i)->pt() <<  std::endl;
-	}
+	//if ( (*i).isNonnull() ) {
+	// float dR= deltaR(photonRef->eta(),  photonRef->phi(), (*i)->eta(),  (*i)->phi() );
+	//  std::cout << " Debugging  Candidate dR " << dR << " type " << (*i)->particleId() << " pt " << (*i)->pt() <<  std::endl;
+	  //	}
        }
     }
   }
@@ -2621,40 +2621,42 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      if( phoIsInBarrel)
 		h_dRPhoPFcand_Pho_unCleaned_[1]->Fill(dR);
 	      else 
-		  h_dRPhoPFcand_Pho_unCleaned_[2]->Fill(dR);
+		h_dRPhoPFcand_Pho_unCleaned_[2]->Fill(dR);
 	    }
 	    ////////// acces the value map to access the PFCandidates in overlap with the photon which need to be excluded from the isolation
+            bool skip=false;
 	    for( std::vector<reco::PFCandidateRef>::const_iterator i = phoToParticleBasedIsoMap[matchingPho].begin(); i != phoToParticleBasedIsoMap[matchingPho].end(); ++i ) {
-	      if ( (*i).isNonnull() ) {
-		if ( (*i) == pfCandRef ) continue; // exclude the candidate
-
-		if( type == reco::PFCandidate::h ) {
-		  SumPtIsoValCleanCh += pfCandRef->pt();
-		  if( phoIsInBarrel)
-		    h_dRPhoPFcand_ChHad_Cleaned_[1]->Fill(dR);
-		  else 
-		    h_dRPhoPFcand_ChHad_Cleaned_[2]->Fill(dR);
-		}
-		if( type == reco::PFCandidate::h0 ) {
-		  SumPtIsoValCleanNh += pfCandRef->pt();
-		  if( phoIsInBarrel)
-		    h_dRPhoPFcand_NeuHad_Cleaned_[1]->Fill(dR);
-		  else 
-		    h_dRPhoPFcand_NeuHad_Cleaned_[2]->Fill(dR);
-		}
-		if( type == reco::PFCandidate::gamma ) {
-		  SumPtIsoValCleanPh += pfCandRef->pt();
-		  if( phoIsInBarrel)
-		    h_dRPhoPFcand_Pho_Cleaned_[1]->Fill(dR);
-		  else 
-		    h_dRPhoPFcand_Pho_Cleaned_[2]->Fill(dR);
-		}
-
-
-
-	      }  // check that the reference in the map is non null
+	      //	      std::cout << " PhotonValidator PfCand pt " << pfCandRef->pt() << " id " <<pfCandRef->particleId() <<  " and in the map " << (*i)->pt() << " type " << (*i)->particleId() << std::endl;
+	      if ( (*i) == pfCandRef ) {
+		skip=true;
+	      }
 	    } // loop over the PFCandidates flagged as overlapping with the photon
-   
+
+            if ( skip ) continue;
+	    if( type == reco::PFCandidate::h ) {
+	      SumPtIsoValCleanCh += pfCandRef->pt();
+	      if( phoIsInBarrel)
+		h_dRPhoPFcand_ChHad_Cleaned_[1]->Fill(dR);
+	      else 
+		h_dRPhoPFcand_ChHad_Cleaned_[2]->Fill(dR);
+	    }
+	    if( type == reco::PFCandidate::h0 ) {
+	      SumPtIsoValCleanNh += pfCandRef->pt();
+	      if( phoIsInBarrel)
+		h_dRPhoPFcand_NeuHad_Cleaned_[1]->Fill(dR);
+	      else 
+		h_dRPhoPFcand_NeuHad_Cleaned_[2]->Fill(dR);
+	    }
+	    if( type == reco::PFCandidate::gamma ) {
+	      SumPtIsoValCleanPh += pfCandRef->pt();
+	      if( phoIsInBarrel)
+		h_dRPhoPFcand_Pho_Cleaned_[1]->Fill(dR);
+	      else 
+		h_dRPhoPFcand_Pho_Cleaned_[2]->Fill(dR);
+	    }
+	    
+	    
+	    
 	    
 	  }  // dr=0.4          
 	}  // loop over all PF Candidates

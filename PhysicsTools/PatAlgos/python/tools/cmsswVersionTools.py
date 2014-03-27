@@ -268,15 +268,12 @@ class PickRelValInputFiles( ConfigToolBase ):
                     print '%s DEBUG: Querying dataset \'%s\' with'%( self._label, dataset )
                     print '    \'%s\''%( dasQuery )
                 # partially stolen from das_client.py for option '--format=plain', needs filter ("grep") in the query
-                dasData     = das_client.get_data( 'https://cmsweb.cern.ch', dasQuery, 0, dasLimit, False )
-                jsondict    = json.loads( dasData )
+                jsondict    = das_client.get_data( 'https://cmsweb.cern.ch', dasQuery, 0, dasLimit, False )
                 if debug:
-                    print '%s DEBUG: Received DAS data:'%( self._label )
-                    print '    \'%s\''%( dasData )
-                    print '%s DEBUG: Determined JSON dictionary:'%( self._label )
+                    print '%s DEBUG: Received DAS JSON dictionary:'%( self._label )
                     print '    \'%s\''%( jsondict )
                 if jsondict[ 'status' ] != 'ok':
-                    print 'There was a problem while querying DAS with query \'%s\'. Server reply was:\n %s' % (dasQuery, dasData)
+                    print 'There was a problem while querying DAS with query \'%s\'. Server reply was:\n %s' % (dasQuery, jsondict)
                     exit( 1 )
                 mongo_query = jsondict[ 'mongo_query' ]
                 filters     = mongo_query[ 'filters' ]
@@ -289,20 +286,17 @@ class PickRelValInputFiles( ConfigToolBase ):
                     print '%s DEBUG: Data in JSON dictionary:'%( self._label )
                     print '    \'%s\''%( data )
                 for row in data:
-                    filePath = [ r for r in das_client.get_value( row, filters ) ][ 0 ]
+                    filePath = [ r for r in das_client.get_value( row, filters[ 'grep' ] ) ][ 0 ]
                     if debug:
                         print '%s DEBUG: Testing file entry \'%s\''%( self._label, filePath )
                     if len( filePath ) > 0:
                         if validVersion != version:
-                            dasTest         = das_client.get_data( 'https://cmsweb.cern.ch', 'site dataset=%s | grep site.name'%( dataset ), 0, 999, False )
-                            jsontestdict    = json.loads( dasTest )
+                            jsontestdict    = das_client.get_data( 'https://cmsweb.cern.ch', 'site dataset=%s | grep site.name'%( dataset ), 0, 999, False )
                             mongo_testquery = jsontestdict[ 'mongo_query' ]
                             testfilters = mongo_testquery[ 'filters' ]
                             testdata    = jsontestdict[ 'data' ]
                             if debug:
-                                print '%s DEBUG: Received DAS data (site test):'%( self._label )
-                                print '    \'%s\''%( dasTest )
-                                print '%s DEBUG: Determined JSON dictionary (site test):'%( self._label )
+                                print '%s DEBUG: Received DAS JSON dictionary (site test):'%( self._label )
                                 print '    \'%s\''%( jsontestdict )
                                 print '%s DEBUG: Query in JSON dictionary (site test):'%( self._label )
                                 print '    \'%s\''%( mongo_testquery )
@@ -312,7 +306,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                                 print '    \'%s\''%( testdata )
                             foundSE = False
                             for testrow in testdata:
-                                siteName = [ tr for tr in das_client.get_value( testrow, testfilters ) ][ 0 ]
+                                siteName = [ tr for tr in das_client.get_value( testrow, testfilters[ 'grep' ] ) ][ 0 ]
                                 if siteName == domainSE:
                                     foundSE = True
                                     break
@@ -343,57 +337,58 @@ class PickRelValInputFiles( ConfigToolBase ):
         else:
             if debug:
                 print '%s DEBUG: Using DBS query'%( self._label )
-            for version in range( maxVersions, 0, -1 ):
-                filePaths = []
-                fileCount = 0
-                dataset = '/%s/%s-%s-v%i/%s'%( relVal, cmsswVersion, globalTag, version, dataTier )
-                dbsQuery = 'find file where dataset = %s'%( dataset )
-                if debug:
-                    print '%s DEBUG: Querying dataset \'%s\' with'%( self._label, dataset )
-                    print '    \'%s\''%( dbsQuery )
-                foundSE = False
-                for line in os.popen( 'dbs search --query="%s"'%( dbsQuery ) ):
-                    if line.find( '.root' ) != -1:
-                        if validVersion != version:
-                            if not foundSE:
-                                dbsSiteQuery = 'find dataset where dataset = %s and site = %s'%( dataset, domainSE )
-                                if debug:
-                                    print '%s DEBUG: Querying site \'%s\' with'%( self._label, domainSE )
-                                    print '    \'%s\''%( dbsSiteQuery )
-                                for lineSite in os.popen( 'dbs search --query="%s"'%( dbsSiteQuery ) ):
-                                    if lineSite.find( dataset ) != -1:
-                                        foundSE = True
-                                        break
-                            if not foundSE:
-                                if debug:
-                                    print '%s DEBUG: Possible version \'v%s\' not available on SE \'%s\''%( self._label, version, domainSE )
-                                break
-                            validVersion = version
-                            if debug:
-                                print '%s DEBUG: Valid version set to \'v%i\''%( self._label, validVersion )
-                        if numberOfFiles == 0:
-                            break
-                        filePath = line.replace( '\n', '' )
-                        if debug:
-                            print '%s DEBUG: File \'%s\' found'%( self._label, filePath )
-                        fileCount += 1
-                        if fileCount > skipFiles:
-                            filePaths.append( filePath )
-                        if not numberOfFiles < 0:
-                            if numberOfFiles <= len( filePaths ):
-                                break
-                if validVersion > 0:
-                    if numberOfFiles == 0 and debug:
-                        print '%s DEBUG: No files requested'%( self._label )
-                    break
+            print '%s WARNING: DBS query disabled for DBS3 transition to new API'%( self._label )
+            #for version in range( maxVersions, 0, -1 ):
+                #filePaths = []
+                #fileCount = 0
+                #dataset = '/%s/%s-%s-v%i/%s'%( relVal, cmsswVersion, globalTag, version, dataTier )
+                #dbsQuery = 'find file where dataset = %s'%( dataset )
+                #if debug:
+                    #print '%s DEBUG: Querying dataset \'%s\' with'%( self._label, dataset )
+                    #print '    \'%s\''%( dbsQuery )
+                #foundSE = False
+                #for line in os.popen( 'dbs search --query="%s"'%( dbsQuery ) ).readlines():
+                    #if line.find( '.root' ) != -1:
+                        #if validVersion != version:
+                            #if not foundSE:
+                                #dbsSiteQuery = 'find dataset where dataset = %s and site = %s'%( dataset, domainSE )
+                                #if debug:
+                                    #print '%s DEBUG: Querying site \'%s\' with'%( self._label, domainSE )
+                                    #print '    \'%s\''%( dbsSiteQuery )
+                                #for lineSite in os.popen( 'dbs search --query="%s"'%( dbsSiteQuery ) ).readlines():
+                                    #if lineSite.find( dataset ) != -1:
+                                        #foundSE = True
+                                        #break
+                            #if not foundSE:
+                                #if debug:
+                                    #print '%s DEBUG: Possible version \'v%s\' not available on SE \'%s\''%( self._label, version, domainSE )
+                                #break
+                            #validVersion = version
+                            #if debug:
+                                #print '%s DEBUG: Valid version set to \'v%i\''%( self._label, validVersion )
+                        #if numberOfFiles == 0:
+                            #break
+                        #filePath = line.replace( '\n', '' )
+                        #if debug:
+                            #print '%s DEBUG: File \'%s\' found'%( self._label, filePath )
+                        #fileCount += 1
+                        #if fileCount > skipFiles:
+                            #filePaths.append( filePath )
+                        #if not numberOfFiles < 0:
+                            #if numberOfFiles <= len( filePaths ):
+                                #break
+                #if validVersion > 0:
+                    #if numberOfFiles == 0 and debug:
+                        #print '%s DEBUG: No files requested'%( self._label )
+                    #break
 
         # Check output and return
         if validVersion == 0:
-            print '%s INFO : No RelVal file(s) found at all in datasets \'%s*\' on SE \'%s\''%( self._label, datasetAll, domainSE )
+            print '%s WARNING : No RelVal file(s) found at all in datasets \'%s*\' on SE \'%s\''%( self._label, datasetAll, domainSE )
             if debug:
                 self.messageEmptyList()
         elif len( filePaths ) == 0:
-            print '%s INFO : No RelVal file(s) picked up in dataset \'%s\''%( self._label, dataset )
+            print '%s WARNING : No RelVal file(s) picked up in dataset \'%s\''%( self._label, dataset )
             if debug:
                 self.messageEmptyList()
         elif len( filePaths ) < numberOfFiles:

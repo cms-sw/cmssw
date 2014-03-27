@@ -132,6 +132,12 @@ if __name__ == '__main__':
                       dest='wmcontrol',
                       default=None,
                       )
+    parser.add_option('--revertDqmio',
+                      help='When submitting workflows to wmcontrol, force DQM outout to use pool and not DQMIO',
+                      choices=['yes','no'],
+                      dest='revertDqmio',
+                      default='no',
+                      )
     parser.add_option('--optionswm',
                       help='Specify a few things for wm injection',
                       default='',

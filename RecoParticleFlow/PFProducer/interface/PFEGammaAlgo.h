@@ -215,12 +215,7 @@ private:
 			  std::vector<PFClusterFlaggedElement>&,
 			  ClusterMap&);    
   
-  // for EGamma SCs
   int attachPSClusters(const PFClusterElement*,
-		       ClusterMap::mapped_type&);  
-  // for PF SCs
-  int attachPSClusters(const PFSCElement*,
-		       const PFClusterElement*,
 		       ClusterMap::mapped_type&);  
 
   

@@ -12,6 +12,12 @@
 // CMSSW headers
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -79,6 +85,13 @@ public:
   FastTimerService(const edm::ParameterSet &, edm::ActivityRegistry & );
   ~FastTimerService();
 
+  // reserve plots for timing vs. luminosity - these should only be called before any begin run (actually, before any preStreamBeginRun)
+  unsigned int reserveLuminosityPlots(std::string const & name, std::string const & title, std::string const & label, double range, double resolution);
+  unsigned int reserveLuminosityPlots(std::string && name, std::string && title, std::string && label, double range, double resolution);
+
+  // set the event luminosity
+  void setLuminosity(unsigned int stream_id, unsigned int luminosity_id, double value);
+
   // query the current module/path/event
   // Note: these functions incur in a "per-call timer overhead" (see above), currently of the order of 340ns
   double currentModuleTime(edm::StreamID) const;            // return the time spent since the last preModuleEvent() event
@@ -87,11 +100,14 @@ public:
 
   // query the time spent in a module/path (available after it has run)
   double queryModuleTime(edm::StreamID, const edm::ModuleDescription &) const;
+  double queryModuleTime(edm::StreamID, unsigned int id) const;
   double queryModuleTimeByLabel(edm::StreamID, const std::string &) const;
   double queryModuleTimeByType(edm::StreamID, const std::string &) const;
+  /* FIXME re-implement taking into account subprocesses
   double queryPathActiveTime(edm::StreamID, const std::string &) const;
   double queryPathExclusiveTime(edm::StreamID, const std::string &) const;
   double queryPathTotalTime(edm::StreamID, const std::string &) const;
+  */
 
   // query the time spent in the current event's
   //  - source        (available during event processing)
@@ -99,9 +115,11 @@ public:
   //  - all endpaths  (available after all endpaths have run)
   //  - processing    (available after the event has been processed)
   double querySourceTime(edm::StreamID) const;
+  double queryEventTime(edm::StreamID) const;
+  /* FIXME re-implement taking into account subprocesses
   double queryPathsTime(edm::StreamID) const;
   double queryEndPathsTime(edm::StreamID) const;
-  double queryEventTime(edm::StreamID) const;
+  */
 
   /* FIXME not yet implemented
   // try to assess the overhead which may not be included in the source, paths and event timers
@@ -114,6 +132,11 @@ private:
   void preallocate(edm::service::SystemBounds const &);
   void postEndJob();
   void preGlobalBeginRun(edm::GlobalContext const &);
+  void preStreamBeginRun(edm::StreamContext const &);
+  void postStreamBeginRun(edm::StreamContext const &);
+  void postStreamEndRun(edm::StreamContext const &);
+  void postStreamBeginLumi(edm::StreamContext const &);
+  void postStreamEndLumi(edm::StreamContext const& );
   void postGlobalEndRun(edm::GlobalContext const &);
   void preModuleBeginJob(edm::ModuleDescription const &);
   void preSourceEvent(  edm::StreamID );
@@ -131,6 +154,31 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
+
+  struct LuminosityDescription {
+    std::string name;
+    std::string title;
+    std::string label;
+    double      range;
+    double      resolution;
+
+    LuminosityDescription(std::string const & _name, std::string const & _title, std::string const & _label, double _range, double _resolution) :
+      name(_name),
+      title(_title),
+      label(_label),
+      range(_range),
+      resolution(_resolution)
+    { }
+
+    LuminosityDescription(std::string && _name, std::string && _title, std::string const & _label, double _range, double _resolution) :
+      name(_name),
+      title(_title),
+      label(_label),
+      range(_range),
+      resolution(_resolution)
+    { }
+  };
+
 
   struct PathInfo;
 
@@ -161,7 +209,7 @@ private:
       timer.reset();
       time_active = 0.;
       summary_active = 0.;
-      // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
+      // the DQM plots are owned by the DQMStore
       dqm_active = nullptr;
       run_in_path = nullptr;
       counter = 0;
@@ -170,6 +218,7 @@ private:
 
   struct PathInfo {
     std::vector<ModuleInfo *>   modules;            // list of all modules contributing to the path (duplicate modules stored as null pointers)
+    ModuleInfo *                first_module;       // first module actually run in this path
     FastTimer                   timer;              // per-event timer
     double                      time_active;        // time actually spent in this path
     double                      time_exclusive;     // time actually spent in this path, in modules that are not run on any other paths
@@ -201,6 +250,7 @@ private:
   public:
     PathInfo() :
       modules(),
+      first_module(nullptr),
       timer(),
       time_active(0.),
       time_exclusive(0.),
@@ -236,7 +286,7 @@ private:
 
     // reset the timers and DQM plots
     void reset() {
-      modules.clear();
+      first_module = nullptr;
       timer.reset();
       time_active = 0.;
       time_exclusive = 0.;
@@ -255,7 +305,7 @@ private:
       index = 0;
       accept = false;
 
-      // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
+      // the DQM plots are owned by the DQMStore
       dqm_active = nullptr;
       dqm_premodules = nullptr;
       dqm_intermodules = nullptr;
@@ -268,8 +318,13 @@ private:
     }
   };
 
-  template <typename T> using PathMap   = std::unordered_map<std::string, T>;
-  template <typename T> using ModuleMap = std::unordered_map<edm::ModuleDescription const *, T>;
+  // the vector is indexed by the peudo-process id, the paths by their path name
+  template <typename T>
+  using PathMap = std::vector<std::unordered_map<std::string, T>>;
+
+  // key on ModuleDescription::id()
+  template <typename T>
+  using ModuleMap = std::vector<T>;
 
   // timer configuration
   bool                                          m_use_realtime;
@@ -290,13 +345,13 @@ private:
   const bool                                    m_enable_dqm_bymodule;          // require per-module timers
   const bool                                    m_enable_dqm_bymoduletype;      // require per-module timers
   const bool                                    m_enable_dqm_summary;
-  const bool                                    m_enable_dqm_byluminosity;
   const bool                                    m_enable_dqm_byls;
   const bool                                    m_enable_dqm_bynproc;
 
   unsigned int                                  m_concurrent_runs;
   unsigned int                                  m_concurrent_streams;
   unsigned int                                  m_concurrent_threads;
+  unsigned int                                  m_module_id;                    // pseudo module id for the FastTimerService, needed by the thread-safe DQMStore
 
   const double                                  m_dqm_eventtime_range;
   const double                                  m_dqm_eventtime_resolution;
@@ -304,28 +359,27 @@ private:
   const double                                  m_dqm_pathtime_resolution;
   const double                                  m_dqm_moduletime_range;
   const double                                  m_dqm_moduletime_resolution;
-  const double                                  m_dqm_luminosity_range;
-  const double                                  m_dqm_luminosity_resolution;
-  const uint32_t                                m_dqm_ls_range;
-  const std::string                             m_dqm_path;
-  const edm::InputTag                           m_luminosity_label;     // label of the per-Event luminosity EDProduct
+  std::string                                   m_dqm_path;
 
   // job configuration and caching
-  std::string                                   m_first_path;           // the framework does not provide a pre-paths or pre-endpaths signal,
-  std::string                                   m_last_path;            // so we emulate them keeping track of the first and last path and endpath
-  std::string                                   m_first_endpath;
-  std::string                                   m_last_endpath;
   bool                                          m_is_first_event;
+
+
+  struct ProcessDescription {
+    std::string         name;
+    std::string         first_path;           // the framework does not provide a pre/postPaths or pre/postEndPaths signal,
+    std::string         last_path;            // so we emulate them keeping track of the first and last Path and EndPath
+    std::string         first_endpath;
+    std::string         last_endpath;
+    edm::ParameterSetID pset;
+  };
+
 
   struct Timing {
     double              presource;              // time spent between the end of the previous Event, LumiSection or Run, and the beginning of the Source
     double              source;                 // time spent processing the Source
-    double              preevent;               // time spent between the end of the Source and the new Event, Lumisection or Run
+    double              preevent;               // time spent between the end of the Source and the new Event, LumiSection or Run
     double              event;                  // time spent processing the Event
-    double              all_paths;              // time spent processing all Paths
-    double              all_endpaths;           // time spent processing all EndPaths
-    double              interpaths;             // time spent between the Paths (and EndPaths - i.e. the sum of all the entries in the following vector)
-    std::vector<double> paths_interpaths;       // time spent between the beginning of the Event and the first Path, between Paths, and between the last (End)Path and the end of the Event
     unsigned int        count;                  // number of processed events (used by the per-run and per-job accounting)
 
     Timing() :
@@ -333,22 +387,6 @@ private:
       source        (0.),
       preevent      (0.),
       event         (0.),
-      all_paths     (0.),
-      all_endpaths  (0.),
-      interpaths    (0.),
-      paths_interpaths(),
-      count         (0)
-    { }
-
-    Timing(std::vector<double>::size_type size) :
-      presource     (0.),
-      source        (0.),
-      preevent      (0.),
-      event         (0.),
-      all_paths     (0.),
-      all_endpaths  (0.),
-      interpaths    (0.),
-      paths_interpaths(size, 0.),
       count         (0)
     { }
 
@@ -357,37 +395,14 @@ private:
       source        = 0.;
       preevent      = 0.;
       event         = 0.;
-      all_paths     = 0.;
-      all_endpaths  = 0.;
-      interpaths    = 0.;
-      paths_interpaths.clear();
-      count         = 0;
-    }
-
-    void reset(std::vector<double>::size_type size) {
-      presource     = 0.;
-      source        = 0.;
-      preevent      = 0.;
-      event         = 0.;
-      all_paths     = 0.;
-      all_endpaths  = 0.;
-      interpaths    = 0.;
-      paths_interpaths.assign(size, 0.);
       count         = 0;
     }
 
     Timing & operator+=(Timing const & other) {
-      assert( paths_interpaths.size() == other.paths_interpaths.size() );
-
       presource     += other.presource;
       source        += other.source;
       preevent      += other.preevent;
       event         += other.event;
-      all_paths     += other.all_paths;
-      all_endpaths  += other.all_endpaths;
-      interpaths    += other.interpaths;
-      for (unsigned int i = 0; i < paths_interpaths.size(); ++i)
-        paths_interpaths[i] += other.paths_interpaths[i];
       count         += other.count;
 
       return *this;
@@ -401,24 +416,94 @@ private:
 
   };
 
-  std::vector<Timing>                           m_run_summary;          // time accounting per-run
-  Timing                                        m_job_summary;          // time accounting per-job
+  struct TimingPerProcess {
+    double              preevent;               // time spent between the end of the Source and the new Event, Lumisection or Run
+    double              event;                  // time spent processing the Event
+    double              all_paths;              // time spent processing all Paths
+    double              all_endpaths;           // time spent processing all EndPaths
+    double              interpaths;             // time spent between the Paths (and EndPaths - i.e. the sum of all the entries in the following vector)
+    std::vector<double> paths_interpaths;       // time spent between the beginning of the Event and the first Path, between Paths, and between the last (End)Path and the end of the Event
 
-  // DQM
+    TimingPerProcess() :
+      preevent      (0.),
+      event         (0.),
+      all_paths     (0.),
+      all_endpaths  (0.),
+      interpaths    (0.),
+      paths_interpaths()
+    { }
 
-  // set of summary plots
+    void reset() {
+      preevent      = 0.;
+      event         = 0.;
+      all_paths     = 0.;
+      all_endpaths  = 0.;
+      interpaths    = 0.;
+      paths_interpaths.assign(paths_interpaths.size(), 0.);
+    }
+
+    TimingPerProcess & operator+=(TimingPerProcess const & other) {
+      assert( paths_interpaths.size() == other.paths_interpaths.size() );
+
+      preevent      += other.preevent;
+      event         += other.event;
+      all_paths     += other.all_paths;
+      all_endpaths  += other.all_endpaths;
+      interpaths    += other.interpaths;
+      for (unsigned int i = 0; i < paths_interpaths.size(); ++i)
+        paths_interpaths[i] += other.paths_interpaths[i];
+      return *this;
+    }
+
+    TimingPerProcess operator+(TimingPerProcess const & other) const {
+      TimingPerProcess result = *this;
+      result += other;
+      return result;
+    }
+
+  };
+
+  // set of summary plots, over all subprocesses
   struct SummaryPlots {
     TH1F *     presource;
     TH1F *     source;
+    TH1F *     preevent;
+    TH1F *     event;
+
+    SummaryPlots() :
+      presource     (nullptr),
+      source        (nullptr),
+      preevent      (nullptr),
+      event         (nullptr)
+    { }
+
+    void reset() {
+      // the DQM plots are owned by the DQMStore
+      presource     = nullptr;
+      source        = nullptr;
+      preevent      = nullptr;
+      event         = nullptr;
+    }
+
+    void fill(Timing const & value) {
+      // convert on the fly from seconds to ms
+      presource     ->Fill( 1000. * value.presource );
+      source        ->Fill( 1000. * value.source );
+      preevent      ->Fill( 1000. * value.preevent );
+      event         ->Fill( 1000. * value.event );
+    }
+
+  };
+
+  // set of summary plots, per subprocess
+  struct SummaryPlotsPerProcess {
     TH1F *     preevent;
     TH1F *     event;
     TH1F *     all_paths;
     TH1F *     all_endpaths;
     TH1F *     interpaths;
 
-    SummaryPlots() :
-      presource     (nullptr),
-      source        (nullptr),
+    SummaryPlotsPerProcess() :
       preevent      (nullptr),
       event         (nullptr),
       all_paths     (nullptr),
@@ -427,8 +512,7 @@ private:
     { }
 
     void reset() {
-      presource     = nullptr;
-      source        = nullptr;
+      // the DQM plots are owned by the DQMStore
       preevent      = nullptr;
       event         = nullptr;
       all_paths     = nullptr;
@@ -436,10 +520,8 @@ private:
       interpaths    = nullptr;
     }
 
-    void fill(Timing const & value) {
+    void fill(TimingPerProcess const & value) {
       // convert on the fly from seconds to ms
-      presource     ->Fill( 1000. * value.presource );
-      source        ->Fill( 1000. * value.source );
       preevent      ->Fill( 1000. * value.preevent );
       event         ->Fill( 1000. * value.event );
       all_paths     ->Fill( 1000. * value.all_paths );
@@ -449,33 +531,26 @@ private:
 
   };
 
+  // set of summary profiles vs. luminosity, over all subprocesses
   struct SummaryProfiles {
     TProfile * presource;
     TProfile * source;
     TProfile * preevent;
     TProfile * event;
-    TProfile * all_paths;
-    TProfile * all_endpaths;
-    TProfile * interpaths;
 
     SummaryProfiles() :
       presource     (nullptr),
       source        (nullptr),
       preevent      (nullptr),
-      event         (nullptr),
-      all_paths     (nullptr),
-      all_endpaths  (nullptr),
-      interpaths    (nullptr)
+      event         (nullptr)
     { }
 
     void reset() {
+      // the DQM plots are owned by the DQMStore
       presource     = nullptr;
       source        = nullptr;
       preevent      = nullptr;
       event         = nullptr;
-      all_paths     = nullptr;
-      all_endpaths  = nullptr;
-      interpaths    = nullptr;
     }
 
     void fill(double x, Timing const & value) {
@@ -483,9 +558,73 @@ private:
       source        ->Fill( x, 1000. * value.source );
       preevent      ->Fill( x, 1000. * value.preevent );
       event         ->Fill( x, 1000. * value.event );
+    }
+
+  };
+
+  // set of summary profiles vs. luminosity, per subprocess
+  struct SummaryProfilesPerProcess {
+    TProfile * preevent;
+    TProfile * event;
+    TProfile * all_paths;
+    TProfile * all_endpaths;
+    TProfile * interpaths;
+
+    SummaryProfilesPerProcess() :
+      preevent      (nullptr),
+      event         (nullptr),
+      all_paths     (nullptr),
+      all_endpaths  (nullptr),
+      interpaths    (nullptr)
+    { }
+
+    ~SummaryProfilesPerProcess() {
+      reset();
+    }
+
+    void reset() {
+      // the DQM plots are owned by the DQMStore
+      preevent      = nullptr;
+      event         = nullptr;
+      all_paths     = nullptr;
+      all_endpaths  = nullptr;
+      interpaths    = nullptr;
+    }
+
+    void fill(double x, TimingPerProcess const & value) {
+      preevent      ->Fill( x, 1000. * value.preevent );
+      event         ->Fill( x, 1000. * value.event );
       all_paths     ->Fill( x, 1000. * value.all_paths );
       all_endpaths  ->Fill( x, 1000. * value.all_endpaths );
       interpaths    ->Fill( x, 1000. * value.interpaths );
+    }
+
+  };
+
+  // set of profile plots by path, per subprocess
+  struct PathProfilesPerProcess {
+    TProfile * active_time;
+    TProfile * total_time;
+    TProfile * exclusive_time;
+    TProfile * interpaths;
+
+    PathProfilesPerProcess() :
+      active_time   (nullptr),
+      total_time    (nullptr),
+      exclusive_time(nullptr),
+      interpaths    (nullptr)
+    {}
+
+    ~PathProfilesPerProcess() {
+      reset();
+    }
+
+    void reset() {
+      // the DQM plots are owned by the DQMStore
+      active_time    = nullptr;
+      total_time     = nullptr;
+      exclusive_time = nullptr;
+      interpaths     = nullptr;
     }
 
   };
@@ -498,30 +637,32 @@ private:
     FastTimer                                       timer_endpaths;             // track time spent in all endpaths
     FastTimer                                       timer_path;                 // track time spent in each path
     FastTimer::Clock::time_point                    timer_last_path;            // record the stop of the last path run
+    FastTimer::Clock::time_point                    timer_last_transition;      // record the last transition (end source, end event, end lumi, end run)
 
     // time accounting per-event
     Timing                                          timing;
+    std::vector<TimingPerProcess>                   timing_perprocess;
+
+    // luminosity per event
+    std::vector<double>                             luminosity;
 
     // overall plots
-    SummaryPlots                                    dqm;                        // event summary plots
-    SummaryProfiles                                 dqm_byls;                   // plots per lumisection
-    SummaryProfiles                                 dqm_byluminosity;           // plots vs. instantaneous luminosity
+    SummaryPlots                                    dqm;                            // whole event summary plots
+    std::vector<SummaryProfiles>                    dqm_byluminosity;               // whole event plots vs. "luminosity"
+    std::vector<SummaryPlotsPerProcess>             dqm_perprocess;                 // per-process event summary plots
+    std::vector<std::vector<SummaryProfilesPerProcess>> dqm_perprocess_byluminosity;    // per-process plots vs. "luminosity"
 
     // plots by path
-    TProfile *                                      dqm_paths_active_time;
-    TProfile *                                      dqm_paths_total_time;
-    TProfile *                                      dqm_paths_exclusive_time;
-    TProfile *                                      dqm_paths_interpaths;
+    std::vector<PathProfilesPerProcess>             dqm_paths;
 
     // per-path, per-module and per-module-type accounting
     PathInfo *                                      current_path;
     ModuleInfo *                                    current_module;
-    ModuleInfo *                                    first_module_in_path;
     PathMap<PathInfo>                               paths;
     std::unordered_map<std::string, ModuleInfo>     modules;
     std::unordered_map<std::string, ModuleInfo>     moduletypes;
-    ModuleMap<ModuleInfo *>                         fast_modules;               // these assume that ModuleDescription are stored in the same object through the whole job,
-    ModuleMap<ModuleInfo *>                         fast_moduletypes;           // which is true only *after* the edm::Worker constructors have run
+    ModuleMap<ModuleInfo *>                         fast_modules;               // these assume that module ids are constant throughout the whole job,
+    ModuleMap<ModuleInfo *>                         fast_moduletypes;
 
     StreamData() :
       // timers
@@ -531,21 +672,22 @@ private:
       timer_endpaths(),
       timer_path(),
       timer_last_path(),
+      timer_last_transition(),
       // time accounting per-event
       timing(),
+      timing_perprocess(),
+      // luminosity per event
+      luminosity(),
       // overall plots
       dqm(),
-      dqm_byls(),
       dqm_byluminosity(),
+      dqm_perprocess(),
+      dqm_perprocess_byluminosity(),
       // plots by path
-      dqm_paths_active_time(nullptr),
-      dqm_paths_total_time(nullptr),
-      dqm_paths_exclusive_time(nullptr),
-      dqm_paths_interpaths(nullptr),
+      dqm_paths(),
       // per-path, per-module and per-module-type accounting
       current_path(nullptr),
       current_module(nullptr),
-      first_module_in_path(nullptr),
       paths(),
       modules(),
       moduletypes(),
@@ -553,9 +695,63 @@ private:
       fast_moduletypes()
     { }
 
+    // called in FastTimerService::postStreamEndRun()
+    void reset() {
+      // timers
+      timer_event.reset();
+      timer_source.reset();
+      timer_paths.reset();
+      timer_endpaths.reset();
+      timer_path.reset();
+      timer_last_path = FastTimer::Clock::time_point();
+      timer_last_transition = FastTimer::Clock::time_point();
+      // time accounting per-event
+      timing.reset();
+      for (auto & timing: timing_perprocess)
+        timing.reset();
+      // luminosity per event
+      for (auto & lumi: luminosity)
+        lumi = 0;
+      // overall plots
+      dqm.reset();
+      for (auto & plots: dqm_byluminosity)
+        plots.reset();
+      for (auto & perprocess_plots: dqm_perprocess)
+        perprocess_plots.reset();
+      for (auto & process_plots: dqm_perprocess_byluminosity)
+        for (auto & plots: process_plots)
+          plots.reset();
+      // plots by path
+      for (auto & plots: dqm_paths)
+        plots.reset();
+      // per-path, per-module and per-module-type accounting
+      current_path              = nullptr;
+      current_module            = nullptr;
+      for (auto & map: paths)
+        for (auto & keyval: map)
+          keyval.second.reset();
+      for (auto & keyval: modules)
+        keyval.second.reset();
+      for (auto & keyval: moduletypes)
+        keyval.second.reset();
+    }
+
   };
 
-  std::vector<StreamData> m_stream;
+  // process descriptions
+  std::vector<ProcessDescription>               m_process;
+
+  // description of the luminosity axes
+  std::vector<LuminosityDescription>            m_dqm_luminosity;
+
+  // stream data
+  std::vector<StreamData>                       m_stream;
+
+  // summary data
+  std::vector<Timing>                           m_run_summary;                  // whole event time accounting per-run
+  Timing                                        m_job_summary;                  // whole event time accounting per-run
+  std::vector<std::vector<TimingPerProcess>>    m_run_summary_perprocess;       // per-process time accounting per-job
+  std::vector<TimingPerProcess>                 m_job_summary_perprocess;       // per-process time accounting per-job
 
   static
   double delta(FastTimer::Clock::time_point const & first, FastTimer::Clock::time_point const & second)
@@ -564,7 +760,15 @@ private:
   }
 
   // associate to a path all the modules it contains
-  void fillPathMap(std::string const & name, std::vector<std::string> const & modules);
+  void fillPathMap(unsigned int pid, std::string const & name, std::vector<std::string> const & modules);
+
+  // print a timing summary for the run or job
+  void printSummary(Timing const & summary, std::string const & label) const;
+  void printProcessSummary(Timing const & total, TimingPerProcess const & summary, std::string const & label, std::string const & process) const;
+
+  // assign a "process id" to a process, given its ProcessContext
+  static
+  unsigned int processID(edm::ProcessContext const *);
 
 };
 

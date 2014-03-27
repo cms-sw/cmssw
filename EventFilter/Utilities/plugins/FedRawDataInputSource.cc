@@ -48,6 +48,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   daqProvenanceHelper_(edm::TypeID(typeid(FEDRawDataCollection))),
   fileStream_(0),
   eventID_(),
+  processHistoryID_(),
   currentLumiSection_(0),
   currentInputJson_(""),
   currentInputEventCount_(0),
@@ -62,10 +63,11 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
                                         << testModeNoBuilderUnit_ << ", read-ahead chunk size: " << eventChunkSize_
                                         << " on host " << thishost;
 
-  daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
+  processHistoryID_ = daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
   setNewRun();
   setRunAuxiliary(new edm::RunAuxiliary(runNumber_, edm::Timestamp::beginOfTime(),
 					edm::Timestamp::invalidTimestamp()));
+  runAuxiliary()->setProcessHistoryID(processHistoryID_);
 }
 
 FedRawDataInputSource::~FedRawDataInputSource()
@@ -130,13 +132,14 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
     gettimeofday(&tv, 0);
     const edm::Timestamp lsopentime( (unsigned long long) tv.tv_sec * 1000000 + (unsigned long long) tv.tv_usec );
 
-    edm::LuminosityBlockAuxiliary* luminosityBlockAuxiliary =
+    edm::LuminosityBlockAuxiliary* lumiBlockAuxiliary =
       new edm::LuminosityBlockAuxiliary(
         runAuxiliary()->run(),
         lumiSection, lsopentime,
         edm::Timestamp::invalidTimestamp());
 
-    setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
+    setLuminosityBlockAuxiliary(lumiBlockAuxiliary);
+    luminosityBlockAuxiliary()->setProcessHistoryID(processHistoryID_);
 
     edm::LogInfo("FedRawDataInputSource") << "New lumi section " << lumiSection << " opened";
   }
@@ -268,6 +271,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   
   edm::EventAuxiliary aux(eventID_, processGUID(), tstamp, true,
                           edm::EventAuxiliary::PhysicsTrigger);
+  aux.setProcessHistoryID(processHistoryID_);
   makeEvent(eventPrincipal, aux);
   
   edm::WrapperOwningHolder edp(new edm::Wrapper<FEDRawDataCollection>(rawData),

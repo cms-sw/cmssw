@@ -30,6 +30,13 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     #SCBarrel = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),                                   
     #SCEndcap = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"), 
     
+    #since we are using ParticleFlow SuperClusters everywhere, match to PFClusters by reference using
+    #the required ValueMap
+    #n.b This requires that PF SuperCluseters are used for both the directly imported SuperClusters or photons
+    #AND for the imported electron seeds
+    SuperClusterMatchByRef = cms.bool(True),
+    PFClusterAssociationEBEE = cms.InputTag('particleFlowSuperClusterECAL:PFClusterAssociationEBEE'),
+    
     # input tracks
     GsfRecTracks = cms.InputTag("pfTrackElec"),
     ConvBremGsfRecTracks = cms.InputTag("pfTrackElec","Secondary"),
@@ -79,7 +86,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     # Photon selection. Et cut; Track iso (cste;slope), Ecal iso (cste, slope), Hcal iso (cste, slope), H/E
     # just put infinite Et cut to disable the photon import
     useEGPhotons = cms.bool(True),                                   
-    PhotonSelectionCuts = cms.vdouble(1,10,2.0, 0.001, 4.2, 0.003, 2.2, 0.001, 0.05, 99999., 99999.)
+    PhotonSelectionCuts = cms.vdouble(1,-99.,2.0, 0.001, 4.2, 0.003, 2.2, 0.001, 0.05, 99999., 99999.)
 )
 
 

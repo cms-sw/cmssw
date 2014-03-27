@@ -140,7 +140,7 @@ HLTMuonIsoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
        //get the deposits
        for(unsigned int iDep=0;iDep!=nDep;++iDep){
 
-	 const edm::ValueMap<reco::IsoDeposit> ::value_type & muonDeposit = (*(depMap[iDep]))[tk];
+	 const edm::ValueMap<reco::IsoDeposit> ::value_type & muonDeposit = (*(depMap[iDep]))[candref];
 	 LogDebug("HLTMuonIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << " (" << candref->charge()*candref->pt() << ") " << ", eta= " << tk->eta() << " (" << candref->eta() << ") " << "; has deposit["<<iDep<<"]: " << muonDeposit.print();
 	 isoContainer[iDep] = muonisolation::MuIsoBaseIsolator::DepositAndVetos(&muonDeposit);
 
@@ -152,7 +152,7 @@ HLTMuonIsoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
 
      }else{
        //get the decision from the event
-       isos[iMu]=(*decisionMap)[tk];
+       isos[iMu]=(*decisionMap)[candref];
      }
      LogDebug("HLTMuonIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << "; "<<(isos[iMu]?"Is an isolated muon.":"Is NOT an isolated muon.");
 
@@ -169,13 +169,7 @@ HLTMuonIsoFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
      //put the decision map
      if (nMu!=0){
        edm::ValueMap<bool> ::Filler isoFiller(*isoMap);
-       // get a track ref
-
-       TrackRef aRef = mucands->front().get<TrackRef>();
-       // get the corresponding handle
-       edm::Handle<reco::TrackCollection> HandleToTrackRef;
-       iEvent.get(aRef.id(), HandleToTrackRef);
-       isoFiller.insert(HandleToTrackRef, isos.begin(), isos.end());
+       isoFiller.insert(mucands, isos.begin(), isos.end());
        isoFiller.fill();
      }
      iEvent.put(isoMap);

@@ -63,7 +63,7 @@ namespace {
     return (std::abs(dr) > 1.e-3f) ? dz/dr : 0;
   }
 
-  inline float phi(float xC, float yC, int charge) {
+  inline float func_phi(float xC, float yC, int charge) {
     return  (charge>0) ? std::atan2(xC,-yC) :  std::atan2(-xC,yC);
   }
 
@@ -157,7 +157,7 @@ reco::Track* PixelFitterByHelixProjections::run(
     valPt = (invPt > 1.e-4f) ? 1.f/invPt : 1.e4f;
     CircleFromThreePoints::Vector2D center = circle.center();
     valTip = iCharge * (center.mag()-1.f/curvature);
-    valPhi = phi(center.x(), center.y(), iCharge);
+    valPhi = func_phi(center.x(), center.y(), iCharge);
   } 
   else {
     valPt = 1.e4f; 

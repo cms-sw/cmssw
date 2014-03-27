@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
 
 # SEEDING LAYERS
-pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('pixelLessStepSeedLayers'),
+pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TIB
     'TIB1+TIB2+MTIB3',
@@ -75,6 +74,8 @@ pixelLessStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(
     chi2_cuts = cms.vdouble(),
     maxChi2 = cms.double(4.0),
     extraPhiKDBox = cms.double(0.0),
+    SimpleMagneticField = cms.string(''),
+#    SimpleMagneticField = cms.string('ParabolicMf'),
     refitHits = cms.bool(True),
     ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
     debug = cms.bool(False),
@@ -95,6 +96,7 @@ pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
 
 PixelLessStep = cms.Sequence(
     pixelLessStepClusters*
+    pixelLessStepSeedLayers*
     pixelLessStepSeeds*
     pixelLessStepTrackCandidates*
     pixelLessStepTracks*

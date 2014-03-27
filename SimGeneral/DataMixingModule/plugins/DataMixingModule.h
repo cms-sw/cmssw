@@ -59,7 +59,7 @@ namespace edm {
       virtual void checkSignal(const edm::Event &e) {}
       virtual void createnewEDProduct() {}
       virtual void addSignals(const edm::Event &e, const edm::EventSetup& ES); 
-      virtual void doPileUp(edm::Event &e,const edm::EventSetup& ES, edm::ModuleCallingContext const* mcc);
+      virtual void doPileUp(edm::Event &e,const edm::EventSetup& ES) override;
       virtual void put(edm::Event &e,const edm::EventSetup& ES) ;
 
       void pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES, ModuleCallingContext const*);

@@ -302,6 +302,8 @@ LumiCorrectionSource::fillparamcache(unsigned int runnumber){
     coral::IQuery* lumiparamQuery=schema.newQuery();
     lumiparamQuery->addToTableList(std::string("LUMIDATA"));
     lumiparamQuery->setCondition(conditionStr,lumidataBindVariables);
+    lumiparamQuery->addToOutputList("NCOLLIDINGBUNCHES");
+    lumiparamQuery->defineOutput(lumiparamOutput);
     coral::ICursor& lumiparamcursor=lumiparamQuery->execute();
     unsigned int ncollidingbx=0;
     while( lumiparamcursor.next() ){

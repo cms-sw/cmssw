@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 // coral includes
 #include "RelationalAccess/ConnectionService.h"
+#include "RelationalAccess/IWebCacheControl.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "CoralKernel/Context.h"
@@ -24,7 +25,19 @@ namespace cond {
       m_authSys(0),
       m_messageLevel( coral::Error ),
       m_loggingEnabled( false ),
-      m_pluginManager( new cond::CoralServiceManager ){
+      m_pluginManager( new cond::CoralServiceManager ),
+      m_refreshtablelist(){
+      m_refreshtablelist.reserve(6);
+      //table names for IOVSequence in the old POOL mapping
+      m_refreshtablelist.push_back("IOV");
+      m_refreshtablelist.push_back("IOV_DATA");
+      //table names for IOVSequence in ORA
+      m_refreshtablelist.push_back("ORA_C_COND_IOVSEQUENCE");
+      m_refreshtablelist.push_back("ORA_C_COND_IOVSEQU_A0");
+      m_refreshtablelist.push_back("ORA_C_COND_IOVSEQU_A1");
+      //table names for IOVSequence in CONDDB
+      m_refreshtablelist.push_back("TAG");
+      configure();
     }
  
     ConnectionPool::~ConnectionPool(){
@@ -128,9 +141,13 @@ namespace cond {
 
     Session ConnectionPool::createSession( const std::string& connectionString, const std::string& transactionId, bool writeCapable ){
       coral::ConnectionService connServ;
-      boost::shared_ptr<coral::ISessionProxy> coralSession( connServ.connect( getRealConnectionString( connectionString, transactionId ), 
+      std::pair<std::string,std::string> fullConnectionPars = getRealConnectionString( connectionString, transactionId );
+      if( !fullConnectionPars.second.empty() ) 
+	for( auto tableName : m_refreshtablelist ) connServ.webCacheControl().refreshTable( fullConnectionPars.second, tableName );
+
+      boost::shared_ptr<coral::ISessionProxy> coralSession( connServ.connect( fullConnectionPars.first, 
 									      writeCapable?coral::Update:coral::ReadOnly ) );
-      return Session( coralSession );
+      return Session( coralSession, connectionString );
     }
 
     Session ConnectionPool::createSession( const std::string& connectionString, bool writeCapable ){

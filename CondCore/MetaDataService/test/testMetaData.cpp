@@ -23,10 +23,17 @@ int main(){
     coralDb.open("sqlite_file:meta.db");
 
     //test errors
-    coralDb.transaction().start(true);
+    coralDb.transaction().start(false);
+    if(coralDb.storage().exists()){
+      coralDb.storage().drop();
+    }
     coralDb.createDatabase();
+
+    coralDb.transaction().commit();
+
+    coralDb.transaction().start(true);
     cond::MetaData metadata(coralDb);
-    if(metadata.hasTag("crap")) std::cout << "wrong" << std::endl;
+    if(metadata.hasTag("crap")) std::cout << "ERROR: wrong assertion" << std::endl;
     /**
     try {
       cond::MetaDataEntry result; 

@@ -100,6 +100,23 @@ namespace pat {
       /// Returns the calorimeter isolation combined from ecal 
       /// and hcal 
       float caloIso()  const { return ecalIso()+hcalIso(); }
+
+      /// PARTICLE FLOW ISOLATION
+      /// Returns the isolation calculated with all the PFCandidates
+      float particleIso() const { return userIsolation(pat::PfAllParticleIso); }
+      /// Returns the isolation calculated with only the charged hadron
+      /// PFCandidates
+      float chargedHadronIso() const { return userIsolation(pat::PfChargedHadronIso); }
+      /// Returns the isolation calculated with only the neutral hadron
+      /// PFCandidates
+      float neutralHadronIso() const { return userIsolation(pat::PfNeutralHadronIso); }        
+      /// Returns the isolation calculated with only the gamma
+      /// PFCandidates
+      float photonIso() const { return userIsolation(pat::PfGammaIso); }
+      /// Returns the isolation calculated with only the pile-up charged hadron
+      /// PFCandidates
+      float puChargedHadronIso() const { return userIsolation(pat::PfPUChargedHadronIso); }        
+
       /// Returns a user defined isolation value
       float userIso(uint8_t index=0)  const { return userIsolation(IsolationKeys(UserBaseIso + index)); }
       /// Returns the isolation variable for a specifc key (or 

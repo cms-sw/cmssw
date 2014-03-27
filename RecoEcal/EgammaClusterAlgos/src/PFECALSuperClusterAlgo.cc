@@ -40,8 +40,14 @@ namespace {
 
   double getPFClusterEnergy(const PFClusterPtr& p) {
     return p->energy();
-  }
+  }  
 
+  inline double ptFast( const double energy, 
+			const math::XYZPoint& position,
+			const math::XYZPoint& origin ) {
+    const auto v = position - origin;
+    return energy*std::sqrt(v.perp2()/v.mag2());
+  }
 
   struct SumPSEnergy : public std::binary_function<double,
 						   const PFClusterPtr&,
@@ -63,8 +69,11 @@ namespace {
 
   struct GreaterByEt : public ClusBinaryFunction {
     bool operator()(const CalibClusterPtr& x, 
-		    const CalibClusterPtr& y) { 
-      return x->energy()/std::cosh(x->eta()) > y->energy()/std::cosh(y->eta());
+		    const CalibClusterPtr& y) {
+      const math::XYZPoint zero(0,0,0);
+      const double xpt = ptFast(x->energy(),x->the_ptr()->position(),zero);
+      const double ypt = ptFast(y->energy(),y->the_ptr()->position(),zero);
+      return xpt > ypt;
     }
   };
 
@@ -74,8 +83,9 @@ namespace {
     IsASeed(double thresh, bool useETcut = false) : 
       threshold(thresh), cutET(useETcut) {}
     bool operator()(const CalibClusterPtr& x) {
+      const math::XYZPoint zero(0,0,0);
       double e_or_et = x->energy();
-      if( cutET )  e_or_et /= std::cosh(x->eta());
+      if( cutET )  e_or_et = ptFast(e_or_et,x->the_ptr()->position(),zero);
       return e_or_et > threshold; 
     }
   };
@@ -156,16 +166,65 @@ namespace {
   };
 }
 
-PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() { }
+PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() : beamSpot_(0) { }
 
 void PFECALSuperClusterAlgo::
 setPFClusterCalibration(const std::shared_ptr<PFEnergyCalibration>& calib) {
   _pfEnergyCalibration = calib;
 }
 
+void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&cc) {
+  
+  inputTagPFClusters_ = 
+    cc.consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<edm::InputTag>("PFClusters"));
+  inputTagPFClustersES_ = 
+    cc.consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<edm::InputTag>("ESAssociation"));  
+  inputTagBeamSpot_ = 
+    cc.consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("BeamSpot"));    
+    
+  if (useRegression_) {
+    const edm::ParameterSet &regconf = iConfig.getParameter<edm::ParameterSet>("regressionConfig");
+    
+    regr_.reset(new PFSCRegressionCalc(regconf));
+    regr_->varCalc()->setTokens(regconf,std::move(cc));  
+  }
+  
+}
+
+void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
+ 
+  if (useRegression_) {
+    regr_->update(setup);
+  }
+  
+}
+
+
+
 void PFECALSuperClusterAlgo::
-loadAndSortPFClusters(const PFClusterView& clusters,
-		      const reco::PFCluster::EEtoPSAssociation& psclusters) { 
+loadAndSortPFClusters(const edm::Event &iEvent) { 
+  
+  //load input collections
+  //Load the pfcluster collections
+  edm::Handle<edm::View<reco::PFCluster> > pfclustersHandle;
+  iEvent.getByToken( inputTagPFClusters_, pfclustersHandle );  
+
+  edm::Handle<reco::PFCluster::EEtoPSAssociation > psAssociationHandle;
+  iEvent.getByToken( inputTagPFClustersES_,  psAssociationHandle);  
+  
+  const PFClusterView& clusters = *pfclustersHandle.product();
+  const reco::PFCluster::EEtoPSAssociation& psclusters = *psAssociationHandle.product();
+  
+  //load BeamSpot
+  edm::Handle<reco::BeamSpot> bsHandle;
+  iEvent.getByToken( inputTagBeamSpot_, bsHandle);
+  beamSpot_ = bsHandle.product();
+  
+  //initialize regression for this event
+  if (useRegression_) {
+    regr_->varCalc()->setEvent(iEvent);
+  }  
+  
   // reset the system for running
   superClustersEB_.reset(new reco::SuperClusterCollection);
   _clustersEB.clear();
@@ -201,6 +260,7 @@ loadAndSortPFClusters(const PFClusterView& clusters,
   GreaterByEt greater;
   std::sort(_clustersEB.begin(), _clustersEB.end(), greater);
   std::sort(_clustersEE.begin(), _clustersEE.end(), greater);  
+  
 }
 
 void PFECALSuperClusterAlgo::run() {  
@@ -358,6 +418,7 @@ buildSuperCluster(CalibClusterPtr& seed,
   
   // now build the supercluster
   reco::SuperCluster new_sc(corrSCEnergy,math::XYZPoint(posX,posY,posZ));   
+  new_sc.setCorrectedEnergy(corrSCEnergy);
   new_sc.setSeed(clustered.front()->the_ptr());
   new_sc.setPreshowerEnergy(corrPS1Energy+corrPS2Energy);
   new_sc.setPreshowerEnergyPlane1(corrPS1Energy);
@@ -408,15 +469,30 @@ buildSuperCluster(CalibClusterPtr& seed,
   // cache the value of the raw energy  
   new_sc.rawEnergy();
 
-  // save the super cluster to the appropriate list
-  switch( seed->the_ptr()->layer() ) {
-  case PFLayer::ECAL_BARREL:
-    superClustersEB_->push_back(new_sc);
-    break;
-  case PFLayer::ECAL_ENDCAP:    
-    superClustersEE_->push_back(new_sc);    
-    break;
-  default:
-    break;
+  //apply regression energy corrections
+  if( useRegression_ ) {    
+    double cor = regr_->getCorrection(new_sc);
+    new_sc.setEnergy(cor*new_sc.correctedEnergy());
+  }
+  
+  // save the super cluster to the appropriate list (if it passes the final
+  // Et threshold)
+  //Note that Et is computed here with respect to the beamspot position
+  //in order to be consistent with the cut applied in the
+  //ElectronSeedProducer
+  double scEtBS = 
+    ptFast(new_sc.energy(),new_sc.position(),beamSpot_->position());
+
+  if ( scEtBS > threshSuperClusterEt_ ) {
+    switch( seed->the_ptr()->layer() ) {
+    case PFLayer::ECAL_BARREL:
+      superClustersEB_->push_back(new_sc);
+      break;
+    case PFLayer::ECAL_ENDCAP:    
+      superClustersEE_->push_back(new_sc);    
+      break;
+    default:
+      break;
+    }
   }
 }

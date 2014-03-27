@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.IterativeTracking.PostLS1_PixelLessStep_cff import *
 
 # SEEDING LAYERS BARREL
-pixelLessStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('pixelLessStepSeedLayersA'),
+pixelLessStepSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TIB
     'TIB1+TIB2+MTIB3',
@@ -49,6 +48,8 @@ pixelLessStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(
     maxChi2 = cms.double(4.0),#3.0 in v3
     refitHits = cms.bool(True),
     extraPhiKDBox = cms.double(0.),
+    SimpleMagneticField = cms.string(''),
+#    SimpleMagneticField = cms.string('ParabolicMf'),
     ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
     debug = cms.bool(False),
     detIdsToDebug = cms.vint32(0,0,0)
@@ -67,8 +68,7 @@ pixelLessStepSeedsA.SeedComparitorPSet = cms.PSet(
 )
  
 # SEEDING LAYERS ENDCAP
-pixelLessStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('pixelLessStepSeedLayersB'),
+pixelLessStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TID
     'TID1_pos+TID2_pos+MTID3_pos','TID1_neg+TID2_neg+MTID3_neg',#ring 3 (mono)
@@ -125,6 +125,8 @@ pixelLessStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(
     chi2_cuts = cms.vdouble(),
     maxChi2 = cms.double(6.0),#5.0 in v3 #4.0 in v2
     extraPhiKDBox = cms.double(0.),
+    SimpleMagneticField = cms.string(''),
+#    SimpleMagneticField = cms.string('ParabolicMf'),
     refitHits = cms.bool(True),
     ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
     debug = cms.bool(False),
@@ -144,7 +146,9 @@ pixelLessStepSeedsB.SeedComparitorPSet = cms.PSet(
 )
 
 PixelLessStep = cms.Sequence(pixelLessStepClusters*
+                             pixelLessStepSeedLayersA*
                              pixelLessStepSeedsA*
+                             pixelLessStepSeedLayersB*
                              pixelLessStepSeedsB*
                              pixelLessStepSeeds*
                              pixelLessStepTrackCandidates*

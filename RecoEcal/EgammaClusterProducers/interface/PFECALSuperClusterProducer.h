@@ -23,7 +23,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h" 
-#include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
@@ -47,7 +46,7 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
   explicit PFECALSuperClusterProducer(const edm::ParameterSet&);
   ~PFECALSuperClusterProducer();
 
-  virtual void beginRun(const edm::Run& iR, const edm::EventSetup& iE);
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
 
@@ -63,15 +62,6 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
 
   /// verbose ?
   bool   verbose_;
-  // regression
-  bool use_regression;
-  std::unique_ptr<PFSCRegressionCalc> regr_;  
-  
-  edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;
-  edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation>   inputTagPFClustersES_;
-  edm::EDGetTokenT<EcalRecHitCollection>          inputTagEBRecHits_;
-  edm::EDGetTokenT<EcalRecHitCollection>          inputTagEERecHits_;
-  edm::EDGetTokenT<reco::VertexCollection>        inputTagVertices_;
 
   std::string PFBasicClusterCollectionBarrel_;
   std::string PFSuperClusterCollectionBarrel_;
@@ -79,6 +69,8 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
   std::string PFSuperClusterCollectionEndcap_;
   std::string PFBasicClusterCollectionPreshower_;
   std::string PFSuperClusterCollectionEndcapWithPreshower_;
+  std::string PFClusterAssociationEBEE_;
+  std::string PFClusterAssociationES_;
 
 };
 

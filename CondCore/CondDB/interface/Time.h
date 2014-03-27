@@ -3,6 +3,7 @@
 //
 #include "CondFormats/Common/interface/Time.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 //
 #include <string>
 #include <limits>
@@ -34,6 +35,16 @@ namespace cond {
     static constexpr unsigned int SINCE_GROUP_SIZE = 1000;
 
     Time_t tillTimeFromNextSince( Time_t nextSince, TimeType timeType );
+
+    // conversion from framework types
+    edm::IOVSyncValue toIOVSyncValue(cond::Time_t time, TimeType timetype, bool startOrStop);
+
+    Time_t fromIOVSyncValue(edm::IOVSyncValue const & time, TimeType timetype);
+
+    // min max sync value....
+    edm::IOVSyncValue limitedIOVSyncValue(Time_t time, TimeType timetype);
+    
+    edm::IOVSyncValue limitedIOVSyncValue(edm::IOVSyncValue const & time, TimeType timetype);
 
   }  
   

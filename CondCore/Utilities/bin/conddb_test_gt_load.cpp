@@ -173,7 +173,7 @@ int cond::TestGTLoad::execute(){
 
   ConnectionPool connPool;
   if( hasDebug() ) connPool.setMessageVerbosity( coral::Debug );
-  Session session = connPool.createSession( connect, true );
+  Session session = connPool.createSession( connect );
   session.transaction().start();
   
   std::cout <<"Loading Global Tag "<<gtag<<std::endl;

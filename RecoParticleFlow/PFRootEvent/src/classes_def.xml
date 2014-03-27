@@ -1,9 +1,9 @@
 
 <lcgdict>
-  <class name="PFRootEventManager">
+  <class name="PFRootEventManager" persistent="false">
     <!-- <field name="pdgTable_" transient="true"/> -->
   </class>
-  <class name="PFRootEventManagerColin"/>
+  <class name="PFRootEventManagerColin" persistent="false"/>
   <class name="TauEvent"/>
   <class name="NeutralEvent"/>
   <class name="EventColin"/>
@@ -18,6 +18,6 @@
   <class name="EventColin::Block"/>
   <class name="std::vector<EventColin::Block>"/>
   <class name="ResidualFitter"/>
-  <class name="DialogFrame"/>
-  <class name="DisplayManager"/>
+  <class name="DialogFrame" persistent="false"/>
+  <class name="DisplayManager" persistent="false"/>
 </lcgdict>

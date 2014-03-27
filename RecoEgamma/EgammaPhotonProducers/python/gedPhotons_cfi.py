@@ -19,10 +19,10 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
     # refined SC regression setup
     useRegression = cms.bool(True),
     regressionConfig = cms.PSet(
-       regressionKeyEB = cms.string('gedphoton_EBCorrection_offline'),
-       regressionKeyEE = cms.string('gedphoton_EECorrection_offline'),
-       uncertaintyKeyEB = cms.string('gedphoton_EBUncertainty_offline'),
-       uncertaintyKeyEE = cms.string('gedphoton_EEUncertainty_offline'),
+       regressionKeyEB = cms.string('gedphoton_EBCorrection_offline_v1'),
+       regressionKeyEE = cms.string('gedphoton_EECorrection_offline_v1'),
+       uncertaintyKeyEB = cms.string('gedphoton_EBUncertainty_offline_v1'),
+       uncertaintyKeyEE = cms.string('gedphoton_EEUncertainty_offline_v1'),
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
        ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')

@@ -8,10 +8,11 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+#include "CondCore/CondDB/interface/Session.h"
+//#include "CondCore/DBCommon/interface/DbSession.h"
+//#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 
-#include "CondCore/MetaDataService/interface/MetaData.h"
+//#include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include "DataFormats/Provenance/interface/RunID.h"
 
@@ -89,14 +90,13 @@ void DataWriter::readObject( const std::string& payloadToken,
 			     ) ;
     }
   
-  cond::DbSession session = poolDb->session();
-  cond::DbScopedTransaction tr(session);
-  tr.start(true);
+  cond::persistency::Session session = poolDb->session();
+  session.transaction().start(true);
  
-  // Get object from POOL
-  boost::shared_ptr<T> ref = session.getTypedObject<T>(payloadToken) ;
+  // Get object from CondDB
+  boost::shared_ptr<T> ref = session.fetchPayload<T>(payloadToken) ;
   outputObject = *ref ;
-  tr.commit ();
+  session.transaction().commit ();
 }
 
 } // ns

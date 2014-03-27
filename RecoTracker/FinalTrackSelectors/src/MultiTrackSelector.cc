@@ -265,11 +265,19 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
       }
       if ( ok && setQualityBit_[i]) {
 	selTracks[current]= (selTracks[current] | (1<<qualityToSet_[i]));
+	if (qualityToSet_[i]==TrackBase::tight) {
+	  selTracks[current]=(selTracks[current] | (1<<TrackBase::loose));
+	} 
+	else if (qualityToSet_[i]==TrackBase::highPurity) {
+	  selTracks[current]=(selTracks[current] | (1<<TrackBase::loose));
+	  selTracks[current]=(selTracks[current] | (1<<TrackBase::tight));
+	}
 	if (!points.empty()) {
 	  if (qualityToSet_[i]==TrackBase::loose) {
 	    selTracks[current]=(selTracks[current] | (1<<TrackBase::looseSetWithPV));
 	  }
 	  else if (qualityToSet_[i]==TrackBase::highPurity) {
+	    selTracks[current]=(selTracks[current] | (1<<TrackBase::looseSetWithPV));
 	    selTracks[current]=(selTracks[current] | (1<<TrackBase::highPuritySetWithPV));
 	  }
 	}

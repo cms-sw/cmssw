@@ -10,15 +10,11 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CondCore/DBCommon/interface/TagInfo.h"
-#include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-#include "CondCore/DBCommon/interface/Time.h"
-
-#include "CondCore/DBCommon/interface/IOVInfo.h"
+#include "CondCore/CondDB/interface/Time.h"
 
 
 #include <boost/bind.hpp>
@@ -28,10 +24,6 @@
 
 
 #include<iostream>
-
-namespace cond {
-  class Summary;
-}
 
 
 namespace popcon {
@@ -43,7 +35,7 @@ namespace popcon {
   class PopCon {
   public:
     typedef cond::Time_t Time_t;
-    typedef cond::Summary Summary;
+    //typedef cond::Summary Summary;
 
     PopCon(const edm::ParameterSet& pset);
      
@@ -77,9 +69,9 @@ namespace popcon {
 
     std::string m_tag;
     
-    cond::TagInfo m_tagInfo;
+    cond::TagInfo_t m_tagInfo;
     
-    cond::LogDBEntry m_logDBEntry;
+    cond::LogDBEntry_t m_logDBEntry;
 
     bool m_close;
     Time_t m_lastTill;
@@ -128,12 +120,14 @@ namespace popcon {
     
     initialize();
     std::pair<Container const *, std::string const> ret = source(m_dbService->session(),
-								 m_tagInfo,m_logDBEntry); 
+  								 m_tagInfo,m_logDBEntry); 
     Container const & payloads = *ret.first;
     
     if(m_LoggingOn)
       m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v4.0; " + 
-					 cond::userInfo() + displayIovHelper(payloads) +  ret.second);
+					 displayIovHelper(payloads) +  ret.second);
+    //m_dbService->setLogHeaderForRecord(m_record,source.id(),"PopCon v4.0; " + 
+    //				 cond::userInfo() + displayIovHelper(payloads) +  ret.second);
     
     displayHelper(payloads);
     

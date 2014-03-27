@@ -86,25 +86,79 @@ class DQMStore
   {
    public:
     friend class DQMStore;
-    MonitorElement * bookString(const char *name,
-                                const char *value);
-    MonitorElement * bookString(const std::string &name,
-                                const std::string &value);
-    MonitorElement * bookInt(const char *name);
-    MonitorElement * bookInt(const std::string &name);
-    MonitorElement * bookFloat(const char *name);
-    MonitorElement * bookFloat(const std::string &name);
-    MonitorElement * book1D(const std::string &name,
-                            const std::string &title,
-                            int nchX, double lowX, double highX);
-    MonitorElement * book2D(const std::string &name,
-                            const std::string &title,
-                            int nchX, double lowX, double highX,
-                            int nchY, double lowY, double highY);
-    MonitorElement * bookProfile(const std::string &name,
-                                 const std::string &title,
-                                 int nchX, double lowX, double highX,
-                                 int nchY, double lowY, double highY);
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookString
+    template <typename... Args>
+    MonitorElement * bookString(Args && ... args) {
+      return owner_->bookString(std::forward<Args>(args)...);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookInt
+    template <typename... Args>
+    MonitorElement * bookInt(Args && ... args) {
+      return owner_->bookInt(std::forward<Args>(args)...);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookFloat
+    template <typename... Args>
+    MonitorElement * bookFloat(Args && ... args) {
+      return owner_->bookFloat(std::forward<Args>(args)...);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1D
+    template <typename... Args>
+    MonitorElement * book1D(Args && ... args) {
+      return owner_->book1D(std::forward<Args>(args)...);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1S
+    template <typename... Args>
+    MonitorElement * book1S(Args && ... args) {
+      return owner_->book1S(std::forward<Args>(args)...);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book1DD
+    template <typename... Args>
+    MonitorElement * book1DD(Args && ... args) {
+      return owner_->book1DD(std::forward<Args>(args)...);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2D
+    template <typename... Args>
+    MonitorElement * book2D(Args && ... args) {
+      return owner_->book2D(std::forward<Args>(args)...);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2S
+    template <typename... Args>
+    MonitorElement * book2S(Args && ... args) {
+      return owner_->book2S(std::forward<Args>(args)...);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book2DD
+    template <typename... Args>
+    MonitorElement * book2DD(Args && ... args) {
+      return owner_->book2DD(std::forward<Args>(args)...);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::book3D
+    template <typename... Args>
+    MonitorElement * book3D(Args && ... args) {
+      return owner_->book3D(std::forward<Args>(args)...);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookProfile
+    template <typename... Args>
+    MonitorElement * bookProfile(Args && ... args) {
+      return owner_->bookProfile(std::forward<Args>(args)...);
+    }
+
+    // for the supported syntaxes, see the declarations of DQMStore::bookProfile2D
+    template <typename... Args>
+    MonitorElement * bookProfile2D(Args && ... args) {
+      return owner_->bookProfile2D(std::forward<Args>(args)...);
+    }
+
     void cd(void);
     void cd(const std::string &dir);
     void setCurrentFolder(const std::string &fullpath);

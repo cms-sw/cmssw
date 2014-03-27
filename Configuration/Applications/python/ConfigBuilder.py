@@ -33,9 +33,9 @@ defaultOptions.arguments = ""
 defaultOptions.name = "NO NAME GIVEN"
 defaultOptions.evt_type = ""
 defaultOptions.filein = ""
-defaultOptions.dbsquery=""
+defaultOptions.dasquery=""
 defaultOptions.secondfilein = ""
-defaultOptions.customisation_file = ""
+defaultOptions.customisation_file = []
 defaultOptions.customise_commands = ""
 defaultOptions.inline_custom=False
 defaultOptions.particleTable = 'pythiapdt'
@@ -116,13 +116,13 @@ def filesFromList(fileName,s=None):
 		print "found parent files:",sec
 	return (prim,sec)
 	
-def filesFromDBSQuery(query,s=None):
+def filesFromDASQuery(query,s=None):
 	import os
 	import FWCore.ParameterSet.Config as cms
 	prim=[]
 	sec=[]
 	print "the query is",query
-	for line in os.popen('dbs search --query "%s"'%(query)):
+	for line in os.popen('das_client.py --query "%s"'%(query)):
 		if line.count(".root")>=2:
 			#two files solution...
 			entries=line.replace("\n","").split()
@@ -335,8 +335,8 @@ class ConfigBuilder(object):
 			print "entry",entry
 			if entry.startswith("filelist:"):
 				filesFromList(entry[9:],self.process.source)
-			elif entry.startswith("dbs:"):
-				filesFromDBSQuery('find file where dataset = %s'%(entry[4:]),self.process.source)
+			elif entry.startswith("dbs:") or entry.startswith("das:"):
+				filesFromDASQuery('file dataset = %s'%(entry[4:]),self.process.source)
 			else:
 				self.process.source.fileNames.append(self._options.dirin+entry)
 		if self._options.secondfilein:
@@ -346,12 +346,12 @@ class ConfigBuilder(object):
 				print "entry",entry
 				if entry.startswith("filelist:"):
 					self.process.source.secondaryFileNames.extend((filesFromList(entry[9:]))[0])
-				elif entry.startswith("dbs:"):
-					self.process.source.secondaryFileNames.extend((filesFromDBSQuery('find file where dataset = %s'%(entry[4:])))[0])
+				elif entry.startswith("dbs:") or entry.startswith("das:"):
+					self.process.source.secondaryFileNames.extend((filesFromDASQuery('file dataset = %s'%(entry[4:])))[0])
 				else:
 					self.process.source.secondaryFileNames.append(self._options.dirin+entry)
 
-        if self._options.filein or self._options.dbsquery:
+        if self._options.filein or self._options.dasquery:
 	   if self._options.filetype == "EDM":
 		   self.process.source=cms.Source("PoolSource",
 						  fileNames = cms.untracked.vstring(),
@@ -387,9 +387,9 @@ class ConfigBuilder(object):
            if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
-	if self._options.dbsquery!='':
+	if self._options.dasquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
-	       filesFromDBSQuery(self._options.dbsquery,self.process.source)
+	       filesFromDASQuery(self._options.dasquery,self.process.source)
 
 	if self._options.inputCommands:
 		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
@@ -629,8 +629,8 @@ class ConfigBuilder(object):
 
 		mixingDict.pop('file')
 		if self._options.pileup_input:
-			if self._options.pileup_input.startswith('dbs'):
-				mixingDict['F']=filesFromDBSQuery('find file where dataset = %s'%(self._options.pileup_input[4:],))[0]
+			if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
+				mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
 			else:
 				mixingDict['F']=self._options.pileup_input.split(',')
 		specialization=defineMixing(mixingDict,self._options.fast)
@@ -740,7 +740,9 @@ class ConfigBuilder(object):
     def addCustomise(self):
         """Include the customise code """
 
-        custOpt=self._options.customisation_file.split(",")
+	custOpt=[]
+	for c in self._options.customisation_file:
+		custOpt.extend(c.split(","))
 	custMap={}
 	for opt in custOpt:
 		if opt=='': continue
@@ -859,11 +861,15 @@ class ConfigBuilder(object):
             self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
 
+	if "DIGIPREMIX" in self.stepMap.keys():
+            self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_PreMix_cff"
+
         self.ALCADefaultSeq=None
 	self.LHEDefaultSeq='externalLHEProducer'
         self.GENDefaultSeq='pgen'
         self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
+	self.DIGIPREMIXDefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -1250,7 +1256,7 @@ class ConfigBuilder(object):
 	except:
 		loadFailure=True
 		#if self.process.source and self.process.source.type_()=='EmptySource':
-		if not (self._options.filein or self._options.dbsquery):
+		if not (self._options.filein or self._options.dasquery):
 			raise Exception("Neither gen fragment of input files provided: this is an inconsistent GEN step configuration")
 			
 	if not loadFailure:
@@ -1358,6 +1364,17 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
 
+    def prepare_DIGIPREMIX(self, sequence = None):
+        """ Enrich the schedule with the digitisation step"""
+        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+
+	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
+	self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
+
+
+	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
+        return
+
     def prepare_CFWRITER(self, sequence = None):
 	    """ Enrich the schedule with the crossing frame writer step"""
 	    self.loadAndRemember(self.CFWRITERDefaultCFF)
@@ -1445,7 +1462,7 @@ class ConfigBuilder(object):
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
         if self._options.isMC:
-		self._options.customisation_file+=",HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC"
+		self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC")
 
 	if self._options.name != 'HLT':
 		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
@@ -1649,7 +1666,7 @@ class ConfigBuilder(object):
 		    self.executeAndRemember("process.mix.playback = True")
 		    self.executeAndRemember("process.mix.digitizers = cms.PSet()")
                     self.executeAndRemember("for a in process.aliases: delattr(process, a)")
-                    self._options.customisation_file+=",SimGeneral/MixingModule/fullMixCustomize_cff.setCrossingFrameOn"
+                    self._options.customisation_file.append("SimGeneral/MixingModule/fullMixCustomize_cff.setCrossingFrameOn")
 
 	    if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
 		    #will get in the schedule, smoothly
@@ -2085,7 +2102,7 @@ class ConfigBuilder(object):
 		if hasattr(self.process.source,"secondaryFileNames"):
 			if len(self.process.source.secondaryFileNames.value()):
 				ioJson['secondary']=self.process.source.secondaryFileNames.value()
-		if self._options.pileup_input and self._options.pileup_input.startswith('dbs'):
+		if self._options.pileup_input and (self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:')):
 			ioJson['pileup']=self._options.pileup_input[4:]
 		for (o,om) in self.process.outputModules_().items():
 			ioJson[o]=om.fileName.value()

@@ -12,9 +12,12 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "RecoMuon/MuonIsolation/interface/MuIsoBaseIsolator.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 class L2MuonIsolationProducer : public edm::EDProducer {
 
@@ -25,6 +28,9 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   
   /// destructor
   virtual ~L2MuonIsolationProducer(); 
+
+  /// ParameterSet descriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   /// setup the job  
   virtual void beginJob();
@@ -37,6 +43,7 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   
   // Muon track Collection Label
   edm::InputTag theSACollectionLabel;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> theSACollectionToken;
 
   // Option to write MuIsoDeposits into the event
   bool optOutputDecision;

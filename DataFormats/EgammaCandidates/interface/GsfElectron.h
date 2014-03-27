@@ -171,7 +171,7 @@ class GsfElectron : public RecoCandidate
     float ctfGsfOverlap() const { return core()->ctfGsfOverlap() ; }
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
-    SuperClusterRef pflowSuperCluster() const { return core()->pflowSuperCluster() ; }
+    SuperClusterRef parentSuperCluster() const { return core()->parentSuperCluster() ; }
 
     // backward compatibility
     struct ClosestCtfTrack

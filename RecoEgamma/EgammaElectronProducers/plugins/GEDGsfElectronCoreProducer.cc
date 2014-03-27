@@ -68,12 +68,12 @@ void GEDGsfElectronCoreProducer::produceElectronCore( const reco::PFCandidate & 
   GsfElectronCoreBaseProducer::fillElectronCore(eleCore) ;
 
   SuperClusterRef scRef = extraRef->superClusterRef();
-  SuperClusterRef scBoxRef = extraRef->superClusterBoxRef();  
+  SuperClusterRef scBoxRef = extraRef->superClusterPFECALRef();  
 
   if (!scRef.isNull() || !scBoxRef.isNull())
   {
        eleCore->setSuperCluster(scRef) ;
-       eleCore->setPflowSuperCluster(scBoxRef) ;
+       eleCore->setParentSuperCluster(scBoxRef) ;
        electrons->push_back(*eleCore) ;
    }
    else

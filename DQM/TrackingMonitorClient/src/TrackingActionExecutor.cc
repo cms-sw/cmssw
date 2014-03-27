@@ -76,7 +76,7 @@ void TrackingActionExecutor::fillStatusAtLumi(DQMStore* dqm_store) {
 //
 void TrackingActionExecutor::createDummyShiftReport(){
   //  std::cout << "[TrackingActionExecutor::createDummyShiftReport]" << std::endl;
-  ofstream report_file;
+  std::ofstream report_file;
   report_file.open("tracking_shift_report.txt", std::ios::out);
   report_file << " Nothing to report!!" << std::endl;
   report_file.close();
@@ -111,7 +111,7 @@ void TrackingActionExecutor::createShiftReport(DQMStore * dqm_store){
   shift_summary << std::endl;
   printShiftHistoParameters(dqm_store, layout_map, shift_summary);
   
-  ofstream report_file;
+  std::ofstream report_file;
   report_file.open("tracking_shift_report.txt", std::ios::out);
   report_file << shift_summary.str() << std::endl;
   report_file.close();

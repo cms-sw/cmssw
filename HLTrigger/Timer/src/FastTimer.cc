@@ -115,9 +115,22 @@ FastTimer::Clock::time_point const & FastTimer::getStopTime() const {
 }
 
 void FastTimer::setStartTime(FastTimer::Clock::time_point const & time) {
-  m_start = time;
+  if (m_state == State::kStopped) {
+    m_start    = time;
+    m_stop     = Clock::time_point();
+    m_duration = Duration::zero();
+    m_state    = State::kRunning;
+  } else {
+    std::cerr << "attempting to start a " << describe() << " timer" << std::endl;
+  }
 }
 
 void FastTimer::setStopTime(FastTimer::Clock::time_point const & time) {
-  m_stop = time;
+  if (m_state == State::kRunning) {
+    m_stop     = time;
+    m_duration += std::chrono::duration_cast<Duration>(m_stop - m_start);
+    m_state    = State::kStopped;
+  } else {
+    std::cerr << "attempting to stop a " << describe() << " timer" << std::endl;
+  }
 }

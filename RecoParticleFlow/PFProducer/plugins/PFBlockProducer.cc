@@ -89,7 +89,14 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
     inputTagSCEndcap_
       = iConfig.getParameter<InputTag>("SCEndcap");     
   }
-
+  
+  //default value = false (for compatibility with old HLT configs)
+  superClusterMatchByRef_ = iConfig.existsAs<bool>("SuperClusterMatchByRef") ? iConfig.getParameter<bool>("SuperClusterMatchByRef") : false;
+  
+  if (superClusterMatchByRef_) {
+    inputTagPFClusterAssociationEBEE_ = iConfig.getParameter<InputTag>("PFClusterAssociationEBEE");
+  }
+  
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
@@ -165,7 +172,8 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 			      nuclearInteractionsPurity,
 			      useEGPhotons_,
 			      EGPhotonSelectionCuts,
-			      useSuperClusters_
+			      useSuperClusters_,
+                              superClusterMatchByRef_
 			    );
   
   pfBlockAlgo_.setDebug(debug_);
@@ -358,6 +366,16 @@ PFBlockProducer::produce(Event& iEvent,
 				<< inputTagSCEndcap_ << endl;				       
 								
   }
+  
+  Handle<edm::ValueMap<reco::CaloClusterPtr> > pfclusterassoc;
+  if (superClusterMatchByRef_) {
+    found = iEvent.getByLabel(inputTagPFClusterAssociationEBEE_,
+                              pfclusterassoc);
+
+    if(!found)
+      LogError("PFBlockProducer")<<" cannot get PFCluster Association" 
+                                << inputTagPFClusterAssociationEBEE_ << endl;
+  }
 
   if( usePFatHLT_  ) {
      pfBlockAlgo_.setInput( recTracks, 		
@@ -385,7 +403,9 @@ PFBlockProducer::produce(Event& iEvent,
 			   clustersPS,
 			   egPhotons,
 			   sceb,
-			   scee);
+			   scee,
+                           pfclusterassoc
+                         );
   }
   pfBlockAlgo_.findBlocks();
   

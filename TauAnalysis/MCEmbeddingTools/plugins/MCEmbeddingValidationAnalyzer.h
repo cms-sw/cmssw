@@ -768,7 +768,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	for ( std::vector<std::string>::const_iterator mvaWeightFile = mvaWeightFiles.begin();
 	      mvaWeightFile != mvaWeightFiles.end(); ++mvaWeightFile ) {
 	  edm::FileInPath mvaWeightFile_full(*mvaWeightFile);
-	  if ( !mvaWeightFile_full.isLocal() ) 
+	  if ( mvaWeightFile_full.location() == edm::FileInPath::Unknown ) 
 	    throw cms::Exception("MCEmbeddingValidationAnalyzer")
 	      << " Failed to find File = " << (*mvaWeightFile) << " !!\n";
 	  mvaWeightFiles_full.push_back(mvaWeightFile_full.fullPath());
@@ -899,8 +899,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	      if ( recLepton->isEERingGap() ) histogramFlags_->Fill(7, evtWeight);
 	      if ( recLepton->ecalDrivenSeed() ) histogramFlags_->Fill(8, evtWeight);
 	      if ( recLepton->trackerDrivenSeed() ) histogramFlags_->Fill(9, evtWeight);
-	      if ( recLepton->superCluster().isNonnull() || recLepton->superCluster().id() != recLepton->pflowSuperCluster().id() ) histogramFlags_->Fill(10, evtWeight);
-	      if ( recLepton->pflowSuperCluster().isNonnull() ) histogramFlags_->Fill(11, evtWeight);
+	      if ( recLepton->superCluster().isNonnull() || recLepton->superCluster().id() != recLepton->parentSuperCluster().id() ) histogramFlags_->Fill(10, evtWeight);
+	      if ( recLepton->parentSuperCluster().isNonnull() ) histogramFlags_->Fill(11, evtWeight);
 	    }
 	  }	
 	}

@@ -11,6 +11,7 @@ L2MuonSeeds = cms.EDProducer("L2MuonSeedGenerator",
     GMTReadoutCollection = cms.InputTag("gmtDigis"),
     Propagator = cms.string('SteppingHelixPropagatorAny'),
     UseOfflineSeed = cms.untracked.bool(True),
+    UseUnassociatedL1 = cms.bool( True ), 
     OfflineSeedLabel = cms.untracked.InputTag("L2OfflineMuonSeeds")
 )
 

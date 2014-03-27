@@ -12,7 +12,7 @@ namespace edm {
 
     Registry*
     Registry::instance() {
-      static Registry s_reg;
+      [[cms::thread_safe]] static Registry s_reg;
       return &s_reg;
     }
     

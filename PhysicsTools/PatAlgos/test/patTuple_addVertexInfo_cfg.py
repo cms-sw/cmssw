@@ -28,7 +28,7 @@ process.bestVertex = cms.EDFilter(
     fallbacks = cms.vstring("fromCandidate", "beamSpot"),
     vertices              = cms.InputTag("offlinePrimaryVerticesWithBS"),
     vertexPreselection    = cms.vstring("(chi2prob(chi2,ndf) > 0.01) && (trackSize >= 3)"),
-    candidates            = cms.VInputTag(cms.InputTag('gsfElectrons'), cms.InputTag('muons')),
+    candidates            = cms.VInputTag(cms.InputTag('gedGsfElectrons'), cms.InputTag('muons')),
     candidatePreselection = cms.string("pt > 5"),
     beamSpot              = cms.InputTag('offlineBeamSpot'),
 )
@@ -37,7 +37,7 @@ process.bestVertex = cms.EDFilter(
 process.patTrackVertexInfo = cms.EDProducer(
     "PATVertexAssociationProducer",
     candidates = cms.VInputTag(
-    cms.InputTag('gsfElectrons'),
+    cms.InputTag('gedGsfElectrons'),
     cms.InputTag('muons'),
     cms.InputTag('patAODTrackCands'),
     ),

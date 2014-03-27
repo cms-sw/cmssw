@@ -1,42 +1,67 @@
 #include "Validation/TrackerHits/interface/TrackerHitProducer.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
+// tracker info
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+// data in edm::event
+#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
+// helper files
+#include <CLHEP/Vector/LorentzVector.h>
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include "TString.h"
+
 #include <cmath>
+#include <memory>
+#include <stdlib.h>
 
-TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet& iPSet) :
-  fName(""), verbosity(0), label(""), getAllProvenances(false),
-  printProvenanceInfo(false), nRawGenPart(0),
-  G4VtxSrc_(iPSet.getParameter<edm::InputTag>("G4VtxSrc")),
-  G4TrkSrc_(iPSet.getParameter<edm::InputTag>("G4TrkSrc")),
-  config_(iPSet), count(0)
+TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet& iPSet)
+  : getAllProvenances( iPSet.getParameter<edm::ParameterSet>( "ProvenanceLookup" ).getUntrackedParameter<bool>( "GetAllProvenances", false ) )
+  , printProvenanceInfo( iPSet.getParameter<edm::ParameterSet>( "ProvenanceLookup" ).getUntrackedParameter<bool>( "PrintProvenanceInfo", false ) )
+  , verbosity( iPSet.getUntrackedParameter<int>( "Verbosity", 0 ) )
+  , count( 0 )
+  , nRawGenPart( 0 )
+  , config_( iPSet )
+  , edmHepMCProductToken_( consumes<edm::HepMCProduct>( edm::InputTag( iPSet.getUntrackedParameter<std::string>( "HepMCProductLabel", "source" )
+                                                                     , iPSet.getUntrackedParameter<std::string>( "HepMCInputInstance", "" )
+								       )
+							)
+			   )
+  , edmSimVertexContainerToken_( consumes<edm::SimVertexContainer>( iPSet.getParameter<edm::InputTag>("G4VtxSrc") ) )
+  , edmSimTrackContainerToken_( consumes<edm::SimTrackContainer>( iPSet.getParameter<edm::InputTag>( "G4TrkSrc" ) ) )
+  , edmPSimHitContainer_pxlBrlLow_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "PxlBrlLowSrc" ) ) )
+  , edmPSimHitContainer_pxlBrlHigh_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "PxlBrlHighSrc" ) ) )
+  , edmPSimHitContainer_pxlFwdLow_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "PxlFwdLowSrc" ) ) )
+  , edmPSimHitContainer_pxlFwdHigh_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "PxlFwdHighSrc" ) ) )
+  , edmPSimHitContainer_siTIBLow_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "SiTIBLowSrc" ) ) )
+  , edmPSimHitContainer_siTIBHigh_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "SiTIBHighSrc" ) ) )
+  , edmPSimHitContainer_siTOBLow_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "SiTOBLowSrc" ) ) )
+  , edmPSimHitContainer_siTOBHigh_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "SiTOBHighSrc" ) ) )
+  , edmPSimHitContainer_siTIDLow_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "SiTIDLowSrc" ) ) )
+  , edmPSimHitContainer_siTIDHigh_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "SiTIDHighSrc" ) ) )
+  , edmPSimHitContainer_siTECLow_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "SiTECLowSrc" ) ) )
+  , edmPSimHitContainer_siTECHigh_Token_( consumes<edm::PSimHitContainer>( iPSet.getParameter<edm::InputTag>( "SiTECHighSrc" ) ) )
+  , fName( iPSet.getUntrackedParameter<std::string>( "Name", "" ) )
+  , label( iPSet.getParameter<std::string>( "Label" ) )
 {
-  // get information from parameter set
-  fName = iPSet.getUntrackedParameter<std::string>("Name");
-  verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
-  label = iPSet.getParameter<std::string>("Label");
-  edm::ParameterSet m_Prov =
-    iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
-  getAllProvenances = 
-    m_Prov.getUntrackedParameter<bool>("GetAllProvenances");
-  printProvenanceInfo = 
-    m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
-
-  //get Labels to use to extract information
-  PxlBrlLowSrc_ = iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc");
-  PxlBrlHighSrc_ = iPSet.getParameter<edm::InputTag>("PxlBrlHighSrc");
-  PxlFwdLowSrc_ = iPSet.getParameter<edm::InputTag>("PxlFwdLowSrc");
-  PxlFwdHighSrc_ = iPSet.getParameter<edm::InputTag>("PxlFwdHighSrc");
-
-  SiTIBLowSrc_ = iPSet.getParameter<edm::InputTag>("SiTIBLowSrc");
-  SiTIBHighSrc_ = iPSet.getParameter<edm::InputTag>("SiTIBHighSrc");
-  SiTOBLowSrc_ = iPSet.getParameter<edm::InputTag>("SiTOBLowSrc");
-  SiTOBHighSrc_ = iPSet.getParameter<edm::InputTag>("SiTOBHighSrc");
-  SiTIDLowSrc_ = iPSet.getParameter<edm::InputTag>("SiTIDLowSrc");
-  SiTIDHighSrc_ = iPSet.getParameter<edm::InputTag>("SiTIDHighSrc");
-  SiTECLowSrc_ = iPSet.getParameter<edm::InputTag>("SiTECLowSrc");
-  SiTECHighSrc_ = iPSet.getParameter<edm::InputTag>("SiTECHighSrc");
- 
-  HepMClabel_ = config_.getUntrackedParameter<std::string>("HepMCProductLabel","source");
-  HepMCinstance_ = config_.getUntrackedParameter<std::string>("HepMCInputInstance","");
- 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -54,30 +79,30 @@ TrackerHitProducer::TrackerHitProducer(const edm::ParameterSet& iPSet) :
       << "    Label     =" << label << "\n"
       << "    GetProv   =" << getAllProvenances << "\n"
       << "    PrintProv =" << printProvenanceInfo << "\n"
-      << "    PxlBrlLowSrc  = " << PxlBrlLowSrc_.label() 
-      << ":" << PxlBrlLowSrc_.instance() << "\n"
-      << "    PxlBrlHighSrc = " << PxlBrlHighSrc_.label() 
-      << ":" << PxlBrlHighSrc_.instance() << "\n"
-      << "    PxlFwdLowSrc  = " << PxlFwdLowSrc_.label() 
-      << ":" << PxlBrlLowSrc_.instance() << "\n"
-      << "    PxlFwdHighSrc = " << PxlFwdHighSrc_.label() 
-      << ":" << PxlBrlHighSrc_.instance() << "\n"
-      << "    SiTIBLowSrc   = " << SiTIBLowSrc_.label() 
-      << ":" << SiTIBLowSrc_.instance() << "\n"
-      << "    SiTIBHighSrc  = " << SiTIBHighSrc_.label() 
-      << ":" << SiTIBHighSrc_.instance() << "\n"
-      << "    SiTOBLowSrc   = " << SiTOBLowSrc_.label() 
-      << ":" << SiTOBLowSrc_.instance() << "\n"
-      << "    SiTOBHighSrc  = " << SiTOBHighSrc_.label() 
-      << ":" << SiTOBHighSrc_.instance() << "\n"
-      << "    SiTIDLowSrc   = " << SiTIDLowSrc_.label() 
-      << ":" << SiTIDLowSrc_.instance() << "\n"
-      << "    SiTIDHighSrc  = " << SiTIDHighSrc_.label() 
-      << ":" << SiTIDHighSrc_.instance() << "\n"
-      << "    SiTECLowSrc   = " << SiTECLowSrc_.label() 
-      << ":" << SiTECLowSrc_.instance() << "\n"
-      << "    SiTECHighSrc  = " << SiTECHighSrc_.label() 
-      << ":" << SiTECHighSrc_.instance() << "\n"
+      << "    PxlBrlLowSrc  = " << iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc").instance() << "\n"
+      << "    PxlBrlHighSrc = " << iPSet.getParameter<edm::InputTag>("PxlBrlHighSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("PxlBrlHighSrc").instance() << "\n"
+      << "    PxlFwdLowSrc  = " << iPSet.getParameter<edm::InputTag>("PxlFwdLowSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("PxlFwdLowSrc").instance() << "\n"
+      << "    PxlFwdHighSrc = " << iPSet.getParameter<edm::InputTag>("PxlFwdHighSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("PxlFwdHighSrc").instance() << "\n"
+      << "    SiTIBLowSrc   = " << iPSet.getParameter<edm::InputTag>("SiTIBLowSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("SiTIBLowSrc").instance() << "\n"
+      << "    SiTIBHighSrc  = " << iPSet.getParameter<edm::InputTag>("SiTIBHighSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("SiTIBHighSrc").instance() << "\n"
+      << "    SiTOBLowSrc   = " << iPSet.getParameter<edm::InputTag>("SiTOBLowSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("SiTOBLowSrc").instance() << "\n"
+      << "    SiTOBHighSrc  = " << iPSet.getParameter<edm::InputTag>("SiTOBHighSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("SiTOBHighSrc").instance() << "\n"
+      << "    SiTIDLowSrc   = " << iPSet.getParameter<edm::InputTag>("SiTIDLowSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("SiTIDLowSrc").instance() << "\n"
+      << "    SiTIDHighSrc  = " << iPSet.getParameter<edm::InputTag>("SiTIDHighSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("SiTIDHighSrc").instance() << "\n"
+      << "    SiTECLowSrc   = " << iPSet.getParameter<edm::InputTag>("SiTECLowSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("SiTECLowSrc").instance() << "\n"
+      << "    SiTECHighSrc  = " << iPSet.getParameter<edm::InputTag>("SiTECHighSrc").label() 
+      << ":" << iPSet.getParameter<edm::InputTag>("SiTECHighSrc").instance() << "\n"
       << "===============================\n";  }
 }
 
@@ -198,7 +223,7 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
   // get MC information
   /////////////////////
   edm::Handle<edm::HepMCProduct> HepMCEvt_;
-  iEvent.getByLabel(HepMClabel_, HepMCinstance_ ,HepMCEvt_);
+  iEvent.getByToken( edmHepMCProductToken_, HepMCEvt_ );
   if (!HepMCEvt_.isValid()) {
     edm::LogError("TrackerHitProducer::fillG4MC")
       << "Unable to find HepMCProduct in event!";
@@ -216,7 +241,7 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
   // get G4Vertex information
   ////////////////////////////
   edm::Handle<edm::SimVertexContainer> G4VtxContainer;
-  iEvent.getByLabel(G4VtxSrc_, G4VtxContainer);
+  iEvent.getByToken( edmSimVertexContainerToken_, G4VtxContainer );
   if (!G4VtxContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillG4MC")
       << "Unable to find SimVertex in event!";
@@ -247,7 +272,7 @@ void TrackerHitProducer::fillG4MC(edm::Event& iEvent)
   // get G4Track information
   ///////////////////////////
   edm::Handle<edm::SimTrackContainer> G4TrkContainer;
-  iEvent.getByLabel(G4TrkSrc_, G4TrkContainer);
+  iEvent.getByToken( edmSimTrackContainerToken_, G4TrkContainer );
   if (!G4TrkContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillG4MC")
       << "Unable to find SimTrack in event!";
@@ -352,8 +377,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlBrlLowContainer;
-  iEvent.getByLabel(PxlBrlLowSrc_,PxlBrlLowContainer);
-//  iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof",PxlBrlLowContainer);
+  iEvent.getByToken( edmPSimHitContainer_pxlBrlLow_Token_, PxlBrlLowContainer );
   if (!PxlBrlLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsPixelBarrelLowTof in event!";
@@ -410,8 +434,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
     
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlBrlHighContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof",PxlBrlHighContainer);
-  iEvent.getByLabel(PxlBrlHighSrc_,PxlBrlHighContainer);
+  iEvent.getByToken( edmPSimHitContainer_pxlBrlHigh_Token_, PxlBrlHighContainer );
   if (!PxlBrlHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsPixelBarrelHighTof in event!";
@@ -466,8 +489,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   ////////////////////////////////
   // extract low container
   edm::Handle<edm::PSimHitContainer> PxlFwdLowContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapLowTof",PxlFwdLowContainer);
-  iEvent.getByLabel(PxlFwdLowSrc_,PxlFwdLowContainer);
+  iEvent.getByToken( edmPSimHitContainer_pxlFwdLow_Token_, PxlFwdLowContainer );
   if (!PxlFwdLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsPixelEndcapLowTof in event!";
@@ -518,8 +540,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   
   // extract high container
   edm::Handle<edm::PSimHitContainer> PxlFwdHighContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapHighTof",PxlFwdHighContainer);
-  iEvent.getByLabel(PxlFwdHighSrc_,PxlFwdHighContainer);
+  iEvent.getByToken( edmPSimHitContainer_pxlFwdHigh_Token_, PxlFwdHighContainer );
   if (!PxlFwdHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsPixelEndcapHighTof in event!";
@@ -573,8 +594,7 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   //////////////////////////////////
   // extract TIB low container
   edm::Handle<edm::PSimHitContainer> SiTIBLowContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTIBLowTof",SiTIBLowContainer);
-  iEvent.getByLabel(SiTIBLowSrc_,SiTIBLowContainer);
+  iEvent.getByToken( edmPSimHitContainer_siTIBLow_Token_, SiTIBLowContainer );
   if (!SiTIBLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTIBLowTof in event!";
@@ -625,9 +645,8 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   
   // extract TIB high container
   edm::Handle<edm::PSimHitContainer> SiTIBHighContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTIBHighTof",SiTIBHighContainer);
-  iEvent.getByLabel(SiTIBHighSrc_,SiTIBHighContainer);
-    if (!SiTIBHighContainer.isValid()) {
+  iEvent.getByToken( edmPSimHitContainer_siTIBHigh_Token_, SiTIBHighContainer );
+  if (!SiTIBHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTIBHighTof in event!";
     return;
@@ -679,9 +698,8 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   //////////////////////////////////
   // extract TOB low container
   edm::Handle<edm::PSimHitContainer> SiTOBLowContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTOBLowTof",SiTOBLowContainer);
-  iEvent.getByLabel(SiTOBLowSrc_,SiTOBLowContainer);
-    if (!SiTOBLowContainer.isValid()) {
+  iEvent.getByToken( edmPSimHitContainer_siTOBLow_Token_, SiTOBLowContainer );
+  if (!SiTOBLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTOBLowTof in event!";
     return;
@@ -730,9 +748,8 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
     
   // extract TOB high container
   edm::Handle<edm::PSimHitContainer> SiTOBHighContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTOBHighTof",SiTOBHighContainer);
-  iEvent.getByLabel(SiTOBHighSrc_,SiTOBHighContainer);
-    if (!SiTOBHighContainer.isValid()) {
+  iEvent.getByToken( edmPSimHitContainer_siTOBHigh_Token_, SiTOBHighContainer );
+  if (!SiTOBHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTOBHighTof in event!";
     return;
@@ -784,9 +801,8 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   ///////////////////////////////////
   // extract TID low container
   edm::Handle<edm::PSimHitContainer> SiTIDLowContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTIDLowTof",SiTIDLowContainer);
-  iEvent.getByLabel(SiTIDLowSrc_,SiTIDLowContainer);
-    if (!SiTIDLowContainer.isValid()) {
+  iEvent.getByToken( edmPSimHitContainer_siTIDLow_Token_, SiTIDLowContainer );
+  if (!SiTIDLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTIDLowTof in event!";
     return;
@@ -835,9 +851,8 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
       
   // extract TID high container
   edm::Handle<edm::PSimHitContainer> SiTIDHighContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTIDHighTof",SiTIDHighContainer);
-  iEvent.getByLabel(SiTIDHighSrc_,SiTIDHighContainer);
-    if (!SiTIDHighContainer.isValid()) {
+  iEvent.getByToken( edmPSimHitContainer_siTIDHigh_Token_, SiTIDHighContainer );
+  if (!SiTIDHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTIDHighTof in event!";
     return;
@@ -889,9 +904,8 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   /////////////////////////////////// 
   // extract TEC low container
   edm::Handle<edm::PSimHitContainer> SiTECLowContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTECLowTof",SiTECLowContainer);
-  iEvent.getByLabel(SiTECLowSrc_,SiTECLowContainer);
-    if (!SiTECLowContainer.isValid()) {
+  iEvent.getByToken( edmPSimHitContainer_siTECLow_Token_, SiTECLowContainer );
+  if (!SiTECLowContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTECLowTof in event!";
     return;
@@ -941,9 +955,8 @@ void TrackerHitProducer::fillTrk(edm::Event& iEvent,
   
   // extract TEC high container
   edm::Handle<edm::PSimHitContainer> SiTECHighContainer;
-//  iEvent.getByLabel("g4SimHits","TrackerHitsTECHighTof",SiTECHighContainer);
-  iEvent.getByLabel(SiTECHighSrc_,SiTECHighContainer);
-    if (!SiTECHighContainer.isValid()) {
+  iEvent.getByToken( edmPSimHitContainer_siTECHigh_Token_, SiTECHighContainer );
+  if (!SiTECHighContainer.isValid()) {
     edm::LogError("TrackerHitProducer::fillTrk")
       << "Unable to find TrackerHitsTECHighTof in event!";
     return;

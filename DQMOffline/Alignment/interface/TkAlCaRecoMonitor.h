@@ -22,6 +22,10 @@ Monitoring special quantities related to Tracker Alignment AlCaReco Production.
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+//DataFormats
+#include <DataFormats/JetReco/interface/CaloJet.h>
+
+
 class TrackerGeometry;
 class DQMStore;
 
@@ -65,8 +69,9 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
   bool runsOnReco_;
   bool useSignedR_;
 
-  edm::InputTag trackProducer_;
-  edm::InputTag referenceTrackProducer_;
+  edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
+  edm::EDGetTokenT<reco::TrackCollection> referenceTrackProducer_;
+  edm::EDGetTokenT<reco::CaloJetCollection> jetCollection_;
   double daughterMass_;
   std::map<int,int> binByRawId_;
 };

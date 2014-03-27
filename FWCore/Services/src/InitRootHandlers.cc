@@ -249,6 +249,11 @@ namespace edm {
       if (!TypeWithDict(typeid(std::vector<std::vector<unsigned int> >)).hasDictionary()) {
          edmplugin::PluginCapabilities::get()->load(dictionaryPlugInPrefix() + "std::vector<std::vector<unsigned int> >");
       }
+
+      int debugLevel = pset.getUntrackedParameter<int>("DebugLevel");
+      if(debugLevel >0) {
+	gDebug = debugLevel;
+      }
     }
 
     InitRootHandlers::~InitRootHandlers () {
@@ -273,6 +278,8 @@ namespace edm {
           ->setComment("If True, enables automatic loading of data dictionaries.");
       desc.addUntracked<bool>("AbortOnSignal",true)
       ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");
+      desc.addUntracked<int>("DebugLevel",0)
+ 	  ->setComment("Sets ROOT's gDebug value.");
       descriptions.add("InitRootHandlers", desc);
     }
 
