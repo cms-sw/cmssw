@@ -1,17 +1,17 @@
 autoCond = { 
     # GlobalTag for MC production with perfectly aligned and calibrated detector
-    'mc'                :   'MC_70_V4::All',
+    'mc'                :   'MC_70_V6::All',
     # GlobalTag for MC production with realistic alignment and calibrations
-    'startup'           :   'START70_V6::All',
+    'startup'           :   'START70_V7::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
-    'starthi'           :   'STARTHI70_V7::All',
+    'starthi'           :   'STARTHI70_V9::All',
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
-    'startpa'           :   'STARTHI70_V8::All',
+    'startpa'           :   'STARTHI70_V10::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
-    'com10'             :   'GR_R_70_V1::All',
+    'com10'             :   'GR_R_70_V2::All',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
-    'hltonline'         :   'GR_H_V33::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    'hltonline'         :   'GR_H_V35::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for POSTLS1 upgrade studies:
     'upgradePLS1'       :   'POSTLS170_V7::All',
     'upgradePLS150ns'   :   'POSTLS170_V6::All',
