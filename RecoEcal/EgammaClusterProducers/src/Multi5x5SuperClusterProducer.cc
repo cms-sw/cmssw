@@ -64,7 +64,7 @@ Multi5x5SuperClusterProducer::~Multi5x5SuperClusterProducer()
 }
 
 void
-Multi5x5SuperClusterProducer::endJob() {
+Multi5x5SuperClusterProducer::endStream() {
   double averEnergy = 0.;
   std::ostringstream str;
   str << "Multi5x5SuperClusterProducer::endJob()\n"
