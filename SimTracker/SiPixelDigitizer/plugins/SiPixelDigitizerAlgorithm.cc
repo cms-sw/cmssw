@@ -387,7 +387,7 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
 		     if (conf.exists("theModuleEfficiency_BPix3")) theModuleEfficiency_BPix[2] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix3");
 		     if (conf.exists("thePUEfficiency_BPix1")) thePUEfficiency_BPix[0] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1");
 		     if (conf.exists("thePUEfficiency_BPix2")) thePUEfficiency_BPix[1] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2");
-		     if (conf.exists("thePUEfficiency_BPix3")) thePUEfficiency_BPix[2] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3");		    
+		     if (conf.exists("thePUEfficiency_BPix3")) thePUEfficiency_BPix[2] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3");		    		    
 		     // The next is needed for Phase2 Tracker studies
 		     if (NumberOfBarrelLayers>=5){
 			if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
@@ -474,26 +474,19 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
     } // end for
 
 }
-
 //============================================================================
-void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
-                                         std::vector<PixelDigi>& digis,
-                                         std::vector<PixelDigiSimLink>& simlinks, 
-					 const TrackerTopology* tTopo,
-                                         CLHEP::HepRandomEngine* engine,
-					 PileupMixingContent* puInfo) {
+void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puInfo){
   //Instlumi scalefactor calculating for dynamic inefficiency
-
-  if (puInfo &&  
-      (pixelEfficiencies_.theModuleEfficiency_BPix[0].size()>0 || 
-       pixelEfficiencies_.theModuleEfficiency_BPix[1].size()>0 ||
-       pixelEfficiencies_.theModuleEfficiency_BPix[2].size()>0)) {
+  
+  if   (pixelEfficiencies_.theModuleEfficiency_BPix[0].size()>0 || 
+	pixelEfficiencies_.theModuleEfficiency_BPix[1].size()>0 ||
+	pixelEfficiencies_.theModuleEfficiency_BPix[2].size()>0) {
     
     std::cout << "puinfo is valid in digialgo, getting stuff..." << std::endl;
     const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
     const std::vector<int> numInteractionList = puInfo->getMix_Ninteractions();
     const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();      
-
+    
     for(int i : bunchCrossing) {
       std::cout << "bunchcrossing: " << i << std::endl;
     }
@@ -503,7 +496,7 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
     for(int i : TrueInteractionList) {
       std::cout << "true number of interactions: " << i << std::endl;
     }
-
+    
     int pui = 0, p = 0;
     std::vector<int>::const_iterator pu;
     std::vector<int>::const_iterator pu0 = bunchCrossing.end();
@@ -516,11 +509,11 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
       pui++;
     }
     
-    if (pu0!=bunchCrossing.end()) {
-      std::cout <<  TrueInteractionList.at(p) <<  " "<< bunchCrossing.at(p) << std::endl ;
+    if (pu0!=bunchCrossing.end()) {     
       double instlumi = TrueInteractionList.at(p)*221.95;
       double instlumi_pow=1.;
       for (size_t i=0; i<3; i++) {
+	_pu_scale[i] = 0;
 	if (pixelEfficiencies_.thePUEfficiency_BPix[i].empty()) continue;
 	for  (size_t j=0; j<pixelEfficiencies_.thePUEfficiency_BPix[i].size(); j++){
 	  _pu_scale[i]+=instlumi_pow*pixelEfficiencies_.thePUEfficiency_BPix[i][j];
@@ -529,7 +522,14 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
       }
     }
   }
-  
+}
+
+//============================================================================
+void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
+                                         std::vector<PixelDigi>& digis,
+                                         std::vector<PixelDigiSimLink>& simlinks, 
+					 const TrackerTopology* tTopo,
+                                         CLHEP::HepRandomEngine* engine) {  
   // Pixel Efficiency moved from the constructor to this method because
    // the information of the det are not available in the constructor
    // Effciency parameters. 0 - no inefficiency, 1-low lumi, 10-high lumi
