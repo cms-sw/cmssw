@@ -25,11 +25,13 @@
 //-------------------
 // Initializations --
 //-------------------
-int DTSequentialLayerNumber::layersPerWheel    = 0;
-int DTSequentialLayerNumber::layersPerSector   = 0;
-int DTSequentialLayerNumber::layersIn13Sectors = 0;
 
-int* DTSequentialLayerNumber::offsetChamber = 0;
+namespace {
+  constexpr int offsetChamber[] = { 0, 0, 12, 24, 36 };
+  constexpr int layersPerSector = 44;
+  constexpr int layersIn13Sectors = ( layersPerSector * 12 ) + 8;
+  constexpr int layersPerWheel = layersIn13Sectors + 8;
+}
 
 DTSequentialLayerNumber DTSequentialLayer;
 
@@ -38,16 +40,6 @@ DTSequentialLayerNumber DTSequentialLayer;
 // Constructors --
 //----------------
 DTSequentialLayerNumber::DTSequentialLayerNumber() {
-  if ( offsetChamber == 0 ) {
-    offsetChamber = new int[5];
-    offsetChamber[1] = 0;
-    offsetChamber[2] = 12;
-    offsetChamber[3] = 24;
-    offsetChamber[4] = 36;
-    layersPerSector   = 44;
-    layersIn13Sectors = ( layersPerSector * 12 ) + 8;
-    layersPerWheel = layersIn13Sectors + 8;
-  }
 }
 
 

@@ -6,8 +6,6 @@
  *       Class to hold high voltage status
  *             ( half layer by half layer )
  *
- *  $Date: 2009/09/25 12:03:19 $
- *  $Revision: 1.2 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,7 +18,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 class DTWireId;
 class DTLayerId;
 class DTChamberId;
@@ -30,6 +28,9 @@ class DTChamberId;
 //---------------
 #include <string>
 #include <vector>
+#include <utility>
+
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -174,19 +175,21 @@ class DTHVStatus {
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
  private:
+
+  DTHVStatus(DTHVStatus const&);
+  DTHVStatus& operator=(DTHVStatus const&);
 
   std::string dataVersion;
 
   std::vector< std::pair<DTHVStatusId,DTHVStatusData> > dataList;
 
-  DTBufferTree<int,int>* dBuf;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf;
 
   /// read and store full content
-  void cacheMap() const;
   std::string mapName() const;
 
 };
-
 #endif // DTHVStatus_H
-

@@ -4,9 +4,10 @@
  *
  *  Description:
  *       Class to map read-out channels to physical drift tubes
+ *       Many details related to this class are described in
+ *       internal note IN 2010_033. In particular the compact
+ *       format is described there.
  *
- *  $Date: 2010/01/20 18:20:08 $
- *  $Revision: 1.7 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,14 +20,18 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/Common/interface/AtomicPtrCache.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <vector>
 #include <string>
+
+class DTReadOutMappingCache;
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -144,33 +149,59 @@ class DTReadOutMapping {
   /// Expand to full map
   const DTReadOutMapping* fullMap() const;
 
+  void initialize();
+
  private:
+
+  DTReadOutMapping(DTReadOutMapping const&);
+  DTReadOutMapping& operator=(DTReadOutMapping const&);
+
+  edm::AtomicPtrCache<DTReadOutMappingCache> const& atomicCache() const { return atomicCache_; }
+  edm::AtomicPtrCache<DTReadOutMappingCache> & atomicCache() { return atomicCache_; }
+
+  edm::ConstRespectingPtr<DTReadOutMappingCache> const& cache() const { return cache_; }
+  edm::ConstRespectingPtr<DTReadOutMappingCache> & cache() { return cache_; }
 
   std::string cellMapVersion;
   std::string  robMapVersion;
 
   std::vector<DTReadOutGeometryLink> readOutChannelDriftTubeMap;
 
-  DTBufferTree<int,int>* mType;
-  DTBufferTree<int,int>* rgBuf;
-  DTBufferTree<int,int>* rgROB;
-  DTBufferTree<int,int>* rgROS;
-  DTBufferTree<int,int>* rgDDU;
-  DTBufferTree<int,int>* grBuf;
-  DTBufferTree<int,
-     std::vector<int>*>* grROB;
-  DTBufferTree<int,
-     std::vector<int>*>* grROS;
-  DTBufferTree<int,
-     std::vector<int>*>* grDDU;
+  // There are some caches to help look up the data in the
+  // preceding vector. cache_ holds a pointer to several
+  // maps. Normally it is automatically filled immediately
+  // after the object is read in from the database by the
+  // initialize function.  The initialize function is a
+  // non const function and it is not safe to call it
+  // concurrently.  That is why atomicCache_ exists.
+  // It holds exactly the same information, but the function
+  // that fills it is declared const and can be called concurrently.
+  // When the functions that use the caches are called
+  // the first time, atomicCache_ is filled if cache_
+  // has not already been filled. The initialize function
+  // is implemented to fill atomicCache_
+  // if it is not already filled, then move the pointer
+  // it holds into cache_. One would use atomicCache_
+  // in cases where the object is not read in from the
+  // database and the insert function was used to fill
+  // it. After all the inserts are done one could call
+  // readoutToGeometry or its inverse and use the maps.
+  // With the plain (noncompact) format, one can also do
+  // that even before all the inserts are done.
+  // rgBuf and grBuf are filled as new entries are inserted
+  // in the vector before either cache was filled.
+  // The caches contain their own rgBuf and grBuf after they
+  // are filled.
+  edm::ConstRespectingPtr<DTReadOutMappingCache> cache_;
+  edm::AtomicPtrCache<DTReadOutMappingCache> atomicCache_;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > rgBuf;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > grBuf;
 
   /// read and store full content
   void cacheMap() const;
+
   std::string mapNameRG() const;
   std::string mapNameGR() const;
 
 };
-
-
 #endif // DTReadOutMapping_H
-

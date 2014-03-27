@@ -1,8 +1,6 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/01 10:27:09 $
- *  $Revision: 1.23 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -15,8 +13,9 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-//#include "CondFormats/DTObjects/interface/DTDataBuffer.h"
+#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "CondFormats/DTObjects/interface/DTCompactMapAbstractHandler.h"
+#include "CondFormats/DTObjects/interface/DTReadOutMappingCache.h"
 
 //---------------
 // C++ Headers --
@@ -35,20 +34,22 @@
 //----------------
 DTReadOutMapping::DTReadOutMapping():
   cellMapVersion( " " ),
-   robMapVersion( " " ) {
+  robMapVersion( " " ),
+  rgBuf(new DTBufferTree<int,int>),
+  grBuf(new DTBufferTree<int,int>) {
+
   readOutChannelDriftTubeMap.reserve( 2000 );
-  mType = rgBuf = rgROB = rgROS = rgDDU = grBuf = 0;
-  grROB = grROS = grDDU = 0;
 }
 
 
 DTReadOutMapping::DTReadOutMapping( const std::string& cell_map_version,
                                     const std::string&  rob_map_version ):
   cellMapVersion( cell_map_version ),
-   robMapVersion(  rob_map_version ) {
+  robMapVersion(  rob_map_version ),
+  rgBuf(new DTBufferTree<int,int>),
+  grBuf(new DTBufferTree<int,int>) {
+
   readOutChannelDriftTubeMap.reserve( 2000 );
-  mType = rgBuf = rgROB = rgROS = rgDDU = grBuf = 0;
-  grROB = grROS = grDDU = 0;
 }
 
 
@@ -70,38 +71,6 @@ DTReadOutGeometryLink::DTReadOutGeometryLink():
 // Destructor --
 //--------------
 DTReadOutMapping::~DTReadOutMapping() {
-
-  delete mType;
-  delete rgBuf;
-
-  delete rgROB;
-  delete rgROS;
-  delete rgDDU;
-  delete grBuf;
-
-  if ( grROB != 0 ) {
-    std::vector<std::vector<int>*> gr_list = grROB->contList();
-    std::vector<std::vector<int>*>::const_iterator gr_iter = gr_list.begin();
-    std::vector<std::vector<int>*>::const_iterator gr_iend = gr_list.end();
-    while ( gr_iter != gr_iend ) delete *gr_iter++;
-  }
-  if ( grROS != 0 ) {
-    std::vector<std::vector<int>*> gr_list = grROS->contList();
-    std::vector<std::vector<int>*>::const_iterator gr_iter = gr_list.begin();
-    std::vector<std::vector<int>*>::const_iterator gr_iend = gr_list.end();
-    while ( gr_iter != gr_iend ) delete *gr_iter++;
-  }
-  if ( grDDU != 0 ) {
-    std::vector<std::vector<int>*> gr_list = grDDU->contList();
-    std::vector<std::vector<int>*>::const_iterator gr_iter = gr_list.begin();
-    std::vector<std::vector<int>*>::const_iterator gr_iend = gr_list.end();
-    while ( gr_iter != gr_iend ) delete *gr_iter++;
-  }
-
-  delete grROB;
-  delete grROS;
-  delete grDDU;
-
 }
 
 DTReadOutGeometryLink::~DTReadOutGeometryLink() {
@@ -161,14 +130,31 @@ int DTReadOutMapping::readOutToGeometry( int      dduId,
   layerId   =
   cellId    = 0;
 
-  if ( ( mType == 0 ) ||
-       ( rgBuf == 0 ) ||
-       ( rgROB == 0 ) ||
-       ( rgROS == 0 ) ||
-       ( rgDDU == 0 ) ) cacheMap();
+  DTBufferTree<int,int> const* pmType;
+  DTBufferTree<int,int> const* prgBuf;
+  DTBufferTree<int,int> const* prgDDU;
+  DTBufferTree<int,int> const* prgROS;
+  DTBufferTree<int,int> const* prgROB;
+
+  if(cache().isSet()) {
+    pmType = cache()->mType.get();
+    prgBuf = cache()->rgBuf.get();
+    prgDDU = cache()->rgDDU.get();
+    prgROS = cache()->rgROS.get();
+    prgROB = cache()->rgROB.get();
+  } else {
+    if(!atomicCache().isSet()) {
+      cacheMap();
+    }
+    pmType = atomicCache()->mType.get();
+    prgBuf = atomicCache()->rgBuf.get();
+    prgDDU = atomicCache()->rgDDU.get();
+    prgROS = atomicCache()->rgROS.get();
+    prgROB = atomicCache()->rgROB.get();
+  }
 
   int defaultValue;
-  mType->find( 0, defaultValue );
+  pmType->find( 0, defaultValue );
   if ( defaultValue ) {
 
     int searchStatus;
@@ -178,17 +164,17 @@ int DTReadOutMapping::readOutToGeometry( int      dduId,
     dduKey.reserve( 5 );
     dduKey.push_back( dduId );
     dduKey.push_back( rosId );
-    searchStatus = rgDDU->find( dduKey.begin(), dduKey.end(), ientry );
+    searchStatus = prgDDU->find( dduKey.begin(), dduKey.end(), ientry );
     if ( searchStatus ) return searchStatus;
     const DTReadOutGeometryLink& lros( readOutChannelDriftTubeMap[ientry] );
-      wheelId = lros.  wheelId;
-     sectorId = lros. sectorId;
+    wheelId = lros.  wheelId;
+    sectorId = lros. sectorId;
 
     std::vector<int> rosKey;
     rosKey.reserve( 5 );
     rosKey.push_back( lros. cellId );
     rosKey.push_back( robId );
-    searchStatus = rgROS->find( rosKey.begin(), rosKey.end(), ientry );
+    searchStatus = prgROS->find( rosKey.begin(), rosKey.end(), ientry );
     if ( searchStatus ) return searchStatus;
     const DTReadOutGeometryLink& lrob( readOutChannelDriftTubeMap[ientry] );
     if ( lrob.  wheelId != defaultValue )  wheelId = lrob.  wheelId;
@@ -200,7 +186,7 @@ int DTReadOutMapping::readOutToGeometry( int      dduId,
     robKey.push_back( lrob. cellId );
     robKey.push_back(     tdcId );
     robKey.push_back( channelId );
-    searchStatus = rgROB->find( robKey.begin(), robKey.end(), ientry );
+    searchStatus = prgROB->find( robKey.begin(), robKey.end(), ientry );
     if ( searchStatus ) return searchStatus;
     const DTReadOutGeometryLink& ltdc( readOutChannelDriftTubeMap[ientry] );
          slId = ltdc.     slId;
@@ -218,7 +204,7 @@ int DTReadOutMapping::readOutToGeometry( int      dduId,
   chanKey.push_back(     tdcId );
   chanKey.push_back( channelId );
   int ientry;
-  int searchStatus = rgBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  int searchStatus = prgBuf->find( chanKey.begin(), chanKey.end(), ientry );
   if ( !searchStatus ) {
     const DTReadOutGeometryLink& link( readOutChannelDriftTubeMap[ientry] );
       wheelId = link.  wheelId;
@@ -272,14 +258,31 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
   tdcId =
   channelId = 0;
 
-  if ( ( mType == 0 ) ||
-       ( grBuf == 0 ) ||
-       ( grROB == 0 ) ||
-       ( grROS == 0 ) ||
-       ( grDDU == 0 ) ) cacheMap();
+  DTBufferTree<int,int> const* pmType;
+  DTBufferTree<int,int> const* pgrBuf;
+  DTBufferTreeUniquePtr const* pgrDDU;
+  DTBufferTreeUniquePtr const* pgrROS;
+  DTBufferTreeUniquePtr const* pgrROB;
+
+  if(cache().isSet()) {
+    pmType = cache()->mType.get();
+    pgrBuf = cache()->grBuf.get();
+    pgrDDU = cache()->grDDU.get();
+    pgrROS = cache()->grROS.get();
+    pgrROB = cache()->grROB.get();
+  } else {
+    if(!atomicCache().isSet()) {
+      cacheMap();
+    }
+    pmType = atomicCache()->mType.get();
+    pgrBuf = atomicCache()->grBuf.get();
+    pgrDDU = atomicCache()->grDDU.get();
+    pgrROS = atomicCache()->grROS.get();
+    pgrROB = atomicCache()->grROB.get();
+  }
 
   int defaultValue;
-  mType->find( 0, defaultValue );
+  pmType->find( 0, defaultValue );
   if ( defaultValue ) {
 
     int loop1 = 0;
@@ -289,9 +292,9 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
 
     int searchStatus;
     int mapId = 0;
-    std::vector<int>* robMLgr;
-    std::vector<int>* rosMLgr;
-    std::vector<int>* dduMLgr;
+    std::vector<int> const* robMLgr;
+    std::vector<int> const* rosMLgr;
+    std::vector<int> const* dduMLgr;
 
     std::vector<int> cellKey;
     cellKey.reserve(6);
@@ -299,7 +302,7 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
     cellKey.push_back( layerId );
     cellKey.push_back(    slId );
     std::vector<int> stdcKey = cellKey;
-    searchStatus = grROB->find( cellKey.begin(), cellKey.end(), robMLgr );
+    searchStatus = pgrROB->find( cellKey.begin(), cellKey.end(), robMLgr );
     if ( searchStatus ) return searchStatus;
     if ( !( robMLgr->size() ) ) return 1;
     std::vector<int>::const_iterator tdc_iter = robMLgr->begin();
@@ -315,7 +318,7 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
       cellKey.push_back( mapId );
       cellKey.push_back( stationId );
       std::vector<int> srosKey = cellKey;
-      searchStatus = grROS->find( cellKey.begin(), cellKey.end(), rosMLgr );
+      searchStatus = pgrROS->find( cellKey.begin(), cellKey.end(), rosMLgr );
       if ( searchStatus ) continue;
       if ( !( rosMLgr->size() ) ) continue;
       std::vector<int>::const_iterator ros_iter = rosMLgr->begin();
@@ -337,7 +340,7 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
         cellKey.push_back(  wheelId );
         cellKey.push_back( sectorId );
         std::vector<int> sdduKey = cellKey;
-        searchStatus = grDDU->find( cellKey.begin(), cellKey.end(), dduMLgr );
+        searchStatus = pgrDDU->find( cellKey.begin(), cellKey.end(), dduMLgr );
         if ( searchStatus ) continue;
         if ( !( dduMLgr->size() ) ) continue;
         if ( searchStatus ) return searchStatus;
@@ -375,7 +378,7 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
   cellKey.push_back(   layerId );
   cellKey.push_back(    cellId );
   int ientry;
-  int searchStatus = grBuf->find( cellKey.begin(), cellKey.end(), ientry );
+  int searchStatus = pgrBuf->find( cellKey.begin(), cellKey.end(), ientry );
   if ( !searchStatus ) {
     const DTReadOutGeometryLink& link( readOutChannelDriftTubeMap[ientry] );
         dduId = link.    dduId;
@@ -391,9 +394,19 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
 
 
 DTReadOutMapping::type DTReadOutMapping::mapType() const {
-  if ( mType == 0 ) cacheMap();
+
+  DTBufferTree<int,int> const* pmType;
+  if(cache().isSet()) {
+    pmType = cache()->mType.get();
+  } else {
+    if(!atomicCache().isSet()) {
+      cacheMap();
+    }
+    pmType = atomicCache()->mType.get();
+  }
+
   int defaultValue;
-  mType->find( 0, defaultValue );
+  pmType->find( 0, defaultValue );
   if ( defaultValue ) return compact;
   else                return plain;
 }
@@ -422,10 +435,10 @@ std::string& DTReadOutMapping::mapRobRos() {
 
 
 void DTReadOutMapping::clear() {
-  delete rgBuf;
-  delete grBuf;
-  delete mType;
-  rgBuf = grBuf = mType = 0;
+  cache().reset();
+  atomicCache().reset();
+  rgBuf->clear();
+  grBuf->clear();
   readOutChannelDriftTubeMap.clear();
   return;
 }
@@ -458,15 +471,18 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
   int ientry = readOutChannelDriftTubeMap.size();
   readOutChannelDriftTubeMap.push_back( link );
 
-  if ( rgBuf == 0 ) {
-    DTBufferTree<int,int>** prgBuf;
-    prgBuf = const_cast<DTBufferTree<int,int>**>( &rgBuf );
-    *prgBuf = new DTBufferTree<int,int>;
-  }
-  if ( grBuf == 0 ) {
-    DTBufferTree<int,int>** pgrBuf;
-    pgrBuf = const_cast<DTBufferTree<int,int>**>( &grBuf );
-    *pgrBuf = new DTBufferTree<int,int>;
+  DTBufferTree<int,int>* pgrBuf;
+  DTBufferTree<int,int>* prgBuf;
+
+  if(cache().isSet()) {
+    pgrBuf = cache()->grBuf.get();
+    prgBuf = cache()->rgBuf.get();
+  } else if(atomicCache().isSet()) {
+    pgrBuf = atomicCache()->grBuf.get();
+    prgBuf = atomicCache()->rgBuf.get();
+  } else {
+    pgrBuf = grBuf.get();
+    prgBuf = rgBuf.get();
   }
 
   std::vector<int> cellKey;
@@ -477,8 +493,8 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
   cellKey.push_back(      slId );
   cellKey.push_back(   layerId );
   cellKey.push_back(    cellId );
-  int grStatus =
-  grBuf->insert( cellKey.begin(), cellKey.end(), ientry );
+  int grStatus = pgrBuf->insert( cellKey.begin(), cellKey.end(), ientry );
+
   std::vector<int> chanKey;
   chanKey.reserve(5);
   chanKey.push_back(     dduId );
@@ -486,8 +502,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
   chanKey.push_back(     robId );
   chanKey.push_back(     tdcId );
   chanKey.push_back( channelId );
-  int rgStatus =
-  rgBuf->insert( chanKey.begin(), chanKey.end(), ientry );
+  int rgStatus = prgBuf->insert( chanKey.begin(), chanKey.end(), ientry );
 
   if ( grStatus || rgStatus ) return 1;
   else                        return 0;
@@ -518,6 +533,18 @@ const DTReadOutMapping* DTReadOutMapping::fullMap() const {
 }
 
 
+void DTReadOutMapping::initialize() {
+  if(cache().isSet()) {
+    return;
+  } else if(atomicCache().isSet()) {
+    cache().set(std::unique_ptr<DTReadOutMappingCache>(atomicCache().release()));
+  } else {
+    cacheMap();
+    cache().set(std::unique_ptr<DTReadOutMappingCache>(atomicCache().release()));
+  }
+}
+
+
 std::string DTReadOutMapping::mapNameGR() const {
   std::stringstream name;
   name << cellMapVersion << "_" << robMapVersion << "_map_GR" << this;
@@ -534,44 +561,21 @@ std::string DTReadOutMapping::mapNameRG() const {
 
 void DTReadOutMapping::cacheMap() const {
 
-  DTBufferTree<int,int>** pmType;
-  pmType = const_cast<DTBufferTree<int,int>**>( &mType );
-  *pmType = new DTBufferTree<int,int>;
+  std::unique_ptr<DTReadOutMappingCache> theCache(new DTReadOutMappingCache);
 
-  mType->insert( 0, 0 );
+  theCache->mType.set(std::unique_ptr<DTBufferTree<int,int> >(new DTBufferTree<int,int>));
 
-  DTBufferTree<int,int>** prgBuf;
-  prgBuf = const_cast<DTBufferTree<int,int>**>( &rgBuf );
-  *prgBuf = new DTBufferTree<int,int>;
-  DTBufferTree<int,int>** pgrBuf;
-  pgrBuf = const_cast<DTBufferTree<int,int>**>( &grBuf );
-  *pgrBuf = new DTBufferTree<int,int>;
+  theCache->mType->insert( 0, 0 );
 
-  DTBufferTree<int,int>** prgROB;
-  prgROB = const_cast<DTBufferTree<int,int>**>( &rgROB );
-  *prgROB = new DTBufferTree<int,int>;
-  DTBufferTree<int,int>** prgROS;
-  prgROS = const_cast<DTBufferTree<int,int>**>( &rgROS );
-  *prgROS = new DTBufferTree<int,int>;
-  DTBufferTree<int,int>** prgDDU;
-  prgDDU = const_cast<DTBufferTree<int,int>**>( &rgDDU );
-  *prgDDU = new DTBufferTree<int,int>;
-  rgROB->setDefault( 0 );
-  rgROS->setDefault( 0 );
-  rgDDU->setDefault( 0 );
+  theCache->rgBuf.set(std::unique_ptr<DTBufferTree<int,int> >(new DTBufferTree<int,int>));
+  theCache->rgROB.set(std::unique_ptr<DTBufferTree<int,int> >(new DTBufferTree<int,int>));
+  theCache->rgROS.set(std::unique_ptr<DTBufferTree<int,int> >(new DTBufferTree<int,int>));
+  theCache->rgDDU.set(std::unique_ptr<DTBufferTree<int,int> >(new DTBufferTree<int,int>));
+  theCache->grBuf.set(std::unique_ptr<DTBufferTree<int,int> >(new DTBufferTree<int,int>));
 
-  DTBufferTree<int,std::vector<int>*>** pgrROB;
-  pgrROB = const_cast<DTBufferTree<int,std::vector<int>*>**>( &grROB );
-  *pgrROB = new DTBufferTree<int,std::vector<int>*>;
-  DTBufferTree<int,std::vector<int>*>** pgrROS;
-  pgrROS = const_cast<DTBufferTree<int,std::vector<int>*>**>( &grROS );
-  *pgrROS = new DTBufferTree<int,std::vector<int>*>;
-  DTBufferTree<int,std::vector<int>*>** pgrDDU;
-  pgrDDU = const_cast<DTBufferTree<int,std::vector<int>*>**>( &grDDU );
-  *pgrDDU = new DTBufferTree<int,std::vector<int>*>;
-  grROB->setDefault( 0 );
-  grROS->setDefault( 0 );
-  grDDU->setDefault( 0 );
+  theCache->grROB.set(std::unique_ptr<DTBufferTreeUniquePtr>(new DTBufferTreeUniquePtr));
+  theCache->grROS.set(std::unique_ptr<DTBufferTreeUniquePtr>(new DTBufferTreeUniquePtr));
+  theCache->grDDU.set(std::unique_ptr<DTBufferTreeUniquePtr>(new DTBufferTreeUniquePtr));
 
   int entryNum = 0;
   int entryMax = readOutChannelDriftTubeMap.size();
@@ -593,11 +597,11 @@ void DTReadOutMapping::cacheMap() const {
     val = link.stationId;
     if ( key > 0x3fffffff ) {
       if ( link.  tdcId > 0x3fffffff ) {
-        mType->insert( 0, defaultValue = link.  tdcId );
+        theCache->mType->insert( 0, defaultValue = link.  tdcId );
         rosMapKey = key;
       }
       else {
-        mType->insert( 0, defaultValue = link.wheelId );
+        theCache->mType->insert( 0, defaultValue = link.wheelId );
         robMapKey = key;
       }
     }
@@ -611,7 +615,7 @@ void DTReadOutMapping::cacheMap() const {
       chanKey.push_back( link.    tdcId );
       chanKey.push_back( link.channelId );
 
-      rgBuf->insert( chanKey.begin(), chanKey.end(), entryNum );
+      theCache->rgBuf->insert( chanKey.begin(), chanKey.end(), entryNum );
 
       cellKey.clear();
       cellKey.push_back( link.  wheelId );
@@ -621,7 +625,7 @@ void DTReadOutMapping::cacheMap() const {
       cellKey.push_back( link.  layerId );
       cellKey.push_back( link.   cellId );
 
-      grBuf->insert( cellKey.begin(), cellKey.end(), entryNum );
+      theCache->grBuf->insert( cellKey.begin(), cellKey.end(), entryNum );
 
     }
 
@@ -631,18 +635,21 @@ void DTReadOutMapping::cacheMap() const {
       chanKey.push_back( link.    rosId );
       chanKey.push_back( link.    tdcId );
       chanKey.push_back( link.channelId );
-      rgROB->insert( chanKey.begin(), chanKey.end(), entryNum );
+      theCache->rgROB->insert( chanKey.begin(), chanKey.end(), entryNum );
 
       cellKey.clear();
       cellKey.push_back( link. cellId );
       cellKey.push_back( link.layerId );
       cellKey.push_back( link.   slId );
       std::vector<int>* robMLgr;
-      grROB->find( cellKey.begin(), cellKey.end(), robMLgr );
-      if ( robMLgr == 0 ) grROB->insert( cellKey.begin(), cellKey.end(),
-                                         robMLgr = new std::vector<int> );
+      theCache->grROB->find( cellKey.begin(), cellKey.end(), robMLgr );
+      if ( robMLgr == 0 ) {
+        std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
+        robMLgr = newVector.get();
+        theCache->grROB->insert( cellKey.begin(), cellKey.end(),
+                                 std::move(newVector));
+      }
       robMLgr->push_back( entryNum );
-
     }
 
     if ( key == rosMapKey ) {
@@ -650,17 +657,20 @@ void DTReadOutMapping::cacheMap() const {
       chanKey.clear();
       chanKey.push_back( link.rosId );
       chanKey.push_back( link.robId );
-      rgROS->insert( chanKey.begin(), chanKey.end(), entryNum );
+      theCache->rgROS->insert( chanKey.begin(), chanKey.end(), entryNum );
 
       cellKey.clear();
       cellKey.push_back( link.   cellId );
       cellKey.push_back( link.stationId );
       std::vector<int>* rosMLgr;
-      grROS->find( cellKey.begin(), cellKey.end(), rosMLgr );
-      if ( rosMLgr == 0 ) grROS->insert( cellKey.begin(), cellKey.end(),
-                                         rosMLgr = new std::vector<int> );
+      theCache->grROS->find( cellKey.begin(), cellKey.end(), rosMLgr );
+      if ( rosMLgr == 0 ) {
+        std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
+        rosMLgr = newVector.get();
+        theCache->grROS->insert( cellKey.begin(), cellKey.end(),
+                                 std::move(newVector));
+      }
       rosMLgr->push_back( entryNum );
-
     }
 
     if ( ( key < 0x3fffffff ) &&
@@ -669,7 +679,7 @@ void DTReadOutMapping::cacheMap() const {
       chanKey.clear();
       chanKey.push_back( link.dduId );
       chanKey.push_back( link.rosId );
-      rgDDU->insert( chanKey.begin(), chanKey.end(), entryNum );
+      theCache->rgDDU->insert( chanKey.begin(), chanKey.end(), entryNum );
 
       int mapId = link.cellId;
       std::vector<int>* dduMLgr;
@@ -715,12 +725,15 @@ void DTReadOutMapping::cacheMap() const {
         cellKey.push_back(  wheelId );
         cellKey.push_back( sectorId );
         std::vector<int>* dduMLgr = 0;
-        grDDU->find( cellKey.begin(), cellKey.end(), dduMLgr );
-        if ( dduMLgr == 0 ) grDDU->insert( cellKey.begin(), cellKey.end(),
-                                           dduMLgr = new std::vector<int> );
+        theCache->grDDU->find( cellKey.begin(), cellKey.end(), dduMLgr );
+        if ( dduMLgr == 0 ) {
+          std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
+          dduMLgr = newVector.get();
+          theCache->grDDU->insert( cellKey.begin(), cellKey.end(),
+                                   std::move(newVector) );
+        }
         dduMLgr->push_back( ientry );
       }
-
     }
 
     std::map<int,std::vector<int>*>::const_iterator dduEntIter =
@@ -732,14 +745,11 @@ void DTReadOutMapping::cacheMap() const {
       delete dduEntry.second;
     }
 
-    delete rgBuf;
-    delete grBuf;
-  *prgBuf = new DTBufferTree<int,int>;
-  *pgrBuf = new DTBufferTree<int,int>;
-
+    theCache->rgBuf->clear();
+    theCache->grBuf->clear();
   }
 
+  atomicCache().set(std::move(theCache));
+
   return;
-
 }
-
