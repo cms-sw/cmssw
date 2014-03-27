@@ -98,7 +98,7 @@ bool ora::STLContainerWriter::build( DataElement& offset,
                     "STLContainerWriter::build" );
   }
 
-  std::string valueName("value_type");
+  std::string valueName(m_associative ? "mapped_type" : "value_type");
   // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( valueName );
   if ( iMe == m_mappingElement.end() ) {
@@ -311,7 +311,7 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
                     "STLContainerReader::build" );
   }
 
-  std::string valueName("value_type");
+  std::string valueName(m_associative ? "mapped_type" : "value_type");
   // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( valueName );
   if ( iMe == m_mappingElement.end() ) {
