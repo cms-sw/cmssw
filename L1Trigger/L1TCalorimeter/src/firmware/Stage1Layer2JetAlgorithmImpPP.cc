@@ -39,8 +39,8 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
 
 
   std::vector<l1t::CaloRegion> * subRegions = new std::vector<l1t::CaloRegion>();
-  //bool Correct=true;
-  bool Correct=false;
+  bool Correct=true;
+  // bool Correct=false;
   if (Correct){
     RegionCorrection(regions, EMCands, subRegions);
   }else{
