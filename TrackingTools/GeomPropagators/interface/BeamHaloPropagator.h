@@ -47,7 +47,7 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
     }
 
 
-    void setPropagationDirection (PropagationDirection dir)
+    void setPropagationDirection (PropagationDirection dir) override
     {
       Propagator::setPropagationDirection(dir);
       theEndCapTkProp->setPropagationDirection(dir);
