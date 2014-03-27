@@ -490,22 +490,21 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MaxEInEmTowers"  ,mMaxEInEmTowers));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MaxEInHadTowers" ,mMaxEInHadTowers));
 
-    if(!diJetSelectionFlag_ ) {
-      mHadEnergyInHO          = ibooker.book1D("HadEnergyInHO", "HadEnergyInHO", 100, 0, 10);
-      mHadEnergyInHB          = ibooker.book1D("HadEnergyInHB", "HadEnergyInHB", 100, 0, 50);
-      mHadEnergyInHF          = ibooker.book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 50);
-      mHadEnergyInHE          = ibooker.book1D("HadEnergyInHE", "HadEnergyInHE", 100, 0, 100);
-      mEmEnergyInEB           = ibooker.book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 50);
-      mEmEnergyInEE           = ibooker.book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 50);
-      mEmEnergyInHF           = ibooker.book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 100);
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"mHadEnergyInHO"  ,mHadEnergyInHO));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"mHadEnergyInHB"  ,mHadEnergyInHB));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"mHadEnergyInHF"  ,mHadEnergyInHF));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"mHadEnergyInHE"  ,mHadEnergyInHE));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EmEnergyInEB" ,mEmEnergyInEB));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EmEnergyInEE" ,mEmEnergyInEE));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EmEnergyInHF" ,mEmEnergyInHF));
-    }
+    mHadEnergyInHO          = ibooker.book1D("HadEnergyInHO", "HadEnergyInHO", 100, 0, 20);
+    mHadEnergyInHB          = ibooker.book1D("HadEnergyInHB", "HadEnergyInHB", 100, 0, 100);
+    mHadEnergyInHF          = ibooker.book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 100);
+    mHadEnergyInHE          = ibooker.book1D("HadEnergyInHE", "HadEnergyInHE", 100, 0, 200);
+    mEmEnergyInEB           = ibooker.book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 100);
+    mEmEnergyInEE           = ibooker.book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 100);
+    mEmEnergyInHF           = ibooker.book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 200);
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HadEnergyInHO"  ,mHadEnergyInHO));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HadEnergyInHB"  ,mHadEnergyInHB));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HadEnergyInHF"  ,mHadEnergyInHF));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HadEnergyInHE"  ,mHadEnergyInHE));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EmEnergyInEB" ,mEmEnergyInEB));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EmEnergyInEE" ,mEmEnergyInEE));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EmEnergyInHF" ,mEmEnergyInHF));
+    
     //JetID variables
     mresEMF                 = ibooker.book1D("resEMF", "resEMF", 50, 0., 1.);
     mN90Hits                = ibooker.book1D("N90Hits", "N90Hits", 100, 0., 100);
@@ -956,9 +955,9 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     mHFEEn_lowPt_Forward    = ibooker.book1D("HFEEn_lowPt_Forward", "HFEEn_lowPt_Forward", ptBin_, 0., ptMax_);
     mHFHEn_lowPt_Forward    = ibooker.book1D("HFHEn_lowPt_Forward", "HFHEn_lowPt_Forward", ptBin_, 0., 2.0*ptMax_);
     mHFEEn_mediumPt_Forward = ibooker.book1D("HFEEn_mediumPt_Forward", "HFEEn_mediumPt_Forward", ptBin_, 0., 1.5*ptMax_);
-    mHFHEn_mediumPt_Forward = ibooker.book1D("HFHEn_mediumPt_Forward", "HFHEn_mediumPt_Forward", ptBin_, 0., 2.0*ptMax_);
+    mHFHEn_mediumPt_Forward = ibooker.book1D("HFHEn_mediumPt_Forward", "HFHEn_mediumPt_Forward", ptBin_, 0., 2.5*ptMax_);
     mHFEEn_highPt_Forward   = ibooker.book1D("HFEEn_highPt_Forward", "HFEEn_highPt_Forward", ptBin_, 0., 1.5*ptMax_);
-    mHFHEn_highPt_Forward   = ibooker.book1D("HFHEn_highPt_Forward", "HFHEn_highPt_Forward", ptBin_, 0., 3.0*ptMax_);
+    mHFHEn_highPt_Forward   = ibooker.book1D("HFHEn_highPt_Forward", "HFHEn_highPt_Forward", ptBin_, 0., 5.0*ptMax_);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHEn_lowPt_Forward"    ,mHFHEn_lowPt_Forward));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFEEn_lowPt_Forward"    ,mHFEEn_lowPt_Forward));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"HFHEn_mediumPt_Forward" ,mHFHEn_mediumPt_Forward));
