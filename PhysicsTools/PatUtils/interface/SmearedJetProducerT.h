@@ -224,7 +224,7 @@ class SmearedJetProducerT : public edm::EDProducer
     for ( int jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
       const T& jet = jets->at(jetIndex);
 
-      static SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
+      static const SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
       reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(jet);
       if ( verbosity_ ) {
 	std::cout << "rawJet: Pt = " << rawJetP4.pt() << ", eta = " << rawJetP4.eta() << ", phi = " << rawJetP4.phi() << std::endl;
