@@ -27,21 +27,19 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include <string>
 
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/DeadChannelNNContext.h"
 
 class EEDeadChannelRecoveryAlgos  {
    public:
-  EEDeadChannelRecoveryAlgos(const CaloTopology * theCaloTopology);
- 
+  void setCaloTopology(const CaloTopology  *theCaloTopology);
   EcalRecHit correct(const EEDetId Id, const EcalRecHitCollection* hit_collection, std::string algo_, double Sum8Cut, bool* AccFlag);
   
  private:
-  
   
   const CaloTopology * calotopo;
   double MakeNxNMatrice_RelMC(EEDetId itID,const EcalRecHitCollection* hit_collection, double *MNxN_RelMC, bool* AccFlag);
   double MakeNxNMatrice_RelDC(EEDetId itID,const EcalRecHitCollection* hit_collection, double *MNxN_RelDC, bool* AccFlag);
   
-  // ----------member data ---------------------------
-  
+  DeadChannelNNContext nn; 
 };
 #endif

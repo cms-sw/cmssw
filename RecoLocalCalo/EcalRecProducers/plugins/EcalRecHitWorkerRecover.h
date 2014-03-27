@@ -25,7 +25,8 @@
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EBDeadChannelRecoveryAlgos.h"
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EEDeadChannelRecoveryAlgos.h"
 
 class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
         public: 
@@ -92,6 +93,10 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
                 std::set<DetId> recoveredDetIds_EE_;
 
 		EcalTPGScale tpgscale_;
+
+	EBDeadChannelRecoveryAlgos ebDeadChannelCorrector;
+	EEDeadChannelRecoveryAlgos eeDeadChannelCorrector;
+
 };
 
 #endif

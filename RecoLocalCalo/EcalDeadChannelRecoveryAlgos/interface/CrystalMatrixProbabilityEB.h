@@ -1,3 +1,6 @@
+#ifndef RecoLocalCalo_EcalDeadChannelRecoveryAlgos_CrystalMatrixProbabilityEB_CC
+#define RecoLocalCalo_EcalDeadChannelRecoveryAlgos_CrystalMatrixProbabilityEB_CC
+
 // 
 //  Original Author:   Stilianos Kesisoglou - Institute of Nuclear and Particle Physics NCSR Demokritos (Stilianos.Kesisoglou@cern.ch)
 //          Created:   Mon Feb 04 10:45:16 EET 2013
@@ -67,3 +70,5 @@ double EBReftRight(double x){
     return vEBReftRight ; 
 
 }
+
+#endif

@@ -15,9 +15,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EBDeadChannelRecoveryAlgos.h"
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EEDeadChannelRecoveryAlgos.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -134,17 +131,19 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 
                     // recover as single dead channel
                     const EcalRecHitCollection * hit_collection = &result;
-                    EBDeadChannelRecoveryAlgos deadChannelCorrector(caloTopology_.product());
+					ebDeadChannelCorrector.setCaloTopology(caloTopology_.product());
 
                     // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
                     bool AcceptRecHit=true;
-                    EcalRecHit hit = deadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+                    EcalRecHit hit = ebDeadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+                    std::cout << "Recovery stuff. EB single " << AcceptRecHit << std::endl;
                     if ( hit.energy() != 0 and AcceptRecHit == true ) {
 		                hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
                     } else {
 		                // recovery failed
 		                hit.setFlag( EcalRecHit::kDead ) ;
                     }
+                    std::cout << hit << std::endl;
                     insertRecHit( hit, result );
                 
         } else if ( flags == EcalRecHitWorkerRecover::EB_VFE ) {
@@ -199,14 +198,15 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         }
                 }
         } else if ( flags == EcalRecHitWorkerRecover::EE_single ) {
+            std::cout << "Recovery stuff. EE single" << std::endl;
 
                     // recover as single dead channel
                     const EcalRecHitCollection * hit_collection = &result;
-                    EEDeadChannelRecoveryAlgos deadChannelCorrector(caloTopology_.product());
+					eeDeadChannelCorrector.setCaloTopology(caloTopology_.product());
 
                     // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
                     bool AcceptRecHit=true;
-                    EcalRecHit hit = deadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+                    EcalRecHit hit = eeDeadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
                     if ( hit.energy() != 0 and AcceptRecHit == true ) {
 		                hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
                     } else {

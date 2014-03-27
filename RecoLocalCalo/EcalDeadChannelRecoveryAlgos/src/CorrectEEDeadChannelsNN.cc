@@ -1,44 +1,17 @@
-// -*- C++ -*-
-//
-// Package:    EcalDeadChannelRecoveryAlgos
-// Class:      CorrectEEDeadChannelsNN
-//
-/**\class CorrectEEDeadChannelsNN CorrectEEDeadChannelsNN.cc RecoLocalCalo/EcalDeadChannelRecoveryAlgos/src/CorrectEEDeadChannelsNN.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-     
-     Return Value:  1)  Normal execution returns a positive number ("double"), coresponding to the ANN estimate for the energy of the "dead" cell.
-                    2)  Non-normal execution returns a negative number ("double") with the following meaning:
-                            -1000000.0      Zero DC's were detected
-                            -1000001.0      More than one DC's detected.
-                            -2000000.0      Non-positive (i.e negative or zero) cell energy detected within at least one "live" cell
-                            -3000000.0      Detector region provided was EB but no match with a "dead" cell case was detected
-                            -3000001.0      Detector region provided was EE but no match with a "dead" cell case was detected
-                        To avoid future conflicts the return values have been set to very-high unphysical values
-*/
-// 
-//  Original Author:   Stilianos Kesisoglou - Institute of Nuclear and Particle Physics NCSR Demokritos (Stilianos.Kesisoglou@cern.ch)
-//          Created:   Wed Nov 21 11:24:39 EET 2012
-// 
-//      Nov 21 2012:   First version of the code. Based on the old "CorrectDeadChannelsNN.cc" code
-//
-
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <TMath.h>
 
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/xyNNEE.h"
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/CorrectEEDeadChannelsNN.h"
     
 using namespace std;
 
-double CorrectEEDeadChannelsNN(double *M3x3Input, double epsilon=0.0000001) {
+double CorrectEEDeadChannelsNN(DeadChannelNNContext &ctx, double *M3x3Input, double epsilon) {
 
     double NNResult ;
+	typedef DeadChannelNNContext::NetworkID NT;
     
     //  Arrangement within the M3x3Input matrix
     //
@@ -97,7 +70,7 @@ double CorrectEEDeadChannelsNN(double *M3x3Input, double epsilon=0.0000001) {
         lnLL = TMath::Log( M3x3[LL] ) ;                                 lnRR = TMath::Log( M3x3[RR] ) ;
         lnLD = TMath::Log( M3x3[LD] ) ; lnDD = TMath::Log( M3x3[DD] ) ; lnRD = TMath::Log( M3x3[RD] ) ;
                 
-        ccNNEE* ccNNObjEE = new ccNNEE();   NNResult = TMath::Exp( ccNNObjEE->Value( 0, lnRR, lnLL, lnUU, lnDD, lnRU, lnRD, lnLU, lnLD ) ) ;    delete ccNNObjEE ;
+		NNResult = TMath::Exp(ctx.value(NT::ccEE, 0, lnRR, lnLL, lnUU, lnDD, lnRU, lnRD, lnLU, lnLD ) ) ;
                 
         M3x3Input[CC] = NNResult ;
         
@@ -107,7 +80,7 @@ double CorrectEEDeadChannelsNN(double *M3x3Input, double epsilon=0.0000001) {
         lnLL = TMath::Log( M3x3[LL] ) ; lnCC = TMath::Log( M3x3[CC] ) ;
         lnLD = TMath::Log( M3x3[LD] ) ; lnDD = TMath::Log( M3x3[DD] ) ; lnRD = TMath::Log( M3x3[RD] ) ;
                 
-        rrNNEE* rrNNObjEE = new rrNNEE();   NNResult = TMath::Exp( rrNNObjEE->Value( 0, lnCC, lnLL, lnUU, lnDD, lnRU, lnRD, lnLU, lnLD ) ) ;    delete rrNNObjEE ;
+		NNResult = TMath::Exp(ctx.value(NT::rrEE, 0, lnCC, lnLL, lnUU, lnDD, lnRU, lnRD, lnLU, lnLD ) ) ;
 
         M3x3Input[RR] = NNResult ;
                 
@@ -117,7 +90,7 @@ double CorrectEEDeadChannelsNN(double *M3x3Input, double epsilon=0.0000001) {
                                         lnCC = TMath::Log( M3x3[CC] ) ; lnRR = TMath::Log( M3x3[RR] ) ;
         lnLD = TMath::Log( M3x3[LD] ) ; lnDD = TMath::Log( M3x3[DD] ) ; lnRD = TMath::Log( M3x3[RD] ) ;
                 
-        llNNEE* llNNObjEE = new llNNEE();   NNResult = TMath::Exp( llNNObjEE->Value( 0, lnCC, lnRR, lnUU, lnDD, lnRU, lnRD, lnLU, lnLD ) ) ;    delete llNNObjEE ;
+		NNResult = TMath::Exp(ctx.value(NT::llEE, 0, lnCC, lnRR, lnUU, lnDD, lnRU, lnRD, lnLU, lnLD ) ) ;
                 
         M3x3Input[LL] = NNResult ;
         
@@ -127,7 +100,7 @@ double CorrectEEDeadChannelsNN(double *M3x3Input, double epsilon=0.0000001) {
         lnLL = TMath::Log( M3x3[LL] ) ; lnCC = TMath::Log( M3x3[CC] ) ; lnRR = TMath::Log( M3x3[RR] ) ;
         lnLD = TMath::Log( M3x3[LD] ) ; lnDD = TMath::Log( M3x3[DD] ) ; lnRD = TMath::Log( M3x3[RD] ) ;
                 
-        uuNNEE* uuNNObjEE = new uuNNEE();   NNResult = TMath::Exp( uuNNObjEE->Value( 0, lnCC, lnRR, lnLL, lnDD, lnRU, lnRD, lnLU, lnLD ) ) ;    delete uuNNObjEE ;
+		NNResult = TMath::Exp(ctx.value(NT::uuEE, 0, lnCC, lnRR, lnLL, lnDD, lnRU, lnRD, lnLU, lnLD ) ) ;
 
         M3x3Input[UU] = NNResult ;
                 
@@ -137,7 +110,7 @@ double CorrectEEDeadChannelsNN(double *M3x3Input, double epsilon=0.0000001) {
         lnLL = TMath::Log( M3x3[LL] ) ; lnCC = TMath::Log( M3x3[CC] ) ; lnRR = TMath::Log( M3x3[RR] ) ;
         lnLD = TMath::Log( M3x3[LD] ) ;                                 lnRD = TMath::Log( M3x3[RD] ) ;
                 
-        ddNNEE* ddNNObjEE = new ddNNEE();   NNResult = TMath::Exp( ddNNObjEE->Value( 0, lnCC, lnRR, lnLL, lnUU, lnRU, lnRD, lnLU, lnLD ) ) ;    delete ddNNObjEE ;
+		NNResult = TMath::Exp(ctx.value(NT::ddEE, 0, lnCC, lnRR, lnLL, lnUU, lnRU, lnRD, lnLU, lnLD ) ) ;
                 
         M3x3Input[DD] = NNResult ;
         
@@ -147,7 +120,7 @@ double CorrectEEDeadChannelsNN(double *M3x3Input, double epsilon=0.0000001) {
         lnLL = TMath::Log( M3x3[LL] ) ; lnCC = TMath::Log( M3x3[CC] ) ; lnRR = TMath::Log( M3x3[RR] ) ;
         lnLD = TMath::Log( M3x3[LD] ) ; lnDD = TMath::Log( M3x3[DD] ) ; lnRD = TMath::Log( M3x3[RD] ) ;
                 
-        ruNNEE* ruNNObjEE = new ruNNEE();   NNResult = TMath::Exp( ruNNObjEE->Value( 0, lnCC, lnRR, lnLL, lnUU, lnDD, lnRD, lnLU, lnLD ) ) ;    delete ruNNObjEE ;
+		NNResult = TMath::Exp(ctx.value(NT::ruEE, 0, lnCC, lnRR, lnLL, lnUU, lnDD, lnRD, lnLU, lnLD ) ) ;
 
         M3x3Input[RU] = NNResult ;
                 
@@ -157,7 +130,7 @@ double CorrectEEDeadChannelsNN(double *M3x3Input, double epsilon=0.0000001) {
         lnLL = TMath::Log( M3x3[LL] ) ; lnCC = TMath::Log( M3x3[CC] ) ; lnRR = TMath::Log( M3x3[RR] ) ;
         lnLD = TMath::Log( M3x3[LD] ) ; lnDD = TMath::Log( M3x3[DD] ) ; 
                 
-        rdNNEE* rdNNObjEE = new rdNNEE();   NNResult = TMath::Exp( rdNNObjEE->Value( 0, lnCC, lnRR, lnLL, lnUU, lnDD, lnRU, lnLU, lnLD ) ) ;    delete rdNNObjEE ;
+		NNResult = TMath::Exp(ctx.value(NT::rdEE, 0, lnCC, lnRR, lnLL, lnUU, lnDD, lnRU, lnLU, lnLD ) ) ;
                 
         M3x3Input[RD] = NNResult ;
         
@@ -167,7 +140,7 @@ double CorrectEEDeadChannelsNN(double *M3x3Input, double epsilon=0.0000001) {
         lnLL = TMath::Log( M3x3[LL] ) ; lnCC = TMath::Log( M3x3[CC] ) ; lnRR = TMath::Log( M3x3[RR] ) ;
         lnLD = TMath::Log( M3x3[LD] ) ; lnDD = TMath::Log( M3x3[DD] ) ; lnRD = TMath::Log( M3x3[RD] ) ;
                 
-        luNNEE* luNNObjEE = new luNNEE();   NNResult = TMath::Exp( luNNObjEE->Value( 0, lnCC, lnRR, lnLL, lnUU, lnDD, lnRU, lnRD, lnLD ) ) ;    delete luNNObjEE ;
+		NNResult = TMath::Exp(ctx.value(NT::luEE, 0, lnCC, lnRR, lnLL, lnUU, lnDD, lnRU, lnRD, lnLD ) ) ;
 
         M3x3Input[LU] = NNResult ;
 
@@ -177,7 +150,7 @@ double CorrectEEDeadChannelsNN(double *M3x3Input, double epsilon=0.0000001) {
         lnLL = TMath::Log( M3x3[LL] ) ; lnCC = TMath::Log( M3x3[CC] ) ; lnRR = TMath::Log( M3x3[RR] ) ;
                                         lnDD = TMath::Log( M3x3[DD] ) ; lnRD = TMath::Log( M3x3[RD] ) ;
                                                          
-        ldNNEE* ldNNObjEE = new ldNNEE();   NNResult = TMath::Exp( ldNNObjEE->Value( 0, lnCC, lnRR, lnLL, lnUU, lnDD, lnRU, lnRD, lnLU ) ) ;    delete ldNNObjEE ;
+		NNResult = TMath::Exp(ctx.value(NT::ldEE, 0, lnCC, lnRR, lnLL, lnUU, lnDD, lnRU, lnRD, lnLU ) ) ;
                 
         M3x3Input[LD] = NNResult ;
         

@@ -32,7 +32,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "RecoLocalCalo/EcalDeadChannelRecoveryProducers/interface/EBDeadChannelRecoveryProducers.h"
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EBDeadChannelRecoveryAlgos.h"
 
 #include <string>
 #include <cstdio>
@@ -98,12 +97,11 @@ EBDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup& 
 
     // create an auto_ptr to a EcalRecHitCollection, copy the RecHits into it and put it in the Event:
     std::auto_ptr< EcalRecHitCollection > redCollection(new EcalRecHitCollection);
-
-    EBDeadChannelRecoveryAlgos *DeadChannelCorrector = new EBDeadChannelRecoveryAlgos(theCaloTopology.product());
+	ebDeadChannelCorrector.setCaloTopology(theCaloTopology.product());
 
     //
     //  Double loop over EcalRecHit collection and "dead" cell RecHits.
-    //  If we step into a "dead" cell call "DeadChannelCorrector::correct()"
+    //  If we step into a "dead" cell call "ebDeadChannelCorrector::correct()"
     //
     for (EcalRecHitCollection::const_iterator it = hit_collection->begin(); it != hit_collection->end(); ++it) {
         std::vector<EBDetId>::const_iterator CheckDead = ChannelsDeadID.begin();
@@ -112,7 +110,7 @@ EBDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup& 
             if (it->detid()==*CheckDead) {
                 OverADeadRecHit=true;
                 bool AcceptRecHit=true;
-                EcalRecHit NewRecHit = DeadChannelCorrector->correct(it->detid(),hit_collection,CorrectionMethod_,Sum8GeVThreshold_, &AcceptRecHit);
+                EcalRecHit NewRecHit = ebDeadChannelCorrector.correct(it->detid(),hit_collection,CorrectionMethod_,Sum8GeVThreshold_, &AcceptRecHit);
                 //  Accept the new rec hit if the flag is true.
                 if( AcceptRecHit ) { redCollection->push_back( NewRecHit ); }
                 else               { redCollection->push_back( *it );}
@@ -123,8 +121,6 @@ EBDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup& 
         if (!OverADeadRecHit) { redCollection->push_back( *it ) ; }
     }
     
-    delete DeadChannelCorrector ;
-
     evt.put(redCollection, reducedHitCollection_);
 }
 

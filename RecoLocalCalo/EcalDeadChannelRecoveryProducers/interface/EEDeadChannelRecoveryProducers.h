@@ -22,6 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
 
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EEDeadChannelRecoveryAlgos.h"
 //
 // class decleration
 //
@@ -47,6 +48,7 @@ class EEDeadChannelRecoveryProducers : public edm::EDProducer {
   bool CorrectDeadCells_;
   std::string CorrectionMethod_;
 
+  EEDeadChannelRecoveryAlgos eeDeadChannelCorrector;
 };
 
 

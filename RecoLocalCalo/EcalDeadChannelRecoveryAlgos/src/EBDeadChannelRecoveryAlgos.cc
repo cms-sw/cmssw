@@ -40,21 +40,18 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EBDeadChannelRecoveryAlgos.h"
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/src/CorrectEBDeadChannelsNN.cc"
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/src/CrystalMatrixProbabilityEB.cc"
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/CorrectEBDeadChannelsNN.h"
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/CrystalMatrixProbabilityEB.h"
 
 #include <string>
 using namespace cms;
 using namespace std;
 
-
-EBDeadChannelRecoveryAlgos::EBDeadChannelRecoveryAlgos(const CaloTopology  * theCaloTopology)
+void EBDeadChannelRecoveryAlgos::setCaloTopology(const CaloTopology  *theCaloTopology)
 {
     // now do what ever initialization is needed
     calotopo = theCaloTopology;
 }
-
-
 
 
 //
@@ -80,13 +77,15 @@ EcalRecHit EBDeadChannelRecoveryAlgos::correct(const EBDetId Id, const EcalRecHi
     double sum8_RelMC = MakeNxNMatrice_RelMC(Id,hit_collection,MNxN_RelMC,AcceptFlag);
     double sum8_RelDC = MakeNxNMatrice_RelDC(Id,hit_collection,MNxN_RelDC,AcceptFlag);
 
+    std::cout << "MC: " << sum8_RelMC << " DC: " << sum8_RelDC << std::endl;
     //  Only if "AcceptFlag" is true call the ANN
     if ( *AcceptFlag ) {
         if (algo_=="NeuralNetworks") {
+            std::cout << "hi" << std::endl;
             if (sum8_RelDC > Sum8Cut && sum8_RelMC > Sum8Cut) {
             
-                NewEnergy_RelMC = CorrectEBDeadChannelsNN(MNxN_RelMC);
-                NewEnergy_RelDC = CorrectEBDeadChannelsNN(MNxN_RelDC);
+                NewEnergy_RelMC = CorrectEBDeadChannelsNN(this->nn, MNxN_RelMC);
+                NewEnergy_RelDC = CorrectEBDeadChannelsNN(this->nn, MNxN_RelDC);
                 
                 //  Matrices "MNxN_RelMC" and "MNxN_RelDC" have now the full set of energies, the original ones plus 
                 //  whatever "estimates" by the ANN for the "dead" xtal. Use those full matrices and calculate probabilities.
@@ -131,6 +130,7 @@ EcalRecHit EBDeadChannelRecoveryAlgos::correct(const EBDetId Id, const EcalRecHi
     // Choose 10 as highest possible energy to be assigned to the dead channel under any scenario.
     uint32_t flag = 0;
     
+    std::cout << "New energy: " << NewEnergy << std::endl;
     if ( NewEnergy > 10.0 * sum8 ) { *AcceptFlag=false ; NewEnergy = 0.0 ; }
 
     EcalRecHit NewHit(Id,NewEnergy,0, flag);

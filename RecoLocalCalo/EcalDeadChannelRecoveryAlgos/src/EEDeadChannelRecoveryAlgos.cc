@@ -39,21 +39,19 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EEDeadChannelRecoveryAlgos.h"
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/src/CorrectEEDeadChannelsNN.cc"
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/src/CrystalMatrixProbabilityEE.cc"
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/CorrectEEDeadChannelsNN.h"
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/CrystalMatrixProbabilityEE.h"
 
 #include <string>
 using namespace cms;
 using namespace std;
 
 
-EEDeadChannelRecoveryAlgos::EEDeadChannelRecoveryAlgos(const CaloTopology  * theCaloTopology)
+void EEDeadChannelRecoveryAlgos::setCaloTopology(const CaloTopology  *theCaloTopology)
 {
     // now do what ever initialization is needed
     calotopo = theCaloTopology;
 }
-
-
 
 //
 // member functions
@@ -75,16 +73,16 @@ EcalRecHit EEDeadChannelRecoveryAlgos::correct(const EEDetId Id, const EcalRecHi
 
     double sum8 = 0.0;
 
-    double sum8_RelMC = MakeNxNMatrice_RelMC(Id,hit_collection,MNxN_RelMC,AcceptFlag);
-    double sum8_RelDC = MakeNxNMatrice_RelDC(Id,hit_collection,MNxN_RelDC,AcceptFlag);
+    double sum8_RelMC = MakeNxNMatrice_RelMC(Id, hit_collection,MNxN_RelMC,AcceptFlag);
+    double sum8_RelDC = MakeNxNMatrice_RelDC(Id, hit_collection,MNxN_RelDC,AcceptFlag);
 
     //  Only if "AcceptFlag" is true call the ANN
     if ( *AcceptFlag ) {
         if (algo_=="NeuralNetworks") {
             if (sum8_RelDC > Sum8Cut && sum8_RelMC > Sum8Cut) {
             
-                NewEnergy_RelMC = CorrectEEDeadChannelsNN(MNxN_RelMC);
-                NewEnergy_RelDC = CorrectEEDeadChannelsNN(MNxN_RelDC);
+                NewEnergy_RelMC = CorrectEEDeadChannelsNN(this->nn, MNxN_RelMC);
+                NewEnergy_RelDC = CorrectEEDeadChannelsNN(this->nn, MNxN_RelDC);
                 
                 //  Matrices "MNxN_RelMC" and "MNxN_RelDC" have now the full set of energies, the original ones plus 
                 //  whatever "estimates" by the ANN for the "dead" xtal. Use those full matrices and calculate probabilities.
