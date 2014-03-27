@@ -27,6 +27,8 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 
+#include <boost/regex.hpp>
+
 // for the xml dump
 #include "TFile.h"
 #include "Cintex/Cintex.h"
@@ -49,6 +51,54 @@
 
 
 namespace cond {
+
+
+    std::string convert(const std::string & input)
+    {
+      static const boost::regex trivial("oracle://(cms_orcon_adg|cms_orcoff_prep)/([_[:alnum:]]+?)");
+      static const boost::regex short_frontier("frontier://([[:alnum:]]+?)/([_[:alnum:]]+?)");
+      static const boost::regex long_frontier("frontier://((\\([-[:alnum:]]+?=[^\\)]+?\\))+)/([_[:alnum:]]+?)");
+      static const boost::regex long_frontier_serverurl("\\(serverurl=[^\\)]+?/([[:alnum:]]+?)\\)");
+
+      static const std::map<std::string, std::string> frontier_map = {
+	{"PromptProd", "cms_orcon_adg"},
+	{"FrontierProd", "cms_orcon_adg"},
+	{"FrontierOnProd", "cms_orcon_adg"},
+	{"FrontierPrep", "cms_orcoff_prep"},
+	{"FrontierArc", "cms_orcon_adg"},
+      };
+
+      boost::smatch matches;
+
+      if (boost::regex_match(input, matches, trivial))
+	return std::string("oracle://") + matches[1] + "/" + matches[2];
+
+      if (boost::regex_match(input, matches, short_frontier)) {
+	std::string acct = matches[2];
+	if( matches[1] == "FrontierArc" ) {
+	  size_t len = acct.size()-5;
+	  acct = acct.substr(0,len);
+	}
+	return std::string("oracle://") + frontier_map.at(matches[1]) + "/" + acct;
+      }
+
+      if (boost::regex_match(input, matches, long_frontier)) {
+	std::string frontier_config(matches[1]);
+	boost::smatch matches2;
+	if (not boost::regex_search(frontier_config, matches2, long_frontier_serverurl))
+	  throw std::runtime_error("No serverurl in matched long frontier");
+
+	std::string acct = matches[3];
+	if( matches2[1] == "FrontierArc" ) {
+	  size_t len = acct.size()-5;
+	  acct = acct.substr(0,len);
+	}
+	return std::string("oracle://") + frontier_map.at(matches2[1]) + "/" + acct;
+      }
+
+      throw std::runtime_error("Could not match input string to any known connection string.");
+    }
+    
 
   d_table( GT ){
     d_column( tagid, int );
@@ -142,13 +192,7 @@ int cond::MigrateGTUtilities::execute(){
     std::string connectionString = std::get<4>( gtitem );
     
     std::cout <<"--> Processing tag "<<tag<<" (objectType: "<<payloadTypeName<<") on account "<<connectionString<<std::endl;
-    auto connectionData = persistency::parseConnectionString( connectionString );
-    std::string account = std::get<2>( connectionData );
-    if( std::get<1>( connectionData )=="FrontierArc" ) {
-      size_t len = account.size()-5;
-      account = account.substr(0,len);
-    }
-    std::string sourceConn = "oracle://cms_orcon_adg/"+account;
+    std::string sourceConn = convert( connectionString );    // "oracle://cms_orcon_adg/"+account;
     std::string destTag("");
     if(!session.checkMigrationLog( sourceConn, tag, destTag )){
       throw std::runtime_error("Tag "+tag+" from ["+sourceConn+"] has not been migrated to the destination database."); 
