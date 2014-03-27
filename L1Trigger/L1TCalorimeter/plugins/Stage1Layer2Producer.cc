@@ -110,6 +110,7 @@ namespace l1t {
     unsigned regionETCutForMET(iConfig.getParameter<unsigned int>("regionETCutForMET"));
     int minGctEtaForSums(iConfig.getParameter<int>("minGctEtaForSums"));
     int maxGctEtaForSums(iConfig.getParameter<int>("maxGctEtaForSums"));
+    double jetSeedThreshold(iConfig.getParameter<double>("jetSeedThreshold"));
 
     m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
     if (ifwv == 1){
@@ -130,6 +131,7 @@ namespace l1t {
     m_dbpars->setRegionETCutForMET(regionETCutForMET);
     m_dbpars->setMinGctEtaForSums(minGctEtaForSums);
     m_dbpars->setMaxGctEtaForSums(maxGctEtaForSums);
+    m_dbpars->setJetSeedThreshold(jetSeedThreshold);
 
     m_fw = m_factory.create(*m_fwv ,m_dbpars);
     //printf("Success create.\n");

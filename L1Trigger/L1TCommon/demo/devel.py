@@ -61,7 +61,8 @@ process.Layer2HW = cms.EDProducer(
     regionETCutForHT = cms.uint32(7),
     regionETCutForMET = cms.uint32(0),
     minGctEtaForSums = cms.int32(4),
-    maxGctEtaForSums = cms.int32(17)
+    maxGctEtaForSums = cms.int32(17),
+    jetSeedThreshold = cms.double(0.) ## seed threshold in GeV
     )
 
 process.Layer2Phys = cms.EDProducer("l1t::PhysicalEtAdder",

@@ -32,14 +32,14 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
   { //HI algo
     //m_egAlgo = new Stage1Layer2EGammaAlgorithmImpHI();
     m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP(m_db);
-    m_jetAlgo = new Stage1Layer2JetAlgorithmImpHI(/*m_db*/); //fwv =1 => HI algo
+    m_jetAlgo = new Stage1Layer2JetAlgorithmImpHI(m_db); //fwv =1 => HI algo
     m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/);
   }
   else if( m_fwv.firmwareVersion() == 2 )
   { //PP algorithm
     //m_egAlgo = new Stage1Layer2EGammaAlgorithmImpPP();
     m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP(m_db);
-    m_jetAlgo = new Stage1Layer2JetAlgorithmImpPP(/*m_db*/); //fwv =2 => PP algo
+    m_jetAlgo = new Stage1Layer2JetAlgorithmImpPP(m_db); //fwv =2 => PP algo
     m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/); //only for now
   }
   else if( m_fwv.firmwareVersion() == 3 )
@@ -54,6 +54,6 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
 
   //m_egAlgo->processEvent(emcands, regions, egammas, rlxEGList, isoEGList);
   m_sumAlgo->processEvent(regions, etsums);
-  m_jetAlgo->processEvent(regions, jets);
+  m_jetAlgo->processEvent(regions, emcands, jets);
   m_tauAlgo->processEvent(emcands, regions, taus);
 }

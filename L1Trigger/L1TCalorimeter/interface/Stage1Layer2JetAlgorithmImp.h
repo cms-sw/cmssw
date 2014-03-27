@@ -18,29 +18,32 @@
 #define L1TCALOSTAGE1JETALGORITHMIMP_H
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2JetAlgorithm.h"
-//#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 namespace l1t {
 
   class Stage1Layer2JetAlgorithmImpHI : public Stage1Layer2JetAlgorithm {
   public:
-    Stage1Layer2JetAlgorithmImpHI(/*const CaloParams & dbPars*/);
+    Stage1Layer2JetAlgorithmImpHI(CaloParams* params);
     virtual ~Stage1Layer2JetAlgorithmImpHI();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      std::vector<l1t::Jet> * jets);
-    //private:
-    /*CaloParams const & db;*/
+  private:
+    CaloParams* const params_;
     //double regionLSB_;
   };
 
   class Stage1Layer2JetAlgorithmImpPP : public Stage1Layer2JetAlgorithm {
   public:
-    Stage1Layer2JetAlgorithmImpPP(/*const CaloParams & dbPars*/);
+    Stage1Layer2JetAlgorithmImpPP(CaloParams* params);
     virtual ~Stage1Layer2JetAlgorithmImpPP();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      std::vector<l1t::Jet> * jets);
-    //private:
-    /*CaloParams const & db;*/
+  private:
+    CaloParams* const params_;
     //double regionLSB_;
   };
 }

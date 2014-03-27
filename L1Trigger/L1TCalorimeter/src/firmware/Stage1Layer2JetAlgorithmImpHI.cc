@@ -20,17 +20,22 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2JetAlgorithmImpHI::Stage1Layer2JetAlgorithmImpHI(/*const CaloParams & dbPars*/)/* : db(dbPars)*/ {}
+Stage1Layer2JetAlgorithmImpHI::Stage1Layer2JetAlgorithmImpHI(CaloParams* params) : params_(params)
+{
+  double jetScale=params_->jetScale();
+  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetScale + 0.5);
+}
 //: regionLSB_(0.5) {}
 
 Stage1Layer2JetAlgorithmImpHI::~Stage1Layer2JetAlgorithmImpHI(){};
 
 void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegion> & regions,
+						 const std::vector<l1t::CaloEmCand> & EMCands,
 					       std::vector<l1t::Jet> * jets){
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   HICaloRingSubtraction(regions, subRegions);
-  slidingWindowJetFinder(subRegions, jets);
+  slidingWindowJetFinder(jetSeedThreshold, subRegions, jets);
 
   delete subRegions;
 }

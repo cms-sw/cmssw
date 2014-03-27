@@ -29,13 +29,15 @@ namespace l1t {
 
   bool compareJets (l1t::Jet i, l1t::Jet j){
     return (i.hwPt() < j.hwPt() );
-  }
+  } 
 
-  void slidingWindowJetFinder(const std::vector<l1t::CaloRegion> * regions,
+  void slidingWindowJetFinder(const int jetSeedThreshold, const std::vector<l1t::CaloRegion> * regions,
 			      std::vector<l1t::Jet> * jets)
   {
+    // std::cout << "Jet Seed: " << jetSeedThreshold << std::endl;
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       double regionET = region->hwPt(); //regionPhysicalEt(*region);
+      if (regionET  < jetSeedThreshold) continue;
       double neighborN_et = 0;
       double neighborS_et = 0;
       double neighborE_et = 0;

@@ -9,6 +9,7 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2JetAlgorithmImp.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
+#include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 
 // Taken from UCT code. Might not be appropriate. Refers to legacy L1 objects.
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
@@ -18,7 +19,13 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(/*const CaloParams & dbPars*/)/* : db(dbPars)*/{}
+Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParams* params) : params_(params)
+{
+  double jetScale=params_->jetScale();
+  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetScale + 0.5);
+
+  
+}
 //: regionLSB_(0.5) {}
 
 Stage1Layer2JetAlgorithmImpPP::~Stage1Layer2JetAlgorithmImpPP(){};
@@ -27,11 +34,26 @@ void puSubtractionPP(const std::vector<l1t::CaloRegion> & regions, std::vector<l
 
 
 void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion> & regions,
-					       std::vector<l1t::Jet> * jets){
+						 const std::vector<l1t::CaloEmCand> & EMCands,
+						 std::vector<l1t::Jet> * jets){
+
 
   std::vector<l1t::CaloRegion> * subRegions = new std::vector<l1t::CaloRegion>();
-  puSubtractionPP(regions, subRegions);
-  slidingWindowJetFinder(subRegions, jets);
+  //bool Correct=true;
+  bool Correct=false;
+  if (Correct){
+    RegionCorrection(regions, EMCands, subRegions);
+  }else{
+    // subRegions = *regions;
+    for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region!= regions.end(); region++){
+      CaloRegion newSubRegion= *region;
+      subRegions->push_back(newSubRegion);
+    }
+    // puSubtractionPP(regions, subRegions);
+  }
+
+  
+  slidingWindowJetFinder(jetSeedThreshold, subRegions, jets);
   delete subRegions;
 
   // std::vector<l1t::CaloRegion>::const_iterator incell;
