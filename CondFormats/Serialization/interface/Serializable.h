@@ -42,7 +42,7 @@ namespace serialization {
 
 // Polymorphic classes must be tagged as such
 #define COND_SERIALIZABLE_POLYMORPHIC(T) \
-   BOOST_CLASS_EXPORT_KEY(T);
+   BOOST_CLASS_EXPORT(T);
 
 // Marks a member as transient, i.e. not included in the automatically
 // generated serialization code. All variables in the same 'statement'
