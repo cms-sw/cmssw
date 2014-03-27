@@ -1,11 +1,13 @@
 <lcgdict>
+  <!-- Duplicate of CaloTauDiscriminatorByIsolationBase
+  causes duplicate definition link error in ROOT6
   <class name="reco::CaloTauDiscriminatorAgainstElectronBase">
     <field name="transientVector_" transient="true"/>
   </class>
+  -->
   <class name="reco::CaloTauDiscriminatorAgainstElectron" ClassVersion="10">
    <version ClassVersion="10" checksum="3692008801"/>
     <!-- <field name="transientVector_" transient="true"/> -->
-    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::CaloTauDiscriminatorAgainstElectronRef"/>
   <class name="reco::CaloTauDiscriminatorAgainstElectronRefProd"/>
@@ -24,7 +26,6 @@
   <class name="reco::PFTauDiscriminatorByIsolation" ClassVersion="10">
    <version ClassVersion="10" checksum="1187112623"/>
     <!-- <field name="transientVector_" transient="true"/> -->
-    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauDiscriminatorByIsolationRef"/>
   <class name="reco::PFTauDiscriminatorByIsolationRefProd"/>
@@ -44,7 +45,6 @@
   <class name="reco::PFTauDiscriminator" ClassVersion="10">
    <version ClassVersion="10" checksum="4019319043"/>
     <!-- <field name="transientVector_" transient="true"/> -->
-    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauDiscriminatorRef"/>
   <class name="reco::PFTauDiscriminatorRefProd"/>
@@ -58,7 +58,6 @@
   <class name="reco::JetPiZeroAssociation" ClassVersion="10">
    <version ClassVersion="10" checksum="3488813045"/>
     <!-- <field name="transientVector_" transient="true"/> -->
-    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::JetPiZeroAssociationRef"/>
   <class name="reco::JetPiZeroAssociationRefProd"/>
@@ -75,7 +74,6 @@
   <class name="reco::PFJetChargedHadronAssociation" ClassVersion="10">
    <version ClassVersion="10" checksum="3498827707"/>
 <!--     <field name="transientVector_" transient="true"/> -->
-<!--     <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFJetChargedHadronAssociationRef"/>
   <class name="reco::PFJetChargedHadronAssociationRefProd"/>
@@ -86,7 +84,7 @@
   <class name="std::vector<std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> > >" />
 
   <class name="reco::PFTauDecayModeAssociation">
-<!--     <field name="transientVector_" transient="true"/> -->
+    <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::PFTauDecayModeAssociationRef"/>
   <class name="reco::PFTauDecayModeAssociationRefProd"/>
@@ -145,8 +143,7 @@
   <class name="edm::Wrapper<edm::Association<std::vector<std::vector<reco::VertexRef> > > >"/>
 
   <class name="reco::PFTauTIPAssociation">
-<!--     <field name="transientVector_" transient="true"/> -->
-<!--     <field name="fixed_" transient="true"/> -->
+    <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::PFTauTIPAssociationRef"/>
   <class name="reco::PFTauTIPAssociationRefProd"/>
@@ -156,8 +153,7 @@
   <class name="std::vector<std::pair<reco::PFTauRef,  reco::PFTauTransverseImpactParameterRef > >" />
 
   <class name="reco::PFTauVertexAssociation">
-<!--     <field name="transientVector_" transient="true"/> -->
-<!--     <field name="fixed_" transient="true"/> -->
+    <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::PFTauVertexAssociationRef"/>
   <class name="reco::PFTauVertexAssociationRefProd"/>
@@ -167,8 +163,7 @@
   <class name="std::vector<std::pair<reco::PFTauRef, reco::VertexRef> >" />
 
   <class name="reco::PFTauVertexVAssociation">
-<!--     <field name="transientVector_" transient="true"/> -->
-<!--     <field name="fixed_" transient="true"/> -->
+    <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::PFTauVertexVAssociationRef"/>
   <class name="reco::PFTauVertexVAssociationRefProd"/>
@@ -214,8 +209,7 @@
  <class name="std::vector<std::vector<TLorentzVector> >"/>
 
  <class name="reco::PFTau3ProngSumAssociation">
-<!--     <field name="transientVector_" transient="true"/> -->
-<!--     <field name="fixed_" transient="true"/> -->
+    <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::PFTau3ProngSumAssociationRef"/>
   <class name="reco::PFTau3ProngSumAssociationRefProd"/>
