@@ -1,4 +1,5 @@
-from FastSimulation.PileUpProducer.PileUpSimulator8TeV_cfi import *
+import FWCore.ParameterSet.Config as cms
+#from FastSimulation.PileUpProducer.PileUpSimulator8TeV_cfi import *
 
 from FastSimulation.Configuration.CommonInputs_cff import *
 
