@@ -48,6 +48,7 @@
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeDependentCorrections.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
