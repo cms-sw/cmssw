@@ -57,7 +57,7 @@ class SmartPropagator GCC11_FINAL : public Propagator {
     }
 
     ///setting the direction fo both components
-    void setPropagationDirection (PropagationDirection dir)
+    void setPropagationDirection (PropagationDirection dir) override
     {
       Propagator::setPropagationDirection (dir);
       theTkProp->setPropagationDirection(dir);
