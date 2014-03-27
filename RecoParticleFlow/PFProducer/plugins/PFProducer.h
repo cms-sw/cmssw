@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 // useful?
@@ -39,7 +39,7 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 \date   July 2006
 */
 
-class PFProducer : public edm::EDProducer {
+class PFProducer : public edm::stream::EDProducer<> {
  public:
   explicit PFProducer(const edm::ParameterSet&);
   ~PFProducer();

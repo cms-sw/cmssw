@@ -13,9 +13,10 @@
 	<class name="std::vector&lt;PerformanceResult::ResultType&gt;"/>
 	<class name="std::vector&lt;BinningVariables::BinningVariablesType&gt;"/>
 
-	<class name="PerformancePayloadFromTFormula">
-		<field name="compiledFormulas_" transient="true"/>
+	<class name="PerformancePayloadFromTFormula">	 
+          <field name="compiledFormulas_" transient="true"/>	  	
 	</class>
+        	
 
 	<class name="PerformancePayloadFromBinnedTFormula">
 		<field name="compiledFormulas_" transient="true"/>
