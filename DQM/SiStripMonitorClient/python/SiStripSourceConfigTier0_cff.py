@@ -115,8 +115,8 @@ SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
 # Event History Producer
 from  DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 
-# APV Phase Producer
-from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi import *
+# APV Phase Producer (configuration from DB)
+from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi import *
 
 # temporary patch in order to have BXlumi 
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
