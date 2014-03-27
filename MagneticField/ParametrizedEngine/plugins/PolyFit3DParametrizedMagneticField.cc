@@ -14,15 +14,14 @@ using namespace std;
 using namespace magfieldparam;
 
 PolyFit3DParametrizedMagneticField::PolyFit3DParametrizedMagneticField(double bVal) : 
-  theParam(new BFit3D())
+  bField(bVal)
 {
-  theParam->SetField(bVal);
 }
 
 
-PolyFit3DParametrizedMagneticField::PolyFit3DParametrizedMagneticField(const edm::ParameterSet& parameters) : theParam(new BFit3D()) {
-  theParam->SetField(parameters.getParameter<double>("BValue"));
-
+PolyFit3DParametrizedMagneticField::PolyFit3DParametrizedMagneticField(const edm::ParameterSet& parameters) :
+  bField(parameters.getParameter<double>("BValue")) 
+{
   // Additional options (documentation by Vassili):
 
   // By default, the package accepts signed value of "r". That means,
@@ -53,7 +52,6 @@ PolyFit3DParametrizedMagneticField::PolyFit3DParametrizedMagneticField(const edm
 
 
 PolyFit3DParametrizedMagneticField::~PolyFit3DParametrizedMagneticField() {
-  delete theParam;
 }
 
 
@@ -70,8 +68,12 @@ PolyFit3DParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
 
 GlobalVector
 PolyFit3DParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
+
+  BFit3D theParam;  
+  theParam.SetField(bField);
+
   double Br, Bz, Bphi;
-  theParam->GetField(gp.perp()/100., gp.z()/100., gp.phi(),
+  theParam.GetField(gp.perp()/100., gp.z()/100., gp.phi(),
 		     Br, Bz, Bphi);
 
   double cosphi = cos(gp.phi());
