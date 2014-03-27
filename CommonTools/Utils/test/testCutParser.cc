@@ -229,11 +229,12 @@ void testCutParser::checkAll() {
   checkHit( ".99 < localPosition.x < 1.01", true, hitOk);
   checkHit( ".99 < localPosition.x < 1.01", false, hitThrow);
 
-  // check underscores
-  checkHit("cluster_regional.isNull()",true,hitOk);
+  // check underscores (would be better to build your own stub...)
   checkHit("cluster.isNull()",true,hitOk);
-  checkHit("cluster_regional.isNonnull()",false,hitOk);
+  checkHit("cluster_strip.isNull()",true,hitOk);
   checkHit("cluster.isNonnull()",false,hitOk);  
+  checkHit("cluster_strip.isNonnull()",false,hitOk);
+
 
   // check short cirtcuit logics
   CPPUNIT_ASSERT( hitOk.hasPositionAndError() && (hitOk.localPosition().x() == 1) );
