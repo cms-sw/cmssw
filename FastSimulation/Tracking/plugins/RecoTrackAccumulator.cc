@@ -79,7 +79,7 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
 
   if (tracks.isValid()) {
     short track_counter = 0;
-    //    short hit_counter = 0;
+    short hit_counter = 0;
     for (auto const& track : *tracks) {
       NewTrackList_->push_back(track);
       // track extras:
@@ -89,9 +89,11 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
       //tx.setResiduals(track.residuals());
       // rechits:
       for( trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++ hit ) {
-	NewHitList_->push_back( (*hit)->clone() ); // is this safe?
+	//NewHitList_->push_back( (*hit)->clone() ); // is this safe?
+	NewHitList_->push_back( (*hits)[hit_counter] );
 	//	tx.add( TrackingRecHitRef( rHits, NewHitList_->size() - 1) );
-	//	hit_counter++;
+	NewTrackExtraList_->at(track_counter).add( TrackingRecHitRef( rHits, NewHitList_->size() - 1) );
+	hit_counter++;
       }
 
       track_counter++;
