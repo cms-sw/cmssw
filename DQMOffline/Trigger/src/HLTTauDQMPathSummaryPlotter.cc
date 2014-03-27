@@ -10,11 +10,9 @@ HLTTauDQMPathSummaryPlotter::HLTTauDQMPathSummaryPlotter(const edm::ParameterSet
 HLTTauDQMPathSummaryPlotter::~HLTTauDQMPathSummaryPlotter() {
 }
 
-void HLTTauDQMPathSummaryPlotter::bookHistograms(DQMStore::IBooker &iBooker, const std::vector<const HLTTauDQMPath *>& pathObjects) {
-  if(!configValid_)
+void HLTTauDQMPathSummaryPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
+  if(!isValid())
     return;
-
-  pathObjects_ = pathObjects;
 
   //Create the histograms
   iBooker.setCurrentFolder(triggerTag()+"/helpers");
@@ -27,7 +25,6 @@ void HLTTauDQMPathSummaryPlotter::bookHistograms(DQMStore::IBooker &iBooker, con
   }
 
   iBooker.setCurrentFolder(triggerTag());
-  runValid_ = true;
 }
 
 void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection) {

@@ -32,7 +32,7 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool d
   configValid_ = true;
 }
 
-void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker, const HLTConfigProvider& HLTCP, bool hltMenuChanged) {
+void HLTTauDQMPathPlotter::updateHLTMenu(const HLTConfigProvider& HLTCP) {
   if(!configValid_)
     return;
 
@@ -44,11 +44,12 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker, const HLTC
   }
 
   // Search path candidates
-  if(hltMenuChanged) {
-    runValid_ = hltPath_.beginRun(HLTCP);
-    if(!runValid_)
-      return;
-  }
+  runValid_ = hltPath_.beginRun(HLTCP);
+}
+
+void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
+  if(!isValid())
+    return;
 
   // Book histograms
   iBooker.setCurrentFolder(triggerTag());
@@ -100,7 +101,6 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker, const HLTC
       hMass_ = iBooker.book1D("ReferenceMass", "Invariant mass of reference "+dqmFolder_+";Reference invariant mass;entries", 100, 0, 500);
     }
   }
-  runValid_ = true;
 }
 
 
