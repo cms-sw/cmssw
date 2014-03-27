@@ -55,7 +55,8 @@ class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadro
 
   RecoTauQualityCuts* qcuts_;
 
-  std::vector<int> inputPdgIds_;  // type of candidates to clusterize
+  typedef std::vector<int> vint;
+  vint inputPdgIds_;  // type of candidates to clusterize
 
   double dRmergeNeutralHadronWrtChargedHadron_;
   double dRmergeNeutralHadronWrtNeutralHadron_;
@@ -84,7 +85,7 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::PFRecoTauChargedHadronFromPFCandida
   edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");
   qcuts_ = new RecoTauQualityCuts(qcuts_pset);
 
-  inputPdgIds_ = pset.getParameter<std::vector<int> >("chargedHadronCandidatesParticleIds");
+  inputPdgIds_ = pset.getParameter<vint>("chargedHadronCandidatesParticleIds");
 
   dRmergeNeutralHadronWrtChargedHadron_ = pset.getParameter<double>("dRmergeNeutralHadronWrtChargedHadron");
   dRmergeNeutralHadronWrtNeutralHadron_ = pset.getParameter<double>("dRmergeNeutralHadronWrtNeutralHadron");
@@ -119,6 +120,19 @@ void PFRecoTauChargedHadronFromPFCandidatePlugin::beginEvent()
 
 namespace
 {
+  std::string format_vint(const std::vector<int>& ints)
+  {
+    std::ostringstream os;    
+    os << "{ ";
+    unsigned numEntries = ints.size();
+    for ( unsigned iEntry = 0; iEntry < numEntries; ++iEntry ) {
+      os << ints[iEntry];
+      if ( iEntry < (numEntries - 1) ) os << ", ";
+    }    
+    os << " }";
+    return os.str();
+  }
+  
   std::string getPFCandidateType(reco::PFCandidate::ParticleType pfCandidateType)
   {
     if      ( pfCandidateType == reco::PFCandidate::X         ) return "undefined";
@@ -162,12 +176,14 @@ namespace
     }
   }
 }
-
+  
 PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronFromPFCandidatePlugin::operator()(const reco::PFJet& jet) const 
 {
   if ( verbosity_ ) {
     std::cout << "<PFRecoTauChargedHadronFromPFCandidatePlugin::operator()>:" << std::endl;
     std::cout << " pluginName = " << name() << std::endl;
+    std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << std::endl;
+    std::cout << " inputPdgIds = " << format_vint(inputPdgIds_) << std::endl;
   }
 
   ChargedHadronVector output;

@@ -22,14 +22,13 @@ class  MultiProngTauSolver {
   MultiProngTauSolver(){};
   virtual ~MultiProngTauSolver(){};
       
-  static void quadratic(double& x_plus,double& x_minus,double a, double b, double c);
-  static void analyticESolver(TLorentzVector& nu_plus,TLorentzVector& nu_minus,const TLorentzVector& A1);
-  static void numericalESolver(TLorentzVector& nu_plus,TLorentzVector& nu_minus,const TLorentzVector& A1);
-  static void solveByRotation(const TVector3& TauDir,const TLorentzVector& A1, TLorentzVector& Tau_plus,TLorentzVector& Tau_minus,TLorentzVector& nu_plus,TLorentzVector& nu_minus,bool rotateback=true);
+  static void quadratic(double& x_plus,double& x_minus,double a, double b, double c, bool &isReal);
+  static void analyticESolver(TLorentzVector& nu_plus,TLorentzVector& nu_minus,const TLorentzVector& A1,bool &isReal);
+  static void numericalESolver(TLorentzVector& nu_plus,TLorentzVector& nu_minus,const TLorentzVector& A1,bool &isReal);
+  static void solveByRotation(const TVector3& TauDir,const TLorentzVector& A1, TLorentzVector& Tau_plus,TLorentzVector& Tau_minus,TLorentzVector& nu_plus,TLorentzVector& nu_minus, bool &isReal,bool rotateback=true);
   static bool setTauDirectionatThetaGJMax(const TLorentzVector& a1, double& theta,double& phi,double scale=1.0);  
   static double thetaGJMax(const TLorentzVector& a1);
   static LorentzVectorParticle estimateNu(const LorentzVectorParticle& a1, const TVector3& pv, int ambiguity, TLorentzVector& tau);
-
   static TVectorT<double> rotateToTauFrame(const TVectorT<double>& inpar);
 };
 
