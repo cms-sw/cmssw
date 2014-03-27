@@ -233,7 +233,7 @@ public:
     void clear();
 
     // print the pattern of the position-th hit
-    void printHitPattern(int position, std::ostream &stream) const;
+    void printHitPattern(HitCategory category, int position, std::ostream &stream) const;
     void print(HitCategory category, std::ostream &stream = std::cout) const;
 
     bool hasValidHitInFirstPixelBarrel(HitCategory category) const; // has valid hit in PXB layer 1

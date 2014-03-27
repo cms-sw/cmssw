@@ -790,9 +790,9 @@ int HitPattern::stripTECLayersNull(HitCategory category) const
     return count;
 }
 
-void HitPattern::printHitPattern(int position, std::ostream &stream) const
+void HitPattern::printHitPattern(HitCategory category, int position, std::ostream &stream) const
 {
-    uint16_t pattern = getHitPatternByAbsoluteIndex(position);
+    uint16_t pattern = getHitPattern(category, position);
     stream << "\t";
     if (muonHitFilter(pattern)) {
         stream << "muon";
@@ -823,18 +823,16 @@ void HitPattern::printHitPattern(int position, std::ostream &stream) const
 
 void HitPattern::print(HitCategory category, std::ostream &stream) const
 {
-    stream << "HitPattern" << std::endl;
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
-        printHitPattern(i, stream);
+    for (int i = 0; i < numberOfHits(category); ++i) {
+        printHitPattern(category, i, stream);
     }
     std::ios_base::fmtflags flags = stream.flags();
     stream.setf(std::ios_base::hex, std::ios_base::basefield);
     stream.setf(std::ios_base::showbase);
 
-//    for (int i = 0; i < this->    (); ++i) {
-//        stream << getHitPatternByAbsoluteIndex(i) << std::endl;
-//    }
+    for (int i = 0; i < this->numberOfHits(category); ++i) {
+        stream << getHitPattern(category, i) << std::endl;
+    }
 
     stream.flags(flags);
 }
