@@ -8,5 +8,5 @@
 <use   name="DetectorDescription/Core"/>
 
 <flags   EDM_PLUGIN="1"/>
-<library file="DD*.cc" name="GeometryHGCalCommonDataPlugin"> </library>
+<library file="DD*.cc,module.cc" name="GeometryHGCalCommonDataPlugin"> </library>
 <library file="ShashlikNumberingInitialization.cc" name="GeometryShashlikNumberingInitialization"> </library>
