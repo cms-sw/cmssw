@@ -301,8 +301,6 @@ class JetAnalyzer : public edm::EDAnalyzer {
   std::vector<std::string> highPtJetExpr_;
   std::vector<std::string> lowPtJetExpr_;
 
-
-  bool diJetSelectionFlag_;
   bool jetCleaningFlag_;
 
   bool runcosmics_;
