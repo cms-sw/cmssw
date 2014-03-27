@@ -219,19 +219,20 @@ namespace cms
     
     if(PileupInfo_) {  
       std::cout << "puinfo is valid, getting stuff..." << std::endl;
-      const std::vector<int> bunchCrossing = PileupInfo_->getMix_bunchCrossing();
-      const std::vector<int> numInteractionList =  PileupInfo_->getMix_Ninteractions();
-      const std::vector<float> TrueInteractionList = PileupInfo_->getMix_TrueInteractions();      
+      _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);
+//       const std::vector<int> bunchCrossing = PileupInfo_->getMix_bunchCrossing();
+//       const std::vector<int> numInteractionList =  PileupInfo_->getMix_Ninteractions();
+//       const std::vector<float> TrueInteractionList = PileupInfo_->getMix_TrueInteractions();      
 
-      for(int i : bunchCrossing) {
- 	std::cout << "bunchcrossing: " << i << std::endl;
-      }
-      for(int i :  numInteractionList) {
- 	std::cout << "number of interactions: " << i << std::endl;
-      }
-      for(int i : TrueInteractionList) {
- 	std::cout << "true number of interactions: " << i << std::endl;
-      }
+//       for(int i : bunchCrossing) {
+//  	std::cout << "bunchcrossing: " << i << std::endl;
+//       }
+//       for(int i :  numInteractionList) {
+//  	std::cout << "number of interactions: " << i << std::endl;
+//       }
+//       for(int i : TrueInteractionList) {
+//  	std::cout << "true number of interactions: " << i << std::endl;
+//       }
     }
 /////
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
@@ -250,8 +251,7 @@ namespace cms
                                  collector.data,
                                  linkcollector.data,
 				 tTopo,
-                                 engine,
-				 PileupInfo_);
+                                 engine);
         if(collector.data.size() > 0) {
           theDigiVector.push_back(std::move(collector));
         }
