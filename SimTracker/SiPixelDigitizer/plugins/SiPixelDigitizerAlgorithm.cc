@@ -478,24 +478,12 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
 void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puInfo){
   //Instlumi scalefactor calculating for dynamic inefficiency
   
-  if   (pixelEfficiencies_.theModuleEfficiency_BPix[0].size()>0 || 
-	pixelEfficiencies_.theModuleEfficiency_BPix[1].size()>0 ||
-	pixelEfficiencies_.theModuleEfficiency_BPix[2].size()>0) {
+  if (pixelEfficiencies_.theModuleEfficiency_BPix[0].size()>0 || 
+      pixelEfficiencies_.theModuleEfficiency_BPix[1].size()>0 ||
+      pixelEfficiencies_.theModuleEfficiency_BPix[2].size()>0) {
     
-    std::cout << "puinfo is valid in digialgo, getting stuff..." << std::endl;
     const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
-    const std::vector<int> numInteractionList = puInfo->getMix_Ninteractions();
     const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();      
-    
-    for(int i : bunchCrossing) {
-      std::cout << "bunchcrossing: " << i << std::endl;
-    }
-    for(int i :  numInteractionList) {
-      std::cout << "number of interactions: " << i << std::endl;
-    }
-    for(int i : TrueInteractionList) {
-      std::cout << "true number of interactions: " << i << std::endl;
-    }
     
     int pui = 0, p = 0;
     std::vector<int>::const_iterator pu;
@@ -1347,51 +1335,51 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     }
     if ((layerIndex==1) && (eff.theLadderEfficiency_BPix[0].size()==20)) {
       int ladder=tTopo->pxbLadder(detID);
-      std::cout<<"BPix1 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[0][ladder-1]<<std::endl;
+      //std::cout<<"BPix1 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[0][ladder-1]<<std::endl;
       columnEfficiency*=eff.theLadderEfficiency_BPix[0][ladder-1];
     }
     if ((layerIndex==2) && (eff.theLadderEfficiency_BPix[1].size()==32)) {
       int ladder=tTopo->pxbLadder(detID);
-      std::cout<<"BPix2 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[1][ladder-1]<<std::endl;
+      //std::cout<<"BPix2 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[1][ladder-1]<<std::endl;
       columnEfficiency*=eff.theLadderEfficiency_BPix[1][ladder-1];
     }
     if ((layerIndex==3) && (eff.theLadderEfficiency_BPix[2].size()==44)) {
       int ladder=tTopo->pxbLadder(detID);
-      std::cout<<"BPix3 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[2][ladder-1]<<std::endl;
+      //std::cout<<"BPix3 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[2][ladder-1]<<std::endl;
       columnEfficiency*=eff.theLadderEfficiency_BPix[2][ladder-1];
     }
     if ((layerIndex==1) && (eff.theModuleEfficiency_BPix[0].size()==4)) {
       int module=tTopo->pxbModule(detID);
       if (module<=4) module=5-module;
       else module-=4;
-      std::cout<<"BPix1 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[0][module-1]<<std::endl;
+      //std::cout<<"BPix1 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[0][module-1]<<std::endl;
       columnEfficiency*=eff.theModuleEfficiency_BPix[0][module-1];
     }
     if ((layerIndex==2) && (eff.theModuleEfficiency_BPix[1].size()==4)) {
       int module=tTopo->pxbModule(detID);
       if (module<=4) module=5-module;
       else module-=4;
-      std::cout<<"BPix2 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[1][module-1]<<std::endl;
+      //std::cout<<"BPix2 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[1][module-1]<<std::endl;
       columnEfficiency*=eff.theModuleEfficiency_BPix[1][module-1];
     }
     if ((layerIndex==3) && (eff.theModuleEfficiency_BPix[2].size()==4)) {
       int module=tTopo->pxbModule(detID);
       if (module<=4) module=5-module;
       else module-=4;
-      std::cout<<"BPix3 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[2][module-1]<<std::endl;
+      //std::cout<<"BPix3 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[2][module-1]<<std::endl;
       columnEfficiency*=eff.theModuleEfficiency_BPix[2][module-1];
     }
     if ((layerIndex==1) && (_pu_scale[0]>0.)) {
       columnEfficiency*=_pu_scale[0];
-      std::cout<<"bpix1 puscale  "<< _pu_scale[0] <<std::endl;
+      //std::cout<<"bpix1 puscale  "<< _pu_scale[0] <<std::endl;
     }
     if ((layerIndex==2) && (_pu_scale[1]>0.)) {
       columnEfficiency*=_pu_scale[1];
-      std::cout<<"bpix2 puscale  "<< _pu_scale[1] <<std::endl;
+      //std::cout<<"bpix2 puscale  "<< _pu_scale[1] <<std::endl;
     }
     if ((layerIndex==3) && (_pu_scale[2]>0.)) {
       columnEfficiency*=_pu_scale[2];
-      std::cout<<"bpix3 puscale  "<< _pu_scale[2] <<std::endl;
+      //std::cout<<"bpix3 puscale  "<< _pu_scale[2] <<std::endl;
     }
   } else {                // forward disks
     unsigned int diskIndex=tTopo->pxfDisk(detID)+eff.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix

@@ -214,34 +214,17 @@ namespace cms
 
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
-//////
+
     PileupInfo_ = getEventPileupInfo();
     
-    if(PileupInfo_) {  
-      std::cout << "puinfo is valid, getting stuff..." << std::endl;
-      _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);
-//       const std::vector<int> bunchCrossing = PileupInfo_->getMix_bunchCrossing();
-//       const std::vector<int> numInteractionList =  PileupInfo_->getMix_Ninteractions();
-//       const std::vector<float> TrueInteractionList = PileupInfo_->getMix_TrueInteractions();      
+    if(PileupInfo_) _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);
 
-//       for(int i : bunchCrossing) {
-//  	std::cout << "bunchcrossing: " << i << std::endl;
-//       }
-//       for(int i :  numInteractionList) {
-//  	std::cout << "number of interactions: " << i << std::endl;
-//       }
-//       for(int i : TrueInteractionList) {
-//  	std::cout << "true number of interactions: " << i << std::endl;
-//       }
-    }
-/////
+    // Step B: loop over detunits
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       DetId idet=DetId((*iu)->geographicalId().rawId());
       unsigned int isub=idet.subdetId();
       
       if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {  
-        
-        //
         
         edm::DetSet<PixelDigi> collector((*iu)->geographicalId().rawId());
         edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
