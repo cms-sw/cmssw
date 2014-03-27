@@ -15,12 +15,6 @@ DEFINE_FWK_MODULE(SiStripTrivialClusterSource);
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h"
 DEFINE_FWK_MODULE(SiStripTrivialDigiSource);
 
-#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripRawToClustersDummyUnpacker.h"
-DEFINE_FWK_MODULE(SiStripRawToClustersDummyUnpacker);
-
-#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripClustersDSVBuilder.h"
-DEFINE_FWK_MODULE(SiStripClustersDSVBuilder);
-
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripDigiValidator.h"
 DEFINE_FWK_MODULE(SiStripDigiValidator);
 

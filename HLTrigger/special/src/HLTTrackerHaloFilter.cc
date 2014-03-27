@@ -55,6 +55,7 @@ HLTTrackerHaloFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
 // ------------ method called to produce the data  ------------
 bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
+/*
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
@@ -185,7 +186,7 @@ bool HLTTrackerHaloFilter::hltFilter(edm::Event& event, const edm::EventSetup& i
   if (n_total_clusm<sign_accu_)               return false;
   if (maxm<sign_accu_ || maxp<sign_accu_)     return false;
   if (npeakm>=max_back_ || npeakp>=max_back_) return false;
-
+*/
   return true;
 }
 

@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
