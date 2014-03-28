@@ -72,16 +72,22 @@ def customise_HcalPhase1(process):
 def customise_HcalPhase2(process):
     process = customise_HcalPhase1(process)
     if hasattr(process,'digitisation_step') and hasattr(process, 'mix'):
-        process.mix.digitizers.hcal.he.photoelectronsToAnalog = cms.vdouble([10.]*29)
-        etaIndex = 21-16 #start at ieta 21 but subtract off the 15 in hb plus 1 for zero indexing
-        while len(process.mix.digitizers.hcal.he.samplingFactors) < 29:
-            sf_now = process.mix.digitizers.hcal.he.samplingFactors[etaIndex]
-            if etaIndex+1 < len(process.mix.digitizers.hcal.he.samplingFactors):
-                process.mix.digitizers.hcal.he.samplingFactors.insert(etaIndex+1, sf_now)
-            else:
-                process.mix.digitizers.hcal.he.samplingFactors.extend([sf_now]*(29-etaIndex-1))
-            etaIndex += 2
-        # print len(process.mix.digitizers.hcal.he.samplingFactors),process.mix.digitizers.hcal.he.samplingFactors
+
+        # these are the new sampling factors,  they reuse the old ones for
+        # ieta < 21.  For ieta greater than 21 it is using the function
+        # samplingFraction = 188.441 + 0.834*eta
+        # eta is the highest eta broundary of the ieta.  This is currently
+        # taken for HE from ieta 16 to 33 inclusive.  Which would extend to
+        # an eta of 3.0.  For the option going to 4.0 it is unclear how many
+        # ieta's there will be from 3 to 4, but this vector would need to be
+        # extended.
+        newFactors = cms.vdouble(
+            210.55, 197.93, 186.12, 189.64, 189.63,
+            189.96, 190.03, 190.11, 190.18, 190.25,
+            190.32, 190.40, 190.47, 190.54, 190.61,
+            190.69, 190.83, 190.94)
+        process.mix.digitizers.hcal.he.samplingFactors = newFactors
+        process.mix.digitizers.hcal.he.photoelectronsToAnalog = cms.vdouble([10.]*len(newFactors))
 
     return process
 
@@ -201,7 +207,6 @@ def customise_Reco(process):
     process.reconstruction_step.remove(process.ak7BasicJets)
     process.reconstruction_step.remove(process.ak7CastorJetID)
 
-    process.reconstruction_step.remove(process.hcalnoise)
     return process
 
 def customise_DQM(process):
