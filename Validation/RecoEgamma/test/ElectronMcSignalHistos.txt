@@ -263,7 +263,16 @@ ElectronMcSignalValidator/h_ele_neutralHadronIso_barrel    1 1 0 0
 ElectronMcSignalValidator/h_ele_neutralHadronIso_endcaps   1 1 1 0
 ElectronMcSignalValidator/h_ele_photonIso	            1 1 0 0
 ElectronMcSignalValidator/h_ele_photonIso_barrel	    1 1 0 0
-ElectronMcSignalValidator/h_ele_photonIso_endcaps	    1 1 1 1
+ElectronMcSignalValidator/h_ele_photonIso_endcaps	    1 1 1 0
+ElectronMcSignalValidator/h_ele_chargedHadronRelativeIso           1 1 0 0
+ElectronMcSignalValidator/h_ele_chargedHadronRelativeIso_barrel    1 1 0 0
+ElectronMcSignalValidator/h_ele_chargedHadronRelativeIso_endcaps   1 1 1 0
+ElectronMcSignalValidator/h_ele_neutralHadronRelativeIso           1 1 0 0
+ElectronMcSignalValidator/h_ele_neutralHadronRelativeIso_barrel    1 1 0 0
+ElectronMcSignalValidator/h_ele_neutralHadronRelativeIso_endcaps   1 1 1 0
+ElectronMcSignalValidator/h_ele_photonRelativeIso           1 1 0 0
+ElectronMcSignalValidator/h_ele_photonRelativeIso_barrel    1 1 0 0
+ElectronMcSignalValidator/h_ele_photonRelativeIso_endcaps   1 1 1 1
 
 Conversion rejection information
 

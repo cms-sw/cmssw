@@ -479,6 +479,16 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_photonIso;
     MonitorElement *h1_ele_photonIso_barrel;
     MonitorElement *h1_ele_photonIso_endcaps;
+	// -- pflow over pT
+	MonitorElement *h1_ele_chargedHadronRelativeIso;
+	MonitorElement *h1_ele_chargedHadronRelativeIso_barrel;
+    MonitorElement *h1_ele_chargedHadronRelativeIso_endcaps;
+	MonitorElement *h1_ele_neutralHadronRelativeIso;
+	MonitorElement *h1_ele_neutralHadronRelativeIso_barrel;
+    MonitorElement *h1_ele_neutralHadronRelativeIso_endcaps;
+	MonitorElement *h1_ele_photonRelativeIso;
+	MonitorElement *h1_ele_photonRelativeIso_barrel;
+    MonitorElement *h1_ele_photonRelativeIso_endcaps;
 
     // isolation
     MonitorElement *h1_ele_tkSumPt_dr03;
