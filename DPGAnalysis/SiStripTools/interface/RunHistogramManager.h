@@ -218,7 +218,7 @@ class RunHistogramManager {
 
  public:
 
-  RunHistogramManager(edm::ConsumesCollector&& iC, const bool fillHistograms=false) {RunHistogramManager(iC, fillHistograms);}
+  RunHistogramManager(edm::ConsumesCollector&& iC, const bool fillHistograms=false);
   RunHistogramManager(edm::ConsumesCollector& iC, const bool fillHistograms=false);
   ~RunHistogramManager();
 
