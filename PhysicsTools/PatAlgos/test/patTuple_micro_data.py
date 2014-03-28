@@ -51,7 +51,7 @@ process.slimmedJets.clearDaughters = False
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
 addJetCollection(process, labelName = 'CA8', jetSource = cms.InputTag('ca8PFJetsCHS') )
-process.selectedPatJetsCA8.cut = cms.string("pt > 30")
+process.selectedPatJetsCA8.cut = cms.string("pt > 100")
 
 process.slimmedJetsCA8 = cms.EDProducer("PATJetSlimmer",
    src = cms.InputTag("selectedPatJetsCA8"),
