@@ -25,7 +25,12 @@ void BaseHistoParams::beginRun(const edm::Run& iRun, TFileDirectory& subrun) {
 RunHistogramManager::RunHistogramManager(edm::ConsumesCollector& iC, const bool fillHistograms):
   _fillHistograms(fillHistograms),
   _histograms(),
-  _conditionsInRunToken(iC.consumes<edm::ConditionsInRunBlock>(edm::InputTag("conditionsInEdm"))) { }
+  _conditionsInRunToken(iC.consumes<edm::ConditionsInRunBlock,edm::InRun>(edm::InputTag("conditionsInEdm"))) {}
+
+RunHistogramManager::RunHistogramManager(edm::ConsumesCollector&& iC, const bool fillHistograms):
+  _fillHistograms(fillHistograms),
+  _histograms(),
+  _conditionsInRunToken(iC.consumes<edm::ConditionsInRunBlock,edm::InRun>(edm::InputTag("conditionsInEdm"))) {}
 
 TH1F** RunHistogramManager::makeTH1F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax) {
 
