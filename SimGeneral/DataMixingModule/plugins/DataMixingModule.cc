@@ -60,6 +60,8 @@ namespace edm
     MergeHcalDigis_ = (ps.getParameter<std::string>("HcalMergeType")).compare("Digis") == 0;
     if(MergeHcalDigis_) MergeHcalDigisProd_ = (ps.getParameter<std::string>("HcalDigiMerge")=="FullProd");
 
+    addMCDigiNoise_ = ps.getUntrackedParameter<bool>("addMCDigiNoise", false);  // for Sim on Sim mixing
+
     // Put Fast Sim Sequences here for Simplification: Fewer options!
 
     if(DoFastSim_) {
@@ -227,8 +229,13 @@ namespace edm
     } else {
 
       produces< edm::DetSetVector<SiStripDigi> > (SiStripDigiCollectionDM_);
-      SiStripWorker_ = new DataMixingSiStripWorker(ps);
 
+      if( addMCDigiNoise_ ) {
+	SiStripMCDigiWorker_ = new DataMixingSiStripMCDigiWorker(ps);
+      }
+      else {
+	SiStripWorker_ = new DataMixingSiStripWorker(ps);
+      }
     }
 
     // Pixels
@@ -291,7 +298,11 @@ namespace edm
   }       
 	       
 
- 
+  void DataMixingModule::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) { 
+    if( addMCDigiNoise_ ) {
+      SiStripMCDigiWorker_->initializeEvent( e, ES );
+    }
+  }
 
   // Virtual destructor needed.
   DataMixingModule::~DataMixingModule() { 
