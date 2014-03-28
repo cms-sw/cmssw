@@ -44,8 +44,6 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 // class definition
 class NavigationSchoolAnalyzer : public edm::EDAnalyzer {
@@ -79,7 +77,7 @@ void NavigationSchoolAnalyzer::print(std::ostream& os,const DetLayer* dl){
 
   switch (dl->subDetector()){
   case GeomDetEnumerators::PixelBarrel :
-    LorW = PXBDetId(tag->geographicalId()).layer(); break;
+    LorW = tTopo->pxbLayer(tag->geographicalId()); break;
   case GeomDetEnumerators::TIB :
     LorW = tTopo->tibLayer(tag->geographicalId()); break;
   case GeomDetEnumerators::TOB :
@@ -92,7 +90,7 @@ void NavigationSchoolAnalyzer::print(std::ostream& os,const DetLayer* dl){
     LorW = RPCDetId(tag->geographicalId().rawId()).station(); break;
 
   case GeomDetEnumerators::PixelEndcap :    
-    LorW = PXFDetId(tag->geographicalId()).disk(); 
+    LorW = tTopo->pxfDisk(tag->geographicalId());
     side = tTopo->pxfSide(tag->geographicalId());break;
   case GeomDetEnumerators::TID :
     LorW = tTopo->tidWheel(tag->geographicalId()); 
