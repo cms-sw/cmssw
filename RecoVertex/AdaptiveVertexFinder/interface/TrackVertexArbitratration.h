@@ -61,4 +61,10 @@ class TrackVertexArbitration{
         double					distCut;
         double					sigCut;
 	double					dLenFraction;
+	double 					fitterSigmacut; // = 3.0;
+	double 					fitterTini; // = 256.;
+	double 					fitterRatio;//    = 0.25;
+	int 					trackMinLayers;
+	double					trackMinPt;
+	int					trackMinPixels;   
 };
