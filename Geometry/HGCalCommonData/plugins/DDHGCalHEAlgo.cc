@@ -101,9 +101,10 @@ void DDHGCalHEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
     type[ii]       =-ityp;
     double zi      = zMinBlock[ii];
     zMinBlock[ii] += thickModule;
+    double zlayer = zz + thickModule;
     double zo      = zi + thick[ii];
     double rinF    = zi * slopeB;
-    double rinB    = zo * slopeB;
+    double rinB    = zlayer * slopeB;
     double routF   = (heightType[i] == 0) ? rMax(zi) : rMax(zz);
     double routB   = rMax(zo);
     if (heightType[i] == 0) zz = zi;
