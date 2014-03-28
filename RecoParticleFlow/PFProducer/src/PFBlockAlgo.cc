@@ -1323,8 +1323,8 @@ PFBlockAlgo::goodPtResolution( const reco::TrackRef& trackref) {
   double P = trackref->p();
   double Pt = trackref->pt();
   double DPt = trackref->ptError();
-  unsigned int NHit = trackref->hitPattern().trackerLayersWithMeasurement();
-  unsigned int NLostHit = trackref->hitPattern().trackerLayersWithoutMeasurement();
+  unsigned int NHit = trackref->getHitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
+  unsigned int NLostHit = trackref->getHitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS);
   unsigned int LostHits = trackref->numberOfLostHits();
   double sigmaHad = sqrt(1.20*1.20/P+0.06*0.06) / (1.+LostHits);
 
