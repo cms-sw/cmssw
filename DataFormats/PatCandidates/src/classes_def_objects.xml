@@ -92,7 +92,8 @@
    <version ClassVersion="10" checksum="2692173055"/>
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
-  <class name="pat::Photon"  ClassVersion="11">
+  <class name="pat::Photon"  ClassVersion="12">
+   <version ClassVersion="12" checksum="2518470540"/>
    <version ClassVersion="11" checksum="3277818926"/>
    <version ClassVersion="10" checksum="865744757"/>
   </class>
