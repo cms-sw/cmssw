@@ -89,7 +89,7 @@ def searchClassDefXml ():
     xmlFiles = []
     for srcDir in [os.environ.get('CMSSW_BASE'),os.environ.get('CMSSW_RELEASE_BASE')]:
       if not len(srcDir): continue
-      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def.xml" -print').split ('\n'):
+      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def.xml" -follow -print').split ('\n'):
         if xml and (not xml in xmlFiles):
           xmlFiles.append(xml)
     if options.showXMLs:
@@ -234,8 +234,14 @@ def searchDuplicatePlugins ():
     """ Searches the edmpluginFile to find any duplicate
     plugins."""
     edmpluginFile = os.path.join(os.environ.get('CMSSW_BASE'),'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
+    baseRel = ""
     if len (os.environ.get('CMSSW_RELEASE_BASE')):
-      edmpluginFile = edmpluginFile+ ' ' + os.path.join(os.environ.get('CMSSW_RELEASE_BASE'),'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
+      baseRel = os.environ.get('CMSSW_RELEASE_BASE')
+    elif os.path.exists(os.path.join(os.environ.get('CMSSW_BASE'),'.SCRAM',os.environ.get('SCRAM_ARCH'),'InstalledTools','cmssw')):
+        cmd = "scram tool info cmssw | grep CMSSW_BASE= | sed -e 's|CMSSW_BASE=||'"
+        baseRel = commands.getoutput (cmd).split('\n')[0]
+    if len(baseRel):
+      edmpluginFile = edmpluginFile+ ' ' + os.path.join(baseRel,'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
     cmd = "cat %s | awk '{print $2\" \"$1}' | sort | uniq | awk '{print $1}' | sort | uniq -c | grep '2 ' | awk '{print $2}'" % edmpluginFile
     output = commands.getoutput (cmd).split('\n')
     for line in output:
