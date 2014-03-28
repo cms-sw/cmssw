@@ -313,9 +313,17 @@ namespace cond {
 				 const cond::Binary& streamerInfoData,				      
     				 const boost::posix_time::ptime& insertionTime ){
       std::string version("dummy");
-      RowBuffer< HASH, OBJECT_TYPE, DATA, STREAMER_INFO, VERSION, INSERTION_TIME > dataToInsert( std::tie( payloadHash, objectType, payloadData, streamerInfoData, version, insertionTime ) ); 
-      bool failOnDuplicate = false;
-      return insertInTable( m_schema, tname, dataToInsert.get(), failOnDuplicate );
+      if (streamerInfoData.size() == 0) { // we can't insert NULLs here
+	void * foo = new int(0);
+	cond::Binary fooB(foo, sizeof(foo));
+	RowBuffer< HASH, OBJECT_TYPE, DATA, STREAMER_INFO, VERSION, INSERTION_TIME > dataToInsert( std::tie( payloadHash, objectType, payloadData, fooB, version, insertionTime ) ); 
+	bool failOnDuplicate = false;
+	return insertInTable( m_schema, tname, dataToInsert.get(), failOnDuplicate );
+      } else {
+	RowBuffer< HASH, OBJECT_TYPE, DATA, STREAMER_INFO, VERSION, INSERTION_TIME > dataToInsert( std::tie( payloadHash, objectType, payloadData, streamerInfoData, version, insertionTime ) ); 
+	bool failOnDuplicate = false;
+	return insertInTable( m_schema, tname, dataToInsert.get(), failOnDuplicate );
+      }
     }
 
     cond::Hash PAYLOAD::Table::insertIfNew( const std::string& payloadObjectType, 
