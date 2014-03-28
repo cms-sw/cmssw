@@ -23,6 +23,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 
 // Define typedefs for convenience
@@ -65,9 +66,29 @@ namespace pat {
       // ---- methods for content embedding ----
       /// override the superCluster method from CaloJet, to access the internal storage of the supercluster
       reco::SuperClusterRef superCluster() const;
+      /// direct access to the seed cluster
+      reco::CaloClusterPtr seed() const; 
+
+      //method to access the basic clusters
+      const std::vector<reco::CaloCluster>& basicClusters() const { return basicClusters_ ; }
+      //method to access the preshower clusters
+      const std::vector<reco::CaloCluster>& preshowerClusters() const { return preshowerClusters_ ; }      
+      
+      //method to access embedded ecal RecHits
+      const EcalRecHitCollection * recHits() const { return &recHits_;}      
+      
       /// method to store the photon's supercluster internally
       void embedSuperCluster();
-
+      /// method to store the electron's seedcluster internally
+      void embedSeedCluster();
+      /// method to store the electron's basic clusters
+      void embedBasicClusters();
+      /// method to store the electron's preshower clusters
+      void embedPreshowerClusters();
+      /// method to store the RecHits internally - can be called from the PATElectronProducer
+      void embedRecHits(const EcalRecHitCollection * rechits); 
+      
+      
       // ---- methods for access the generated photon ----
       /// return the match to the generated photon
       const reco::Candidate * genPhoton() const { return genParticle(); }
@@ -213,14 +234,26 @@ namespace pat {
 
       // ---- for content embedding ----
       bool embeddedSuperCluster_;
-      std::vector<reco::SuperCluster> superCluster_;
+      mutable std::vector<reco::SuperCluster> superCluster_;
+      /// Place to store electron's basic clusters internally 
+      std::vector<reco::CaloCluster> basicClusters_;
+      /// Place to store electron's preshower clusters internally      
+      std::vector<reco::CaloCluster> preshowerClusters_;      
+      /// True if seed cluster is stored internally
+      bool embeddedSeedCluster_;
+      /// Place to store electron's seed cluster internally
+      std::vector<reco::CaloCluster> seedCluster_;
+      /// True if RecHits stored internally
+      bool embeddedRecHits_;    
+      /// Place to store electron's RecHits internally (5x5 around seed+ all RecHits)
+      EcalRecHitCollection recHits_;      
       // ---- photon ID's holder ----
       std::vector<IdPair> photonIDs_;
       // ---- Isolation and IsoDeposit related datamebers ----
       typedef std::vector<std::pair<IsolationKeys, pat::IsoDeposit> > IsoDepositPairs;
       IsoDepositPairs    isoDeposits_;
       std::vector<float> isolations_;
-
+      
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
       std::vector<uint16_t> associatedPackedFCandidateIndices_;

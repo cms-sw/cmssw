@@ -259,7 +259,7 @@ namespace pat {
       /// True if electron's pflowsupercluster is stored internally
       bool embeddedPflowSuperCluster_;
       /// Place to store electron's supercluster internally
-      std::vector<reco::SuperCluster> superCluster_;
+      mutable std::vector<reco::SuperCluster> superCluster_;
       /// Place to store electron's basic clusters internally 
       std::vector<reco::CaloCluster> basicClusters_;
       /// Place to store electron's preshower clusters internally      
