@@ -60,7 +60,11 @@ namespace edm
     MergeHcalDigis_ = (ps.getParameter<std::string>("HcalMergeType")).compare("Digis") == 0;
     if(MergeHcalDigis_) MergeHcalDigisProd_ = (ps.getParameter<std::string>("HcalDigiMerge")=="FullProd");
 
-    addMCDigiNoise_ = ps.getUntrackedParameter<bool>("addMCDigiNoise", false);  // for Sim on Sim mixing
+    addMCDigiNoise_ = false;
+
+    addMCDigiNoise_ = ps.getUntrackedParameter<bool>("addMCDigiNoise");  // for Sim on Sim mixing
+
+    
 
     // Put Fast Sim Sequences here for Simplification: Fewer options!
 
@@ -319,7 +323,8 @@ namespace edm
       if(useSiStripRawDigi_)
 	delete SiStripRawWorker_;
       else
-	delete SiStripWorker_;
+	if(addMCDigiNoise_ ) delete SiStripMCDigiWorker_;
+	else delete SiStripWorker_;
       delete SiPixelWorker_;
     }
     if(MergePileup_) { delete PUWorker_;}
@@ -353,6 +358,7 @@ namespace edm
     }else{
     // SiStrips
     if(useSiStripRawDigi_) SiStripRawWorker_->addSiStripSignals(e);
+    else if(addMCDigiNoise_ ) SiStripMCDigiWorker_->addSiStripSignals(e);
     else SiStripWorker_->addSiStripSignals(e);
 
     // SiPixels
@@ -402,6 +408,7 @@ namespace edm
       
       // SiStrips
       if(useSiStripRawDigi_) SiStripRawWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
+      else if(addMCDigiNoise_ ) SiStripMCDigiWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
       else SiStripWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
       
       // SiPixels
@@ -489,6 +496,7 @@ namespace edm
     }else{
        // SiStrips
       if(useSiStripRawDigi_) SiStripRawWorker_->putSiStrip(e);
+      else if(addMCDigiNoise_ ) SiStripMCDigiWorker_->putSiStrip(e, ES);
       else SiStripWorker_->putSiStrip(e);
        
        // SiPixels
