@@ -106,440 +106,6 @@ GEMCSCTriggerRateTree::beginRun(const edm::Run &iRun, const edm::EventSetup &iSe
 void 
 GEMCSCTriggerRateTree::beginJob()
 {
-//   edm::Service<TFileService> fs;
-
-//   Double_t ETA_BIN = 0.0125 *2;
-//   //Double_t PHI_BIN = 62.*M_PI/180./4096.; // 0.26 mrad
-//   int N_ETA_BINS=200;
-//   double ETA_START=-2.4999;
-//   double ETA_END = ETA_START + ETA_BIN*N_ETA_BINS;
-  
-//   int   N_ETA_BINS_CSC = 32;
-//   double ETA_START_CSC = 0.9;
-//   double ETA_END_CSC   = 2.5;
-
-//   int   N_ETA_BINS_DT = 32;
-//   double ETA_START_DT = 0.;
-//   double ETA_END_DT   = 1.2;
-
-//   const int N_ETA_BINS_RPC = 17;
-//   double ETA_BINS_RPC[N_ETA_BINS_RPC+1] =
-//   {0, 0.07, 0.27, 0.44, 0.58, 0.72, 0.83, 0.93, 1.04, 1.14,
-//    1.24, 1.36, 1.48, 1.61, 1.73, 1.85, 1.97, 2.1};
-
-//   const int N_ETA_BINS_GMT = 32;
-//   double ETA_BINS_GMT[N_ETA_BINS_GMT+1] =
-//   {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
-//    1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.75, 1.8,
-//    1.85, 1.9, 1.95, 2, 2.05, 2.1, 2.15, 2.2, 2.25, 2.3,
-//    2.35, 2.4, 2.45};
-  
-//   h_rt_nalct = fs->make<TH1D>("h_rt_nalct","h_rt_nalct",101,-0.5, 100.5);
-//   h_rt_nclct = fs->make<TH1D>("h_rt_nclct","h_rt_nclct",101,-0.5, 100.5);
-//   h_rt_nlct = fs->make<TH1D>("h_rt_nlct","h_rt_nlct",101,-0.5, 100.5);
-//   h_rt_nmplct = fs->make<TH1D>("h_rt_nmplct","h_rt_nmplct",101,-0.5, 100.5);
-//   h_rt_ntftrack = fs->make<TH1D>("h_rt_ntftrack","h_rt_ntftrack",31,-0.5, 30.5);
-//   h_rt_ntfcand = fs->make<TH1D>("h_rt_ntfcand","h_rt_ntfcand",31,-0.5, 30.5);
-//   h_rt_ntfcand_pt10 = fs->make<TH1D>("h_rt_ntfcand_pt10","h_rt_ntfcand_pt10",31,-0.5, 30.5);
-//   h_rt_ngmt_csc = fs->make<TH1D>("h_rt_ngmt_csc","h_rt_ngmt_csc",11,-0.5, 10.5);
-//   h_rt_ngmt_csc_pt10 = fs->make<TH1D>("h_rt_ngmt_csc_pt10","h_rt_ngmt_csc_pt10",11,-0.5, 10.5);
-//   h_rt_ngmt_csc_per_bx = fs->make<TH1D>("h_rt_ngmt_csc_per_bx","h_rt_ngmt_csc_per_bx",11,-0.5, 10.5);
-//   h_rt_ngmt_rpcf = fs->make<TH1D>("h_rt_ngmt_rpcf","h_rt_ngmt_rpcf",11,-0.5, 10.5);
-//   h_rt_ngmt_rpcf_pt10 = fs->make<TH1D>("h_rt_ngmt_rpcf_pt10","h_rt_ngmt_rpcf_pt10",11,-0.5, 10.5);
-//   h_rt_ngmt_rpcf_per_bx = fs->make<TH1D>("h_rt_ngmt_rpcf_per_bx","h_rt_ngmt_rpcf_per_bx",11,-0.5, 10.5);
-//   h_rt_ngmt_rpcb = fs->make<TH1D>("h_rt_ngmt_rpcb","h_rt_ngmt_rpcb",11,-0.5, 10.5);
-//   h_rt_ngmt_rpcb_pt10 = fs->make<TH1D>("h_rt_ngmt_rpcb_pt10","h_rt_ngmt_rpcb_pt10",11,-0.5, 10.5);
-//   h_rt_ngmt_rpcb_per_bx = fs->make<TH1D>("h_rt_ngmt_rpcb_per_bx","h_rt_ngmt_rpcb_per_bx",11,-0.5, 10.5);
-//   h_rt_ngmt_dt = fs->make<TH1D>("h_rt_ngmt_dt","h_rt_ngmt_dt",11,-0.5, 10.5);
-//   h_rt_ngmt_dt_pt10 = fs->make<TH1D>("h_rt_ngmt_dt_pt10","h_rt_ngmt_dt_pt10",11,-0.5, 10.5);
-//   h_rt_ngmt_dt_per_bx = fs->make<TH1D>("h_rt_ngmt_dt_per_bx","h_rt_ngmt_dt_per_bx",11,-0.5, 10.5);
-//   h_rt_ngmt = fs->make<TH1D>("h_rt_ngmt","h_rt_ngmt",11,-0.5, 10.5);
-//   h_rt_nxtra = fs->make<TH1D>("h_rt_nxtra","h_rt_nxtra",11,-0.5, 10.5);
-
-//   h_rt_nalct_per_bx = fs->make<TH1D>("h_rt_nalct_per_bx", "h_rt_nalct_per_bx", 51,-0.5, 50.5);
-//   h_rt_nclct_per_bx = fs->make<TH1D>("h_rt_nclct_per_bx", "h_rt_nclct_per_bx", 51,-0.5, 50.5);
-//   h_rt_nlct_per_bx = fs->make<TH1D>("h_rt_nlct_per_bx", "h_rt_nlct_per_bx", 51,-0.5, 50.5);
-
-//   h_rt_alct_bx = fs->make<TH1D>("h_rt_alct_bx","h_rt_alct_bx",13,-6.5, 6.5);
-//   h_rt_clct_bx = fs->make<TH1D>("h_rt_clct_bx","h_rt_clct_bx",13,-6.5, 6.5);
-//   h_rt_lct_bx = fs->make<TH1D>("h_rt_lct_bx","h_rt_lct_bx",13,-6.5, 6.5);
-//   h_rt_mplct_bx = fs->make<TH1D>("h_rt_mplct_bx","h_rt_mplct_bx",13,-6.5, 6.5);
-
-//   h_rt_csctype_alct_bx567 = fs->make<TH1D>("h_rt_csctype_alct_bx567", "CSC type vs ALCT rate", 10, 0.5,  10.5);
-//   h_rt_csctype_clct_bx567 = fs->make<TH1D>("h_rt_csctype_clct_bx567", "CSC type vs CLCT rate", 10, 0.5,  10.5);
-//   h_rt_csctype_lct_bx567 = fs->make<TH1D>("h_rt_csctype_lct_bx567", "CSC type vs LCT rate", 10, 0.5,  10.5);
-//   h_rt_csctype_mplct_bx567 = fs->make<TH1D>("h_rt_csctype_mplct_bx567", "CSC type vs MPC LCT rate", 10, 0.5,  10.5);
-//   for (int i=1; i<=CSC_TYPES;i++) {
-//     h_rt_csctype_alct_bx567->GetXaxis()->SetBinLabel(i,mugeo::csc_type_a[i].c_str());
-//     h_rt_csctype_clct_bx567->GetXaxis()->SetBinLabel(i,mugeo::csc_type_a[i].c_str());
-//     h_rt_csctype_lct_bx567->GetXaxis()->SetBinLabel(i,mugeo::csc_type_a[i].c_str());
-//     h_rt_csctype_mplct_bx567->GetXaxis()->SetBinLabel(i,mugeo::csc_type_a[i].c_str());
-//   }
-  
-//   h_rt_lct_qu_vs_bx = fs->make<TH2D>("h_rt_lct_qu_vs_bx","h_rt_lct_qu_vs_bx",20,0., 20.,13,-6.5, 6.5);
-//   h_rt_mplct_qu_vs_bx = fs->make<TH2D>("h_rt_mplct_qu_vs_bx","h_rt_mplct_qu_vs_bx",20,0., 20.,13,-6.5, 6.5);
-
-//   h_rt_nalct_vs_bx = fs->make<TH2D>("h_rt_nalct_vs_bx","h_rt_nalct_vs_bx",20,0., 20.,16,-.5, 15.5);
-//   h_rt_nclct_vs_bx = fs->make<TH2D>("h_rt_nclct_vs_bx","h_rt_nclct_vs_bx",20,0., 20.,16,-.5, 15.5);
-//   h_rt_nlct_vs_bx = fs->make<TH2D>("h_rt_nlct_vs_bx","h_rt_nlct_vs_bx",20,0., 20.,16,-.5, 15.5);
-//   h_rt_nmplct_vs_bx = fs->make<TH2D>("h_rt_nmplct_vs_bx","h_rt_nmplct_vs_bx",20,0., 20.,16,-.5, 15.5);
-
-//   h_rt_lct_qu = fs->make<TH1D>("h_rt_lct_qu","h_rt_lct_qu",20,0., 20.);
-//   h_rt_mplct_qu = fs->make<TH1D>("h_rt_mplct_qu","h_rt_mplct_qu",20,0., 20.);
-
-//   h_rt_qu_vs_bxclct__lct = fs->make<TH2D>("h_rt_qu_vs_bxclct__lct","h_rt_qu_vs_bxclct__lct",17,-0.5, 16.5, 15,-7.5, 7.5);
-
-//   h_rt_tftrack_pt = fs->make<TH1D>("h_rt_tftrack_pt","h_rt_tftrack_pt",600, 0.,150.);
-//   h_rt_tfcand_pt = fs->make<TH1D>("h_rt_tfcand_pt","h_rt_tfcand_pt",600, 0.,150.);
-
-
-//   h_rt_gmt_csc_pt = fs->make<TH1D>("h_rt_gmt_csc_pt","h_rt_gmt_csc_pt",600, 0.,150.);
-//   h_rt_gmt_csc_pt_2st = fs->make<TH1D>("h_rt_gmt_csc_pt_2st","h_rt_gmt_csc_pt_2st",600, 0.,150.);
-//   h_rt_gmt_csc_pt_3st = fs->make<TH1D>("h_rt_gmt_csc_pt_3st","h_rt_gmt_csc_pt_3st",600, 0.,150.);
-//   h_rt_gmt_csc_pt_2q = fs->make<TH1D>("h_rt_gmt_csc_pt_2q","h_rt_gmt_csc_pt_2q",600, 0.,150.);
-//   h_rt_gmt_csc_pt_3q = fs->make<TH1D>("h_rt_gmt_csc_pt_3q","h_rt_gmt_csc_pt_3q",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_2s = fs->make<TH1D>("h_rt_gmt_csc_ptmax_2s","h_rt_gmt_csc_ptmax_2s",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_2s_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax_2s_1b","h_rt_gmt_csc_ptmax_2s_1b",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_2s_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax_2s_no1a","h_rt_gmt_csc_ptmax_2s_no1a",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s","h_rt_gmt_csc_ptmax_3s",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_1b","h_rt_gmt_csc_ptmax_3s_1b",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_no1a","h_rt_gmt_csc_ptmax_3s_no1a",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_2s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_2s1b","h_rt_gmt_csc_ptmax_3s_2s1b",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_2s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_2s1b_1b","h_rt_gmt_csc_ptmax_3s_2s1b_1b",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_2s123_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_2s123_1b","h_rt_gmt_csc_ptmax_3s_2s123_1b",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_2s13_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_2s13_1b","h_rt_gmt_csc_ptmax_3s_2s13_1b",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_2s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_2s1b_no1a","h_rt_gmt_csc_ptmax_3s_2s1b_no1a",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_2s123_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_2s123_no1a","h_rt_gmt_csc_ptmax_3s_2s123_no1a",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_2s13_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_2s13_no1a","h_rt_gmt_csc_ptmax_3s_2s13_no1a",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_3s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_3s1b","h_rt_gmt_csc_ptmax_3s_3s1b",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_3s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_3s1b_1b","h_rt_gmt_csc_ptmax_3s_3s1b_1b",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s_3s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s_3s1b_no1a","h_rt_gmt_csc_ptmax_3s_3s1b_no1a",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_2q = fs->make<TH1D>("h_rt_gmt_csc_ptmax_2q","h_rt_gmt_csc_ptmax_2q",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3q = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3q","h_rt_gmt_csc_ptmax_3q",600, 0.,150.);
-//   h_rt_gmt_csc_pt_2s42 = fs->make<TH1D>("h_rt_gmt_csc_pt_2s42","h_rt_gmt_csc_pt_2s42",600, 0.,150.);
-//   h_rt_gmt_csc_pt_3s42 = fs->make<TH1D>("h_rt_gmt_csc_pt_3s42","h_rt_gmt_csc_pt_3s42",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_2s42 = fs->make<TH1D>("h_rt_gmt_csc_ptmax_2s42","h_rt_gmt_csc_ptmax_2s42",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s42 = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s42","h_rt_gmt_csc_ptmax_3s42",600, 0.,150.);
-//   h_rt_gmt_csc_pt_2q42 = fs->make<TH1D>("h_rt_gmt_csc_pt_2q42","h_rt_gmt_csc_pt_2q42",600, 0.,150.);
-//   h_rt_gmt_csc_pt_3q42 = fs->make<TH1D>("h_rt_gmt_csc_pt_3q42","h_rt_gmt_csc_pt_3q42",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_2q42 = fs->make<TH1D>("h_rt_gmt_csc_ptmax_2q42","h_rt_gmt_csc_ptmax_2q42",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3q42 = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3q42","h_rt_gmt_csc_ptmax_3q42",600, 0.,150.);
-//   h_rt_gmt_csc_pt_2s42r = fs->make<TH1D>("h_rt_gmt_csc_pt_2s42r","h_rt_gmt_csc_pt_2s42r",600, 0.,150.);
-//   h_rt_gmt_csc_pt_3s42r = fs->make<TH1D>("h_rt_gmt_csc_pt_3s42r","h_rt_gmt_csc_pt_3s42r",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_2s42r = fs->make<TH1D>("h_rt_gmt_csc_ptmax_2s42r","h_rt_gmt_csc_ptmax_2s42r",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3s42r = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3s42r","h_rt_gmt_csc_ptmax_3s42r",600, 0.,150.);
-//   h_rt_gmt_csc_pt_2q42r = fs->make<TH1D>("h_rt_gmt_csc_pt_2q42r","h_rt_gmt_csc_pt_2q42r",600, 0.,150.);
-//   h_rt_gmt_csc_pt_3q42r = fs->make<TH1D>("h_rt_gmt_csc_pt_3q42r","h_rt_gmt_csc_pt_3q42r",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_2q42r = fs->make<TH1D>("h_rt_gmt_csc_ptmax_2q42r","h_rt_gmt_csc_ptmax_2q42r",600, 0.,150.);
-//   h_rt_gmt_csc_ptmax_3q42r = fs->make<TH1D>("h_rt_gmt_csc_ptmax_3q42r","h_rt_gmt_csc_ptmax_3q42r",600, 0.,150.);
- 
-
-//   h_rt_gmt_rpcf_pt = fs->make<TH1D>("h_rt_gmt_rpcf_pt","h_rt_gmt_rpcf_pt",600, 0.,150.);
-//   h_rt_gmt_rpcf_pt_42 = fs->make<TH1D>("h_rt_gmt_rpcf_pt_42","h_rt_gmt_rpcf_pt_42",600, 0.,150.);
-//   h_rt_gmt_rpcf_ptmax = fs->make<TH1D>("h_rt_gmt_rpcf_ptmax","h_rt_gmt_rpcf_ptmax",600, 0.,150.);
-//   h_rt_gmt_rpcf_ptmax_42 = fs->make<TH1D>("h_rt_gmt_rpcf_ptmax_42","h_rt_gmt_rpcf_ptmax_42",600, 0.,150.);
-
-//   h_rt_gmt_rpcb_pt = fs->make<TH1D>("h_rt_gmt_rpcb_pt","h_rt_gmt_rpcb_pt",600, 0.,150.);
-//   h_rt_gmt_rpcb_ptmax = fs->make<TH1D>("h_rt_gmt_rpcb_ptmax","h_rt_gmt_rpcb_ptmax",600, 0.,150.);
-
-//   h_rt_gmt_dt_pt = fs->make<TH1D>("h_rt_gmt_dt_pt","h_rt_gmt_dt_pt",600, 0.,150.);
-//   h_rt_gmt_dt_ptmax = fs->make<TH1D>("h_rt_gmt_dt_ptmax","h_rt_gmt_dt_ptmax",600, 0.,150.);
-
-//   h_rt_gmt_pt = fs->make<TH1D>("h_rt_gmt_pt","h_rt_gmt_pt",600, 0.,150.);
-//   h_rt_gmt_pt_2st = fs->make<TH1D>("h_rt_gmt_pt_2st","h_rt_gmt_pt_2st",600, 0.,150.);
-//   h_rt_gmt_pt_3st = fs->make<TH1D>("h_rt_gmt_pt_3st","h_rt_gmt_pt_3st",600, 0.,150.);
-//   h_rt_gmt_pt_2q = fs->make<TH1D>("h_rt_gmt_pt_2q","h_rt_gmt_pt_2q",600, 0.,150.);
-//   h_rt_gmt_pt_3q = fs->make<TH1D>("h_rt_gmt_pt_3q","h_rt_gmt_pt_3q",600, 0.,150.);
-//   h_rt_gmt_ptmax = fs->make<TH1D>("h_rt_gmt_ptmax","h_rt_gmt_ptmax",600, 0.,150.);
-//   h_rt_gmt_ptmax_sing = fs->make<TH1D>("h_rt_gmt_ptmax_sing","h_rt_gmt_ptmax_sing",600, 0.,150.);
-//   h_rt_gmt_ptmax_sing_3s = fs->make<TH1D>("h_rt_gmt_ptmax_sing_3s","h_rt_gmt_ptmax_sing_3s",600, 0.,150.);
-//   h_rt_gmt_ptmax_sing_csc = fs->make<TH1D>("h_rt_gmt_ptmax_sing_csc","h_rt_gmt_ptmax_sing_csc",600, 0.,150.);
-//   h_rt_gmt_ptmax_sing_1b = fs->make<TH1D>("h_rt_gmt_ptmax_sing_1b","h_rt_gmt_ptmax_sing_no1a",600, 0.,150.);
-//   h_rt_gmt_ptmax_sing_no1a = fs->make<TH1D>("h_rt_gmt_ptmax_sing_no1a","h_rt_gmt_ptmax_sing_no1a",600, 0.,150.);
-//   h_rt_gmt_ptmax_sing6 = fs->make<TH1D>("h_rt_gmt_ptmax_sing6","h_rt_gmt_ptmax_sing6",600, 0.,150.);
-//   h_rt_gmt_ptmax_sing6_3s = fs->make<TH1D>("h_rt_gmt_ptmax_sing6_3s","h_rt_gmt_ptmax_sing6_3s",600, 0.,150.);
-//   h_rt_gmt_ptmax_sing6_csc = fs->make<TH1D>("h_rt_gmt_ptmax_sing6_csc","h_rt_gmt_ptmax_sing6_csc",600, 0.,150.);
-//   h_rt_gmt_ptmax_sing6_1b = fs->make<TH1D>("h_rt_gmt_ptmax_sing6_1b","h_rt_gmt_ptmax_sing6_1b",600, 0.,150.);
-//   h_rt_gmt_ptmax_sing6_no1a = fs->make<TH1D>("h_rt_gmt_ptmax_sing6_no1a","h_rt_gmt_ptmax_sing6_no1a",600, 0.,150.);
-//   h_rt_gmt_ptmax_sing6_3s1b_no1a = fs->make<TH1D>("h_rt_gmt_ptmax_sing6_3s1b_no1a","h_rt_gmt_ptmax_sing6_3s1b_no1a",600, 0.,150.);
-//   h_rt_gmt_ptmax_dbl = fs->make<TH1D>("h_rt_gmt_ptmax_dbl","h_rt_gmt_ptmax_dbl",600, 0.,150.);
-//   h_rt_gmt_pt_2s42 = fs->make<TH1D>("h_rt_gmt_pt_2s42","h_rt_gmt_pt_2s42",600, 0.,150.);
-//   h_rt_gmt_pt_3s42 = fs->make<TH1D>("h_rt_gmt_pt_3s42","h_rt_gmt_pt_3s42",600, 0.,150.);
-//   h_rt_gmt_ptmax_2s42 = fs->make<TH1D>("h_rt_gmt_ptmax_2s42","h_rt_gmt_ptmax_2s42",600, 0.,150.);
-//   h_rt_gmt_ptmax_3s42 = fs->make<TH1D>("h_rt_gmt_ptmax_3s42","h_rt_gmt_ptmax_3s42",600, 0.,150.);
-//   h_rt_gmt_ptmax_2s42_sing = fs->make<TH1D>("h_rt_gmt_ptmax_2s42_sing","h_rt_gmt_ptmax_2s42_sing",600, 0.,150.);
-//   h_rt_gmt_ptmax_3s42_sing = fs->make<TH1D>("h_rt_gmt_ptmax_3s42_sing","h_rt_gmt_ptmax_3s42_sing",600, 0.,150.);
-//   h_rt_gmt_pt_2q42 = fs->make<TH1D>("h_rt_gmt_pt_2q42","h_rt_gmt_pt_2q42",600, 0.,150.);
-//   h_rt_gmt_pt_3q42 = fs->make<TH1D>("h_rt_gmt_pt_3q42","h_rt_gmt_pt_3q42",600, 0.,150.);
-//   h_rt_gmt_ptmax_2q42 = fs->make<TH1D>("h_rt_gmt_ptmax_2q42","h_rt_gmt_ptmax_2q42",600, 0.,150.);
-//   h_rt_gmt_ptmax_3q42 = fs->make<TH1D>("h_rt_gmt_ptmax_3q42","h_rt_gmt_ptmax_3q42",600, 0.,150.);
-//   h_rt_gmt_ptmax_2q42_sing = fs->make<TH1D>("h_rt_gmt_ptmax_2q42_sing","h_rt_gmt_ptmax_2q42_sing",600, 0.,150.);
-//   h_rt_gmt_ptmax_3q42_sing = fs->make<TH1D>("h_rt_gmt_ptmax_3q42_sing","h_rt_gmt_ptmax_3q42_sing",600, 0.,150.);
-//   h_rt_gmt_pt_2s42r = fs->make<TH1D>("h_rt_gmt_pt_2s42r","h_rt_gmt_pt_2s42r",600, 0.,150.);
-//   h_rt_gmt_pt_3s42r = fs->make<TH1D>("h_rt_gmt_pt_3s42r","h_rt_gmt_pt_3s42r",600, 0.,150.);
-//   h_rt_gmt_ptmax_2s42r = fs->make<TH1D>("h_rt_gmt_ptmax_2s42r","h_rt_gmt_ptmax_2s42r",600, 0.,150.);
-//   h_rt_gmt_ptmax_3s42r = fs->make<TH1D>("h_rt_gmt_ptmax_3s42r","h_rt_gmt_ptmax_3s42r",600, 0.,150.);
-//   h_rt_gmt_ptmax_2s42r_sing = fs->make<TH1D>("h_rt_gmt_ptmax_2s42r_sing","h_rt_gmt_ptmax_2s42r_sing",600, 0.,150.);
-//   h_rt_gmt_ptmax_3s42r_sing = fs->make<TH1D>("h_rt_gmt_ptmax_3s42r_sing","h_rt_gmt_ptmax_3s42r_sing",600, 0.,150.);
-//   h_rt_gmt_pt_2q42r = fs->make<TH1D>("h_rt_gmt_pt_2q42r","h_rt_gmt_pt_2q42r",600, 0.,150.);
-//   h_rt_gmt_pt_3q42r = fs->make<TH1D>("h_rt_gmt_pt_3q42r","h_rt_gmt_pt_3q42r",600, 0.,150.);
-//   h_rt_gmt_ptmax_2q42r = fs->make<TH1D>("h_rt_gmt_ptmax_2q42r","h_rt_gmt_ptmax_2q42r",600, 0.,150.);
-//   h_rt_gmt_ptmax_3q42r = fs->make<TH1D>("h_rt_gmt_ptmax_3q42r","h_rt_gmt_ptmax_3q42r",600, 0.,150.);
-//   h_rt_gmt_ptmax_2q42r_sing = fs->make<TH1D>("h_rt_gmt_ptmax_2q42r_sing","h_rt_gmt_ptmax_2q42r_sing",600, 0.,150.);
-//   h_rt_gmt_ptmax_3q42r_sing = fs->make<TH1D>("h_rt_gmt_ptmax_3q42r_sing","h_rt_gmt_ptmax_3q42r_sing",600, 0.,150.);
-
-
-//   h_rt_gmt_csc_eta = fs->make<TH1D>("h_rt_gmt_csc_eta","h_rt_gmt_csc_eta",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_2s = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_2s","h_rt_gmt_csc_ptmax10_eta_2s",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_2s_2s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_2s_2s1b","h_rt_gmt_csc_ptmax10_eta_2s_2s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s","h_rt_gmt_csc_ptmax10_eta_3s",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_1b","h_rt_gmt_csc_ptmax10_eta_3s_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_no1a","h_rt_gmt_csc_ptmax10_eta_3s_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_2s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_2s1b","h_rt_gmt_csc_ptmax10_eta_3s_2s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_2s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_2s1b_1b","h_rt_gmt_csc_ptmax10_eta_3s_2s1b_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_2s123_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_2s123_1b","h_rt_gmt_csc_ptmax10_eta_3s_2s123_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_2s13_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_2s13_1b","h_rt_gmt_csc_ptmax10_eta_3s_2s13_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_2s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_2s1b_no1a","h_rt_gmt_csc_ptmax10_eta_3s_2s1b_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_2s123_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_2s123_no1a","h_rt_gmt_csc_ptmax10_eta_3s_2s123_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_2s13_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_2s13_no1a","h_rt_gmt_csc_ptmax10_eta_3s_2s13_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_3s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_3s1b","h_rt_gmt_csc_ptmax10_eta_3s_3s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_3s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_3s1b_1b","h_rt_gmt_csc_ptmax10_eta_3s_3s1b_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3s_3s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3s_3s1b_no1a","h_rt_gmt_csc_ptmax10_eta_3s_3s1b_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_2q = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_2q","h_rt_gmt_csc_ptmax10_eta_2q",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax10_eta_3q = fs->make<TH1D>("h_rt_gmt_csc_ptmax10_eta_3q","h_rt_gmt_csc_ptmax10_eta_3q",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-
-//   h_rt_gmt_csc_ptmax20_eta_2s = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_2s","h_rt_gmt_csc_ptmax20_eta_2s",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_2s_2s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_2s_2s1b","h_rt_gmt_csc_ptmax20_eta_2s_2s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3s = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s","h_rt_gmt_csc_ptmax20_eta_3s",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-
-//   h_rt_gmt_csc_ptmax20_eta_3s_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_1b","h_rt_gmt_csc_ptmax20_eta_3s_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3s_1ab = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_1ab","h_rt_gmt_csc_ptmax20_eta_3s_1ab",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-
-//   h_rt_gmt_csc_ptmax20_eta_3s_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_no1a","h_rt_gmt_csc_ptmax20_eta_3s_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3s_2s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s1b","h_rt_gmt_csc_ptmax20_eta_3s_2s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3s_2s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s1b_1b","h_rt_gmt_csc_ptmax20_eta_3s_2s1b_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3s_2s123_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s123_1b","h_rt_gmt_csc_ptmax20_eta_3s_2s123_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3s_2s13_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s13_1b","h_rt_gmt_csc_ptmax20_eta_3s_2s13_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3s_2s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s1b_no1a","h_rt_gmt_csc_ptmax20_eta_3s_2s1b_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3s_2s123_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s123_no1a","h_rt_gmt_csc_ptmax20_eta_3s_2s123_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3s_2s13_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_2s13_no1a","h_rt_gmt_csc_ptmax20_eta_3s_2s13_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-
-//   h_rt_gmt_csc_ptmax20_eta_3s_3s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_3s1b","h_rt_gmt_csc_ptmax20_eta_3s_3s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3s_3s1ab = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_3s1ab","h_rt_gmt_csc_ptmax20_eta_3s_3s1ab",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-
-//   h_rt_gmt_csc_ptmax20_eta_3s_3s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_3s1b_1b","h_rt_gmt_csc_ptmax20_eta_3s_3s1b_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3s_3s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3s_3s1b_no1a","h_rt_gmt_csc_ptmax20_eta_3s_3s1b_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_2q = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_2q","h_rt_gmt_csc_ptmax20_eta_2q",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax20_eta_3q = fs->make<TH1D>("h_rt_gmt_csc_ptmax20_eta_3q","h_rt_gmt_csc_ptmax20_eta_3q",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-
-//   h_rt_gmt_csc_ptmax30_eta_2s = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_2s","h_rt_gmt_csc_ptmax30_eta_2s",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_2s_2s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_2s_2s1b","h_rt_gmt_csc_ptmax30_eta_2s_2s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3s = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s","h_rt_gmt_csc_ptmax30_eta_3s",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-
-//   h_rt_gmt_csc_ptmax30_eta_3s_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_1b","h_rt_gmt_csc_ptmax30_eta_3s_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3s_1ab = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_1ab","h_rt_gmt_csc_ptmax30_eta_3s_1ab",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-
-//   h_rt_gmt_csc_ptmax30_eta_3s_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_no1a","h_rt_gmt_csc_ptmax30_eta_3s_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3s_2s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s1b","h_rt_gmt_csc_ptmax30_eta_3s_2s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3s_2s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s1b_1b","h_rt_gmt_csc_ptmax30_eta_3s_2s1b_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3s_2s123_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s123_1b","h_rt_gmt_csc_ptmax30_eta_3s_2s123_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3s_2s13_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s13_1b","h_rt_gmt_csc_ptmax30_eta_3s_2s13_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3s_2s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s1b_no1a","h_rt_gmt_csc_ptmax30_eta_3s_2s1b_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3s_2s123_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s123_no1a","h_rt_gmt_csc_ptmax30_eta_3s_2s123_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3s_2s13_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_2s13_no1a","h_rt_gmt_csc_ptmax30_eta_3s_2s13_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-
-//   h_rt_gmt_csc_ptmax30_eta_3s_3s1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_3s1b","h_rt_gmt_csc_ptmax30_eta_3s_3s1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3s_3s1ab = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_3s1ab","h_rt_gmt_csc_ptmax30_eta_3s_3s1ab",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-
-
-//   h_rt_gmt_csc_ptmax30_eta_3s_3s1b_1b = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_3s1b_1b","h_rt_gmt_csc_ptmax30_eta_3s_3s1b_1b",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3s_3s1b_no1a = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3s_3s1b_no1a","h_rt_gmt_csc_ptmax30_eta_3s_3s1b_no1a",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_2q = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_2q","h_rt_gmt_csc_ptmax30_eta_2q",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-//   h_rt_gmt_csc_ptmax30_eta_3q = fs->make<TH1D>("h_rt_gmt_csc_ptmax30_eta_3q","h_rt_gmt_csc_ptmax30_eta_3q",N_ETA_BINS_CSC, ETA_START_CSC, ETA_END_CSC);
-
-//   h_rt_gmt_rpcf_eta = fs->make<TH1D>("h_rt_gmt_rpcf_eta","h_rt_gmt_rpcf_eta",N_ETA_BINS_RPC, ETA_BINS_RPC);
-//   h_rt_gmt_rpcf_ptmax10_eta = fs->make<TH1D>("h_rt_gmt_rpcf_ptmax10_eta","h_rt_gmt_rpcf_ptmax10_eta",N_ETA_BINS_RPC, ETA_BINS_RPC);
-//   h_rt_gmt_rpcf_ptmax20_eta = fs->make<TH1D>("h_rt_gmt_rpcf_ptmax20_eta","h_rt_gmt_rpcf_ptmax20_eta",N_ETA_BINS_RPC, ETA_BINS_RPC);
-//   h_rt_gmt_rpcb_eta = fs->make<TH1D>("h_rt_gmt_rpcb_eta","h_rt_gmt_rpcb_eta",N_ETA_BINS_RPC, ETA_BINS_RPC);
-//   h_rt_gmt_rpcb_ptmax10_eta = fs->make<TH1D>("h_rt_gmt_rpcb_ptmax10_eta","h_rt_gmt_rpcb_ptmax10_eta",N_ETA_BINS_RPC, ETA_BINS_RPC);
-//   h_rt_gmt_rpcb_ptmax20_eta = fs->make<TH1D>("h_rt_gmt_rpcb_ptmax20_eta","h_rt_gmt_rpcb_ptmax20_eta",N_ETA_BINS_RPC, ETA_BINS_RPC);
-//   h_rt_gmt_dt_eta = fs->make<TH1D>("h_rt_gmt_dt_eta","h_rt_gmt_dt_eta",N_ETA_BINS_DT, ETA_START_DT, ETA_END_DT);
-//   h_rt_gmt_dt_ptmax10_eta = fs->make<TH1D>("h_rt_gmt_dt_ptmax10_eta","h_rt_gmt_dt_ptmax10_eta",N_ETA_BINS_DT, ETA_START_DT, ETA_END_DT);
-//   h_rt_gmt_dt_ptmax20_eta = fs->make<TH1D>("h_rt_gmt_dt_ptmax20_eta","h_rt_gmt_dt_ptmax20_eta",N_ETA_BINS_DT, ETA_START_DT, ETA_END_DT);
-//   h_rt_gmt_eta = fs->make<TH1D>("h_rt_gmt_eta","h_rt_gmt_eta",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax10_eta = fs->make<TH1D>("h_rt_gmt_ptmax10_eta","h_rt_gmt_ptmax10_eta",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax10_eta_sing = fs->make<TH1D>("h_rt_gmt_ptmax10_eta_sing","h_rt_gmt_ptmax10_eta_sing",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax10_eta_sing_3s = fs->make<TH1D>("h_rt_gmt_ptmax10_eta_sing_3s","h_rt_gmt_ptmax10_eta_sing_3s",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax10_eta_sing6 = fs->make<TH1D>("h_rt_gmt_ptmax10_eta_sing6","h_rt_gmt_ptmax10_eta_sing6",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax10_eta_sing6_3s = fs->make<TH1D>("h_rt_gmt_ptmax10_eta_sing6_3s","h_rt_gmt_ptmax10_eta_sing6_3s",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax20_eta = fs->make<TH1D>("h_rt_gmt_ptmax20_eta","h_rt_gmt_ptmax20_eta",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax20_eta_sing = fs->make<TH1D>("h_rt_gmt_ptmax20_eta_sing","h_rt_gmt_ptmax20_eta_sing",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax20_eta_sing_csc = fs->make<TH1D>("h_rt_gmt_ptmax20_eta_sing_csc","h_rt_gmt_ptmax20_eta_sing_csc",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax20_eta_sing_dtcsc = fs->make<TH1D>("h_rt_gmt_ptmax20_eta_sing_dtcsc","h_rt_gmt_ptmax20_eta_sing_dtcsc",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax20_eta_sing_3s = fs->make<TH1D>("h_rt_gmt_ptmax20_eta_sing_3s","h_rt_gmt_ptmax20_eta_sing_3s",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax20_eta_sing6 = fs->make<TH1D>("h_rt_gmt_ptmax20_eta_sing6","h_rt_gmt_ptmax20_eta_sing6",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax20_eta_sing6_csc = fs->make<TH1D>("h_rt_gmt_ptmax20_eta_sing6_csc","h_rt_gmt_ptmax20_eta_sing6_csc",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax20_eta_sing6_3s = fs->make<TH1D>("h_rt_gmt_ptmax20_eta_sing6_3s","h_rt_gmt_ptmax20_eta_sing6_3s",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax30_eta_sing = fs->make<TH1D>("h_rt_gmt_ptmax30_eta_sing","h_rt_gmt_ptmax30_eta_sing",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax30_eta_sing_csc = fs->make<TH1D>("h_rt_gmt_ptmax30_eta_sing_csc","h_rt_gmt_ptmax30_eta_sing_csc",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax30_eta_sing_dtcsc = fs->make<TH1D>("h_rt_gmt_ptmax30_eta_sing_dtcsc","h_rt_gmt_ptmax30_eta_sing_dtcsc",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax30_eta_sing_3s = fs->make<TH1D>("h_rt_gmt_ptmax30_eta_sing_3s","h_rt_gmt_ptmax30_eta_sing_3s",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax30_eta_sing6 = fs->make<TH1D>("h_rt_gmt_ptmax30_eta_sing6","h_rt_gmt_ptmax30_eta_sing6",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax30_eta_sing6_csc = fs->make<TH1D>("h_rt_gmt_ptmax30_eta_sing6_csc","h_rt_gmt_ptmax30_eta_sing6_csc",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax30_eta_sing6_3s = fs->make<TH1D>("h_rt_gmt_ptmax30_eta_sing6_3s","h_rt_gmt_ptmax30_eta_sing6_3s",N_ETA_BINS_GMT, ETA_BINS_GMT);
-
-//   h_rt_gmt_ptmax10_eta_dbl = fs->make<TH1D>("h_rt_gmt_ptmax10_eta_dbl","h_rt_gmt_ptmax10_eta_dbl",N_ETA_BINS_GMT, ETA_BINS_GMT);
-//   h_rt_gmt_ptmax20_eta_dbl = fs->make<TH1D>("h_rt_gmt_ptmax20_eta_dbl","h_rt_gmt_ptmax20_eta_dbl",N_ETA_BINS_GMT, ETA_BINS_GMT);
-
-//   const int Nthr = 7;
-//   std::string str_pts[Nthr] = {"", "_pt10", "_pt15", "_pt20", "_pt25", "_pt30","_pt40"};
-
-//   for (int i = 1; i < Nthr; ++i) {
-//     std::string prefix = "h_rt_gmt_csc_mode_2s1b_1b_";
-//     h_rt_gmt_csc_mode_2s1b_1b[i-1] = fs->make<TH1D>((prefix + str_pts[i]).c_str(), (prefix + str_pts[i]).c_str(), 16, -0.5, 15.5);
-//     setupTFModeHisto(h_rt_gmt_csc_mode_2s1b_1b[i-1]);
-//   }
-
-//   h_rt_tfcand_pt_2st = fs->make<TH1D>("h_rt_tfcand_pt_2st","h_rt_tfcand_pt_2st",600, 0.,150.);
-//   h_rt_tfcand_pt_3st = fs->make<TH1D>("h_rt_tfcand_pt_3st","h_rt_tfcand_pt_3st",600, 0.,150.);
-
-//   h_rt_tfcand_pt_h42_2st = fs->make<TH1D>("h_rt_tfcand_pt_h42_2st","h_rt_tfcand_pt_h42_2st",600, 0.,150.);
-//   h_rt_tfcand_pt_h42_3st = fs->make<TH1D>("h_rt_tfcand_pt_h42_3st","h_rt_tfcand_pt_h42_3st",600, 0.,150.);
-
-//   h_rt_tftrack_bx = fs->make<TH1D>("h_rt_tftrack_bx","h_rt_tftrack_bx",13,-6.5, 6.5);
-//   h_rt_tfcand_bx = fs->make<TH1D>("h_rt_tfcand_bx","h_rt_tfcand_bx",13,-6.5, 6.5);
-//   h_rt_gmt_csc_bx = fs->make<TH1D>("h_rt_gmt_csc_bx","h_rt_gmt_csc_bx",13,-6.5, 6.5);
-//   h_rt_gmt_rpcf_bx = fs->make<TH1D>("h_rt_gmt_rpcf_bx","h_rt_gmt_rpcf_bx",13,-6.5, 6.5);
-//   h_rt_gmt_rpcb_bx = fs->make<TH1D>("h_rt_gmt_rpcb_bx","h_rt_gmt_rpcb_bx",13,-6.5, 6.5);
-//   h_rt_gmt_dt_bx = fs->make<TH1D>("h_rt_gmt_dt_bx","h_rt_gmt_dt_bx",13,-6.5, 6.5);
-//   h_rt_gmt_bx = fs->make<TH1D>("h_rt_gmt_bx","h_rt_gmt_bx",13,-6.5, 6.5);
-
-//   h_rt_gmt_csc_q = fs->make<TH1D>("h_rt_gmt_csc_q","h_rt_gmt_csc_q",8,-.5, 7.5);
-//   h_rt_gmt_csc_q_42 = fs->make<TH1D>("h_rt_gmt_csc_q_42","h_rt_gmt_csc_q_42",8,-.5, 7.5);
-//   h_rt_gmt_csc_q_42r = fs->make<TH1D>("h_rt_gmt_csc_q_42r","h_rt_gmt_csc_q_42r",8,-.5, 7.5);
-//   h_rt_gmt_rpcf_q = fs->make<TH1D>("h_rt_gmt_rpcf_q","h_rt_gmt_rpcf_q",8,-.5, 7.5);
-//   h_rt_gmt_rpcf_q_42 = fs->make<TH1D>("h_rt_gmt_rpcf_q_42","h_rt_gmt_rpcf_q_42",8,-.5, 7.5);
-//   h_rt_gmt_rpcb_q = fs->make<TH1D>("h_rt_gmt_rpcb_q","h_rt_gmt_rpcb_q",8,-.5, 7.5);
-//   h_rt_gmt_dt_q = fs->make<TH1D>("h_rt_gmt_dt_q","h_rt_gmt_dt_q",8,-.5, 7.5);
-//   h_rt_gmt_gq = fs->make<TH1D>("h_rt_gmt_gq","h_rt_gmt_gq",8,-.5, 7.5);
-//   h_rt_gmt_gq_42 = fs->make<TH1D>("h_rt_gmt_gq_42","h_rt_gmt_gq_42",8,-.5, 7.5);
-//   h_rt_gmt_gq_42r = fs->make<TH1D>("h_rt_gmt_gq_42","h_rt_gmt_gq_42r",8,-.5, 7.5);
-//   h_rt_gmt_gq_vs_pt_42r = fs->make<TH2D>("h_rt_gmt_gq_vs_pt_42r","h_rt_gmt_gq_vs_pt_42r",8,-.5, 7.5, 600, 0.,150.);
-//   h_rt_gmt_gq_vs_type_42r = fs->make<TH2D>("h_rt_gmt_gq_vs_type_42r","h_rt_gmt_gq_vs_type_42r",8,-.5, 7.5, 7,-0.5,6.5);
-//   h_rt_gmt_gq_vs_type_42r->GetYaxis()->SetBinLabel(1,"?");
-//   h_rt_gmt_gq_vs_type_42r->GetYaxis()->SetBinLabel(2,"RPC q=0");
-//   h_rt_gmt_gq_vs_type_42r->GetYaxis()->SetBinLabel(3,"RPC q=1");
-//   h_rt_gmt_gq_vs_type_42r->GetYaxis()->SetBinLabel(4,"CSC q=1");
-//   h_rt_gmt_gq_vs_type_42r->GetYaxis()->SetBinLabel(5,"CSC q=2");
-//   h_rt_gmt_gq_vs_type_42r->GetYaxis()->SetBinLabel(6,"CSC q=3");
-//   h_rt_gmt_gq_vs_type_42r->GetYaxis()->SetBinLabel(7,"matched");
-
-//   h_rt_tftrack_mode = fs->make<TH1D>("h_rt_tftrack_mode","TF Track Mode", 16, -0.5, 15.5);
-//   setupTFModeHisto(h_rt_tftrack_mode);
-//   h_rt_tftrack_mode->SetTitle("TF Track Mode (all TF tracks)");
-  
-//   h_rt_n_ch_alct_per_bx = fs->make<TH1D>("h_rt_n_ch_alct_per_bx", "h_rt_n_ch_alct_per_bx", 51,-0.5, 50.5);
-//   h_rt_n_ch_clct_per_bx = fs->make<TH1D>("h_rt_n_ch_clct_per_bx", "h_rt_n_ch_clct_per_bx", 51,-0.5, 50.5);
-//   h_rt_n_ch_lct_per_bx = fs->make<TH1D>("h_rt_n_ch_lct_per_bx", "h_rt_n_ch_lct_per_bx", 51,-0.5, 50.5);
-
-
-//   h_rt_tfcand_eta = fs->make<TH1D>("h_rt_tfcand_eta","h_rt_tfcand_eta",N_ETA_BINS, ETA_START, ETA_END);
-//   h_rt_tfcand_eta_pt5 = fs->make<TH1D>("h_rt_tfcand_eta_pt5","h_rt_tfcand_eta_pt5",N_ETA_BINS, ETA_START, ETA_END);
-//   h_rt_tfcand_eta_pt10 = fs->make<TH1D>("h_rt_tfcand_eta_pt10","h_rt_tfcand_eta_pt10",N_ETA_BINS, ETA_START, ETA_END);
-//   h_rt_tfcand_eta_pt15 = fs->make<TH1D>("h_rt_tfcand_eta_pt15","h_rt_tfcand_eta_pt15",N_ETA_BINS, ETA_START, ETA_END);
-
-//   h_rt_tfcand_eta_3st = fs->make<TH1D>("h_rt_tfcand_eta_3st","h_rt_tfcand_eta_3st",N_ETA_BINS, ETA_START, ETA_END);
-//   h_rt_tfcand_eta_pt5_3st = fs->make<TH1D>("h_rt_tfcand_eta_pt5_3st","h_rt_tfcand_eta_pt5_3st",N_ETA_BINS, ETA_START, ETA_END);
-//   h_rt_tfcand_eta_pt10_3st = fs->make<TH1D>("h_rt_tfcand_eta_pt10_3st","h_rt_tfcand_eta_pt10_3st",N_ETA_BINS, ETA_START, ETA_END);
-//   h_rt_tfcand_eta_pt15_3st = fs->make<TH1D>("h_rt_tfcand_eta_pt15_3st","h_rt_tfcand_eta_pt15_3st",N_ETA_BINS, ETA_START, ETA_END);
-
-//   h_rt_tfcand_eta_3st1a = fs->make<TH1D>("h_rt_tfcand_eta_3st1a","h_rt_tfcand_eta_3st1a",N_ETA_BINS, ETA_START, ETA_END);
-//   h_rt_tfcand_eta_pt5_3st1a = fs->make<TH1D>("h_rt_tfcand_eta_pt5_3st1a","h_rt_tfcand_eta_pt5_3st1a",N_ETA_BINS, ETA_START, ETA_END);
-//   h_rt_tfcand_eta_pt10_3st1a = fs->make<TH1D>("h_rt_tfcand_eta_pt10_3st1a","h_rt_tfcand_eta_pt10_3st1a",N_ETA_BINS, ETA_START, ETA_END);
-//   h_rt_tfcand_eta_pt15_3st1a = fs->make<TH1D>("h_rt_tfcand_eta_pt15_3st1a","h_rt_tfcand_eta_pt15_3st1a",N_ETA_BINS, ETA_START, ETA_END);
-
-//   h_rt_tfcand_pt_vs_eta = fs->make<TH2D>("h_rt_tfcand_pt_vs_eta","h_rt_tfcand_pt_vs_eta",600, 0.,150.,N_ETA_BINS, ETA_START, ETA_END);
-//   h_rt_tfcand_pt_vs_eta_3st = fs->make<TH2D>("h_rt_tfcand_pt_vs_eta_3st","h_rt_tfcand_pt_vs_eta_3st",600, 0.,150.,N_ETA_BINS, ETA_START, ETA_END);
-//   h_rt_tfcand_pt_vs_eta_3st1a = fs->make<TH2D>("h_rt_tfcand_pt_vs_eta_3st1a","h_rt_tfcand_pt_vs_eta_3st1a",600, 0.,150.,N_ETA_BINS, ETA_START, ETA_END);
-
-//   char label[200];
-//   for (int me=0; me<=CSC_TYPES; me++) 
-//   {
-//     if (me==3 && !doME1a_) continue; // ME1/a
-
-//     sprintf(label,"h_rt_n_per_ch_alct_vs_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
-//     h_rt_n_per_ch_alct_vs_bx_cscdet[me] = fs->make<TH2D>(label, label, 5,0,5, 16,-.5, 15.5);
-
-//     sprintf(label,"h_rt_n_per_ch_clct_vs_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
-//     h_rt_n_per_ch_clct_vs_bx_cscdet[me] = fs->make<TH2D>(label, label, 5,0,5, 16,-.5, 15.5);
-
-//     sprintf(label,"h_rt_n_per_ch_lct_vs_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
-//     h_rt_n_per_ch_lct_vs_bx_cscdet[me] = fs->make<TH2D>(label, label, 5,0,5, 16,-.5, 15.5);
-
-
-//     sprintf(label,"h_rt_n_ch_alct_per_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
-//     h_rt_n_ch_alct_per_bx_cscdet[me] = fs->make<TH1D>(label, label, 51,-0.5, 50.5);
-
-//     sprintf(label,"h_rt_n_ch_clct_per_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
-//     h_rt_n_ch_clct_per_bx_cscdet[me] = fs->make<TH1D>(label, label, 51,-0.5, 50.5);
-
-//     sprintf(label,"h_rt_n_ch_lct_per_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
-//     h_rt_n_ch_lct_per_bx_cscdet[me] = fs->make<TH1D>(label, label, 51,-0.5, 50.5);
-
-
-//     sprintf(label,"h_rt_mplct_pattern_cscdet_%s",mugeo::csc_type_[me].c_str());
-//     h_rt_mplct_pattern_cscdet[me] = fs->make<TH1D>(label, label, 13,-0.5, 12.5);
-
-
-//     sprintf(label,"h_rt_alct_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
-//     h_rt_alct_bx_cscdet[me] = fs->make<TH1D>(label, label,13,-6.5, 6.5);
-//     sprintf(label,"h_rt_clct_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
-//     h_rt_clct_bx_cscdet[me] = fs->make<TH1D>(label, label,13,-6.5, 6.5);
-//     sprintf(label,"h_rt_lct_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
-//     h_rt_lct_bx_cscdet[me] = fs->make<TH1D>(label, label,13,-6.5, 6.5);
-//     sprintf(label,"h_rt_mplct_bx_cscdet_%s",mugeo::csc_type_[me].c_str());
-//     h_rt_mplct_bx_cscdet[me] = fs->make<TH1D>(label, label,13,-6.5, 6.5);
-
-//   }//for (int me=0; me<CSC_TYPES; me++) 
-
-//   h_rt_lct_per_sector = fs->make<TH1D>("h_rt_lct_per_sector","h_rt_lct_per_sector",20,0., 20.);
-//   h_rt_lct_per_sector_vs_bx = fs->make<TH2D>("h_rt_lct_per_sector_vs_bx","h_rt_lct_per_sector_vs_bx",20,0., 20.,16,0,16);
-//   h_rt_mplct_per_sector = fs->make<TH1D>("h_rt_mplct_per_sector","h_rt_mplct_per_sector",20,0., 20.);
-//   h_rt_mplct_per_sector_vs_bx = fs->make<TH2D>("h_rt_mplct_per_sector_vs_bx","h_rt_mplct_per_sector_vs_bx",20,0., 20.,16,0,16);
-//   h_rt_lct_per_sector_vs_bx_st1t = fs->make<TH2D>("h_rt_lct_per_sector_vs_bx_st1t","h_rt_lct_per_sector_vs_bx_st1t",20,0., 20.,16,0,16);
-//   h_rt_mplct_per_sector_vs_bx_st1t = fs->make<TH2D>("h_rt_mplct_per_sector_vs_bx_st1t","h_rt_mplct_per_sector_vs_bx_st1t",20,0., 20.,16,0,16);
-
-//   for (int i=0; i<MAX_STATIONS;i++) 
-//   {
-//     sprintf(label,"h_rt_n_ch_alct_per_bx_st%d",i+1);
-//     h_rt_n_ch_alct_per_bx_st[i] = fs->make<TH1D>(label, label, 51,-0.5, 50.5);
-
-//     sprintf(label,"h_rt_n_ch_clct_per_bx_st%d",i+1);
-//     h_rt_n_ch_clct_per_bx_st[i] = fs->make<TH1D>(label, label, 51,-0.5, 50.5);
-
-//     sprintf(label,"h_rt_n_ch_lct_per_bx_st%d",i+1);
-//     h_rt_n_ch_lct_per_bx_st[i] = fs->make<TH1D>(label, label, 51,-0.5, 50.5);
-
-
-//     sprintf(label,"h_rt_lct_per_sector_st%d",i+1);
-//     h_rt_lct_per_sector_st[i]  = fs->make<TH1D>(label, label, 20,0., 20.);
-
-//     sprintf(label,"h_rt_lct_per_sector_vs_bx_st%d",i+1);
-//     h_rt_lct_per_sector_vs_bx_st[i]  = fs->make<TH2D>(label, label, 20,0., 20.,16,0,16);
-
-//     sprintf(label,"h_rt_mplct_per_sector_st%d",i+1);
-//     h_rt_mplct_per_sector_st[i]  = fs->make<TH1D>(label, label, 20,0., 20.);
-
-//     sprintf(label,"h_rt_mplct_per_sector_vs_bx_st%d",i+1);
-//     h_rt_mplct_per_sector_vs_bx_st[i]  = fs->make<TH2D>(label, label, 20,0., 20.,16,0,16);
-
-//   }
-
-//   h_rt_mplct_pattern = fs->make<TH1D>("h_rt_mplct_pattern","h_rt_mplct_pattern",13,-0.5, 12.5);
-
-
-//   h_gmt_mindr = fs->make<TH1D>("h_gmt_mindr","h_gmt_mindr",500, 0, 2*M_PI);
-//   h_gmt_dr_maxrank = fs->make<TH1D>("h_gmt_dr_maxrank","h_gmt_dr_maxrank",500, 0, 2*M_PI);
 }
 
 
@@ -555,15 +121,6 @@ GEMCSCTriggerRateTree::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   analyzeTFCandRate(iEvent);
   analyzeGMTCandRate(iEvent);
 
-
-//   // strip&wire matching output  after TMB  and after MPC sorting
-//   edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_tmb;
-//   edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_mpc;
-//   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  lcts_tmb);
-//   iEvent.getByLabel("simCscTriggerPrimitiveDigis", "MPCSORTED", lcts_mpc);
-//   const CSCCorrelatedLCTDigiCollection* lcts = lcts_tmb.product();
-//   const CSCCorrelatedLCTDigiCollection* mplcts = lcts_mpc.product();
-  
 //   // DT primitives for input to TF
 //   edm::Handle<L1MuDTChambPhContainer> dttrig;
 //   iEvent.getByLabel("simDtTriggerPrimitiveDigis", dttrig);
@@ -664,255 +221,8 @@ GEMCSCTriggerRateTree::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 //       muPtScaleCacheID_ = iSetup.get< L1MuTriggerPtScaleRcd >().cacheIdentifier();
 //     }
 
-  // //=======================================================================
-  // //============================= RATES ===================================
-
-
-
-
-
-  //============ RATE CLCT ==================
-  /*
-
-
-  //============ RATE LCT ==================
-
-  int nlct=0;
-  int nlct_per_bx[16];
-  int n_ch_lct_per_bx[16];
-  int n_ch_lct_per_bx_st[MAX_STATIONS][16];
-  int n_ch_lct_per_bx_cscdet[CSC_TYPES+1][16];
-  for (int b=0;b<16;b++)
-    {
-      nlct_per_bx[b] = n_ch_lct_per_bx[b] = 0;
-      for (int s=0; s<MAX_STATIONS; s++) n_ch_lct_per_bx_st[s][b]=0;
-      for (int me=0; me<=CSC_TYPES; me++) n_ch_lct_per_bx_cscdet[me][b]=0;
-    }
-  int nlct_sector_st[MAX_STATIONS][13], nlct_sector_bx_st[MAX_STATIONS][13][16], nlct_trigsector_bx_st1[13][16];
-  for (int s=0; s<MAX_STATIONS; s++) for (int i=0; i<13; i++) {
-      nlct_sector_st[s][i]=0;
-      for (int j=0; j<16; j++) { nlct_sector_bx_st[s][i][j]=0; nlct_trigsector_bx_st1[i][j]=0; }
-    }
-  std::map< int , std::vector<const CSCCorrelatedLCTDigi*> > me11lcts;
-  if (debugRATE) std::cout<< "----- statring nlct"<<std::endl;
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) 
-    {
-      const CSCDetId& id = (*detUnitIt).first;
-      //if (id.endcap() != 1) continue;
-      CSCDetId idd(id.rawId());
-      int csct = getCSCType( idd );
-      int cscst = getCSCSpecsType( idd );
-      CSCDetId id11(id.rawId());
-      if (csct==3) id11=CSCDetId(id11.endcap(),1,1,id11.chamber());
-      int nlct_per_ch_bx[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-      const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
-      for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-  	{
-  	  if ((*digiIt).isValid()) 
-  	    {
-  	      int bx = (*digiIt).getBX();
-  	      //if (debugLCT) std::cout<< "----- LCT in raw ID "<<id.rawId()<<" "<<id<< " (trig id. " << id.triggerCscId() << ")"<<std::endl;
-  	      //if (debugLCT) std::cout<< " "<< (*digiIt);
-  	      //if ( bx-6 < minBX_ || bx-6 > maxBX_ )
-  	      if ( bx < minBxLCT_ || bx > maxBxLCT_ )
-  		{
-  		  if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
-  		  continue;
-  		}
-
-  	      // store all ME11 lcts together so we can look at them later
-  	      if (csct==0 || csct==3) me11lcts[id11.rawId()].push_back(&(*digiIt));
-
-  	      int sect = id.triggerSector();
-  	      if (id.station()==1) sect = (sect-1)*2 + cscTriggerSubsector(idd);
-  	      nlct_sector_st[id.station()-1][sect] += 1;
-  	      nlct_sector_bx_st[id.station()-1][sect][bx] += 1;
-  	      if (id.station()==1) nlct_trigsector_bx_st1[id.triggerSector()][bx] += 1;
-
-  	      int quality = (*digiIt).getQuality();
-
-  	      //bool alct_valid = (quality != 4 && quality != 5);
-  	      //bool clct_valid = (quality != 1 && quality != 3);
-  	      //bool alct_valid = (quality != 2);
-  	      //bool clct_valid = (quality != 1);
-
-  	      //if (alct_valid || clct_valid) 
-  	      nlct++;
-  	      ++nlct_per_bx[bx];
-  	      ++nlct_per_ch_bx[bx];
-  	      h_rt_lct_bx->Fill( bx - 6 );
-  	      h_rt_lct_bx_cscdet[csct]->Fill( bx - 6 );
-  	      if (bx>=5 && bx<=7) h_rt_csctype_lct_bx567->Fill(cscst);
-
-  	      h_rt_lct_qu_vs_bx->Fill( quality, bx - 6);
-  	      h_rt_lct_qu->Fill( quality );
-
-  	      std::map<int, std::vector<CSCCLCTDigi> >::const_iterator mapItr = detCLCT.find(id.rawId());
-  	      if(mapItr != detCLCT.end())
-  		for ( unsigned i=0; i<mapItr->second.size(); i++ )
-  		  if( (*digiIt).getStrip() == ((mapItr->second)[i]).getKeyStrip() &&
-  		      (*digiIt).getPattern() == ((mapItr->second)[i]).getPattern()  )
-  		    {
-  		      h_rt_qu_vs_bxclct__lct->Fill(quality, ((mapItr->second)[i]).getBX() - 6 );
-  		    }
-  	    }
-  	}
-      for (int b=0;b<16;b++) 
-  	{
-  	  if ( b < minBxALCT_ || b > maxBxALCT_ ) continue;
-  	  h_rt_n_per_ch_lct_vs_bx_cscdet[csct]->Fill(nlct_per_ch_bx[b],b);
-  	  if (nlct_per_ch_bx[b]>0) {
-  	    ++n_ch_lct_per_bx[b];
-  	    ++n_ch_lct_per_bx_st[id.station()-1][b];
-  	    ++n_ch_lct_per_bx_cscdet[csct][b];
-  	  }
-  	}
-    }
-  std::map< int , std::vector<const CSCCorrelatedLCTDigi*> >::const_iterator mapIt = me11lcts.begin();
-  for (;mapIt != me11lcts.end(); mapIt++)
-    {
-      CSCDetId id(mapIt->first);
-      int nlct_per_ch_bx[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-      for (size_t i=0; i<(mapIt->second).size(); i++)
-  	{
-  	  int bx = (mapIt->second)[i]->getBX();
-  	  ++nlct_per_ch_bx[bx];
-  	}
-      for (int b=0;b<16;b++)
-  	{
-  	  if ( b < minBxALCT_ || b > maxBxALCT_ ) continue;
-  	  h_rt_n_per_ch_lct_vs_bx_cscdet[10]->Fill(nlct_per_ch_bx[b],b);
-  	  if (nlct_per_ch_bx[b]>0) ++n_ch_lct_per_bx_cscdet[10][b];
-  	}
-    }
-  h_rt_nlct->Fill(nlct);
-  for (int b=0;b<16;b++) {
-    if (b < minBxALCT_ || b > maxBxALCT_) continue;
-    h_rt_nlct_vs_bx->Fill(nlct_per_bx[b],b);
-    h_rt_nlct_per_bx->Fill(nlct_per_bx[b]);
-    h_rt_n_ch_lct_per_bx->Fill(n_ch_lct_per_bx[b]);
-    for (int s=0; s<MAX_STATIONS; s++) 
-      h_rt_n_ch_lct_per_bx_st[s]->Fill(n_ch_lct_per_bx_st[s][b]);
-    for (int me=0; me<=CSC_TYPES; me++) 
-      h_rt_n_ch_lct_per_bx_cscdet[me]->Fill(n_ch_lct_per_bx_cscdet[me][b]);
-  }
-  for (int s=0; s<MAX_STATIONS; s++)  
-    for (int i=1; i<=12; i++)
-      {
-	if (s!=0 && i>6) continue; // only ME1 has 12 subsectors
-	h_rt_lct_per_sector->Fill(nlct_sector_st[s][i]);
-	h_rt_lct_per_sector_st[s]->Fill(nlct_sector_st[s][i]);
-	for (int j=0; j<16; j++) {
-	  if ( j < minBxALCT_ || j > maxBxALCT_ ) continue;
-	  h_rt_lct_per_sector_vs_bx->Fill(nlct_sector_bx_st[s][i][j],j+0.5);
-	  h_rt_lct_per_sector_vs_bx_st[s]->Fill(nlct_sector_bx_st[s][i][j],j+0.5);
-	  if (s==0 && i<7) h_rt_lct_per_sector_vs_bx_st1t->Fill(nlct_trigsector_bx_st1[i][j],j+0.5);
-	}
-      }
-  if (debugRATE) std::cout<< "----- end nlct="<<nlct<<std::endl;
-
-
-  //============ RATE MPC LCT ==================
-
-  int nmplct=0;
-  int nmplct_per_bx[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-  int nmplct_sector_st[MAX_STATIONS][13], nmplct_sector_bx_st[MAX_STATIONS][13][16], nmplct_trigsector_bx_st1[13][16];
-  for (int s=0; s<MAX_STATIONS; s++) for (int i=0; i<13; i++) {
-      nmplct_sector_st[s][i]=0;
-      for (int j=0; j<16; j++) { nmplct_sector_bx_st[s][i][j]=0; nmplct_trigsector_bx_st1[i][j]=0; }
-    }
-
-  if (debugRATE) std::cout<< "----- statring nmplct"<<std::endl;
-  std::vector<MatchCSCMuL1::MPLCT> rtMPLCTs;
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = mplcts->begin();  detUnitIt != mplcts->end(); detUnitIt++) 
-    {
-      const CSCDetId& id = (*detUnitIt).first;
-      //if ( id.endcap() != 1) continue;
-      CSCDetId idd(id.rawId());
-      int csct = getCSCType( idd );
-      int cscst = getCSCSpecsType( idd );
-      const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
-      for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-  	{
-  	  if ((*digiIt).isValid()) 
-  	    {
-  	      //if (debugRATE) std::cout<< "----- MPLCT in raw ID "<<id.rawId()<<" "<<id<< " (trig id. " << id.triggerCscId() << ")"<<std::endl;
-  	      //if (debugRATE) std::cout<<" "<< (*digiIt);
-  	      int bx = (*digiIt).getBX();
-  	      //if ( bx-6 < minBX_ || bx-6 > maxBX_ )
-  	      if ( bx < minBxMPLCT_ || bx > maxBxMPLCT_ )
-  		{
-  		  if (debugRATE) std::cout<<"discarding BX = "<< (*digiIt).getBX()-6 <<std::endl;
-  		  continue;
-  		}
-
-  	      int sect = id.triggerSector();
-  	      if (id.station()==1) sect = (sect-1)*2 + cscTriggerSubsector(idd);
-  	      nmplct_sector_st[id.station()-1][sect] += 1;
-  	      nmplct_sector_bx_st[id.station()-1][sect][bx] += 1;
-  	      if (id.station()==1) nmplct_trigsector_bx_st1[id.triggerSector()][bx] += 1;
-
-  	      int quality = (*digiIt).getQuality();
-
-  	      //bool alct_valid = (quality != 4 && quality != 5);
-  	      //bool clct_valid = (quality != 1 && quality != 3);
-  	      //bool alct_valid = (quality != 2);
-  	      //bool clct_valid = (quality != 1);
-
-  	      // Truly correlated LCTs; for DAQ
-  	      //if (alct_valid && clct_valid)
-  	      nmplct++;
-  	      ++nmplct_per_bx[bx];
-  	      h_rt_mplct_bx->Fill( bx - 6 );
-  	      h_rt_mplct_bx_cscdet[csct]->Fill( bx - 6 );
-  	      if (bx>=5 && bx<=7) h_rt_csctype_mplct_bx567->Fill(cscst);
-
-  	      h_rt_mplct_qu_vs_bx->Fill( quality, bx - 6);
-  	      h_rt_mplct_qu->Fill( quality );
-
-
-  	      h_rt_mplct_pattern->Fill( (*digiIt).getPattern() );
-  	      h_rt_mplct_pattern_cscdet[csct]->Fill( (*digiIt).getPattern() );
-
-  	      const bool dbg_lut = false;
-  	      if (dbg_lut )
-  		{
-  		  auto etaphi = intersectionEtaPhi(id, (*digiIt).getKeyWG(), (*digiIt).getStrip());
-          
-  		  //float eta_lut = muScales->getRegionalEtaScale(2)->getCenter(gblEta.global_eta);
-  		  //float phi_lut = normalizedPhi( muScales->getPhiScale()->getLowEdge(gblPhi.global_phi));
-  		  csctf::TrackStub stub = buildTrackStub((*digiIt), id);
-  		  float eta_lut = stub.etaValue();
-  		  float phi_lut = stub.phiValue();
-
-  		  std::cout<<"DBGSRLUT "<<id.endcap()<<" "<<id.station()<<" "<<id.ring()<<" "<<id.chamber()<<"  "<<(*digiIt).getKeyWG()<<" "<<(*digiIt).getStrip()<<"  "<<etaphi.first<<" "<<etaphi.second<<"  "<<eta_lut<<" "<<phi_lut<<"  "<<etaphi.first - eta_lut<<" "<<deltaPhi(etaphi.second, phi_lut)<<std::endl;
-  		}
-  	    }
-  	}
-    }
-  h_rt_nmplct->Fill(nmplct);
-  for (int b=0;b<16;b++) {
-    if ( b < minBxALCT_ || b > maxBxALCT_ ) continue;
-    h_rt_nmplct_vs_bx->Fill(nmplct_per_bx[b],b);
-  }
-  for (int s=0; s<MAX_STATIONS; s++)  
-    for (int i=1; i<=12; i++)
-      {
-	if (s!=0 && i>6) continue; // only ME1 has 12 subsectors
-	h_rt_mplct_per_sector->Fill(nmplct_sector_st[s][i]);
-	h_rt_mplct_per_sector_st[s]->Fill(nmplct_sector_st[s][i]);
-	for (int j=0; j<16; j++) {
-	  if ( j < minBxALCT_ || j > maxBxALCT_ ) continue;
-	  h_rt_mplct_per_sector_vs_bx->Fill(nmplct_sector_bx_st[s][i][j],j+0.5);
-	  h_rt_mplct_per_sector_vs_bx_st[s]->Fill(nmplct_sector_bx_st[s][i][j],j+0.5);
-	  if (s==0 && i<7) h_rt_mplct_per_sector_vs_bx_st1t->Fill(nmplct_trigsector_bx_st1[i][j],j+0.5);
-	}
-      }
-  if (debugRATE) std::cout<< "----- end nmplct="<<nmplct<<std::endl;
-
-
+/*
   //============ RATE TF TRACK ==================
-
   int ntftrack=0;
   if (debugRATE) std::cout<< "----- statring ntftrack"<<std::endl;
   std::vector<MatchCSCMuL1::TFTRACK> rtTFTracks;
@@ -1947,8 +1257,10 @@ GEMCSCTriggerRateTree::bookALCTTree()
   alct_tree_ = fs->make<TTree>("ALCTs", "ALCTs");
   alct_tree_->Branch("event",&alct_.event);
   alct_tree_->Branch("bx",&alct_.bx);
+  alct_tree_->Branch("endcap",&alct_.endcap);
   alct_tree_->Branch("station",&alct_.station);
-  alct_tree_->Branch("detId",&alct_.detId);
+  alct_tree_->Branch("ring",&alct_.ring);
+  alct_tree_->Branch("chamber",&alct_.chamber);
 }
 
 // ================================================================================================
@@ -1959,44 +1271,184 @@ GEMCSCTriggerRateTree::bookCLCTTree()
   clct_tree_ = fs->make<TTree>("CLCTs", "CLCTs");
   clct_tree_->Branch("event",&clct_.event);
   clct_tree_->Branch("bx",&clct_.bx);
+  clct_tree_->Branch("endcap",&clct_.endcap);
   clct_tree_->Branch("station",&clct_.station);
-  clct_tree_->Branch("detId",&clct_.detId);
+  clct_tree_->Branch("ring",&clct_.ring);
+  clct_tree_->Branch("chamber",&clct_.chamber);
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRateTree::bookLCTTree()
 {
+  edm::Service< TFileService > fs;
+  lct_tree_ = fs->make<TTree>("LCTs", "LCTs");
+  lct_tree_->Branch("event",&lct_.event);
+  lct_tree_->Branch("bx",&lct_.bx);
+  lct_tree_->Branch("endcap",&lct_.endcap);
+  lct_tree_->Branch("station",&lct_.station);
+  lct_tree_->Branch("ring",&lct_.ring);
+  lct_tree_->Branch("chamber",&lct_.chamber);
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRateTree::bookMPCLCTTree()
 {
+  edm::Service< TFileService > fs;
+  mplct_tree_ = fs->make<TTree>("MPLCTs", "MPLCTs");
+  mplct_tree_->Branch("event",&mplct_.event);
+  mplct_tree_->Branch("bx",&mplct_.bx);
+  mplct_tree_->Branch("endcap",&mplct_.endcap);
+  mplct_tree_->Branch("station",&mplct_.station);
+  mplct_tree_->Branch("ring",&mplct_.ring);
+  mplct_tree_->Branch("chamber",&mplct_.chamber);
+  mplct_tree_->Branch("etalut",&mplct_.etalut);
+  mplct_tree_->Branch("philut",&mplct_.philut);
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRateTree::bookTFTrackTree()
 {
+  edm::Service< TFileService > fs;
+  tftrack_tree_ = fs->make<TTree>("TFTracks", "TFTracks");
+  tftrack_tree_->Branch("event",&tftrack_.event);
+  tftrack_tree_->Branch("bx",&tftrack_.bx);
+  tftrack_tree_->Branch("pt",&tftrack_.pt);
+  tftrack_tree_->Branch("eta",&tftrack_.eta);
+  tftrack_tree_->Branch("phi",&tftrack_.phi);
+  tftrack_tree_->Branch("hasME1a",&tftrack_.hasME1a);
+  tftrack_tree_->Branch("hasME1b",&tftrack_.hasME1b);
+  tftrack_tree_->Branch("hasME12",&tftrack_.hasME12);
+  tftrack_tree_->Branch("hasME13",&tftrack_.hasME13);
+  tftrack_tree_->Branch("hasME21",&tftrack_.hasME21);
+  tftrack_tree_->Branch("hasME22",&tftrack_.hasME22);
+  tftrack_tree_->Branch("hasME31",&tftrack_.hasME31);
+  tftrack_tree_->Branch("hasME32",&tftrack_.hasME32);
+  tftrack_tree_->Branch("hasME41",&tftrack_.hasME41);
+  tftrack_tree_->Branch("hasME42",&tftrack_.hasME42);
+  tftrack_tree_->Branch("hasRE12",&tftrack_.hasRE12);
+  tftrack_tree_->Branch("hasRE13",&tftrack_.hasRE13);
+  tftrack_tree_->Branch("hasRE22",&tftrack_.hasRE22);
+  tftrack_tree_->Branch("hasRE23",&tftrack_.hasRE23);
+  tftrack_tree_->Branch("hasRE31",&tftrack_.hasRE31);
+  tftrack_tree_->Branch("hasRE32",&tftrack_.hasRE32);
+  tftrack_tree_->Branch("hasRE33",&tftrack_.hasRE33);
+  tftrack_tree_->Branch("hasRE41",&tftrack_.hasRE41);
+  tftrack_tree_->Branch("hasRE42",&tftrack_.hasRE42);
+  tftrack_tree_->Branch("hasRE43",&tftrack_.hasRE43);
+  tftrack_tree_->Branch("hasGE11",&tftrack_.hasGE11);
+  tftrack_tree_->Branch("hasGE21",&tftrack_.hasGE21);
+  tftrack_tree_->Branch("hasME0",&tftrack_.hasME0);
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRateTree::bookTFCandTree()
 {
+  edm::Service< TFileService > fs;
+  tfcand_tree_ = fs->make<TTree>("TFCands", "TFCands");
+  tfcand_tree_->Branch("event",&tfcand_.event);
+  tfcand_tree_->Branch("bx",&tfcand_.bx);
+  tfcand_tree_->Branch("pt",&tfcand_.pt);
+  tfcand_tree_->Branch("eta",&tfcand_.eta);
+  tfcand_tree_->Branch("phi",&tfcand_.phi);
+  tfcand_tree_->Branch("hasME1a",&tfcand_.hasME1a);
+  tfcand_tree_->Branch("hasME1b",&tfcand_.hasME1b);
+  tfcand_tree_->Branch("hasME12",&tfcand_.hasME12);
+  tfcand_tree_->Branch("hasME13",&tfcand_.hasME13);
+  tfcand_tree_->Branch("hasME21",&tfcand_.hasME21);
+  tfcand_tree_->Branch("hasME22",&tfcand_.hasME22);
+  tfcand_tree_->Branch("hasME31",&tfcand_.hasME31);
+  tfcand_tree_->Branch("hasME32",&tfcand_.hasME32);
+  tfcand_tree_->Branch("hasME41",&tfcand_.hasME41);
+  tfcand_tree_->Branch("hasME42",&tfcand_.hasME42);
+  tfcand_tree_->Branch("hasRE12",&tfcand_.hasRE12);
+  tfcand_tree_->Branch("hasRE13",&tfcand_.hasRE13);
+  tfcand_tree_->Branch("hasRE22",&tfcand_.hasRE22);
+  tfcand_tree_->Branch("hasRE23",&tfcand_.hasRE23);
+  tfcand_tree_->Branch("hasRE31",&tfcand_.hasRE31);
+  tfcand_tree_->Branch("hasRE32",&tfcand_.hasRE32);
+  tfcand_tree_->Branch("hasRE33",&tfcand_.hasRE33);
+  tfcand_tree_->Branch("hasRE41",&tfcand_.hasRE41);
+  tfcand_tree_->Branch("hasRE42",&tfcand_.hasRE42);
+  tfcand_tree_->Branch("hasRE43",&tfcand_.hasRE43);
+  tfcand_tree_->Branch("hasGE11",&tfcand_.hasGE11);
+  tfcand_tree_->Branch("hasGE21",&tfcand_.hasGE21);
+  tfcand_tree_->Branch("hasME0",&tfcand_.hasME0);
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRateTree::bookGMTRegionalTree()
 {
+  edm::Service< TFileService > fs;
+  gmtreg_tree_ = fs->make<TTree>("GMTRegs", "GMTRegs");
+  gmtreg_tree_->Branch("event",&gmtreg_.event);
+  gmtreg_tree_->Branch("bx",&gmtreg_.bx);
+  gmtreg_tree_->Branch("pt",&gmtreg_.pt);
+  gmtreg_tree_->Branch("eta",&gmtreg_.eta);
+  gmtreg_tree_->Branch("phi",&gmtreg_.phi);
+  gmtreg_tree_->Branch("hasME1a",&gmtreg_.hasME1a);
+  gmtreg_tree_->Branch("hasME1b",&gmtreg_.hasME1b);
+  gmtreg_tree_->Branch("hasME12",&gmtreg_.hasME12);
+  gmtreg_tree_->Branch("hasME13",&gmtreg_.hasME13);
+  gmtreg_tree_->Branch("hasME21",&gmtreg_.hasME21);
+  gmtreg_tree_->Branch("hasME22",&gmtreg_.hasME22);
+  gmtreg_tree_->Branch("hasME31",&gmtreg_.hasME31);
+  gmtreg_tree_->Branch("hasME32",&gmtreg_.hasME32);
+  gmtreg_tree_->Branch("hasME41",&gmtreg_.hasME41);
+  gmtreg_tree_->Branch("hasME42",&gmtreg_.hasME42);
+  gmtreg_tree_->Branch("hasRE12",&gmtreg_.hasRE12);
+  gmtreg_tree_->Branch("hasRE13",&gmtreg_.hasRE13);
+  gmtreg_tree_->Branch("hasRE22",&gmtreg_.hasRE22);
+  gmtreg_tree_->Branch("hasRE23",&gmtreg_.hasRE23);
+  gmtreg_tree_->Branch("hasRE31",&gmtreg_.hasRE31);
+  gmtreg_tree_->Branch("hasRE32",&gmtreg_.hasRE32);
+  gmtreg_tree_->Branch("hasRE33",&gmtreg_.hasRE33);
+  gmtreg_tree_->Branch("hasRE41",&gmtreg_.hasRE41);
+  gmtreg_tree_->Branch("hasRE42",&gmtreg_.hasRE42);
+  gmtreg_tree_->Branch("hasRE43",&gmtreg_.hasRE43);
+  gmtreg_tree_->Branch("hasGE11",&gmtreg_.hasGE11);
+  gmtreg_tree_->Branch("hasGE21",&gmtreg_.hasGE21);
+  gmtreg_tree_->Branch("hasME0",&gmtreg_.hasME0);
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRateTree::bookGMTCandTree()
 {
+  edm::Service< TFileService > fs;
+  gmt_tree_ = fs->make<TTree>("GMTs", "GMTs");
+  gmt_tree_->Branch("event",&gmt_.event);
+  gmt_tree_->Branch("bx",&gmt_.bx);
+  gmt_tree_->Branch("pt",&gmt_.pt);
+  gmt_tree_->Branch("eta",&gmt_.eta);
+  gmt_tree_->Branch("phi",&gmt_.phi);
+  gmt_tree_->Branch("hasME1a",&gmt_.hasME1a);
+  gmt_tree_->Branch("hasME1b",&gmt_.hasME1b);
+  gmt_tree_->Branch("hasME12",&gmt_.hasME12);
+  gmt_tree_->Branch("hasME13",&gmt_.hasME13);
+  gmt_tree_->Branch("hasME21",&gmt_.hasME21);
+  gmt_tree_->Branch("hasME22",&gmt_.hasME22);
+  gmt_tree_->Branch("hasME31",&gmt_.hasME31);
+  gmt_tree_->Branch("hasME32",&gmt_.hasME32);
+  gmt_tree_->Branch("hasME41",&gmt_.hasME41);
+  gmt_tree_->Branch("hasME42",&gmt_.hasME42);
+  gmt_tree_->Branch("hasRE12",&gmt_.hasRE12);
+  gmt_tree_->Branch("hasRE13",&gmt_.hasRE13);
+  gmt_tree_->Branch("hasRE22",&gmt_.hasRE22);
+  gmt_tree_->Branch("hasRE23",&gmt_.hasRE23);
+  gmt_tree_->Branch("hasRE31",&gmt_.hasRE31);
+  gmt_tree_->Branch("hasRE32",&gmt_.hasRE32);
+  gmt_tree_->Branch("hasRE33",&gmt_.hasRE33);
+  gmt_tree_->Branch("hasRE41",&gmt_.hasRE41);
+  gmt_tree_->Branch("hasRE42",&gmt_.hasRE42);
+  gmt_tree_->Branch("hasRE43",&gmt_.hasRE43);
+  gmt_tree_->Branch("hasGE11",&gmt_.hasGE11);
+  gmt_tree_->Branch("hasGE21",&gmt_.hasGE21);
+  gmt_tree_->Branch("hasME0",&gmt_.hasME0);
 }
 
 // ================================================================================================
@@ -2006,132 +1458,25 @@ GEMCSCTriggerRateTree::analyzeALCTRate(const edm::Event& iEvent)
   edm::Handle< CSCALCTDigiCollection > halcts;
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  halcts);
   const CSCALCTDigiCollection* alcts = halcts.product();
-
-  // Loop on all ALCTs
+  
   for (CSCALCTDigiCollection::DigiRangeIterator  adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); ++adetUnitIt)
   {
     CSCDetId detId((*adetUnitIt).first);
-    if (detId.endcap() != 1) continue;
     auto range = (*adetUnitIt).second;
-    // loop on all ALCTs in that detId
     for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt)
     {
+      if (!(*digiIt).isValid()) continue;
       const int bx((*digiIt).getBX());
-      if (bx < minBxALCT_ || bx > maxBxALCT_)
-      {
-	if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
-	continue;
-      }
-      // central bx for CSC is 6!!!
+      if (bx < minBxALCT_ || bx > maxBxALCT_) continue;
       alct_.event = iEvent.id().event();
+      alct_.endcap = detId.zendcap();
       alct_.station = detId.station();
-      alct_.detId = detId.rawId();
+      alct_.ring = detId.ring();
+      alct_.chamber = detId.chamber();
       alct_.bx = bx - 6;
       alct_tree_->Fill();
     }
   }
-
-//   int nalct=0;
-//   int nalct_per_bx[16];
-//   int n_ch_alct_per_bx[16];
-//   int n_ch_alct_per_bx_st[MAX_STATIONS][16];
-//   int n_ch_alct_per_bx_cscdet[CSC_TYPES+1][16];
-//   for (int b=0;b<16;b++)
-//   {
-//     nalct_per_bx[b] = n_ch_alct_per_bx[b] = 0;
-//     for (int s=0; s<MAX_STATIONS; s++) n_ch_alct_per_bx_st[s][b]=0;
-//     for (int me=0; me<=CSC_TYPES; me++) n_ch_alct_per_bx_cscdet[me][b]=0;
-//   }
-//   if (debugRATE) std::cout<< "----- statring nalct"<<std::endl;
-//   std::map< int , std::vector<const CSCALCTDigi*> > me11alcts;
-//   for (CSCALCTDigiCollection::DigiRangeIterator  adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++)
-//   {
-//     const CSCDetId& id = (*adetUnitIt).first;
-//     //if (id.endcap() != 1) continue;
-//     CSCDetId idd(id.rawId());
-//     int csct = getCSCType( idd );
-// //     int cscst = getCSCSpecsType( idd );
-//     //int is11 = isME11(csct);
-//     int nalct_per_ch_bx[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-//     const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
-//     for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-//     {
-//       if ((*digiIt).isValid()) 
-//       {
-// 	int bx = (*digiIt).getBX();
-// 	//if ( bx-6 < minBX_ || bx-6 > maxBX_ )
-// 	if ( bx < minBxALCT_ || bx > maxBxALCT_ )
-// 	{
-// 	  if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
-// 	  continue;
-// 	}
-	
-// 	// store all ME11 alcts together so we can look at them later
-// 	// take into acstd::cout that 10<=WG<=15 alcts are present in both 1a and 1b
-// 	if (csct==0) me11alcts[idd.rawId()].push_back(&(*digiIt));
-// 	if (csct==3 && (*digiIt).getKeyWG() < 10) 
-//         {
-// 	  CSCDetId id11(idd.endcap(),1,1,idd.chamber());
-// 	  me11alcts[id11.rawId()].push_back(&(*digiIt));
-// 	}
-	
-// 	//        if (debugALCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"    NTrackHitsInChamber  nmhits  alctInfo.size  diff  " 
-// 	//                           <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<alctInfo.size()<<"  "
-// 	//                           << nmhits-alctInfo.size() <<std::endl 
-// 	//                           << "  "<<(*digiIt)<<std::endl;
-// 	nalct++;
-// 	++nalct_per_bx[bx];
-// 	++nalct_per_ch_bx[bx];
-// // 	h_rt_alct_bx->Fill( bx - 6 );
-// // 	h_rt_alct_bx_cscdet[csct]->Fill( bx - 6 );
-// //  	if (bx>=5 && bx<=7) h_rt_csctype_alct_bx567->Fill(cscst);
-	
-//       } //if (alct_valid) 
-//     }
-//     for (int b=0;b<16;b++) 
-//     {
-//       if ( b < minBxALCT_ || b > maxBxALCT_ ) continue;
-// //       h_rt_n_per_ch_alct_vs_bx_cscdet[csct]->Fill(nalct_per_ch_bx[b],b);
-//       if (nalct_per_ch_bx[b]>0) 
-//       {
-// 	++n_ch_alct_per_bx[b];
-// 	++n_ch_alct_per_bx_st[id.station()-1][b];
-// 	++n_ch_alct_per_bx_cscdet[csct][b];
-//       }
-//     }
-//   } // loop CSCALCTDigiCollection
-//   //std::map< CSCDetId , std::vector<const CSCALCTDigi*> >::const_iterator mapIt = me11alcts.begin();
-//   //for (;mapIt != me11alcts.end(); mapIt++){}
-//   std::map< int , std::vector<const CSCALCTDigi*> >::const_iterator aMapIt = me11alcts.begin();
-//   for (;aMapIt != me11alcts.end(); aMapIt++)
-//   {
-//     CSCDetId id(aMapIt->first);
-//     int nalct_per_ch_bx[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-//     for (size_t i=0; i<(aMapIt->second).size(); i++)
-//     {
-//       int bx = (aMapIt->second)[i]->getBX();
-//       ++nalct_per_ch_bx[bx];
-//     }
-//     for (int b=0;b<16;b++)
-//     {
-//       if ( b < minBxALCT_ || b > maxBxALCT_ ) continue;
-// //       h_rt_n_per_ch_alct_vs_bx_cscdet[10]->Fill(nalct_per_ch_bx[b],b);
-//       if (nalct_per_ch_bx[b]>0) ++n_ch_alct_per_bx_cscdet[10][b];
-//     }
-//   }
-// //   h_rt_nalct->Fill(nalct);
-//   for (int b=0;b<16;b++) 
-//   {
-//     if (b < minBxALCT_ || b > maxBxALCT_) continue;
-// //     h_rt_nalct_vs_bx->Fill(nalct_per_bx[b],b);
-// //     h_rt_nalct_per_bx->Fill(nalct_per_bx[b]);
-// //     h_rt_n_ch_alct_per_bx->Fill(n_ch_alct_per_bx[b]);
-// //     for (int s=0; s<MAX_STATIONS; s++) 
-// //       h_rt_n_ch_alct_per_bx_st[s]->Fill(n_ch_alct_per_bx_st[s][b]);
-// //     for (int me=0; me<=CSC_TYPES; me++) 
-// //       h_rt_n_ch_alct_per_bx_cscdet[me]->Fill(n_ch_alct_per_bx_cscdet[me][b]);
-//   }
-
 }
 
 // ================================================================================================
@@ -2142,107 +1487,176 @@ GEMCSCTriggerRateTree::analyzeCLCTRate(const edm::Event& iEvent)
   iEvent.getByLabel("simCscTriggerPrimitiveDigis",  hclcts);
   const CSCCLCTDigiCollection* clcts = hclcts.product();
 
-  // Loop on all CLCTs
   for (CSCCLCTDigiCollection::DigiRangeIterator  adetUnitIt = clcts->begin(); adetUnitIt != clcts->end(); ++adetUnitIt)
   {
     CSCDetId detId((*adetUnitIt).first);
-    if (detId.endcap() != 1) continue;
     auto range = (*adetUnitIt).second;
-    // loop on all CLCTs in that detId
     for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt)
     {
+      if (!(*digiIt).isValid()) continue;
       const int bx((*digiIt).getBX());
-      if (bx < minBxCLCT_ || bx > maxBxCLCT_)
-      {
-	if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
-	continue;
-      }
-      // central bx for CSC is 6!!!
+      if (bx < minBxCLCT_ || bx > maxBxCLCT_) continue;
       clct_.event = iEvent.id().event();
+      clct_.endcap = detId.zendcap();
       clct_.station = detId.station();
-      clct_.detId = detId.rawId();
+      clct_.ring = detId.ring();
+      clct_.chamber = detId.chamber();
       clct_.bx = bx - 6;
       clct_tree_->Fill();
     }
   }
-
-//   std::map<int, std::vector<CSCCLCTDigi> > detCLCT;
-//   detCLCT.clear();
-//   int nclct=0;
-//   int nclct_per_bx[16];
-//   int n_ch_clct_per_bx[16];
-//   int n_ch_clct_per_bx_st[MAX_STATIONS][16];
-//   int n_ch_clct_per_bx_cscdet[CSC_TYPES+1][16];
-//   for (CSCCLCTDigiCollection::DigiRangeIterator  cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end(); cdetUnitIt++)
-//     {
-//       const CSCDetId& id = (*cdetUnitIt).first;
-//       //if (id.endcap() != 1) continue;
-//       CSCDetId idd(id.rawId());
-//       int csct = getCSCType( idd );
-//       int cscst = getCSCSpecsType( idd );
-//       int nclct_per_ch_bx[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};    
-//       const CSCCLCTDigiCollection::Range& range = (*cdetUnitIt).second;
-//       for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-//   	{
-//   	  if ((*digiIt).isValid()) 
-//   	    {
-//   	      //       detCLCT[id.rawId()].push_back(*digiIt);
-//   	      int bx = (*digiIt).getBX();
-//   	      //if ( bx-5 < minBX_ || bx-7 > maxBX_ )
-//   	      if ( bx < minBxCLCT_ || bx > maxBxCLCT_ )
-//   		{
-//   		  if (debugRATE) std::cout<<"discarding BX = "<< bx-6 <<std::endl;
-//   		  continue;
-//   		}
-//   	      nclct++;
-//   	      ++nclct_per_bx[bx];
-//   	      ++nclct_per_ch_bx[bx];
-//   	      h_rt_clct_bx->Fill( bx - 6 );
-//   	      h_rt_clct_bx_cscdet[csct]->Fill( bx - 6 );
-//   	      if (bx>=5 && bx<=7) h_rt_csctype_clct_bx567->Fill(cscst);
-//   	    } //if (clct_valid) 
-//   	}
-//       for (int b=0;b<16;b++) 
-//   	{
-//   	  if ( b < minBxALCT_ || b > maxBxALCT_ ) continue;
-//   	  h_rt_n_per_ch_clct_vs_bx_cscdet[csct]->Fill(nclct_per_ch_bx[b],b);
-//   	  if (nclct_per_ch_bx[b]>0) {
-//   	    ++n_ch_clct_per_bx[b];
-//   	    ++n_ch_clct_per_bx_st[id.station()-1][b];
-//   	    ++n_ch_clct_per_bx_cscdet[csct][b];
-//   	  }
-//   	}
-//     } // loop CSCCLCTDigiCollection
-//   h_rt_nclct->Fill(nclct);
-//   for (int b=0;b<16;b++) {
-//     if (b < minBxALCT_ || b > maxBxALCT_) continue;
-//     h_rt_nclct_vs_bx->Fill(nclct_per_bx[b],b);
-//     h_rt_nclct_per_bx->Fill(nclct_per_bx[b]);
-//     h_rt_n_ch_clct_per_bx->Fill(n_ch_clct_per_bx[b]);
-//     for (int s=0; s<MAX_STATIONS; s++) 
-//       h_rt_n_ch_clct_per_bx_st[s]->Fill(n_ch_clct_per_bx_st[s][b]);
-//     for (int me=0; me<=CSC_TYPES; me++) 
-//       h_rt_n_ch_clct_per_bx_cscdet[me]->Fill(n_ch_clct_per_bx_cscdet[me][b]);
-//   }
-//   if (debugRATE) std::cout<< "----- end nclct="<<nclct<<std::endl;
 }
+
 
 // ================================================================================================
 void  
 GEMCSCTriggerRateTree::analyzeLCTRate(const edm::Event& iEvent)
 {
+  edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_tmb;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis",  lcts_tmb);
+  const CSCCorrelatedLCTDigiCollection* lcts = lcts_tmb.product();
+
+  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) 
+  {
+    const CSCDetId& detId = (*detUnitIt).first;
+    auto range = (*detUnitIt).second;
+    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if (!(*digiIt).isValid()) continue;
+      const int bx((*digiIt).getBX());
+      if (bx < minBxLCT_ || bx > maxBxLCT_) continue;
+      lct_.event = iEvent.id().event();
+      lct_.endcap = detId.zendcap();
+      lct_.station = detId.station();
+      lct_.ring = detId.ring();
+      lct_.chamber = detId.chamber();
+      lct_.bx = bx - 6;
+      lct_tree_->Fill();
+    }
+  }
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRateTree::analyzeMPCLCTRate(const edm::Event& iEvent)
 {
+  edm::Handle< CSCCorrelatedLCTDigiCollection > lcts_mpc;
+  iEvent.getByLabel("simCscTriggerPrimitiveDigis", "MPCSORTED", lcts_mpc);
+  const CSCCorrelatedLCTDigiCollection* mplcts = lcts_mpc.product();
+
+  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = mplcts->begin(); detUnitIt != mplcts->end(); detUnitIt++) 
+  {
+    const CSCDetId& detId = (*detUnitIt).first;
+    auto range = (*detUnitIt).second;
+    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    {
+      if (!(*digiIt).isValid()) continue;
+      const int bx((*digiIt).getBX());
+      if (bx < minBxMPLCT_ || bx > maxBxMPLCT_) continue;
+      mplct_.event = iEvent.id().event();
+      mplct_.endcap = detId.zendcap();
+      mplct_.station = detId.station();
+      mplct_.ring = detId.ring();
+      mplct_.chamber = detId.chamber();
+      mplct_.bx = bx - 6;
+      const csctf::TrackStub stub(buildTrackStub((*digiIt), detId));
+      mplct_.etalut = stub.etaValue();
+      mplct_.philut = stub.phiValue();
+      mplct_tree_->Fill();
+    }
+  }
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRateTree::analyzeTFTrackRate(const edm::Event& iEvent)
 {
+//   edm::Handle< L1CSCTrackCollection > hl1Tracks;
+//   iEvent.getByLabel("simCsctfTrackDigis",hl1Tracks);
+//   const L1CSCTrackCollection* l1Tracks = hl1Tracks.product();
+
+  /*
+  //============ RATE TF TRACK ==================
+  int ntftrack=0;
+  if (debugRATE) std::cout<< "----- statring ntftrack"<<std::endl;
+  std::vector<MatchCSCMuL1::TFTRACK> rtTFTracks;
+  //  if (debugTFInef && inefTF) std::cout<<"#################### TF INEFFICIENCY ALL TFTRACKs:"<<std::endl;
+  for ( L1CSCTrackCollection::const_iterator trk = l1Tracks->begin(); trk != l1Tracks->end(); trk++)
+    {
+      if ( trk->first.bx() < minRateBX_ || trk->first.bx() > maxRateBX_ )
+  	{
+  	  if (debugRATE) std::cout<<"discarding BX = "<< trk->first.bx() <<std::endl;
+  	  continue;
+  	}
+      //if (trk->first.endcap()!=1) continue;
+    
+      MatchCSCMuL1::TFTRACK myTFTrk;
+      myTFTrk.init( &(trk->first) , ptLUT, muScales, muPtScale);
+      myTFTrk.dr = 999.;
+
+      for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = trk->second.begin();
+  	   detUnitIt != trk->second.end(); detUnitIt++)
+  	{
+  	  const CSCDetId& id = (*detUnitIt).first;
+  	  CSCDetId cid = id;
+  	  const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
+  	  for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++)
+  	    {
+  	      if (!((*digiIt).isValid())) std::cout<<"ALARM!!! match TFCAND to TFTRACK in rates: not valid id="<<id.rawId()<<" "<<id<<std::endl;
+  	      bool me1a_case = (defaultME1a && id.station()==1 && id.ring()==1 && (*digiIt).getStrip() > 127);
+  	      if (me1a_case){
+  		CSCDetId id1a(id.endcap(),id.station(),4,id.chamber(),0);
+  		cid = id1a;
+  	      }
+  	      //if (id.station()==1 && id.ring()==4) std::cout<<"me1adigi check: "<<(*digiIt)<<" "<<std::endl;
+  	      myTFTrk.trgdigis.push_back( &*digiIt );
+  	      myTFTrk.trgids.push_back( cid );
+  	      myTFTrk.trgetaphis.push_back( intersectionEtaPhi(cid, (*digiIt).getKeyWG(), (*digiIt).getStrip()) );
+  	      myTFTrk.trgstubs.push_back( buildTrackStub((*digiIt), cid) );
+  	    }
+  	}
+
+      ntftrack++;
+      rtTFTracks.push_back(myTFTrk);
+
+      //    if (debugTFInef && inefTF) myTFTrk.print("(for inef checks)");
+    
+      if (myTFTrk.pt >= 20. && myTFTrk.hasStub(1) && myTFTrk.hasStub(2)){
+  	int i1=-1, i2=-1, k=0;
+  	for (auto id: myTFTrk.trgids)
+  	  {
+  	    if (id.station()==1) i1 = k;
+  	    if (id.station()==2) i2 = k;
+  	    ++k;
+  	  }
+  	if (i1>=0 && i2 >=0 ) {
+  	  auto etaphi1 = myTFTrk.trgetaphis[i1];
+  	  auto etaphi2 = myTFTrk.trgetaphis[i2];
+  	  auto d = myTFTrk.trgids[i1];
+  	  auto &stub = *(myTFTrk.trgdigis[i1]);
+  	  std::cout<<"DBGdeta12 "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<"  "<<stub.getKeyWG()<<" "<<stub.getStrip()<<"  "<<myTFTrk.nStubs(1,1,1,1,1)<<" "<<myTFTrk.pt<<" "<<myTFTrk.eta<<"  "<<etaphi1.first<<" "<<etaphi2.first<<" "<<etaphi1.first-etaphi2.first<<"  "<<etaphi1.second<<" "<<etaphi2.second<<" "<<deltaPhi(etaphi1.second,etaphi2.second)<<std::endl;
+
+  	  if ( (etaphi1.first-etaphi2.first) > 0.1) {
+  	    myTFTrk.print("");
+  	    std::cout<<"############### CSCTFSPCoreLogic printout for large deta12 = "<<etaphi1.first-etaphi2.first<< " at "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<std::endl;
+  	    runCSCTFSP(mplcts, dttrigs);
+  	    std::cout<<"############### end printout"<<std::endl;
+  	  }
+  	}
+  	else {
+  	  std::cout<<"myTFTrk.trgids corrupt"<<std::endl;
+  	  myTFTrk.print("");
+  	}
+      }
+
+      h_rt_tftrack_pt->Fill(myTFTrk.pt);
+      h_rt_tftrack_bx->Fill(trk->first.bx());
+      h_rt_tftrack_mode->Fill(myTFTrk.mode());
+    }
+  h_rt_ntftrack->Fill(ntftrack);
+  if (debugRATE) std::cout<< "----- end ntftrack="<<ntftrack<<std::endl;
+
+  */
 }
 
 // ================================================================================================
@@ -2391,22 +1805,18 @@ GEMCSCTriggerRateTree::cscTriggerSubsector(CSCDetId &id)
 std::pair<float, float> 
 GEMCSCTriggerRateTree::intersectionEtaPhi(CSCDetId id, int wg, int hs)
 {
-
-  CSCDetId layerId(id.endcap(), id.station(), id.ring(), id.chamber(), CSCConstants::KEY_CLCT_LAYER);
-  const CSCLayer* csclayer = cscGeometry->layer(layerId);
-  const CSCLayerGeometry* layer_geo = csclayer->geometry();
+  const CSCDetId layerId(id.endcap(), id.station(), id.ring(), id.chamber(), CSCConstants::KEY_CLCT_LAYER);
+  const CSCLayer* csclayer(cscGeometry->layer(layerId));
+  const CSCLayerGeometry* layer_geo(csclayer->geometry());
     
   // LCT::getKeyWG() starts from 0
-  float wire = layer_geo->middleWireOfGroup(wg + 1);
+  const float wire(layer_geo->middleWireOfGroup(wg + 1));
 
   // half-strip to strip
   // note that LCT's HS starts from 0, but in geometry strips start from 1
-  float fractional_strip = 0.5 * (hs + 1) - 0.25;
-  
-  LocalPoint csc_intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
-  
-  GlobalPoint csc_gp = cscGeometry->idToDet(layerId)->surface().toGlobal(csc_intersect);
-  
+  const float fractional_strip(0.5 * (hs + 1) - 0.25);
+  const LocalPoint csc_intersect(layer_geo->intersectionOfStripAndWire(fractional_strip, wire));
+  const GlobalPoint csc_gp(cscGeometry->idToDet(layerId)->surface().toGlobal(csc_intersect));
   return std::make_pair(csc_gp.eta(), csc_gp.phi());
 }
 
@@ -2414,22 +1824,13 @@ GEMCSCTriggerRateTree::intersectionEtaPhi(CSCDetId id, int wg, int hs)
 csctf::TrackStub 
 GEMCSCTriggerRateTree::buildTrackStub(const CSCCorrelatedLCTDigi &d, CSCDetId id)
 {
-  unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
-  CSCSectorReceiverLUT* srLUT = srLUTs_[fpga][id.triggerSector()-1][id.endcap()-1];
-
-  unsigned cscid = CSCTriggerNumbering::triggerCscIdFromLabels(id);
-  unsigned cscid_special = cscid;
-  if (id.station()==1 && id.ring()==4) cscid_special = cscid + 9;
-
-  lclphidat lclPhi;
-  lclPhi = srLUT->localPhi(d.getStrip(), d.getPattern(), d.getQuality(), d.getBend());
-
-  gblphidat gblPhi;
-  gblPhi = srLUT->globalPhiME(lclPhi.phi_local, d.getKeyWG(), cscid_special);
-
-  gbletadat gblEta;
-  gblEta = srLUT->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, d.getKeyWG(), cscid);
-
+  const unsigned fpga((id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station());
+  const CSCSectorReceiverLUT* srLUT(srLUTs_[fpga][id.triggerSector()-1][id.endcap()-1]);
+  const unsigned cscid(CSCTriggerNumbering::triggerCscIdFromLabels(id));
+  const unsigned cscid_special(id.station()==1 and id.ring()==4 ? cscid + 9 : cscid);
+  const lclphidat lclPhi(srLUT->localPhi(d.getStrip(), d.getPattern(), d.getQuality(), d.getBend()));
+  const gblphidat gblPhi(srLUT->globalPhiME(lclPhi.phi_local, d.getKeyWG(), cscid_special));
+  const gbletadat gblEta(srLUT->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, d.getKeyWG(), cscid));
   return csctf::TrackStub(d, id, gblPhi.global_phi, gblEta.global_eta);
 }
 
