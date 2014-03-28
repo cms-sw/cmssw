@@ -50,8 +50,8 @@ detachedQuadStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.
     RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
         ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
         RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
-            ptMin = 0.5,
-            originRadius = 0.5,
+            ptMin = 0.45,
+            originRadius = 0.7,
             nSigmaZ = 4.0
             )
     ),
@@ -154,7 +154,7 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedQuadStepVtxLoose',
-            chi2n_par = 0.9,
+            chi2n_par = 1.0,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
             d0_par1 = ( 0.9, 3.0 ),
@@ -164,7 +164,7 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedQuadStepTrkLoose',
-            chi2n_par = 0.5,
+            chi2n_par = 0.6,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
             d0_par1 = ( 1.3, 4.0 ),
@@ -188,7 +188,7 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'detachedQuadStepTrkTight',
             preFilterName = 'detachedQuadStepTrkLoose',
-            chi2n_par = 0.35,
+            chi2n_par = 0.5,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 4,
             maxNumberLostLayers = 1,
@@ -201,7 +201,7 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'detachedQuadStepVtx',
             preFilterName = 'detachedQuadStepVtxTight',
-            chi2n_par = 0.8,
+            chi2n_par = 0.9,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
             maxNumberLostLayers = 1,
@@ -214,7 +214,7 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'detachedQuadStepTrk',
             preFilterName = 'detachedQuadStepTrkTight',
-            chi2n_par = 0.35,
+            chi2n_par = 0.45,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 4,
             maxNumberLostLayers = 0,

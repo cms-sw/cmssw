@@ -182,7 +182,7 @@ def customise_Reco(process,pileup):
     process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
     # End of pixel template needed section
     
-    process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.layerList  = cms.vstring('BPix10+BPix9')  # Optimize later
+    process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.layerList  = cms.vstring('BPix9+BPix8')  # Optimize later
     process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.BPix = cms.PSet(
         HitProducer = cms.string('siPixelRecHits'),
         hitErrorRZ = cms.double(0.006),
@@ -198,6 +198,7 @@ def customise_Reco(process,pileup):
         mergeTriplets = cms.bool(True),
         ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
         )
+    process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
     process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
     process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
     process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
