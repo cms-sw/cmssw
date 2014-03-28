@@ -48,6 +48,7 @@ namespace edm {
     }
     TType* type = gInterpreter->Type_Factory(name);
     if (!gInterpreter->Type_IsValid(type)) {
+      typeMap.insert(std::make_pair(name, TypeWithDict()));
       return TypeWithDict();
     }
     typeMap.insert(std::make_pair(name, TypeWithDict(type, 0L)));
