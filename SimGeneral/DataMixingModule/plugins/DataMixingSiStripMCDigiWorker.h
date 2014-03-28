@@ -31,8 +31,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "SimTracker/SiStripDigitizer/plugins/SiTrivialDigitalConverter.h"
-#include "SimTracker/SiStripDigitizer/plugins/SiGaussianTailNoiseAdder.h"
+#include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
+#include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
