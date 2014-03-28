@@ -39,7 +39,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EEDeadChannelRecoveryAlgos.h"
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/CorrectEEDeadChannelsNN.h"
 #include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/CrystalMatrixProbabilityEE.h"
 
 #include <string>
@@ -80,9 +79,8 @@ EcalRecHit EEDeadChannelRecoveryAlgos::correct(const EEDetId Id, const EcalRecHi
     if ( *AcceptFlag ) {
         if (algo_=="NeuralNetworks") {
             if (sum8_RelDC > Sum8Cut && sum8_RelMC > Sum8Cut) {
-            
-                NewEnergy_RelMC = CorrectEEDeadChannelsNN(this->nn, MNxN_RelMC);
-                NewEnergy_RelDC = CorrectEEDeadChannelsNN(this->nn, MNxN_RelDC);
+                NewEnergy_RelMC = this->nn.estimateEnergyEE(MNxN_RelMC);
+                NewEnergy_RelDC = this->nn.estimateEnergyEE(MNxN_RelDC);
                 
                 //  Matrices "MNxN_RelMC" and "MNxN_RelDC" have now the full set of energies, the original ones plus 
                 //  whatever "estimates" by the ANN for the "dead" xtal. Use those full matrices and calculate probabilities.

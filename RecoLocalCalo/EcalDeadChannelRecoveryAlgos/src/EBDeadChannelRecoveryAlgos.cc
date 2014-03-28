@@ -40,7 +40,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EBDeadChannelRecoveryAlgos.h"
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/CorrectEBDeadChannelsNN.h"
 #include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/CrystalMatrixProbabilityEB.h"
 
 #include <string>
@@ -84,8 +83,8 @@ EcalRecHit EBDeadChannelRecoveryAlgos::correct(const EBDetId Id, const EcalRecHi
             std::cout << "hi" << std::endl;
             if (sum8_RelDC > Sum8Cut && sum8_RelMC > Sum8Cut) {
             
-                NewEnergy_RelMC = CorrectEBDeadChannelsNN(this->nn, MNxN_RelMC);
-                NewEnergy_RelDC = CorrectEBDeadChannelsNN(this->nn, MNxN_RelDC);
+                NewEnergy_RelMC = this->nn.estimateEnergyEB(MNxN_RelMC);
+                NewEnergy_RelDC = this->nn.estimateEnergyEB(MNxN_RelDC);
                 
                 //  Matrices "MNxN_RelMC" and "MNxN_RelDC" have now the full set of energies, the original ones plus 
                 //  whatever "estimates" by the ANN for the "dead" xtal. Use those full matrices and calculate probabilities.
