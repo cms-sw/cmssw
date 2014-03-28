@@ -26,7 +26,7 @@
 
 #include "RecoBTag/SecondaryVertex/interface/ParticleMasses.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackSorting.h"
-#include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
+#include "RecoBTag/BTagTools/interface/TrackSelector.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
 #include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
 

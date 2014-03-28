@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoBTag.BTagTools.defaultTrackSelector_cfi import *
+
 impactParameterTagInfos = cms.EDProducer("TrackIPProducer",
+    defaultTrackSelectionBlock,
     jetTracks = cms.InputTag("ak5JetTracksAssociatorAtVertexPF"),
     primaryVertex = cms.InputTag("offlinePrimaryVertices"),
     computeProbabilities = cms.bool(True),

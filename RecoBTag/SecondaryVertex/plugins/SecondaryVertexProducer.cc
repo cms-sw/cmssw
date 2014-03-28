@@ -38,7 +38,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
-#include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
+#include "RecoBTag/BTagTools/interface/TrackSelector.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackSorting.h"
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
 #include "RecoBTag/SecondaryVertex/interface/VertexFilter.h"

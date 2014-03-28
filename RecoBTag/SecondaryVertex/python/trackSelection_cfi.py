@@ -5,6 +5,8 @@ from RecoBTag.ImpactParameter.variableJTA_cfi import *
 trackSelectionBlock = cms.PSet(
 	trackSelection = cms.PSet(
                 variableJTAPars,
+                maxPixelBarrelLayer = cms.uint32(4),
+                maxPixelEndcapLayer = cms.uint32(3),
 		totalHitsMin = cms.uint32(0),
 		jetDeltaRMax = cms.double(0.3),
 		qualityClass = cms.string('highPurity'),

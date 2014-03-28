@@ -6,7 +6,9 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+
 
 namespace reco {
 
@@ -20,11 +22,17 @@ class TrackSelector {
 	                 const reco::Jet &jet,
 	                 const GlobalPoint &pv) const;
 
+	// these two functions enable the counting of pixel hits in SLHC releases
+	unsigned int countPixelBarrelHits(const HitPattern& pattern) const;
+	unsigned int countPixelEndcapHits(const HitPattern& pattern) const;
+
     private:
 	bool				selectQuality;
 	reco::TrackBase::TrackQuality	quality;
 	unsigned int			minPixelHits;
 	unsigned int			minTotalHits;
+	unsigned int                    maxPixelBarrelLayer;
+	unsigned int                    maxPixelEndcapLayer;
 	double				minPt;
 	double				maxNormChi2;
 	double				maxJetDeltaR;

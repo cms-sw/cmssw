@@ -8,7 +8,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
-#include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
+#include "RecoBTag/BTagTools/interface/TrackSelector.h"
 
 using namespace reco; 
 using namespace ROOT::Math;
@@ -16,6 +16,8 @@ using namespace ROOT::Math;
 TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 	minPixelHits(params.getParameter<unsigned int>("pixelHitsMin")),
 	minTotalHits(params.getParameter<unsigned int>("totalHitsMin")),
+	maxPixelBarrelLayer(params.getParameter<unsigned int>("maxPixelBarrelLayer")),
+	maxPixelEndcapLayer(params.getParameter<unsigned int>("maxPixelEndcapLayer")),
 	minPt(params.getParameter<double>("ptMin")),
 	maxNormChi2(params.getParameter<double>("normChi2Max")),
 	maxJetDeltaR(params.getParameter<double>("jetDeltaRMax")),
@@ -71,9 +73,11 @@ TrackSelector::operator () (const Track &track,
   }
   else  jtaPassed = true;
 
+  unsigned int iPixHits = countPixelBarrelHits(track.hitPattern()) + countPixelEndcapHits(track.hitPattern()) ;
+
   return (!selectQuality || track.quality(quality)) &&
     (minPixelHits <= 0 ||
-     track.hitPattern().numberOfValidPixelHits() >= (int)minPixelHits) &&
+     iPixHits >= minPixelHits) &&
     (minTotalHits <= 0 ||
      track.hitPattern().numberOfValidHits() >= (int)minTotalHits) &&
     track.pt() >= minPt &&
@@ -91,4 +95,34 @@ TrackSelector::operator () (const Track &track,
     ipData.ip3d.value()        <= sip3dValMax &&
     ipData.ip3d.significance() >= sip3dSigMin &&
     ipData.ip3d.significance() <= sip3dSigMax;
+}
+
+
+// these two functions enable the counting of pixel hits in SLHC releases
+
+unsigned int 	TrackSelector::countPixelBarrelHits(const HitPattern& pattern) const{
+  int count = 0;
+  for (int i=0; i<pattern.numberOfHits(); i++) {
+    uint32_t hit = pattern.getHitPattern(i);
+    if (hit == 0) break;
+
+    if (pattern.validHitFilter(hit) && pattern.pixelBarrelHitFilter(hit))
+      if( pattern.getLayer(hit) <= maxPixelBarrelLayer ) ++count;
+  }
+  
+  return count;
+}
+
+
+unsigned int 	TrackSelector::countPixelEndcapHits(const HitPattern& pattern) const{
+  int count = 0;
+  for (int i=0; i<pattern.numberOfHits(); i++) {
+    uint32_t hit = pattern.getHitPattern(i);
+    if (hit == 0) break;
+
+    if (pattern.validHitFilter(hit) && pattern.pixelEndcapHitFilter(hit))
+      if( pattern.getLayer(hit) <= maxPixelEndcapLayer ) ++count;
+  }
+  
+  return count;
 }

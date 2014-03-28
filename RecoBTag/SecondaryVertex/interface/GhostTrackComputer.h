@@ -8,7 +8,7 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"  
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 
-#include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
+#include "RecoBTag/BTagTools/interface/TrackSelector.h"
 #include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
 
 class GhostTrackComputer {

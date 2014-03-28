@@ -51,7 +51,7 @@
 
 #include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
 #include "RecoBTag/ImpactParameter/plugins/TrackIPProducer.h"
-
+#include "RecoBTag/BTagTools/interface/TrackSelector.h"
 
 using namespace std;
 using namespace reco;
@@ -62,7 +62,8 @@ using boost::bind;
 // constructors and destructor
 //
 TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) : 
-  m_config(iConfig)
+  m_config(iConfig),
+  trackSelector(iConfig.getParameter<edm::ParameterSet>("trackSelection"))
 {
   m_calibrationCacheId3D = 0;
   m_calibrationCacheId2D = 0;
@@ -172,7 +173,9 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 */
        if (track.pt() > m_cutMinPt &&
            track.hitPattern().numberOfValidHits() >= m_cutTotalHits &&         // min num tracker hits
-           track.hitPattern().numberOfValidPixelHits() >= m_cutPixelHits &&
+	   (trackSelector.countPixelBarrelHits(track.hitPattern()) +
+	    trackSelector.countPixelEndcapHits(track.hitPattern())) &&
+	   //           track.hitPattern().numberOfValidPixelHits() >= m_cutPixelHits &&
            track.normalizedChi2() < m_cutMaxChiSquared &&
            std::abs(track.dxy(pv->position())) < m_cutMaxTIP &&
            std::abs(track.dz(pv->position())) < m_cutMaxLIP) {
@@ -325,7 +328,7 @@ void TrackIPProducer::checkEventSetup(const EventSetup & iSetup)
      const TrackProbabilityCalibration *  ca2D= calib2DHandle.product();
      const TrackProbabilityCalibration *  ca3D= calib3DHandle.product();
 
-     m_probabilityEstimator.reset(new HistogramProbabilityEstimator(ca3D,ca2D));
+     m_probabilityEstimator.reset(new HistogramProbabilityEstimator(ca3D,ca2D,trackSelector));
 
    }
    m_calibrationCacheId3D=cacheId3D;
