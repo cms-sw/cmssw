@@ -379,15 +379,21 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
                      thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix2");
                      thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix3");
                      if (NumberOfBarrelLayers>=4){thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix4");}
-		     if (conf.exists("theLadderEfficiency_BPix1")) theLadderEfficiency_BPix[0] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix1");
-		     if (conf.exists("theLadderEfficiency_BPix2")) theLadderEfficiency_BPix[1] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix2");
-		     if (conf.exists("theLadderEfficiency_BPix3")) theLadderEfficiency_BPix[2] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix3");
-		     if (conf.exists("theModuleEfficiency_BPix1")) theModuleEfficiency_BPix[0] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix1");
-		     if (conf.exists("theModuleEfficiency_BPix2")) theModuleEfficiency_BPix[1] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix2");
-		     if (conf.exists("theModuleEfficiency_BPix3")) theModuleEfficiency_BPix[2] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix3");
-		     if (conf.exists("thePUEfficiency_BPix1")) thePUEfficiency_BPix[0] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1");
-		     if (conf.exists("thePUEfficiency_BPix2")) thePUEfficiency_BPix[1] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2");
-		     if (conf.exists("thePUEfficiency_BPix3")) thePUEfficiency_BPix[2] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3");		    		    
+		     //
+		     i=0;
+		     theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix1");
+		     theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix2");
+		     theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix3");
+		     //		     
+		     i=0;
+		     theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix1");
+		     theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix2");
+		     theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix3");
+		     //
+		     i=0;		     
+		     thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1");
+		     thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2");
+		     thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3");		    		    
 		     // The next is needed for Phase2 Tracker studies
 		     if (NumberOfBarrelLayers>=5){
 			if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}

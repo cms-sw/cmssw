@@ -219,13 +219,14 @@ namespace cms
     
     if(PileupInfo_) _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);
 
-    // Step B: loop over detunits
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       DetId idet=DetId((*iu)->geographicalId().rawId());
       unsigned int isub=idet.subdetId();
       
       if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {  
         
+	//
+
         edm::DetSet<PixelDigi> collector((*iu)->geographicalId().rawId());
         edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
         
