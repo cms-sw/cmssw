@@ -7,6 +7,8 @@
 
 #include "vdt/vdtMath.h"
 
+#include "TMath.h"
+
 #include <iterator>
 
 #ifdef PFLOW_DEBUG
@@ -31,6 +33,8 @@ PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
     _timeSigma_ee(std::pow(conf.getParameter<double>("timeSigmaEE"),2.0)),
     _excludeOtherSeeds(conf.getParameter<bool>("excludeOtherSeeds")),
     _minFracTot(conf.getParameter<double>("minFracTot")),
+    _maxNSigmaTime(std::pow(conf.getParameter<double>("maxNSigmaTime"),2.0)),
+    _minChi2Prob(conf.getParameter<double>("minChi2Prob")),
 
     _layerMap({ {"PS2",(int)PFLayer::PS2},
 	        {"PS1",(int)PFLayer::PS1},
@@ -79,6 +83,18 @@ PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
     PosCalc* convcalc = 
       PFCPositionCalculatorFactory::get()->create(algoconv, convConf);
     _convergencePosCalc.reset(convcalc);
+  }
+  _timeResolutionCalcBarrel.reset(NULL);
+  if( conf.exists("timeResolutionCalcBarrel") ) {
+    const edm::ParameterSet& timeResConf = 
+      conf.getParameterSet("timeResolutionCalcBarrel");
+      _timeResolutionCalcBarrel.reset(new ECALRecHitResolutionProvider(timeResConf));
+  }
+  _timeResolutionCalcEndcap.reset(NULL);
+  if( conf.exists("timeResolutionCalcEndcap") ) {
+    const edm::ParameterSet& timeResConf = 
+      conf.getParameterSet("timeResolutionCalcEndcap");
+      _timeResolutionCalcEndcap.reset(new ECALRecHitResolutionProvider(timeResConf));
   }
 }
 
@@ -149,6 +165,9 @@ growPFClusters(const reco::PFCluster& topo,
       diff <= _stoppingTolerance*toleranceScaling) return;
   // reset the rechits in this cluster, keeping the previous position    
   std::vector<reco::PFCluster::REPPoint> clus_prev_pos;  
+  // also calculate and keep the previous time resolution
+  std::vector<double> clus_prev_timeres;
+  
   for( auto& cluster : clusters) {
     const reco::PFCluster::REPPoint& repp = cluster.positionREP();
     clus_prev_pos.emplace_back(repp.rho(),repp.eta(),repp.phi());
@@ -159,11 +178,17 @@ growPFClusters(const reco::PFCluster& topo,
 	_positionCalc->calculateAndSetPosition(cluster);
       }
     }
+    double resCluster;
+    clusterTimeResolution(cluster, resCluster);
+    clus_prev_timeres.push_back(resCluster);
     cluster.resetHitsAndFractions();
   }
   // loop over topo cluster and grow current PFCluster hypothesis 
   std::vector<double> dist2, frac;
 
+  // Store chi2 values and nhits to calculate chi2 prob. inline
+  std::vector<double> clus_chi2;
+  std::vector<size_t> clus_chi2_nhits;
 
   double fractot = 0, fraction = 0;
   for( const reco::PFRecHitFraction& rhf : topo.recHitFractions() ) {
@@ -178,24 +203,85 @@ growPFClusters(const reco::PFCluster& topo,
     const math::XYZPoint& topocellpos_xyz = refhit->position();
     dist2.clear(); frac.clear(); fractot = 0;
     // add rechits to clusters, calculating fraction based on distance
-    for( auto& cluster : clusters ) {      
+    // for( auto& cluster : clusters ) {   
+    // need position in vector to get cluster time resolution   
+    for (size_t iCluster = 0; iCluster < clusters.size(); ++iCluster) {
+      reco::PFCluster& cluster = clusters[iCluster];
       const math::XYZPoint& clusterpos_xyz = cluster.position();
       fraction = 0.0;
       const math::XYZVector deltav = clusterpos_xyz - topocellpos_xyz;
       double d2 = deltav.Mag2()/_showerSigma2;
       const double t2 =(cluster.time()-refhit->time())*(cluster.time()-refhit->time());
-
       
       if (cell_layer == PFLayer::HCAL_BARREL1 ||
 	  cell_layer == PFLayer::HCAL_BARREL2 ||
 	  cell_layer == PFLayer::ECAL_BARREL) {
-	  d2=d2+t2/_timeSigma_eb;
+        if (_timeResolutionCalcBarrel) {
+          double resCluster = clus_prev_timeres[iCluster];
+          // Could move the hit res calculation to outer loop
+          double resHit = _timeResolutionCalcBarrel->timeResolution(refhit->energy());
+          double res2 = resCluster*resCluster + resHit*resHit;
+          d2 = d2 + t2/res2;
+          if (t2/res2 > _maxNSigmaTime)
+            d2 = 999.; // reject hit
+
+          if (_minChi2Prob > 0.) {
+            if (iCluster >= clus_chi2.size()) { // first hit
+              clus_chi2.push_back(t2/res2);
+              clus_chi2_nhits.push_back(1);
+            }
+            else {
+              double chi2 = clus_chi2[iCluster];
+              size_t nhitsCluster = clus_chi2_nhits[iCluster];
+              chi2 += t2/res2;
+              if (TMath::Prob(chi2, nhitsCluster) >= _minChi2Prob) {
+                clus_chi2[iCluster] = chi2;
+                clus_chi2_nhits[iCluster] = nhitsCluster + 1;
+              } else { 
+                d2 = 999.; // reject hit
+              }
+            }
+          }
+        }
+        else {
+          d2=d2+t2/_timeSigma_eb;
+        }
       }
 
       else if (cell_layer == PFLayer::HCAL_ENDCAP ||
 	       cell_layer == PFLayer::HF_EM ||
-	       cell_layer == PFLayer::HF_HAD) {
-	  d2=d2+t2/_timeSigma_ee;
+	       cell_layer == PFLayer::HF_HAD ||
+         cell_layer == PFLayer::ECAL_ENDCAP) {
+	      if (_timeResolutionCalcEndcap) {
+          double resCluster = clus_prev_timeres[iCluster];
+          // Could move the hit res calculation to outer loop
+          double resHit = _timeResolutionCalcEndcap->timeResolution(refhit->energy());
+          double res2 = resCluster*resCluster + resHit*resHit;
+          d2 = d2 + t2/res2;
+          if (t2/res2 > _maxNSigmaTime)
+            d2 = 999.; // reject hit
+
+          if (_minChi2Prob > 0.) {
+            if (iCluster >= clus_chi2.size()) { // first hit
+              clus_chi2.push_back(t2/res2);
+              clus_chi2_nhits.push_back(1);
+            }
+            else {
+              double chi2 = clus_chi2[iCluster];
+              size_t nhitsCluster = clus_chi2_nhits[iCluster];
+              chi2 += t2/res2;
+              if (TMath::Prob(chi2, nhitsCluster) >= _minChi2Prob) {
+                clus_chi2[iCluster] = chi2;
+                clus_chi2_nhits[iCluster] = nhitsCluster + 1;
+              } else { 
+                d2 = 999.; // reject hit
+              }
+            }
+          }
+        }
+        else {
+          d2=d2+t2/_timeSigma_ee;
+        }
 
       }
       dist2.emplace_back( d2);
@@ -269,4 +355,33 @@ prunePFClusters(reco::PFClusterCollection& clusters) const {
   }
 }
 
+void PFlow2DClusterizerWithTime::clusterTimeResolution(reco::PFCluster& cluster, 
+    double& clusterRes) const
+{
+  double sumTimeSigma2 = 0.;
+  double sumSigma2 = 0.;
+
+  for (auto& rhf : cluster.recHitFractions())
+  {
+    const reco::PFRecHit& rh = *(rhf.recHitRef());
+
+    bool isBarrel = (rh.layer() == PFLayer::HCAL_BARREL1 ||
+      rh.layer() == PFLayer::HCAL_BARREL2 ||
+      rh.layer() == PFLayer::ECAL_BARREL);
+    double res = 100.;
+    if (isBarrel)
+      res = _timeResolutionCalcBarrel->timeResolution(rh.energy());
+    else
+      res = _timeResolutionCalcEndcap->timeResolution(rh.energy());
+
+    sumTimeSigma2 += rhf.fraction() * rh.time()/res/res;
+    sumSigma2 += rhf.fraction()/res/res;
+  }
+  if (sumSigma2 > 0.) {
+    clusterRes = sqrt(1./sumSigma2);
+    cluster.setTime(sumTimeSigma2/sumSigma2);
+  } else {
+    clusterRes = 999999.;
+  }
+}
 

@@ -76,8 +76,16 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     }
     cl_energy += rh_energy;
     cl_energy_float += rh_energyf;
-    cl_timeweight+=refhit->energy()*refhit->energy()*rhf.fraction();
-    cl_time += refhit->energy()*refhit->energy()*rhf.fraction()*refhit->time();   
+    // If time resolution is given, calculated weighted average
+    if (_timeResolutionCalc) {
+      double res = _timeResolutionCalc->timeResolution(refhit->energy());
+      cl_time += rhf.fraction()*refhit->time()/res/res;
+      cl_timeweight += rhf.fraction()/res/res;
+    }
+    else { // assume resolution = 1/E**2
+      cl_timeweight+=refhit->energy()*refhit->energy()*rhf.fraction();
+      cl_time += refhit->energy()*refhit->energy()*rhf.fraction()*refhit->time();
+    }
     if( rh_energy > max_e ) {
       max_e = rh_energy;
       max_e_layer = rhf.recHitRef()->layer();
