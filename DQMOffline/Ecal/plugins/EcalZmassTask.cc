@@ -151,9 +151,7 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 
       float Dcot = recoElectron->convDcot ();
       float Dist = recoElectron->convDist ();
-      int NumberOfExpectedInnerHits =
-	recoElectron->gsfTrack ()->trackerExpectedHitsInner ().
-	numberOfHits ();
+      int NumberOfExpectedInnerHits = recoElectron->gsfTrack()->getHitPattern().numberOfHits(reco::HitPattern::TRACK_HITS);
 
       //quality flags
 
