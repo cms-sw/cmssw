@@ -234,7 +234,7 @@ namespace pat {
 
       // ---- for content embedding ----
       bool embeddedSuperCluster_;
-      std::vector<reco::SuperCluster> superCluster_;
+      mutable std::vector<reco::SuperCluster> superCluster_;
       /// Place to store electron's basic clusters internally 
       std::vector<reco::CaloCluster> basicClusters_;
       /// Place to store electron's preshower clusters internally      
