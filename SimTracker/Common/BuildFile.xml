@@ -1,5 +1,5 @@
 <use   name="CLHEP"/>
-<use   name="vdt"/>
+<use   name="vdt_headers"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
 <use   name="SimDataFormats/TrackingHit"/>

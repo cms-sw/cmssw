@@ -11,6 +11,8 @@
 <use   name="CommonTools/Utils"/>
 <use   name="fastjet"/>
 <use   name="vdt"/>
+<use   name="roottmva"/>
+<use   name="vdt_headers"/>
 <export>
   <lib   name="1"/>
 </export>
