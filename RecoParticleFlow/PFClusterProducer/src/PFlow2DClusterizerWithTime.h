@@ -4,6 +4,8 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 
+#include "RecoParticleFlow/PFClusterProducer/interface/ECALRecHitResolutionProvider.h"
+
 #include <unordered_map>
 
 class PFlow2DClusterizerWithTime : public PFClusterBuilderBase {
@@ -33,11 +35,16 @@ class PFlow2DClusterizerWithTime : public PFClusterBuilderBase {
   const double _timeSigma_ee;
   const bool _excludeOtherSeeds;
   const double _minFracTot;
+  const double _maxNSigmaTime;
+  const double _minChi2Prob;
   
   const std::unordered_map<std::string,int> _layerMap;
   std::unordered_map<int,double> _recHitEnergyNorms;
   std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;
   std::unique_ptr<PFCPositionCalculatorBase> _convergencePosCalc;
+
+  std::unique_ptr<ECALRecHitResolutionProvider> _timeResolutionCalcBarrel;
+  std::unique_ptr<ECALRecHitResolutionProvider> _timeResolutionCalcEndcap;
   
   void seedPFClustersFromTopo(const reco::PFCluster&,
 			      const std::vector<bool>&,
@@ -49,7 +56,7 @@ class PFlow2DClusterizerWithTime : public PFClusterBuilderBase {
 		      const unsigned iter,
 		      double dist,
 		      reco::PFClusterCollection&) const;
-  
+  void clusterTimeResolution(reco::PFCluster& cluster, double& res) const;
   void prunePFClusters(reco::PFClusterCollection&) const;
 };
 

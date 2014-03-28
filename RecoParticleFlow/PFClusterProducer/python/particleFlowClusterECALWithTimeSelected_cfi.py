@@ -3,10 +3,11 @@ import FWCore.ParameterSet.Config as cms
 particleFlowClusterECALWithTimeSelected = cms.EDProducer(
     "PFClusterSelector",
     src = cms.InputTag('particleFlowClusterECALWithTimeUncorrected'),
-    energyRanges = cms.vdouble(0.0,0.5,1.0,2.0,5.0),
-    ## pad the timing cuts on the high side (with repeats) to aboid overflows
-    timingCutsLowBarrel = cms.vdouble(-16.,-16.,-16.,-12.,-10.,-10.),
-    timingCutsHighBarrel = cms.vdouble(16.,16.,16.,12.,10.,10.),
-    timingCutsLowEndcap = cms.vdouble(-18.,-18.,-18.,-18.,-14.,-14.),
-    timingCutsHighEndcap = cms.vdouble(18.,18.,18.,18.,14.,14.)
+    energyRanges = cms.vdouble(1., 2., 5., 20.),
+    ## pad the timing cuts on the high side (with repeats) to avoid overflows
+    timingCutsLowBarrel = cms.vdouble(-12., -6., -4., -4., -4., -4.),
+    timingCutsHighBarrel = cms.vdouble(12., 6., 4., 4., 4., 4.),
+    timingCutsLowEndcap = cms.vdouble(-31.5, -20.5, -12., -5., -5., -5.),
+    timingCutsHighEndcap = cms.vdouble(31.5, 20.5, 12., 5., 5., 5.)
     )
+    
