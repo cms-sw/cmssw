@@ -31,7 +31,6 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> TracksClusteringFromDis
 
        if(*tt==seed) continue;
 
-       std::pair<bool,Measurement1D> ip = IPTools::absoluteImpactParameter3D(*tt,primaryVertex);
        if(dist.calculate(tt->impactPointState(),seed.impactPointState()))
             {
 		 GlobalPoint ttPoint          = dist.points().first;
