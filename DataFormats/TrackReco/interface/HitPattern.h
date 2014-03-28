@@ -288,6 +288,9 @@ namespace reco {
     int numberOfInactiveHits() const;         // not-null, inactive
     int numberOfInactiveTrackerHits() const;  // not-null, inactive, tracker
 
+    int numberOfValidPixelHits(uint32_t maxLayer,uint32_t maxDisk) const;       // not-null, valid, pixel layer<=maxLayer, disk<=maxDisk
+    int numberOfValidPixelBarrelHits(uint32_t maxLayer) const; // not-null, valid, pixel PXB layer<=maxLayer
+    int numberOfValidPixelEndcapHits(uint32_t maxDisk) const; // not-null, valid, pixel PXF disk<=maxDisk
 
     int numberOfValidStripLayersWithMonoAndStereo () 
       const; // count strip layers that have non-null, valid mono and stereo hits
@@ -830,6 +833,33 @@ inline int HitPattern::numberOfInactiveTrackerHits() const {
       stripTIDLayersNull() +
       stripTOBLayersNull() + 
       stripTECLayersNull();
+  }
+
+
+  inline int HitPattern::numberOfValidPixelHits(uint32_t maxLayer,uint32_t maxDisk) const {
+    return numberOfValidPixelBarrelHits(maxLayer)+numberOfValidPixelEndcapHits(maxDisk);
+  }
+  
+  inline int HitPattern::numberOfValidPixelBarrelHits(uint32_t maxLayer) const {
+    int count = 0;
+    for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+      uint32_t pattern = getHitPattern(i);
+      if (pattern == 0) break;
+      if ( pixelBarrelHitFilter(pattern) )
+        if( getLayer(pattern) <= maxLayer ) ++count;
+    }
+    return count;
+  }
+  
+  inline int HitPattern::numberOfValidPixelEndcapHits(uint32_t maxDisk) const {
+    int count = 0;
+    for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+      uint32_t pattern = getHitPattern(i);
+      if (pattern == 0) break;
+      if ( pixelEndcapHitFilter(pattern) )
+        if( getLayer(pattern) <= maxDisk ) ++count;
+    }
+    return count;
   }
   
 
