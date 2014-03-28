@@ -23,6 +23,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/Utilities/interface/Presence.h"
 
 #include "TError.h"
+#include "TFile.h"
 
 #include "boost/program_options.hpp"
 #include "boost/shared_ptr.hpp"
@@ -329,6 +330,11 @@ int main(int argc, char* argv[]) {
         edm::MessageDrop::instance()->jobMode = jobMode;
       }
 
+      // FIXME: BEGIN temporary workaround for checksum problems in conditions
+      edm::FileInPath condfile("FWCore/Framework/data/cond_dump.root");
+      TFile* fptr = TFile::Open(condfile.fullPath().c_str());
+      fptr->Close();
+      // END temporary workaround for checksum problems in conditions
       context = "Constructing the EventProcessor";
       std::auto_ptr<edm::EventProcessor>
           procP(new
