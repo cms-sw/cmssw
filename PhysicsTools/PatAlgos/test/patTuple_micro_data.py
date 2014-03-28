@@ -36,17 +36,31 @@ process.patMuons.embedPickyMuon = False   # no, use best track
 process.patMuons.embedTpfmsMuon = False   # no, use best track
 process.patMuons.embedDytMuon   = False   # no, use best track
 
+process.patElectrons.embedPflowSuperCluster         = False
+process.patElectrons.embedPflowBasicClusters        = False
+process.patElectrons.embedPflowPreshowerClusters    = False
+
 process.selectedPatJets.cut = cms.string("pt > 10")
 process.selectedPatMuons.cut = cms.string("pt > 3") 
 process.selectedPatElectrons.cut = cms.string("pt > 5") 
 process.selectedPatTaus.cut = cms.string("pt > 20 && tauID('decayModeFinding')> 0.5")
-process.selectedPatPhotons.cut = cms.string("pt > 9")
+process.selectedPatPhotons.cut = cms.string("pt > 15")
 
 process.slimmedJets.clearDaughters = False
-#process.slimmedElectrons.dropRecHits = True
-#process.slimmedElectrons.dropBasicClusters = True
-#process.slimmedElectrons.dropPFlowClusters = True
-#process.slimmedElectrons.dropPreshowerClusters = True
+
+from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+
+addJetCollection(process, labelName = 'CA8', jetSource = cms.InputTag('ca8PFJetsCHS') )
+process.selectedPatJetsCA8.cut = cms.string("pt > 30")
+
+process.slimmedJetsCA8 = cms.EDProducer("PATJetSlimmer",
+   src = cms.InputTag("selectedPatJetsCA8"),
+   clearJetVars = cms.bool(True),
+   clearDaughters = cms.bool(False),
+   clearTrackRefs = cms.bool(True),
+   dropSpecific = cms.bool(False),
+)
+
 
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
 switchOnTriggerStandAlone( process )

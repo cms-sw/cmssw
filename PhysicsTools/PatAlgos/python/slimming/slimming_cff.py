@@ -52,7 +52,9 @@ MicroEventContentMC.outputCommands += [
 
         'keep *_prunedGenParticles_*_*',
         'keep LHEEventProduct_source_*_*',
+        'keep LHERunInfoProduct_*_*_*',
         'keep PileupSummaryInfos_*_*_*',
         'keep GenRunInfoProduct_*_*_*',
         'keep GenFilterInfo_*_*_*',
+        'keep GenEventInfoProduct_generator_*_*',
 ]

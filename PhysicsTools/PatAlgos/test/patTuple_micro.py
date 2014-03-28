@@ -58,11 +58,15 @@ process.patMuons.embedPickyMuon = False   # no, use best track
 process.patMuons.embedTpfmsMuon = False   # no, use best track
 process.patMuons.embedDytMuon   = False   # no, use best track
 
+process.patElectrons.embedPflowSuperCluster         = False
+process.patElectrons.embedPflowBasicClusters        = False
+process.patElectrons.embedPflowPreshowerClusters    = False
+
 process.selectedPatJets.cut = cms.string("pt > 10")
 process.selectedPatMuons.cut = cms.string("pt > 3") 
 process.selectedPatElectrons.cut = cms.string("pt > 5") 
 process.selectedPatTaus.cut = cms.string("pt > 20 && tauID('decayModeFinding')> 0.5")
-process.selectedPatPhotons.cut = cms.string("pt > 9")
+process.selectedPatPhotons.cut = cms.string("pt > 15")
 
 process.slimmedJets.clearDaughters = False
 
@@ -80,10 +84,6 @@ process.slimmedJetsCA8 = cms.EDProducer("PATJetSlimmer",
 )
 process.patJetGenJetMatchPatJetsCA8.matched =  'slimmedGenJets'
 process.slimmedJetsCA8.clearDaughters = False
-#process.slimmedElectrons.dropRecHits = True
-#process.slimmedElectrons.dropBasicClusters = True
-#process.slimmedElectrons.dropPFlowClusters = True
-#process.slimmedElectrons.dropPreshowerClusters = True
 
 from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
 switchOnTriggerStandAlone( process )
@@ -107,4 +107,3 @@ process.out.outputCommands = process.MicroEventContentMC.outputCommands
 process.out.dropMetaData = cms.untracked.string('ALL')
 process.out.fastCloning= cms.untracked.bool(False)
 process.out.overrideInputFileSplitLevels = cms.untracked.bool(True)
-
