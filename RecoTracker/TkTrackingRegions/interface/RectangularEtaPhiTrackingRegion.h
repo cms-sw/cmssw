@@ -78,11 +78,12 @@ public:
                                    bool precise = true,
                                    const std::string & measurementTrackerName = "",
 				   bool etaPhiRegion=false) 
-    : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex),
-    thePhiMargin(std::abs(deltaPhi),std::abs(deltaPhi)),
-    theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise),
-    theUseEtaPhi(etaPhiRegion), theMeasurementTrackerName(measurementTrackerName)
-  { initEtaRange(dir, Margin( std::abs(deltaEta),std::abs(deltaEta))); }
+    : RectangularEtaPhiTrackingRegion(dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex,
+                                      Margin(std::abs(deltaEta), std::abs(deltaEta)),
+                                      Margin(std::abs(deltaPhi), std::abs(deltaPhi)),
+                                      whereToUseMeasurementTracker, precise,
+                                      measurementTrackerName, etaPhiRegion)
+    {}
  
  /** constructor (asymmetrinc eta and phi margins). <BR>
   * non equal left-right eta and phi bounds around direction are
@@ -99,11 +100,11 @@ public:
 				   bool precise = true, 
                                    const std::string & measurementTrackerName = "",
 				   bool etaPhiRegion=false) 
-    : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex), 
-    thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), 
-    thePrecise(precise),theUseEtaPhi(etaPhiRegion),
-    theMeasurementTrackerName(measurementTrackerName)
-    { initEtaRange(dir, etaMargin); }
+    : RectangularEtaPhiTrackingRegion(dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex,
+                                      etaMargin, phiMargin,
+                                      whereToUseMeasurementTracker, precise,
+                                      measurementTrackerName, etaPhiRegion)
+    {}
 
  /** constructor (explicit pt range, asymmetrinc eta and phi margins). <BR>
   * the meaning of other arguments is the same as in the case of 
