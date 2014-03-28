@@ -38,7 +38,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 //#include "EventFilter/EcalRawToDigi/interface/EcalRegionCablingRecord.h"
 //#include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
-//#include "EventFilter/EcalRawToDigi/interface/EcalRawToRecHitLazyUnpacker.h"
 
 #include "EventFilter/EcalRawToDigi/interface/MyWatcher.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitComparison.h"
