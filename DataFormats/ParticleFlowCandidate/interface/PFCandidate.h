@@ -96,7 +96,8 @@ namespace reco {
     /*                  reco::PFBlockRef blockRef ); */
     PFCandidate( Charge q, 
                  const LorentzVector & p4, 
-                 ParticleType particleId );
+                 ParticleType particleId,
+		 int pfIndex = -1 );
 
     /// copy constructor
     PFCandidate( const PFCandidate&);
@@ -120,7 +121,7 @@ namespace reco {
     /*     } */
 
     //using reco::Candidate::setSourceCandidatePtr;
-    void setSourceCandidatePtr(const PFCandidatePtr& ptr) { sourcePtr_ = ptr; }
+    void setSourceCandidatePtr(const PFCandidatePtr& ptr) { sourcePtr_ = ptr; pfIndex_=ptr->pfIndex_; }
 
     size_t numberOfSourceCandidatePtrs() const { 
       return 1;
@@ -129,6 +130,13 @@ namespace reco {
     CandidatePtr sourceCandidatePtr( size_type i ) const {
       return sourcePtr_;
     }
+
+
+    /// Set global PF index
+    void set_pfIndex( int i) { pfIndex_ = i;}
+
+    /// Return the global PF index
+    int pfIndex() const { return pfIndex_; }
 
     /// returns the pdg id corresponding to the particle type.
     /// the particle type could be removed at some point to gain some space.
@@ -417,6 +425,8 @@ namespace reco {
     /*     PFCandidateRef sourceRef_; */
     PFCandidatePtr sourcePtr_;
 
+    /// "Global" particle flow index. -1 means "undefined"
+    int pfIndex_;
 
     ///Reference to the best track if it is a muon
     ///pF is allowed to switch the default muon track
