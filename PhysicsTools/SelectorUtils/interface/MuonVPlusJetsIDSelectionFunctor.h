@@ -332,7 +332,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     }
 
     int nhits = static_cast<int>( muon.numberOfValidHits() );
-    int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
+    int nValidMuonHits = static_cast<int> (muon.globalTrack()->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS));
     
     double ecalVeto = muon.isolationR03().emVetoEt;
     double hcalVeto = muon.isolationR03().hadVetoEt;
@@ -417,7 +417,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     }
 
     int nhits = static_cast<int>( muon.numberOfValidHits() );
-    int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
+    int nValidMuonHits = static_cast<int> (muon.globalTrack()->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS));
     
     double ecalVeto = muon.isolationR03().emVetoEt;
     double hcalVeto = muon.isolationR03().hadVetoEt;
@@ -432,7 +432,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     double z_mu = muon.vertex().z();
 
-    int nPixelHits = muon.innerTrack()->hitPattern().pixelLayersWithMeasurement();
+    int nPixelHits = muon.innerTrack()->getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
 
     int nMatchedStations = muon.numberOfMatches();
 
@@ -513,7 +513,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     }
 
     int nhits = static_cast<int>( muon.numberOfValidHits() );
-    int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
+    int nValidMuonHits = static_cast<int> (muon.globalTrack()->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS));
     
     double ecalVeto = muon.isolationR03().emVetoEt;
     double hcalVeto = muon.isolationR03().hadVetoEt;
@@ -528,7 +528,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     double z_mu = muon.vertex().z();
 
-    int nPixelHits = muon.innerTrack()->hitPattern().pixelLayersWithMeasurement();
+    int nPixelHits = muon.innerTrack()->getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
 
     int nMatchedStations = muon.numberOfMatches();
 
