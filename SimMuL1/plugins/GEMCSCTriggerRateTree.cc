@@ -113,23 +113,22 @@ GEMCSCTriggerRateTree::beginJob()
 void 
 GEMCSCTriggerRateTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  // need to reset here
+
   analyzeALCTRate(iEvent);
   analyzeCLCTRate(iEvent);
   analyzeLCTRate(iEvent);
   analyzeMPCLCTRate(iEvent);
   analyzeTFTrackRate(iEvent);
   analyzeTFCandRate(iEvent);
+  analyzeGMTRegCandRate(iEvent);
   analyzeGMTCandRate(iEvent);
+
 
 //   // DT primitives for input to TF
 //   edm::Handle<L1MuDTChambPhContainer> dttrig;
 //   iEvent.getByLabel("simDtTriggerPrimitiveDigis", dttrig);
 //   const L1MuDTChambPhContainer* dttrigs = dttrig.product();
-
-//   // tracks produced by TF
-//   edm::Handle< L1CSCTrackCollection > hl1Tracks;
-//   iEvent.getByLabel("simCsctfTrackDigis",hl1Tracks);
-//   const L1CSCTrackCollection* l1Tracks = hl1Tracks.product();
 
 //   // L1 muon candidates after CSC sorter
 //   edm::Handle< std::vector< L1MuRegionalCand > > hl1TfCands;
@@ -222,187 +221,6 @@ GEMCSCTriggerRateTree::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 //     }
 
 /*
-  //============ RATE TF TRACK ==================
-  int ntftrack=0;
-  if (debugRATE) std::cout<< "----- statring ntftrack"<<std::endl;
-  std::vector<MatchCSCMuL1::TFTRACK> rtTFTracks;
-  //  if (debugTFInef && inefTF) std::cout<<"#################### TF INEFFICIENCY ALL TFTRACKs:"<<std::endl;
-  for ( L1CSCTrackCollection::const_iterator trk = l1Tracks->begin(); trk != l1Tracks->end(); trk++)
-    {
-      if ( trk->first.bx() < minRateBX_ || trk->first.bx() > maxRateBX_ )
-  	{
-  	  if (debugRATE) std::cout<<"discarding BX = "<< trk->first.bx() <<std::endl;
-  	  continue;
-  	}
-      //if (trk->first.endcap()!=1) continue;
-    
-      MatchCSCMuL1::TFTRACK myTFTrk;
-      myTFTrk.init( &(trk->first) , ptLUT, muScales, muPtScale);
-      myTFTrk.dr = 999.;
-
-      for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = trk->second.begin();
-  	   detUnitIt != trk->second.end(); detUnitIt++)
-  	{
-  	  const CSCDetId& id = (*detUnitIt).first;
-  	  CSCDetId cid = id;
-  	  const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
-  	  for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++)
-  	    {
-  	      if (!((*digiIt).isValid())) std::cout<<"ALARM!!! match TFCAND to TFTRACK in rates: not valid id="<<id.rawId()<<" "<<id<<std::endl;
-  	      bool me1a_case = (defaultME1a && id.station()==1 && id.ring()==1 && (*digiIt).getStrip() > 127);
-  	      if (me1a_case){
-  		CSCDetId id1a(id.endcap(),id.station(),4,id.chamber(),0);
-  		cid = id1a;
-  	      }
-  	      //if (id.station()==1 && id.ring()==4) std::cout<<"me1adigi check: "<<(*digiIt)<<" "<<std::endl;
-  	      myTFTrk.trgdigis.push_back( &*digiIt );
-  	      myTFTrk.trgids.push_back( cid );
-  	      myTFTrk.trgetaphis.push_back( intersectionEtaPhi(cid, (*digiIt).getKeyWG(), (*digiIt).getStrip()) );
-  	      myTFTrk.trgstubs.push_back( buildTrackStub((*digiIt), cid) );
-  	    }
-  	}
-
-      ntftrack++;
-      rtTFTracks.push_back(myTFTrk);
-
-      //    if (debugTFInef && inefTF) myTFTrk.print("(for inef checks)");
-    
-      if (myTFTrk.pt >= 20. && myTFTrk.hasStub(1) && myTFTrk.hasStub(2)){
-  	int i1=-1, i2=-1, k=0;
-  	for (auto id: myTFTrk.trgids)
-  	  {
-  	    if (id.station()==1) i1 = k;
-  	    if (id.station()==2) i2 = k;
-  	    ++k;
-  	  }
-  	if (i1>=0 && i2 >=0 ) {
-  	  auto etaphi1 = myTFTrk.trgetaphis[i1];
-  	  auto etaphi2 = myTFTrk.trgetaphis[i2];
-  	  auto d = myTFTrk.trgids[i1];
-  	  auto &stub = *(myTFTrk.trgdigis[i1]);
-  	  std::cout<<"DBGdeta12 "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<"  "<<stub.getKeyWG()<<" "<<stub.getStrip()<<"  "<<myTFTrk.nStubs(1,1,1,1,1)<<" "<<myTFTrk.pt<<" "<<myTFTrk.eta<<"  "<<etaphi1.first<<" "<<etaphi2.first<<" "<<etaphi1.first-etaphi2.first<<"  "<<etaphi1.second<<" "<<etaphi2.second<<" "<<deltaPhi(etaphi1.second,etaphi2.second)<<std::endl;
-
-  	  if ( (etaphi1.first-etaphi2.first) > 0.1) {
-  	    myTFTrk.print("");
-  	    std::cout<<"############### CSCTFSPCoreLogic printout for large deta12 = "<<etaphi1.first-etaphi2.first<< " at "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<std::endl;
-  	    runCSCTFSP(mplcts, dttrigs);
-  	    std::cout<<"############### end printout"<<std::endl;
-  	  }
-  	}
-  	else {
-  	  std::cout<<"myTFTrk.trgids corrupt"<<std::endl;
-  	  myTFTrk.print("");
-  	}
-      }
-
-      h_rt_tftrack_pt->Fill(myTFTrk.pt);
-      h_rt_tftrack_bx->Fill(trk->first.bx());
-      h_rt_tftrack_mode->Fill(myTFTrk.mode());
-    }
-  h_rt_ntftrack->Fill(ntftrack);
-  if (debugRATE) std::cout<< "----- end ntftrack="<<ntftrack<<std::endl;
-
-
-  //============ RATE TFCAND ==================
-
-  int ntfcand=0, ntfcandpt10=0;
-  if (debugRATE) std::cout<< "----- statring ntfcand"<<std::endl;
-  std::vector<MatchCSCMuL1::TFCAND> rtTFCands;
-  for ( std::vector< L1MuRegionalCand >::const_iterator trk = l1TfCands->begin(); trk != l1TfCands->end(); trk++)
-    {
-      if ( trk->bx() < minRateBX_ || trk->bx() > maxRateBX_ )
-  	{
-  	  if (debugRATE) std::cout<<"discarding BX = "<< trk->bx() <<std::endl;
-  	  continue;
-  	}
-      double sign_eta = ( (trk->eta_packed() & 0x20) == 0) ? 1.:-1;
-      //if ( sign_eta<0) continue;
-      if (doSelectEtaForGMTRates_ && sign_eta<0) continue;
-
-      MatchCSCMuL1::TFCAND myTFCand;
-      myTFCand.init( &*trk , ptLUT, muScales, muPtScale);
-      myTFCand.dr = 999.;
-      //double tfpt = myTFCand.pt;
-
-      //if (debugRATE) std::cout<< "----- eta/phi/pt "<<sign_eta<<"*"<<tfeta<<"/"<<tfphi<<"/"<<tfpt<<" "<< int(trk->eta_packed() & 0x1F) <<std::endl;
-
-      ntfcand++;
-      //if (tfpt>=10.) ntfcandpt10++;
-      //h_rt_tfcand_pt->Fill(tfpt);
-      h_rt_tfcand_bx->Fill(trk->bx());
-
-      // find TF Candidate's  TF Track and its stubs:
-      myTFCand.tftrack = 0;
-      for (size_t tt = 0; tt<rtTFTracks.size(); tt++)
-  	{
-  	  if (trk->bx()          != rtTFTracks[tt].l1trk->bx()||
-  	      trk->phi_packed()  != rtTFTracks[tt].phi_packed ||
-  	      trk->pt_packed()   != rtTFTracks[tt].pt_packed  ||
-  	      trk->eta_packed()  != rtTFTracks[tt].eta_packed   ) continue;
-  	  myTFCand.tftrack = &(rtTFTracks[tt]);
-  	  // ids now hold *trigger segments IDs*
-  	  myTFCand.ids = rtTFTracks[tt].trgids;
-  	  myTFCand.nTFStubs = rtTFTracks[tt].nStubs(1,1,1,1,1);
-  	}
-      rtTFCands.push_back(myTFCand);
-      if(myTFCand.tftrack == nullptr){
-  	std::cout<<"myTFCand.tftrack == nullptr:"<<std::endl;
-  	std::cout<<" cand: "<<trk->pt_packed()<<" "<<trk->eta_packed()<<" "<<trk->phi_packed()<<" "<<trk->bx()<<std::endl;
-  	std::cout<<" trk: "<<std::endl;
-  	for (size_t tt = 0; tt<rtTFTracks.size(); tt++)
-  	  std::cout<<"       "<<rtTFTracks[tt].pt_packed<<" "<<rtTFTracks[tt].eta_packed<<" "<<rtTFTracks[tt].phi_packed<<" "<<rtTFTracks[tt].l1trk->bx()<<std::endl;
-      }
-
-      if (myTFCand.tftrack != nullptr) {
-  	double tfpt = myTFCand.tftrack->pt;
-  	double tfeta = myTFCand.tftrack->eta;
-
-  	if (tfpt>=10.) ntfcandpt10++;
-      
-  	h_rt_tfcand_pt->Fill(tfpt);
-    
-  	unsigned int ntrg_stubs = myTFCand.tftrack->trgdigis.size();
-  	if (ntrg_stubs!=myTFCand.ids.size())
-  	  std::cout<<"OBA!!! trgdigis.size()!=ids.size(): "<<ntrg_stubs<<"!="<<myTFCand.ids.size()<<std::endl;
-  	if (ntrg_stubs>=2) h_rt_tfcand_pt_2st->Fill(tfpt);
-  	if (ntrg_stubs>=3) h_rt_tfcand_pt_3st->Fill(tfpt);
-  	//std::cout<<"\n nnntf: "<<ntrg_stubs<<" "<<myTFCand.tftrack->nStubs(0,1,1,1,1)<<std::endl;
-  	//if (ntrg_stubs != myTFCand.tftrack->nStubs()) myTFCand.tftrack->print("non-equal nstubs!");
-  	//if (fabs(myTFCand.eta)>1.25 && fabs(myTFCand.eta)<1.9) {
-  	if (mugeo::isME42EtaRegion(myTFCand.eta)) {
-  	  if (ntrg_stubs>=2) h_rt_tfcand_pt_h42_2st->Fill(tfpt);
-  	  if (ntrg_stubs>=3) h_rt_tfcand_pt_h42_3st->Fill(tfpt);
-  	}
-
-  	h_rt_tfcand_eta->Fill(tfeta);
-  	if (tfpt>=5.) h_rt_tfcand_eta_pt5->Fill(tfeta);
-  	if (tfpt>=10.) h_rt_tfcand_eta_pt10->Fill(tfeta);
-  	if (tfpt>=15.) h_rt_tfcand_eta_pt15->Fill(tfeta);
-  	h_rt_tfcand_pt_vs_eta->Fill(tfpt,tfeta);
-
-  	unsigned ntf_stubs = myTFCand.tftrack->nStubs();
-  	if (ntf_stubs>=3) {
-  	  h_rt_tfcand_eta_3st->Fill(tfeta);
-  	  if (tfpt>=5.) h_rt_tfcand_eta_pt5_3st->Fill(tfeta);
-  	  if (tfpt>=10.) h_rt_tfcand_eta_pt10_3st->Fill(tfeta);
-  	  if (tfpt>=15.) h_rt_tfcand_eta_pt15_3st->Fill(tfeta);
-  	  h_rt_tfcand_pt_vs_eta_3st->Fill(tfpt,tfeta);
-  	}
-  	if (tfeta<2.0999 || ntf_stubs>=3) {
-  	  h_rt_tfcand_eta_3st1a->Fill(tfeta);
-  	  if (tfpt>=5.) h_rt_tfcand_eta_pt5_3st1a->Fill(tfeta);
-  	  if (tfpt>=10.) h_rt_tfcand_eta_pt10_3st1a->Fill(tfeta);
-  	  if (tfpt>=15.) h_rt_tfcand_eta_pt15_3st1a->Fill(tfeta);
-  	  h_rt_tfcand_pt_vs_eta_3st1a->Fill(tfpt,tfeta);
-  	}
-      }
-      //else std::cout<<"Strange: myTFCand.tftrack != nullptr"<<std::endl;
-    }
-  h_rt_ntfcand->Fill(ntfcand);
-  h_rt_ntfcand_pt10->Fill(ntfcandpt10);
-  if (debugRATE) std::cout<< "----- end ntfcand/ntfcandpt10="<<ntfcand<<"/"<<ntfcandpt10<<std::endl;
-
-
   //============ RATE GMT REGIONAL ==================
 
   int ngmtcsc=0, ngmtcscpt10=0;
@@ -1467,7 +1285,7 @@ GEMCSCTriggerRateTree::analyzeALCTRate(const edm::Event& iEvent)
     {
       if (!(*digiIt).isValid()) continue;
       const int bx((*digiIt).getBX());
-      if (bx < minBxALCT_ || bx > maxBxALCT_) continue;
+      if (bx < minBxALCT_ or bx > maxBxALCT_) continue;
       alct_.event = iEvent.id().event();
       alct_.endcap = detId.zendcap();
       alct_.station = detId.station();
@@ -1495,7 +1313,7 @@ GEMCSCTriggerRateTree::analyzeCLCTRate(const edm::Event& iEvent)
     {
       if (!(*digiIt).isValid()) continue;
       const int bx((*digiIt).getBX());
-      if (bx < minBxCLCT_ || bx > maxBxCLCT_) continue;
+      if (bx < minBxCLCT_ or bx > maxBxCLCT_) continue;
       clct_.event = iEvent.id().event();
       clct_.endcap = detId.zendcap();
       clct_.station = detId.station();
@@ -1524,7 +1342,7 @@ GEMCSCTriggerRateTree::analyzeLCTRate(const edm::Event& iEvent)
     {
       if (!(*digiIt).isValid()) continue;
       const int bx((*digiIt).getBX());
-      if (bx < minBxLCT_ || bx > maxBxLCT_) continue;
+      if (bx < minBxLCT_ or bx > maxBxLCT_) continue;
       lct_.event = iEvent.id().event();
       lct_.endcap = detId.zendcap();
       lct_.station = detId.station();
@@ -1544,15 +1362,15 @@ GEMCSCTriggerRateTree::analyzeMPCLCTRate(const edm::Event& iEvent)
   iEvent.getByLabel("simCscTriggerPrimitiveDigis", "MPCSORTED", lcts_mpc);
   const CSCCorrelatedLCTDigiCollection* mplcts = lcts_mpc.product();
 
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = mplcts->begin(); detUnitIt != mplcts->end(); detUnitIt++) 
+  for (auto detUnitIt = mplcts->begin(); detUnitIt != mplcts->end(); detUnitIt++) 
   {
     const CSCDetId& detId = (*detUnitIt).first;
     auto range = (*detUnitIt).second;
-    for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
+    for (auto digiIt = range.first; digiIt != range.second; digiIt++) 
     {
       if (!(*digiIt).isValid()) continue;
       const int bx((*digiIt).getBX());
-      if (bx < minBxMPLCT_ || bx > maxBxMPLCT_) continue;
+      if (bx < minBxMPLCT_ or bx > maxBxMPLCT_) continue;
       mplct_.event = iEvent.id().event();
       mplct_.endcap = detId.zendcap();
       mplct_.station = detId.station();
@@ -1571,99 +1389,112 @@ GEMCSCTriggerRateTree::analyzeMPCLCTRate(const edm::Event& iEvent)
 void  
 GEMCSCTriggerRateTree::analyzeTFTrackRate(const edm::Event& iEvent)
 {
-//   edm::Handle< L1CSCTrackCollection > hl1Tracks;
-//   iEvent.getByLabel("simCsctfTrackDigis",hl1Tracks);
-//   const L1CSCTrackCollection* l1Tracks = hl1Tracks.product();
+  edm::Handle< L1CSCTrackCollection > hl1Tracks;
+  iEvent.getByLabel("simCsctfTrackDigis",hl1Tracks);
+  const L1CSCTrackCollection* l1Tracks = hl1Tracks.product();
 
-  /*
-  //============ RATE TF TRACK ==================
-  int ntftrack=0;
-  if (debugRATE) std::cout<< "----- statring ntftrack"<<std::endl;
-  std::vector<MatchCSCMuL1::TFTRACK> rtTFTracks;
-  //  if (debugTFInef && inefTF) std::cout<<"#################### TF INEFFICIENCY ALL TFTRACKs:"<<std::endl;
-  for ( L1CSCTrackCollection::const_iterator trk = l1Tracks->begin(); trk != l1Tracks->end(); trk++)
-    {
-      if ( trk->first.bx() < minRateBX_ || trk->first.bx() > maxRateBX_ )
-  	{
-  	  if (debugRATE) std::cout<<"discarding BX = "<< trk->first.bx() <<std::endl;
-  	  continue;
-  	}
-      //if (trk->first.endcap()!=1) continue;
+  for (auto  trk = l1Tracks->begin(); trk != l1Tracks->end(); trk++) {
+    if (trk->first.bx() < minRateBX_ or trk->first.bx() > maxRateBX_) continue;
+    const bool endcapOnly(true);
+    if (endcapOnly and trk->first.endcap()!=1) continue;
     
-      MatchCSCMuL1::TFTRACK myTFTrk;
-      myTFTrk.init( &(trk->first) , ptLUT, muScales, muPtScale);
-      myTFTrk.dr = 999.;
+    MatchCSCMuL1::TFTRACK myTFTrk;
+    myTFTrk.init( &(trk->first) , ptLUT, muScales, muPtScale);
+    myTFTrk.dr = 999.;
+    // add the TFTrack to the list
+    rtTFTracks_.push_back(myTFTrk);
 
-      for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt = trk->second.begin();
-  	   detUnitIt != trk->second.end(); detUnitIt++)
-  	{
-  	  const CSCDetId& id = (*detUnitIt).first;
-  	  CSCDetId cid = id;
-  	  const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
-  	  for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++)
-  	    {
-  	      if (!((*digiIt).isValid())) std::cout<<"ALARM!!! match TFCAND to TFTRACK in rates: not valid id="<<id.rawId()<<" "<<id<<std::endl;
-  	      bool me1a_case = (defaultME1a && id.station()==1 && id.ring()==1 && (*digiIt).getStrip() > 127);
-  	      if (me1a_case){
-  		CSCDetId id1a(id.endcap(),id.station(),4,id.chamber(),0);
-  		cid = id1a;
-  	      }
-  	      //if (id.station()==1 && id.ring()==4) std::cout<<"me1adigi check: "<<(*digiIt)<<" "<<std::endl;
-  	      myTFTrk.trgdigis.push_back( &*digiIt );
-  	      myTFTrk.trgids.push_back( cid );
-  	      myTFTrk.trgetaphis.push_back( intersectionEtaPhi(cid, (*digiIt).getKeyWG(), (*digiIt).getStrip()) );
-  	      myTFTrk.trgstubs.push_back( buildTrackStub((*digiIt), cid) );
-  	    }
-  	}
-
-      ntftrack++;
-      rtTFTracks.push_back(myTFTrk);
-
-      //    if (debugTFInef && inefTF) myTFTrk.print("(for inef checks)");
+    tftrack_.event = iEvent.id().event();
+    tftrack_.bx = trk->first.bx();
+    tftrack_.pt = myTFTrk.pt;
+    tftrack_.eta = myTFTrk.pt;
+    tftrack_.phi = myTFTrk.eta;
     
-      if (myTFTrk.pt >= 20. && myTFTrk.hasStub(1) && myTFTrk.hasStub(2)){
-  	int i1=-1, i2=-1, k=0;
-  	for (auto id: myTFTrk.trgids)
-  	  {
-  	    if (id.station()==1) i1 = k;
-  	    if (id.station()==2) i2 = k;
-  	    ++k;
-  	  }
-  	if (i1>=0 && i2 >=0 ) {
-  	  auto etaphi1 = myTFTrk.trgetaphis[i1];
-  	  auto etaphi2 = myTFTrk.trgetaphis[i2];
-  	  auto d = myTFTrk.trgids[i1];
-  	  auto &stub = *(myTFTrk.trgdigis[i1]);
-  	  std::cout<<"DBGdeta12 "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<"  "<<stub.getKeyWG()<<" "<<stub.getStrip()<<"  "<<myTFTrk.nStubs(1,1,1,1,1)<<" "<<myTFTrk.pt<<" "<<myTFTrk.eta<<"  "<<etaphi1.first<<" "<<etaphi2.first<<" "<<etaphi1.first-etaphi2.first<<"  "<<etaphi1.second<<" "<<etaphi2.second<<" "<<deltaPhi(etaphi1.second,etaphi2.second)<<std::endl;
+    for (auto detUnitIt = trk->second.begin(); detUnitIt != trk->second.end(); detUnitIt++) {
+      const CSCDetId& id = (*detUnitIt).first;
+      auto range = (*detUnitIt).second;
+      for (auto  digiIt = range.first; digiIt != range.second; digiIt++) {
+	if (!((*digiIt).isValid())) continue;
+	myTFTrk.trgdigis.push_back(&*digiIt);
+	myTFTrk.trgids.push_back(id);
+	myTFTrk.trgetaphis.push_back(intersectionEtaPhi(id,(*digiIt).getKeyWG(),(*digiIt).getStrip()));
+	myTFTrk.trgstubs.push_back( buildTrackStub((*digiIt),id));
 
-  	  if ( (etaphi1.first-etaphi2.first) > 0.1) {
-  	    myTFTrk.print("");
-  	    std::cout<<"############### CSCTFSPCoreLogic printout for large deta12 = "<<etaphi1.first-etaphi2.first<< " at "<<d.endcap()<<" "<<d.ring()<<" "<<d.chamber()<<std::endl;
-  	    runCSCTFSP(mplcts, dttrigs);
-  	    std::cout<<"############### end printout"<<std::endl;
-  	  }
-  	}
-  	else {
-  	  std::cout<<"myTFTrk.trgids corrupt"<<std::endl;
-  	  myTFTrk.print("");
-  	}
+	// stub analysis
+	if (id.station()==1 and id.ring()==4) tftrack_.hasME1a |= 1;
+	if (id.station()==1 and id.ring()==1) tftrack_.hasME1b |= 1;
+	if (id.station()==1 and id.ring()==2) tftrack_.hasME12 |= 1;
+	if (id.station()==1 and id.ring()==3) tftrack_.hasME13 |= 1; 
+	if (id.station()==2 and id.ring()==1) tftrack_.hasME21 |= 1;
+	if (id.station()==2 and id.ring()==2) tftrack_.hasME22 |= 1;
+	if (id.station()==3 and id.ring()==1) tftrack_.hasME31 |= 1;
+	if (id.station()==3 and id.ring()==2) tftrack_.hasME32 |= 1;
+	if (id.station()==4 and id.ring()==1) tftrack_.hasME41 |= 1;
+	if (id.station()==4 and id.ring()==2) tftrack_.hasME42 |= 1;
       }
-
-      h_rt_tftrack_pt->Fill(myTFTrk.pt);
-      h_rt_tftrack_bx->Fill(trk->first.bx());
-      h_rt_tftrack_mode->Fill(myTFTrk.mode());
     }
-  h_rt_ntftrack->Fill(ntftrack);
-  if (debugRATE) std::cout<< "----- end ntftrack="<<ntftrack<<std::endl;
-
-  */
+  }
 }
 
 // ================================================================================================
 void  
 GEMCSCTriggerRateTree::analyzeTFCandRate(const edm::Event& iEvent)
 {
+  edm::Handle< std::vector< L1MuRegionalCand > > hl1TfCands;
+  iEvent.getByLabel("simCsctfDigis", "CSC", hl1TfCands);
+  const std::vector< L1MuRegionalCand > *l1TfCands = hl1TfCands.product();
+
+  for (auto trk = l1TfCands->begin(); trk != l1TfCands->end(); trk++){
+    if ( trk->bx() < minRateBX_ or trk->bx() > maxRateBX_ ) continue;
+    //    const int sign_eta(((trk->eta_packed() & 0x20) == 0) ? 1.:-1);
+    MatchCSCMuL1::TFCAND myTFCand;
+    myTFCand.init( &*trk , ptLUT, muScales, muPtScale);
+    myTFCand.dr = 999.;
+    rtTFCands_.push_back(myTFCand);
+    // associate the TFTracks to this TFCand
+    for (size_t tt = 0; tt<rtTFTracks_.size(); tt++){
+      if (trk->bx()         != rtTFTracks_[tt].l1trk->bx() or
+	  trk->phi_packed() != rtTFTracks_[tt].phi_packed or
+	  trk->pt_packed()  != rtTFTracks_[tt].pt_packed or
+	  trk->eta_packed() != rtTFTracks_[tt].eta_packed) continue;
+      myTFCand.tftrack = &(rtTFTracks_[tt]);
+      // ids now hold *trigger segments IDs*
+      myTFCand.ids = rtTFTracks_[tt].trgids;
+      myTFCand.nTFStubs = rtTFTracks_[tt].nStubs(1,1,1,1,1);
+    }
+    
+    // analysis
+    if (myTFCand.tftrack != nullptr) continue;
+    tfcand_.event = iEvent.id().event();
+    tfcand_.bx = trk->bx();
+    tfcand_.pt = myTFCand.tftrack->pt;
+    tfcand_.eta = myTFCand.tftrack->eta;
+    tfcand_.phi = myTFCand.tftrack->phi;
+    auto trgids(myTFCand.tftrack->trgids);
+ 
+	// stub analysis
+    for (auto id : trgids){
+      if (id.station()==1 and id.ring()==4) tftrack_.hasME1a |= 1;
+      if (id.station()==1 and id.ring()==1) tftrack_.hasME1b |= 1;
+      if (id.station()==1 and id.ring()==2) tftrack_.hasME12 |= 1;
+      if (id.station()==1 and id.ring()==3) tftrack_.hasME13 |= 1; 
+      if (id.station()==2 and id.ring()==1) tftrack_.hasME21 |= 1;
+      if (id.station()==2 and id.ring()==2) tftrack_.hasME22 |= 1;
+      if (id.station()==3 and id.ring()==1) tftrack_.hasME31 |= 1;
+      if (id.station()==3 and id.ring()==2) tftrack_.hasME32 |= 1;
+      if (id.station()==4 and id.ring()==1) tftrack_.hasME41 |= 1;
+      if (id.station()==4 and id.ring()==2) tftrack_.hasME42 |= 1;
+    }
+  }
 }
+
+
+// ================================================================================================
+void  
+GEMCSCTriggerRateTree::analyzeGMTRegCandRate(const edm::Event& iEvent)
+{
+}
+
 
 // ================================================================================================
 void  

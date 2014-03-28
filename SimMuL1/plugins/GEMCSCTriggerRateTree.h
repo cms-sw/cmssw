@@ -193,7 +193,7 @@ class GEMCSCTriggerRateTree : public edm::EDAnalyzer
   void analyzeMPCLCTRate(const edm::Event&);
   void analyzeTFTrackRate(const edm::Event&);
   void analyzeTFCandRate(const edm::Event&);
-  void analyzeGMTRegionalRate(const edm::Event&);
+  void analyzeGMTRegCandRate(const edm::Event&);
   void analyzeGMTCandRate(const edm::Event&);
 
   // parameters
@@ -255,6 +255,12 @@ class GEMCSCTriggerRateTree : public edm::EDAnalyzer
   MyTFCand tfcand_;
   MyGMTReg gmtreg_;
   MyGMT gmt_;
+
+  std::vector<MatchCSCMuL1::TFTRACK> rtTFTracks_;
+  std::vector<MatchCSCMuL1::TFCAND> rtTFCands_;
+  std::vector<MatchCSCMuL1::GMTREGCAND> rtGmtRegCands_;
+  std::vector<MatchCSCMuL1::GMTCAND> rtGmtCands_;
+  std::vector<MatchCSCMuL1::L1EXTRA> rtL1Extras_;
 };
 
 #endif
