@@ -33,6 +33,9 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, edm::C
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
   theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
   theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
+  theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
+  theBeamSpotToken = iC.consumes<reco::BeamSpot>(theBeamSpotInputTag);
+  theMeasurementTrackerEventToken = iC.consumes<MeasurementTrackerEvent>(theMeasurementTrackerEventTag); 
 }
 
 TSGFromPropagation::~TSGFromPropagation()
@@ -168,7 +171,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
-  theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
+  //theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
 
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if ( theResetMethod == "matrix" && !errorMatrixPset.empty()){
@@ -185,8 +188,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 }
 
 void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
-  //edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel(theBeamSpotInputTag, beamSpot);
+  iEvent.getByToken(theBeamSpotToken, beamSpot);
 
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
 
@@ -197,7 +199,7 @@ void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
   }
 
   if ( theUpdateStateFlag ) {
-     iEvent.getByLabel(theMeasurementTrackerEventTag, theMeasTrackerEvent);
+    iEvent.getByToken(theMeasurementTrackerEventToken, theMeasTrackerEvent);
      theTkLayerMeasurements = LayerMeasurements(*theMeasTracker,*theMeasTrackerEvent);
   }
 
