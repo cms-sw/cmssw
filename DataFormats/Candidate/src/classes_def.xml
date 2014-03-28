@@ -41,6 +41,11 @@
     ]]>
   </ioread>
 
+
+  <class name="reco::LeafRefCandidateT" ClassVersion="10">
+     <version ClassVersion="10" checksum="2404784677"/>
+   </class>
+
   <class name="reco::CompositeCandidate" ClassVersion="10">
    <version ClassVersion="10" checksum="2953566340"/>
   </class>
