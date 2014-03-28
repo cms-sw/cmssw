@@ -13,8 +13,20 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 
+using namespace std;
+using namespace l1t;
 
-void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma> & egammas) {
+
+Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(/*const CaloParams & dbPars*/) 
+{
+
+}
+
+Stage1Layer2EGammaAlgorithmImpPP::~Stage1Layer2EGammaAlgorithmImpPP(){};
+
+
+
+void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma>* egammas) {
 
   egtSeed = 0;
   relativeIsolationCut = 0.2;
@@ -42,7 +54,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
 
      l1t::EGamma theEG(*egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
-      egammas.push_back(theEG);
+      egammas->push_back(theEG);
   }
 
 
@@ -52,8 +64,8 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
         return (i.hwPt() < j.hwPt() ); 
     };
 
-   std::sort(egammas.begin(), egammas.end(), comp);
-   std::reverse(egammas.begin(), egammas.end());
+   std::sort(egammas->begin(), egammas->end(), comp);
+   std::reverse(egammas->begin(), egammas->end());
 }
 
 

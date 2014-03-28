@@ -31,7 +31,7 @@ namespace l1t {
   public:
     virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::CaloRegion> & regions,
-			      std::vector<l1t::EGamma> & egammas) = 0;
+			      std::vector<l1t::EGamma>* egammas) = 0;
 
     virtual ~Stage1Layer2EGammaAlgorithm(){};
 
