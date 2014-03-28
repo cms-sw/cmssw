@@ -20,6 +20,7 @@
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
+#include "RecoParticleFlow/PFClusterProducer/interface/ECALRecHitResolutionProvider.h"
 
 template <typename D,typename T>
 class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
@@ -29,6 +30,13 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
     noiseTerm_ = iConfig.getParameter<double>("noiseTerm");
     constantTerm_ = iConfig.getParameter<double>("constantTerm");
     sigmaCut_ = iConfig.getParameter<double>("sigmaCut");
+
+    _timeResolutionCalc.reset(NULL);
+    if( iConfig.exists("timeResolutionCalc") ) {
+      const edm::ParameterSet& timeResConf = 
+        iConfig.getParameterSet("timeResolutionCalc");
+        _timeResolutionCalc.reset(new ECALRecHitResolutionProvider(timeResConf));
+    }
   }
 
   void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
@@ -119,9 +127,17 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
 					return a.detId() < b.detId();
 				      });
     if( found_hit != hits->end() && found_hit->detId() == id.rawId() ) {
-      aeff = hit.energy()*found_hit->energy()/sqrt(hit.energy()*hit.energy()+found_hit->energy()*found_hit->energy());
-      sigma = sqrt((noiseTerm_*noiseLevel_/aeff)*(noiseTerm_*noiseLevel_/aeff)+2*constantTerm_*constantTerm_);
-      if(abs(hit.time()-found_hit->time())/sigma<sigmaCut_) {
+      sigma = 100.;
+      if (_timeResolutionCalc) {
+        double res1 = _timeResolutionCalc->timeResolution(hit.energy());
+        double res2 = _timeResolutionCalc->timeResolution(found_hit->energy());
+        sigma = sqrt(res1*res1 + res2*res2);
+      }
+      else {
+        aeff = hit.energy()*found_hit->energy()/sqrt(hit.energy()*hit.energy()+found_hit->energy()*found_hit->energy());
+        sigma = sqrt((noiseTerm_*noiseLevel_/aeff)*(noiseTerm_*noiseLevel_/aeff)+2*constantTerm_*constantTerm_);
+      }
+      if(std::abs(hit.time()-found_hit->time())/sigma<sigmaCut_) {
 	hit.addNeighbour(eta,phi,0,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
       }
     }
@@ -134,6 +150,8 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
   double noiseTerm_;
   double constantTerm_;
   double sigmaCut_;
+
+  std::unique_ptr<ECALRecHitResolutionProvider> _timeResolutionCalc;
 
 
 

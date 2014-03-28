@@ -46,8 +46,24 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
 	<< "The input of the particle flow clustering seems to be corrupted.";
     }
     cl_energy += rh_energy;
-    cl_timeweight+=refhit->energy()*refhit->energy()*rhf.fraction();
-    cl_time += refhit->energy()*refhit->energy()*rhf.fraction()*refhit->time();   
+
+    // If time resolution is given, calculated weighted average
+    if (_timeResolutionCalcBarrel && _timeResolutionCalcEndcap) {
+      double res = 100.;
+      int cell_layer = (int)refhit->layer();
+      if (cell_layer == PFLayer::HCAL_BARREL1 ||
+          cell_layer == PFLayer::HCAL_BARREL2 ||
+          cell_layer == PFLayer::ECAL_BARREL)
+        res = _timeResolutionCalcBarrel->timeResolution(refhit->energy());
+      else
+        res = _timeResolutionCalcEndcap->timeResolution(refhit->energy());
+      cl_time += rhf.fraction()*refhit->time()/res/res;
+      cl_timeweight += rhf.fraction()/res/res;
+    }
+    else { // assume resolution = 1/E**2
+      cl_timeweight+=refhit->energy()*refhit->energy()*rhf.fraction();
+      cl_time += refhit->energy()*refhit->energy()*rhf.fraction()*refhit->time();
+    }
 
     if( rh_energy > max_e ) {
       max_e = rh_energy;

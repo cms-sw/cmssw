@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from particleFlowClusterECALTimeResolutionParameters_cfi import _timeResolutionECALBarrel, _timeResolutionECALEndcap
+
 #### PF CLUSTER ECAL ####
 
 #cleaning
@@ -70,7 +72,9 @@ _positionCalcECAL_all_nodepth = cms.PSet(
     minFractionInCalc = cms.double(1e-9),
     posCalcNCrystals = cms.int32(-1),
     logWeightDenominator = cms.double(0.08), # same as gathering threshold
-    minAllowedNormalization = cms.double(1e-9)
+    minAllowedNormalization = cms.double(1e-9),
+    timeResolutionCalcBarrel = _timeResolutionECALBarrel,
+    timeResolutionCalcEndcap = _timeResolutionECALEndcap,
 )
 _positionCalcECAL_3x3_nodepth = _positionCalcECAL_all_nodepth.clone(
     posCalcNCrystals = cms.int32(9)

@@ -5,8 +5,6 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALWithTimeSelected_
 
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cfi import *
 
-particleFlowClusterECAL.inputECAL = \
-                 cms.InputTag('particleFlowClusterECALWithTimeSelected')
 
 particleFlowClusterECALSequence = cms.Sequence(
     particleFlowRecHitECALWithTime+

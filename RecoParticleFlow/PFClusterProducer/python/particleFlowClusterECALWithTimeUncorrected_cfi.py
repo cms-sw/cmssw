@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 #### PF CLUSTER ECAL ####
 
+from particleFlowClusterECALTimeResolutionParameters_cfi import _timeResolutionECALBarrel, _timeResolutionECALEndcap
+
 #cleaning
 _spikeAndDoubleSpikeCleaner_ECAL = cms.PSet(
     algoName = cms.string("SpikeAndDoubleSpikeCleaner"),    
@@ -70,7 +72,9 @@ _positionCalcECAL_all_nodepth = cms.PSet(
     minFractionInCalc = cms.double(1e-9),
     posCalcNCrystals = cms.int32(-1),
     logWeightDenominator = cms.double(0.08), # same as gathering threshold
-    minAllowedNormalization = cms.double(1e-9)
+    minAllowedNormalization = cms.double(1e-9),
+    timeResolutionCalcBarrel = _timeResolutionECALBarrel,
+    timeResolutionCalcEndcap = _timeResolutionECALEndcap,
 )
 _positionCalcECAL_3x3_nodepth = _positionCalcECAL_all_nodepth.clone(
     posCalcNCrystals = cms.int32(9)
@@ -102,6 +106,8 @@ _pfClusterizerWithTime_ECAL = cms.PSet(
     maxIterations = cms.uint32(50),
     excludeOtherSeeds = cms.bool(True),
     minFracTot = cms.double(1e-20), ## numerical stabilization
+    maxNSigmaTime = cms.double(10.), # Maximum number of sigmas in time 
+    minChi2Prob = cms.double(0.01), # Minimum chi2 probability (ignored if 0)
     recHitEnergyNorms = cms.VPSet(
     cms.PSet( detector = cms.string("ECAL_BARREL"),
               recHitEnergyNorm = cms.double(0.08)
@@ -109,7 +115,9 @@ _pfClusterizerWithTime_ECAL = cms.PSet(
     cms.PSet( detector = cms.string("ECAL_ENDCAP"),
               recHitEnergyNorm = cms.double(0.3)
               )
-    )
+    ),
+    timeResolutionCalcBarrel = _timeResolutionECALBarrel,
+    timeResolutionCalcEndcap = _timeResolutionECALEndcap,
 )
 
 #energy corrector for corrected cluster producer
