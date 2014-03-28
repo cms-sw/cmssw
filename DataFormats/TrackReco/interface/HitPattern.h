@@ -179,6 +179,16 @@ namespace reco {
       return count;
     }
 
+    int countTypedHits(filterType typeFilter, filterType filter, uint32_t maxElement) const {
+      int count = 0;
+      for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
+	uint32_t pattern = getHitPattern(i);
+	if (pattern == 0) break;
+	if (typeFilter(pattern)&&filter(pattern)&&getSubSubStructure(pattern)<=maxElement) ++count;
+      }
+      return count;
+    }
+
     template<typename F>
     void call(filterType typeFilter, F f) const {
      for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
@@ -841,25 +851,11 @@ inline int HitPattern::numberOfInactiveTrackerHits() const {
   }
   
   inline int HitPattern::numberOfValidPixelBarrelHits(uint32_t maxLayer) const {
-    int count = 0;
-    for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-      uint32_t pattern = getHitPattern(i);
-      if (pattern == 0) break;
-      if ( pixelBarrelHitFilter(pattern) )
-        if( getLayer(pattern) <= maxLayer ) ++count;
-    }
-    return count;
+    return countTypedHits(validHitFilter, pixelBarrelHitFilter, maxLayer);
   }
   
   inline int HitPattern::numberOfValidPixelEndcapHits(uint32_t maxDisk) const {
-    int count = 0;
-    for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
-      uint32_t pattern = getHitPattern(i);
-      if (pattern == 0) break;
-      if ( pixelEndcapHitFilter(pattern) )
-        if( getLayer(pattern) <= maxDisk ) ++count;
-    }
-    return count;
+    return countTypedHits(validHitFilter, pixelEndcapHitFilter, maxDisk);
   }
   
 
