@@ -44,6 +44,8 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 // class definition
 class NavigationSchoolAnalyzer : public edm::EDAnalyzer {
@@ -53,7 +55,7 @@ public:
   
   
 private:
-  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run const& run, edm::EventSetup const&) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -77,7 +79,7 @@ void NavigationSchoolAnalyzer::print(std::ostream& os,const DetLayer* dl){
 
   switch (dl->subDetector()){
   case GeomDetEnumerators::PixelBarrel :
-    LorW = tTopo->pxbLayer(tag->geographicalId()); break;
+    LorW = PXBDetId(tag->geographicalId()).layer(); break;
   case GeomDetEnumerators::TIB :
     LorW = tTopo->tibLayer(tag->geographicalId()); break;
   case GeomDetEnumerators::TOB :
@@ -90,7 +92,7 @@ void NavigationSchoolAnalyzer::print(std::ostream& os,const DetLayer* dl){
     LorW = RPCDetId(tag->geographicalId().rawId()).station(); break;
 
   case GeomDetEnumerators::PixelEndcap :    
-    LorW = tTopo->pxfDisk(tag->geographicalId()); 
+    LorW = PXFDetId(tag->geographicalId()).disk(); 
     side = tTopo->pxfSide(tag->geographicalId());break;
   case GeomDetEnumerators::TID :
     LorW = tTopo->tidWheel(tag->geographicalId()); 
@@ -169,7 +171,7 @@ NavigationSchoolAnalyzer::~NavigationSchoolAnalyzer() {}
 
 void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
-void NavigationSchoolAnalyzer::beginRun(edm::Run & run, const edm::EventSetup& iSetup) {
+void NavigationSchoolAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   tTopo = tTopoHandle.product(); 
