@@ -17,6 +17,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+//#include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
 #include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
