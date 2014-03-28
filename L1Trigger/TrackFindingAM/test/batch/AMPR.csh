@@ -96,22 +96,49 @@ lfc-mkdir $OUTDIR
 
 # We loop over the data directory in order to find all the files to process
 
-foreach l (`lcg-ls $INDIR_GRID | cut -d/ -f15`) 
-	    
+@ ninput = 0	 
+
+foreach ll (`lcg-ls $INDIR_GRID | grep EDM`) 
+   
+    set l = `basename $ll`
+
     @ i = 0
     @ j = $NPFILE
+
+    @ ninput += 1
+
+    # Uncomment this only if you want to limit the number of input files to deal with
+    #    if ($ninput > 10) then
+    #	continue
+    #    endif
 
     echo 'Working with file '$l
 
     # First look if the file has been processed
 
     set OUTF  = `echo $l | cut -d. -f1`"_with_AMPR.root"
+    set OUTE  = `echo $l | cut -d. -f1`"_with_FIT.root"
+    set OUTD  = `echo $l | cut -d. -f1`"_extr.root"
+
+    set deale = `lcg-ls $OUTDIR_GRID/${OUTE} | wc -l`
+
+    if ($deale != "0") then
+	continue
+    endif
+
     set dealf = `lcg-ls $OUTDIR_GRID/${OUTF} | wc -l`
 
     if ($dealf != "0") then
-	rm final_job_${MATTER}.sh
-	echo "The file "$OUT" has been succesfully processed..."
-	echo "Time to process the trackfit on file "$OUTDIR_GRID/$OUT"_with_AMPR.root"
+	rm -f final_job_${OUTF}.sh
+
+	echo "#\!/bin/bash" > fit_job_${OUTF}.sh
+	echo "source $PACKDIR/batch/PR_processor.sh FIT $OUTDIR_XROOT/${OUTF} $OUTE $OUTD $NTOT $OUTDIR_GRID $RELEASEDIR $GTAG" >> fit_job_${OUTF}.sh
+	chmod 755 fit_job_${OUTF}.sh
+
+	if (${6} == "BATCH") then	
+	    bsub -q 1nd -e /dev/null -o /tmp/${LOGNAME}_out.txt fit_job_${OUTF}.sh			
+        endif
+
 	continue
     endif
 
@@ -132,11 +159,13 @@ foreach l (`lcg-ls $INDIR_GRID | cut -d/ -f15`)
 	
 	# Check if the file has already been processed
 
-	set OUTM  = `echo $l | cut -d. -f1`_${i}_${j}
-	set dealm = `lcg-ls $OUTDIR_GRID/MERGED_$OUTM.root | wc -l`
+	set OUTM  = `echo $l | cut -d. -f1`
+	set dealm = `lcg-ls $OUTDIR_GRID/MERGED_${OUTM}_${i}_${j}.root | wc -l`
+
+	#echo $OUTDIR_GRID/MERGED_${OUTM}_${i}_${j}.root
 
 	if ($dealm != "0") then
-	    rm merge_job_${MATTER}_${i}_${j}.sh 
+	    rm -f merge_job_${OUTM}_${i}_${j}.sh 
 	    @ processed += 1
 	    @ i += $NPFILE
 	    @ j += $NPFILE
@@ -154,7 +183,7 @@ foreach l (`lcg-ls $INDIR_GRID | cut -d/ -f15`)
 	    set deal = `lcg-ls $OUTDIR_GRID/$OUTS1.root | wc -l`
 
 	    if ($deal != "0") then # This process was ran
-		rm fpr_job_$OUTS1.sh
+		rm -f fpr_job_$OUTS1.sh
 		@ secdone += 1
 		@ sec += 1
 		continue
@@ -171,7 +200,7 @@ foreach l (`lcg-ls $INDIR_GRID | cut -d/ -f15`)
 		    chmod 755 fpr_job_${OUTS1}.sh
 
 		    if (${6} == "BATCH") then	
-			bsub -q 2nd -e /dev/null -o /tmp/${LOGNAME}_out.txt fpr_job_${OUTS1}.sh			
+			bsub -q 1nd -e /dev/null -o /tmp/${LOGNAME}_out.txt fpr_job_${OUTS1}.sh			
 		    endif
 		endif
 	    endif
@@ -191,18 +220,18 @@ foreach l (`lcg-ls $INDIR_GRID | cut -d/ -f15`)
 	    # If not process the file
 	    if ($dealm == "0") then
 
-		set running = `\ls merge_job_${MATTER}_${i}_${j}.sh | wc -l`
+		set running = `\ls merge_job_${OUTM}_${i}_${j}.sh | wc -l`
 
 		if ($running == "0") then
 
 		    echo 'Launching the merging for serie '${i}_${j}' in directory '$OUTDIR_GRID 
 
-		    echo "#\!/bin/bash" > merge_job_${MATTER}_${i}_${j}.sh
-		    echo "source $PACKDIR/batch/PR_processor.sh  MERGE ${i}_${j}.root $OUTDIR_GRID $OUTDIR_XROOT $OUTM.root $RELEASEDIR $GTAG" >> merge_job_${MATTER}_${i}_${j}.sh
-		    chmod 755 merge_job_${MATTER}_${i}_${j}.sh
+		    echo "#\!/bin/bash" > merge_job_${OUTM}_${i}_${j}.sh
+		    echo "source $PACKDIR/batch/PR_processor.sh  MERGE ${i}_${j}.root $OUTDIR_GRID $OUTDIR_XROOT ${OUTM}_ $RELEASEDIR $GTAG" >> merge_job_${OUTM}_${i}_${j}.sh
+		    chmod 755 merge_job_${OUTM}_${i}_${j}.sh
 
 		    if (${6} == "BATCH") then	
-			bsub -q 8nh -e /dev/null -o /tmp/${LOGNAME}_out.txt merge_job_${MATTER}_${i}_${j}.sh 	
+			bsub -q 8nh -e /dev/null -o /tmp/${LOGNAME}_out.txt merge_job_${OUTM}_${i}_${j}.sh 	
 		    endif
 		endif
 	    endif
@@ -226,18 +255,18 @@ foreach l (`lcg-ls $INDIR_GRID | cut -d/ -f15`)
         # If not process the file
         if ($dealf == "0") then
 
-	    set running = `\ls final_job_${MATTER}.sh | wc -l`
+	    set running = `\ls final_job_${OUTF}.sh | wc -l`
 
 	    if ($running == "0") then
 
 		echo 'Launching the final merging for file '$OUTF' in directory '$OUTDIR_GRID 
 
-		echo "#\!/bin/bash" > final_job_${MATTER}.sh
-		echo "source $PACKDIR/batch/PR_processor.sh  FINAL MERGED $OUTDIR_GRID $OUTDIR_XROOT $OUTF $RELEASEDIR" >> final_job_${MATTER}.sh
-		chmod 755 final_job_${MATTER}.sh
+		echo "#\!/bin/bash" > final_job_${OUTF}.sh
+		echo "source $PACKDIR/batch/PR_processor.sh  FINAL MERGED_${OUTM}_ $OUTDIR_GRID $OUTDIR_XROOT $OUTF $RELEASEDIR" >> final_job_${OUTF}.sh
+		chmod 755 final_job_${OUTF}.sh
 
 		if (${6} == "BATCH") then	
-		    bsub -q 1nh -e /dev/null -o /tmp/${LOGNAME}_out.txt final_job_${MATTER}.sh			
+		    bsub -q 1nh -e /dev/null -o /tmp/${LOGNAME}_out.txt final_job_${OUTF}.sh			
 		endif
 	    endif
 	endif
