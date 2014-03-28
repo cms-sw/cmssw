@@ -159,6 +159,17 @@
     ]]>
   </ioread>
 
+ <class name="pat::PackedGenParticle">
+    <field name="p4_" transient="true" />
+    <field name="p4c_" transient="true" />
+    <field name="unpacked_" transient="true" />
+  </class>
+  <ioread sourceClass="pat::PackedGenParticle"  version="[1-]" targetClass="pat::PackedGenParticle" source="" target="unpacked_">
+    <![CDATA[unpacked_ = false;
+    ]]>
+  </ioread>
+
+
   <!-- PAT Object Ptrs  -->
   <class name="edm::Ptr<pat::Electron>" />
   <class name="edm::Ptr<pat::Muon>" />
@@ -182,6 +193,7 @@
   <class name="std::vector<pat::Hemisphere>" />
   <class name="std::vector<pat::Conversion>" />
   <class name="std::vector<pat::PackedCandidate>"/>
+  <class name="std::vector<pat::PackedGenParticle>"/>
 
   <!-- PAT Object Collection Iterators -->
   <class name="std::vector<pat::Electron>::const_iterator" />
@@ -198,6 +210,7 @@
   <class name="std::vector<pat::Hemisphere>::const_iterator" />
   <class name="std::vector<pat::Conversion>::const_iterator" />
   <class name="std::vector<pat::PackedCandidate>::const_iterator" />
+  <class name="std::vector<pat::PackedGenParticle>::const_iterator" />
 
   <!-- PAT Object Collection Wrappers -->
   <class name="edm::Wrapper<std::vector<pat::Electron> >" />
@@ -214,6 +227,7 @@
   <class name="edm::Wrapper<std::vector<pat::Hemisphere> >" />
   <class name="edm::Wrapper<std::vector<pat::Conversion> >" />
   <class name="edm::Wrapper<std::vector<pat::PackedCandidate> >"/>
+  <class name="edm::Wrapper<std::vector<pat::PackedGenParticle> >"/>
 
   <!-- PAT Object References -->
   <class name="pat::ElectronRef" />
@@ -230,6 +244,7 @@
   <class name="pat::HemisphereRef" />
   <class name="pat::ConversionRef" />
   <class name="pat::PackedCandidateRef" />
+  <class name="pat::PackedGenParticleRef" />
 
   <!-- PAT Object Ref Vectors -->
   <class name="pat::ElectronRefVector" />
@@ -245,6 +260,7 @@
   <class name="pat::HemisphereRefVector" />
   <class name="pat::ConversionRefVector" />
   <class name="pat::PackedCandidateRefVector" />
+  <class name="pat::PackedGenParticleRefVector" />
 
   <!-- PAT Object Ref Vector Wrappers -->
   <class name="edm::Wrapper<pat::ElectronRefVector>" />

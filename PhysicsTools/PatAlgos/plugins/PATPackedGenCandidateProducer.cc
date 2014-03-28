@@ -6,7 +6,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -56,7 +56,7 @@ pat::PATPackedGenCandidateProducer::PATPackedGenCandidateProducer(const edm::Par
   PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
   maxEta_(iConfig.getParameter<double>("maxEta"))
 {
-  produces< std::vector<pat::PackedCandidate> > ();
+  produces< std::vector<pat::PackedGenParticle> > ();
 }
 
 pat::PATPackedGenCandidateProducer::~PATPackedGenCandidateProducer() {}
@@ -77,14 +77,14 @@ void pat::PATPackedGenCandidateProducer::produce(edm::Event& iEvent, const edm::
         PVpos = PV->position();
     }
 
-    std::auto_ptr< std::vector<pat::PackedCandidate> > outPtrP( new std::vector<pat::PackedCandidate> );
+    std::auto_ptr< std::vector<pat::PackedGenParticle> > outPtrP( new std::vector<pat::PackedGenParticle> );
 
 
     for(unsigned int ic=0, nc = cands->size(); ic < nc; ++ic) {
         const reco::GenParticle &cand=(*cands)[ic];
 	if(cand.status() ==1 && std::abs(cand.eta() < maxEta_))
         {
-	        outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PV, 0));
+	        outPtrP->push_back( pat::PackedGenParticle(cand));
 	}	
     }
 
