@@ -68,6 +68,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
   etaTable    = hcons_->getEtaTable();
   dPhiTableHF = hcons_->getPhiTableHF();
   dPhiTable   = hcons_->getPhiTable();
+  phioff      = hcons_->getPhiOffs();
   std::pair<int,int>  ietaHF = hcons_->getEtaRange(2);
   double eta  = etaBinsHE_[etaBinsHE_.size()-1].etaMax;
   etaHE2HF_   = firstHFRing_;
@@ -728,17 +729,29 @@ int HcalTopology::etaRing(HcalSubdetector bc, double abseta) const {
 int HcalTopology::phiBin(HcalSubdetector bc, int etaring, double phi) const {
   static const double twopi = M_PI+M_PI;
   //put phi in correct range (0->2pi)
+  int index(0);
+  if (bc == HcalBarrel) {
+    index = (etaring-firstHBRing_);
+    phi  -= phioff[0];
+  } else if (bc == HcalEndcap) {
+    index = (etaring-firstHBRing_);
+    phi  -= phioff[1];
+  } else if (bc == HcalForward) {
+    index = (etaring-firstHFRing_);
+    if (index < (int)(dPhiTableHF.size())) {
+      if (unitPhiHF[index] > 2) phi -= phioff[4];
+      else                      phi -= phioff[2];
+    }
+  }
   if (phi<0.0)   phi += twopi;
   if (phi>twopi) phi -= twopi;
-  int phibin(1), unit(1), index(0);
+  int phibin(1), unit(1);
   if (bc == HcalForward) {
-    index = (etaring-firstHFRing_);
     if (index < (int)(dPhiTableHF.size())) {
       unit    = unitPhiHF[index];
       phibin  = static_cast<int>(phi/dPhiTableHF[index])+1;
     }
   } else {
-    index = (etaring-firstHBRing_);
     if (index < (int)(dPhiTable.size())) {
       phibin  = static_cast<int>(phi/dPhiTable[index])+1;
       unit    = unitPhi[index];

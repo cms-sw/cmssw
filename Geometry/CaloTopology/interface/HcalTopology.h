@@ -187,6 +187,7 @@ private:
   unsigned int numberOfShapes_;
   
   std::vector<double> etaTable, etaTableHF, dPhiTable, dPhiTableHF;
+  std::vector<double> phioff;
   std::vector<int>    unitPhi, unitPhiHF;
 
   int topoVersion_;
