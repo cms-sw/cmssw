@@ -442,11 +442,11 @@ namespace evf{
 
   void FastMonitoringService::postModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
   {
-    microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
+    //microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
     //threadMicrostate_[tbb::thread::id()] = (void*)(mcc.moduleDescription());
 
     //maybe this should be:
-    //microstate_[sc.streamID().value()] = &reservedMicroStateNames[mFwkOvh];
+    microstate_[sc.streamID().value()] = &reservedMicroStateNames[mFwkOvh];
   }
 
   //FUNCTIONS CALLED FROM OUTSIDE
