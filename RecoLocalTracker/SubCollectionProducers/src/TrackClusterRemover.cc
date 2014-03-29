@@ -454,7 +454,7 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 	  else
 	    goodTk=(track.quality(trackQuality_));
 	  if ( !goodTk) continue;
-	  if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
+	  if(track.getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) < minNumberOfLayersWithMeasBeforeFiltering_) continue;
 	}
 	const Trajectory &tj = *(asst->key);
 	const vector<TrajectoryMeasurement> &tms = tj.measurements();
