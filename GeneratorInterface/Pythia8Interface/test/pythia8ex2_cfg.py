@@ -15,6 +15,22 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     #PPbarInitialState = cms.PSet(),
     #SLHAFileForPythia8 = cms.string('Configuration/Generator/data/CSA07SUSYBSM_LM9p_sftsdkpyt_slha.out'),
     #reweightGen = cms.PSet(),
+    #reweightGenRap = cms.PSet( # flat in eta
+    #   yLabSigmaFunc = cms.string("15.44/pow(x,0.0253)-12.56"),
+    #   yLabPower = cms.double(2.),
+    #   yCMSigmaFunc = cms.string("5.45/pow(x+64.84,0.34)"),
+    #   yCMPower = cms.double(2.),
+    #   pTHatMin = cms.double(15.),
+    #   pTHatMax = cms.double(3000.)
+    #),
+    #reweightGenPtHatRap = cms.PSet( # flat in Pt and eta
+    #   yLabSigmaFunc = cms.string("15.44/pow(x,0.0253)-12.56"),
+    #   yLabPower = cms.double(2.),
+    #   yCMSigmaFunc = cms.string("5.45/pow(x+64.84,0.34)"),
+    #   yCMPower = cms.double(2.),
+    #   pTHatMin = cms.double(15.),
+    #   pTHatMax = cms.double(3000.)
+    #),
     PythiaParameters = cms.PSet(
         pythia8_example02 = cms.vstring('HardQCD:all = on',
                                         'PhaseSpace:pTHatMin = 20.'),
