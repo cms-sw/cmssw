@@ -34,7 +34,8 @@ class PolyFit3DParametrizedMagneticField : public MagneticField {
   bool isDefined(const GlobalPoint& gp) const;
 
  private:
-  magfieldparam::BFit3D* theParam;
+   double bField;
+//   magfieldparam::BFit3D* theParam;
 };
 #endif
 
