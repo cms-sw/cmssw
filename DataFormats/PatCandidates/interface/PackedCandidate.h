@@ -29,15 +29,15 @@ namespace pat {
 
     /// default constructor  
   PackedCandidate()
-    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), fromPV_(0), unpacked_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { }
-  explicit PackedCandidate( const reco::Candidate & c, const reco::VertexRef &pv, bool fromPV)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), fromPV_(fromPV), pvRef_(pv), unpacked_(true) , unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0){ packBoth(); }
+    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), qualityFlags_(0), unpacked_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { }
+  explicit PackedCandidate( const reco::Candidate & c, const reco::VertexRef &pv)
+    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), qualityFlags_(0), pvRef_(pv), unpacked_(true) , unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0){ packBoth(); }
 
-  explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv, bool fromPV)
-    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), fromPV_(fromPV), pvRef_(pv), unpacked_(true), unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { packBoth(); }
+  explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
+    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { packBoth(); }
 
-  explicit PackedCandidate( const LorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv, bool fromPV)
-    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), fromPV_(fromPV), pvRef_(pv), unpacked_(true), unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { packBoth(); }
+  explicit PackedCandidate( const LorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
+    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { packBoth(); }
  
  
     
@@ -198,8 +198,8 @@ namespace pat {
     virtual void setVertex( const Point & vertex ) { maybeUnpackBoth(); vertex_ = vertex; packVtx(); }
 
     enum PVAssoc { NoPV=0, PVLoose=1, PVTight=2, PVUsedInFit=3 } ;
-    const PVAssoc fromPV() const { return PVAssoc(fromPV_); }
-    void setFromPV( PVAssoc fromPV )   { fromPV_ = uint8_t(fromPV); }
+    const PVAssoc fromPV() const { return PVAssoc((qualityFlags_ & fromPVMask)>>fromPVShift); }
+    void setFromPV( PVAssoc fromPV )   {  qualityFlags_ = (qualityFlags_ & ~fromPVMask) | ((fromPV << fromPVShift) & fromPVMask);  }
 
     /// set reference to the primary vertex                                                                        
     void setVertexRef( const reco::VertexRef & vertexRef ) { maybeUnpackBoth(); pvRef_ = vertexRef; packVtx(); }
@@ -217,12 +217,33 @@ namespace pat {
     /// Return a pseudo track made with candidate kinematics, parameterized error for eta,phi,pt and full IP covariance	
     virtual reco::Track pseudoTrack() const;
 
+    /// true if the track had the highPurity quality bit
+    bool trackHighPurity() const { return (qualityFlags_ & trackHighPurityMask)>>trackHighPurityShift; }
+    /// set to true if the track had the highPurity quality bit
+    void setTrackHighPurity(bool highPurity) {  qualityFlags_ = (qualityFlags_ & ~trackHighPurityMask) | ((highPurity << trackHighPurityShift) & trackHighPurityMask);  }
+
+    /// Enumerator specifying the 
+    enum LostInnerHits {
+        validHitInFirstPixelBarrelLayer=-1,
+        noLostInnerHits=0,   // it could still not have a hit in the first layer, e.g. if it crosses an inactive sensor
+        oneLostInnerHit=1,   
+        moreLostInnerHits=2
+    };
+    LostInnerHits lostInnerHits() const {
+         return LostInnerHits(int16_t((qualityFlags_ & lostInnerHitsMask)>>lostInnerHitsShift)-1);
+    }
+    void setLostInnerHits(LostInnerHits hits) {
+        int lost = hits; if (lost > 2) lost = 2; // protection against misuse
+        lost++; // shift so it's 0 .. 3 instead of (-1) .. 2
+        qualityFlags_ = (qualityFlags_ & ~lostInnerHitsMask) | ((lost << lostInnerHitsShift) & lostInnerHitsMask); 
+    }
+
     /// PDG identifier                                                                    
     virtual int pdgId() const   { return pdgId_; }
     // set PDG identifier                                                                 
     virtual void setPdgId( int pdgId )   { pdgId_ = pdgId; }
     /// status word                                                                       
-    virtual int status() const   { return 1; } /*FIXME*/
+    virtual int status() const   { return qualityFlags_; } /*FIXME*/
     /// set status word                                                                   
     virtual void setStatus( int status ) {} /*FIXME*/
     /// long lived flag                                                                   
@@ -354,7 +375,7 @@ namespace pat {
     mutable float dxy_, dz_, dphi_;
     /// PDG identifier                                                                    
     int pdgId_;
-    uint8_t fromPV_;
+    uint16_t qualityFlags_;
     /// Ref to primary vertex
     edm::Ref<reco::VertexCollection> pvRef_;
     // is the momentum p4 unpacked
@@ -376,6 +397,11 @@ namespace pat {
     friend class ShallowCloneCandidate;
     friend class ShallowClonePtrCandidate;
 
+    enum qualityFlagsShiftsAndMasks {
+        fromPVMask = 0x3, fromPVShift = 0,
+        trackHighPurityMask  = 0x4, trackHighPurityShift=2,
+        lostInnerHitsMask = 0x18, lostInnerHitsShift=3
+    };
   private:
     // const iterator implementation
     typedef reco::candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;

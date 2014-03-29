@@ -202,6 +202,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         if (cand.charge()) {
             math::XYZPoint vtx = cand.vertex();
             //float dxyBefore = 0, dyBefore = 0;
+            pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
             if (abs(cand.pdgId()) == 11 && cand.gsfTrackRef().isNonnull()) {
                 /*if (cand.vertexType() != reco::PFCandidate::kGSFVertex) {
                      std::cout << "Candidate electron vertex type is " << cand.vertexType() << std::endl; 
@@ -209,6 +210,14 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
                 }*/
                 vtx = cand.gsfTrackRef()->referencePoint();
                 phiAtVtx = cand.gsfTrackRef()->phi();
+                int nlost = cand.gsfTrackRef()->trackerExpectedHitsInner().numberOfLostHits();
+                if (nlost == 0) { 
+                    if ( cand.gsfTrackRef()->hitPattern().hasValidHitInFirstPixelBarrel()) {
+                        lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
+                    }
+                } else {
+                    lostHits = ( nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
+                }
 	        
                 //dxyBefore = cand.gsfTrackRef()->dxy(PVpos);
                 //dzBefore = cand.gsfTrackRef()->dz(PVpos);
@@ -221,14 +230,27 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
                 phiAtVtx = cand.trackRef()->phi();
                 //dxyBefore = cand.trackRef()->dxy(PVpos);
                 //dzBefore = cand.trackRef()->dz(PVpos);
+                int nlost = cand.trackRef()->trackerExpectedHitsInner().numberOfLostHits();
+                if (nlost == 0) { 
+                    if ( cand.trackRef()->hitPattern().hasValidHitInFirstPixelBarrel()) {
+                        lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
+                    }
+                } else {
+                    lostHits = ( nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
+                }
             } else {
                 //dxyBefore = calcDxy(vtx.X()-PVpos.X(),vtx.Y()-PVpos.Y(),cand.phi());
                 //dzBefore = calcDz(vtx,PVpos,cand);
             }
-            outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV, fromPV[ic]));
-	    if(cand.trackRef().isNonnull()){
-		if(PVOrig.trackWeight(cand.trackRef()) > 0.5)  outPtrP->back().setFromPV(pat::PackedCandidate::PVUsedInFit);
-	    }	
+            outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), vtx, phiAtVtx, cand.pdgId(), PV));
+	    if(cand.trackRef().isNonnull() && PVOrig.trackWeight(cand.trackRef()) > 0.5) {
+                outPtrP->back().setFromPV(pat::PackedCandidate::PVUsedInFit);
+	    } else {
+                outPtrP->back().setFromPV( fromPV[ic] );
+            }
+            outPtrP->back().setTrackHighPurity( cand.trackRef().isNonnull() && cand.trackRef()->quality(reco::Track::highPurity) );
+            outPtrP->back().setLostInnerHits( lostHits );
+            
 	    if(cand.trackRef().isNonnull() && cand.pt() > minPtForTrackProperties_)
 	    {
 		outPtrP->back().setTrackProperties(*cand.trackRef());
@@ -309,7 +331,8 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
                     printf("corrected dxy, dz:                                                                      PHI = %+12.10f   DXY = %+18.10f  DZ = %+18.10f\n",                             pc.phiAtVtx(), pc.dxy(), pc.dz());
             }*/
         } else {
-            outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PV, fromPV[ic]));
+            outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PV));
+            outPtrP->back().setFromPV( fromPV[ic] );
             /*if (cand.vertexType() != reco::PFCandidate::kCandVertex) {
                 math::XYZPoint vtx = cand.vertex();
                 const pat::PackedCandidate &pc = outPtrP->back();
