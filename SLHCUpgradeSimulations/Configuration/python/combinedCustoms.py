@@ -15,6 +15,7 @@ from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import l1
 from SLHCUpgradeSimulations.Configuration.phase1TkCustomsPixel10D import customise as customisePhase1TkPixel10D
 from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import customise as customiseTTI
 from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventContent_TTI as customise_ev_l1tracker
+from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventContent_TTI_forHLT
 
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
@@ -113,8 +114,16 @@ def cust_2023TTI(process):
     process=customiseBE5DPixel10D(process)
     process=customise_HcalPhase0(process)
     process=customise_ev_l1tracker(process)
-
     return process
+
+def cust_2023TTI_forHLT(process):
+    process=customisePostLS1(process)
+    process=customiseTTI(process)
+    process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase0(process)
+    process=l1EventContent_TTI_forHLT(process)
+    return process
+
 
 def noCrossing(process):
     process=customise_NoCrossing(process)
