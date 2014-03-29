@@ -64,7 +64,7 @@ void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWith
     {
       TrackingRecHit *hit = hits[k]->hit()->clone();
 
-      track->setHitPattern(*hit, k);
+      track->appendHitPattern(*hit);
       recHits->push_back(hit);
     }
     tracks->push_back(*track);
