@@ -13,10 +13,8 @@
 
 
 EventWithHistoryFilter::EventWithHistoryFilter():
-  m_history(),
   m_historyToken(),
   m_partition(),
-  m_APVPhase(),
   m_APVPhaseToken(),
   m_apvmodes(),
   m_dbxrange(), m_dbxrangelat(),
@@ -27,15 +25,13 @@ EventWithHistoryFilter::EventWithHistoryFilter():
   m_dbxgenericrange(),m_dbxgenericfirst(0),m_dbxgenericlast(1),
   m_noAPVPhase(true)
 {
-  printConfig();
+  printConfig(edm::InputTag(),edm::InputTag());
 }
 
 EventWithHistoryFilter::EventWithHistoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
-  m_history(iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs"))),
-  m_historyToken(iC.consumes<EventWithHistory>(m_history)),
+  m_historyToken(iC.consumes<EventWithHistory>(iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs")))),
   m_partition(iConfig.getUntrackedParameter<std::string>("partitionName","Any")),
-  m_APVPhase(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases")),
-  m_APVPhaseToken(iC.consumes<APVCyclePhaseCollection>(edm::InputTag(m_APVPhase))),
+  m_APVPhaseToken(iC.consumes<APVCyclePhaseCollection>(edm::InputTag(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases")))),
   m_apvmodes(iConfig.getUntrackedParameter<std::vector<int> >("apvModes",std::vector<int>())),
   m_dbxrange(iConfig.getUntrackedParameter<std::vector<int> >("dbxRange",std::vector<int>())),
   m_dbxrangelat(iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware",std::vector<int>())),
@@ -52,17 +48,16 @@ EventWithHistoryFilter::EventWithHistoryFilter(const edm::ParameterSet& iConfig,
 
 {
   m_noAPVPhase = isAPVPhaseNotNeeded();
-  printConfig();
+  printConfig(iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs")),
+	      edm::InputTag(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases")));
 }
 
 void EventWithHistoryFilter::set(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
 
 
-  m_history = iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs"));
-  m_historyToken = iC.consumes<EventWithHistory>(m_history);
+  m_historyToken = iC.consumes<EventWithHistory>(iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs")));
   m_partition = iConfig.getUntrackedParameter<std::string>("partitionName","Any");
-  m_APVPhase = iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases");
-  m_APVPhaseToken = iC.consumes<APVCyclePhaseCollection>(edm::InputTag(m_APVPhase));
+  m_APVPhaseToken = iC.consumes<APVCyclePhaseCollection>(edm::InputTag(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases")));
   m_dbxrange = iConfig.getUntrackedParameter<std::vector<int> >("dbxRange",std::vector<int>());
   m_dbxrangelat = iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware",std::vector<int>());
   m_bxrange = iConfig.getUntrackedParameter<std::vector<int> >("absBXRange",std::vector<int>());
@@ -77,7 +72,8 @@ void EventWithHistoryFilter::set(const edm::ParameterSet& iConfig, edm::Consumes
   m_dbxgenericlast = iConfig.getUntrackedParameter<int>("dbxGenericLast",1);
 
   m_noAPVPhase = isAPVPhaseNotNeeded();
-  printConfig();
+  printConfig(iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs")),
+	      edm::InputTag(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases")));
 
 }
 
@@ -141,7 +137,7 @@ const bool EventWithHistoryFilter::is_selected(const EventWithHistory& he, const
 
   phaseselected = isCutInactive(m_bxcyclerange);
   for(std::vector<int>::const_iterator phase=apvphases.begin();phase!=apvphases.end();++phase) {
-    phaseselected = phaseselected || isInRange(he.absoluteBXinCycle(*phase)%70,m_bxcyclerange,*phase>0);
+    phaseselected = phaseselected || isInRange(he.absoluteBXinCycle(*phase)%70,m_bxcyclerange,*phase>=0);
   }
   selected = selected && phaseselected;
 
@@ -285,7 +281,7 @@ const bool EventWithHistoryFilter::isInRange(const long long bx, const std::vect
 
 }
 
-void EventWithHistoryFilter::printConfig() const {
+void EventWithHistoryFilter::printConfig(const edm::InputTag& historyTag, const edm::InputTag& apvphaseTag) const {
 
   std::string msgcategory = "EventWithHistoryFilterConfiguration";
 
@@ -302,12 +298,7 @@ void EventWithHistoryFilter::printConfig() const {
        isCutInactive(m_dbxgenericrange)
        )) {
 
-    edm::LogInfo(msgcategory.c_str()) << "historyProduct: "
-							<< m_history.label() << " "
-							<< m_history.instance() << " "
-							<< m_history.process() << " "
-							<< " APVCyclePhase: "
-							<< m_APVPhase;
+    edm::LogInfo(msgcategory.c_str()) << "historyProduct: " << historyTag << " APVCyclePhase: " << apvphaseTag;
 
     edm::LogVerbatim(msgcategory.c_str()) << "-----------------------";
     edm::LogVerbatim(msgcategory.c_str()) << "List of active cuts:";

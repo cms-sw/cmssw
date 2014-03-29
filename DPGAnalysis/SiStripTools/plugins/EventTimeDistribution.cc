@@ -67,7 +67,6 @@ class EventTimeDistribution : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 
   edm::EDGetTokenT<EventWithHistory> _historyProductToken;
-  const edm::InputTag _apvphasecoll;
   edm::EDGetTokenT<APVCyclePhaseCollection> _apvphasecollToken;
   const std::string _phasepart;
   const bool _wantdbxvsbxincycle;
@@ -110,8 +109,7 @@ class EventTimeDistribution : public edm::EDAnalyzer {
 //
 EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   _historyProductToken(consumes<EventWithHistory>(iConfig.getParameter<edm::InputTag>("historyProduct"))),
-  _apvphasecoll(iConfig.getParameter<edm::InputTag>("apvPhaseCollection")),
-  _apvphasecollToken(consumes<APVCyclePhaseCollection>(_apvphasecoll)),
+  _apvphasecollToken(consumes<APVCyclePhaseCollection>(iConfig.getParameter<edm::InputTag>("apvPhaseCollection"))),
   _phasepart(iConfig.getUntrackedParameter<std::string>("phasePartition","None")),
   _wantdbxvsbxincycle(iConfig.getUntrackedParameter<bool>("wantDBXvsBXincycle",false)),
   _wantdbxvsbx(iConfig.getUntrackedParameter<bool>("wantDBXvsBX",false)),
@@ -152,7 +150,7 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   if(_wantorbitvsbxincycle) _orbitvsbxincycle = _rhm.makeTH2F("orbitvsbxincycle","orbitvsbxincycle",70,-0.5,69.5,m_maxLS,0,m_maxLS*262144);
   if(m_ewhdepthHisto) m_ewhdepth = _rhm.makeTH1F("ewhdepth","EventWithHistory Depth",11,-0.5,10.5);
 
-  edm::LogInfo("UsedAPVCyclePhaseCollection") << " APVCyclePhaseCollection " << _apvphasecoll << " used";
+  edm::LogInfo("UsedAPVCyclePhaseCollection") << " APVCyclePhaseCollection " << iConfig.getParameter<edm::InputTag>("apvPhaseCollection") << " used";
 
 }
 

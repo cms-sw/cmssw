@@ -36,12 +36,10 @@ class EventWithHistoryFilter {
   const bool isAPVModeNotNeeded() const;
   const bool isCutInactive(const std::vector<int>& range) const;
   const bool isInRange(const long long bx, const std::vector<int>& range, const bool extra) const;
-  void printConfig() const;
+  void printConfig(const edm::InputTag& historyTag,const edm::InputTag& apvphaseTag) const;
 
-  edm::InputTag m_history;
   edm::EDGetTokenT<EventWithHistory> m_historyToken;
   std::string m_partition;
-  std::string m_APVPhase;
   edm::EDGetTokenT<APVCyclePhaseCollection> m_APVPhaseToken;
   std::vector<int> m_apvmodes;
   std::vector<int> m_dbxrange;
