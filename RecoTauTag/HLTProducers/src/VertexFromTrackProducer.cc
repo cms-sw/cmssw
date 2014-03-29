@@ -1,19 +1,13 @@
 #include "RecoTauTag/HLTProducers/interface/VertexFromTrackProducer.h"
 
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
@@ -37,15 +31,17 @@ VertexFromTrackProducer::VertexFromTrackProducer(const edm::ParameterSet& conf)
     << "Initializing  VertexFromTrackProducer" << "\n";
   fVerbose = conf.getUntrackedParameter<bool>("verbose", false);
   trackLabel = conf.getParameter<edm::InputTag>("trackLabel");
+  trackToken = consumes<edm::View<reco::Track> >(trackLabel);
+  candidateToken = consumes<reco::RecoCandidate>(trackLabel);
   fIsRecoCandidate = conf.getParameter<bool>("isRecoCandidate");
   fUseBeamSpot = conf.getParameter<bool>("useBeamSpot");
   fUseVertex = conf.getParameter<bool>("useVertex");
   fUseTriggerFilterElectrons = conf.getParameter<bool>("useTriggerFilterElectrons");
   fUseTriggerFilterMuons = conf.getParameter<bool>("useTriggerFilterMuons");
-  triggerFilterElectronsSrc = conf.getParameter<edm::InputTag>("triggerFilterElectronsSrc");
-  triggerFilterMuonsSrc = conf.getParameter<edm::InputTag>("triggerFilterMuonsSrc");
-  vertexLabel = conf.getParameter<edm::InputTag>("vertexLabel");
-  beamSpotLabel = conf.getParameter<edm::InputTag>("beamSpotLabel");
+  triggerFilterElectronsSrc = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("triggerFilterElectronsSrc"));
+  triggerFilterMuonsSrc = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("triggerFilterMuonsSrc"));
+  vertexLabel = consumes<edm::View<reco::Vertex> >(conf.getParameter<edm::InputTag>("vertexLabel"));
+  beamSpotLabel = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
  
   produces<reco::VertexCollection>();
 
@@ -72,7 +68,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(beamSpotLabel,recoBeamSpotHandle);
+  iEvent.getByToken(beamSpotLabel,recoBeamSpotHandle);
   if (recoBeamSpotHandle.isValid()){
     reco::BeamSpot beamSpot = *recoBeamSpotHandle;
     vertexPoint = beamSpot.position();
@@ -84,7 +80,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   {
     // get the Vertex
     edm::Handle<edm::View<reco::Vertex> > recoVertexHandle;
-    iEvent.getByLabel(vertexLabel,recoVertexHandle);
+    iEvent.getByToken(vertexLabel,recoVertexHandle);
     if ((recoVertexHandle.isValid()) && (recoVertexHandle->size()>0)){
       reco::Vertex vertex = recoVertexHandle->at(0);
       vertexPoint = vertex.position();
@@ -99,7 +95,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   if(fIsRecoCandidate)
   {
     edm::Handle<edm::View<reco::RecoCandidate> > candidateHandle;
-    iEvent.getByLabel(trackLabel, candidateHandle);
+    iEvent.getByToken(candidateToken, candidateHandle);
     if ((candidateHandle.isValid())&&(candidateHandle->size()>0)){
       double maxpt=0.;
       unsigned i_maxpt=0;
@@ -116,7 +112,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   } 
   else if(fUseTriggerFilterElectrons) {
     edm::Handle<trigger::TriggerFilterObjectWithRefs> triggerfilter;
-    iEvent.getByLabel(triggerFilterElectronsSrc, triggerfilter);
+    iEvent.getByToken(triggerFilterElectronsSrc, triggerfilter);
     std::vector<reco::ElectronRef> recocandidates;
     triggerfilter->getObjects(trigger::TriggerElectron,recocandidates);
     if ((recocandidates.size()>0)){
@@ -135,7 +131,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }  
   else if(fUseTriggerFilterMuons) {
     edm::Handle<trigger::TriggerFilterObjectWithRefs> triggerfilter;
-    iEvent.getByLabel(triggerFilterMuonsSrc, triggerfilter);
+    iEvent.getByToken(triggerFilterMuonsSrc, triggerfilter);
     std::vector<reco::RecoChargedCandidateRef> recocandidates;
     triggerfilter->getObjects(trigger::TriggerMuon,recocandidates);
     if ((recocandidates.size()>0)){
@@ -154,7 +150,7 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
   else {
     edm::Handle<edm::View<reco::Track> > trackHandle;
-    iEvent.getByLabel(trackLabel, trackHandle);
+    iEvent.getByToken(trackToken, trackHandle);
     if ((trackHandle.isValid())&&(trackHandle->size()>0)){
       double maxpt=0.;
       unsigned i_maxpt=0;

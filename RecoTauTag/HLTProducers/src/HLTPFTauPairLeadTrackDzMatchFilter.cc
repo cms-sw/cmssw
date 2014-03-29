@@ -3,8 +3,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -14,7 +12,8 @@
 
 HLTPFTauPairLeadTrackDzMatchFilter::HLTPFTauPairLeadTrackDzMatchFilter(const edm::ParameterSet& conf) : HLTFilter(conf){
 
-  tauSrc_	        = conf.getParameter<edm::InputTag>("tauSrc");
+  tauSrc_               = conf.getParameter<edm::InputTag>("tauSrc");
+  tauSrcToken_          = consumes<reco::PFTauCollection>(tauSrc_);
   tauMinPt_	        = conf.getParameter<double>("tauMinPt");
   tauMaxEta_	        = conf.getParameter<double>("tauMaxEta");
   tauMinDR_	        = conf.getParameter<double>("tauMinDR");
@@ -57,7 +56,7 @@ bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev, const edm::Ev
 
   // Pick up taus
   edm::Handle<PFTauCollection> tausHandle;
-  ev.getByLabel( tauSrc_, tausHandle );
+  ev.getByToken( tauSrcToken_, tausHandle );
   const PFTauCollection & taus = *tausHandle;
   const size_t n_taus = taus.size();
 
