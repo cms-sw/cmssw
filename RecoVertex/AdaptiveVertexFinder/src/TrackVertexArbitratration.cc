@@ -17,11 +17,11 @@ TrackVertexArbitration::TrackVertexArbitration(const edm::ParameterSet &params) 
 
 bool TrackVertexArbitration::trackFilterArbitrator(const reco::TrackRef &track) const
 {
-        if (track->hitPattern().trackerLayersWithMeasurement() < 4)
+        if (track->getHitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS) < 4)
                 return false;
         if (track->pt() < 0.4 )
                 return false;
-        if (track->hitPattern().numberOfValidPixelHits() < 1)
+        if (track->getHitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) < 1)
                 return false;
 
         return true;
