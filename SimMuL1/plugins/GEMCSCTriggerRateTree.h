@@ -83,6 +83,7 @@ struct MyTFTrack
 {
   Int_t event, bx;
   Float_t pt, eta, phi;
+  Int_t quality;
   Char_t hasME1a, hasME1b, hasME12, hasME13;
   Char_t hasME21, hasME22;
   Char_t hasME31, hasME32;
@@ -98,6 +99,7 @@ struct MyTFCand
 {
   Int_t event, bx;
   Float_t pt, eta, phi;
+  Int_t quality;
   Char_t hasME1a, hasME1b, hasME12, hasME13;
   Char_t hasME21, hasME22;
   Char_t hasME31, hasME32;
@@ -109,10 +111,11 @@ struct MyTFCand
   Char_t hasRE41, hasRE42, hasRE43;
 };
 
-struct MyGMTReg
+struct MyGMTRegCand
 {
   Int_t event, bx;
   Float_t pt, eta, phi;
+  Int_t quality;
   Char_t hasME1a, hasME1b, hasME12, hasME13;
   Char_t hasME21, hasME22;
   Char_t hasME31, hasME32;
@@ -122,12 +125,16 @@ struct MyGMTReg
   Char_t hasRE22, hasRE23;
   Char_t hasRE31, hasRE32, hasRE33;
   Char_t hasRE41, hasRE42, hasRE43;
+  Char_t isCSC,isDT,isRPCf,isRPCb;
 };
 
 struct MyGMT
 {
   Int_t event, bx;
   Float_t pt, eta, phi;
+  Int_t quality;
+  Char_t isGoodSingleMuon;
+  Char_t isGoodDoubleMuon;
   Char_t hasME1a, hasME1b, hasME12, hasME13;
   Char_t hasME21, hasME22;
   Char_t hasME31, hasME32;
@@ -137,6 +144,7 @@ struct MyGMT
   Char_t hasRE22, hasRE23;
   Char_t hasRE31, hasRE32, hasRE33;
   Char_t hasRE41, hasRE42, hasRE43;
+  Char_t isCSC,isDT,isRPCf,isRPCb;
 };
 
 class GEMCSCTriggerRateTree : public edm::EDAnalyzer 
@@ -158,6 +166,7 @@ class GEMCSCTriggerRateTree : public edm::EDAnalyzer
   static const int pbend[CSCConstants::NUM_CLCT_PATTERNS];
 
   enum pt_thresh {N_PT_THRESHOLDS = 6};
+  enum gmtRegCand{CSC=0, DT, RPCb, RPCf};
   static const double PT_THRESHOLDS[N_PT_THRESHOLDS];
   static const double PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS];
   
@@ -194,6 +203,7 @@ class GEMCSCTriggerRateTree : public edm::EDAnalyzer
   void analyzeTFTrackRate(const edm::Event&);
   void analyzeTFCandRate(const edm::Event&);
   void analyzeGMTRegCandRate(const edm::Event&);
+  void analyzeGMTRegCandRate(const edm::Event&, int type);
   void analyzeGMTCandRate(const edm::Event&);
 
   // parameters
@@ -244,8 +254,8 @@ class GEMCSCTriggerRateTree : public edm::EDAnalyzer
   TTree* mplct_tree_;
   TTree* tftrack_tree_;
   TTree* tfcand_tree_;
-  TTree* gmtreg_tree_;
-  TTree* gmt_tree_;
+  TTree* gmtregcand_tree_;
+  TTree* gmtcand_tree_;
 
   MyALCT alct_;
   MyCLCT clct_;
@@ -253,14 +263,24 @@ class GEMCSCTriggerRateTree : public edm::EDAnalyzer
   MyMPLCT mplct_;
   MyTFTrack tftrack_;
   MyTFCand tfcand_;
-  MyGMTReg gmtreg_;
-  MyGMT gmt_;
+  MyGMTRegCand gmtregcand_;
+  MyGMT gmtcand_;
 
   std::vector<MatchCSCMuL1::TFTRACK> rtTFTracks_;
   std::vector<MatchCSCMuL1::TFCAND> rtTFCands_;
   std::vector<MatchCSCMuL1::GMTREGCAND> rtGmtRegCands_;
   std::vector<MatchCSCMuL1::GMTCAND> rtGmtCands_;
   std::vector<MatchCSCMuL1::L1EXTRA> rtL1Extras_;
+
+  edm::Handle< L1MuGMTReadoutCollection > hl1GmtCands_;
+  edm::Handle<L1MuDTChambPhContainer> dttrig_;
+  std::vector<L1MuGMTExtendedCand> l1GmtCands_;
+  std::vector<L1MuGMTExtendedCand> l1GmtfCands_;
+  std::vector<L1MuRegionalCand>    l1GmtCSCCands_;
+  std::vector<L1MuRegionalCand>    l1GmtRPCfCands_;
+  std::vector<L1MuRegionalCand>    l1GmtRPCbCands_;
+  std::vector<L1MuRegionalCand>    l1GmtDTCands_;
+  std::map<int, std::vector<L1MuRegionalCand> > l1GmtCSCCandsInBXs_;
 };
 
 #endif
