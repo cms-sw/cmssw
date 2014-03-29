@@ -65,6 +65,7 @@ public:
   int                       getNEta() const {return nEta;}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return phioff[i];}
+  std::vector<double>       getPhiOffs()    const {return phioff;}
   std::vector<double>       getPhiTable()   const {return phibin;}
   std::vector<double>       getPhiTableHF() const {return phibinHF;}
   std::string               getTopoMode() const {return modeTopo;}
