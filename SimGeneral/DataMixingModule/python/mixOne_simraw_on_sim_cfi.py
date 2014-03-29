@@ -78,7 +78,7 @@ mixData = cms.EDProducer("DataMixingModule",
     # Use digis?               
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
     HcalMergeType = cms.string('Digis'),
-    HcalDigiMerge = cms.string('Prod'), #use sim hits for signal
+    HcalDigiMerge = cms.string('FullProd'), #use sim hits for signal
     addMCDigiNoise = cms.untracked.bool(True),
     #
     # Input Specifications:
