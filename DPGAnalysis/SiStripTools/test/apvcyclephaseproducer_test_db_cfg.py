@@ -1,6 +1,18 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("APVCyclePhaseProducerTestDBfile")
+
+options = VarParsing.VarParsing("analysis")
+
+options.register ('globalTag',
+                  "DONOTEXIST::All",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "GlobalTag")
+#options.globalTag = "DONOTEXIST::All"
+
+options.parseArguments()
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -33,6 +45,7 @@ process.source = cms.Source("PoolSource",
                     inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
                     )
 
+process.source.fileNames = cms.untracked.vstring(options.inputFiles)
 
 #process.source = cms.Source("EmptySource",
 #                            firstRun = cms.untracked.uint32(216322),
@@ -40,7 +53,7 @@ process.source = cms.Source("PoolSource",
 #                            )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "GR_R_70_V2::All"
+process.GlobalTag.globaltag = options.globalTag
 #process.GlobalTag.toGet = cms.VPSet(
 #cms.PSet(record = cms.string("SiStripConfObjectRcd"),
 #         label = cms.untracked.string("apvphaseoffsets"), #guess
