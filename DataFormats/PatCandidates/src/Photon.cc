@@ -10,28 +10,36 @@ using pat::Photon;
 /// default constructor
 Photon::Photon() :
     PATObject<reco::Photon>(reco::Photon()),
-    embeddedSuperCluster_(false)
+    embeddedSuperCluster_(false),
+    embeddedSeedCluster_(false),
+    embeddedRecHits_(false)
 {
 }
 
 /// constructor from reco::Photon
 Photon::Photon(const reco::Photon & aPhoton) :
     PATObject<reco::Photon>(aPhoton),
-    embeddedSuperCluster_(false)
+    embeddedSuperCluster_(false),
+    embeddedSeedCluster_(false),
+    embeddedRecHits_(false)
 {
 }
 
 /// constructor from ref to reco::Photon
 Photon::Photon(const edm::RefToBase<reco::Photon> & aPhotonRef) :
     PATObject<reco::Photon>(aPhotonRef),
-    embeddedSuperCluster_(false)
+    embeddedSuperCluster_(false),
+    embeddedSeedCluster_(false),
+    embeddedRecHits_(false)
 {
 }
 
 /// constructor from ref to reco::Photon
 Photon::Photon(const edm::Ptr<reco::Photon> & aPhotonRef) :
     PATObject<reco::Photon>(aPhotonRef),
-    embeddedSuperCluster_(false)
+    embeddedSuperCluster_(false),
+    embeddedSeedCluster_(false),
+    embeddedRecHits_(false)
 {
 }
 
@@ -60,9 +68,36 @@ reco::operator<<(std::ostream& out, const pat::Photon& obj)
 /// this returns a transient Ref which *should never be persisted*!
 reco::SuperClusterRef Photon::superCluster() const {
   if (embeddedSuperCluster_) {
+    //relink caloclusters if needed
+    if (embeddedSeedCluster_ && !superCluster_[0].seed().isAvailable()) {
+      superCluster_[0].setSeed(seed());
+    }
+    if (basicClusters_.size() && !superCluster_[0].clusters().isAvailable()) {
+      reco::CaloClusterPtrVector clusters;
+      for (unsigned int iclus=0; iclus<basicClusters_.size(); ++iclus) {
+        clusters.push_back(reco::CaloClusterPtr(&basicClusters_,iclus));
+      }
+      superCluster_[0].setClusters(clusters);
+    }
+    if (preshowerClusters_.size() && !superCluster_[0].preshowerClusters().isAvailable()) {
+      reco::CaloClusterPtrVector clusters;
+      for (unsigned int iclus=0; iclus<preshowerClusters_.size(); ++iclus) {
+        clusters.push_back(reco::CaloClusterPtr(&preshowerClusters_,iclus));
+      }
+      superCluster_[0].setPreshowerClusters(clusters);
+    }
     return reco::SuperClusterRef(&superCluster_, 0);
   } else {
     return reco::Photon::superCluster();
+  }
+}
+
+/// direct access to the seed cluster
+reco::CaloClusterPtr Photon::seed() const {
+  if(embeddedSeedCluster_){
+    return reco::CaloClusterPtr(&seedCluster_,0);
+  } else {
+    return reco::Photon::superCluster()->seed();
   }
 }
 
@@ -72,6 +107,47 @@ void Photon::embedSuperCluster() {
   if (reco::Photon::superCluster().isNonnull()) {
       superCluster_.push_back(*reco::Photon::superCluster());
       embeddedSuperCluster_ = true;
+  }
+}
+
+/// Stores the electron's SeedCluster (reco::BasicClusterPtr) internally
+void Photon::embedSeedCluster() {
+  seedCluster_.clear();
+  if (reco::Photon::superCluster().isNonnull() && reco::Photon::superCluster()->seed().isNonnull()) {
+    seedCluster_.push_back(*reco::Photon::superCluster()->seed());
+    embeddedSeedCluster_ = true;
+  }
+}
+
+/// Stores the electron's BasicCluster (reco::CaloCluster) internally
+void Photon::embedBasicClusters() {
+  basicClusters_.clear();
+  if (reco::Photon::superCluster().isNonnull()){
+    reco::CaloCluster_iterator itscl = reco::Photon::superCluster()->clustersBegin();
+    reco::CaloCluster_iterator itsclE = reco::Photon::superCluster()->clustersEnd();
+    for(;itscl!=itsclE;++itscl){
+      basicClusters_.push_back( **itscl ) ;
+    } 
+  }
+}
+
+/// Stores the electron's PreshowerCluster (reco::CaloCluster) internally
+void Photon::embedPreshowerClusters() {
+  preshowerClusters_.clear();
+  if (reco::Photon::superCluster().isNonnull()){
+    reco::CaloCluster_iterator itscl = reco::Photon::superCluster()->preshowerClustersBegin();
+    reco::CaloCluster_iterator itsclE = reco::Photon::superCluster()->preshowerClustersEnd();
+    for(;itscl!=itsclE;++itscl){
+      preshowerClusters_.push_back( **itscl ) ;
+    }
+  }
+}
+
+// method to store the RecHits internally
+void Photon::embedRecHits(const EcalRecHitCollection * rechits) {
+  if (rechits!=0) {
+    recHits_ = *rechits;
+    embeddedRecHits_ = true;
   }
 }
 

@@ -150,6 +150,24 @@ reco::GsfElectronCoreRef Electron::core() const {
 /// override the reco::GsfElectron::superCluster method, to access the internal storage of the supercluster
 reco::SuperClusterRef Electron::superCluster() const {
   if (embeddedSuperCluster_) {
+    //relink caloclusters if needed
+    if (embeddedSeedCluster_ && !superCluster_[0].seed().isAvailable()) {
+      superCluster_[0].setSeed(seed());
+    }
+    if (basicClusters_.size() && !superCluster_[0].clusters().isAvailable()) {
+      reco::CaloClusterPtrVector clusters;
+      for (unsigned int iclus=0; iclus<basicClusters_.size(); ++iclus) {
+        clusters.push_back(reco::CaloClusterPtr(&basicClusters_,iclus));
+      }
+      superCluster_[0].setClusters(clusters);
+    }
+    if (preshowerClusters_.size() && !superCluster_[0].preshowerClusters().isAvailable()) {
+      reco::CaloClusterPtrVector clusters;
+      for (unsigned int iclus=0; iclus<preshowerClusters_.size(); ++iclus) {
+        clusters.push_back(reco::CaloClusterPtr(&preshowerClusters_,iclus));
+      }
+      superCluster_[0].setPreshowerClusters(clusters);
+    }
     return reco::SuperClusterRef(&superCluster_, 0);
   } else {
     return reco::GsfElectron::superCluster();
