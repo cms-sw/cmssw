@@ -63,7 +63,6 @@ class APVCyclePhaseMonitor : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-  const edm::InputTag _apvphasecollection;
   edm::EDGetTokenT<APVCyclePhaseCollection> _apvphasecollectionToken;
   std::vector<std::string> _selectedparts;
   std::vector<std::string> _selectedvectorparts;
@@ -92,8 +91,7 @@ class APVCyclePhaseMonitor : public edm::EDAnalyzer {
 // constructors and destructor
 //
 APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig):
-  _apvphasecollection(iConfig.getParameter<edm::InputTag>("apvCyclePhaseCollection")),
-  _apvphasecollectionToken(consumes<APVCyclePhaseCollection>(_apvphasecollection)),
+  _apvphasecollectionToken(consumes<APVCyclePhaseCollection>(iConfig.getParameter<edm::InputTag>("apvCyclePhaseCollection"))),
   _selectedparts(iConfig.getUntrackedParameter<std::vector<std::string> >("selectedPartitions",std::vector<std::string>())),
   _selectedvectorparts(iConfig.getUntrackedParameter<std::vector<std::string> >("selectedVectorPartitions",std::vector<std::string>())),
   m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",125)),
@@ -105,7 +103,7 @@ APVCyclePhaseMonitor::APVCyclePhaseMonitor(const edm::ParameterSet& iConfig):
 {
    //now do what ever initialization is needed
 
-  edm::LogInfo("UsedAPVCyclePhaseCollection") << " APVCyclePhaseCollection " << _apvphasecollection << " used";
+  edm::LogInfo("UsedAPVCyclePhaseCollection") << " APVCyclePhaseCollection " << iConfig.getParameter<edm::InputTag>("apvCyclePhaseCollection") << " used";
 
   for(std::vector<std::string>::const_iterator part=_selectedparts.begin();part!=_selectedparts.end();++part) {
 
