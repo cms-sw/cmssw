@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
@@ -28,7 +29,8 @@ namespace edm
   DataMixingSiStripMCDigiWorker::DataMixingSiStripMCDigiWorker() { }
 
   // Constructor 
-  DataMixingSiStripMCDigiWorker::DataMixingSiStripMCDigiWorker(const edm::ParameterSet& ps) : 
+  DataMixingSiStripMCDigiWorker::DataMixingSiStripMCDigiWorker(const edm::ParameterSet& ps, 
+							       edm::ConsumesCollector && iC) : 
     label_(ps.getParameter<std::string>("Label")),
     gainLabel(ps.getParameter<std::string>("Gain")),
     peakMode(ps.getParameter<bool>("APVpeakmode")),
@@ -51,6 +53,7 @@ namespace edm
 
     SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
 
+    iC.consumes<edm::DetSetVector<SiStripDigi>>(SistripLabelSig_);
     // clear local storage for this event                                                                     
     SiHitStorage_.clear();
 
@@ -62,9 +65,7 @@ namespace edm
       "in the configuration file or remove the modules that require it.";
     }
   
-    rndEngine = &(rng->getEngine());
-
-    theSiNoiseAdder.reset(new SiGaussianTailNoiseAdder(theThreshold, (*rndEngine) ));
+    theSiNoiseAdder.reset(new SiGaussianTailNoiseAdder(theThreshold));
     //    theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
     //theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC));
 
@@ -305,7 +306,9 @@ namespace edm
 	if(RefStrip<numStrips){
 	  float noiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange);
 	  float gainValue = gainHandle->getStripGain(RefStrip, detGainRange);
-	  theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue);
+	  edm::Service<edm::RandomNumberGenerator> rng;
+	  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+	  theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,noiseRMS*theElectronPerADC/gainValue,engine);
 	}
 	
 	DigitalVecType digis;

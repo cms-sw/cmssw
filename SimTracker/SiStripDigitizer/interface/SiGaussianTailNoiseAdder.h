@@ -18,12 +18,12 @@ class SiGaussianTailNoiseAdder : public SiNoiseAdder{
  public:
   SiGaussianTailNoiseAdder(float);
   ~SiGaussianTailNoiseAdder();
-  void addNoise(std::vector<float>&, size_t&, size_t&, int, float, CLHEP::HepRandomEngine*) const;
+  void addNoise(std::vector<float>&, size_t&, size_t&, int, float, CLHEP::HepRandomEngine*) const override;
   
-  void addNoiseVR(std::vector<float> &, std::vector<float> &, CLHEP::HepRandomEngine*) const;
-  void addPedestals(std::vector<float> &, std::vector<float> &) const;
-  void addCMNoise(std::vector<float> &, float, std::vector<bool> &, CLHEP::HepRandomEngine*) const;
-  void addBaselineShift(std::vector<float> &, std::vector<bool> &) const;
+  void addNoiseVR(std::vector<float> &, std::vector<float> &, CLHEP::HepRandomEngine*) const override;
+  void addPedestals(std::vector<float> &, std::vector<float> &) const override;
+  void addCMNoise(std::vector<float> &, float, std::vector<bool> &, CLHEP::HepRandomEngine*) const override;
+  void addBaselineShift(std::vector<float> &, std::vector<bool> &) const override;
   
  private:
   const float threshold;

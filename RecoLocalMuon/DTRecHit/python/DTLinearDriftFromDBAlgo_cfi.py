@@ -27,7 +27,8 @@ DTLinearDriftFromDBAlgo = cms.PSet(
         # The module to be used for ttrig synchronization and its set parameter
         tTrigMode = cms.string('DTTTrigSyncFromDB'),
         # perform a correction to vdrift in MB1s of external wheels
-        doVdriftCorr = cms.bool(True)
+        doVdriftCorr = cms.bool(True),
+        useUncertDB = cms.bool(True)
     ),
     recAlgo = cms.string('DTLinearDriftFromDBAlgo')
 )

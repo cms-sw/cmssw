@@ -7,6 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 
 /** class HLTPFTauPairLeadTrackDzMatchFilter
  * an HLT filter which picks up a PFTauCollection
@@ -26,6 +28,7 @@ class HLTPFTauPairLeadTrackDzMatchFilter : public HLTFilter {
   private:
 
     edm::InputTag tauSrc_;
+    edm::EDGetTokenT<reco::PFTauCollection> tauSrcToken_;
     double tauMinPt_;
     double tauMaxEta_;
     double tauMinDR_;
