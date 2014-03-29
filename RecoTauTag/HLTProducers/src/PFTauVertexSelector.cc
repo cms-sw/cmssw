@@ -1,13 +1,9 @@
 #include "RecoTauTag/HLTProducers/interface/PFTauVertexSelector.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 /* 
  * class PFTauVertexSelector
@@ -24,7 +20,7 @@ bool PFTauVertexSelector::filter(edm::Event& event, const edm::EventSetup& event
    if(useBeamSpot_)
    {
        edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-       event.getByLabel(beamSpotSrc_,recoBeamSpotHandle);
+       event.getByToken(beamSpotSrc_,recoBeamSpotHandle);
        if (recoBeamSpotHandle.isValid()){
          vertexPoint = recoBeamSpotHandle->position();
 	 vertexAvailable = true;
@@ -34,7 +30,7 @@ bool PFTauVertexSelector::filter(edm::Event& event, const edm::EventSetup& event
    if(useVertex_)
    {
        edm::Handle<edm::View<reco::Vertex> > recoVertexHandle;
-       event.getByLabel(vertexSrc_,recoVertexHandle);
+       event.getByToken(vertexSrc_,recoVertexHandle);
        if ((recoVertexHandle.isValid()) && (recoVertexHandle->size()>0)){
          vertexPoint = recoVertexHandle->at(0).position();
 	 vertexAvailable = true;
@@ -47,8 +43,8 @@ bool PFTauVertexSelector::filter(edm::Event& event, const edm::EventSetup& event
    if (useLeadingTrack_)
    {
        edm::Handle<edm::View<reco::Track> > tracks;
-       for( std::vector<edm::InputTag>::const_iterator trackSrc = trackSrc_.begin(); trackSrc != trackSrc_.end(); ++ trackSrc ) {
-           event.getByLabel(*trackSrc, tracks);
+       for( std::vector<edm::EDGetTokenT<edm::View<reco::Track> > >::const_iterator trackSrc = trackSrc_.begin(); trackSrc != trackSrc_.end(); ++ trackSrc ) {
+           event.getByToken(*trackSrc, tracks);
            if ((tracks.isValid())&&(tracks->size()>0)){
                for (unsigned i = 0; i < tracks->size(); ++i) {
                   double pt=tracks->ptrAt(i)->pt();
@@ -65,8 +61,8 @@ bool PFTauVertexSelector::filter(edm::Event& event, const edm::EventSetup& event
    if (useLeadingRecoCandidate_)
    {
        edm::Handle<edm::View<reco::RecoCandidate> > recocandidates;
-       for( std::vector<edm::InputTag>::const_iterator recoCandidateSrc = recoCandidateSrc_.begin(); recoCandidateSrc != recoCandidateSrc_.end(); ++ recoCandidateSrc ) {
-           event.getByLabel(*recoCandidateSrc, recocandidates);
+       for( std::vector<edm::EDGetTokenT<edm::View<reco::RecoCandidate> > >::const_iterator recoCandidateSrc = recoCandidateSrc_.begin(); recoCandidateSrc != recoCandidateSrc_.end(); ++ recoCandidateSrc ) {
+           event.getByToken(*recoCandidateSrc, recocandidates);
            if ((recocandidates.isValid())&&(recocandidates->size()>0)){
                for (unsigned i = 0; i < recocandidates->size(); ++i) {
                   double pt=recocandidates->ptrAt(i)->pt();
@@ -83,7 +79,7 @@ bool PFTauVertexSelector::filter(edm::Event& event, const edm::EventSetup& event
    if (useTriggerFilterElectrons_)
    {
        edm::Handle<trigger::TriggerFilterObjectWithRefs> triggerfilter;
-       event.getByLabel(triggerFilterElectronsSrc_, triggerfilter);
+       event.getByToken(triggerFilterElectronsSrc_, triggerfilter);
        std::vector<reco::ElectronRef> recocandidates;
        triggerfilter->getObjects(trigger::TriggerElectron,recocandidates);
        if ((recocandidates.size()>0)){
@@ -101,7 +97,7 @@ bool PFTauVertexSelector::filter(edm::Event& event, const edm::EventSetup& event
    if (useTriggerFilterMuons_)
    {
        edm::Handle<trigger::TriggerFilterObjectWithRefs> triggerfilter;
-       event.getByLabel(triggerFilterMuonsSrc_, triggerfilter);
+       event.getByToken(triggerFilterMuonsSrc_, triggerfilter);
        std::vector<reco::RecoChargedCandidateRef> recocandidates;
        triggerfilter->getObjects(trigger::TriggerMuon,recocandidates);
        if ((recocandidates.size()>0)){
@@ -118,7 +114,7 @@ bool PFTauVertexSelector::filter(edm::Event& event, const edm::EventSetup& event
    
    reco::PFTauCollection* selTaus = new reco::PFTauCollection;
    edm::Handle<edm::View<reco::PFTau> > taus;
-   event.getByLabel(tauSrc_, taus);
+   event.getByToken(tauSrc_, taus);
    for( edm::View<reco::PFTau>::const_iterator pfTau = taus->begin(); pfTau != taus->end(); ++ pfTau ) {
        // if no leading track assigned skip
        if ((!pfTau->leadPFChargedHadrCand().isNonnull())||

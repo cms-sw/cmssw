@@ -30,6 +30,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
 //
 // class declaration
 //
@@ -44,10 +51,12 @@ public:
   // access to config
   edm::ParameterSet config() const { return theConfig; }
   edm::InputTag trackLabel;
-  edm::InputTag triggerFilterElectronsSrc;
-  edm::InputTag triggerFilterMuonsSrc;
-  edm::InputTag vertexLabel;
-  edm::InputTag beamSpotLabel;
+  edm::EDGetTokenT<edm::View<reco::Track> > trackToken;
+  edm::EDGetTokenT<reco::RecoCandidate> candidateToken;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> triggerFilterElectronsSrc;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> triggerFilterMuonsSrc;
+  edm::EDGetTokenT<edm::View<reco::Vertex> > vertexLabel;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotLabel;
   
 private:
   // ----------member data ---------------------------

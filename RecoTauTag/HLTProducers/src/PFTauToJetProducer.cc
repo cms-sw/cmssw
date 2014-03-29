@@ -10,7 +10,7 @@
 PFTauToJetProducer::PFTauToJetProducer(const edm::ParameterSet& iConfig)
 {
 
-  tauSrc_ = iConfig.getParameter<edm::InputTag>("Source");
+  tauSrc_ = consumes<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>("Source"));
   produces<reco::CaloJetCollection>();
 }
 
@@ -26,7 +26,7 @@ void PFTauToJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   
   CaloJetCollection * jetCollectionTmp = new CaloJetCollection;
   edm::Handle<PFTauCollection> tauJets;
-    iEvent.getByLabel( tauSrc_, tauJets );
+    iEvent.getByToken( tauSrc_, tauJets );
     PFTauCollection::const_iterator i = tauJets->begin();
     for(;i !=tauJets->end(); i++ ) {
       //      cout <<"Tau Tracks " << i->signalPFChargedHadrCands().size()<<std::endl;
