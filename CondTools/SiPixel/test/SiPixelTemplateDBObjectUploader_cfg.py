@@ -8,10 +8,11 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = "GR10_P_V7::All"
 process.GlobalTag.globaltag = "MC_70_V4::All"
 
 MagFieldValue = float(sys.argv[2])
+
+print '\nMagField = %f \n' % (MagFieldValue)
 #version = 'v2'
 version = sys.argv[3]
 

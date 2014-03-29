@@ -32,6 +32,8 @@ elif ( MagFieldValue==4 or MagFieldValue==40 ):
 elif ( MagFieldValue==3.8 or MagFieldValue==38 ):
     MagFieldString = '38'
     files_to_upload = cms.vstring(
+#        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0020.out",
+#        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0021.out")
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0030.out",
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0031.out")
     theDetIds      = cms.vuint32( 1, 2)
