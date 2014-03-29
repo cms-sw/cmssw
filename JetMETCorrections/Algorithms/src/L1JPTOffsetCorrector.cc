@@ -31,7 +31,7 @@ L1JPTOffsetCorrector::L1JPTOffsetCorrector(const JetCorrectorParameters& fParam,
     throw cms::Exception("L1OffsetCorrector")<<" correction level: "<<fParam.definitions().level()<<" is not L1JPTOffset"; 
   vector<JetCorrectorParameters> vParam;
   vParam.push_back(fParam);
-  mCorrector = new FactorizedJetCorrector(vParam);
+  mCorrector = new FactorizedJetCorrectorCalculator(vParam);
 }
 //------------------------------------------------------------------------ 
 //--- L1OffsetCorrector destructor -------------------------------------------
@@ -77,10 +77,11 @@ double L1JPTOffsetCorrector::correction(const reco::Jet& fJet,
   }
   //------ calculate the correction for the JPT jet ------------
   TLorentzVector JPTrawP4(rawcalojet->px(),rawcalojet->py(),rawcalojet->pz(),rawcalojet->energy());
-  mCorrector->setJPTrawP4(JPTrawP4);
-  mCorrector->setJPTrawOff(offset);
-  mCorrector->setJetE(fJet.energy());
-  result = mCorrector->getCorrection();
+  FactorizedJetCorrectorCalculator::VariableValues values;
+  values.setJPTrawP4(JPTrawP4);
+  values.setJPTrawOff(offset);
+  values.setJetE(fJet.energy());
+  result = mCorrector->getCorrection(values);
   return result;
 }
 

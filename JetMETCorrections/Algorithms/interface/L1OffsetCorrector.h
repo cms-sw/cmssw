@@ -4,7 +4,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrectorCalculator.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
 //----- classes declaration -----------------------------------
@@ -12,7 +12,7 @@ namespace edm
 {
   class ParameterSet;
 }
-class FactorizedJetCorrector;
+class FactorizedJetCorrectorCalculator;
 //----- LXXXCorrector interface -------------------------------
 class L1OffsetCorrector : public JetCorrector 
 {
@@ -43,7 +43,7 @@ class L1OffsetCorrector : public JetCorrector
     //----- member data ---------------------------------------
     std::string mVertexCollName;
     int mMinVtxNdof;
-    FactorizedJetCorrector* mCorrector;
+    FactorizedJetCorrectorCalculator* mCorrector;
 
 };
 

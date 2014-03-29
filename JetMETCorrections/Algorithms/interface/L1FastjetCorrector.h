@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrectorCalculator.h"
 
 class L1FastjetCorrector : public JetCorrector
 {
@@ -41,7 +41,7 @@ public:
 private:
   // member data
   edm::InputTag srcRho_;
-  FactorizedJetCorrector* mCorrector;
+  FactorizedJetCorrectorCalculator const* mCorrector;
 };
 
 #endif
