@@ -228,18 +228,18 @@ PFChargedHadronAnalyzer::analyze(const Event& iEvent,
     unsigned int tidN = 0;
     unsigned int pxbN = 0;
     unsigned int pxdN = 0;
-    const reco::HitPattern& hp = et.trackRef()->hitPattern();
+    const reco::HitPattern& hp = et.trackRef()->getHitPattern();
     switch ( et.trackRef()->algo() ) {
     case TrackBase::iter0:
     case TrackBase::iter1:
     case TrackBase::iter2:
     case TrackBase::iter3:
-      tobN += hp.numberOfValidStripTOBHits();
-      tecN += hp.numberOfValidStripTECHits();
-      tibN += hp.numberOfValidStripTIBHits();
-      tidN += hp.numberOfValidStripTIDHits();
-      pxbN += hp.numberOfValidPixelBarrelHits(); 
-      pxdN += hp.numberOfValidPixelEndcapHits(); 
+      tobN += hp.numberOfValidStripTOBHits(HitPattern::TRACK_HITS);
+      tecN += hp.numberOfValidStripTECHits(HitPattern::TRACK_HITS);
+      tibN += hp.numberOfValidStripTIBHits(HitPattern::TRACK_HITS);
+      tidN += hp.numberOfValidStripTIDHits(HitPattern::TRACK_HITS);
+      pxbN += hp.numberOfValidPixelBarrelHits(HitPattern::TRACK_HITS); 
+      pxdN += hp.numberOfValidPixelEndcapHits(HitPattern::TRACK_HITS); 
       break;
     case TrackBase::iter4:
     case TrackBase::iter5:
