@@ -75,7 +75,7 @@ namespace evf{
     // For now, just grab the latest run directory available
 
     // FIND RUN DIRECTORY
-    boost::filesystem::path runDirectory(edm::Service<evf::EvFDaqDirector>()->findHighestRunDir());
+    boost::filesystem::path runDirectory(edm::Service<evf::EvFDaqDirector>()->findCurrentRunDir());
     workingDirectory_ = runDirectory_ = runDirectory;
     workingDirectory_ /= "mon";
 
@@ -115,6 +115,7 @@ namespace evf{
    ////std::cout << "TBB thread id:" <<  tbb::thread::id() << std::endl;
    //threadIDAvailable_=true;
    //#endif
+   std::cout << "STD thread id:" <<  std::thread::id() << std::endl;
   }
 
 
@@ -339,7 +340,7 @@ namespace evf{
     *(fmt_.m_data.processed_[sid])=0;
 
     ministate_[sid]=&nopath_;
-    microstate_[sid]=&reservedMicroStateNames[mInvalid];
+    microstate_[sid]=&reservedMicroStateNames[mIdle];
     //threadMicrostate_[tbb::thread::id()]=&reservedMicroStateNames[mInvalid];
   }
 
@@ -355,7 +356,7 @@ namespace evf{
     doStreamEOLSnapshot(false,sc.eventID().luminosityBlock(),sid);
     //reset this in case stream does not get notified of next lumi (we keep processed events only)
     ministate_[sid]=&nopath_;
-    microstate_[sid]=&reservedMicroStateNames[mInvalid];
+    microstate_[sid]=&reservedMicroStateNames[mFwkOvh];
     //threadMicrostate_[tbb::thread::id()]=&reservedMicroStateNames[mInvalid];
   }
 
@@ -399,7 +400,7 @@ namespace evf{
 
   void FastMonitoringService::postEvent(edm::StreamContext const& sc)
   {
-    microstate_[sc.streamID()] = &reservedMicroStateNames[mFwkOvh];
+    microstate_[sc.streamID()] = &reservedMicroStateNames[mIdle];
     //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mFwkOvh];
 
     ministate_[sc.streamID()] = &nopath_;
@@ -423,7 +424,7 @@ namespace evf{
 
   void FastMonitoringService::preSourceEvent(edm::StreamID sid)
   {
-    microstate_[sid.value()] = &reservedMicroStateNames[mIdle];
+    microstate_[sid.value()] = &reservedMicroStateNames[mInput];
     //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mIdle];
   }
 

@@ -114,6 +114,8 @@ public:
 
 	std::string const& getName() {return name_;}
 
+        void updateDefinition(std::string const& definition) {definition_=definition;}
+
 	// JSON field names
 	static const std::string SOURCE;
 	static const std::string DEFINITION;

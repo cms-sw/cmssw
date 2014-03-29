@@ -16,6 +16,8 @@
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/plugins/FastMonitoringService.h"
 
+//TODO:switch to MessageLogger
+
 namespace evf {
   template<typename Consumer>
   class RecoEventOutputModuleForFU : public edm::StreamerOutputModuleBase {
@@ -46,10 +48,11 @@ namespace evf {
       // find run dir
       boost::filesystem::path runDirectory(
 					   edm::Service<evf::EvFDaqDirector>()->findCurrentRunDir());
-      smpath_ = runDirectory.string();
+      datapath_ = runDirectory.string();
       edm::LogInfo("RecoEventOutputModuleForFU") << "Writing .dat files to "
-						 << smpath_;
+						 << datapath_;
       // create open dir if not already there
+      //TODO: is open directory necessary ??
       boost::filesystem::path openPath = runDirectory;
       openPath /= "open";
       // do these dirs need to be created?
@@ -67,8 +70,7 @@ namespace evf {
     std::auto_ptr<Consumer> c_;
     std::string stream_label_;
     std::string events_base_filename_;
-    std::string baseDir_;
-    std::string smpath_;
+    std::string datapath_;
     boost::filesystem::path openDatFilePath_;
     IntJ processed_;
     mutable IntJ accepted_;
@@ -88,7 +90,6 @@ namespace evf {
     edm::StreamerOutputModuleBase(ps),
     c_(new Consumer(ps)),
     stream_label_(ps.getParameter<std::string>("@module_label")),
-    baseDir_(ps.getUntrackedParameter<std::string>("baseDir","")),
     processed_(0),
     accepted_(0),
     errorEvents_(0),
@@ -115,7 +116,7 @@ namespace evf {
     outJsonDef_.addLegendItem("Filelist","string",DataPointDefinition::MERGE);
     outJsonDef_.addLegendItem("InputFiles","string",DataPointDefinition::CAT);
     std::stringstream ss;
-    ss << edm::Service<evf::EvFDaqDirector>()->fuBaseDir() << "/" << "output_" << getpid() << ".jsd";
+    ss << edm::Service<evf::EvFDaqDirector>()->baseRunDir() << "/" << "output_" << getpid() << ".jsd";
     std::string outJsonDefName = ss.str();
 
     edm::Service<evf::EvFDaqDirector>()->lockInitLock();
@@ -183,8 +184,6 @@ namespace evf {
     edm::ParameterSetDescription desc;
     edm::StreamerOutputModuleBase::fillDescription(desc);
     Consumer::fillDescription(desc);
-    desc.addUntracked<std::string>("baseDir", "")
-        ->setComment("Top level output directory");
     descriptions.add("streamerOutput", desc);
   }
 

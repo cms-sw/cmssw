@@ -85,7 +85,6 @@ private:
 
   const edm::RunNumber_t runNumber_;
 
-  const std::string buInputDir_;
   const std::string fuOutputDir_;
 
   const edm::DaqProvenanceHelper daqProvenanceHelper_;

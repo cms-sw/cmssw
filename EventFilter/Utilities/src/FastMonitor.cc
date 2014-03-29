@@ -245,10 +245,10 @@ JsonMonitorable* FastMonitor::getMergedIntJForLumi(std::string const& name,unsig
   return  dataPoints_[it->second]->mergeAndRetrieveValue(forLumi);
 }
 
-bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi)
+bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi, bool log)
 {
-
-  edm::LogInfo("FastMonitor") << "SNAP updates: " <<  recentSnaps_ << " (by timer: " << recentSnapsTimer_ 
+  if (log)
+    edm::LogInfo("FastMonitor") << "SNAP updates: " <<  recentSnaps_ << " (by timer: " << recentSnapsTimer_ 
                               << ") in lumisection ";
 
   recentSnaps_ = recentSnapsTimer_ = 0;

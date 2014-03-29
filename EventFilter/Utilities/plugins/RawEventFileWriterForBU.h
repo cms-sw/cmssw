@@ -30,10 +30,10 @@ class RawEventFileWriterForBU
   void doOutputEvent(boost::shared_array<unsigned char>& msg) {};
   void doOutputEventFragment(unsigned char* dataPtr,
                              unsigned long dataSize);
-  void doFlushFile();
+  //void doFlushFile();
   uint32 adler32() const { return (adlerb_ << 16) | adlera_; }
 
-  void start() {}
+  void start(){}
   void stop() {}
   void initialize(std::string const& destinationDir, std::string const& name, int ls);
   void endOfLS(int ls);
@@ -45,20 +45,35 @@ class RawEventFileWriterForBU
 
  private:
 
+  void closefd(){if(outfd_>=0){close(outfd_); outfd_=-1;}}
+  int outfd_ = -1;
+
   int run_ = -1;
   std::string runPrefix_;
 
+  IntJ perRunEventCount_;
+  IntJ perRunFileCount_;
+  IntJ perRunLumiCount_;
+
   IntJ perLumiEventCount_;
-  FastMonitor* lumiMon_;
+  IntJ perLumiFileCount_;
+  IntJ perLumiTotalEventCount_;
+
   IntJ perFileEventCount_;
-  FastMonitor* perFileMon_;
+
+  FastMonitor* fileMon_ = nullptr;
+  FastMonitor* lumiMon_ = nullptr;
+  FastMonitor* runMon_ = nullptr;
+
+  DataPointDefinition rawJsonDef_;
+  DataPointDefinition eolJsonDef_;
+  DataPointDefinition eorJsonDef_;
+  bool writtenJSDs_=false;
 
   std::auto_ptr<std::ofstream> ost_;
-  int outfd_;
   std::string fileName_;
   std::string destinationDir_;
 
-  std::string jsonDefLocation_;
   int microSleep_;
 
   uint32 adlera_;

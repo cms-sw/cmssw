@@ -55,8 +55,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
   testModeNoBuilderUnit_(edm::Service<evf::EvFDaqDirector>()->getTestModeNoBuilderUnit()),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
-  buInputDir_(edm::Service<evf::EvFDaqDirector>()->buBaseDir()),
-  fuOutputDir_(edm::Service<evf::EvFDaqDirector>()->fuBaseDir()),
+  fuOutputDir_(edm::Service<evf::EvFDaqDirector>()->baseRunDir()),
   daqProvenanceHelper_(edm::TypeID(typeid(FEDRawDataCollection))),
   eventID_(),
   processHistoryID_(),
@@ -598,7 +597,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
     // assemble json destination path
     boost::filesystem::path jsonDestPath(fuOutputDir_);
 
-    //should be ported to use fffnaming
+    //TODO:should be ported to use fffnaming
     std::ostringstream fileNameWithPID;
     fileNameWithPID << jsonSourcePath.stem().string() << "_pid"
                     << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
