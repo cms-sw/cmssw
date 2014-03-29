@@ -6,9 +6,9 @@
 using namespace reco;
 
 L2TauIsolationProducer::L2TauIsolationProducer(const edm::ParameterSet& iConfig):
-  l2CaloJets_(iConfig.getParameter<edm::InputTag>("L2TauJetCollection")),
-  EBRecHits_(iConfig.getParameter<edm::InputTag>("EBRecHits")),
-  EERecHits_(iConfig.getParameter<edm::InputTag>("EERecHits")),
+  l2CaloJets_(consumes<CaloJetCollection>(iConfig.getParameter<edm::InputTag>("L2TauJetCollection"))),
+  EBRecHits_(consumes<EBRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHits"))),
+  EERecHits_(consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHits"))),
   crystalThreshold_(iConfig.getParameter<double>("crystalThreshold")),
   towerThreshold_(iConfig.getParameter<double>("towerThreshold"))
  {
@@ -55,7 +55,7 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
    edm::Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
-   iEvent.getByLabel(l2CaloJets_ ,l2CaloJets);//get the handle
+   iEvent.getByToken(l2CaloJets_ ,l2CaloJets);//get the handle
 
    //Create the Association
    std::auto_ptr<L2TauInfoAssociation> l2InfoAssoc( new L2TauInfoAssociation);
@@ -168,8 +168,8 @@ L2TauIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& iEvent,
 
   //Read From File
  
-  iEvent.getByLabel( EBRecHits_, EBRecHits );
-  iEvent.getByLabel( EERecHits_, EERecHits );
+  iEvent.getByToken( EBRecHits_, EBRecHits );
+  iEvent.getByToken( EERecHits_, EERecHits );
   
  
 

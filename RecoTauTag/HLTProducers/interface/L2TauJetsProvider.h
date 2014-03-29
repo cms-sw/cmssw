@@ -28,15 +28,16 @@ class L2TauJetsProvider: public edm::EDProducer {
 
  private:
   std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
-std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
+  std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
   std::vector<l1extra::L1JetParticleRef> objL1CandRefVec;
   l1extra::L1JetParticleRef tauCandRef;
     
   typedef std::vector<edm::InputTag> vtag;
   vtag jetSrc;
-  edm::InputTag l1ParticlesTau;
-  edm::InputTag l1ParticlesJet;
-  edm::InputTag tauTrigger;
+  std::vector<edm::EDGetTokenT<reco::CaloJetCollection> > jetSrcToken;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ParticlesTau;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ParticlesJet;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauTrigger;
   double mEt_Min;
   std::map<int, const reco::CaloJet> myL2L1JetsMap; //first is # L1Tau , second is L2 jets
 };

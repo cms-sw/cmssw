@@ -6,10 +6,10 @@
 using namespace reco;
 
 L2TauNarrowConeIsolationProducer::L2TauNarrowConeIsolationProducer(const edm::ParameterSet& iConfig):
-  l2CaloJets_(iConfig.getParameter<edm::InputTag>("L2TauJetCollection")),
-  EBRecHits_(iConfig.getParameter<edm::InputTag>("EBRecHits")),
-  EERecHits_(iConfig.getParameter<edm::InputTag>("EERecHits")),
-  CaloTowers_(iConfig.getParameter<edm::InputTag>("CaloTowers")),
+  l2CaloJets_(consumes<CaloJetCollection>(iConfig.getParameter<edm::InputTag>("L2TauJetCollection"))),
+  EBRecHits_(consumes<EBRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHits"))),
+  EERecHits_(consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHits"))),
+  CaloTowers_(consumes<CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("CaloTowers"))),
   associationRadius_(iConfig.getParameter<double>("associationRadius")),
   crystalThresholdE_(iConfig.getParameter<double>("crystalThresholdEE")),
   crystalThresholdB_(iConfig.getParameter<double>("crystalThresholdEB")),
@@ -54,7 +54,7 @@ L2TauNarrowConeIsolationProducer::produce(edm::Event& iEvent, const edm::EventSe
 
 
    edm::Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
-   iEvent.getByLabel(l2CaloJets_ ,l2CaloJets);//get the handle
+   iEvent.getByToken(l2CaloJets_ ,l2CaloJets);//get the handle
 
    //Create the Association
    std::auto_ptr<L2TauInfoAssociation> l2InfoAssoc( new L2TauInfoAssociation);
@@ -133,7 +133,7 @@ L2TauNarrowConeIsolationProducer::getHCALHits(const CaloJet& jet,const edm::Even
   edm::Handle<CaloTowerCollection> towers;
   math::PtEtaPhiELorentzVectorCollection towers2;
 
-  if(iEvent.getByLabel(CaloTowers_,towers))
+  if(iEvent.getByToken(CaloTowers_,towers))
     for(size_t i=0;i<towers->size();++i)
       {
 	math::PtEtaPhiELorentzVector tower((*towers)[i].et(),(*towers)[i].eta(),(*towers)[i].phi(),(*towers)[i].energy());
@@ -171,7 +171,7 @@ L2TauNarrowConeIsolationProducer::getECALHits(const CaloJet& jet,const edm::Even
   math::PtEtaPhiELorentzVectorCollection jetRecHits;
 
   //Loop on the barrel hits
-  if(iEvent.getByLabel( EBRecHits_, EBRecHits))
+  if(iEvent.getByToken( EBRecHits_, EBRecHits))
      for(EBRecHitCollection::const_iterator hit = EBRecHits->begin();hit!=EBRecHits->end();++hit)
        {
 	 //get Detector Geometry
@@ -189,7 +189,7 @@ L2TauNarrowConeIsolationProducer::getECALHits(const CaloJet& jet,const edm::Even
 	     jetRecHits.push_back(p);
        }
 
- if(iEvent.getByLabel( EERecHits_, EERecHits))
+ if(iEvent.getByToken( EERecHits_, EERecHits))
      for(EERecHitCollection::const_iterator hit = EERecHits->begin();hit!=EERecHits->end();++hit)
        {
 	 //get Detector Geometry

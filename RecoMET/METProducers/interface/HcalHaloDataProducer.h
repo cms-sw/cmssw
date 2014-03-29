@@ -24,6 +24,7 @@
 #include <cstdlib>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -96,6 +97,9 @@ namespace reco
     edm::InputTag IT_HBHERecHit;
     edm::InputTag IT_HORecHit;
     edm::InputTag IT_HFRecHit;
+
+    edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
+    edm::EDGetTokenT<HFRecHitCollection> hfrechit_token_;
 
     float HBRecHitEnergyThreshold;
     float HERecHitEnergyThreshold;

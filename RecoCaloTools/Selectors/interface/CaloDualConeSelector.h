@@ -13,11 +13,11 @@
 template <class T>
 class CaloDualConeSelector {
 public:
-  CaloDualConeSelector(double dRmin, double dRmax, const CaloGeometry* geom);
-  CaloDualConeSelector(double dRmin, double dRmax, const CaloGeometry* geom, DetId::Detector detector, int subdet=0);
-
-  std::auto_ptr<edm::SortedCollection<T> > select(double eta, double phi, const edm::SortedCollection<T>& inputCollection);
-  std::auto_ptr<edm::SortedCollection<T> > select(const GlobalPoint& p, const edm::SortedCollection<T>& inputCollection);
+  CaloDualConeSelector(double dRmin, double dRmax, const CaloGeometry* geom) :
+    geom_(geom),deltaRmin_(dRmin),deltaRmax_(dRmax),detector_(DetId::Detector(0)),subdet_(0) {}
+  
+  CaloDualConeSelector(double dRmin, double dRmax, const CaloGeometry* geom, DetId::Detector detector, int subdet=0) : 
+    geom_(geom),deltaRmin_(dRmin),deltaRmax_(dRmax),detector_(detector),subdet_(subdet) {}
 
   void inline selectCallback(double eta, double phi, const edm::SortedCollection<T>& inputCollection, std::function<void(const T&)> callback) {
     GlobalPoint p(GlobalPoint::Cylindrical(1,phi,tanh(eta)));

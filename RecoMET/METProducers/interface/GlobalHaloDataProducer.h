@@ -24,6 +24,7 @@
 #include <cstdlib>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -196,6 +197,14 @@ namespace reco
     edm::InputTag IT_CSCHaloData;
     edm::InputTag IT_EcalHaloData;
     edm::InputTag IT_HcalHaloData;
+
+    edm::EDGetTokenT<edm::View<reco::Candidate> > calotower_token_;
+    edm::EDGetTokenT<reco::CaloMETCollection> calomet_token_;
+    edm::EDGetTokenT<CSCSegmentCollection> cscsegment_token_;
+    edm::EDGetTokenT<CSCRecHit2DCollection> cscrechit_token_;
+    edm::EDGetTokenT<CSCHaloData> cschalo_token_;
+    edm::EDGetTokenT<EcalHaloData> ecalhalo_token_;
+    edm::EDGetTokenT<HcalHaloData> hcalhalo_token_;
 
     float EcalMinMatchingRadius;
     float  EcalMaxMatchingRadius;
