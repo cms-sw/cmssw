@@ -22,7 +22,7 @@ class DQMTauProducer: public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
-  edm::InputTag trackIsolatedJets_;
+  edm::EDGetTokenT<reco::IsolatedTauTagInfoCollection> trackIsolatedJets_;
   double rmin_,rmax_,matchingCone_ ,ptMinLeadTk_, signalCone_, isolationCone_, ptMin_;
 
 };

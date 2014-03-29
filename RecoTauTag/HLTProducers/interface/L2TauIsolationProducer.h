@@ -65,9 +65,9 @@ class L2TauIsolationProducer : public edm::EDProducer {
       math::PtEtaPhiELorentzVectorCollection getECALHits(const reco::CaloJet&,const edm::Event&,const edm::EventSetup& iSetup); 
       math::PtEtaPhiELorentzVectorCollection getHCALHits(const reco::CaloJet&);
 
-      edm::InputTag l2CaloJets_;//label for the readout Collection
-      edm::InputTag EBRecHits_;//Label for ECAL Barrel Hits
-      edm::InputTag EERecHits_;//Label for ECAL EndCAP Hits
+      edm::EDGetTokenT<reco::CaloJetCollection> l2CaloJets_;//label for the readout Collection
+      edm::EDGetTokenT<EBRecHitCollection> EBRecHits_;//Label for ECAL Barrel Hits
+      edm::EDGetTokenT<EERecHitCollection> EERecHits_;//Label for ECAL EndCAP Hits
 
 
       //Thresholding

@@ -1,4 +1,5 @@
 #include "RecoMET/METProducers/interface/EcalHaloDataProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 /*
   [class]:  EcalHaloDataProducer
@@ -36,6 +37,12 @@ EcalHaloDataProducer::EcalHaloDataProducer(const edm::ParameterSet& iConfig)
   RoundnessCut = iConfig.getParameter<double>("RoundnessCutParam");
   AngleCut = iConfig.getParameter<double>("AngleCutParam");
 
+  ebrechit_token_ = consumes<EBRecHitCollection>(IT_EBRecHit);
+  eerechit_token_ = consumes<EERecHitCollection>(IT_EERecHit);
+  esrechit_token_ = consumes<ESRecHitCollection>(IT_ESRecHit);
+  supercluster_token_ = consumes<reco::SuperClusterCollection>(IT_SuperCluster);
+  photon_token_ = consumes<reco::PhotonCollection>(IT_Photon);
+
   produces<EcalHaloData>();
 }
 
@@ -47,23 +54,28 @@ void EcalHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   //Get  EB RecHits
   edm::Handle<EBRecHitCollection> TheEBRecHits;
-  iEvent.getByLabel(IT_EBRecHit, TheEBRecHits);
+  //  iEvent.getByLabel(IT_EBRecHit, TheEBRecHits);
+  iEvent.getByToken(ebrechit_token_, TheEBRecHits);
 
   //Get EE RecHits
   edm::Handle<EERecHitCollection> TheEERecHits;
-  iEvent.getByLabel(IT_EERecHit, TheEERecHits);
+  //  iEvent.getByLabel(IT_EERecHit, TheEERecHits);
+  iEvent.getByToken(eerechit_token_, TheEERecHits);
 
   //Get ES RecHits
   edm::Handle<ESRecHitCollection> TheESRecHits;
-  iEvent.getByLabel(IT_ESRecHit, TheESRecHits);
+  //  iEvent.getByLabel(IT_ESRecHit, TheESRecHits);
+  iEvent.getByToken(esrechit_token_, TheESRecHits);
 
   //Get ECAL Barrel SuperClusters                  
   edm::Handle<reco::SuperClusterCollection> TheSuperClusters;
-  iEvent.getByLabel(IT_SuperCluster, TheSuperClusters);
+  //  iEvent.getByLabel(IT_SuperCluster, TheSuperClusters);
+  iEvent.getByToken(supercluster_token_, TheSuperClusters);
 
   //Get Photons
   edm::Handle<reco::PhotonCollection> ThePhotons;
-  iEvent.getByLabel(IT_Photon, ThePhotons);
+  //  iEvent.getByLabel(IT_Photon, ThePhotons);
+  iEvent.getByToken(photon_token_, ThePhotons);
 
   //Run the EcalHaloAlgo to reconstruct the EcalHaloData object 
   EcalHaloAlgo EcalAlgo;

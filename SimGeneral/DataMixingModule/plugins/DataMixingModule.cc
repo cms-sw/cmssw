@@ -222,10 +222,10 @@ namespace edm
       SiStripWorker_ = new DataMixingSiStripWorker(ps, consumesCollector());
 
       if( addMCDigiNoise_ ) {
-	SiStripMCDigiWorker_ = new DataMixingSiStripMCDigiWorker(ps);
+	SiStripMCDigiWorker_ = new DataMixingSiStripMCDigiWorker(ps, consumesCollector());
       }
       else {
-	SiStripWorker_ = new DataMixingSiStripWorker(ps);
+	SiStripWorker_ = new DataMixingSiStripWorker(ps, consumesCollector());
       }
     }
 

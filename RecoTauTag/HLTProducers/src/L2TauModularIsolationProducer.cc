@@ -8,12 +8,12 @@ using namespace edm;
 
 
 L2TauModularIsolationProducer::L2TauModularIsolationProducer(const edm::ParameterSet& iConfig):
-  l2CaloJets_(iConfig.getParameter<edm::InputTag>("L2TauJetCollection")),
-  EBRecHits_(iConfig.getParameter<edm::InputTag>("EBRecHits")),
-  EERecHits_(iConfig.getParameter<edm::InputTag>("EERecHits")),
-  caloTowers_(iConfig.getParameter<edm::InputTag>("CaloTowers")),
-  pfClustersECAL_(iConfig.getParameter<edm::InputTag>("pfClustersECAL")),
-  pfClustersHCAL_(iConfig.getParameter<edm::InputTag>("pfClustersHCAL")),
+  l2CaloJets_(consumes<CaloJetCollection>(iConfig.getParameter<edm::InputTag>("L2TauJetCollection"))),
+  EBRecHits_(consumes<EBRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHits"))),
+  EERecHits_(consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHits"))),
+  caloTowers_(consumes<CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("CaloTowers"))),
+  pfClustersECAL_(consumes<PFClusterCollection>(iConfig.getParameter<edm::InputTag>("pfClustersECAL"))),
+  pfClustersHCAL_(consumes<PFClusterCollection>(iConfig.getParameter<edm::InputTag>("pfClustersHCAL"))),
   ecalIsolationAlg_(iConfig.getParameter<std::string>("ecalIsolationAlgorithm")),
   hcalIsolationAlg_(iConfig.getParameter<std::string>("hcalIsolationAlgorithm")),
   ecalClusteringAlg_(iConfig.getParameter<std::string>("ecalClusteringAlgorithm")),
@@ -49,7 +49,7 @@ void
 L2TauModularIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    edm::Handle<CaloJetCollection> l2CaloJets; //Handle to the input (L2TauCaloJets);
-   iEvent.getByLabel(l2CaloJets_ ,l2CaloJets);//get the handle
+   iEvent.getByToken(l2CaloJets_ ,l2CaloJets);//get the handle
 
    //Create the Association
    std::auto_ptr<L2TauInfoAssociation> l2InfoAssoc( new L2TauInfoAssociation);
@@ -222,7 +222,7 @@ L2TauModularIsolationProducer::getHCALHits(const CaloJet& jet,const edm::Event& 
 
   math::PtEtaPhiELorentzVectorCollection towers2;
 
-  if(iEvent.getByLabel(caloTowers_,towers))
+  if(iEvent.getByToken(caloTowers_,towers))
     if(towers->size()>0)
     for(size_t i=0;i<towers->size();++i)
       {
@@ -259,7 +259,7 @@ L2TauModularIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& 
   math::PtEtaPhiELorentzVectorCollection jetRecHits;
 
   //Loop on the barrel hits
-  if(iEvent.getByLabel( EBRecHits_, EBRecHits))
+  if(iEvent.getByToken(EBRecHits_, EBRecHits))
      for(EBRecHitCollection::const_iterator hit = EBRecHits->begin();hit!=EBRecHits->end();++hit)
        {
 	 //get Detector Geometry
@@ -277,7 +277,7 @@ L2TauModularIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& 
 	     jetRecHits.push_back(p);
        }
 
- if(iEvent.getByLabel( EERecHits_, EERecHits))
+ if(iEvent.getByToken(EERecHits_, EERecHits))
      for(EERecHitCollection::const_iterator hit = EERecHits->begin();hit!=EERecHits->end();++hit)
        {
 	 //get Detector Geometry
@@ -304,13 +304,13 @@ L2TauModularIsolationProducer::getECALHits(const CaloJet& jet,const edm::Event& 
 
 
 math::PtEtaPhiELorentzVectorCollection 
-L2TauModularIsolationProducer::getPFClusters(const CaloJet& jet,const edm::Event& iEvent,const edm::InputTag& input)
+L2TauModularIsolationProducer::getPFClusters(const CaloJet& jet,const edm::Event& iEvent,const edm::EDGetTokenT<PFClusterCollection>& input)
 {
   edm::Handle<PFClusterCollection> clusters;
   math::PtEtaPhiELorentzVectorCollection clusters2;
 
   //get Clusters near the jet
-  if(iEvent.getByLabel(input,clusters))
+  if(iEvent.getByToken(input,clusters))
     if(clusters->size()>0)
     for(PFClusterCollection::const_iterator c = clusters->begin();c!=clusters->end();++c)
     {
