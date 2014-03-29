@@ -28,12 +28,19 @@ DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config) :
   doVdriftCorr(config.getParameter<bool>("doVdriftCorr")),
   // Option to force going back to digi time at Step 2 
   stepTwoFromDigi(config.getParameter<bool>("stepTwoFromDigi")),
+  useUncertDB(false),
   // Set verbose output
   debug(config.getUntrackedParameter<bool>("debug"))
 {
-    if(debug)
-      cout<<"[DTLinearDriftFromDBAlgo] Constructor called"<<endl;
+  if(debug)
+    cout<<"[DTLinearDriftFromDBAlgo] Constructor called"<<endl;
+
+  // Check for compatibility with older configurations
+  if (config.existsAs<bool>("useUncertDB")) {
+    // Assign hit uncertainties based on new uncertainties DB
+    useUncertDB= config.getParameter<bool>("useUncertDB");
   }
+}
 
 
 
@@ -49,17 +56,19 @@ void DTLinearDriftFromDBAlgo::setES(const EventSetup& setup) {
   ESHandle<DTMtime> mTimeHandle;
   setup.get<DTMtimeRcd>().get(mTimeHandle);
   mTimeMap = &*mTimeHandle;
+
+  if (useUncertDB) {
+    ESHandle<DTRecoUncertainties> uncerts;
+    setup.get<DTRecoUncertaintiesRcd>().get(uncerts);
+    uncertMap = &*uncerts;
   
-//   ESHandle<DTRecoUncertainties> uncerts;
-//   setup.get<DTRecoUncertaintiesRcd>().get(uncerts);
-//   uncertMap = &*uncerts;
-
-  // check uncertainty map type
-//  if (uncerts->version()>1) edm::LogError("NotImplemented") << "DT Uncertainty DB version unknown: " << uncerts->version();
-
+    // check uncertainty map type
+    if (uncertMap->version()>1) edm::LogError("NotImplemented") << "DT Uncertainty DB version unknown: " << uncertMap->version();
+  }
+  
   if(debug) {
     cout << "[DTLinearDriftFromDBAlgo] meanTimer version: " << mTimeMap->version()<<endl;
-//    cout << "                          uncertDB  version: " << uncerts->version()<<endl;
+    if (useUncertDB) cout << "                          uncertDB  version: " << uncertMap->version()<<endl;
   }
   
 }
@@ -154,12 +163,14 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
   // vdrift is cm/ns , resolution is cm
   mTimeMap->get(wireId.superlayerId(),
 	        vDrift,
-	        hitResolution,  // Value from vdrift DB; obsolete.
+	        hitResolution,  // Value from vdrift DB; replaced below if useUncertDB card is set
 	        DTVelocityUnits::cm_per_ns);
 
-  // Read the uncertainty from the DB for the given channel and step
-  //  float hitResolution = uncertMap->get(wireId, step-1);
-
+  if (useUncertDB) {
+    // Read the uncertainty from the DB for the given channel and step
+    hitResolution = uncertMap->get(wireId, step-1);
+  }
+  
   //only in step 3
   if(doVdriftCorr && step == 3){
     if (abs(wireId.wheel()) == 2 && 
