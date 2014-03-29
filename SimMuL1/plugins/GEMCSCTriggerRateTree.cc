@@ -669,7 +669,10 @@ GEMCSCTriggerRateTree::analyzeGMTRegCandRate(const edm::Event& iEvent, int type)
       myGMTREGCand.nTFStubs = rtTFCands_[i].nTFStubs;
       break;
     }
-    rtGmtRegCands_.push_back(myGMTREGCand);
+    if (type == gmtRegCand::CSC)  rtGmtRegCscCands_.push_back(myGMTREGCand);
+    if (type == gmtRegCand::DT)   rtGmtRegDtCands_.push_back(myGMTREGCand);
+    if (type == gmtRegCand::RPCb) rtGmtRegRpcbCands_.push_back(myGMTREGCand);
+    if (type == gmtRegCand::RPCf) rtGmtRegRpcfCands_.push_back(myGMTREGCand);
 
     // analysis
     gmtregcand_.event = iEvent.id().event();
@@ -706,15 +709,15 @@ GEMCSCTriggerRateTree::analyzeGMTRegCandRate(const edm::Event& iEvent, int type)
 void  
 GEMCSCTriggerRateTree::analyzeGMTCandRate(const edm::Event& iEvent)
 {
-  std::vector<L1MuGMTReadoutRecord> gmt_records = hl1GmtCands_->getRecords();
+  const std::vector<L1MuGMTReadoutRecord> gmt_records(hl1GmtCands_->getRecords());
   for (auto rItr=gmt_records.begin(); rItr!=gmt_records.end(); ++rItr) {
     if (rItr->getBxInEvent() < minBxGMT_ or rItr->getBxInEvent() > maxBxGMT_) continue;
     
-    std::vector<L1MuGMTExtendedCand> GMTCands = rItr->getGMTCands();    
-    std::vector<L1MuRegionalCand> CSCCands = rItr->getCSCCands();
-    std::vector<L1MuRegionalCand> DTCands  = rItr->getDTBXCands();
-    std::vector<L1MuRegionalCand> RPCfCands = rItr->getFwdRPCCands();
-    std::vector<L1MuRegionalCand> RPCbCands = rItr->getBrlRPCCands();
+    const std::vector<L1MuGMTExtendedCand> GMTCands(rItr->getGMTCands());    
+    const std::vector<L1MuRegionalCand> CSCCands(rItr->getCSCCands());
+    const std::vector<L1MuRegionalCand> DTCands(rItr->getDTBXCands());
+    const std::vector<L1MuRegionalCand> RPCfCands(rItr->getFwdRPCCands());
+    const std::vector<L1MuRegionalCand> RPCbCands(rItr->getBrlRPCCands());
     
     for (auto trk = GMTCands.begin(); trk != GMTCands.end(); ++trk){
       if(trk->empty()) continue;
@@ -728,63 +731,64 @@ GEMCSCTriggerRateTree::analyzeGMTCandRate(const edm::Event& iEvent)
       myGMTCand.regcand = nullptr;
       myGMTCand.regcand_rpc = nullptr;
       
-      float gpt = myGMTCand.pt;
-      float geta = fabs(myGMTCand.eta);
+//       float gpt = myGMTCand.pt;
+      const float geta(fabs(myGMTCand.eta));
+      const bool eta_q(geta > 1.2);
       
       MatchCSCMuL1::GMTREGCAND * gmt_csc = nullptr;
       if (trk->isFwd() && ( trk->isMatchedCand() or !trk->isRPC())) {
-	L1MuRegionalCand rcsc = CSCCands[trk->getDTCSCIndex()];
+	const L1MuRegionalCand rcsc(CSCCands[trk->getDTCSCIndex()]);
 	unsigned my_i = 999;
-	for (unsigned i=0; i< rtGMTREGCands.size(); i++) {
-	  if (rcsc.getDataWord()!=rtGMTREGCands[i].l1reg->getDataWord()) continue;
+	for (unsigned i=0; i< rtGmtRegCscCands_.size(); i++) {
+	  if (rcsc.getDataWord()!=rtGmtRegCscCands_[i].l1reg->getDataWord()) continue;
 	  my_i = i;
 	  break;
 	}
-	if (my_i<99) gmt_csc = &rtGMTREGCands[my_i];
-	else std::cout<<"DOES NOT EXIST IN rtGMTREGCands! Should not happen!"<<std::endl;
+	if (my_i<99) gmt_csc = &rtGmtRegCscCands_[my_i];
+	else std::cout<<"DOES NOT EXIST IN rtGmtRegCscCands_! Should not happen!"<<std::endl;
 	myGMTCand.regcand = gmt_csc;
 	myGMTCand.ids = gmt_csc->ids;
       }
       
       MatchCSCMuL1::GMTREGCAND * gmt_rpcf = nullptr;
       if (trk->isFwd() && (trk->isMatchedCand() or trk->isRPC())) {
-	L1MuRegionalCand rrpcf = RPCfCands[trk->getRPCIndex()];
+	const L1MuRegionalCand rrpcf = RPCfCands[trk->getRPCIndex()];
 	unsigned my_i = 999;
-	for (unsigned i=0; i< rtGMTRPCfCands.size(); i++) {
-	  if (rrpcf.getDataWord()!=rtGMTRPCfCands[i].l1reg->getDataWord()) continue;
+	for (unsigned i=0; i< rtGmtRegRpcfCands_.size(); i++) {
+	  if (rrpcf.getDataWord()!=rtGmtRegRpcfCands_[i].l1reg->getDataWord()) continue;
 	  my_i = i;
 	  break;
 	}
-	if (my_i<99) gmt_rpcf = &rtGMTRPCfCands[my_i];
-	else std::cout<<"DOES NOT EXIST IN rtGMTRPCfCands! Should not happen!"<<std::endl;
+	if (my_i<99) gmt_rpcf = &rtGmtRegRpcfCands_[my_i];
+	else std::cout<<"DOES NOT EXIST IN rtGmtRegRpcfCands_! Should not happen!"<<std::endl;
 	myGMTCand.regcand_rpc = gmt_rpcf;
       }
       
       MatchCSCMuL1::GMTREGCAND * gmt_rpcb = nullptr;
       if (!(trk->isFwd()) && (trk->isMatchedCand() or trk->isRPC())){
-	L1MuRegionalCand rrpcb = RPCbCands[trk->getRPCIndex()];
+	const L1MuRegionalCand rrpcb = RPCbCands[trk->getRPCIndex()];
 	unsigned my_i = 999;
-	for (unsigned i=0; i< rtGMTRPCbCands.size(); i++){
-	  if (rrpcb.getDataWord()!=rtGMTRPCbCands[i].l1reg->getDataWord()) continue;
+	for (unsigned i=0; i< rtGmtRegRpcbCands_.size(); i++){
+	  if (rrpcb.getDataWord()!=rtGmtRegRpcbCands_[i].l1reg->getDataWord()) continue;
 	  my_i = i;
 	  break;
 	}
-	if (my_i<99) gmt_rpcb = &rtGMTRPCbCands[my_i];
-	else std::cout<<"DOES NOT EXIST IN rtGMTRPCbCands! Should not happen!"<<std::endl;
+	if (my_i<99) gmt_rpcb = &rtGmtRegRpcbCands_[my_i];
+	else std::cout<<"DOES NOT EXIST IN rtGmtRegRpcbCands_! Should not happen!"<<std::endl;
 	myGMTCand.regcand_rpc = gmt_rpcb;
       }
       
       MatchCSCMuL1::GMTREGCAND * gmt_dt = nullptr;
       if (!(trk->isFwd()) && (trk->isMatchedCand() or !(trk->isRPC()))){
-	L1MuRegionalCand rdt = DTCands[trk->getDTCSCIndex()];
+	const L1MuRegionalCand rdt = DTCands[trk->getDTCSCIndex()];
 	unsigned my_i = 999;
-	for (unsigned i=0; i< rtGMTDTCands.size(); i++){
-	  if (rdt.getDataWord()!=rtGMTDTCands[i].l1reg->getDataWord()) continue;
+	for (unsigned i=0; i< rtGmtRegDtCands_.size(); i++){
+	  if (rdt.getDataWord()!=rtGmtRegDtCands_[i].l1reg->getDataWord()) continue;
 	  my_i = i;
 	  break;
 	}
-	if (my_i<99) gmt_dt = &rtGMTDTCands[my_i];
-	else std::cout<<"DOES NOT EXIST IN rtGMTDTCands! Should not happen!"<<std::endl;
+	if (my_i<99) gmt_dt = &rtGmtRegDtCands_[my_i];
+	else std::cout<<"DOES NOT EXIST IN rtGmtRegDtCands_! Should not happen!"<<std::endl;
 	myGMTCand.regcand = gmt_dt;
       }
       // stub analysis 
@@ -824,15 +828,15 @@ GEMCSCTriggerRateTree::analyzeGMTCandRate(const edm::Event& iEvent)
       if (isRPCb) gmtcand_.isRPCb |= 1;
       if (isRPCf) gmtcand_.isRPCf |= 1;
 
-//       const bool hasCSCCand(isCSC and gmt_csc->tfcand != nullptr);
-//       const bool hasCSCCandTrack(hasCSCCand and gmt_csc->tfcand->tftrack != nullptr);
-//       const bool hasCSCCandTrackL1(hasCSCCandTrack and gmt_csc->tfcand->tftrack->l1trk != nullptr);
-//       const bool isCSC2s(hasCSCCandTrack and gmt_csc->tfcand->tftrack->nStubs()>=2);
-//       const bool isCSC3s(isCSC and gmt_csc->tfcand != nullptr and gmt_csc->tfcand->tftrack != nullptr
-// 			  and ( (!eta_q and isCSC2s) or (eta_q and gmt_csc->tfcand->tftrack->nStubs()>=3) ) );
-//       const bool isCSC2q(isCSC and gmt_csc->l1reg != nullptr and gmt_csc->l1reg->quality()>=2);
-//       const bool isCSC3q(isCSC and gmt_csc->l1reg != nullptr 
-// 			  and ( (!eta_q and isCSC2q) or (eta_q and gmt_csc->l1reg->quality()>=3) ) );
+      const bool hasCSCCand(isCSC and gmt_csc->tfcand != nullptr);
+      const bool hasCSCTrack(isCSC and gmt_csc->tfcand->tftrack != nullptr);
+      //      const bool hasCSCL1Track(isCSC and gmt_csc->tfcand->tftrack->l1trk != nullptr);
+      const bool hasCSCRegCand(isCSC and gmt_csc->l1reg != nullptr);
+      const bool hasCSCCandTrack(hasCSCCand and hasCSCTrack);
+      const bool isCSC2s(hasCSCCandTrack and gmt_csc->tfcand->tftrack->nStubs()>=2);
+      const bool isCSC3s(hasCSCCandTrack and ((!eta_q and isCSC2s) or (eta_q and gmt_csc->tfcand->tftrack->nStubs()>=3)));
+      const bool isCSC2q(hasCSCRegCand and gmt_csc->l1reg->quality()>=2);
+      const bool isCSC3q(hasCSCRegCand and ( (!eta_q and isCSC2q) or (eta_q and gmt_csc->l1reg->quality()>=3) ) );
       
       myGMTCand.isCSC = isCSC;
       myGMTCand.isDT = isDT;
@@ -843,8 +847,7 @@ GEMCSCTriggerRateTree::analyzeGMTCandRate(const edm::Event& iEvent)
       myGMTCand.isCSC2q = isCSC2q;
       myGMTCand.isCSC3q = isCSC3q;
       
-      rtGMTCands.push_back(myGMTCand);
-      
+      rtGmtCands_.push_back(myGMTCand);
       gmtcand_tree_->Fill();
     }
   }
@@ -932,7 +935,7 @@ int
 GEMCSCTriggerRateTree::cscTriggerSubsector(CSCDetId &id)
 {
   if(id.station() != 1) return 0; // only station one has subsectors
-  const int chamber(id.chamber());
+  int chamber(id.chamber());
   switch(chamber) // first make things easier to deal with
   {
     case 1:

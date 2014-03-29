@@ -268,7 +268,10 @@ class GEMCSCTriggerRateTree : public edm::EDAnalyzer
 
   std::vector<MatchCSCMuL1::TFTRACK> rtTFTracks_;
   std::vector<MatchCSCMuL1::TFCAND> rtTFCands_;
-  std::vector<MatchCSCMuL1::GMTREGCAND> rtGmtRegCands_;
+  std::vector<MatchCSCMuL1::GMTREGCAND> rtGmtRegCscCands_;
+  std::vector<MatchCSCMuL1::GMTREGCAND> rtGmtRegRpcfCands_;
+  std::vector<MatchCSCMuL1::GMTREGCAND> rtGmtRegRpcbCands_;
+  std::vector<MatchCSCMuL1::GMTREGCAND> rtGmtRegDtCands_;
   std::vector<MatchCSCMuL1::GMTCAND> rtGmtCands_;
   std::vector<MatchCSCMuL1::L1EXTRA> rtL1Extras_;
 
