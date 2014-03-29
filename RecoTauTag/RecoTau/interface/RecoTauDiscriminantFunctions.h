@@ -13,7 +13,6 @@
  *
  * Author: Evan K. Friis, UC Davis
  *
- * $Id $
  */
 
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -27,7 +26,7 @@ typedef std::vector<double> VDouble;
 
 /// For three prong events, take the track that has charge opposite to the
 /// composite charge.
-PFCandidateRef mainTrack(const PFTau& tau);
+PFCandidatePtr mainTrack(const PFTau& tau);
 
 // HPStanc variables
 double JetPt(Tau tau);

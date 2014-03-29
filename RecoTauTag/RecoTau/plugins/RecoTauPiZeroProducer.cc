@@ -9,7 +9,6 @@
  * via the input list of RecoTauPiZeroQualityPlugins, which form a
  * lexicograpical ranking.
  *
- * $Id $
  */
 
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -66,6 +65,11 @@ class RecoTauPiZeroProducer : public edm::EDProducer {
     // Output selector
     std::auto_ptr<StringCutObjectSelector<reco::RecoTauPiZero> >
       outputSelector_;
+
+    //consumes interface
+    edm::EDGetTokenT<reco::CandidateView> cand_token;
+
+    int verbosity_;
 };
 
 RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
@@ -110,11 +114,14 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
     }
   }
 
+  verbosity_ = ( pset.exists("verbosity") ) ?
+    pset.getParameter<int>("verbosity") : 0;
+
   produces<reco::JetPiZeroAssociation>();
 }
 
-void RecoTauPiZeroProducer::produce(edm::Event& evt,
-                                    const edm::EventSetup& es) {
+void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
+{
   // Get a view of our jets via the base candidates
   edm::Handle<reco::CandidateView> jetView;
   evt.getByLabel(src_, jetView);
@@ -210,7 +217,9 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
               std::mem_fun_ref(&reco::RecoTauPiZero::setMass), piZeroMass_));
     }
     // Add to association
-    //print(cleanPiZeros, std::cout);
+    if ( verbosity_ >= 2 ) {
+      print(cleanPiZeros, std::cout);
+    }
     association->setValue(jet.key(), cleanPiZeros);
   }
   evt.put(association);

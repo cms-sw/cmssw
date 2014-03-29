@@ -26,11 +26,11 @@ PFRecoTauTagInfoAlgorithm::PFRecoTauTagInfoAlgorithm(const edm::ParameterSet& pa
   tkPVmaxDZ_                          = parameters.getParameter<double>("tkPVmaxDZ");
 }
 
-PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJet,const PFCandidateRefVector& thePFCandsInEvent, const TrackRefVector& theTracks,const Vertex& thePV){
+PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJet,const std::vector<reco::PFCandidatePtr>& thePFCandsInEvent, const TrackRefVector& theTracks,const Vertex& thePV){
   PFTauTagInfo resultExtended;
   resultExtended.setpfjetRef(thePFJet);
 
-  PFCandidateRefVector thePFCands;
+  std::vector<reco::PFCandidatePtr> thePFCands;
   const float jetPhi = (*thePFJet).phi();
   const float jetEta = (*thePFJet).eta();
   auto dr2 = [jetPhi,jetEta](float phi, float eta) { return reco::deltaR2(jetEta,jetPhi,eta,phi);};
@@ -40,7 +40,7 @@ PFTauTagInfo PFRecoTauTagInfoAlgorithm::buildPFTauTagInfo(const PFJetRef& thePFJ
   }
   bool pvIsFake = (thePV.z() < -500.);
 
-  PFCandidateRefVector theFilteredPFChargedHadrCands;
+  std::vector<reco::PFCandidatePtr> theFilteredPFChargedHadrCands;
   if (UsePVconstraint_ && !pvIsFake) theFilteredPFChargedHadrCands=TauTagTools::filteredPFChargedHadrCands(thePFCands,ChargedHadrCand_tkminPt_,ChargedHadrCand_tkminPixelHitsn_,ChargedHadrCand_tkminTrackerHitsn_,ChargedHadrCand_tkmaxipt_,ChargedHadrCand_tkmaxChi2_,ChargedHadrCand_tkPVmaxDZ_, thePV, thePV.z());
   else theFilteredPFChargedHadrCands=TauTagTools::filteredPFChargedHadrCands(thePFCands,ChargedHadrCand_tkminPt_,ChargedHadrCand_tkminPixelHitsn_,ChargedHadrCand_tkminTrackerHitsn_,ChargedHadrCand_tkmaxipt_,ChargedHadrCand_tkmaxChi2_, thePV);
   resultExtended.setPFChargedHadrCands(theFilteredPFChargedHadrCands);

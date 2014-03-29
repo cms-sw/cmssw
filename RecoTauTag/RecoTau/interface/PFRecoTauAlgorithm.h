@@ -27,7 +27,7 @@ class  PFRecoTauAlgorithm  : public PFRecoTauAlgorithmBase {
   // PFRecTrackCollection: Temporary until integrated to PFCandidate
   reco::PFTau buildPFTau(const reco::PFTauTagInfoRef&,const reco::Vertex&);
  private:
-  bool checkPos(std::vector<math::XYZPoint>,math::XYZPoint) const;
+  bool checkPos(const std::vector<math::XYZPoint>&,const math::XYZPoint&) const;
 
   double   LeadPFCand_minPt_;
   double   LeadTrack_minPt_;

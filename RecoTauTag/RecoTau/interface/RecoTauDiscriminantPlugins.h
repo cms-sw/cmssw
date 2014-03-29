@@ -10,7 +10,6 @@
  *
  * Author: Evan K. Friis, UC Davis
  *
- * $Id $
  */
 
 #include "RecoTauTag/RecoTau/interface/RecoTauPluginsCommon.h"

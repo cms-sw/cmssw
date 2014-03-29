@@ -21,7 +21,7 @@ BaseTau::BaseTau(Charge q,const LorentzVector& p4,const Point& vtx) : RecoCandid
 BaseTau* BaseTau::clone()const{return new BaseTau(*this);}
 
 math::XYZTLorentzVector BaseTau::alternatLorentzVect()const{return(alternatLorentzVect_);} 
-void BaseTau::setalternatLorentzVect(math::XYZTLorentzVector x){alternatLorentzVect_=x;}
+void BaseTau::setalternatLorentzVect(const math::XYZTLorentzVector& x){alternatLorentzVect_=x;}
     
 TrackRef BaseTau::leadTrack() const {return leadTrack_;}
 void BaseTau::setleadTrack(const TrackRef& myTrack) { leadTrack_ = myTrack;}
