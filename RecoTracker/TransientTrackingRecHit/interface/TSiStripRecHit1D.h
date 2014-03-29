@@ -102,7 +102,7 @@ private:
 		    const OmniClusterRef & clust,
 		    const StripClusterParameterEstimator* cpe) :
     TValidTrackingRecHit(det), 
-    theCPE(cpe), theHitData(pos, err, det->geographicalId(), clust){} 
+    theCPE(cpe), theHitData(pos, err, *det, clust){} 
 
 
   

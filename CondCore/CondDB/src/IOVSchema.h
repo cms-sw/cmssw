@@ -29,7 +29,7 @@ namespace cond {
 	bool exists();
 	void create();
 	bool select( const std::string& name );
-	bool select( const std::string& name, cond::TimeType& timeType, std::string& objectType, 
+	bool select( const std::string& name, cond::TimeType& timeType, std::string& objectType, cond::SynchronizationType& synchronizationType,
 		     cond::Time_t& endOfValidity, std::string& description, cond::Time_t& lastValidatedTime );
 	bool getMetadata( const std::string& name, std::string& description, 
 			  boost::posix_time::ptime& insertionTime, boost::posix_time::ptime& modificationTime );
@@ -39,6 +39,7 @@ namespace cond {
 	void update( const std::string& name, cond::Time_t& endOfValidity, const std::string& description, 
 		     cond::Time_t lastValidatedTime, const boost::posix_time::ptime& updateTime );
 	void updateValidity( const std::string& name, cond::Time_t lastValidatedTime, const boost::posix_time::ptime& updateTime );
+	void setValidationMode(){}
       private:
 	coral::ISchema& m_schema;
       };
@@ -51,7 +52,6 @@ namespace cond {
       column( HASH, std::string, PAYLOAD_HASH_SIZE );
       column( OBJECT_TYPE, std::string );
       column( DATA, cond::Binary );
-      //column( STREAMER, std::string );
       column( STREAMER_INFO, cond::Binary );
       column( VERSION, std::string );
       column( INSERTION_TIME, boost::posix_time::ptime );
@@ -63,12 +63,14 @@ namespace cond {
 	bool exists();
 	void create();
 	bool select( const cond::Hash& payloadHash);
-	bool select( const cond::Hash& payloadHash, std::string& objectType, cond::Binary& payloadData);
+	bool select( const cond::Hash& payloadHash, std::string& objectType, 
+		     cond::Binary& payloadData, cond::Binary& streamerInfoData);
 	bool getType( const cond::Hash& payloadHash, std::string& objectType );
 	bool insert( const cond::Hash& payloadHash, const std::string& objectType, 
-		     const cond::Binary& payloadData, const boost::posix_time::ptime& insertionTime);
+		     const cond::Binary& payloadData, const cond::Binary& streamerInfoData, 
+		     const boost::posix_time::ptime& insertionTime);
 	cond::Hash insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 
-				const boost::posix_time::ptime& insertionTime );
+				const cond::Binary& streamerInfoData, const boost::posix_time::ptime& insertionTime );
       private:
 	coral::ISchema& m_schema;
       };

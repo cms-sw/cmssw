@@ -46,6 +46,7 @@ using namespace ROOT::Math::VectorUtil ;
 // class EmDQMReco::FourVectorMonitorElements
 //----------------------------------------------------------------------
 EmDQMReco::FourVectorMonitorElements::FourVectorMonitorElements(EmDQMReco *_parent,
+    DQMStore::IBooker &iBooker,
     const std::string &histogramNameTemplate,
     const std::string &histogramTitleTemplate
   ) :
@@ -58,7 +59,7 @@ EmDQMReco::FourVectorMonitorElements::FourVectorMonitorElements(EmDQMReco *_pare
   // et
   histName = boost::str(boost::format(histogramNameTemplate) % "et");
   histTitle = boost::str(boost::format(histogramTitleTemplate) % "E_{T}");
-  etMonitorElement =  parent->dbe->book1D(histName.c_str(),
+  etMonitorElement =  iBooker.book1D(histName.c_str(),
                                    histTitle.c_str(),
                                    parent->plotBins,
                                    parent->plotPtMin,
@@ -67,7 +68,7 @@ EmDQMReco::FourVectorMonitorElements::FourVectorMonitorElements(EmDQMReco *_pare
   // eta
   histName = boost::str(boost::format(histogramNameTemplate) % "eta");
   histTitle= boost::str(boost::format(histogramTitleTemplate) % "#eta");
-  etaMonitorElement = parent->dbe->book1D(histName.c_str(),
+  etaMonitorElement = iBooker.book1D(histName.c_str(),
                                   histTitle.c_str(),
                                   parent->plotBins,
                                   - parent->plotEtaMax,
@@ -76,7 +77,7 @@ EmDQMReco::FourVectorMonitorElements::FourVectorMonitorElements(EmDQMReco *_pare
   // phi
   histName = boost::str(boost::format(histogramNameTemplate) % "phi");
   histTitle= boost::str(boost::format(histogramTitleTemplate) % "#phi");
-  phiMonitorElement = parent->dbe->book1D(histName.c_str(),
+  phiMonitorElement = iBooker.book1D(histName.c_str(),
                                   histTitle.c_str(),
                                   parent->plotBins,
                                   - parent->plotPhiMax,
@@ -100,16 +101,10 @@ EmDQMReco::FourVectorMonitorElements::fill(const math::XYZTLorentzVector &moment
 ////////////////////////////////////////////////////////////////////////////////
 EmDQMReco::EmDQMReco(const edm::ParameterSet& pset)
 {
-
-  dbe = edm::Service < DQMStore > ().operator->();
-  dbe->setVerbose(0);
-
-
   ////////////////////////////////////////////////////////////
   //          Read from configuration file                  //
   ////////////////////////////////////////////////////////////
   dirname_="HLT/HLTEgammaValidation/"+pset.getParameter<std::string>("@module_label");
-  dbe->setCurrentFolder(dirname_);
 
   // parameters for generator study
   reqNum    = pset.getParameter<unsigned int>("reqNum");
@@ -202,30 +197,24 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet& pset)
 
 }
 
-
-
 ///
 ///
 ///
-void EmDQMReco::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup ) {
+void EmDQMReco::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup ) {
 
   bool isHltConfigChanged = false; // change of cfg at run boundaries?
   isHltConfigInitialized_ = hltConfig_.init( iRun, iSetup, "HLT", isHltConfigChanged );
 
 }
 
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
-//       method called once each job just before starting event loop          //
+//       book DQM histograms                                                  //
 ////////////////////////////////////////////////////////////////////////////////
 void
-EmDQMReco::beginJob()
+EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::EventSetup const &iSetup)
 {
   //edm::Service<TFileService> fs;
-  dbe->setCurrentFolder(dirname_);
+  iBooker.setCurrentFolder(dirname_);
 
   ////////////////////////////////////////////////////////////
   //  Set up Histogram of Effiency vs Step.                 //
@@ -237,14 +226,14 @@ EmDQMReco::beginJob()
   std::string histTitle = "total events passing";
   // This plot will have bins equal to 2+(number of
   //        HLTCollectionLabels in the config file)
-  totalreco = dbe->book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
+  totalreco = iBooker.book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
   totalreco->setBinLabel(numOfHLTCollectionLabels+1,"Total");
   totalreco->setBinLabel(numOfHLTCollectionLabels+2,"Reco");
   for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){totalreco->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
 
   histName="total_eff_RECO_matched";
   histTitle="total events passing (Reco matched)";
-  totalmatchreco = dbe->book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
+  totalmatchreco = iBooker.book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
   totalmatchreco->setBinLabel(numOfHLTCollectionLabels+1,"Total");
   totalmatchreco->setBinLabel(numOfHLTCollectionLabels+2,"Reco");
   for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){totalmatchreco->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
@@ -270,7 +259,7 @@ EmDQMReco::beginJob()
   // reco
   // (note that reset(..) must be used to set the value of the scoped_ptr...)
   histReco.reset(
-      new FourVectorMonitorElements(this,
+      new FourVectorMonitorElements(this, iBooker,
           "reco_%s",             // pattern for histogram name
           "%s of " + pdgIdString + "s"
       ));
@@ -279,7 +268,7 @@ EmDQMReco::beginJob()
 
   // monpath
   histRecoMonpath.reset(
-       new FourVectorMonitorElements(this,
+       new FourVectorMonitorElements(this, iBooker,
            "reco_%s_monpath",   // pattern for histogram name
            "%s of " + pdgIdString + "s monpath"
        )
@@ -290,7 +279,7 @@ EmDQMReco::beginJob()
   // TODO: WHAT ARE THESE HISTOGRAMS FOR ? THEY SEEM NEVER REFERENCED ANYWHERE IN THIS FILE...
   // final X monpath
   histMonpath.reset(
-       new FourVectorMonitorElements(this,
+       new FourVectorMonitorElements(this, iBooker,
            "final_%s_monpath",   // pattern for histogram name
            "Final %s Monpath"
        )
@@ -320,22 +309,22 @@ EmDQMReco::beginJob()
 //    // Et
 //    histName = theHLTCollectionLabels[i].label()+"et_all";
 //    histTitle = HltHistTitle[i]+" Et (ALL)";
-//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+//    tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
 //    ethist.push_back(tmphisto);
 //
 //    // Eta
 //    histName = theHLTCollectionLabels[i].label()+"eta_all";
 //    histTitle = HltHistTitle[i]+" #eta (ALL)";
-//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+//    tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
 //    etahist.push_back(tmphisto);
 //
 //    // phi
 //    histName = theHLTCollectionLabels[i].label()+"phi_all";
 //    histTitle = HltHistTitle[i]+" #phi (ALL)";
-//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+//    tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
 //    phiHist.push_back(tmphisto);
 
-    standardHist.push_back(new FourVectorMonitorElements(this,
+    standardHist.push_back(new FourVectorMonitorElements(this, iBooker,
 							 theHLTCollectionLabels[i].label()+"%s_all", // histogram name
 							 HltHistTitle[i]+" %s (ALL)"                 // histogram title
 							 ));
@@ -347,21 +336,21 @@ EmDQMReco::beginJob()
     // Et
 //    histName = theHLTCollectionLabels[i].label()+"et_RECO_matched";
 //    histTitle = HltHistTitle[i]+" Et (RECO matched)";
-//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+//    tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
 //    ethistmatchreco.push_back(tmphisto);
 
 //    // Eta
 //    histName = theHLTCollectionLabels[i].label()+"eta_RECO_matched";
 //    histTitle = HltHistTitle[i]+" #eta (RECO matched)";
-//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+//    tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
 //    etahistmatchreco.push_back(tmphisto);
 //
 //    // phi
 //    histName = theHLTCollectionLabels[i].label()+"phi_RECO_matched";
 //    histTitle = HltHistTitle[i]+" #phi (RECO matched)";
-//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+//    tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
 //    phiHistMatchReco.push_back(tmphisto);
-    histMatchReco.push_back(new FourVectorMonitorElements(this,
+    histMatchReco.push_back(new FourVectorMonitorElements(this, iBooker,
         theHLTCollectionLabels[i].label()+"%s_RECO_matched", // histogram name
         HltHistTitle[i]+" %s (RECO matched)"                 // histogram title
         ));
@@ -373,22 +362,22 @@ EmDQMReco::beginJob()
 //    // Et
 //    histName = theHLTCollectionLabels[i].label()+"et_RECO_matched_monpath";
 //    histTitle = HltHistTitle[i]+" Et (RECO matched, monpath)";
-//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+//    tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
 //    ethistmatchrecomonpath.push_back(tmphisto);
 //
 //    // Eta
 //    histName = theHLTCollectionLabels[i].label()+"eta_RECO_matched_monpath";
 //    histTitle = HltHistTitle[i]+" #eta (RECO matched, monpath)";
-//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+//    tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
 //    etahistmatchrecomonpath.push_back(tmphisto);
 //
 //    // phi
 //    histName = theHLTCollectionLabels[i].label()+"phi_RECO_matched_monpath";
 //    histTitle = HltHistTitle[i]+" #phi (RECO matched, monpath)";
-//    tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+//    tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
 //    phiHistMatchRecoMonPath.push_back(tmphisto);
 
-    histMatchRecoMonPath.push_back(new FourVectorMonitorElements(this,
+    histMatchRecoMonPath.push_back(new FourVectorMonitorElements(this, iBooker,
         theHLTCollectionLabels[i].label()+"%s_RECO_matched_monpath", // histogram name
         HltHistTitle[i]+" %s (RECO matched, monpath)"                // histogram title
         ));
@@ -399,22 +388,22 @@ EmDQMReco::beginJob()
     // Et
 //    histName  = theHLTCollectionLabels[i].label()+"et_reco";
 //    histTitle = HltHistTitle[i]+" Et (reco)";
-//    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+//    tmphisto  = iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
 //    histEtOfHltObjMatchToReco.push_back(tmphisto);
 //
 //    // eta
 //    histName  = theHLTCollectionLabels[i].label()+"eta_reco";
 //    histTitle = HltHistTitle[i]+" eta (reco)";
-//    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+//    tmphisto  = iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
 //    histEtaOfHltObjMatchToReco.push_back(tmphisto);
 //
 //    // phi
 //    histName  = theHLTCollectionLabels[i].label()+"phi_reco";
 //    histTitle = HltHistTitle[i]+" phi (reco)";
-//    tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+//    tmphisto  = iBooker.book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
 //    histPhiOfHltObjMatchToReco.push_back(tmphisto);
 
-    histHltObjMatchToReco.push_back(new FourVectorMonitorElements(this,
+    histHltObjMatchToReco.push_back(new FourVectorMonitorElements(this, iBooker,
         theHLTCollectionLabels[i].label()+"%s_reco",   // histogram name
         HltHistTitle[i]+" %s (reco)"                  // histogram title
         ));
@@ -444,19 +433,19 @@ EmDQMReco::beginJob()
       // X = eta
       histName  = theHLTCollectionLabels[i].label()+"eta_isolation_all";
       histTitle = HltHistTitle[i]+" isolation vs #eta (all)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      tmpiso    = iBooker.book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       etahistiso.push_back(tmpiso);
 
       // X = et
       histName  = theHLTCollectionLabels[i].label()+"et_isolation_all";
       histTitle = HltHistTitle[i]+" isolation vs Et (all)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      tmpiso    = iBooker.book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       ethistiso.push_back(tmpiso);
 
       // X = phi
       histName  = theHLTCollectionLabels[i].label()+"phi_isolation_all";
       histTitle = HltHistTitle[i]+" isolation vs #phi (all)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      tmpiso    = iBooker.book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       phiHistIso.push_back(tmpiso);
 
       //--------------------
@@ -466,19 +455,19 @@ EmDQMReco::beginJob()
       // X = eta
       histName  = theHLTCollectionLabels[i].label()+"eta_isolation_RECO_matched";
       histTitle = HltHistTitle[i]+" isolation vs #eta (reco matched)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      tmpiso    = iBooker.book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       etahistisomatchreco.push_back(tmpiso);
 
       // X = et
       histName  = theHLTCollectionLabels[i].label()+"et_isolation_RECO_matched";
       histTitle = HltHistTitle[i]+" isolation vs Et (reco matched)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      tmpiso    = iBooker.book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       ethistisomatchreco.push_back(tmpiso);
 
       // X = eta
       histName  = theHLTCollectionLabels[i].label()+"phi_isolation_RECO_matched";
       histTitle = HltHistTitle[i]+" isolation vs #phi (reco matched)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      tmpiso    = iBooker.book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       phiHistIsoMatchReco.push_back(tmpiso);
 
       //--------------------
@@ -489,24 +478,23 @@ EmDQMReco::beginJob()
       // X = eta
       histName  = theHLTCollectionLabels[i].label()+"eta_isolation_reco";
       histTitle = HltHistTitle[i]+" isolation vs #eta (reco)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      tmpiso    = iBooker.book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       histEtaIsoOfHltObjMatchToReco.push_back(tmpiso);
 
       // X = et
       histName  = theHLTCollectionLabels[i].label()+"et_isolation_reco";
       histTitle = HltHistTitle[i]+" isolation vs Et (reco)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      tmpiso    = iBooker.book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       histEtIsoOfHltObjMatchToReco.push_back(tmpiso);
 
       // X = phi
       histName  = theHLTCollectionLabels[i].label()+"phi_isolation_reco";
       histTitle = HltHistTitle[i]+" isolation vs #phi (reco)";
-      tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+      tmpiso    = iBooker.book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
       histPhiIsoOfHltObjMatchToReco.push_back(tmpiso);
       //--------------------
 
     } // END of HLT histograms
-
   }
 }
 
@@ -598,22 +586,6 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
   ////////////////////////////////////////////////////////////
   totalreco->Fill(numOfHLTCollectionLabels+0.5);
   totalmatchreco->Fill(numOfHLTCollectionLabels+.5);
-
-  /* edm::Handle< edm::View<reco::GsfElectron> > recoParticles;
-  event.getByLabel("gsfElectrons", recoParticles);
-
-  std::vector<reco::GsfElectron> allSortedRecoParticles;
-
-  for(edm::View<reco::GsfElectron>::const_iterator currentRecoParticle = recoParticles->begin(); currentRecoParticle != recoParticles->end(); currentRecoParticle++){
-  if (  !((*currentRecoParticle).et() > 2.0)  )  continue;
-    reco::GsfElectron tmpcand( *(currentRecoParticle) );
-    allSortedRecoParticles.push_back(tmpcand);
-  }
-
-  std::sort(allSortedRecoParticles.begin(), allSortedRecoParticles.end(),pTRecoComparator_);*/
-
-  // Were enough high energy gen particles found?
-  // It was an event worth keeping. Continue.
 
   ////////////////////////////////////////////////////////////
   //  Fill the bin labeled "Total"                          //

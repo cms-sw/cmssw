@@ -91,12 +91,13 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 					const TrackCollection& theTCollection,
 					const TrajectoryFitter * theFitter,
 					const Propagator * thePropagator,
-					const TransientTrackingRecHitBuilder* builder,
+					const TransientTrackingRecHitBuilder* gbuilder,
 			   		const reco::BeamSpot& bs,
 					AlgoProductCollection& algoResults)
 {
   LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollection.size() << "\n";
-  
+  const TkTransientTrackingRecHitBuilder * builder = dynamic_cast<TkTransientTrackingRecHitBuilder const *>(gbuilder);
+  assert(builder);
   int cont = 0;
   for (typename TrackCollection::const_iterator i=theTCollection.begin(); i!=theTCollection.end();i++)
     {
@@ -146,7 +147,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 				}
 			      LocalPoint pos;//null
 			      LocalError err;//null
-			      SiStripMatchedRecHit2D rematchedH(pos,err,gluedId,mono,stereo);
+			      SiStripMatchedRecHit2D rematchedH(pos,err, *builder->geometry()->idToDet(gluedId), mono,stereo);
 			      hits.push_back(builder->build(&rematchedH));
 			      //the local position and error is dummy but the fitter does not need that anyways
 			      i++;

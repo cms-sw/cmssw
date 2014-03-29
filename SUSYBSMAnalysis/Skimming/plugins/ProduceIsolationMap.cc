@@ -2,8 +2,8 @@
 //
 // Package:    ProduceIsolationMap
 // Class:      ProduceIsolationMap
-// 
-/*\class ProduceIsolationMap ProduceIsolationMap.cc 
+//
+/*\class ProduceIsolationMap ProduceIsolationMap.cc
 
  Description: [one line class summary]
 
@@ -74,11 +74,8 @@ class ProduceIsolationMap : public edm::EDProducer {
       ~ProduceIsolationMap();
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
    private:
-      edm::InputTag TKLabel_;
-      edm::InputTag EBrecHitsLabel_;
-      edm::InputTag EErecHitsLabel_;
-      edm::InputTag HCALrecHitsLabel_;
-      edm::InputTag inputCollection_;
+      edm::EDGetTokenT<reco::TrackCollection> TKToken_;
+      edm::EDGetTokenT<reco::TrackCollection> inputCollectionToken_;
       double  TKIsolationPtcut_;
       double  IsolationConeDR_;
       TrackDetectorAssociator trackAssociator_;
@@ -100,8 +97,8 @@ class ProduceIsolationMap : public edm::EDProducer {
 //
 ProduceIsolationMap::ProduceIsolationMap(const edm::ParameterSet& iConfig)
 {
-   TKLabel_          = iConfig.getParameter< edm::InputTag > ("TKLabel");
-   inputCollection_  = iConfig.getParameter< edm::InputTag > ("inputCollection");
+   TKToken_          = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag > ("TKLabel"));
+   inputCollectionToken_  = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag > ("inputCollection"));
    TKIsolationPtcut_ = iConfig.getParameter< double >        ("TkIsolationPtCut");
    IsolationConeDR_  = iConfig.getParameter< double >        ("IsolationConeDR");
 
@@ -129,16 +126,16 @@ ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using reco::TrackCollection;
 
    Handle<TrackCollection> TKHandle;
-   iEvent.getByLabel(TKLabel_,TKHandle);
+   iEvent.getByToken(TKToken_,TKHandle);
    if(!TKHandle.isValid() ){  edm::LogError("ProduceIsolationMap") << "TK Tracks collection not found";    return;   }
 
    //Create empty output collections
-   auto_ptr<ValueMap<HSCPIsolation> > trackHSCPIsolMap(new ValueMap<HSCPIsolation> );  
+   auto_ptr<ValueMap<HSCPIsolation> > trackHSCPIsolMap(new ValueMap<HSCPIsolation> );
    ValueMap<HSCPIsolation>::Filler    filler(*trackHSCPIsolMap);
-  
-   //loop through tracks. 
+
+   //loop through tracks.
    Handle<TrackCollection> tkTracks;
-   iEvent.getByLabel(inputCollection_,tkTracks);
+   iEvent.getByToken(inputCollectionToken_,tkTracks);
    std::vector<HSCPIsolation> IsolationInfoColl(tkTracks->size());
 
    int TkIndex=0;
@@ -170,7 +167,7 @@ ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    filler.insert(tkTracks, IsolationInfoColl.begin(), IsolationInfoColl.end());
    filler.fill();
-   iEvent.put(trackHSCPIsolMap); 
+   iEvent.put(trackHSCPIsolMap);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(ProduceIsolationMap);

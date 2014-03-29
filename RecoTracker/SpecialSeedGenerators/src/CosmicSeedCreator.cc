@@ -39,10 +39,12 @@ void CosmicSeedCreator::makeSeed(TrajectorySeedCollection & seedCollection,
 
   //hits
   //++++
-  TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
-  TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
+  SeedingHitSet::ConstRecHitPointer tth1 = hits[0];
+  SeedingHitSet::ConstRecHitPointer tth2 = hits[1];
+  assert(!trackerHitRTTI::isUndef(*tth1));
+  assert(!trackerHitRTTI::isUndef(*tth2));
 
-  TransientTrackingRecHit::ConstRecHitPointer usedHit;
+  SeedingHitSet::ConstRecHitPointer usedHit;
 
   //definition of position & momentum
   //++++++++++++++++++++++++++++++++++
@@ -86,13 +88,13 @@ void CosmicSeedCreator::makeSeed(TrajectorySeedCollection & seedCollection,
   if (reverseAll){
     LogDebug("CosmicSeedCreator") <<"Reverse all applied";
 
-    seedHits.push_back(tth2->hit()->clone());
-    seedHits.push_back(tth1->hit()->clone());
+    seedHits.push_back(tth2->clone());
+    seedHits.push_back(tth1->clone());
   }
 
   else {
-    seedHits.push_back(tth1->hit()->clone());
-    seedHits.push_back(tth2->hit()->clone());
+    seedHits.push_back(tth1->clone());
+    seedHits.push_back(tth2->clone());
   }
 
   

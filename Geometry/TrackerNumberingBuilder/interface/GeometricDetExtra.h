@@ -58,7 +58,7 @@ class GeometricDetExtra {
   /**
    * set or add or clear components
    */
-  void setGeographicalId(DetId id) const {
+  void setGeographicalId(DetId id) {
     _geographicalId = id; 
     //std::cout <<"setGeographicalId " << int(id) << std::endl;
   }
@@ -108,8 +108,7 @@ class GeometricDetExtra {
   /** Data members **/
 
   GeometricDet const* _mygd;  
-  //FIXME WHY? FROM GeometricDet comment 
-  mutable DetId _geographicalId;
+  DetId _geographicalId;
   GeoHistory _parents;
   double _volume;
   double _density;

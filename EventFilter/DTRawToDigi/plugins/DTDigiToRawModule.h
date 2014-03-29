@@ -4,7 +4,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 
 class DTDigiToRaw;
@@ -25,7 +25,7 @@ private:
   
   int dduID;
   bool debug;
-  edm::InputTag digicoll;
+  edm::EDGetTokenT<DTDigiCollection> digicoll;
   
   bool useStandardFEDid_;
   int minFEDid_;

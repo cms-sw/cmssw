@@ -58,13 +58,13 @@ namespace cond {
     protected:
     cond::DbSession newDbSession(  const std::string& connectionString, bool readOnly=false );
     cond::DbSession newDbSession(  const std::string& connectionString, const std::string& role, bool readOnly=false );
+    void initializeForDbConnection();
   
     private:
 
     std::string getValueIfExists(const std::string& fullName);
     void sendException( const std::string& message );
     void sendError( const std::string& message );
-    void initializeForDbConnection();
     
     private:
 

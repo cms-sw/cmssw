@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFNuclearInteraction.h"
 
 class PFTrackTransformer;
 class PFNuclearProducer : public edm::EDProducer {
@@ -27,6 +28,6 @@ private:
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_; 
   double likelihoodCut_;
-  std::vector<edm::InputTag> nuclearContainers_;
+  std::vector<edm::EDGetTokenT<reco::NuclearInteractionCollection> > nuclearContainers_;
 };
 #endif

@@ -37,8 +37,8 @@ public:
 
   /// Construct from a packed id. It is required that the Detector part of
   /// id is Muon and the SubDet part is CSC, otherwise an exception is thrown.
-  CSCDetId(uint32_t id) : DetId(id){}
-  CSCDetId(DetId id) : DetId(id){}
+  CSCDetId(uint32_t id) : DetId(id) {}
+  CSCDetId(DetId id) : DetId(id) {}
 
 
   /// Construct from fully qualified identifier.
@@ -50,6 +50,14 @@ public:
 	    int ilayer = 0 ) : DetId(DetId::Muon, MuonSubdetId::CSC) {
      id_ |= init(iendcap, istation, iring, ichamber, ilayer);
   }
+
+#else
+
+    CSCDetId(uint32_t id);
+    CSCDetId(DetId id);
+    CSCDetId( int iendcap, int istation, 
+	      int iring, int ichamber, 
+	      int ilayer = 0 );
 
 #endif
 

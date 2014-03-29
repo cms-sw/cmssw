@@ -10,11 +10,11 @@
 #include <iomanip>
 #include "boost/filesystem.hpp"
 
-#include "../interface/JsonMonitorable.h"
-#include "../interface/FastMonitor.h"
-#include "../interface/JSONSerializer.h"
-
-#include "FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
+#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/FileIO.h"
+#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
 
 namespace evf {
   template<typename Consumer>
@@ -69,13 +69,16 @@ namespace evf {
     std::string events_base_filename_;
     std::string baseDir_;
     std::string smpath_;
-    std::string jsonDefPath_;
     boost::filesystem::path openDatFilePath_;
     IntJ processed_;
     mutable IntJ accepted_;
+    IntJ errorEvents_; 
+    IntJ retCodeMask_; 
     StringJ filelist_;
+    StringJ inputFiles_;
     boost::shared_ptr<FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
+    DataPointDefinition outJsonDef_;
 
 
   }; //end-of-class-def
@@ -88,22 +91,52 @@ namespace evf {
     baseDir_(ps.getUntrackedParameter<std::string>("baseDir","")),
     processed_(0),
     accepted_(0),
-    filelist_("")
+    errorEvents_(0),
+    retCodeMask_(0),
+    filelist_(),
+    inputFiles_()
   {
     initializeStreams();
     
     fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
-    jsonDefPath_ = fms_->getOutputDefPath();
     
     processed_.setName("Processed");
     accepted_.setName("Accepted");
+    errorEvents_.setName("ErrorEvents");
+    retCodeMask_.setName("ReturnCodeMask");
     filelist_.setName("Filelist");
-    vector<JsonMonitorable*> monParams;
-    monParams.push_back(&processed_);
-    monParams.push_back(&accepted_);
-    monParams.push_back(&filelist_);
-    
-    jsonMonitor_.reset(new FastMonitor(monParams, jsonDefPath_));
+    inputFiles_.setName("InputFiles");
+
+    outJsonDef_.setDefaultGroup("data");
+    outJsonDef_.addLegendItem("Processed","integer",DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("Accepted","integer",DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("ErrorEvents","integer",DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("ReturnCodeMask","integer",DataPointDefinition::BINARYOR);
+    outJsonDef_.addLegendItem("Filelist","string",DataPointDefinition::MERGE);
+    outJsonDef_.addLegendItem("InputFiles","string",DataPointDefinition::CAT);
+    std::stringstream ss;
+    ss << edm::Service<evf::EvFDaqDirector>()->fuBaseDir() << "/" << "output_" << getpid() << ".jsd";
+    std::string outJsonDefName = ss.str();
+
+    edm::Service<evf::EvFDaqDirector>()->lockInitLock();
+    struct stat   fstat;
+    if (stat (outJsonDefName.c_str(), &fstat) != 0) { //file does not exist
+      std::cout << " writing output definition file " << outJsonDefName << std::endl;
+      std::string content;
+      JSONSerializer::serialize(&outJsonDef_,content);
+      FileIO::writeStringToFile(outJsonDefName, content);
+    }
+    edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
+
+    jsonMonitor_.reset(new FastMonitor(&outJsonDef_,true));
+    jsonMonitor_->setDefPath(outJsonDefName);
+    jsonMonitor_->registerGlobalMonitorable(&processed_,false);
+    jsonMonitor_->registerGlobalMonitorable(&accepted_,false);
+    jsonMonitor_->registerGlobalMonitorable(&errorEvents_,false);
+    jsonMonitor_->registerGlobalMonitorable(&retCodeMask_,false);
+    jsonMonitor_->registerGlobalMonitorable(&filelist_,false);
+    jsonMonitor_->registerGlobalMonitorable(&inputFiles_,false);
+    jsonMonitor_->commit(nullptr);
   }
   
   template<typename Consumer>
@@ -194,10 +227,10 @@ namespace evf {
 
     // output jsn file
     if(processed_.value()!=0){
-	jsonMonitor_->snap(false, "");
+	jsonMonitor_->snap(false, "",ls.luminosityBlock());
 	const std::string outputJsonNameStream =
 	  edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),stream_label_);
-	jsonMonitor_->outputFullHistoDataPoint(outputJsonNameStream);
+	jsonMonitor_->outputFullJSON(outputJsonNameStream,ls.luminosityBlock());
     }
 
     // reset monitoring params

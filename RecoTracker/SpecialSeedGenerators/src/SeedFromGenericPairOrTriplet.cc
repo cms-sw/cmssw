@@ -60,9 +60,9 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 			"call to SeedFromGenericPairOrTriplet::seedFromTriplet with " << hits.size() << " hits ";
 	}
 
-        const TrackingRecHit* innerHit  = hits[0]->hit();
-        const TrackingRecHit* middleHit = hits[1]->hit();
-        const TrackingRecHit* outerHit  = hits[2]->hit();
+        auto innerHit  = hits[0];
+        auto middleHit = hits[1];
+        auto outerHit  = hits[2];
         GlobalPoint inner  = theTracker->idToDet(innerHit->geographicalId() )->surface().toGlobal(innerHit->localPosition() );
         GlobalPoint middle = theTracker->idToDet(middleHit->geographicalId())->surface().toGlobal(middleHit->localPosition());
         GlobalPoint outer  = theTracker->idToDet(outerHit->geographicalId() )->surface().toGlobal(outerHit->localPosition() );
@@ -100,7 +100,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 	//const TrackingRecHit* firstHit  = 0;
 	//const TrackingRecHit* secondHit = 0;
 	//choose the prop dir and hit order accordingly to where the seed is made
-	std::vector<const TrackingRecHit*> trHits;
+	std::vector<const BaseTrackerRecHit*> trHits;
 	if (seedDir == outsideIn){
 		LogDebug("SeedFromGenericPairOrTriplet") 
 			<< "Seed from outsideIn alongMomentum OR insideOut oppositeToMomentum";
@@ -152,8 +152,8 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& 
                 throw cms::Exception("CombinatorialSeedGeneratorForCosmics") <<
                         "call to SeedFromGenericPairOrTriplet::seedFromPair with " << hits.size() << " hits ";
         }
-	const TrackingRecHit* innerHit = hits[0]->hit();
-        const TrackingRecHit* outerHit = hits[1]->hit();
+	auto innerHit = hits[0];
+        auto outerHit = hits[1];
         GlobalPoint inner  = theTracker->idToDet(innerHit->geographicalId() )->surface().toGlobal(innerHit->localPosition() );
         GlobalPoint outer  = theTracker->idToDet(outerHit->geographicalId() )->surface().toGlobal(outerHit->localPosition() );
 	LogDebug("SeedFromGenericPairOrTriplet") <<
@@ -169,7 +169,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& 
         int momentumSign         = 1;
         //const TrackingRecHit* firstHit  = 0;
         //const TrackingRecHit* secondHit = 0;
-	std::vector<const TrackingRecHit*> trHits;
+	std::vector<const BaseTrackerRecHit*> trHits;
         //choose the prop dir and hit order accordingly to where the seed is made
         if (seedDir == outsideIn){
 		LogDebug("SeedFromGenericPairOrTriplet")
@@ -209,7 +209,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& 
 TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const GlobalVector& momentum,
 							int charge, 
 							//const TrackingRecHit* firsthit,
-							std::vector<const TrackingRecHit*>& trHits,
+							std::vector<const BaseTrackerRecHit*>& trHits,
 							const PropagationDirection& dir) const {
 	const Propagator* propagator = thePropagatorAlong;
 	if (dir == oppositeToMomentum) propagator = thePropagatorOpposite;
@@ -227,7 +227,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const GlobalVector& mome
                         << "," << second.theta() <<")";
 	//build an initial trajectory state with big errors, 
 	//then update it with the first hit
-	TransientTrackingRecHit::RecHitPointer transHit = theBuilder->build(trHits[0]);
+	auto transHit = trHits[0];
   	LocalVector lmom = transHit->surface()->toLocal(momentum);
   	LocalTrajectoryParameters ltp(charge/momentum.mag(),
                 		      lmom.x()/lmom.z(),lmom.y()/lmom.z(),
@@ -244,7 +244,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const GlobalVector& mome
 	KFUpdator updator;
 	TrajectoryStateOnSurface startingState = updator.update(initialState,*transHit);
 
-	TransientTrackingRecHit::RecHitPointer transHit2 = theBuilder->build(trHits[1]);
+	auto transHit2 = trHits[1];
 
 	//TrajectoryStateOnSurface seedTSOS(*startingState, *plane);
 	const TrajectoryStateOnSurface propTSOS = propagator->propagate(startingState,*(transHit2->surface()));
@@ -263,8 +263,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const GlobalVector& mome
 		trajectoryStateTransform::persistentState(seedTSOS, trHits[1]->geographicalId().rawId());
 	edm::OwnVector<TrackingRecHit> seed_hits;
 	//build the transientTrackingRecHit for the starting hit, then call the method clone to rematch if needed
-	std::vector<const TrackingRecHit*>::const_iterator ihits;
-	for (ihits = trHits.begin(); ihits != trHits.end(); ihits++){
+	for (auto ihits = trHits.begin(); ihits != trHits.end(); ihits++){
 		seed_hits.push_back((*ihits)->clone());
 	}
 	TrajectorySeed* seed = new TrajectorySeed(PTraj,seed_hits,dir);
@@ -272,7 +271,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const GlobalVector& mome
 }
 /*
 CurvilinearTrajectoryError SeedFromGenericPairOrTriplet::initialError(const TrackingRecHit* rechit) {
-        TransientTrackingRecHit::RecHitPointer transHit =  theBuilder->build(rechit);
+        SeedingHitSet::RecHitPointer transHit =  theBuilder->build(rechit);
         //AlgebraicSymMatrix C(5,1);
 	AlgebraicSymMatrix55 C = AlgebraicMatrixID();
         //C*=0.1;

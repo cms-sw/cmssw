@@ -83,12 +83,19 @@ accounts = [
 ]
 
 
+def run_command(command, output_file):
+    command = '%s > %s 2>&1' % (command, output_file)
+    logging.info('Running %s', command)
+    try:
+        subprocess.check_call(command, shell=True)
+    except subprocess.CalledProcessError as e:
+        logging.error('Error while running %s: return code %s', command, e.returncode)
+
+
 def migrate_account(args):
     command_template = '$CMSSW_BASE/bin/$SCRAM_ARCH/conddb_migrate -s oracle://cms_orcon_adg/%s -d %s'
     command = command_template % (args.account, args.db)
-    logging.info('Running %s', command)
-    subprocess.check_call(command, shell=True)
-    return '-> %s' % args.account
+    run_command(command, os.path.join(args.output, args.account))
 
 
 def migrate_accounts(args):
@@ -97,20 +104,23 @@ def migrate_accounts(args):
         newargs.account = account
         return newargs
 
-    print multiprocessing.Pool(args.jobs).map(migrate_account, [_make_args(args, account) for account in accounts])
+    multiprocessing.Pool(args.jobs).map(migrate_account, [_make_args(args, account) for account in accounts])
 
 
 def migrate_gt(args):
     command_template = '$CMSSW_BASE/bin/$SCRAM_ARCH/conddb_migrate_gt -s oracle://cms_orcon_adg/CMS_COND_31X_GLOBALTAG -d %s -g %s'
     command = command_template % (args.db, args.gt)
-    logging.info('Running %s', command)
-    subprocess.check_call(command, shell=True)
+    run_command(command, os.path.join(args.output, args.gt))
 
 
-def migrate_gts(args):
+def make_gt_connection(args):
     logging.info('Fetching global tag list...')
     password = subprocess.check_output('''cat %s | grep -F 'CMS_COND_31X_GLOBALTAG' -2 | tail -1 | cut -d'"' -f4''' % os.path.join(args.authpath, 'readOnlyProd.xml'), shell=True).strip()
-    connection = cx_Oracle.connect('CMS_COND_GENERAL_R', password, 'cms_orcon_adg')
+    return cx_Oracle.connect('CMS_COND_GENERAL_R', password, 'cms_orcon_adg')
+
+
+def fetch_gts(connection):
+    logging.info('Fetching global tag list...')
     cursor = connection.cursor()
     cursor.execute('''
         select substr(table_name, length('tagtree_table_') + 1) gt
@@ -121,6 +131,11 @@ def migrate_gts(args):
     ''')
     gts = zip(*cursor.fetchall())[0]
     logging.info('Fetching global tag list... Done: %s global tags found.', len(gts))
+    return gts
+
+
+def migrate_gts(args):
+    gts = fetch_gts(make_gt_connection(args))
 
     def _make_args(args, gt):
         newargs = argparse.Namespace(**vars(args))
@@ -128,6 +143,37 @@ def migrate_gts(args):
         return newargs
 
     multiprocessing.Pool(args.jobs).map(migrate_gt, [_make_args(args, gt) for gt in gts])
+
+
+def tags_in_gts(args):
+    # Dynamic SQL is used due to the schema
+    # This is OK since we trust the input,
+    # which is the GT database's tables.
+
+    connection = make_gt_connection(args)
+    gts = fetch_gts(connection)
+    account_tags = {}
+
+    for i, gt in enumerate(gts):
+        logging.info('[%s/%s] Reading %s ...', i+1, len(gts), gt)
+        cursor = connection.cursor()
+        cursor.execute('''
+            select "pfn", "tagname"
+            from CMS_COND_31X_GLOBALTAG.TAGINVENTORY_TABLE
+            where "tagid" in (
+                select "tagid"
+                from CMS_COND_31X_GLOBALTAG.TAGTREE_TABLE_%s
+            )
+        ''' % gt)
+
+        for account, tag in cursor:
+            account_tags.setdefault(account, set([])).add(tag)
+
+    for account in sorted(account_tags):
+        print account
+        for tag in sorted(account_tags[account]):
+            print '   ', tag
+        print
 
 
 def check_and_run(args):
@@ -157,6 +203,9 @@ def check_and_run(args):
         'BOOST' in os.environ['CMSSW_VERSION']:
         raise Exception('ROOT database with a Boost release -- mistake?')
 
+    # Create output log folder
+    os.makedirs(args.output)
+
     args.func(args)
 
 
@@ -166,6 +215,7 @@ def main():
 
     parser = argparse.ArgumentParser(description='conddb_migrate - the CMS Conditions DB migration script')
     parser.add_argument('--verbose', '-v', action='count', help='Verbosity level. -v prints debugging information of this tool, like tracebacks in case of errors.')
+    parser.add_argument('--output', '-o', default=time.strftime('%Y-%m-%d-%H-%M-%S'), help='Output folder. Default: {current_timestamp}, i.e. %(default)s')
     parser.add_argument('db', help='Destination database. Aliases: "root" (CMS_CONDITIONS), "boost" (CMS_TEST_CONDITIONS), both in prep. *Make sure the database kind matches the code, i.e. use a BOOST IB when uploading to a Boost database; and a normal release when uploading to the ROOT database -- this script checks the CMSSW_VERSION when using the two official aliases in prep to prevent mistakes, but not for other databases.*')
     parser_subparsers = parser.add_subparsers(title='Available subcommands')
 
@@ -185,6 +235,10 @@ def main():
     parser_gts.add_argument('authpath', help='Authentication path.')
     parser_gts.add_argument('--jobs', '-j', type=int, default=4, help='Number of jobs.')
     parser_gts.set_defaults(func=migrate_gts)
+
+    parser_tags_in_gts = parser_subparsers.add_parser('tags_in_gts', description='Dumps the set of tags (including account name) which are in each global tag.')
+    parser_tags_in_gts.add_argument('authpath', help='Authentication path.')
+    parser_tags_in_gts.set_defaults(func=tags_in_gts)
 
     args = parser.parse_args()
 

@@ -18,7 +18,7 @@
 
 #define FETCH_PAYLOAD_CASE( TYPENAME ) \
   if( payloadTypeName == #TYPENAME ){ \
-    auto payload = deserialize<TYPENAME>( payloadTypeName, data ); \
+    auto payload = deserialize<TYPENAME>( payloadTypeName, data, streamerInfo, isOra ); \
     payloadPtr = payload; \
     match = true; \
   }
@@ -298,11 +298,13 @@ namespace cond {
     std::pair<std::string,boost::shared_ptr<void> > fetch( const cond::Hash& payloadId, Session& session ){
       boost::shared_ptr<void> payloadPtr;
       cond::Binary data;
+      cond::Binary streamerInfo;
       std::string payloadTypeName;
-      bool found = session.fetchPayloadData( payloadId, payloadTypeName, data );
+      bool found = session.fetchPayloadData( payloadId, payloadTypeName, data, streamerInfo );
       if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
       //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
       bool match = false;
+      bool isOra = session.isOraSession();
     FETCH_PAYLOAD_CASE( std::string ) 
     FETCH_PAYLOAD_CASE( std::vector<unsigned long long> )
     FETCH_PAYLOAD_CASE( AlCaRecoTriggerBits )
@@ -522,12 +524,12 @@ namespace cond {
 
     //   
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    
-      auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data );
+      auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo );
       payloadPtr = payload;
       match = true;
     }
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram2D<double,double,double>" ){    
-      auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data );
+      auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo );
       payloadPtr = payload;
       match = true;
     }

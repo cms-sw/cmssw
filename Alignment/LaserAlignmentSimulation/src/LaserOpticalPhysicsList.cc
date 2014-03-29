@@ -84,10 +84,10 @@ void LaserOpticalPhysicsList::ConstructProcess()
   theScintProcess->SetScintillationExcitationRatio(0.0);
   theScintProcess->SetTrackSecondariesFirst(true);
   
-  theParticleIterator->reset();
-  while( (*theParticleIterator)() )
+  aParticleIterator->reset();
+  while( (*aParticleIterator)() )
     {
-      G4ParticleDefinition* particle = theParticleIterator->value();
+      G4ParticleDefinition* particle = aParticleIterator->value();
       pManager = particle->GetProcessManager();
 //      if(theCerenkovProcess->IsApplicable(*particle))
 //	{

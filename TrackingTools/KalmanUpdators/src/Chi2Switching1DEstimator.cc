@@ -6,7 +6,7 @@ using namespace std;
 
 pair<bool,double> 
 Chi2Switching1DEstimator::estimate (const TrajectoryStateOnSurface& aTsos,
-				    const TransientTrackingRecHit& aHit) const {
+				    const TrackingRecHit& aHit) const {
   if(//aHit.isMatched() || 
      aHit.detUnit()->type().isTrackerPixel()) {
     return localEstimator().estimate(aTsos, aHit);

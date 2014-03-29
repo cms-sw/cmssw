@@ -18,6 +18,7 @@
 //! Quality word packing
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 
+#include "TkCloner.h"
 
 class SiPixelRecHit GCC11_FINAL : public TrackerSingleRecHit {
   
@@ -25,34 +26,35 @@ public:
   
   typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > ClusterRef;
   
-  SiPixelRecHit(): qualWord_(0) {}
+  SiPixelRecHit(){}
   
-  ~SiPixelRecHit() {}
-  
-  SiPixelRecHit( const LocalPoint& pos , const LocalError& err,
-		 const DetId& id, 
+  ~SiPixelRecHit(){}
+
+  SiPixelRecHit( const LocalPoint& pos , const LocalError& err, 
+		 SiPixelRecHitQuality::QualWordType qual,
+		 GeomDet const & idet,
 		 ClusterRef const&  clus) : 
-    TrackerSingleRecHit(pos,err,id,clus), 
-    qualWord_(0) 
-  {}
+    TrackerSingleRecHit(pos,err,idet, clus){
+    qualWord_=qual; }
+
   
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
   
   ClusterRef cluster()  const { return cluster_pixel(); }
+
   void setClusterRef(ClusterRef const & ref)  {setClusterPixelRef(ref);}
+
   virtual int dimension() const {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
   
   
-  //--------------------------------------------------------------------------
-  //--- Accessors of other auxiliary quantities
-  //--- Added Oct 07 by Petar for 18x.
+  virtual bool canImproveWithTrack() const {return true;}
 private:
-  // *************************************************************************
-  //
-  SiPixelRecHitQuality::QualWordType  qualWord_ ;   // unsigned int 32-bit wide
-  //
-  // *************************************************************************
+  // double dispatch
+  virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner(*this,tsos);
+  }
+  
   
 public:
   //--- The overall probability.  flags is the 32-bit-packed set of flags that
@@ -68,11 +70,8 @@ public:
   inline SiPixelRecHitQuality::QualWordType rawQualityWord() const { 
     return qualWord_ ; 
   }
-  inline void setRawQualityWord( SiPixelRecHitQuality::QualWordType w ) { 
-    qualWord_ = w; 
-  }
 
-
+ 
   //--- Template fit probability, in X and Y directions
   //--- These are obsolete and will be taken care of in the quality code
   inline float probabilityX() const     {
@@ -115,29 +114,6 @@ public:
   //--- Quality flag for whether the probability is filled
   inline bool hasFilledProb() const {
     return SiPixelRecHitQuality::thePacking.hasFilledProb( qualWord_ );
-  }
-  
-  //--- Setters for the above
-  inline void setProbabilityXY( float prob ) {
-    SiPixelRecHitQuality::thePacking.setProbabilityXY( prob, qualWord_ );
-  }
-  inline void setProbabilityQ( float prob ) {
-    SiPixelRecHitQuality::thePacking.setProbabilityQ( prob, qualWord_ );
-  }  
-  inline void setQBin( int qbin ) {
-    SiPixelRecHitQuality::thePacking.setQBin( qbin, qualWord_ );
-  }
-  inline void setIsOnEdge( bool flag ) {
-    SiPixelRecHitQuality::thePacking.setIsOnEdge( flag, qualWord_ );
-  }
-  inline void setHasBadPixels( bool flag ) {
-    SiPixelRecHitQuality::thePacking.setHasBadPixels( flag, qualWord_ );
-  }
-  inline void setSpansTwoROCs( bool flag ) {
-    SiPixelRecHitQuality::thePacking.setSpansTwoROCs( flag, qualWord_ );
-  }
-  inline void setHasFilledProb( bool flag ) {
-    SiPixelRecHitQuality::thePacking.setHasFilledProb( flag, qualWord_ );
   }
 
 };

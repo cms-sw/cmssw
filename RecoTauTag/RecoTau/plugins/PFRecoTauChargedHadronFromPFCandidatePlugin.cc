@@ -166,8 +166,8 @@ namespace
 PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronFromPFCandidatePlugin::operator()(const reco::PFJet& jet) const 
 {
   if ( verbosity_ ) {
-    std::cout << "<PFRecoTauChargedHadronFromPFCandidatePlugin::operator()>:" << std::endl;
-    std::cout << " pluginName = " << name() << std::endl;
+    edm::LogPrint("TauChHadronFromPF") << "<PFRecoTauChargedHadronFromPFCandidatePlugin::operator()>:";
+    edm::LogPrint("TauChHadronFromPF") << " pluginName = " << name() ;
   }
 
   ChargedHadronVector output;
@@ -179,8 +179,8 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
   for ( PFCandPtrs::iterator cand = candsVector.begin();
 	cand != candsVector.end(); ++cand ) {
     if ( verbosity_ ) {
-      std::cout << "processing PFCandidate: Pt = " << (*cand)->pt() << ", eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi() 
-		<< " (type = " << getPFCandidateType((*cand)->particleId()) << ", charge = " << (*cand)->charge() << ")" << std::endl;
+      edm::LogPrint("TauChHadronFromPF") << "processing PFCandidate: Pt = " << (*cand)->pt() << ", eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi() 
+		<< " (type = " << getPFCandidateType((*cand)->particleId()) << ", charge = " << (*cand)->charge() << ")" ;
     }
     
     PFRecoTauChargedHadron::PFRecoTauChargedHadronAlgorithm algo = PFRecoTauChargedHadron::kUndefined;
@@ -242,7 +242,7 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
     setChargedHadronP4(*chargedHadron);
 
     if ( verbosity_ ) {
-      chargedHadron->print(std::cout);
+      edm::LogPrint("TauChHadronFromPF") << *chargedHadron;
     }
     // Update the vertex
     if ( chargedHadron->daughterPtr(0).isNonnull() ) chargedHadron->setVertex(chargedHadron->daughterPtr(0)->vertex());

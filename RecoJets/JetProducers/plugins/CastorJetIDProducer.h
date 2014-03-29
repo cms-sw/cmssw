@@ -45,9 +45,7 @@ class CastorJetIDProducer : public edm::EDProducer {
       ~CastorJetIDProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
       edm::InputTag                 src_;          // input jet source

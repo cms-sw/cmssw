@@ -76,6 +76,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         delta = cms.double(1.0)
     ),
     Physics = cms.PSet(
+        common_maximum_time,
         # NOTE : if you want EM Physics only,
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
@@ -161,6 +162,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
         SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
         SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False),
+        SaveAllPrimaryDecayProductsAndConversions = cms.untracked.bool(False),
         RusRoGammaEnergyLimit  = cms.double(5.0),
         RusRoEcalGamma         = cms.double(0.3),
         RusRoHcalGamma         = cms.double(0.3),
@@ -382,6 +384,10 @@ g4SimHits = cms.EDProducer("OscarProducer",
     PltSD = cms.PSet(
         EnergyThresholdForPersistencyInGeV = cms.double(0.2),
         EnergyThresholdForHistoryInGeV = cms.double(0.05)
+    ),
+    Bcm1fSD = cms.PSet(
+        EnergyThresholdForPersistencyInGeV = cms.double(0.010),
+        EnergyThresholdForHistoryInGeV = cms.double(0.005)
     ),
     HcalTB02SD = cms.PSet(
         UseBirkLaw = cms.untracked.bool(False),

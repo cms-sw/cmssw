@@ -38,6 +38,11 @@ HTMHTAnalyzer::~HTMHTAnalyzer() { }
 
 void HTMHTAnalyzer::beginJob(DQMStore * dbe) {
 
+}
+
+void HTMHTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+				     edm::Run const & iRun,
+				     edm::EventSetup const & ) {
   evtCounter = 0;
   metname = "HTMHTAnalyzer";
 
@@ -46,7 +51,7 @@ void HTMHTAnalyzer::beginJob(DQMStore * dbe) {
   _source                       = parameters.getParameter<std::string>("Source");
 
   LogTrace(metname)<<"[HTMHTAnalyzer] Parameters initialization";
-  dbe->setCurrentFolder("JetMET/MET/"+_source);
+  ibooker.setCurrentFolder("JetMET/MET/"+_source);
 
   HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
 
@@ -54,16 +59,16 @@ void HTMHTAnalyzer::beginJob(DQMStore * dbe) {
   _verbose     = parameters.getParameter<int>("verbose");
   _ptThreshold = parameters.getParameter<double>("ptThreshold");
 
-  jetME = dbe->book1D("metReco", "metReco", 4, 1, 5);
+  jetME = ibooker.book1D("metReco", "metReco", 4, 1, 5);
   jetME->setBinLabel(4,"HTMHT",1);
 
-  hNevents = dbe->book1D("METTask_Nevents",   "METTask_Nevents",   1,0,1);
-  hNJets   = dbe->book1D("METTask_NJets",     "METTask_NJets",     100, 0, 100);
-  hMHx     = dbe->book1D("METTask_MHx",       "METTask_MHx",       500,-500,500);
-  hMHy     = dbe->book1D("METTask_MHy",       "METTask_MHy",       500,-500,500);
-  hMHT     = dbe->book1D("METTask_MHT",       "METTask_MHT",       500,0,1000);
-  hMHTPhi  = dbe->book1D("METTask_MhTPhi",    "METTask_MhTPhi",    80,-4,4);
-  hHT      = dbe->book1D("METTask_HT",        "METTask_HT",        500,0,2000);
+  hNevents = ibooker.book1D("METTask_Nevents",   "METTask_Nevents",   1,0,1);
+  hNJets   = ibooker.book1D("METTask_NJets",     "METTask_NJets",     100, 0, 100);
+  hMHx     = ibooker.book1D("METTask_MHx",       "METTask_MHx",       500,-500,500);
+  hMHy     = ibooker.book1D("METTask_MHy",       "METTask_MHy",       500,-500,500);
+  hMHT     = ibooker.book1D("METTask_MHT",       "METTask_MHT",       500,0,1000);
+  hMHTPhi  = ibooker.book1D("METTask_MhTPhi",    "METTask_MhTPhi",    80,-4,4);
+  hHT      = ibooker.book1D("METTask_HT",        "METTask_HT",        500,0,2000);
 
 }
 

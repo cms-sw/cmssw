@@ -28,6 +28,7 @@ namespace cond {
       bool exists = false;
       // buffer for the iov sequence
       std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> > iovBuffer;
+      bool validationMode = false;
     };
 
     IOVEditor::IOVEditor():
@@ -68,7 +69,8 @@ namespace cond {
     void IOVEditor::load( const std::string& tag ){
       checkTransaction( "IOVEditor::load" );
       // loads the current header data in memory
-      if( !m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, m_data->endOfValidity, m_data->description, m_data->lastValidatedTime ) ){
+      if( !m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, m_data->synchronizationType, 
+						     m_data->endOfValidity, m_data->description, m_data->lastValidatedTime ) ){
 	cond::throwException( "Tag \""+tag+"\" has not been found in the database.","IOVEditor::load");
       }
       m_data->tag = tag;
@@ -125,7 +127,11 @@ namespace cond {
 	m_data->change = true;
       }
     }
-    
+
+    void IOVEditor::setValidationMode(){
+      if( m_data.get() ) m_data->validationMode = true;
+    }
+   
     void IOVEditor::insert( cond::Time_t since, const cond::Hash& payloadHash, bool checkType ){
       boost::posix_time::ptime now = boost::posix_time::microsec_clock::universal_time();
       insert( since, payloadHash, now, checkType ); 
@@ -143,6 +149,7 @@ namespace cond {
       checkTransaction( "IOVEditor::flush" );
       if( m_data->change ){
 	if( m_data->description.empty() ) throwException( "A non-empty description string is mandatory.","IOVEditor::flush" );
+	if( m_data->validationMode ) m_session->iovSchema().tagTable().setValidationMode();
 	if( !m_data->exists ){
 	  m_session->iovSchema().tagTable().insert( m_data->tag, m_data->timeType, m_data->payloadType, 
 						    m_data->synchronizationType, m_data->endOfValidity, 

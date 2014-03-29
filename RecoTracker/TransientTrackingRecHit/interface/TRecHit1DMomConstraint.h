@@ -52,7 +52,6 @@ class TRecHit1DMomConstraint GCC11_FINAL : public TransientTrackingRecHit {
   virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return clone();}
 
   virtual const GeomDetUnit* detUnit() const {return 0;}
-  virtual const GeomDet* det() const {return 0;}
 
   static RecHitPointer build(const int charge,
 			     const double mom,

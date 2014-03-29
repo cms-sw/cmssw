@@ -628,20 +628,22 @@ class ConfigBuilder(object):
 			self.loadAndRemember(mixingDict['file'])
 
 		mixingDict.pop('file')
-		if self._options.pileup_input:
-			if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
-				mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
-			else:
-				mixingDict['F']=self._options.pileup_input.split(',')
-		specialization=defineMixing(mixingDict,self._options.fast)
-		for command in specialization:
-			self.executeAndRemember(command)
-		if len(mixingDict)!=0:
-			raise Exception('unused mixing specification: '+mixingDict.keys().__str__())
+		if not "DATAMIX" in self.stepMap.keys(): # when DATAMIX is present, pileup_input refers to pre-mixed GEN-RAW
+			if self._options.pileup_input:
+				if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
+					mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
+				else:
+					mixingDict['F']=self._options.pileup_input.split(',')
+			specialization=defineMixing(mixingDict,self._options.fast)
+			for command in specialization:
+				self.executeAndRemember(command)
+			if len(mixingDict)!=0:
+				raise Exception('unused mixing specification: '+mixingDict.keys().__str__())
 
-		if self._options.fast and not 'SIM' in self.stepMap and not 'FASTSIM' in self.stepMap:
-			self.executeAndRemember('process.mix.playback= True')
-		
+			if self._options.fast and not 'SIM' in self.stepMap and not 'FASTSIM' in self.stepMap:
+				self.executeAndRemember('process.mix.playback= True')
+
+
         # load the geometry file
         try:
 		if len(self.stepMap):
@@ -861,11 +863,15 @@ class ConfigBuilder(object):
             self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
 
+	if "DIGIPREMIX" in self.stepMap.keys():
+            self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_PreMix_cff"
+
         self.ALCADefaultSeq=None
 	self.LHEDefaultSeq='externalLHEProducer'
         self.GENDefaultSeq='pgen'
         self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
+	self.DIGIPREMIXDefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -1360,6 +1366,17 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
 
+    def prepare_DIGIPREMIX(self, sequence = None):
+        """ Enrich the schedule with the digitisation step"""
+        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+
+	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
+	self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
+
+
+	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
+        return
+
     def prepare_CFWRITER(self, sequence = None):
 	    """ Enrich the schedule with the crossing frame writer step"""
 	    self.loadAndRemember(self.CFWRITERDefaultCFF)
@@ -1370,6 +1387,17 @@ class ConfigBuilder(object):
 	    """ Enrich the schedule with the digitisation step"""
 	    self.loadAndRemember(self.DATAMIXDefaultCFF)
 	    self.scheduleSequence('pdatamix','datamixing_step')
+	    if self._options.pileup_input:
+		    theFiles=''
+		    if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
+			    theFiles=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
+		    elif self._options.pileup_input.startswith("filelist:"):
+			    theFiles= (filesFromList(self._options.pileup_input[9:]))[0]
+		    else:
+			    theFiles=self._options.pileup_input.split(',')
+		    #print theFiles
+		    self.executeAndRemember( "process.mixData.input.fileNames = cms.untracked.vstring(%s)"%(  theFiles ) )
+
 	    return
 
     def prepare_DIGI2RAW(self, sequence = None):

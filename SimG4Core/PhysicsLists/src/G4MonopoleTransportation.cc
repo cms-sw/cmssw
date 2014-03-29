@@ -131,7 +131,7 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
   
   //magSetup->SetStepperAndChordFinder(1); 
   // change to monopole equation
-  G4FieldManager* fieldMgrX=fFieldPropagator->FindAndSetFieldManager( track.GetVolume() ); 
+  G4FieldManager* fieldMgrX=fFieldPropagator->FindAndSetFieldManager(track.GetVolume()); 
   fFieldBuilder->setStepperAndChordFinder (fieldMgrX, 1);
   
   G4double geometryStepLength, newSafety ; 
@@ -268,16 +268,29 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
     //     G4double       momentumMagnitude = pParticle->GetTotalMomentum() ;
      G4ThreeVector  EndUnitMomentum ;
      G4double       lengthAlongCurve ;
-     G4double       restMass = pParticleDef->GetPDGMass() ;
- 
-     fFieldPropagator->SetChargeMomentumMass( particleMagneticCharge,    // in Mev/c 
-                                              particleElectricCharge,    // in e+ units
-                                              restMass           ) ;  
+     G4double       restMass = pParticleDef->GetPDGMass();
+     G4double       momentumMagnitude = pParticle->GetTotalMomentum();
+
+     // The charge can change (dynamic)
+     //  Magnetic moment:  pParticleDef->GetMagneticMoment(),
+     //  Electric Dipole moment - not in Particle Definition 
+     G4ChargeState chargeState(particleElectricCharge,             
+                               pParticleDef->GetPDGSpin(),
+                               0,  
+                               0,   
+                               particleMagneticCharge );   
+
+     G4EquationOfMotion* equationOfMotion = 
+     (fFieldPropagator->GetChordFinder()->GetIntegrationDriver()->GetStepper())
+     ->GetEquationOfMotion();
+
+     equationOfMotion->SetChargeMomentumMass( chargeState, 
+                                              momentumMagnitude, 
+                                              restMass ) ;  
      
      // SetChargeMomentumMass is _not_ used here as it would in everywhere else, 
      // it's just a workaround to pass the electric charge as well.
      
-
      G4ThreeVector spin        = track.GetPolarization() ;
      G4FieldTrack  aFieldTrack = G4FieldTrack( startPosition, 
                                                track.GetMomentumDirection(),

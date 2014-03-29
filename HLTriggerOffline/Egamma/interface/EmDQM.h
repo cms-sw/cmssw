@@ -15,6 +15,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
@@ -59,7 +60,7 @@ class HistoFiller {
   EmDQM* dqm;
 };
 
-class EmDQM : public edm::EDAnalyzer{
+class EmDQM : public DQMEDAnalyzer{
 public:
 
   friend class HistoFiller<reco::ElectronCollection>;
@@ -78,12 +79,12 @@ public:
   void beginJob();
   void endJob();
 
-  void beginRun(edm::Run const&, edm::EventSetup const&);
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void endRun(edm::Run const&, edm::EventSetup const&);
 
 private:
   // interface to DQM framework
-  DQMStore * dbe;
   std::string dirname_;
 
   HistoFiller<reco::ElectronCollection>* histoFillerEle;
@@ -201,17 +202,6 @@ private:
   std::vector<std::vector<MonitorElement*> > histEtOfHltObjMatchToGens;
   std::vector<std::vector<MonitorElement*> > histEtaOfHltObjMatchToGens;
   std::vector<std::vector<MonitorElement*> > histPhiOfHltObjMatchToGens;
-  // commented out because uses data not included in HTLDEBUG and uses getByLabel
-  // Isolation distributions
-  //std::vector<std::vector<MonitorElement*> > etahistisos;
-  //std::vector<std::vector<MonitorElement*> > phihistisos;
-  //std::vector<std::vector<MonitorElement*> > ethistisos;
-  //std::vector<std::vector<MonitorElement*> > etahistisomatchs;
-  //std::vector<std::vector<MonitorElement*> > phihistisomatchs;
-  //std::vector<std::vector<MonitorElement*> > ethistisomatchs;
-  //std::vector<std::vector<MonitorElement*> > histEtIsoOfHltObjMatchToGens; 
-  //std::vector<std::vector<MonitorElement*> > histEtaIsoOfHltObjMatchToGens;
-  //std::vector<std::vector<MonitorElement*> > histPhiIsoOfHltObjMatchToGens;
   // Plots of efficiency per step
   std::vector<MonitorElement*> totals;
   std::vector<MonitorElement*> totalmatchs;

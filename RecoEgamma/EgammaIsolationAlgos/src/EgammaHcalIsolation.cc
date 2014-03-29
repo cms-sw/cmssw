@@ -33,7 +33,7 @@ EgammaHcalIsolation::EgammaHcalIsolation (
         double etLowB,
         double etLowE,
         edm::ESHandle<CaloGeometry> theCaloGeom ,
-        HBHERecHitMetaCollection*  mhbhe
+        const HBHERecHitCollection&  mhbhe
 ) :
   extRadius_(extRadius),
   intRadius_(intRadius),
@@ -46,7 +46,7 @@ EgammaHcalIsolation::EgammaHcalIsolation (
 {
     //set up the geometry and selector
     const CaloGeometry* caloGeom = theCaloGeom_.product();
-    doubleConeSel_ = new CaloDualConeSelector (intRadius_ ,extRadius_, caloGeom, DetId::Hcal);
+    doubleConeSel_ = new CaloDualConeSelector<HBHERecHit>(intRadius_ ,extRadius_, caloGeom, DetId::Hcal);
 }
 
 EgammaHcalIsolation::~EgammaHcalIsolation ()
@@ -58,33 +58,30 @@ double EgammaHcalIsolation::getHcalSum(const GlobalPoint &pclu, const HcalDepth 
                                        double(*scale)(const double&) ) const
 {
     double sum = 0.;
-    if (mhbhe_) 
+    if (! mhbhe_.empty()) 
     {
         //Compute the HCAL energy behind ECAL
-        double eta;
-        std::auto_ptr<CaloRecHitMetaCollectionV> chosen = doubleConeSel_->select(pclu,*mhbhe_);
-        CaloRecHitMetaCollectionV::const_iterator i;
-        for (i = chosen->begin () ; i!= chosen->end () ; ++i) 
-        {
-            eta = theCaloGeom_.product()->getPosition(i->detid()).eta();
-            HcalDetId hcalDetId(i->detid());
+        doubleConeSel_->selectCallback(pclu, mhbhe_, [this, &sum, &depth, &scale](const HBHERecHit& i) {
+            double eta = theCaloGeom_.product()->getPosition(i.detid()).eta();
+            HcalDetId hcalDetId(i.detid());
             if(hcalDetId.subdet() == HcalBarrel &&              //Is it in the barrel?
-               i->energy() > eLowB_ &&                          //Does it pass the min energy?
-               i->energy()*scaleToEt(eta) > etLowB_ &&          //Does it pass the min et?
+               i.energy() > eLowB_ &&                          //Does it pass the min energy?
+               i.energy()*scaleToEt(eta) > etLowB_ &&          //Does it pass the min et?
                (depth == AllDepths || depth == Depth1)) {                    //Are we asking for the first depth?
-                    sum += i->energy() * scale(eta);
+                    sum += i.energy() * scale(eta);
             }
             if(hcalDetId.subdet() == HcalEndcap &&              //Is it in the endcap?
-               i->energy() > eLowE_ &&                          //Does it pass the min energy?
-               i->energy()*scaleToEt(eta) > etLowE_ ) {         //Does it pass the min et?
+               i.energy() > eLowE_ &&                          //Does it pass the min energy?
+               i.energy()*scaleToEt(eta) > etLowE_ ) {         //Does it pass the min et?
                switch(depth) {                                  //Which depth?
-                    case AllDepths: sum += i->energy() * scale(eta); break;
-                    case Depth1: sum += (isDepth2(i->detid())) ? 0 : i->energy() * scale(eta); break;
-                    case Depth2: sum += (isDepth2(i->detid())) ? i->energy() * scale(eta) : 0; break;
+                    case AllDepths: sum += i.energy() * scale(eta); break;
+                    case Depth1: sum += (isDepth2(i.detid())) ? 0 : i.energy() * scale(eta); break;
+                    case Depth2: sum += (isDepth2(i.detid())) ? i.energy() * scale(eta) : 0; break;
                }
             }
-        }
+        });
     } 
+
     return sum ;
 }
 

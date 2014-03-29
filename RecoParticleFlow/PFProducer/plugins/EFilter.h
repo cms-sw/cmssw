@@ -2,6 +2,8 @@
 #define RecoParticleFlow_PFProducer_EFilter_h_
 
 #include "FWCore/Framework/interface/EDFilter.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
+
 // #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
@@ -39,7 +41,7 @@ class EFilter : public edm::EDFilter {
 /*   FSimEvent* mySimEvent; */
   // std::string hepMCModuleLabel_;
 
-  edm::InputTag  inputTagParticles_;
+  edm::EDGetTokenT<std::vector<reco::PFSimParticle> > inputTagParticles_;
 
   double minE_;
   double maxE_;

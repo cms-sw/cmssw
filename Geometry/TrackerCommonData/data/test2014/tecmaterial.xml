@@ -894,7 +894,7 @@
         <rMaterial name="trackermaterial:T_CarbonFibreStr" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="TEC_PatchpanelBox" density="2.669*g/cm3" method="mixture by weight" symbol=" ">
+    <CompositeMaterial density="2.669*0.79*g/cm3" method="mixture by weight" name="TEC_PatchpanelBox" symbol=" ">
       <MaterialFraction fraction="0.01151">
         <rMaterial name="trackermaterial:CAB_Al48" />
       </MaterialFraction>
@@ -917,6 +917,29 @@
         <rMaterial name="trackermaterial:T_CarbonFibreStr" />
       </MaterialFraction>
     </CompositeMaterial>
+<CompositeMaterial density="2.669*1.21*g/cm3" method="mixture by weight" name="TEC_Connectors" symbol=" ">
+			<MaterialFraction fraction="0.01151">
+				<rMaterial name="trackermaterial:CAB_Al48"/>
+			</MaterialFraction>
+			<MaterialFraction fraction="0.19806">
+				<rMaterial name="trackermaterial:T_Aluminium"/>
+			</MaterialFraction>
+			<MaterialFraction fraction="0.01207">
+				<rMaterial name="trackermaterial:CAB_Al36"/>
+			</MaterialFraction>
+			<MaterialFraction fraction="0.7577">
+				<rMaterial name="trackermaterial:MS_Cu60"/>
+			</MaterialFraction>
+			<MaterialFraction fraction="0.00372">
+				<rMaterial name="materials:Steel-008"/>
+			</MaterialFraction>
+			<MaterialFraction fraction="0.01044">
+				<rMaterial name="trackermaterial:CAB_Al60"/>
+			</MaterialFraction>
+			<MaterialFraction fraction="0.0065">
+				<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+			</MaterialFraction>
+</CompositeMaterial>
     <CompositeMaterial name="TEC_PatchCtrlBox" density="1.382*g/cm3" method="mixture by weight" symbol=" ">
       <MaterialFraction fraction="0.00445">
         <rMaterial name="trackermaterial:MS_cntrl_cable" />

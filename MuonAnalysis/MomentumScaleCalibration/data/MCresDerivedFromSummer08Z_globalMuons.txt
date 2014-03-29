@@ -1,4 +1,0 @@
-// Changed the number of the resolution from 8 to 9 to test the parser
-Fitting with resolution, scale, bgr function # 8 14 2 - Iteration 0
-  Results of the fit: parameter 15 has value 0.0+-0.0
-  Results of the fit: parameter 16 has value 0.0+-0.0

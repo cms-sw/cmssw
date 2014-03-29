@@ -5,8 +5,8 @@
 
 
 namespace {
-  void
-  inline throwExceptionUninitialized(const char *where)
+  inline void
+  throwExceptionUninitialized(const char *where)
   {
     throw cms::Exception("BaseTrackerRecHit") << 
       "Trying to access " << where << " for a RecHit that was read from disk, but since CMSSW_2_1_X local positions are transient.\n" <<
@@ -19,10 +19,17 @@ namespace {
   }
 }
 
+#ifdef EDM_LM_DEBUG
+void BaseTrackerRecHit::check() const {
+  if (!hasPositionAndError()) throwExceptionUninitialized("localPosition or Error");
+}
+#endif
 
 bool BaseTrackerRecHit::hasPositionAndError() const {
-    return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
-           (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
+  return det();
+  
+  //  return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
+  //       (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
 }
 
 

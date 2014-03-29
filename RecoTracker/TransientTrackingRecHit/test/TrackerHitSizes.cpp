@@ -20,15 +20,22 @@
 
 int main() {
   std::cout << "sizes" << std::endl;
+  PSIZE(SiPixelRecHit);
+  PSIZE(SiStripRecHit1D);
+  PSIZE(SiStripRecHit2D);
+  PSIZE(SiStripMatchedRecHit2D);
+  PSIZE(ProjectedSiStripRecHit2D);
+
+  std::cout << std::endl;
+
   PSIZE(TSiStripRecHit2DLocalPos);
   PSIZE(TSiStripRecHit1D);
   PSIZE(TSiStripMatchedRecHit);
   PSIZE(TSiPixelRecHit);
   PSIZE(InvalidTransientRecHit);
-  PSIZE(SiStripMatchedRecHit2D);
-  PSIZE(ProjectedSiStripRecHit2D);
   PSIZE(ProjectedRecHit2D);
   PSIZE(GenericTransientTrackingRecHit);
+
   PSIZE(SiTrackerGSRecHit2D);
   PSIZE(SiTrackerGSMatchedRecHit2D);
 

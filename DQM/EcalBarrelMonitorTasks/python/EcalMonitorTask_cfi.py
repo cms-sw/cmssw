@@ -1,69 +1,53 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalCommon.dqmpset import *
-from DQM.EcalCommon.CollectionTags_cfi import *
-from DQM.EcalCommon.CommonParams_cfi import *
+from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
 
-import DQM.EcalBarrelMonitorTasks.ClusterTask_cfi as ecalClusterTask
-import DQM.EcalBarrelMonitorTasks.EnergyTask_cfi as ecalEnergyTask
-import DQM.EcalBarrelMonitorTasks.IntegrityTask_cfi as ecalIntegrityTask
-import DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi as ecalOccupancyTask
-import DQM.EcalBarrelMonitorTasks.RawDataTask_cfi as ecalRawDataTask
-import DQM.EcalBarrelMonitorTasks.SelectiveReadoutTask_cfi as ecalSelectiveReadoutTask
-import DQM.EcalBarrelMonitorTasks.TimingTask_cfi as ecalTimingTask
-import DQM.EcalBarrelMonitorTasks.TrigPrimTask_cfi as ecalTrigPrimTask
-import DQM.EcalBarrelMonitorTasks.TowerStatusTask_cfi as ecalTowerStatusTask
-import DQM.EcalBarrelMonitorTasks.PresampleTask_cfi as ecalPresampleTask
+from DQM.EcalBarrelMonitorTasks.CollectionTags_cfi import ecalDQMCollectionTags
 
-ecalMonitorTaskParams = dict(
-    ClusterTask = ecalClusterTask.clusterTask,
-    EnergyTask = ecalEnergyTask.energyTask,
-    IntegrityTask = ecalIntegrityTask.integrityTask,
-    OccupancyTask = ecalOccupancyTask.occupancyTask,
-    RawDataTask = ecalRawDataTask.rawDataTask,
-    SelectiveReadoutTask = ecalSelectiveReadoutTask.selectiveReadoutTask,
-    TimingTask = ecalTimingTask.timingTask,
-    TrigPrimTask = ecalTrigPrimTask.trigPrimTask,
-    TowerStatusTask = ecalTowerStatusTask.towerStatusTask,
-    PresampleTask = ecalPresampleTask.presampleTask,
-    Common = ecalCommonParams
-)
-        
-ecalMonitorTaskPaths = dict(
-    ClusterTask = ecalClusterTask.clusterTaskPaths,
-    EnergyTask = ecalEnergyTask.energyTaskPaths,
-    IntegrityTask = ecalIntegrityTask.integrityTaskPaths,
-    OccupancyTask = ecalOccupancyTask.occupancyTaskPaths,
-    RawDataTask = ecalRawDataTask.rawDataTaskPaths,
-    SelectiveReadoutTask = ecalSelectiveReadoutTask.selectiveReadoutTaskPaths,
-    TimingTask = ecalTimingTask.timingTaskPaths,
-    TrigPrimTask = ecalTrigPrimTask.trigPrimTaskPaths,
-    TowerStatusTask = ecalTowerStatusTask.towerStatusTaskPaths,
-    PresampleTask = ecalPresampleTask.presampleTaskPaths
-)
+from DQM.EcalBarrelMonitorTasks.ClusterTask_cfi import ecalClusterTask
+from DQM.EcalBarrelMonitorTasks.EnergyTask_cfi import ecalEnergyTask
+from DQM.EcalBarrelMonitorTasks.IntegrityTask_cfi import ecalIntegrityTask
+from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
+from DQM.EcalBarrelMonitorTasks.PresampleTask_cfi import ecalPresampleTask
+from DQM.EcalBarrelMonitorTasks.RawDataTask_cfi import ecalRawDataTask
+from DQM.EcalBarrelMonitorTasks.RecoSummaryTask_cfi import ecalRecoSummaryTask
+from DQM.EcalBarrelMonitorTasks.SelectiveReadoutTask_cfi import ecalSelectiveReadoutTask
+from DQM.EcalBarrelMonitorTasks.TimingTask_cfi import ecalTimingTask
+from DQM.EcalBarrelMonitorTasks.TrigPrimTask_cfi import ecalTrigPrimTask
 
 ecalMonitorTask = cms.EDAnalyzer("EcalDQMonitorTask",
     moduleName = cms.untracked.string("Ecal Monitor Source"),
     # tasks to be turned on
-    tasks = cms.untracked.vstring(
+    workers = cms.untracked.vstring(
         "ClusterTask",
         "EnergyTask",
         "IntegrityTask",
         "OccupancyTask",
+        "PresampleTask",
         "RawDataTask",
-        "SelectiveReadoutTask",
-        "TimingTask",
-        "TrigPrimTask",
-        "TowerStatusTask",
-        "PresampleTask"
+        "RecoSummaryTask",
+        "TrigPrimTask"
     ),
     # task parameters (included from indivitual cfis)
-    taskParameters = dqmpset(ecalMonitorTaskParams),
-    # ME paths for each task (included from inidividual cfis)
-    mePaths = dqmpaths("Ecal", ecalMonitorTaskPaths),
+    workerParameters =  cms.untracked.PSet(
+        ClusterTask = ecalClusterTask,
+        EnergyTask = ecalEnergyTask,
+        IntegrityTask = ecalIntegrityTask,
+        OccupancyTask = ecalOccupancyTask,
+        PresampleTask = ecalPresampleTask,
+        RawDataTask = ecalRawDataTask,
+        RecoSummaryTask = ecalRecoSummaryTask,
+        SelectiveReadoutTask = ecalSelectiveReadoutTask,
+        TimingTask = ecalTimingTask,
+        TrigPrimTask = ecalTrigPrimTask
+    ),
+    commonParameters = ecalCommonParams,
     collectionTags = ecalDQMCollectionTags,
-    allowMissingCollections = cms.untracked.bool(False),
+    allowMissingCollections = cms.untracked.bool(True),
     verbosity = cms.untracked.int32(0),
-    evaluateTime = cms.untracked.bool(False)
+    evaluateTime = cms.untracked.bool(False),
+    resetInterval = cms.untracked.double(2.)
 )
+
+
 

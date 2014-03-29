@@ -23,6 +23,7 @@
 #include <map>
 #include <stdio.h>                     
 #include <stdint.h>
+#include <atomic>
 
 //DATA DECODER
 
@@ -223,7 +224,7 @@ public :
   */
   DCCEventBlock * currentEvent(){ return currentEvent_;}
 
-  static bool silentMode_; 
+  static std::atomic<bool> silentMode_; 
  
 protected :
 

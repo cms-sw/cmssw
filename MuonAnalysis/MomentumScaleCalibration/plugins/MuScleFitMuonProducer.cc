@@ -56,6 +56,8 @@ class MuScleFitMuonProducer : public edm::EDProducer {
       template<class T> std::auto_ptr<T> applyCorrection(const edm::Handle<T> & allMuons);
 
   edm::InputTag theMuonLabel_;
+  edm::EDGetTokenT<pat::MuonCollection> thePatMuonToken_;
+  edm::EDGetTokenT<reco::MuonCollection> theRecoMuonToken_;
   bool patMuons_;
   edm::ESHandle<MuScleFitDBobject> dbObject_;
   std::string dbObjectLabel_;
@@ -65,6 +67,8 @@ class MuScleFitMuonProducer : public edm::EDProducer {
 
 MuScleFitMuonProducer::MuScleFitMuonProducer(const edm::ParameterSet& iConfig) :
   theMuonLabel_( iConfig.getParameter<edm::InputTag>( "MuonLabel" ) ),
+  thePatMuonToken_( mayConsume<pat::MuonCollection>( theMuonLabel_ ) ),
+  theRecoMuonToken_( mayConsume<reco::MuonCollection>( theMuonLabel_ ) ),
   patMuons_( iConfig.getParameter<bool>( "PatMuons" ) ),
   dbObjectLabel_( iConfig.getUntrackedParameter<std::string>("DbObjectLabel", "") ),
   dbObjectCacheId_(0)
@@ -124,19 +128,19 @@ void MuScleFitMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   if( patMuons_ == true ) {
     edm::Handle<pat::MuonCollection> allMuons;
-    iEvent.getByLabel (theMuonLabel_, allMuons);
+    iEvent.getByToken(thePatMuonToken_, allMuons);
     iEvent.put(applyCorrection(allMuons));
   }
   else {
     edm::Handle<reco::MuonCollection> allMuons;
-    iEvent.getByLabel (theMuonLabel_, allMuons);
+    iEvent.getByToken(theRecoMuonToken_, allMuons);
     iEvent.put(applyCorrection(allMuons));
   }
 
   // put into the Event
   // iEvent.put(pOut);
   // iEvent.put(applyCorrection(allMuons));
-  
+
 /*  std::auto_ptr<reco::MuonCollection> pOut(new reco::MuonCollection);
 
   // Apply the correction and produce the new muons
@@ -156,13 +160,13 @@ void MuScleFitMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 MuScleFitMuonProducer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 MuScleFitMuonProducer::endJob()
 {
 }

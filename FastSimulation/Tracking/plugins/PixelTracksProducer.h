@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+
 #include <string>
 
 class PixelFitter;
@@ -33,6 +35,7 @@ private:
   TrackingRegionProducer* theRegionProducer;
 
   edm::InputTag seedProducer;
+  edm::EDGetTokenT<TrajectorySeedCollection> seedProducerToken;
 
 };
 #endif

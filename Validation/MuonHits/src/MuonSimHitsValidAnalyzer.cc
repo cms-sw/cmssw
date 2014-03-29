@@ -902,7 +902,6 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
   /// get  CSC information
   edm::Handle<edm::PSimHitContainer> MuonCSCContainer;
   iEvent.getByToken(CSCHitsToken_, MuonCSCContainer);
-//  iEvent.getByLabel("g4SimHits","MuonCSCHits",MuonCSCContainer);
   if (!MuonCSCContainer.isValid()) {
     edm::LogWarning("MuonSimHitsValidAnalyzer::fillCSC")
       << "Unable to find MuonCSCHits in event!";
@@ -1009,7 +1008,6 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
   /// get DT information
   edm::Handle<edm::PSimHitContainer> MuonDTContainer;
   iEvent.getByToken(DTHitsToken_, MuonDTContainer);
-//  iEvent.getByLabel("g4SimHits","MuonDTHits",MuonDTContainer);
   if (!MuonDTContainer.isValid()) {
     edm::LogWarning("MuonSimHitsValidAnalyzer::fillDT")
       << "Unable to find MuonDTHits in event!";
@@ -1210,7 +1208,6 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
   // get Muon RPC information
   edm::Handle<edm::PSimHitContainer> MuonRPCContainer;
   iEvent.getByToken(RPCHitsToken_, MuonRPCContainer);
-//  iEvent.getByLabel("g4SimHits","MuonRPCHits",MuonRPCContainer);
   if (!MuonRPCContainer.isValid()) {
     edm::LogWarning("MuonSimHitsValidAnalyzer::fillRPC")
       << "Unable to find MuonRPCHits in event!";

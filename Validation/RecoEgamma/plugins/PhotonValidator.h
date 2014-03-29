@@ -104,6 +104,7 @@ class PhotonValidator : public edm::EDAnalyzer
   edm::EDGetTokenT<reco::PhotonCollection> photonCollectionToken_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
   std::string   valueMapPhoPFCandIso_ ;
+  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > particleBasedIso_token;
   edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
   edm::InputTag  bcBarrelCollection_;
   edm::InputTag  bcEndcapCollection_;

@@ -194,7 +194,7 @@ int main() {
   LocalError e(0.2,-0.05,0.1);
     
   SiStripRecHit2D dummy;
-  TrackingRecHit * hit = new SiStripMatchedRecHit2D(m, e, DetId() , &dummy, &dummy);
+  TrackingRecHit * hit = new SiStripMatchedRecHit2D(m, e, *det, &dummy, &dummy);
   TransientTrackingRecHit * thit = new  My2DHit(det, hit);
 
   KFUTest kt(new KFUpdator());

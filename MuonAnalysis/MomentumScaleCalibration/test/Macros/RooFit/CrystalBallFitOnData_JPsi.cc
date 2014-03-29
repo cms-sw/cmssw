@@ -21,7 +21,6 @@
 #include "TFile.h"
 #include "RooDataHist.h"
 #include "RooExtendPdf.h"
-using namespace RooFit;
 
 void CrystalBallFitOnData_JPsi()
 {

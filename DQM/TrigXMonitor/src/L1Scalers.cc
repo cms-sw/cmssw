@@ -422,59 +422,8 @@ void L1Scalers::analyze(const edm::Event &e, const edm::EventSetup &iSetup)
 
     }//tt41Good
 
-  } // getbylabel succeeded
+  }
   
-
-//   // HACK
-//   // getting very basic uncalRH
-//   edm::Handle<FEDRawDataCollection> theRaw;
-//   bool getFed = e.getByLabel(fedRawCollection_, theRaw);
-//   if ( ! getFed ) {
-//     edm::LogInfo("FEDSizeFilter") << fedRawCollection_ << " not available";
-//   }
-//   else { // got the fed raw data
-//     unsigned int totalFEDsize = 0 ; 
-//     for (unsigned int i=fedStart_; i<=fedStop_; ++i) {
-//       LogDebug("Parameter") << "Examining fed " << i << " with size "
-// 			    << theRaw->FEDData(i).size() ;
-//       totalFEDsize += theRaw->FEDData(i).size() ; 
-//     }
-//     pixFedSize_->Fill(totalFEDsize);
-//     if( (myGTFEbx!=-1) ) pixFedSizeBx_->Fill(myGTFEbx,totalFEDsize);
-
-//     LogDebug("Parameter") << "Total FED size: " << totalFEDsize;
-//   }      
-
-//   // HF - stolen from HLTrigger/special
-//   // getting very basic uncalRH
-//   double maxHFenergy = -1;
-//   edm::Handle<HFRecHitCollection> crudeHits;
-//   bool getHF = e.getByLabel(HcalRecHitCollection_, crudeHits);
-//   if ( ! getHF ) {
-//     LogDebug("Status") << HcalRecHitCollection_ << " not available";
-//   }
-//   else {
-
-//     LogDebug("Status") << "Filtering, with " << crudeHits->size() 
-// 		       << " recHits to consider" ;
-//     for ( HFRecHitCollection::const_iterator hitItr = crudeHits->begin(); 
-// 	  hitItr != crudeHits->end(); ++hitItr ) {     
-//       HFRecHit hit = (*hitItr);
-     
-//       // masking noisy channels
-//       std::vector<int>::iterator result;
-//       result = std::find( maskedList_.begin(), maskedList_.end(), 
-// 			  HcalDetId(hit.id()).hashed_index() );    
-//       if  (result != maskedList_.end()) 
-// 	continue; 
-//       hfEnergy_->Fill(hit.energy());
-//       if( (hit.energy()>maxHFenergy) ) maxHFenergy = hit.energy();
-//     }
-//   }
-
-//   if( (maxHFenergy!=-1 && myGTFEbx!=-1) ) hfEnergyMaxTowerBx_->Fill(myGTFEbx,maxHFenergy);
-//   // END HACK
-
   return;
  
 }

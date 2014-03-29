@@ -23,8 +23,8 @@
 #include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+//#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+//#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
@@ -45,6 +45,9 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers", true);
 
   lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
+
+  wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
+  comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
 
   // register what this produces
   produces<CSCALCTDigiCollection>();
@@ -99,8 +102,10 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   // Get the collections of comparator & wire digis from event.
   edm::Handle<CSCComparatorDigiCollection> compDigis;
   edm::Handle<CSCWireDigiCollection>       wireDigis;
-  ev.getByLabel(compDigiProducer_.label(), compDigiProducer_.instance(), compDigis);
-  ev.getByLabel(wireDigiProducer_.label(), wireDigiProducer_.instance(), wireDigis);
+  //  ev.getByLabel(compDigiProducer_.label(), compDigiProducer_.instance(), compDigis);
+  //  ev.getByLabel(wireDigiProducer_.label(), wireDigiProducer_.instance(), wireDigis);
+  ev.getByToken(comp_token_, compDigis);
+  ev.getByToken(wire_token_, wireDigis);
 
   // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
   // and downstream of MPC.

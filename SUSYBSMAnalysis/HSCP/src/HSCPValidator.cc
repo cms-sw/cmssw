@@ -2,7 +2,7 @@
 //
 // Package:    HSCP
 // Class:      HSCPValidator
-// 
+//
 /**\class HSCPValidator HSCPValidator.cc HSCPValidation/HSCPValidator/src/HSCPValidator.cc
 
  Description: [one line class summary]
@@ -100,15 +100,19 @@ HSCPValidator::HSCPValidator(const edm::ParameterSet& iConfig) :
   doSimTrackPlots_ (iConfig.getParameter<bool>("MakeSimTrackPlots")),
   doSimDigiPlots_ (iConfig.getParameter<bool>("MakeSimDigiPlots")),
   doRecoPlots_ (iConfig.getParameter<bool>("MakeRecoPlots")),
-  label_ (iConfig.getParameter<edm::InputTag>("generatorLabel")),
+  token_(consumes<edm::HepMCProduct> (iConfig.getParameter<edm::InputTag>("generatorLabel"))),
+  simTracksToken_(consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"))),
+  trEvToken_(consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD"))),
+  tkTracksToken_(consumes<reco::TrackCollection>(edm::InputTag("generalTracks"))),
+  dEdxTrackToken_(consumes<edm::ValueMap<reco::DeDxData> >(edm::InputTag("dedxHarmonic2"))),
+  rpcRecHitsToken_(consumes<RPCRecHitCollection>(edm::InputTag("rpcRecHits"))),
   particleIds_ (iConfig.getParameter< std::vector<int> >("particleIds")),
   particleStatus_ (iConfig.getUntrackedParameter<int>("particleStatus",1)),
-  ebSimHitTag_ (iConfig.getParameter<edm::InputTag>("EBSimHitCollection")),
-  eeSimHitTag_ (iConfig.getParameter<edm::InputTag>("EESimHitCollection")),
-  simTrackTag_ (iConfig.getParameter<edm::InputTag>("SimTrackCollection")),
-  EBDigiCollection_ (iConfig.getParameter<edm::InputTag>("EBDigiCollection")),
-  EEDigiCollection_ (iConfig.getParameter<edm::InputTag>("EEDigiCollection")),
-  RPCRecHitTag_ (iConfig.getParameter<edm::InputTag>("RPCRecHitTag"))
+  ebSimHitToken_ (consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("EBSimHitCollection"))),
+  eeSimHitToken_ (consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("EESimHitCollection"))),
+  simTrackToken_ (consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("SimTrackCollection"))),
+  EBDigiCollectionToken_ (consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("EBDigiCollection"))),
+  EEDigiCollectionToken_ (consumes<EEDigiCollection>(iConfig.getParameter<edm::InputTag>("EEDigiCollection")))
 {
   //now do what ever initialization is needed
   // GEN
@@ -120,7 +124,7 @@ HSCPValidator::HSCPValidator(const edm::ParameterSet& iConfig) :
   particleStatusHist_ = fileService->make<TH1F>("particleStatus","Status of gen particle",10,0,10);
   particleBetaHist_ = fileService->make<TH1F>("particleBeta","Beta of gen particle",100,0,1);
   particleBetaInverseHist_ = fileService->make<TH1F>("particleBetaInverse","1/#beta of gen particle",100,0,5);
-  
+
   h_genhscp_met = fileService->make<TH1F>( "hscp_met"  , "missing E_{T} hscp" , 100, 0., 1500. );
   h_genhscp_met_nohscp = fileService->make<TH1F>( "hscp_met_nohscp"  , "missing E_{T} w/o hscp" , 100, 0., 1500. );
   h_genhscp_scaloret =  fileService->make<TH1F>( "hscp_scaloret"  , "scalor E_{T} sum" , 100, 0., 1500. );
@@ -195,7 +199,7 @@ HSCPValidator::HSCPValidator(const edm::ParameterSet& iConfig) :
 
 HSCPValidator::~HSCPValidator()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 //   particleEtaHist_ = fileService->make<TH1F>("particleEta","Eta of gen particle",100,-5,5);
@@ -240,13 +244,13 @@ HSCPValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 HSCPValidator::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 HSCPValidator::endJob()
 {
   std::string frequencies = "";
@@ -277,7 +281,7 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
 
 
   Handle<HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
 
   HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
   for(HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
@@ -287,7 +291,7 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
     if((*p)->status() != particleStatus_)
       continue;
     //calculate MET(neutrino as MET)
-    if(abs((*p)->pdg_id())!=12 && abs((*p)->pdg_id())!=14 && abs((*p)->pdg_id())!=16){ //for non-neutrino particles. 
+    if(abs((*p)->pdg_id())!=12 && abs((*p)->pdg_id())!=14 && abs((*p)->pdg_id())!=16){ //for non-neutrino particles.
        missingpx-=(*p)->momentum().px();
        missingpy-=(*p)->momentum().py();
        scalorEt+=(*p)->momentum().perp();
@@ -296,9 +300,9 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
     // Check if the particleId is in our R-hadron list
     std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),(*p)->pdg_id());
     if(partIdItr==particleIds_.end()){
-       
+
        //calculate MET(neutrino+ HSCP as MET)
-       if(abs((*p)->pdg_id())!=12 && abs((*p)->pdg_id())!=14 && abs((*p)->pdg_id())!=16){ //for non-neutrino particles. 
+       if(abs((*p)->pdg_id())!=12 && abs((*p)->pdg_id())!=14 && abs((*p)->pdg_id())!=16){ //for non-neutrino particles.
           missingpx_nohscp-=(*p)->momentum().px();
           missingpy_nohscp-=(*p)->momentum().py();
           scalorEt_nohscp+=(*p)->momentum().perp();
@@ -307,13 +311,13 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
     else{
 
        particleStatusHist_->Fill((*p)->status());
-    
+
        std::pair<std::map<int,int>::iterator,bool> pair = particleIdsFoundMap_.insert(std::make_pair<int,int>((*p)->pdg_id(),1));
        if(!pair.second)
        {
           ++(pair.first->second);
        }
-       
+
        double mag = sqrt(pow((*p)->momentum().px(),2) + pow((*p)->momentum().py(),2) + pow((*p)->momentum().pz(),2) );
        particleEtaHist_->Fill((*p)->momentum().eta());
        particlePhiHist_->Fill((*p)->momentum().phi());
@@ -325,7 +329,7 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
        particleBetaHist_->Fill(particleP/sqrt(particleP*particleP+particleM*particleM));
        particleBetaInverseHist_->Fill(sqrt(particleP*particleP+particleM*particleM)/particleP);
     }
-       
+
   }
 
   h_genhscp_met->Fill(sqrt(missingpx*missingpx+missingpy*missingpy));
@@ -334,7 +338,7 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
   h_genhscp_scaloret_nohscp->Fill(scalorEt_nohscp);
 
 
-  delete myGenEvent; 
+  delete myGenEvent;
 
 
 
@@ -345,7 +349,7 @@ void HSCPValidator::makeSimTrackPlots(const edm::Event& iEvent)
 {  using namespace edm;
   //get sim track infos
   Handle<edm::SimTrackContainer> simTracksHandle;
-  iEvent.getByLabel("g4SimHits",simTracksHandle);
+  iEvent.getByToken(simTracksToken_,simTracksHandle);
   const SimTrackContainer simTracks = *(simTracksHandle.product());
 
   SimTrackContainer::const_iterator simTrack;
@@ -358,11 +362,11 @@ void HSCPValidator::makeSimTrackPlots(const edm::Event& iEvent)
      simTrackParticleEtaHist_->Fill((*simTrack).momentum().eta());
      simTrackParticlePhiHist_->Fill((*simTrack).momentum().phi());
      simTrackParticlePHist_->Fill((*simTrack).momentum().P());
-     
+
      simTrackParticlePtHist_->Fill((*simTrack).momentum().pt());
-     
-     simTrackParticleBetaHist_->Fill((*simTrack).momentum().P()/(*simTrack).momentum().e());  
-     
+
+     simTrackParticleBetaHist_->Fill((*simTrack).momentum().P()/(*simTrack).momentum().e());
+
      // std::cout<<"Particle:"<<simTrack->type()<<" Charge:"<<simTrack->charge()<<std::endl;
 
   }
@@ -372,16 +376,16 @@ void HSCPValidator::makeHLTPlots(const edm::Event& iEvent)
 {
   using namespace edm;
   //get HLT infos
-     
+
 
       edm::TriggerResultsByName tr = iEvent.triggerResultsByName("HLT");
 
           if(!tr.isValid()){
         std::cout<<"Tirgger Results not available"<<std::endl;
       }
- 
+
    edm::Handle< trigger::TriggerEvent > trEvHandle;
-   iEvent.getByLabel("hltTriggerSummaryAOD", trEvHandle);
+   iEvent.getByToken(trEvToken_, trEvHandle);
    trigger::TriggerEvent trEv = *trEvHandle;
 
 
@@ -403,7 +407,7 @@ void HSCPValidator::makeHLTPlots(const edm::Event& iEvent)
          for(unsigned int i=0;i<tr.size();i++){
             std::cout<<" "<<tr.triggerName(i);
          }
-         std::cout<<std::endl;       
+         std::cout<<std::endl;
       }
    }
 
@@ -419,39 +423,39 @@ void HSCPValidator::makeHLTPlots(const edm::Event& iEvent)
       }
       else{
          printf("BUG with HLT_MET\n");
-         
+
       }
    }
-   
+
 
   // HLT TRIGGER BASED ON 1 JET!
    if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet370_v1")){
        if(tr.accept(tr.triggerIndex("HLT_Jet370_v1")))hltjet->Fill(1);
        else   hltjet->Fill(0);
-   }else{ 
+   }else{
       if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet100U")){
          if(IncreasedTreshold(trEv, InputTag("hlt1jet100U","","HLT"), 140, 5.,1, false))hltjet->Fill(1);
          else   hltjet->Fill(0);
       }else{
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet70U")){   
+         if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet70U")){
             if(IncreasedTreshold(trEv, InputTag("hlt1jet70U","","HLT"), 140, 5.,1, false))hltjet->Fill(1);
             else   hltjet->Fill(0);
          }else{
             if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet50U")){
                if(IncreasedTreshold(trEv, InputTag("hlt1jet50U","","HLT"), 140,2.5, 1, false))hltjet->Fill(1);
-               else   hltjet->Fill(0); 
+               else   hltjet->Fill(0);
             }else{
                printf("BUG with HLT_Jet\n");
-               
+
             }
          }
       }
    }
-   
 
 
 
-  
+
+
 }
 
 // ------------- Make simDigi plots ECAL ------------------------------------------------
@@ -460,7 +464,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
   using namespace edm;
   // EB SimHits
   Handle<PCaloHitContainer> ebSimHits;
-  iEvent.getByLabel(ebSimHitTag_, ebSimHits);
+  iEvent.getByToken(ebSimHitToken_, ebSimHits);
   if(!ebSimHits.isValid())
   {
     std::cout << "Cannot get EBSimHits from event!" << std::endl;
@@ -468,7 +472,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
   }
   // EE SimHits
   Handle<PCaloHitContainer> eeSimHits;
-  iEvent.getByLabel(eeSimHitTag_, eeSimHits);
+  iEvent.getByToken(eeSimHitToken_, eeSimHits);
   if(!eeSimHits.isValid())
   {
     std::cout << "Cannot get EESimHits from event!" << std::endl;
@@ -476,7 +480,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
   }
   // SimTracks
   Handle<SimTrackContainer> simTracks;
-  iEvent.getByLabel(simTrackTag_,simTracks);
+  iEvent.getByToken(simTrackToken_,simTracks);
   if(!simTracks.isValid())
   {
     std::cout << "Cannot get SimTracks from event!" << std::endl;
@@ -484,7 +488,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
   }
   // EB Digis
   Handle<EBDigiCollection> ebDigis;
-  iEvent.getByLabel(EBDigiCollection_,ebDigis);
+  iEvent.getByToken(EBDigiCollectionToken_,ebDigis);
   if(!ebDigis.isValid())
   {
     std::cout << "Cannot get EBDigis from event!" << std::endl;
@@ -492,7 +496,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
   }
   // EE Digis
   Handle<EEDigiCollection> eeDigis;
-  iEvent.getByLabel(EEDigiCollection_,eeDigis);
+  iEvent.getByToken(EEDigiCollectionToken_,eeDigis);
   if(!eeDigis.isValid())
   {
     std::cout << "Cannot get EEDigis from event!" << std::endl;
@@ -673,36 +677,36 @@ void HSCPValidator::makeRecoPlots(const edm::Event& iEvent)
    using namespace reco;
 
   Handle<HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
 
   Handle<TrackCollection> tkTracks;
-  iEvent.getByLabel("generalTracks",tkTracks);
+  iEvent.getByToken(tkTracksToken_,tkTracks);
   const reco::TrackCollection tkTC = *(tkTracks.product());
-  
+
   Handle<ValueMap<DeDxData> >          dEdxTrackHandle;
-  iEvent.getByLabel("dedxHarmonic2", dEdxTrackHandle);
+  iEvent.getByToken(dEdxTrackToken_, dEdxTrackHandle);
   const ValueMap<DeDxData> dEdxTrack = *dEdxTrackHandle.product();
-  
+
   for(size_t i=0; i<tkTracks->size(); i++){
-     
+
      reco::TrackRef trkRef = reco::TrackRef(tkTracks, i);
-        
+
      if(trkRef->pt()<5 || trkRef->normalizedChi2()>10) continue;
- 
+
      double minR= 999;
      double hscpgenPt =-1;
-     
+
      HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
      for(HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
          p != myGenEvent->particles_end(); ++p )
      {
-        
+
         if((*p)->status() != particleStatus_)
            continue;
         // Check if the particleId is in our R-hadron list
         std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),(*p)->pdg_id());
         if(partIdItr!=particleIds_.end()){
-           
+
            //calculate DeltaR
            double distance =pow((*p)->momentum().eta()-trkRef->eta(),2)+pow((*p)->momentum().phi()-trkRef->phi(),2);
            distance =sqrt(distance);
@@ -713,12 +717,12 @@ void HSCPValidator::makeRecoPlots(const edm::Event& iEvent)
         }
      }
      RecoHSCPPtVsGenPt->Fill(trkRef->pt(),hscpgenPt);
- 
-     delete myGenEvent;     
+
+     delete myGenEvent;
      double dedx = dEdxTrack[trkRef].dEdx();
      dedxVsp->Fill( trkRef->p(),dedx);
-       
-  }  
+
+  }
 
 }
 
@@ -733,14 +737,14 @@ void HSCPValidator::makeSimDigiPlotsRPC(const edm::Event& iEvent)
   //std::cout << " The Number of sim Hits is  " << theSimHitContainers.size() <<std::endl;
 
   Handle<RPCRecHitCollection> rpcRecHits;
-  iEvent.getByLabel("rpcRecHits","",rpcRecHits);
+  iEvent.getByToken(rpcRecHitsToken_,rpcRecHits);
 
   //SimTrack Stuff
   std::vector<PSimHit> theSimHits;
 
   for (int i = 0; i < int(theSimHitContainers.size()); i++){
     theSimHits.insert(theSimHits.end(),theSimHitContainers.at(i)->begin(),theSimHitContainers.at(i)->end());
-  } 
+  }
 
 
   for (std::vector<PSimHit>::const_iterator iHit = theSimHits.begin(); iHit != theSimHits.end(); iHit++){
@@ -762,7 +766,7 @@ void HSCPValidator::makeSimDigiPlotsRPC(const edm::Event& iEvent)
       const RPCRoll* rollasociated = rpcGeo->roll(rollId);
 
       //std::cout << " Getting the Surface"<<std::endl;
-      const BoundPlane & RPCSurface = rollasociated->surface(); 
+      const BoundPlane & RPCSurface = rollasociated->surface();
 
       GlobalPoint SimHitInGlobal = RPCSurface.toGlobal((*iHit).localPosition());
 

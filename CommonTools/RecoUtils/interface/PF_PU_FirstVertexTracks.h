@@ -5,10 +5,10 @@
 //
 // Package:    PF_PU_AssoMap
 // Class:      PF_PU_FirstVertexTracks
-// 
+//
 /**\class PF_PU_AssoMap PF_PU_FirstVertexTracks.cc CommonTools/RecoUtils/plugins/PF_PU_FirstVertexTracks.cc
 
-  Description: Produces collection of tracks associated to the first vertex based on the pf_pu Association Map 
+  Description: Produces collection of tracks associated to the first vertex based on the pf_pu Association Map
 */
 //
 
@@ -30,8 +30,15 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/OneToManyWithQuality.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::VertexCollection, reco::TrackCollection, int> > TrackToVertexAssMap;
+typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::TrackCollection, reco::VertexCollection, int> > VertexToTrackAssMap;
 
 //
 // class declaration
@@ -52,9 +59,10 @@ class PF_PU_FirstVertexTracks : public edm::EDProducer {
 
       edm::InputTag input_AssociationType_;
 
-      edm::InputTag input_AssociationMap_;
-      edm::InputTag input_generalTracksCollection_;
-      edm::InputTag input_VertexCollection_;
+      edm::EDGetTokenT<TrackToVertexAssMap> token_TrackToVertexAssMap_;
+      edm::EDGetTokenT<VertexToTrackAssMap> token_VertexToTrackAssMap_;
+      edm::EDGetTokenT<reco::TrackCollection> token_generalTracksCollection_;
+      edm::EDGetTokenT<reco::VertexCollection> token_VertexCollection_;
 
       int input_MinQuality_;
 };

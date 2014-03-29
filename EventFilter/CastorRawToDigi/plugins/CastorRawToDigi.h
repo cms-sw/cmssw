@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -40,13 +41,13 @@ private:
   CastorDataFrameFilter filter_;
   std::vector<int> fedUnpackList_;
   int firstFED_;
-  // bool unpackCalib_;
   bool complainEmptyData_;
   bool usingctdc_;
   bool unpackTTP_;
   bool silent_;
   bool usenominalOrbitMessageTime_;
   int expectedOrbitMessageTime_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_input_;
 
 };
 

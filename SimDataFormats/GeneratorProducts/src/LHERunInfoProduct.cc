@@ -206,7 +206,7 @@ bool HeaderLess::operator() (const LHERunInfoProduct::Header &a,
 }
 
 bool LHERunInfoProduct::isTagComparedInMerge(const std::string& tag) {
-	return !(tag == "" || tag.find("Alpgen") == 0 || tag == "MGGridCard" || tag == "MGGenerationInfo");
+        return !(tag == "" || tag.find("Alpgen") == 0 || tag == "MGGridCard" || tag == "MGGenerationInfo" || tag=="MGRunCard" || tag == "mgruncard" || tag=="MadSpin" || tag=="madspin");
 }
 
 bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
@@ -216,9 +216,7 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 	    heprup_.PDFGUP != other.heprup_.PDFGUP ||
 	    heprup_.PDFSUP != other.heprup_.PDFSUP ||
 	    heprup_.IDWTUP != other.heprup_.IDWTUP) {
-		throw cms::Exception("ProductsNotMergeable")
-			<< "Error in LHERunInfoProduct: LHE headers differ. "
-			   "Cannot merge products." << std::endl;
+	  return false;	
 	}
 
 	bool compatibleHeaders = headers_ == other.headers_;
@@ -257,9 +255,7 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 
 	// still not compatible after fixups
 	if (!compatibleHeaders) {
-		throw cms::Exception("ProductsNotMergeable")
-			<< "Error in LHERunInfoProduct: LHE headers differ. "
-			   "Cannot merge products." << std::endl;
+	  return false;
 	}
 
 	// it is exactly the same, so merge

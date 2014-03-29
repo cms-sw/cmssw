@@ -38,7 +38,8 @@ namespace reco {
   TypeCode typeCode(const edm::TypeWithDict & t) {
 
     typedef std::pair<const char*const, method::TypeCode> Values;
-    const char* name = t.name().c_str();
+    std::string const theName(t.name());
+    char const* name = theName.c_str();
     auto f = std::equal_range(retTypeVec.begin(),retTypeVec.end(),Values{name,enumType},
                               [] ( Values const& iLHS, Values const& iRHS) -> bool{
        return std::strcmp(iLHS.first,iRHS.first)<0;

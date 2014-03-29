@@ -121,7 +121,7 @@ inline void G4MonopoleTransportation::ResetKilledStatistics(G4int report)
   } 
 
   fSumEnergyKilled= 0;
-  fMaxEnergyKilled= -1.0*GeV;
+  fMaxEnergyKilled= -1.0*CLHEP::GeV;
 }
      // Statistics for tracks killed (currently due to looping in field)
 

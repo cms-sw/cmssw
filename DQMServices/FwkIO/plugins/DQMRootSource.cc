@@ -88,12 +88,39 @@ namespace {
           iOriginal->GetNbinsZ() == iToAdd->GetNbinsZ() &&
           iOriginal->GetZaxis()->GetXmin() == iToAdd->GetZaxis()->GetXmin() &&
           iOriginal->GetZaxis()->GetXmax() == iToAdd->GetZaxis()->GetXmax()) {
-        iOriginal->Add(iToAdd);
+	bool goMerge = true;
+	for(int xx=1; xx<iOriginal->GetNbinsX(); ++xx) {
+	  if( 0 != strcmp(iOriginal->GetXaxis()->GetBinLabel(xx), iToAdd->GetXaxis()->GetBinLabel(xx)) ) {
+	    goMerge = false;
+	    edm::LogError("MergeFailure")<<"Found histograms with different Xaxis labels '"<<iOriginal->GetName()<<"' not merged.";
+	    break;
+	  }
+	}
+	if(goMerge == true)
+	  for(int yy=1; yy<iOriginal->GetNbinsY(); ++yy) {
+	    if( 0 != strcmp(iOriginal->GetYaxis()->GetBinLabel(yy), iToAdd->GetYaxis()->GetBinLabel(yy)) ) {
+	      goMerge = false;
+	      edm::LogError("MergeFailure")<<"Found histograms with different Yaxis labels '"<<iOriginal->GetName()<<"' not merged.";
+	      break;
+	    }
+	  }
+	if(goMerge == true)
+	  for(int zz=1; zz<iOriginal->GetNbinsZ(); ++zz) {
+	    if( 0 != strcmp(iOriginal->GetZaxis()->GetBinLabel(zz), iToAdd->GetZaxis()->GetBinLabel(zz)) ) {
+	      goMerge = false;
+	      edm::LogError("MergeFailure")<<"Found histograms with different Yaxis labels '"<<iOriginal->GetName()<<"' not merged.";
+	      break;
+	    }
+	  }
+	if(goMerge == true){
+	  iOriginal->Add(iToAdd);
+	}
       } else {
-        edm::LogError("MergeFailure")<<"Found histograms with different axis limits '"<<iOriginal->GetName()<<"' not merged.";
-      }
-    } 
+	edm::LogError("MergeFailure")<<"Found histograms with different axis limits '"<<iOriginal->GetName()<<"' not merged.";
+      } 
+    }
   }
+  
   void mergeWithElement(MonitorElement* iElement, TH1F* iHist) {
     //std::cout <<"merge: hist size "<<iElement->getName() <<" "<<iHist->GetEffectiveEntries()<<std::endl;
     mergeTogether(iElement->getTH1F(),iHist);

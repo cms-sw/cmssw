@@ -278,23 +278,16 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   theEventSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
 
-  std::auto_ptr<CaloRecHitMetaCollectionV> RecHitsEE(0); 
-  RecHitsEE = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(ecalhitsCollEE.product()));
- 
-  std::auto_ptr<CaloRecHitMetaCollectionV> RecHitsEB(0); 
-  RecHitsEB = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(ecalhitsCollEB.product()));
-
-
   caloPtrVecOutIn_.clear();
   caloPtrVecInOut_.clear();
 
   bool isBarrel=true;
   if ( validBarrelBCHandle && validBarrelSCHandle ) 
-    buildCollections(isBarrel, scBarrelHandle, bcBarrelHandle, ecalhitsCollEB, &(*RecHitsEB), sevLevel, hcalTowersHandle, *outInTrackCandidate_p, *inOutTrackCandidate_p, caloPtrVecOutIn_, caloPtrVecInOut_);
+    buildCollections(isBarrel, scBarrelHandle, bcBarrelHandle, ecalhitsCollEB, *ecalhitsCollEB, sevLevel, hcalTowersHandle, *outInTrackCandidate_p, *inOutTrackCandidate_p, caloPtrVecOutIn_, caloPtrVecInOut_);
 
   if ( validEndcapBCHandle && validEndcapSCHandle ) {
     isBarrel=false; 
-    buildCollections(isBarrel, scEndcapHandle, bcEndcapHandle, ecalhitsCollEE, &(*RecHitsEE), sevLevel, hcalTowersHandle, *outInTrackCandidate_p, *inOutTrackCandidate_p, caloPtrVecOutIn_, caloPtrVecInOut_);
+    buildCollections(isBarrel, scEndcapHandle, bcEndcapHandle, ecalhitsCollEE, *ecalhitsCollEE, sevLevel, hcalTowersHandle, *outInTrackCandidate_p, *inOutTrackCandidate_p, caloPtrVecOutIn_, caloPtrVecInOut_);
   }
 
 
@@ -340,7 +333,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
 							const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
 							const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
 							edm::Handle<EcalRecHitCollection> ecalRecHitHandle, 
-							CaloRecHitMetaCollectionV* ecalRecHits,
+							const EcalRecHitCollection& ecalRecHits,
 							const EcalSeverityLevelAlgo* sevLevel,
 							//edm::ESHandle<EcalChannelStatus>  chStatus,
 							//const EcalChannelStatus* chStatus,
@@ -379,7 +372,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
 				  isoEtMin_,    
 				  isoEMin_,    
 				  theCaloGeom_,
-				  &(*ecalRecHits),
+				  ecalRecHits,
 				  sevLevel,
 				  DetId::Ecal);
 
