@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    EcalDeadChannelRecoveryProducers
-// Class:      EEDeadChannelRecoveryProducers
+// Class:      EBDeadChannelRecoveryProducers
 //
-/**\class EEDeadChannelRecoveryProducers EEDeadChannelRecoveryProducers.cc RecoLocalCalo/EcalDeadChannelRecoveryProducers/src/EEDeadChannelRecoveryProducers.cc
+/**\class EBDeadChannelRecoveryProducers EBDeadChannelRecoveryProducers.cc RecoLocalCalo/EcalDeadChannelRecoveryProducers/src/EBDeadChannelRecoveryProducers.cc
 
  Description: <one line class summary>
 
@@ -29,9 +29,9 @@
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-#include "RecoLocalCalo/EcalDeadChannelRecoveryProducers/interface/EEDeadChannelRecoveryProducers.h"
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/test/plugins/EBDeadChannelRecoveryProducers.h"
 
 #include <string>
 #include <cstdio>
@@ -50,7 +50,7 @@ using namespace std;
 //
 // constructors and destructor
 //
-EEDeadChannelRecoveryProducers::EEDeadChannelRecoveryProducers(const edm::ParameterSet& ps)
+EBDeadChannelRecoveryProducers::EBDeadChannelRecoveryProducers(const edm::ParameterSet& ps)
 {
     //now do what ever other initialization is needed
     CorrectDeadCells_     = ps.getParameter<bool>("CorrectDeadCells");
@@ -65,7 +65,7 @@ EEDeadChannelRecoveryProducers::EEDeadChannelRecoveryProducers(const edm::Parame
 }
 
 
-EEDeadChannelRecoveryProducers::~EEDeadChannelRecoveryProducers()
+EBDeadChannelRecoveryProducers::~EBDeadChannelRecoveryProducers()
 {
     // do anything here that needs to be done at desctruction time
     // (e.g. close files, deallocate resources etc.)
@@ -78,7 +78,7 @@ EEDeadChannelRecoveryProducers::~EEDeadChannelRecoveryProducers()
 
 // ------------ method called to produce the data  ------------
 void
-EEDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup& iSetup)
+EBDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup& iSetup)
 {
     using namespace edm;
 
@@ -97,20 +97,20 @@ EEDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup& 
 
     // create an auto_ptr to a EcalRecHitCollection, copy the RecHits into it and put it in the Event:
     std::auto_ptr< EcalRecHitCollection > redCollection(new EcalRecHitCollection);
-	eeDeadChannelCorrector.setCaloTopology(theCaloTopology.product());
+	ebDeadChannelCorrector.setCaloTopology(theCaloTopology.product());
 
     //
     //  Double loop over EcalRecHit collection and "dead" cell RecHits.
-    //  If we step into a "dead" cell call "eeDeadChannelCorrector::correct()"
+    //  If we step into a "dead" cell call "ebDeadChannelCorrector::correct()"
     //
     for (EcalRecHitCollection::const_iterator it = hit_collection->begin(); it != hit_collection->end(); ++it) {
-        std::vector<EEDetId>::const_iterator CheckDead = ChannelsDeadID.begin();
+        std::vector<EBDetId>::const_iterator CheckDead = ChannelsDeadID.begin();
         bool OverADeadRecHit=false;
         while ( CheckDead != ChannelsDeadID.end() ) {
             if (it->detid()==*CheckDead) {
                 OverADeadRecHit=true;
                 bool AcceptRecHit=true;
-                EcalRecHit NewRecHit = eeDeadChannelCorrector.correct(it->detid(),*hit_collection,CorrectionMethod_,Sum8GeVThreshold_, &AcceptRecHit);
+                EcalRecHit NewRecHit = ebDeadChannelCorrector.correct(it->detid(),*hit_collection,CorrectionMethod_,Sum8GeVThreshold_, &AcceptRecHit);
                 //  Accept the new rec hit if the flag is true.
                 if( AcceptRecHit ) { redCollection->push_back( NewRecHit ); }
                 else               { redCollection->push_back( *it );}
@@ -120,14 +120,14 @@ EEDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup& 
         }
         if (!OverADeadRecHit) { redCollection->push_back( *it ) ; }
     }
-
+    
     evt.put(redCollection, reducedHitCollection_);
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-EEDeadChannelRecoveryProducers::beginJob()
+EBDeadChannelRecoveryProducers::beginJob()
 {
     //Open the DeadChannel file, read it.
     FILE* DeadCha;
@@ -135,18 +135,18 @@ EEDeadChannelRecoveryProducers::beginJob()
     DeadCha = fopen(DeadChannelFileName_.c_str(),"r");
 
     int fileStatus=0;
-    int ix=-10000;
-    int iy=-10000;
-    int iz=-10000;
+    int ieta=-10000;
+    int iphi=-10000;
+    
     while (fileStatus != EOF) {
     
-        fileStatus = fscanf(DeadCha,"%d %d %d\n",&ix,&iy,&iz);
+        fileStatus = fscanf(DeadCha,"%d %d\n",&ieta,&iphi);
 
         //  Problem reading Dead Channels file
-        if (ix==-10000||iy==-10000||iz==-10000) { break; }
+        if (ieta==-10000||iphi==-10000) { break; }
         
-        if ( EEDetId::validDetId(ix,iy,iz) ) {
-            EEDetId cell(ix,iy,iz);
+        if( EBDetId::validDetId(ieta,iphi) ) {
+            EBDetId cell(ieta,iphi);
             ChannelsDeadID.push_back(cell);
         }
         
@@ -157,8 +157,8 @@ EEDeadChannelRecoveryProducers::beginJob()
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-EEDeadChannelRecoveryProducers::endJob() {
+EBDeadChannelRecoveryProducers::endJob() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(EEDeadChannelRecoveryProducers);
+DEFINE_FWK_MODULE(EBDeadChannelRecoveryProducers);

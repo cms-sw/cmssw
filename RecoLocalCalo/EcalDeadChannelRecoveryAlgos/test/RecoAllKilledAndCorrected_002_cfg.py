@@ -95,11 +95,17 @@ process.ModCorrectEEDeadCells = cms.EDProducer("EEDeadChannelRecoveryProducers",
    CorrectDeadCells     = cms.bool(True),
 )
 
+process.dump = cms.EDAnalyzer("EcalRecHitDump",
+  EBRecHitCollection = cms.InputTag("ModCorrectEBDeadCells", "ModifyEB"),
+  EERecHitCollection = cms.InputTag("ModCorrectEEDeadCells", "ModifyEE"),
+)
+
+
 
 #       *****************************************************************
 #                                Execution Path                  
 #       *****************************************************************
-process.p = cms.Path(process.CreateEBDeadCells * process.ModCorrectEBDeadCells + process.CreateEEDeadCells * process.ModCorrectEEDeadCells) 
+process.p = cms.Path(process.CreateEBDeadCells * process.ModCorrectEBDeadCells + process.CreateEEDeadCells * process.ModCorrectEEDeadCells * process.dump) 
 #process.p = cms.Path(process.ModCorrectEBDeadCells + process.ModCorrectEEDeadCells )
 process.outpath = cms.EndPath(process.out)
 

@@ -32,7 +32,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-#include "RecoCaloTools/EcalChannelKiller/interface/EBChannelKiller.h"
+#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/test/plugins/EBChannelKiller.h"
 
 #include <string>
 #include <cstdio>
