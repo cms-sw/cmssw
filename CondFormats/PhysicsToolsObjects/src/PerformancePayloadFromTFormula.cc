@@ -24,7 +24,6 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
 
   // nice, what to do here???
   const boost::shared_ptr<TFormula>& formula = compiledFormulas_[resultPos(r)];
-  std::cout << "got formula pointer : " << formula << std::endl;
   //
   // prepare the vector to pass, order counts!!!
   //
