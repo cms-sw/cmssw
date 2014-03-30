@@ -32,7 +32,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "RecoLocalCalo/EcalDeadChannelRecoveryProducers/interface/EEDeadChannelRecoveryProducers.h"
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EEDeadChannelRecoveryAlgos.h"
 
 #include <string>
 #include <cstdio>
@@ -111,7 +110,7 @@ EEDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup& 
             if (it->detid()==*CheckDead) {
                 OverADeadRecHit=true;
                 bool AcceptRecHit=true;
-                EcalRecHit NewRecHit = eeDeadChannelCorrector.correct(it->detid(),hit_collection,CorrectionMethod_,Sum8GeVThreshold_, &AcceptRecHit);
+                EcalRecHit NewRecHit = eeDeadChannelCorrector.correct(it->detid(),*hit_collection,CorrectionMethod_,Sum8GeVThreshold_, &AcceptRecHit);
                 //  Accept the new rec hit if the flag is true.
                 if( AcceptRecHit ) { redCollection->push_back( NewRecHit ); }
                 else               { redCollection->push_back( *it );}

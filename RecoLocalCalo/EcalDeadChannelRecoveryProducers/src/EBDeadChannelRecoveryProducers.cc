@@ -110,7 +110,7 @@ EBDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup& 
             if (it->detid()==*CheckDead) {
                 OverADeadRecHit=true;
                 bool AcceptRecHit=true;
-                EcalRecHit NewRecHit = ebDeadChannelCorrector.correct(it->detid(),hit_collection,CorrectionMethod_,Sum8GeVThreshold_, &AcceptRecHit);
+                EcalRecHit NewRecHit = ebDeadChannelCorrector.correct(it->detid(),*hit_collection,CorrectionMethod_,Sum8GeVThreshold_, &AcceptRecHit);
                 //  Accept the new rec hit if the flag is true.
                 if( AcceptRecHit ) { redCollection->push_back( NewRecHit ); }
                 else               { redCollection->push_back( *it );}

@@ -128,22 +128,34 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
         }
 
         if ( flags == EcalRecHitWorkerRecover::EB_single ) {
-
                     // recover as single dead channel
-                    const EcalRecHitCollection * hit_collection = &result;
-					ebDeadChannelCorrector.setCaloTopology(caloTopology_.product());
+                    ebDeadChannelCorrector.setCaloTopology(caloTopology_.product());
 
                     // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
                     bool AcceptRecHit=true;
-                    EcalRecHit hit = ebDeadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
-                    std::cout << "Recovery stuff. EB single " << AcceptRecHit << std::endl;
+                    EcalRecHit hit = ebDeadChannelCorrector.correct( detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+
                     if ( hit.energy() != 0 and AcceptRecHit == true ) {
-		                hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
+                        hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
                     } else {
-		                // recovery failed
-		                hit.setFlag( EcalRecHit::kDead ) ;
+                        // recovery failed
+                        hit.setFlag( EcalRecHit::kDead ) ;
                     }
-                    std::cout << hit << std::endl;
+                    insertRecHit( hit, result );
+                
+        } else if ( flags == EcalRecHitWorkerRecover::EE_single ) {
+                    // recover as single dead channel
+		    eeDeadChannelCorrector.setCaloTopology(caloTopology_.product());
+
+                    // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
+                    bool AcceptRecHit=true;
+                    EcalRecHit hit = eeDeadChannelCorrector.correct( detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+                    if ( hit.energy() != 0 and AcceptRecHit == true ) {
+                        hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
+                    } else {
+                       // recovery failed
+                       hit.setFlag( EcalRecHit::kDead ) ;
+                    }
                     insertRecHit( hit, result );
                 
         } else if ( flags == EcalRecHitWorkerRecover::EB_VFE ) {
@@ -197,24 +209,6 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 			}
                         }
                 }
-        } else if ( flags == EcalRecHitWorkerRecover::EE_single ) {
-            std::cout << "Recovery stuff. EE single" << std::endl;
-
-                    // recover as single dead channel
-                    const EcalRecHitCollection * hit_collection = &result;
-					eeDeadChannelCorrector.setCaloTopology(caloTopology_.product());
-
-                    // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
-                    bool AcceptRecHit=true;
-                    EcalRecHit hit = eeDeadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
-                    if ( hit.energy() != 0 and AcceptRecHit == true ) {
-		                hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
-                    } else {
-		                // recovery failed
-		                hit.setFlag( EcalRecHit::kDead ) ;
-                    }
-                    insertRecHit( hit, result );
-                
         } else if ( flags == EcalRecHitWorkerRecover::EE_FE ) {
                         // Structure for recovery:
                         // ** SC --> EEDetId constituents (eeC) --> associated Trigger Towers (aTT) --> EEDetId constituents (aTTC)
