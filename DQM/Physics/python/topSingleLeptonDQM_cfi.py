@@ -1,5 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
+looseMuonCut = "muonRef.isNonnull && (muonRef.isGlobalMuon || muonRef.isTrackerMuon) && muonRef.isPFMuon"
+looseIsoCut  = "(muonRef.pfIsolationR04.sumChargedHadronPt + max(0., muonRef.pfIsolationR04.sumNeutralHadronEt + muonRef.pfIsolationR04.sumPhotonEt - 0.5 * muonRef.pfIsolationR04.sumPUPt) ) / muonRef.pt < 0.2"
+
+tightMuonCut = "muonRef.isNonnull && muonRef.isGlobalMuon && muonRef.isPFMuon && muonRef.globalTrack.normalizedChi2 < 10. && muonRef.globalTrack.hitPattern.numberOfValidMuonHits > 0 && " + \
+               "muonRef.numberOfMatchedStations > 1 && muonRef.innerTrack.hitPattern.numberOfValidPixelHits > 0 && muonRef.innerTrack.hitPattern.trackerLayersWithMeasurement > 8"
+               # CB PV cut!
+tightIsoCut  = "(muonRef.pfIsolationR04.sumChargedHadronPt + max(0., muonRef.pfIsolationR04.sumNeutralHadronEt + muonRef.pfIsolationR04.sumPhotonEt - 0.5 * muonRef.pfIsolationR04.sumPUPt) ) / muonRef.pt < 0.12"
+
+EletightIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.1"
+ElelooseIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.15"
+
 topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
@@ -14,8 +25,8 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     directory = cms.string("Physics/Top/TopSingleLeptonDQM/"),
     ## [mandatory]
     sources = cms.PSet(
-      muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gedGsfElectrons"),
+      muons = cms.InputTag("pfIsolatedMuonsEI"),
+      elecs = cms.InputTag("pfIsolatedElectronsEI"),
       jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -35,23 +46,24 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet( src = cms.InputTag("eidRobustLoose"), pattern = cms.int32(1) ),
+      ##electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.5) ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                                                            
       select = cms.string("pt>15 & abs(eta)<2.5 & abs(gsfTrack.d0)<1 & abs(gsfTrack.dz)<20"),
       ## when omitted isolated electron multiplicity plot will be equi-
       ## valent to inclusive electron multiplicity plot 
-      isolation = cms.string("(dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1"),
+      ##isolation = cms.string("(dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1"),
+      isolation = cms.string(ElelooseIsoCut),
     ),
     ## [optional] : when omitted all monitoring plots for muons
     ## will be filled w/o extras
     muonExtras = cms.PSet(
       ## when omitted muon plots will be filled w/o additional pre-
       ## selection of the muon candidates                                                                                            
-      select = cms.string("pt>10 & abs(eta)<2.1 & isGlobalMuon & abs(globalTrack.d0)<1 & abs(globalTrack.dz)<20"),
+      select = cms.string(looseMuonCut + " && pt>10 & abs(eta)<2.4"),
       ## when omitted isolated muon multiplicity plot will be equi-
       ## valent to inclusive muon multiplicity plot                                                    
-      isolation = cms.string("(isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.1"),
+      isolation = cms.string(looseIsoCut),
     ),
     ## [optional] : when omitted all monitoring plots for jets will
     ## be filled from uncorrected jets
@@ -144,8 +156,8 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     directory = cms.string("Physics/Top/TopSingleMuonLooseDQM/"),
     ## [mandatory]
     sources = cms.PSet(
-      muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gedGsfElectrons"),
+      muons = cms.InputTag("pfIsolatedMuonsEI"),
+      elecs = cms.InputTag("pfIsolatedElectronsEI"),
       jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -164,10 +176,10 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     muonExtras = cms.PSet(
       ## when omitted muon plots will be filled w/o additional pre-
       ## selection of the muon candidates                                                                                               
-      select = cms.string("pt > 10 & abs(eta)<2.1 & isGlobalMuon & innerTrack.numberOfValidHits>10 & globalTrack.normalizedChi2>-1 & globalTrack.normalizedChi2<10"),
+      select = cms.string(looseMuonCut + " && pt > 10 & abs(eta)<2.4"),
       ## when omitted isolated muon multiplicity plot will be equi-
       ## valent to inclusive muon multiplicity plot                                                    
-      isolation = cms.string("(isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.1")                                               
+      isolation = cms.string(looseIsoCut)                                               
     ),
     ## [optional] : when omitted all monitoring plots for jets
     ## will be filled w/o extras
@@ -254,8 +266,8 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   selection = cms.VPSet(
     cms.PSet(
       label  = cms.string("muons:step0"),
-      src    = cms.InputTag("muons"),
-      select = cms.string("pt>10 & abs(eta)<2.1 & isGlobalMuon & innerTrack.numberOfValidHits>10 & globalTrack.normalizedChi2>-1 & globalTrack.normalizedChi2<10"),
+      src    = cms.InputTag("pfIsolatedMuonsEI"),
+      select = cms.string(looseMuonCut + looseIsoCut + " && pt>10 & abs(eta)<2.4"), # CB what about iso? CD Added looseIso
       min    = cms.int32(1),
     ),
     cms.PSet(
@@ -322,8 +334,8 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     directory = cms.string("Physics/Top/TopSingleMuonMediumDQM/"),
     ## [mandatory]
     sources = cms.PSet(
-      muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gedGsfElectrons"),
+      muons = cms.InputTag("pfIsolatedMuonsEI"),
+      elecs = cms.InputTag("pfIsolatedElectronsEI"),
       jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -345,10 +357,10 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     muonExtras = cms.PSet(
       ## when omitted muon plots will be filled w/o additional pre-
       ## selection of the muon candidates                                                
-      select    = cms.string("pt>20 & abs(eta)<2.1 & isGlobalMuon & innerTrack.numberOfValidHits>10 & globalTrack.normalizedChi2>-1 & globalTrack.normalizedChi2<10 & (isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.1"),  
+      select    = cms.string(looseMuonCut + " && pt>20 & abs(eta)<2.1"),  
       ## when omitted isolated muon multiplicity plot will be equi-
       ## valent to inclusive muon multiplicity plot                                                    
-      isolation = cms.string("(isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.1")
+      isolation = cms.string(looseIsoCut)
     ),
     ## [optional] : when omitted all monitoring plots for jets
     ## will be filled w/o extras
@@ -435,8 +447,8 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   selection = cms.VPSet(
     cms.PSet(
       label  = cms.string("muons:step0"),
-      src    = cms.InputTag("muons"),
-      select = cms.string("pt>20 & abs(eta)<2.1 & isGlobalMuon & innerTrack.numberOfValidHits>10 & globalTrack.normalizedChi2>-1 & globalTrack.normalizedChi2<10 & (isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.1"),       
+      src    = cms.InputTag("pfIsolatedMuonsEI"),
+      select = cms.string(tightMuonCut +"&&"+ tightIsoCut + " && pt>20 & abs(eta)<2.1"), # CB what about iso? CD Added tightIso      
       min    = cms.int32(1),
       max    = cms.int32(1),
     ),
@@ -505,8 +517,8 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     directory = cms.string("Physics/Top/TopSingleElectronLooseDQM/"),
     ## [mandatory]
     sources = cms.PSet(
-      muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gedGsfElectrons"),
+      muons = cms.InputTag("pfIsolatedMuonsEI"),
+      elecs = cms.InputTag("pfIsolatedElectronsEI"),
       jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -527,13 +539,13 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      #electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
+      #electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.0) ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates
-      select     = cms.string("pt>15 & abs(eta)<2.5"),
+      select     = cms.string("pt>20 & abs(eta)<2.5"),
       ## when omitted isolated electron multiplicity plot will be equi-
       ## valent to inclusive electron multiplicity plot                                                    
-      isolation  = cms.string("(dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),                                                   
+      isolation  = cms.string(ElelooseIsoCut),                                                   
     ),
     ## [optional] : when omitted all monitoring plots for jets
     ## will be filled w/o extras
@@ -616,9 +628,9 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   selection = cms.VPSet(
     cms.PSet(
       label  = cms.string("elecs:step0"),
-      src    = cms.InputTag("gedGsfElectrons"),
-      #electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
-      select = cms.string("pt>15 & abs(eta)<2.5"),
+      src    = cms.InputTag("pfIsolatedElectronsEI"),
+      #electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.0) ),
+      select = cms.string("pt>20 & abs(eta)<2.5 && "+ElelooseIsoCut),
       min    = cms.int32(1),
     ),
     cms.PSet(
@@ -686,8 +698,8 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     directory = cms.string("Physics/Top/TopSingleElectronMediumDQM/"),
     ## [mandatory]
     sources = cms.PSet(
-      muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gedGsfElectrons"),
+      muons = cms.InputTag("pfIsolatedMuonsEI"),
+      elecs = cms.InputTag("pfIsolatedElectronsEI"),
       jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -708,13 +720,13 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      #electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
+      #electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.0) ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates
-      select     = cms.string("pt>25 & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
+      select     = cms.string("pt>20 & abs(eta)<2.5"),
       ## when omitted isolated electron multiplicity plot will be equi-
       ## valent to inclusive electron multiplicity plot 
-      isolation  = cms.string("(dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
+      isolation  = cms.string(ElelooseIsoCut),
     ),
     ## [optional] : when omitted all monitoring plots for jets
     ## will be filled w/o extras
@@ -797,9 +809,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   selection = cms.VPSet(
     cms.PSet(
       label = cms.string("elecs:step0"),
-      src   = cms.InputTag("gedGsfElectrons"),
-      #electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
-      select = cms.string("pt>25 & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
+      src   = cms.InputTag("pfIsolatedElectronsEI"),
+      #electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.5) ),
+#      select = cms.string("pt>25 & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
+      select = cms.string("pt>30 & abs(eta)<2.5 & abs(gsfElectronRef.gsfTrack.d0)<0.02 && gsfElectronRef.gsfTrack.trackerExpectedHitsInner.numberOfHits <= 0 && abs(gsfElectronRef.superCluster.eta) > 1.4442 && abs(gsfElectronRef.superCluster.eta) < 1.5660 && " + EletightIsoCut),
       min = cms.int32(1),
       max = cms.int32(1),
     ),

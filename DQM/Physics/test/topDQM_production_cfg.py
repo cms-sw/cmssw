@@ -17,8 +17,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ## For more details have a look at: WGuideFrontierConditions
 ## --------------------------------------------------------------------
 ##process.GlobalTag.globaltag = 'GR_R_42_V14::All' 
-process.GlobalTag.globaltag = 'PRE_ST62_V8::All'
-
+process.GlobalTag.globaltag = 'POSTLS171_V1::All'
 
 #dbs search --query 'find file where site=srm-eoscms.cern.ch and dataset=/RelValTTbar/CMSSW_7_0_0_pre3-PRE_ST62_V8-v1/GEN-SIM-RECO'
 #dbs search --query 'find dataset where dataset=/RelValTTbar/CMSSW_7_0_0_pre6*/GEN-SIM-RECO'
@@ -30,15 +29,17 @@ process.source = cms.Source("PoolSource",
     #"/store/relval/CMSSW_6_2_0_pre1-START61_V8/RelValTTbarLepton/GEN-SIM-RECO/v1/00000/C6CC53CC-6E6D-E211-8EAB-003048D3756A.root',"
     
     #/RelValTTbar/CMSSW_7_0_0_pre6-PRE_ST62_V8-v1/GEN-SIM-RECO
+#        '/store/relval/CMSSW_7_0_0_pre13/RelValTTbar_13/GEN-SIM-RECO/PU25ns_POSTLS170_V3-v1/00000/1E407758-2F90-E311-AF63-0025905A6118.root',
+	'/store/relval/CMSSW_7_1_0_pre4/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/48ED95A2-66AA-E311-9865-02163E00E5AE.root',
     #'/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/B627D32C-0B3C-E311-BBE6-0026189438E6.root',
     #'/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/72477A84-F93B-E311-BF63-003048FFD720.root',
-    '/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/12A06D7A-F93B-E311-AA64-003048678BEA.root'
+    #'/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/12A06D7A-F93B-E311-AA64-003048678BEA.root'
     )
 )
 
 ## number of events
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(10)
 )
 
 ## apply VBTF electronID (needed for the current implementation
@@ -50,7 +51,7 @@ process.load("DQM.Physics.topElectronID_cff")
 process.load('Configuration/StandardSequences/Reconstruction_cff')
 
 
-## output
+### output ###
 process.output = cms.OutputModule("PoolOutputModule",
   fileName       = cms.untracked.string('topDQM_production.root'),
   outputCommands = cms.untracked.vstring(
@@ -73,6 +74,14 @@ process.prefer("ak5PFL2L3")
 ## check the event content
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
+## load the electron MVA ID
+process.load("EgammaAnalysis.ElectronTools.electronIdMVAProducer_cfi")
+process.mvaTrigV0.electronTag = cms.InputTag("gedGsfElectrons")
+process.mvaNonTrigV0.electronTag = cms.InputTag("gedGsfElectrons")
+#process.mvaTrigV0.electronTag = cms.InputTag("pfIsolatedElectronsEI")
+#process.mvaNonTrigV0.electronTag = cms.InputTag("pfIsolatedElectronsEI")
+
+
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
@@ -88,17 +97,20 @@ process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line ad
 
 ## path definitions
 process.p      = cms.Path(
-    process.simpleEleId70cIso          *
-    process.DiMuonDQM                  +
-    process.DiElectronDQM              +
-    process.ElecMuonDQM                +
-    #process.topSingleMuonLooseDQM      +
-    process.topSingleMuonMediumDQM     +
-    #process.topSingleElectronLooseDQM  +
-    process.topSingleElectronMediumDQM +
+    #process.simpleEleId70cIso          *
+#    process.mvaTrigV0                     +
+#    process.mvaNonTrigV0               +
+#    process.DiMuonDQM                  +
+#    process.DiElectronDQM              +
+#    process.ElecMuonDQM                +
+#    process.topSingleMuonLooseDQM      +
+#    process.topSingleMuonMediumDQM     +
+#    process.topSingleElectronLooseDQM  +
+#    process.topSingleElectronMediumDQM #+
     process.singleTopMuonMediumDQM     +
     process.singleTopElectronMediumDQM
 )
+
 process.endjob = cms.Path(
     process.endOfProcess
 )

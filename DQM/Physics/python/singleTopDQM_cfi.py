@@ -1,7 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+EletightIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.1"
+ElelooseIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.15"
 
-singleTopDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
+
+singleTopTChannelLeptonDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
   ## ------------------------------------------------------
   ## SETUP
   ##
@@ -16,7 +19,7 @@ singleTopDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("particleFlow"),
+      elecs = cms.InputTag("pfIsolatedElectronsEI"),
       jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -36,13 +39,13 @@ singleTopDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
+      ##electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.5) ),  
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                                                            
-      select = cms.string("pt>15 & abs(eta)<2.5 & abs(gsfTrack.d0)<1 & abs(gsfTrack.dz)<20"),
+      select = cms.string("pt>15 & abs(eta)<2.5 & abs(gsfElectronRef.gsfTrack.d0)<1 & abs(gsfElectronRef.gsfTrack.dz)<20"),
       ## when omitted isolated electron multiplicity plot will be equi-
       ## valent to inclusive electron multiplicity plot 
-#      isolation = cms.string("(dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1"),
+      isolation = cms.string(ElelooseIsoCut),
     ),
     ## [optional] : when omitted all monitoring plots for muons
     ## will be filled w/o extras
@@ -125,7 +128,7 @@ singleTopDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
         select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
       ),
       min = cms.int32(2),
-    ),
+    )
   )
 )
 
@@ -136,7 +139,7 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
   ## configuration of the MonitoringEnsemble(s)
   ## [mandatory] : optional PSets may be omitted
   ##
-                                        setup = cms.PSet(
+    setup = cms.PSet(
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
@@ -145,7 +148,7 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     sources = cms.PSet(
     muons = cms.InputTag("particleFlow"),
     elecs_gsf = cms.InputTag("gedGsfElectrons"),
-    elecs = cms.InputTag("particleFlow"),
+    elecs = cms.InputTag("pfIsolatedElectronsEI"),
     jets  = cms.InputTag("ak5PFJetsCHS"),
     mets  = cms.VInputTag("met", "tcMet", "pfMet"),
     pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -165,7 +168,7 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     ## will be filled w/o extras                                           
     muonExtras = cms.PSet(  
       ## when omitted muon plots will be filled w/o additional pre-
-      ## selection of the muon candidates                                                
+      ## selection of the muon candidates 
       select    = cms.string("abs(muonRef.eta)<2.1")
       ## & isGlobalMuon & innerTrack.numberOfValidHits>10 & globalTrack.normalizedChi2>-1 & globalTrack.normalizedChi2<10
       ##& (isolationR03.sumPt+isolationR03.emEt+isolationR03.hadEt)/pt<0.1"),  
@@ -208,8 +211,8 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
           workingPoint = cms.double(0.898)
         )
-     ),                                                
-   ),
+     )                                                
+   )
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass before filling the event monitoring plots
 #    massExtras = cms.PSet(
@@ -285,7 +288,7 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
      
      min = cms.int32(2),
      max = cms.int32(2),
-    ),
+    )
   )
 )
 
@@ -305,7 +308,7 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     sources = cms.PSet(
       muons = cms.InputTag("particleFlow"),
       elecs_gsf = cms.InputTag("gedGsfElectrons"),
-      elecs = cms.InputTag("particleFlow"),
+      elecs = cms.InputTag("pfIsolatedElectronsEI"),
       jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -326,13 +329,14 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     ## will be filled w/o extras
     elecExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o cut on electronId
-      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
+      ##electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.5) ),  
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates
-      select     = cms.string("gsfElectronRef.pt>25"), ##  & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
+      select     = cms.string("pt>25"), ##  & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
       ## when omitted isolated electron multiplicity plot will be equi-
       ## valent to inclusive electron multiplicity plot 
-     ## isolation  = cms.string("(dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
+     ## isolation  = cms.string(ElelooseIsoCut),
+
     ),
     ## [optional] : when omitted all monitoring plots for jets
     ## will be filled w/o extras
@@ -368,7 +372,7 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
           workingPoint = cms.double(0.898)
         )
-      ),
+      )
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass before filling the event monitoring plots
@@ -419,9 +423,9 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
    ),
    cms.PSet(
       label = cms.string("elecs/pf:step0"),
-      src   = cms.InputTag("particleFlow"),
-      electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
-      select = cms.string("gsfElectronRef.pt>30 & abs(gsfElectronRef.eta)<2.5 & gsfElectronRef.isNonnull & gsfElectronRef.gsfTrack.isNonnull & ( abs(gsfElectronRef.superCluster.eta)> 1.5660 || abs(gsfElectronRef.superCluster.eta)<1.4442) & (gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt)/gsfElectronRef.pt<0.125 & abs(gsfElectronRef.gsfTrack.dxy)<0.02 "),
+      src   = cms.InputTag("pfIsolatedElectronsEI"),
+##      electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.5) ),  
+      select = cms.string("pt>30 & abs(eta)<2.5 & abs(gsfElectronRef.gsfTrack.d0)<0.02 && gsfElectronRef.gsfTrack.trackerExpectedHitsInner.numberOfHits <= 0 && abs(gsfElectronRef.superCluster.eta) > 1.4442 && abs(gsfElectronRef.superCluster.eta) < 1.5660 && " + EletightIsoCut),
       min = cms.int32(1),
       max = cms.int32(1),
     ),
