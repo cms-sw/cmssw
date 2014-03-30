@@ -93,6 +93,7 @@ reco::VertexCollection  TrackVertexArbitration::trackVertexArbitrator(
 		} else {
 	 	                std::pair<bool,Measurement1D> ipvp = IPTools::absoluteImpactParameter3D(tt,pv);
 				cachedIP[itrack]=ipvp.second;
+				ipv=ipvp.second;
 		}
                 std::pair<bool,Measurement1D> isv = IPTools::absoluteImpactParameter3D(tt,*sv);
 		float dR = Geom::deltaR(flightDir,tt.track()); //.eta(), flightDir.phi(), tt.track().eta(), tt.track().phi());
