@@ -16,28 +16,38 @@
 #include <string>
 #include <functional>
 
-template <typename DetIdT>
-class EcalDeadChannelRecoveryNN {
- //  Arrangement within the M3x3Input matrix
- //
- //                  M3x3
- //   -----------------------------------
- //   
- //   
- //   LU  UU  RU             04  01  07
- //   LL  CC  RR      or     03  00  06
- //   LD  DD  RD             05  02  08
+template <typename DetIdT> class EcalDeadChannelRecoveryNN {
+  //  Arrangement within the M3x3Input matrix
+  //
+  //                  M3x3
+  //   -----------------------------------
+  //
+  //
+  //   LU  UU  RU             04  01  07
+  //   LL  CC  RR      or     03  00  06
+  //   LD  DD  RD             05  02  08
 
  public:
   EcalDeadChannelRecoveryNN();
   ~EcalDeadChannelRecoveryNN();
 
   //  Enumeration to switch from custom names within the 3x3 matrix.
-  enum CellID { CC=0, UU=1, DD=2, LL=3, LU=4, LD=5, RR=6, RU=7, RD=8 };
+  enum CellID {
+    CC = 0,
+    UU = 1,
+    DD = 2,
+    LL = 3,
+    LU = 4,
+    LD = 5,
+    RR = 6,
+    RU = 7,
+    RD = 8
+  };
 
   void setCaloTopology(const CaloTopology *topo);
-  double recover(const DetIdT id, const EcalRecHitCollection& hit_collection, double Sum8Cut, bool *AcceptFlag);
-  
+  double recover(const DetIdT id, const EcalRecHitCollection &hit_collection,
+                 double Sum8Cut, bool *AcceptFlag);
+
  private:
   struct MultiLayerPerceptronContext {
     Double_t tmp[9];
@@ -45,17 +55,21 @@ class EcalDeadChannelRecoveryNN {
     TMultiLayerPerceptron *mlp;
   };
 
-  const CaloTopology * calotopo_;
+  const CaloTopology *calotopo_;
   MultiLayerPerceptronContext ctx_[9];
 
   void load();
-  void load_file(MultiLayerPerceptronContext& ctx, std::string fn);
+  void load_file(MultiLayerPerceptronContext &ctx, std::string fn);
 
-public:
-  double estimateEnergy(double *M3x3Input, double epsilon=0.0000001);
+ public:
+  double estimateEnergy(double *M3x3Input, double epsilon = 0.0000001);
 
-  double makeNxNMatrice_RelMC(DetIdT itID, const EcalRecHitCollection& hit_collection, double *MNxN_RelMC, bool* AccFlag);
-  double makeNxNMatrice_RelDC(DetIdT itID, const EcalRecHitCollection& hit_collection, double *MNxN_RelDC, bool* AccFlag);
+  double makeNxNMatrice_RelMC(DetIdT itID,
+                              const EcalRecHitCollection &hit_collection,
+                              double *MNxN_RelMC, bool *AccFlag);
+  double makeNxNMatrice_RelDC(DetIdT itID,
+                              const EcalRecHitCollection &hit_collection,
+                              double *MNxN_RelDC, bool *AccFlag);
 };
 
 #endif
