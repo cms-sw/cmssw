@@ -414,10 +414,8 @@ void HcalDDDRecConstants::loadSimConst() {
 #endif
 
   //Phi offsets for barrel and endcap & special constants
-  phioff.clear();
-  for (int i=0; i<4; ++i)
-    phioff.push_back(hcons->getPhiOff(i));
-  nOff = hcons->getNOff();
+  phioff = hcons->getPhiOffs();
+  nOff   = hcons->getNOff();
 
   //Now the depths
   for (int i=0; i<nEta; ++i) {

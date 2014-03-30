@@ -1,0 +1,26 @@
+<use   name="TrackingTools/Records"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/BTauReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="rootrflx"/>
+<use   name="DataFormats/Math"/>
+<use   name="boost"/>
+<use   name="root"/>
+<use   name="RecoBTag/BTagTools"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="RecoTauTag/ImpactParameter"/>
+<use   name="RecoTauTag/RecoTau"/>
+<use   name="DataFormats/TauReco"/>
+<use   name="CommonTools/Utils"/>
+<use   name="RecoVertex/KinematicFit"/>
+<use   name="RecoVertex/KinematicFitPrimitives"/>
+<use   name="DataFormats/BeamSpot"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/GsfTrackReco"/>
+<library   file="*.cc" name="RecoTauTagReco3ProngTauPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

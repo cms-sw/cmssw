@@ -10,9 +10,7 @@
  * \authors Lauri Andreas Wendland,
  *          Christian Veelken
  *
- * \version $Revision: 1.2 $
  *
- * $Id: PFRecoTauDiscriminationAgainstElectronDeadECAL.cc,v 1.2 2012/12/07 12:24:06 speer Exp $
  *
  */
 
@@ -44,6 +42,9 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
   {
     minStatus_ = cfg.getParameter<uint32_t>("minStatus");
     dR_ = cfg.getParameter<double>("dR");
+
+    verbosity_ = ( cfg.exists("verbosity") ) ?
+      cfg.getParameter<int>("verbosity") : 0;
   }
   ~PFRecoTauDiscriminationAgainstElectronDeadECAL() {}
 
@@ -54,15 +55,25 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
 
   double discriminate(const PFTauRef& pfTau)
   {
-    //std::cout << "<PFRecoTauDiscriminationAgainstElectronDeadECAL::discriminate>:" << std::endl;
-    //std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
-    //std::cout << " #badTowers = " << badTowers_.size() << std::endl;
+    if ( verbosity_ ) {
+      std::cout << "<PFRecoTauDiscriminationAgainstElectronDeadECAL::discriminate>:" << std::endl;
+      std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
+      std::cout << "#badTowers = " << badTowers_.size() << std::endl;
+      std::cout << "tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi() << std::endl;
+    }
     double discriminator = 1.;
     for ( std::vector<towerInfo>::const_iterator badTower = badTowers_.begin();
 	  badTower != badTowers_.end(); ++badTower ) {
-      if ( deltaR(badTower->eta_, badTower->phi_, pfTau->eta(), pfTau->phi()) < dR_ ) discriminator = 0.;
+      if ( deltaR(badTower->eta_, badTower->phi_, pfTau->eta(), pfTau->phi()) < dR_ ) {
+	if ( verbosity_ ) {
+	  std::cout << " matches badTower: eta = " << badTower->eta_ << ", phi = " << badTower->phi_ << std::endl;
+	}
+	discriminator = 0.;
+      }
     }
-    //std::cout << "--> discriminator = " << discriminator << std::endl;
+    if ( verbosity_ ) {
+      std::cout << "--> discriminator = " << discriminator << std::endl;
+    }
     return discriminator;
   }
 
@@ -74,7 +85,7 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
     const uint32_t channelStatusId = es.get<EcalChannelStatusRcd>().cacheIdentifier();
     const uint32_t caloGeometryId  = es.get<CaloGeometryRecord>().cacheIdentifier();
     const uint32_t idealGeometryId = es.get<IdealGeometryRecord>().cacheIdentifier();
-    
+
     if ( !isFirstEvent_ && channelStatusId == channelStatusId_cache_ && caloGeometryId == caloGeometryId_cache_ && idealGeometryId == idealGeometryId_cache_  ) return;
 
     edm::ESHandle<EcalChannelStatus> channelStatus;    
@@ -161,6 +172,8 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
   uint32_t caloGeometryId_cache_;
   uint32_t idealGeometryId_cache_;
   bool isFirstEvent_;
+
+  int verbosity_;
 };
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectronDeadECAL);

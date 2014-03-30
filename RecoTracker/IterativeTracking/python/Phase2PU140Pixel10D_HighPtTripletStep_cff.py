@@ -135,7 +135,7 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
             minNumber3DLayers = 3,
             d0_par1 = ( 0.7, 4.0 ),
             dz_par1 = ( 0.8, 4.0 ),
-            d0_par2 = ( 0.4, 4.0 ),
+            d0_par2 = ( 0.6, 4.0 ),
             dz_par2 = ( 0.6, 4.0 )
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
@@ -148,7 +148,7 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
             minNumber3DLayers = 3,
             d0_par1 = ( 0.6, 4.0 ),
             dz_par1 = ( 0.7, 4.0 ),
-            d0_par2 = ( 0.35, 4.0 ),
+            d0_par2 = ( 0.5, 4.0 ),
             dz_par2 = ( 0.5, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
@@ -159,9 +159,9 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
             minNumberLayers = 3,
             maxNumberLostLayers = 2,
             minNumber3DLayers = 3,
-            d0_par1 = ( 0.4, 4.0 ),
+            d0_par1 = ( 0.5, 4.0 ),
             dz_par1 = ( 0.6, 4.0 ),
-            d0_par2 = ( 0.3, 4.0 ),
+            d0_par2 = ( 0.45, 4.0 ),
             dz_par2 = ( 0.45, 4.0 )
             ),
         ) #end of vpset

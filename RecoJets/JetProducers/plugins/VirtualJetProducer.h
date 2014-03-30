@@ -198,6 +198,8 @@ protected:
   bool                            useDeterministicSeed_; // If desired, use a deterministic seed to fastjet
   unsigned int                    minSeed_;              // minimum seed to use, useful for MC generation
 
+  int                   verbosity_;                 // flag to enable/disable debug output
+
 private:
   std::auto_ptr<AnomalousTower>   anomalousTowerDef_;  // anomalous tower definition
 };

@@ -76,7 +76,7 @@ class TauLeadTrackExtractor<reco::PFTau>
   double getTrackPtSum(const reco::PFTau& tau) const
   {
     double trackPtSum = 0.;
-    for ( PFCandidateRefVector::const_iterator signalTrack = tau.signalPFChargedHadrCands().begin();
+    for ( std::vector<PFCandidatePtr>::const_iterator signalTrack = tau.signalPFChargedHadrCands().begin();
 	  signalTrack != tau.signalPFChargedHadrCands().end(); ++signalTrack ) {
       trackPtSum += (*signalTrack)->pt();
     }

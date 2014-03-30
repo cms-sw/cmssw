@@ -78,7 +78,7 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside,
     } else {
       fioff = phioff[2];
       fibin = phitable[etaR-etaMin[2]];
-      if  (etaR > etaMax[2]-2 ) fioff += 0.5*fibin; 
+      if (unitPhi(fibin) > 2) fioff = phioff[4];
     }
     phi  = fioff + (iphi - 0.5)*fibin;
     dphi = 0.5*fibin;
@@ -292,8 +292,8 @@ std::pair<double,double> HcalDDDSimConstants::getPhiCons(int det, int ieta) {
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
     fioff   = phioff[2];
     fibin   = phitable[ieta-etaMin[2]];
-    if  (ieta > etaMax[2]-2 ) {   // HF double-phi  
-      fioff += 0.5*fibin;
+    if  (unitPhi(fibin) > 2) {   // HF double-phi  
+      fioff = phioff[4];
     }
   } else { // Barrel or Endcap
     if (det == static_cast<int>(HcalBarrel)) {
@@ -526,7 +526,7 @@ void HcalDDDSimConstants::loadSpecPars(const DDFilteredView& fv) {
   DDsvalues_type sv(fv.mergedSpecifics());
 
   // Phi Offset
-  int nphi=4;
+  int nphi=5;
   phioff = getDDDArray("phioff",sv,nphi);
 #ifdef DebugLog
   std::cout << "HcalDDDSimConstants: " << nphi << " phioff values";

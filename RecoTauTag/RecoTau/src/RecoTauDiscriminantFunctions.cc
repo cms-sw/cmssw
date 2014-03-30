@@ -12,7 +12,7 @@ namespace reco { namespace tau { namespace disc {
 // Helper functions
 namespace {
 
-const PFCandidate& removeRef(const PFCandidateRef& pfRef) {
+const PFCandidate& removeRef(const PFCandidatePtr& pfRef) {
   return *pfRef;
 }
 
@@ -46,7 +46,7 @@ class DeltaRToAxis {
 
 } // end helper functions
 
-PFCandidateRef mainTrack(Tau tau) {
+PFCandidatePtr mainTrack(Tau tau) {
   if (tau.signalPFChargedHadrCands().size() ==  3) {
     for (size_t itrk = 0; itrk < 3; ++itrk) {
       if (tau.signalPFChargedHadrCands()[itrk]->charge() * tau.charge() < 0)
@@ -56,14 +56,14 @@ PFCandidateRef mainTrack(Tau tau) {
   return tau.leadPFChargedHadrCand();
 }
 
-PFCandidateRefVector notMainTrack(Tau tau)
+std::vector<PFCandidatePtr> notMainTrack(Tau tau)
 {
-  const PFCandidateRef& mainTrackRef = mainTrack(tau);
-  PFCandidateRefVector output;
+  const PFCandidatePtr& mainTrackPtr = mainTrack(tau);
+  std::vector<PFCandidatePtr> output;
   output.reserve(tau.signalPFChargedHadrCands().size() - 1);
-  BOOST_FOREACH(const PFCandidateRef& ref, tau.signalPFChargedHadrCands()) {
-    if (ref != mainTrackRef)
-      output.push_back(ref);
+  BOOST_FOREACH(const PFCandidatePtr& ptr, tau.signalPFChargedHadrCands()) {
+    if (ptr != mainTrackPtr)
+      output.push_back(ptr);
   }
   return output;
 }
@@ -115,7 +115,7 @@ double IsolationECALPtFraction(Tau tau) {
 
 double IsolationNeutralHadronPtFraction(Tau tau) {
   double sum = 0.0;
-  BOOST_FOREACH(PFCandidateRef cand, tau.isolationPFNeutrHadrCands()) {
+  BOOST_FOREACH(PFCandidatePtr cand, tau.isolationPFNeutrHadrCands()) {
     sum += cand->pt();
   }
   return sum/tau.jetRef()->pt();
@@ -129,7 +129,7 @@ double ScaledEtaJetCollimation(Tau tau) {
 double OpeningDeltaR(Tau tau) {
   double sumEt = 0;
   double weightedDeltaR = 0;
-  BOOST_FOREACH(const reco::PFCandidateRef& cand, tau.signalPFCands()) {
+  BOOST_FOREACH(const reco::PFCandidatePtr& cand, tau.signalPFCands()) {
     double candEt = cand->et();
     double candDeltaR = reco::deltaR(cand->p4(), tau.p4());
     sumEt += candEt;
@@ -141,7 +141,7 @@ double OpeningDeltaR(Tau tau) {
 double OpeningAngle3D(Tau tau) {
   double sumE = 0;
   double weightedAngle = 0;
-  BOOST_FOREACH(const reco::PFCandidateRef& cand, tau.signalPFCands()) {
+  BOOST_FOREACH(const reco::PFCandidatePtr& cand, tau.signalPFCands()) {
     double candE = cand->energy();
     double candAngle = angle(cand->p4(), tau.p4());
     sumE += candE;
@@ -152,7 +152,7 @@ double OpeningAngle3D(Tau tau) {
 
 double ScaledOpeningDeltaR(Tau tau) {
   double max = 0.0;
-  const PFCandidateRefVector& cands = tau.signalPFCands();
+  const std::vector<PFCandidatePtr>& cands = tau.signalPFCands();
   for (size_t i = 0; i < cands.size()-1; ++i) {
     for (size_t j = i+1; j < cands.size(); ++j) {
       double deltaRVal = deltaR(cands[i]->p4(), cands[j]->p4());
@@ -185,13 +185,13 @@ double MainTrackPtFraction(Tau tau) {
 }
 
 VDouble Dalitz2(Tau tau) {
-  PFCandidateRef theMainTrack = mainTrack(tau);
-  PFCandidateRefVector otherSignalTracks = notMainTrack(tau);
+  PFCandidatePtr theMainTrack = mainTrack(tau);
+  std::vector<PFCandidatePtr> otherSignalTracks = notMainTrack(tau);
   const std::vector<RecoTauPiZero> &pizeros = tau.signalPiZeroCandidates();
   VDouble output;
   output.reserve(otherSignalTracks.size() + pizeros.size());
   // Add combos with tracks
-  BOOST_FOREACH(PFCandidateRef trk, otherSignalTracks) {
+  BOOST_FOREACH(PFCandidatePtr trk, otherSignalTracks) {
     reco::Candidate::LorentzVector p4 = theMainTrack->p4() + trk->p4();
     output.push_back(p4.mass());
   }
@@ -267,7 +267,7 @@ double IsolationECALSumSoftRelative(Tau tau) {
 double EMFraction(Tau tau) {
   //double result = tau.emFraction();
   reco::Candidate::LorentzVector gammaP4;
-  BOOST_FOREACH(const reco::PFCandidateRef& gamma, tau.signalPFGammaCands()) {
+  BOOST_FOREACH(const reco::PFCandidatePtr& gamma, tau.signalPFGammaCands()) {
     gammaP4 += gamma->p4();
   }
   double result = gammaP4.pt()/tau.pt();
@@ -277,11 +277,11 @@ double EMFraction(Tau tau) {
       << tau << std::endl;
     tau.dump(std::cout);
     std::cout << "charged" << std::endl;
-    BOOST_FOREACH(const reco::PFCandidateRef cand, tau.signalPFChargedHadrCands()) {
+    BOOST_FOREACH(const reco::PFCandidatePtr cand, tau.signalPFChargedHadrCands()) {
       std::cout << " pt: " << cand->pt() << " type: " << cand->particleId() <<  " key: " << cand.key() << std::endl;
     }
     std::cout << "gammas" << std::endl;
-    BOOST_FOREACH(const reco::PFCandidateRef cand, tau.signalPFGammaCands()) {
+    BOOST_FOREACH(const reco::PFCandidatePtr cand, tau.signalPFGammaCands()) {
       std::cout << " pt: " << cand->pt() << " type: " << cand->particleId() <<  " key: " << cand.key() << std::endl;
     }
   }
@@ -302,17 +302,17 @@ double OutlierNCharged(Tau tau) {
 }
 
 double MainTrackPt(Tau tau) {
-  PFCandidateRef trk = mainTrack(tau);
+  PFCandidatePtr trk = mainTrack(tau);
   return (!trk) ? 0.0 : trk->pt();
 }
 
 double MainTrackEta(Tau tau) {
-  PFCandidateRef trk = mainTrack(tau);
+  PFCandidatePtr trk = mainTrack(tau);
   return (!trk) ? 0.0 : trk->eta();
 }
 
 double MainTrackAngle(Tau tau) {
-  PFCandidateRef trk = mainTrack(tau);
+  PFCandidatePtr trk = mainTrack(tau);
   return (!trk) ? 0.0 : deltaR(trk->p4(), tau.p4());
 }
 
