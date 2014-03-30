@@ -66,56 +66,7 @@ namespace evf{
     reg.watchPreModuleEvent(this,&FastMonitoringService::preModuleEvent);//should be stream
     reg.watchPostModuleEvent(this,&FastMonitoringService::postModuleEvent);//
 
-
-    for(unsigned int i = 0; i < (mCOUNT); i++)
-      encModule_.updateReserved((void*)(reservedMicroStateNames+i));
-    encModule_.completeReservedWithDummies();
-
-    // The run dir should be set via the configuration
-    // For now, just grab the latest run directory available
-
-    // FIND RUN DIRECTORY
-    boost::filesystem::path runDirectory(edm::Service<evf::EvFDaqDirector>()->findCurrentRunDir());
-    workingDirectory_ = runDirectory_ = runDirectory;
-    workingDirectory_ /= "mon";
-
-    bool foundMonDir = false;
-    if ( boost::filesystem::is_directory(workingDirectory_))
-    	foundMonDir=true;
-    if (!foundMonDir) {
-        edm::LogWarning("FastMonitoringService") << "<MON> DIR NOT FOUND!";
-        boost::filesystem::create_directories(workingDirectory_);
-    }
-
-    std::ostringstream fastFileName;
-
-    fastFileName << fastName_ << "_pid" << std::setfill('0') << std::setw(5) << getpid() << ".fast";
-    boost::filesystem::path fast = workingDirectory_;
-    fast /= fastFileName.str();
-    fastPath_ = fast.string();
-
-    std::ostringstream moduleLegFile;
-    moduleLegFile << "microstatelegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
-    moduleLegendFile_  = (workingDirectory_/moduleLegFile.str()).string();
-
-    std::ostringstream pathLegFile;
-    pathLegFile << "pathlegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
-    pathLegendFile_  = (workingDirectory_/pathLegFile.str()).string();
-
-    /*
-     * initialize the fast monitor with:
-     * vector of pointers to monitorable parameters
-     * path to definition
-     *
-     */
-    edm::LogInfo("FastMonitoringService") << "FastMonitoringService: initializing FastMonitor with microstate def path: "
-			                  << microstateDefPath_ << " " << FastMonitoringThread::MCOUNT << " ";
-			                  //<< encPath_.current_ + 1 << " " << encModule_.current_ + 1
-   //#if TBB_IMPLEMENT_CPP0X
-   ////std::cout << "TBB thread id:" <<  tbb::thread::id() << std::endl;
-   //threadIDAvailable_=true;
-   //#endif
-   std::cout << "STD thread id:" <<  std::thread::id() << std::endl;
+    edm::LogInfo("FastMonitoringService") << "Constructed";
   }
 
 
@@ -147,6 +98,45 @@ namespace evf{
   void FastMonitoringService::preallocate(edm::service::SystemBounds const & bounds)
   {
 
+    // FIND RUN DIRECTORY
+    // The run dir should be set via the configuration of EvFDaqDirector
+    
+    if (edm::Service<evf::EvFDaqDirector().operator->()==nullptr)
+    {
+      throw cms::Exception("FastMonitoringService") << "ERROR: EvFDaqDirector is not present";
+    
+    }
+    boost::filesystem::path runDirectory(edm::Service<evf::EvFDaqDirector>()->findCurrentRunDir());
+    workingDirectory_ = runDirectory_ = runDirectory;
+    workingDirectory_ /= "mon";
+
+    if ( !boost::filesystem::is_directory(workingDirectory_)) {
+        edm::LogInfo("FastMonitoringService") << "<MON> DIR NOT FOUND! Trying to create " << workingDirectory_.string() ;
+        boost::filesystem::create_directories(workingDirectory_);
+        if ( !boost::filesystem::is_directory(workingDirectory_))
+          edm::LogWarning("FastMonitoringService") << "Unable to create <MON> DIR " << workingDirectory_.string()
+                                                   << ". No monitoring data will be written.";
+    }
+
+    std::ostringstream fastFileName;
+
+    fastFileName << fastName_ << "_pid" << std::setfill('0') << std::setw(5) << getpid() << ".fast";
+    boost::filesystem::path fast = workingDirectory_;
+    fast /= fastFileName.str();
+    fastPath_ = fast.string();
+
+    std::ostringstream moduleLegFile;
+    moduleLegFile << "microstatelegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
+    moduleLegendFile_  = (workingDirectory_/moduleLegFile.str()).string();
+
+    std::ostringstream pathLegFile;
+    pathLegFile << "pathlegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
+    pathLegendFile_  = (workingDirectory_/pathLegFile.str()).string();
+
+    edm::LogInfo("FastMonitoringService") << "preallocate: initializing FastMonitor with microstate def path: "
+			                  << microstateDefPath_ << " " << FastMonitoringThread::MCOUNT << " ";
+			                  //<< encPath_.current_ + 1 << " " << encModule_.current_ + 1
+
     nStreams_=bounds.maxNumberOfStreams();
     nThreads_=bounds.maxNumberOfThreads();
 
@@ -154,7 +144,18 @@ namespace evf{
     if (nStreams_==0) nStreams_=1;
     if (nThreads_==0) nThreads_=1;
 
+    /*
+     * initialize the fast monitor with:
+     * vector of pointers to monitorable parameters
+     * path to definition
+     *
+     */
+
     macrostate_=FastMonitoringThread::sInit;
+
+    for(unsigned int i = 0; i < (mCOUNT); i++)
+      encModule_.updateReserved((void*)(reservedMicroStateNames+i));
+    encModule_.completeReservedWithDummies();
 
     for (unsigned int i=0;i<nStreams_;i++) {
        ministate_.push_back(&nopath_);
@@ -189,6 +190,15 @@ namespace evf{
     fmt_.m_data.registerVariables(fmt_.jsonMonitor_.get(), nStreams_, threadIDAvailable_ ? nThreads_:0);
     monInit_.store(false,std::memory_order_release);
     fmt_.start(&FastMonitoringService::dowork,this);
+
+   //this definition needs: #include "tbb/compat/thread"
+   //however in this case a TBB imeplementation of std::thread would be used in Utilities module
+   //(possibly calling std::thread::id is equivalent)
+   //#if TBB_IMPLEMENT_CPP0X
+   ////std::cout << "TBB thread id:" <<  tbb::thread::id() << std::endl;
+   //threadIDAvailable_=true;
+   //#endif
+
   }
 
   void FastMonitoringService::jobFailure()
