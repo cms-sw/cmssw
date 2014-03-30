@@ -17,6 +17,10 @@
 #include <functional>
 
 template <typename DetIdT> class EcalDeadChannelRecoveryNN {
+ public:
+  EcalDeadChannelRecoveryNN();
+  ~EcalDeadChannelRecoveryNN();
+
   //  Arrangement within the M3x3Input matrix
   //
   //                  M3x3
@@ -26,10 +30,6 @@ template <typename DetIdT> class EcalDeadChannelRecoveryNN {
   //   LU  UU  RU             04  01  07
   //   LL  CC  RR      or     03  00  06
   //   LD  DD  RD             05  02  08
-
- public:
-  EcalDeadChannelRecoveryNN();
-  ~EcalDeadChannelRecoveryNN();
 
   //  Enumeration to switch from custom names within the 3x3 matrix.
   enum CellID {
@@ -44,6 +44,16 @@ template <typename DetIdT> class EcalDeadChannelRecoveryNN {
     RD = 8
   };
 
+  // Mapping custom names in the 3x3 to (x,y) or (ieta, iphi)
+  // ex: x=+1, y=-1 (ix() == ixP && iy() == iyN -> RD)
+  // ex: x=-1, y=+1 (ieta() == ietaN && iphi() == iphiP -> LU)
+
+  const int CellX[9] = { 0, 0, 0 /* CC, UU, DD */, -1, -1, -1 /* LL, LU, LD */,
+                         1, 1, 1 /* RR, RU, RD */ };
+
+  const int CellY[9] = { 0, -1, 1 /* CC, UU, DD */, 0, -1, 1 /* LL, LU, LD */,
+                         0, -1, 1 /* RR, RU, RD */ };
+
   void setCaloTopology(const CaloTopology *topo);
   double recover(const DetIdT id, const EcalRecHitCollection &hit_collection,
                  double Sum8Cut, bool *AcceptFlag);
@@ -55,7 +65,7 @@ template <typename DetIdT> class EcalDeadChannelRecoveryNN {
     TMultiLayerPerceptron *mlp;
   };
 
-  const CaloTopology *calotopo_;
+  const CaloSubdetectorTopology* topology_;
   MultiLayerPerceptronContext ctx_[9];
 
   void load();
@@ -70,6 +80,9 @@ template <typename DetIdT> class EcalDeadChannelRecoveryNN {
   double makeNxNMatrice_RelDC(DetIdT itID,
                               const EcalRecHitCollection &hit_collection,
                               double *MNxN_RelDC, bool *AccFlag);
+
+   double reorderMxNMatrix(EBDetId it, const std::vector<DetId>& window, 
+    const EcalRecHitCollection& hit_collection, double *MNxN, bool* AcceptFlag);
 };
 
 #endif

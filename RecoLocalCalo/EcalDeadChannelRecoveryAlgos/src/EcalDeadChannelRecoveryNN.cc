@@ -26,10 +26,16 @@ EcalDeadChannelRecoveryNN<T>::~EcalDeadChannelRecoveryNN() {
   }
 }
 
-template <typename T>
-void EcalDeadChannelRecoveryNN<T>::setCaloTopology(const CaloTopology  *topo)
+template <>
+void EcalDeadChannelRecoveryNN<EBDetId>::setCaloTopology(const CaloTopology  *topo)
 {
-  calotopo_ = topo;
+  topology_ = topo->getSubdetectorTopology(DetId::Ecal, EcalBarrel);
+}
+
+template <>
+void EcalDeadChannelRecoveryNN<EEDetId>::setCaloTopology(const CaloTopology  *topo)
+{
+  topology_ = topo->getSubdetectorTopology(DetId::Ecal, EcalEndcap);
 }
 
 template <typename T>
@@ -194,15 +200,16 @@ double EcalDeadChannelRecoveryNN<T>::estimateEnergy(double *M3x3Input, double ep
   return M3x3Input[idxDC];
 }
 
-template <>
-double EcalDeadChannelRecoveryNN<EBDetId>::makeNxNMatrice_RelMC(EBDetId itID,const EcalRecHitCollection& hit_collection, double *MNxN_RelMC, bool* AcceptFlag) {
+template <typename DetIdT>
+double EcalDeadChannelRecoveryNN<DetIdT>::makeNxNMatrice_RelMC(DetIdT itID, const EcalRecHitCollection& hit_collection, double *MNxN_RelMC, bool* AcceptFlag) {
   //  Since ANN corrects within a 3x3 window, the possible candidate 3x3 windows that contain 
   //  the "dead" crystal form a 5x5 window around it (totaly eight 3x3 windows overlapping).
   //  Get this 5x5 and locate the Max.Contain.Crystal within.
-  const CaloSubdetectorTopology* topology=calotopo_->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
-  std::vector<DetId> NxNaroundDC = topology->getWindow(itID,5,5);   //  Get the 5x5 window around the "dead" crystal -> vector "NxNaroundDC"
 
-  EBDetId EBCellMax ;     //  Create a null EBDetId
+  //  Get the 5x5 window around the "dead" crystal -> vector "NxNaroundDC"
+  std::vector<DetId> NxNaroundDC = topology_->getWindow(itID, 5, 5);
+
+  DetIdT CellMax ;     //  Create a null DetId
   double EnergyMax = 0.0;
 
   //  Loop over all cells in the vector "NxNaroundDC", and for each cell find it's energy
@@ -210,270 +217,103 @@ double EcalDeadChannelRecoveryNN<EBDetId>::makeNxNMatrice_RelMC(EBDetId itID,con
   std::vector<DetId>::const_iterator theCells;
 
   for (theCells = NxNaroundDC.begin(); theCells != NxNaroundDC.end(); ++theCells) {
-    EBDetId EBCell = EBDetId(*theCells);
+    DetIdT cell = DetIdT(*theCells);
 
-    if (!EBCell.null()) {
-      EcalRecHitCollection::const_iterator goS_it = hit_collection.find(EBCell);
+    if (! cell.null()) {
+      EcalRecHitCollection::const_iterator goS_it = hit_collection.find(cell);
       
       if ( goS_it !=  hit_collection.end() && goS_it->energy() >= EnergyMax ) {
         EnergyMax = goS_it->energy();
-        EBCellMax = EBCell;
+        CellMax = cell;
       }
-    } else {
-      continue; 
     }
-    
   }
-  
+
   //  No Max.Cont.Crystal found, return back with no changes.
-  if ( EBCellMax.null() ) { *AcceptFlag=false ; return 0.0 ; }
+  if ( CellMax.null() ) { *AcceptFlag=false ; return 0.0 ; }
 
-  //  If the Max.Cont.Crystal found is at the EB boundary (+/- 85) do nothing since we need a full 3x3 around it.
-  if ( EBCellMax.ieta() == 85 || EBCellMax.ieta() == -85 ) { *AcceptFlag=false ; return 0.0 ; }
+#if 1
+  // Not a smart check, because why not just get 4x4 matrix and have a guaranteed hit?
 
-  //  Take the Max.Cont.Crystal as reference and get the 3x3 around it.
-  std::vector<DetId> NxNaroundMaxCont = topology->getWindow(EBCellMax,3,3);
-  
   //  Check that the "dead" crystal belongs to the 3x3 around  Max.Cont.Crystal
   bool dcIn3x3 = false ;
   
+  std::vector<DetId> NxNaroundMaxCont = topology_->getWindow(CellMax,3,3);
   std::vector<DetId>::const_iterator testCell;
   for (testCell = NxNaroundMaxCont.begin(); testCell != NxNaroundMaxCont.end(); ++testCell) {
-    EBDetId EBtestCell = EBDetId(*testCell);
-    
-    if ( itID == EBtestCell ) { dcIn3x3 = true ; } 
+    if ( itID == DetIdT(*testCell) ) { dcIn3x3 = true ; } 
   }
   
   //  If the "dead" crystal is outside the 3x3 then do nothing.
   if (!dcIn3x3) { *AcceptFlag=false ; return 0.0 ; }
+#endif
   
-  //  Define the ieta and iphi steps (zero, plus, minus)
-  int ietaZ = EBCellMax.ieta() ;
-  int ietaP = ( ietaZ == -1 ) ?  1 : ietaZ + 1 ;
-  int ietaN = ( ietaZ ==  1 ) ? -1 : ietaZ - 1 ;
-
-  int iphiZ = EBCellMax.iphi() ;
-  int iphiP = ( iphiZ == 360 ) ?   1 : iphiZ + 1 ;
-  int iphiN = ( iphiZ ==   1 ) ? 360 : iphiZ - 1 ;
-  
-  for (int i=0; i<9; i++) { MNxN_RelMC[i] = 0.0 ; }
-  
-  //  Loop over all cells in the vector "NxNaroundMaxCont", and fill the MNxN_RelMC matrix
-  //  to be passed to the ANN for prediction.
-  std::vector<DetId>::const_iterator itCells;
-
-  for (itCells = NxNaroundMaxCont.begin(); itCells != NxNaroundMaxCont.end(); ++itCells) {
-    EBDetId EBitCell = EBDetId(*itCells);
-
-    if (!EBitCell.null()) {
-      EcalRecHitCollection::const_iterator goS_it = hit_collection.find(EBitCell);
-      
-      if ( goS_it !=  hit_collection.end() ) { 
-        if     ( EBitCell.ieta() == ietaP && EBitCell.iphi() == iphiP ) { MNxN_RelMC[RU] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaP && EBitCell.iphi() == iphiZ ) { MNxN_RelMC[RR] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaP && EBitCell.iphi() == iphiN ) { MNxN_RelMC[RD] = goS_it->energy(); }
-        
-        else if  ( EBitCell.ieta() == ietaZ && EBitCell.iphi() == iphiP ) { MNxN_RelMC[UU] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaZ && EBitCell.iphi() == iphiZ ) { MNxN_RelMC[CC] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaZ && EBitCell.iphi() == iphiN ) { MNxN_RelMC[DD] = goS_it->energy(); }
-        
-        else if  ( EBitCell.ieta() == ietaN && EBitCell.iphi() == iphiP ) { MNxN_RelMC[LU] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaN && EBitCell.iphi() == iphiZ ) { MNxN_RelMC[LL] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaN && EBitCell.iphi() == iphiN ) { MNxN_RelMC[LD] = goS_it->energy(); }
-
-        else { *AcceptFlag=false ; return 0.0 ;}
-      }
-    } else {
-      continue; 
-    }
-
-  }
-
-  //  Get the sum of 8
-  double ESUMis = 0.0 ; 
-  for (int i=0; i<9; i++) { ESUMis = ESUMis + MNxN_RelMC[i] ; }
-
-  *AcceptFlag=true ;
-  return ESUMis;
+  return makeNxNMatrice_RelDC(CellMax, hit_collection, MNxN_RelMC, AcceptFlag);
 }
 
 template <>
-double EcalDeadChannelRecoveryNN<EBDetId>::makeNxNMatrice_RelDC(EBDetId itID,const EcalRecHitCollection& hit_collection, double *MNxN_RelDC, bool* AcceptFlag) {
-  //  Since ANN corrects within a 3x3 window, get the 3x3 the "dead" crystal.
-  //  This method works exactly as the "MakeNxNMatrice_RelMC" but doesn't scans to locate
-  //  the Max.Contain.Crystal around the "dead" crystal. It simply gets the 3x3 centered around the "dead" crystal.
-  const CaloSubdetectorTopology* topology=calotopo_->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
-
+double EcalDeadChannelRecoveryNN<EBDetId>::makeNxNMatrice_RelDC(EBDetId id, const EcalRecHitCollection& hit_collection, double *MNxN, bool* AcceptFlag) {
+  //  Make an ANN 3x3 energy matrix around the crystal.
   //  If the "dead" crystal is at the EB boundary (+/- 85) do nothing since we need a full 3x3 around it.
-  if ( itID.ieta() == 85 || itID.ieta() == -85 ) { *AcceptFlag=false ; return 0.0 ; }
+  if ( id.ieta() == 85 || id.ieta() == -85 ) { *AcceptFlag=false ; return 0.0 ; }
 
-  //  Take the "dead" crystal as reference and get the 3x3 around it.
-  std::vector<DetId> NxNaroundRefXtal = topology->getWindow(itID,3,3);
-  
   //  Define the ieta and iphi steps (zero, plus, minus)
-  int ietaZ = itID.ieta() ;
+  int ietaZ = id.ieta() ;
   int ietaP = ( ietaZ == -1 ) ?  1 : ietaZ + 1 ;
   int ietaN = ( ietaZ ==  1 ) ? -1 : ietaZ - 1 ;
 
-  int iphiZ = itID.iphi() ;
+  int iphiZ = id.iphi() ;
   int iphiP = ( iphiZ == 360 ) ?   1 : iphiZ + 1 ;
   int iphiN = ( iphiZ ==   1 ) ? 360 : iphiZ - 1 ;
   
-  for (int i=0; i<9; i++) { MNxN_RelDC[i] = 0.0 ; }
+  for (int i=0; i<9; i++) { MNxN[i] = 0.0 ; }
   
-  //  Loop over all cells in the vector "NxNaroundRefXtal", and fill the MNxN_RelDC matrix
+  //  Loop over all cells in the vector "window", and fill the MNxN matrix
   //  to be passed to the ANN for prediction.
+  std::vector<DetId> window = topology_->getWindow(id, 3, 3);
+
   std::vector<DetId>::const_iterator itCells;
+  for (itCells = window.begin(); itCells != window.end(); ++itCells) {
+    EBDetId cell = EBDetId(*itCells);
 
-  for (itCells = NxNaroundRefXtal.begin(); itCells != NxNaroundRefXtal.end(); ++itCells) {
-    EBDetId EBitCell = EBDetId(*itCells);
+    if (! cell.null()) {
+      EcalRecHitCollection::const_iterator goS_it = hit_collection.find(cell);
 
-    if (!EBitCell.null()) {
-      EcalRecHitCollection::const_iterator goS_it = hit_collection.find(EBitCell);
-      
-      if ( goS_it !=  hit_collection.end() ) { 
-        if     ( EBitCell.ieta() == ietaP && EBitCell.iphi() == iphiP ) { MNxN_RelDC[RU] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaP && EBitCell.iphi() == iphiZ ) { MNxN_RelDC[RR] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaP && EBitCell.iphi() == iphiN ) { MNxN_RelDC[RD] = goS_it->energy(); }
+      if (goS_it !=  hit_collection.end()) {
+        double energy = goS_it->energy();
+
+        if       ( cell.ieta() == ietaP && cell.iphi() == iphiP ) { MNxN[RU] = energy; }
+        else if  ( cell.ieta() == ietaP && cell.iphi() == iphiZ ) { MNxN[RR] = energy; }
+        else if  ( cell.ieta() == ietaP && cell.iphi() == iphiN ) { MNxN[RD] = energy; }
         
-        else if  ( EBitCell.ieta() == ietaZ && EBitCell.iphi() == iphiP ) { MNxN_RelDC[UU] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaZ && EBitCell.iphi() == iphiZ ) { MNxN_RelDC[CC] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaZ && EBitCell.iphi() == iphiN ) { MNxN_RelDC[DD] = goS_it->energy(); }
+        else if  ( cell.ieta() == ietaZ && cell.iphi() == iphiP ) { MNxN[UU] = energy; }
+        else if  ( cell.ieta() == ietaZ && cell.iphi() == iphiZ ) { MNxN[CC] = energy; }
+        else if  ( cell.ieta() == ietaZ && cell.iphi() == iphiN ) { MNxN[DD] = energy; }
         
-        else if  ( EBitCell.ieta() == ietaN && EBitCell.iphi() == iphiP ) { MNxN_RelDC[LU] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaN && EBitCell.iphi() == iphiZ ) { MNxN_RelDC[LL] = goS_it->energy(); }
-        else if  ( EBitCell.ieta() == ietaN && EBitCell.iphi() == iphiN ) { MNxN_RelDC[LD] = goS_it->energy(); }
+        else if  ( cell.ieta() == ietaN && cell.iphi() == iphiP ) { MNxN[LU] = energy; }
+        else if  ( cell.ieta() == ietaN && cell.iphi() == iphiZ ) { MNxN[LL] = energy; }
+        else if  ( cell.ieta() == ietaN && cell.iphi() == iphiN ) { MNxN[LD] = energy; }
 
         else { *AcceptFlag=false ; return 0.0 ;}
       }
-      
-    } else {
-      continue; 
-    }
-
-  }
-
-  //  Get the sum of 8
-  double ESUMis = 0.0 ; 
-  for (int i=0; i<9; i++) { ESUMis = ESUMis + MNxN_RelDC[i] ; }
-
-  *AcceptFlag=true ;
-  return ESUMis;
-}
-
-
-template <>
-double EcalDeadChannelRecoveryNN<EEDetId>::makeNxNMatrice_RelMC(EEDetId itID,const EcalRecHitCollection& hit_collection, double *MNxN_RelMC, bool* AcceptFlag) {
-  //  Since ANN corrects within a 3x3 window, the possible candidate 3x3 windows that contain 
-  //  the "dead" crystal form a 5x5 window around it (totaly eight 3x3 windows overlapping).
-  //  Get this 5x5 and locate the Max.Contain.Crystal within.
-  const CaloSubdetectorTopology* topology=calotopo_->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
-  std::vector<DetId> NxNaroundDC = topology->getWindow(itID,5,5);   //  Get the 5x5 window around the "dead" crystal -> vector "NxNaroundDC"
-
-  EEDetId EECellMax ;     //  Create a null EEDetId
-  double EnergyMax = 0.0;
-
-  //  Loop over all cells in the vector "NxNaroundDC", and for each cell find it's energy
-  //  (from the EcalRecHits collection). Use this energy to detect the Max.Cont.Crystal.
-  std::vector<DetId>::const_iterator theCells;
-
-  for (theCells = NxNaroundDC.begin(); theCells != NxNaroundDC.end(); ++theCells) {
-    EEDetId EECell = EEDetId(*theCells);
-
-    if (!EECell.null()) {
-      EcalRecHitCollection::const_iterator goS_it = hit_collection.find(EECell);
-      
-      if ( goS_it !=  hit_collection.end() && goS_it->energy() >= EnergyMax ) {
-        EnergyMax = goS_it->energy();
-        EECellMax = EECell;
-      }
-    } else {
-      continue; 
-    }
-  }
-  
-  //  No Max.Cont.Crystal found, return back with no changes.
-  if ( EECellMax.null() ) { *AcceptFlag=false ; return 0.0 ; }
-
-  //  If the Max.Cont.Crystal found is at the EE boundary (inner or outer ring) do nothing since we need a full 3x3 around it.
-  if ( EEDetId::isNextToRingBoundary(EECellMax) ) { *AcceptFlag=false ; return 0.0 ; }
-
-  //  Take the Max.Cont.Crystal as reference and get the 3x3 around it.
-  std::vector<DetId> NxNaroundMaxCont = topology->getWindow(EECellMax,3,3);
-  
-  //  Check that the "dead" crystal belongs to the 3x3 around  Max.Cont.Crystal
-  bool dcIn3x3 = false ;
-  
-  std::vector<DetId>::const_iterator testCell;
-  for (testCell = NxNaroundMaxCont.begin(); testCell != NxNaroundMaxCont.end(); ++testCell) {
-    EEDetId EEtestCell = EEDetId(*testCell);
-    
-    if ( itID == EEtestCell ) { dcIn3x3 = true ; } 
-  }
-  
-  //  If the "dead" crystal is outside the 3x3 then do nothing.
-  if (!dcIn3x3) { *AcceptFlag=false ; return 0.0 ; }
-  
-  //  Define the ix and iy steps (zero, plus, minus)
-  int ixZ = EECellMax.ix() ;
-  int ixP = ixZ + 1 ;
-  int ixN = ixZ - 1 ;
-
-  int iyZ = EECellMax.iy() ;
-  int iyP = iyZ + 1 ;
-  int iyN = iyZ - 1 ;
-
-  for (int i=0; i<9; i++) { MNxN_RelMC[i] = 0.0 ; }
-  
-  //  Loop over all cells in the vector "NxNaroundMaxCont", and fill the MNxN_RelMC matrix
-  //  to be passed to the ANN for prediction.
-  std::vector<DetId>::const_iterator itCells;
-
-  for (itCells = NxNaroundMaxCont.begin(); itCells != NxNaroundMaxCont.end(); ++itCells) {
-    EEDetId EEitCell = EEDetId(*itCells);
-    if (!EEitCell.null()) {
-
-      EcalRecHitCollection::const_iterator goS_it = hit_collection.find(EEitCell);
-      if ( goS_it !=  hit_collection.end() ) { 
-        if     ( EEitCell.ix() == ixP && EEitCell.iy() == iyP ) { MNxN_RelMC[RU] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixP && EEitCell.iy() == iyZ ) { MNxN_RelMC[RR] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixP && EEitCell.iy() == iyN ) { MNxN_RelMC[RD] = goS_it->energy(); }
-        
-        else if  ( EEitCell.ix() == ixZ && EEitCell.iy() == iyP ) { MNxN_RelMC[UU] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixZ && EEitCell.iy() == iyZ ) { MNxN_RelMC[CC] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixZ && EEitCell.iy() == iyN ) { MNxN_RelMC[DD] = goS_it->energy(); }
-        
-        else if  ( EEitCell.ix() == ixN && EEitCell.iy() == iyP ) { MNxN_RelMC[LU] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixN && EEitCell.iy() == iyZ ) { MNxN_RelMC[LL] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixN && EEitCell.iy() == iyN ) { MNxN_RelMC[LD] = goS_it->energy(); }
-
-        else { *AcceptFlag=false ; return 0.0 ;}
-      }
-    } else {
-      continue; 
     }
   }
 
   //  Get the sum of 8
   double ESUMis = 0.0 ; 
-  for (int i=0; i<9; i++) { ESUMis = ESUMis + MNxN_RelMC[i] ; }
+  for (int i=0; i<9; i++) { ESUMis = ESUMis + MNxN[i] ; }
 
   *AcceptFlag=true ;
   return ESUMis;
 }
 
 template <>
-double EcalDeadChannelRecoveryNN<EEDetId>::makeNxNMatrice_RelDC(EEDetId itID,const EcalRecHitCollection& hit_collection, double *MNxN_RelDC, bool* AcceptFlag) {
-  //  Since ANN corrects within a 3x3 window, get the 3x3 the "dead" crystal.
-  //  This method works exactly as the "MakeNxNMatrice_RelMC" but doesn't scans to locate
-  //  the Max.Contain.Crystal around the "dead" crystal. It simply gets the 3x3 centered around the "dead" crystal.
-  const CaloSubdetectorTopology* topology=calotopo_->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
+double EcalDeadChannelRecoveryNN<EEDetId>::makeNxNMatrice_RelDC(EEDetId itID,const EcalRecHitCollection& hit_collection, double *MNxN, bool* AcceptFlag) {
+  //  Make an ANN 3x3 energy matrix around the crystal.
+  //  If the "dead" crystal is at the EB boundary (+/- 85) do nothing since we need a full 3x3 around it.
 
   //  If the "dead" crystal is at the EE boundary (inner or outer ring) do nothing since we need a full 3x3 around it.
   if ( EEDetId::isNextToRingBoundary(itID) ) { *AcceptFlag=false ; return 0.0 ; }
-
-  //  Take the "dead" crystal as reference and get the 3x3 around it.
-  std::vector<DetId> NxNaroundRefXtal = topology->getWindow(itID,3,3);
 
   //  Define the ix and iy steps (zero, plus, minus)
   int ixZ = itID.ix() ;
@@ -484,41 +324,44 @@ double EcalDeadChannelRecoveryNN<EEDetId>::makeNxNMatrice_RelDC(EEDetId itID,con
   int iyP = iyZ + 1 ;
   int iyN = iyZ - 1 ;
   
-  for (int i=0; i<9; i++) { MNxN_RelDC[i] = 0.0 ; }
-  
-  //  Loop over all cells in the vector "NxNaroundRefXtal", and fill the MNxN_RelDC matrix
+  for (int i=0; i<9; i++) { MNxN[i] = 0.0 ; }
+
+  //  Take the "dead" crystal as reference and get the 3x3 around it.
+  std::vector<DetId> NxNaroundRefXtal = topology_->getWindow(itID,3,3);
+
+  //  Loop over all cells in the vector "NxNaroundRefXtal", and fill the MNxN matrix
   //  to be passed to the ANN for prediction.
   std::vector<DetId>::const_iterator itCells;
 
   for (itCells = NxNaroundRefXtal.begin(); itCells != NxNaroundRefXtal.end(); ++itCells) {
-    EEDetId EEitCell = EEDetId(*itCells);
+    EEDetId cell = EEDetId(*itCells);
 
-    if (!EEitCell.null()) {
-      EcalRecHitCollection::const_iterator goS_it = hit_collection.find(EEitCell);
+    if (!cell.null()) {
+      EcalRecHitCollection::const_iterator goS_it = hit_collection.find(cell);
       
       if ( goS_it !=  hit_collection.end() ) { 
-        if     ( EEitCell.ix() == ixP && EEitCell.iy() == iyP ) { MNxN_RelDC[RU] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixP && EEitCell.iy() == iyZ ) { MNxN_RelDC[RR] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixP && EEitCell.iy() == iyN ) { MNxN_RelDC[RD] = goS_it->energy(); }
+        double energy = goS_it->energy();
+
+        if       ( cell.ix() == ixP && cell.iy() == iyP ) { MNxN[RU] = energy; }
+        else if  ( cell.ix() == ixP && cell.iy() == iyZ ) { MNxN[RR] = energy; }
+        else if  ( cell.ix() == ixP && cell.iy() == iyN ) { MNxN[RD] = energy; }
         
-        else if  ( EEitCell.ix() == ixZ && EEitCell.iy() == iyP ) { MNxN_RelDC[UU] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixZ && EEitCell.iy() == iyZ ) { MNxN_RelDC[CC] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixZ && EEitCell.iy() == iyN ) { MNxN_RelDC[DD] = goS_it->energy(); }
+        else if  ( cell.ix() == ixZ && cell.iy() == iyP ) { MNxN[UU] = energy; }
+        else if  ( cell.ix() == ixZ && cell.iy() == iyZ ) { MNxN[CC] = energy; }
+        else if  ( cell.ix() == ixZ && cell.iy() == iyN ) { MNxN[DD] = energy; }
         
-        else if  ( EEitCell.ix() == ixN && EEitCell.iy() == iyP ) { MNxN_RelDC[LU] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixN && EEitCell.iy() == iyZ ) { MNxN_RelDC[LL] = goS_it->energy(); }
-        else if  ( EEitCell.ix() == ixN && EEitCell.iy() == iyN ) { MNxN_RelDC[LD] = goS_it->energy(); }
+        else if  ( cell.ix() == ixN && cell.iy() == iyP ) { MNxN[LU] = energy; }
+        else if  ( cell.ix() == ixN && cell.iy() == iyZ ) { MNxN[LL] = energy; }
+        else if  ( cell.ix() == ixN && cell.iy() == iyN ) { MNxN[LD] = energy; }
 
         else { *AcceptFlag=false ; return 0.0 ;}
       }
-    } else {
-      continue; 
     }
   }
 
   //  Get the sum of 8
   double ESUMis = 0.0 ; 
-  for (int i=0; i<9; i++) { ESUMis = ESUMis + MNxN_RelDC[i] ; }
+  for (int i=0; i<9; i++) { ESUMis = ESUMis + MNxN[i] ; }
 
   *AcceptFlag=true ;
   return ESUMis;
