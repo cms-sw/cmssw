@@ -66,7 +66,7 @@ public:
 	//take new update for lumi
 	void snap(unsigned int lumi);
 	void snapGlobal(unsigned int lumi);
-	void snapStreamAtomic(unsigned int streamID, unsigned int lumi);
+	void snapStreamAtomic(unsigned int lumi, unsigned int streamID);
 
 	//set to track a variable
 	void trackMonitorable(JsonMonitorable *monitorable,bool NAifZeroUpdates);

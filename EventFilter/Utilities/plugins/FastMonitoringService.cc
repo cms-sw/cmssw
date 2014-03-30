@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include <iomanip>
+#include <sys/time.h>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
@@ -33,12 +34,11 @@ namespace evf{
     ,encModule_(33)
     ,nStreams_(0)//until initialized
     ,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
-    //,rootDirectory_(iPS.getUntrackedParameter<std::string>("rootDirectory", "/data"))
+    ,fastMonIntervals_(iPS.getUntrackedParameter<unsigned int>("fastMonIntervals", 1))
     ,microstateDefPath_(iPS.getUntrackedParameter<std::string>("microstateDefPath", "/tmp/def.jsd"))
     ,fastMicrostateDefPath_(iPS.getUntrackedParameter<std::string>("fastMicrostateDefPath", microstateDefPath_))
-    ,outputDefPath_(iPS.getUntrackedParameter<std::string>("outputDefPath", ""))//obsolete
-    ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "states"))
-    ,slowName_(iPS.getUntrackedParameter<std::string>("slowName", "lumi"))
+    ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "fastmoni"))
+    ,slowName_(iPS.getUntrackedParameter<std::string>("slowName", "slowmoni"))
     ,totalEventsProcessed_(0)
   {
     reg.watchPreallocate(this, &FastMonitoringService::preallocate);//receiving information on number of threads
@@ -53,7 +53,9 @@ namespace evf{
     reg.watchPostGlobalEndLumi(this,&FastMonitoringService::postGlobalEndLumi);
 
     reg.watchPreStreamBeginLumi(this,&FastMonitoringService::preStreamBeginLumi);//stream lumi
+    reg.watchPostStreamBeginLumi(this,&FastMonitoringService::postStreamBeginLumi);
     reg.watchPreStreamEndLumi(this,&FastMonitoringService::preStreamEndLumi);
+    reg.watchPostStreamEndLumi(this,&FastMonitoringService::postStreamEndLumi);
 
     reg.watchPrePathEvent(this,&FastMonitoringService::prePathEvent);
 
@@ -101,7 +103,7 @@ namespace evf{
     // FIND RUN DIRECTORY
     // The run dir should be set via the configuration of EvFDaqDirector
     
-    if (edm::Service<evf::EvFDaqDirector().operator->()==nullptr)
+    if (edm::Service<evf::EvFDaqDirector>().operator->()==nullptr)
     {
       throw cms::Exception("FastMonitoringService") << "ERROR: EvFDaqDirector is not present";
     
@@ -192,8 +194,11 @@ namespace evf{
     fmt_.start(&FastMonitoringService::dowork,this);
 
    //this definition needs: #include "tbb/compat/thread"
-   //however in this case a TBB imeplementation of std::thread would be used in Utilities module
-   //(possibly calling std::thread::id is equivalent)
+   //however this would results in TBB imeplementation replacing std::thread
+   //(both supposedly call pthread_self())
+   //number of threads created in process could be obtained from /proc,
+   //assuming that all posix threads are true kernel threads capable of running in parallel
+
    //#if TBB_IMPLEMENT_CPP0X
    ////std::cout << "TBB thread id:" <<  tbb::thread::id() << std::endl;
    //threadIDAvailable_=true;
@@ -289,7 +294,7 @@ namespace evf{
 	  fmt_.m_data.fastThroughputJ_.value() = throughput;
 
 	  //update
-	  doSnapshot(false,lumi,true,false,0);
+	  doSnapshot(lumi,true);
 
 	  // create file name for slow monitoring file
 	  std::stringstream slowFileName;
@@ -350,24 +355,33 @@ namespace evf{
     *(fmt_.m_data.processed_[sid])=0;
 
     ministate_[sid]=&nopath_;
-    microstate_[sid]=&reservedMicroStateNames[mIdle];
-    //threadMicrostate_[tbb::thread::id()]=&reservedMicroStateNames[mInvalid];
+    microstate_[sid]=&reservedMicroStateNames[mFwkOvh];
+  }
+
+  void FastMonitoringService::postStreamBeginLumi(edm::StreamContext const& sc)
+  {
+    microstate_[sc.streamID().value()]=&reservedMicroStateNames[mIdle];
   }
 
   void FastMonitoringService::preStreamEndLumi(edm::StreamContext const& sc)
   {
     unsigned int sid = sc.streamID().value();
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
+
     #if ATOMIC_LEVEL>=2
     //spinlock to make sure we are not still updating event counter somewhere
     while (streamCounterUpdating_[sid]->load(std::memory_order_acquire)) {}
     #endif
+
     //update processed count to be complete at this time
-    doStreamEOLSnapshot(false,sc.eventID().luminosityBlock(),sid);
+    doStreamEOLSnapshot(sc.eventID().luminosityBlock(),sid);
     //reset this in case stream does not get notified of next lumi (we keep processed events only)
     ministate_[sid]=&nopath_;
-    microstate_[sid]=&reservedMicroStateNames[mFwkOvh];
-    //threadMicrostate_[tbb::thread::id()]=&reservedMicroStateNames[mInvalid];
+    microstate_[sid]=&reservedMicroStateNames[mEoL];
+  }
+  void FastMonitoringService::postStreamEndLumi(edm::StreamContext const& sc)
+  {
+    microstate_[sc.streamID().value()]=&reservedMicroStateNames[mFwkOvh];
   }
 
 
@@ -411,51 +425,48 @@ namespace evf{
   void FastMonitoringService::postEvent(edm::StreamContext const& sc)
   {
     microstate_[sc.streamID()] = &reservedMicroStateNames[mIdle];
-    //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mFwkOvh];
 
     ministate_[sc.streamID()] = &nopath_;
+
     #if ATOMIC_LEVEL>=2
     //use atomic flag to make sure end of lumi sees this
     streamCounterUpdating_[sc.streamID()]->store(true,std::memory_order_release);
     fmt_.m_data.processed_[sc.streamID()]->fetch_add(1,std::memory_order_release);
     streamCounterUpdating_[sc.streamID()]->store(false,std::memory_order_release);
+
     #elif ATOMIC_LEVEL==1
     //writes are atomic, we assume writes propagate to memory before stream EOL snap
     fmt_.m_data.processed_[sc.streamID()]->fetch_add(1,std::memory_order_relaxed);
-    #elif ATOMIC_LEVEL==0
+
+    #elif ATOMIC_LEVEL==0 //default
     (*(fmt_.m_data.processed_[sc.streamID()]))++;
     #endif
     eventCountForPathInit_[sc.streamID()]++;
 
     //fast path counter (events accumulated in a run)
-    totalEventsProcessed_.fetch_add(1,std::memory_order_relaxed);
-    fmt_.m_data.fastPathProcessedJ_ = totalEventsProcessed_.load(std::memory_order_relaxed); 
+    unsigned long res = totalEventsProcessed_.fetch_add(1,std::memory_order_relaxed);
+    fmt_.m_data.fastPathProcessedJ_ = res+1; 
+    //fmt_.m_data.fastPathProcessedJ_ = totalEventsProcessed_.load(std::memory_order_relaxed);
   }
 
   void FastMonitoringService::preSourceEvent(edm::StreamID sid)
   {
     microstate_[sid.value()] = &reservedMicroStateNames[mInput];
-    //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mIdle];
   }
 
   void FastMonitoringService::postSourceEvent(edm::StreamID sid)
   {
     microstate_[sid.value()] = &reservedMicroStateNames[mFwkOvh];
-    //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mFwkOvh];
   }
 
   void FastMonitoringService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
   {
     microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
-    //threadMicrostate_[tbb::thread::id()] = (void*)(mcc.moduleDescription());
   }
 
   void FastMonitoringService::postModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
   {
     //microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
-    //threadMicrostate_[tbb::thread::id()] = (void*)(mcc.moduleDescription());
-
-    //maybe this should be:
     microstate_[sc.streamID().value()] = &reservedMicroStateNames[mFwkOvh];
   }
 
@@ -467,15 +478,12 @@ namespace evf{
   {
     for (unsigned int i=0;i<nStreams_;i++)
       microstate_[i] = &reservedMicroStateNames[m];
-    //for (unsigned int i=0;i<nThreads_;i++)
-    //  threadMicrostate_[i] = &reservedMicroStateNames[m];
   }
 
   //this is for services that are multithreading-enabled or rarely blocks other streams
   void FastMonitoringService::setMicroState(edm::StreamID sid, MicroStateService::Microstate m)
   {
     microstate_[sid] = &reservedMicroStateNames[m];
-    //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[m];
   }
 
   //from source
@@ -541,19 +549,19 @@ namespace evf{
   }
 
 
-  void FastMonitoringService::doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID) {
+  void FastMonitoringService::doSnapshot(const unsigned int ls, const bool isGlobalEOL) {
     // update macrostate
     fmt_.m_data.fastMacrostateJ_ = macrostate_;
 
     //update these unless in the midst of a global transition
     if (!isGlobalLumiTransition_) {
 
-      auto itd = avgLeadTime_.find(forLumi);
+      auto itd = avgLeadTime_.find(ls);
       if (itd != avgLeadTime_.end()) 
 	fmt_.m_data.fastAvgLeadTimeJ_ = itd->second;
       else fmt_.m_data.fastAvgLeadTimeJ_=0.;
 
-      auto iti = filesProcessedDuringLumi_.find(forLumi);
+      auto iti = filesProcessedDuringLumi_.find(ls);
       if (iti != filesProcessedDuringLumi_.end())
 	fmt_.m_data.fastFilesProcessedJ_ = iti->second;
       else fmt_.m_data.fastFilesProcessedJ_=0;
@@ -570,10 +578,10 @@ namespace evf{
     
     if (isGlobalEOL)
     {//only update global variables
-      fmt_.jsonMonitor_->snapGlobal(false, fastPath_,forLumi);
+      fmt_.jsonMonitor_->snapGlobal(ls);
     }
     else
-      fmt_.jsonMonitor_->snap(outputCSV, fastPath_,forLumi);
+      fmt_.jsonMonitor_->snap(ls);
   }
 
   void FastMonitoringService::reportEventsThisLumiInSource(unsigned int lumi,unsigned int events)

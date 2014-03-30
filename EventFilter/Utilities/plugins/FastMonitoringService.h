@@ -126,7 +126,9 @@ namespace evf{
       void postGlobalEndLumi(edm::GlobalContext const&);
 
       void preStreamBeginLumi(edm::StreamContext const&);
+      void postStreamBeginLumi(edm::StreamContext const&);
       void preStreamEndLumi(edm::StreamContext const&);
+      void postStreamEndLumi(edm::StreamContext const&);
       void prePathEvent(edm::StreamContext const&, edm::PathContext const&);
       void preEvent(edm::StreamContext const&);
       void postEvent(edm::StreamContext const&);
@@ -148,11 +150,11 @@ namespace evf{
 
     private:
 
-      void doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID);
+      void doSnapshot(const unsigned int ls, const bool isGlobalEOL);
 
-      void doStreamEOLSnapshot(bool outputCSV,unsigned int forLumi,unsigned int streamID) {
+      void doStreamEOLSnapshot(const unsigned int ls, const unsigned int streamID) {
 	//pick up only event count here
-	fmt_.jsonMonitor_->snapStreamAtomic(outputCSV, fastPath_,streamID,forLumi);
+	fmt_.jsonMonitor_->snapStreamAtomic(ls,streamID);
       }
 
       void dowork() { // the function to be called in the thread. Thread completes when function returns.
@@ -164,7 +166,19 @@ namespace evf{
 
 	  {
             std::lock_guard<std::mutex> lock(fmt_.monlock_);
-            doSnapshot(true,lastGlobalLumi_,false,false,0);//fast output disabled for now
+
+            doSnapshot(lastGlobalLumi_,false);
+
+            if (fastMonIntervals_ && (snapCounter_%fastMonIntervals_)==0) {
+              std::string CSV = fmt_.jsonMonitor_->getCSVString();
+              //release mutex before writing out fast path file
+              fmt_.monlock_.unlock();
+              if (CSV.size())
+                fmt_.jsonMonitor_->outputCSV(fastPath_,CSV);
+            }
+
+            snapCounter_++;
+            
           }
 	  ::sleep(sleepTime_);
 	}
@@ -178,7 +192,9 @@ namespace evf{
       unsigned int nStreams_;
       unsigned int nThreads_;
       int sleepTime_;
-      std::string /*rootDirectory_,*/ microstateDefPath_, fastMicrostateDefPath_, outputDefPath_;
+      unsigned int fastMonIntervals_;
+      unsigned int snapCounter_ = 0;
+      std::string microstateDefPath_, fastMicrostateDefPath_;
       std::string fastName_, fastPath_, slowName_;
 
       //variables that are used by/monitored by FastMonitoringThread / FastMonitor

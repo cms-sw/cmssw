@@ -196,7 +196,7 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
     boost::filesystem::path source(oldFileName);
     std::string path = source.replace_extension(".jsn").string();
 
-    fileMon_->snap(false, "",ls);
+    fileMon_->snap(ls);
     fileMon_->outputFullJSON(path, ls, false);
     fileMon_->discardCollected(ls);
 
@@ -219,7 +219,7 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
 void RawEventFileWriterForBU::endOfLS(int ls)
 {
   closefd();
-  lumiMon_->snap(false,"",ls);
+  lumiMon_->snap(ls);
 
   std::ostringstream ostr;
 
@@ -250,7 +250,7 @@ void RawEventFileWriterForBU::handler(int s){
       // CREATE EOR file
       if (run_==-1) makeRunPrefix(destinationDir_);
       std::string path = destinationDir_ + "/" + runPrefix_ + "_ls0000_EoR.jsn";
-      runMon_->snap(false, "",0);
+      runMon_->snap(0);
       runMon_->outputFullJSON(path, 0);
     }
   _exit(0);

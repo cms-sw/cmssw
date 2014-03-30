@@ -4,6 +4,7 @@
 #include <sstream>
 #include <sys/types.h>
 #include <sys/file.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <vector>
 #include <fstream>
@@ -63,6 +64,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   eventsThisLumi_(0),
   dpd_(nullptr)
 {
+  std::cout << " TEST: " << getenv("CMSSW_BASE") << std::endl;
   char thishost[256];
   gethostname(thishost, 255);
   edm::LogInfo("FedRawDataInputSource") << "test mode: "

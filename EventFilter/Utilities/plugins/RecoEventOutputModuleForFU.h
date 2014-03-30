@@ -226,7 +226,7 @@ namespace evf {
 
     // output jsn file
     if(processed_.value()!=0){
-	jsonMonitor_->snap(false, "",ls.luminosityBlock());
+	jsonMonitor_->snap(ls.luminosityBlock());
 	const std::string outputJsonNameStream =
 	  edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),stream_label_);
 	jsonMonitor_->outputFullJSON(outputJsonNameStream,ls.luminosityBlock());

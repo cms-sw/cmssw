@@ -168,7 +168,7 @@ void MTRawEventFileWriterForBU::endOfLS(int ls)
 
 	// create a DataPoint object and take a snapshot of the monitored data into it
 
-	lumiMon_->snap(false,"",ls);
+	lumiMon_->snap(ls);
 
 	std::ostringstream ostr;
 	ostr << destinationDir_ << "/EoLS_" << std::setfill('0') << std::setw(6) << ls << ".json";

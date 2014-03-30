@@ -201,7 +201,7 @@ void DataPoint::snapGlobal(unsigned int lumi)
   }
 }
 
-void DataPoint::snapStreamAtomic(unsigned int streamID, unsigned int lumi)
+void DataPoint::snapStreamAtomic(unsigned int lumi, unsigned int streamID)
 {
   if (!isStream_ || !isAtomic_) return;
   isCached_=false;
