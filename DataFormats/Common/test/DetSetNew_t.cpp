@@ -289,7 +289,8 @@ void TestDetSet::iterator() {
     ff.resize(n);
     std::copy(sv.begin(),sv.begin()+n,ff.begin());
   }
-  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this)).n==5);
+  //  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this)).n==5);
+  CPPUNIT_ASSERT(std::for_each(detsets.begin(true),detsets.end(true),VerifyIter(this)).n==5);
   {
     FF ff(detsets,31);
     ff.resize(2);
@@ -316,6 +317,7 @@ void TestDetSet::iterator() {
       CPPUNIT_ASSERT(detsets.exists(22));
       CPPUNIT_ASSERT(!detsets.exists(44));
       DST df = *detsets.find(22);
+      //      DST df = *detsets.find(22,true);
       CPPUNIT_ASSERT(df.id()==22);
       CPPUNIT_ASSERT(df.size()==2);
     }
@@ -331,7 +333,9 @@ void TestDetSet::iterator() {
 
   try{
     DSTV::const_iterator p = detsets.find(44);
+    //    DSTV::const_iterator p = detsets.find(44,true);
     CPPUNIT_ASSERT(p==detsets.end());
+    //    CPPUNIT_ASSERT(p==detsets.end(true));
   }
   catch (edm::Exception const &) {
     CPPUNIT_ASSERT("find thrown edm exception when not expected"==0);
@@ -422,7 +426,8 @@ void TestDetSet::onDemand() {
       CPPUNIT_ASSERT(!detsets.exists(22));
       CPPUNIT_ASSERT(!detsets.isValid(21));
       CPPUNIT_ASSERT(!detsets.isValid(22));
-      DST df = *detsets.find(21);
+      //      DST df = *detsets.find(21);
+      DST df = *detsets.find(21,true);
       CPPUNIT_ASSERT(df.id()==21);
       CPPUNIT_ASSERT(df.size()==1);
       CPPUNIT_ASSERT(detsets.isValid(21));
@@ -441,7 +446,8 @@ void TestDetSet::onDemand() {
   }
   // no onDemand!
   int i=0;
-  for (auto di = detsets.begin(false); di!=detsets.end(false); ++di) {
+  //  for (auto di = detsets.begin(false); di!=detsets.end(false); ++di) {
+  for (auto di = detsets.begin(); di!=detsets.end(); ++di) {
     ++i;
     auto ds = *di;
     auto id = ds.id();
@@ -452,9 +458,11 @@ void TestDetSet::onDemand() {
   CPPUNIT_ASSERT(4==i);
   CPPUNIT_ASSERT(g.ntot==1+5);
 
-  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
+  //  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
+  CPPUNIT_ASSERT(std::for_each(detsets.begin(true),detsets.end(true),VerifyIter(this,1,2)).n==9);
 
-  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
+  //  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
+  CPPUNIT_ASSERT(std::for_each(detsets.begin(true),detsets.end(true),VerifyIter(this,1,2)).n==9);
   CPPUNIT_ASSERT(g.ntot==1+3+5+7);
 
   try{
@@ -514,6 +522,7 @@ void TestDetSet::toRangeMap() {
     for (int i=0; i<int(ids.size()); i++) {
       RM::range r = rm.get(ids[i]);
       DST df = *detsets.find(ids[i]);
+      //      DST df = *detsets.find(ids[i],true);
       CPPUNIT_ASSERT(static_cast<unsigned long>(r.second-r.first)==df.size());
       CPPUNIT_ASSERT(std::equal(r.first,r.second,df.begin()));
     }

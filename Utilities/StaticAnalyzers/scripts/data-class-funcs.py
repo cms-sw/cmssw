@@ -2,7 +2,7 @@
 import re
 datacl = re.compile("^class ")
 mbcl = re.compile("(base|data) class")
-farg = re.compile("\(\w+\)")
+farg = re.compile("(.*)\(\w+\)")
 nsep = re.compile("\:\:")
 topfunc = re.compile("::produce\(|::analyze\(|::filter\(::beginLuminosityBlock\(|::beginRun\(")
 onefunc = re.compile("edm::one::ED(Producer|Filter|Analyzer)Base::(produce|filter|analyze)")
@@ -12,9 +12,13 @@ statics = set()
 toplevelfuncs = set()
 onefuncs = set()
 dataclassfuncs = set()
+virtfuncs = set()
+virtclasses = set()
+badfuncs = set()
 badclasses = set()
 esdclasses = set()
 flaggedclasses = set()
+virtdict = dict()
 
 import networkx as nx
 G=nx.DiGraph()
@@ -46,43 +50,58 @@ for line in f:
 		funcname = fields[3]
 		if classname in esdclasses :
 			badclasses.add(classname)
+			badfuncs.add(funcname)	
 f.close()
-
-
 
 f = open('classes.txt.dumperall.sorted')
 for line in f :
 	if mbcl.search(line) :
 		fields = line.split("'")
 		if fields[2] == ' member data class ':
-			H.add_edge(fields[1],fields[3])
+			H.add_edge(fields[1],fields[3],kind=fields[2])
 		if fields[2] == ' templated member data class ':
-			H.add_edge(fields[1],fields[3])
+			H.add_edge(fields[1],fields[3],kind=fields[2])
 		if fields[2] == ' base class ':
-			H.add_edge(fields[1],fields[3])
-
+			H.add_edge(fields[1],fields[3],kind=fields[2])
 f.close()
-
-
 
 f = open('db.txt')
 
 for line in f :
 	fields = line.split("'")
 	if fields[2] == ' calls function ' :
-		G.add_edge(fields[1],fields[3])
-		funcname = farg.split(fields[3])[0]
+		G.add_edge(fields[1],fields[3],kind=fields[2])
 		if getfunc.search(fields[3]) :
 			dataclassfuncs.add(fields[3])
 		if topfunc.search(fields[1]):
 			toplevelfuncs.add(fields[1])
 	if fields[2] == ' overrides function ' :
-		G.add_edge(fields[1],fields[3])
+		G.add_edge(fields[1],fields[3],kind=fields[2])
 	if fields[2] == ' static variable ' :
-		G.add_edge(fields[1],fields[3])
+		G.add_edge(fields[1],fields[3],kind=fields[2])
 		statics.add(fields[3])
 f.close()
 
+
+for n,nbrdict in G.adjacency_iter():
+	if n in badfuncs :
+		for nbr,eattr in nbrdict.items():
+			if 'kind' in eattr and eattr['kind'] == ' overrides function '  :
+				print "'"+n+"'"+eattr['kind']+"'"+nbr+"'"
+				virtfuncs.add(nbr)
+				virtdict[n]=nbr
+print
+
+for n,nbrdict in H.adjacency_iter():
+	for nbr,eattr in nbrdict.items():
+		if 'kind' in eattr and eattr['kind'] == ' base class '  :
+			regex1 = r"^"+re.escape(n)+r"::"
+			regex2 = r"^"+re.escape(nbr)+r"::"
+			for key in virtdict.keys():
+				if re.search(regex1,key) and re.search(regex2,virtdict[key]) :
+					print "flagged class '"+n+"' base class with overriden virtual function '"+nbr+"'"
+					virtclasses.add(nbr)
+print
 
 
 for tfunc in toplevelfuncs:
@@ -92,19 +111,23 @@ for tfunc in toplevelfuncs:
 			break
 
 
-
-for esdclass in sorted(esdclasses):
-	print "Event setup data class '"+esdclass+"'."
-print
+#for esdclass in sorted(esdclasses):
+#	print "Event setup data class '"+esdclass+"'."
+#print
 
 for badclass in sorted(badclasses):
 	print "Event setup data class '"+badclass+"' is flagged."
+	flaggedclasses.add(badclass)
+print
+
+for virtclass in sorted(virtclasses):
+	print "Event setup data class '"+virtclass+"' is flagged because of flagged overridden virtual function"
+	flaggedclasses.add(virtclass)
 print
 
 objtree = nx.shortest_path(H)	
 
 for badclass in sorted(badclasses):
-	flaggedclasses.add(badclass)
 	for esdclass in sorted(esdclasses):
 		if H.has_node(badclass) and H.has_node(esdclass):
 			if nx.has_path(H,esdclass, badclass) :
@@ -124,10 +147,10 @@ for dataclassfunc in sorted(dataclassfuncs):
 			else : o = m.group(1)
 			p = re.sub("class ","",o)
 			dataclass = re.sub("struct ","",p)
-			print "Event setup data '"+dataclass+"' is accessed in call stack '",
-			for path in paths[tfunc][dataclassfunc]:
-				print path+"; ",
-			print "'."
+#			print "Event setup data '"+dataclass+"' is accessed in call stack '",
+#			for path in paths[tfunc][dataclassfunc]:
+#				print path+"; ",
+#			print "'."
 			for flaggedclass in sorted(flaggedclasses):
 				if re.search(flaggedclass,dataclass) :
 					print "Flagged event setup data class '"+dataclass+"' is accessed in call stack '",

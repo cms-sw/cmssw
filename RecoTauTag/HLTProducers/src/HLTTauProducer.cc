@@ -7,9 +7,9 @@
 
 HLTTauProducer::HLTTauProducer(const edm::ParameterSet& iConfig)
 {
-  emIsolatedJetsL2_ = iConfig.getParameter<edm::InputTag>("L2EcalIsoJets");
-  trackIsolatedJetsL25_ = iConfig.getParameter<edm::InputTag>("L25TrackIsoJets");
-  trackIsolatedJetsL3_ = iConfig.getParameter<edm::InputTag>("L3TrackIsoJets");
+  emIsolatedJetsL2_ = consumes<reco::L2TauInfoAssociation>(iConfig.getParameter<edm::InputTag>("L2EcalIsoJets") );
+  trackIsolatedJetsL25_ = consumes<reco::IsolatedTauTagInfoCollection>(iConfig.getParameter<edm::InputTag>("L25TrackIsoJets") );
+  trackIsolatedJetsL3_ = consumes<reco::IsolatedTauTagInfoCollection>(iConfig.getParameter<edm::InputTag>("L3TrackIsoJets") );
   matchingCone_ = iConfig.getParameter<double>("MatchingCone");
   signalCone_ = iConfig.getParameter<double>("SignalCone");
   isolationCone_ = iConfig.getParameter<double>("IsolationCone");
@@ -30,13 +30,13 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   HLTTauCollection * jetCollection = new HLTTauCollection;
  
   edm::Handle<L2TauInfoAssociation> tauL2Jets;
-  iEvent.getByLabel(emIsolatedJetsL2_ , tauL2Jets );
+  iEvent.getByToken(emIsolatedJetsL2_ , tauL2Jets );
 
   edm::Handle<IsolatedTauTagInfoCollection> tauL25Jets;
-  iEvent.getByLabel(trackIsolatedJetsL25_, tauL25Jets );
+  iEvent.getByToken(trackIsolatedJetsL25_, tauL25Jets );
   
   edm::Handle<IsolatedTauTagInfoCollection> tauL3Jets;
-  iEvent.getByLabel(trackIsolatedJetsL3_, tauL3Jets );
+  iEvent.getByToken(trackIsolatedJetsL3_, tauL3Jets );
 
   IsolatedTauTagInfoCollection tauL25 = *(tauL25Jets.product());
   IsolatedTauTagInfoCollection tauL3 = *(tauL3Jets.product());

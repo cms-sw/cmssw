@@ -3,6 +3,7 @@
 
 #include <string>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -22,9 +23,9 @@ class LumiDetails;
 class VertexHistogramMaker {
 
  public:
-  VertexHistogramMaker();
+  VertexHistogramMaker(edm::ConsumesCollector&& iC);
   VertexHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
- 
+
   ~VertexHistogramMaker();
 
   void book(const std::string dirname="");
@@ -61,10 +62,10 @@ class VertexHistogramMaker {
   TH1F* m_hndof;
   TH1F* m_haveweight;
   TH2F* m_hndofvstracks;
-  TProfile* m_hndofvsvtxz; 
-  TProfile* m_hntracksvsvtxz; 
-  TProfile* m_haveweightvsvtxz; 
-  TProfile* m_haveweightvsvtxzchk; 
+  TProfile* m_hndofvsvtxz;
+  TProfile* m_hntracksvsvtxz;
+  TProfile* m_haveweightvsvtxz;
+  TProfile* m_haveweightvsvtxzchk;
   TH1F* m_hweights;
   TH1F* m_hvtxx;
   TH1F* m_hvtxy;

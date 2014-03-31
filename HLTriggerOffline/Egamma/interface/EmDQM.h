@@ -15,6 +15,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
@@ -59,7 +60,7 @@ class HistoFiller {
   EmDQM* dqm;
 };
 
-class EmDQM : public edm::EDAnalyzer{
+class EmDQM : public DQMEDAnalyzer{
 public:
 
   friend class HistoFiller<reco::ElectronCollection>;
@@ -78,12 +79,12 @@ public:
   void beginJob();
   void endJob();
 
-  void beginRun(edm::Run const&, edm::EventSetup const&);
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void endRun(edm::Run const&, edm::EventSetup const&);
 
 private:
   // interface to DQM framework
-  DQMStore * dbe;
   std::string dirname_;
 
   HistoFiller<reco::ElectronCollection>* histoFillerEle;
@@ -131,6 +132,7 @@ private:
   HLTConfigProvider hltConfig_;
 
   // routines to build validation configuration from HLTConfiguration
+  int countSubstring(const std::string&, const std::string&);
   std::vector<std::vector<std::string> > findEgammaPaths();
   std::vector<std::string> getFilterModules(const std::string&);
   double getPrimaryEtCut(const std::string&);
@@ -218,6 +220,7 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> hltResults_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidWenu_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidZee_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidTripleEle_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidGammaJet_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidDiGamma_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_manualConf_token;

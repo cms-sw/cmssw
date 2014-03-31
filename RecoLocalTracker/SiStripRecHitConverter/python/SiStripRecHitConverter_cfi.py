@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 siStripMatchedRecHits = cms.EDProducer("SiStripRecHitConverter",
-    Regional = cms.bool(False),
     ClusterProducer    = cms.InputTag('siStripClusters'),
-    LazyGetterProducer = cms.InputTag('SiStripRawToClustersFacility'), # used if Regional is True
     StripCPE            = cms.ESInputTag('StripCPEfromTrackAngleESProducer:StripCPEfromTrackAngle'),
     Matcher             = cms.ESInputTag('SiStripRecHitMatcherESProducer:StandardMatcher'),
     siStripQualityLabel = cms.ESInputTag(''),

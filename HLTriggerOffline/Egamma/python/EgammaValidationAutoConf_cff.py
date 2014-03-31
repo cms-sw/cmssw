@@ -11,17 +11,17 @@ samples=dummy()
 
 samples.names = ['Wenu',
                  'Zee',
-                 #'TripleEle',
+                 'TripleEle',
                  'GammaJet',
                  'DiGamma']
 samples.pdgid = [ 11,
                   11,
-                  #11,
+                  11,
                   22,
                   22]
 samples.num   = [1,
                  2,
-                 #3,
+                 3,
                  1,
                  2]
 

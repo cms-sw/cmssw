@@ -25,42 +25,43 @@ const DetLayerGeometry KFTrajectoryFitter::dummyGeometry;
 Trajectory KFTrajectoryFitter::fitOne(const Trajectory& aTraj, fitType type) const {
 
   if(aTraj.empty()) return Trajectory();
- 
+
   TM firstTM = aTraj.firstMeasurement();
   TSOS firstTsos = TrajectoryStateWithArbitraryError()(firstTM.updatedState());
-  
+
   return fitOne(aTraj.seed(), aTraj.recHits(), firstTsos,type);
 }
 
 Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed&,
 				      const RecHitContainer&, fitType) const{
 
-  throw cms::Exception("TrackFitters", 
-		       "KFTrajectoryFitter::fit(TrajectorySeed, <TransientTrackingRecHit>) not implemented"); 
+  throw cms::Exception("TrackFitters",
+		       "KFTrajectoryFitter::fit(TrajectorySeed, <TransientTrackingRecHit>) not implemented");
 
   return Trajectory();
 }
 
 Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 				      const RecHitContainer& hits,
-				      const TSOS& firstPredTsos,fitType) const 
+				      const TSOS& firstPredTsos,fitType) const
 {
   if(hits.empty()) return Trajectory();
 
 
-  if unlikely(aSeed.direction() == anyDirection) 
+  if unlikely(aSeed.direction() == anyDirection)
     throw cms::Exception("KFTrajectoryFitter","TrajectorySeed::direction() requested but not set");
-  
-  SetPropagationDirection setDir(*thePropagator,aSeed.direction());
+
+  std::unique_ptr<Propagator> p_cloned = SetPropagationDirection(*thePropagator,
+                                                                 aSeed.direction());
 
 #ifdef EDM_ML_DEBUG
   LogDebug("TrackFitters")
     <<" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
     <<" KFTrajectoryFitter::fit starting with " << hits.size() <<" HITS";
-  
-  for (unsigned int j=0;j<hits.size();j++) { 
-    if (hits[j]->det()) 
-      LogTrace("TrackFitters") << "hit #:" << j+1 << " rawId=" << hits[j]->det()->geographicalId().rawId() 
+
+  for (unsigned int j=0;j<hits.size();j++) {
+    if (hits[j]->det())
+      LogTrace("TrackFitters") << "hit #:" << j+1 << " rawId=" << hits[j]->det()->geographicalId().rawId()
 			       << " validity=" << hits[j]->isValid();
     else
       LogTrace("TrackFitters") << "hit #:" << j+1 << " Hit with no Det information";
@@ -68,7 +69,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   LogTrace("TrackFitters") << " INITIAL STATE "<< firstPredTsos;
 #endif
 
-  Trajectory ret(aSeed, thePropagator->propagationDirection());
+  Trajectory ret(aSeed, p_cloned->propagationDirection());
   Trajectory & myTraj = ret;
   myTraj.reserve(hits.size());
 
@@ -79,7 +80,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   for(RecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ++ihit, ++hitcounter) {
 
     const TransientTrackingRecHit & hit = (**ihit);
-    
+
     if unlikely( (!hit.isValid()) && hit.surface() == nullptr) {
       LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
@@ -99,25 +100,25 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 	<< hit.surface()->position()<<"\n"
 	<< "SURFACE ROTATION" << "\n"
 	<< hit.surface()->rotation();
-      
+
       DetId hitId = hit.geographicalId();
 
       LogTrace("TrackFitters") << " hit det=" << hitId.rawId();
-      
+
       if(hitId.det() == DetId::Tracker) {
-	if (hitId.subdetId() == StripSubdetector::TIB )  
+	if (hitId.subdetId() == StripSubdetector::TIB )
 	  LogTrace("TrackFitters") << " I am TIB " << TIBDetId(hitId).layer();
-	else if (hitId.subdetId() == StripSubdetector::TOB ) 
+	else if (hitId.subdetId() == StripSubdetector::TOB )
 	  LogTrace("TrackFitters") << " I am TOB " << TOBDetId(hitId).layer();
-	else if (hitId.subdetId() == StripSubdetector::TEC ) 
+	else if (hitId.subdetId() == StripSubdetector::TEC )
 	  LogTrace("TrackFitters") << " I am TEC " << TECDetId(hitId).wheel();
-	else if (hitId.subdetId() == StripSubdetector::TID ) 
+	else if (hitId.subdetId() == StripSubdetector::TID )
 	  LogTrace("TrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
-	else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel ) 
+	else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel )
 	  LogTrace("TrackFitters") << " I am PixBar " << PXBDetId(hitId).layer();
 	else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
 	  LogTrace("TrackFitters") << " I am PixFwd " << PXFDetId(hitId).disk();
-	else 
+	else
 	  LogTrace("TrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
       }
       else if(hitId.det() == DetId::Muon) {
@@ -127,49 +128,49 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 	  LogTrace("TrackFitters") << " I am CSC " << CSCDetId(hitId);
 	else if (hitId.subdetId() == MuonSubdetId::RPC )
 	  LogTrace("TrackFitters") << " I am RPC " << RPCDetId(hitId);
-	else 
+	else
 	  LogTrace("TrackFitters") << " UNKNOWN MUON HIT TYPE ";
       }
       else
 	LogTrace("TrackFitters") << " UNKNOWN HIT TYPE ";
-      
+
     } else {
       LogTrace("TrackFitters")
-	<< " ----------------- INVALID HIT #" << hitcounter << " -----------------------";      
+	<< " ----------------- INVALID HIT #" << hitcounter << " -----------------------";
     }
-#endif    
+#endif
 
     if ( hitcounter != 1) //no propagation needed for the first hit
-      predTsos = thePropagator->propagate( currTsos, *(hit.surface()) );
-    
+      predTsos = p_cloned->propagate( currTsos, *(hit.surface()) );
+
 
     if unlikely(!predTsos.isValid()) {
-      LogDebug("TrackFitters") 
+      LogDebug("TrackFitters")
 	<< "SOMETHING WRONG !" << "\n"
-	<< "KFTrajectoryFitter: predicted tsos not valid!\n" 
+	<< "KFTrajectoryFitter: predicted tsos not valid!\n"
 	<< "current TSOS: " << currTsos << "\n";
 
       if(hit.surface())	LogTrace("TrackFitters") << "next Surface: " << hit.surface()->position() << "\n";
-      
+
       if( myTraj.foundHits() >= minHits_ ) {
 	LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	break;      
-      } else {        
-	LogDebug("TrackFitters") << " killing trajectory" << "\n";       
+	break;
+      } else {
+	LogDebug("TrackFitters") << " killing trajectory" << "\n";
 	return Trajectory();
       }
     }
-    
+
     if likely(hit.isValid()) {
 	//update
 	LogTrace("TrackFitters") << "THE HIT IS VALID: updating hit with predTsos";
 	TransientTrackingRecHit::RecHitPointer preciseHit = hit.clone(predTsos);
-	
+
 	if unlikely(!preciseHit->isValid()){
 	    LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
 	    currTsos = predTsos;
 	    myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId()) ));
-	    
+
 	  }else{
 	  LogTrace("TrackFitters") << "THE Precise HIT IS VALID: updating currTsos" << "\n";
 	  currTsos = updator()->update(predTsos, *preciseHit);
@@ -192,9 +193,9 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 	    //Keep the traj with invalid TSOS so that it's clear what happened
 	    if( myTraj.foundHits() >= minHits_ ) {
 	      LogDebug("TrackFitters") << " breaking trajectory" << "\n";
-	      break;      
-	    } else {        
-	      LogDebug("TrackFitters") << " killing trajectory" << "\n";       
+	      break;
+	    } else {
+	      LogDebug("TrackFitters") << " killing trajectory" << "\n";
 	      return Trajectory();
 	    }
 	  } else{
@@ -211,16 +212,16 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       currTsos = predTsos;
       myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
     }
-    
+
     LogTrace("TrackFitters")
       << "predTsos !" << "\n"
       << predTsos << "\n"
       <<"currTsos !" << "\n"
       << currTsos;
-  }  
-  
+  }
+
   LogDebug("TrackFitters") << "Found 1 trajectory with " << myTraj.foundHits() << " valid hits\n";
-  
+
   return ret;
 }
 

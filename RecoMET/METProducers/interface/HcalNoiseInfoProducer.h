@@ -18,6 +18,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -28,6 +29,12 @@
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
+#include "RecoMET/METProducers/interface/HcalNoiseInfoProducer.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 namespace reco {
 
@@ -85,6 +92,12 @@ namespace reco {
     std::string recHitCollName_;       // name of the rechit collection
     std::string caloTowerCollName_;    // name of the caloTower collection
     std::string trackCollName_;        // name of the track collection
+
+    edm::EDGetTokenT<HBHEDigiCollection> hbhedigi_token_;
+    edm::EDGetTokenT<HcalCalibDigiCollection> hcalcalibdigi_token_;
+    edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
+    edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
+    edm::EDGetTokenT<reco::TrackCollection> track_token_;
 
     double TotalCalibCharge;    // placeholder to calculate total charge in calibration channels
 

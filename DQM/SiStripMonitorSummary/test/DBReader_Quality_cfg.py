@@ -113,13 +113,14 @@ process.CondDataMonitoring.MonitorSiStripQuality       = True
 process.CondDataMonitoring.MonitorSiStripCabling       = False
 process.CondDataMonitoring.MonitorSiStripApvGain       = False
 process.CondDataMonitoring.MonitorSiStripLorentzAngle  = False
+process.CondDataMonitoring.MonitorSiStripBackPlaneCorrection  = False
 process.CondDataMonitoring.MonitorSiStripLowThreshold  = False
 process.CondDataMonitoring.MonitorSiStripHighThreshold = False
 
 process.CondDataMonitoring.OutputMEsInRootFile         = True
 process.CondDataMonitoring.FillConditions_PSet.Mod_On            = False
 process.CondDataMonitoring.FillConditions_PSet.OutputSummaryAtLayerLevelAsImage           = False
-process.CondDataMonitoring.FillConditions_PSet.OutputSummaryProfileAtLayerLevelAsImage    = False # This should be saved only in case of LA (because for LA no SummaryAtLayerLevel is available)
+process.CondDataMonitoring.FillConditions_PSet.OutputSummaryProfileAtLayerLevelAsImage    = False # This should be saved only in case of LA or BP (because for LA and BP no SummaryAtLayerLevel is available)
 
 ## --- TkMap specific Configurable options:
 

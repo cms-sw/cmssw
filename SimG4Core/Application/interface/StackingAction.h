@@ -11,13 +11,12 @@
 #include <string>
 #include <vector>
 
-class EventAction;
 class NewTrackAction;
 
 class StackingAction : public G4UserStackingAction {
 
 public:
-  StackingAction(EventAction* e, const edm::ParameterSet & ps);
+  StackingAction(const edm::ParameterSet & ps);
   virtual ~StackingAction();
 
   virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track * aTrack);
@@ -29,13 +28,15 @@ private:
   void   initPointer();
   bool   isThisVolume(const G4VTouchable*, std::vector<G4LogicalVolume*>&) const;
   int    isItPrimaryDecayProductOrConversion(const G4Track*, const G4Track &) const;
+  int    isItFromPrimary(const G4Track &, int) const;
   bool   rrApplicable(const G4Track*, const G4Track&) const;
   bool   isItLongLived(const G4Track*) const;
 
 private:
-  EventAction                   *eventAction_;
+
   bool                          savePDandCinTracker, savePDandCinCalo;
   bool                          savePDandCinMuon, saveFirstSecondary;
+  bool                          savePDandCinAll;
   bool                          killInCalo, killInCaloEfH;
   bool                          killHeavy, trackNeutrino, killDeltaRay;
   double                        kmaxIon, kmaxNeutron, kmaxProton;

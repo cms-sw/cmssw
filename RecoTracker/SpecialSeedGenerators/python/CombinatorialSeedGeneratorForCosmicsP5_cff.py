@@ -23,6 +23,63 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi import *
 import copy
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmics_cfi import *
+# seeding layers
+combinatorialcosmicseedingtripletsP5 = cms.EDProducer("SeedingLayersEDProducer",
+    layerInfo,
+    layerList = cms.vstring('TOB4+TOB5+TOB6', 
+        'TOB3+TOB5+TOB6', 
+        'TOB3+TOB4+TOB5', 
+        'TOB2+TOB4+TOB5', 
+        'TOB3+TOB4+TOB6', 
+        'TOB2+TOB4+TOB6')
+)
+combinatorialcosmicseedingpairsTOBP5 = cms.EDProducer("SeedingLayersEDProducer",
+    layerInfo,
+    layerList = cms.vstring('TOB5+TOB6', 
+        'TOB4+TOB5')
+)
+combinatorialcosmicseedingpairsTECposP5 = cms.EDProducer("SeedingLayersEDProducer",
+    layerList = cms.vstring('TEC1_pos+TEC2_pos', 
+        'TEC2_pos+TEC3_pos', 
+        'TEC3_pos+TEC4_pos', 
+        'TEC4_pos+TEC5_pos', 
+        'TEC5_pos+TEC6_pos', 
+        'TEC6_pos+TEC7_pos', 
+        'TEC7_pos+TEC8_pos', 
+        'TEC8_pos+TEC9_pos'),
+    TEC = cms.PSet(
+        minRing = cms.int32(5),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        useRingSlector = cms.bool(True),
+        TTRHBuilder = cms.string('WithTrackAngle'),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+        maxRing = cms.int32(7)
+    )
+)
+combinatorialcosmicseedingpairsTECnegP5 = cms.EDProducer("SeedingLayersEDProducer",
+    layerList = cms.vstring('TEC1_neg+TEC2_neg', 
+        'TEC2_neg+TEC3_neg', 
+        'TEC3_neg+TEC4_neg', 
+        'TEC4_neg+TEC5_neg', 
+        'TEC5_neg+TEC6_neg', 
+        'TEC6_neg+TEC7_neg', 
+        'TEC7_neg+TEC8_neg', 
+        'TEC8_neg+TEC9_neg'),
+    TEC = cms.PSet(
+        minRing = cms.int32(5),
+        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+        useRingSlector = cms.bool(True),
+        TTRHBuilder = cms.string('WithTrackAngle'),
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+        maxRing = cms.int32(7)
+    )
+)
+combinatorialcosmicseedinglayersP5 = cms.Sequence(
+    combinatorialcosmicseedingtripletsP5 +
+    combinatorialcosmicseedingpairsTOBP5 +
+    combinatorialcosmicseedingpairsTECposP5 +
+    combinatorialcosmicseedingpairsTECnegP5
+)
 #recHitMatcher
 #include "RecoLocalTracker/SiStripRecHitConverter/data/SiStripRecHitMatcher.cfi"
 #seeding module
@@ -32,117 +89,37 @@ combinatorialcosmicseedfinderP5.requireBOFF = True
 combinatorialcosmicseedfinderP5.UseScintillatorsConstraint = False
 combinatorialcosmicseedfinderP5.OrderedHitsFactoryPSets = cms.VPSet(cms.PSet(
     ComponentName = cms.string('GenericTripletGenerator'),
-    LayerPSet = cms.PSet(
-        layerInfo,
-        layerList = cms.vstring('TOB4+TOB5+TOB6', 
-            'TOB3+TOB5+TOB6', 
-            'TOB3+TOB4+TOB5', 
-            'TOB2+TOB4+TOB5', 
-            'TOB3+TOB4+TOB6', 
-            'TOB2+TOB4+TOB6')
-    ),
+    LayerSrc = cms.InputTag("combinatorialcosmicseedingtripletsP5"),
     PropagationDirection = cms.string('alongMomentum'),
     NavigationDirection = cms.string('outsideIn')
 ), 
     cms.PSet(
         ComponentName = cms.string('GenericPairGenerator'),
-        LayerPSet = cms.PSet(
-            layerInfo,
-            layerList = cms.vstring('TOB5+TOB6', 
-                'TOB4+TOB5')
-        ),
+        LayerSrc = cms.InputTag("combinatorialcosmicseedingpairsTOBP5"),
         PropagationDirection = cms.string('alongMomentum'),
         NavigationDirection = cms.string('outsideIn')
     ), 
     cms.PSet(
         ComponentName = cms.string('GenericPairGenerator'),
-        LayerPSet = cms.PSet(
-            layerList = cms.vstring('TEC1_pos+TEC2_pos', 
-                'TEC2_pos+TEC3_pos', 
-                'TEC3_pos+TEC4_pos', 
-                'TEC4_pos+TEC5_pos', 
-                'TEC5_pos+TEC6_pos', 
-                'TEC6_pos+TEC7_pos', 
-                'TEC7_pos+TEC8_pos', 
-                'TEC8_pos+TEC9_pos'),
-            TEC = cms.PSet(
-                minRing = cms.int32(5),
-                matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                useRingSlector = cms.bool(True),
-                TTRHBuilder = cms.string('WithTrackAngle'),
-                rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                maxRing = cms.int32(7)
-            )
-        ),
+        LayerSrc = cms.InputTag("combinatorialcosmicseedingpairsTECposP5"),
         PropagationDirection = cms.string('alongMomentum'),
         NavigationDirection = cms.string('outsideIn')
     ), 
     cms.PSet(
         ComponentName = cms.string('GenericPairGenerator'),
-        LayerPSet = cms.PSet(
-            layerList = cms.vstring('TEC1_pos+TEC2_pos', 
-                'TEC2_pos+TEC3_pos', 
-                'TEC3_pos+TEC4_pos', 
-                'TEC4_pos+TEC5_pos', 
-                'TEC5_pos+TEC6_pos', 
-                'TEC6_pos+TEC7_pos', 
-                'TEC7_pos+TEC8_pos', 
-                'TEC8_pos+TEC9_pos'),
-            TEC = cms.PSet(
-                minRing = cms.int32(5),
-                matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                useRingSlector = cms.bool(True),
-                TTRHBuilder = cms.string('WithTrackAngle'),
-                rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                maxRing = cms.int32(7)
-            )
-        ),
+        LayerSrc = cms.InputTag("combinatorialcosmicseedingpairsTECposP5"),
         PropagationDirection = cms.string('alongMomentum'),
         NavigationDirection = cms.string('insideOut')
     ), 
     cms.PSet(
         ComponentName = cms.string('GenericPairGenerator'),
-        LayerPSet = cms.PSet(
-            layerList = cms.vstring('TEC1_neg+TEC2_neg', 
-                'TEC2_neg+TEC3_neg', 
-                'TEC3_neg+TEC4_neg', 
-                'TEC4_neg+TEC5_neg', 
-                'TEC5_neg+TEC6_neg', 
-                'TEC6_neg+TEC7_neg', 
-                'TEC7_neg+TEC8_neg', 
-                'TEC8_neg+TEC9_neg'),
-            TEC = cms.PSet(
-                minRing = cms.int32(5),
-                matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                useRingSlector = cms.bool(True),
-                TTRHBuilder = cms.string('WithTrackAngle'),
-                rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                maxRing = cms.int32(7)
-            )
-        ),
+        LayerSrc = cms.InputTag("combinatorialcosmicseedingpairsTECnegP5"),
         PropagationDirection = cms.string('alongMomentum'),
         NavigationDirection = cms.string('outsideIn')
     ), 
     cms.PSet(
         ComponentName = cms.string('GenericPairGenerator'),
-        LayerPSet = cms.PSet(
-            layerList = cms.vstring('TEC1_neg+TEC2_neg', 
-                'TEC2_neg+TEC3_neg', 
-                'TEC3_neg+TEC4_neg', 
-                'TEC4_neg+TEC5_neg', 
-                'TEC5_neg+TEC6_neg', 
-                'TEC6_neg+TEC7_neg', 
-                'TEC7_neg+TEC8_neg', 
-                'TEC8_neg+TEC9_neg'),
-            TEC = cms.PSet(
-                minRing = cms.int32(5),
-                matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                useRingSlector = cms.bool(True),
-                TTRHBuilder = cms.string('WithTrackAngle'),
-                rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                maxRing = cms.int32(7)
-            )
-        ),
+        LayerSrc = cms.InputTag("combinatorialcosmicseedingpairsTECnegP5"),
         PropagationDirection = cms.string('alongMomentum'),
         NavigationDirection = cms.string('insideOut')
     ))

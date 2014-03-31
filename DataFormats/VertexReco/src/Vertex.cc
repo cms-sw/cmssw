@@ -68,6 +68,7 @@ void Vertex::removeTracks()
   refittedTracks_.clear();
 }
 
+#ifdef CMS_NOCXX11
 float Vertex::trackWeight ( const TrackBaseRef & track ) const
 {
   trackRef_iterator it = find(tracks_begin(), tracks_end(), track);
@@ -80,7 +81,7 @@ float Vertex::trackWeight ( const TrackRef & track ) const
 {
   return trackWeight(TrackBaseRef(track));
 }
-
+#endif
 
 TrackBaseRef Vertex::originalTrack(const Track & refTrack) const
 {

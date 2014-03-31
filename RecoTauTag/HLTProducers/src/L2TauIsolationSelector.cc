@@ -1,10 +1,9 @@
 #include "RecoTauTag/HLTProducers/interface/L2TauIsolationSelector.h"
-#include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 
 using namespace reco; 
 
 L2TauIsolationSelector::L2TauIsolationSelector(const edm::ParameterSet& iConfig):
-  associationInput_(iConfig.getParameter<edm::InputTag>("L2InfoAssociation")),
+  associationInput_(consumes<L2TauInfoAssociation>(iConfig.getParameter<edm::InputTag>("L2InfoAssociation"))),
   ECALIsolEt_(iConfig.getParameter<double>("ECALIsolEt")),
   TowerIsolEt_(iConfig.getParameter<double>("TowerIsolEt")),
   Cluster_etaRMS_(iConfig.getParameter<double>("ClusterEtaRMS")),
@@ -38,7 +37,7 @@ L2TauIsolationSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    using namespace edm;
    edm::Handle<L2TauInfoAssociation> Imap;
 
-   iEvent.getByLabel(associationInput_ ,Imap);
+   iEvent.getByToken(associationInput_ ,Imap);
    std::auto_ptr<CaloJetCollection> l2IsolCaloJets( new CaloJetCollection );
 
    if(Imap->size()>0)

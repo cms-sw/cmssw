@@ -10,7 +10,7 @@
 PFJetToCaloProducer::PFJetToCaloProducer(const edm::ParameterSet& iConfig)
 {
 
-  tauSrc_ = iConfig.getParameter<edm::InputTag>("Source");
+  tauSrc_ = consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("Source"));
   produces<reco::CaloJetCollection>();
 }
 
@@ -25,7 +25,7 @@ void PFJetToCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES
   std::auto_ptr<reco::CaloJetCollection> selectedTaus(new CaloJetCollection);
 
   edm::Handle<PFJetCollection> tauJets;
-  iEvent.getByLabel( tauSrc_, tauJets );
+  iEvent.getByToken( tauSrc_, tauJets );
 
   CaloJet::Specific specific;
   for (PFJetCollection::const_iterator i = tauJets->begin(); i != tauJets->end(); ++i ) {

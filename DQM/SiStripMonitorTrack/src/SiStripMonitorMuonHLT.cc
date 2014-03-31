@@ -160,7 +160,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
       for (clust = clusters->begin_record (); clust != clusters->end_record (); ++clust)
 	{
 	  
-	  uint detID = clust->geographicalId ();
+	  uint detID = 0; // zero since long time clust->geographicalId ();
 	  std::stringstream ss;
 	  int layer = tkdetmap_->FindLayer (detID);
 	  std::string label = tkdetmap_->getLayerName (layer);
@@ -222,13 +222,6 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		  // if SiStripRecHit1D
 		  if (hit1D != 0)
 		    {
-		      if (hit1D->cluster_regional ().isNonnull ())
-			{
-			  if (hit1D->cluster_regional ().isAvailable ())
-			    {
-			      detID = hit1D->cluster_regional ()->geographicalId ();
-			    }
-			}
 		      int layer = tkdetmap_->FindLayer (detID);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
@@ -238,7 +231,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 			  if (topol != 0)
 			    {
 			      // get the cluster position in local coordinates (cm) 
-			      LocalPoint clustlp = topol->localPosition (hit1D->cluster_regional ()->barycenter ());
+			      LocalPoint clustlp = topol->localPosition (hit1D->cluster()->barycenter ());
 			      GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
 			      //NORMALIZE HISTO IF ASKED
 			      float etaWeight = 1.;
@@ -265,13 +258,6 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		  // if SiStripRecHit2D
 		  if (hit2D != 0)
 		    {
-		      if (hit2D->cluster_regional ().isNonnull ())
-			{
-			  if (hit2D->cluster_regional ().isAvailable ())
-			    {
-			      detID = hit2D->cluster_regional ()->geographicalId ();
-			    }
-			}
 		      int layer = tkdetmap_->FindLayer (detID);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
@@ -281,7 +267,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 			  if (topol != 0)
 			    {
 			      // get the cluster position in local coordinates (cm) 
-			      LocalPoint clustlp = topol->localPosition (hit2D->cluster_regional ()->barycenter ());
+			      LocalPoint clustlp = topol->localPosition (hit2D->cluster()->barycenter ());
 			      GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
 	  		      
 			      //NORMALIZE HISTO IF ASKED
@@ -310,7 +296,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		  if (hitMatched2D != 0)
 		    {
 		      //hit mono
-	              detID = hitMatched2D->monoCluster().geographicalId ();
+	              detID = hitMatched2D->monoId();
 		      int layer = tkdetmap_->FindLayer (detID);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
@@ -345,7 +331,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 			}
 
 		      //hit stereo
-	              detID = hitMatched2D->stereoCluster().geographicalId ();
+	              detID = hitMatched2D->stereoId ();
 		      layer = tkdetmap_->FindLayer (detID);
 		      label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet2 = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
@@ -384,13 +370,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		  //if ProjectedSiStripRecHit2D
 		  if (hitProj2D != 0)
 		    {
-		      if (hitProj2D->originalHit ().cluster_regional ().isNonnull ())
-			{
-			  if (hitProj2D->originalHit ().cluster_regional ().isAvailable ())
-			    {
-			      detID = hitProj2D->originalHit ().cluster_regional ()->geographicalId ();
-			    }
-			}
+	              detID = hitProj2D->geographicalId ();
 		      int layer = tkdetmap_->FindLayer (detID);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
@@ -400,7 +380,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 			  if (topol != 0)
 			    {
 			      // get the cluster position in local coordinates (cm) 
-			      LocalPoint clustlp = topol->localPosition (hitProj2D->originalHit ().cluster_regional ()->barycenter ());
+			      LocalPoint clustlp = topol->localPosition (hitProj2D->cluster()->barycenter ());
 			      GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
 			      //NORMALIZE HISTO IF ASKED
 			      float etaWeight = 1.;

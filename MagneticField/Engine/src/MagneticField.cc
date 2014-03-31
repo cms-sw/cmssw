@@ -20,14 +20,7 @@ MagneticField::MagneticField(const MagneticField& orig) : nominalValueCompiuted(
 MagneticField::~MagneticField(){}
 
 int MagneticField::computeNominalValue() const {
-  return int((inTesla(GlobalPoint(0.f,0.f,0.f))).z() * 10.f + 0.5f);
-}
-
-int MagneticField::nominalValue() const {
-  if(kSet==nominalValueCompiuted.load()) return theNominalValue;
-
-  //need to make one
-  int tmp = computeNominalValue();
+  int tmp = int((inTesla(GlobalPoint(0.f,0.f,0.f))).z() * 10.f + 0.5f);
 
   //Try to cache
   char expected = kUnset;

@@ -11,11 +11,11 @@
 #include "TProfile.h"
 
 
-BSvsPVHistogramMaker::BSvsPVHistogramMaker():
-  _currdir(0), m_maxLS(100), useSlope_(true), _trueOnly(true), 
-  _runHisto(true), _runHistoProfile(true), _runHistoBXProfile(true), _runHistoBX2D(false), _histoParameters() { }
+BSvsPVHistogramMaker::BSvsPVHistogramMaker(edm::ConsumesCollector&& iC):
+  _currdir(0), m_maxLS(100), useSlope_(true), _trueOnly(true),
+  _runHisto(true), _runHistoProfile(true), _runHistoBXProfile(true), _runHistoBX2D(false), _histoParameters(), _rhm(iC) { }
 
-BSvsPVHistogramMaker::BSvsPVHistogramMaker(const edm::ParameterSet& iConfig):
+BSvsPVHistogramMaker::BSvsPVHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
   _currdir(0),
   m_maxLS(iConfig.getParameter<unsigned int>("maxLSBeforeRebin")),
   useSlope_(iConfig.getParameter<bool>("useSlope")),
@@ -25,7 +25,7 @@ BSvsPVHistogramMaker::BSvsPVHistogramMaker(const edm::ParameterSet& iConfig):
   _runHistoBXProfile(iConfig.getUntrackedParameter<bool>("runHistoBXProfile",true)),
   _runHistoBX2D(iConfig.getUntrackedParameter<bool>("runHistoBX2D",false)),
   _histoParameters(iConfig.getUntrackedParameter<edm::ParameterSet>("histoParameters",edm::ParameterSet())),
-  _rhm()
+  _rhm(iC)
 { }
 
 
@@ -53,35 +53,35 @@ void BSvsPVHistogramMaker::book(const std::string dirname) {
 			       _histoParameters.getUntrackedParameter<double>("xMin",-1.),
 			       _histoParameters.getUntrackedParameter<double>("xMax",1.)
 			       );
-  _hdeltax->GetXaxis()->SetTitle("#Delta(X) [cm]");   _hdeltax->GetYaxis()->SetTitle("Vertices"); 
+  _hdeltax->GetXaxis()->SetTitle("#Delta(X) [cm]");   _hdeltax->GetYaxis()->SetTitle("Vertices");
 
   _hdeltay = currdir->make<TH1F>("deltay","(PV-BS) Y position",
 			       _histoParameters.getUntrackedParameter<unsigned int>("nBinY",200),
 			       _histoParameters.getUntrackedParameter<double>("yMin",-1.),
 			       _histoParameters.getUntrackedParameter<double>("yMax",1.)
 			       );
-  _hdeltay->GetXaxis()->SetTitle("#Delta(Y) [cm]");   _hdeltay->GetYaxis()->SetTitle("Vertices"); 
+  _hdeltay->GetXaxis()->SetTitle("#Delta(Y) [cm]");   _hdeltay->GetYaxis()->SetTitle("Vertices");
 
   _hdeltaz = currdir->make<TH1F>("deltaz","(PV-BS) Z position",
 			       _histoParameters.getUntrackedParameter<unsigned int>("nBinZ",200),
 			       _histoParameters.getUntrackedParameter<double>("zMin",-20.),
 			       _histoParameters.getUntrackedParameter<double>("zMax",20.)
 			       );
-  _hdeltaz->GetXaxis()->SetTitle("#Delta(Z) [cm]");   _hdeltaz->GetYaxis()->SetTitle("Vertices"); 
+  _hdeltaz->GetXaxis()->SetTitle("#Delta(Z) [cm]");   _hdeltaz->GetYaxis()->SetTitle("Vertices");
 
   _hdeltaxvsz = currdir->make<TProfile>("deltaxvsz","(PV-BS) X position vs Z",
 			       _histoParameters.getUntrackedParameter<unsigned int>("nBinZProfile",40),
 			       _histoParameters.getUntrackedParameter<double>("zMinProfile",-20.),
 			       _histoParameters.getUntrackedParameter<double>("zMaxProfile",20.)
 			       );
-  _hdeltaxvsz->GetXaxis()->SetTitle("Z [cm]");   _hdeltaxvsz->GetYaxis()->SetTitle("#Delta(X) [cm]"); 
+  _hdeltaxvsz->GetXaxis()->SetTitle("Z [cm]");   _hdeltaxvsz->GetYaxis()->SetTitle("#Delta(X) [cm]");
 
   _hdeltayvsz = currdir->make<TProfile>("deltayvsz","(PV-BS) Y position vs Z",
 			       _histoParameters.getUntrackedParameter<unsigned int>("nBinZProfile",40),
 			       _histoParameters.getUntrackedParameter<double>("zMinProfile",-20.),
 			       _histoParameters.getUntrackedParameter<double>("zMaxProfile",20.)
 			       );
-  _hdeltayvsz->GetXaxis()->SetTitle("Z [cm]");   _hdeltayvsz->GetYaxis()->SetTitle("#Delta(Y) [cm]"); 
+  _hdeltayvsz->GetXaxis()->SetTitle("Z [cm]");   _hdeltayvsz->GetYaxis()->SetTitle("#Delta(Y) [cm]");
 
 
 
@@ -91,17 +91,17 @@ void BSvsPVHistogramMaker::book(const std::string dirname) {
 			      _histoParameters.getUntrackedParameter<unsigned int>("nBinX",200),
 			      _histoParameters.getUntrackedParameter<double>("xMin",-1.),
 			      _histoParameters.getUntrackedParameter<double>("xMax",1.));
-    
+
     _hdeltayrun = _rhm.makeTH1F("deltayrun","(PV-BS) Y position",
 			      _histoParameters.getUntrackedParameter<unsigned int>("nBinY",200),
 			      _histoParameters.getUntrackedParameter<double>("yMin",-1.),
 			      _histoParameters.getUntrackedParameter<double>("yMax",1.));
-    
+
     _hdeltazrun = _rhm.makeTH1F("deltazrun","(PV-BS) Z position",
 			      _histoParameters.getUntrackedParameter<unsigned int>("nBinZ",200),
 			      _histoParameters.getUntrackedParameter<double>("zMin",-20.),
 			      _histoParameters.getUntrackedParameter<double>("zMax",20.));
-    
+
     _hdeltaxvszrun = _rhm.makeTProfile("deltaxvszrun","(PV-BS) X position vs Z",
 				       _histoParameters.getUntrackedParameter<unsigned int>("nBinZProfile",40),
 				       _histoParameters.getUntrackedParameter<double>("zMinProfile",-20.),
@@ -138,7 +138,7 @@ void BSvsPVHistogramMaker::book(const std::string dirname) {
 					  _histoParameters.getUntrackedParameter<double>("zMax",20.));
       }
     }
-    
+
   }
 }
 
@@ -156,40 +156,40 @@ void BSvsPVHistogramMaker::beginRun(const unsigned int nrun) {
   _rhm.beginRun(nrun,*currdir);
 
   if(_runHisto) {
-    (*_hdeltaxrun)->GetXaxis()->SetTitle("#Delta(X) [cm]");   (*_hdeltaxrun)->GetYaxis()->SetTitle("Vertices"); 
-    (*_hdeltayrun)->GetXaxis()->SetTitle("#Delta(Y) [cm]");   (*_hdeltayrun)->GetYaxis()->SetTitle("Vertices"); 
-    (*_hdeltazrun)->GetXaxis()->SetTitle("#Delta(Z) [cm]");   (*_hdeltazrun)->GetYaxis()->SetTitle("Vertices"); 
-    (*_hdeltaxvszrun)->GetXaxis()->SetTitle("Z [cm]");   (*_hdeltaxvszrun)->GetYaxis()->SetTitle("#Delta(X) [cm]"); 
-    (*_hdeltayvszrun)->GetXaxis()->SetTitle("Z [cm]");   (*_hdeltayvszrun)->GetYaxis()->SetTitle("#Delta(Y) [cm]"); 
-    
+    (*_hdeltaxrun)->GetXaxis()->SetTitle("#Delta(X) [cm]");   (*_hdeltaxrun)->GetYaxis()->SetTitle("Vertices");
+    (*_hdeltayrun)->GetXaxis()->SetTitle("#Delta(Y) [cm]");   (*_hdeltayrun)->GetYaxis()->SetTitle("Vertices");
+    (*_hdeltazrun)->GetXaxis()->SetTitle("#Delta(Z) [cm]");   (*_hdeltazrun)->GetYaxis()->SetTitle("Vertices");
+    (*_hdeltaxvszrun)->GetXaxis()->SetTitle("Z [cm]");   (*_hdeltaxvszrun)->GetYaxis()->SetTitle("#Delta(X) [cm]");
+    (*_hdeltayvszrun)->GetXaxis()->SetTitle("Z [cm]");   (*_hdeltayvszrun)->GetYaxis()->SetTitle("#Delta(Y) [cm]");
+
     if(_runHistoProfile) {
-      (*_hdeltaxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltaxvsorbrun)->GetYaxis()->SetTitle("#Delta(X) [cm]"); 
+      (*_hdeltaxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltaxvsorbrun)->GetYaxis()->SetTitle("#Delta(X) [cm]");
       (*_hdeltaxvsorbrun)->SetBit(TH1::kCanRebin);
-      (*_hdeltayvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltayvsorbrun)->GetYaxis()->SetTitle("#Delta(Y) [cm]"); 
+      (*_hdeltayvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltayvsorbrun)->GetYaxis()->SetTitle("#Delta(Y) [cm]");
       (*_hdeltayvsorbrun)->SetBit(TH1::kCanRebin);
-      (*_hdeltazvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltazvsorbrun)->GetYaxis()->SetTitle("#Delta(Z) [cm]"); 
+      (*_hdeltazvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltazvsorbrun)->GetYaxis()->SetTitle("#Delta(Z) [cm]");
       (*_hdeltazvsorbrun)->SetBit(TH1::kCanRebin);
     }
     if(_runHistoBXProfile) {
-      (*_hdeltaxvsbxrun)->GetXaxis()->SetTitle("BX");   (*_hdeltaxvsbxrun)->GetYaxis()->SetTitle("#Delta(X) [cm]"); 
-      (*_hdeltayvsbxrun)->GetXaxis()->SetTitle("BX");   (*_hdeltayvsbxrun)->GetYaxis()->SetTitle("#Delta(Y) [cm]"); 
-      (*_hdeltazvsbxrun)->GetXaxis()->SetTitle("BX");   (*_hdeltazvsbxrun)->GetYaxis()->SetTitle("#Delta(Z) [cm]"); 
+      (*_hdeltaxvsbxrun)->GetXaxis()->SetTitle("BX");   (*_hdeltaxvsbxrun)->GetYaxis()->SetTitle("#Delta(X) [cm]");
+      (*_hdeltayvsbxrun)->GetXaxis()->SetTitle("BX");   (*_hdeltayvsbxrun)->GetYaxis()->SetTitle("#Delta(Y) [cm]");
+      (*_hdeltazvsbxrun)->GetXaxis()->SetTitle("BX");   (*_hdeltazvsbxrun)->GetYaxis()->SetTitle("#Delta(Z) [cm]");
       if(_runHistoBX2D) {
-	(*_hdeltaxvsbx2drun)->GetXaxis()->SetTitle("BX");   (*_hdeltaxvsbx2drun)->GetYaxis()->SetTitle("#Delta(X) [cm]"); 
-	(*_hdeltayvsbx2drun)->GetXaxis()->SetTitle("BX");   (*_hdeltayvsbx2drun)->GetYaxis()->SetTitle("#Delta(Y) [cm]"); 
-	(*_hdeltazvsbx2drun)->GetXaxis()->SetTitle("BX");   (*_hdeltazvsbx2drun)->GetYaxis()->SetTitle("#Delta(Z) [cm]"); 
+	(*_hdeltaxvsbx2drun)->GetXaxis()->SetTitle("BX");   (*_hdeltaxvsbx2drun)->GetYaxis()->SetTitle("#Delta(X) [cm]");
+	(*_hdeltayvsbx2drun)->GetXaxis()->SetTitle("BX");   (*_hdeltayvsbx2drun)->GetYaxis()->SetTitle("#Delta(Y) [cm]");
+	(*_hdeltazvsbx2drun)->GetXaxis()->SetTitle("BX");   (*_hdeltazvsbx2drun)->GetYaxis()->SetTitle("#Delta(Z) [cm]");
       }
     }
-    
+
   }
 }
 
 void BSvsPVHistogramMaker::fill(const unsigned int orbit, const int bx, const reco::VertexCollection& vertices, const reco::BeamSpot& bs) {
-  
+
   for(reco::VertexCollection::const_iterator vtx=vertices.begin();vtx!=vertices.end();++vtx) {
 
     if(!(_trueOnly && vtx->isFake())) {
-      
+
       /*
       double deltax = vtx->x()-bs.x0();
       double deltay = vtx->y()-bs.y0();
@@ -240,12 +240,12 @@ void BSvsPVHistogramMaker::fill(const edm::Event& iEvent, const reco::VertexColl
 double BSvsPVHistogramMaker::x(const reco::BeamSpot& bs, const double z) const {
 
   double x = bs.x0();
-  
+
   //  if(useSlope_) x += bs.dxdz()*z;
   if(useSlope_) x += bs.dxdz()*(z-bs.z0());
 
   //  if(useSlope_) x = bs.x(z);
- 
+
   return x;
 
 }
@@ -253,12 +253,12 @@ double BSvsPVHistogramMaker::x(const reco::BeamSpot& bs, const double z) const {
 double BSvsPVHistogramMaker::y(const reco::BeamSpot& bs, const double z) const {
 
   double y = bs.y0();
-  
+
   //  if(useSlope_) y += bs.dydz()*z;
   if(useSlope_) y += bs.dydz()*(z-bs.z0());
 
     //  if(useSlope_) y = bs.y(z);
- 
+
   return y;
 
 }

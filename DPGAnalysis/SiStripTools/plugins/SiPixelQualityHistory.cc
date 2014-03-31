@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      SiPixelQualityHistory
-// 
+//
 /**\class SiPixelQualityHistory SiPixelQualityHistory.cc DPGAnalysis/SiStripTools/plugins/SiPixelQualityHistory.cc
 
  Description: <one line class summary>
@@ -94,7 +94,7 @@ class SiPixelQualityHistory : public edm::EDAnalyzer {
 // constructors and destructor
 //
 SiPixelQualityHistory::SiPixelQualityHistory(const edm::ParameterSet& iConfig):
-  m_rhm(),
+  m_rhm(consumesCollector()),
   m_monitoredspq(iConfig.getParameter<std::vector<edm::ParameterSet> >("monitoredSiPixelQuality")),
   m_mode(iConfig.getUntrackedParameter<unsigned int>("granularityMode",Module)),
   m_run(iConfig.getParameter<bool>("runProcess")),
@@ -107,7 +107,7 @@ SiPixelQualityHistory::SiPixelQualityHistory(const edm::ParameterSet& iConfig):
   edm::Service<TFileService> tfserv;
 
   for(std::vector<edm::ParameterSet>::const_iterator ps=m_monitoredspq.begin();ps!=m_monitoredspq.end();++ps) {
-    
+
     std::string name = ps->getParameter<std::string>("name");
 
     if(m_run) m_history[name] = tfserv->make<TH1F>(name.c_str(),name.c_str(),10,0,10);
@@ -124,7 +124,7 @@ SiPixelQualityHistory::SiPixelQualityHistory(const edm::ParameterSet& iConfig):
 
 SiPixelQualityHistory::~SiPixelQualityHistory()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -142,30 +142,30 @@ SiPixelQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //  edm::LogInfo("EventProcessing") << "event being processed";
 
   for(std::vector<edm::ParameterSet>::const_iterator ps=m_monitoredspq.begin();ps!=m_monitoredspq.end();++ps) {
-    
+
     std::string name = ps->getParameter<std::string>("name");
     std::string label = ps->getParameter<std::string>("spqLabel");
-    
-    
-    
+
+
+
     edm::ESHandle<SiPixelQuality> spq;
     iSetup.get<SiPixelQualityRcd>().get(label,spq);
-    
+
     int nbad=0;
 
     if(m_mode==Summary) {
 
       //      nbad = spq->BadModuleNumber();
 
-    }  
+    }
     else {
-    
+
       std::vector<SiPixelQuality::disabledModuleType> bads = spq->getBadComponentList();
-      
+
       LogDebug("BadComponents") << bads.size() << " bad components found";
-    
+
       for(std::vector<SiPixelQuality::disabledModuleType>::const_iterator bc=bads.begin();bc!=bads.end();++bc) {
-	
+
 	if(m_mode==Module) {
 	  if(spq->IsModuleBad(bc->DetID)) ++nbad;
 	  //	  if(bc->errorType==0) ++nbad;
@@ -180,50 +180,50 @@ SiPixelQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(m_badmodrun.find(name)!=m_badmodrun.end() && m_badmodrun[name] && *m_badmodrun[name]) {
       (*m_badmodrun[name])->Fill(iEvent.orbitNumber(),nbad);
     }
-    
+
   }
 }
 
-void 
+void
 SiPixelQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 
   m_rhm.beginRun(iRun);
-  
+
   // loop on all the SiPixelQuality objects to be monitored
 
   for(std::vector<edm::ParameterSet>::const_iterator ps=m_monitoredspq.begin();ps!=m_monitoredspq.end();++ps) {
-    
+
     std::string name = ps->getParameter<std::string>("name");
     std::string label = ps->getParameter<std::string>("spqLabel");
-    
+
     if(m_badmodrun.find(name)!=m_badmodrun.end()) {
       if(m_badmodrun[name] && *m_badmodrun[name]) {
 	(*m_badmodrun[name])->SetBit(TH1::kCanRebin);
-	(*m_badmodrun[name])->GetXaxis()->SetTitle("time [Orb#]"); (*m_badmodrun[name])->GetYaxis()->SetTitle("bad components"); 
+	(*m_badmodrun[name])->GetXaxis()->SetTitle("time [Orb#]"); (*m_badmodrun[name])->GetYaxis()->SetTitle("bad components");
       }
     }
-    
+
     if(m_run) {
 
       edm::ESHandle<SiPixelQuality> spq;
       iSetup.get<SiPixelQualityRcd>().get(label,spq);
-      
+
       int nbad=0;
-      
+
       if(m_mode==Summary) {
-	
+
 	//	nbad = spq->BadModuleNumber();
-	
-      }  
+
+      }
       else {
-	
+
 	std::vector<SiPixelQuality::disabledModuleType> bads = spq->getBadComponentList();
-	
+
 	LogDebug("BadComponents") << bads.size() << " bad components found";
-	
+
 	for(std::vector<SiPixelQuality::disabledModuleType>::const_iterator bc=bads.begin();bc!=bads.end();++bc) {
-	  
+
 	  if(m_mode==Module) {
 	    if(spq->IsModuleBad(bc->DetID)) ++nbad;
 	    //	  if(bc->errorType==0) ++nbad;
@@ -239,23 +239,23 @@ SiPixelQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup& iSe
       sprintf(runname,"%d",iRun.run());
       LogDebug("AnalyzedRun") << name << " " << runname << " " << nbad;
       m_history[name]->Fill(runname,nbad);
-    }    
+    }
   }
-  
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 SiPixelQualityHistory::beginJob()
 {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-SiPixelQualityHistory::endJob() 
+void
+SiPixelQualityHistory::endJob()
 {
   /*
   for(std::vector<edm::ParameterSet>::const_iterator ps=m_monitoredspq.begin();ps!=m_monitoredspq.end();++ps) {
-    
+
     std::string name = ps->getParameter<std::string>("name");
     m_history[name]->Write();
 

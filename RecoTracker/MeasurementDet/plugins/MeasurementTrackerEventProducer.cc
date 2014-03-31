@@ -181,7 +181,7 @@ MeasurementTrackerEventProducer::updateStrips( const edm::Event& event, StMeasur
   }
 
   //=========  actually load cluster =============
-  if(!theStDets.isRegional()){
+  {
     edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterHandle;
     event.getByToken(theStripClusterLabel, clusterHandle);
     const edmNew::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
@@ -213,67 +213,7 @@ MeasurementTrackerEventProducer::updateStrips( const edm::Event& event, StMeasur
       if ( theStDets.isActive(i) )
 	theStDets.update(i,j);
     }
-
-  }else{   // regional
-    throw cms::Exception("NotSupported") << "Regional non-on-demand unpacking is not supported." << std::endl;
-#if 0 
-    //then set the not-empty ones only
-    edm::Handle<edm::RefGetter<SiStripCluster> > refClusterHandle;
-    event.getByLabel(stripClusterProducer, refClusterHandle);
-    
-    std::string lazyGetter = pset_.getParameter<std::string>("stripLazyGetterProducer");
-    edm::Handle<edm::LazyGetter<SiStripCluster> > lazyClusterHandle;
-    event.getByLabel(lazyGetter,lazyClusterHandle);
-    
-    if(selfUpdateSkipClusters_){
-      edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripClusterMask;
-      LogDebug("MeasurementTracker")<<"getting reg strp refs to skip";
-      event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterMask);
-      if (stripClusterMask.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
-      if (stripClusterMask->refProd().id()!=lazyClusterHandle.id()){
-	edm::LogError("ProductIdMismatch")<<"The strip masking does not point to the proper collection of clusters: "<<stripClusterMask->refProd().id()<<"!="<<lazyClusterHandle.id();
-      }       
-      stripClusterMask->copyMaskTo(stripClustersToSkip);
-    }
-    
-    theStDets.regionalHandle() =  lazyClusterHandle;
-    
-    uint32_t tmpId=0;
-    std::vector<SiStripCluster>::const_iterator beginIterator;
-    edm::RefGetter<SiStripCluster>::const_iterator iregion = refClusterHandle->begin();
-    for(;iregion!=refClusterHandle->end();++iregion) {
-      const edm::RegionIndex<SiStripCluster>& region = *iregion;
-      std::vector<SiStripCluster>::const_iterator icluster = region.begin();
-      const std::vector<SiStripCluster>::const_iterator endIterator = region.end();
-      tmpId = icluster->geographicalId();
-      beginIterator = icluster;
-      
-      //std::cout << "== tmpId ad inizio loop dentro region: " << tmpId << std::endl;
-      
-      for (;icluster!=endIterator;icluster++) {
-	//std::cout << "===== cluster id,pos " 
-	//  << icluster->geographicalId() << " , " << icluster->barycenter()
-	//  << std::endl;
-	//std::cout << "=====making ref in recHits() " << std::endl;
-	if( icluster->geographicalId() != tmpId){ 
-	  //std::cout << "geo!=tmpId" << std::endl;
-	  
-	  //cannot we avoid to update the det with detId of itself??  (sure we can!, done!)
-	  theStDets.update(concreteDetUpdatable(tmpId)->index(),beginIterator,icluster);
-	  
-	  tmpId = icluster->geographicalId();
-	  beginIterator = icluster;
-	  if( icluster == (endIterator-1)){
-	    theStDets.update(concreteDetUpdatable(tmpId)->index(),icluster,endIterator);
-	  }   
-	}else if( icluster == (endIterator-1)){	   
-	  theStDets.update(concreteDetUpdatable(tmpId)->index(),beginIterator,endIterator);	 
-	}
-      }//end loop cluster in one ragion
-    }
-#endif
-  }//end of block for updating with regional clusters 
-
+  }
 }
 
 void 

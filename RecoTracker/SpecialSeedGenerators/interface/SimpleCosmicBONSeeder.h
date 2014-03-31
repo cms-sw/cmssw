@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
@@ -26,7 +27,6 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
@@ -36,6 +36,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
+class SeedingLayerSetsHits;
 
 class SimpleCosmicBONSeeder : public edm::EDProducer
 {
@@ -61,8 +62,7 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   edm::ParameterSet conf_;
   std::string builderName;
 
-  SeedingLayerSetsBuilder theLsb;
-  ctfseeding::SeedingLayerSets theLss;
+  edm::EDGetTokenT<SeedingLayerSetsHits> seedingLayerToken_;
   GlobalTrackingRegion region_;
   double pMin_;
   bool writeTriplets_;
@@ -71,7 +71,6 @@ class SimpleCosmicBONSeeder : public edm::EDProducer
   double rescaleError_;
 
   uint32_t tripletsVerbosity_,seedVerbosity_, helixVerbosity_;
-  std::vector<std::string> layerTripletNames_;
  
   edm::ESHandle<MagneticField>                  magfield;
   edm::ESHandle<TrackerGeometry>                tracker;

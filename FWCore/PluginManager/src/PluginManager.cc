@@ -332,7 +332,7 @@ PluginManager::loadingLibraryNamed_()
 
 PluginManager*& PluginManager::singleton()
 {
-  static PluginManager* s_singleton=0;
+  [[cms::thread_safe]] static PluginManager* s_singleton=0;
   return s_singleton;
 }
 

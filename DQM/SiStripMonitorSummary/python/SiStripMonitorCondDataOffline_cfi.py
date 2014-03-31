@@ -14,6 +14,7 @@ CondDataMonitoring = cms.EDAnalyzer("SiStripMonitorCondData",
     MonitorSiStripHighThreshold= cms.bool(True),
     MonitorSiStripApvGain      = cms.bool(True),                              
     MonitorSiStripLorentzAngle = cms.bool(True),                            
+    MonitorSiStripBackPlaneCorrection = cms.bool(True),                            
 
     FillConditions_PSet = cms.PSet(
       FolderName_For_QualityAndCabling_SummaryHistos= cms.string("SiStrip/Tracks"),
@@ -217,6 +218,29 @@ CondDataMonitoring = cms.EDAnalyzer("SiStripMonitorCondData",
       SummaryOfProfile_NchY        = cms.int32(50),
       SummaryOfProfile_LowY        = cms.double(0.01),
       SummaryOfProfile_HighY       = cms.double(0.06)      
+    ),
+
+    SiStripBackPlaneCorrectionDQM_PSet = cms.PSet(
+
+      CondObj_name = cms.string('bpcorrection'),
+      CondObj_fillId       = cms.string('ProfileAndCumul'),    
+      
+      FillSummaryProfileAtLayerLevel = cms.bool(True),
+      FillCumulativeSummaryAtLayerLevel = cms.bool(True),
+
+      SummaryOfCumul_description = cms.string('ProfileSummary_BackPlaneCorrectionFromCondDB'),
+      SummaryOfCumul_xTitle      = cms.string('BackPlaneCorrection from CondDB'),
+      SummaryOfCumul_yTitle      = cms.string(' '),
+      SummaryOfCumul_NchX        = cms.int32(50),      
+      SummaryOfCumul_LowX        = cms.double(0.00),
+      SummaryOfCumul_HighX       = cms.double(0.10),
+      
+      SummaryOfProfile_description = cms.string('Summary_BackPlaneCorrectionFromCondDB'),
+      SummaryOfProfile_xTitle      = cms.string('detId'),
+      SummaryOfProfile_yTitle      = cms.string('BackPlaneCorrection from CondDB'),
+      SummaryOfProfile_NchY        = cms.int32(50),
+      SummaryOfProfile_LowY        = cms.double(0.00),
+      SummaryOfProfile_HighY       = cms.double(0.10)      
     ),
 
       SiStripLowThresholdDQM_PSet = cms.PSet(
