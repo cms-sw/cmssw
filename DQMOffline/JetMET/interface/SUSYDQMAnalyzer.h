@@ -18,7 +18,7 @@
 
 #include <string>
 
-//class SUSYDQMAnalyzer: public edm::EDAnalyzer {
+
 class SUSYDQMAnalyzer: public DQMEDAnalyzer {
  public:
   explicit SUSYDQMAnalyzer(const edm::ParameterSet&);
