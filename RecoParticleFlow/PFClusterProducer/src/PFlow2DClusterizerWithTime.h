@@ -59,6 +59,10 @@ class PFlow2DClusterizerWithTime : public PFClusterBuilderBase {
 		      reco::PFClusterCollection&) const;
   void clusterTimeResolution(reco::PFCluster& cluster, double& res) const;
   void clusterTimeResolutionFromSeed(reco::PFCluster& cluster, double& res) const;
+  double dist2Time(const reco::PFCluster&, const reco::PFRecHitRef&, int cell_layer,
+    double prev_timeres2) const;
+  bool passChi2Prob(size_t iCluster, double dist2, std::vector<double>& clus_chi2, 
+    std::vector<size_t>& clus_chi2_nhits) const;
   void prunePFClusters(reco::PFClusterCollection&) const;
 };
 

@@ -49,16 +49,16 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
 
     // If time resolution is given, calculated weighted average
     if (_timeResolutionCalcBarrel && _timeResolutionCalcEndcap) {
-      double res = 100.;
+      double res2 = 10000.;
       int cell_layer = (int)refhit->layer();
       if (cell_layer == PFLayer::HCAL_BARREL1 ||
           cell_layer == PFLayer::HCAL_BARREL2 ||
           cell_layer == PFLayer::ECAL_BARREL)
-        res = _timeResolutionCalcBarrel->timeResolution(refhit->energy());
+        res2 = _timeResolutionCalcBarrel->timeResolution2(refhit->energy());
       else
-        res = _timeResolutionCalcEndcap->timeResolution(refhit->energy());
-      cl_time += rhf.fraction()*refhit->time()/res/res;
-      cl_timeweight += rhf.fraction()/res/res;
+        res2 = _timeResolutionCalcEndcap->timeResolution2(refhit->energy());
+      cl_time += rhf.fraction()*refhit->time()/res2;
+      cl_timeweight += rhf.fraction()/res2;
     }
     else { // assume resolution = 1/E**2
       cl_timeweight+=refhit->energy()*refhit->energy()*rhf.fraction();
