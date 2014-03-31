@@ -39,8 +39,8 @@ class TauA1NuConstrainedFitter : public MultiProngTauSolver{
   static TVectorT<double> ComputeNuLorentzVectorPar(const TVectorT<double> &inpar);
   static TVectorT<double> ComputeA1LorentzVectorPar(const TVectorT<double> &inpar);
   static TVectorT<double> ComputeMotherLorentzVectorPar(const TVectorT<double> &inpar);
-  static TVectorT<double> SolveAmbiguityAnalytically(const TVectorT<double> &inpar);
-  static TVectorT<double> SolveAmbiguityAnalyticallywithRot(const TVectorT<double> &inpar);
+  static TVectorT<double> SolveAmbiguityAnalytically(const TVectorT<double> &inpar, unsigned int ambiguity);
+  static TVectorT<double> SolveAmbiguityAnalyticallywithRot(const TVectorT<double> &inpar, unsigned int ambiguity);
   static TVectorT<double> TauRot(const TVectorT<double> &inpar);
 
   void UpdateExpandedPar();
