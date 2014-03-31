@@ -35,7 +35,7 @@ public:
   BaseTrackerRecHit() : qualWord_(0){}
 
   // fake TTRH interface
-  BaseTrackerRecHit const * hit() const { return this;}  
+  BaseTrackerRecHit const * hit() const GCC11_FINAL { return this;}  
 
   virtual ~BaseTrackerRecHit() {}
 

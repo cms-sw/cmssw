@@ -54,6 +54,10 @@ public:
 
 
   virtual ~TrackingRecHit() {}
+
+  // fake TTRH interface
+  virtual TrackingRecHit const * hit() const { return this;}  
+
   
   virtual TrackingRecHit * clone() const = 0;
   

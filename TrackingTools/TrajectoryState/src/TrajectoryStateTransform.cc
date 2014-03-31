@@ -19,7 +19,7 @@ namespace trajectoryStateTransform {
     int surfaceSide = static_cast<int>(ts.surfaceSide());
     
     if (ts.hasError()) {
-      AlgebraicSymMatrix55 m = ts.localError().matrix();
+      AlgebraicSymMatrix55 const & m = ts.localError().matrix();
       
       int dim = 5; /// should check if corresponds to m
       float localErrors[15];
