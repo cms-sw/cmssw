@@ -27,7 +27,7 @@ namespace reco {
     PFBlockElement* clone() const { return new PFBlockElementCluster(*this); }
     
     /// \return reference to the corresponding cluster
-    PFClusterRef  clusterRef() const {return clusterRef_;}
+    const PFClusterRef&  clusterRef() const {return clusterRef_;}
 
     void Dump(std::ostream& out = std::cout, 
               const char* tab = " " ) const;

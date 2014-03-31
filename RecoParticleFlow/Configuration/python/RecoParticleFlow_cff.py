@@ -24,6 +24,7 @@ particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
 #                                 pfGsfElectronCiCSelectionSequence*
                                  pfGsfElectronMVASelectionSequence*
                                  particleFlowBlock*
+                                 particleFlowBlockNew*
                                  particleFlowEGammaFull*
                                  particleFlowTmp*
                                  particleFlowTmpPtrs*          
