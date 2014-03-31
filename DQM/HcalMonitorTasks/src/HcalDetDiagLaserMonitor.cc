@@ -126,7 +126,11 @@ public:
 	     undeflow=0;
           }
    void   reset1(){
-             Xe1=XXe1=Xt1=XXt1=n1=0;
+             Xe1=0;
+             XXe1=0;
+             Xt1=0;
+             XXt1=0;
+             n1=0;
 	     overflow1=0;
 	     undeflow1=0;
           }
