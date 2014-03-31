@@ -62,46 +62,15 @@ hltTauOfflineMonitor_PFTaus = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     DQMBaseFolder = cms.untracked.string("HLT/TauOffline/PFTaus/"),
     TriggerResultsSrc = cms.untracked.InputTag("TriggerResults", "", hltTauDQMofflineProcess),
     TriggerEventSrc = cms.untracked.InputTag("hltTriggerSummaryAOD", "", hltTauDQMofflineProcess),
-    MonitorSetup = cms.VPSet(
-        cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            DQMFolder             = cms.untracked.string('TauMET'),
-            Path                  = cms.untracked.vstring('HLT_LooseIsoPFTau35_Trk20_Prong1_MET(?<tr0>[[:digit:]]+)_v.*'),
-            IgnoreFilterNames     = cms.untracked.vstring(),
-            IgnoreFilterTypes     = cms.untracked.vstring(),
-        ),
-        cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            DQMFolder             = cms.untracked.string('MuTau'),
-            Path                  = cms.untracked.vstring('HLT_IsoMu(?<tr1>1[[:digit:]]+)_eta2p1_LooseIsoPFTau(?<tr0>[[:digit:]]+)_v.*'),
-            IgnoreFilterNames     = cms.untracked.vstring(),
-            IgnoreFilterTypes     = cms.untracked.vstring(),
-        ),
-        cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            DQMFolder             = cms.untracked.string('EleTau'),
-            Path                  = cms.untracked.vstring('HLT_Ele(?<tr1>[[:digit:]]+)_eta2p1_WP90Rho_LooseIsoPFTau(?<tr0>[[:digit:]]+)_v.*'),
-            IgnoreFilterNames     = cms.untracked.vstring(),
-            IgnoreFilterTypes     = cms.untracked.vstring(),
-        ),
-        cms.PSet(
-            ConfigType            = cms.untracked.string("Path"),
-            DQMFolder             = cms.untracked.string('DoubleTau'),
-            Path                  = cms.untracked.vstring('HLT_DoubleMediumIsoPFTau(?<tr0>[[:digit:]]+)_Trk(?<tr1>[[:digit:]])_eta2p1_Jet(?<tr2>[[:digit:]]+)_v.*'),
-            IgnoreFilterNames     = cms.untracked.vstring(),
-            IgnoreFilterTypes     = cms.untracked.vstring(),
-        ),
-        cms.PSet(
-            ConfigType            = cms.untracked.string("PathSummary"),
-            DQMFolder             = cms.untracked.string('Summary'),
-        ),
-        cms.PSet(
-            ConfigType            = cms.untracked.string("L1"),
-            DQMFolder             = cms.untracked.string('L1'),
-            L1Taus                = cms.untracked.InputTag("l1extraParticles", "Tau"),
-            L1Jets                = cms.untracked.InputTag("l1extraParticles", "Central"),
-            L1JetMinEt            = cms.untracked.double(40), # FIXME: this value is arbitrary at the moment
-        ),
+    L1Plotter = cms.untracked.PSet(
+        DQMFolder             = cms.untracked.string('L1'),
+        L1Taus                = cms.untracked.InputTag("l1extraParticles", "Tau"),
+        L1Jets                = cms.untracked.InputTag("l1extraParticles", "Central"),
+        L1JetMinEt            = cms.untracked.double(40), # FIXME: this value is arbitrary at the moment
+    ),
+    Paths = cms.untracked.string("PFTau"),
+    PathSummaryPlotter = cms.untracked.PSet(
+        DQMFolder             = cms.untracked.string('Summary'),
     ),
     Matching = cms.PSet(
         doMatching            = cms.untracked.bool(True),

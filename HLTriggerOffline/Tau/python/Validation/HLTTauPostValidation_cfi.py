@@ -4,12 +4,14 @@ from HLTriggerOffline.Tau.Validation.HLTTauValidation_cfi import *
 
 HLTTauValPostAnalysis_MC = cms.EDAnalyzer("HLTTauPostProcessor",
     DQMBaseFolder   = hltTauValIdealMonitorMC.DQMBaseFolder,
-    Setup           = hltTauValIdealMonitorMC.MonitorSetup,
+    L1Plotter       = hltTauValIdealMonitorMC.L1Plotter,
+    PathSummaryPlotter = hltTauValIdealMonitorMC.L1Plotter,
 )
 
 HLTTauValPostAnalysis_PF = cms.EDAnalyzer("HLTTauPostProcessor",
     DQMBaseFolder   = hltTauValIdealMonitorPF.DQMBaseFolder,
-    Setup           = hltTauValIdealMonitorPF.MonitorSetup,
+    L1Plotter       = hltTauValIdealMonitorPF.L1Plotter,
+    PathSummaryPlotter = hltTauValIdealMonitorPF.PathSummaryPlotter,
 )
 
 HLTTauPostVal = cms.Sequence(HLTTauValPostAnalysis_MC+HLTTauValPostAnalysis_PF)

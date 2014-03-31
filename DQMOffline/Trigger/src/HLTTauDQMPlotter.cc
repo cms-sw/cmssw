@@ -17,6 +17,13 @@ HLTTauDQMPlotter::HLTTauDQMPlotter(const edm::ParameterSet& pset, const std::str
   }
 }
 
+HLTTauDQMPlotter::HLTTauDQMPlotter(const std::string& dqmFolder, const std::string& dqmBaseFolder):
+  dqmFullFolder_(dqmBaseFolder+dqmFolder),
+  dqmFolder_(dqmFolder),
+  configValid_(true),
+  runValid_(false)
+{}
+
 HLTTauDQMPlotter::~HLTTauDQMPlotter() {
 }
 

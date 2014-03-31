@@ -8,9 +8,15 @@ HLTTauPostProcessor::HLTTauPostProcessor(const edm::ParameterSet& ps):
   runAtEndRun_(ps.getUntrackedParameter<bool>("runAtEndRun",true))
 {
   std::string dqmBaseFolder = ps.getUntrackedParameter<std::string>("DQMBaseFolder");
-  for(const edm::ParameterSet& pset: ps.getParameter<std::vector<edm::ParameterSet> >("Setup")) {
-    summaryPlotters_.emplace_back(new HLTTauDQMSummaryPlotter(pset, dqmBaseFolder));
+  if(ps.exists("L1Plotter")) {
+    summaryPlotters_.emplace_back(new HLTTauDQMSummaryPlotter(ps.getUntrackedParameter<edm::ParameterSet>("L1Plotter"),
+                                                              dqmBaseFolder, "L1"));
   }
+  if(ps.exists("PathSummaryPlotter")) {
+    summaryPlotters_.emplace_back(new HLTTauDQMSummaryPlotter(ps.getUntrackedParameter<edm::ParameterSet>("PathSummaryPlotter"),
+                                                              dqmBaseFolder, "PathSummary"));
+  }
+  summaryPlotters_.emplace_back(new HLTTauDQMSummaryPlotter(dqmBaseFolder, "Path"));
 }
 
 HLTTauPostProcessor::~HLTTauPostProcessor()
