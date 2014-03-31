@@ -7,7 +7,8 @@
  *  $Date: 2012/12/20 16:09:21 $
  *  $Revision: 1.17 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
- */
+ * revised S. Casasso, E. Migliore - UniTo & INFN Torino 
+*/
 
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -2255,7 +2256,7 @@ class HMassResolutionVSPart : public Histograms
   }
 
 //   HMassResolutionVSPart(const TString & name, TFile* file){
-//     string nameSuffix[] = {"Plus", "Minus"};
+//     TString nameSuffix[] = {"Plus", "Minus"};
 //     name_ = name;
 //     hReso                    = (TH1F *)     file->Get(name+"_Reso");
 //     hResoVSPairPt            = (TH2F *)     file->Get(name+"_ResoVSPairPt");
