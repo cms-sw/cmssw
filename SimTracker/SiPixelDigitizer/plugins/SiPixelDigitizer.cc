@@ -214,11 +214,10 @@ namespace cms
 
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
-
-    PileupInfo_ = getEventPileupInfo();
     
-    if(PileupInfo_) _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);
-
+    PileupInfo_ = getEventPileupInfo();
+    _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);
+    
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       DetId idet=DetId((*iu)->geographicalId().rawId());
       unsigned int isub=idet.subdetId();
