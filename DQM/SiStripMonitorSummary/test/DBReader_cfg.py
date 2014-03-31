@@ -124,6 +124,7 @@ process.CondDataMonitoring.MonitorSiStripQuality       = False
 process.CondDataMonitoring.MonitorSiStripCabling       = False
 process.CondDataMonitoring.MonitorSiStripApvGain       = False
 process.CondDataMonitoring.MonitorSiStripLorentzAngle  = True
+process.CondDataMonitoring.MonitorSiStripBackPlaneCorrection  = True
 process.CondDataMonitoring.MonitorSiStripLowThreshold  = False
 process.CondDataMonitoring.MonitorSiStripHighThreshold = False
 
@@ -157,6 +158,11 @@ process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.TkMap_On     = True
 process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.TkMapName     = 'LorentzAngleTkMap.png'
 process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.minValue     = 0.01
 process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.maxValue     = 0.03
+
+process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.TkMap_On     = True
+process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.TkMapName     = 'BackPlaneCorrectionTkMap.png'
+process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.minValue     = 0.00
+process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.maxValue     = 0.10
 
 process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.TkMap_On     = True
 process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.TkMapName     = 'LowThresholdTkMap.svg'

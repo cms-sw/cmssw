@@ -60,12 +60,32 @@ Pixel Forward Pilot Blade
  <Constant name="BumpROChipZ"        value="-[ModuleT]/2+[GlueT]+[BumpROChipT]/2"/>
  <Constant name="HDIZ"              value="-[ModuleT]/2+2*[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]+[HDIT]/2"/>
  <Constant name="WaferZ"             value="-[ModuleT]/2+[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]/2"/>
-
-
+ <Constant name="ModuleBoxX"         value="24.00*mm"/>
+ <Constant name="ModuleBoxY"         value="87.00*mm"/>
+ <Constant name="MassBox"            value="[ModuleBoxX]*[ModuleBoxY]"/>
+ <Constant name="ModuleTrap1Bot"     value="24.00*mm"/>
+ <Constant name="ModuleTrap1Angle"   value="45.0*deg"/>
+ <Constant name="ModuleTrap1Len"     value="4.5*mm"/>
+ <Constant name="ModuleTrap1Top"     value="[ModuleTrap1Bot]-2.*[ModuleTrap1Len]*sin([ModuleTrap1Angle])"/>
+ <Constant name="ModuleTrap1H"       value="[ModuleTrap1Len]*cos([ModuleTrap1Angle])"/>
+ <Constant name="ModuleTrap1COM"     value="[ModuleTrap1H]*((2.*[ModuleTrap1Top])+[ModuleTrap1Bot])/(3.*([ModuleTrap1Top]+[ModuleTrap1Bot]))"/>
+ <Constant name="MassTrap1"          value="[ModuleTrap1H]*([ModuleTrap1Top]+[ModuleTrap1Bot])/2."/>
+ <Constant name="MassRatio"          value="[MassTrap1]/([MassTrap1]+[MassBox])"/>
+ <Constant name="ModuleTrap1BoxCOM"  value="[MassRatio]*(([ModuleBoxY]/2)+[ModuleTrap1COM])"/>
+ <Constant name="ModuleTrap2Top"     value="24.00*mm"/>
+ <Constant name="ModuleTrap2Angle"   value="45.0*deg"/>
+ <Constant name="ModuleTrap2Len"     value="7.0*mm"/>
+ <Constant name="ModuleTrap2Bot"     value="[ModuleTrap2Top]-2.*[ModuleTrap2Len]*sin([ModuleTrap2Angle])"/>
+ <Constant name="ModuleTrap2H"       value="[ModuleTrap2Len]*cos([ModuleTrap2Angle])"/>
+ <Constant name="ModuleTrap2COM"     value="[ModuleTrap2H]*(1.-(((2.*[ModuleTrap2Top])+[ModuleTrap2Bot])/(3.*([ModuleTrap2Top]+[ModuleTrap2Bot]))))"/>
+ <Constant name="MassTrap2"          value="[ModuleTrap2H]*([ModuleTrap2Top]+[ModuleTrap2Bot])/2."/>
+ <Constant name="ModuleYOffset"      value="[ModuleBoxY]/2.-[ModuleL]/2."/>
 
 </ConstantsSection>
 
 <SolidSection label="pixfwdPilotBlade.xml">
+
+<!-- Old faulty blade structure
   <Trapezoid name="PixelForwardBlade3"      dz="[WedgeThick]/2"
                                            bl1="[WedgeBot]/2." bl2="[WedgeBot]/2." h1="[WedgeH]/2."
                                            tl1="[WedgeTop]/2." tl2="[WedgeTop]/2." h2="[WedgeH]/2."
@@ -82,14 +102,109 @@ Pixel Forward Pilot Blade
                                            bl1="[WedgeBot]/2." bl2="[WedgeBot]/2." h1="[WedgeH]/2."
                                            tl1="[WedgeTop]/2." tl2="[WedgeTop]/2." h2="[WedgeH]/2."
                                            alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
-  <Trapezoid name="TPGBladeBase"           dz="[TPGBladeBaseT]/2"
+  <Trapezoid name="TPGBladeBase"           dz="[TPGBladeBaseT]/2."
                                            bl1="[WedgeBot]/2." bl2="[WedgeBot]/2." h1="[WedgeH]/2."
                                            tl1="[WedgeTop]/2." tl2="[WedgeTop]/2." h2="[WedgeH]/2."
                                            alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
-  <Trapezoid name="CarbonFiberSkin"        dz="[CarbonFiberSkinT]/2"
+  <Trapezoid name="CarbonFiberSkin"        dz="[CarbonFiberSkinT]/2."
                                            bl1="[WedgeBot]/2." bl2="[WedgeBot]/2." h1="[WedgeH]/2."
                                            tl1="[WedgeTop]/2." tl2="[WedgeTop]/2." h2="[WedgeH]/2."
                                            alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+Old faulty blade structure -->
+
+
+  <Trapezoid name="PixelForwardBladeTrap1"          dz="[WedgeThick]/2."
+                                                    bl1="[ModuleTrap1Bot]/2." bl2="[ModuleTrap1Bot]/2." h1="[ModuleTrap1H]/2."
+                                                    tl1="[ModuleTrap1Top]/2." tl2="[ModuleTrap1Top]/2." h2="[ModuleTrap1H]/2."
+                                                    alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Trapezoid name="PixelForwardBladeTrap2"          dz="[WedgeThick]/2."
+                                                    bl1="[ModuleTrap2Bot]/2." bl2="[ModuleTrap2Bot]/2." h1="[ModuleTrap2H]/2."
+                                                    tl1="[ModuleTrap2Top]/2." tl2="[ModuleTrap2Top]/2." h2="[ModuleTrap2H]/2."
+                                                    alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Trapezoid name="PixelForwardBladeBaseTrap1"      dz="[BladeBaseT]/2."
+                                                    bl1="[ModuleTrap1Bot]/2." bl2="[ModuleTrap1Bot]/2." h1="[ModuleTrap1H]/2."
+                                                    tl1="[ModuleTrap1Top]/2." tl2="[ModuleTrap1Top]/2." h2="[ModuleTrap1H]/2."
+                                                    alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Trapezoid name="PixelForwardBladeBaseTrap2"      dz="[BladeBaseT]/2."
+                                                    bl1="[ModuleTrap2Bot]/2." bl2="[ModuleTrap2Bot]/2." h1="[ModuleTrap2H]/2."
+                                                    tl1="[ModuleTrap2Top]/2." tl2="[ModuleTrap2Top]/2." h2="[ModuleTrap2H]/2."
+                                                    alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Trapezoid name="TPGBladeBaseTrap1"      dz="[TPGBladeBaseT]/2."
+                                           bl1="[ModuleTrap1Bot]/2." bl2="[ModuleTrap1Bot]/2." h1="[ModuleTrap1H]/2."
+                                           tl1="[ModuleTrap1Top]/2." tl2="[ModuleTrap1Top]/2." h2="[ModuleTrap1H]/2."
+                                           alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Trapezoid name="CarbonFiberSkinTrap1"   dz="[CarbonFiberSkinT]/2."
+                                           bl1="[ModuleTrap1Bot]/2." bl2="[ModuleTrap1Bot]/2." h1="[ModuleTrap1H]/2."
+                                           tl1="[ModuleTrap1Top]/2." tl2="[ModuleTrap1Top]/2." h2="[ModuleTrap1H]/2."
+                                           alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Trapezoid name="TPGBladeBaseTrap2"         dz="[TPGBladeBaseT]/2."
+                                              bl1="[ModuleTrap2Bot]/2." bl2="[ModuleTrap2Bot]/2." h1="[ModuleTrap2H]/2."
+                                              tl1="[ModuleTrap2Top]/2." tl2="[ModuleTrap2Top]/2." h2="[ModuleTrap2H]/2."
+                                              alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Trapezoid name="CarbonFiberSkinTrap2"      dz="[CarbonFiberSkinT]/2."
+                                              bl1="[ModuleTrap2Bot]/2." bl2="[ModuleTrap2Bot]/2." h1="[ModuleTrap2H]/2."
+                                              tl1="[ModuleTrap2Top]/2." tl2="[ModuleTrap2Top]/2." h2="[ModuleTrap2H]/2."
+                                              alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Box name="TPGBladeBaseBox"              dx="[ModuleBoxX]/2."   dy="[ModuleBoxY]/2."
+                                           dz="[TPGBladeBaseT]/2." />
+  <Box name="CarbonFiberSkinBox"           dx="[ModuleBoxX]/2."   dy="[ModuleBoxY]/2."
+                                           dz="[CarbonFiberSkinT]/2." />
+  <Box name="PixelForwardBladeBox"         dx="[ModuleBoxX]/2."   dy="[ModuleBoxY]/2."
+                                           dz="[WedgeThick]/2." />
+  <Box name="PixelForwardBladeBaseBox"     dx="[ModuleBoxX]/2."   dy="[ModuleBoxY]/2."
+                                           dz="[BladeBaseT]/2." />
+
+  <UnionSolid name="TPGBladeBase1Int">
+    <rSolid name="TPGBladeBaseBox"/>
+    <rSolid name="TPGBladeBaseTrap1"/>
+    <Translation x="0." y="[ModuleBoxY]/2.+[ModuleTrap1COM]" z="0."/>
+  </UnionSolid>
+  <UnionSolid name="TPGBladeBase1">
+    <rSolid name="TPGBladeBase1Int"/>
+    <rSolid name="TPGBladeBaseTrap2"/>
+    <Translation x="0." y="-[ModuleBoxY]/2.-[ModuleTrap2COM]" z="0."/>
+  </UnionSolid>
+  <UnionSolid name="CarbonFiberSkin1Int">
+    <rSolid name="CarbonFiberSkinBox"/>
+    <rSolid name="CarbonFiberSkinTrap1"/>
+    <Translation x="0." y="[ModuleBoxY]/2.+[ModuleTrap1COM]" z="0."/>
+  </UnionSolid>
+  <UnionSolid name="CarbonFiberSkin1">
+    <rSolid name="CarbonFiberSkin1Int"/>
+    <rSolid name="CarbonFiberSkinTrap2"/>
+    <Translation x="0." y="-[ModuleBoxY]/2.-[ModuleTrap2COM]" z="0."/>
+  </UnionSolid>
+  <UnionSolid name="PixelForwardBladeBaseInt">
+    <rSolid name="PixelForwardBladeBaseBox"/>
+    <rSolid name="PixelForwardBladeBaseTrap1"/>
+    <Translation x="0." y="[ModuleBoxY]/2.+[ModuleTrap1COM]" z="0."/>
+  </UnionSolid>
+  <UnionSolid name="PixelForwardBladeInt">
+    <rSolid name="PixelForwardBladeBox"/>
+    <rSolid name="PixelForwardBladeTrap1"/>
+    <Translation x="0." y="[ModuleBoxY]/2.+[ModuleTrap1COM]" z="0."/>
+  </UnionSolid>
+  <UnionSolid name="PixelForwardBladeBase3">
+    <rSolid name="PixelForwardBladeBaseInt"/>
+    <rSolid name="PixelForwardBladeBaseTrap2"/>
+    <Translation x="0." y="-[ModuleBoxY]/2.-[ModuleTrap2COM]" z="0."/>
+  </UnionSolid>
+  <UnionSolid name="PixelForwardBladeBase4">
+    <rSolid name="PixelForwardBladeBaseInt"/>
+    <rSolid name="PixelForwardBladeBaseTrap2"/>
+    <Translation x="0." y="-[ModuleBoxY]/2.-[ModuleTrap2COM]" z="0."/>
+  </UnionSolid>
+  <UnionSolid name="PixelForwardBlade3">
+    <rSolid name="PixelForwardBladeInt"/>
+    <rSolid name="PixelForwardBladeTrap2"/>
+    <Translation x="0." y="-[ModuleBoxY]/2.-[ModuleTrap2COM]" z="0."/>
+  </UnionSolid>
+  <UnionSolid name="PixelForwardBlade4">
+    <rSolid name="PixelForwardBladeInt"/>
+    <rSolid name="PixelForwardBladeTrap2"/>
+    <Translation x="0." y="-[ModuleBoxY]/2.-[ModuleTrap2COM]" z="0."/>
+  </UnionSolid>
+
   <Box name="PixelForwardModule"        dx="[ModuleW]/2"     dy="[ModuleL]/2" 
                                         dz="[ModuleT]/2" />
   <Box name="PixelForwardWafer"         dx="[WaferW]/2"     dy="[WaferL]/2" 
@@ -130,11 +245,18 @@ Pixel Forward Pilot Blade
   <rSolid name="TPGBladeBase"/>
   <rMaterial name="materials:FPix_TPG"/>
  </LogicalPart>
+ <LogicalPart name="TPGBladeBase1" category="support">
+  <rSolid name="TPGBladeBase1"/>
+  <rMaterial name="materials:FPix_TPG"/>
+ </LogicalPart>
  <LogicalPart name="CarbonFiberSkin" category="support">
   <rSolid name="CarbonFiberSkin"/>
   <rMaterial name="materials:FPix_CFSkin"/>
  </LogicalPart>
-
+ <LogicalPart name="CarbonFiberSkin1" category="support">
+  <rSolid name="CarbonFiberSkin1"/>
+  <rMaterial name="materials:FPix_CFSkin"/>
+ </LogicalPart>
  <LogicalPart name="PixelForwardModule1" category="unspecified">
   <rSolid name="PixelForwardModule"/>
   <rMaterial name="materials:Air"/>
@@ -191,36 +313,36 @@ Pixel Forward Pilot Blade
  </PosPart>
  <PosPart copyNumber="1">
   <rParent name="pixfwdPilotBlade:PixelForwardBladeBase3"/>
-  <rChild name="pixfwdPilotBlade:TPGBladeBase"/>
+  <rChild name="pixfwdPilotBlade:TPGBladeBase1"/>
   <Translation x="0"  y="0"  z="0" />
  </PosPart>
  <PosPart copyNumber="1">
   <rParent name="pixfwdPilotBlade:PixelForwardBladeBase4"/>
-  <rChild name="pixfwdPilotBlade:TPGBladeBase"/>
+  <rChild name="pixfwdPilotBlade:TPGBladeBase1"/>
   <Translation x="0"  y="0"  z="0" />
  </PosPart>
  <PosPart copyNumber="1">
   <rParent name="pixfwdPilotBlade:PixelForwardBladeBase3"/>
-  <rChild name="pixfwdPilotBlade:CarbonFiberSkin"/>
+  <rChild name="pixfwdPilotBlade:CarbonFiberSkin1"/>
   <Translation x="0"  y="0"  z="[TPGBladeBaseT]/2+[CarbonFiberSkinT]/2" />
  </PosPart>
  <PosPart copyNumber="2">
   <rParent name="pixfwdPilotBlade:PixelForwardBladeBase4"/>
-  <rChild name="pixfwdPilotBlade:CarbonFiberSkin"/>
+  <rChild name="pixfwdPilotBlade:CarbonFiberSkin1"/>
   <Translation x="0"  y="0"  z="-[TPGBladeBaseT]/2-[CarbonFiberSkinT]/2" />
  </PosPart>
  <PosPart copyNumber="1">
   <rParent name="pixfwdPilotBlade:PixelForwardBlade3"/>
   <rChild name="pixfwdPilotBlade:PixelForwardModule1"/>
   <!-- <Translation x="[ModuleX]"  y="[ModuleY]"  z="[ModuleZ]" /> -->
-  <Translation x="0"  y="0"  z="[ModuleZ]" />
+  <Translation x="0"  y="-[ModuleYOffset]"  z="[ModuleZ]" />
   <rRotation name="pixfwdPilotBlade:R100C"/>
  </PosPart>
  <PosPart copyNumber="1">
   <rParent name="pixfwdPilotBlade:PixelForwardBlade4"/>
   <rChild name="pixfwdPilotBlade:PixelForwardModule1"/>
   <!-- <Translation x="-[ModuleX]" y="[ModuleY]" z="-[ModuleZ]" /> -->
-  <Translation x="0" y="0" z="-[ModuleZ]" />
+  <Translation x="0" y="-[ModuleYOffset]" z="-[ModuleZ]" />
   <rRotation name="pixfwdPilotBlade:R100A"/>
  </PosPart>
 

@@ -143,21 +143,21 @@ initialize(const edm::EventSetup& es) {
 bool StripClusterizerAlgorithm::
 setDetId(const uint32_t id) {
   if (id==detId) return true; // rare....
+  /*
   // priority to sequential scan
   if (id==detIds[ind+1]) {
     ++ind;
   } else if unlikely( (id>detId) &  (id<detIds[ind+1]) ) {
-      /*
-      edm::LogWarning("StripClusterizerAlgorithm") 
-	<<"id " << id << " not connected. this is impossible on data "
-	<< "old id " << detId << std::endl;
-      */
+//      edm::LogWarning("StripClusterizerAlgorithm") 
+//	<<"id " << id << " not connected. this is impossible on data "
+//	<< "old id " << detId << std::endl;
       return false; 
     }   else{
+  */
     auto b = detIds.begin();
     auto e = detIds.end();
-    if (id>detId) b+=ind;
-    else e=b+ind;
+    // if (id>detId) b+=ind;
+    // else e=b+ind;
     auto p = std::lower_bound(b,e,id);
     if (p==e || id!=(*p)) {
 #ifdef NOT_ON_MONTECARLO
@@ -168,7 +168,7 @@ setDetId(const uint32_t id) {
       return false;
     }
     ind = p-detIds.begin();
-  }
+//  }
 
   detId = id;
   noiseRange = noiseHandle->getRangeByPos(indices[ind].ni);

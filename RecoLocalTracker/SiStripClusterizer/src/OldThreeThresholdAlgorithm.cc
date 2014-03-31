@@ -243,9 +243,9 @@ void OldThreeThresholdAlgorithm::clusterizeDetUnit_(const InputDetSet& input,
 	if(edm::isDebugEnabled())
 	  ss << "\n\t\tCluster accepted :)";
 #endif
-	output.push_back( SiStripCluster( detID, SiStripCluster::SiStripDigiRange( cluster_digis_.begin(),
+	output.push_back( SiStripCluster(SiStripCluster::SiStripDigiRange( cluster_digis_.begin(),
 										   cluster_digis_.end())));
-	if (_setDetId) output.back().setId( detID);
+	
       } else {
 #ifdef DEBUG_SiStripClusterizer_
 	if(edm::isDebugEnabled())

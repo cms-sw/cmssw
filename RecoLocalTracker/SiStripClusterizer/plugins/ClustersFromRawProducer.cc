@@ -52,7 +52,7 @@ namespace {
     if unlikely( !rawData.data() ) {
 	if (edm::isDebugEnabled()) {
 	  edm::LogWarning(sistrip::mlRawToCluster_)
-	    << "[sistrip::RawToClustersLazyGetter::" 
+	    << "[ClustersFromRawProducer::" 
 	    << __func__ 
 	    << "]"
 	    << " NULL pointer to FEDRawData for FED id " 
@@ -65,7 +65,7 @@ namespace {
     if unlikely( !rawData.size() ) {
 	if (edm::isDebugEnabled()) {
 	  edm::LogWarning(sistrip::mlRawToCluster_)
-	    << "[sistrip::RawToClustersLazyGetter::" 
+	    << "[ClustersFromRawProducer::" 
 	    << __func__ << "]"
 	    << " FEDRawData has zero size for FED id " 
 	    << fedId;
@@ -426,7 +426,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::FastFiller & recor
 	}
       } else {
 	edm::LogWarning(sistrip::mlRawToCluster_)
-	  << "[sistrip::RawToClustersLazyGetter::" 
+	  << "[ClustersFromRawProducer::" 
 	  << __func__ << "]"
 	  << " FEDRawData readout mode "
 	  << mode
