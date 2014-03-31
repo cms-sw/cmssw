@@ -114,8 +114,9 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
   }
 
   // Strip Clusters
-  for (edmNew::DetSetVector<SiStripCluster>::const_iterator iter  = stripClusters->begin(); 
-                                                            iter != stripClusters->end(); ++iter) {
+  for (edmNew::DetSetVector<SiStripCluster>::const_iterator iter  = stripClusters->begin(false); 
+                                                            iter != stripClusters->end(false); ++iter) {
+    if (!(*iter).isValid()) continue;
     uint32_t detid = iter->id();  
     DetId detId(detid);
     edmNew::DetSet<SiStripCluster> link_strip = (*iter);
