@@ -9,31 +9,30 @@
 #include "TH2F.h"
 #include "TProfile.h"
 
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "DPGAnalysis/SiStripTools/interface/SiStripTKNumbers.h"
 
 
-DigiPileupCorrHistogramMaker::DigiPileupCorrHistogramMaker():
-  m_pileupcollection("addPileupInfo"), m_useVisibleVertices(false), m_hitname(), m_nbins(500), m_scalefact(), m_binmax(), m_labels(), 
+DigiPileupCorrHistogramMaker::DigiPileupCorrHistogramMaker(edm::ConsumesCollector&& iC):
+  m_pileupcollectionToken(iC.consumes<std::vector<PileupSummaryInfo> >(edm::InputTag("addPileupInfo"))), m_useVisibleVertices(false), m_hitname(), m_nbins(500), m_scalefact(), m_binmax(), m_labels(),
   m_nmultvsmclumi(), m_nmultvsmclumiprof(), m_nmultvsmcnvtx(), m_nmultvsmcnvtxprof(), m_subdirs() { }
 
-DigiPileupCorrHistogramMaker::DigiPileupCorrHistogramMaker(const edm::ParameterSet& iConfig):
-  m_pileupcollection(iConfig.getParameter<edm::InputTag>("pileupSummaryCollection")),
+DigiPileupCorrHistogramMaker::DigiPileupCorrHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
+  m_pileupcollectionToken(iC.consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupSummaryCollection"))),
   m_useVisibleVertices(iConfig.getParameter<bool>("useVisibleVertices")),
   m_hitname(iConfig.getUntrackedParameter<std::string>("hitName","digi")),
   m_nbins(iConfig.getUntrackedParameter<int>("numberOfBins",500)),
   m_scalefact(iConfig.getUntrackedParameter<int>("scaleFactor",5)),
   m_labels(), m_nmultvsmclumi(), m_nmultvsmclumiprof(), m_nmultvsmcnvtx(), m_nmultvsmcnvtxprof(), m_subdirs()
-{ 
+{
 
-  std::vector<edm::ParameterSet> 
+  std::vector<edm::ParameterSet>
     wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("wantedSubDets",std::vector<edm::ParameterSet>()));
-  
+
   for(std::vector<edm::ParameterSet>::iterator ps=wantedsubds.begin();ps!=wantedsubds.end();++ps) {
     m_labels[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
     m_binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
   }
-  
+
 
 }
 
@@ -41,12 +40,12 @@ DigiPileupCorrHistogramMaker::DigiPileupCorrHistogramMaker(const edm::ParameterS
 DigiPileupCorrHistogramMaker::~DigiPileupCorrHistogramMaker() {
 
   for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();lab++) {
-    
+
     const unsigned int i = lab->first; const std::string slab = lab->second;
-    
+
     delete m_subdirs[i];
   }
-  
+
 }
 
 
@@ -64,21 +63,21 @@ void DigiPileupCorrHistogramMaker::book(const std::string dirname) {
   TFileDirectory subev = tfserv->mkdir(dirname);
 
   SiStripTKNumbers trnumb;
-  
+
   edm::LogInfo("NumberOfBins") << "Number of Bins: " << m_nbins;
   edm::LogInfo("ScaleFactors") << "y-axis range scale factor: " << m_scalefact;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
   for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();lab++) {
-    
+
     const unsigned int i = lab->first; const std::string slab = lab->second;
-    
+
     if(m_binmax.find(i)==m_binmax.end()) {
-      edm::LogVerbatim("NotConfiguredBinMax") << "Bin max for " << lab->second 
+      edm::LogVerbatim("NotConfiguredBinMax") << "Bin max for " << lab->second
 					      << " not configured: " << trnumb.nstrips(i) << " used";
       m_binmax[i] = trnumb.nstrips(i);
     }
- 
+
     edm::LogVerbatim("BinMaxValue") << "Bin max for " << lab->second << " is " << m_binmax[i];
 
   }
@@ -108,7 +107,7 @@ void DigiPileupCorrHistogramMaker::book(const std::string dirname) {
       sprintf(name,"n%sdigivsmcnvtxprof",slab.c_str());
       m_nmultvsmcnvtxprof[i] = m_subdirs[i]->make<TProfile>(name,title,60,-0.5,59.5);
       m_nmultvsmcnvtxprof[i]->GetXaxis()->SetTitle("Pileup Interactions");    m_nmultvsmcnvtxprof[i]->GetYaxis()->SetTitle("Number of Hits");
-      
+
     }
 
   }
@@ -122,27 +121,27 @@ void DigiPileupCorrHistogramMaker::beginRun(const unsigned int nrun) {
 }
 
 void DigiPileupCorrHistogramMaker::fill(const edm::Event& iEvent, const std::map<unsigned int,int>& ndigi) {
-  
+
   edm::Handle<std::vector<PileupSummaryInfo> > pileupinfos;
-  iEvent.getByLabel(m_pileupcollection,pileupinfos);
-  
+  iEvent.getByToken(m_pileupcollectionToken,pileupinfos);
+
   // look for the intime PileupSummaryInfo
-  
+
   std::vector<PileupSummaryInfo>::const_iterator pileupinfo;
-  
+
   for(pileupinfo = pileupinfos->begin(); pileupinfo != pileupinfos->end() ; ++pileupinfo) {
-    
+
     if(pileupinfo->getBunchCrossing()==0) break;
-    
+
   }
-  
+
   if(pileupinfo->getBunchCrossing()!=0) {
-    
+
     edm::LogError("NoInTimePileUpInfo") << "Cannot find the in-time pileup info " << pileupinfo->getBunchCrossing();
-    
+
   }
   else {
-    
+
     int npileup = pileupinfo->getPU_NumInteractions();
 
     if(m_useVisibleVertices) npileup = pileupinfo->getPU_zpositions().size();
@@ -159,4 +158,4 @@ void DigiPileupCorrHistogramMaker::fill(const edm::Event& iEvent, const std::map
   }
 }
 
-    
+
