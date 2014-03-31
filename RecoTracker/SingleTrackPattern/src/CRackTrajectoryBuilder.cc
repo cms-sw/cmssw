@@ -255,13 +255,8 @@ void CRackTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 Trajectory CRackTrajectoryBuilder::createStartingTrajectory( const TrajectorySeed& seed) const
 {
   Trajectory result( seed, seed.direction());
-  std::vector<TM> seedMeas = seedMeasurements(seed);
-  if ( !seedMeas.empty()) {
-    for (std::vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++){
-      result.push(*i);
-    }
-  }
- 
+  std::vector<TM> && seedMeas = seedMeasurements(seed);
+  for (auto i : seedMeas) result.push(std::move(i));
   return result;
 }
 
@@ -280,11 +275,11 @@ CRackTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
 
     if (ihit == hitRange.second - 1) {
       TSOS  updatedState=startingTSOS(seed);
-      result.push_back(TM( invalidState, updatedState, recHit));
+      result.push_back(std::move(TM( invalidState, updatedState, recHit)));
 
     } 
     else {
-      result.push_back(TM( invalidState, recHit));
+      result.push_back(std::move(TM( invalidState, recHit)));
     }
     
   }
