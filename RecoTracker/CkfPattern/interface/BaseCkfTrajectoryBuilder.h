@@ -67,7 +67,7 @@ public:
 			   const TrajectoryFilter*               filter,
 			   const TrajectoryFilter*               inOutFilter = 0);
 
-  BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &other) = default ;
+  BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &other) = default;
   virtual ~BaseCkfTrajectoryBuilder();
 
   // new interface returning the start Trajectory...
@@ -93,6 +93,9 @@ public:
 
   /** Maximum number of consecutive lost hits per trajectory candidate. */
   //  int 		maxConsecLostHit()	{return theMaxConsecLostHit;}
+
+
+  const TransientTrackingRecHitBuilder* hitBuilder() const { return theTTRHBuilder;}
 
  protected:    
   //methods for dubugging 

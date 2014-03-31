@@ -86,7 +86,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     const GeomDet* low_pixel_prob_Det = 0; // ggiurgiu@fnal.gov
     
     //call the fitter
-    smoothed = smoothingStep(fitter()->fitOne(aSeed, myHits, firstPredTsos));
+    smoothed  = smoothingStep(fitter()->fitOne(aSeed, myHits, firstPredTsos));
     
     //if (tmp_first.size()==0) tmp_first = smoothed; moved later
     
@@ -278,15 +278,14 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
       if ( !smoothed.firstMeasurement().recHitR().isValid() ) {
 	LogTrace("TrackFitters") << "First measurement is in`valid";
 	Trajectory tmpTraj(smoothed.seed(),smoothed.direction());
-	Trajectory::DataContainer const & meas = smoothed.measurements();
-	
-	Trajectory::DataContainer::const_iterator it;//first valid hit
-	for ( it=meas.begin(); it!=meas.end(); ++it ) 
+	Trajectory::DataContainer  & meas = smoothed.measurements();
+	auto it = meas.begin();
+	for ( ; it!=meas.end(); ++it ) 
 	  if ( it->recHitR().isValid() )  break;
-	tmpTraj.push(*it,smoothed.chiSquared());//push the first valid measurement and set the same global chi2
+	tmpTraj.push(std::move(*it),smoothed.chiSquared());//push the first valid measurement and set the same global chi2
 	
-	for (Trajectory::DataContainer::const_iterator itt=it+1; itt!=meas.end();++itt) 
-	  tmpTraj.push(*itt,0);//add all the other measurements
+	for (auto itt=it+1; itt!=meas.end();++itt) 
+	  tmpTraj.push(std::move(*itt),0);//add all the other measurements
 	
 	std::swap(smoothed,tmpTraj);
 	
