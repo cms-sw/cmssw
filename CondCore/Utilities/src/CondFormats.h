@@ -31,6 +31,7 @@
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
+#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
