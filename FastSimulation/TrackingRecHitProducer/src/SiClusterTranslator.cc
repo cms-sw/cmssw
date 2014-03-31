@@ -224,7 +224,7 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       stripcpe->enterLocalParameters(det.rawId(), strip_num, std::make_pair(position,error));
       
       //Creating a new strip cluster
-      SiStripCluster temporaryStripCluster(det.rawId(), strip_num, digi_vec.begin(), digi_vec.end());
+      SiStripCluster temporaryStripCluster(strip_num, digi_vec.begin(), digi_vec.end());
       temporaryStripClusters[det].push_back(temporaryStripCluster);
       
       //Making a StripDigiSimLink

@@ -18,7 +18,6 @@ public:
   
   
   typedef OmniClusterRef::ClusterStripRef         ClusterRef;
-  typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
   template<typename CluRef>
   SiStripRecHit1D( const LocalPoint& p, const LocalError& e,

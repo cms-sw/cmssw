@@ -267,9 +267,13 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
 
       dqm->goUp();
 
-      // fill overall efficiency histograms
+      // have a per-step histogram of the path on the front page
       std::string trigName = dir->substr(dir->rfind("/") + 1);
       trigName = trigName.replace(trigName.rfind("_DQM"),4,"");
+      TProfile* pathEffPerStep = dqm->bookProfile(trigName + "__" + histoName, total)->getTProfile();
+      pathEffPerStep->SetTitle((trigName + "__" + histoName).c_str());
+
+      // fill overall efficiency histograms
       double totCont = total->GetBinContent(total->GetNbinsX());
       double totErr = total->GetBinError(total->GetNbinsX());
       if (trigName.find("HLT_Ele") != std::string::npos || trigName.find("HLT_DoubleEle") != std::string::npos || trigName.find("HLT_TripleEle") != std::string::npos) {
@@ -295,8 +299,8 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
     else {
       allElePaths.back()->GetXaxis()->SetLabelSize(0.03);
       allPhotonPaths.back()->GetXaxis()->SetLabelSize(0.03);
-      dqm->bookProfile(allEleHistoName, allElePaths.back())->getTProfile();
-      dqm->bookProfile(allPhotonHistoName, allPhotonPaths.back())->getTProfile();
+      dqm->bookProfile(allEleHistoName, allElePaths.back());
+      dqm->bookProfile(allPhotonHistoName, allPhotonPaths.back());
     }
   } // loop over postfixes
   

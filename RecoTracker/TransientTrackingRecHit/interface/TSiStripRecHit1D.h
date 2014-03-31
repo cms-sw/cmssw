@@ -5,15 +5,12 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
-#include "DataFormats/Common/interface/RefGetter.h"
 
 class TSiStripRecHit1D GCC11_FINAL : public TValidTrackingRecHit {
 public:
 
   typedef SiStripRecHit1D::ClusterRef SiStripClusterRef;
   
-  typedef edm::LazyGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
-
   virtual ~TSiStripRecHit1D() {}
 
   
@@ -77,14 +74,6 @@ public:
 			      const StripClusterParameterEstimator* cpe) {
     return RecHitPointer( new TSiStripRecHit1D( pos, err, det, OmniClusterRef(clust), cpe));
   }
-
-  static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
-			      const GeomDet* det,
-			      const SiStripRegionalClusterRef & clust,
-			      const StripClusterParameterEstimator* cpe) {
-    return RecHitPointer( new TSiStripRecHit1D( pos, err, det, OmniClusterRef(clust), cpe));
-  }
-
 
 
 private:

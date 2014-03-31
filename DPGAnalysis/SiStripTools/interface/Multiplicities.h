@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #endif
 
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -14,6 +15,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/TrackerCommon/interface/ClusterSummary.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -22,19 +24,25 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
+
 #include <string>
 
 class ClusterSummarySingleMultiplicity {
 
  public:
   ClusterSummarySingleMultiplicity();
-  ClusterSummarySingleMultiplicity(const edm::ParameterSet& iConfig);
+#ifndef __GCCXML__
+  ClusterSummarySingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC);
+  ClusterSummarySingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC);
+#endif
 
   void getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int mult() const;
 
  private:
-  edm::InputTag m_collection;
+#ifndef __GCCXML__
+  edm::EDGetTokenT<ClusterSummary> m_collection;
+#endif
   int m_subdetenum;
   std::string m_subdetvar;
   std::vector<std::string> m_clustsummvar;
@@ -49,8 +57,10 @@ class SingleMultiplicity {
   
  public:
   SingleMultiplicity();
-  SingleMultiplicity(const edm::ParameterSet& iConfig);
-  
+#ifndef __GCCXML__
+  SingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC);
+  SingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC);
+#endif  
   
   void getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   int mult() const;
@@ -58,7 +68,9 @@ class SingleMultiplicity {
   
  private:
   
-  edm::InputTag m_collection;
+#ifndef __GCCXML__
+  edm::EDGetTokenT<T> m_collection;
+#endif
   int m_modthr;
   bool m_useQuality;
   std::string m_qualityLabel;
@@ -68,19 +80,33 @@ class SingleMultiplicity {
 template <class T>
 SingleMultiplicity<T>::SingleMultiplicity():
   //  mult(0), 
-  m_collection(), m_modthr(-1), m_useQuality(false),  m_qualityLabel(),
+#ifndef __GCCXML__
+m_collection(), 
+#endif
+    m_modthr(-1), m_useQuality(false),  m_qualityLabel(),
   m_mult(0)
 { }
 
+#ifndef __GCCXML__
 template <class T>
-SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig):
+SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC):
   //  mult(0),
-  m_collection(iConfig.getParameter<edm::InputTag>("collectionName")),
+m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))),
   m_modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
   m_useQuality(iConfig.getUntrackedParameter<bool>("useQuality",false)),
   m_qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel","")),
   m_mult(0)
 { }
+template <class T>
+SingleMultiplicity<T>::SingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
+  //  mult(0),
+m_collection(iC.consumes<T>(iConfig.getParameter<edm::InputTag>("collectionName"))),
+  m_modthr(iConfig.getUntrackedParameter<int>("moduleThreshold")),
+  m_useQuality(iConfig.getUntrackedParameter<bool>("useQuality",false)),
+  m_qualityLabel(iConfig.getUntrackedParameter<std::string>("qualityLabel","")),
+  m_mult(0)
+{ }
+#endif
 
 #ifndef __GCCXML__
 template <class T>
@@ -96,7 +122,7 @@ SingleMultiplicity<T>::getEvent(const edm::Event& iEvent, const edm::EventSetup&
    }
 
    edm::Handle<T> digis;
-   iEvent.getByLabel(m_collection,digis);
+   iEvent.getByToken(m_collection,digis);
 
 
    for(typename T::const_iterator it = digis->begin();it!=digis->end();it++) {
@@ -120,7 +146,10 @@ template <class T1, class T2>
     
  public:
     MultiplicityPair();
-    MultiplicityPair(const edm::ParameterSet& iConfig);
+#ifndef __GCCXML__
+    MultiplicityPair(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC);
+    MultiplicityPair(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC);
+#endif
     
     void getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup);
     int mult1() const;
@@ -141,12 +170,20 @@ template <class T1, class T2>
     m_multiplicity1(),  m_multiplicity2()
 { }
 
+#ifndef __GCCXML__
 template <class T1, class T2>
-  MultiplicityPair<T1,T2>::MultiplicityPair(const edm::ParameterSet& iConfig):
+      MultiplicityPair<T1,T2>::MultiplicityPair(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC):
     //    mult1(0),mult2(0),
-    m_multiplicity1(iConfig.getParameter<edm::ParameterSet>("firstMultiplicityConfig")),
-    m_multiplicity2(iConfig.getParameter<edm::ParameterSet>("secondMultiplicityConfig"))
+  m_multiplicity1(iConfig.getParameter<edm::ParameterSet>("firstMultiplicityConfig"),iC),
+    m_multiplicity2(iConfig.getParameter<edm::ParameterSet>("secondMultiplicityConfig"),iC)
 { }
+template <class T1, class T2>
+      MultiplicityPair<T1,T2>::MultiplicityPair(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
+    //    mult1(0),mult2(0),
+  m_multiplicity1(iConfig.getParameter<edm::ParameterSet>("firstMultiplicityConfig"),iC),
+    m_multiplicity2(iConfig.getParameter<edm::ParameterSet>("secondMultiplicityConfig"),iC)
+{ }
+#endif
 
 template <class T1, class T2>
   void
