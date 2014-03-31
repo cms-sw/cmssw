@@ -174,20 +174,12 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
     for(unsigned int iEl=0; iEl<electronHandle->size(); iEl++) {
       reco::ElectronRef eleRef(electronHandle, iEl);
 
-//      const CaloClusterPtrVector& preshowerClusters() const { return preshowerClusters_; }
-//
-//     /// fist iterator over BasicCluster constituents
-//     CaloCluster_iterator clustersBegin() const { return clusters_.begin(); }
-// 
-//     /// last iterator over BasicCluster constituents
-//     CaloCluster_iterator clustersEnd() const { return clusters_.end(); }
-
       if (fabs(eleRef->eta()) < 1.479) {
 	dRVeto = drVetoBarrel_;
-	//etaStrip = etaStripBarrel_;
+	etaStrip = etaStripBarrel_;
       } else {
 	dRVeto = drVetoEndcap_;
-	//etaStrip = etaStripEndcap_;
+	etaStrip = etaStripEndcap_;
       }
       
       float sum = 0;
@@ -209,16 +201,10 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
 	  if (eleRef->superCluster() == pfc.superClusterRef())
 	    continue;
 
-	  // Shift the RecoEcalCandidate direction vector according to the PF vertex
-	  //math::XYZPoint pfvtx = pfc.vertex();
-	  //math::XYZVector candDirectionWrtVtx(eleRef->superCluster()->x() - pfvtx.x(),
-	  //				      eleRef->superCluster()->y() - pfvtx.y(),
-	  //				      eleRef->superCluster()->z() - pfvtx.z());
-	  //
-	  //float dEta = fabs(candDirectionWrtVtx.Eta() - pfc.momentum().Eta());	  
-	  ////float dEta = fabs(eleRef->eta() - pfc.momentum().Eta());
-	  //if(dEta < etaStrip) continue;
-	  //float dR = deltaR(candDirectionWrtVtx.Eta(), candDirectionWrtVtx.Phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
+	  float dEta = fabs(eleRef->eta() - pfc.momentum().Eta());
+	  if(dEta < etaStrip) 
+	    continue;
+
 	  float dR = deltaR(eleRef->eta(), eleRef->phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
 	  dRVeto = 0;
 	  if(dR > drMax_ || dR < dRVeto) continue;
