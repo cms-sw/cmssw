@@ -165,6 +165,160 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 
     return ptr ; 
 }
+
+template<>
+CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBWriter>::PtrType
+CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBWriter>::produceAligned( const typename CaloTowerGeometry::AlignedRecord& iRecord ) {
+
+  const Alignments* alignPtr  ( 0 ) ;
+  const Alignments* globalPtr ( 0 ) ;
+  if( m_applyAlignment ) { // get ptr if necessary
+    edm::ESHandle< Alignments >                                      alignments ;
+    iRecord.getRecord< typename CaloTowerGeometry::AlignmentRecord >().get( alignments ) ;
+
+    assert( alignments.isValid() && // require valid alignments and expected sizet
+	    ( alignments->m_align.size() == CaloTowerGeometry::numberOfAlignments() ) ) ;
+    alignPtr = alignments.product() ;
+
+    edm::ESHandle< Alignments >                          globals   ;
+    iRecord.getRecord<GlobalPositionRcd>().get( globals ) ;
+
+    assert( globals.isValid() ) ;
+    globalPtr = globals.product() ;
+  }
+
+  TrVec  tvec ;
+  DimVec dvec ;
+  IVec   ivec ;
+  IVec   dins ;
+  
+  if( CaloGeometryDBWriter::writeFlag() ) {
+    edm::ESHandle<CaloSubdetectorGeometry> pG ;
+    iRecord.get( CaloTowerGeometry::producerTag() + std::string("_master"), pG ) ; 
+
+    const CaloSubdetectorGeometry* pGptr ( pG.product() ) ;
+
+    pGptr->getSummary( tvec, ivec, dvec, dins ) ;
+    
+    CaloGeometryDBWriter::writeIndexed( tvec, dvec, ivec, dins, CaloTowerGeometry::dbString() ) ;
+  } else {
+    edm::ESHandle<PCaloGeometry> pG ;
+    iRecord.getRecord<typename CaloTowerGeometry::PGeometryRecord >().get( pG ) ; 
+
+    tvec = pG->getTranslation() ;
+    dvec = pG->getDimension() ;
+    ivec = pG->getIndexes() ;
+    dins = pG->getDenseIndices();
+  }	 
+//*********************************************************************************************
+
+  edm::ESHandle<CaloTowerTopology> caloTopology;
+  iRecord.getRecord<HcalRecNumberingRecord>().get( caloTopology );
+
+
+  CaloTowerGeometry* ctg=new CaloTowerGeometry( &*caloTopology );
+
+  const unsigned int nTrParm ( tvec.size()/ctg->numberOfCellsForCorners() ) ;
+
+  assert( dvec.size() == ctg->numberOfShapes() * CaloTowerGeometry::k_NumberOfParametersPerShape ) ;
+
+
+  PtrType ptr ( ctg ) ;
+
+  ptr->fillDefaultNamedParameters() ;
+
+  ptr->allocateCorners( ctg->numberOfCellsForCorners() ) ;
+
+  ptr->allocatePar(    dvec.size() ,
+		       CaloTowerGeometry::k_NumberOfParametersPerShape ) ;
+
+  for( unsigned int i ( 0 ) ;  i < dins.size() ; ++i ) {
+    const unsigned int nPerShape ( ctg->numberOfParametersPerShape() ) ;
+    DimVec dims ;
+    dims.reserve( nPerShape ) ;
+    
+    const unsigned int indx ( ivec.size()==1 ? 0 : i ) ;
+	    
+    DimVec::const_iterator dsrc ( dvec.begin() + ivec[indx]*nPerShape ) ;
+
+    for( unsigned int j ( 0 ) ; j != nPerShape ; ++j )  {
+      dims.push_back( *dsrc ) ;
+      ++dsrc ;
+    }
+
+    const CCGFloat* myParm ( CaloCellGeometry::getParmPtr( dims, 
+							   ptr->parMgr(), 
+							   ptr->parVecVec() ));
+
+
+    const DetId id ( caloTopology->detIdFromDenseIndex(dins[i]) ) ;
+    
+    const unsigned int iGlob ( 0 == globalPtr ? 0 :
+			       ctg->alignmentTransformIndexGlobal( id ) ) ;
+
+    assert( 0 == globalPtr || iGlob < globalPtr->m_align.size() ) ;
+
+    const AlignTransform* gt ( 0 == globalPtr ? 0 : &globalPtr->m_align[ iGlob ] ) ;
+
+    assert( 0 == gt || iGlob == ctg->alignmentTransformIndexGlobal( DetId( gt->rawId() ) ) ) ;
+
+    const unsigned int iLoc ( 0 == alignPtr ? 0 :
+			      ctg->alignmentTransformIndexLocal( id ) ) ;
+
+    assert( 0 == alignPtr || iLoc < alignPtr->m_align.size() ) ;
+
+    const AlignTransform* at ( 0 == alignPtr ? 0 :
+			       &alignPtr->m_align[ iLoc ] ) ;
+
+    assert( 0 == at || ( ctg->alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
+
+    const CaloGenericDetId gId ( id ) ;
+
+    Pt3D  lRef ;
+    Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
+    ctg->localCorners( lc, &dims.front(), dins[i], lRef ) ;
+
+    const Pt3D lBck ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7] ) ) ; // ctr rear  face in local
+    const Pt3D lCor ( lc[0] ) ;
+
+    //----------------------------------- create transform from 6 numbers ---
+    const unsigned int jj ( i*nTrParm ) ;
+    Tr3D tr ;
+    const ROOT::Math::Translation3D tl ( tvec[jj], tvec[jj+1], tvec[jj+2] ) ;
+    const ROOT::Math::EulerAngles ea (
+				      6==nTrParm ?
+				      ROOT::Math::EulerAngles( tvec[jj+3], tvec[jj+4], tvec[jj+5] ) :
+				      ROOT::Math::EulerAngles() ) ;
+    const ROOT::Math::Transform3D rt ( ea, tl ) ;
+    double xx,xy,xz,dx,yx,yy,yz,dy,zx,zy,zz,dz;
+    rt.GetComponents(xx,xy,xz,dx,yx,yy,yz,dy,zx,zy,zz,dz) ;
+    tr = Tr3D( CLHEP::HepRep3x3( xx, xy, xz,
+				 yx, yy, yz,
+				 zx, zy, zz ), 
+	       CLHEP::Hep3Vector(dx,dy,dz)     );
+
+    // now prepend alignment(s) for final transform
+    const Tr3D atr ( 0 == at ? tr :
+		     ( 0 == gt ? at->transform()*tr :
+		       at->transform()*gt->transform()*tr ) ) ;
+    //--------------------------------- done making transform  ---------------
+
+    const Pt3D        gRef ( atr*lRef ) ;
+    const GlobalPoint fCtr ( gRef.x(), gRef.y(), gRef.z() ) ;
+    const Pt3D        gBck ( atr*lBck ) ;
+    const GlobalPoint fBck ( gBck.x(), gBck.y(), gBck.z() ) ;
+    const Pt3D        gCor ( atr*lCor ) ;
+    const GlobalPoint fCor ( gCor.x(), gCor.y(), gCor.z() ) ;
+
+    assert( caloTopology->denseIndex(id) == dins[i] );
+
+    ptr->newCell(  fCtr, fBck, fCor, myParm, id ) ;
+  }
+
+  ptr->initializeParms() ; // initializations; must happen after cells filled
+
+  return ptr ; 
+}
  
 template class CaloGeometryDBEP< EcalBarrelGeometry    , CaloGeometryDBWriter> ;
 template class CaloGeometryDBEP< EcalEndcapGeometry    , CaloGeometryDBWriter> ;
