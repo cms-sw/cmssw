@@ -85,7 +85,7 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
         conf.getParameter<double>("MomHEDepth"),
         conf.getParameter<double>("MomEBDepth"),
         conf.getParameter<double>("MomEEDepth"),
-        conf.getParameter<double>("HcalPhase")
+        conf.getParameter<int>("HcalPhase")
 	),
 
   hbheLabel_(conf.getParameter<edm::InputTag>("hbheInput")),

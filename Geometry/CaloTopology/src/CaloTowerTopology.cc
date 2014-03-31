@@ -194,33 +194,31 @@ std::vector<DetId> CaloTowerTopology::down(const DetId& /*id*/) const {
   return std::vector<DetId>();
 }
 
-uint32_t CaloTowerTopology::denseIndex(const DetId& id) const 
-{
+uint32_t CaloTowerTopology::denseIndex(const DetId& id) const {
   CaloTowerDetId tid(id);
-  const uint32_t ie ( tid.ietaAbs() );
-  const uint32_t ip ( tid.iphi() - 1 ) ;
+  const int ie ( tid.ietaAbs() );
+  const int ip ( tid.iphi() - 1 ) ;
   
   return ( ( 0 > tid.zside() ? 0 : kSizeForDenseIndexing/2 ) +
            ( ( firstHEDoublePhiRing_ > ie ? ( ie - 1 )*72 + ip :
-  	           ( firstHFQuadPhiRing_ > ie ?  nSinglePhi_ + ( ie - firstHEDoublePhiRing_ )*36 + ip/2 :
-  	             nSinglePhi_ + nDoublePhi_ + ( ie - firstHFQuadPhiRing_ )*18 + ip/4 ) ) ) );
+	       ( firstHFQuadPhiRing_ > ie ?  nSinglePhi_ + ( ie - firstHEDoublePhiRing_ )*36 + ip/2 :
+		 nSinglePhi_ + nDoublePhi_ + ( ie - firstHFQuadPhiRing_ )*18 + ip/4 ) ) ) );
 }
 
-CaloTowerDetId CaloTowerTopology::detIdFromDenseIndex( uint32_t din ) const
-{
-   const int iz ( din < kSizeForDenseIndexing/2 ? -1 : 1 ) ;
-   din %= kSizeForDenseIndexing/2 ;
-   const uint32_t ie ( nSinglePhi_ + nDoublePhi_ - 1 < din ?
-		               firstHFQuadPhiRing_ + ( din - nSinglePhi_ - nDoublePhi_ )/18 :
-		               ( nSinglePhi_ - 1 < din ?
-			             firstHEDoublePhiRing_ + ( din - nSinglePhi_ )/36 :
-			             din/72 + 1 ) ) ;
+CaloTowerDetId CaloTowerTopology::detIdFromDenseIndex( uint32_t din ) const {
+  const int iz ( din < kSizeForDenseIndexing/2 ? -1 : 1 ) ;
+  din %= kSizeForDenseIndexing/2 ;
+  const int ie ( nSinglePhi_ + nDoublePhi_ - 1 < (int)(din) ?
+		 firstHFQuadPhiRing_ + (din - nSinglePhi_ - nDoublePhi_ )/18 :
+		 ( nSinglePhi_ - 1 < (int)din ?
+		   firstHEDoublePhiRing_ + ( din - nSinglePhi_ )/36 :
+		   din/72 + 1 ) ) ;
+  
+  const int ip ( nSinglePhi_ + nDoublePhi_ - 1 < (int)(din) ?
+		 ( ( din - nSinglePhi_ - nDoublePhi_ )%18 )*4 + 3 :
+		 ( nSinglePhi_ - 1 < (int)(din) ?
+		   ( ( din - nSinglePhi_ )%36 )*2 + 1 :
+		   din%72 + 1 ) ) ;
 
-   const uint32_t ip ( nSinglePhi_ + nDoublePhi_ - 1 < din ?
-		               ( ( din - nSinglePhi_ - nDoublePhi_ )%18 )*4 + 3 :
-		               ( nSinglePhi_ - 1 < din ?
-			             ( ( din - nSinglePhi_ )%36 )*2 + 1 :
-			             din%72 + 1 ) ) ;
-
-   return ( validDenseIndex( din ) ? CaloTowerDetId( iz*ie, ip ) : CaloTowerDetId() ) ;
+  return ( validDenseIndex( din ) ? CaloTowerDetId( iz*ie, ip ) : CaloTowerDetId() ) ;
 }
