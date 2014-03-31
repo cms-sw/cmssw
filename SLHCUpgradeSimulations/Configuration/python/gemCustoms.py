@@ -150,7 +150,6 @@ def customise_Validation(process):
        process.schedule += cms.Schedule(x[1])
     for x in process.endpaths.items() :
        process.schedule += cms.Schedule(x[1])
-    print process.schedule
     process.load('Validation.RecoMuon.MuonTrackValidator_cfi')
     process.load('SimMuon.MCTruth.MuonAssociatorByHits_cfi')
     process.muonAssociatorByHitsCommonParameters.useGEMs = cms.bool(True)
@@ -160,8 +159,10 @@ def customise_Validation(process):
 
 def customise_harvesting(process):
     process.load('Validation.Configuration.gemPostValidation_cff')
-    process.genHarvesting += process.gemPostValidation
-    #process.postValidation.remove( process.gemPostValidation )
+    process.postValidation += process.gemPostValidation
+    process.postValidation.remove(process.photonPostprocessing)        # seg fault
+    process.postValidation.remove(process.pfPhotonPostprocessing)      # seg fault
+    process.postValidation.remove(process.oldpfPhotonPostprocessing)   # seg fault
     return process
 
 def outputCustoms(process):
