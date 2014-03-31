@@ -68,7 +68,7 @@ public:
 
   CosmicMuonSmoother* smoother() const {return theSmoother;}
 
-  CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
+  const CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
 
   DirectMuonNavigation* navigation() const {return theNavigation;}
 
