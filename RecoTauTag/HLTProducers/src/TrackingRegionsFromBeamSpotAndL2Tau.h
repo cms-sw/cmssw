@@ -8,6 +8,7 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -47,13 +48,18 @@ public:
     if (regionPSet.exists("searchOpt")) m_searchOpt = regionPSet.getParameter<bool>("searchOpt");
     else                                m_searchOpt = false;
 
-    m_measurementTrackerName ="";
-    m_whereToUseMeasurementTracker=0;
+    m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kForSiStrips;
     if (regionPSet.exists("measurementTrackerName"))
     {
-      m_measurementTrackerName = regionPSet.getParameter<std::string>("measurementTrackerName");
+      // FIXME: when next time altering the configuration of this
+      // class, please change the types of the following parameters:
+      // - whereToUseMeasurementTracker to at least int32 or to a string
+      //   corresponding to the UseMeasurementTracker enumeration
+      // - measurementTrackerName to InputTag
       if (regionPSet.exists("whereToUseMeasurementTracker"))
-        m_whereToUseMeasurementTracker = regionPSet.getParameter<double>("whereToUseMeasurementTracker");
+        m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::doubleToUseMeasurementTracker(regionPSet.getParameter<double>("whereToUseMeasurementTracker"));
+      if(m_whereToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever)
+        token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<std::string>("measurementTrackerName"));
     }
   }
   
@@ -77,6 +83,13 @@ public:
     size_t n_objects = objects->size();
     if (n_objects == 0) return result;
 
+    const MeasurementTrackerEvent *measurementTracker = nullptr;
+    if(!token_measurementTracker.isUninitialized()) {
+      edm::Handle<MeasurementTrackerEvent> hmte;
+      e.getByToken(token_measurementTracker, hmte);
+      measurementTracker = hmte.product();
+    }
+
     // create maximum JetMaxN tracking regions in directions of 
     // highest pt jets that are above threshold and are within allowed eta
     // (we expect that jet collection was sorted in decreasing pt order)
@@ -98,7 +111,7 @@ public:
           m_deltaPhi,
           m_whereToUseMeasurementTracker,
           m_precise,
-          m_measurementTrackerName,
+          measurementTracker,
           m_searchOpt
       );
       result.push_back(etaphiRegion);
@@ -119,8 +132,8 @@ private:
   float m_jetMinPt;
   float m_jetMaxEta;
   int   m_jetMaxN;
-  std::string m_measurementTrackerName;
-  float m_whereToUseMeasurementTracker;
+  edm::EDGetTokenT<MeasurementTrackerEvent> token_measurementTracker;
+  RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
   bool m_searchOpt;
   edm::EDGetTokenT<reco::BeamSpot> token_beamSpot; 
   bool m_precise;
