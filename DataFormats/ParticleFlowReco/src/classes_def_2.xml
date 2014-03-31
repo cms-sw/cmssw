@@ -93,6 +93,13 @@
   <class name="reco::PFBlockElement" ClassVersion="11">
    <version ClassVersion="11" checksum="3944635097"/>
     <!-- <field name="multilinkslinks_" transient="true"/> -->
+   <field name="nullTrack_" transient="true"/>
+   <field name="nullPFRecTrack_" transient="true"/>
+   <field name="nullPFCluster_" transient="true"/>
+   <field name="nullPFDispTrack_" transient="true"/>
+   <field name="nullConv_" transient="true"/>
+   <field name="nullMuon_" transient="true"/>
+   <field name="nullVertex_" transient="true"/>
   </class>
   <class name="std::vector<reco::PFBlockElement *>" />
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >"/>

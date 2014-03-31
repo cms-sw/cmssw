@@ -22,7 +22,7 @@ from CommonTools.ParticleFlow.pfParticleSelection_cff import *
 particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
 #                                 pfGsfElectronCiCSelectionSequence*
                                  pfGsfElectronMVASelectionSequence*
-                                 particleFlowBlock*
+                                 particleFlowBlockNew*
                                  particleFlowEGamma*
                                  particleFlowTmp*
                                  particleFlowTmpPtrs*
