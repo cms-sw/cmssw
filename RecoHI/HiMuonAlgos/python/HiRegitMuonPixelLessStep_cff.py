@@ -50,7 +50,6 @@ hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minimumNumberOfHits  = 6
 hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minHitsMinPt         = 4
 
 hiRegitMuPixelLessStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitMuPixelLessStepTrajectoryBuilder',
     trajectoryFilterName = 'hiRegitMuPixelLessStepTrajectoryFilter',
     clustersToSkip       = cms.InputTag('hiRegitMuPixelLessStepClusters'),
     minNrOfHitsForRebuild = 6 #change from default 4
@@ -58,7 +57,7 @@ hiRegitMuPixelLessStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelLes
 
 hiRegitMuPixelLessStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuPixelLessStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMuPixelLessStepTrajectoryBuilder',
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitMuPixelLessStepTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 

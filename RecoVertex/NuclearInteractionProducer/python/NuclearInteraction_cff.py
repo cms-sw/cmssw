@@ -11,9 +11,9 @@ from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 #FILTER
 nuclearCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-import RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi
+import RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi
 #TRAJECTORY BUILDER
-nuclearCkfTrajectoryBuilder = RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi.CkfTrajectoryBuilder.clone()
+nuclearCkfTrajectoryBuilder = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.CkfTrajectoryBuilder.clone()
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 #TRACK CANDIDATES
 nuclearTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
@@ -29,11 +29,10 @@ nuclearCkfTrajectoryFilter.ComponentName = 'nuclearCkfTrajectoryFilter'
 nuclearCkfTrajectoryFilter.filterPset.minPt = 0.3
 nuclearCkfTrajectoryFilter.filterPset.maxLostHits = 1
 nuclearCkfTrajectoryFilter.filterPset.minimumNumberOfHits = 3
-nuclearCkfTrajectoryBuilder.ComponentName = 'nuclearCkfTrajectoryBuilder'
 nuclearCkfTrajectoryBuilder.trajectoryFilterName = 'nuclearCkfTrajectoryFilter'
 nuclearCkfTrajectoryBuilder.alwaysUseInvalidHits = False
 nuclearTrackCandidates.src = 'nuclearSeed'
-nuclearTrackCandidates.TrajectoryBuilder = 'nuclearCkfTrajectoryBuilder'
+nuclearTrackCandidates.TrajectoryBuilder.refToPSet_ = 'nuclearCkfTrajectoryBuilder'
 nuclearTrackCandidates.RedundantSeedCleaner = 'none'
 nuclearWithMaterialTracks.src = 'nuclearTrackCandidates'
 #FittingSmootherRK.MinNumberOfHits = 3

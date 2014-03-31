@@ -56,9 +56,8 @@ muonSeededTrajectoryFilterForOutIn.filterPset.constantValueForLostHitsFractionFi
 muonSeededTrajectoryFilterForOutIn.filterPset.minimumNumberOfHits = 5 ## allow more lost hits
 
 ###------------- TrajectoryBuilders ----------------
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-muonSeededTrajectoryBuilderForInOut = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-    ComponentName = cms.string('muonSeededTrajectoryBuilderForInOut'),
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+muonSeededTrajectoryBuilderForInOut = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     foundHitBonus = cms.double(1000.0),  
     lostHitPenalty = cms.double(1.0),   
     maxCand   = cms.int32(5),
@@ -69,8 +68,7 @@ muonSeededTrajectoryBuilderForInOut = RecoTracker.CkfPattern.GroupedCkfTrajector
     requireSeedHitsInRebuild = cms.bool(True), 
     keepOriginalIfRebuildFails = cms.bool(True), 
 )
-muonSeededTrajectoryBuilderForOutIn = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-    ComponentName = cms.string('muonSeededTrajectoryBuilderForOutIn'),
+muonSeededTrajectoryBuilderForOutIn = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     foundHitBonus = cms.double(1000.0),  
     lostHitPenalty = cms.double(1.0),   
     maxCand   = cms.int32(3),
@@ -94,13 +92,13 @@ muonSeededFittingSmootherWithOutliersRejectionAndRK = TrackingTools.TrackFitters
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 muonSeededTrackCandidatesInOut = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag("muonSeededSeedsInOut"),
-    TrajectoryBuilder = cms.string("muonSeededTrajectoryBuilderForInOut"),
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string("muonSeededTrajectoryBuilderForInOut")),
     TrajectoryCleaner = cms.string('muonSeededTrajectoryCleanerBySharedHits'),
     RedundantSeedCleaner = cms.string("none"), 
 )
 muonSeededTrackCandidatesOutIn = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag("muonSeededSeedsOutIn"),
-    TrajectoryBuilder = cms.string("muonSeededTrajectoryBuilderForOutIn"),
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string("muonSeededTrajectoryBuilderForOutIn")),
     TrajectoryCleaner = cms.string('muonSeededTrajectoryCleanerBySharedHits'),
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(False),

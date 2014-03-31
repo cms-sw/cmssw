@@ -77,7 +77,6 @@ hiRegitMuMixedTripletStepTrajectoryFilter.filterPset.minHitsMinPt        = 4
  # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 hiRegitMuMixedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitMuMixedTripletStepTrajectoryBuilder',
     trajectoryFilterName = 'hiRegitMuMixedTripletStepTrajectoryFilter',
     clustersToSkip       = cms.InputTag('hiRegitMuMixedTripletStepClusters'),
     minNrOfHitsForRebuild = 6 #change from default 4
@@ -85,7 +84,7 @@ hiRegitMuMixedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.Mixed
 
 hiRegitMuMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuMixedTripletStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMuMixedTripletStepTrajectoryBuilder',
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitMuMixedTripletStepTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 
