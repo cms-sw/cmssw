@@ -4,13 +4,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
 #include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
+
+class SeedingLayerSetsHits;
 
 class BeamHaloPairGenerator : public OrderedHitsGenerator {
 	public:
@@ -20,8 +21,7 @@ class BeamHaloPairGenerator : public OrderedHitsGenerator {
 					      const edm::Event & ev, 
 					      const edm::EventSetup& es);
 	private:
-	SeedingLayerSetsBuilder theLayerBuilder;
-	ctfseeding::SeedingLayerSets theLss;
+	edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 	OrderedHitPairs hitPairs;
 	double theMaxTheta;
 };

@@ -24,14 +24,6 @@ std::string GlobalTrackingRegion::print() const {
   return str.str(); 
 }
 
-TrackingRegion::ctfHits GlobalTrackingRegion::hits(
-      const edm::Event& ev,
-      const edm::EventSetup& es,
-      const ctfseeding::SeedingLayer* layer) const
-{
- return layer->hits(ev,es);
-}
-
 TrackingRegion::Hits GlobalTrackingRegion::hits(
       const edm::Event& ev,
       const edm::EventSetup& es,
