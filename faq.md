@@ -71,11 +71,6 @@ You can also find a complete tutorial [here](tutorial.html).
 Please have a look at the [full blown tutorial about proposing new
 changes in CMSSW](tutorial.html).
 
-### How do I check the status of my pull request(s).
-
-Go to the [CMS Topic Collector][cms-topic-collector]. There you'll find all the
-open requests and their approval status.
-
 ### How do I make sure my topic branch is updated with the latest developments?
 
 Simply merge the release branch into your topic branch:
