@@ -24,6 +24,8 @@
 #include "G4Event.hh"
 #include "G4VProcess.hh"
 
+#include "CLHEP/Units/SystemOfUnits.h"
+
 #include <string>
 #include <vector>
 #include <iostream>
