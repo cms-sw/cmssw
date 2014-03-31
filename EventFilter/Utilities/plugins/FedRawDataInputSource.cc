@@ -164,6 +164,7 @@ FedRawDataInputSource::~FedRawDataInputSource()
 
 bool FedRawDataInputSource::checkNextEvent()
 {
+  std::cout << " pthread_self() checkNextEvent: " << pthread_self() << std::endl;
   if (!startedSupervisorThread_)
   {
     //this thread opens new files and dispatches reading to worker readers
