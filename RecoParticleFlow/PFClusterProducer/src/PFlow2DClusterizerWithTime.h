@@ -37,6 +37,7 @@ class PFlow2DClusterizerWithTime : public PFClusterBuilderBase {
   const double _minFracTot;
   const double _maxNSigmaTime;
   const double _minChi2Prob;
+  const bool _clusterTimeResFromSeed;
   
   const std::unordered_map<std::string,int> _layerMap;
   std::unordered_map<int,double> _recHitEnergyNorms;
@@ -57,6 +58,7 @@ class PFlow2DClusterizerWithTime : public PFClusterBuilderBase {
 		      double dist,
 		      reco::PFClusterCollection&) const;
   void clusterTimeResolution(reco::PFCluster& cluster, double& res) const;
+  void clusterTimeResolutionFromSeed(reco::PFCluster& cluster, double& res) const;
   void prunePFClusters(reco::PFClusterCollection&) const;
 };
 
