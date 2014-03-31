@@ -780,9 +780,9 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  //chi2 and #hit vs eta: fill 2D histos
 	  chi2_vs_eta[w]->Fill(getEta(track->eta()),track->normalizedChi2());
 	  nhits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfValidHits());
-	  nDThits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonDTHits());
-	  nCSChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonCSCHits());
-	  nRPChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonRPCHits());
+	  nDThits_vs_eta[w]->Fill(getEta(track->eta()),track->getHitPattern().numberOfValidMuonDTHits(HitPattern::TRACK_HITS));
+	  nCSChits_vs_eta[w]->Fill(getEta(track->eta()),track->getHitPattern().numberOfValidMuonCSCHits(HitPattern::TRACK_HITS));
+	  nRPChits_vs_eta[w]->Fill(getEta(track->eta()),track->getHitPattern().numberOfValidMuonRPCHits(HitPattern::TRACK_HITS));
 
 	  nlosthits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfLostHits());
 
