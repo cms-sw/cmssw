@@ -169,7 +169,7 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
     iEvent.getByToken(electronProducer_,electronHandle);
     
     float dRVeto = -1.;
-    //float etaStrip = -1;
+    float etaStrip = -1;
 
     for(unsigned int iEl=0; iEl<electronHandle->size(); iEl++) {
       reco::ElectronRef eleRef(electronHandle, iEl);
@@ -206,9 +206,9 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
 	    continue;
 
 	  float dR = deltaR(eleRef->eta(), eleRef->phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
-	  dRVeto = 0;
-	  if(dR > drMax_ || dR < dRVeto) continue;
-	  std::cout << pfc.pt() << " " << dR << std::endl;
+	  if(dR > drMax_ || dR < dRVeto) 
+	    continue;
+	  //std::cout << pfc.pt() << " " << dR << std::endl;
 	  sum += pfc.pt();
 	}
       }
