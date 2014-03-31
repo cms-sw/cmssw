@@ -63,10 +63,10 @@ CaloTowerConstituentsMapBuilder::ReturnType
 CaloTowerConstituentsMapBuilder::produce(const CaloGeometryRecord& iRecord)
 {
   edm::ESHandle<HcalTopology> hcaltopo;
-  iRecord.get(hcaltopo);
+  iRecord.getRecord<HcalRecNumberingRecord>().get(hcaltopo);
 
   edm::ESHandle<CaloTowerTopology> cttopo;
-  iRecord.get(cttopo);
+  iRecord.getRecord<HcalRecNumberingRecord>().get(cttopo);
 
   std::auto_ptr<CaloTowerConstituentsMap> prod( new CaloTowerConstituentsMap( &*hcaltopo, &*cttopo ));
 
