@@ -49,7 +49,7 @@ namespace cond {
     std::string tag() const;
     std::string payloadType() const;
 
-    bool isOra() { return m_session.isOraSession(); }
+    bool isOra() { return 0; }
 
     bool get( cond::Time_t targetTime, bool debug );
 
