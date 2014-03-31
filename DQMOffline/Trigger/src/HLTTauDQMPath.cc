@@ -193,7 +193,7 @@ namespace {
         n.tau = 2;
       }
     }
-    else if(moduleType == "HLT1CaloJet") {
+    else if(moduleType == "HLT1CaloJet" || moduleType == "HLT1PFJet") {
       //const edm::ParameterSet& pset = HLTCP.modulePSet(filterName);
       //pset.getParameter<int>("triggerType") == trigger::TriggerTau) {
       if(getParameterSafe(HLTCP, filterName, "triggerType") == trigger::TriggerTau) {
@@ -220,7 +220,7 @@ namespace {
       //n.electron = HLTCP.modulePSet(filterName).getParameter<int>("ncandcut");
       n.electron = getParameterSafe(HLTCP, filterName, "ncandcut");
     }
-    else if(moduleType == "HLTMuonIsoFilter") {
+    else if(moduleType == "HLTMuonIsoFilter" || moduleType == "HLTMuonL3PreFilter") {
       n.muon = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
     }
     else if(moduleType == "HLT2ElectronTau" || moduleType == "HLT2ElectronPFTau") {
