@@ -92,7 +92,7 @@ public:
 				   const GlobalPoint & vertexPos,
                                    float ptMin, float rVertex, float zVertex,
                                    float deltaEta, float deltaPhi,
-                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kForSiStrips,
+                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
                                    bool precise = true,
                                    const MeasurementTrackerEvent *measurementTracker = nullptr,
 				   bool etaPhiRegion=false) 
@@ -114,7 +114,7 @@ public:
                                    float ptMin, float rVertex, float zVertex,
                                    Margin etaMargin,
                                    Margin phiMargin,
-                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kForSiStrips,
+                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
 				   bool precise = true, 
                                    const MeasurementTrackerEvent *measurementTracker = nullptr,
 				   bool etaPhiRegion=false) 
@@ -134,7 +134,7 @@ public:
                                    float rVertex, float zVertex,
                                    Margin etaMargin,
                                    Margin phiMargin,
-                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kForSiStrips,
+                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
                                    bool precise = true,
                                    const MeasurementTrackerEvent *measurementTracker = nullptr,
 				   bool etaPhiRegion=false) 
