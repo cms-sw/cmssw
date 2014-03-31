@@ -183,7 +183,7 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       ##electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.0) ),      
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                 
-      select = cms.string("pt>500. && abs(eta)<2.5"),
+      select = cms.string("pt>20. && abs(eta)<2.5"),
       ## when omitted isolated electron multiplicity plot will be equi-
       ## valent to inclusive electron multiplicity plot                                                
       isolation = cms.string(ElelooseIsoCut),
@@ -338,7 +338,7 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     muonExtras = cms.PSet(
       ## when omitted muon plots will be filled w/o additional pre-
       ## selection of the muon candidates   
-      select = cms.string(looseMuonCut + " && muonRef.pt > 500. && abs(muonRef.eta)<2.4"),
+      select = cms.string(looseMuonCut + " && muonRef.pt > 20. && abs(muonRef.eta)<2.4"),
       ## when omitted isolated muon multiplicity plot will be equi-
       ## valent to inclusive muon multiplicity plot                                                  
       isolation = cms.string(looseIsoCut),
@@ -423,7 +423,8 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       label = cms.string("elecs:step0"),
       src   = cms.InputTag("pfIsolatedElectronsEI"),
       ##electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.5) ),      
-      select = cms.string("pt>20 & abs(eta)<2.5 && abs(gsfElectronRef.gsfTrack.d0)<0.04 && gsfElectronRef.gsfTrack.trackerExpectedHitsInner.numberOfHits <= 0 && " + ElelooseIsoCut),
+      select = cms.string("pt>20 & abs(eta)<2.5 && gsfElectronRef.gsfTrack.trackerExpectedHitsInner.numberOfHits <= 0 && " + ElelooseIsoCut),
+      #abs(gsfElectronRef.gsfTrack.d0)<0.04
       min = cms.int32(2),
       max = cms.int32(2),
     ),

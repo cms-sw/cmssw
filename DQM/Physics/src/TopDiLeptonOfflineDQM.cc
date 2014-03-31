@@ -719,7 +719,7 @@ TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup& s
       }
       if(type=="elecs" && ElectronStep != 0){
 //	SelectionStep<reco::PFCandidate> step(selection_[key].first, consumesCollector());
-        if(ElectronStep->select(event,"electron")){ ++passed;
+        if(ElectronStep->select(event,"electron")){++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;
       }

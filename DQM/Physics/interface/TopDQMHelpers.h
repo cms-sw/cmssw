@@ -337,12 +337,16 @@ bool SelectionStep<Object>::select(const edm::Event& event, const std::string& t
       }
       
       else if (objtmp.gsfElectronRef().isNonnull() && type == "electron") {
-	//if( !event.getByToken(gsfEs_, elecs_gsf) ) continue;
         if(select_(*obj)){
-	  if( electronId_.isUninitialized() ? true : ( (double)(*electronId)[obj->gsfElectronRef()] >= eidCutValue_ ) ){
+	//  cout<<"Electron is selected"<<endl;
+	  if( electronId_.isUninitialized()){
+        //    cout<<"No Id is requested"<<endl;		
+	    ++n;	
+	  } else if(( (double)(*electronId)[obj->gsfElectronRef()] >= eidCutValue_ )){
+          //  cout<<"Id is requested"<<endl;		
 	    ++n;
 	  }	    
-	  //          }
+	  
         }
 	//        idx_gsf++;
       }

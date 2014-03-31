@@ -774,10 +774,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
     ## [optional] : when omitted the monitoring plots for triggering
     ## will be empty
-    triggerExtras = cms.PSet(
-      src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring([ 'HLT_Ele15_LW_L1R:HLT_QuadJetU15'])
-    )
+    #triggerExtras = cms.PSet(
+    #  src   = cms.InputTag("TriggerResults","","HLT"),
+    #  paths = cms.vstring([ 'HLT_Ele15_LW_L1R:HLT_QuadJetU15'])
+    #)
   ),
   ## ------------------------------------------------------
   ## PRESELECTION
@@ -812,7 +812,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       src   = cms.InputTag("pfIsolatedElectronsEI"),
       #electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.5) ),
 #      select = cms.string("pt>25 & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
-      select = cms.string("pt>30 & abs(eta)<2.5 & abs(gsfElectronRef.gsfTrack.d0)<0.02 && gsfElectronRef.gsfTrack.trackerExpectedHitsInner.numberOfHits <= 0 && abs(gsfElectronRef.superCluster.eta) > 1.4442 && abs(gsfElectronRef.superCluster.eta) < 1.5660 && " + EletightIsoCut),
+      select = cms.string("pt>30 & abs(eta)<2.5 & abs(gsfElectronRef.gsfTrack.d0)<0.02 & gsfElectronRef.gsfTrack.trackerExpectedHitsInner.numberOfHits <= 0 & (abs(gsfElectronRef.superCluster.eta) <= 1.4442 || abs(gsfElectronRef.superCluster.eta) >= 1.5660) & " + EletightIsoCut),
       min = cms.int32(1),
       max = cms.int32(1),
     ),

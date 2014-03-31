@@ -705,7 +705,7 @@ TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setu
     if( !event.getByToken(beamspot__, beamspot) ) return;
     if(!(*beamspotSelect_)(*beamspot)) return;
   }
-  //cout<<" apply selection steps"<<endl;
+//  cout<<" apply selection steps"<<endl;
   unsigned int passed=0;
   unsigned int nJetSteps = -1;
   unsigned int nPFJetSteps = -1;
@@ -724,6 +724,7 @@ TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setu
       }
       //cout<<" apply selection steps 2"<<endl;
       if(type=="elecs" && ElectronStep != 0){
+	//cout<<"In electrons ..."<<endl;
 	if(ElectronStep->select(event,"electron")){ ++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;

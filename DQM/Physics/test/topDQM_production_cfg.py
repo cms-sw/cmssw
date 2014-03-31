@@ -30,7 +30,12 @@ process.source = cms.Source("PoolSource",
     
     #/RelValTTbar/CMSSW_7_0_0_pre6-PRE_ST62_V8-v1/GEN-SIM-RECO
 #        '/store/relval/CMSSW_7_0_0_pre13/RelValTTbar_13/GEN-SIM-RECO/PU25ns_POSTLS170_V3-v1/00000/1E407758-2F90-E311-AF63-0025905A6118.root',
-	'/store/relval/CMSSW_7_1_0_pre4/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/48ED95A2-66AA-E311-9865-02163E00E5AE.root',
+#     '/store/relval/CMSSW_7_1_0_pre4/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/48ED95A2-66AA-E311-9865-02163E00E5AE.root',
+     '/store/relval/CMSSW_7_1_0_pre4/RelValTTbar_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/10C41776-E0AA-E311-BD4D-02163E00E914.root',
+     '/store/relval/CMSSW_7_1_0_pre4/RelValTTbar_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/12627EB2-6BAA-E311-95E6-02163E00EB1C.root',
+     '/store/relval/CMSSW_7_1_0_pre4/RelValTTbar_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/8C0E1D82-95AA-E311-8788-02163E00E7C5.root',
+     '/store/relval/CMSSW_7_1_0_pre4/RelValTTbar_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/941B48A3-84AA-E311-8B59-02163E00CFDF.root',
+
     #'/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/B627D32C-0B3C-E311-BBE6-0026189438E6.root',
     #'/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/72477A84-F93B-E311-BF63-003048FFD720.root',
     #'/store/relval/CMSSW_7_0_0_pre6/RelValTTbar/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/12A06D7A-F93B-E311-AA64-003048678BEA.root'
@@ -39,7 +44,7 @@ process.source = cms.Source("PoolSource",
 
 ## number of events
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(10)
+  input = cms.untracked.int32(-1)
 )
 
 ## apply VBTF electronID (needed for the current implementation
@@ -100,13 +105,13 @@ process.p      = cms.Path(
     #process.simpleEleId70cIso          *
 #    process.mvaTrigV0                     +
 #    process.mvaNonTrigV0               +
-#    process.DiMuonDQM                  +
-#    process.DiElectronDQM              +
-#    process.ElecMuonDQM                +
+    process.DiMuonDQM                  +
+    process.DiElectronDQM              +
+    process.ElecMuonDQM                +
 #    process.topSingleMuonLooseDQM      +
-#    process.topSingleMuonMediumDQM     +
+    process.topSingleMuonMediumDQM     +
 #    process.topSingleElectronLooseDQM  +
-#    process.topSingleElectronMediumDQM #+
+    process.topSingleElectronMediumDQM +
     process.singleTopMuonMediumDQM     +
     process.singleTopElectronMediumDQM
 )
