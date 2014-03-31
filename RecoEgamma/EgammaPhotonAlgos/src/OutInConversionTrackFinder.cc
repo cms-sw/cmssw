@@ -10,6 +10,8 @@
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+
 //
 #include "DataFormats/Common/interface/OwnVector.h"
 //
@@ -209,40 +211,42 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   //}
   
   
-  // Converted to track candidates  
+  // Convert to TrackCandidates and fill in the output_p
+  Traj2TrackHits t2t(theCkfTrajectoryBuilder_->hitBuilder(),true);
   for (std::vector<Trajectory>::const_iterator it =  result.begin(); it != result.end(); it++) {
-    //    if( !it->isValid() ) continue;
 
     edm::OwnVector<TrackingRecHit> recHits;
-    Trajectory::RecHitContainer thits;
-    it->recHitsV(thits,useSplitHits_);
-    recHits.reserve(thits.size());
-    for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin(); hitIt != thits.end(); hitIt++) {
-      recHits.push_back( (**hitIt).hit()->clone());
-    }
-    
-    
+    if(it->direction() == alongMomentum) LogDebug("OutInConversionTrackFinder") << "OutInConv along momentum... " << std::endl;
+    t2t(*it,recHits,useSplitHits_);
+
+    assert(recHits.size()==(*it).measurements().size());
+
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
+
+    assert(initState.second == recHits.front().det());
+
     // temporary protection againt invalid initial states
-    if (! initState.first.isValid() || initState.second == 0) {
-      //cout << "invalid innerState, will not make TrackCandidate" << endl;
+    if (! initState.first.isValid() || initState.second == nullptr) {
+      LogDebug("OutInConversionTrackFinder") << "invalid innerState, will not make TrackCandidate" << std::endl;
       continue;
     }
 
+
+
     PTrajectoryStateOnDet state;
-    if(useSplitHits_ && (initState.second != thits.front()->det()) && thits.front()->det() ){ 
-      TrajectoryStateOnSurface propagated = thePropagator_->propagate(initState.first,thits.front()->det()->surface());
+    if(useSplitHits_ && (initState.second != recHits.front().det()) && recHits.front().det() ){
+      TrajectoryStateOnSurface propagated = thePropagator_->propagate(initState.first,recHits.front().det()->surface());
       if (!propagated.isValid()) continue;
       state = trajectoryStateTransform::persistentState(propagated,
-							 thits.front()->det()->geographicalId().rawId());
+                                                         recHits.front().rawId());
     }
     else  state = trajectoryStateTransform::persistentState( initState.first,
 								   initState.second->geographicalId().rawId());
 
     LogDebug("OutInConversionTrackFinder")<< "OutInConversionTrackFinder  Number of hits for the track candidate " << recHits.size() << " TSOS charge " << initState.first.charge() << "\n";  
+
     output_p.push_back(TrackCandidate(recHits, it->seed(),state ) );
-  }  
-  
+  }    
   
   //  std::cout << "  Returning " << result.size() << "Out In Trajectories  " << "\n";      
   
