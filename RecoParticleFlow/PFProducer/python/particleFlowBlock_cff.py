@@ -6,4 +6,5 @@ import FWCore.ParameterSet.Config as cms
 # are not stored in the event!
 # include "RecoTracker/TrackProducer/data/CTFFinalFitWithMaterial.cff"
 from RecoParticleFlow.PFProducer.particleFlowBlock_cfi import *
+from RecoParticleFlow.PFProducer.particleFlowBlockNew_cfi import *
 

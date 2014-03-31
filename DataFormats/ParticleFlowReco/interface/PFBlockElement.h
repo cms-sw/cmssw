@@ -97,13 +97,13 @@ namespace reco {
     /// \return index
     unsigned index() const {return index_;} 
 
-    virtual reco::TrackRef trackRef()  const {return reco::TrackRef(); }
-    virtual PFRecTrackRef trackRefPF()  const {return PFRecTrackRef(); }
-    virtual PFClusterRef clusterRef() const {return PFClusterRef(); }
-    virtual PFDisplacedTrackerVertexRef displacedVertexRef(TrackType trType) const { return PFDisplacedTrackerVertexRef(); }
-    virtual ConversionRef    convRef() const { return ConversionRef();}
-    virtual MuonRef muonRef() const { return MuonRef(); }
-    virtual VertexCompositeCandidateRef V0Ref()  const { return VertexCompositeCandidateRef(); }
+    virtual const reco::TrackRef& trackRef()  const {return nullTrack_; }
+    virtual const PFRecTrackRef& trackRefPF()  const {return nullPFRecTrack_; }
+    virtual const PFClusterRef& clusterRef() const {return nullPFCluster_; }
+    virtual const PFDisplacedTrackerVertexRef& displacedVertexRef(TrackType trType) const { return nullPFDispVertex_; }
+    virtual const ConversionRef&    convRef() const { return nullConv_;}
+    virtual const MuonRef& muonRef() const { return nullMuon_; }
+    virtual const VertexCompositeCandidateRef& V0Ref()  const { return nullVertex_; }
     virtual void setDisplacedVertexRef(const PFDisplacedTrackerVertexRef& niref, TrackType trType) { 
       std::cout << "Error in PFBlockElement::setDisplacedVertexRef : this base class method is not implemented" << std::endl;}
     virtual void setConversionRef(const ConversionRef& convRef, TrackType trType) { 
@@ -149,6 +149,14 @@ namespace reco {
     // Glowinski & Gouzevitch
     PFMultiLinksTC multilinks_;
     // ! Glowinski & Gouzevitch
+
+    const static reco::TrackRef nullTrack_;
+    const static PFRecTrackRef nullPFRecTrack_;
+    const static PFClusterRef nullPFCluster_;
+    const static PFDisplacedTrackerVertexRef nullPFDispVertex_;
+    const static ConversionRef nullConv_;
+    const static MuonRef nullMuon_;
+    const static VertexCompositeCandidateRef nullVertex_;
   
   };
 }
