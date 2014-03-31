@@ -35,7 +35,7 @@ namespace evf{
     ,nStreams_(0)//until initialized
     ,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
     ,fastMonIntervals_(iPS.getUntrackedParameter<unsigned int>("fastMonIntervals", 1))
-    ,microstateDefPath_(iPS.getUntrackedParameter<std::string>("microstateDefPath", "/tmp/def.jsd"))
+    ,microstateDefPath_(iPS.getUntrackedParameter<std::string> ("microstateDefPath", std::string(getenv("CMSSW_BASE"))+"/src/EventFilter/Utilities/plugins/microstatedef.jsd"))
     ,fastMicrostateDefPath_(iPS.getUntrackedParameter<std::string>("fastMicrostateDefPath", microstateDefPath_))
     ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "fastmoni"))
     ,slowName_(iPS.getUntrackedParameter<std::string>("slowName", "slowmoni"))

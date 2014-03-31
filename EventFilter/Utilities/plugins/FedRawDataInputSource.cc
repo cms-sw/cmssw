@@ -48,7 +48,7 @@ using namespace jsoncollector;
 FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
                                              edm::InputSourceDescription const& desc) :
   edm::RawInputSource(pset, desc),
-  defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", "$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd")),
+  defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", std::string(getenv("CMSSW_BASE"))+"/src/EventFilter/Utilities/plugins/budef.jsd")),
   eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)*1048576),
   eventChunkBlock_(pset.getUntrackedParameter<unsigned int> ("eventChunkBlock",eventChunkSize_/1048576)*1048576),
   numBuffers_(pset.getUntrackedParameter<unsigned int> ("numBuffers",1)),
@@ -64,7 +64,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   eventsThisLumi_(0),
   dpd_(nullptr)
 {
-  std::cout << " TEST: " << getenv("CMSSW_BASE") << std::endl;
+  //std::cout << " TEST: " << getenv("CMSSW_BASE") << std::endl;//TODO!
   char thishost[256];
   gethostname(thishost, 255);
   edm::LogInfo("FedRawDataInputSource") << "test mode: "
