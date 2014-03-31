@@ -20,7 +20,6 @@
 <use   name="L1Trigger/RegionalCaloTrigger"/>
 <use   name="DataFormats/L1CaloTrigger"/>
 <use   name="DataFormats/EcalDigi"/>
-<use   name="HLTrigger/HLTanalyzers"/>
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/TrackReco"/>
