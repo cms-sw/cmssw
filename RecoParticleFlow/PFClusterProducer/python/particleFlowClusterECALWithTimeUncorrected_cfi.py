@@ -108,6 +108,7 @@ _pfClusterizerWithTime_ECAL = cms.PSet(
     minFracTot = cms.double(1e-20), ## numerical stabilization
     maxNSigmaTime = cms.double(10.), # Maximum number of sigmas in time 
     minChi2Prob = cms.double(0.01), # Minimum chi2 probability (ignored if 0)
+    clusterTimeResFromSeed = cms.bool(False),
     recHitEnergyNorms = cms.VPSet(
     cms.PSet( detector = cms.string("ECAL_BARREL"),
               recHitEnergyNorm = cms.double(0.08)

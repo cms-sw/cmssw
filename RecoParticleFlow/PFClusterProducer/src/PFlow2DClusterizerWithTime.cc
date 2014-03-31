@@ -35,6 +35,7 @@ PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
     _minFracTot(conf.getParameter<double>("minFracTot")),
     _maxNSigmaTime(std::pow(conf.getParameter<double>("maxNSigmaTime"),2.0)),
     _minChi2Prob(conf.getParameter<double>("minChi2Prob")),
+    _clusterTimeResFromSeed(conf.getParameter<bool>("clusterTimeResFromSeed")),
 
     _layerMap({ {"PS2",(int)PFLayer::PS2},
 	        {"PS1",(int)PFLayer::PS1},
@@ -179,7 +180,10 @@ growPFClusters(const reco::PFCluster& topo,
       }
     }
     double resCluster;
-    clusterTimeResolution(cluster, resCluster);
+    if (_clusterTimeResFromSeed)
+      clusterTimeResolutionFromSeed(cluster, resCluster);
+    else
+      clusterTimeResolution(cluster, resCluster);
     clus_prev_timeres.push_back(resCluster);
     cluster.resetHitsAndFractions();
   }
@@ -352,6 +356,27 @@ prunePFClusters(reco::PFClusterCollection& clusters) const {
     cluster.pruneUsing( [&](const reco::PFRecHitFraction& rhf)
 			{return rhf.fraction() > _minFractionToKeep;} 
 			);    
+  }
+}
+
+void PFlow2DClusterizerWithTime::clusterTimeResolutionFromSeed(reco::PFCluster& cluster, 
+    double& clusterRes) const
+{
+  clusterRes = 100.;
+  for (auto& rhf : cluster.recHitFractions())
+  {
+    const reco::PFRecHit& rh = *(rhf.recHitRef());
+    if (rh.detId() == cluster.seed())
+    {
+      cluster.setTime(rh.time());
+      bool isBarrel = (rh.layer() == PFLayer::HCAL_BARREL1 ||
+       rh.layer() == PFLayer::HCAL_BARREL2 ||
+       rh.layer() == PFLayer::ECAL_BARREL);
+     if (isBarrel)
+       clusterRes = _timeResolutionCalcBarrel->timeResolution(rh.energy());
+     else
+       clusterRes = _timeResolutionCalcEndcap->timeResolution(rh.energy());
+    }
   }
 }
 
