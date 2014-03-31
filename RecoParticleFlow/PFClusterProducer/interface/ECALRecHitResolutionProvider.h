@@ -8,54 +8,58 @@ class ECALRecHitResolutionProvider{
  public:
   ECALRecHitResolutionProvider(const edm::ParameterSet& iConfig) {
     noiseTerm_ = iConfig.getParameter<double>("noiseTerm"); 
-    constantTerm_ = iConfig.getParameter<double>("constantTerm"); 
+    constantTerm2_ = std::pow(iConfig.getParameter<double>("constantTerm"), 2); 
     noiseTermLowE_ = iConfig.getParameter<double>("noiseTermLowE"); 
     corrTermLowE_ = iConfig.getParameter<double>("corrTermLowE"); 
-    constantTermLowE_ = iConfig.getParameter<double>("constantTermLowE"); 
+    constantTermLowE2_ = std::pow(iConfig.getParameter<double>("constantTermLowE"), 2); 
     threshLowE_ = iConfig.getParameter<double>("threshLowE"); 
     threshHighE_ = iConfig.getParameter<double>("threshHighE"); 
 
-    resHighE_ = sqrt(std::pow((noiseTerm_/threshHighE_), 2) + constantTerm_*constantTerm_);
+    resHighE2_ = std::pow((noiseTerm_/threshHighE_), 2) + constantTerm2_;
   }
 
-
-double timeResolution(double energy)
-{
-  double res = 100.;
-
-  if (energy <= 0.)
-    return res;
-  else if (energy < threshLowE_)
+  double timeResolution2(double energy)
   {
-    if (corrTermLowE_ > 0.) // different parametrisation
-      res = noiseTermLowE_/energy + corrTermLowE_/energy/energy;
-    else
-      res = sqrt(std::pow(noiseTermLowE_/energy, 2) + constantTermLowE_*constantTermLowE_);
+    double res2 = 10000.;
+
+    if (energy <= 0.)
+      return res2;
+    else if (energy < threshLowE_)
+    {
+      if (corrTermLowE_ > 0.) {// different parametrisation
+        const double res = noiseTermLowE_/energy + corrTermLowE_/(energy*energy);
+        res2 = res*res;
+      }
+      else {
+        const double noiseDivE = noiseTermLowE_/energy;
+        res2 = noiseDivE*noiseDivE + constantTermLowE2_;
+      }
+    }
+    else if (energy < threshHighE_) {
+      const double noiseDivE = noiseTerm_/energy;
+      res2 = noiseDivE*noiseDivE + constantTerm2_;
+    }
+    else // if (energy >=threshHighE_)
+      res2 = resHighE2_;
+
+    if (res2 > 10000.)
+      return 10000.;
+    return res2;
+    
   }
-  else if (energy < threshHighE_)
-    res = sqrt(std::pow((noiseTerm_/energy), 2) + constantTerm_*constantTerm_);
-  else // if (energy >=threshHighE_)
-    res = resHighE_;
-
-  if (res > 100.)
-    return 100.;
-  return res;
-  
-}
-
 private:
 
   double noiseTerm_; // Noise term
-  double constantTerm_; // Constant term
+  double constantTerm2_; // Constant term
 
   double noiseTermLowE_; // Noise term for low E
-  double constantTermLowE_; // Constant term for low E
+  double constantTermLowE2_; // Constant term for low E
   double corrTermLowE_; // 2nd term for low E, different parametrisation
 
   double threshLowE_; // different parametrisation below
   double threshHighE_; // resolution constant above
 
-  double resHighE_; // precompute res at high E
+  double resHighE2_; // precompute res at high E
 
 };
 
