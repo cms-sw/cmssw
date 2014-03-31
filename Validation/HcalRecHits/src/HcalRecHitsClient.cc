@@ -18,7 +18,7 @@ HcalRecHitsClient::HcalRecHitsClient(const edm::ParameterSet& iConfig):conf_(iCo
   if (!dbe_) {
     edm::LogError("HcalRecHitsClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
   }
-  if(iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
+  if(iConfig.getUntrackedParameter<bool>("DQMStore", true)) {
     if(dbe_) dbe_->setVerbose(0);
   }
  
