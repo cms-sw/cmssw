@@ -1,5 +1,5 @@
-#ifndef Forward_PLTSensitiveDetector_h
-#define Forward_PLTSensitiveDetector_h
+#ifndef Forward_PltSD_h
+#define Forward_PltSD_h
  
 // system include files
 
@@ -27,17 +27,17 @@ class UpdatablePSimHit;
 class G4ProcessTypeEnumerator;
 class G4TrackToParticleID;
 
-class PLTSensitiveDetector : public SensitiveTkDetector,
+class PltSD : public SensitiveTkDetector,
                              public Observer<const BeginOfEvent*>,
                              public Observer<const BeginOfTrack*>,
                              public Observer<const BeginOfJob*> {
 
 public:
 
-  PLTSensitiveDetector(std::string, const DDCompactView &, 
+  PltSD(std::string, const DDCompactView &, 
 		       SensitiveDetectorCatalog &, 
 		       edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~PLTSensitiveDetector();
+  virtual ~PltSD();
 
   virtual bool     ProcessHits(G4Step *,G4TouchableHistory *);
   virtual uint32_t setDetUnitId(G4Step*);
