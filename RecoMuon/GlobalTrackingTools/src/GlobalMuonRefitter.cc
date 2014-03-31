@@ -9,6 +9,7 @@
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
+ *  \modified by C. Calabria, INFN & Università Bari
  *
  **/
 
@@ -43,10 +44,12 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
+#include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -73,6 +76,7 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theCosmicFlag(par.getParameter<bool>("PropDirForCosmics")),
   theDTRecHitLabel(par.getParameter<InputTag>("DTRecSegmentLabel")),
   theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
+  theGEMRecHitLabel(par.getParameter<InputTag>("GEMRecHitLabel")),
   theService(service) {
 
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalMuonRefitter");
@@ -81,6 +85,7 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theDTChi2Cut  = par.getParameter<double>("Chi2CutDT");
   theCSCChi2Cut = par.getParameter<double>("Chi2CutCSC");
   theRPCChi2Cut = par.getParameter<double>("Chi2CutRPC");
+  theGEMChi2Cut = par.getParameter<double>("Chi2CutGEM");
 
   // Refit direction
   string refitDirectionName = par.getParameter<string>("RefitDirection");
@@ -137,6 +142,7 @@ void GlobalMuonRefitter::setEvent(const edm::Event& event) {
   theEvent = &event;
   event.getByLabel(theDTRecHitLabel, theDTRecHits);
   event.getByLabel(theCSCRecHitLabel, theCSCRecHits);
+  event.getByLabel(theGEMRecHitLabel, theGEMRecHits);
 }
 
 
@@ -364,6 +370,40 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 	         << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
         }
       }
+    }//end of CSC if
+    else if ( id.subdetId() == MuonSubdetId::GEM ) {
+      GEMDetId did(id.rawId());
+      chamberId=did.chamberId();
+
+      if ((*imrh)->recHits().size()>1) {
+        std::vector <const TrackingRecHit*> hits2d = (*imrh)->recHits();
+        for (std::vector <const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d!= hits2d.end(); hit2d++) {
+          DetId id1 = (*hit2d)->geographicalId();
+          GEMDetId lid(id1.rawId());
+          
+          // Get the GEM Rechits from this layer
+          GEMRecHitCollection::range dRecHits = theGEMRecHits->get(lid);      
+          int layerHits=0;
+
+          for (GEMRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+    	    double rhitDistance = (ir->localPosition()-(**hit2d).localPosition()).mag();
+  	    if ( rhitDistance < coneSize ) layerHits++;
+            LogTrace(theCategory) << ir->localPosition() << "  " << (**hit2d).localPosition()
+  	           << " Distance: " << rhitDistance << " recHits: " << layerHits << endl;
+          }
+          if (layerHits>detRecHits) detRecHits=layerHits;
+        }
+      } else {
+        // Get the GEM Rechits from this layer
+        GEMRecHitCollection::range dRecHits = theGEMRecHits->get(did);      
+
+        for (GEMRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+  	  double rhitDistance = (ir->localPosition()-(**imrh).localPosition()).mag();
+	  if ( rhitDistance < coneSize ) detRecHits++;
+          LogTrace(theCategory) << ir->localPosition() << "  " << (**imrh).localPosition()
+	         << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
+        }
+      }
     }
     else {
       if ( id.subdetId() != MuonSubdetId::RPC ) LogError(theCategory)<<" Wrong Hit Type ";
@@ -416,6 +456,7 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
 	  switch (id.subdetId()) {
 	  case MuonSubdetId::DT:  station = DTChamberId(raw_id).station(); break;
 	  case MuonSubdetId::CSC: station = CSCDetId(raw_id).station(); break;
+	  case MuonSubdetId::GEM: station = GEMDetId(raw_id).station(); break;
 	  case MuonSubdetId::RPC: station = RPCDetId(raw_id).station(); use_it = false; break;
 	  }
 	}
@@ -480,6 +521,13 @@ GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
       chamberId = did.chamberId();
       threshold = theHitThreshold;
       chi2Cut = theCSCChi2Cut;
+    }
+    // get station of hit if it is in GEM
+    else if ( (*immrh).isGEM() ) {
+      GEMDetId did(id.rawId());
+      chamberId = did.chamberId();
+      threshold = theHitThreshold;
+      chi2Cut = theGEMChi2Cut;
     }
     // get station of hit if it is in RPC
     else if ( (*immrh).isRPC() ) {
@@ -779,6 +827,9 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::getRidOfSelectStati
 	//UNUSED:	wheel = did.wheel();
       } else if ( id.subdetId() == MuonSubdetId::CSC ) {
 	CSCDetId did(id.rawId());
+	station = did.station();
+      } else if ( id.subdetId() == MuonSubdetId::GEM ) {
+	GEMDetId did(id.rawId());
 	station = did.station();
       } else if ( id.subdetId() == MuonSubdetId::RPC ) {
 	RPCDetId rpcid(id.rawId());

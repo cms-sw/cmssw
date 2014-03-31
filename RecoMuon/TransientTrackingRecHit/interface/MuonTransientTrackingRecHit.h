@@ -9,6 +9,7 @@
  *  $Revision: 1.18 $
  *
  *   \author   C. Liu            Purdue University
+ *   \modified by C. Calabria    INFN & Università Bari
  */
 
 
@@ -50,6 +51,9 @@ public:
 
   /// if this rec hit is a CSC rec hit 
   bool isCSC() const;
+
+  /// if this rec hit is a GEM rec hit 
+  bool isGEM() const;
  
   /// if this rec hit is a RPC rec hit
   bool isRPC() const;
