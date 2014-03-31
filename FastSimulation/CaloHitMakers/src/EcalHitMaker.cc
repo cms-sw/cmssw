@@ -387,7 +387,7 @@ EcalHitMaker::setTrackParameters(const XYZNormal& normal,
 		  else
 		    {
 		      double x0=segiterator->x0FromCm(dist);
-		      if(x0<maxX0_) maxX0_=x0;
+		      if(x0>maxX0_) maxX0_=x0;
 		      regionOfInterest_[ic].setX0Back(x0);
 		    }
 		}

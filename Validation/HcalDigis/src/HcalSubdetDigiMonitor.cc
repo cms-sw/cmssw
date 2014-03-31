@@ -110,7 +110,7 @@ HcalSubdetDigiMonitor::HcalSubdetDigiMonitor(DQMStore* dbe,
 
     sprintf (histo, "HcalDigiTask_occupancy_vs_ieta_depth4_%s", sub ) ;
     meOccupancy_vs_ieta_depth4 = book1D(histo,  ietaLim);
-
+  
 
     // maps of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
     sprintf (histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth1_%s", sub ) ;
