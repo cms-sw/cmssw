@@ -42,9 +42,6 @@ DigiMatcher::DigiMatcher(SimHitMatcher& sh)
 , simhit_matcher_(&sh)
 {
 
-  edm::ESHandle<GEMGeometry> gem_g;
-  eventSetup().get<MuonGeometryRecord>().get(gem_g);
-  gem_geo_ = &*gem_g;
 }
 
 
