@@ -59,6 +59,7 @@ namespace pat {
             edm::EDGetTokenT<reco::PFCandidateFwdPtrVector>  CandsFromPVTight_;
             edm::EDGetTokenT<reco::VertexCollection>         PVs_;
             edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
+            edm::EDGetTokenT<reco::TrackCollection>          TKOrigs_;
             double minPtForTrackProperties_;
             // for debugging
             float calcDxy(float dx, float dy, float phi) {
@@ -76,6 +77,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   CandsFromPVTight_(consumes<reco::PFCandidateFwdPtrVector>(iConfig.getParameter<edm::InputTag>("inputCollectionFromPVTight"))),
   PVs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("inputVertices"))),
   PVOrigs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("originalVertices"))),
+  TKOrigs_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("originalTracks"))),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
 {
   produces< std::vector<pat::PackedCandidate> > ();
@@ -134,8 +136,12 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         PVpos = PV->position();
     }
 
+    edm::Handle<reco::TrackCollection> TKOrigs;
+    iEvent.getByToken( TKOrigs_, TKOrigs );
+
     std::auto_ptr< std::vector<pat::PackedCandidate> > outPtrP( new std::vector<pat::PackedCandidate> );
     std::vector<int> mapping(cands->size());
+    std::vector<int> mappingTk(TKOrigs->size(), -1);
 #ifdef CRAZYSORT
     std::vector<int> jetOrder;
     std::vector<int> jetOrderReverse;
@@ -346,6 +352,9 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         }
 
         mapping[ic] = ic; // trivial at the moment!
+        if (cand.trackRef().isNonnull() && cand.trackRef().id() == TKOrigs.id()) {
+            mappingTk[cand.trackRef().key()] = ic;
+        }
     }
 
 
@@ -363,6 +372,9 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     pf2pcFiller.insert(cands, mapping.begin(), mapping.end());
     pc2pfFiller.insert(oh   , mapping.begin(), mapping.end());
 #endif
+    // include also the mapping track -> packed PFCand
+    pf2pcFiller.insert(TKOrigs, mappingTk.begin(), mappingTk.end());
+
     pf2pcFiller.fill();
     pc2pfFiller.fill();
     iEvent.put(pf2pc);

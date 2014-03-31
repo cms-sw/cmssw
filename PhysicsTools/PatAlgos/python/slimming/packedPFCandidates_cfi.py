@@ -6,5 +6,6 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     inputCollectionFromPVTight = cms.InputTag("pfNoPileUp"),
     inputVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
     originalVertices = cms.InputTag("offlinePrimaryVertices"),
+    originalTracks = cms.InputTag("generalTracks"),
     minPtForTrackProperties = cms.double(0.95)	
 )
