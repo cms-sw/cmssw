@@ -25,6 +25,7 @@
 #include "G4VProcess.hh"
 
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 #include <string>
 #include <vector>
