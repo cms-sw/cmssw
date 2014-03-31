@@ -1,3 +1,4 @@
+
 /** \class JetMETAnalyzer
  *
  *  DQM jetMET analysis monitoring
@@ -212,7 +213,7 @@ void METAnalyzer::bookMESet(std::string DirName, DQMStore::IBooker & ibooker, st
   bookMonitorElement(DirName,ibooker,map_of_MEs,bLumiSecPlot);
 
   if (DirName.find("Cleaned")!=std::string::npos) {
-    for (unsigned i = 0; i<triggerFolderEventFlag_.size(); i++) {
+    for (unsigned int i = 0; i<triggerFolderEventFlag_.size(); i++) {
       if (triggerFolderEventFlag_[i]->on()) {
         bookMonitorElement(DirName+"/"+triggerFolderLabels_[i],ibooker,map_of_MEs,false);
       }
@@ -1041,30 +1042,29 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 
   if (subFolderName!="") DirName = DirName +"/"+subFolderName;
 
-//  if (verbose_) std::cout << "etThreshold_ = " << etThreshold_ << std::endl;
-//  unsigned c(0);
-  if (true){
-//  if (SumET>etThreshold_){
-    hTrigger = map_of_MEs[DirName+"/triggerResults"];
-//    std::cout<<"Hello"<<c++<<":"<<hTrigger <<std::endl;//":"<< hTrigger->getRootObject()<<std::endl;
-    if (hTrigger       && hTrigger->getRootObject()) {
-//      std::cout<<"Hello"<<c++<<std::endl;
-      for (unsigned i = 0; i<allTriggerDecisions_.size();i++){ 
-//        std::cout<<"Hello"<<c++<<":"<<i<<":"<< allTriggerDecisions_[i]<<":"<<allTriggerDecisions_[i]<<std::endl;
-        hTrigger->Fill(i + .5, allTriggerDecisions_[i]);
-        if (!hTriggerLabelsIsSet_) {
-          hTrigger->setBinLabel(i+1, allTriggerNames_[i]);//Can't be done in beginJob (no trigger list). Can't be done in beginRun (would have to anticipate folder structure).FIXME doesn't work
-        }
-//        std::cout<<"Filling decision "<<allTriggerNames_[i]<<" "<<allTriggerDecisions_[i]<<std::endl;
-      }
-      if (!hTriggerLabelsIsSet_) for (unsigned i = allTriggerDecisions_.size(); i<500;i++){ 
-        hTrigger->setBinLabel(i+1, "");//Can't be done in beginJob (no trigger list). Can't be done in beginRun (would have to anticipate folder structure).
+
+  hTrigger = map_of_MEs[DirName+"/triggerResults"];
+  //    std::cout<<"Hello"<<c++<<":"<<hTrigger <<std::endl;//":"<< hTrigger->getRootObject()<<std::endl;
+  if (hTrigger       && hTrigger->getRootObject()) {
+    //      std::cout<<"Hello"<<c++<<std::endl;
+    for (unsigned int i = 0; i<allTriggerDecisions_.size();i++){ 
+      //        std::cout<<"Hello"<<c++<<":"<<i<<":"<< allTriggerDecisions_[i]<<":"<<allTriggerDecisions_[i]<<std::endl;
+      if(i<(unsigned int)hTrigger->getNbinsX()){
+	hTrigger->Fill(i + .5, allTriggerDecisions_[i]);
+	if (!hTriggerLabelsIsSet_) {
+	  hTrigger->setBinLabel(i+1, allTriggerNames_[i]);//Can't be done in beginJob (no trigger list). Can't be done in beginRun (would have to anticipate folder structure).FIXME doesn't work
+	}
       }
     }
+    if (!hTriggerLabelsIsSet_) for (int i = allTriggerDecisions_.size(); i<hTrigger->getNbinsX();i++){ 
+	hTrigger->setBinLabel(i+1, "");//Can't be done in beginJob (no trigger list). Can't be done in beginRun (would have to anticipate folder structure).
+      }
     hTriggerLabelsIsSet_ = true;
-    //-> test map on these first
+    //        std::cout<<"Filling decision "<<allTriggerNames_[i]<<" "<<allTriggerDecisions_[i]<<std::endl;
+  }
+  
     
-    hMEx    = map_of_MEs[DirName+"/"+"MEx"];     if (hMEx           && hMEx->getRootObject())    hMEx          ->Fill(MEx);
+  hMEx    = map_of_MEs[DirName+"/"+"MEx"];     if (hMEx           && hMEx->getRootObject())    hMEx          ->Fill(MEx);
     hMEy    = map_of_MEs[DirName+"/"+"MEy"];     if (hMEy           && hMEy->getRootObject())     hMEy          ->Fill(MEy);
     hMET    = map_of_MEs[DirName+"/"+"MET"];     if (hMET           && hMET->getRootObject())     hMET          ->Fill(MET);
     hMETPhi = map_of_MEs[DirName+"/"+"METPhi"];  if (hMETPhi        && hMETPhi->getRootObject())  hMETPhi       ->Fill(METPhi);
@@ -1237,7 +1237,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	hMExLS = map_of_MEs[DirName+"/"+"MExLS"]; if (hMExLS  &&  hMExLS->getRootObject())   hMExLS->Fill(MEx,myLuminosityBlock);
 	hMEyLS = map_of_MEs[DirName+"/"+"MEyLS"]; if (hMEyLS  &&  hMEyLS->getRootObject())   hMEyLS->Fill(MEy,myLuminosityBlock);
       }
-    } 
+    }
 
     ////////////////////////////////////
     ///* if (isTCMet_) {
@@ -1286,8 +1286,6 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     //if (verbose_)  std::cout<<"muons not valid"<<std::endl;
     //      }
     //  }*/
-  } // et threshold cut
- 
 }
 
 //// ***********************************************************
