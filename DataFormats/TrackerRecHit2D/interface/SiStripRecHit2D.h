@@ -13,7 +13,6 @@ public:
   ~SiStripRecHit2D() {} 
 
   typedef OmniClusterRef::ClusterStripRef         ClusterRef;
-  typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
   // no position (as in persistent)
   SiStripRecHit2D(const DetId& id,

@@ -34,6 +34,7 @@ class SiStripNoisesDQM;
 class SiStripQualityDQM;
 class SiStripApvGainsDQM;
 class SiStripLorentzAngleDQM; 
+class SiStripBackPlaneCorrectionDQM; 
 class SiStripCablingDQM;
 class SiStripThresholdDQM;
 
@@ -64,6 +65,7 @@ class SiStripClassToMonitorCondData{
    bool monitorQuality_       ;
    bool monitorApvGains_      ;
    bool monitorLorentzAngle_  ;
+   bool monitorBackPlaneCorrection_  ;
    bool monitorLowThreshold_  ;
    bool monitorHighThreshold_ ;
    bool monitorCabling_       ;
@@ -77,6 +79,7 @@ class SiStripClassToMonitorCondData{
    SiStripQualityDQM*               qualityDQM_; 
    SiStripApvGainsDQM*             apvgainsDQM_; 
    SiStripLorentzAngleDQM*     lorentzangleDQM_;    
+   SiStripBackPlaneCorrectionDQM*     bpcorrectionDQM_;    
    SiStripCablingDQM*               cablingDQM_;
    SiStripThresholdDQM*        lowthresholdDQM_;
    SiStripThresholdDQM*       highthresholdDQM_;

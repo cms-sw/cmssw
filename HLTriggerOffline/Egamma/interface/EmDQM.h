@@ -132,6 +132,7 @@ private:
   HLTConfigProvider hltConfig_;
 
   // routines to build validation configuration from HLTConfiguration
+  int countSubstring(const std::string&, const std::string&);
   std::vector<std::vector<std::string> > findEgammaPaths();
   std::vector<std::string> getFilterModules(const std::string&);
   double getPrimaryEtCut(const std::string&);
@@ -219,6 +220,7 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> hltResults_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidWenu_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidZee_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidTripleEle_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidGammaJet_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidDiGamma_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_manualConf_token;

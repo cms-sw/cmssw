@@ -281,15 +281,7 @@ void TrackerHitAssociator::associateHitId(const TrackingRecHit & thit, std::vect
 template<typename T>
 void TrackerHitAssociator::associateSiStripRecHit(const T *simplerechit, std::vector<SimHitIdpr>& simtrackid)
 {
-  const SiStripCluster* clust = 0; 
-  if(simplerechit->cluster().isNonnull())
-    {
-      clust=&(*simplerechit->cluster());
-    }
-  else if(simplerechit->cluster_regional().isNonnull())
-    {
-      clust=&(*simplerechit->cluster_regional());
-    } 
+  const SiStripCluster* clust = &(*simplerechit->cluster());
   associateSimpleRecHitCluster(clust,simplerechit->geographicalId(),simtrackid);
 }
 
