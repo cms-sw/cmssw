@@ -65,9 +65,8 @@ secondMeasurementTracker.stripClusterProducer = 'secondClusters'
 
 #################################
 # Secondary trajectory builder
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-secondCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
-secondCkfTrajectoryBuilder.ComponentName          = 'secondCkfTrajectoryBuilder'
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+secondCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone()
 secondCkfTrajectoryBuilder.MeasurementTrackerName = 'secondMeasurementTracker'
 secondCkfTrajectoryBuilder.trajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
 secondCkfTrajectoryBuilder.inOutTrajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
@@ -76,7 +75,7 @@ secondCkfTrajectoryBuilder.inOutTrajectoryFilterName   = 'MinBiasCkfTrajectoryFi
 # Secondary track candidates
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 secoTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
-secoTrackCandidates.TrajectoryBuilder    = 'secondCkfTrajectoryBuilder'
+secoTrackCandidates.TrajectoryBuilder.refToPSet_ = 'secondCkfTrajectoryBuilder'
 secoTrackCandidates.TrajectoryCleaner    = 'TrajectoryCleanerBySharedSeeds'
 secoTrackCandidates.src                  = 'secoSeeds'
 secoTrackCandidates.RedundantSeedCleaner = 'none'

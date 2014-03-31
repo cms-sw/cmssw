@@ -58,7 +58,6 @@ hiRegitMuTobTecStepTrajectoryFilter.filterPset.minimumNumberOfHits = 6
 hiRegitMuTobTecStepTrajectoryFilter.filterPset.minHitsMinPt        = 4   
 
 hiRegitMuTobTecStepTrajectoryBuilder = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrajectoryBuilder.clone(
-    ComponentName             = 'hiRegitMuTobTecStepTrajectoryBuilder',
     trajectoryFilterName      = 'hiRegitMuTobTecStepTrajectoryFilter',
     inOutTrajectoryFilterName = 'hiRegitMuTobTecStepInOutTrajectoryFilter',
     clustersToSkip            = cms.InputTag('hiRegitMuTobTecStepClusters'),
@@ -66,7 +65,7 @@ hiRegitMuTobTecStepTrajectoryBuilder = RecoTracker.IterativeTracking.TobTecStep_
 
 hiRegitMuTobTecStepTrackCandidates        =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuTobTecStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMuTobTecStepTrajectoryBuilder',
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitMuTobTecStepTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 

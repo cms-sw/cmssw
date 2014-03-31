@@ -73,9 +73,8 @@ hiPixelPairChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProd
         )
 
 # TRACK BUILDING
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-        ComponentName = 'hiPixelPairTrajectoryBuilder',
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
         MeasurementTrackerName = '',
         trajectoryFilterName = 'hiPixelPairTrajectoryFilter',
         clustersToSkip = cms.InputTag('hiPixelPairClusters'),
@@ -87,7 +86,7 @@ hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('hiPixelPairSeeds'),
-    TrajectoryBuilder = 'hiPixelPairTrajectoryBuilder'
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryBuilder'))
     )
 
 

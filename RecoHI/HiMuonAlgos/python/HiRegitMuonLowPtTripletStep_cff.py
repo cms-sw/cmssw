@@ -48,7 +48,6 @@ hiRegitMuLowPtTripletStepTrajectoryFilter.filterPset.minPt              = 0.8 # 
 
 
 hiRegitMuLowPtTripletStepTrajectoryBuilder = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitMuLowPtTripletStepTrajectoryBuilder',
     trajectoryFilterName = 'hiRegitMuLowPtTripletStepTrajectoryFilter',
     clustersToSkip = cms.InputTag('hiRegitMuLowPtTripletStepClusters'),
 )
@@ -56,7 +55,7 @@ hiRegitMuLowPtTripletStepTrajectoryBuilder = RecoHI.HiTracking.hiRegitLowPtTripl
 # track candidates
 hiRegitMuLowPtTripletStepTrackCandidates        =  RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuLowPtTripletStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMuLowPtTripletStepTrajectoryBuilder',
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitMuLowPtTripletStepTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 

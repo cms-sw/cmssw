@@ -46,7 +46,6 @@ hiRegitInitialStepTrajectoryFilter = RecoTracker.IterativeTracking.InitialStep_c
 
 
 hiRegitInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitInitialStepTrajectoryBuilder',
     trajectoryFilterName = 'hiRegitInitialStepTrajectoryFilter',
     clustersToSkip = cms.InputTag('hiRegitInitialStepClusters')
 )
@@ -54,7 +53,7 @@ hiRegitInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialStep_
 # track candidates
 hiRegitInitialStepTrackCandidates        =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitInitialStepSeeds'),
-    TrajectoryBuilder = 'hiRegitInitialStepTrajectoryBuilder',
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitInitialStepTrajectoryBuilder')),
     maxNSeeds = 100000
     )
 

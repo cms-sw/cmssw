@@ -73,9 +73,8 @@ hiSecondPixelTripletChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstima
 
 
 # TRACK BUILDING
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-    ComponentName = 'hiSecondPixelTripletTrajectoryBuilder',
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
     trajectoryFilterName = 'hiSecondPixelTripletTrajectoryFilter',
     clustersToSkip = cms.InputTag('hiSecondPixelTripletClusters'),
@@ -88,7 +87,7 @@ hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTraject
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiSecondPixelTripletTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('hiSecondPixelTripletSeeds'),
-    TrajectoryBuilder = 'hiSecondPixelTripletTrajectoryBuilder',
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiSecondPixelTripletTrajectoryBuilder')),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
     )

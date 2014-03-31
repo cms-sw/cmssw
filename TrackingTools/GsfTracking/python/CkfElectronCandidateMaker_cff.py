@@ -25,9 +25,8 @@ TrajectoryFilterForElectrons.filterPset = cms.PSet(
 )
 
 # Trajectory Builder
-import RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi
-TrajectoryBuilderForElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi.CkfTrajectoryBuilder.clone()
-TrajectoryBuilderForElectrons.ComponentName = 'TrajectoryBuilderForElectrons'
+import RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi
+TrajectoryBuilderForElectrons = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.CkfTrajectoryBuilder.clone()
 TrajectoryBuilderForElectrons.trajectoryFilterName = 'TrajectoryFilterForElectrons'
 TrajectoryBuilderForElectrons.maxCand = 5
 TrajectoryBuilderForElectrons.intermediateCleaning = False
@@ -48,7 +47,7 @@ from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 electronCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone()
 electronCkfTrackCandidates.src = cms.InputTag('electronMergedSeeds')
-electronCkfTrackCandidates.TrajectoryBuilder = 'TrajectoryBuilderForElectrons'
+electronCkfTrackCandidates.TrajectoryBuilder.refToPSet_ = 'TrajectoryBuilderForElectrons'
 #electronCkfTrackCandidates.TrajectoryCleaner = 'TrajectoryCleanerBySharedHits'
 electronCkfTrackCandidates.NavigationSchool = 'SimpleNavigationSchool'
 electronCkfTrackCandidates.RedundantSeedCleaner = 'CachingSeedCleanerBySharedInput'

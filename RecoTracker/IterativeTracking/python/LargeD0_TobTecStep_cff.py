@@ -95,9 +95,8 @@ largeD0step5CkfInOutTrajectoryFilter.filterPset.minPt = 0.6
 largeD0step5CkfInOutTrajectoryFilter.filterPset.minHitsMinPt = 3
 
 #TRAJECTORY BUILDER
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-largeD0step5CkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-    ComponentName = 'largeD0step5CkfTrajectoryBuilder',
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+largeD0step5CkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = 'largeD0step5MeasurementTracker',
     trajectoryFilterName = 'largeD0step5CkfTrajectoryFilter',
     inOutTrajectoryFilterName = 'largeD0step5CkfInOutTrajectoryFilter',
@@ -113,7 +112,7 @@ largeD0step5CkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBu
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 largeD0step5TrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'largeD0step5Seeds',
-    TrajectoryBuilder = 'largeD0step5CkfTrajectoryBuilder',
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('largeD0step5CkfTrajectoryBuilder')),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True,
     cleanTrajectoryAfterInOut = False,

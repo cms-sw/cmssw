@@ -58,7 +58,6 @@ hiRegitMuInitialStepTrajectoryFilter.filterPset.minPt = 2.5 # after each new hit
 
 
 hiRegitMuInitialStepTrajectoryBuilder =  RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitMuInitialStepTrajectoryBuilder',
     trajectoryFilterName = 'hiRegitMuInitialStepTrajectoryFilter',
     clustersToSkip       = cms.InputTag('hiRegitMuInitialStepClusters')
 )
@@ -66,7 +65,7 @@ hiRegitMuInitialStepTrajectoryBuilder =  RecoHI.HiTracking.hiRegitInitialStep_cf
 # track candidates
 hiRegitMuInitialStepTrackCandidates        =   RecoHI.HiTracking.hiRegitInitialStep_cff.hiRegitInitialStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuInitialStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMuInitialStepTrajectoryBuilder',
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 

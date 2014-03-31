@@ -55,7 +55,6 @@ hiRegitMuPixelPairStepTrajectoryFilter.filterPset.minHitsMinPt         = 4
 
 
 hiRegitMuPixelPairStepTrajectoryBuilder =  RecoHI.HiTracking.hiRegitPixelPairStep_cff.hiRegitPixelPairStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitMuPixelPairStepTrajectoryBuilder',
     trajectoryFilterName = 'hiRegitMuPixelPairStepTrajectoryFilter',
     clustersToSkip       = cms.InputTag('hiRegitMuPixelPairStepClusters'),
     minNrOfHitsForRebuild = 6 #change from default 4
@@ -64,7 +63,7 @@ hiRegitMuPixelPairStepTrajectoryBuilder =  RecoHI.HiTracking.hiRegitPixelPairSte
 # trackign candidate
 hiRegitMuPixelPairStepTrackCandidates        = RecoHI.HiTracking.hiRegitPixelPairStep_cff.hiRegitPixelPairStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuPixelPairStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMuPixelPairStepTrajectoryBuilder',
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitMuPixelPairStepTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 

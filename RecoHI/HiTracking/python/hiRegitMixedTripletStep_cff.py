@@ -74,14 +74,13 @@ hiRegitMixedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.MixedTri
    )
 
 hiRegitMixedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitMixedTripletStepTrajectoryBuilder',
     trajectoryFilterName = 'hiRegitMixedTripletStepTrajectoryFilter',
     clustersToSkip       = cms.InputTag('hiRegitMixedTripletStepClusters'),
 )
 
 hiRegitMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMixedTripletStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMixedTripletStepTrajectoryBuilder',
+    TrajectoryBuilder = cms.PSet(refToPSet_ = cms.string('hiRegitMixedTripletStepTrajectoryBuilder')),
     maxNSeeds = 100000
     )
 
