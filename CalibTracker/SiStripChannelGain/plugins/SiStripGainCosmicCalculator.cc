@@ -106,7 +106,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
    edm::ESHandle<TrackerGeometry> tkGeom; iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );     
    for(TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end(); it++){ // loop over detector modules
      if( dynamic_cast<StripGeomDetUnit*>((*it))!=0){
-       uint32_t detid=((*it)->geographicalId()).rawId();
+       uint32_t detid= ((*it)->geographicalId()).rawId();
        // get thickness for all detector modules, not just for active, this is strange 
        double module_thickness = (*it)->surface().bounds().thickness(); // get thickness of detector from GeomDet (DetContainer == vector<GeomDet*>)
        thickness_map.insert(std::make_pair(detid,module_thickness));
@@ -182,7 +182,7 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & iEvent, const e
         const SiStripRecHit2D::ClusterRef & cluster=sistripsimplehit->cluster();
         const std::vector<uint8_t>& ampls = cluster->amplitudes();
 //        const std::vector<uint16_t>& ampls = cluster->amplitudes();
-        uint32_t thedetid  = cluster->geographicalId();
+        uint32_t thedetid  = 0; // is zero since long time cluster->geographicalId();
         double module_width = moduleWidth(thedetid, &iSetup);
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_cm"))->Fill(local_position.x());
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_normalized"))->Fill(local_position.x()/module_width);

@@ -1,5 +1,7 @@
 #include "RecoTracker/MeasurementDet/plugins/MeasurementTrackerESProducer.h"
 
+#include "MeasurementTrackerImpl.h"
+
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -21,12 +23,11 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-
-#include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
-#include "OnDemandMeasurementTracker.h"
 
 #include <string>
 #include <memory>
@@ -48,11 +49,6 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   std::string pixelCPEName = pset_.getParameter<std::string>("PixelCPE");
   std::string stripCPEName = pset_.getParameter<std::string>("StripCPE");
   std::string matcherName  = pset_.getParameter<std::string>("HitMatcher");
-  bool regional            = pset_.getParameter<bool>("Regional");  
-
-  bool onDemand = pset_.getParameter<bool>("OnDemand");
-
-  if (onDemand != regional) throw cms::Exception("Configuration") << "Currently OnDemand and Regional must have the same values.\n";
 
   // ========= SiPixelQuality related tasks =============
   const SiPixelQuality    *ptr_pixelQuality = 0;
@@ -130,7 +126,6 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerGeom);
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
   
-  if (!onDemand){
   _measurementTracker  = boost::shared_ptr<MeasurementTracker>(new MeasurementTrackerImpl(pset_,
 										      pixelCPE.product(),
 										      stripCPE.product(),
@@ -143,33 +138,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 										      ptr_pixelQuality,
 										      ptr_pixelCabling,
                                                                                       pixelQualityFlags,
-                                                                                      pixelQualityDebugFlags,
-										      regional) ); 
-  }
-  else{
-    const SiStripRegionCabling * ptr_stripRegionCabling =0;
-    //get regional cabling
-    edm::ESHandle<SiStripRegionCabling> rcabling;
-    iRecord.getRecord<SiStripRegionCablingRcd>().get(rcabling);
-    ptr_stripRegionCabling = rcabling.product();
-
-    _measurementTracker  = boost::shared_ptr<MeasurementTracker>( new OnDemandMeasurementTracker(pset_,
-												 pixelCPE.product(),
-												 stripCPE.product(),
-												 hitMatcher.product(),
-												 trackerGeom.product(),
-												 geometricSearchTracker.product(),
-                                                                                                 ptr_stripQuality,
-                                                                                                 stripQualityFlags,
-                                                                                                 stripQualityDebugFlags,
-                                                                                                 ptr_pixelQuality,
-                                                                                                 ptr_pixelCabling,
-                                                                                                 pixelQualityFlags,
-                                                                                                 pixelQualityDebugFlags,
-												 ptr_stripRegionCabling,
-												 regional) );
-    
-  }
+                                                                                      pixelQualityDebugFlags) ); 
   return _measurementTracker;
 }
 

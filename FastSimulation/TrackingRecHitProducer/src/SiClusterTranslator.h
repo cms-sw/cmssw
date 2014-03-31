@@ -17,7 +17,7 @@
 // Data Formats
 #include "FastSimDataFormats/External/interface/FastTrackerClusterCollection.h"
 //Strip and Pixel Cluster Collection
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"

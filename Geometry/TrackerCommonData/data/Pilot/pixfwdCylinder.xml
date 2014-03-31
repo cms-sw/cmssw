@@ -48,6 +48,7 @@
         <Constant name="CylindersPortCardsWidth" value="60.0*mm"/>
         <Constant name="CylindersPortCardsLength1" value="223.52*mm"/>
         <Constant name="CylindersPortCardsLength2" value="355.60*mm"/>
+        <Constant name="PortCardsOffset" value="([CylindersPortCardsLength2]-[CylindersPortCardsLength1])/2."/>
         <Constant name="CylindersPortCardsThickness" value="5.40*mm"/>
         <Constant name="CylindersServiceZoff" value="320.0*mm"/>
         <Constant name="CylindersServiceRmin" value="100*mm"/>
@@ -439,7 +440,7 @@
         <PosPart copyNumber="1">
             <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
             <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
-            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
             <rRotation name="pixfwdCylinder:PortCardsRot2"/>
         </PosPart>
         <PosPart copyNumber="2">
@@ -463,7 +464,7 @@
         <PosPart copyNumber="2">
             <rParent name="pixfwdCylinder:PixelForwardServiceCylinderPlus"/>
             <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
-            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
             <rRotation name="pixfwdCylinder:PortCardsRot6"/>
         </PosPart>
         <PosPart copyNumber="5">
@@ -481,43 +482,43 @@
         <PosPart copyNumber="1">
             <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
             <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
-            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle2])" y="[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle2])" y="[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
             <rRotation name="pixfwdCylinder:PortCardsRot1"/>
         </PosPart>
         <PosPart copyNumber="2">
             <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
             <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
-            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
             <rRotation name="pixfwdCylinder:PortCardsRot2"/>
         </PosPart>
         <PosPart copyNumber="3">
             <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
             <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
-            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
             <rRotation name="pixfwdCylinder:PortCardsRot3"/>
         </PosPart>
         <PosPart copyNumber="4">
             <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
             <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
-            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle2])" y="-[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <Translation x="[PortCardsToBeam]*cos([PortCardsAngle2])" y="-[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
             <rRotation name="pixfwdCylinder:PortCardsRot4"/>
         </PosPart>
         <PosPart copyNumber="5">
             <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
             <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
-            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle2])" y="[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle2])" y="[PortCardsToBeam]*sin([PortCardsAngle2])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
             <rRotation name="pixfwdCylinder:PortCardsRot5"/>
         </PosPart>
         <PosPart copyNumber="6">
             <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
             <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
-            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
             <rRotation name="pixfwdCylinder:PortCardsRot6"/>
         </PosPart>
         <PosPart copyNumber="7">
             <rParent name="pixfwdCylinder:PixelForwardServiceCylinderMinus"/>
             <rChild name="pixfwdCylinder:PixelForwardCylindersPortCards2"/>
-            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]"/>
+            <Translation x="-[PortCardsToBeam]*cos([PortCardsAngle1])" y="-[PortCardsToBeam]*sin([PortCardsAngle1])" z="[PortCardsToIP]+[ZOffCylinder]+[PortCardsOffset]"/>
             <rRotation name="pixfwdCylinder:PortCardsRot7"/>
         </PosPart>
         <PosPart copyNumber="1">
