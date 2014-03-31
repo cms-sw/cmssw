@@ -22,6 +22,8 @@ void proof_thing2_sel()
 {
   if (gSystem->Getenv("TMPDIR")) {
     std::string t(gSystem->Getenv("TMPDIR"));
+    if (t.size() > 80)
+      t = "/tmp";
     t += "/proof";
     gEnv->SetValue("Proof.Sandbox", t.c_str());
     gEnv->SetValue("ProofLite.SockPathDir", t.c_str());
