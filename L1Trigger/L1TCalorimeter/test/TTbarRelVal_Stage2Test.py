@@ -74,7 +74,7 @@ process.MessageLogger = cms.Service(
 	threshold  = cms.untracked.string('DEBUG') 
     ),
     debugModules = cms.untracked.vstring(
-	'l1tCaloStage2TowerDigis',
+	'l1tCaloStage2Layer1Digis',
 	'l1tCaloStage2Digis'
     )
 )
@@ -89,7 +89,7 @@ process.load('Configuration/StandardSequences/L1HwVal_cff')
 # bug fix for missing HCAL TPs in MC RAW
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import HcalTPGCoderULUT
 HcalTPGCoderULUT.LUTGenerationMode = cms.bool(True)
-process.l1tCaloStage2TowerDigis.hcalToken = cms.InputTag("valHcalTriggerPrimitiveDigis")
+process.l1tCaloStage2Layer1Digis.hcalToken = cms.InputTag("valHcalTriggerPrimitiveDigis")
 
 # Path and EndPath definitions
 process.L1simulation_step = cms.Path(process.ecalDigis

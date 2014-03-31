@@ -28,49 +28,103 @@ void l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::processEvent(const std::ve
 								   std::vector<l1t::CaloTower> & outTowers) {
 
 
-  if (!params_->doTowerCompression()) {
-    outTowers = inTowers;
-    return;
-  }
-
   for ( auto tow = inTowers.begin();
 	tow != inTowers.end();
 	++tow ) {
 
-    int sum   = tow->hwPt();
-    //    int ratio = tow->hwEtRatio();
-    int qual  = tow->hwQual();
-
-    int em    = 0;
-    int had   = 0;
-
-    if ((qual&0x1) != 0 && (qual&0x2) == 0) // E==0
-      had = sum;
-    
-    if ((qual&0x1) != 0 && (qual&0x2) != 0) // H==0
-      em = sum;
-    
-    if ((qual&0x1) == 0 && (qual&0x2) == 0) { // H > E , so ratio==log(H/E)
-      em  = 1;
-      had = 2;
+    if (!params_->doTowerCompression()) {
+      
+      outTowers.push_back( *tow );
+      
     }
     
-    if ((qual&0x1) == 0 && (qual&0x2) != 0) { // E >= H , so ratio==log(E/H)
-      em  = 3;
-      had = 4;
+    else {
+      
+      
+      int sum   = tow->hwPt();
+      int ratio = tow->hwEtRatio();
+      int qual  = tow->hwQual();
+      
+      int numCoeff = 0;
+      int denomCoeff = 0;
+      
+      if ((qual & 0x1)==0) {
+	switch (ratio) {
+	case 000 : 
+	  numCoeff = 64;
+	  denomCoeff = 64;
+	  break;
+	case 001 : 
+	  numCoeff = 43;
+	  denomCoeff = 85;
+	  break;
+	case 010 : 
+	  numCoeff = 26;
+	  denomCoeff = 102;
+	  break;
+	case 011 : 
+	  numCoeff = 14;
+	  denomCoeff = 114;
+	  break;
+	case 100 : 
+	  numCoeff = 8;
+	  denomCoeff = 120;
+	  break;
+	case 101 : 
+	  numCoeff = 4;
+	  denomCoeff = 124;
+	  break;
+	case 110 : 
+	  numCoeff = 2;
+	  denomCoeff = 126;
+	  break;
+	case 111 : 
+	  numCoeff = 1;
+	  denomCoeff = 127;
+	  break;
+	}
+      }
+      else {
+	numCoeff = 128;
+	denomCoeff = 0;
+      }
+      
+      int em    = 0;
+      int had   = 0;
+      
+      if ((qual&0x1) != 0 && (qual&0x2) == 0) // E==0
+	had = sum;
+      
+      if ((qual&0x1) != 0 && (qual&0x2) != 0) // H==0
+	em = sum;
+      
+      if ((qual&0x1) == 0 && (qual&0x2) == 0) { // H > E , so ratio==log(H/E)
+	em  = denomCoeff * sum;
+	had = numCoeff * sum;
+      }
+      
+      if ((qual&0x1) == 0 && (qual&0x2) != 0) { // E >= H , so ratio==log(E/H)
+	em  = numCoeff * sum;
+	had = denomCoeff * sum;
+      }
+      
+      em  &= params_->towerMaskE();
+      had &= params_->towerMaskH();
+      
+      l1t::CaloTower newTow;
+      newTow.setHwEta( tow->hwEta() );
+      newTow.setHwPhi( tow->hwPhi() );
+      newTow.setHwEtEm( em );
+      newTow.setHwEtHad( had );
+      
+      newTow.setHwPt( sum );
+      newTow.setHwEtRatio( ratio );
+      newTow.setHwQual( qual );
+      
+      outTowers.push_back(newTow);
+      
     }
     
-    em  &= params_->towerMaskE();
-    had &= params_->towerMaskH();
-
-    l1t::CaloTower newTow;
-    newTow.setHwEta( tow->hwEta() );
-    newTow.setHwPhi( tow->hwPhi() );
-    newTow.setHwEtEm( em );
-    newTow.setHwEtHad( had );
-    
-    outTowers.push_back(newTow);
-
   }
 
 }

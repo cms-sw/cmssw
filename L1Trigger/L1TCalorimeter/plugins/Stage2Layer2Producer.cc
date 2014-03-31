@@ -90,6 +90,7 @@ namespace l1t {
 l1t::Stage2Layer2Producer::Stage2Layer2Producer(const edm::ParameterSet& ps) {
 
   // register what you produce
+  produces<l1t::CaloTowerBxCollection> ();
   produces<l1t::CaloClusterBxCollection> ();
   produces<l1t::EGammaBxCollection> ();
   produces<l1t::TauBxCollection> ();
@@ -132,6 +133,7 @@ l1t::Stage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   LogDebug("L1TDebug") << "First BX=" << bxFirst << ", last BX=" << bxLast << std::endl;
   
   //outputs
+  std::auto_ptr<l1t::CaloTowerBxCollection> outTowers (new l1t::CaloTowerBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<l1t::CaloClusterBxCollection> clusters (new l1t::CaloClusterBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection(0, bxFirst, bxLast));
@@ -141,6 +143,7 @@ l1t::Stage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   // loop over BX
   for(int ibx = bxFirst; ibx < bxLast+1; ++ibx) {
     std::auto_ptr< std::vector<l1t::CaloTower> > localTowers (new std::vector<l1t::CaloTower>);
+    std::auto_ptr< std::vector<l1t::CaloTower> > localOutTowers (new std::vector<l1t::CaloTower>);
     std::auto_ptr< std::vector<l1t::CaloCluster> > localClusters (new std::vector<l1t::CaloCluster>);
     std::auto_ptr< std::vector<l1t::EGamma> > localEGammas (new std::vector<l1t::EGamma>);
     std::auto_ptr< std::vector<l1t::Tau> > localTaus (new std::vector<l1t::Tau>);
@@ -158,8 +161,9 @@ l1t::Stage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << localTowers->size() << std::endl;    
 
     m_processor->processEvent(*localTowers,
-			      *localClusters, *localEGammas, *localTaus, *localJets, *localEtSums);
+			      *localOutTowers, *localClusters, *localEGammas, *localTaus, *localJets, *localEtSums);
     
+    for(std::vector<l1t::CaloTower>::const_iterator tow = localOutTowers->begin(); tow != localOutTowers->end(); ++tow) outTowers->push_back(ibx, *tow);
     for(std::vector<l1t::CaloCluster>::const_iterator clus = localClusters->begin(); clus != localClusters->end(); ++clus) clusters->push_back(ibx, *clus);
     for(std::vector<l1t::EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg) egammas->push_back(ibx, *eg);
     for(std::vector<l1t::Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau) taus->push_back(ibx, *tau);
@@ -170,6 +174,7 @@ l1t::Stage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   }
   
+  iEvent.put(outTowers);
   iEvent.put(clusters);
   iEvent.put(egammas);
   iEvent.put(taus);

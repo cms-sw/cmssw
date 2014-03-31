@@ -89,6 +89,7 @@ private:
   std::map< ObjectType, TH1F* > hphi_;
   std::map< ObjectType, TH1F* > hem_;
   std::map< ObjectType, TH1F* > hhad_;
+  std::map< ObjectType, TH1F* > hratio_;
 
 };
 
@@ -168,6 +169,7 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     hphi_.at(Tower)->Fill( itr->hwPhi() );
     hem_.at(Tower)->Fill( itr->hwEtEm() );
     hhad_.at(Tower)->Fill( itr->hwEtHad() );
+    hratio_.at(Tower)->Fill( itr->hwEtRatio() );
   }
 
   // get cluster
@@ -244,6 +246,7 @@ L1TCaloAnalyzer::beginJob()
     if (*itr==Tower) {
       hem_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("em", "", 50, 0., 100.) ));
       hhad_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("had", "", 50, 0., 100.) ));
+      hratio_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("ratio", "", 10, 0., 10.) ));
     }
 
   }

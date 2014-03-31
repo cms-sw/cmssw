@@ -85,8 +85,8 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 
 # upgrade calo stage 2
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
-process.l1tCaloStage2TowerDigis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
-process.l1tCaloStage2TowerDigis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
+process.l1tCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
+process.l1tCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
 
 process.load('L1Trigger.L1TCalorimeter.l1tCaloAnalyzer_cfi')
 

@@ -50,32 +50,32 @@ l1t::Stage2MainProcessorFirmwareImp1::~Stage2MainProcessorFirmwareImp1()
 
 
 //need to switch to BXVector
-void l1t::Stage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & towers,
+void l1t::Stage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & inTowers,
+							std::vector<l1t::CaloTower> & outTowers,
 							std::vector<l1t::CaloCluster> & clusters,
 							std::vector<l1t::EGamma> & egammas,
 							std::vector<l1t::Tau> & taus,
 							std::vector<l1t::Jet> & jets,
-							std::vector<l1t::EtSum> & etsums) {
+							std::vector<l1t::EtSum> & etSums) {
 
-  std::vector<l1t::CaloTower> intTowers; // internal towers (decompressed)
   std::vector<l1t::CaloCluster> egClusters;
   std::vector<l1t::CaloCluster> tauClusters;
-  std::vector<l1t::EtSum> towersums;
-  std::vector<l1t::EtSum> jetsums;
+  std::vector<l1t::EtSum> towerSums;
+  std::vector<l1t::EtSum> jetSums;
   
-  m_towerAlgo->processEvent( towers, intTowers );
-  m_egClusterAlgo->processEvent( intTowers, egClusters );
-  m_egAlgo->processEvent( egClusters, intTowers, egammas );
-  m_egClusterAlgo->processEvent( intTowers, tauClusters );
+  m_towerAlgo->processEvent( inTowers, outTowers );
+  m_egClusterAlgo->processEvent( outTowers, egClusters );
+  m_egAlgo->processEvent( egClusters, outTowers, egammas );
+  m_egClusterAlgo->processEvent( outTowers, tauClusters );
   m_tauAlgo->processEvent( tauClusters, taus );
-  m_jetAlgo->processEvent( intTowers, jets );
-  m_sumAlgo->processEvent( intTowers, towersums );
-  m_jetSumAlgo->processEvent( jets, jetsums );  
+  m_jetAlgo->processEvent( outTowers, jets );
+  m_sumAlgo->processEvent( outTowers, towerSums );
+  m_jetSumAlgo->processEvent( jets, jetSums );  
 
   clusters.insert( clusters.end(), egClusters.begin(), egClusters.end() );
 
-  etsums.insert( etsums.end(), towersums.begin(), towersums.end() );
-  etsums.insert( etsums.end(), jetsums.begin(), jetsums.end() );
+  etSums.insert( etSums.end(), towerSums.begin(), towerSums.end() );
+  etSums.insert( etSums.end(), jetSums.begin(), jetSums.end() );
 
 }
 
