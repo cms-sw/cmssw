@@ -1,16 +1,12 @@
 #include "DataFormats/Math/interface/approx_atan2.h"
 
+
 #include<cstdio>
 #include<cstdlib>
 #include<iostream>
 #include<cassert>
 
-// performance test
-#include <x86intrin.h>
-inline volatile unsigned long long rdtsc() {
- unsigned int i = 0;
- return __rdtscp(&i);
-}
+#include "rdtscp.h"
 
 
 namespace {
@@ -78,6 +74,7 @@ void diff() {
 
 template<int DEGREE>
 void speedf() {
+  if(!has_rdtscp()) return;
   long long t = -rdtsc();
   float approx=0;
   constexpr float xmin=-400.001;  // avoid 0
@@ -99,6 +96,7 @@ void speedf() {
 
 template<int DEGREE>
 void speeds() {
+  if(!has_rdtscp()) return;
   long long t = -rdtsc();
   float approx=0;
   constexpr float xmin=-400.001;  // avoid 0
@@ -121,6 +119,7 @@ void speeds() {
 
 template<int DEGREE>
 void speedi() {
+  if(!has_rdtscp()) return;
   long long t = -rdtsc();
   int approx=0;
   constexpr float xmin=-400.001;  // avoid 0
