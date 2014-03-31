@@ -198,8 +198,6 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
 	    if (fabs(pfc.energy()) < energyEndcap_)
 	      continue;
 	  }
-	  if (eleRef->superCluster() == pfc.superClusterRef())
-	    continue;
 
 	  float dEta = fabs(eleRef->eta() - pfc.momentum().Eta());
 	  if(dEta < etaStrip) 
