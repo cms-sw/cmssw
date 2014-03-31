@@ -4,10 +4,9 @@
 #include <vector>
 class StMeasurementDetSet;
 class PxMeasurementDetSet;
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/ContainerMask.h"
-#include "DataFormats/Common/interface/LazyGetter.h"
 
 //// Now, to put this into the edm::Event we need a dictionary
 //// and gccxml/cint can't parse the MeasurementTracker class
@@ -54,11 +53,6 @@ public:
    /// Real constructor 2: with new cluster skips (checked)
    MeasurementTrackerEvent(const MeasurementTrackerEvent &trackerEvent, 
                            const edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > & stripClustersToSkip, 
-                           const edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > & pixelClustersToSkip) ;
-
-   /// Real constructor 2: with new cluster skips (checked)
-   MeasurementTrackerEvent(const MeasurementTrackerEvent &trackerEvent, 
-                           const edm::ContainerMask<edm::LazyGetter<SiStripCluster> > & stripClustersToSkip, 
                            const edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > & pixelClustersToSkip) ;
 
 
@@ -113,7 +107,6 @@ public:
    const PxMeasurementDetSet & pixelData() const { return * thePixelData; }
    const std::vector<bool> & stripClustersToSkip() const { return theStripClustersToSkip; }
    const std::vector<bool> & pixelClustersToSkip() const { return thePixelClustersToSkip; }
-   bool  isStripRegional() const ;
 
 #ifndef MeasurementTrackerEvent_Hide_Impl
    // forwarded calls
