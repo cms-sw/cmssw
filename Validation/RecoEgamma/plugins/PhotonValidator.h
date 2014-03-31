@@ -322,11 +322,18 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_phoE_[2][3];
   MonitorElement* h_phoEt_[2][3];
   MonitorElement* h_phoERes_[3][3];
+  MonitorElement* h_phoSigmaEoE_[3][3];
+
 
   MonitorElement* h2_eResVsEta_[3];
   MonitorElement* p_eResVsEta_[3];
+  MonitorElement* p_sigmaEoEVsEta_[3];
   MonitorElement* h2_eResVsEt_[3][3];
   MonitorElement* p_eResVsEt_[3][3];
+  MonitorElement* p_eResVsNVtx_[3][3];
+
+  MonitorElement* p_sigmaEoEVsEt_[3][3];
+  MonitorElement* p_sigmaEoEVsNVtx_[3][3];
 
   MonitorElement* h2_eResVsR9_[3];
   MonitorElement* p_eResVsR9_[3];
