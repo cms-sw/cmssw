@@ -110,10 +110,16 @@ EEDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup& 
             if (it->detid()==*CheckDead) {
                 OverADeadRecHit=true;
                 bool AcceptRecHit=true;
-                EcalRecHit NewRecHit = eeDeadChannelCorrector.correct(it->detid(),*hit_collection,CorrectionMethod_,Sum8GeVThreshold_, &AcceptRecHit);
-                //  Accept the new rec hit if the flag is true.
-                if( AcceptRecHit ) { redCollection->push_back( NewRecHit ); }
-                else               { redCollection->push_back( *it );}
+                EcalRecHit hit = eeDeadChannelCorrector.correct(it->detid(),*hit_collection,CorrectionMethod_,Sum8GeVThreshold_, &AcceptRecHit);
+
+                if ( hit.energy() != 0 and AcceptRecHit == true ) {
+                    hit.setFlag(EcalRecHit::kNeighboursRecovered) ;
+                } else {
+                    // recovery failed
+                    hit.setFlag(EcalRecHit::kDead) ;
+                }
+
+                redCollection->push_back(hit);
 	            break;
 	        }
 	        CheckDead++;

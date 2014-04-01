@@ -95,6 +95,24 @@ process.ModCorrectEEDeadCells = cms.EDProducer("EEDeadChannelRecoveryProducers",
    CorrectDeadCells     = cms.bool(True),
 )
 
+process.TFileService = cms.Service("TFileService", fileName = cms.string('recovery_hist.root'))
+
+process.validateRecoveryEB = cms.EDAnalyzer("EcalDeadChannelRecoveryAnalyzer",
+  originalRecHitCollection = cms.InputTag("reducedEcalRecHitsEB", ""),
+  recoveredRecHitCollection = cms.InputTag("ModCorrectEBDeadCells", "ModifyEB"),
+
+  titlePrefix = cms.string("(EB) "),
+)
+
+process.validateRecoveryEE = cms.EDAnalyzer("EcalDeadChannelRecoveryAnalyzer",
+  originalRecHitCollection = cms.InputTag("reducedEcalRecHitsEE", ""),
+  recoveredRecHitCollection = cms.InputTag("ModCorrectEEDeadCells", "ModifyEE"),
+
+  titlePrefix = cms.string("(EE) "),
+)
+
+
+
 process.dump = cms.EDAnalyzer("EcalRecHitDump",
   EBRecHitCollection = cms.InputTag("ModCorrectEBDeadCells", "ModifyEB"),
   EERecHitCollection = cms.InputTag("ModCorrectEEDeadCells", "ModifyEE"),
@@ -105,7 +123,8 @@ process.dump = cms.EDAnalyzer("EcalRecHitDump",
 #       *****************************************************************
 #                                Execution Path                  
 #       *****************************************************************
-process.p = cms.Path(process.CreateEBDeadCells * process.ModCorrectEBDeadCells + process.CreateEEDeadCells * process.ModCorrectEEDeadCells * process.dump) 
-#process.p = cms.Path(process.ModCorrectEBDeadCells + process.ModCorrectEEDeadCells )
+process.p = cms.Path(process.CreateEBDeadCells * process.ModCorrectEBDeadCells * process.validateRecoveryEB +
+    process.CreateEEDeadCells * process.ModCorrectEEDeadCells * process.validateRecoveryEE ) 
+
 process.outpath = cms.EndPath(process.out)
 
