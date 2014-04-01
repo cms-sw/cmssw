@@ -246,7 +246,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CSCGeometryBuilder/data/cscSpecs.xml', 
         'Geometry/RPCGeometryBuilder/data/RPCSpecs.xml', 
         'Geometry/ForwardCommonData/data/brmsens.xml', 
-        'Geometry/ForwardCommonData/data/bhmsens.xml', 
+        ##'Geometry/ForwardCommonData/data/bhmsens.xml', #not needed for geomtery purposes only
         'Geometry/ForwardSimData/data/bhmProdCuts.xml', 
         'Geometry/HcalSimData/data/HcalProdCuts.xml', 
         'Geometry/EcalSimData/data/EcalProdCuts.xml', 
