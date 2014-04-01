@@ -253,8 +253,10 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
             
 	    if(cand.trackRef().isNonnull() && cand.pt() > minPtForTrackProperties_)
 	    {
-		outPtrP->back().setTrackProperties(*cand.trackRef());
-
+		if(abs(cand.pdgId()) == 11 && cand.gsfTrackRef().isNonnull())
+			outPtrP->back().setTrackProperties(*cand.gsfTrackRef());
+		else	
+			outPtrP->back().setTrackProperties(*cand.trackRef());
 ///// DEBUG
 #if DEBUGIP
 		if( fabs(cand.trackRef()->dz()-PV->position().z()) < 0.3 && cand.trackRef()->numberOfValidHits() > 7 ){
