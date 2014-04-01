@@ -54,12 +54,11 @@ process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )
 
-# The name of the cluster container over which the association is done
-process.TTClusterAssociatorFromPixelDigis.TTClusters  = cms.VInputTag( cms.InputTag("MergeFITOutput", "ClusInTrack"))
+# The name of the stub container over which the association is done, please note that the filtered cluster container is
+# not associated due to the lack of simPixelDigis in official samples
 
-# The name of the stub container over which the association is done, and of the corresponding ass. clusters
 process.TTStubAssociatorFromPixelDigis.TTStubs        = cms.VInputTag( cms.InputTag("MergeFITOutput", "StubInTrack"))
-process.TTStubAssociatorFromPixelDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPixelDigis","ClusInTrack"))
+process.TTStubAssociatorFromPixelDigis.TTClusterTruth = cms.VInputTag( cms.InputTag("TTClusterAssociatorFromPixelDigis","ClusterAccepted"))
 
 # Additional output definition
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -88,7 +87,7 @@ process.RAWSIMoutput.outputCommands.append('drop *_TTTracksFromPattern_*_*')
 process.RAWSIMoutput.outputCommands.append('keep  *_*_MergedTrackTruth_*')
 
 # Path and EndPath definitions
-process.L1AMFIT_step          = cms.Path(process.TTTracksFromPatternswStubs)
+process.L1AMFIT_step         = cms.Path(process.TTTracksFromPatternswStubs)
 process.endjob_step          = cms.EndPath(process.endOfProcess)
 process.RAWSIMoutput_step    = cms.EndPath(process.RAWSIMoutput)
 

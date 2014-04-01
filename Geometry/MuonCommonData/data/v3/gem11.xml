@@ -153,7 +153,7 @@
 
   <Trd1 name="GB11" dz="[dzGB11]" dy1="[dyGB11]" dy2="[dyGB11]" dx1="[dxBotGB11]" dx2="[dxTopGB11]" />
   <Trd1 name="GA11" dz="[dzGA11]" dy1="[dyGA11]" dy2="[dyGA11]" dx1="[dxBotGA11]" dx2="[dxTopGA11]" />
-  <UnionSolid name="GEMBox11">
+  <UnionSolid name="GEMBox11S">
     <rSolid name="GB11"/>
     <rSolid name="GA11"/>
     <Translation x="0.0*fm" y="([dyGB11]+[dyGA11])" z="([dzGB11]-[dzGA11])"/>
@@ -242,8 +242,8 @@
     <rSolid name="GE11"/>
     <rMaterial name="materials:ME_free_space"/>
   </LogicalPart>
-  <LogicalPart name="GEMBox11" category="unspecified">
-    <rSolid name="GEMBox11"/>
+  <LogicalPart name="GEMBox11S" category="unspecified">
+    <rSolid name="GEMBox11S"/>
     <rMaterial name="materials:Aluminium"/>
   </LogicalPart>
   <LogicalPart name="GMAX11" category="unspecified">
@@ -493,7 +493,7 @@
     <Translation x="0*fm" y="0*fm" z="5.686*m" />
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="gem11:GEMBox11"/>
+    <rParent name="gem11:GEMBox11S"/>
     <rChild name="gem11:GMAX11"/>
     <Translation x="0*fm" y="[ypGM11]" z="0*fm" />
   </PosPart>
@@ -958,7 +958,7 @@
 
 <Algorithm name="muon:DDGEMAngular">
     <rParent name="gem11:GEMDisk11P"/>
-    <String name="ChildName" value="GEMBox11"/>
+    <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="2"/>
@@ -971,7 +971,7 @@
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
     <rParent name="gem11:GEMDisk11P"/>
-    <String name="ChildName" value="GEMBox11"/>
+    <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="1"/>
@@ -984,7 +984,7 @@
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
     <rParent name="gem11:GEMDisk11P"/>
-    <String name="ChildName" value="GEMBox11"/>
+    <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="53"/>
@@ -997,7 +997,7 @@
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
     <rParent name="gem11:GEMDisk11P"/>
-    <String name="ChildName" value="GEMBox11"/>
+    <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="52"/>
@@ -1010,7 +1010,7 @@
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
     <rParent name="gem11:GEMDisk11N"/>
-    <String name="ChildName" value="GEMBox11"/>
+    <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="2"/>
@@ -1023,7 +1023,7 @@
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
     <rParent name="gem11:GEMDisk11N"/>
-    <String name="ChildName" value="GEMBox11"/>
+    <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="1"/>
@@ -1036,7 +1036,7 @@
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
     <rParent name="gem11:GEMDisk11N"/>
-    <String name="ChildName" value="GEMBox11"/>
+    <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="53"/>
@@ -1049,7 +1049,7 @@
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
     <rParent name="gem11:GEMDisk11N"/>
-    <String name="ChildName" value="GEMBox11"/>
+    <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="52"/>

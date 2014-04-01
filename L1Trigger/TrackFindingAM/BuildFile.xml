@@ -38,6 +38,7 @@
 <use name="DataFormats/L1TrackTrigger"/>
 <lib name="boost_serialization"/>
 <lib name="boost_program_options"/>
+<lib name="boost_iostreams"/>
 <export>
   <flags   SEALPLUGIN="1"/>
   <lib   name="1"/>
