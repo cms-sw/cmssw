@@ -134,8 +134,7 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
         const double hitEnergy2 = hitEnergy*hitEnergy;
         const double fhEnergy = found_hit->energy();
         const double fhEnergy2 = fhEnergy*fhEnergy;
-        const double aeff2 = hitEnergy2*fhEnergy2/(hitEnergy2+fhEnergy2);
-        sigma2 = noiseTerm2_*noiseLevel2_/aeff2 + 2*constantTerm2_;
+        sigma2 = noiseTerm2_*noiseLevel2_*(hitEnergy2+fhEnergy2)/(hitEnergy2*fhEnergy2) + 2*constantTerm2_;
       }
       const double deltaTime = hit.time()-found_hit->time();
       if(deltaTime*deltaTime/sigma2<sigmaCut2_) {
@@ -143,8 +142,6 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
       }
     }
   }
-
-
 
   const T *topology_;
   double noiseLevel2_;
