@@ -55,8 +55,9 @@ class MagneticField;
 class PixelCPEBase : public PixelClusterParameterEstimator 
 {
  public:
-  struct Param 
+  struct DetParam
   {
+    DetParam() : bz(-9e10f) {}
     const PixelGeomDetUnit * theDet;
     // gavril : replace RectangularPixelTopology with PixelTopology
     const PixelTopology * theTopol;
@@ -100,7 +101,7 @@ public:
  //--------------------------------------------------------------------------
   // Allow the magnetic field to be set/updated later.
   //--------------------------------------------------------------------------
-  inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
+  //inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
  
 
   //--------------------------------------------------------------------------
@@ -112,12 +113,14 @@ public:
     {
       nRecHitsTotal_++ ;
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
-      setTheDet( det, cl );
-      computeAnglesFromDetPosition(cl);
+
+      DetParam const * theDetParam = &detParam(det);
+      setTheDet( theDetParam, cl );
+      computeAnglesFromDetPosition(theDetParam, cl);
       
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-      LocalPoint lp = localPosition( cl);
-      LocalError le = localError( cl);        
+      LocalPoint lp = localPosition(theDetParam, cl);
+      LocalError le = localError(theDetParam, cl);        
       
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
 
@@ -135,12 +138,13 @@ public:
 
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
 
-    setTheDet( det, cl );
-    computeAnglesFromTrajectory(cl, ltp);
+    DetParam const * theDetParam = &detParam(det);
+    setTheDet( theDetParam, cl );
+    computeAnglesFromTrajectory(theDetParam, cl, ltp);
     
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-    LocalPoint lp = localPosition( cl); 
-    LocalError le = localError( cl);        
+    LocalPoint lp = localPosition(theDetParam, cl); 
+    LocalError le = localError(theDetParam, cl);        
 
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
     
@@ -153,10 +157,10 @@ private:
   //--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
-  virtual LocalPoint localPosition(const SiPixelCluster& cl) const = 0;
-  virtual LocalError localError   (const SiPixelCluster& cl) const = 0;
+  virtual LocalPoint localPosition(DetParam const * theDetParam, const SiPixelCluster& cl) const = 0;
+  virtual LocalError localError   (DetParam const * theDetParam, const SiPixelCluster& cl) const = 0;
   
-  void fillParams();
+  void fillDetParams();
   
 public:  
   //--------------------------------------------------------------------------
@@ -198,15 +202,6 @@ public:
   //---------------------------------------------------------------------------
   //  Data members
   //---------------------------------------------------------------------------
-  //--- Detector-level quantities
-  mutable Param const * theParam;
-
-  mutable GeomDetType::SubDetector thePart;
-  mutable Local3DPoint theOrigin;
-  mutable float theThickness;
-  mutable float theDetZ;
-  mutable float theDetR;
-  mutable float theSign;
 
   //--- Cluster-level quantities (may need more)
   mutable float cotalpha_;
@@ -236,7 +231,6 @@ public:
 
 
   //---------------------------
-  mutable LocalVector driftDirection_;  // drift direction cached // &&&
   mutable float lorentzShiftInCmX_;   // a FULL shift, in cm
   mutable float lorentzShiftInCmY_;   // a FULL shift, in cm
 
@@ -254,7 +248,7 @@ public:
   //--- Global quantities
   int     theVerboseLevel;                    // algorithm's verbosity
 
-  mutable const MagneticField * magfield_;          // magnetic field
+  const MagneticField * magfield_;          // magnetic field
   const TrackerGeometry & geom_;          // geometry
   
   mutable const SiPixelLorentzAngle * lorentzAngle_;
@@ -262,12 +256,12 @@ public:
   
 
 #ifdef NEW
-  mutable const SiPixelGenErrorDBObject * genErrorDBObject_;  // NEW
+  const SiPixelGenErrorDBObject * genErrorDBObject_;  // NEW
 #else  
-  mutable const SiPixelCPEGenericErrorParm * genErrorParm_;  // OLD
+  const SiPixelCPEGenericErrorParm * genErrorParm_;  // OLD
 #endif
   
-  mutable const SiPixelTemplateDBObject * templateDBobject_;
+  const SiPixelTemplateDBObject * templateDBobject_;
   bool  alpha2Order;                          // switch on/off E.B effect.
   
   // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
@@ -280,32 +274,30 @@ public:
   //  Geometrical services to subclasses.
   //---------------------------------------------------------------------------
 private:
-  void computeAnglesFromDetPosition(const SiPixelCluster & cl ) const;
+  void computeAnglesFromDetPosition( DetParam const * theDetParam, const SiPixelCluster & cl ) const;
   
-  void computeAnglesFromTrajectory (const SiPixelCluster & cl, 
+  void computeAnglesFromTrajectory ( DetParam const * theDetParam, const SiPixelCluster & cl, 
 				    const LocalTrajectoryParameters & ltp) const;
 
 protected:
-  void  setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const ;
+  void  setTheDet( DetParam const *, const SiPixelCluster & cluster ) const ;
 
-  LocalVector driftDirection       ( GlobalVector bfield ) const ; 
-  LocalVector driftDirection       ( LocalVector bfield ) const ; 
-  void computeLorentzShifts() const ;
+  LocalVector driftDirection       (DetParam const * theDetParam, GlobalVector bfield ) const ; 
+  LocalVector driftDirection       (DetParam const * theDetParam, LocalVector bfield ) const ; 
+  void computeLorentzShifts(DetParam const *) const ;
 
-  bool isFlipped() const;              // is the det flipped or not?
+  bool isFlipped(DetParam const * theDetParam) const;              // is the det flipped or not?
 
   //---------------------------------------------------------------------------
   //  Cluster-level services.
   //---------------------------------------------------------------------------
    
-  Param const & param(const GeomDetUnit & det) const;
+  DetParam const & detParam(const GeomDetUnit & det) const;
  
  private:
-  using Params=std::vector<Param>;
+  using DetParams=std::vector<DetParam>;
   
-  mutable Params m_Params=Params(1440);
-  
-
+  mutable DetParams m_DetParams=DetParams(1440); // Needs to be mutable, since driftDirection is only calculated on first access
 
 };
 

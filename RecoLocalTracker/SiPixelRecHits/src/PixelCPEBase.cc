@@ -59,7 +59,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 			   const SiPixelTemplateDBObject * templateDBobject,
 			   const SiPixelLorentzAngle * lorentzAngleWidth)
 #endif
-  : theParam(nullptr), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
+  : nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     probabilityX_(0.0), probabilityY_(0.0),
     probabilityQ_(0.0), qBin_(0),
     isOnEdge_(false), hasBadPixels_(false),
@@ -109,22 +109,21 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   LogDebug("PixelCPEBase") <<" LA constants - "
 			   <<lAOffset_<<" "<<lAWidthBPix_<<" "<<lAWidthFPix_<<endl; //dk
   
-  fillParams();
+  fillDetParams();
   
 }
 
 //-----------------------------------------------------------------------------
 //  Fill all variables which are constant for an event (geometry)
 //-----------------------------------------------------------------------------
-void PixelCPEBase::fillParams()
+void PixelCPEBase::fillDetParams()
 {
   const unsigned m_detectors = geom_.offsetDU(GeomDetEnumerators::TIB); //first non-pixel detector unit
   auto const & dus = geom_.detUnits();
-  m_Params.resize(m_detectors);
+  m_DetParams.resize(m_detectors);
   //cout<<"caching "<<m_detectors<<" pixel detectors"<<endl;
   for (unsigned i=0; i!=m_detectors;++i) {
-    auto & p=m_Params[i];
-    theParam=&p;
+    auto & p=m_DetParams[i];
     p.theDet = dynamic_cast<const PixelGeomDetUnit*>(dus[i]);
     assert(p.theDet); 
     assert(p.theDet->index()==int(i)); 
@@ -184,13 +183,10 @@ void PixelCPEBase::fillParams()
        p.thePitchY = pitchxy.second;	     // pitch along y
       }
      
-    p.theSign = isFlipped() ? -1 : 1;
+    p.theSign = isFlipped(&p) ? -1 : 1;
 
-    LocalVector Bfield = p.theDet->surface().toLocal(magfield_->inTesla(p.theDet->surface().position()));
-    p.bz = Bfield.z();
-    p.driftDirection = driftDirection( Bfield );
-    p.widthLAFraction = widthLAFraction_;
-    
+    // Do not fill drift direction yet, since it depends on configuration of CPEgeneric
+
     LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
 			     << " thePart = " << p.thePart
 			     << " theThickness = " << p.theThickness
@@ -206,11 +202,9 @@ void PixelCPEBase::fillParams()
 //  One function to cache the variables common for one DetUnit.
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const 
+PixelCPEBase::setTheDet( DetParam const * theDetParam, const SiPixelCluster & cluster ) const 
 {
 
-  theParam = &param(det);
-    
   //--- Geometric Quality Information
   int minInX,minInY,maxInX,maxInY=0;
   minInX = cluster.minPixelRow();
@@ -218,8 +212,8 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   maxInX = cluster.maxPixelRow();
   maxInY = cluster.maxPixelCol();
   
-  isOnEdge_ = theParam->theRecTopol->isItEdgePixelInX(minInX) | theParam->theRecTopol->isItEdgePixelInX(maxInX) |
-    theParam->theRecTopol->isItEdgePixelInY(minInY) | theParam->theRecTopol->isItEdgePixelInY(maxInY) ;
+  isOnEdge_ = theDetParam->theRecTopol->isItEdgePixelInX(minInX) | theDetParam->theRecTopol->isItEdgePixelInX(maxInX) |
+    theDetParam->theRecTopol->isItEdgePixelInY(minInY) | theDetParam->theRecTopol->isItEdgePixelInY(maxInY) ;
   
   // FOR NOW UNUSED. KEEP IT IN CASE WE WANT TO USE IT IN THE FUTURE  
   // Bad Pixels have their charge set to 0 in the clusterizer 
@@ -228,8 +222,8 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   //if(cluster.pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
   //}
   
-  spansTwoROCs_ = theParam->theRecTopol->containsBigPixelInX(minInX,maxInX) |
-    theParam->theRecTopol->containsBigPixelInY(minInY,maxInY);
+  spansTwoROCs_ = theDetParam->theRecTopol->containsBigPixelInX(minInX,maxInX) |
+    theDetParam->theRecTopol->containsBigPixelInY(minInY,maxInY);
 
 }
 
@@ -239,7 +233,7 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
 //  Note: should become const after both localParameters() become const.
 //-----------------------------------------------------------------------------
 void PixelCPEBase::
-computeAnglesFromTrajectory( const SiPixelCluster & cl,
+computeAnglesFromTrajectory( DetParam const * theDetParam, const SiPixelCluster & cl,
 			     const LocalTrajectoryParameters & ltp) const
 {
   //cout<<" in PixelCPEBase:computeAnglesFromTrajectory - "<<endl; //dk
@@ -301,7 +295,7 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 //-----------------------------------------------------------------------------
 // G. Giurgiu, 12/01/06 : implement the function
 void PixelCPEBase::
-computeAnglesFromDetPosition(const SiPixelCluster & cl ) const
+computeAnglesFromDetPosition(DetParam const * theDetParam, const SiPixelCluster & cl ) const
 {
  
   
@@ -357,10 +351,10 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl ) const
   */
   
   // all the above is equivalent to 
-  LocalPoint lp = theParam->theTopol->localPosition( MeasurementPoint(cl.x(), cl.y()) );
-  auto gvx = lp.x()-theParam->theOrigin.x();
-  auto gvy = lp.y()-theParam->theOrigin.y();
-  auto gvz = -1.f/theParam->theOrigin.z();
+  LocalPoint lp = theDetParam->theTopol->localPosition( MeasurementPoint(cl.x(), cl.y()) );
+  auto gvx = lp.x()-theDetParam->theOrigin.x();
+  auto gvy = lp.y()-theDetParam->theOrigin.y();
+  auto gvz = -1.f/theDetParam->theOrigin.z();
   //  normalization not required as only ratio used... 
   
 
@@ -403,21 +397,28 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl ) const
 // in the E direction) to global coordinates. There is probably a much 
 // better way.
 //-----------------------------------------------------------------------------
-bool PixelCPEBase::isFlipped() const 
+bool PixelCPEBase::isFlipped(DetParam const * theDetParam) const 
 {
   // Check the relative position of the local +/- z in global coordinates.
-  float tmp1 = theParam->theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp2();
-  float tmp2 = theParam->theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp2();
+  float tmp1 = theDetParam->theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp2();
+  float tmp2 = theDetParam->theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp2();
   //cout << " 1: " << tmp1 << " 2: " << tmp2 << endl;
   if ( tmp2<tmp1 ) return true;
   else return false;    
 }
 //------------------------------------------------------------------------
-PixelCPEBase::Param const & PixelCPEBase::param(const GeomDetUnit & det) const {
+PixelCPEBase::DetParam const & PixelCPEBase::detParam(const GeomDetUnit & det) const {
   auto i = det.index();
   //cout << "get parameters of detector " << i << endl;
-  if (i>=int(m_Params.size())) m_Params.resize(i+1);  // should never happen!
-  Param & p = m_Params[i];
+  //assert(i>=int(m_DetParams.size()));
+  if (i>=int(m_DetParams.size())) m_DetParams.resize(i+1);  // should never happen!
+  DetParam & p = m_DetParams[i];
+  if unlikely(p.bz<-1.e10f) {
+    LocalVector Bfield = det.surface().toLocal(magfield_->inTesla(det.surface().position()));
+    p.bz = Bfield.z();
+    p.driftDirection = driftDirection(&p, Bfield );
+    p.widthLAFraction = widthLAFraction_;
+  }
   return p;
 }
 
@@ -430,16 +431,16 @@ PixelCPEBase::Param const & PixelCPEBase::param(const GeomDetUnit & det) const {
 //
 //-----------------------------------------------------------------------------
 LocalVector 
-PixelCPEBase::driftDirection( GlobalVector bfield ) const {
+PixelCPEBase::driftDirection(DetParam const * theDetParam, GlobalVector bfield ) const {
 
-  Frame detFrame(theParam->theDet->surface().position(), theParam->theDet->surface().rotation());
+  Frame detFrame(theDetParam->theDet->surface().position(), theDetParam->theDet->surface().rotation());
   LocalVector Bfield = detFrame.toLocal(bfield);
-  return driftDirection(Bfield);
+  return driftDirection(theDetParam,Bfield);
   
 }
 
 LocalVector 
-PixelCPEBase::driftDirection( LocalVector Bfield ) const {
+PixelCPEBase::driftDirection(DetParam const * theDetParam, LocalVector Bfield ) const {
   const bool LocalPrint = false;
   const bool useLAWidthFromGenError = false;
 
@@ -448,7 +449,7 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
   float langle = 0.;
   if( !useLAOffsetFromConfig_ ) {  // get it from DB
     if(lorentzAngle_ != NULL) {  // a real LA object 
-      langle = lorentzAngle_->getLorentzAngle(theParam->theDet->geographicalId().rawId());
+      langle = lorentzAngle_->getLorentzAngle(theDetParam->theDet->geographicalId().rawId());
     } else { // no LA, unused 
       //cout<<" LA object is NULL, assume LA = 0"<<endl; //dk
       langle = 0; // set to a fake value
@@ -467,14 +468,14 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
     if(useLAWidthFromGenError) {
       // or from the new error object
       // for the moment this does not compile, gtemp_ is defined only in generic
-      auto gtemplid = genErrorDBObject_->getGenErrorID(theParam->theDet->geographicalId().rawId());
+      auto gtemplid = genErrorDBObject_->getGenErrorID(theDetParam->theDet->geographicalId().rawId());
       cout<<gtemplid<<endl;
       //auto qbin = gtempl_.qbin( gtemplid);  // inputs
       //langleWidth = -micronsToCm*gtempl_.lorxwidth();
       ////chargeWidthY = -micronsToCm*gtempl_.lorywidth();
     } else {
       // take it from LA object label=from-width
-      langleWidth = lorentzAngleWidth_->getLorentzAngle(theParam->theDet->geographicalId().rawId());
+      langleWidth = lorentzAngleWidth_->getLorentzAngle(theDetParam->theDet->geographicalId().rawId());
     }
 
     if(langleWidth!=0.0) widthLAFraction_ = std::abs(langleWidth/langle);
@@ -514,13 +515,13 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
 //  One-shot computation of the driftDirection and both lorentz shifts
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::computeLorentzShifts() const {
+PixelCPEBase::computeLorentzShifts(DetParam const * theDetParam) const {
 
   //cout<<" in PixelCPEBase:computeLorentzShifts - "<<driftDirection_<<endl; //dk
 
   // Max shift (at the other side of the sensor) in cm 
-  lorentzShiftInCmX_ = theParam->driftDirection.x()/theParam->driftDirection.z() * theParam->theThickness;  // 
-  lorentzShiftInCmY_ = theParam->driftDirection.y()/theParam->driftDirection.z() * theParam->theThickness;  //
+  lorentzShiftInCmX_ = theDetParam->driftDirection.x()/theDetParam->driftDirection.z() * theDetParam->theThickness;  // 
+  lorentzShiftInCmY_ = theDetParam->driftDirection.y()/theDetParam->driftDirection.z() * theDetParam->theThickness;  //
   
   //cout<<" in PixelCPEBase:computeLorentzShifts - "
   //<<lorentzShiftInCmX_<<" "
@@ -528,7 +529,7 @@ PixelCPEBase::computeLorentzShifts() const {
   //<<endl; //dk
   
   LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
-			   << theParam->driftDirection    ;
+			   << theDetParam->driftDirection    ;
 }
 
 //-----------------------------------------------------------------------------

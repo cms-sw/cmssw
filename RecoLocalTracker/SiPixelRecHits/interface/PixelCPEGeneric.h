@@ -72,8 +72,8 @@ class PixelCPEGeneric : public PixelCPEBase
 
  
 private:
-  LocalPoint localPosition (const SiPixelCluster& cluster) const; 
-  LocalError localError   (const SiPixelCluster& cl) const;
+  LocalPoint localPosition (DetParam const * theDetParam, const SiPixelCluster& cluster) const; 
+  LocalError localError   (DetParam const * theDetParam, const SiPixelCluster& cl) const;
 
   //--------------------------------------------------------------------
   //  Methods.
@@ -85,6 +85,7 @@ private:
 			    float upper_edge_first_pix, //!< As the name says.
 			    float lower_edge_last_pix,  //!< As the name says.
 			    float lorentz_shift,   //!< L-width
+                            float theThickness,   //detector thickness
 			    float cot_angle,            //!< cot of alpha_ or beta_
 			    float pitch,            //!< thePitchX or thePitchY
 			    bool first_is_big,       //!< true if the first is big
