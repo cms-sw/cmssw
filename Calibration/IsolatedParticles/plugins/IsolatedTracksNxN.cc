@@ -530,7 +530,8 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     const reco::HitPattern &hitp = pTrack->getHitPattern();
 
     int nLayersCrossed = hitp.trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-    int nOuterHits     = hitp.stripTOBLayersWithMeasurement(reco::HitPattern::TRACK_HITS) + hitp.stripTECLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+    int nOuterHits     = hitp.stripTOBLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
+        + hitp.stripTECLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
     
     bool   ifGood      = pTrack->quality(trackQuality_);
     double pt1         = pTrack->pt();
@@ -818,31 +819,33 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	t_trackChiSq            ->push_back( chisq1 );	
 	t_trackNOuterHits       ->push_back( nOuterHits );
 	t_NLayersCrossed        ->push_back( nLayersCrossed );
-	
-	t_trackHitsTOB          ->push_back(hitp.stripTOBLayersWithMeasurement(reco::HitPattern::TRACK_HITS)); 
-	t_trackHitsTEC          ->push_back(hitp.stripTECLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+    using namespace reco;	
+	t_trackHitsTOB          ->push_back(hitp.stripTOBLayersWithMeasurement(HitPattern::TRACK_HITS)); 
+	t_trackHitsTEC          ->push_back(hitp.stripTECLayersWithMeasurement(HitPattern::TRACK_HITS));
 
-	t_trackHitInMissTOB     ->push_back(hitp.stripTOBLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
-	t_trackHitInMissTEC     ->push_back(hitp.stripTECLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
-	t_trackHitInMissTIB     ->push_back(hitp.stripTIBLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
-	t_trackHitInMissTID     ->push_back(hitp.stripTIDLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
-	t_trackHitInMissTIBTID  ->push_back(hitp.stripTIBLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) + hitp.stripTIDLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS)); 
+	t_trackHitInMissTOB     ->push_back(hitp.stripTOBLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS));
+	t_trackHitInMissTEC     ->push_back(hitp.stripTECLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS));
+	t_trackHitInMissTIB     ->push_back(hitp.stripTIBLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS));
+	t_trackHitInMissTID     ->push_back(hitp.stripTIDLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS));
+	t_trackHitInMissTIBTID  ->push_back(hitp.stripTIBLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS)
+            + hitp.stripTIDLayersWithoutMeasurement(HitPattern::MISSING_INNER_HITS)); 
 
-	t_trackHitOutMissTOB    ->push_back(hitp.stripTOBLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
-	t_trackHitOutMissTEC    ->push_back(hitp.stripTECLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS)); 
-	t_trackHitOutMissTIB    ->push_back(hitp.stripTIBLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
-	t_trackHitOutMissTID    ->push_back(hitp.stripTIDLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
-	t_trackHitOutMissTOBTEC ->push_back(hitp.stripTOBLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS) + hitp.stripTECLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
+	t_trackHitOutMissTOB    ->push_back(hitp.stripTOBLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS));
+	t_trackHitOutMissTEC    ->push_back(hitp.stripTECLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS)); 
+	t_trackHitOutMissTIB    ->push_back(hitp.stripTIBLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS));
+	t_trackHitOutMissTID    ->push_back(hitp.stripTIDLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS));
+	t_trackHitOutMissTOBTEC ->push_back(hitp.stripTOBLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS)
+            + hitp.stripTECLayersWithoutMeasurement(HitPattern::MISSING_OUTER_HITS));
 
-	t_trackHitInMeasTOB     ->push_back(hitp.stripTOBLayersWithMeasurement(reco::HitPattern::MISSING_INNER_HITS)); 
-	t_trackHitInMeasTEC     ->push_back(hitp.stripTECLayersWithMeasurement(reco::HitPattern::MISSING_INNER_HITS));  
-	t_trackHitInMeasTIB     ->push_back(hitp.stripTIBLayersWithMeasurement(reco::HitPattern::MISSING_INNER_HITS));  
-	t_trackHitInMeasTID     ->push_back(hitp.stripTIDLayersWithMeasurement(reco::HitPattern::MISSING_INNER_HITS));
+	t_trackHitInMeasTOB     ->push_back(hitp.stripTOBLayersWithMeasurement(HitPattern::MISSING_INNER_HITS)); 
+	t_trackHitInMeasTEC     ->push_back(hitp.stripTECLayersWithMeasurement(HitPattern::MISSING_INNER_HITS));  
+	t_trackHitInMeasTIB     ->push_back(hitp.stripTIBLayersWithMeasurement(HitPattern::MISSING_INNER_HITS));  
+	t_trackHitInMeasTID     ->push_back(hitp.stripTIDLayersWithMeasurement(HitPattern::MISSING_INNER_HITS));
 
-	t_trackHitOutMeasTOB    ->push_back(hitp.stripTOBLayersWithMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
-	t_trackHitOutMeasTEC    ->push_back(hitp.stripTECLayersWithMeasurement(reco::HitPattern::MISSING_OUTER_HITS)); 
-	t_trackHitOutMeasTIB    ->push_back(hitp.stripTIBLayersWithMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
-	t_trackHitOutMeasTID    ->push_back(hitp.stripTIDLayersWithMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
+	t_trackHitOutMeasTOB    ->push_back(hitp.stripTOBLayersWithMeasurement(HitPattern::MISSING_OUTER_HITS));
+	t_trackHitOutMeasTEC    ->push_back(hitp.stripTECLayersWithMeasurement(HitPattern::MISSING_OUTER_HITS)); 
+	t_trackHitOutMeasTIB    ->push_back(hitp.stripTIBLayersWithMeasurement(HitPattern::MISSING_OUTER_HITS));
+	t_trackHitOutMeasTID    ->push_back(hitp.stripTIDLayersWithMeasurement(HitPattern::MISSING_OUTER_HITS));
 
 	t_trackOutPosOutHitDr   ->push_back(trackOutPosOutHitDr                     );
 	t_trackL                ->push_back(trackL                                  );
@@ -1733,8 +1736,9 @@ double IsolatedTracksNxN::DeltaR(double eta1, double phi1, double eta2, double p
   return std::sqrt(deta*deta + dphi*dphi);
 }
 
-void IsolatedTracksNxN::printTrack(const reco::Track* pTrack) {
-  
+void IsolatedTracksNxN::printTrack(const reco::Track* pTrack) 
+{
+    using namespace reco; 
     std::string theTrackQuality = "highPurity";
     reco::TrackBase::TrackQuality trackQuality_ = reco::TrackBase::qualityByName(theTrackQuality);
 
@@ -1753,29 +1757,38 @@ void IsolatedTracksNxN::printTrack(const reco::Track* pTrack) {
         const reco::HitPattern &p = pTrack->getHitPattern();
 
         std::cout<<"default " << std::endl;
-        for(int i = 0; i < p.numberOfHits(reco::HitPattern::TRACK_HITS); i++){
-            p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
+        for(int i = 0; i < p.numberOfHits(HitPattern::TRACK_HITS); i++){
+            p.printHitPattern(HitPattern::TRACK_HITS, i, std::cout);
         }
 
         std::cout<<"trackerExpectedHitsInner() " << std::endl;
-        for(int i = 0; i < p.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i++){
-            p.printHitPattern(reco::HitPattern::MISSING_INNER_HITS, i, std::cout);
+        for(int i = 0; i < p.numberOfHits(HitPattern::MISSING_INNER_HITS); i++){
+            p.printHitPattern(HitPattern::MISSING_INNER_HITS, i, std::cout);
         } 
 
         std::cout<<"trackerExpectedHitsOuter() " << std::endl;
-        for(int i = 0; i < p.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); i++){
-            p.printHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i, std::cout);
+        for(int i = 0; i < p.numberOfHits(HitPattern::MISSING_OUTER_HITS); i++){
+            p.printHitPattern(HitPattern::MISSING_OUTER_HITS, i, std::cout);
         }
 
-        std::cout << "\n \t trackerLayersWithMeasurement() " << p.trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) 
-            << "\n \t pixelLayersWithMeasurement() "         << p.pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) 
-            << "\n \t stripLayersWithMeasurement() "         << p.stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS)  
-            << "\n \t pixelBarrelLayersWithMeasurement() "   << p.pixelBarrelLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
-            << "\n \t pixelEndcapLayersWithMeasurement() "   << p.pixelEndcapLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
-            << "\n \t stripTIBLayersWithMeasurement() "      << p.stripTIBLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
-            << "\n \t stripTIDLayersWithMeasurement() "      << p.stripTIDLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
-            << "\n \t stripTOBLayersWithMeasurement() "      << p.stripTOBLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
-            << "\n \t stripTECLayersWithMeasurement() "      << p.stripTECLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
+        std::cout << "\n \t trackerLayersWithMeasurement() "
+            << p.trackerLayersWithMeasurement(HitPattern::TRACK_HITS) 
+            << "\n \t pixelLayersWithMeasurement() "
+            << p.pixelLayersWithMeasurement(HitPattern::TRACK_HITS) 
+            << "\n \t stripLayersWithMeasurement() "
+            << p.stripLayersWithMeasurement(HitPattern::TRACK_HITS)  
+            << "\n \t pixelBarrelLayersWithMeasurement() "
+            << p.pixelBarrelLayersWithMeasurement(HitPattern::TRACK_HITS)
+            << "\n \t pixelEndcapLayersWithMeasurement() "
+            << p.pixelEndcapLayersWithMeasurement(HitPattern::TRACK_HITS)
+            << "\n \t stripTIBLayersWithMeasurement() "
+            << p.stripTIBLayersWithMeasurement(HitPattern::TRACK_HITS)
+            << "\n \t stripTIDLayersWithMeasurement() "
+            << p.stripTIDLayersWithMeasurement(HitPattern::TRACK_HITS)
+            << "\n \t stripTOBLayersWithMeasurement() "
+            << p.stripTOBLayersWithMeasurement(HitPattern::TRACK_HITS)
+            << "\n \t stripTECLayersWithMeasurement() "
+            << p.stripTECLayersWithMeasurement(HitPattern::TRACK_HITS)
             << std::endl;
     }
 }

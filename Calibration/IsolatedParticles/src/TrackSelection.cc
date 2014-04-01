@@ -2,7 +2,7 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 
 #include<iostream>
-//TODO jaldeaar lots of work to return false, is this function time critical?
+
 namespace spr{
   
   bool goodTrack (const reco::Track* pTrack, math::XYZPoint leadPV, spr::trackSelectionParameters parameters, bool debug) {

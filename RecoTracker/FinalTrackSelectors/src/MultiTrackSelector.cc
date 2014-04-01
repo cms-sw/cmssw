@@ -514,7 +514,8 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es)
     const Track & trk = * it;
     tmva_ndof_ = trk.ndof();
     tmva_nlayers_ = trk.getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-    tmva_nlayers3D_ = trk.getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) + trk.getHitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS);
+    tmva_nlayers3D_ = trk.getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
+        + trk.getHitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS);
     tmva_nlayerslost_ = trk.getHitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
     float chi2n =  trk.normalizedChi2();
     float chi2n_no1Dmod = chi2n;

@@ -101,8 +101,8 @@ class RecoTrackSelector {
     }
     return
       (t.getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) >= minHit_ &&
-       t.getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) +
-       t.getHitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS) >= min3DHit_ &&
+       (t.getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) +
+        t.getHitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS)) >= min3DHit_ &&
        fabs(t.pt()) >= ptMin_ &&
        t.eta() >= minRapidity_ && t.eta() <= maxRapidity_ &&
        fabs(t.dxy(bs->position())) <= tip_ &&

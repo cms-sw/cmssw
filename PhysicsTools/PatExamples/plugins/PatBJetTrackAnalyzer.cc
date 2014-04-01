@@ -248,9 +248,9 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
 		    track != tracksHandle->end(); ++track) {
 
 			// check the quality criteria
-			if (track->pt() < minPt_ ||
-			    track->getHitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) < (int)minTotalHits_ ||
-			    track->getHitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS) < (int)minPixelHits_)
+			if (track->pt() < minPt_
+                    || track->getHitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) < (int)minTotalHits_
+                    || track->getHitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS) < (int)minPixelHits_)
 				continue;
 
 			// check the Delta R between jet axis and track

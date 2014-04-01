@@ -141,7 +141,7 @@ FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iS
                 uint32_t hp = newHitPattern.getHitPattern(j);
                 uint32_t subDet = reco::HitPattern::getSubStructure(hp);
                 uint32_t layer = reco::HitPattern::getLayer(hp);
-                uint32_t status = reco::HitPattern::guuuetHitType(hp);
+                uint32_t status = reco::HitPattern::getHitType(hp);
                 LogDebug("FTHP")<<"           layer with no matched hit at counter="<<j<<" subdet="<<subDet<<" layer="<<layer<<" status="<<status<<endl;
             }
 

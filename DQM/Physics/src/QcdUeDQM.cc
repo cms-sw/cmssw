@@ -704,7 +704,9 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
         const reco::HitPattern &p = trk.getHitPattern();
         for (int i = 0; i < p.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
             uint32_t hit = p.getHitPattern(reco::HitPattern::TRACK_HITS, i);
-            if (reco::HitPattern::validHitFilter(hit) && reco::HitPattern::pixelHitFilter(hit) && reco::HitPattern::getLayer(hit) == 1){
+            if (reco::HitPattern::validHitFilter(hit)
+                    && reco::HitPattern::pixelHitFilter(hit) 
+                    && reco::HitPattern::getLayer(hit) == 1){
                 hasPIX1 = true;
                 break;
             }
@@ -733,9 +735,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
     //-----
     bool algo_ok = true;
     if (algorithm_.size() != 0) {
-        if (std::find(algorithm_.begin(), algorithm_.end(), trk.algo()) == algorithm_.end()){
-            algo_ok = false;
-        }
+        if (std::find(algorithm_.begin(),algorithm_.end(),trk.algo())==algorithm_.end()) algo_ok = false;
     }
 
     if(bsuse_ == 1){

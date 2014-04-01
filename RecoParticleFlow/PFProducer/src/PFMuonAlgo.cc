@@ -274,11 +274,11 @@ PFMuonAlgo::isGlobalTightMuon( const reco::MuonRef& muonRef ) {
       
     // Check the quality of the stand-alone muon : 
     // good chi**2 and large number of hits and good pt error
-    if ( ( standAloneMu->getHitPattern().numberOfValidMuonDTHits(HitPattern::TRACK_HITS) < 22 &&
-	   standAloneMu->getHitPattern().numberOfValidMuonCSCHits(HitPattern::TRACK_HITS) < 15 ) ||
-	 standAloneMu->normalizedChi2() > 10. || 
-	 standAloneMu->ptError()/standAloneMu->pt() > 0.20 ) {
-      result = false;
+    if ((standAloneMu->getHitPattern().numberOfValidMuonDTHits(HitPattern::TRACK_HITS) < 22
+                && standAloneMu->getHitPattern().numberOfValidMuonCSCHits(HitPattern::TRACK_HITS) < 15)
+            || standAloneMu->normalizedChi2() > 10.
+            || standAloneMu->ptError()/standAloneMu->pt() > 0.20) {
+        result = false;
     } else { 
       
       reco::TrackRef combinedMu = muonRef->combinedMuon();

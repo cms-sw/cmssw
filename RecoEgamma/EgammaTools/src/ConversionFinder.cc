@@ -126,7 +126,9 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
 
       //need to add the track reference information for completeness
       //because the overloaded fnc above does not make a trackRef
-      int deltaMissingHits = ctftk->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) - el_ctftrack->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+      int deltaMissingHits = ctftk->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)
+          - el_ctftrack->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+
       convInfo = ConversionInfo(convInfo.dist(),
 				convInfo.dcot(),
 				convInfo.radiusOfConversion(),
@@ -146,7 +148,9 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
        (el_gsftrack->charge() + ctftk->charge() == 0) &&
        el_gsftrack->ptError()/el_gsftrack->pt() < 0.25) {
 
-      int deltaMissingHits = ctftk->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) - el_gsftrack->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+      int deltaMissingHits = ctftk->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)
+          - el_gsftrack->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+
       ConversionInfo convInfo = getConversionInfo((const reco::Track*)(el_gsftrack.get()), &(*ctftk), bFieldAtOrigin);
       convInfo = ConversionInfo(convInfo.dist(),
 				convInfo.dcot(),
@@ -189,7 +193,9 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
        deltaR(el_ctftrack_p4, gsftk_p4) < 0.5 &&
        (el_ctftrack->charge() + gsftk->charge() == 0)) {
 
-      int deltaMissingHits = gsftk->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) - el_ctftrack->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+      int deltaMissingHits = gsftk->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)
+          - el_ctftrack->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+      
       ConversionInfo convInfo = getConversionInfo((const reco::Track*)(el_ctftrack.get()), (const reco::Track*)(&(*gsftk)), bFieldAtOrigin);
       //fill the Ref info
       convInfo = ConversionInfo(convInfo.dist(),
@@ -211,7 +217,9 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
       ConversionInfo convInfo = getConversionInfo((const reco::Track*)(el_gsftrack.get()), (const reco::Track*)(&(*gsftk)), bFieldAtOrigin);
       //fill the Ref info
 
-      int deltaMissingHits = gsftk->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) - el_gsftrack->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+      int deltaMissingHits = gsftk->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)
+          - el_gsftrack->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+
       convInfo = ConversionInfo(convInfo.dist(),
 				convInfo.dcot(),
 				convInfo.radiusOfConversion(),
@@ -549,7 +557,10 @@ ConversionInfo ConversionFinder::getConversionInfo(const reco::GsfElectron& gsfE
   rconv = tempsign*rconv;
 
   int deltaMissingHits = -9999;
-  deltaMissingHits = candCtfTrackRef->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) - el_track->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+
+  deltaMissingHits = candCtfTrackRef->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)
+      - el_track->getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+
   return ConversionInfo(dist, dcot, rconv, convPoint, candCtfTrackRef, GsfTrackRef(), deltaMissingHits, flag);
 
  }

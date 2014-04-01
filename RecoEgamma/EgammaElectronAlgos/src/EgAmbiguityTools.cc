@@ -18,9 +18,7 @@ namespace EgAmbiguityTools
 {
 
 bool isBetter( const reco::GsfElectron * e1, const reco::GsfElectron * e2 )
-{
-    return (std::abs(e1->eSuperClusterOverP()-1) < std::abs(e2->eSuperClusterOverP() - 1));
-}
+ { return (std::abs(e1->eSuperClusterOverP()-1) < std::abs(e2->eSuperClusterOverP() - 1)) ; }
 
 bool isInnerMost::operator()(const reco::GsfElectron *e1, const reco::GsfElectron *e2)
 {
@@ -31,7 +29,7 @@ bool isInnerMost::operator()(const reco::GsfElectron *e1, const reco::GsfElectro
             elHitsIt1 != e1->gsfTrack()->recHitsEnd();
             elHitsIt1++, gsfHitCounter1++)
     { 
-        if (((**elHitsIt1).isValid())){
+        if ((**elHitsIt1).isValid()){
             break;
         }
     }
@@ -42,12 +40,12 @@ bool isInnerMost::operator()(const reco::GsfElectron *e1, const reco::GsfElectro
             elHitsIt2 != e2->gsfTrack()->recHitsEnd();
             elHitsIt2++, gsfHitCounter2++ )
     {
-        if (((**elHitsIt2).isValid())){
+        if ((**elHitsIt2).isValid()){
             break;
         }
     }
 
-    uint32_t gsfHit1 = e1->gsfTrack()->getHitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter1); 
+    uint32_t gsfHit1 = e1->gsfTrack()->getHitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter1);
     uint32_t gsfHit2 = e2->gsfTrack()->getHitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter2);
 
     if (HitPattern::getSubStructure(gsfHit1) != HitPattern::getSubStructure(gsfHit2)){
@@ -70,7 +68,7 @@ int sharedHits(const GsfTrackRef & gsfTrackRef1, const GsfTrackRef & gsfTrackRef
   int gsfHitCounter1 = 0;
   for(trackingRecHit_iterator elHitsIt1 = gsfTrackRef1->recHitsBegin();
           elHitsIt1 != gsfTrackRef1->recHitsEnd(); elHitsIt1++, gsfHitCounter1++) {
-      if(!((**elHitsIt1).isValid())){
+      if(!(**elHitsIt1).isValid()){
           //count only valid Hits
           continue;
       }
@@ -87,7 +85,7 @@ int sharedHits(const GsfTrackRef & gsfTrackRef1, const GsfTrackRef & gsfTrackRef
       int gsfHitsCounter2 = 0;
       for(trackingRecHit_iterator gsfHitsIt2 = gsfTrackRef2->recHitsBegin();
               gsfHitsIt2 != gsfTrackRef2->recHitsEnd(); gsfHitsIt2++, gsfHitsCounter2++) {
-          if(!((**gsfHitsIt2).isValid())){
+          if(!(**gsfHitsIt2).isValid()){
               //count only valid Hits
               continue;
           }

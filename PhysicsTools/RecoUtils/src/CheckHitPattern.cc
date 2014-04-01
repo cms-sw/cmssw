@@ -125,7 +125,8 @@ CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup,
   GlobalVector p3_trk = t_trk.trajectoryStateClosestToPoint(vert.position()).momentum();
   bool trkGoesInsideOut = fabs(reco::deltaPhi<const GlobalVector, const GlobalPoint>(p3_trk, vert.position())) < 0.5*M_PI;
 
-  LogDebug("CHP") << "TRACK: in-->out ? " << trkGoesInsideOut 
+  LogDebug("CHP") << "TRACK: in-->out ? " 
+      << trkGoesInsideOut 
       << " dxy=" << track.dxy()
       << " sz="  <<track.dz()
       << " eta="  <<track.eta()

@@ -469,8 +469,12 @@ bool validateGlobalMuonPair( const reco::MuonTrackLinks& goodMuon,
     else
       return true;
   }
-  if (goodMuon.globalTrack()->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) <
-       badMuon.globalTrack()->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS)) return false;
+
+  if (goodMuon.globalTrack()->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS)
+          < badMuon.globalTrack()->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS)){
+      return false;
+  }
+
   return true;
 }
 
