@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-process = cms.Process("SiPixelTemplateDBReaderTest")
+process = cms.Process("SiPixelGenErrorDBReaderTest")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("CalibTracker.SiPixelESProducers.SiPixelTemplateDBObjectESProducer_cfi")
+process.load("CalibTracker.SiPixelESProducers.SiPixelGenErrorDBObjectESProducer_cfi")
 
 magfield = float(sys.argv[2])
 #version = "v3"
@@ -38,7 +38,7 @@ process.load("Configuration.StandardSequences.MagneticField_"+magfieldCffStr+"_c
 
 #Change to True if you would like a more detailed error output
 wantDetailedOutput = False
-#Change to True if you would like to output the full template database object
+#Change to True if you would like to output the full GenError database object
 wantFullOutput = False
 
 process.source = cms.Source("EmptySource")
@@ -57,20 +57,20 @@ else:
     process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                           process.CondDBSetup,
                                           toGet = cms.VPSet(cms.PSet(
-        record = cms.string('SiPixelTemplateDBObjectRcd'),
-        tag = cms.string('SiPixelTemplateDBObject' + magfieldString + version)
+        record = cms.string('SiPixelGenErrorDBObjectRcd'),
+        tag = cms.string('SiPixelGenErrorDBObject' + magfieldString + version)
         )),
                                           timetype = cms.string('runnumber'),
-                                          connect = cms.string('sqlite_file:siPixelTemplates' + magfieldString + '.db')
+                                          connect = cms.string('sqlite_file:siPixelGenErrors' + magfieldString + '.db')
                                           )
     process.PoolDBESSource.DBParameters.authenticationPath='.'
     process.PoolDBESSource.DBParameters.messageLevel=0
 
-process.reader = cms.EDAnalyzer("SiPixelTemplateDBObjectReader",
-                              siPixelTemplateCalibrationLocation = cms.string(
+process.reader = cms.EDAnalyzer("SiPixelGenErrorDBObjectReader",
+                              siPixelGenErrorCalibrationLocation = cms.string(
                              "CalibTracker/SiPixelESProducers"),
-                              wantDetailedTemplateDBErrorOutput = cms.bool(wantDetailedOutput),
-                              wantFullTemplateDBOutput = cms.bool(wantFullOutput),
+                              wantDetailedGenErrorDBErrorOutput = cms.bool(wantDetailedOutput),
+                              wantFullGenErrorDBOutput = cms.bool(wantFullOutput),
                               TestGlobalTag = cms.bool(testGlobalTag)
                               )
 

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 
-process = cms.Process("SiPixelTemplateDBUpload")
+process = cms.Process("SiPixelGenErrorDBUpload")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
@@ -20,53 +20,53 @@ version = sys.argv[3]
 if ( MagFieldValue==0 ):
     MagFieldString = '0'
     files_to_upload = cms.vstring(
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0022.out",
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0023.out")
-    theDetIds      = cms.vuint32( 1, 2) # 0 is for all, 1 is Barrel, 2 is EndCap theTemplateIds = cms.vuint32(22,23)
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0022.out",
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0023.out")
+    theDetIds      = cms.vuint32( 1, 2) # 0 is for all, 1 is Barrel, 2 is EndCap theGenErrorIds = cms.vuint32(22,23)
 elif ( MagFieldValue==4 or MagFieldValue==40 ):
     MagFieldString = '4'
     files_to_upload = cms.vstring(
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0018.out",
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0019.out")
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0018.out",
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0019.out")
     theDetIds      = cms.vuint32( 1, 2)
-    theTemplateIds = cms.vuint32(18,19)
+    theGenErrorIds = cms.vuint32(18,19)
 elif ( MagFieldValue==3.8 or MagFieldValue==38 ):
     MagFieldString = '38'
     files_to_upload = cms.vstring(
-#        "CalibTracker/SiPixelESProducers/data/template_summary_zp0020.out",
-#        "CalibTracker/SiPixelESProducers/data/template_summary_zp0021.out")
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0030.out",
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0031.out")
+#        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0020.out",
+#        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0021.out")
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0030.out",
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0031.out")
     theDetIds      = cms.vuint32( 1, 2)
-    theTemplateIds = cms.vuint32(20,21)
+    theGenErrorIds = cms.vuint32(30,31)
 elif ( MagFieldValue==2 or MagFieldValue==20 ):
     MagFieldString = '2'
     files_to_upload = cms.vstring(
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0030.out",
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0031.out")
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0030.out",
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0031.out")
     theDetIds      = cms.vuint32( 1, 2)
-    theTemplateIds = cms.vuint32(30,31)
+    theGenErrorIds = cms.vuint32(30,31)
 elif ( MagFieldValue==3 or MagFieldValue==30 ):
     MagFieldString = '3'
     files_to_upload = cms.vstring(
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0032.out",
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0033.out")
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0032.out",
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0033.out")
     theDetIds      = cms.vuint32( 1, 2)
-    theTemplateIds = cms.vuint32(32,33)
+    theGenErrorIds = cms.vuint32(32,33)
 elif( MagFieldValue==3.5 or MagFieldValue==35 ):
     MagFieldString = '35'
     files_to_upload = cms.vstring(
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0034.out",
-        "CalibTracker/SiPixelESProducers/data/template_summary_zp0035.out")
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0034.out",
+        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0035.out")
     theDetIds      = cms.vuint32( 1, 2)
-    theTemplateIds = cms.vuint32(34,35)
+    theGenErrorIds = cms.vuint32(34,35)
 
 
 
-template_base = 'SiPixelTemplateDBObject' + MagFieldString + 'T'
-#theTemplateBaseString = cms.string(template_base)
+generror_base = 'SiPixelGenErrorDBObject' + MagFieldString + 'T'
+#theGenErrorBaseString = cms.string(generic_base)
 
-print '\nUploading %s%s with record SiPixelTemplateDBObjectRcd in file siPixelTemplates%sT.db\n' % (template_base,version,MagFieldString)
+print '\nUploading %s%s with record SiPixelGenErrorDBObjectRcd in file siPixelGenErrors%sT.db\n' % (generror_base,version,MagFieldString)
 
 process.source = cms.Source("EmptyIOVSource",
                             timetype = cms.string('runnumber'),
@@ -85,26 +85,26 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     authenticationPath = cms.untracked.string('.')
     ),
                                           timetype = cms.untracked.string('runnumber'),
-                                          connect = cms.string('sqlite_file:siPixelTemplates' + MagFieldString + 'T.db'),
+                                          connect = cms.string('sqlite_file:siPixelGenErrors' + MagFieldString + 'T.db'),
                                           toPut = cms.VPSet(cms.PSet(
-    record = cms.string('SiPixelTemplateDBObjectRcd'),
-    tag = cms.string(template_base + version)
+    record = cms.string('SiPixelGenErrorDBObjectRcd'),
+    tag = cms.string(generror_base + version)
     ))
                                           )
 
-process.uploader = cms.EDAnalyzer("SiPixelTemplateDBObjectUploader",
-                                  siPixelTemplateCalibrations = files_to_upload,
-                                  theTemplateBaseString = cms.string(template_base),
+process.uploader = cms.EDAnalyzer("SiPixelGenErrorDBObjectUploader",
+                                  siPixelGenErrorCalibrations = files_to_upload,
+                                  theGenErrorBaseString = cms.string(generror_base),
                                   Version = cms.double("3.0"),
                                   MagField = cms.double(MagFieldValue),
                                   detIds = theDetIds,
-                                  templateIds = theTemplateIds
+                                  generrorIds = theGenErrorIds
 )
 
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.uploader)
-process.CondDBCommon.connect = 'sqlite_file:siPixelTemplates' + MagFieldString + 'T.db'
+process.CondDBCommon.connect = 'sqlite_file:siPixelGenErrors' + MagFieldString + 'T.db'
 process.CondDBCommon.DBParameters.messageLevel = 0
 process.CondDBCommon.DBParameters.authenticationPath = './'
