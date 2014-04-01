@@ -9,8 +9,9 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include "SimG4Core/Application/interface/RunManager.h"
-
 #include "SimG4Core/Application/interface/CustomUIsession.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <memory>
 
@@ -28,6 +29,7 @@ private:
     std::unique_ptr<RunManager> m_runManager;
     Producers     m_producers;
     std::unique_ptr<CustomUIsession> m_UIsession;
+    //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
 };
 
 #endif

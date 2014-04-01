@@ -1,6 +1,7 @@
 <use   name="FWCore/Concurrency"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/TrackingHit"/>

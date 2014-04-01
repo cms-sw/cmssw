@@ -38,7 +38,6 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include "HepPDT/defs.h"
@@ -104,6 +103,7 @@ void createWatchers(const edm::ParameterSet& iP,
   }
 }
 
+//RunManager::RunManager(edm::ParameterSet const & p, edm::ConsumesCollector && iC) 
 RunManager::RunManager(edm::ParameterSet const & p) 
   :   m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
       m_primaryTransformer(0), 
@@ -128,9 +128,11 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_p(p), m_fieldBuilder(0),
       m_theLHCTlinkTag(p.getParameter<edm::InputTag>("theLHCTlinkTag"))
 {    
+  //m_HepMC = iC.consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProduct"));
+
   m_kernel = G4RunManagerKernel::GetRunManagerKernel();
   if (m_kernel==0) m_kernel = new G4RunManagerKernel();
-    
+
   m_CustomExceptionHandler = new ExceptionHandler(this) ;
     
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
@@ -150,6 +152,10 @@ RunManager::RunManager(edm::ParameterSet const & p)
   }
 
   createWatchers(m_p, m_registry, m_watchers, m_producers);
+
+  m_generator = new Generator(m_pGenerator);
+  m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
+
 }
 
 RunManager::~RunManager() 
@@ -230,8 +236,6 @@ void RunManager::initG4(const edm::EventSetup & es)
   es.get<PDTRecord>().get(fTable);
   const HepPDT::ParticleDataTable *fPDGTable = &(*fTable);
 
-  m_generator = new Generator(m_pGenerator);
-  m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
   m_primaryTransformer = new PrimaryTransformer();
 
   std::auto_ptr<PhysicsListMakerBase> 

@@ -66,6 +66,10 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     usesResource(edm::SharedResourceNames::kGEANT);
     usesResource(edm::SharedResourceNames::kCLHEPRandomEngine);
 
+    consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProduct"));
+    m_runManager.reset(new RunManager(p));
+    //m_runManager.reset(new RunManager(p, consumesCollector()));
+
     produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
     produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
     produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelLowTof");
@@ -109,11 +113,8 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PCaloHitContainer>("FibreHits"); 
     produces<edm::PCaloHitContainer>("WedgeHits"); 
     
-    //m_runManager = RunManager::init(p);
-    m_runManager.reset(new RunManager(p));
-
     //register any products 
-    m_producers= m_runManager->producers();
+    m_producers = m_runManager->producers();
 
     for(Producers::iterator itProd = m_producers.begin();
 	itProd != m_producers.end();
@@ -156,17 +157,17 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
     e.put(p1);
     e.put(p2);
 
-    for (std::vector<SensitiveTkDetector*>::iterator it = sTk.begin(); it != sTk.end(); it++)
+    for (std::vector<SensitiveTkDetector*>::iterator it = sTk.begin(); it != sTk.end(); ++it)
     {
 	std::vector<std::string> v = (*it)->getNames();
-	for (std::vector<std::string>::iterator in = v.begin(); in!= v.end(); in++)
+	for (std::vector<std::string>::iterator in = v.begin(); in!= v.end(); ++in)
 	{
 	    std::auto_ptr<edm::PSimHitContainer> product(new edm::PSimHitContainer);
  	    (*it)->fillHits(*product,*in);
 	    e.put(product,*in);
 	}
     }
-    for (std::vector<SensitiveCaloDetector*>::iterator it = sCalo.begin(); it != sCalo.end(); it++)
+    for (std::vector<SensitiveCaloDetector*>::iterator it = sCalo.begin(); it != sCalo.end(); ++it)
     {
 	std::vector<std::string>  v = (*it)->getNames();
 	for (std::vector<std::string>::iterator in = v.begin(); in!= v.end(); in++)
@@ -186,7 +187,7 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
     catch ( const SimG4Exception& simg4ex )
     {
        
-       edm::LogInfo("SimG4CoreApplication") << " SimG4Exception caght !" << simg4ex.what() << std::endl ;
+       edm::LogInfo("SimG4CoreApplication") << " SimG4Exception caght !" << simg4ex.what();
        
        m_runManager->abortEvent() ;
        throw edm::Exception( edm::errors::EventCorruption ) ;
