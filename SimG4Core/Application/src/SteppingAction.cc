@@ -15,9 +15,9 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p)
   : eventAction_(e), tracker(0), calo(0), initialized(false) {
 
   killBeamPipe = (p.getParameter<bool>("KillBeamPipe"));
-  theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum")*MeV);
-  theCriticalDensity = (p.getParameter<double>("CriticalDensity")*g/cm3);
-  maxTrackTime  = (p.getParameter<double>("MaxTrackTime")*ns);
+  theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum")*CLHEP::MeV);
+  theCriticalDensity = (p.getParameter<double>("CriticalDensity")*CLHEP::g/CLHEP::cm3);
+  maxTrackTime  = (p.getParameter<double>("MaxTrackTime")*CLHEP::ns);
   maxTrackTimes = (p.getParameter<std::vector<double> >("MaxTrackTimes"));
   maxTimeNames  = (p.getParameter<std::vector<std::string> >("MaxTimeNames"));
   ekinMins      = (p.getParameter<std::vector<double> >("EkinThresholds"));
@@ -27,10 +27,10 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p)
 
   edm::LogInfo("SimG4CoreApplication") << "SteppingAction:: KillBeamPipe = "
 				       << killBeamPipe << " CriticalDensity = "
-				       << theCriticalDensity << " g/cc;"
+				       << theCriticalDensity*CLHEP::cm3/CLHEP::g << " g/cm3;"
 				       << " CriticalEnergyForVacuum = "
-				       << theCriticalEnergyForVacuum << " Mev;"
-				       << " MaxTrackTime = " << maxTrackTime 
+				       << theCriticalEnergyForVacuum/CLHEP::MeV << " Mev;"
+				       << " MaxTrackTime = " << maxTrackTime/CLHEP::ns 
 				       << " ns";
 
   for (unsigned int i=0; i<maxTrackTimes.size(); i++) {
