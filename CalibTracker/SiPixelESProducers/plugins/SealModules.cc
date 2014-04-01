@@ -13,7 +13,6 @@
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeCPEGenericErrorParmESSource.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeTemplateDBObjectESSource.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelQualityESProducer.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelGenErrorDBObjectESProducer.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeQualityESSource.h"
 
 

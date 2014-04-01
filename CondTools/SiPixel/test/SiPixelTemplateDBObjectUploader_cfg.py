@@ -8,8 +8,8 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = "MC_70_V4::All"
-process.GlobalTag.globaltag = "START71_V1::All"
+process.GlobalTag.globaltag = "MC_70_V4::All"
+#process.GlobalTag.globaltag = "START71_V1::All"
 
 MagFieldValue = float(sys.argv[2])
 
