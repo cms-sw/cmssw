@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //Plotters
 #include "DQMOffline/Trigger/interface/HLTTauDQML1Plotter.h"
@@ -20,15 +21,15 @@
 // class declaration
 //
 
-class HLTTauDQMOfflineSource : public edm::EDAnalyzer {
+class HLTTauDQMOfflineSource : public DQMEDAnalyzer {
 public:
     HLTTauDQMOfflineSource( const edm::ParameterSet& );
     ~HLTTauDQMOfflineSource();
 
 protected:
-    void beginJob();
-    void beginRun(const edm::Run& r, const edm::EventSetup& c);
-    void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+    void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+    void bookHistograms(DQMStore::IBooker &iBooker, const edm::Run& r, const edm::EventSetup& c) override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
     std::string hltProcessName_;
