@@ -23,7 +23,7 @@ public:
                          const edm::InputTag & inputTag);
   ~GEMCSCPadDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
-  void bookHisto();
+  void bookHisto(const GEMGeometry* geom);
  private:
 
   MonitorElement* theCSCPad_xy[2][3][2];
