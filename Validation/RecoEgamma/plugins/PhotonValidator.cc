@@ -912,18 +912,35 @@ void PhotonValidator::bookHistograms(void) {
     h_phoEt_[0][1] = dbe_->book1D(histname+"Barrel"," Photon Transverse Energy: Barrel ",etBin,etMin, etMax);
     h_phoEt_[0][2] = dbe_->book1D(histname+"Endcap"," Photon Transverse Energy: Endcap ",etBin,etMin, etMax);
 
+ 
     histname = "eRes";
-    h_phoERes_[0][0] = dbe_->book1D(histname+"All"," Photon rec/true Energy: All ecal ", resBin,resMin, resMax);
-    h_phoERes_[0][1] = dbe_->book1D(histname+"Barrel"," Photon rec/true Energy: Barrel ",resBin,resMin, resMax);
-    h_phoERes_[0][2] = dbe_->book1D(histname+"Endcap"," Photon rec/true Energy: Endcap ",resBin,resMin, resMax);
+    h_phoERes_[0][0] = dbe_->book1D(histname+"All"," Photon E/E_{true}: All ecal;  E/E_{true} (GeV)", resBin,resMin, resMax);
+    h_phoERes_[0][1] = dbe_->book1D(histname+"Barrel","Photon E/E_{true}: Barrel; E/E_{true} (GeV)",resBin,resMin, resMax);
+    h_phoERes_[0][2] = dbe_->book1D(histname+"Endcap"," Photon E/E_{true}: Endcap; E/E_{true} (GeV)",resBin,resMin, resMax);
 
-    h_phoERes_[1][0] = dbe_->book1D(histname+"unconvAll"," Photon rec/true Energy if r9>0.94, 0.95: All ecal ", resBin,resMin, resMax);
-    h_phoERes_[1][1] = dbe_->book1D(histname+"unconvBarrel"," Photon rec/true Energy if r9>0.94: Barrel ",resBin,resMin, resMax);
-    h_phoERes_[1][2] = dbe_->book1D(histname+"unconvEndcap"," Photon rec/true Energyif r9>0.95: Endcap ",resBin,resMin, resMax);
+    h_phoERes_[1][0] = dbe_->book1D(histname+"unconvAll"," Photon E/E_{true} if r9>0.94, 0.95: All ecal; E/E_{true} (GeV)", resBin,resMin, resMax);
+    h_phoERes_[1][1] = dbe_->book1D(histname+"unconvBarrel"," Photon E/E_{true} if r9>0.94: Barrel; E/E_{true} (GeV)",resBin,resMin, resMax);
+    h_phoERes_[1][2] = dbe_->book1D(histname+"unconvEndcap"," Photon E/E_{true} if r9>0.95: Endcap; E/E_{true} (GeV)",resBin,resMin, resMax);
 
-    h_phoERes_[2][0] = dbe_->book1D(histname+"convAll"," Photon rec/true Energy if r9<0.0.94, 0.95: All ecal ", resBin,resMin, resMax);
-    h_phoERes_[2][1] = dbe_->book1D(histname+"convBarrel"," Photon rec/true Energyif r9<0.94: Barrel ",resBin,resMin, resMax);
-    h_phoERes_[2][2] = dbe_->book1D(histname+"convEndcap"," Photon rec/true Energyif r9<0.95: Endcap ",resBin,resMin, resMax);
+    h_phoERes_[2][0] = dbe_->book1D(histname+"convAll"," Photon E/E_{true} if r9<0.0.94, 0.95: All ecal; E/E_{true} (GeV)", resBin,resMin, resMax);
+    h_phoERes_[2][1] = dbe_->book1D(histname+"convBarrel"," Photon E/E_{true} if r9<0.94: Barrel; E/E_{true} (GeV)",resBin,resMin, resMax);
+    h_phoERes_[2][2] = dbe_->book1D(histname+"convEndcap"," Photon E/E_{true} if r9<0.95: Endcap; E/E_{true} (GeV)",resBin,resMin, resMax);
+   
+
+    histname = "sigmaEoE";
+    h_phoSigmaEoE_[0][0] = dbe_->book1D(histname+"All","#sigma_{E}/E: All ecal; #sigma_{E}/E", 100,0., 0.08);
+    h_phoSigmaEoE_[0][1] = dbe_->book1D(histname+"Barrel","#sigma_{E}/E: Barrel; #sigma_{E}/E",100,0., 0.08);
+    h_phoSigmaEoE_[0][2] = dbe_->book1D(histname+"Endcap","#sigma_{E}/E: Endcap, #sigma_{E}/E",100,0., 0.08);
+
+    h_phoSigmaEoE_[1][0] = dbe_->book1D(histname+"unconvAll","#sigma_{E}/E if r9>0.94, 0.95: All ecal; #sigma_{E}/E", 100,0., 0.08);
+    h_phoSigmaEoE_[1][1] = dbe_->book1D(histname+"unconvBarrel","#sigma_{E}/E if r9>0.94: Barrel; #sigma_{E}/E",100,0., 0.08);
+    h_phoSigmaEoE_[1][2] = dbe_->book1D(histname+"unconvEndcap","#sigma_{E}/E r9>0.95: Endcap; #sigma_{E}/E",100,0., 0.08);
+
+    h_phoSigmaEoE_[2][0] = dbe_->book1D(histname+"convAll","#sigma_{E}/E if r9<0.0.94, 0.95: All ecal, #sigma_{E}/E", 100,0., 0.08);
+    h_phoSigmaEoE_[2][1] = dbe_->book1D(histname+"convBarrel","#sigma_{E}/E if r9<0.94: Barrel, #sigma_{E}/E",100,0., 0.08);
+    h_phoSigmaEoE_[2][2] = dbe_->book1D(histname+"convEndcap","#sigma_{E}/E if r9<0.95: Endcap, #sigma_{E}/E",100,0., 0.08);
+
+    
 
 
     histname="eResVsEta";
@@ -934,6 +951,32 @@ void PhotonValidator::bookHistograms(void) {
     p_eResVsEta_[0] = dbe_->bookProfile(histname+"All","All photons  E/Etrue vs #eta: all Ecal ",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
     p_eResVsEta_[1] = dbe_->bookProfile(histname+"Unconv","Unconv photons  E/Etrue vs #eta: all Ecal",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
     p_eResVsEta_[2] = dbe_->bookProfile(histname+"Conv","Conv photons  E/Etrue vs #eta: all Ecal",etaBin2,etaMin,etaMax,resBin,resMin, resMax,"");
+
+    histname="pSigmaEoEVsEta";
+    p_sigmaEoEVsEta_[0] = dbe_->bookProfile(histname+"All","All photons: #sigma_{E}/E vs #eta: all Ecal; #eta; #sigma_{E}/E",etaBin2,etaMin,etaMax,100,0., 0.08,"");
+    p_sigmaEoEVsEta_[1] = dbe_->bookProfile(histname+"Unconv","Unconv photons #sigma_{E}/E vs #eta: all Ecal; #eta; #sigma_{E}/E ",etaBin2,etaMin,etaMax,100,0., 0.08, "");
+    p_sigmaEoEVsEta_[2] = dbe_->bookProfile(histname+"Conv","Conv photons  #sigma_{E}/E vs #eta: all Ecal;  #eta; #sigma_{E}/E",etaBin2,etaMin,etaMax, 100,0., 0.08, "");
+
+    
+
+    histname="pSigmaEoEVsEt";
+    p_sigmaEoEVsEt_[1][0] = dbe_->bookProfile(histname+"Barrel","All photons #sigma_{E}/E vs E_{T}: Barrel;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
+    p_sigmaEoEVsEt_[1][1] = dbe_->bookProfile(histname+"unconvBarrel","Unconv photons #sigma_{E}/E vs E_{T}: Barrel;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
+    p_sigmaEoEVsEt_[1][2] = dbe_->bookProfile(histname+"convBarrel","Conv photons  #sigma_{E}/E vs E_{T}: Barrel;  E_{T} (GeV); #sigma_{E}/E",etBin,etMin,etMax, 100,0., 0.08, "");
+    p_sigmaEoEVsEt_[2][0] = dbe_->bookProfile(histname+"Endcap","All photons #sigma_{E}/E vs E_{T}: Endcap;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
+    p_sigmaEoEVsEt_[2][1] = dbe_->bookProfile(histname+"unconvEndcap","Unconv photons #sigma_{E}/E vs E_{T}: Endcap;  E_{T} (GeV); #sigma_{E}/E ",etBin,etMin,etMax, 100,0., 0.08, "");
+    p_sigmaEoEVsEt_[2][2] = dbe_->bookProfile(histname+"convEndcap","Conv photons  #sigma_{E}/E vs E_{T}: Endcap;  E_{T} (GeV); #sigma_{E}/E",etBin,etMin,etMax, 100,0., 0.08, "");
+
+    
+
+    histname="pSigmaEoEVsNVtx";
+    p_sigmaEoEVsNVtx_[1][0] = dbe_->bookProfile(histname+"Barrel","All photons: #sigma_{E}/E vs N_{vtx}: Barrel; N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
+    p_sigmaEoEVsNVtx_[1][1] = dbe_->bookProfile(histname+"unconvBarrel","Unconv photons #sigma_{E}/E vs N_{vtx}: Barrel; N_{vtx}; #sigma_{E}/E ",80, -0.5, 79.5, 100,0., 0.08, "");
+    p_sigmaEoEVsNVtx_[1][2] = dbe_->bookProfile(histname+"convBarrel","Conv photons  #sigma_{E}/E vs N_{vtx}: Barrel;  N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
+    p_sigmaEoEVsNVtx_[2][0] = dbe_->bookProfile(histname+"Endcap","All photons: #sigma_{E}/E vs N_{vtx}: Endcap; N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
+    p_sigmaEoEVsNVtx_[2][1] = dbe_->bookProfile(histname+"unconvEndcap","Unconv photons #sigma_{E}/E vs N_{vtx}: Endcap; N_{vtx}; #sigma_{E}/E ",80, -0.5, 79.5, 100,0., 0.08, "");
+    p_sigmaEoEVsNVtx_[2][2] = dbe_->bookProfile(histname+"convEndcap","Conv photons  #sigma_{E}/E vs N_{vtx}: Endcap;  N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08, "");
+   
 
     if ( ! isRunCentrally_ ) {
       histname="eResVsEt";
@@ -958,6 +1001,16 @@ void PhotonValidator::bookHistograms(void) {
     p_eResVsEt_[2][0] = dbe_->bookProfile(histname+"Endcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
     p_eResVsEt_[2][1] = dbe_->bookProfile(histname+"unconvEndcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
     p_eResVsEt_[2][2] = dbe_->bookProfile(histname+"convEndcap","All photons  E/Etrue vs Et: Endcap ",etBin,etMin,etMax,resBin,resMin, resMax,"");
+
+
+    histname="pEResVsNVtx";
+    p_eResVsNVtx_[1][0] = dbe_->bookProfile(histname+"Barrel","All photons  E/E_{true}  vs N_{vtx}: Barrel;  N_{vtx}; E}/E_{true}",80, -0.5, 79.5,resBin,resMin, resMax,"");
+    p_eResVsNVtx_[1][1] = dbe_->bookProfile(histname+"unconvBarrel","Unconverted photons E/E_{true}  vs N_{vtx}: Barrel;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
+    p_eResVsNVtx_[1][2] = dbe_->bookProfile(histname+"convBarrel"," Converted photons  E/E_{true}  vs N_{vtx}: Barrel;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
+    p_eResVsNVtx_[2][0] = dbe_->bookProfile(histname+"Endcap","All photons  E/E_{true}  vs N_{vtx}: Endcap;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
+    p_eResVsNVtx_[2][1] = dbe_->bookProfile(histname+"unconvEndcap","Uncoverted photons  E/E_{true}  vs N_{vtx}: Endcap;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
+    p_eResVsNVtx_[2][2] = dbe_->bookProfile(histname+"convEndcap","Converted photons E/E_{true}  vs N_{vtx}: Endcap;  N_{vtx}; E}/E_{true} ",80, -0.5, 79.5,resBin,resMin, resMax,"");
+
 
 
     histname="eResVsR9";
@@ -1035,54 +1088,54 @@ void PhotonValidator::bookHistograms(void) {
     h_pfMva_[2]= dbe_->book1D(histname+"Endcap",   "PF MVA output:  Endcap",50,-1,2.);
     ////////// particle based isolation from value map
     histname = "SumPtOverPhoPt_ChHad_Cleaned";
-    h_SumPtOverPhoPt_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Charged Hadrons:  All Ecal",etBin,etMin,2.);
-    h_SumPtOverPhoPt_ChHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
-    h_SumPtOverPhoPt_ChHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All","Pf Cand SumPt/P_{T}_{#gamma}: Charged Hadrons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand SumPt/P_{T}_{#gamma}: Charged Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand SumPt/P_{T}_{#gamma}: Charged Hadrons:  Endcap",etBin,etMin,2.);
     histname = "SumPtOverPhoPt_NeuHad_Cleaned";
-    h_SumPtOverPhoPt_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Neutral Hadrons:  All Ecal",etBin,etMin,2.);
-    h_SumPtOverPhoPt_NeuHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
-    h_SumPtOverPhoPt_NeuHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All","Pf Cand  SumPt/P_{T}_{#gamma}: Neutral Hadrons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand  SumPt/P_{T}_{#gamma}: Neutral Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand  SumPt/P_{T}_{#gamma}: Neutral Hadrons:  Endcap",etBin,etMin,2.);
     histname = "SumPtOverPhoPt_Pho_Cleaned";
-    h_SumPtOverPhoPt_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Photons Hadrons:  All Ecal",etBin,etMin,2.);
-    h_SumPtOverPhoPt_Pho_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons Hadrons:  Barrel",etBin,etMin,2.);
-    h_SumPtOverPhoPt_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons Hadrons:  Endcap",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All","Pf Cand SumPt/P_{T}_{#gamma}: Photons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand SumPt/P_{T}_{#gamma}: Photons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand SumPt/P_{T}_{#gamma}: Photons:  Endcap",etBin,etMin,2.);
 
     histname = "dRPhoPFcand_ChHad_Cleaned";
-    h_dRPhoPFcand_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All","dR(pho,cand) Charged Hadrons : All Ecal",etBin,etMin,0.7);
     h_dRPhoPFcand_ChHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
     h_dRPhoPFcand_ChHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
     histname = "dRPhoPFcand_NeuHad_Cleaned";
-    h_dRPhoPFcand_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All","dR(pho,cand) Neutral Hadrons : All Ecal",etBin,etMin,0.7);
     h_dRPhoPFcand_NeuHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
     h_dRPhoPFcand_NeuHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
     histname = "dRPhoPFcand_Pho_Cleaned";
-    h_dRPhoPFcand_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All","dR(pho,cand) Photons : All Ecal",etBin,etMin,0.7);
     h_dRPhoPFcand_Pho_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons :  Barrel",etBin,etMin,0.7);
     h_dRPhoPFcand_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons :  Endcap",etBin,etMin,0.7);
  
    //
     histname = "SumPtOverPhoPt_ChHad_unCleaned";
-    h_SumPtOverPhoPt_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Charged Hadrons :  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All","Pf Cand Sum Pt Over photon pt Charged Hadrons :  All Ecal",etBin,etMin,2.);
     h_SumPtOverPhoPt_ChHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
     h_SumPtOverPhoPt_ChHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
     histname = "SumPtOverPhoPt_NeuHad_unCleaned";
-    h_SumPtOverPhoPt_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Neutral Hadrons :  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All","Pf Cand Sum Pt Over photon pt Neutral Hadrons :  All Ecal",etBin,etMin,2.);
     h_SumPtOverPhoPt_NeuHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
     h_SumPtOverPhoPt_NeuHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
     histname = "SumPtOverPhoPt_Pho_unCleaned";
-    h_SumPtOverPhoPt_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Photons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All","Pf Cand Sum Pt Over photon pt Photons:  All Ecal",etBin,etMin,2.);
     h_SumPtOverPhoPt_Pho_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons:  Barrel",etBin,etMin,2.);
     h_SumPtOverPhoPt_Pho_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons:  Endcap",etBin,etMin,2.);
     histname = "dRPhoPFcand_ChHad_unCleaned";
-    h_dRPhoPFcand_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons :  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All","dR(pho,cand) Charged Hadrons :  All Ecal",etBin,etMin,0.7);
     h_dRPhoPFcand_ChHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
     h_dRPhoPFcand_ChHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
     histname = "dRPhoPFcand_NeuHad_unCleaned";
-    h_dRPhoPFcand_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons :  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All","dR(pho,cand) Neutral Hadrons :  All Ecal",etBin,etMin,0.7);
     h_dRPhoPFcand_NeuHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
     h_dRPhoPFcand_NeuHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
     histname = "dRPhoPFcand_Pho_unCleaned";
-    h_dRPhoPFcand_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons:  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All","dR(pho,cand) Photons:  All Ecal",etBin,etMin,0.7);
     h_dRPhoPFcand_Pho_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons:  Barrel",etBin,etMin,0.7);
     h_dRPhoPFcand_Pho_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons:  Endcap",etBin,etMin,0.7);
 
@@ -2266,6 +2319,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       int type=0;
       const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
       float photonE = matchingPho->energy();
+      float sigmaEoE =  matchingPho->getCorrectedEnergyError(matchingPho->getCandidateP4type())/matchingPho->energy();
       float photonEt= matchingPho->energy()/cosh( matchingPho->eta()) ;
       float photonERegr1 = matchingPho->getCorrectedEnergy(reco::Photon::regression1);
       float photonERegr2 = matchingPho->getCorrectedEnergy(reco::Photon::regression2);
@@ -2407,11 +2461,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       //
       h_phoERes_[0][0]->Fill( photonE / (*mcPho).fourMomentum().e() );
+      h_phoSigmaEoE_[0][0] -> Fill (sigmaEoE);
       h_phoEResRegr1_[0][0]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
       h_phoEResRegr2_[0][0]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 
       p_eResVsEta_[0]->Fill (mcEta_, photonE/(*mcPho).fourMomentum().e()  ) ;
+      p_sigmaEoEVsEta_[0] ->Fill(mcEta_,sigmaEoE);
       p_eResVsEt_[0][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+
+      
 
       if ( ! isRunCentrally_ ) h2_eResVsEta_[0]->Fill (mcEta_, photonE/(*mcPho).fourMomentum().e()  ) ;
       if ( ! isRunCentrally_ ) h2_eResVsEt_[0][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
@@ -2469,18 +2527,24 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       if ( (r9>0.94 && phoIsInBarrel) ||   (r9>0.95 && phoIsInEndcap)  )  {
 	h_phoERes_[1][0]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	h_phoSigmaEoE_[1][0] -> Fill (sigmaEoE);
 	h_phoEResRegr1_[1][0]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
 	h_phoEResRegr2_[1][0]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	if ( ! isRunCentrally_ ) h2_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEta_[1]->Fill (mcEta_,photonE/ (*mcPho).fourMomentum().e()  ) ;
+	p_sigmaEoEVsEta_[1] ->Fill(mcEta_,sigmaEoE);
+
 
       } else if ( ( r9 <= 0.94&& phoIsInBarrel) ||  ( r9 <= 0.95&& phoIsInEndcap)  ) {
 	h_phoERes_[2][0]->Fill(photonE / (*mcPho).fourMomentum().e() );
+	h_phoSigmaEoE_[2][0] -> Fill (sigmaEoE);
 	h_phoEResRegr1_[2][0]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
 	h_phoEResRegr2_[2][0]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	p_eResVsEt_[0][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEta_[2]->Fill (mcEta_,photonE/ (*mcPho).fourMomentum().e()  ) ;
+	p_sigmaEoEVsEta_[2] ->Fill(mcEta_, sigmaEoE);
+
 	if ( ! isRunCentrally_ ) {
 	  h2_eResVsEt_[0][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	  h_EtR9Less093_[0][0] ->Fill ( photonEt );
@@ -2518,6 +2582,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_nConv_[type][1]->Fill(float( matchingPho->conversions().size()));
 	h_nConv_[1][1]->Fill(float( matchingPho->conversionsOneLeg().size()));
 	h_phoERes_[0][1]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	h_phoSigmaEoE_[0][1] -> Fill (sigmaEoE);
 	h_phoEResRegr1_[0][1]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
 	h_phoEResRegr2_[0][1]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	p_eResVsR9_[1]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
@@ -2530,20 +2595,31 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  h2_eResVsEt_[1][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	}
 	p_eResVsEt_[1][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+	p_eResVsNVtx_[1][0]->Fill ( float(vtxH->size()), photonE/(*mcPho).fourMomentum().e()  ) ;
+	p_sigmaEoEVsEt_[1][0] ->Fill ((*mcPho).fourMomentum().et(),sigmaEoE);
+	p_sigmaEoEVsNVtx_[1][0]->Fill ( float(vtxH->size()), sigmaEoE);
 
 	//std::cout << " Debug 1.10 " << std::endl;
 	if ( r9 > 0.94 ) {
 	  h_phoERes_[1][1]->Fill(  photonE  / (*mcPho).fourMomentum().e() );
+	  h_phoSigmaEoE_[1][1] -> Fill (sigmaEoE);
 	  h_phoEResRegr1_[1][1]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
 	  h_phoEResRegr2_[1][1]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	  if ( ! isRunCentrally_ ) h2_eResVsEt_[1][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	  p_eResVsEt_[1][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+	  p_eResVsNVtx_[1][1]->Fill ( float(vtxH->size()), photonE/(*mcPho).fourMomentum().e()  ) ;
+	  p_sigmaEoEVsEt_[1][1] ->Fill ((*mcPho).fourMomentum().et(),sigmaEoE);
+	  p_sigmaEoEVsNVtx_[1][1]->Fill ( float(vtxH->size()), sigmaEoE);
 	}
 	if ( r9 <= 0.94 )  {
 	  h_phoERes_[2][1]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	  h_phoSigmaEoE_[2][1] -> Fill (sigmaEoE);
 	  h_phoEResRegr1_[2][1]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
 	  h_phoEResRegr2_[2][1]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	  p_eResVsEt_[1][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+	  p_eResVsNVtx_[1][2]->Fill ( float(vtxH->size()), photonE/(*mcPho).fourMomentum().e()  ) ;
+	  p_sigmaEoEVsEt_[1][2] ->Fill ((*mcPho).fourMomentum().et(),sigmaEoE);
+	  p_sigmaEoEVsNVtx_[1][2]->Fill ( float(vtxH->size()), sigmaEoE);
 	  if ( ! isRunCentrally_ ) {
 	    h2_eResVsEt_[1][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	    h_EtR9Less093_[0][1] ->Fill ( photonEt );
@@ -2584,6 +2660,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_nConv_[type][2]->Fill(float( matchingPho->conversions().size()));
 	h_nConv_[1][2]->Fill(float( matchingPho->conversionsOneLeg().size()));
 	h_phoERes_[0][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	h_phoSigmaEoE_[0][2] -> Fill (sigmaEoE);
 	//std::cout << " Looking for troubles 6 " << std::endl;
 	h_phoEResRegr1_[0][2]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
 	h_phoEResRegr2_[0][2]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
@@ -2600,20 +2677,32 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	//std::cout << " Debug 1.12 " << std::endl;
 
 	p_eResVsEt_[2][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+	p_eResVsNVtx_[2][0]->Fill ( float(vtxH->size()), photonE/(*mcPho).fourMomentum().e()  ) ;
+	p_sigmaEoEVsEt_[2][0] ->Fill ((*mcPho).fourMomentum().et(),sigmaEoE);
+	p_sigmaEoEVsNVtx_[2][0]->Fill ( float(vtxH->size()), sigmaEoE);
 
 	if ( r9 > 0.95 ) {
 
 	  h_phoERes_[1][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	  h_phoSigmaEoE_[1][2] -> Fill (sigmaEoE);
 	  h_phoEResRegr1_[1][2]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
 	  h_phoEResRegr2_[1][2]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	  if ( ! isRunCentrally_ ) h2_eResVsEt_[2][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	  p_eResVsEt_[2][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+	  p_eResVsNVtx_[2][1]->Fill ( float(vtxH->size()), photonE/(*mcPho).fourMomentum().e()  ) ;
+	  p_sigmaEoEVsEt_[2][1] ->Fill ((*mcPho).fourMomentum().et(),sigmaEoE);
+	  p_sigmaEoEVsNVtx_[2][1]->Fill ( float(vtxH->size()), sigmaEoE);
 	}
 	if ( r9 <= 0.95 ) {
 	  h_phoERes_[2][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
+	  h_phoSigmaEoE_[2][2] -> Fill (sigmaEoE);
 	  h_phoEResRegr1_[2][2]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
 	  h_phoEResRegr2_[2][2]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	  p_eResVsEt_[2][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
+	  p_eResVsNVtx_[2][2]->Fill ( float(vtxH->size()), photonE/(*mcPho).fourMomentum().e()  ) ;
+	  p_sigmaEoEVsEt_[2][2] ->Fill ((*mcPho).fourMomentum().et(),sigmaEoE);
+	  p_sigmaEoEVsNVtx_[2][2]->Fill ( float(vtxH->size()), sigmaEoE);
+
 	  if ( ! isRunCentrally_ ) {
 	    h2_eResVsEt_[2][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	    h_EtR9Less093_[0][2] ->Fill ( photonEt );
