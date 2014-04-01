@@ -96,7 +96,7 @@ bool LayerMeasurements::recHits(SimpleHitContainer & result,
 			     const MeasurementEstimator& est) const {
 
   auto  const & compatDets = layer.compatibleDets( startingState, prop, est);  
-  if (!compatDets.empty()) return false;
+  if (compatDets.empty()) return false;
   bool ret=false;
   for ( auto const & ds : compatDets) {
     auto mdet = theDetSystem->idToDet(ds.first->geographicalId(), *theData);

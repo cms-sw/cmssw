@@ -25,7 +25,13 @@ public:
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data) const;
 
-  const GluedGeomDet& specificGeomDet() const {return static_cast<GluedGeomDet const&>(fastGeomDet());}
+ // simple hits
+  virtual bool recHits(SimpleHitContainer & result,  
+		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const;
+
+  
+
+ const GluedGeomDet& specificGeomDet() const {return static_cast<GluedGeomDet const&>(fastGeomDet());}
 
  virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			     const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
@@ -54,6 +60,7 @@ private:
   template<typename Collector>
   void collectRecHits(const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & data, Collector &coll) const dso_internal;
 
+  // for TTRH
   class dso_internal  HitCollectorForRecHits {
   public:
     typedef SiStripRecHitMatcher::Collector Collector;
@@ -87,6 +94,37 @@ private:
     bool hasNewHits_;
   };
 
+  // for TRH
+  class dso_internal  HitCollectorForSimpleHits {
+  public:
+    typedef SiStripRecHitMatcher::Collector Collector;
+    HitCollectorForSimpleHits(const GeomDet * geomDet, 
+			      const SiStripRecHitMatcher * matcher,
+			      const StripClusterParameterEstimator* cpe,
+			      const TrajectoryStateOnSurface& stateOnThisDet,
+			      const MeasurementEstimator& est,
+			      SimpleHitContainer & target) ;
+    void add(SiStripMatchedRecHit2D const & hit);
+    void addProjected(const TrackingRecHit& hit,
+		      const GlobalVector & gdir) ;
+    SiStripRecHitMatcher::Collector & collector() { return collector_; }
+    bool hasNewMatchedHits() const { return hasNewHits_;  }
+    void clearNewMatchedHitsFlag() { hasNewHits_ = false; }
+    bool filter() const { return matcher_->preFilter();}   // if true mono-colection will been filter using the estimator before matching  
+    size_t size() const { return target_.size();}
+    const MeasurementEstimator  & estimator() { return est_;}
+  private: 
+    const GeomDet              * geomDet_;
+    const SiStripRecHitMatcher * matcher_;
+    const StripClusterParameterEstimator* cpe_;
+    const TrajectoryStateOnSurface & stateOnThisDet_;
+    const MeasurementEstimator     & est_;
+    SimpleHitContainer & target_;
+    SiStripRecHitMatcher::Collector collector_;       
+    bool hasNewHits_;
+  };
+
+  
 
   class dso_internal HitCollectorForFastMeasurements {
   public:
