@@ -44,9 +44,11 @@ const int cluster_matrix_size_y = 21;
 //  in setTheDet().  Here we only load the templates into the template store templ_ .
 //-----------------------------------------------------------------------------
 PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
-					   const MagneticField * mag, const SiPixelLorentzAngle * lorentzAngle, 
+					   const MagneticField * mag,
+                                           const TrackerGeometry& geom,
+                                           const SiPixelLorentzAngle * lorentzAngle, 
 					   const SiPixelTemplateDBObject * templateDBobject) 
-  : PixelCPEBase(conf, mag, lorentzAngle, 0, templateDBobject, 0)
+  : PixelCPEBase(conf, mag, geom, lorentzAngle, 0, templateDBobject, 0)
 {
   //cout << endl;
   //cout << "Constructing PixelCPETemplateReco::PixelCPETemplateReco(...)................................................." << endl;

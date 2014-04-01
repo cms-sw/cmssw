@@ -47,13 +47,13 @@ namespace {
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
 #ifdef NEW
-PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, 
+PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const TrackerGeometry& geom,
 			   const SiPixelLorentzAngle * lorentzAngle, 
 			   const SiPixelGenErrorDBObject * genErrorDBObject, 
 			   const SiPixelTemplateDBObject * templateDBobject,
 			   const SiPixelLorentzAngle * lorentzAngleWidth)
 #else
-PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, 
+PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const TrackerGeometry& geom,
 			   const SiPixelLorentzAngle * lorentzAngle, 
 			   const SiPixelCPEGenericErrorParm * genErrorParm, 
 			   const SiPixelTemplateDBObject * templateDBobject,
@@ -66,6 +66,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
     spansTwoROCs_(false), hasFilledProb_(false),
     useLAAlignmentOffsets_(false), useLAOffsetFromConfig_(false),
     useLAWidthFromConfig_(false), useLAWidthFromDB_(false),
+    magfield_(mag), geom_(geom),
     loc_trk_pred_(0.0, 0.0, 0.0, 0.0)
 {
   //--- Lorentz angle tangent per Tesla
@@ -77,10 +78,6 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   theVerboseLevel = 
     conf.getUntrackedParameter<int>("VerboseLevel",0);
   
-  //-- Magnetic Field
-  magfield_ = mag;
-  
-   
 #ifdef NEW
    //-- GenError Calibration Object (different from SiPixelCPEGenericErrorParm) from DB
    genErrorDBObject_ = genErrorDBObject;
@@ -112,6 +109,92 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   LogDebug("PixelCPEBase") <<" LA constants - "
 			   <<lAOffset_<<" "<<lAWidthBPix_<<" "<<lAWidthFPix_<<endl; //dk
   
+}
+
+//-----------------------------------------------------------------------------
+//  Fill all variables which are constant for an event (geometry)
+//-----------------------------------------------------------------------------
+void PixelCPEBase::fillParams()
+{
+  const unsigned m_detectors = geom_.offsetDU(GeomDetEnumerators::TIB); //first non-pixel detector unit
+  auto const & dus = geom_.detUnits();
+  m_Params.resize(m_detectors);
+  cout<<"caching "<<m_detectors<<" pixel detectors"<<endl;
+  for (unsigned i=0; i!=m_detectors;++i) {
+    auto & p=m_Params[i];
+    const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(dus[i]);
+    assert(pixDet); 
+    assert(pixDet->index()==int(i)); 
+      
+    p.theOrigin =   pixDet->surface().toLocal(GlobalPoint(0,0,0));
+    
+    //--- pixDet->type() returns a GeomDetType, which implements subDetector()
+    p.thePart = pixDet->type().subDetector();
+    
+    //cout<<" in PixelCPEBase:setpixDet - in det "<<thePart<<endl; //dk
+
+    switch ( p.thePart ) {
+    case GeomDetEnumerators::PixelBarrel:
+      // A barrel!  A barrel!
+      p.lAWidth = lAWidthBPix_;
+      break;
+    case GeomDetEnumerators::PixelEndcap:
+      // A forward!  A forward!
+      p.lAWidth = lAWidthFPix_;
+      break;
+     default:
+       // does one need this exception?
+       //cout<<" something wrong"<<endl;
+       throw cms::Exception("PixelCPEBase::setpixDet :")
+	 << "PixelCPEBase: A non-pixel detector type in here?" ;
+    }
+    
+    //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
+    //--- The call goes via BoundSurface, returned by pixDet->surface(), but
+    //--- position() is implemented in GloballyPositioned<> template
+    //--- ( BoundSurface : Surface : GloballyPositioned<float> )
+    //pixDetR = pixDet->surface().position().perp();
+    //pixDetZ = pixDet->surface().position().z();
+    //--- Define parameters for chargewidth calculation
+    
+    //--- bounds() is implemented in BoundSurface itself.
+    p.theThickness = pixDet->surface().bounds().thickness();
+    
+    //--- Cache the topology.
+    // ggiurgiu@jhu.edu 12/09/2010 : no longer need to dynamyc cast to RectangularPixelTopology
+    //theTopol
+    //= dynamic_cast<const RectangularPixelTopology*>( & (pixDet->specificTopology()) );
+    
+    auto topol = &(pixDet->specificTopology());
+    if unlikely(topol!=p.theTopol) { // there is ONE topology!)
+	p.theTopol=topol;
+	auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(p.theTopol);
+	if (proxyT) p.theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
+	else p.theRecTopol = dynamic_cast<const RectangularPixelTopology*>(p.theTopol);
+	assert(p.theRecTopol);
+	
+	//---- The geometrical description of one module/plaquette
+	p.theNumOfRow = p.theRecTopol->nrows();      // rows in x
+	p.theNumOfCol = p.theRecTopol->ncolumns();   // cols in y
+	std::pair<float,float> pitchxy = p.theRecTopol->pitch();
+	p.thePitchX = pitchxy.first;            // pitch along x
+	p.thePitchY = pitchxy.second;           // pitch along y
+      }
+    
+    p.theSign = isFlipped() ? -1 : 1;
+
+    LocalVector Bfield = pixDet->surface().toLocal(magfield_->inTesla(pixDet->surface().position()));
+    p.bz = Bfield.z();
+    
+    LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
+			     << " thePart = " << p.thePart
+			     << " theThickness = " << p.theThickness
+			     << " thePitchX  = " << p.thePitchX 
+			     << " thePitchY  = " << p.thePitchY; 
+    //			     << " theLShiftX  = " << p.theLShiftX;
+    
+    
+      }
 }
 
 //-----------------------------------------------------------------------------
@@ -193,7 +276,7 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
     widthLAFraction_=1.0; // preset the LA fraction to 1. 
     
     // will cache if not yet there (need some of the above)
-    theParam = &param();
+    theParam = &param(det);
     
     driftDirection_ = (*theParam).drift;
     widthLAFraction_ = (*theParam).widthLAFraction;
@@ -417,8 +500,9 @@ bool PixelCPEBase::isFlipped() const
   else return false;    
 }
 //------------------------------------------------------------------------
-PixelCPEBase::Param const & PixelCPEBase::param() const {
-  auto i = theDet->index();
+PixelCPEBase::Param const & PixelCPEBase::param(const GeomDetUnit & det) const {
+  auto i = det.index();
+  //cout << "get parameters of detector " << i << endl;
   if (i>=int(m_Params.size())) m_Params.resize(i+1);  // should never happen!
   Param & p = m_Params[i];
   if unlikely ( p.bz<-1.e10f  ) { 

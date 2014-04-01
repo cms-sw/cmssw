@@ -58,11 +58,11 @@ class PixelCPEGeneric : public PixelCPEBase
 {
  public:
 #ifdef NEW
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
 		  const SiPixelLorentzAngle *, const SiPixelGenErrorDBObject *, 
 		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
 #else
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
 		  const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, 
 		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
 #endif

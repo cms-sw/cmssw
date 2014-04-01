@@ -20,6 +20,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
@@ -60,22 +61,37 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     float bz; // local Bz
     LocalVector drift;
     float widthLAFraction; // Width-LA to Offset-LA
+
+    // gavril : replace RectangularPixelTopology with PixelTopology
+    const PixelTopology * theTopol;
+    const RectangularPixelTopology * theRecTopol;
+
+    GeomDetType::SubDetector thePart;
+    Local3DPoint theOrigin;
+    float theThickness;
+    float thePitchX;
+    float thePitchY;
+    float theNumOfRow;
+    float theNumOfCol;
+    float theSign;
+
+    float lAWidth;  // la used to calculate the cluster width from conf.
   };
 
 public:
 #ifdef NEW
-  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
-	       const SiPixelLorentzAngle * lorentzAngle = 0, 
-	       const SiPixelGenErrorDBObject * genErrorDBObject = 0, 
-	       const SiPixelTemplateDBObject * templateDBobject = 0,
-	       const SiPixelLorentzAngle * lorentzAngleWidth = 0
+  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag, const TrackerGeometry& geom,
+	       const SiPixelLorentzAngle * lorentzAngle, 
+	       const SiPixelGenErrorDBObject * genErrorDBObject, 
+	       const SiPixelTemplateDBObject * templateDBobject,
+	       const SiPixelLorentzAngle * lorentzAngleWidth
 	       );  // NEW
 #else
-  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
-	       const SiPixelLorentzAngle * lorentzAngle = 0, 
-	       const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
-	       const SiPixelTemplateDBObject * templateDBobject = 0,
-	       const SiPixelLorentzAngle * lorentzAngleWidth = 0
+  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag, const TrackerGeometry& geom,
+	       const SiPixelLorentzAngle * lorentzAngle, 
+	       const SiPixelCPEGenericErrorParm * genErrorParm, 
+	       const SiPixelTemplateDBObject * templateDBobject,
+	       const SiPixelLorentzAngle * lorentzAngleWidth
 	       ); // OLD
  #endif 
 
@@ -138,6 +154,7 @@ private:
   virtual LocalPoint localPosition(const SiPixelCluster& cl) const = 0;
   virtual LocalError localError   (const SiPixelCluster& cl) const = 0;
   
+  void fillParams();
   
 public:  
   //--------------------------------------------------------------------------
@@ -246,6 +263,7 @@ public:
   int     theVerboseLevel;                    // algorithm's verbosity
 
   mutable const MagneticField * magfield_;          // magnetic field
+  const TrackerGeometry & geom_;          // geometry
   
   mutable const SiPixelLorentzAngle * lorentzAngle_;
   mutable const SiPixelLorentzAngle * lorentzAngleWidth_;  // for the charge width (generic)
@@ -290,7 +308,7 @@ protected:
    
   LocalVector const & getDrift() const {return  driftDirection_ ;}
  
-  Param const & param() const;
+  Param const & param(const GeomDetUnit & det) const;
  
  private:
   using Params=std::vector<Param>;

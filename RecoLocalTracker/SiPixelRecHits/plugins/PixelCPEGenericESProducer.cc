@@ -85,11 +85,11 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
 
 #ifdef NEW
   cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(
-	  pset_,magfield.product(),lorentzAngle.product(),genErrorDBObjectProduct,
+	  pset_,magfield.product(),*pDD.product(),lorentzAngle.product(),genErrorDBObjectProduct,
           templateDBobject.product(),lorentzAngleWidthProduct) );
 #else
   cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(
-	  pset_,magfield.product(),lorentzAngle.product(),0,
+	  pset_,magfield.product(),*pDD.product(),lorentzAngle.product(),0,
           templateDBobject.product(),lorentzAngleWidthProduct) );
 #endif
 

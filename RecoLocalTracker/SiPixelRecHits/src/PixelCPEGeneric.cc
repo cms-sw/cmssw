@@ -31,20 +31,22 @@ namespace {
 //-----------------------------------------------------------------------------
 #ifdef NEW
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
-				 const MagneticField * mag, 
+				 const MagneticField * mag,
+                                 const TrackerGeometry& geom,
 				 const SiPixelLorentzAngle * lorentzAngle, 
 				 const SiPixelGenErrorDBObject * genErrorDBObject, 
 				 const SiPixelTemplateDBObject * templateDBobject,
 				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
-  : PixelCPEBase(conf, mag, lorentzAngle, genErrorDBObject, templateDBobject,lorentzAngleWidth)
+  : PixelCPEBase(conf, mag, geom, lorentzAngle, genErrorDBObject, templateDBobject,lorentzAngleWidth)
 #else
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
 				 const MagneticField * mag, 
+                                 const TrackerGeometry& geom,
 				 const SiPixelLorentzAngle * lorentzAngle, 
 				 const SiPixelCPEGenericErrorParm * genErrorParm, 
 				 const SiPixelTemplateDBObject * templateDBobject,
 				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
-  : PixelCPEBase(conf, mag, lorentzAngle, genErrorParm, templateDBobject,lorentzAngleWidth)
+  : PixelCPEBase(conf, mag, geom, lorentzAngle, genErrorParm, templateDBobject,lorentzAngleWidth)
 #endif
 {
   
