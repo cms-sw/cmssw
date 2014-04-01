@@ -76,12 +76,12 @@ fi
 
 if [ ${1} = "MERGE" ]; then
 
-    TAG=${2}                 # The tag of the files we merge (***_START_STOP.root) 
-    INPUTDIR=${3}            # Input/Output dirs (lcg friendly) 
-    INPUTROOTDIR=${4}        # Input/Output dirs (ROOT friendly) 
-    OUTPUTFILE="MERGED_"${5} # Name of the output file 
-    CMSSW_PROJECT_SRC=${6}   # The CMSSW project release dir
-    GT=${7}                  # The global tag
+    TAG=${2}                      # The tag of the files we merge (***_START_STOP.root) 
+    INPUTDIR=${3}                 # Input/Output dirs (lcg friendly) 
+    INPUTROOTDIR=${4}             # Input/Output dirs (ROOT friendly) 
+    OUTPUTFILE="MERGED_"${5}$TAG  # Name of the output file 
+    CMSSW_PROJECT_SRC=${6}        # The CMSSW project release dir
+    GT=${7}                       # The global tag
 
     #
     # Setting up environment variables
@@ -101,8 +101,10 @@ if [ ${1} = "MERGE" ]; then
 
     compteur=0
 
-    for l in `lcg-ls $INPUTDIR | cut -d/ -f14 | grep $TAG`	
+    for ll in `lcg-ls $INPUTDIR | grep $TAG | grep ${5}`	
     do
+
+      l=`basename $ll`
 
       echo $l
 
@@ -196,17 +198,31 @@ if [ ${1} = "FINAL" ]; then
 
     rm list.txt
 
-    for l in `lcg-ls $INPUTDIR | cut -d/ -f14 | grep $TAG`	
+    nfiles=`lcg-ls $INPUTDIR | grep $TAG | wc -l` 
+	
+    for ll in `lcg-ls $INPUTDIR | grep $TAG`	
     do
 
+      l=`basename $ll`
       echo $l
       echo "$INPUTROOTDIR/$l" >> list.txt
+
+      if [ ${nfiles} = "1" ]; then
+
+	  lcg-cp $INPUTDIR/$l file://$TOP/$l
+	  cp $l $OUTPUTFILE 
+
+      fi
 
     done
 
     # Do the merging (this one is simple)
 
-    edmCopyPickMerge inputFiles_load=list.txt outputFile=$OUTPUTFILE 
+    if [ ${nfiles} != "1" ]; then
+
+	edmCopyPickMerge inputFiles_load=list.txt outputFile=$OUTPUTFILE 
+
+    fi
 
     # Recover the data
     #  
@@ -215,5 +231,60 @@ if [ ${1} = "FINAL" ]; then
 
     ls -l
     lcg-cp file://$TOP/$OUTPUTFILE $OUTPUTFULL
+
+fi
+
+#
+# Case 4: Fit and extraction 
+#
+# When the ***_with_AMPR.root files have been processed
+#
+
+if [ ${1} = "FIT" ]; then
+
+    echo "Doing the fit"
+
+    INPUT=${2}                # The input xrootd file name and address
+    OUTPUT=${3}               # Output file name 
+    OUTPUTE=${4}              # Output extracted file name 
+    NEVT=${5}                 # #evts/file
+    OUTDIR=${6}               # The first event to process in the input file
+    CMSSW_PROJECT_SRC=${7}    # The CMSSW project release dir
+    GT=${8}                   # The global tag
+
+    #
+    # Setting up environment variables
+    #   
+
+    cd $CMSSW_PROJECT_SRC
+    export SCRAM_ARCH=slc5_amd64_gcc472
+    eval `scramv1 runtime -sh`   
+    voms-proxy-info
+
+    cd /tmp/$USER
+    TOP=$PWD
+
+    #
+    # And we tweak the python generation script according to our needs
+    #  
+
+    cd $TOP
+    cp $CMSSW_PROJECT_SRC/src/L1Trigger/TrackFindingAM/test/batch/base/AMFIT_base.py BH_dummy.py 
+
+    # Finally the script is modified according to the requests
+    
+    sed "s/NEVTS/$NEVT/"                                   -i BH_dummy.py
+    sed "s#INPUTFILENAME#$INPUT#"                          -i BH_dummy.py
+    sed "s#OUTPUTFILENAME#$OUTPUT#"                        -i BH_dummy.py
+    sed "s/MYGLOBALTAG/$GT/"                               -i BH_dummy.py
+
+    cmsRun BH_dummy.py -j4
+
+    # Recover the data
+    #  
+
+    ls -l
+    lcg-cp file://$TOP/$OUTPUT  ${OUTDIR}/$OUTPUT
+    lcg-cp file://$TOP/extracted.root ${OUTDIR}/$OUTPUTE
 
 fi
