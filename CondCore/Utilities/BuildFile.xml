@@ -1,4 +1,4 @@
-<flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -ftemplate-depth=600 -O0"/>
+<flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable "/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/MessageLogger"/>
