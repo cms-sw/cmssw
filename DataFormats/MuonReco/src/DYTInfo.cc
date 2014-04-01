@@ -12,7 +12,7 @@ DYTInfo::DYTInfo()
 
 DYTInfo::~DYTInfo() {}
 
-void DYTInfo::CopyFrom(DYTInfo dytInfo)
+void DYTInfo::CopyFrom(const DYTInfo &dytInfo)
 {
   setNStUsed(dytInfo.NStUsed());
   setDYTEstimators(dytInfo.DYTEstimators());
