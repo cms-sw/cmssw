@@ -231,8 +231,8 @@ class SiPixelDigitizerAlgorithm  {
    */
    struct PixelEfficiencies {
      PixelEfficiencies(const edm::ParameterSet& conf, bool AddPixelInefficiency, int NumberOfBarrelLayers, int NumberOfEndcapDisks);
-     float thePixelEfficiency[20];     // Single pixel efficiency
-     float thePixelColEfficiency[20];  // Column efficiency
+     float thePixelEfficiency[20];     // Single pixel effciency
+     float thePixelColEfficiency[20];  // Column effciency
      float thePixelChipEfficiency[20]; // ROC efficiency
      std::vector<double> theLadderEfficiency_BPix[20]; // Ladder efficiency
      std::vector<double> theModuleEfficiency_BPix[20]; // Module efficiency
