@@ -516,7 +516,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"fRBX" ,mfRBX));
   }
 
-
+  //remove JPT related histograms due to anticipated removal in RECO in 7_1_X
   //if(isJPTJet_) {
   //jpt histograms
   //mE   = ibooker.book1D("E", "E", eBin_, eMin_, eMax_);

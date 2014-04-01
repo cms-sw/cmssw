@@ -78,6 +78,8 @@ SUSYDQMAnalyzer::SUSYDQMAnalyzer( const edm::ParameterSet& pSet)
   // Load parameters 
   thePFMETCollectionToken     = consumes<reco::PFMETCollection>   (iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel"));
   theCaloMETCollectionToken   = consumes<reco::CaloMETCollection> (iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel"));
+
+  //remove TCMET and JPT related variables due to anticipated changes in RECO
   //theTCMETCollectionToken     = consumes<reco::METCollection>     (iConfig.getParameter<edm::InputTag>("TCMETCollectionLabel"));
 
   theCaloJetCollectionToken   = consumes<reco::CaloJetCollection>   (iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel"));

@@ -102,16 +102,16 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   gtTag_          = cleaningParameters_.getParameter<edm::InputTag>("gtLabel");
   gtToken_= consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag(gtTag_));
 
-  inputTrackLabel_         = parameters.getParameter<edm::InputTag>("InputTrackLabel");
-  inputMuonLabel_          = parameters.getParameter<edm::InputTag>("InputMuonLabel");
-  inputElectronLabel_      = parameters.getParameter<edm::InputTag>("InputElectronLabel");
-  inputBeamSpotLabel_      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
-  inputTCMETValueMap_      = parameters.getParameter<edm::InputTag>("InputTCMETValueMap");
-  TrackToken_= consumes<edm::View <reco::Track> >(inputTrackLabel_);
-  MuonToken_= consumes<reco::MuonCollection>(inputMuonLabel_);
-  ElectronToken_= consumes<edm::View<reco::GsfElectron> >(inputElectronLabel_);
-  BeamspotToken_= consumes<reco::BeamSpot>(inputBeamSpotLabel_);
-  tcMETValueMapToken_= consumes< edm::ValueMap<reco::MuonMETCorrectionData> >(inputTCMETValueMap_);
+  //inputTrackLabel_         = parameters.getParameter<edm::InputTag>("InputTrackLabel");
+  //inputMuonLabel_          = parameters.getParameter<edm::InputTag>("InputMuonLabel");
+  //inputElectronLabel_      = parameters.getParameter<edm::InputTag>("InputElectronLabel");
+  //inputBeamSpotLabel_      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
+  //inputTCMETValueMap_      = parameters.getParameter<edm::InputTag>("InputTCMETValueMap");
+  //TrackToken_= consumes<edm::View <reco::Track> >(inputTrackLabel_);
+  //MuonToken_= consumes<reco::MuonCollection>(inputMuonLabel_);
+  //ElectronToken_= consumes<edm::View<reco::GsfElectron> >(inputElectronLabel_);
+  //BeamspotToken_= consumes<reco::BeamSpot>(inputBeamSpotLabel_);
+  //tcMETValueMapToken_= consumes< edm::ValueMap<reco::MuonMETCorrectionData> >(inputTCMETValueMap_);
 
   // Other data collections
   jetCollectionLabel_       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
@@ -334,24 +334,24 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
 
 
 
-    if (metCollectionLabel_.label() == "corMetGlobalMuons" ) {
-      hCalomuPt    = ibooker.book1D("CalomuonPt", "CalomuonPt", 50, 0, 500);
-      hCalomuEta   = ibooker.book1D("CalomuonEta", "CalomuonEta", 60, -3.0, 3.0);
-      hCalomuNhits = ibooker.book1D("CalomuonNhits", "CalomuonNhits", 50, 0, 50);
-      hCalomuChi2  = ibooker.book1D("CalomuonNormalizedChi2", "CalomuonNormalizedChi2", 20, 0, 20);
-      hCalomuD0    = ibooker.book1D("CalomuonD0", "CalomuonD0", 50, -1, 1);
-      hCaloMExCorrection       = ibooker.book1D("CaloMExCorrection", "CaloMExCorrection", 100, -500.0,500.0);
-      hCaloMEyCorrection       = ibooker.book1D("CaloMEyCorrection", "CaloMEyCorrection", 100, -500.0,500.0);
-      hCaloMuonCorrectionFlag  = ibooker.book1D("CaloCorrectionFlag","CaloCorrectionFlag", 5, -0.5, 4.5);
+    //if (metCollectionLabel_.label() == "corMetGlobalMuons" ) {
+    //hCalomuPt    = ibooker.book1D("CalomuonPt", "CalomuonPt", 50, 0, 500);
+    //hCalomuEta   = ibooker.book1D("CalomuonEta", "CalomuonEta", 60, -3.0, 3.0);
+    //hCalomuNhits = ibooker.book1D("CalomuonNhits", "CalomuonNhits", 50, 0, 50);
+    //hCalomuChi2  = ibooker.book1D("CalomuonNormalizedChi2", "CalomuonNormalizedChi2", 20, 0, 20);
+    //hCalomuD0    = ibooker.book1D("CalomuonD0", "CalomuonD0", 50, -1, 1);
+    //hCaloMExCorrection       = ibooker.book1D("CaloMExCorrection", "CaloMExCorrection", 100, -500.0,500.0);
+    //hCaloMEyCorrection       = ibooker.book1D("CaloMEyCorrection", "CaloMEyCorrection", 100, -500.0,500.0);
+    //hCaloMuonCorrectionFlag  = ibooker.book1D("CaloCorrectionFlag","CaloCorrectionFlag", 5, -0.5, 4.5);
 
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CalomuonPt",hCalomuPt));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CalomuonEta",hCalomuEta));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CalomuonNhit",hCalomuNhits));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CalomuonNormalizedChi2",hCalomuChi2));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CaloMExCorrection",hCaloMExCorrection));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CaloMEyCorrection",hCaloMEyCorrection));
-      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CaloCorrectionFlag",hCaloMuonCorrectionFlag));
-    }
+    //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CalomuonPt",hCalomuPt));
+    //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CalomuonEta",hCalomuEta));
+    //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CalomuonNhit",hCalomuNhits));
+    //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CalomuonNormalizedChi2",hCalomuChi2));
+    //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CaloMExCorrection",hCaloMExCorrection));
+    //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CaloMEyCorrection",hCaloMEyCorrection));
+    //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CaloCorrectionFlag",hCaloMuonCorrectionFlag));
+    //}
 
   }
 
@@ -721,21 +721,21 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ==========================================================
   // TCMET
 
-  if (/*isTCMet_ || */(isCaloMet_ && metCollectionLabel_.label() == "corMetGlobalMuons")) {
+  //if (/*isTCMet_ || */(isCaloMet_ && metCollectionLabel_.label() == "corMetGlobalMuons")) {
 
-    iEvent.getByToken(MuonToken_, muonHandle_);
-    iEvent.getByToken(TrackToken_, trackHandle_);
-    iEvent.getByToken(ElectronToken_, electronHandle_);
-    iEvent.getByToken(BeamspotToken_, beamSpotHandle_);
-    iEvent.getByToken(tcMETValueMapToken_,tcMetValueMapHandle_);
+    //iEvent.getByToken(MuonToken_, muonHandle_);
+    //iEvent.getByToken(TrackToken_, trackHandle_);
+    //iEvent.getByToken(ElectronToken_, electronHandle_);
+    //iEvent.getByToken(BeamspotToken_, beamSpotHandle_);
+    //iEvent.getByToken(tcMETValueMapToken_,tcMetValueMapHandle_);
 
-    if(!muonHandle_.isValid())     edm::LogInfo("OutputInfo") << "falied to retrieve muon data require by MET Task";
-    if(!trackHandle_.isValid())    edm::LogInfo("OutputInfo") << "falied to retrieve track data require by MET Task";
-    if(!electronHandle_.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve electron data require by MET Task";
-    if(!beamSpotHandle_.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
+    //if(!muonHandle_.isValid())     edm::LogInfo("OutputInfo") << "falied to retrieve muon data require by MET Task";
+    //if(!trackHandle_.isValid())    edm::LogInfo("OutputInfo") << "falied to retrieve track data require by MET Task";
+    //if(!electronHandle_.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve electron data require by MET Task";
+    //if(!beamSpotHandle_.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
 
-    beamSpot_ = ( beamSpotHandle_.isValid() ) ? beamSpotHandle_->position() : math::XYZPoint(0, 0, 0);
-  }
+    //beamSpot_ = ( beamSpotHandle_.isValid() ) ? beamSpotHandle_->position() : math::XYZPoint(0, 0, 0);
+    //}
 
   // ==========================================================
   //
@@ -1121,28 +1121,28 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
       hCaloEtFractionHadronic = map_of_MEs[DirName+"/"+"CaloEtFractionHadronic"]; if (hCaloEtFractionHadronic && hCaloEtFractionHadronic->getRootObject())  hCaloEtFractionHadronic->Fill(caloEtFractionHadronic);
       hCaloEmEtFraction       = map_of_MEs[DirName+"/"+"CaloEmEtFraction"];       if (hCaloEmEtFraction       && hCaloEmEtFraction->getRootObject())        hCaloEmEtFraction->Fill(caloEmEtFraction);
       hCaloEmEtFraction020 = map_of_MEs[DirName+"/"+"CaloEmEtFraction020"];       if (MET> 20.  &&  hCaloEmEtFraction020    && hCaloEmEtFraction020->getRootObject()) hCaloEmEtFraction020->Fill(caloEmEtFraction);
-      if (metCollectionLabel_.label() == "corMetGlobalMuons" ) {
+      //if (metCollectionLabel_.label() == "corMetGlobalMuons" ) {
 	
-	for( reco::MuonCollection::const_iterator muonit = muonHandle_->begin(); muonit != muonHandle_->end(); muonit++ ) {
-	  const reco::TrackRef siTrack = muonit->innerTrack();
-	  hCalomuPt    = map_of_MEs[DirName+"/"+"CalomuonPt"];  
-	  if (hCalomuPt    && hCalomuPt->getRootObject())   hCalomuPt->Fill( muonit->p4().pt() );
-	  hCalomuEta   = map_of_MEs[DirName+"/"+"CalomuonEta"];    if (hCalomuEta   && hCalomuEta->getRootObject())    hCalomuEta->Fill( muonit->p4().eta() );
-	  hCalomuNhits = map_of_MEs[DirName+"/"+"CalomuonNhits"];  if (hCalomuNhits && hCalomuNhits->getRootObject())  hCalomuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-	  hCalomuChi2  = map_of_MEs[DirName+"/"+"CalomuonNormalizedChi2"];   if (hCalomuChi2  && hCalomuChi2->getRootObject())   hCalomuChi2->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
-	  double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( beamSpot_) : -999;
-	  hCalomuD0    = map_of_MEs[DirName+"/"+"CalomuonD0"];     if (hCalomuD0    && hCalomuD0->getRootObject())  hCalomuD0->Fill( d0 );
-	}
+      //for( reco::MuonCollection::const_iterator muonit = muonHandle_->begin(); muonit != muonHandle_->end(); muonit++ ) {
+      //  const reco::TrackRef siTrack = muonit->innerTrack();
+      //  hCalomuPt    = map_of_MEs[DirName+"/"+"CalomuonPt"];  
+      //  if (hCalomuPt    && hCalomuPt->getRootObject())   hCalomuPt->Fill( muonit->p4().pt() );
+      //  hCalomuEta   = map_of_MEs[DirName+"/"+"CalomuonEta"];    if (hCalomuEta   && hCalomuEta->getRootObject())    hCalomuEta->Fill( muonit->p4().eta() );
+      //  hCalomuNhits = map_of_MEs[DirName+"/"+"CalomuonNhits"];  if (hCalomuNhits && hCalomuNhits->getRootObject())  hCalomuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
+      //  hCalomuChi2  = map_of_MEs[DirName+"/"+"CalomuonNormalizedChi2"];   if (hCalomuChi2  && hCalomuChi2->getRootObject())   hCalomuChi2->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
+      //  double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( beamSpot_) : -999;
+      //  hCalomuD0    = map_of_MEs[DirName+"/"+"CalomuonD0"];     if (hCalomuD0    && hCalomuD0->getRootObject())  hCalomuD0->Fill( d0 );
+      //}
 	
-	const unsigned int nMuons = muonHandle_->size();
-	for( unsigned int mus = 0; mus < nMuons; mus++ ) {
-	  reco::MuonRef muref( muonHandle_, mus);
-	  reco::MuonMETCorrectionData muCorrData = (*tcMetValueMapHandle_)[muref];
-	  hCaloMExCorrection      = map_of_MEs[DirName+"/"+"CaloMExCorrection"];       if (hCaloMExCorrection      && hCaloMExCorrection->getRootObject())       hCaloMExCorrection-> Fill(muCorrData.corrY());
-	  hCaloMEyCorrection      = map_of_MEs[DirName+"/"+"CaloMEyCorrection"];       if (hCaloMEyCorrection      && hCaloMEyCorrection->getRootObject())       hCaloMEyCorrection-> Fill(muCorrData.corrX());
-	  hCaloMuonCorrectionFlag = map_of_MEs[DirName+"/"+"CaloMuonCorrectionFlag"];  if (hCaloMuonCorrectionFlag && hCaloMuonCorrectionFlag->getRootObject())  hCaloMuonCorrectionFlag-> Fill(muCorrData.type());
-	}
-      } 
+      //const unsigned int nMuons = muonHandle_->size();
+      //for( unsigned int mus = 0; mus < nMuons; mus++ ) {
+      //  reco::MuonRef muref( muonHandle_, mus);
+      //  reco::MuonMETCorrectionData muCorrData = (*tcMetValueMapHandle_)[muref];
+      //  hCaloMExCorrection      = map_of_MEs[DirName+"/"+"CaloMExCorrection"];       if (hCaloMExCorrection      && hCaloMExCorrection->getRootObject())       hCaloMExCorrection-> Fill(muCorrData.corrY());
+      //  hCaloMEyCorrection      = map_of_MEs[DirName+"/"+"CaloMEyCorrection"];       if (hCaloMEyCorrection      && hCaloMEyCorrection->getRootObject())       hCaloMEyCorrection-> Fill(muCorrData.corrX());
+      //  hCaloMuonCorrectionFlag = map_of_MEs[DirName+"/"+"CaloMuonCorrectionFlag"];  if (hCaloMuonCorrectionFlag && hCaloMuonCorrectionFlag->getRootObject())  hCaloMuonCorrectionFlag-> Fill(muCorrData.type());
+      //}
+      //} 
     }
 
     if(isPFMet_){

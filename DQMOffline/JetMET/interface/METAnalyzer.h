@@ -150,26 +150,26 @@ class METAnalyzer : public DQMEDAnalyzer{
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>  gtToken_;
   edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
-  edm::EDGetTokenT<reco::JPTJetCollection>        jptJetsToken_;
+  //edm::EDGetTokenT<reco::JPTJetCollection>        jptJetsToken_;
 
   edm::EDGetTokenT<bool>                          hbheNoiseFilterResultToken_;
   edm::EDGetTokenT<reco::BeamHaloSummary>         beamHaloSummaryToken_;
 
-  edm::EDGetTokenT<reco::METCollection>           tcMetToken_; 
+  //edm::EDGetTokenT<reco::METCollection>           tcMetToken_; 
   edm::EDGetTokenT<reco::PFMETCollection>         pfMetToken_;
   edm::EDGetTokenT<reco::CaloMETCollection>       caloMetToken_;
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection>  HcalNoiseRBXToken_; 
 
-  edm::InputTag inputTrackLabel_;
-  edm::InputTag inputMuonLabel_;
-  edm::InputTag inputElectronLabel_;
-  edm::InputTag inputBeamSpotLabel_;
-  edm::InputTag inputTCMETValueMap_;
+  //edm::InputTag inputTrackLabel_;
+  //edm::InputTag inputMuonLabel_;
+  //edm::InputTag inputElectronLabel_;
+  //edm::InputTag inputBeamSpotLabel_;
+  //edm::InputTag inputTCMETValueMap_;
 
-  edm::EDGetTokenT<edm::View <reco::Track> >        TrackToken_;
-  edm::EDGetTokenT<reco::MuonCollection>            MuonToken_;
-  edm::EDGetTokenT<edm::View <reco::GsfElectron> >  ElectronToken_;
-  edm::EDGetTokenT<reco::BeamSpot>                  BeamspotToken_;
+  //edm::EDGetTokenT<edm::View <reco::Track> >        TrackToken_;
+  //edm::EDGetTokenT<reco::MuonCollection>            MuonToken_;
+  //edm::EDGetTokenT<edm::View <reco::GsfElectron> >  ElectronToken_;
+  //edm::EDGetTokenT<reco::BeamSpot>                  BeamspotToken_;
 
   edm::InputTag inputJetIDValueMap;
   edm::EDGetTokenT<edm::ValueMap <reco::JetID> >jetID_ValueMapToken_;
@@ -183,13 +183,13 @@ class METAnalyzer : public DQMEDAnalyzer{
 
  
 
-  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData>> tcMETValueMapToken_;
-  edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMetValueMapHandle_;
+  //edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData>> tcMETValueMapToken_;
+  //edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMetValueMapHandle_;
 
-  edm::Handle< reco::MuonCollection >           muonHandle_;
-  edm::Handle< edm::View<reco::Track> >         trackHandle_;
-  edm::Handle< edm::View<reco::GsfElectron > >  electronHandle_;
-  edm::Handle< reco::BeamSpot >                 beamSpotHandle_;
+  //edm::Handle< reco::MuonCollection >           muonHandle_;
+  //edm::Handle< edm::View<reco::Track> >         trackHandle_;
+  //edm::Handle< edm::View<reco::GsfElectron > >  electronHandle_;
+  //edm::Handle< reco::BeamSpot >                 beamSpotHandle_;
 
   HLTConfigProvider hltConfig_;
   edm::InputTag                         triggerResultsLabel_;
@@ -335,34 +335,35 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* hCaloHaMETPhi;
   //MonitorElement* hCaloHaSumET;
 
-  MonitorElement* hCalomuPt;
-  MonitorElement* hCalomuEta;
-  MonitorElement* hCalomuNhits;
-  MonitorElement* hCalomuChi2;
-  MonitorElement* hCalomuD0;
-  MonitorElement* hCaloMExCorrection;
-  MonitorElement* hCaloMEyCorrection;
-  MonitorElement* hCaloMuonCorrectionFlag;
+  //remove muon MET
+  //MonitorElement* hCalomuPt;
+  //MonitorElement* hCalomuEta;
+  //MonitorElement* hCalomuNhits;
+  //MonitorElement* hCalomuChi2;
+  //MonitorElement* hCalomuD0;
+  //MonitorElement* hCaloMExCorrection;
+  //MonitorElement* hCaloMEyCorrection;
+  //MonitorElement* hCaloMuonCorrectionFlag;
 
 
   //is filled for TCMET
-  MonitorElement* htrkPt;
-  MonitorElement* htrkEta;
-  MonitorElement* htrkNhits;
-  MonitorElement* htrkChi2;
-  MonitorElement* htrkD0;
-  MonitorElement* helePt;
-  MonitorElement* heleEta;
-  MonitorElement* heleHoE;
-  MonitorElement* hmuPt;
-  MonitorElement* hmuEta;
-  MonitorElement* hmuNhits;
-  MonitorElement* hmuChi2;
-  MonitorElement* hmuD0;
+  //MonitorElement* htrkPt;
+  //MonitorElement* htrkEta;
+  //MonitorElement* htrkNhits;
+  //MonitorElement* htrkChi2;
+  //MonitorElement* htrkD0;
+  //MonitorElement* helePt;
+  //MonitorElement* heleEta;
+  //MonitorElement* heleHoE;
+  //MonitorElement* hmuPt;
+  //MonitorElement* hmuEta;
+  //MonitorElement* hmuNhits;
+  //MonitorElement* hmuChi2;
+  //MonitorElement* hmuD0;
 
-  MonitorElement* hMExCorrection;
-  MonitorElement* hMEyCorrection;
-  MonitorElement* hMuonCorrectionFlag;
+  //MonitorElement* hMExCorrection;
+  //MonitorElement* hMEyCorrection;
+  //MonitorElement* hMuonCorrectionFlag;
 
   //now PF only things
   MonitorElement* mePhotonEtFraction;
