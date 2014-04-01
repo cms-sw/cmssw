@@ -26,7 +26,7 @@ namespace npstat {
         inline StorableMultivariateFunctor() {}
 
         /** Functor description can be an arbitrary string */
-        inline StorableMultivariateFunctor(const std::string& descr)
+        inline explicit StorableMultivariateFunctor(const std::string& descr)
             : AbsMultivariateFunctor(), description_(descr) {}
 
         inline virtual ~StorableMultivariateFunctor() {}

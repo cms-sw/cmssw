@@ -35,7 +35,8 @@ namespace npstat {
         // The number of grid coordinates provided must be at least 2.
         // Coordinates will be sorted internally in the increasing order.
         */
-        GridAxis(const std::vector<double>& coords, bool useLogSpace=false);
+        explicit GridAxis(const std::vector<double>& coords,
+                          bool useLogSpace=false);
         GridAxis(const std::vector<double>& coords, const char* label,
                  bool useLogSpace=false);
         //@}
@@ -120,8 +121,6 @@ namespace npstat {
         static GridAxis* read(const gs::ClassId& id, std::istream& in);
 
     private:
-        inline GridAxis() : npt_(0), useLogSpace_(false) {}
-
         void initialize();
 
         std::vector<double> coords_;
@@ -130,6 +129,7 @@ namespace npstat {
         unsigned npt_;
         bool useLogSpace_;
 
+        inline GridAxis() : npt_(0), useLogSpace_(false) {}
     };
 }
 

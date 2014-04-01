@@ -32,11 +32,10 @@ namespace npstat {
         // coordinates will be sorted internally in the increasing order.
         // The number of bins will be less by 1 than the number of edges.
         */
-        NUHistoAxis(const std::vector<double>& binEdges,
-                    const char* label = 0);
+        NUHistoAxis(const std::vector<double>& binEdges, const char* label = 0);
 
         //@{
-        /** Examine axis propoerties */
+        /** Examine axis properties */
         inline double min() const {return min_;}
         inline double max() const {return max_;}
         inline Interval<double> interval() const
@@ -94,6 +93,9 @@ namespace npstat {
         /** Comparison of axis coordinates within given tolerance */
         bool isClose(const NUHistoAxis&, double tol) const;
 
+        /** Return uniformly rebinned axis */
+        NUHistoAxis rebin(unsigned newBins) const;
+
         //@{
         /** Method related to "geners" I/O */
         inline gs::ClassId classId() const {return gs::ClassId(*this);}
@@ -105,9 +107,6 @@ namespace npstat {
         static NUHistoAxis* read(const gs::ClassId& id, std::istream& in);
 
     private:
-        inline NUHistoAxis() : min_(0.0), max_(0.0),
-                               nBins_(0), uniform_(false) {}
-
         NUHistoAxis(unsigned nBins, double min, double max,
                     const char* label = 0);
 
@@ -135,6 +134,8 @@ namespace npstat {
             }
         }
 
+        inline NUHistoAxis() : min_(0.0), max_(0.0),
+                               nBins_(0), uniform_(false) {}
     };
 }
 
