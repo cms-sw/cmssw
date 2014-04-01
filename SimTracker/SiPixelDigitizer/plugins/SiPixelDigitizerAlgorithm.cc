@@ -533,7 +533,7 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
 //============================================================================
 void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
                                          std::vector<PixelDigi>& digis,
-                                         std::vector<PixelDigiSimLink>& simlinks, const TrackerTopology* tTopo,
+                                         std::vector<PixelDigiSimLink>& simlinks, const TrackerTopology *tTopo,
                                          CLHEP::HepRandomEngine* engine) {
   
    // Pixel Efficiency moved from the constructor to this method because
