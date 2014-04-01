@@ -15,8 +15,8 @@
    <Constant name="xTop"  value="(2.*[dZ]*tan(10*deg)+[xBot])"/> 
  </ConstantsSection>
  <SolidSection label="me0.xml">
-  <Tubs name="ME0" rMin="[rMin]" rMax="[rMax]" dz="15.*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-  <Trd1 name="ME0Box" dz="[dZ]" dy1="15*cm" dy2="15*cm" dx1="[xBot]" dx2="[xTop]" />
+  <Tubs name="ME0" rMin="[rMin]" rMax="[rMax]" dz="14.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME0Box" dz="[dZ]" dy1="14.75*cm" dy2="14.75*cm" dx1="[xBot]" dx2="[xTop]" />
   <Trd1 name="ME0L" dz="[dZ]" dy1="0.3*cm" dy2="0.3*cm" dx1="[xBot]" dx2="[xTop]" />
  </SolidSection>
 
@@ -63,12 +63,12 @@
   <PosPart copyNumber="1">
     <rParent name="mf:ME0RingP"/>
     <rChild name="me0:ME0P"/>
-    <Translation x="0*fm" y="0*fm" z="5.391*m" />
+    <Translation x="0*fm" y="0*fm" z="5.3935*m" />
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="mf:ME0RingN"/>
     <rChild name="me0:ME0N"/>
-    <Translation x="0*fm" y="0*fm" z="5.391*m" />
+    <Translation x="0*fm" y="0*fm" z="5.3935*m" />
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="ME0Box"/>
