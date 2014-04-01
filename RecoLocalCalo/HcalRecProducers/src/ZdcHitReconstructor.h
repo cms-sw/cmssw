@@ -65,9 +65,6 @@ class HcalTopology;
     // new lowGainEnergy variables
       int lowGainOffset_;
       double lowGainFrac_;
-      
-      HcalLongRecoParams* myobject; //noiseTS and signalTS from db
-      HcalTopology *theTopology;
     };
 
 #endif

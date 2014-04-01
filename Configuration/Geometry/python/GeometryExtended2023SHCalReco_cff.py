@@ -25,7 +25,23 @@ trackerSLHCGeometry.applyAlignment = cms.bool(False)
 
 #  Calorimeters
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
-from Geometry.CaloEventSetup.CaloGeometry_cff import *
+
+from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
+
+CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
+    SelectedCalos = cms.vstring('HCAL'          , 
+                                'ZDC'           ,
+                                'CASTOR'        ,
+                                'EcalBarrel'    , 
+                                'TOWER'           )
+)
+
+from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
+from Geometry.HcalEventSetup.HcalGeometry_cfi import *
+from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
+from Geometry.HcalEventSetup.HcalTopology_cfi import *
+from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
+
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
