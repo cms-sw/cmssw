@@ -93,15 +93,18 @@ class Reco(Scenario):
         """
 
         step = ""
-        if 'PromptCalibProd' in skims:
-            step = "ALCA:PromptCalibProd" 
-            skims.remove('PromptCalibProd')
+        pclWflws = [x for x in skims if "PromptCalibProd" in x]
+        if len(pclWflws):
+            step = 'ALCA:'
+        for wfl in pclWflws:
+            step += wfl
+            skims.remove(wfl)
         
         if len( skims ) > 0:
             if step != "":
                 step += ","
             step += "ALCAOUTPUT:"+('+'.join(skims))
-                
+
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
