@@ -84,9 +84,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     Int_t region = id.region();
     Int_t station = id.station();
     Int_t layer = id.layer();
-    Int_t even_odd = id.chamber();
-    std::cout<<even_odd<<std::endl;
-    even_odd = even_odd%2;
+    Int_t even_odd = id.chamber()%2;
     const LocalPoint p0(0., 0., 0.);
     const GlobalPoint Gp0(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(p0));
     const LocalPoint hitLP(hits->localPosition());

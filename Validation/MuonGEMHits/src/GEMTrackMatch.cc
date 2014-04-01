@@ -62,12 +62,12 @@ void GEMTrackMatch::setGeometry(const GEMGeometry* geom)
   const auto top_chamber = static_cast<const GEMEtaPartition*>(theGEMGeometry->idToDetUnit(GEMDetId(1,1,1,1,1,2))); 
   const int nEtaPartitions(theGEMGeometry->chamber(GEMDetId(1,1,1,1,1,2))->nEtaPartitions());
   const auto bottom_chamber = static_cast<const GEMEtaPartition*>(theGEMGeometry->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
-  float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
-  float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
-  LocalPoint lp_top(0., top_half_striplength, 0.);
-  LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
-  GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
-  GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
+  const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
+  const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
+  const LocalPoint lp_top(0., top_half_striplength, 0.);
+  const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
+  const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
+  const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
 
   radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
   chamberHeight_ = gp_top.perp() - gp_bottom.perp();
