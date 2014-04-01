@@ -11,7 +11,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/FactorizedJetCorrectorCalculator.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
@@ -62,7 +62,7 @@ private:
   bool                    addMuonToJet_;
   edm::InputTag           srcBTagInfoElec_;
   edm::InputTag           srcBTagInfoMuon_;
-  FactorizedJetCorrector* corrector_;
+  FactorizedJetCorrectorCalculator* corrector_;
   
 };
 
