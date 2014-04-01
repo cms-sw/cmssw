@@ -11,7 +11,7 @@ magfield = float(sys.argv[2])
 version = sys.argv[3]
 
 ## Change to False if you do not want to test the global tag
-testGlobalTag = True
+testGlobalTag = False
 
 if(magfield==0):
     magfieldString = "0T"
