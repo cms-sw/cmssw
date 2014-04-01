@@ -534,8 +534,9 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
 void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
                                          std::vector<PixelDigi>& digis,
                                          std::vector<PixelDigiSimLink>& simlinks, const TrackerTopology* tTopo,
-                                         CLHEP::HepRandomEngine* engine) {  
-  // Pixel Efficiency moved from the constructor to this method because
+                                         CLHEP::HepRandomEngine* engine) {
+  
+   // Pixel Efficiency moved from the constructor to this method because
    // the information of the det are not available in the constructor
    // Effciency parameters. 0 - no inefficiency, 1-low lumi, 10-high lumi
 
@@ -1347,30 +1348,23 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     //std::cout <<"Using BPix columnEfficiency = "<<columnEfficiency<< " for layer = "<<layerIndex <<"\n";
     // This should never happen, but only check if it is not an upgrade geometry
     if (NumberOfBarrelLayers==3){
-      if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
-      if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
+       if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
+       if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
       
-      int ladder=tTopo->pxbLadder(detID);
-      int module=tTopo->pxbModule(detID);
-      if (module<=4) module=5-module;
-      else module-=4;
-
-      if (layerIndex==1) {
-	columnEfficiency*=eff.theLadderEfficiency_BPix[0][ladder-1];
-	columnEfficiency*=eff.theModuleEfficiency_BPix[0][module-1];
-	columnEfficiency*=_pu_scale[0];
-      }
-      if (layerIndex==2) {
-	columnEfficiency*=eff.theLadderEfficiency_BPix[1][ladder-1];
-	columnEfficiency*=eff.theModuleEfficiency_BPix[1][module-1];
-	columnEfficiency*=_pu_scale[1];
-      }
-      if (layerIndex==3) {
-	columnEfficiency*=eff.theLadderEfficiency_BPix[2][ladder-1];
-	columnEfficiency*=eff.theModuleEfficiency_BPix[2][module-1];
-	columnEfficiency*=_pu_scale[2];
-	std::cout<<"bpix3 ladder  "<< _pu_scale[2]<< " coleff " << columnEfficiency <<std::endl;
-      }
+       int ladder=tTopo->pxbLadder(detID);
+       int module=tTopo->pxbModule(detID);
+       if (module<=4) module=5-module;
+       else module-=4;
+       
+       if (layerIndex==1) {
+	 columnEfficiency *= eff.theLadderEfficiency_BPix[0][ladder-1]*eff.theModuleEfficiency_BPix[0][module-1]*_pu_scale[0];
+       }
+       if (layerIndex==2) {
+	 columnEfficiency *= eff.theLadderEfficiency_BPix[1][ladder-1]*eff.theModuleEfficiency_BPix[1][module-1]*_pu_scale[1];
+       }
+       if (layerIndex==3) {
+	 columnEfficiency *= eff.theLadderEfficiency_BPix[2][ladder-1]*eff.theModuleEfficiency_BPix[2][module-1]*_pu_scale[2];
+       }
     }
   } else {                // forward disks
     unsigned int diskIndex=tTopo->pxfDisk(detID)+eff.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
