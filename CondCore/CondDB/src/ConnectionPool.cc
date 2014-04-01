@@ -1,5 +1,7 @@
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "DbConnectionString.h"
+#include "SessionImpl.h"
+#include "IOVSchema.h"
 //
 #include "CondCore/DBCommon/interface/CoralServiceManager.h"
 #include "CondCore/DBCommon/interface/Auth.h"
@@ -19,24 +21,14 @@
 namespace cond {
 
   namespace persistency {
+
+    static const std::string POOL_IOV_TABLE_DATA("IOV_DATA");
+    static const std::string ORA_IOV_TABLE_1("ORA_C_COND_IOVSEQUENCE");
+    static const std::string ORA_IOV_TABLE_2("ORA_C_COND_IOVSEQU_A0");
+    static const std::string ORA_IOV_TABLE_3("ORA_C_COND_IOVSEQU_A1");
    
-    ConnectionPool::ConnectionPool():
-      m_authPath(),
-      m_authSys(0),
-      m_messageLevel( coral::Error ),
-      m_loggingEnabled( false ),
-      m_pluginManager( new cond::CoralServiceManager ),
-      m_refreshtablelist(){
-      m_refreshtablelist.reserve(6);
-      //table names for IOVSequence in the old POOL mapping
-      m_refreshtablelist.push_back("IOV");
-      m_refreshtablelist.push_back("IOV_DATA");
-      //table names for IOVSequence in ORA
-      m_refreshtablelist.push_back("ORA_C_COND_IOVSEQUENCE");
-      m_refreshtablelist.push_back("ORA_C_COND_IOVSEQU_A0");
-      m_refreshtablelist.push_back("ORA_C_COND_IOVSEQU_A1");
-      //table names for IOVSequence in CONDDB
-      m_refreshtablelist.push_back("TAG");
+    ConnectionPool::ConnectionPool(){
+      m_pluginManager = new cond::CoralServiceManager;
       configure();
     }
  
@@ -139,19 +131,42 @@ namespace cond {
       configure( connServ.configuration() );
     }
 
-    Session ConnectionPool::createSession( const std::string& connectionString, const std::string& transactionId, bool writeCapable ){
+    Session ConnectionPool::createSession( const std::string& connectionString, 
+					   const std::string& transactionId, 
+					   bool writeCapable,
+					   BackendType backType){
       coral::ConnectionService connServ;
-      std::pair<std::string,std::string> fullConnectionPars = getRealConnectionString( connectionString, transactionId );
-      if( !fullConnectionPars.second.empty() ) 
-	for( auto tableName : m_refreshtablelist ) connServ.webCacheControl().refreshTable( fullConnectionPars.second, tableName );
+      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId );
+      if( !fullConnectionPars.second.empty() ) {
+	// the olds formats
+	connServ.webCacheControl().refreshTable( fullConnectionPars.second, POOL_IOV_TABLE_DATA );
+	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_1 );
+	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_2 );
+	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_3 );
+	// the new schema...
+	connServ.webCacheControl().refreshTable( fullConnectionPars.second, TAG::tname );
+	connServ.webCacheControl().refreshTable( fullConnectionPars.second, IOV::tname );
+      }
 
       boost::shared_ptr<coral::ISessionProxy> coralSession( connServ.connect( fullConnectionPars.first, 
+									      writeCapable?Auth::COND_WRITER_ROLE:Auth::COND_READER_ROLE,
 									      writeCapable?coral::Update:coral::ReadOnly ) );
-      return Session( coralSession, connectionString );
+      BackendType bt;
+      auto it = m_dbTypes.find( connectionString);
+      if( it == m_dbTypes.end() ){
+	bt = checkBackendType( coralSession, connectionString );
+	if( bt == UNKNOWN_DB && writeCapable) bt = backType;
+	m_dbTypes.insert( std::make_pair( connectionString, bt ) ).first;
+      } else {
+	bt = (BackendType) it->second;
+      }
+   
+      std::shared_ptr<SessionImpl> impl( new SessionImpl( coralSession, connectionString, bt ) );  
+      return Session( impl );
     }
 
-    Session ConnectionPool::createSession( const std::string& connectionString, bool writeCapable ){
-      return createSession( connectionString, "", writeCapable );
+    Session ConnectionPool::createSession( const std::string& connectionString, bool writeCapable, BackendType backType ){
+      return createSession( connectionString, "", writeCapable, backType );
     }
       
     Session ConnectionPool::createReadOnlySession( const std::string& connectionString, const std::string& transactionId ){

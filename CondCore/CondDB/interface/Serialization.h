@@ -28,8 +28,9 @@ namespace cond {
 
   // default payload factory
   template <typename T> T* createPayload( const std::string& payloadTypeName ){
-    if( demangledName( typeid(T) )!= payloadTypeName ) 
-      throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
+    std::string userTypeName = demangledName( typeid(T) );
+    if( userTypeName != payloadTypeName ) 
+      throwException(std::string("Type mismatch, user type: \""+userTypeName+"\", target type: \"")+payloadTypeName+"\"",
 		     "createPayload" );
     return new T;
   }
@@ -113,7 +114,7 @@ namespace cond {
       payload.reset( createPayload<T>(payloadType) );
       ia >> (*payload);
     } else {
-      payload = boost::static_pointer_cast<T>(payloadData.share());
+      payload = boost::static_pointer_cast<T>(payloadData.oraObject().makeShared());
     }
     return payload;
   }
