@@ -25,7 +25,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //
 #include <map>
@@ -48,7 +48,7 @@ class SimTrack;
  ***/
 
 
-class TkConvValidator : public edm::EDAnalyzer
+class TkConvValidator : public DQMEDAnalyzer
 {
 
  public:
@@ -59,8 +59,8 @@ class TkConvValidator : public edm::EDAnalyzer
 
 
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob();
-  virtual void beginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
+  void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
+  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
   virtual void endRun (edm::Run& r, edm::EventSetup const & es);
   virtual void endJob() ;
 
