@@ -4,28 +4,27 @@ import Geometry.HcalEventSetup.hcalTopologyIdeal_cfi
 
 from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import *
 from RecoJets.Configuration.CaloTowersRec_cff import *
-# from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECAL_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECALWithTime_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHCAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHO_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitPS_cfi import *
 
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHO_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterPS_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFEM_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFHAD_cfi import *
 
-
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECALWithTime_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALWithTime_cff import *
 
 withTime = False
 if withTime:
-    from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALWithTime_cff import *
     pfClusteringECAL = cms.Sequence(particleFlowRecHitECALWithTime*
                                      particleFlowClusterECALWithTimeSequence)
     particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterECALWithTimeSelected')
 else:
-    from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cff import *
     pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*
                                     particleFlowClusterECALSequence)
 

@@ -89,13 +89,15 @@ PFlow2DClusterizerWithTime(const edm::ParameterSet& conf) :
   if( conf.exists("timeResolutionCalcBarrel") ) {
     const edm::ParameterSet& timeResConf = 
       conf.getParameterSet("timeResolutionCalcBarrel");
-      _timeResolutionCalcBarrel.reset(new ECALRecHitResolutionProvider(timeResConf));
+      _timeResolutionCalcBarrel.reset(new ECALRecHitResolutionProvider(
+        timeResConf));
   }
   _timeResolutionCalcEndcap.reset(NULL);
   if( conf.exists("timeResolutionCalcEndcap") ) {
     const edm::ParameterSet& timeResConf = 
       conf.getParameterSet("timeResolutionCalcEndcap");
-      _timeResolutionCalcEndcap.reset(new ECALRecHitResolutionProvider(timeResConf));
+      _timeResolutionCalcEndcap.reset(new ECALRecHitResolutionProvider(
+        timeResConf));
   }
 }
 
@@ -220,7 +222,8 @@ growPFClusters(const reco::PFCluster& topo,
         clus_prev_timeres2[iCluster]);
       d2 += d2time;
 
-      if (_minChi2Prob > 0. && !passChi2Prob(iCluster, d2time, clus_chi2, clus_chi2_nhits))
+      if (_minChi2Prob > 0. && !passChi2Prob(iCluster, d2time, clus_chi2, 
+        clus_chi2_nhits))
         d2 = 999.;
 
       dist2.emplace_back( d2);
@@ -295,8 +298,8 @@ prunePFClusters(reco::PFClusterCollection& clusters) const {
   }
 }
 
-void PFlow2DClusterizerWithTime::clusterTimeResolutionFromSeed(reco::PFCluster& cluster, 
-    double& clusterRes2) const
+void PFlow2DClusterizerWithTime::clusterTimeResolutionFromSeed(reco::PFCluster& 
+  cluster, double& clusterRes2) const
 {
   clusterRes2 = 10000.;
   for (auto& rhf : cluster.recHitFractions())
@@ -350,8 +353,8 @@ void PFlow2DClusterizerWithTime::clusterTimeResolution(reco::PFCluster& cluster,
   }
 }
 
-double PFlow2DClusterizerWithTime::dist2Time(const reco::PFCluster& cluster, const reco::PFRecHitRef& refhit, int cell_layer,
-  double prev_timeres2) const 
+double PFlow2DClusterizerWithTime::dist2Time(const reco::PFCluster& cluster, 
+  const reco::PFRecHitRef& refhit, int cell_layer, double prev_timeres2) const 
 {
   const double deltaT = cluster.time()-refhit->time();
   const double t2 = deltaT*deltaT;
@@ -362,7 +365,8 @@ double PFlow2DClusterizerWithTime::dist2Time(const reco::PFCluster& cluster, con
   cell_layer == PFLayer::ECAL_BARREL) {
     if (_timeResolutionCalcBarrel) {
       const double resCluster2 = prev_timeres2;
-      res2 = resCluster2 + _timeResolutionCalcBarrel->timeResolution2(refhit->energy());
+      res2 = resCluster2 + _timeResolutionCalcBarrel->timeResolution2(
+        refhit->energy());
     }
     else {
       return t2/_timeSigma_eb;
@@ -374,7 +378,8 @@ double PFlow2DClusterizerWithTime::dist2Time(const reco::PFCluster& cluster, con
      cell_layer == PFLayer::ECAL_ENDCAP) {
     if (_timeResolutionCalcEndcap) {
       const double resCluster2 = prev_timeres2;
-      res2 = resCluster2 + _timeResolutionCalcEndcap->timeResolution2(refhit->energy());
+      res2 = resCluster2 + _timeResolutionCalcEndcap->timeResolution2(
+        refhit->energy());
     }
      else {
       return t2/_timeSigma_ee;
@@ -388,8 +393,8 @@ double PFlow2DClusterizerWithTime::dist2Time(const reco::PFCluster& cluster, con
   return distTime2;
 }
 
-bool PFlow2DClusterizerWithTime::passChi2Prob(size_t iCluster, double dist2, std::vector<double>& clus_chi2, 
-  std::vector<size_t>& clus_chi2_nhits) const
+bool PFlow2DClusterizerWithTime::passChi2Prob(size_t iCluster, double dist2, 
+  std::vector<double>& clus_chi2, std::vector<size_t>& clus_chi2_nhits) const
 {
   if (iCluster >= clus_chi2.size()) { // first hit
     clus_chi2.push_back(dist2);
