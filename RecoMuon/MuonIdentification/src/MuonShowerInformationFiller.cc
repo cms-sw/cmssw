@@ -235,7 +235,7 @@ MuonShowerInformationFiller::hitsFromSegments(const GeomDet* geomDet,
 
   if (segments.empty()) return allhitscorrelated;  
 
-  TransientTrackingRecHit::ConstRecHitPointer muonRecHit(segments.front().get());
+  TransientTrackingRecHit::ConstRecHitPointer muonRecHit(segments.front());
   allhitscorrelated = MuonTransientTrackingRecHitBreaker::breakInSubRecHits(muonRecHit,2);
 
   if (segments.size() == 1) return allhitscorrelated;
@@ -243,7 +243,7 @@ MuonShowerInformationFiller::hitsFromSegments(const GeomDet* geomDet,
   for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator iseg = segments.begin() + 1;
        iseg != segments.end(); ++iseg) {
 
-    TransientTrackingRecHit::ConstRecHitPointer muonRecHit((*iseg).get());
+    TransientTrackingRecHit::ConstRecHitPointer muonRecHit((*iseg));
     TransientTrackingRecHit::ConstRecHitContainer hits1 = MuonTransientTrackingRecHitBreaker::breakInSubRecHits(muonRecHit,2);
 
     for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit1 = hits1.begin();

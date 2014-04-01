@@ -164,7 +164,7 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     if likely(hit.isValid()) {
 	//update
 	LogTrace("TrackFitters") << "THE HIT IS VALID: updating hit with predTsos";
-	TransientTrackingRecHit::RecHitPointer preciseHit = hit.clone(predTsos);
+	TransientTrackingRecHit::RecHitPointer preciseHit = (*ihit)->clone(predTsos);
 
 	if unlikely(!preciseHit->isValid()){
 	    LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
