@@ -37,8 +37,8 @@ class SUSYDQMAnalyzer: public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollectionToken;
 
   edm::EDGetTokenT<reco::CaloMETCollection> theCaloMETCollectionToken;
-  edm::EDGetTokenT<reco::JPTJetCollection> theJPTJetCollectionToken;
-  edm::EDGetTokenT<reco::METCollection> theTCMETCollectionToken;
+  //edm::EDGetTokenT<reco::JPTJetCollection> theJPTJetCollectionToken;
+  //edm::EDGetTokenT<reco::METCollection> theTCMETCollectionToken;
 
   double _ptThreshold;
   double _maxNJets;
@@ -52,19 +52,19 @@ class SUSYDQMAnalyzer: public DQMEDAnalyzer {
   //Susy DQM storing elements
 
   MonitorElement* hCaloHT;
-  MonitorElement* hJPTHT;
+  //MonitorElement* hJPTHT;
   MonitorElement* hPFHT;
 
   MonitorElement* hCaloMET;
   MonitorElement* hPFMET;
-  MonitorElement* hTCMET;
+  //MonitorElement* hTCMET;
   
   MonitorElement* hCaloMHT;
-  MonitorElement* hJPTMHT;
+  //MonitorElement* hJPTMHT;
   MonitorElement* hPFMHT;  
 
   MonitorElement* hCaloAlpha_T;
-  MonitorElement* hJPTAlpha_T;
+  //MonitorElement* hJPTAlpha_T;
   MonitorElement* hPFAlpha_T;
   
 };
