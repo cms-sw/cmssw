@@ -21,10 +21,10 @@ class ThrParameters {
   ThrParameters(const edm::EventSetup*);
   ~ThrParameters();
 
-  void setInitialThr(double &thr0) {x0 = thr0;};
-  bool isValidThdDB() {return isValidThdDB_;};
-  std::map<DTChamberId, GlobalError> GetDTApeMap() {return dtApeMap;};
-  std::map<CSCDetId, GlobalError> GetCSCApeMap() {return cscApeMap;};
+  void setInitialThr(double thr0) {x0 = thr0;};
+  const bool isValidThdDB() {return isValidThdDB_;};
+  const std::map<DTChamberId, GlobalError>& GetDTApeMap() {return dtApeMap;};
+  const std::map<CSCDetId, GlobalError>& GetCSCApeMap() {return cscApeMap;};
   const DYTThrObject* getInitialThresholds() {return dytThresholds;}
 
  private:
