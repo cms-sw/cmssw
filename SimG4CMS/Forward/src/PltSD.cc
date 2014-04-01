@@ -139,28 +139,28 @@ uint32_t PltSD::setDetUnitId(G4Step * aStep ) {
         //correct the telescope numbers on the -z side to have the same naming convention in phi as the +z side
         if (pltNum == 0){
             if (telNum == 0){
-                telNum = 3;
-            }
-            else if (telNum == 1){
-                telNum = 2;
-            }
-            else if (telNum == 2){
-                telNum = 1;
-            }
-            else if (telNum == 3){
-                telNum = 0;
-            }
-            else if (telNum == 4){
                 telNum = 7;
             }
-            else if (telNum == 5){
+            else if (telNum == 1){
                 telNum = 6;
             }
-            else if (telNum == 6){
+            else if (telNum == 2){
                 telNum = 5;
             }
-            else if (telNum == 7){
+            else if (telNum == 3){
                 telNum = 4;
+            }
+            else if (telNum == 4){
+                telNum = 3;
+            }
+            else if (telNum == 5){
+                telNum = 2;
+            }
+            else if (telNum == 6){
+                telNum = 1;
+            }
+            else if (telNum == 7){
+                telNum = 0;
             }
         }
         //the PLT is divided into sets of telescopes on the + and -x sides
