@@ -83,6 +83,7 @@ void SusyPostProcessor::endRun(const edm::Run&, const edm::EventSetup&)
 
     if (size_t(Dirs[i].find("Calo")) != string::npos) prefix = "Calo";
     if (size_t(Dirs[i].find("Pf"))   != string::npos) prefix = "Pf";
+    //TCMet related plots are removed
     //if (size_t(Dirs[i].find("Tc"))   != string::npos) prefix = "";
 
     for (std::vector<std::string>::const_iterator ic=metFolders.begin();

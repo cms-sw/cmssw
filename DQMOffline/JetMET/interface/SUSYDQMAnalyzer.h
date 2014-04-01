@@ -50,6 +50,7 @@ class SUSYDQMAnalyzer: public DQMEDAnalyzer {
   DQMStore* dqm;
 
   //Susy DQM storing elements
+  //remove TCMET and JPT related variables
 
   MonitorElement* hCaloHT;
   //MonitorElement* hJPTHT;
