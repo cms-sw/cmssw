@@ -1710,12 +1710,16 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             proc.ref = PSet(refToPSet_ = string("top"))
             proc.ref2 = PSet( a = int32(1), b = PSet( refToPSet_ = string("top")))
             proc.ref3 = PSet(refToPSet_ = string("ref"))
+            proc.ref4 = VPSet(PSet(refToPSet_ = string("top")),
+                              PSet(refToPSet_ = string("ref2")))
             p = TestMakePSet()
             proc.fillProcessDesc(p)
             self.assertEqual((True,1),p.values["ref"][1].values["a"])
             self.assertEqual((True,1),p.values["ref3"][1].values["a"])
             self.assertEqual((True,1),p.values["ref2"][1].values["a"])
             self.assertEqual((True,1),p.values["ref2"][1].values["b"][1].values["a"])
+            self.assertEqual((True,1),p.values["ref4"][1][0].values["a"])
+            self.assertEqual((True,1),p.values["ref4"][1][1].values["a"])
         def testPrune(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
