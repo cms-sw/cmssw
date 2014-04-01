@@ -121,7 +121,7 @@ float pat::PackedCandidate::dxy(const Point &p) const {
 }
 float pat::PackedCandidate::dz(const Point &p) const {
     maybeUnpackBoth();
-    return (vertex_.Z()-p.X())  - ((vertex_.X()-p.X()) * std::cos(float(p4_.Phi())) + (vertex_.Y()-p.Y()) * std::sin(float(p4_.Phi()))) * p4_.Pz()/p4_.Pt();
+    return (vertex_.Z()-p.Z())  - ((vertex_.X()-p.X()) * std::cos(float(p4_.Phi())) + (vertex_.Y()-p.Y()) * std::sin(float(p4_.Phi()))) * p4_.Pz()/p4_.Pt();
 }
 
 reco::Track pat::PackedCandidate::pseudoTrack() const {
