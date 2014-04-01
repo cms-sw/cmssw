@@ -125,8 +125,9 @@ class Reco(Scenario):
 
         # FIXME: dirty hack..any way around this?
         # Tier0 needs the dataset used for ALCAHARVEST step to be a different data-tier
-        if 'PromptCalibProd' in step:
-            process.ALCARECOStreamPromptCalibProd.dataset.dataTier = cms.untracked.string('ALCAPROMPT')
+        for wfl in pclWflws:
+            methodToCall = getattr(process, 'ALCARECOStream'+wfl)
+            methodToCall.dataset.dataTier = cms.untracked.string('ALCAPROMPT')
 
         return process
 
