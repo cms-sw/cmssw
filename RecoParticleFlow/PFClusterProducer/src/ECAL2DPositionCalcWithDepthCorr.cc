@@ -76,13 +76,13 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     }
     cl_energy += rh_energy;
     cl_energy_float += rh_energyf;
-    // If time resolution is given, calculated weighted average
+    // If time resolution is given, calculate weighted average
     if (_timeResolutionCalc) {
       const double res2 = _timeResolutionCalc->timeResolution2(refhit->energy());
       cl_time += rhf.fraction()*refhit->time()/res2;
       cl_timeweight += rhf.fraction()/res2;
     }
-    else { // assume resolution = 1/E**2
+    else { // assume resolution ~ 1/E**2
       cl_timeweight+=refhit->energy()*refhit->energy()*rhf.fraction();
       cl_time += refhit->energy()*refhit->energy()*rhf.fraction()*refhit->time();
     }

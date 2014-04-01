@@ -208,7 +208,6 @@ growPFClusters(const reco::PFCluster& topo,
     dist2.clear(); frac.clear(); fractot = 0;
 
     // add rechits to clusters, calculating fraction based on distance
-    // for( auto& cluster : clusters ) {   
     // need position in vector to get cluster time resolution   
     for (size_t iCluster = 0; iCluster < clusters.size(); ++iCluster) {
       reco::PFCluster& cluster = clusters[iCluster];
@@ -328,6 +327,9 @@ void PFlow2DClusterizerWithTime::clusterTimeResolution(reco::PFCluster& cluster,
     const reco::PFRecHit& rh = *(rhf.recHitRef());
     const double rhf_f = rhf.fraction();
 
+    if (rhf_f == 0.)
+      continue;
+
     bool isBarrel = (rh.layer() == PFLayer::HCAL_BARREL1 ||
       rh.layer() == PFLayer::HCAL_BARREL2 ||
       rh.layer() == PFLayer::ECAL_BARREL);
@@ -353,14 +355,13 @@ double PFlow2DClusterizerWithTime::dist2Time(const reco::PFCluster& cluster, con
 {
   const double deltaT = cluster.time()-refhit->time();
   const double t2 = deltaT*deltaT;
-  double res2 = 0.;
+  double res2 = 100.;
 
   if (cell_layer == PFLayer::HCAL_BARREL1 ||
   cell_layer == PFLayer::HCAL_BARREL2 ||
   cell_layer == PFLayer::ECAL_BARREL) {
     if (_timeResolutionCalcBarrel) {
       const double resCluster2 = prev_timeres2;
-      // Could move the hit res calculation to outer loop
       res2 = resCluster2 + _timeResolutionCalcBarrel->timeResolution2(refhit->energy());
     }
     else {
@@ -373,7 +374,6 @@ double PFlow2DClusterizerWithTime::dist2Time(const reco::PFCluster& cluster, con
      cell_layer == PFLayer::ECAL_ENDCAP) {
     if (_timeResolutionCalcEndcap) {
       const double resCluster2 = prev_timeres2;
-      // Could move the hit res calculation to outer loop
       res2 = resCluster2 + _timeResolutionCalcEndcap->timeResolution2(refhit->energy());
     }
      else {

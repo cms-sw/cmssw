@@ -26,10 +26,8 @@ if withTime:
     particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterECALWithTimeSelected')
 else:
     from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cff import *
-
     pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*
                                     particleFlowClusterECALSequence)
-    # particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterECALWithTimeSelected')
 
 pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
 pfClusteringHCALall = cms.Sequence(particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
