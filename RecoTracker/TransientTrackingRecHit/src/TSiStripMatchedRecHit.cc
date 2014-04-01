@@ -66,14 +66,14 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
     
     if (better == nullptr) {
       //dm::LogWarning("TSiStripMatchedRecHit") << "Refitting of a matched rechit returns NULL";
-      return this->clone();
+      return RecHitPointer(this->clone());
     }
     
     return RecHitPointer(new TSiStripMatchedRecHit( gdet, better, theMatcher,theCPE, false, DontCloneRecHit()));
     // delete better; //the ownership of the object is passed to the caller of the matcher
     
   }
-  return this->clone();
+  return RecHitPointer(this->clone());
    
 }
 

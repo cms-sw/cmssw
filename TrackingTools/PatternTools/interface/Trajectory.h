@@ -40,9 +40,13 @@ class Trajectory
 public:
 
   typedef std::vector<TrajectoryMeasurement>                   DataContainer;
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  using ConstRecHitContainer = TransientTrackingRecHit::ConstRecHitContainer;
+  using RecHitContainer = ConstRecHitContainer;
+#else
   typedef TransientTrackingRecHit::ConstRecHitContainer        ConstRecHitContainer;
   typedef ConstRecHitContainer                                 RecHitContainer;
-
+#endif
 
   /** Default constructor of an empty trajectory with undefined seed and 
    * undefined direction. This constructor is necessary in order to transiently
@@ -204,6 +208,7 @@ public:
 
   /** Return all RecHits in a container.
    */
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   ConstRecHitContainer recHits() const {
     ConstRecHitContainer hits;
     hits.reserve(theData.size());
@@ -218,6 +223,7 @@ public:
    *
    */
   void validRecHits(ConstRecHitContainer & cont) const;
+#endif
 
   /** Number of valid RecHits used to determine the trajectory.
    *  Can be less than the number of measurements in data() since

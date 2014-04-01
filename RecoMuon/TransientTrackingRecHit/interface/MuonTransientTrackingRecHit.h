@@ -16,8 +16,17 @@
 
 class MuonTransientTrackingRecHit: public GenericTransientTrackingRecHit{
 public:
-  typedef ReferenceCountingPointer<MuonTransientTrackingRecHit>      MuonRecHitPointer;
-  typedef ConstReferenceCountingPointer<MuonTransientTrackingRecHit> ConstMuonRecHitPointer;
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+   using MuonRecHitPointer = std::shared_ptr<MuonTransientTrackingRecHit>;
+   using ConstMuonRecHitPointer = std::shared_ptr<MuonTransientTrackingRecHit const>;
+
+#else
+   typedef MuonTransientTrackingRecHit *           MuonRecHitPointer;
+   typedef MuonTransientTrackingRecHit const *     ConstMuonRecHitPointer;
+#endif
+
+//  typedef ReferenceCountingPointer<MuonTransientTrackingRecHit>      MuonRecHitPointer;
+//  typedef ConstReferenceCountingPointer<MuonTransientTrackingRecHit> ConstMuonRecHitPointer;
   typedef std::vector<MuonRecHitPointer>                             MuonRecHitContainer;
   typedef std::vector<ConstMuonRecHitPointer>                        ConstMuonRecHitContainer;
   

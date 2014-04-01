@@ -49,7 +49,7 @@ class TRecHit1DMomConstraint GCC11_FINAL : public TransientTrackingRecHit {
 
   virtual bool canImproveWithTrack() const {return false;}
 
-  virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return clone();}
+  virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const {return RecHitPointer(clone());}
 
   virtual const GeomDetUnit* detUnit() const {return 0;}
 

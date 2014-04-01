@@ -5,7 +5,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
-#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+// #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
@@ -17,12 +17,21 @@ inline void countTTRH( TrackingRecHit::Type){}
 #endif
 
 
-class TransientTrackingRecHit : public TrackingRecHit, 
-				public ReferenceCountedInEvent {
+class TransientTrackingRecHit : public TrackingRecHit 
+//				, public ReferenceCountedInEvent 
+{
 public:
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+   using RecHitPointer = std::shared_ptr<TransientTrackingRecHit>;
+   using ConstRecHitPointer = std::shared_ptr<TransientTrackingRecHit const>;
+   
+#else
+   typedef TransientTrackingRecHit *           RecHitPointer;
+   typedef TransientTrackingRecHit const *     ConstRecHitPointer;
+#endif
 
-  typedef ReferenceCountingPointer< TransientTrackingRecHit>        RecHitPointer;
-  typedef ConstReferenceCountingPointer< TransientTrackingRecHit>   ConstRecHitPointer;
+//  typedef ReferenceCountingPointer< TransientTrackingRecHit>        RecHitPointer;
+//  typedef ConstReferenceCountingPointer< TransientTrackingRecHit>   ConstRecHitPointer;
   typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
   typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 

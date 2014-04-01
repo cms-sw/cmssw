@@ -7,7 +7,7 @@
 TSiPixelRecHit::RecHitPointer TSiPixelRecHit::clone (const TrajectoryStateOnSurface& ts) const
 {
   if (theCPE == 0){
-    return new TSiPixelRecHit( det(), &theHitData, 0,false);
+    return TSiPixelRecHit::RecHitPointer(new TSiPixelRecHit( det(), &theHitData, 0,false));
   }else{
     const SiPixelCluster& clust = *specificHit()->cluster();  
     PixelClusterParameterEstimator::LocalValues lv = 
