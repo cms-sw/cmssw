@@ -54,14 +54,11 @@ hiSecondPixelTripletSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSe
 
 
 # QUALITY CUTS DURING TRACK BUILDING
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-hiSecondPixelTripletTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'hiSecondPixelTripletTrajectoryFilter',
-    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+hiSecondPixelTripletTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 1,
     minimumNumberOfHits = 6,
     minPt = 1.0
-    )
     )
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
@@ -76,7 +73,7 @@ hiSecondPixelTripletChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstima
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilterName = 'hiSecondPixelTripletTrajectoryFilter',
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiSecondPixelTripletTrajectoryFilter')),
     clustersToSkip = cms.InputTag('hiSecondPixelTripletClusters'),
     maxCand = 3,
     #estimator = cms.string('hiSecondPixelTripletChi2Est')

@@ -71,22 +71,20 @@ largeD0step1MeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerES
     stripClusterProducer = 'largeD0step1Clusters',
 )
 #TRAJECTORY FILTERS (for inwards and outwards track building steps)
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 
-largeD0step1CkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'largeD0step1CkfTrajectoryFilter',
-)
-#largeD0step1CkfTrajectoryFilter.filterPset.maxLostHits = 1
-#largeD0step1CkfTrajectoryFilter.filterPset.maxConsecLostHits = 2
-largeD0step1CkfTrajectoryFilter.filterPset.minimumNumberOfHits = 6
-largeD0step1CkfTrajectoryFilter.filterPset.minPt = 0.6
-largeD0step1CkfTrajectoryFilter.filterPset.minHitsMinPt = 3
+largeD0step1CkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone()
+#largeD0step1CkfTrajectoryFilter.maxLostHits = 1
+#largeD0step1CkfTrajectoryFilter.maxConsecLostHits = 2
+largeD0step1CkfTrajectoryFilter.minimumNumberOfHits = 6
+largeD0step1CkfTrajectoryFilter.minPt = 0.6
+largeD0step1CkfTrajectoryFilter.minHitsMinPt = 3
 
 #TRAJECTORY BUILDER
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 largeD0step1CkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = 'largeD0step1MeasurementTracker',
-    trajectoryFilterName = 'largeD0step1CkfTrajectoryFilter',
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('largeD0step1CkfTrajectoryFilter')),
     useSameTrajFilter = True,
     minNrOfHitsForRebuild = 6,
     #lar    maxCand = 5,

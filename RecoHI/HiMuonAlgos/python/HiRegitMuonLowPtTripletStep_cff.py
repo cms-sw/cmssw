@@ -41,14 +41,12 @@ hiRegitMuLowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparit
 
 
 # building: feed the new-named seeds
-hiRegitMuLowPtTripletStepTrajectoryFilter = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepTrajectoryFilter.clone(
-    ComponentName = 'hiRegitMuLowPtTripletStepTrajectoryFilter'
-    )
-hiRegitMuLowPtTripletStepTrajectoryFilter.filterPset.minPt              = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
+hiRegitMuLowPtTripletStepTrajectoryFilter = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepTrajectoryFilter.clone()
+hiRegitMuLowPtTripletStepTrajectoryFilter.minPt              = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 
 hiRegitMuLowPtTripletStepTrajectoryBuilder = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepTrajectoryBuilder.clone(
-    trajectoryFilterName = 'hiRegitMuLowPtTripletStepTrajectoryFilter',
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiRegitMuLowPtTripletStepTrajectoryFilter')),
     clustersToSkip = cms.InputTag('hiRegitMuLowPtTripletStepClusters'),
 )
 

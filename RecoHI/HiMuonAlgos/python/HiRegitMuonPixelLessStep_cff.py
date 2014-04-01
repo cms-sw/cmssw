@@ -42,15 +42,13 @@ hiRegitMuPixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                
 
 
 # building: feed the new-named seeds
-hiRegitMuPixelLessStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrajectoryFilter.clone(
-    ComponentName        = 'hiRegitMuPixelLessStepTrajectoryFilter',
-    )
-hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minPt                = 1.7
-hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minimumNumberOfHits  = 6
-hiRegitMuPixelLessStepTrajectoryFilter.filterPset.minHitsMinPt         = 4
+hiRegitMuPixelLessStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrajectoryFilter.clone()
+hiRegitMuPixelLessStepTrajectoryFilter.minPt                = 1.7
+hiRegitMuPixelLessStepTrajectoryFilter.minimumNumberOfHits  = 6
+hiRegitMuPixelLessStepTrajectoryFilter.minHitsMinPt         = 4
 
 hiRegitMuPixelLessStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTrajectoryBuilder.clone(
-    trajectoryFilterName = 'hiRegitMuPixelLessStepTrajectoryFilter',
+    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitMuPixelLessStepTrajectoryFilter')),
     clustersToSkip       = cms.InputTag('hiRegitMuPixelLessStepClusters'),
     minNrOfHitsForRebuild = 6 #change from default 4
 )

@@ -27,8 +27,7 @@ from RecoMuon.L3TrackFinder.MuonCkfTrajectoryBuilder_cfi import *
 # trajectory filtering
 # do no duplicate the module in order to be able to later replace its values
 # later on, L3Muon might need a specific TrajectoryFilter adapted to online purpose
-muonCkfTrajectoryFilter = cms.ESProducer("TrajectoryFilterESProducer",
-    filterPset = cms.PSet(
+muonCkfTrajectoryFilter = cms.PSet(
         minimumNumberOfHits = cms.int32(5),
         minHitsMinPt = cms.int32(3),
         ComponentType = cms.string('CkfBaseTrajectoryFilter'),
@@ -38,8 +37,6 @@ muonCkfTrajectoryFilter = cms.ESProducer("TrajectoryFilterESProducer",
         chargeSignificance = cms.double(-1.0),
         nSigmaMinPt = cms.double(5.0),
         minPt = cms.double(0.9)
-    ),
-    ComponentName = cms.string('muonCkfTrajectoryFilter')
 )
 
 

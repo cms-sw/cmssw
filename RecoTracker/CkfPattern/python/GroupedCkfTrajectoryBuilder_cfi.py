@@ -6,12 +6,12 @@ GroupedCkfTrajectoryBuilder = cms.PSet(
     propagatorAlong = cms.string('PropagatorWithMaterial'),
 #    propagatorAlong = cms.string('PropagatorWithMaterialParabolicMf'),
     # Filter used on tracks at end of all tracking (in-out + out-in)
-    trajectoryFilterName = cms.string('ckfBaseTrajectoryFilter'),
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('CkfBaseTrajectoryFilter_block')),
     # Filter used on tracks at end of in-out tracking phase
-    inOutTrajectoryFilterName = cms.string('ckfBaseTrajectoryFilter'),
-#    inOutTrajectoryFilterName = cms.string('ckfBaseInOutTrajectoryFilter'),
-    # If true, then the inOutTrajectoryFilterName will be ignored
-    # and the trajectoryFilterName will be used for in-out tracking too.
+    inOutTrajectoryFilter = cms.PSet(refToPSet_ = cms.string('CkfBaseTrajectoryFilter_block')),
+#    inOutTrajectoryFilter = cms.PSet(refToPSet_ = cms.string('ckfBaseInOutTrajectoryFilter')),
+    # If true, then the inOutTrajectoryFilter will be ignored
+    # and the trajectoryFilter will be used for in-out tracking too.
     useSameTrajFilter = cms.bool(True),
     # Maximum number of track candidates followed at each step of
     # track building

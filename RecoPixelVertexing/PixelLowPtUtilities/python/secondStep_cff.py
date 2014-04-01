@@ -68,8 +68,8 @@ secondMeasurementTracker.stripClusterProducer = 'secondClusters'
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 secondCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone()
 secondCkfTrajectoryBuilder.MeasurementTrackerName = 'secondMeasurementTracker'
-secondCkfTrajectoryBuilder.trajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
-secondCkfTrajectoryBuilder.inOutTrajectoryFilterName   = 'MinBiasCkfTrajectoryFilter'
+secondCkfTrajectoryBuilder.trajectoryFilter.refToPSet_   = 'MinBiasCkfTrajectoryFilter'
+secondCkfTrajectoryBuilder.inOutTrajectoryFilter.refToPSet_   = 'MinBiasCkfTrajectoryFilter'
 
 #################################
 # Secondary track candidates

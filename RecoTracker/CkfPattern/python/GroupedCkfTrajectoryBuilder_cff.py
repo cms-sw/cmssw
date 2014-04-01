@@ -22,10 +22,9 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 # MeasurementTracker
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cff import *
 # trajectory filtering for out-in tracking phase
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 # specific filter for in-out tracking phase.
-ckfBaseInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-ckfBaseInOutTrajectoryFilter.ComponentName = 'ckfBaseInOutTrajectoryFilter'
+ckfBaseInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone()
 #
 from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi import *
 

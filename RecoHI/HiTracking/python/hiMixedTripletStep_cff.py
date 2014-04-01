@@ -113,14 +113,11 @@ hiMixedTripletSeeds.seedCollections = cms.VInputTag(
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-hiMixedTripletTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'hiMixedTripletTrajectoryFilter',
-    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+hiMixedTripletTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 0,
     minimumNumberOfHits = 6,
     minPt = 1.0
-    )
     )
 
 # Propagator taking into account momentum uncertainty in multiple scattering calculation.
@@ -146,7 +143,7 @@ hiMixedTripletChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESP
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiMixedTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilterName = 'hiMixedTripletTrajectoryFilter',
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiMixedTripletTrajectoryFilter')),
     propagatorAlong = cms.string('hiMixedTripletPropagator'),
     propagatorOpposite = cms.string('hiMixedTripletPropagatorOpposite'),
     clustersToSkip = cms.InputTag('hiMixedTripletClusters'),

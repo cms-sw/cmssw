@@ -42,18 +42,14 @@ muonSeededMeasurementEstimatorForOutIn = TrackingTools.KalmanUpdators.Chi2Measur
 )
 
 ###------------- TrajectoryFilter, defining selections on the trajectories while building them ----------------
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-muonSeededTrajectoryFilterForInOut = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = cms.string('muonSeededTrajectoryFilterForInOut')
-)
-muonSeededTrajectoryFilterForInOut.filterPset.constantValueForLostHitsFractionFilter = 10 ## allow more lost hits
-muonSeededTrajectoryFilterForInOut.filterPset.minimumNumberOfHits = 3 ## allow more lost hits
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+muonSeededTrajectoryFilterForInOut = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone()
+muonSeededTrajectoryFilterForInOut.constantValueForLostHitsFractionFilter = 10 ## allow more lost hits
+muonSeededTrajectoryFilterForInOut.minimumNumberOfHits = 3 ## allow more lost hits
 
-muonSeededTrajectoryFilterForOutIn = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = cms.string('muonSeededTrajectoryFilterForOutIn')
-)
-muonSeededTrajectoryFilterForOutIn.filterPset.constantValueForLostHitsFractionFilter = 10 ## allow more lost hits
-muonSeededTrajectoryFilterForOutIn.filterPset.minimumNumberOfHits = 5 ## allow more lost hits
+muonSeededTrajectoryFilterForOutIn = muonSeededTrajectoryFilterForInOut.clone()
+muonSeededTrajectoryFilterForOutIn.constantValueForLostHitsFractionFilter = 10 ## allow more lost hits
+muonSeededTrajectoryFilterForOutIn.minimumNumberOfHits = 5 ## allow more lost hits
 
 ###------------- TrajectoryBuilders ----------------
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
@@ -62,8 +58,8 @@ muonSeededTrajectoryBuilderForInOut = RecoTracker.CkfPattern.GroupedCkfTrajector
     lostHitPenalty = cms.double(1.0),   
     maxCand   = cms.int32(5),
     estimator = cms.string('muonSeededMeasurementEstimatorForInOut'),
-    trajectoryFilterName = cms.string('muonSeededTrajectoryFilterForInOut'),
-    inOutTrajectoryFilterName = cms.string('muonSeededTrajectoryFilterForInOut'), # not sure if it is used
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForInOut')),
+    inOutTrajectoryFilter = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForInOut')), # not sure if it is used
     minNrOfHitsForRebuild    = cms.int32(2),
     requireSeedHitsInRebuild = cms.bool(True), 
     keepOriginalIfRebuildFails = cms.bool(True), 
@@ -73,8 +69,8 @@ muonSeededTrajectoryBuilderForOutIn = RecoTracker.CkfPattern.GroupedCkfTrajector
     lostHitPenalty = cms.double(1.0),   
     maxCand   = cms.int32(3),
     estimator = cms.string('muonSeededMeasurementEstimatorForOutIn'),
-    trajectoryFilterName = cms.string('muonSeededTrajectoryFilterForOutIn'),
-    inOutTrajectoryFilterName = cms.string('muonSeededTrajectoryFilterForOutIn'), # not sure if it is used
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForOutIn')),
+    inOutTrajectoryFilter = cms.PSet(refToPSet_ = cms.string('muonSeededTrajectoryFilterForOutIn')), # not sure if it is used
     minNrOfHitsForRebuild    = cms.int32(5),
     requireSeedHitsInRebuild = cms.bool(True), 
     keepOriginalIfRebuildFails = cms.bool(False), 

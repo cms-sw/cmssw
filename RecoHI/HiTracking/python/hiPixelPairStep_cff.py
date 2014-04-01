@@ -55,14 +55,11 @@ hiPixelPairSeeds.SeedComparitorPSet = cms.PSet(
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-hiPixelPairTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'hiPixelPairTrajectoryFilter',
-    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+hiPixelPairTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     #maxLostHits = 0,
     minimumNumberOfHits = 6,
     minPt = 1.0
-    )
     )
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
@@ -76,7 +73,7 @@ hiPixelPairChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProd
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiPixelPairTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
         MeasurementTrackerName = '',
-        trajectoryFilterName = 'hiPixelPairTrajectoryFilter',
+        trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiPixelPairTrajectoryFilter')),
         clustersToSkip = cms.InputTag('hiPixelPairClusters'),
         maxCand = 3,
         #estimator = cms.string('hiPixelPairChi2Est')
