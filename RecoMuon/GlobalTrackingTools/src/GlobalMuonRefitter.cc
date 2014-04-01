@@ -130,6 +130,7 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
 //--------------
 
 GlobalMuonRefitter::~GlobalMuonRefitter() {
+  delete dytInfo;
 }
 
 
