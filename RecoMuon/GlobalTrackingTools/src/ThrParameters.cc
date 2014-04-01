@@ -8,6 +8,11 @@ ThrParameters::ThrParameters(const EventSetup* eSetup)
 {
   // Read the threshold DB
   ESHandle<DYTThrObject> dytThresholdsH;
+  
+  // This try catch is just temporary and
+  // will be removed as soon as the DYTThrObject
+  // record is included in a GT.
+  // It is necessary here for testing
   try {eSetup->get<DYTThrObjectRcd>().get(dytThresholdsH);
     dytThresholds = dytThresholdsH.product();
     isValidThdDB_ = true;
