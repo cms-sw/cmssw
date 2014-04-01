@@ -120,7 +120,7 @@ LocalPoint
 PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const 
 {
   bool fpix;  //  barrel(false) or forward(true)
-  if ( thePart == GeomDetEnumerators::PixelBarrel )   
+  if ( theParam->thePart == GeomDetEnumerators::PixelBarrel )   
     fpix = false;    // no, it's not forward -- it's barrel
   else                                              
     fpix = true;     // yes, it's forward
@@ -134,7 +134,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
 
   if ( LoadTemplatesFromDB_ )
     {
-      ID = templateDBobject_->getTemplateID(theDet->geographicalId());
+      ID = templateDBobject_->getTemplateID(theParam->theDet->geographicalId());
     }
   else
     {
@@ -176,14 +176,14 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
   LocalPoint lp;
   
   if ( with_track_angle )
-    lp = theTopol->localPosition( MeasurementPoint(tmp_x, tmp_y), loc_trk_pred_ );
+    lp = theParam->theTopol->localPosition( MeasurementPoint(tmp_x, tmp_y), loc_trk_pred_ );
   else
     {
       edm::LogError("PixelCPETemplateReco") 
 	<< "@SUB = PixelCPETemplateReco::localPosition" 
 	<< "Should never be here. PixelCPETemplateReco should always be called with track angles. This is a bad error !!! ";
       
-      lp = theTopol->localPosition( MeasurementPoint(tmp_x, tmp_y) );
+      lp = theParam->theTopol->localPosition( MeasurementPoint(tmp_x, tmp_y) );
     }
     
   
@@ -242,13 +242,13 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
   // x directions (shorter), rows
   for (int irow = 0; irow < cluster_matrix_size_x; ++irow)
     {
-      xdouble[irow] = theRecTopol->isItBigPixelInX( irow+row_offset );
+      xdouble[irow] = theParam->theRecTopol->isItBigPixelInX( irow+row_offset );
     }
       
   // y directions (longer), columns
   for (int icol = 0; icol < cluster_matrix_size_y; ++icol) 
     {
-      ydouble[icol] = theRecTopol->isItBigPixelInY( icol+col_offset );
+      ydouble[icol] = theParam->theRecTopol->isItBigPixelInY( icol+col_offset );
     }
 
   // Output:
@@ -269,7 +269,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
   // Do it! Use cotalpha_ and cotbeta_ calculated in PixelCPEBase
 
  
-  float locBz = (*theParam).bz;
+  float locBz = theParam->bz;
     
   ierr =
     PixelTempReco2D( ID, cotalpha_, cotbeta_,
@@ -295,9 +295,9 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
       // In the x case, apply a rough Lorentz drift average correction
       // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
       float lorentz_drift = -999.9;
-      if ( thePart == GeomDetEnumerators::PixelBarrel )
+      if ( theParam->thePart == GeomDetEnumerators::PixelBarrel )
 	lorentz_drift = 60.0f; // in microns
-      else if ( thePart == GeomDetEnumerators::PixelEndcap )
+      else if ( theParam->thePart == GeomDetEnumerators::PixelEndcap )
 	lorentz_drift = 10.0f; // in microns
       else 
 	throw cms::Exception("PixelCPETemplateReco::localPosition :") 
@@ -305,8 +305,8 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
       // ggiurgiu@jhu.edu, 21/09/2010 : trk angles needed to correct for bows/kinks
       if ( with_track_angle )
 	{
-	  templXrec_ = theTopol->localX( cluster.x(), loc_trk_pred_ ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
-	  templYrec_ = theTopol->localY( cluster.y(), loc_trk_pred_ ); 
+	  templXrec_ = theParam->theTopol->localX( cluster.x(), loc_trk_pred_ ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
+	  templYrec_ = theParam->theTopol->localY( cluster.y(), loc_trk_pred_ ); 
 	}
       else
 	{
@@ -314,8 +314,8 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
 	    << "@SUB = PixelCPETemplateReco::localPosition" 
 	    << "Should never be here. PixelCPETemplateReco should always be called with track angles. This is a bad error !!! ";
 	  
-	  templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
-	  templYrec_ = theTopol->localY( cluster.y() );
+	  templXrec_ = theParam->theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
+	  templYrec_ = theParam->theTopol->localY( cluster.y() );
 	}
     }
   else if unlikely( UseClusterSplitter_ && templQbin_ == 0 )
@@ -360,9 +360,9 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
 	  // In the x case, apply a rough Lorentz drift average correction
 	  // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
 	  float lorentz_drift = -999.9f;
-	  if ( thePart == GeomDetEnumerators::PixelBarrel )
+	  if ( theParam->thePart == GeomDetEnumerators::PixelBarrel )
 	    lorentz_drift = 60.0f; // in microns
-	  else if ( thePart == GeomDetEnumerators::PixelEndcap )
+	  else if ( theParam->thePart == GeomDetEnumerators::PixelEndcap )
 	    lorentz_drift = 10.0f; // in microns
 	  else 
 	    throw cms::Exception("PixelCPETemplateReco::localPosition :") 
@@ -371,8 +371,8 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
 	  // ggiurgiu@jhu.edu, 12/09/2010 : trk angles needed to correct for bows/kinks
 	  if ( with_track_angle )
 	    {
-	      templXrec_ = theTopol->localX( cluster.x(),loc_trk_pred_ ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
-	      templYrec_ = theTopol->localY( cluster.y(),loc_trk_pred_ );
+	      templXrec_ = theParam->theTopol->localX( cluster.x(),loc_trk_pred_ ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
+	      templYrec_ = theParam->theTopol->localY( cluster.y(),loc_trk_pred_ );
 	    }
 	  else
 	    {
@@ -380,8 +380,8 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
 		<< "@SUB = PixelCPETemplateReco::localPosition" 
 		<< "Should never be here. PixelCPETemplateReco should always be called with track angles. This is a bad error !!! ";
 	      
-	      templXrec_ = theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
-	      templYrec_ = theTopol->localY( cluster.y() );
+	      templXrec_ = theParam->theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
+	      templYrec_ = theParam->theTopol->localY( cluster.y() );
 	      
 	    }
 	}
@@ -503,8 +503,8 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster) const
 
   //--- Default is the maximum error used for edge clusters.
   const float sig12 = 1./sqrt(12.0);
-  float xerr = thePitchX *sig12;
-  float yerr = thePitchY *sig12;
+  float xerr = theParam->thePitchX *sig12;
+  float yerr = theParam->thePitchY *sig12;
   
   // Check if the errors were already set at the clusters splitting level
   if ( cluster.getSplitClusterErrorX() > 0.0f && cluster.getSplitClusterErrorX() < 7777.7f && 
@@ -529,8 +529,8 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster) const
       int minPixelRow = cluster.minPixelRow();
       
       //--- Are we near either of the edges?
-      bool edgex = ( theRecTopol->isItEdgePixelInX( minPixelRow ) || theRecTopol->isItEdgePixelInX( maxPixelRow ) );
-      bool edgey = ( theRecTopol->isItEdgePixelInY( minPixelCol ) || theRecTopol->isItEdgePixelInY( maxPixelCol ) );
+      bool edgex = ( theParam->theRecTopol->isItEdgePixelInX( minPixelRow ) || theParam->theRecTopol->isItEdgePixelInX( maxPixelRow ) );
+      bool edgey = ( theParam->theRecTopol->isItEdgePixelInY( minPixelCol ) || theParam->theRecTopol->isItEdgePixelInY( maxPixelCol ) );
       
       if ( ierr !=0 ) 
 	{
@@ -540,12 +540,12 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster) const
 	  //yerr = 10.0 * (float)cluster.sizeX() * yerr;
 	  
 	  // Assign better errors based on the residuals for failed template cases
-	  if ( thePart == GeomDetEnumerators::PixelBarrel )
+	  if ( theParam->thePart == GeomDetEnumerators::PixelBarrel )
 	    {
 	      xerr = 55.0f * micronsToCm;
 	      yerr = 36.0f * micronsToCm;
 	    }
-	  else if ( thePart == GeomDetEnumerators::PixelEndcap )
+	  else if ( theParam->thePart == GeomDetEnumerators::PixelEndcap )
 	    {
 	      xerr = 42.0f * micronsToCm;
 	      yerr = 39.0f * micronsToCm;

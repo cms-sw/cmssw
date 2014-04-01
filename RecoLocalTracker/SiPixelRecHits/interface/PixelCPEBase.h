@@ -57,11 +57,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
  public:
   struct Param 
   {
-    Param() : bz(-9e10f) {}
-    float bz; // local Bz
-    LocalVector driftDirection;
-    float widthLAFraction; // Width-LA to Offset-LA
-
+    const PixelGeomDetUnit * theDet;
     // gavril : replace RectangularPixelTopology with PixelTopology
     const PixelTopology * theTopol;
     const RectangularPixelTopology * theRecTopol;
@@ -78,6 +74,10 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     float theSign;
 
     float lAWidth;  // la used to calculate the cluster width from conf.
+
+    float bz; // local Bz
+    LocalVector driftDirection;
+    float widthLAFraction; // Width-LA to Offset-LA
   };
 
 public:
@@ -199,21 +199,11 @@ public:
   //  Data members
   //---------------------------------------------------------------------------
   //--- Detector-level quantities
-  mutable const PixelGeomDetUnit * theDet;
-  
-  // gavril : replace RectangularPixelTopology with PixelTopology
-  mutable const PixelTopology * theTopol;
-  mutable const RectangularPixelTopology * theRecTopol;
-
   mutable Param const * theParam;
 
   mutable GeomDetType::SubDetector thePart;
-  mutable  Local3DPoint theOrigin;
+  mutable Local3DPoint theOrigin;
   mutable float theThickness;
-  mutable float thePitchX;
-  mutable float thePitchY;
-  mutable float theNumOfRow;
-  mutable float theNumOfCol;
   mutable float theDetZ;
   mutable float theDetR;
   mutable float theSign;
@@ -308,8 +298,6 @@ protected:
   //  Cluster-level services.
   //---------------------------------------------------------------------------
    
-  LocalVector const & getDrift() const {return  driftDirection_ ;}
- 
   Param const & param(const GeomDetUnit & det) const;
  
  private:
