@@ -755,7 +755,7 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& c)
   e.getByLabel(m_L1Config.TowerInput,input);
   
   edm::ESHandle<CaloTowerConstituentsMap> cttopo;
-  c.get<HcalRecNumberingRecord>().get(cttopo);
+  c.get<CaloGeometryRecord>().get(cttopo);
   const CaloTowerConstituentsMap* theTowerConstituentsMap = cttopo.product();
   
   edm::ESHandle<CaloTopology> calotopo;

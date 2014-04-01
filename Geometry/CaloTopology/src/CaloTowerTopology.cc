@@ -17,7 +17,7 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(t
   firstHERing_ = lastHBRing_; //crossover
   lastHERing_ = firstHERing_ + nEtaHE_ - 1;
   firstHFRing_ = lastHERing_ + 1; //no crossover for CaloTowers; HF crossover cells go in the subsequent non-crossover HF tower
-  lastHFRing_ = firstHFRing_ + nEtaHF_ - 1;
+  lastHFRing_ = firstHFRing_ + (nEtaHF_ - 1) - 1; //nEtaHF - 1 to account for no crossover
   firstHORing_ = 1;
   lastHORing_ = firstHORing_ + nEtaHO_ - 1;
   
@@ -30,7 +30,7 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(t
   int nEtaSinglePhi_, nEtaDoublePhi_, nEtaQuadPhi_;
   nEtaSinglePhi_ = firstHEDoublePhiRing_ - firstHBRing_;
   nEtaDoublePhi_ = firstHFQuadPhiRing_ - firstHEDoublePhiRing_;
-  nEtaQuadPhi_ = lastHFRing_ - firstHFQuadPhiRing_;
+  nEtaQuadPhi_ = lastHFRing_ - firstHFQuadPhiRing_ + 1; //include lastHFRing
   
   //total number of towers per phi segmentation type
   nSinglePhi_ = nEtaSinglePhi_*72;
