@@ -149,8 +149,8 @@
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonRef> >"/>
 
-  <class name="reco::DYTInfo" ClassVersion="13">
-   <version ClassVersion="13" checksum="910544468"/>
+  <class name="reco::DYTInfo" ClassVersion="10">
+   <version ClassVersion="10" checksum="910544468"/>
   </class>
     <class name="std::vector<reco::DYTInfo>"/>
   <class name="std::vector<reco::DYTInfo>::const_iterator"/>
