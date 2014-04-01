@@ -3,11 +3,11 @@
 
 class DYTThrObject {
  public:
-  struct dytThrStruct {
+  struct DytThrStruct {
     DetId  id;
     double thr;
   };
   DYTThrObject(){}
   ~DYTThrObject(){}
-  std::vector<dytThrStruct> thrsVec;
+  std::vector<DytThrStruct> thrsVec;
 };
