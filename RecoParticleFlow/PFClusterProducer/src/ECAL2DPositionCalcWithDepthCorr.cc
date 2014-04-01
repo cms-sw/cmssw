@@ -67,8 +67,10 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   // find the seed and max layer
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
-    const double rh_energy = refhit->energy() * rhf.fraction();    
-    const double rh_energyf = ((float)refhit->energy()) * ((float)rhf.fraction());
+    const double rh_fraction = rhf.fraction();
+    const double rh_rawenergy = refhit->energy();
+    const double rh_energy = rh_rawenergy * rh_fraction;    
+    const double rh_energyf = ((float)rh_rawenergy) * ((float) rh_fraction);
     if( std::isnan(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
 	<<"rechit " << refhit->detId() << " has a NaN energy... " 
@@ -78,13 +80,14 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     cl_energy_float += rh_energyf;
     // If time resolution is given, calculate weighted average
     if (_timeResolutionCalc) {
-      const double res2 = _timeResolutionCalc->timeResolution2(refhit->energy());
-      cl_time += rhf.fraction()*refhit->time()/res2;
-      cl_timeweight += rhf.fraction()/res2;
+      const double res2 = _timeResolutionCalc->timeResolution2(rh_rawenergy);
+      cl_time += rh_fraction*refhit->time()/res2;
+      cl_timeweight += rh_fraction/res2;
     }
     else { // assume resolution ~ 1/E**2
-      cl_timeweight+=refhit->energy()*refhit->energy()*rhf.fraction();
-      cl_time += refhit->energy()*refhit->energy()*rhf.fraction()*refhit->time();
+      const double rh_rawenergy2 = rh_rawenergy*rh_rawenergy;
+      cl_timeweight+=rh_rawenergy2*rh_fraction;
+      cl_time += rh_rawenergy2*rh_fraction*refhit->time();
     }
     if( rh_energy > max_e ) {
       max_e = rh_energy;
