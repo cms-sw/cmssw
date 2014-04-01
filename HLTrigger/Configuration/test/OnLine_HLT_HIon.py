@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_0/HIon/V18 (CMSSW_7_1_0_pre5)
+# /dev/CMSSW_7_1_0/HIon/V20 (CMSSW_7_1_0_pre5_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V18')
+  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V20')
 )
 
 process.streams = cms.PSet( 
@@ -462,37 +462,6 @@ process.EcalEndcapGeometryFromDBEP = cms.ESProducer( "EcalEndcapGeometryFromDBEP
 process.EcalLaserCorrectionService = cms.ESProducer( "EcalLaserCorrectionService" )
 process.EcalPreshowerGeometryFromDBEP = cms.ESProducer( "EcalPreshowerGeometryFromDBEP",
   applyAlignment = cms.bool( True )
-)
-process.EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
-  CalibRHAlgo = cms.PSet( 
-    flagsMapDBReco = cms.vint32( 0, 0, 0, 0, 4, -1, -1, -1, 4, 4, 7, 7, 7, 8, 9 ),
-    Type = cms.string( "EcalRecHitWorkerSimpleOld" ),
-    killDeadChannels = cms.bool( True ),
-    ChannelStatusToBeExcluded = cms.vint32( 10, 11, 12, 13, 14 ),
-    laserCorrection = cms.bool( True ),
-    EBLaserMIN = cms.double( 0.5 ),
-    EELaserMIN = cms.double( 0.5 ),
-    EBLaserMAX = cms.double( 2.0 ),
-    EELaserMAX = cms.double( 3.0 )
-  ),
-  ComponentName = cms.string( "" ),
-  UncalibRHAlgo = cms.PSet(  Type = cms.string( "EcalUncalibRecHitWorkerWeightsOld" ) ),
-  DCCDataUnpacker = cms.PSet( 
-    orderedDCCIdList = cms.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 ),
-    tccUnpacking = cms.bool( False ),
-    srpUnpacking = cms.bool( False ),
-    syncCheck = cms.bool( False ),
-    feIdCheck = cms.bool( True ),
-    headerUnpacking = cms.bool( True ),
-    orderedFedList = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
-    feUnpacking = cms.bool( True ),
-    forceKeepFRData = cms.bool( False ),
-    memUnpacking = cms.bool( True )
-  ),
-  ElectronicsMapper = cms.PSet( 
-    numbXtalTSamples = cms.uint32( 10 ),
-    numbTriggerTSamples = cms.uint32( 1 )
-  )
 )
 process.HcalGeometryFromDBEP = cms.ESProducer( "HcalGeometryFromDBEP",
   applyAlignment = cms.bool( False ),
@@ -1119,14 +1088,6 @@ process.hltESPCloseComponentsMerger5D = cms.ESProducer( "CloseComponentsMergerES
 )
 process.hltESPDummyDetLayerGeometry = cms.ESProducer( "DetLayerGeometryESProducer",
   ComponentName = cms.string( "hltESPDummyDetLayerGeometry" )
-)
-process.hltESPESUnpackerWorker = cms.ESProducer( "ESUnpackerWorkerESProducer",
-  RHAlgo = cms.PSet( 
-    ESRecoAlgo = cms.int32( 0 ),
-    Type = cms.string( "ESRecHitWorker" )
-  ),
-  DCCDataUnpacker = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) ),
-  ComponentName = cms.string( "hltESPESUnpackerWorker" )
 )
 process.hltESPEcalRegionCablingESProducer = cms.ESProducer( "EcalRegionCablingESProducer",
   esMapping = cms.PSet(  LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ) )
@@ -2561,12 +2522,6 @@ process.FastTimerService = cms.Service( "FastTimerService",
     enableDQMbyProcesses = cms.untracked.bool( True ),
     enableDQMbyPathCounters = cms.untracked.bool( False ),
     enableDQMbyModuleType = cms.untracked.bool( False )
-)
-process.DQM = cms.Service( "DQM",
-    publishFrequency = cms.untracked.double( 5.0 ),
-    debug = cms.untracked.bool( False ),
-    collectorPort = cms.untracked.int32( 0 ),
-    collectorHost = cms.untracked.string( "" )
 )
 process.DQMStore = cms.Service( "DQMStore",
     verboseQT = cms.untracked.int32( 0 ),
