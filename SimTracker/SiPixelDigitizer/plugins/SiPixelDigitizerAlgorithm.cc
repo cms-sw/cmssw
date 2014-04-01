@@ -1351,37 +1351,24 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
       if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
       if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
       
-      if (layerIndex==1) {
-	int ladder=tTopo->pxbLadder(detID);
-	columnEfficiency*=eff.theLadderEfficiency_BPix[0][ladder-1];
-	
-	int module=tTopo->pxbModule(detID);
-	if (module<=4) module=5-module;
-	else module-=4;
-	columnEfficiency*=eff.theModuleEfficiency_BPix[0][module-1];
+      int ladder=tTopo->pxbLadder(detID);
+      int module=tTopo->pxbModule(detID);
+      if (module<=4) module=5-module;
+      else module-=4;
 
+      if (layerIndex==1) {
+	columnEfficiency*=eff.theLadderEfficiency_BPix[0][ladder-1];
+	columnEfficiency*=eff.theModuleEfficiency_BPix[0][module-1];
 	columnEfficiency*=_pu_scale[0];
       }
       if (layerIndex==2) {
-	int ladder=tTopo->pxbLadder(detID);
 	columnEfficiency*=eff.theLadderEfficiency_BPix[1][ladder-1];
-	
-	int module=tTopo->pxbModule(detID);
-	if (module<=4) module=5-module;
-	else module-=4;
 	columnEfficiency*=eff.theModuleEfficiency_BPix[1][module-1];
-	
 	columnEfficiency*=_pu_scale[1];
       }
       if (layerIndex==3) {
-	int ladder=tTopo->pxbLadder(detID);
 	columnEfficiency*=eff.theLadderEfficiency_BPix[2][ladder-1];
-
-	int module=tTopo->pxbModule(detID);
-	if (module<=4) module=5-module;
-	else module-=4;
 	columnEfficiency*=eff.theModuleEfficiency_BPix[2][module-1];
-
 	columnEfficiency*=_pu_scale[2];
       }
     }
