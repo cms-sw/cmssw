@@ -160,7 +160,7 @@ TkConvValidator::~TkConvValidator() {}
 
 
 
-void  TkConvValidator::beginJob() {
+void  TkConvValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const & run, edm::EventSetup const & es) {
 
   nEvt_=0;
   nEntry_=0;
@@ -241,6 +241,7 @@ void  TkConvValidator::beginJob() {
   maxPhoZForPurity = parameters_.getParameter<double>("maxPhoZForPurity");
   maxPhoRForPurity = parameters_.getParameter<double>("maxPhoRForPurity");
 
+
   if (dbe_) {
 
     //// All MC photons
@@ -248,532 +249,532 @@ void  TkConvValidator::beginJob() {
 
     //TString simfolder = TString(
     std::string simpath = dqmpath_ + "SimulationInfo";
-    dbe_->setCurrentFolder(simpath);
+    iBooker.setCurrentFolder(simpath);
     //
     // simulation information about conversions
     /// Histograms for efficiencies
     std::string histname = "nOfSimConversions";
-    h_nSimConv_[0] = dbe_->book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
+    h_nSimConv_[0] = iBooker.book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
     /// Denominators
     histname = "h_AllSimConvEta";
-    h_AllSimConv_[0] =  dbe_->book1D(histname," All conversions: simulated #eta",etaBin2,etaMin,etaMax);
+    h_AllSimConv_[0] =  iBooker.book1D(histname," All conversions: simulated #eta",etaBin2,etaMin,etaMax);
     histname = "h_AllSimConvPhi";
-    h_AllSimConv_[1] =  dbe_->book1D(histname," All conversions: simulated #phi",phiBin,phiMin,phiMax);
+    h_AllSimConv_[1] =  iBooker.book1D(histname," All conversions: simulated #phi",phiBin,phiMin,phiMax);
     histname = "h_AllSimConvR";
-    h_AllSimConv_[2] =  dbe_->book1D(histname," All conversions: simulated R",rBin,rMin,rMax);
+    h_AllSimConv_[2] =  iBooker.book1D(histname," All conversions: simulated R",rBin,rMin,rMax);
     histname = "h_AllSimConvZ";
-    h_AllSimConv_[3] =  dbe_->book1D(histname," All conversions: simulated Z",zBin,zMin,zMax);
+    h_AllSimConv_[3] =  iBooker.book1D(histname," All conversions: simulated Z",zBin,zMin,zMax);
     histname = "h_AllSimConvEt";
-    h_AllSimConv_[4] =  dbe_->book1D(histname," All conversions: simulated Et",etBin,etMin,etMax);
+    h_AllSimConv_[4] =  iBooker.book1D(histname," All conversions: simulated Et",etBin,etMin,etMax);
     //
     histname = "nOfVisSimConversions";
-    h_nSimConv_[1] = dbe_->book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
+    h_nSimConv_[1] = iBooker.book1D(histname,"# of Sim conversions per event ",20,-0.5,19.5);
     histname = "h_VisSimConvEta";
-    h_VisSimConv_[0] =  dbe_->book1D(histname," All vis conversions: simulated #eta",etaBin2,etaMin, etaMax);
+    h_VisSimConv_[0] =  iBooker.book1D(histname," All vis conversions: simulated #eta",etaBin2,etaMin, etaMax);
     histname = "h_VisSimConvPhi";
-    h_VisSimConv_[1] =  dbe_->book1D(histname," All vis conversions: simulated #phi",phiBin,phiMin, phiMax);
+    h_VisSimConv_[1] =  iBooker.book1D(histname," All vis conversions: simulated #phi",phiBin,phiMin, phiMax);
     histname = "h_VisSimConvR";
-    h_VisSimConv_[2] =  dbe_->book1D(histname," All vis conversions: simulated R",rBin,rMin,rMax);
+    h_VisSimConv_[2] =  iBooker.book1D(histname," All vis conversions: simulated R",rBin,rMin,rMax);
     histname = "h_VisSimConvZ";
-    h_VisSimConv_[3] =  dbe_->book1D(histname," All vis conversions: simulated Z",zBin,zMin, zMax);
+    h_VisSimConv_[3] =  iBooker.book1D(histname," All vis conversions: simulated Z",zBin,zMin, zMax);
     histname = "h_VisSimConvEt";
-    h_VisSimConv_[4] =  dbe_->book1D(histname," All vis conversions: simulated Et",etBin,etMin, etMax);
+    h_VisSimConv_[4] =  iBooker.book1D(histname," All vis conversions: simulated Et",etBin,etMin, etMax);
 
     //
     histname = "h_SimConvTwoMTracksEta";
-    h_SimConvTwoMTracks_[0] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
+    h_SimConvTwoMTracks_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
     histname = "h_SimConvTwoMTracksPhi";
-    h_SimConvTwoMTracks_[1] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #phi",phiBin,phiMin, phiMax);
+    h_SimConvTwoMTracks_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #phi",phiBin,phiMin, phiMax);
     histname = "h_SimConvTwoMTracksR";
-    h_SimConvTwoMTracks_[2] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated R",rBin,rMin, rMax);
+    h_SimConvTwoMTracks_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated R",rBin,rMin, rMax);
     histname = "h_SimConvTwoMTracksZ";
-    h_SimConvTwoMTracks_[3] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Z",zBin,zMin, zMax);
+    h_SimConvTwoMTracks_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Z",zBin,zMin, zMax);
     histname = "h_SimConvTwoMTracksEt";
-    h_SimConvTwoMTracks_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Et",etBin,etMin, etMax);
+    h_SimConvTwoMTracks_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Et",etBin,etMin, etMax);
     //
     histname = "h_SimConvTwoTracksEta";
-    h_SimConvTwoTracks_[0] =  dbe_->book1D(histname," All vis conversions with 2 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
+    h_SimConvTwoTracks_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco  tracks: simulated #eta",etaBin2,etaMin, etaMax);
     histname = "h_SimConvTwoTracksPhi";
-    h_SimConvTwoTracks_[1] =  dbe_->book1D(histname," All vis conversions with 2 reco tracks: simulated #phi",phiBin,phiMin, phiMax);
+    h_SimConvTwoTracks_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated #phi",phiBin,phiMin, phiMax);
     histname = "h_SimConvTwoTracksR";
-    h_SimConvTwoTracks_[2] =  dbe_->book1D(histname," All vis conversions with 2 reco tracks: simulated R",rBin,rMin, rMax);
+    h_SimConvTwoTracks_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated R",rBin,rMin, rMax);
     histname = "h_SimConvTwoTracksZ";
-    h_SimConvTwoTracks_[3] =  dbe_->book1D(histname," All vis conversions with 2 reco tracks: simulated Z",zBin,zMin, zMax);
+    h_SimConvTwoTracks_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated Z",zBin,zMin, zMax);
     histname = "h_SimConvTwoTracksEt";
-    h_SimConvTwoTracks_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco tracks: simulated Et",etBin,etMin, etMax);
+    h_SimConvTwoTracks_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco tracks: simulated Et",etBin,etMin, etMax);
     //
     histname = "h_SimConvTwoMTracksEtaAndVtxPGT0";
-    h_SimConvTwoMTracksAndVtxPGT0_[0] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
+    h_SimConvTwoMTracksAndVtxPGT0_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
     histname = "h_SimConvTwoMTracksPhiAndVtxPGT0";
-    h_SimConvTwoMTracksAndVtxPGT0_[1] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #phi",phiBin,phiMin, phiMax);
+    h_SimConvTwoMTracksAndVtxPGT0_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #phi",phiBin,phiMin, phiMax);
     histname = "h_SimConvTwoMTracksRAndVtxPGT0";
-    h_SimConvTwoMTracksAndVtxPGT0_[2] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated R",rBin,rMin, rMax);
+    h_SimConvTwoMTracksAndVtxPGT0_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated R",rBin,rMin, rMax);
     histname = "h_SimConvTwoMTracksZAndVtxPGT0";
-    h_SimConvTwoMTracksAndVtxPGT0_[3] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Z",zBin,zMin, zMax);
+    h_SimConvTwoMTracksAndVtxPGT0_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Z",zBin,zMin, zMax);
     histname = "h_SimConvTwoMTracksEtAndVtxPGT0";
-    h_SimConvTwoMTracksAndVtxPGT0_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
+    h_SimConvTwoMTracksAndVtxPGT0_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
 
     //
     histname = "h_SimConvTwoMTracksEtaAndVtxPGT0005";
-    h_SimConvTwoMTracksAndVtxPGT0005_[0] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
+    h_SimConvTwoMTracksAndVtxPGT0005_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
     histname = "h_SimConvTwoMTracksPhiAndVtxPGT0005";
-    h_SimConvTwoMTracksAndVtxPGT0005_[1] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #phi",phiBin,phiMin, phiMax);
+    h_SimConvTwoMTracksAndVtxPGT0005_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #phi",phiBin,phiMin, phiMax);
     histname = "h_SimConvTwoMTracksRAndVtxPGT0005";
-    h_SimConvTwoMTracksAndVtxPGT0005_[2] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated R",rBin,rMin, rMax);
+    h_SimConvTwoMTracksAndVtxPGT0005_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated R",rBin,rMin, rMax);
     histname = "h_SimConvTwoMTracksZAndVtxPGT0005";
-    h_SimConvTwoMTracksAndVtxPGT0005_[3] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Z",zBin,zMin, zMax);
+    h_SimConvTwoMTracksAndVtxPGT0005_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Z",zBin,zMin, zMax);
     histname = "h_SimConvTwoMTracksEtAndVtxPGT0005";
-    h_SimConvTwoMTracksAndVtxPGT0005_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
+    h_SimConvTwoMTracksAndVtxPGT0005_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
 
     histname = "h_SimRecConvTwoMTracksEta";
-    h_SimRecConvTwoMTracks_[0] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
+    h_SimRecConvTwoMTracks_[0] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
     histname = "h_SimRecConvTwoMTracksPhi";
-    h_SimRecConvTwoMTracks_[1] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #phi",phiBin,phiMin, phiMax);
+    h_SimRecConvTwoMTracks_[1] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated #phi",phiBin,phiMin, phiMax);
     histname = "h_SimRecConvTwoMTracksR";
-    h_SimRecConvTwoMTracks_[2] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated R",rBin,rMin, rMax);
+    h_SimRecConvTwoMTracks_[2] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated R",rBin,rMin, rMax);
     histname = "h_SimRecConvTwoMTracksZ";
-    h_SimRecConvTwoMTracks_[3] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Z",zBin,zMin, zMax);
+    h_SimRecConvTwoMTracks_[3] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Z",zBin,zMin, zMax);
     histname = "h_SimRecConvTwoMTracksEt";
-    h_SimRecConvTwoMTracks_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Et",etBin,etMin, etMax);
+    h_SimRecConvTwoMTracks_[4] =  iBooker.book1D(histname," All vis conversions with 2 reco-matching tracks: simulated Et",etBin,etMin, etMax);
     //
 
 
-    h_SimConvEtaPix_[0] = dbe_->book1D("simConvEtaPix"," sim converted Photon Eta: Pix ",etaBin,etaMin, etaMax) ;
-    h_simTkPt_ = dbe_->book1D("simTkPt","Sim conversion tracks pt ",etBin*3,0.,etMax);
-    h_simTkEta_ = dbe_->book1D("simTkEta","Sim conversion tracks eta ",etaBin,etaMin,etaMax);
+    h_SimConvEtaPix_[0] = iBooker.book1D("simConvEtaPix"," sim converted Photon Eta: Pix ",etaBin,etaMin, etaMax) ;
+    h_simTkPt_ = iBooker.book1D("simTkPt","Sim conversion tracks pt ",etBin*3,0.,etMax);
+    h_simTkEta_ = iBooker.book1D("simTkEta","Sim conversion tracks eta ",etaBin,etaMin,etaMax);
 
-    h_simConvVtxRvsZ_[0] =   dbe_->book2D("simConvVtxRvsZAll"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_simConvVtxRvsZ_[1] =   dbe_->book2D("simConvVtxRvsZBarrel"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_simConvVtxRvsZ_[2] =   dbe_->book2D("simConvVtxRvsZEndcap"," Photon Sim conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_simConvVtxRvsZ_[3] =   dbe_->book2D("simConvVtxRvsZBarrel2"," Photon Sim conversion vtx position when reco R<4cm",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_simConvVtxYvsX_ =   dbe_->book2D("simConvVtxYvsXTrkBarrel"," Photon Sim conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.);
+    h_simConvVtxRvsZ_[0] =   iBooker.book2D("simConvVtxRvsZAll"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_simConvVtxRvsZ_[1] =   iBooker.book2D("simConvVtxRvsZBarrel"," Photon Sim conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_simConvVtxRvsZ_[2] =   iBooker.book2D("simConvVtxRvsZEndcap"," Photon Sim conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_simConvVtxRvsZ_[3] =   iBooker.book2D("simConvVtxRvsZBarrel2"," Photon Sim conversion vtx position when reco R<4cm",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_simConvVtxYvsX_ =   iBooker.book2D("simConvVtxYvsXTrkBarrel"," Photon Sim conversion vtx position, (x,y) eta<1 ",100, -80., 80., 100, -80., 80.);
 
     std::string convpath = dqmpath_ + "ConversionInfo";
-    dbe_->setCurrentFolder(convpath);
+    iBooker.setCurrentFolder(convpath);
 
     histname="nConv";
-    h_nConv_[0][0] = dbe_->book1D(histname+"All","Number Of Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
-    h_nConv_[0][1] = dbe_->book1D(histname+"Barrel","Number Of Conversions per isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
-    h_nConv_[0][2] = dbe_->book1D(histname+"Endcap","Number Of Conversions per isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
-    h_nConv_[1][0] = dbe_->book1D(histname+"All_Ass","Number Of associated Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
+    h_nConv_[0][0] = iBooker.book1D(histname+"All","Number Of Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
+    h_nConv_[0][1] = iBooker.book1D(histname+"Barrel","Number Of Conversions per isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);
+    h_nConv_[0][2] = iBooker.book1D(histname+"Endcap","Number Of Conversions per isolated candidates per events: Ecal Endcap ",10,-0.5, 9.5);
+    h_nConv_[1][0] = iBooker.book1D(histname+"All_Ass","Number Of associated Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
 
-    h_convEta_[0][0] = dbe_->book1D("convEta"," converted Photon  Eta ",etaBin,etaMin, etaMax) ;
-    h_convEtaMatchSC_[0][0] = dbe_->book1D("convEtaMatchSC"," converted Photon  Eta when SC is matched ",etaBin,etaMin, etaMax) ;
-    h_convEta2_[0][0] = dbe_->book1D("convEta2"," converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
-    h_convPhi_[0][0] = dbe_->book1D("convPhi"," converted Photon  Phi ",phiBin,phiMin,phiMax) ;
-    h_convR_[0][0]  =  dbe_->book1D("convR"," converted photon R",rBin,rMin, rMax);
-    h_convZ_[0][0] =  dbe_->book1D("convZ"," converted photon Z",zBin,zMin, zMax);
-    h_convPt_[0][0] = dbe_->book1D("convPt","  conversions Transverse Energy: all eta ", etBin,etMin, etMax);
+    h_convEta_[0][0] = iBooker.book1D("convEta"," converted Photon  Eta ",etaBin,etaMin, etaMax) ;
+    h_convEtaMatchSC_[0][0] = iBooker.book1D("convEtaMatchSC"," converted Photon  Eta when SC is matched ",etaBin,etaMin, etaMax) ;
+    h_convEta2_[0][0] = iBooker.book1D("convEta2"," converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
+    h_convPhi_[0][0] = iBooker.book1D("convPhi"," converted Photon  Phi ",phiBin,phiMin,phiMax) ;
+    h_convR_[0][0]  =  iBooker.book1D("convR"," converted photon R",rBin,rMin, rMax);
+    h_convZ_[0][0] =  iBooker.book1D("convZ"," converted photon Z",zBin,zMin, zMax);
+    h_convPt_[0][0] = iBooker.book1D("convPt","  conversions Transverse Energy: all eta ", etBin,etMin, etMax);
 
-    h_convEta_[1][0] = dbe_->book1D("convEtaAss2"," Matched converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
-    h_convEta_[1][1] = dbe_->book1D("convEtaAss"," Matched converted Photon  Eta ",etaBin,etaMin, etaMax) ;
-    h_convEtaMatchSC_[1][0] = dbe_->book1D("convEtaMatchSCAss"," converted Photon  Eta when SC is matched ",etaBin,etaMin, etaMax) ;
-    h_convPhi_[1][0] = dbe_->book1D("convPhiAss"," Matched converted Photon  Phi ",phiBin,phiMin,phiMax) ;
-    h_convR_[1][0]  =  dbe_->book1D("convRAss"," Matched converted photon R",rBin,rMin, rMax);
-    h_convZ_[1][0] =  dbe_->book1D("convZAss"," Matched converted photon Z",zBin,zMin, zMax);
-    h_convPt_[1][0] = dbe_->book1D("convPtAss","Matched conversions Transverse Energy: all eta ", etBin,etMin, etMax);
+    h_convEta_[1][0] = iBooker.book1D("convEtaAss2"," Matched converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
+    h_convEta_[1][1] = iBooker.book1D("convEtaAss"," Matched converted Photon  Eta ",etaBin,etaMin, etaMax) ;
+    h_convEtaMatchSC_[1][0] = iBooker.book1D("convEtaMatchSCAss"," converted Photon  Eta when SC is matched ",etaBin,etaMin, etaMax) ;
+    h_convPhi_[1][0] = iBooker.book1D("convPhiAss"," Matched converted Photon  Phi ",phiBin,phiMin,phiMax) ;
+    h_convR_[1][0]  =  iBooker.book1D("convRAss"," Matched converted photon R",rBin,rMin, rMax);
+    h_convZ_[1][0] =  iBooker.book1D("convZAss"," Matched converted photon Z",zBin,zMin, zMax);
+    h_convPt_[1][0] = iBooker.book1D("convPtAss","Matched conversions Transverse Energy: all eta ", etBin,etMin, etMax);
 
-    h_convEta_[2][0] = dbe_->book1D("convEtaFake2"," Fake converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
-    h_convEta_[2][1] = dbe_->book1D("convEtaFake"," Fake converted Photon  Eta ",etaBin,etaMin, etaMax) ;
-    h_convEtaMatchSC_[2][0] = dbe_->book1D("convEtaMatchSCFake"," converted Photon  Eta when SC is matched ",etaBin,etaMin, etaMax) ;
-    h_convPhi_[2][0] = dbe_->book1D("convPhiFake"," Fake converted Photon  Phi ",phiBin,phiMin,phiMax) ;
-    h_convR_[2][0]  =  dbe_->book1D("convRFake"," Fake converted photon R",rBin,rMin, rMax);
-    h_convZ_[2][0] =  dbe_->book1D("convZFake"," Fake converted photon Z",zBin,zMin, zMax);
-    h_convPt_[2][0] = dbe_->book1D("convPtFake","Fake conversions Transverse Energy: all eta ", etBin,etMin, etMax);
+    h_convEta_[2][0] = iBooker.book1D("convEtaFake2"," Fake converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
+    h_convEta_[2][1] = iBooker.book1D("convEtaFake"," Fake converted Photon  Eta ",etaBin,etaMin, etaMax) ;
+    h_convEtaMatchSC_[2][0] = iBooker.book1D("convEtaMatchSCFake"," converted Photon  Eta when SC is matched ",etaBin,etaMin, etaMax) ;
+    h_convPhi_[2][0] = iBooker.book1D("convPhiFake"," Fake converted Photon  Phi ",phiBin,phiMin,phiMax) ;
+    h_convR_[2][0]  =  iBooker.book1D("convRFake"," Fake converted photon R",rBin,rMin, rMax);
+    h_convZ_[2][0] =  iBooker.book1D("convZFake"," Fake converted photon Z",zBin,zMin, zMax);
+    h_convPt_[2][0] = iBooker.book1D("convPtFake","Fake conversions Transverse Energy: all eta ", etBin,etMin, etMax);
 
-    h_convRplot_  =  dbe_->book1D("convRplot"," converted photon R",600, 0.,120.);
-    h_convZplot_  =  dbe_->book1D("convZplot"," converted photon Z",320,-160.,160.);
+    h_convRplot_  =  iBooker.book1D("convRplot"," converted photon R",600, 0.,120.);
+    h_convZplot_  =  iBooker.book1D("convZplot"," converted photon Z",320,-160.,160.);
 
     histname = "convSCdPhi";
-    h_convSCdPhi_[0][0] =   dbe_->book1D(histname+"All","dPhi between SC and conversion",100, -0.1,0.1);
-    h_convSCdPhi_[0][1] =   dbe_->book1D(histname+"Barrel"," dPhi between SC and conversion: Barrel",100, -0.1,0.1);
-    h_convSCdPhi_[0][2] =   dbe_->book1D(histname+"Endcap"," dPhi between SC and conversion: Endcap",100, -0.1,0.1);
-    h_convSCdPhi_[1][0] =   dbe_->book1D(histname+"All_Ass","dPhi between SC and conversion",100, -0.1,0.1);
-    h_convSCdPhi_[1][1] =   dbe_->book1D(histname+"Barrel_Ass"," dPhi between SC and conversion: Barrel",100, -0.1,0.1);
-    h_convSCdPhi_[1][2] =   dbe_->book1D(histname+"Endcap_Ass"," dPhi between SC and conversion: Endcap",100, -0.1,0.1);
-    h_convSCdPhi_[2][0] =   dbe_->book1D(histname+"All_Fakes","dPhi between SC and conversion",100, -0.1,0.1);
-    h_convSCdPhi_[2][1] =   dbe_->book1D(histname+"Barrel_Fakes"," dPhi between SC and conversion: Barrel",100, -0.1,0.1);
-    h_convSCdPhi_[2][2] =   dbe_->book1D(histname+"Endcap_Fakes"," dPhi between SC and conversion: Endcap",100, -0.1,0.1);
+    h_convSCdPhi_[0][0] =   iBooker.book1D(histname+"All","dPhi between SC and conversion",100, -0.1,0.1);
+    h_convSCdPhi_[0][1] =   iBooker.book1D(histname+"Barrel"," dPhi between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdPhi_[0][2] =   iBooker.book1D(histname+"Endcap"," dPhi between SC and conversion: Endcap",100, -0.1,0.1);
+    h_convSCdPhi_[1][0] =   iBooker.book1D(histname+"All_Ass","dPhi between SC and conversion",100, -0.1,0.1);
+    h_convSCdPhi_[1][1] =   iBooker.book1D(histname+"Barrel_Ass"," dPhi between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdPhi_[1][2] =   iBooker.book1D(histname+"Endcap_Ass"," dPhi between SC and conversion: Endcap",100, -0.1,0.1);
+    h_convSCdPhi_[2][0] =   iBooker.book1D(histname+"All_Fakes","dPhi between SC and conversion",100, -0.1,0.1);
+    h_convSCdPhi_[2][1] =   iBooker.book1D(histname+"Barrel_Fakes"," dPhi between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdPhi_[2][2] =   iBooker.book1D(histname+"Endcap_Fakes"," dPhi between SC and conversion: Endcap",100, -0.1,0.1);
     histname = "convSCdEta";
-    h_convSCdEta_[0][0] =   dbe_->book1D(histname+"All"," dEta between SC and conversion",100, -0.1,0.1);
-    h_convSCdEta_[0][1] =   dbe_->book1D(histname+"Barrel"," dEta between SC and conversion: Barrel",100, -0.1,0.1);
-    h_convSCdEta_[0][2] =   dbe_->book1D(histname+"Endcap"," dEta between SC and conversion: Endcap",100, -0.1,0.1);
-    h_convSCdEta_[1][0] =   dbe_->book1D(histname+"All_Ass"," dEta between SC and conversion",100, -0.1,0.1);
-    h_convSCdEta_[1][1] =   dbe_->book1D(histname+"Barrel_Ass"," dEta between SC and conversion: Barrel",100, -0.1,0.1);
-    h_convSCdEta_[1][2] =   dbe_->book1D(histname+"Endcap_Ass"," dEta between SC and conversion: Endcap",100, -0.1,0.1);
-    h_convSCdEta_[2][0] =   dbe_->book1D(histname+"All_Fakes"," dEta between SC and conversion",100, -0.1,0.1);
-    h_convSCdEta_[2][1] =   dbe_->book1D(histname+"Barrel_Fakes"," dEta between SC and conversion: Barrel",100, -0.1,0.1);
-    h_convSCdEta_[2][2] =   dbe_->book1D(histname+"Endcap_Fakes"," dEta between SC and conversion: Endcap",100, -0.1,0.1);
+    h_convSCdEta_[0][0] =   iBooker.book1D(histname+"All"," dEta between SC and conversion",100, -0.1,0.1);
+    h_convSCdEta_[0][1] =   iBooker.book1D(histname+"Barrel"," dEta between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdEta_[0][2] =   iBooker.book1D(histname+"Endcap"," dEta between SC and conversion: Endcap",100, -0.1,0.1);
+    h_convSCdEta_[1][0] =   iBooker.book1D(histname+"All_Ass"," dEta between SC and conversion",100, -0.1,0.1);
+    h_convSCdEta_[1][1] =   iBooker.book1D(histname+"Barrel_Ass"," dEta between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdEta_[1][2] =   iBooker.book1D(histname+"Endcap_Ass"," dEta between SC and conversion: Endcap",100, -0.1,0.1);
+    h_convSCdEta_[2][0] =   iBooker.book1D(histname+"All_Fakes"," dEta between SC and conversion",100, -0.1,0.1);
+    h_convSCdEta_[2][1] =   iBooker.book1D(histname+"Barrel_Fakes"," dEta between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdEta_[2][2] =   iBooker.book1D(histname+"Endcap_Fakes"," dEta between SC and conversion: Endcap",100, -0.1,0.1);
 
     histname = "convPtRes";
-    h_convPtRes_[0] = dbe_->book1D(histname+"All"," Conversion Pt rec/true : All ecal ", resBin,resMin, resMax);
-    h_convPtRes_[1] = dbe_->book1D(histname+"Barrel"," Conversion Pt rec/true : Barrel ",resBin,resMin, resMax);
-    h_convPtRes_[2] = dbe_->book1D(histname+"Endcap"," Conversion Pt rec/true : Endcap ",resBin,resMin, resMax);
+    h_convPtRes_[0] = iBooker.book1D(histname+"All"," Conversion Pt rec/true : All ecal ", resBin,resMin, resMax);
+    h_convPtRes_[1] = iBooker.book1D(histname+"Barrel"," Conversion Pt rec/true : Barrel ",resBin,resMin, resMax);
+    h_convPtRes_[2] = iBooker.book1D(histname+"Endcap"," Conversion Pt rec/true : Endcap ",resBin,resMin, resMax);
 
 
     histname="hInvMass";
-    h_invMass_[0][0]= dbe_->book1D(histname+"All_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
-    h_invMass_[0][1]= dbe_->book1D(histname+"Barrel_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
-    h_invMass_[0][2]= dbe_->book1D(histname+"Endcap_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
+    h_invMass_[0][0]= iBooker.book1D(histname+"All_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
+    h_invMass_[0][1]= iBooker.book1D(histname+"Barrel_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
+    h_invMass_[0][2]= iBooker.book1D(histname+"Endcap_AllTracks"," Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
     //
-    h_invMass_[1][0]= dbe_->book1D(histname+"All_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
-    h_invMass_[1][1]= dbe_->book1D(histname+"Barrel_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
-    h_invMass_[1][2]= dbe_->book1D(histname+"Endcap_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
+    h_invMass_[1][0]= iBooker.book1D(histname+"All_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
+    h_invMass_[1][1]= iBooker.book1D(histname+"Barrel_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
+    h_invMass_[1][2]= iBooker.book1D(histname+"Endcap_AssTracks"," Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
     //
-    h_invMass_[2][0]= dbe_->book1D(histname+"All_FakeTracks"," Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
-    h_invMass_[2][1]= dbe_->book1D(histname+"Barrel_FakeTracks"," Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
-    h_invMass_[2][2]= dbe_->book1D(histname+"Endcap_FaleTracks"," Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
+    h_invMass_[2][0]= iBooker.book1D(histname+"All_FakeTracks"," Photons:Tracks from conversion: Pair invariant mass: all Ecal ",100, 0., 1.5);
+    h_invMass_[2][1]= iBooker.book1D(histname+"Barrel_FakeTracks"," Photons:Tracks from conversion: Pair invariant mass: Barrel Ecal ",100, 0., 1.5);
+    h_invMass_[2][2]= iBooker.book1D(histname+"Endcap_FaleTracks"," Photons:Tracks from conversion: Pair invariant mass: Endcap Ecal ",100, 0., 1.5);
 
 
 
     histname="hDPhiTracksAtVtx";
-    h_DPhiTracksAtVtx_[0][0] =dbe_->book1D(histname+"All", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtx_[0][1] =dbe_->book1D(histname+"Barrel", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtx_[0][2] =dbe_->book1D(histname+"Endcap", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtx_[1][0] =dbe_->book1D(histname+"All_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtx_[1][1] =dbe_->book1D(histname+"Barrel_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtx_[1][2] =dbe_->book1D(histname+"Endcap_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtx_[2][0] =dbe_->book1D(histname+"All_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtx_[2][1] =dbe_->book1D(histname+"Barrel_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
-    h_DPhiTracksAtVtx_[2][2] =dbe_->book1D(histname+"Endcap_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[0][0] =iBooker.book1D(histname+"All", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[0][1] =iBooker.book1D(histname+"Barrel", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[0][2] =iBooker.book1D(histname+"Endcap", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[1][0] =iBooker.book1D(histname+"All_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[1][1] =iBooker.book1D(histname+"Barrel_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[1][2] =iBooker.book1D(histname+"Endcap_Ass", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[2][0] =iBooker.book1D(histname+"All_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: all Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[2][1] =iBooker.book1D(histname+"Barrel_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Barrel Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
+    h_DPhiTracksAtVtx_[2][2] =iBooker.book1D(histname+"Endcap_Fakes", " Photons:Tracks from conversions: #delta#phi Tracks at vertex: Endcap Ecal",dPhiTracksBin,dPhiTracksMin,dPhiTracksMax);
 
 
 
     histname="hDPhiTracksAtVtxVsEta";
-    h2_DPhiTracksAtVtxVsEta_ = dbe_->book2D(histname+"All","  Photons:Tracks from conversions: #delta#phi Tracks at vertex vs #eta",etaBin2,etaMin, etaMax,100, -0.5, 0.5);
+    h2_DPhiTracksAtVtxVsEta_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions: #delta#phi Tracks at vertex vs #eta",etaBin2,etaMin, etaMax,100, -0.5, 0.5);
     histname="pDPhiTracksAtVtxVsEta";
-    p_DPhiTracksAtVtxVsEta_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs #eta ",etaBin2,etaMin, etaMax, 100, -0.5, 0.5,"");
+    p_DPhiTracksAtVtxVsEta_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs #eta ",etaBin2,etaMin, etaMax, 100, -0.5, 0.5,"");
 
     histname="hDPhiTracksAtVtxVsR";
-    h2_DPhiTracksAtVtxVsR_ = dbe_->book2D(histname+"All","  Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R",rBin,rMin, rMax,100, -0.5, 0.5);
+    h2_DPhiTracksAtVtxVsR_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R",rBin,rMin, rMax,100, -0.5, 0.5);
     histname="pDPhiTracksAtVtxVsR";
-    p_DPhiTracksAtVtxVsR_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.5, 0.5,"");
+    p_DPhiTracksAtVtxVsR_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions: #delta#phi Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.5, 0.5,"");
 
 
     histname="hDCotTracks";
-    h_DCotTracks_[0][0]= dbe_->book1D(histname+"All"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracks_[0][1]= dbe_->book1D(histname+"Barrel"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracks_[0][2]= dbe_->book1D(histname+"Endcap"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracks_[1][0]= dbe_->book1D(histname+"All_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracks_[1][1]= dbe_->book1D(histname+"Barrel_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracks_[1][2]= dbe_->book1D(histname+"Endcap_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracks_[2][0]= dbe_->book1D(histname+"All_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracks_[2][1]= dbe_->book1D(histname+"Barrel_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
-    h_DCotTracks_[2][2]= dbe_->book1D(histname+"Endcap_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[0][0]= iBooker.book1D(histname+"All"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[0][1]= iBooker.book1D(histname+"Barrel"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[0][2]= iBooker.book1D(histname+"Endcap"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[1][0]= iBooker.book1D(histname+"All_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[1][1]= iBooker.book1D(histname+"Barrel_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[1][2]= iBooker.book1D(histname+"Endcap_Ass"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[2][0]= iBooker.book1D(histname+"All_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: all Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[2][1]= iBooker.book1D(histname+"Barrel_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Barrel Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
+    h_DCotTracks_[2][2]= iBooker.book1D(histname+"Endcap_Fakes"," Photons:Tracks from conversions #delta cotg(#Theta) Tracks: Endcap Ecal ",dCotTracksBin,dCotTracksMin,dCotTracksMax);
 
 
     histname="hDCotTracksVsEta";
-    h2_DCotTracksVsEta_ = dbe_->book2D(histname+"All","  Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks vs #eta",etaBin2,etaMin, etaMax,100, -0.2, 0.2);
+    h2_DCotTracksVsEta_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks vs #eta",etaBin2,etaMin, etaMax,100, -0.2, 0.2);
     histname="pDCotTracksVsEta";
-    p_DCotTracksVsEta_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks vs #eta ",etaBin2,etaMin, etaMax, 100, -0.2, 0.2,"");
+    p_DCotTracksVsEta_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks vs #eta ",etaBin2,etaMin, etaMax, 100, -0.2, 0.2,"");
 
     histname="hDCotTracksVsR";
-    h2_DCotTracksVsR_ = dbe_->book2D(histname+"All","  Photons:Tracks from conversions:  #delta cotg(#Theta)  Tracks at vertex vs R",rBin,rMin, rMax,100, -0.2, 0.2);
+    h2_DCotTracksVsR_ = iBooker.book2D(histname+"All","  Photons:Tracks from conversions:  #delta cotg(#Theta)  Tracks at vertex vs R",rBin,rMin, rMax,100, -0.2, 0.2);
     histname="pDCotTracksVsR";
-    p_DCotTracksVsR_ = dbe_->bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.2, 0.2,"");
+    p_DCotTracksVsR_ = iBooker.bookProfile(histname+"All"," Photons:Tracks from conversions:  #delta cotg(#Theta) Tracks at vertex vs R ",rBin,rMin, rMax,100, -0.2, 0.2,"");
 
 
     histname="hDistMinAppTracks";
-    h_distMinAppTracks_[0][0]= dbe_->book1D(histname+"All"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",120, -0.5, 1.0);
-    h_distMinAppTracks_[0][1]= dbe_->book1D(histname+"Barrel"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",120, -0.5, 1.0);
-    h_distMinAppTracks_[0][2]= dbe_->book1D(histname+"Endcap"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",120, -0.5, 1.0);
-    h_distMinAppTracks_[1][0]= dbe_->book1D(histname+"All_Ass"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",120, -0.5, 1.0);
-    h_distMinAppTracks_[1][1]= dbe_->book1D(histname+"Barrel_Ass"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",120, -0.5, 1.0);
-    h_distMinAppTracks_[1][2]= dbe_->book1D(histname+"Endcap_Ass"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",120, -0.5, 1.0);
-    h_distMinAppTracks_[2][0]= dbe_->book1D(histname+"All_Fakes"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",120, -0.5, 1.0);
-    h_distMinAppTracks_[2][1]= dbe_->book1D(histname+"Barrel_Fakes"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",120, -0.5, 1.0);
-    h_distMinAppTracks_[2][2]= dbe_->book1D(histname+"Endcap_Fakes"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",120, -0.5, 1.0);
+    h_distMinAppTracks_[0][0]= iBooker.book1D(histname+"All"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",120, -0.5, 1.0);
+    h_distMinAppTracks_[0][1]= iBooker.book1D(histname+"Barrel"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",120, -0.5, 1.0);
+    h_distMinAppTracks_[0][2]= iBooker.book1D(histname+"Endcap"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",120, -0.5, 1.0);
+    h_distMinAppTracks_[1][0]= iBooker.book1D(histname+"All_Ass"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",120, -0.5, 1.0);
+    h_distMinAppTracks_[1][1]= iBooker.book1D(histname+"Barrel_Ass"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",120, -0.5, 1.0);
+    h_distMinAppTracks_[1][2]= iBooker.book1D(histname+"Endcap_Ass"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",120, -0.5, 1.0);
+    h_distMinAppTracks_[2][0]= iBooker.book1D(histname+"All_Fakes"," Photons:Tracks from conversions Min Approach Dist Tracks: all Ecal ",120, -0.5, 1.0);
+    h_distMinAppTracks_[2][1]= iBooker.book1D(histname+"Barrel_Fakes"," Photons:Tracks from conversions Min Approach Dist Tracks: Barrel Ecal ",120, -0.5, 1.0);
+    h_distMinAppTracks_[2][2]= iBooker.book1D(histname+"Endcap_Fakes"," Photons:Tracks from conversions Min Approach Dist Tracks: Endcap Ecal ",120, -0.5, 1.0);
 
 
-    h_convVtxRvsZ_[0] =   dbe_->book2D("convVtxRvsZAll"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_convVtxRvsZ_[1] =   dbe_->book2D("convVtxRvsZBarrel"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_convVtxRvsZ_[2] =   dbe_->book2D("convVtxRvsZEndcap"," Photon Reco conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
-    h_convVtxYvsX_ =   dbe_->book2D("convVtxYvsXTrkBarrel"," Photon Reco conversion vtx position, (x,y) eta<1 ", 1000, -60., 60., 1000, -60., 60.);
+    h_convVtxRvsZ_[0] =   iBooker.book2D("convVtxRvsZAll"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_convVtxRvsZ_[1] =   iBooker.book2D("convVtxRvsZBarrel"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_convVtxRvsZ_[2] =   iBooker.book2D("convVtxRvsZEndcap"," Photon Reco conversion vtx position",zBin2ForXray, zMinForXray, zMaxForXray, rBinForXray, rMinForXray, rMaxForXray);
+    h_convVtxYvsX_ =   iBooker.book2D("convVtxYvsXTrkBarrel"," Photon Reco conversion vtx position, (x,y) eta<1 ", 1000, -60., 60., 1000, -60., 60.);
     /// zooms
-    h_convVtxRvsZ_zoom_[0] =  dbe_->book2D("convVtxRvsZBarrelZoom1"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 40.);
-    h_convVtxRvsZ_zoom_[1] =  dbe_->book2D("convVtxRvsZBarrelZoom2"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 20.);
-    h_convVtxYvsX_zoom_[0] =   dbe_->book2D("convVtxYvsXTrkBarrelZoom1"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -40., 40., 100, -40., 40.);
-    h_convVtxYvsX_zoom_[1] =   dbe_->book2D("convVtxYvsXTrkBarrelZoom2"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -20., 20., 100, -20., 20.);
+    h_convVtxRvsZ_zoom_[0] =  iBooker.book2D("convVtxRvsZBarrelZoom1"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 40.);
+    h_convVtxRvsZ_zoom_[1] =  iBooker.book2D("convVtxRvsZBarrelZoom2"," Photon Reco conversion vtx position",zBinForXray, zMinForXray, zMaxForXray, rBinForXray, -10., 20.);
+    h_convVtxYvsX_zoom_[0] =   iBooker.book2D("convVtxYvsXTrkBarrelZoom1"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -40., 40., 100, -40., 40.);
+    h_convVtxYvsX_zoom_[1] =   iBooker.book2D("convVtxYvsXTrkBarrelZoom2"," Photon Reco conversion vtx position, (x,y) eta<1 ",100, -20., 20., 100, -20., 20.);
 
-    h_convVtxdR_ =   dbe_->book1D("convVtxdR"," Photon Reco conversion vtx dR",100, -10.,10.);
-    h_convVtxdX_ =   dbe_->book1D("convVtxdX"," Photon Reco conversion vtx dX",100, -10.,10.);
-    h_convVtxdY_ =   dbe_->book1D("convVtxdY"," Photon Reco conversion vtx dY",100, -10.,10.);
-    h_convVtxdZ_ =   dbe_->book1D("convVtxdZ"," Photon Reco conversion vtx dZ",100, -20.,20.);
+    h_convVtxdR_ =   iBooker.book1D("convVtxdR"," Photon Reco conversion vtx dR",100, -10.,10.);
+    h_convVtxdX_ =   iBooker.book1D("convVtxdX"," Photon Reco conversion vtx dX",100, -10.,10.);
+    h_convVtxdY_ =   iBooker.book1D("convVtxdY"," Photon Reco conversion vtx dY",100, -10.,10.);
+    h_convVtxdZ_ =   iBooker.book1D("convVtxdZ"," Photon Reco conversion vtx dZ",100, -20.,20.);
 
-    h_convVtxdPhi_ =   dbe_->book1D("convVtxdPhi"," Photon Reco conversion vtx dPhi",100, -0.01,0.01);
-    h_convVtxdEta_ =   dbe_->book1D("convVtxdEta"," Photon Reco conversion vtx dEta",100, -0.5,0.5);
+    h_convVtxdPhi_ =   iBooker.book1D("convVtxdPhi"," Photon Reco conversion vtx dPhi",100, -0.01,0.01);
+    h_convVtxdEta_ =   iBooker.book1D("convVtxdEta"," Photon Reco conversion vtx dEta",100, -0.5,0.5);
 
-    h_convVtxdR_barrel_ =   dbe_->book1D("convVtxdR_barrel"," Photon Reco conversion vtx dR, |eta|<=1.2",100, -10.,10.);
-    h_convVtxdX_barrel_ =   dbe_->book1D("convVtxdX_barrel"," Photon Reco conversion vtx dX, |eta|<=1.2",100, -10.,10.);
-    h_convVtxdY_barrel_ =   dbe_->book1D("convVtxdY_barrel"," Photon Reco conversion vtx dY, |eta|<=1.2 ",100, -10.,10.);
-    h_convVtxdZ_barrel_ =   dbe_->book1D("convVtxdZ_barrel"," Photon Reco conversion vtx dZ, |eta|<=1.2,",100, -20.,20.);
+    h_convVtxdR_barrel_ =   iBooker.book1D("convVtxdR_barrel"," Photon Reco conversion vtx dR, |eta|<=1.2",100, -10.,10.);
+    h_convVtxdX_barrel_ =   iBooker.book1D("convVtxdX_barrel"," Photon Reco conversion vtx dX, |eta|<=1.2",100, -10.,10.);
+    h_convVtxdY_barrel_ =   iBooker.book1D("convVtxdY_barrel"," Photon Reco conversion vtx dY, |eta|<=1.2 ",100, -10.,10.);
+    h_convVtxdZ_barrel_ =   iBooker.book1D("convVtxdZ_barrel"," Photon Reco conversion vtx dZ, |eta|<=1.2,",100, -20.,20.);
 
-    h_convVtxdR_endcap_ =   dbe_->book1D("convVtxdR_endcap"," Photon Reco conversion vtx dR,  |eta|>1.2 ",100, -10.,10.);
-    h_convVtxdX_endcap_ =   dbe_->book1D("convVtxdX_endcap"," Photon Reco conversion vtx dX,  |eta|>1.2",100, -10.,10.);
-    h_convVtxdY_endcap_ =   dbe_->book1D("convVtxdY_endcap"," Photon Reco conversion vtx dY,  |eta|>1.2",100, -10.,10.);
-    h_convVtxdZ_endcap_ =   dbe_->book1D("convVtxdZ_endcap"," Photon Reco conversion vtx dZ,  |eta|>1.2",100, -20.,20.);
+    h_convVtxdR_endcap_ =   iBooker.book1D("convVtxdR_endcap"," Photon Reco conversion vtx dR,  |eta|>1.2 ",100, -10.,10.);
+    h_convVtxdX_endcap_ =   iBooker.book1D("convVtxdX_endcap"," Photon Reco conversion vtx dX,  |eta|>1.2",100, -10.,10.);
+    h_convVtxdY_endcap_ =   iBooker.book1D("convVtxdY_endcap"," Photon Reco conversion vtx dY,  |eta|>1.2",100, -10.,10.);
+    h_convVtxdZ_endcap_ =   iBooker.book1D("convVtxdZ_endcap"," Photon Reco conversion vtx dZ,  |eta|>1.2",100, -20.,20.);
 
 
 
-    h2_convVtxdRVsR_ =  dbe_->book2D("h2ConvVtxdRVsR"," Conversion vtx dR vsR" ,rBin,rMin, rMax,100, -20.,20.);
-    h2_convVtxdRVsEta_ =  dbe_->book2D("h2ConvVtxdRVsEta","Conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax,100, -20.,20.);
+    h2_convVtxdRVsR_ =  iBooker.book2D("h2ConvVtxdRVsR"," Conversion vtx dR vsR" ,rBin,rMin, rMax,100, -20.,20.);
+    h2_convVtxdRVsEta_ =  iBooker.book2D("h2ConvVtxdRVsEta","Conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax,100, -20.,20.);
 
-    p_convVtxdRVsR_ =  dbe_->bookProfile("pConvVtxdRVsR"," Conversion vtx dR vsR" ,rBin,rMin, rMax ,100, -20.,20., "");
-    p_convVtxdRVsEta_ =  dbe_->bookProfile("pConvVtxdRVsEta","Conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax, 100, -20.,20., "");
-    p_convVtxdXVsX_ =  dbe_->bookProfile("pConvVtxdXVsX","Conversion vtx dX vs X" ,120,-60, 60 ,100, -20.,20., "");
-    p_convVtxdYVsY_ =  dbe_->bookProfile("pConvVtxdYVsY","Conversion vtx dY vs Y" ,120,-60, 60 ,100, -20.,20., "");
-    p_convVtxdZVsZ_ =  dbe_->bookProfile("pConvVtxdZVsZ","Conversion vtx dZ vs Z" ,zBin,zMin,zMax ,100, -20.,20., "");
+    p_convVtxdRVsR_ =  iBooker.bookProfile("pConvVtxdRVsR"," Conversion vtx dR vsR" ,rBin,rMin, rMax ,100, -20.,20., "");
+    p_convVtxdRVsEta_ =  iBooker.bookProfile("pConvVtxdRVsEta","Conversion vtx dR vs Eta" ,etaBin2,etaMin, etaMax, 100, -20.,20., "");
+    p_convVtxdXVsX_ =  iBooker.bookProfile("pConvVtxdXVsX","Conversion vtx dX vs X" ,120,-60, 60 ,100, -20.,20., "");
+    p_convVtxdYVsY_ =  iBooker.bookProfile("pConvVtxdYVsY","Conversion vtx dY vs Y" ,120,-60, 60 ,100, -20.,20., "");
+    p_convVtxdZVsZ_ =  iBooker.bookProfile("pConvVtxdZVsZ","Conversion vtx dZ vs Z" ,zBin,zMin,zMax ,100, -20.,20., "");
 
-    p_convVtxdZVsR_ =  dbe_->bookProfile("pConvVtxdZVsR","Conversion vtx dZ vs R" ,rBin,rMin,rMax ,100, -20.,20., "");
-    p2_convVtxdRVsRZ_ =  dbe_->bookProfile2D("p2ConvVtxdRVsRZ","Conversion vtx dR vs RZ" ,zBin,zMin, zMax,rBin,rMin,rMax,100, 0.,20.,"s");
-    p2_convVtxdZVsRZ_ =  dbe_->bookProfile2D("p2ConvVtxdZVsRZ","Conversion vtx dZ vs RZ" ,zBin,zMin, zMax,rBin,rMin,rMax,100, 0.,20.,"s");
+    p_convVtxdZVsR_ =  iBooker.bookProfile("pConvVtxdZVsR","Conversion vtx dZ vs R" ,rBin,rMin,rMax ,100, -20.,20., "");
+    p2_convVtxdRVsRZ_ =  iBooker.bookProfile2D("p2ConvVtxdRVsRZ","Conversion vtx dR vs RZ" ,zBin,zMin, zMax,rBin,rMin,rMax,100, 0.,20.,"s");
+    p2_convVtxdZVsRZ_ =  iBooker.bookProfile2D("p2ConvVtxdZVsRZ","Conversion vtx dZ vs RZ" ,zBin,zMin, zMax,rBin,rMin,rMax,100, 0.,20.,"s");
 
 
     histname="EoverPtracks";
-    h_EoverPTracks_[0][0] = dbe_->book1D(histname+"All"," photons conversion E/p: all Ecal ",       eoverpBin, eoverpMin, eoverpMax );
-    h_EoverPTracks_[0][1] = dbe_->book1D(histname+"Barrel"," photons conversion E/p: Barrel Ecal",  eoverpBin, eoverpMin,  eoverpMax);
-    h_EoverPTracks_[0][2] = dbe_->book1D(histname+"Endcap"," photons conversion E/p: Endcap Ecal ", eoverpBin, eoverpMin,  eoverpMax);
-    h_EoverPTracks_[1][0] = dbe_->book1D(histname+"All_Ass"," photons conversion E/p: all Ecal ",   eoverpBin, eoverpMin,  eoverpMax);
-    h_EoverPTracks_[1][1] = dbe_->book1D(histname+"Barrel_Ass"," photons conversion E/p: Barrel Ecal", eoverpBin, eoverpMin,  eoverpMax);
-    h_EoverPTracks_[1][2] = dbe_->book1D(histname+"Endcap_Ass"," photons conversion E/p: Endcap Ecal ", eoverpBin, eoverpMin,  eoverpMax);
-    h_EoverPTracks_[2][0] = dbe_->book1D(histname+"All_Fakes"," photons conversion E/p: all Ecal ",     eoverpBin, eoverpMin,  eoverpMax);
-    h_EoverPTracks_[2][1] = dbe_->book1D(histname+"Barrel_Fakes"," photons conversion E/p: Barrel Ecal", eoverpBin, eoverpMin,  eoverpMax);
-    h_EoverPTracks_[2][2] = dbe_->book1D(histname+"Endcap_Fakes"," photons conversion E/p: Endcap Ecal ", eoverpBin, eoverpMin,  eoverpMax);
+    h_EoverPTracks_[0][0] = iBooker.book1D(histname+"All"," photons conversion E/p: all Ecal ",       eoverpBin, eoverpMin, eoverpMax );
+    h_EoverPTracks_[0][1] = iBooker.book1D(histname+"Barrel"," photons conversion E/p: Barrel Ecal",  eoverpBin, eoverpMin,  eoverpMax);
+    h_EoverPTracks_[0][2] = iBooker.book1D(histname+"Endcap"," photons conversion E/p: Endcap Ecal ", eoverpBin, eoverpMin,  eoverpMax);
+    h_EoverPTracks_[1][0] = iBooker.book1D(histname+"All_Ass"," photons conversion E/p: all Ecal ",   eoverpBin, eoverpMin,  eoverpMax);
+    h_EoverPTracks_[1][1] = iBooker.book1D(histname+"Barrel_Ass"," photons conversion E/p: Barrel Ecal", eoverpBin, eoverpMin,  eoverpMax);
+    h_EoverPTracks_[1][2] = iBooker.book1D(histname+"Endcap_Ass"," photons conversion E/p: Endcap Ecal ", eoverpBin, eoverpMin,  eoverpMax);
+    h_EoverPTracks_[2][0] = iBooker.book1D(histname+"All_Fakes"," photons conversion E/p: all Ecal ",     eoverpBin, eoverpMin,  eoverpMax);
+    h_EoverPTracks_[2][1] = iBooker.book1D(histname+"Barrel_Fakes"," photons conversion E/p: Barrel Ecal", eoverpBin, eoverpMin,  eoverpMax);
+    h_EoverPTracks_[2][2] = iBooker.book1D(histname+"Endcap_Fakes"," photons conversion E/p: Endcap Ecal ", eoverpBin, eoverpMin,  eoverpMax);
 
 
-    h2_convVtxRrecVsTrue_ =  dbe_->book2D("h2ConvVtxRrecVsTrue","Photon Reco conversion vtx R rec vs true" ,rBin,rMin, rMax,rBin,rMin, rMax);
+    h2_convVtxRrecVsTrue_ =  iBooker.book2D("h2ConvVtxRrecVsTrue","Photon Reco conversion vtx R rec vs true" ,rBin,rMin, rMax,rBin,rMin, rMax);
 
     histname="vtxChi2Prob";
-    h_vtxChi2Prob_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 100, 0., 1.);
-    h_vtxChi2Prob_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, 0., 1.);
-    h_vtxChi2Prob_[0][2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, 0., 1.);
-    h_vtxChi2Prob_[1][0] = dbe_->book1D(histname+"All_Ass","vertex #chi^{2} all", 100, 0., 1.);
-    h_vtxChi2Prob_[1][1] = dbe_->book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 100, 0., 1.);
-    h_vtxChi2Prob_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 100, 0., 1.);
-    h_vtxChi2Prob_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 100, 0., 1.);
-    h_vtxChi2Prob_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 100, 0., 1.);
-    h_vtxChi2Prob_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 100, 0., 1.);
+    h_vtxChi2Prob_[0][0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 100, 0., 1.);
+    h_vtxChi2Prob_[0][1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, 0., 1.);
+    h_vtxChi2Prob_[0][2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, 0., 1.);
+    h_vtxChi2Prob_[1][0] = iBooker.book1D(histname+"All_Ass","vertex #chi^{2} all", 100, 0., 1.);
+    h_vtxChi2Prob_[1][1] = iBooker.book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 100, 0., 1.);
+    h_vtxChi2Prob_[1][2] = iBooker.book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 100, 0., 1.);
+    h_vtxChi2Prob_[2][0] = iBooker.book1D(histname+"All_Fakes","vertex #chi^{2} all", 100, 0., 1.);
+    h_vtxChi2Prob_[2][1] = iBooker.book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 100, 0., 1.);
+    h_vtxChi2Prob_[2][2] = iBooker.book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 100, 0., 1.);
 
 
-    h_zPVFromTracks_[1] =  dbe_->book1D("zPVFromTracks"," Photons: PV z from conversion tracks",100, -25., 25.);
-    h_dzPVFromTracks_[1] =  dbe_->book1D("dzPVFromTracks"," Photons: PV Z_rec - Z_true from conversion tracks",100, -5., 5.);
-    h2_dzPVVsR_ =  dbe_->book2D("h2dzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax,100, -3.,3.);
-    p_dzPVVsR_ =  dbe_->bookProfile("pdzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax, 100, -3.,3.,"");
+    h_zPVFromTracks_[1] =  iBooker.book1D("zPVFromTracks"," Photons: PV z from conversion tracks",100, -25., 25.);
+    h_dzPVFromTracks_[1] =  iBooker.book1D("dzPVFromTracks"," Photons: PV Z_rec - Z_true from conversion tracks",100, -5., 5.);
+    h2_dzPVVsR_ =  iBooker.book2D("h2dzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax,100, -3.,3.);
+    p_dzPVVsR_ =  iBooker.bookProfile("pdzPVVsR","Photon Reco conversions: dz(PV) vs R" ,rBin,rMin, rMax, 100, -3.,3.,"");
 
 
     histname="lxybs";
-    h_lxybs_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 200, -100., 100.);
-    h_lxybs_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 200, -100., 100.);
-    h_lxybs_[0][2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 200, -100., 100.);
-    h_lxybs_[1][0] = dbe_->book1D(histname+"All_Ass","vertex #chi^{2} all", 200, -100., 100.);
-    h_lxybs_[1][1] = dbe_->book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 200, -100., 100.);
-    h_lxybs_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 200, -100., 100.);
-    h_lxybs_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 200, -100., 100.);
-    h_lxybs_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 200, -100., 100.);
-    h_lxybs_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 200, -100., 100.);
+    h_lxybs_[0][0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 200, -100., 100.);
+    h_lxybs_[0][1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 200, -100., 100.);
+    h_lxybs_[0][2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 200, -100., 100.);
+    h_lxybs_[1][0] = iBooker.book1D(histname+"All_Ass","vertex #chi^{2} all", 200, -100., 100.);
+    h_lxybs_[1][1] = iBooker.book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 200, -100., 100.);
+    h_lxybs_[1][2] = iBooker.book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 200, -100., 100.);
+    h_lxybs_[2][0] = iBooker.book1D(histname+"All_Fakes","vertex #chi^{2} all", 200, -100., 100.);
+    h_lxybs_[2][1] = iBooker.book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 200, -100., 100.);
+    h_lxybs_[2][2] = iBooker.book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 200, -100., 100.);
 
     histname="maxNHitsBeforeVtx";
-    h_maxNHitsBeforeVtx_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_maxNHitsBeforeVtx_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_maxNHitsBeforeVtx_[0][2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_maxNHitsBeforeVtx_[1][0] = dbe_->book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_maxNHitsBeforeVtx_[1][1] = dbe_->book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_maxNHitsBeforeVtx_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_maxNHitsBeforeVtx_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_maxNHitsBeforeVtx_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_maxNHitsBeforeVtx_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_maxNHitsBeforeVtx_[0][0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_maxNHitsBeforeVtx_[0][1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_maxNHitsBeforeVtx_[0][2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_maxNHitsBeforeVtx_[1][0] = iBooker.book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_maxNHitsBeforeVtx_[1][1] = iBooker.book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_maxNHitsBeforeVtx_[1][2] = iBooker.book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_maxNHitsBeforeVtx_[2][0] = iBooker.book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_maxNHitsBeforeVtx_[2][1] = iBooker.book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_maxNHitsBeforeVtx_[2][2] = iBooker.book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
 
     histname="leadNHitsBeforeVtx";
-    h_leadNHitsBeforeVtx_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_leadNHitsBeforeVtx_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_leadNHitsBeforeVtx_[0][2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_leadNHitsBeforeVtx_[1][0] = dbe_->book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_leadNHitsBeforeVtx_[1][1] = dbe_->book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_leadNHitsBeforeVtx_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_leadNHitsBeforeVtx_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_leadNHitsBeforeVtx_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_leadNHitsBeforeVtx_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_leadNHitsBeforeVtx_[0][0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_leadNHitsBeforeVtx_[0][1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_leadNHitsBeforeVtx_[0][2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_leadNHitsBeforeVtx_[1][0] = iBooker.book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_leadNHitsBeforeVtx_[1][1] = iBooker.book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_leadNHitsBeforeVtx_[1][2] = iBooker.book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_leadNHitsBeforeVtx_[2][0] = iBooker.book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_leadNHitsBeforeVtx_[2][1] = iBooker.book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_leadNHitsBeforeVtx_[2][2] = iBooker.book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
 
     histname="trailNHitsBeforeVtx";
-    h_trailNHitsBeforeVtx_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_trailNHitsBeforeVtx_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_trailNHitsBeforeVtx_[0][2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_trailNHitsBeforeVtx_[1][0] = dbe_->book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_trailNHitsBeforeVtx_[1][1] = dbe_->book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_trailNHitsBeforeVtx_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_trailNHitsBeforeVtx_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_trailNHitsBeforeVtx_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_trailNHitsBeforeVtx_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_trailNHitsBeforeVtx_[0][0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_trailNHitsBeforeVtx_[0][1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_trailNHitsBeforeVtx_[0][2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_trailNHitsBeforeVtx_[1][0] = iBooker.book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_trailNHitsBeforeVtx_[1][1] = iBooker.book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_trailNHitsBeforeVtx_[1][2] = iBooker.book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_trailNHitsBeforeVtx_[2][0] = iBooker.book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_trailNHitsBeforeVtx_[2][1] = iBooker.book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_trailNHitsBeforeVtx_[2][2] = iBooker.book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
 
     histname="sumNHitsBeforeVtx";
-    h_sumNHitsBeforeVtx_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_sumNHitsBeforeVtx_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_sumNHitsBeforeVtx_[0][2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_sumNHitsBeforeVtx_[1][0] = dbe_->book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_sumNHitsBeforeVtx_[1][1] = dbe_->book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_sumNHitsBeforeVtx_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_sumNHitsBeforeVtx_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_sumNHitsBeforeVtx_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_sumNHitsBeforeVtx_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_sumNHitsBeforeVtx_[0][0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_sumNHitsBeforeVtx_[0][1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_sumNHitsBeforeVtx_[0][2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_sumNHitsBeforeVtx_[1][0] = iBooker.book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_sumNHitsBeforeVtx_[1][1] = iBooker.book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_sumNHitsBeforeVtx_[1][2] = iBooker.book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_sumNHitsBeforeVtx_[2][0] = iBooker.book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_sumNHitsBeforeVtx_[2][1] = iBooker.book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_sumNHitsBeforeVtx_[2][2] = iBooker.book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
 
     histname="maxDlClosestHitToVtx";
-    h_maxDlClosestHitToVtx_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 100, -10., 10.);
-    h_maxDlClosestHitToVtx_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, -10., 10.);
-    h_maxDlClosestHitToVtx_[0][2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, -10., 10.);
-    h_maxDlClosestHitToVtx_[1][0] = dbe_->book1D(histname+"All_Ass","vertex #chi^{2} all", 100, -10., 10.);
-    h_maxDlClosestHitToVtx_[1][1] = dbe_->book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 100, -10., 10.);
-    h_maxDlClosestHitToVtx_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 100, -10., 10.);
-    h_maxDlClosestHitToVtx_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 100, -10., 10.);
-    h_maxDlClosestHitToVtx_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 100, -10., 10.);
-    h_maxDlClosestHitToVtx_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 100, -10., 10.);
+    h_maxDlClosestHitToVtx_[0][0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 100, -10., 10.);
+    h_maxDlClosestHitToVtx_[0][1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, -10., 10.);
+    h_maxDlClosestHitToVtx_[0][2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, -10., 10.);
+    h_maxDlClosestHitToVtx_[1][0] = iBooker.book1D(histname+"All_Ass","vertex #chi^{2} all", 100, -10., 10.);
+    h_maxDlClosestHitToVtx_[1][1] = iBooker.book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 100, -10., 10.);
+    h_maxDlClosestHitToVtx_[1][2] = iBooker.book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 100, -10., 10.);
+    h_maxDlClosestHitToVtx_[2][0] = iBooker.book1D(histname+"All_Fakes","vertex #chi^{2} all", 100, -10., 10.);
+    h_maxDlClosestHitToVtx_[2][1] = iBooker.book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 100, -10., 10.);
+    h_maxDlClosestHitToVtx_[2][2] = iBooker.book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 100, -10., 10.);
 
     histname="maxDlClosestHitToVtxSig";
-    h_maxDlClosestHitToVtxSig_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 100, -8., 8.);
-    h_maxDlClosestHitToVtxSig_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, -8., 8.);
-    h_maxDlClosestHitToVtxSig_[0][2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, -8., 8.);
-    h_maxDlClosestHitToVtxSig_[1][0] = dbe_->book1D(histname+"All_Ass","vertex #chi^{2} all", 100, -8., 8.);
-    h_maxDlClosestHitToVtxSig_[1][1] = dbe_->book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 100, -8., 8.);
-    h_maxDlClosestHitToVtxSig_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 100, -8., 8.);
-    h_maxDlClosestHitToVtxSig_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 100, -8., 8.);
-    h_maxDlClosestHitToVtxSig_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 100, -8., 8.);
-    h_maxDlClosestHitToVtxSig_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 100, -8., 8.);
+    h_maxDlClosestHitToVtxSig_[0][0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 100, -8., 8.);
+    h_maxDlClosestHitToVtxSig_[0][1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 100, -8., 8.);
+    h_maxDlClosestHitToVtxSig_[0][2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 100, -8., 8.);
+    h_maxDlClosestHitToVtxSig_[1][0] = iBooker.book1D(histname+"All_Ass","vertex #chi^{2} all", 100, -8., 8.);
+    h_maxDlClosestHitToVtxSig_[1][1] = iBooker.book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 100, -8., 8.);
+    h_maxDlClosestHitToVtxSig_[1][2] = iBooker.book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 100, -8., 8.);
+    h_maxDlClosestHitToVtxSig_[2][0] = iBooker.book1D(histname+"All_Fakes","vertex #chi^{2} all", 100, -8., 8.);
+    h_maxDlClosestHitToVtxSig_[2][1] = iBooker.book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 100, -8., 8.);
+    h_maxDlClosestHitToVtxSig_[2][2] = iBooker.book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 100, -8., 8.);
 
     histname="deltaExpectedHitsInner";
-    h_deltaExpectedHitsInner_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 31, -15.5, 15.5);
-    h_deltaExpectedHitsInner_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 31, -15.5, 15.5);
-    h_deltaExpectedHitsInner_[0][2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 31, -15.5, 15.5);
-    h_deltaExpectedHitsInner_[1][0] = dbe_->book1D(histname+"All_Ass","vertex #chi^{2} all", 31, -15.5, 15.5);
-    h_deltaExpectedHitsInner_[1][1] = dbe_->book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 31, -15.5, 15.5);
-    h_deltaExpectedHitsInner_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 31, -15.5, 15.5);
-    h_deltaExpectedHitsInner_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 31, -15.5, 15.5);
-    h_deltaExpectedHitsInner_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 31, -15.5, 15.5);
-    h_deltaExpectedHitsInner_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 31, -15.5, 15.5);
+    h_deltaExpectedHitsInner_[0][0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 31, -15.5, 15.5);
+    h_deltaExpectedHitsInner_[0][1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 31, -15.5, 15.5);
+    h_deltaExpectedHitsInner_[0][2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 31, -15.5, 15.5);
+    h_deltaExpectedHitsInner_[1][0] = iBooker.book1D(histname+"All_Ass","vertex #chi^{2} all", 31, -15.5, 15.5);
+    h_deltaExpectedHitsInner_[1][1] = iBooker.book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 31, -15.5, 15.5);
+    h_deltaExpectedHitsInner_[1][2] = iBooker.book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 31, -15.5, 15.5);
+    h_deltaExpectedHitsInner_[2][0] = iBooker.book1D(histname+"All_Fakes","vertex #chi^{2} all", 31, -15.5, 15.5);
+    h_deltaExpectedHitsInner_[2][1] = iBooker.book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 31, -15.5, 15.5);
+    h_deltaExpectedHitsInner_[2][2] = iBooker.book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 31, -15.5, 15.5);
 
     histname="leadExpectedHitsInner";
-    h_leadExpectedHitsInner_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_leadExpectedHitsInner_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_leadExpectedHitsInner_[0][2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_leadExpectedHitsInner_[1][0] = dbe_->book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_leadExpectedHitsInner_[1][1] = dbe_->book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_leadExpectedHitsInner_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_leadExpectedHitsInner_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_leadExpectedHitsInner_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_leadExpectedHitsInner_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_leadExpectedHitsInner_[0][0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_leadExpectedHitsInner_[0][1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_leadExpectedHitsInner_[0][2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_leadExpectedHitsInner_[1][0] = iBooker.book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_leadExpectedHitsInner_[1][1] = iBooker.book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_leadExpectedHitsInner_[1][2] = iBooker.book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_leadExpectedHitsInner_[2][0] = iBooker.book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_leadExpectedHitsInner_[2][1] = iBooker.book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_leadExpectedHitsInner_[2][2] = iBooker.book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
 
     histname="nSharedHits";
-    h_nSharedHits_[0][0] = dbe_->book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_nSharedHits_[0][1] = dbe_->book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_nSharedHits_[0][2] = dbe_->book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_nSharedHits_[1][0] = dbe_->book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_nSharedHits_[1][1] = dbe_->book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_nSharedHits_[1][2] = dbe_->book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
-    h_nSharedHits_[2][0] = dbe_->book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
-    h_nSharedHits_[2][1] = dbe_->book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
-    h_nSharedHits_[2][2] = dbe_->book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_nSharedHits_[0][0] = iBooker.book1D(histname+"All","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_nSharedHits_[0][1] = iBooker.book1D(histname+"Barrel","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_nSharedHits_[0][2] = iBooker.book1D(histname+"Endcap","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_nSharedHits_[1][0] = iBooker.book1D(histname+"All_Ass","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_nSharedHits_[1][1] = iBooker.book1D(histname+"Barrel_Ass","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_nSharedHits_[1][2] = iBooker.book1D(histname+"Endcap_Ass","vertex #chi^{2} endcap", 16, -0.5, 15.5);
+    h_nSharedHits_[2][0] = iBooker.book1D(histname+"All_Fakes","vertex #chi^{2} all", 16, -0.5, 15.5);
+    h_nSharedHits_[2][1] = iBooker.book1D(histname+"Barrel_Fakes","vertex #chi^{2} barrel", 16, -0.5, 15.5);
+    h_nSharedHits_[2][2] = iBooker.book1D(histname+"Endcap_Fakes","vertex #chi^{2} endcap", 16, -0.5, 15.5);
 
     //////////////////// plots per track
     histname="nHits";
-    nHits_[0] =  dbe_->book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits all tracks",etaBin,etaMin, etaMax,30,0., 30.);
-    nHits_[1] =  dbe_->book2D(histname+"AllTracks_Ass","Photons:Tracks from conversions: # of hits  all tracks ass",etaBin,etaMin, etaMax,30,0., 30.);
-    nHits_[2] =  dbe_->book2D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: # of hits all tracks fakes",etaBin,etaMin, etaMax,30,0., 30.);
+    nHits_[0] =  iBooker.book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits all tracks",etaBin,etaMin, etaMax,30,0., 30.);
+    nHits_[1] =  iBooker.book2D(histname+"AllTracks_Ass","Photons:Tracks from conversions: # of hits  all tracks ass",etaBin,etaMin, etaMax,30,0., 30.);
+    nHits_[2] =  iBooker.book2D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: # of hits all tracks fakes",etaBin,etaMin, etaMax,30,0., 30.);
 
 
     histname="nHitsVsEta";
-    nHitsVsEta_[0] =  dbe_->book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax,30,0., 30.);
-    nHitsVsEta_[1] =  dbe_->book2D(histname+"AllTracks_Ass","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax,30,0., 30.);
-    nHitsVsEta_[2] =  dbe_->book2D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax,30,0., 30.);
+    nHitsVsEta_[0] =  iBooker.book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax,30,0., 30.);
+    nHitsVsEta_[1] =  iBooker.book2D(histname+"AllTracks_Ass","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax,30,0., 30.);
+    nHitsVsEta_[2] =  iBooker.book2D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax,30,0., 30.);
     histname="h_nHitsVsEta";
-    p_nHitsVsEta_[0] =  dbe_->bookProfile(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax, 30,-0.5, 29.5,"");
-    p_nHitsVsEta_[1] =  dbe_->bookProfile(histname+"AllTracks_Ass","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax, 30,-0.5, 29.5,"");
-    p_nHitsVsEta_[2] =  dbe_->bookProfile(histname+"AllTracks_Fakes","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax, 30,-0.5, 29.5,"");
+    p_nHitsVsEta_[0] =  iBooker.bookProfile(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax, 30,-0.5, 29.5,"");
+    p_nHitsVsEta_[1] =  iBooker.bookProfile(histname+"AllTracks_Ass","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax, 30,-0.5, 29.5,"");
+    p_nHitsVsEta_[2] =  iBooker.bookProfile(histname+"AllTracks_Fakes","Photons:Tracks from conversions: # of hits vs #eta all tracks",etaBin,etaMin, etaMax, 30,-0.5, 29.5,"");
 
 
     histname="nHitsVsR";
-    nHitsVsR_[0] =  dbe_->book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs radius all tracks" ,rBin,rMin, rMax,30,0., 30.);
-    nHitsVsR_[1] =  dbe_->book2D(histname+"AllTracks_Ass","Photons:Tracks from conversions: # of hits vs radius all tracks" ,rBin,rMin, rMax,30,0., 30.);
-    nHitsVsR_[2] =  dbe_->book2D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: # of hits vs radius all tracks" ,rBin,rMin, rMax,30,0., 30.);
+    nHitsVsR_[0] =  iBooker.book2D(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs radius all tracks" ,rBin,rMin, rMax,30,0., 30.);
+    nHitsVsR_[1] =  iBooker.book2D(histname+"AllTracks_Ass","Photons:Tracks from conversions: # of hits vs radius all tracks" ,rBin,rMin, rMax,30,0., 30.);
+    nHitsVsR_[2] =  iBooker.book2D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: # of hits vs radius all tracks" ,rBin,rMin, rMax,30,0., 30.);
 
     histname="h_nHitsVsR";
-    p_nHitsVsR_[0] =  dbe_->bookProfile(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 30,-0.5, 29.5,"");
-    p_nHitsVsR_[1] =  dbe_->bookProfile(histname+"AllTracks_Ass","Photons:Tracks from conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 30,-0.5, 29.5,"");
-    p_nHitsVsR_[2] =  dbe_->bookProfile(histname+"AllTracks_Fakes","Photons:Tracks from conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 30,-0.5, 29.5,"");
+    p_nHitsVsR_[0] =  iBooker.bookProfile(histname+"AllTracks","Photons:Tracks from conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 30,-0.5, 29.5,"");
+    p_nHitsVsR_[1] =  iBooker.bookProfile(histname+"AllTracks_Ass","Photons:Tracks from conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 30,-0.5, 29.5,"");
+    p_nHitsVsR_[2] =  iBooker.bookProfile(histname+"AllTracks_Fakes","Photons:Tracks from conversions: # of hits vs radius all tracks",rBin,rMin, rMax, 30,-0.5, 29.5,"");
 
     histname="tkChi2";
-    h_tkChi2_[0] = dbe_->book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
-    h_tkChi2_[1] = dbe_->book1D(histname+"AllTracks_Ass","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
-    h_tkChi2_[2] = dbe_->book1D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
+    h_tkChi2_[0] = iBooker.book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
+    h_tkChi2_[1] = iBooker.book1D(histname+"AllTracks_Ass","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
+    h_tkChi2_[2] = iBooker.book1D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
 
     histname="tkChi2Large";
-    h_tkChi2Large_[0] = dbe_->book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
-    h_tkChi2Large_[1] = dbe_->book1D(histname+"AllTracks_Ass","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
-    h_tkChi2Large_[2] = dbe_->book1D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
+    h_tkChi2Large_[0] = iBooker.book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
+    h_tkChi2Large_[1] = iBooker.book1D(histname+"AllTracks_Ass","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
+    h_tkChi2Large_[2] = iBooker.book1D(histname+"AllTracks_Fakes","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
 
 
     histname="h2Chi2VsEta";
-    h2_Chi2VsEta_[0]=dbe_->book2D(histname+"All"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max);
-    h2_Chi2VsEta_[1]=dbe_->book2D(histname+"All_Ass"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max);
-    h2_Chi2VsEta_[2]=dbe_->book2D(histname+"All_Fakes"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max);
+    h2_Chi2VsEta_[0]=iBooker.book2D(histname+"All"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max);
+    h2_Chi2VsEta_[1]=iBooker.book2D(histname+"All_Ass"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max);
+    h2_Chi2VsEta_[2]=iBooker.book2D(histname+"All_Fakes"," Reco Track  #chi^{2} vs #eta: All ",etaBin2,etaMin, etaMax,100, chi2Min, chi2Max);
     histname="pChi2VsEta";
-    p_Chi2VsEta_[0]=dbe_->bookProfile(histname+"All"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,"");
-    p_Chi2VsEta_[1]=dbe_->bookProfile(histname+"All_Ass"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,"");
-    p_Chi2VsEta_[2]=dbe_->bookProfile(histname+"All_Fakes"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,"");
+    p_Chi2VsEta_[0]=iBooker.bookProfile(histname+"All"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,"");
+    p_Chi2VsEta_[1]=iBooker.bookProfile(histname+"All_Ass"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,"");
+    p_Chi2VsEta_[2]=iBooker.bookProfile(histname+"All_Fakes"," Reco Track #chi^{2} vs #eta : All ",etaBin2,etaMin, etaMax, 100, chi2Min, chi2Max,"");
 
     histname="h2Chi2VsR";
-    h2_Chi2VsR_[0]=dbe_->book2D(histname+"All"," Reco Track  #chi^{2} vs R: All ",rBin,rMin, rMax,100,chi2Min, chi2Max);
-    h2_Chi2VsR_[1]=dbe_->book2D(histname+"All_Ass"," Reco Track  #chi^{2} vs R: All ",rBin,rMin, rMax,100,chi2Min, chi2Max);
-    h2_Chi2VsR_[2]=dbe_->book2D(histname+"All_Fakes"," Reco Track  #chi^{2} vs R: All ",rBin,rMin, rMax,100,chi2Min, chi2Max);
+    h2_Chi2VsR_[0]=iBooker.book2D(histname+"All"," Reco Track  #chi^{2} vs R: All ",rBin,rMin, rMax,100,chi2Min, chi2Max);
+    h2_Chi2VsR_[1]=iBooker.book2D(histname+"All_Ass"," Reco Track  #chi^{2} vs R: All ",rBin,rMin, rMax,100,chi2Min, chi2Max);
+    h2_Chi2VsR_[2]=iBooker.book2D(histname+"All_Fakes"," Reco Track  #chi^{2} vs R: All ",rBin,rMin, rMax,100,chi2Min, chi2Max);
     histname="pChi2VsR";
-    p_Chi2VsR_[0]=dbe_->bookProfile(histname+"All"," Reco Track #chi^{2} vas R : All ",rBin,rMin,rMax, 100,chi2Min, chi2Max,"");
-    p_Chi2VsR_[1]=dbe_->bookProfile(histname+"All_Ass"," Reco Track #chi^{2} vas R : All ",rBin,rMin,rMax, 100,chi2Min, chi2Max,"");
-    p_Chi2VsR_[2]=dbe_->bookProfile(histname+"All_Fakes"," Reco Track #chi^{2} vas R : All ",rBin,rMin,rMax, 100,chi2Min, chi2Max,"");
+    p_Chi2VsR_[0]=iBooker.bookProfile(histname+"All"," Reco Track #chi^{2} vas R : All ",rBin,rMin,rMax, 100,chi2Min, chi2Max,"");
+    p_Chi2VsR_[1]=iBooker.bookProfile(histname+"All_Ass"," Reco Track #chi^{2} vas R : All ",rBin,rMin,rMax, 100,chi2Min, chi2Max,"");
+    p_Chi2VsR_[2]=iBooker.bookProfile(histname+"All_Fakes"," Reco Track #chi^{2} vas R : All ",rBin,rMin,rMax, 100,chi2Min, chi2Max,"");
 
     histname="hTkD0";
-    h_TkD0_[0]=dbe_->book1D(histname+"All"," Reco Track D0*q: All ",200,-0.1,60);
-    h_TkD0_[1]=dbe_->book1D(histname+"All_Ass"," Reco Track D0*q: Barrel ",200,-0.1,60);
-    h_TkD0_[2]=dbe_->book1D(histname+"All_Fakes"," Reco Track D0*q: Endcap ",200,-0.1,60);
+    h_TkD0_[0]=iBooker.book1D(histname+"All"," Reco Track D0*q: All ",200,-0.1,60);
+    h_TkD0_[1]=iBooker.book1D(histname+"All_Ass"," Reco Track D0*q: Barrel ",200,-0.1,60);
+    h_TkD0_[2]=iBooker.book1D(histname+"All_Fakes"," Reco Track D0*q: Endcap ",200,-0.1,60);
 
 
 
     histname="hTkPtPull";
-    h_TkPtPull_[0]=dbe_->book1D(histname+"All"," Reco Track Pt pull: All ",100, -20., 10.);
+    h_TkPtPull_[0]=iBooker.book1D(histname+"All"," Reco Track Pt pull: All ",100, -20., 10.);
     histname="hTkPtPull";
-    h_TkPtPull_[1]=dbe_->book1D(histname+"Barrel"," Reco Track Pt pull: Barrel ",100, -20., 10.);
+    h_TkPtPull_[1]=iBooker.book1D(histname+"Barrel"," Reco Track Pt pull: Barrel ",100, -20., 10.);
     histname="hTkPtPull";
-    h_TkPtPull_[2]=dbe_->book1D(histname+"Endcap"," Reco Track Pt pull: Endcap ",100, -20., 10.);
+    h_TkPtPull_[2]=iBooker.book1D(histname+"Endcap"," Reco Track Pt pull: Endcap ",100, -20., 10.);
 
     histname="h2TkPtPullEta";
-    h2_TkPtPull_[0]=dbe_->book2D(histname+"All"," Reco Track Pt pull: All ",etaBin2,etaMin, etaMax,100, -20., 10.);
+    h2_TkPtPull_[0]=iBooker.book2D(histname+"All"," Reco Track Pt pull: All ",etaBin2,etaMin, etaMax,100, -20., 10.);
     histname="pTkPtPullEta";
-    p_TkPtPull_[0]=dbe_->bookProfile(histname+"All"," Reco Track Pt pull: All ",etaBin2,etaMin, etaMax, 100, -20., 10., " ");
+    p_TkPtPull_[0]=iBooker.bookProfile(histname+"All"," Reco Track Pt pull: All ",etaBin2,etaMin, etaMax, 100, -20., 10., " ");
 
 
     histname="PtRecVsPtSim";
-    h2_PtRecVsPtSim_[0]=dbe_->book2D(histname+"All", "Pt Rec vs Pt sim: All ", etBin,etMin,etMax,etBin,etMin, etMax);
-    h2_PtRecVsPtSim_[1]=dbe_->book2D(histname+"Barrel", "Pt Rec vs Pt sim: Barrel ", etBin,etMin,etMax,etBin,etMin, etMax);
-    h2_PtRecVsPtSim_[2]=dbe_->book2D(histname+"Endcap", "Pt Rec vs Pt sim: Endcap ", etBin,etMin,etMax,etBin,etMin, etMax);
+    h2_PtRecVsPtSim_[0]=iBooker.book2D(histname+"All", "Pt Rec vs Pt sim: All ", etBin,etMin,etMax,etBin,etMin, etMax);
+    h2_PtRecVsPtSim_[1]=iBooker.book2D(histname+"Barrel", "Pt Rec vs Pt sim: Barrel ", etBin,etMin,etMax,etBin,etMin, etMax);
+    h2_PtRecVsPtSim_[2]=iBooker.book2D(histname+"Endcap", "Pt Rec vs Pt sim: Endcap ", etBin,etMin,etMax,etBin,etMin, etMax);
 
     histname="photonPtRecVsPtSim";
-    h2_photonPtRecVsPtSim_=dbe_->book2D(histname+"All", "Pt Rec vs Pt sim: All ", etBin,etMin,etMax,etBin,etMin, etMax);
+    h2_photonPtRecVsPtSim_=iBooker.book2D(histname+"All", "Pt Rec vs Pt sim: All ", etBin,etMin,etMax,etBin,etMin, etMax);
 
     histname="nHitsBeforeVtx";
-    h_nHitsBeforeVtx_[0]=dbe_->book1D(histname+"All", "Pt Rec vs Pt sim: All ", 16, -0.5, 15.5);
-    h_nHitsBeforeVtx_[1]=dbe_->book1D(histname+"Barrel", "Pt Rec vs Pt sim: Barrel ", 16, -0.5, 15.5);
-    h_nHitsBeforeVtx_[2]=dbe_->book1D(histname+"Endcap", "Pt Rec vs Pt sim: Endcap ", 16, -0.5, 15.5);
+    h_nHitsBeforeVtx_[0]=iBooker.book1D(histname+"All", "Pt Rec vs Pt sim: All ", 16, -0.5, 15.5);
+    h_nHitsBeforeVtx_[1]=iBooker.book1D(histname+"Barrel", "Pt Rec vs Pt sim: Barrel ", 16, -0.5, 15.5);
+    h_nHitsBeforeVtx_[2]=iBooker.book1D(histname+"Endcap", "Pt Rec vs Pt sim: Endcap ", 16, -0.5, 15.5);
 
     histname="dlClosestHitToVtx";
-    h_dlClosestHitToVtx_[0]=dbe_->book1D(histname+"All", "Pt Rec vs Pt sim: All ", 100, -10., 10.);
-    h_dlClosestHitToVtx_[1]=dbe_->book1D(histname+"Barrel", "Pt Rec vs Pt sim: Barrel ", 100, -10., 10.);
-    h_dlClosestHitToVtx_[2]=dbe_->book1D(histname+"Endcap", "Pt Rec vs Pt sim: Endcap ", 100, -10., 10.);
+    h_dlClosestHitToVtx_[0]=iBooker.book1D(histname+"All", "Pt Rec vs Pt sim: All ", 100, -10., 10.);
+    h_dlClosestHitToVtx_[1]=iBooker.book1D(histname+"Barrel", "Pt Rec vs Pt sim: Barrel ", 100, -10., 10.);
+    h_dlClosestHitToVtx_[2]=iBooker.book1D(histname+"Endcap", "Pt Rec vs Pt sim: Endcap ", 100, -10., 10.);
 
     histname="dlClosestHitToVtxSig";
-    h_dlClosestHitToVtxSig_[0]=dbe_->book1D(histname+"All", "Pt Rec vs Pt sim: All ", 100, -8., 8.);
-    h_dlClosestHitToVtxSig_[1]=dbe_->book1D(histname+"Barrel", "Pt Rec vs Pt sim: Barrel ", 100, -8., 8.);
-    h_dlClosestHitToVtxSig_[2]=dbe_->book1D(histname+"Endcap", "Pt Rec vs Pt sim: Endcap ", 100, -8., 8.);
+    h_dlClosestHitToVtxSig_[0]=iBooker.book1D(histname+"All", "Pt Rec vs Pt sim: All ", 100, -8., 8.);
+    h_dlClosestHitToVtxSig_[1]=iBooker.book1D(histname+"Barrel", "Pt Rec vs Pt sim: Barrel ", 100, -8., 8.);
+    h_dlClosestHitToVtxSig_[2]=iBooker.book1D(histname+"Endcap", "Pt Rec vs Pt sim: Endcap ", 100, -8., 8.);
 
-    h_match_= dbe_->book1D("h_match"," ", 3, -0.5,2.5);
+    h_match_= iBooker.book1D("h_match"," ", 3, -0.5,2.5);
 
 
-  } // if DQM
+   } // if DQM
 
 
 
@@ -781,7 +782,7 @@ void  TkConvValidator::beginJob() {
 
 
 
- void  TkConvValidator::beginRun (edm::Run const & r, edm::EventSetup const & theEventSetup) {
+ void  TkConvValidator::dqmBeginRun (edm::Run const & r, edm::EventSetup const & theEventSetup) {
 
    //get magnetic field
   edm::LogInfo("ConvertedPhotonProducer") << " get magnetic field" << "\n";

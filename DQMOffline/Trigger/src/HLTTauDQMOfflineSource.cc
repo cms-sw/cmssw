@@ -87,31 +87,37 @@ HLTTauDQMOfflineSource::~HLTTauDQMOfflineSource() {
 }
 
 //--------------------------------------------------------
-void HLTTauDQMOfflineSource::beginJob() {    
+void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  //Evaluate configuration for every new trigger menu
+  bool hltMenuChanged = false;
+  if(HLTCP_.init(iRun, iSetup, hltProcessName_, hltMenuChanged)) {
+    if(hltMenuChanged) {
+      std::vector<const HLTTauDQMPath *> pathObjects;
+      pathObjects.reserve(pathPlotters2_.size());
+      for(auto& pathPlotter: pathPlotters2_) {
+        pathPlotter.updateHLTMenu(HLTCP_);
+        if(pathPlotter.isValid())
+          pathObjects.push_back(pathPlotter.getPathObject());
+      }
+      for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
+        pathSummaryPlotter.setPathObjects(pathObjects);
+      }
+    }
+  } else {
+    edm::LogWarning("HLTTauDQMOffline") << "HLT config extraction failure with process name '" << hltProcessName_ << "'";
+  }
 }
 
 //--------------------------------------------------------
-void HLTTauDQMOfflineSource::beginRun( const edm::Run& iRun, const EventSetup& iSetup ) {
-    //Evaluate configuration for every new trigger menu
-  bool hltMenuChanged = false;
-  if(HLTCP_.init(iRun, iSetup, hltProcessName_, hltMenuChanged)) {
-        if(hltMenuChanged) {
-          for(auto& l1Plotter: l1Plotters_) {
-            l1Plotter.beginRun();
-          }
-          std::vector<const HLTTauDQMPath *> pathObjects;
-          pathObjects.reserve(pathPlotters2_.size());
-          for(auto& pathPlotter: pathPlotters2_) {
-            pathPlotter.beginRun(HLTCP_);
-            if(pathPlotter.isValid())
-              pathObjects.push_back(pathPlotter.getPathObject());
-          }
-          for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
-            pathSummaryPlotter.beginRun(pathObjects);
-          }
-        }
-  } else {
-    edm::LogWarning("HLTTauDQMOffline") << "HLT config extraction failure with process name '" << hltProcessName_ << "'";
+void HLTTauDQMOfflineSource::bookHistograms(DQMStore::IBooker &iBooker, const edm::Run& iRun, const EventSetup& iSetup ) {
+  for(auto& l1Plotter: l1Plotters_) {
+    l1Plotter.bookHistograms(iBooker);
+  }
+  for(auto& pathPlotter: pathPlotters2_) {
+    pathPlotter.bookHistograms(iBooker);
+  }
+  for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
+    pathSummaryPlotter.bookHistograms(iBooker);
   }
 }
 
