@@ -11,6 +11,8 @@
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 //-----------------------------------------------------------------------------
 
+#define NEW
+
 #include <utility>
 #include <vector>
 #include "TMath.h"
@@ -32,10 +34,16 @@
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+
+#ifdef NEW
+// new errors 
+#include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
+#else
+// old errors
 #include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
+#endif
+
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
-
-
 
 #include <unordered_map>
 
@@ -55,13 +63,21 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   };
 
 public:
+#ifdef NEW
+  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
+	       const SiPixelLorentzAngle * lorentzAngle = 0, 
+	       const SiPixelGenErrorDBObject * genErrorDBObject = 0, 
+	       const SiPixelTemplateDBObject * templateDBobject = 0,
+	       const SiPixelLorentzAngle * lorentzAngleWidth = 0
+	       );  // NEW
+#else
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag = 0, 
 	       const SiPixelLorentzAngle * lorentzAngle = 0, 
 	       const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
 	       const SiPixelTemplateDBObject * templateDBobject = 0,
 	       const SiPixelLorentzAngle * lorentzAngleWidth = 0
-	       );
-  
+	       ); // OLD
+ #endif 
 
  //--------------------------------------------------------------------------
   // Allow the magnetic field to be set/updated later.
@@ -234,10 +250,14 @@ public:
   mutable const SiPixelLorentzAngle * lorentzAngle_;
   mutable const SiPixelLorentzAngle * lorentzAngleWidth_;  // for the charge width (generic)
   
-  mutable const SiPixelCPEGenericErrorParm * genErrorParm_;
+
+#ifdef NEW
+  mutable const SiPixelGenErrorDBObject * genErrorDBObject_;  // NEW
+#else  
+  mutable const SiPixelCPEGenericErrorParm * genErrorParm_;  // OLD
+#endif
   
   mutable const SiPixelTemplateDBObject * templateDBobject_;
-  
   bool  alpha2Order;                          // switch on/off E.B effect.
   
   // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 

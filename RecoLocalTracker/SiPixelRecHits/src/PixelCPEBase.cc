@@ -11,6 +11,7 @@
 // change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 
+#define NEW
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -45,11 +46,19 @@ namespace {
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
 //  will be initialized in setTheDet().
 //-----------------------------------------------------------------------------
+#ifdef NEW
+PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, 
+			   const SiPixelLorentzAngle * lorentzAngle, 
+			   const SiPixelGenErrorDBObject * genErrorDBObject, 
+			   const SiPixelTemplateDBObject * templateDBobject,
+			   const SiPixelLorentzAngle * lorentzAngleWidth)
+#else
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, 
 			   const SiPixelLorentzAngle * lorentzAngle, 
 			   const SiPixelCPEGenericErrorParm * genErrorParm, 
 			   const SiPixelTemplateDBObject * templateDBobject,
 			   const SiPixelLorentzAngle * lorentzAngleWidth)
+#endif
   : theDet(nullptr), theTopol(nullptr), theRecTopol(nullptr), theParam(nullptr), nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
     probabilityX_(0.0), probabilityY_(0.0),
     probabilityQ_(0.0), qBin_(0),
@@ -71,12 +80,18 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   //-- Magnetic Field
   magfield_ = mag;
   
+   
+#ifdef NEW
+   //-- GenError Calibration Object (different from SiPixelCPEGenericErrorParm) from DB
+   genErrorDBObject_ = genErrorDBObject;
+#else
   //-- Error Parametriaztion from DB for CPE Generic
   genErrorParm_ = genErrorParm;
-  
+#endif
+
   //-- Template Calibration Object from DB
   templateDBobject_ = templateDBobject;
-  
+
   //-- Switch on/off E.B 
   alpha2Order = conf.getParameter<bool>("Alpha2Order");
   
@@ -435,7 +450,8 @@ PixelCPEBase::driftDirection( GlobalVector bfield ) const {
 LocalVector 
 PixelCPEBase::driftDirection( LocalVector Bfield ) const {
   const bool LocalPrint = false;
-  
+  const bool useLAWidthFromGenError = false;
+
   //auto langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
   // Use LA from DB or from config 
   float langle = 0.;
@@ -455,7 +471,21 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
   //We also need the LA values used for the charge width
   // I do not know where to put it best, try here!
   if(useLAWidthFromDB_ && (lorentzAngleWidth_ != NULL) ) {  // get it from DB
-    auto langleWidth = lorentzAngleWidth_->getLorentzAngle(theDet->geographicalId().rawId());
+
+    float langleWidth = 0.;
+    if(useLAWidthFromGenError) {
+      // or from the new error object
+      // for the moment this does not compile, gtemp_ is defined only in generic
+      auto gtemplid = genErrorDBObject_->getGenErrorID(theDet->geographicalId().rawId());
+      cout<<gtemplid<<endl;
+      //auto qbin = gtempl_.qbin( gtemplid);  // inputs
+      //langleWidth = -micronsToCm*gtempl_.lorxwidth();
+      ////chargeWidthY = -micronsToCm*gtempl_.lorywidth();
+    } else {
+      // take it from LA object label=from-width
+      langleWidth = lorentzAngleWidth_->getLorentzAngle(theDet->geographicalId().rawId());
+    }
+
     if(langleWidth!=0.0) widthLAFraction_ = std::abs(langleWidth/langle);
     else widthLAFraction_ = 1.0;
     if(LocalPrint)  cout<<" Will use LA Width from DB "<<langleWidth<<" "<<widthLAFraction_<<endl;

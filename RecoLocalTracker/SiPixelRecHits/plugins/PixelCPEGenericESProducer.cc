@@ -10,12 +10,16 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
+// new record 
+#include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
 
 
 #include <string>
 #include <memory>
 
 using namespace edm;
+
+#define NEW
 
 PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p) 
 {
@@ -67,15 +71,28 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
   ESHandle<SiPixelCPEGenericErrorParm> genErrorParm;
   iRecord.getRecord<SiPixelCPEGenericErrorParmRcd>().get(genErrorParm);
 
+  const SiPixelGenErrorDBObject * genErrorDBObjectProduct = 0;
+  const bool useGenErrors = false;
+  if(useGenErrors) { // new genError object
+    ESHandle<SiPixelGenErrorDBObject> genErrorDBObject;
+    //iRecord.getRecord<SiPixelGenErrorDBObjectRcd>().get(genErrorDBObject); //this probably needs new TKPixelCPERecord.h
+    genErrorDBObjectProduct = genErrorDBObject.product();
+  }
+
   // errors come from this, replace by a lighter object
   ESHandle<SiPixelTemplateDBObject> templateDBobject;
   iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
 
+#ifdef NEW
+  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(
+	  pset_,magfield.product(),lorentzAngle.product(),genErrorDBObjectProduct,
+          templateDBobject.product(),lorentzAngleWidthProduct) );
+#else
+  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(
+	  pset_,magfield.product(),lorentzAngle.product(),0,
+          templateDBobject.product(),lorentzAngleWidthProduct) );
+#endif
 
-  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(pset_,magfield.product(),lorentzAngle.product(),genErrorParm.product(),templateDBobject.product(),lorentzAngleWidthProduct) );
-
-  //ToDo? Replace blah.product() with ESHandle
-	
   return cpe_;
 }
 

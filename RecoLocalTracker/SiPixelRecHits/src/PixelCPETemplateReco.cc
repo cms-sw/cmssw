@@ -456,16 +456,18 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const
 
       // Compute the Alignment Group Corrections [template ID should already be selected from call to reco procedure]
       if ( DoLorentz_ ) {
-	  // Donly if the lotentzshift has meaningfull numbers
+	  // D only if the lotentzshift has meaningfull numbers
 	if( lorentzShiftInCmX_!= 0.0 ||  lorentzShiftInCmY_!= 0.0 ) {   
 	  // the LA width/shift returned by templates use (+)
 	  // the LA width/shift produced by PixelCPEBase for positive LA is (-)
 	  // correct this by iserting (-)
-	  float templateLorwidthCmX = -micronsToCm*templ_.lorxwidth();
-	  float templateLorwidthCmY = -micronsToCm*templ_.lorywidth();
+	  float templateLorbiasCmX = -micronsToCm*templ_.lorxwidth();  // old
+	  float templateLorbiasCmY = -micronsToCm*templ_.lorywidth();
+	  //float templateLorbiasCmX = -micronsToCm*templ_.lorxbias();  // new 
+	  //float templateLorbiasCmY = -micronsToCm*templ_.lorybias();
 	  // now, correctly, we can use the difference of shifts  
-	  templXrec_ += 0.5*(lorentzShiftInCmX_ - templateLorwidthCmX);
-	  templYrec_ += 0.5*(lorentzShiftInCmY_ - templateLorwidthCmY);
+	  templXrec_ += 0.5*(lorentzShiftInCmX_ - templateLorbiasCmX);
+	  templYrec_ += 0.5*(lorentzShiftInCmY_ - templateLorbiasCmY);
 	  //cout << "Templates: la lorentz offset = " <<(0.5*(lorentzShiftInCmX_-templateLorwidthCmX))<< endl; //dk
 	} //else {cout<<" LA is 0, disable offset corrections "<<endl;} //dk
       } //else {cout<<" Do not do LA offset correction "<<endl;} //dk

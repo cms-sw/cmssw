@@ -21,13 +21,23 @@ using namespace std;
 namespace {
   constexpr float HALF_PI = 1.57079632679489656;
   constexpr float PI = 2*HALF_PI;
-
+  const bool useNewSimplerErrors = false;
 }
 
+#define NEW 
 
 //-----------------------------------------------------------------------------
 //!  The constructor.
 //-----------------------------------------------------------------------------
+#ifdef NEW
+PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
+				 const MagneticField * mag, 
+				 const SiPixelLorentzAngle * lorentzAngle, 
+				 const SiPixelGenErrorDBObject * genErrorDBObject, 
+				 const SiPixelTemplateDBObject * templateDBobject,
+				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
+  : PixelCPEBase(conf, mag, lorentzAngle, genErrorDBObject, templateDBobject,lorentzAngleWidth)
+#else
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
 				 const MagneticField * mag, 
 				 const SiPixelLorentzAngle * lorentzAngle, 
@@ -35,6 +45,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 				 const SiPixelTemplateDBObject * templateDBobject,
 				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
   : PixelCPEBase(conf, mag, lorentzAngle, genErrorParm, templateDBobject,lorentzAngleWidth)
+#endif
 {
   
   if (theVerboseLevel > 0) 
@@ -89,6 +100,10 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   useLAAlignmentOffsets_ = conf.existsAs<bool>("useLAAlignmentOffsets")?
     conf.getParameter<bool>("useLAAlignmentOffsets"):false;
 
+  // Select the position error source 
+  // For upgrde and cosmics force the use simple errors 
+  if( isUpgrade_ || (!with_track_angle && DoCosmics_) ) UseErrorsFromTemplates_ = false;
+
 
   if ( !UseErrorsFromTemplates_ && ( TruncatePixelCharge_       || 
 				     IrradiationBiasCorrection_ || 
@@ -101,25 +116,42 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
       << "\n\n";
   }
 
-  if ( UseErrorsFromTemplates_ )
-	{
-		templID_ = -999;
-		if ( LoadTemplatesFromDB_ )
-		{
-			// Initialize template store to the selected ID [Morris, 6/25/08]  
-			if ( !templ_.pushfile( *templateDBobject_) )
-				throw cms::Exception("InvalidCalibrationLoaded") 
-					<< "ERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " 
-					<< ( *templateDBobject_ ).version() << ". Template ID is " << templID_;
-		}
-		else 
-		{
-			if ( !templ_.pushfile( templID_ ) )
-				throw cms::Exception("InvalidCalibrationLoaded") 
-					<< "ERROR: Templates not loaded correctly from text file. Reconstruction will fail." << " Template ID is " << templID_;
-		}
-		
-	} // if ( UseErrorsFromTemplates_ )
+  // Use errors from templates 
+  if ( UseErrorsFromTemplates_ ) {
+
+    if(useNewSimplerErrors) {  // use new errors from mini templates 
+
+      gtemplID_ = -999;
+      if ( LoadTemplatesFromDB_ )  {  // From DB
+	if ( !gtempl_.pushfile( *genErrorDBObject_) )
+          throw cms::Exception("InvalidCalibrationLoaded") 
+            << "ERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " 
+            << ( *genErrorDBObject_ ).version() << ". GenError ID is " << gtemplID_;
+      } else  { // From file      
+        if ( !gtempl_.pushfile( gtemplID_ ) )
+          throw cms::Exception("InvalidCalibrationLoaded") 
+            << "ERROR: Templates not loaded correctly from text file. Reconstruction will fail." 
+	    << " Template ID is " << gtemplID_;
+      } // if load from DB
+
+    } else {  // use old errors from full templates
+
+      templID_ = -999;
+      if ( LoadTemplatesFromDB_ ) {
+	// Initialize template store to the selected ID [Morris, 6/25/08]  
+	if ( !templ_.pushfile( *templateDBobject_) )
+	  throw cms::Exception("InvalidCalibrationLoaded") 
+	    << "ERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " 
+	    << ( *templateDBobject_ ).version() << ". Template ID is " << templID_;
+      } else {
+	if ( !templ_.pushfile( templID_ ) )
+	  throw cms::Exception("InvalidCalibrationLoaded") 
+	    << "ERROR: Templates not loaded correctly from text file. Reconstruction will fail." 
+	    << " Template ID is " << templID_;
+      } // if load from DB
+
+    } // if useNewSimpleErrors 
+  } // if ( UseErrorsFromTemplates_ )
   
   //cout << endl;
   //cout << "From PixelCPEGeneric::PixelCPEGeneric(...)" << endl;
@@ -129,6 +161,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   //cout << "(int)DoCosmics_              = " << (int)DoCosmics_                 << endl;
   //cout << "(int)LoadTemplatesFromDB_    = " << (int)LoadTemplatesFromDB_       << endl;
   //cout << endl;
+
 
   // Default case for rechit errors in case other, more correct, errors are not vailable
   // This are constants. Maybe there is a more efficienct way to store them.
@@ -170,7 +203,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
       yerr_barrel_l1_def_=0.00245;
     }
   }
-
   isUpgrade_=isUpgrade;
 
 }
@@ -190,19 +222,15 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
 
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
 
+  float chargeWidthX = (lorentzShiftInCmX_ * widthLAFraction_);
+  float chargeWidthY = (lorentzShiftInCmY_ * widthLAFraction_);
+  float shiftX = 0.5f*lorentzShiftInCmX_;
+  float shiftY = 0.5f*lorentzShiftInCmY_;
 
-  if ( UseErrorsFromTemplates_ )
-    {
-      templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
-      /*bool fpix;  //!< barrel(false) or forward(true)
-      if ( thePart == GeomDetEnumerators::PixelBarrel )
-	fpix = false;    // no, it's not forward -- it's barrel
-      else
-	fpix = true;     // yes, it's forward
-      */
-      float qclus = cluster.charge();
-      
-      
+  if ( UseErrorsFromTemplates_ ) {
+      const float micronsToCm = 1.0e-4;
+
+      float qclus = cluster.charge();     
       float locBz = (*theParam).bz;
       //cout << "PixelCPEGeneric::localPosition(...) : locBz = " << locBz << endl;
       
@@ -219,15 +247,31 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
       dx1    = -999.9; // CPE Generic x-bias for single single-pixel cluster
       sx2    = -999.9; // CPE Generic x-error for single double-pixel cluster
       dx2    = -999.9; // CPE Generic x-bias for single double-pixel cluster
-      
-      qBin_ = templ_.qbin( templID_, cotalpha_, cotbeta_, locBz, qclus,  // inputs
-			   pixmx,                                       // returned by reference
-			   sigmay, deltay, sigmax, deltax,              // returned by reference
-			   sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2 );    // returned by reference
-      
+  
+      if(useNewSimplerErrors) { // errors from new light templates 
+	gtemplID_ = genErrorDBObject_->getGenErrorID(theDet->geographicalId().rawId());
+	qBin_ = gtempl_.qbin( gtemplID_, cotalpha_, cotbeta_, locBz, qclus,  // inputs
+			      pixmx,                                       // returned by reference
+			      sigmay, deltay, sigmax, deltax,              // returned by reference
+			      sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2 );    // returned by reference
+	
+
+	// OK, now use the charge widths stored in the new generic template headers (change to the
+	// incorrect sign convention of the base class)       
+	chargeWidthX = -micronsToCm*gtempl_.lorxwidth();
+	chargeWidthY = -micronsToCm*gtempl_.lorywidth();
+
+      } else { // errors from full templates 
+
+	templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
+	qBin_ = templ_.qbin( templID_, cotalpha_, cotbeta_, locBz, qclus,  // inputs
+			     pixmx,                                       // returned by reference
+			     sigmay, deltay, sigmax, deltax,              // returned by reference
+			     sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2 );    // returned by reference
+
+      }  // if iseNewSimplerErrors
+
       // These numbers come in microns from the qbin(...) call. Transform them to cm.
-      const float micronsToCm = 1.0e-4;
-      
       deltax = deltax * micronsToCm;
       dx1 = dx1 * micronsToCm;
       dx2 = dx2 * micronsToCm;
@@ -244,8 +288,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
       sy1 = sy1 * micronsToCm;
       sy2 = sy2 * micronsToCm;
       
-    } // if ( UseErrorsFromTemplates_ )
-  
+  } // if ( UseErrorsFromTemplates_ )
   
   float Q_f_X = 0.0;        //!< Q of the first  pixel  in X 
   float Q_l_X = 0.0;        //!< Q of the last   pixel  in X
@@ -270,24 +313,19 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
   MeasurementPoint meas_LLcorn_URpix( cluster.maxPixelRow(),
 				      cluster.maxPixelCol() );
 
-  //--- These two now converted into the local
-  
+  //--- These two now converted into the local  
   LocalPoint local_URcorn_LLpix;
   LocalPoint local_LLcorn_URpix;
 
-
   // PixelCPEGeneric can be used with or without track angles
   // If PixelCPEGeneric is called with track angles, use them to correct for bows/kinks:
-  if ( with_track_angle )
-    {
-      local_URcorn_LLpix = theTopol->localPosition(meas_URcorn_LLpix, loc_trk_pred_);
-      local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix, loc_trk_pred_);
-    }
-  else
-    {
-      local_URcorn_LLpix = theTopol->localPosition(meas_URcorn_LLpix);
-      local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix);
-    }
+  if ( with_track_angle ) {
+    local_URcorn_LLpix = theTopol->localPosition(meas_URcorn_LLpix, loc_trk_pred_);
+    local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix, loc_trk_pred_);
+  } else {
+    local_URcorn_LLpix = theTopol->localPosition(meas_URcorn_LLpix);
+    local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix);
+  }
 
  #ifdef EDM_ML_DEBUG
   if (theVerboseLevel > 20) {
@@ -310,7 +348,6 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
   //--- &&& CPEFromDetPosition/PixelCPEInitial), but rather be
   //--- &&& externally settable (but tracked) parameters.  
 
-
   //--- Position, including the half lorentz shift
 
  #ifdef EDM_ML_DEBUG
@@ -318,12 +355,11 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
     cout << "\t >>> Generic:: processing X" << endl;
 #endif
 
-  float chargeWidth = (lorentzShiftInCmX_ * widthLAFraction_);
   float xPos = 
     generic_position_formula( cluster.sizeX(),
 			      Q_f_X, Q_l_X, 
 			      local_URcorn_LLpix.x(), local_LLcorn_URpix.x(),
-			      chargeWidth,   // lorentz shift in cm
+			      chargeWidthX,   // lorentz shift in cm
 			      cotalpha_,
 			      thePitchX,
 			      theRecTopol->isItBigPixelInX( cluster.minPixelRow() ),
@@ -334,19 +370,18 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
 
 
   // apply the lorentz offset correction 			     
-  xPos = xPos + (0.5 * lorentzShiftInCmX_);
+  xPos = xPos + shiftX;
 
 #ifdef EDM_ML_DEBUG
   if (theVerboseLevel > 20) 
     cout << "\t >>> Generic:: processing Y" << endl;
 #endif
 
-  chargeWidth = (lorentzShiftInCmY_ * widthLAFraction_);
   float yPos = 
     generic_position_formula( cluster.sizeY(),
 			      Q_f_Y, Q_l_Y, 
 			      local_URcorn_LLpix.y(), local_LLcorn_URpix.y(),
-			      chargeWidth,   // lorentz shift in cm
+			      chargeWidthY,   // lorentz shift in cm
 			      cotbeta_,
 			      thePitchY,  
 			      theRecTopol->isItBigPixelInY( cluster.minPixelCol() ),
@@ -356,62 +391,37 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
                               the_size_cutY);           // cut for eff charge width &&&
 
   // apply the lorentz offset correction 			     
-  yPos = yPos + (0.5 * lorentzShiftInCmY_);
+  yPos = yPos + shiftY;
 
   // Apply irradiation corrections. NOT USED FOR NOW
-  if ( IrradiationBiasCorrection_ )
-    {
-      if ( cluster.sizeX() == 1 )
-	{
+  if ( IrradiationBiasCorrection_ ) {
+    if ( cluster.sizeX() == 1 ) {  // size=1	  
+      // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
+      xPos = xPos - (0.5 * lorentzShiftInCmX_);
+      // Find if pixel is double (big). 
+      bool bigInX = theRecTopol->isItBigPixelInX( cluster.maxPixelRow() );	  
+      if ( !bigInX ) xPos -= dx1;	   
+      else           xPos -= dx2;
 	  
-	  // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
-	  xPos = xPos - (0.5 * lorentzShiftInCmX_);
-
-	  // Find if pixel is double (big). 
-	  bool bigInX = theRecTopol->isItBigPixelInX( cluster.maxPixelRow() );	  
-	  if ( !bigInX ) 
-	    {
-	      //cout << "Apply correction dx1 = " << dx1 << " to xPos = " << xPos << endl;
-	      xPos -= dx1;
-	    }
-	  else           
-	    {
-	      //cout << "Apply correction dx2 = " << dx2 << " to xPos = " << xPos << endl;
-	      xPos -= dx2;
-	    }
-	}
-      else
-	{
-	  //cout << "Apply correction correction_deltax = " << deltax << " to xPos = " << xPos << endl;
-	  xPos -= deltax;
-	}
-      
-  if ( cluster.sizeY() == 1 )
-    {
-      
+    } else { // size>1
+      //cout << "Apply correction correction_deltax = " << deltax << " to xPos = " << xPos << endl;
+      xPos -= deltax;
+    }
+    
+    if ( cluster.sizeY() == 1 ) {
       // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
       yPos = yPos - (0.5 * lorentzShiftInCmY_);
-
+      
       // Find if pixel is double (big). 
       bool bigInY = theRecTopol->isItBigPixelInY( cluster.maxPixelCol() );      
-      if ( !bigInY ) 
-	{
-	  //cout << "Apply correction dy1 = " << dy1 << " to yPos = " << yPos  << endl;
-	  yPos -= dy1;
-	}
-      else           
-	{
-	  //cout << "Apply correction dy2 = " << dy2  << " to yPos = " << yPos << endl;
-	  yPos -= dy2;
-	}
-    }
-  else 
-    {
-      //cout << "Apply correction deltay = " << deltay << " to yPos = " << yPos << endl;
-      yPos -= deltay;
+      if ( !bigInY ) yPos -= dy1;
+      else           yPos -= dy2;
+      
+    } else { 
+      yPos -= deltay; 
     }
  
-    } // if ( IrradiationBiasCorrection_ )
+  } // if ( IrradiationBiasCorrection_ )
 	
   //cout<<" in PixelCPEGeneric:localPosition - pos = "<<xPos<<" "<<yPos<<endl; //dk
 
@@ -448,29 +458,21 @@ generic_position_formula( int size,                //!< Size of this projection.
 
   //cout<<" in PixelCPEGeneric:generic_position_formula - "<<endl; //dk
 
-  
   float geom_center = 0.5f * ( upper_edge_first_pix + lower_edge_last_pix );
 
   //--- The case of only one pixel in this projection is separate.  Note that
   //--- here first_pix == last_pix, so the average of the two is still the
   //--- center of the pixel.
-  if ( size == 1 ) 
-    {
-	return geom_center;
-    }
-
+  if ( size == 1 ) {return geom_center;}
 
   //--- Width of the clusters minus the edge (first and last) pixels.
   //--- In the note, they are denoted x_F and x_L (and y_F and y_L)
   float W_inner      = lower_edge_last_pix - upper_edge_first_pix;  // in cm
 
-
   //--- Predicted charge width from geometry
   float W_pred = 
     theThickness * cot_angle                     // geometric correction (in cm)
     - lorentz_shift;                    // (in cm) &&& check fpix!  
-    //    - 2.f * half_lorentz_shift;                    // (in cm) &&& check fpix!  
-  
 
   //cout<<" in PixelCPEGeneric:generic_position_formula - "<<W_inner<<" "<<W_pred<<endl; //dk
 
@@ -547,9 +549,6 @@ generic_position_formula( int size,                //!< Size of this projection.
 }
 
 
-
-
-
 //-----------------------------------------------------------------------------
 //!  Collect the edge charges in x and y, in a single pass over the pixel vector.
 //!  Calculate charge in the first and last pixel projected in x and y
@@ -576,10 +575,8 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
   int ymax = cluster.maxPixelCol();
 
 
-  
   // Iterate over the pixels.
   int isize = cluster.size();
-  
   for (int i = 0;  i != isize; ++i) 
     {
       auto const & pixel = cluster.pixel(i); 
@@ -610,196 +607,135 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 LocalError 
 PixelCPEGeneric::localError( const SiPixelCluster& cluster) const 
 {
-   
+  const bool localPrint = false;
   // Default errors are the maximum error used for edge clusters.
-  /*
-    int row_offset = cluster.minPixelRow();
-    int col_offset = cluster.minPixelCol();
-    int n_bigInX = 0;
-    for (int irow = 0; irow < sizex; ++irow)
-    if ( theTopol->isItBigPixelInX( irow+row_offset ) )
-    ++n_bigInX;
-    int n_bigInY = 0;
-    for (int icol = 0; icol < sizey; ++icol) 
-    if ( theTopol->isItBigPixelInY( icol+col_offset ) )
-    ++n_bigInX;
-    float xerr = (float)(sizex + n_bigInX) * thePitchX / sqrt(12.0);      
-    float yerr = (float)(sizey + n_bigInY) * thePitchY / sqrt(12.0); 
-  */
-
   // These are determined by looking at residuals for edge clusters
   const float micronsToCm = 1.0e-4f;
   float xerr = EdgeClusterErrorX_ * micronsToCm;
   float yerr = EdgeClusterErrorY_ * micronsToCm;
   
+
   // Find if cluster is at the module edge. 
   int maxPixelCol = cluster.maxPixelCol();
   int maxPixelRow = cluster.maxPixelRow();
   int minPixelCol = cluster.minPixelCol();
   int minPixelRow = cluster.minPixelRow();       
-  unsigned int sizex = maxPixelRow - minPixelRow+1;
-  unsigned int sizey = maxPixelCol - minPixelCol+1;
 
   bool edgex = ( theRecTopol->isItEdgePixelInX( minPixelRow ) ) || ( theRecTopol->isItEdgePixelInX( maxPixelRow ) );
   bool edgey = ( theRecTopol->isItEdgePixelInY( minPixelCol ) ) || ( theRecTopol->isItEdgePixelInY( maxPixelCol ) );
 
+  unsigned int sizex = cluster.sizeX();
+  unsigned int sizey = cluster.sizeY();
+  if( int(sizex) != (maxPixelRow - minPixelRow+1) ) cout<<" wrong x"<<endl;
+  if( int(sizey) != (maxPixelCol - minPixelCol+1) ) cout<<" wrong y"<<endl;
+
   // Find if cluster contains double (big) pixels. 
   bool bigInX = theRecTopol->containsBigPixelInX( minPixelRow, maxPixelRow ); 	 
   bool bigInY = theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
-  if unlikely(  isUpgrade_ ||(!with_track_angle && DoCosmics_) )  
-    {
-      //cout << "Track angles are not known and we are processing cosmics." << endl; 
-      //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
-      //cout << "Use an error parameterization which only depends on cluster size (by Vincenzo Chiochia)." << endl; 
-      
-      if ( thePart == GeomDetEnumerators::PixelBarrel ) 
-	{
-	  DetId id = (theDet->geographicalId());
-	  int layer=PXBDetId(id).layer();
-	  if ( layer==1 ) {
-	    if ( !edgex )
-	      {
-		if ( sizex<=xerr_barrel_l1_.size() ) xerr=xerr_barrel_l1_[sizex-1];
-		else xerr=xerr_barrel_l1_def_;
-	      }
-	    
-	    if ( !edgey )
-	      {
-		if ( sizey<=yerr_barrel_l1_.size() ) yerr=yerr_barrel_l1_[sizey-1];
-		else yerr=yerr_barrel_l1_def_;
-	      }
-	  }
-	  else{
-	    if ( !edgex )
-	      {
-		if ( sizex<=xerr_barrel_ln_.size() ) xerr=xerr_barrel_ln_[sizex-1];
-		else xerr=xerr_barrel_ln_def_;
-	      }
-	    
-	    if ( !edgey )
-	      {
-		if ( sizey<=yerr_barrel_ln_.size() ) yerr=yerr_barrel_ln_[sizey-1];
-		else yerr=yerr_barrel_ln_def_;
-	      }
-	  }
-	} 
-      else // EndCap
-	{
-	  if ( !edgex )
-	    {
-	      if ( sizex<=xerr_endcap_.size() ) xerr=xerr_endcap_[sizex-1];
-	      else xerr=xerr_endcap_def_;
-	    }
-	
-	  if ( !edgey )
-	    {
-	      if ( sizey<=yerr_endcap_.size() ) yerr=yerr_endcap_[sizey-1];
-	      else yerr=yerr_endcap_def_;
-	    }
-	}
 
-    } // if ( !with_track_angle )
-  else
-    {
+  if(localPrint) {
+  cout<<" endge clus "<<xerr<<" "<<yerr<<endl;  //dk
+  if(bigInX || bigInY) cout<<" big "<<bigInX<<" "<<bigInY<<endl;
+  if(edgex || edgey) cout<<" edge "<<edgex<<" "<<edgey<<endl;
+  cout<<" before if "<<UseErrorsFromTemplates_<<" "<<qBin_<<endl;
+  if(qBin_ == 0) 
+    cout<<" qbin 0! "<<edgex<<" "<<edgey<<" "<<bigInX<<" "<<bigInY<<" "
+	<<sizex<<" "<<sizey<<endl;
+  if(sizex==2 && sizey==2) cout<<" size 2*2 "<<qBin_<<endl;
+  }
+
+  //if likely(UseErrorsFromTemplates_ && (qBin_!= 0) ) {
+  if likely(UseErrorsFromTemplates_ ) {
+      //
+      // Use template errors 
       //cout << "Track angles are known. We can use either errors from templates or the error parameterization from DB." << endl;
       
-      if ( UseErrorsFromTemplates_ )
-	{
-	  if (qBin_ == 0 && inflate_errors )
-	    {	       
-	      int n_bigx = 0;
-	      int n_bigy = 0;
-	      
-	      int row_offset = minPixelRow;
-	      int col_offset = minPixelCol;
-	      
-	      for (int irow = 0; irow < 7; ++irow)
-		{
-		  if ( theRecTopol->isItBigPixelInX( irow+row_offset ) )
-		    ++n_bigx;
-		}
-	      
-	      for (int icol = 0; icol < 21; ++icol) 
-		{
-		  if ( theRecTopol->isItBigPixelInY( icol+col_offset ) )
-		    ++n_bigy;
-		}
-	      
-	      xerr = (float)(sizex + n_bigx) * thePitchX / std::sqrt( 12.0f );
-	      yerr = (float)(sizey + n_bigy) * thePitchY / std::sqrt( 12.0f );
-	      
-	    } // if ( qbin == 0 && inflate_errors )
-	  else
-	    {
-	      // Default errors
 
-	      if ( !edgex )
-		{
-		  if ( sizex == 1 )
-		    {
-		      if ( !bigInX ) 
-			xerr = sx1; 
-		      else           
-			xerr = sx2;
-		    }
-		  else 
-		    xerr = sigmax;
-		  
-		}
+      if ( !edgex ) { // Only use this for non-edge clusters
+	if ( sizex == 1 ) {
+	  if ( !bigInX ) {xerr = sx1;} 
+	  else           {xerr = sx2;}
+	} else {xerr = sigmax;}		  
+      }
 	      
-	      if ( !edgey )
-		{
-		  if ( sizey == 1 )
-		    {
-		      if ( !bigInY )
-			yerr = sy1;
-		      else
-			yerr = sy2;
-		    }
-		  else
-		    yerr = sigmay;
-		  
-		}
-	    } // if ( qbin == 0 && inflate_errors ) else
+      if ( !edgey ) { // Only use for non-edge clusters
+	if ( sizey == 1 ) {
+	  if ( !bigInY ) {yerr = sy1;}
+	  else           {yerr = sy2;}
+	} else {yerr = sigmay;}		  
+      }
 
-	} //if ( UseErrorsFromTemplates_ )
-      else 
-	{
-	  //cout << endl << "Use errors from DB:" << endl;
-	  
-	  if ( edgex && edgey ) 
-	    { 	 
-	      //--- Both axes on the edge, no point in calling PixelErrorParameterization, 	 
-	      //--- just return the max errors on both. 	 
-	    } 
-	  else 
-	    { 	 
+      if(localPrint) {
+      cout<<" in if "<<edgex<<" "<<edgey<<" "<<sizex<<" "<<sizey<<endl;
+      cout<<" errors  "<<xerr<<" "<<yerr<<" "<<sx1<<" "<<sx2<<" "<<sigmax<<endl;  //dk
+      }
 
-	      auto alpha = HALF_PI - std::atan(cotalpha_);
-	      auto beta = HALF_PI - std::atan(cotbeta_); 
-	      if (zneg) { beta -=PI; alpha -=PI;}
+  } else  { // simple errors
 
-	      pair<float,float> errPair = 	 
-		genErrorsFromDB_->getError( genErrorParm_, thePart, sizex, sizey, 	 
-					    alpha, beta, bigInX, bigInY ); 
-	      if ( !edgex ) 
-		xerr = errPair.first; 	 
-	      if ( !edgey ) 
-		yerr = errPair.second; 	 
-	    } 	 
-	  
-	  LogDebug("PixelCPEGeneric") << 	 
-	    " Sizex = " << cluster.sizeX() << " Sizey = " << cluster.sizeY() << 	 
-	    " Edgex = " << edgex           << " Edgey = " << edgey           << 	 
-	    " ErrX  = " << xerr            << " ErrY  = " << yerr; 	 
-
-	  
-	} //if ( UseErrorsFromTemplates_ ) else 
+    // This are the simple errors, hardcoded in the code 
+    cout << "Track angles are not known and we are processing cosmics." << endl; 
+    //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
       
-    } // if ( !with_track_angle ) else
+    if ( thePart == GeomDetEnumerators::PixelBarrel )  {
+
+      DetId id = (theDet->geographicalId());
+      int layer=PXBDetId(id).layer();
+      if ( layer==1 ) {
+	if ( !edgex ) {
+	  if ( sizex<=xerr_barrel_l1_.size() ) xerr=xerr_barrel_l1_[sizex-1];
+	  else xerr=xerr_barrel_l1_def_;
+	}
+	
+	if ( !edgey ) {
+	  if ( sizey<=yerr_barrel_l1_.size() ) yerr=yerr_barrel_l1_[sizey-1];
+	  else yerr=yerr_barrel_l1_def_;
+	}
+      } else{  // layer 2,3
+	if ( !edgex ) {
+	  if ( sizex<=xerr_barrel_ln_.size() ) xerr=xerr_barrel_ln_[sizex-1];
+	  else xerr=xerr_barrel_ln_def_;
+	}
+	    
+	if ( !edgey ) {
+	  if ( sizey<=yerr_barrel_ln_.size() ) yerr=yerr_barrel_ln_[sizey-1];
+	  else yerr=yerr_barrel_ln_def_;
+	}
+      }
+
+    } else { // EndCap
+
+      if ( !edgex ) {
+	if ( sizex<=xerr_endcap_.size() ) xerr=xerr_endcap_[sizex-1];
+	else xerr=xerr_endcap_def_;
+      }
+      
+      if ( !edgey ) {
+	if ( sizey<=yerr_endcap_.size() ) yerr=yerr_endcap_[sizey-1];
+	else yerr=yerr_endcap_def_;
+      }
+    } // end endcap
+
+    if(inflate_errors) {
+      int n_bigx = 0;
+      int n_bigy = 0;
+      
+      for (int irow = 0; irow < 7; ++irow) {
+	if ( theRecTopol->isItBigPixelInX( irow+minPixelRow ) ) ++n_bigx;
+      }
+      
+      for (int icol = 0; icol < 21; ++icol) {
+	  if ( theRecTopol->isItBigPixelInY( icol+minPixelCol ) ) ++n_bigy;
+      }
+      
+      xerr = (float)(sizex + n_bigx) * thePitchX / std::sqrt( 12.0f );
+      yerr = (float)(sizey + n_bigy) * thePitchY / std::sqrt( 12.0f );
+      
+    } // if(inflate_errors)
+
+  } // end 
 
 #ifdef EDM_ML_DEBUG
-    if ( !(xerr > 0.0) )
+  if ( !(xerr > 0.0) )
     throw cms::Exception("PixelCPEGeneric::localError") 
       << "\nERROR: Negative pixel error xerr = " << xerr << "\n\n";
   
@@ -808,9 +744,14 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster) const
       << "\nERROR: Negative pixel error yerr = " << yerr << "\n\n";
 #endif
  
+  if(localPrint) {
+    cout<<" errors  "<<xerr<<" "<<yerr<<endl;  //dk
+    if(qBin_ == 0) cout<<" qbin 0 "<<xerr<<" "<<yerr<<endl;
+  }
+
   auto xerr_sq = xerr*xerr; 
   auto yerr_sq = yerr*yerr;
- 
+  
   return LocalError( xerr_sq, 0, yerr_sq );
 
 }

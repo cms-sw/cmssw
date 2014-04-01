@@ -30,13 +30,16 @@
 // simple, and is described in Morris's note (IN ???) on the generalizaton
 // of the pixel algorithm.
 
+#define NEW
+
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
 
 // The template header files
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
+//#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelGenError.h"
 
 
 #include <utility>
@@ -54,10 +57,16 @@ class MagneticField;
 class PixelCPEGeneric : public PixelCPEBase
 {
  public:
-  // PixelCPEGeneric( const DetUnit& det );
+#ifdef NEW
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
+		  const SiPixelLorentzAngle *, const SiPixelGenErrorDBObject *, 
+		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
+#else
   PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
 		  const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, 
 		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
+#endif
+
   ~PixelCPEGeneric() {;}
 
 
@@ -124,9 +133,15 @@ private:
   float xerr_barrel_l1_def_, yerr_barrel_l1_def_,xerr_barrel_ln_def_;
   float yerr_barrel_ln_def_, xerr_endcap_def_, yerr_endcap_def_;
 
+#ifdef NEW
 
+  mutable SiPixelGenError gtempl_;
+  mutable int gtemplID_;
+
+#else
   //--- DB Error Parametrization object
   SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
+#endif
 
   mutable SiPixelTemplate templ_;
   mutable int templID_; 
