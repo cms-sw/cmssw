@@ -295,8 +295,8 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   OuterEstimator * est = 0;
 
   bool measurementMethod = false;
-  if ( theMeasurementTrackerUsage > 0.5) measurementMethod = true;
-  if ( theMeasurementTrackerUsage > -0.5 &&
+  if(theMeasurementTrackerUsage == UseMeasurementTracker::kAlways) measurementMethod = true;
+  else if(theMeasurementTrackerUsage == UseMeasurementTracker::kForSiStrips &&
        !(detLayer->subDetector() == GeomDetEnumerators::PixelBarrel ||
          detLayer->subDetector() == GeomDetEnumerators::PixelEndcap) ) measurementMethod = true;
 
@@ -343,9 +343,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
     // propagator
     StraightLinePropagator prop( magField, alongMomentum);
     
-    edm::Handle<MeasurementTrackerEvent> mte;
-    ev.getByLabel(edm::InputTag(theMeasurementTrackerName), mte);
-    LayerMeasurements lm(mte->measurementTracker(), *mte);
+    LayerMeasurements lm(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
     
     vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, *findDetAndHits);
     result.reserve(meas.size());
