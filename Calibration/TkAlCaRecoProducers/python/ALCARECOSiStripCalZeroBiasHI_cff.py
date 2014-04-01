@@ -62,7 +62,7 @@ calZeroBiasClusters.Clusterizer = ZeroBiasClusterizer
 
 # Not persistent collections needed by the filters in the AlCaReco DQM
 from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
-from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi import *
+from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi import *
 
 # SiStripQuality (only to test the different data labels)#
 qualityStatistics = cms.EDAnalyzer("SiStripQualityStatistics",
