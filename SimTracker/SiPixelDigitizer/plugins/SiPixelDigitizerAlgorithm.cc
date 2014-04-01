@@ -400,8 +400,9 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
 		     thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1");
 		     thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2");
 		     thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3");		    		    
-		     if ( (thePUEfficiency_BPix[0].size()<3) && (NumberOfBarrelLayers==3) )
-		       throw cms::Exception("Configuration") << "Wrong PU efficiency  number in efficiency config!";
+		     if ( ((thePUEfficiency_BPix[0].size()==0) || (thePUEfficiency_BPix[1].size()==0) || 
+			   (thePUEfficiency_BPix[2].size()==0)) && (NumberOfBarrelLayers==3) )
+		       throw cms::Exception("Configuration") << "At least one PU efficiency  number is needed in efficiency config!";
 		     // The next is needed for Phase2 Tracker studies
 		     if (NumberOfBarrelLayers>=5){
 			if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
@@ -517,10 +518,8 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
 	_pu_scale[i] = 0;
 	for  (size_t j=0; j<pixelEfficiencies_.thePUEfficiency_BPix[i].size(); j++){
 	  _pu_scale[i]+=instlumi_pow*pixelEfficiencies_.thePUEfficiency_BPix[i][j];
-	  //std::cout<<" + "<<pixelEfficiencies_.thePUEfficiency_BPix[i][j]<<"*("<< instlumi<<")^"<<j;
 	  instlumi_pow*=instlumi;
 	}
-	//std::cout<<" = "<<_pu_scale[i]<<std::endl;
       }
     }
   } 
@@ -1370,6 +1369,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
 	columnEfficiency*=eff.theLadderEfficiency_BPix[2][ladder-1];
 	columnEfficiency*=eff.theModuleEfficiency_BPix[2][module-1];
 	columnEfficiency*=_pu_scale[2];
+	std::cout<<"bpix3 ladder  "<< _pu_scale[2]<< " coleff " << columnEfficiency <<std::endl;
       }
     }
   } else {                // forward disks
