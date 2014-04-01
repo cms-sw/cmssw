@@ -45,7 +45,7 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
     l1t::Tau theTau(*tauLorentz, tauEt, region->hwEta(), region->phi());
 
-    if( (isolation / tauEt -1.0) < relativeIsolationCut) 
+    if( tauEt >0 && (isolation/tauEt) < relativeIsolationCut ) 
       taus->push_back(theTau);
   }
 

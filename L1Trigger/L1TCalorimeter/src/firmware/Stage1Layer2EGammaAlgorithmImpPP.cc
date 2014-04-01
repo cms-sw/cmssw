@@ -30,6 +30,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
   egtSeed = 0;
   relativeIsolationCut = 0.2;
+  HoverECut = 0.3;
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   RegionCorrection(regions, EMCands, subRegions);
@@ -47,12 +48,21 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *egLorentz =
         new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-     int quality = 0;
-     int isoFlag = 0;
+     int quality = 1;
+     int isoFlag = 1;
+
+
+     // ------- isolation ---------------
      double isolation = Isolation(eg_eta, eg_phi, *subRegions);
-     if( (isolation / eg_et -1.0) < relativeIsolationCut) isoFlag  = 1;
+     if( eg_et > 0 && (isolation / eg_et ) > relativeIsolationCut) isoFlag  = 0;
 
 
+     // ------- quality ---------------
+     double hoe = HoverE(eg_et, eg_eta, eg_phi, *subRegions);
+     if( hoe > HoverECut) quality = 0;
+
+
+     // ------- fill the EG candidate vector ---------
      l1t::EGamma theEG(*egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
       egammas->push_back(theEG);
   }
@@ -94,4 +104,39 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta, int iphi,
 
   // set output
   return isolation;
+}
+
+
+
+
+
+
+
+/// -----  Compute H/E --------------------  
+double l1t::Stage1Layer2EGammaAlgorithmImpPP::HoverE(int et, int ieta, int iphi,
+						      const std::vector<l1t::CaloRegion> & regions)  const {
+  int hadronicET = 0;
+
+  for(CaloRegionBxCollection::const_iterator region = regions.begin();
+      region != regions.end(); region++) {
+
+    int regionET = region->hwPt();
+    int regionPhi = region->hwPhi();
+    int regionEta = region->hwEta();
+
+    if(iphi == regionPhi && ieta == regionEta) {
+      hadronicET = regionET;
+      break; 
+    }
+  }
+
+  hadronicET -= et;
+ 
+  double hoe = 0.0;
+
+  if( hadronicET >0 && et > 0) 
+    hoe =  (double) hadronicET / (double) et;
+
+  // set output
+  return hoe;
 }
