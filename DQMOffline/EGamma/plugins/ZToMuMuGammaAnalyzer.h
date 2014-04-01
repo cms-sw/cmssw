@@ -21,7 +21,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
@@ -130,6 +130,7 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_token_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpot_token_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
+  edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
   std::string   valueMapPhoPFCandIso_ ;
   
 
@@ -185,12 +186,14 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   bool  photonSelection (  const reco::PhotonRef & p );
 
 
+  MonitorElement* h_nRecoVtx_;
   ///photon histos
   MonitorElement* h1_mumuInvMass_[3];
   MonitorElement* h1_mumuGammaInvMass_[3];
 
   MonitorElement* h_phoE_[3];
   MonitorElement* h_phoSigmaEoverE_[3];
+  MonitorElement* p_phoSigmaEoverEVsNVtx_[3];
   MonitorElement* h_phoEt_[3];
 
   MonitorElement* h_nPho_[3];
