@@ -100,6 +100,8 @@ _pfClusterizerWithTime_ECAL = cms.PSet(
     allCellsPositionCalc = _positionCalcECAL_all_nodepth,
     positionCalcForConvergence = _positionCalcECAL_all_withdepth,
     showerSigma = cms.double(1.5),
+    # The following 2 parameters are only considerd if no
+    # time resolution is provided
     timeSigmaEB = cms.double(10),
     timeSigmaEE = cms.double(10), 
     stoppingTolerance = cms.double(1e-8),
@@ -108,6 +110,7 @@ _pfClusterizerWithTime_ECAL = cms.PSet(
     minFracTot = cms.double(1e-20), ## numerical stabilization
     maxNSigmaTime = cms.double(10.), # Maximum number of sigmas in time 
     minChi2Prob = cms.double(0.), # Minimum chi2 probability (ignored if 0)
+    clusterTimeResFromSeed = cms.bool(False),
     recHitEnergyNorms = cms.VPSet(
     cms.PSet( detector = cms.string("ECAL_BARREL"),
               recHitEnergyNorm = cms.double(0.08)
