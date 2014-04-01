@@ -300,9 +300,9 @@ void DynamicTruncation::testDTstation(TrajectoryStateOnSurface &startingState, v
   if (segments.size() == 0) return;
   for (unsigned int iSeg = 0; iSeg < segments.size(); iSeg++) {
     DTChamberId chamber(segments[iSeg].chamberId());
-    try {tsosdt = propagator->propagate(startingState, theG->idToDet(chamber)->surface());
-      if (!tsosdt.isValid()) continue;}
-    catch(...) {continue;}
+    if (!propagator->propagate(startingState, theG->idToDet(chamber)->surface()).isValid()) continue;
+    tsosdt = propagator->propagate(startingState, theG->idToDet(chamber)->surface());
+    //if (!tsosdt.isValid()) continue;
     LocalError apeLoc;
     if (useAPE) apeLoc = ErrorFrameTransformer().transform(dtApeMap.find(chamber)->second, theG->idToDet(chamber)->surface());
     StateSegmentMatcher estim(tsosdt, segments[iSeg], apeLoc);
@@ -321,9 +321,9 @@ void DynamicTruncation::testCSCstation(TrajectoryStateOnSurface &startingState, 
   if (segments.size() == 0) return;
   for (unsigned int iSeg = 0; iSeg < segments.size(); iSeg++) {
     CSCDetId chamber(segments[iSeg].cscDetId());
-    try {tsoscsc = propagator->propagate(startingState, theG->idToDet(chamber)->surface());
-      if (!tsoscsc.isValid()) continue;}
-    catch(...) {continue;}
+    if (!propagator->propagate(startingState, theG->idToDet(chamber)->surface()).isValid()) continue;
+    tsoscsc = propagator->propagate(startingState, theG->idToDet(chamber)->surface());
+    //if (!tsoscsc.isValid()) continue;
     LocalError apeLoc;
     if (useAPE) apeLoc = ErrorFrameTransformer().transform(cscApeMap.find(chamber)->second, theG->idToDet(chamber)->surface());
     StateSegmentMatcher estim(tsoscsc, segments[iSeg], apeLoc);
@@ -406,16 +406,26 @@ bool DynamicTruncation::chooseLayers(int &incompLayers, double const &bestDTEsti
     // Get threshold for the chamber
     if (useDBforThr) getThresholdFromDB(initThr, DetId(bestDTSeg.chamberId()));
     else getThresholdFromCFG(initThr, DetId(bestDTSeg.chamberId())); 
-    if (DYTselector == 0) {useSegment(bestDTSeg, tsosDT); return true;}
-    if (DYTselector == 1 && bestDTEstimator < initThr) {useSegment(bestDTSeg, tsosDT); return true;}
-    if (DYTselector == 2 && incompLayers < 2 && bestDTEstimator < initThr) {useSegment(bestDTSeg, tsosDT); return true;}
+    if (DYTselector == 0 || (DYTselector == 1 && bestDTEstimator < initThr) ||
+	(DYTselector == 2 && incompLayers < 2 && bestDTEstimator < initThr)) {
+      useSegment(bestDTSeg, tsosDT); 
+      return true;
+    }
+    //    if (DYTselector == 0) {useSegment(bestDTSeg, tsosDT); return true;}
+    //    if (DYTselector == 1 && bestDTEstimator < initThr) {useSegment(bestDTSeg, tsosDT); return true;}
+    //    if (DYTselector == 2 && incompLayers < 2 && bestDTEstimator < initThr) {useSegment(bestDTSeg, tsosDT); return true;}
   } else {
     // Get threshold for the chamber
     if (useDBforThr) getThresholdFromDB(initThr, DetId(bestCSCSeg.cscDetId()));
     else getThresholdFromCFG(initThr, DetId(bestCSCSeg.cscDetId()));
-    if (DYTselector == 0) {useSegment(bestCSCSeg, tsosCSC); return true;}
-    if (DYTselector == 1 && bestCSCEstimator < initThr) {useSegment(bestCSCSeg, tsosCSC); return true;}
-    if (DYTselector == 2 && incompLayers < 2 && bestCSCEstimator < initThr) {useSegment(bestCSCSeg, tsosCSC); return true;}
+    if (DYTselector == 0 || (DYTselector == 1 && bestCSCEstimator < initThr) ||
+	(DYTselector == 2 && incompLayers < 2 && bestCSCEstimator < initThr)) {
+      useSegment(bestCSCSeg, tsosCSC);
+      return true;
+    }
+    //    if (DYTselector == 0) {useSegment(bestCSCSeg, tsosCSC); return true;}
+    //    if (DYTselector == 1 && bestCSCEstimator < initThr) {useSegment(bestCSCSeg, tsosCSC); return true;}
+    //    if (DYTselector == 2 && incompLayers < 2 && bestCSCEstimator < initThr) {useSegment(bestCSCSeg, tsosCSC); return true;}
   }
   return false;
 }
@@ -423,9 +433,9 @@ bool DynamicTruncation::chooseLayers(int &incompLayers, double const &bestDTEsti
 
 //===> getThresholdFromDB
 void DynamicTruncation::getThresholdFromDB(double& thr, DetId const& id) {
-  vector<DYTThrObject::dytThrStruct> thrvector = dytThresholds->thrsVec;
-  for (vector<DYTThrObject::dytThrStruct>::const_iterator it = thrvector.begin(); it != thrvector.end(); it++) {
-    DYTThrObject::dytThrStruct obj = (*it);
+  vector<DYTThrObject::DytThrStruct> thrvector = dytThresholds->thrsVec;
+  for (vector<DYTThrObject::DytThrStruct>::const_iterator it = thrvector.begin(); it != thrvector.end(); it++) {
+    DYTThrObject::DytThrStruct obj = (*it);
     if (obj.id == id) {
       thr = obj.thr;
       break;
