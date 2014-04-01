@@ -44,10 +44,10 @@ private:
   // We only need to implement measurementPosition, since localPosition() from
   // PixelCPEBase will call it and do the transformation
   // Gavril : put it back
-  LocalPoint localPosition (DetParam const * theDetParam, const SiPixelCluster& cluster) const; 
+  LocalPoint localPosition (DetParam const * theDetParam, ClusterParam & theClusterParam) const; 
   
   // However, we do need to implement localError().
-  LocalError localError   (DetParam const * theDetParam, const SiPixelCluster& cl) const;
+  LocalError localError   (DetParam const * theDetParam, ClusterParam & theClusterParam) const;
 
  private:
   // Template storage

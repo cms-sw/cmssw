@@ -117,7 +117,7 @@ PixelCPETemplateReco::~PixelCPETemplateReco()
 //  The main call to the template code.
 //------------------------------------------------------------------
 LocalPoint
-PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelCluster& cluster) const 
+PixelCPETemplateReco::localPosition(DetParam const * theDetParam, ClusterParam & theClusterParam) const 
 {
   bool fpix;  //  barrel(false) or forward(true)
   if ( theDetParam->thePart == GeomDetEnumerators::PixelBarrel )   
@@ -151,7 +151,7 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelC
   // clust_array_2d.
   boost::multi_array<float, 2> clust_array_2d(boost::extents[cluster_matrix_size_x][cluster_matrix_size_y]);
   
-  // Preparing to retrieve ADC counts from the SiPixelCluster.  In the cluster,
+  // Preparing to retrieve ADC counts from the SiPixeltheClusterParam.theCluster->  In the cluster,
   // we have the following:
   //   int minPixelRow(); // Minimum pixel index in the x direction (low edge).
   //   int maxPixelRow(); // Maximum pixel index in the x direction (top edge).
@@ -160,8 +160,8 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelC
   // So the pixels from minPixelRow() will go into clust_array_2d[0][*],
   // and the pixels from minPixelCol() will go into clust_array_2d[*][0].
 
-  int row_offset = cluster.minPixelRow();
-  int col_offset = cluster.minPixelCol();
+  int row_offset = theClusterParam.theCluster->minPixelRow();
+  int col_offset = theClusterParam.theCluster->minPixelCol();
   
   // Store the coordinates of the center of the (0,0) pixel of the array that 
   // gets passed to PixelTempReco2D
@@ -195,11 +195,11 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelC
     for (int j=0; j<100; j++)
     cluster_matrix[i][j] = '.';
     
-    if ( cluster.sizeX()>cluster_matrix_size_x || cluster.sizeY()>cluster_matrix_size_y )
+    if ( theClusterParam.theCluster->sizeX()>cluster_matrix_size_x || theClusterParam.theCluster->sizeY()>cluster_matrix_size_y )
     {		
-    cout << "cluster.size()  = " << cluster.size()  << endl;
-    cout << "cluster.sizeX() = " << cluster.sizeX() << endl;
-    cout << "cluster.sizeY() = " << cluster.sizeY() << endl;
+    cout << "theClusterParam.theCluster->size()  = " << theClusterParam.theCluster->size()  << endl;
+    cout << "theClusterParam.theCluster->sizeX() = " << theClusterParam.theCluster->sizeX() << endl;
+    cout << "theClusterParam.theCluster->sizeY() = " << theClusterParam.theCluster->sizeY() << endl;
     
     for ( std::vector<SiPixelCluster::Pixel>::const_iterator pix = pixVec.begin(); pix != pixVec.end(); ++pix )
     {
@@ -208,24 +208,24 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelC
     cluster_matrix[i][j] = '*';
     }
     
-    for (int i=0; i<(int)cluster.sizeX()+2; i++)
+    for (int i=0; i<(int)theClusterParam.theCluster->sizeX()+2; i++)
     {
-    for (int j=0; j<(int)cluster.sizeY()+2; j++)
+    for (int j=0; j<(int)theClusterParam.theCluster->sizeY()+2; j++)
     cout << cluster_matrix[i][j];
     cout << endl;
     }
-    } // if ( cluster.sizeX()>cluster_matrix_size_x || cluster.sizeY()>cluster_matrix_size_y )
+    } // if ( theClusterParam.theCluster->sizeX()>cluster_matrix_size_x || theClusterParam.theCluster->sizeY()>cluster_matrix_size_y )
   */
   // End Visualize clusters ---------------------------------------------------------
   
 
   // Copy clust's pixels (calibrated in electrons) into clust_array_2d;
-  for (int i=0 ; i!=cluster.size(); ++i ) 
+  for (int i=0 ; i!=theClusterParam.theCluster->size(); ++i ) 
     {
-      auto pix = cluster.pixel(i);
+      auto pix = theClusterParam.theCluster->pixel(i);
       // *pixIter dereferences to Pixel struct, with public vars x, y, adc (all float)
       // 02/13/2008 ggiurgiu@fnal.gov: type of x, y and adc has been changed to unsigned char, unsigned short, unsigned short
-      // in DataFormats/SiPixelCluster/interface/SiPixelCluster.h so the type cast to int is redundant. Leave it there, it 
+      // in DataFormats/SiPixelCluster/interface/SiPixeltheClusterParam.theCluster->h so the type cast to int is redundant. Leave it there, it 
       // won't hurt. 
       int irow = int(pix.x) - row_offset;   // &&& do we need +0.5 ???
       int icol = int(pix.y) - col_offset;   // &&& do we need +0.5 ???
@@ -272,7 +272,7 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelC
   float locBz = theDetParam->bz;
     
   ierr =
-    PixelTempReco2D( ID, cotalpha_, cotbeta_,
+    PixelTempReco2D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
 		     locBz, 
 		     clust_array_2d, ydouble, xdouble,
 		     templ_,
@@ -305,8 +305,8 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelC
       // ggiurgiu@jhu.edu, 21/09/2010 : trk angles needed to correct for bows/kinks
       if ( with_track_angle )
 	{
-	  templXrec_ = theDetParam->theTopol->localX( cluster.x(), loc_trk_pred_ ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
-	  templYrec_ = theDetParam->theTopol->localY( cluster.y(), loc_trk_pred_ ); 
+	  templXrec_ = theDetParam->theTopol->localX( theClusterParam.theCluster->x(), loc_trk_pred_ ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
+	  templYrec_ = theDetParam->theTopol->localY( theClusterParam.theCluster->y(), loc_trk_pred_ ); 
 	}
       else
 	{
@@ -314,8 +314,8 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelC
 	    << "@SUB = PixelCPETemplateReco::localPosition" 
 	    << "Should never be here. PixelCPETemplateReco should always be called with track angles. This is a bad error !!! ";
 	  
-	  templXrec_ = theDetParam->theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
-	  templYrec_ = theDetParam->theTopol->localY( cluster.y() );
+	  templXrec_ = theDetParam->theTopol->localX( theClusterParam.theCluster->x() ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
+	  templYrec_ = theDetParam->theTopol->localY( theClusterParam.theCluster->y() );
 	}
     }
   else if unlikely( UseClusterSplitter_ && templQbin_ == 0 )
@@ -338,7 +338,7 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelC
       templ2D_.pushfile(ID);
       	
       ierr =
-	SiPixelTemplateSplit::PixelTempSplit( ID, cotalpha_, cotbeta_,
+	SiPixelTemplateSplit::PixelTempSplit( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
 					      clust_array_2d, 
 					      ydouble, xdouble,
 					      templ_,
@@ -371,8 +371,8 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelC
 	  // ggiurgiu@jhu.edu, 12/09/2010 : trk angles needed to correct for bows/kinks
 	  if ( with_track_angle )
 	    {
-	      templXrec_ = theDetParam->theTopol->localX( cluster.x(),loc_trk_pred_ ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
-	      templYrec_ = theDetParam->theTopol->localY( cluster.y(),loc_trk_pred_ );
+	      templXrec_ = theDetParam->theTopol->localX( theClusterParam.theCluster->x(),loc_trk_pred_ ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
+	      templYrec_ = theDetParam->theTopol->localY( theClusterParam.theCluster->y(),loc_trk_pred_ );
 	    }
 	  else
 	    {
@@ -380,8 +380,8 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelC
 		<< "@SUB = PixelCPETemplateReco::localPosition" 
 		<< "Should never be here. PixelCPETemplateReco should always be called with track angles. This is a bad error !!! ";
 	      
-	      templXrec_ = theDetParam->theTopol->localX( cluster.x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
-	      templYrec_ = theDetParam->theTopol->localY( cluster.y() );
+	      templXrec_ = theDetParam->theTopol->localX( theClusterParam.theCluster->x() ) - lorentz_drift * micronsToCm; // very rough Lorentz drift correction
+	      templYrec_ = theDetParam->theTopol->localY( theClusterParam.theCluster->y() );
 	      
 	    }
 	}
@@ -494,7 +494,7 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, const SiPixelC
 //  localError() relies on localPosition() being called FIRST!!!
 //------------------------------------------------------------------
 LocalError  
-PixelCPETemplateReco::localError(DetParam const * theDetParam,  const SiPixelCluster& cluster) const 
+PixelCPETemplateReco::localError(DetParam const * theDetParam,  ClusterParam & theClusterParam) const 
 {
   //cout << endl;
   //cout << "Set PixelCPETemplate errors .............................................." << endl;
@@ -507,11 +507,11 @@ PixelCPETemplateReco::localError(DetParam const * theDetParam,  const SiPixelClu
   float yerr = theDetParam->thePitchY *sig12;
   
   // Check if the errors were already set at the clusters splitting level
-  if ( cluster.getSplitClusterErrorX() > 0.0f && cluster.getSplitClusterErrorX() < 7777.7f && 
-       cluster.getSplitClusterErrorY() > 0.0f && cluster.getSplitClusterErrorY() < 7777.7f )
+  if ( theClusterParam.theCluster->getSplitClusterErrorX() > 0.0f && theClusterParam.theCluster->getSplitClusterErrorX() < 7777.7f && 
+       theClusterParam.theCluster->getSplitClusterErrorY() > 0.0f && theClusterParam.theCluster->getSplitClusterErrorY() < 7777.7f )
     {
-      xerr = cluster.getSplitClusterErrorX() * micronsToCm;
-      yerr = cluster.getSplitClusterErrorY() * micronsToCm;
+      xerr = theClusterParam.theCluster->getSplitClusterErrorX() * micronsToCm;
+      yerr = theClusterParam.theCluster->getSplitClusterErrorY() * micronsToCm;
 
       //cout << "Errors set at cluster splitting level : " << endl;
       //cout << "xerr = " << xerr << endl;
@@ -523,10 +523,10 @@ PixelCPETemplateReco::localError(DetParam const * theDetParam,  const SiPixelClu
 
       //cout  << "Errors are not split at the cluster splitting level, set the errors here : " << endl; 
        
-      int maxPixelCol = cluster.maxPixelCol();
-      int maxPixelRow = cluster.maxPixelRow();
-      int minPixelCol = cluster.minPixelCol();
-      int minPixelRow = cluster.minPixelRow();
+      int maxPixelCol = theClusterParam.theCluster->maxPixelCol();
+      int maxPixelRow = theClusterParam.theCluster->maxPixelRow();
+      int minPixelCol = theClusterParam.theCluster->minPixelCol();
+      int minPixelRow = theClusterParam.theCluster->minPixelRow();
       
       //--- Are we near either of the edges?
       bool edgex = ( theDetParam->theRecTopol->isItEdgePixelInX( minPixelRow ) || theDetParam->theRecTopol->isItEdgePixelInX( maxPixelRow ) );
@@ -536,8 +536,8 @@ PixelCPETemplateReco::localError(DetParam const * theDetParam,  const SiPixelClu
 	{
 	  // If reconstruction fails the hit position is calculated from cluster center of gravity 
 	  // corrected in x by average Lorentz drift. Assign huge errors.
-	  //xerr = 10.0 * (float)cluster.sizeX() * xerr;
-	  //yerr = 10.0 * (float)cluster.sizeX() * yerr;
+	  //xerr = 10.0 * (float)theClusterParam.theCluster->sizeX() * xerr;
+	  //yerr = 10.0 * (float)theClusterParam.theCluster->sizeX() * yerr;
 	  
 	  // Assign better errors based on the residuals for failed template cases
 	  if ( theDetParam->thePart == GeomDetEnumerators::PixelBarrel )
@@ -602,7 +602,7 @@ PixelCPETemplateReco::localError(DetParam const * theDetParam,  const SiPixelClu
       if (theVerboseLevel > 9) 
 	{
 	  LogDebug("PixelCPETemplateReco") <<
-	    " Sizex = " << cluster.sizeX() << " Sizey = " << cluster.sizeY() << " Edgex = " << edgex << " Edgey = " << edgey << 
+	    " Sizex = " << theClusterParam.theCluster->sizeX() << " Sizey = " << theClusterParam.theCluster->sizeY() << " Edgex = " << edgex << " Edgey = " << edgey << 
 	    " ErrX  = " << xerr            << " ErrY  = " << yerr;
 	}
 

@@ -72,8 +72,8 @@ class PixelCPEGeneric : public PixelCPEBase
 
  
 private:
-  LocalPoint localPosition (DetParam const * theDetParam, const SiPixelCluster& cluster) const; 
-  LocalError localError   (DetParam const * theDetParam, const SiPixelCluster& cl) const;
+  LocalPoint localPosition (DetParam const * theDetParam, ClusterParam & theClusterParam) const; 
+  LocalError localError   (DetParam const * theDetParam, ClusterParam & theClusterParaml) const;
 
   //--------------------------------------------------------------------
   //  Methods.

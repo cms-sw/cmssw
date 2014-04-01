@@ -202,15 +202,15 @@ void PixelCPEBase::fillDetParams()
 //  One function to cache the variables common for one DetUnit.
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::setTheDet( DetParam const * theDetParam, const SiPixelCluster & cluster ) const 
+PixelCPEBase::setTheDet( DetParam const * theDetParam, ClusterParam & theClusterParam ) const 
 {
 
   //--- Geometric Quality Information
   int minInX,minInY,maxInX,maxInY=0;
-  minInX = cluster.minPixelRow();
-  minInY = cluster.minPixelCol();
-  maxInX = cluster.maxPixelRow();
-  maxInY = cluster.maxPixelCol();
+  minInX = theClusterParam.theCluster->minPixelRow();
+  minInY = theClusterParam.theCluster->minPixelCol();
+  maxInX = theClusterParam.theCluster->maxPixelRow();
+  maxInY = theClusterParam.theCluster->maxPixelCol();
   
   isOnEdge_ = theDetParam->theRecTopol->isItEdgePixelInX(minInX) | theDetParam->theRecTopol->isItEdgePixelInX(maxInX) |
     theDetParam->theRecTopol->isItEdgePixelInY(minInY) | theDetParam->theRecTopol->isItEdgePixelInY(maxInY) ;
@@ -218,8 +218,8 @@ PixelCPEBase::setTheDet( DetParam const * theDetParam, const SiPixelCluster & cl
   // FOR NOW UNUSED. KEEP IT IN CASE WE WANT TO USE IT IN THE FUTURE  
   // Bad Pixels have their charge set to 0 in the clusterizer 
   //hasBadPixels_ = false;
-  //for(unsigned int i=0; i<cluster.pixelADC().size(); ++i) {
-  //if(cluster.pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
+  //for(unsigned int i=0; i<theClusterParam.theCluster->pixelADC().size(); ++i) {
+  //if(theClusterParam.theCluster->pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
   //}
   
   spansTwoROCs_ = theDetParam->theRecTopol->containsBigPixelInX(minInX,maxInX) |
@@ -233,7 +233,7 @@ PixelCPEBase::setTheDet( DetParam const * theDetParam, const SiPixelCluster & cl
 //  Note: should become const after both localParameters() become const.
 //-----------------------------------------------------------------------------
 void PixelCPEBase::
-computeAnglesFromTrajectory( DetParam const * theDetParam, const SiPixelCluster & cl,
+computeAnglesFromTrajectory( DetParam const * theDetParam, ClusterParam & theClusterParam,
 			     const LocalTrajectoryParameters & ltp) const
 {
   //cout<<" in PixelCPEBase:computeAnglesFromTrajectory - "<<endl; //dk
@@ -256,9 +256,9 @@ computeAnglesFromTrajectory( DetParam const * theDetParam, const SiPixelCluster 
   */
   
   
-  cotalpha_ = locx/locz;
-  cotbeta_  = locy/locz;
-  zneg = (locz < 0);
+  theClusterParam.cotalpha = locx/locz;
+  theClusterParam.cotbeta  = locy/locz;
+  theClusterParam.zneg = (locz < 0);
   
   
   LocalPoint trk_lp = ltp.position();
@@ -295,7 +295,7 @@ computeAnglesFromTrajectory( DetParam const * theDetParam, const SiPixelCluster 
 //-----------------------------------------------------------------------------
 // G. Giurgiu, 12/01/06 : implement the function
 void PixelCPEBase::
-computeAnglesFromDetPosition(DetParam const * theDetParam, const SiPixelCluster & cl ) const
+computeAnglesFromDetPosition(DetParam const * theDetParam, ClusterParam & theClusterParam ) const
 {
  
   
@@ -351,18 +351,18 @@ computeAnglesFromDetPosition(DetParam const * theDetParam, const SiPixelCluster 
   */
   
   // all the above is equivalent to 
-  LocalPoint lp = theDetParam->theTopol->localPosition( MeasurementPoint(cl.x(), cl.y()) );
+  LocalPoint lp = theDetParam->theTopol->localPosition( MeasurementPoint(theClusterParam.theCluster->x(), theClusterParam.theCluster->y()) );
   auto gvx = lp.x()-theDetParam->theOrigin.x();
   auto gvy = lp.y()-theDetParam->theOrigin.y();
   auto gvz = -1.f/theDetParam->theOrigin.z();
   //  normalization not required as only ratio used... 
   
 
-  zneg = (gvz < 0);
+  theClusterParam.zneg = (gvz < 0);
 
   // calculate angles
-  cotalpha_ = gvx*gvz;
-  cotbeta_  = gvy*gvz;
+  theClusterParam.cotalpha = gvx*gvz;
+  theClusterParam.cotbeta  = gvy*gvz;
 
   with_track_angle = false;
 

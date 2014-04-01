@@ -81,6 +81,17 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     float widthLAFraction; // Width-LA to Offset-LA
   };
 
+  struct ClusterParam
+  {
+    ClusterParam(const SiPixelCluster & cl) : theCluster(&cl) {}
+    const SiPixelCluster * theCluster;
+
+    //--- Cluster-level quantities (may need more)
+    float cotalpha;
+    float cotbeta;
+    bool  zneg;
+  };
+
 public:
 #ifdef NEW
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag, const TrackerGeometry& geom,
@@ -115,12 +126,13 @@ public:
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
 
       DetParam const * theDetParam = &detParam(det);
-      setTheDet( theDetParam, cl );
-      computeAnglesFromDetPosition(theDetParam, cl);
+      ClusterParam theClusterParam(cl);
+      setTheDet( theDetParam, theClusterParam );
+      computeAnglesFromDetPosition(theDetParam, theClusterParam);
       
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-      LocalPoint lp = localPosition(theDetParam, cl);
-      LocalError le = localError(theDetParam, cl);        
+      LocalPoint lp = localPosition(theDetParam, theClusterParam);
+      LocalError le = localError(theDetParam, theClusterParam);        
       
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
 
@@ -139,12 +151,13 @@ public:
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
 
     DetParam const * theDetParam = &detParam(det);
-    setTheDet( theDetParam, cl );
-    computeAnglesFromTrajectory(theDetParam, cl, ltp);
+    ClusterParam theClusterParam(cl);
+    setTheDet( theDetParam, theClusterParam );
+    computeAnglesFromTrajectory(theDetParam, theClusterParam, ltp);
     
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-    LocalPoint lp = localPosition(theDetParam, cl); 
-    LocalError le = localError(theDetParam, cl);        
+    LocalPoint lp = localPosition(theDetParam, theClusterParam); 
+    LocalError le = localError(theDetParam, theClusterParam);        
 
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
     
@@ -157,8 +170,8 @@ private:
   //--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
-  virtual LocalPoint localPosition(DetParam const * theDetParam, const SiPixelCluster& cl) const = 0;
-  virtual LocalError localError   (DetParam const * theDetParam, const SiPixelCluster& cl) const = 0;
+  virtual LocalPoint localPosition(DetParam const * theDetParam, ClusterParam & theClusterParam) const = 0;
+  virtual LocalError localError   (DetParam const * theDetParam, ClusterParam & theClusterParam) const = 0;
   
   void fillDetParams();
   
@@ -202,11 +215,6 @@ public:
   //---------------------------------------------------------------------------
   //  Data members
   //---------------------------------------------------------------------------
-
-  //--- Cluster-level quantities (may need more)
-  mutable float cotalpha_;
-  mutable float cotbeta_;
-  mutable bool  zneg;
 
   // G.Giurgiu (05/14/08) track local coordinates
   mutable float trk_lp_x;
@@ -274,13 +282,13 @@ public:
   //  Geometrical services to subclasses.
   //---------------------------------------------------------------------------
 private:
-  void computeAnglesFromDetPosition( DetParam const * theDetParam, const SiPixelCluster & cl ) const;
+  void computeAnglesFromDetPosition( DetParam const * theDetParam, ClusterParam & theClusterParam ) const;
   
-  void computeAnglesFromTrajectory ( DetParam const * theDetParam, const SiPixelCluster & cl, 
+  void computeAnglesFromTrajectory ( DetParam const * theDetParam, ClusterParam & theClusterParam,
 				    const LocalTrajectoryParameters & ltp) const;
 
 protected:
-  void  setTheDet( DetParam const *, const SiPixelCluster & cluster ) const ;
+  void  setTheDet( DetParam const *, ClusterParam & theClusterParam ) const ;
 
   LocalVector driftDirection       (DetParam const * theDetParam, GlobalVector bfield ) const ; 
   LocalVector driftDirection       (DetParam const * theDetParam, LocalVector bfield ) const ; 
