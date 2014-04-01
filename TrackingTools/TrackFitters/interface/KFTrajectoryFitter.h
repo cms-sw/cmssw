@@ -39,18 +39,18 @@ public:
     theEstimator(aEstimator.clone()),
     theGeometry(detLayerGeometry),
     minHits_(minHits),
-    owner(true){ 
+    owner(true){
     if(!theGeometry) theGeometry = &dummyGeometry;
     // FIXME. Why this first constructor is needed? who is using it? Can it be removed?
     // it is uses in many many places
     }
-  
+
 
   KFTrajectoryFitter(const Propagator* aPropagator,
 		     const TrajectoryStateUpdator* aUpdator,
 		     const MeasurementEstimator* aEstimator,
 		     int minHits = 3,
-		     const DetLayerGeometry* detLayerGeometry=0) : 
+		     const DetLayerGeometry* detLayerGeometry=0) :
     thePropagator(aPropagator),
     theUpdator(aUpdator),
     theEstimator(aEstimator),
@@ -67,29 +67,29 @@ public:
       delete theEstimator;
     }
   }
-  
+
   Trajectory fitOne(const Trajectory& aTraj,fitType) const;
   Trajectory fitOne(const TrajectorySeed& aSeed,
 		    const RecHitContainer& hits,fitType) const;
 
   Trajectory fitOne(const TrajectorySeed& aSeed,
-		    const RecHitContainer& hits, 
+		    const RecHitContainer& hits,
 		    const TSOS& firstPredTsos,fitType) const;
 
   const Propagator* propagator() const {return thePropagator;}
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
-  
+
   virtual KFTrajectoryFitter* clone() const
   {
-    return owner ? 
+    return owner ?
       new KFTrajectoryFitter(*thePropagator,*theUpdator,*theEstimator,minHits_,theGeometry) :
       new KFTrajectoryFitter(thePropagator,theUpdator,theEstimator,minHits_,theGeometry);
   }
-  
+
 private:
   KFTrajectoryFitter(KFTrajectoryFitter const&);
-		     
+
 
   static const DetLayerGeometry dummyGeometry;
   const Propagator* thePropagator;
