@@ -534,8 +534,7 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
 //============================================================================
 void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
                                          std::vector<PixelDigi>& digis,
-                                         std::vector<PixelDigiSimLink>& simlinks, 
-					 const TrackerTopology* tTopo,
+                                         std::vector<PixelDigiSimLink>& simlinks, const TrackerTopology* tTopo,
                                          CLHEP::HepRandomEngine* engine) {  
   // Pixel Efficiency moved from the constructor to this method because
    // the information of the det are not available in the constructor
@@ -1354,47 +1353,36 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
       
       if (layerIndex==1) {
 	int ladder=tTopo->pxbLadder(detID);
-	//std::cout<<"BPix1 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[0][ladder-1]<<std::endl;
 	columnEfficiency*=eff.theLadderEfficiency_BPix[0][ladder-1];
 	
 	int module=tTopo->pxbModule(detID);
 	if (module<=4) module=5-module;
 	else module-=4;
-	//std::cout<<"BPix1 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[0][module-1]<<std::endl;
 	columnEfficiency*=eff.theModuleEfficiency_BPix[0][module-1];
-	std::cout<<"bpix1 puscale  "<< _pu_scale[0] << " coleff before: " << columnEfficiency << std::endl;
+
 	columnEfficiency*=_pu_scale[0];
-	std::cout<<"bpix1 puscale  "<< _pu_scale[0] << " coleff " << columnEfficiency << std::endl;
       }
       if (layerIndex==2) {
 	int ladder=tTopo->pxbLadder(detID);
-	//std::cout<<"BPix2 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[1][ladder-1]<<std::endl;
 	columnEfficiency*=eff.theLadderEfficiency_BPix[1][ladder-1];
 	
 	int module=tTopo->pxbModule(detID);
 	if (module<=4) module=5-module;
 	else module-=4;
-	//std::cout<<"BPix2 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[1][module-1]<<std::endl;
 	columnEfficiency*=eff.theModuleEfficiency_BPix[1][module-1];
 	
 	columnEfficiency*=_pu_scale[1];
-	std::cout<<"bpix2 puscale  "<< _pu_scale[1]<< " coleff " << columnEfficiency <<std::endl;
       }
       if (layerIndex==3) {
 	int ladder=tTopo->pxbLadder(detID);
-	std::cout<<"BPix3 Ladder "<<ladder<<": "<<eff.theLadderEfficiency_BPix[2][ladder-1]<<std::endl;
 	columnEfficiency*=eff.theLadderEfficiency_BPix[2][ladder-1];
-	std::cout<<"bpix3 ladder  "<< _pu_scale[2]<< " coleff " << columnEfficiency <<std::endl;	
 
 	int module=tTopo->pxbModule(detID);
 	if (module<=4) module=5-module;
 	else module-=4;
-	std::cout<<"BPix3 Module "<<module<<": "<<eff.theModuleEfficiency_BPix[2][module-1]<<std::endl;
 	columnEfficiency*=eff.theModuleEfficiency_BPix[2][module-1];
-	std::cout<<"bpix3 module  "<< _pu_scale[2]<< " coleff " << columnEfficiency <<std::endl;	
 
 	columnEfficiency*=_pu_scale[2];
-	std::cout<<"bpix3 puscale  "<< _pu_scale[2]<< " coleff " << columnEfficiency <<std::endl;
       }
     }
   } else {                // forward disks
