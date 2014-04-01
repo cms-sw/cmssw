@@ -91,8 +91,8 @@ class GlobalMuonRefitter {
 						   const TrackerTopology *tTopo) const;
 
     // return DYT-related informations           
-    reco::DYTInfo* getDYTInfo() {return dytInfo;}
-
+    const reco::DYTInfo* getDYTInfo() {return dytInfo;}
+    
   protected:
 
     enum RefitDirection{insideOut,outsideIn,undetermined};
