@@ -38,16 +38,15 @@ convTracks.src = 'convTkCand'
 ##TRAJECTORY BUILDER
 import RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi
 convTrajectoryBuilder = RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi.CkfTrajectoryBuilder.clone()
-convTrajectoryBuilder.trajectoryFilterName = 'convTrajectoryFilter'
+convTrajectoryBuilder.trajectoryFilter.refToPSet_ = 'convTrajectoryFilter'
 convTrajectoryBuilder.MeasurementTrackerName = 'convMeasurementTracker'
 
 
 ##TRAJECTORY FILTER
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-convTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
-convTrajectoryFilter.ComponentName = 'convTrajectoryFilter'
-convTrajectoryFilter.filterPset.maxLostHits = 0
-convTrajectoryFilter.filterPset.minimumNumberOfHits = 3
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+convTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone()
+convTrajectoryFilter.maxLostHits = 0
+convTrajectoryFilter.minimumNumberOfHits = 3
 
 ##MEASUREMENT TRACKER
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi

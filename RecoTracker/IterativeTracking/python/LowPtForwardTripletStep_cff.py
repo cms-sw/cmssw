@@ -45,14 +45,11 @@ lowPtForwardTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitor
 
 
 # QUALITY CUTS DURING TRACK BUILDING
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-lowPtForwardTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'lowPtForwardTripletStepTrajectoryFilter',
-    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+lowPtForwardTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     #maxLostHits = 1, ## use LostHitFraction filter instead
     minimumNumberOfHits = 3,
     minPt = 0.1
-    )
     )
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
@@ -66,7 +63,7 @@ lowPtForwardTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEst
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtForwardTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilterName = 'lowPtForwardTripletStepTrajectoryFilter',
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('lowPtForwardTripletStepTrajectoryFilter')),
     clustersToSkip = cms.InputTag('lowPtForwardTripletStepClusters'),
     maxCand = 3,
     estimator = cms.string('lowPtForwardTripletStepChi2Est')

@@ -59,22 +59,17 @@ lowPtQuadStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 lowPtQuadStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
 
 # QUALITY CUTS DURING TRACK BUILDING
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-lowPtQuadStepStandardTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'lowPtQuadStepStandardTrajectoryFilter',
-    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+lowPtQuadStepStandardTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     minimumNumberOfHits = 3,
     minPt = 0.075
     )
-    )
 
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilterESProducer_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter
-import TrackingTools.TrajectoryFiltering.CompositeTrajectoryFilterESProducer_cfi
-lowPtQuadStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.CompositeTrajectoryFilterESProducer_cfi.compositeTrajectoryFilterESProducer.clone(
-    ComponentName = cms.string('lowPtQuadStepTrajectoryFilter'),
-    filterNames   = cms.vstring('lowPtQuadStepStandardTrajectoryFilter',
-                                'clusterShapeTrajectoryFilter')
+lowPtQuadStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
+    filters   = [cms.PSet(refToPSet_ = cms.string('lowPtQuadStepStandardTrajectoryFilter')),
+                 cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
     )
 
 import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
@@ -88,7 +83,7 @@ lowPtQuadStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESPr
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilterName = 'lowPtQuadStepTrajectoryFilter',
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('lowPtQuadStepTrajectoryFilter')),
     clustersToSkip = cms.InputTag('lowPtQuadStepClusters'),
     maxCand = 4,
     estimator = cms.string('lowPtQuadStepChi2Est'),

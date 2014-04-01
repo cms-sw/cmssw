@@ -43,13 +43,11 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi 
 #hiRegitMuDetachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
 
 # building: feed the new-named seeds
-hiRegitMuDetachedTripletStepTrajectoryFilter = RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepTrajectoryFilter.clone(
-    ComponentName    = 'hiRegitMuDetachedTripletStepTrajectoryFilter'
-    )
-hiRegitMuDetachedTripletStepTrajectoryFilter.filterPset.minPt = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
+hiRegitMuDetachedTripletStepTrajectoryFilter = RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepTrajectoryFilter.clone()
+hiRegitMuDetachedTripletStepTrajectoryFilter.minPt = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 hiRegitMuDetachedTripletStepTrajectoryBuilder = RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepTrajectoryBuilder.clone(
-    trajectoryFilterName = 'hiRegitMuDetachedTripletStepTrajectoryFilter',
+    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitMuDetachedTripletStepTrajectoryFilter')),
     clustersToSkip       = cms.InputTag('hiRegitMuDetachedTripletStepClusters')
 )
 

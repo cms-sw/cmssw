@@ -45,12 +45,10 @@ hiRegitPixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
 
 
 # building: feed the new-named seeds
-hiRegitPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilter.clone(
-    ComponentName    = 'hiRegitPixelPairStepTrajectoryFilter'
-    )
+hiRegitPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilter.clone()
 
 hiRegitPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryBuilder.clone(
-    trajectoryFilterName = 'hiRegitPixelPairStepTrajectoryFilter',
+    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitPixelPairStepTrajectoryFilter')),
     clustersToSkip       = cms.InputTag('hiRegitPixelPairStepClusters'),
 )
 

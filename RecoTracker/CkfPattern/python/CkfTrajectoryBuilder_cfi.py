@@ -4,7 +4,7 @@ CkfTrajectoryBuilder = cms.PSet(
     ComponentType = cms.string('CkfTrajectoryBuilder'),
     propagatorAlong = cms.string('PropagatorWithMaterial'),
 #    propagatorAlong = cms.string('PropagatorWithMaterialParabolicMf'),
-    trajectoryFilterName = cms.string('ckfBaseTrajectoryFilter'),
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('CkfBaseTrajectoryFilter_block')),
     maxCand = cms.int32(5),
     intermediateCleaning = cms.bool(True),
     MeasurementTrackerName = cms.string(''),

@@ -27,18 +27,17 @@ import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 #replace CTF_P5_MeasurementTracker.pixelClusterProducer = ""
 
 # trajectory filtering
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-ckfBaseTrajectoryFilterP5 = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
+from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import *
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+ckfBaseTrajectoryFilterP5 = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone()
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
-ckfBaseTrajectoryFilterP5.filterPset.minPt = 0.5
-ckfBaseTrajectoryFilterP5.filterPset.maxLostHits = 4
-ckfBaseTrajectoryFilterP5.filterPset.maxConsecLostHits = 3
-#replace ckfBaseTrajectoryFilterP5.filterPset.minimumNumberOfHits =  4
+ckfBaseTrajectoryFilterP5.minPt = 0.5
+ckfBaseTrajectoryFilterP5.maxLostHits = 4
+ckfBaseTrajectoryFilterP5.maxConsecLostHits = 3
+#replace ckfBaseTrajectoryFilterP5.minimumNumberOfHits =  4
 #
 GroupedCkfTrajectoryBuilderP5 = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone()
-ckfBaseTrajectoryFilterP5.ComponentName = 'ckfBaseTrajectoryFilterP5'
 ##CTF_P5_MeasurementTracker.ComponentName = 'CTF_P5' # useless duplication of MeasurementTracker
 ##GroupedCkfTrajectoryBuilderP5.MeasurementTrackerName = 'CTF_P5' # useless duplication of MeasurementTracker
-GroupedCkfTrajectoryBuilderP5.trajectoryFilterName = 'ckfBaseTrajectoryFilterP5'
+GroupedCkfTrajectoryBuilderP5.trajectoryFilter.refToPSet_ = 'ckfBaseTrajectoryFilterP5'
 

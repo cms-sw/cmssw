@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
 from RecoTracker.CkfPattern.CkfTrackCandidates_cff import *
-from RecoPixelVertexing.PixelLowPtUtilities.MinBiasCkfTrajectoryFilterESProducer_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.MinBiasCkfTrajectoryFilter_cfi import *
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedSeeds_cfi import *
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 
@@ -18,8 +18,8 @@ TransientTrackBuilderESProducer = cms.ESProducer("TransientTrackBuilderESProduce
 GroupedCkfTrajectoryBuilder.maxCand = 5
 GroupedCkfTrajectoryBuilder.intermediateCleaning = False
 GroupedCkfTrajectoryBuilder.alwaysUseInvalidHits = False
-GroupedCkfTrajectoryBuilder.trajectoryFilterName = 'MinBiasCkfTrajectoryFilter'
-GroupedCkfTrajectoryBuilder.inOutTrajectoryFilterName = 'MinBiasCkfTrajectoryFilter'
+GroupedCkfTrajectoryBuilder.trajectoryFilter.refToPSet_ = 'MinBiasCkfTrajectoryFilter'
+GroupedCkfTrajectoryBuilder.inOutTrajectoryFilter.refToPSet_ = 'MinBiasCkfTrajectoryFilter'
 GroupedCkfTrajectoryBuilder.useSameTrajFilter = cms.bool(True)
 
 # Propagator, pion mass
