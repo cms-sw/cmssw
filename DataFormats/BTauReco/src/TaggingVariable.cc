@@ -11,6 +11,7 @@ namespace reco {
 const char* TaggingVariableDescription[] = {
   /* [jetEnergy]                                = */ "jet energy",
   /* [jetPt]                                    = */ "jet transverse momentum",
+  /* [trackJetPt]                               = */ "track-based jet transverse momentum",
   /* [jetEta]                                   = */ "jet pseudorapidity",
   /* [jetPhi]                                   = */ "jet polar angle",
   /* [jetNTracks]                               = */ "tracks associated to jet",
@@ -108,6 +109,7 @@ const char* TaggingVariableDescription[] = {
 const char* TaggingVariableTokens[] = {
   /* [jetEnergy]                                = */ "jetEnergy",
   /* [jetPt]                                    = */ "jetPt",
+  /* [trackJetPt]                               = */ "trackJetPt",
   /* [jetEta]                                   = */ "jetEta",
   /* [jetPhi]                                   = */ "jetPhi",
   /* [jetNTracks]                               = */ "jetNTracks",
