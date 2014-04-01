@@ -6,17 +6,33 @@
 /**\class HadronAndPartonSelector HadronAndPartonSelector.cc PhysicsTools/JetMCAlgos/plugins/HadronAndPartonSelector.cc
  * \brief Selects hadrons and partons from a collection of GenParticles
  *
- * This producer selects hadrons and partons from a collection of GenParticles and stores vectors of EDM references
+ * This producer selects hadrons, partons, and leptons from a collection of GenParticles and stores vectors of EDM references
  * to these particles in the event. The following hadrons are selected:
  *
  * - b hadrons that do not have other b hadrons as daughters
- * - c hadrons that do not have other c hadrons as daughters or a b hadron as mother
- *
- * The parton selection is generator-specific and is described in each of the parton selectors individually.
- * The producer attempts to automatically determine what generator was used to hadronize events in order to determine
- * what parton selection mode to use. It is also possible to enforce any of the supported parton selection modes.
+ * 
+ * - c hadrons that do not have other c hadrons as daughters
+ * 
+ * Older Fortran Monte Carlo generators (Pythia6 and Herwig6) follow the HEPEVT [1] particle status code convention while
+ * newer C++ Monte Carlo generators (Pythia8, Herwig++, and Sherpa) follow the HepMC [2] particle status code convention.
+ * However, both conventions give considerable freedom in defining the status codes of intermediate particle states. Hence,
+ * the parton selection is generator-dependent and is described in each of the parton selectors separately.
+ * 
+ * Using the provenance information of the GenEventInfoProduct, the producer attempts to automatically determine what generator
+ * was used to hadronize events and based on that information decides what parton selection mode to use. It is also possible
+ * to enforce any of the supported parton selection modes.
  *
  * The selected hadrons and partons are finally used by the JetFlavourClustering producer to determine the jet flavour.
+ * 
+ * The following leptons are selected:
+ * 
+ * - status==1 electrons and muons
+ * 
+ * - status==2 taus
+ * 
+ * 
+ * [1] http://cepa.fnal.gov/psm/stdhep/
+ * [2] http://lcgapp.cern.ch/project/simu/HepMC/
  */
 //
 // Original Author:  Dinko Ferencek
@@ -43,14 +59,18 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
-#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
+#include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
 #include "PhysicsTools/JetMCAlgos/interface/BasePartonSelector.h"
-#include "PhysicsTools/JetMCAlgos/interface/PythiaPartonSelector.h"
+#include "PhysicsTools/JetMCAlgos/interface/Pythia6PartonSelector.h"
+#include "PhysicsTools/JetMCAlgos/interface/Pythia8PartonSelector.h"
+#include "PhysicsTools/JetMCAlgos/interface/Herwig6PartonSelector.h"
+#include "PhysicsTools/JetMCAlgos/interface/HerwigppPartonSelector.h"
+#include "PhysicsTools/JetMCAlgos/interface/SherpaPartonSelector.h"
 
 //
 // constants, enums and typedefs
 //
-typedef boost::shared_ptr<BasePartonSelector>  PartonSelectorPtr;
+typedef boost::shared_ptr<BasePartonSelector> PartonSelectorPtr;
 
 //
 // class declaration
@@ -99,6 +119,7 @@ HadronAndPartonSelector::HadronAndPartonSelector(const edm::ParameterSet& iConfi
    produces<reco::GenParticleRefVector>( "bHadrons" );
    produces<reco::GenParticleRefVector>( "cHadrons" );
    produces<reco::GenParticleRefVector>( "partons" );
+   produces<reco::GenParticleRefVector>( "leptons" );
 }
 
 
@@ -134,19 +155,49 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
        partonMode_="Pythia6";
      else if( moduleName.find("Pythia8")!=std::string::npos )
        partonMode_="Pythia8";
+     else if( moduleName.find("Herwig6")!=std::string::npos )
+       partonMode_="Herwig6";
+     else if( moduleName.find("ThePEG")!=std::string::npos )
+       partonMode_="Herwig++";
+     else if( moduleName.find("Sherpa")!=std::string::npos )
+       partonMode_="Sherpa";
      else
        partonMode_="Undefined";
    }
 
-   // set the parton selection mode
-   if ( partonMode_=="Undefined" )
-     edm::LogWarning("UndefinedPartonMode") << "Could not automatically determine the hadronizer type and set the correct parton selection mode. Parton-based jet flavour will not be defined.";
-   else if ( partonMode_=="Pythia6" || partonMode_=="Pythia8" )
-     partonSelector_ = PartonSelectorPtr( new PythiaPartonSelector() );
-   else
-     //throw cms::Exception("InvalidPartonMode") <<"Parton selection mode is invalid: " << partonMode_ << ", use Auto | Pythia6 | Pythia8 | Herwig6 | Herwig++ | Sherpa" << std::endl;
-     throw cms::Exception("InvalidPartonMode") <<"Parton selection mode is invalid: " << partonMode_ << ", use Auto | Pythia6 | Pythia8" << std::endl;
-
+   // set the parton selection mode (done only once per job)
+   if( !partonSelector_ )
+   {
+     if ( partonMode_=="Undefined" )
+       edm::LogWarning("UndefinedPartonMode") << "Could not automatically determine the hadronizer type and set the correct parton selection mode. Parton-based jet flavour will not be defined.";
+     else if ( partonMode_=="Pythia6" )
+     {
+       partonSelector_ = PartonSelectorPtr( new Pythia6PartonSelector() );
+       edm::LogInfo("PartonModeDefined") << "Using Pythia6 parton selection mode.";
+     }
+     else if ( partonMode_=="Pythia8" )
+     {
+       partonSelector_ = PartonSelectorPtr( new Pythia8PartonSelector() );
+       edm::LogInfo("PartonModeDefined") << "Using Pythia8 parton selection mode.";
+     }
+     else if ( partonMode_=="Herwig6" )
+     {
+       partonSelector_ = PartonSelectorPtr( new Herwig6PartonSelector() );
+       edm::LogInfo("PartonModeDefined") << "Using Herwig6 parton selection mode.";
+     }
+     else if ( partonMode_=="Herwig++" )
+     {
+       partonSelector_ = PartonSelectorPtr( new HerwigppPartonSelector() );
+       edm::LogInfo("PartonModeDefined") << "Using Herwig++ parton selection mode.";
+     }
+     else if ( partonMode_=="Sherpa" )
+     {
+       partonSelector_ = PartonSelectorPtr( new SherpaPartonSelector() );
+       edm::LogInfo("PartonModeDefined") << "Using Sherpa parton selection mode.";
+     }
+     else
+       throw cms::Exception("InvalidPartonMode") <<"Parton selection mode is invalid: " << partonMode_ << ", use Auto | Pythia6 | Pythia8 | Herwig6 | Herwig++ | Sherpa" << std::endl;
+   }
 
    edm::Handle<reco::GenParticleCollection> particles;
    iEvent.getByToken(particlesToken_, particles);
@@ -154,8 +205,9 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    std::auto_ptr<reco::GenParticleRefVector> bHadrons ( new reco::GenParticleRefVector );
    std::auto_ptr<reco::GenParticleRefVector> cHadrons ( new reco::GenParticleRefVector );
    std::auto_ptr<reco::GenParticleRefVector> partons  ( new reco::GenParticleRefVector );
+   std::auto_ptr<reco::GenParticleRefVector> leptons  ( new reco::GenParticleRefVector );
 
-   // loop over particles and select b and c hadrons
+   // loop over particles and select b and c hadrons and leptons
    for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
    {
      // if b hadron
@@ -175,9 +227,6 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      // if c hadron
      if( CandMCTagUtils::hasCharm( *it ) )
      {
-       // check if any of the mothers is a b hadron
-       if( JetMCTagUtils::decayFromBHadron( *it ) ) continue; // skip c hadrons that have a b hadron as mother
-
        // check if any of the daughters is also a c hadron
        bool hascHadronDaughter = false;
        for(size_t i=0; i < it->numberOfDaughters(); ++i)
@@ -188,6 +237,14 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
        cHadrons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
      }
+
+     // status==1 electrons and muons
+     if( ( reco::isElectron( *it ) || reco::isElectron( *it ) ) && it->status()==1 )
+       leptons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
+
+     // status==2 taus
+     if( reco::isTau( *it ) && it->status()==2 )
+       leptons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
    }
 
    // select partons
@@ -197,6 +254,7 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.put( bHadrons, "bHadrons" );
    iEvent.put( cHadrons, "cHadrons" );
    iEvent.put( partons,  "partons" );
+   iEvent.put( leptons,  "leptons" );
 }
 
 // ------------ method called once each job just before starting event loop  ------------
