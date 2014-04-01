@@ -109,6 +109,8 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   LogDebug("PixelCPEBase") <<" LA constants - "
 			   <<lAOffset_<<" "<<lAWidthBPix_<<" "<<lAWidthFPix_<<endl; //dk
   
+  fillParams();
+  
 }
 
 //-----------------------------------------------------------------------------
@@ -119,19 +121,19 @@ void PixelCPEBase::fillParams()
   const unsigned m_detectors = geom_.offsetDU(GeomDetEnumerators::TIB); //first non-pixel detector unit
   auto const & dus = geom_.detUnits();
   m_Params.resize(m_detectors);
-  cout<<"caching "<<m_detectors<<" pixel detectors"<<endl;
+  //cout<<"caching "<<m_detectors<<" pixel detectors"<<endl;
   for (unsigned i=0; i!=m_detectors;++i) {
     auto & p=m_Params[i];
-    const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(dus[i]);
-    assert(pixDet); 
-    assert(pixDet->index()==int(i)); 
+    theDet = dynamic_cast<const PixelGeomDetUnit*>(dus[i]);
+    assert(theDet); 
+    assert(theDet->index()==int(i)); 
       
-    p.theOrigin =   pixDet->surface().toLocal(GlobalPoint(0,0,0));
+    p.theOrigin = theDet->surface().toLocal(GlobalPoint(0,0,0));
     
-    //--- pixDet->type() returns a GeomDetType, which implements subDetector()
-    p.thePart = pixDet->type().subDetector();
+    //--- theDet->type() returns a GeomDetType, which implements subDetector()
+    p.thePart = theDet->type().subDetector();
     
-    //cout<<" in PixelCPEBase:setpixDet - in det "<<thePart<<endl; //dk
+    //cout<<" in PixelCPEBase:settheDet - in det "<<thePart<<endl; //dk
 
     switch ( p.thePart ) {
     case GeomDetEnumerators::PixelBarrel:
@@ -145,45 +147,48 @@ void PixelCPEBase::fillParams()
      default:
        // does one need this exception?
        //cout<<" something wrong"<<endl;
-       throw cms::Exception("PixelCPEBase::setpixDet :")
+       throw cms::Exception("PixelCPEBase::settheDet :")
 	 << "PixelCPEBase: A non-pixel detector type in here?" ;
     }
     
     //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
-    //--- The call goes via BoundSurface, returned by pixDet->surface(), but
+    //--- The call goes via BoundSurface, returned by theDet->surface(), but
     //--- position() is implemented in GloballyPositioned<> template
     //--- ( BoundSurface : Surface : GloballyPositioned<float> )
-    //pixDetR = pixDet->surface().position().perp();
-    //pixDetZ = pixDet->surface().position().z();
+    p.theDetR = theDet->surface().position().perp();
+    p.theDetZ = theDet->surface().position().z();
     //--- Define parameters for chargewidth calculation
     
     //--- bounds() is implemented in BoundSurface itself.
-    p.theThickness = pixDet->surface().bounds().thickness();
+    p.theThickness = theDet->surface().bounds().thickness();
     
     //--- Cache the topology.
     // ggiurgiu@jhu.edu 12/09/2010 : no longer need to dynamyc cast to RectangularPixelTopology
     //theTopol
-    //= dynamic_cast<const RectangularPixelTopology*>( & (pixDet->specificTopology()) );
-    
-    auto topol = &(pixDet->specificTopology());
+    //= dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
+
+    auto topol = &(theDet->specificTopology());
     if unlikely(topol!=p.theTopol) { // there is ONE topology!)
-	p.theTopol=topol;
-	auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(p.theTopol);
-	if (proxyT) p.theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
-	else p.theRecTopol = dynamic_cast<const RectangularPixelTopology*>(p.theTopol);
-	assert(p.theRecTopol);
-	
-	//---- The geometrical description of one module/plaquette
-	p.theNumOfRow = p.theRecTopol->nrows();      // rows in x
-	p.theNumOfCol = p.theRecTopol->ncolumns();   // cols in y
-	std::pair<float,float> pitchxy = p.theRecTopol->pitch();
-	p.thePitchX = pitchxy.first;            // pitch along x
-	p.thePitchY = pitchxy.second;           // pitch along y
+       p.theTopol=topol;
+       auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(p.theTopol);
+       if (proxyT) p.theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
+       else p.theRecTopol = dynamic_cast<const RectangularPixelTopology*>(p.theTopol);
+       assert(p.theRecTopol);
+       
+       //---- The geometrical description of one module/plaquette
+       p.theNumOfRow = p.theRecTopol->nrows();	// rows in x
+       p.theNumOfCol = p.theRecTopol->ncolumns();	// cols in y
+       std::pair<float,float> pitchxy = p.theRecTopol->pitch();
+       p.thePitchX = pitchxy.first;	     // pitch along x
+       p.thePitchY = pitchxy.second;	     // pitch along y
       }
-    
+     
     p.theSign = isFlipped() ? -1 : 1;
 
-    LocalVector Bfield = pixDet->surface().toLocal(magfield_->inTesla(pixDet->surface().position()));
+    p.widthLAFraction = 1.;
+
+    LocalVector Bfield = theDet->surface().toLocal(magfield_->inTesla(theDet->surface().position()));
+    p.driftDirection = driftDirection( Bfield );
     p.bz = Bfield.z();
     
     LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
@@ -216,86 +221,24 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
 	  << " Wrong pointer to PixelGeomDetUnit object !!!";
       }
     
-    theOrigin =   theDet->surface().toLocal(GlobalPoint(0,0,0));
-    
-    //--- theDet->type() returns a GeomDetType, which implements subDetector()
-    thePart = theDet->type().subDetector();
-    
-    //cout<<" in PixelCPEBase:setTheDet - in det "<<thePart<<endl; //dk
-
-    switch ( thePart ) {
-    case GeomDetEnumerators::PixelBarrel:
-      // A barrel!  A barrel!
-      lAWidth_ = lAWidthBPix_;
-      break;
-    case GeomDetEnumerators::PixelEndcap:
-      // A forward!  A forward!
-      lAWidth_ = lAWidthFPix_;
-      break;
-     default:
-       // does one need this exception?
-       //cout<<" something wrong"<<endl;
-       throw cms::Exception("PixelCPEBase::setTheDet :")
-	 << "PixelCPEBase: A non-pixel detector type in here?" ;
-    }
-    
-    //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
-    //--- The call goes via BoundSurface, returned by theDet->surface(), but
-    //--- position() is implemented in GloballyPositioned<> template
-    //--- ( BoundSurface : Surface : GloballyPositioned<float> )
-    theDetR = theDet->surface().position().perp();
-    theDetZ = theDet->surface().position().z();
-    //--- Define parameters for chargewidth calculation
-    
-    //--- bounds() is implemented in BoundSurface itself.
-    theThickness = theDet->surface().bounds().thickness();
-    
-    //--- Cache the topology.
-    // ggiurgiu@jhu.edu 12/09/2010 : no longer need to dynamyc cast to RectangularPixelTopology
-    //theTopol
-    //= dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
-    
-    auto topol = &(theDet->specificTopology());
-    if unlikely(topol!=theTopol) { // there is ONE topology!)
-	theTopol=topol;
-	auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(theTopol);
-	if (proxyT) theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
-	else theRecTopol = dynamic_cast<const RectangularPixelTopology*>(theTopol);
-	assert(theRecTopol);
-	
-	//---- The geometrical description of one module/plaquette
-	theNumOfRow = theRecTopol->nrows();      // rows in x
-	theNumOfCol = theRecTopol->ncolumns();   // cols in y
-	std::pair<float,float> pitchxy = theRecTopol->pitch();
-	thePitchX = pitchxy.first;            // pitch along x
-	thePitchY = pitchxy.second;           // pitch along y
-      }
-    
-    theSign = isFlipped() ? -1 : 1;
-    
-    widthLAFraction_=1.0; // preset the LA fraction to 1. 
-    
     // will cache if not yet there (need some of the above)
     theParam = &param(det);
-    
-    driftDirection_ = (*theParam).drift;
-    widthLAFraction_ = (*theParam).widthLAFraction;
+    theOrigin =  theParam->theOrigin;
+    thePart = theParam->thePart;
+    lAWidth_ = theParam->lAWidth;
+    theDetR = theParam->theDetR;
+    theDetZ = theParam->theDetZ;
+    theThickness = theParam->theThickness;
+    theTopol = theParam->theTopol;
+    theRecTopol = theParam->theRecTopol;
+    theNumOfRow = theParam->theNumOfRow;
+    theNumOfCol = theParam->theNumOfCol;
+    thePitchX = theParam->thePitchX;
+    thePitchY = theParam->thePitchY;
+    theSign = theParam->theSign;
+    widthLAFraction_= theParam->widthLAFraction;
+    driftDirection_ = theParam->driftDirection;
         
-    //cout<<" in PixelCPEBase:setTheDet - "<<driftDirection_<<" 0"<<endl; //dk
-    
-    // testing 
-    //if(thePart == GeomDetEnumerators::PixelBarrel) {
-      //cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
-      //theLShiftY=0.;
-    //}
-    
-    LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
-			     << " thePart = " << thePart
-			     << " theThickness = " << theThickness
-			     << " thePitchX  = " << thePitchX 
-			     << " thePitchY  = " << thePitchY; 
-    //			     << " theLShiftX  = " << theLShiftX;
-    
   }
     
   //--- Geometric Quality Information
@@ -505,12 +448,6 @@ PixelCPEBase::Param const & PixelCPEBase::param(const GeomDetUnit & det) const {
   //cout << "get parameters of detector " << i << endl;
   if (i>=int(m_Params.size())) m_Params.resize(i+1);  // should never happen!
   Param & p = m_Params[i];
-  if unlikely ( p.bz<-1.e10f  ) { 
-      LocalVector Bfield = theDet->surface().toLocal(magfield_->inTesla(theDet->surface().position()));
-      p.drift = driftDirection(Bfield );
-      p.bz = Bfield.z();
-      p.widthLAFraction = widthLAFraction_;
-    }
   return p;
 }
 

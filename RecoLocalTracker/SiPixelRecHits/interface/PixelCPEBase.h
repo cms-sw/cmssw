@@ -59,7 +59,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   {
     Param() : bz(-9e10f) {}
     float bz; // local Bz
-    LocalVector drift;
+    LocalVector driftDirection;
     float widthLAFraction; // Width-LA to Offset-LA
 
     // gavril : replace RectangularPixelTopology with PixelTopology
@@ -69,6 +69,8 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     GeomDetType::SubDetector thePart;
     Local3DPoint theOrigin;
     float theThickness;
+    float theDetR;
+    float theDetZ;
     float thePitchX;
     float thePitchY;
     float theNumOfRow;
