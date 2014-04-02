@@ -1356,15 +1356,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
        if (module<=4) module=5-module;
        else module-=4;
        
-       if (layerIndex==1) {
-	 columnEfficiency *= eff.theLadderEfficiency_BPix[0][ladder-1]*eff.theModuleEfficiency_BPix[0][module-1]*_pu_scale[0];
-       }
-       if (layerIndex==2) {
-	 columnEfficiency *= eff.theLadderEfficiency_BPix[1][ladder-1]*eff.theModuleEfficiency_BPix[1][module-1]*_pu_scale[1];
-       }
-       if (layerIndex==3) {
-	 columnEfficiency *= eff.theLadderEfficiency_BPix[2][ladder-1]*eff.theModuleEfficiency_BPix[2][module-1]*_pu_scale[2];
-       }
+       columnEfficiency *= eff.theLadderEfficiency_BPix[layerIndex-1][ladder-1]*eff.theModuleEfficiency_BPix[layerIndex-1][module-1]*_pu_scale[layerIndex-1];
     }
   } else {                // forward disks
     unsigned int diskIndex=tTopo->pxfDisk(detID)+eff.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
