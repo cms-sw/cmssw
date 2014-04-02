@@ -19,6 +19,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <cxxabi.h>
+# include <iostream>
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
@@ -179,6 +180,32 @@ class DQMStore
     DQMStore * owner_;
   };  // IBooker
 
+  class IGetter
+  {
+   public:
+    friend class DQMStore;
+
+    // for the supported syntaxes, see the declarations of DQMStore::get
+    template <typename... Args>
+    MonitorElement * get(Args && ... args) {
+      return owner_->get(std::forward<Args>(args)...);
+    }
+
+   private:
+    explicit IGetter(DQMStore * store):owner_(0) {
+      assert(store);
+      owner_ = store;
+    }
+
+    IGetter();
+    IGetter(const IGetter&);
+
+    // Embedded classes do not natively own a pointer to the embedding
+    // class. We therefore need to store a pointer to the main
+    // DQMStore instance (owner_).
+    DQMStore * owner_;
+  }; //IGetter
+
   // Template function to be used inside each DQM Modules' lambda
   // functions to book MonitorElements into the DQMStore. The function
   // calls whatever user-supplied code via the function f. The latter
@@ -202,6 +229,16 @@ class DQMStore
     }
     f(*ibooker_);
   }
+  //Signature needed in the harvesting where the booking is done
+  //in the endJob. No handles to the run there.
+  template <typename iFunc>
+  void bookTransaction(iFunc f) {
+    std::cout << "DQMStore::bookTransaction" << std::endl;
+
+    std::lock_guard<std::mutex> guard(book_mutex_);
+    f(*ibooker_);
+  }
+
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry&);
@@ -612,6 +649,7 @@ class DQMStore
 
   std::mutex book_mutex_;
   IBooker * ibooker_;
+  IGetter * igetter_;
 
   friend class edm::DQMHttpSource;
   friend class DQMService;

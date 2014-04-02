@@ -21,12 +21,8 @@ public:
 protected:
 
   void beginJob();
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) ;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-  void dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void endJob();
+  void bookHistograms(DQMStore::IBooker &) override;  //operation performed in the endJob
+  void dqmEndJob();
 
 private:
 

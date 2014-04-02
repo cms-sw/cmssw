@@ -38,47 +38,12 @@ void DQMExample_Step2::beginJob()
   edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::beginJob " << std::endl;
 }
 //
-// -------------------------------------- beginLuminosityBlock --------------------------------------------
-//
-void DQMExample_Step2::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                                            edm::EventSetup const& context) 
-{
-  edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::beginLuminosityBlock" << std::endl;
-}
-
-
-//
-// -------------------------------------- Analyze --------------------------------------------
-//
-void DQMExample_Step2::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::analyze" << std::endl;
-
-
-
-}
-//
-// -------------------------------------- endLuminosityBlock --------------------------------------------
-//
-void DQMExample_Step2::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) 
-{
-  edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::endLuminosityBlock" << std::endl;
-}
-
-
-//
-// -------------------------------------- endRun --------------------------------------------
-//
-void DQMExample_Step2::dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::dqmEndRun" << std::endl;
-}
-
-//
 // -------------------------------------- bookHistograms --------------------------------------------
 //
-void DQMExample_Step2::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)
+void DQMExample_Step2::bookHistograms(DQMStore::IBooker & ibooker_)
 {
+  std::cout << "DQMExample_Step2::bookHistograms" << std::endl;
+
   // create and cd into new folder
   ibooker_.setCurrentFolder("What_I_do_in_the_client/Ratio");
 
@@ -109,9 +74,11 @@ void DQMExample_Step2::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run con
 //
 // -------------------------------------- endJob --------------------------------------------
 //
-void DQMExample_Step2::endJob()
+void DQMExample_Step2::dqmEndJob()
 {
-  edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::endJob" << std::endl;
+
+  std::cout << "DQMExample_Step2::dqmEndJob" << std::endl;
+  edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::dqmEndJob" << std::endl;
 }
 
 

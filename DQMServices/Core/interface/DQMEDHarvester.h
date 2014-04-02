@@ -19,10 +19,12 @@ public:
   // implicit copy constructor
   // implicit assignment operator
   // implicit destructor
-  virtual void beginRun(edm::Run const &, edm::EventSetup const&) final;
-  virtual void endRun(edm::Run const &, edm::EventSetup const&) final;
-  virtual void dqmEndRun(edm::Run const &, edm::EventSetup const&);
-  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) = 0;
+  virtual void beginRun(edm::Run const &, edm::EventSetup const&) final {};
+  virtual void analyze(edm::Event const &, edm::EventSetup const&) final {};
+  virtual void endRun(edm::Run const &, edm::EventSetup const&) final {};
+  virtual void endJob() final;
+  virtual void dqmEndJob() {};
+  virtual void bookHistograms(DQMStore::IBooker &i) = 0;
 
 private:
 
