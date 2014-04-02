@@ -51,7 +51,7 @@ public:
   const MeasurementEstimator* estimator() const {return theEstimator;}
   const MultiTrajectoryStateMerger* merger() const {return theMerger;}
 
-  virtual std::unique_ptr<TrajectoryFitter> clone() const
+  virtual std::unique_ptr<TrajectoryFitter> clone() const override
   {
     return std::unique_ptr<TrajectoryFitter>(
         new GsfTrajectoryFitter(*thePropagator,
