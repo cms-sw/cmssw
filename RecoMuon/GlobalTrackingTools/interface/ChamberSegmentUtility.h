@@ -44,19 +44,6 @@ class ChamberSegmentUtility {
 
   // Get the 4D segments in a DT chamber
   std::vector<DTRecSegment4D> getDTSegmentsInChamber(DTChamberId);
-
-  // Get the list of DT chambers with segments
-  const std::map<int, std::vector<DTRecSegment4D> >& getDTlist() const { return dtsegMap; };
-
-  // Get the list of CSC chambers with segments
-  const std::map<int, std::vector<CSCSegment> >& getCSClist() const { return cscsegMap; };
-
-  // Get the map association between segments4d and rechits
-  std::vector<DTRecHit1D> getDTRHmap(const DTRecSegment4D&);
-
-  // Get the map association between segments4d and rechits 
-  std::vector<CSCRecHit2D> getCSCRHmap(const CSCSegment&);
-
   
  private:
 
@@ -66,12 +53,6 @@ class ChamberSegmentUtility {
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
   std::vector<DTRecSegment4D> dtseg;
   std::vector<CSCSegment> cscseg;
-  std::map<int, std::vector<DTRecSegment4D> > dtsegMap;
-  std::map<int, std::vector<CSCSegment> > cscsegMap;
-  DTChamberId selectedDT;
-  CSCDetId selectedCSC;
-  std::vector<DTRecHit1D> phiSegRH;
-  std::vector<DTRecHit1D> zSegRH;  
 };
 
 #endif
