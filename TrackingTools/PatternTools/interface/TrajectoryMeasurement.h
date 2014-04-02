@@ -26,8 +26,13 @@ class DetLayer;
 class TrajectoryMeasurement {
 public:
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  using RecHitPointer = TransientTrackingRecHit::RecHitPointer;
+  using ConstRecHitPointer = TransientTrackingRecHit::ConstRecHitPointer;
+#else
   typedef TransientTrackingRecHit::RecHitPointer         RecHitPointer;
   typedef TransientTrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
+#endif
 
   TrajectoryMeasurement() {}
 
@@ -185,9 +190,16 @@ public:
     return theUpdatedState;
   }
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   ConstRecHitPointer::element_type const & recHitR() const {
-    return *theRecHit.get();
+    return *theRecHit;
   }
+#else
+  TransientTrackingRecHit const & recHitR() const {   
+    return *theRecHit;
+  }  
+
+#endif
 
   ConstRecHitPointer const & recHitP() const {
     return theRecHit;

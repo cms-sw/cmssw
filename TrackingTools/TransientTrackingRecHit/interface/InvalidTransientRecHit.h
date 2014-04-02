@@ -12,7 +12,8 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
   typedef TrackingRecHit::Type Type;
   
   static RecHitPointer build( const GeomDet * geom, Type type=TrackingRecHit::missing, const DetLayer * layer=nullptr) {
-    return RecHitPointer( new InvalidTransientRecHit( geom, layer, type ));
+    return std::make_shared<InvalidTransientRecHit>( geom, layer, type );
+   // return RecHitPointer( new InvalidTransientRecHit( geom, layer, type ));
   }
   
 
@@ -53,7 +54,8 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
   
   // until all clients are migrated...
   InvalidTrackingRecHit me;
-  
+
+public:  
   /// invalid RecHit - has only GeomDet and Type
   InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type) :
     Base(geom == nullptr ? DetId(0) : geom->geographicalId(), geom, type), 

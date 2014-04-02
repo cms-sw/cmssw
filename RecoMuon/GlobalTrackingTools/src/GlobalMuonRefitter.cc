@@ -462,7 +462,7 @@ GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
       muonRecHits.push_back((*im).recHit());
       continue;
     }  
-    ConstMuonRecHitPointer immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
+    const MuonTransientTrackingRecHit* immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
 
     DetId id = immrh->geographicalId();
     DetId chamberId;

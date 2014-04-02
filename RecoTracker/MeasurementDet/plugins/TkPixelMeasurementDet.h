@@ -38,6 +38,14 @@ public:
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent & dat ) const;
 
+ // simple hits
+  virtual bool recHits(SimpleHitContainer & result,  
+		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const {
+    assert("not implemented for Pixel yet"==nullptr);
+  }
+
+ 
+
   virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			    const MeasurementEstimator& est, const MeasurementTrackerEvent & dat,
 			    TempMeasurements & result) const;

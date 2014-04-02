@@ -6,6 +6,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
@@ -19,6 +20,9 @@ public:
   typedef tracking::TempMeasurements TempMeasurements;
   typedef TransientTrackingRecHit::ConstRecHitContainer        RecHitContainer;
 
+  using SimpleHitContainer=std::vector<BaseTrackerRecHit *>;
+
+
   MeasurementDet( const GeomDet* gdet) : theGeomDet(gdet) {}
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent &) const = 0;
@@ -30,6 +34,10 @@ public:
     result = recHits(stateOnThisDet, data);
     return !result.empty();
   }
+
+  // default for non-tracker dets...
+  virtual bool recHits(SimpleHitContainer & result,  
+		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const { return false;}
 
   /** obsolete version in case the TrajectoryState on the surface of the
    *  Det is already available. The first TrajectoryStateOnSurface is on the surface of this 

@@ -87,6 +87,25 @@ namespace {
 
 }
  
+
+// return just valid hits, no sorting (for seeding mostly)
+bool LayerMeasurements::recHits(SimpleHitContainer & result,
+			     const DetLayer& layer, 
+			     const TrajectoryStateOnSurface& startingState,
+			     const Propagator& prop, 
+			     const MeasurementEstimator& est) const {
+
+  auto  const & compatDets = layer.compatibleDets( startingState, prop, est);  
+  if (compatDets.empty()) return false;
+  bool ret=false;
+  for ( auto const & ds : compatDets) {
+    auto mdet = theDetSystem->idToDet(ds.first->geographicalId(), *theData);
+    ret |=mdet.recHits(result,ds.second,est);
+  }
+  return ret;
+}
+
+
 vector<TrajectoryMeasurement>
 LayerMeasurements::measurements( const DetLayer& layer, 
 				 const TrajectoryStateOnSurface& startingState,

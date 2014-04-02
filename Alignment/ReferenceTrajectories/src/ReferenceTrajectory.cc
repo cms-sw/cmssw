@@ -176,10 +176,9 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     // There is also a constructor taking the magentic field. Use this one instead?
     theRefTsos = TrajectoryStateOnSurface(pcaFts, bsGeom->surface());
     
-    TransientTrackingRecHit::ConstRecHitPointer bsRecHit = 
-      new BeamSpotTransientTrackingRecHit(beamSpot,
+    TransientTrackingRecHit::ConstRecHitPointer bsRecHit(new BeamSpotTransientTrackingRecHit(beamSpot,
 					  bsGeom,
-					  theRefTsos.freeState()->momentum().phi());
+					  theRefTsos.freeState()->momentum().phi()));
     allRecHits.push_back(bsRecHit);
 
   }

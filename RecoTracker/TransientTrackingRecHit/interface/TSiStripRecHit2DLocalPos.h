@@ -56,7 +56,9 @@ public:
   static RecHitPointer build( const GeomDet * geom, const SiStripRecHit2D* rh,
 			      const StripClusterParameterEstimator* cpe,
 			      bool computeCoarseLocalPosition=false) {
-    return RecHitPointer( new TSiStripRecHit2DLocalPos( geom, rh, cpe,computeCoarseLocalPosition));
+    return std::make_shared<TSiStripRecHit2DLocalPos>( geom, rh, cpe,computeCoarseLocalPosition);
+//    return RecHitPointer( new TSiStripRecHit2DLocalPos( geom, rh, cpe,computeCoarseLocalPosition));
+
   }
   
   
@@ -64,14 +66,16 @@ public:
 			      const GeomDet* det,
 			      const OmniClusterRef & clust,
 			      const StripClusterParameterEstimator* cpe) {
-    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, clust, cpe));
+    return std::make_shared<TSiStripRecHit2DLocalPos>( pos, err, det, clust, cpe);
+//    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, clust, cpe));
   }
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
 			      const GeomDet* det,
 			      const SiStripClusterRef & clust,
 			      const StripClusterParameterEstimator* cpe) {
-    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, OmniClusterRef(clust), cpe));
+   return std::make_shared<TSiStripRecHit2DLocalPos>( pos, err, det, OmniClusterRef(clust), cpe);
+//    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, OmniClusterRef(clust), cpe));
   }
   
   
@@ -93,7 +97,7 @@ private:
   SiStripRecHit2D              theHitData;
  
 
-
+public:
  
   TSiStripRecHit2DLocalPos (const GeomDet * geom, const SiStripRecHit2D* rh,
 			    const StripClusterParameterEstimator* cpe,

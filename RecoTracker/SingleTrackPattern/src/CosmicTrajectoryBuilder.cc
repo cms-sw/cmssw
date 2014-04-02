@@ -313,7 +313,7 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 					   <<UpdatedState<<" "
 					   <<traj.chiSquared();
 
-	     hits.push_back(&(*tmphitbestdet));
+	     hits.push_back(tmphitbestdet);
 	   }
 	 }else LogDebug("CosmicTrackFinder")<<" Hits outside module surface "<< prLoc;
        }else LogDebug("CosmicTrackFinder")<<" State can not be updated with hit at position " <<gphit;
@@ -341,9 +341,8 @@ bool
 CosmicTrajectoryBuilder::qualityFilter(const Trajectory& traj){
   int ngoodhits=0;
   if(geometry=="MTCC"){
-    std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits= traj.recHits();
-    std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
-    for(hit=hits.begin();hit!=hits.end();hit++){
+    auto hits = traj.recHits();
+    for(auto hit=hits.begin();hit!=hits.end();hit++){
       unsigned int iid=(*hit)->hit()->geographicalId().rawId();
       //CHECK FOR 3 hits r-phi
       if(((iid>>0)&0x3)!=1) ngoodhits++;

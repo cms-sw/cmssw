@@ -15,11 +15,6 @@ class GeomDetUnit;
 class TValidTrackingRecHit : public TransientTrackingRecHit {
 public:
   
-  typedef ReferenceCountingPointer<TransientTrackingRecHit>        RecHitPointer;
-  typedef ConstReferenceCountingPointer<TransientTrackingRecHit>   ConstRecHitPointer;
-  typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
-  typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
-
   TValidTrackingRecHit(const GeomDet * geom) : 
   TransientTrackingRecHit(geom->geographicalId(), geom) {}
 

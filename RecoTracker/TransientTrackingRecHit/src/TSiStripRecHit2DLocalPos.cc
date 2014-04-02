@@ -17,7 +17,7 @@ TSiStripRecHit2DLocalPos::clone (const TrajectoryStateOnSurface& ts) const
     return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, det(), specificHit()->omniClusterRef(), theCPE);					    
   }
   /// FIXME: should report the problem somehow
-  else return clone();
+  else return RecHitPointer(clone());
 }
 
 

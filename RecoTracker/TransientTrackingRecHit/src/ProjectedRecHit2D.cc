@@ -47,7 +47,7 @@ ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
     return hit;
   }
   /// FIXME: should report the problem somehow
-  else return clone();
+  else return RecHitPointer(clone());
 }
   
 TransientTrackingRecHit::ConstRecHitContainer 	

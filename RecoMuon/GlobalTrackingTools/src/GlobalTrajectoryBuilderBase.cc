@@ -440,7 +440,7 @@ GlobalTrajectoryBuilderBase::selectTrackerHits(const ConstRecHitContainer& all) 
          (*i)->det()->geographicalId().subdetId() == StripSubdetector::TEC) {
       nTEC++;
     } else {
-      hits.push_back((*i).get());
+      hits.push_back(*i);
     }
     if ( nTEC > 1 ) return all;
   }

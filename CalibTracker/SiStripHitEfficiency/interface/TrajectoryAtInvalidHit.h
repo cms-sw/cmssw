@@ -59,7 +59,7 @@ private:
   bool acceptance;
   bool hasValidHit;
 
-  ConstReferenceCountingPointer<TransientTrackingRecHit> theHit;
+  TransientTrackingRecHit::ConstRecHitPointer theHit;
 };
 
 #endif

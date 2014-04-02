@@ -40,7 +40,7 @@ TSiStripRecHit1D::clone (const TrajectoryStateOnSurface& ts) const
   }
   else {
     //FIXME. It should report the problem with a LogWarning;
-    return clone();
+    return TransientTrackingRecHit::RecHitPointer(clone());
   }
 }
 
