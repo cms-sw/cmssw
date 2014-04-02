@@ -21,6 +21,10 @@ namespace cond {
   }
 }
 
-REGISTER_PLUGIN(PerformancePayloadRecord, PerformancePayload);
+namespace {
+  struct InitPerformancePayload {void operator()(PerformancePayload& e){ e.initialize();}};
+}
+
+REGISTER_PLUGIN_INIT(PerformancePayloadRecord, PerformancePayload, InitPerformancePayload);
 REGISTER_PLUGIN(PerformanceWPRecord, PerformanceWorkingPoint);
-REGISTER_PLUGIN(PFCalibrationRcd, PerformancePayload);
+REGISTER_PLUGIN_INIT(PFCalibrationRcd, PerformancePayload, InitPerformancePayload);

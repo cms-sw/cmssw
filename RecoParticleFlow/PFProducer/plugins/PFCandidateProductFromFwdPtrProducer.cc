@@ -11,4 +11,5 @@
 
 typedef edm::ProductFromFwdPtrProducer<reco::PFCandidate, reco::PFCandidateWithSrcPtrFactory> PFCandidateProductFromFwdPtrProducer;
 
-
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFCandidateProductFromFwdPtrProducer);
