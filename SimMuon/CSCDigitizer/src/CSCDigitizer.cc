@@ -78,9 +78,31 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
   for(std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin();
       hitMapItr != hitMap.end(); ++hitMapItr)
   {
-    int chamberId = CSCDetId(hitMapItr->first).chamberId();
-    unsigned int nLayersInChamberHit = layersInChamberHit[chamberId].size();
-    if(nLayersInChamberHit < theLayersNeeded) continue;
+    CSCDetId detId = CSCDetId(hitMapItr->first);
+    int chamberId = detId.chamberId();
+    int endc = detId.endcap();
+    int stat = detId.station();
+    int ring = detId.ring();
+    int cham = detId.chamber();
+    
+    unsigned int nLayersInChamberHitForWireDigis = 0;
+    if (stat == 1 && ring == 1) { // ME1b
+        std::set<int> layersInME1a = layersInChamberHit[CSCDetId(endc,stat,4,cham,0)];
+        std::set<int> layersInME11 = layersInChamberHit[chamberId];
+        layersInME11.insert(layersInME1a.begin(),layersInME1a.end());
+        nLayersInChamberHitForWireDigis = layersInME11.size();
+    }
+    else if (stat == 1 && ring == 4) { // ME1a
+        std::set<int> layersInME1b = layersInChamberHit[CSCDetId(endc,stat,1,cham,0)];
+        std::set<int> layersInME11 = layersInChamberHit[chamberId];
+        layersInME11.insert(layersInME1b.begin(),layersInME1b.end());
+        nLayersInChamberHitForWireDigis = layersInME11.size();
+    }
+    else nLayersInChamberHitForWireDigis = layersInChamberHit[chamberId].size();
+
+    unsigned int nLayersInChamberHitForStripDigis = layersInChamberHit[chamberId].size();
+    
+    if (nLayersInChamberHitForWireDigis < theLayersNeeded && nLayersInChamberHitForStripDigis < theLayersNeeded) continue;
     // skip bad chambers
     if ( !digitizeBadChambers_ && theConditions->isInBadChamber( CSCDetId(hitMapItr->first) ) ) continue;
 
@@ -102,12 +124,12 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
     }
 
     // turn the hits into wire digis, using the electronicsSim
-    {
+    if (nLayersInChamberHitForWireDigis >= theLayersNeeded) {
       theWireElectronicsSim->simulate(layer, newWireHits, engine);
       theWireElectronicsSim->fillDigis(wireDigis, engine);
       wireDigiSimLinks.insert( theWireElectronicsSim->digiSimLinks() );
     }  
-    {
+    if (nLayersInChamberHitForStripDigis >= theLayersNeeded) {
       theStripElectronicsSim->simulate(layer, newStripHits, engine);
       theStripElectronicsSim->fillDigis(stripDigis, comparators, engine);
       stripDigiSimLinks.insert( theStripElectronicsSim->digiSimLinks() );
