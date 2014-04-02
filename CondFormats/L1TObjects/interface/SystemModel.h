@@ -61,11 +61,15 @@ namespace l1t {
     Device* getTxDevice();
     int getRxPort();
     int getTxPort();
+    LinkFormat* getFormat();
+    LinkMap* getMap();
   private: 
     Device* txDevice_;
     int txPort_;
     Device* rxDevice_;
     int rxPort_;
+    LinkFormat format_;
+    LinkMap map_;
   }
 
 
@@ -78,8 +82,6 @@ namespace l1t {
   private: 
     std::vector<Link*> rxLinks_;
     std::vector<Link*> txLinks_;
-    std::vector<LinkFormat*> rxFormats_;
-    std::vector<LinkFormat*> txFormats_;
   }
 
 
@@ -94,7 +96,10 @@ namespace l1t {
   public:
     SubSystem();
     ~SubSystem();
+    std::string getName();
+    Board* getBoard( int i);
   private:
+    std::string name_;
     std::vector<Board> boards_;
   }
   
@@ -108,9 +113,6 @@ namespace l1t {
     // physical system
     std::vector<SubSystem> subs_;
     std::vector<Link> links_;
-    // data formats
-    std::vector<LinkFormat> linkFormats_;
-    std::vector<LinkMap> linkMaps_;
   }
   
 
