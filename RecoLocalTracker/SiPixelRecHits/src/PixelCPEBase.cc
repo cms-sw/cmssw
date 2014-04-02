@@ -127,6 +127,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   useLAAlignmentOffsets_ = conf.existsAs<bool>("useLAAlignmentOffsets")?
     conf.getParameter<bool>("useLAAlignmentOffsets"):false;
 
+  // Compute the Lorentz shifts for this detector element for the Alignment Group, and always for CPEgeneric
   DoLorentz_ = conf.existsAs<bool>("DoLorentz")?conf.getParameter<bool>("DoLorentz"):true;
 
   LogDebug("PixelCPEBase") <<" LA constants - "
@@ -178,8 +179,8 @@ void PixelCPEBase::fillDetParams()
     //--- The call goes via BoundSurface, returned by p.theDet->surface(), but
     //--- position() is implemented in GloballyPositioned<> template
     //--- ( BoundSurface : Surface : GloballyPositioned<float> )
-    p.theDetR = p.theDet->surface().position().perp();
-    p.theDetZ = p.theDet->surface().position().z();
+    //p.theDetR = p.theDet->surface().position().perp();  //Not used, AH
+    //p.theDetZ = p.theDet->surface().position().z();  //Not used, AH
     //--- Define parameters for chargewidth calculation
     
     //--- bounds() is implemented in BoundSurface itself.
@@ -199,19 +200,20 @@ void PixelCPEBase::fillDetParams()
        assert(p.theRecTopol);
        
        //---- The geometrical description of one module/plaquette
-       p.theNumOfRow = p.theRecTopol->nrows();	// rows in x
-       p.theNumOfCol = p.theRecTopol->ncolumns();	// cols in y
+       //p.theNumOfRow = p.theRecTopol->nrows();	// rows in x //Not used, AH
+       //p.theNumOfCol = p.theRecTopol->ncolumns();	// cols in y //Not used, AH
        std::pair<float,float> pitchxy = p.theRecTopol->pitch();
        p.thePitchX = pitchxy.first;	     // pitch along x
        p.thePitchY = pitchxy.second;	     // pitch along y
       }
      
-    p.theSign = isFlipped(&p) ? -1 : 1;
+    //p.theSign = isFlipped(&p) ? -1 : 1; //Not used, AH
+
+    LocalVector Bfield = p.theDet->surface().toLocal(magfield_->inTesla(p.theDet->surface().position()));
+    p.bz = Bfield.z();
 
     // Compute the Lorentz shifts for this detector element for the Alignment Group, and always for CPEgeneric
     if ( DoLorentz_ ) {
-      LocalVector Bfield = p.theDet->surface().toLocal(magfield_->inTesla(p.theDet->surface().position()));
-      p.bz = Bfield.z();
       p.driftDirection = driftDirection(&p, Bfield );
       computeLorentzShifts(&p);
     }
@@ -231,15 +233,15 @@ void PixelCPEBase::fillDetParams()
 //  One function to cache the variables common for one DetUnit.
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::setTheDet( DetParam const * theDetParam, ClusterParam & theClusterParam ) const 
+PixelCPEBase::setTheDet( DetParam const * theDetParam, ClusterParam * theClusterParam ) const 
 {
 
   //--- Geometric Quality Information
   int minInX,minInY,maxInX,maxInY=0;
-  minInX = theClusterParam.theCluster->minPixelRow();
-  minInY = theClusterParam.theCluster->minPixelCol();
-  maxInX = theClusterParam.theCluster->maxPixelRow();
-  maxInY = theClusterParam.theCluster->maxPixelCol();
+  minInX = theClusterParam->theCluster->minPixelRow();
+  minInY = theClusterParam->theCluster->minPixelCol();
+  maxInX = theClusterParam->theCluster->maxPixelRow();
+  maxInY = theClusterParam->theCluster->maxPixelCol();
   
   isOnEdge_ = theDetParam->theRecTopol->isItEdgePixelInX(minInX) | theDetParam->theRecTopol->isItEdgePixelInX(maxInX) |
     theDetParam->theRecTopol->isItEdgePixelInY(minInY) | theDetParam->theRecTopol->isItEdgePixelInY(maxInY) ;
@@ -247,8 +249,8 @@ PixelCPEBase::setTheDet( DetParam const * theDetParam, ClusterParam & theCluster
   // FOR NOW UNUSED. KEEP IT IN CASE WE WANT TO USE IT IN THE FUTURE  
   // Bad Pixels have their charge set to 0 in the clusterizer 
   //hasBadPixels_ = false;
-  //for(unsigned int i=0; i<theClusterParam.theCluster->pixelADC().size(); ++i) {
-  //if(theClusterParam.theCluster->pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
+  //for(unsigned int i=0; i<theClusterParam->theCluster->pixelADC().size(); ++i) {
+  //if(theClusterParam->theCluster->pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
   //}
   
   spansTwoROCs_ = theDetParam->theRecTopol->containsBigPixelInX(minInX,maxInX) |
@@ -262,12 +264,12 @@ PixelCPEBase::setTheDet( DetParam const * theDetParam, ClusterParam & theCluster
 //  Note: should become const after both localParameters() become const.
 //-----------------------------------------------------------------------------
 void PixelCPEBase::
-computeAnglesFromTrajectory( DetParam const * theDetParam, ClusterParam & theClusterParam,
+computeAnglesFromTrajectory( DetParam const * theDetParam, ClusterParam * theClusterParam,
 			     const LocalTrajectoryParameters & ltp) const
 {
   //cout<<" in PixelCPEBase:computeAnglesFromTrajectory - "<<endl; //dk
 
-  //theClusterParam.loc_traj_param = ltp;
+  //theClusterParam->loc_traj_param = ltp;
 
   LocalVector localDir = ltp.momentum();
   
@@ -285,21 +287,21 @@ computeAnglesFromTrajectory( DetParam const * theDetParam, ClusterParam & theClu
   */
   
   
-  theClusterParam.cotalpha = locx/locz;
-  theClusterParam.cotbeta  = locy/locz;
-  //theClusterParam.zneg = (locz < 0); // Not used, AH
+  theClusterParam->cotalpha = locx/locz;
+  theClusterParam->cotbeta  = locy/locz;
+  //theClusterParam->zneg = (locz < 0); // Not used, AH
   
   
   LocalPoint trk_lp = ltp.position();
-  theClusterParam.trk_lp_x = trk_lp.x();
-  theClusterParam.trk_lp_y = trk_lp.y();
+  theClusterParam->trk_lp_x = trk_lp.x();
+  theClusterParam->trk_lp_y = trk_lp.y();
   
-  theClusterParam.with_track_angle = true;
+  theClusterParam->with_track_angle = true;
 
 
   // ggiurgiu@jhu.edu 12/09/2010 : needed to correct for bows/kinks
   AlgebraicVector5 vec_trk_parameters = ltp.mixedFormatVector();
-  theClusterParam.loc_trk_pred = Topology::LocalTrackPred( vec_trk_parameters );
+  theClusterParam->loc_trk_pred = Topology::LocalTrackPred( vec_trk_parameters );
   
 }
 
@@ -324,7 +326,7 @@ computeAnglesFromTrajectory( DetParam const * theDetParam, ClusterParam & theClu
 //-----------------------------------------------------------------------------
 // G. Giurgiu, 12/01/06 : implement the function
 void PixelCPEBase::
-computeAnglesFromDetPosition(DetParam const * theDetParam, ClusterParam & theClusterParam ) const
+computeAnglesFromDetPosition(DetParam const * theDetParam, ClusterParam * theClusterParam ) const
 {
  
   
@@ -380,20 +382,20 @@ computeAnglesFromDetPosition(DetParam const * theDetParam, ClusterParam & theClu
   */
   
   // all the above is equivalent to 
-  LocalPoint lp = theDetParam->theTopol->localPosition( MeasurementPoint(theClusterParam.theCluster->x(), theClusterParam.theCluster->y()) );
+  LocalPoint lp = theDetParam->theTopol->localPosition( MeasurementPoint(theClusterParam->theCluster->x(), theClusterParam->theCluster->y()) );
   auto gvx = lp.x()-theDetParam->theOrigin.x();
   auto gvy = lp.y()-theDetParam->theOrigin.y();
   auto gvz = -1.f/theDetParam->theOrigin.z();
   //  normalization not required as only ratio used... 
   
 
-  //theClusterParam.zneg = (gvz < 0); // Not used, AH
+  //theClusterParam->zneg = (gvz < 0); // Not used, AH
 
   // calculate angles
-  theClusterParam.cotalpha = gvx*gvz;
-  theClusterParam.cotbeta  = gvy*gvz;
+  theClusterParam->cotalpha = gvx*gvz;
+  theClusterParam->cotbeta  = gvy*gvz;
 
-  theClusterParam.with_track_angle = false;
+  theClusterParam->with_track_angle = false;
 
 
   /*
@@ -491,8 +493,8 @@ PixelCPEBase::driftDirection(DetParam * theDetParam, LocalVector Bfield ) const 
     if(useLAWidthFromGenError) {
       // or from the new error object
       // for the moment this does not compile, gtemp_ is defined only in generic
-      auto gtemplid = genErrorDBObject_->getGenErrorID(theDetParam->theDet->geographicalId().rawId());
-      cout<<gtemplid<<endl;
+      //auto gtemplid = genErrorDBObject_->getGenErrorID(theDetParam->theDet->geographicalId().rawId());
+      //cout<<gtemplid<<endl;
       //auto qbin = gtempl_.qbin( gtemplid);  // inputs
       //langleWidth = -micronsToCm*gtempl_.lorxwidth();
       ////chargeWidthY = -micronsToCm*gtempl_.lorywidth();
