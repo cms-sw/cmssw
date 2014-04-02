@@ -36,9 +36,9 @@ runTest "${INPUT} --scenario=hcalnzs --reco --aod --alcareco --dqm --global-tag 
 
 INPUT=${LOCAL_TEST_DIR}/RunAlcaSkimming.py
 
-runTest "${INPUT} --scenario pp --lfn=/store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+PromptCalibProd"
-runTest "${INPUT} --scenario cosmics --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias+SiStripPCLHistos"
-runTest "${INPUT} --scenario HeavyIons --lfn=/store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+PromptCalibProd"
+runTest "${INPUT} --scenario pp --lfn=/store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripCalMinBias,TkAlMinBias,PromptCalibProd"
+runTest "${INPUT} --scenario cosmics --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripPCLHistos"
+runTest "${INPUT} --scenario HeavyIons --lfn=/store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripCalMinBias,TkAlMinBiasHI,PromptCalibProd"
 runTest "${INPUT} --scenario AlCaLumiPixels --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims LumiPixels"
 #runTest "${INPUT} --scenario AlCaP0 --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims EcalCalPi0Calib"
 #runTest "${INPUT} --scenario AlCaPhiSymEcal --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims EcalCalPhiSym"
