@@ -24,9 +24,9 @@ GlobalMuonRefitter = cms.PSet(
     RefitRPCHits = cms.bool(True),
  
     # DYT stuff
-    DYTthrs = cms.vint32(20, 30),
+    DYTthrs = cms.vint32(5, 5),
     DYTselector = cms.int32(1),
-    DYTupdator = cms.bool(False),
+    DYTupdator = cms.bool(True),
     DYTuseAPE = cms.bool(False),
     
     # muon station to be skipped
