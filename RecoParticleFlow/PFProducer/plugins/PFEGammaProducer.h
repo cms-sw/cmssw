@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 // useful?
@@ -48,7 +48,7 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 */
 
 
-class PFEGammaProducer : public edm::EDProducer {
+class PFEGammaProducer : public edm::stream::EDProducer<> {
  public:
   explicit PFEGammaProducer(const edm::ParameterSet&);
   ~PFEGammaProducer();
@@ -136,5 +136,8 @@ class PFEGammaProducer : public edm::EDProducer {
   std::string esClustersCollection_;
 
 };
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFEGammaProducer);
 
 #endif
