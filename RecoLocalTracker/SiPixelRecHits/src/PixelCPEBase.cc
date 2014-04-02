@@ -66,8 +66,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
     spansTwoROCs_(false), hasFilledProb_(false),
     useLAAlignmentOffsets_(false), useLAOffsetFromConfig_(false),
     useLAWidthFromConfig_(false), useLAWidthFromDB_(false),
-    magfield_(mag), geom_(geom),
-    loc_trk_pred_(0.0, 0.0, 0.0, 0.0)
+    magfield_(mag), geom_(geom)
 {
   //--- Lorentz angle tangent per Tesla
 
@@ -101,10 +100,34 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   clusterProbComputationFlag_ 
     = (unsigned int) conf.getParameter<int>("ClusterProbComputationFlag");
 
-  // For safety initilaize the parameters which are used by generic algo only to 0
-  lAOffset_ = 0.0;
-  lAWidthBPix_  = 0.0;
-  lAWidthFPix_  = 0.0;
+  // This LA related parameters are only relevant for the Generic algo
+  // Not really true since there is a switch to compute them for the alignment group also in the template algo
+
+  //lAOffset_ = conf.getUntrackedParameter<double>("lAOffset",0.0);
+  lAOffset_ = conf.existsAs<double>("lAOffset")?
+              conf.getParameter<double>("lAOffset"):0.0;
+  //lAWidthBPix_  = conf.getUntrackedParameter<double>("lAWidthBPix",0.0);
+  lAWidthBPix_ = conf.existsAs<double>("lAWidthBPix")?
+                 conf.getParameter<double>("lAWidthBPix"):0.0;
+  //lAWidthFPix_  = conf.getUntrackedParameter<double>("lAWidthFPix",0.0);
+  lAWidthFPix_ = conf.existsAs<double>("lAWidthFPix")?
+                 conf.getParameter<double>("lAWidthFPix"):0.0;
+
+  // Use LA-offset from config, for testing only
+  if(lAOffset_>0.0) useLAOffsetFromConfig_ = true;
+  // Use LA-width from config, split into fpix & bpix, for testing only
+  if(lAWidthBPix_>0.0 || lAWidthFPix_>0.0) useLAWidthFromConfig_ = true;
+
+  // Use LA-width from DB. If both (upper and this) are false LA-width is calcuated from LA-offset
+  //useLAWidthFromDB_ = conf.getParameter<bool>("useLAWidthFromDB");
+  useLAWidthFromDB_ = conf.existsAs<bool>("useLAWidthFromDB")?
+    conf.getParameter<bool>("useLAWidthFromDB"):false;
+
+  // Use Alignment LA-offset 
+  useLAAlignmentOffsets_ = conf.existsAs<bool>("useLAAlignmentOffsets")?
+    conf.getParameter<bool>("useLAAlignmentOffsets"):false;
+
+  DoLorentz_ = conf.existsAs<bool>("DoLorentz")?conf.getParameter<bool>("DoLorentz"):true;
 
   LogDebug("PixelCPEBase") <<" LA constants - "
 			   <<lAOffset_<<" "<<lAWidthBPix_<<" "<<lAWidthFPix_<<endl; //dk
@@ -185,7 +208,13 @@ void PixelCPEBase::fillDetParams()
      
     p.theSign = isFlipped(&p) ? -1 : 1;
 
-    // Do not fill drift direction yet, since it depends on configuration of CPEgeneric
+    // Compute the Lorentz shifts for this detector element for the Alignment Group, and always for CPEgeneric
+    if ( DoLorentz_ ) {
+      LocalVector Bfield = p.theDet->surface().toLocal(magfield_->inTesla(p.theDet->surface().position()));
+      p.bz = Bfield.z();
+      p.driftDirection = driftDirection(&p, Bfield );
+      computeLorentzShifts(&p);
+    }
 
     LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
 			     << " thePart = " << p.thePart
@@ -238,7 +267,7 @@ computeAnglesFromTrajectory( DetParam const * theDetParam, ClusterParam & theClu
 {
   //cout<<" in PixelCPEBase:computeAnglesFromTrajectory - "<<endl; //dk
 
-  loc_traj_param_ = ltp;
+  //theClusterParam.loc_traj_param = ltp;
 
   LocalVector localDir = ltp.momentum();
   
@@ -258,19 +287,19 @@ computeAnglesFromTrajectory( DetParam const * theDetParam, ClusterParam & theClu
   
   theClusterParam.cotalpha = locx/locz;
   theClusterParam.cotbeta  = locy/locz;
-  theClusterParam.zneg = (locz < 0);
+  //theClusterParam.zneg = (locz < 0); // Not used, AH
   
   
   LocalPoint trk_lp = ltp.position();
-  trk_lp_x = trk_lp.x();
-  trk_lp_y = trk_lp.y();
+  theClusterParam.trk_lp_x = trk_lp.x();
+  theClusterParam.trk_lp_y = trk_lp.y();
   
-  with_track_angle = true;
+  theClusterParam.with_track_angle = true;
 
 
   // ggiurgiu@jhu.edu 12/09/2010 : needed to correct for bows/kinks
   AlgebraicVector5 vec_trk_parameters = ltp.mixedFormatVector();
-  loc_trk_pred_ = Topology::LocalTrackPred( vec_trk_parameters );
+  theClusterParam.loc_trk_pred = Topology::LocalTrackPred( vec_trk_parameters );
   
 }
 
@@ -358,13 +387,13 @@ computeAnglesFromDetPosition(DetParam const * theDetParam, ClusterParam & theClu
   //  normalization not required as only ratio used... 
   
 
-  theClusterParam.zneg = (gvz < 0);
+  //theClusterParam.zneg = (gvz < 0); // Not used, AH
 
   // calculate angles
   theClusterParam.cotalpha = gvx*gvz;
   theClusterParam.cotbeta  = gvy*gvz;
 
-  with_track_angle = false;
+  theClusterParam.with_track_angle = false;
 
 
   /*
@@ -410,15 +439,9 @@ bool PixelCPEBase::isFlipped(DetParam const * theDetParam) const
 PixelCPEBase::DetParam const & PixelCPEBase::detParam(const GeomDetUnit & det) const {
   auto i = det.index();
   //cout << "get parameters of detector " << i << endl;
-  //assert(i>=int(m_DetParams.size()));
-  if (i>=int(m_DetParams.size())) m_DetParams.resize(i+1);  // should never happen!
-  DetParam & p = m_DetParams[i];
-  if unlikely(p.bz<-1.e10f) {
-    LocalVector Bfield = det.surface().toLocal(magfield_->inTesla(det.surface().position()));
-    p.bz = Bfield.z();
-    p.driftDirection = driftDirection(&p, Bfield );
-    p.widthLAFraction = widthLAFraction_;
-  }
+  assert(i<int(m_DetParams.size()));
+  //if (i>=int(m_DetParams.size())) m_DetParams.resize(i+1);  // should never happen!
+  const DetParam & p = m_DetParams[i];
   return p;
 }
 
@@ -431,7 +454,7 @@ PixelCPEBase::DetParam const & PixelCPEBase::detParam(const GeomDetUnit & det) c
 //
 //-----------------------------------------------------------------------------
 LocalVector 
-PixelCPEBase::driftDirection(DetParam const * theDetParam, GlobalVector bfield ) const {
+PixelCPEBase::driftDirection(DetParam * theDetParam, GlobalVector bfield ) const {
 
   Frame detFrame(theDetParam->theDet->surface().position(), theDetParam->theDet->surface().rotation());
   LocalVector Bfield = detFrame.toLocal(bfield);
@@ -440,7 +463,7 @@ PixelCPEBase::driftDirection(DetParam const * theDetParam, GlobalVector bfield )
 }
 
 LocalVector 
-PixelCPEBase::driftDirection(DetParam const * theDetParam, LocalVector Bfield ) const {
+PixelCPEBase::driftDirection(DetParam * theDetParam, LocalVector Bfield ) const {
   const bool LocalPrint = false;
   const bool useLAWidthFromGenError = false;
 
@@ -478,15 +501,15 @@ PixelCPEBase::driftDirection(DetParam const * theDetParam, LocalVector Bfield ) 
       langleWidth = lorentzAngleWidth_->getLorentzAngle(theDetParam->theDet->geographicalId().rawId());
     }
 
-    if(langleWidth!=0.0) widthLAFraction_ = std::abs(langleWidth/langle);
-    else widthLAFraction_ = 1.0;
-    if(LocalPrint)  cout<<" Will use LA Width from DB "<<langleWidth<<" "<<widthLAFraction_<<endl;
+    if(langleWidth!=0.0) theDetParam->widthLAFraction = std::abs(langleWidth/langle);
+    else theDetParam->widthLAFraction = 1.0;
+    if(LocalPrint)  cout<<" Will use LA Width from DB "<<langleWidth<<" "<<theDetParam->widthLAFraction<<endl;
   } else if(useLAWidthFromConfig_) { // get from config 
-    if(langle!=0.0) widthLAFraction_ = std::abs(lAWidth_/langle);
-    if(LocalPrint)  cout<<" Will use LA Width from config "<<lAWidth_<<endl;
+    if(langle!=0.0) theDetParam->widthLAFraction = std::abs(theDetParam->lAWidth/langle);
+    if(LocalPrint)  cout<<" Will use LA Width from config "<<theDetParam->lAWidth<<endl;
   } else { // get if from the offset LA (old method used until 2013)
-    widthLAFraction_ = 1.0; // use the same angle
-    if(LocalPrint)  cout<<" Will use LA Width from LA Offset "<<widthLAFraction_<<endl;
+    theDetParam->widthLAFraction = 1.0; // use the same angle
+    if(LocalPrint)  cout<<" Will use LA Width from LA Offset "<<theDetParam->widthLAFraction<<endl;
   }
     
   float alpha2 = alpha2Order ?  langle*langle : 0;
@@ -515,13 +538,13 @@ PixelCPEBase::driftDirection(DetParam const * theDetParam, LocalVector Bfield ) 
 //  One-shot computation of the driftDirection and both lorentz shifts
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::computeLorentzShifts(DetParam const * theDetParam) const {
+PixelCPEBase::computeLorentzShifts(DetParam * theDetParam) const {
 
   //cout<<" in PixelCPEBase:computeLorentzShifts - "<<driftDirection_<<endl; //dk
 
   // Max shift (at the other side of the sensor) in cm 
-  lorentzShiftInCmX_ = theDetParam->driftDirection.x()/theDetParam->driftDirection.z() * theDetParam->theThickness;  // 
-  lorentzShiftInCmY_ = theDetParam->driftDirection.y()/theDetParam->driftDirection.z() * theDetParam->theThickness;  //
+  theDetParam->lorentzShiftInCmX = theDetParam->driftDirection.x()/theDetParam->driftDirection.z() * theDetParam->theThickness;  // 
+  theDetParam->lorentzShiftInCmY = theDetParam->driftDirection.y()/theDetParam->driftDirection.z() * theDetParam->theThickness;  //
   
   //cout<<" in PixelCPEBase:computeLorentzShifts - "
   //<<lorentzShiftInCmX_<<" "

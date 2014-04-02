@@ -76,32 +76,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   DoCosmics_                 = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_       = conf.getParameter<bool>("LoadTemplatesFromDB");
 
-  // This LA related parameters are only relevant for the Generic algo
-
-  //lAOffset_ = conf.getUntrackedParameter<double>("lAOffset",0.0);
-  lAOffset_ = conf.existsAs<double>("lAOffset")?
-              conf.getParameter<double>("lAOffset"):0.0;
-  //lAWidthBPix_  = conf.getUntrackedParameter<double>("lAWidthBPix",0.0);
-  lAWidthBPix_ = conf.existsAs<double>("lAWidthBPix")?
-                 conf.getParameter<double>("lAWidthBPix"):0.0;
-  //lAWidthFPix_  = conf.getUntrackedParameter<double>("lAWidthFPix",0.0);
-  lAWidthFPix_ = conf.existsAs<double>("lAWidthFPix")?
-                 conf.getParameter<double>("lAWidthFPix"):0.0;
-
-  // Use LA-offset from config, for testing only
-  if(lAOffset_>0.0) useLAOffsetFromConfig_ = true;
-  // Use LA-width from config, split into fpix & bpix, for testing only
-  if(lAWidthBPix_>0.0 || lAWidthFPix_>0.0) useLAWidthFromConfig_ = true;
-
-  // Use LA-width from DB. If both (upper and this) are false LA-width is calcuated from LA-offset
-  //useLAWidthFromDB_ = conf.getParameter<bool>("useLAWidthFromDB");
-  useLAWidthFromDB_ = conf.existsAs<bool>("useLAWidthFromDB")?
-    conf.getParameter<bool>("useLAWidthFromDB"):false;
-
-  // Use Alignment LA-offset 
-  useLAAlignmentOffsets_ = conf.existsAs<bool>("useLAAlignmentOffsets")?
-    conf.getParameter<bool>("useLAAlignmentOffsets"):false;
-
   bool isUpgrade=false;
   if ( conf.exists("Upgrade") && conf.getParameter<bool>("Upgrade")) {
     isUpgrade=true;
@@ -131,7 +105,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 
   // Select the position error source 
   // For upgrde and cosmics force the use simple errors 
-  if( isUpgrade_ || (!with_track_angle && DoCosmics_) ) UseErrorsFromTemplates_ = false;
+  if( isUpgrade_ || (DoCosmics_) ) UseErrorsFromTemplates_ = false;
 
   if ( !UseErrorsFromTemplates_ && ( TruncatePixelCharge_       || 
 				     IrradiationBiasCorrection_ || 
@@ -221,12 +195,10 @@ PixelCPEGeneric::localPosition(DetParam const * theDetParam, ClusterParam & theC
 
   //cout<<" in PixelCPEGeneric:localPosition - "<<endl; //dk
 
-  computeLorentzShifts(theDetParam);  //!< correctly compute lorentz shifts in X and Y
-
-  float chargeWidthX = (lorentzShiftInCmX_ * theDetParam->widthLAFraction);
-  float chargeWidthY = (lorentzShiftInCmY_ * theDetParam->widthLAFraction);
-  float shiftX = 0.5f*lorentzShiftInCmX_;
-  float shiftY = 0.5f*lorentzShiftInCmY_;
+  float chargeWidthX = (theDetParam->lorentzShiftInCmX * theDetParam->widthLAFraction);
+  float chargeWidthY = (theDetParam->lorentzShiftInCmY * theDetParam->widthLAFraction);
+  float shiftX = 0.5f*theDetParam->lorentzShiftInCmX;
+  float shiftY = 0.5f*theDetParam->lorentzShiftInCmY;
 
   if ( UseErrorsFromTemplates_ ) {
       const float micronsToCm = 1.0e-4;
@@ -320,9 +292,9 @@ PixelCPEGeneric::localPosition(DetParam const * theDetParam, ClusterParam & theC
 
   // PixelCPEGeneric can be used with or without track angles
   // If PixelCPEGeneric is called with track angles, use them to correct for bows/kinks:
-  if ( with_track_angle ) {
-    local_URcorn_LLpix = theDetParam->theTopol->localPosition(meas_URcorn_LLpix, loc_trk_pred_);
-    local_LLcorn_URpix = theDetParam->theTopol->localPosition(meas_LLcorn_URpix, loc_trk_pred_);
+  if ( theClusterParam.with_track_angle ) {
+    local_URcorn_LLpix = theDetParam->theTopol->localPosition(meas_URcorn_LLpix, theClusterParam.loc_trk_pred);
+    local_LLcorn_URpix = theDetParam->theTopol->localPosition(meas_LLcorn_URpix, theClusterParam.loc_trk_pred);
   } else {
     local_URcorn_LLpix = theDetParam->theTopol->localPosition(meas_URcorn_LLpix);
     local_LLcorn_URpix = theDetParam->theTopol->localPosition(meas_LLcorn_URpix);
@@ -400,7 +372,7 @@ PixelCPEGeneric::localPosition(DetParam const * theDetParam, ClusterParam & theC
   if ( IrradiationBiasCorrection_ ) {
     if ( theClusterParam.theCluster->sizeX() == 1 ) {  // size=1	  
       // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
-      xPos = xPos - (0.5 * lorentzShiftInCmX_);
+      xPos = xPos - (0.5 * theDetParam->lorentzShiftInCmX);
       // Find if pixel is double (big). 
       bool bigInX = theDetParam->theRecTopol->isItBigPixelInX( theClusterParam.theCluster->maxPixelRow() );	  
       if ( !bigInX ) xPos -= dx1;	   
@@ -413,7 +385,7 @@ PixelCPEGeneric::localPosition(DetParam const * theDetParam, ClusterParam & theC
     
     if ( theClusterParam.theCluster->sizeY() == 1 ) {
       // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
-      yPos = yPos - (0.5 * lorentzShiftInCmY_);
+      yPos = yPos - (0.5 * theDetParam->lorentzShiftInCmY);
       
       // Find if pixel is double (big). 
       bool bigInY = theDetParam->theRecTopol->isItBigPixelInY( theClusterParam.theCluster->maxPixelCol() );      

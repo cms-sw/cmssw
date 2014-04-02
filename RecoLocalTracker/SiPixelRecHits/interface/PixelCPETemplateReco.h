@@ -40,7 +40,7 @@ class PixelCPETemplateReco : public PixelCPEBase
   ~PixelCPETemplateReco();
 
 
-private:
+ private:
   // We only need to implement measurementPosition, since localPosition() from
   // PixelCPEBase will call it and do the transformation
   // Gavril : put it back
@@ -49,7 +49,6 @@ private:
   // However, we do need to implement localError().
   LocalError localError   (DetParam const * theDetParam, ClusterParam & theClusterParam) const;
 
- private:
   // Template storage
   mutable SiPixelTemplate templ_ ;
  //---------------------------
@@ -78,8 +77,6 @@ private:
   mutable bool UseClusterSplitter_;
 
   mutable bool DoCosmics_;
-
-  mutable bool DoLorentz_;
 
   mutable bool LoadTemplatesFromDB_;
 

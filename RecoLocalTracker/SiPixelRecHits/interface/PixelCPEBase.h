@@ -75,21 +75,35 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     float theSign;
 
     float lAWidth;  // la used to calculate the cluster width from conf.
-
     float bz; // local Bz
     LocalVector driftDirection;
     float widthLAFraction; // Width-LA to Offset-LA
+    float lorentzShiftInCmX;   // a FULL shift, in cm
+    float lorentzShiftInCmY;   // a FULL shift, in cm
   };
 
   struct ClusterParam
   {
-    ClusterParam(const SiPixelCluster & cl) : theCluster(&cl) {}
+    ClusterParam(const SiPixelCluster & cl) : theCluster(&cl), loc_trk_pred(0.0,0.0,0.0,0.0) {}
     const SiPixelCluster * theCluster;
 
     //--- Cluster-level quantities (may need more)
     float cotalpha;
     float cotbeta;
-    bool  zneg;
+    //bool  zneg; // Not used, AH
+
+    // G.Giurgiu (05/14/08) track local coordinates
+    float trk_lp_x;
+    float trk_lp_y;
+
+    // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
+    // with track angles to handle surface deformations (bows/kinks)
+    Topology::LocalTrackPred loc_trk_pred;
+    //LocalTrajectoryParameters loc_traj_param; // Not used, AH
+
+    // ggiurgiu@jhu.edu (10/18/2008)
+    bool with_track_angle; 
+
   };
 
 public:
@@ -216,16 +230,9 @@ public:
   //  Data members
   //---------------------------------------------------------------------------
 
-  // G.Giurgiu (05/14/08) track local coordinates
-  mutable float trk_lp_x;
-  mutable float trk_lp_y;
-
   //--- Counters
-  mutable int    nRecHitsTotal_ ;
-  mutable int    nRecHitsUsedEdge_ ;
-
-  // ggiurgiu@jhu.edu (10/18/2008)
-  mutable bool with_track_angle; 
+  mutable int    nRecHitsTotal_ ; //for debugging only
+  mutable int    nRecHitsUsedEdge_ ; //for debugging only
 
   //--- Probability
   mutable float probabilityX_ ; 
@@ -238,20 +245,14 @@ public:
   mutable bool  hasFilledProb_ ;
 
 
-  //---------------------------
-  mutable float lorentzShiftInCmX_;   // a FULL shift, in cm
-  mutable float lorentzShiftInCmY_;   // a FULL shift, in cm
-
   // Added new members
   float lAOffset_; // la used to calculate the offset from configuration (for testing) 
   float lAWidthBPix_;  // la used to calculate the cluster width from conf.  
   float lAWidthFPix_;  // la used to calculate the cluster width from conf.
-  mutable float lAWidth_;  // la used to calculate the cluster width from conf.
   bool useLAAlignmentOffsets_; // lorentz angle offsets detrmined by alignment
   bool useLAOffsetFromConfig_; // lorentz angle used to calculate the offset
   bool useLAWidthFromConfig_; // lorentz angle used to calculate the cluster width
   bool useLAWidthFromDB_;     // lorentz angle used to calculate the cluster width
-  mutable float widthLAFraction_; // ratio of with-LA to offset-LA 
 
   //--- Global quantities
   int     theVerboseLevel;                    // algorithm's verbosity
@@ -259,8 +260,8 @@ public:
   const MagneticField * magfield_;          // magnetic field
   const TrackerGeometry & geom_;          // geometry
   
-  mutable const SiPixelLorentzAngle * lorentzAngle_;
-  mutable const SiPixelLorentzAngle * lorentzAngleWidth_;  // for the charge width (generic)
+  const SiPixelLorentzAngle * lorentzAngle_;
+  const SiPixelLorentzAngle * lorentzAngleWidth_;  // for the charge width (generic)
   
 
 #ifdef NEW
@@ -272,11 +273,7 @@ public:
   const SiPixelTemplateDBObject * templateDBobject_;
   bool  alpha2Order;                          // switch on/off E.B effect.
   
-  // ggiurgiu@jhu.edu (12/01/2010) : Needed for calling topology methods 
-  // with track angles to handle surface deformations (bows/kinks)
-  mutable Topology::LocalTrackPred loc_trk_pred_;
-
-  mutable LocalTrajectoryParameters loc_traj_param_;
+  bool DoLorentz_;
 
   //---------------------------------------------------------------------------
   //  Geometrical services to subclasses.
@@ -287,12 +284,11 @@ private:
   void computeAnglesFromTrajectory ( DetParam const * theDetParam, ClusterParam & theClusterParam,
 				    const LocalTrajectoryParameters & ltp) const;
 
-protected:
   void  setTheDet( DetParam const *, ClusterParam & theClusterParam ) const ;
 
-  LocalVector driftDirection       (DetParam const * theDetParam, GlobalVector bfield ) const ; 
-  LocalVector driftDirection       (DetParam const * theDetParam, LocalVector bfield ) const ; 
-  void computeLorentzShifts(DetParam const *) const ;
+  LocalVector driftDirection       (DetParam * theDetParam, GlobalVector bfield ) const ; 
+  LocalVector driftDirection       (DetParam * theDetParam, LocalVector bfield ) const ; 
+  void computeLorentzShifts(DetParam *) const ;
 
   bool isFlipped(DetParam const * theDetParam) const;              // is the det flipped or not?
 
@@ -302,10 +298,9 @@ protected:
    
   DetParam const & detParam(const GeomDetUnit & det) const;
  
- private:
   using DetParams=std::vector<DetParam>;
   
-  mutable DetParams m_DetParams=DetParams(1440); // Needs to be mutable, since driftDirection is only calculated on first access
+  DetParams m_DetParams=DetParams(1440);
 
 };
 
