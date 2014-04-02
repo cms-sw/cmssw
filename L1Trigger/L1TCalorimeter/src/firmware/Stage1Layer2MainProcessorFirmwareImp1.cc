@@ -42,10 +42,10 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpPP(m_db); //fwv =2 => PP algo
     m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/); //only for now
   }
-  else if( m_fwv.firmwareVersion() == 3 )
-  {
-    //m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/);
-  }
+  // else if( m_fwv.firmwareVersion() == 3 )
+  // {
+  //   //m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/);
+  // }
   else{ // undefined fwv version
     edm::LogError("FWVersionError")
       << "Undefined firmware version passed to Stage1Layer2MainProcessorFirmwareImp1" << std::endl;
