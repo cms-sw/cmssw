@@ -61,6 +61,10 @@ public:
                                 theGeometry));
   }
 
+  virtual void setHitCloner(TkCloner const * hc) {
+  }
+
+
 private:
   const Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;

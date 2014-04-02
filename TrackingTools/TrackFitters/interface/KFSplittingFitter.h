@@ -51,6 +51,10 @@ public:
 		    const TSOS& firstPredTsos,
 		    fitType type) const;
 
+  virtual void setHitCloner(TkCloner const * hc) {
+        fitter.setHitCloner(hc);
+  }
+
  private :
 
  void sorter(const RecHitContainer& hits, PropagationDirection dir, RecHitContainer & result) const;

@@ -147,6 +147,7 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 
   if ( hits.front()->isValid() ) {
 
+    // FIXME!!!
     TransientTrackingRecHit::RecHitPointer preciseHit = hits.front()->clone(predTsos);
     LogTrace(category_)<<"first hit is at det "<< hits.front()->det()->surface().position();
 
@@ -203,7 +204,7 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 //      return vector<Trajectory>();
       continue;
     } else if ( (**ihit).isValid() ) {
-      // update
+      // update  (FIXME!)
       TransientTrackingRecHit::RecHitPointer preciseHit = (**ihit).clone(predTsos);
 
       if ( !preciseHit->isValid() ) {

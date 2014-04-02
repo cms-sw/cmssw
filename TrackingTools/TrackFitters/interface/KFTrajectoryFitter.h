@@ -35,10 +35,12 @@ public:
 		     const TrajectoryStateUpdator& aUpdator,
 		     const MeasurementEstimator& aEstimator,
 		     int minHits = 3,
-		     const DetLayerGeometry* detLayerGeometry=0) :
+		     const DetLayerGeometry* detLayerGeometry=0, 
+                     TkCloner const * hc=nullptr) :
     thePropagator(aPropagator.clone()),
     theUpdator(aUpdator.clone()),
     theEstimator(aEstimator.clone()),
+    theHitCloner(hc),
     theGeometry(detLayerGeometry),
     minHits_(minHits),
     owner(true){
@@ -52,10 +54,12 @@ public:
 		     const TrajectoryStateUpdator* aUpdator,
 		     const MeasurementEstimator* aEstimator,
 		     int minHits = 3,
-		     const DetLayerGeometry* detLayerGeometry=0) :
+		     const DetLayerGeometry* detLayerGeometry=0,
+                     TkCloner const * hc=nullptr) :
     thePropagator(aPropagator),
     theUpdator(aUpdator),
     theEstimator(aEstimator),
+    theHitCloner(hc),
     theGeometry(detLayerGeometry),
     minHits_(minHits),
     owner(false){
@@ -88,13 +92,17 @@ public:
         std::unique_ptr<TrajectoryFitter>(new KFTrajectoryFitter(*thePropagator,
                                                                  *theUpdator,
                                                                  *theEstimator,
-                                                                 minHits_,theGeometry)) :
+                                                                 minHits_,theGeometry,theHitCloner)) :
         std::unique_ptr<TrajectoryFitter>(new KFTrajectoryFitter(thePropagator,
                                                                  theUpdator,
                                                                  theEstimator,
                                                                  minHits_,
-                                                                 theGeometry));
+                                                                 theGeometry,theHitCloner));
   }
+
+ // FIXME a prototype:	final inplementaiton may differ 
+  virtual void setHitCloner(TkCloner const * hc) {  theHitCloner = hc;}
+
 
 private:
   KFTrajectoryFitter(KFTrajectoryFitter const&);
@@ -104,6 +112,7 @@ private:
   const Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
+  TkCloner const * theHitCloner=nullptr;
   const DetLayerGeometry* theGeometry;
   int minHits_;
   bool owner;
