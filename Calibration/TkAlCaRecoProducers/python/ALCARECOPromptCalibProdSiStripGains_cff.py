@@ -31,10 +31,6 @@ ALCARECOCalMinBiasFilterForSiStripGains.TriggerResultsTag = cms.InputTag("Trigge
 # This is the sequence for track refitting of the track saved by SiStripCalMinBias
 # to have access to transient objects produced during RECO step and not saved
 
-# FIXME: should change names to make sure that there is no interference with any other part of the code when loading this cff
-# (since it will be loaded any time the AlCaReco definitions are loaded)
-
-
 from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import *
 ALCARECOCalibrationTracks = AlignmentTrackSelector.clone(
     #    src = 'generalTracks',
