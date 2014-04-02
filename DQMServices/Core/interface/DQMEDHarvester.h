@@ -20,11 +20,12 @@ public:
   // implicit assignment operator
   // implicit destructor
   virtual void beginRun(edm::Run const &, edm::EventSetup const&) final;
-  virtual void endRun(edm::Run const &, edm::EventSetup const&);
+  virtual void endRun(edm::Run const &, edm::EventSetup const&) final;
+  virtual void dqmEndRun(edm::Run const &, edm::EventSetup const&);
   virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) = 0;
 
 private:
-  uint32_t stream_id_;
+
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
