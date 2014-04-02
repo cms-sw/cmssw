@@ -16,6 +16,14 @@ process.source = cms.Source("EmptySource",
 # process.PoolDBOutputService.DBParameters.messageLevel = 3
 import json
 # beamspot by run
+def encodeJsonInString(filename):
+    thefile = open(filename)
+    thejson = json.load(thefile)
+    thefile.close()
+    return json.JSONEncoder().encode(thejson).replace('"',"&quot;")
+
+
+
 BeamSpotObjectsRcdByRun_prod_file         = open("BeamSpotObjectsRcdByRun_prod.json")
 BeamSpotObjectsRcdByRun_prod_json         = json.load(BeamSpotObjectsRcdByRun_prod_file)
 BeamSpotObjectsRcdByRun_prod_file.close()
@@ -60,7 +68,7 @@ SiStripBadStripRcd_prep_str         = json.JSONEncoder().encode(SiStripBadStripR
 
 
 process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
-                                  write = cms.untracked.bool(False),
+                                  write = cms.untracked.bool(True),
                                   toWrite = cms.VPSet(cms.PSet(record              = cms.untracked.string("BeamSpotObjectsRcdByRun"), 
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
@@ -78,9 +86,15 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                FileClass           = cms.untracked.string("ALCA"),
                                                                prodMetaData        = cms.untracked.string(SiStripBadStripRcd_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiStripBadStripRcd_prep_str),
+                                                               ),
+                                                      cms.PSet(record              = cms.untracked.string('SiStripApvGainRcd'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(SiStripApvGainRcd_prod_str),
+                                                               prepMetaData        = cms.untracked.string(SiStripApvGainRcd_prep_str),
                                                                )
                                                       ),
-                                  read = cms.untracked.bool(True),
+                                  read = cms.untracked.bool(False),
                                   toRead = cms.untracked.vstring("BeamSpotObjectsRcdByRun",'BeamSpotObjectsRcdByLumi','SiStripBadStripRcd') # same strings as fType
                                   )
 
@@ -103,12 +117,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                   )
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_E_V31::All'
+process.GlobalTag.globaltag = 'GR_E_V36::All'
 #process.GlobalTag.connect   = 'sqlite_file:/afs/cern.ch/user/c/cerminar/public/Alca/GlobalTag/GR_R_311_V2.db'
 
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(record = cms.string("DropBoxMetadataRcd"),
-             tag = cms.string("DropBoxMetadata"),
-             connect = cms.untracked.string("sqlite_file:DropBoxMetadata.db")
-            )
-    )
+
+# process.GlobalTag.toGet = cms.VPSet(
+#     cms.PSet(record = cms.string("DropBoxMetadataRcd"),
+#              tag = cms.string("DropBoxMetadata"),
+#              connect = cms.untracked.string("sqlite_file:DropBoxMetadata.db")
+#             )
+#     )
