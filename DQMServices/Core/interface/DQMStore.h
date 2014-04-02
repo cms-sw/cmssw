@@ -230,13 +230,12 @@ class DQMStore
     f(*ibooker_);
   }
   //Signature needed in the harvesting where the booking is done
-  //in the endJob. No handles to the run there.
+  //in the endJob. No handles to the run there. Two arguments ensure
+  //the capability of booking and getting
   template <typename iFunc>
   void bookTransaction(iFunc f) {
-    std::cout << "DQMStore::bookTransaction" << std::endl;
-
     std::lock_guard<std::mutex> guard(book_mutex_);
-    f(*ibooker_);
+    f(*ibooker_, *igetter_);
   }
 
   //-------------------------------------------------------------------------

@@ -40,16 +40,14 @@ void DQMExample_Step2::beginJob()
 //
 // -------------------------------------- bookHistograms --------------------------------------------
 //
-void DQMExample_Step2::bookHistograms(DQMStore::IBooker & ibooker_)
+void DQMExample_Step2::manipulateHistograms(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_)
 {
-  std::cout << "DQMExample_Step2::bookHistograms" << std::endl;
-
   // create and cd into new folder
   ibooker_.setCurrentFolder("What_I_do_in_the_client/Ratio");
 
   //get available histograms
-  MonitorElement* numerator = dbe_->get(numMonitorName_);
-  MonitorElement* denominator = dbe_->get(denMonitorName_);
+  MonitorElement* numerator = igetter_.get(numMonitorName_);
+  MonitorElement* denominator = igetter_.get(denMonitorName_);
 
   if (!numerator || !denominator)
     {
@@ -76,8 +74,6 @@ void DQMExample_Step2::bookHistograms(DQMStore::IBooker & ibooker_)
 //
 void DQMExample_Step2::dqmEndJob()
 {
-
-  std::cout << "DQMExample_Step2::dqmEndJob" << std::endl;
   edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::dqmEndJob" << std::endl;
 }
 

@@ -24,7 +24,7 @@ public:
   virtual void endRun(edm::Run const &, edm::EventSetup const&) final {};
   virtual void endJob() final;
   virtual void dqmEndJob() {};
-  virtual void bookHistograms(DQMStore::IBooker &i) = 0;
+  virtual void manipulateHistograms(DQMStore::IBooker &, DQMStore::IGetter &) = 0;
 
 private:
 

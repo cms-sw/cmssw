@@ -8,8 +8,8 @@ DQMEDHarvester::DQMEDHarvester() {
 
 void DQMEDHarvester::endJob() {
   DQMStore * store = edm::Service<DQMStore>().operator->();
-  store->bookTransaction([this](DQMStore::IBooker &b) {
-      this->bookHistograms(b);
+  store->bookTransaction([this](DQMStore::IBooker &b, DQMStore::IGetter &g){
+      this->manipulateHistograms(b, g);
     });
   dqmEndJob();
 }

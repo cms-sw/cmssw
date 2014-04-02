@@ -21,13 +21,12 @@ public:
 protected:
 
   void beginJob();
-  void bookHistograms(DQMStore::IBooker &) override;  //operation performed in the endJob
+  void manipulateHistograms(DQMStore::IBooker &, DQMStore::IGetter &) override;  //operation performed in the endJob
   void dqmEndJob();
 
 private:
 
   //private variables
-  DQMStore * dbe_ = edm::Service<DQMStore>().operator->(); //temporary to leave an handle to the getters
 
   //variables from config file
   std::string numMonitorName_;
