@@ -30,6 +30,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
+
 // only included for RecHit comparison operator:
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 
@@ -805,7 +808,9 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
   // Fitter (need to create it here since the propagation direction
   // might change between different starting trajectories)
   //
-  KFTrajectoryFitter fitter(&(*theBackwardPropagator),&updator(),&estimator());
+  
+  auto hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(hitBuilder())->cloner();
+  KFTrajectoryFitter fitter(&(*theBackwardPropagator),&updator(),&estimator(),3,nullptr,&hitCloner);
   //
   TrajectorySeed::range rseedHits = seed.recHits();
   std::vector<const TrackingRecHit*> seedHits;

@@ -19,7 +19,7 @@
 using namespace std;
 
 TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::EventSetup& es,
-								const edm::ParameterSet& conf)
+								const edm::ParameterSet& conf, TkClonerImpl const & hc) : hitCloner(hc)
 {
   thePropagatorAlongName    = conf.getParameter<std::string>("propagatorAlongTISE");   
   thePropagatorOppositeName = conf.getParameter<std::string>("propagatorOppositeTISE");   
@@ -80,7 +80,7 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackF
   KFTrajectoryFitter backFitter( thePropagatorAlong.product(),
 				 &aKFUpdator,
 				 &aChi2MeasurementEstimator,
-				 firstHits.size());
+				 firstHits.size(),nullptr,&hitCloner);
 
   PropagationDirection backFitDirection = traj.direction() == alongMomentum ? oppositeToMomentum: alongMomentum;
 

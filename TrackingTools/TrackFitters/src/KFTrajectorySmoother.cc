@@ -171,6 +171,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	  break;      
 	}
       
+      assert( (!(hit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
       TransientTrackingRecHit::RecHitPointer preciseHit = hit->clone(combTsos);
       
       if unlikely(!preciseHit->isValid()){

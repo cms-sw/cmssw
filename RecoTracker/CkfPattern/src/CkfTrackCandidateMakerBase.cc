@@ -128,12 +128,6 @@ namespace cms{
     //    edm::ESInputTag mfESInputTag(mfName);
     //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
 
-    if (!theInitialState){
-      // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.
-      // get nested parameter set for the TransientInitialStateEstimator
-      ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-      theInitialState          = new TransientInitialStateEstimator( es,tise_params);
-    }
 
     theInitialState->setEventSetup( es );
 
@@ -150,6 +144,17 @@ namespace cms{
     es.get<CkfComponentsRecord>().get(theTrajectoryBuilderName,theTrajectoryBuilderHandle);
     theTrajectoryBuilder = dynamic_cast<const BaseCkfTrajectoryBuilder*>(theTrajectoryBuilderHandle.product());    
     assert(theTrajectoryBuilder);
+
+   if (!theInitialState){
+      // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.
+      // get nested parameter set for the TransientInitialStateEstimator
+      ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
+      theInitialState          = new TransientInitialStateEstimator( es,tise_params,static_cast<TkTransientTrackingRecHitBuilder const *>(theTrajectoryBuilder->hitBuilder())->cloner());
+    }
+    
+    theInitialState->setEventSetup( es );
+  
+
   }
 
   // Functions that gets called by framework every event
