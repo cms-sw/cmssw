@@ -123,14 +123,15 @@ namespace cms
       
       for ( ; clustIt != clustEnd; clustIt++) {
 	numberOfClusters++;
-	std::pair<LocalPoint, LocalError> lv = cpe_->localParameters( *clustIt, *genericDet );
-	LocalPoint lp( lv.first );
-	LocalError le( lv.second );
+	std::tuple<LocalPoint, LocalError,SiPixelRecHitQuality::QualWordType> tuple = cpe_->getParameters( *clustIt, *genericDet );
+	LocalPoint lp( std::get<0>(tuple) );
+	LocalError le( std::get<1>(tuple) );
+        SiPixelRecHitQuality::QualWordType rqw( std::get<2>(tuple) );
 	// Create a persistent edm::Ref to the cluster
 	edm::Ref< edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster = edmNew::makeRefTo( inputhandle, clustIt);
 	// Make a RecHit and add it to the DetSet
 	// old : recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
-	SiPixelRecHit hit( lp, le, cpe_->rawQualityWord(), *genericDet, cluster);
+	SiPixelRecHit hit( lp, le, rqw, *genericDet, cluster);
 	// 
 	// Now save it =================
 	recHitsOnDetUnit.push_back(hit);

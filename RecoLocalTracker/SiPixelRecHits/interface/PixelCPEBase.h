@@ -125,15 +125,15 @@ public:
   //--------------------------------------------------------------------------
   // Allow the magnetic field to be set/updated later.
   //--------------------------------------------------------------------------
-  //inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
+  //inline void setMagField(const MagneticField *mag) const { magfield_ = mag; } // Not used, AH
  
 
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.
-  // LocalValues is typedef for pair<LocalPoint,LocalError> 
   //--------------------------------------------------------------------------
-  inline LocalValues localParameters( const SiPixelCluster & cl, 
-				      const GeomDetUnit    & det ) const 
+
+  inline ReturnType getParameters(const SiPixelCluster & cl, 
+				   const GeomDetUnit    & det ) const
     {
       nRecHitsTotal_++ ;
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
@@ -150,15 +150,15 @@ public:
       
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
 
-      return std::make_pair( lp, le );
+      return std::make_tuple(lp, le ,rawQualityWord());
     }
   
   //--------------------------------------------------------------------------
   // In principle we could use the track too to obtain alpha and beta.
   //--------------------------------------------------------------------------
-  inline LocalValues localParameters( const SiPixelCluster & cl,
-			       const GeomDetUnit    & det, 
-			       const LocalTrajectoryParameters & ltp) const 
+  inline ReturnType getParameters(const SiPixelCluster & cl, 
+				   const GeomDetUnit    & det, 
+				   const LocalTrajectoryParameters & ltp ) const
   {
     nRecHitsTotal_++ ;
 
@@ -176,7 +176,7 @@ public:
 
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
     
-    return std::make_pair( lp, le );
+    return std::make_tuple(lp, le ,rawQualityWord());
   } 
   
   

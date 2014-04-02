@@ -10,9 +10,9 @@ TSiPixelRecHit::RecHitPointer TSiPixelRecHit::clone (const TrajectoryStateOnSurf
     return new TSiPixelRecHit( det(), &theHitData, 0,false);
   }else{
     const SiPixelCluster& clust = *specificHit()->cluster();  
-    PixelClusterParameterEstimator::LocalValues lv = 
-      theCPE->localParameters( clust, *detUnit(), ts);
-    return TSiPixelRecHit::build( lv.first, lv.second, theCPE->rawQualityWord(), det(), specificHit()->cluster(), theCPE);
+    PixelClusterParameterEstimator::ReturnType tuple = 
+      theCPE->getParameters( clust, *detUnit(), ts);
+    return TSiPixelRecHit::build( std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple), det(), specificHit()->cluster(), theCPE);
   }
 }
 
@@ -33,9 +33,9 @@ TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh,
   if (! (rh->hasPositionAndError() || !computeCoarseLocalPosition)) {
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
     if (gdu){
-      PixelClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
+      PixelClusterParameterEstimator::ReturnType tuple= theCPE->getParameters(*rh->cluster(), *gdu);
       LogDebug("TSiPixelRecHit")<<"calculating coarse position/error.";
-      theHitData = SiPixelRecHit(lval.first, lval.second, theCPE->rawQualityWord(), *geom, rh->cluster());
+      theHitData = SiPixelRecHit(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple), *geom, rh->cluster());
     }else{
       edm::LogError("TSiPixelRecHit") << " geomdet does not cast into geomdet unit. cannot create pixel local parameters.";
     }

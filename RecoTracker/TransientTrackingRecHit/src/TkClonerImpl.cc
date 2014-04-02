@@ -22,9 +22,9 @@
 
 SiPixelRecHit * TkClonerImpl::operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
   const SiPixelCluster& clust = *hit.cluster();  
-  PixelClusterParameterEstimator::LocalValues lv = 
-    pixelCPE->localParameters( clust, *hit.detUnit(), tsos);
-  return new SiPixelRecHit(lv.first, lv.second, pixelCPE->rawQualityWord(), *hit.det(), hit.cluster());
+  PixelClusterParameterEstimator::ReturnType tuple = 
+    pixelCPE->getParameters( clust, *hit.detUnit(), tsos);
+  return new SiPixelRecHit(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple), *hit.det(), hit.cluster());
 }
 
 SiStripRecHit2D * TkClonerImpl::operator()(SiStripRecHit2D const & hit, TrajectoryStateOnSurface const& tsos) const {
