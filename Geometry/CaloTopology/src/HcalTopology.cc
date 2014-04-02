@@ -11,6 +11,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 static const int IPHI_MAX=72;
+//#define DebugLog
 
 HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::TriggerMode tmode) :
   hcons_(hcons),
@@ -95,7 +96,28 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
     int units = (int)(dPhiTableHF[k]/fiveDegInRad+0.5);
     unitPhiHF.push_back(units);
   }
-  std::cout << "Constants in HcalTopology " << firstHBRing_ << ":" << lastHBRing_ << " " << firstHERing_ << ":" << lastHERing_ << ":" << firstHEDoublePhiRing_ << ":" << firstHEQuadPhiRing_ << ":" << firstHETripleDepthRing_ << " " << firstHFRing_ << ":" << lastHFRing_ << ":" << firstHFQuadPhiRing_ << " " << firstHORing_ << ":" << lastHORing_ << " " << maxDepthHB_ << ":" << maxDepthHE_ << " " << nEtaHB_ << ":" << nEtaHE_ << " " << etaHE2HF_ << ":" << etaHF2HE_ << std::endl;
+  int nEta = hcons_->getNEta();
+  for (int ring=1; ring<=nEta; ++ring) {
+    std::vector<int> segmentation = hcons_->getDepth(ring-1);
+    setDepthSegmentation(ring,segmentation);
+#ifdef DebugLog
+    std::cout << "Set segmentation for ring " << ring << " with " 
+	      << segmentation.size() << " elements:";
+    for (unsigned int k=0; k<segmentation.size(); ++k) 
+      std::cout << " " << segmentation[k];
+    std::cout << std::endl;
+#endif
+  }
+#ifdef DebugLog
+  std::cout << "Constants in HcalTopology " << firstHBRing_ << ":" 
+	    << lastHBRing_ << " " << firstHERing_ << ":" << lastHERing_ << ":" 
+	    << firstHEDoublePhiRing_ << ":" << firstHEQuadPhiRing_ << ":" 
+	    << firstHETripleDepthRing_ << " " << firstHFRing_ << ":" 
+	    << lastHFRing_ << ":" << firstHFQuadPhiRing_ << " " << firstHORing_
+	    << ":" << lastHORing_ << " " << maxDepthHB_ << ":" << maxDepthHE_ 
+	    << " " << nEtaHB_ << ":" << nEtaHE_ << " " << etaHE2HF_ << ":" 
+	    << etaHF2HE_ << std::endl;
+#endif
 }
 
 HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode) :
