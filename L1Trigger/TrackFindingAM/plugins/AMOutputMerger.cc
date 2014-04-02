@@ -180,8 +180,8 @@ void AMOutputMerger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup 
 	
 	tempTTPatt.setSector(iterTTTrack->getSector());
 	tempTTPatt.setWedge(iterTTTrack->getWedge());
-	tempTTPatt.setMomentum(iterTTTrack->getMomentum(4),4);
-	tempTTPatt.setPOCA(iterTTTrack->getPOCA(4),4);
+	tempTTPatt.setMomentum(iterTTTrack->getMomentum(5),5);
+	tempTTPatt.setPOCA(iterTTTrack->getPOCA(5),5);
 
 	TTTracksForOutput->push_back(tempTTPatt);
       }
