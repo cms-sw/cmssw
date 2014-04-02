@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-def customise(process):
+def customiseWithTimeMemorySummary(process):
 
     #Adding SimpleMemoryCheck service:
     process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck",
@@ -16,6 +16,3 @@ def customise(process):
         )
 
     return(process)
-
-def customiseWithTimeMemorySummary(process):
-  customise(process)
