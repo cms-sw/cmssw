@@ -185,30 +185,25 @@ class DQMStore
    public:
     friend class DQMStore;
 
-    // for the supported syntaxes, see the declarations of DQMStore::get
-    template <typename... Args>
-    MonitorElement * get(Args && ... args) {
-      return owner_->get(std::forward<Args>(args)...);
+    MonitorElement * get(const std::string &path) {
+      return owner_->get(path);
     }
-    // for the supported syntaxes, see the declarations of DQMStore::getSubdirs
-    template <typename... Args>
-    std::vector<std::string> getSubdirs(Args && ... args) {
-      return owner_->getSubdirs(std::forward<Args>(args)...);
+    std::vector<std::string> getSubdirs(void) {
+      return owner_->getSubdirs();
     }
-    // for the supported syntaxes, see the declarations of DQMStore::getMEs
-    template <typename... Args>
-    std::vector<std::string> getMEs(Args && ... args) {
-      return owner_->getMEs(std::forward<Args>(args)...);
+    std::vector<std::string> getMEs(void) {
+      return owner_->getMEs();
     }
-    // for the supported syntaxes, see the declarations of DQMStore::containsAnyMonitorable
-    template <typename... Args>
-    bool containsAnyMonitorable(Args && ... args) {
-      return owner_->containsAnyMonitorable(std::forward<Args>(args)...);
+    bool containsAnyMonitorable(const std::string &path) {
+      return owner_->containsAnyMonitorable(path);
     }
     // for the supported syntaxes, see the declarations of DQMStore::getContents
     template <typename... Args>
     std::vector<MonitorElement *> getContents(Args && ... args) {
       return owner_->getContents(std::forward<Args>(args)...);
+    }
+    bool dirExists(const std::string &path) {
+      return owner_->dirExists(path);
     }
 
    private:

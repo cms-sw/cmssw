@@ -44,8 +44,8 @@ process.dqmsave_step = cms.Path(process.DQMSaver)
 
 # Schedule definition
 process.schedule = cms.Schedule(
-#                                process.myEff,
-#                                process.myTest,
+                                process.myEff,
+                                process.myTest,
                                 process.myHarvesting,
                                 process.dqmsave_step
     )
