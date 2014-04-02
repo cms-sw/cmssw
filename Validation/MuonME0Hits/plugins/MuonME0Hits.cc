@@ -234,66 +234,65 @@ MuonME0Hits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         const LocalPoint p0(0., 0., 0.);
         const GlobalPoint Gp0(me0_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(p0));
-        std::cout<<"Global Phi:  "<<Gp0.x()<<std::endl;
+
         
-//        me0_sh.Phi_0 = Gp0.phi();
-//        me0_sh.R_0 = Gp0.perp();
-//        me0_sh.DeltaPhi = atan(-1*id.region()*pow(-1,id.chamber())*itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
+        me0_sh.Phi_0 = Gp0.phi();
+        me0_sh.R_0 = Gp0.perp();
+        me0_sh.DeltaPhi = atan(-1*id.region()*pow(-1,id.chamber())*itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
         
-//        const LocalPoint hitLP(itHit->localPosition());
-//        const GlobalPoint hitGP(me0_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
-//        me0_sh.globalR = hitGP.perp();
-//        me0_sh.globalEta = hitGP.eta();
-//        me0_sh.globalPhi = hitGP.phi();
-//        me0_sh.globalX = hitGP.x();
-//        me0_sh.globalY = hitGP.y();
-//        me0_sh.globalZ = hitGP.z();
+        const LocalPoint hitLP(itHit->localPosition());
+        const GlobalPoint hitGP(me0_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
+        me0_sh.globalR = hitGP.perp();
+        me0_sh.globalEta = hitGP.eta();
+        me0_sh.globalPhi = hitGP.phi();
+        me0_sh.globalX = hitGP.x();
+        me0_sh.globalY = hitGP.y();
+        me0_sh.globalZ = hitGP.z();
         
         //  Now filling strip info using entry point rather than local position to be
         //  consistent with digi strips. To change back, just switch the comments - WHF
         //  me0_sh.strip=me0_geometry_->etaPartition(itHit->detUnitId())->strip(hitLP);
-//        std::cout<<"Check:      "<<itHit->entryPoint()<<std::endl;
-//        const LocalPoint hitEP(itHit->entryPoint());
-//        me0_sh.strip=me0_geometry_->etaPartition(itHit->detUnitId())->strip(hitEP);
-//        
-//        // abbreviations
-//        int re(me0_sh.region);
-//        int la(me0_sh.layer);
-//    
-//        /*-------------XY Occupancy---------------*/
-//        if(re==-1 && la==1) meCollection["sh_me0_xy_rm1_l1"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        if(re==-1 && la==2) meCollection["sh_me0_xy_rm1_l2"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        if(re==-1 && la==3) meCollection["sh_me0_xy_rm1_l3"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        if(re==-1 && la==4) meCollection["sh_me0_xy_rm1_l4"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        if(re==-1 && la==5) meCollection["sh_me0_xy_rm1_l5"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        if(re==-1 && la==6) meCollection["sh_me0_xy_rm1_l6"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        
-//        if(re==1 && la==1) meCollection["sh_me0_xy_rp1_l1"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        if(re==1 && la==2) meCollection["sh_me0_xy_rp1_l2"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        if(re==1 && la==3) meCollection["sh_me0_xy_rp1_l3"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        if(re==1 && la==4) meCollection["sh_me0_xy_rp1_l4"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        if(re==1 && la==5) meCollection["sh_me0_xy_rp1_l5"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        if(re==1 && la==6) meCollection["sh_me0_xy_rp1_l6"]->Fill(me0_sh.globalX,me0_sh.globalY);
-//        
-//        /*------------zR Occupancy--------------*/
-//        const double glb_R(sqrt(me0_sh.globalX*me0_sh.globalX+me0_sh.globalY*me0_sh.globalY));
-//        if(re==-1) meCollection["sh_me0_zr_rm1"]->Fill(me0_sh.globalZ,glb_R);
-//        if(re==1) meCollection["sh_me0_zr_rp1"]->Fill(me0_sh.globalZ,glb_R);
-//        
-//        /*-----------Time of Flight-------------*/
-//        if(re==-1 && la==1) meCollection["sh_me0_tof_rm1_l1"]->Fill(me0_sh.timeOfFlight);
-//        if(re==-1 && la==2) meCollection["sh_me0_tof_rm1_l2"]->Fill(me0_sh.timeOfFlight);
-//        if(re==-1 && la==3) meCollection["sh_me0_tof_rm1_l3"]->Fill(me0_sh.timeOfFlight);
-//        if(re==-1 && la==4) meCollection["sh_me0_tof_rm1_l4"]->Fill(me0_sh.timeOfFlight);
-//        if(re==-1 && la==5) meCollection["sh_me0_tof_rm1_l5"]->Fill(me0_sh.timeOfFlight);
-//        if(re==-1 && la==6) meCollection["sh_me0_tof_rm1_l6"]->Fill(me0_sh.timeOfFlight);
-//        
-//        if(re==1 && la==1) meCollection["sh_me0_tof_rp1_l1"]->Fill(me0_sh.timeOfFlight);
-//        if(re==1 && la==2) meCollection["sh_me0_tof_rp1_l2"]->Fill(me0_sh.timeOfFlight);
-//        if(re==1 && la==3) meCollection["sh_me0_tof_rp1_l3"]->Fill(me0_sh.timeOfFlight);
-//        if(re==1 && la==4) meCollection["sh_me0_tof_rp1_l4"]->Fill(me0_sh.timeOfFlight);
-//        if(re==1 && la==5) meCollection["sh_me0_tof_rp1_l5"]->Fill(me0_sh.timeOfFlight);
-//        if(re==1 && la==6) meCollection["sh_me0_tof_rp1_l6"]->Fill(me0_sh.timeOfFlight);
+        const LocalPoint hitEP(itHit->entryPoint());
+        me0_sh.strip=me0_geometry_->etaPartition(itHit->detUnitId())->strip(hitEP);
+        
+        // abbreviations
+        int re(me0_sh.region);
+        int la(me0_sh.layer);
+    
+        /*-------------XY Occupancy---------------*/
+        if(re==-1 && la==1) meCollection["sh_me0_xy_rm1_l1"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        if(re==-1 && la==2) meCollection["sh_me0_xy_rm1_l2"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        if(re==-1 && la==3) meCollection["sh_me0_xy_rm1_l3"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        if(re==-1 && la==4) meCollection["sh_me0_xy_rm1_l4"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        if(re==-1 && la==5) meCollection["sh_me0_xy_rm1_l5"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        if(re==-1 && la==6) meCollection["sh_me0_xy_rm1_l6"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        
+        if(re==1 && la==1) meCollection["sh_me0_xy_rp1_l1"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        if(re==1 && la==2) meCollection["sh_me0_xy_rp1_l2"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        if(re==1 && la==3) meCollection["sh_me0_xy_rp1_l3"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        if(re==1 && la==4) meCollection["sh_me0_xy_rp1_l4"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        if(re==1 && la==5) meCollection["sh_me0_xy_rp1_l5"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        if(re==1 && la==6) meCollection["sh_me0_xy_rp1_l6"]->Fill(me0_sh.globalX,me0_sh.globalY);
+        
+        /*------------zR Occupancy--------------*/
+        const double glb_R(sqrt(me0_sh.globalX*me0_sh.globalX+me0_sh.globalY*me0_sh.globalY));
+        if(re==-1) meCollection["sh_me0_zr_rm1"]->Fill(me0_sh.globalZ,glb_R);
+        if(re==1) meCollection["sh_me0_zr_rp1"]->Fill(me0_sh.globalZ,glb_R);
+        
+        /*-----------Time of Flight-------------*/
+        if(re==-1 && la==1) meCollection["sh_me0_tof_rm1_l1"]->Fill(me0_sh.timeOfFlight);
+        if(re==-1 && la==2) meCollection["sh_me0_tof_rm1_l2"]->Fill(me0_sh.timeOfFlight);
+        if(re==-1 && la==3) meCollection["sh_me0_tof_rm1_l3"]->Fill(me0_sh.timeOfFlight);
+        if(re==-1 && la==4) meCollection["sh_me0_tof_rm1_l4"]->Fill(me0_sh.timeOfFlight);
+        if(re==-1 && la==5) meCollection["sh_me0_tof_rm1_l5"]->Fill(me0_sh.timeOfFlight);
+        if(re==-1 && la==6) meCollection["sh_me0_tof_rm1_l6"]->Fill(me0_sh.timeOfFlight);
+        
+        if(re==1 && la==1) meCollection["sh_me0_tof_rp1_l1"]->Fill(me0_sh.timeOfFlight);
+        if(re==1 && la==2) meCollection["sh_me0_tof_rp1_l2"]->Fill(me0_sh.timeOfFlight);
+        if(re==1 && la==3) meCollection["sh_me0_tof_rp1_l3"]->Fill(me0_sh.timeOfFlight);
+        if(re==1 && la==4) meCollection["sh_me0_tof_rp1_l4"]->Fill(me0_sh.timeOfFlight);
+        if(re==1 && la==5) meCollection["sh_me0_tof_rp1_l5"]->Fill(me0_sh.timeOfFlight);
+        if(re==1 && la==6) meCollection["sh_me0_tof_rp1_l6"]->Fill(me0_sh.timeOfFlight);
     }
 
 
@@ -321,7 +320,7 @@ MuonME0Hits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     try {
         iSetup.get<MuonGeometryRecord>().get(me0_geom);
         me0_geometry_ = &*me0_geom;
-        hasME0Geometry_ = true;
+        hasME0Geometry_ = true;        
     } catch (edm::eventsetup::NoProxyException<ME0Geometry>& e) {
         hasME0Geometry_ = false;
         LogDebug("MuonSimHitAnalyzer") << "+++ Info: ME0 geometry is unavailable. +++\n";
