@@ -10,6 +10,8 @@
 // framework & common header files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -19,7 +21,7 @@
 class DQMStore;
 class MonitorElement;
 
-class TrackerHitAnalyzer: public edm::EDAnalyzer {
+class TrackerHitAnalyzer: public DQMEDAnalyzer {
   
 public:
 
@@ -31,8 +33,7 @@ TrackerHitAnalyzer(const edm::ParameterSet& ps);
 
 protected:
 
-/// Begin Run
-void beginRun( edm::Run const&, edm::EventSetup const&);
+ void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
 
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -40,7 +41,7 @@ void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 
 // EndJob
-void endJob(void);
+void endJob();
 
 //void BookTestHistos(Char_t sname, int nbin, float *xmin, float *xmax);
 
@@ -57,6 +58,7 @@ private:
  edm::EDGetTokenT<edm::SimTrackContainer> edmSimTrackContainerToken_;
 
  DQMStore* fDBE;
+ edm::ParameterSet conf_;
 
  MonitorElement* htofeta;
  MonitorElement* htofphi;
@@ -108,7 +110,9 @@ private:
  MonitorElement* h5ly[12];
  MonitorElement* h6ly[12];
 
+ bool runStandalone;
  std::string fOutputFile;
+
 };
 
 #endif
