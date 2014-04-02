@@ -17,6 +17,8 @@
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 
+#include <memory>
+
 class KFTrajectoryFitter GCC11_FINAL: public TrajectoryFitter {
 
 private:
@@ -80,11 +82,18 @@ public:
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
-  virtual KFTrajectoryFitter* clone() const
+  virtual std::unique_ptr<TrajectoryFitter> clone() const override
   {
     return owner ?
-      new KFTrajectoryFitter(*thePropagator,*theUpdator,*theEstimator,minHits_,theGeometry) :
-      new KFTrajectoryFitter(thePropagator,theUpdator,theEstimator,minHits_,theGeometry);
+        std::unique_ptr<TrajectoryFitter>(new KFTrajectoryFitter(*thePropagator,
+                                                                 *theUpdator,
+                                                                 *theEstimator,
+                                                                 minHits_,theGeometry)) :
+        std::unique_ptr<TrajectoryFitter>(new KFTrajectoryFitter(thePropagator,
+                                                                 theUpdator,
+                                                                 theEstimator,
+                                                                 minHits_,
+                                                                 theGeometry));
   }
 
 private:
