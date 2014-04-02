@@ -190,6 +190,26 @@ class DQMStore
     MonitorElement * get(Args && ... args) {
       return owner_->get(std::forward<Args>(args)...);
     }
+    // for the supported syntaxes, see the declarations of DQMStore::getSubdirs
+    template <typename... Args>
+    std::vector<std::string> getSubdirs(Args && ... args) {
+      return owner_->getSubdirs(std::forward<Args>(args)...);
+    }
+    // for the supported syntaxes, see the declarations of DQMStore::getMEs
+    template <typename... Args>
+    std::vector<std::string> getMEs(Args && ... args) {
+      return owner_->getMEs(std::forward<Args>(args)...);
+    }
+    // for the supported syntaxes, see the declarations of DQMStore::containsAnyMonitorable
+    template <typename... Args>
+    bool containsAnyMonitorable(Args && ... args) {
+      return owner_->containsAnyMonitorable(std::forward<Args>(args)...);
+    }
+    // for the supported syntaxes, see the declarations of DQMStore::getContents
+    template <typename... Args>
+    std::vector<MonitorElement *> getContents(Args && ... args) {
+      return owner_->getContents(std::forward<Args>(args)...);
+    }
 
    private:
     explicit IGetter(DQMStore * store):owner_(0) {
