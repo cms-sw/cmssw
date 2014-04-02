@@ -13,6 +13,9 @@
 using namespace std;
 using namespace reco;
 
+#define INIT_ENTRY(name) {#name,name}
+
+
 //for debug only 
 //#define PFLOW_DEBUG
 
@@ -24,9 +27,50 @@ PFBlockAlgoNew::PFBlockAlgoNew() :
   NHitCut_(std::vector<unsigned int>(4,static_cast<unsigned>(0))), 
   useIterTracking_(true),
   photonSelector_(0),
-  debug_(false) {}
+  debug_(false),
+  _elementTypes( {
+        INIT_ENTRY(PFBlockElement::TRACK),
+	INIT_ENTRY(PFBlockElement::PS1),
+	INIT_ENTRY(PFBlockElement::PS2),
+	INIT_ENTRY(PFBlockElement::ECAL),
+	INIT_ENTRY(PFBlockElement::HCAL),
+	INIT_ENTRY(PFBlockElement::GSF),
+	INIT_ENTRY(PFBlockElement::BREM),
+	INIT_ENTRY(PFBlockElement::HFEM),
+	INIT_ENTRY(PFBlockElement::HFHAD),
+	INIT_ENTRY(PFBlockElement::SC),
+	INIT_ENTRY(PFBlockElement::HO) 
+	  } ) {}
 
 
+void PFBlockAlgoNew::setLinkers(const std::vector<edm::ParameterSet>& confs) {
+  for( const auto& conf : confs ) {
+    const std::string& linkerName = 
+      conf.getParameter<std::string>("linkerName");
+    const std::string&  linkTypeStr =
+      conf.getParameter<std::string>("linkType");
+    size_t split = linkTypeStr.find(':');
+    if( split == std::string::npos ) {
+      throw cms::Exception("MalformedLinkType")
+	<< "\"" << linkTypeStr << "\" is not a valid link type definition."
+	<< " This string should have the form \"linkFrom:linkTo\"";
+    }
+    std::string link1(linkTypeStr.substr(0,split));
+    std::string link2(linkTypeStr.substr(split+1,std::string::npos));
+    if( !(_elementTypes.count(link1) && _elementTypes.count(link2) ) ) {
+      throw cms::Exception("InvalidBlockElementType")
+	<< "One of \"" << link1 << "\" or \"" << link2 
+	<< "\" are invalid block element types!";
+    }
+    const PFBlockElement::Type type1 = _elementTypes.at(link1);
+    const PFBlockElement::Type type2 = _elementTypes.at(link2);
+    PFBlockLink::Type linkType = 
+      static_cast<PFBlockLink::Type>( (1<< (type1-1) ) | (1<< (type2-1)) );
+    const BlockElementLinkerBase * linker =
+      BlockElementLinkerFactory::get()->create(linkerName,conf);
+    _linkTests.emplace(linkType,LinkTestPtr(linker));
+  }
+}
 
 void PFBlockAlgoNew::setParameters( std::vector<double>& DPtovPtCut,
 				 std::vector<unsigned int>& NHitCut,
@@ -123,8 +167,7 @@ PFBlockAlgoNew::findBlocks() {
 
 // start from first element in elements_
 // partition elements until block grows no further
-// return [begin,end) of partition that contains all 
-// associated elements
+// return the start of the new block
 PFBlockAlgoNew::IE
 PFBlockAlgoNew::associate( PFBlockAlgoNew::ElementList& elems,
 			   std::vector<PFBlockLink>& links,
@@ -140,19 +183,20 @@ PFBlockAlgoNew::associate( PFBlockAlgoNew::ElementList& elems,
   do {     
     scan_upper = search_lower;
     for( auto comp = scan_lower; comp != scan_upper; ++comp ) {
-      search_lower = 
+      search_lower = // group everything that's linked to the current element
 	std::partition(search_lower,elems.end(),
 		       [&](ElementList::value_type& a){
-			 // avoid lifting where possible
+			 // check if link is somehow possible
 			 if( !linkPrefilter(comp->get(), a.get()) ) {
 			   return false;
 			 }
 			 linktype = PFBlockLink::NONE;
 			 dist = -1;
 			 linktest = PFBlock::LINKTEST_RECHIT;
+			 // compute linking info
 			 link( comp->get(), a.get(), 
 			       linktype, linktest, dist ); 
-			 if( dist >= -0.5 ) { // group everything that's linked
+			 if( dist >= -0.5 ) { 
 			   block.addElement( a.get() ); 
 			   links.emplace_back( linktype, 
 					       linktest,
@@ -287,8 +331,8 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
   case PFBlockLink::PS2andECAL:
     {
       // if(debug_ ) cout<< "PSandECAL" <<endl;
-      PFClusterRef  psref = lowEl->clusterRef();
-      PFClusterRef  ecalref = highEl->clusterRef();
+      const PFClusterRef&  psref = lowEl->clusterRef();
+      const PFClusterRef&  ecalref = highEl->clusterRef();
       assert( !psref.isNull() );
       assert( !ecalref.isNull() );
 
@@ -328,8 +372,8 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
     {
       if(debug_ ) cout<<"TRACKandECAL"<<endl;
 
-      PFRecTrackRef trackref = lowEl->trackRefPF();
-      PFClusterRef  clusterref = highEl->clusterRef();
+      const PFRecTrackRef& trackref = lowEl->trackRefPF();
+      const PFClusterRef& clusterref = highEl->clusterRef();
       assert( !trackref.isNull() );
       assert( !clusterref.isNull() );
 
@@ -399,8 +443,8 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
     {
       //      if(debug_ ) cout<<"TRACKandHCAL"<<endl;
 
-      PFRecTrackRef trackref = lowEl->trackRefPF();
-      PFClusterRef  clusterref = highEl->clusterRef();
+      const PFRecTrackRef& trackref = lowEl->trackRefPF();
+      const PFClusterRef&  clusterref = highEl->clusterRef();
       assert( !trackref.isNull() );
       assert( !clusterref.isNull() );
 
@@ -474,8 +518,8 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
     {
       if(debug_ ) cout<<"TRACKandHO"<<endl;
 
-      PFRecTrackRef trackref = lowEl->trackRefPF();
-      PFClusterRef  clusterref = highEl->clusterRef();
+      const PFRecTrackRef& trackref = lowEl->trackRefPF();
+      const PFClusterRef&  clusterref = highEl->clusterRef();
       
       assert( !trackref.isNull() );
       assert( !clusterref.isNull() );
@@ -498,8 +542,8 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
   case PFBlockLink::ECALandHCAL:
     {
       //       cout<<"ECALandHCAL"<<endl;
-      PFClusterRef  ecalref = lowEl->clusterRef();
-      PFClusterRef  hcalref = highEl->clusterRef();
+      const PFClusterRef&  ecalref = lowEl->clusterRef();
+      const PFClusterRef&  hcalref = highEl->clusterRef();
       assert( !ecalref.isNull() );
       assert( !hcalref.isNull() );
       // PJ - 14-May-09 : A link by rechit is needed here !
@@ -511,8 +555,8 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
   case PFBlockLink::HCALandHO:
     {
       //       cout<<"HCALandH0"<<endl;
-      PFClusterRef  hcalref = lowEl->clusterRef();
-      PFClusterRef  horef = highEl->clusterRef();
+      const PFClusterRef&  hcalref = lowEl->clusterRef();
+      const PFClusterRef&  horef = highEl->clusterRef();
       assert( !hcalref.isNull() );
       assert( !horef.isNull() );
       // PJ - 14-May-09 : A link by rechit is needed here !
@@ -525,8 +569,8 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
   case PFBlockLink::HFEMandHFHAD:
     {
       // cout<<"HFEMandHFHAD"<<endl;
-      PFClusterRef  eref = lowEl->clusterRef();
-      PFClusterRef  href = highEl->clusterRef();
+      const PFClusterRef&  eref = lowEl->clusterRef();
+      const PFClusterRef&  href = highEl->clusterRef();
       assert( !eref.isNull() );
       assert( !href.isNull() );
       dist = LinkByRecHit::testHFEMAndHFHADByRecHit( *eref, *href, debug_ );
@@ -548,8 +592,8 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
   case PFBlockLink::ECALandECAL:
       {
 	
-	PFClusterRef  ecal1ref = lowEl->clusterRef();
-	PFClusterRef  ecal2ref = highEl->clusterRef();
+	const PFClusterRef&  ecal1ref = lowEl->clusterRef();
+	const PFClusterRef&  ecal2ref = highEl->clusterRef();
 	assert( !ecal1ref.isNull() );
 	assert( !ecal2ref.isNull() );
 	if(debug_)
@@ -560,7 +604,7 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
 
   case PFBlockLink::ECALandGSF:
     {
-      PFClusterRef  clusterref = lowEl->clusterRef();
+      const PFClusterRef&  clusterref = lowEl->clusterRef();
       assert( !clusterref.isNull() );
       const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
       const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
@@ -677,7 +721,7 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
     }
   case PFBlockLink::ECALandBREM:
     {
-      PFClusterRef  clusterref = lowEl->clusterRef();
+      const PFClusterRef&  clusterref = lowEl->clusterRef();
       assert( !clusterref.isNull() );
       const reco::PFBlockElementBrem * BremEl =  
 	dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
@@ -700,7 +744,7 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
     }
   case PFBlockLink::HCALandGSF:
     {
-      PFClusterRef  clusterref = lowEl->clusterRef();
+      const PFClusterRef&  clusterref = lowEl->clusterRef();
       assert( !clusterref.isNull() );
       const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
       const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
@@ -714,7 +758,7 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
     }
   case PFBlockLink::HCALandBREM:
     {
-      PFClusterRef  clusterref = lowEl->clusterRef();
+      const PFClusterRef&  clusterref = lowEl->clusterRef();
       assert( !clusterref.isNull() );
       const reco::PFBlockElementBrem * BremEl =  dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
       const PFRecTrack * myTrack = &(BremEl->trackPF());
@@ -727,7 +771,7 @@ PFBlockAlgoNew::link( const reco::PFBlockElement* el1,
     }
   case PFBlockLink::SCandECAL:
     {
-      PFClusterRef  clusterref = lowEl->clusterRef();
+      const PFClusterRef&  clusterref = lowEl->clusterRef();
 
       assert( !clusterref.isNull() );
       
