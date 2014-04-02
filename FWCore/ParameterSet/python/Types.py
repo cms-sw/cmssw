@@ -667,12 +667,14 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return object.__str__(self)
     def insertInto(self, parameterSet, myname):
         newpset = parameterSet.newPSet()
-        if self.isRef_():
-            ref = parameterSet.getTopPSet_(self.refToPSet_.value())
-            ref.insertInto(parameterSet,myname)
-            return
         self.insertContentsInto(newpset)
         parameterSet.addPSet(self.isTracked(), myname, newpset)
+    def insertContentsInto(self, parameterSet):
+        if self.isRef_():
+            ref = parameterSet.getTopPSet_(self.refToPSet_.value())
+            ref.insertContentsInto(parameterSet)
+        else:
+            super(PSet, self).insertContentsInto(parameterSet)
 
 
 class vint32(_ValidatingParameterListBase):
