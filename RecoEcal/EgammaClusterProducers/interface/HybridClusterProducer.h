@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -16,7 +16,7 @@
 //
 
 
-class HybridClusterProducer : public edm::EDProducer 
+class HybridClusterProducer : public edm::stream::EDProducer<>
 {
   
   public:

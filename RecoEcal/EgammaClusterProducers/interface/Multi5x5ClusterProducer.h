@@ -5,7 +5,7 @@
 #include <time.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -22,7 +22,7 @@
 //
 
 
-class Multi5x5ClusterProducer : public edm::EDProducer 
+class Multi5x5ClusterProducer : public edm::stream::EDProducer<> 
 {
   public:
 

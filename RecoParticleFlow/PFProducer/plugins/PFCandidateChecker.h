@@ -8,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -28,7 +28,7 @@
 
 
 
-class PFCandidateChecker : public edm::EDAnalyzer {
+class PFCandidateChecker : public edm::stream::EDAnalyzer<> {
  public:
 
   explicit PFCandidateChecker(const edm::ParameterSet&);
@@ -82,5 +82,7 @@ class PFCandidateChecker : public edm::EDAnalyzer {
 
 
 };
+
+DEFINE_FWK_MODULE(PFCandidateChecker);
 
 #endif
