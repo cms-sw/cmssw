@@ -59,6 +59,8 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFBlockLink.h"
 
+#include "RecoParticleFlow/PFProducer/interface/BlockElementLinkerBase.h"
+
 #include <map>
 #include <unordered_map>
 
@@ -67,6 +69,23 @@
   \author Colin Bernet
   \date January 2006
 */
+
+namespace std {
+  template<>
+    struct hash<PFBlockLink::Type> {
+    std::size_t operator()(const PFBlockLink::Type& link) const {	
+      return std::hash<size_t>()((size_t)link);
+    }
+    
+  };
+  template<>
+    struct equal_to<PFBlockLink::Type> {
+    bool operator()(const PFBlockLink::Type& a,
+		    const PFBlockLink::Type& b) const {
+      return ( a == b );
+    }
+  };
+}
 
 class PFBlockAlgoNew {
 
@@ -88,6 +107,8 @@ class PFBlockAlgoNew {
                       bool superClusterMatchByRef
 		      );
   
+  void setLinkers(const std::vector<edm::ParameterSet>&);
+
   // Glowinski & Gouzevitch
   void setUseOptimization(bool useKDTreeTrackEcalLinker);
   // ! Glowinski & Gouzevitch
@@ -207,7 +228,9 @@ class PFBlockAlgoNew {
   void setHOTag(bool ho) { useHO_ = ho;}
 
  private:
-    
+  typedef std::unique_ptr<const BlockElementLinkerBase> LinkTestPtr;
+
+
   // flattened version of topological
   // association of block elements
   IE associate( ElementList& elems,
@@ -381,6 +404,10 @@ class PFBlockAlgoNew {
 
   // Create links between tracks or HCAL clusters, and HO clusters
   bool useHO_;
+
+  const std::unordered_map<std::string,reco::PFBlockElement::Type> 
+    _elementTypes;
+  std::unordered_map<PFBlockLink::Type,LinkTestPtr> _linkTests;
 
 };
 
@@ -1057,6 +1084,7 @@ PFBlockAlgoNew::setInput(const T<reco::PFRecTrackCollection>&    trackh,
         }
 
 	if(scindex>=0) 	{
+	  static_cast<reco::PFBlockElementCluster*>(elements_.back().get())->setSuperClusterRef(superClusters_[scindex]);
 	  pfcSCVec_[ref.key()]=scindex;
 	  scpfcRefs_[scindex].push_back(ref);
 	}
