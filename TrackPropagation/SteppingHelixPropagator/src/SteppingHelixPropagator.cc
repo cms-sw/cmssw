@@ -60,19 +60,6 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   returnTangentPlane_ = true;
   sendLogWarning_ = false;
   useTuningForL2Speed_ = false;
-  /*
-  for (int i = 0; i <= MAX_POINTS; i++){
-    svBuf_[i].p3 = Vector(0,0,0);
-    svBuf_[i].r3 = Point(0,0,0);
-    svBuf_[i].bf = Vector(0,0,0);
-    svBuf_[i].bfGradLoc =  Vector(0,0,0);
-    svBuf_[i].covCurv = AlgebraicSymMatrix55();
-    svBuf_[i].matDCovCurv = AlgebraicSymMatrix55();
-    svBuf_[i].isComplete = true;
-    svBuf_[i].isValid_ = true;
-    svBuf_[i].hasErrorPropagated_ = !noErrorPropagation_;
-  }
-  */
   defaultStep_ = 5.;
 
   ecShiftPos_ = 0;
@@ -120,8 +107,8 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   int nPoints = 0;
   setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
 
-  StateInfo initial;
-  const StateInfo& svCurrent = propagate(svBuf[0], pDest);
+  StateInfo svCurrent; 
+  propagate(svBuf[0], pDest, svCurrent);
 
   return TsosPP(svCurrent.getStateOnSurface(pDest), svCurrent.path());
 }
@@ -134,7 +121,8 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   int nPoints = 0;
   setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
 
-  const StateInfo& svCurrent = propagate(svBuf[0], cDest);
+  StateInfo svCurrent;
+  propagate(svBuf[0], cDest, svCurrent);
 
   return TsosPP(svCurrent.getStateOnSurface(cDest, returnTangentPlane_), svCurrent.path());
 }
@@ -147,7 +135,8 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   int nPoints = 0;
   setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
 
-  const StateInfo& svCurrent = propagate(svBuf[0], pDest);
+  StateInfo svCurrent;
+  propagate(svBuf[0], pDest,svCurrent);
 
   FreeTrajectoryState ftsDest;
   svCurrent.getFreeState(ftsDest);
@@ -170,7 +159,8 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   int nPoints = 0;
   setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
   
-  const StateInfo& svCurrent = propagate(svBuf[0], pDest1, pDest2);
+  StateInfo svCurrent;
+  propagate(svBuf[0], pDest1, pDest2,svCurrent);
 
   FreeTrajectoryState ftsDest;
   svCurrent.getFreeState(ftsDest);
@@ -189,38 +179,48 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   return propagateWithPath(ftsStart, pDest1, pDest2);
 }
 
-const SteppingHelixStateInfo
+void
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
-				   const Surface& sDest) const {
+				   const Surface& sDest,
+				   SteppingHelixStateInfo& out) const {
   
   if (! sStart.isValid()){
     if (sendLogWarning_){
       edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: invalid input state"
 						<<std::endl;
     }
-    return invalidState_;
+    out=invalidState_;
+    return;
   }
 
   const Plane* pDest = dynamic_cast<const Plane*>(&sDest);
-  if (pDest != 0) return propagate(sStart, *pDest);
+  if (pDest != 0) {
+    propagate(sStart, *pDest, out);
+    return;
+  }
 
   const Cylinder* cDest = dynamic_cast<const Cylinder*>(&sDest);
-  if (cDest != 0) return propagate(sStart, *cDest);
-
+  if (cDest != 0) {
+    propagate(sStart, *cDest, out);
+    return;
+  }
+      
   throw PropagationException("The surface is neither Cylinder nor Plane");
 
 }
 
-const SteppingHelixStateInfo
+void
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
-				   const Plane& pDest) const {
+				   const Plane& pDest,
+				   SteppingHelixStateInfo& out) const {
   
   if (! sStart.isValid()){
     if (sendLogWarning_){
       edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: invalid input state"
 						<<std::endl;
     }    
-    return invalidState_;
+    out = invalidState_; 
+    return ;
   }
   StateArray svBuf;
   int nPoints = 0;
@@ -240,19 +240,23 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   if (sStart.path() < svBuf[cIndex_(nPoints-1)].path()) lDir = 1.;
   if (sStart.path() > svBuf[cIndex_(nPoints-1)].path()) lDir = -1.;
   svBuf[cIndex_(nPoints-1)].dir = lDir;
-  return svBuf[cIndex_(nPoints-1)];
+
+  out = svBuf[cIndex_(nPoints-1)];
+  return;
 }
 
-const SteppingHelixStateInfo
+void
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
-				   const Cylinder& cDest) const {
+				   const Cylinder& cDest,
+				   SteppingHelixStateInfo& out) const {
   
   if (! sStart.isValid()){
     if (sendLogWarning_){
       edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: invalid input state"
 						<<std::endl;
-    }    
-    return invalidState_;
+    }
+    out = invalidState_;
+    return;
   }
   StateArray svBuf;
   int nPoints = 0;
@@ -270,19 +274,22 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   if (sStart.path() < svBuf[cIndex_(nPoints-1)].path()) lDir = 1.;
   if (sStart.path() > svBuf[cIndex_(nPoints-1)].path()) lDir = -1.;
   svBuf[cIndex_(nPoints-1)].dir = lDir;
-  return svBuf[cIndex_(nPoints-1)];
+  out= svBuf[cIndex_(nPoints-1)];
+  return;
 }
 
-const SteppingHelixStateInfo
+void
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
-				   const GlobalPoint& pDest) const {
+				   const GlobalPoint& pDest,
+				   SteppingHelixStateInfo& out) const {
   
   if (! sStart.isValid()){
     if (sendLogWarning_){
       edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: invalid input state"
 						<<std::endl;
     }    
-    return invalidState_;
+    out = invalidState_;
+    return;
   }
   StateArray svBuf;
   int nPoints = 0;
@@ -293,12 +300,14 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   
   propagate(svBuf,nPoints,POINT_PCA_DT, pars);
   
-  return svBuf[cIndex_(nPoints-1)];
+  out = svBuf[cIndex_(nPoints-1)];
+  return;
 }
 
-const SteppingHelixStateInfo
+void
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
-				   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const {
+				   const GlobalPoint& pDest1, const GlobalPoint& pDest2,
+				   SteppingHelixStateInfo& out) const {
   
   if ((pDest1-pDest2).mag() < 1e-10 || !sStart.isValid()){
     if (sendLogWarning_){
@@ -309,7 +318,8 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
 	edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: invalid input state"
 						  <<std::endl;
     }
-    return invalidState_;
+    out = invalidState_;
+    return;
   }
   StateArray svBuf;
   int nPoints = 0;
@@ -320,7 +330,8 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   
   propagate(svBuf,nPoints,LINE_PCA_DT, pars);
   
-  return svBuf[cIndex_(nPoints-1)];
+  out = svBuf[cIndex_(nPoints-1)];
+  return;
 }
 
 void SteppingHelixPropagator::setIState(const SteppingHelixStateInfo& sStart,

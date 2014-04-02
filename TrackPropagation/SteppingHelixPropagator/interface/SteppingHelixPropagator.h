@@ -129,20 +129,20 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
     
     
   //! Propagate to Plane given a starting point
-  const SteppingHelixStateInfo 
-    propagate(const SteppingHelixStateInfo& ftsStart, const Surface& sDest) const;
-  const SteppingHelixStateInfo 
-    propagate(const SteppingHelixStateInfo& ftsStart, const Plane& pDest) const;
+  void
+    propagate(const SteppingHelixStateInfo& ftsStart, const Surface& sDest, SteppingHelixStateInfo& out) const;
+  void
+    propagate(const SteppingHelixStateInfo& ftsStart, const Plane& pDest, SteppingHelixStateInfo& out) const;
   //! Propagate to Cylinder given a starting point (a Cylinder is assumed to be positioned at 0,0,0)
-  const SteppingHelixStateInfo 
-    propagate(const SteppingHelixStateInfo& ftsStart, const Cylinder& cDest) const;
+  void
+    propagate(const SteppingHelixStateInfo& ftsStart, const Cylinder& cDest, SteppingHelixStateInfo& out) const;
   //! Propagate to PCA to point given a starting point 
-  const SteppingHelixStateInfo 
-    propagate(const SteppingHelixStateInfo& ftsStart, const GlobalPoint& pDest) const;
+  void
+    propagate(const SteppingHelixStateInfo& ftsStart, const GlobalPoint& pDest, SteppingHelixStateInfo& out) const;
   //! Propagate to PCA to a line (given by 2 points) given a starting point 
-  const SteppingHelixStateInfo 
+  void
     propagate(const SteppingHelixStateInfo& ftsStart, 
-	      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+	      const GlobalPoint& pDest1, const GlobalPoint& pDest2, SteppingHelixStateInfo& out) const;
 
   
   //! Switch debug printouts (to cout) .. very verbose
