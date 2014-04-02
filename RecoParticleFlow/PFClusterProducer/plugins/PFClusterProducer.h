@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,7 +18,7 @@
 #include <memory>
 
 
-class PFClusterProducer : public edm::EDProducer {
+class PFClusterProducer : public edm::stream::EDProducer<> {
   typedef RecHitTopologicalCleanerBase RHCB;
   typedef InitialClusteringStepBase ICSB;
   typedef PFClusterBuilderBase PFCBB;
