@@ -13,6 +13,22 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 
+
+
+using namespace std;
+using namespace l1t;
+
+
+Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(/*const CaloParams & dbPars*/) 
+{
+
+}
+
+Stage1Layer2TauAlgorithmImpPP::~Stage1Layer2TauAlgorithmImpPP(){};
+
+
+
+
 void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, 
 						      const std::vector<l1t::CaloRegion> & regions, 
 						      std::vector<l1t::Tau> * taus) {
