@@ -78,7 +78,8 @@ PiZeroAnalyzer::~PiZeroAnalyzer() {
 }
 
 
-void PiZeroAnalyzer::beginJob()
+void PiZeroAnalyzer::dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) 
+
 {
 
 
@@ -102,42 +103,45 @@ void PiZeroAnalyzer::beginJob()
   }
 
 
+}
 
+
+
+void PiZeroAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const & run, edm::EventSetup const & es) 
+{
 
   //booking all histograms
 
   if (dbe_) {
 
+
     currentFolder_.str("");
     currentFolder_ << "Egamma/PiZeroAnalyzer/";
-    dbe_->setCurrentFolder(currentFolder_.str());
+    iBooker.setCurrentFolder(currentFolder_.str());
 
 
 
 
-    hMinvPi0EB_ = dbe_->book1D("Pi0InvmassEB","Pi0 Invariant Mass in EB",100,0.,0.5);
+    hMinvPi0EB_ = iBooker.book1D("Pi0InvmassEB","Pi0 Invariant Mass in EB",100,0.,0.5);
     hMinvPi0EB_->setAxisTitle("Inv Mass [GeV] ",1);
 
-    hPt1Pi0EB_ = dbe_->book1D("Pt1Pi0EB","Pt 1st most energetic Pi0 photon in EB",100,0.,20.);
+    hPt1Pi0EB_ = iBooker.book1D("Pt1Pi0EB","Pt 1st most energetic Pi0 photon in EB",100,0.,20.);
     hPt1Pi0EB_->setAxisTitle("1st photon Pt [GeV] ",1);
 
-    hPt2Pi0EB_ = dbe_->book1D("Pt2Pi0EB","Pt 2nd most energetic Pi0 photon in EB",100,0.,20.);
+    hPt2Pi0EB_ = iBooker.book1D("Pt2Pi0EB","Pt 2nd most energetic Pi0 photon in EB",100,0.,20.);
     hPt2Pi0EB_->setAxisTitle("2nd photon Pt [GeV] ",1);
 
-    hPtPi0EB_ = dbe_->book1D("PtPi0EB","Pi0 Pt in EB",100,0.,20.);
+    hPtPi0EB_ = iBooker.book1D("PtPi0EB","Pi0 Pt in EB",100,0.,20.);
     hPtPi0EB_->setAxisTitle("Pi0 Pt [GeV] ",1);
 
-    hIsoPi0EB_ = dbe_->book1D("IsoPi0EB","Pi0 Iso in EB",50,0.,1.);
+    hIsoPi0EB_ = iBooker.book1D("IsoPi0EB","Pi0 Iso in EB",50,0.,1.);
     hIsoPi0EB_->setAxisTitle("Pi0 Iso",1);
 
 
   }
 
+
 }
-
-
-
-
 
 
 void PiZeroAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )

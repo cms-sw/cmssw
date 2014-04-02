@@ -76,7 +76,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
 #include <vector>
@@ -104,7 +104,7 @@ class SimVertex;
 class SimTrack;
 
 
-class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
+class ZToMuMuGammaAnalyzer  : public DQMEDAnalyzer
 {
 
 
@@ -115,10 +115,10 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   virtual ~ZToMuMuGammaAnalyzer();
                                    
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob() ;
+  //  virtual void beginJob() ;
   virtual void endJob() ;
   virtual void endRun(const edm::Run& , const edm::EventSetup& ) ;
-  
+  void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override;
       
  private:
   edm::EDGetTokenT<std::vector<reco::Photon> > photon_token_;
