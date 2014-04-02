@@ -703,16 +703,25 @@ void SiStripGainFromCalibTree::storeOnTree()
 
 bool SiStripGainFromCalibTree::produceTagFilter(){
    // The goal of this function is to check wether or not there is enough statistics to produce a meaningful tag for the DB or not 
-   if(Charge_Vs_Index->getTH2F()->Integral() < 2E8);return false;
-   if((1.0 * GOOD) / (GOOD+BAD) < 0.95); return false;
+  if(Charge_Vs_Index->getTH2F()->Integral() < 2E8) {
+    cout << "[SiStripGainFromCalibTree]produceTagFilter -> will not produce a paylaod because integral of statistics is: " << Charge_Vs_Index->getTH2F()->Integral() << endl;
+    setDoStore(false);
+    return false;
+  }
+  if((1.0 * GOOD) / (GOOD+BAD) < 0.95) {
+    setDoStore(false);
+    cout << "[SiStripGainFromCalibTree]produceTagFilter -> will not produce a paylaod because ration of GOOD/TOTAL: " << (1.0 * GOOD) / (GOOD+BAD) << endl;
+    return false;
+  }
    return true; 
 }
 
 SiStripApvGain* SiStripGainFromCalibTree::getNewObject() 
 {
-   if(!produceTagFilter())return NULL;
-
    SiStripApvGain* obj = new SiStripApvGain();
+   if(!produceTagFilter()) return obj;
+
+
    std::vector<float>* theSiStripVector = NULL;
    unsigned int PreviousDetId = 0; 
    for(unsigned int a=0;a<APVsCollOrdered.size();a++)
