@@ -334,8 +334,8 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
 
 	tempTrack.setSector( sec_it->first );
 	tempTrack.setWedge( -1 );
-	tempTrack.setMomentum( mom );
-	tempTrack.setPOCA( POCA );
+	tempTrack.setMomentum( mom , 4);
+	tempTrack.setPOCA( POCA , 4);
 	//	std::cout << tracks[tt]->getZ0() << " / " << POCA.z() << " / " << tempTrack.getPOCA().z() << std::endl;
 	TTTracksForOutput->push_back( tempTrack );
 
