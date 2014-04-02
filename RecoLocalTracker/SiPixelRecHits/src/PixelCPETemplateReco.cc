@@ -259,7 +259,7 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, ClusterParam *
   theClusterParam->templProbY_ = theClusterParam->templProbX_ = theClusterParam->templProbQ_ = 1.0f;
   theClusterParam->templQbin_ = 0;
   // We have a boolean denoting whether the reco failed or not
-  hasFilledProb_ = false;
+  theClusterParam->hasFilledProb_ = false;
 	
   float templYrec1_ = nonsense;
   float templXrec1_ = nonsense;
@@ -479,13 +479,13 @@ PixelCPETemplateReco::localPosition(DetParam const * theDetParam, ClusterParam *
     
   // Save probabilities and qBin in the quantities given to us by the base class
   // (for which there are also inline getters).  &&& templProbX_ etc. should be retired...
-  probabilityX_  = theClusterParam->templProbX_;
-  probabilityY_  = theClusterParam->templProbY_;
-  probabilityQ_  = theClusterParam->templProbQ_;
-  qBin_          = theClusterParam->templQbin_;
+  theClusterParam->probabilityX_  = theClusterParam->templProbX_;
+  theClusterParam->probabilityY_  = theClusterParam->templProbY_;
+  theClusterParam->probabilityQ_  = theClusterParam->templProbQ_;
+  theClusterParam->qBin_          = theClusterParam->templQbin_;
   
   if ( theClusterParam->ierr == 0 ) // always true here
-    hasFilledProb_ = true;
+    theClusterParam->hasFilledProb_ = true;
   
   return LocalPoint( theClusterParam->templXrec_, theClusterParam->templYrec_ );      
   

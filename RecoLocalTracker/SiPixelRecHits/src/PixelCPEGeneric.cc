@@ -226,7 +226,7 @@ PixelCPEGeneric::localPosition(DetParam const * theDetParam, ClusterParam * theC
   
       if(useNewSimplerErrors) { // errors from new light templates 
 	int gtemplID_ = genErrorDBObject_->getGenErrorID(theDetParam->theDet->geographicalId().rawId());
-	qBin_ = gtempl_.qbin( gtemplID_, theClusterParam->cotalpha, theClusterParam->cotbeta, locBz, qclus,  // inputs
+	theClusterParam->qBin_ = gtempl_.qbin( gtemplID_, theClusterParam->cotalpha, theClusterParam->cotbeta, locBz, qclus,  // inputs
 			      theClusterParam->pixmx,                                       // returned by reference
 			      theClusterParam->sigmay, theClusterParam->deltay, theClusterParam->sigmax, theClusterParam->deltax,              // returned by reference
 			      theClusterParam->sy1, theClusterParam->dy1, theClusterParam->sy2, theClusterParam->dy2, theClusterParam->sx1, theClusterParam->dx1, theClusterParam->sx2, theClusterParam->dx2 );    // returned by reference
@@ -240,7 +240,7 @@ PixelCPEGeneric::localPosition(DetParam const * theDetParam, ClusterParam * theC
       } else { // errors from full templates 
 
 	int templID_ = templateDBobject_->getTemplateID(theDetParam->theDet->geographicalId().rawId());
-	qBin_ = templ_.qbin( templID_, theClusterParam->cotalpha, theClusterParam->cotbeta, locBz, qclus,  // inputs
+	theClusterParam->qBin_ = templ_.qbin( templID_, theClusterParam->cotalpha, theClusterParam->cotbeta, locBz, qclus,  // inputs
 			     theClusterParam->pixmx,                                       // returned by reference
 			     theClusterParam->sigmay, theClusterParam->deltay, theClusterParam->sigmax, theClusterParam->deltax,              // returned by reference
 			     theClusterParam->sy1, theClusterParam->dy1, theClusterParam->sy2, theClusterParam->dy2, theClusterParam->sx1, theClusterParam->dx1, theClusterParam->sx2, theClusterParam->dx2 );    // returned by reference
@@ -620,11 +620,11 @@ PixelCPEGeneric::localError(DetParam const * theDetParam,  ClusterParam * theClu
   cout<<" endge clus "<<xerr<<" "<<yerr<<endl;  //dk
   if(bigInX || bigInY) cout<<" big "<<bigInX<<" "<<bigInY<<endl;
   if(edgex || edgey) cout<<" edge "<<edgex<<" "<<edgey<<endl;
-  cout<<" before if "<<UseErrorsFromTemplates_<<" "<<qBin_<<endl;
-  if(qBin_ == 0) 
+  cout<<" before if "<<UseErrorsFromTemplates_<<" "<<theClusterParam->qBin_<<endl;
+  if(theClusterParam->qBin_ == 0) 
     cout<<" qbin 0! "<<edgex<<" "<<edgey<<" "<<bigInX<<" "<<bigInY<<" "
 	<<sizex<<" "<<sizey<<endl;
-  if(sizex==2 && sizey==2) cout<<" size 2*2 "<<qBin_<<endl;
+  if(sizex==2 && sizey==2) cout<<" size 2*2 "<<theClusterParam->qBin_<<endl;
   }
 
   //if likely(UseErrorsFromTemplates_ && (qBin_!= 0) ) {
@@ -729,7 +729,7 @@ PixelCPEGeneric::localError(DetParam const * theDetParam,  ClusterParam * theClu
  
   if(localPrint) {
     cout<<" errors  "<<xerr<<" "<<yerr<<endl;  //dk
-    if(qBin_ == 0) cout<<" qbin 0 "<<xerr<<" "<<yerr<<endl;
+    if(theClusterParam->qBin_ == 0) cout<<" qbin 0 "<<xerr<<" "<<yerr<<endl;
   }
 
   auto xerr_sq = xerr*xerr; 

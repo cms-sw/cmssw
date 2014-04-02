@@ -60,10 +60,6 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 			   const SiPixelLorentzAngle * lorentzAngleWidth)
 #endif
   : nRecHitsTotal_(0), nRecHitsUsedEdge_(0),
-    probabilityX_(0.0), probabilityY_(0.0),
-    probabilityQ_(0.0), qBin_(0),
-    isOnEdge_(false), hasBadPixels_(false),
-    spansTwoROCs_(false), hasFilledProb_(false),
     useLAAlignmentOffsets_(false), useLAOffsetFromConfig_(false),
     useLAWidthFromConfig_(false), useLAWidthFromDB_(false),
     magfield_(mag), geom_(geom)
@@ -243,7 +239,7 @@ PixelCPEBase::setTheDet( DetParam const * theDetParam, ClusterParam * theCluster
   maxInX = theClusterParam->theCluster->maxPixelRow();
   maxInY = theClusterParam->theCluster->maxPixelCol();
   
-  isOnEdge_ = theDetParam->theRecTopol->isItEdgePixelInX(minInX) | theDetParam->theRecTopol->isItEdgePixelInX(maxInX) |
+  theClusterParam->isOnEdge_ = theDetParam->theRecTopol->isItEdgePixelInX(minInX) | theDetParam->theRecTopol->isItEdgePixelInX(maxInX) |
     theDetParam->theRecTopol->isItEdgePixelInY(minInY) | theDetParam->theRecTopol->isItEdgePixelInY(maxInY) ;
   
   // FOR NOW UNUSED. KEEP IT IN CASE WE WANT TO USE IT IN THE FUTURE  
@@ -253,7 +249,7 @@ PixelCPEBase::setTheDet( DetParam const * theDetParam, ClusterParam * theCluster
   //if(theClusterParam->theCluster->pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
   //}
   
-  spansTwoROCs_ = theDetParam->theRecTopol->containsBigPixelInX(minInX,maxInX) |
+  theClusterParam->spansTwoROCs_ = theDetParam->theRecTopol->containsBigPixelInX(minInX,maxInX) |
     theDetParam->theRecTopol->containsBigPixelInY(minInY,maxInY);
 
 }
@@ -564,29 +560,33 @@ PixelCPEBase::computeLorentzShifts(DetParam * theDetParam) const {
 //! of this function is chosen to match the one in SiPixelRecHit.
 //-----------------------------------------------------------------------------
 SiPixelRecHitQuality::QualWordType 
-PixelCPEBase::rawQualityWord() const
+PixelCPEBase::rawQualityWord(ClusterParam * theClusterParam) const
 {
   SiPixelRecHitQuality::QualWordType qualWord(0);
-  
-  SiPixelRecHitQuality::thePacking.setProbabilityXY ( probabilityXY() ,
+  float probabilityXY;
+  if ( theClusterParam->probabilityX_ !=0 && theClusterParam->probabilityY_ !=0 ) 
+     probabilityXY = theClusterParam->probabilityX_ * theClusterParam->probabilityY_ * (1.f - std::log(theClusterParam->probabilityX_ * theClusterParam->probabilityY_) ) ;
+  else 
+     probabilityXY = 0;
+  SiPixelRecHitQuality::thePacking.setProbabilityXY ( probabilityXY ,
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setProbabilityQ  ( probabilityQ_ , 
+  SiPixelRecHitQuality::thePacking.setProbabilityQ  ( theClusterParam->probabilityQ_ , 
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setQBin          ( (int)qBin_, 
+  SiPixelRecHitQuality::thePacking.setQBin          ( (int)theClusterParam->qBin_, 
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setIsOnEdge      ( isOnEdge_,
+  SiPixelRecHitQuality::thePacking.setIsOnEdge      ( theClusterParam->isOnEdge_,
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setHasBadPixels  ( hasBadPixels_,
+  SiPixelRecHitQuality::thePacking.setHasBadPixels  ( theClusterParam->hasBadPixels_,
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setSpansTwoROCs  ( spansTwoROCs_,
+  SiPixelRecHitQuality::thePacking.setSpansTwoROCs  ( theClusterParam->spansTwoROCs_,
                                                       qualWord );
   
-  SiPixelRecHitQuality::thePacking.setHasFilledProb ( hasFilledProb_,
+  SiPixelRecHitQuality::thePacking.setHasFilledProb ( theClusterParam->hasFilledProb_,
                                                       qualWord );
   
   return qualWord;

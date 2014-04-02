@@ -103,6 +103,16 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 
     // ggiurgiu@jhu.edu (10/18/2008)
     bool with_track_angle; 
+
+    //--- Probability
+    float probabilityX_ ; 
+    float probabilityY_ ; 
+    float probabilityQ_ ; 
+    float qBin_ ;
+    bool  isOnEdge_ ;
+    bool  hasBadPixels_ ;
+    bool  spansTwoROCs_ ;
+    bool  hasFilledProb_ ;
   };
 
 public:
@@ -146,11 +156,11 @@ public:
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
       LocalPoint lp = localPosition(theDetParam, theClusterParam);
       LocalError le = localError(theDetParam, theClusterParam);        
+      auto tuple = std::make_tuple(lp, le ,rawQualityWord(theClusterParam));
       delete theClusterParam;
       
       //std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
-
-      return std::make_tuple(lp, le ,rawQualityWord());
+      return tuple;
     }
   
   //--------------------------------------------------------------------------
@@ -172,11 +182,11 @@ public:
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
     LocalPoint lp = localPosition(theDetParam, theClusterParam); 
     LocalError le = localError(theDetParam, theClusterParam);        
+    auto tuple = std::make_tuple(lp, le ,rawQualityWord(theClusterParam));
     delete theClusterParam;
 
     //std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
-    
-    return std::make_tuple(lp, le ,rawQualityWord());
+    return tuple;
   } 
   
   
@@ -192,36 +202,13 @@ private:
   
   void fillDetParams();
   
-public:  
-  //--------------------------------------------------------------------------
-  //--- Accessors of other auxiliary quantities
-  inline float probabilityX()  const { return probabilityX_ ;  }
-  inline float probabilityY()  const { return probabilityY_ ;  }
-  inline float probabilityXY() const {
-    if ( probabilityX_ !=0 && probabilityY_ !=0 ) 
-      {
-	return probabilityX_ * probabilityY_ * (1.f - std::log(probabilityX_ * probabilityY_) ) ;
-      }
-    else 
-      return 0;
-  }
-  
-  inline float probabilityQ()  const { return probabilityQ_ ;  }
-  inline float qBin()          const { return qBin_ ;          }
-  inline bool  isOnEdge()      const { return isOnEdge_ ;      }
-  inline bool  hasBadPixels()  const { return hasBadPixels_ ;  }
-  inline bool  spansTwoRocks() const { return spansTwoROCs_ ;  }
-  inline bool  hasFilledProb() const { return hasFilledProb_ ; }
-  
-  
   //-----------------------------------------------------------------------------
   //! A convenience method to fill a whole SiPixelRecHitQuality word in one shot.
   //! This way, we can keep the details of what is filled within the pixel
   //! code and not expose the Transient SiPixelRecHit to it as well.  The name
   //! of this function is chosen to match the one in SiPixelRecHit.
   //-----------------------------------------------------------------------------
-  SiPixelRecHitQuality::QualWordType rawQualityWord() const;
-
+  SiPixelRecHitQuality::QualWordType rawQualityWord(ClusterParam * theClusterParam) const;
 
  protected:
   //--- All methods and data members are protected to facilitate (for now)
@@ -236,17 +223,6 @@ public:
   //--- Counters
   mutable int    nRecHitsTotal_ ; //for debugging only
   mutable int    nRecHitsUsedEdge_ ; //for debugging only
-
-  //--- Probability
-  mutable float probabilityX_ ; 
-  mutable float probabilityY_ ; 
-  mutable float probabilityQ_ ; 
-  mutable float qBin_ ;
-  mutable bool  isOnEdge_ ;
-  mutable bool  hasBadPixels_ ;
-  mutable bool  spansTwoROCs_ ;
-  mutable bool  hasFilledProb_ ;
-
 
   // Added new members
   float lAOffset_; // la used to calculate the offset from configuration (for testing) 
