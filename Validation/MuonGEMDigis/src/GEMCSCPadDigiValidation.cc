@@ -4,7 +4,8 @@ GEMCSCPadDigiValidation::GEMCSCPadDigiValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag)
 :  GEMBaseValidation(dbe, inputTag)
 {}
-void GEMCSCPadDigiValidation::bookHisto() {
+void GEMCSCPadDigiValidation::bookHisto(const GEMGeometry* geom) {
+  theGEMGeometry = geom;
   std::string region[2]= { "-1","1" } ;
   std::string station[3]= { "1","2","3" } ;
   std::string layer[2]= { "1","2" } ;

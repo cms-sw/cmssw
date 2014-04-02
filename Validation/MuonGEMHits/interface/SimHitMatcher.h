@@ -27,7 +27,7 @@ class SimHitMatcher : public BaseMatcher
 public:
   
   SimHitMatcher(const SimTrack& t, const SimVertex& v,
-      const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es);
+      const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es, const GEMGeometry* gem_geo);
   
   ~SimHitMatcher();
 

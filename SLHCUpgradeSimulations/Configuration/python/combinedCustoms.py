@@ -22,6 +22,7 @@ from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as cu
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0, customise_HcalPhase2
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
 from SLHCUpgradeSimulations.Configuration.me0Customs import customise as customise_me0
+from SLHCUpgradeSimulations.Configuration.rpcCustoms import customise as customise_rpc
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
@@ -97,6 +98,15 @@ def cust_2023(process):
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5D(process)
     process=customise_gem(process)
+    process=customise_rpc(process)
+    return process
+
+def cust_2023Pixel(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=customise_gem(process)
     return process
 
 def cust_2023Pixel(process):
@@ -113,6 +123,7 @@ def cust_2023Muon(process):
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem(process)
+    process=customise_rpc(process)
     process=customise_me0(process)
     return process
 

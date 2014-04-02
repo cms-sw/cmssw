@@ -10,6 +10,7 @@
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
  *  \author A. Everett 		 Purdue University
+ *  \modified by C. Calabria     INFN & Università Bari
  */
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -24,6 +25,7 @@
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 
 namespace edm {class Event;}
 namespace reco {class TransientTrack;}
@@ -127,12 +129,15 @@ class GlobalMuonRefitter {
     float theDTChi2Cut;
     float theCSCChi2Cut;
     float theRPCChi2Cut;
+    float theGEMChi2Cut;
     bool  theCosmicFlag;
 
     edm::InputTag theDTRecHitLabel;
     edm::InputTag theCSCRecHitLabel;
+    edm::InputTag theGEMRecHitLabel;
     edm::Handle<DTRecHitCollection>    theDTRecHits;
     edm::Handle<CSCRecHit2DCollection> theCSCRecHits;
+    edm::Handle<GEMRecHitCollection> theGEMRecHits;
 
     int	  theSkipStation;
     int   theTrackerSkipSystem;

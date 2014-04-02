@@ -637,7 +637,7 @@
     <Numeric name="startCopyNo" value="1"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
     <Numeric name="zoffset"     value="-2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
@@ -648,7 +648,7 @@
     <Numeric name="startCopyNo" value="2"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="20*deg"/>
+    <Numeric name="startAngle"  value="30*deg"/>
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
 
@@ -705,7 +705,7 @@
     <Numeric name="startCopyNo" value="1"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
     <Numeric name="zoffset"     value="-2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
@@ -716,7 +716,7 @@
     <Numeric name="startCopyNo" value="2"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="20*deg"/>
+    <Numeric name="startAngle"  value="30*deg"/>
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
@@ -727,7 +727,7 @@
     <Numeric name="startCopyNo" value="1"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
     <Numeric name="zoffset"     value="-2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
@@ -738,7 +738,7 @@
     <Numeric name="startCopyNo" value="2"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="20*deg"/>
+    <Numeric name="startAngle"  value="30*deg"/>
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
 
