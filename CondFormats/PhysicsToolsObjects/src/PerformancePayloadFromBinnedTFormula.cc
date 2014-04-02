@@ -1,26 +1,39 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 const int PerformancePayloadFromBinnedTFormula::InvalidPos=-1;
 
 #include <iostream>
 using namespace std;
 
+void PerformancePayloadFromBinnedTFormula::initialize() {
+  for (unsigned int t=0; t< pls.size(); ++t){
+    std::vector <boost::shared_ptr<TFormula> > temp;
+      for (unsigned int i=0; i< (pls[t].formulas()).size(); ++i){
+	PhysicsTFormulaPayload  tmp = pls[t];
+	boost::shared_ptr<TFormula> tt(new TFormula("rr",tmp.formulas()[i].c_str()));
+	tt->Compile();
+	temp.push_back(tt);
+      }
+      compiledFormulas_.push_back(temp);
+    }
+}
 
-TFormula * PerformancePayloadFromBinnedTFormula::getFormula(PerformanceResult::ResultType r ,const BinningPointByMap& p ) const {
+const boost::shared_ptr<TFormula>& PerformancePayloadFromBinnedTFormula::getFormula(PerformanceResult::ResultType r ,const BinningPointByMap& p ) const {
   //
   // chooses the correct rectangular region
   //
-  if (! isInPayload(r,p)) return NULL;
+  if (! isInPayload(r,p)) { throw cms::Exception("MalformedPerfPayload") << "Requested performance data not available!"; }
   unsigned int region;
   bool ok =  isOk(p,region);
-  if (ok == false) return NULL;
+  if (ok == false) { throw cms::Exception("MalformedPerfPayload") << "Requested variable does not match internal structure!"; }
 
   return compiledFormulas_[region][resultPos(r)];
 
 }
 
 float PerformancePayloadFromBinnedTFormula::getResult(PerformanceResult::ResultType r ,const BinningPointByMap& _p) const {
-  check();
   BinningPointByMap p = _p;
   //
   // which formula to use?
@@ -31,7 +44,7 @@ float PerformancePayloadFromBinnedTFormula::getResult(PerformanceResult::ResultT
   //  TFormula * formula = compiledFormulas_[resultPos(r)];
   //
 
-  TFormula * formula = getFormula(r,p);
+  const boost::shared_ptr<TFormula>& formula = getFormula(r,p);
 
   // prepare the vector to pass, order counts!!!
   //
@@ -44,7 +57,7 @@ float PerformancePayloadFromBinnedTFormula::getResult(PerformanceResult::ResultT
     values[i] = p.value(*it);    
   }
   //
-  // i need a non const version #$%^
+  // i need a non const version 
   return formula->EvalPar(values);
 }
 
@@ -77,7 +90,6 @@ bool PerformancePayloadFromBinnedTFormula::isOk(const BinningPointByMap& _p,unsi
 }
 
 bool PerformancePayloadFromBinnedTFormula::isInPayload(PerformanceResult::ResultType res,const BinningPointByMap& point) const {
-  check();
   // first, let's see if it is available at all
   if (resultPos(res) == PerformancePayloadFromBinnedTFormula::InvalidPos) return false;
   unsigned int whocares;
@@ -85,30 +97,7 @@ bool PerformancePayloadFromBinnedTFormula::isInPayload(PerformanceResult::Result
   return true;
 }
 
-
-void PerformancePayloadFromBinnedTFormula::check() const {
-  if (pls.size()== compiledFormulas_.size()) return;
-  //
-  // otherwise, compile!
-  //
-  compiledFormulas_.clear();
-  for (unsigned int t=0; t< pls.size(); ++t){
-    std::vector <TFormula *> temp;
-    for (unsigned int i=0; i< (pls[t].formulas()).size(); ++i){
-      PhysicsTFormulaPayload  tmp = pls[t];
-      TFormula* tt = new TFormula("rr",((tmp.formulas())[i]).c_str()); //FIXME: "rr" should be unique!
-      tt->Compile();
-      temp.push_back(tt);
-    }
-    compiledFormulas_.push_back(temp);
-  }
-}
-
-
-
-
 void PerformancePayloadFromBinnedTFormula::printFormula(PerformanceResult::ResultType res,const BinningPointByMap& point) const {
-  check();
   //
   // which formula to use?
   //
@@ -117,7 +106,7 @@ void PerformancePayloadFromBinnedTFormula::printFormula(PerformanceResult::Resul
   }
   
   // nice, what to do here???
-  TFormula * formula = getFormula(res, point);
+  const boost::shared_ptr<TFormula>& formula = getFormula(res, point);
   unsigned int whichone;
   isOk(point,whichone);
   cout << "-- Formula: " << formula->GetExpFormula("p") << endl;

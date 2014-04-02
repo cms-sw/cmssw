@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 class PerformancePayload
 // : public PhysicsPerformancePayload 
@@ -20,6 +21,8 @@ class PerformancePayload
 
   PerformancePayload(){}
   virtual ~PerformancePayload() {};
+
+  virtual void initialize() { }
 
   virtual float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const = 0; // gets from the full payload
   virtual bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const = 0;

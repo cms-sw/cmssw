@@ -14,6 +14,7 @@
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <memory>
 #include "boost/shared_ptr.hpp"
@@ -60,7 +61,8 @@ class RunManager
 {
 public:
 
-    RunManager(edm::ParameterSet const & p);
+  //RunManager(edm::ParameterSet const & p, edm::ConsumesCollector && iC);
+  RunManager(edm::ParameterSet const & p);
     ~RunManager();
     void initG4(const edm::EventSetup & es);
     void initializeUserActions();
@@ -87,9 +89,10 @@ public:
     void             Connect(SteppingAction*);
 
 protected:
-    G4Event * generateEvent( edm::Event& inpevt );
 
-    void resetGenParticleId( edm::Event& inpevt ); 
+    G4Event * generateEvent( edm::Event& inpevt );
+    void resetGenParticleId( edm::Event& inpevt );
+ 
 private:
 
     G4RunManagerKernel * m_kernel;
@@ -111,6 +114,8 @@ private:
     G4SimEvent * m_simEvent;
     RunAction * m_userRunAction;
     SimRunInterface * m_runInterface;
+
+    //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
 
     std::string m_PhysicsTablesDir;
     bool m_StorePhysicsTables;
