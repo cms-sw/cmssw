@@ -56,10 +56,10 @@ namespace sistrip {
 
     // Analyze strip tracker FED buffers in data
     size_t fedIndex;
-    for( fedIndex=0; fedIndex<sistrip::CMS_FED_ID_MAX; ++fedIndex )
+    for( fedIndex = sistrip::FED_ID_MIN; fedIndex < sistrip::CMS_FED_ID_MAX; ++fedIndex )
     {
       const FEDRawData& fed = buffers->FEDData(fedIndex);
-      if(fed.size()!=0 && fedIndex >= sistrip::FED_ID_MIN && fedIndex <= sistrip::FED_ID_MAX)
+      if(fed.size()!=0)
       {
 	// construct buffer
 	sistrip:: Phase2TrackerFEDBuffer* buffer = 0;
