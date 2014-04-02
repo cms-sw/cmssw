@@ -16,9 +16,6 @@ DQMExample_Step2::DQMExample_Step2(const edm::ParameterSet& ps)
 {
   edm::LogInfo("DQMExample_Step2") <<  "Constructor  DQMExample_Step2::DQMExample_Step2 " << std::endl;
 
-  //DQMStore
-  dbe_ = edm::Service<DQMStore>().operator->();
-  
   // Get parameters from configuration file
   numMonitorName_      =  ps.getParameter<std::string>("numMonitorName");
   denMonitorName_      =  ps.getParameter<std::string>("denMonitorName");
@@ -39,15 +36,6 @@ DQMExample_Step2::~DQMExample_Step2()
 void DQMExample_Step2::beginJob()
 {
   edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::beginJob " << std::endl;
-}
-//
-// -------------------------------------- beginRun --------------------------------------------
-//
-void DQMExample_Step2::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) 
-{
-  edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::beginRun" << std::endl;
-  
-  //book at beginRun
 }
 //
 // -------------------------------------- beginLuminosityBlock --------------------------------------------
@@ -81,12 +69,18 @@ void DQMExample_Step2::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //
 // -------------------------------------- endRun --------------------------------------------
 //
-void DQMExample_Step2::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
+void DQMExample_Step2::dqmEndRun(edm::Run const& run, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::endRun" << std::endl;
+  edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::dqmEndRun" << std::endl;
+}
 
+//
+// -------------------------------------- bookHistograms --------------------------------------------
+//
+void DQMExample_Step2::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)
+{
   // create and cd into new folder
-  dbe_->setCurrentFolder("What_I_do_in_the_client/Ratio");
+  ibooker_.setCurrentFolder("What_I_do_in_the_client/Ratio");
 
   //get available histograms
   MonitorElement* numerator = dbe_->get(numMonitorName_);
@@ -100,7 +94,7 @@ void DQMExample_Step2::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 
 
   //book new histogram
-  h_ptRatio = dbe_->book1D("ptRatio","pt ratio pf matched objects",50,0.,100.);
+  h_ptRatio = ibooker_.book1D("ptRatio","pt ratio pf matched objects",50,0.,100.);
   h_ptRatio->setAxisTitle("pt [GeV]");
 
   for (int iBin=1; iBin<numerator->getNbinsX(); ++iBin)

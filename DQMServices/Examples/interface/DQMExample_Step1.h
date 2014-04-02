@@ -2,7 +2,6 @@
 #define DQMExample_Step1_H
 
 //Framework
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -12,6 +11,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 //DQM
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -45,7 +45,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 
  
-class DQMExample_Step1: public edm::EDAnalyzer{
+class DQMExample_Step1: public DQMEDAnalyzer{
 
 public:
 
@@ -55,7 +55,8 @@ public:
 protected:
 
   void beginJob();
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) ;
   void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
@@ -64,7 +65,7 @@ protected:
 
 private:
   //histos booking function
-  void bookHistos(DQMStore* dbe_);
+  void bookHistos(DQMStore::IBooker &);
 
   //other functions
   bool MediumEle(const edm::Event & iEvent, const edm::EventSetup & iESetup, const reco::GsfElectron & electron);
@@ -73,7 +74,6 @@ private:
   double calcDeltaPhi(double phi1, double phi2);
 
   //private variables
-  DQMStore* dbe_;  
   math::XYZPoint PVPoint_;
 
   //variables from config file
