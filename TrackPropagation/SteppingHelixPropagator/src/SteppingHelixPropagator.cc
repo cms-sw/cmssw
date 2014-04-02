@@ -60,6 +60,7 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   returnTangentPlane_ = true;
   sendLogWarning_ = false;
   useTuningForL2Speed_ = false;
+  /*
   for (int i = 0; i <= MAX_POINTS; i++){
     svBuf_[i].p3 = Vector(0,0,0);
     svBuf_[i].r3 = Point(0,0,0);
@@ -71,6 +72,7 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
     svBuf_[i].isValid_ = true;
     svBuf_[i].hasErrorPropagated_ = !noErrorPropagation_;
   }
+  */
   defaultStep_ = 5.;
 
   ecShiftPos_ = 0;
@@ -114,9 +116,12 @@ std::pair<TrajectoryStateOnSurface, double>
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const Plane& pDest) const {
 
-  setIState(SteppingHelixStateInfo(ftsStart));
+  StateArray svBuf;
+  int nPoints = 0;
+  setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
 
-  const StateInfo& svCurrent = propagate(svBuf_[0], pDest);
+  StateInfo initial;
+  const StateInfo& svCurrent = propagate(svBuf[0], pDest);
 
   return TsosPP(svCurrent.getStateOnSurface(pDest), svCurrent.path());
 }
@@ -125,9 +130,11 @@ std::pair<TrajectoryStateOnSurface, double>
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const Cylinder& cDest) const {
 
-  setIState(SteppingHelixStateInfo(ftsStart));
+  StateArray svBuf;
+  int nPoints = 0;
+  setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
 
-  const StateInfo& svCurrent = propagate(svBuf_[0], cDest);
+  const StateInfo& svCurrent = propagate(svBuf[0], cDest);
 
   return TsosPP(svCurrent.getStateOnSurface(cDest, returnTangentPlane_), svCurrent.path());
 }
@@ -136,9 +143,11 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 std::pair<FreeTrajectoryState, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const GlobalPoint& pDest) const {
-  setIState(SteppingHelixStateInfo(ftsStart));
+  StateArray svBuf;
+  int nPoints = 0;
+  setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
 
-  const StateInfo& svCurrent = propagate(svBuf_[0], pDest);
+  const StateInfo& svCurrent = propagate(svBuf[0], pDest);
 
   FreeTrajectoryState ftsDest;
   svCurrent.getFreeState(ftsDest);
@@ -157,9 +166,11 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
     }
     return FtsPP();
   }
-  setIState(SteppingHelixStateInfo(ftsStart));
+  StateArray svBuf;
+  int nPoints = 0;
+  setIState(SteppingHelixStateInfo(ftsStart),svBuf,nPoints);
   
-  const StateInfo& svCurrent = propagate(svBuf_[0], pDest1, pDest2);
+  const StateInfo& svCurrent = propagate(svBuf[0], pDest1, pDest2);
 
   FreeTrajectoryState ftsDest;
   svCurrent.getFreeState(ftsDest);
@@ -178,7 +189,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
   return propagateWithPath(ftsStart, pDest1, pDest2);
 }
 
-const SteppingHelixStateInfo&
+const SteppingHelixStateInfo
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
 				   const Surface& sDest) const {
   
@@ -200,7 +211,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
 
 }
 
-const SteppingHelixStateInfo&
+const SteppingHelixStateInfo
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
 				   const Plane& pDest) const {
   
@@ -211,26 +222,28 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
     }    
     return invalidState_;
   }
-  setIState(sStart);
+  StateArray svBuf;
+  int nPoints = 0;
+  setIState(sStart,svBuf,nPoints);
   
   Point rPlane(pDest.position().x(), pDest.position().y(), pDest.position().z());
   Vector nPlane(pDest.rotation().zx(), pDest.rotation().zy(), pDest.rotation().zz()); nPlane /= nPlane.mag();
 
   double pars[6] = { rPlane.x(), rPlane.y(), rPlane.z(),
 		     nPlane.x(), nPlane.y(), nPlane.z() };
-  
-  propagate(PLANE_DT, pars);
+
+  propagate(svBuf,nPoints,PLANE_DT, pars);
   
   //(re)set it before leaving: dir =1 (-1) if path increased (decreased) and 0 if it didn't change
   //need to implement this somewhere else as a separate function
   double lDir = 0;
-  if (sStart.path() < svBuf_[cIndex_(nPoints_-1)].path()) lDir = 1.;
-  if (sStart.path() > svBuf_[cIndex_(nPoints_-1)].path()) lDir = -1.;
-  svBuf_[cIndex_(nPoints_-1)].dir = lDir;
-  return svBuf_[cIndex_(nPoints_-1)];
+  if (sStart.path() < svBuf[cIndex_(nPoints-1)].path()) lDir = 1.;
+  if (sStart.path() > svBuf[cIndex_(nPoints-1)].path()) lDir = -1.;
+  svBuf[cIndex_(nPoints-1)].dir = lDir;
+  return svBuf[cIndex_(nPoints-1)];
 }
 
-const SteppingHelixStateInfo&
+const SteppingHelixStateInfo
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
 				   const Cylinder& cDest) const {
   
@@ -241,24 +254,26 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
     }    
     return invalidState_;
   }
-  setIState(sStart);
+  StateArray svBuf;
+  int nPoints = 0;
+  setIState(sStart,svBuf,nPoints);
   
   double pars[6] = {0,0,0,0,0,0};
   pars[RADIUS_P] = cDest.radius();
 
   
-  propagate(RADIUS_DT, pars);
+  propagate(svBuf,nPoints,RADIUS_DT, pars);
   
   //(re)set it before leaving: dir =1 (-1) if path increased (decreased) and 0 if it didn't change
   //need to implement this somewhere else as a separate function
   double lDir = 0;
-  if (sStart.path() < svBuf_[cIndex_(nPoints_-1)].path()) lDir = 1.;
-  if (sStart.path() > svBuf_[cIndex_(nPoints_-1)].path()) lDir = -1.;
-  svBuf_[cIndex_(nPoints_-1)].dir = lDir;
-  return svBuf_[cIndex_(nPoints_-1)];
+  if (sStart.path() < svBuf[cIndex_(nPoints-1)].path()) lDir = 1.;
+  if (sStart.path() > svBuf[cIndex_(nPoints-1)].path()) lDir = -1.;
+  svBuf[cIndex_(nPoints-1)].dir = lDir;
+  return svBuf[cIndex_(nPoints-1)];
 }
 
-const SteppingHelixStateInfo&
+const SteppingHelixStateInfo
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
 				   const GlobalPoint& pDest) const {
   
@@ -269,17 +284,19 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
     }    
     return invalidState_;
   }
-  setIState(sStart);
+  StateArray svBuf;
+  int nPoints = 0;
+  setIState(sStart,svBuf,nPoints);
   
   double pars[6] = {pDest.x(), pDest.y(), pDest.z(), 0, 0, 0};
 
   
-  propagate(POINT_PCA_DT, pars);
+  propagate(svBuf,nPoints,POINT_PCA_DT, pars);
   
-  return svBuf_[cIndex_(nPoints_-1)];
+  return svBuf[cIndex_(nPoints-1)];
 }
 
-const SteppingHelixStateInfo&
+const SteppingHelixStateInfo
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
 				   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const {
   
@@ -294,36 +311,40 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
     }
     return invalidState_;
   }
-  setIState(sStart);
+  StateArray svBuf;
+  int nPoints = 0;
+  setIState(sStart,svBuf,nPoints);
   
   double pars[6] = {pDest1.x(), pDest1.y(), pDest1.z(),
 		    pDest2.x(), pDest2.y(), pDest2.z()};
   
-  propagate(LINE_PCA_DT, pars);
+  propagate(svBuf,nPoints,LINE_PCA_DT, pars);
   
-  return svBuf_[cIndex_(nPoints_-1)];
+  return svBuf[cIndex_(nPoints-1)];
 }
 
-void SteppingHelixPropagator::setIState(const SteppingHelixStateInfo& sStart) const {
-  nPoints_ = 0;
-  svBuf_[cIndex_(nPoints_)] = sStart; //do this anyways to have a fresh start
+void SteppingHelixPropagator::setIState(const SteppingHelixStateInfo& sStart,
+					StateArray& svBuf, int& nPoints) const {
+  nPoints = 0;
+  svBuf[cIndex_(nPoints)] = sStart; //do this anyways to have a fresh start
   if (sStart.isComplete ) {
-    svBuf_[cIndex_(nPoints_)] = sStart;
-    nPoints_++;
+    svBuf[cIndex_(nPoints)] = sStart;
+    nPoints++;
   } else {
-    loadState(svBuf_[cIndex_(nPoints_)], sStart.p3, sStart.r3, sStart.q,
+    loadState(svBuf[cIndex_(nPoints)], sStart.p3, sStart.r3, sStart.q,
 	      propagationDirection(), sStart.covCurv);
-    nPoints_++;
+    nPoints++;
   }
-  svBuf_[cIndex_(0)].hasErrorPropagated_ = sStart.hasErrorPropagated_ & !noErrorPropagation_;
+  svBuf[cIndex_(0)].hasErrorPropagated_ = sStart.hasErrorPropagated_ & !noErrorPropagation_;
 }
 
 SteppingHelixPropagator::Result 
-SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type, 
+SteppingHelixPropagator::propagate(StateArray& svBuf, int& nPoints,
+				   SteppingHelixPropagator::DestType type, 
 				   const double pars[6], double epsilon)  const{
 
   static const std::string metname = "SteppingHelixPropagator";
-  StateInfo* svCurrent = &svBuf_[cIndex_(nPoints_-1)];
+  StateInfo* svCurrent = &svBuf[cIndex_(nPoints-1)];
 
   //check if it's going to work at all
   double tanDist = 0;
@@ -373,7 +394,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
   int loopCount = 0;
   while (makeNextStep){
     dStep = defaultStep_;
-    svCurrent = &svBuf_[cIndex_(nPoints_-1)];
+    svCurrent = &svBuf[cIndex_(nPoints-1)];
     double curZ = svCurrent->r3.z();
     double curR = svCurrent->r3.perp();
     if ( fabs(curZ) < 440 && curR < 260) dStep = defaultStep_*2;
@@ -508,7 +529,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     oldDStep = dStep;
 
     if (dStep > 1e-10 && ! (fabs(dist) < fabs(epsilon))){
-      StateInfo* svNext = &svBuf_[cIndex_(nPoints_)];
+      StateInfo* svNext = &svBuf[cIndex_(nPoints)];
       makeAtomStep((*svCurrent), (*svNext), dStep, dir, HEL_AS_F);
 //       if (useMatVolumes_ && expectNewMagVolume 
 // 	  && svCurrent->magVol == svNext->magVol){
@@ -522,7 +543,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 // 	  makeAtomStep((*svCurrent), (*svNext), dStep, dir, HEL_AS_F);	  
 // 	}
 //       }
-      nPoints_++;    svCurrent = &svBuf_[cIndex_(nPoints_-1)];
+      nPoints++;    svCurrent = &svBuf[cIndex_(nPoints-1)];
       if (oldDir != dir){
 	nOsc++;
 	tanDistNextCheck = -1;//check dist after osc
@@ -544,12 +565,12 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       double nextDist = 0;
       double nextTanDist = 0;
       PropagationDirection nextRefDirection = anyDirection;
-      StateInfo* svNext = &svBuf_[cIndex_(nPoints_)];
+      StateInfo* svNext = &svBuf[cIndex_(nPoints)];
       makeAtomStep((*svCurrent), (*svNext), 1., dir, HEL_AS_F);
-      nPoints_++;     svCurrent = &svBuf_[cIndex_(nPoints_-1)];
+      nPoints++;     svCurrent = &svBuf[cIndex_(nPoints-1)];
       refToDest(type, (*svCurrent), pars, nextDist, nextTanDist, nextRefDirection);
       if ( fabs(nextDist) > fabs(dist)){
-	nPoints_--;      svCurrent = &svBuf_[cIndex_(nPoints_-1)];
+	nPoints--;      svCurrent = &svBuf[cIndex_(nPoints-1)];
 	result = SteppingHelixStateInfo::OK;
 	if (debug_){
 	  LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Found real local minimum in PCA"<<std::endl;
@@ -563,7 +584,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       }
     }
 
-    if (nPoints_ > MAX_STEPS*1./defaultStep_  || loopCount > MAX_STEPS*100
+    if (nPoints > MAX_STEPS*1./defaultStep_  || loopCount > MAX_STEPS*100
 	|| nOsc > 6 ) result = SteppingHelixStateInfo::FAULT;
 
     if (svCurrent->p3.mag() < 0.1 ) result = SteppingHelixStateInfo::RANGEOUT;
@@ -595,7 +616,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     if (result == SteppingHelixStateInfo::FAULT && nOsc > 6)
       edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<" Infinite loop condidtion detected: going in cycles. Break after 6 cycles"
 			      <<std::endl;
-    if (result == SteppingHelixStateInfo::FAULT && nPoints_ > MAX_STEPS*1./defaultStep_)
+    if (result == SteppingHelixStateInfo::FAULT && nPoints > MAX_STEPS*1./defaultStep_)
       edm::LogWarning(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<" Tired to go farther. Made too many steps: more than "
 			      <<MAX_STEPS*1./defaultStep_
 			      <<std::endl;
@@ -637,7 +658,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"going to NOT IMPLEMENTED"<<std::endl;
       break;
     }
-    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Made "<<nPoints_-1<<" steps and stopped at(cur step) "<<svCurrent->r3<<" nOsc "<<nOsc<<std::endl;
+    LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<"Made "<<nPoints-1<<" steps and stopped at(cur step) "<<svCurrent->r3<<" nOsc "<<nOsc<<std::endl;
   }
   
   return result;
