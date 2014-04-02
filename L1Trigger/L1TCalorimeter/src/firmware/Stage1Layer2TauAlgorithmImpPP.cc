@@ -59,7 +59,7 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *tauLorentz =
       new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-    l1t::Tau theTau(*tauLorentz, tauEt, region->hwEta(), region->phi());
+    l1t::Tau theTau(*tauLorentz, tauEt, region->hwEta(), region->hwPhi());
 
     if( tauEt >0 && (isolation/tauEt) < relativeIsolationCut ) 
       taus->push_back(theTau);
