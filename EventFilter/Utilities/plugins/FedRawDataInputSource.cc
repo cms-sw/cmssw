@@ -551,11 +551,11 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
                                edm::Wrapper<FEDRawDataCollection>::getInterface());
 
   //FWCore/Sources DaqProvenanceHelper before 7_1_0_pre3
-  //eventPrincipal.put(daqProvenanceHelper_.constBranchDescription_, edp,
-  //                   daqProvenanceHelper_.dummyProvenance_);
+  eventPrincipal.put(daqProvenanceHelper_.constBranchDescription_, edp,
+                     daqProvenanceHelper_.dummyProvenance_);
   
-  eventPrincipal.put(daqProvenanceHelper_.branchDescription(), edp,
-                     daqProvenanceHelper_.dummyProvenance());
+  //eventPrincipal.put(daqProvenanceHelper_.branchDescription(), edp,
+  //                   daqProvenanceHelper_.dummyProvenance());
 
   eventsThisLumi_++;
 
@@ -948,6 +948,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     }
 
     unsigned int bufferLeft = 0;
+    auto start = std::chrono::high_resolution_clock::now();
     for (unsigned int i=0;i<readBlocks_;i++)
     {
       const ssize_t last = ::read(fileDescriptor,( void*) (chunk->buf_+bufferLeft), eventChunkBlock_);
@@ -958,6 +959,10 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
 	break;
       }
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto diff = end-start;
+    std::chrono::milliseconds msec = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
+    std::cout << " finished reading block of " << (bufferLeft >> 20) << " MB" << " in " << msec.count() << " ms ("<< (bufferLeft >> 20)/double(msec.count())<<" GB/s)" << std::endl;
     close(fileDescriptor);
 
     chunk->readComplete_=true;//this is atomic to secure the sequential buffer fill before becoming available for processing)
