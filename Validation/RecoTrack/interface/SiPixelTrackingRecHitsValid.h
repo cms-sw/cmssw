@@ -13,6 +13,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -66,7 +67,7 @@
 class TTree;
 class TFile;
 
-class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
+class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
 {
  public:
   
@@ -75,6 +76,7 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   virtual ~SiPixelTrackingRecHitsValid();
 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
   virtual void beginJob();
   virtual void endJob();
 
@@ -86,6 +88,7 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   edm::ParameterSet conf_;
   //TrackLocalAngle *anglefinder_;
   DQMStore* dbe_;
+  bool runStandalone;
   std::string outputFile_;
   std::string debugNtuple_;
   std::string builderName_;

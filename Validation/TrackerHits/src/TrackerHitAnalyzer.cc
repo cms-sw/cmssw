@@ -1,6 +1,5 @@
 #include "Validation/TrackerHits/interface/TrackerHitAnalyzer.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -56,10 +55,12 @@ TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps)
   , edmPSimHitContainer_siTECHigh_Token_( consumes<edm::PSimHitContainer>( ps.getParameter<edm::InputTag>( "SiTECHighSrc" ) ) )
   , edmSimTrackContainerToken_( consumes<edm::SimTrackContainer>( ps.getParameter<edm::InputTag>( "G4TrkSrc" ) ) )
   , fDBE( NULL )
+  , conf_(ps)
+  , runStandalone ( ps.getParameter<bool>("runStandalone")  ) 
   , fOutputFile( ps.getUntrackedParameter<std::string>( "outputFile", "TrackerHitHisto.root" ) ) {
 }
 
-void TrackerHitAnalyzer::beginRun( edm::Run const&, edm::EventSetup const& ) {
+void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
 ////// booking histograms
   fDBE = edm::Service<DQMStore>().operator->();
    	
@@ -89,11 +90,11 @@ void TrackerHitAnalyzer::beginRun( edm::Run const&, edm::EventSetup const& ) {
      // if so, it can be done once - via beginJob() 
  int nbin = 5000;   
 
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/");
-    htofeta  = fDBE->book2D ("tof_eta", "Time of flight vs eta", nbin , -3.0 , 3.0,200,-100,100);
-    htofphi  = fDBE->book2D("tof_phi", "Time of flight vs phi", nbin,-180,180,200,-100,100);
-    htofr  = fDBE->book2D("tof_r", "Time of flight vs r", nbin , 0 , 300, 200, -100,100);
-    htofz  = fDBE->book2D("tof_z", "Time of flight vs z", nbin , -280 , 280, 200, -100,100);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/");
+    htofeta  = ibooker.book2D ("tof_eta", "Time of flight vs eta", nbin , -3.0 , 3.0,200,-100,100);
+    htofphi  = ibooker.book2D("tof_phi", "Time of flight vs phi", nbin,-180,180,200,-100,100);
+    htofr  = ibooker.book2D("tof_r", "Time of flight vs r", nbin , 0 , 300, 200, -100,100);
+    htofz  = ibooker.book2D("tof_z", "Time of flight vs z", nbin , -280 , 280, 200, -100,100);
 
 
  const float E2NEL = 1.; 
@@ -119,18 +120,18 @@ void TrackerHitAnalyzer::beginRun( edm::Run const&, edm::EventSetup const& ) {
     sprintf (hname5,"Eloss_BPIX_%i",i+1);
     sprintf (hname6,"Eloss_FPIX_%i",i+1);
    
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
-    h1e[i]  = fDBE->book1D (hname1, htitle1, nbin , 0.0 , 0.001*E2NEL);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
-    h2e[i]  = fDBE->book1D (hname2, htitle2, nbin , 0.0 , 0.001*E2NEL);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
-    h3e[i]  = fDBE->book1D (hname3, htitle3, nbin , 0.0 , 0.001*E2NEL);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
-    h4e[i]  = fDBE->book1D (hname4, htitle4, nbin , 0.0 , 0.001*E2NEL);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
-    h5e[i]  = fDBE->book1D (hname5, htitle5, nbin , 0.0 , 0.001*E2NEL);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
-    h6e[i]  = fDBE->book1D (hname6, htitle6, nbin , 0.0 , 0.001*E2NEL);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
+    h1e[i]  = ibooker.book1D (hname1, htitle1, nbin , 0.0 , 0.001*E2NEL);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
+    h2e[i]  = ibooker.book1D (hname2, htitle2, nbin , 0.0 , 0.001*E2NEL);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
+    h3e[i]  = ibooker.book1D (hname3, htitle3, nbin , 0.0 , 0.001*E2NEL);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
+    h4e[i]  = ibooker.book1D (hname4, htitle4, nbin , 0.0 , 0.001*E2NEL);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
+    h5e[i]  = ibooker.book1D (hname5, htitle5, nbin , 0.0 , 0.001*E2NEL);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
+    h6e[i]  = ibooker.book1D (hname6, htitle6, nbin , 0.0 , 0.001*E2NEL);
    
    }
 
@@ -154,18 +155,18 @@ const float low[] = {-0.03, -0.03, -0.02, -0.03, -0.03, -0.03};
     sprintf (hname5,"Entryx-Exitx_BPIX_%i",i+1);
     sprintf (hname6,"Entryx-Exitx_FPIX_%i",i+1);
    
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
-    h1ex[i]  = fDBE->book1D (hname1, htitle1, nbin , low[0] , high[0]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
-    h2ex[i]  = fDBE->book1D (hname2, htitle2, nbin , low[1] , high[1]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
-    h3ex[i]  = fDBE->book1D (hname3, htitle3, nbin , low[2] , high[2]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
-    h4ex[i]  = fDBE->book1D (hname4, htitle4, nbin , low[3] , high[3]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
-    h5ex[i]  = fDBE->book1D (hname5, htitle5, nbin , low[4] , high[4]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
-    h6ex[i]  = fDBE->book1D (hname6, htitle6, nbin , low[5] , high[5]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
+    h1ex[i]  = ibooker.book1D (hname1, htitle1, nbin , low[0] , high[0]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
+    h2ex[i]  = ibooker.book1D (hname2, htitle2, nbin , low[1] , high[1]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
+    h3ex[i]  = ibooker.book1D (hname3, htitle3, nbin , low[2] , high[2]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
+    h4ex[i]  = ibooker.book1D (hname4, htitle4, nbin , low[3] , high[3]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
+    h5ex[i]  = ibooker.book1D (hname5, htitle5, nbin , low[4] , high[4]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
+    h6ex[i]  = ibooker.book1D (hname6, htitle6, nbin , low[5] , high[5]);
    
    }
 
@@ -188,18 +189,18 @@ const float low0[] = {-0.05, -0.06, -0.03, -0.03, -0.03, -0.03};
     sprintf (hname5,"Entryy-Exity_BPIX_%i",i+1);
     sprintf (hname6,"Entryy-Exity_FPIX_%i",i+1);
    
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
-    h1ey[i]  = fDBE->book1D (hname1, htitle1, nbin , low0[0] , high0[0]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
-    h2ey[i]  = fDBE->book1D (hname2, htitle2, nbin , low0[1] , high0[1]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
-    h3ey[i]  = fDBE->book1D (hname3, htitle3, nbin , low0[2] , high0[2]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
-    h4ey[i]  = fDBE->book1D (hname4, htitle4, nbin , low0[3] , high0[3]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
-    h5ey[i]  = fDBE->book1D (hname5, htitle5, nbin , low0[4] , high0[4]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
-    h6ey[i]  = fDBE->book1D (hname6, htitle6, nbin , low0[5] , high0[5]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
+    h1ey[i]  = ibooker.book1D (hname1, htitle1, nbin , low0[0] , high0[0]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
+    h2ey[i]  = ibooker.book1D (hname2, htitle2, nbin , low0[1] , high0[1]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
+    h3ey[i]  = ibooker.book1D (hname3, htitle3, nbin , low0[2] , high0[2]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
+    h4ey[i]  = ibooker.book1D (hname4, htitle4, nbin , low0[3] , high0[3]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
+    h5ey[i]  = ibooker.book1D (hname5, htitle5, nbin , low0[4] , high0[4]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
+    h6ey[i]  = ibooker.book1D (hname6, htitle6, nbin , low0[5] , high0[5]);
    
    }
 
@@ -222,18 +223,18 @@ const float low1[]  = {0.,0.,0.,0.,0.,0.};
     sprintf (hname5,"Entryz-Exitz_BPIX_%i",i+1);
     sprintf (hname6,"Entryz-Exitz_FPIX_%i",i+1);
    
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
-    h1ez[i]  = fDBE->book1D (hname1, htitle1, nbin , low1[0] , high1[0]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
-    h2ez[i]  = fDBE->book1D (hname2, htitle2, nbin , low1[1] , high1[1]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
-    h3ez[i]  = fDBE->book1D (hname3, htitle3, nbin , low1[2] , high1[2]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
-    h4ez[i]  = fDBE->book1D (hname4, htitle4, nbin , low1[3] , high1[3]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
-    h5ez[i]  = fDBE->book1D (hname5, htitle5, nbin , low1[4] , high1[4]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
-    h6ez[i]  = fDBE->book1D (hname6, htitle6, nbin , low1[5] , high1[5]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
+    h1ez[i]  = ibooker.book1D (hname1, htitle1, nbin , low1[0] , high1[0]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
+    h2ez[i]  = ibooker.book1D (hname2, htitle2, nbin , low1[1] , high1[1]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
+    h3ez[i]  = ibooker.book1D (hname3, htitle3, nbin , low1[2] , high1[2]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
+    h4ez[i]  = ibooker.book1D (hname4, htitle4, nbin , low1[3] , high1[3]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
+    h5ez[i]  = ibooker.book1D (hname5, htitle5, nbin , low1[4] , high1[4]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
+    h6ez[i]  = ibooker.book1D (hname6, htitle6, nbin , low1[5] , high1[5]);
    
    }
 
@@ -257,18 +258,18 @@ const float low2[] = {-3.2, -5.0, -5.5, -6.2, -0.85, -0.5};
     sprintf (hname5,"Localx_BPIX_%i",i+1);
     sprintf (hname6,"Localx_FPIX_%i",i+1);
    
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
-    h1lx[i]  = fDBE->book1D (hname1, htitle1, nbin , low2[0] , high2[0]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
-    h2lx[i]  = fDBE->book1D (hname2, htitle2, nbin , low2[1] , high2[1]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
-    h3lx[i]  = fDBE->book1D (hname3, htitle3, nbin , low2[2] , high2[2]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
-    h4lx[i]  = fDBE->book1D (hname4, htitle4, nbin , low2[3] , high2[3]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
-    h5lx[i]  = fDBE->book1D (hname5, htitle5, nbin , low2[4] , high2[4]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
-    h6lx[i]  = fDBE->book1D (hname6, htitle6, nbin , low2[5] , high2[5]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
+    h1lx[i]  = ibooker.book1D (hname1, htitle1, nbin , low2[0] , high2[0]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
+    h2lx[i]  = ibooker.book1D (hname2, htitle2, nbin , low2[1] , high2[1]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
+    h3lx[i]  = ibooker.book1D (hname3, htitle3, nbin , low2[2] , high2[2]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
+    h4lx[i]  = ibooker.book1D (hname4, htitle4, nbin , low2[3] , high2[3]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
+    h5lx[i]  = ibooker.book1D (hname5, htitle5, nbin , low2[4] , high2[4]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
+    h6lx[i]  = ibooker.book1D (hname6, htitle6, nbin , low2[5] , high2[5]);
    
    }
 
@@ -292,21 +293,20 @@ const float low3[] = {-6.0, -10., -5.6, -10.5, -3.4, -0.52};
     sprintf (hname5,"Localy_BPIX_%i",i+1);
     sprintf (hname6,"Localy_FPIX_%i",i+1);
    
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
-    h1ly[i]  = fDBE->book1D (hname1, htitle1, nbin , low3[0] , high3[0]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
-    h2ly[i]  = fDBE->book1D (hname2, htitle2, nbin , low3[1] , high3[1]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
-    h3ly[i]  = fDBE->book1D (hname3, htitle3, nbin , low3[2] , high3[2]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
-    h4ly[i]  = fDBE->book1D (hname4, htitle4, nbin , low3[3] , high3[3]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
-    h5ly[i]  = fDBE->book1D (hname5, htitle5, nbin , low3[4] , high3[4]);
-    fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
-    h6ly[i]  = fDBE->book1D (hname6, htitle6, nbin , low3[5] , high3[5]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIBHit");
+    h1ly[i]  = ibooker.book1D (hname1, htitle1, nbin , low3[0] , high3[0]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TOBHit");
+    h2ly[i]  = ibooker.book1D (hname2, htitle2, nbin , low3[1] , high3[1]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TIDHit");
+    h3ly[i]  = ibooker.book1D (hname3, htitle3, nbin , low3[2] , high3[2]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/TECHit");
+    h4ly[i]  = ibooker.book1D (hname4, htitle4, nbin , low3[3] , high3[3]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/BPIXHit");
+    h5ly[i]  = ibooker.book1D (hname5, htitle5, nbin , low3[4] , high3[4]);
+    ibooker.setCurrentFolder("TrackerHitsV/TrackerHit/FPIXHit");
+    h6ly[i]  = ibooker.book1D (hname6, htitle6, nbin , low3[5] , high3[5]);
    
    }
-   
    
   }
 }
@@ -318,30 +318,15 @@ TrackerHitAnalyzer::~TrackerHitAnalyzer()
 
 
 
-void TrackerHitAnalyzer::endJob() 
-{
-  //before check that histos are there....
+void TrackerHitAnalyzer::endJob(){
+  //According to the previous code some profile plots were created here
+  //However, these profile plots are not in the final root file
+  //For now we comment out these plots (since they are not created in any case)
+  //Then, if needed we will consider moving the booking of the profileplots to the bookHistograms function 
+  //and here we will do the profile
 
-  // check if ME still there (and not killed by MEtoEDM for memory saving)
-  if( fDBE )
-    {
-      // check existence of first histo in the list
-      if (! fDBE->get("TrackerHitsV/TrackerHit/tof_eta")) return;
-    }
-  else
-    return;
-
-  fDBE->setCurrentFolder("TrackerHitsV/TrackerHit/");
-  htofeta_profile  = fDBE->bookProfile ("tof_eta_profile",htofeta->getTH2F()->ProfileX());
-  htofphi_profile  = fDBE->bookProfile("tof_phi_profile", htofphi->getTH2F()->ProfileX());
-  htofr_profile  = fDBE->bookProfile("tof_r_profile",htofr->getTH2F()->ProfileX());
-  htofz_profile  = fDBE->bookProfile("tof_z_profile", htofz->getTH2F()->ProfileX());
-
-
-  if ( fOutputFile.size() != 0 && fDBE ) fDBE->save(fOutputFile);
-
-  return ;
-
+  //Save root file only in standalone mode
+  if ( runStandalone && fOutputFile.size() != 0 && fDBE ){ fDBE->save(fOutputFile);}
 }
 
 

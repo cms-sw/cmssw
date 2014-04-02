@@ -50,6 +50,7 @@
 
 SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
   : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "pixelrechitshisto.root" ) )
+  , runStandalone ( ps.getParameter<bool>("runStandalone")  ) 
   , dbe_(0) 
   , conf_(ps)
   , siPixelRecHitCollectionToken_( consumes<SiPixelRecHitCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ) {
@@ -60,13 +61,12 @@ SiPixelRecHitsValid::~SiPixelRecHitsValid() {
 }
 
 void SiPixelRecHitsValid::beginJob() {
-  
 }
 
-void SiPixelRecHitsValid::beginRun( const edm::Run& r, const edm::EventSetup& c ) {
+void SiPixelRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
   dbe_ = edm::Service<DQMStore>().operator->();
   //dbe_->showDirStructure();
-  dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustBPIX");
+  ibooker.setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustBPIX");
   
   Char_t histo[200];
   
@@ -79,193 +79,194 @@ void SiPixelRecHitsValid::beginRun( const edm::Run& r, const edm::EventSetup& c 
   //Cluster y-size by module number for barrel
   for (int i=0; i<8; i++) {
     sprintf(histo, "Clust_y_size_Module%d", i+1);
-    clustYSizeModule[i] = dbe_->book1D(histo,"Cluster y-size by Module", 20, 0.5, 20.5); 
+    clustYSizeModule[i] = ibooker.book1D(histo,"Cluster y-size by Module", 20, 0.5, 20.5); 
   } // end for
   
   //Cluster x-size by layer for barrel
   for (int i=0; i<3; i++) {
     sprintf(histo, "Clust_x_size_Layer%d", i+1);
-    clustXSizeLayer[i] = dbe_->book1D(histo,"Cluster x-size by Layer", 20, 0.5, 20.5);
+    clustXSizeLayer[i] = ibooker.book1D(histo,"Cluster x-size by Layer", 20, 0.5, 20.5);
   } // end for
   
   //Cluster charge by module for 3 layers of barrel
   for (int i=0; i<8; i++) {
     //Cluster charge by module for Layer1
     sprintf(histo, "Clust_charge_Layer1_Module%d", i+1);
-    clustChargeLayer1Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 1 by Module", 50, 0., 200000.);
+    clustChargeLayer1Modules[i] = ibooker.book1D(histo, "Cluster charge Layer 1 by Module", 50, 0., 200000.);
     
     //Cluster charge by module for Layer2
     sprintf(histo, "Clust_charge_Layer2_Module%d", i+1);
-    clustChargeLayer2Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 2 by Module", 50, 0., 200000.);
+    clustChargeLayer2Modules[i] = ibooker.book1D(histo, "Cluster charge Layer 2 by Module", 50, 0., 200000.);
     
     //Cluster charge by module for Layer3
     sprintf(histo, "Clust_charge_Layer3_Module%d", i+1);
-    clustChargeLayer3Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 3 by Module",50, 0., 200000.);	
+    clustChargeLayer3Modules[i] = ibooker.book1D(histo, "Cluster charge Layer 3 by Module",50, 0., 200000.);	
   } // end for
   
-  dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustFPIX");
+  ibooker.setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustFPIX");
   //Cluster x-size, y-size, and charge by plaquette for Disks in Forward
   for (int i=0; i<7; i++) {
     //Cluster x-size for Disk1 by Plaquette
     sprintf(histo, "Clust_x_size_Disk1_Plaquette%d", i+1);
-    clustXSizeDisk1Plaquettes[i] = dbe_->book1D(histo, "Cluster X-size for Disk1 by Plaquette", 20, 0.5, 20.5);
+    clustXSizeDisk1Plaquettes[i] = ibooker.book1D(histo, "Cluster X-size for Disk1 by Plaquette", 20, 0.5, 20.5);
     
     //Cluster x-size for Disk2 by Plaquette
     sprintf(histo, "Clust_x_size_Disk2_Plaquette%d", i+1);
-    clustXSizeDisk2Plaquettes[i] = dbe_->book1D(histo, "Cluster X-size for Disk2 by Plaquette", 20, 0.5, 20.5);
+    clustXSizeDisk2Plaquettes[i] = ibooker.book1D(histo, "Cluster X-size for Disk2 by Plaquette", 20, 0.5, 20.5);
     
     //Cluster y-size for Disk1 by Plaquette
     sprintf(histo, "Clust_y_size_Disk1_Plaquette%d", i+1);
-    clustYSizeDisk1Plaquettes[i] = dbe_->book1D(histo, "Cluster Y-size for Disk1 by Plaquette", 20, 0.5, 20.5);
+    clustYSizeDisk1Plaquettes[i] = ibooker.book1D(histo, "Cluster Y-size for Disk1 by Plaquette", 20, 0.5, 20.5);
     
     //Cluster y-size for Disk2 by Plaquette
     sprintf(histo, "Clust_y_size_Disk2_Plaquette%d", i+1);
-    clustYSizeDisk2Plaquettes[i] = dbe_->book1D(histo, "Cluster Y-size for Disk2 by Plaquette", 20, 0.5, 20.5);
+    clustYSizeDisk2Plaquettes[i] = ibooker.book1D(histo, "Cluster Y-size for Disk2 by Plaquette", 20, 0.5, 20.5);
     
     //Cluster charge for Disk1 by Plaquette
     sprintf(histo, "Clust_charge_Disk1_Plaquette%d", i+1);
-    clustChargeDisk1Plaquettes[i] = dbe_->book1D(histo, "Cluster charge for Disk1 by Plaquette", 50, 0., 200000.);
+    clustChargeDisk1Plaquettes[i] = ibooker.book1D(histo, "Cluster charge for Disk1 by Plaquette", 50, 0., 200000.);
     
     //Cluster charge for Disk2 by Plaquette
     sprintf(histo, "Clust_charge_Disk2_Plaquette%d", i+1);
-    clustChargeDisk2Plaquettes[i] = dbe_->book1D(histo, "Cluster charge for Disk2 by Plaquette", 50, 0., 200000.);
+    clustChargeDisk2Plaquettes[i] = ibooker.book1D(histo, "Cluster charge for Disk2 by Plaquette", 50, 0., 200000.);
   } // end for
   
 
 
-  dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/recHitBPIX");
+  ibooker.setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/recHitBPIX");
   //RecHit X Resolution all barrel hits
-  recHitXResAllB = dbe_->book1D("RecHit_xres_b_All","RecHit X Res All Modules in Barrel", 100, -200., 200.);
+  recHitXResAllB = ibooker.book1D("RecHit_xres_b_All","RecHit X Res All Modules in Barrel", 100, -200., 200.);
   
   //RecHit Y Resolution all barrel hits
-  recHitYResAllB = dbe_->book1D("RecHit_yres_b_All","RecHit Y Res All Modules in Barrel", 100, -200., 200.);
+  recHitYResAllB = ibooker.book1D("RecHit_yres_b_All","RecHit Y Res All Modules in Barrel", 100, -200., 200.);
   
   //RecHit X distribution for full modules for barrel
-  recHitXFullModules = dbe_->book1D("RecHit_x_FullModules", "RecHit X distribution for full modules", 100,-2., 2.);
+  recHitXFullModules = ibooker.book1D("RecHit_x_FullModules", "RecHit X distribution for full modules", 100,-2., 2.);
   
   //RecHit X distribution for half modules for barrel
-  recHitXHalfModules = dbe_->book1D("RecHit_x_HalfModules", "RecHit X distribution for half modules", 100, -1., 1.);
+  recHitXHalfModules = ibooker.book1D("RecHit_x_HalfModules", "RecHit X distribution for half modules", 100, -1., 1.);
   
   //RecHit Y distribution all modules for barrel
-  recHitYAllModules = dbe_->book1D("RecHit_y_AllModules", "RecHit Y distribution for all modules", 100, -4., 4.);
+  recHitYAllModules = ibooker.book1D("RecHit_y_AllModules", "RecHit Y distribution for all modules", 100, -4., 4.);
   
   //RecHit X resolution for flipped and unflipped ladders by layer for barrel
   for (int i=0; i<3; i++) {
     //RecHit X resolution for flipped ladders by layer
     sprintf(histo, "RecHit_XRes_FlippedLadder_Layer%d", i+1);
-    recHitXResFlippedLadderLayers[i] = dbe_->book1D(histo, "RecHit XRes Flipped Ladders by Layer", 100, -200., 200.);
+    recHitXResFlippedLadderLayers[i] = ibooker.book1D(histo, "RecHit XRes Flipped Ladders by Layer", 100, -200., 200.);
     
     //RecHit X resolution for unflipped ladders by layer
     sprintf(histo, "RecHit_XRes_UnFlippedLadder_Layer%d", i+1);
-    recHitXResNonFlippedLadderLayers[i] = dbe_->book1D(histo, "RecHit XRes NonFlipped Ladders by Layer", 100, -200., 200.);
+    recHitXResNonFlippedLadderLayers[i] = ibooker.book1D(histo, "RecHit XRes NonFlipped Ladders by Layer", 100, -200., 200.);
   } // end for
   
   //RecHit Y resolutions for layers by module for barrel
   for (int i=0; i<8; i++) {
     //Rec Hit Y resolution by module for Layer1
     sprintf(histo, "RecHit_YRes_Layer1_Module%d", i+1);
-    recHitYResLayer1Modules[i] = dbe_->book1D(histo, "RecHit YRes Layer1 by module", 100, -200., 200.);
+    recHitYResLayer1Modules[i] = ibooker.book1D(histo, "RecHit YRes Layer1 by module", 100, -200., 200.);
     
     //RecHit Y resolution by module for Layer2
     sprintf(histo, "RecHit_YRes_Layer2_Module%d", i+1);
-    recHitYResLayer2Modules[i] = dbe_->book1D(histo, "RecHit YRes Layer2 by module", 100, -200., 200.);
+    recHitYResLayer2Modules[i] = ibooker.book1D(histo, "RecHit YRes Layer2 by module", 100, -200., 200.);
     
     //RecHit Y resolution by module for Layer3
     sprintf(histo, "RecHit_YRes_Layer3_Module%d", i+1);
-    recHitYResLayer3Modules[i] = dbe_->book1D(histo, "RecHit YRes Layer3 by module", 100, -200., 200.); 
+    recHitYResLayer3Modules[i] = ibooker.book1D(histo, "RecHit YRes Layer3 by module", 100, -200., 200.); 
   } // end for
   
-  dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/recHitFPIX");
+  ibooker.setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/recHitFPIX");
   //RecHit X resolution all plaquettes
-  recHitXResAllF = dbe_->book1D("RecHit_xres_f_All", "RecHit X Res All in Forward", 100, -200., 200.);
+  recHitXResAllF = ibooker.book1D("RecHit_xres_f_All", "RecHit X Res All in Forward", 100, -200., 200.);
   
   //RecHit Y resolution all plaquettes
-  recHitYResAllF = dbe_->book1D("RecHit_yres_f_All", "RecHit Y Res All in Forward", 100, -200., 200.);
+  recHitYResAllF = ibooker.book1D("RecHit_yres_f_All", "RecHit Y Res All in Forward", 100, -200., 200.);
   
   //RecHit X distribution for plaquette with x-size 1 in forward
-  recHitXPlaquetteSize1 = dbe_->book1D("RecHit_x_Plaquette_xsize1", "RecHit X Distribution for plaquette x-size1", 100, -2., 2.);
+  recHitXPlaquetteSize1 = ibooker.book1D("RecHit_x_Plaquette_xsize1", "RecHit X Distribution for plaquette x-size1", 100, -2., 2.);
   
   //RecHit X distribution for plaquette with x-size 2 in forward
-  recHitXPlaquetteSize2 = dbe_->book1D("RecHit_x_Plaquette_xsize2", "RecHit X Distribution for plaquette x-size2", 100, -2., 2.);
+  recHitXPlaquetteSize2 = ibooker.book1D("RecHit_x_Plaquette_xsize2", "RecHit X Distribution for plaquette x-size2", 100, -2., 2.);
   
   //RecHit Y distribution for plaquette with y-size 2 in forward
-  recHitYPlaquetteSize2 = dbe_->book1D("RecHit_y_Plaquette_ysize2", "RecHit Y Distribution for plaquette y-size2", 100, -4., 4.);
+  recHitYPlaquetteSize2 = ibooker.book1D("RecHit_y_Plaquette_ysize2", "RecHit Y Distribution for plaquette y-size2", 100, -4., 4.);
   
   //RecHit Y distribution for plaquette with y-size 3 in forward
-  recHitYPlaquetteSize3 = dbe_->book1D("RecHit_y_Plaquette_ysize3", "RecHit Y Distribution for plaquette y-size3", 100, -4., 4.);
+  recHitYPlaquetteSize3 = ibooker.book1D("RecHit_y_Plaquette_ysize3", "RecHit Y Distribution for plaquette y-size3", 100, -4., 4.);
   
   //RecHit Y distribution for plaquette with y-size 4 in forward
-  recHitYPlaquetteSize4 = dbe_->book1D("RecHit_y_Plaquette_ysize4", "RecHit Y Distribution for plaquette y-size4", 100, -4., 4.);
+  recHitYPlaquetteSize4 = ibooker.book1D("RecHit_y_Plaquette_ysize4", "RecHit Y Distribution for plaquette y-size4", 100, -4., 4.);
   
   //RecHit Y distribution for plaquette with y-size 5 in forward
-  recHitYPlaquetteSize5 = dbe_->book1D("RecHit_y_Plaquette_ysize5", "RecHit Y Distribution for plaquette y-size5", 100, -4., 4.);
+  recHitYPlaquetteSize5 = ibooker.book1D("RecHit_y_Plaquette_ysize5", "RecHit Y Distribution for plaquette y-size5", 100, -4., 4.);
   
   //X and Y resolutions for both disks by plaquette in forward
   for (int i=0; i<7; i++) {
     //X resolution for Disk1 by plaquette
     sprintf(histo, "RecHit_XRes_Disk1_Plaquette%d", i+1);
-    recHitXResDisk1Plaquettes[i] = dbe_->book1D(histo, "RecHit XRes Disk1 by plaquette", 100, -200., 200.); 
+    recHitXResDisk1Plaquettes[i] = ibooker.book1D(histo, "RecHit XRes Disk1 by plaquette", 100, -200., 200.); 
     //X resolution for Disk2 by plaquette
     sprintf(histo, "RecHit_XRes_Disk2_Plaquette%d", i+1);
-    recHitXResDisk2Plaquettes[i] = dbe_->book1D(histo, "RecHit XRes Disk2 by plaquette", 100, -200., 200.);  
+    recHitXResDisk2Plaquettes[i] = ibooker.book1D(histo, "RecHit XRes Disk2 by plaquette", 100, -200., 200.);  
     
     //Y resolution for Disk1 by plaquette
     sprintf(histo, "RecHit_YRes_Disk1_Plaquette%d", i+1);
-    recHitYResDisk1Plaquettes[i] = dbe_->book1D(histo, "RecHit YRes Disk1 by plaquette", 100, -200., 200.);
+    recHitYResDisk1Plaquettes[i] = ibooker.book1D(histo, "RecHit YRes Disk1 by plaquette", 100, -200., 200.);
     //Y resolution for Disk2 by plaquette
     sprintf(histo, "RecHit_YRes_Disk2_Plaquette%d", i+1);
-    recHitYResDisk2Plaquettes[i] = dbe_->book1D(histo, "RecHit YRes Disk2 by plaquette", 100, -200., 200.);
+    recHitYResDisk2Plaquettes[i] = ibooker.book1D(histo, "RecHit YRes Disk2 by plaquette", 100, -200., 200.);
     
   }
 
 
-  dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/recHitPullsBPIX");
-  recHitXPullAllB        = dbe_->book1D("RecHit_xres_b_All"       , "RecHit X Pull All Modules in Barrel"        , 100, -10.0, 10.0);
-  recHitYPullAllB        = dbe_->book1D("RecHit_yres_b_All"       , "RecHit Y Pull All Modules in Barrel"        , 100, -10.0, 10.0);
+  ibooker.setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/recHitPullsBPIX");
+  recHitXPullAllB        = ibooker.book1D("RecHit_xres_b_All"       , "RecHit X Pull All Modules in Barrel"        , 100, -10.0, 10.0);
+  recHitYPullAllB        = ibooker.book1D("RecHit_yres_b_All"       , "RecHit Y Pull All Modules in Barrel"        , 100, -10.0, 10.0);
 
   for (int i=0; i<3; i++) 
     {
       sprintf(histo, "RecHit_XPull_FlippedLadder_Layer%d", i+1);
-      recHitXPullFlippedLadderLayers[i] = dbe_->book1D(histo, "RecHit XPull Flipped Ladders by Layer", 100, -10.0, 10.0);
+      recHitXPullFlippedLadderLayers[i] = ibooker.book1D(histo, "RecHit XPull Flipped Ladders by Layer", 100, -10.0, 10.0);
       
       sprintf(histo, "RecHit_XPull_UnFlippedLadder_Layer%d", i+1);
-      recHitXPullNonFlippedLadderLayers[i] = dbe_->book1D(histo, "RecHit XPull NonFlipped Ladders by Layer", 100, -10.0, 10.0);
+      recHitXPullNonFlippedLadderLayers[i] = ibooker.book1D(histo, "RecHit XPull NonFlipped Ladders by Layer", 100, -10.0, 10.0);
     }
   
   for (int i=0; i<8; i++) 
     {
       sprintf(histo, "RecHit_YPull_Layer1_Module%d", i+1);
-      recHitYPullLayer1Modules[i] = dbe_->book1D(histo, "RecHit YPull Layer1 by module", 100, -10.0, 10.0);
+      recHitYPullLayer1Modules[i] = ibooker.book1D(histo, "RecHit YPull Layer1 by module", 100, -10.0, 10.0);
       
       sprintf(histo, "RecHit_YPull_Layer2_Module%d", i+1);
-      recHitYPullLayer2Modules[i] = dbe_->book1D(histo, "RecHit YPull Layer2 by module", 100, -10.0, 10.0);
+      recHitYPullLayer2Modules[i] = ibooker.book1D(histo, "RecHit YPull Layer2 by module", 100, -10.0, 10.0);
       
       sprintf(histo, "RecHit_YPull_Layer3_Module%d", i+1);
-      recHitYPullLayer3Modules[i] = dbe_->book1D(histo, "RecHit YPull Layer3 by module", 100, -10.0, 10.0); 
+      recHitYPullLayer3Modules[i] = ibooker.book1D(histo, "RecHit YPull Layer3 by module", 100, -10.0, 10.0); 
     }
   
-  dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/recHitPullsFPIX");
-  recHitXPullAllF = dbe_->book1D("RecHit_XPull_f_All", "RecHit X Pull All in Forward", 100, -10.0, 10.0);
+  ibooker.setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/recHitPullsFPIX");
+  recHitXPullAllF = ibooker.book1D("RecHit_XPull_f_All", "RecHit X Pull All in Forward", 100, -10.0, 10.0);
   
-  recHitYPullAllF = dbe_->book1D("RecHit_YPull_f_All", "RecHit Y Pull All in Forward", 100, -10.0, 10.0);
+  recHitYPullAllF = ibooker.book1D("RecHit_YPull_f_All", "RecHit Y Pull All in Forward", 100, -10.0, 10.0);
   
   for (int i=0; i<7; i++) 
     {
       sprintf(histo, "RecHit_XPull_Disk1_Plaquette%d", i+1);
-      recHitXPullDisk1Plaquettes[i] = dbe_->book1D(histo, "RecHit XPull Disk1 by plaquette", 100, -10.0, 10.0); 
+      recHitXPullDisk1Plaquettes[i] = ibooker.book1D(histo, "RecHit XPull Disk1 by plaquette", 100, -10.0, 10.0); 
       sprintf(histo, "RecHit_XPull_Disk2_Plaquette%d", i+1);
-      recHitXPullDisk2Plaquettes[i] = dbe_->book1D(histo, "RecHit XPull Disk2 by plaquette", 100, -10.0, 10.0);  
+      recHitXPullDisk2Plaquettes[i] = ibooker.book1D(histo, "RecHit XPull Disk2 by plaquette", 100, -10.0, 10.0);  
       
       sprintf(histo, "RecHit_YPull_Disk1_Plaquette%d", i+1);
-      recHitYPullDisk1Plaquettes[i] = dbe_->book1D(histo, "RecHit YPull Disk1 by plaquette", 100, -10.0, 10.0);
+      recHitYPullDisk1Plaquettes[i] = ibooker.book1D(histo, "RecHit YPull Disk1 by plaquette", 100, -10.0, 10.0);
       
       sprintf(histo, "RecHit_YPull_Disk2_Plaquette%d", i+1);
-      recHitYPullDisk2Plaquettes[i] = dbe_->book1D(histo, "RecHit YPull Disk2 by plaquette", 100, -10.0, 10.0);
+      recHitYPullDisk2Plaquettes[i] = ibooker.book1D(histo, "RecHit YPull Disk2 by plaquette", 100, -10.0, 10.0);
     }
 }
 
 void SiPixelRecHitsValid::endJob() {
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  //Save histos in local root file only in standalone mode
+  if (  runStandalone && outputFile_.size() != 0 && dbe_ ){ dbe_->save(outputFile_);}
 }
 
 void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) 
