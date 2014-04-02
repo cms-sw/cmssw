@@ -508,7 +508,29 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
   const boost::filesystem::path filePath(fileName);
   if (!testModeNoBuilderUnit_) {
     edm::LogInfo("FedRawDataInputSource") << "Deleting input file " << fileName;
-    boost::filesystem::remove(filePath); // won't work in case of forked children
+    try {
+      //sometimes this fails but file gets deleted
+      boost::filesystem::remove(filePath);
+    }
+    catch (const boost::filesystem::filesystem_error& ex)
+    {
+      edm::LogError("FedRawDataInputSource") << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT: " << ex.what()
+                                               << ". Trying again.";
+      usleep(100000);
+      try {
+        boost::filesystem::remove(filePath);
+      }
+      catch (...) {/*file gets deleted first time but exception is still thrown*/}
+    }
+    catch (std::exception& ex)
+    {
+      edm::LogError("FedRawDataInputSource") << " - deleteFile std::exception CAUGHT: " << ex.what()
+                                               << ". Trying again.";
+      usleep(100000);
+      try {
+	boost::filesystem::remove(filePath);
+      } catch (...) {/*file gets deleted first time but exception is still thrown*/}
+    }
   } else {
     edm::LogInfo("FedRawDataInputSource") << "Renaming input file " << fileName;
     renameToNextFree(fileName);
@@ -623,7 +645,23 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
         sleep(1);
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
       }
-      boost::filesystem::remove(jsonSourcePath);
+
+
+      try {
+        //sometimes this fails but file gets deleted
+        boost::filesystem::remove(jsonSourcePath);
+      }
+      catch (const boost::filesystem::filesystem_error& ex)
+      {
+        // Input dir gone?
+        edm::LogError("FedRawDataInputSource") << " - grabNextFile BOOST FILESYSTEM ERROR CAUGHT: " << ex.what();
+      }
+      catch (std::exception& ex)
+      {
+        // Input dir gone?
+        edm::LogError("FedRawDataInputSource") << " - grabNextFile std::exception CAUGHT: " << ex.what();
+      }
+
     }
 
     boost::filesystem::ifstream ij(jsonDestPath);
