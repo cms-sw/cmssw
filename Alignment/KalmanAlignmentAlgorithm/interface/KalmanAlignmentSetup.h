@@ -44,8 +44,8 @@ public:
 
   inline const std::string id( void ) const { return theId; }
 
-  inline const TrajectoryFitter* fitter( void ) const { return theFitter; }
-  inline const TrajectoryFitter* externalFitter( void ) const { return theExternalFitter; }
+  inline const TrajectoryFitter* fitter( void ) const { return theFitter.get(); }
+  inline const TrajectoryFitter* externalFitter( void ) const { return theExternalFitter.get(); }
 
   inline const Propagator* propagator( void ) const { return thePropagator; }
   inline const Propagator* externalPropagator( void ) const { return theExternalPropagator; }
@@ -70,13 +70,13 @@ private:
 
   std::string theId;
 
-  TrajectoryFitter* theFitter;
+  std::unique_ptr<TrajectoryFitter> theFitter;
   Propagator* thePropagator;
   std::vector< SubDetId > theTrackingSubDetIds;
   unsigned int theMinTrackingHits;
   SortingDirection theSortingDir;
 
-  TrajectoryFitter* theExternalFitter;
+  std::unique_ptr<TrajectoryFitter> theExternalFitter;
   Propagator* theExternalPropagator;
   std::vector< SubDetId > theExternalTrackingSubDetIds;
   unsigned int theMinExternalHits;
