@@ -38,7 +38,7 @@ using namespace reco;
 DynamicTruncation::DynamicTruncation(const edm::Event& event, const MuonServiceProxy& theService) {
   propagator = theService.propagator("SmartPropagatorAny");
   propagatorPF = theService.propagator("SmartPropagatorAny");
-  propagatorCompatibleDet = theService.propagator("SteppingHelixPropagatorAny");
+  propagatorCompatibleDet = theService.propagator("SmartPropagatorAny");
   theG = theService.trackingGeometry();
   theService.eventSetup().get<TransientRecHitRecord>().get("MuonRecHitBuilder",theMuonRecHitBuilder);
   theService.eventSetup().get<TrackingComponentsRecord>().get("KFUpdator",updatorHandle);
@@ -190,7 +190,7 @@ void DynamicTruncation::filteringAlgo() {
     double bestCSCEstimator = MAX_THR;
     vector<DTRecSegment4D> dtSegs   = dtSegMap[it->first];
     vector<CSCSegment> cscSegs      = cscSegMap[it->first];
-    
+
     // DT case: find the most compatible segment 
     TrajectoryStateOnSurface tsosDTlayer;
     testDTstation(currentState, dtSegs, bestDTEstimator, bestDTSeg, tsosDTlayer);
@@ -411,9 +411,6 @@ bool DynamicTruncation::chooseLayers(int &incompLayers, double const &bestDTEsti
       useSegment(bestDTSeg, tsosDT); 
       return true;
     }
-    //    if (DYTselector == 0) {useSegment(bestDTSeg, tsosDT); return true;}
-    //    if (DYTselector == 1 && bestDTEstimator < initThr) {useSegment(bestDTSeg, tsosDT); return true;}
-    //    if (DYTselector == 2 && incompLayers < 2 && bestDTEstimator < initThr) {useSegment(bestDTSeg, tsosDT); return true;}
   } else {
     // Get threshold for the chamber
     if (useDBforThr) getThresholdFromDB(initThr, DetId(bestCSCSeg.cscDetId()));
@@ -423,9 +420,6 @@ bool DynamicTruncation::chooseLayers(int &incompLayers, double const &bestDTEsti
       useSegment(bestCSCSeg, tsosCSC);
       return true;
     }
-    //    if (DYTselector == 0) {useSegment(bestCSCSeg, tsosCSC); return true;}
-    //    if (DYTselector == 1 && bestCSCEstimator < initThr) {useSegment(bestCSCSeg, tsosCSC); return true;}
-    //    if (DYTselector == 2 && incompLayers < 2 && bestCSCEstimator < initThr) {useSegment(bestCSCSeg, tsosCSC); return true;}
   }
   return false;
 }
