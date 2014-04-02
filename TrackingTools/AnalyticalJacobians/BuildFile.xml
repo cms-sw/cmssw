@@ -4,5 +4,5 @@
 <use   name="TrackingTools/TrajectoryParametrization"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/Math"/>
-<use   name="vdt"/>
+<use   name="vdt_headers"/>
 <use   name="rootmath"/>
