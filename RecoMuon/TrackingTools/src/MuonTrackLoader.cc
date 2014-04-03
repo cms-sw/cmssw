@@ -159,10 +159,14 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     edm::ESHandle<TrajectorySmoother> aSmoother;
     theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName,aSmoother);
     theSmoother.reset(aSmoother->clone());
-
-    std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // FIXME FIXME
     edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+    try { 
+      std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // FIXME FIXME
+      theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+    } catch(...) {
+      std::string theTrackerRecHitBuilderName("hltESPTTRHBWithTrackAngle");  // FIXME FIXME
+      theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+    }
     hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
     theSmoother->setHitCloner(&hitCloner);
   }  
@@ -483,14 +487,18 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     edm::ESHandle<TrajectorySmoother> aSmoother;
     theService->eventSetup().get<TrajectoryFitter::Record>().get(theSmootherName,aSmoother);
     theSmoother.reset(aSmoother->clone());
-
-    std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // FIXME FIXME
     edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-    theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+    try {
+      std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // FIXME FIXME
+      theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+    } catch(...) {
+      std::string theTrackerRecHitBuilderName("hltESPTTRHBWithTrackAngle");  // FIXME FIXME
+      theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+    }
     hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
     theSmoother->setHitCloner(&hitCloner);
   }
-  
+
   for(TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin();
       rawTrajectory != trajectories.end(); ++rawTrajectory){
 
