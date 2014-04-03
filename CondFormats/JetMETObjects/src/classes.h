@@ -5,6 +5,7 @@
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/FFTJetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 
 #include <vector>
 
@@ -20,5 +21,10 @@ namespace CondFormats_JetMETObjects {
     JetCorrectorParametersCollection::collection_type colltype;
     std::vector<JetCorrectorParametersCollection> collv;
     FFTJetCorrectorParameters fftcorr;
+    QGLikelihoodCategory qgcat;
+    QGLikelihoodObject qgobj;
+    QGLikelihoodObject::Entry qgentry;
+    std::vector< QGLikelihoodObject::Entry > qgentryv;
+
   };
 }

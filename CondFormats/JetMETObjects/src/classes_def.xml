@@ -16,5 +16,16 @@
   <class name="FFTJetCorrectorParameters" class_version="0">
      <field name="m_buffer" mapping="blob"/>
   </class>
+
+  <class name="QGLikelihoodCategory"/>
+  <class name="QGLikelihoodObject" class_version="0">
+     <field name="data" mapping="blob"/>
+  </class>
+
+  <class name="QGLikelihoodObject::Entry"/>
+  <class name="std::vector<QGLikelihoodObject::Entry>"/>     
+
+
+
 </selection>
 </lcgdict>
