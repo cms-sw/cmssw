@@ -15,8 +15,9 @@ process.source = cms.Source("EmptySource",
 
 # process.PoolDBOutputService.DBParameters.messageLevel = 3
 import json
-# beamspot by run
+
 def encodeJsonInString(filename):
+    """This function open the json file and encodes it in a string replacing probelamtic characters"""
     thefile = open(filename)
     thejson = json.load(thefile)
     thefile.close()
@@ -24,45 +25,21 @@ def encodeJsonInString(filename):
 
 
 
-BeamSpotObjectsRcdByRun_prod_file         = open("BeamSpotObjectsRcdByRun_prod.json")
-BeamSpotObjectsRcdByRun_prod_json         = json.load(BeamSpotObjectsRcdByRun_prod_file)
-BeamSpotObjectsRcdByRun_prod_file.close()
-BeamSpotObjectsRcdByRun_prod_str         = json.JSONEncoder().encode(BeamSpotObjectsRcdByRun_prod_json).replace('"',"&quot;")
-
-
-
-BeamSpotObjectsRcdByRun_prep_file         = open("BeamSpotObjectsRcdByRun_prep.json")
-BeamSpotObjectsRcdByRun_prep_json         = json.load(BeamSpotObjectsRcdByRun_prep_file)
-BeamSpotObjectsRcdByRun_prep_file.close()
-BeamSpotObjectsRcdByRun_prep_str         = json.JSONEncoder().encode(BeamSpotObjectsRcdByRun_prep_json).replace('"',"&quot;")
-
+# beamspot by run
+BeamSpotObjectsRcdByRun_prod_str = encodeJsonInString("BeamSpotObjectsRcdByRun_prod.json")
+BeamSpotObjectsRcdByRun_prep_str = encodeJsonInString("BeamSpotObjectsRcdByRun_prep.json")
 
 # beamspot by lumi
-BeamSpotObjectsRcdByLumi_prod_file         = open("BeamSpotObjectsRcdByLumi_prod.json")
-BeamSpotObjectsRcdByLumi_prod_json         = json.load(BeamSpotObjectsRcdByLumi_prod_file)
-BeamSpotObjectsRcdByLumi_prod_file.close()
-BeamSpotObjectsRcdByLumi_prod_str         = json.JSONEncoder().encode(BeamSpotObjectsRcdByLumi_prod_json).replace('"',"&quot;")
-
-
-BeamSpotObjectsRcdByLumi_prep_file         = open("BeamSpotObjectsRcdByLumi_prep.json")
-BeamSpotObjectsRcdByLumi_prep_json         = json.load(BeamSpotObjectsRcdByLumi_prep_file)
-BeamSpotObjectsRcdByLumi_prep_file.close()
-BeamSpotObjectsRcdByLumi_prep_str         = json.JSONEncoder().encode(BeamSpotObjectsRcdByLumi_prep_json).replace('"',"&quot;")
-
-
+BeamSpotObjectsRcdByLumi_prod_str = encodeJsonInString("BeamSpotObjectsRcdByLumi_prod.json")
+BeamSpotObjectsRcdByLumi_prep_str = encodeJsonInString("BeamSpotObjectsRcdByLumi_prep.json")
 
 #SiStripBadStripRcd
-SiStripBadStripRcd_prod_file         = open("SiStripBadStripRcd_prod.json")
-SiStripBadStripRcd_prod_json         = json.load(SiStripBadStripRcd_prod_file)
-SiStripBadStripRcd_prod_file.close()
-SiStripBadStripRcd_prod_str         = json.JSONEncoder().encode(SiStripBadStripRcd_prod_json).replace('"',"&quot;")
+SiStripBadStripRcd_prod_str = encodeJsonInString("SiStripBadStripRcd_prod.json")
+SiStripBadStripRcd_prep_str = encodeJsonInString("SiStripBadStripRcd_prep.json")
 
-
-
-SiStripBadStripRcd_prep_file         = open("SiStripBadStripRcd_prep.json")
-SiStripBadStripRcd_prep_json         = json.load(SiStripBadStripRcd_prep_file)
-SiStripBadStripRcd_prep_file.close()
-SiStripBadStripRcd_prep_str         = json.JSONEncoder().encode(SiStripBadStripRcd_prep_json).replace('"',"&quot;")
+#SiStripApvGainRcd
+SiStripApvGainRcd_prod_str = encodeJsonInString("SiStripApvGainRcd_prod.json")
+SiStripApvGainRcd_prep_str = encodeJsonInString("SiStripApvGainRcd_prep.json")
 
 
 
